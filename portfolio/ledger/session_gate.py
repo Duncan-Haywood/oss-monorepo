@@ -557,8 +557,9 @@ def verdict(
             f"Recent meta-work share {meta:.0%} is below the {META_SHARE_THRESHOLD:.0%} "
             "threshold — the fleet is spending on ventures, not on itself. Continue as briefed.",
             "Deploy-first still applies: if the venture you are on already has a built "
-            "surface with no public URL, that deploy is the work. Do not start a sibling "
-            "product. See `portfolio/DIRECTION.md` Current priority.",
+            "surface with no public URL, getting it one usually beats starting a sibling "
+            "product. Pages serves any venture with an `index.html` on merge; see "
+            "`portfolio/hosting/README.md`.",
         ]
         # PROCEED is the common case (low meta-work), and until now it never
         # looked at the pipeline at all -- "screen a fresh niche" only ever
@@ -576,20 +577,14 @@ def verdict(
         if proceed_targets == []:
             proceed_reasons.append(
                 "The `build-now` pipeline is empty (every scored candidate has already "
-                "graduated). Do not answer that with one more copy of a template the "
-                "portfolio already has many of: 'new ventures first' (2026-09-06) is how "
-                "121 near-identical bid calculators were built "
-                "(`docs/reports/2026-10-16-calculator-glut.md`). Distribution and "
-                "measurement rank first (`prompts/goals.md`, 2026-10-16), then the router's "
-                "'Consolidate:' task for the largest template family. If every top "
-                "'Consolidate:' row is already consolidated, take the first 'Explore:' "
-                "row (`python3 portfolio/router/allocate.py`) and ship the feature or "
-                "measurement that tests its hypothesis; do not spend calls screening "
-                "for new niches, which have mostly all been built. A genuinely new "
-                "product -- including a non-web open-source tool -- is still welcome: screen "
-                "it against `portfolio/pipeline/screened-out.md` and the gates in "
-                "`portfolio/pipeline/README.md`, and check it is not a `*-<kind>-calculator` "
-                "the router already counts as a family."
+                "graduated). Do not answer that with one more small tool: the owner asked "
+                "(2026-10-20, `prompts/goals.md`) for most venture runs to deepen the "
+                "flagships in `portfolio/flagships.yaml`. Take the top 'Deepen (flagship N)' "
+                "row of `python3 portfolio/router/allocate.py` and land a working slice of "
+                "its milestone. Distribution and measurement for a flagship count. A "
+                "genuinely new product is still welcome when it is deep (a real workflow, "
+                "algorithm, integration or app), not another `*-<kind>-calculator` or "
+                "single-format checker: screen it against `portfolio/pipeline/screened-out.md`."
             )
         return "PROCEED", proceed_reasons
     reasons = [
@@ -599,9 +594,10 @@ def verdict(
         "Build product value: features, runnable apps, usage tracking, niche landing pages. "
         "Do not re-verify PRs, expand the decision queue, or write ledger entries that "
         "record looking without shipping.",
-        "Deploy-first: a product already on `main` with no public URL outranks a new "
-        "`build-now` candidate. Prepare the live URL; the owner flip is `deploy-settings` "
-        "(do not open a second ask). See `portfolio/DIRECTION.md` Current priority.",
+        "Deploy-first: a product already on `main` with no public URL usually outranks a "
+        "new `build-now` candidate. Pages serves any venture with an `index.html` on "
+        "merge, and the owner's `deploy-settings` flip is already granted, so the gap is "
+        "usually in the product. See `portfolio/hosting/README.md`.",
     ]
     targets = build_targets() if targets is None else targets
     if targets is None:
@@ -629,10 +625,11 @@ def verdict(
             reasons.append(f"Also carrying an unbuilt `build-now` verdict: {rest}.")
     else:
         reasons.append(
-            "No `build-now` candidate is unbuilt — first take the router's 'Consolidate:' "
-            "task (`python3 portfolio/router/allocate.py`) if one is listed; otherwise pick "
-            "a product not in `portfolio/pipeline/screened-out.md` that is not another copy "
-            "of an existing template family, score it, graduate it, and ship. Prefer ideas "
+            "No `build-now` candidate is unbuilt — first take the router's top 'Deepen "
+            "(flagship N)' row (`python3 portfolio/router/allocate.py`); otherwise pick "
+            "a product not in `portfolio/pipeline/screened-out.md` that is not a calculator "
+            "(owner, 2026-10-21) or another copy of an existing template family, score it, "
+            "graduate it, and ship. Prefer ideas "
             "that run on this VM with low variable cost, web or not."
         )
     return "BUILD", reasons
@@ -673,16 +670,13 @@ def report(
         # for real visitors rather than something worth doing next, and
         # DIRECTION.md ranks it above the work the verdict is about to name.
         reasons = [
-            "THE LIVE SITE IS BEHIND `main`. Refresh the published snapshot "
-            "AFTER your PR merges, not before: the script refuses any HEAD not "
-            "on `origin/main`. Do your work first, merge, then "
-            "`git fetch origin main && git checkout --detach origin/main` and "
-            "run `CONFIRM=publish-pages-branch PUSH=1 "
-            "./platform/pages/publish-branch.sh` with `run_in_background` (10+ "
-            "minutes in a shallow clone), then `python3 "
-            "platform/ci/pages_state.py --require-current` to confirm. If the "
-            "push is denied as a production deploy or fails, say so in your "
-            "reply and carry on instead of retrying. "
+            "THE PUBLISHED SNAPSHOT IS BEHIND `main`. Since 2026-10-20 Pages "
+            "deploys from Actions (`portfolio-pages.yml`, on every site-input "
+            "merge and every three hours), not the `gh-pages` branch, so do "
+            "NOT run `publish-branch.sh`. Merging is the publish; check that "
+            "the latest `portfolio-pages.yml` run on `main` succeeded "
+            "(`python3 platform/ci/ci_starvation.py --run <id>` classifies a "
+            "red one) and say so in your reply if it did not. "
             f"Reason: {snap_reason}"
         ] + reasons
     elif snap != "current":

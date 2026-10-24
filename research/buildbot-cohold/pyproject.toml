@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-cohold"
+version = "0.1.0"
+description = "A person and a stock humanoid holding one sheet: impedance following, ISO/TS 15066 limits and the NIOSH load."
+requires-python = ">=3.9"
+dependencies = ["mujoco>=3.1", "numpy"]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../buildbot-payload/src"]

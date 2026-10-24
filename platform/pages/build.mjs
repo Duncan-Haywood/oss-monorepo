@@ -29,9 +29,11 @@ import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 
 import { decodeEntities } from './entities.mjs';
-import { REFS as CHANNEL_REFS } from '../counter/counter.mjs';
+import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
-import { buildWriting, WRITING_PATH } from './writing.mjs';
+import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
+import { buildStories, STORIES_PATH } from './stories.mjs';
+import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
@@ -42,6 +44,15 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
+import { addShareCards, cardTitle, renderCards, siteAddress } from './share.mjs';
+import {
+  MARK_FROM,
+  MARK_GEOMETRY,
+  renderSiteCard,
+  MARK_TO,
+  drawMark,
+  encodePng as encodeCardPng,
+} from './sharecard.mjs';
 import {
   ICONS,
   OFFLINE_WIDGET_SCRIPT,
@@ -114,20 +125,48 @@ import {
   SITE_NAV,
   SITE_HEADER_CSS,
   SITE_STYLE_FILE,
+  VENTURE_CHROME_CSS,
+  VENTURE_CHROME_JS,
   SEARCH_ANCHOR,
   renderSiteHeader,
   renderSiteFooterNav,
   renderSiteStyle,
+  sponsorsNote,
+  SPONSORS_URL,
+  BUY_ME_A_COFFEE_URL,
   siteStyleLink,
   writeResearchChrome,
 } from './site-nav.mjs';
+import { ASK_PATH, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
+import { loadResearchRegistry } from './research-registry.mjs';
+import {
+  HERO_BACKDROP_HTML,
+  HOME_MOTION_CSS,
+  HOME_MOTION_SCRIPT,
+  copyShowcase,
+  loadShowcase,
+  renderMarquee,
+  renderShowcaseSection,
+} from './showcase.mjs';
+import {
+  HOME_SECTIONS_CSS,
+  cardName,
+  icon,
+  renderCategoryCard,
+  renderHowItWorks,
+  renderLatestWriting,
+  renderResearchBand,
+  siteStructuredData,
+} from './home.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
 
+// The Pages path used before the repository was renamed; it now answers 404.
+export const LEGACY_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
 // Owner-overridable at build time; this default is where GitHub serves a
 // project Pages site for this repository.
-export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
+export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
 
 // IndexNow (api.indexnow.org) proves ownership of a set of URLs with a key
 // file hosted at a location the submitter names in each request -- it does
@@ -403,6 +442,9 @@ const isTestFile = (name) =>
 const NON_WEB_EXTENSIONS = new Set([
   '.py', '.toml', '.cfg', '.ini', '.lock', '.yaml', '.yml', '.sh', '.ts', '.tsx', '.md',
   '.dxf', '.step', '.stp', '.stl', '.zip',
+  // Labelled data sets (sales-agent's eval/*.jsonl): read by scripts in the repo, of no use to a visitor, and
+  // nginx has no type for them.
+  '.jsonl',
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.
@@ -423,6 +465,9 @@ function shipsDeployableApp(slug) {
   }
   return hit;
 }
+
+// Tools that implement a published paper (portfolio/research-tools/README.md).
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer'];
 
 const CATEGORY_RULES = [
   {
@@ -1707,6 +1752,8 @@ const CATEGORY_RULES = [
       || slug === 'payoneer-statement-to-journal'
       // `sales-export-to-journal` joined 2026-10-05: the single front door to the eight platform tools above (drop any export, the page detects the platform), filed beside them.
       || slug === 'sales-export-to-journal'
+      // `ai-bookkeeper` joined 2026-10-21: the double-entry ledger these journal tools feed (bank CSVs in, learned categories, transfers paired, P&L and balance sheet out), filed beside the front door.
+      || slug === 'ai-bookkeeper'
       // `airbnb-payout-to-journal` joined 2026-10-05: the Airbnb host end of the same payout-to-journal set, filed beside it.
       || slug === 'airbnb-payout-to-journal'
       // `paypal-activity-to-journal` joined 2026-10-05: the PayPal end of the same payout-to-journal set (Balance-column continuity proof, then a month-split journal), filed beside it.
@@ -1852,6 +1899,10 @@ const CATEGORY_RULES = [
       // `sepa-pain002-status-reader` joined 2026-10-04 on its first commit: the receiving end of `sepa-pain001-validator` -- the bank's
       // status report on an uploaded SEPA file, read per payment with each rejection code explained.
       || slug === 'sepa-pain002-status-reader'
+      // `csv-to-sepa-pain001` and `csv-to-sepa-pain008` joined 2026-10-20: the generator halves of the SEPA set above -- a bookkeeper's
+      // payment or collection spreadsheet turned into the bank upload file the validator checks.
+      || slug === 'csv-to-sepa-pain001'
+      || slug === 'csv-to-sepa-pain008'
       // `edi-x12-order-checker` joined 2026-10-04 on its first commit: a supplier's EDI purchase order, invoice and ship
       // notice checked before they go to a retailer -- the same back-office document-preflight job as the payment-file checkers.
       || slug === 'edi-x12-order-checker'
@@ -3316,8 +3367,13 @@ const CATEGORY_RULES = [
     // over a whole repository, with one report, SARIF and baselines, plus a
     // browser viewer for that report. It belongs with the checks it wraps,
     // and landing it here keeps the catch-all inside its bound.
+    //
+    // `agent-workroom` joined 2026-10-24: a task board for the coding agents
+    // the checks above configure, next to `agent-permission-config-check`
+    // and `agent-instructions-drift-check`, which it links; landing it here
+    // keeps the catch-all inside its bound.
     test: (slug) =>
-      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit)/.test(
+      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit)/.test(
         slug,
       ),
   },
@@ -3609,6 +3665,10 @@ const CATEGORY_RULES = [
         'freelance-lead-tracker',
         // `sales-call-notes-desk` joined 2026-10-17 on its first commit: a seller or founder turning discovery-call notes into CRM fields, qualification gaps and the follow-up email, the step between the lead and the proposal.
         'sales-call-notes-desk',
+        // `sales-cadence-builder` joined 2026-10-20 on its first commit: the multi-channel prospecting plan (email, call, LinkedIn, letter) for a list the seller already has, the step before the call notes.
+        'sales-cadence-builder',
+        // `sales-agent` joined 2026-10-21 on its first commit: the AI sales inbox agent after the cadence, sorting replies, honouring opt-outs and queueing drafts the seller approves.
+        'sales-agent',
         // `rental-ledger` joined 2026-10-07: the records-and-Schedule-E home for the landlord calculators, which each answer one typed question and hold nothing.
         'rental-ledger',
         // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
@@ -3650,11 +3710,15 @@ const CATEGORY_RULES = [
         'freelance-editor-quote-calculator',
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
+        // `interview-content-studio` joined 2026-10-20: a creator or small business planning and drafting its own posts across platforms is one person building their own audience, beside the media kit and sponsorship-rate tools.
+        'interview-content-studio',
         'newsletter-sponsorship-rate-calculator',
         'overtime-pay-calculator',
         'personal-trainer-package-pricing-calculator',
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
+        // `publish-kit` joined 2026-10-20 beside its sibling `podcast-feed-check`: a podcaster or author building their own feed, EPUB or audiobook is one creator publishing their own work (it had landed in the catch-all, tripping its bound of 5).
+        'publish-kit',
         // `youtube-sponsorship-rate-calculator` joined 2026-10-15 on its first commit: a creator pricing their own sponsored video is one person working out their own income.
         'youtube-sponsorship-rate-calculator',
         'sponsor-ready',
@@ -3671,6 +3735,8 @@ const CATEGORY_RULES = [
         'tutor-package-pricing-calculator',
         // `tutor-weekly-schedule-optimizer` joined 2026-10-09 on its first commit: the same one-to-one teacher as the package calculator, deciding which students to book when.
         'tutor-weekly-schedule-optimizer',
+        // `tutoring-group-schedule-optimizer` joined 2026-10-19 on its first commit: the group-class case of the one-to-one timetable above, same centre owner.
+        'tutoring-group-schedule-optimizer',
         // `rush-job-sequencer` joined 2026-10-09 on its first commit: a small shop ordering its own job queue, one hop from the scheduling optimizers above.
         'rush-job-sequencer',
         // `patreon-fee-calculator` and the two Social Security calculators were filed here 2026-10-09 because the catch-all hit 6:
@@ -3688,6 +3754,17 @@ const CATEGORY_RULES = [
       ].includes(slug),
   },
   {
+    // Added 2026-10-20 with the first tools of "research algorithms as free
+    // tools" (portfolio/research-tools/README.md): methods from published
+    // papers run on the visitor's own data. Listed by name; add a slug here
+    // when a tool lands, as that README says.
+    id: 'research-algorithms',
+    title: 'Research algorithms & ML',
+    accent: '#5b3f8c',
+    blurb: 'Methods from published research papers, run on your own data in your browser and cited: changepoint detection, conformal prediction intervals, matrix-profile motifs and anomalies. Also callable from the command line and by AI agents.',
+    test: (slug) => RESEARCH_ALGORITHM_SLUGS.includes(slug),
+  },
+  {
     // Added 2026-10-19 when `hands-free-language-coach` and
     // `listen-and-learn-audio` took the catch-all to 6. Listing it showed a
     // third member on the same axis, `ai-engineering-academy`: tools for one
@@ -3695,8 +3772,24 @@ const CATEGORY_RULES = [
     id: 'learning',
     title: 'Learning & practice',
     accent: '#127a4b',
-    blurb: 'Learn a language or a technical skill by doing it: hands-free speaking drills, graded audio stories, and project-first engineering lessons, free in your browser.',
-    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio'].includes(slug),
+    blurb: 'Learn a language or a technical skill by doing it: hands-free speaking drills, graded audio stories, and project-first engineering lessons, free in your browser. Plus free stories to read or listen to.',
+    // `hearth-and-horizon` joined 2026-10-20: free stories with audio and
+    // podcast feeds, the same read-and-listen axis as the graded stories.
+    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon'].includes(slug),
+  },
+  {
+    // Added 2026-10-21 when `open-floor-robots` and `open-robot-mower` took
+    // the catch-all to 7. Listing it put `open-tennis-robots` on the same
+    // axis: a machine to build, with CAD, firmware and a fabrication package,
+    // rather than a calculation about money or a check on a file.
+    // `open-house-plans` joined 2026-10-21 on its first commit, which took the
+    // catch-all to 6: on the same axis, a thing to build from open files
+    // (public-domain plan sets with DXF, IFC and a bill of materials).
+    id: 'open-hardware',
+    title: 'Open hardware, robots & house plans',
+    accent: '#7a4a12',
+    blurb: 'Things you can build, change and sell: MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF.',
+    test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots', 'open-house-plans'].includes(slug),
   },
 ];
 
@@ -3717,9 +3810,8 @@ export function categoryFor(slug) {
  * named by a title that renames): a rebrand or a retitled tool never breaks
  * this filename, and a share into the roofing group and a share into the
  * marketplace-fee thread render as visibly different cards without anyone
- * drawing 164 of them. See `renderSocialCard`'s `color` parameter in
- * `offline.mjs` for why a colour field is the whole difference — there is no
- * font rasteriser in this build to draw a per-category headline with.
+ * drawing 164 of them. The card itself is drawn by `sharecard.mjs`, with the
+ * category's name as its headline on the category's accent.
  */
 export function socialCardFileFor(categoryId) {
   return `social-card-${categoryId}.png`;
@@ -3739,6 +3831,35 @@ export function socialCardFileFor(categoryId) {
  */
 export function toolCardFileFor(slug) {
   return `${slug}/share-card.png`;
+}
+
+/**
+ * What a tool's share card draws: its name under its category, on the
+ * category's colour. Exported so the tests render the same card the build does.
+ */
+export function toolCardOptions(surface, { baseUrl = '' } = {}) {
+  const category = categoryFor(surface.slug);
+  return {
+    accent: category.accent,
+    headline: cardTitle(surface.title),
+    kicker: category.title,
+    // Sponsor Ready's own card gets the exception footer — its whole job is a
+    // live lookup, so "nothing you type is uploaded" is the one claim this
+    // card must not make. See `CARD_FOOTER_EXCEPTION`.
+    footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+    address: siteAddress(baseUrl),
+  };
+}
+
+/** What a category (or audience, or kind) page's share card draws. */
+export function categoryCardOptions(category, { footer = CARD_FOOTER, baseUrl = '' } = {}) {
+  return {
+    accent: category.accent,
+    headline: category.title,
+    kicker: 'Free tools',
+    footer,
+    address: siteAddress(baseUrl),
+  };
 }
 
 // The two lines every tool and category card carries besides its headline.
@@ -3777,14 +3898,10 @@ export function categoryPagePath(categoryId) {
  */
 export const ABOUT_PATH = 'about/';
 
-/**
- * The owner's GitHub Sponsors profile, in one place.
- *
- * It was written out longhand in four separate templates before this constant
- * existed, which is four places to miss on the day the account changes — the
- * copied-constant mistake CLAUDE.md records twice as having cost live product.
- */
-export const SPONSORS_URL = 'https://github.com/sponsors/Duncan-Haywood';
+// Both support links live in site-nav.mjs, beside the footer that carries them.
+export { SPONSORS_URL, BUY_ME_A_COFFEE_URL, sponsorsNote };
+// The repository the site is built from, named in the hub's Organization data.
+export const REPO_WEB_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
 
 /**
  * The one usage event name that is fleet-standard rather than per-product.
@@ -3823,8 +3940,11 @@ export const SPONSOR_CLICK_EVENT = 'sponsor_link_clicked';
  */
 export const SPONSOR_LINK_ATTR = 'data-pf-sponsor';
 
+// Both support links count as one event: the question is whether anyone
+// supports the work, not which button they pressed.
+const escapeRe = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const SPONSOR_ANCHOR_RE = new RegExp(
-  `<a\\b([^>]*\\bhref="${SPONSORS_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^"]*"[^>]*)>`,
+  `<a\\b([^>]*\\bhref="(?:${escapeRe(SPONSORS_URL)}|${escapeRe(BUY_ME_A_COFFEE_URL)})[^"]*"[^>]*)>`,
   'gi',
 );
 
@@ -3860,36 +3980,11 @@ export async function markSponsorLinksIn(outDir) {
   return marked;
 }
 
-/**
- * The optional-support line a user-facing page carries in its footer.
- *
- * ## Why the hub pages needed one
- *
- * Measured 2026-09-06 against the published snapshot: 698 of its 721 pages
- * carried a sponsors line and 23 did not. Two of those are `404.html` and
- * `offline.html`, which correctly have none. The other 21 were the category
- * hubs (`/c/<id>/`) and the comparison pages (`/compare/`, `/compare/<product>/`)
- * — which is exactly backwards, because those are the pages a stranger arriving
- * from a search query lands on *first*. A visitor could read a whole
- * "vs ServiceTitan" comparison and never be told the tools are free and
- * supportable, while the deeper tool page they might never reach said so.
- *
- * `portfolio/DIRECTION.md` names this as the agent-doable half of the
- * `funding-sponsors-live` decision: whether the repo publishes a funding
- * surface is the owner's call, but making sure every product already carries
- * its own half correctly is not, so the day it is decided nothing is missing.
- *
- * ## Why it is phrased this way
- *
- * `PRODUCT_PLAYBOOK.md` §6: a donation prompt lives in the README and the
- * footer, "nowhere a user has to pass through", and never in front of a
- * feature. The sentence says the ask changes nothing about the product because
- * that is true — refusing costs the visitor no functionality — and a donation
- * ask that overstates itself is worse than none.
- */
-export function sponsorsNote() {
-  return `<a href="${SPONSORS_URL}">Sponsoring on GitHub</a> is optional and changes nothing about what these tools do.`;
-}
+// The optional-support line (`sponsorsNote`, site-nav.mjs) rides in
+// `renderSiteFooterNav`, so every site-owned page that ends in the shared link
+// row carries it — the category hubs and comparison pages included, which a
+// stranger arriving from search lands on first (21 of them had none when
+// measured on 2026-09-06). Tool pages get it from the chrome footer below.
 
 /**
  * The index of every `vs-<product>.html` comparison page in the catalogue,
@@ -4165,6 +4260,8 @@ export const GUIDES_PATH = 'guides/';
 // door. Not a venture: no launch date, no card, linked from the hub footer.
 export const RESEARCH_PATH = 'research/';
 export const RESEARCH_BUILDER = path.join('research', '_homepage', 'build.py');
+// One page per research theme, written by the same builder (`TOPICS_DIR` there).
+export const RESEARCH_TOPICS_DIR = 'topics';
 
 async function buildResearchPage(outDir, baseUrl) {
   // The site header and footer, handed to the Python builder as data so the
@@ -4654,9 +4751,8 @@ export function surfaceKind(ventureDir, slug = path.basename(ventureDir)) {
  * `research/` are kept, so a stale entry never becomes a dead link.
  */
 export function researchHighlights(repoRoot = REPO_ROOT) {
-  const file = path.join(repoRoot, 'research', '_homepage', 'projects.json');
-  if (!existsSync(file)) return { featured: [], themes: [], projects: [] };
-  const data = JSON.parse(readFileSync(file, 'utf8'));
+  const data = loadResearchRegistry(repoRoot);
+  if (!data) return { featured: [], themes: [], projects: [] };
   const exists = (slug) => existsSync(path.join(repoRoot, 'research', slug, 'README.md'));
   const bySlug = new Map();
   const themes = (data.themes ?? []).map((theme) => {
@@ -4674,6 +4770,18 @@ export function researchHighlights(repoRoot = REPO_ROOT) {
       .map((p) => ({ slug: p.slug, title: p.title, summary: p.summary ?? '', themeId: theme.id, themeName: theme.name })),
   );
   return { featured, themes, projects };
+}
+
+/**
+ * The flagship ventures, in the order `portfolio/flagships.yaml` lists them:
+ * the projects with the most engineering in them, chosen by an audit rather
+ * than by a count this page can take. The hub's featured row leads with them.
+ * Read with a line match (the file is a flat list of `- venture: <slug>`).
+ */
+export function flagshipSlugs(repoRoot = REPO_ROOT) {
+  const file = path.join(repoRoot, 'portfolio', 'flagships.yaml');
+  if (!existsSync(file)) return [];
+  return [...readFileSync(file, 'utf8').matchAll(/^  - venture: ([a-z0-9-]+)\s*$/gm)].map((m) => m[1]);
 }
 
 /** Research projects the research homepage builds: `research/<slug>/` with a README. */
@@ -5238,6 +5346,27 @@ export function toolProseName(title) {
   return name || raw;
 }
 
+/**
+ * The privacy claim a catalogue-wide page's count line makes, and the list of
+ * exceptions that goes with it.
+ *
+ * Up to `inline` exceptions are named in the sentence itself. Past that the
+ * sentence counts them and the names go in a `<details>` placed right under
+ * the count line, as the About page already does: inlined, the 40-odd lookup
+ * tools that call a public API made a paragraph of tool names the size of
+ * the lede in every hero that carried them. The claim and every name are
+ * still on the page; only the long list is folded.
+ */
+export function privacyClaimParts(exceptions, { inline = 3 } = {}) {
+  const names = exceptions.map((x) => escapeHtml(toolProseName(x.title)));
+  if (names.length === 0) return { claim: 'nothing you type is uploaded', list: '' };
+  if (names.length <= inline) return { claim: `nothing you type is uploaded, except on ${listProse(names)}`, list: '' };
+  return {
+    claim: `nothing you type is uploaded, except on the ${names.length} lookup tools listed below`,
+    list: `\n      <details class="count-exceptions"><summary>The ${names.length} lookup tools that send the one thing you paste to the public API they check</summary><p>${listProse(names)}</p></details>`,
+  };
+}
+
 /** "A", "A and B", or "A, B, and C" — used to read an exception list as prose. */
 export function listProse(items) {
   if (items.length === 0) return '';
@@ -5290,8 +5419,11 @@ function rewriteOrigin(contents, baseUrl) {
   // published — but canonical tags are copied through, so they are not.
   // Treating the default as a second placeholder makes the whole portfolio
   // follow the base URL it is actually built with.
-  if (baseUrl === DEFAULT_BASE_URL) return rewritten;
-  return rewritten.split(DEFAULT_BASE_URL).join(baseUrl);
+  // The retired /monorepo-projects/ path is a second default: venture pages and
+  // posts written before the move still name it, and it now answers 404.
+  const current = rewritten.split(LEGACY_BASE_URL).join(baseUrl);
+  if (baseUrl === DEFAULT_BASE_URL) return current;
+  return current.split(DEFAULT_BASE_URL).join(baseUrl);
 }
 
 export function isPublishable(name) {
@@ -5320,12 +5452,46 @@ export function isPublishable(name) {
  * charset declaration so that stays the first thing the parser sees.
  */
 export function injectFavicon(html, toRoot) {
-  if (/<link[^>]+rel=["'][^"']*icon/i.test(html)) return html;
+  // `icon` as a whole rel token (`icon`, `shortcut icon`, `alternate icon`):
+  // an `apple-touch-icon` is a home-screen tile, not the tab icon, and treating
+  // it as one left bid-price-engine with no favicon.
+  if (/<link[^>]+rel=["'](?:[^"']*\s)?icon(?:\s[^"']*)?["']/i.test(html)) return html;
   const link = `\n  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">`;
   if (/<meta[^>]+charset/i.test(html)) {
     return html.replace(/<meta[^>]+charset[^>]*>/i, (meta) => `${meta}${link}`);
   }
   return html.replace(/<head(\s[^>]*)?>/i, (head) => `${head}${link}`);
+}
+
+/**
+ * Keep a page's `<meta name="description">` to what a results page can show.
+ *
+ * Venture pages were hand-written with descriptions up to 550 characters; a
+ * search engine cuts them mid-sentence. Rather than edit hundreds of other
+ * ventures' pages, the published copy ends the description at the last whole
+ * sentence that fits `max`, or at the last word with an ellipsis when the
+ * first sentence alone is longer. Only the authored text is shortened, never
+ * added to, and a description already within `max` is returned untouched.
+ */
+export const META_DESCRIPTION_MAX = 320;
+export function clampMetaDescription(html, max = META_DESCRIPTION_MAX) {
+  return html.replace(
+    /(<meta[^>]+name=["']description["'][^>]+content=")([^"]*)(")/i,
+    (whole, open, content, close) => {
+      if (content.length <= max) return whole;
+      const window = content.slice(0, max);
+      const stop = Math.max(
+        window.lastIndexOf('. '),
+        window.lastIndexOf('! '),
+        window.lastIndexOf('? '),
+      );
+      // A "sentence" under 80 characters is usually a heading fragment: prefer words.
+      if (stop >= 80) return `${open}${content.slice(0, stop + 1)}${close}`;
+      const cut = window.slice(0, max - 1);
+      const word = cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:\-\u2013\u2014(]+$/, '');
+      return `${open}${word}\u2026${close}`;
+    },
+  );
 }
 
 export async function copyTree(from, to, baseUrl) {
@@ -5350,7 +5516,11 @@ export async function copyTree(from, to, baseUrl) {
 
     if (REWRITABLE.has(path.extname(entry.name))) {
       const contents = await fs.readFile(src, 'utf8');
-      await fs.writeFile(dest, rewriteOrigin(contents, baseUrl));
+      const rewritten = rewriteOrigin(contents, baseUrl);
+      await fs.writeFile(
+        dest,
+        path.extname(entry.name) === '.html' ? clampMetaDescription(rewritten) : rewritten,
+      );
     } else {
       await fs.copyFile(src, dest);
     }
@@ -5481,13 +5651,18 @@ function disclaimerHtml(toRoot, surfaces = []) {
       <p>
         Everything runs in your browser. What you type is never uploaded: there
         is no account system, no tracking cookie, no analytics vendor, and no
-        server that could receive it.${exceptionNote} We count anonymous, aggregate events —
+        server that could receive it.${exceptionNote}${feedbackOn() ? ` The one thing
+        that is sent on purpose is a message you choose to submit through the
+        <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a>, which
+        is published in this site's public GitHub repository.` : ''} We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
         count stays in your own browser's local storage.${counterOn() ? ` Each page load
         also adds one to a daily per-page total on our own open-source counter
         (which page, which day, and — if you followed one of our own channel
-        links, such as a release note or package page — which channel; nothing
-        you type, no cookie, no IP address stored), and those totals are
+        links, such as a release note or package page — which channel, and what
+        kind of site sent you, such as "google" or "reddit", never its address;
+        nothing you type, no cookie, no IP address stored; its host sees each
+        request the way any web server does), and those totals are
         published in the repository.` : ''} Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
@@ -5572,8 +5747,13 @@ const CATEGORY_STYLE = `
     .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
     .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
              grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
-    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
-            padding: 17px 18px; }
+    .card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; transition: transform .18s, box-shadow .18s, border-color .18s; }
+    .card::before { content: ""; position: absolute; left: -1px; top: 14px; bottom: 14px; width: 3px;
+                    border-radius: 0 3px 3px 0; background: var(--pf-cat, var(--accent)); opacity: .85; }
+    .card:hover, .card:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
+                                      box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
+    @media (prefers-reduced-motion: reduce) { .card, .cat { transition: none; } .card:hover, .cat:hover { transform: none; } }
     .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
     .card a { color: inherit; text-decoration: none; }
     .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
@@ -5610,7 +5790,100 @@ const CATEGORY_STYLE = `
     footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
     footer p { margin: 0; }
     footer a { color: var(--accent); }
+    /* Audience pages: "Start here" and "Questions these tools answer". */
+    .start-here { margin: 28px 0 0; }
+    .start-here h2, .answers h2 { font-size: 1.15rem; margin: 0 0 4px; letter-spacing: -.01em; }
+    .start-here .sub, .answers .sub { margin: 0 0 14px; color: var(--muted); font-size: .92rem; }
+    .start-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: start;
+                  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+    .start-grid li { counter-increment: start; position: relative; background: var(--panel);
+                     border: 1px solid var(--line); border-top: 3px solid var(--pf-cat, var(--accent));
+                     border-radius: 13px; padding: 16px 18px 16px 18px; }
+    .start-grid li::before { content: counter(start); display: inline-grid; place-items: center;
+                             width: 26px; height: 26px; border-radius: 999px; margin-bottom: 8px;
+                             font-size: .82rem; font-weight: 750; color: var(--panel);
+                             background: var(--pf-cat, var(--accent)); }
+    .start-grid a { color: var(--ink); text-decoration: none; font-weight: 650; font-size: 1.02rem; line-height: 1.3; display: block; }
+    .start-grid a:hover, .start-grid a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .start-grid p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
+    .start-grid .meta { font-size: .8rem; color: var(--soft); }
+    .answers { margin: 30px 0 0; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; }
+    .answers ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px 22px;
+                  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .answers li a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .93rem; line-height: 1.4; }
+    .answers li a:hover, .answers li a:focus-visible { text-decoration: underline; }
+    .answers li span { display: block; color: var(--soft); font-size: .8rem; }
+    .answers .all { margin: 12px 0 0; font-size: .88rem; }
+    .answers .all a { color: var(--accent); }
+    .all-tools { font-size: 1.15rem; margin: 34px 0 0; letter-spacing: -.01em; }
 `;
+
+/**
+ * An audience page's two lead blocks, or '' on any other page.
+ *
+ * "Start here" is the fullest of the audience's tools, by the rule the hub's
+ * featured row already uses (`exampleTools`: most published pages first), so
+ * nothing is ranked by a judgement this page cannot show. "Questions these
+ * tools answer" lists the tools' own guide pages (`discoverGuides`), so every
+ * line is a page that shipped, in that page's own words.
+ */
+export function renderAudienceLead({ start = [], questions = [], toRoot = '../../', who = '', total = 0 }) {
+  if (!start.length) return '';
+  const cards = start
+    .map(
+      (surface) => `        <li>
+          <a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-pf-to="${escapeHtml(surface.slug)}">${escapeHtml(cardName(surface.title))}</a>
+          <p>${escapeHtml(surface.description)}</p>${
+            surface.pageCount > 1
+              ? `
+          <p class="meta">${surface.pageCount} questions answered</p>`
+              : ''
+          }
+        </li>`,
+    )
+    .join('\n');
+  const answers = questions.length
+    ? `
+    <section class="answers" aria-labelledby="answers-h">
+      <h2 id="answers-h">Questions these tools answer</h2>
+      <p class="sub">Worked answers written beside the calculators${who ? ` ${escapeHtml(who)} use` : ''}.</p>
+      <ul>
+${questions
+  .map(
+    (q) => `        <li><a href="${escapeHtml(`${toRoot}${q.slug}/${q.file.replace(/(^|\/)index\.html$/, '$1')}`)}">${escapeHtml(q.label)}</a><span>${escapeHtml(cardName(q.toolTitle))}</span></li>`,
+  )
+  .join('\n')}
+      </ul>
+      <p class="all"><a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Every guide on the site →</a></p>
+    </section>`
+    : '';
+  return `
+    <section class="start-here" aria-labelledby="start-h">
+      <h2 id="start-h">Start here</h2>
+      <p class="sub">The fullest tools on this page, with the most worked questions behind them.</p>
+      <ol class="start-grid">
+${cards}
+      </ol>
+    </section>${answers}
+    <h2 class="all-tools">All ${total} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
+`;
+}
+
+/**
+ * Up to `limit` guide pages from these tools, taken round-robin in the tools'
+ * own order so one tool with twenty pages does not fill the list.
+ */
+export function audienceQuestions(tools, guides, limit = 8) {
+  const byTool = new Map(guides.map((g) => [g.slug, g]));
+  const queues = tools.map((t) => [...(byTool.get(t.slug)?.items ?? [])].map((item) => ({ ...item, toolTitle: t.title })));
+  const out = [];
+  while (out.length < limit && queues.some((q) => q.length)) {
+    for (const q of queues) {
+      if (q.length && out.length < limit) out.push(q.shift());
+    }
+  }
+  return out;
+}
 
 /**
  * One category's landing page.
@@ -5659,9 +5932,7 @@ export function renderCategoryPage({
   // not have this page say "nothing you type is uploaded" for all of its
   // tools when that is false for one of them.
   const categoryExceptions = externalCallExceptions(items);
-  const countPrivacyClaim = categoryExceptions.length
-    ? `nothing you type is uploaded, except on ${listProse(categoryExceptions.map((x) => toolProseName(x.title)))}`
-    : 'nothing you type is uploaded';
+  const { claim: countPrivacyClaim, list: countExceptionList } = privacyClaimParts(categoryExceptions);
   const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
 
   const renderCard = (surface) => `          <li class="card">
@@ -5808,8 +6079,8 @@ ${otherAudiences
 </head>
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: category.title }] })}
-  <div class="wrap">
-    <header>
+  <div class="wrap"${category.accent ? ` style="--pf-cat:${escapeHtml(category.accent)}"` : ''}>
+    <header class="pf-hero">
       <p class="eyebrow">${escapeHtml(category.title)}</p>
       <h1>${escapeHtml(copy.title)}</h1>
       <p class="lede">${escapeHtml(copy.intro)}</p>${
@@ -5818,9 +6089,9 @@ ${otherAudiences
       <p class="starting">${escapeHtml(copy.starting)}</p>`
           : ''
       }
-      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>
+      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>${countExceptionList}
     </header>
-${jumps}
+${copy.lead ?? ''}${jumps}
 ${filter}
 
     <main>
@@ -5837,7 +6108,6 @@ ${siblings}
 ${audienceLinks}
     <footer>${disclaimerHtml(toRoot, groups.flatMap((g) => g.items))}
       ${renderSiteFooterNav({ toRoot })}
-      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every tool page loads, with the
@@ -5904,8 +6174,17 @@ export function audienceCategory(audience, items = []) {
  * rather than the job, and the tools grouped by the category each sits in when
  * they span more than one.
  */
-export function renderAudiencePage({ audience, items, groups, baseUrl, audiences = [] }) {
+export function renderAudiencePage({ audience, items, groups, baseUrl, audiences = [], guides = [] }) {
   const category = audienceCategory(audience, items);
+  // Four when the page is big enough to need a way in; none on a short page,
+  // where the list below already is the way in.
+  const start = items.length >= 8 ? exampleTools(items, 4) : [];
+  const lead = renderAudienceLead({
+    start,
+    questions: audienceQuestions(exampleTools(items, items.length), guides),
+    who: audience.who,
+    total: items.length,
+  });
   const byCategory = groupByCategory(items);
   const subgroups =
     byCategory.length > 1
@@ -5927,6 +6206,7 @@ export function renderAudiencePage({ audience, items, groups, baseUrl, audiences
       intro: audience.intro,
       starting: audience.starting,
       audience: audience.who,
+      lead,
     },
   });
 }
@@ -5993,7 +6273,9 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
   const description = `Every free tool on ${SITE_NAME}, filed by the job it does: ${groups
     .map(({ category }) => category.title.toLowerCase())
     .join(', ')}. Runs in your browser; no account.`;
-  const section = (id, heading, blurb, count, subs) => `      <section class="cat" id="${escapeHtml(id)}">
+  const section = (id, heading, blurb, count, subs, accent) => `      <section class="cat" id="${escapeHtml(id)}"${
+    accent ? ` style="--pf-cat:${escapeHtml(accent)}"` : ''
+  }>
         <h2><a href="${escapeHtml(`${id}/`)}" data-category="${escapeHtml(id)}">${escapeHtml(heading)}</a> <span>${count}</span></h2>
         <p>${escapeHtml(snippetize(blurb, 170))}</p>${
           subs.length
@@ -6012,11 +6294,12 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
         category.blurb,
         items.length,
         groupBySubcategory(category.id, items).filter((g) => g.subcategory),
+        category.accent,
       ),
     )
     .join('\n');
   const kinds = kindPages
-    .map(({ page, items, subgroups }) => section(page.id, page.title, page.blurb, items.length, subgroups))
+    .map(({ page, items, subgroups }) => section(page.id, page.title, page.blurb, items.length, subgroups, page.accent))
     .join('\n');
   const itemList = {
     '@context': 'https://schema.org',
@@ -6060,7 +6343,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Tools</p>
       <h1>${escapeHtml(title)}</h1>
       <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${total} tools</a> instead.</p>
@@ -6089,7 +6372,6 @@ ${audiencePages
     </main>
     <footer>${disclaimerHtml(toRoot, surfaces)}
       ${renderSiteFooterNav({ toRoot })}
-      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${CATEGORY_PATH_PREFIX}" defer></script>
@@ -6102,7 +6384,12 @@ const TOOLS_INDEX_STYLE = `
     .band { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
             margin: 34px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
     .cats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-    .cat { background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px; }
+    .cats { align-items: start; }
+    .cat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px;
+           transition: transform .18s, box-shadow .18s, border-color .18s; }
+    .cat { border-top: 3px solid var(--pf-cat, #1fb68f); }
+    .cat:hover, .cat:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
+                                    box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
     .cat h2 { font-size: 1.1rem; margin: 0 0 6px; letter-spacing: -.01em; }
     .cat h2 a { color: inherit; text-decoration: none; }
     .cat h2 a:hover, .cat h2 a:focus-visible { color: var(--accent); text-decoration: underline; }
@@ -6176,11 +6463,7 @@ export function renderComparePage({ groups, surfaces, categoryGroups = [], baseU
   // flat "nothing you type is uploaded" in the header would be false for them
   // while the footer's own disclaimer named the exception two screens below.
   const exceptions = externalCallExceptions(surfaces);
-  const privacyClaim = exceptions.length
-    ? `nothing you type is uploaded, except on ${listProse(
-        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
-      )}`
-    : 'nothing you type is uploaded';
+  const { claim: privacyClaim, list: exceptionList } = privacyClaimParts(exceptions);
 
   const title = `Comparisons: free tools next to the software they are measured against`;
   const description =
@@ -6290,11 +6573,11 @@ ${group.items.map(renderCard).join('\n')}
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Comparisons' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Comparisons</p>
       <h1>What each free tool here does that the paid product does not — and what it does not do</h1>
       <p class="lede">Every tool on this site that overlaps with a commercial product has a page saying so plainly: what the product does, what the free tool does, and when the paid one is the right answer. They are written by the tool's author, cite the product's own public documentation, and are not affiliated with, endorsed by, or reviewed by any product named here.</p>
-      <p class="count">${total} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>
+      <p class="count">${total} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <nav class="jump" aria-label="Products with more than one comparison">
@@ -6335,7 +6618,6 @@ ${categoryLinks}
         tool does and does not do.
       </p>
       ${renderSiteFooterNav({ toRoot })}
-      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every other page loads, with this
@@ -6402,11 +6684,7 @@ export function renderCompareProductPage({
   const n = group.items.length;
 
   const exceptions = externalCallExceptions(surfaces);
-  const privacyClaim = exceptions.length
-    ? `nothing you type is uploaded, except on ${listProse(
-        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
-      )}`
-    : 'nothing you type is uploaded';
+  const { claim: privacyClaim, list: exceptionList } = privacyClaimParts(exceptions);
 
   const title = `${subject} alternatives: ${n} free tools with a side-by-side page`;
   const description =
@@ -6504,13 +6782,13 @@ export function renderCompareProductPage({
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Comparisons', href: `${toRoot}${COMPARE_PATH}` }, { label: subject }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Compared with ${escapeHtml(subject)}</p>
       <h1>${escapeHtml(`${n} free tools here have a page comparing themselves with ${subject}`)}</h1>
       <p class="lede">${escapeHtml(
         `Each page below is written by the author of the free tool, cites ${subject}'s own public documentation, and says three things: what ${subject} does, what the free tool does, and when ${subject} is the right answer. None of them is affiliated with, endorsed by, or reviewed by ${subject}, and none is a statement about its quality — only about what each tool does and does not do.`,
       )}</p>
-      <p class="count">${n} comparison page${n === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>
+      <p class="count">${n} comparison page${n === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <main>
@@ -6551,7 +6829,6 @@ ${categoryLinks}
       </p>
       <p style="margin-top:18px"><a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">All comparisons</a></p>
       ${renderSiteFooterNav({ toRoot })}
-      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- Its own slug, not the hub's. Whether a product page earns the traffic
@@ -6603,11 +6880,7 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
   // the whole catalogue, so a flat "nothing you type is uploaded" would be
   // false for the tools that do make a documented live call.
   const exceptions = externalCallExceptions(surfaces);
-  const privacyClaim = exceptions.length
-    ? `nothing you type is uploaded, except on ${listProse(
-        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
-      )}`
-    : 'nothing you type is uploaded';
+  const { claim: privacyClaim, list: exceptionList } = privacyClaimParts(exceptions);
 
   const title = 'Guides: what to charge, and how each price is worked out';
   const description =
@@ -6722,11 +6995,11 @@ ${tools.map(renderTool).join('\n')}
 <body>
   ${renderSiteHeader({ toRoot, current: 'tools', crumbs: [{ label: 'Tools', href: `${toRoot}${CATEGORY_PATH_PREFIX}/` }, { label: 'Guides' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">Guides</p>
       <h1>The question people ask before they know a calculator exists</h1>
       <p class="lede">Every tool on this site ships pages beside the calculator: how a price is actually built up, when one option beats another, what a fee schedule does to a payout, and what to do with the number once you have it. They are written by the tool's author, in plain English, and the calculator that answers the same question with your own figures is one click away from each one.</p>
-      <p class="count">${total} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>
+      <p class="count">${total} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <nav class="jump" aria-label="Guides by trade">
@@ -6757,7 +7030,6 @@ ${categoryLinks}
         figure, no ranking and no claim of its own.
       </p>
       ${renderSiteFooterNav({ toRoot })}
-      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every other page loads, with this
@@ -6772,6 +7044,9 @@ ${categoryLinks}
 }
 
 const ABOUT_STYLE = `
+    .exceptions { margin: 14px 0 0; max-width: 68ch; font-size: .92rem; color: var(--muted); }
+    .exceptions summary { cursor: pointer; font-weight: 650; color: var(--accent); }
+    .exceptions p { margin: 8px 0 0; line-height: 1.6; }
     .prose { max-width: 720px; }
     .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
     .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
@@ -6903,10 +7178,22 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 <body>
   ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'About' }] })}
   <div class="wrap">
-    <header>
+    <header class="pf-hero">
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and ${deviceClaim}.</p>
+      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
+        exceptions.length
+          ? `The numbers you type never leave your device, except on the ${exceptions.length} lookup tools listed below, where the one thing you paste goes to the public API that tool checks.`
+          : 'The numbers you type never leave your device.'
+      }</p>${
+        exceptions.length
+          ? `
+      <details class="exceptions">
+        <summary>The ${exceptions.length} lookup tools that call a public API</summary>
+        <p>${deviceClaim.replace(/^the numbers a user types never leave their device, /, 'The numbers a user types never leave their device, ')}.</p>
+      </details>`
+          : ''
+      }
     </header>
 
     <main class="prose">
@@ -6927,7 +7214,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
       <h2>What happens to what you type</h2>
       <div class="panel">
-        <h3>${exceptions.length ? `Nothing, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`} below.` : 'Nothing. There is no server that could receive it.'}</h3>
+        <h3>${exceptions.length ? `Nothing, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`} below.` : feedbackOn() ? 'Nothing. No tool sends it anywhere.' : 'Nothing. There is no server that could receive it.'}</h3>
         <p>
           Every tool on this site is a static page. The calculation happens in
           your browser, in JavaScript you can read with your browser's own
@@ -6936,9 +7223,10 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
           <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
-          <li><strong>No cookies and no cross-site identifiers.</strong></li>
+          <li><strong>No cookies and no cross-site identifiers.</strong></li>${feedbackOn() ? `
+          <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, and is then published in the site's public GitHub repository. Nothing about you is stored with it, and email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
           <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionNames}, whose whole point is a live lookup, so it needs the connection back to check anything new` : ''}.</li>
         </ul>
       </div>
@@ -6950,10 +7238,14 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         it carries the page's name and, when you arrived by one of this
         portfolio's own channel links (a <code>?ref=</code> tag such as
         <code>?ref=npm</code>, removed from the address bar on arrival), that
-        channel's name, and nothing else. The counter keeps one number per page
-        per day and one per channel per day — no IP address, cookie, browser
-        string or referrer is stored. The daily totals are committed to the public
-        repository` : ` and is never
+        channel's name, plus what kind of site sent you (a label from a fixed
+        list, such as <code>google</code>, <code>reddit</code> or
+        <code>other</code>, worked out in your browser so the referring
+        address itself is never sent), and nothing else. The counter keeps one
+        number per page, per channel and per kind of site, per day. No IP
+        address, cookie, browser string or referring address is stored. The daily totals are committed to the public
+        repository. That counter's host sees each request the way any web server
+        does; the counter stores none of it` : ` and is never
         sent anywhere`}. It exists so the next tool built is one people actually
         opened. Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
         <em>Global&nbsp;Privacy&nbsp;Control</em> are not counted at all, and
@@ -6970,8 +7262,9 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       </p>
       <p>
         If one of these has saved you money,
-        <a href="${SPONSORS_URL}">sponsoring on
-        GitHub</a> is welcome and entirely optional. Declining changes nothing
+        <a href="${SPONSORS_URL}">sponsoring on GitHub</a> or
+        <a href="${BUY_ME_A_COFFEE_URL}">buying me a coffee</a> is welcome and
+        entirely optional. Declining changes nothing
         about what any tool does, and nothing here is gated behind it.
       </p>
 
@@ -7066,6 +7359,155 @@ ${categoryLinks}
 `;
 }
 
+/** Where the feedback page is served, relative to the site root. */
+export const FEEDBACK_PATH = 'feedback/';
+
+/**
+ * "Report a problem or suggest a feature", linked from every tool's footer
+ * (with `?tool=<slug>`) and from the shared footer nav.
+ *
+ * Two ways in, because the site serves two audiences. A developer with a
+ * GitHub account gets the repository's issue forms, pre-filled with the tool.
+ * Everyone else (a roofer pricing a job has no reason to own a GitHub account)
+ * gets a plain form, which posts to `platform/edge/`; a daily workflow copies
+ * the messages into `portfolio/usage/site-feedback.json`. The form is rendered only when the build knows that endpoint
+ * (`feedbackOn()`), so the page never offers a form that goes nowhere.
+ *
+ * `noindex`, and not in the sitemap: it is a utility page, and a search result
+ * for "report a problem" helps nobody.
+ */
+export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_FEEDBACK_URL }) {
+  const url = `${baseUrl}${FEEDBACK_PATH}`;
+  const toRoot = '../';
+  const title = 'Report a problem or suggest a feature';
+  const description = `Tell us what is wrong with one of these ${surfaces.length} free tools, or what you would like one to do. No account needed.`;
+  const issueBase = `${REPO_URL}/issues/new`;
+  const form = feedbackUrl
+    ? `
+      <form id="fb" class="panel" novalidate>
+        <h2>Send feedback</h2>
+        <p>No account needed. Your message is published in
+        <a href="${escapeHtml(REPO_URL)}">this site's public GitHub repository</a>, where
+        the people and agents who maintain these tools read it. Nothing about
+        you is stored with it, and email addresses are removed. Don't include
+        anything private.</p>
+        <fieldset>
+          <legend>What kind of feedback is it?</legend>
+          <label><input type="radio" name="type" value="problem" checked> Something is wrong or broken</label>
+          <label><input type="radio" name="type" value="idea"> An idea or feature request</label>
+          <label><input type="radio" name="type" value="other"> Something else</label>
+        </fieldset>
+        <p id="fb-tool-line" hidden>About: <a id="fb-tool-link" href="${escapeHtml(toRoot)}"></a></p>
+        <label for="fb-message">Your message</label>
+        <textarea id="fb-message" name="message" rows="7" minlength="5" maxlength="4000" required
+          placeholder="What did you expect, and what happened instead? Which numbers did you enter?"></textarea>
+        <div class="fb-hp" aria-hidden="true"><label for="fb-website">Leave this empty</label><input id="fb-website" name="website" tabindex="-1" autocomplete="off"></div>
+        <button type="submit">Send feedback</button>
+        <p id="fb-status" role="status" aria-live="polite"></p>
+      </form>`
+    : '';
+  const script = `
+(function(){
+  var q=new URLSearchParams(location.search),tool=q.get('tool')||'';
+  if(!/^[a-z0-9][a-z0-9._/-]{0,119}$/.test(tool)||tool.indexOf('..')>=0)tool='';
+  var links=document.querySelectorAll('[data-fb-issue]');
+  for(var i=0;i<links.length;i++){
+    var a=links[i],u=new URL(a.href);
+    if(tool){u.searchParams.set('title','['+tool+'] ');u.searchParams.set('tool',tool);}
+    a.href=u.toString();
+  }
+  var f=document.getElementById('fb');${feedbackUrl ? `
+  if(!f)return;
+  if(tool){
+    var l=document.getElementById('fb-tool-link');
+    l.textContent=tool;l.href='${toRoot}'+tool+'/';
+    document.getElementById('fb-tool-line').hidden=false;
+  }
+  var st=document.getElementById('fb-status'),btn=f.querySelector('button');
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var msg=f.message.value.trim();
+    if(msg.length<5){st.textContent='Please write a few words first.';f.message.focus();return;}
+    var body={type:f.querySelector('input[name=type]:checked').value,tool:tool,page:document.referrer?(function(){try{var r=new URL(document.referrer);return r.origin===location.origin?r.pathname:'';}catch(x){return '';}})():'',message:msg,website:f.website.value};
+    btn.disabled=true;st.textContent='Sending...';
+    fetch(${JSON.stringify(`${feedbackUrl}/feedback`)},{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){
+        if(r.ok){
+          f.message.value='';
+          st.textContent='Thank you, it has been sent.';
+        }else if(r.status===429){st.textContent='Too many messages right now. Please try again later.';}
+        else{st.textContent='That did not go through. Please try again, or use a GitHub issue below.';}
+      })
+      .catch(function(){st.textContent='That did not go through. Please check your connection and try again.';})
+      .then(function(){btn.disabled=false;});
+  });` : ''}
+})();
+`;
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>${CATEGORY_STYLE}${ABOUT_STYLE}${FEEDBACK_STYLE}  </style>
+  ${siteStyleLink(toRoot)}
+</head>
+<body>
+  ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: 'Feedback' }] })}
+  <div class="wrap">
+    <header class="pf-hero">
+      <p class="eyebrow">Feedback</p>
+      <h1>${escapeHtml(title)}</h1>
+      <p class="lede">Found a wrong number, a broken page, or a tool that almost does what you need? Tell us. Every report is read.</p>
+    </header>
+
+    <main class="prose">${form}
+      <h2>${feedbackUrl ? 'Or, with a GitHub account' : 'Open an issue on GitHub'}</h2>
+      <p>${feedbackUrl ? 'If you have a GitHub account, an issue there lets you follow the reply and add screenshots.' : 'Feedback goes to this site\'s public GitHub repository as an issue, which needs a free GitHub account.'}</p>
+      <ul>
+        <li><a data-fb-issue href="${escapeHtml(`${issueBase}?template=bug.yml`)}">Report a problem</a> (a wrong result, a broken page, something confusing)</li>
+        <li><a data-fb-issue href="${escapeHtml(`${issueBase}?template=feature.yml`)}">Suggest a feature or a new tool</a></li>
+      </ul>
+      <p>Whatever you send is public. Please leave out names, addresses and anything else private.</p>
+    </main>
+
+    <footer>
+      ${renderSiteFooterNav({ toRoot })}
+    </footer>
+  </div>
+  <script>${script}</script>
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="feedback" defer></script>
+</body>
+</html>
+`;
+}
+
+const FEEDBACK_STYLE = `
+    #fb h2 { margin-top: 0; }
+    #fb label, #fb legend { display: block; font-weight: 600; color: var(--ink); margin: 12px 0 6px; }
+    #fb fieldset { border: 0; padding: 0; margin: 0; }
+    #fb fieldset label { font-weight: 400; color: var(--muted); margin: 4px 0; }
+    #fb textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 10px 12px;
+                   border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
+    #fb button { margin-top: 12px; font: inherit; font-weight: 600; padding: 9px 18px; border-radius: 9px;
+                 border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+    #fb button:disabled { opacity: .6; cursor: progress; }
+    #fb-status { min-height: 1.5em; margin-top: 10px; }
+    .fb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+`;
+
 /** The slim search index the hub (and nothing else) loads. See `renderSearchIndex`. */
 export const SEARCH_INDEX_FILE = 'search-index.json';
 
@@ -7142,48 +7584,17 @@ export function renderSearchIndex(surfaces, research = []) {
 }
 
 /** One category's card on the front door: what it is for, how big, and a taste. */
-function renderCategoryTile({ id, title, blurb, count, examples, note = '' }) {
-  return `        <li class="cat">
-          <h3><a href="${escapeHtml(categoryPagePath(id))}" data-category="${escapeHtml(id)}">${escapeHtml(title)}</a></h3>
-          <p class="cat-blurb">${escapeHtml(snippetize(blurb, 140))}</p>
-          <ul class="cat-examples">
-${examples
-  .map((s) => `            <li><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(s.title.split(' — ')[0])}</a></li>`)
-  .join('\n')}
-          </ul>
-          <a class="cat-all" href="${escapeHtml(categoryPagePath(id))}">${note || `All ${count} tools`} →</a>
-        </li>`;
+function renderCategoryTile({ id, title, blurb, count, examples, note = '', accent }) {
+  return renderCategoryCard({
+    id, href: categoryPagePath(id), title, blurb: snippetize(blurb, 140), count, examples, note, accent,
+  });
 }
 
-/**
- * The research block on the hub: the research homepage's featured projects and
- * its themes, each linking into `research/`.
- */
-function renderResearchSection({ featured = [], themes = [] } = {}, researchCount = 0) {
-  if (!researchCount) return '';
-  const featuredHtml = featured.length
-    ? `      <ul class="research-featured">
-${featured
-  .slice(0, 6)
-  .map((p) => `        <li><a href="${escapeHtml(`${RESEARCH_PATH}${p.slug}/`)}">${escapeHtml(decodeEntities(p.title))}</a></li>`)
-  .join('\n')}
-      </ul>`
-    : '';
-  const themesHtml = themes.length
-    ? `      <p class="research-themes">${themes
-        .map((t) => `<a href="${escapeHtml(`${RESEARCH_PATH}#${t.id}`)}">${escapeHtml(decodeEntities(t.name))} <span>${t.count}</span></a>`)
-        .join(' ')}</p>`
-    : '';
-  return `    <section class="band" id="research" aria-labelledby="research-h">
-      <p class="section-eyebrow">Open research</p>
-      <h2 id="research-h">${researchCount} reproducible research projects</h2>
-      <p class="band-lede">Verification markets, scoring rules, decentralised training, chip design and robotics, each with runnable code, tests and a written result. <a href="${RESEARCH_PATH}">Browse all research →</a></p>
-${featuredHtml}
-${themesHtml}
-    </section>`;
-}
-
-export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { featured: [], themes: [] } } = {}) {
+export function renderHub(
+  surfaces,
+  baseUrl,
+  { researchCount = 0, research = { featured: [], themes: [] }, showcase = { shots: [], reel: null }, posts = [], flagships = [] } = {},
+) {
   const groups = groupByCategory(surfaces);
   const audiencePages = audienceGroups(surfaces);
   const apps = surfaces.filter((s) => s.kind === 'app');
@@ -7224,6 +7635,7 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
         blurb: category.blurb,
         count: items.length,
         examples: exampleTools(items, 4),
+        accent: category.accent,
       }),
     )
     .join('\n');
@@ -7236,18 +7648,31 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
         count: items.length,
         examples: exampleTools(items, 4),
         note: `All ${items.length} ${page.kind === 'app' ? 'apps' : 'command-line tools'}`,
+        accent: page.accent,
       }),
     )
     .join('\n');
 
-  // A short featured row: the fullest tool in each of the six largest
-  // categories, so the front door shows range rather than six calculators
-  // from one trade.
-  const featured = [...groups]
-    .sort((a, b) => b.items.length - a.items.length)
-    .slice(0, 6)
-    .map(({ items }) => exampleTools(items, 1)[0])
-    .filter(Boolean);
+  // A short featured row: the flagships first (`flagshipSlugs`), then, while
+  // there is room, the tool with the most pages in each of the largest
+  // categories. Page count alone put a day-count adder at the front
+  // (2026-10-21): pages measure explainers written beside a tool, not the
+  // engineering in it (docs/reports/2026-10-21-flagship-front-door.md).
+  const bySlug = new Map(surfaces.map((s) => [s.slug, s]));
+  const featured = flagships.map((slug) => bySlug.get(slug)).filter(Boolean).slice(0, 6);
+  for (const { items } of [...groups].sort((a, b) => b.items.length - a.items.length)) {
+    if (featured.length >= 6) break;
+    const pick = exampleTools(items.filter((s) => !featured.includes(s)), 1)[0];
+    if (pick) featured.push(pick);
+  }
+
+  // The moving shelf under the hero: a few tools from every section, split
+  // across two rows so neither repeats a section back to back.
+  const shortName = (s) => cardName(s.title);
+  const shelf = groups.flatMap(({ items }) => exampleTools(items, 5)).map((s) => ({ slug: s.slug, name: shortName(s) }));
+  const marqueeRows = [shelf.filter((_, i) => i % 2 === 0), shelf.filter((_, i) => i % 2 === 1)];
+  const titles = new Map(surfaces.map((s) => [s.slug, shortName(s)]));
+  const audienceWords = audiencePages.map(({ audience }) => audience.name).slice(0, 14);
 
   return `<!doctype html>
 <html lang="en">
@@ -7278,6 +7703,13 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
   <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
+  <script type="application/ld+json">${jsonLd(siteStructuredData({
+    baseUrl,
+    siteName: SITE_NAME,
+    description: 'Free, open-source browser tools, self-hostable business apps and reproducible research.',
+    repoUrl: REPO_WEB_URL,
+    logo: `${baseUrl}icon-512.png`,
+  }))}</script>
   ${siteStyleLink('')}
   <style>
     :root {
@@ -7396,12 +7828,6 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
     .principles { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px;
                   font-size: .9rem; color: var(--muted); }
     .principles li::before { content: "✓"; color: var(--accent); font-weight: 800; margin-right: 8px; }
-    .research-featured { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 10px;
-                         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-    .research-featured li { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-                            padding: 12px 14px; font-weight: 600; line-height: 1.4; }
-    .research-featured a { color: var(--ink); text-decoration: none; }
-    .research-featured a:hover { color: var(--accent); text-decoration: underline; }
     .research-themes { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
     .research-themes a { padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: .83rem;
                          text-decoration: none; color: var(--ink); background: var(--panel); }
@@ -7477,8 +7903,6 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
              font-size: .87rem; line-height: 1.6; color: var(--muted); }
     footer h2 { font-size: .95rem; color: var(--ink); margin: 20px 0 6px; }
     footer a { color: var(--accent); }
-    .support { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
-               padding: 15px 18px; margin-top: 26px; }
     .optout { margin-top: 18px; font-size: .84rem; }
     .offline p { margin: 8px 0 12px; font-size: .9rem; line-height: 1.5; color: var(--muted); }
     .offline select { max-width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px;
@@ -7506,6 +7930,8 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
        that belongs. */
     @media print { .backup { display: none; } }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+${HOME_MOTION_CSS}
+${HOME_SECTIONS_CSS}
   </style>
 </head>
 <body>
@@ -7513,9 +7939,15 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
   ${renderSiteHeader({ toRoot: '', current: 'home' })}
 
   <header class="hero">
+${HERO_BACKDROP_HTML}
     <div class="hero-inner">
       <p class="eyebrow">Open source · MIT licensed · Built in public</p>
-      <h1>Software and research that anyone can use, inspect, and run themselves.</h1>
+      <h1>Software and research that anyone can <span class="grad">use, inspect, and run</span> themselves.</h1>
+${
+  audienceWords.length
+    ? `      <p class="ticker">Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</p>\n`
+    : ''
+}
       <p class="lede">
         ${escapeHtml(SITE_NAME)} is an open portfolio of business software and research:
         focused tools that run entirely in your browser, self-hostable apps a small
@@ -7550,6 +7982,8 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
       </dl>
     </div>
   </header>
+
+${renderMarquee(marqueeRows)}
 
   <main class="wrap" id="main">
     <!-- Filled in by script from the saved bids on this device. Above everything
@@ -7593,11 +8027,6 @@ export function renderHub(surfaces, baseUrl, { researchCount = 0, research = { f
       <p class="bid-more" id="bidsMore" hidden></p>
     </section>
 
-    <!-- Directly under the list it backs up, and deliberately still drawn when
-         that list is empty: the browser with no saved bids is exactly the one
-         where "restore from a backup" is the only thing that helps. -->
-${BACKUP_WIDGET_HTML}
-
     <!-- Filled in by script from counts held on this device; a visitor with no
          history, no storage, or an opt-out never sees it. -->
     <section class="yours" id="yours" hidden>
@@ -7610,20 +8039,13 @@ ${BACKUP_WIDGET_HTML}
       <ul id="yoursList"></ul>
     </section>
 
-    <section class="band" id="browse" aria-labelledby="browse-h">
-      <p class="section-eyebrow">Browse</p>
-      <h2 id="browse-h">Tools by the job they do</h2>
-      <p class="band-lede">${surfaces.length} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
-      <ul class="cats">
-${categoryTiles}
-      </ul>
-    </section>
+${renderHowItWorks({ toolCount: browserCount, appCount: apps.length })}
 
 ${
   audiencePages.length
     ? `    <section class="band" id="for" aria-labelledby="for-h">
-      <p class="section-eyebrow">By trade or business</p>
-      <h2 id="for-h">Free tools for your trade or business</h2>
+      <p class="section-eyebrow">Who it is for</p>
+      <h2 id="for-h">Find the tools for your trade or business</h2>
       <p class="band-lede">The same tools, filed by who they are for. Each page lists the calculators that kind of business uses, and what to price first if you are just starting one.</p>
       <ul class="for-list">
 ${audiencePages
@@ -7639,7 +8061,17 @@ ${audiencePages
 
 `
     : ''
-}    <section class="band" id="types" aria-labelledby="types-h">
+}
+    <section class="band" id="browse" aria-labelledby="browse-h">
+      <p class="section-eyebrow">Browse</p>
+      <h2 id="browse-h">Tools by the job they do</h2>
+      <p class="band-lede">${surfaces.length} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
+      <ul class="cats">
+${categoryTiles}
+      </ul>
+    </section>
+
+    <section class="band" id="types" aria-labelledby="types-h">
       <p class="section-eyebrow">By type</p>
       <h2 id="types-h">Apps you run yourself, and checks for your terminal</h2>
       <ul class="cats">
@@ -7647,35 +8079,43 @@ ${kindTiles}
       </ul>
     </section>
 
+${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
+
     <section class="band" id="featured" aria-labelledby="featured-h">
       <p class="section-eyebrow">Featured</p>
-      <h2 id="featured-h">The fullest tool in each of the largest sections</h2>
+      <h2 id="featured-h">The projects with the most engineering in them</h2>
+      <p class="band-lede">Flagships first: the projects most runs go deeper on, picked for the engineering in them rather than the number of pages beside them.</p>
       <ul class="featured">
 ${featured
   .map(
-    (s) => `        <li><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(s.title)}</a><span class="f-cat">${escapeHtml(categoryFor(s.slug).title)}</span><p>${escapeHtml(s.description ?? '')}</p></li>`,
+    (s) => `        <li style="--feat:${escapeHtml(categoryFor(s.slug).accent)}"><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(cardName(s.title))}</a><span class="f-cat">${escapeHtml(categoryFor(s.slug).title)}</span><p>${escapeHtml(s.description ?? '')}</p></li>`,
   )
   .join('\n')}
       </ul>
     </section>
 
-${renderResearchSection(research, researchCount)}
+${renderResearchBand(research, researchCount, { researchPath: RESEARCH_PATH, topicsDir: RESEARCH_TOPICS_DIR })}
+
+${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
 
     <section class="band" id="more" aria-labelledby="more-h">
       <p class="section-eyebrow">Also here</p>
       <h2 id="more-h">Run your own copy, read the guides, follow the work</h2>
       <div class="pillar-grid">
         <a class="pillar" href="deploy/">
+          <span class="pillar-ico">${icon('deploy')}</span>
           <h3>Deploy your own copy</h3>
           <p>Every app and tool is MIT licensed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
           <span class="pillar-more">Deploy your own →</span>
         </a>
         <a class="pillar" href="${GUIDES_PATH}">
+          <span class="pillar-ico">${icon('guide')}</span>
           <h3>Guides and comparisons</h3>
           <p>The explainers written beside each tool, and products compared side by side, filed by trade.</p>
           <span class="pillar-more">Read the guides →</span>
         </a>
         <a class="pillar" href="${UPDATES_PATH}">
+          <span class="pillar-ico">${icon('pulse')}</span>
           <h3>Built in public</h3>
           <p>What shipped this week, what is in progress, where the project is going and how AI agents build it, from the repository's own records.</p>
           <span class="pillar-more">Updates and roadmap →</span>
@@ -7689,14 +8129,13 @@ ${renderResearchSection(research, researchCount)}
       </ul>
     </section>
 
-${renderOfflineWidgetHtml(offlineBuckets(surfaces))}
+<!-- With the other "your data on this device" panel rather than at the top:
+     it is still drawn when no bids are saved (the browser with none is exactly
+     the one where restoring a backup helps), but a first-time visitor should
+     meet the tools before a file picker. Tool pages link here by #backup-box. -->
+${BACKUP_WIDGET_HTML}
 
-    <div class="support">
-      <strong>Free, and staying free.</strong> If one of these saved you money,
-      <a href="${SPONSORS_URL}">sponsoring on GitHub</a>
-      is welcome and entirely optional — nothing here is gated behind it, and
-      declining changes nothing about what the tools do.
-    </div>
+${renderOfflineWidgetHtml(offlineBuckets(surfaces))}
 
     <footer>
 ${disclaimerHtml('', surfaces)}
@@ -8421,6 +8860,8 @@ ${BID_PRICING_HELPERS}
 ${BACKUP_WIDGET_SCRIPT}
 ${OFFLINE_WIDGET_SCRIPT}
   </script>
+  <script>${HOME_MOTION_SCRIPT}
+  </script>
 </body>
 </html>
 `;
@@ -8462,6 +8903,17 @@ const CHROME_SLUG_ATTR = 'data-pf-slug';
 let SITE_COUNTER_URL = '';
 export function counterOn() {
   return SITE_COUNTER_URL !== '';
+}
+/**
+ * The feedback endpoint (`platform/edge/`), off unless the build is given its
+ * origin (`--feedback-url=`, `PAGES_FEEDBACK_URL`, or `platform/edge/site.json`).
+ * Off, the feedback page offers GitHub issues only and the privacy copy says
+ * nothing is sent; on, the page carries the form and the copy says where its
+ * text goes. Same lifetime and reason as `SITE_COUNTER_URL`.
+ */
+let SITE_FEEDBACK_URL = '';
+export function feedbackOn() {
+  return SITE_FEEDBACK_URL !== '';
 }
 export function normaliseCounterUrl(raw) {
   if (!raw) return '';
@@ -8561,6 +9013,34 @@ const CHROME_CSS = `
 .pf-chrome-foot li{margin:0}
 .pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 
+/* The site header as a full-width band, as it is on the site's own pages.
+ *
+ * Every venture centres its body in a 1000-1080px column with ~28px of padding,
+ * and the header is the body's first child, so it used to sit as a grey strip
+ * inset in that column, floating 28px below the top of the window. The band
+ * now meets the top edge (the body's top padding moves below it) and its fill
+ * runs to both edges through a spread shadow clipped to the band's height. A
+ * shadow, not a 100vw pseudo-element: it adds no scrollable overflow, so no
+ * venture page grows a sideways scroll, and the fill stays the host-neutral
+ * grey the header always had. A browser without :has() keeps the old top gap.
+ *
+ * The mark is the one literal colour here, and it is not text: it is the
+ * site's logo square (pf-site.css draws the same gradient), so it reads as one
+ * site on every venture palette instead of a blot of the host's ink. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0}
+.pf-chrome-top[data-pfs-head]{margin:0 0 26px;border-bottom:0;
+  box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
+.pf-chrome-top .pfs-bar{padding:12px 0}
+.pf-chrome-top .pfs-crumbs{padding:0 0 10px}
+.pf-chrome-top .pfs-mark{background:linear-gradient(135deg,#12594a,#3b5bdb)}
+.pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
+[data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
+/* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
+ * in the same column, so they line up with the venture's content rather than
+ * their own 18px inset. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status:empty{display:none}
+
 /* Site chrome is not part of anything a visitor prints.
  *
  * Nine bid calculators produce a customer proposal (platform/proposal), whose
@@ -8599,10 +9079,10 @@ export const CHROME_STYLE_FILE = 'pf-chrome.css';
  * one bar — the visitor those rules exist for. See `reflow.mjs`.
  */
 export function renderChromeStyle() {
-  // The site header's layout rules ride along (see site-nav.mjs). They carry
-  // no colour of their own, so on a venture page the header takes the host's
-  // palette exactly as the footer does.
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${REFLOW_CSS}`;
+  // The site header's layout rules ride along (see site-nav.mjs), then
+  // `VENTURE_CHROME_CSS`, which gives the venture header and footer the site's
+  // own palette so every tool page carries the same bar as the rest of the site.
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -8645,6 +9125,10 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
         var s=q.toString();
         history.replaceState(history.state,'',location.pathname+(s?'?'+s:'')+location.hash);
       }
+    }catch(e){}
+    try{
+      var rh=document.referrer?new URL(document.referrer).hostname:'';
+      if(rh&&rh!==location.hostname){var src=(${sourceOf.toString()})(rh,${JSON.stringify(SOURCE_HOSTS)},${JSON.stringify(SOURCE_LABELS)});if(src)hit.s=src;}
     }catch(e){}
     try{navigator.sendBeacon(${JSON.stringify(`${counterUrl}/hit`)},new Blob([JSON.stringify(hit)],{type:'text/plain'}));}catch(e){}` : ''}
     var k='portfolio-hub-usage';
@@ -8777,7 +9261,7 @@ export const CHROME_MODULE_FILE = 'pf-site.js';
 
 /** The contents of that file. Written once by the build, at the site root. */
 export function renderChromeModule({ counterUrl = SITE_COUNTER_URL } = {}) {
-  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n`;
+  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(VENTURE_CHROME_JS)}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -9345,11 +9829,11 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
       &nbsp;·&nbsp;
-      <a href="${escapeHtml(`${toRoot}deploy/?app=${encodeURIComponent(slug)}`)}">Run your own copy</a>
+      <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?tool=${encodeURIComponent(slug)}`)}">Report a problem or suggest a feature</a>
       &nbsp;·&nbsp;
-      <a href="${SPONSORS_URL}">Sponsoring on GitHub</a>
-      is optional and changes nothing about what these tools do.
+      <a href="${escapeHtml(`${toRoot}deploy/?app=${encodeURIComponent(slug)}`)}">Run your own copy</a>
     </p>
+    <p class="pf-support">${sponsorsNote()}</p>
   </div>
 </aside>
 <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(slug)}"></script>`;
@@ -9684,6 +10168,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // here or in no sitemap at all — and an unlisted page is one a crawler
     // reaches only by following a footer link on a page it happened to find.
     .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`])
+    // The assistant's page, on the same terms: hub-level, so listed here or nowhere.
+    .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
@@ -9693,6 +10179,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // The writing index and each post, only when the build wrote them.
     .concat(writingSlugs.length ? [`  <url><loc>${baseUrl}${WRITING_PATH}</loc></url>`] : [])
     .concat(writingSlugs.map((slug) => `  <url><loc>${baseUrl}${WRITING_PATH}${slug}/</loc></url>`))
+    // The fiction section, a hub-level page this build always writes.
+    .concat([`  <url><loc>${baseUrl}${STORIES_PATH}</loc></url>`])
     // The open book: updates and the changelog. Both change with every merge,
     // which is what a crawler deciding how often to come back wants to see.
     .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`])
@@ -9843,14 +10331,17 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * silently ends the list item, so a tool whose meta description wrapped would
  * publish its second half as body prose.
  */
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = []) {
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0 } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
   // Same fact the About page states in full; see `disclaimerHtml` for why it
   // is derived rather than hand-typed.
   const exceptions = externalCallExceptions(surfaces);
 
+  // A product that ships its own `llms.txt` (how to call it, which options fit
+  // which data, its limits) gets it named on its line, so an assistant that
+  // matched the product here can fetch the detail without crawling the page.
   const bullet = (surface) =>
-    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}`;
+    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}${surface.llmsDoc ? ` LLM docs: ${baseUrl}${surface.slug}/llms.txt` : ''}`;
 
   const sections = groupByCategory(surfaces).map(({ category, items }) => {
     const subgroups = groupBySubcategory(category.id, items);
@@ -9880,8 +10371,8 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
   const optional = [
     '## Optional',
     '',
-    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
-    `- [Research](${baseUrl}${RESEARCH_PATH}): the open research portfolio built in the same repository — white papers with reproducible code on mechanism design for verifiable decentralised ML, and digital twins and sim-to-real gaps.`,
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
@@ -9912,23 +10403,60 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
           )} plain-English pages the tools' own authors wrote beside the calculators — how a price is built up, when one option beats another, what a fee schedule does to a payout — grouped by trade and by tool. Useful for answering "how much should I charge for X" with a page that shows the arithmetic, and a calculator on the same site that runs it on the reader's own numbers.`,
         ]
       : []),
+    // The agent-to-agent blog (writing.mjs, AGENT_BLOG): posts written for a
+    // model reader, each as raw Markdown, with its own llms.txt.
+    ...(agentPostCount
+      ? [`- [Agent-to-agent blog](${baseUrl}${AGENTS_PATH}llms.txt): ${agentPostCount} post${agentPostCount === 1 ? '' : 's'} written by AI agents for AI agents about building and running this repository, each as raw Markdown, with every claim tied to a repository path.`]
+      : []),
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
+    // For an agent acting on someone's behalf, which wants the numbers rather
+    // than a page to send a person to. Every tool's arithmetic is a pure module
+    // beside its page; platform/agents/tools.mjs calls those modules from a
+    // clone, from the command line or as an MCP server, with no browser.
+    `- [Command line and MCP server for agents](${REPO_URL}/tree/main/platform/agents): call any of these tools' calculation engines directly with JSON inputs from a clone of the open-source repository — \`node platform/agents/tools.mjs search|describe|call\`, or the same as a local stdio MCP server. No browser, no network, no account.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
     '',
   ].join('\n');
 
-  return `# Free calculators and checks for people who run a small business
+  // "Free tools for roofers" and its 27 siblings: the page to cite when the
+  // question names a trade rather than a tool. Absent from this file until
+  // 2026-10-21, while every tool was here.
+  const audienceSection = audiences.length
+    ? `## Tools by who you are
 
-> ${surfaces.length} free, browser-only tools for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment: every calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
+One page per trade or kind of business, listing only the tools that serve it.
+
+${audiences
+  .map(({ audience, items }) => `- [${oneLine(audience.title)}](${baseUrl}${categoryPagePath(audiencePageId(audience))}): ${items.length} tools. ${oneLine(audience.description)}`)
+  .join('\n')}
+`
+    : '';
+  // The research half of the site, by topic, with counts. It was one line
+  // under "Optional" describing two of its 28 topics.
+  const researchProjects = research.themes.reduce((n, t) => n + t.count, 0);
+  const researchSection = research.themes.length
+    ? `## Open research
+
+${researchProjects} research projects, each with its question, code, tests and results, MIT licensed: [the research index](${baseUrl}${RESEARCH_PATH}). By topic:
+
+${research.themes
+  .map((t) => `- [${oneLine(t.name)}](${baseUrl}${RESEARCH_PATH}topics/${t.id}/): ${t.count} project${t.count === 1 ? '' : 's'}`)
+  .join('\n')}
+`
+    : '';
+
+  return `# Open Tools and Research
+
+> ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}. No account, no payment: every browser calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-${sections.join('\n')}
-${optional}`;
+${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
+${researchSection ? `${researchSection}\n` : ''}${optional}`;
 }
 
 export function renderNotFound(baseUrl) {
@@ -9946,12 +10474,32 @@ export function renderNotFound(baseUrl) {
   <title>Not found</title>
   ${siteStyleLink(baseUrl)}
   <style>
-    body { font-family: system-ui, sans-serif; margin: 0; line-height: 1.6; color: #1d2530; background: #eef2f7; }
-    .nf { max-width: 40rem; margin: 10vh auto; padding: 0 1.2rem; }
-    a { color: #12594a; }
+    :root { --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666; --line: #d3dce6; --accent: #12594a; }
     @media (prefers-color-scheme: dark) {
-      body { color: #e8eef5; background: #10151c; } a { color: #7fd8c0; }
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0; --line: #2a343f; --accent: #7fd8c0; }
     }
+    body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; line-height: 1.6;
+           color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
+    .nf { max-width: 46rem; margin: 0 auto; padding: 0 16px 64px; --pf-hero-pull: 0px; }
+    .nf h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.08; margin: 0 0 12px; }
+    .nf .lede { font-size: 1.08rem; margin: 0 0 22px; }
+    .code { font: 700 clamp(4.5rem, 14vw, 7.5rem)/1 "Inter", system-ui, sans-serif; letter-spacing: -.06em; margin: 0 0 4px;
+            background: linear-gradient(100deg, #7fe3c6, #8ea2ff 55%, #c79bff); -webkit-background-clip: text;
+            background-clip: text; color: transparent; }
+    .nf-search { display: flex; gap: 8px; max-width: 34rem; }
+    .nf-search input { flex: 1 1 auto; min-width: 0; font: inherit; padding: 11px 14px; border-radius: 12px;
+                       border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+    .nf-search button { font: inherit; font-weight: 700; padding: 11px 18px; border-radius: 12px; cursor: pointer;
+                        border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
+    .nf h2 { font-size: .8rem; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 8px 0 12px; }
+    .ways { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .ways a { display: block; height: 100%; box-sizing: border-box; padding: 14px 16px; border-radius: 12px; text-decoration: none;
+              border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+              transition: transform .15s ease, border-color .15s ease; }
+    .ways a:hover, .ways a:focus-visible { transform: translateY(-2px); border-color: var(--accent); }
+    .ways strong { display: block; color: var(--accent); }
+    .ways span { font-size: .9rem; color: var(--muted); }
+    @media (prefers-reduced-motion: reduce) { .ways a { transition: none; } .ways a:hover { transform: none; } }
   </style>
 </head>
 <body>
@@ -9959,10 +10507,33 @@ export function renderNotFound(baseUrl) {
        path was mistyped, so a relative link would resolve against that. -->
   ${renderSiteHeader({ toRoot: baseUrl, search: 'link' })}
   <main class="nf">
-  <h1>That page isn't here</h1>
-  <p>The tool may have moved, or the link may be mistyped.</p>
-  <p><a href="${escapeHtml(`${baseUrl}#${SEARCH_ANCHOR}`)}">Search every tool</a> or <a href="${escapeHtml(`${baseUrl}${CATEGORY_PATH_PREFIX}/`)}">browse them by category →</a></p>
+  <header class="pf-hero">
+    <p class="code" aria-hidden="true">404</p>
+    <h1>That page isn't here</h1>
+    <p class="lede">The tool may have moved, or the link may be mistyped. Search for it, or start from one of the sections below.</p>
+    <form class="nf-search" action="${escapeHtml(baseUrl)}" method="get" role="search">
+      <label class="pfs-vh" for="nf-q">Search every tool and research project</label>
+      <input id="nf-q" name="q" type="search" placeholder="Search every tool and research project" autocomplete="off">
+      <button type="submit">Search</button>
+    </form>
+  </header>
+  <h2>Or start here</h2>
+  <ul class="ways">
+    <li><a href="${escapeHtml(`${baseUrl}${CATEGORY_PATH_PREFIX}/`)}"><strong>Tools by category →</strong><span>Every free calculator and checker, grouped by job.</span></a></li>
+    <li><a href="${escapeHtml(`${baseUrl}guides/`)}"><strong>Guides →</strong><span>How a price is built up, and when one option beats another.</span></a></li>
+    <li><a href="${escapeHtml(`${baseUrl}research/`)}"><strong>Research →</strong><span>Open projects with their code, tests and limitations.</span></a></li>
+    <li><a href="${escapeHtml(`${baseUrl}writing/`)}"><strong>Blog →</strong><span>What building this with AI agents has taught us.</span></a></li>
+  </ul>
   </main>
+  <script>
+    // Seed the search with the words of the path that missed, so a renamed
+    // tool is usually one press of Enter away: /ebay-fee-calc/ -> "ebay fee calc".
+    try {
+      var words = decodeURIComponent(location.pathname).split('/').filter(Boolean).pop() || '';
+      words = words.replace(/\.html?$/i, '').replace(/[-_.]+/g, ' ').trim();
+      if (words && words.length < 80 && !/^404$/.test(words)) document.getElementById('nf-q').value = words;
+    } catch (e) {}
+  </script>
 </body>
 </html>
 `;
@@ -10076,7 +10647,7 @@ export async function addOfflineSupport({
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
-      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable) }),
+      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable), opaque: Boolean(icon.opaque) }),
     );
   }
   await fs.writeFile(
@@ -10161,13 +10732,17 @@ export async function buildSite({
   disableWorker = false,
   // platform/counter's origin; '' (the default) builds with no beacon.
   counterUrl = '',
+  // platform/edge's origin; '' (the default) builds the feedback page without its form.
+  feedbackUrl = '',
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   SITE_COUNTER_URL = normaliseCounterUrl(counterUrl);
+  SITE_FEEDBACK_URL = normaliseCounterUrl(feedbackUrl);
   try {
     return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker });
   } finally {
     SITE_COUNTER_URL = '';
+    SITE_FEEDBACK_URL = '';
   }
 }
 
@@ -10289,15 +10864,19 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       kind: surfaceKind(path.join(REPO_ROOT, 'ventures', surface.slug), surface.slug),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
+      llmsDoc: existsSync(path.join(destination, 'llms.txt')),
       externalFetchHosts: await surfaceExternalFetchHosts(destination),
     });
     log(`  ${surface.slug}`);
   }
 
   const research = researchHighlights();
+  // Stills and a recording of real tools for the hub (showcase/capture.mjs).
+  const showcase = loadShowcase(surfaces.map((s) => s.slug));
+  log(`Published ${await copyShowcase(outDir, showcase)} showcase file(s).`);
   await fs.writeFile(
     path.join(outDir, 'index.html'),
-    renderHub(surfaces, base, { researchCount: researchProjectCount(), research }),
+    renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase, posts: loadPosts(), flagships: flagshipSlugs() }),
   );
   // The index the hub's search fetches, and the stylesheet every site-owned
   // page links for the shared header (site-nav.mjs).
@@ -10339,6 +10918,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // failure `check.mjs` exists to catch.
   const categoryGroups = groupByCategory(surfaces);
   const audiencePages = audienceGroups(surfaces);
+  // Read off the built tree, so it comes after the per-venture copy above: a
+  // guide is listed because it shipped, at the URL it shipped to. Before the
+  // audience pages, which list their tools' questions, and the guides index
+  // and sitemaps below. See `GUIDES_PATH`.
+  const guides = await discoverGuides(surfaces, outDir);
   for (const { category, items } of categoryGroups) {
     const dir = path.join(outDir, CATEGORY_PATH_PREFIX, category.id);
     await fs.mkdir(dir, { recursive: true });
@@ -10355,7 +10939,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(
       path.join(dir, 'index.html'),
-      renderAudiencePage({ audience, items, groups: categoryGroups, baseUrl: base, audiences: audiencePages }),
+      renderAudiencePage({ audience, items, groups: categoryGroups, baseUrl: base, audiences: audiencePages, guides }),
     );
   }
   // The browse-by-type pages (apps, command-line tools), on the same footing.
@@ -10390,6 +10974,33 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     path.join(aboutDir, 'index.html'),
     renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
   );
+  const feedbackDir = path.join(outDir, FEEDBACK_PATH);
+  await fs.mkdir(feedbackDir, { recursive: true });
+  await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
+
+  // The assistant's own page, and the files every page lazy-loads it from.
+  const askDir = path.join(outDir, ASK_PATH);
+  await fs.mkdir(askDir, { recursive: true });
+  await fs.writeFile(
+    path.join(askDir, 'index.html'),
+    renderAskPage({
+      baseUrl: base,
+      siteName: SITE_NAME,
+      toolCount: surfaces.length,
+      chrome: {
+        style: `${CATEGORY_STYLE}${ABOUT_STYLE}`,
+        styleLink: siteStyleLink('../'),
+        header: renderSiteHeader({ toRoot: '../', current: 'ask', crumbs: [{ label: 'Ask' }] }),
+        disclaimer: disclaimerHtml('../', surfaces),
+        footerNav: renderSiteFooterNav({ toRoot: '../' }),
+        script: `<script src="../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="ask" defer></script>`,
+        ogImage: `${base}${SOCIAL_CARD_FILE}`,
+      },
+    }),
+  );
+  for (const [name, contents] of Object.entries(renderAssistantFiles({ searchVariants, searchScore }))) {
+    await fs.writeFile(path.join(outDir, name), contents);
+  }
 
   await buildResearchPage(outDir, base);
   const researchSlugs = [];
@@ -10399,6 +11010,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     }
   }
   researchSlugs.sort();
+  // A project's static browser app (research/<slug>/app/) is a page in its own right.
+  const researchApps = [];
+  for (const slug of researchSlugs) {
+    if (await fs.stat(path.join(outDir, RESEARCH_PATH, slug, 'app', 'index.html')).catch(() => null)) researchApps.push(`${slug}/app`);
+  }
+  // The topic pages, research/topics/<id>/, for the sitemap.
+  const researchTopics = (
+    await fs.readdir(path.join(outDir, RESEARCH_PATH, RESEARCH_TOPICS_DIR), { withFileTypes: true }).catch(() => [])
+  )
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => `${RESEARCH_TOPICS_DIR}/${entry.name}`)
+    .sort();
 
   // The engineering status page: what the agent fleet shipped, is working on,
   // spent and is blocked on, read from the committed run records and history.
@@ -10407,7 +11030,15 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
-  const posts = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+  // Page slugs under writing/: each post, and `podcast`.
+  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [LEGACY_BASE_URL, DEFAULT_BASE_URL] });
+
+  // The fiction the creative track writes, one page linking into its ventures (see `stories.mjs`).
+  await buildStories(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
+
+  // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
+  // site can be. Its handoff page reads catalog.json in the browser.
+  await buildLab(outDir);
 
   // The open book (see `updates.mjs`): what shipped, what is in progress, the
   // owner's direction and the process, plus the changelog of every merge.
@@ -10449,10 +11080,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     );
   }
 
-  // The guides index. After the per-venture loop because it reads the built
-  // tree — a page is listed because it shipped, at the URL it shipped to — and
-  // before the sitemaps because they list it. See `GUIDES_PATH`.
-  const guides = await discoverGuides(surfaces, outDir);
+  // The guides index (`guides` was read above, before the audience pages).
   const guidesDir = path.join(outDir, GUIDES_PATH);
   await fs.mkdir(guidesDir, { recursive: true });
   await fs.writeFile(
@@ -10471,14 +11099,14 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
         ...audiencePages.map(({ audience }) => audiencePageId(audience)),
       ],
       compareProducts.map((group) => group.key),
-      researchSlugs,
-      posts.map((post) => post.slug),
+      [...researchSlugs, ...researchTopics, ...researchApps],
+      writingPages,
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
   await fs.writeFile(
     path.join(outDir, 'llms.txt'),
-    renderLlmsTxt(surfaces, base, compareProducts, guides),
+    renderLlmsTxt(surfaces, base, compareProducts, guides, { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length }),
   );
   // Read from the committed file, not from `git log`: the in-cluster build
   // clones `--depth 1` and has no history. See `launched.mjs`.
@@ -10487,8 +11115,14 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
   // The site-wide card: what the hub and the About page point at, since
-  // neither belongs to one category.
-  await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
+  // neither belongs to one category. It carries the homepage's own headline.
+  await fs.writeFile(
+    path.join(outDir, SOCIAL_CARD_FILE),
+    renderSiteCard({
+      address: siteAddress(base),
+      footer: `${surfaces.length} free tools · ${researchProjectCount()} research projects`,
+    }),
+  );
   // One card per category, tinted and headlined with the section's own name.
   // A category holding a documented `externalCallExceptions` entry (today:
   // "more", because Sponsor Ready lives there) gets the exception footer —
@@ -10502,44 +11136,34 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       .filter(({ items }) => externalCallExceptions(items).length)
       .map(({ audience }) => audiencePageId(audience)),
   ]);
-  await Promise.all(
-    [...ALL_CATEGORIES, ...KIND_PAGES, ...audiencePages.map(({ audience, items }) => audienceCategory(audience, items))].map((category) =>
-      fs.writeFile(
-        path.join(outDir, socialCardFileFor(category.id)),
-        renderSocialCard({
-          color: category.accent,
-          headline: category.title,
-          kicker: SITE_NAME,
-          footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
-        }),
-      )),
-  );
-  // And one per tool, headlined with the tool's own name on its category's
-  // tint. This is the difference between 164 shares of the same anonymous
-  // picture and 164 shares that each say what they link to — the single
-  // highest-leverage change available to a portfolio whose only distribution
-  // is organic. `cardtext.mjs` is what makes it possible without a font
-  // dependency; before it existed there was nothing to draw a headline with.
-  //
-  // Sequential, not `Promise.all`: each card is a 1200x630 CPU-bound raster
-  // and the in-cluster build runs under a 2-core limit, so firing 164 at once
-  // buys no wall-clock and peaks memory at 164 frame buffers.
-  for (const surface of surfaces) {
-    const dir = path.join(outDir, surface.slug);
-    if (!(await exists(dir))) continue;
-    await fs.writeFile(
-      path.join(outDir, toolCardFileFor(surface.slug)),
-      renderSocialCard({
-        color: categoryFor(surface.slug).accent,
-        headline: surface.title,
-        kicker: SITE_NAME,
-        // Sponsor Ready's own card gets the exception footer — its whole job
-        // is a live lookup, so "nothing you type is uploaded" is the one
-        // claim this card must not make. See `CARD_FOOTER_EXCEPTION`.
-        footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+  const cardJobs = [];
+  for (const category of [
+    ...ALL_CATEGORIES,
+    ...KIND_PAGES,
+    ...audiencePages.map(({ audience, items }) => audienceCategory(audience, items)),
+  ]) {
+    cardJobs.push({
+      file: path.join(outDir, socialCardFileFor(category.id)),
+      options: categoryCardOptions(category, {
+        footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+        baseUrl: base,
       }),
-    );
+    });
   }
+  // And one per tool, headlined with the tool's own name under its category.
+  // This is the difference between a thousand shares of the same anonymous
+  // picture and a thousand that each say what they link to — the single
+  // highest-leverage change available to a portfolio whose only distribution
+  // is organic. They render on a pool of worker threads (`share.mjs`): each is
+  // a CPU-bound raster and there are well over a thousand.
+  for (const surface of surfaces) {
+    if (!(await exists(path.join(outDir, surface.slug)))) continue;
+    cardJobs.push({
+      file: path.join(outDir, toolCardFileFor(surface.slug)),
+      options: toolCardOptions(surface, { baseUrl: base }),
+    });
+  }
+  await renderCards(cardJobs);
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -10556,6 +11180,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // pages that no longer match it.
   const sponsored = await markSponsorLinksIn(outDir);
 
+  // After every generator has written its pages and the chrome has wrapped
+  // them: a card for each page still on the site-wide one (research, writing,
+  // comparisons, the section front pages), and complete share tags on all of
+  // them. Before the offline layer, which hashes the finished HTML.
+  const shareCards = await addShareCards({ outDir, baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE });
+
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
@@ -10563,7 +11193,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, embedded, sponsored, offline, comparisons,
+    highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards,
   };
 }
 
@@ -10579,120 +11209,72 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
  * the ventures' files, not this build's), and only `.ico` at the origin root
  * is fetched automatically, so the icon has to be generated here.
  *
- * Built rather than committed so the tree stays reviewable text: a 16x16 PNG
- * assembled by hand and wrapped in a single-image ICO container. Deterministic
- * -- same bytes on every run.
+ * Built rather than committed so the tree stays reviewable text, and
+ * deterministic -- same bytes on every run.
  */
-function pngChunk(type, data) {
-  const length = Buffer.alloc(4);
-  length.writeUInt32BE(data.length);
-  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(body) >>> 0);
-  return Buffer.concat([length, body, crc]);
-}
 
-let CRC_TABLE = null;
-function crc32(buffer) {
-  if (!CRC_TABLE) {
-    CRC_TABLE = new Int32Array(256);
-    for (let n = 0; n < 256; n += 1) {
-      let c = n;
-      for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-      CRC_TABLE[n] = c;
-    }
-  }
-  let crc = -1;
-  for (const byte of buffer) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
-  return crc ^ -1;
-}
-
-// The mark, in one place. `renderFavicon` rasterises it to the 16x16 ICO every
-// browser fetches on its own; `renderFaviconSvg` emits the same geometry as
-// vector art for the icon the hub links explicitly. Sharing the constants is
-// what keeps the two from drifting into different logos.
+// The mark, in one place: `sharecard.mjs`'s `drawMark` (three rising bars on
+// the header's teal-to-indigo square) is what the app icons and every share
+// card draw from `MARK_GEOMETRY`, and `renderFaviconSvg` draws the same
+// geometry as vector art, so the tab,
+// the pinned tab, the home screen and a shared link carry one logo. The tab
+// icon used to be a flat green square while the header showed a gradient one
+// and the app icon a calculator: three logos for one site.
+export { MARK_GEOMETRY };
 const ICON_SIZE = 16;
-const ICON_INK = [36, 61, 53]; // the hub's accent green, so the tab matches the site
-const ICON_MARK = [197, 237, 181];
+// Sizes in the .ico: 16 for the tab strip, 32 for a high-DPI tab and the
+// Windows taskbar, 48 for a desktop shortcut.
+export const FAVICON_SIZES = [16, 32, 48];
 
-// Three rising bars on a rounded square. Chosen after looking at it at
-// actual size: anything with a diagonal turns to mush at 16px, while flat
-// bars stay crisp and read as "numbers" rather than as a generic glyph.
-const ICON_BARS = [
-  { x0: 3, x1: 4, top: 9 },
-  { x0: 7, x1: 8, top: 6 },
-  { x0: 11, x1: 12, top: 3 },
-];
-const ICON_BAR_BOTTOM = 12;
-const ICON_CORNER = 2; // matches the 2px corner the rasteriser cuts
+const rgbHex = (rgb) => '#' + rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('');
 
-const rgbHex = (rgb) => '#' + rgb.map((c) => c.toString(16).padStart(2, '0')).join('');
-
-/**
- * The same mark as `renderFavicon()`, as vector art.
- *
- * The `.ico` is a fixed raster: exactly right at 16px in a tab, and soft
- * everywhere a browser shows it larger — a pinned tab, the bookmark bar, a
- * phone home screen. A browser that understands `rel="icon"
- * type="image/svg+xml"` prefers this and renders the mark crisply at any size,
- * while the automatic `/favicon.ico` request still finds a file.
- */
 export function renderFaviconSvg() {
-  const bars = ICON_BARS.map(
+  const n = (v) => Number((v * ICON_SIZE).toFixed(2));
+  const g = MARK_GEOMETRY;
+  const bars = g.bars.map(
     (b) =>
-      `<rect x="${b.x0}" y="${b.top}" width="${b.x1 - b.x0 + 1}" ` +
-      `height="${ICON_BAR_BOTTOM - b.top + 1}" fill="${rgbHex(ICON_MARK)}"/>`,
+      `<rect x="${n(b.x)}" y="${n(b.top)}" width="${n(g.barWidth)}" ` +
+      `height="${n(g.bottom - b.top)}" rx="${n(g.barWidth * 0.28)}" fill="#ffffff"/>`,
   ).join('');
-
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ICON_SIZE} ${ICON_SIZE}">` +
-    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${ICON_CORNER}" ` +
-    `fill="${rgbHex(ICON_INK)}"/>${bars}</svg>\n`
+    `<defs><linearGradient id="m" x1="0" y1="0" x2="1" y2="1">` +
+    `<stop offset="0" stop-color="${rgbHex(MARK_FROM)}"/><stop offset="1" stop-color="${rgbHex(MARK_TO)}"/>` +
+    `</linearGradient></defs>` +
+    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${n(g.radius)}" fill="url(#m)"/>${bars}</svg>\n`
   );
 }
 
+/**
+ * Every browser requests `/favicon.ico` on its own; see above. One PNG per
+ * size in `FAVICON_SIZES`, each drawn by `drawMark` at that size rather than
+ * scaled from one, wrapped in an ICO container.
+ */
 export function renderFavicon() {
-  const size = ICON_SIZE;
-  const ink = ICON_INK;
-  const mark = ICON_MARK;
-  const BARS = ICON_BARS;
-  const raw = [];
-  for (let y = 0; y < size; y += 1) {
-    raw.push(0); // PNG filter byte: none
-    for (let x = 0; x < size; x += 1) {
-      const corner = (x < 2 || x > 13) && (y < 2 || y > 13);
-      const inBar = BARS.some((b) => x >= b.x0 && x <= b.x1 && y >= b.top && y <= 12);
-      if (corner) raw.push(0, 0, 0, 0);
-      else if (inBar) raw.push(...mark, 255);
-      else raw.push(...ink, 255);
-    }
-  }
-
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(size, 0);
-  ihdr.writeUInt32BE(size, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // colour type: RGBA
-  const png = Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    pngChunk('IHDR', ihdr),
-    pngChunk('IDAT', zlib.deflateSync(Buffer.from(raw), { level: 9 })),
-    pngChunk('IEND', Buffer.alloc(0)),
-  ]);
-
-  // ICO container: 6-byte header, one 16-byte directory entry, then the PNG.
+  const pngs = FAVICON_SIZES.map((size) => {
+    const data = Buffer.alloc(size * size * 4);
+    drawMark({ width: size, height: size, data, channels: 4 }, 0, 0, size, { channels: 4, radius: MARK_GEOMETRY.radius });
+    return encodeCardPng(size, size, data, 4);
+  });
   const header = Buffer.alloc(6);
   header.writeUInt16LE(0, 0);
   header.writeUInt16LE(1, 2); // type: icon
-  header.writeUInt16LE(1, 4); // one image
-  const entry = Buffer.alloc(16);
-  entry[0] = size;
-  entry[1] = size;
-  entry.writeUInt16LE(1, 4); // colour planes
-  entry.writeUInt16LE(32, 6); // bits per pixel
-  entry.writeUInt32LE(png.length, 8);
-  entry.writeUInt32LE(header.length + entry.length, 12);
-  return Buffer.concat([header, entry, png]);
+  header.writeUInt16LE(pngs.length, 4);
+  const entries = [];
+  let offset = 6 + 16 * pngs.length;
+  pngs.forEach((png, i) => {
+    const size = FAVICON_SIZES[i];
+    const entry = Buffer.alloc(16);
+    entry[0] = size;
+    entry[1] = size;
+    entry.writeUInt16LE(1, 4); // colour planes
+    entry.writeUInt16LE(32, 6); // bits per pixel
+    entry.writeUInt32LE(png.length, 8);
+    entry.writeUInt32LE(offset, 12);
+    offset += png.length;
+    entries.push(entry);
+  });
+  return Buffer.concat([header, ...entries, ...pngs]);
 }
 
 // ---------------------------------------------------------------------------
@@ -10710,6 +11292,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     counterUrl: process.argv.find((a) => a.startsWith('--counter-url='))?.slice('--counter-url='.length)
       ?? process.env.PAGES_COUNTER_URL
       ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'counter', 'site.json'), 'utf8')).url,
+    feedbackUrl: process.argv.find((a) => a.startsWith('--feedback-url='))?.slice('--feedback-url='.length)
+      ?? process.env.PAGES_FEEDBACK_URL
+      ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'edge', 'site.json'), 'utf8')).url,
     log: console.log,
   });
 
@@ -10727,4 +11312,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Kept ${result.narrowed.length} page(s) with a table from scrolling sideways on a phone.`);
   console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
   console.log(`Made the sponsor link countable on ${result.sponsored.length} page(s).`);
+  console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
 }

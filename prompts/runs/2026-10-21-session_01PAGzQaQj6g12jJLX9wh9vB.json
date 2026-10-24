@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01PAGzQaQj6g12jJLX9wh9vB",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T20:01:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": 9264,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First pip install went to a different interpreter than python3 (numpy missing); an sh 'time' and an overbroad pkill each wasted a step"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/render_audio.py",
+      "issue": "Docstring says pip install kokoro-onnx soundfile but numpy was missing for /usr/local/bin/python3 and bare pip targeted another python; use python3 -m pip. Render takes ~34 min for a 34-min episode on 4 cores, longer than the 10-min tool timeout, so it must run detached."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Chose finishing audio for the already-written episode 7 instead of a new piece, as it was the one blocked deliverable and the models were finally reachable; no writeup post written."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project saints-by-candlelight, piece seraphim-of-sarov-and-the-bear (audio only). Audio total 152 MB before.",
+  "corrections": [],
+  "redteam": null
+}

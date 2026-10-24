@@ -1,0 +1,158 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01SsUX22XmvNxAkkUbJLJxx3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Owner asked for a new long-running creative project: CC-licensed AI-written sci-fi (Catholic worldview, hopeful, realistic), stories for AI agents, and Catholic saints bedtime stories, with RSS and audio on podcast platforms; one of each today.",
+  "input_sha256": "dca0c0a0f0ca126cf5e14ad50f692a9236a8aa053efbbcd92c7b346c1829c2cf",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-20T06:15:26Z",
+  "ended": "2026-10-20T06:31:10Z",
+  "wall_minutes": 67.67,
+  "tokens_in": 50410769,
+  "tokens_out": 120733,
+  "cost_usd": 14.892,
+  "tool_calls": 202,
+  "task": "New venture hearth-and-horizon: three CC BY-SA story collections (sci-fi, stories for AI agents, Catholic saints bedtime stories) with pages, Piper TTS audio and podcast RSS feeds; one story per collection.",
+  "projects": [
+    "ventures/hearth-and-horizon"
+  ],
+  "pr": 8683,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First CI runs failed by design: early commits lacked generated pages and audio, so the staleness test and the Pages link check failed until they landed.",
+    "pkill -f render_audio.py matched its own shell and killed the command (exit 144).",
+    "First audio render was killed at the 30-minute background limit after two of three stories; the third was re-run with a longer timeout.",
+    "Story pages first lived in stories/ and linked the hub, feeds and covers relatively; the apex mirror serves only top-level HTML/scripts, so it dropped this venture and, through the sibling link, listen-and-learn-audio and hands-free-language-coach (1299 -> 1297). Moved pages to the venture root and linked assets absolutely.",
+    "A git worktree of origin/main was mistaken for the merge base in the shallow clone, which briefly misattributed the count drift to main."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "The definition of done and prompts/ventures/prompt-1.md assume a tool with a self-deploy path; a content venture (stories, podcast) has none, so the one-click deploy line had to be read as not applicable."
+    },
+    {
+      "file": "platform/pages/check.mjs",
+      "issue": "SERVED_EXTENSIONS had no .mp3, so serving audio needed a platform edit; the error message did name the fix clearly."
+    },
+    {
+      "file": "platform/marketing/front-door-tools.mjs",
+      "issue": "Nothing in the venture docs or PRODUCT_PLAYBOOK says the apex mirror serves only a venture's top-level HTML/JS, or that one relative link to an unmirrored page silently drops the linking venture and every sibling that links to it; it surfaced only as a count drift in gitops tests. explainIneligible() names the cause exactly and should be in the playbook."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No one-click self-deploy for a story collection: the stories are CC BY-SA and the generator is MIT, so anyone can re-host by copying the directory. Building OpenTofu for static fiction would have been building something a sensible person would not."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Committed ~audio MP3s (tens of MB total) to the tree so podcast enclosures resolve on GitHub Pages today; noted in the PR that audio can move to the Internet Archive or release assets later by changing one URL helper."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Fixed three VENTURE.yaml evidence values (ofx-file-check, gtin-list-check, gpx-track-check) that made portfolio/router/validate.py red on main and stopped portfolio-validate before the steps that test this PR; one word each."
+    }
+  ],
+  "goal": "Ship one finished story per audience with text, audio and podcast feeds, and say what the owner must do to list the feeds on Apple Podcasts, Spotify and YouTube.",
+  "notes": "Audio rendered offline with Piper and the public-domain LJSpeech voice (no API cost). Owner asks: an owner email for itunes:owner (Spotify verification) and one-time feed submission to Apple Podcasts Connect, Spotify for Creators, YouTube Studio and Podcast Index.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c080a5b0-8929-53ce-9001-407fcbc84c20",
+    "transcripts": 1,
+    "first": "2026-10-20T06:15:26Z",
+    "last": "2026-10-20T07:23:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 206,
+        "input": 438,
+        "output": 120733,
+        "thinking": 34606,
+        "cache_read": 50103472,
+        "cache_write_5m": 0,
+        "cache_write_1h": 306859,
+        "api_equivalent_usd": 14.892,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 206,
+      "input": 438,
+      "output": 120733,
+      "thinking": 34606,
+      "cache_read": 50103472,
+      "cache_write_5m": 0,
+      "cache_write_1h": 306859,
+      "api_equivalent_usd": 14.892,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.994,
+    "tool_calls": 202,
+    "tools": {
+      "Bash": 164,
+      "mcp__github__get_job_logs": 8,
+      "Write": 7,
+      "ReadNotifications": 6,
+      "ToolSearch": 4,
+      "Read": 4,
+      "Monitor": 2,
+      "mcp__github__actions_list": 2,
+      "mcp__github__search_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 67.67,
+      "active_minutes": 62.86,
+      "model_minutes": 22.92,
+      "tool_minutes": 39.95,
+      "waiting_on_human_minutes": 4.81,
+      "human_prompts": 14,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "writing three edited, fact-checked stories (~8.4k words), recording ~55 min of narration, and building the feed/site generator by hand",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 67.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

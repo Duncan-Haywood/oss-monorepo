@@ -1,0 +1,67 @@
+family width k script shared_cells shared_depth unshared_cells unshared_depth equivalent
+addconst 8 2 yosys_default 48 15 61 10 True
+addconst 8 2 strash_map 60 12 66 10 True
+addconst 8 2 dc2_map 48 15 66 10 True
+addconst 8 2 dch_map 56 11 66 10 True
+addconst 8 2 resyn2_map 56 11 69 10 True
+addconst 8 4 yosys_default 82 15 103 13 True
+addconst 8 4 strash_map 92 12 119 11 True
+addconst 8 4 dc2_map 84 15 106 13 True
+addconst 8 4 dch_map 85 12 112 11 True
+addconst 8 4 resyn2_map 80 12 119 12 True
+addconst 16 2 yosys_default 107 31 143 14 True
+addconst 16 2 strash_map 159 18 151 14 True
+addconst 16 2 dc2_map 107 31 154 14 True
+addconst 16 2 dch_map 140 18 155 14 True
+addconst 16 2 resyn2_map 137 17 161 14 True
+addconst 16 4 yosys_default 191 31 241 29 True
+addconst 16 4 strash_map 223 18 297 17 True
+addconst 16 4 dc2_map 186 31 245 29 True
+addconst 16 4 dch_map 213 17 277 17 True
+addconst 16 4 resyn2_map 212 17 293 18 True
+addvar 8 2 yosys_default 102 16 120 15 True
+addvar 8 2 strash_map 124 15 129 12 True
+addvar 8 2 dc2_map 104 16 122 15 True
+addvar 8 2 dch_map 111 15 129 12 True
+addvar 8 2 resyn2_map 110 16 133 12 True
+addvar 8 4 yosys_default 178 16 204 16 True
+addvar 8 4 strash_map 208 15 240 15 True
+addvar 8 4 dc2_map 179 16 216 16 True
+addvar 8 4 dch_map 195 15 218 15 True
+addvar 8 4 resyn2_map 184 16 217 16 True
+addvar 16 2 yosys_default 222 32 263 31 True
+addvar 16 2 strash_map 301 22 309 16 True
+addvar 16 2 dc2_map 224 32 273 31 True
+addvar 16 2 dch_map 273 22 314 16 True
+addvar 16 2 resyn2_map 300 22 326 16 True
+addvar 16 4 yosys_default 378 32 452 32 True
+addvar 16 4 strash_map 497 22 588 22 True
+addvar 16 4 dc2_map 379 32 480 32 True
+addvar 16 4 dch_map 464 22 549 22 True
+addvar 16 4 resyn2_map 506 22 570 23 True
+sumthree 8 2 yosys_default 137 19 209 16 True
+sumthree 8 2 strash_map 156 16 232 13 True
+sumthree 8 2 dc2_map 140 19 212 16 True
+sumthree 8 2 dch_map 152 16 226 13 True
+sumthree 8 2 resyn2_map 173 19 286 15 True
+sumthree 8 4 yosys_default 209 19 321 18 True
+sumthree 8 4 strash_map 240 16 368 16 True
+sumthree 8 4 dc2_map 214 19 332 18 True
+sumthree 8 4 dch_map 236 16 339 16 True
+sumthree 8 4 resyn2_map 247 19 413 19 True
+sumthree 16 2 yosys_default 324 36 469 32 True
+sumthree 16 2 strash_map 372 23 552 17 True
+sumthree 16 2 dc2_map 329 37 480 32 True
+sumthree 16 2 dch_map 356 23 550 17 True
+sumthree 16 2 resyn2_map 412 27 689 19 True
+
+yosys_default: cells: shared larger in 0/11, smaller in 11, equal in 0
+yosys_default: cells x depth: shared smaller in 9/11; shared deeper in 9; cells ratio shared/unshared min 0.65 median 0.79 max 0.87
+strash_map: cells: shared larger in 1/11, smaller in 10, equal in 0
+strash_map: cells x depth: shared smaller in 7/11; shared deeper in 8; cells ratio shared/unshared min 0.65 median 0.85 max 1.05
+dc2_map: cells: shared larger in 0/11, smaller in 11, equal in 0
+dc2_map: cells x depth: shared smaller in 9/11; shared deeper in 9; cells ratio shared/unshared min 0.64 median 0.76 max 0.85
+dch_map: cells: shared larger in 0/11, smaller in 11, equal in 0
+dch_map: cells x depth: shared smaller in 8/11; shared deeper in 7; cells ratio shared/unshared min 0.65 median 0.85 max 0.90
+resyn2_map: cells: shared larger in 0/11, smaller in 11, equal in 0
+resyn2_map: cells x depth: shared smaller in 8/11; shared deeper in 6; cells ratio shared/unshared min 0.60 median 0.81 max 0.92

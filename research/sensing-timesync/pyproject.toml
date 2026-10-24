@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-timesync"
+version = "0.1.0"
+description = "Camera-to-gyro time offset: how many milliseconds double the attitude error of a fused estimate, and how well online calibration recovers it (stylised single axis)"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,223 @@
+[
+ {
+  "year": 2008,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2008/1-Year/csv_pus.zip",
+  "sha256": "8039395993d627baf2771a863e61b884e71e2a03b429dcef566f7cfe257186ec",
+  "bytes": 560404244,
+  "members": [
+   "ss08pusa.csv",
+   "ss08pusb.csv"
+  ],
+  "person_rows": 3000657,
+  "kept_married_past_year": 1406338,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2009,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2009/1-Year/csv_pus.zip",
+  "sha256": "a8e8e343c1a3cfbb1c20e77521feac8a9faa8f8be5135cd7c833ba7fac78c3c8",
+  "bytes": 580367639,
+  "members": [
+   "ss09pusa.csv",
+   "ss09pusb.csv"
+  ],
+  "person_rows": 3030728,
+  "kept_married_past_year": 1409956,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2010,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2010/1-Year/csv_pus.zip",
+  "sha256": "ef8bd999c5688a3000f339e695a6a6f511d856c02076f3d937c0acbb858cd5c3",
+  "bytes": 596648291,
+  "members": [
+   "ss10pusa.csv",
+   "ss10pusb.csv"
+  ],
+  "person_rows": 3061692,
+  "kept_married_past_year": 1404712,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2011,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2011/1-Year/csv_pus.zip",
+  "sha256": "7786e8d7e19494a3ae98f9a99f6aa9d655bc2dc0ebde289aed0a3abd625749d1",
+  "bytes": 607745960,
+  "members": [
+   "ss11pusa.csv",
+   "ss11pusb.csv"
+  ],
+  "person_rows": 3112017,
+  "kept_married_past_year": 1393387,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2012,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2012/1-Year/csv_pus.zip",
+  "sha256": "bd9048262f6d56a19b3ef4bba762d91bce493f007902d8b712789e54a39d3b6b",
+  "bytes": 612354711,
+  "members": [
+   "ss12pusa.csv",
+   "ss12pusb.csv"
+  ],
+  "person_rows": 3113030,
+  "kept_married_past_year": 1401302,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2013,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2013/1-Year/csv_pus.zip",
+  "sha256": "414dad47774ae751209391cd83e4c88706488ca8a7dd4ac1c2faa4bf2d7cf2a1",
+  "bytes": 616326250,
+  "members": [
+   "ss13pusa.csv",
+   "ss13pusb.csv"
+  ],
+  "person_rows": 3132795,
+  "kept_married_past_year": 1413845,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2014,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2014/1-Year/csv_pus.zip",
+  "sha256": "088b5c0dc80f6fa83b8add134ccbcf746662d0840655971ec96f45f268e50b68",
+  "bytes": 620014656,
+  "members": [
+   "ss14pusa.csv",
+   "ss14pusb.csv"
+  ],
+  "person_rows": 3132610,
+  "kept_married_past_year": 1413096,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2015,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2015/1-Year/csv_pus.zip",
+  "sha256": "a2e512e0b33c0025eb1393c1b4be4a7b22de4e42305a275bceae0fee2d894e45",
+  "bytes": 623479685,
+  "members": [
+   "ss15pusa.csv",
+   "ss15pusb.csv"
+  ],
+  "person_rows": 3147005,
+  "kept_married_past_year": 1420824,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2016,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2016/1-Year/csv_pus.zip",
+  "sha256": "d84336b740f5c8b8c28bd8095c18e52ce74b44798fbbf9ab9bd6ffe8f2328632",
+  "bytes": 626235570,
+  "members": [
+   "ss16pusa.csv",
+   "ss16pusb.csv"
+  ],
+  "person_rows": 3156487,
+  "kept_married_past_year": 1427348,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2017,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2017/1-Year/csv_pus.zip",
+  "sha256": "a6c8898f72fba21a6da17e7c4942fc5354626659bb062a4bdc094ca94e473ee5",
+  "bytes": 628817174,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "person_rows": 3190040,
+  "kept_married_past_year": 1440870,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2018,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2018/1-Year/csv_pus.zip",
+  "sha256": "73fba8988d84f6425966fa14ab26af6ab40ebc0f0e16156b0dada39322349243",
+  "bytes": 562224936,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "person_rows": 3214539,
+  "kept_married_past_year": 1455365,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2019,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2019/1-Year/csv_pus.zip",
+  "sha256": "18e4ece4cc24781c01e8046c2d5afbabeb1f15452ddec43f60fdf3b1f6e67b92",
+  "bytes": 567851237,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "person_rows": 3239553,
+  "kept_married_past_year": 1476601,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2020,
+  "url": "https://www2.census.gov/programs-surveys/acs/experimental/2020/data/pums/1-Year/csv_pus.zip",
+  "sha256": "c634550a5c0fd2fc261b917d51f933b5e032bab6eae33435ecec950958815b99",
+  "bytes": 425804233,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "person_rows": 2641054,
+  "kept_married_past_year": 1180880,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2021,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2021/1-Year/csv_pus.zip",
+  "sha256": "e1e64f81718e7d478cf2bf4ad8d1ae1fa03c690f6c86afa3984d1a6bd38dc8f2",
+  "bytes": 571180899,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "person_rows": 3252599,
+  "kept_married_past_year": 1466429,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2022,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2022/1-Year/csv_pus.zip",
+  "sha256": "687a97773d0fdfec6c624ea6bf48466f12059d3ee80283a2ad8604ea7a66231e",
+  "bytes": 591122084,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "person_rows": 3373378,
+  "kept_married_past_year": 1526178,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2023,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2023/1-Year/csv_pus.zip",
+  "sha256": "98b6ecb14b4830d1f2b54c265a5bd997828415c2dab14e17369c40e98b78d9d4",
+  "bytes": 597292173,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "person_rows": 3405809,
+  "kept_married_past_year": 1546577,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2024,
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2024/1-Year/csv_pus.zip",
+  "sha256": "afdc6d90c6e2f0bab365ed32d95ba4c4d8ac651162f46ac7861295b2dc469894",
+  "bytes": 602847146,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "person_rows": 3422888,
+  "kept_married_past_year": 1553739,
+  "retrieved": "2026-10-20"
+ }
+]

@@ -36,7 +36,7 @@ bypasses the permission check the production code correctly relies on. That is
 a property of the sandbox, not a product bug: on GitHub's non-root
 `ubuntu-latest` runner this test passes, so `photo-editing-ci.yml` is unaffected.
 
-Anything else that fails is real. Don't extend this list speculatively, and
+Anything else that fails is real. Avoid extending this list speculatively, and
 don't loosen the permission checks to make it pass — they exist to refuse to
 read a file the OS says isn't readable.
 
@@ -64,8 +64,8 @@ the tests call `_write_ample_destination_metadata()` and pass
 `test_plan_import_route_command_uses_native_volume_metadata_json` already
 exercised. No production code and no threshold changed.
 
-**The rule this leaves for new tests:** a test that needs a volume classified as
-a `destination` must supply volume metadata explicitly. Never let an assertion
+**The lesson this leaves for new tests:** a test that needs a volume classified as
+a `destination` should supply volume metadata explicitly, so it stays hermetic. Avoid letting an assertion
 depend on the host's real free space, and never lower the 64 GiB gate to make a
 test pass — it exists to prevent an import onto too small a destination.
 
@@ -224,9 +224,9 @@ Windows.
 stdlib Python core. **Documentation is TSX-first**: hand-authored pages under
 `src/app/docs/`, plus `scripts/build-docs.mjs` rewriting approved `docs/*.html` and
 selected markdown into `src/generated/doc-content/*.tsx` and thin route wrappers.
-Do not add new long-form Markdown/HTML in `docs/` as canonical hand-maintained docs
+Avoid adding new long-form Markdown/HTML in `docs/` as canonical hand-maintained docs
 unless they are on the build-docs ingest list. For one-off PDF/HTML sharing, export
-from the built site (browser Print → PDF or Save Page As) — do not maintain parallel
+from the built site (browser Print → PDF or Save Page As) — rather than maintaining parallel
 canonical copies. See `.cursor/rules/documentation-tsx.mdc`.
 
 ```bash

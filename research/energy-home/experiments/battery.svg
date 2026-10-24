@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: self-sufficiency and PV self-consumption of a 6 kW array on an 8,000 kWh/yr home rise steeply to about 15 kWh of battery and flatten beyond">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Home solar: share of load met vs battery size (6 kW PV)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="281.9" y2="281.9" stroke="#ddd"/><text x="58" y="285.9" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="239.7" y2="239.7" stroke="#ddd"/><text x="58" y="243.7" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="197.6" y2="197.6" stroke="#ddd"/><text x="58" y="201.6" text-anchor="end" font-family="sans-serif" font-size="11">6</text>
+<line x1="64" x2="624" y1="155.4" y2="155.4" stroke="#ddd"/><text x="58" y="159.4" text-anchor="end" font-family="sans-serif" font-size="11">8</text>
+<line x1="64" x2="624" y1="113.3" y2="113.3" stroke="#ddd"/><text x="58" y="117.3" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">12</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="65.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="68.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="134.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="274.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">15</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">battery nameplate kWh</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">share</text>
+<polyline points="64.0,316.7 99.0,315.1 134.0,313.8 204.0,311.7 274.0,310.9 344.0,310.6 484.0,310.3 624.0,310.1 64.0,281.9 64.7,281.9 65.4,281.9 66.8,71.2 68.2,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="316.7" r="3" fill="#c0392b"/>
+<circle cx="99.0" cy="315.1" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="313.8" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="311.7" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="310.9" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="310.6" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="310.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="310.1" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="281.9" r="3" fill="#c0392b"/>
+<circle cx="64.7" cy="281.9" r="3" fill="#c0392b"/>
+<circle cx="65.4" cy="281.9" r="3" fill="#c0392b"/>
+<circle cx="66.8" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="68.2" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">self-sufficiency</text>
+<polyline points="64.0,315.0 99.0,312.9 134.0,311.1 204.0,308.3 274.0,307.2 344.0,306.8 484.0,306.4 624.0,306.1 64.0,324.0 64.7,324.0 65.4,324.0 66.8,324.0 68.2,324.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="315.0" r="3" fill="#1f6fb2"/>
+<circle cx="99.0" cy="312.9" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="311.1" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="308.3" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="307.2" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="306.8" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="306.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="306.1" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="64.7" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="65.4" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="66.8" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="68.2" cy="324.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">PV self-consumption</text>
+</svg>

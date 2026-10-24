@@ -6,7 +6,7 @@ out of order, tracks with no times, impossible elevations, truncated files and e
 with its line number. It writes the file back with every provable fix applied and leaves the rest
 untouched. The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gpx-track-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/gpx-track-check/
 
 ## Run it
 
@@ -16,12 +16,29 @@ key; the work happens in your browser and nothing you paste is uploaded.
 To run the tests (Node 20 or newer):
 
 ```
-node --test ventures/gpx-track-check/
+node --test ventures/gpx-track-check/*.test.mjs
 ```
+
+## Check GPX files in CI
+
+`cli.mjs` is the same checker for a terminal or a CI job, with no dependencies
+(Node 20 or newer). Files are read from disk and nothing is sent anywhere.
+
+```
+node cli.mjs check ride.gpx               # exit 1 if there are errors
+node cli.mjs check routes/ --strict       # every .gpx under a folder; warnings fail too
+node cli.mjs check ride.gpx --json
+node cli.mjs fix ride.gpx                 # writes ride.fixed.gpx (--in-place overwrites)
+node cli.mjs thin ride.gpx --max-points=500   # writes ride.thin.gpx, shape kept within the smallest tolerance that fits
+```
+
+Exit codes: 0 clean, 1 findings at the failing level, 2 usage or read error.
+It applies the same provable fixes as the web page and reports the rest.
 
 ## Files
 
 - `index.html`: the tool's page.
+- `cli.mjs`: the command-line and CI wrapper around `calc.mjs`.
 - `calc.mjs`: the logic, kept separate from the page so it can be tested.
 - `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see
   `portfolio/usage/README.md` in the monorepo).

@@ -1,0 +1,52 @@
+{
+ "date": "2026-10-21",
+ "session": "https://claude.ai/code/session_01NMozts5daMZiQMRMLu1thr",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "I want to look into wasl more for the ghp see if there are any benefits anywhere.",
+ "input_sha256": "6af1c1ed10af32d6dc317cfee7f6ab20db7211e9076b6f8209d767616aa07b08",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-21T03:07:41Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [
+  "platform/pages/assistant"
+ ],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9036",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 3,
+ "outcome": "success",
+ "errors": [
+  "wllama loadModelFromUrl hung with no error loading a 1.1 GB GGUF into a 930 MB headless-profile quota; the bench now loads from a Blob and the worker checks navigator.storage.estimate() first",
+  "pkill -f in a compound command killed its own shell (the trap HANDOFF.md already lists)"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "portfolio/opinions/2026-10-20-rust-where-it-is-essential.md",
+   "issue": "Said the browser has no scipy; Pyodide ships it and simdesign-topopt's 2D SIMP runs unchanged at ~1.5x CPython. Corrected in place."
+  },
+  {
+   "file": "portfolio/flagships.yaml",
+   "issue": "einvoice-preflight next still offers 'that decision, or the plain-JS port' as open, but the README says the plain-JS (fontoxpath) route already ships; left for the flagship's own run."
+  }
+ ],
+ "deviations": [],
+ "goal": null,
+ "notes": "Read 'wasl' as WASM and 'ghp' as the GitHub Pages site. Shipped: CPU (wllama 3.8.1, llama.cpp WASM) fallback for the assistant's on-device model when there is no hardware WebGPU; fill checks (said numbers only, rules' values stand, one number one field, named choices). Scored for the first time: Qwen2.5 0.5B 337 wrong writes / 52 sentences alone, 1.5B 87; panel after checks 0 for both (1.5B replies held out from the checks' design). Speed: 0.5B 1 thread fills 11-107 s; 4 threads median 8.9 s; threads need COOP/COEP which Pages cannot send. Measured not built: Pyodide-ready research 723/824 projects, topopt 1.10 s vs 0.75 s CPython, ~29 MB. Verified: assistant/site-nav/check tests 121 pass; worker end-to-end in headless Chromium (no GPU); build.mjs + check.mjs publishable, 3904 pages, no dead links. Report: docs/reports/2026-10-21-wasm-on-the-site.md.",
+ "corrections": [],
+ "redteam": null
+}

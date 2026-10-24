@@ -15,7 +15,10 @@ import { promisify } from 'node:util';
 
 const gzip = promisify(zlib.gzip);
 
+import { audienceGroups, audiencePageId } from './audiences.mjs';
 import {
+  exampleTools,
+  researchHighlights,
   addOfflineSupport,
   annotateNumberInputs,
   stepAllowsDecimals,
@@ -24,6 +27,7 @@ import {
   DOWNLOADABLE_CLI_FILES,
   collectPageTitles,
   copyTree,
+  clampMetaDescription,
   injectFavicon,
   discoverSurfaces,
   surfaceKind,
@@ -36,9 +40,12 @@ import {
   relatedTools,
   upToRoot,
   renderHub,
+  flagshipSlugs,
   pageUrlPath,
   renderFavicon,
   renderFaviconSvg,
+  FAVICON_SIZES,
+  MARK_GEOMETRY,
   renderRobots,
   INDEXNOW_KEY,
   indexNowKeyFileName,
@@ -60,6 +67,8 @@ import {
   SNIPPET_MAX,
   injectDiscoveryTags,
   SOCIAL_CARD_FILE,
+  categoryCardOptions,
+  toolCardOptions,
   socialCardFileFor,
   toolCardFileFor,
   ALL_CATEGORIES,
@@ -109,8 +118,10 @@ import {
   kindPageGroups,
   SEARCH_INDEX_FILE,
 } from './build.mjs';
-import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER } from './site-nav.mjs';
+import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
+import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
+import { renderCard } from './sharecard.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
 import { decodeEntities } from './entities.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
@@ -342,8 +353,8 @@ test('every hub link resolves to a file that exists', async () => {
 
   const hub_ = path.join(outDir, 'index.html');
   for (const href of hrefs) {
-    // deploy/ and dev/ are written after the site build (publish-branch.sh).
-    if (LATE_NAV_DIRS.some((dir) => href === `${dir}/` || href.startsWith(`${dir}/?`))) continue;
+    // deploy/ and dev/ (and dev/daily/ under it) are written after the site build.
+    if (LATE_NAV_DIRS.some((dir) => href.startsWith(`${dir}/`))) continue;
     // A fragment names a section of the target page, not a file.
     await fs.access(hrefTarget(href.split('#')[0], hub_, outDir));
   }
@@ -457,7 +468,8 @@ async function htmlPagesUnder(dir) {
 test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
-  assert.match(hub, /entirely optional/i);
+  assert.match(hub, /buymeacoffee\.com\//);
+  assert.match(hub, /is optional and changes nothing/i);
   // `\bsubscribe\b` rather than a bare `subscribe`: the guard is about a
   // paywall *call to action* ("Subscribe", "subscribe now", "subscribe to
   // unlock"), and every one of those forms still matches. What no longer
@@ -552,7 +564,7 @@ test('the off-origin check sees resources fetched by <link>, not just src', () =
   // switched off.
   assert.deepEqual(offOriginResources(`
     <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a>
-    <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/">
+    <link rel="canonical" href="https://duncan-haywood.github.io/oss-monorepo/">
     <link rel="icon" href="favicon.ico">
   `), []);
 });
@@ -654,10 +666,11 @@ test('a favicon is emitted, because every page requests one whether or not it li
   const { outDir } = await site();
   const ico = await fs.readFile(path.join(outDir, 'favicon.ico'));
 
-  // ICO header: reserved 0, type 1 (icon), one image.
-  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, 1, 0]);
-  assert.equal(ico[6], 16, 'width');
+  // ICO header: reserved 0, type 1 (icon), one image per size.
+  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, FAVICON_SIZES.length, 0]);
+  assert.equal(ico[6], 16, 'the first image is the 16px tab icon (width)');
   assert.equal(ico[7], 16, 'height');
+  FAVICON_SIZES.forEach((size, i) => assert.equal(ico[6 + i * 16], size, `entry ${i} is ${size}px`));
   // The payload is a PNG, and its signature must survive the offset arithmetic
   // in the directory entry -- get that wrong and browsers show nothing at all
   // while the file still looks fine on disk.
@@ -680,21 +693,26 @@ test('an SVG favicon ships alongside the .ico', async () => {
 
 test('both favicons draw the same mark', () => {
   // A drift here means the tab icon and the pinned icon are two different
-  // logos, which is why the geometry lives in constants both renderers read.
+  // logos, which is why the geometry lives in one constant both renderers read.
   const svg = renderFaviconSvg();
-  assert.match(svg, /#243d35/, "the hub's ink");
-  assert.equal((svg.match(/#c5edb5/g) ?? []).length, 3, 'three bars in the mark colour');
-  assert.match(svg, /x="3" y="9" width="2" height="4"/, 'the short bar');
-  assert.match(svg, /x="11" y="3" width="2" height="10"/, 'the tall bar');
+  assert.match(svg, /stop-color="#12594a"/, "the header mark's gradient starts in the hub's green");
+  assert.match(svg, /stop-color="#3b5bdb"/, '...and ends in its indigo');
+  assert.equal((svg.match(/fill="#ffffff"/g) ?? []).length, MARK_GEOMETRY.bars.length, 'three white bars');
+  // The bars rise left to right, as `drawMark` draws them.
+  const tops = [...svg.matchAll(/<rect x="[\d.]+" y="([\d.]+)"/g)].map((m) => Number(m[1]));
+  assert.deepEqual(tops, MARK_GEOMETRY.bars.map((b) => Number((b.top * 16).toFixed(2))));
+  assert.ok(tops[0] > tops[1] && tops[1] > tops[2]);
 });
 
-test('the hub\'s top navigation links the blog', async () => {
+test('the hub\'s top navigation links the blog and the podcast', async () => {
   // The Writing section (`writing.mjs`) is the site's blog; the footer link alone
   // left it a screen of tools away from anyone who came to read.
   const html = await read('index.html');
   const nav = html.match(/<nav class="pfs-head"[\s\S]*?<\/nav>/);
   assert.ok(nav, 'the hub has the shared site header');
-  assert.match(nav[0], /<a data-pfs-nav="writing" href="writing\/"[^>]*>Writing<\/a>/);
+  assert.match(nav[0], /<a data-pfs-nav="writing" href="writing\/"[^>]*>Blog<\/a>/);
+  // Both at the top level (owner, 2026-10-21).
+  assert.match(nav[0], /<a data-pfs-nav="podcast" href="writing\/podcast\/"[^>]*>Podcast<\/a>/);
 });
 
 test('the hub links both favicons', async () => {
@@ -746,11 +764,16 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Eight trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the research portfolio, updates and the
-  // changelog, the comparison index, the guides index, catalog.json, the
-  // sitemap and the Atom feed — so the count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 8);
+  // Nine trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, Ask, updates and the changelog, the comparison
+  // index, the guides index, catalog.json, the agent CLI, the sitemap and the
+  // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
+  // post. Above the tools, one bullet per audience page; below them, one per
+  // research topic. The count is tools plus those.
+  const audiences = audienceGroups(surfaces).length;
+  const topics = researchHighlights().themes.length;
+  const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
+  assert.equal(bullets.length, surfaces.length + 9 + audiences + topics + agentBlog);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -792,6 +815,46 @@ test('llms.txt carries each tool full self-description, not the trimmed card cop
 
 test('the hub links llms.txt so it is reachable, not only well-known', async () => {
   assert.match(await read('index.html'), /href="llms\.txt"/);
+});
+
+test('llms.txt names every audience page and every research topic', async () => {
+  const { surfaces } = await site();
+  const llms = await read('llms.txt');
+  assert.match(llms.split('\n')[0], /^# Open Tools and Research$/);
+  for (const { audience } of audienceGroups(surfaces)) {
+    assert.ok(llms.includes(`](${BASE}c/${audiencePageId(audience)}/)`), `${audience.id} is missing from llms.txt`);
+  }
+  const { themes } = researchHighlights();
+  assert.ok(themes.length > 0);
+  for (const theme of themes) {
+    assert.ok(llms.includes(`](${BASE}research/topics/${theme.id}/)`), `research topic ${theme.id} is missing`);
+  }
+});
+
+test('an audience page leads with its fullest tools and their own guide pages, all of which shipped', async () => {
+  const { outDir, surfaces } = await site();
+  let checked = 0;
+  for (const { audience, items } of audienceGroups(surfaces)) {
+    const html = await fs.readFile(path.join(outDir, 'c', audiencePageId(audience), 'index.html'), 'utf8');
+    const lead = html.match(/<section class="start-here"[\s\S]*?<\/section>/);
+    if (items.length < 8) {
+      assert.equal(lead, null, `${audience.id} is short enough to need no lead`);
+      continue;
+    }
+    assert.ok(lead, `${audience.id} has no start-here block`);
+    const starts = [...lead[0].matchAll(/href="\.\.\/\.\.\/([^"/]+)\/"/g)].map((m) => m[1]);
+    assert.deepEqual(starts, exampleTools(items, 4).map((s) => s.slug));
+    const answers = html.match(/<section class="answers"[\s\S]*?<\/section>/);
+    if (answers) {
+      for (const [, href] of answers[0].matchAll(/<li><a href="\.\.\/\.\.\/([^"]+)"/g)) {
+        const file = href.endsWith('/') ? `${href}index.html` : href;
+        assert.ok(await exists(path.join(outDir, file)), `${audience.id} lists ${href}, which did not ship`);
+        assert.ok(items.some((s) => href.startsWith(`${s.slug}/`)), `${href} is not one of ${audience.id}'s tools`);
+      }
+    }
+    checked += 1;
+  }
+  assert.ok(checked > 5, 'expected several audience pages large enough for a lead');
 });
 
 // ---------------------------------------------------------------------------
@@ -1321,6 +1384,11 @@ test('every published page links the favicon, not just the site root', async () 
 test('a venture that declares its own icon keeps it', () => {
   const own = '<head><link rel="icon" href="mine.png"></head>';
   assert.equal(injectFavicon(own, '../'), own);
+  const shortcut = '<head><link rel="shortcut icon" href="mine.ico"></head>';
+  assert.equal(injectFavicon(shortcut, '../'), shortcut);
+  // A home-screen tile is not a tab icon: the page still gets one.
+  const touch = injectFavicon('<head><link rel="apple-touch-icon" href="t.png"></head>', '../');
+  assert.ok(touch.includes('href="../favicon.ico"'), 'apple-touch-icon must not count as a favicon');
 
   const injected = injectFavicon('<head>\n<title>t</title></head>', '../');
   assert.equal((injected.match(/rel="icon"/g) ?? []).length, 1);
@@ -1347,10 +1415,14 @@ test('categories route each slug shape somewhere sensible', () => {
   assert.equal(categoryFor('freight-accessorial-auditor').id, 'logistics');
   assert.equal(categoryFor('einvoice-preflight').id, 'evidence');
   assert.equal(categoryFor('something-brand-new').id, 'more');
+  assert.equal(categoryFor('changepoint-detector').id, 'research-algorithms');
+  for (const slug of ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots']) {
+    assert.equal(categoryFor(slug).id, 'open-hardware');
+  }
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 13, 'the twelve named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 15, 'the fourteen named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1699,6 +1771,7 @@ test('every page type carries the one site header, with every nav item', async (
     guides: ['guides', 'index.html'],
     research: ['research', 'index.html'],
     researchProject: ['research', 'accel-kws', 'index.html'],
+    researchTopic: ['research', 'topics', 'accel', 'index.html'],
     engineering: ['engineering', 'index.html'],
     writing: ['writing', 'index.html'],
     updates: ['updates', 'index.html'],
@@ -1725,6 +1798,33 @@ test('every page type carries the one site header, with every nav item', async (
   const deep = (await listFiles(path.join(outDir, 'ebay-fee-calculator'))).find((f) => f.endsWith('.html') && !f.endsWith('index.html'));
   const html = await fs.readFile(deep, 'utf8');
   assert.match(html, /aria-label="Breadcrumb"><a href="\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/c\/marketplace\/".*href="\.\.\/ebay-fee-calculator\/"/s);
+});
+
+// Until 2026-10-19 a research project page linked only back to a 2 MB index of
+// all 700 projects, and the index's card titles went to GitHub, so most
+// project pages had one inbound link and no route sideways.
+test('research has a topic level, and every project page routes up and sideways', async () => {
+  const { outDir } = await site();
+  const project = await read('research', 'accel-kws', 'index.html');
+  assert.match(project, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/\.\.\/research\/">Research<\/a>.*href="\.\.\/\.\.\/research\/topics\/accel\/">/s);
+  assert.doesNotMatch(project, /\{\{\w+\}\}/, 'no unfilled placeholder');
+  assert.doesNotMatch(project, /<title>accel-kws /, 'the title is the project, not its slug');
+  // "More in <topic>", previous/next, and every topic.
+  const more = project.slice(project.indexOf('id="more"'));
+  assert.ok([...more.matchAll(/<li><a href="\.\.\/[\w-]+\/">/g)].length >= 3, 'lists sibling projects');
+  assert.match(project, /rel="(prev|next)"/);
+  const topics = [...project.matchAll(/href="\.\.\/topics\/([\w-]+)\/"/g)].map((m) => m[1]);
+  for (const id of new Set(topics)) {
+    assert.ok(await exists(path.join(outDir, 'research', 'topics', id, 'index.html')), `topic ${id} has a page`);
+  }
+  // The topic page lists its projects, each linking its on-site page.
+  const topic = await read('research', 'topics', 'accel', 'index.html');
+  assert.match(topic, /<a href="\.\.\/\.\.\/accel-kws\/">/);
+  assert.match(topic, /<link rel="canonical" href="[^"]*research\/topics\/accel\/">/);
+  // The index's card titles open the project's page on this site.
+  const index = await read('research', 'index.html');
+  assert.match(index, /<h3><a href="accel-kws\/">/);
+  assert.match(index, /<a href="topics\/accel\/">/);
 });
 
 test('every published venture page routes back to the hub', async () => {
@@ -2391,7 +2491,11 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(chrome), 'nothing is transmitted');
 
   const offOrigin = [...chrome.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(offOrigin, ['https://github.com/sponsors/Duncan-Haywood'], 'only the sponsor link leaves');
+  assert.deepEqual(
+    offOrigin,
+    ['https://github.com/sponsors/Duncan-Haywood', 'https://buymeacoffee.com/duncanhaywood'],
+    'only the two support links leave',
+  );
   // Nor does the shared file: an off-origin request from a script every page
   // loads would be the whole privacy claim undone in one line.
   assert.deepEqual([...script.matchAll(/https?:\/\/[^'"\s]+/g)].map((m) => m[0]), []);
@@ -2528,7 +2632,9 @@ test('a page carries no inline chrome script or stylesheet, only links to the sh
 
 test('the sponsor line on a tool page is optional and gates nothing', async () => {
   const page = await read('etsy-profit-calculator', 'index.html');
-  assert.match(page, /Sponsoring on GitHub<\/a>\s*\n?\s*is optional and changes nothing/);
+  const chrome = page.slice(page.indexOf('<aside class="pf-chrome pf-chrome-foot"'));
+  assert.ok(chrome.includes(markSponsorLinks(sponsorsNote())), 'the shared support line, verbatim (both links counted)');
+  assert.match(sponsorsNote(), /sponsor on GitHub<\/a> or <a href="https:\/\/buymeacoffee\.com\//);
 });
 
 test('the hub itself is not wrapped in its own navigation', async () => {
@@ -3096,11 +3202,15 @@ test('the cache name carries the build, so a deploy cannot serve a stale mix', a
 });
 
 test('an identical build produces an identical cache name', async () => {
-  const first = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-a-'));
+  // One independent build compared with the suite's shared one: two builds in
+  // different temp directories, which is all the old pair of fresh builds
+  // proved, at the cost of one full build instead of two.
+  const a = await site();
   const second = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-b-'));
-  const a = await buildSite({ outDir: first, baseUrl: BASE });
   const b = await buildSite({ outDir: second, baseUrl: BASE });
+  assert.notEqual(a.outDir, b.outDir);
   assert.equal(a.offline.cacheName, b.offline.cacheName, 'the hash must not depend on build order or paths');
+  await fs.rm(second, { recursive: true, force: true });
 });
 
 test('the worker only ever touches same-origin GETs', async () => {
@@ -3335,8 +3445,12 @@ test('changing the worker itself changes the cache name', async () => {
   // Otherwise a fix to the worker's own logic ships under the old cache name,
   // no old cache is deleted, and every existing visitor keeps being served the
   // previous behaviour from cache indefinitely.
+  //
+  // addOfflineSupport rewrites every page in place, so it runs on a copy of
+  // the shared build rather than on the build the other tests read.
+  const built = await site();
   const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-version-'));
-  const built = await buildSite({ outDir, baseUrl: BASE });
+  await fs.cp(built.outDir, outDir, { recursive: true });
   const rebuilt = await addOfflineSupport({
     outDir,
     base: BASE,
@@ -3344,6 +3458,7 @@ test('changing the worker itself changes the cache name', async () => {
     codeVersion: 'pretend the worker was edited',
   });
   assert.notEqual(rebuilt.cacheName, built.offline.cacheName);
+  await fs.rm(outDir, { recursive: true, force: true });
 });
 
 // ---------------------------------------------------------------------------
@@ -3454,8 +3569,16 @@ test('chrome takes its theme from the host page, not the operating system', asyn
 
   assert.ok(!/prefers-color-scheme/.test(style),
     'the chrome must not branch on the OS theme — the host page decides');
-  assert.ok(!/#[0-9a-f]{3,8}\b/i.test(style),
-    `the chrome must not hard-code a colour: ${style.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
+  // Two blocks name colours. The site header and footer's own palette
+  // (`VENTURE_CHROME_CSS`), light by default and dark only where pf-site.js
+  // measured the host page's background as dark; and the logo square's
+  // fallback gradient, a 20px mark rather than text or a band. Everything else
+  // the chrome draws still takes its colours from the page.
+  assert.ok(style.includes(VENTURE_CHROME_CSS), 'the venture header carries the site palette');
+  assert.match(VENTURE_CHROME_CSS, /\[data-pfs-theme="dark"\]/, 'dark only on a measured dark host');
+  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
+  assert.ok(!/#[0-9a-f]{3,8}\b/i.test(rest),
+    `the chrome must not hard-code a colour: ${rest.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
   assert.match(style, /color:inherit/, 'text colour comes from the page');
   assert.match(style, /--pf-line:rgba\(128,128,128/, 'lines are neutral on either background');
 });
@@ -3703,7 +3826,9 @@ test('every stylesheet and script this build injects is one file, at the right d
       const html = await fs.readFile(file, 'utf8');
       const rel = path.relative(outDir, file);
       if (rel === 'index.html' || rel === '404.html') continue; // the hub is its own document
-      if (!html.includes('pf-chrome')) continue;               // not a page this build wraps
+      // The chrome's own markup, not the bare word: the changelog quotes commit
+      // subjects, and one that names pf-chrome.css is not a wrapped page.
+      if (!html.includes('class="pf-chrome')) continue;       // not a page this build wraps
       if (!gate(html)) continue;
       carrying += 1;
       const pattern = attr === 'link'
@@ -4062,13 +4187,15 @@ test("a tool page's card alt text names the tool, not just the site", async () =
   assert.notEqual(alt[1], 'Open Tools and Research — free, private, in your browser');
 });
 
-test('the hub and About page keep the generic site-wide card, not a category one', async () => {
+test('the hub keeps the site-wide card, and About gets its own rather than a category one', async () => {
   const { outDir } = await site();
   const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
   const about = await fs.readFile(path.join(outDir, 'about', 'index.html'), 'utf8');
-  for (const html of [hub, about]) {
-    assert.ok(html.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
-  }
+  assert.ok(hub.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
+  // About belongs to no category, so `share.mjs` draws it a card of its own.
+  assert.ok(about.includes(`<meta property="og:image" content="${BASE}about/share-card.png">`));
+  assert.ok(await exists(path.join(outDir, 'about', 'share-card.png')));
+  assert.ok(!/social-card-[\w-]+\.png/.test(about.match(/og:image" content="[^"]*"/)[0]));
 });
 
 test('a category page carries the disclaimer and a route back', async () => {
@@ -4259,13 +4386,21 @@ test('a category holding a documented external-call exception says so, not "noth
         count.includes('except on'),
         `${category.id} files ${exceptions.map((x) => x.title).join(', ')} but its count line reads "${count}"`,
       );
+      // A long list is folded into the <details> right under the count line
+      // (privacyClaimParts); the line itself then counts them.
+      const [, folded] = html.match(/<\/p>\s*<details class="count-exceptions">[\s\S]*?<p>([\s\S]*?)<\/p><\/details>/) ?? [];
+      if (exceptions.length > 3) {
+        assert.ok(count.includes(`except on the ${exceptions.length} lookup tools listed below`), `${category.id}: "${count}"`);
+        assert.ok(folded, `${category.id} counts ${exceptions.length} exceptions but lists none under the count line`);
+      }
+      const named = exceptions.length > 3 ? folded : count;
       for (const x of exceptions) {
         // The *prose* name, not the raw title: eight catalogue titles carry an
         // em-dash tagline that would swallow the conjunction in this list. See
         // `toolProseName`. The claim being pinned is unchanged — every
         // exception is still named on the line that makes the privacy claim.
         const name = toolProseName(x.title);
-        assert.ok(count.includes(name), `${category.id}'s count line omits ${name}: "${count}"`);
+        assert.ok(named.includes(name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')), `${category.id}'s exception list omits ${name}`);
       }
     } else {
       assert.equal(
@@ -4289,18 +4424,10 @@ test('a tool or category with a documented external-call exception gets the exce
 
   for (const ex of exceptions) {
     const surface = surfaces.find((s) => s.slug === ex.slug);
-    const withDefaultFooter = renderSocialCard({
-      color: categoryFor(surface.slug).accent,
-      headline: surface.title,
-      kicker: SITE_NAME,
-      footer: CARD_FOOTER,
-    });
-    const withExceptionFooter = renderSocialCard({
-      color: categoryFor(surface.slug).accent,
-      headline: surface.title,
-      kicker: SITE_NAME,
-      footer: CARD_FOOTER_EXCEPTION,
-    });
+    const options = toolCardOptions(surface, { baseUrl: BASE });
+    assert.equal(options.footer, CARD_FOOTER_EXCEPTION);
+    const withExceptionFooter = renderCard(options);
+    const withDefaultFooter = renderCard({ ...options, footer: CARD_FOOTER });
     const actual = await fs.readFile(path.join(outDir, toolCardFileFor(surface.slug)));
     assert.ok(
       actual.equals(withExceptionFooter),
@@ -4314,12 +4441,7 @@ test('a tool or category with a documented external-call exception gets the exce
 
   for (const { category, items } of groupByCategory(surfaces)) {
     const expectedFooter = externalCallExceptions(items).length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER;
-    const expected = renderSocialCard({
-      color: category.accent,
-      headline: category.title,
-      kicker: SITE_NAME,
-      footer: expectedFooter,
-    });
+    const expected = renderCard(categoryCardOptions(category, { footer: expectedFooter, baseUrl: BASE }));
     const actual = await fs.readFile(path.join(outDir, socialCardFileFor(category.id)));
     assert.ok(actual.equals(expected), `${category.id}'s share card footer does not match its exceptions`);
   }
@@ -4354,6 +4476,16 @@ test('the hub links every category page, and the sitemap lists them', async () =
       `${id} is in no sitemap, so it is built and never found`,
     );
   }
+});
+
+test('llms.txt links a product\'s own LLM docs only when it ships them', () => {
+  const surfaces = [
+    { slug: 'with-docs', title: 'With docs', description: 'Has a brief.', llmsDoc: true },
+    { slug: 'without-docs', title: 'Without docs', description: 'Has none.' },
+  ];
+  const llms = renderLlmsTxt(surfaces, BASE);
+  assert.match(llms, new RegExp(`\\[With docs\\]\\(${BASE}with-docs/\\): Has a brief\\. LLM docs: ${BASE}with-docs/llms\\.txt`));
+  assert.ok(!llms.includes(`${BASE}without-docs/llms.txt`));
 });
 
 test('llms.txt and catalog.json name the category pages', async () => {
@@ -4408,8 +4540,13 @@ test('the About page lede states the device-privacy claim honestly, with any doc
   // make the unconditional claim regardless, which is the drift this guards.
   const { surfaces } = await site();
   const about = await read('about', 'index.html');
-  const [, lede] = about.match(/<p class="lede">([^<]+)<\/p>/) ?? [];
-  assert.ok(lede, 'About page has no .lede paragraph to check');
+  const [, ledeOnly] = about.match(/<p class="lede">([^<]+)<\/p>/) ?? [];
+  assert.ok(ledeOnly, 'About page has no .lede paragraph to check');
+  // The lede itself stays short; the named exceptions sit directly under it,
+  // in the hero, in a disclosure the lede points at. Both are read together:
+  // the claim and its exceptions must still be in the first thing a visitor sees.
+  const [, disclosure = ''] = about.match(/<details class="exceptions">([\s\S]*?)<\/details>/) ?? [];
+  const lede = `${ledeOnly} ${disclosure}`;
 
   const exceptions = externalCallExceptions(surfaces);
   assert.ok(!lede.includes('nothing you type into them is uploaded anywhere'), 'lede still makes the old unconditional claim');
@@ -4524,7 +4661,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, /compare/, /research/, updates, the changelog and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, /compare/, /research/, Stories, updates, the changelog and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4536,8 +4673,10 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, /co
     `${BASE}c/marketplace/`,
     `${BASE}c/trades/`,
     `${BASE}about/`,
+    `${BASE}ask/`,
     `${BASE}${COMPARE_PATH}`,
     `${BASE}${RESEARCH_PATH}`,
+    `${BASE}stories/`,
     `${BASE}updates/`,
     `${BASE}changelog/`,
     `${BASE}${GUIDES_PATH}`,
@@ -4549,6 +4688,8 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, /co
 
   // Each research project's home page is listed under /research/.
   assert.ok(renderHubSitemap(BASE, [], [], ['accel-kws']).includes(`<loc>${BASE}${RESEARCH_PATH}accel-kws/</loc>`));
+  // And each research topic page, which the build passes in the same list.
+  assert.ok(renderHubSitemap(BASE, [], [], ['topics/accel']).includes(`<loc>${BASE}${RESEARCH_PATH}topics/accel/</loc>`));
 
   // The writing index and each post, and neither when there are no posts.
   const withPosts = renderHubSitemap(BASE, [], [], [], ['a-post']);
@@ -5536,4 +5677,42 @@ test('surfaceKind reads the files a venture ships', async () => {
   assert.equal(surfaceKind(await make('c', ['index.html', 'cli.mjs'])), 'cli');
   assert.equal(surfaceKind(await make('d', ['index.html'])), 'browser');
   assert.equal(surfaceKind(path.join(dir, 'pinned-actions-check'), 'pinned-actions-check'), 'cli');
+});
+
+test('clampMetaDescription ends long descriptions at a sentence, leaves short ones alone', () => {
+  const sentence = 'This checker reads one header and reports what the browser enforces. ';
+  const long = sentence.repeat(8).trim();
+  const html = `<head><meta name="description" content="${long}"><meta property="og:description" content="${long}"></head>`;
+  const out = clampMetaDescription(html);
+  const got = out.match(/name="description" content="([^"]*)"/)[1];
+  assert.ok(got.length <= 320);
+  assert.ok(got.endsWith('.'));
+  assert.ok(long.startsWith(got));
+  assert.ok(out.includes(`og:description" content="${long}"`), 'og:description is untouched');
+  const short = '<meta name="description" content="Short and fine.">';
+  assert.equal(clampMetaDescription(short), short);
+});
+
+test('clampMetaDescription cuts at a word with an ellipsis when no sentence fits', () => {
+  const long = 'word '.repeat(100).trim();
+  const out = clampMetaDescription(`<meta name="description" content="${long}">`);
+  const got = out.match(/content="([^"]*)"/)[1];
+  assert.ok(got.length <= 320 && got.endsWith('word\u2026'));
+});
+
+// Ranking by page count alone put a day-count adder with ten explainer pages
+// at the front of the featured row (2026-10-21). Flagships lead it now.
+test('the featured row leads with the flagships, then fills by page count', () => {
+  const surfaces = [
+    { slug: 'state-residency-day-counter', title: 'State residency day counter', description: 'Days.', kind: 'browser', pageCount: 11 },
+    { slug: 'changepoint-detector', title: 'Changepoint detector', description: 'PELT.', kind: 'browser', pageCount: 2 },
+    { slug: 'einvoice-preflight', title: 'E-invoice preflight', description: 'EN 16931.', kind: 'browser', pageCount: 19 },
+  ];
+  const featuredRow = (hub) => hub.slice(hub.indexOf('id="featured"')).match(/data-tool="([^"]+)"/g).map((m) => m.slice(11, -1));
+  const hub = renderHub(surfaces, 'https://example.test/', { flagships: ['changepoint-detector', 'einvoice-preflight', 'not-a-surface'] });
+  const row = featuredRow(hub);
+  assert.deepEqual(row.slice(0, 2), ['changepoint-detector', 'einvoice-preflight']);
+  assert.equal(new Set(row).size, row.length, 'no tool twice');
+  assert.ok(row.includes('state-residency-day-counter'), 'room left is filled by page count');
+  assert.ok(flagshipSlugs().includes('changepoint-detector'), 'the real file parses');
 });

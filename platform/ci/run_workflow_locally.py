@@ -107,13 +107,6 @@ VERIFICATION_ONLY = {
     # against `validate_doc_consistency.py` and `score_ventures.py --check`.
     # It reads the venture tree and asserts a count; it writes nothing.
     "sibling-links-ci.yml",
-    # Added 2026-09-07 with the workflow itself, and `--tree` is the whole
-    # point of it: the question "is the live site serving what `main`
-    # contains?" is a question about the tree, not about a diff, and while
-    # Actions is starved no runner asks it at all. It reads the repository
-    # object and a compare over the API and writes nothing -- in particular it
-    # never publishes, which is why it is a check and not a fixer.
-    "pages-freshness-ci.yml",
     # Added 2026-09-07, and unlike the two above these were NOT added with the
     # workflow that needed them -- they had been outside this set since they
     # were written. Both sweep the whole catalogue (754 and 807 pages) and both

@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01AYwD3HDndzpdVYJSbpZcei",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T02:59:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight: llms.txt for assistants",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 9041,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Routed to the process track but the owner's scheduled prompt asked for venture work, so the run took the einvoice-preflight flagship instead."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Wanted national rule sets (NLCIUS, RO_CIUS, PINT AE) for einvoice-preflight; their Schematron repositories are not reachable from the cloud sandbox (git ls-remote asks for credentials; only ConnectingEurope, itplr-kosit and OpenPEPPOL/peppol-bis-invoice-3 resolve), and nothing was written from memory. The base EN 16931 and Peppol commits equal plain/manifest.json, so no refresh was due. Landed llms.txt with output from running the CLI and the plain-JS runner on examples/ubl-invoice-with-defects.xml. The flagship next: edit was dropped in the merge with main, which had rewritten that text. Sub-par: small slice.",
+  "corrections": [],
+  "redteam": null
+}

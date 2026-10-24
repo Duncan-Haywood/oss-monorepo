@@ -3086,10 +3086,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
     # +1: `s-corp-basis-tracker` graduated (browser S corporation stock and debt basis roll-forward in Form 7203 order, suspended losses and excess distributions).
     # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
-    # +1: `ca-crypto-acb-calculator` graduated (browser + CLI Canadian crypto capital gains: average-cost ACB per coin, CRA superficial loss rule with the denied loss added to ACB, taxable gain per year, working CSV).
-    total = 1297  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1297 tools" wording.
+    # +1: `open-house-plans` graduated (browser, CLI and agent house plan generator: a brief or a sentence to a CC0 plan set of SVG drawings, DXF, IFC4, OBJ, schedules and an NAHB-anchored cost).
+    # +1: `ca-crypto-acb-calculator` graduated (browser + CLI Canadian crypto ACB: CRA average cost per coin, superficial loss rule, taxable gain per year, working CSV).
+    total = 1317  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1317 tools" wording.
+    # +1: `sales-agent` graduated (browser, CLI and MCP AI sales inbox agent: reply triage, automatic stop/pause/suppress with a consent record, drafts queued for approval, never sends; flagship for the owner's 2026-10-21 AI sales agents direction).
+    # +1: `agent-workroom` graduated (browser 3D room for AI agents' tasks: a desk per agent, a task wall, typed or spoken commands, progress from GitHub pull requests).
+    # +1: `interview-content-studio` graduated (browser and CLI: interviews about a brand or topic become a per-platform plan, a 4-week calendar and drafts for 14 platforms, optional own-key AI with a no-invented-numbers check).
     # +1: `open-tennis-robots` graduated (open-source tennis ball machine with a moving catch net and a ball-collecting rover: shot planner, catch simulation, route planner, ESP32 firmware, seller listing tool, collector manufacturing package).
     # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
+    # +1: `sales-cadence-builder` graduated (browser and CLI multi-channel prospecting cadence: email, call with voicemail, LinkedIn note and letter on business days, calls in the prospect's local 9-5, suppression and CASL/EU consent gating, CSV and .ics export, optional own-key AI).
+    # +1: `publish-kit` graduated (podcast RSS feed generator, Markdown to EPUB, ACX audiobook checks, KDP spine/cover size; browser page plus an agent-drivable CLI).
     # +1: `actions-schedule-check` graduated (browser + CLI lint of GitHub Actions schedule crons: invalid, faster than 5 minutes, minute 0).
     # +1: `liability-audit` graduated (zero-dependency repository scanner for legal and financial exposure: consent, auto-renewal, disclosures, leaked keys, open LLM endpoints, cloud budgets; CLI, SARIF, monorepo sweep, browser page, agent playbook).
     # +1: `llm-spend-guard` graduated (self-hosted proxy and zero-dependency library: hard per-user/feature/run LLM budgets with worst-case holds, loop breakers, browser log-replay simulator).
@@ -3126,6 +3132,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `bid-price-engine` graduated (one job-pricing engine for 120+ trades; the consolidated bid calculator).
     # +1: `us-substantial-presence-test-calculator` graduated (browser IRS substantial presence test: 183-day weighted count, days left this year, crossing date, planned-trip what-if).
     # +1: `discogs-fee-calculator` graduated (browser Discogs seller fee calculator: 9% on item plus shipping with the $0.10/$150 limits, editable processing, target-profit price, fee ladder).
+    # +1: `tutoring-group-schedule-optimizer` graduated (browser exact timetable for weekly small-group sessions: min-cost-flow seating inside a search over which slots to run).
+    # +1: `hearth-and-horizon` graduated (free CC BY-SA AI-written stories: sci-fi, stories for AI agents, Catholic saints bedtime stories; pages, podcast RSS feeds and Piper audio).
+    # +1: `ai-bookkeeper` graduated (browser + CLI double-entry books from bank CSVs that learn payees, pair transfers, reconcile and export QuickBooks/Xero journals; optional own-key or local-model AI).
+    # +1: `wall-framing-takeoff` graduated (browser + CLI wall framing takeoff: stud layout, cut list and a cutting-stock lumber order with an LP bound).
+    # +1: `support-agent` graduated (self-hosted AI support agent: answers from your help articles with citations, hands off by rule or calibrated confidence; measured on BANKING77).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
@@ -3564,11 +3575,16 @@ def test_portfolio_site_types_es_modules_as_javascript() -> None:
     #
     # `.py` is the fourth: 18 ventures' own pages offer a specific CLI as a
     # same-origin download (`DOWNLOADABLE_CLI_FILES` in `build.mjs`).
+    #
+    # `.gz` is the fifth: research/marriage-divorce-evidence's in-browser
+    # trainer fetches its data as .json.gz and unpacks it with
+    # DecompressionStream, so it must arrive as application/gzip.
     for suffix, mime in (
         (r"\.mjs$", "text/javascript"),
         (r"\.webmanifest$", "application/manifest+json"),
         (r"\.csv$", "text/csv"),
         (r"\.py$", "text/plain"),
+        (r"\.gz$", "application/gzip"),
     ):
         block = f"location ~ {suffix} {{\n    types {{ }}\n    default_type {mime};"
         assert block in conf, f"missing or reordered: {suffix} -> {mime}"
@@ -3602,15 +3618,16 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
     # hole while closing one.
     #
     # The count is pinned so a *new* location cannot be added without someone
-    # reading this: 8 today (.mjs, .webmanifest, .csv, .py, /feed.xml, /sw.js,
-    # /buildinfo.txt, /). Bumping the number is the reminder to restate the
+    # reading this: 14 today (.mjs, .webmanifest, .csv, .ofx, .qif, .mt940, .tsv, .py, .gz, .whl,
+    # /feed.xml, /sw.js, /buildinfo.txt, /). Bumping the number is the reminder to restate the
     # headers in the block being added, which is the whole point of the loop
     # below — and it has worked twice now: /buildinfo.txt and /feed.xml were
     # both written with their three headers because this test refused the
     # block without them. `.py` (added when 18 ventures' own pages started
-    # offering a same-origin CLI download) is the third.
+    # offering a same-origin CLI download) is the third, and `.gz` (gzipped
+    # data a research app unpacks itself in the browser) the fourth.
     blocks = [b for b in _location_blocks(_portfolio_site()["ConfigMap"]["data"]["default.conf"]) if "add_header" in b]
-    assert len(blocks) == 8, [b.splitlines()[0] for b in blocks]
+    assert len(blocks) == 14, [b.splitlines()[0] for b in blocks]
     for block in blocks:
         assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
 
@@ -4035,3 +4052,20 @@ def test_portfolio_site_build_uses_flags_the_build_scripts_accept() -> None:
     # dependency-free: there is no npm install step in the pod, and adding one
     # would need network egress the NetworkPolicy does not grant this pod.
     assert "npm install" not in script and "npm ci" not in script
+
+
+def test_the_generated_front_door_tools_mirror_is_not_committed() -> None:
+    # P024: the tree fed the k3s origin retired on 2026-10-01 and the tests
+    # build it into a temp dir. Venture PRs kept re-adding thousands of its
+    # files (6,202 on 2026-10-20) by running `front-door-tools.mjs --write`
+    # with no `--out`; pass `--out <dir>` if you need to inspect it.
+    import subprocess
+
+    tracked = subprocess.run(
+        ["git", "ls-files", "gitops/prod/front-door-tools"],
+        cwd=REPO, capture_output=True, text=True, check=True,
+    ).stdout.split()
+    assert not tracked, (
+        f"{len(tracked)} files are tracked under gitops/prod/front-door-tools/; "
+        "`git rm -r` it. It is generated and no longer committed."
+    )

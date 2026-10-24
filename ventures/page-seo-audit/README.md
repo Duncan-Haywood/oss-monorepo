@@ -3,7 +3,7 @@
 A free on-page SEO and AI-readiness audit. **Paste a page's HTML and get a score, the mistakes ranked by how much they
 matter, and the fix for each.** Nothing is uploaded; the page makes no network calls.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/page-seo-audit/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/page-seo-audit/
 
 After using this, you can **find the mechanical SEO mistakes on a page (missing or mis-sized title, no canonical, broken
 JSON-LD, no alt text, content that only exists after JavaScript) and fix them in minutes**, without a paid crawler.
@@ -12,7 +12,7 @@ JSON-LD, no alt text, content that only exists after JavaScript) and fix them in
 
 `noindex`; title and meta description presence and length; one `h1` and no skipped heading levels; canonical (present,
 absolute); viewport and `lang`; Open Graph and `twitter:card`; JSON-LD that parses and has a `@type`; question headings
-without `FAQPage` markup; image `alt` and `width`/`height`; duplicate `<title>` or canonical tags; relative `og:image`; JSON-LD missing `@context`; dead `href="#"` links; `nofollow`; vague link text ("click here"); and how much text is in the served HTML (a
+without `FAQPage` markup; image `alt` and `width`/`height`; duplicate `<title>` or canonical tags; relative `og:image`; JSON-LD missing `@context`; dead `href="#"` links; `nofollow`; an empty `h1`; `og:url` that disagrees with the canonical; an `hreflang` set that omits the page itself; meta-refresh redirects; vague link text ("click here"); and how much text is in the served HTML (a
 JS-only shell is critical, since most AI assistants read raw HTML). The **AI-readiness** figure is six of those signals
 as a percentage.
 

@@ -4,14 +4,11 @@ A free browser calculator for plumbers and water-heater installers. It prices
 a residential replacement from the heater type, the location, the vent, and
 the gas or electrical path — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/water-heater-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/water-heater-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 Search page: [`how-much-to-charge.html`](how-much-to-charge.html).
 

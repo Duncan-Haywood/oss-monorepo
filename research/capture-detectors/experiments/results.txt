@@ -1,0 +1,66 @@
+photos 128  GT persons 254  reference faces 22 (width px at full size: min 26, median 56.0, max 183)
+
+A. FACE recall by face width after shrinking (95% Wilson interval; trials of one face are correlated, so read as a guide)
+width px | yunet0.3 | yunet0.6 | yunet0.9 | haar
+6-8 | 0.56 (0.34-0.75), n=18 | 0.22 (0.09-0.45), n=18 | 0.00 (0.00-0.18), n=18 | 0.00 (0.00-0.18), n=18
+8-12 | 0.84 (0.65-0.94), n=25 | 0.56 (0.37-0.73), n=25 | 0.00 (0.00-0.13), n=25 | 0.00 (0.00-0.13), n=25
+12-16 | 1.00 (0.83-1.00), n=19 | 0.89 (0.69-0.97), n=19 | 0.00 (0.00-0.17), n=19 | 0.05 (0.01-0.25), n=19
+16-24 | 1.00 (0.87-1.00), n=25 | 1.00 (0.87-1.00), n=25 | 0.20 (0.09-0.39), n=25 | 0.64 (0.45-0.80), n=25
+24-32 | 1.00 (0.83-1.00), n=19 | 1.00 (0.83-1.00), n=19 | 0.58 (0.36-0.77), n=19 | 0.68 (0.46-0.85), n=19
+32-48 | 1.00 (0.82-1.00), n=18 | 1.00 (0.82-1.00), n=18 | 0.89 (0.67-0.97), n=18 | 0.72 (0.49-0.88), n=18
+48-64 | 1.00 (0.74-1.00), n=11 | 1.00 (0.74-1.00), n=11 | 1.00 (0.74-1.00), n=11 | 0.73 (0.43-0.90), n=11
+64-128 | 1.00 (0.82-1.00), n=17 | 1.00 (0.82-1.00), n=17 | 1.00 (0.82-1.00), n=17 | 0.76 (0.53-0.90), n=17
+128+ | 1.00 (0.44-1.00), n=3 | 1.00 (0.44-1.00), n=3 | 1.00 (0.44-1.00), n=3 | 0.67 (0.21-0.94), n=3
+
+B. Fitted recall = 1/(1+(mid/px)^k); bootstrap over faces, 95% range
+assumed (capture-bystander): face mid 20 px k 4; body mid 40 px k 4
+face yunet0.3: mid 6.7 px (5.8-7.6), k 5.25 (4.00-9.50), 198 trials
+face yunet0.6: mid 9.2 px (8.2-10.4), k 6.00 (4.25-9.50), 198 trials
+face yunet0.9: mid 26.6 px (23.7-29.9), k 6.00 (4.50-9.25), 198 trials
+face haar: mid 26.6 px (18.7-56.1), k 2.00 (1.00-4.50), 198 trials
+body hog: no fit; the stock Dalal-Triggs detector reached at most 4% recall at IoU 0.5 in any height bin (section C), see README
+body yolox: mid 22.8 px height (18.0-26.6), k 2.00 (1.50-2.50), 783 trials
+
+C. PERSON recall by box height (px) after shrinking; upright boxes (h/w >= 1.8), and all boxes for YOLOX
+height px | yolox upright | hog upright | yolox all boxes
+12-20 | 0.34 (0.27-0.41), n=164 | 0.00 (0.00-0.02), n=164 | 0.39 (0.34-0.44), n=304
+20-32 | 0.52 (0.44-0.60), n=148 | 0.00 (0.00-0.03), n=148 | 0.58 (0.52-0.64), n=283
+32-48 | 0.75 (0.66-0.82), n=123 | 0.00 (0.00-0.03), n=123 | 0.78 (0.72-0.83), n=228
+48-64 | 0.86 (0.76-0.93), n=66 | 0.00 (0.00-0.06), n=66 | 0.90 (0.84-0.94), n=123
+64-96 | 0.93 (0.86-0.96), n=97 | 0.00 (0.00-0.04), n=97 | 0.92 (0.87-0.95), n=166
+96-128 | 0.94 (0.83-0.98), n=48 | 0.04 (0.01-0.14), n=48 | 0.94 (0.88-0.98), n=90
+128-192 | 0.99 (0.92-1.00), n=68 | 0.04 (0.02-0.12), n=68 | 0.96 (0.91-0.99), n=113
+192-300 | 0.98 (0.88-1.00), n=45 | 0.00 (0.00-0.08), n=45 | 0.97 (0.91-0.99), n=80
+300+ | 0.96 (0.80-0.99), n=24 | 0.00 (0.00-0.14), n=24 | 0.98 (0.91-1.00), n=56
+
+D. Per-frame leak among identifiable faces (face-on, >= R px), 8K 360 camera, uniform crowd
+detector | R=16 | R=24 | R=32
+assumed mid 20, k 4 | 0.3618 | 0.1281 | 0.0481
+measured yunet0.3 mid 6.7, k 5.25 | 0.0030 | 0.0004 | 0.0001
+measured yunet0.6 mid 9.2, k 6.00 | 0.0091 | 0.0008 | 0.0001
+measured yunet0.9 mid 26.6, k 6.00 | 0.5908 | 0.2462 | 0.0723
+yunet0.6 at the ends of its mid range (8.2, 10.4), k 6.00, R=16: 0.0045, 0.0181
+
+E. Do the face and body detectors miss independently? (upright people, face 8-24 px, YuNet 0.6 and YOLOX)
+   Here a face that small belongs to a body about 9x taller, which YOLOX finds; the 'both' policy's independence assumption has nothing to bite on.
+n=30  P(face miss)=0.067  P(body miss)=0.000  product=0.000  P(both miss)=0.000
+
+F. Face width / person box height (upright people, n=10): median 0.113, min 0.085, max 0.190; capture-bystander assumed 0.15/1.7 = 0.088
+G. Head from a YOLOX body box (n=10): share of faces fully (>=90%) inside the top q of the box, and partly
+q | fully | at all
+0.12 | 0.00 | 1.00
+0.15 | 0.20 | 1.00
+0.2 | 0.50 | 1.00
+0.25 | 0.80 | 1.00
+0.33 | 1.00 | 1.00
+
+== H. figure data: face recall by width (bin geometric centre), measured against the assumed curve
+width_px yunet0.3 yunet0.6 yunet0.9 haar assumed
+6.9 0.556 0.222 0.000 0.000 0.014
+9.8 0.840 0.560 0.000 0.000 0.054
+13.9 1.000 0.895 0.000 0.053 0.187
+19.6 1.000 1.000 0.200 0.640 0.480
+27.7 1.000 1.000 0.579 0.684 0.787
+39.2 1.000 1.000 0.889 0.722 0.936
+55.4 1.000 1.000 1.000 0.727 0.983
+90.5 1.000 1.000 1.000 0.765 0.998

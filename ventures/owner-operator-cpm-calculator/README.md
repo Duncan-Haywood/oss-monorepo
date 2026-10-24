@@ -5,14 +5,11 @@ running — loaded miles, deadhead, fuel, the truck note, insurance, and
 per-mile reserves — and shows the all-in cost per mile plus the **loaded rate
 that actually covers the empty ones**.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/owner-operator-cpm-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally
@@ -129,3 +126,12 @@ relying on it or booking a load. To the maximum extent permitted by law, the
 authors accept no liability for loss or damage arising from its use.
 
 MIT licensed — see [`LICENSE`](LICENSE).
+
+## Host your own copy
+
+You do not need the author's site. Fork the repository and run your own:
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the site's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts, and nothing you type reaches a server. The Docker image has not been built in the session that added these files, so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.

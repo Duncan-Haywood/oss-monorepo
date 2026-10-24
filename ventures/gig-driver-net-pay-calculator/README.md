@@ -6,7 +6,7 @@ mile after gas, maintenance, and a prorated share of insurance** — the cost
 the app screen never subtracts — plus an optional self-employment tax
 reserve and a solver for the gross pay needed to hit an hourly take-home goal.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/gig-driver-net-pay-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
@@ -75,6 +75,12 @@ shows the self-employment tax, total tax and quarterly payment under each
 Security wage base and your marginal income-tax rate are inputs; state tax
 and credits are not modelled.
 
+**Session log.** Save each session with a date and the page rolls them up by
+week as total net over total hours and miles (not an average of per-session
+rates), plus the share of gross the car ate ([`log.mjs`](log.mjs),
+[`log.test.mjs`](log.test.mjs)). Stored in your browser only; export a CSV
+any time. It also lists net per hour by weekday and the best and worst session.
+
 **Copy session summary** turns the result into plain text. **Copy share
 link** puts the same inputs in a URL fragment so a partner or future-you can
 reopen the exact session — nothing is sent to a server either way.
@@ -117,6 +123,17 @@ clearing browser storage removes the local count. See
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
 never changes what the tool does.
 
+## Host your own copy
+
+You do not need the author's site. Fork the repository and run your own:
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the site's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts, and nothing you type reaches a server. The Docker image has not been
+  built in the session that added these files, so build it once and open the page before relying on it.
+  Tests: `node --test deploy.test.mjs`.
+
 ## Limitations
 
 - **The tax reserve is arithmetic on a percentage you supply, not a tax
@@ -124,7 +141,10 @@ never changes what the tool does.
   other income, or quarterly-estimate schedule, and it does not tell you what
   to reserve. A losing session reserves nothing rather than implying a
   refund. Ask a tax preparer for your number.
-- **One session at a time.** Multi-app stacking (driving for two platforms at
+- **The log is local and basic.** Saved sessions (see "Session log" above)
+  live in this browser's storage only, so clearing site data or switching
+  browsers loses them; export the CSV to keep a copy.
+- **One session is costed at a time.** Multi-app stacking (driving for two platforms at
   once) is not modeled separately — combine gross pay across apps and use the
   same miles and hours.
 - No standard mileage rate is built in, and none is asserted as current —

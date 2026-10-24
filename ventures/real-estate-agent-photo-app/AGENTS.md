@@ -29,7 +29,7 @@ instead of freeform markdown, unless there's a strong reason otherwise
 outside an editor with TS tooling).
 
 When you finish a session that did real work: update the relevant
-roadmap.ts task status, log a decision if you made one, and always append
+roadmap.ts task status, log a decision if you made one, and by default append
 one progress-log.ts entry — then build `research/` and `docs-site/` (and
 run `npm test` in `pipeline/`) for anything you touched, before pushing.
 

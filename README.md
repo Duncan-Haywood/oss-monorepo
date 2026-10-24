@@ -5,9 +5,39 @@ starting one**: more than 1,200 browser calculators, quoting and pricing tools,
 self-hostable business apps and command-line checks, all MIT licensed. They run
 in your browser with no account, and you can deploy your own copy to run for
 yourself, inside your own product, or as a business of your own.
-**Use them at [https://duncan-haywood.github.io/monorepo-projects/](https://duncan-haywood.github.io/monorepo-projects/).**
+**Use them at [https://duncan-haywood.github.io/oss-monorepo/](https://duncan-haywood.github.io/oss-monorepo/).**
 
-**Free tools by trade or business:** [Roofers](https://duncan-haywood.github.io/monorepo-projects/c/for-roofers/) · [HVAC contractors](https://duncan-haywood.github.io/monorepo-projects/c/for-hvac/) · [Plumbers](https://duncan-haywood.github.io/monorepo-projects/c/for-plumbers/) · [Electricians](https://duncan-haywood.github.io/monorepo-projects/c/for-electricians/) · [Painters](https://duncan-haywood.github.io/monorepo-projects/c/for-painters/) · [Cleaning businesses](https://duncan-haywood.github.io/monorepo-projects/c/for-cleaning-businesses/) · [Landscapers](https://duncan-haywood.github.io/monorepo-projects/c/for-landscapers/) · [Pool & hot tub pros](https://duncan-haywood.github.io/monorepo-projects/c/for-pool-hot-tub/) · [Auto detailing & repair](https://duncan-haywood.github.io/monorepo-projects/c/for-auto-detailing-repair/) · [Etsy sellers](https://duncan-haywood.github.io/monorepo-projects/c/for-etsy-sellers/) · [eBay sellers](https://duncan-haywood.github.io/monorepo-projects/c/for-ebay-sellers/) · [Amazon sellers & KDP authors](https://duncan-haywood.github.io/monorepo-projects/c/for-amazon-sellers/) · [Shopify stores](https://duncan-haywood.github.io/monorepo-projects/c/for-shopify-stores/) · [Resellers](https://duncan-haywood.github.io/monorepo-projects/c/for-resellers/) · [Landlords & hosts](https://duncan-haywood.github.io/monorepo-projects/c/for-landlords/) · [Freelancers](https://duncan-haywood.github.io/monorepo-projects/c/for-freelancers/) · [Photographers & videographers](https://duncan-haywood.github.io/monorepo-projects/c/for-photographers/) · [Wedding & event pros](https://duncan-haywood.github.io/monorepo-projects/c/for-wedding-event-pros/) · [Restaurants, cafes & bars](https://duncan-haywood.github.io/monorepo-projects/c/for-restaurants-bars/) · [Pet businesses](https://duncan-haywood.github.io/monorepo-projects/c/for-pet-businesses/) · [Creators](https://duncan-haywood.github.io/monorepo-projects/c/for-creators/) · [Childcare providers](https://duncan-haywood.github.io/monorepo-projects/c/for-childcare/) · [Tutors & teachers](https://duncan-haywood.github.io/monorepo-projects/c/for-tutors-teachers/) · [Truckers & owner-operators](https://duncan-haywood.github.io/monorepo-projects/c/for-truckers/) · [Farms & homesteads](https://duncan-haywood.github.io/monorepo-projects/c/for-farms/) · [Therapists & clinics](https://duncan-haywood.github.io/monorepo-projects/c/for-health-practices/) · [Salons & beauty pros](https://duncan-haywood.github.io/monorepo-projects/c/for-salons-beauty/).
+**Free tools by trade or business:** [Roofers](https://duncan-haywood.github.io/oss-monorepo/c/for-roofers/) · [HVAC contractors](https://duncan-haywood.github.io/oss-monorepo/c/for-hvac/) · [Plumbers](https://duncan-haywood.github.io/oss-monorepo/c/for-plumbers/) · [Electricians](https://duncan-haywood.github.io/oss-monorepo/c/for-electricians/) · [Painters](https://duncan-haywood.github.io/oss-monorepo/c/for-painters/) · [Cleaning businesses](https://duncan-haywood.github.io/oss-monorepo/c/for-cleaning-businesses/) · [Landscapers](https://duncan-haywood.github.io/oss-monorepo/c/for-landscapers/) · [Pool & hot tub pros](https://duncan-haywood.github.io/oss-monorepo/c/for-pool-hot-tub/) · [Auto detailing & repair](https://duncan-haywood.github.io/oss-monorepo/c/for-auto-detailing-repair/) · [Etsy sellers](https://duncan-haywood.github.io/oss-monorepo/c/for-etsy-sellers/) · [eBay sellers](https://duncan-haywood.github.io/oss-monorepo/c/for-ebay-sellers/) · [Amazon sellers & KDP authors](https://duncan-haywood.github.io/oss-monorepo/c/for-amazon-sellers/) · [Shopify stores](https://duncan-haywood.github.io/oss-monorepo/c/for-shopify-stores/) · [Resellers](https://duncan-haywood.github.io/oss-monorepo/c/for-resellers/) · [Landlords & hosts](https://duncan-haywood.github.io/oss-monorepo/c/for-landlords/) · [Freelancers](https://duncan-haywood.github.io/oss-monorepo/c/for-freelancers/) · [Photographers & videographers](https://duncan-haywood.github.io/oss-monorepo/c/for-photographers/) · [Wedding & event pros](https://duncan-haywood.github.io/oss-monorepo/c/for-wedding-event-pros/) · [Restaurants, cafes & bars](https://duncan-haywood.github.io/oss-monorepo/c/for-restaurants-bars/) · [Pet businesses](https://duncan-haywood.github.io/oss-monorepo/c/for-pet-businesses/) · [Creators](https://duncan-haywood.github.io/oss-monorepo/c/for-creators/) · [Childcare providers](https://duncan-haywood.github.io/oss-monorepo/c/for-childcare/) · [Tutors & teachers](https://duncan-haywood.github.io/oss-monorepo/c/for-tutors-teachers/) · [Truckers & owner-operators](https://duncan-haywood.github.io/oss-monorepo/c/for-truckers/) · [Farms & homesteads](https://duncan-haywood.github.io/oss-monorepo/c/for-farms/) · [Therapists & clinics](https://duncan-haywood.github.io/oss-monorepo/c/for-health-practices/) · [Salons & beauty pros](https://duncan-haywood.github.io/oss-monorepo/c/for-salons-beauty/).
+
+## Browse
+
+- **[The full catalogue in this repository](ventures/README.md)**: every tool,
+  grouped the way the site groups them (trade and contractor bids, marketplace
+  seller fees, service-business pricing, restaurant costing, back-office money
+  and contracts, compliance checks, CI and developer checks, UK tax,
+  self-hosted business apps), each linked to its live page and its source.
+  It includes CSV import checkers for Shopify, Etsy, Mailchimp, Klaviyo,
+  Salesforce and more.
+- **[Use them from an AI agent or the command line](platform/agents/README.md)**:
+  `node platform/agents/tools.mjs search|describe|call` runs any tool's
+  calculation engine with JSON inputs and no browser. The same commands run as
+  a local MCP server (see [`.mcp.json`](.mcp.json)) for Claude Code, Cursor and
+  other MCP clients.
+- **Self-hosted business apps**: open-source alternatives to paid SaaS you run
+  on your own server, such as Stripe failed-payment recovery, cancellation
+  flows, status pages, cookie-free analytics and license keys
+  ([section](https://duncan-haywood.github.io/oss-monorepo/c/self-hosted/)).
+- **Open research**: over 700 reproducible papers with code, on verification
+  markets, chip design, robotics, digital twins and more, at
+  [duncan-haywood.github.io/oss-monorepo/research/](https://duncan-haywood.github.io/oss-monorepo/research/)
+  (source in [`research/`](research/README.md)).
+- **Developer tools**: [`uitest`](platform/uitest/README.md), AI-agent
+  end-to-end UI testing for any web app (CLI and GitHub Action), a
+  [bring-your-own-key LLM client](platform/llm/README.md), and the rest of the
+  shared tooling in [`platform/`](platform/README.md).
+- **How it is built**: a public
+  [development dashboard](https://duncan-haywood.github.io/oss-monorepo/dev/)
+  of merges, CI results and agent run cost.
 
 ## What else is here
 
@@ -29,6 +59,8 @@ rules"), not every rulebook in the tree.
 | Strategy, routing, usage, ledger | `portfolio/` | [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) |
 | How runs are steered and reviewed | `prompts/` | [`prompts/README.md`](prompts/README.md) |
 | A scheduled run | anywhere | [`prompt.md`](prompt.md), which routes it to one of the above |
+| A contribution from a person: bug report, fix, research check | anywhere | [`CONTRIBUTING.md`](CONTRIBUTING.md), then [`docs/contributing/`](docs/contributing/README.md) |
+| Steering the agents the way the owner does | anywhere | [`docs/contributing/steering-agents.md`](docs/contributing/steering-agents.md) |
 
 One process applies to every kind of work, because it is what keeps the tree
 from filling with dead branches and redone work: open a pull request for
@@ -41,9 +73,10 @@ stranded branch.
 **Strategy:** [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) — build
 products people use (free, full-feature, usage-tracked), ship fast, minimize
 variable cost. **Current priority:** deploy what is already on `main` before
-building another product. **Host:** GitHub Pages for static tools; the Hetzner
-boxes for processes were deleted 2026-10-01, so processes need a new host
-decision — [`portfolio/hosting/`](portfolio/hosting/README.md).
+building another product. **Where it goes:** GitHub Pages for web surfaces;
+apps, CLIs, packages and services ship through their own channels, with no
+static-only rule — [`portfolio/hosting/`](portfolio/hosting/README.md),
+[`portfolio/distribution/`](portfolio/distribution/README.md).
 Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it
 lands: [`portfolio/usage/`](portfolio/usage/README.md).
@@ -66,7 +99,7 @@ directory that inherits the platform automatically.
 ventures/     one directory per business; each has a VENTURE.yaml
 research/     one directory per research project (MIT); a peer of ventures/,
               its homepage is published at /research/ on the Pages site
-platform/     shared agent definitions, skills, and CI — versioned once
+platform/     shared tooling: the Pages site build, CI guards, open-source tools (platform/README.md)
 prompts/      the prompt system: prompt.md (the master prompt) routes each run to
               a sub-prompt here, run records measure it, and a review track
               improves the prompts and docs from the records (prompts/README.md)
@@ -80,11 +113,17 @@ gitops/       RETIRED as a deploy target: App-of-Apps, prod/staging/agents
 
 The hel1 servers (89.167.29.39, 157.180.80.188) were deleted by the owner on
 2026-10-01; the k3s/Argo route is retired, not down. Do not SSH to those
-addresses or ask for `HETZNERSSHKEY` again. Actions secrets that stack used
+addresses (they may now belong to someone else); asking for `HETZNERSSHKEY`
+again gains nothing, since the servers are gone. Actions secrets that stack used
 (names only): `HETZNERSSHKEY`, `HETZNERREADAPIKEY`. `CLAUDETRIGGERAPIKEY` is the Claude routine
 trigger, not GitOps. Table: [`infra/OWNER_CHECKLIST.md`](infra/OWNER_CHECKLIST.md).
 
 ### ventures/
+
+The catalogue of every tool, grouped and linked to its live page, is
+[`ventures/README.md`](ventures/README.md) (generated by
+`node platform/pages/ventures-readme.mjs`; GitHub's folder view lists only the
+first 1,000 directories).
 
 Each venture is self-contained and carries a `VENTURE.yaml` at its root. That
 file is the interface between "this business exists" and "the router knows
@@ -112,7 +151,7 @@ pip install -r portfolio/router/requirements.txt
 python3 portfolio/router/validate.py
 ```
 
-Every directory under `ventures/` must have either a valid `VENTURE.yaml` or
+`validate.py` expects every directory under `ventures/` to have either a valid `VENTURE.yaml` or
 a `NOT-A-VENTURE` file, so a new venture cannot go silently invisible to the
 router. A `NOT-A-VENTURE` marker is authoritative even when a `VENTURE.yaml`
 is still present in the same directory — the router (`allocate.py`), the
@@ -127,14 +166,15 @@ where it is reported as `reclassified` and excluded from the ranking and the
 dispatchable/blocked means. A score is a record about a business, not an input
 to allocation, so removing the row would delete the evidence the
 reclassification was decided on. `score_ventures.py --check` enforces both
-halves: every *allocated* venture must be scored, and a scored slug must name a
+halves: it fails when an *allocated* venture has no score, or a scored slug does not name a
 directory that carries a `VENTURE.yaml` — marker or not.
 
 ### research/
 
 The open research portfolio: one self-contained project per directory, each
 with a README, tests and a card on the research homepage
-(`research/_homepage/build.py`, published at `/research/`). It was its own
+(`research/_homepage/build.py`, published at
+[`/research/`](https://duncan-haywood.github.io/oss-monorepo/research/)). It was its own
 repository, `oss-research-monorepo`, until 2026-10-16. Its history was merged
 in (`git log -- research/<slug>` shows each project's original commits), and
 that repository is now archived, read-only history. Research work lands here
@@ -143,9 +183,10 @@ gate, usage tracking, disclaimers) do not apply inside it.
 
 ### platform/
 
-The processes that are the same across ventures: agent definitions, skills,
-reusable CI. If a procedure is being copy-pasted between ventures, it belongs
-here instead.
+The processes that are the same across ventures: the site build, reusable
+CI, the usage counter, deploy bundles. If a procedure is being copy-pasted
+between ventures, it belongs here instead. [`platform/README.md`](platform/README.md)
+lists each directory.
 
 [`platform/uitest/`](platform/uitest/README.md) is an open-source tool that any
 project can use: AI-agent end-to-end UI testing for any web app. It runs as a
@@ -154,6 +195,7 @@ deterministic checks without one.
 
 ### portfolio/
 
+[`portfolio/README.md`](portfolio/README.md) lists each directory.
 `ledger/` records revenue, cost, agent-hours, and outcomes per venture.
 `router/` reads the ledger plus each `VENTURE.yaml` and decides where agent
 effort goes next. See [portfolio/router/README.md](portfolio/router/README.md)
@@ -201,16 +243,6 @@ existing venture to avoid duplicate products.
 Ventures were merged in with `git subtree`, so each one's full commit history
 is preserved and attributed. The original standalone repositories still exist
 and were not deleted.
-
-## Product-first execution
-
-The current operating direction is to ship useful, free, local-first software
-for narrow customer problems, measure anonymous feature usage, and improve what
-people return to. New products should leave a stranger able to complete one
-valuable task without an account, payment, or a paid dependency. See
-[`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and
-[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) for the launch checklist, safety
-guardrails, and opportunity-selection criteria.
 
 ## License
 

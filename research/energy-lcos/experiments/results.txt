@@ -1,0 +1,48 @@
+A. LCOS, $/MWh delivered (7% discount, charging power $30/MWh, 2000 discharge-hours/yr, <=365 cycles/yr)
+ hours     li-ion vanadium f pumped hyd compressed   hydrogen     winner
+     1        159        314        383        303        578     li-ion
+     2        130        219        214        180        332     li-ion
+     4        116        171        129        118        209     li-ion
+     8        143        195        109        103        176 compressed
+    10        167        225        111        103        177 compressed
+    24        337        431        126        109        179 compressed
+    48        627        785        152        118        182 compressed
+   100       1257       1551        209        137        188 compressed
+   168       2081       2553        283        163        197 compressed
+   500       6104       7445        644        287        240   hydrogen
+
+B. Cycles per year and economic life in years at each duration
+ hours     cycles     li-ion vanadium f pumped hyd compressed   hydrogen
+     1        365       15.0       20.0       50.0       40.0       25.0
+     2        365       15.0       20.0       50.0       40.0       25.0
+     4        365       15.0       20.0       50.0       40.0       25.0
+     8        250       15.0       20.0       50.0       40.0       25.0
+    10        200       15.0       20.0       50.0       40.0       25.0
+    24         83       15.0       20.0       50.0       40.0       25.0
+    48         42       15.0       20.0       50.0       40.0       25.0
+   100         20       15.0       20.0       50.0       40.0       25.0
+   168         12       15.0       20.0       50.0       40.0       25.0
+   500          4       15.0       20.0       50.0       40.0       25.0
+
+C. Crossover durations in hours (above this the second technology is cheaper)
+li-ion (LFP) -> pumped hydro: 4.9
+li-ion (LFP) -> compressed air (cavern): 4.2
+li-ion (LFP) -> hydrogen (cavern): 10.8
+compressed air (cavern) -> hydrogen (cavern): 308.1
+
+D. Winner by duration under changed assumptions (hours: 2 4 8 24 100 500)
+base                      li-ion     li-ion compressed compressed compressed   hydrogen
+rate 3%                   li-ion pumped hyd pumped hyd compressed compressed compressed
+rate 12%                  li-ion     li-ion compressed compressed compressed   hydrogen
+free charging power       li-ion compressed compressed compressed compressed   hydrogen
+charging $100/MWh         li-ion     li-ion pumped hyd pumped hyd compressed compressed
+500 discharge-h/yr        li-ion compressed compressed compressed compressed   hydrogen
+4000 discharge-h/yr       li-ion     li-ion pumped hyd compressed compressed   hydrogen
+
+E. Li-ion energy cost ($/kWh, power cost fixed) at which it ties the best other technology (base case 200)
+ hours  breakeven
+     4        207
+     8        117
+    10         95
+    24         43
+    48         25

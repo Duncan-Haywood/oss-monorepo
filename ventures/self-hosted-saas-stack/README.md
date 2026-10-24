@@ -8,7 +8,7 @@ alternative), lifecycle email, referral programs, Stripe revenue metrics,
 e-signature and more. Each is MIT licensed, a zero-dependency Node server, and
 deploys to your own cloud.
 
-Live page: https://duncan-haywood.github.io/monorepo-projects/self-hosted-saas-stack/
+Live page: https://duncan-haywood.github.io/oss-monorepo/self-hosted-saas-stack/
 
 - `stack.mjs` - the catalogue: one row per tool, grouped by job, with the paid
   products people compare it with.

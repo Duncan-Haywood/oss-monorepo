@@ -1,0 +1,237 @@
+sex,factor,category,n,events,person_years,weighted_person_years,rate_per_1000,ci95_low,ci95_high,caution
+All,All,All,4336,105,8193.333333333354,38145221.40500012,12.359513004116446,9.91752299333168,15.402793802609208,"Approximate respondent-level CI, not full survey design"
+All,respondent_religion,Baptist,922,22,1742.0000000000043,6717321.453333356,10.956837559631296,6.676285387357085,17.981898966675494,"Approximate respondent-level CI, not full survey design"
+All,respondent_religion,Episcopalian,56,0,106.58333333333394,628717.8158333352,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+All,respondent_religion,Jewish,44,2,86.8333333333328,557619.7541666627,15.54460711843665,2.671590689836289,90.4460445179042,Sparse: fewer than10 observed events; intervals approximate
+All,respondent_religion,Lutheran,257,4,478.5833333333346,2882852.3233333407,7.214951605967144,2.5161805651091798,20.688311243747776,Sparse: fewer than10 observed events; intervals approximate
+All,respondent_religion,Methodist,234,2,442.66666666666697,2478019.2933333335,6.769850438667825,1.6980783568180413,26.989846951357134,Sparse: fewer than10 observed events; intervals approximate
+All,respondent_religion,None,392,13,742.3333333333367,4003394.821666687,21.107213693407555,12.234928564170175,36.41332824809902,"Approximate respondent-level CI, not full survey design"
+All,respondent_religion,Other specified,365,12,680.7500000000005,3023621.0791666717,17.115229932932802,8.822646897322795,33.202178333357985,"Approximate respondent-level CI, not full survey design"
+All,respondent_religion,Presbyterian,105,1,199.74999999999977,1268431.6708333325,7.757469500533244,1.07701300106695,55.87521505505266,Sparse: fewer than10 observed events; intervals approximate
+All,respondent_religion,Protestant/nondenominational/unspecified Christian,715,18,1347.5833333333333,6370478.954166673,11.967020148483082,7.068753212768347,20.259523415744578,"Approximate respondent-level CI, not full survey design"
+All,respondent_religion,Roman Catholic,1241,31,2356.0000000000105,10165161.500000052,12.718575105766824,8.375766880797633,19.31311544640636,"Approximate respondent-level CI, not full survey design"
+All,spouse_religion,Baptist,884,20,1671.8333333333371,6376812.023333354,11.07387668659658,6.662104748143042,18.407207557660914,"Approximate respondent-level CI, not full survey design"
+All,spouse_religion,Episcopalian,57,0,108.83333333333417,557950.9608333353,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+All,spouse_religion,Jewish,42,1,80.74999999999955,508274.709999998,1.8342246459596694,0.24736694767259385,13.600766325090646,Sparse: fewer than10 observed events; intervals approximate
+All,spouse_religion,Lutheran,245,6,454.083333333336,2782624.4758333503,13.173624511091012,5.621392470753296,30.872134202001735,Sparse: fewer than10 observed events; intervals approximate
+All,spouse_religion,Methodist,229,3,433.4999999999991,2369468.4233333296,9.615279011800082,3.078296236263438,30.034013421329167,Sparse: fewer than10 observed events; intervals approximate
+All,spouse_religion,None,446,15,847.3333333333328,4464202.476666666,20.11306845272027,11.863128505342852,34.10023944372,"Approximate respondent-level CI, not full survey design"
+All,spouse_religion,Other specified,350,12,652.5000000000023,2915936.482500009,15.676682353796732,7.881659259767726,31.181044691480913,"Approximate respondent-level CI, not full survey design"
+All,spouse_religion,Presbyterian,97,1,185.33333333333394,1139103.030833338,8.638217732421838,1.1975731879292606,62.308346867510814,Sparse: fewer than10 observed events; intervals approximate
+All,spouse_religion,Protestant/nondenominational/unspecified Christian,682,14,1290.7500000000005,5932907.388333343,9.807429341374839,5.382505938947427,17.870053721644314,"Approximate respondent-level CI, not full survey design"
+All,spouse_religion,Roman Catholic,1267,30,2400.2500000000105,10763112.21083339,11.216803990808902,7.374046834948308,17.06209556087102,"Approximate respondent-level CI, not full survey design"
+All,respondent_attendance,Monthly (1-3 times),1000,24,1900.7500000000032,8420767.362500018,11.743965335083178,7.190346960534648,19.181372268770193,"Approximate respondent-level CI, not full survey design"
+All,respondent_attendance,More than weekly,741,26,1385.4166666666715,7288460.296666684,20.712931655680798,13.797786919731015,31.093793538686374,"Approximate respondent-level CI, not full survey design"
+All,respondent_attendance,Never,560,14,1054.416666666667,4252350.643333344,10.365775002375463,5.447579947261772,19.724224782397442,"Approximate respondent-level CI, not full survey design"
+All,respondent_attendance,Several times/year or less,945,16,1789.416666666667,8061277.701666667,7.240127701832318,4.099609114251304,12.786450531738776,"Approximate respondent-level CI, not full survey design"
+All,respondent_attendance,Weekly,1082,24,2048.416666666678,10046317.117500065,11.74168490008341,7.533274245884518,18.30109455634973,"Approximate respondent-level CI, not full survey design"
+All,spouse_attendance,Monthly (1-3 times),906,26,1708.3333333333355,7627172.973333356,13.661928261535143,8.533247995306867,21.873064503221503,"Approximate respondent-level CI, not full survey design"
+All,spouse_attendance,More than weekly,856,28,1606.3333333333342,8294646.268333327,17.708400725991915,11.821622773914264,26.526599796795825,"Approximate respondent-level CI, not full survey design"
+All,spouse_attendance,Never,542,11,1019.5833333333358,4076245.039166683,8.200017339201281,4.014375416690108,16.749874484495006,"Approximate respondent-level CI, not full survey design"
+All,spouse_attendance,Several times/year or less,940,17,1786.9166666666713,8254604.218333356,8.918735296416715,5.206566394186936,15.277600104429478,"Approximate respondent-level CI, not full survey design"
+All,spouse_attendance,Weekly,1056,20,2006.3333333333417,9616392.21333338,10.434039895011665,6.39083867972473,17.03519584621784,"Approximate respondent-level CI, not full survey design"
+All,husband_attendance,Monthly (1-3 times),896,24,1697.1666666666686,7366310.629166681,12.472517739914204,7.537692145761044,20.63810723020289,"Approximate respondent-level CI, not full survey design"
+All,husband_attendance,More than weekly,944,32,1768.1666666666702,8984061.100833341,19.27331616032072,13.259188554182716,28.01534304288173,"Approximate respondent-level CI, not full survey design"
+All,husband_attendance,Never,498,11,937.4166666666672,3771957.9050000105,9.116936314272017,4.419777495532219,18.806043481264187,"Approximate respondent-level CI, not full survey design"
+All,husband_attendance,Several times/year or less,824,15,1558.0000000000027,7272453.280000008,8.264893246588162,4.629157085339284,14.756133593701993,"Approximate respondent-level CI, not full survey design"
+All,husband_attendance,Weekly,1153,20,2195.583333333344,10597820.280000063,9.336514244040325,5.739986673176593,15.186533208608733,"Approximate respondent-level CI, not full survey design"
+All,wife_attendance,Monthly (1-3 times),1010,26,1911.9166666666702,8681629.706666693,12.810803242920427,8.086962509688792,20.29398300439706,"Approximate respondent-level CI, not full survey design"
+All,wife_attendance,More than weekly,653,22,1223.5833333333355,6599045.464166666,18.896316244086815,12.09937976905503,29.51149351554131,"Approximate respondent-level CI, not full survey design"
+All,wife_attendance,Never,604,14,1136.5833333333355,4556637.777500015,9.462128021871246,5.004712779317093,17.889511476520326,"Approximate respondent-level CI, not full survey design"
+All,wife_attendance,Several times/year or less,1061,18,2018.3333333333355,9043428.640000015,7.948231015178319,4.672038666446099,13.521800819918667,"Approximate respondent-level CI, not full survey design"
+All,wife_attendance,Weekly,985,24,1859.1666666666756,9064889.050833382,13.166383982275809,8.422571485386715,20.58203572026668,"Approximate respondent-level CI, not full survey design"
+All,coded_affiliation_match,Different coded affiliations,1038,25,1964.0000000000073,9780574.17250005,12.5076665073468,8.04581973546624,19.443851167756666,"Approximate respondent-level CI, not full survey design"
+All,coded_affiliation_match,Same coded affiliation,3261,77,6161.166666666679,28029818.010000058,11.877053211020806,9.169424210759166,15.384214944696128,"Approximate respondent-level CI, not full survey design"
+All,broad_affiliation_match,Different broad affiliations,878,25,1657.0000000000061,8342845.535833376,14.663121769972948,9.433487552626534,22.791903719763837,"Approximate respondent-level CI, not full survey design"
+All,broad_affiliation_match,Same broad affiliation,3421,77,6468.16666666668,29467546.646666743,11.297568949047806,8.721750441301127,14.634111009882128,"Approximate respondent-level CI, not full survey design"
+All,none_pair,Both affiliated,3709,82,7010.000000000017,31966181.169166766,10.496080161230772,8.12565700101166,13.558005061900358,"Approximate respondent-level CI, not full survey design"
+All,none_pair,Both none,245,8,468.6666666666672,2586572.8108333354,21.095528326697423,10.572360236881055,42.09290124546294,Sparse: fewer than10 observed events; intervals approximate
+All,none_pair,Exactly one none,345,12,646.5000000000016,3257638.2025000136,20.001938812601985,10.969021212856891,36.47340528379498,"Approximate respondent-level CI, not full survey design"
+All,protestant_denom_match,Different named Protestant denominations,85,0,163.2500000000016,774113.5341666758,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+All,protestant_denom_match,Same named Protestant denomination,1185,25,2232.750000000003,10245666.640833342,10.281788749612465,6.4794390783672595,16.315483271477323,"Approximate respondent-level CI, not full survey design"
+All,weekly_pair,Both weekly+,1558,39,2935.166666666677,15085624.777500048,14.156474335654961,10.097090772320254,19.847872039086905,"Approximate respondent-level CI, not full survey design"
+All,weekly_pair,Neither weekly+,2136,44,4039.7500000000045,17803640.36166671,9.017810219626897,6.296342744683327,12.915577257269739,"Approximate respondent-level CI, not full survey design"
+All,weekly_pair,Only husband weekly+,531,13,1013.3333333333367,4425537.307500024,13.22779267972529,7.133660351718373,24.528010944009367,"Approximate respondent-level CI, not full survey design"
+All,weekly_pair,Only wife weekly+,75,6,139.25000000000045,554258.2658333336,46.58719876947135,17.835889288881795,121.68538692035702,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Monthly (1-3 times) | Monthly (1-3 times),678,18,1277.9166666666679,5780116.970833344,11.800385761080232,6.583392601614227,21.151572226781926,"Approximate respondent-level CI, not full survey design"
+All,attendance_pair,Monthly (1-3 times) | More than weekly,9,0,16.750000000000455,58208.447500001304,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Monthly (1-3 times) | Never,46,2,88.50000000000045,299657.0933333323,27.251515754763698,5.471284895575251,135.73504672233892,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Monthly (1-3 times) | Several times/year or less,135,1,261.49999999999955,1012689.8350000036,5.150807107686612,0.7229220175179255,36.69941323918394,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Monthly (1-3 times) | Weekly,24,3,44.75,174446.38833333342,58.96682699067627,12.123580182926926,286.80362012575847,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,More than weekly | Monthly (1-3 times),91,5,171.66666666666765,732254.4525000055,32.49365014956986,12.015976170708337,87.86945688328544,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,More than weekly | More than weekly,589,18,1104.0833333333342,5988308.083333328,17.260461312549104,10.561410758244024,28.208686466384357,"Approximate respondent-level CI, not full survey design"
+All,attendance_pair,More than weekly | Never,18,0,34.66666666666674,113711.72583333311,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,More than weekly | Several times/year or less,65,3,120.08333333333371,524824.1950000052,23.549600261855073,6.764144201351679,81.9887418104336,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,More than weekly | Weekly,177,6,329.6666666666679,1587391.0433333372,21.1911678229976,9.002731342663466,49.881039054708964,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Never | Monthly (1-3 times),16,1,30.166666666666742,109052.50083333324,55.95882674278581,8.268624360695451,378.70752785844877,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Never | More than weekly,5,1,8.75,32907.13999999906,223.8024939268563,32.24037899416317,1553.5659893126087,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Never | Never,425,9,798.0833333333342,3236113.656666678,6.46502324073191,2.9437843133705845,14.198229575911899,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Never | Several times/year or less,43,0,82.91666666666629,330717.38249999925,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Never | Weekly,8,0,15.583333333333258,58773.266666667405,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Several times/year or less | Monthly (1-3 times),40,1,76.33333333333417,350222.22083333775,19.49824880828913,2.719924708891879,139.77655533885633,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Several times/year or less | More than weekly,10,1,19.166666666666742,89801.53583333301,66.89506971405477,9.68955239861217,461.8325148527183,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Several times/year or less | Never,67,0,126.83333333333417,584669.7850000045,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Several times/year or less | Several times/year or less,686,12,1297.500000000001,6100400.916666668,7.394143535183772,3.8296307636471307,14.276404696214641,"Approximate respondent-level CI, not full survey design"
+All,attendance_pair,Several times/year or less | Weekly,19,1,34.25,140121.48749999935,15.435248644502222,2.011258550157728,118.45662542934807,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Weekly | Monthly (1-3 times),180,1,346.3333333333337,1667483.679166672,3.7699019657820965,0.5289886618454609,26.866664366730163,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Weekly | More than weekly,39,2,72.91666666666742,426682.8083333381,18.66658286775341,3.462097902656684,100.64455880676404,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Weekly | Never,45,2,84.24999999999977,312466.94416666706,22.09632131940738,4.530139510967842,107.77756726220234,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Weekly | Several times/year or less,132,2,256.3333333333351,1074796.3108333405,8.556458472461221,1.578974193010777,46.36743394225552,Sparse: fewer than10 observed events; intervals approximate
+All,attendance_pair,Weekly | Weekly,753,13,1428.5000000000075,7083242.842500044,9.684112422127447,5.3698777275134795,17.464463468859815,"Approximate respondent-level CI, not full survey design"
+Men,All,All,2115,53,3985.666666666709,19100252.29916687,12.148078274867654,8.838466499417837,16.69699215152672,"Approximate respondent-level CI, not full survey design"
+Men,respondent_religion,Baptist,438,13,827.2500000000077,3095440.562500037,12.479861661048949,6.565821805373478,23.720861104006186,"Approximate respondent-level CI, not full survey design"
+Men,respondent_religion,Episcopalian,28,0,53.50000000000023,331328.6949999996,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,respondent_religion,Jewish,20,1,39.6666666666672,269736.81666667,28.67865831440969,4.0233651903355,204.42226937050083,Sparse: fewer than10 observed events; intervals approximate
+Men,respondent_religion,Lutheran,122,3,223.08333333333576,1384361.762500016,10.071319779030548,2.8930197666040405,35.06076358771543,Sparse: fewer than10 observed events; intervals approximate
+Men,respondent_religion,Methodist,109,1,206.66666666666856,1200515.80500001,7.066129379279542,0.9941512264962296,50.22393281220465,Sparse: fewer than10 observed events; intervals approximate
+Men,respondent_religion,None,225,8,423.1666666666715,2324739.4208333585,23.33616813731003,11.638444509802007,46.79119644159975,Sparse: fewer than10 observed events; intervals approximate
+Men,respondent_religion,Other specified,173,7,322.0000000000041,1522366.9891666865,12.937826516312775,4.925515853237707,33.983720680987474,Sparse: fewer than10 observed events; intervals approximate
+Men,respondent_religion,Presbyterian,57,1,106.58333333333371,694457.6833333354,14.169070680836498,1.9417322709965763,103.39353522486441,Sparse: fewer than10 observed events; intervals approximate
+Men,respondent_religion,Protestant/nondenominational/unspecified Christian,335,5,632.4166666666711,3102620.990000027,8.262839735381204,3.203187724939497,21.314554860778298,Sparse: fewer than10 observed events; intervals approximate
+Men,respondent_religion,Roman Catholic,604,14,1143.1666666666817,5128164.001666727,10.494348461263876,5.382998128005732,20.459109776289747,"Approximate respondent-level CI, not full survey design"
+Men,spouse_religion,Baptist,437,13,827.9166666666758,3163776.4058333775,13.92433419718729,7.417714933772919,26.138384201338056,"Approximate respondent-level CI, not full survey design"
+Men,spouse_religion,Episcopalian,27,0,51.50000000000023,260016.88416666473,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_religion,Jewish,18,0,34.83333333333417,226307.58500000628,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_religion,Lutheran,131,4,239.3333333333369,1503396.1266666888,15.413169948346809,5.21368463429345,45.56581851806149,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_religion,Methodist,115,1,218.08333333333462,1246842.0075000087,6.803588545279215,0.9574384218254438,48.34652134097636,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_religion,None,163,8,307.7500000000018,1702154.2700000075,29.546452331844037,14.311986272085345,60.99732271967387,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_religion,Other specified,181,7,334.916666666672,1552176.2925000247,12.874098191394506,4.862374445503609,34.08672164171447,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_religion,Presbyterian,46,1,85.66666666666697,561953.1516666687,17.510036149484296,2.381935575087519,128.71942010647433,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_religion,Protestant/nondenominational/unspecified Christian,343,5,650.3333333333374,3068975.070833357,8.0639038860879,3.127827184117915,20.789686276226227,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_religion,Roman Catholic,634,14,1195.916666666681,5603275.295833394,9.1838339690833,4.752794420707739,17.745940368093777,"Approximate respondent-level CI, not full survey design"
+Men,respondent_attendance,Monthly (1-3 times),500,18,941.3333333333414,4307523.426666704,15.82666958418726,8.815152612358398,28.415103077838147,"Approximate respondent-level CI, not full survey design"
+Men,respondent_attendance,More than weekly,425,12,796.9166666666747,4134024.836666701,17.450199950459595,9.584636436719062,31.770582047789944,"Approximate respondent-level CI, not full survey design"
+Men,respondent_attendance,Never,207,7,385.0000000000018,1579290.589166678,12.701532028114263,4.946130401109717,32.617198249568304,Sparse: fewer than10 observed events; intervals approximate
+Men,respondent_attendance,Several times/year or less,409,7,767.8333333333426,3567892.86166671,7.353970821798462,3.1377112878968982,17.235775342514618,Sparse: fewer than10 observed events; intervals approximate
+Men,respondent_attendance,Weekly,569,9,1084.2500000000143,5447760.087500072,8.337455994844118,3.9709659903436934,17.505355783705834,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_attendance,Monthly (1-3 times),510,20,952.5000000000084,4568385.770833379,17.620928712707006,10.316575849797507,30.09691715729464,"Approximate respondent-level CI, not full survey design"
+Men,spouse_attendance,More than weekly,337,8,635.0833333333387,3444610.004166685,13.316987973823542,6.266507977956238,28.299998869992553,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_attendance,Never,251,7,467.1666666666704,1883577.7233333504,10.13814814405747,4.045384305825553,25.407239466184876,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_attendance,Several times/year or less,525,9,996.7500000000111,4550043.8000000585,8.73678622610171,4.184266810503195,18.242487159039705,Sparse: fewer than10 observed events; intervals approximate
+Men,spouse_attendance,Weekly,472,9,895.000000000012,4466332.020833392,10.480989720792238,4.9423085129261635,22.22668723331349,Sparse: fewer than10 observed events; intervals approximate
+Men,husband_attendance,Monthly (1-3 times),500,18,941.3333333333414,4307523.426666704,15.82666958418726,8.815152612358398,28.415103077838147,"Approximate respondent-level CI, not full survey design"
+Men,husband_attendance,More than weekly,425,12,796.9166666666747,4134024.836666701,17.450199950459595,9.584636436719062,31.770582047789944,"Approximate respondent-level CI, not full survey design"
+Men,husband_attendance,Never,207,7,385.0000000000018,1579290.589166678,12.701532028114263,4.946130401109717,32.617198249568304,Sparse: fewer than10 observed events; intervals approximate
+Men,husband_attendance,Several times/year or less,409,7,767.8333333333426,3567892.86166671,7.353970821798462,3.1377112878968982,17.235775342514618,Sparse: fewer than10 observed events; intervals approximate
+Men,husband_attendance,Weekly,569,9,1084.2500000000143,5447760.087500072,8.337455994844118,3.9709659903436934,17.505355783705834,Sparse: fewer than10 observed events; intervals approximate
+Men,wife_attendance,Monthly (1-3 times),510,20,952.5000000000084,4568385.770833379,17.620928712707006,10.316575849797507,30.09691715729464,"Approximate respondent-level CI, not full survey design"
+Men,wife_attendance,More than weekly,337,8,635.0833333333387,3444610.004166685,13.316987973823542,6.266507977956238,28.299998869992553,Sparse: fewer than10 observed events; intervals approximate
+Men,wife_attendance,Never,251,7,467.1666666666704,1883577.7233333504,10.13814814405747,4.045384305825553,25.407239466184876,Sparse: fewer than10 observed events; intervals approximate
+Men,wife_attendance,Several times/year or less,525,9,996.7500000000111,4550043.8000000585,8.73678622610171,4.184266810503195,18.242487159039705,Sparse: fewer than10 observed events; intervals approximate
+Men,wife_attendance,Weekly,472,9,895.000000000012,4466332.020833392,10.480989720792238,4.9423085129261635,22.22668723331349,Sparse: fewer than10 observed events; intervals approximate
+Men,coded_affiliation_match,Different coded affiliations,501,12,943.5000000000109,4782038.644166731,13.825291872253406,7.40564456830258,25.809866189244655,"Approximate respondent-level CI, not full survey design"
+Men,coded_affiliation_match,Same coded affiliation,1594,41,3002.75000000003,14106834.445833473,11.761552929332412,8.132992250549073,17.00900763801277,"Approximate respondent-level CI, not full survey design"
+Men,broad_affiliation_match,Different broad affiliations,418,12,784.2500000000095,4024523.7425000565,16.42755372563169,8.79816064840849,30.672834038024952,"Approximate respondent-level CI, not full survey design"
+Men,broad_affiliation_match,Same broad affiliation,1677,41,3162.0000000000314,14864349.347500147,11.162162306680699,7.71828862124206,16.142680518292565,"Approximate respondent-level CI, not full survey design"
+Men,none_pair,Both affiliated,1823,42,3436.2500000000355,16132040.451666841,10.1007910616269,6.971414027286263,14.634904722529749,"Approximate respondent-level CI, not full survey design"
+Men,none_pair,Both none,113,5,215.08333333333462,1233247.5783333373,28.751842389927592,12.035406723544334,68.68637344827427,Sparse: fewer than10 observed events; intervals approximate
+Men,none_pair,Exactly one none,159,6,294.9166666666706,1523585.0600000243,22.070871448424068,9.280387165475098,52.48955219293624,Sparse: fewer than10 observed events; intervals approximate
+Men,protestant_denom_match,Different named Protestant denominations,43,0,82.25000000000159,386225.20333334105,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,protestant_denom_match,Same named Protestant denomination,582,16,1092.9166666666763,5073953.405000045,12.54073794554277,6.950092668825779,22.628490829223306,"Approximate respondent-level CI, not full survey design"
+Men,weekly_pair,Both weekly+,772,14,1462.5000000000166,7615796.6041667415,9.942082743986875,5.555340268304354,17.792791172889192,"Approximate respondent-level CI, not full survey design"
+Men,weekly_pair,Neither weekly+,1072,29,2013.000000000018,9106738.270000089,10.706886165950946,6.8011919360813815,16.855488339104568,"Approximate respondent-level CI, not full survey design"
+Men,weekly_pair,Only husband weekly+,214,7,403.416666666672,1895269.0241666979,22.07767840156485,10.161452588655836,47.96793365419814,Sparse: fewer than10 observed events; intervals approximate
+Men,weekly_pair,Only wife weekly+,37,3,67.58333333333417,295145.4208333359,57.48532351305135,16.18706741956215,204.14830764259335,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Monthly (1-3 times) | Monthly (1-3 times),376,15,701.9166666666715,3376998.220000025,15.448820698519532,8.053825379505469,29.63387579551177,"Approximate respondent-level CI, not full survey design"
+Men,attendance_pair,Monthly (1-3 times) | More than weekly,6,0,11.16666666666697,49689.09916666777,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Monthly (1-3 times) | Never,25,1,47.500000000001364,150754.89583333553,42.46150657075061,5.864621128773563,307.4332511288661,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Monthly (1-3 times) | Several times/year or less,75,0,147.00000000000114,573645.8091666749,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Monthly (1-3 times) | Weekly,14,2,26.000000000000227,115243.50833333429,83.31775159280413,15.78440193487709,439.7916220786017,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,More than weekly | Monthly (1-3 times),33,4,59.916666666667425,279407.6016666722,78.88944276575569,27.584868450304967,225.6144230342573,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,More than weekly | More than weekly,299,5,563.4166666666708,3084553.9450000133,9.901729891775283,3.8836615432112502,25.245313928310843,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,More than weekly | Never,4,0,8.000000000000227,34551.73916666728,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,More than weekly | Several times/year or less,27,1,50.00000000000068,223715.49166667307,25.271651765733424,3.353607957850454,190.43859359692536,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,More than weekly | Weekly,58,2,107.58333333333553,474224.45833334216,29.31348173996665,7.080933862460888,121.35125513243057,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Never | Monthly (1-3 times),4,0,7.75,29175.37166666706,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Never | More than weekly,3,1,4.916666666666515,26507.624999998883,277.833264956793,32.98688976244855,2340.0606626582967,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Never | Never,185,6,342.5000000000016,1387459.9733333439,9.149604488770384,3.48422819290202,24.026917201195303,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Never | Several times/year or less,14,0,27.91666666666697,131753.66083333472,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Several times/year or less | Monthly (1-3 times),18,0,33.33333333333394,139052.1341666703,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Several times/year or less | More than weekly,5,0,9.66666666666697,33304.585000001076,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Several times/year or less | Never,24,0,44.416666666667425,210203.5008333373,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Several times/year or less | Several times/year or less,351,7,660.666666666674,3107694.7041667015,8.44297220213448,3.600702527480816,19.797186538452628,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Several times/year or less | Weekly,9,0,15.833333333333485,70400.60333333387,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Weekly | Monthly (1-3 times),79,1,149.58333333333553,743752.4433333444,8.452073073973821,1.1800284769226348,60.53882651552051,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Weekly | More than weekly,24,2,45.916666666667425,250554.7500000041,31.7883017583976,5.70823015194752,177.02441944079382,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Weekly | Never,13,0,24.749999999999773,100607.61416666629,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Weekly | Several times/year or less,58,1,111.16666666666833,513234.1341666747,15.316440346984281,2.1978298196515107,106.73863044588467,Sparse: fewer than10 observed events; intervals approximate
+Men,attendance_pair,Weekly | Weekly,391,5,745.5833333333428,3806463.450833381,6.123421464849965,2.1820406943713033,17.184047269562424,Sparse: fewer than10 observed events; intervals approximate
+Women,All,All,2221,52,4207.666666666645,19044969.105833247,12.571561480069137,9.268645328791047,17.05148405627606,"Approximate respondent-level CI, not full survey design"
+Women,respondent_religion,Baptist,484,9,914.7499999999966,3621880.8908333196,9.655184986482022,4.491670756367072,20.75454818032736,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_religion,Episcopalian,28,0,53.08333333333371,297389.12083333556,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_religion,Jewish,24,1,47.166666666665606,287882.93749999267,3.238434372304624,0.4228602282398783,24.80123805300215,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_religion,Lutheran,135,1,255.49999999999886,1498490.560833325,4.576131594840741,0.6445482707029725,32.48939036088099,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_religion,Methodist,125,1,235.9999999999984,1277503.4883333235,6.491426501558213,0.9154751223428795,46.02923334201738,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_religion,None,167,5,319.16666666666515,1678655.4008333278,18.020375107948375,7.488343065212928,43.36525666668715,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_religion,Other specified,192,5,358.74999999999636,1501254.0899999847,21.351382296650616,8.762123751294515,52.028656398555604,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_religion,Presbyterian,48,0,93.16666666666606,573973.987499997,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_religion,Protestant/nondenominational/unspecified Christian,380,13,715.1666666666622,3267857.964166647,15.483901245048012,8.229708858232376,29.13240333241807,"Approximate respondent-level CI, not full survey design"
+Women,respondent_religion,Roman Catholic,637,17,1212.8333333333287,5036997.498333322,14.983058860952768,8.77976741781869,25.56924826677809,"Approximate respondent-level CI, not full survey design"
+Women,spouse_religion,Baptist,447,7,843.9166666666613,3213035.6174999755,8.267119684365031,3.5038978721104765,19.505496555597347,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_religion,Episcopalian,30,0,57.33333333333394,297934.0766666705,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_religion,Jewish,24,1,45.91666666666538,281967.12499999173,3.3063783588247295,0.43161322574936273,25.328551581625515,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_religion,Lutheran,114,2,214.7499999999991,1279228.3491666617,10.541628481564485,2.637437578885128,42.1340516010641,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_religion,Methodist,114,2,215.41666666666447,1122626.415833321,12.738075461537303,3.154599628784898,51.435549850209746,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_religion,None,283,7,539.583333333331,2762048.2066666577,14.299601978223786,6.623925994686968,30.869701276800694,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_religion,Other specified,169,5,317.5833333333303,1363760.189999984,18.866469478039463,7.226527067697185,49.25514942812221,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_religion,Presbyterian,51,0,99.66666666666697,577149.8791666692,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_religion,Protestant/nondenominational/unspecified Christian,339,9,640.4166666666631,2863932.317499986,11.675782208844105,5.378004120308935,25.348416836194147,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_religion,Roman Catholic,633,16,1204.3333333333294,5159836.914999991,13.424488242764573,7.79634411181646,23.115563140290348,"Approximate respondent-level CI, not full survey design"
+Women,respondent_attendance,Monthly (1-3 times),500,6,959.4166666666617,4113243.935833315,7.468424066071455,3.033080068615163,18.389675435156573,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_attendance,More than weekly,316,14,588.4999999999968,3154435.4599999795,24.9888834308249,14.385926108497237,43.40661076734705,"Approximate respondent-level CI, not full survey design"
+Women,respondent_attendance,Never,353,7,669.4166666666652,2673060.054166665,8.985768936451432,3.7242700752622406,21.680501614429772,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_attendance,Several times/year or less,536,9,1021.5833333333244,4493384.839999959,7.1497325833325,3.327727633593223,15.361436283765014,Sparse: fewer than10 observed events; intervals approximate
+Women,respondent_attendance,Weekly,513,15,964.1666666666636,4598557.029999991,15.77456352650695,9.079648652399404,27.406000383731296,"Approximate respondent-level CI, not full survey design"
+Women,spouse_attendance,Monthly (1-3 times),396,6,755.8333333333271,3058787.2024999782,7.74904837467201,2.8745914765200014,20.889142406315457,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_attendance,More than weekly,519,20,971.2499999999955,4850036.26416664,20.827285508422197,12.916322351322856,33.58353948211172,"Approximate respondent-level CI, not full survey design"
+Women,spouse_attendance,Never,291,4,552.4166666666654,2192667.315833333,6.535095359212799,2.1043558366092068,20.294795495623077,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_attendance,Several times/year or less,415,8,790.1666666666601,3704560.4183332995,9.142210188391886,4.150572707146142,20.136981815746697,Sparse: fewer than10 observed events; intervals approximate
+Women,spouse_attendance,Weekly,584,11,1111.3333333333296,5150060.1924999915,10.393323184445498,5.46565711099673,19.76361938237895,"Approximate respondent-level CI, not full survey design"
+Women,husband_attendance,Monthly (1-3 times),396,6,755.8333333333271,3058787.2024999782,7.74904837467201,2.8745914765200014,20.889142406315457,Sparse: fewer than10 observed events; intervals approximate
+Women,husband_attendance,More than weekly,519,20,971.2499999999955,4850036.26416664,20.827285508422197,12.916322351322856,33.58353948211172,"Approximate respondent-level CI, not full survey design"
+Women,husband_attendance,Never,291,4,552.4166666666654,2192667.315833333,6.535095359212799,2.1043558366092068,20.294795495623077,Sparse: fewer than10 observed events; intervals approximate
+Women,husband_attendance,Several times/year or less,415,8,790.1666666666601,3704560.4183332995,9.142210188391886,4.150572707146142,20.136981815746697,Sparse: fewer than10 observed events; intervals approximate
+Women,husband_attendance,Weekly,584,11,1111.3333333333296,5150060.1924999915,10.393323184445498,5.46565711099673,19.76361938237895,"Approximate respondent-level CI, not full survey design"
+Women,wife_attendance,Monthly (1-3 times),500,6,959.4166666666617,4113243.935833315,7.468424066071455,3.033080068615163,18.389675435156573,Sparse: fewer than10 observed events; intervals approximate
+Women,wife_attendance,More than weekly,316,14,588.4999999999968,3154435.4599999795,24.9888834308249,14.385926108497237,43.40661076734705,"Approximate respondent-level CI, not full survey design"
+Women,wife_attendance,Never,353,7,669.4166666666652,2673060.054166665,8.985768936451432,3.7242700752622406,21.680501614429772,Sparse: fewer than10 observed events; intervals approximate
+Women,wife_attendance,Several times/year or less,536,9,1021.5833333333244,4493384.839999959,7.1497325833325,3.327727633593223,15.361436283765014,Sparse: fewer than10 observed events; intervals approximate
+Women,wife_attendance,Weekly,513,15,964.1666666666636,4598557.029999991,15.77456352650695,9.079648652399404,27.406000383731296,"Approximate respondent-level CI, not full survey design"
+Women,coded_affiliation_match,Different coded affiliations,537,13,1020.4999999999964,4998535.528333323,11.247110214848329,6.051996954907957,20.901776575145266,"Approximate respondent-level CI, not full survey design"
+Women,coded_affiliation_match,Same coded affiliation,1667,36,3158.416666666649,13922983.56416659,11.994078656372814,8.342766154518557,17.243432232286946,"Approximate respondent-level CI, not full survey design"
+Women,broad_affiliation_match,Different broad affiliations,460,13,872.7499999999966,4318321.79333332,13.018733362296373,7.00787795690118,24.185269692327008,"Approximate respondent-level CI, not full survey design"
+Women,broad_affiliation_match,Same broad affiliation,1744,36,3306.1666666666483,14603197.299166592,11.435397096876198,7.953687673803362,16.441217222289126,"Approximate respondent-level CI, not full survey design"
+Women,none_pair,Both affiliated,1886,40,3573.7499999999814,15834140.717499925,10.898806135357361,7.651409083773699,15.524457505220546,"Approximate respondent-level CI, not full survey design"
+Women,none_pair,Both none,132,3,253.58333333333258,1353325.232499998,14.118542639379944,4.537162033396485,43.933464309356,Sparse: fewer than10 observed events; intervals approximate
+Women,none_pair,Exactly one none,186,6,351.583333333331,1734053.1424999894,18.184119752258507,7.898930391737877,41.861643889195946,Sparse: fewer than10 observed events; intervals approximate
+Women,protestant_denom_match,Different named Protestant denominations,42,0,81.0,387888.3308333346,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,protestant_denom_match,Same named Protestant denomination,603,9,1139.833333333327,5171713.235833298,8.065540005386433,3.837439301884344,16.95217317093335,Sparse: fewer than10 observed events; intervals approximate
+Women,weekly_pair,Both weekly+,786,25,1472.6666666666604,7469828.173333306,18.45321964594666,12.195005141611249,27.92301531219862,"Approximate respondent-level CI, not full survey design"
+Women,weekly_pair,Neither weekly+,1064,15,2026.7499999999864,8696902.091666613,7.24913760503408,4.027800878788111,13.046820733732632,"Approximate respondent-level CI, not full survey design"
+Women,weekly_pair,Only husband weekly+,317,6,609.9166666666647,2530268.283333326,6.5988852288832245,2.5703930996818594,16.94109989221604,Sparse: fewer than10 observed events; intervals approximate
+Women,weekly_pair,Only wife weekly+,38,3,71.66666666666629,259112.8449999977,34.17356634712601,8.39319019939539,139.140494750798,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Monthly (1-3 times) | Monthly (1-3 times),302,3,575.9999999999964,2403118.75083332,6.6733988881901585,1.8180073503529957,24.496189584849915,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Monthly (1-3 times) | More than weekly,3,0,5.583333333333485,8519.348333333528,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Monthly (1-3 times) | Never,21,1,40.99999999999909,148902.19749999672,11.8522763910186,1.5497007660067397,90.64747126058138,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Monthly (1-3 times) | Several times/year or less,60,1,114.49999999999841,439044.0258333286,11.88074473875242,1.6620879165382483,84.92456634988422,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Monthly (1-3 times) | Weekly,10,1,18.749999999999773,59202.87999999912,11.56565356279982,1.3262612808103647,100.85821268413434,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,More than weekly | Monthly (1-3 times),58,1,111.75000000000023,452846.8508333332,3.86733394916454,0.5271466903540757,28.372125156120628,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,More than weekly | More than weekly,290,13,540.6666666666633,2903754.138333313,25.077377949703465,14.091175828756619,44.6289857194809,"Approximate respondent-level CI, not full survey design"
+Women,attendance_pair,More than weekly | Never,14,0,26.666666666666515,79159.98666666583,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,More than weekly | Several times/year or less,38,2,70.08333333333303,301108.7033333322,22.27016331898131,4.602174399586903,107.76648844481396,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,More than weekly | Weekly,119,4,222.08333333333235,1113166.5849999948,17.730949047486988,6.061752832885965,51.86396786404472,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Never | Monthly (1-3 times),12,1,22.416666666666742,79877.12916666617,76.39796351803085,11.531529061012204,506.14699913786177,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Never | More than weekly,2,0,3.833333333333485,6399.5150000001795,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Never | Never,240,3,455.5833333333326,1848653.6833333345,4.4501791082719535,1.1656406676767694,16.989879166768922,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Never | Several times/year or less,29,0,54.99999999999932,198963.72166666447,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Never | Weekly,8,0,15.583333333333258,58773.266666667405,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Several times/year or less | Monthly (1-3 times),22,1,43.00000000000023,211170.08666666743,32.3375346754446,4.445349877999841,235.23821017123083,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Several times/year or less | More than weekly,5,1,9.499999999999773,56496.950833331946,106.32927815381919,14.746425468569514,766.6885386434594,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Several times/year or less | Never,43,0,82.41666666666674,374466.28416666714,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Several times/year or less | Several times/year or less,335,5,636.8333333333269,2992706.212499968,6.305015815180088,2.2366295029909105,17.773719060985034,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Several times/year or less | Weekly,10,1,18.416666666666515,69720.8841666655,31.0209778009968,3.723571835589435,258.43493994996487,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Weekly | Monthly (1-3 times),101,0,196.74999999999818,923731.2358333276,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Weekly | More than weekly,15,0,27.0,176128.05833333405,0.0,,,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Weekly | Never,32,2,59.5,211859.33000000077,32.58940732041386,6.672509895378225,159.1709096200062,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Weekly | Several times/year or less,74,1,145.16666666666674,561562.176666666,2.3782406570319075,0.3271345370880452,17.289610180282775,Sparse: fewer than10 observed events; intervals approximate
+Women,attendance_pair,Weekly | Weekly,362,8,682.9166666666647,3276779.391666662,13.820381108099587,6.743097310486182,28.325697402599772,Sparse: fewer than10 observed events; intervals approximate

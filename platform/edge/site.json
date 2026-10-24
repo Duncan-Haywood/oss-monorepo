@@ -1,0 +1,4 @@
+{
+  "url": "https://monorepo-projects-edge.duncan-andrew-haywood.workers.dev",
+  "note": "The origin of the deployed platform/edge Worker (https only). Empty = the feedback page offers GitHub issues only, with no form. Set platform/counter/site.json's url to the same origin to turn on page-view counts. See platform/edge/README.md."
+}

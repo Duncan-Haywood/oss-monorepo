@@ -42,5 +42,5 @@ kill_criteria:
   - The empty-seat framing is read as pressure to overenroll past a safe ratio rather than a pricing check, making it unusable as a shared, non-punitive tool.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/childcare-tuition-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/childcare-tuition-calculator/
   analytics: null

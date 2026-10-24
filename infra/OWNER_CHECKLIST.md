@@ -88,7 +88,7 @@ Names are exact; values never go in git.
 | Name | What | Used by |
 |---|---|---|
 | `HETZNERSSHKEY` | SSH private key for `root@89.167.29.39` and `root@157.180.80.188` | `hetzner-gitops-ci.yml` preflight (`workflow_dispatch`, `preflight: true`) |
-| `HETZNERREADAPIKEY` | Hetzner Cloud API token, **Read** only | `hetzner-gitops-ci.yml` `hcloud-scope` (maps to env `HCLOUD_TOKEN` for `hcloud` / Tofu plan). Laptop: `export HCLOUD_TOKEN=` the same value |
+| `HETZNERREADAPIKEY` | Hetzner Cloud API token, **Read** only | the removed `hcloud-scope` job of `hetzner-gitops-ci.yml` (maps to env `HCLOUD_TOKEN` for `hcloud` / Tofu plan). Laptop: `export HCLOUD_TOKEN=` the same value |
 | `CLAUDETRIGGERAPIKEY` | Claude Code routine API trigger bearer | `claude-routine-trigger.yml` only. Not this stack |
 
 Do not add a Hetzner **Write** token, an OpenAI Admin key, an age
@@ -441,8 +441,8 @@ order to type them in and how to tell each worked.
 **Note what this section is and is not about, since 2026-09-02.** The
 domain itself is no longer dark: `marisstella.dev` and `www` already serve
 a front door with no owner action (see the `marisstella.dev` bullet under
-"You decide" below), and it mirrors 1297 of the 1297 tools directly. Step 1
-"You decide" below), and it mirrors 1297 of the 1297 tools directly. Step 1
+"You decide" below), and it mirrors 1317 of the 1317 tools directly. Step 1
+"You decide" below), and it mirrors 1317 of the 1317 tools directly. Step 1
 below no longer publishes any tool a stranger cannot already reach; what it
 buys is the canonical hostname and indexability.
 
@@ -484,8 +484,8 @@ it retires the mirror, serves the canonical host, and lets those pages be
 *indexed*, which the mirrored copies deliberately are not — but it is no
 longer the difference between a stranger reaching 53 tools and reaching
 169. Since the `ENTRY_OVERRIDES` fix above it is not a tool-count difference
-at all: the apex serves all 1297. What Step 1 buys is the canonical host and
-at all: the apex serves all 1297. What Step 1 buys is the canonical host and
+at all: the apex serves all 1317. What Step 1 buys is the canonical host and
+at all: the apex serves all 1317. What Step 1 buys is the canonical host and
 search.
 
 **Corrected 2026-09-07.** This sentence said "175" while the paragraph 40
@@ -613,8 +613,8 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `portfolio-site-repo` is sealed, so the redirect was live but led
   nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
   generated front-door page (positioning, one card per category, the
-  §5b clauses) plus a static mirror of 1297 tools at `/tools/<slug>/`, both
-  §5b clauses) plus a static mirror of 1297 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 1317 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 1317 tools at `/tools/<slug>/`, both
   held in kustomize ConfigMaps. Neither clones the repo at pod start, so
   neither needs the token, a runner, or a Pages flip — a merge to `main`
   is the deploy, same as everything else in this tree. No owner action;
@@ -629,7 +629,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `.github/workflows/agent-cross-review.yml` /
   `agent-pr-auto-merge.yml` to `main` — four reviewer GitHub-App
   identities (GH, Kilo, Cursor, Claude) that review each other's PRs and
-  squash-merge an internal (non-`ventures/*`) PR once two approve and CI
+  squash-merge a same-repo PR once two approve and CI
   is green. It ships fail-closed: every review job checks its own
   `AGENT_REVIEWER_*_APP_ID`/`_PRIVATE_KEY` secrets first and skips in a
   few seconds when they are unset, so today it runs, does nothing, and

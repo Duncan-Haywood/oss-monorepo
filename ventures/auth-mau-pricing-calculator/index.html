@@ -49,6 +49,7 @@
     <p>Enter your <strong>monthly active users</strong> and growth rate. Get <strong>Clerk, Auth0, AWS Cognito, Firebase, Supabase Auth and WorkOS</strong> priced side by side, the 12-month spend, and the <strong>user counts where the cheapest provider changes</strong> — before you build on one and find out at 50,000 users.</p>
     <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your plan or your invoice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your users</h2>
@@ -104,7 +105,8 @@ node cli.mjs compare --mau 40000 --prices prices.json --json</pre>
     <p>No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or engineering advice. It multiplies a user count by list prices that may be out of date and ignores add-ons, contracts and each vendor's own MAU definition; it is not a quote and not a guarantee of what any vendor will charge. Product names belong to their owners; this project is not affiliated with any of them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

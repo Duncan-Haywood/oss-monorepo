@@ -45,6 +45,7 @@
     <p>Paste your <code>requirements.txt</code> and get every line that lets two installs differ: bare names, <strong>&gt;=</strong> ranges, missing <strong>--hash</strong>, <strong>--extra-index-url</strong> (dependency confusion), plain-http sources and git or URL dependencies that are not pinned to a commit or hash. It is the part of a supply-chain review you can do in thirty seconds, and a one-file CLI keeps it from regressing in CI.</p>
     <p class="note">Nothing is uploaded. The text you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. It scans the file only; it does not look up vulnerabilities and is not security advice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Paste your requirements.txt</h2>
@@ -95,7 +96,8 @@ node requirements-check.mjs --json                   # machine-readable</code></
     <p>More: <a href="pin-python-dependencies-guide.html">how to pin and hash Python dependencies with pip-tools or uv</a></p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a heuristic line scan, not a security audit, and it can be wrong. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="requirements-check.mjs" rel="noopener">requirements-check.mjs from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

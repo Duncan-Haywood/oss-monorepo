@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>S3 Bucket Exposure Checker — Is Your Bucket Publicly Listable or Writable?</title>
-<meta name="description" content="Free tool: paste an S3 bucket name and it sends two real, unsigned GET requests -- one asking the bucket to list its own contents, one asking to read its ACL -- to name whether anonymous listing is enabled and whether the ACL grants read or write access to AllUsers or AuthenticatedUsers. Object file contents are never fetched, only key names. Nothing uploaded to us.">
+<meta name="description" content="Free tool: paste an S3 bucket name and it sends two real, unsigned GET requests -- one asking the bucket to list its own contents, one asking to read its ACL -- to name whether anonymous listing is enabled and whether the ACL grants read or write access to AllUsers or AuthenticatedUsers.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/s3-bucket-exposure-check/">
 <meta property="og:type" content="website">
@@ -89,6 +89,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>S3 Bucket Exposure Checker</h1>
 <p>
   Enter an S3 bucket name. This sends two plain, <strong>unsigned</strong> GET requests to the
@@ -253,6 +254,7 @@
   }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks two unsigned requests. It never

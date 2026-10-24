@@ -138,3 +138,25 @@ test("a zero job price nets zero on both platforms without dividing by zero", ()
   assert.equal(result.upwork.effectiveTakeHomePercent, null);
   assert.equal(result.fiverr.effectiveTakeHomePercent, null);
 });
+
+test("break-even Upwork fee equals Fiverr's rate when withdrawal fees match", () => {
+  const result = comparePlatforms({ jobPrice: 500, taxReservePercent: 25 });
+  assert.equal(result.comparison.breakEvenUpworkFeePercent, 20);
+});
+
+test("break-even Upwork fee is the quote at which the two take-homes tie", () => {
+  const base = { jobPrice: 400, upworkWithdrawalFee: 5, fiverrWithdrawalFee: 1, taxReservePercent: 20 };
+  const { comparison } = comparePlatforms(base);
+  // 20% + (1 - 5) / 400 = 19%
+  assert.ok(Math.abs(comparison.breakEvenUpworkFeePercent - 19) < 1e-9);
+  const tied = comparePlatforms({ ...base, upworkFeePercent: comparison.breakEvenUpworkFeePercent });
+  assert.ok(Math.abs(tied.comparison.gap) < 1e-9);
+});
+
+test("break-even Upwork fee is null at a zero price or when no fee can tie", () => {
+  assert.equal(comparePlatforms({ jobPrice: 0 }).comparison.breakEvenUpworkFeePercent, null);
+  assert.equal(
+    comparePlatforms({ jobPrice: 10, upworkWithdrawalFee: 50 }).comparison.breakEvenUpworkFeePercent,
+    null,
+  );
+});

@@ -8,7 +8,7 @@
   <meta property="og:title" content="No Surprises Act IDR Offer Calculator — free, private, in your browser">
   <meta property="og:description" content="Which disputes are worth the fees, and what offer maximizes expected payment? No account, nothing uploaded.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "No Surprises Act IDR Offer Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "For out-of-network providers and billing teams disputing payments under the No Surprises Act. Enter billed charge, QPA and amount paid for each claim to see the offer with the best expected net, the win chance needed to break even after fees, which claims are worth taking to federal IDR, and the open negotiation and IDR initiation dates. Runs entirely in your browser; nothing is uploaded.", "featureList": "expected-value offer sizing, break-even win chance, file-or-skip by claim, fee batching, deadline helper, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "No Surprises Act IDR Offer Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "For out-of-network providers and billing teams disputing payments under the No Surprises Act. Enter billed charge, QPA and amount paid for each claim to see the offer with the best expected net, the win chance needed to break even after fees, which claims are worth taking to federal IDR, and the open negotiation and IDR initiation dates. Runs entirely in your browser; nothing is uploaded.", "featureList": "expected-value offer sizing, break-even win chance, file-or-skip by claim, fee batching, win-chance curve fitted from your past IDR results, deadline helper, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I take a No Surprises Act claim to federal IDR?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the gap and the fees. Compare the extra money a win brings, the payer's likely offer, the administrative fee you pay either way and the IDR entity fee you risk on a loss. The tool computes the expected net for each claim from your own win-chance assumptions and shows the win chance you need to break even."}}, {"@type": "Question", "name": "How do I pick an offer amount for the arbitrator?", "acceptedAnswer": {"@type": "Answer", "text": "The arbiter picks one of the two offers, so a higher ask earns more if it wins and wins less often. The tool draws a straight line from your win chance at the QPA to your win chance at the billed charge, tries every offer in between, and shows the one with the best expected net. The line is your assumption, not a prediction, so check how the answer moves in the sensitivity table."}}, {"@type": "Question", "name": "What is the qualifying payment amount (QPA)?", "acceptedAnswer": {"@type": "Answer", "text": "The QPA is the payer's calculation of the median contracted rate for the same or a similar service in the same area, and it is where the arbitrator starts. The payer reports it; the tool takes the figure you type and does not calculate it."}}, {"@type": "Question", "name": "Can I batch claims into one dispute?", "acceptedAnswer": {"@type": "Answer", "text": "Batching lets several claims share fees, which can turn small claims from not worth filing into worth filing. The rules limit what can be batched, so enter the number of claims you expect to share a dispute and check the current federal rules for what qualifies."}}, {"@type": "Question", "name": "When do I have to start the IDR process?", "acceptedAnswer": {"@type": "Answer", "text": "Open negotiation runs for 30 business days from the initial payment or denial, and an IDR request is generally due within 4 business days after that. The deadline helper counts weekdays and skips the holidays you list. Verify the dates against the current federal guidance before you rely on them."}}, {"@type": "Question", "name": "What fees does the tool use?", "acceptedAnswer": {"@type": "Answer", "text": "None of its own. The administrative fee and the IDR entity fee change over time and by dispute type, so you enter the current figures from the federal IDR portal. With both left at zero the tool warns you that every claim will look worth filing."}}, {"@type": "Question", "name": "Is my information uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads. No patient information is needed or accepted: use a label such as a service type, not a name or account number."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
@@ -62,6 +62,7 @@
     <p>List each disputed claim with its <strong>billed charge</strong>, the payer's <strong>QPA</strong> and what has <strong>already been paid</strong>, and enter the <strong>fees</strong> and your own <strong>win-chance</strong> assumptions. The tool finds the <strong>offer with the best expected net</strong> for each claim, the <strong>win chance you need to break even</strong>, which claims are <strong>worth filing</strong>, and the <strong>open negotiation and IDR initiation dates</strong>.</p>
     <p class="note">Arithmetic on figures you supply, with a win-chance curve that is your assumption. Not legal, billing, or financial advice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Your disputed claims</h2>
@@ -83,6 +84,16 @@
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <p id="form-status" role="status" class="note">Add your claims, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="calibrate">
+    <h2>Calibrate the win chances from your own past disputes</h2>
+    <p class="note">Guessing "85% at the QPA, 25% at billed" is the weakest input. If you have closed IDR disputes, paste them here: one per line, <em>label, billed charge, QPA, the offer you submitted, won or lost</em>. The tool fits a win-chance curve to your results (pulled toward your current assumption when you have few) and fills the two win-chance boxes above. Same service labels only, no patient details.</p>
+    <label for="outcomes">Past disputes: label, billed, QPA, your submitted offer, won or lost</label>
+    <textarea id="outcomes" spellcheck="false" placeholder="ER visit level 5,3100,950,1000,won&#10;CT abdomen,2800,700,1500,lost"></textarea>
+    <button type="button" id="fit">Fit the curve to my results</button>
+    <button type="button" class="secondary" id="load-outcomes">Load example results</button>
+    <p id="fit-out" role="status" class="note">Paste past results, then fit. Nothing is uploaded and nothing is applied until you click Fit.</p>
   </section>
 
   <section id="report" class="card" hidden>
@@ -131,7 +142,8 @@
     <p>No. The calculation runs in your browser from figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads. No patient information is needed or accepted: use a label such as a service type, not a name or account number.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace a qualified attorney or billing professional. Results are arithmetic on the figures you type. You are responsible for reviewing and verifying its output, including every deadline.</p>
     <p><strong>Independent.</strong> Not affiliated with the Centers for Medicare &amp; Medicaid Services, any certified IDR entity, payer or billing software vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
@@ -142,7 +154,7 @@
   </footer>
 
   <script type="module">
-    import { parseClaims, analyze, deadlines, daysUntil, reportCsv, sampleClaims, money, money2, pct } from "./calc.mjs";
+    import { parseClaims, parseOutcomes, fitWinCurve, sampleOutcomes, analyze, deadlines, daysUntil, reportCsv, sampleClaims, money, money2, pct } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -185,6 +197,20 @@
       if (run()) { record("example_loaded"); status.textContent = "Sample data: invented claims and placeholder fees, not real figures. Enter the current fees."; }
     });
     $("#clear-all").addEventListener("click", () => { $("#claims").value = ""; report.hidden = true; last = null; status.textContent = "Add your claims, then click Calculate."; });
+    $("#fit").addEventListener("click", () => {
+      const po = parseOutcomes($("#outcomes").value), out = $("#fit-out");
+      if (po.error) { out.textContent = po.error; return; }
+      const opts = {};
+      for (const k of ["pWinAtQpa", "pWinAtBilled"]) opts[k] = $("#" + k).value;
+      const f = fitWinCurve(po.rows, opts);
+      if (f.error) { out.textContent = f.error; return; }
+      $("#pWinAtQpa").value = String(f.pWinAtQpa);
+      $("#pWinAtBilled").value = String(f.pWinAtBilled);
+      const ci = f.interval ? ` (95% range ${pct(f.interval[0], 0)}-${pct(f.interval[1], 0)})` : "";
+      out.textContent = `Fitted to ${f.n} result(s), ${f.wins} won overall = ${pct(f.rate, 0)}${ci}. Win chance at the QPA ${f.pWinAtQpa}%, at the billed charge ${f.pWinAtBilled}% (set above). Fit error (Brier, lower is better): ${f.brierFit.toFixed(3)} vs ${f.brierPrior.toFixed(3)} for your earlier assumption, on the same results. ` + [...po.warnings, ...f.notes].join(" ");
+      record("curve_fitted");
+    });
+    $("#load-outcomes").addEventListener("click", () => { $("#outcomes").value = sampleOutcomes(); $("#fit-out").textContent = "Invented example results. Click Fit."; });
     $("#dates").addEventListener("click", () => {
       const d = deadlines($("#initialDate").value, $("#holidays").value);
       const out = $("#date-out");

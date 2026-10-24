@@ -1,0 +1,4 @@
+model,marriages,divorces,gain_percent,year0_observed_rate,main_sample_year0_observed_rate
+constant,6768,2810,0,0.00925011,0.0130453
+duration_only,6768,2810,2.38926,0.00925011,0.0130453
+additive_spline,6768,2810,4.44155,0.00925011,0.0130453

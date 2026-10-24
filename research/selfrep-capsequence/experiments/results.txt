@@ -1,0 +1,67 @@
+9 assumed capabilities, total effort 40 weeks; all 362880 orders scored by closure-weeks
+
+== mass closure, horizon 24 weeks: point-weeks of closure and order
+  optimal     939.7  (100.0% of optimal)  lathe > stamping > winding > heat-treat > grinding > tube-extrusion > ball-forming > belt-casting > glass-casting
+  frontier    505.4  ( 53.8% of optimal)  tube-extrusion > stamping > lathe > heat-treat > glass-casting > winding > grinding > ball-forming > belt-casting
+  lookahead   939.7  (100.0% of optimal)  lathe > stamping > winding > heat-treat > grinding > glass-casting > ball-forming > tube-extrusion > belt-casting
+  myopic      746.8  ( 79.5% of optimal)  lathe > glass-casting > heat-treat > grinding > ball-forming > stamping > winding > belt-casting > tube-extrusion
+
+== mass closure, horizon 40 weeks: point-weeks of closure and order
+  optimal    2117.5  (100.0% of optimal)  lathe > stamping > winding > heat-treat > grinding > glass-casting > ball-forming > belt-casting > tube-extrusion
+  frontier   1610.2  ( 76.0% of optimal)  tube-extrusion > stamping > lathe > heat-treat > glass-casting > winding > grinding > ball-forming > belt-casting
+  lookahead  2117.5  (100.0% of optimal)  lathe > stamping > winding > heat-treat > grinding > glass-casting > ball-forming > tube-extrusion > belt-casting
+  myopic     1762.1  ( 83.2% of optimal)  lathe > glass-casting > heat-treat > grinding > ball-forming > stamping > winding > belt-casting > tube-extrusion
+
+== mass closure, horizon 60 weeks: point-weeks of closure and order
+  optimal    3644.2  (100.0% of optimal)  lathe > stamping > winding > heat-treat > grinding > glass-casting > ball-forming > belt-casting > tube-extrusion
+  frontier   3136.9  ( 86.1% of optimal)  tube-extrusion > stamping > lathe > heat-treat > glass-casting > winding > grinding > ball-forming > belt-casting
+  lookahead  3644.2  (100.0% of optimal)  lathe > stamping > winding > heat-treat > grinding > glass-casting > ball-forming > tube-extrusion > belt-casting
+  myopic     3288.9  ( 90.2% of optimal)  lathe > glass-casting > heat-treat > grinding > ball-forming > stamping > winding > belt-casting > tube-extrusion
+
+== cost closure, horizon 24 weeks: point-weeks of closure and order
+  optimal     735.0  (100.0% of optimal)  stamping > winding > lathe > heat-treat > grinding > tube-extrusion > ball-forming > belt-casting > glass-casting
+  frontier    533.6  ( 72.6% of optimal)  tube-extrusion > stamping > lathe > heat-treat > winding > belt-casting > grinding > ball-forming > glass-casting
+  lookahead   688.9  ( 93.7% of optimal)  stamping > winding > heat-treat > lathe > ball-forming > grinding > belt-casting > glass-casting > tube-extrusion
+  myopic      507.9  ( 69.1% of optimal)  lathe > heat-treat > grinding > ball-forming > stamping > winding > belt-casting > glass-casting > tube-extrusion
+
+== cost closure, horizon 40 weeks: point-weeks of closure and order
+  optimal    1771.0  (100.0% of optimal)  stamping > winding > lathe > heat-treat > grinding > ball-forming > belt-casting > glass-casting > tube-extrusion
+  frontier   1515.5  ( 85.6% of optimal)  tube-extrusion > stamping > lathe > heat-treat > winding > belt-casting > grinding > ball-forming > glass-casting
+  lookahead  1714.7  ( 96.8% of optimal)  stamping > winding > heat-treat > lathe > ball-forming > grinding > belt-casting > glass-casting > tube-extrusion
+  myopic     1500.4  ( 84.7% of optimal)  lathe > heat-treat > grinding > ball-forming > stamping > winding > belt-casting > glass-casting > tube-extrusion
+
+== cost closure, horizon 60 weeks: point-weeks of closure and order
+  optimal    3141.9  (100.0% of optimal)  stamping > winding > lathe > heat-treat > grinding > ball-forming > belt-casting > glass-casting > tube-extrusion
+  frontier   2886.4  ( 91.9% of optimal)  tube-extrusion > stamping > lathe > heat-treat > winding > belt-casting > grinding > ball-forming > glass-casting
+  lookahead  3085.6  ( 98.2% of optimal)  stamping > winding > heat-treat > lathe > ball-forming > grinding > belt-casting > glass-casting > tube-extrusion
+  myopic     2871.3  ( 91.4% of optimal)  lathe > heat-treat > grinding > ball-forming > stamping > winding > belt-casting > glass-casting > tube-extrusion
+
+== stability: efforts scaled 0.5x to 2x (1000 draws); nominal optimal order vs each draw's optimum
+metric horizon   within 1%  mean shortfall
+mass        24         64%           1.40%
+mass        40         88%           0.38%
+cost        24         39%           3.88%
+cost        40         69%           1.35%
+
+== cost closure (points) vs week: weeks, optimal, lookahead, frontier, myopic
+   0       0.0       0.0       0.0       0.0
+   2       0.0       0.0       0.2       0.0
+   4       1.6       1.6       0.2      10.1
+   6       1.6       1.6       1.8      10.1
+   8      30.2      30.2       1.8      22.1
+  10      30.2      30.2      11.9      22.1
+  12      40.3      30.2      23.8      22.1
+  14      40.3      30.2      23.8      27.3
+  16      52.2      52.2      23.8      27.3
+  18      52.2      52.2      52.4      34.0
+  20      52.2      52.2      52.4      34.0
+  22      57.4      52.2      54.5      35.6
+  24      57.4      52.2      54.5      35.6
+  26      64.2      64.2      54.5      64.2
+  28      64.2      64.2      59.7      64.2
+  30      64.2      64.2      59.7      64.2
+  32      66.3      66.3      59.7      66.3
+  34      66.3      66.3      66.5      66.3
+  36      66.3      66.3      66.5      66.3
+  38      68.3      68.3      66.5      68.3
+  40      68.5      68.5      68.5      68.5

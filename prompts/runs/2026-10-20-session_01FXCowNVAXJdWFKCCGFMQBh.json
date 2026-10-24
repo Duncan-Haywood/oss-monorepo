@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01FXCowNVAXJdWFKCCGFMQBh",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md (scheduled)",
+  "input_sha256": "20453bb101005f0b2b7a2bbd00593c1743d9646a6ac22be06239cc431a0993d8",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T20:40:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 8927,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "P039 was the only open agent row and already had open PR 8850; the rest were in_progress, so I took Critique from doc_friction."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runcost.py",
+      "why": "runcost attach skipped: no basis for human-hours in a scheduled run."
+    }
+  ],
+  "goal": null,
+  "notes": "Redteam prompt: background + do-not-touch-target guidance for slow campaigns (3 friction reports). Backlog ids touched: none (P039 claimed by PR 8850).",
+  "corrections": [],
+  "redteam": null
+}

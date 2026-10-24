@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01KnZ5G7MrjKVqfXvh33w9j8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Owner: blog posts and llm docs with each PR generally (judgment can override); a marketing landing page per product; SEO targeting potential users; no fake reviews, no law/ToS violations.",
+  "input_sha256": "41e1c7622547a4699b3f5ba3e9e0f91fdb4e19982162439c1ebdd46ffca15842",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T01:42:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner direction: posts + LLM docs per PR, honest marketing pages per product; worked example on flagship 1",
+  "projects": [
+    "changepoint-detector",
+    "platform/pages",
+    "prompts"
+  ],
+  "pr": 9001,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/optout.mjs",
+      "issue": "preferred any checkbox labelled 'counts' over a button with id #optout, so changepoint-detector failed the optout check on main; fixed here"
+    },
+    {
+      "file": "platform/marketing/front-door-tools.mjs",
+      "issue": "a relative link to a .txt file silently drops the venture and its linkers from the apex mirror; only the gitops count test notices"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "worked on flagship 1's marketing surface, not its statistical next: step, so next: is unchanged"
+    }
+  ],
+  "goal": null,
+  "notes": "Wrote the owner's 2026-10-21 direction into prompts/goals.md (new direction + 'Honest marketing' hard limit), CLAUDE.md, PRODUCT_PLAYBOOK.md section 7. Shipped for changepoint-detector: question-shaped landing page, llms.txt, root llms.txt links per-product llms.txt (build.mjs + test), post docs/posts/2026-10-21-why-changepoint-detectors-cry-wolf.md (every number copied from the venture README). Local checks: build.test.mjs --test-name-pattern=llms 8/8; writing.test.mjs pass (first caught a 168-char description, fixed); venture node --test 94/94; clauses.mjs and guide-coverage.mjs ok; promptctl validate ok; browser_checks.py --only changepoint-detector: sideways, presets, roundtrip, optout, sweep, journey ok, highlight/contrast skipped (missing deps). optout failed before the optout.mjs fix and passed after. CI round 1: venture-sitemap-coverage failed (new page not in the venture sitemap; added) and gitops test_mirrored_tool_count failed (1307 vs 1310: the landing page's relative ./llms.txt link is dead in the apex mirror, which carries no .txt, so front-door-tools dropped changepoint-detector and, as collateral, conformal-prediction-intervals and matrix-profile-explorer; link now points at GitHub, and goals.md says so). After the fix: gitops/tests/test_manifests.py 84/84, sitemap+writing tests 13/13, clauses ok, venture tests 94/94.",
+  "corrections": [],
+  "redteam": null
+}

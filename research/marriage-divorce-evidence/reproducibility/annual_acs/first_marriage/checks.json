@@ -1,0 +1,24 @@
+[
+  {
+    "denominator": "approx_current_married_separated_or_recent_divorce",
+    "sex": "Men",
+    "n": 369235,
+    "events": 4379,
+    "weighted_n": 37250057,
+    "weighted_events": 487306,
+    "cells": 9320,
+    "max_iterations": 6,
+    "max_abs_normalized_score": 7.233218606893138e-19
+  },
+  {
+    "denominator": "approx_current_married_separated_or_recent_divorce",
+    "sex": "Women",
+    "n": 386283,
+    "events": 4888,
+    "weighted_n": 37170389,
+    "weighted_events": 549167,
+    "cells": 8288,
+    "max_iterations": 7,
+    "max_abs_normalized_score": 8.074525439727476e-19
+  }
+]

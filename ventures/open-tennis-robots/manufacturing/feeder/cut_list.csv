@@ -1,0 +1,12 @@
+part,qty,stock,notes
+feed_hose,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 600 mm","Hopper outlet to the column socket. Longest chord 570 mm; bows to 171 mm radius at the closest pose; needs 150. Hose clips at both sockets (hose clamps, 80-90 mm)."
+net_beam,1,"2040 T-slot, cut 3000 mm",Front member of the base and the foot of the net. Cut square.
+rear_rail,1,"2040 T-slot, cut 900 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
+side_rail,2,"2040 T-slot, cut 660 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
+mast_rail,2,"2040 T-slot, cut 860 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
+mast_post,4,"2040 T-slot, cut 445 mm, M5 tapped both ends",Four posts carry the mast plate.
+hopper_post_rear,2,"2040 T-slot, cut 1424 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Brace the four posts before filling the tub (not modelled)."
+hopper_post_front,2,"2040 T-slot, cut 1369 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Brace the four posts before filling the tub (not modelled)."
+camera_bar,1,"2020 T-slot, cut 800 mm",Stereo cameras mount on this; widen it for more depth accuracy.
+net_pole_vertical,2,"25 mm OD x 1.5 mm aluminium tube (or fibreglass), cut 2437 mm",Two 1.2 m sections joined by a sleeve if it must fit a car.
+net_pole_top,1,"25 mm OD x 1.5 mm aluminium tube, cut 3020 mm",Two sections joined by a sleeve at the middle.

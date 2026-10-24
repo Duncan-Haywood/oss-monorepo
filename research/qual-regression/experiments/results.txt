@@ -1,0 +1,27 @@
+qual-regression results (seeded; regenerate with python3 experiments/run.py)
+
+Model: y = 0.0 + 1.0*code + 0.5*z + N(0, 1.0); true code share 0.30; z ~ N(0,1); each item hand-coded with known probability 0.07.
+
+E1. Coder with sens 0.70, spec 0.95, error independent of z (300 studies, about 210 hand-coded of 3000)
+coef  estimator  true  mean_est  bias  coverage  width
+code(b1)  naive   1.00  0.740  -0.260  0.000  0.176
+code(b1)  human   1.00  0.995  -0.005  0.940  0.594
+code(b1)  dsl     1.00  1.011  +0.011  0.937  0.511
+z(b2)     naive   0.50  0.499  -0.001  0.940  0.075
+z(b2)     human   0.50  0.498  -0.002  0.917  0.271
+z(b2)     dsl     0.50  0.501  +0.001  0.967  0.118
+
+E2. Same coder, but sensitivity falls with z (0.70 + 0.15*z, clipped to [0,1]): errors correlated with the covariate (300 studies, about 210 hand-coded of 3000)
+coef  estimator  true  mean_est  bias  coverage  width
+code(b1)  naive   1.00  0.747  -0.253  0.000  0.177
+code(b1)  human   1.00  1.005  +0.005  0.933  0.586
+code(b1)  dsl     1.00  0.997  -0.003  0.960  0.503
+z(b2)     naive   0.50  0.467  -0.033  0.597  0.076
+z(b2)     human   0.50  0.500  -0.000  0.967  0.268
+z(b2)     dsl     0.50  0.502  +0.002  0.957  0.119
+
+E3. Three-class code. N=5000, true shares [0.3, 0.4, 0.3], LLM confusion rows [[0.85, 0.1, 0.05], [0.1, 0.8, 0.1], [0.3, 0.1, 0.6]] (accuracy 0.755), 200 hand-coded, 1000 studies
+class  true  naive_bias naive_cov  ppi_bias ppi_cov ppi_width  human_width
+0  0.30  +0.0846 0.000  +0.0004 0.956 0.1164  0.1270
+1  0.40  -0.0198 0.112  +0.0002 0.970 0.1070  0.1357
+2  0.30  -0.0649 0.000  -0.0006 0.955 0.1168  0.1268

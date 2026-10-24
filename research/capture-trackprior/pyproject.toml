@@ -1,0 +1,13 @@
+[project]
+name = "capture-trackprior"
+version = "0.1.0"
+description = "Can a delay prior taken from the camera's own earlier windows (not the truth) give the oracle-prior gain in GCC audio sync on real clips?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../capture-aliaswin/src", "../capture-residgate/src", "../capture-realaudio/src", "../capture-audiosync/src", "../capture-syncgate/src", "../capture-realedit/src", "../capture-syncedit/src", "../capture-edit/src"]

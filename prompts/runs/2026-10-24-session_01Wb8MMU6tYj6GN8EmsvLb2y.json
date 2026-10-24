@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01Wb8MMU6tYj6GN8EmsvLb2y",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T01:20:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9953",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to run python3 platform/ci/unlanded_work.py and write-ups in docs/; skipped the agent doc and post this run for time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No agent doc/post written and no runcost attach; small slice only."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Probe of made-up Indian/Spanish/Indonesian/Arabic CSVs; fixed day-first and header mapping in bank.mjs; node --test 615/615 pass.",
+  "corrections": [],
+  "redteam": null
+}

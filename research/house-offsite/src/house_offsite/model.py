@@ -139,7 +139,8 @@ def shell_quantities(house=House(), scheme=ADVANCED_2X6, max_panel_ft=24.0, load
         p["pieces"] = tk["pieces"] * p["len_in"] / total_len
     area = lambda ps: sum(w * h for w, h in ps)
     return {"takeoff": tk, "panels": panels, "site_pieces": site_pieces, "fac_pieces": fac_pieces,
-            "sheathing_area_ft2": area(site_pieces) / 144, "joints": len(panels) - len(walls),
+            "sheathing_area_ft2": area(site_pieces) / 144, "openings": sum(len(w.openings) for w in walls),
+            "joints": len(panels) - len(walls),
             "lower_bound_sheets": math.ceil(area(site_pieces) / (SHEET[0] * SHEET[1]))}
 
 
@@ -188,6 +189,11 @@ class Process:
     sheet_price: float = 24.0
     trip_cost: float = 900.0
     crane_day_cost: float = 1500.0
+    # Closed panels: wrap, cavity insulation, wiring rough-in and window/door setting built into the panel.
+    # Off by default (the open-panel case above). Placeholders, like every rate here.
+    closed: bool = False
+    closing_min_per_ft2: float = 1.2  # site minutes per ft2 of wall for wrap, insulation and wiring
+    closing_min_per_opening: float = 90.0  # site minutes to set and flash one window or door
 
 
 def labour_hours(q, p, sheets_site, sheets_fac):
@@ -195,6 +201,10 @@ def labour_hours(q, p, sheets_site, sheets_fac):
     site_h = ((n_members * p.site_min_per_piece + sheets_site * p.site_min_per_sheet) / 60
               + p.wall_raise_hours * len({pn['wall'] for pn in q['panels']}))
     fac_h = p.factory_ratio * (n_members * p.site_min_per_piece + sheets_fac * p.site_min_per_sheet) / 60
+    if p.closed:
+        close_h = (q["sheathing_area_ft2"] * p.closing_min_per_ft2 + q["openings"] * p.closing_min_per_opening) / 60
+        site_h += close_h
+        fac_h += p.factory_ratio * close_h
     return site_h, fac_h
 
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Slopsquatting Check — Did an AI Assistant Just Suggest a Package That Doesn't Exist?</title>
-  <meta name="description" content="Paste your package.json and this offline check flags any dependency name that looks like a one- or two-letter typo of a famous npm package -- the same shape as a hallucinated name an AI coding assistant invents. Get the free CLI for the live check: does this name exist on the registry at all, and if it does, was it published suspiciously recently? No account, no upload.">
+  <meta name="description" content="Paste your package.json and this offline check flags any dependency name that looks like a one- or two-letter typo of a famous npm package -- the same shape as a hallucinated name an AI coding assistant invents.">
   <meta property="og:title" content="Did an AI assistant just suggest a package that doesn't exist?">
   <meta property="og:description" content="LLM code generators regularly suggest npm package names that were never published. Attackers pre-register those exact names -- slopsquatting -- so the next developer who copies the AI's suggestion installs their package instead. Free offline browser check plus a CLI that verifies against the live registry.">
   <link rel="canonical" href="./index.html">
@@ -46,6 +46,7 @@
     <p>LLM code generators regularly suggest <code>npm install</code> commands for packages that were never published. A May 2025 USENIX Security study found <strong>19.7% of packages recommended by 16 code-generating models did not exist at all</strong>. Attackers know this: they pre-register the exact names models are likely to hallucinate, so the next developer who copies the suggestion installs the attacker's package instead of getting an install error &mdash; a technique now called <strong>slopsquatting</strong>.</p>
     <p class="note">Paste your <code>package.json</code> below. Nothing is uploaded -- this page has no network call of any kind, on purpose. It flags names that look like a typo of a famous package; it cannot check whether a name actually exists on the registry right now. Get the free CLI below for that.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your package.json</h2>
@@ -109,7 +110,8 @@ node cli.mjs --strict            # also fail CI on a suspiciously new (but real)
     <p>No. The browser page parses the package.json you paste entirely in your own browser and never sends it anywhere -- there is no fetch call in this page at all. The CLI reads your local file and sends only each dependency's name (never the whole file, never your code) to the public npm registry, one request per name.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It flags npm dependency names that resemble a hallucinated or typosquatted variant of a well-known package, or that fail a live registry existence/freshness check in the CLI -- it is not a malware scanner, not a security audit, and not a guarantee that an unflagged name is safe or a flagged one is malicious. It does not replace verifying a package yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>This page runs entirely in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

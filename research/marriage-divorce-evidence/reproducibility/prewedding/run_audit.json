@@ -1,0 +1,13 @@
+{
+ "sklearn": "1.7.2",
+ "seed": 20261020,
+ "max_years": 30,
+ "min_known": 0.5,
+ "datasets": {
+  "canada_gss": 48656,
+  "nlsy79": 6768,
+  "nlsy97": 5076,
+  "nsfg_pooled": 43336,
+  "sipp": 176303
+ }
+}

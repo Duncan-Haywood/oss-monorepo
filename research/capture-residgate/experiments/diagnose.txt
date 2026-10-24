@@ -1,0 +1,14 @@
+wrong = |delay error| over 2 ms; alias = wrong and within 0.5 ms of k x period (k 1..8); gross = other wrong
+control = alias share if the period is replaced by 1.37 x period (what chance would give)
+0 dB white noise, gamma 0.25, 432 windows per clip (12 seeds x 3 cameras x 12 windows)
+clip period_ms autocorr median_ok_err_ms ok alias gross control_alias
+applause 2.19 0.05 0.001 1.000 0.000 0.000 0.000
+drama 17.44 0.63 0.004 1.000 0.000 0.000 0.000
+falling 19.50 0.94 0.015 1.000 0.000 0.000 0.000
+gong 52.69 0.26 0.002 1.000 0.000 0.000 0.000
+roll 47.69 0.11 0.004 1.000 0.000 0.000 0.000
+romans 21.69 0.27 0.001 1.000 0.000 0.000 0.000
+soft 48.69 0.77 0.004 0.752 0.000 0.248 0.000
+space2 12.12 1.00 0.071 0.345 0.655 0.000 0.000
+untie 20.44 0.85 0.003 0.662 0.000 0.338 0.000
+wallewal 28.69 0.88 0.063 0.738 0.118 0.144 0.000

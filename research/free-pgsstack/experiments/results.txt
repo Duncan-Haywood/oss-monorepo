@@ -1,0 +1,38 @@
+1. iterations per step needed to hold an n-box stack still (60 Hz, beta 0.2, m = 1 kg, h = 1 m)
+   hold = speed < 0.001 m/s and total overlap < 0.0001 m for the last second of 3 s, and for every larger K tried
+   n  bottom-up_warm  top-down_warm  bottom-up_cold  top-down_cold   n^2
+   2              1              1              8             16       4
+   3              4              4             32             32       9
+   4             16              8             32             64      16
+   6            128             64            128            128      36
+   8             64             32            256            256      64
+  12            128            512            512            512     144
+  16          >2048           1024           1024           1024     256
+  24          >2048          >2048           2048           2048     576
+  32          >2048          >2048          >2048          >2048    1024
+
+2. state after 3 s against iterations, n = 16, bottom-up, warm start
+   K   max_overlap_m  max_speed_mps  worst_impulse_relerr
+    1       0.55679         9.3177                2.988
+    2       0.66210         6.6674                1.000
+    4       0.21805         3.6012                1.684
+    8       0.37629         4.2028                1.000
+   16       0.19081         2.2934                1.000
+   32       0.29446         3.3828                6.981
+   64       0.14928         1.7759                1.194
+  128       0.07630         1.1445                0.000
+  256       0.21752         2.6076                1.000
+  512       0.00737         0.1104                0.000
+ 1024       0.00000         0.0000                0.000
+ 2048       0.17680         1.7723                2.093
+
+3. same, n = 6
+   K   max_overlap_m  max_speed_mps  worst_impulse_relerr
+    1       0.11022         2.4199                1.000
+    2       0.06442         1.6270                3.986
+    4       0.01713         0.4711                1.000
+    8       0.02942         0.6626                1.000
+   16       0.02127         0.5558                0.000
+   32       0.00000         0.0000                0.000
+   64       0.00093         0.0140                0.000
+  128       0.00000         0.0000                0.000

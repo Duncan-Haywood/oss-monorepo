@@ -52,6 +52,7 @@
     <p>Paste the declared licenses of your dependency tree and choose how you ship. You get the dependencies that conflict, the ones that need a human, and the usual way out of each — a GPL library in a closed-source app, Apache-2.0 code in a GPL-2.0-only project, an AGPL or SSPL component behind a hosted service, a package with no license at all.</p>
     <p class="note">Nothing is uploaded. The text you paste is parsed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. How do you ship, and what do you depend on?</h2>
@@ -116,7 +117,8 @@ node cli.mjs notices deps.json > THIRD_PARTY_NOTICES.txt</pre>
     <p>No. The page parses what you paste in your own browser. The CLI reads local files only and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It applies a rules table of widely published license-compatibility positions to the license strings you supply — it is not legal advice, it does not read license texts, and a verdict is a skim aid, not a legal opinion about your specific use, linking or contracts. It does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>notices_made</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

@@ -1,0 +1,22 @@
+A. Practical figure as a fraction of the first-principles ceiling (sources read 2026-10-20)
+product                               level             practical  ceiling        ratio  how
+Panasonic NCR18650B cell (NCA)        cell                    243      380         0.64  primary
+LiFePO4 cells (commercial range)      cell                 95-172      385    0.25-0.45  secondary
+Lead-acid batteries                   battery               35-40      170    0.21-0.24  secondary
+Vanadium redox flow battery           electrolyte           15-25       27    0.56-0.93  secondary
+Units: Wh/kg, except the flow battery (Wh/L of electrolyte). Ceilings are reactant mass only (energy-density).
+NCR18650B is NCA but is compared with the graphite/LiCoO2 ceiling, the nearest couple modelled.
+
+B. Hydrogen at 700 bar: share of the system's mass that is hydrogen
+DOE Record 24006, 2023 status: 1.71 kWh/kg and 0.86 kWh/L system, 5.6 kg usable H2 (projected, LHV)
+practical H2 share = 1.71 / 33.33 = 5.13 wt%  (system mass 109 kg)
+ideal-sphere ceiling: 41.3 wt% (safety factor 1.00), 23.8 wt% (2.25)
+practical / ceiling = 0.12 and 0.22
+
+C. Round-trip efficiency, system level (PNNL GridPIQ page, read 2026-10-20; medians of cited ranges)
+Advanced lead-acid        85%   IEC, Electrical Energy Storage White Paper (2011)
+Lithium-ion               83%   W. G. Manuel, Energy Storage Study 2014 (2014)
+Pumped hydro              81%   Viswanathan et al. (2013)
+Flywheel                  81%   Viswanathan et al. (2013)
+Vanadium redox flow       75%   Viswanathan et al., National Assessment of Energy Storage ... Phase II Vol. 2 (2013)
+Compressed air (CAES)     50%   IEC, Electrical Energy Storage White Paper (2011)

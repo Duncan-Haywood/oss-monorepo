@@ -1,0 +1,13 @@
+[project]
+name = "energy-price-residual"
+version = "0.1.0"
+description = "Does residual load explain German day-ahead prices out of sample? Isotonic fit 2015-2019 against the one-fuel merit-order model"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-thermal-real/src", "../energy-thermal-hourly/src", "../energy-thermal-cost/src", "../energy-thermal/src"]

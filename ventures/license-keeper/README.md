@@ -1,11 +1,11 @@
-# license-keeper
+# License Keeper — Free Self-Hosted License Keys for Stripe Sellers
 
 After using this, you can now **sell a desktop app, plugin or CLI tool through
 Stripe and have license keys issued, limited per machine, renewed with the
 subscription and revoked on refund, on your own server**, which used to mean
 paying a licensing platform per license or writing the plumbing yourself.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/license-keeper/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/license-keeper/
 
 Two parts, both free and MIT:
 

@@ -1,0 +1,117 @@
+block,variable,level,reference,per,odds_ratio,ci95_low,ci95_high,adjusted_for,records,level_records,level_events
+family of origin,sibs,,,one step,1.1080,1.0108,1.1804,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,4453,203
+family of origin,parent_education,,,one step,1.0992,1.0335,1.1845,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,4453,203
+family of origin,family_origin,Parents divorced or separated,Both parents,vs reference,1.7011,0.9103,3.2587,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,392,27
+family of origin,family_origin,Parent died,Both parents,vs reference,1.7926,0.6142,5.1912,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,164,11
+family of origin,family_origin,Stepfamily,Both parents,vs reference,1.1580,0.6280,2.4806,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,296,24
+family of origin,family_origin,Other,Both parents,vs reference,2.2836,1.0823,4.4398,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,278,27
+family of origin,income_at_16,Far below average,Average,vs reference,0.6861,0.3125,1.1834,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,447,24
+family of origin,income_at_16,Below average,Average,vs reference,0.7589,0.4204,1.2734,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,1170,47
+family of origin,income_at_16,Above average,Average,vs reference,0.7052,0.3966,1.2334,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,771,34
+family of origin,income_at_16,Far above average,Average,vs reference,0.3702,0.0442,1.4536,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,74,4
+family of origin,income_at_16,Unknown,Average,vs reference,1.9572,0.0425,6.0579,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,65,3
+family of origin,place_at_16,Open country,"Town under 50,000",vs reference,1.3504,0.6959,2.7066,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,523,28
+family of origin,place_at_16,Farm,"Town under 50,000",vs reference,0.9753,0.4573,2.1542,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,462,17
+family of origin,place_at_16,"City 50,000-250,000","Town under 50,000",vs reference,0.9198,0.5551,1.5677,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,747,37
+family of origin,place_at_16,Suburb of a large city,"Town under 50,000",vs reference,1.1538,0.5534,2.3547,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,625,25
+family of origin,place_at_16,Large city,"Town under 50,000",vs reference,0.8365,0.4343,1.5861,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,675,32
+family of origin,place_at_16,Unknown,"Town under 50,000",vs reference,0.9042,0.5337,1.0000,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,2,0
+family of origin,born_us,No,Yes,vs reference,0.9083,0.3440,1.8687,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,554,20
+religion detail,attend9,Less than once a year,Never,vs reference,1.5403,0.5013,3.0146,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,268,16
+religion detail,attend9,About once a year,Never,vs reference,1.0930,0.5031,2.0641,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,560,28
+religion detail,attend9,Several times a year,Never,vs reference,0.8672,0.3377,1.8964,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,457,18
+religion detail,attend9,About once a month,Never,vs reference,0.8560,0.3341,2.2631,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,304,14
+religion detail,attend9,2-3 times a month,Never,vs reference,0.5851,0.2566,1.2136,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,373,16
+religion detail,attend9,Nearly every week,Never,vs reference,0.6283,0.0868,1.6753,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,215,5
+religion detail,attend9,Every week,Never,vs reference,1.2350,0.5582,2.4491,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,1012,41
+religion detail,attend9,More than once a week,Never,vs reference,0.8248,0.2496,2.4837,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,410,15
+religion detail,attend9,Unknown,Never,vs reference,0.4852,0.0853,0.9243,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,7,0
+religion detail,pray,Less than once a week,Never,vs reference,1.0372,0.4238,2.6568,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,472,26
+religion detail,pray,Once a week,Never,vs reference,0.3454,0.0568,0.9636,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,274,7
+religion detail,pray,Several times a week,Never,vs reference,0.9195,0.3188,2.3195,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,498,20
+religion detail,pray,Once a day,Never,vs reference,1.2426,0.5107,3.4929,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,1320,64
+religion detail,pray,Several times a day,Never,vs reference,1.0551,0.4436,2.7529,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,1343,57
+religion detail,pray,Unknown,Never,vs reference,0.2828,0.0033,1.8922,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,28,1
+religion detail,religious_strength,Somewhat strong,Not very strong,vs reference,1.5387,0.6111,3.2539,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,322,14
+religion detail,religious_strength,Strong,Not very strong,vs reference,1.4135,0.7733,2.7231,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,1704,67
+religion detail,religious_strength,No religion,Not very strong,vs reference,1.0519,0.0532,2.3299,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,646,48
+religion detail,religious_strength,Unknown,Not very strong,vs reference,0.7572,0.0775,3.1418,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,143,7
+religion detail,fundamentalism,Fundamentalist,Moderate,vs reference,0.4370,0.1497,1.4094,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,1190,57
+religion detail,fundamentalism,Liberal,Moderate,vs reference,0.6768,0.1443,4.2993,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,1329,66
+religion detail,fundamentalism,Unknown,Moderate,vs reference,0.3230,0.0065,2.1813,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,205,8
+religion detail,denomination,Baptist,Catholic,vs reference,0.7651,0.1567,2.5057,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,686,40
+religion detail,denomination,Methodist,Catholic,vs reference,0.4301,0.0543,2.2564,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,302,9
+religion detail,denomination,Lutheran,Catholic,vs reference,0.6829,0.1202,1.8291,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,212,8
+religion detail,denomination,Presbyterian,Catholic,vs reference,1.3449,0.0445,6.2937,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,147,5
+religion detail,denomination,Episcopal,Catholic,vs reference,0.4567,0.0053,3.2135,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,96,2
+religion detail,denomination,Other Protestant,Catholic,vs reference,0.8896,0.1453,2.3765,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,595,22
+religion detail,denomination,Nondenominational Protestant,Catholic,vs reference,0.4061,0.0979,1.0289,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,329,14
+religion detail,denomination,Jewish,Catholic,vs reference,0.1871,0.0025,1.5615,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,96,1
+religion detail,denomination,None,Catholic,vs reference,1.2674,0.4717,47.8764,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,645,48
+religion detail,denomination,Other Christian,Catholic,vs reference,0.7907,0.1364,2.4517,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,161,11
+religion detail,denomination,Other religion,Catholic,vs reference,0.2362,0.0067,9.8978,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,119,2
+religion detail,denomination,Unknown,Catholic,vs reference,4.6054,0.5409,551.8159,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,18,4
+religion detail,religion_raised,Catholic,Protestant,vs reference,0.3048,0.1339,0.5149,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,1373,46
+religion detail,religion_raised,Jewish,Protestant,vs reference,0.1446,0.0023,0.5233,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,102,1
+religion detail,religion_raised,None,Protestant,vs reference,0.8794,0.3788,1.5314,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,329,22
+religion detail,religion_raised,Other,Protestant,vs reference,0.4515,0.0675,1.0510,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,176,7
+religion detail,religion_raised,Unknown,Protestant,vs reference,0.2161,0.0004,2.2824,"every current-model input (linear age, children, attendance) + this block; replaces attend, religion",4453,12,1
+politics,polviews,Extremely liberal,Moderate,vs reference,1.3051,0.4314,2.8689,"every current-model input (linear age, children, attendance) + this block",4453,104,9
+politics,polviews,Liberal,Moderate,vs reference,0.6286,0.2480,1.3482,"every current-model input (linear age, children, attendance) + this block",4453,462,23
+politics,polviews,Slightly liberal,Moderate,vs reference,0.9462,0.4812,1.7852,"every current-model input (linear age, children, attendance) + this block",4453,489,22
+politics,polviews,Slightly conservative,Moderate,vs reference,1.0744,0.5202,1.7468,"every current-model input (linear age, children, attendance) + this block",4453,655,23
+politics,polviews,Conservative,Moderate,vs reference,0.6650,0.3572,1.2284,"every current-model input (linear age, children, attendance) + this block",4453,871,21
+politics,polviews,Extremely conservative,Moderate,vs reference,1.5723,0.3680,4.2785,"every current-model input (linear age, children, attendance) + this block",4453,199,8
+politics,polviews,Unknown,Moderate,vs reference,1.5353,0.4502,4.3665,"every current-model input (linear age, children, attendance) + this block",4453,100,10
+politics,party,Strong Democrat,Independent,vs reference,2.0110,0.9245,4.2329,"every current-model input (linear age, children, attendance) + this block",4453,659,45
+politics,party,Not strong Democrat,Independent,vs reference,1.2939,0.6792,2.5564,"every current-model input (linear age, children, attendance) + this block",4453,686,35
+politics,party,"Independent, near Democrat",Independent,vs reference,1.0969,0.4680,2.2006,"every current-model input (linear age, children, attendance) + this block",4453,512,24
+politics,party,"Independent, near Republican",Independent,vs reference,0.6737,0.2831,1.4101,"every current-model input (linear age, children, attendance) + this block",4453,443,17
+politics,party,Not strong Republican,Independent,vs reference,0.6515,0.2580,1.2730,"every current-model input (linear age, children, attendance) + this block",4453,775,19
+politics,party,Strong Republican,Independent,vs reference,1.2952,0.5965,2.8781,"every current-model input (linear age, children, attendance) + this block",4453,599,19
+politics,party,Other party,Independent,vs reference,1.0872,0.2411,2.4754,"every current-model input (linear age, children, attendance) + this block",4453,99,5
+politics,party,Unknown,Independent,vs reference,0.6747,0.0195,3.4873,"every current-model input (linear age, children, attendance) + this block",4453,20,1
+race detail,race_detail,Black,White,vs reference,1.9716,1.0162,3.5726,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,333,36
+race detail,race_detail,Hispanic,White,vs reference,0.7789,0.3484,1.5256,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,439,25
+race detail,race_detail,Asian,White,vs reference,1.1686,0.0120,2.6165,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,135,2
+race detail,race_detail,American Indian or Alaska Native,White,vs reference,3.0451,0.1861,30.4899,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,9,2
+race detail,race_detail,Native Hawaiian or Pacific Islander,White,vs reference,0.7875,0.2241,1.0000,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,2,0
+race detail,race_detail,Multiracial,White,vs reference,1.9317,0.9324,3.9711,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,186,20
+race detail,race_detail,Other,White,vs reference,3.2503,0.0373,19.6530,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,16,3
+occupation,prestige,,,one step,0.9788,0.9581,0.9986,"every current-model input (linear age, children, attendance) + this block",4453,4453,203
+occupation,spouse_prestige,,,one step,1.0167,0.9978,1.0388,"every current-model input (linear age, children, attendance) + this block",4453,4453,203
+occupation,occupation_group,Service,"Management, business, science and arts",vs reference,0.7538,0.4063,1.4262,"every current-model input (linear age, children, attendance) + this block",4453,578,40
+occupation,occupation_group,Sales and office,"Management, business, science and arts",vs reference,0.6666,0.3141,1.1168,"every current-model input (linear age, children, attendance) + this block",4453,950,38
+occupation,occupation_group,"Natural resources, construction and maintenance","Management, business, science and arts",vs reference,0.8321,0.3021,1.7800,"every current-model input (linear age, children, attendance) + this block",4453,392,26
+occupation,occupation_group,"Production, transportation and material moving","Management, business, science and arts",vs reference,0.6375,0.2311,1.2066,"every current-model input (linear age, children, attendance) + this block",4453,541,22
+occupation,occupation_group,Military,"Management, business, science and arts",vs reference,3.3240,0.2110,10.6824,"every current-model input (linear age, children, attendance) + this block",4453,31,3
+occupation,occupation_group,No occupation reported,"Management, business, science and arts",vs reference,0.4615,0.0879,1.6361,"every current-model input (linear age, children, attendance) + this block",4453,91,5
+wealth,home,Rent,Own,vs reference,1.1183,0.6423,2.0619,"every current-model input (linear age, children, attendance) + this block",4453,455,45
+wealth,home,Other,Own,vs reference,0.5290,0.0036,5.0120,"every current-model input (linear age, children, attendance) + this block",4453,25,1
+wealth,home,Unknown,Own,vs reference,2.6993,1.4815,13.8997,"every current-model input (linear age, children, attendance) + this block",4453,1482,69
+wealth,wealth_band,Under $5k,$100k-$250k,vs reference,0.9294,0.1373,3.8157,"every current-model input (linear age, children, attendance) + this block",4453,33,6
+wealth,wealth_band,$5k-$40k,$100k-$250k,vs reference,0.0765,0.0026,0.3173,"every current-model input (linear age, children, attendance) + this block",4453,76,2
+wealth,wealth_band,$40k-$100k,$100k-$250k,vs reference,0.7327,0.2090,1.8323,"every current-model input (linear age, children, attendance) + this block",4453,105,10
+wealth,wealth_band,$250k-$500k,$100k-$250k,vs reference,0.1861,0.0042,0.6628,"every current-model input (linear age, children, attendance) + this block",4453,114,2
+wealth,wealth_band,$500k+,$100k-$250k,vs reference,0.9446,0.0844,3.0924,"every current-model input (linear age, children, attendance) + this block",4453,142,5
+wealth,wealth_band,Unknown,$100k-$250k,vs reference,0.5398,0.2605,1.3611,"every current-model input (linear age, children, attendance) + this block",4453,3834,166
+family of origin (5-level only),family_origin,Parents divorced or separated,Both parents,vs reference,1.5664,0.8435,2.6807,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,392,27
+family of origin (5-level only),family_origin,Parent died,Both parents,vs reference,1.5540,0.5553,3.9938,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,164,11
+family of origin (5-level only),family_origin,Stepfamily,Both parents,vs reference,1.4224,0.8412,2.8093,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,296,24
+family of origin (5-level only),family_origin,Other,Both parents,vs reference,2.0323,0.9568,3.9754,"every current-model input (linear age, children, attendance) + this block; replaces family_at_16",4453,278,27
+race detail (replacing race),race_detail,Black,White,vs reference,1.9716,1.0162,3.5726,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,333,36
+race detail (replacing race),race_detail,Hispanic,White,vs reference,0.7789,0.3484,1.5256,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,439,25
+race detail (replacing race),race_detail,Asian,White,vs reference,1.1686,0.0120,2.6165,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,135,2
+race detail (replacing race),race_detail,American Indian or Alaska Native,White,vs reference,3.0451,0.1861,30.4899,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,9,2
+race detail (replacing race),race_detail,Native Hawaiian or Pacific Islander,White,vs reference,0.7875,0.2241,1.0000,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,2,0
+race detail (replacing race),race_detail,Multiracial,White,vs reference,1.9317,0.9324,3.9711,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,186,20
+race detail (replacing race),race_detail,Other,White,vs reference,3.2503,0.0373,19.6530,"every current-model input (linear age, children, attendance) + this block; replaces race",4453,16,3
+"attendance, 9 levels (replacing the numeric score)",attend9,Less than once a year,Never,vs reference,1.4294,0.5425,2.9582,"every current-model input (linear age, children, attendance) + this block; replaces attend",4453,268,16
+"attendance, 9 levels (replacing the numeric score)",attend9,About once a year,Never,vs reference,0.9719,0.4818,1.9302,"every current-model input (linear age, children, attendance) + this block; replaces attend",4453,560,28
+"attendance, 9 levels (replacing the numeric score)",attend9,Several times a year,Never,vs reference,0.8545,0.3724,1.8084,"every current-model input (linear age, children, attendance) + this block; replaces attend",4453,457,18
+"attendance, 9 levels (replacing the numeric score)",attend9,About once a month,Never,vs reference,0.9602,0.4283,2.2319,"every current-model input (linear age, children, attendance) + this block; replaces attend",4453,304,14
+"attendance, 9 levels (replacing the numeric score)",attend9,2-3 times a month,Never,vs reference,0.6572,0.3093,1.4287,"every current-model input (linear age, children, attendance) + this block; replaces attend",4453,373,16
+"attendance, 9 levels (replacing the numeric score)",attend9,Nearly every week,Never,vs reference,0.7475,0.1192,2.1727,"every current-model input (linear age, children, attendance) + this block; replaces attend",4453,215,5
+"attendance, 9 levels (replacing the numeric score)",attend9,Every week,Never,vs reference,1.4679,0.7723,2.7869,"every current-model input (linear age, children, attendance) + this block; replaces attend",4453,1012,41
+"attendance, 9 levels (replacing the numeric score)",attend9,More than once a week,Never,vs reference,0.9454,0.3575,2.8079,"every current-model input (linear age, children, attendance) + this block; replaces attend",4453,410,15
+"attendance, 9 levels (replacing the numeric score)",attend9,Unknown,Never,vs reference,0.2524,0.0112,0.9238,"every current-model input (linear age, children, attendance) + this block; replaces attend",4453,7,0

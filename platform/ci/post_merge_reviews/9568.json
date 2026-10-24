@@ -1,0 +1,9 @@
+{
+ "pr": 9568,
+ "reviewed_at": "2026-10-24T03:00Z",
+ "findings": 0,
+ "severity": "none",
+ "fix_pr": null,
+ "note": "USAA reader fine; header from memory",
+ "batch": "docs/reports/assets/pr-review-flow/findings.md"
+}

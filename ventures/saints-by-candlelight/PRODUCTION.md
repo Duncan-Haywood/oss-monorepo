@@ -1,0 +1,201 @@
+# Saints by Candlelight: series bible and production guide
+
+The owner's brief (2026-10-20): podcast episodes in the spirit of a
+myths-and-legends storytelling show, but about the saints, angels and
+patriarchs of the Catholic and Orthodox traditions. Entertaining,
+lighthearted, bedtime-style. Some episodes may be fiction, with a
+disclaimer, but nothing may contradict doctrine, morals or teaching.
+Each episode 30 minutes to an hour. Ongoing, indefinitely.
+
+This file is how any session (or person) adds the next episode and keeps
+the show sounding like one show.
+
+## The show in one paragraph
+
+A warm, funny narrator retells the old stories of holy people, the ones
+told around fires and in monastery refectories for fifteen centuries, the
+way you would tell them to a friend at bedtime: faithfully where the record
+is clear, with a wink at the legends, and with plain honesty about which
+is which. The humour comes from the people (a lion who is very bad at
+guarding donkeys, an angel who gives a fake name and then a real pedigree,
+a bishop who loses his temper at a council), never from the faith itself.
+The pace slows as the episode goes on. The listener should be able to fall
+asleep in the last ten minutes and miss nothing important.
+
+## Length and shape
+
+- **Target 5,500 to 8,500 words of spoken text** (about 35 to 55 minutes at
+  the narrator's pace, about 155 words a minute). Never under 4,500.
+- **Shape of an episode:**
+  1. **Cold open** (100-200 words): a single vivid moment from the middle
+     of the story, then "But we're getting ahead of ourselves."
+  2. **Welcome** (fixed wording, see below), including the AI disclosure and
+     the one-line "what's true" statement for this episode.
+  3. **Setting the scene** (500-900 words): where and when, what life was
+     like, told with modern comparisons and gentle jokes.
+  4. **The story** in four to seven scenes separated by `* * *`. Most of the
+     words go here. Dialogue is modern and natural; nobody says "thee"
+     unless it's a joke about people who say "thee".
+  5. **The wind-down** (400-800 words): the end of the saint's life, the
+     feast day, what happened to the place, slower sentences, quieter.
+  6. **Notes for the curious** (spoken, 150-300 words): what the sources
+     are, what is history, what is legend, what this episode invented.
+  7. **Sign-off** (fixed wording, see below), ending with a short blessing
+     or traditional prayer appropriate to the saint.
+
+### Fixed welcome (adapt only the bracketed parts)
+
+> Hello, and welcome to Saints by Candlelight, stories of saints, angels and
+> patriarchs from the Catholic and Orthodox traditions, told for bedtime.
+> These episodes are written by an AI and read by a synthetic voice, and
+> they try very hard to be faithful. Tonight's story is [one line on what
+> it is and where it comes from, e.g. "from the Book of Tobit, which
+> Catholic and Orthodox Christians read as Scripture"], [and one line on
+> what is invented, e.g. "and a few of the small conversations are our own
+> invention, told in the spirit of the original"]. So get comfortable. Dim
+> the lights. And let's begin.
+
+### Fixed sign-off (adapt only the bracketed parts)
+
+> That's the story of [saint] for tonight. [Feast-day line.] Thank you for
+> listening to Saints by Candlelight. If you enjoyed it, share it with
+> someone who could use a gentle story at the end of a long day. [Prayer
+> or blessing.] Goodnight, and God bless.
+
+## Voice and tone
+
+- **Lighthearted, never mocking.** Laugh with the saints, never at the
+  faith, the sacraments, Our Lady, or the Lord. Jokes land on human
+  foibles, animals, bureaucracy, weather, monastery food, and the
+  narrator's own tangents.
+- **Bedtime.** No gore, no graphic martyrdom, no jump scares. Martyrdom is
+  told in one or two quiet sentences ("and so he went home to God"), with
+  more weight on the life than the death. Demons may appear when the source
+  has them (Tobit's Asmodeus), but they are defeated, faintly ridiculous,
+  and never described in frightening detail.
+- **Narrator asides** are the signature: short parenthetical tangents,
+  modern comparisons ("roughly the ancient equivalent of a group chat"),
+  admissions ("the old sources do not tell us what the dog was called,
+  which I think is an oversight"). Not more than one every few paragraphs.
+- **Written for the ear.** Short sentences. No footnotes, URLs, markdown
+  links, numerals that read badly (write "three hundred and twenty-five",
+  not "325"), Roman numerals, or abbreviations ("Saint", not "St."). No
+  parentheses that only work on the page; turn them into spoken asides with
+  commas or dashes.
+- **Pace.** Put `[pause]` on its own line where a long silence helps (after
+  the welcome, before the wind-down, before the sign-off). Use `* * *` on
+  its own line between scenes. The renderer turns both into silence.
+
+## Doctrine and honesty rules (non-negotiable)
+
+1. **Never contradict Catholic or Orthodox doctrine or moral teaching.**
+   Where the two traditions differ (the papacy, the filioque, purgatory,
+   later dogmas and later saints), stay off the disputed ground. Do not
+   argue either side.
+2. **Miracles are God's.** Saints pray; God acts. A saint is never a wizard
+   and relics are never magic objects.
+3. **Angels are angels.** They are not the souls of dead people and they do
+   not earn wings. There are no neutral or half-fallen angels, even though
+   some medieval legends (for example the birds in the *Voyage of Saint
+   Brendan*) say otherwise: skip or correct such details out loud.
+4. **Scripture is told straight.** When the story comes from Scripture
+   (including the deuterocanonical books, which both traditions read as
+   Scripture), invent nothing that changes what happens or what it means.
+   Small invented dialogue and colour are fine and must be flagged in the
+   welcome and the notes.
+5. **Legend is labelled as legend.** "The old story says", "according to
+   the monks who wrote it down three hundred years later". Never present a
+   legend as documented history.
+6. **Invented episodes are allowed** (an invented companion, an invented
+   day in a real saint's life, or an entirely invented holy person in a
+   traditional setting). They must say so in the welcome, in the notes, and
+   in the `fiction` field, and the invented events must be the kind of
+   thing that could edifyingly have happened, not new miracles attributed to
+   a real saint as if they were history.
+7. **Name the tradition.** If a saint is venerated in only one tradition,
+   say so plainly and kindly ("Saint Seraphim is an Orthodox saint, much
+   loved by Catholics too"). Do not claim a canonisation that did not
+   happen.
+8. **Sources.** List the real primary and standard secondary sources in the
+   front matter. Only list sources that exist and that you are confident
+   say what you claim. If unsure, leave a detail out.
+9. **AI disclosure.** Every episode says it is written by an AI and read by
+   a synthetic voice, in the welcome, the page and the feed.
+
+## File format
+
+One file per episode: `episodes/<NNN>-<slug>.md`, where `NNN` is the
+three-digit episode number.
+
+```
+---
+number: 1
+slug: the-angel-who-called-himself-azarias
+title: The Angel Who Called Himself Azarias
+published: 2026-10-20
+summary: One or two sentences for the feed and the page.
+figures: Tobit, Tobias, Sarah, Saint Raphael the Archangel
+tradition: Catholic and Orthodox
+feast: one line on feast days in each tradition
+history: one line on what is historical or scriptural
+legend: one line on what is legend (or "none")
+fiction: one line on what this episode invented
+sources:
+  - The Book of Tobit (Catholic and Orthodox Old Testament)
+  - ...
+---
+
+Script text starts here. Paragraphs are separated by blank lines.
+```
+
+Front matter values are single lines (no wrapping). `sources` is the only
+list.
+
+## Making an episode
+
+```
+cd ventures/saints-by-candlelight
+# 1. write episodes/<NNN>-<slug>.md following this file
+node generate.mjs --check-script <slug>     # length, banned characters, welcome/sign-off present
+python3 render_audio.py <slug>              # Kokoro TTS, offline, ~1/3 real time on a laptop CPU
+node generate.mjs                           # pages, feed.xml, sitemap
+node --test
+```
+
+`render_audio.py` needs `pip install kokoro-onnx soundfile` and the two
+Kokoro v1.0 model files (`kokoro-v1.0.onnx`, `voices-v1.0.bin`, Apache 2.0)
+in `~/.cache/kokoro` or `--models <dir>`; it downloads them from Hugging Face
+if missing. Narrator voice: `bm_george` at speed 0.9.
+
+## The episode list
+
+Done episodes are in `episodes/`. Next up, roughly in order (claim one by
+writing it; skip any already in `episodes/`):
+
+- *(Done: episode 14, Joseph and the Coat with Long Sleeves.)* Joseph the dreamer and his brothers (Genesis 37-50)
+- *(Done: episode 18, George and the Dragon of Silene.)* Saint George and the dragon (legend; the historical martyr told gently)
+- *(Done: episode 10, Brendan and the Island That Moved.)* Saint Brendan the Navigator (*Navigatio*; the birds-as-angels episode skipped)
+- *(Done: episode 17, Kevin and the Blackbird.)* Saint Kevin of Glendalough and the blackbird
+- *(Done: episode 9, Patrick and the Ship That Was Ready.)* Saint Patrick, from slave to bishop (his own *Confessio*)
+- *(Done: episode 5, Francis and the Wolf of Gubbio.)* Saint Francis and the wolf of Gubbio (Catholic; *Fioretti*)
+- *(Done: episode 20, Mary of Egypt and the Three Loaves; text only, no audio yet.)* Saint Mary of Egypt (Orthodox and Catholic; told gently for bedtime)
+- *(Done: episode 13, Abraham and the Three Visitors at Mamre.)* Abraham and the three visitors at Mamre (Genesis 18)
+- *(Done: episode 11, Herman and the Garden on Spruce Island.)* Saint Herman of Alaska (Orthodox)
+- *(Done: episode 15, Nicholas and the Grain Ships.)* Saint Nicholas, part two: the storm at sea and the grain ships
+- *(Done: episode 12, Elijah and the Still Small Voice.)* Elijah, the ravens and the still small voice (1 Kings 17-19)
+- *(Done: episode 16, Spyridon and the Snake That Became Gold.)* Saint Spyridon and the snake that became gold (legend; told with care)
+- *(Done: episode 19, A Winter Night at the Hill Convent.)* An invented episode: a novice and an old abbess on a winter night, with the saints she tells her about (clearly labelled fiction)
+
+## Audio status
+
+Episodes 1 to 19 have audio (episode 20 is text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+
+## Publishing
+
+- Episodes, pages and `feed.xml` are served from GitHub Pages at
+  `https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/`.
+- Audio is committed as mono 40 kbps MP3 (about 0.3 MB a minute). GitHub
+  Pages publishes at most 1 GB per site; when the show's audio passes about
+  300 MB, move enclosures to GitHub release assets and keep the feed URL.
+- Listing in Apple Podcasts, Spotify, YouTube Music and Podcast Index is a
+  one-time owner submission of the feed URL (see the README).

@@ -157,6 +157,97 @@ export function analyze(claims, opts = {}) {
   return { options: o, lines, filing: filing.length, totalEv, skippedValue, atStake, disputes, feesCommitted, sensitivity, verdict, warnings };
 }
 
+// ---- Calibrate the win-chance curve from your own past disputes -------------------------------
+// IDR is pick-one: the arbitrator takes your offer or the payer's. Each past dispute is one
+// yes/no result at the position of your offer between the QPA (t=0) and the billed charge (t=1).
+// A logistic curve p = 1/(1+exp(-(a+b*t))) is fitted by Newton's method with a ridge pull toward
+// the curve the user currently assumes, so a handful of results nudges the curve and many results
+// replace it. In-sample arithmetic on the user's own records: not a prediction of any arbitrator.
+
+const WON = /^(w|won|win|wins|yes|y|true|1|prevailed|ours)$/i;
+const LOST = /^(l|lost|loss|lose|no|n|false|0|payer|theirs)$/i;
+
+// Lines: "label, billed charge, QPA, the offer you submitted, result (won/lost)".
+export function parseOutcomes(text) {
+  const rows = [];
+  let skipped = 0;
+  for (const raw of String(text || "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const cells = (line.includes("\t") ? line.split("\t") : line.split(",")).map((c) => c.trim().replace(/^"|"$/g, ""));
+    if (cells.length < 5) { skipped++; continue; }
+    const billed = num(cells[1], NaN), qpa = num(cells[2], NaN), offer = num(cells[3], NaN);
+    const res = cells[4];
+    const won = WON.test(res) ? 1 : LOST.test(res) ? 0 : null;
+    if (!Number.isFinite(billed) || !Number.isFinite(qpa) || !Number.isFinite(offer) || won === null) {
+      if (rows.length || !/billed|label|result|offer/i.test(line)) skipped++;
+      continue;
+    }
+    if (billed <= 0 || qpa <= 0 || offer <= 0) { skipped++; continue; }
+    const t = billed <= qpa ? 0 : clamp((offer - qpa) / (billed - qpa), 0, 1);
+    rows.push({ label: cells[0] || "Dispute", billed, qpa, offer, won, t });
+  }
+  if (!rows.length) return { error: "Add at least one past dispute: label, billed charge, QPA, the offer you submitted, won or lost." };
+  const warnings = [];
+  if (skipped) warnings.push(`${skipped} line(s) skipped (need a label, positive billed charge, QPA and offer, and a result of won or lost).`);
+  return { rows, warnings };
+}
+
+const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+const logit = (p) => Math.log(p / (1 - p));
+const logitPct = (pct) => logit(clamp(pct, 1, 99) / 100);
+
+// Wilson 95% interval for a win rate.
+export function wilson(wins, n, z = 1.96) {
+  if (!n) return null;
+  const p = wins / n, d = 1 + (z * z) / n;
+  const c = (p + (z * z) / (2 * n)) / d, h = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
+  return [Math.max(0, c - h), Math.min(1, c + h)];
+}
+
+function newton(rows, prior, lambda, freezeB) {
+  let a = prior.a, b = freezeB ? 0 : prior.b;
+  for (let it = 0; it < 100; it++) {
+    let ga = lambda * (a - prior.a), gb = freezeB ? 0 : lambda * (b - prior.b);
+    let haa = lambda, hab = 0, hbb = freezeB ? 1 : lambda;
+    for (const r of rows) {
+      const p = sigmoid(a + b * r.t), w = p * (1 - p), e = p - r.won;
+      ga += e; haa += w;
+      if (!freezeB) { gb += e * r.t; hab += w * r.t; hbb += w * r.t * r.t; }
+    }
+    let da, db = 0;
+    if (freezeB) da = ga / haa;
+    else { const det = haa * hbb - hab * hab; da = (hbb * ga - hab * gb) / det; db = (haa * gb - hab * ga) / det; }
+    a -= da; b -= db;
+    if (Math.abs(da) + Math.abs(db) < 1e-10) break;
+  }
+  return { a, b };
+}
+
+const brier = (rows, a, b) => rows.reduce((s, r) => s + (sigmoid(a + b * r.t) - r.won) ** 2, 0) / rows.length;
+
+export function fitWinCurve(rows, opts = {}) {
+  const o = clean(opts), lambda = Math.max(0.05, Number.isFinite(+opts.priorWeight) && opts.priorWeight !== undefined && opts.priorWeight !== "" ? +opts.priorWeight : 0.5); // floor keeps a perfectly separated history finite
+  if (!rows || !rows.length) return { error: "No past disputes to fit." };
+  const prior = { a: logitPct(o.pWinAtQpa) , b: logitPct(o.pWinAtBilled) - logitPct(o.pWinAtQpa) };
+  let { a, b } = newton(rows, prior, lambda, false);
+  let flattened = false;
+  if (b > 0) { ({ a, b } = newton(rows, prior, lambda, true)); flattened = true; } // a higher ask never raises the odds
+  const n = rows.length, wins = rows.reduce((s, r) => s + r.won, 0);
+  const pWinAtQpa = sigmoid(a) * 100, pWinAtBilled = sigmoid(a + b) * 100;
+  const notes = [];
+  if (n < 20) notes.push(`Only ${n} result(s): the fit leans on your current assumption. Treat the curve as a nudge, not a measurement.`);
+  if (flattened) notes.push("Your results show no drop in wins as offers rise, so the curve was held flat; a higher ask is never modelled as winning more often.");
+  const nearQpa = rows.filter((r) => r.t < 0.5).length;
+  if (n >= 5 && (nearQpa === 0 || nearQpa === n)) notes.push("All results sit on one side of the QPA-to-billed range, so the slope is mostly your prior. Record some results at the other end.");
+  return {
+    n, wins, rate: wins / n, interval: wilson(wins, n),
+    pWinAtQpa: Math.round(pWinAtQpa * 10) / 10, pWinAtBilled: Math.round(pWinAtBilled * 10) / 10,
+    brierFit: brier(rows, a, b), brierPrior: brier(rows, prior.a, prior.b), brierBase: brier(rows, logit(clamp(wins / n, 0.01, 0.99)), 0),
+    flattened, notes,
+  };
+}
+
 // ---- Deadlines -------------------------------------------------------------------------------
 // Counts business days (Monday-Friday, minus holidays the user lists) from an ISO date. The tool
 // does not know the federal holiday calendar; the user supplies it.
@@ -211,6 +302,10 @@ export function daysUntil(targetIso, todayIso) {
   const a = parseIso(targetIso), b = parseIso(todayIso);
   if (!a || !b) return null;
   return Math.round((a - b) / 86400000);
+}
+
+export function sampleOutcomes() {
+  return "label,billed,QPA,your offer,result\nER visit level 5,3100,950,1000,won\nER visit level 4,2000,600,640,won\nER visit level 5,3300,1000,1900,lost\nCT abdomen,2800,700,1500,lost\nAnesthesia 60 min,2200,500,520,won\nLaceration repair,1300,250,300,won\nER visit level 5,3000,900,1250,won\nCT abdomen,2900,740,2200,lost\nUrgent care visit,500,160,170,won\nER visit level 4,2100,620,1100,lost\nAnesthesia 90 min,2500,560,900,won\nER visit level 5,3200,980,2800,lost";
 }
 
 export function sampleClaims() {

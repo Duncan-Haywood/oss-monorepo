@@ -1,0 +1,59 @@
+name: matrix-profile-explorer
+description: >-
+  Free browser tool for analysts, engineers and researchers with a time series:
+  paste or upload a CSV and get its exact matrix profile (STOMP), the top
+  motifs (repeated patterns) and discords (anomalies), a chart and a
+  plain-language summary. Also a zero-dependency CLI and an agent-callable
+  engine. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-20 under the "research algorithms as tools" direction
+# (portfolio/research-tools/README.md). Implements Yeh et al. 2016 (Matrix
+# Profile I, doi:10.1109/ICDM.2016.0179) and Zhu et al. 2016 (Matrix Profile II,
+# STOMP, doi:10.1109/ICDM.2016.0085) from the papers' mathematics; no library
+# code was ported. Tests compare against an independent brute-force
+# implementation and against STUMPY 1.14.1 output stored with its provenance.
+#
+# First visitor: searches "matrix profile online", "time series anomaly
+# detection", "find repeated patterns in time series", "time series motif
+# discovery"; data scientists, reliability and IoT engineers, and students
+# who want to try the method on their own CSV before installing a Python
+# library; r/datascience, r/MachineLearning and r/dataengineering threads
+# about unsupervised anomaly detection. Volume not measured with an external
+# tool.
+#
+# Privacy is the liability boundary: the series never leaves the browser
+# (tests assert no network calls). Example data is a US-government work
+# (NOAA GML, cited as NOAA asks; data/SOURCE.md).
+#
+# Path to revenue (payment rails stay off): donations only. Liability: a
+# statistical description of supplied data, not advice; the page states the
+# limits (shape not level, window choice, O(n^2)).
+
+hypotheses:
+  - claim: >-
+      People with a time series will use a no-install, no-upload matrix profile
+      page to find repeated patterns and anomalies in their own CSV, and some
+      will move on to the CLI or agent interface.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a matrix profile value or index that disagrees with a reference implementation (for example STUMPY or the UCR code) on the same series, window and exclusion zone, and it cannot be fixed.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/matrix-profile-explorer/
+  analytics: null

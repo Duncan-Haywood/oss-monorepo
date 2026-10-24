@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01XQaEtKVbxxtjSCJGVY4iPM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo, revenue-generating products, merge when done",
+  "input_sha256": "bc8c6b0be85064bc6ca48fe6081494155f94ebc594b72237f24f108ef4de86b4",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T16:05:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1 (changepoint-detector): measure --knot-margin 0.1 with --ar1, --period, --joint-knots; add to web page",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 8866,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/routing.json",
+      "why": "route drew research; the scheduled task asked for revenue products, so ran the ventures track on the top flagship"
+    }
+  ],
+  "goal": null,
+  "notes": "Early-knot detection 0 -> 25..36 of 40 across ar1, period+ar1 and joint variants; false bends on ramps 0-2 of 40. Added web menu and a test. Default left at 0.2. Local checks: node --test on changepoint-detector.",
+  "corrections": [],
+  "redteam": null
+}

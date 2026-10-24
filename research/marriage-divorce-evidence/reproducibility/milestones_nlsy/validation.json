@@ -1,0 +1,13 @@
+{
+  "first_marriage_only": true,
+  "same_wave_only": true,
+  "no_future_births": true,
+  "birth_within_current_marriage": true,
+  "childless_explicit_flag": true,
+  "childless_dates_negative": true,
+  "key_unique": true,
+  "positive_exposure": true,
+  "event_partition": true,
+  "interval_partition": true,
+  "point_max_abs_error": 4.440892098500626e-15
+}

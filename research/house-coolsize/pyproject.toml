@@ -1,0 +1,13 @@
+[project]
+name = "house-coolsize"
+version = "0.1.0"
+description = "Does cooling or heating set the heat pump size for the 480 sq ft ADU, and what does the envelope save once both are counted?"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-hpsize/src", "../house-breakeven/src", "../house-open-design/src", "../house-plan/src", "../house-spans/src", "../house-framing/src", "../house-structure/src", "../house-energy/src", "../house-cost/src", "../house-truss/src"]

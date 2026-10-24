@@ -31,6 +31,7 @@ export const DEFAULTS = {
   overnightOnCallHours: 2,
   holidaySurchargePct: 0,
   paymentProcessingFeePct: 0,
+  unbilledCancellationPct: 0,
   monthlyOverhead: 45,
   expectedVisitsPerMonth: 60,
   targetMarginPct: 15,
@@ -86,6 +87,9 @@ function number(value, label, { min = 0 } = {}) {
  *   payment app or card processor. The price is grossed up so the operator
  *   still nets the pre-fee total after the processor's cut. Must be below
  *   100.
+ * @param {number} input.unbilledCancellationPct Share of booked visits that
+ *   are cancelled late and not billed. The price is grossed up so the visits
+ *   that do happen cover the ones that don't. Must be below 100.
  * @param {number} input.monthlyOverhead Monthly cost of insurance, bonding,
  *   a scheduling/payment app, and supplies (bags, leashes, treats).
  * @param {number} input.expectedVisitsPerMonth Visits you expect to run in a
@@ -110,11 +114,13 @@ export function calculate(input) {
   const overnightOnCallHours = number(input.overnightOnCallHours, 'Overnight on-call hours');
   const holidaySurchargePct = number(input.holidaySurchargePct, 'Holiday/last-minute surcharge');
   const paymentProcessingFeePct = number(input.paymentProcessingFeePct, 'Payment processing fee');
+  const unbilledCancellationPct = number(input.unbilledCancellationPct ?? 0, 'Unbilled cancellation rate');
   const monthlyOverhead = number(input.monthlyOverhead, 'Monthly overhead');
   const expectedVisitsPerMonth = number(input.expectedVisitsPerMonth, 'Expected visits per month');
   const targetMarginPct = number(input.targetMarginPct, 'Target margin');
 
   if (paymentProcessingFeePct >= 100) throw new Error('Payment processing fee must be below 100%.');
+  if (unbilledCancellationPct >= 100) throw new Error('Unbilled cancellation rate must be below 100%.');
   if (targetMarginPct >= 100) throw new Error('Target margin must be below 100%.');
 
   const activeMinutes = isOvernight ? overnightActiveMinutes * nights : visitMinutes;
@@ -134,7 +140,9 @@ export function calculate(input) {
   const marginAmount = baseCost * (targetMarginPct / 100);
   const preHoliday = baseCost + marginAmount;
   const holidayAmount = preHoliday * (holidaySurchargePct / 100);
-  const preProcessing = preHoliday + holidayAmount;
+  const preCancellation = preHoliday + holidayAmount;
+  const preProcessing = preCancellation / (1 - unbilledCancellationPct / 100);
+  const cancellationAmount = preProcessing - preCancellation;
   const finalPrice = preProcessing / (1 - paymentProcessingFeePct / 100);
   const processingFeeAmount = finalPrice - preProcessing;
   const effectiveHourlyRate = hoursBilled > 0 ? finalPrice / hoursBilled : null;
@@ -142,8 +150,8 @@ export function calculate(input) {
   return {
     isOvernight, nights, activeMinutes, onCallMinutes, driveMinutes, billableMinutes, hoursBilled,
     laborCost, mileageCost, extraPets, petSurcharge, specialNeedsFee, overheadPerVisit, baseCost,
-    marginAmount, holidayAmount, processingFeeAmount, finalPrice, effectiveHourlyRate,
-    targetMarginPct, holidaySurchargePct, paymentProcessingFeePct,
+    marginAmount, holidayAmount, cancellationAmount, processingFeeAmount, finalPrice, effectiveHourlyRate,
+    targetMarginPct, holidaySurchargePct, unbilledCancellationPct, paymentProcessingFeePct,
   };
 }
 

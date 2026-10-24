@@ -568,13 +568,6 @@ def merge_eligible(pr_number: int) -> tuple[bool, list[str]]:
             f"need {config.required_approvals} allowed approvals, have {len(approvers)}"
         ]
 
-    files = changed_files(pr_number)
-    if path_touches_ventures(files):
-        return False, reasons + [
-            "touches ventures/* — not auto-merged; the session that opened it "
-            "merges it once verified (.github/prompts/land-your-work.md)"
-        ]
-
     ok, eval_reasons = evaluate_pr(pr_number)
     reasons.extend(eval_reasons)
     if not ok:

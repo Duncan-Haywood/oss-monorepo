@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Android Data Safety Checker — permissions/SDKs vs Play Console declaration</title>
-<meta name="description" content="Free, browser-local checker: scans your AndroidManifest.xml permissions and Gradle dependencies for known analytics/ads/crash SDKs, and compares them against the Data safety categories you say you've already declared in Play Console -- so a missed declaration doesn't cost you a policy warning or listing removal. Nothing is uploaded.">
+<meta name="description" content="Free, browser-local checker: scans your AndroidManifest.xml permissions and Gradle dependencies for known analytics/ads/crash SDKs, and compares them against the Data safety categories you say you've already declared in Play Console -- so a missed declaration doesn't cost you a policy warning or listing removal.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/android-data-safety-check/">
 <meta property="og:type" content="website">
@@ -83,6 +83,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Android Data Safety Checker</h1>
 <p>
   Scans your <code>AndroidManifest.xml</code> permissions and Gradle dependencies
@@ -297,6 +298,7 @@ Checking a release deadline instead? <a href="target-api-level.html">Play Store 
   <p>No. This is pattern-matching against known permission names and SDK dependency coordinates -- it cannot see what a permission is actually used for, dynamically loaded code, or a compiled third-party library's real behaviour, and Google can change its Data safety categories or a given SDK's practices at any time. Always confirm against Play Console's current Data safety form and each SDK's own privacy documentation before you submit.</p>
 </section>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This tool reports what pattern-matching found in the

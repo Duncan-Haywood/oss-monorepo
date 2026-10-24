@@ -1,0 +1,13 @@
+[project]
+name = "energy-thermal-hourly"
+version = "0.1.0"
+description = "Sand heat store charged in the cheap hours of a modelled German hourly price series, against a heat pump, with sourced costs"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-thermal-cost/src", "../energy-thermal/src"]

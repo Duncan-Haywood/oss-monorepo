@@ -8,13 +8,14 @@ one more unit of each bottleneck is worth and for how long, charges each
 product for the production it crowds out, and compares the plan with two
 rule-of-thumb plans. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/production-mix-optimizer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/production-mix-optimizer/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - parsing, a two-phase simplex (Bland's rule), branch and bound on
   whole batches, shadow prices and their range by re-solving, opportunity cost
-  per unit, and the greedy comparison plans.
+  per unit, price breaks (the price at which each product enters or leaves the
+  plan, found by re-solving), and the greedy comparison plans.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `why-your-best-margin-product-may-not-be-your-best-product.html` - guide with
   a worked example that the test suite recomputes.

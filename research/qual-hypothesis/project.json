@@ -1,0 +1,5 @@
+{
+ "theme": "qual",
+ "title": "Do hypotheses about what separates two sets of documents survive a held-out check?",
+ "summary": "On 5,313 real GoEmotions comments, a word-counting proposer that picks the 20 words most associated with negative emotion in a small discovery sample overstates their effects 7.6&times; at 100 discovery comments (0.095 against 0.013 held-out) and 1.5&times; at 2,000. A Benjamini&ndash;Hochberg check on 3,000 held-out comments confirms 0.8 of the 20 at 100 comments and 14.7 at 2,000, and with shuffled labels confirms almost none (at most 5.5% of splits any), but 36&ndash;59% of confirmed hypotheses are the label's own vocabulary (&ldquo;sorry&rdquo;, &ldquo;hate&rdquo;), so replication is not explanation. The proposer is not an LLM, and the restatement flag is a crude word list."
+}

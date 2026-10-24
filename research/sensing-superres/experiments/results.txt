@@ -1,0 +1,36 @@
+sensing-superres results. 10 scenes, 32x32 LR px, canvas 12 px per LR px, read noise 3 e-.
+Lambda (smoothness weight) chosen per row from [0.0001, 0.001, 0.003, 0.01, 0.03] on scenes [100, 101]; PSNR on scenes 0..9, peak 1.0. deblur_up takes the best lambda on the test scenes themselves (favours the baseline).
+mean fraction of target spectral energy beyond the LR Nyquist rate (f=2): 0.032
+
+== E1. PSNR (dB) against burst length N: f=2, s=300 e- per LR pixel per unit radiance, true shifts uniform over 2 LR px
+N single merge_up deblur_up sr_oracle sr_est hr1 hrN lam est_rmse_LRpx
+1 23.57 23.57 24.53 24.40 24.40 21.44 21.41 0.001 0.000
+2 23.54 23.76 25.46 25.53 25.61 21.45 24.38 0.03 0.093
+4 23.53 23.89 25.98 26.79 26.79 21.39 27.43 0.03 0.126
+8 23.52 23.95 26.37 27.58 27.11 21.41 30.55 0.01 0.116
+16 23.51 24.02 26.61 29.61 29.49 21.41 33.55 0.01 0.098
+32 23.48 24.03 26.72 31.09 30.72 21.41 36.49 0.01 0.099
+
+== E2. Shift error: N=16, f=2, s=300, oracle shifts plus Gaussian error of sd sigma (LR px) before rounding to HR px
+sigma merge_up deblur_up sr_oracle lam
+0.00 24.02 26.61 29.61 0.01
+0.05 24.02 26.61 29.38 0.01
+0.10 24.02 26.61 29.06 0.01
+0.20 24.02 26.61 27.52 0.01
+0.30 24.02 26.61 26.13 0.01
+0.50 24.02 26.61 22.89 0.03
+
+== E3. Zoom factor and light: PSNR (dB), estimated shifts
+f s N merge_up deblur_up sr_est hr1 hrN
+2 30 16 23.03 23.91 23.65 6.56 18.67
+2 30 32 23.29 24.80 24.98 6.65 21.73
+2 300 16 24.02 26.61 29.49 21.41 33.55
+2 300 32 24.03 26.72 30.72 21.41 36.49
+3 30 16 22.60 23.50 23.54 0.27 12.32
+3 30 32 22.91 24.37 24.71 0.27 15.34
+3 300 16 23.66 26.14 28.89 16.82 28.82
+3 300 32 23.67 26.22 29.81 16.80 31.87
+4 30 16 22.19 23.21 23.33 -4.46 7.57
+4 30 32 22.42 24.04 24.37 -4.48 10.58
+4 300 16 23.06 25.72 28.46 13.20 25.24
+4 300 32 23.07 25.81 29.01 13.16 28.21

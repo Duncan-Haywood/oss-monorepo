@@ -77,7 +77,17 @@ on:
       - "ventures/**/*.js"
       - "ventures/**/LICENSE"
       - "platform/marketing/**"
+      # `platform/marketing/*.test.mjs` (the staleness step below) checks the
+      # committed front door under `gitops/prod/` and reads
+      # `gitops/tests/test_*.py`. This is the only workflow that runs it since
+      # hetzner-gitops-ci.yml dropped its duplicate copy, so a hand edit to a
+      # generated file there has to trigger it here.
+      - "gitops/prod/**"
+      - "gitops/tests/**"
       - "platform/pages/**"
+      - "platform/agents/**"
+      - "platform/edge/**"
+      - "platform/counter/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
@@ -116,7 +126,13 @@ on:
       - "ventures/**/*.js"
       - "ventures/**/LICENSE"
       - "platform/marketing/**"
+      # See the `push:` block above for why `gitops/prod/` and `gitops/tests/`.
+      - "gitops/prod/**"
+      - "gitops/tests/**"
       - "platform/pages/**"
+      - "platform/agents/**"
+      - "platform/edge/**"
+      - "platform/counter/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
@@ -159,17 +175,17 @@ jobs:
     # account (CLAUDE.md's CI-starvation history, 2026-08-26 to 2026-09-01).
     timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false  # read-only job; nothing here pushes
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
 
       # For the liability-clause check below. Everything else in this job is
       # Python; the Pages tooling that knows which pages get published is not.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
 
@@ -179,15 +195,70 @@ jobs:
       - name: Validate VENTURE.yaml schema
         run: python3 portfolio/router/validate.py
 
+      # The mirror serves nothing since the k3s origin was retired
+      # (portfolio/hosting/README.md), and its two checks were 7.5 of this
+      # job's 10 minutes (P039). They only matter when the mirror or its
+      # generator changes, so any doubt (shallow fetch fails, no base) runs them.
+      - name: Does this change touch the apex mirror or its generator?
+        id: mirror
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          base=
+          if [ "$EVENT" = pull_request ]; then
+            if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+              git fetch --no-tags --depth=2 origin "+$(git rev-parse HEAD):refs/ci/pr-merge" 2>/dev/null || true
+            fi
+            base=$(git rev-parse -q --verify HEAD^1 || true)
+          elif [ "$EVENT" = push ] && [ "${BEFORE#0000000}" != "$BEFORE" ]; then
+            base=
+          elif [ "$EVENT" = push ]; then
+            if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+              git fetch --no-tags --depth=1 origin "$BEFORE" 2>/dev/null || true
+            else
+              git fetch --no-tags origin "$BEFORE" 2>/dev/null || true
+            fi
+            base=$(git rev-parse -q --verify "$BEFORE^{commit}" || true)
+          fi
+          run=true
+          if [ -n "$base" ] && changed=$(git diff --name-only "$base" HEAD 2>/dev/null); then
+            # A PR is gated on the generator and this workflow only. Main's
+            # committed mirror drifts from merges that never ran this step, and
+            # failing the next PR that touches gitops/prod/ for that drift
+            # (P043) made authors regenerate files for the retired apex. Push
+            # runs still check gitops/prod/, so drift surfaces on main.
+            paths='^(platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'
+            [ "$EVENT" = pull_request ] || paths='^(gitops/prod/|platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'
+            if ! printf '%s\n' "$changed" | grep -qE "$paths"; then
+              run=false
+            fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+
       # The apex serves a mirrored copy of 14 whole ventures so that the front
       # door's cards work while `portfolio-site-repo` is unsealed. The copy is
       # committed (Argo CD delivers it; no CI job builds it), so editing one of
       # those ventures without regenerating leaves the apex serving the old
-      # tool. `hetzner-gitops-ci.yml` runs the same suite but triggers on
-      # `gitops/**` and `platform/marketing/**` -- neither of which a venture
-      # edit touches, which is the gap this step closes.
+      # tool. This is also the only place the generator suite runs for
+      # `gitops/prod/**` and `platform/marketing/**` changes:
+      # `hetzner-gitops-ci.yml` used to run a duplicate copy and dropped it on
+      # 2026-10-20 when it pushed that job past its timeout.
       - name: Check the apex tool mirror is not stale
+        if: steps.mirror.outputs.run == 'true'
         run: node --test "platform/marketing/*.test.mjs"
+
+      # platform/agents/tools.mjs lets an agent call any tool's engine with no
+      # browser. Its suite imports every venture's engine module, so a module
+      # that touches `document` at import time (and so stops being callable)
+      # fails here. Triggered by `ventures/**/*.mjs` and `*.html` above.
+      - name: Every tool stays callable from the agent CLI
+        run: node --test "platform/agents/*.test.mjs"
+
+      # platform/edge is the Cloudflare Worker behind the site's feedback form
+      # and page-view counts; it shares platform/counter's rules (core.mjs).
+      - name: Site feedback Worker and visit counter
+        run: node --test "platform/edge/*.test.mjs" "platform/counter/*.test.mjs"
 
       # `MIRROR_BYTE_CEILING` is a wall with no approach lights: `buildMirror`
       # throws on it, and that throw lands in the step above -- which this
@@ -205,6 +276,7 @@ jobs:
       # identical duplication, which is the remedy the constant's comment
       # spells out; raising the ceiling is not the first answer.
       - name: Check the apex tool mirror has room left
+        if: steps.mirror.outputs.run == 'true'
         run: node platform/marketing/front-door-tools.mjs --headroom
 
       - name: Check candidate scores agree across yaml, write-ups, and README
@@ -371,22 +443,6 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_host_routes_state
 
-      # `test_publish_pages_branch.py` pins the invariants of
-      # `publish-pages-branch.yml` itself -- the workflow that keeps the
-      # `gh-pages` branch snapshot from silently lagging `main` (see that
-      # workflow's own header). The test module has existed since the
-      # workflow was added on 2026-09-06 but ran in no CI workflow at all:
-      # `.github/workflows/**` and `platform/ci/**` are both in this job's
-      # `paths:` filter, so it was one `run:` line away the whole time. A
-      # green run of this job was silently not proving the one thing whose
-      # breakage this job exists to catch quietly -- the exact failure mode
-      # `checklist_coverage.py` was written to close for the shell-script
-      # checklist in CLAUDE.md, arrived at here from the workflow side
-      # instead.
-      - name: Publish-Pages-branch workflow unit tests
-        working-directory: platform/ci
-        run: python3 -m unittest test_publish_pages_branch
-
       # A calculator whose shipped defaults fail constraint validation cannot be
       # submitted at all: the browser refuses before dispatching the event, so
       # the page's own handler never runs and the button silently does nothing.
@@ -406,6 +462,40 @@ jobs:
       - name: Control-label checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_control_labels
+
+      # Screen-reader users jump past the header with the <main> landmark.
+      - name: Check every venture page has a main landmark
+        run: python3 platform/ci/check_main_landmark.py
+
+      - name: Main-landmark checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_main_landmark
+
+      # A syntax error in a single-file tool's inline script leaves a dead page.
+      - name: Check inline scripts parse
+        run: python3 platform/ci/check_inline_scripts.py
+
+      - name: Inline-script checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_inline_scripts
+
+      # Broken JSON-LD is silently dropped by search engines; Review and
+      # AggregateRating markup without real reviews breaks goals.md "Honest marketing".
+      - name: Check JSON-LD parses and carries no review markup
+        run: python3 platform/ci/check_jsonld.py
+
+      - name: JSON-LD checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_jsonld
+
+      # getElementById returns the first match, so two elements sharing an id
+      # silently send a script's writes to the wrong one.
+      - name: Check no served page repeats an id
+        run: python3 platform/ci/check_duplicate_ids.py
+
+      - name: Duplicate-id checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_duplicate_ids
 
       # A calculator with both a saved draft and a shareable link restores the
       # draft first and lets the link win. That only works if the link REPLACES
@@ -454,6 +544,15 @@ jobs:
       - name: Step-grid checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_step_grid
+
+      # Reading the `localStorage` global throws SecurityError when a visitor
+      # blocks site data, `typeof` included; 990 usage.mjs files did it bare.
+      - name: Check usage.mjs never reads localStorage outside try
+        run: python3 platform/ci/check_storage_guard.py
+
+      - name: Storage-guard checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_storage_guard
 
       # Every venture vendors its own money() -- 322 copies of one function --
       # and it spelled a negative "$-9.24" instead of "-$9.24", and a rounded-off
@@ -525,12 +624,38 @@ jobs:
       # when no runner is checking and a false red has nothing to contradict
       # it. It cost this session a diagnosis before the reproduction landed on
       # the step rather than on the tree.
+      #
+      # On a `push` to main the base is the push's own `before` commit, not
+      # main's tip at run time (measured 2026-10-20, docs/parallel-agents.md).
+      # At ~280 merges a day a queued run starts ~10 merges behind the tip, so
+      # any venture added in between read as one this commit deleted: 77 of
+      # the last 100 main runs failed here, e.g. 04d30ea92 vs the
+      # `hearth-and-horizon` venture that landed 15 minutes later. A
+      # pull_request run had the same race (#8765 itself, saints-by-candlelight).
       - name: Fetch the base branch for the venture-regression check
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
         run: |
+          src=refs/heads/main
+          if [ "$EVENT" = push ] && [ -n "$BEFORE" ] && [ "${BEFORE#0000000}" = "$BEFORE" ]; then
+            src=$BEFORE
+          elif [ "$EVENT" = pull_request ]; then
+            # The checkout is GitHub's test merge; its first parent is the
+            # exact main it merged onto. main's tip at run time is later, so
+            # a venture added since read as removed by this PR (2026-10-20).
+            if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+              git fetch --no-tags --depth=2 origin "+$(git rev-parse HEAD):refs/ci/pr-merge"
+            fi
+            if parent=$(git rev-parse -q --verify HEAD^1); then
+              git update-ref refs/ci/base-main "$parent"
+              exit 0
+            fi
+          fi
           if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
-            git fetch --no-tags --depth=1 origin +refs/heads/main:refs/ci/base-main
+            git fetch --no-tags --depth=1 origin "+$src:refs/ci/base-main"
           else
-            git fetch --no-tags origin +refs/heads/main:refs/ci/base-main
+            git fetch --no-tags origin "+$src:refs/ci/base-main"
           fi
 
       - name: Check no live venture disappears from the served catalogue
@@ -552,13 +677,11 @@ jobs:
       - name: Check what a merge to main can publish still matches the snapshot
         run: python3 platform/ci/publish_surface.py --check
 
-      # Backstop for the per-venture no-warranty check now wired into each
-      # venture's own CI. A venture workflow only fires on its own paths, so it
-      # cannot cover a slug whose workflow was never created -- which is
-      # exactly how carpet-install-bid-calculator reached main with no CI at
-      # all, already inside the Pages build. This walks every surface the Pages
-      # site would publish, so a new venture is covered before anyone
-      # remembers to give it a workflow.
+      # Backstop for the per-venture no-warranty check in ventures-tests.yml
+      # (`clauses.mjs --changed-since`, which names the touched venture that
+      # fails). That one checks only what a change touched; this walks every
+      # surface the Pages site would publish, so a page that went bad some
+      # other way (a renamed exemption, a widened pattern) still goes red.
       #
       # The no-SLA half is not checked here: build.mjs injects it into every
       # published page, so it holds by construction.
@@ -655,15 +778,6 @@ jobs:
       - name: Public-surface prober unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_public_surface
-
-      # The third of the set. The prober above detects an outage; this one
-      # decides *which owner action would end it*, which is the question the
-      # decision queue ranks on. Its verdict branches are the tested surface:
-      # one of them invalidates the currently top-ranked ask, so a regression
-      # here would send the owner after the wrong credential.
-      - name: Outage-triage decision-tree tests
-        working-directory: platform/ci
-        run: python3 -m unittest test_outage_triage
 
       - name: Branch-cleanup decision-rule tests
         working-directory: platform/ci

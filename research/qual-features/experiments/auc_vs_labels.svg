@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of held-out AUC against the number of labelled training comments, 25 to 1600, for four feature sets; the 12 codebook codes lead at every size">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Predicting negative emotion: AUC against labelled items</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="256.3" y2="256.3" stroke="#ddd"/><text x="58" y="260.3" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="188.6" y2="188.6" stroke="#ddd"/><text x="58" y="192.6" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="120.9" y2="120.9" stroke="#ddd"/><text x="58" y="124.9" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">25</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="530.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">800</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1600</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">labelled items</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">held-out AUC</text>
+<polyline points="64.0,149.7 157.3,140.4 250.7,135.2 344.0,122.5 437.3,112.1 530.7,104.4 624.0,97.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="149.7" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="140.4" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="135.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="122.5" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="112.1" r="3" fill="#c0392b"/>
+<circle cx="530.7" cy="104.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="97.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">bag of words</text>
+<polyline points="64.0,149.8 157.3,150.8 250.7,151.1 344.0,147.5 437.3,143.4 530.7,140.8 624.0,137.9" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="149.8" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="150.8" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="151.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="147.5" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="143.4" r="3" fill="#1f6fb2"/>
+<circle cx="530.7" cy="140.8" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="137.9" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">random-projection vector</text>
+<polyline points="64.0,132.5 157.3,123.2 250.7,103.3 344.0,88.0 437.3,78.7 530.7,76.0 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="132.5" r="3" fill="#2e8b57"/>
+<circle cx="157.3" cy="123.2" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="103.3" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="88.0" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="78.7" r="3" fill="#2e8b57"/>
+<circle cx="530.7" cy="76.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">12 codebook codes</text>
+<polyline points="64.0,136.1 157.3,125.3 250.7,118.9 344.0,108.6 437.3,100.2 530.7,93.8 624.0,89.0" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="136.1" r="3" fill="#8e44ad"/>
+<circle cx="157.3" cy="125.3" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="118.9" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="108.6" r="3" fill="#8e44ad"/>
+<circle cx="437.3" cy="100.2" r="3" fill="#8e44ad"/>
+<circle cx="530.7" cy="93.8" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="89.0" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">words + codes</text>
+</svg>

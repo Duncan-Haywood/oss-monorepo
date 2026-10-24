@@ -231,6 +231,41 @@ data:
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
 
+      # ai-bookkeeper ships bank-statement fixtures (.ofx, .qif, .mt940) a
+      # visitor can load into the tool; nginx's mime.types types none of them.
+      location ~ \.ofx$ {
+        types { }
+        default_type application/x-ofx;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+      location ~ \.qif$ {
+        types { }
+        default_type application/qif;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+      location ~ \.mt940$ {
+        types { }
+        default_type text/plain;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+      location ~ \.tsv$ {
+        types { }
+        default_type text/tab-separated-values;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
       # Fourth of the same class: nginx's mime.types has no `py` entry either
       # (verified against 1.27.0). 18 ventures publish a standalone CLI
       # checker (`check.py` and friends, `DOWNLOADABLE_CLI_FILES` in
@@ -248,7 +283,33 @@ data:
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
 
-      # Not the same class as the three above: nginx's mime.types *does* have
+      # Gzipped data files a static app downloads and unpacks itself with the
+      # browser's DecompressionStream (research/marriage-divorce-evidence's
+      # in-browser trainer). mime.types has no `gz` entry. Typed as
+      # application/gzip, with no Content-Encoding, so the page receives the
+      # compressed bytes it expects.
+      location ~ \.gz$ {
+        types { }
+        default_type application/gzip;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
+      # The ai-bookkeeper wheel (ventures/ai-bookkeeper/ledger-*.whl) people
+      # pip install from. mime.types has no `whl` entry, so it would be
+      # octet-stream; typed as application/zip (a wheel is a zip archive).
+      location ~ \.whl$ {
+        types { }
+        default_type application/zip;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
+      # Not the same class as the typed blocks above: nginx's mime.types *does* have
       # an `xml` entry, so the feed already serves as text/xml and every reader
       # accepts it. This is the narrower correctness fix — `application/
       # atom+xml` is the registered type (RFC 4287), and the aggregators that

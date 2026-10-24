@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Email List CSV Check — Clean a Contact List Before You Import</title>
-  <meta name="description" content="Free email list CSV checker for Mailchimp, HubSpot, Klaviyo, Brevo and Constant Contact imports: finds invalid and duplicate emails, domain typos like gmial.com, role and disposable addresses, Excel damage and wrong column names, with line numbers, and downloads a safe-fixes copy plus a rejected-rows file. Runs in your browser; the list is never uploaded.">
+  <meta name="description" content="Free email list CSV checker for Mailchimp, HubSpot, Klaviyo, Brevo and Constant Contact imports: finds invalid and duplicate emails, domain typos like gmial.com, role and disposable addresses, Excel damage and wrong column names, with line numbers, and downloads a safe-fixes copy plus a rejected-rows file.">
   <meta property="og:title" content="Email List CSV Check — free, private, in your browser">
   <meta property="og:description" content="Catch bad addresses, duplicates and Excel damage in a contact list before you import it. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
@@ -63,6 +63,7 @@
     <p>Paste or drop your <strong>contact list CSV</strong> and see every problem <strong>with its line number</strong> before it goes into Mailchimp, HubSpot, Klaviyo, Brevo or Constant Contact: <strong>invalid and duplicate emails</strong>, domain typos like <code>gmial.com</code> and <code>.con</code>, <strong>role</strong> and <strong>disposable</strong> addresses, phone numbers Excel turned into <code>5.56E+09</code>, ZIP codes that lost their zero, garbled accents, and headings the platform will not recognise. Then download a <strong>safe-fixes copy</strong> and a separate <strong>rejected rows</strong> file.</p>
     <p class="note">The list is read in this browser tab and never leaves your device. Independent of every email platform named here. Heading names are read from memory of each platform's public import help; no import was tried when this was built.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your list</h2>
@@ -71,6 +72,12 @@
     <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
     <label for="paste">…or paste the CSV text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Email Address,First Name,Last Name&#10;maria@example.com,Maria,Lopez"></textarea>
+    <details class="note">
+      <summary>Optional: a do-not-email list (unsubscribes, bounces, complaints)</summary>
+      <p class="note">Paste or choose addresses you must not email again: one per line, or any export that contains them. A line like <code>@example.com</code> blocks a whole domain. Matching rows move to the rejected file so the import cannot re-subscribe them. Read here in your browser, like the list.</p>
+      <input type="file" id="suppress-file" accept=".csv,.txt,text/csv,text/plain" aria-label="Do-not-email list file">
+      <textarea id="suppress" spellcheck="false" wrap="off" aria-label="Do-not-email addresses" placeholder="unsubscribed@example.com&#10;@spamtrap.example"></textarea>
+    </details>
     <div class="opts">
       <div><label for="platform">Importing into</label>
         <select id="platform"><option value="">Any (just check the list)</option><option value="mailchimp">Mailchimp</option><option value="hubspot">HubSpot</option><option value="klaviyo">Klaviyo</option><option value="brevo">Brevo</option><option value="constantcontact">Constant Contact</option></select></div>
@@ -106,6 +113,7 @@
       <li><strong>Duplicates:</strong> the same address ignoring capitals is a duplicate. Gmail ignores dots and "+" tags, and a few other providers ignore "+" tags, so those are flagged as <em>likely</em> duplicates for you to review, never removed for you.</li>
       <li><strong>Typos:</strong> common misspellings of gmail, hotmail, yahoo, outlook, icloud and similar, and endings like .con, .coom and .cmo, each with a suggested fix.</li>
       <li><strong>Role and disposable addresses:</strong> info@, admin@, support@, sales@, noreply@ and similar; and a small built-in list of throwaway-inbox domains (it is short and will miss many).</li>
+      <li><strong>Placeholders and wrapped addresses:</strong> test@test.com, none@none.com and similar fillers are flagged; <code>mailto:</code>, <code>Name &lt;a@b.com&gt;</code>, quotes and trailing punctuation are stripped by the safe-fixes copy instead of rejecting the row, and internationalised domains are written in punycode.</li>
       <li><strong>Excel damage:</strong> a byte order mark, scientific notation, phone and ZIP columns that lost digits, <code>.0</code> endings, <code>#NAME?</code> values, mojibake, semicolon or mixed separators, and rows with the wrong number of cells.</li>
       <li><strong>Consent hints:</strong> it looks for a subscription, opt-in or unsubscribed column and counts rows marked unsubscribed or bounced, so they are not re-imported as subscribed.</li>
       <li><strong>Safe fixes</strong> trim spaces, lowercase emails, drop the BOM, use commas, optionally rename headings to the platform's names, keep the first of exact duplicates, and (only if you opt in) fix typo domains. Rows with a blank or invalid email, the wrong cell count, or an exact duplicate go to the rejected file with the reason; nothing is silently dropped. Names, phones and other values are never rewritten.</li>
@@ -131,24 +139,25 @@
     <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Your own privacy policy and data-handling rules still decide what you may open on a given computer.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. It does not verify that any email address is deliverable, and it does not establish that anyone consented to receive email: compliance with CAN-SPAM, GDPR, CASL and your email platform's terms is your responsibility. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by importing a small sample first, and a clean result is not a promise that an import will succeed or that mail will arrive.</p>
     <p><strong>Not affiliated with Mailchimp, HubSpot, Klaviyo, Brevo or Constant Contact.</strong> This tool is independent and is not sponsored, endorsed or connected to any email, CRM or marketing vendor. Those names are trademarks of their owners, used here only to say which import formats the tool reads. The heading names and rules are read from memory of public sources and may be out of date or miss a variant; check them against each platform's current import documentation.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
-    <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>, <code>rejected_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
-    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>, <code>rejected_downloaded</code>, <code>suppression_used</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button> <a id="share-usage" href="#" rel="noopener" hidden>Share my anonymous counts (opens a prefilled GitHub issue; nothing is sent until you submit it)</a></p>
     <p>Related tools: the <a href="../mailchimp-audience-csv-check/">Mailchimp audience CSV check</a> prepares the same list for Mailchimp, the <a href="../gbp-bulk-location-check/">Google Business Profile bulk-location check</a> does the same for a multi-location spreadsheet, the <a href="../email-auth-check/">email auth check</a> looks at the SPF, DKIM and DMARC records that decide whether your sending domain's mail is trusted, the <a href="../substack-subscriber-export-analyzer/">Substack subscriber export analyzer</a> reads a subscriber export for churn and growth, the <a href="../email-api-pricing-calculator/">email API pricing calculator</a> prices the sending side, the <a href="../xero-invoice-csv-check/">Xero invoice CSV check</a> does the same pre-flight for invoice import files, and the <a href="../hubspot-contacts-csv-check/">HubSpot contacts CSV check</a> covers a contacts or companies list going into HubSpot, and the <a href="../ics-calendar-check/">ICS calendar check</a> finds why a calendar file will not import.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
-    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer, parseSuppression } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut, readUsage, usageShare } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    let lastResult = null, fix = null, lastText = "";
+    let lastResult = null, fix = null, lastText = "", suppressText = "";
 
     function download(name, body, type) {
       const a = document.createElement("a");
@@ -157,17 +166,22 @@
       a.click();
     }
 
+    async function loadSuppress() {
+      const f = $("#suppress-file").files[0];
+      suppressText = f ? decodeBuffer(await f.arrayBuffer()) : $("#suppress").value;
+    }
+
     function run(text) {
       lastText = text;
       const platform = $("#platform").value;
-      const r = validate(text, { platform });
+      const r = validate(text, { platform, suppress: suppressText });
       lastResult = r;
       const s = r.summary, c = s.counts;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
-      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.rows} row${s.rows === 1 ? "" : "s"}, ${s.columns} columns${s.emailColumn ? `, email column "${esc(s.emailColumn)}"` : ""}<br>${c.valid || 0} well-formed · ${c.invalid || 0} invalid · ${c.blank || 0} blank · ${c.duplicates || 0} duplicate · ${c.aliasDuplicates || 0} likely duplicate · ${c.typos || 0} typo domain · ${c.roles || 0} role · ${c.disposable || 0} disposable`;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · ${s.rows} row${s.rows === 1 ? "" : "s"}, ${s.columns} columns${s.emailColumn ? `, email column "${esc(s.emailColumn)}"` : ""}<br>${c.valid || 0} well-formed · ${c.invalid || 0} invalid · ${c.blank || 0} blank · ${c.duplicates || 0} duplicate · ${c.aliasDuplicates || 0} likely duplicate · ${c.typos || 0} typo domain · ${c.roles || 0} role · ${c.disposable || 0} disposable · ${c.placeholders || 0} placeholder${s.suppressionLoaded ? ` · ${c.suppressed || 0} on your do-not-email list` : ""}`;
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
       $("#platforms").innerHTML = s.platforms.map((p) => `<tr><td>${esc(p.name)}</td><td><code>${esc(p.emailHeader)}</code></td><td>${p.emailExact ? "matches" : p.emailFound ? "found under another name" : "no email column found"}</td><td>${p.renames.filter((x) => x.concept !== "email").map((x) => `${esc(x.from)} → ${esc(x.to)}`).join(", ") || "none"}</td></tr>`).join("");
-      fix = repair(text, { platform, fixTypos: $("#fixtypos").checked });
+      fix = repair(text, { platform, fixTypos: $("#fixtypos").checked, suppress: suppressText });
       $("#fix-box").hidden = false;
       $("#download-fixed").hidden = !fix.text;
       $("#download-rejected").hidden = !fix.rejectedText;
@@ -183,9 +197,11 @@
       const f = $("#file").files[0];
       const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
       if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
-      if (run(text)) record("file_checked");
+      await loadSuppress();
+      if (run(text)) { record("file_checked"); if (parseSuppression(suppressText)) record("suppression_used"); }
     });
     for (const id of ["#platform", "#fixtypos"]) $(id).addEventListener("change", () => { if (lastText) run(lastText); });
+    for (const id of ["#suppress", "#suppress-file"]) $(id).addEventListener("change", async () => { await loadSuppress(); if (lastText) run(lastText); });
     $("#load-example").addEventListener("click", () => {
       $("#paste").value = sampleFile(); $("#file").value = "";
       if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: three made-up contacts, not real people."; }
@@ -198,7 +214,8 @@
     $("#download-fixed").addEventListener("click", () => { if (fix && fix.text) { record("fixes_applied"); download("email-list-cleaned.csv", fix.text, "text/csv"); } });
     $("#download-rejected").addEventListener("click", () => { if (fix && fix.rejectedText) { record("rejected_downloaded"); download("email-list-rejected.csv", fix.rejectedText, "text/csv"); } });
     $("#download-csv").addEventListener("click", () => { if (lastResult) download("email-list-findings.csv", findingsCsv(lastResult), "text/csv"); });
-    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); document.getElementById("share-usage").hidden = true; event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    { const sh = usageShare(readUsage()); const a = document.getElementById("share-usage"); if (a && sh.total > 0 && !usageOptedOut()) { a.href = sh.url; a.hidden = false; } }
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>
 </body>

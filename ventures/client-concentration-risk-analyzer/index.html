@@ -58,6 +58,7 @@
     <p>Paste your invoices — client, date, amount — and see <strong>every client's share of revenue</strong>, <strong>whether you are getting more or less dependent</strong>, and <strong>whether you would cover your costs without your biggest client</strong>. The same numbers a lender, buyer or insurer will look at.</p>
     <p class="note">Nothing is uploaded and no accounting tool is contacted. The text box is analysed in this browser and never leaves your device. The warning levels are common rules of thumb, not a standard, and you can change them.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your invoices</h2>
@@ -128,7 +129,8 @@ node cli.mjs analyze invoices.csv --warn-top1 20 --json --fail-on warn</pre>
     <p>No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice. It does arithmetic on invoice rows you paste; it is not a credit assessment, a valuation or a forecast of whether any client will stay. Lenders, buyers and insurers use their own criteria. QuickBooks, Xero, FreshBooks and other product names are trademarks of their owners, used only to describe where numbers come from.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

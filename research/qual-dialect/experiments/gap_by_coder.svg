@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 360" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="350.0" y="20" text-anchor="middle" font-size="14">Gap in negative share between languages: human truth (black) and each coder's naive gap</text>
+<circle cx="96" cy="38" r="5" fill="#c0392b"/><text x="106" y="42">-0.0025</text>
+<circle cx="246" cy="38" r="5" fill="#d68910"/><text x="256" y="42">-0.0130</text>
+<circle cx="396" cy="38" r="5" fill="#8e44ad"/><text x="406" y="42">+0.2926</text>
+<line x1="380.0" y1="52" x2="380.0" y2="336" stroke="#999"/>
+<text x="80" y="78" text-anchor="end">hau-pcm</text>
+<rect x="299.64099999999996" y="68" width="80.35900000000004" height="12" fill="#222"/>
+<circle cx="360.85999999999996" cy="81" r="4" fill="#c0392b"/>
+<circle cx="285.257" cy="86" r="4" fill="#d68910"/>
+<circle cx="201.21499999999997" cy="91" r="4" fill="#8e44ad"/>
+<text x="80" y="132" text-anchor="end">hau-yor</text>
+<rect x="380.0" y="122" width="30.826999999999998" height="12" fill="#222"/>
+<circle cx="381.276" cy="135" r="4" fill="#c0392b"/>
+<circle cx="361.208" cy="140" r="4" fill="#d68910"/>
+<circle cx="465.05699999999996" cy="145" r="4" fill="#8e44ad"/>
+<text x="80" y="186" text-anchor="end">ibo-pcm</text>
+<rect x="278.935" y="176" width="101.065" height="12" fill="#222"/>
+<circle cx="361.585" cy="189" r="4" fill="#c0392b"/>
+<circle cx="289.02700000000004" cy="194" r="4" fill="#d68910"/>
+<circle cx="116.36099999999999" cy="199" r="4" fill="#8e44ad"/>
+<text x="80" y="240" text-anchor="end">ibo-yor</text>
+<rect x="380.0" y="230" width="10.120999999999981" height="12" fill="#222"/>
+<circle cx="382.03" cy="243" r="4" fill="#c0392b"/>
+<circle cx="364.978" cy="248" r="4" fill="#d68910"/>
+<circle cx="380.203" cy="253" r="4" fill="#8e44ad"/>
+<text x="80" y="294" text-anchor="end">pcm-yor</text>
+<rect x="380.0" y="284" width="111.18599999999998" height="12" fill="#222"/>
+<circle cx="400.416" cy="297" r="4" fill="#c0392b"/>
+<circle cx="455.951" cy="302" r="4" fill="#d68910"/>
+<circle cx="643.8420000000001" cy="307" r="4" fill="#8e44ad"/>
+<text x="90.0" y="352" text-anchor="middle">-1.0</text>
+<text x="235.0" y="352" text-anchor="middle">-0.5</text>
+<text x="380.0" y="352" text-anchor="middle">+0.0</text>
+<text x="525.0" y="352" text-anchor="middle">+0.5</text>
+<text x="670.0" y="352" text-anchor="middle">+1.0</text>
+</svg>

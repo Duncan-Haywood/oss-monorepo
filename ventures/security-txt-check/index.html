@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>security.txt Checker — Is Your RFC 9116 File Valid, or Expired?</title>
-  <meta name="description" content="Free tool: paste a security.txt and check it against RFC 9116 — a missing or expired Expires field (the one that silently makes your whole file stale), a Contact that isn't a URI, a plain-http Contact, a PGP key pasted where an Encryption URI belongs, a duplicated Expires or Preferred-Languages, the British spelling of Acknowledgments, and a signed file with no Canonical. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.">
+  <meta name="description" content="Checks a security.txt against RFC 9116 — including the expiry date that quietly turns a valid file into a stale one, which is the state most published security.txt files are in.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="security.txt Checker (RFC 9116)">
   <meta property="og:description" content="Checks a security.txt against RFC 9116 — including the expiry date that quietly turns a valid file into a stale one, which is the state most published security.txt files are in.">
@@ -58,6 +58,7 @@
     </p>
     <p class="note">Nothing is uploaded. The text you paste is parsed in this browser and never leaves your device — no small thing here, since a list of which companies someone is checking is itself sensitive.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Check a security.txt</h2>
@@ -153,7 +154,8 @@ node check.mjs https://example.com/.well-known/security.txt --timeout 5000</pre>
     <p>No. It checks whether one text file conforms to the rules RFC 9116 states about that file. It does not test the site, scan for vulnerabilities, verify that anyone reads the address you publish, or confirm that the people behind it respond. A perfectly conforming <code>security.txt</code> on an unmaintained inbox passes every check here.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or security advice, and it does not replace a qualified professional. It reports whether the text you provided satisfies specific, mechanically checkable rules from RFC 9116 — nothing more. It is not a security assessment, not a vulnerability scan, and not a determination that your disclosure process works. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
     <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>

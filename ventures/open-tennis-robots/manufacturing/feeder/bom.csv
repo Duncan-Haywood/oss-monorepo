@@ -1,0 +1,73 @@
+item,kind,qty,what,notes
+head_motor_plate,laser,1,aluminium 5052 5 mm,Both outrunners mount on this plate (M4 on a 25 mm square; check your motor). Pivot bolt M8 through the lower hole.
+head_guard_plate,laser,1,aluminium 5052 5 mm,Keeps hands and balls off the open side of the wheels; held by four M5 standoffs.
+trunnion_cheek,laser,2,aluminium 5052 5 mm,Holds the head's M8 pivot bolt; a printed foot on each cheek bolts it to the turntable plate.
+mast_plate,laser,1,aluminium 5052 5 mm,Bolts to the end-tapped posts (M5) and to the fixed ring of the turntable bearing.
+turntable_plate,laser,1,aluminium 5052 5 mm,Bolts to the rotating ring of the bearing; a servo or stepper drives it (not modelled).
+base_deck,laser,1,aluminium 5052 5 mm,Sits on the rails (M5 and T-nuts); holds the battery and electronics.
+drive_bracket,laser,2,aluminium 5052 5 mm,"Gearmotor (37 mm class, M3 on a 31 mm circle) bolts to the inside face. M5 into the side rail's T-slot."
+idler_bracket,laser,2,aluminium 5052 5 mm,"608 bearing in the bore, 8 mm axle bolt. M5 into the side rail's T-slot."
+cheek_foot,print,4,PETG,"M4 heat-set inserts; bolts the cheek to the turntable plate, 4 walls, 40% infill."
+pole_foot,print,2,PETG,Sockets a 25 mm vertical pole 40 mm deep; M5 screws and T-nuts into the beam. 6 walls.
+pole_elbow,print,2,PETG,"Joins a vertical pole to the top pole; sockets 40 mm deep. 6 walls, 40% gyroid."
+camera_clamp,print,2,PETG,Clips the top pole and holds the 2020 stereo bar; add an M4 clamp screw each. 6 walls.
+feed_floor,print,1,PETG,Floor of the ball path between the head plates; the shuttle slides on it. M4 heat-set inserts take screws through both head plates.
+feed_roof_column,print,1,PETG,"Roof over the shuttle, a column 70 mm bore up past the head plates, and a hose socket (82.5 mm) on top. Print upright, 6 walls."
+feed_shuttle,print,1,PETG,Pocket for one ball (70 mm hole); the front is narrowed to 58 mm between two 1.6 mm flexure arms that hold the ball at negative elevation and let the wheels pull it out; the solid rear shuts the column while it moves 95 mm forward. Drawn retracted (pocket under the column). 6 walls.
+hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the outlet spigot under the outlet hole."
+hopper_spigot,print,1,PETG,"Hose socket under the shelf's outlet hole: M4 heat-set inserts, flange against the shelf. 6 walls."
+feed_hose,stock,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 600 mm","Hopper outlet to the column socket. Longest chord 570 mm; bows to 171 mm radius at the closest pose; needs 150. Hose clips at both sockets (hose clamps, 80-90 mm)."
+net_beam,stock,1,"2040 T-slot, cut 3000 mm",Front member of the base and the foot of the net. Cut square.
+rear_rail,stock,1,"2040 T-slot, cut 900 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
+side_rail,stock,2,"2040 T-slot, cut 660 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
+mast_rail,stock,2,"2040 T-slot, cut 860 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
+mast_post,stock,4,"2040 T-slot, cut 445 mm, M5 tapped both ends",Four posts carry the mast plate.
+hopper_post_rear,stock,2,"2040 T-slot, cut 1424 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Brace the four posts before filling the tub (not modelled)."
+hopper_post_front,stock,2,"2040 T-slot, cut 1369 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Brace the four posts before filling the tub (not modelled)."
+camera_bar,stock,1,"2020 T-slot, cut 800 mm",Stereo cameras mount on this; widen it for more depth accuracy.
+net_pole_vertical,stock,2,"25 mm OD x 1.5 mm aluminium tube (or fibreglass), cut 2437 mm",Two 1.2 m sections joined by a sleeve if it must fit a car.
+net_pole_top,stock,1,"25 mm OD x 1.5 mm aluminium tube, cut 3020 mm",Two sections joined by a sleeve at the middle.
+hopper_tub,cots,1,Storage tub about 440 x 340 x 250 mm outside; cut a 75 mm hole at the low end over the outlet. Holds about 125 balls at 0.55 packing.,
+launcher_wheel,cots,2,150 x 45 mm polyurethane-tread wheel on an 8 mm shaft hub,
+launcher_motor,cots,2,"BLDC outrunner, 63 mm class, 8 mm shaft, 24 V, ~1 kW peak",
+head_standoff,cots,4,"M5 female-female standoff, 80 mm",
+turntable_bearing,cots,1,"Lazy-susan bearing, 150 mm, 10 mm tall, 4 x M5 on a 120 mm circle each ring",
+wheel,cots,4,"150 x 40 mm non-marking wheel, 6 mm D hub (drive) or 8 mm bore (idler)",
+gearmotor,cots,2,"37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft, quadrature encoder",
+levelling_foot,cots,2,"M10 levelling foot with a 40 mm rubber pad, 155 mm of stud; T-nut in the beam",
+battery,cots,1,"24 V (8S) LiFePO4 20 Ah with BMS, max 90 x 200 x 130 mm",
+M8 x 110 bolt + nyloc nut + 4 washers,cots,1,M8 x 110 bolt + nyloc nut + 4 washers,head pivot through the cheeks
+"M5 female-female standoff, 80 mm",cots,4,"M5 female-female standoff, 80 mm",between the head plates
+M5 x 12 button head,cots,34,M5 x 12 button head,"standoffs, mast plate to posts, turntable, deck, brackets"
+M5 T-nut (slot 6),cots,30,M5 T-nut (slot 6),"deck, brackets, feet and mast rails"
+M5 x 16 button head,cots,16,M5 x 16 button head,"posts to rails, pole feet"
+M4 x 12 socket cap screw,cots,8,M4 x 12 socket cap screw,cheek feet to the turntable plate and the cheeks
+"M4 heat-set insert, 5.7 mm long",cots,8,"M4 heat-set insert, 5.7 mm long",cheek feet
+M4 x 12 socket cap screw (motors),cots,8,M4 x 12 socket cap screw (motors),launcher motors to the motor plate
+M3 x 8 screw,cots,12,M3 x 8 screw,gearmotor faces
+"608 bearing, 8 x 22 x 7",cots,2,"608 bearing, 8 x 22 x 7",idler wheels
+M8 x 60 bolt + nyloc nut,cots,2,M8 x 60 bolt + nyloc nut,idler axles
+M10 T-nut (levelling foot),cots,2,M10 T-nut (levelling foot),beam ends
+M4 x 12 socket cap screw (feed),cots,8,M4 x 12 socket cap screw (feed),"feed floor and roof to the head plates (through the plates, into inserts)"
+"M4 heat-set insert, 5.7 mm long (feed)",cots,12,"M4 heat-set insert, 5.7 mm long (feed)","feed floor, roof and hopper spigot"
+M4 x 10 socket cap screw (spigot),cots,4,M4 x 10 socket cap screw (spigot),hopper spigot to the shelf
+M5 x 16 button head (hopper),cots,8,M5 x 16 button head (hopper),posts to the deck (from below) and to the shelf
+M5 T-nut or tapped end (hopper),cots,8,M5 T-nut or tapped end (hopper),"posts, deck and shelf"
+"Hose clamp, 80-90 mm",cots,2,"Hose clamp, 80-90 mm",hose at the spigot and the column socket
+"25 mm strap, 1 m",cots,2,"25 mm strap, 1 m",tub to the shelf
+Raspberry Pi 5 (4 GB),cots,1,Raspberry Pi 5 (4 GB),vision + planning
+Global-shutter camera module + cable,cots,2,Global-shutter camera module + cable,stereo bar
+ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmware/esp32, feeder role"
+"50 A+ BLDC ESC, servo-pulse input",cots,2,"50 A+ BLDC ESC, servo-pulse input",launcher wheels
+"Dual DC motor driver, 10 A/ch",cots,1,"Dual DC motor driver, 10 A/ch",base drive
+High-torque servo or linear actuator,cots,1,High-torque servo or linear actuator,elevation (bracket not modelled yet)
+"Linear actuator, 12-24 V, 100 mm stroke, 30 N+",cots,1,"Linear actuator, 12-24 V, 100 mm stroke, 30 N+",feed shuttle (bracket not modelled yet; clevis pin in the shuttle's rear)
+"Storage tub, about 440 x 340 x 250 mm",cots,1,"Storage tub, about 440 x 340 x 250 mm",hopper; see the part notes for the cut
+Stepper or geared motor for the turntable,cots,1,Stepper or geared motor for the turntable,azimuth (drive not modelled yet)
+TCRT5000 reflective sensor,cots,2,TCRT5000 reflective sensor,wheel tachometers
+22 mm NC mushroom e-stop + 24 V contactor,cots,1,22 mm NC mushroom e-stop + 24 V contactor,hard power cut
+"Wireless e-stop relay remote, latching",cots,1,"Wireless e-stop relay remote, latching",second cut-off
+5 V 5 A buck converter,cots,1,5 V 5 A buck converter,Pi supply
+30 A blade fuse + holder,cots,1,30 A blade fuse + holder,battery positive
+"Knotless netting, 25-35 mm mesh",cots,1,"Knotless netting, 25-35 mm mesh",about 3.5 x 3 m
+"Ballast (sand bags or water cells), see manifest",cots,1,"Ballast (sand bags or water cells), see manifest",tip-over margin

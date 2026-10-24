@@ -2,7 +2,8 @@ name: Prompts
 
 # The prompt system under prompts/ and the master prompt.md: routing, every
 # sub-prompt version, and every run record must stay valid for the router and
-# the review track to trust them.
+# the review track to trust them. Every guidance file anywhere (CLAUDE.md,
+# AGENTS.md, .github/prompts/) must have an entry in prompts/system.json.
 
 on:
   push:
@@ -10,11 +11,17 @@ on:
     paths:
       - "prompt.md"
       - "prompts/**"
+      - "**/CLAUDE.md"
+      - "**/AGENTS.md"
+      - ".github/prompts/**"
       - ".github/workflows/prompts-ci.yml"
   pull_request:
     paths:
       - "prompt.md"
       - "prompts/**"
+      - "**/CLAUDE.md"
+      - "**/AGENTS.md"
+      - ".github/prompts/**"
       - ".github/workflows/prompts-ci.yml"
   workflow_dispatch:
 
@@ -30,10 +37,10 @@ jobs:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - run: python3 prompts/promptctl.py validate

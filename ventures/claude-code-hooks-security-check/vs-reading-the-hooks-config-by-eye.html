@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Claude Code Hooks Security Check vs. reading the hooks config by eye</title>
-<meta name="description" content="Reading a short hooks config catches an obvious curl-to-shell download. It reliably misses a credential read and network send split across a pipe, an env dump piped to curl, a base64-decoded payload piped to a shell, or a broad rm -rf hidden in a longer chained command -- which is what this free, no-upload checker computes exactly, every time.">
+<meta name="description" content="Reading a hooks config catches curl-to-shell, not a credential read split across a pipe or a hidden rm -rf. This free, no-upload checker finds them.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="./vs-reading-the-hooks-config-by-eye.html">
 <meta property="og:type" content="website">

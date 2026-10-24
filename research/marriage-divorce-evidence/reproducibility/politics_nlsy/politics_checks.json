@@ -1,0 +1,32 @@
+[
+  {
+    "model": "age_sex_separation_adjusted",
+    "n": 4069,
+    "events": 136,
+    "parameters": 8,
+    "rank": 8,
+    "iterations": 7,
+    "max_abs_score": 1.9095836023552692e-14,
+    "condition_number": 32.76940891857631
+  },
+  {
+    "model": "extended_education_income_2000religion",
+    "n": 3366,
+    "events": 112,
+    "parameters": 20,
+    "rank": 20,
+    "iterations": 6,
+    "max_abs_score": 3.375077994860476e-14,
+    "condition_number": 84.44081004197972
+  },
+  {
+    "model": "age_sex_same_extended_complete_cases",
+    "n": 3366,
+    "events": 112,
+    "parameters": 8,
+    "rank": 8,
+    "iterations": 6,
+    "max_abs_score": 6.372680161348399e-14,
+    "condition_number": 33.9147449315854
+  }
+]

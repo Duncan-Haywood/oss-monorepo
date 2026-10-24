@@ -1,0 +1,28 @@
+Design loop in 3D, M tee, CMA-ES 4 variables (w, slope, bow, r), budget 64 drapes, objective = error + 0.05*max(0, crease-30)
+loop zh seed err err_all crease sag design
+3d-err_all 1.5 0 1.491 2.019 19.6 5.83 w=23.1 slope=1.2 bow=2.78 r=3.00
+3d-err_all 1.5 1 1.690 2.237 19.6 5.85 w=22.1 slope=12.2 bow=-1.59 r=3.00
+3d-err_all 3 0 0.967 1.288 19.4 4.31 w=22.0 slope=0.0 bow=3.00 r=3.00
+3d-err_all 3 1 0.825 1.674 21.7 4.35 w=22.3 slope=21.7 bow=-2.00 r=2.68
+3d-err_all 6 0 0.356 0.741 29.5 1.89 w=23.1 slope=20.3 bow=-1.08 r=1.96
+3d-err_all 6 1 0.160 0.659 30.8 1.92 w=23.0 slope=17.7 bow=0.08 r=1.88
+3d-err 3 0 1.048 1.775 19.4 4.16 w=21.5 slope=13.6 bow=0.91 r=3.00
+3d-err 3 1 0.280 1.671 23.3 4.44 w=22.8 slope=16.9 bow=-0.21 r=2.50
+
+2D-designed hangers (hanger-fit loop, centre-line error, 150 drapes) drawn in 3D
+loop zh seed err err_all crease sag design
+2d-design 1.5 0 0.674 2.435 23.1 6.01 w=22.7 slope=10.8 bow=2.80 r=2.54
+2d-design 3 0 0.527 1.632 22.9 4.55 w=22.7 slope=10.8 bow=2.80 r=2.54
+2d-design 6 0 0.463 0.570 22.8 1.55 w=22.7 slope=10.8 bow=2.80 r=2.54
+2d-design 1.5 1 0.479 2.677 21.5 5.68 w=23.1 slope=20.8 bow=-0.56 r=2.73
+2d-design 3 1 0.369 1.836 21.3 4.23 w=23.1 slope=20.8 bow=-0.56 r=2.73
+2d-design 6 1 0.292 0.634 21.2 1.41 w=23.1 slope=20.8 bow=-0.56 r=2.73
+stock-wire 1.5 - 3.182 5.840 37.7 8.93 w=20.5 slope=22.0 bow=0.00 r=0.15
+stock-wire 3 - 3.400 4.398 68.9 6.60 w=20.5 slope=22.0 bow=0.00 r=0.15
+stock-wire 6 - 3.263 3.653 66.1 4.34 w=20.5 slope=22.0 bow=0.00 r=0.15
+stock-plastic 1.5 - 3.235 5.772 38.4 8.84 w=20.0 slope=20.0 bow=0.30 r=0.50
+stock-plastic 3 - 3.311 4.362 60.5 6.63 w=20.0 slope=20.0 bow=0.30 r=0.50
+stock-plastic 6 - 3.099 3.542 64.4 4.33 w=20.0 slope=20.0 bow=0.30 r=0.50
+stock-wood-shaped 1.5 - 0.538 2.756 29.4 6.19 w=22.5 slope=16.0 bow=0.80 r=2.00
+stock-wood-shaped 3 - 0.470 1.968 29.1 4.79 w=22.5 slope=16.0 bow=0.80 r=2.00
+stock-wood-shaped 6 - 0.423 0.720 29.0 1.84 w=22.5 slope=16.0 bow=0.80 r=2.00

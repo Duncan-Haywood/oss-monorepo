@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UK late payment interest calculator | 8% over base rate plus fixed compensation</title>
+  <meta name="description" content="Work out the statutory interest and fixed compensation you can claim on a late UK business invoice under the Late Payment of Commercial Debts (Interest) Act 1998: 8% over the Bank of England reference rate, plus £40, £70 or £100.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="uk-late-payment-interest.html">
+  <meta property="og:title" content="UK late payment interest calculator">
+  <meta property="og:description" content="Statutory interest at 8% over base rate plus fixed compensation on a late B2B invoice, calculated in your browser.">
+  <meta property="og:type" content="article">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"UK Late Payment Interest Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"},"featureList":"Statutory late-payment interest, fixed compensation bands, daily interest"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much interest can I charge on a late business invoice in the UK?","acceptedAnswer":{"@type":"Answer","text":"Where the Late Payment of Commercial Debts (Interest) Act 1998 applies and the contract has no substantial remedy of its own, statutory interest is 8% a year over the Bank of England reference rate, which is set on 30 June and 31 December for the following six months. Enter the rate in force for your invoice; the calculator does not guess it."}},{"@type":"Question","name":"What is the fixed compensation for a late invoice?","acceptedAnswer":{"@type":"Answer","text":"A fixed sum per late invoice by the size of the debt: £40 under £1,000, £70 from £1,000 to £9,999.99, and £100 for £10,000 or more. Reasonable recovery costs beyond that can be claimed separately, which this page does not model."}},{"@type":"Question","name":"Does this apply to consumers or to invoices outside the UK?","acceptedAnswer":{"@type":"Answer","text":"No. The Act covers contracts between businesses and public bodies for the supply of goods or services, not consumer sales, and this page is UK only. Other countries have their own rules."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #202b2b; background: #e8f0ed; } * { box-sizing: border-box; }
+    body { max-width: 980px; margin: 0 auto; padding: 30px 18px; } header { max-width: 700px; margin-bottom: 24px; } h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; letter-spacing: -.05em; margin: 8px 0 15px; } p { line-height: 1.5; } .eyebrow { letter-spacing: .15em; font-weight: 750; font-size: .75rem; } a { color: #176b53; }
+    /* Grid items default to min-width:auto, so a nowrap table inside one
+       widens the whole column instead of scrolling. min-width:0 lets the
+       .scroller below actually do its job. */
+    .layout { display: grid; grid-template-columns: 1fr .9fr; gap: 18px; align-items: start; } .layout > section { min-width: 0; } section { background: #fff; border: 1px solid #cbd8d3; border-radius: 16px; padding: 21px; box-shadow: 0 10px 30px #20352d12; } h2 { margin-top: 0; font-size: 1.15rem; } h3 { font-size: .95rem; margin: 18px 0 8px; } .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } label { display: grid; gap: 5px; font-size: .85rem; font-weight: 700; } input { width: 100%; padding: 10px; border: 1px solid #9aada6; border-radius: 8px; font: inherit; background: #fff; } .result { background: #173f3d; color: #f4fbf8; border-color: #173f3d; position: sticky; top: 14px; }.result a{color:inherit;text-decoration:underline} .big { font-size: 2.1rem; letter-spacing: -.04em; font-weight: 800; margin: 6px 0; line-height: 1.05; } hr { border: 0; border-top: 1px solid #ffffff33; margin: 20px 0; } /* Four and six column money tables do not fit a 390px phone. Scroll the
+       table inside its own box rather than letting the page scroll sideways. */
+    .scroller { overflow-x: auto; } .scroller table { min-width: 100%; } table { width: 100%; border-collapse: collapse; } th, td { padding: 9px 3px; text-align: right; border-bottom: 1px solid #ffffff2e; font-variant-numeric: tabular-nums; } /* Values must not break mid-figure; headers may wrap so the money columns stay visible on a laptop instead of scrolling. */ td { white-space: nowrap; } th, td:first-child { white-space: normal; } th:first-child, td:first-child { text-align: left; } tbody tr.lead { font-weight: 750; } tbody tr.lead td:first-child::after { content: " ←"; } button { cursor: pointer; border: 0; border-radius: 8px; padding: 10px 13px; font: inherit; font-weight: 750; background: #b8f28e; color: #17322d; } .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; } .note, footer { font-size: .82rem; opacity: .86; } footer { margin-top: 22px; color: #344640; opacity: 1; } footer label { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 8px; font-weight: 400; } footer input { width: auto; } .explainer { margin-top: 22px; } .explainer table { background: #fff; } .explainer th, .explainer td { border-bottom: 1px solid #cbd8d3; }
+    @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p><a href="./">← Invoice payment terms calculator</a></p>
+    <div class="eyebrow">UK BUSINESS-TO-BUSINESS INVOICES</div>
+    <h1>What interest can I add to a late UK invoice?</h1>
+    <p>
+      If a UK business or public body pays you late, the Late Payment of Commercial
+      Debts (Interest) Act 1998 can entitle you to interest at 8% over the Bank of
+      England reference rate plus a fixed sum of £40, £70 or £100 per invoice. Enter
+      the invoice and the reference rate and see the amount, per day, to the date you choose.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>The invoice</h2>
+      <div class="fields">
+        <label>Amount unpaid (£) <input id="amount" type="number" min="0.01" step="0.01" value="5000"></label>
+        <label>Bank of England reference rate (%) <input id="baseRatePct" type="number" min="0" max="49" step="0.01" value="4"></label>
+        <label>Payment due date <input id="dueDate" type="date"></label>
+        <label>Calculate to <input id="asOfDate" type="date"></label>
+      </div>
+      <p class="note">The reference rate is the Bank of England base rate on 30 June or 31 December before the due date, whichever is the latest. The 4% shown is only a placeholder: look up the right one.</p>
+      <div class="actions"><button id="reset" type="button">Reset dates</button></div>
+    </section>
+    <section class="result">
+      <h2>What you could add to the invoice</h2>
+      <div id="headline" class="big">—</div>
+      <p id="note" class="note"></p>
+      <hr>
+      <dl id="detail" style="display:grid;grid-template-columns:1fr auto;gap:10px;margin:0"></dl>
+      <p id="status" class="note" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <section class="explainer">
+    <h2>How the figure is worked out</h2>
+    <p>
+      Interest is the unpaid amount × (reference rate + 8%) × days late ÷ 365, counted from the day after the due date.
+      Fixed compensation is £40 for debts under £1,000, £70 from £1,000 to £9,999.99, and £100 from £10,000, per late invoice.
+      You may also be able to claim reasonable recovery costs, which this page does not model.
+    </p>
+    <h2>What this is not</h2>
+    <p>
+      The Act applies to contracts between businesses and public bodies, not consumers, and a contract can set its own
+      late-payment remedy if that remedy is substantial. Whether it applies to your invoice is a legal question this page
+      does not answer. For US invoices, or a contractual late fee, use the <a href="./">main calculator</a>; for what an
+      overdue invoice is worth chasing, see <a href="chasing-a-late-invoice.html">wait, chase, settle, or collections</a>.
+    </p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>How much interest can I charge on a late business invoice in the UK?</h3>
+  <p>Where the Late Payment of Commercial Debts (Interest) Act 1998 applies and the contract has no substantial remedy of its own, statutory interest is 8% a year over the Bank of England reference rate, which is set on 30 June and 31 December for the following six months. Enter the rate in force for your invoice; the calculator does not guess it.</p>
+  <h3>What is the fixed compensation for a late invoice?</h3>
+  <p>A fixed sum per late invoice by the size of the debt: £40 under £1,000, £70 from £1,000 to £9,999.99, and £100 for £10,000 or more. Reasonable recovery costs beyond that can be claimed separately, which this page does not model.</p>
+  <h3>Does this apply to consumers or to invoices outside the UK?</h3>
+  <p>No. The Act covers contracts between businesses and public bodies for the supply of goods or services, not consumer sales, and this page is UK only. Other countries have their own rules.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice. It does not determine whether the Act applies to your contract or what interest a court would award. Verify the output and applicable rules with a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for decisions made using it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your numbers are not uploaded. Anonymous feature counts stay local and can be disabled above. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { statutoryLateInterest, statutoryNote } from './statutory.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    const $ = id => document.getElementById(id);
+    const safe = fn => { try { return fn(); } catch { return undefined; } };
+    const gbp = n => `£${n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+    const ids = ['amount', 'baseRatePct', 'dueDate', 'asOfDate'];
+    const today = new Date();
+    const iso = d => d.toISOString().slice(0, 10);
+    function setDates() {
+      $('asOfDate').value = iso(today);
+      $('dueDate').value = iso(new Date(today.getTime() - 30 * 86400000));
+    }
+    let timer;
+    function update(count = true) {
+      try {
+        const r = statutoryLateInterest(Object.fromEntries(ids.map(id => [id, $(id).value])));
+        $('headline').textContent = `${gbp(r.claimable)} on top of the invoice`;
+        $('note').textContent = statutoryNote(r);
+        const rows = [['Days late', String(r.daysLate)], ['Annual rate', `${r.annualRatePct}%`], ['Interest', gbp(r.interest)], ['Interest per day', gbp(r.perDay)], ['Fixed compensation', gbp(r.compensation)], ['Invoice plus claim', gbp(r.total)]];
+        $('detail').replaceChildren(...rows.flatMap(([k, v]) => {
+          const dt = document.createElement('dt'); dt.textContent = k;
+          const dd = document.createElement('dd'); dd.textContent = v;
+          return [dt, dd];
+        }));
+        $('status').textContent = '';
+        if (count) recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'statutory_interest_calculated');
+      } catch (error) {
+        $('headline').textContent = 'Check the inputs';
+        $('status').textContent = error.message;
+      }
+    }
+    ids.forEach(id => {
+      $(id).addEventListener('input', () => { update(false); clearTimeout(timer); timer = setTimeout(() => update(), 800); });
+    });
+    $('reset').addEventListener('click', () => { setDates(); update(); });
+    setDates();
+    update(false);
+    {
+      const usageControl = $('usageOptOut');
+      usageControl.checked = readOptOut(safe(() => localStorage));
+      usageControl.addEventListener('change', () => writeOptOut(safe(() => localStorage), usageControl.checked));
+    }
+  </script>
+</body>
+</html>

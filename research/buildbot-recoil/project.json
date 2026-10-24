@@ -1,0 +1,6 @@
+{
+ "theme": "buildbot",
+ "title": "Does a framing nailer's recoil knock a stock Unitree G1 arm off the stud window?",
+ "summary": "A closed-loop MuJoCo check on the Menagerie G1 holding a 3.4&nbsp;kg nailer against a wall (pelvis fixed, no legs). A half-sine recoil impulse hits the tip; the sweep covers impulse (0.25&ndash;8&nbsp;N&nbsp;s), loop bandwidth (2&ndash;12&nbsp;Hz), delay (0&ndash;20&nbsp;ms), wall stiffness and preload. Up to 4&nbsp;N&nbsp;s the tip stays within 1&ndash;4&nbsp;mm of its place (joint-nail window &plusmn;3.9&nbsp;mm) for 4&ndash;12&nbsp;Hz loops, but an impulse of 1&nbsp;N&nbsp;s or more lifts the nosepiece off the wall for 25&ndash;140&nbsp;ms, and stiff loops go unstable with 10&ndash;20&nbsp;ms of delay. The recoil of a real nailer, the G1's loop delay, the wall stiffness and damping, and the 4&nbsp;ms pulse are not sourced (swept or assumed); legs and balance are not modelled.",
+ "lede": "does a framing nailer's recoil knock a stock Unitree G1 arm off the stud window? In a closed-loop MuJoCo hold, up to 4 N s of recoil moves the tip 1-4 mm (window +-3.9 mm) but 1 N s or more lifts the nosepiece off the wall for 25-140 ms; stiff loops go unstable with 10-20 ms delay (recoil, delay and wall are swept, not sourced)."
+}

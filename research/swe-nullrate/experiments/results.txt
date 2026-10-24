@@ -1,0 +1,40 @@
+summaries 711; hand-labelled simple random sample 80 (seed 20261019, sorted slugs)
+
+A. hand-labelled headline type, with Wilson 95% intervals (share of all summaries)
+  positive      16/80  20.0%  [12.7%, 30.0%]
+  mixed         14/80  17.5%  [10.7%, 27.3%]
+  negative       9/80  11.2%  [6.0%, 20.0%]
+  descriptive   41/80  51.2%  [40.5%, 61.9%]
+  negative or mixed 23/80  28.7%  [20.0%, 39.5%]
+  among the 39 that test a claim against an alternative (not descriptive): negative or mixed 23/39 = 59.0%  [43.4%, 72.9%]
+  clearly negative only 9/39 = 23.1%  [12.6%, 38.3%]
+
+B. keyword rule vs hand label (rule says negative-or-mixed)
+  tp 15 fp 10 fn 8 tn 47; precision 0.60, recall 0.65
+  rule fires on  3/16 hand-labelled positive
+  rule fires on  8/14 hand-labelled mixed
+  rule fires on  7/ 9 hand-labelled negative
+  rule fires on  7/41 hand-labelled descriptive
+
+C. keyword rule on every summary (not hand-checked; see README for how far to trust it)
+  fires on 229/711 = 32.2%  [28.9%, 35.7%]
+  by theme (themes with >= 20 projects), rule share:
+    twins         55/140 = 39.3%
+    simdesign     29/ 64 = 45.3%
+    robofab       16/ 49 = 32.7%
+    ambient       17/ 46 = 37.0%
+    garment       11/ 45 = 24.4%
+    chip          18/ 34 = 52.9%
+    selfrep       11/ 34 = 32.4%
+    house          7/ 30 = 23.3%
+    swe            6/ 29 = 20.7%
+    scoring        8/ 28 = 28.6%
+    accel         10/ 28 = 35.7%
+    mimic         12/ 25 = 48.0%
+    osrobot        5/ 25 = 20.0%
+    systems        5/ 22 = 22.7%
+    eda            6/ 20 = 30.0%
+
+D. limitation disclosure (stylised, preliminary, assumed, ...) in the summary
+  649/711 = 91.3%  [89.0%, 93.1%]
+  in the hand-labelled sample: 72/80

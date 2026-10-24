@@ -1,0 +1,46 @@
+records: 1815 (2026-10-01 to 2026-10-21)
+records with at least one error: 241 (13%, Wilson 95% 12%-15%)
+error entries: 326
+
+class | entries | share of entries
+environment or tooling | 49 | 15%
+timeout or hang | 47 | 14%
+own bug caught before merge | 46 | 14%
+network or access | 33 | 10%
+CI or tests red after push | 33 | 10%
+base moved or conflict | 29 | 9%
+parallel collision | 26 | 8%
+self-inflicted edit slip | 18 | 6%
+method or measurement | 13 | 4%
+unclassified | 93 | 29%
+
+environment, timeout or network (any of the three): 116 (36%)
+
+named traps | entries
+a kill or wait loop matched the agent's own process | 18
+wrong Python interpreter or missing package | 27
+a full test suite or sweep outran its timeout | 8
+work duplicated a parallel run's | 17
+a repo-wide check went red from main, not the diff | 5
+
+seeded sample of 20 entries (seed 20261021), with classes:
+- [timeout or hang] Process pool oversubscribed 4 CPUs through OpenMP threads in boosted trees; set one thread per worker.
+- [network or access] WebFetch could not resolve hosts, so sources were verified by search summaries only
+- [CI or tests red after push] unittest run from the repo root errored on imports; tests must run from platform/ci
+- [timeout or hang, own bug caught before merge] harness bugs fixed before results: SystemVerilog keyword as instance name, fatal lint warnings, indefinite-width concatenation, vvp hang on mutated loop
+- [unclassified] Excluded research/ from rework for all repos at first, which dropped the upstream research PRs' own code; now excluded only for this repo's mirror copy.
+- [base moved or conflict] venture-preflight failed once: front-door mirror stale; fixed with marketing/regen.mjs
+- [parallel collision] first idea (run-log audit) duplicated swe-ledger/swe-backfill and was dropped
+- [environment or tooling] yosys/openroad not installable in container, so chip track milestone (random draw) was swapped for swe-audit
+- [CI or tests red after push] research_live_links check red on main (simdesign-stuck README had no live-page link) added the link in this PR
+- [own bug caught before merge] CSV row with unquoted commas broke validation once; fixed before commit
+- [own bug caught before merge] one test initially wrong (large-kappa limit is binomial, not point mass); fixed before commit
+- [timeout or hang, own bug caught before merge] first run of anyctx.py exceeded 30 min before vectoriser caching
+- [environment or tooling] pytest was only importable under /usr/bin/python3, not the default python
+- [own bug caught before merge] two bugs fixed during development (interior facets in traction load; mask shape)
+- [unclassified] sql-migration-lock-check test asserts description wording; reverted that page
+- [timeout or hang, self-inflicted edit slip, own bug caught before merge, method or measurement] pkill -f / sleep-wait loops matched or killed my own shell twice; a first _box window-sum bug was caught by a unit test and the experiment rerun
+- [self-inflicted edit slip, own bug caught before merge] two self-inflicted edit slips (mangled helper, wrong face winding in turned mesh) caught by tests
+- [environment or tooling] pip numpy/pytest missing at start
+- [own bug caught before merge] ABC aborts on dch followed by rewrite/refactor (108 of 800 points); first run crashed, then handled as costly failures
+- [base moved or conflict] venture-preflight failed once: front-door mirror stale; fixed with regen.mjs

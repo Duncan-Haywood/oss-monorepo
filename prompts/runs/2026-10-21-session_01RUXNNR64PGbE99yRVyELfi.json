@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01RUXNNR64PGbE99yRVyELfi",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T01:12:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "eda-deepdraw next steps",
+  "projects": [
+    "eda-biasdraw"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8989",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Step 3 says build.py prints ok but README bullet is generated from project.json lede only after running research_live_links.py; build.py has no --write flag, I guessed it."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Biased-input draws (4 generators x 5000 vectors) on 26 targets: null result, del@122 truncation confirmed (90/100 rows). Local checks: unit tests, homepage build, live links, md links.",
+  "corrections": [],
+  "redteam": null
+}

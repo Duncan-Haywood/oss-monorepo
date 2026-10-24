@@ -1,0 +1,1947 @@
+{
+ "data": {
+  "rows": 2671,
+  "groups": 368,
+  "events": 145.0,
+  "family": "binary",
+  "numeric": [
+   "H_educ_D",
+   "W_educ_D",
+   "income_k",
+   "Household_comp",
+   "Low_income_D",
+   "Couple_unemployment_D",
+   "Couple_fin_strain_D",
+   "Neighborhood_unemploy",
+   "Neighborhood_income_k",
+   "H_substance_D",
+   "H_ACE_D",
+   "H_abuse_D",
+   "H_neg_affect_D",
+   "H_parent_marriage_D",
+   "W_substance_D",
+   "W_ACE_D",
+   "W_abuse_D",
+   "W_neg_affect_D",
+   "W_parent_marriage_D",
+   "H_sat_sum",
+   "W_sat_sum",
+   "H_Positivity",
+   "W_Positivity",
+   "H_Negativity",
+   "W_Negativity",
+   "H_Effective",
+   "W_Effective",
+   "H_Hostility",
+   "W_Hostility",
+   "H_sat1",
+   "H_sat2",
+   "H_sat3",
+   "H_sat4",
+   "H_sat5",
+   "H_sat6",
+   "H_sat7",
+   "H_sat9",
+   "W_sat1",
+   "W_sat2",
+   "W_sat3",
+   "W_sat4",
+   "W_sat5",
+   "W_sat6",
+   "W_sat7",
+   "W_sat9",
+   "H_vulnerability_index",
+   "W_vulnerability_index",
+   "Socioeconomic_index",
+   "Neighborhood_unemploy_D",
+   "Neighborhood_income_D",
+   "period_years"
+  ],
+  "categorical": [
+   "period"
+  ],
+  "duration": null,
+  "baseline": "ridge logistic hazard on all 29 lens inputs (train_models.py 'all', C by the lens's inner CV)",
+  "lens_models": [
+   "dyad_apim_glm",
+   "dyad_summary_glm",
+   "baseline_all_inputs"
+  ],
+  "notes": [
+   "StratifiedKFold by divorce, 5 repeats; unweighted"
+  ],
+  "sample": 1.0,
+  "metric": "log-loss gain vs constant (couple-intervals); C-index"
+ },
+ "main": {
+  "rows": [
+   {
+    "model": "baseline",
+    "heldout_gain": 9.619681,
+    "heldout_gain_ci": [
+     5.970834,
+     13.223985
+    ],
+    "diff_vs_baseline": 0.0,
+    "diff_vs_baseline_ci": [
+     0.0,
+     0.0
+    ],
+    "heldout_gain_by_repeat": [
+     9.619681
+    ],
+    "train_gain": 14.123945,
+    "train_minus_heldout": 4.504265,
+    "observed_expected": 0.992839,
+    "calibration_slope": 0.938501,
+    "calibration_intercept": -0.162065,
+    "top_decile_lift": 3.574164,
+    "top_bottom_ratio": 10.361194,
+    "decile_observed": [
+     0.018727,
+     0.037453,
+     0.018727,
+     0.033708,
+     0.022472,
+     0.037453,
+     0.029963,
+     0.048689,
+     0.101124,
+     0.19403
+    ],
+    "decile_predicted": [
+     0.011529,
+     0.016907,
+     0.021206,
+     0.026081,
+     0.031218,
+     0.037451,
+     0.046433,
+     0.059622,
+     0.094578,
+     0.20121
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.634717,
+     "ci": [
+      0.608917,
+      0.681955
+     ],
+     "diff_vs_baseline": 0.0,
+     "diff_ci": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "model": "lightgbm_tuned",
+    "heldout_gain": 9.758712,
+    "heldout_gain_ci": [
+     4.963151,
+     13.30646
+    ],
+    "diff_vs_baseline": 0.139032,
+    "diff_vs_baseline_ci": [
+     -3.554519,
+     3.495995
+    ],
+    "heldout_gain_by_repeat": [
+     9.758712
+    ],
+    "train_gain": 38.48312,
+    "train_minus_heldout": 28.724408,
+    "observed_expected": 0.907657,
+    "calibration_slope": 0.775107,
+    "calibration_intercept": -0.631595,
+    "top_decile_lift": 3.230494,
+    "top_bottom_ratio": 23.412313,
+    "decile_observed": [
+     0.007491,
+     0.026217,
+     0.014981,
+     0.026217,
+     0.026217,
+     0.018727,
+     0.041199,
+     0.067416,
+     0.138577,
+     0.175373
+    ],
+    "decile_predicted": [
+     0.007474,
+     0.01226,
+     0.016017,
+     0.019699,
+     0.024938,
+     0.032243,
+     0.043288,
+     0.065337,
+     0.112585,
+     0.263494
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.68722,
+     "ci": [
+      0.655495,
+      0.722489
+     ],
+     "diff_vs_baseline": 0.052503,
+     "diff_ci": [
+      0.027106,
+      0.080733
+     ]
+    }
+   },
+   {
+    "model": "hgb_tuned",
+    "heldout_gain": 9.005867,
+    "heldout_gain_ci": [
+     3.860827,
+     13.074114
+    ],
+    "diff_vs_baseline": -0.613813,
+    "diff_vs_baseline_ci": [
+     -4.279519,
+     3.374924
+    ],
+    "heldout_gain_by_repeat": [
+     9.005867
+    ],
+    "train_gain": 41.760185,
+    "train_minus_heldout": 32.754317,
+    "observed_expected": 0.916954,
+    "calibration_slope": 0.781447,
+    "calibration_intercept": -0.6145,
+    "top_decile_lift": 3.299228,
+    "top_bottom_ratio": 11.955224,
+    "decile_observed": [
+     0.014981,
+     0.003745,
+     0.026217,
+     0.007491,
+     0.026217,
+     0.033708,
+     0.037453,
+     0.11236,
+     0.101124,
+     0.179104
+    ],
+    "decile_predicted": [
+     0.008849,
+     0.013634,
+     0.017301,
+     0.021316,
+     0.026264,
+     0.033334,
+     0.04471,
+     0.065331,
+     0.108253,
+     0.252317
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.676709,
+     "ci": [
+      0.640579,
+      0.723269
+     ],
+     "diff_vs_baseline": 0.041993,
+     "diff_ci": [
+      0.005693,
+      0.076773
+     ]
+    }
+   },
+   {
+    "model": "random_forest_tuned",
+    "heldout_gain": 4.703971,
+    "heldout_gain_ci": [
+     -5.016204,
+     11.357171
+    ],
+    "diff_vs_baseline": -4.91571,
+    "diff_vs_baseline_ci": [
+     -11.752288,
+     0.710892
+    ],
+    "heldout_gain_by_repeat": [
+     4.703971
+    ],
+    "train_gain": 52.013428,
+    "train_minus_heldout": 47.309457,
+    "observed_expected": 0.764206,
+    "calibration_slope": 0.554524,
+    "calibration_intercept": -1.242385,
+    "top_decile_lift": 3.780365,
+    "top_bottom_ratio": 18.264925,
+    "decile_observed": [
+     0.011236,
+     0.011236,
+     0.048689,
+     0.011236,
+     0.026217,
+     0.018727,
+     0.026217,
+     0.067416,
+     0.116105,
+     0.205224
+    ],
+    "decile_predicted": [
+     1e-05,
+     0.003486,
+     0.010611,
+     0.019054,
+     0.029297,
+     0.044567,
+     0.063046,
+     0.094725,
+     0.153509,
+     0.291239
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.686531,
+     "ci": [
+      0.655635,
+      0.720468
+     ],
+     "diff_vs_baseline": 0.051814,
+     "diff_ci": [
+      0.02134,
+      0.071563
+     ]
+    }
+   },
+   {
+    "model": "extra_trees_tuned",
+    "heldout_gain": 6.705892,
+    "heldout_gain_ci": [
+     -3.559119,
+     11.760739
+    ],
+    "diff_vs_baseline": -2.913788,
+    "diff_vs_baseline_ci": [
+     -10.481082,
+     2.398912
+    ],
+    "heldout_gain_by_repeat": [
+     6.705892
+    ],
+    "train_gain": 57.56958,
+    "train_minus_heldout": 50.863688,
+    "observed_expected": 0.770379,
+    "calibration_slope": 0.720407,
+    "calibration_intercept": -0.905197,
+    "top_decile_lift": 4.055301,
+    "top_bottom_ratio": 11.75597,
+    "decile_observed": [
+     0.018727,
+     0.003745,
+     0.011236,
+     0.022472,
+     0.022472,
+     0.059925,
+     0.048689,
+     0.052434,
+     0.082397,
+     0.220149
+    ],
+    "decile_predicted": [
+     0.002104,
+     0.009551,
+     0.017821,
+     0.026313,
+     0.037122,
+     0.051804,
+     0.070748,
+     0.098324,
+     0.141036,
+     0.249185
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.694752,
+     "ci": [
+      0.667243,
+      0.735133
+     ],
+     "diff_vs_baseline": 0.060035,
+     "diff_ci": [
+      0.032562,
+      0.078233
+     ]
+    }
+   },
+   {
+    "model": "enet_spline_pairwise",
+    "heldout_gain": 11.770284,
+    "heldout_gain_ci": [
+     7.182651,
+     15.262161
+    ],
+    "diff_vs_baseline": 2.150604,
+    "diff_vs_baseline_ci": [
+     -1.910708,
+     5.450662
+    ],
+    "heldout_gain_by_repeat": [
+     11.770284
+    ],
+    "train_gain": 19.004475,
+    "train_minus_heldout": 7.234191,
+    "observed_expected": 0.947673,
+    "calibration_slope": 0.96011,
+    "calibration_intercept": -0.159624,
+    "top_decile_lift": 3.849099,
+    "top_bottom_ratio": 9.298507,
+    "decile_observed": [
+     0.022472,
+     0.007491,
+     0.003745,
+     0.014981,
+     0.026217,
+     0.037453,
+     0.037453,
+     0.059925,
+     0.123596,
+     0.208955
+    ],
+    "decile_predicted": [
+     0.015664,
+     0.02024,
+     0.023595,
+     0.026427,
+     0.029747,
+     0.035033,
+     0.042627,
+     0.057501,
+     0.097462,
+     0.223922
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.701767,
+     "ci": [
+      0.664695,
+      0.734269
+     ],
+     "diff_vs_baseline": 0.067051,
+     "diff_ci": [
+      0.028503,
+      0.098855
+     ]
+    }
+   },
+   {
+    "model": "ebm",
+    "heldout_gain": 11.604084,
+    "heldout_gain_ci": [
+     6.651966,
+     15.161438
+    ],
+    "diff_vs_baseline": 1.984403,
+    "diff_vs_baseline_ci": [
+     -1.852098,
+     5.670086
+    ],
+    "heldout_gain_by_repeat": [
+     11.604084
+    ],
+    "train_gain": 25.336554,
+    "train_minus_heldout": 13.73247,
+    "observed_expected": 0.878334,
+    "calibration_slope": 0.820911,
+    "calibration_intercept": -0.562373,
+    "top_decile_lift": 4.192769,
+    "top_bottom_ratio": 60.772388,
+    "decile_observed": [
+     0.003745,
+     0.026217,
+     0.003745,
+     0.011236,
+     0.033708,
+     0.026217,
+     0.059925,
+     0.041199,
+     0.108614,
+     0.227612
+    ],
+    "decile_predicted": [
+     0.005922,
+     0.012078,
+     0.017702,
+     0.023191,
+     0.029249,
+     0.036648,
+     0.048801,
+     0.068849,
+     0.106863,
+     0.267989
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.699798,
+     "ci": [
+      0.676458,
+      0.754267
+     ],
+     "diff_vs_baseline": 0.065081,
+     "diff_ci": [
+      0.042544,
+      0.082294
+     ]
+    }
+   },
+   {
+    "model": "stack_glm_lgbm",
+    "heldout_gain": 10.779951,
+    "heldout_gain_ci": [
+     6.310566,
+     14.039027
+    ],
+    "diff_vs_baseline": 1.16027,
+    "diff_vs_baseline_ci": [
+     -2.508077,
+     4.246839
+    ],
+    "heldout_gain_by_repeat": [
+     10.779951
+    ],
+    "train_gain": 37.34066,
+    "train_minus_heldout": 26.560709,
+    "observed_expected": 0.934026,
+    "calibration_slope": 0.825252,
+    "calibration_intercept": -0.487809,
+    "top_decile_lift": 3.367962,
+    "top_bottom_ratio": 24.408582,
+    "decile_observed": [
+     0.007491,
+     0.029963,
+     0.007491,
+     0.029963,
+     0.026217,
+     0.022472,
+     0.033708,
+     0.06367,
+     0.138577,
+     0.182836
+    ],
+    "decile_predicted": [
+     0.00759,
+     0.012522,
+     0.016407,
+     0.020286,
+     0.025448,
+     0.032519,
+     0.043205,
+     0.064575,
+     0.109844,
+     0.248105
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.692143,
+     "ci": [
+      0.660689,
+      0.73005
+     ],
+     "diff_vs_baseline": 0.057426,
+     "diff_ci": [
+      0.0374,
+      0.084344
+     ]
+    }
+   },
+   {
+    "model": "dyad_apim_glm",
+    "heldout_gain": 9.78716,
+    "heldout_gain_ci": [
+     5.884013,
+     12.838128
+    ],
+    "diff_vs_baseline": 0.167479,
+    "diff_vs_baseline_ci": [
+     -0.484401,
+     0.751728
+    ],
+    "heldout_gain_by_repeat": [
+     9.78716
+    ],
+    "train_gain": 14.833008,
+    "train_minus_heldout": 5.045849,
+    "observed_expected": 0.980021,
+    "calibration_slope": 0.929694,
+    "calibration_intercept": -0.197356,
+    "top_decile_lift": 3.436696,
+    "top_bottom_ratio": 9.962687,
+    "decile_observed": [
+     0.018727,
+     0.022472,
+     0.029963,
+     0.022472,
+     0.022472,
+     0.037453,
+     0.033708,
+     0.067416,
+     0.101124,
+     0.186567
+    ],
+    "decile_predicted": [
+     0.011606,
+     0.016748,
+     0.021067,
+     0.025771,
+     0.030787,
+     0.037131,
+     0.046086,
+     0.060937,
+     0.097846,
+     0.205393
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.639984,
+     "ci": [
+      0.616201,
+      0.678284
+     ],
+     "diff_vs_baseline": 0.005268,
+     "diff_ci": [
+      -0.005477,
+      0.017453
+     ]
+    }
+   },
+   {
+    "model": "dyad_summary_glm",
+    "heldout_gain": 10.184437,
+    "heldout_gain_ci": [
+     6.376934,
+     13.216318
+    ],
+    "diff_vs_baseline": 0.564756,
+    "diff_vs_baseline_ci": [
+     -0.141723,
+     1.385314
+    ],
+    "heldout_gain_by_repeat": [
+     10.184437
+    ],
+    "train_gain": 13.990303,
+    "train_minus_heldout": 3.805867,
+    "observed_expected": 0.999713,
+    "calibration_slope": 0.963975,
+    "calibration_intercept": -0.090492,
+    "top_decile_lift": 3.711631,
+    "top_bottom_ratio": 13.449627,
+    "decile_observed": [
+     0.014981,
+     0.026217,
+     0.029963,
+     0.026217,
+     0.022472,
+     0.041199,
+     0.029963,
+     0.044944,
+     0.104869,
+     0.201493
+    ],
+    "decile_predicted": [
+     0.011468,
+     0.016877,
+     0.021433,
+     0.02587,
+     0.030676,
+     0.036722,
+     0.045384,
+     0.059621,
+     0.09506,
+     0.19937
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.644686,
+     "ci": [
+      0.614826,
+      0.691299
+     ],
+     "diff_vs_baseline": 0.009969,
+     "diff_ci": [
+      -0.017061,
+      0.036207
+     ]
+    }
+   },
+   {
+    "model": "baseline_all_inputs",
+    "heldout_gain": 8.377328,
+    "heldout_gain_ci": [
+     4.574897,
+     11.891331
+    ],
+    "diff_vs_baseline": -1.242352,
+    "diff_vs_baseline_ci": [
+     -2.099821,
+     -0.314016
+    ],
+    "heldout_gain_by_repeat": [
+     8.377328
+    ],
+    "train_gain": 14.362027,
+    "train_minus_heldout": 5.984699,
+    "observed_expected": 0.987837,
+    "calibration_slope": 0.889982,
+    "calibration_intercept": -0.29122,
+    "top_decile_lift": 3.780365,
+    "top_bottom_ratio": 10.958955,
+    "decile_observed": [
+     0.018727,
+     0.037453,
+     0.037453,
+     0.026217,
+     0.022472,
+     0.022472,
+     0.037453,
+     0.06367,
+     0.071161,
+     0.205224
+    ],
+    "decile_predicted": [
+     0.011895,
+     0.017325,
+     0.021883,
+     0.026645,
+     0.032262,
+     0.038491,
+     0.04648,
+     0.058194,
+     0.093829,
+     0.201997
+    ],
+    "discrimination": {
+     "metric": "Harrell's C (cumulative divorce risk to ~12 years, discrete periods)",
+     "value": 0.621055,
+     "ci": [
+      0.581148,
+      0.666577
+     ],
+     "diff_vs_baseline": -0.013661,
+     "diff_ci": [
+      -0.03111,
+      0.000383
+     ]
+    }
+   }
+  ],
+  "info": [
+   {
+    "repeat": 0,
+    "fold": 0,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 8,
+      "min_child_frac": 0.0005,
+      "lambda_l2": 10.0,
+      "feature_fraction": 0.8,
+      "max_depth": 6
+     },
+     "rounds": 58,
+     "ranking": [
+      "period_years",
+      "period",
+      "H_vulnerability_index",
+      "W_vulnerability_index",
+      "H_Positivity",
+      "Neighborhood_income_k",
+      "W_Positivity",
+      "H_Hostility",
+      "W_sat9",
+      "H_Negativity",
+      "H_ACE_D",
+      "income_k",
+      "Neighborhood_unemploy",
+      "H_Effective",
+      "W_Effective",
+      "W_Negativity",
+      "W_Hostility",
+      "H_sat_sum",
+      "Socioeconomic_index",
+      "H_educ_D",
+      "W_sat6",
+      "W_ACE_D",
+      "H_sat1",
+      "W_sat_sum",
+      "W_sat1",
+      "Household_comp",
+      "W_sat2",
+      "W_parent_marriage_D",
+      "H_parent_marriage_D",
+      "H_sat2",
+      "W_neg_affect_D",
+      "Couple_unemployment_D",
+      "H_sat4",
+      "H_substance_D",
+      "W_sat7",
+      "H_abuse_D",
+      "W_abuse_D",
+      "H_sat9",
+      "W_sat3",
+      "H_sat5",
+      "W_educ_D",
+      "Couple_fin_strain_D",
+      "W_substance_D",
+      "Low_income_D",
+      "H_neg_affect_D",
+      "H_sat3",
+      "H_sat6",
+      "H_sat7",
+      "Neighborhood_income_D",
+      "Neighborhood_unemploy_D",
+      "W_sat4",
+      "W_sat5"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 0.0
+     },
+     "iters": 39
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.015195,
+     "terms": 197,
+     "nonzero": 30,
+     "pairs_among": [
+      "period_years",
+      "period",
+      "H_vulnerability_index",
+      "W_vulnerability_index",
+      "H_Positivity",
+      "Neighborhood_income_k"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 1,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 8,
+      "min_child_frac": 0.03,
+      "lambda_l2": 0.0,
+      "feature_fraction": 0.8,
+      "max_depth": -1
+     },
+     "rounds": 41,
+     "ranking": [
+      "period_years",
+      "H_vulnerability_index",
+      "Neighborhood_unemploy",
+      "W_vulnerability_index",
+      "Neighborhood_income_k",
+      "H_Hostility",
+      "period",
+      "W_Hostility",
+      "W_sat6",
+      "H_Effective",
+      "W_Negativity",
+      "W_Positivity",
+      "H_ACE_D",
+      "income_k",
+      "H_Negativity",
+      "Household_comp",
+      "H_Positivity",
+      "W_Effective",
+      "W_sat_sum",
+      "H_sat_sum",
+      "W_abuse_D",
+      "W_sat9",
+      "W_parent_marriage_D",
+      "W_neg_affect_D",
+      "H_sat1",
+      "W_ACE_D",
+      "Socioeconomic_index",
+      "W_sat3",
+      "W_sat7",
+      "W_sat2",
+      "H_sat3",
+      "H_parent_marriage_D",
+      "H_sat7",
+      "H_substance_D",
+      "Low_income_D",
+      "H_sat2",
+      "H_sat6",
+      "Couple_fin_strain_D",
+      "W_sat5",
+      "H_abuse_D",
+      "Couple_unemployment_D",
+      "W_sat1",
+      "H_educ_D",
+      "H_neg_affect_D",
+      "H_sat4",
+      "H_sat5",
+      "H_sat9",
+      "Neighborhood_income_D",
+      "Neighborhood_unemploy_D",
+      "W_educ_D",
+      "W_sat4",
+      "W_substance_D"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 0.0
+     },
+     "iters": 101
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.6
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.0138,
+     "terms": 162,
+     "nonzero": 33,
+     "pairs_among": [
+      "period_years",
+      "H_vulnerability_index",
+      "Neighborhood_unemploy",
+      "W_vulnerability_index",
+      "Neighborhood_income_k",
+      "H_Hostility"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 2,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 4,
+      "min_child_frac": 0.002,
+      "lambda_l2": 0.0,
+      "feature_fraction": 1.0,
+      "max_depth": -1
+     },
+     "rounds": 189,
+     "ranking": [
+      "period_years",
+      "H_vulnerability_index",
+      "W_vulnerability_index",
+      "W_Hostility",
+      "H_Hostility",
+      "H_ACE_D",
+      "Neighborhood_income_k",
+      "W_sat9",
+      "Neighborhood_unemploy",
+      "H_Positivity",
+      "W_Positivity",
+      "W_parent_marriage_D",
+      "W_Negativity",
+      "income_k",
+      "H_Negativity",
+      "W_sat2",
+      "W_Effective",
+      "W_sat_sum",
+      "H_sat2",
+      "period",
+      "W_sat3",
+      "H_Effective",
+      "W_sat1",
+      "H_sat_sum",
+      "W_substance_D",
+      "Household_comp",
+      "W_sat6",
+      "H_sat9",
+      "H_educ_D",
+      "W_abuse_D",
+      "W_sat5",
+      "H_substance_D",
+      "Low_income_D",
+      "H_sat3",
+      "H_sat5",
+      "Couple_fin_strain_D",
+      "W_ACE_D",
+      "H_sat6",
+      "H_sat4",
+      "H_parent_marriage_D",
+      "W_neg_affect_D",
+      "Couple_unemployment_D",
+      "H_abuse_D",
+      "H_neg_affect_D",
+      "H_sat1",
+      "H_sat7",
+      "Neighborhood_income_D",
+      "Neighborhood_unemploy_D",
+      "Socioeconomic_index",
+      "W_educ_D",
+      "W_sat4",
+      "W_sat7"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 1.0
+     },
+     "iters": 26
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.012886,
+     "terms": 158,
+     "nonzero": 35,
+     "pairs_among": [
+      "period_years",
+      "H_vulnerability_index",
+      "W_vulnerability_index",
+      "W_Hostility",
+      "H_Hostility",
+      "H_ACE_D"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 3,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 8,
+      "min_child_frac": 0.002,
+      "lambda_l2": 10.0,
+      "feature_fraction": 1.0,
+      "max_depth": 6
+     },
+     "rounds": 255,
+     "ranking": [
+      "period_years",
+      "period",
+      "W_vulnerability_index",
+      "H_vulnerability_index",
+      "H_Negativity",
+      "W_Positivity",
+      "H_Effective",
+      "Neighborhood_unemploy",
+      "H_ACE_D",
+      "W_Effective",
+      "H_Hostility",
+      "H_Positivity",
+      "W_Hostility",
+      "W_Negativity",
+      "income_k",
+      "Neighborhood_income_k",
+      "W_sat9",
+      "W_parent_marriage_D",
+      "Socioeconomic_index",
+      "W_sat2",
+      "W_sat1",
+      "H_sat_sum",
+      "H_sat7",
+      "W_sat_sum",
+      "W_sat6",
+      "W_sat4",
+      "W_abuse_D",
+      "W_sat5",
+      "H_educ_D",
+      "H_abuse_D",
+      "Household_comp",
+      "W_ACE_D",
+      "H_sat1",
+      "H_substance_D",
+      "W_substance_D",
+      "H_sat3",
+      "H_sat6",
+      "H_sat5",
+      "W_neg_affect_D",
+      "W_educ_D",
+      "H_sat9",
+      "Couple_unemployment_D",
+      "W_sat3",
+      "H_sat4",
+      "W_sat7",
+      "Couple_fin_strain_D",
+      "H_parent_marriage_D",
+      "H_sat2",
+      "H_neg_affect_D",
+      "Low_income_D",
+      "Neighborhood_income_D",
+      "Neighborhood_unemploy_D"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 1.0
+     },
+     "iters": 26
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.010519,
+     "terms": 197,
+     "nonzero": 42,
+     "pairs_among": [
+      "period_years",
+      "period",
+      "W_vulnerability_index",
+      "H_vulnerability_index",
+      "H_Negativity",
+      "W_Positivity"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 4,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 31,
+      "min_child_frac": 0.0005,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.8,
+      "max_depth": 3
+     },
+     "rounds": 34,
+     "ranking": [
+      "period_years",
+      "H_vulnerability_index",
+      "H_Effective",
+      "H_Positivity",
+      "H_ACE_D",
+      "W_vulnerability_index",
+      "period",
+      "H_Hostility",
+      "W_Effective",
+      "W_sat9",
+      "W_Negativity",
+      "W_Hostility",
+      "Neighborhood_unemploy",
+      "W_Positivity",
+      "Neighborhood_income_k",
+      "H_Negativity",
+      "H_sat_sum",
+      "Household_comp",
+      "income_k",
+      "W_abuse_D",
+      "Socioeconomic_index",
+      "W_sat6",
+      "H_substance_D",
+      "W_sat1",
+      "H_sat7",
+      "H_abuse_D",
+      "H_sat2",
+      "H_neg_affect_D",
+      "W_sat_sum",
+      "H_sat1",
+      "H_sat5",
+      "H_sat3",
+      "H_sat9",
+      "W_sat3",
+      "H_parent_marriage_D",
+      "Couple_fin_strain_D",
+      "Couple_unemployment_D",
+      "H_educ_D",
+      "H_sat4",
+      "H_sat6",
+      "Low_income_D",
+      "Neighborhood_income_D",
+      "Neighborhood_unemploy_D",
+      "W_ACE_D",
+      "W_educ_D",
+      "W_neg_affect_D",
+      "W_parent_marriage_D",
+      "W_sat2",
+      "W_sat4",
+      "W_sat5",
+      "W_sat7",
+      "W_substance_D"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 0.0
+     },
+     "iters": 76
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.0005,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.011096,
+     "terms": 162,
+     "nonzero": 41,
+     "pairs_among": [
+      "period_years",
+      "H_vulnerability_index",
+      "H_Effective",
+      "H_Positivity",
+      "H_ACE_D",
+      "W_vulnerability_index"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   }
+  ],
+  "times": [
+   {
+    "repeat": 0,
+    "fold": 0,
+    "baseline": 0.499244,
+    "lightgbm_tuned": 2.838201,
+    "hgb_tuned": 1.458999,
+    "random_forest_tuned": 2.395772,
+    "extra_trees_tuned": 1.774078,
+    "enet_spline_pairwise": 2.069006,
+    "ebm": 4.420367,
+    "stack_glm_lgbm": 0.779382,
+    "dyad_apim_glm": 0.746511,
+    "dyad_summary_glm": 0.772067,
+    "baseline_all_inputs": 0.954627
+   },
+   {
+    "repeat": 0,
+    "fold": 1,
+    "baseline": 0.564537,
+    "lightgbm_tuned": 3.056777,
+    "hgb_tuned": 4.173911,
+    "random_forest_tuned": 2.150165,
+    "extra_trees_tuned": 1.816743,
+    "enet_spline_pairwise": 2.614761,
+    "ebm": 1.586854,
+    "stack_glm_lgbm": 0.580781,
+    "dyad_apim_glm": 0.686583,
+    "dyad_summary_glm": 0.393848,
+    "baseline_all_inputs": 0.658046
+   },
+   {
+    "repeat": 0,
+    "fold": 2,
+    "baseline": 0.668961,
+    "lightgbm_tuned": 2.496491,
+    "hgb_tuned": 3.078963,
+    "random_forest_tuned": 2.348203,
+    "extra_trees_tuned": 1.579314,
+    "enet_spline_pairwise": 2.58916,
+    "ebm": 1.274126,
+    "stack_glm_lgbm": 0.713887,
+    "dyad_apim_glm": 0.696254,
+    "dyad_summary_glm": 0.60156,
+    "baseline_all_inputs": 0.647888
+   },
+   {
+    "repeat": 0,
+    "fold": 3,
+    "baseline": 0.504398,
+    "lightgbm_tuned": 4.053732,
+    "hgb_tuned": 3.576222,
+    "random_forest_tuned": 1.944281,
+    "extra_trees_tuned": 2.139652,
+    "enet_spline_pairwise": 4.325937,
+    "ebm": 1.205353,
+    "stack_glm_lgbm": 0.646947,
+    "dyad_apim_glm": 0.788367,
+    "dyad_summary_glm": 0.547031,
+    "baseline_all_inputs": 0.536205
+   },
+   {
+    "repeat": 0,
+    "fold": 4,
+    "baseline": 0.573129,
+    "lightgbm_tuned": 1.655712,
+    "hgb_tuned": 2.874322,
+    "random_forest_tuned": 2.15279,
+    "extra_trees_tuned": 1.979689,
+    "enet_spline_pairwise": 2.442877,
+    "ebm": 1.134234,
+    "stack_glm_lgbm": 0.656435,
+    "dyad_apim_glm": 0.748098,
+    "dyad_summary_glm": 0.548192,
+    "baseline_all_inputs": 0.533204
+   }
+  ],
+  "repeats": 1,
+  "minutes": 1.558559,
+  "permutation_importance_fold0": {
+   "lightgbm_tuned": {
+    "W_vulnerability_index": 4.091167,
+    "period_years": 3.729412,
+    "H_vulnerability_index": 2.885889,
+    "H_Hostility": 1.959324,
+    "H_ACE_D": 1.729355,
+    "W_Hostility": 0.8256,
+    "H_Negativity": 0.595039,
+    "W_sat2": 0.538406,
+    "W_ACE_D": 0.495774,
+    "W_abuse_D": 0.492681,
+    "W_parent_marriage_D": 0.446281,
+    "Neighborhood_unemploy": 0.335256,
+    "W_sat7": 0.27701,
+    "H_educ_D": 0.205642,
+    "H_sat1": 0.183642,
+    "H_parent_marriage_D": 0.128484,
+    "W_neg_affect_D": 0.124962,
+    "H_sat_sum": 0.121728,
+    "W_sat1": 0.089411,
+    "H_abuse_D": 0.087842,
+    "W_sat_sum": 0.079171,
+    "H_substance_D": 0.049879,
+    "W_sat3": 0.045054,
+    "H_sat2": 0.041797,
+    "Neighborhood_income_k": 0.014209,
+    "Couple_unemployment_D": 0.013208,
+    "H_neg_affect_D": 0.0,
+    "H_sat3": 0.0,
+    "H_sat6": 0.0,
+    "H_sat7": 0.0,
+    "W_sat4": 0.0,
+    "W_sat5": 0.0,
+    "Neighborhood_unemploy_D": 0.0,
+    "Neighborhood_income_D": 0.0,
+    "Couple_fin_strain_D": -0.020041,
+    "W_substance_D": -0.020322,
+    "H_sat9": -0.026639,
+    "W_educ_D": -0.031859,
+    "Low_income_D": -0.068255,
+    "H_sat4": -0.091333,
+    "W_sat9": -0.104065,
+    "H_sat5": -0.125717,
+    "Household_comp": -0.265746,
+    "income_k": -0.578571,
+    "Socioeconomic_index": -0.656317,
+    "W_Negativity": -0.700642,
+    "H_Effective": -0.742637,
+    "W_Effective": -1.152259,
+    "W_sat6": -1.216471,
+    "H_Positivity": -1.732719,
+    "W_Positivity": -1.833574,
+    "period": -2.580203
+   },
+   "baseline": {
+    "W_parent_marriage_D": 1.666544,
+    "W_sat_sum": 1.41495,
+    "H_Hostility": 0.756877,
+    "W_neg_affect_D": 0.746352,
+    "W_abuse_D": 0.589186,
+    "W_Hostility": 0.566832,
+    "W_Positivity": 0.541557,
+    "H_substance_D": 0.532038,
+    "H_Negativity": 0.402169,
+    "W_Effective": 0.389781,
+    "W_substance_D": 0.332652,
+    "H_ACE_D": 0.268638,
+    "income_k": 0.256394,
+    "Household_comp": 0.17538,
+    "H_Positivity": 0.173397,
+    "Neighborhood_income_k": 0.144841,
+    "H_parent_marriage_D": 0.022339,
+    "H_abuse_D": 0.013324,
+    "Low_income_D": 0.001616,
+    "H_sat1": 0.0,
+    "H_sat2": 0.0,
+    "H_sat3": 0.0,
+    "H_sat4": 0.0,
+    "H_sat5": 0.0,
+    "H_sat6": 0.0,
+    "H_sat7": 0.0,
+    "H_sat9": 0.0,
+    "W_sat1": 0.0,
+    "W_sat2": 0.0,
+    "W_sat3": 0.0,
+    "W_sat4": 0.0,
+    "W_sat5": 0.0,
+    "W_sat6": 0.0,
+    "W_sat7": 0.0,
+    "W_sat9": 0.0,
+    "H_vulnerability_index": 0.0,
+    "W_vulnerability_index": 0.0,
+    "Socioeconomic_index": 0.0,
+    "Neighborhood_unemploy_D": 0.0,
+    "Neighborhood_income_D": 0.0,
+    "period_years": 0.0,
+    "period": 0.0,
+    "W_educ_D": -0.00208,
+    "H_sat_sum": -0.017723,
+    "W_ACE_D": -0.028469,
+    "H_neg_affect_D": -0.034577,
+    "W_Negativity": -0.045404,
+    "Couple_fin_strain_D": -0.059809,
+    "Neighborhood_unemploy": -0.09588,
+    "H_educ_D": -0.160653,
+    "Couple_unemployment_D": -0.180681,
+    "H_Effective": -0.185961
+   }
+  },
+  "lightgbm_mean_abs_shap_fold0": {
+   "period_years": 0.322075,
+   "period": 0.243641,
+   "H_Hostility": 0.218783,
+   "H_vulnerability_index": 0.17224,
+   "W_vulnerability_index": 0.1638,
+   "W_sat9": 0.131572,
+   "W_sat6": 0.125205,
+   "H_Negativity": 0.090313,
+   "W_Positivity": 0.085296,
+   "H_Positivity": 0.079269,
+   "W_Effective": 0.078721,
+   "H_educ_D": 0.056027,
+   "income_k": 0.055266,
+   "H_Effective": 0.055102,
+   "Neighborhood_unemploy": 0.05326,
+   "Neighborhood_income_k": 0.047883,
+   "W_Hostility": 0.043828,
+   "Household_comp": 0.039662,
+   "H_sat_sum": 0.03792,
+   "H_ACE_D": 0.032564,
+   "W_sat2": 0.025532,
+   "Socioeconomic_index": 0.025352,
+   "H_sat1": 0.02338,
+   "W_Negativity": 0.021988,
+   "W_sat_sum": 0.017902,
+   "H_abuse_D": 0.017129,
+   "H_parent_marriage_D": 0.015173,
+   "W_ACE_D": 0.014839,
+   "W_sat7": 0.014276,
+   "W_abuse_D": 0.014178,
+   "W_sat1": 0.013385,
+   "W_parent_marriage_D": 0.012706,
+   "H_sat4": 0.010542,
+   "Couple_fin_strain_D": 0.008655,
+   "W_educ_D": 0.006716,
+   "W_neg_affect_D": 0.005998,
+   "Couple_unemployment_D": 0.005834,
+   "Low_income_D": 0.00533,
+   "H_sat5": 0.004665,
+   "H_substance_D": 0.004547,
+   "W_sat3": 0.004238,
+   "W_substance_D": 0.002927,
+   "H_sat9": 0.002515,
+   "H_sat2": 0.002353,
+   "H_neg_affect_D": 0.0,
+   "H_sat3": 0.0,
+   "H_sat6": 0.0,
+   "H_sat7": 0.0,
+   "W_sat4": 0.0,
+   "W_sat5": 0.0,
+   "Neighborhood_unemploy_D": 0.0,
+   "Neighborhood_income_D": 0.0
+  },
+  "ebm_terms_fold0": [
+   [
+    "period",
+    0.396002
+   ],
+   [
+    "W_sat6",
+    0.237807
+   ],
+   [
+    "H_Hostility",
+    0.21919
+   ],
+   [
+    "period_years",
+    0.211458
+   ],
+   [
+    "W_parent_marriage_D",
+    0.155973
+   ],
+   [
+    "Neighborhood_income_k",
+    0.1342
+   ],
+   [
+    "W_abuse_D",
+    0.124395
+   ],
+   [
+    "W_educ_D",
+    0.110097
+   ],
+   [
+    "W_parent_marriage_D & H_vulnerability_index",
+    0.094322
+   ],
+   [
+    "H_educ_D",
+    0.091169
+   ],
+   [
+    "W_Positivity",
+    0.089248
+   ],
+   [
+    "W_sat9",
+    0.087472
+   ],
+   [
+    "H_Positivity",
+    0.087408
+   ],
+   [
+    "W_ACE_D & period",
+    0.076844
+   ],
+   [
+    "H_Negativity",
+    0.075607
+   ],
+   [
+    "H_vulnerability_index",
+    0.073645
+   ],
+   [
+    "Neighborhood_income_k & period",
+    0.073424
+   ],
+   [
+    "H_substance_D",
+    0.069562
+   ],
+   [
+    "H_parent_marriage_D",
+    0.069043
+   ],
+   [
+    "W_vulnerability_index",
+    0.066496
+   ],
+   [
+    "H_abuse_D",
+    0.058099
+   ],
+   [
+    "H_ACE_D & period",
+    0.057992
+   ],
+   [
+    "W_neg_affect_D",
+    0.054709
+   ],
+   [
+    "Household_comp",
+    0.053678
+   ],
+   [
+    "Couple_unemployment_D",
+    0.052643
+   ],
+   [
+    "Neighborhood_income_D",
+    0.052139
+   ],
+   [
+    "W_Effective",
+    0.049031
+   ],
+   [
+    "H_ACE_D",
+    0.048271
+   ],
+   [
+    "W_Hostility",
+    0.045726
+   ],
+   [
+    "W_ACE_D",
+    0.042023
+   ],
+   [
+    "Neighborhood_unemploy",
+    0.041445
+   ],
+   [
+    "W_substance_D",
+    0.038277
+   ],
+   [
+    "H_sat7",
+    0.037791
+   ],
+   [
+    "Socioeconomic_index",
+    0.035778
+   ],
+   [
+    "Couple_fin_strain_D",
+    0.035272
+   ],
+   [
+    "H_sat5",
+    0.034765
+   ],
+   [
+    "W_sat7",
+    0.034183
+   ],
+   [
+    "H_ACE_D & W_Positivity",
+    0.033151
+   ],
+   [
+    "H_Effective & W_Effective",
+    0.032669
+   ],
+   [
+    "W_sat2",
+    0.032417
+   ],
+   [
+    "W_sat1",
+    0.032079
+   ],
+   [
+    "W_sat4",
+    0.031162
+   ],
+   [
+    "H_Effective & period",
+    0.030387
+   ],
+   [
+    "W_ACE_D & W_Positivity",
+    0.028915
+   ],
+   [
+    "H_Effective & H_sat3",
+    0.028129
+   ],
+   [
+    "H_sat1",
+    0.02714
+   ],
+   [
+    "W_sat3",
+    0.024868
+   ],
+   [
+    "Neighborhood_unemploy_D",
+    0.024438
+   ],
+   [
+    "H_sat_sum",
+    0.023776
+   ],
+   [
+    "income_k",
+    0.022952
+   ],
+   [
+    "H_Effective",
+    0.02066
+   ],
+   [
+    "H_sat9",
+    0.020571
+   ],
+   [
+    "H_Effective & period_years",
+    0.019955
+   ],
+   [
+    "W_Negativity",
+    0.018994
+   ],
+   [
+    "H_sat2",
+    0.017336
+   ],
+   [
+    "H_sat3",
+    0.015565
+   ],
+   [
+    "W_sat5",
+    0.013368
+   ],
+   [
+    "W_sat_sum",
+    0.012865
+   ],
+   [
+    "H_sat4",
+    0.010329
+   ],
+   [
+    "Low_income_D",
+    0.009132
+   ],
+   [
+    "H_sat6",
+    0.003686
+   ],
+   [
+    "H_neg_affect_D",
+    0.001707
+   ]
+  ],
+  "ebm_pairs_fold0": [
+   [
+    "W_parent_marriage_D & H_vulnerability_index",
+    0.094322
+   ],
+   [
+    "W_ACE_D & period",
+    0.076844
+   ],
+   [
+    "Neighborhood_income_k & period",
+    0.073424
+   ],
+   [
+    "H_ACE_D & period",
+    0.057992
+   ],
+   [
+    "H_ACE_D & W_Positivity",
+    0.033151
+   ],
+   [
+    "H_Effective & W_Effective",
+    0.032669
+   ],
+   [
+    "H_Effective & period",
+    0.030387
+   ],
+   [
+    "W_ACE_D & W_Positivity",
+    0.028915
+   ],
+   [
+    "H_Effective & H_sat3",
+    0.028129
+   ],
+   [
+    "H_Effective & period_years",
+    0.019955
+   ]
+  ]
+ },
+ "null_permuted_labels": {
+  "heldout_gain": {
+   "baseline": 0.267438,
+   "lightgbm_tuned": -0.045348,
+   "enet_spline_pairwise": -0.306815
+  },
+  "note": "outcomes shuffled within each fold of repeat 0; gains are on the REAL held-out outcomes"
+ },
+ "learning_curve": [
+  {
+   "fraction": 0.1,
+   "model": "baseline",
+   "heldout_gain": -2.213272
+  },
+  {
+   "fraction": 0.1,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 4.524324
+  },
+  {
+   "fraction": 0.25,
+   "model": "baseline",
+   "heldout_gain": 3.066931
+  },
+  {
+   "fraction": 0.25,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 0.219009
+  },
+  {
+   "fraction": 0.5,
+   "model": "baseline",
+   "heldout_gain": 7.175154
+  },
+  {
+   "fraction": 0.5,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 5.993981
+  },
+  {
+   "fraction": 0.75,
+   "model": "baseline",
+   "heldout_gain": 8.982049
+  },
+  {
+   "fraction": 0.75,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 8.865564
+  },
+  {
+   "fraction": 1.0,
+   "model": "baseline",
+   "heldout_gain": 9.619681
+  },
+  {
+   "fraction": 1.0,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 8.969311
+  }
+ ],
+ "feature_curve": {
+  "rows": [
+   {
+    "k": 1,
+    "model": "lightgbm",
+    "heldout_gain": 7.077407
+   },
+   {
+    "k": 1,
+    "model": "additive_glm",
+    "heldout_gain": 6.89935
+   },
+   {
+    "k": 2,
+    "model": "lightgbm",
+    "heldout_gain": 9.891687
+   },
+   {
+    "k": 2,
+    "model": "additive_glm",
+    "heldout_gain": 9.478269
+   },
+   {
+    "k": 4,
+    "model": "lightgbm",
+    "heldout_gain": 9.458478
+   },
+   {
+    "k": 4,
+    "model": "additive_glm",
+    "heldout_gain": 9.657978
+   },
+   {
+    "k": 8,
+    "model": "lightgbm",
+    "heldout_gain": 8.113973
+   },
+   {
+    "k": 8,
+    "model": "additive_glm",
+    "heldout_gain": 9.034763
+   },
+   {
+    "k": 16,
+    "model": "lightgbm",
+    "heldout_gain": 9.965722
+   },
+   {
+    "k": 16,
+    "model": "additive_glm",
+    "heldout_gain": 12.228738
+   },
+   {
+    "k": 32,
+    "model": "lightgbm",
+    "heldout_gain": 8.130129
+   },
+   {
+    "k": 32,
+    "model": "additive_glm",
+    "heldout_gain": 11.379444
+   },
+   {
+    "k": 52,
+    "model": "lightgbm",
+    "heldout_gain": 8.969311
+   },
+   {
+    "k": 52,
+    "model": "additive_glm",
+    "heldout_gain": 10.938477
+   }
+  ],
+  "note": "k = number of non-duration features, ranked by each training fold's tuned LightGBM gain; duration (if any) always included; additive_glm = ridge spline GLM (glum)"
+ }
+}

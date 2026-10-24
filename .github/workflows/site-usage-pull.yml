@@ -1,0 +1,51 @@
+# Copies the site's daily page-load counts and feedback-form messages from
+# platform/edge into portfolio/usage/site-visits.json and site-feedback.json,
+# so agents can read them like any other committed file (owner request,
+# 2026-10-20). Each step does nothing while its site.json has no url, so this
+# is inert until the Worker is deployed and its address committed.
+name: site-usage-pull
+on:
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: site-usage-pull
+  cancel-in-progress: false
+jobs:
+  pull:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    # The one job, and it commits the pulled files to main.
+    permissions:
+      contents: write
+    steps:
+      # The token is not left in .git/config while the pull scripts run; only
+      # the push step below sees it.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Pull counts
+        run: |
+          url=$(node -p 'require("./platform/counter/site.json").url')
+          if [ -z "$url" ]; then echo "platform/counter/site.json has no url; nothing to pull."; exit 0; fi
+          COUNTER_URL="$url" node platform/counter/pull.mjs
+      - name: Pull feedback
+        run: |
+          url=$(node -p 'require("./platform/edge/site.json").url')
+          if [ -z "$url" ]; then echo "platform/edge/site.json has no url; nothing to pull."; exit 0; fi
+          EDGE_URL="$url" node platform/edge/pull-feedback.mjs
+      - name: Commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          for f in portfolio/usage/site-visits.json portfolio/usage/site-feedback.json; do if [ -f "$f" ]; then git add "$f"; fi; done
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git -c user.name="monorepo-projects bot" -c user.email="noreply@users.noreply.github.com" \
+            commit -m "usage: daily site page-load counts and feedback from platform/edge"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" HEAD:main

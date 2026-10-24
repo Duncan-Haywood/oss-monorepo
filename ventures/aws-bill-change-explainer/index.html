@@ -54,6 +54,7 @@
     <p>Download the cost-by-service CSV from AWS Cost Explorer for two months, paste it here, and see the lines that explain the change, ranked, with what is new, what is gone, and a checklist of what usually moves each service.</p>
     <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device. It ranks the numbers you give it &mdash; it cannot see why a line moved.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Load your Cost Explorer export</h2>
@@ -134,7 +135,8 @@ node cli.mjs compare export.csv --max-increase-pct 15 --max-increase-usd 500</pr
     <p class="note">Compared with the AWS console or a paid FinOps tool? See the <a href="vs-cost-explorer.html">comparison page</a>. Planning a change instead of explaining one? Price a Terraform plan with the <a href="../terraform-plan-cost-estimate/">Terraform Plan Cost Estimate</a>.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is informational only &mdash; it is not financial, billing, accounting, engineering or other professional advice, and it does not replace the AWS Billing console, Cost Explorer or your own review. It ranks the numbers in the file you give it; it cannot see why a line moved, and the causes it lists are a checklist, not a diagnosis. You are responsible for verifying any figure before acting on it.</p>
     <p><strong>Not affiliated with Amazon Web Services.</strong> AWS, Amazon EC2, Amazon S3 and Cost Explorer are trademarks of Amazon.com, Inc. They are named only to describe the file this tool reads; this is an independent, unofficial tool and is not endorsed by or connected with Amazon Web Services.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

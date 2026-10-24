@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "society-cheapcue"
+version = "0.1.0"
+description = "A urgency cue cheaper for the urgent: what cost ratio lets a signal-reading door robot beat yield-all"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -12,9 +12,13 @@ Stage order and adapters:
 
 1. ``ffmpeg-proxy-production-local``: small review/selection proxies.
 2. ``analysis-production-local``, ``scene-production-local``,
-   ``look-production-local``: the deterministic analysis, scene and look
-   stand-ins. They are not taste-based yet, so the selection they feed is a
-   placeholder until a real vision-model adapter replaces stage 2.
+   ``look-production-local``: analysis scores each photo and clip from decoded
+   frames (sharpness, exposure, contrast, motion) and hashes it so near
+   duplicates share a scene (``frame_analysis.py``); RAW stills are read from their embedded JPEG
+   preview (``raw_preview.py``); undecodable files or RAW with no preview
+   fall back to the old sha256 stand-in. There is no face or taste model yet,
+   so ``story_score`` is a blend of the measured scores. The scene and look
+   stages are still deterministic stand-ins.
 3. ``ffmpeg-grade-production-local``: full-resolution graded masters, with
    ``color/shoot_look.cube`` applied when present.
 4. ``story-production-local``: storyline selection over the graded masters.

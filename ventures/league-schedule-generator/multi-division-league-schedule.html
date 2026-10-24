@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Multi-Division League Scheduler — U10, U12 and adult divisions on shared courts</title>
+  <meta name="description" content="Free multi-division league schedule maker. List your divisions, name the shared courts and venues, and get one schedule with no court double-booked, teams that share a coach kept apart, and fewer trips between venues. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Multi-Division League Scheduler — shared courts, linked teams, fewer venue trips">
+  <meta property="og:description" content="One schedule for every division of a club that shares courts: U10, U12, adult. Free, private, in your browser.">
+  <link rel="canonical" href="./multi-division-league-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Multi-Division League Scheduler", "applicationCategory": "SportsApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Schedule several league divisions (U10, U12, adult) on shared courts and time slots: no court double-booked, teams sharing a coach kept apart, fewer trips between venues. Runs in your browser; nothing is uploaded.", "featureList": "multi-division league scheduling, shared courts, shared venues, linked teams, court closures, csv export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I schedule several divisions on the same courts?", "acceptedAnswer": {"@type": "Answer", "text": "List each division on its own line as Division: team, team, team. Name the shared courts and time slots, pick the start date and play days, and click Build. Each division keeps its own fair round robin; the page then decides which divisions play on which night and gives every match a court and a time without booking any court twice."}}, {"@type": "Question", "name": "What if the same coach or player is on two teams?", "acceptedAnswer": {"@type": "Answer", "text": "Add a link such as U10/Hawks, U12/Hawks. Linked teams are kept out of the same time slot on a night, and out of back-to-back slots at different venues. If a clash cannot be avoided, it is listed under Conflicts rather than hidden."}}, {"@type": "Question", "name": "Can courts be at different venues?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Write a court as Field 1 @ Park. Each team plays at the venue it used last time where it can, so families make fewer trips between the park and the school gym."}}, {"@type": "Question", "name": "Does it handle a closed court or a holiday?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Skip dates remove a night for everyone, and court closures such as Gym A: 2026-12-03 take one court out on that date; the matches move to the other courts."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d5a3f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f3b2d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f3b2d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5148; }
+    .card { background: #fff; border: 1px solid #d4dad2; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f3b2d12; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5f6b5c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5a3f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3e8e1; color: #1f3b2d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid #e3e8e1; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5148; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.bye td { color: #4a5148; font-style: italic; }
+    tr.mk td { background: #fdf3da; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef2ec; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f3b2d; }
+    footer { margin-top: 28px; border-top: 1px solid #d4dad2; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .days { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 4px 0; }
+    label.inl { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; margin: 0; }
+    label.inl input, .check input { width: auto; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    details summary { cursor: pointer; font-weight: 700; color: #1f3b2d; }
+    pre { background: #eef2ec; border-radius: 10px; padding: 12px; overflow-x: auto; white-space: pre-wrap; font-size: .9rem; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, footer, button, label, select, textarea, #pool-card, #swiss-card, #americano-card, #oneday-card, #mexicano-card, #ladder-card, .card:not(#report), #form-status { display: none !important; }
+      #report { border: 0; box-shadow: none; padding: 0; margin: 0; }
+      .big div { background: none; border: 1px solid #999; }
+      .scroll { overflow: visible; }
+      tr { break-inside: avoid; }
+      thead { display: table-header-group; }
+    }
+  
+    textarea.mono { font-family: ui-monospace, monospace; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MULTI-DIVISION LEAGUE SCHEDULER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Schedule every division of your club on the same courts</h1>
+    <p>A club with U10, U12 and adult divisions has one set of courts, not one per division. List the <strong>divisions</strong>, name the <strong>shared courts</strong> (put a court at a venue with <code>Field 1 @ Park</code>), and get one schedule where <strong>no court is booked twice</strong>, <strong>teams that share a coach or players are never in two places at once</strong>, and each team <strong>plays at the same venue</strong> as last time where it can. Unavoidable clashes are listed, never hidden.</p>
+    <p class="note">One division only? Use the <a href="./index.html">single-league generator</a>. New to this? Read <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">how to fit a league onto limited courts and time slots</a>.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>1. Divisions</h2>
+    <label for="divisions">One division per line: Name: team, team, team (add (double) for a double round robin)</label>
+    <textarea id="divisions" class="mono" rows="5" placeholder="U10: Hawks, Owls, Lynx, Otters&#10;Adult: Rams, Kings, Stars, Comets (double)"></textarea>
+    <h2 style="margin-top:18px">2. Courts and times</h2>
+    <div class="row4">
+      <div><label for="courts">Shared courts (comma separated; Court @ Venue)</label><input id="courts" placeholder="Field 1 @ Park, Gym A @ School"></div>
+      <div><label for="times">Time slots each night</label><input id="times" placeholder="18:00, 19:30"></div>
+      <div><label for="start">First date (YYYY-MM-DD)</label><input id="start" placeholder="2026-10-06"></div>
+      <div><label for="weekdays">Play days</label><input id="weekdays" placeholder="Tue, Thu"></div>
+    </div>
+    <label for="skip">Skip dates for everyone (optional)</label>
+    <input id="skip" placeholder="2026-11-26, 2026-12-24 to 2027-01-02">
+    <label for="courtClosures">Court closures (optional, one per line)</label>
+    <textarea id="courtClosures" rows="2" placeholder="Gym A: 2026-12-03"></textarea>
+    <label for="travel">Travel minutes between venues (optional, one per line)</label>
+    <textarea id="travel" rows="2" placeholder="Park - School: 25"></textarea>
+    <label style="font-weight:normal"><input type="checkbox" id="split" style="width:auto"> Fill every slot: when a division's round does not fit the courts left tonight, play part of it now and the rest next night (shorter season; each team still plays once a night)</label>
+    <label style="font-weight:normal"><input type="checkbox" id="venueFairness" style="width:auto"> Share venues fairly: a team that has played at the far or poor venue more often gets the other one (needs two or more venues)</label>
+    <label for="fairnessWeight">How hard fairness pulls against travel (optional, 0 to 100; default 3, about 1.5 costs no extra venue changes on the example league)</label>
+    <input id="fairnessWeight" inputmode="decimal" placeholder="3">
+    <label for="venueHistory">Last season's venue counts (optional; paste what "Next season's venue history" printed)</label>
+    <textarea id="venueHistory" class="mono" rows="2" placeholder='{"U10/Hawks": {"Park": 9, "School": 3}}'></textarea>
+    <h2 style="margin-top:18px">3. Teams that share a coach or players (optional)</h2>
+    <label for="links">One group per line, written Division/Team</label>
+    <textarea id="links" rows="3" placeholder="U10/Hawks, U12/Hawks"></textarea>
+    <h2 style="margin-top:18px">4. Rainouts (optional)</h2>
+    <label for="rainouts">One per line: a date alone cancels the night; add a division or Division/Team to cancel just those matches; end with <code>-&gt; 2026-12-01</code> to name the make-up night</label>
+    <textarea id="rainouts" rows="2" placeholder="2026-10-13 U10/Hawks, U12/Owls"></textarea>
+    <label style="font-weight:normal"><input type="checkbox" id="balance" style="width:auto"> Keep home and away in order: pick the make-up night that breaks a team's home/away pattern least (ends the season a few days later)</label>
+    <label style="font-weight:normal"><input type="checkbox" id="flip" style="width:auto"> Flip home and away on a moved match when that cuts the breaks (no delay; single round robins)</label>
+    <label style="font-weight:normal"><input type="checkbox" id="relocate" style="width:auto"> Move a make-up to an earlier night already on the calendar when that cuts the breaks (no delay)</label>
+    <label style="font-weight:normal"><input type="checkbox" id="swapNights" style="width:auto"> Trade two make-ups' nights when that cuts the breaks (no delay)</label>
+    <button type="button" id="build">Build the schedule</button>
+    <button type="button" class="secondary" id="reshuffle">Reshuffle</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <p id="form-status" role="status" class="note">List your divisions, courts, times and a start date, then click Build the schedule.</p>
+    <input type="hidden" id="seed" value="1">
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Your schedule</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <p id="check-line"></p>
+    <div class="scroll"><table id="nights"><thead><tr><th>Date</th><th>Time</th><th>Court</th><th>Venue</th><th>Division</th><th class="n">Rd</th><th>Home</th><th>Away</th></tr></thead><tbody></tbody></table></div>
+    <div id="history-box" hidden><label for="next-history">Next season's venue history (paste it into the box above next season)</label><textarea id="next-history" class="mono" rows="3" readonly></textarea></div>
+    <button type="button" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
+    <button type="button" class="secondary" id="print-page">Print or save as PDF</button>
+    <button type="button" class="secondary" id="share-link">Copy share link</button>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I schedule several divisions on the same courts?</h3>
+    <p>List each division on its own line as Division: team, team, team. Name the shared courts and time slots, pick the start date and play days, and click Build. Each division keeps its own fair round robin; the page then decides which divisions play on which night and gives every match a court and a time without booking any court twice.</p>
+    <h3>What if the same coach or player is on two teams?</h3>
+    <p>Add a link such as U10/Hawks, U12/Hawks. Linked teams are kept out of the same time slot on a night, and out of back-to-back slots at different venues. If a clash cannot be avoided, it is listed under Conflicts rather than hidden.</p>
+    <h3>Can courts be at different venues?</h3>
+    <p>Yes. Write a court as Field 1 @ Park. Each team plays at the venue it used last time where it can, so families make fewer trips between the park and the school gym.</p>
+    <h3>Does it handle a closed court or a holiday?</h3>
+    <p>Yes. Skip dates remove a night for everyone, and court closures such as Gym A: 2026-12-03 take one court out on that date; the matches move to the other courts.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. Everything is calculated in your browser, nothing is sent to a server, and there are no accounts.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice and does not replace your league's rules or a venue's booking system. <strong>You are responsible for reviewing and verifying the schedule</strong> (every date, court and pairing) before you send it to a league. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any league, sports body, club or scheduling software company, and none is named or ranked here. The example teams are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — your setup is remembered only in this browser ("Clear" forgets it), so download the CSV.</p>
+    <p>Everything runs in your browser. Your team names and dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>divisions_built</code>, <code>divisions_example_loaded</code>, <code>divisions_link_copied</code>, <code>divisions_link_opened</code>, <code>divisions_csv_downloaded</code>, <code>divisions_text_copied</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tool: the <a href="../shift-cover-optimizer/">shift cover optimizer</a> for staff rotas the <a href="../volunteer-shift-scheduler/">volunteer shift scheduler</a> for the people who run your league day, the <a href="../tournament-pairing-manager/">tournament pairing manager</a> for Swiss events and brackets, and the <a href="../youth-lineup-rotator/">youth lineup rotator</a> for who plays where inside each game.</p>
+    <p>Running the league committee? <a href="../meeting-action-items/">Meeting action items</a> turns your meeting notes into owned, dated action items and a follow-up email.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsText } from "./divisions.mjs";
+    import { dayIso } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (s) => document.querySelector(s);
+    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "venueHistory", "fairnessWeight"];
+    const OPTS = ["balance", "flip", "relocate", "swapNights"];
+    const EXAMPLE = {
+      divisions: "U10: Hawks, Owls, Lynx, Otters, Foxes, Wolves\nU12: Hawks, Owls, Lynx, Otters, Foxes, Wolves, Bears, Eagles\nAdult: Rams, Kings, Stars, Comets, Pilots, Bolts (double)",
+      courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School, Gym B @ School", times: "18:00, 19:30", start: "2026-10-06", weekdays: "Tue, Thu",
+      skip: "2026-11-26", courtClosures: "Gym A: 2026-12-03", travel: "Park - School: 25", links: "U10/Hawks, U12/Hawks\nU10/Owls, U12/Owls\nU12/Bears, Adult/Rams"
+    };
+    const STORE = "league-schedule-generator-divisions";
+    let last = null;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const read = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]).concat([["seed", $("#seed").value], ["split", $("#split").checked ? "1" : ""], ["venueFairness", $("#venueFairness").checked ? "1" : ""]].concat(OPTS.map((o) => [o, $("#" + o).checked ? "1" : ""]))));
+    const fill = (o) => { FIELDS.forEach((f) => { $("#" + f).value = o[f] || ""; }); $("#split").checked = Boolean(o.split); $("#venueFairness").checked = Boolean(o.venueFairness); OPTS.forEach((k) => { $("#" + k).checked = Boolean(o[k]); }); };
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function run(seed) {
+      if (seed !== undefined) $("#seed").value = seed;
+      const status = $("#form-status");
+      const f = read();
+      try { localStorage.setItem(STORE, JSON.stringify(f)); } catch { /* storage is optional */ }
+      const { spec, errors } = readDivisionsSpec(f);
+      if (errors.length) { status.textContent = errors.join(" "); $("#report").hidden = true; return false; }
+      let s, v;
+      let moved = null;
+      try { s = buildDivisions(spec); if (f.rainouts.trim()) { moved = applyDivisionRainouts(s, f.rainouts, rainoutOptions(f)); s = moved.schedule; } v = validateDivisions(s); } catch (e) { status.textContent = e.message; $("#report").hidden = true; return false; }
+      last = s;
+      const st = s.stats;
+      status.textContent = "Built.";
+      $("#big").innerHTML = [[st.matches, "matches"], [st.nights, "nights"], [st.trips, "venue changes"], ...(st.travelMinutes !== undefined ? [[st.travelMinutes, "minutes of travel"]] : []), [st.clashes, "linked-team clashes"], [Math.round(st.utilisation * 100) + "%", "court slots used"]]
+        .map(([n, l]) => `<div><strong>${n}</strong>${l}</div>`).join("");
+      const rain = moved ? (moved.moves.length ? `<div class="warn"><strong>Moved for rainouts:</strong><ul>${moved.moves.map((m) => `<li>${esc(m.division)} ${esc(m.home)} v ${esc(m.away)}: ${dayIso(m.from)} to ${dayIso(m.to)} ${esc(m.time)} ${esc(m.court)}</li>`).join("")}</ul></div>` : "") + (moved.errors.length ? `<div class="warn"><strong>Not moved:</strong><ul>${moved.errors.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "") : "";
+      $("#notices").innerHTML = rain + (s.conflicts.length ? `<div class="warn"><strong>Conflicts that could not be avoided:</strong><ul>${s.conflicts.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "");
+      $("#check-line").innerHTML = v.ok ? '<span class="pill good">checked</span> Every pair meets the right number of times, home and away is balanced, and no court is booked twice.' : `<span class="pill high">problem</span> ${v.errors.map(esc).join(" ")}`;
+      const rows = [];
+      for (const n of s.nights) for (const m of n.matches) rows.push(`<tr><td>${dayIso(n.day)}</td><td>${esc(m.time || "")}</td><td>${esc(m.court)}</td><td>${esc(m.venue || "")}</td><td>${esc(m.division)}</td><td class="n">${m.round + 1}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td></tr>`);
+      $("#nights tbody").innerHTML = rows.join("");
+      $("#history-box").hidden = !s.config.venueFairness;
+      $("#next-history").value = s.config.venueFairness ? JSON.stringify(carryVenueHistory(s)) : "";
+      $("#report").hidden = false;
+      return true;
+    }
+    $("#build").addEventListener("click", () => { if (run()) record("divisions_built"); });
+    $("#reshuffle").addEventListener("click", () => { if (run((Number($("#seed").value) || 0) + 1)) record("divisions_built"); });
+    $("#load-example").addEventListener("click", () => { fill(EXAMPLE); $("#seed").value = 1; if (run()) { record("divisions_example_loaded"); $("#form-status").textContent = "Sample club: invented teams, not a real league."; } });
+    $("#dl-csv").addEventListener("click", () => { if (!last) return; download("division-schedule.csv", divisionsCsv(last), "text/csv"); record("divisions_csv_downloaded"); });
+    $("#copy-text").addEventListener("click", async () => { if (!last) return; try { await navigator.clipboard.writeText(divisionsText(last)); $("#form-status").textContent = "Copied."; } catch { $("#form-status").textContent = "Copy blocked by the browser; use Download CSV."; } record("divisions_text_copied"); });
+    $("#share-link").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#d=" + encodeDivisionFields(read());
+      history.replaceState(null, "", url);
+      try { await navigator.clipboard.writeText(url); $("#form-status").textContent = "Link copied. It holds your whole setup after the #, which never leaves the browser."; } catch { $("#form-status").textContent = "Copy blocked by the browser; the address bar now holds the link."; }
+      record("divisions_link_copied");
+    });
+    $("#print-page").addEventListener("click", () => window.print());
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+    const shared = decodeDivisionFields(location.hash);
+    if (shared) { fill(shared); $("#seed").value = shared.seed; if (run()) { $("#form-status").textContent = "Loaded the setup from the link you opened. Check every date before you use it."; record("divisions_link_opened"); } }
+    else try { const saved = JSON.parse(localStorage.getItem(STORE) || "null"); if (saved) fill(saved); } catch { /* storage is optional */ }
+  </script>
+</body>
+</html>

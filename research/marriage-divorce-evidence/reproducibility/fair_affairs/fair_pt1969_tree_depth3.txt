@@ -1,0 +1,16 @@
+|--- num__rate_marriage <= 2.500
+|   |--- num__age <= 34.500
+|   |   |--- value: [0.548]
+|   |--- num__age >  34.500
+|   |   |--- value: [0.450]
+|--- num__rate_marriage >  2.500
+|   |--- num__religious <= 3.500
+|   |   |--- num__rate_marriage <= 4.500
+|   |   |   |--- value: [0.348]
+|   |   |--- num__rate_marriage >  4.500
+|   |   |   |--- value: [0.157]
+|   |--- num__religious >  3.500
+|   |   |--- num__yrs_married <= 5.500
+|   |   |   |--- value: [0.081]
+|   |   |--- num__yrs_married >  5.500
+|   |   |   |--- value: [0.172]

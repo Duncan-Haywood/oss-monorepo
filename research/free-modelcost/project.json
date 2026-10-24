@@ -1,0 +1,6 @@
+{
+ "theme": "swe",
+ "title": "Does an Opus agent run cost more than a Sonnet run on the same kind of work? 6x the cost, 3x the tool calls, 1.4x per self-estimated human hour",
+ "summary": "Joins 1,004 priced agent-run records (46 Opus, 958 Sonnet) and compares the models inside matched strata (same date and track, 11 strata with both), because pooled medians confound model with task mix. Matched, an Opus run costs 6.3&times; as much (95% bootstrap CI 4.7&ndash;8.0), makes 3.2&times; the tool calls, takes 6.3&times; the wall time and costs 2.0&times; per call, because it reads 1.9&times; more cached context per call. Against the run's own estimate of the human hours it replaces, Opus costs 1.4&times; more per hour (1.1&ndash;1.7). Costs are API-equivalent list-price figures, not charges; the human-hour estimate is the agent&rsquo;s own and low-certainty; Opus runs are 46 and not randomised, so task difficulty can still differ inside a stratum. Preliminary: six days of data.",
+ "lede": "does an Opus agent run cost more than a Sonnet run on the same kind of work? Matched on date and track, 6.3× the cost (CI 4.7–8.0), 3.2× the tool calls and 2.0× per call; 1.4× per self-estimated human hour. 46 Opus vs 958 Sonnet runs, preliminary."
+}

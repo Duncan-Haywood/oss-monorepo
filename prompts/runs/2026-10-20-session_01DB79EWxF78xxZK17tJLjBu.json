@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01DB79EWxF78xxZK17tJLjBu",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T18:07:30Z",
+  "ended": "2026-10-20T18:07:49Z",
+  "wall_minutes": 0.83,
+  "tokens_in": 609998,
+  "tokens_out": 2523,
+  "cost_usd": 0.2933,
+  "tool_calls": 11,
+  "task": null,
+  "projects": [],
+  "pr": 8892,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Target ventures/state-residency-day-counter/calc.mjs, 8 mutants, 6/8 caught. 1 gap (JSON error result imported count) guarded, 1 equivalent (symmetric border probe). No real defects found in a brief read; hunt was short.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/state-residency-day-counter/calc.mjs",
+        "test": "node --test ventures/state-residency-day-counter/**/*.test.mjs  (in .)",
+        "seed": 959545123,
+        "commit": "5a66f284",
+        "sites": 686,
+        "baseline_seconds": 1.1,
+        "mutants": [
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 42,
+            "col": 35,
+            "operator": "true-to-false",
+            "before": "MI: { limit: 183, requiresAbode: true, kind: \"statutory\", note: \"Resident for tax if you are not domiciled in Michigan but keep a permanent place of abode there and spend more than 183 days of the tax year in the state (MCL 206.18). Domicile in Michigan makes you a resident regardless of days.\" },",
+            "after": "MI: { limit: 183, requiresAbode: false, kind: \"statutory\", note: \"Resident for tax if you are not domiciled in Michigan but keep a permanent place of abode there and spend more than 183 days of the tax year in the state (MCL 206.18). Domicile in Michigan makes you a resident regardless of days.\" },",
+            "line_text": "  MI: { limit: 183, requiresAbode: true, kind: \"statutory\", note: \"Resident for tax if you are not domiciled in Michigan but keep a permanent place of abode there and spend more than 183 days of the tax year in the state (MCL 206.18). Domicile in Michigan makes you a resident regardless of days.\" },",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 213,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "if (year && (+dayIso(end).slice(0, 4) < +year || +dayIso(a.day).slice(0, 4) > +year)) { skipped++; continue; }",
+            "after": "if (year && (+dayIso(end).slice(1, 4) < +year || +dayIso(a.day).slice(0, 4) > +year)) { skipped++; continue; }",
+            "line_text": "    if (year && (+dayIso(end).slice(0, 4) < +year || +dayIso(a.day).slice(0, 4) > +year)) { skipped++; continue; }",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 328,
+            "col": 89,
+            "operator": "const-plus-one",
+            "before": "try { parsed = JSON.parse(String(text || \"\")); } catch { return { lines: [], imported: 0, skipped: 0, nearBorder: 0, error: \"Not a JSON file.\" }; }",
+            "after": "try { parsed = JSON.parse(String(text || \"\")); } catch { return { lines: [], imported: 1, skipped: 0, nearBorder: 0, error: \"Not a JSON file.\" }; }",
+            "line_text": "  try { parsed = JSON.parse(String(text || \"\")); } catch { return { lines: [], imported: 0, skipped: 0, nearBorder: 0, error: \"Not a JSON file.\" }; }",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "unparseable-JSON result was only checked for .error; added deepEqual on the whole result"
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 344,
+            "col": 77,
+            "operator": "plus-to-minus",
+            "before": "if ([[d, 0], [-d, 0], [0, d], [0, -d]].some(([dx, dy]) => stateAt(pt.lon + dx, pt.lat + dy, rings) !== state)) nearBorder++;",
+            "after": "if ([[d, 0], [-d, 0], [0, d], [0, -d]].some(([dx, dy]) => stateAt(pt.lon - dx, pt.lat + dy, rings) !== state)) nearBorder++;",
+            "line_text": "    if ([[d, 0], [-d, 0], [0, d], [0, -d]].some(([dx, dy]) => stateAt(pt.lon + dx, pt.lat + dy, rings) !== state)) nearBorder++;",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "offsets [d,0],[-d,0] are a symmetric pair, so negating dx probes the same two points"
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 420,
+            "col": 32,
+            "operator": "and-to-or",
+            "before": "if (convention === \"nights\" && b > a) b -= 1;",
+            "after": "if (convention === \"nights\" || b > a) b -= 1;",
+            "line_text": "    if (convention === \"nights\" && b > a) b -= 1;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 496,
+            "col": 29,
+            "operator": "times-to-div",
+            "before": "workdays: Math.round(w * 100) / 100,",
+            "after": "workdays: Math.round(w / 100) / 100,",
+            "line_text": "      workdays: Math.round(w * 100) / 100,",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 519,
+            "col": 48,
+            "operator": "div-to-times",
+            "before": "doubleTaxDays: Math.round(dualDays * 100) / 100,",
+            "after": "doubleTaxDays: Math.round(dualDays * 100) * 100,",
+            "line_text": "      doubleTaxDays: Math.round(dualDays * 100) / 100,",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 653,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "export function fmtNum(n, digits = 0) {",
+            "after": "export function fmtNum(n, digits = 1) {",
+            "line_text": "export function fmtNum(n, digits = 0) {",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c1425c27-135b-527f-a0c7-d770c753f211",
+    "transcripts": 1,
+    "first": "2026-10-20T18:07:30Z",
+    "last": "2026-10-20T18:08:19Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 10,
+        "input": 20,
+        "output": 2523,
+        "thinking": 162,
+        "cache_read": 571535,
+        "cache_write_5m": 0,
+        "cache_write_1h": 38443,
+        "api_equivalent_usd": 0.2933,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 10,
+      "input": 20,
+      "output": 2523,
+      "thinking": 162,
+      "cache_read": 571535,
+      "cache_write_5m": 0,
+      "cache_write_1h": 38443,
+      "api_equivalent_usd": 0.2933,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.937,
+    "tool_calls": 11,
+    "tools": {
+      "Bash": 9,
+      "Read": 2
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 0.83,
+      "active_minutes": 0.83,
+      "model_minutes": 0.58,
+      "tool_minutes": 0.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "small mutation campaign and one test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 170.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

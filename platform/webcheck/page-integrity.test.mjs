@@ -1070,3 +1070,11 @@ test('catches the 3PL syntax defect at the revision where it actually shipped', 
 
   assert.deepEqual(checkPageIntegrity(read('6ccd73c')), [], 'the repaired page must pass');
 });
+
+test('an escaped character in a regex is skipped alone, so the closing slash still closes it', () => {
+  // Red-team seeding (2026-10-19): skipping one character too many after the
+  // backslash swallowed the closing slash and let the regex run to the line end.
+  const src = 'const re = /\\//;\ndocument.getElementById("real");';
+  assert.equal(stripComments(src), src, 'the regex literal was mangled');
+  assert.deepEqual([...queriedIds(src)], ['real']);
+});

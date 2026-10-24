@@ -1,8 +1,8 @@
-# sign-keeper
+# Sign Keeper — Free Self-Hosted E-Signature Links with a Tamper-Evident Audit Trail
 
 After using this, you can now **send a document link, get a typed-name signature with recorded consent, and keep a certificate anyone can re-verify**, on a server you own. That used to mean a per-user or per-envelope e-signature plan that keeps your agreements in its account.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sign-keeper/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sign-keeper/
 
 Two parts, both free and MIT:
 

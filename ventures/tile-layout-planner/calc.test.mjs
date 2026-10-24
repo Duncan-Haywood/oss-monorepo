@@ -200,3 +200,37 @@ test("a big room stays fast", () => {
   assert.ok(Date.now() - t < 20000);
   assert.ok(r.full > 1000);
 });
+
+import { materials, NOTCHES } from "./calc.mjs";
+
+test("materials: grout volume is the joint area times thickness, thinset follows the notch", () => {
+  // 1 m x 1 m of 100 mm tiles on a 10 mm pitch grid with 10 mm joints: 100 mm tile + 10 mm joint.
+  const spec = { roomW: 1100, roomH: 1100, wallGap: 0, tileW: 100, tileH: 100, grout: 10, pattern: "grid", obstacles: [], overagePct: 0, minCut: 50 };
+  const res = planMode(spec, "corner", true);
+  const m = materials(spec, res, { thickness: 10, notch: "10", wastePct: 0 });
+  const joint = spec.roomW * spec.roomH - res.visible;
+  assert.ok(Math.abs(m.jointM2 * 1e6 - joint) < 1e-6);
+  assert.ok(Math.abs(m.groutKg - (joint * 10) / 1e6 * 1.86) < 1e-9);
+  assert.ok(Math.abs(m.thinsetKg - 1.21 * NOTCHES[1].kgPerM2) < 1e-9);
+});
+
+test("materials: waste, bags and defaults", () => {
+  const spec = sampleSpec();
+  const res = planMode(spec, "best", true);
+  const a = materials(spec, res, { wastePct: 0 });
+  const b = materials(spec, res, { wastePct: 10, groutBagKg: 2, thinsetBagKg: 20 });
+  assert.equal(a.thickness, 10);
+  assert.equal(a.notch.id, "10");
+  assert.ok(Math.abs(b.groutKg / a.groutKg - 1.1) < 1e-9);
+  assert.equal(b.groutBags, Math.ceil(b.groutKg / 2 - 1e-9));
+  assert.equal(b.thinsetBags, Math.ceil(b.thinsetKg / 20 - 1e-9));
+  assert.equal(a.groutBags, null);
+  // joints are narrower than the tile area: grout is a small share of the floor
+  assert.ok(a.jointM2 > 0 && a.jointM2 < a.areaM2 * 0.1);
+});
+
+test("materials: no joints means no grout", () => {
+  const spec = { roomW: 1000, roomH: 1000, wallGap: 0, tileW: 500, tileH: 500, grout: 0, pattern: "grid", obstacles: [], overagePct: 0, minCut: 50 };
+  const res = planMode(spec, "corner", true);
+  assert.ok(materials(spec, res, {}).groutKg < 1e-9);
+});

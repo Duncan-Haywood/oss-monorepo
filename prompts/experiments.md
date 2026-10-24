@@ -813,3 +813,468 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   Reduced pass: no audit (recent outputs doc-only or research); no new drift report
   (`prompts/drift/2026-10-19.md` is hours old).
 - Result: (next review)
+
+## E46: review 2026-10-19 (fifth)
+
+- Change: `prompts/research/prompt-0.md` claim step greps `git ls-tree` for a
+  keyword instead of reading the ~670-line listing (`research/CLAUDE.md` friction).
+- Metric: "ls-tree prints ~670 lines" friction reports, next 20 research runs; expect none.
+- Candidates: unchanged. Reduced pass: no audit or drift report (hours-old
+  report, recent outputs research/doc-only). `pyenv.py` re-checked: works now.
+- Result: (next review)
+
+## E47: review 2026-10-19 (sixth)
+
+- Change: none to prompts or docs. `derived/` regenerated (1372 runs). The
+  "due counter ignores same-day reviews" friction on `prompts/review/prompt-1.md`
+  is already fixed in `promptctl.py` (`route` comment near line 147), so no
+  edit; the reports are from runs before that fix.
+- Metric: unchanged from E45/E46.
+- Candidates: unchanged (ventures 2 / research 1 intervals overlap; review/2 has
+  7 runs). Reduced pass: no audit or drift report (hours-old report).
+- Result: (next review)
+
+## E48: review 2026-10-19 (seventh)
+
+- Change: `research/CLAUDE.md` pyenv step now tells runs to test-import `pytest`
+  along with the project's libraries before skipping the venv (friction: a plain
+  attempt failed on missing pytest). The apt-get and `run_in_background`
+  reports were already fixed in that file.
+- Metric: "pyenv/pytest detour" friction reports on `research/CLAUDE.md`, next 20 research runs.
+- Candidates: unchanged (review/2 has 7 runs; ventures 2 / research 1 overlap).
+  Reduced pass: no audit or drift report (hours-old report).
+- Result: (next review)
+
+## E49: review 2026-10-19 (eighth)
+
+- Change: `prompt.md` step 2 says to retry `create_pull_request` on HTTP 500
+  (`prompt.md` friction: two 500s before success, no doc mentioned retrying).
+- Metric: "create_pull_request 500" friction reports on `prompt.md`, next 20 runs; expect none.
+- Candidates: unchanged (ventures 2 / research 1 intervals overlap; review/2 has
+  7 runs). Reduced pass: no audit, drift report or `derived/` regeneration
+  (reports hours old, recent outputs research/doc-only).
+- Result: (next review)
+
+## E50: review 2026-10-19 (tenth)
+
+- Change: `prompt.md` step 2 gives the `pyenv.py pytest` one-liner (top
+  `CLAUDE.md`/`prompt.md` friction: bare `python3` lacked pytest, runs ran tests by hand).
+  `derived/` regenerated.
+- Metric: "pytest absent" friction reports on `CLAUDE.md`/`prompt.md`, next 20 runs.
+- Candidates: unchanged (review/2 has 8 runs; ventures 2 / research 1 overlap).
+  Reduced pass: no audit or drift report (hours-old report).
+- Result: (next review)
+
+## E51: review 2026-10-20
+
+- Change: `research/CLAUDE.md` intro names the root `CLAUDE.md` rules that still
+  apply to research (public-repository and landing rules), not only the ones that
+  do not (`prompt.md` friction: took a read to reconcile). `derived/` regenerated
+  (1513 runs).
+- Metric: "root CLAUDE.md reconcile" friction reports on `prompt.md`/`research/CLAUDE.md`, next 20 research runs.
+- Candidates: unchanged (review/2 has 8 runs; ventures 2 / research 1 intervals
+  overlap). Reduced pass: no audit or drift report (hours-old report).
+- Result: (next review)
+
+## E52: review 2026-10-20 (second)
+
+- Change: `prompt.md` step 1 says which track an owner request that fits none
+  takes (`prompt.md`/`routing.json` friction: 3 reports of forcing a track with
+  no rule).
+- Metric: "no track fits owner task" friction reports on `prompt.md`, next 20 runs.
+- Candidates: research/1 vs 0: `measure` says retire (1 integrity issue in 110
+  runs vs 4 in 618), but the one issue is a self-disclosed caveat (search-excerpt
+  figures marked in the data and README), not a violation; success is 100% vs
+  98%. Kept, 0.2 share. ventures 2 / review 2 unchanged (overlap, under 10 runs).
+  Reduced pass: no audit, drift report or `derived/` regeneration.
+
+## E53: guidance map and layers, 2026-10-20 (owner-requested, not a review)
+
+- Change: one map of the guidance (`prompts/SYSTEM.md`, `prompts/system.json`,
+  `promptctl.py map`), with seven layers and precedence. `validate` now fails
+  on a guidance file that has no map entry. `INSTRUCTION_FILES` and the budgets
+  are read from the map. Operational detail moved down a layer: from
+  `CLAUDE.md`, "Reading CI" went to `verify-and-merge.md`, "Duplicate PRs" to
+  `duplicate-work.md`, and the hosting state to `portfolio/hosting/README.md`.
+  The cloud-container notes, which had been copied into `CLAUDE.md`,
+  `prompt.md` (the E49 and E50 lines) and `land-your-work.md`, went to one
+  file, `cloud-session.md`. `CLAUDE.md` went from 360 to 306 lines.
+- Metric: the share of runs whose `doc_friction` names `CLAUDE.md`,
+  `prompt.md` or `land-your-work.md` on gh/MCP, shallow clones, pytest or
+  long commands, over the next 200 runs. The baseline (keyword matches, an
+  upper bound) is, out of 1,491 runs since 2026-10-14: long commands 69,
+  pytest 48, shallow 34, gh/MCP 23. E49 and E50 are now judged on
+  `cloud-session.md`, which `prompt.md` links to. Also: any friction item that
+  says a moved fact could not be found.
+- Evidence strength: a before-and-after comparison, not A/B.
+- Result: (next review)
+
+## E54: review 2026-10-20 (reduced pass, 12:xx)
+
+- Change: `verify-and-merge.md` line for `--for-changes` now says what to do
+  when it stalls (docs-only diff, or a diff reaching 100+ workflows): run the
+  reached workflows by name. Five friction reports in the window (the latest
+  three on 2026-10-20) describe the stall.
+- Metric: friction reports naming `run_workflow_locally.py --for-changes`
+  stalling, per run, over the next 40 runs (baseline 5 in 1,658).
+- Decisions: research candidate 1 kept again (116 runs, 99% vs 98% success; its
+  one integrity issue is the disclosed search-excerpt caveat the retire rule
+  counts). ventures 2 and review 2 unchanged (intervals overlap / under 10
+  runs). `derived/` regenerated. No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E55: review 2026-10-20 (reduced pass, evening)
+
+- Change: none to prompts. `derived/` regenerated. A fix to the retire rule in
+  `promptctl.py verdict` (retire on integrity issues only at two or more, since
+  one self-disclosed caveat on research/1 keeps firing it) was blocked by the
+  auto-mode classifier twice (this run and draft PR #8901), so it is a proposal.
+- Proposal for the owner: allow `verdict` to require 2+ integrity issues before
+  "retire: more integrity issues". Three review friction reports on 2026-10-20
+  describe the manual look it costs each review.
+- Decisions: research candidate 1 kept (99% vs 98% success). ventures 2 and
+  review 2 unchanged (overlap / under 10 runs). No audit or drift report
+  (reduced pass).
+- Result: (next review)
+
+## E57: review 2026-10-20 (reduced pass, night)
+
+- Change: `portfolio/router/allocate.py` prints the first 500 characters of a
+  flagship's `next:` in the work queue and points at `flagships.yaml` for the
+  rest (84 friction reports on the file, mostly the multi-KB blob per row).
+  `test_allocate.py` passes (73 tests). `derived/` regenerated.
+- Metric: friction reports naming allocate.py output size, per run, over the
+  next 40 runs (baseline 84 in 1,770, most of them the blob).
+- Decisions: research candidate 1: the verdict says retire on one integrity
+  issue (the disclosed search-excerpt caveat); kept, as in E54/E55, and the
+  `verdict` fix remains a proposal for the owner (E55). ventures 2 and review 2
+  unchanged (overlap / under 10 runs). No audit or drift report (reduced pass).
+
+## E56: review 2026-10-20 (night)
+
+- Change: `runcost.py attach` takes `--human-hours`/`--human-basis` as optional
+  (basis still required with hours); `prompt.md` says so (and is back to its
+  100-line budget). Scheduled runs skipped the whole cost step because the
+  human-hours estimate had no basis, losing tokens and dollars with it
+  (`prompt.md`/`runcost.py`: ~46 and 3 friction/deviation reports).
+- Metric: share of new records with a `usage` block, over the next 40 runs
+  (baseline: median API $ measured for about 55% of runs in `measure`).
+- Decisions: ventures 2 and review 2 unchanged (intervals overlap / 8 runs).
+  Research candidate 1: the retire suggestion fires on one disclosed caveat
+  (see E55); kept, 99% vs 98% success. `derived/` regenerated. No audit
+  (reduced pass), no new candidate.
+- Result: (next review)
+
+## E58: review 2026-10-21 (reduced pass)
+
+- Change: `CLAUDE.md` says to fetch branches with `--depth=40` (a bare fetch
+  pulled ~5 GB); `research/CLAUDE.md` names the exact `--write` command instead
+  of "step 4's" (reported as pointing at a flag `build.py` lacks). `derived/`
+  regenerated.
+- Metric: friction reports on those two lines, per run, over the next 40 runs.
+- Decisions: research candidate 1 kept (the retire verdict still fires on the
+  one disclosed caveat; see E55). ventures 2 and review 2 unchanged (overlap /
+  under 10 runs). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E59: review 2026-10-21 (reduced pass, morning)
+
+- Change: `.github/prompts/verify-and-merge.md` makes the `pgrep -f` trap a
+  bold "never" with its error count (it was a subordinate clause; 18
+  run-record errors came from it).
+- Metric: run-record errors naming `pgrep`, over the next 40 runs (baseline: 18).
+- Decisions: research candidate 1 kept (the retire verdict still fires on the
+  one disclosed caveat; see E55). ventures 2 and review 2 unchanged (overlap /
+  under 10 runs). No derive fetch, audit or drift report (reduced pass).
+- Change: `prompts/research/prompt-0.md` and `research/PROJECTS.md` no longer
+  hard-code "nineteen tracks" (there are 21; a count in prose drifts). `derived/`
+  regenerated.
+- Metric: friction reports saying the track count is stale, over the next 40 runs.
+- Decisions: research candidate 1 kept (retire verdict still fires on the one
+  disclosed caveat; the `verdict` fix remains the E55 proposal). ventures 2 and
+  review 2 unchanged (overlap / 9 runs). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E60: review 2026-10-21 (reduced pass, afternoon)
+
+- Change: `CLAUDE.md` ("Hosting") and `portfolio/hosting/README.md` ("What is
+  served now") name `duncan-haywood.github.io/oss-monorepo/`; the old
+  `/monorepo-projects/` path 404s since the repo rename (2 reports today; the
+  full URL sweep is the owner's draft PR #8592, left alone).
+- Metric: friction reports that the Hosting URL is wrong, over the next 40 runs
+  (baseline: 2).
+- Decisions: research candidate 1 kept (retire verdict still fires on the one
+  disclosed caveat; E55). ventures 2 and review 2 unchanged (overlap / 9 runs).
+  `derived/` regenerated. No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E61: review 2026-10-21 (full pass, evening)
+
+- Change: process candidate 2 (`prompts/process/prompt-2.md`, share 0.2): after
+  the first split row lands, take up to three rows in one run. Cause: 19 of 70
+  process runs since 2026-10-20 ended `partial` on one-deletion slices.
+- Change: `steering.md` "improvement loop" cut from 17 to 7 lines (duplicated
+  `process/prompt-1.md`); 171 -> ~161 lines. `derived/` regenerated.
+- Metric: process/2 `partial` rate vs process/1 (baseline 27%), once each has
+  10+ runs; `steering.md` friction reports (baseline 0 this window).
+- Decisions: research candidate 1 kept (retire verdict fires only on the one
+  disclosed caveat; E55). ventures 2 (90% vs 89%, overlap) and review 2 (9
+  runs) unchanged. Audit clean (3 PRs); drift report `drift/2026-10-21.md`.
+- Result: (next review)
+
+## E62: review 2026-10-21 (reduced pass, night)
+
+- Change: `.github/prompts/cloud-session.md` ("Python and tests") says to
+  install with `"$PY" -m pip` and not to run two pip installs at once (1 report
+  today: pip went to python3.13, concurrent installs corrupted the env).
+  `derived/` regenerated.
+- Metric: friction reports about pip/python version mismatch, over the next 40
+  runs (baseline: 1).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2 (overlap), process 2 (1
+  run) and review 2 (10 runs, 100% vs 90%, overlap) unchanged. No audit or
+  drift report (reduced pass).
+- Result: (next review)
+
+## E63: review 2026-10-21 (reduced pass, late night)
+
+- Change: `prompts/redteam/prompt-0.md` gives a cutoff for slow suites
+  (`--timeout`; pick another target when baseline x mutants > ~20 min). Cause:
+  3 reports today of changepoint-detector campaigns past 10-30 min. `derived/`
+  regenerated.
+- Metric: redteam/prompt-0 friction about slow suites, over the next 40 runs
+  (baseline: 3).
+- Decisions: research candidate 1 kept (E55 caveat); ventures 2, process 2
+  and review 2 unchanged (overlap / too few runs). No audit or drift report
+  (reduced pass; the 2026-10-21 report stands).
+- Result: (next review)
+
+## E64: review 2026-10-21 (reduced pass, late night)
+
+- Change: `.github/prompts/cloud-session.md` gains "Browser and process
+  tools": the Playwright/Chromium env vars for cloud sessions and the
+  `pkill -f` self-kill trap (2 reports each in the last day). `derived/`
+  regenerated (`fetch` ran).
+- Metric: friction reports about playwright paths or `pkill`, over the next 40
+  runs (baseline: 2 and 1).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). No audit or drift report (reduced
+  pass; four reviews already ran today).
+- Result: (next review)
+
+## E65: review 2026-10-22 (reduced pass)
+
+- Change: `prompt.md` trimmed from 103 to 102 lines, budget 100 (the explore/creative
+  paragraph no longer restates percentages that live in `routing.json`).
+  `derived/` regenerated (`fetch` ran, 25 of 43 PRs before its time cap).
+- Metric: Instruction lines for `prompt.md` (baseline 103, budget 100) and
+  friction reports against it, over the next 40 runs (baseline: 54 total).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). No audit or drift report (reduced
+  pass; the 2026-10-21 report stands).
+- Result: (next review)
+
+## E66: review 2026-10-22 (reduced pass)
+
+- Change: `portfolio/flagships.yaml` ai-bookkeeper `next:` cut from 18.7k to
+  about 1.1k characters: open items only, landed history left to the README and
+  git. Cause: 3 friction reports today that it was a duplicated run-on. The
+  other flagships' `next:` (changepoint-detector 10.5k, einvoice-preflight 8k)
+  are the same shape and are the next cut.
+- Metric: friction reports against `portfolio/flagships.yaml`, over the next
+  40 runs (baseline: 32 total, 3 on ai-bookkeeper today).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). `derived/` regenerated (`fetch` ran,
+  25 of 44 PRs). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E67: review 2026-10-22 (reduced pass)
+
+- Change: `portfolio/flagships.yaml` einvoice-preflight `next:` cut from about
+  7.5k to 0.6k characters: open items only, landed history left to the README
+  and git (the follow-up E66 named). changepoint-detector's `next:` is the
+  remaining long one.
+- Metric: friction reports against `portfolio/flagships.yaml`, over the next
+  40 runs (baseline: 40 total; E66's ai-bookkeeper cut is in the same window).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). `derived/` regenerated (`fetch` ran,
+  25 of 43 PRs). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E68: review 2026-10-22 (reduced pass)
+
+- Change: `portfolio/flagships.yaml` changepoint-detector `next:` cut from about
+  11k to 0.4k characters: open items only, landed history left to the README
+  and git (the follow-up E67 named; all three long `next:` fields are now cut).
+- Metric: friction reports against `portfolio/flagships.yaml`, over the next
+  40 runs (baseline: E66/E67 window).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). `derived/` regenerated. No audit or
+  drift report (reduced pass).
+- Result: (next review)
+
+## E69: review 2026-10-22 (reduced pass)
+
+- Change: `portfolio/flagships.yaml` wall-framing-takeoff `next:` cut from
+  about 5k to 0.6k characters: open items only, landed history left to the
+  README and ROADMAP (the follow-up after E66 and E67). changepoint-detector's
+  `next:` is the remaining long one.
+- Metric: friction reports against `portfolio/flagships.yaml`, over the next
+  40 runs (baseline: 42 total; E66 and E67 cuts are in the same window).
+- Decisions: research candidate 1 kept (retire verdict still fires only on the
+  one disclosed caveat; E55 proposal stands). ventures 2, process 2 and review
+  2 unchanged (overlap / too few runs). `derived/` regenerated. No audit or
+  drift report (reduced pass).
+- Result: (next review)
+
+## E71: review 2026-10-22
+
+- Change: `prompts/steering.md` cut from 161 to 136 lines (budget 120): the
+  rule/guideline example table, the "habits" list, the JSON deviation example
+  and the Measuring paragraph folded into the prose that already says the same.
+  `prompt.md` closing paragraph rewrapped.
+- Metric: `measure` "Instruction lines" for steering.md and friction reports
+  naming it, over the next 40 runs (baseline: 0 friction reports on it; the
+  cut is for read cost, not for a known failure).
+- Decisions: research candidate 1 kept (retire verdict fires on one disclosed
+  integrity caveat; E55 proposal stands). ventures 2, process 2, review 2
+  unchanged (overlap / too few runs). `derived/` regenerated (fetch ran, 50 PRs).
+## E70: review 2026-10-22 (reduced pass)
+
+- Change: `prompts/review/prompt-1.md` step 1 now names `measure --section`
+  (it exists; the last four reviews still reported "measure is 50KB+ with no
+  section flag").
+- Metric: friction reports against `prompts/review/prompt-1.md` saying
+  measure has no section flag, over the next 40 runs (baseline: 4 recent).
+- Decisions: research candidate 1 kept (retire verdict fires on 1/154 vs 5/790
+  integrity issues, a 0.0065 vs 0.0063 difference, not a real gap; E55
+  proposal stands). ventures 2, process 2 and review 2 unchanged (overlap /
+  too few runs). `derived/` regenerated (50 PRs). No audit or drift report
+  (reduced pass).
+- Result: (next review)
+
+## E72: review 2026-10-23 (reduced pass)
+
+- Change: `.github/prompts/cloud-session.md` "Python and tests" gained a
+  3-line fallback for when `pyenv.py` fails (PEP 668, import name differing
+  from the pip name): a plain venv, in the background.
+- Metric: friction reports against `platform/ci/pyenv.py` or
+  `research/CLAUDE.md` about pyenv/PEP 668 failures, over the next 40 runs
+  (baseline: 5 recent on pyenv.py, 3 on research/CLAUDE.md today).
+- Decisions: research candidate 1 kept (retire verdict fires on 1/158 vs 5/799
+  integrity issues, 0.0063 vs 0.0063, not a real gap; E55 proposal stands).
+  ventures 2, process 2 and review 2 unchanged (overlap / too few runs).
+  `derived/` regenerated. No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E73: review 2026-10-23 (reduced pass, second run)
+
+- Change: `.github/prompts/cloud-session.md` "Long commands" gained one
+  sentence: don't chain a long command with commit/push in one call, and use
+  absolute paths for `rm -rf` after a `cd` (the safety check rejects relative
+  globs).
+- Metric: friction reports against `CLAUDE.md` about long commands delaying a
+  commit or a blocked relative-glob `rm`, over the next 40 runs (baseline: 2
+  recent).
+- Decisions: research candidate 1 kept (same non-gap on integrity issues as
+  E72; E55 proposal stands). ventures 2, process 2 and review 2 unchanged
+  (overlap / too few runs). `derived/` regenerated. No audit or drift report
+  (reduced pass).
+- Result: (next review)
+
+## E74: review 2026-10-23 (reduced pass, third run)
+
+- Change: `.github/prompts/cloud-session.md` "Outbound hosts" gained one
+  sentence: when a research next step needs a host that 403s, take another
+  next step or source instead of working around it.
+- Metric: friction reports on `research/PROJECTS.md` about next steps that
+  need unreachable hosts, over the next 40 runs (baseline: 1 recent).
+- Decisions: all four candidates keep collecting (intervals overlap / too
+  few runs). `derived/` rebuilt from a partial fetch. No audit or drift
+  report (reduced pass).
+- Change: `CLAUDE.md` cloud-session pointer gained one clause: irs.gov,
+  ssa.gov and data hosts often 403 through the proxy, probe first ("Outbound
+  hosts" in `cloud-session.md`). Friction named CLAUDE.md for this
+  (flagship items say "check against official sources").
+- Metric: friction reports against `CLAUDE.md` or `research/PROJECTS.md` about
+  blocked hosts discovered late, over the next 40 runs (baseline: 2 recent).
+- Decisions: all four candidates kept (intervals overlap / too few runs).
+  `derived/` rebuilt from the partial fetch (25/44 PRs). No audit or drift
+  report (reduced pass).
+- Change: `research/CLAUDE.md` gained a 3-line note that `wntr` `run_sim`
+  writes `temp.*` in the cwd, so parallel EPANET runs need a distinct
+  `file_prefix`.
+- Metric: friction reports against `research/CLAUDE.md` about simulator temp
+  files colliding, over the next 40 runs (baseline: 1 today).
+- Decisions: all four candidates (ventures 2, research 1, process 2, review 2)
+  unchanged: intervals overlap, or fewer than 10 runs. `derived/` regenerated.
+  No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E75: review 2026-10-23 (reduced pass, fourth run)
+
+- Change: `.github/prompts/cloud-session.md` note on the process-kill hook
+  trap now says the `pgrep` form is refused too (friction on
+  `research/CLAUDE.md` reported two retries on the rejection).
+- Metric: friction reports about that hook rejection, over the next 40 runs
+  (baseline: 1 recent).
+- Decisions: all four candidates keep collecting (intervals overlap / too
+  few runs). `derived/` rebuilt. No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E76: review 2026-10-23 (reduced pass, fifth run)
+
+- Change: `CLAUDE.md` cloud-session pointer names the working
+  `node --test '*.test.mjs'` form (friction on `CLAUDE.md`: `node --test .`
+  fails; the fix lived only in `cloud-session.md`).
+- Metric: friction reports about `node --test .` failing, over the next 40
+  runs (baseline: 1 recent). Checked `session_gate.py` publish-branch friction:
+  already fixed, so no change.
+- Decisions: all four candidates keep collecting (intervals overlap / too few
+  runs). `derived/` rebuilt (2524 rows). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E77: review 2026-10-23 (reduced pass, sixth run)
+
+- Change: `.github/prompts/cloud-session.md` "Long commands" gained a two-line
+  recipe for waiting with `Monitor` (until-loop on the output file, `echo DONE`
+  at the end); friction on `prompt.md` and `research/CLAUDE.md` said waiting
+  with `sleep` blocked was awkward.
+- Metric: friction reports about waiting on background jobs, over the next 40
+  runs (baseline: 2 recent).
+- Decisions: all four candidates keep collecting (intervals overlap / too few
+  runs). `derived/` rebuilt (2572 rows). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E78: review 2026-10-23 (reduced pass, seventh run)
+
+- Change: `CLAUDE.md` pyenv pointer notes the first install can exceed the
+  120 s tool timeout and should run in the background (friction on
+  `research/CLAUDE.md`: pyenv.py took >120 s in the foreground).
+- Metric: friction reports about pyenv.py foreground timeouts, over the next 40
+  runs (baseline: 1 recent). The `sleep`/Monitor friction is already covered by
+  `cloud-session.md` "Long commands", so no change.
+- Decisions: all four candidates keep collecting (intervals overlap / too few
+  runs). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E79: review 2026-10-24 (chronicle and lessons pass)
+
+- Change: owner asked for a documentation review "from a chronicalling and
+  lesson pov". `portfolio/hosting/README.md` rewritten as current state plus
+  one-line lessons (362 → 122 lines); the old text moved verbatim to
+  `docs/history/hosting-2026-08-25-to-10-24.md`; new `docs/history/README.md`
+  indexes every history file with its lesson. Stale deploy-first advice fixed
+  in `session_gate.py`, `allocate.py`, `AGENTS.md`, `PRODUCT_PLAYBOOK.md`,
+  `DEVELOPMENT_QUALITY.md`. Report:
+  `docs/reports/2026-10-24-reference-docs-are-not-chronicles.md`.
+- Metric: friction reports naming `portfolio/hosting/README.md` or stale
+  hosting/deploy-first advice, over the next 40 runs (baseline: count at the
+  next review; a docs change is judged before/after, not A/B).
+- Decisions: no candidate scoring this run (brief was a docs review).
+- Result: (next review)

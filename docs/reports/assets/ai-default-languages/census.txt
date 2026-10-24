@@ -1,0 +1,28 @@
+Source files by language and area
+  ventures    10393  JavaScript 8876 (85%), TypeScript 1147 (11%), Python 335 (3%), Swift 22 (0%), Shell 13 (0%)
+  research     5091  Python 4637 (91%), Verilog 205 (4%), JavaScript 200 (4%), Shell 25 (0%), C 9 (0%), OpenSCAD 9 (0%)
+  platform      364  JavaScript 243 (67%), Python 103 (28%), Terraform 15 (4%), Shell 2 (1%), TypeScript 1 (0%)
+  portfolio     224  Python 220 (98%), JavaScript 4 (2%)
+  gitops         34  Python 28 (82%), Shell 4 (12%), JavaScript 2 (6%)
+  bootstrap      17  Shell 17 (100%)
+  infra          11  Terraform 7 (64%), Shell 2 (18%), Python 2 (18%)
+  prompts         8  Python 8 (100%)
+  docs            5  Python 4 (80%), JavaScript 1 (20%)
+  (root)          1  Nix 1 (100%)
+
+Projects by main language (most files)
+  research    818 projects: Python 807, Verilog 9, Kotlin 1, JavaScript 1
+    with a language outside Python/JS/TS/Shell: accel-codesign (Verilog), accel-fpga (Verilog), accel-gatedmux (Verilog), accel-gatedrtl (Verilog), accel-kws (Verilog), accel-lutrtl (Verilog), accel-plane (Verilog), accel-planebatch (Verilog), accel-planefpga (Verilog), accel-planemux (Verilog), accel-ttfit (Verilog), ambient-android (Kotlin), ambient-gatefw (C), ambient-gatem4 (C), ambient-gatesimd (C), ambient-wearable (C), chip-abc-order (Verilog), chip-abc-orderblocks (Verilog), chip-abc-orderpass (Verilog), chip-abc-sweep (Verilog), chip-cse-style (Verilog), chip-logic-script (Verilog), chip-pnr (Verilog), chip-ppa-logic (Verilog), chip-ppa-loop (Verilog), chip-ppa-mac (Verilog), chip-ppa-script (Verilog), chip-ppa-sky130mac (Verilog), chip-repair-baseline (Verilog), chip-rtl-loop (Verilog), chip-rtl-probe (Verilog), chip-toolchain (Verilog), eda-flowtune (Verilog), hanger-print (OpenSCAD), hanger-split (OpenSCAD)
+  ventures   1312 projects: JavaScript 1296, TypeScript 7, Python 7, Shell 1, Swift 1
+    with a language outside Python/JS/TS/Shell: world-clock-widget (Swift)
+
+Document and data files by format
+  Markdown             3015 (21%)
+  HTML                 2963 (20%)
+  JSON                 2706 (18%)
+  Plain text           2231 (15%)
+  YAML                 2120 (14%)
+  TOML                  803 (5%)
+  SVG                   763 (5%)
+  BibTeX                 45 (0%)
+  Notebook                3 (0%)

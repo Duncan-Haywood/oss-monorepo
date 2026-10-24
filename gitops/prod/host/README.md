@@ -13,7 +13,7 @@ of each other*:
 
 | route | state | why |
 |---|---|---|
-| Argo CD on k3s ([`gitops/prod`](../)) | down | `:6443` refused on both boxes — [`Outage triage`](../../../.github/workflows/outage-triage.yml) run 33889983086 |
+| Argo CD on k3s ([`gitops/prod`](../)) | down | `:6443` refused on both boxes — `Outage triage` run 33889983086 (workflow since removed) |
 | GitHub Pages, Actions source ([`portfolio-pages.yml`](../../../.github/workflows/portfolio-pages.yml)) | down | needs an Actions runner; metered minutes exhausted |
 | self-hosted runners ([`gitops/ci/`](../../ci/README.md)) | down | they run **as pods in that same k3s** |
 
@@ -25,8 +25,8 @@ shows GitHub's own managed builder deploying that branch, so the catalogue is
 reachable today at `https://duncan-haywood.github.io/monorepo-projects/`. What
 the table still describes correctly is `marisstella.dev` itself: none of its
 three routes serve it, so the portfolio's *own name* still refuses every
-connection even though the catalogue has a public URL elsewhere. See
-`portfolio/hosting/README.md`'s "Amended 2026-09-06" section for the fuller
+connection even though the catalogue has a public URL elsewhere. See the "Amended
+2026-09-06" section of `docs/history/hosting-2026-08-25-to-10-24.md` for the fuller
 picture, and do not read this file as saying the catalogue is unreachable.
 
 [`gitops/agents/host/`](../../agents/host/README.md) and

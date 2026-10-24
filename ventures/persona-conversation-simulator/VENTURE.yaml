@@ -1,0 +1,62 @@
+name: persona-conversation-simulator
+description: >-
+  Free personality conversation simulator for fictional characters. Give an
+  invented cast Big Five traits (or describe them in words), read each one's
+  conflict style and who clashes with whom, then simulate a salary or rate
+  negotiation, a team meeting or a housemates' argument once or hundreds of
+  times. Rules-based and seeded, runs in the browser; optional AI voicing on
+  the user's own key; zero-dependency CLI. Refuses real-person inputs.
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-10-20. duplicate_check.py: nothing near the line (top score
+# 0.08, unrelated). The owner first asked for profiles and "digital clones" of
+# real people built from scraped social media; that was declined (consent,
+# GDPR/CCPA sensitive-data inference, LinkedIn/Meta scraping terms; it is also
+# the "scraped personal data" row in screened-out.md) and the owner chose
+# fictional characters instead.
+# Alternatives: personality tests (describe one person, no interaction),
+# chatbot role-play (fluent but unrepeatable, no visible rules), paid
+# negotiation-training role-play platforms. Angle: open, seeded rules and a
+# many-run outcome spread, free and private.
+# Distribution: searches such as "personality conversation simulator", "big
+# five conflict styles", "simulate negotiation between personality types",
+# "practice salary negotiation", "character personality generator". Volume not
+# measured.
+# Liability boundary: invented characters only; not psychological or HR
+# advice; no real-person inputs accepted.
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# tier could add user-written scenarios and "you play one seat" rehearsal.
+
+hypotheses:
+  - claim: >-
+      People preparing for a negotiation or a hard meeting will build a cast
+      that resembles the situation and run it many times, because the outcome
+      spread shows them where they tend to give ground.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Writers and trainers will use the seeded transcripts and the CLI's JSON
+      to keep characters' behaviour consistent across scenes or exercises.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct users engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/persona-conversation-simulator/
+  analytics: null

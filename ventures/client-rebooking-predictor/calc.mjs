@@ -282,3 +282,30 @@ export function reportCsv(r) {
   const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
   return [head, ...all.map((c) => [q(c.client), c.segment, c.visits, dayToIso(c.last), Math.round(c.quiet), Math.round(c.typicalGap), c.pActive.toFixed(3), c.pBack.toFixed(3), c.avg === null ? "" : c.avg.toFixed(2), c.perYear === null ? "" : c.perYear.toFixed(0)].join(","))].join("\n");
 }
+
+// Weekly contact plan: who to reach first. Overdue clients rank by expected
+// revenue (chance back in the window x average spend); due clients follow,
+// since they usually rebook unprompted. Lost clients are never planned.
+export function contactPlan(r, { perWeek = 10, weeks = 4 } = {}) {
+  const per = Math.max(1, Math.floor(perWeek)), wk = Math.max(1, Math.floor(weeks));
+  const value = (c) => c.pBack * (c.avg ?? 1);
+  const pool = [...[...r.overdue].sort((a, b) => value(b) - value(a)), ...[...r.due].sort((a, b) => value(b) - value(a))].slice(0, per * wk);
+  const items = pool.map((c, i) => ({ ...c, week: Math.floor(i / per) + 1 }));
+  return {
+    items,
+    expectedReturns: items.reduce((t, c) => t + c.pBack, 0),
+    expectedRevenue: r.hasAmount ? items.reduce((t, c) => t + c.pBack * (c.avg ?? 0), 0) : null,
+  };
+}
+
+// Fills {name}, {last_visit}, {usual_weeks} in a message template. The tool
+// sends nothing; the owner copies these and contacts clients who consented.
+export function fillTemplate(tpl, c) {
+  const weeks = Math.max(1, Math.round(c.typicalGap / 7));
+  return String(tpl).replace(/\{name\}/g, c.client).replace(/\{last_visit\}/g, dayToIso(c.last)).replace(/\{usual_weeks\}/g, String(weeks));
+}
+
+export function planCsv(plan) {
+  const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+  return ["week,client,segment,last_visit,chance_back_in_window,avg_spend", ...plan.items.map((c) => [c.week, q(c.client), c.segment, dayToIso(c.last), c.pBack.toFixed(3), c.avg === null ? "" : c.avg.toFixed(2)].join(","))].join("\n");
+}

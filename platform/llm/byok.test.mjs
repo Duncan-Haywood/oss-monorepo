@@ -66,6 +66,12 @@ test('gemini: a reply without usageMetadata reports zero tokens', async () => {
   assert.deepEqual([r.usage.input, r.usage.output], [0, 0]);
 });
 
+test('openai: a reply without usage reports zero tokens', async () => {
+  const f = fakeFetch({ choices: [{ message: { content: 'a' } }] });
+  const r = await complete({ provider: 'openai', apiKey: 'k', model: 'm1' }, { prompt: 'P', fetch: f });
+  assert.deepEqual([r.usage.input, r.usage.output], [0, 0]);
+});
+
 test('config: missing key, model or base URL fails before any request', () => {
   assert.throws(() => normalise({ provider: 'anthropic' }), /API key/);
   assert.throws(() => normalise({ provider: 'openai', apiKey: 'k' }), /model name/);
@@ -177,6 +183,10 @@ test('isLocal: localhost and private addresses only', () => {
   assert.equal(isLocal({ provider: 'ollama', model: 'm', baseUrl: 'https://ollama.example.com/v1' }), false);
   assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: 'http://172.32.0.1/v1' }), false);
   assert.equal(isLocal({ provider: 'anthropic', apiKey: 'k' }), false);
+  // A DNS name that merely starts with digits and a dot is a remote host.
+  for (const host of ['10.evil.com', '127.attacker.net', '192.168.x.example.org', '172.16.evil.io']) {
+    assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: `https://${host}/v1` }), false, host);
+  }
   assert.equal(isLocal({ provider: 'ollama' }), false, 'an unusable config is not local');
 });
 

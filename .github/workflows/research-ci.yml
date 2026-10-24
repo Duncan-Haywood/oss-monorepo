@@ -27,11 +27,17 @@ jobs:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
+          # Default depth 1: build.py reads only the working tree. A full
+          # clone here took a median 96s of a 101s job
+          # (docs/history/ci-perf-2026-10-21.md).
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - run: python3 research/_homepage/build.py
+      # New research/ directories belong to a programme (research/PROGRAMMES.md).
+      - run: python3 research/_shared/programme_check.py
+      - run: python3 -m unittest test_programme_check test_pick_track
+        working-directory: research/_shared

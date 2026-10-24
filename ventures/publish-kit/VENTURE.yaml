@@ -1,0 +1,69 @@
+name: publish-kit
+description: >-
+  Free, zero-dependency publishing toolkit for independent creators and their
+  AI agents: a podcast RSS feed generator (iTunes + Podcasting 2.0 tags,
+  stable guids, validated by podcast-feed-check), Markdown to EPUB 3 (passes
+  W3C EPUBCheck), a print-ready interior PDF and KDP paperback spine/cover
+  calculator, an ACX/Audible audiobook file checker (bitrate, CBR, sample
+  rate, length, channels; RMS/peak/noise floor on WAV masters), and a
+  chaptered M4B builder. One publish.json per project; every CLI command has
+  --json output and a `plan` command returns what is missing and the next
+  command to run, so an agent can drive it end to end. The same modules run
+  in a browser page with no upload.
+stage: prototype
+owner: duncan
+
+# Built at the owner's request (2026-10-20): tools for agentic publishing of
+# podcasts, audiobooks and ebooks, for the owner's own projects (the
+# hearth-and-horizon story feeds and the writing/ podcast, both of which
+# hand-roll RSS today) and for strangers doing the same job.
+#
+# duplicate_check.py (2026-10-20) scored nothing above 0.22; the nearest is
+# podcast-feed-check, which validates a feed and is reused here as the
+# independent check on the feeds this tool generates -- a generator and a
+# validator, not a duplicate. kdp-royalty-calculator prices a book; it does
+# not build one. Nothing in screened-out.md covers EPUB, ACX or feed
+# generation.
+#
+# Distribution channel: search ("podcast rss feed generator", "markdown to
+# epub", "acx requirements checker", "kdp spine width calculator" are each
+# long-standing query categories served today by hosting-company funnels or
+# single-purpose pages), and agent discovery through skill/SKILL.md and the
+# repository's MCP server (platform/agents/tools.mjs run publish-kit). Stated
+# at the confidence it was gathered at: general knowledge, not a live search
+# volume reading.
+hypotheses:
+  - claim: >-
+      An independent podcaster who wants to self-host (or an agent working for
+      one) will use a generator that writes a feed Apple accepts from a folder
+      of MP3s, rather than paying a host to do it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Self-publishing authors searching for a free Markdown-to-EPUB or KDP
+      spine calculator will find and use the browser page, and some will move
+      to the CLI for repeat builds.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Static page plus a CLI that runs on the user's machine; nothing of ours
+  # runs per user.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI engagement, or agent use after a fair run (portfolio/usage/README.md).
+  - A free tool covering feed generation, EPUB building and ACX checks with the same zero-install, agent-drivable bar becomes the obvious default.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/publish-kit/
+  analytics: null

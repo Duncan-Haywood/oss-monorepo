@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 260" font-family="sans-serif" font-size="13">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="300" y="22" font-weight="bold">Published practical figure as a share of the first-principles ceiling</text>
+<line x1="300.0" y1="40" x2="300.0" y2="240" stroke="#ddd"/><text x="300.0" y="255" text-anchor="middle">0%</text>
+<line x1="407.5" y1="40" x2="407.5" y2="240" stroke="#ddd"/><text x="407.5" y="255" text-anchor="middle">25%</text>
+<line x1="515.0" y1="40" x2="515.0" y2="240" stroke="#ddd"/><text x="515.0" y="255" text-anchor="middle">50%</text>
+<line x1="622.5" y1="40" x2="622.5" y2="240" stroke="#ddd"/><text x="622.5" y="255" text-anchor="middle">75%</text>
+<line x1="730.0" y1="40" x2="730.0" y2="240" stroke="#ddd"/><text x="730.0" y="255" text-anchor="middle">100%</text>
+<text x="292" y="62" text-anchor="end">Panasonic NCR18650B cell (NCA)</text>
+<rect x="575.2" y="48" width="3" height="20" fill="#1f6fb2"/>
+<text x="581.2" y="63">0.64</text>
+<text x="292" y="102" text-anchor="end">LiFePO4 cells (commercial range)</text>
+<rect x="407.5" y="88" width="86.0" height="20" fill="#c0392b"/>
+<text x="499.5" y="103">0.25-0.45</text>
+<text x="292" y="142" text-anchor="end">Lead-acid batteries</text>
+<rect x="390.3" y="128" width="12.9" height="20" fill="#c0392b"/>
+<text x="409.2" y="143">0.21-0.24</text>
+<text x="292" y="182" text-anchor="end">Vanadium redox flow battery</text>
+<rect x="540.8" y="168" width="159.1" height="20" fill="#c0392b"/>
+<text x="705.9000000000001" y="183">0.56-0.93</text>
+<text x="292" y="222" text-anchor="end">700 bar H2 tank system (H2 mass share)</text>
+<rect x="351.6" y="208" width="43.0" height="20" fill="#1f6fb2"/>
+<text x="400.6" y="223">0.12-0.22</text>
+<text x="300" y="236" fill="#1f6fb2">blue: read in a primary document</text><text x="550" y="236" fill="#c0392b">red: secondary page citing a source not opened</text>
+</svg>

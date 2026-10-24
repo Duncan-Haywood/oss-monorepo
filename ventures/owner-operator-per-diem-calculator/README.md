@@ -1,4 +1,4 @@
-# owner-operator-per-diem-calculator
+# Owner Operator Per Diem Calculator — Per Diem vs Receipts and Tax Saved
 
 A private, in-browser calculator for self-employed (owner-operator) over-the-road truck drivers.
 Enter full days and travel days away from home and the M&IE per diem rate; the page applies the
@@ -6,7 +6,7 @@ travel-day percentage and the 80 percent DOT hours-of-service limit, compares th
 deduction with actual meal receipts, shows the larger figure, and estimates the self-employment
 tax (15.3 percent of 92.35 percent, Social Security wage-base aware) and income tax it saves.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/owner-operator-per-diem-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/owner-operator-per-diem-calculator/
 
 - Static ES modules, no build step, no dependencies. Open `index.html` or run `node --test`.
 - `calc.mjs` is pure (no DOM, no network); `usage.mjs` keeps opt-out, local-only event counts.

@@ -53,5 +53,5 @@ kill_criteria:
   - A broker or policyholder reports a plain policy whose limits or dates the page mis-reads, at which point the extraction rules need revisiting before more usage is sought.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/business-insurance-policy-reader/
+  production: https://duncan-haywood.github.io/oss-monorepo/business-insurance-policy-reader/
   analytics: null

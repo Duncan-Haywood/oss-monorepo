@@ -1,0 +1,69 @@
+A. Archetypes, size M (cm of shape-error equivalent; lower is better)
+fabric   mass g shoulder strain  set cm shape err   hang   fold  choice
+tee         150           0.009   0.018      0.16   0.21   0.00  fold
+shirt       220           0.003   0.001      0.17   0.17   0.49  hang
+linen       210           0.004   0.002      0.16   0.16   0.70  hang
+fleece      440           0.048   0.139      0.79   1.21   0.69  fold
+sweater     600           0.168   0.561      3.06   4.74   0.58  fold
+
+B. Synthetic population (N=600, lognormal spread on every constant, seed 1)
+archetype    n share hung mean hang mean fold
+tee       127       0.05      0.25      0.06
+shirt     123       0.93      0.20      0.46
+linen     112       1.00      0.19      0.69
+fleece    132       0.10      1.18      0.67
+sweater   106       0.00      4.52      0.56
+all: hang is better for 41%; always-hang regret 0.859 cm, always-fold regret 0.151 cm; oracle cost 0.330 cm
+
+C. Learned hang-or-fold rule, 5-fold cross-validation, noisy sensing (size sd 1 cm, mass 5%, stretch 10% + 0.002)
+features               learner      accuracy regret cm
+always hang            -               0.410     0.859
+always fold            -               0.590     0.151
+size                   tree d2         0.583     0.167
+size                   tree d3         0.595     0.147
+size                   logistic        0.582     0.174
+size+mass              tree d2         0.770     0.062
+size+mass              tree d3         0.763     0.066
+size+mass              logistic        0.652     0.096
+size+mass+stretch      tree d2         0.887     0.027
+size+mass+stretch      tree d3         0.887     0.024
+size+mass+stretch      logistic        0.907     0.017
+all + fabric class     tree d2         0.927     0.016
+all + fabric class     tree d3         0.938     0.011
+oracle (true model)    -               1.000     0.000
+
+Rule from a depth-2 tree on size, mass and stretch (fit on all N; features: 0 = shoulder cm, 1 = mass g, 2 = lift stretch):
+if lift_stretch <= 0.006473:
+  if mass_g <= 134.5:
+    -> fold
+  else:
+    -> hang
+else:
+  if lift_stretch <= 0.04563:
+    -> fold
+  else:
+    -> fold
+
+D. How the decision moves with the assumptions (share of the same 600 garments better hung; 'flips' = garments whose best action differs from the baseline in B)
+assumption                         share hung  flips
+baseline                                 0.41      0
+lambda = 0.3 (stretch penalty)           0.48     45
+lambda = 1 (stretch penalty)             0.47     34
+lambda = 10 (stretch penalty)            0.38     17
+lambda = 30 (stretch penalty)            0.37     22
+hang time 4 h                            0.46     31
+hang time 48 h                           0.39     14
+set_gain x0.25                           0.47     37
+set_gain x4                              0.38     19
+fold crease depth x0.5                   0.33     48
+fold crease depth x2                     0.58    101
+stack time 6 h                           0.08    197
+fold radius 1 cm (loose stack)           0.11    182
+
+E. A rule learned at lambda = 3 and used where the true lambda differs (tree d3, size+mass+stretch; train on 400, test on 200)
+true lambda rule acc rule regret always-fold regret always-hang regret
+        0.3    0.865       0.020              0.174              0.485
+          1    0.880       0.016              0.169              0.565
+          3    0.925       0.010              0.161              0.801
+         10    0.945       0.010              0.154              1.648
+         30    0.930       0.020              0.143              4.076

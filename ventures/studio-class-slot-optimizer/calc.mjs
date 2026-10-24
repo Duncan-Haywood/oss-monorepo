@@ -144,6 +144,35 @@ export function reportCsv(r) {
   return [head, ...lines].join("\n") + "\n";
 }
 
+// Reads a verdict CSV that reportCsv wrote on an earlier run (last term's download).
+export function parseReport(text) {
+  const lines = String(text || "").split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2 || !/^slot,classes,avg_attendance,adjusted_avg/.test(lines[0])) return { error: "That is not a verdict CSV from this tool. Use the file its Download button wrote." };
+  const rows = [];
+  for (const l of lines.slice(1)) {
+    const m = l.match(/^"((?:[^"]|"")*)",([^,]*),([^,]*),([^,]*),[^,]*,[^,]*,([^,]*),[^,]*,(.*)$/);
+    if (!m) continue;
+    const adjMean = Number(m[4]);
+    if (!Number.isFinite(adjMean)) continue;
+    rows.push({ slot: m[1].replace(/""/g, '"'), classes: Number(m[2]), adjMean, cutGain: Number(m[5]), verdict: m[6].trim() });
+  }
+  return rows.length ? { rows } : { error: "No slot rows could be read from that file." };
+}
+
+// Slot-by-slot change between last term's verdicts and this run's result.
+export function compareReports(prevRows, r) {
+  const prev = new Map(prevRows.map((p) => [p.slot, p]));
+  const seen = new Set();
+  const out = r.rows.map((s) => {
+    const p = prev.get(s.slot);
+    seen.add(s.slot);
+    if (!p) return { slot: s.slot, status: "new slot", adjMean: s.adjMean, delta: null, cutGain: s.cutGain, verdict: s.verdict, prevVerdict: null };
+    return { slot: s.slot, status: p.verdict === s.verdict ? "same" : "changed", adjMean: s.adjMean, delta: s.adjMean - p.adjMean, cutGain: s.cutGain, verdict: s.verdict, prevVerdict: p.verdict };
+  });
+  for (const p of prevRows) if (!seen.has(p.slot)) out.push({ slot: p.slot, status: "dropped", adjMean: null, delta: null, cutGain: null, verdict: null, prevVerdict: p.verdict });
+  return out;
+}
+
 // Invented data: 8 slots, 10 weeks each, with known true means.
 export function sampleText() {
   const slots = [["Mon 6am", 6], ["Mon 6pm", 16], ["Tue 12pm", 4], ["Wed 6pm", 17], ["Thu 6am", 8], ["Fri 5pm", 5], ["Sat 9am", 19], ["Sun 10am", 13]];

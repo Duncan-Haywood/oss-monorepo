@@ -1,0 +1,40 @@
+150 feasible Sobol designs x 140 scenes (40 test + 100 fresh), forces [2.0, 4.0, 8.0, 15.0, 30.0, 60.0] N plus each design's cap
+
+A: as in codesign-diagnose (force capped by finger strength and 30 N)
+  scenes held by some design at some force: test 0.950 (2 not held), fresh 0.920 (8 not held)
+  best single design, one force, chosen on test: test 0.875, fresh 0.770; median design test 0.600
+  best design with a per-scene force oracle (all 140 scenes): 0.850; median design 0.661
+
+B: finger strength ignored, force up to 30 N
+  scenes held by some design at some force: test 0.950 (2 not held), fresh 0.920 (8 not held)
+  best single design, one force, chosen on test: test 0.925, fresh 0.890; median design test 0.775
+  best design with a per-scene force oracle (all 140 scenes): 0.907; median design 0.786
+
+C: finger strength ignored, force up to 60 N
+  scenes held by some design at some force: test 0.950 (2 not held), fresh 0.920 (8 not held)
+  best single design, one force, chosen on test: test 0.950, fresh 0.880; median design test 0.775
+  best design with a per-scene force oracle (all 140 scenes): 0.907; median design 0.807
+
+Reachable share in condition A by object mass (g) and by object friction
+  mass    0-300  n= 48 reachable 0.94
+  mass  300-600  n= 44 reachable 0.95
+  mass  600-1000 n= 32 reachable 0.91
+  mass 1000-1600 n= 16 reachable 0.88
+  mu_obj 0.15-0.25 n= 42 reachable 0.93
+  mu_obj 0.25-0.35 n= 39 reachable 0.90
+  mu_obj 0.35-0.45 n= 59 reachable 0.95
+  cyl    n= 55 reachable 1.00
+  sphere n= 46 reachable 0.78
+  box    n= 39 reachable 1.00
+
+Scenes not held in A (kind, size mm, mass g, mu_obj, dy mm, dz mm):
+  sphere  14.4    1490 0.35   -7.5  24.5
+  sphere  17.7    1179 0.18    8.1  20.6
+  sphere  13.4     951 0.26    1.2  20.5
+  sphere  17.4     917 0.37    4.4  21.4
+  sphere  14.6     617 0.24    9.5  16.5
+  sphere  14.6     357 0.44   -6.0  21.6
+  sphere  12.8     341 0.28    7.0  23.6
+  sphere  16.0     202 0.19   -2.6  20.0
+  sphere  16.8     176 0.29   -9.4  22.3
+  sphere  15.6     157 0.38    9.2  23.9

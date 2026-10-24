@@ -14,4 +14,4 @@
 # are ignored here. Run each probe's suite from inside its directory, exactly as
 # that probe's workflow does.
 [tool.pytest.ini_options]
-addopts = "--ignore=portfolio/pipeline/probes"
+addopts = "--ignore=portfolio/pipeline/probes --ignore=platform/business-template/template"

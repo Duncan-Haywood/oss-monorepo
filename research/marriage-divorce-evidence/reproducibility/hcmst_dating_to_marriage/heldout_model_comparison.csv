@@ -1,0 +1,11 @@
+target,model,logloss_improvement_percent,fold_min,fold_max,auc,observed_expected
+marriage,constant,0,0,0,0.5,0.99562
+marriage,period_only,-1.3414,-5.7297,1.3711,0.48115,1.0007
+marriage,additive,7.9432,1.4019,20.537,0.72626,0.98772
+marriage,additive_harmonized,7.683,1.4376,21.02,0.71553,0.99094
+marriage,tree_depth2,-1.6172,-9.7278,12.642,0.56375,1.0436
+breakup,constant,0,0,0,0.5,0.99499
+breakup,period_only,1.589,0.060756,3.239,0.56579,0.99686
+breakup,additive,9.3394,5.8752,12.799,0.70615,0.97322
+breakup,additive_harmonized,8.7289,4.8875,11.613,0.70028,0.97685
+breakup,tree_depth2,3.0891,-0.40605,9.7106,0.6311,0.97322

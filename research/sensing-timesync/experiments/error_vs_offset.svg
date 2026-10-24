@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the rms attitude error of a gyro-camera complementary filter against the camera timestamp offset in milliseconds, and the first-order omega times offset line; the error rises from 0.15 degrees at no offset past 1.5 degrees at 80 ms">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Attitude error against camera time offset (synthetic)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="260.8" y2="260.8" stroke="#ddd"/><text x="58" y="264.8" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="197.6" y2="197.6" stroke="#ddd"/><text x="58" y="201.6" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="134.4" y2="134.4" stroke="#ddd"/><text x="58" y="138.4" text-anchor="end" font-family="sans-serif" font-size="11">30</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="78.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="99.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="134.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="169.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">15</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">40</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">80</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">camera time offset (ms)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">rms angle error (deg)</text>
+<polyline points="64.0,323.0 78.0,323.0 99.0,322.8 134.0,322.4 169.0,321.8 204.0,321.3 344.0,318.8 624.0,314.0 134.0,260.8 134.0,71.2 344.0,260.8 344.0,71.2 134.0,322.4 344.0,318.8 624.0,314.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="323.0" r="3" fill="#c0392b"/>
+<circle cx="78.0" cy="323.0" r="3" fill="#c0392b"/>
+<circle cx="99.0" cy="322.8" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="322.4" r="3" fill="#c0392b"/>
+<circle cx="169.0" cy="321.8" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="321.3" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="318.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="314.0" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="260.8" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="260.8" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="322.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="318.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="314.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">simulated filter</text>
+<polyline points="64.0,324.0 78.0,323.6 99.0,323.1 134.0,322.1 169.0,321.2 204.0,320.2 344.0,316.4 624.0,308.8 134.0,317.6 134.0,318.4 344.0,317.7 344.0,317.4 134.0,323.0 344.0,323.0 624.0,323.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="78.0" cy="323.6" r="3" fill="#1f6fb2"/>
+<circle cx="99.0" cy="323.1" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="322.1" r="3" fill="#1f6fb2"/>
+<circle cx="169.0" cy="321.2" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="320.2" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="316.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="308.8" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="317.6" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="318.4" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="317.7" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="317.4" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="323.0" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="323.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="323.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">omega_rms x offset</text>
+</svg>

@@ -4130,3 +4130,76 @@ entries:
         against a real return; the README says so. Importers for Canadian exchanges (Newton, Shakepay,
         Coinsquare) are the next step if anyone uses it.
     mrr_end: 0
+  - venture: hearth-and-horizon
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner's new long-running creative project. Three CC BY-SA 4.0 collections, all written by
+        Claude and labelled as such: Hearth & Horizon (character-driven sci-fi, Catholic worldview),
+        For Other Minds (fiction for AI agents, with no embedded instructions) and Little Lamps
+        (saints bedtime stories with a history-vs-legend note). First stories: "The Slowest Bell on
+        the Moon" (4.2k words, 2089), "NOTES.md" (3.1k, 2071) and "Brother Martin and the Mice"
+        (St Martin de Porres, ahead of his 3 Nov feast). Generator renders pages, a podcast-ready RSS
+        feed per collection (itunes + podcast:license tags, 1400px covers) and a sitemap; audio is
+        rendered offline with Piper and the public-domain LJSpeech voice at -16 LUFS, $0. Directory
+        listing (Apple, Spotify, YouTube, Podcast Index) waits on the owner: an itunes:owner email
+        and a one-time submission. Listens unmeasured.
+    mrr_end: 0
+  - venture: publish-kit
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner-requested agent-drivable publishing kit (PR #8726): zero-dependency CLI plus browser
+        page for podcast RSS feeds (iTunes + Podcasting 2.0, permanent guids, re-validated by
+        podcast-feed-check), Markdown to EPUB 3 (W3C EPUBCheck 5.1.0: 0 errors / 0 warnings),
+        print interior PDF via Chromium, KDP spine/cover size, ACX audiobook file checks, chaptered
+        M4B and a private serial feed. --json everywhere, `plan` returns the next command.
+        50 tests on synthetic media. Report docs/reports/2026-10-20-publish-kit.md; follow-ups in
+        ventures/publish-kit/NEXT.md (move hearth-and-horizon and the writing podcast onto it,
+        keeping their guids). Usage unmeasured.
+    mrr_end: 0
+  - venture: open-robot-mower
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's request (2026-10-20): MIT open-hardware robotic lawn mower, design
+        v0.1, unbuilt. mowerbot (stdlib): lawns with holes, stripe planner with perimeter and
+        obstacle loops, closed-loop simulation with GNSS noise and RTK fix loss, runtime and
+        charging sessions, blade stop time and energy, slope limits, serial protocol and CLI.
+        MicroPython blade interlock with latching stops on lift, tilt, stop button and bump, and a
+        watchdog. build123d package for mower and dock (DXF/STL/STEP/BOM/drawings) checked for
+        collisions at all 7 cut heights, blade-guard clearance and print-bed fit. Browser lawn
+        planner matches Python on 216 plans. Model outputs (not measurements): back-yard example
+        52 min, 99.96% planned coverage; blade stops in 0.46 s braked. BOM ~$1,050 + ~$300 RTK base
+        (estimates). Usage unmeasured.
+    mrr_end: 0
+  - venture: open-floor-robots
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's request (2026-10-20): MIT open-hardware robot vacuum, robot mop and
+        vacuum-mop combo on one chassis, design v0.1, unbuilt. floorbots (stdlib): room grids,
+        edge pass plus boustrophedon coverage, noisy closed-loop simulation, runtime and return to
+        dock, fan sizing, mop water dosing, protocol and CLI. ESP32 firmware with cliff back-off,
+        wheel-drop, bin interlock and pump-only-while-moving; speed capped at 350 mm/s so stopping
+        distance stays inside the 52 mm cliff-sensor lead. build123d packages for all three
+        builds. Simulation (living-room example): vacuum coverage 95.5% at 0 cm pose error, 86.6%
+        at 10 cm. BOMs ~$424 / ~$405 / ~$468 (estimates). Usage unmeasured.
+    mrr_end: 0
+  - venture: open-house-plans
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's request (2026-10-21): free house plan generator. From a sentence or a
+        JSON brief it searches single-storey layouts (studio to 5 beds, six styles, garage, porch,
+        accessible), sizes headers, studs and floor framing (NDS checks ported from house-spans and
+        house-framing, equal to 1e-9), runs IRC-paraphrased checks, takes off materials, prices with
+        an NAHB-anchored model and exports SVG, DXF, IFC4, OBJ, CSV and JSON under CC0, in the
+        browser, as a CLI and as an agent tool; 12 catalogue designs. IfcOpenShell reads every
+        catalogue IFC with 0 schema errors. Usage unmeasured.
+    mrr_end: 0

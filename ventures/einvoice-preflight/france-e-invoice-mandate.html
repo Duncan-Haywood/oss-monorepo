@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>France e-invoice mandate: dates, formats and a free Factur-X check | E-invoice Preflight</title>
+<meta name="description" content="France requires every business to receive e-invoices from 1 September 2026, and large and mid-size companies to issue them then; small businesses follow on 1 September 2027. The dates, the formats (Factur-X, UBL, CII) and a free local checker with the French invoice-mention rules.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/france-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="France e-invoice mandate: dates, formats and a free Factur-X check">
+<meta property="og:description" content="France requires every business to receive e-invoices from 1 September 2026, and large and mid-size companies to issue them then; small businesses follow on 1 September 2027. The dates, the formats (Factur-X, UBL, CII) and a free local checker with the French invoice-mention rules.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/france-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When does the French e-invoicing reform start?","acceptedAnswer":{"@type":"Answer","text":"On 1 September 2026 every business established in France must be able to receive e-invoices through a certified platform (plateforme agréée). On the same date large companies and mid-size companies (ETI) must issue e-invoices for domestic B2B sales and report their other transactions (e-reporting). Small and medium businesses and micro-businesses must issue from 1 September 2027. Confirm your own category and dates with your accountant or the tax administration (DGFiP); this page is a summary, not advice."}},{"@type":"Question","name":"Which invoice formats does France accept?","acceptedAnswer":{"@type":"Answer","text":"Three: Factur-X (a PDF/A-3 with embedded CII XML, the same format Germany calls ZUGFeRD), UBL and UN/CEFACT CII. Each must carry the data the French reform requires on top of the European standard EN 16931. A plain PDF with no embedded XML is not an e-invoice. This checker reads JSON, UBL, CII and Factur-X PDFs."}},{"@type":"Question","name":"Can I send e-invoices straight to my customer in France?","acceptedAnswer":{"@type":"Answer","text":"No. Invoices travel through a certified platform (plateforme agréée, formerly called PDP) chosen by each business; the public portal is reduced to a directory and a data concentrator. So a file that a platform rejects never reaches the customer, which is why testing the file before submitting it saves a round trip."}},{"@type":"Question","name":"How do I check a French invoice before sending it?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker and tick the French option. It tests the seller's SIREN or SIRET check digit, whether the SIREN inside the French VAT number matches, that the French buyer has a SIREN or SIRET for routing, and the three mentions the Code de commerce requires on a B2B invoice: late-payment penalties, the fixed 40 euro recovery indemnity and the early-payment discount. Nothing is uploaded when you use the page. It is an offline observation, not a platform's acceptance and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>France's e-invoice mandate: what applies when</h1>
+<p class="lede">France's reform started on 1 September 2026: every business must be able to receive e-invoices, and the largest must issue them. Smaller businesses issue from 1 September 2027. Below: the dates, the formats that count, the mentions a French invoice must carry, and how to test a file before it goes to a customer.</p>
+</header>
+<section>
+<h2>The timeline (domestic B2B)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>1 Sep 2026</td><td>Every business must be able to <strong>receive</strong> e-invoices through a certified platform. Large companies and mid-size companies (ETI) must <strong>issue</strong> them and report other transactions (e-reporting).</td></tr>
+<tr><td>1 Sep 2027</td><td>Small and medium businesses and micro-businesses must <strong>issue</strong> e-invoices and report their transactions.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Company size is set by French decree, not by this page, and exceptions exist. This is a summary, not tax advice; confirm with your accountant or the DGFiP.</p>
+</section>
+<section>
+<h2>Which files count, and how they travel</h2>
+<p><strong>Factur-X</strong> (a PDF that carries XML inside it), <strong>UBL</strong> and <strong>CII</strong> are the accepted formats, on top of the European standard EN 16931. Invoices go through a certified platform (plateforme agr&eacute;&eacute;e) that each business chooses; there is no direct send. A rejection comes back after you have submitted.</p>
+<p>French invoices also carry mentions that are not in EN 16931: the seller's SIREN or SIRET, the buyer's SIREN for routing, late-payment penalties, the 40 euro recovery indemnity and the early-payment discount. The reform adds more (such as the nature of the operation and the delivery address when it differs); check the current list with your platform.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your XML or Factur-X PDF, and tick <em>Also apply the French rules</em>. It flags SIREN and SIRET check-digit errors, a VAT number whose SIREN does not match, a missing buyer SIREN, and the missing penalty, indemnity and discount mentions, plus arithmetic that does not add up and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Selling into Germany too? See <a href="germany-e-invoice-mandate.html">the German dates</a>. Also: <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>. For other countries, try the <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>. Also: <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>When does the French e-invoicing reform start?</h3>
+<p>On 1 September 2026 every business established in France must be able to receive e-invoices through a certified platform (plateforme agréée). On the same date large companies and mid-size companies (ETI) must issue e-invoices for domestic B2B sales and report their other transactions (e-reporting). Small and medium businesses and micro-businesses must issue from 1 September 2027. Confirm your own category and dates with your accountant or the tax administration (DGFiP); this page is a summary, not advice.</p>
+<h3>Which invoice formats does France accept?</h3>
+<p>Three: Factur-X (a PDF/A-3 with embedded CII XML, the same format Germany calls ZUGFeRD), UBL and UN/CEFACT CII. Each must carry the data the French reform requires on top of the European standard EN 16931. A plain PDF with no embedded XML is not an e-invoice. This checker reads JSON, UBL, CII and Factur-X PDFs.</p>
+<h3>Can I send e-invoices straight to my customer in France?</h3>
+<p>No. Invoices travel through a certified platform (plateforme agréée, formerly called PDP) chosen by each business; the public portal is reduced to a directory and a data concentrator. So a file that a platform rejects never reaches the customer, which is why testing the file before submitting it saves a round trip.</p>
+<h3>How do I check a French invoice before sending it?</h3>
+<p>Drop the file into the checker and tick the French option. It tests the seller's SIREN or SIRET check digit, whether the SIREN inside the French VAT number matches, that the French buyer has a SIREN or SIRET for routing, and the three mentions the Code de commerce requires on a B2B invoice: late-payment penalties, the fixed 40 euro recovery indemnity and the early-payment discount. Nothing is uploaded when you use the page. It is an offline observation, not a platform's acceptance and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the French rules as publicly documented; dates and categories can change, so check the tax administration's current guidance (impots.gouv.fr, facturation électronique) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

@@ -1,0 +1,9 @@
+generator	mean	min	max	n_seeds
+L0 constant	1.000	1.000	1.000	8
+L1 independent Gaussian	1.000	1.000	1.000	8
+L2 + AR(1) memory	1.000	0.999	1.000	8
+L3 + channel correlation	1.000	1.000	1.000	8
+L4 + per-window level and spread	1.000	1.000	1.000	8
+L5 + holds and spikes	1.000	1.000	1.000	8
+replay of training people (copies)	0.610	0.564	0.637	8
+stitched 2.5 s segments (copies)	0.980	0.964	0.991	8

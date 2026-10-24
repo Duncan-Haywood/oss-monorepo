@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_019uJdxTeaZMGBCiQFL6FT4Y",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T00:19:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9324",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/browser-click.mjs",
+      "issue": "PLAYWRIGHT_PATH is imported as a bare path, which fails for a directory, so the script skips even though playwright-core exists in /opt/node-tools; I used a scratch script."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Planned a flagship feature slice (receipt photos in the page); found the page itself broken by today's OCR change and fixed that instead. In-browser OCR was untestable since the CDN is blocked."
+    }
+  ],
+  "writeups": ["research/osrobot-weedpass/README.md"],
+  "goal": null,
+  "notes": "Page load broken by node: imports (receipts.mjs->ocr.mjs); fixed via cleanocr.mjs, import-graph test, 214 node tests pass, headless Chromium load plus receipt read ok. No agent doc/post written: small fix.",
+  "corrections": [],
+  "redteam": null
+}

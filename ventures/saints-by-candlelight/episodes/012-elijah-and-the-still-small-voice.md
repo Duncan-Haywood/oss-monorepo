@@ -1,0 +1,457 @@
+---
+number: 12
+slug: elijah-and-the-still-small-voice
+title: Elijah and the Still Small Voice
+published: 2026-10-22
+summary: A prophet who tells a king it will not rain, is fed by ravens, lodges with a widow whose flour never quite runs out, calls down fire on a mountain, and then runs away to the desert in despair, where an angel brings him a cake and the Lord comes to him not in the storm but in a whisper. The Prophet Elijah, from the first book of Kings.
+figures: The Prophet Elijah, King Ahab, Queen Jezebel, Obadiah, the widow of Zarephath and her son, an angel of the Lord, Elisha, some ravens
+tradition: Catholic and Orthodox; Elijah is a prophet of the Old Testament, honoured in both traditions and in the Jewish tradition from which the story comes
+feast: 20 July in the Catholic calendar as kept by the Carmelites and in many local calendars, and 20 July in the Orthodox calendar, which falls on 2 August in the civil calendar for churches that keep the old Julian reckoning
+history: that Elijah the Tishbite was a prophet in the northern kingdom of Israel in the days of King Ahab, in the ninth century before Christ, is the witness of the Scriptures; the story is told as the Bible tells it
+legend: none in the main telling; the later Christian tradition that the Carmelite order looks back to Elijah on Mount Carmel is mentioned in the notes and labelled as a tradition
+fiction: the ravens' manners, the conversations in the widow's kitchen, Elijah's thoughts on the road, the remarks of the servant on Mount Carmel and the jokes are our own invention, told in the spirit of the original; nothing that changes what happens in the Scripture or what it means has been added
+sources:
+  - The First Book of Kings, chapters seventeen to nineteen, and the first chapter of the Second Book of Kings and the second (Catholic and Orthodox Old Testament)
+  - The Gospel of Luke, chapter four, where the Lord mentions the widow of Zarephath, and chapter nine, the Transfiguration, where Elijah appears with Moses
+  - The Letter of James, chapter five, on Elijah's prayer for rain
+  - The Book of the Prophet Malachi, chapter four, on the coming of Elijah
+  - The Book of Sirach, chapter forty-eight, in praise of Elijah (Catholic and Orthodox Old Testament)
+---
+
+A man is sitting under a bush in the middle of the desert, and he has had enough.
+
+It is not much of a bush. It is the sort of bush that would be embarrassed to be called a tree, and yet it is the only shade for miles, and the man has put his whole self into it, like a cat into a shoebox. He is tired in his legs, tired in his bones, and tired in a way that does not go away with sleep. He has said a short, honest prayer, which is: that's enough, Lord. Take my life. I am no better than my ancestors.
+
+And then, because he is exhausted, he does the most sensible thing a person can do. He lies down and he goes to sleep.
+
+We'll come back to him. We'll come back to the bush, too, because it matters.
+
+But we're getting ahead of ourselves, and the place to start is a good deal earlier, with a very bold sentence said to a very powerful man.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is about the Prophet Elijah, and it comes from the First Book of Kings, which Jews and Christians have read as Scripture for a very long time. I will tell it the way the Bible tells it. A few of the small conversations, and the manners of some ravens, are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Let me set the scene.
+
+Imagine a small country, about the size of a modest English county, a long time ago, about nine hundred years before the birth of Christ. It had once been one country, with one king. Now it had split in two, like a plate dropped on a kitchen floor. The southern half was called Judah, and its king sat in Jerusalem. The northern half was called Israel, and its kings sat in various places, and in the days of our story, in a hill city called Samaria.
+
+The king of Israel was named Ahab. I want to be fair to Ahab. He was a very good builder. He made fine palaces, with ivory panelling, and he fortified towns, and he was, in the ordinary way that kings are, a competent man at the things that kings are asked to be competent at. His problem was not his hands. It was his heart, and, to be perfectly honest, his wife.
+
+His wife was named Jezebel. She was a princess from Sidon, a rich trading city on the coast of what is now Lebanon, and she had brought her own gods with her. Her chief god was called Baal, which simply means "lord" or "master", and Baal was a god of storms and rain and growing things. Which, in a country that lived by its harvest, was a clever sort of god to have. You prayed to Baal for a good crop. You prayed to Baal for rain.
+
+Now, here is the difficulty. The people of Israel were supposed to worship one God only: the Lord, the God of Abraham, Isaac and Jacob, who had brought them out of Egypt. That was the first and greatest point of their whole life together. And under Ahab and Jezebel, more and more people were drifting into the habit of doing both. A little Lord on the Sabbath, a little Baal at harvest. It is very easy to see how it happens. Nobody decides to leave God. They only decide to hedge their bets.
+
+And into this situation walks a man from the hills.
+
+He is called Elijah, the Tishbite. Tishbe was a place in Gilead, on the far side of the Jordan, rough country, with scrub and stones and goats. The Scriptures tell us almost nothing else about his background. No father's name, no family tree, no birthday. His name, in Hebrew, means "my God is the Lord". A good name to have, if you are about to say what he is about to say.
+
+[pause]
+
+He walks into the palace, past the guards, who I suppose were too startled to stop him, and he stands in front of King Ahab, and he says, in one sentence: "As the Lord, the God of Israel, lives, before whom I stand, there shall be neither dew nor rain these years, except by my word."
+
+That's it. That's the whole speech. No introductions, no pleasantries, and no sitting down.
+
+Let us notice what he's actually saying. He is saying: the one who sends rain is not Baal. It is the Lord. And as a result, the rain is going to stop, so that everyone can see whose rain it was. It is, if you like, a very large and very uncomfortable sort of argument. And I'd also like you to notice that Elijah doesn't say "I will make it stop." He says, "before whom I stand." He is a servant. The word is God's, and he is only the one who carries it.
+
+And then, I imagine, he turns round and leaves, which is the part I most admire.
+
+For a moment nothing happens, because nothing ever does, at first. The day is a perfectly nice day. The sun is out. A servant brings the king a cup of water. And the king, whose brow is beginning to wrinkle, drinks it. It is one of the last cups of water that he will drink without thinking.
+
+* * *
+
+The Lord says to Elijah: go from here. Turn east, and hide yourself by the brook Cherith, east of the Jordan. You shall drink from the brook, and I have commanded the ravens to feed you there.
+
+Now, I would like you to think about this instruction as Elijah must have heard it.
+
+He has just told the most powerful man in the country that his whole kingdom is about to go dry. He has, shall we say, made himself known. The king's guards are not going to be pleased. And what God says to him, in effect, is: go and sit by a stream, and be fed by birds.
+
+Ravens. Not doves, which are kind, nor little songbirds, which are charming. Ravens. They are large, black, clever, loud, and in most of the stories we tell, a bit sinister. They are also the kind of bird that steals your sandwich. And the Lord says: they will bring you your breakfast.
+
+I like to think that Elijah looked at the sky for a moment, and said, quietly, "Right."
+
+And he goes. That is the thing. He doesn't argue, he doesn't ask for a second opinion, and he doesn't ask for a better class of bird. He goes down to the brook Cherith, in a deep little valley, with rocks on both sides and a thin silver thread of water running through the middle, and he sits down.
+
+And in the morning, the ravens come.
+
+The old text says: "The ravens brought him bread and meat in the morning, and bread and meat in the evening; and he drank from the brook." That's all it says, and I have always wished it said more. How did the ravens decide? Did they have a rota? Did one of them have the job of carrying the bread, and another the meat, and a third the job of looking disapproving? The old sources do not tell us, which I think is an oversight.
+
+What I can tell you is this. A man sits alone in a ravine for months, with nothing to do and no one to talk to but God and a handful of large black birds. And every morning the bread arrives. And every evening the bread arrives. Nobody sees it being baked. Nobody knows where it comes from. The Lord is looking after his prophet in the same quiet, ridiculous, perfectly reliable way that he has always looked after those who trust him: one day at a time, with exactly enough.
+
+[pause]
+
+But there is a problem, and it is the problem that Elijah himself announced. There is no rain. And a brook, as every child knows, needs rain.
+
+So day by day, the brook gets thinner. First it is a stream, then a trickle, then a series of little pools, each one a bit smaller than yesterday's. Elijah watches it. I think he must have watched it for a long time, without saying anything, because there is nothing to say. He is the one who stopped the rain, in a way. And now the rain's absence is coming for his own drink of water.
+
+And then one morning the brook is dry.
+
+The ravens still come, I suppose. But I do not think they could have brought a river.
+
+I want to stop here, just for a moment, because I think this is the first of the quiet lessons in the story. The Lord did not rescue Elijah from the drought. He did not say, "Well done, you may have a special spring, exempt from the weather." He let the brook go dry, as it went dry for everyone. And then, when it was dry, he spoke again.
+
+"Arise," he says, "go to Zarephath, which belongs to Sidon, and dwell there. Behold, I have commanded a widow there to feed you."
+
+* * *
+
+Zarephath. Now, listen to where that is.
+
+Sidon is the homeland of Queen Jezebel. It is the very country that sent the god Baal into Israel in the first place. And the Lord tells Elijah, who has just told the king that Baal cannot send rain: go and live in Baal's own backyard. And your host will be a woman who is, as far as we know, not a worshipper of the Lord at all, and who is, besides, a widow, which in those days was about the poorest, most unprotected thing a person could be.
+
+It is a long walk, about eighty miles, I'm told, through a country where the fields have turned the colour of old paper. He comes to the gate of the town, and the first thing he sees is a woman picking up sticks.
+
+Now, you do not need to be a prophet to see that this is not a woman with a surplus. She's picking up sticks because she has no better fuel. She is thin. She is walking in the manner of someone who has already decided what to do and does not like it.
+
+Elijah calls out. "Please," he says, "bring me a little water in a vessel, that I may drink."
+
+And she goes to fetch it. This is worth noticing. She doesn't say, "Do you know how short we are of water?" She goes. A woman at the end of her resources, who gives a stranger a drink anyway.
+
+And as she turns away, he calls after her, and I imagine that he winced a little as he said it: "And bring me, please, a morsel of bread in your hand."
+
+I think this is the point where, in a different kind of story, the woman would slam the door. And in this one, she stops. And she says, with a kind of tired honesty that I find almost unbearable:
+
+"As the Lord your God lives, I have nothing baked, only a handful of flour in a jar, and a little oil in a jug. And now I am gathering a couple of sticks, that I may go in and prepare it for myself and my son, that we may eat it, and die."
+
+She says: the Lord your God. Not mine. She is a stranger to him. But she says it, and she means it, and she tells the truth. She is making one last small meal for herself and her boy, and then they are going to lie down, and that will be that.
+
+And Elijah says: "Do not fear."
+
+Now this is the hinge of the story. He tells her: go and do as you have said. But first make me a small cake of it, and bring it to me, and afterward make something for yourself and your son. For thus says the Lord, the God of Israel: the jar of flour shall not be spent, and the jug of oil shall not fail, until the day that the Lord sends rain upon the earth.
+
+I want you to hear how much he is asking. She has one meal. He is asking her to give him the first piece of it. That is not a small request. It is the kind of request that is only fair if it comes with a promise.
+
+And she does it.
+
+I do not know what she thought. The Scripture doesn't say. I like to imagine that she looked into the jar, and then looked at the stranger's tired face, and then back into the jar, and decided that she might as well. There's a kind of bravery that comes at the very bottom of things, where you have nothing left to lose and you decide, for once, to trust somebody.
+
+She goes home. She makes the little cake. She takes it out to him. And then she goes back to the kitchen, to see what is left.
+
+And there is flour in the jar.
+
+Not a lot. A handful, same as before. She makes the next meal, for herself and her son, and the jar is still not empty. The next morning, the same. The next week, the same. And the oil in the jug, which should have gone long ago, quietly tops itself up.
+
+"The jar of flour was not spent," the Scripture says, "neither did the jug of oil fail, according to the word of the Lord that he spoke by Elijah."
+
+It is not an overflowing miracle. It is not a banquet. It is bread for today, and bread for tomorrow, and never more than a day ahead. If you've ever managed a budget so tight that you could hear it creak, you will know exactly what kind of gift this is. It is the gift of enough.
+
+And now we have three people in a small house in Zarephath: a widow, her boy, and a prophet in an upstairs room. Who all eat, each day, from a jar that ought to be empty. I imagine that the widow checked it a great many times. I imagine that it was the sort of thing you could not get used to.
+
+[pause]
+
+But the story is not finished being hard.
+
+Some time afterward, the widow's son falls ill. The illness gets worse and worse, until, the Scripture says, "there was no breath left in him."
+
+I shall not dwell on this, because it is a sad moment, and we are meant to be falling asleep. I'll only say that the widow comes to Elijah, and she is not gentle. She says: what have you to do with me, O man of God? Have you come to bring my sin to remembrance, and to kill my son?
+
+She is grieving, and she is angry, and she says it to the one person nearby who she thinks might be able to do something about it. I find it a very honest piece of Scripture. It is a reminder that you are allowed to be furious in front of God. He can take it.
+
+Elijah doesn't argue. He says: give me your son. He takes the boy from her arms, and carries him up to the upstairs room, where he sleeps, and lays him on his own bed.
+
+And he prays. And this is something I want you to notice, because it is a very particular kind of prayer. He doesn't announce, he doesn't command. He cries out to the Lord, and he is almost as angry as she was. "O Lord my God, have you brought calamity even upon the widow with whom I sojourn, by killing her son?"
+
+Then he stretches himself upon the child three times, and he cries to the Lord: "O Lord my God, let this child's life come into him again."
+
+And the Lord hears the voice of Elijah. And the life of the child comes into him again, and he revives.
+
+Elijah takes him in his arms, and carries him down the stairs, and gives him to his mother. And he says the simplest thing in the world: "See, your son lives."
+
+I like the plainness of that. No speech. No flourish. A hungry, bruised, exhausted prophet, handing a living boy back to his mother.
+
+And she says, in the line that closes the chapter: "Now I know that you are a man of God, and that the word of the Lord in your mouth is truth."
+
+Centuries later, in a small synagogue in Nazareth, the Lord Jesus himself will remind his neighbours of this very widow. He will say, there were many widows in Israel in the days of Elijah, when the heavens were shut up three years and six months, and a great famine came over all the land; and Elijah was sent to none of them, but to a widow of Sidon. It is one of the Lord's gentle ways of saying: God's care is bigger than the borders we draw around it.
+
+* * *
+
+Now. The drought has gone on for three years. It is the third year of dry fields, and dry wells, and dry mouths. In Samaria, King Ahab is in a bad way. His horses and mules are dying, and he has sent his steward, a man called Obadiah, out across the country to look for any patch of grass at all.
+
+I would like you to meet Obadiah, because he is one of the quiet heroes of this book. He is a high official in the household of a king who worships Baal, and he is, secretly, a faithful servant of the Lord. When Queen Jezebel was hunting down the Lord's prophets, it was Obadiah who hid a hundred of them in two caves, fifty in each, and fed them with bread and water. He did this under the nose of the palace. I should think that is the most frightening kind of job in the world: the one you do in the dark, for no thanks, and just being found out would be the end.
+
+And Obadiah, as he travels, meets Elijah on the road.
+
+He knows him at once. He falls on his face. "Is it really you, my lord Elijah?" And Elijah says, "It is I. Go, tell your lord: Behold, Elijah is here."
+
+Obadiah is appalled. He says: do you know what you're asking? The king has been looking for you in every nation. If I go and tell him you're here, and the Spirit of the Lord carries you off somewhere else, he'll kill me. And I, your servant, have feared the Lord from my youth.
+
+It is a very human objection. And Elijah, who is not unkind, says: as the Lord of hosts lives, I will surely show myself to him today.
+
+So Obadiah goes. And the king comes out.
+
+[pause]
+
+Now the great scene. The one most people know, even if they know nothing else about Elijah.
+
+King Ahab sees the prophet, and he says, with the particular tone of a man who has been waiting three years to say it: "Is it you, you troubler of Israel?"
+
+And Elijah's answer is perhaps my favourite line in the whole story. He says: "I have not troubled Israel. But you have, and your father's house, because you have abandoned the commandments of the Lord and followed the Baals."
+
+Then he says: gather all Israel to me on Mount Carmel. And bring the prophets of Baal, four hundred and fifty of them, and the four hundred prophets of Asherah, who eat at Jezebel's table.
+
+Mount Carmel is a long, green ridge that runs down to the Mediterranean Sea. Its name in Hebrew means something like "garden land" or "orchard". Even in a drought, it is a place with a view. You can see the sea from it. You can see a long way in any direction. It is the sort of place where you might want to hold a very large public meeting.
+
+So the people come. The whole country, it seems, or a good deal of it. They climb the mountain. They stand on the slopes, thirsty, sunburnt, uncertain. And at the top, a little apart, stands Elijah, alone.
+
+And he says to them, and here I think he is not angry, but sad: "How long will you go limping between two different opinions? If the Lord is God, follow him. But if Baal, then follow him."
+
+And the people did not answer him a word.
+
+That is the whole of the problem in one line. Nobody said anything. Nobody wanted to be the one to choose.
+
+So Elijah proposes a test. It is a very fair one. He says: let there be two bulls. Let the prophets of Baal take one, and cut it in pieces, and lay it on the wood, but put no fire to it. I will do the same with the other. And then you call on the name of your god, and I will call on the name of the Lord, and the God who answers by fire, he is God.
+
+And all the people said: "It is well spoken."
+
+So the prophets of Baal go first. They prepare their altar, and they cry out, "O Baal, answer us!" From the morning until noon. And there is no voice, and no answer. They leap about the altar that they had made. Noon comes. The sun is high.
+
+And Elijah, who is a man with a certain dry sense of humour, even in the middle of a crisis, begins to tease them.
+
+"Cry aloud!" he says. "Surely he is a god. Either he is musing, or he has wandered away, or he is on a journey, or perhaps he is asleep and must be awakened."
+
+I do love that. I think the old writers loved it too, or they would not have kept it. It is the one time in the whole story where the prophet is allowed to be funny, and, to be fair, he is funny at the expense of a god who isn't there, not of a person. It is not unkind. It is, if anything, a kind of sorrow.
+
+They cry louder. They go on until the time of the evening offering. And the Scripture says: "But there was no voice. No one answered. No one paid attention."
+
+[pause]
+
+Then Elijah says to all the people: "Come near to me." And they come near.
+
+And he repairs the altar of the Lord, which had been thrown down. He takes twelve stones, one for each of the tribes, and builds an altar with them. He digs a trench around it. He lays the wood, and cuts the bull in pieces, and lays it on the wood.
+
+And then he does something I never quite understood as a child. He says: fill four jars with water, and pour it on the offering and on the wood.
+
+In a drought. In the third year of no rain, when every drop of water is more precious than silver. They fetch the water, from the sea, probably, and they pour it. And he says, do it a second time. And then a third. The water runs around the altar, and fills the trench.
+
+Why? I think because he wants it to be perfectly clear. No tricks, no hidden spark, no clever arrangement. If anything is going to happen, let it be seen that it is not Elijah who does it.
+
+And at the time of the evening offering, he steps forward and prays. It is, by the standard of the afternoon, a very short prayer. No leaping, no shouting, no cutting of himself. He simply says:
+
+"O Lord, God of Abraham, Isaac, and Israel, let it be known this day that you are God in Israel, and that I am your servant, and that I have done all these things at your word. Answer me, O Lord, answer me, that this people may know that you, O Lord, are God, and that you have turned their hearts back."
+
+And the fire of the Lord falls.
+
+It consumes the burnt offering, and the wood, and the stones, and the dust. It even licks up the water in the trench. And when all the people see it, they fall on their faces, and they say: "The Lord, he is God. The Lord, he is God."
+
+That is what Elijah wanted. Not the fire. The words. That the people would stop limping, and say it.
+
+I will tell you, honestly, what happens next, in a single sentence, and then we will not dwell on it. The people of Israel, in the heat of that moment, turn on the prophets of Baal, and the Scripture says that things ended badly for them, by a stream below the mountain. It is one of the harder lines of the Old Testament, and the old writers did not soften it. This is a bedtime story, and I do not want to be less than honest, and I also do not want to give you nightmares, so I will say only: we are in a very ancient time, and a very hard one, and the Church has always taught that the story of the Old Testament is the story of a God who patiently teaches a people, and who comes, in the end, as a gentle Lord who tells his friend to put away the sword. Let us leave that valley behind.
+
+* * *
+
+And now, at last, the rain.
+
+Elijah says to King Ahab, who has watched all this: go up, eat and drink, for there is the sound of a rushing of rain.
+
+Ahab goes up to eat. And Elijah climbs to the top of Carmel, and bows himself down on the earth, with his face between his knees. It is the posture of a man who has nothing left to say.
+
+And he says to his servant, a young man whose name we do not know: go up now, look toward the sea.
+
+The servant goes. He looks. He comes back. "There is nothing."
+
+"Go again," says Elijah.
+
+Seven times he says it. Seven times the servant climbs, and looks, and sees nothing. I do not know about you, but I feel for that servant. It is a very long way up a hill, and I think by the fourth time he must have wondered whether this was the sort of errand that goes on forever.
+
+And the seventh time he comes back and says: "Behold, a little cloud like a man's hand is rising from the sea."
+
+A little cloud. Just the size of a palm. After three years, it is the smallest, most ordinary, most unimpressive thing in the world.
+
+And Elijah says: go and tell Ahab, "Prepare your chariot and go down, lest the rain stop you."
+
+And in a little while the sky is black with clouds and wind, and there is a great rain.
+
+Ahab rides off in his chariot towards the city of Jezreel. And the Scripture says that the hand of the Lord was on Elijah, and he gathered up his cloak, and he ran in front of the king's chariot all the way to the entrance of Jezreel. Which is a good seventeen miles. A middle-aged man, in the rain, running ahead of a king.
+
+I always want to ask what that was for. Maybe it was a kind of respect. Maybe it was joy. Maybe he simply could not stand still.
+
+And that, you might think, is how a story ought to end. The prophet has won. The rain has come. The people have turned back. There is a feeling, here, of a task completed.
+
+But the story of Elijah is not a simple victory. It is something truer, and it happens next.
+
+[pause]
+
+Ahab goes home and tells Jezebel what happened. All of it.
+
+And Jezebel sends a messenger to Elijah, and the message is short. It says: "So may the gods do to me, and more also, if I do not make your life as the life of one of them by this time tomorrow."
+
+That is it. That is the whole of the message. The queen who has not changed her mind, who is not impressed by fire from heaven, who is not going to be told what to do by a rainstorm.
+
+And Elijah, the man who stood on Carmel alone against four hundred and fifty, the man who prayed down fire, the man who ran seventeen miles in front of a chariot, is afraid.
+
+The Scripture says it plainly. "Then he was afraid, and he arose and ran for his life."
+
+I find this one of the most comforting lines in the Bible. Not because I enjoy fear, but because it is so honest. He is not a statue. He is not a hero in a poem. He is a tired human being who has used up everything he had on one glorious day, and who now, when the next blow comes, has nothing left to meet it with.
+
+So he runs. He runs south, all the way to Beersheba, which is in the far south of Judah, and he leaves his servant there. And then he goes on alone, a day's journey into the wilderness.
+
+And he comes to a broom tree.
+
+A broom tree, in that country, is a shrub: a tall, bushy, feathery sort of plant, which grows in dry places and gives a thin, flickering shade. It is not much. But it is something. And he sits down under it, and he prays that he might die.
+
+"It is enough," he says. "Now, O Lord, take away my life, for I am no better than my fathers."
+
+You will remember that this is where we started, and now you know how he got there.
+
+I want to say something about this, to anyone who is lying awake tonight. Elijah, the great prophet, the man of fire, has a day when he can't go on. He doesn't pretend otherwise. He says it to God, straight out. And God does not scold him for it. Not once.
+
+Instead, he lies down, and he sleeps.
+
+[pause]
+
+And as he sleeps, an angel touches him.
+
+"Arise and eat."
+
+That is all the angel says. Not a sermon. Not a rebuke. Not a vision of what he's failed to do. Just: get up, and have something to eat.
+
+And Elijah looks, and there, by his head, is a cake baked on hot stones, and a jar of water.
+
+Think about that. The angel doesn't bring a banquet. He brings a plain little loaf and a drink of water, just like the one that Elijah once asked from a widow at a gate. And I think it is one of the most beautiful pictures in the Bible: an angel of the Lord, with nothing to say, quietly making sure that a tired man has had his supper.
+
+Elijah eats and drinks. And then, being very tired, he lies down again.
+
+And the angel of the Lord comes a second time and touches him, and says: "Arise and eat, for the journey is too great for you."
+
+The journey is too great for you. It is not a reproach. It is a kindness. The angel is telling him: I know. I know how far it is. Eat, so that you can go.
+
+And he eats. And the Scripture says that in the strength of that food, he went forty days and forty nights to Horeb, the mountain of God.
+
+Horeb is the other name for Sinai. It is the mountain where Moses met God in a burning bush, and received the Law. It is, for Israel, the holiest place on earth. And Elijah, in the lowest moment of his life, goes back to the beginning. He goes to the place where God first said, "I am who I am."
+
+He arrives, and he finds a cave, and he goes in to spend the night.
+
+* * *
+
+And the word of the Lord comes to him. And it is a question.
+
+"What are you doing here, Elijah?"
+
+I want to say this again, slowly, because it is not an accusation. I think it is the voice of a friend who has come to the door of a room where someone is hiding. What are you doing here, Elijah?
+
+And Elijah answers, and what he says is the whole weight of his heart.
+
+"I have been very zealous for the Lord, the God of hosts. For the people of Israel have forsaken your covenant, thrown down your altars, and killed your prophets with the sword, and I, even I only, am left, and they seek my life, to take it away."
+
+I, even I only, am left.
+
+It is not quite true. We know about Obadiah and his hundred prophets in the caves. But it feels true. It feels exactly as true as it does when you are tired in the dark, and the whole world seems to be against you, and you've done everything right and it hasn't worked.
+
+And the Lord says: "Go out, and stand on the mountain before the Lord, for the Lord is about to pass by."
+
+So Elijah goes to the mouth of the cave. And he waits.
+
+And there comes a great and strong wind, so strong that it tears the mountains and breaks the rocks into pieces. This is the sort of wind that you would expect. This is the sort of wind that rocks the world. You would think: surely, here he is.
+
+But the Lord was not in the wind.
+
+And after the wind, an earthquake. The whole mountain shakes. Stones fall. The ground rolls like a blanket being shaken out. You would think: surely this is it.
+
+But the Lord was not in the earthquake.
+
+And after the earthquake, a fire. A great fire, like the one on Carmel, the one that Elijah himself had prayed down. You would think: yes, surely, this is the Lord, this is the God of fire. This is the one that Elijah knows.
+
+But the Lord was not in the fire.
+
+And after the fire, the Scripture says, there was "the sound of a gentle whisper." Some old translations say: a still small voice. In Hebrew it is a phrase that can be translated, quite literally, as "a voice of thin silence". A sound so quiet it is almost not a sound at all.
+
+[pause]
+
+And when Elijah heard it, he wrapped his face in his cloak, and he went out and stood at the mouth of the cave.
+
+This is the heart of the story. This is why we are here tonight.
+
+For all his life, Elijah had known the Lord as a God of power. Of wind, and drought, and fire from heaven. And he was right: the Lord is all of those things. But now, when he is at his lowest, the Lord comes to him in none of them. He comes in a silence so gentle that you must hold your breath to hear it.
+
+I think this is one of the great consolations of the Bible. If you are tired, if you are afraid, if you are lying awake and wondering whether you have been any use at all, God is not shouting at you. He is not in the wind and the earthquake. He is in the quiet. He is the quiet.
+
+And then the voice asks him the same question again. "What are you doing here, Elijah?"
+
+And Elijah gives the same answer. Word for word. "I have been very zealous for the Lord, the God of hosts..." and on to the end. I, even I only, am left.
+
+Isn't that wonderful? He has just met God in the whisper, and he says exactly what he said before. Because sometimes you have to say it twice. Sometimes the first time, you are only reciting. And the second time, you are being heard.
+
+And the Lord does not argue with him. He gives him something to do.
+
+He says: go back the way you came. Anoint a new king over Syria, and a new king over Israel. And anoint Elisha, the son of Shaphat, from Abel-meholah, to be prophet in your place.
+
+And then, quietly, almost as an afterthought, he says: "Yet I will leave seven thousand in Israel, all the knees that have not bowed to Baal, and every mouth that has not kissed him."
+
+Seven thousand. Elijah thought he was the only one. And the Lord tells him: there are seven thousand. You are not alone. You never were.
+
+[pause]
+
+So he goes back.
+
+He walks north. And on the way he finds Elisha, the man he's been told to find. Elisha is ploughing a field, with twelve pairs of oxen, and he is behind the twelfth.
+
+Elijah doesn't make a speech. He simply walks up to him, and throws his cloak over him. That is all. A rough, hairy cloak, the sort of thing a prophet wears. And he keeps walking.
+
+Elisha understands. He runs after him. "Let me kiss my father and my mother," he says, "and then I will follow you."
+
+And Elijah says, rather gently, "Go back again. For what have I done to you?"
+
+I think that means: you are free to decide.
+
+And Elisha does something I love. He goes back, and takes his yoke of oxen, and slaughters them. He uses the wooden plough as firewood, and boils the meat, and gives it to the people, and they eat. A great feast for the whole village. And then he rises and follows Elijah, and becomes his servant.
+
+He has burned the plough. There is nothing to go back to.
+
+And that is how, in the story of the Bible, a tired old prophet who thought he was alone gets a companion for the rest of his road.
+
+* * *
+
+[pause]
+
+The wind-down now. Let us go slowly.
+
+The Scripture tells us a little more about Elijah, in the Second Book of Kings, and I will tell it very briefly. He goes on for some years, with Elisha at his side. He speaks the Lord's word to kings. He grows old. And one day, the two of them are walking along the road together, near the river Jordan, and Elijah knows that his time has come.
+
+He says to Elisha: stay here. Elisha says: as the Lord lives, I will not leave you. They walk on. Elijah strikes the water of the Jordan with his cloak, and it parts, and the two of them cross on dry ground. And Elijah says: ask what I shall do for you before I am taken from you.
+
+And Elisha says: let there be a double share of your spirit on me.
+
+And Elijah says: you have asked a hard thing. But if you see me when I am taken, it shall be so for you.
+
+And as they were walking and talking, behold, a chariot of fire and horses of fire separated the two of them. And Elijah went up by a whirlwind into heaven.
+
+Elisha cries out, "My father, my father!" And he picks up the cloak that has fallen, and he goes back to the river.
+
+That is the end of Elijah's life on earth, or rather, it is not an ending, since the Scripture does not say he died. It says he was taken.
+
+And the story does not stop there. About nine hundred years later, on a mountain in Galilee, three of the Lord's friends, Peter, James and John, see the Lord Jesus transfigured, shining like the sun. And there appear with him two figures, talking to him: Moses, who gave the Law, and Elijah, the greatest of the prophets. They are the two who once stood on Sinai, the two who heard God's voice on the mountain. And now they stand beside the Lord himself, speaking with him about what he is about to accomplish in Jerusalem.
+
+It is a lovely thing. The man who once thought he was the only one left is now standing in glory with his friends.
+
+And the prophet Malachi, at the very end of the Old Testament, promised that Elijah would come again before the great day of the Lord, to turn the hearts of parents to their children, and the hearts of children to their parents. And when John the Baptist appeared in the desert, wearing a rough cloak and eating whatever the wilderness provided, the angel who announced his birth said that he would go before the Lord "in the spirit and power of Elijah."
+
+So the old prophet is still at work, in a way. Still turning hearts. Still pointing, not at himself, but beyond.
+
+[pause]
+
+His feast is kept on the twentieth of July, by Carmelites and other Catholics and by the Orthodox alike, though the Orthodox who keep the old calendar reach that day in early August. In many Orthodox lands, the churches on the tops of hills and mountains are often dedicated to the Prophet Elias, as he is called in Greek, perhaps because he was a man who met God on a mountain, and perhaps because mountains are closer to the weather.
+
+So that is Elijah. A man from the hills who told a king the truth. Who was fed by ravens and a widow's jar. Who stood alone on Carmel and was afraid in the desert. Who ate a cake that an angel baked. And who heard, not in the wind, nor the earthquake, nor the fire, but in the gentlest silence, the voice of God asking him a question and then giving him a friend.
+
+I think tonight, whatever kind of day you have had, whether it was a Carmel or a broom tree, the message of the story is the same. You are allowed to be tired. You are allowed to say so. God has already sent the cake, and the water, and the quiet voice, and a companion for the road. You do not need to run any farther tonight.
+
+So let the wind go by. Let the earthquake go. Let the fire burn itself out. And listen for the gentle sound that is underneath.
+
+[pause]
+
+Notes for the curious.
+
+The Prophet Elijah is a figure of the Old Testament. The stories in tonight's episode come from the First Book of Kings, chapters seventeen to nineteen, and from the beginning of the Second Book of Kings. We have told them as the Bible tells them. He is honoured by Jews, Christians and Muslims, and by Catholics and Orthodox alike as a great prophet and a saint of the Old Covenant.
+
+The Catholic Carmelite order, which began on Mount Carmel in the twelfth century, has long looked to Elijah as its spiritual father. That is a tradition of the order, and not something the Scripture says, and I mention it only so that you know where the name comes from.
+
+The feast of Elijah is kept on the twentieth of July. In the Orthodox churches that keep the old Julian calendar, that date falls on the second of August in the civil calendar.
+
+What we invented: the manners of the ravens, the conversations in the kitchen at Zarephath beyond the words the Scripture gives, the thoughts of Elijah on the road, the servant's remarks on Mount Carmel, and the jokes. We have not added any event or changed the meaning of any event in the Scripture.
+
+If you would like to read the story for yourself, it is short. Begin at the seventeenth chapter of the First Book of Kings and read to the end of the nineteenth. Then, if you would like something gentler, read the forty-eighth chapter of the Book of Sirach, which praises him. And there is a good line in the Letter of James, chapter five: Elijah was a man with a nature like ours, and he prayed fervently that it might not rain.
+
+[pause]
+
+That's the story of the Prophet Elijah for tonight. His feast is kept on the twentieth of July. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day. And may the old blessing of the night go with you: the Lord bless you and keep you, the Lord make his face to shine upon you and be gracious to you, the Lord lift up his countenance upon you and give you peace. Goodnight, and God bless.

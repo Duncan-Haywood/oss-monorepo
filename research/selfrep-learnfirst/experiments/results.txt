@@ -1,0 +1,78 @@
+shop printer+cnc+laser, bearing variant lm8uu; 29 imported lines of 51
+nominal closure: lines 43.1%, units 42.1%, mass 22.4%, cost 15.9%
+
+== top 6 vitamin lines to learn, by lines gain (percentage points of lines closure)
+  1. 210 mm M8 threaded rod             +  2.0
+  2. 294 mm M8 threaded rod             +  2.0
+  3. 350 mm 8 mm smooth rod             +  2.0
+  4. 370 mm M8 threaded rod             +  2.0
+  5. 405 mm 8 mm smooth rod             +  2.0
+  6. 420 mm 8 mm smooth rod             +  2.0
+
+== top 6 vitamin lines to learn, by units gain (percentage points of units closure)
+  1. M8 nut                             + 21.4
+  2. M3 nut                             + 10.7
+  3. M3x20 bolt                         + 10.7
+  4. LM8UU linear bearing               +  2.1
+  5. 370 mm M8 threaded rod             +  1.3
+  6. 608 bearing                        +  1.3
+
+== top 6 vitamin lines to learn, by mass gain (percentage points of mass closure)
+  1. NEMA17 stepper motor               + 22.0
+  2. 370 mm M8 threaded rod             + 10.4
+  3. 440 mm M8 threaded rod             +  6.1
+  4. 294 mm M8 threaded rod             +  5.7
+  5. 420 mm 8 mm smooth rod             +  5.2
+  6. 405 mm 8 mm smooth rod             +  5.0
+
+== top 6 vitamin lines to learn, by cost gain (percentage points of cost closure)
+  1. NEMA17 stepper motor               + 26.0
+  2. controller electronics             + 15.6
+  3. hot end (e.g. J-head)              + 10.4
+  4. LM8UU linear bearing               +  5.2
+  5. thermistor + heater                +  2.6
+  6. 370 mm M8 threaded rod             +  2.5
+
+== lines to learn, best first, to reach +10 / +25 / +50 points of closure (None = vitamins cannot reach it)
+metric     +10   +25   +50   ceiling (all vitamins made)
+lines        6    13    26   +56.9
+units        1     2     9   +57.9
+mass         1     2     6   +77.6
+cost         1     1     3   +84.1
+
+== agreement between rankings (Kendall tau over the imported lines)
+  lines vs units: +0.38
+  lines vs mass: +0.26
+  lines vs cost: +0.01
+  units vs mass: +0.20
+  units vs cost: -0.03
+  mass vs cost: +0.55
+
+== stability of the mass ranking, 2000 draws, every assumed mass and cost scaled 0.5x to 2x
+  rank-1 line share: NEMA17 stepper motor 90%; 370 mm M8 threaded rod 10%; 440 mm M8 threaded rod 0%
+  mean Kendall tau to nominal ranking: 0.87
+
+== stability of the cost ranking, 2000 draws, every assumed mass and cost scaled 0.5x to 2x
+  rank-1 line share: NEMA17 stepper motor 76%; controller electronics 20%; hot end (e.g. J-head) 4%
+  mean Kendall tau to nominal ranking: 0.80
+
+== cumulative closure (points) from learning the k best lines, each metric ranked by itself
+k    units    mass    cost
+1       21.4    22.0    26.0
+2       32.1    32.4    41.6
+3       42.7    38.5    52.0
+4       44.9    44.2    57.2
+5       46.2    49.4    59.8
+6       47.4    54.4    62.3
+7       48.7    59.1    64.4
+8       49.8    63.5    66.2
+9       50.6    66.7    68.0
+10      51.3    69.0    69.6
+
+== learning a whole kind of vitamin (points of closure)
+  rod         lines + 13.7  units +  4.5  mass + 38.8  cost + 11.2  
+  electronics lines +  9.8  units +  2.4  mass + 24.6  cost + 56.2  
+  fastener    lines + 21.6  units + 46.6  mass +  6.8  cost +  5.6  
+  other       lines +  3.9  units +  0.6  mass +  4.8  cost +  2.3  
+  bearing     lines +  3.9  units +  3.4  mass +  2.4  cost +  6.8  
+  belt        lines +  3.9  units +  0.4  mass +  0.2  cost +  2.1  

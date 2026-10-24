@@ -1,0 +1,60 @@
+{
+ "schema": "buildbot-skillpack/1",
+ "name": "cohold-follow-A",
+ "kind": "cohold-follow",
+ "version": "1.0.0",
+ "licence": "MIT",
+ "interface": {
+  "observes": [
+   "robot hand height, hand velocity (m, m/s; late by the plant's delay)",
+   "reference height: the person's end after a lag (m)",
+   "sheet mass estimate (kg)"
+  ],
+  "commands": [
+   "hand force (N), x and z: Fx = K (L - x) - B vx; Fz = 0.5 m g + K (ref - z) - B vz + Ki integral(ref - z)"
+  ]
+ },
+ "params": {
+  "K": 22777.747885621553,
+  "B": 25.487532270282834,
+  "Ki": 4773.7352843714325
+ },
+ "scene": {
+  "test_seed": 2024,
+  "n_episodes": 1000,
+  "plants": [
+   "A",
+   "B"
+  ],
+  "lift_m": 0.3,
+  "sheet_kg": [
+   6.0,
+   23.0
+  ],
+  "lift_s": [
+   1.0,
+   4.0
+  ]
+ },
+ "criteria": {
+  "tilt_peak_deg": 3.0,
+  "tilt_end_deg": 0.5,
+  "person_peak": "NIOSH load constant 23.1 kg-equivalent"
+ },
+ "claimed": {
+  "A": {
+   "success": 0.823,
+   "n": 1000
+  },
+  "B": {
+   "success": 0.0,
+   "n": 1000
+  }
+ },
+ "note": "buildbot-skills' best A_random seed (seed 2): trained on randomised plant A only.",
+ "caveats": [
+  "Simulated; not a rated capability, not a safety case. A robot holding a sheet beside a person is a falling-object and crush hazard (ISO 10218, ISO/TS 15066).",
+  "Delay, actuator lag and sheet stiffness ranges are swept, not sourced; nothing was run on a robot.",
+  "One 0.3 m lift of a 4x8 sheet in a plane; no walking, grip slip or reacting person."
+ ]
+}

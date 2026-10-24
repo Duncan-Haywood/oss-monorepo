@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a generated section that is materially wrong or misleading about dates or money.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/freelance-proposal-maker/
+  production: https://duncan-haywood.github.io/oss-monorepo/freelance-proposal-maker/
   analytics: null

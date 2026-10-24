@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01WhidpspymChvS3BXXBZZGw",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "now that you have llms can you do ml on qualitative data rather than numerical data? do a report and blog post and mark it as an interesting topic for future research and applications",
+  "input_sha256": "e17656aab3d5b73dab04d5273dc6ce099e3b89ba49729e004c6fba01f74aa4da",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-20T08:46:47Z",
+  "ended": "2026-10-20T08:53:31Z",
+  "wall_minutes": 6.86,
+  "tokens_in": 4143057,
+  "tokens_out": 32739,
+  "cost_usd": 2.2806,
+  "tool_calls": 43,
+  "task": "owner-request: qual-correction + track 19 + blog post",
+  "projects": [],
+  "pr": 8749,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/writing.mjs",
+      "issue": "160-char description limit is enforced only by the build/test, not mentioned in the writing.mjs header example; cost one retry."
+    },
+    {
+      "file": "research/_homepage/projects.json",
+      "issue": "File mixes raw UTF-8 and \\u escapes, so json.dump round-trips rewrite ~300 lines; had to insert the theme textually."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "Owner asked to mark the topic for future research, so I added track 19 (qual) rather than drawing a track with pick_track.py."
+    }
+  ],
+  "goal": null,
+  "notes": "Verification: unittest 13 passed; research/_homepage/build.py ok (762 projects); check_md_links ok; research_live_links --write 0 changes; writing.test.mjs 8 pass. No LLM API key: results are from simulated coders, labelled as such. References web-checked except PPI++, Krippendorff 2011, Ziems journal version (flagged in README).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "26cc7fb7-70d3-5bd9-9877-9dcf8c28416f",
+    "transcripts": 1,
+    "first": "2026-10-20T08:46:47Z",
+    "last": "2026-10-20T08:53:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 68,
+        "output": 32739,
+        "thinking": 5532,
+        "cache_read": 4040822,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102167,
+        "api_equivalent_usd": 2.2806,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 68,
+      "output": 32739,
+      "thinking": 5532,
+      "cache_read": 4040822,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102167,
+      "api_equivalent_usd": 2.2806,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 28,
+      "WebSearch": 8,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.86,
+      "active_minutes": 6.86,
+      "model_minutes": 5.71,
+      "tool_minutes": 1.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "survey of ~10 papers, simulation code + tests, report and blog post by a methods researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 526.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

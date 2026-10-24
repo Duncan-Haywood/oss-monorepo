@@ -1,0 +1,61 @@
+# Distribution hub: one composer for every platform (platform/distribution/hub.mjs).
+# Off by default: each `api` platform publishes only when its DISTRIBUTE_<PLATFORM>
+# variable is "true" and its secrets are set; otherwise the step is a dry run.
+# Every run uploads the paste-ready drafts pack (X, LinkedIn, Substack, Medium,
+# TikTok, YouTube, Reddit, Hacker News) and the scoreboard as an artifact.
+# Free APIs only, no paid spend, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-hub
+on:
+  schedule:
+    - cron: '41 15 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  hub:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Publish (dry run unless enabled)
+        run: node platform/distribution/hub.mjs publish
+        env:
+          DISTRIBUTE_THREADS: ${{ vars.DISTRIBUTE_THREADS }}
+          THREADS_USER_ID: ${{ vars.THREADS_USER_ID }}
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+          DISTRIBUTE_FACEBOOK: ${{ vars.DISTRIBUTE_FACEBOOK }}
+          FACEBOOK_PAGE_ID: ${{ vars.FACEBOOK_PAGE_ID }}
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.FACEBOOK_PAGE_TOKEN }}
+          DISTRIBUTE_INSTAGRAM: ${{ vars.DISTRIBUTE_INSTAGRAM }}
+          INSTAGRAM_USER_ID: ${{ vars.INSTAGRAM_USER_ID }}
+          INSTAGRAM_IMAGE_BASE: ${{ vars.INSTAGRAM_IMAGE_BASE }}
+          INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
+          DISTRIBUTE_EMAIL: ${{ vars.DISTRIBUTE_EMAIL }}
+          EMAIL_SEND: ${{ vars.EMAIL_SEND }}
+          BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
+      - name: Drafts pack and scoreboard
+        if: always()
+        run: |
+          node platform/distribution/hub.mjs pack --out hub-pack
+          node platform/distribution/hub.mjs score --out hub-pack/scoreboard.json
+        env:
+          BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
+          MASTODON_INSTANCE: ${{ vars.MASTODON_INSTANCE }}
+          MASTODON_ACCT: ${{ vars.MASTODON_ACCT }}
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+          FACEBOOK_PAGE_ID: ${{ vars.FACEBOOK_PAGE_ID }}
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.FACEBOOK_PAGE_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ vars.INSTAGRAM_USER_ID }}
+          INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: distribution-hub-pack
+          path: hub-pack/
+          retention-days: 14

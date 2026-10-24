@@ -1,0 +1,306 @@
+[
+ {
+  "source": "copen_2012",
+  "table": "Table 6",
+  "sex": "Men",
+  "section": "Age at first marriage",
+  "label": "25 years and over",
+  "values": "13,947 0.84 0.012 0.76 0.017 0.68 0.023 * *",
+  "pypdf_page": 17,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "copen_2012",
+  "table": "Table 5",
+  "sex": "Women",
+  "section": "All women",
+  "label": "2002",
+  "values": "35,849 0.78 0.008 0.64 0.015 * * * *",
+  "pypdf_page": null,
+  "pypdf_check": "matched by reading (see note)",
+  "note": "pypdf p.16 prints \"2002 ... 35,849 0.78 0.008 0.64 0.015 * * * *\" followed directly by the next row; match failed only on the regex boundary after \"*\"."
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 22",
+  "sex": "Women",
+  "section": "Male unemployment rate",
+  "label": "Bottom 25 percent",
+  "values": "0.02(0.003) 0.10(0.007) 0.17(0.010) 0.29(0.012) 0.38(0.015)",
+  "pypdf_page": 66,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "copen_2012",
+  "table": "Table 6",
+  "sex": "Men",
+  "section": "Parental living arrangements at age 14",
+  "label": "Both biological or adoptive parents",
+  "values": "20,423 0.84 0.011 0.74 0.015 0.66 0.018 0.60 0.029",
+  "pypdf_page": 17,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Work status at marriage",
+  "label": "Not working",
+  "values": "0.03(0.005) 0.14(0.009) 0.23(0.011) 0.40(0.013) 0.50(0.015)",
+  "pypdf_page": 64,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "copen_2012",
+  "table": "Table 6",
+  "sex": "Men",
+  "section": "Religion raised",
+  "label": "Protestant",
+  "values": "13,375 0.80 0.016 0.67 0.018 0.58 0.021 0.53 0.030",
+  "pypdf_page": 17,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Religious affiliation",
+  "label": "Fundamentalist",
+  "values": "0.02(0.007) 0.11(0.016) 0.18(0.022) 0.32(0.026) 0.40(0.029)",
+  "pypdf_page": 64,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Timing of first birth",
+  "label": "More than 7 months after",
+  "values": "0.02(0.003) 0.08(0.005) 0.14(0.007) 0.26(0.009) 0.36(0.010)",
+  "pypdf_page": 65,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Age at marriage",
+  "label": "25 and over",
+  "values": "0.02(0.004) 0.08(0.008) 0.15(0.012) 0.24(0.017) 0.35(0.041)",
+  "pypdf_page": 64,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "copen_2012",
+  "table": "Table 5",
+  "sex": "Women",
+  "section": "Hispanic origin and race",
+  "label": "Hispanic or Latina",
+  "values": "5,412 0.84 0.017 0.73 0.020 0.64 0.024 0.53 0.027",
+  "pypdf_page": 16,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "copen_2012",
+  "table": "Table 6",
+  "sex": "Men",
+  "section": "Number of biological children at time of first marriage",
+  "label": "One or more children",
+  "values": "5,843 0.74 0.030 0.55 0.032 0.48 0.033 0.43 0.050",
+  "pypdf_page": 17,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Cohabited before marriage",
+  "label": "Did not",
+  "values": "0.03(0.003) 0.11(0.006) 0.18(0.007) 0.31(0.009) 0.39(0.011)",
+  "pypdf_page": 65,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Work status at marriage",
+  "label": "Part time",
+  "values": "0.02(0.005) 0.10(0.012) 0.15(0.015) 0.23(0.019) 0.29(0.022)",
+  "pypdf_page": 64,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 22",
+  "sex": "Women",
+  "section": "Percent on public assistance",
+  "label": "Bottom 25 percent",
+  "values": "0.02(0.004) 0.10(0.008) 0.16(0.010) 0.26(0.013) 0.35(0.017)",
+  "pypdf_page": 66,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "copen_2012",
+  "table": "Table 6",
+  "sex": "Men",
+  "section": "All men",
+  "label": "2006–2010",
+  "values": "28,094 0.81 0.012 0.70 0.014 0.62 0.016 0.56 0.026",
+  "pypdf_page": 17,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Religious affiliation",
+  "label": "None",
+  "values": "0.03(0.008) 0.17(0.015) 0.27(0.020) 0.46(0.024) 0.56(0.027)",
+  "pypdf_page": 64,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 22",
+  "sex": "Women",
+  "section": "Male unemployment rate",
+  "label": "Top 25 percent",
+  "values": "0.04(0.007) 0.15(0.011) 0.25(0.014) 0.41(0.018) 0.50(0.021)",
+  "pypdf_page": 66,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "copen_2012",
+  "table": "Table 7",
+  "sex": "Men",
+  "section": "First wife ever married before this marriage",
+  "label": "No",
+  "values": "24,459 0.82 0.014 0.72 0.016 0.64 0.018 0.58 0.029",
+  "pypdf_page": null,
+  "pypdf_check": "matched by reading (see note)",
+  "note": "pypdf p.18 interleaves the Yes/No rows column by column (\"3,342 24,459 0.76 0.82 0.032 0.014 ...\"); reading the No column gives exactly 24,459 0.82 0.014 0.72 0.016 0.64 0.018 0.58 0.029."
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Generalized anxiety disorder",
+  "label": "Never",
+  "values": "0.03(0.003) 0.11(0.005) 0.19(0.006) 0.31(0.008) 0.39(0.010)",
+  "pypdf_page": 65,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Family income",
+  "label": "Less than $25,000",
+  "values": "0.05(0.006) 0.20(0.012) 0.31(0.015) 0.53(0.016) 0.65(0.017)",
+  "pypdf_page": 64,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Education",
+  "label": "Less than HS",
+  "values": "0.05(0.008) 0.15(0.015) 0.24(0.018) 0.42(0.022) 0.51(0.025)",
+  "pypdf_page": 64,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Generalized anxiety disorder",
+  "label": "Ever",
+  "values": "0.03(0.005) 0.14(0.010) 0.24(0.012) 0.42(0.014) 0.55(0.016)",
+  "pypdf_page": 65,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Ever had forced premarital sex",
+  "label": "No",
+  "values": "0.02(0.002) 0.10(0.005) 0.17(0.006) 0.30(0.008) 0.39(0.009)",
+  "pypdf_page": 64,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 22",
+  "sex": "Women",
+  "section": "Percent college-educated",
+  "label": "Top 25 percent",
+  "values": "0.01(0.004) 0.09(0.008) 0.16(0.012) 0.28(0.015) 0.37(0.019)",
+  "pypdf_page": 66,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 22",
+  "sex": "Women",
+  "section": "Median family income",
+  "label": "Top 25 percent",
+  "values": "0.02(0.004) 0.08(0.007) 0.13(0.010) 0.23(0.013) 0.32(0.016)",
+  "pypdf_page": 66,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "copen_2012",
+  "table": "Table 7",
+  "sex": "Women",
+  "section": "First husband ever married before this marriage",
+  "label": "Yes",
+  "values": "4,498 0.75 0.026 0.62 0.031 0.53 0.036 0.38 0.058",
+  "pypdf_page": null,
+  "pypdf_check": "matched by reading (see note)",
+  "note": "pypdf p.18 interleaves the Yes/No rows (\"4,498 28,379 0.75 0.81 0.026 0.009 ...\"); the Yes column reads 4,498 0.75 0.026 0.62 0.031 0.53 0.036 0.38 0.058."
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Timing of first birth",
+  "label": "Before marriage",
+  "values": "0.05(0.007) 0.19(0.016) 0.29(0.017) 0.50(0.020) 0.60(0.025)",
+  "pypdf_page": null,
+  "pypdf_check": "matched by reading (see note)",
+  "note": "pypdf p.65 prints \"Timing of first birth Before marriage ... 0.05(0.007) 0.19(0.016) 0.29(0.017) 0.50(0.020) 0.60(0.025)\"; the page header is \"Table 21 ...—Con.\" so the table-number filter missed it."
+ },
+ {
+  "source": "copen_2012",
+  "table": "Table 5",
+  "sex": "Women",
+  "section": "Religion raised",
+  "label": "Protestant",
+  "values": "15,738 0.77 0.012 0.65 0.016 0.56 0.021 0.50 0.026",
+  "pypdf_page": 16,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "copen_2012",
+  "table": "Table 5",
+  "sex": "Women",
+  "section": "Religion raised",
+  "label": "Catholic",
+  "values": "11,215 0.84 0.014 0.73 0.016 0.63 0.024 0.53 0.034",
+  "pypdf_page": 16,
+  "pypdf_check": "matched mechanically"
+ },
+ {
+  "source": "bramlett_mosher_2002",
+  "table": "Table 21",
+  "sex": "Women",
+  "section": "Importance of religion",
+  "label": "Not important",
+  "values": "0.04(0.011) 0.15(0.015) 0.26(0.020) 0.45(0.027) 0.54(0.029)",
+  "pypdf_page": 64,
+  "pypdf_check": "matched mechanically"
+ }
+]

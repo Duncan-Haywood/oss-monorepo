@@ -1,0 +1,9 @@
+feature,coef
+cat__period_2,-0.66091
+cat__period_3,-0.500118
+cat__period_4,-1.00486
+cat__period_5,-1.05465
+cat__relationship_quality_Fair,1.84515
+cat__relationship_quality_Good,1.13178
+cat__relationship_quality_Poor or very poor,2.20455
+cat__relationship_quality_Unknown,1.2598

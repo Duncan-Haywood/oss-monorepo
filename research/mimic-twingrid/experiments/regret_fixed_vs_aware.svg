@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 434" role="img" aria-labelledby="t d">
+<title id="t">Regret of controllers tuned on wrong pendulum twins, fixed against twin-aware gravity</title>
+<desc id="d">For each wrong twin, two bars: extra real-system cost when the controller keeps g/L = 9.81 in its energy estimate (blue) and when it uses the twin's own g/L (orange). Gravity errors dominate, and twin-aware gravity makes them worse.</desc>
+<style>text{font:12px sans-serif;fill:#222}.a{stroke:#555}@media(prefers-color-scheme:dark){text{fill:#ddd}.a{stroke:#aaa}}</style>
+<text x="190" y="24" style="font-size:14px;font-weight:bold">Using the twin's gravity in the controller made gravity errors costlier</text>
+<text x="190" y="42" style="font-size:11px">extra real cost (regret), mean of 8 tuning seeds; blue = fixed g/L 9.81, orange = twin-aware g/L</text>
+<line class="a" x1="190" x2="190" y1="56" y2="404"/>
+<text x="182" y="72" text-anchor="end">g/L -20%</text>
+<rect x="190" y="58" width="33.5" height="9" fill="#1f6fb2"><title>g/L -20% fixed: 0.01325</title></rect>
+<rect x="190" y="68" width="447.6" height="9" fill="#d98324"><title>g/L -20% aware: 0.17673</title></rect>
+<text x="641.6" y="72" style="font-size:10px">0.0132 / 0.1767</text>
+<text x="182" y="98" text-anchor="end">g/L +20%</text>
+<rect x="190" y="84" width="90.4" height="9" fill="#1f6fb2"><title>g/L +20% fixed: 0.03570</title></rect>
+<rect x="190" y="94" width="44.1" height="9" fill="#d98324"><title>g/L +20% aware: 0.01742</title></rect>
+<text x="284.4" y="98" style="font-size:10px">0.0357 / 0.0174</text>
+<text x="182" y="124" text-anchor="end">g/L -10%</text>
+<rect x="190" y="110" width="10.7" height="9" fill="#1f6fb2"><title>g/L -10% fixed: 0.00424</title></rect>
+<rect x="190" y="120" width="58.8" height="9" fill="#d98324"><title>g/L -10% aware: 0.02320</title></rect>
+<text x="252.8" y="124" style="font-size:10px">0.0042 / 0.0232</text>
+<text x="182" y="150" text-anchor="end">coul = 0</text>
+<rect x="190" y="136" width="3.5" height="9" fill="#1f6fb2"><title>coul = 0 fixed: 0.00137</title></rect>
+<rect x="190" y="146" width="3.5" height="9" fill="#d98324"><title>coul = 0 aware: 0.00137</title></rect>
+<text x="197.5" y="150" style="font-size:10px">0.0014 / 0.0014</text>
+<text x="182" y="176" text-anchor="end">g/L +10%</text>
+<rect x="190" y="162" width="3.4" height="9" fill="#1f6fb2"><title>g/L +10% fixed: 0.00136</title></rect>
+<rect x="190" y="172" width="0.0" height="9" fill="#d98324"><title>g/L +10% aware: -0.00085</title></rect>
+<text x="197.4" y="176" style="font-size:10px">0.0014 / -0.0008</text>
+<text x="182" y="202" text-anchor="end">noise sd x2</text>
+<rect x="190" y="188" width="2.5" height="9" fill="#1f6fb2"><title>noise sd x2 fixed: 0.00099</title></rect>
+<rect x="190" y="198" width="2.5" height="9" fill="#d98324"><title>noise sd x2 aware: 0.00099</title></rect>
+<text x="196.5" y="202" style="font-size:10px">0.0010 / 0.0010</text>
+<text x="182" y="228" text-anchor="end">noise sd x1.5</text>
+<rect x="190" y="214" width="2.2" height="9" fill="#1f6fb2"><title>noise sd x1.5 fixed: 0.00089</title></rect>
+<rect x="190" y="224" width="2.2" height="9" fill="#d98324"><title>noise sd x1.5 aware: 0.00089</title></rect>
+<text x="196.2" y="228" style="font-size:10px">0.0009 / 0.0009</text>
+<text x="182" y="254" text-anchor="end">gauss noise, same sd</text>
+<rect x="190" y="240" width="1.6" height="9" fill="#1f6fb2"><title>gauss noise, same sd fixed: 0.00063</title></rect>
+<rect x="190" y="250" width="1.6" height="9" fill="#d98324"><title>gauss noise, same sd aware: 0.00063</title></rect>
+<text x="195.6" y="254" style="font-size:10px">0.0006 / 0.0006</text>
+<text x="182" y="280" text-anchor="end">noise sd x0 (no noise)</text>
+<rect x="190" y="266" width="0.6" height="9" fill="#1f6fb2"><title>noise sd x0 (no noise) fixed: 0.00024</title></rect>
+<rect x="190" y="276" width="0.6" height="9" fill="#d98324"><title>noise sd x0 (no noise) aware: 0.00024</title></rect>
+<text x="194.6" y="280" style="font-size:10px">0.0002 / 0.0002</text>
+<text x="182" y="306" text-anchor="end">visc x2</text>
+<rect x="190" y="292" width="0.5" height="9" fill="#1f6fb2"><title>visc x2 fixed: 0.00018</title></rect>
+<rect x="190" y="302" width="0.5" height="9" fill="#d98324"><title>visc x2 aware: 0.00018</title></rect>
+<text x="194.5" y="306" style="font-size:10px">0.0002 / 0.0002</text>
+<text x="182" y="332" text-anchor="end">noise sd x0.5</text>
+<rect x="190" y="318" width="0.2" height="9" fill="#1f6fb2"><title>noise sd x0.5 fixed: 0.00010</title></rect>
+<rect x="190" y="328" width="0.2" height="9" fill="#d98324"><title>noise sd x0.5 aware: 0.00010</title></rect>
+<text x="194.2" y="332" style="font-size:10px">0.0001 / 0.0001</text>
+<text x="182" y="358" text-anchor="end">coul -33%</text>
+<rect x="190" y="344" width="0.2" height="9" fill="#1f6fb2"><title>coul -33% fixed: 0.00009</title></rect>
+<rect x="190" y="354" width="0.2" height="9" fill="#d98324"><title>coul -33% aware: 0.00009</title></rect>
+<text x="194.2" y="358" style="font-size:10px">0.0001 / 0.0001</text>
+<text x="182" y="384" text-anchor="end">visc x0.5</text>
+<rect x="190" y="370" width="0.1" height="9" fill="#1f6fb2"><title>visc x0.5 fixed: 0.00004</title></rect>
+<rect x="190" y="380" width="0.1" height="9" fill="#d98324"><title>visc x0.5 aware: 0.00004</title></rect>
+<text x="194.1" y="384" style="font-size:10px">0.0000 / 0.0000</text>
+</svg>

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Affiliate Disclosure Checker — Is Your Amazon/FTC Disclosure Missing or Too Late?</title>
-  <meta name="description" content="Paste a blog post's HTML and see every affiliate link it recognises (Amazon Associates tag= links, amzn.to, rel=sponsored, ShareASale/CJ/Impact/Skimlinks/AWIN tracking links) and whether a disclosure appears before the first one — plus whether an Amazon link carries Amazon's own required exact statement. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta name="description" content="Paste a blog post's HTML and check whether an FTC or Amazon Associates affiliate disclosure appears before the first affiliate link. Free, runs in your browser.">
   <meta property="og:title" content="Is your affiliate disclosure missing, or just too late?">
   <meta property="og:description" content="Paste your post's HTML and get a deterministic list of every affiliate link it recognises and whether a disclosure phrase appears before the first one — plus a separate check for Amazon's own required exact wording. No account, no upload.">
   <link rel="canonical" href="./index.html">
@@ -49,6 +49,7 @@
     <p>Paste a blog post or page's HTML and see every affiliate link it recognises — an <a href="https://affiliate-program.amazon.com/help/operating/agreement" rel="noopener">Amazon Associates</a> <code>tag=</code> link, an <code>amzn.to</code> short link, <code>rel="sponsored"</code>, or a known network's tracking link (ShareASale, CJ, Impact, Skimlinks, AWIN, and similar) — and whether a disclosure phrase appears <strong>before</strong> the first one, the way the <a href="https://www.ftc.gov/business-guidance/resources/disclosures-101-social-media-influencers" rel="noopener">FTC's Endorsement Guides</a> call for. Separately, it checks whether any Amazon link carries Amazon's own required exact statement — a generic "affiliate links" note is not enough for Amazon specifically, and Amazon has terminated associate accounts over exactly this gap.</p>
     <p class="note">Nothing is uploaded. The text box is parsed in this browser and never leaves your device. This is a fact-check, not a compliance determination: it names what it found, not whether you are safe from the FTC or from Amazon.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your page's HTML</h2>
@@ -112,7 +113,8 @@ node cli.mjs check dist --strict                    # also fail on a missing Ama
     <p>No. The browser page parses the HTML you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice, and it does not replace a qualified professional. It is not a determination that you comply with the FTC's Endorsement Guides, Amazon's Associates Program Operating Agreement, or any other network's terms — it reports which known affiliate-link and disclosure-phrase patterns it recognises in the text you provide, nothing more. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any disclosure obligation it helps you check. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Not affiliated with, endorsed by, or sponsored by Amazon, Amazon Associates, or any affiliate network named above. Each is a trademark of its respective owner, named here only to describe what this tool checks for.</p>

@@ -64,7 +64,7 @@
     <p class="note">LEAGUE SCHEDULE GENERATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Make a fair round-robin league schedule in a minute</h1>
     <p>Paste the <strong>team names</strong>, pick a <strong>start date and weekday</strong>, and get every round with <strong>real dates</strong>, <strong>home and away balanced</strong>, <strong>courts and time slots shared evenly</strong>, and <strong>blackout dates</strong> handled. Export a <strong>CSV</strong>, a <strong>calendar file</strong> for the league or one team, or <strong>plain text</strong> for the group chat.</p>
-    <p class="note">For rec leagues, youth sports, pickleball, darts and chess clubs and office leagues. New to this? Read <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule, with a worked example</a>, <a href="./how-to-run-a-swiss-tournament.html">how Swiss pairings work</a>, <a href="./how-to-break-ties-in-league-standings.html">how to break ties in the standings</a>, <a href="./how-to-reschedule-a-rained-out-league-game.html">how to reschedule a rained-out game</a>, <a href="./how-to-run-an-americano-tournament.html">how an Americano rotation works</a>, <a href="./how-to-run-a-mexicano-tournament.html">how a Mexicano draw works</a>, <a href="./how-to-run-a-ladder-league.html">how a challenge ladder moves players up</a>, <a href="./how-to-run-a-single-elimination-bracket.html">how to seed a single-elimination bracket and give byes</a>, <a href="./how-to-run-a-double-elimination-tournament.html">how double elimination and the grand final reset work</a>, <a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">how byes work with an odd number of teams</a>, <a href="./how-to-balance-home-and-away-games-in-a-round-robin.html">how to balance home and away games</a>, <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">how to fit a league onto limited courts and time slots</a>, or look up <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>, <a href="./how-long-does-a-round-robin-tournament-take.html">how long a one-day round robin takes</a>, or <a href="./tournament-bracket-by-number-of-teams.html">byes, rounds and games for a 3 to 32 team bracket</a>, or copy a <a href="./round-robin-schedule-template.html">ready-made round robin fixture list for 4 to 16 teams</a>.</p>
+    <p class="note">For rec leagues, youth sports, pickleball, darts and chess clubs and office leagues. New to this? Read <a href="./multi-division-league-schedule.html">a scheduler for several divisions sharing courts</a>, <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule, with a worked example</a>, <a href="./how-to-run-a-swiss-tournament.html">how Swiss pairings work</a>, <a href="./how-to-break-ties-in-league-standings.html">how to break ties in the standings</a>, <a href="./how-to-reschedule-a-rained-out-league-game.html">how to reschedule a rained-out game</a>, <a href="./how-to-run-an-americano-tournament.html">how an Americano rotation works</a>, <a href="./how-to-run-a-mexicano-tournament.html">how a Mexicano draw works</a>, <a href="./how-to-run-a-ladder-league.html">how a challenge ladder moves players up</a>, <a href="./how-to-make-a-fantasy-football-schedule.html">how to fill a fantasy football season with repeat weeks</a>, <a href="./how-to-assign-referees-to-a-league-schedule.html">how to share referees fairly</a>, <a href="./how-to-run-a-single-elimination-bracket.html">how to seed a single-elimination bracket and give byes</a>, <a href="./how-to-run-a-double-elimination-tournament.html">how double elimination and the grand final reset work</a>, <a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">how byes work with an odd number of teams</a>, <a href="./how-to-balance-home-and-away-games-in-a-round-robin.html">how to balance home and away games</a>, <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">how to fit a league onto limited courts and time slots</a>, <a href="./pickleball-league-schedule.html">a pickleball league schedule for 8 teams on 2 courts</a>, <a href="./youth-soccer-league-schedule.html">a youth soccer league schedule for 9 teams on 2 fields with byes</a>, <a href="./adult-softball-league-schedule.html">an adult softball schedule for 6 teams on 2 diamonds with a blackout night</a>, <a href="./rec-basketball-league-schedule.html">a rec basketball league schedule for 10 teams on 2 courts</a>, <a href="./volleyball-league-schedule.html">a volleyball league schedule with closed gym nights</a>, <a href="./cornhole-league-schedule.html">an 8-team cornhole league schedule on 2 lanes with a skipped holiday week</a>, <a href="./darts-league-schedule.html">a home-and-away darts league for 6 pub teams</a>, <a href="./chess-club-round-robin-schedule.html">a chess club round robin for 7 players with byes</a>, or look up <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>, <a href="./how-long-does-a-round-robin-tournament-take.html">how long a one-day round robin takes</a>, or <a href="./tournament-bracket-by-number-of-teams.html">byes, rounds and games for a 3 to 32 team bracket</a>, or copy a <a href="./round-robin-schedule-template.html">ready-made round robin fixture list for 4 to 16 teams</a>.</p>
   </header>
 
   <main>
@@ -154,7 +154,7 @@
     <div id="notices"></div>
     <div class="big" id="big"></div>
     <p id="check-line"></p>
-    <div class="scroll"><table id="rounds"><thead><tr><th>Round</th><th>Date</th><th>Time</th><th>Court</th><th>Home</th><th>Away</th><th id="off-th" hidden>Official</th></tr></thead><tbody></tbody></table></div>
+    <div class="scroll"><table id="rounds-table"><thead><tr><th>Round</th><th>Date</th><th>Time</th><th>Court</th><th>Home</th><th>Away</th><th id="off-th" hidden>Official</th></tr></thead><tbody></tbody></table></div>
 
     <h2 style="margin-top:22px">By team</h2>
     <label for="team">Show one team</label>
@@ -183,6 +183,7 @@
     </div>
 
     <button type="button" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="dl-grid">Download season grid CSV (teams by date)</button>
     <button type="button" class="secondary" id="dl-standings">Download standings CSV</button>
     <button type="button" id="dl-ics">Download calendar (.ics), whole league</button>
     <button type="button" id="dl-team-ics">Download calendar (.ics), selected team</button>
@@ -197,6 +198,7 @@
     <select id="official-pick" hidden aria-label="Official"></select>
     <button type="button" class="secondary" id="dl-off-ics" hidden>Download calendar (.ics), selected official</button>
     <button type="button" id="dl-page">Download league web page (.html)</button>
+    <button type="button" class="secondary" id="dl-sheets">Download printable score sheets (.html)</button>
   </section>
 
   <section class="card" id="pool-card">
@@ -225,7 +227,7 @@
 
   <section class="card" id="oneday-card">
     <h2>One-day tournament: clock times for every game</h2>
-    <p class="note">Everyone plays everyone once in a single day. List the teams in the Teams box above, then set the courts, the first start time and how long a game and the changeover take. Each round finishes before the next begins, so nobody plays twice at once. Not sure it fits? See <a href="./how-long-does-a-round-robin-tournament-take.html">how long a one-day round robin takes</a>.</p>
+    <p class="note">Everyone plays everyone once in a single day. List the teams in the Teams box above, then set the courts, the first start time and how long a game and the changeover take. Nobody plays twice at once. Leave rest at 0 to play round by round, or ask for 1 or more slots of rest so no team plays back to back where the numbers allow. Not sure it fits? See <a href="./how-long-does-a-round-robin-tournament-take.html">how long a one-day round robin takes</a>.</p>
     <label for="od-courts">Courts</label>
     <input id="od-courts" type="number" min="1" max="16" value="2">
     <label for="od-start">First game</label>
@@ -234,6 +236,8 @@
     <input id="od-minutes" type="number" min="5" max="600" value="30">
     <label for="od-change">Changeover, minutes</label>
     <input id="od-change" type="number" min="0" max="120" value="5">
+    <label for="od-rest">Minimum rest between a team's games, in time slots (0 keeps round order)</label>
+    <input id="od-rest" type="number" min="0" max="6" value="0">
     <label for="od-double">Play everyone twice</label>
     <input id="od-double" type="checkbox">
     <button type="button" id="build-oneday">Build timetable</button>
@@ -323,7 +327,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -397,7 +401,7 @@
       $("#dl-off-msgs").hidden = !offNames.length;
       $("#dl-off-ics").hidden = $("#official-pick").hidden = !offNames.length;
       $("#official-pick").innerHTML = offNames.map((n) => `<option>${esc(n)}</option>`).join("");
-      $("#rounds tbody").innerHTML = s.rounds.map((r) => {
+      $("#rounds-table tbody").innerHTML = s.rounds.map((r) => {
         const cls = r.makeup ? ' class="mk"' : "";
         const rows = r.matches.map((m, i) => `<tr${cls}><td>${i === 0 ? esc(r.label) : ""}</td><td>${i === 0 ? dayLabel(r.day) : ""}</td><td>${esc(m.time)}</td><td>${esc(m.court)}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td>${m.official !== undefined ? `<td>${esc(m.official)}</td>` : ""}</tr>`);
         if (r.bye !== null && r.bye !== undefined) rows.push(`<tr class="bye"><td>${r.matches.length ? "" : esc(r.label)}</td><td></td><td colspan="4">Bye: ${esc(s.teams[r.bye])}</td></tr>`);
@@ -622,6 +626,7 @@
     });
     $("#team").addEventListener("change", showTeam);
     $("#dl-csv").addEventListener("click", () => { if (!last) return; download("league-schedule.csv", scheduleCsv(last.s), "text/csv"); record("csv_downloaded"); });
+    $("#dl-grid").addEventListener("click", () => { if (!last) return; download("league-season-grid.csv", seasonGridCsv(last.s), "text/csv"); record("csv_downloaded"); });
     $("#dl-standings").addEventListener("click", () => {
       if (!last) return;
       if (!last.table) { status.textContent = "Type some results first, then the standings can be downloaded."; return; }
@@ -659,6 +664,11 @@
       if (!last) return;
       download("league-page.html", leaguePageHtml(last.s, { title: "League schedule", table: last.table, bracket: last.bracket }), "text/html");
       record("page_downloaded");
+    });
+    $("#dl-sheets").addEventListener("click", () => {
+      if (!last) return;
+      download("score-sheets.html", scoreSheetsHtml(last.s, { title: "League score sheets" }), "text/html");
+      record("text_shared");
     });
     $("#copy-week").addEventListener("click", async () => {
       if (!last || !last.table) return;
@@ -749,11 +759,12 @@
           matchMinutes: Number($("#od-minutes").value),
           changeoverMinutes: Number($("#od-change").value || 0),
           double: $("#od-double").checked,
+          minRest: parseInt($("#od-rest").value, 10) || 0,
         });
       } catch (e) { out.textContent = e.message; return; }
       odOut = oneDayText(tt);
       $("#od-out").textContent = odOut;
-      out.textContent = `${tt.games} games in ${tt.slots.length} time slots on ${tt.courts} court${tt.courts === 1 ? "" : "s"}; the last game ends ${tt.finish}.`;
+      out.textContent = `${tt.games} games in ${tt.slots.length} time slots on ${tt.courts} court${tt.courts === 1 ? "" : "s"}; the last game ends ${tt.finish}.${tt.minRest ? ` Every team rests at least ${tt.restSlots} slot${tt.restSlots === 1 ? "" : "s"} between games${tt.slots.some((s) => !s.matches.length) ? "; empty slots are breaks" : ""}.` : ""}`;
       record("oneday_built");
     }));
     $("#dl-oneday").addEventListener("click", () => { if (odOut) download("one-day-timetable.txt", odOut, "text/plain"); });

@@ -2,12 +2,13 @@ name: README live links
 
 # Fails a pull request that adds a venture or research README with no link to
 # its live Pages page (SEO: the README is what GitHub and search engines index
-# first). 3 research READMEs had drifted before this ran anywhere. Reads
-# tracked files only; publishes nothing, pushes nothing, calls no paid API.
+# first), or that titles itself with its bare slug instead of what it does.
+# 3 research READMEs had drifted before this ran anywhere. Reads tracked files
+# only; publishes nothing, pushes nothing, calls no paid API.
 
 on:
   pull_request:
-    paths: ["ventures/*/README.md", "research/*/README.md", "research/_homepage/projects.json", "platform/ci/research_live_links.py", "platform/ci/venture_live_links.py", ".github/workflows/readme-live-links-ci.yml"]
+    paths: ["ventures/*/README.md", "research/README.md", "research/*/README.md", "research/_homepage/projects.json", "research/*/project.json", "research/_homepage/registry.py", "platform/ci/research_live_links.py", "platform/ci/venture_live_links.py", "platform/ci/readme_titles.py", "ventures/*/index.html", ".github/workflows/readme-live-links-ci.yml"]
   workflow_dispatch:
 
 permissions:
@@ -18,11 +19,11 @@ jobs:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
 
@@ -32,6 +33,9 @@ jobs:
       - name: Venture READMEs link their live page
         run: python3 platform/ci/venture_live_links.py
 
+      - name: Venture and research READMEs carry a real title, not the slug
+        run: python3 platform/ci/readme_titles.py
+
       - name: Guard unit tests
         working-directory: platform/ci
-        run: python3 -m unittest test_research_live_links test_venture_live_links
+        run: python3 -m unittest test_research_live_links test_venture_live_links test_readme_titles

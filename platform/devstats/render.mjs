@@ -93,6 +93,15 @@ ${ci.workflows.map((w) => `<tr><td>${esc(w.name)}</td><td class="num">${w.runs}<
   <p class="note">The ${ci.workflows.length} workflows with the most failed runs in the sample${ci.sample.workflows_seen > ci.workflows.length ? `, of ${ci.sample.workflows_seen}` : ''}. The same numbers are in <a href="stats.json">stats.json</a>.</p>`;
 }
 
+function deliverySection(d) {
+  const m = d.merge_to_live_minutes;
+  const days = Object.entries(d.deploys_per_day).map(([day, n]) => `${esc(day)}: ${num(n)}`).join(', ');
+  return `<div class="scroll"><table><thead><tr><th>Gate on main</th><th class="num">Runs decided</th><th class="num">Failed</th><th class="num">Red spells</th><th class="num">Time to restore p50 / p90</th><th class="num">Hours red</th><th class="num">Share of window red</th></tr></thead><tbody>
+${d.gates.map((g) => `<tr><td>${esc(g.name)}${g.red_now ? ' (red now)' : ''}</td><td class="num">${num(g.decided)}</td><td class="num">${num(g.failed)} (${show(pct(g.failed_share))})</td><td class="num">${num(g.red_spells)}</td><td class="num">${show(g.restore_hours.p50, ' h')} / ${show(g.restore_hours.p90, ' h')}</td><td class="num">${show(g.red_hours)}</td><td class="num">${show(pct(g.red_share))}</td></tr>`).join('\n')}
+</tbody></table></div>
+  <p class="note">Last ${d.window_days} days (${esc(d.from.slice(0, 16).replace('T', ' '))} to ${esc(d.to.slice(0, 16).replace('T', ' '))} UTC). ${num(d.deploys)} deploys (passing <code>${esc(d.deploy_workflow)}</code> runs on main; ${days}). Merge to live, from a merge commit to the end of the first passing deploy created after it: p50 ${show(m.p50)} min, p75 ${show(m.p75)} min, p90 ${show(m.p90)} min, longest ${show(m.max)} min; ${num(m.over_60)} of ${num(m.n)} merges took over an hour${m.waiting ? `, and ${num(m.waiting)} are not live yet` : ''}. ${esc(d.note)}</p>`;
+}
+
 function groupTable(groups, keyLabel) {
   const rows = Object.entries(groups ?? {});
   if (!rows.length) return '<p class="na">No run records in this window.</p>';
@@ -123,6 +132,8 @@ export function renderDashboard(stats, { title = 'How this is built' } = {}) {
     tile(`CI runs failed, ${ci?.window_days ?? 14} days`, show(ci ? ci.totals.failed : null), 'failure, timeout or startup failure'),
     tile('CI pass rate', show(ci ? pct(ci.pass_share) : null), 'of runs that reached a verdict'),
     tile('Workflows red on main', show(ci ? ci.red_on_main_now.length : null), 'latest run on main failed'),
+    tile('Merge to live (p50)', show(stats.delivery?.available ? stats.delivery.merge_to_live_minutes.p50 : null, ' min'), `last ${stats.delivery?.window_days ?? 3} days`),
+    tile('Deploys', show(stats.delivery?.available ? stats.delivery.deploys : null), `last ${stats.delivery?.window_days ?? 3} days`),
   ].join('\n');
 
   const ghSection = gh.available
@@ -182,6 +193,7 @@ export function renderDashboard(stats, { title = 'How this is built' } = {}) {
 <div class="wrap">
   <h1>${esc(title)}</h1>
   <p class="lede">This repository is built mostly by automated agent runs, merged without human review once CI passes. These are the numbers we steer by: how fast work lands, how often CI catches it, what each run costs, and what is left lying around. Built ${esc(stats.generated_at.slice(0, 16).replace('T', ' '))} UTC from <code>${esc((stats.source_commit ?? '').slice(0, 10))}</code>.</p>
+  <p class="lede">The same numbers as words, every day: the <a href="daily/">engineering brief</a>, about fifteen minutes to read or listen to, and <a href="daily/show/">The Merge Report</a>, a few lighter minutes for everyone else.</p>
 
   <div class="tiles">
 ${tiles}
@@ -194,6 +206,9 @@ ${tiles}
 
   <h2>Pull requests, reviews and CI</h2>
   <div class="scroll">${ghSection}</div>
+
+  <h2>Delivery: deploys, merge to live, red time on main</h2>
+  ${stats.delivery?.available ? deliverySection(stats.delivery) : unavailable(stats.delivery ?? { reason: 'not collected' })}
 
   <h2>CI runs: passed, failed, cancelled</h2>
   ${ci ? ciSection(ci) : unavailable(stats.ci ?? { reason: 'not collected' })}

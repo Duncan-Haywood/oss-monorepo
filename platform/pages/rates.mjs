@@ -746,7 +746,11 @@ export function pageTakesShopRates(html, slug = '') {
  */
 const RATES_CSS = `
 .pf-rates{font:inherit;font-size:.85rem;line-height:1.45;color:inherit;
-  max-width:1060px;margin:0 auto;padding:8px 18px 0;box-sizing:border-box}
+  max-width:1060px;margin:0 auto 12px;padding:8px 18px 0;box-sizing:border-box}
+/* The bar is a <section>, and 200-odd ventures style every bare section as a
+   white card (background, border, radius, shadow). Without these resets the
+   bar rendered as an empty white slab jammed against the venture's heading. */
+section.pf-rates{background:none;border:0;border-radius:0;box-shadow:none;min-height:0}
 .pf-rates-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
 .pf-rates-status{opacity:.82}
 .pf-rates button{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;

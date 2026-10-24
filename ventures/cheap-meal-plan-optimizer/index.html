@@ -53,7 +53,7 @@
     <p class="note">CHEAPEST MEAL PLAN OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>What is the cheapest way to hit your protein and calories?</h1>
     <p>List the <strong>foods you can buy</strong> with a price and nutrition per serving, set your <strong>targets</strong>, and a linear-programming solver finds the <strong>lowest-cost servings per day</strong> that meet them. It also tells you <strong>what each extra target costs</strong>, so you can see where the money goes.</p>
-    <p class="note">The starter list uses <strong>approximate generic nutrition and example prices</strong>: edit every price to what you pay. New to this? Read <a href="./how-to-eat-high-protein-on-a-budget.html">how to eat high-protein on a budget, with a worked example</a>.</p>
+    <p class="note">The starter list uses <strong>approximate generic nutrition and example prices</strong>: edit every price to what you pay. New to this? Read <a href="./how-to-eat-high-protein-on-a-budget.html">how to eat high-protein on a budget, with a worked example</a>, <a href="./cheap-vegan-high-protein-meal-plan.html">a cheap vegan version</a>, <a href="./what-protein-does-a-grocery-budget-buy.html">what a $2 to $5 daily budget buys</a>, or <a href="./what-does-one-more-gram-of-protein-cost.html">what one more gram of protein costs</a>.</p>
   </header>
 
   <main>
@@ -106,9 +106,23 @@
     <p id="week-note" class="note"></p>
     <div style="overflow-x:auto"><table class="t" id="week"><thead><tr><th>Day</th><th>Foods (servings)</th><th class="n">Cost</th></tr></thead><tbody></tbody></table></div>
     <button type="button" class="secondary" id="copy-week">Copy the week's menu as text</button>
+    <h3>What protein costs, food by food</h3>
+    <p class="note">Your listed price per 100 g of protein and per 1,000 calories, cheapest protein first, ignoring every other bound. The plan can use a dearer protein for the calories, fibre or minerals it brings, so compare with the plan above.</p>
+    <div style="overflow-x:auto"><table class="t" id="proteinprice"><thead><tr><th>Food</th><th class="n">Per 100 g protein</th><th class="n">Per 1,000 kcal</th><th>In plan</th></tr></thead><tbody></tbody></table></div>
     <h3>Foods left out: what price would earn a place?</h3>
     <p class="note">The price per serving at which each food the plan skips would start to be used, with everything else unchanged. Watch for sales near these.</p>
     <div style="overflow-x:auto"><table class="t" id="breakeven"><thead><tr><th>Food</th><th class="n">Your price</th><th class="n">Used below</th><th class="n">Drop needed</th></tr></thead><tbody></tbody></table></div>
+    <h3>Foods in the plan: how far can the price rise?</h3>
+    <p class="note">The price per serving above which each food in the plan would be dropped for something else, with everything else unchanged. A food far above today's price is safe to keep buying through a price rise; one close to it is the first to swap out.</p>
+    <div style="overflow-x:auto"><table class="t" id="stayin"><thead><tr><th>Food</th><th class="n">Your price</th><th class="n">Kept up to</th><th class="n">Rise allowed</th></tr></thead><tbody></tbody></table></div>
+    <h3>Foods in the plan: what does losing one cost?</h3>
+    <p class="note">The cheapest plan with each food taken off the list, everything else unchanged. Use it when you are tired of a food or cannot get it: the extra is what the swap costs per day. "Not possible" means your targets cannot be met without it.</p>
+    <div style="overflow-x:auto"><table class="t" id="dropcost"><thead><tr><th>Food</th><th class="n">Cheapest plan without it</th><th class="n">Extra per day</th></tr></thead><tbody></tbody></table></div>
+    <h3>Compare with what you eat now</h3>
+    <p class="note">Type what you eat in a day, one food per line with its servings (for example <code>Rice 3</code>). Foods are matched to your list by name. It shows what that day costs, which of your bounds it misses, and how much the plan above saves. Nothing is uploaded.</p>
+    <textarea id="current" aria-label="What you eat in a day, one food and its servings per line" spellcheck="false" style="min-height:90px" placeholder="Rice 3&#10;Eggs 2"></textarea>
+    <button type="button" class="secondary" id="compare">Compare</button>
+    <div id="compare-out" role="status"></div>
     <h3>Shopping list for the week</h3>
     <p class="note" id="grocery-note"></p>
     <div style="overflow-x:auto"><table class="t" id="grocery"><thead><tr><th>Food</th><th class="n">Servings / week</th><th class="n">Packs to buy</th><th class="n">Left over</th><th class="n">At the till</th></tr></thead><tbody></tbody></table></div>
@@ -147,14 +161,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not medical, dietary, nutrition, legal, tax or financial advice and does not replace a doctor or registered dietitian. It is not suitable for children, pregnancy, eating disorders, diabetes or any condition that needs medical nutrition guidance, and it will not plan under 1,200 calories a day. Nutrition and prices come from what you type or edit; the starter values are approximate generic figures and example prices. You are responsible for checking labels and verifying the plan before you follow it.</p>
     <p><strong>Independent.</strong> Not affiliated with any retailer, brand, diet programme or nutrition service, and none is named or ranked here. The example prices are illustrative, not quotes.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere except in a share link you choose to copy.</p>
-    <p>Everything runs in your browser. Your food list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your food list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>saved_list_restored</code>, <code>plan_run_new_day</code>, <code>compare_current</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../production-mix-optimizer/">production mix optimizer</a>, the <a href="../cut-list-optimizer/">cut list optimizer</a> and the <a href="../shipping-box-size-optimizer/">shipping box size optimizer</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, filterByStyle, STYLES, weekMenu, weekText, breakEvenPrices, planCsv, groceryList, groceryText, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
+    import { encodeShare, decodeShare, SHARE_FIELDS, parseFoods, validateSpec, solve, verifyPlan, proteinFrontier, varietyFrontier, budgetFrontier, filterByStyle, STYLES, weekMenu, weekText, breakEvenPrices, stayInPrices, dropCosts, proteinPrices, planCsv, comparePlan, groceryList, groceryText, money2, fmt, SAMPLE_FOODS, NUTRIENTS, UNITS, bounds, DEFAULTS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { FOOD_LIBRARY, lineName, addLibraryFoods } from "./food-library.mjs";
 
@@ -234,8 +248,13 @@
       $("#budget tbody").innerHTML = budgetFrontier(spec, [0.9, 1, 1.25, 1.5, 2].map((m) => res.bound * m)).map((r) => `<tr><td class="n">${money2(r.budget)}</td><td class="n">${r.protein === null ? "not possible" : fmt(r.protein, 0) + " g"}</td></tr>`).join("");
       $("#variety tbody").innerHTML = varietyFrontier(spec, [100, 50, 40, 30, 25, 20]).map((r) => `<tr><td class="n">${r.share >= 100 ? "no limit" : r.share + "%"}</td><td class="n">${r.cost === null ? "not possible" : money2(r.cost)}</td><td class="n">${r.cost === null ? "—" : r.foods}</td></tr>`).join("");
       renderWeek();
+      $("#proteinprice tbody").innerHTML = proteinPrices(spec, res).map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.per100gProtein === null ? "no protein" : money2(r.per100gProtein)}</td><td class="n">${r.per1000kcal === null ? "—" : money2(r.per1000kcal)}</td><td>${r.inPlan ? "yes" : "no"}</td></tr>`).join("");
       const be = breakEvenPrices(spec, res);
       $("#breakeven tbody").innerHTML = be.length ? be.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${money2(r.current)}</td><td class="n">${r.price === null ? "never" : money2(r.price)}</td><td class="n">${r.drop === null ? "no price helps" : fmt(r.drop * 100, 0) + "%"}</td></tr>`).join("") : `<tr><td colspan="4">Every food on your list is already in the plan.</td></tr>`;
+      const st = stayInPrices(spec, res);
+      $("#stayin tbody").innerHTML = st.length ? st.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${money2(r.current)}</td><td class="n">${r.price === null ? "any price" : money2(r.price)}</td><td class="n">${r.rise === null ? "no rise drops it" : fmt(r.rise * 100, 0) + "%"}</td></tr>`).join("") : `<tr><td colspan="4">No food has a price that could drop it.</td></tr>`;
+      const dc = dropCosts(spec, res);
+      $("#dropcost tbody").innerHTML = dc.length ? dc.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.cost === null ? "not possible" : money2(r.cost)}</td><td class="n">${r.extra === null ? "—" : "+" + money2(r.extra)}</td></tr>`).join("") : `<tr><td colspan="3">No food in the plan to remove.</td></tr>`;
       const gl = groceryList(spec, res);
       const anyPack = gl.lines.some((l) => l.packs !== null);
       $("#grocery tbody").innerHTML = gl.lines.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${fmt(l.servings, 1)}</td><td class="n">${l.packs === null ? "—" : l.packs + " × " + fmt(l.pack, 1)}</td><td class="n">${l.packs === null ? "—" : fmt(l.leftover, 1)}</td><td class="n">${money2(l.spend)}</td></tr>`).join("") + `<tr><td><strong>Total</strong></td><td></td><td></td><td></td><td class="n"><strong>${money2(gl.spend)}</strong></td></tr>`;
@@ -244,6 +263,19 @@
       return true;
     }
 
+    function renderCompare() {
+      const out = $("#compare-out");
+      if (!last) { out.innerHTML = ""; return; }
+      const c = comparePlan(last.spec, last.res, $("#current").value);
+      if (!c.used) { out.innerHTML = `<p class="warn">No lines matched a listed food.${c.unmatched.length ? " Not matched: " + esc(c.unmatched.join("; ")) + "." : ""}</p>`; return; }
+      const parts = [`<p>What you typed costs <strong>${money2(c.cost)}</strong> a day (${money2(c.weekly)} a week).`];
+      if (c.saving !== null) parts.push(c.saving > 0.005 ? ` The cheapest plan above costs ${money2(last.res.cost)}, <strong>${money2(c.saving)} a day less</strong> (${money2(c.saving * 7)} a week).` : ` That is as cheap as the plan above${c.meets ? "" : ", but it misses bounds below"}.`);
+      parts.push("</p>");
+      parts.push(c.misses.length ? `<div class="warn">Misses: <ul>${c.misses.map((m) => `<li>${LABEL[m.k]} ${fmt(m.value, 0)} ${UNITS[m.k]}, ${m.kind === "below" ? "below the minimum" : "above the maximum"} of ${fmt(m.bound, 0)}</li>`).join("")}</ul>Cost is not comparable while it misses bounds: the plan above meets all of them.</div>` : `<p>It meets every bound you set.</p>`);
+      if (c.unmatched.length) parts.push(`<p class="note">Not matched, so left out: ${esc(c.unmatched.join("; "))}.</p>`);
+      out.innerHTML = parts.join("");
+    }
+    $("#compare").addEventListener("click", () => { if (!last) run(); renderCompare(); record("compare_current"); });
     const later = (fn) => setTimeout(fn, 0);
     $("#week-var").addEventListener("change", renderWeek);
     $("#copy-week").addEventListener("click", async () => {
@@ -252,7 +284,7 @@
       try { await navigator.clipboard.writeText(text); status.textContent = "Week's menu copied."; record("week_copied"); }
       catch { status.textContent = "Could not copy; select the table instead."; }
     });
-    $("#analyze").addEventListener("click", () => later(() => { if (run()) record("plan_run"); }));
+    $("#analyze").addEventListener("click", () => later(() => { if (run()) { record("plan_run"); noteDay(); } }));
     $("#load-example").addEventListener("click", () => {
       $("#foods").value = SAMPLE_FOODS;
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Starter foods: approximate generic nutrition and example prices. Edit the prices to what you pay."; } });
@@ -292,9 +324,12 @@
       if (saved.foods) {
         $("#foods").value = saved.foods;
         for (const k of SHARE_FIELDS) if (k in saved.fields) $(FIELD_ID[k]).value = saved.fields[k];
-        status.textContent = "Restored your last food list and targets from this device. Update any prices, then click Find the cheapest plan.";
+        status.textContent = "Restored your last food list and targets from this device. Update any prices, then click Find the cheapest plan."; record("saved_list_restored");
       }
     } catch (e) {}
+    // Return measurement (hypothesis: shoppers re-plan as prices change). Counts a plan run on a different calendar day from the last one, on this device only.
+    const DAY_KEY = "cheap-meal-plan-optimizer:last-run-day";
+    function noteDay() { try { const d = new Date().toISOString().slice(0, 10), last = localStorage.getItem(DAY_KEY); if (last && last !== d) record("plan_run_new_day"); localStorage.setItem(DAY_KEY, d); } catch (e) {} }
     for (const sel of ["#foods", ...Object.values(FIELD_ID)]) $(sel).addEventListener("input", persist);
     $("#forget").addEventListener("click", () => { saveOff = true; try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device. Nothing more is saved until you reload."; });
     if (location.hash.length > 1) {

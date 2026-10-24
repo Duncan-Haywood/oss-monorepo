@@ -3,11 +3,12 @@
 Find the regular expressions in your JavaScript, TypeScript and Python that can
 hang a server on one crafted string (ReDoS) — before an attacker does.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/regex-redos-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/regex-redos-check/
 
 ```
 node cli.mjs scan src
 node cli.mjs scan . --json
+node cli.mjs scan . --sarif > redos.sarif   # GitHub code scanning format
 node cli.mjs scan src --probe          # confirm JS suspects by timing the real engine
 node cli.mjs scan src --fail-on warn   # CI gate: polynomial warnings fail too
 node cli.mjs check '(a+)+$'            # analyse a single pattern
@@ -25,6 +26,25 @@ Exit code 1 on any error (or any warning with `--fail-on warn`); 2 on bad input.
 
 Regexes are read from regex literals and `new RegExp("...")` in `.js/.ts`, and
 from `re.compile/match/search/...(r"...")` and `*_re = r"..."` constants in `.py`.
+
+## In CI: GitHub code scanning
+
+```yaml
+# .github/workflows/redos.yml
+on: [pull_request]
+permissions: { contents: read, security-events: write }
+jobs:
+  redos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node cli.mjs scan . --sarif > redos.sarif || true   # path to cli.mjs in your checkout
+      - uses: github/codeql-action/upload-sarif@v3
+        with: { sarif_file: redos.sarif }
+```
+
+Findings appear as code-scanning alerts on the line of the regex. Drop `|| true`
+to also fail the job on exponential patterns.
 
 ## What it is not
 

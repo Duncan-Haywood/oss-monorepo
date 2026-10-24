@@ -23,18 +23,39 @@ permissions:
 
 concurrency:
   group: ventures-tests-${{ github.ref }}
-  cancel-in-progress: true
+  # PR branches drop superseded runs; on main a run in flight finishes, so each
+  # merge does not cancel the last one's verdict (P038). GitHub still keeps
+  # only the newest pending run per group.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   changed-ventures:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
+      # Every step below only diffs BASE against HEAD, which needs the two
+      # commits' trees, not the history between them. A full clone (5.3 GB)
+      # was a median 95s of a 107s job; depth 1 plus this one-commit fetch is
+      # ~16s (docs/history/ci-perf-2026-10-21.md). A BASE that cannot be
+      # fetched (a force-pushed `before`) makes `git diff` fail loudly below,
+      # as it did with a full clone.
+      - name: Fetch the base commit
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -n "${BASE:-}" ] && [ "$BASE" != "0000000000000000000000000000000000000000" ]; then
+            if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+              exit 0
+            elif [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+              git fetch --quiet --no-tags --depth=1 origin "$BASE" || echo "::warning::could not fetch base $BASE"
+            else
+              git fetch --quiet --no-tags origin "$BASE" || echo "::warning::could not fetch base $BASE"
+            fi
+          fi
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
       - name: node --test in each touched venture
@@ -55,13 +76,21 @@ jobs:
             echo "::group::$s"
             # shellcheck disable=SC2086
             node --test $files || { echo "FAILED $s"; rc=1; }
-            # PRODUCT_PLAYBOOK.md 5b: every published page carries a no-warranty
-            # clause. Run per touched venture so the one that needs it goes red
-            # before the merge (formerly a step in each <slug>-ci.yml).
-            node platform/pages/clauses.mjs "$s" || { echo "FAILED clauses $s"; rc=1; }
             echo "::endgroup::"
           done
           exit $rc
+      # PRODUCT_PLAYBOOK.md 5b/5f: every published page carries the no-warranty
+      # clause, and a vs-<competitor> page the not-affiliated one. Runs for
+      # every venture the change touched, tests or not, so the PR that breaks a
+      # page goes red before the merge, names the venture, and annotates the
+      # file in its diff. This replaced a step copied into 281 <slug>-ci.yml
+      # files (docs/history/venture-clause-check-2026-10-20.md); the
+      # unscoped run in portfolio-validate.yml is the portfolio-wide backstop.
+      - name: Published pages carry the no-warranty clause (each touched venture)
+        if: ${{ !cancelled() }}
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: node platform/pages/clauses.mjs --changed-since "$BASE"
       - name: tsc over each touched venture's // @ts-check files
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}

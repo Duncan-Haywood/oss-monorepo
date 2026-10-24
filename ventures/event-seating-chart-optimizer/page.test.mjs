@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { parseGuests, parseRules, sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe, reseat, parsePlanCsv, planCsv } from "./calc.mjs";
+import { parseGuests, parseRules, parseAccessTables, parseTableSizes, sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe, reseat, parsePlanCsv, planCsv, groupMixOf } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-wedding-seating-chart.html";
@@ -87,7 +87,7 @@ test("page documents the rules and what it leaves out", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["plan_run", "example_loaded", "report_downloaded", "reseat_run", "signs_printed", "floorplan_printed", "board_printed", "cards_printed", "caterer_printed", "guest_sheet_imported"]) {
+  for (const e of ["plan_run", "example_loaded", "report_downloaded", "reseat_run", "signs_printed", "floorplan_printed", "board_printed", "cards_printed", "caterer_printed", "guest_sheet_imported", "saved_list_restored", "plan_run_new_day"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
@@ -170,6 +170,73 @@ test("the divorced-parents guide is linked, carries the clauses, and its worked 
   assert.deepEqual(res.tables.map((t) => t.size), [8, 8, 8]);
 });
 
+test("the step-free guide is linked, carries the clauses, and its worked example matches the optimizer", () => {
+  const name = "how-to-seat-wheelchair-users-and-guests-who-need-step-free-access-at-a-wedding.html";
+  const guide = page(name);
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /not a guarantee that any guest will be content/i);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(".", "\\.")}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(".", "\\.")}"`));
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(".", "\\.")));
+  const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
+
+  const names = ["Ines Duarte", "Tomas Duarte", "Leila Duarte", "Ravi Nair", "Mira Nair", "Abe Lindqvist", "Sue Lindqvist", "Cora Bell", "Hugh Bell", "Dot Marsh", "Ed Marsh", "Fay Okoro", "Ben Okoro", "Joss Kemp", "Lena Kemp", "Orla Voss", "Pete Voss", "Quin Adler", "Rex Adler", "Tess Brandt", "Gus Holt", "Pam Holt", "Walt Ferris", "Nell Ferris"];
+  const party = { "Ines Duarte": "Duarte party", "Tomas Duarte": "Duarte party", "Gus Holt": "Holt party", "Pam Holt": "Holt party", "Walt Ferris": "Ferris party", "Nell Ferris": "Ferris party" };
+  const parsed = parseGuests(names.map((g) => (party[g] ? `${g} | ${party[g]}` : g)).join("\n"));
+  const rulesText = ["Walt Ferris @ accessible", "Gus Holt @ wheelchair", "Walt Ferris + Cora Bell", "Gus Holt + Abe Lindqvist", "Nell Ferris + Dot Marsh", "Ines Duarte + Ravi Nair", "Fay Okoro + Ben Okoro", "Joss Kemp + Lena Kemp", "Orla Voss + Quin Adler", "Tess Brandt ! Pete Voss"].join("\n");
+  const { rules, errors } = parseRules(rulesText, parsed.guests);
+  assert.deepEqual([...parsed.errors, ...errors], []);
+  const spec = { guests: parsed.guests, rules, seatsPerTable: 8, tableCount: 3, balance: true, mix: "off", seed: 1, accessTables: parseAccessTables("1, 2").tables };
+  assert.deepEqual(validateSpec(spec), []);
+  const res = optimize(spec);
+  assert.deepEqual(verifyPlan(spec, res), []);
+  const base = baselinePlan(spec);
+  const baseRes = describe(spec, weightMatrix(spec), base, base);
+  const row = (label, met, total, splits, score) => `<tr><td>${label}</td><td class="n">${met} of ${total}</td><td class="n">${splits}</td><td class="n">${score}</td></tr>`;
+  assert.ok(guide.includes(row("In the order typed", baseRes.rulesMet, baseRes.rulesTotal, baseRes.partySplits.length, baseRes.score)), "list-order row");
+  assert.ok(guide.includes(row("Optimized", res.rulesMet, res.rulesTotal, res.partySplits.length, res.score)), "optimized row");
+  assert.equal(res.rulesTotal, 8);
+  const at = (p, n) => p[names.indexOf(n)] + 1;
+  assert.deepEqual([at(base, "Walt Ferris"), at(base, "Gus Holt")], [1, 1], "list order seats both at an accessible table");
+  assert.deepEqual([at(res.table, "Walt Ferris"), at(res.table, "Gus Holt")], [1, 2]);
+  assert.deepEqual(res.tables.map((t) => t.size), [8, 8, 8]);
+});
+
+test("the kids-table guide is linked, carries the clauses, and its worked example matches the optimizer", () => {
+  const name = "how-to-seat-a-kids-table-and-a-head-table-at-a-wedding.html";
+  const guide = page(name);
+  assert.match(guide, /not a guarantee that any guest will be content/i);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(".", "\\.")}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(".", "\\.")}"`));
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(".", "\\.")));
+  const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
+
+  const rows = ["Maya Patel|Patel family", "Dev Patel|Patel family", "Anya Patel|Patel family", "Rohan Patel|Patel family", "Tom Reed|Reed family", "Sara Reed|Reed family", "Eli Reed|Reed family", "Zoe Reed|Reed family", "Lucy Reed|Reed family", "Nina Cho|Cho family", "Sam Cho|Cho family", "Ivy Cho|Cho family", "Hal Brandt|Brandt family", "June Brandt|Brandt family", "Max Brandt|Brandt family", "Owen Lind|", "Pia Lind|", "Gil Ward|", "Rae Ward|", "Ted Moss|", "Una Moss|", "Vic Hale|", "Wes Hale|", "Kay Dunn|"];
+  const parsed = parseGuests(rows.map((r) => r.replace("|", " | ")).join("\n"));
+  const kids = ["Anya Patel", "Rohan Patel", "Eli Reed", "Zoe Reed", "Lucy Reed", "Ivy Cho", "Max Brandt"];
+  const rulesText = ["Maya Patel + Gil Ward", "Tom Reed + Owen Lind", "Nina Cho + Ted Moss", "Hal Brandt + Vic Hale", "Kay Dunn + Una Moss", "Sara Reed ! Hal Brandt", "Maya Patel @ 1", "Tom Reed @ 1", ...kids.map((k) => `${k} @ 3`)].join("\n");
+  const { rules, errors } = parseRules(rulesText, parsed.guests);
+  assert.deepEqual([...parsed.errors, ...errors], []);
+  const sizes = parseTableSizes("1: 6, 3: 7");
+  assert.deepEqual(sizes.errors, []);
+  const spec = { guests: parsed.guests, rules, seatsPerTable: 8, tableCount: 4, balance: true, mix: "off", seed: 1, tableSizes: sizes.sizes };
+  assert.deepEqual(validateSpec(spec), []);
+  const res = optimize(spec);
+  assert.deepEqual(verifyPlan(spec, res), []);
+  const base = baselinePlan(spec);
+  const baseRes = describe(spec, weightMatrix(spec), base, base);
+  const row = (label, met, total, splits, score) => `<tr><td>${label}</td><td class="n">${met} of ${total}</td><td class="n">${splits}</td><td class="n">${score}</td></tr>`;
+  assert.ok(guide.includes(row("In the order typed", baseRes.rulesMet, baseRes.rulesTotal, baseRes.partySplits.length, baseRes.score)), "list-order row");
+  assert.ok(guide.includes(row("Optimized", res.rulesMet, res.rulesTotal, res.partySplits.length, res.score)), "optimized row");
+  assert.equal(res.rulesTotal, 6);
+  for (const k of kids) assert.equal(res.table[parsed.guests.findIndex((g) => g.name === k)], 2, `${k} at the kids table`);
+  assert.equal(res.tables[2].size, 7);
+});
+
 test("the late-RSVP guide is linked, carries the clauses, and its worked example matches reseat", () => {
   const name = "how-to-handle-late-wedding-rsvps-and-drop-outs.html";
   const guide = page(name);
@@ -205,3 +272,74 @@ test("the late-RSVP guide is linked, carries the clauses, and its worked example
   assert.equal(guest_wishes(guide), `${res.rulesTotal + 1}`);
 });
 function guest_wishes(g) { return String(Number(g.match(/with (\d+) wishes/)[1])); }
+
+test("the mix-the-sides guide is linked, carries the clauses, and its worked example matches the optimizer", () => {
+  const name = "how-to-mix-bride-and-groom-sides-at-wedding-tables.html";
+  const guide = page(name);
+  assert.match(guide, /not a guarantee that any guest will be content/i);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(/\./g, "\\.")}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(/\./g, "\\.")}"`));
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(/\./g, "\\.")));
+  const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
+
+  const bride = ["Ada Okoye", "Ben Okoye", "Chidi Okoye", "Dara Lund", "Eva Lund", "Finn Lund", "Gro Lund", "Hana Hale", "Ian Hale", "Jo Hale", "Kemi Bello", "Lars Bello"];
+  const groom = ["Kit Marsh", "Lena Marsh", "Moe Marsh", "Nell Tran", "Omar Tran", "Pia Tran", "Quin Tran", "Rue Reyes", "Sol Reyes", "Tess Reyes", "Uri Cole", "Val Cole"];
+  const parsed = parseGuests([...bride.map((n) => `${n} | | Bride side`), ...groom.map((n) => `${n} | | Groom side`)].join("\n"));
+  const { rules, errors } = parseRules(["Ada Okoye + Ben Okoye", "Chidi Okoye + Dara Lund", "Eva Lund + Finn Lund", "Kit Marsh + Lena Marsh", "Moe Marsh + Nell Tran", "Omar Tran + Pia Tran", "Hana Hale + Kit Marsh"].join("\n"), parsed.guests);
+  assert.deepEqual([...parsed.errors, ...errors], []);
+  const most = (spec, table) => Math.max(...groupMixOf(spec, table).flatMap((m) => m.perTable));
+  const run = (mix) => {
+    const spec = { guests: parsed.guests, rules, seatsPerTable: 8, tableCount: 3, balance: true, mix, seed: 1 };
+    const res = optimize(spec);
+    assert.deepEqual(verifyPlan(spec, res), []);
+    return { spec, res };
+  };
+  const row = (label, met, total, most) => `<tr><td>${label}</td><td class="n">${met} of ${total}</td><td class="n">${most}</td></tr>`;
+  const off = run("off");
+  const spread = run("spread");
+  const base = baselinePlan(off.spec);
+  const baseRes = describe(off.spec, weightMatrix(off.spec), base, base);
+  assert.ok(guide.includes(row("In the order typed", baseRes.rulesMet, baseRes.rulesTotal, most(off.spec, base))), "list-order row");
+  assert.ok(guide.includes(row("Ignore groups", off.res.rulesMet, off.res.rulesTotal, most(off.spec, off.res.table))), "ignore row");
+  assert.ok(guide.includes(row("Spread each group", spread.res.rulesMet, spread.res.rulesTotal, most(spread.spec, spread.res.table))), "spread row");
+});
+
+test("the company-dinner guide is linked, carries the clauses, and its worked example matches the optimizer", () => {
+  const name = "how-to-seat-a-company-dinner-or-gala-so-departments-mix.html";
+  const guide = page(name);
+  assert.match(guide, /not a guarantee that any guest will be content/i);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(/\./g, "\\.")}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(/\./g, "\\.")}"`));
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(/\./g, "\\.")));
+  const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
+
+  const depts = {
+    Sales: ["Ana Pruitt", "Ben Cole", "Cara Diaz", "Dev Rao", "Eli Stone", "Fay Ross"],
+    Engineering: ["Gus Lane", "Hu Tran", "Ida Moss", "Jin Park", "Kai Webb", "Lia Ford"],
+    Support: ["Mo Grant", "Nia Shaw", "Oz Hart", "Pat Yu", "Quinn Ames", "Ria Bell"],
+    Finance: ["Sam Cruz", "Tia Lowe", "Uma Dunn", "Vic Hale", "Wes Nash", "Xia Roy"],
+  };
+  const parsed = parseGuests(Object.entries(depts).flatMap(([d, ns]) => ns.map((n) => `${n} | | ${d}`)).join("\n"));
+  const { rules, errors } = parseRules(["Ana Pruitt + Gus Lane", "Cara Diaz + Mo Grant", "Hu Tran + Nia Shaw", "Sam Cruz + Dev Rao", "Ida Moss + Tia Lowe", "Pat Yu + Jin Park", "Vic Hale !! Wes Nash", "Ana Pruitt @ 1"].join("\n"), parsed.guests);
+  assert.deepEqual([...parsed.errors, ...errors], []);
+  const most = (spec, table) => Math.max(...groupMixOf(spec, table).flatMap((m) => m.perTable));
+  const run = (mix) => {
+    const spec = { guests: parsed.guests, rules, seatsPerTable: 8, tableCount: 3, balance: true, mix, seed: 1 };
+    const res = optimize(spec);
+    assert.deepEqual(verifyPlan(spec, res), []);
+    assert.equal(res.table[0], 0, "host pinned to table 1");
+    return { spec, res };
+  };
+  const row = (label, met, total, m) => `<tr><td>${label}</td><td class="n">${met} of ${total}</td><td class="n">${m}</td></tr>`;
+  const off = run("off");
+  const spread = run("spread");
+  const base = baselinePlan(off.spec);
+  const baseRes = describe(off.spec, weightMatrix(off.spec), base, base);
+  assert.ok(guide.includes(row("In the order typed", baseRes.rulesMet, baseRes.rulesTotal, most(off.spec, base))), "list-order row");
+  assert.ok(guide.includes(row("Ignore groups", off.res.rulesMet, off.res.rulesTotal, most(off.spec, off.res.table))), "ignore row");
+  assert.ok(guide.includes(row("Spread each group", spread.res.rulesMet, spread.res.rulesTotal, most(spread.spec, spread.res.table))), "spread row");
+});

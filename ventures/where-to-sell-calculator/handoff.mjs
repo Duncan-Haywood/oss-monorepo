@@ -451,3 +451,31 @@ export function handoffsForResults(results = [], shared = {}) {
     })
     .filter(Boolean);
 }
+
+/**
+ * A relative link to `../marketplace-fee-compare/` carrying the item, for the
+ * seller who wants the quick headline triage or the bulk catalogue view
+ * instead of this page's returns-and-shelf-time depth.
+ *
+ * That page reads `#<encoded JSON>` with the item under `item` (its
+ * `share.mjs`). Packaging has no field there, so it is folded into
+ * `otherCost` rather than dropped, as for every other target. A blank item
+ * gives the bare link, so the target shows its own defaults only when nothing
+ * was entered.
+ */
+export function quickCompareUrl(shared = {}) {
+  const entry = {
+    fields: {
+      price: 'price',
+      shippingCharged: 'shippingCharged',
+      shippingCost: 'shippingCost',
+      itemCost: 'itemCost',
+      monthlyOrders: 'monthlyOrders',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  };
+  const item = handoffValues(entry, shared);
+  const base = '../marketplace-fee-compare/';
+  if (Object.keys(item).length === 0) return base;
+  return `${base}#${encodeURIComponent(JSON.stringify({ item }))}`;
+}

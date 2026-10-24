@@ -5,7 +5,7 @@ crews. It prices a residential metal roof from the panel squares a per-square
 special cannot see, the tear-off, the stories, and the trim — and shows the
 margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/metal-roof-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/metal-roof-bid-calculator/
 
 **After using this, you can now send a metal-roof price that includes the
 panel type, the tear-off, and the trim**, which used to take a spreadsheet
@@ -13,10 +13,7 @@ that still started from the coupon’s roof squares.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

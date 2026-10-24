@@ -10,6 +10,8 @@ node platform/pages/check.mjs                    # check that artifact (--dist=D
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
+The site's experiments live in the lab (`lab/`, built by `lab.mjs`); its charter, roadmap and log are in [`LAB.md`](LAB.md).
+
 Then, in a browser, the seven checks CI cannot run — `journey.mjs` (the customer
 journey), `sweep.mjs` (does every tool still compute), `contrast.mjs` (can
 every page be read and reached), `roundtrip.mjs` (does a shared bid arrive as
@@ -588,6 +590,43 @@ visitor at the foot of every sibling page, and described to assistants under the
 wrong heading in `llms.txt`. Five tools were filed in "More free tools" until
 2026-08-27 for want of a keyword, `tiktok-shop-fee-calculator` among them: a
 marketplace tool a seller would only have found by searching for it by name.
+
+## The hub's motion and showcase
+
+The front page's hero, moving tool shelf and "See it working" section live in
+`showcase.mjs`, apart from the hub's search and saved-bid code in `build.mjs`.
+
+- **Hero:** a dark backdrop (in both colour schemes, with its own tokens so the
+  search and stats keep their contrast), drifting colour, a canvas of points
+  that lean toward the pointer, a rotating "Built for …" line taken from the
+  audience pages, and stats that count up once seen.
+- **Shelf:** two rows of tool names from every section, scrolling in opposite
+  directions; the loop copy is `aria-hidden` plain text, not links, so each
+  tool is linked once.
+- **Showcase:** a muted screen recording of real tools loading their own worked
+  examples, and a strip of stills that each link to the tool. The files are in
+  `showcase/`, made by `node showcase/capture.mjs` against a locally built site
+  (instructions at the top of that file). Rerun it when a tool's look changes.
+  The hub drops any still whose tool is no longer published.
+
+Every effect is added by script to markup that is already complete, so the page
+works without JavaScript. Under `prefers-reduced-motion: reduce` nothing moves
+and the video waits for a click. The video is not fetched until it is on screen.
+Scroll reveals hide only what starts below the fold and show everything after
+four seconds or on print: until 2026-10-21 they hid every section until it was
+scrolled to, so a full-page capture (and any renderer that does not scroll)
+saw a page of empty bands.
+
+The sections below the hero live in `home.mjs`, in this order: how it works
+(three steps), who it is for (the audience pages), the category tiles (each
+with a hand-drawn inline SVG icon in its section's accent), apps and
+command-line tools, the showcase and featured tools, the research band (dark,
+like the hero: featured projects with their theme and summary, and every
+theme), the latest writing, and "also here". The saved-bid restore panel sits
+with the offline panel near the foot, not above the tools. `home.mjs` also
+writes the hub's second JSON-LD block: a `WebSite` with a `SearchAction` on
+`?q=` (which the hub's search reads on load) and the `Organization`. Every
+graphic is inline SVG or CSS; the section adds no request.
 
 ## Shop rates, carried between tools
 
@@ -1313,6 +1352,44 @@ second is the maintenance signal: if it grows against the first, some
 calculator has started wording its messages in a way the matcher cannot follow,
 and those pages are back to pointing at a highlight nobody drew.
 
+## Link previews, icons and the share pass
+
+A shared link is the first thing most people see of the site, so every page
+previews as a card of its own (2,282 on the 2026-10-21 build: 1,307 tools, 43
+category and audience pages, 931 research, writing, comparison and section
+pages, and the site card).
+
+- **`sharecard.mjs`** draws a card in the homepage hero's look (night field,
+  teal and indigo aurora, grid, constellation): the brand lockup, the page's
+  section as a coloured kicker, its name in Inter, a footer claim and the
+  site's address. Cards are median-cut to 256 colours and written as indexed
+  PNG, about 50 KB each instead of 150-200 KB truecolour, which keeps the
+  artifact to ~120 MB of cards. It also draws the brand mark (three rising
+  bars on the header's teal-to-indigo square) used by `favicon.ico` (16, 32
+  and 48 px), `favicon.svg`, the app icons and the opaque 180 px
+  `apple-touch-icon.png`.
+- **`fontraster.mjs`** reads TrueType outlines and fills them anti-aliased,
+  with no dependency. The faces are Inter subsets in `fonts/` (SIL Open Font
+  License, `fonts/OFL.txt`); `fonts/kerning.py` flattens their GPOS kerning
+  into `fonts/kerning.json` and is the one step that needs `fonttools`.
+- **`share.mjs`** is the pass that runs after every generator and the chrome:
+  any directory page still pointing at the site-wide `social-card.png` gets a
+  `share-card.png` beside it (title from `og:title`, kicker from the
+  breadcrumb, research pages coloured by their topic's colour on the research
+  map), and every page gets complete share tags: `og:site_name`, image size
+  and type, `og:image:alt`, and `twitter:title`, `twitter:description`,
+  `twitter:image` and `twitter:image:alt`. It also drops a stray inline
+  favicon and links `favicon.svg` where a page lacks it. Cards render on a
+  pool of worker threads (`share-worker.mjs`); on four cores the build takes
+  no longer than before the pass existed.
+- The deploy guide and the development pages (`deploy/`, `dev/`) are written
+  into the artifact by later workflow steps, so `portfolio-pages.yml` runs the
+  same pass over them afterwards: `node platform/pages/share.mjs <dist>
+  --base=<site url> --only=deploy,dev`. Pages with no og: tags at all get
+  `og:title`, `og:description`, `og:url` and `og:type` from their own head.
+
+To look at a card: `node -e "import('./sharecard.mjs').then(m => process.stdout.write(m.renderCard({headline: 'Example', kicker: 'Section'})))" > card.png`.
+
 ## Offline and installable
 
 The people these tools are for are often somewhere with no signal at the moment
@@ -1396,8 +1473,11 @@ node platform/pages/clauses.mjs                 # every surface
 node platform/pages/clauses.mjs <venture-slug>  # one venture
 ```
 
-Reading sources is what makes it cheap enough to run from a venture's own CI,
-which is where it now runs. That matters because the built-site assertion in
+Reading sources is what makes it cheap enough to run on every venture PR.
+`ventures-tests.yml` runs `node platform/pages/clauses.mjs --changed-since
+<base>` for each venture the change touched, naming the venture and
+annotating the page; until 2026-10-20 the same check was a step copied into
+281 `<slug>-ci.yml` files. That matters because the built-site assertion in
 `build.test.mjs` fires on `platform/pages/**` — so a venture that omits the
 clause merges cleanly and turns `main` red in the Pages job, naming an author
 who never saw the requirement, in a workflow they did not touch. That is how
@@ -1427,7 +1507,7 @@ python3 -m http.server 8793 --directory dist &
 node platform/pages/journey.mjs
 
 # or against the live site, once publishing is on:
-BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
+BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/journey.mjs
 ```
 
 It covers the hub and its grouping, search (narrowing, the empty state, and

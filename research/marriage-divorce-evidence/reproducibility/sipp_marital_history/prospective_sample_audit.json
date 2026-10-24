@@ -1,0 +1,135 @@
+{
+ "pairs": [
+  {
+   "baseline_file": 2018,
+   "outcome_file": 2019,
+   "couples": 12330,
+   "wife_in_next_file": 6884,
+   "wife_with_longitudinal_weight": 6781,
+   "widowed_excluded": 51,
+   "rows": 6730,
+   "events": 45
+  },
+  {
+   "baseline_file": 2019,
+   "outcome_file": 2020,
+   "couples": 9897,
+   "wife_in_next_file": 4652,
+   "wife_with_longitudinal_weight": 4596,
+   "widowed_excluded": 32,
+   "rows": 4564,
+   "events": 56
+  },
+  {
+   "baseline_file": 2020,
+   "outcome_file": 2021,
+   "couples": 10243,
+   "wife_in_next_file": 6718,
+   "wife_with_longitudinal_weight": 6611,
+   "widowed_excluded": 87,
+   "rows": 6524,
+   "events": 59
+  },
+  {
+   "baseline_file": 2021,
+   "outcome_file": 2022,
+   "couples": 11138,
+   "wife_in_next_file": 3074,
+   "wife_with_longitudinal_weight": 3028,
+   "widowed_excluded": 42,
+   "rows": 2986,
+   "events": 32
+  },
+  {
+   "baseline_file": 2022,
+   "outcome_file": 2023,
+   "couples": 8026,
+   "wife_in_next_file": 5067,
+   "wife_with_longitudinal_weight": 5010,
+   "widowed_excluded": 56,
+   "rows": 4954,
+   "events": 62
+  },
+  {
+   "baseline_file": 2023,
+   "outcome_file": 2024,
+   "couples": 7936,
+   "wife_in_next_file": 4303,
+   "wife_with_longitudinal_weight": 4260,
+   "widowed_excluded": 39,
+   "rows": 4221,
+   "events": 34
+  },
+  {
+   "baseline_file": 2024,
+   "outcome_file": 2025,
+   "couples": 7233,
+   "wife_in_next_file": 3803,
+   "wife_with_longitudinal_weight": 3758,
+   "widowed_excluded": 39,
+   "rows": 3719,
+   "events": 24
+  }
+ ],
+ "rows": 33698,
+ "events": 312,
+ "households": 17621,
+ "couples": 17960,
+ "wealth_gain_over_demographics": {
+  "percent": -0.7902808203615885,
+  "ci95": [
+   -2.8152439335935298,
+   0.9133218315219751
+  ],
+  "auc_difference": 0.0003727892435146929,
+  "auc_difference_ci95": [
+   -0.02779964204719716,
+   0.026133162756771428
+  ]
+ },
+ "money_winsorised_at_weighted_p1_p99": {
+  "wife_earnings": [
+   0.0,
+   311005.6541162731
+  ],
+  "husband_earnings": [
+   0.0,
+   510528.0
+  ],
+  "household_income": [
+   4161.903695714559,
+   763569.6645374396
+  ],
+  "household_net_worth": [
+   -139857.33253067132,
+   9617883.575008746
+  ],
+  "household_debt": [
+   0.0,
+   1350000.0
+  ],
+  "household_unsecured_debt": [
+   0.0,
+   281115.94974202436
+  ]
+ },
+ "chosen_C": {
+  "demographics": {
+   "fold0": 1.0,
+   "fold1": 0.03,
+   "fold2": 1.0,
+   "fold3": 1.0,
+   "fold4": 1.0,
+   "final": 1.0
+  },
+  "demographics_wealth": {
+   "fold0": 0.01,
+   "fold1": 0.01,
+   "fold2": 0.01,
+   "fold3": 0.01,
+   "fold4": 0.01,
+   "final": 0.01
+  }
+ },
+ "python_sklearn": "1.7.2"
+}

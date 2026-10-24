@@ -1,0 +1,42 @@
+feature,coef,odds_ratio_per_unit_or_vs_reference
+num__relationship_years,0.0419,1.0044
+num__mean_age,-0.3987,0.9722
+num__age_gap,-0.1638,0.9744
+num__edu_years_mean,0.6373,1.3387
+num__edu_gap,-0.2071,0.8995
+num__hh_income_k,-0.0740,0.9985
+num__children_in_hh,-0.2546,0.6803
+cat__period_2,0.2202,1.2464
+cat__period_3,0.6850,1.9838
+cat__period_4,0.6022,1.8261
+cat__period_5,0.0120,1.0120
+cat__relationship_quality_Fair,-1.3511,0.2590
+cat__relationship_quality_Good,-0.8985,0.4072
+cat__relationship_quality_Poor or very poor,-0.3580,0.6990
+cat__relationship_quality_Unknown,-0.3943,0.6742
+cat__cohabiting_Unknown,-0.0414,0.9594
+cat__cohabiting_Yes,0.9086,2.4809
+cat__couple_type_Two men,-0.7460,0.4743
+cat__couple_type_Two women,-0.8323,0.4351
+cat__couple_race_Both Hispanic,-0.0825,0.9208
+cat__couple_race_Both Other,0.3790,1.4609
+cat__couple_race_Both White,-0.6168,0.5396
+cat__couple_race_Interracial,-0.4971,0.6083
+cat__couple_race_Unknown,-0.0650,0.9371
+cat__prior_marriage_Unknown,-0.0505,0.9507
+cat__prior_marriage_Yes,0.0240,1.0243
+cat__parental_approval_Disapprove,-0.3234,0.7237
+cat__parental_approval_Neutral or unsure,-0.5599,0.5713
+cat__parental_approval_Not asked (no living parent),-0.1948,0.8230
+cat__religion_pair_Different religions,0.4823,1.6199
+cat__religion_pair_One no religion,0.3618,1.4359
+cat__religion_pair_Same religion,0.7709,2.1617
+cat__religion_pair_Unknown,-0.0233,0.9769
+cat__how_met_Church,0.7097,2.0334
+cat__how_met_Online,0.3946,1.4838
+cat__how_met_Other,-0.8298,0.4361
+cat__how_met_School or college,-0.0821,0.9211
+cat__how_met_Through family,-0.5666,0.5675
+cat__how_met_Through friends,0.0803,1.0836
+cat__how_met_Unknown,0.9332,2.5426
+cat__how_met_Work or coworkers,0.1754,1.1917

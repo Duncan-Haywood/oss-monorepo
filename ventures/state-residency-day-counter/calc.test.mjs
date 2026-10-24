@@ -450,7 +450,11 @@ test("deviceTimelineToStays: coordinates resolve to states for the Android and i
   assert.deepEqual(e.lines, ["2025-07-04 NY"]);
   assert.equal(e.nearBorder, 1);
   assert.equal(r.nearBorder, 0);
+  // A visit with no endTime counts as a single day on its start date.
+  const open = [{ startTime: "2025-08-09T08:00:00.000-04:00", visit: { topCandidate: { placeLocation: "geo:25.7617,-80.1918" } } }];
+  assert.deepEqual(deviceTimelineToStays(JSON.stringify(open), 2025, STATE_RINGS).lines, ["2025-08-09 FL"]);
   assert.equal(deviceTimelineToStays("nope", 2025, STATE_RINGS).error, "Not a JSON file.");
+  assert.deepEqual(deviceTimelineToStays("nope", 2025, STATE_RINGS), { lines: [], imported: 0, skipped: 0, nearBorder: 0, error: "Not a JSON file." });
   assert.match(deviceTimelineToStays("{}", 2025, STATE_RINGS).error, /phone/);
 });
 
@@ -615,4 +619,34 @@ test("New York City: a city word on a non-New-York line is an error", () => {
   const { stays, errors } = parseStays("2025-02-01 to 2025-02-10 Brooklyn NJ", 2025);
   assert.equal(stays.length, 0);
   assert.equal(errors.length, 1);
+});
+
+test("North Dakota seven-month test needs an abode and crosses at 211 days", () => {
+  assert.equal(RULES.ND.limit, 210);
+  assert.equal(RULES.ND.requiresAbode, true);
+  assert.equal(RULES.ND.kind, "statutory");
+  for (const [days, over] of [[210, false], [211, true]]) {
+    const end = dayIso(toDay(Y, 1, 1) + days - 1);
+    const nd = by(analyze(spec([`ND ${Y}-01-01 to ${end}`], { homeState: "FL", abode: { ND: true } })), "ND");
+    assert.equal(nd.days, days);
+    assert.equal(nd.status === "over", over, `${days} days`);
+  }
+});
+
+test("daily log marks Monday to Friday as weekday work and Sunday and Saturday as not", () => {
+  const log = dailyLog(spec(["NY 2025-01-01 to 2025-01-31"]));
+  const byDate = Object.fromEntries(log.map((r) => [r.date, r]));
+  // 2025-01-06 is a Monday, 2025-01-11 a Saturday, 2025-01-12 a Sunday.
+  assert.deepEqual(["2025-01-06", "2025-01-07", "2025-01-10"].map((d) => byDate[d].weekdayWork), [true, true, true]);
+  assert.deepEqual(["2025-01-11", "2025-01-12"].map((d) => byDate[d].weekdayWork), [false, false]);
+  assert.equal(byDate["2025-01-06"].weekday, "Mon");
+});
+
+test("stateAt finds a point whose polygon sits where longitude exceeds latitude", async () => {
+  const { stateAt } = await import("./calc.mjs");
+  // A square at lon 100..110, lat 10..20: the bounding box must use the
+  // latitude values, not the next longitude, or the point is skipped.
+  const rings = { ZZ: [[100, 10, 110, 10, 110, 20, 100, 20]] };
+  assert.equal(stateAt(105, 12, rings), "ZZ");
+  assert.equal(stateAt(105, 25, rings), "");
 });

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of midpoint first cost in dollars against frost depth in inches for four foundations: the full basement is flat near $55,000, the slab and crawlspace rise with frost depth, and the frost-protected shallow foundation stays near $13,000">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Foundation first cost by frost depth (28 x 40 ft house, stylised prices)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="277.9" y2="277.9" stroke="#ddd"/><text x="58" y="281.9" text-anchor="end" font-family="sans-serif" font-size="11">10000</text>
+<line x1="64" x2="624" y1="231.8" y2="231.8" stroke="#ddd"/><text x="58" y="235.8" text-anchor="end" font-family="sans-serif" font-size="11">20000</text>
+<line x1="64" x2="624" y1="185.8" y2="185.8" stroke="#ddd"/><text x="58" y="189.8" text-anchor="end" font-family="sans-serif" font-size="11">30000</text>
+<line x1="64" x2="624" y1="139.7" y2="139.7" stroke="#ddd"/><text x="58" y="143.7" text-anchor="end" font-family="sans-serif" font-size="11">40000</text>
+<line x1="64" x2="624" y1="93.6" y2="93.6" stroke="#ddd"/><text x="58" y="97.6" text-anchor="end" font-family="sans-serif" font-size="11">50000</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">24</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">36</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">48</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">60</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">frost depth (in)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">first cost (USD)</text>
+<polyline points="64.0,272.3 204.0,251.7 344.0,240.3 484.0,228.9 624.0,217.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="272.3" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="251.7" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="240.3" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="228.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="217.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">slab on grade</text>
+<polyline points="64.0,265.9 204.0,265.1 344.0,264.2 484.0,263.2 624.0,262.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="265.9" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="265.1" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="264.2" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="263.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="262.3" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">frost-protected shallow</text>
+<polyline points="64.0,247.0 204.0,235.6 344.0,224.2 484.0,212.9 624.0,201.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="247.0" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="235.6" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="224.2" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="212.9" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="201.5" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">crawlspace</text>
+<polyline points="64.0,71.2 204.0,71.2 344.0,71.2 484.0,71.2 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="204.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="484.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">full basement</text>
+</svg>

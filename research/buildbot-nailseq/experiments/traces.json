@@ -1,0 +1,77 @@
+{
+ "columns": [
+  "t_s",
+  "dx_m",
+  "dy_m",
+  "dz_m",
+  "wall_N"
+ ],
+ "runs": [
+  {
+   "height": 0.8,
+   "feasible": true
+  },
+  {
+   "height": 0.8,
+   "f": 4,
+   "delay": 0.01,
+   "stable": true
+  },
+  {
+   "height": 0.8,
+   "f": 8,
+   "delay": 0.01,
+   "stable": true
+  },
+  {
+   "height": 0.8,
+   "f": 8,
+   "delay": 0.0,
+   "stable": true
+  },
+  {
+   "height": 1.0,
+   "feasible": true
+  },
+  {
+   "height": 1.0,
+   "f": 4,
+   "delay": 0.01,
+   "stable": true
+  },
+  {
+   "height": 1.0,
+   "f": 8,
+   "delay": 0.01,
+   "stable": true
+  },
+  {
+   "height": 1.0,
+   "f": 8,
+   "delay": 0.0,
+   "stable": true
+  },
+  {
+   "height": 1.2,
+   "feasible": true
+  },
+  {
+   "height": 1.2,
+   "f": 4,
+   "delay": 0.01,
+   "stable": true
+  },
+  {
+   "height": 1.2,
+   "f": 8,
+   "delay": 0.01,
+   "stable": true
+  },
+  {
+   "height": 1.2,
+   "f": 8,
+   "delay": 0.0,
+   "stable": true
+  }
+ ]
+}

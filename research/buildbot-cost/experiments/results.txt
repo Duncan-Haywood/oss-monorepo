@@ -1,0 +1,28 @@
+inputs: carpenter median wage $29.12/h (BLS OOH, May 2025); G1 $16000, H1 $90000 (launch prices, press); NAHB 2024 price $665298, construction $428215
+sweep (4000 draws, seed 1): wage $25-35, burden x1.0-1.6, slowdown 1-10 (log), supervision 0.1-1.0 person-h per robot-h, success 0.3-1.0, price x1-2, life 2000-10000 h (log), upkeep 5-20%/yr, use 500-2000 h/yr (log)
+
+A. break-even slowdown s* = loaded wage / (rate + supervision x loaded wage); robot-hours per replaced crew-hour
+   (median wage $29.12, burden 1.3, life 6000 h, upkeep 10%/yr, use 1000 h/yr, price x1)
+   G1 ownership $4.3/h; s* at supervision 0 / 0.1 / 0.3 / 0.5 / 1.0 = 8.87 / 4.70 / 2.42 / 1.63 / 0.90
+   H1 ownership $24.0/h; s* at supervision 0 / 0.1 / 0.3 / 0.5 / 1.0 = 1.58 / 1.36 / 1.07 / 0.88 / 0.61
+
+B. the ceiling: a free, instant, unsupervised robot (s=0, rate=0) takes every payload-passing hour
+   cost-implied framing labour of the average NAHB house: 1033 h (at loaded wage $37.86); taskbook framing+sheathing+roof (A): 23.4 h; scale k = 44.1 for scenario C
+   scenario A G1: 5.9 eligible crew-h of 46.4 -> $223 = 0.03% of the $665298 average price
+   scenario A H1: 32.1 eligible crew-h of 46.4 -> $1217 = 0.18% of the $665298 average price
+   scenario B G1: 16.1 eligible crew-h of 93.4 -> $608 = 0.09% of the $665298 average price
+   scenario B H1: 67.1 eligible crew-h of 93.4 -> $2539 = 0.38% of the $665298 average price
+   scenario C G1: 260.0 eligible crew-h of 2047.9 -> $9841 = 1.48% of the $665298 average price
+   scenario C H1: 1418.9 eligible crew-h of 2047.9 -> $53715 = 8.07% of the $665298 average price
+
+C. net saving per house over the sweep (dollars; P(>0) = share of draws that save money)
+   scenario A G1: P(>0) 0.151; 5% -1143, median -170, 95% 54, best draw 175  (best = 0.03% of price)
+   scenario A H1: P(>0) 0.004; 5% -15520, median -3459, 95% -457, best draw 222  (best = 0.03% of price)
+   scenario B G1: P(>0) 0.151; 5% -3114, median -465, 95% 147, best draw 476  (best = 0.07% of price)
+   scenario B H1: P(>0) 0.004; 5% -32377, median -7215, 95% -953, best draw 463  (best = 0.07% of price)
+   scenario C G1: P(>0) 0.151; 5% -50439, median -7524, 95% 2383, best draw 7705  (best = 1.16% of price)
+   scenario C H1: P(>0) 0.004; 5% -684974, median -152643, 95% -20157, best draw 9794  (best = 1.47% of price)
+
+D. per 1,000 payload-passing crew-hours replaced: ceiling vs a plausible robot (s=3, supervision 0.3, success 1)
+   G1: ceiling $37856 (5.7% of price); at s=3, f=0.3: $-9014
+   H1: ceiling $37856 (5.7% of price); at s=3, f=0.3: $-68214

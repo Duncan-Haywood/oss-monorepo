@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the gain to people (robots excluded) of a signal-reading door fleet over yield-all against rho, the urgent cue cost relative to normal people, for planner weights 1, 2, 3 and 5 on urgent people; with weight 1 the gain turns positive only below rho about 0.35, with weight 5 below about 0.7">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Signal-reading robots: gain to people over yield-all, by how much a planner weights urgent people</text>
+<line x1="64" x2="624" y1="306.6" y2="306.6" stroke="#ddd"/><text x="58" y="310.6" text-anchor="end" font-family="sans-serif" font-size="11">-0.1</text>
+<line x1="64" x2="624" y1="233.9" y2="233.9" stroke="#ddd"/><text x="58" y="237.9" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="161.3" y2="161.3" stroke="#ddd"/><text x="58" y="165.3" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="88.6" y2="88.6" stroke="#ddd"/><text x="58" y="92.6" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="120.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="260.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.35</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.75</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">rho = urgent cue cost / normal cue cost</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">gain over yield-all (people only)</text>
+<polyline points="624.0,290.6 484.0,266.6 344.0,244.1 260.0,230.3 204.0,221.6 120.0,208.5 64.0,199.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="290.6" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="266.6" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="244.1" r="3" fill="#c0392b"/>
+<circle cx="260.0" cy="230.3" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="221.6" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="208.5" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="199.8" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">weight 1</text>
+<polyline points="624.0,302.9 484.0,263.7 344.0,225.2 260.0,202.7 204.0,188.1 120.0,166.3 64.0,151.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="302.9" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="263.7" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="225.2" r="3" fill="#1f6fb2"/>
+<circle cx="260.0" cy="202.7" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="188.1" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="166.3" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="151.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">weight 2</text>
+<polyline points="624.0,311.6 484.0,260.8 344.0,212.1 260.0,183.1 204.0,164.2 120.0,135.8 64.0,116.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="624.0" cy="311.6" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="260.8" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="212.1" r="3" fill="#2e8b57"/>
+<circle cx="260.0" cy="183.1" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="164.2" r="3" fill="#2e8b57"/>
+<circle cx="120.0" cy="135.8" r="3" fill="#2e8b57"/>
+<circle cx="64.0" cy="116.9" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">weight 3</text>
+<polyline points="624.0,324.0 484.0,257.9 344.0,194.7 260.0,156.9 204.0,132.2 120.0,95.9 64.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#8e44ad"/>
+<circle cx="484.0" cy="257.9" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="194.7" r="3" fill="#8e44ad"/>
+<circle cx="260.0" cy="156.9" r="3" fill="#8e44ad"/>
+<circle cx="204.0" cy="132.2" r="3" fill="#8e44ad"/>
+<circle cx="120.0" cy="95.9" r="3" fill="#8e44ad"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">weight 5</text>
+</svg>

@@ -24,13 +24,17 @@ python3 prompts/promptctl.py record --track redteam --version 0 --session <url> 
 python3 prompts/redteam.py campaign --mutants 8 --record prompts/runs/<your record>.json
 ```
 
-With no `--target`, the tool picks a random file that some test suite guards
+With no `--target`, the tool picks a random file that some test suite guards,
+redrawing past suites slower than 20 s (`--probe N` changes that, 0 turns it off)
 (`redteam.py targets` lists them; about 95% are under `ventures/`, so
-`--under platform` aims the draw at the CI and tooling code). Pass `--target` to aim at a file that just
+`--under platform` aims the draw at the CI and tooling code; add `--probe 20` to print each listed file's suite time, or ">20s (too slow)", before you commit to one). Pass `--target` to aim at a file that just
 changed on `main` (`git log --since=3.days --name-only origin/main`) or that
 users rely on most. The campaign prints the baseline time and an estimate; run two or
-three campaigns if each takes under a minute, and for a slow suite (e.g. `sync_tree_counts.py`, over 5 min)
-run it in the background and check `git status` afterwards.
+three campaigns if each takes under a minute, and for a slow suite (anything over ~20 s per mutant, since a campaign runs
+the suite once per mutant and the foreground limit is 10 min) start it with
+`run_in_background` and wait for it (use `--timeout` for a suite over 300 s, and pick another target when baseline x mutants exceeds ~20 min). The target file is mutated in place while it
+runs: avoid reading or editing it until the campaign exits (a mutated-looking file
+mid-run is the tool, not a bug), and check `git status` afterwards.
 
 The tool applies one mutant at a time, runs the suite, and restores the file
 byte for byte. It refuses a dirty file and a red baseline. **A red baseline
@@ -79,7 +83,7 @@ the mutant to the new code and say so in `note`.
 
 If a defect is too large for this run, such as a product that is wrong in a
 way that needs a redesign, leave `patched: false`, describe it in the PR, and
-fix only what is safe. Do not widen the run.
+fix only what is safe. Avoid widening the run.
 
 ## 4. Fix the class, not the instance
 
@@ -109,7 +113,8 @@ numbers in the PR are a summary, never the source.
 - Seed faults only through `redteam.py`, which restores the file. Never
   commit a mutant. `git diff` before you push should show tests, real fixes
   and the record, nothing else.
-- Never mutate `research/` (it is a mirror), generated trees, or anything
-  that deploys, publishes or spends money.
+- Never mutate anything that deploys, publishes or spends money. Leave
+  generated trees out of a campaign too (`research/` is fair game since the
+  mirror was retired on 2026-10-16; its suites run under the same probe limit).
 - Real defects in other people's open pull requests go in a comment on that
   PR, not a fix pushed to their branch.

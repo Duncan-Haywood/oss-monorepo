@@ -667,7 +667,7 @@ export function suggestMapping(text, typeCol) {
     for (const r of grid.slice(1)) { const v = (r[cols.type] ?? "").trim(); if (v && !seen.has(v)) { seen.add(v); typeValues.push(v); } }
   }
   const typeMap = {};
-  for (const v of typeValues) typeMap[v] = normalizeType(v) ?? "skip";
+  for (const v of typeValues) typeMap[v] = (n => (n === "swap" ? "skip" : n))(normalizeType(v)) ?? "skip"; // the mapper has no second-coin column, so a swap-like word stays for the user to decide
   return { headers, cols, typeValues, typeMap };
 }
 

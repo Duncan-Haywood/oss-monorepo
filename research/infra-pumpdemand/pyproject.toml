@@ -1,0 +1,13 @@
+[project]
+name = "infra-pumpdemand"
+version = "0.1.0"
+description = "Pump scheduling on EPANET Net3 against a real tariff with demand charges (PG&E B-19), at a 15-minute hydraulic step, in WNTR"
+requires-python = ">=3.9"
+dependencies = ["numpy", "wntr"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

@@ -1,0 +1,39 @@
+== A. mean true quality of the chosen camera vs detector noise (4 cameras, 120 s, 20 seeds, switch cost 1.0, chosen from D on these same seeds)
+sigma fixed_3_s fixed_6_s greedy hold viterbi oracle
+0.05 0.546 0.535 0.813 0.773 0.815 0.815
+0.15 0.546 0.535 0.782 0.773 0.811 0.815
+0.30 0.546 0.535 0.723 0.764 0.802 0.815
+0.50 0.546 0.535 0.669 0.747 0.779 0.815
+0.80 0.546 0.535 0.626 0.703 0.732 0.815
+
+== B. cuts per minute and jarring-shot share (shots under 1.5 s) vs detector noise, same runs as A
+sigma fixed_3_s_cuts fixed_3_s_jar fixed_6_s_cuts fixed_6_s_jar greedy_cuts greedy_jar hold_cuts hold_jar viterbi_cuts viterbi_jar oracle_cuts oracle_jar
+0.05 19.5 0.00 9.5 0.00 101.9 0.90 9.5 0.01 10.4 0.07 10.5 0.08
+0.15 19.5 0.00 9.5 0.00 237.3 0.98 10.7 0.00 10.8 0.09 10.5 0.08
+0.30 19.5 0.00 9.5 0.00 344.6 1.00 13.8 0.01 13.8 0.19 10.5 0.08
+0.50 19.5 0.00 9.5 0.00 396.7 1.00 18.4 0.01 23.8 0.43 10.5 0.08
+0.80 19.5 0.00 9.5 0.00 415.9 1.00 24.1 0.01 39.4 0.64 10.5 0.08
+
+== C. mean true quality vs number of cameras (sigma 0.3, switch cost 1.0)
+cameras fixed_3_s fixed_6_s greedy hold viterbi oracle
+2 0.554 0.556 0.648 0.674 0.692 0.699
+3 0.545 0.546 0.697 0.734 0.764 0.774
+4 0.546 0.535 0.723 0.764 0.802 0.815
+6 0.554 0.563 0.771 0.816 0.861 0.876
+8 0.554 0.561 0.777 0.829 0.880 0.897
+
+== D. viterbi at 4 cameras, sigma 0.3: switch cost vs quality and cuts per minute
+cost quality cuts_per_min jarring
+0.0 0.726 325.1 1.00
+0.1 0.751 201.8 0.98
+0.3 0.782 69.9 0.83
+1.0 0.802 13.8 0.19
+3.0 0.796 7.3 0.01
+10.0 0.761 3.5 0.00
+
+== E. clock sync by envelope cross-correlation: median abs error (ms) and share beyond 40 ms, 20 trials
+noise  5s_ms 5s_bad 15s_ms 15s_bad 45s_ms 45s_bad
+0.10 7 0.10 6 0.00 4 0.00
+0.25 23 0.25 16 0.05 11 0.00
+0.50 447 0.65 29 0.45 17 0.15
+1.00 711 0.95 246 0.90 214 0.65

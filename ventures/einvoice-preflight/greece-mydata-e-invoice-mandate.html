@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greece myDATA e-invoicing mandate: dates, MARK and what a free check covers | E-invoice Preflight</title>
+<meta name="description" content="Greek B2B invoices are cleared through AADE's myDATA platform via a certified provider, phased in from early 2026 for larger businesses and from late 2026 for the rest. The dates, the model, and what a free local checker covers.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/greece-mydata-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Greece myDATA e-invoicing mandate: dates, MARK and what a free check covers">
+<meta property="og:description" content="Greek B2B invoices are cleared through AADE's myDATA platform via a certified provider, phased in from early 2026 for larger businesses and from late 2026 for the rest. The dates, the model, and what a free local checker covers.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/greece-mydata-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When does Greece's B2B e-invoicing mandate apply?","acceptedAnswer":{"@type":"Answer","text":"In two phases: larger businesses (turnover above EUR 1 million) from early 2026, and all other businesses from 2 November 2026 (earlier sources say 1 October, and a postponement was reported on 30 September 2026). Sources disagree on the exact days (2 February or 2 March 2026 for the first phase), so confirm with AADE or your accountant; this page is a summary, not advice."}},{"@type":"Question","name":"Which invoice format does Greece require?","acceptedAnswer":{"@type":"Answer","text":"Greek B2B invoices are submitted to AADE's myDATA platform, which returns a unique MARK number, usually through a certified service provider. The national format is an AADE XML schema, not the EN 16931 UBL or CII used elsewhere in the EU. Peppol is used for invoices to public bodies."}},{"@type":"Question","name":"Can this checker validate a Greek invoice?","acceptedAnswer":{"@type":"Answer","text":"Partly. It applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus VAT, IBAN and BIC typo catches, each with a rule ID and a fix, to UBL, CII, Factur-X and JSON files. It does not read AADE's myDATA XML or apply its rules, so a clean result is an offline observation, not approval."}},{"@type":"Question","name":"How do I check an invoice before sending it?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker. Nothing is uploaded: every check runs in your browser. Fix what it flags, then submit through your certified provider or AADE's myDATA tools."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Greece's myDATA e-invoicing mandate: what applies now</h1>
+<p class="lede">Greek B2B invoices are cleared through the tax authority's myDATA platform, phased in from early 2026 for larger businesses and from late 2026 for the rest. Below: the dates, the model, and what a free local checker covers.</p>
+</header>
+<section>
+<h2>The timeline (domestic B2B)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>Early 2026</td><td>Businesses with turnover above EUR 1 million must issue B2B invoices through a certified provider into myDATA. Sources give 2 February or 2 March 2026, and a grace period to early May is reported.</td></tr>
+<tr><td>2 Nov 2026</td><td>All other businesses follow. Earlier sources say 1 October (or 12 October) 2026; secondary reports say AADE decision A.1197/2026 moved it to 2 November 2026, with a gradual period to 31 January 2027, after which invoices go through a licensed provider or AADE's applications only. The decision text itself was not checked.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">The dates above conflict between published sources, so this page does not pick one. Thresholds, grace periods, exemptions and fines have been amended; none are given here. This is a summary, not tax advice; confirm with the Greek tax authority (AADE) or your accountant.</p>
+</section>
+<section>
+<h2>How the invoice travels</h2>
+<p>This is a <strong>clearance</strong> model. The invoice is sent to AADE's <strong>myDATA</strong> platform, normally by a certified service provider, which returns a unique <strong>MARK</strong> number that goes on the invoice. The national format is an AADE XML schema, <strong>not</strong> the EN 16931 UBL or CII used in most other EU mandates. Invoices to public bodies use Peppol.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a> and drop your XML. If you also issue EN 16931 invoices (for Peppol or other EU customers), it flags totals and tax breakdowns that do not add up, a missing tax reason on a 0% or exempt line, malformed identifiers, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). It does <strong>not</strong> read AADE's myDATA XML or apply AADE's validation. No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, or the <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>. Also: <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>When does Greece's B2B e-invoicing mandate apply?</h3>
+<p>In two phases: larger businesses (turnover above EUR 1 million) from early 2026, and all other businesses from 2 November 2026 (earlier sources say 1 October, and a postponement was reported on 30 September 2026). Sources disagree on the exact days (2 February or 2 March 2026 for the first phase), so confirm with AADE or your accountant; this page is a summary, not advice.</p>
+<h3>Which invoice format does Greece require?</h3>
+<p>Greek B2B invoices are submitted to AADE's myDATA platform, which returns a unique MARK number, usually through a certified service provider. The national format is an AADE XML schema, not the EN 16931 UBL or CII used elsewhere in the EU. Peppol is used for invoices to public bodies.</p>
+<h3>Can this checker validate a Greek invoice?</h3>
+<p>Partly. It applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus VAT, IBAN and BIC typo catches, each with a rule ID and a fix, to UBL, CII, Factur-X and JSON files. It does not read AADE's myDATA XML or apply its rules, so a clean result is an offline observation, not approval.</p>
+<h3>How do I check an invoice before sending it?</h3>
+<p>Drop the file into the checker. Nothing is uploaded: every check runs in your browser. Fix what it flags, then submit through your certified provider or AADE's myDATA tools.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Greek rules as publicly documented; dates, penalties and rules can change, so check AADE guidance (aade.gr) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01Q3G3peiH9GxxJkm8C97rDu",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T10:07:35Z",
+  "ended": "2026-10-20T10:15:53Z",
+  "wall_minutes": 8.49,
+  "tokens_in": 2961084,
+  "tokens_out": 12866,
+  "cost_usd": 1.0205,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8790",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "record refuses a second run in one session id ('already exists'); a second routed run in the same session must name its file by hand, and 'newest file' is a trap (I overwrote another session's record before noticing)."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight lists 7 problems on another slug (feedback/); the tool says not yours."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "flagship 5 slice. run_venture_tests league-schedule-generator: 1 suite, 0 failed. divisions.test.mjs 11 pass. venture-preflight clean for the slug. No CI check runs appeared; merged on local checks. Optimiser cut venue changes 432->322 over 8 seeds; linked clashes 0 in both so that benefit is not shown.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0311a26d-8680-5eb0-ae9f-09b3dab62a1e",
+    "transcripts": 1,
+    "first": "2026-10-20T10:07:35Z",
+    "last": "2026-10-20T10:27:58Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 67,
+        "input": 144,
+        "output": 37604,
+        "thinking": 5991,
+        "cache_read": 7526873,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134516,
+        "api_equivalent_usd": 2.4198,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 144,
+      "output": 37604,
+      "thinking": 5991,
+      "cache_read": 7526873,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134516,
+      "api_equivalent_usd": 2.4198,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 53,
+      "Monitor": 6,
+      "mcp__github__search_pull_requests": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "ToolSearch": 1,
+      "ScheduleWakeup": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.38,
+      "active_minutes": 13.77,
+      "model_minutes": 6.33,
+      "tool_minutes": 7.44,
+      "waiting_on_human_minutes": 6.62,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "design a joint scheduler, validator, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 330.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  },
+  "version": 1
+}

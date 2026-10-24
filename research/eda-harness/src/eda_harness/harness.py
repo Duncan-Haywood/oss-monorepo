@@ -67,6 +67,21 @@ def _gate_netlist(v):
         return open(f"{d}/n.v").read()
 
 
+def _synth_with_netlist(v):
+    """One Yosys run that gives both the gate netlist and `flow.score`'s metrics (same script as `_gate_netlist` + `flow.score`)."""
+    with tempfile.TemporaryDirectory() as d:
+        open(f"{d}/a.v", "w").write(v)
+        r = _run(["yosys", "-q", "-p", f"read_verilog {d}/a.v; hierarchy -top accel; synth -top accel -flatten; "
+                  f"abc -g {flow.GATES}; opt_clean; write_verilog -noattr {d}/n.v; "
+                  f"tee -o /dev/stdout stat; tee -o /dev/stdout ltp -noff"])
+        if r.returncode:
+            raise RuntimeError(r.stderr or r.stdout)
+        cells = int(re.search(r"Number of cells:\s+(\d+)", r.stdout).group(1))
+        ff = sum(int(n) for n in re.findall(r"(\d+)\s+\$_DFF\w*_", r.stdout))
+        m = re.search(r"Longest topological path in \S+ \(length=(\d+)\)", r.stdout)
+        return open(f"{d}/n.v").read(), {"cells": cells, "ff": ff, "depth": int(m.group(1)) if m else 0}
+
+
 def _sim_text(prob, cand, verilog_text):
     """Simulate arbitrary Verilog text for `accel` with the shared testbench; return (outputs, cycles)."""
     q, xi = prob.vectors(cand)
@@ -79,8 +94,9 @@ def _sim_text(prob, cand, verilog_text):
 
 
 class Harness:
-    def __init__(self, prob, log_path, cache_dir):
-        self.prob, self.log_path, self.cache_dir = prob, log_path, cache_dir
+    def __init__(self, prob, log_path, cache_dir, reuse_netlist=True):
+        # reuse_netlist: one Yosys run feeds both the gate-level check and the PPA score (False = the original two runs)
+        self.prob, self.log_path, self.cache_dir, self.reuse_netlist = prob, log_path, cache_dir, reuse_netlist
         os.makedirs(cache_dir, exist_ok=True)
         self.versions = tool_versions()
         self.n_eval = 0
@@ -134,14 +150,18 @@ class Harness:
         if not (res["rtl_match"] and res["cycles_ok"]):
             res["failed_stage"] = "rtl_sim"; return res
         # equivalence of the synthesised gate netlist with the reference on the same vectors (simulation-based, not formal)
+        syn = {}
         def equiv():
-            nl = _gate_netlist(v)
+            if self.reuse_netlist:
+                nl, syn["m"] = _synth_with_netlist(v)
+            else:
+                nl = _gate_netlist(v)
             o2, c2 = _sim_text(self.prob, cand, nl)
             return bool((o2 == ref).all()) and c2 == cs
         res["gate_match"] = bool(stage("gate_equiv", equiv))
         if not res["gate_match"]:
             res["failed_stage"] = "gate_equiv"; return res
-        s = stage("synth", lambda: flow.score(q, cand["p"]))
+        s = stage("synth", (lambda: syn["m"]) if self.reuse_netlist else (lambda: flow.score(q, cand["p"])))
         res.update(cells=s["cells"], ff=s["ff"], depth=s["depth"], int_acc=self.prob.reference(cand))
         res["cells_x_cycles"] = s["cells"] * res["cycles"]
         res["passed"] = True
@@ -162,12 +182,39 @@ class RandomProposer(Proposer):
         return {k: int(self.rng.choice(v)) for k, v in self.space.items()}
 
 
+def _farthest_order(sizes):
+    """Greedy maximin walk over an index grid: start at the centre-most point, then always take the point farthest (range-normalised L1) from all taken."""
+    import itertools
+    pts = list(itertools.product(*[range(n) for n in sizes]))
+    d = lambda a, b: sum(abs(x - y) / max(1, n - 1) for x, y, n in zip(a, b, sizes))
+    mid = tuple((n - 1) / 2 for n in sizes)
+    first = min(pts, key=lambda q: (d(q, mid), q))
+    out, rest = [first], [q for q in pts if q != first]
+    mind = {q: d(q, first) for q in rest}
+    while rest:
+        nxt = max(rest, key=lambda q: (mind[q], tuple(-v for v in q)))
+        rest.remove(nxt)
+        out.append(nxt)
+        for q in rest:
+            mind[q] = min(mind[q], d(q, nxt))
+    return out
+
+
 class GridProposer(Proposer):
-    def __init__(self, space, seed=0):
+    """Walks the full grid. `order="lexicographic"` (default) is the original itertools.product order; `"farthest"` visits a
+    space-filling order instead (see research/eda-gridorder, research/eda-gridxfer for when that helps)."""
+
+    def __init__(self, space, seed=0, order="lexicographic"):
         super().__init__(space, seed)
-        import itertools
         ks = list(space)
-        self.grid = [dict(zip(ks, map(int, c))) for c in itertools.product(*space.values())]
+        if order == "lexicographic":
+            import itertools
+            idx = list(itertools.product(*[range(len(space[k])) for k in ks]))
+        elif order == "farthest":
+            idx = _farthest_order([len(space[k]) for k in ks])
+        else:
+            raise ValueError(f"unknown grid order {order!r}")
+        self.grid = [{k: int(space[k][i]) for k, i in zip(ks, c)} for c in idx]
         self.i = 0
 
     def propose(self, history):

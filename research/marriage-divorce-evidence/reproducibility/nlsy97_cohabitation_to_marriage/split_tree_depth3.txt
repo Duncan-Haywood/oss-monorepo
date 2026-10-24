@@ -1,0 +1,22 @@
+|--- num__age_at_start <= 22.8750
+|   |--- num__cohab_years <= 1.5000
+|   |   |--- num__start_year <= 2001.5000
+|   |   |   |--- value: [0.5510]
+|   |   |--- num__start_year >  2001.5000
+|   |   |   |--- value: [0.3559]
+|   |--- num__cohab_years >  1.5000
+|   |   |--- num__cohab_years <= 5.5000
+|   |   |   |--- value: [0.2352]
+|   |   |--- num__cohab_years >  5.5000
+|   |   |   |--- value: [0.0793]
+|--- num__age_at_start >  22.8750
+|   |--- num__cohab_years <= 4.5000
+|   |   |--- num__age_at_start <= 28.7917
+|   |   |   |--- value: [0.1853]
+|   |   |--- num__age_at_start >  28.7917
+|   |   |   |--- value: [0.1040]
+|   |--- num__cohab_years >  4.5000
+|   |   |--- num__cohab_years <= 8.5000
+|   |   |   |--- value: [0.0736]
+|   |   |--- num__cohab_years >  8.5000
+|   |   |   |--- value: [0.0442]

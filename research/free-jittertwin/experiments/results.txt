@@ -1,0 +1,26 @@
+plant x' = 3.0 x, nominal interval h0 = 0.5; twin contraction rho0 = g(h0)
+
+Uniform jitter h ~ U[h0(1-j), h0(1+j)]: largest j that is stable (exact quadrature, 4001 nodes)
+rho0  gain k   j_as(E ln|g|<0)  j_ms(E g^2<1)  as/ms
+ 0.0   3.862            0.999          0.736    1.36
+ 0.3   3.603            0.999          0.976    1.02
+ 0.5   3.431            0.999          0.999    1.00
+ 0.7   3.258            0.999          0.999    1.00
+ 0.9   3.086            0.999          0.999    1.00
+
+Missed samples: h = h0 w.p. 1-q, 2*h0 w.p. q: largest q that is stable
+rho0  q_as    q_ms
+ 0.0   1.000   0.050
+ 0.3   0.536   0.114
+ 0.5   0.556   0.270
+ 0.7   1.000   1.000
+ 0.9   1.000   1.000
+
+Monte Carlo check at rho0 = 0.5, missed-sample law: 2000 runs x 300 samples; blow = |x| > 1e6 |x0|
+q     E ln|g|   E g^2    MC median rate   MC blow-up frac   verdict
+0.1   -0.5684   0.5281         -0.5684           0.0000   ms-stable
+0.2   -0.4436   0.8061         -0.4436           0.0000   ms-stable
+0.4   -0.1941   1.3622         -0.1941           0.0000   a.s.-stable only
+0.5   -0.0694   1.6403         -0.0694           0.0040   a.s.-stable only
+0.6    0.0554   1.9183          0.0466           0.7010   unstable
+0.8    0.3049   2.4744          0.0467           1.0000   unstable

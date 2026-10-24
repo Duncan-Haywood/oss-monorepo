@@ -28,3 +28,13 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-every-bank clause, country list
 # stated as read from memory of the public registry, no payment-acceptance promise.
+
+hypotheses:
+  - claim: >-
+      Checking the domestic check digits inside Belgian, Spanish, French and Italian IBANs (added 2026-10-20)
+      catches supplier-list errors that the ISO mod-97 test passes, because online IBAN generators recompute
+      the IBAN check digits for a mistyped account; measured as the share of file checks that raise the
+      "National check digits do not match" warning.
+    status: untested
+    checked: null
+    evidence: in-repo

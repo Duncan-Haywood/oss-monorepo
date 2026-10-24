@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01HFeoYFqhiQAhkaET3pczPg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T00:09:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9321",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "allocate.py gives every parallel run the same top flagship `next:`, so two sessions built the same receipt-OCR slice; the 40s fetch in allocate.py also left a stale .git/shallow.lock that blocked later git fetch."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Ran ai-bookkeeper tests locally instead of venture-preflight/CI wait; tesseract path untested (not installed)."
+    }
+  ],
+  "writeups": ["research/osrobot-weedpass/README.md"],
+  "goal": null,
+  "notes": "Built OCR cleanup + tesseract input, then found PR #9320 had landed the same feature; reset to main and kept only the gaps (space before decimal, O.87, S10.62, cleanup applied in parseReceipt). ai-bookkeeper node tests pass (213).",
+  "corrections": [],
+  "redteam": null
+}

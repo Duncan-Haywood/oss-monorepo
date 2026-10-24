@@ -1,0 +1,27 @@
+Best objective J after n simulator evaluations (budget 40); J = distance/20 m - 0.05 falls - 0.02 recoveries - 0.002 J/m, designs over the 120 USD cap score -1.
+Baselines: median [min, max] over 20 seeds. Session agent: one run of 4 rounds x 10.
+
+method | n=10 | n=20 | n=30 | n=40
+random search | 0.610 [0.384, 0.720] | 0.661 [0.593, 0.782] | 0.715 [0.593, 0.782] | 0.716 [0.661, 0.782]
+CMA-ES | 0.720 [0.245, 0.783] | 0.782 [0.384, 0.783] | 0.782 [0.477, 0.783] | 0.782 [0.662, 0.783]
+Bayesian opt (GP-EI) | 0.782 [0.476, 0.782] | 0.782 [0.720, 0.783] | 0.782 [0.782, 0.783] | 0.782 [0.782, 0.783]
+session agent | 0.782 | 0.783 | 0.783 | 0.783
+
+At n=40, seeds that matched or beat the agent's best (J = 0.783):
+random search: 0 of 20
+CMA-ES: 0 of 20
+Bayesian opt (GP-EI): 0 of 20
+
+Evaluations to first reach J >= 0.78 (median over seeds that reach it; seeds that never do in brackets):
+random search: 30.0 (17 of 20 never)
+CMA-ES: 18.0 (2 of 20 never)
+Bayesian opt (GP-EI): 10.0 (0 of 20 never)
+session agent: 2
+
+Fraction of evaluations over the cost cap:
+random search: 0.000
+CMA-ES: 0.007
+Bayesian opt (GP-EI): 0.021
+session agent: 0.000
+
+Best design seen in any run (cheapest at the top J): x = [90.0, 120.0, 150.0, 0.5, 5.0] (R mm, L mm, F mm, T N m, B Wh), J = 0.783, cost 69 USD, mass 2.10 kg, distance 16.0 m of 20

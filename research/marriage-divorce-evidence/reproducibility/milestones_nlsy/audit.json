@@ -1,0 +1,23 @@
+{
+  "first_marriage_intervals": 24067,
+  "respondents": 3587,
+  "events": 324,
+  "years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018,
+    2020
+  ],
+  "first_birth_asofbaseline": true,
+  "negative_no_birth_flag": -998,
+  "rate_ci": "baseline weights, respondent-cluster ratio sandwich; approximate, not full survey design",
+  "selection": "Existing complete-couple positive-wage profile-input sample; first marriages only; observed next interview, no2022-retention restriction",
+  "birth_legend": "Respondent first biological child, not established common biological child or youngest child"
+}

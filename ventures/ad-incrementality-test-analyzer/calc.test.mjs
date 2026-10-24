@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseTable, parseDate, analyze, nnls, sampleText, reportCsv } from "./calc.mjs";
+import { parseTable, parseDate, analyze, planTest, nnls, sampleText, reportCsv } from "./calc.mjs";
 
 function panelText({ lift = 0, days = 90, start = 60, seed = 3, noise = 0.03 } = {}) {
   let a = seed;
@@ -110,4 +110,28 @@ test("report CSV has one row per date plus a header", () => {
   const rows = reportCsv(r).trim().split("\n");
   assert.equal(rows.length, r.series.length + 1);
   assert.match(rows[0], /^date,period,actual/);
+});
+
+test("planTest: noisier history needs a bigger lift, and a target picks the shortest length", () => {
+  const quiet = planTest(parseTable(panelText({ days: 120, noise: 0.01 })), { testUnits: ["A"], targetLift: 50 });
+  const loud = planTest(parseTable(panelText({ days: 120, noise: 0.15 })), { testUnits: ["A"] });
+  assert.ok(!quiet.error && !loud.error, JSON.stringify([quiet.error, loud.error]));
+  assert.ok(quiet.rows.length >= 3);
+  const at = (p, L) => p.rows.find((r) => r.periods === L).mde;
+  assert.ok(at(quiet, 14) < at(loud, 14), `${at(quiet, 14)} vs ${at(loud, 14)}`);
+  assert.equal(quiet.shortest, quiet.rows[0].periods);
+  assert.equal(planTest(parseTable(panelText({ days: 120 })), { testUnits: ["A"], targetLift: 0.0001 }).shortest, null);
+});
+
+test("planTest: refuses unknown regions, all-test panels and short history", () => {
+  assert.match(planTest(parseTable(panelText()), { testUnits: ["Z"] }).error, /Not found/);
+  assert.match(planTest(parseTable(panelText()), { testUnits: ["A", "B", "C", "D", "E"] }).error, /nothing is left/);
+  assert.match(planTest(parseTable(panelText({ days: 20 })), { testUnits: ["A"] }).error, /Only 20 periods/);
+});
+
+test("planTest detects roughly the lift analyze can detect on the same history", () => {
+  const text = panelText({ days: 90, start: 60, noise: 0.05 });
+  const plan = planTest(parseTable(text), { testUnits: ["A"], durations: [30] });
+  const real = run(text);
+  assert.ok(plan.rows[0].mde > real.mde / 3 && plan.rows[0].mde < real.mde * 3, `${plan.rows[0].mde} vs ${real.mde}`);
 });

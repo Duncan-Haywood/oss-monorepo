@@ -137,6 +137,9 @@ footer p{margin:.6rem 0}
 <tr><td><code>INV-043</code></td><td>The invoice period ends before it starts.</td><td>Set the end to the start date or later.</td></tr>
 <tr><td><code>INV-053</code></td><td>Payment terms days is empty, or is not a positive whole number of days.</td><td>Use a positive whole number such as 30, or omit <code>payment.terms_days</code>.</td></tr>
 <tr><td><code>INV-054</code></td><td>The due date does not equal the issue date plus the stated terms days. This usually means one of the two was edited by hand and the other was not.</td><td>Set the due date to the computed date the report names, or correct the terms days.</td></tr>
+<tr><td><code>INV-056</code></td><td>Batch runs only: a credit note and the invoice it reverses, both in the batch, are in different currencies.</td><td>Credit in the currency of the original invoice, or name the right original in the original-invoice reference.</td></tr>
+<tr><td><code>INV-057</code></td><td>Batch runs only: credit notes in the batch against one invoice add up to more than that invoice's gross total.</td><td>Check the credit amounts and which invoice each credit note names; a credit cannot return more than was invoiced.</td></tr>
+<tr><td><code>INV-058</code></td><td>Batch runs only: the invoice a credit note names is in the batch, but a different seller issued it.</td><td>Check the original-invoice reference and the credit note's supplier.</td></tr>
 </tbody>
 </table>
 </div>

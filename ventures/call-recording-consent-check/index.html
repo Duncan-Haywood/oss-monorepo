@@ -46,6 +46,7 @@
     <p>Pick the caller's and recipient's US states and get an instant <strong>one-party</strong> vs. <strong>all-party</strong> consent determination, the exact statute cited, and a ready-to-read disclosure script for your call opening.</p>
     <p class="note">Nothing you pick is uploaded — this is a fixed reference table evaluated entirely in this browser. <strong>Not legal advice.</strong> See the disclaimer below before you rely on this for an actual call.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Check a call between two states</h2>
@@ -126,7 +127,8 @@ node cli.mjs script all-party --company "Acme Inc." --purpose "training purposes
     <p>No. The two states you pick and the script you generate are looked up and rendered entirely in your browser from a fixed table shipped with the page. Nothing is sent anywhere. The CLI makes no network call either.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice, and it does not replace a qualified attorney licensed in the relevant state. It reports each state's default call-recording consent classification and a conservative combined reading for interstate calls — nothing more — and it does not model exceptions (in-person conversations, emergency calls, law enforcement, minors, industry-specific notice rules) or know the facts of your specific call. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking the current statute text. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. Nothing you type is ever uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>requirement_checked</code>, <code>script_generated</code>, <code>example_loaded</code>, <code>link_shared</code>, <code>link_loaded</code>) are counted only in local storage and can be deleted with the button below. The "Copy shareable link" button puts the two states and script fields into the link itself — nothing is sent to a server to generate it. Do Not Track and Global Privacy Control are honoured.</p>

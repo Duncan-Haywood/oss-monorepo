@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { SurveyBuilder } from "@/components/SurveyBuilder";
 
 type Velocity = { from: number; medianMs: number; n: number };
 type Timing = { label: string; medianMs: number; n: number };
@@ -198,6 +199,10 @@ export function AdminView() {
           No answers recorded yet. Everything below stays empty until someone actually uses it.
         </p>
       )}
+
+      <Section title="Make a survey">
+        <SurveyBuilder />
+      </Section>
 
       <Section title="Totals">
         <Grid>

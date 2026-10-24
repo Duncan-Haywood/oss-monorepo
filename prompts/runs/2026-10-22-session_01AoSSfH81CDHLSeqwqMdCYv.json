@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01AoSSfH81CDHLSeqwqMdCYv",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T03:10:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "hanger-kes",
+  "projects": [
+    "hanger-kes"
+  ],
+  "pr": 9359,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "plain python3 lacks numpy; pyenv.py printed /usr/bin/python3.13 only after a long background run, fine but slow."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "Wrote no separate docs/reports agent doc or docs/posts post; the project README is the write-up. Budget spent on sourcing."
+    }
+  ],
+  "writeups": ["research/osrobot-weedpass/README.md"],
+  "goal": null,
+  "notes": "Found a published KES-FB table (fibre2fashion PDF, Table 3) after hanger-sweep could not; WebFetch could not read the PDF but it was saved locally and pdftotext read it. Re-scored hanger-fit width rule on 4 fabrics x 3 EA. 4 tests, build.py ok, check_md_links ok, live_links ok. CI not waited on.",
+  "corrections": [],
+  "redteam": null
+}

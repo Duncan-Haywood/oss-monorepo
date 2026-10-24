@@ -1,0 +1,5029 @@
+National Survey of Family Growth, 2017-2019                                                     Page 1 of 66
+
+
+
+Male Respondent File Codebook :: SECTION R: Recode Variables and Imputation Flags :: (RA) Section A
+Recodes
+
+AGER(3692-3693)
+
+Variable Type : recode
+
+Description : R's age at interview (RECODE)
+
+  value label        Total
+  15      15 YEARS     186
+  16      16 YEARS     186
+  17      17 YEARS     223
+  18      18 YEARS     230
+  19      19 YEARS     207
+  20      20 YEARS     117
+  21      21 YEARS     131
+  22      22 YEARS     139
+  23      23 YEARS     133
+  24      24 YEARS     146
+  25      25 YEARS     140
+  26      26 YEARS     135
+  27      27 YEARS     156
+  28      28 YEARS     193
+  29      29 YEARS     145
+  30      30 YEARS     162
+  31      31 YEARS     163
+  32      32 YEARS     199
+  33      33 YEARS     190
+  34      34 YEARS     135
+  35      35 YEARS     162
+  36      36 YEARS     143
+  37      37 YEARS     127
+  38      38 YEARS     125
+  39      39 YEARS     153
+  40      40 YEARS     127
+  41      41 YEARS     125
+  42      42 YEARS     138
+  43      43 YEARS      99
+  44      44 YEARS     105
+  45      45 YEARS      94
+  46      46 YEARS     116
+  47      47 YEARS     136
+  48      48 YEARS     117
+  49-50   49 YEARS     123
+          Total      5206
+
+
+Universe : Applicable for all respondents
+
+Notes : Respondents age 50 were 49 at screener. The century-month variable for respondent's birth has been
+suppressed for public use, but is accessible by application to the NCHS Research Data Center. See Appendix 7
+of the User's Guide for further information.
+
+FMARITAL(3694-3694)
+
+Variable Type : recode
+
+Description : Formal (legal) marital status (RECODE)
+
+  value                      label                  Total
+  1       MARRIED TO A PERSON OF THE OPPOSITE SEX    1465
+  2       WIDOWED                                      19
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                          Page 2 of 66
+
+
+
+  3       DIVORCED OR ANNULLED                        348
+  4       SEPARATED                                   129
+  5       NEVER MARRIED                              3245
+          Total                                      5206
+
+
+Universe : Applicable for all respondents
+
+RMARITAL(3695-3695)
+
+Variable Type : recode
+
+Description : Informal marital status (RECODE)
+
+  value                           label                       Total
+  1       CURRENTLY MARRIED TO A PERSON OF THE OPPOSITE SEX    1465
+  2       NOT MARRIED BUT LIVING WITH OPP SEX PARTNER           525
+  3       WIDOWED                                                14
+  4       DIVORCED OR ANNULLED                                  264
+  5       SEPARATED FOR REASONS OF MARITAL DISCORD              110
+  6       NEVER BEEN MARRIED                                   2828
+          Total                                               5206
+
+
+Universe : Applicable for all respondents
+
+EDUCAT(3696-3697)
+
+Variable Type : recode
+
+Description : Education (number of years of schooling) (RECODE)
+
+  value                label                 Total
+  9       9TH GRADE OR LESS                    545
+  10      10TH GRADE                           334
+  11      11TH GRADE                           426
+  12      12TH GRADE                          1426
+  13      1 YEAR OF COLLEGE/GRAD SCHOOL        494
+  14      2 YEARS OF COLLEGE/GRAD SCHOOL       531
+  15      3 YEARS OF COLLEGE/GRAD SCHOOL       220
+  16      4 YEARS OF COLLEGE/GRAD SCHOOL       672
+  17      5 YEARS OF COLLEGE/GRAD SCHOOL       168
+  18      6 YEARS OF COLLEGE/GRAD SCHOOL       196
+  19      7+ YEARS OF COLLEGE/GRAD SCHOOL      194
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+HIEDUC(3698-3699)
+
+Variable Type : recode
+
+Description : Highest completed year of school or highest degree received (RECODE)
+
+  value                   label                      Total
+  5       9TH GRADE OR LESS                            449
+  6       10TH GRADE                                   285
+  7       11TH GRADE                                   336
+  8       12TH GRADE, NO DIPLOMA (NOR GED)              24
+  9       HIGH SCHOOL GRADUATE (DIPLOMA OR GED)       1635
+  10      SOME COLLEGE BUT NO DEGREE                   981
+  11      ASSOCIATE DEGREE IN COLLEGE/UNIVERSITY       340
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                          Page 3 of 66
+
+
+
+  12      BACHELOR'S DEGREE                              822
+  13      MASTER'S DEGREE                                251
+  14      DOCTORATE DEGREE                                33
+  15      PROFESSIONAL DEGREE                             50
+          Total                                         5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+HISPANIC(3700-3700)
+
+Variable Type : recode
+
+Description : Hispanic origin of respondent (RECODE)
+
+  value       label          Total
+  1       HISPANIC            1368
+  2       NON-HISPANIC        3838
+          Total              5206
+
+
+Universe : Applicable for all respondents
+
+RACE(3701-3701)
+
+Variable Type : recode
+
+Description : Race of respondent (RECODE)
+
+  value label        Total
+  1       BLACK       1124
+  2       WHITE       3620
+  3       OTHER        462
+          Total      5206
+
+
+Universe : Applicable for all respondents
+
+HISPRACE2(3702-3702)
+
+Variable Type : recode
+
+Description : Race & Hispanic origin of respondent - 1997 OMB standards (RECODE)
+
+  value                 label                   Total
+  1       Hispanic                               1368
+  2       Non-Hispanic White, Single Race        2427
+  3       Non-Hispanic Black, Single Race         899
+  4       Non-Hispanic Other or Multiple Race     512
+          Total                                 5206
+
+
+Universe : Applicable for all respondents
+
+NUMKDHH(3703-3703)
+
+Variable Type : recode
+
+Description : Number of bio/adopt/related/legal children under age 18 in household (RECODE)
+
+  value           label              Total
+  0       NO CHILDREN                 3693
+  1       1 CHILD                      572
+  2       2 CHILDREN                   593
+  3       3 CHILDREN                   249
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                          Page 4 of 66
+
+
+
+  4       4 CHILDREN OR               99
+          MORE
+          Total                    5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+NUMFMHH(3704-3704)
+
+Variable Type : recode
+
+Description : Number of family members in household (RECODE)
+
+  value               label                 Total
+  0       NO FAMILY MEMBERS                   1128
+  1       1 FAMILY MEMBER                     1168
+  2       2 FAMILY MEMBERS                    1080
+  3       3 FAMILY MEMBERS                    1009
+  4       4 FAMILY MEMBERS                     500
+  5       5 FAMILY MEMBERS                     192
+  6       6 FAMILY MEMBERS                      74
+  7       7 FAMILY MEMBERS OR MORE              55
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+HHFAMTYP(3705-3705)
+
+Variable Type : recode
+
+Description : Type of household/family structure (RECODE)
+
+  value                             label                                Total
+  1       No spouse/partner and no child(ren) (of R) 18 or younger        3056
+  2       Spouse/partner, but no child(ren) (of R) 18 or younger           688
+  3       Spouse and R's child(ren) 18 or younger                         1039
+  4       Cohabiting partner and R's child(ren) 18 or younger              246
+  5       No spouse/partner, but child(ren) of R, 18 or younger            177
+          Total                                                          5206
+
+
+Universe : Applicable for all respondents
+
+HHPARTYP(3706-3706)
+
+Variable Type : recode
+
+Description : Type of parental situation in household (RECODE)
+
+  value                        label                            Total
+  1       Both biological or both adoptive parents                 781
+  2       Biological and step- or adoptive parent                  201
+  3       Single parent (biological, adoptive, or stepparent)      824
+  4       Other                                                   3400
+          Total                                                 5206
+
+
+Universe : Applicable for all respondents
+
+NCHILDHH(3707-3707)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                            Page 5 of 66
+
+
+
+Variable Type : recode
+
+Description : Number of R's children (18 or younger) living in household (RECODE)
+
+  value                                   label                                  Total
+  0       No children of respondent age 18 or younger in the household             3744
+  1       1 of respondent's children 18 or younger in the household                  552
+  2       2 of respondent's children 18 or younger in the household                  573
+  3       3 or more of respondent's children 18 or younger in the household          337
+          Total                                                                    5206
+
+
+Universe : Applicable for all respondents
+
+HHKIDTYP(3708-3708)
+
+Variable Type : recode
+
+Description : Whether R has children (18 or younger), and whether bio or non-bio, living in the household
+(RECODE)
+
+  value                                         label                                          Total
+  0       No child(ren) 18 or younger in HH or only older child(ren)                            3744
+  1       At least one biological child (of R's) under 18 in HH, no nonbiological child(ren)    1227
+  2       Any non-biological child (of R's) 18 or younger in HH                                  235
+          Total                                                                                5206
+
+
+Universe : Applicable for all respondents
+
+CSPBBHH(3709-3709)
+
+Variable Type : recode
+
+Description : Number of R's biological children (18 or younger) with current spouse/ cohabiting partner who
+live in household (RECODE)
+
+  value                   label                 Total
+  .       INAPPLICABLE                            3216
+  0       No joint biological children             836
+  1       1 joint biological child                 470
+  2       2 joint biological children              464
+  3       3 or more joint biological children      220
+          Total                                   5206
+
+
+Universe : Applicable if R is currently married or cohabiting with a female partner (AD-7b MARSTAT = 1 or 2)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+CSPSBHH(3710-3710)
+
+Variable Type : recode
+
+Description : Number of R's nonbiological children (18 or younger) in household who are the biological
+chldren of his current wife/cohabiting partner (RECODE)
+
+  value            label                Total
+  .       INAPPLICABLE                   3216
+  0       No such child                  1786
+  1       1 or more such children         204
+          Total                          5206
+
+
+Universe : Applicable if R is currently married or cohabiting with a female partner (AD-7b MARSTAT = 1 or 2)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                          Page 6 of 66
+
+
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+CSPOKDHH(3711-3711)
+
+Variable Type : recode
+
+Description : Number of all other children (18 or younger) living in household with R and current
+spouse/cohabiting partner (RECODE)
+
+  value           label             Total
+  .       INAPPLICABLE                  3216
+  0       No such child                 1890
+  1       1 or more such children        100
+          Total                         5206
+
+
+Universe : Applicable if R is currently married or cohabiting with a female partner (AD-7b MARSTAT = 1 or 2)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+INTCTFAM(3712-3712)
+
+Variable Type : recode
+
+Description : Intact status of childhood family (RECODE)
+
+  value                                        label                        Total
+  1       TWO BIOLOGICAL OR ADOPTIVE PARENTS FROM BIRTH                       2946
+  2       ANYTHING OTHER THAN 2 BIOLOGICAL OR ADOPTIVE PARENTS FROM BIRTH     2260
+          Total                                                              5206
+
+
+Universe : Applicable for all respondents
+
+PARAGE14(3713-3713)
+
+Variable Type : recode
+
+Description : Parental living situation at age 14 (RECODE)
+
+  value                                             label                                Total
+  1       R LIVED WITH BOTH BIOLOGICAL OR BOTH ADOPTIVE PARENTS AT AGE 14                 3346
+  2       R LIVED WITH BIOLOGICAL MOTHER AND STEPFATHER AT AGE 14                          478
+  3       R LIVED IN ANY OTHER PARENTAL SITUATION OR A NONPARENTAL SITUATION AT AGE 14    1382
+          Total                                                                          5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+EDUCMOM(3714-3715)
+
+Variable Type : recode
+
+Description : Mother's (or mother-figure's) education (RECODE)
+
+  value                   label                    Total
+  1       Less than high school                        974
+  2       High school graduate or GED                  1648
+  3       Some college, including 2-year degrees       1244
+  4       Bachelor's degree or higher                  1305
+  95      No mother/mother-figure identified             35
+          Total                                    5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                          Page 7 of 66
+
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+AGEMOMB1(3716-3717)
+
+Variable Type : recode
+
+Description : Age of mother (or mother-figure) at first birth (RECODE)
+
+  value                    label            Total
+  1       LESS THAN 18 YEARS                  729
+  2       18-19 YEARS                         835
+  3       20-24 YEARS                        1874
+  4       25-29 YEARS                        1061
+  5       30 OR OLDER                         628
+  95      NO MOTHER OR MOTHER-FIGURE           35
+  96      MOTHER-FIGURE HAD NO CHILDREN        44
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+FMARNO(3718-3718)
+
+Variable Type : recode
+
+Description : Number of times R has been married (RECODE)
+
+  value            label            Total
+  0       NEVER BEEN MARRIED         3245
+  1       1 TIME                     1673
+  2       2 TIMES                     250
+  3       3 TIMES                      32
+  4       4 TIMES                       4
+  5       5 TIMES                       2
+          Total                     5206
+
+
+Universe : Applicable for all respondents
+
+AGER_I(3719-3719)
+
+Variable Type : imputation flag
+
+Description : AGER Imputation Flag
+
+  value                     label             Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)     5206
+          Total                                5206
+
+
+Universe : Applicable for all respondents
+
+FMARITAL_I(3720-3720)
+
+Variable Type : imputation flag
+
+Description : FMARITAL Imputation Flag
+
+  value                     label             Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)     5200
+  2       LOGICAL IMPUTATION                        6
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                      Page 8 of 66
+
+
+
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+RMARITAL_I(3721-3721)
+
+Variable Type : imputation flag
+
+Description : RMARITAL Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5200
+  2       LOGICAL IMPUTATION                        6
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+EDUCAT_I(3722-3722)
+
+Variable Type : imputation flag
+
+Description : EDUCAT Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5201
+  1       MULTIPLE REGRESSION IMPUTATION            3
+  2       LOGICAL IMPUTATION                        2
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+HIEDUC_I(3723-3723)
+
+Variable Type : imputation flag
+
+Description : HIEDUC Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5200
+  1       MULTIPLE REGRESSION IMPUTATION            4
+  2       LOGICAL IMPUTATION                        2
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+HISPANIC_I(3724-3724)
+
+Variable Type : imputation flag
+
+Description : HISPANIC Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5204
+  2       LOGICAL IMPUTATION                        2
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+RACE_I(3725-3725)
+
+Variable Type : imputation flag
+
+Description : RACE Imputation Flag
+
+  value                label                 Total
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                      Page 9 of 66
+
+
+
+  0       QUESTIONNAIRE DATA (NOT            5205
+          IMPUTED)
+  2       LOGICAL IMPUTATION                    1
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+HISPRACE2_I(3726-3726)
+
+Variable Type : imputation flag
+
+Description : HISPRACE2 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5204
+  2       LOGICAL IMPUTATION                        2
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+NUMKDHH_I(3727-3727)
+
+Variable Type : imputation flag
+
+Description : NUMKDHH Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+NUMFMHH_I(3728-3728)
+
+Variable Type : imputation flag
+
+Description : NUMFMHH Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+HHFAMTYP_I(3729-3729)
+
+Variable Type : imputation flag
+
+Description : HHFAMTYP Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+HHPARTYP_I(3730-3730)
+
+Variable Type : imputation flag
+
+Description : HHPARTYP Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 10 of 66
+
+
+
+Universe : Applicable for all respondents
+
+NCHILDHH_I(3731-3731)
+
+Variable Type : imputation flag
+
+Description : NCHILDHH Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+HHKIDTYP_I(3732-3732)
+
+Variable Type : imputation flag
+
+Description : HHKIDTYP Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+CSPBBHH_I(3733-3733)
+
+Variable Type : imputation flag
+
+Description : CSPBBHH Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+CSPSBHH_I(3734-3734)
+
+Variable Type : imputation flag
+
+Description : CSPSBHH Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+CSPOKDHH_I(3735-3735)
+
+Variable Type : imputation flag
+
+Description : CSPOKHH Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+INTCTFAM_I(3736-3736)
+
+Variable Type : imputation flag
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                Page 11 of 66
+
+
+
+Description : INTCTFAM Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5204
+  1       MULTIPLE REGRESSION IMPUTATION         2
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARAGE14_I(3737-3737)
+
+Variable Type : imputation flag
+
+Description : PARAGE14 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5204
+  2       LOGICAL IMPUTATION                     2
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+EDUCMOM_I(3738-3738)
+
+Variable Type : imputation flag
+
+Description : EDUCMOM Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5095
+  1       MULTIPLE REGRESSION IMPUTATION       111
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+AGEMOMB1_I(3739-3739)
+
+Variable Type : imputation flag
+
+Description : AGEMOMB1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5151
+  1       MULTIPLE REGRESSION IMPUTATION        55
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+FMARNO_I(3740-3740)
+
+Variable Type : imputation flag
+
+Description : FMARNO Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5203
+  2       LOGICAL IMPUTATION                     3
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+Male Respondent File Codebook :: SECTION R: Recode Variables and Imputation Flags :: (RB-RF) Sections
+B-F Recodes
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 12 of 66
+
+
+
+HADSEX(3741-3741)
+
+Variable Type : recode
+
+Description : Whether R ever had sexual intercourse (RECODE)
+
+  value                 label                 Total
+  1       YES, R EVER HAD INTERCOURSE           4356
+  2       NO, R NEVER HAD INTERCOURSE             850
+          Total                                 5206
+
+
+Universe : Applicable for all respondents
+
+SEXONCE(3742-3742)
+
+Variable Type : recode
+
+Description : Whether R has had sex only once (RECODE)
+
+  value                       label                  Total
+  .       INAPPLICABLE                                   850
+  1       YES (R HAS HAD SEX ONLY ONCE)                   73
+  2       NO (R HAS HAD SEX MORE THAN ONCE)             4283
+          Total                                         5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+VRY1STSX(3743-3746)
+
+Variable Type : recode
+
+Description : CM date of 1st sex (RECODE)
+
+      value           label           Total
+  .           INAPPLICABLE              850
+  900-1340 Before Sept 2011            3351
+  1341-1352 Sept 2011-Aug 2012          109
+  1353-1364 Sept 2012-Aug 2013          131
+  1365-1376 Sept 2013-Aug 2014          135
+  1377-1388 Sept 2014-Aug 2015          148
+  1389-1400 Sept 2015-Aug 2016          159
+  1401-1412 Sept 2016-Aug 2017          151
+  1413-1424 Sept 2017-Aug 2018           98
+  1425-1437 Sept 2018-Sept 2019          36
+  9997        Not ascertained            38
+              Total                    5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+FIRSTPFLAG(3747-3747)
+
+Variable Type : intermediate
+
+Description : Flag indicating which section and which series reflects R's first sexual partner
+
+  value                               label                           Total
+  .       INAPPLICABLE                                                  850
+  1       cmfstsex - CM of first sex ever, based on DL series          3686
+  2       cmlsxp - CM when R last had sex with most recent partner       76
+  3       cmlsxp2 - CM when R last had sex with 2nd-to-last partner       5
+  4       cmlsxp3 - CM when R last had sex with 3rd-to-last partner       1
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 13 of 66
+
+
+
+  5       cmfsxp - CM when R first had sex with most recent     267
+          partner
+  6       cmfsxp2 - CM when R first had sex with 2nd-to-last     19
+          partner
+  7       cmfsxp3 - CM when R first had sex with 3rd-to-last      2
+          partner
+  8       cmfsxcwp - CM when R first had sex with CWP           292
+  9       unable to determine: raw variable(s) missing            8
+          Total                                                5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+VRY1STAG(3748-3749)
+
+Variable Type : recode
+
+Description : R's age at 1st sex (RECODE)
+
+  value             label             Total
+  .       INAPPLICABLE                     850
+  10      10 YEARS OR YOUNGER               46
+  11      11                                29
+  12      12                               122
+  13      13                               236
+  14      14                               438
+  15-17   15-17 YEARS                     2039
+  18-19   18-19 YEARS                      783
+  20-49   20 YEARS OR OLDER                663
+          Total                        5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+ELAPSED(3750-3752)
+
+Variable Type : intermediate
+
+Description : # of mos btwn 1st sex and last sex:R's 1st partner (DF series only)
+
+  value           label         Total
+  .       INAPPLICABLE            4932
+  0       0                          39
+  1-995   Number of months          235
+          Total                   5206
+
+
+Universe : Applicable if cmlsxp[x] and cmfsxp[x] are not blank
+
+SEXMAR(3753-3753)
+
+Variable Type : recode
+
+Description : Months between 1st intercourse and 1st marriage (RECODE)
+
+  value                   label                    Total
+  .       INAPPLICABLE                               850
+  1       0-12 months                                292
+  2       13-24 months                               201
+  3       25-36 months                               246
+  4       More than 3 years                         3605
+  5       First intercourse after first marriage      12
+          Total                                    5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 14 of 66
+
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+SEXUNION(3754-3754)
+
+Variable Type : recode
+
+Description : Months between 1st intercourse and 1st coresidential union or interview (marriage or
+cohabitation) (RECODE)
+
+  value                 label                   Total
+  .       INAPPLICABLE                            850
+  1       0-12 months                             453
+  2       13-24 months                            298
+  3       25-36 months                            392
+  4       More than 3 years                      3144
+  5       First intercourse after first union       69
+          Total                                 5206
+
+
+Universe : Applicable if R ever had sexual intercourse with a female (HADSEX = 1)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+FSEXRLTN(3755-3755)
+
+Variable Type : recode
+
+Description : Relationship with 1st sexual partner at time of 1st sex (RECODE)
+
+  value                                     label                     Total
+  .       INAPPLICABLE                                                  850
+  1       MARRIED TO HER                                                124
+  2       ENGAGED TO HER, AND LIVING TOGETHER                            15
+  3       ENGAGED TO HER, BUT NOT LIVING TOGETHER                        32
+  4       LIVING TOGETHER IN A SEXUAL RELATIONSHIP, BUT NOT ENGAGED      28
+  5       GOING OUT WITH HER OR GOING STEADY                           2003
+  6       GOING OUT WITH HER ONCE IN A WHILE                            453
+  7       JUST FRIENDS                                                 1251
+  8       HAD JUST MET HER                                              313
+  9       SOMETHING ELSE                                                137
+          Total                                                       5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+SEX1MTHD1(3756-3757)
+
+Variable Type : recode
+
+Description : Contraceptive method use at 1st sexual intercourse: 1st mentioned (RECODE)
+
+  value                           label                     Total
+  .       INAPPLICABLE                                        850
+  1       Condom                                             2833
+  2       Withdrawal                                          219
+  3       Vasectomy                                             1
+  4       Pill                                                194
+  5       Female sterilization                                  6
+  6       Injection -- Depo-Provera/Lunelle                    13
+  7       Spermicidal foam/jelly/cream/film/suppository         3
+  8       Hormonal implant -- Norplant/Implanon/Nexplanon       4
+  10      Contraceptive Patch                                   5
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                  Page 15 of 66
+
+
+
+  11      Vaginal contraceptive ring                               6
+  12      IUD, coil, loop                                          7
+  13      Something else                                           6
+  96      No method used at first intercourse                1059
+          Total                                              5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+SEX1MTHD2(3758-3759)
+
+Variable Type : recode
+
+Description : Contraceptive method use at 1st sexual intercourse: 2nd mentioned (RECODE)
+
+  value                           label                      Total
+  .       INAPPLICABLE                                            3433
+  1       Condom                                                    31
+  2       Withdrawal                                               163
+  4       Pill                                                     450
+  5       Female sterilization                                         3
+  6       Injection -- Depo-Provera/Lunelle                         26
+  7       Spermicidal foam/jelly/cream/film/suppository             10
+  8       Hormonal implant -- Norplant/Implanon/Nexplanon              9
+  9       Rhythm or safe period                                        6
+  10      Contraceptive Patch                                          2
+  11      Vaginal contraceptive ring                                   2
+  12      IUD, coil, loop                                              9
+  13      Something else                                               3
+  96      No method used at first intercourse                     1059
+          Total                                               5206
+
+
+Universe : Applicable if R reported more than 1 method at 1st sexual intercourse (see recode SEX1MTHD1)
+
+SEX1MTHD3(3760-3761)
+
+Variable Type : recode
+
+Description : Contraceptive method use at 1st sexual intercourse: 3rd mentioned (RECODE)
+
+  value                           label                      Total
+  .       INAPPLICABLE                                            4081
+  2       Withdrawal                                                   5
+  4       Pill                                                      45
+  6       Injection -- Depo-Provera/Lunelle                            1
+  7       Spermicidal foam/jelly/cream/film/suppository                3
+  8       Hormonal implant -- Norplant/Implanon/Nexplanon              3
+  9       Rhythm or safe period                                        6
+  11      Vaginal contraceptive ring                                   1
+  12      IUD, coil, loop                                              1
+  13      Something else                                               1
+  96      No method used at first intercourse                     1059
+          Total                                               5206
+
+
+Universe : Applicable if R reported more than 2 methods at 1st sexual intercourse (see recode SEX1MTHD1)
+
+SEX1MTHD4(3762-3763)
+
+Variable Type : recode
+
+Description : Contraceptive method use at 1st sexual intercourse: 4th mentioned (RECODE)
+
+  value                          label                    Total
+  .       INAPPLICABLE                                     4142
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                  Page 16 of 66
+
+
+
+  7       Spermicidal                                      1
+          foam/jelly/cream/film/suppository
+  9       Rhythm or safe period                            4
+  96      No method used at first intercourse           1059
+          Total                                         5206
+
+
+Universe : Applicable if R reported more than 3 methods at 1st sexual intercourse (see recode SEX1MTHD1)
+
+LSEXDATE(3764-3767)
+
+Variable Type : recode
+
+Description : Date of last (or most recent) sexual intercourse (RECODE)
+
+      value           label         Total
+  .           INAPPLICABLE             850
+  900-1340 Before Sept 2011            109
+  1341-1352 Sept 2011-Aug 2012          26
+  1353-1364 Sept 2012-Aug 2013          30
+  1365-1376 Sept 2013-Aug 2014          44
+  1377-1388 Sept 2014-Aug 2015          73
+  1389-1400 Sept 2015-Aug 2016          95
+  1401-1412 Sept 2016-Aug 2017         251
+  1413-1424 Sept 2017-Aug 2018        1904
+  1425-1437 Sept 2018-Sept 2019       1824
+              Total                   5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+SEX3MO(3768-3768)
+
+Variable Type : recode
+
+Description : Whether R had sexual intercourse in past 3 months (based on LSEXDATE) (RECODE)
+
+  value                 label                   Total
+  .       INAPPLICABLE                            850
+  1       YES, HAD INTERCOURSE                   3262
+  2       NO, DID NOT HAVE INTERCOURSE           1094
+          Total                                 5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+SEX12MO(3769-3769)
+
+Variable Type : recode
+
+Description : Whether R had sexual intercourse in past 12 months (based on LSEXDATE) (RECODE)
+
+  value                 label                   Total
+  .       INAPPLICABLE                            850
+  1       YES, HAD INTERCOURSE                   3795
+  2       NO, DID NOT HAVE INTERCOURSE            561
+          Total                                 5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+LSEXRAGE(3770-3771)
+
+Variable Type : recode
+
+Description : R's age at last (or most recent) sexual intercourse (RECODE)
+
+  value         label         Total
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                     Page 17 of 66
+
+
+
+  .       INAPPLICABLE          850
+  0-17    UNDER 18              227
+          YEARS
+  18-19   18-19 YEARS           292
+  20-24   20-24 YEARS           577
+  25-34   25-34 YEARS          1514
+  35-50   35-49 YEARS          1746
+          Total                5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+Notes : Respondents aged 50 were 49 at time of household screener
+
+lsexprac(3772-3772)
+
+Variable Type : computed
+
+Description : Race/ethnicity of last (or most recent) sexual partner (computed in post-processing)
+
+  value           label          Total
+  .       INAPPLICABLE                879
+  1       Hispanic                 1102
+  2       Non-Hispanic White       2266
+  3       Non-Hispanic Black          666
+  4       Non-Hispanic Other          293
+          Total                   5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+LSEXRLTN(3773-3773)
+
+Variable Type : recode
+
+Description : Relationship with last sexual partner at last sex ever (RECODE)
+
+  value                        label                     Total
+  .       INAPPLICABLE                                     850
+  1       Married to her                                  1531
+  3       Living together in a sexual relationship         619
+  4       Going out with her or going steady              1067
+  5       Going out with her once in a while               355
+  6       Just friends                                     514
+  7       Had just met her                                  74
+  8       Something else                                   108
+  9       Engaged to her: only asked of a subset of Rs      88
+          Total                                          5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+LSEXUSE1(3774-3775)
+
+Variable Type : recode
+
+Description : Contraceptive method used at last sexual intercourse ever - 1st mentioned (RECODE)
+
+  value                                     label                Total
+  .       INAPPLICABLE                                             850
+  1       CONDOM                                                  1550
+  2       WITHDRAWAL                                               413
+  3       VASECTOMY                                                197
+  4       PILL                                                     395
+  5       FEMALE STERILIZATION                                     312
+  6       INJECTION -- DEPO-PROVERA/LUNELLE                         72
+  7       SPERMICIDAL FOAM/JELLY/CREAM/FILM/SUPPOSITORY              2
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                   Page 18 of 66
+
+
+
+  8       HORMONAL IMPLANT -- NORPLANT/IMPLANON/NEXPLANON                64
+  9       RHYTHM OR SAFE PERIOD                                          10
+  10      CONTRACEPTIVE PATCH                                            48
+  11      VAGINAL CONTRACEPTIVE RING                                     31
+  12      IUD, COIL LOOP                                                250
+  13      SOMETHING ELSE                                                 25
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A            20
+          METHOD
+  96      NO METHOD USED AT LAST SEX                                    967
+          Total                                                        5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+LSEXUSE2(3776-3777)
+
+Variable Type : recode
+
+Description : Contraceptive method used at last sexual intercourse ever - 2nd mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  3242
+  1       CONDOM                                                              4
+  2       WITHDRAWAL                                                      81
+  3       VASECTOMY                                                           4
+  4       PILL                                                           555
+  5       FEMALE STERILIZATION                                            56
+  6       INJECTION -- DEPO-PROVERA/LUNELLE                               62
+  7       SPERMICIDAL FOAM/JELLY/CREAM/FILM/SUPPOSITORY                       7
+  8       HORMONAL IMPLANT -- NORPLANT/IMPLANON/NEXPLANON                 33
+  9       RHYTHM OR SAFE PERIOD                                           41
+  10      CONTRACEPTIVE PATCH                                             17
+  11      VAGINAL CONTRACEPTIVE RING                                      13
+  12      IUD, COIL LOOP                                                  72
+  13      SOMETHING ELSE                                                  32
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A METHOD      20
+  96      NO METHOD USED AT LAST SEX                                     967
+          Total                                                         5206
+
+
+Universe : Applicable if R reported more than 1 method at last sexual intercourse (see recode LSEXUSE1)
+
+LSEXUSE3(3778-3779)
+
+Variable Type : recode
+
+Description : Contraceptive method used at last sexual intercourse ever - 3rd mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  4118
+  1       CONDOM                                                              2
+  2       WITHDRAWAL                                                      71
+  3       VASECTOMY                                                           9
+  4       PILL                                                                2
+  8       HORMONAL IMPLANT -- NORPLANT/IMPLANON/NEXPLANON                     1
+  9       RHYTHM OR SAFE PERIOD                                               3
+  10      CONTRACEPTIVE PATCH                                                 7
+  11      VAGINAL CONTRACEPTIVE RING                                          5
+  13      SOMETHING ELSE                                                      1
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A METHOD      20
+  96      NO METHOD USED AT LAST SEX                                     967
+          Total                                                         5206
+
+
+Universe : Applicable if R reported more than 2 methods at last sexual intercourse (see recode LSEXUSE1)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                   Page 19 of 66
+
+
+
+LSEXUSE4(3780-3781)
+
+Variable Type : recode
+
+Description : Contraceptive method used at last sexual intercourse ever - 4th mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  4211
+  9       RHYTHM OR SAFE PERIOD                                            3
+  10      CONTRACEPTIVE PATCH                                              3
+  13      SOMETHING ELSE                                                   2
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A METHOD      20
+  96      NO METHOD USED AT LAST SEX                                     967
+          Total                                                        5206
+
+
+Universe : Applicable if R reported more than 3 methods at last sexual intercourse (see recode LSEXUSE1)
+
+METH12M1(3782-3783)
+
+Variable Type : recode
+
+Description : Contraceptive method used at last sexual intercourse in past 12 mos: 1st mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  1411
+  1       CONDOM                                                        1243
+  2       WITHDRAWAL                                                     367
+  3       VASECTOMY                                                      189
+  4       PILL                                                           356
+  5       FEMALE STERILIZATION                                           288
+  6       INJECTION -- DEPO-PROVERA/LUNELLE                               64
+  7       SPERMICIDAL FOAM/JELLY/CREAM/FILM/SUPPOSITORY                    2
+  8       HORMONAL IMPLANT -- NORPLANT/IMPLANON/NEXPLANON                 60
+  9       RHYTHM OR SAFE PERIOD                                           10
+  10      CONTRACEPTIVE PATCH                                             42
+  11      VAGINAL CONTRACEPTIVE RING                                      28
+  12      IUD, COIL LOOP                                                 236
+  13      SOMETHING ELSE                                                  23
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A METHOD      13
+  96      NO METHOD USED AT LAST SEX IN THE PAST 12 MONTHS               874
+          Total                                                        5206
+
+
+Universe : Applicable if R had sex in the past 12 months (SEX12MO = 1)
+
+METH12M2(3784-3785)
+
+Variable Type : recode
+
+Description : Contraceptive method used at last sexual intercourse in past 12 mos: 2nd mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  3508
+  1       CONDOM                                                           4
+  2       WITHDRAWAL                                                      64
+  3       VASECTOMY                                                        4
+  4       PILL                                                           446
+  5       FEMALE STERILIZATION                                            50
+  6       INJECTION -- DEPO-PROVERA/LUNELLE                               55
+  7       SPERMICIDAL FOAM/JELLY/CREAM/FILM/SUPPOSITORY                    7
+  8       HORMONAL IMPLANT -- NORPLANT/IMPLANON/NEXPLANON                 30
+  9       RHYTHM OR SAFE PERIOD                                           36
+  10      CONTRACEPTIVE PATCH                                             14
+  11      VAGINAL CONTRACEPTIVE RING                                      10
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                  Page 20 of 66
+
+
+
+  12      IUD, COIL LOOP                                                 66
+  13      SOMETHING ELSE                                                 25
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A            13
+          METHOD
+  96      NO METHOD USED AT LAST SEX IN THE PAST 12 MONTHS              874
+          Total                                                        5206
+
+
+Universe : Applicable if R had sex in the past 12 months (SEX12MO = 1) and reported a 2nd method at last
+sex (LSEXUSE2 < 95)
+
+METH12M3(3786-3787)
+
+Variable Type : recode
+
+Description : Contraceptive method used at last sexual intercourse in past 12 mos: 3rd mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  4236
+  1       CONDOM                                                              2
+  2       WITHDRAWAL                                                      57
+  3       VASECTOMY                                                           8
+  4       PILL                                                                2
+  8       HORMONAL IMPLANT -- NORPLANT/IMPLANON/NEXPLANON                     1
+  9       RHYTHM OR SAFE PERIOD                                               3
+  10      CONTRACEPTIVE PATCH                                                 6
+  11      VAGINAL CONTRACEPTIVE RING                                          3
+  13      SOMETHING ELSE                                                      1
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A METHOD      13
+  96      NO METHOD USED AT LAST SEX IN THE PAST 12 MONTHS               874
+          Total                                                         5206
+
+
+Universe : Applicable if R had sex in the past 12 months (SEX12MO = 1) and reported a 3rd method at last
+sex (LSEXUSE3 < 95)
+
+METH12M4(3788-3789)
+
+Variable Type : recode
+
+Description : Contraceptive method used at last sexual intercourse in past 12 mos: 4th mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  4314
+  9       RHYTHM OR SAFE PERIOD                                               1
+  10      CONTRACEPTIVE PATCH                                                 2
+  13      SOMETHING ELSE                                                      2
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A METHOD      13
+  96      NO METHOD USED AT LAST SEX IN THE PAST 12 MONTHS               874
+          Total                                                         5206
+
+
+Universe : Applicable if R had sex in the past 12 months (SEX12MO = 1) and reported a 4th method at last
+sex (LSEXUSE4 < 95)
+
+METH3M1(3790-3791)
+
+Variable Type : recode
+
+Description : Contraceptive method used last sexual intercourse in past 3 mos: 1st mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  1944
+  1       CONDOM                                                         943
+  2       WITHDRAWAL                                                     317
+  3       VASECTOMY                                                      181
+  4       PILL                                                           327
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                  Page 21 of 66
+
+
+
+  5       FEMALE STERILIZATION                                          268
+  6       INJECTION -- DEPO-PROVERA/LUNELLE                              58
+  7       SPERMICIDAL FOAM/JELLY/CREAM/FILM/SUPPOSITORY                   2
+  8       HORMONAL IMPLANT -- NORPLANT/IMPLANON/NEXPLANON                57
+  9       RHYTHM OR SAFE PERIOD                                          10
+  10      CONTRACEPTIVE PATCH                                            36
+  11      VAGINAL CONTRACEPTIVE RING                                     23
+  12      IUD, COIL LOOP                                                227
+  13      SOMETHING ELSE                                                 21
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A             9
+          METHOD
+  96      NO METHOD USED AT LAST SEX IN THE PAST 3 MONTHS               783
+          Total                                                        5206
+
+
+Universe : Applicable if R had sex in the past 3 months (SEX3MO = 1)
+
+METH3M2(3792-3793)
+
+Variable Type : recode
+
+Description : Contraceptive method used last sexual intercourse in past 3 mos: 2nd mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  3787
+  1       CONDOM                                                              4
+  2       WITHDRAWAL                                                      52
+  3       VASECTOMY                                                           4
+  4       PILL                                                           324
+  5       FEMALE STERILIZATION                                            40
+  6       INJECTION -- DEPO-PROVERA/LUNELLE                               46
+  7       SPERMICIDAL FOAM/JELLY/CREAM/FILM/SUPPOSITORY                       4
+  8       HORMONAL IMPLANT -- NORPLANT/IMPLANON/NEXPLANON                 26
+  9       RHYTHM OR SAFE PERIOD                                           27
+  10      CONTRACEPTIVE PATCH                                             12
+  11      VAGINAL CONTRACEPTIVE RING                                          8
+  12      IUD, COIL LOOP                                                  60
+  13      SOMETHING ELSE                                                  20
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A METHOD          9
+  96      NO METHOD USED AT LAST SEX IN THE PAST 3 MONTHS                783
+          Total                                                         5206
+
+
+Universe : Applicable if R had sex in the past 3 months (SEX3MO = 1) and reported a 2nd method at last sex
+(LSEXUSE2 < 95)
+
+METH3M3(3794-3795)
+
+Variable Type : recode
+
+Description : Contraceptive method used last sexual intercourse in past 3 mos: 3rd mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  4357
+  1       CONDOM                                                              2
+  2       WITHDRAWAL                                                      40
+  3       VASECTOMY                                                           6
+  4       PILL                                                                2
+  9       RHYTHM OR SAFE PERIOD                                               1
+  10      CONTRACEPTIVE PATCH                                                 5
+  11      VAGINAL CONTRACEPTIVE RING                                          1
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A METHOD          9
+  96      NO METHOD USED AT LAST SEX IN THE PAST 3 MONTHS                783
+          Total                                                         5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                   Page 22 of 66
+
+
+
+Universe : Applicable if R had sex in the past 3 months (SEX3MO = 1) and reported a 3rd method at last sex
+(LSEXUSE3 < 95)
+
+METH3M4(3796-3797)
+
+Variable Type : recode
+
+Description : Contraceptive method used last sexual intercourse in past 3 mos: 4th mentioned (RECODE)
+
+  value                                label                           Total
+  .       INAPPLICABLE                                                  4409
+  9       RHYTHM OR SAFE PERIOD                                            1
+  10      CONTRACEPTIVE PATCH                                              2
+  13      SOMETHING ELSE                                                   2
+  95      R USED NO METHOD; R DOES NOT KNOW IF PARTNER USED A METHOD       9
+  96      NO METHOD USED AT LAST SEX IN THE PAST 3 MONTHS                783
+          Total                                                        5206
+
+
+Universe : Applicable if R had sex in the past 3 months (SEX3MO = 1) and reported a 4th method at last sex
+(LSEXUSE4 < 95)
+
+NUMP3MOS(3798-3798)
+
+Variable Type : recode
+
+Description : Number of female sexual partners in last 3 mos (RECODE)
+
+  value               label            Total
+  .       INAPPLICABLE                      850
+  0       0 PARTNERS                       1094
+  1       1 PARTNER                        2992
+  2       2 PARTNERS                        178
+  3       3 PARTNERS EXACTLY                 23
+  4       3, POSSIBLY MORE PARTNERS          69
+          Total                            5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+LIFPRTNR(3799-3800)
+
+Variable Type : recode
+
+Description : Number of opposite-sex partners in lifetime (RECODE)
+
+  value           label         Total
+  0       0 PARTNERS               850
+  1       1 PARTNER                593
+  2       2 PARTNERS               382
+  3       3 PARTNERS               385
+  4       4 PARTNERS               329
+  5       5 PARTNERS               343
+  6       6 PARTNERS               317
+  7       7 PARTNERS               179
+  8       8 PARTNERS                  89
+  9       9 PARTNERS               103
+  10-19   10-19 PARTNERS           881
+  20-49   20-49 PARTNERS           525
+  50      50 OR MORE PARTNERS      230
+          Total                   5206
+
+
+Universe : Applicable for all respondents
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 23 of 66
+
+
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+PARTS1YR(3801-3802)
+
+Variable Type : recode
+
+Description : Number of opposite-sex partners in past 12 mos (RECODE)
+
+  value           label           Total
+  0       NONE                      1411
+  1       1 PARTNER                 3004
+  2       2 PARTNERS                 427
+  3       3 PARTNERS                 151
+  4       4 PARTNERS                   79
+  5       5 PARTNERS                   52
+  6       6 PARTNERS                   15
+  7       7 OR MORE PARTNERS           67
+          Total                    5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+PARTDUR1(3803-3805)
+
+Variable Type : recode
+
+Description : Months between 1st and most recent intercourse with last/most recent partner (RECODE)
+
+  value                                    label                                 Total
+  .       INAPPLICABLE                                                             850
+  0-440   Number of months between first and most recent sex with this partner    4058
+  997     Only had sex once with partner                                           298
+          Total                                                                  5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (recode HADSEX = 1)
+
+PARTDUR2(3806-3808)
+
+Variable Type : recode
+
+Description : Months between 1st and most recent intercourse with 2nd-to-last partner within past 12 mos
+(RECODE)
+
+  value                                    label                                 Total
+  .       INAPPLICABLE                                                            4415
+  0-440   Number of months between first and most recent sex with this partner     607
+  997     Only had sex once with partner                                           184
+          Total                                                                  5206
+
+
+Universe : Applicable if r had more than one female partner in the past 12 months (PARTS1YR > 1)
+
+PARTDUR3(3809-3811)
+
+Variable Type : recode
+
+Description : Months between 1st and most recent intercourse with 3rd-to-last partner within past 12 mos
+(RECODE)
+
+  value                                    label                                 Total
+  .       INAPPLICABLE                                                            4842
+  0-440   Number of months between first and most recent sex with this partner     269
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                  Page 24 of 66
+
+
+
+  997     Only had sex once with partner                                           95
+          Total                                                                  5206
+
+
+Universe : Applicable if r had more than two female partners in the past 12 months (PARTS1YR > 2)
+
+COHEVER(3812-3812)
+
+Variable Type : recode
+
+Description : Whether R ever cohabited (including premarital cohabitation) (RECODE)
+
+  value                               label                              Total
+  1       Yes, ever cohabited (lived with a woman outside of marriage)    2578
+  2       No, never cohabited (lived with a woman outside of marriage)    2628
+          Total                                                          5206
+
+
+Universe : Applicable for all respondents
+
+EVMARCOH(3813-3813)
+
+Variable Type : recode
+
+Description : Whether R ever married or cohabited (RECODE)
+
+  value              label                 Total
+  1       Yes, ever married or cohabited      3062
+  2       No, never married or cohabited      2144
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+PMARRNO(3814-3815)
+
+Variable Type : recode
+
+Description : Number of premarital cohabitations (RECODE)
+
+  value label Total
+  0       None       3850
+  1       One        1200
+  2       Two            142
+  3       Three          12
+  4       Four            2
+          Total     5206
+
+
+Universe : Applicable for all respondents
+
+NONMARR(3816-3816)
+
+Variable Type : recode
+
+Description : Number of nonmarital cohabitations (RECODE)
+
+  value     label         Total
+  0       None                 3458
+  1       One                   937
+  2       Two                   450
+  3       Three                 199
+  4       Four                   78
+  5       Five or more           84
+          Total                5206
+
+
+Universe : Applicable for all respondents
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 25 of 66
+
+
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+TIMESCOH(3817-3817)
+
+Variable Type : recode
+
+Description : Total number of cohabitations (RECODE)
+
+  value       label       Total
+  0       None             2634
+  1       One              1420
+  2       Two                614
+  3       Three              294
+  4       Four               118
+  5       Five or more       126
+          Total            5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+fmar1age(3818-3819)
+
+Variable Type : computed
+
+Description : R's age at 1st formal marriage (computed in post-processing)
+
+  value         label      Total
+  .       INAPPLICABLE        3245
+  0-19    Under 20 years       133
+  20-24   20-24 years          640
+  25-29   25-29 years          679
+  30-34   30-34 years          334
+  35-49   35-49 years          175
+          Total              5206
+
+
+Universe : Applicable if R has ever been married (FMARITAL NE 5)
+
+Notes : This variable has been created for public use, and the original source variables are accessible by
+application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+MARDAT01(3820-3823)
+
+Variable Type : recode
+
+Description : Year of R's 1st marriage (RECODE)
+
+      value       label       Total
+  .           INAPPLICABLE         3245
+  1967-2019 1967-2019              1961
+              Total            5206
+
+
+Universe : Applicable if R has ever been married (FMARITAL NE 5)
+
+Notes : The year of this event is available for public use, and the original century-month variable is accessible
+by application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+MARDAT02(3824-3827)
+
+Variable Type : recode
+
+Description : Year of R's 2nd marriage (RECODE)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 26 of 66
+
+
+
+  value          label          Total
+  .           INAPPLICABLE       4918
+  1967-       1967-2019           288
+  2019
+              Total             5206
+
+
+Universe : Applicable if R has been married more than once (FMARNO GT 1)
+
+Notes : The year of this event is available for public use, and the original century-month variable is accessible
+by application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+MARDAT03(3828-3831)
+
+Variable Type : recode
+
+Description : Year of R's 3rd marriage (RECODE)
+
+      value           label      Total
+  .            INAPPLICABLE       5168
+  1967-2019 1967-2019               38
+               Total              5206
+
+
+Universe : Applicable if R has been married more than 2 times (FMARNO GT 2)
+
+Notes : The year of this event is available for public use, and the original century-month variable is accessible
+by application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+MARDAT04(3832-3835)
+
+Variable Type : recode
+
+Description : Year of R's 4th marriage (RECODE)
+
+      value           label      Total
+  .            INAPPLICABLE       5200
+  1967-2019 1967-2019                   6
+               Total              5206
+
+
+Universe : Applicable if R has been married more than 3 times (FMARNO GT 3)
+
+Notes : The year of this event is available for public use, and the original century-month variable is accessible
+by application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+MARDAT05(3836-3839)
+
+Variable Type : recode
+
+Description : Year of R's 5th marriage (RECODE)
+
+      value           label      Total
+  .            INAPPLICABLE       5204
+  1967-2019 1967-2019                   2
+               Total              5206
+
+
+Universe : Applicable if R has been married more than 4 times (FMARNO GT 4)
+
+MAREND01(3840-3840)
+
+Variable Type : recode
+
+Description : How R's 1st marriage ended (RECODE)
+
+  value                 label               Total
+  .       INAPPLICABLE                       4488
+  1       DIVORCED OR ANNULLED                579
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                    Page 27 of 66
+
+
+
+  2       SEPARATED                120
+  3       WIDOWED                   19
+          Total                   5206
+
+
+Universe : Applicable if R has been married more than once (FMARNO GT 1) or R's first marriage is not intact
+(FMARNO = 1 and FMARITAL NE 1)
+
+MAREND02(3841-3841)
+
+Variable Type : recode
+
+Description : How R's 2nd marriage ended (RECODE)
+
+  value           label           Total
+  .       INAPPLICABLE             5111
+  1       DIVORCED OR ANNULLED       77
+  2       SEPARATED                  14
+  3       WIDOWED                        4
+          Total                    5206
+
+
+Universe : Applicable if R has been married more than 2 times (FMARNO GT 2) or R's second marriage is not
+intact (FMARNO = 2 and FMARITAL NE 1)
+
+MAREND03(3842-3842)
+
+Variable Type : recode
+
+Description : How R's 3rd marriage ended (RECODE)
+
+  value           label           Total
+  .       INAPPLICABLE             5192
+  1       DIVORCED OR ANNULLED       13
+  2       SEPARATED                      1
+          Total                    5206
+
+
+Universe : Applicable if R has been married more than 3 times (FMARNO GT 3) or R's third marriage is not
+intact (FMARNO = 3 and FMARITAL NE 1)
+
+MAREND04(3843-3843)
+
+Variable Type : recode
+
+Description : How R's 4th marriage ended (RECODE)
+
+  value           label           Total
+  .       INAPPLICABLE             5203
+  1       DIVORCED OR ANNULLED           2
+  2       SEPARATED                      1
+          Total                    5206
+
+
+Universe : Applicable if R has been married more than 4 times (FMARNO GT 4) or R's fourth marriage is not
+intact (FMARNO = 4 and FMARITAL NE 1)
+
+MAREND05(3844-3844)
+
+Variable Type : recode
+
+Description : How R's 5th marriage ended (RECODE)
+
+  value      label        Total
+  .       INAPPLICABLE     5206
+          Total           5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 28 of 66
+
+
+
+Universe : Applicable if R has been married more than 5 times (FMARNO GT 5) or R's fifth marriage is not
+intact (FMARNO = 5 and FMARITAL NE 1)
+
+MARDIS01(3845-3848)
+
+Variable Type : recode
+
+Description : Year when R's 1st marriage ended (RECODE)
+
+      value      label       Total
+  .           INAPPLICABLE    4488
+  1967-2019 1967-2019          718
+              Total          5206
+
+
+Universe : Applicable if R has been married more than once (FMARNO GT 1) or R's first marriage is not intact
+(FMARNO = 1 and FMARITAL NE 1)
+
+Notes : The year of this event is available for public use, and the original century-month variable is accessible
+by application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+MARDIS02(3849-3852)
+
+Variable Type : recode
+
+Description : Year when R's 2nd marriage ended (RECODE)
+
+      value      label       Total
+  .           INAPPLICABLE    5111
+  1967-2019 1967-2019           95
+              Total          5206
+
+
+Universe : Applicable if R has been married more than 2 times (FMARNO GT 2) or R's second marriage is not
+intact (FMARNO = 2 and FMARITAL NE 1)
+
+Notes : The year of this event is available for public use, and the original century-month variable is accessible
+by application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+MARDIS03(3853-3856)
+
+Variable Type : recode
+
+Description : Year when R's 3rd marriage ended (RECODE)
+
+      value      label       Total
+  .           INAPPLICABLE    5192
+  1967-2019 1967-2019           14
+              Total          5206
+
+
+Universe : Applicable if R has been married more than 3 times (FMARNO GT 3) or R's third marriage is not
+intact (FMARNO = 3 and FMARITAL NE 1)
+
+Notes : The year of this event is available for public use, and the original century-month variable is accessible
+by application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+MARDIS04(3857-3860)
+
+Variable Type : recode
+
+Description : Year when R's 4th marriage ended (RECODE)
+
+      value      label       Total
+  .           INAPPLICABLE    5203
+  1967-2019 1967-2019            3
+              Total          5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 29 of 66
+
+
+
+Universe : Applicable if R has been married more than 4 times (FMARNO GT 4) or R's fourth marriage is not
+intact (FMARNO = 4 and FMARITAL NE 1)
+
+Notes : The year of this event is available for public use, and the original century-month variable is accessible
+by application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+MARDIS05(3861-3861)
+
+Variable Type : recode
+
+Description : CM date when R's 5th marriage ended (RECODE)
+
+  value         label     Total
+  .       INAPPLICABLE        5206
+          Total               5206
+
+
+Universe : Applicable if R has been married more than 5 times (FMARNO GT 5) or R's fifth marriage is not
+intact (FMARNO = 5 and FMARITAL NE 1)
+
+MAR1DISS(3862-3862)
+
+Variable Type : recode
+
+Description : Months between 1st marriage and dissolution of 1st marriage (or interview) (RECODE)
+
+  value          label         Total
+  .       INAPPLICABLE           3245
+  1       0-12 months             197
+  2       13-24 months            215
+  3       25-36 months            163
+  4       37-48 months            115
+  5       More than 4 years      1271
+          Total                 5206
+
+
+Universe : Applicable if R has ever been married (FMARITAL NE 5)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+PREMARW1(3863-3863)
+
+Variable Type : recode
+
+Description : Whether R lived premaritally with his first wife (RECODE)
+
+  value         label     Total
+  .       INAPPLICABLE        3245
+  1       YES                 1268
+  2       NO                   693
+          Total               5206
+
+
+Universe : Applicable if R has ever been married (FMARITAL NE 5)
+
+COHAB1(3864-3867)
+
+Variable Type : recode
+
+Description : Year of 1st cohabitation (incl. premarital cohabitation) (RECODE)
+
+      value       label        Total
+  .           INAPPLICABLE      2628
+  1967-2019 1967-2019           2578
+              Total             5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 30 of 66
+
+
+
+Universe : Applicable if R has ever cohabited outside of marriage (COHEVER = 1)
+
+Notes : The year of this event is available for public use, and the original century-month variable is accessible
+by application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+COHSTAT(3868-3868)
+
+Variable Type : recode
+
+Description : Cohabitation status experience relative to 1st marriage (RECODE)
+
+  value                   label                   Total
+  1       Never cohabited outside of marriage      2628
+  2       First cohabited before first marriage    2434
+  3       First cohabited after first marriage      144
+          Total                                   5206
+
+
+Universe : Applicable for all respondents
+
+COHOUT(3869-3869)
+
+Variable Type : recode
+
+Description : Outcome of R's first (if premarital) cohabitation (RECODE)
+
+  value           label             Total
+  .       INAPPLICABLE                2772
+  1       Intact cohabitation             236
+  2       Intact marriage                 596
+  3       Dissolved marriage              340
+  4       Dissolved cohabitation      1262
+          Total                      5206
+
+
+Universe : Applicable if R's first cohabitation occurred before his first marriage (COHSTAT = 2)
+
+COH1DUR(3870-3870)
+
+Variable Type : recode
+
+Description : Duration (in months) of R's first (if premarital) cohabitation (RECODE)
+
+  value        label            Total
+  .       INAPPLICABLE             2771
+  1       0-12 months               801
+  2       13-24 months              534
+  3       25-36 months              342
+  4       37-48 months              195
+  5       More than 4 years         563
+          Total                   5206
+
+
+Universe : Applicable if R's first cohabitation occurred before his first marriage (COHSTAT = 2)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+CSPBIOKD(3871-3871)
+
+Variable Type : recode
+
+Description : Total number of biological children R has had with current spouse or cohabiting partner
+(RECODE)
+
+  value           label              Total
+  .       INAPPLICABLE                 3216
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 31 of 66
+
+
+
+  0       NONE                         751
+  1       1 CHILD                      469
+  2       2 CHILDREN                   512
+  3       3 CHILDREN                   195
+  4-95    4 OR MORE                     63
+          CHILDREN
+          Total                       5206
+
+
+Universe : Applicable if R is currently married or cohabiting (RMARITAL = 1 or 2)
+
+DATBABY1(3872-3875)
+
+Variable Type : recode
+
+Description : Year when R fathered his first biological child (RECODE)
+
+      value       label         Total
+  .           INAPPLICABLE       3177
+  1967-2019 1967-2019            2029
+              Total             5206
+
+
+Universe : Applicable if R has ever had a biological child (biokids > 0)
+
+Notes : The year of this event is available for public use, and the original century-month variable is accessible
+by application to the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+AGEBABY1(3876-3877)
+
+Variable Type : recode
+
+Description : Age when R fathered his first biological child (RECODE)
+
+  value       label         Total
+  .       INAPPLICABLE        3177
+  0-19    Under 20 years        266
+  20-24   20-24 years           627
+  25-29   25-29 years           585
+  30-49   30-49 years           551
+          Total              5206
+
+
+Universe : Applicable if R has ever had a biological child (biokids > 0)
+
+B1PREMAR(3878-3878)
+
+Variable Type : recode
+
+Description : Whether R's first biological child was born before his first marriage (premaritally) (RECODE)
+
+  value                                      label                                     Total
+  .       INAPPLICABLE                                                                  3177
+  1       Yes (1st biological child born before 1st marriage)                            973
+  2       No (1st biological child born in same month as or later than 1st marriage)    1056
+          Total                                                                        5206
+
+
+Universe : Applicable if R has ever had a biological child (biokids > 0)
+
+MARBABY1(3879-3879)
+
+Variable Type : recode
+
+Description : Formal marital status at time of R's first biological child's birth (RECODE)
+
+  value                 label                 Total
+  .       INAPPLICABLE                          3177
+  1       Yes, married to child's mother         964
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                      Page 32 of 66
+
+
+
+
+  2       No, not married to child's           1065
+          mother
+          Total                                5206
+
+
+Universe : Applicable if R has ever had a biological child (biokids > 0)
+
+CEBOW(3880-3881)
+
+Variable Type : recode
+
+Description : Number of biological children born out of wedlock (RECODE)
+
+  value       label         Total
+  .       INAPPLICABLE       3177
+  0       None                 912
+  1       1 child              599
+  2       2 children           315
+  3       3 children           131
+  4       4 children            42
+  5-10    5 or more             30
+          Total             5206
+
+
+Universe : Applicable if R has ever had a biological child (biokids > 0)
+
+CEBOWC(3882-3882)
+
+Variable Type : recode
+
+Description : Number of biological children born out of wedlock, in cohabiting unions (RECODE)
+
+  value             label              Total
+  .       INAPPLICABLE                  3177
+  0       NONE                          1219
+  1       1 CHILD                        503
+  2       2 CHILDREN                     216
+  3       3 CHILDREN                      78
+  4-10    4 OR MORE CHILDREN              13
+          Total                        5206
+
+
+Universe : Applicable if R has ever had a biological child (biokids > 0)
+
+CEBOWP(3883-3883)
+
+Variable Type : recode
+
+Description : Number of biological children born out of wedlock, but paternity established (RECODE)
+
+  value             label              Total
+  .       INAPPLICABLE                  4089
+  0       NONE                           207
+  1       1 CHILD                        530
+  2       2 CHILDREN                     255
+  3       3 CHILDREN                      95
+  4-10    4 OR MORE CHILDREN              30
+          Total                        5206
+
+
+Universe : Applicable if R ever had a biological child born out of wedlock (CEBOW > 0)
+
+EVRNOPAT(3884-3884)
+
+Variable Type : recode
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 33 of 66
+
+
+
+Description : Whether R has never established paternity for his biological children born out of wedlock
+(RECODE)
+
+  value                                        label                             Total
+  .       INAPPLICABLE                                                            4089
+  1       YES, 1 OR MORE CHILDREN OUT OF WEDLOCK, BUT NO ESTABLISHED PATERNITY     207
+  2       NO, 1 OR MORE CHILDREN OUT OF WEDLOCK, BUT ESTABLISHED PATERNITY         910
+          Total                                                                  5206
+
+
+Universe : Applicable if R ever had a biological child born out of wedlock (CEBOW > 0)
+
+NONLIVEB(3885-3886)
+
+Variable Type : recode
+
+Description : Number of non-live birth pregnancies R has fathered (RECODE)
+
+  value             label          Total
+  0       NONE                      4163
+  1       1 PREGNANCY                663
+  2       2 PREGNANCIES              225
+  3       3 PREGNANCIES               75
+  4       4 OR MORE PREGNANCIES       60
+  98      REFUSED                     10
+  99      DON'T KNOW                  10
+          Total                    5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+COMPREG(3887-3888)
+
+Variable Type : recode
+
+Description : Number of completed pregnancies R has fathered (RECODE)
+
+  value             label          Total
+  0       NONE                       2820
+  1       1 PREGNANCY                 741
+  2       2 PREGNANCIES               708
+  3       3 PREGNANCIES               467
+  4       4 PREGNANCIES               237
+  5       5 PREGNANCIES               118
+  6       6 PREGNANCIES                56
+  7       7 PREGNANCIES                29
+  8       8 PREGNANCIES                    9
+  9       9 PREGNANCIES                    7
+  10      10 OR MORE PREGNANCIES       14
+          Total                     5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+ABORTION(3889-3890)
+
+Variable Type : recode
+
+Description : Number of abortions R has fathered (RECODE)
+
+  value             label          Total
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                                                   Page 34 of 66
+
+
+
+  .       INAPPLICABLE                  2820
+  0       NONE                          2009
+  1       1 PREGNANCY                    286
+  2       2 PREGNANCIES                    55
+  3       3 PREGNANCIES                    23
+  4       4 OR MORE                        13
+          PREGNANCIES
+          Total                        5206
+
+
+Universe : Applicable if R has ever fathered a completed pregnancy (COMPREG > 0)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+LOSSNUM(3891-3891)
+
+Variable Type : recode
+
+Description : Number of spontaneous pregnancy losses R has fathered (RECODE)
+
+  value             label               Total
+  .       INAPPLICABLE                    2816
+  0       NONE                            1636
+  1       1 PREGNANCY                      523
+  2       2 PREGNANCIES                    154
+  3       3 PREGNANCIES                     50
+  4       4 OR MORE PREGNANCIES             27
+          Total                          5206
+
+
+Universe : Applicable if R has ever fathered a completed pregnancy (COMPREG > 0)
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+PARENT01(3892-3892)
+
+Variable Type : recode
+
+Description : Other biological parent of R's 1st biological child (RECODE)
+
+  value                                                      label                                                    Total
+  .       INAPPLICABLE                                                                                                 3177
+  1       Current wife                                                                                                  908
+  2       Current cohabiting partner                                                                                    156
+  3       Recent or last partner (up to 3 most recent in last 12 months), also an former wife or cohabiting partner     130
+  4       Recent or last partner (up to 3 most recent in last 12 months), not a former wife or cohabiting partner        40
+  5       Former wife (reported in Section E)                                                                           323
+  6       First cohabiting partner (reported in Section E)                                                              187
+  7       Other sexual partner, not otherwise classified in codes 1-6                                                   285
+          Total                                                                                                       5206
+
+
+Universe : Applicable if R reported a biological child in Sections C, D, E, or F (biokids >0)
+
+PARENT02(3893-3893)
+
+Variable Type : recode
+
+Description : Other biological parent of R's 2nd biological child (RECODE)
+
+  value                                                      label                                                    Total
+  .       INAPPLICABLE                                                                                                 3904
+  1       Current wife                                                                                                  694
+  2       Current cohabiting partner                                                                                     94
+  3       Recent or last partner (up to 3 most recent in last 12 months), also an former wife or cohabiting partner      77
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                                                      Page 35 of 66
+
+
+
+  4       Recent or last partner (up to 3 most recent in last 12 months), not a former wife or cohabiting partner       19
+  5       Former wife (reported in Section E)                                                                          206
+  6       First cohabiting partner (reported in Section E)                                                              76
+  7       Other sexual partner, not otherwise classified in codes 1-6                                                  136
+          Total                                                                                                       5206
+
+
+Universe : Applicable if R reported more than 1 biological child in Sections C, D, E, or F (biokids >1)
+
+PARENT03(3894-3894)
+
+Variable Type : recode
+
+Description : Other biological parent of R's 3rd biological child (RECODE)
+
+  value                                                      label                                                    Total
+  .       INAPPLICABLE                                                                                                 4665
+  1       Current wife                                                                                                  280
+  2       Current cohabiting partner                                                                                     47
+  3       Recent or last partner (up to 3 most recent in last 12 months), also an former wife or cohabiting partner      42
+  4       Recent or last partner (up to 3 most recent in last 12 months), not a former wife or cohabiting partner            8
+  5       Former wife (reported in Section E)                                                                            70
+  6       First cohabiting partner (reported in Section E)                                                               29
+  7       Other sexual partner, not otherwise classified in codes 1-6                                                    65
+          Total                                                                                                        5206
+
+
+Universe : Applicable if R reported more than 2 biological children in Sections C, D, E, or F (biokids >2)
+
+PARENT04(3895-3895)
+
+Variable Type : recode
+
+Description : Other biological parent of R's 4th biological child (RECODE)
+
+  value                                                      label                                                    Total
+  .       INAPPLICABLE                                                                                                 5015
+  1       Current wife                                                                                                   94
+  2       Current cohabiting partner                                                                                     16
+  3       Recent or last partner (up to 3 most recent in last 12 months), also an former wife or cohabiting partner      16
+  4       Recent or last partner (up to 3 most recent in last 12 months), not a former wife or cohabiting partner            2
+  5       Former wife (reported in Section E)                                                                            25
+  6       First cohabiting partner (reported in Section E)                                                                   9
+  7       Other sexual partner, not otherwise classified in codes 1-6                                                    29
+          Total                                                                                                        5206
+
+
+Universe : Applicable if R reported more than 3 biological children in Sections C, D, E, or F (biokids >3)
+
+PARENT05(3896-3896)
+
+Variable Type : recode
+
+Description : Other biological parent of R's 5th biological child (RECODE)
+
+  value                                                      label                                                    Total
+  .       INAPPLICABLE                                                                                                 5138
+  1       Current wife                                                                                                   32
+  2       Current cohabiting partner                                                                                         6
+  3       Recent or last partner (up to 3 most recent in last 12 months), also an former wife or cohabiting partner          8
+  5       Former wife (reported in Section E)                                                                                4
+  6       First cohabiting partner (reported in Section E)                                                                   2
+  7       Other sexual partner, not otherwise classified in codes 1-6                                                    16
+          Total                                                                                                        5206
+
+
+Universe : Applicable if R reported more than 4 biological children in Sections C, D, E, or F (biokids >4)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                                                   Page 36 of 66
+
+
+
+PARENT06(3897-3897)
+
+Variable Type : recode
+
+Description : Other biological parent of R's 6th biological child (RECODE)
+
+  value                                                      label                                                    Total
+  .       INAPPLICABLE                                                                                                 5179
+  1       Current wife                                                                                                    9
+  2       Current cohabiting partner                                                                                      3
+  3       Recent or last partner (up to 3 most recent in last 12 months), also an former wife or cohabiting partner       4
+  4       Recent or last partner (up to 3 most recent in last 12 months), not a former wife or cohabiting partner         1
+  5       Former wife (reported in Section E)                                                                             3
+  7       Other sexual partner, not otherwise classified in codes 1-6                                                     7
+          Total                                                                                                       5206
+
+
+Universe : Applicable if R reported more than 5 biological children in Sections C, D, E, or F (biokids >5)
+
+PARENT07(3898-3898)
+
+Variable Type : recode
+
+Description : Other biological parent of R's 7th biological child (RECODE)
+
+  value                                                      label                                                    Total
+  .       INAPPLICABLE                                                                                                 5189
+  1       Current wife                                                                                                    5
+  3       Recent or last partner (up to 3 most recent in last 12 months), also an former wife or cohabiting partner       3
+  4       Recent or last partner (up to 3 most recent in last 12 months), not a former wife or cohabiting partner         1
+  5       Former wife (reported in Section E)                                                                             1
+  6       First cohabiting partner (reported in Section E)                                                                1
+  7       Other sexual partner, not otherwise classified in codes 1-6                                                     6
+          Total                                                                                                       5206
+
+
+Universe : Applicable if R reported more than 6 biological children in Sections C, D, E, or F (biokids >6)
+
+PARENT08(3899-3899)
+
+Variable Type : recode
+
+Description : Other biological parent of R's 8th biological child (RECODE)
+
+  value                                                      label                                                    Total
+  .       INAPPLICABLE                                                                                                 5193
+  1       Current wife                                                                                                    4
+  3       Recent or last partner (up to 3 most recent in last 12 months), also an former wife or cohabiting partner       2
+  5       Former wife (reported in Section E)                                                                             2
+  7       Other sexual partner, not otherwise classified in codes 1-6                                                     5
+          Total                                                                                                       5206
+
+
+Universe : Applicable if R reported more than 7 biological children in Sections C, D, E, or F (biokids >7)
+
+PARENT09(3900-3900)
+
+Variable Type : recode
+
+Description : Other biological parent of R's 9th biological child (RECODE)
+
+  value                                                      label                                                    Total
+  .       INAPPLICABLE                                                                                                 5199
+  3       Recent or last partner (up to 3 most recent in last 12 months), also an former wife or cohabiting partner       2
+  4       Recent or last partner (up to 3 most recent in last 12 months), not a former wife or cohabiting partner         1
+  7       Other sexual partner, not otherwise classified in codes 1-6                                                     4
+          Total                                                                                                       5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                                                   Page 37 of 66
+
+
+
+
+Universe : Applicable if R reported more than 8 biological children in Sections C, D, E, or F (biokids >8)
+
+PARENT10(3901-3901)
+
+Variable Type : recode
+
+Description : Other biological parent of R's 10th biological child (RECODE)
+
+  value                                                    label                                                      Total
+  .       INAPPLICABLE                                                                                                 5202
+  3       Recent or last partner (up to 3 most recent in last 12 months), also an former wife or cohabiting partner       1
+  4       Recent or last partner (up to 3 most recent in last 12 months), not a former wife or cohabiting partner         1
+  7       Other sexual partner, not otherwise classified in codes 1-6                                                     2
+          Total                                                                                                       5206
+
+
+Universe : Applicable if R reported more than 9 biological children in Sections C, D, E, or F (biokids >9)
+
+WANTB01(3902-3902)
+
+Variable Type : recode
+
+Description : Wantedness of pregnancy: R's first biological child, if 18 or younger (RECODE)
+
+  value                                  label                                    Total
+  .       INAPPLICABLE                                                              3554
+  1       LATER, OVERDUE                                                             120
+  2       RIGHT TIME                                                                 909
+  3       TOO SOON, MISTIMED                                                         421
+  4       DIDN'T CARE, INDIFFERENT                                                     15
+  5       UNWANTED                                                                   167
+  6       DON'T KNOW, NOT SURE                                                          2
+  7       R DID NOT KNOW ABOUT THE PREGNANCY LEADING TO THE BIRTH                      18
+          Total                                                                    5206
+
+
+Universe : Applicable if this biological child is aged 18 or younger (bioage1 LE 18 or bioagegp1 = 1 or 2)
+
+WANTB02(3903-3903)
+
+Variable Type : recode
+
+Description : Wantedness of pregnancy: R's 2nd biological child, if 18 or younger (RECODE)
+
+  value                                  label                                    Total
+  .       INAPPLICABLE                                                              4072
+  1       LATER, OVERDUE                                                               62
+  2       RIGHT TIME                                                                 712
+  3       TOO SOON, MISTIMED                                                         206
+  4       DIDN'T CARE, INDIFFERENT                                                     12
+  5       UNWANTED                                                                   128
+  6       DON'T KNOW, NOT SURE                                                          1
+  7       R DID NOT KNOW ABOUT THE PREGNANCY LEADING TO THE BIRTH                      13
+          Total                                                                    5206
+
+
+Universe : Applicable if this biological child is aged 18 or younger (bioage2 LE 18 or bioagegp2 = 1 or 2)
+
+WANTB03(3904-3904)
+
+Variable Type : recode
+
+Description : Wantedness of pregnancy: R's 3rd biological child, if 18 or younger (RECODE)
+
+  value                                  label                                    Total
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                       Page 38 of 66
+
+
+
+  .       INAPPLICABLE                                              4720
+  1       LATER, OVERDUE                                              24
+  2       RIGHT TIME                                                 270
+  3       TOO SOON, MISTIMED                                          69
+  4       DIDN'T CARE, INDIFFERENT                                     8
+  5       UNWANTED                                                   109
+  6       DON'T KNOW, NOT SURE                                         1
+  7       R DID NOT KNOW ABOUT THE PREGNANCY LEADING TO THE            5
+          BIRTH
+          Total                                                     5206
+
+
+Universe : Applicable if this biological child is aged 18 or younger (bioage3 LE 18 or bioagegp3 = 1 or 2)
+
+WANTB04(3905-3905)
+
+Variable Type : recode
+
+Description : Wantedness of pregnancy: R's 4th biological child, if 18 or younger (RECODE)
+
+  value                              label                          Total
+  .       INAPPLICABLE                                               5032
+  1       LATER, OVERDUE                                                   3
+  2       RIGHT TIME                                                  102
+  3       TOO SOON, MISTIMED                                           19
+  4       DIDN'T CARE, INDIFFERENT                                         5
+  5       UNWANTED                                                     43
+  7       R DID NOT KNOW ABOUT THE PREGNANCY LEADING TO THE BIRTH          2
+          Total                                                      5206
+
+
+Universe : Applicable if this biological child is aged 18 or younger (bioage4 LE 18 or bioagegp4 = 1 or 2)
+
+WANTB05(3906-3906)
+
+Variable Type : recode
+
+Description : Wantedness of pregnancy: R's 5th biological child, if 18 or younger (RECODE)
+
+  value                              label                          Total
+  .       INAPPLICABLE                                               5145
+  1       LATER, OVERDUE                                                   3
+  2       RIGHT TIME                                                   28
+  3       TOO SOON, MISTIMED                                               4
+  4       DIDN'T CARE, INDIFFERENT                                         4
+  5       UNWANTED                                                     21
+  7       R DID NOT KNOW ABOUT THE PREGNANCY LEADING TO THE BIRTH          1
+          Total                                                      5206
+
+
+Universe : Applicable if this biological child is aged 18 or younger (bioage5 LE 18 or bioagegp5 = 1 or 2)
+
+WANTB06(3907-3907)
+
+Variable Type : recode
+
+Description : Wantedness of pregnancy: R's 6th biological child, if 18 or younger (RECODE)
+
+  value                              label                          Total
+  .       INAPPLICABLE                                               5182
+  2       RIGHT TIME                                                   11
+  3       TOO SOON, MISTIMED                                               1
+  4       DIDN'T CARE, INDIFFERENT                                         2
+  5       UNWANTED                                                         8
+  7       R DID NOT KNOW ABOUT THE PREGNANCY LEADING TO THE BIRTH          2
+          Total                                                      5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                       Page 39 of 66
+
+
+
+Universe : Applicable if this biological child is aged 18 or younger (bioage6 LE 18 or bioagegp6 = 1 or 2)
+
+WANTB07(3908-3908)
+
+Variable Type : recode
+
+Description : Wantedness of pregnancy: R's 7th biological child, if 18 or younger (RECODE)
+
+  value           label           Total
+  .       INAPPLICABLE             5192
+  2       RIGHT TIME                  7
+  3       TOO SOON, MISTIMED          1
+  5       UNWANTED                    6
+          Total                   5206
+
+
+Universe : Applicable if this biological child is aged 18 or younger (bioage7 LE 18 or bioagegp7 = 1 or 2)
+
+WANTB08(3909-3909)
+
+Variable Type : recode
+
+Description : Wantedness of pregnancy: R's 8th biological child, if 18 or younger (RECODE)
+
+  value                               label                         Total
+  .       INAPPLICABLE                                               5195
+  2       RIGHT TIME                                                    6
+  5       UNWANTED                                                      4
+  7       R DID NOT KNOW ABOUT THE PREGNANCY LEADING TO THE BIRTH       1
+          Total                                                     5206
+
+
+Universe : Applicable if this biological child is aged 18 or younger (bioage8 LE 18 or bioagegp8 = 1 or 2)
+
+WANTB09(3910-3910)
+
+Variable Type : recode
+
+Description : Wantedness of pregnancy: R's 9th biological child, if 18 or younger (RECODE)
+
+  value                               label                         Total
+  .       INAPPLICABLE                                               5201
+  2       RIGHT TIME                                                    2
+  5       UNWANTED                                                      2
+  7       R DID NOT KNOW ABOUT THE PREGNANCY LEADING TO THE BIRTH       1
+          Total                                                     5206
+
+
+Universe : Applicable if this biological child is aged 18 or younger (bioage9 LE 18 or bioagegp9 = 1 or 2)
+
+WANTB10(3911-3911)
+
+Variable Type : recode
+
+Description : Wantedness of pregnancy: R's 10th biological child, if 18 or younger (RECODE)
+
+  value      label        Total
+  .       INAPPLICABLE     5203
+  2       RIGHT TIME          2
+  5       UNWANTED            1
+          Total           5206
+
+
+Universe : Applicable if this biological child is aged 18 or younger (bioage10 LE 18 or bioagegp10 = 1 or 2)
+
+HADSEX_I(3912-3912)
+
+Variable Type : imputation flag
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 40 of 66
+
+
+
+Description : HADSEX Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+SEXONCE_I(3913-3913)
+
+Variable Type : imputation flag
+
+Description : SEXONCE Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5205
+  1       MULTIPLE REGRESSION IMPUTATION         1
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+VRY1STSX_I(3914-3914)
+
+Variable Type : imputation flag
+
+Description : VRY1STSX Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    4995
+  1       MULTIPLE REGRESSION IMPUTATION        42
+  2       LOGICAL IMPUTATION                   169
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+VRY1STAG_I(3915-3915)
+
+Variable Type : imputation flag
+
+Description : VRY1STAG Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5161
+  1       MULTIPLE REGRESSION IMPUTATION        42
+  2       LOGICAL IMPUTATION                     3
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+SEXMAR_I(3916-3916)
+
+Variable Type : imputation flag
+
+Description : SEXMAR Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5137
+  1       MULTIPLE REGRESSION IMPUTATION        68
+  2       LOGICAL IMPUTATION                     1
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+SEXUNION_I(3917-3917)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 41 of 66
+
+
+
+Variable Type : imputation flag
+
+Description : SEXUNION Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5033
+  1       MULTIPLE REGRESSION IMPUTATION       170
+  2       LOGICAL IMPUTATION                     3
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+FSEXRLTN_I(3918-3918)
+
+Variable Type : imputation flag
+
+Description : FSEXRLTN Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5177
+  1       MULTIPLE REGRESSION IMPUTATION        29
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+SEX1MTHD1_I(3919-3919)
+
+Variable Type : imputation flag
+
+Description : SEX1MTHD1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5137
+  1       MULTIPLE REGRESSION IMPUTATION        69
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+SEX1MTHD2_I(3920-3920)
+
+Variable Type : imputation flag
+
+Description : SEX1MTHD2 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5128
+  1       MULTIPLE REGRESSION IMPUTATION        78
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+SEX1MTHD3_I(3921-3921)
+
+Variable Type : imputation flag
+
+Description : SEX1MTHD3 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5128
+  1       MULTIPLE REGRESSION IMPUTATION        78
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 42 of 66
+
+
+
+SEX1MTHD4_I(3922-3922)
+
+Variable Type : imputation flag
+
+Description : SEX1MTHD4 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5128
+  1       MULTIPLE REGRESSION IMPUTATION        78
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+LSEXDATE_I(3923-3923)
+
+Variable Type : imputation flag
+
+Description : LSEXDATE Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5150
+  1       MULTIPLE REGRESSION IMPUTATION        49
+  2       LOGICAL IMPUTATION                     7
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+SEX3MO_I(3924-3924)
+
+Variable Type : imputation flag
+
+Description : SEX3MO Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5157
+  1       MULTIPLE REGRESSION IMPUTATION        49
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+SEX12MO_I(3925-3925)
+
+Variable Type : imputation flag
+
+Description : SEX12MO Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5157
+  1       MULTIPLE REGRESSION IMPUTATION        49
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+LSEXRAGE_I(3926-3926)
+
+Variable Type : imputation flag
+
+Description : LSEXRAGE Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5156
+  1       MULTIPLE REGRESSION IMPUTATION        49
+  2       LOGICAL IMPUTATION                     1
+          Total                              5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 43 of 66
+
+
+
+Universe : Applicable for all respondents
+
+LSEXRLTN_I(3927-3927)
+
+Variable Type : imputation flag
+
+Description : LSEXRLTN Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5175
+  1       MULTIPLE REGRESSION IMPUTATION        30
+  2       LOGICAL IMPUTATION                     1
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+LSEXUSE1_I(3928-3928)
+
+Variable Type : imputation flag
+
+Description : LSEXUSE1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5175
+  1       MULTIPLE REGRESSION IMPUTATION        31
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+LSEXUSE2_I(3929-3929)
+
+Variable Type : imputation flag
+
+Description : LSEXUSE2 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5055
+  1       MULTIPLE REGRESSION IMPUTATION       151
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+LSEXUSE3_I(3930-3930)
+
+Variable Type : imputation flag
+
+Description : LSEXUSE3 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5044
+  1       MULTIPLE REGRESSION IMPUTATION       162
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+LSEXUSE4_I(3931-3931)
+
+Variable Type : imputation flag
+
+Description : LSEXUSE4 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5043
+  1       MULTIPLE REGRESSION IMPUTATION       163
+          Total                              5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 44 of 66
+
+
+
+
+Universe : Applicable for all respondents
+
+METH12M1_I(3932-3932)
+
+Variable Type : imputation flag
+
+Description : METH12M1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5145
+  1       MULTIPLE REGRESSION IMPUTATION        61
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+METH12M2_I(3933-3933)
+
+Variable Type : imputation flag
+
+Description : METH12M2 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5057
+  1       MULTIPLE REGRESSION IMPUTATION       149
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+METH12M3_I(3934-3934)
+
+Variable Type : imputation flag
+
+Description : METH12M3 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5050
+  1       MULTIPLE REGRESSION IMPUTATION       156
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+METH12M4_I(3935-3935)
+
+Variable Type : imputation flag
+
+Description : METH12M4 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5049
+  1       MULTIPLE REGRESSION IMPUTATION       157
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+METH3M1_I(3936-3936)
+
+Variable Type : imputation flag
+
+Description : METH3M1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5147
+  1       MULTIPLE REGRESSION IMPUTATION        59
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 45 of 66
+
+
+
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+METH3M2_I(3937-3937)
+
+Variable Type : imputation flag
+
+Description : METH3M2 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5088
+  1       MULTIPLE REGRESSION IMPUTATION       118
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+METH3M3_I(3938-3938)
+
+Variable Type : imputation flag
+
+Description : METH3M3 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5084
+  1       MULTIPLE REGRESSION IMPUTATION       122
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+METH3M4_I(3939-3939)
+
+Variable Type : imputation flag
+
+Description : METH3M4 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5083
+  1       MULTIPLE REGRESSION IMPUTATION       123
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+NUMP3MOS_I(3940-3940)
+
+Variable Type : imputation flag
+
+Description : NUMP3MOS Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5154
+  1       MULTIPLE REGRESSION IMPUTATION        52
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+LIFPRTNR_I(3941-3941)
+
+Variable Type : imputation flag
+
+Description : LIFPRTNR Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5006
+  1       MULTIPLE REGRESSION IMPUTATION       200
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 46 of 66
+
+
+
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARTS1YR_I(3942-3942)
+
+Variable Type : imputation flag
+
+Description : PARTS1YR Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5203
+  1       MULTIPLE REGRESSION IMPUTATION            3
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+PARTDUR1_I(3943-3943)
+
+Variable Type : imputation flag
+
+Description : PARTDUR1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5072
+  1       MULTIPLE REGRESSION IMPUTATION       104
+  2       LOGICAL IMPUTATION                    30
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+PARTDUR2_I(3944-3944)
+
+Variable Type : imputation flag
+
+Description : PARTDUR2 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5189
+  1       MULTIPLE REGRESSION IMPUTATION            9
+  2       LOGICAL IMPUTATION                        8
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+PARTDUR3_I(3945-3945)
+
+Variable Type : imputation flag
+
+Description : PARTDUR3 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5190
+  1       MULTIPLE REGRESSION IMPUTATION        10
+  2       LOGICAL IMPUTATION                        6
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+COHEVER_I(3946-3946)
+
+Variable Type : imputation flag
+
+Description : COHEVER Imputation Flag
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 47 of 66
+
+
+
+  value               label                  Total
+  0       QUESTIONNAIRE DATA (NOT             5206
+          IMPUTED)
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+EVMARCOH_I(3947-3947)
+
+Variable Type : imputation flag
+
+Description : EVMARCOH Imputation Flag
+
+  value                label                  Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)     5206
+          Total                                5206
+
+
+Universe : Applicable for all respondents
+
+PMARRNO_I(3948-3948)
+
+Variable Type : imputation flag
+
+Description : PMARRNO Imputation Flag
+
+  value                label                  Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)     5202
+  1       MULTIPLE REGRESSION IMPUTATION             4
+          Total                                5206
+
+
+Universe : Applicable for all respondents
+
+NONMARR_I(3949-3949)
+
+Variable Type : imputation flag
+
+Description : NONMARR Imputation Flag
+
+  value                label                  Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)     5195
+  1       MULTIPLE REGRESSION IMPUTATION         11
+          Total                                5206
+
+
+Universe : Applicable for all respondents
+
+TIMESCOH_I(3950-3950)
+
+Variable Type : imputation flag
+
+Description : TIMESCOH Imputation Flag
+
+  value                label                  Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)     5192
+  1       MULTIPLE REGRESSION IMPUTATION         14
+          Total                                5206
+
+
+Universe : Applicable for all respondents
+
+MARDAT01_I(3951-3951)
+
+Variable Type : imputation flag
+
+Description : MARDAT01 Imputation Flag
+
+  value                label                  Total
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 48 of 66
+
+
+
+  0       QUESTIONNAIRE DATA (NOT            5161
+          IMPUTED)
+  1       MULTIPLE REGRESSION IMPUTATION       30
+  2       LOGICAL IMPUTATION                   15
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MARDAT02_I(3952-3952)
+
+Variable Type : imputation flag
+
+Description : MARDAT02 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5185
+  1       MULTIPLE REGRESSION IMPUTATION            5
+  2       LOGICAL IMPUTATION                    16
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+MARDAT03_I(3953-3953)
+
+Variable Type : imputation flag
+
+Description : MARDAT03 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5202
+  1       MULTIPLE REGRESSION IMPUTATION            2
+  2       LOGICAL IMPUTATION                        2
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+MARDAT04_I(3954-3954)
+
+Variable Type : imputation flag
+
+Description : MARDAT04 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5205
+  2       LOGICAL IMPUTATION                        1
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+MARDAT05_I(3955-3955)
+
+Variable Type : imputation flag
+
+Description : MARDAT05 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+MAREND01_I(3956-3956)
+
+Variable Type : imputation flag
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 49 of 66
+
+
+
+Description : MAREND01 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5162
+  1       MULTIPLE REGRESSION IMPUTATION        16
+  2       LOGICAL IMPUTATION                    28
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MAREND02_I(3957-3957)
+
+Variable Type : imputation flag
+
+Description : MAREND02 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5193
+  1       MULTIPLE REGRESSION IMPUTATION         3
+  2       LOGICAL IMPUTATION                    10
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MAREND03_I(3958-3958)
+
+Variable Type : imputation flag
+
+Description : MAREND03 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5204
+  2       LOGICAL IMPUTATION                     2
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MAREND04_I(3959-3959)
+
+Variable Type : imputation flag
+
+Description : MAREND04 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MAREND05_I(3960-3960)
+
+Variable Type : imputation flag
+
+Description : MAREND05 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MARDIS01_I(3961-3961)
+
+Variable Type : imputation flag
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 50 of 66
+
+
+
+Description : MARDIS01 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5139
+  1       MULTIPLE REGRESSION IMPUTATION        39
+  2       LOGICAL IMPUTATION                    28
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MARDIS02_I(3962-3962)
+
+Variable Type : imputation flag
+
+Description : MARDIS02 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5195
+  1       MULTIPLE REGRESSION IMPUTATION         7
+  2       LOGICAL IMPUTATION                     4
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MARDIS03_I(3963-3963)
+
+Variable Type : imputation flag
+
+Description : MARDIS03 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5203
+  1       MULTIPLE REGRESSION IMPUTATION         2
+  2       LOGICAL IMPUTATION                     1
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MARDIS04_I(3964-3964)
+
+Variable Type : imputation flag
+
+Description : MARDIS04 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MARDIS05_I(3965-3965)
+
+Variable Type : imputation flag
+
+Description : MARDIS05 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MAR1DISS_I(3966-3966)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 51 of 66
+
+
+
+Variable Type : imputation flag
+
+Description : MAR1DISS Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5157
+  1       MULTIPLE REGRESSION IMPUTATION        48
+  2       LOGICAL IMPUTATION                     1
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PREMARW1_I(3967-3967)
+
+Variable Type : imputation flag
+
+Description : PREMARW1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5185
+  1       MULTIPLE REGRESSION IMPUTATION        21
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+COHAB1_I(3968-3968)
+
+Variable Type : imputation flag
+
+Description : COHAB1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5075
+  1       MULTIPLE REGRESSION IMPUTATION       129
+  2       LOGICAL IMPUTATION                     2
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+COHSTAT_I(3969-3969)
+
+Variable Type : imputation flag
+
+Description : COHSTAT Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5141
+  1       MULTIPLE REGRESSION IMPUTATION        64
+  2       LOGICAL IMPUTATION                     1
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+COHOUT_I(3970-3970)
+
+Variable Type : imputation flag
+
+Description : COHOUT Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5062
+  1       MULTIPLE REGRESSION IMPUTATION       125
+  2       LOGICAL IMPUTATION                    19
+          Total                              5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 52 of 66
+
+
+
+Universe : Applicable for all respondents
+
+COH1DUR_I(3971-3971)
+
+Variable Type : imputation flag
+
+Description : COH1DUR Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5048
+  1       MULTIPLE REGRESSION IMPUTATION       158
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+CSPBIOKD_I(3972-3972)
+
+Variable Type : imputation flag
+
+Description : CSPBIOKD Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5204
+  1       MULTIPLE REGRESSION IMPUTATION         2
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+DATBABY1_I(3973-3973)
+
+Variable Type : imputation flag
+
+Description : DATBABY1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5183
+  1       MULTIPLE REGRESSION IMPUTATION        22
+  2       LOGICAL IMPUTATION                     1
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+AGEBABY1_I(3974-3974)
+
+Variable Type : imputation flag
+
+Description : AGEBABY1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5183
+  1       MULTIPLE REGRESSION IMPUTATION        22
+  2       LOGICAL IMPUTATION                     1
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+B1PREMAR_I(3975-3975)
+
+Variable Type : imputation flag
+
+Description : B1PREMAR Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5166
+  1       MULTIPLE REGRESSION IMPUTATION        40
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 53 of 66
+
+
+
+
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+MARBABY1_I(3976-3976)
+
+Variable Type : imputation flag
+
+Description : MARBABY1 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+CEBOW_I(3977-3977)
+
+Variable Type : imputation flag
+
+Description : CEBOW Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+CEBOWC_I(3978-3978)
+
+Variable Type : imputation flag
+
+Description : CEBOWC Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+CEBOWP_I(3979-3979)
+
+Variable Type : imputation flag
+
+Description : CEBOWP Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5196
+  1       MULTIPLE REGRESSION IMPUTATION        10
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+EVRNOPAT_I(3980-3980)
+
+Variable Type : imputation flag
+
+Description : EVRNOPAT Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5196
+  1       MULTIPLE REGRESSION IMPUTATION        10
+          Total                               5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 54 of 66
+
+
+
+Universe : Applicable for all respondents
+
+NONLIVEB_I(3981-3981)
+
+Variable Type : imputation flag
+
+Description : NONLIVEB Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+COMPREG_I(3982-3982)
+
+Variable Type : imputation flag
+
+Description : COMPREG Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5194
+  1       MULTIPLE REGRESSION IMPUTATION        12
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+ABORTION_I(3983-3983)
+
+Variable Type : imputation flag
+
+Description : ABORTION Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5179
+  1       MULTIPLE REGRESSION IMPUTATION        27
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+LOSSNUM_I(3984-3984)
+
+Variable Type : imputation flag
+
+Description : LOSSNUM Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5182
+  1       MULTIPLE REGRESSION IMPUTATION        12
+  2       LOGICAL IMPUTATION                    12
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARENT01_I(3985-3985)
+
+Variable Type : imputation flag
+
+Description : PARENT01 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5205
+  1       MULTIPLE REGRESSION IMPUTATION         1
+          Total                              5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 55 of 66
+
+
+
+Universe : Applicable for all respondents
+
+PARENT02_I(3986-3986)
+
+Variable Type : imputation flag
+
+Description : PARENT02 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARENT03_I(3987-3987)
+
+Variable Type : imputation flag
+
+Description : PARENT03 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARENT04_I(3988-3988)
+
+Variable Type : imputation flag
+
+Description : PARENT04 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARENT05_I(3989-3989)
+
+Variable Type : imputation flag
+
+Description : PARENT05 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARENT06_I(3990-3990)
+
+Variable Type : imputation flag
+
+Description : PARENT06 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARENT07_I(3991-3991)
+
+Variable Type : imputation flag
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 56 of 66
+
+
+
+Description : PARENT07 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARENT08_I(3992-3992)
+
+Variable Type : imputation flag
+
+Description : PARENT08 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARENT09_I(3993-3993)
+
+Variable Type : imputation flag
+
+Description : PARENT09 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PARENT10_I(3994-3994)
+
+Variable Type : imputation flag
+
+Description : PARENT10 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+WANTB01_I(3995-3995)
+
+Variable Type : imputation flag
+
+Description : WANTB01 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5202
+  1       MULTIPLE REGRESSION IMPUTATION         2
+  2       LOGICAL IMPUTATION                     2
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+WANTB02_I(3996-3996)
+
+Variable Type : imputation flag
+
+Description : WANTB02 Imputation Flag
+
+  value                label                 Total
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 57 of 66
+
+
+
+  0       QUESTIONNAIRE DATA (NOT            5205
+          IMPUTED)
+  1       MULTIPLE REGRESSION IMPUTATION        1
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+WANTB03_I(3997-3997)
+
+Variable Type : imputation flag
+
+Description : WANTB03 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5202
+  1       MULTIPLE REGRESSION IMPUTATION            2
+  2       LOGICAL IMPUTATION                        2
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+WANTB04_I(3998-3998)
+
+Variable Type : imputation flag
+
+Description : WANTB04 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+WANTB05_I(3999-3999)
+
+Variable Type : imputation flag
+
+Description : WANTB05 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+WANTB06_I(4000-4000)
+
+Variable Type : imputation flag
+
+Description : WANTB06 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+WANTB07_I(4001-4001)
+
+Variable Type : imputation flag
+
+Description : WANTB07 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 58 of 66
+
+
+
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+WANTB08_I(4002-4002)
+
+Variable Type : imputation flag
+
+Description : WANTB08 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+WANTB09_I(4003-4003)
+
+Variable Type : imputation flag
+
+Description : WANTB09 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5205
+  2       LOGICAL IMPUTATION                        1
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+WANTB10_I(4004-4004)
+
+Variable Type : imputation flag
+
+Description : WANTB10 Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+Male Respondent File Codebook :: SECTION R: Recode Variables and Imputation Flags :: (RG) Section G
+Recodes
+
+DADTYPE(4005-4005)
+
+Variable Type : recode
+
+Description : Type of children aged 18 or younger that R has (RECODE)
+
+  value                                       label                                        Total
+  1       ONLY CORESIDENTIAL CHILDREN                                                       1367
+  2       ONLY NON-CORESIDENTIAL CHILDREN                                                    360
+  3       BOTH CORESIDENTIAL AND NON-CORESIDENTIAL CHILDREN                                  183
+  4       NO CHILDREN 18 OR YOUNGER, NO CHILDREN AT ALL, OR NEVER HAD SEXUAL INTERCOURSE    3296
+          Total                                                                            5206
+
+
+Universe : Applicable for all respondents
+
+DADTYPU5(4006-4006)
+
+Variable Type : recode
+
+Description : Type of children under 5 that R has (RECODE)
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                                             Page 59 of 66
+
+
+
+  value                                                    label                                                    Total
+  1       ONLY CORESIDENTIAL CHILDREN UNDER 5                                                                         790
+  2       ONLY NON-CORESIDENTIAL CHILDREN UNDER 5                                                                     133
+  3       BOTH CORESIDENTIAL AND NONCORESIDENTIAL CHILDREN UNDER 5                                                     15
+  4       NEITHER CORESIDENTIAL OR NONCORESIDENTIAL CHILDREN UNDER 5, NO CHILDREN, OR NEVER HAD SEXUAL               4268
+          INTERCOURSE
+          Total                                                                                                      5206
+
+
+Universe : Applicable for all respondents
+
+DADTYP518(4007-4007)
+
+Variable Type : recode
+
+Description : Type of children 5-18 that R has (RECODE)
+
+  value                                                       label                                                         Total
+  1       ONLY CORESIDENTIAL CHILDREN 5 TO 18                                                                                1002
+  2       ONLY NON-CORESIDENTIAL CHILDREN 5 TO 18                                                                             328
+  3       BOTH CORESIDENTIAL AND NONCORESIDENTIAL CHILDREN 5 TO 18                                                            134
+  4       NEITHER CORESIDENTIAL OR NONCORESIDENTIAL CHILDREN 5 TO 18, NO CHILDREN AT ALL, OR NEVER HAD SEXUAL INTERCOURSE    3742
+          Total                                                                                                             5206
+
+
+Universe : Applicable for all respondents
+
+NUMCRU18(4008-4008)
+
+Variable Type : recode
+
+Description : Number of coresidential children (<= 18 yrs old) (RECODE)
+
+  value           label        Total
+  0       NONE                  3656
+  1       1 CHILD                607
+  2       2 CHILDREN             602
+  3       3 CHILDREN             247
+  4       4 OR MORE CHILDREN      94
+          Total                5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+NUMNCU18(4009-4010)
+
+Variable Type : recode
+
+Description : Number of noncoresidential children (< = 18 yrs old) (RECODE)
+
+  value           label        Total
+  0       NONE                  4663
+  1       1 CHILD                302
+  2       2 CHILDREN             179
+  3       3 CHILDREN              42
+  4-95    4 OR MORE CHILDREN      20
+          Total                5206
+
+
+Universe : Applicable for all respondents
+
+SUPP12MO(4011-4011)
+
+Variable Type : recode
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                      Page 60 of 66
+
+
+
+Description : Contribution of child support in last 12 months (RECODE)
+
+  value                               label                                Total
+  .       INAPPLICABLE                                                      4663
+  1       CONTRIBUTED CHILD SUPPORT ON A REGULAR BASIS IN LAST 12 MONTHS     405
+  2       CONTRIBUTED CHILD SUPPORT ONCE IN A WHILE IN LAST 12 MONTHS         66
+  3       DID NOT CONTRIBUTE CHILD SUPPORT IN LAST 12 MONTHS                  72
+          Total                                                            5206
+
+
+Universe : Applicable if R has any non-coresidential biological or adopted children aged 18 or younger (ncall >
+0)
+
+DADTYPE_I(4012-4012)
+
+Variable Type : imputation flag
+
+Description : DADTYPE Imputation Flag
+
+  value                  label                Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)     5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+DADTYPU5_I(4013-4013)
+
+Variable Type : imputation flag
+
+Description : DADTYPU5 Imputation Flag
+
+  value                  label                Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)     5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+DADTYP518_I(4014-4014)
+
+Variable Type : imputation flag
+
+Description : DADTYP518 Imputation Flag
+
+  value                  label                Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)     5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+NUMCRU18_I(4015-4015)
+
+Variable Type : imputation flag
+
+Description : NUMCRU18 Imputation Flag
+
+  value                  label                Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)     5206
+          Total                               5206
+
+
+Universe : Applicable for all respondents
+
+NUMNCU18_I(4016-4016)
+
+Variable Type : imputation flag
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                Page 61 of 66
+
+
+
+Description : NUMNCU18 Imputation Flag
+
+  value                   label                       Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)             5206
+          Total                                        5206
+
+
+Universe : Applicable for all respondents
+
+SUPP12MO_I(4017-4017)
+
+Variable Type : imputation flag
+
+Description : SUPP12MO Imputation Flag
+
+  value                   label                       Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)             5204
+  1       MULTIPLE REGRESSION IMPUTATION                     2
+          Total                                        5206
+
+
+Universe : Applicable for all respondents
+
+Male Respondent File Codebook :: SECTION R: Recode Variables and Imputation Flags :: (RH) Section H
+Recodes
+
+INTENT(4018-4018)
+
+Variable Type : recode
+
+Description : Intentions for additional births (RECODE)
+
+  value                    label                       Total
+  1       R intends to have (more) children                2975
+  2       R does not intend to have (more) children        2186
+  3       R does not know his intent                         45
+          Total                                            5206
+
+
+Universe : Applicable for all respondents
+
+ADDEXP(4019-4021)
+
+Variable Type : recode
+
+Description : Central number of additional births expected (RECODE)
+
+  value                 label                  Total
+  0       NO ADDITIONAL BIRTHS                   2134
+  5       .5 ADDITIONAL BIRTHS                         4
+  10      1 ADDITIONAL BIRTH                      893
+  15      1.5 ADDITIONAL BIRTHS                       30
+  20      2 ADDITIONAL BIRTHS                    1488
+  25      2.5 ADDITIONAL BIRTHS                       10
+  30      3 ADDITIONAL BIRTHS                     460
+  35      3.5 ADDITIONAL BIRTHS                        4
+  40      4 ADDITIONAL BIRTHS                     111
+  45      4.5 ADDITIONAL BIRTHS                        3
+  50      5 ADDITIONAL BIRTHS                         36
+  60      6 ADDITIONAL BIRTHS                         19
+  70      7 ADDITIONAL BIRTHS                          4
+  80      8 ADDITIONAL BIRTHS                          5
+  90      9 ADDITIONAL BIRTHS                          2
+  100-995 10 OR MORE ADDITIONAL BIRTHS                 3
+          Total                                 5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                                                                      Page 62 of 66
+
+
+
+Universe : Applicable for all respondents
+
+INTENT_I(4022-4022)
+
+Variable Type : imputation flag
+
+Description : INTENT Imputation Flag
+
+  value                    label                     Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)             5205
+  1       MULTIPLE REGRESSION IMPUTATION                   1
+          Total                                       5206
+
+
+Universe : Applicable for all respondents
+
+ADDEXP_I(4023-4023)
+
+Variable Type : imputation flag
+
+Description : ADDEXP Imputation Flag
+
+  value                    label                     Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)             5194
+  1       MULTIPLE REGRESSION IMPUTATION                  12
+          Total                                       5206
+
+
+Universe : Applicable for all respondents
+
+Male Respondent File Codebook :: SECTION R: Recode Variables and Imputation Flags :: (RI) Section I
+Recodes
+
+CURR_INS(4024-4024)
+
+Variable Type : recode
+
+Description : Current health insurance status (RECODE)
+
+  value                                                               label                                                                  Total
+  1       Currently covered by private health insurance or Medi-Gap                                                                           3113
+  2       Currently covered by Medicaid, CHIP, or a state-sponsored health plan                                                                881
+  3       Currently covered by Medicare, military health care, or other government health care                                                 322
+  4       Currently covered only by a single-service plan, only by the Indian Health Service, or currently not covered by health insurance     890
+          Total                                                                                                                              5206
+
+
+Universe : Applicable for all respondents
+
+INFEVER(4025-4025)
+
+Variable Type : recode
+
+Description : Ever used infertility services (RECODE)
+
+  value         label      Total
+  .       INAPPLICABLE        850
+  1       YES                 275
+  2       NO                 4081
+          Total             5206
+
+
+Universe : Applicable if respondent has ever had sexual intercourse with a female (HADSEX = 1)
+
+EVHIVTST(4026-4026)
+
+Variable Type : recode
+
+Description : Ever had an HIV test
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                 Page 63 of 66
+
+
+
+  value                    label                 Total
+  0       NO HIV TEST REPORTED                     1822
+  1       YES, ONLY AS PART OF BLOOD DONATION       922
+  2       YES, ONLY OUTSIDE OF BLOOD DONATION      1283
+  3       YES, IN BOTH CONTEXTS                    1179
+          Total                                   5206
+
+
+Universe : Applicable for all respondents
+
+CURR_INS_I(4027-4027)
+
+Variable Type : imputation flag
+
+Description : CURR_INS Imputation Flag
+
+  value                   label              Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)      5067
+  1       MULTIPLE REGRESSION IMPUTATION         139
+          Total                                 5206
+
+
+Universe : Applicable for all respondents
+
+INFEVER_I(4028-4028)
+
+Variable Type : imputation flag
+
+Description : INFEVER Imputation Flag
+
+  value                   label              Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)      5206
+          Total                                 5206
+
+
+Universe : Applicable for all respondents
+
+EVHIVTST_I(4029-4029)
+
+Variable Type : imputation flag
+
+Description : EVHIVTST Imputation Flag
+
+  value                   label              Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)      5137
+  1       MULTIPLE REGRESSION IMPUTATION          69
+          Total                                 5206
+
+
+Universe : Applicable for all respondents
+
+Male Respondent File Codebook :: SECTION R: Recode Variables and Imputation Flags :: (RJ) Section J
+Recodes
+
+METRO(4030-4030)
+
+Variable Type : recode
+
+Description : Place of residence (metropolitan-non-metropolitan) (RECODE)
+
+  value           label            Total
+  1       PRINCIPAL CITY OF MSA     1950
+  2       OTHER MSA                 2457
+  3       NOT MSA                    799
+          Total                    5206
+
+
+Universe : Applicable for all respondents
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 64 of 66
+
+
+
+RELIGION(4031-4031)
+
+Variable Type : recode
+
+Description : Current religious affiliation (RECODE)
+
+  value      label         Total
+  1       No religion         1704
+  2       Catholic            1075
+  3       Protestant          1910
+  4       Other religion       517
+          Total               5206
+
+
+Universe : Applicable for all respondents
+
+Notes : Please refer to the 2017-2019 user's guide for more information on religion data in the NSFG
+
+LABORFOR(4032-4032)
+
+Variable Type : recode
+
+Description : Labor force status (RECODE)
+
+  value                               label                            Total
+  1       Working full-time                                             2984
+  2       Working part-time                                              790
+  3       Working, but on vacation, strike, or had temporary illness     148
+  4       Working - paternity or family leave                              8
+  5       Not working but looking for work                               209
+  6       In school                                                      562
+  7       Keeping house                                                  249
+  8       Caring for family                                               34
+  9       Other                                                          222
+          Total                                                        5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+RELIGION_I(4033-4033)
+
+Variable Type : imputation flag
+
+Description : RELIGION Imputation Flag
+
+  value                       label                  Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)             5192
+  1       MULTIPLE REGRESSION IMPUTATION                  14
+          Total                                       5206
+
+
+Universe : Applicable for all respondents
+
+LABORFOR_I(4034-4034)
+
+Variable Type : imputation flag
+
+Description : LABORFOR Imputation Flag
+
+  value                       label                  Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)             5203
+  1       MULTIPLE REGRESSION IMPUTATION                   3
+          Total                                       5206
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                                        Page 65 of 66
+
+
+
+Universe : Applicable for all respondents
+
+Male Respondent File Codebook :: SECTION R: Recode Variables and Imputation Flags :: (RK) Section K
+Recodes
+
+POVERTY(4035-4037)
+
+Variable Type : recode
+
+Description : Poverty level income (RECODE)
+
+  value                   label                     Total
+  50      50 percent of poverty level or less         380
+  51-99   51-99 percent of poverty level              487
+  100-199 100-199 percent of poverty level           1161
+  200-299 200-299 percent of poverty level            936
+  300-399 300-399 percent of poverty level            574
+  400-499 400-499 percent of poverty level            749
+  500-599 500-599 percent of poverty level            295
+  600-699 600-699 percent of poverty level            315
+  700     700 percent of poverty level or greater     309
+          Total                                     5206
+
+
+Universe : Applicable for all respondents
+
+Notes : This variable has been modified for public use, and the original variable is accessible by application to
+the NCHS Research Data Center. See Appendix 7 of the User's Guide for further information.
+
+TOTINCR(4038-4039)
+
+Variable Type : recode
+
+Description : Total income of R's family (RECODE)
+
+  value        label          Total
+  1       Under $5000             182
+  2       $5000-$7499             103
+  3       $7500-$9999              86
+  4       $10,000-$12,499         162
+  5       $12,500-$14,999         146
+  6       $15,000-$19,999         171
+  7       $20,000-$24,999         288
+  8       $25,000-$29,999         332
+  9       $30,000-$34,999         317
+  10      $35,000-$39,999         326
+  11      $40,000-$49,999         449
+  12      $50,000-$59,999         470
+  13      $60,000-$74,999         573
+  14      $75,000-$99,999         571
+  15      $100,000 or more      1030
+          Total                5206
+
+
+Universe : Applicable for all respondents
+
+PUBASSIS(4040-4040)
+
+Variable Type : recode
+
+Description : Whether R or any member of his family received public assistance in the calendar year before
+the interview (RECODE)
+
+  value                                 label                             Total
+  1       Yes (received public assistance in [INTERVIEW YEAR -1])          1275
+  2       No (did not receive public assistance in [INTERVIEW YEAR -1])    3931
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+National Survey of Family Growth, 2017-2019                                     Page 66 of 66
+
+
+
+          Total                                      5206
+
+
+Universe : Applicable for all respondents
+
+POVERTY_I(4041-4041)
+
+Variable Type : imputation flag
+
+Description : POVERTY Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    4634
+  1       MULTIPLE REGRESSION IMPUTATION       570
+  2       LOGICAL IMPUTATION                     2
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+TOTINCR_I(4042-4042)
+
+Variable Type : imputation flag
+
+Description : TOTINCR Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    4634
+  1       MULTIPLE REGRESSION IMPUTATION       570
+  2       LOGICAL IMPUTATION                     2
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+PUBASSIS_I(4043-4043)
+
+Variable Type : imputation flag
+
+Description : PUBASSIS Imputation Flag
+
+  value                label                 Total
+  0       QUESTIONNAIRE DATA (NOT IMPUTED)    4973
+  1       MULTIPLE REGRESSION IMPUTATION       233
+          Total                              5206
+
+
+Universe : Applicable for all respondents
+
+
+
+
+https://www.icpsr.umich.edu/icpsradmin/nsfg/codeBook/15610?studyNumber=10002&fo... 11/19/2020
+

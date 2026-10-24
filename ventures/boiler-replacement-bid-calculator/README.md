@@ -11,7 +11,7 @@ and the plant bid, whether hanging the boiler they bought at the
 supply house still covers the set, and whether a Saturday / after-hours
 no-heat call still pays after overtime.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/boiler-replacement-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/boiler-replacement-bid-calculator/
 
 **After using this, you can now** send a walk-away boiler-replacement
 price that sees the plant and the extras, **which used to take**
@@ -20,10 +20,7 @@ hot-water swap as the same job as a steam conversion.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

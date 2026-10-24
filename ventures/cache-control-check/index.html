@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cache-Control Checker — Vary: *, public + Set-Cookie, weak ETags</title>
-<meta name="description" content="Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor's cookie to another), and lower-severity caching directive conflicts. Nothing uploaded.">
+<meta name="description" content="Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor's cookie to another), and lower-severity caching directive conflicts.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/cache-control-check/">
 <meta property="og:type" content="website">
@@ -93,6 +93,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Cache-Control Checker</h1>
 <p>
   Sends one real HTTP GET request to a URL you choose and classifies the response's caching
@@ -265,6 +266,7 @@
     }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks a specific, well-documented set of

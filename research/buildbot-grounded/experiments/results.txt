@@ -1,0 +1,24 @@
+loaded wage $37.86/h (BLS median $29.12 x 1.3); ownership at launch price, life 6000 h, upkeep 10%/yr, use 1000 h/yr
+
+A. simulated carry slowdown (robot-h per labourer-h), buildbot-carry grid: step time 0.4-0.8 s, haul 5/15/30 m, handling 10/20/40 s,
+   labourer walking 1.1 m/s carrying one stud or a bundle of four. Break-even s* at supervision 0.1 / 0.3 / 0.5.
+  H1 ownership $24.0/h; s* = 1.36 / 1.07 / 0.88
+    vs a one-stud labourer: 36 cells, slowdown min 0.41, median 0.85, max 1.70; share of cells below s* = 92% / 72% / 58%
+    vs a four-stud labourer: 36 cells, slowdown min 1.63, median 3.38, max 6.82; share of cells below s* = 0% / 0% / 0%
+  G1 ownership $4.3/h; s* = 4.70 / 2.42 / 1.63
+    vs a one-stud labourer: 36 cells, slowdown min 0.90, median 1.08, max 1.64; share of cells below s* = 100% / 100% / 97%
+    vs a four-stud labourer: 36 cells, slowdown min 3.59, median 4.34, max 6.57; share of cells below s* = 64% / 0% / 0%
+  The taskbook's carry rate (F2, 0.3 min a piece) is 3.3 pieces/min: between the one-stud (0.5-3.5/min) and bundle (2-14/min) labourer rates.
+  Taskbook mass: mean piece 5.81 kg. The carry model's G1 limit is 3.8 kg (one stud) and 0 pieces at two studs: the G1 cannot take F2 as booked.
+
+B. nails of a 62-nail sheet reachable from one stance (buildbot-fasten coverage), push needed 20 / 100 N, mu 0.6
+  G1: 29% (18 of 62) / 13%
+  H1: 58% (36 of 62) / 55%
+
+C. what the simulation rules in, per house on the taskbook's hours (scenario A, supervision 0.3, wage $37.86)
+   rows: task, crew-hours, robot, share of the hours the robot can reach, slowdown at which the task breaks even
+  F2 carry    H1   1.05 h, reachable 100%: s* 1.07; ceiling $40 (0.006% of price); at s=1 $3, at s=3 $-72
+  F5 fasten   H1   1.40 h, reachable  58%: s* 1.07; ceiling $31 (0.005% of price); at s=1 $2, at s=3 $-55
+  F5 fasten   G1   1.40 h, reachable  29%: s* 2.42; ceiling $15 (0.002% of price); at s=1 $9, at s=3 $-4
+  S4 fasten   H1   3.31 h, reachable  58%: s* 1.07; ceiling $73 (0.011% of price); at s=1 $5, at s=3 $-131
+  S4 fasten   G1   3.31 h, reachable  29%: s* 2.42; ceiling $36 (0.005% of price); at s=1 $21, at s=3 $-9

@@ -51,6 +51,7 @@
     <p>A job triggered by <code>workflow_run</code> runs with your repository's full <code>GITHUB_TOKEN</code> and secrets, even though the run it reacts to was raised by a stranger's fork. GitHub's own Actions Security Lab, and independent research from Wiz, Legit Security and Orca Security, document the resulting attack as "artifact poisoning": the fork-triggered workflow uploads an artifact, your privileged handler downloads it, and if it executes anything from that artifact, the fork gets code execution in your context. Paste your workflow YAML below and this page finds both a downloaded artifact that gets executed later in the same job, and a download step with no <code>name:</code> pin, each with the exact fix.</p>
     <p class="note">Nothing is uploaded. The YAML you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste one or more workflow files</h2>
@@ -103,7 +104,8 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p>More: <a href="what-is-github-actions-artifact-poisoning.html">what is GitHub Actions artifact poisoning?</a> See also <a href="vs-reading-the-workflow-yaml-by-hand.html">this checker vs. reading the workflow YAML by hand</a>.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against artifact poisoning, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

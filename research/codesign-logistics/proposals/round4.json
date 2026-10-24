@@ -1,0 +1,2 @@
+{"round": 4, "notes": "Round 3: 19 mm x2 at 80 kPa / 60 L/min, compliance 0.4 led (J 0.508); larger cups cut 'too weak' but add pick time and 'does not fit'. Refine around it: cups 18-20.5 mm, compliance 0.3-0.6, plus a 3-cup 18 mm and a 2-cup with the vacuum eased to 78.",
+ "designs": [[18.5,2,80,60,0.4],[19.5,2,80,60,0.4],[20,2,80,60,0.4],[19,2,80,60,0.6],[19,2,80,60,0.3],[18,3,80,60,0.4],[19,2,78,60,0.5],[18,2,80,60,0.5],[20.5,2,80,60,0.5],[19,2,80,58,0.4]]}

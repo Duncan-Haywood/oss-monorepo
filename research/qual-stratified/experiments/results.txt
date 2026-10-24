@@ -1,0 +1,193 @@
+GoEmotions (first file): 5313 examples; 2125 train naive-Bayes, 3188 evaluated. 400 audit draws per cell, seed 20261022.
+designs: random = one sample of the corpus; equal = n/2 per group; neyman = audit share for group A proportional to the sd of (human - coder) in it, the share that minimises the rectifier variance (oracle, full data). All use the group-wise prediction-powered gap. 'trusts' = share of draws where the z test on the gap bias passes.
+
+=== Grouping G1: short (<=10 words) vs long: 1165 in A (0.365 of the corpus), 2023 in B
+estimand: human prevalence A - B = 0.2112 - 0.2640 = -0.0528
+
+G1.1 Optimal audit share for group A, by coder
+nb_x0.8 0.435
+nb_x1.0 0.438
+nb_x1.25 0.438
+lexicon 0.464
+
+G1.2 Coverage of the 95% interval (group-wise PPI)
+coder n_gold random equal neyman
+nb_x0.8 100 0.943 0.955 0.940
+nb_x0.8 200 0.968 0.955 0.953
+nb_x0.8 400 0.973 0.975 0.983
+nb_x0.8 800 0.975 0.983 0.980
+nb_x0.8 1600 1.000 1.000 0.995
+nb_x1.0 100 0.938 0.935 0.953
+nb_x1.0 200 0.970 0.958 0.953
+nb_x1.0 400 0.973 0.973 0.958
+nb_x1.0 800 0.993 0.975 0.988
+nb_x1.0 1600 1.000 1.000 1.000
+nb_x1.25 100 0.970 0.953 0.940
+nb_x1.25 200 0.943 0.955 0.958
+nb_x1.25 400 0.978 0.968 0.968
+nb_x1.25 800 0.980 0.985 0.985
+nb_x1.25 1600 1.000 1.000 0.998
+lexicon 100 0.958 0.973 0.935
+lexicon 200 0.950 0.940 0.960
+lexicon 400 0.978 0.963 0.955
+lexicon 800 0.988 0.980 0.983
+lexicon 1600 1.000 1.000 0.998
+
+G1.3 Mean width of the 95% interval
+coder n_gold random equal neyman
+nb_x0.8 100 0.389 0.389 0.385
+nb_x0.8 200 0.278 0.279 0.276
+nb_x0.8 400 0.200 0.200 0.198
+nb_x0.8 800 0.145 0.145 0.144
+nb_x0.8 1600 0.108 0.108 0.107
+nb_x1.0 100 0.402 0.400 0.398
+nb_x1.0 200 0.289 0.288 0.284
+nb_x1.0 400 0.207 0.207 0.205
+nb_x1.0 800 0.151 0.151 0.149
+nb_x1.0 1600 0.113 0.113 0.112
+nb_x1.25 100 0.418 0.418 0.414
+nb_x1.25 200 0.300 0.297 0.296
+nb_x1.25 400 0.215 0.215 0.213
+nb_x1.25 800 0.157 0.157 0.156
+nb_x1.25 1600 0.118 0.118 0.118
+lexicon 100 0.359 0.349 0.347
+lexicon 200 0.253 0.250 0.248
+lexicon 400 0.183 0.180 0.180
+lexicon 800 0.134 0.132 0.132
+lexicon 1600 0.100 0.099 0.099
+
+G1.4 Share of draws where the gap-bias z test trusts the coder (power = 1 - this)
+coder n_gold random equal neyman
+nb_x0.8 100 0.603 0.615 0.615
+nb_x0.8 200 0.352 0.312 0.320
+nb_x0.8 400 0.055 0.052 0.052
+nb_x0.8 800 0.000 0.000 0.000
+nb_x0.8 1600 0.000 0.000 0.000
+nb_x1.0 100 0.500 0.520 0.492
+nb_x1.0 200 0.245 0.195 0.245
+nb_x1.0 400 0.025 0.018 0.030
+nb_x1.0 800 0.000 0.000 0.000
+nb_x1.0 1600 0.000 0.000 0.000
+nb_x1.25 100 0.400 0.398 0.435
+nb_x1.25 200 0.142 0.120 0.135
+nb_x1.25 400 0.000 0.007 0.000
+nb_x1.25 800 0.000 0.000 0.000
+nb_x1.25 1600 0.000 0.000 0.000
+lexicon 100 0.955 0.960 0.943
+lexicon 200 0.938 0.940 0.963
+lexicon 400 0.958 0.953 0.930
+lexicon 800 0.958 0.950 0.930
+lexicon 1600 0.953 0.960 0.965
+
+G1.5 Mean interval width over the four coders, by audit size
+n_gold random equal neyman
+100 0.3920 0.3891 0.3861
+200 0.2799 0.2783 0.2758
+400 0.2014 0.2002 0.1989
+800 0.1468 0.1461 0.1452
+1600 0.1099 0.1094 0.1088
+
+G1.6 Worst coverage over the four coders, by audit size
+n_gold random equal neyman
+100 0.938 0.935 0.935
+200 0.943 0.940 0.953
+400 0.973 0.963 0.955
+800 0.975 0.975 0.980
+1600 1.000 1.000 0.995
+
+=== Grouping G2: rare: longest (>=23 words) vs rest: 352 in A (0.110 of the corpus), 2836 in B
+estimand: human prevalence A - B = 0.2784 - 0.2405 = +0.0379
+
+G2.1 Optimal audit share for group A, by coder
+nb_x0.8 0.554
+nb_x1.0 0.549
+nb_x1.25 0.538
+lexicon 0.544
+
+note: nb x1.0 n=100 random: 8 of 400 draws had under 5 audited items in a group, dropped
+note: nb x1.25 n=100 random: 4 of 400 draws had under 5 audited items in a group, dropped
+G2.2 Coverage of the 95% interval (group-wise PPI)
+coder n_gold random equal neyman
+nb_x0.8 100 0.910 0.960 0.975
+nb_x0.8 200 0.955 0.965 0.973
+nb_x0.8 400 0.985 0.998 0.995
+nb_x0.8 800 0.978 1.000 1.000
+nb_x0.8 1600 0.995 1.000 1.000
+nb_x1.0 100 0.923 0.973 0.973
+nb_x1.0 200 0.965 0.980 0.983
+nb_x1.0 400 0.965 0.993 0.998
+nb_x1.0 800 0.983 1.000 1.000
+nb_x1.0 1600 1.000 1.000 1.000
+nb_x1.25 100 0.942 0.960 0.965
+nb_x1.25 200 0.963 0.975 0.980
+nb_x1.25 400 0.980 0.995 0.988
+nb_x1.25 800 0.978 1.000 1.000
+nb_x1.25 1600 0.998 1.000 1.000
+lexicon 100 0.938 0.955 0.968
+lexicon 200 0.955 0.980 0.968
+lexicon 400 0.950 0.993 0.990
+lexicon 800 0.985 1.000 1.000
+lexicon 1600 1.000 1.000 1.000
+
+G2.3 Mean width of the 95% interval
+coder n_gold random equal neyman
+nb_x0.8 100 0.769 0.454 0.450
+nb_x0.8 200 0.547 0.330 0.327
+nb_x0.8 400 0.393 0.245 0.244
+nb_x0.8 800 0.290 0.192 0.192
+nb_x0.8 1600 0.218 0.177 0.177
+nb_x1.0 100 0.778 0.462 0.460
+nb_x1.0 200 0.562 0.334 0.335
+nb_x1.0 400 0.401 0.249 0.249
+nb_x1.0 800 0.293 0.195 0.195
+nb_x1.0 1600 0.220 0.179 0.179
+nb_x1.25 100 0.785 0.470 0.468
+nb_x1.25 200 0.558 0.342 0.340
+nb_x1.25 400 0.403 0.253 0.253
+nb_x1.25 800 0.294 0.197 0.197
+nb_x1.25 1600 0.221 0.180 0.180
+lexicon 100 0.658 0.390 0.392
+lexicon 200 0.470 0.283 0.281
+lexicon 400 0.338 0.209 0.208
+lexicon 800 0.246 0.162 0.161
+lexicon 1600 0.184 0.148 0.148
+
+G2.4 Share of draws where the gap-bias z test trusts the coder (power = 1 - this)
+coder n_gold random equal neyman
+nb_x0.8 100 0.723 0.460 0.440
+nb_x0.8 200 0.557 0.145 0.147
+nb_x0.8 400 0.345 0.003 0.005
+nb_x0.8 800 0.068 0.000 0.000
+nb_x0.8 1600 0.000 0.000 0.000
+nb_x1.0 100 0.686 0.365 0.380
+nb_x1.0 200 0.542 0.083 0.068
+nb_x1.0 400 0.247 0.000 0.000
+nb_x1.0 800 0.022 0.000 0.000
+nb_x1.0 1600 0.000 0.000 0.000
+nb_x1.25 100 0.674 0.325 0.312
+nb_x1.25 200 0.465 0.060 0.048
+nb_x1.25 400 0.158 0.000 0.000
+nb_x1.25 800 0.010 0.000 0.000
+nb_x1.25 1600 0.000 0.000 0.000
+lexicon 100 0.925 0.955 0.955
+lexicon 200 0.955 0.963 0.965
+lexicon 400 0.940 0.988 0.975
+lexicon 800 0.978 1.000 0.998
+lexicon 1600 0.993 1.000 1.000
+
+G2.5 Mean interval width over the four coders, by audit size
+n_gold random equal neyman
+100 0.7474 0.4441 0.4423
+200 0.5341 0.3222 0.3207
+400 0.3841 0.2390 0.2383
+800 0.2806 0.1862 0.1863
+1600 0.2110 0.1709 0.1709
+
+G2.6 Worst coverage over the four coders, by audit size
+n_gold random equal neyman
+100 0.910 0.955 0.965
+200 0.955 0.965 0.968
+400 0.950 0.993 0.988
+800 0.978 1.000 1.000
+1600 0.995 1.000 1.000
+

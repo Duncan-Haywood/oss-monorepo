@@ -1,0 +1,60 @@
+name: conformal-prediction-intervals
+description: >-
+  Free browser tool, CLI and agent call for data scientists, analysts and
+  researchers: paste a CSV, pick the column to predict and a coverage level,
+  and get distribution-free prediction intervals with a finite-sample
+  guarantee from split conformal, locally weighted conformal and conformalized
+  quantile regression (Lei et al. 2018; Romano, Patterson & Candes 2019),
+  checked on held-out rows. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-20 under the owner's "research algorithms as tools"
+# direction (portfolio/research-tools/README.md). Implemented from the
+# papers' mathematics; no third-party code was ported. Example data: the
+# Efron et al. (2004) diabetes data, source and licence in data/SOURCE.md.
+#
+# First visitor: searches such as "conformal prediction intervals
+# calculator", "distribution-free prediction intervals online", "conformal
+# prediction regression example", "conformalized quantile regression";
+# readers of r/MachineLearning and r/statistics threads and CrossValidated
+# questions asking how to get prediction intervals with guaranteed coverage
+# without assuming normal errors. Volume not measured with an external tool.
+#
+# Alternatives are Python and R libraries (which need an environment and
+# code) and papers' own example notebooks; the differentiators here are no
+# install, an honest held-out and repeated-split coverage check, the exact
+# finite-sample rank, and a plain-language explanation.
+#
+# Privacy is the liability boundary: data never leave the browser (tests
+# assert no network calls). Liability: statistical output from supplied
+# data, not advice; the page states the exchangeability and marginal
+# coverage limits. Unverified with users; verified by unit tests against
+# exact arithmetic, closed forms, brute-force optima and simulation.
+
+hypotheses:
+  - claim: >-
+      Analysts and researchers who need a prediction interval they can defend
+      will use a no-install tool that reports the guarantee and its held-out
+      coverage, and will cite or link it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that coverage, the calibrated quantile or a quantile regression fit disagrees with a reference implementation on the same data and split, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/conformal-prediction-intervals/
+  analytics: null

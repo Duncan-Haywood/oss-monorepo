@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>SQL Migration Lock Check — Will This Migration Take Your Database Down?</title>
-  <meta name="description" content="Paste a PostgreSQL migration and find every statement that can lock the table and stall your app: CREATE INDEX without CONCURRENTLY, ALTER COLUMN TYPE, SET NOT NULL, a foreign key without NOT VALID, and a missing lock_timeout that turns a millisecond change into an outage. Free, runs in your browser, nothing uploaded, no database connection.">
+  <meta name="description" content="Paste a PostgreSQL migration to find statements that lock the table: CREATE INDEX without CONCURRENTLY, SET NOT NULL, a missing lock_timeout. No database connection.">
   <meta property="og:title" content="Will this migration take your database down?">
   <meta property="og:description" content="Most migrations that cause an outage look completely routine. Paste your PostgreSQL migration and get every statement that can block reads or writes — with the rewrite that avoids it.">
   <link rel="canonical" href="./index.html">
@@ -51,6 +51,7 @@
     <p>Almost every migration that causes an outage looks completely routine in review. The statement itself takes milliseconds — but it needs a lock that conflicts with ordinary reads, and if anything is still running on that table it waits, with <em>every</em> later query queued behind it. Paste your PostgreSQL migration below.</p>
     <p class="note">Nothing is uploaded. The SQL you paste is parsed in this browser and never leaves your device; this tool makes no network calls and never connects to a database.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your migration</h2>
@@ -106,7 +107,8 @@ node check.mjs --fail-on-risk      # exit 2 if a statement can block the table</
     <p>More: <a href="why-your-migration-locked-the-table.html">why your migration locked the table</a>. Already using <a href="vs-squawk.html">squawk</a>? See <a href="vs-squawk.html">how this checker compares</a>. Just reading the migration by eye? See <a href="vs-reading-the-migration-by-hand.html">how this checker compares</a> for the relational checks a single-statement read tends to miss.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a database review, a performance audit, or a guarantee that a migration will not cause downtime or data loss, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including testing any suggested change against a copy of your own data before applying it to production. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, save <a href="check.mjs" download>check.mjs</a>, <a href="engine.mjs" download>engine.mjs</a> and <a href="sql.mjs" download>sql.mjs</a> and run them yourself.</p>
     <p>Everything runs in your browser. The SQL you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

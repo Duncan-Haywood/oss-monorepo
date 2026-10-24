@@ -121,3 +121,11 @@ test('the bundled worked example is valid input for buildReport and produces dan
   assert.ok(report.findings.some((f) => f.id === 'twitter-large-image-card-missing-image'));
   assert.ok(report.findings.some((f) => f.severity === 'danger'));
 });
+
+// Sibling one hop away: people checking how a shared link previews are often
+// planning the posts that carry it. Without this link no tool page reaches the
+// studio (platform/pages/siblings.mjs counts it as an orphan).
+test('index links one hop to the interview-content-studio sibling', () => {
+  assert.match(html, /href="\.\.\/interview-content-studio\/"/, 'index must link ../interview-content-studio/');
+  assert.match(html, /Interview Content Studio/);
+});

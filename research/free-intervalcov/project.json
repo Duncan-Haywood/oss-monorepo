@@ -1,0 +1,3 @@
+{"theme": "twins",
+ "title": "Which 95% upper bound on a failure rate actually covers 95% at simulator-rollout sample sizes?",
+ "summary": "Exact coverage (no sampling) of six one-sided 95% upper bounds for k failures in n = 30 to 1000 rollouts, true rates 0.2&ndash;20%. Only Clopper&ndash;Pearson never undercovers (minimum 0.950); Agresti&ndash;Coull dips to 0.944, Wilson to 0.926, Jeffreys to 0.85, Wald to 0.06&ndash;0.75, rule-of-three plus Wald to 0.81. Certifying p &le; 1% from zero failures takes 299 rollouts (Clopper&ndash;Pearson), 268 (Wilson), 191 (Jeffreys); at n = 100 four of the methods give identical accept sets for a 5% threshold. Assumes iid rollouts; says nothing about the sim-to-real gap."}

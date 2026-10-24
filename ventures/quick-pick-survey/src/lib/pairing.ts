@@ -308,6 +308,111 @@ export function selectNextPair({
   return [first.id, second.id];
 }
 
+/**
+ * Expected-information pair selection, an alternative to `selectNextPair`.
+ *
+ * Scores every candidate pair by how much one answer is expected to shrink the
+ * two items' rating variance under the Glicko model: an answer carries
+ * Fisher information `g(phi_opp)^2 * p * (1 - p)` for each side, so a pair
+ * gains most when both ratings are uncertain and the outcome is close to a
+ * coin flip. The pair with the largest summed variance reduction wins; ties and
+ * a just-shown pair are handled by `repeatPenalty`. Deterministic given the
+ * state, apart from the optional `rand` tie-breaker.
+ *
+ * Measured against `selectNextPair` in `infoGainPairing.simulation.test.ts`.
+ */
+const GLICKO_SCALE = 173.7178;
+
+function glickoG(phi: number): number {
+  return 1 / Math.sqrt(1 + (3 * phi * phi) / (Math.PI * Math.PI));
+}
+
+/** Expected total drop in squared rating deviation (Glicko scale) from one answer. */
+export function expectedVarianceReduction(a: PairItem, b: PairItem): number {
+  const phiA = a.rd / GLICKO_SCALE;
+  const phiB = b.rd / GLICKO_SCALE;
+  const mu = (a.rating - b.rating) / GLICKO_SCALE;
+  const p = 1 / (1 + Math.exp(-glickoG(Math.hypot(phiA, phiB) / Math.SQRT2) * mu));
+  const spread = p * (1 - p);
+  const drop = (phi: number, phiOpp: number) => {
+    const gain = glickoG(phiOpp) ** 2 * spread;
+    return phi * phi - 1 / (1 / (phi * phi) + gain);
+  };
+  return (drop(phiA, phiB) + drop(phiB, phiA)) * GLICKO_SCALE * GLICKO_SCALE;
+}
+
+export type InformationOptions = {
+  /** Multiplier for a pair whose primary dimensions differ (the shipped selector uses 1.5). */
+  conflictBonus?: number;
+  /** Extra weight per appearance an item is below the pool average, as a fraction of the score. */
+  coverageWeight?: number;
+  /** Most items scored pairwise; the rest wait. Cost is quadratic in the pool. Default INFO_POOL_CAP. */
+  poolCap?: number;
+};
+
+/**
+ * Past this many active items the information score keeps only the most
+ * uncertain ones (largest rd, then least shown), so a 2,000-item list costs
+ * what a 400-item one does. Lists up to the cap are untouched.
+ */
+export const INFO_POOL_CAP = 400;
+
+export function capPool(pool: PairItem[], timesShown: Map<string, number>, cap: number): PairItem[] {
+  if (pool.length <= cap) return pool;
+  return [...pool]
+    .sort((a, b) => b.rd - a.rd || (timesShown.get(a.id) ?? 0) - (timesShown.get(b.id) ?? 0) || (a.id < b.id ? -1 : 1))
+    .slice(0, Math.max(2, cap));
+}
+
+export function selectNextPairByInformation(
+  { items, timesShown, recentPairKeys, answeredCount = 0, rand = Math.random }: PairingInput,
+  { conflictBonus = 1, coverageWeight = 0, poolCap = INFO_POOL_CAP }: InformationOptions = {}
+): [string, string] {
+  if (items.length < 2) throw new Error("Need at least 2 items to pair");
+  const pool = capPool(activeItems(items, answeredCount, timesShown), timesShown, poolCap);
+  const avgShown = pool.reduce((sum, i) => sum + (timesShown.get(i.id) ?? 0), 0) / pool.length;
+  const lag = (i: PairItem) => Math.max(0, avgShown - (timesShown.get(i.id) ?? 0));
+
+  let best: [string, string] | null = null;
+  let bestScore = -Infinity;
+  for (let i = 0; i < pool.length; i++) {
+    for (let j = i + 1; j < pool.length; j++) {
+      const repeatPenalty = recentPairKeys.has(pairKey(pool[i].id, pool[j].id)) ? 0.05 : 1;
+      // A sliver of noise breaks exact ties (all-default start) without
+      // reordering pairs whose scores differ.
+      const da = pool[i].dimensions?.[0];
+      const db = pool[j].dimensions?.[0];
+      const conflict = da && db && da !== db ? conflictBonus : 1;
+      const coverage = 1 + coverageWeight * (lag(pool[i]) + lag(pool[j]));
+      const score =
+        expectedVarianceReduction(pool[i], pool[j]) * repeatPenalty * conflict * coverage * (1 + rand() * 1e-6);
+      if (score > bestScore) {
+        bestScore = score;
+        best = [pool[i].id, pool[j].id];
+      }
+    }
+  }
+  return best!;
+}
+
+/**
+ * Staged hybrid: the shipped selector while `answeredCount` is below
+ * `switchAt`, the information selector after. The shipped one finishes more
+ * items early (the bar the couple screen needs); the information one wins on
+ * rank accuracy and on items under rd 150 once there are enough answers.
+ * Measured in `infoGainPairing.simulation.test.ts`.
+ */
+export const HYBRID_SWITCH_ANSWERS = 120;
+
+export function selectNextPairHybrid(
+  input: PairingInput,
+  { switchAt = HYBRID_SWITCH_ANSWERS, ...options }: InformationOptions & { switchAt?: number } = {}
+): [string, string] {
+  return (input.answeredCount ?? 0) < switchAt
+    ? selectNextPair(input)
+    : selectNextPairByInformation(input, options);
+}
+
 /** Picks two distinct identity items for a CONJOINED-survey trial, favoring under-shown items. */
 export function selectIdentityPair(
   items: PairItem[],

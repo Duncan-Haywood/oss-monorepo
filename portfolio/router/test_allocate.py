@@ -9,13 +9,14 @@ import unittest
 from pathlib import Path
 
 from allocate import (
+    deepen_to_window,
     recent_commits,
     Venture,
     count_ledger_entries,
     count_portfolio_mentions,
     decisions_by_merit,
-    diversify,
-    family_of,
+    is_calculator,
+    load_flagships,
     load_merit_scores,
     load_ventures,
     next_task,
@@ -24,6 +25,7 @@ from allocate import (
     LEDGER_DIR,
     SCORES_PATH,
     VENTURES_DIR,
+    FLAGSHIPS_PATH,
 )
 
 
@@ -48,6 +50,12 @@ def make(
 
 
 class RankTests(unittest.TestCase):
+    def test_real_hypothesis_ranks_before_no_hypothesis(self):
+        empty = make("aaa-empty", stage="prototype", mrr=None)
+        claimed = make("zzz-claimed", stage="prototype", mrr=None)
+        claimed.hypotheses = [{"claim": "People will use X.", "status": "untested"}]
+        self.assertEqual(rank([empty, claimed])[0].name, "zzz-claimed")
+
     def test_zero_mrr_past_revenue_stage_ranks_first(self):
         stuck = make("stuck", stage="revenue", mrr=0)
         exploring = make("exploring", stage="idea", mrr=None)
@@ -113,6 +121,41 @@ class RankTests(unittest.TestCase):
         self.assertEqual([v.name for v in ordered], ["a-venture", "b-venture"])
 
 
+class DeepenTests(unittest.TestCase):
+    def test_fetches_only_when_shallow(self):
+        from unittest import mock
+        def run(shallow, oldest="9999999999"):
+            def fake(cmd, **kw):
+                if "rev-parse" in cmd:
+                    out = "true" if shallow else "false\n"
+                else:
+                    out = oldest + "\n" if "log" in cmd else ""
+                return mock.Mock(stdout=out, returncode=0)
+            with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
+                return deepen_to_window(7), m.call_count
+        self.assertEqual(run(False), (False, 1))
+        self.assertEqual(run(True), (True, 3))  # rev-parse, git log, fetch
+
+    def test_fetch_timeout_returns_false_instead_of_blocking(self):
+        import subprocess
+        from unittest import mock
+        def fake(cmd, **kw):
+            if "fetch" in cmd:
+                raise subprocess.TimeoutExpired(cmd, kw["timeout"])
+            return mock.Mock(stdout="true" if "rev-parse" in cmd else "9999999999\n", returncode=0)
+        with mock.patch("allocate.subprocess.run", side_effect=fake):
+            self.assertFalse(deepen_to_window(7))
+
+    def test_skips_fetch_when_history_already_reaches_window(self):
+        from unittest import mock
+        def fake(cmd, **kw):
+            out = "true" if "rev-parse" in cmd else "1000000000\n"
+            return mock.Mock(stdout=out, returncode=0)
+        with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
+            self.assertFalse(deepen_to_window(7))
+            self.assertEqual(m.call_count, 2)  # no fetch
+
+
 class NextTaskTests(unittest.TestCase):
     def test_zero_mrr_past_revenue_stage_says_review(self):
         v = make("v", stage="revenue", mrr=0)
@@ -121,6 +164,13 @@ class NextTaskTests(unittest.TestCase):
     def test_unmeasured_says_explore(self):
         v = make("v", stage="idea", mrr=None)
         self.assertIn("Explore", next_task(v))
+
+    def test_unmeasured_with_no_hypotheses_says_none_recorded_not_settled(self):
+        v = make("v", stage="idea", mrr=None)
+        task = next_task(v)
+        self.assertIn("no hypothesis recorded", task)
+        self.assertIn("hypotheses:", task)
+        self.assertNotIn("settled", task)
 
     def test_unmeasured_with_untested_hypothesis_names_the_claim(self):
         v = make("v", stage="idea", mrr=None)
@@ -158,6 +208,17 @@ class NextTaskTests(unittest.TestCase):
         ]
         self.assertFalse(v.dispatchable)
         self.assertIn("BLOCKED", next_task(v))
+
+    def test_published_customer_contact_claim_ranks_behind_in_repo_work(self):
+        pub = make("pub", stage="idea", mrr=None)
+        pub.hypotheses = [{"claim": "Sellers return.", "status": "untested", "evidence": "customer-contact"}]
+        pub.production_url = "https://example.invalid/"
+        code = make("code", stage="idea", mrr=None)
+        code.hypotheses = [{"claim": "Engine matches.", "status": "untested", "evidence": "in-repo"}]
+        self.assertTrue(pub.awaits_visitors)
+        self.assertFalse(code.awaits_visitors)
+        self.assertEqual([v.name for v in rank([pub, code])], ["code", "pub"])
+        self.assertIn("awaiting visitors", next_task(pub))
 
     def test_publishing_unblocks_a_customer_contact_claim(self):
         v = make("v", stage="idea", mrr=None)
@@ -535,60 +596,106 @@ class DecisionsByMeritTests(unittest.TestCase):
             self.assertLessEqual(r["merit_scored"], r["blocked_ventures"])
 
 
-if __name__ == "__main__":
-    unittest.main()
 
+class CalculatorTests(unittest.TestCase):
+    """Calculators are maintain-only (owner, 2026-10-21)."""
 
-class FamilyTests(unittest.TestCase):
-    """One product cloned per niche must not fill the queue (2026-10-16 report)."""
+    def test_calculator_key(self):
+        self.assertTrue(is_calculator("carpet-install-bid-calculator"))
+        self.assertTrue(is_calculator("ltl-freight-class-estimator"))
+        self.assertFalse(is_calculator("changepoint-detector"))
+        self.assertFalse(is_calculator("calculator-hub-check"))
 
-    def test_family_key(self):
-        self.assertEqual(family_of("carpet-install-bid-calculator"), "bid-calculator")
-        self.assertEqual(family_of("etsy-fee-calculator"), "fee-calculator")
-        # A shared bare suffix is not a family: these are different products.
-        self.assertEqual(family_of("where-to-sell-calculator"), "where-to-sell-calculator")
-        self.assertEqual(family_of("waitlist-keeper"), "waitlist-keeper")
+    def test_calculators_sink_below_other_dispatchable_work(self):
+        calc = make("etsy-fee-calculator", merit=9.0)
+        calc.hypotheses = [{"claim": "c", "status": "untested"}]
+        other = make("tiny-csv-check", merit=1.0)
+        self.assertEqual([v.name for v in rank([calc, other])], ["tiny-csv-check", "etsy-fee-calculator"])
 
-    def test_a_large_family_keeps_only_three_places_ahead_of_others(self):
+    def test_calculator_task_is_maintenance_and_no_consolidation(self):
         clones = [make(f"t{i}-bid-calculator", merit=7.0) for i in range(6)]
-        others = [make(f"other-{i}", merit=5.0) for i in range(2)]
-        names = [v.name for v in rank(clones + others)]
-        self.assertEqual(names[:3], ["t0-bid-calculator", "t1-bid-calculator", "t2-bid-calculator"])
-        self.assertEqual(names[3:5], ["other-0", "other-1"])
-        self.assertEqual(len(names), 8)
-
-    def test_small_families_are_untouched(self):
-        few = [make(f"t{i}-bid-calculator", merit=7.0) for i in range(4)]
-        other = make("other", merit=5.0)
-        self.assertEqual([v.name for v in rank(few + [other])][-1], "other")
-
-    def test_diversify_never_crosses_a_tier(self):
-        clones = [make(f"t{i}-bid-calculator") for i in range(6)]
-        late = make("late")
-        out = diversify(clones + [late], tier=lambda v: v.name == "late")
-        self.assertEqual(out[-1].name, "late")
-
-    def test_top_family_member_gets_the_consolidation_task(self):
-        clones = [make(f"t{i}-bid-calculator", merit=7.0 - i / 10) for i in range(5)]
         queue = work_queue(clones)
-        self.assertTrue(queue[0]["task"].startswith("Consolidate"))
-        self.assertIn("5 '*-bid-calculator'", queue[0]["task"])
-        self.assertFalse(any(r["task"].startswith("Consolidate") for r in queue[1:]))
+        self.assertTrue(all(r["task"].startswith("Maintain only") for r in queue))
 
-    def test_consolidated_members_neither_claim_nor_count(self):
-        clones = [make(f"t{i}-bid-calculator", merit=7.0 - i / 10) for i in range(7)]
-        clones[0].consolidated_into = "host"
-        clones[1].consolidated_into = "host"
-        queue = work_queue(clones)
-        claimed = [r for r in queue if r["task"].startswith("Consolidate")]
-        self.assertEqual(len(claimed), 1)
-        self.assertNotIn(claimed[0]["venture"], ("t0-bid-calculator", "t1-bid-calculator"))
-        self.assertIn("5 '*-bid-calculator'", claimed[0]["task"])
-        clones[2].consolidated_into = "host"
-        self.assertFalse(any(r["task"].startswith("Consolidate") for r in work_queue(clones)))
+    def test_zero_mrr_review_still_wins_for_a_calculator(self):
+        v = make("x-fee-calculator", stage="revenue", mrr=0)
+        self.assertTrue(next_task(v).startswith("Review"))
 
 
 class RecentCommitsTest(unittest.TestCase):
     def test_returns_int_counts_by_slug(self):
-        counts = recent_commits(days=3650)
+        counts = recent_commits(days=3650, deepen=False)
         self.assertTrue(all(isinstance(k, str) and isinstance(n, int) and n > 0 for k, n in counts.items()))
+
+
+class ReexecTests(unittest.TestCase):
+    def test_reexec_is_noop_when_libyaml_present_or_already_hopped(self):
+        import os
+        from unittest import mock
+        import allocate
+        with mock.patch.object(os, "execv") as ex:
+            with mock.patch.dict(os.environ, {"ALLOCATE_REEXEC": "1"}):
+                allocate._reexec_with_libyaml()
+            if getattr(allocate.yaml, "CSafeLoader", None):
+                allocate._reexec_with_libyaml()
+            ex.assert_not_called()
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+class FlagshipTests(unittest.TestCase):
+    def flag(self, name, rank_, next_="Build the thing."):
+        v = make(name)
+        v.flagship_rank = rank_
+        v.flagship_next = next_
+        return v
+
+    def test_flagships_rank_ahead_of_other_dispatchable_work_in_file_order(self):
+        small = make("tiny-csv-check", merit=0.9)
+        second = self.flag("second", 1)
+        first = self.flag("first", 0)
+        ordered = [v.name for v in rank([small, second, first])]
+        self.assertEqual(ordered, ["first", "second", "tiny-csv-check"])
+
+    def test_heavily_worked_flagship_is_not_demoted(self):
+        hot = self.flag("deep", 0)
+        hot.recent_commits = 40
+        cold = make("cold")
+        self.assertEqual(rank([cold, hot])[0].name, "deep")
+
+    def test_flagship_waiting_on_customers_still_gets_its_deepen_task(self):
+        # Its next hypothesis needs a customer, but the milestone is code.
+        waiting = self.flag("deep", 0)
+        waiting.hypotheses = [{"claim": "c", "status": "untested", "evidence": "customer-contact"}]
+        startable = make("startable")
+        self.assertEqual(rank([waiting, startable])[0].name, "deep")
+        self.assertTrue(next_task(waiting).startswith("Deepen"))
+
+    def test_flagship_calculator_still_gets_its_deepen_task(self):
+        v = self.flag("roof-bid-calculator", 0, "Ship the solver.")
+        task = next_task(v)
+        self.assertTrue(task.startswith("Deepen (flagship 1): Ship the solver."), task)
+        others = [make(f"x{i}-roof-bid-calculator") for i in range(6)]
+        queue = work_queue([v] + others)
+        self.assertTrue(queue[0]["flagship"])
+        self.assertTrue(queue[0]["task"].startswith("Deepen"))
+
+    def test_load_flagships_reads_order_and_tolerates_missing_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            self.assertEqual(load_flagships(p), {})
+            p.write_text("flagships:\n  - venture: a\n    next: do a\n  - venture: b\n")
+            self.assertEqual(load_flagships(p), {"a": (0, "do a"), "b": (1, "")})
+
+    def test_every_listed_flagship_is_a_real_routable_venture(self):
+        names = {v.name for v in load_ventures()}
+        listed = load_flagships(FLAGSHIPS_PATH)
+        self.assertTrue(listed, "portfolio/flagships.yaml lists no flagships")
+        for name, (_, milestone) in listed.items():
+            self.assertIn(name, names, f"flagship {name} has no routable VENTURE.yaml")
+            self.assertTrue(milestone, f"flagship {name} has no `next:` milestone")
+            # flagships.yaml says "keep this under 2,000 characters": history
+            # belongs in the venture's README, not in the routed task text.
+            self.assertLessEqual(len(milestone), 2000, f"flagship {name}: `next:` is over 2,000 characters")

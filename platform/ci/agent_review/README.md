@@ -55,8 +55,7 @@ In **Settings → Rules → Rulesets → main**:
   to pass* add the CI checks every code PR runs: `build`, `validate`, `check`,
   `test`, and `gitops`. Turn on *Require branches to be up to date before
   merging*. Without this, the ruleset gates only on **approvals**, so any
-  actor — an agent session merging a `ventures/*` product PR, or the auto-merge
-  bot on an internal one — can merge a PR whose slow checks (`build`,
+  actor — an agent session merging its own PR, or the auto-merge bot — can merge a PR whose slow checks (`build`,
   `validate`) have not finished. That is not hypothetical: on 2026-09-03 a
   ventures PR was merged after its fast checks were green but before `build`
   ran, landing a red `platform/pages` suite on `main`. Required status checks
@@ -76,7 +75,8 @@ Copilot code review does **not** count toward required approvals.
 3. **Agent sessions** — before new work, run review pending PRs (see
    `.github/prompts/review-open-prs-first.md`). The session that opened a PR
    still merges it itself (`.github/prompts/land-your-work.md`). Auto-merge
-   is a backstop for internal PRs and never fires on `ventures/*`.
+   is a backstop for any same-repo PR, `ventures/*` included (the venture
+   exclusion was removed on 2026-10-20 at the owner's request).
 
 ## Local commands
 

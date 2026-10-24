@@ -1,0 +1,28 @@
+MAIN: Iz/Ix 1.9, reference 15/15/30 deg steps, yaw authority kappa 0.016 m/N; 6 airframes (robust-study wide-PID rank 1,10,20,30,40,50) x 5 seeds; held-out 64 wide-plant episodes
+combined RMS attitude error (deg) = sqrt(mean over roll, pitch, yaw of per-axis RMS^2), mean over seeds; roll/pitch RMS in brackets:
+  pid96     mean over airframes 18.197  (roll/pitch RMS  7.78, yaw RMS 29.49)
+  gc96      mean over airframes 18.199  (roll/pitch RMS  7.78, yaw RMS 29.49)
+  pid576    mean over airframes 17.761  (roll/pitch RMS  7.27, yaw RMS 28.97)
+  skip576   mean over airframes 18.080  (roll/pitch RMS  7.58, yaw RMS 29.40)
+  pid2496   mean over airframes 17.740  (roll/pitch RMS  7.22, yaw RMS 28.96)
+  skip2496  mean over airframes 17.942  (roll/pitch RMS  7.90, yaw RMS 28.97)
+pid576 minus skip576: mean -0.318 deg, second better in 4 of 30 pairs, worse in 26; seed-to-seed SD of the difference 0.446
+pid2496 minus skip2496: mean -0.201 deg, second better in 8 of 30 pairs, worse in 22; seed-to-seed SD of the difference 0.383
+pid96 minus gc96 (analytic gyroscopic compensation): mean -0.001 deg, second better in 10 of 30 pairs, worse in 20; seed-to-seed SD of the difference 0.008
+peak share of the torque limit taken by w x (I w) over the held-out episodes (pid96): median 0.023, max 0.088
+skip576 arms that kept a nonzero residual: 30 of 30
+
+SWEEP (3 airframes x 3 seeds each; mean combined RMS error, deg): Iz/Ix, reference scale, yaw authority x kappa
+  Iz/Ix  ref  yaw   pid576  skip576  gc96   pid96-gc96  gyro share(max)
+   1.0    1  x1    16.77    17.56  17.68     -0.000   0.000
+   1.0    1  x3    14.19    14.65  14.72     +0.000   0.000
+   1.0    2  x1    35.97    36.03  36.75     +0.000   0.000
+   1.0    2  x3    32.78    33.52  34.47     +0.000   0.000
+   1.9    1  x1    17.63    18.01  17.93     -0.003   0.076
+   1.9    1  x3    15.81    16.10  16.18     -0.016   0.341
+   1.9    2  x1    36.70    38.01  37.77     -0.001   0.150
+   1.9    2  x3    35.09    35.78  35.91     -0.013   0.365
+   3.0    1  x1    17.93    18.04  18.26     -0.013   0.208
+   3.0    1  x3    16.71    17.18  17.52     +0.004   0.331
+   3.0    2  x1    36.81    37.92  37.25     -0.003   0.278
+   3.0    2  x3    36.03    37.48  37.14     -0.013   0.712

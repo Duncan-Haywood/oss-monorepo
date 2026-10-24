@@ -107,8 +107,7 @@ export function isLocal(cfg) {
   let host;
   try { host = new URL(c.baseUrl).hostname.replace(/^\[|\]$/g, ''); } catch { return false; }
   return host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host === '::1'
-    || /^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host)
-    || /^172\.(1[6-9]|2\d|3[01])\./.test(host);
+    || /^(127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)$/.test(host);
 }
 
 /** True when a usable config is present; the cheap check before showing AI features. */

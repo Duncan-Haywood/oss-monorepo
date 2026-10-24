@@ -72,7 +72,7 @@ jobs:
     # with `--all` is ~660 requests eight at a time.
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false  # read-only job; nothing here pushes
 
@@ -92,7 +92,7 @@ jobs:
             git fetch origin gh-pages:refs/remotes/origin/gh-pages || true
           fi
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
 
@@ -119,7 +119,7 @@ jobs:
             --json-out "${RUNNER_TEMP}/public-surface.json" \
             | tee "${GITHUB_STEP_SUMMARY}"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: public-surface-reading

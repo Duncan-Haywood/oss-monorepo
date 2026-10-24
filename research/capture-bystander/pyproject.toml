@@ -1,0 +1,13 @@
+[project]
+name = "capture-bystander"
+version = "0.1.0"
+description = "Bystander face blurring for travel filming: detector recall by camera and distance, leak rates, track persistence, and how conspicuous each platform is, on an assumed size-recall model"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

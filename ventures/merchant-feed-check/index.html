@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Merchant Feed Check — Catch Google/Meta Shopping Feed Errors Before They Disapprove Products</title>
-  <meta name="description" content="Paste or load a Google Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON) and get a deterministic, item-by-item report of missing required fields, invalid GTIN checksums, malformed prices, and the documented disapproval triggers -- before the crawler finds them. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta name="description" content="Paste a Google Merchant Center or Meta Catalog feed to find missing fields, bad GTINs and malformed prices before products are disapproved. Runs in your browser.">
   <meta property="og:title" content="Will this product feed get items disapproved?">
   <meta property="og:description" content="Check a Google Merchant Center or Meta Catalog product feed for required-field, GTIN, price-format, and promotional-text problems -- deterministic, no account, no upload, with a matching CLI you can run as a CI gate before every sync.">
   <link rel="canonical" href="./index.html">
@@ -47,6 +47,7 @@
     <p>Paste, load, or drop a Google Merchant Center or Meta Catalog product feed and get a deterministic, item-by-item report against the published product-data specification: missing required fields, invalid GTIN/MPN identifiers, malformed prices, and known promotional-text disapproval triggers.</p>
     <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Load your feed</h2>
@@ -115,7 +116,8 @@ node cli.mjs check feed.csv --max-warnings 0   # also fail the build on warnings
     <p>With the real GS1 check-digit algorithm used for UPC-A, EAN-13, and GTIN-8/12/14 — the same arithmetic barcode scanners use to reject a mistyped code. A GTIN that is the right length but fails the checksum is very likely a typo, not a real product identifier.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not advice about Shopping Ads policy, account-level compliance, or whether Google or Meta will approve any specific listing — it reports whether the feed data you supplied conforms to the published product-data specification, nothing more. It does not fetch your landing pages and cannot confirm price, availability, or content there matches your feed. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use, including a disapproved listing, a suspended account, or lost ad spend.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The feed you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

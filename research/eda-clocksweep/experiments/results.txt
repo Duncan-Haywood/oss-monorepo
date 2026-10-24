@@ -1,0 +1,28 @@
+# Yosys 0.33 (git sha1 2584903a060); SKY130 HD tt_025C_1v80 at ORFS commit e5cc6e799f; ABC: strash; dc2; map -D T; topo; upsize -D T; dnsize -D T; stime
+# 40 MAC-engine designs from eda-harness; period None = unconstrained `map` as in eda-sky130rung
+
+generic (cells, cycles) front: p8w4, p4w4, p2w4, p1w4
+
+period  met  spearman(cells,area)  spearman(depth,delay)  area range um2      feasible (area,cycles) front
+  None   40                 0.995                  0.611     6507-  57264   p8w4, p4w4, p2w4, p1w4
+  3000    0                 0.996                  0.819     6686-  57914   none
+  4000    6                 0.996                  0.730     6177-  57914   p4w4, p2w4, p1w4
+  5000   15                 0.996                  0.638     6095-  53599   p8w4, p4w4, p2w4, p1w4
+  6000   25                 0.996                  0.718     6076-  53156   p8w4, p4w4, p2w4, p1w4
+  8000   39                 0.996                  0.341     6076-  52059   p8w4, p4w4, p2w4, p1w4
+ 10000   40                 0.996                  0.576     6076-  51931   p8w4, p4w4, p2w4, p1w4
+
+area-delay trade within a design: area at target period relative to unconstrained, and delay reached (ps), for the 4-bit lane sweep
+design           None          3000          4000          5000          6000          8000         10000
+p1w4     1.00/  4598   1.03/  3194   0.95/  3982   0.94/  4937   0.93/  5496   0.93/  5496   0.93/  5496
+p2w4     1.00/  5406   1.01/  3142   0.96/  3970   0.95/  4911   0.94/  5981   0.94/  5981   0.94/  5981
+p4w4     1.00/  5000   0.99/  3253   0.95/  3979   0.94/  4962   0.93/  5904   0.93/  6970   0.93/  6970
+p8w4     1.00/  7828   0.97/  3451   0.92/  4518   0.92/  4987   0.91/  5936   0.91/  7194   0.91/  8902
+
+best feasible design by area x latency (latency = cycles x T) at each target:
+  T=3000: none meets timing
+  T=4000: p4w4  area 12232 um2, 29 cycles, delay 3979 ps
+  T=5000: p4w4  area 12089 um2, 29 cycles, delay 4962 ps
+  T=6000: p4w4  area 12008 um2, 29 cycles, delay 5904 ps
+  T=8000: p4w4  area 11986 um2, 29 cycles, delay 6970 ps
+  T=10000: p4w4  area 11986 um2, 29 cycles, delay 6970 ps

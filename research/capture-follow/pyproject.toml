@@ -1,0 +1,13 @@
+[project]
+name = "capture-follow"
+version = "0.1.0"
+description = "Follow platforms for a travel creator in a crowd: wheeled robot, wheel-legs, drone and tripod compared on framing, pedestrian clearance, terrain and energy (2-D simulation)"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

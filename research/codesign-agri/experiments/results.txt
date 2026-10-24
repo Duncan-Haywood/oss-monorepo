@@ -1,0 +1,27 @@
+Best objective J after n simulator evaluations (budget 40); J = value of picked fruit (clean 1, bruised 0.2, missed or slipped 0) - 0.002 x cost, designs over the 60 USD cap score -1.
+Baselines: median [min, max] over 20 seeds. Session agent: one run of 4 rounds x 10.
+
+method | n=10 | n=20 | n=30 | n=40
+random search | 0.497 [0.241, 0.607] | 0.540 [0.454, 0.607] | 0.569 [0.454, 0.607] | 0.574 [0.454, 0.611]
+CMA-ES | 0.491 [-0.024, 0.612] | 0.576 [0.124, 0.612] | 0.598 [0.384, 0.636] | 0.611 [0.518, 0.636]
+Bayesian opt (GP-EI) | 0.521 [0.292, 0.602] | 0.620 [0.569, 0.635] | 0.632 [0.609, 0.636] | 0.635 [0.622, 0.638]
+session agent | 0.506 | 0.612 | 0.612 | 0.618
+
+At n=40, seeds that matched or beat the agent's best (J = 0.618):
+random search: 0 of 20
+CMA-ES: 3 of 20
+Bayesian opt (GP-EI): 20 of 20
+
+Evaluations to first reach J >= 0.60 (median over seeds that reach it; seeds that never do in brackets):
+random search: 23.0 (17 of 20 never)
+CMA-ES: 27.5 (6 of 20 never)
+Bayesian opt (GP-EI): 17.0 (0 of 20 never)
+session agent: 12
+
+Fraction of evaluations over the cost cap:
+random search: 0.001
+CMA-ES: 0.003
+Bayesian opt (GP-EI): 0.003
+session agent: 0.000
+
+Best design seen in any run: x = [25.0, 26.21, 0.19, 8.0, 3] (pad width mm, pad length mm, modulus MPa, grip N, fingers), J = 0.638, cost 53 USD, clean 0.74, bruised 0.00, slipped 0.06, missed 0.20

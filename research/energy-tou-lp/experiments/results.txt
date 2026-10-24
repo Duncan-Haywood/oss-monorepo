@@ -1,0 +1,38 @@
+Assumed inputs as energy-tou: 8,000 kWh/yr load, 6 kW PV, 90% round trip, C/2, export $0.05, 6% discount, 15 y life cap.
+Cycle life for the life-limited column: 4000 full cycles (assumed). Mean of 10 weather seeds. Perfect foresight inside each LP.
+
+A. Dispatch rule against optimiser, 10 kWh, TOU tariff, no wear charge in the optimiser
+controller breakeven breakeven_life_limited cycles_per_year annual_bill
+flat_greedy 444 444 208 924
+tou_greedy 553 553 208 796
+tou_best_rule 674 674 226 671
+tou_lp_36h_rolling 866 733 343 473
+tou_lp_year 867 742 338 472
+no_battery_bill_tou 1365
+
+B. Wear charge in the optimiser ($ per kWh the battery delivers), 10 kWh, TOU tariff, year LP
+wear breakeven breakeven_life_limited cycles_per_year annual_bill
+0.00 867 742 338 472
+0.02 867 742 338 472
+0.05 867 742 338 472
+0.10 827 785 290 513
+0.20 800 800 262 542
+
+C. By battery size (TOU tariff): best rule vs year LP, life-limited break-even $/kWh (LP at wear 0.00 / 0.05)
+batt_kwh best_rule lp_wear0 lp_wear005 flat_greedy
+2.5 822 855 855 554
+5 805 869 869 516
+10 674 742 742 444
+15 506 614 614 344
+20 397 467 467 269
+
+D. By peak price (off-peak 0.15, shoulder 0.28), 10 kWh: life-limited break-even $/kWh, best rule vs LP at wear 0.05
+peak_price best_rule lp
+0.28 358 412
+0.35 477 548
+0.45 674 742
+0.55 879 936
+0.70 1210 1227
+
+E. No PV (10 kWh, TOU): pure arbitrage, life-limited break-even $/kWh, best rule vs LP at wear 0.00 / 0.05 / 0.10
+best_rule 686 lp_wear0 660 lp_wear005 660 lp_wear010 660

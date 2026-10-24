@@ -2,8 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyRainouts, changeNotices, dayLabel, applyPinnedMatches, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
-  readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
-  scheduleText, teamMessages, officialMessages, leaguePageHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, seasonGrid, seasonGridCsv, standingsCsv, scheduleIcs,
+  scheduleText, teamMessages, officialMessages, leaguePageHtml, scoreSheetsHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
 } from "./calc.mjs";
 
@@ -41,6 +41,15 @@ test("weekdays and times parse in several spellings", () => {
 test("team lists trim, reject duplicates and need two teams", () => {
   assert.deepEqual(parseTeams("  A \n\nB  b\n").teams, ["A", "B b"]);
   assert.equal(parseTeams("A\na").errors.length >= 1, true);
+  // Pasted from elsewhere: one comma line, numbered list, spreadsheet columns, quotes.
+  assert.deepEqual(parseTeams("Hawks, Owls; Eagles,Lions").teams, ["Hawks", "Owls", "Eagles", "Lions"]);
+  assert.deepEqual(parseTeams("1. Hawks\n2) Owls\n3. Eagles").teams, ["Hawks", "Owls", "Eagles"]);
+  assert.deepEqual(parseTeams("- Hawks\n• Owls").teams, ["Hawks", "Owls"]);
+  assert.deepEqual(parseTeams("Hawks\tCoach A\nOwls\tCoach B").teams, ["Hawks", "Owls"]);
+  assert.deepEqual(parseTeams('"Hawks"\n“Owls”').teams, ["Hawks", "Owls"]);
+  // Commas on a multi-line list, and a numeral that is part of a name, are left alone.
+  assert.deepEqual(parseTeams("Smith, J. XI\nOwls").teams, ["Smith, J. XI", "Owls"]);
+  assert.deepEqual(parseTeams("1. FC Köln\nOwls").teams, ["1. FC Köln", "Owls"]);
   assert.equal(parseTeams("Only one").errors.length, 1);
 });
 
@@ -1932,4 +1941,63 @@ test("late joiner: a saved schedule without courtLimits still places the moved m
   delete s.config.courtLimits;
   const r = applyLateTeams(s, "2026-10-20 Team 6");
   assert.deepEqual(r.errors, []);
+});
+
+test("score sheets give every round its own page, escape names and stay self-contained", () => {
+  const { spec } = readSpec({ ...sampleFields(), teams: "Fish <b>&Chips\nOwls\nHawks\nWolves\nBears" });
+  const s = buildSchedule(spec);
+  const html = scoreSheetsHtml(s, { title: "Spring <League>" });
+  assert.ok(html.startsWith("<!doctype html>") && html.includes("Spring &lt;League&gt;"));
+  assert.ok(!html.includes("<b>&Chips") && html.includes("Fish &lt;b&gt;&amp;Chips"));
+  assert.equal((html.match(/class="sheet"/g) || []).length, s.rounds.length);
+  assert.equal((html.match(/class="f"/g) || []).length, s.rounds.reduce((n, r) => n + r.matches.length, 0));
+  assert.equal((html.match(/class="bye"/g) || []).length, s.rounds.filter((r) => r.bye !== null && r.bye !== undefined).length);
+  assert.ok(!/(src|href)=["']https?:/.test(html));
+});
+
+test("oneDayTimetable minRest: every pair meets once, no team twice in a slot, rest met when courts allow", () => {
+  for (const [n, courts, rest] of [[8, 2, 1], [10, 2, 1], [12, 3, 1], [6, 1, 1], [8, 1, 2], [9, 2, 1], [16, 4, 1]]) {
+    const tt = oneDayTimetable(names(n), { courts, minRest: rest });
+    const pairs = new Map();
+    for (const s of tt.slots) {
+      const seen = new Set();
+      assert.ok(s.matches.length <= courts);
+      for (const m of s.matches) {
+        assert.ok(!seen.has(m.home) && !seen.has(m.away), `team twice in slot, n=${n}`);
+        seen.add(m.home); seen.add(m.away);
+        const k = [m.home, m.away].sort().join("-");
+        pairs.set(k, (pairs.get(k) || 0) + 1);
+      }
+    }
+    assert.equal(pairs.size, n * (n - 1) / 2);
+    assert.ok([...pairs.values()].every((v) => v === 1));
+    assert.ok(tt.restSlots >= rest, `rest ${tt.restSlots} < ${rest} for n=${n}`);
+    const plain = oneDayTimetable(names(n), { courts });
+    assert.equal(tt.games, plain.games);
+  }
+  assert.ok(oneDayTimetable(names(8), { courts: 2, minRest: 1 }).restSlots >= 1);
+  assert.ok(oneDayTimetable(names(12), { courts: 3, minRest: 1 }).restSlots >= 1);
+  assert.equal(oneDayTimetable(names(5), { double: true, minRest: 1 }).games, 20);
+  assert.throws(() => oneDayTimetable(names(4), { minRest: 9 }), /Rest slots/);
+  assert.match(oneDayText(oneDayTimetable(names(8), { courts: 2, minRest: 1 })), /Every team rests at least 1 slot/);
+});
+
+test("season grid has one cell per team per round and agrees with the schedule", () => {
+  for (const n of [4, 5, 7]) {
+    const sched = buildSchedule(baseSpec(n, { double: true }));
+    const { header, rows } = seasonGrid(sched);
+    assert.equal(header.length, sched.rounds.length + 1);
+    assert.equal(rows.length, n);
+    sched.rounds.forEach((r, ri) => {
+      for (const m of r.matches) {
+        assert.equal(rows[m.home][ri + 1], `v ${m.awayName}`);
+        assert.equal(rows[m.away][ri + 1], `@ ${m.homeName}`);
+      }
+      if (r.bye !== null && r.bye !== undefined) assert.equal(rows[r.bye][ri + 1], "BYE");
+    });
+    // every team's non-blank cells equal its game count plus byes
+    rows.forEach((row, i) => assert.equal(row.slice(1).filter(Boolean).length, teamSchedule(sched, i).length));
+  }
+  const csv = seasonGridCsv(buildSchedule(baseSpec(4)));
+  assert.equal(csv.split("\r\n")[0].split(",")[0], "Team");
 });

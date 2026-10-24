@@ -1,0 +1,28 @@
+== A. Flat ADU charge against a house (inside Denver)
+2026-01-01: ADU $2,055; house on 2,000 sq ft $4,925; on 6,000 sq ft $8,365
+2026-07-01: ADU $2,170; house on 2,000 sq ft $5,400; on 6,000 sq ft $9,440
+== B. Charge by charged area, July 2026 step: area_sqft house_usd adu_usd
+500 3885 2170
+1000 4390 2170
+2000 5400 2170
+3000 6410 2170
+4000 7420 2170
+6000 9440 2170
+8000 11460 2170
+10000 13480 2170
+== C. Per floor sq ft: 480 sq ft ADU against 2,000 sq ft house (July 2026, inside Denver)
+ADU $4.52/sq ft; house (2,000 sq ft charged) $2.70/sq ft
+== D. Step increase of 1 July 2026 (inside Denver)
+ADU +5.6%; house on 2,000 sq ft +9.6%
+== E. Inside against outside Denver, July 2026
+ADU $2,170 vs $3,030; house on 2,000 sq ft $5,400 vs $7,580
+== F. House-market's $16,930 water and sewer SDC minus Denver Water's January-step charge on 2,000 sq ft
+Denver Water $4,925; remainder (sewer and other) $12,005
+== G. Charged area implied by the $10,450 single-family fee reported for Denver in 2026 (search excerpt, Colorado Sun)
+July 2026 schedule: $10,450 at 7,000 sq ft charged (a lot-sized area, not a floor area)
+== H. DOTI 2026 sewer permit fees (inside Denver, July 2026 water step)
+fees: application $425 + inspection $150 = $575; per-unit connection fee $6,480
+ADU sharing the house's water tap: SDC $2,170 + sewer permit $575 = $2,745
+ADU with its own tap (upper-bound reading): $9,225
+house on 2,000 sq ft charged: $12,455
+house-market's $16,930 less Denver Water Jan-step SDC less DOTI per-unit fee: $5,525 still unexplained

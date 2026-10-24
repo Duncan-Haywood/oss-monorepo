@@ -1,4 +1,4 @@
-# k8s-rollout-safety-check
+# Kubernetes Rollout Safety Check — Will Your Deployment Drop Requests?
 
 **Will this Kubernetes rollout drop live requests?**
 
@@ -12,7 +12,7 @@ This reads a Deployment manifest and reports every place Kubernetes is
 permitted to take a pod out of service before it has stopped receiving
 requests, or put one into service before it can answer them.
 
-- **Browser:** <https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/>
+- **Browser:** <https://duncan-haywood.github.io/oss-monorepo/k8s-rollout-safety-check/>
 - **CLI:** `node check.mjs` — Node 18+, no dependencies, no install.
 
 It reads YAML and nothing else. No kubeconfig, no API server, no network call

@@ -121,6 +121,11 @@ export const WRITING_DIR = 'writing';
 // The open book (`updates.mjs`): indexed pages about what the repository ships.
 export const UPDATES_DIR = 'updates';
 export const CHANGELOG_DIR = 'changelog';
+export const ASK_DIR = 'ask';
+// The lab (`lab.mjs`): `noindex` experiments in what the site can be.
+export const LAB_DIR = 'lab';
+// The fiction section (`stories.mjs`): an indexed page linking the story ventures.
+export const STORIES_DIR = 'stories';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
@@ -134,7 +139,15 @@ export const DEPLOY_DIR = 'deploy';
 // check on the same terms as the deploy page.
 export const DEV_DIR = 'dev';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR]);
+// The hub's stills and screen recording of real tools (showcase.mjs): media,
+// not a product, so it carries no index.html of its own.
+export const SHOWCASE_DIR = 'showcase';
+
+// The feedback page (`renderFeedbackPage` in build.mjs): a `noindex` page about
+// the site, linked from the footer, not a tool.
+export const FEEDBACK_DIR = 'feedback';
+
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, ASK_DIR, STORIES_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -498,10 +511,26 @@ export const SERVED_EXTENSIONS = new Map([
   ['.svg', 'stock'],
   ['.ico', 'stock'],
   ['.pdf', 'stock'],
+  ['.webp', 'stock'],
+  ['.mp4', 'stock'],
+  ['.webm', 'stock'],
+  // Podcast audio (hearth-and-horizon, podcast.mjs); nginx's mime.types maps mp3 to audio/mpeg.
+  ['.mp3', 'stock'],
+  // The research pages' self-hosted fonts; mime.types lists font/woff2 woff2.
+  ['.woff2', 'stock'],
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
+  ['.ofx', 'conf'],
+  ['.qif', 'conf'],
+  ['.mt940', 'conf'],
+  // ai-bookkeeper's spreadsheet fixtures; mime.types lists xls and xlsx (1.27.0) but not tsv.
+  ['.xls', 'stock'],
+  ['.xlsx', 'stock'],
+  ['.tsv', 'conf'],
   ['.py', 'conf'],
+  ['.gz', 'conf'],
+  ['.whl', 'conf'],
 ]);
 
 // Where the served config lives, relative to the repo root. The build pod
@@ -705,7 +734,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
-  for (const dir of [UPDATES_DIR, CHANGELOG_DIR]) {
+  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, STORIES_DIR]) {
     // Optional, like the writing pages: a fixture build may write neither.
     const relative = path.join(dir, 'index.html');
     const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
@@ -767,6 +796,25 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       if (hubHtml !== null && !/href="about\/"/.test(hubHtml)) {
         problems.push(`${ABOUT_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
       }
+    }
+  }
+
+  // The assistant's page and the files every page lazy-loads it from. A
+  // missing pf-assistant.js would leave a header link on every page that
+  // silently does nothing when clicked.
+  {
+    const relative = path.join(ASK_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) {
+      problems.push(`${ASK_DIR}/: did not ship, so the header's Ask link is a 404`);
+    } else {
+      if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      if (hubHtml !== null && !/href="ask\/"/.test(hubHtml)) {
+        problems.push(`${ASK_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+    }
+    for (const file of ['pf-assistant.js', 'pf-fill.js', 'pf-search.js', 'pf-ai-worker.js', 'pf-byok.js']) {
+      if (!(await exists(path.join(site, file)))) problems.push(`missing assistant file: ${file}`);
     }
   }
 
@@ -861,6 +909,9 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     // product claims.
     const listed = new Set(
       [...llms.matchAll(/\]\((?:[^)]*?)\/([^/)]+)\/([^/)]+)\/\)/g)]
+        // A research topic (`research/topics/<id>/`) is a page about research,
+        // not a product claim.
+        .filter((m) => !m[0].includes('/research/'))
         .filter((m) => !SITE_OWN_DIRS.has(m[1]))
         .map((m) => m[2]),
     );

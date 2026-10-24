@@ -1,0 +1,5 @@
+{
+ "theme": "hanger",
+ "title": "How many dryers can one laundry-hanging arm serve once the pick is simulated, not assumed?",
+ "summary": "Replacing the assumed 8 s, 0.85 pick of the hanger-cell discrete-event model with the hanger-pick pile model cuts a one-arm cell from 169 to 147 garments hung or folded per hour (5.1 to 4.4 dryers) with look-then-aim picking, and to 104 with blind pinching. With two arms the fold table is the limit and the policy matters little (206 assumed, 201 aiming, 179 pinching); quartering all pick times still leaves about 6.2 dryers. Aiming leaves 2.8 garments per 100 for a person, pinching 7.2. Stylised: every station time is an assumed placeholder."
+}

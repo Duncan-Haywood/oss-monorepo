@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 440" role="img" aria-label="30-year net-present-cost saving of the cost-optimal envelope over the baseline, house-energy's invented prices against EIA state prices: Miami gas furnace + AC: $2,173 against $2,163; Miami heat pump: $2,175 against $2,160; Houston gas furnace + AC: $2,133 against $2,171; Houston heat pump: $2,164 against $2,166; Atlanta gas furnace + AC: $2,137 against $2,379; Atlanta heat pump: $2,289 against $2,257; Chicago gas furnace + AC: $2,704 against $2,467; Chicago heat pump: $3,329 against $3,878; Minneapolis gas furnace + AC: $3,053 against $2,685; Minneapolis heat pump: $3,877 against $3,928; Duluth gas furnace + AC: $3,514 against $3,018; Duluth heat pump: $4,561 against $4,622">
+<rect width="720" height="440" fill="#fff"/>
+<text x="360.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Saving of the cost-optimal envelope over the baseline (USD, 30-year NPC)</text>
+<text x="360.0" y="40" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">grey = house-energy invented prices, blue = EIA state prices (2025 gas, Jan-Jul 2026 electricity)</text>
+<line x1="190.0" y1="58" x2="190.0" y2="400" stroke="#ddd"/>
+<text x="190.0" y="416" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<line x1="290.0" y1="58" x2="290.0" y2="400" stroke="#ddd"/>
+<text x="290.0" y="416" text-anchor="middle" font-family="sans-serif" font-size="11">1,000</text>
+<line x1="390.0" y1="58" x2="390.0" y2="400" stroke="#ddd"/>
+<text x="390.0" y="416" text-anchor="middle" font-family="sans-serif" font-size="11">2,000</text>
+<line x1="490.0" y1="58" x2="490.0" y2="400" stroke="#ddd"/>
+<text x="490.0" y="416" text-anchor="middle" font-family="sans-serif" font-size="11">3,000</text>
+<line x1="590.0" y1="58" x2="590.0" y2="400" stroke="#ddd"/>
+<text x="590.0" y="416" text-anchor="middle" font-family="sans-serif" font-size="11">4,000</text>
+<line x1="690.0" y1="58" x2="690.0" y2="400" stroke="#ddd"/>
+<text x="690.0" y="416" text-anchor="middle" font-family="sans-serif" font-size="11">5,000</text>
+<text x="182" y="80.08333333333333" text-anchor="end" font-family="sans-serif" font-size="11">Miami gas furnace + AC</text>
+<rect x="190.0" y="64.0" width="217.3" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="76.08333333333333" width="216.3" height="12.1" fill="#4878a8"/>
+<text x="182" y="108.25" text-anchor="end" font-family="sans-serif" font-size="11">Miami heat pump</text>
+<rect x="190.0" y="92.16666666666667" width="217.5" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="104.25" width="216.0" height="12.1" fill="#4878a8"/>
+<text x="182" y="136.41666666666669" text-anchor="end" font-family="sans-serif" font-size="11">Houston gas furnace + AC</text>
+<rect x="190.0" y="120.33333333333334" width="213.3" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="132.41666666666669" width="217.1" height="12.1" fill="#4878a8"/>
+<text x="182" y="164.58333333333334" text-anchor="end" font-family="sans-serif" font-size="11">Houston heat pump</text>
+<rect x="190.0" y="148.5" width="216.4" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="160.58333333333334" width="216.6" height="12.1" fill="#4878a8"/>
+<text x="182" y="192.75000000000003" text-anchor="end" font-family="sans-serif" font-size="11">Atlanta gas furnace + AC</text>
+<rect x="190.0" y="176.66666666666669" width="213.7" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="188.75000000000003" width="237.9" height="12.1" fill="#4878a8"/>
+<text x="182" y="220.91666666666669" text-anchor="end" font-family="sans-serif" font-size="11">Atlanta heat pump</text>
+<rect x="190.0" y="204.83333333333334" width="228.9" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="216.91666666666669" width="225.7" height="12.1" fill="#4878a8"/>
+<text x="182" y="249.08333333333334" text-anchor="end" font-family="sans-serif" font-size="11">Chicago gas furnace + AC</text>
+<rect x="190.0" y="233.0" width="270.4" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="245.08333333333334" width="246.7" height="12.1" fill="#4878a8"/>
+<text x="182" y="277.25" text-anchor="end" font-family="sans-serif" font-size="11">Chicago heat pump</text>
+<rect x="190.0" y="261.1666666666667" width="332.9" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="273.25" width="387.8" height="12.1" fill="#4878a8"/>
+<text x="182" y="305.4166666666667" text-anchor="end" font-family="sans-serif" font-size="11">Minneapolis gas furnace + AC</text>
+<rect x="190.0" y="289.33333333333337" width="305.3" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="301.4166666666667" width="268.5" height="12.1" fill="#4878a8"/>
+<text x="182" y="333.5833333333333" text-anchor="end" font-family="sans-serif" font-size="11">Minneapolis heat pump</text>
+<rect x="190.0" y="317.5" width="387.7" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="329.5833333333333" width="392.8" height="12.1" fill="#4878a8"/>
+<text x="182" y="361.75" text-anchor="end" font-family="sans-serif" font-size="11">Duluth gas furnace + AC</text>
+<rect x="190.0" y="345.6666666666667" width="351.4" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="357.75" width="301.8" height="12.1" fill="#4878a8"/>
+<text x="182" y="389.9166666666667" text-anchor="end" font-family="sans-serif" font-size="11">Duluth heat pump</text>
+<rect x="190.0" y="373.83333333333337" width="456.1" height="12.1" fill="#aaa"/>
+<rect x="190.0" y="385.9166666666667" width="462.2" height="12.1" fill="#4878a8"/>
+</svg>

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "monorepo-projects-tools": {
+      "command": "node",
+      "args": ["platform/agents/tools.mjs", "mcp"]
+    }
+  }
+}

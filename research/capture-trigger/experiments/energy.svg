@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: watt-hours used by continuous, sleep-and-trigger and standby-with-pre-roll recording as interesting moments per hour rise">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Energy of a 16 h day against event rate</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="260.8" y2="260.8" stroke="#ddd"/><text x="58" y="264.8" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="197.6" y2="197.6" stroke="#ddd"/><text x="58" y="201.6" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="134.4" y2="134.4" stroke="#ddd"/><text x="58" y="138.4" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">80</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="78.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="134.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="247.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">60</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">interesting moments per hour</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">energy over 16 h (Wh)</text>
+<polyline points="64.0,71.2 68.7,71.2 78.1,71.2 96.9,71.2 134.6,71.2 172.2,71.2 247.5,71.2 435.8,71.2 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="68.7" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="78.1" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="96.9" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="134.6" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="172.2" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="247.5" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="435.8" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">continuous</text>
+<polyline points="64.0,312.9 68.7,312.0 78.1,309.5 96.9,305.4 134.6,296.8 172.2,289.2 247.5,275.6 435.8,245.0 624.0,221.9" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="312.9" r="3" fill="#1f6fb2"/>
+<circle cx="68.7" cy="312.0" r="3" fill="#1f6fb2"/>
+<circle cx="78.1" cy="309.5" r="3" fill="#1f6fb2"/>
+<circle cx="96.9" cy="305.4" r="3" fill="#1f6fb2"/>
+<circle cx="134.6" cy="296.8" r="3" fill="#1f6fb2"/>
+<circle cx="172.2" cy="289.2" r="3" fill="#1f6fb2"/>
+<circle cx="247.5" cy="275.6" r="3" fill="#1f6fb2"/>
+<circle cx="435.8" cy="245.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="221.9" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">sleep + trigger</text>
+<polyline points="64.0,274.1 68.7,273.1 78.1,270.3 96.9,265.5 134.6,255.7 172.2,247.2 247.5,231.7 435.8,198.8 624.0,174.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="274.1" r="3" fill="#2e8b57"/>
+<circle cx="68.7" cy="273.1" r="3" fill="#2e8b57"/>
+<circle cx="78.1" cy="270.3" r="3" fill="#2e8b57"/>
+<circle cx="96.9" cy="265.5" r="3" fill="#2e8b57"/>
+<circle cx="134.6" cy="255.7" r="3" fill="#2e8b57"/>
+<circle cx="172.2" cy="247.2" r="3" fill="#2e8b57"/>
+<circle cx="247.5" cy="231.7" r="3" fill="#2e8b57"/>
+<circle cx="435.8" cy="198.8" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="174.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">standby + pre-roll</text>
+</svg>

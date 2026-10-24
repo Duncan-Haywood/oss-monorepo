@@ -17,9 +17,9 @@ test('every env var the deploy files set is one counter.mjs reads', () => {
   for (const v of set) assert.ok(used.has(v), `${v} is not read by counter.mjs`);
 });
 
-test('the image ships only counter.mjs and runs unprivileged on the served port', () => {
+test('the image ships counter.mjs with its core module and runs unprivileged on the served port', () => {
   const d = read('Dockerfile');
-  assert.match(d, /COPY counter\.mjs/);
+  assert.match(d, /COPY counter\.mjs core\.mjs/);
   assert.match(d, /USER node/);
   assert.match(d, /PORT=8787/);
   assert.ok(!/npm (i|install|ci)/.test(d), 'counter has no dependencies');

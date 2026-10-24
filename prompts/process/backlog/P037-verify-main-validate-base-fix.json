@@ -1,0 +1,27 @@
+{
+  "id": "P037",
+  "title": "Verify: Portfolio validate on main pushes is mostly green after the base-ref fix (#8765)",
+  "status": "done",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 1,
+  "problem": "Portfolio validate failed on 77 of 100 pushes to main because the venture-regression step compared each push with main's tip at run start (~10 merges later). #8765 changed the base to github.event.before. Nobody has yet checked that the fix worked on real runs.",
+  "evidence": [
+    "mcp actions_list portfolio-validate.yml branch=main event=push, 2026-10-19T21:35Z..2026-10-20T09:09Z: 77 failure / 23 success",
+    "run 39398672489: step 51 'Check no live venture disappears' failed; 04d30ea92 vs tip fa7238982 reports hearth-and-horizon, vs parent 251913f0e prints OK"
+  ],
+  "change": "After #8765 has been on main for a day: list the last 100 completed push runs of portfolio-validate.yml on main (GitHub MCP actions_list, method list_workflow_runs, resource_id portfolio-validate.yml, workflow_runs_filter {branch: main, event: push, status: completed}; the result is large, so parse the saved file with python). Count conclusions. For every remaining failure, open the job (list_workflow_jobs) and name the failing step. If it is still step 'Check no live venture disappears', reproduce with: git fetch origin <head_sha>^ ; python3 platform/ci/check_venture_regression.py --base <head_sha>^ --head <head_sha>. Write result: helped / no change / worse with the counts. A different failing step is a real finding: fix it or file it.",
+  "touches": [
+    ".github/workflows/portfolio-validate.yml",
+    "platform/ci/check_venture_regression.py"
+  ],
+  "metric": "share of the last 100 completed push runs of Portfolio validate on main that failed at 'Check no live venture disappears'",
+  "baseline": "77 of 100 failed, all at that step (2026-10-20)",
+  "opened": "2026-10-20",
+  "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
+  "pr": "this",
+  "result": "No change in the pass rate, but the failing step moved. Last 100 completed push runs of portfolio-validate.yml on main (2026-10-20T08:35Z..19:59Z, mcp actions_list): 54 success / 46 failure, vs 23/77 before. 0 of the 46 failed at 'Check no live venture disappears' (the metric, was 77): the base-ref fix worked. Sampled run 39488183297 failed at step 7 'Check the apex tool mirror is not stale' (2 of 275 tests: robots.txt/sitemap and catalog.json under gitops/prod/front-door are stale, 'run: node platform/marketing/regen.mjs'); reproduced on origin/main locally. Failures cluster 09-11h and 16:59h onward (every run 17h-19h failed): each new venture page makes the dead apex mirror stale, and the step takes ~4.5 min. Remedy is P039 (PR #8850: run the step only when the mirror or its generator changes); main stays red until that merges or the mirror is regenerated.",
+  "history": [
+    "2026-10-20: verified; see result."
+  ]
+}

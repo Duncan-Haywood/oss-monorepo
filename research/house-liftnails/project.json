@@ -1,0 +1,5 @@
+{
+ "theme": "house",
+ "title": "Do the nails carry a hung wall panel, and how few can act before they fail?",
+ "summary": "Follows the weight of a lifted <code>house-panellift</code> wall panel down its nail load path. The sheathing-to-top-plate 8d nails at 6 in carry 17&ndash;31 lb each, 0.20&ndash;0.36 of the 84 lb adjusted lateral value from the yield-limit equations, if they share the load; the closed panel reaches capacity when about 40% of the top row acts (open: about 25%). Field nails are at 0.04. A bare frame hung by its top plate hangs about 24 lb per stud from end-grain withdrawal, which the NDS gives no design value for, so it is credited zero. Stylised: nail inputs are assumed, load sharing is uniform, and slip and the lift hardware are not modelled."
+}

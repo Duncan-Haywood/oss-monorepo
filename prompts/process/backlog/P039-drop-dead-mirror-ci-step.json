@@ -1,0 +1,24 @@
+{
+  "id": "P039",
+  "title": "The dead apex-mirror staleness step takes 7.5 of Portfolio validate's 10 minutes",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "'Check the apex tool mirror is not stale' guards gitops/prod/front-door*, the mirror of the k3s origin retired 2026-10-01; it serves nothing (portfolio/hosting/README.md). It still runs on every PR and every push to main and is most of the job's time while runners are starved.",
+  "evidence": [
+    "run 39398672489 job 118547645051: step 7 ran 09:15:22-09:22:58 (7 min 36 s) of a 09:15:02-09:25:01 job"
+  ],
+  "change": "In .github/workflows/portfolio-validate.yml, run that step (and 'Check the apex tool mirror has room left' if it reads the same tree) only when the change touches gitops/prod/ or the mirror's generator: add an earlier step that sets an output from `git diff --name-only <base>...HEAD` (on push use github.event.before as in the venture-regression step), and gate with `if:`. Do not delete the generator. Check CLAUDE.md / verify-and-merge.md lines that name the step and keep them true.",
+  "touches": [
+    ".github/workflows/portfolio-validate.yml",
+    ".github/prompts/verify-and-merge.md"
+  ],
+  "metric": "Portfolio validate job duration on a PR that does not touch gitops/prod/",
+  "baseline": "~10 min, of which 7 min 36 s is this step (run 39398672489, 2026-10-20)",
+  "opened": "2026-10-20",
+  "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
+  "pr": "this PR (branch claude/upbeat-ptolemy-5h04nw)",
+  "result": "Helped (2026-10-21). mcp actions_list portfolio-validate.yml event=pull_request status=completed, newest 30: successful runs took 3m26s to 5m54s wall clock (created_at to updated_at; e.g. runs 39536544045 3m26s, 39536294766 5m54s, 39536222154 4m05s) against ~10 min at baseline. Wall clock includes queueing, so the step's own saving is at least that large. Side effect seen in the same runs: with the check gated, main's mirror can drift until a PR touching gitops/prod or portfolio-validate.yml trips it (PR with commit 'Regenerate the apex mirror (stale on main)').",
+  "history": []
+}

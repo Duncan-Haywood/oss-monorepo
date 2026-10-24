@@ -3,15 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{SLUG}} — Duncan Haywood research</title>
+<title>{{TITLE_TEXT}} | Open research</title>
 <meta name="description" content="{{DESC}}">
-<meta property="og:title" content="{{SLUG}}">
+<meta property="og:title" content="{{TITLE_TEXT}}">
 <meta property="og:description" content="{{DESC}}">
 <meta property="og:type" content="article">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
+{{FONTS}}<style>
 {{TOKENS}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
@@ -44,18 +41,48 @@ figcaption{font-size:13px;color:var(--muted);margin-top:.5rem}
 .log-entry li{margin:.25rem 0}
 .log-entry p{margin:.3rem 0}
 .note{font-size:14px;color:var(--muted);border-left:3px solid var(--border-strong);padding-left:1rem;margin-top:2.2rem}
+.pager{display:flex;justify-content:space-between;gap:1rem;margin:2.4rem 0 0;padding:1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-size:14px}
+.pager a{display:block;max-width:48%;color:var(--text)}
+.pager a small{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.pager .next{margin-left:auto;text-align:right}
+.more-list{list-style:none;padding:0;margin:0;display:grid;gap:.7rem}
+.more-list li{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:.7rem .9rem}
+.more-list a{font-weight:600;color:var(--text)}
+.more-list span{display:block;font-size:14px;color:var(--muted);margin-top:.2rem}
+.more-all{margin:.9rem 0 0;font-size:15px;font-weight:600}
+.topic-chips{display:flex;flex-wrap:wrap;gap:.45rem;margin:0}
+.topic-chips a{border:1px solid var(--border);border-radius:999px;padding:.25rem .75rem;font-size:13px;color:var(--text);background:var(--surface)}
+.topic-chips a[aria-current]{border-color:var(--c,var(--accent));font-weight:600}
+.topic-chips small{color:var(--muted);margin-left:.25rem}
 footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;font-size:13px;color:var(--faint)}
+/* The title block as a band tinted with the project's theme colour, full
+   width from inside the 820px column (pf-site.css clips the overflow). */
+.phead{position:relative;margin:0 calc(50% - 50vw) 8px;padding:6px calc(50vw - 50%) 4px;border-bottom:1px solid var(--border);
+  background:radial-gradient(640px 260px at 12% 0%,color-mix(in srgb,var(--c,var(--accent)) 13%,transparent),transparent 72%),
+             radial-gradient(560px 260px at 92% 10%,color-mix(in srgb,var(--accent) 9%,transparent),transparent 72%)}
+.phead .theme-tag{display:inline-flex;align-items:center;gap:.45rem}
+.phead .theme-tag::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--c,var(--accent))}
+.phead h1{text-wrap:balance}
+.phead .lede{text-wrap:pretty}
+.stats span{font:500 13px var(--mono)}
+.links a{transition:border-color .15s,transform .15s}
+.links a:hover{text-decoration:none;border-color:var(--text);transform:translateY(-1px)}
+.more-list li{transition:border-color .15s}
+.more-list li:hover{border-color:var(--c,var(--border-strong))}
+.topbar{border-bottom:0}
 {{THEME_VARS}}
 </style>
 </head>
 <body>
 <header class="topbar"><div class="wrap"><a href="../index.html">← All projects</a><a href="{{REPO_URL}}">GitHub</a></div></header>
 <main class="wrap t-{{THEME_ID}}">
-  <span class="theme-tag">{{THEME_NAME}}</span>
+  <header class="phead">
+  <a class="theme-tag" href="../topics/{{THEME_ID}}/">{{THEME_NAME}}</a>
   <h1>{{TITLE}}</h1>
   <p class="slug">research/{{SLUG}}</p>
   <p class="lede">{{LEDE}}</p>
   <div class="stats">{{STATS}}</div>
+  </header>
   <h2>What it found</h2>
   <p>{{SUMMARY}}</p>
 {{FIGURE}}
@@ -64,6 +91,14 @@ footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.5rem 0 3rem;
   <ul class="links">
 {{LINKS}}
   </ul>
+{{PAGER}}
+  <h2 id="more">More in {{THEME_NAME}}</h2>
+  <ul class="more-list">
+{{MORE}}
+  </ul>
+  <p class="more-all"><a href="../topics/{{THEME_ID}}/">All {{THEME_COUNT}} {{THEME_NAME}} projects →</a></p>
+  <h2>Other research topics</h2>
+  <p class="topic-chips">{{TOPICS}}</p>
   <p class="note">Produced with AI assistance (Claude). Results are from the code in this repository and are simulated or stylised unless the abstract says otherwise; nothing here implies affiliation with or endorsement by any lab, researcher or company cited. MIT licensed.</p>
 </main>
 <footer><div class="wrap">© Duncan Haywood · <a href="{{REPO_URL}}">github.com/{{REPO}}</a></div></footer>

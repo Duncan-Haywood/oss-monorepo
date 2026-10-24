@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Social Preview Checker — Open Graph, Twitter Card, LinkedIn link previews</title>
-<meta name="description" content="Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter's large-image card, and the twitter:image -> og:image fallback chain. Also check any image URL's real pixel dimensions right in this page. Nothing uploaded.">
+<meta name="description" content="Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter's large-image card, and the twitter:image -&gt; og:image fallback chain.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/social-preview-check/">
 <meta property="og:type" content="website">
@@ -100,6 +100,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Social Preview Checker</h1>
 <p>
   Fetches a page's Open Graph and Twitter Card meta tags plus the real pixel dimensions of its preview
@@ -336,6 +337,7 @@
     }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks a specific, documented set of Open Graph and
@@ -358,6 +360,7 @@
   <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
   — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and
   never changes what the tool does.</p>
+  <p>Planning what to post, not only how the link looks? <a href="../interview-content-studio/">Interview Content Studio</a> turns an interview about your brand or topic into a 4-week plan and drafts for every platform, in your browser.</p>
   <p>Also worth a pass on your page: <a href="../structured-data-drift-check/">structured data drift
   checker</a> covers whether your JSON-LD actually matches your visible text, a different metadata-accuracy
   question from a social preview. Podcaster? <a href="../podcast-feed-check/">Podcast Feed Validator</a>

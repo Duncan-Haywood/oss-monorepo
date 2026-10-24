@@ -59,6 +59,7 @@
     <p>Choose a <strong>text-based statement PDF</strong> (or paste the text). Every dated line is read into a row, then the result is <strong>proved against the statement</strong>: opening balance plus the transactions must equal the closing balance, and each row is checked against the running balance the bank printed. If it is off, you are told <strong>by how much and where</strong>, instead of finding out when the books do not reconcile. Download CSV for <strong>Xero</strong>, <strong>QuickBooks Online</strong> or a spreadsheet.</p>
     <p class="note">The PDF is read in this browser tab and never leaves your device: no upload, no account. No OCR, so scanned paper statements cannot be read. Independent of every bank and accounting vendor. The reader was tested on generated statements and on the synthetic examples below, not on a library of real bank PDFs, so every bank's layout is a guess until someone checks it: use the balance check, and report a statement it misreads.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your statement</h2>
@@ -132,7 +133,8 @@
     <p>Many statements print 01/05 with no year. The year is taken from the statement period line when there is one, or from the year you enter. Day-month versus month-day is detected from any date that can only be one way and otherwise you are warned and can choose.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, accounting, compliance, or financial advice, and it does not replace a qualified professional or your bank's own statement. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including comparing the rows and totals against your bank's statement before you book or reconcile anything, and a clean balance check is not a promise that every row was read correctly or that your software will import the file.</p>
     <p><strong>Not affiliated with any bank or software vendor.</strong> Xero, QuickBooks, Intuit and the names of banks are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any bank, Xero, Intuit or Adobe. The import layouts are read from memory of public help pages and may not match every version.</p>
     <p><strong>Financial data.</strong> Bank statements contain account numbers, balances and the names of the people and companies you deal with. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open bank data in a browser tool is a question for your own security policies.</p>

@@ -1,0 +1,76 @@
+{
+ "Qwen/Qwen2.5-0.5B-Instruct": {
+  "families": [
+   "abstracts",
+   "books",
+   "news",
+   "poetry",
+   "recipes",
+   "reddit",
+   "reviews",
+   "wiki"
+  ],
+  "mean_auroc_by_candidate": [
+   0.2775,
+   0.27652777777777776,
+   0.2890277777777778,
+   0.2956944444444444
+  ],
+  "pooled_auroc_by_candidate": [
+   0.3086979166666667,
+   0.3142013888888889,
+   0.32616319444444447,
+   0.3279861111111111
+  ],
+  "plain_by_family": {
+   "abstracts": 0.31333333333333335,
+   "books": 0.2922222222222222,
+   "news": 0.3088888888888889,
+   "poetry": 0.2411111111111111,
+   "recipes": 0.08777777777777777,
+   "reddit": 0.3322222222222222,
+   "reviews": 0.31444444444444447,
+   "wiki": 0.33
+  },
+  "best_candidate_mean": 0.2956944444444444,
+  "flipped_plain_mean": 0.7224999999999999,
+  "share_family_candidate_cells_below_half": 1.0
+ },
+ "Qwen/Qwen2.5-1.5B-Instruct": {
+  "families": [
+   "abstracts",
+   "books",
+   "news",
+   "poetry",
+   "recipes",
+   "reddit",
+   "reviews",
+   "wiki"
+  ],
+  "mean_auroc_by_candidate": [
+   0.32916666666666666,
+   0.30041666666666667,
+   0.3715277777777778,
+   0.3890277777777778
+  ],
+  "pooled_auroc_by_candidate": [
+   0.33425347222222224,
+   0.3225,
+   0.3707465277777778,
+   0.38571180555555556
+  ],
+  "plain_by_family": {
+   "abstracts": 0.29888888888888887,
+   "books": 0.14444444444444443,
+   "news": 0.5044444444444445,
+   "poetry": 0.15555555555555556,
+   "recipes": 0.35777777777777775,
+   "reddit": 0.40444444444444444,
+   "reviews": 0.41555555555555557,
+   "wiki": 0.3522222222222222
+  },
+  "best_candidate_mean": 0.3890277777777778,
+  "flipped_plain_mean": 0.6708333333333334,
+  "share_family_candidate_cells_below_half": 0.84375
+ }
+}

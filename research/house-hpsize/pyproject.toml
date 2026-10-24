@@ -1,0 +1,13 @@
+[project]
+name = "house-hpsize"
+version = "0.1.0"
+description = "Does a tighter envelope shrink the heat pump? Design heating load, equipment step and the downsizing credit for the 480 sq ft ADU"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-breakeven/src", "../house-open-design/src", "../house-plan/src", "../house-spans/src", "../house-framing/src", "../house-structure/src", "../house-energy/src", "../house-cost/src", "../house-truss/src"]

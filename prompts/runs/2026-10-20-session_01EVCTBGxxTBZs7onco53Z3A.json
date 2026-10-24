@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01EVCTBGxxTBZs7onco53Z3A",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Follow item A in docs/history/pages-build-perf-2026-10-20.md: make build.test.mjs reuse the shared buildSite result",
+  "input_sha256": "996bdceec98d5c9f90bf5484004216c786f3f0d728c780573a21bb54b2f84fe9",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-20T10:02:16Z",
+  "ended": "2026-10-20T10:21:55Z",
+  "wall_minutes": 20.12,
+  "tokens_in": 3022023,
+  "tokens_out": 12466,
+  "cost_usd": 1.3859,
+  "tool_calls": 35,
+  "task": "Item A of pages-build-perf-2026-10-20: share the full build across build.test.mjs",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8789",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Item A's instructions lived in docs/history/pages-build-perf-2026-10-20.md on open PR 8767, not on main; this branch merges 8767 in to update that doc."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "route drew track ventures; the user asked for platform test-performance work (item A), so the work followed the request. Track recorded as drawn."
+    }
+  ],
+  "goal": null,
+  "notes": "node --test --test-reporter=tap platform/pages/*.test.mjs, same 4-core container, Node v22.22.0. Before: wall 593.2s, 1162 tests, 1161 pass, 1 fail (custom-domain default-origin, from PR 8767's post). After: wall 417.7s, 1162/1162 pass. Per-test duration_ms before -> after: identical-build cache name 196,599 -> 103,176; worker change changes cache name 110,056 -> 26,734; no test payload published 102,301 -> 98,807 (first site() caller, pays the shared build); worker withdrawn (disableWorker, own build kept) 99,513 -> 105,308. Two fixture-dir buildSite calls (/compare/, /guides/) left as is (<1s). No assertion weakened; the identical-build test now also asserts distinct outDirs. After merging main (which was red), fixed in this PR: writing.mjs rebase() rewrites DEFAULT_BASE_URL links in posts to the build base (custom-domain.test.mjs; new test in writing.test.mjs); entities.mjs gains rho/lceil/rceil; changepoint-detector FAQ JSON-LD quotes match the page; platform/marketing/regen.mjs re-run (share card, sitemap, catalog). Final, merged tree: pages 1163/1163 in 422.8s; marketing 275/275; changepoint-detector 44/44; writing.test 9/9. Second merge of main (f56d696e1): PR 8767 and main's own fixes for all those failures had landed, so this branch took main's versions; final diff vs main is build.test.mjs, the history doc and this record. Final on merged tree: pages 1182/1182 in 412.7s; promptctl validate ok; check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "24b6ac77-4aac-5c6b-90ef-eb3e4ed56ee1",
+    "transcripts": 1,
+    "first": "2026-10-20T10:02:16Z",
+    "last": "2026-10-20T10:22:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 62,
+        "output": 12466,
+        "thinking": 2291,
+        "cache_read": 2953768,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68193,
+        "api_equivalent_usd": 1.3859,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 62,
+      "output": 12466,
+      "thinking": 2291,
+      "cache_read": 2953768,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68193,
+      "api_equivalent_usd": 1.3859,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 29,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.12,
+      "active_minutes": 20.12,
+      "model_minutes": 2.1,
+      "tool_minutes": 18.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "reading a 5,000-line test file, two 10-minute suite runs, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 108.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

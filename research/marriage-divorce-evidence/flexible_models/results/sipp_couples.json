@@ -1,0 +1,1638 @@
+{
+ "data": {
+  "rows": 33698,
+  "groups": 17621,
+  "events": 312.0,
+  "family": "binary",
+  "numeric": [
+   "wife_age",
+   "husband_age",
+   "marriage_years",
+   "wife_earnings",
+   "husband_earnings",
+   "household_income",
+   "household_net_worth",
+   "household_debt",
+   "household_unsecured_debt",
+   "children_under18_in_household",
+   "wife_months_employed",
+   "husband_months_employed",
+   "home_equity",
+   "bank_accounts",
+   "stocks_funds",
+   "retirement_accounts",
+   "business_equity"
+  ],
+  "categorical": [
+   "wife_times_married",
+   "husband_times_married",
+   "wife_education",
+   "husband_education",
+   "wife_race_ethnicity",
+   "same_race_ethnicity",
+   "wife_nativity",
+   "husband_nativity",
+   "home_owner",
+   "wife_occupation",
+   "husband_occupation",
+   "husband_race_ethnicity"
+  ],
+  "duration": null,
+  "baseline": "spline additive logistic, both spouses' demographics and education (train_prospective.py 'demographics')",
+  "lens_models": [
+   "lens_glm_demographics_wealth",
+   "baseline_all_inputs",
+   "lens_boosting"
+  ],
+  "notes": [
+   "household folds = train_prospective.py shuffle (seed 20261021)"
+  ],
+  "sample": 1.0,
+  "metric": "log-loss gain vs constant; AUC"
+ },
+ "main": {
+  "rows": [
+   {
+    "model": "baseline",
+    "heldout_gain": 5.770132,
+    "heldout_gain_ci": [
+     3.973755,
+     8.267598
+    ],
+    "diff_vs_baseline": 0.0,
+    "diff_vs_baseline_ci": [
+     0.0,
+     0.0
+    ],
+    "heldout_gain_by_repeat": [
+     5.770132
+    ],
+    "train_gain": 8.99735,
+    "train_minus_heldout": 3.227218,
+    "observed_expected": 1.011865,
+    "calibration_slope": 0.882455,
+    "calibration_intercept": -0.478787,
+    "top_decile_lift": 2.761163,
+    "top_bottom_ratio": 46.521797,
+    "decile_observed": [
+     0.00066,
+     0.003946,
+     0.005846,
+     0.00721,
+     0.00694,
+     0.012518,
+     0.011629,
+     0.016385,
+     0.015367,
+     0.030709
+    ],
+    "decile_predicted": [
+     0.000657,
+     0.002231,
+     0.00452,
+     0.006348,
+     0.007855,
+     0.009536,
+     0.011548,
+     0.014268,
+     0.018571,
+     0.034367
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.69468,
+     "ci": [
+      0.667244,
+      0.704843
+     ],
+     "diff_vs_baseline": 0.0,
+     "diff_ci": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "model": "lightgbm_tuned",
+    "heldout_gain": 4.924633,
+    "heldout_gain_ci": [
+     3.135567,
+     6.918703
+    ],
+    "diff_vs_baseline": -0.845499,
+    "diff_vs_baseline_ci": [
+     -3.222743,
+     0.439111
+    ],
+    "heldout_gain_by_repeat": [
+     4.924633
+    ],
+    "train_gain": 25.252428,
+    "train_minus_heldout": 20.327795,
+    "observed_expected": 1.048731,
+    "calibration_slope": 0.808646,
+    "calibration_intercept": -0.75701,
+    "top_decile_lift": 2.78592,
+    "top_bottom_ratio": 17.210073,
+    "decile_observed": [
+     0.0018,
+     0.002421,
+     0.003576,
+     0.005662,
+     0.012414,
+     0.009596,
+     0.011692,
+     0.01287,
+     0.020195,
+     0.030985
+    ],
+    "decile_predicted": [
+     0.001453,
+     0.002754,
+     0.003778,
+     0.004939,
+     0.006357,
+     0.008064,
+     0.01029,
+     0.013261,
+     0.018156,
+     0.036991
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.708296,
+     "ci": [
+      0.696823,
+      0.730475
+     ],
+     "diff_vs_baseline": 0.013616,
+     "diff_ci": [
+      0.004988,
+      0.051538
+     ]
+    }
+   },
+   {
+    "model": "hgb_tuned",
+    "heldout_gain": 3.781845,
+    "heldout_gain_ci": [
+     2.012392,
+     5.310891
+    ],
+    "diff_vs_baseline": -1.988287,
+    "diff_vs_baseline_ci": [
+     -3.830154,
+     -0.596803
+    ],
+    "heldout_gain_by_repeat": [
+     3.781845
+    ],
+    "train_gain": 22.069592,
+    "train_minus_heldout": 18.287747,
+    "observed_expected": 1.030664,
+    "calibration_slope": 0.858047,
+    "calibration_intercept": -0.578248,
+    "top_decile_lift": 2.602639,
+    "top_bottom_ratio": 11.793261,
+    "decile_observed": [
+     0.002454,
+     0.002752,
+     0.005694,
+     0.005712,
+     0.015116,
+     0.009432,
+     0.011215,
+     0.015029,
+     0.01486,
+     0.028946
+    ],
+    "decile_predicted": [
+     0.002665,
+     0.004199,
+     0.005025,
+     0.006537,
+     0.007841,
+     0.009215,
+     0.010948,
+     0.013174,
+     0.016353,
+     0.031947
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.677005,
+     "ci": [
+      0.660987,
+      0.695295
+     ],
+     "diff_vs_baseline": -0.017675,
+     "diff_ci": [
+      -0.024223,
+      0.013726
+     ]
+    }
+   },
+   {
+    "model": "random_forest_tuned",
+    "heldout_gain": 3.118273,
+    "heldout_gain_ci": [
+     0.915308,
+     5.819279
+    ],
+    "diff_vs_baseline": -2.651859,
+    "diff_vs_baseline_ci": [
+     -5.709956,
+     -0.827827
+    ],
+    "heldout_gain_by_repeat": [
+     3.118273
+    ],
+    "train_gain": 19.51703,
+    "train_minus_heldout": 16.398758,
+    "observed_expected": 0.982435,
+    "calibration_slope": 0.63767,
+    "calibration_intercept": -1.538415,
+    "top_decile_lift": 2.885122,
+    "top_bottom_ratio": 17.698004,
+    "decile_observed": [
+     0.001813,
+     0.005721,
+     0.006688,
+     0.007536,
+     0.007396,
+     0.010168,
+     0.011858,
+     0.014756,
+     0.013187,
+     0.032088
+    ],
+    "decile_predicted": [
+     0.000448,
+     0.001978,
+     0.003664,
+     0.005462,
+     0.007441,
+     0.009761,
+     0.012499,
+     0.015984,
+     0.021414,
+     0.034549
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.674385,
+     "ci": [
+      0.666134,
+      0.701758
+     ],
+     "diff_vs_baseline": -0.020295,
+     "diff_ci": [
+      -0.030394,
+      0.021305
+     ]
+    }
+   },
+   {
+    "model": "extra_trees_tuned",
+    "heldout_gain": 3.74273,
+    "heldout_gain_ci": [
+     1.725178,
+     6.533004
+    ],
+    "diff_vs_baseline": -2.027402,
+    "diff_vs_baseline_ci": [
+     -4.078307,
+     -0.270705
+    ],
+    "heldout_gain_by_repeat": [
+     3.74273
+    ],
+    "train_gain": 22.978476,
+    "train_minus_heldout": 19.235746,
+    "observed_expected": 0.997699,
+    "calibration_slope": 0.66212,
+    "calibration_intercept": -1.412226,
+    "top_decile_lift": 2.676083,
+    "top_bottom_ratio": 30.607885,
+    "decile_observed": [
+     0.000972,
+     0.003694,
+     0.006278,
+     0.009608,
+     0.010495,
+     0.013895,
+     0.010362,
+     0.008716,
+     0.017427,
+     0.029763
+    ],
+    "decile_predicted": [
+     0.000291,
+     0.001809,
+     0.003557,
+     0.005264,
+     0.007147,
+     0.009203,
+     0.01161,
+     0.014903,
+     0.020146,
+     0.037536
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.673191,
+     "ci": [
+      0.653742,
+      0.694218
+     ],
+     "diff_vs_baseline": -0.021489,
+     "diff_ci": [
+      -0.04521,
+      0.008125
+     ]
+    }
+   },
+   {
+    "model": "enet_spline_pairwise",
+    "heldout_gain": 4.705942,
+    "heldout_gain_ci": [
+     3.458297,
+     6.061227
+    ],
+    "diff_vs_baseline": -1.06419,
+    "diff_vs_baseline_ci": [
+     -2.94191,
+     0.045515
+    ],
+    "heldout_gain_by_repeat": [
+     4.705942
+    ],
+    "train_gain": 8.890706,
+    "train_minus_heldout": 4.184763,
+    "observed_expected": 1.00965,
+    "calibration_slope": 0.958477,
+    "calibration_intercept": -0.166584,
+    "top_decile_lift": 2.515411,
+    "top_bottom_ratio": 36.011314,
+    "decile_observed": [
+     0.000777,
+     0.002531,
+     0.004577,
+     0.00991,
+     0.008392,
+     0.011858,
+     0.011395,
+     0.013807,
+     0.019983,
+     0.027976
+    ],
+    "decile_predicted": [
+     0.002016,
+     0.003896,
+     0.005405,
+     0.006688,
+     0.008027,
+     0.009532,
+     0.011433,
+     0.013893,
+     0.017879,
+     0.031372
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.696706,
+     "ci": [
+      0.684583,
+      0.71305
+     ],
+     "diff_vs_baseline": 0.002026,
+     "diff_ci": [
+      -0.008049,
+      0.019645
+     ]
+    }
+   },
+   {
+    "model": "ebm",
+    "heldout_gain": 6.777887,
+    "heldout_gain_ci": [
+     5.045402,
+     9.515943
+    ],
+    "diff_vs_baseline": 1.007755,
+    "diff_vs_baseline_ci": [
+     -0.520234,
+     2.954003
+    ],
+    "heldout_gain_by_repeat": [
+     6.777887
+    ],
+    "train_gain": 14.077685,
+    "train_minus_heldout": 7.299798,
+    "observed_expected": 1.005757,
+    "calibration_slope": 0.955916,
+    "calibration_intercept": -0.177064,
+    "top_decile_lift": 3.290658,
+    "top_bottom_ratio": 35.358445,
+    "decile_observed": [
+     0.001035,
+     0.003478,
+     0.003916,
+     0.011072,
+     0.005473,
+     0.008579,
+     0.00983,
+     0.016775,
+     0.014434,
+     0.036598
+    ],
+    "decile_predicted": [
+     0.00107,
+     0.002542,
+     0.004097,
+     0.005715,
+     0.007437,
+     0.009321,
+     0.011609,
+     0.014521,
+     0.019055,
+     0.035192
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.709776,
+     "ci": [
+      0.687923,
+      0.732802
+     ],
+     "diff_vs_baseline": 0.015096,
+     "diff_ci": [
+      0.012273,
+      0.043955
+     ]
+    }
+   },
+   {
+    "model": "stack_glm_lgbm",
+    "heldout_gain": 6.253224,
+    "heldout_gain_ci": [
+     4.721033,
+     7.924222
+    ],
+    "diff_vs_baseline": 0.483092,
+    "diff_vs_baseline_ci": [
+     -1.215066,
+     1.290819
+    ],
+    "heldout_gain_by_repeat": [
+     6.253224
+    ],
+    "train_gain": 18.394287,
+    "train_minus_heldout": 12.141063,
+    "observed_expected": 1.076359,
+    "calibration_slope": 1.014107,
+    "calibration_intercept": 0.134931,
+    "top_decile_lift": 3.204472,
+    "top_bottom_ratio": 85.262041,
+    "decile_observed": [
+     0.000418,
+     0.003403,
+     0.004785,
+     0.004534,
+     0.012681,
+     0.009215,
+     0.012658,
+     0.014376,
+     0.013499,
+     0.03564
+    ],
+    "decile_predicted": [
+     0.001375,
+     0.002916,
+     0.00436,
+     0.005726,
+     0.007145,
+     0.008741,
+     0.010721,
+     0.013349,
+     0.017393,
+     0.031596
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.713197,
+     "ci": [
+      0.693549,
+      0.730086
+     ],
+     "diff_vs_baseline": 0.018517,
+     "diff_ci": [
+      0.015957,
+      0.047225
+     ]
+    }
+   },
+   {
+    "model": "lens_glm_demographics_wealth",
+    "heldout_gain": 5.025451,
+    "heldout_gain_ci": [
+     3.538414,
+     6.455175
+    ],
+    "diff_vs_baseline": -0.744681,
+    "diff_vs_baseline_ci": [
+     -2.602403,
+     0.300142
+    ],
+    "heldout_gain_by_repeat": [
+     5.025451
+    ],
+    "train_gain": 7.492914,
+    "train_minus_heldout": 2.467463,
+    "observed_expected": 1.002758,
+    "calibration_slope": 1.065279,
+    "calibration_intercept": 0.279849,
+    "top_decile_lift": 2.525803,
+    "top_bottom_ratio": 18.864811,
+    "decile_observed": [
+     0.001489,
+     0.002139,
+     0.006636,
+     0.007568,
+     0.006606,
+     0.010906,
+     0.013822,
+     0.015001,
+     0.01895,
+     0.028092
+    ],
+    "decile_predicted": [
+     0.001675,
+     0.003373,
+     0.005276,
+     0.00709,
+     0.008811,
+     0.010595,
+     0.012591,
+     0.014976,
+     0.018486,
+     0.028026
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.695053,
+     "ci": [
+      0.683685,
+      0.715307
+     ],
+     "diff_vs_baseline": 0.000373,
+     "diff_ci": [
+      -0.007865,
+      0.01978
+     ]
+    }
+   },
+   {
+    "model": "baseline_all_inputs",
+    "heldout_gain": 4.655293,
+    "heldout_gain_ci": [
+     3.203776,
+     5.971294
+    ],
+    "diff_vs_baseline": -1.114838,
+    "diff_vs_baseline_ci": [
+     -3.241723,
+     0.076372
+    ],
+    "heldout_gain_by_repeat": [
+     4.655293
+    ],
+    "train_gain": 7.771436,
+    "train_minus_heldout": 3.116142,
+    "observed_expected": 1.005676,
+    "calibration_slope": 1.026773,
+    "calibration_intercept": 0.119795,
+    "top_decile_lift": 2.444841,
+    "top_bottom_ratio": 54.735658,
+    "decile_observed": [
+     0.000497,
+     0.004175,
+     0.004549,
+     0.006154,
+     0.009639,
+     0.009933,
+     0.018887,
+     0.010647,
+     0.019541,
+     0.027191
+    ],
+    "decile_predicted": [
+     0.001692,
+     0.003502,
+     0.005265,
+     0.007074,
+     0.00886,
+     0.010734,
+     0.012738,
+     0.014921,
+     0.018156,
+     0.027642
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.690124,
+     "ci": [
+      0.676525,
+      0.715772
+     ],
+     "diff_vs_baseline": -0.004556,
+     "diff_ci": [
+      -0.009427,
+      0.01952
+     ]
+    }
+   },
+   {
+    "model": "lens_boosting",
+    "heldout_gain": 4.344331,
+    "heldout_gain_ci": [
+     3.053393,
+     5.453628
+    ],
+    "diff_vs_baseline": -1.425801,
+    "diff_vs_baseline_ci": [
+     -3.175667,
+     -0.289461
+    ],
+    "heldout_gain_by_repeat": [
+     4.344331
+    ],
+    "train_gain": 9.935752,
+    "train_minus_heldout": 5.591421,
+    "observed_expected": 1.00837,
+    "calibration_slope": 1.015798,
+    "calibration_intercept": 0.07604,
+    "top_decile_lift": 2.347399,
+    "top_bottom_ratio": 43.339111,
+    "decile_observed": [
+     0.000602,
+     0.002581,
+     0.006568,
+     0.008474,
+     0.012919,
+     0.00707,
+     0.01317,
+     0.012205,
+     0.021509,
+     0.026107
+    ],
+    "decile_predicted": [
+     0.001989,
+     0.003149,
+     0.005497,
+     0.007557,
+     0.00914,
+     0.010715,
+     0.012493,
+     0.014709,
+     0.017908,
+     0.027127
+    ],
+    "discrimination": {
+     "metric": "AUC (rows)",
+     "value": 0.6808,
+     "ci": [
+      0.679456,
+      0.69626
+     ],
+     "diff_vs_baseline": -0.013881,
+     "diff_ci": [
+      -0.015615,
+      0.02026
+     ]
+    }
+   }
+  ],
+  "info": [
+   {
+    "repeat": 0,
+    "fold": 0,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 8,
+      "min_child_frac": 0.0005,
+      "lambda_l2": 10.0,
+      "feature_fraction": 0.8,
+      "max_depth": 6
+     },
+     "rounds": 212,
+     "ranking": [
+      "marriage_years",
+      "bank_accounts",
+      "wife_age",
+      "household_debt",
+      "retirement_accounts",
+      "household_unsecured_debt",
+      "household_net_worth",
+      "wife_earnings",
+      "husband_earnings",
+      "household_income",
+      "husband_age",
+      "home_equity",
+      "wife_times_married",
+      "wife_education",
+      "husband_education",
+      "husband_times_married",
+      "husband_occupation",
+      "business_equity",
+      "stocks_funds",
+      "husband_race_ethnicity",
+      "wife_occupation",
+      "same_race_ethnicity",
+      "husband_months_employed",
+      "wife_nativity",
+      "children_under18_in_household",
+      "wife_months_employed",
+      "husband_nativity",
+      "wife_race_ethnicity",
+      "home_owner"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 0.0
+     },
+     "iters": 64
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.000968,
+     "terms": 128,
+     "nonzero": 60,
+     "pairs_among": [
+      "marriage_years",
+      "bank_accounts",
+      "wife_age",
+      "household_debt",
+      "retirement_accounts",
+      "household_unsecured_debt"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.7
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 1,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 8,
+      "min_child_frac": 0.03,
+      "lambda_l2": 0.0,
+      "feature_fraction": 0.8,
+      "max_depth": -1
+     },
+     "rounds": 19,
+     "ranking": [
+      "marriage_years",
+      "retirement_accounts",
+      "home_equity",
+      "wife_age",
+      "wife_times_married",
+      "bank_accounts",
+      "husband_age",
+      "household_unsecured_debt",
+      "household_debt",
+      "household_net_worth",
+      "household_income",
+      "stocks_funds",
+      "same_race_ethnicity",
+      "wife_earnings",
+      "husband_times_married",
+      "home_owner",
+      "husband_months_employed",
+      "husband_nativity",
+      "wife_months_employed",
+      "wife_race_ethnicity",
+      "husband_education",
+      "business_equity",
+      "wife_nativity",
+      "wife_education",
+      "wife_occupation",
+      "husband_earnings",
+      "children_under18_in_household",
+      "husband_occupation",
+      "husband_race_ethnicity"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 0.0
+     },
+     "iters": 64
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.001843,
+     "terms": 133,
+     "nonzero": 33,
+     "pairs_among": [
+      "marriage_years",
+      "retirement_accounts",
+      "home_equity",
+      "wife_age",
+      "wife_times_married",
+      "bank_accounts"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.1
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 2,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 8,
+      "min_child_frac": 0.03,
+      "lambda_l2": 0.0,
+      "feature_fraction": 0.5,
+      "max_depth": -1
+     },
+     "rounds": 29,
+     "ranking": [
+      "marriage_years",
+      "wife_earnings",
+      "bank_accounts",
+      "retirement_accounts",
+      "household_net_worth",
+      "home_equity",
+      "household_unsecured_debt",
+      "wife_age",
+      "husband_earnings",
+      "household_debt",
+      "household_income",
+      "husband_age",
+      "same_race_ethnicity",
+      "wife_occupation",
+      "wife_times_married",
+      "husband_times_married",
+      "wife_nativity",
+      "husband_education",
+      "wife_months_employed",
+      "wife_education",
+      "children_under18_in_household",
+      "husband_nativity",
+      "business_equity",
+      "stocks_funds",
+      "husband_race_ethnicity",
+      "wife_race_ethnicity",
+      "home_owner",
+      "husband_months_employed",
+      "husband_occupation"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 1.0
+     },
+     "iters": 14
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.001712,
+     "terms": 128,
+     "nonzero": 37,
+     "pairs_among": [
+      "marriage_years",
+      "wife_earnings",
+      "bank_accounts",
+      "retirement_accounts",
+      "household_net_worth",
+      "home_equity"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.3
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 3,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 8,
+      "min_child_frac": 0.002,
+      "lambda_l2": 10.0,
+      "feature_fraction": 1.0,
+      "max_depth": 6
+     },
+     "rounds": 148,
+     "ranking": [
+      "marriage_years",
+      "bank_accounts",
+      "retirement_accounts",
+      "wife_earnings",
+      "wife_age",
+      "household_unsecured_debt",
+      "household_net_worth",
+      "home_equity",
+      "household_debt",
+      "household_income",
+      "husband_age",
+      "husband_earnings",
+      "husband_education",
+      "wife_occupation",
+      "same_race_ethnicity",
+      "wife_times_married",
+      "wife_education",
+      "stocks_funds",
+      "business_equity",
+      "husband_times_married",
+      "husband_race_ethnicity",
+      "husband_occupation",
+      "wife_nativity",
+      "wife_months_employed",
+      "husband_nativity",
+      "children_under18_in_household",
+      "wife_race_ethnicity",
+      "husband_months_employed",
+      "home_owner"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 31,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 1.0
+     },
+     "iters": 14
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.001853,
+     "terms": 128,
+     "nonzero": 47,
+     "pairs_among": [
+      "marriage_years",
+      "bank_accounts",
+      "retirement_accounts",
+      "wife_earnings",
+      "wife_age",
+      "household_unsecured_debt"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.5
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 4,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 31,
+      "min_child_frac": 0.0005,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.8,
+      "max_depth": 3
+     },
+     "rounds": 28,
+     "ranking": [
+      "household_debt",
+      "retirement_accounts",
+      "marriage_years",
+      "wife_age",
+      "household_unsecured_debt",
+      "husband_age",
+      "husband_education",
+      "bank_accounts",
+      "husband_earnings",
+      "household_net_worth",
+      "home_equity",
+      "stocks_funds",
+      "household_income",
+      "wife_times_married",
+      "husband_times_married",
+      "husband_race_ethnicity",
+      "wife_race_ethnicity",
+      "wife_occupation",
+      "wife_earnings",
+      "business_equity",
+      "husband_nativity",
+      "children_under18_in_household",
+      "same_race_ethnicity",
+      "wife_months_employed",
+      "wife_nativity",
+      "wife_education",
+      "husband_occupation",
+      "home_owner",
+      "husband_months_employed"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 0.0
+     },
+     "iters": 51
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.6
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.002464,
+     "terms": 128,
+     "nonzero": 28,
+     "pairs_among": [
+      "household_debt",
+      "retirement_accounts",
+      "marriage_years",
+      "wife_age",
+      "household_unsecured_debt",
+      "husband_age"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   }
+  ],
+  "times": [
+   {
+    "repeat": 0,
+    "fold": 0,
+    "baseline": 4.131393,
+    "lightgbm_tuned": 9.108217,
+    "hgb_tuned": 1.96685,
+    "random_forest_tuned": 9.910156,
+    "extra_trees_tuned": 7.92816,
+    "enet_spline_pairwise": 2.676194,
+    "ebm": 5.663429,
+    "stack_glm_lgbm": 3.013892,
+    "lens_glm_demographics_wealth": 6.145113,
+    "baseline_all_inputs": 9.310465,
+    "lens_boosting": 1.101779
+   },
+   {
+    "repeat": 0,
+    "fold": 1,
+    "baseline": 3.896809,
+    "lightgbm_tuned": 1.424152,
+    "hgb_tuned": 1.456239,
+    "random_forest_tuned": 13.668989,
+    "extra_trees_tuned": 11.490061,
+    "enet_spline_pairwise": 4.725562,
+    "ebm": 3.322273,
+    "stack_glm_lgbm": 3.110031,
+    "lens_glm_demographics_wealth": 6.28536,
+    "baseline_all_inputs": 9.850414,
+    "lens_boosting": 3.342839
+   },
+   {
+    "repeat": 0,
+    "fold": 2,
+    "baseline": 3.935323,
+    "lightgbm_tuned": 43.566991,
+    "hgb_tuned": 1.183132,
+    "random_forest_tuned": 9.057941,
+    "extra_trees_tuned": 7.177094,
+    "enet_spline_pairwise": 2.555234,
+    "ebm": 3.341709,
+    "stack_glm_lgbm": 2.845728,
+    "lens_glm_demographics_wealth": 6.256873,
+    "baseline_all_inputs": 8.741711,
+    "lens_boosting": 1.189555
+   },
+   {
+    "repeat": 0,
+    "fold": 3,
+    "baseline": 3.900282,
+    "lightgbm_tuned": 3.273713,
+    "hgb_tuned": 2.137493,
+    "random_forest_tuned": 10.557595,
+    "extra_trees_tuned": 8.521814,
+    "enet_spline_pairwise": 3.01966,
+    "ebm": 4.46378,
+    "stack_glm_lgbm": 3.702141,
+    "lens_glm_demographics_wealth": 7.064968,
+    "baseline_all_inputs": 9.65222,
+    "lens_boosting": 0.957669
+   },
+   {
+    "repeat": 0,
+    "fold": 4,
+    "baseline": 3.945909,
+    "lightgbm_tuned": 2.415466,
+    "hgb_tuned": 1.682699,
+    "random_forest_tuned": 9.680744,
+    "extra_trees_tuned": 7.618932,
+    "enet_spline_pairwise": 1.969247,
+    "ebm": 3.289038,
+    "stack_glm_lgbm": 3.135984,
+    "lens_glm_demographics_wealth": 6.369622,
+    "baseline_all_inputs": 8.919899,
+    "lens_boosting": 0.94321
+   }
+  ],
+  "repeats": 1,
+  "minutes": 5.432781,
+  "permutation_importance_fold0": {
+   "lightgbm_tuned": {
+    "retirement_accounts": 4.932859,
+    "marriage_years": 2.565054,
+    "wife_times_married": 1.105478,
+    "household_net_worth": 0.958867,
+    "home_equity": 0.742423,
+    "wife_occupation": 0.623414,
+    "wife_age": 0.571076,
+    "husband_race_ethnicity": 0.544961,
+    "wife_nativity": 0.450647,
+    "children_under18_in_household": 0.437151,
+    "husband_months_employed": 0.384611,
+    "husband_nativity": 0.35791,
+    "wife_earnings": 0.334145,
+    "wife_race_ethnicity": 0.327798,
+    "stocks_funds": 0.166578,
+    "household_income": 0.140565,
+    "bank_accounts": 0.128542,
+    "husband_occupation": 0.092117,
+    "household_debt": 0.071991,
+    "wife_months_employed": 0.048181,
+    "business_equity": -0.081335,
+    "home_owner": -0.109856,
+    "husband_age": -0.218018,
+    "husband_times_married": -0.295096,
+    "husband_education": -0.335211,
+    "husband_earnings": -0.636813,
+    "same_race_ethnicity": -0.787697,
+    "wife_education": -1.640549,
+    "household_unsecured_debt": -2.378164
+   },
+   "baseline": {
+    "wife_age": 4.955341,
+    "marriage_years": 4.588779,
+    "wife_nativity": 1.460963,
+    "husband_education": 0.725036,
+    "wife_times_married": 0.673562,
+    "husband_times_married": 0.548148,
+    "husband_age": 0.412688,
+    "same_race_ethnicity": 0.158861,
+    "wife_earnings": 0.0,
+    "husband_earnings": 0.0,
+    "household_income": 0.0,
+    "household_net_worth": 0.0,
+    "household_debt": 0.0,
+    "household_unsecured_debt": 0.0,
+    "children_under18_in_household": 0.0,
+    "wife_months_employed": 0.0,
+    "husband_months_employed": 0.0,
+    "home_equity": 0.0,
+    "bank_accounts": 0.0,
+    "stocks_funds": 0.0,
+    "retirement_accounts": 0.0,
+    "business_equity": 0.0,
+    "home_owner": 0.0,
+    "wife_occupation": 0.0,
+    "husband_occupation": 0.0,
+    "husband_race_ethnicity": 0.0,
+    "husband_nativity": -0.058441,
+    "wife_race_ethnicity": -0.658777,
+    "wife_education": -1.223821
+   }
+  },
+  "lightgbm_mean_abs_shap_fold0": {
+   "marriage_years": 0.436743,
+   "retirement_accounts": 0.331061,
+   "wife_age": 0.283503,
+   "wife_earnings": 0.178238,
+   "household_unsecured_debt": 0.158612,
+   "stocks_funds": 0.155977,
+   "household_debt": 0.145943,
+   "household_income": 0.140121,
+   "home_equity": 0.124961,
+   "bank_accounts": 0.124755,
+   "household_net_worth": 0.113715,
+   "wife_times_married": 0.108446,
+   "husband_months_employed": 0.107851,
+   "husband_education": 0.100092,
+   "husband_earnings": 0.096641,
+   "husband_age": 0.090732,
+   "husband_times_married": 0.086422,
+   "wife_months_employed": 0.082669,
+   "wife_education": 0.080753,
+   "husband_race_ethnicity": 0.070773,
+   "husband_nativity": 0.063912,
+   "wife_nativity": 0.063432,
+   "wife_occupation": 0.06178,
+   "children_under18_in_household": 0.059106,
+   "husband_occupation": 0.04312,
+   "business_equity": 0.035258,
+   "wife_race_ethnicity": 0.033913,
+   "same_race_ethnicity": 0.032528,
+   "home_owner": 0.007986
+  },
+  "ebm_terms_fold0": [
+   [
+    "retirement_accounts",
+    0.117428
+   ],
+   [
+    "husband_times_married",
+    0.11087
+   ],
+   [
+    "marriage_years",
+    0.107335
+   ],
+   [
+    "wife_months_employed",
+    0.100367
+   ],
+   [
+    "household_unsecured_debt",
+    0.094307
+   ],
+   [
+    "wife_times_married",
+    0.092485
+   ],
+   [
+    "home_owner",
+    0.089671
+   ],
+   [
+    "same_race_ethnicity",
+    0.086863
+   ],
+   [
+    "household_net_worth",
+    0.077354
+   ],
+   [
+    "wife_age",
+    0.070924
+   ],
+   [
+    "wife_nativity",
+    0.065311
+   ],
+   [
+    "stocks_funds",
+    0.063219
+   ],
+   [
+    "home_equity",
+    0.061296
+   ],
+   [
+    "husband_education",
+    0.060492
+   ],
+   [
+    "husband_race_ethnicity",
+    0.05643
+   ],
+   [
+    "husband_age",
+    0.040757
+   ],
+   [
+    "husband_months_employed",
+    0.040312
+   ],
+   [
+    "bank_accounts",
+    0.03741
+   ],
+   [
+    "husband_nativity",
+    0.03687
+   ],
+   [
+    "wife_earnings",
+    0.036773
+   ],
+   [
+    "household_debt",
+    0.034397
+   ],
+   [
+    "wife_race_ethnicity",
+    0.033806
+   ],
+   [
+    "business_equity",
+    0.033527
+   ],
+   [
+    "wife_occupation",
+    0.026239
+   ],
+   [
+    "children_under18_in_household",
+    0.025287
+   ],
+   [
+    "wife_education",
+    0.017562
+   ],
+   [
+    "husband_earnings",
+    0.017068
+   ],
+   [
+    "household_income",
+    0.013269
+   ],
+   [
+    "husband_occupation",
+    0.010955
+   ],
+   [
+    "husband_age & wife_occupation",
+    0.001243
+   ],
+   [
+    "wife_age & husband_age",
+    0.0
+   ],
+   [
+    "husband_age & marriage_years",
+    0.0
+   ],
+   [
+    "wife_earnings & wife_months_employed",
+    0.0
+   ],
+   [
+    "husband_earnings & husband_months_employed",
+    0.0
+   ],
+   [
+    "husband_earnings & business_equity",
+    0.0
+   ],
+   [
+    "household_income & business_equity",
+    0.0
+   ],
+   [
+    "household_net_worth & home_equity",
+    0.0
+   ],
+   [
+    "household_net_worth & business_equity",
+    0.0
+   ],
+   [
+    "business_equity & wife_times_married",
+    0.0
+   ]
+  ],
+  "ebm_pairs_fold0": [
+   [
+    "husband_age & wife_occupation",
+    0.001243
+   ],
+   [
+    "wife_age & husband_age",
+    0.0
+   ],
+   [
+    "husband_age & marriage_years",
+    0.0
+   ],
+   [
+    "wife_earnings & wife_months_employed",
+    0.0
+   ],
+   [
+    "husband_earnings & husband_months_employed",
+    0.0
+   ],
+   [
+    "husband_earnings & business_equity",
+    0.0
+   ],
+   [
+    "household_income & business_equity",
+    0.0
+   ],
+   [
+    "household_net_worth & home_equity",
+    0.0
+   ],
+   [
+    "household_net_worth & business_equity",
+    0.0
+   ],
+   [
+    "business_equity & wife_times_married",
+    0.0
+   ]
+  ]
+ },
+ "null_permuted_labels": {
+  "heldout_gain": {
+   "baseline": -0.379971,
+   "lightgbm_tuned": -0.571462,
+   "enet_spline_pairwise": -0.132183
+  },
+  "note": "outcomes shuffled within each fold of repeat 0; gains are on the REAL held-out outcomes"
+ },
+ "learning_curve": [
+  {
+   "fraction": 0.1,
+   "model": "baseline",
+   "heldout_gain": -0.394039
+  },
+  {
+   "fraction": 0.1,
+   "model": "lightgbm_tuned",
+   "heldout_gain": -8.146336
+  },
+  {
+   "fraction": 0.25,
+   "model": "baseline",
+   "heldout_gain": 0.9285
+  },
+  {
+   "fraction": 0.25,
+   "model": "lightgbm_tuned",
+   "heldout_gain": -0.629476
+  },
+  {
+   "fraction": 0.5,
+   "model": "baseline",
+   "heldout_gain": 3.605973
+  },
+  {
+   "fraction": 0.5,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 2.817046
+  },
+  {
+   "fraction": 0.75,
+   "model": "baseline",
+   "heldout_gain": 3.74699
+  },
+  {
+   "fraction": 0.75,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 3.079395
+  },
+  {
+   "fraction": 1.0,
+   "model": "baseline",
+   "heldout_gain": 5.770132
+  },
+  {
+   "fraction": 1.0,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 4.704722
+  }
+ ],
+ "feature_curve": {
+  "rows": [
+   {
+    "k": 1,
+    "model": "lightgbm",
+    "heldout_gain": 1.294849
+   },
+   {
+    "k": 1,
+    "model": "additive_glm",
+    "heldout_gain": 1.97606
+   },
+   {
+    "k": 2,
+    "model": "lightgbm",
+    "heldout_gain": 2.007863
+   },
+   {
+    "k": 2,
+    "model": "additive_glm",
+    "heldout_gain": 2.522635
+   },
+   {
+    "k": 4,
+    "model": "lightgbm",
+    "heldout_gain": 1.898018
+   },
+   {
+    "k": 4,
+    "model": "additive_glm",
+    "heldout_gain": 3.631559
+   },
+   {
+    "k": 8,
+    "model": "lightgbm",
+    "heldout_gain": 3.206287
+   },
+   {
+    "k": 8,
+    "model": "additive_glm",
+    "heldout_gain": 3.781275
+   },
+   {
+    "k": 16,
+    "model": "lightgbm",
+    "heldout_gain": 4.926846
+   },
+   {
+    "k": 16,
+    "model": "additive_glm",
+    "heldout_gain": 4.187627
+   },
+   {
+    "k": 29,
+    "model": "lightgbm",
+    "heldout_gain": 4.704722
+   },
+   {
+    "k": 29,
+    "model": "additive_glm",
+    "heldout_gain": 4.857836
+   }
+  ],
+  "note": "k = number of non-duration features, ranked by each training fold's tuned LightGBM gain; duration (if any) always included; additive_glm = ridge spline GLM (glum)"
+ }
+}

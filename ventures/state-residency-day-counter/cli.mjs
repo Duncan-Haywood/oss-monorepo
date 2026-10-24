@@ -9,6 +9,7 @@
 //   node cli.mjs --ics stays.txt > last-safe-days.ics              # calendar reminders for the last safe day per state
 //   node cli.mjs --json stays.txt                                  # machine-readable
 //   node cli.mjs --trip "NY 2025-11-01 14" stays.txt              # what a planned trip (state, start, days) would change
+//   node cli.mjs --check stays.txt                                # same report; exit 1 if any state is over its limit (for scripts)
 //   node cli.mjs --example                                         # run on the built-in invented year
 //
 // Stays file: one line per stay, as on the web page ("2025-01-03 to 2025-03-30 FL",
@@ -43,6 +44,7 @@ Options:
   --html               print a self-contained printable audit packet
   --ics                print last-safe-day reminders as an iCalendar file
   --json               print the full result as JSON
+  --check              exit 1 when any state is over its limit (with --trip: when the trip would cross one)
   --example            use the built-in invented year instead of a file
   -h, --help           this message
 
@@ -56,7 +58,7 @@ const code = (t) => String(t).trim().toUpperCase();
 export function parseArgs(argv) {
   const opts = {
     file: null, year: null, asof: null, home: null, abode: [], employer: null, wages: null, limits: null, trip: null,
-    nights: false, csv: false, dailyLog: false, html: false, ics: false, json: false, example: false, help: false,
+    nights: false, check: false, csv: false, dailyLog: false, html: false, ics: false, json: false, example: false, help: false,
   };
   const value = (i, flag, what) => {
     const v = argv[i];
@@ -67,6 +69,7 @@ export function parseArgs(argv) {
     const arg = argv[i];
     if (arg === "-h" || arg === "--help") opts.help = true;
     else if (arg === "--nights") opts.nights = true;
+    else if (arg === "--check") opts.check = true;
     else if (arg === "--csv") opts.csv = true;
     else if (arg === "--daily-log") opts.dailyLog = true;
     else if (arg === "--html") opts.html = true;
@@ -162,6 +165,12 @@ export function render(spec, opts) {
   return textReport(r);
 }
 
+// True when --check should fail the run: a state over its limit, or (with --trip) a trip that crosses one.
+export function breaches(spec, opts) {
+  if (opts.trip) return tripImpact(spec, parseTrip(opts.trip, spec.year)).changes.some((c) => c.crossed);
+  return analyze(spec).states.some((s) => s.status === "over");
+}
+
 export function textReport(r) {
   const out = [];
   const conv = r.convention === "nights" ? "nights (departure day not counted)" : "any part of a day";
@@ -200,7 +209,7 @@ export async function run(argv, { stdin = readStdin, read = (f) => readFile(f, "
     if (!opts.file) throw new Error("give a stays file (or - for standard input), or use --example");
     spec = buildSpec(opts, opts.file === "-" ? await stdin() : await read(opts.file));
   }
-  return { out: render(spec, opts), code: 0 };
+  return { out: render(spec, opts), code: opts.check && breaches(spec, opts) ? 1 : 0 };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

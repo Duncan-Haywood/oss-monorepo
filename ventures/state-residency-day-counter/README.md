@@ -5,11 +5,11 @@ digital nomads. List where you were and when; it totals the days per state,
 checks them against the commonly published statutory residency tests (more than
 183 days plus a permanent place of abode in New York, New Jersey, Connecticut,
 Massachusetts, Pennsylvania, Minnesota, Rhode Island, Virginia, Maryland and Utah (183 days or more), Michigan, Indiana, Kentucky, Vermont, Missouri, Iowa, Maine, West Virginia and Delaware, and the District of Columbia (183 days or more); 183 days or more with no abode needed in Georgia; 185 days or more with no abode needed in New Mexico; more than six months (taken as 183 days) with no abode needed in Louisiana; more than six months (taken as 183 days) with a permanent place of abode in Nebraska, Colorado and Arkansas; more than 200 days in
-Oregon; more than 200 days in Hawaii (a rebuttable presumption); more than 212 contact periods in Ohio (the bright-line safe harbor, approximated by nights); more than 270 days in Idaho; more than six months (taken as 183 days) in Kansas (a rebuttable presumption); the nine-month presumption in California; New York City's own 183-day test, tracked when a stay line says NYC), shows the room left and the
+Oregon; more than seven months (taken as 210 days) with a permanent place of abode in North Dakota; more than 200 days in Hawaii (a rebuttable presumption); more than 212 contact periods in Ohio (the bright-line safe harbor, approximated by nights); more than 270 days in Idaho; more than six months (taken as 183 days) in Kansas (a rebuttable presumption); the nine-month presumption in California; New York City's own 183-day test, tracked when a stay line says NYC), shows the room left and the
 date you would cross a limit, splits remote-work wages by workdays, draws a
 year calendar coloured by state, imports stays from a calendar (.ics) export, the Timeline.json your phone exports from Google Maps (coordinates matched to states in the browser), or older Google Takeout history, and exports a day-range CSV. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/state-residency-day-counter/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
@@ -31,6 +31,7 @@ server only hands out files and never sees a date you type.
   node cli.mjs --asof 2025-09-30 --nights stays.txt             # as of a date, counting nights
   node cli.mjs --wages 140000 --employer NY stays.txt           # split wages by workday
   node cli.mjs --trip "NY 2025-11-01 14" stays.txt             # what-if: what a planned trip adds and the longest safe trip
+  node cli.mjs --check stays.txt                                # same report; exit code 1 if any state is over its limit (cron, CI, a pre-trip script)
   node cli.mjs --csv stays.txt > totals.csv                     # totals; also --daily-log, --html, --ics, --json
   node cli.mjs --example                                        # the built-in invented year
   ```
@@ -57,10 +58,13 @@ server only hands out files and never sees a date you type.
   reads "183 days or more", so the safe maximum is 182; figures recomputed by
   the test suite.
 - `georgia-new-mexico-louisiana-days-only-residency.html` - guide for the three states whose day test needs no place of abode; figures recomputed by the test suite.
+- `ohio-212-contact-period-safe-harbor.html` - guide to Ohio's contact-period safe harbor (212 or fewer; 213 presumes domicile); figures recomputed by the test suite.
 - `california-nine-month-residency-presumption.html` - guide on why California
   has a nine-month presumption rather than a 183-day test; figures recomputed by
   the test suite.
 - `nyc-resident-tax-183-day-test.html` - guide to New York City's own statutory-resident test (abode in the City plus more than 183 days inside the five boroughs); add `NYC` to a stay line and the counter tracks the City beside the State. Figures recomputed by the test suite.
+- `six-month-residency-nebraska-colorado-arkansas-kansas.html` - guide to the four more-than-six-months tests (the counter's limit is 182); figures recomputed by the test suite.
+- `over-200-day-residency-oregon-hawaii-idaho.html` - guide to the more-than-200-day tests in Oregon and Hawaii and the 270-day test in Idaho; figures recomputed by the test suite.
 - `remote-work-convenience-of-the-employer-rule.html` - guide on the
   employer-state rule, its dollar figures recomputed by the test suite.
 

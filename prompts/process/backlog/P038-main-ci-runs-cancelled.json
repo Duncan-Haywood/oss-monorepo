@@ -1,0 +1,27 @@
+{
+  "id": "P038",
+  "title": "Stop each merge from cancelling main's test runs (44% of ventures tests runs on main never finish)",
+  "status": "done",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 1,
+  "problem": "ventures-tests.yml has concurrency group ventures-tests-${{ github.ref }} with cancel-in-progress: true. At ~280 merges a day every merge to main cancels the previous merge's run, so most commits on main never get a verdict and a break is found only by whichever run survives.",
+  "evidence": [
+    "mcp actions_list ventures-tests.yml branch=main event=push status=completed, 2026-10-19T19:10Z..2026-10-20T09:23Z: 56 success / 44 cancelled",
+    "whole-repo push runs on main 09:03Z-09:25Z 2026-10-20: 61 of 100 cancelled across 17 workflows"
+  ],
+  "change": "In every workflow with a per-ref cancel-in-progress group that runs on push to main (grep -ln 'cancel-in-progress: true' .github/workflows/*.yml, then keep those whose 'on:' includes push to main), make main runs not cancel each other, e.g. `cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}`. PR branches keep cancelling. Weigh runner starvation: if queue time on main explodes, use a per-SHA group only for the cheap workflows. Run python3 platform/ci/validate_workflows.py (and its unit tests) before pushing.",
+  "touches": [
+    ".github/workflows/ventures-tests.yml",
+    ".github/workflows/*.yml"
+  ],
+  "metric": "cancelled share of the last 100 completed push runs of ventures tests on main",
+  "baseline": "44 of 100 cancelled (2026-10-20)",
+  "opened": "2026-10-20",
+  "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
+  "pr": 8829,
+  "result": "Helped (2026-10-21). mcp actions_list ventures-tests.yml branch=main event=push status=completed, last 100 (2026-10-20T12:02Z..2026-10-21T03:00Z): 91 success / 9 cancelled, against 44 of 100 cancelled at baseline. The 9 left are likely runs from before the change merged or manual cancels; other workflows still cancel per ref and were not re-measured.",
+  "history": [
+    "2026-10-20: ventures-tests.yml only: main runs no longer cancel in-flight runs. Other workflows left (runner starvation risk across 500+ workflows); verify metric after a day."
+  ]
+}

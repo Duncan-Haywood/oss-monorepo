@@ -28,5 +28,5 @@ kill_criteria:
   - Drivers report that the app's own weekly summary already answers this well enough, without changing whether they drive a given session.
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/gig-driver-net-pay-calculator/
   analytics: null

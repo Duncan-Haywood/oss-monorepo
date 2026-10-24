@@ -1,0 +1,6 @@
+{
+ "theme": "eda",
+ "title": "Can an SMT bounded model check (z3) settle the 10 RTL mutants that Yosys' SAT and induction left undecided?",
+ "lede": "z3 bounded model checking via yosys-smtbmc decides none of the 10 undecided eda-deepdraw survivors at the 24-cycle depth a full inference needs; its cost passes from about 3 s at depth 10 to over 240 s at depth 12.",
+ "summary": "The 10 survivors that Yosys' SAT and induction left undecided (including the known-truncating <em>del@122</em>) were re-checked with yosys-smtbmc and z3. At depth 24 (one inference is 20 cycles) all 10 time out at 900 s; a depth sweep on two targets passes to depth 10 in about 3 s and times out at depth 12 (240 s limit), so the route is no stronger than the built-in SAT at the depth that matters. A pass at depth 10 is not an equivalence claim: the sweep includes a mutant that simulation shows is killable. Negative result: one design, one solver (Yices and Boolector were not installable here), word-level encodings not tried."
+}

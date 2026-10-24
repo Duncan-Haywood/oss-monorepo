@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-dof"
+version = "0.1.0"
+description = "Does a feeding arm need more than two joints? Effective tip mass, lip force and servo cost of 2 to 6 joint planar arms (stylised)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

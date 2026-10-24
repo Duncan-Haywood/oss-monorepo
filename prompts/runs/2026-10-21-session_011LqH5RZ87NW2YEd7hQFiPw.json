@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_011LqH5RZ87NW2YEd7hQFiPw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T00:59:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 5): wire the staged selector behind PAIR_SELECTOR=staged",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": 8984,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "two sessions took the same flagship next: step concurrently"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Built the same hybrid as session 01TnTyJJ (#8985) minutes before it merged; dropped my copy, kept only the route wiring behind PAIR_SELECTOR=staged. Local: typecheck, vitest 307 pass.",
+  "corrections": [],
+  "redteam": null
+}

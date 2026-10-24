@@ -46,6 +46,30 @@ class FindingsIn(unittest.TestCase):
         self.write(".env", f"STRIPE_SECRET_KEY={LIVE}\n")
         self.assertEqual(self.kinds(), ["live Stripe key"])
 
+    def test_live_key_in_other_text_files_fails(self):
+        for name in ("deploy.sh", "notes.txt", "App.vue", "main.go", "app.ini"):
+            with self.subTest(name=name):
+                self.write(name, f"KEY={LIVE}\n")
+        self.assertEqual(len(self.kinds()), 5)
+
+    def test_checkout_under_a_skip_named_directory_is_still_scanned(self):
+        # SKIP_DIRS applies below the scan root, not to the checkout's own path.
+        root = self.root / "build" / "dist" / "ventures"
+        (root / "app").mkdir(parents=True)
+        (root / "app" / "stripe.ts").write_text(f'k("{LIVE}")\n', encoding="utf-8")
+        self.assertEqual([k for _p, k in guard.findings_in(root)], ["live Stripe key"])
+
+    def test_binary_files_are_skipped(self):
+        (self.root / "logo.png").write_bytes(b"\x89PNG\x00" + LIVE.encode())
+        self.assertEqual(self.kinds(), [])
+
+    def test_binary_sniff_covers_only_first_8192_bytes(self):
+        # NUL at index 8191 is binary (skipped); at 8192 it is past the sniff
+        # window, so the file is text and its key must still be found.
+        (self.root / "early.dat").write_bytes(b"a" * 8191 + b"\x00" + LIVE.encode())
+        (self.root / "late.dat").write_bytes(b"a" * 8192 + b"\x00" + LIVE.encode())
+        self.assertEqual([p.name for p, _k in guard.findings_in(self.root)], ["late.dat"])
+
     def test_restricted_key_fails(self):
         self.write("server.py", 'KEY = "rk_' + 'live_' + 'Zz9Yy8Xx7Ww6Vv5Uu4"\n')
         self.assertEqual(self.kinds(), ["live Stripe key"])

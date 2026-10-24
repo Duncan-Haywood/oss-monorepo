@@ -80,6 +80,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>iOS Privacy Manifest Checker</h1>
 <p>
   Scans your Swift/Objective-C source for Apple's <strong>Required Reason API</strong> usage
@@ -320,6 +321,7 @@ struct SettingsStore {
   <p>No. This is evidence of what your code and your manifest currently say, produced by pattern-matching known API symbols -- it is not App Review, and it cannot see reflection, dynamic dispatch, or third-party SDK binaries. Always confirm against Apple's current documentation before submitting.</p>
 </section>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This tool reports what pattern-matching found in the

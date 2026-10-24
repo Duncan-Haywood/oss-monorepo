@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01VbZ9dGTN58Z5H9KAGwYcyA",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "owner: add a guideline that fabricated results portrayed as stylised is lazy; run the numbers, research, cite, build and test",
+  "input_sha256": "d8dd74eba2e274166d728c81fd529ea6a0741990d47dc75137d47346d2df9ada",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T01:55:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9006",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The homepage summary template suggested '(e.g. Stylised.)' as the default limitation, which nudged runs toward invented inputs; 664 of 825 summaries carry it."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Owner-requested guideline added as a strong default (owner called it a guideline). Checks: promptctl validate ok; research homepage build ok (825 projects); prompts unittest 87 OK.",
+  "corrections": [],
+  "redteam": null
+}

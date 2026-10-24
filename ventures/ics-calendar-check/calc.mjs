@@ -285,6 +285,14 @@ export function validate(text) {
           }
         }
       }
+      for (const al of ev.children.filter((c) => c.name === "VALARM")) {
+        const act = get(al, "ACTION"), trig = get(al, "TRIGGER");
+        if (!act) findings.push(F("error", al.line, `${at}VALARM has no ACTION`, "Every reminder needs ACTION (DISPLAY, AUDIO or EMAIL). Google Calendar and Outlook drop or reject the reminder without it."));
+        else if (!["DISPLAY", "AUDIO", "EMAIL"].includes(act.value.trim().toUpperCase())) findings.push(F("warning", act.line, `${at}VALARM ACTION ${act.value.slice(0, 20)} is not standard`, "RFC 5545 defines DISPLAY, AUDIO and EMAIL. Other values are ignored by most calendar apps."));
+        if (!trig) findings.push(F("error", al.line, `${at}VALARM has no TRIGGER`, "A reminder needs TRIGGER, for example TRIGGER:-PT15M for 15 minutes before. Without it importers skip the reminder or reject the event."));
+        else if (!/^[+-]?P(\d+W|(\d+D)?(T(\d+H)?(\d+M)?(\d+S)?)?)$/i.test(trig.value.trim()) && trig.params.VALUE !== "DATE-TIME") findings.push(F("error", trig.line, `${at}bad VALARM TRIGGER`, `"${trig.value.slice(0, 30)}" is not a duration such as -PT15M or -P1D. Use VALUE=DATE-TIME for an absolute time.`));
+        if (act && act.value.trim().toUpperCase() === "DISPLAY" && !get(al, "DESCRIPTION")) findings.push(F("warning", al.line, `${at}DISPLAY alarm has no DESCRIPTION`, "RFC 5545 requires DESCRIPTION on a DISPLAY alarm; strict importers reject it."));
+      }
       if (!get(ev, "SUMMARY")) findings.push(F("info", ev.line, `${at}no SUMMARY`, "The event will show as untitled."));
       for (const p of all(ev, "ATTENDEE")) if (!/^mailto:/i.test(p.value)) findings.push(F("info", p.line, `${at}ATTENDEE is not a mailto: address`, `"${p.value.slice(0, 50)}" — importers expect mailto:name@example.com.`));
     }

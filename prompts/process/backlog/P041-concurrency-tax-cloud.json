@@ -1,0 +1,24 @@
+{
+  "id": "P041",
+  "title": "concurrency_tax.py does not finish in a cloud session",
+  "status": "done",
+  "owner": "agent",
+  "effect": 1,
+  "cost": 1,
+  "problem": "The repository's own measurement of parallel-work cost timed out (>10 min, no output) in a cloud session because it refreshes a separate probe clone. The 2026-10-20 re-measurement had to reimplement it.",
+  "evidence": [
+    "2026-10-20 session: `timeout 580 python3 platform/ci/concurrency_tax.py --since 2026-10-17 --first-pr 7800` printed nothing; `git fetch --filter=blob:none origin '+refs/pull/*/head:refs/pull/*/head'` took 38 s for 8,350 refs"
+  ],
+  "change": "Add a --local flag (or make it the default when refs/pull/* exist in the working repo) that reads refs/pull/<n>/head and origin/main from the current repository instead of the probe clone, plus a --windows option that prints the per-window table used in docs/parallel-agents.md (merges/day, % PRs that merged main back, tax %, files per PR median/p90, first commit to merge median/p90). Add a unit test in platform/ci/.",
+  "touches": [
+    "platform/ci/concurrency_tax.py",
+    "platform/ci/test_concurrency_tax.py"
+  ],
+  "metric": "concurrency_tax.py wall time in a cloud session for a 4-day window",
+  "baseline": "did not finish in 580 s (2026-10-20)",
+  "opened": "2026-10-20",
+  "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
+  "pr": 8873,
+  "result": "--local fetches main and refs/pull/*/head into the working repo (--shallow-since): 83 s for PRs #7800-#8871 since 2026-10-17 (baseline: no finish in 580 s). Also fixed refs/pull/<n>/head parsing. The --windows table was not built; file a new row if wanted.",
+  "history": []
+}

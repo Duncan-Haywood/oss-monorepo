@@ -1,0 +1,13 @@
+model,gain_percent,gain_ci95_low,gain_ci95_high,diff_vs_reference_points,diff_ci95_low,diff_ci95_high,reference,subset,people,dissolutions,intervals
+constant,0.0000,0.0000,0.0000,-3.1814,-3.4160,-2.9476,current model,all cycles (1995-2017),48656,14235,893155
+current model,3.1814,2.9476,3.4160,0.0000,0.0000,0.0000,current model,all cycles (1995-2017),48656,14235,893155
+"current + family of origin, detailed (replaces intact_family_15)",3.1785,2.9490,3.4165,-0.0029,-0.0243,0.0196,current model,all cycles (1995-2017),48656,14235,893155
+"current + religion at interview (attendance, importance, private practice, affiliation; can follow the dissolution)",3.6909,3.4389,3.9596,0.5095,0.4119,0.6039,current model,all cycles (1995-2017),48656,14235,893155
+constant,0.0000,0.0000,0.0000,-2.7128,-3.1670,-2.2542,current model,2017 cycle (most detail),48656,14235,893155
+current model,2.7128,2.2542,3.1670,0.0000,0.0000,0.0000,current model,2017 cycle (most detail),48656,14235,893155
+"current + family of origin, detailed (replaces intact_family_15)",2.7280,2.2793,3.1698,0.0153,-0.0347,0.0628,current model,2017 cycle (most detail),48656,14235,893155
+"current + religion at interview (attendance, importance, private practice, affiliation; can follow the dissolution)",3.2018,2.7269,3.6720,0.4890,0.3017,0.6873,current model,2017 cycle (most detail),48656,14235,893155
+constant,0.0000,0.0000,0.0000,-3.0909,-3.3744,-2.8456,current model,2006-2017 (items asked),48656,14235,893155
+current model,3.0909,2.8456,3.3744,0.0000,0.0000,0.0000,current model,2006-2017 (items asked),48656,14235,893155
+"current + family of origin, detailed (replaces intact_family_15)",3.1058,2.8625,3.3844,0.0149,-0.0027,0.0337,current model,2006-2017 (items asked),48656,14235,893155
+"current + religion at interview (attendance, importance, private practice, affiliation; can follow the dissolution)",3.6744,3.3867,3.9718,0.5835,0.4706,0.6860,current model,2006-2017 (items asked),48656,14235,893155

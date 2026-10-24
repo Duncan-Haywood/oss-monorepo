@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the mean-field tipping share of committed robots against the share of people who always walk on the robots' side, for memories of 5, 9 and 17 partners">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Robot share that tips the crowd, by share of stubborn people on the robots' side</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="277.6" y2="277.6" stroke="#ddd"/><text x="58" y="281.6" text-anchor="end" font-family="sans-serif" font-size="11">0.05</text>
+<line x1="64" x2="624" y1="231.2" y2="231.2" stroke="#ddd"/><text x="58" y="235.2" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="184.8" y2="184.8" stroke="#ddd"/><text x="58" y="188.8" text-anchor="end" font-family="sans-serif" font-size="11">0.15</text>
+<line x1="64" x2="624" y1="138.4" y2="138.4" stroke="#ddd"/><text x="58" y="142.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="92.0" y2="92.0" stroke="#ddd"/><text x="58" y="96.0" text-anchor="end" font-family="sans-serif" font-size="11">0.25</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.05</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.15</text>
+<text x="512.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">share of people who always walk on the robots' side</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">tipping robot share</text>
+<polyline points="64.0,177.4 176.0,218.0 288.0,263.0 400.0,313.3 512.0,324.0 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="177.4" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="218.0" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="263.0" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="313.3" r="3" fill="#c0392b"/>
+<circle cx="512.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">memory 5</text>
+<polyline points="64.0,123.1 176.0,160.9 288.0,202.8 400.0,249.7 512.0,302.3 624.0,324.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="123.1" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="160.9" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="202.8" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="249.7" r="3" fill="#1f6fb2"/>
+<circle cx="512.0" cy="302.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">memory 9</text>
+<polyline points="64.0,71.2 176.0,106.3 288.0,145.3 400.0,188.7 512.0,237.6 624.0,292.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="106.3" r="3" fill="#2e8b57"/>
+<circle cx="288.0" cy="145.3" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="188.7" r="3" fill="#2e8b57"/>
+<circle cx="512.0" cy="237.6" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="292.9" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">memory 17</text>
+</svg>

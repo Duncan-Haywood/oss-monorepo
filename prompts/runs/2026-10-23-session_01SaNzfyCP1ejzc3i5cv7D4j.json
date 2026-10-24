@@ -1,0 +1,181 @@
+{
+ "date": "2026-10-23",
+ "session": "https://claude.ai/code/session_01SaNzfyCP1ejzc3i5cv7D4j",
+ "track": "redteam",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-23T04:18:38Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9686",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompts/redteam/prompt-0.md",
+   "issue": "ventures/changepoint-detector/engine.mjs baseline exceeded 300s; had to pick another target after spending 5 min"
+  }
+ ],
+ "deviations": [],
+ "writeups": [],
+ "goal": null,
+ "notes": "8/8 mutants caught on divisions.mjs (catch rate 1.0). Two real defects found by hand and patched with tests. Campaign on changepoint-detector aborted: baseline timed out.",
+ "corrections": [],
+ "redteam": {
+  "campaigns": [
+   {
+    "target": "ventures/league-schedule-generator/divisions.mjs",
+    "test": "node --test ventures/league-schedule-generator/**/*.test.mjs  (in .)",
+    "seed": 607637260,
+    "commit": "41bde8c7",
+    "sites": 544,
+    "baseline_seconds": 36.8,
+    "mutants": [
+     {
+      "file": "ventures/league-schedule-generator/divisions.mjs",
+      "line": 362,
+      "col": 176,
+      "operator": "neq-flip",
+      "before": "moves.push({ division: mt.division, home: mt.homeName, away: mt.awayName, from: day, to: placed.d, court: rec.court, time: rec.time, _rec: rec, _rd: plain, _fixed: fixed !== null });",
+      "after": "moves.push({ division: mt.division, home: mt.homeName, away: mt.awayName, from: day, to: placed.d, court: rec.court, time: rec.time, _rec: rec, _rd: plain, _fixed: fixed === null });",
+      "line_text": "      moves.push({ division: mt.division, home: mt.homeName, away: mt.awayName, from: day, to: placed.d, court: rec.court, time: rec.time, _rec: rec, _rd: plain, _fixed: fixed !== null });",
+      "caught": true,
+      "seconds": 32.8,
+      "triage": null,
+      "caught_after_fix": null,
+      "note": ""
+     },
+     {
+      "file": "ventures/league-schedule-generator/divisions.mjs",
+      "line": 388,
+      "col": 46,
+      "operator": "neq-flip",
+      "before": "cur.matches = cur.matches.filter((x) => x !== rec);",
+      "after": "cur.matches = cur.matches.filter((x) => x === rec);",
+      "line_text": "    cur.matches = cur.matches.filter((x) => x !== rec);",
+      "caught": true,
+      "seconds": 32.9,
+      "triage": null,
+      "caught_after_fix": null,
+      "note": ""
+     },
+     {
+      "file": "ventures/league-schedule-generator/divisions.mjs",
+      "line": 411,
+      "col": 68,
+      "operator": "eq-flip",
+      "before": "if (night.matches.some((x) => x.court === court && x.time === cfg.times[ti]) || courtClosedOn({ courtClosures: cfg.closures || {} }, court, night.day)) continue;",
+      "after": "if (night.matches.some((x) => x.court === court && x.time !== cfg.times[ti]) || courtClosedOn({ courtClosures: cfg.closures || {} }, court, night.day)) continue;",
+      "line_text": "          if (night.matches.some((x) => x.court === court && x.time === cfg.times[ti]) || courtClosedOn({ courtClosures: cfg.closures || {} }, court, night.day)) continue;",
+      "caught": true,
+      "seconds": 33.0,
+      "triage": null,
+      "caught_after_fix": null,
+      "note": ""
+     },
+     {
+      "file": "ventures/league-schedule-generator/divisions.mjs",
+      "line": 416,
+      "col": 29,
+      "operator": "and-to-or",
+      "before": "if (after < before && (!best || after < best.after || (after === best.after && night.day < best.night.day))) best = { after, night, court, time: cfg.times[ti] };",
+      "after": "if (after < before || (!best || after < best.after || (after === best.after && night.day < best.night.day))) best = { after, night, court, time: cfg.times[ti] };",
+      "line_text": "          if (after < before && (!best || after < best.after || (after === best.after && night.day < best.night.day))) best = { after, night, court, time: cfg.times[ti] };",
+      "caught": true,
+      "seconds": 33.7,
+      "triage": null,
+      "caught_after_fix": null,
+      "note": ""
+     },
+     {
+      "file": "ventures/league-schedule-generator/divisions.mjs",
+      "line": 482,
+      "col": 74,
+      "operator": "plus-to-minus",
+      "before": "if (Math.abs(counts(dv, home) - 2) > 1 || Math.abs(counts(dv, away) + 2) > 1) continue;",
+      "after": "if (Math.abs(counts(dv, home) - 2) > 1 || Math.abs(counts(dv, away) - 2) > 1) continue;",
+      "line_text": "      if (Math.abs(counts(dv, home) - 2) > 1 || Math.abs(counts(dv, away) + 2) > 1) continue;",
+      "caught": true,
+      "seconds": 31.7,
+      "triage": null,
+      "caught_after_fix": null,
+      "note": ""
+     },
+     {
+      "file": "ventures/league-schedule-generator/divisions.mjs",
+      "line": 603,
+      "col": 53,
+      "operator": "minus-to-plus",
+      "before": "for (let t = 0; t < n; t++) if (Math.abs(home[t] - away[t]) > (want === 2 ? 0 : 1)) errors.push(`${d.name}: ${d.teams[t]} has ${home[t]} home and ${away[t]} away games.`);",
+      "after": "for (let t = 0; t < n; t++) if (Math.abs(home[t] + away[t]) > (want === 2 ? 0 : 1)) errors.push(`${d.name}: ${d.teams[t]} has ${home[t]} home and ${away[t]} away games.`);",
+      "line_text": "    for (let t = 0; t < n; t++) if (Math.abs(home[t] - away[t]) > (want === 2 ? 0 : 1)) errors.push(`${d.name}: ${d.teams[t]} has ${home[t]} home and ${away[t]} away games.`);",
+      "caught": true,
+      "seconds": 20.1,
+      "triage": null,
+      "caught_after_fix": null,
+      "note": ""
+     },
+     {
+      "file": "ventures/league-schedule-generator/divisions.mjs",
+      "line": 661,
+      "col": 44,
+      "operator": "true-to-false",
+      "before": "const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || \"\"));",
+      "after": "const venueFairness = f.venueFairness === false || /^(1|true|yes|on)$/i.test(String(f.venueFairness || \"\"));",
+      "line_text": "  const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || \"\"));",
+      "caught": true,
+      "seconds": 31.7,
+      "triage": null,
+      "caught_after_fix": null,
+      "note": ""
+     },
+     {
+      "file": "ventures/league-schedule-generator/divisions.mjs",
+      "line": 714,
+      "col": 91,
+      "operator": "const-plus-one",
+      "before": "const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));",
+      "after": "const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(1))));",
+      "line_text": "    const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));",
+      "caught": true,
+      "seconds": 31.9,
+      "triage": null,
+      "caught_after_fix": null,
+      "note": ""
+     }
+    ]
+   }
+  ],
+  "real_defects": [
+   {
+    "file": "ventures/league-schedule-generator/divisions.mjs",
+    "issue": "blank seed field built with seed 0 while the share link reloads blank as 1, so a shared link rebuilt a different schedule",
+    "patched": true
+   },
+   {
+    "file": "ventures/league-schedule-generator/divisions.mjs",
+    "issue": "encodeDivisionFields turned an object venueHistory into '[object Object]'",
+    "patched": true
+   }
+  ]
+ }
+}

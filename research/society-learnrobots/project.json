@@ -1,0 +1,6 @@
+{
+ "theme": "society",
+ "title": "Do robots that learn at a door drift to going first when collisions are cheap?",
+ "summary": "Robots in the go-or-yield door game of society-doorway learn their go probability from their own payoffs (action-value learning, logit policy) instead of following a fixed rule. With 30% robots, w = d = 1, they do not collapse to always going below the society-doorcost threshold k* = 2.80: the fleet go share falls smoothly with the collision cost (0.51 at k = 1.5, 0.18 at k = 2, 0.03 at k = 2.8 for response sharpness 16), regardless of whether it starts yielding or going. The learned fleet costs the crowd more than a fixed always-yield fleet for k &ge; 1. A logit quantal-response fixed point matches the simulation for blunt learners (within 0.09) but overstates going for sharp ones (0.74 predicted against 0.51 simulated at k = 1.5); the cause is untested. Learner step size and sharpness are design parameters, swept not measured; costs are free parameters.",
+ "lede": "do robots that learn at a door drift to going first when collisions are cheap? No: with 30% robots they settle on a mix whose go share falls smoothly with collision cost (0.51 at k = 1.5, 0.03 at k = 2.8), whatever they start from, at a higher crowd cost than a fixed yielding fleet for k of 1 or more."
+}

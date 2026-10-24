@@ -1,0 +1,4 @@
+model,test,df,wald_chi2,p
+school_interaction,schooling_both_high,1,1.7154253041812948,0.19028297535058503
+school_and_earnings_interactions,schooling_both_high,1,0.9824919771372246,0.3215843505917967
+school_and_earnings_interactions,ownschool_x_earnings_joint,4,7.487772348276244,0.11224969086191823

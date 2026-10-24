@@ -63,6 +63,8 @@ const HEADER_ALIASES = {
   fee: ["fee", "fees", "fee usd", "fees usd", "commission"],
   wallet: ["wallet", "account", "exchange", "platform", "source"],
   reported: ["reported", "broker reported", "1099-da", "form 1099-da", "reported on 1099-da"],
+  toAsset: ["to asset", "received asset", "asset received", "buy asset", "to coin", "to currency"],
+  toQuantity: ["to quantity", "received quantity", "quantity received", "buy quantity", "to amount", "received amount"],
   toWallet: ["to wallet", "to account", "to", "destination", "destination wallet", "to exchange"],
 };
 
@@ -82,6 +84,7 @@ const TYPE_WORDS = {
   buy: ["buy", "purchase", "bought", "advanced trade buy", "market buy", "limit buy"],
   income: ["income", "reward", "rewards", "staking", "staking reward", "airdrop", "mining", "interest", "earn", "learning reward", "referral", "payment received"],
   sell: ["sell", "sale", "sold", "spend", "market sell", "limit sell", "advanced trade sell", "payment sent", "convert out"],
+  swap: ["swap", "trade", "exchange", "convert", "dex swap", "token swap"],
   transfer: ["transfer", "send", "receive", "deposit", "withdrawal", "withdraw", "move"],
 };
 
@@ -148,6 +151,30 @@ export function parseTransactions(text) {
     const kind = normalizeType(get("type"));
     if (kind === null) { out.errors.push(`Line ${line}: unrecognised type "${get("type")}" (use buy, sell, income or transfer).`); continue; }
     const toWallet = map.toWallet === undefined ? "" : (r[map.toWallet] ?? "");
+    if (kind === "swap") {
+      // A coin-for-coin swap is a sale of the coin given up and a buy of the coin received,
+      // both at the USD value you give for the swap.
+      const date = parseDate(get("date"));
+      if (!date) { out.errors.push(`Line ${line}: unreadable date "${get("date")}" (use YYYY-MM-DD or MM/DD/YYYY).`); continue; }
+      const asset = get("asset").toUpperCase();
+      const toAsset = map.toAsset === undefined ? "" : (r[map.toAsset] ?? "").toUpperCase();
+      const qty = Math.abs(parseNumber(get("quantity")));
+      const toQty = map.toQuantity === undefined ? NaN : Math.abs(parseNumber(r[map.toQuantity]));
+      if (!asset || !toAsset) { out.errors.push(`Line ${line}: a swap needs the coin given up (asset) and the coin received (to asset).`); continue; }
+      if (asset === toAsset) { out.errors.push(`Line ${line}: a swap needs two different coins.`); continue; }
+      if (!(qty > 0) || !(toQty > 0)) { out.errors.push(`Line ${line}: a swap needs a positive quantity and to quantity.`); continue; }
+      const totalRaw = map.total === undefined ? null : parseNumber(get("total"));
+      const priceRaw = map.price === undefined ? null : parseNumber(get("price"));
+      let usd = totalRaw !== null && !Number.isNaN(totalRaw) ? Math.abs(totalRaw) : null;
+      if (usd === null && priceRaw !== null && !Number.isNaN(priceRaw)) usd = Math.abs(priceRaw) * qty;
+      if (usd === null) { out.errors.push(`Line ${line}: a swap needs the USD value of the swap (total) on that day.`); continue; }
+      const feeRaw = map.fee === undefined ? 0 : parseNumber(get("fee"));
+      const fee = Number.isNaN(feeRaw) || feeRaw === null ? 0 : Math.abs(feeRaw);
+      const wallet = get("wallet") || "";
+      out.transactions.push({ line, date, kind: "sell", asset, qty, usd, fee, wallet, swap: true });
+      out.transactions.push({ line, date, kind: "buy", asset: toAsset, qty: toQty, usd, fee: 0, wallet, swap: true });
+      continue;
+    }
     if (kind === "transfer" && !toWallet) { out.skipped.push(`Line ${line}: transfer ignored (not a taxable event; add a "to wallet" column to move its lots in per-wallet mode).`); continue; }
     const date = parseDate(get("date"));
     if (!date) { out.errors.push(`Line ${line}: unreadable date "${get("date")}" (use YYYY-MM-DD or MM/DD/YYYY).`); continue; }
@@ -750,6 +777,26 @@ export function planSale(openLots, { asset, price, asOf, qty = null, cash = null
   return { asset, price, asOf, requested: Number(wanted.toFixed(8)), qty: Number(target.toFixed(8)), heldQty: Number(heldQty.toFixed(8)), capped: wanted > heldQty + EPS, taxBefore, options, bestMethod: best.method };
 }
 
+// Written lot-identification record for one option of a sell plan: the units a sale is to
+// use, in a form to date and keep (or send to the platform) before selling. Specific
+// identification generally depends on the choice being made no later than the sale and being
+// provable, which is what this page is for; whether it is enough for you is for your preparer.
+export function idRecord(plan, method) {
+  const o = plan.options.find((x) => x.method === method);
+  if (!o || !o.lots.length) return null;
+  const lines = [
+    `Specific identification of units to be sold: ${plan.asset}`,
+    `Planned sale date: ${plan.asOf}`,
+    `Planned quantity: ${o.lots.reduce((a, l) => a + l.qty, 0).toFixed(8).replace(/\.?0+$/, "")} ${plan.asset} at an assumed ${plan.price} USD per coin`,
+    "",
+    "Units to be treated as sold (wallet / account, date acquired, quantity, cost basis in USD):",
+  ];
+  for (const l of o.lots) lines.push(`  - ${l.wallet || "(no wallet recorded)"}; acquired ${l.acquired}; ${l.qty} ${plan.asset}; basis ${l.basis.toFixed(2)}`);
+  lines.push("", "Written before the sale. Date and time it, and keep it with the exchange or wallet records. Lots chosen by the " + o.label + " rule from the transaction file as typed; prices are assumed, not fetched.", "Arithmetic on figures you typed, not tax advice: confirm with a tax professional that specific identification is available to you and that this record meets the rule.");
+  const csv = ["wallet,asset,date_acquired,quantity,cost_basis_usd"].concat(o.lots.map((l) => [q(l.wallet || ""), q(plan.asset), l.acquired, l.qty, l.basis.toFixed(2)].join(","))).join("\n") + "\n";
+  return { method, text: lines.join("\n") + "\n", csv };
+}
+
 const q = (v) => {
   const s = v === null || v === undefined ? "" : String(v);
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -782,6 +829,55 @@ export function donationPlan(openLots, { asset, price, asOf, qty, longRate = 0.1
   return { asset, price, asOf, requested: qty, qty: Number(target.toFixed(8)), longQty: Number(longQty.toFixed(8)), capped: qty > longQty + EPS, lots, value, basis, gain, taxAvoided, deductionValue, totalBenefit: cents(taxAvoided + deductionValue) };
 }
 
+// Reconcile against the broker's Form 1099-DA: type or paste the per-asset (or
+// per-sale) proceeds and basis the broker reported, and compare each coin with
+// what your own lot matching produced. A basis gap is the usual cause of an
+// inflated gain on a 1099-DA (the broker saw only its own purchases).
+const REC_ALIASES = {
+  asset: ["asset", "coin", "token", "symbol", "digital asset", "code"],
+  proceeds: ["proceeds", "gross proceeds", "proceeds usd", "amount received"],
+  basis: ["basis", "cost basis", "cost", "basis usd"],
+};
+export function parse1099da(text) {
+  const grid = parseCsv(text).filter((r) => r.some((c) => String(c).trim()));
+  const out = { entries: {}, errors: [] };
+  if (grid.length < 2) { out.errors.push("Need a header row and at least one coin."); return out; }
+  const head = grid[0].map((h) => String(h).trim().toLowerCase());
+  const col = {};
+  for (const [k, names] of Object.entries(REC_ALIASES)) col[k] = head.findIndex((h) => names.includes(h));
+  if (col.asset < 0 || col.proceeds < 0) { out.errors.push("Header needs an asset column and a proceeds column."); return out; }
+  const num = (v) => { const n = Number(String(v ?? "").replace(/[$,\s]/g, "")); return String(v ?? "").trim() === "" || !Number.isFinite(n) ? null : n; };
+  grid.slice(1).forEach((r, i) => {
+    const asset = String(r[col.asset] ?? "").trim().toUpperCase();
+    const proceeds = num(r[col.proceeds]);
+    if (!asset || proceeds === null) { out.errors.push(`Row ${i + 2}: needs an asset and a number for proceeds.`); return; }
+    const basis = col.basis >= 0 ? num(r[col.basis]) : null;
+    const e = (out.entries[asset] ||= { proceeds: 0, basis: null });
+    e.proceeds += proceeds;
+    if (basis !== null) e.basis = (e.basis ?? 0) + basis;
+  });
+  return out;
+}
+
+export function reconcile1099da(rows, broker, { tolerance = 1 } = {}) {
+  const mine = {};
+  for (const r of rows) {
+    const m = (mine[r.asset] ||= { proceeds: 0, basis: 0 });
+    m.proceeds += r.proceeds;
+    m.basis += r.basis;
+  }
+  const items = [];
+  for (const asset of [...new Set([...Object.keys(mine), ...Object.keys(broker)])].sort()) {
+    const m = mine[asset], b = broker[asset];
+    const it = { asset, myProceeds: m ? cents(m.proceeds) : null, myBasis: m ? cents(m.basis) : null, brokerProceeds: b ? cents(b.proceeds) : null, brokerBasis: b && b.basis !== null ? cents(b.basis) : null };
+    it.proceedsDiff = m && b ? cents(b.proceeds - m.proceeds) : null;
+    it.basisDiff = m && b && it.brokerBasis !== null ? cents(it.brokerBasis - m.basis) : null;
+    it.status = !b ? "not on 1099-DA" : !m ? "not in your sales" : Math.abs(it.proceedsDiff) > tolerance ? "proceeds differ" : it.basisDiff !== null && Math.abs(it.basisDiff) > tolerance ? "basis differs" : "matches";
+    items.push(it);
+  }
+  return { items, mismatches: items.filter((i) => i.status !== "matches").length };
+}
+
 export function toForm8949Csv(rows) {
   // Box column only when the file says which sales a broker reported on a 1099-DA.
   const boxes = rows.some((r) => r.reported);
@@ -796,6 +892,21 @@ export function toForm8949Csv(rows) {
   }
   return lines.join("\n") + "\n";
 }
+
+// Tax-software import rows (the five-column crypto template that online
+// filing products document: currency, purchase date, cost basis, sale date,
+// proceeds; dates MM/DD/YYYY). Rows with no purchase on record are left out, never
+// given a basis of zero; turboTaxSkipped counts them so the caller can say so.
+const usDate = (iso) => (/^\d{4}-\d{2}-\d{2}/.test(iso || "") ? `${iso.slice(5, 7)}/${iso.slice(8, 10)}/${iso.slice(0, 4)}` : "Various");
+export function toTurboTaxCsv(rows) {
+  const lines = ["Currency Name,Purchase Date,Cost Basis,Date Sold,Proceeds"];
+  for (const r of rows) {
+    if (r.missingBasis) continue;
+    lines.push([r.asset, usDate(r.acquired), r.basis.toFixed(2), usDate(r.sold), r.proceeds.toFixed(2)].map(q).join(","));
+  }
+  return lines.join("\n") + "\n";
+}
+export const turboTaxSkipped = (rows) => rows.filter((r) => r.missingBasis).length;
 
 export const SAMPLE_CSV = `date,type,asset,quantity,total,fee,wallet
 2023-01-10,buy,BTC,0.50,10000,10,Exchange A

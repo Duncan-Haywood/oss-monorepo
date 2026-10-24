@@ -1,0 +1,52 @@
+Baseline (OKane2022 cell, 75.6 um, as given): 109.1 Wh/kg at cycle 100, 201.9 at cycle 2, retention 0.541, stack mass 49.4 g
+
+A. Best score so far (Wh/kg at cycle 100) after n evaluations, mean [min-max] over 5 seeds; session is one run
+   n                 random                  bayes   session
+   5    130.5 [124.0-138.6]    130.5 [124.0-138.6]     129.1
+  10    135.8 [130.1-140.8]    138.0 [134.9-140.8]     139.4
+  15    137.1 [130.1-140.8]    140.3 [138.5-142.4]     140.7
+  20    138.8 [137.6-140.8]    141.3 [138.5-143.0]     140.7
+  25    138.8 [137.6-140.8]    141.4 [138.9-143.0]     143.3
+  30    138.8 [137.6-140.8]    141.8 [140.3-143.0]     143.4
+
+B. Best design found by each method (best seed for random and bayes)
+  method  pos_thickness_um      pos_porosity      neg_porosity      np_ratio_rel  Wh/kg end
+  random           112.349             0.355             0.323             1.267      140.8
+   bayes           132.860             0.391             0.336             1.295      143.0
+ session           120.000             0.400             0.320             1.300      143.4
+
+C. Detail of each method's best design
+   session best: 261.9 Wh/kg at cycle 2, 143.4 at cycle 100, retention 0.548, mass 73.1 g
+   failed or non-cycling evaluations (score 0): random+bayes 9 of 300, session 0 of 30
+
+D. Session proposals in order (Wh/kg at cycle 100)
+  1  60.000   0.300   0.300   1.000     87.7  retention 0.549
+  2  90.000   0.300   0.300   1.100    121.0  retention 0.556
+  3 120.000   0.300   0.300   1.100    129.1  retention 0.542
+  4  90.000   0.250   0.250   1.200    128.5  retention 0.526
+  5 110.000   0.350   0.350   1.100    125.6  retention 0.564
+  6  75.000   0.280   0.280   1.000    103.1  retention 0.556
+  7 100.000   0.320   0.280   1.300    139.4  retention 0.514
+  8 130.000   0.350   0.300   1.200    136.7  retention 0.501
+  9  85.000   0.220   0.300   1.100    114.2  retention 0.574
+ 10 140.000   0.400   0.400   1.200    134.0  retention 0.546
+ 11 110.000   0.330   0.280   1.300    139.5  retention 0.504
+ 12 120.000   0.350   0.280   1.300    137.6  retention 0.498
+ 13 100.000   0.320   0.220   1.300    118.3  retention 0.462
+ 14 100.000   0.300   0.350   1.300    134.6  retention 0.549
+ 15 115.000   0.380   0.280   1.300    140.7  retention 0.540
+ 16 130.000   0.320   0.280   1.300    130.7  retention 0.458
+ 17  95.000   0.330   0.250   1.250    134.8  retention 0.517
+ 18 105.000   0.340   0.300   1.300    140.7  retention 0.519
+ 19 125.000   0.360   0.260   1.300    126.6  retention 0.472
+ 20 110.000   0.280   0.280   1.300    136.6  retention 0.500
+ 21 110.000   0.380   0.320   1.300    142.8  retention 0.546
+ 22 110.000   0.400   0.300   1.300    143.3  retention 0.569
+ 23 105.000   0.380   0.350   1.300    139.5  retention 0.540
+ 24 115.000   0.400   0.340   1.300    142.7  retention 0.552
+ 25 100.000   0.360   0.320   1.300    139.8  retention 0.539
+ 26 120.000   0.400   0.320   1.300    143.4  retention 0.548
+ 27 108.000   0.370   0.300   1.300    142.1  retention 0.542
+ 28 112.000   0.390   0.380   1.300    136.6  retention 0.537
+ 29 105.000   0.400   0.280   1.300    142.5  retention 0.584
+ 30 118.000   0.380   0.300   1.300    143.0  retention 0.537

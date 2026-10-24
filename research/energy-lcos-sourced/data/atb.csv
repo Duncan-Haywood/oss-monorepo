@@ -1,0 +1,805 @@
+technology,techdetail,scenario,parameter,year,units,value
+Pumped Storage Hydropower,NatlClass1,Advanced,OCC,2030,$/kW,2875.961033276484
+Pumped Storage Hydropower,NatlClass1,Moderate,OCC,2030,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass1,Conservative,OCC,2030,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass2,Advanced,OCC,2030,$/kW,3206.769112204661
+Pumped Storage Hydropower,NatlClass2,Moderate,OCC,2030,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass2,Conservative,OCC,2030,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass3,Advanced,OCC,2030,$/kW,3384.1831434559226
+Pumped Storage Hydropower,NatlClass3,Moderate,OCC,2030,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass3,Conservative,OCC,2030,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass4,Advanced,OCC,2030,$/kW,3519.4106238261975
+Pumped Storage Hydropower,NatlClass4,Moderate,OCC,2030,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass4,Conservative,OCC,2030,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass5,Advanced,OCC,2030,$/kW,3627.816289216397
+Pumped Storage Hydropower,NatlClass5,Moderate,OCC,2030,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass5,Conservative,OCC,2030,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass6,Advanced,OCC,2030,$/kW,3723.163213427045
+Pumped Storage Hydropower,NatlClass6,Moderate,OCC,2030,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass6,Conservative,OCC,2030,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass7,Advanced,OCC,2030,$/kW,3809.056305399024
+Pumped Storage Hydropower,NatlClass7,Moderate,OCC,2030,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass7,Conservative,OCC,2030,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass8,Advanced,OCC,2030,$/kW,3886.7813131313137
+Pumped Storage Hydropower,NatlClass8,Moderate,OCC,2030,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass8,Conservative,OCC,2030,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass9,Advanced,OCC,2030,$/kW,3954.531783767175
+Pumped Storage Hydropower,NatlClass9,Moderate,OCC,2030,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass9,Conservative,OCC,2030,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass10,Advanced,OCC,2030,$/kW,4019.998707923919
+Pumped Storage Hydropower,NatlClass10,Moderate,OCC,2030,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass10,Conservative,OCC,2030,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass11,Advanced,OCC,2030,$/kW,4079.6353322280097
+Pumped Storage Hydropower,NatlClass11,Moderate,OCC,2030,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass11,Conservative,OCC,2030,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass12,Advanced,OCC,2030,$/kW,4133.213308453358
+Pumped Storage Hydropower,NatlClass12,Moderate,OCC,2030,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass12,Conservative,OCC,2030,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass13,Advanced,OCC,2030,$/kW,4182.461967018426
+Pumped Storage Hydropower,NatlClass13,Moderate,OCC,2030,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass13,Conservative,OCC,2030,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass14,Advanced,OCC,2030,$/kW,4228.816133173336
+Pumped Storage Hydropower,NatlClass14,Moderate,OCC,2030,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass14,Conservative,OCC,2030,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass15,Advanced,OCC,2030,$/kW,4273.267682949439
+Pumped Storage Hydropower,NatlClass15,Moderate,OCC,2030,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass15,Conservative,OCC,2030,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass1,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Advanced,OCC,2030,$/kW,2875.961033276484
+Pumped Storage Hydropower,NatlClass1,Moderate,OCC,2030,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass1,Conservative,OCC,2030,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass2,Advanced,OCC,2030,$/kW,3206.769112204661
+Pumped Storage Hydropower,NatlClass2,Moderate,OCC,2030,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass2,Conservative,OCC,2030,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass3,Advanced,OCC,2030,$/kW,3384.1831434559226
+Pumped Storage Hydropower,NatlClass3,Moderate,OCC,2030,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass3,Conservative,OCC,2030,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass4,Advanced,OCC,2030,$/kW,3519.4106238261975
+Pumped Storage Hydropower,NatlClass4,Moderate,OCC,2030,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass4,Conservative,OCC,2030,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass5,Advanced,OCC,2030,$/kW,3627.816289216397
+Pumped Storage Hydropower,NatlClass5,Moderate,OCC,2030,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass5,Conservative,OCC,2030,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass6,Advanced,OCC,2030,$/kW,3723.163213427045
+Pumped Storage Hydropower,NatlClass6,Moderate,OCC,2030,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass6,Conservative,OCC,2030,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass7,Advanced,OCC,2030,$/kW,3809.056305399024
+Pumped Storage Hydropower,NatlClass7,Moderate,OCC,2030,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass7,Conservative,OCC,2030,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass8,Advanced,OCC,2030,$/kW,3886.7813131313137
+Pumped Storage Hydropower,NatlClass8,Moderate,OCC,2030,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass8,Conservative,OCC,2030,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass9,Advanced,OCC,2030,$/kW,3954.531783767175
+Pumped Storage Hydropower,NatlClass9,Moderate,OCC,2030,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass9,Conservative,OCC,2030,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass10,Advanced,OCC,2030,$/kW,4019.998707923919
+Pumped Storage Hydropower,NatlClass10,Moderate,OCC,2030,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass10,Conservative,OCC,2030,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass11,Advanced,OCC,2030,$/kW,4079.6353322280097
+Pumped Storage Hydropower,NatlClass11,Moderate,OCC,2030,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass11,Conservative,OCC,2030,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass12,Advanced,OCC,2030,$/kW,4133.213308453358
+Pumped Storage Hydropower,NatlClass12,Moderate,OCC,2030,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass12,Conservative,OCC,2030,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass13,Advanced,OCC,2030,$/kW,4182.461967018426
+Pumped Storage Hydropower,NatlClass13,Moderate,OCC,2030,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass13,Conservative,OCC,2030,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass14,Advanced,OCC,2030,$/kW,4228.816133173336
+Pumped Storage Hydropower,NatlClass14,Moderate,OCC,2030,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass14,Conservative,OCC,2030,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass15,Advanced,OCC,2030,$/kW,4273.267682949439
+Pumped Storage Hydropower,NatlClass15,Moderate,OCC,2030,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass15,Conservative,OCC,2030,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass1,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Advanced,OCC,2030,$/kW,2875.961033276484
+Pumped Storage Hydropower,NatlClass1,Moderate,OCC,2030,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass1,Conservative,OCC,2030,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass2,Advanced,OCC,2030,$/kW,3206.769112204661
+Pumped Storage Hydropower,NatlClass2,Moderate,OCC,2030,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass2,Conservative,OCC,2030,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass3,Advanced,OCC,2030,$/kW,3384.1831434559226
+Pumped Storage Hydropower,NatlClass3,Moderate,OCC,2030,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass3,Conservative,OCC,2030,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass4,Advanced,OCC,2030,$/kW,3519.4106238261975
+Pumped Storage Hydropower,NatlClass4,Moderate,OCC,2030,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass4,Conservative,OCC,2030,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass5,Advanced,OCC,2030,$/kW,3627.816289216397
+Pumped Storage Hydropower,NatlClass5,Moderate,OCC,2030,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass5,Conservative,OCC,2030,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass6,Advanced,OCC,2030,$/kW,3723.163213427045
+Pumped Storage Hydropower,NatlClass6,Moderate,OCC,2030,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass6,Conservative,OCC,2030,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass7,Advanced,OCC,2030,$/kW,3809.056305399024
+Pumped Storage Hydropower,NatlClass7,Moderate,OCC,2030,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass7,Conservative,OCC,2030,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass8,Advanced,OCC,2030,$/kW,3886.7813131313137
+Pumped Storage Hydropower,NatlClass8,Moderate,OCC,2030,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass8,Conservative,OCC,2030,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass9,Advanced,OCC,2030,$/kW,3954.531783767175
+Pumped Storage Hydropower,NatlClass9,Moderate,OCC,2030,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass9,Conservative,OCC,2030,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass10,Advanced,OCC,2030,$/kW,4019.998707923919
+Pumped Storage Hydropower,NatlClass10,Moderate,OCC,2030,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass10,Conservative,OCC,2030,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass11,Advanced,OCC,2030,$/kW,4079.6353322280097
+Pumped Storage Hydropower,NatlClass11,Moderate,OCC,2030,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass11,Conservative,OCC,2030,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass12,Advanced,OCC,2030,$/kW,4133.213308453358
+Pumped Storage Hydropower,NatlClass12,Moderate,OCC,2030,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass12,Conservative,OCC,2030,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass13,Advanced,OCC,2030,$/kW,4182.461967018426
+Pumped Storage Hydropower,NatlClass13,Moderate,OCC,2030,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass13,Conservative,OCC,2030,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass14,Advanced,OCC,2030,$/kW,4228.816133173336
+Pumped Storage Hydropower,NatlClass14,Moderate,OCC,2030,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass14,Conservative,OCC,2030,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass15,Advanced,OCC,2030,$/kW,4273.267682949439
+Pumped Storage Hydropower,NatlClass15,Moderate,OCC,2030,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass15,Conservative,OCC,2030,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass1,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,OCC,2030,$/kW,1642.1860865060862
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,OCC,2030,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,OCC,2030,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,OCC,2030,$/kW,2072.1189821289754
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,OCC,2030,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,OCC,2030,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,OCC,2030,$/kW,2374.683216783213
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,OCC,2030,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,OCC,2030,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,OCC,2030,$/kW,3085.398336048655
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,OCC,2030,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,OCC,2030,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,OCC,2030,$/kW,1642.1860865060862
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,OCC,2030,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,OCC,2030,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,OCC,2030,$/kW,2072.1189821289754
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,OCC,2030,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,OCC,2030,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,OCC,2030,$/kW,2374.683216783213
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,OCC,2030,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,OCC,2030,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,OCC,2030,$/kW,3085.398336048655
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,OCC,2030,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,OCC,2030,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,OCC,2030,$/kW,1642.1860865060862
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,OCC,2030,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,OCC,2030,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,OCC,2030,$/kW,2072.1189821289754
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,OCC,2030,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,OCC,2030,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,OCC,2030,$/kW,2374.683216783213
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,OCC,2030,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,OCC,2030,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,OCC,2030,$/kW,3085.398336048655
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,OCC,2030,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,OCC,2030,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,Fixed O&M,2030,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,Fixed O&M,2030,$/kW-yr,20.15
+Utility-Scale Battery Storage,2Hr Battery Storage,Advanced,OCC,2030,$/kW,581.1886384686989
+Utility-Scale Battery Storage,2Hr Battery Storage,Moderate,OCC,2030,$/kW,808.7683631961322
+Utility-Scale Battery Storage,2Hr Battery Storage,Conservative,OCC,2030,$/kW,975.1750462449628
+Utility-Scale Battery Storage,4Hr Battery Storage,Advanced,OCC,2030,$/kW,978.2009031639392
+Utility-Scale Battery Storage,4Hr Battery Storage,Moderate,OCC,2030,$/kW,1300.1527397584086
+Utility-Scale Battery Storage,4Hr Battery Storage,Conservative,OCC,2030,$/kW,1612.3441609167592
+Utility-Scale Battery Storage,6Hr Battery Storage,Advanced,OCC,2030,$/kW,1375.21316785918
+Utility-Scale Battery Storage,6Hr Battery Storage,Moderate,OCC,2030,$/kW,1791.537116320685
+Utility-Scale Battery Storage,6Hr Battery Storage,Conservative,OCC,2030,$/kW,2249.5132755885556
+Utility-Scale Battery Storage,8Hr Battery Storage,Advanced,OCC,2030,$/kW,1772.2254325544204
+Utility-Scale Battery Storage,8Hr Battery Storage,Moderate,OCC,2030,$/kW,2282.9214928829615
+Utility-Scale Battery Storage,8Hr Battery Storage,Conservative,OCC,2030,$/kW,2886.682390260352
+Utility-Scale Battery Storage,10Hr Battery Storage,Advanced,OCC,2030,$/kW,2169.237697249661
+Utility-Scale Battery Storage,10Hr Battery Storage,Moderate,OCC,2030,$/kW,2774.305869445238
+Utility-Scale Battery Storage,10Hr Battery Storage,Conservative,OCC,2030,$/kW,3523.8515049321486
+Utility-Scale Battery Storage,2Hr Battery Storage,Advanced,Fixed O&M,2030,$/kW-yr,14.529715961717471
+Utility-Scale Battery Storage,2Hr Battery Storage,Moderate,Fixed O&M,2030,$/kW-yr,20.219209079903308
+Utility-Scale Battery Storage,2Hr Battery Storage,Conservative,Fixed O&M,2030,$/kW-yr,24.379376156124067
+Utility-Scale Battery Storage,4Hr Battery Storage,Advanced,Fixed O&M,2030,$/kW-yr,24.455022579098483
+Utility-Scale Battery Storage,4Hr Battery Storage,Moderate,Fixed O&M,2030,$/kW-yr,32.50381849396022
+Utility-Scale Battery Storage,4Hr Battery Storage,Conservative,Fixed O&M,2030,$/kW-yr,40.308604022918985
+Utility-Scale Battery Storage,6Hr Battery Storage,Advanced,Fixed O&M,2030,$/kW-yr,34.3803291964795
+Utility-Scale Battery Storage,6Hr Battery Storage,Moderate,Fixed O&M,2030,$/kW-yr,44.78842790801713
+Utility-Scale Battery Storage,6Hr Battery Storage,Conservative,Fixed O&M,2030,$/kW-yr,56.237831889713895
+Utility-Scale Battery Storage,8Hr Battery Storage,Advanced,Fixed O&M,2030,$/kW-yr,44.30563581386051
+Utility-Scale Battery Storage,8Hr Battery Storage,Moderate,Fixed O&M,2030,$/kW-yr,57.07303732207404
+Utility-Scale Battery Storage,8Hr Battery Storage,Conservative,Fixed O&M,2030,$/kW-yr,72.1670597565088
+Utility-Scale Battery Storage,10Hr Battery Storage,Advanced,Fixed O&M,2030,$/kW-yr,54.23094243124152
+Utility-Scale Battery Storage,10Hr Battery Storage,Moderate,Fixed O&M,2030,$/kW-yr,69.35764673613095
+Utility-Scale Battery Storage,10Hr Battery Storage,Conservative,Fixed O&M,2030,$/kW-yr,88.09628762330372
+Utility-Scale Battery Storage,2Hr Battery Storage,Advanced,OCC,2030,$/kW,581.1886384686989
+Utility-Scale Battery Storage,2Hr Battery Storage,Moderate,OCC,2030,$/kW,808.7683631961322
+Utility-Scale Battery Storage,2Hr Battery Storage,Conservative,OCC,2030,$/kW,975.1750462449628
+Utility-Scale Battery Storage,4Hr Battery Storage,Advanced,OCC,2030,$/kW,978.2009031639392
+Utility-Scale Battery Storage,4Hr Battery Storage,Moderate,OCC,2030,$/kW,1300.1527397584086
+Utility-Scale Battery Storage,4Hr Battery Storage,Conservative,OCC,2030,$/kW,1612.3441609167592
+Utility-Scale Battery Storage,6Hr Battery Storage,Advanced,OCC,2030,$/kW,1375.21316785918
+Utility-Scale Battery Storage,6Hr Battery Storage,Moderate,OCC,2030,$/kW,1791.537116320685
+Utility-Scale Battery Storage,6Hr Battery Storage,Conservative,OCC,2030,$/kW,2249.5132755885556
+Utility-Scale Battery Storage,8Hr Battery Storage,Advanced,OCC,2030,$/kW,1772.2254325544204
+Utility-Scale Battery Storage,8Hr Battery Storage,Moderate,OCC,2030,$/kW,2282.9214928829615
+Utility-Scale Battery Storage,8Hr Battery Storage,Conservative,OCC,2030,$/kW,2886.682390260352
+Utility-Scale Battery Storage,10Hr Battery Storage,Advanced,OCC,2030,$/kW,2169.237697249661
+Utility-Scale Battery Storage,10Hr Battery Storage,Moderate,OCC,2030,$/kW,2774.305869445238
+Utility-Scale Battery Storage,10Hr Battery Storage,Conservative,OCC,2030,$/kW,3523.8515049321486
+Utility-Scale Battery Storage,2Hr Battery Storage,Advanced,Fixed O&M,2030,$/kW-yr,14.529715961717471
+Utility-Scale Battery Storage,2Hr Battery Storage,Moderate,Fixed O&M,2030,$/kW-yr,20.219209079903308
+Utility-Scale Battery Storage,2Hr Battery Storage,Conservative,Fixed O&M,2030,$/kW-yr,24.379376156124067
+Utility-Scale Battery Storage,4Hr Battery Storage,Advanced,Fixed O&M,2030,$/kW-yr,24.455022579098483
+Utility-Scale Battery Storage,4Hr Battery Storage,Moderate,Fixed O&M,2030,$/kW-yr,32.50381849396022
+Utility-Scale Battery Storage,4Hr Battery Storage,Conservative,Fixed O&M,2030,$/kW-yr,40.308604022918985
+Utility-Scale Battery Storage,6Hr Battery Storage,Advanced,Fixed O&M,2030,$/kW-yr,34.3803291964795
+Utility-Scale Battery Storage,6Hr Battery Storage,Moderate,Fixed O&M,2030,$/kW-yr,44.78842790801713
+Utility-Scale Battery Storage,6Hr Battery Storage,Conservative,Fixed O&M,2030,$/kW-yr,56.237831889713895
+Utility-Scale Battery Storage,8Hr Battery Storage,Advanced,Fixed O&M,2030,$/kW-yr,44.30563581386051
+Utility-Scale Battery Storage,8Hr Battery Storage,Moderate,Fixed O&M,2030,$/kW-yr,57.07303732207404
+Utility-Scale Battery Storage,8Hr Battery Storage,Conservative,Fixed O&M,2030,$/kW-yr,72.1670597565088
+Utility-Scale Battery Storage,10Hr Battery Storage,Advanced,Fixed O&M,2030,$/kW-yr,54.23094243124152
+Utility-Scale Battery Storage,10Hr Battery Storage,Moderate,Fixed O&M,2030,$/kW-yr,69.35764673613095
+Utility-Scale Battery Storage,10Hr Battery Storage,Conservative,Fixed O&M,2030,$/kW-yr,88.09628762330372
+Pumped Storage Hydropower,NatlClass1,Advanced,OCC,2024,$/kW,2967.747023700202
+Pumped Storage Hydropower,NatlClass1,Moderate,OCC,2024,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass1,Conservative,OCC,2024,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass2,Advanced,OCC,2024,$/kW,3309.112807275023
+Pumped Storage Hydropower,NatlClass2,Moderate,OCC,2024,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass2,Conservative,OCC,2024,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass3,Advanced,OCC,2024,$/kW,3492.188988459836
+Pumped Storage Hydropower,NatlClass3,Moderate,OCC,2024,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass3,Conservative,OCC,2024,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass4,Advanced,OCC,2024,$/kW,3631.732239480226
+Pumped Storage Hydropower,NatlClass4,Moderate,OCC,2024,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass4,Conservative,OCC,2024,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass5,Advanced,OCC,2024,$/kW,3743.597660148835
+Pumped Storage Hydropower,NatlClass5,Moderate,OCC,2024,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass5,Conservative,OCC,2024,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass6,Advanced,OCC,2024,$/kW,3841.9875713023766
+Pumped Storage Hydropower,NatlClass6,Moderate,OCC,2024,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass6,Conservative,OCC,2024,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass7,Advanced,OCC,2024,$/kW,3930.6219321670783
+Pumped Storage Hydropower,NatlClass7,Moderate,OCC,2024,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass7,Conservative,OCC,2024,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass8,Advanced,OCC,2024,$/kW,4010.8275252525264
+Pumped Storage Hydropower,NatlClass8,Moderate,OCC,2024,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass8,Conservative,OCC,2024,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass9,Advanced,OCC,2024,$/kW,4080.740244951234
+Pumped Storage Hydropower,NatlClass9,Moderate,OCC,2024,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass9,Conservative,OCC,2024,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass10,Advanced,OCC,2024,$/kW,4148.296539027874
+Pumped Storage Hydropower,NatlClass10,Moderate,OCC,2024,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass10,Conservative,OCC,2024,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass11,Advanced,OCC,2024,$/kW,4209.8364598523085
+Pumped Storage Hydropower,NatlClass11,Moderate,OCC,2024,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass11,Conservative,OCC,2024,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass12,Advanced,OCC,2024,$/kW,4265.124371489104
+Pumped Storage Hydropower,NatlClass12,Moderate,OCC,2024,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass12,Conservative,OCC,2024,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass13,Advanced,OCC,2024,$/kW,4315.944795753057
+Pumped Storage Hydropower,NatlClass13,Moderate,OCC,2024,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass13,Conservative,OCC,2024,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass14,Advanced,OCC,2024,$/kW,4363.778350189507
+Pumped Storage Hydropower,NatlClass14,Moderate,OCC,2024,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass14,Conservative,OCC,2024,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass15,Advanced,OCC,2024,$/kW,4409.648566447827
+Pumped Storage Hydropower,NatlClass15,Moderate,OCC,2024,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass15,Conservative,OCC,2024,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass1,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Advanced,OCC,2024,$/kW,2967.747023700202
+Pumped Storage Hydropower,NatlClass1,Moderate,OCC,2024,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass1,Conservative,OCC,2024,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass2,Advanced,OCC,2024,$/kW,3309.112807275023
+Pumped Storage Hydropower,NatlClass2,Moderate,OCC,2024,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass2,Conservative,OCC,2024,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass3,Advanced,OCC,2024,$/kW,3492.188988459836
+Pumped Storage Hydropower,NatlClass3,Moderate,OCC,2024,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass3,Conservative,OCC,2024,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass4,Advanced,OCC,2024,$/kW,3631.732239480226
+Pumped Storage Hydropower,NatlClass4,Moderate,OCC,2024,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass4,Conservative,OCC,2024,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass5,Advanced,OCC,2024,$/kW,3743.597660148835
+Pumped Storage Hydropower,NatlClass5,Moderate,OCC,2024,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass5,Conservative,OCC,2024,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass6,Advanced,OCC,2024,$/kW,3841.9875713023766
+Pumped Storage Hydropower,NatlClass6,Moderate,OCC,2024,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass6,Conservative,OCC,2024,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass7,Advanced,OCC,2024,$/kW,3930.6219321670783
+Pumped Storage Hydropower,NatlClass7,Moderate,OCC,2024,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass7,Conservative,OCC,2024,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass8,Advanced,OCC,2024,$/kW,4010.8275252525264
+Pumped Storage Hydropower,NatlClass8,Moderate,OCC,2024,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass8,Conservative,OCC,2024,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass9,Advanced,OCC,2024,$/kW,4080.740244951234
+Pumped Storage Hydropower,NatlClass9,Moderate,OCC,2024,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass9,Conservative,OCC,2024,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass10,Advanced,OCC,2024,$/kW,4148.296539027874
+Pumped Storage Hydropower,NatlClass10,Moderate,OCC,2024,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass10,Conservative,OCC,2024,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass11,Advanced,OCC,2024,$/kW,4209.8364598523085
+Pumped Storage Hydropower,NatlClass11,Moderate,OCC,2024,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass11,Conservative,OCC,2024,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass12,Advanced,OCC,2024,$/kW,4265.124371489104
+Pumped Storage Hydropower,NatlClass12,Moderate,OCC,2024,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass12,Conservative,OCC,2024,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass13,Advanced,OCC,2024,$/kW,4315.944795753057
+Pumped Storage Hydropower,NatlClass13,Moderate,OCC,2024,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass13,Conservative,OCC,2024,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass14,Advanced,OCC,2024,$/kW,4363.778350189507
+Pumped Storage Hydropower,NatlClass14,Moderate,OCC,2024,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass14,Conservative,OCC,2024,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass15,Advanced,OCC,2024,$/kW,4409.648566447827
+Pumped Storage Hydropower,NatlClass15,Moderate,OCC,2024,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass15,Conservative,OCC,2024,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass1,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Advanced,OCC,2024,$/kW,2967.747023700202
+Pumped Storage Hydropower,NatlClass1,Moderate,OCC,2024,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass1,Conservative,OCC,2024,$/kW,3028.93768398268
+Pumped Storage Hydropower,NatlClass2,Advanced,OCC,2024,$/kW,3309.112807275023
+Pumped Storage Hydropower,NatlClass2,Moderate,OCC,2024,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass2,Conservative,OCC,2024,$/kW,3377.34193732193
+Pumped Storage Hydropower,NatlClass3,Advanced,OCC,2024,$/kW,3492.188988459836
+Pumped Storage Hydropower,NatlClass3,Moderate,OCC,2024,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass3,Conservative,OCC,2024,$/kW,3564.19288512911
+Pumped Storage Hydropower,NatlClass4,Advanced,OCC,2024,$/kW,3631.732239480226
+Pumped Storage Hydropower,NatlClass4,Moderate,OCC,2024,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass4,Conservative,OCC,2024,$/kW,3706.61331658291
+Pumped Storage Hydropower,NatlClass5,Advanced,OCC,2024,$/kW,3743.597660148835
+Pumped Storage Hydropower,NatlClass5,Moderate,OCC,2024,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass5,Conservative,OCC,2024,$/kW,3820.78524077046
+Pumped Storage Hydropower,NatlClass6,Advanced,OCC,2024,$/kW,3841.9875713023766
+Pumped Storage Hydropower,NatlClass6,Moderate,OCC,2024,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass6,Conservative,OCC,2024,$/kW,3921.20380988593
+Pumped Storage Hydropower,NatlClass7,Advanced,OCC,2024,$/kW,3930.6219321670783
+Pumped Storage Hydropower,NatlClass7,Moderate,OCC,2024,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass7,Conservative,OCC,2024,$/kW,4011.66568334578
+Pumped Storage Hydropower,NatlClass8,Advanced,OCC,2024,$/kW,4010.8275252525264
+Pumped Storage Hydropower,NatlClass8,Moderate,OCC,2024,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass8,Conservative,OCC,2024,$/kW,4093.525
+Pumped Storage Hydropower,NatlClass9,Advanced,OCC,2024,$/kW,4080.740244951234
+Pumped Storage Hydropower,NatlClass9,Moderate,OCC,2024,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass9,Conservative,OCC,2024,$/kW,4164.87921907394
+Pumped Storage Hydropower,NatlClass10,Advanced,OCC,2024,$/kW,4148.296539027874
+Pumped Storage Hydropower,NatlClass10,Moderate,OCC,2024,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass10,Conservative,OCC,2024,$/kW,4233.82842643051
+Pumped Storage Hydropower,NatlClass11,Advanced,OCC,2024,$/kW,4209.8364598523085
+Pumped Storage Hydropower,NatlClass11,Moderate,OCC,2024,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass11,Conservative,OCC,2024,$/kW,4296.63721160184
+Pumped Storage Hydropower,NatlClass12,Advanced,OCC,2024,$/kW,4265.124371489104
+Pumped Storage Hydropower,NatlClass12,Moderate,OCC,2024,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass12,Conservative,OCC,2024,$/kW,4353.0650801796
+Pumped Storage Hydropower,NatlClass13,Advanced,OCC,2024,$/kW,4315.944795753057
+Pumped Storage Hydropower,NatlClass13,Moderate,OCC,2024,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass13,Conservative,OCC,2024,$/kW,4404.93334824281
+Pumped Storage Hydropower,NatlClass14,Advanced,OCC,2024,$/kW,4363.778350189507
+Pumped Storage Hydropower,NatlClass14,Moderate,OCC,2024,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass14,Conservative,OCC,2024,$/kW,4453.75316153362
+Pumped Storage Hydropower,NatlClass15,Advanced,OCC,2024,$/kW,4409.648566447827
+Pumped Storage Hydropower,NatlClass15,Moderate,OCC,2024,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass15,Conservative,OCC,2024,$/kW,4500.56915544675
+Pumped Storage Hydropower,NatlClass1,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass2,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass6,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass7,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass8,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass9,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass10,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass11,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass12,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass13,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass14,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass15,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,OCC,2024,$/kW,1694.5962807562807
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,OCC,2024,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,OCC,2024,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,OCC,2024,$/kW,2138.2504390054323
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,OCC,2024,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,OCC,2024,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,OCC,2024,$/kW,2450.4709790209754
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,OCC,2024,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,OCC,2024,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,OCC,2024,$/kW,3183.8684957097826
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,OCC,2024,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,OCC,2024,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,OCC,2024,$/kW,1694.5962807562807
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,OCC,2024,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,OCC,2024,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,OCC,2024,$/kW,2138.2504390054323
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,OCC,2024,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,OCC,2024,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,OCC,2024,$/kW,2450.4709790209754
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,OCC,2024,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,OCC,2024,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,OCC,2024,$/kW,3183.8684957097826
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,OCC,2024,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,OCC,2024,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,OCC,2024,$/kW,1694.5962807562807
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,OCC,2024,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,OCC,2024,$/kW,1729.53641025641
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,OCC,2024,$/kW,2138.2504390054323
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,OCC,2024,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,OCC,2024,$/kW,2182.33807692307
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,OCC,2024,$/kW,2450.4709790209754
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,OCC,2024,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,OCC,2024,$/kW,2500.99615384615
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,OCC,2024,$/kW,3183.8684957097826
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,OCC,2024,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,OCC,2024,$/kW,3249.5152688172
+Pumped Storage Hydropower,NatlClass1ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass1ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass3ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass4ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Advanced,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Moderate,Fixed O&M,2024,$/kW-yr,20.15
+Pumped Storage Hydropower,NatlClass5ONR,Conservative,Fixed O&M,2024,$/kW-yr,20.15
+Utility-Scale Battery Storage,2Hr Battery Storage,Advanced,OCC,2024,$/kW,935.4731877971346
+Utility-Scale Battery Storage,2Hr Battery Storage,Moderate,OCC,2024,$/kW,1058.3689279579912
+Utility-Scale Battery Storage,2Hr Battery Storage,Conservative,OCC,2024,$/kW,1195.8005393777396
+Utility-Scale Battery Storage,4Hr Battery Storage,Advanced,OCC,2024,$/kW,1574.3326570164315
+Utility-Scale Battery Storage,4Hr Battery Storage,Moderate,OCC,2024,$/kW,1769.8766410093135
+Utility-Scale Battery Storage,4Hr Battery Storage,Conservative,OCC,2024,$/kW,2012.350724762004
+Utility-Scale Battery Storage,6Hr Battery Storage,Advanced,OCC,2024,$/kW,2213.192126235728
+Utility-Scale Battery Storage,6Hr Battery Storage,Moderate,OCC,2024,$/kW,2481.3843540606354
+Utility-Scale Battery Storage,6Hr Battery Storage,Conservative,OCC,2024,$/kW,2828.900910146269
+Utility-Scale Battery Storage,8Hr Battery Storage,Advanced,OCC,2024,$/kW,2852.0515954550256
+Utility-Scale Battery Storage,8Hr Battery Storage,Moderate,OCC,2024,$/kW,3192.8920671119577
+Utility-Scale Battery Storage,8Hr Battery Storage,Conservative,OCC,2024,$/kW,3645.451095530533
+Utility-Scale Battery Storage,10Hr Battery Storage,Advanced,OCC,2024,$/kW,3490.911064674322
+Utility-Scale Battery Storage,10Hr Battery Storage,Moderate,OCC,2024,$/kW,3904.39978016328
+Utility-Scale Battery Storage,10Hr Battery Storage,Conservative,OCC,2024,$/kW,4462.0012809147975
+Utility-Scale Battery Storage,2Hr Battery Storage,Advanced,Fixed O&M,2024,$/kW-yr,23.38682969492837
+Utility-Scale Battery Storage,2Hr Battery Storage,Moderate,Fixed O&M,2024,$/kW-yr,26.459223198949783
+Utility-Scale Battery Storage,2Hr Battery Storage,Conservative,Fixed O&M,2024,$/kW-yr,29.895013484443492
+Utility-Scale Battery Storage,4Hr Battery Storage,Advanced,Fixed O&M,2024,$/kW-yr,39.35831642541079
+Utility-Scale Battery Storage,4Hr Battery Storage,Moderate,Fixed O&M,2024,$/kW-yr,44.24691602523284
+Utility-Scale Battery Storage,4Hr Battery Storage,Conservative,Fixed O&M,2024,$/kW-yr,50.30876811905011
+Utility-Scale Battery Storage,6Hr Battery Storage,Advanced,Fixed O&M,2024,$/kW-yr,55.32980315589321
+Utility-Scale Battery Storage,6Hr Battery Storage,Moderate,Fixed O&M,2024,$/kW-yr,62.03460885151589
+Utility-Scale Battery Storage,6Hr Battery Storage,Conservative,Fixed O&M,2024,$/kW-yr,70.72252275365672
+Utility-Scale Battery Storage,8Hr Battery Storage,Advanced,Fixed O&M,2024,$/kW-yr,71.30128988637564
+Utility-Scale Battery Storage,8Hr Battery Storage,Moderate,Fixed O&M,2024,$/kW-yr,79.82230167779895
+Utility-Scale Battery Storage,8Hr Battery Storage,Conservative,Fixed O&M,2024,$/kW-yr,91.13627738826334
+Utility-Scale Battery Storage,10Hr Battery Storage,Advanced,Fixed O&M,2024,$/kW-yr,87.27277661685805
+Utility-Scale Battery Storage,10Hr Battery Storage,Moderate,Fixed O&M,2024,$/kW-yr,97.609994504082
+Utility-Scale Battery Storage,10Hr Battery Storage,Conservative,Fixed O&M,2024,$/kW-yr,111.55003202286994
+Utility-Scale Battery Storage,2Hr Battery Storage,Advanced,OCC,2024,$/kW,935.4731877971346
+Utility-Scale Battery Storage,2Hr Battery Storage,Moderate,OCC,2024,$/kW,1058.3689279579912
+Utility-Scale Battery Storage,2Hr Battery Storage,Conservative,OCC,2024,$/kW,1195.8005393777396
+Utility-Scale Battery Storage,4Hr Battery Storage,Advanced,OCC,2024,$/kW,1574.3326570164315
+Utility-Scale Battery Storage,4Hr Battery Storage,Moderate,OCC,2024,$/kW,1769.8766410093135
+Utility-Scale Battery Storage,4Hr Battery Storage,Conservative,OCC,2024,$/kW,2012.350724762004
+Utility-Scale Battery Storage,6Hr Battery Storage,Advanced,OCC,2024,$/kW,2213.192126235728
+Utility-Scale Battery Storage,6Hr Battery Storage,Moderate,OCC,2024,$/kW,2481.3843540606354
+Utility-Scale Battery Storage,6Hr Battery Storage,Conservative,OCC,2024,$/kW,2828.900910146269
+Utility-Scale Battery Storage,8Hr Battery Storage,Advanced,OCC,2024,$/kW,2852.0515954550256
+Utility-Scale Battery Storage,8Hr Battery Storage,Moderate,OCC,2024,$/kW,3192.8920671119577
+Utility-Scale Battery Storage,8Hr Battery Storage,Conservative,OCC,2024,$/kW,3645.451095530533
+Utility-Scale Battery Storage,10Hr Battery Storage,Advanced,OCC,2024,$/kW,3490.911064674322
+Utility-Scale Battery Storage,10Hr Battery Storage,Moderate,OCC,2024,$/kW,3904.39978016328
+Utility-Scale Battery Storage,10Hr Battery Storage,Conservative,OCC,2024,$/kW,4462.0012809147975
+Utility-Scale Battery Storage,2Hr Battery Storage,Advanced,Fixed O&M,2024,$/kW-yr,23.38682969492837
+Utility-Scale Battery Storage,2Hr Battery Storage,Moderate,Fixed O&M,2024,$/kW-yr,26.459223198949783
+Utility-Scale Battery Storage,2Hr Battery Storage,Conservative,Fixed O&M,2024,$/kW-yr,29.895013484443492
+Utility-Scale Battery Storage,4Hr Battery Storage,Advanced,Fixed O&M,2024,$/kW-yr,39.35831642541079
+Utility-Scale Battery Storage,4Hr Battery Storage,Moderate,Fixed O&M,2024,$/kW-yr,44.24691602523284
+Utility-Scale Battery Storage,4Hr Battery Storage,Conservative,Fixed O&M,2024,$/kW-yr,50.30876811905011
+Utility-Scale Battery Storage,6Hr Battery Storage,Advanced,Fixed O&M,2024,$/kW-yr,55.32980315589321
+Utility-Scale Battery Storage,6Hr Battery Storage,Moderate,Fixed O&M,2024,$/kW-yr,62.03460885151589
+Utility-Scale Battery Storage,6Hr Battery Storage,Conservative,Fixed O&M,2024,$/kW-yr,70.72252275365672
+Utility-Scale Battery Storage,8Hr Battery Storage,Advanced,Fixed O&M,2024,$/kW-yr,71.30128988637564
+Utility-Scale Battery Storage,8Hr Battery Storage,Moderate,Fixed O&M,2024,$/kW-yr,79.82230167779895
+Utility-Scale Battery Storage,8Hr Battery Storage,Conservative,Fixed O&M,2024,$/kW-yr,91.13627738826334
+Utility-Scale Battery Storage,10Hr Battery Storage,Advanced,Fixed O&M,2024,$/kW-yr,87.27277661685805
+Utility-Scale Battery Storage,10Hr Battery Storage,Moderate,Fixed O&M,2024,$/kW-yr,97.609994504082
+Utility-Scale Battery Storage,10Hr Battery Storage,Conservative,Fixed O&M,2024,$/kW-yr,111.55003202286994

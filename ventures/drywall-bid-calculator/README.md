@@ -6,14 +6,11 @@ finish level, texture, height, openings, and waste decide whether the week
 pays — and shows the walk-away number before a price-per-square-foot special
 goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/drywall-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/drywall-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

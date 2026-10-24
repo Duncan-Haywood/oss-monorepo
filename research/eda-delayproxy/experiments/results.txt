@@ -1,0 +1,37 @@
+# Yosys 0.33 (git sha1 2584903a060); generic gates AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT,MUX; delay = ABC stime on SKY130 HD (eda-sky130rung/experiments/mapped.json)
+# 40 MAC-engine designs; bootstrap = 2000 resamples of designs, 95% percentile interval
+
+proxy                                         spearman   95% interval     kendall
+generic depth (unit delay per gate)             0.611   [ 0.359, 0.805]    0.465
+gate-type weights (logical effort, fan-out 1)   0.609   [ 0.361, 0.797]    0.450
+fan-out only (1 + 0.5 per extra load)           0.904   [ 0.809, 0.950]    0.741
+logical effort with real fan-out                0.829   [ 0.671, 0.910]    0.646
+gate count                                      0.911   [ 0.816, 0.957]    0.756
+largest fan-out                                 0.893   [ 0.790, 0.937]    0.719
+check: unit proxy equals eda-harness ltp depth on 40 of 40 designs
+
+weight sweep (200 random per-gate-type scalings of the logical-effort delay, real fan-out):
+  Spearman min 0.667, median 0.809, max 0.911; 200 of 200 beat unit depth (0.611)
+
+leave-one-out fit of log(delay) on log features (a fitted proxy, 40 points):  spearman  median |error|
+  depth                                       0.565    14.0%
+  logical effort                              0.812     9.8%
+  depth + largest fan-out                     0.878     8.9%
+  logical effort + gates                      0.912     6.1%
+  depth + logical effort + fan-out + gates    0.926     7.0%
+
+top-5 overlap with the five fastest mapped designs (lowest delay):
+  generic depth (unit delay per gate)           0.40
+  gate-type weights (logical effort, fan-out 1) 0.40
+  fan-out only (1 + 0.5 per extra load)         0.80
+  logical effort with real fan-out              0.60
+
+decision check: area x cycles x delay, with the mapped delay replaced by a proxy (area from SKY130 mapping in every row)
+proxy as the clock-period term                 spearman  top-5  best design  front (area, latency) vs truth
+SKY130 mapped delay (truth)                     1.000  1.00  p4w4        p4w4, p2w4, p2w5, p1w4
+generic depth (unit delay per gate)             0.918  0.60  p4w4   front 3 of 4: p8w4, p4w4, p2w4, p1w4
+gate-type weights (logical effort, fan-out 1)   0.921  0.60  p4w4   front 3 of 4: p8w4, p4w4, p2w4, p1w4
+fan-out only (1 + 0.5 per extra load)           0.978  0.80  p4w4   front 3 of 4: p8w4, p4w4, p2w4, p1w4
+logical effort with real fan-out                0.968  0.60  p4w4   front 3 of 4: p8w4, p4w4, p2w4, p1w4
+gate count                                      0.924  0.80  p2w4   front 3 of 4: p4w4, p2w4, p1w4
+no clock term (delay = 1)                       0.904  0.60  p4w4   front 3 of 4: p8w4, p4w4, p2w4, p1w4

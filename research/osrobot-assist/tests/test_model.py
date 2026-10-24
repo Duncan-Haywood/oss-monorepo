@@ -35,5 +35,12 @@ class T(unittest.TestCase):
         self.assertLess(slow, fast)
 
 
+    def test_stiffer_lips_raise_peak_and_default_is_unchanged(self):
+        soft = summarise(Design("camera", 0.1), 0.03, range(20))["peak_max"]
+        self.assertEqual(summarise(Design("camera", 0.1, k_lip=K_LIP), 0.03, range(20))["peak_max"], soft)
+        stiff = summarise(Design("camera", 0.1, k_lip=16000.0), 0.03, range(20))["peak_max"]
+        self.assertGreater(stiff, 2 * soft)
+
+
 if __name__ == "__main__":
     unittest.main()

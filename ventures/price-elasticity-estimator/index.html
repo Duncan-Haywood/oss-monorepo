@@ -62,6 +62,7 @@
     <p>Paste or upload your sales history (date, price, units sold). The tool fits a <strong>log-log demand curve</strong> with robust standard errors, gives your <strong>price elasticity with a confidence interval</strong>, finds the <strong>profit-maximising price inside the prices you have actually charged</strong>, shows what a 5, 10 or 20% price change would do to units, revenue and profit, and <strong>back-tests whether price explains your sales at all</strong>. If your price never moved, it says so instead of guessing.</p>
     <p class="note">Your sales never leave this browser tab. Statistical estimate from data you supply, not advice. Not legal, tax, or financial advice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Your sales</h2>
@@ -95,6 +96,7 @@
     <div class="scroll"><table id="sc"><thead><tr><th>Change</th><th class="n">Price</th><th class="n">Units</th><th class="n">Revenue</th><th class="n" id="profit-h">Profit</th><th></th></tr></thead><tbody></tbody></table></div>
     <h3>Back-test</h3>
     <div id="bt-note" class="note"></div>
+    <div id="prev" class="note"></div>
     <button type="button" id="download">Download scenarios CSV</button>
   </section>
 
@@ -122,7 +124,8 @@
     <p>No. The file is read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your data. It works offline once the page has loaded.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are statistical estimates from the sales you supply; they do not guarantee what will happen when you change a price. You are responsible for reviewing and verifying its output before relying on it.</p>
     <p><strong>Independent.</strong> Not affiliated with any accounting, point-of-sale or e-commerce vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
@@ -160,6 +163,19 @@
         `</svg>`;
     }
 
+    // Kept only in this browser (never sent anywhere) so a return visit after a price change can show the shift.
+    function compareLast(r) {
+      const key = "pee:last";
+      let prev = null, msg = "";
+      try { prev = JSON.parse(localStorage.getItem(key) || "null"); } catch (e) { prev = null; }
+      if (prev && Number.isFinite(prev.e) && prev.n !== r.n) {
+        const d = r.elasticity - prev.e;
+        msg = `Since your last estimate on this device (${esc(prev.d)}): elasticity ${prev.e.toFixed(2)} to ${r.elasticity.toFixed(2)} (${d >= 0 ? "+" : ""}${d.toFixed(2)}), ${prev.n} to ${r.n} periods.`.replace(/&amp;/g, "&");
+      }
+      try { localStorage.setItem(key, JSON.stringify({ e: r.elasticity, n: r.n, d: new Date().toISOString().slice(0, 10) })); } catch (e) { /* storage blocked */ }
+      return msg;
+    }
+
     function run() {
       const parsed = parseRows($("#rows").value);
       if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return false; }
@@ -185,6 +201,7 @@
       $("#profit-h").hidden = r.cost === null;
       $("#sc tbody").innerHTML = r.scenarios.map((s) => `<tr><td>${s.change === 0 ? "current" : (s.change > 0 ? "+" : "") + Math.round(s.change * 100) + "%"}</td><td class="n">${money(s.price)}</td><td class="n">${num(s.units, 1)}</td><td class="n">${money(s.revenue)}</td>${r.cost === null ? "" : `<td class="n">${money(s.profit)}</td>`}<td>${s.tested ? "" : "outside tested range"}</td></tr>`).join("");
       $("#bt-note").textContent = r.holdout ? `Fitted on the first ${r.n - r.holdout.test} rows, scored on the last ${r.holdout.test}. Average miss in log units: ${r.holdout.maeWithPrice.toFixed(3)} with price, ${r.holdout.maeWithoutPrice.toFixed(3)} without. ${r.holdout.helps ? "Knowing the price helped." : "Knowing the price did not help, so do not read much into the elasticity."}` : "Not enough rows to hold out a test period.";
+      $("#prev").textContent = compareLast(r);
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
       report.scrollIntoView({ behavior: "smooth", block: "start" });

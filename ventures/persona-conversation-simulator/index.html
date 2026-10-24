@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Personality Conversation Simulator: Fictional Characters (Free)</title>
+  <meta name="description" content="Build fictional characters with Big Five personalities and simulate negotiations, team meetings and arguments between them. Free, private, runs in your browser.">
+  <meta property="og:title" content="Simulate conversations between fictional personalities">
+  <meta property="og:description" content="Give invented characters Big Five traits, see who clashes and why, and run a salary negotiation or team meeting between them hundreds of times.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Persona Conversation Simulator", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Create fictional characters with Big Five personality scores, read their conflict style and how they get on, and simulate negotiations and group decisions between them, once or hundreds of times. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I simulate a conversation between different personality types?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Give two to six invented characters Big Five scores (or describe them in a sentence), pick a scenario such as a salary negotiation or a team meeting, and the simulator plays it out turn by turn. Run it hundreds of times to see how often each outcome happens with that cast."}}, {"@type": "Question", "name": "Can I make a digital clone of a real person from their social media?", "acceptedAnswer": {"@type": "Answer", "text": "No. This tool only builds invented characters. Profiling a real person from scraped profiles without their consent raises privacy, legal and platform-terms problems, and a confident personality read of someone who never took a test is not accurate anyway. The tool refuses profile links, handles and contact details."}}, {"@type": "Question", "name": "How does the simulator decide what each character says?", "acceptedAnswer": {"@type": "Answer", "text": "With fixed rules you can read in sim.mjs. Each turn it picks who speaks, weighted towards extraversion and whoever was just asked, and what they do: propose, object, concede, ask, hold firm or walk away, with odds set by their trait scores and how tense the conversation is. The same seed and cast always give the same transcript."}}, {"@type": "Question", "name": "Does it predict how real people would behave?", "acceptedAnswer": {"@type": "Answer", "text": "No. The weights are hand-set to follow broad tendencies, such as agreeable people conceding more and anxious people escalating under pressure. They are not fitted to data. Use it to rehearse and to think about a group's dynamics, not to forecast what a particular person will do."}}, {"@type": "Question", "name": "Do I need an AI key?", "acceptedAnswer": {"@type": "Answer", "text": "No. The simulator runs entirely on rules in your browser. An optional pass on your own Anthropic, OpenAI, Gemini or local model rewrites each line in the character's voice, but it cannot change who speaks, what they do or any number."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d1b2a; background: #f4f2f8; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #2e2350; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2e2350; }
+    h3 { font-size: 1rem; margin: 16px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a566b; }
+    .card { background: #fff; border: 1px solid #dad5e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2e235010; margin: 18px 0; }
+    label { display: block; font-weight: 600; font-size: .85rem; margin: 6px 0 3px; }
+    input[type=text], input[type=password], select, textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #b3abc6; border-radius: 7px; font: 14px system-ui; }
+    textarea { min-height: 54px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #4b3a8c; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e7e3f0; color: #2e2350; }
+    button.small { padding: 5px 9px; font-size: .8rem; font-weight: 600; }
+    .cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+    .persona { border: 1px solid #dad5e6; border-radius: 12px; padding: 14px; background: #fbfaff; }
+    .persona .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .persona .head input { font-weight: 700; }
+    .slider { display: grid; grid-template-columns: 130px 1fr 34px; align-items: center; gap: 6px; font-size: .82rem; }
+    .slider input { width: 100%; }
+    .style { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e7e3f0; color: #2e2350; }
+    .reads { font-size: .82rem; color: #3d3952; padding-left: 18px; margin: 6px 0; }
+    .line { padding: 6px 0; border-bottom: 1px solid #eeebf4; font-size: .93rem; }
+    .line b { color: #2e2350; }
+    .line .move { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: #7a7490; margin-left: 6px; }
+    .verdict { font-size: 1.25rem; font-weight: 800; margin: 0 0 6px; color: #2e2350; }
+    .bar { height: 12px; background: #4b3a8c; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #eeebf4; vertical-align: middle; }
+    th { color: #5a566b; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .error { color: #9a3412; font-weight: 600; }
+    .friction { color: #9a3412; } .rapport { color: #14532d; }
+    footer { margin-top: 28px; border-top: 1px solid #dad5e6; padding-top: 16px; }
+    pre.cmd { background: #f7f6fb; padding: 12px; border-radius: 8px; font-size: .86rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; }
+    details { margin-top: 10px; } summary { cursor: pointer; font-size: .9rem; font-weight: 600; color: #2e2350; }
+    @media (max-width: 600px) { .row { grid-template-columns: 1fr; } body { padding: 16px; } .slider { grid-template-columns: 110px 1fr 30px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PERSONA CONVERSATION SIMULATOR · FICTIONAL CHARACTERS · RUNS IN YOUR BROWSER</p>
+    <h1>Simulate conversations between fictional personalities</h1>
+    <p>Invent a cast of two to six characters, give each a Big Five personality (or describe them in a sentence), and see their conflict style, who will clash and why. Then play out a salary negotiation, a team meeting or a housemates' argument between them, once to read the transcript or hundreds of times to see how often each outcome happens.</p>
+    <p class="note"><strong>Fictional characters only.</strong> This is not a way to profile or clone a real person: it takes no profile links, handles or contact details, and the names it generates are invented. Use it to rehearse a hard conversation, think about team dynamics, or write characters. Everything runs in this browser and nothing is uploaded.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Your cast</h2>
+    <div class="cast" id="cast"></div>
+    <p style="margin-top:12px">
+      <button type="button" class="secondary" id="add">Add a random character</button>
+      <button type="button" class="secondary" id="reroll">New random cast</button>
+    </p>
+    <p class="note" id="cast-status" role="status"></p>
+  </section>
+
+  <section class="card">
+    <h2>2. How they are likely to get on</h2>
+    <div id="dynamics"></div>
+  </section>
+
+  <section class="card">
+    <h2>3. Run a scenario</h2>
+    <div class="row">
+      <div><label for="scenario">Scenario</label><select id="scenario"></select><p class="note" id="scenario-blurb"></p></div>
+      <div><label for="seed">Seed (same seed, same conversation)</label><input id="seed" type="text" value="1" autocomplete="off"></div>
+    </div>
+    <details id="ai-box">
+      <summary>Optional: write the lines in each character's voice with your own AI key</summary>
+      <p class="note">The rules decide who speaks, what they do and every number. This pass only rewrites the wording of each line, and any rewrite that drops or changes a number is thrown away. It sends the character cards and the transcript straight from this browser to the provider you pick. Your key stays in this browser and is never sent to us. A model on your own computer (Ollama, LM Studio, llama.cpp) needs no key.</p>
+      <div class="row">
+        <div><label for="ai-provider">Provider</label><select id="ai-provider"><option value="">Off (rules only)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">Other (OpenAI-compatible)</option><option value="ollama">Ollama on this computer</option><option value="lmstudio">LM Studio on this computer</option><option value="llamacpp">llama.cpp on this computer</option></select></div>
+        <div><label for="ai-model">Model (required except Anthropic)</label><input id="ai-model" type="text" autocomplete="off"></div>
+        <div><label for="ai-base">Base URL (OpenAI-compatible only)</label><input id="ai-base" type="text" autocomplete="off" placeholder="https://openrouter.ai/api/v1"></div>
+        <div><label for="ai-key">API key</label><input id="ai-key" type="password" autocomplete="off"></div>
+      </div>
+    </details>
+    <p style="margin-top:12px">
+      <button type="button" id="run">Play it out once</button>
+      <button type="button" class="secondary" id="many">Run it 300 times</button>
+    </p>
+    <p class="note" id="status" role="status">Pick a scenario and press play.</p>
+  </section>
+
+  <section class="card" id="result" hidden>
+    <h2>Transcript</h2>
+    <p class="verdict" id="verdict"></p>
+    <div id="transcript"></div>
+    <p style="margin-top:12px">
+      <button type="button" class="secondary small" id="copy">Copy transcript</button>
+      <button type="button" class="secondary small" id="dl-json">Download cast and run (.json)</button>
+    </p>
+    <p class="note" id="export-status" role="status"></p>
+  </section>
+
+  <section class="card" id="many-result" hidden>
+    <h2>Across many runs</h2>
+    <div id="many-out"></div>
+  </section>
+
+  <section class="card">
+    <h2>What you use today, and what this does differently</h2>
+    <p class="note"><strong>Personality tests</strong> describe one person and stop there. <strong>Chatbot role-play</strong> gives you a fluent conversation, but a different one every time and with no way to see why a character gave way. This tool keeps the rules in the open: trait scores set the odds of each move, the same seed replays the same conversation, and running a cast hundreds of times shows how often a deal closes or a meeting falls apart. It is a way to think about how people tend to differ, not a substitute for talking to the real ones.</p>
+  </section>
+
+  <section class="card">
+    <h2>Run it from the command line</h2>
+    <p class="note">Zero dependencies, Node 18+. A cast file is a JSON list of invented characters: <code>[{"name": "Ava Juniper", "role": "founder", "description": "blunt, organised, calm"}]</code>.</p>
+    <pre class="cmd">node cli.mjs --list
+node cli.mjs --scenario salary --seed 7 --runs 500
+node cli.mjs --scenario team-deadline --cast cast.json --format json</pre>
+  </section>
+
+  <section class="card">
+    <h2>Questions people actually ask</h2>
+    <h3>Can I simulate a conversation between different personality types?</h3>
+    <p>Yes. Give two to six invented characters Big Five scores (or describe them in a sentence), pick a scenario such as a salary negotiation or a team meeting, and the simulator plays it out turn by turn. Run it hundreds of times to see how often each outcome happens with that cast.</p>
+    <h3>Can I make a digital clone of a real person from their social media?</h3>
+    <p>No. This tool only builds invented characters. Profiling a real person from scraped profiles without their consent raises privacy, legal and platform-terms problems, and a confident personality read of someone who never took a test is not accurate anyway. The tool refuses profile links, handles and contact details.</p>
+    <h3>How does the simulator decide what each character says?</h3>
+    <p>With fixed rules you can read in sim.mjs. Each turn it picks who speaks, weighted towards extraversion and whoever was just asked, and what they do: propose, object, concede, ask, hold firm or walk away, with odds set by their trait scores and how tense the conversation is. The same seed and cast always give the same transcript.</p>
+    <h3>Does it predict how real people would behave?</h3>
+    <p>No. The weights are hand-set to follow broad tendencies, such as agreeable people conceding more and anxious people escalating under pressure. They are not fitted to data. Use it to rehearse and to think about a group's dynamics, not to forecast what a particular person will do.</p>
+    <h3>Do I need an AI key?</h3>
+    <p>No. The simulator runs entirely on rules in your browser. An optional pass on your own Anthropic, OpenAI, Gemini or local model rewrites each line in the character's voice, but it cannot change who speaks, what they do or any number.</p>
+    <p class="note">Longer version: <a href="big-five-personality-conflict-styles.html">Big Five personality traits and conflict: who clashes, and why</a>.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a rules-based simulation of invented characters, not psychological, medical, HR, legal or career advice, and not a personality assessment of anyone. It does not predict what any real person will do. <strong>You are responsible for how you use its output.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Download your cast if you want to keep it, or get <a href="sim.mjs" rel="noopener">sim.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. Your characters are never uploaded unless you turn on the optional AI pass with your own key; there are no accounts, cookies, or analytics vendors, and without that pass the page makes no network calls. Anonymous feature events (<code>sim_run</code>, <code>many_run</code>, <code>character_added</code>, <code>export_used</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../meeting-action-items/">Meeting Action Items</a> turns real meeting notes into owned, dated actions.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { TRAITS, TRAIT_LABELS, makeCast, makePersona, profile, traitsFromText, checkFictional } from "./persona.mjs";
+    import { SCENARIOS, scenarioById, simulate, runMany, transcriptText } from "./sim.mjs";
+    import { group } from "./dynamics.mjs";
+    import { voiceWithAi } from "./ai.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+    let cast = makeCast(Math.random().toString(36).slice(2, 8), 2);
+    let last = null;
+
+    for (const s of SCENARIOS) { const o = el("option", null, s.title); o.value = s.id; $("scenario").appendChild(o); }
+    const scenario = () => scenarioById($("scenario").value);
+    const blurb = () => { const s = scenario(); $("scenario-blurb").textContent = s.blurb + (s.kind === "negotiate" ? " Uses the first two characters in your cast." : ` Needs ${s.min} to ${s.max} characters.`); };
+    $("scenario").addEventListener("change", blurb);
+
+    function personaCard(p, i) {
+      const box = el("div", "persona");
+      const head = el("div", "head");
+      const name = el("input"); name.type = "text"; name.value = p.name; name.setAttribute("aria-label", `Character ${i + 1} name`);
+      name.addEventListener("change", () => update(i, { name: name.value }));
+      head.appendChild(name);
+      const rm = el("button", "secondary small", "Remove"); rm.type = "button";
+      rm.addEventListener("click", () => { cast.splice(i, 1); paint(); });
+      if (cast.length > 2) head.appendChild(rm);
+      box.appendChild(head);
+      const roleL = el("label", null, "Role"); const role = el("input"); role.type = "text"; role.value = p.role; role.id = `role-${i}`; roleL.htmlFor = role.id;
+      role.addEventListener("change", () => update(i, { role: role.value }));
+      box.append(roleL, role);
+      const dL = el("label", null, "Describe them (sets the sliders from words like blunt, anxious, organised)"); const d = el("textarea"); d.id = `desc-${i}`; dL.htmlFor = d.id; d.value = p.note || "";
+      d.placeholder = "e.g. a very blunt, organised and calm negotiator";
+      d.addEventListener("change", () => {
+        const ok = checkFictional(d.value);
+        if (!ok.ok) { $("cast-status").textContent = ok.why; $("cast-status").className = "error"; d.value = ""; return; }
+        const { traits, matched } = traitsFromText(d.value, p.traits);
+        $("cast-status").className = "note";
+        $("cast-status").textContent = matched.length ? `${p.name.split(" ")[0]}: read ${matched.map((m) => `"${m.word}" (${m.dir > 0 ? "+" : "−"}${TRAIT_LABELS[m.trait]})`).join(", ")}.` : `No trait words recognised for ${p.name.split(" ")[0]}; set the sliders by hand.`;
+        update(i, { traits, note: d.value });
+      });
+      box.append(dL, d);
+      for (const t of TRAITS) {
+        const row = el("div", "slider");
+        const lab = el("label", null, TRAIT_LABELS[t]); const inp = el("input"); inp.type = "range"; inp.min = "0"; inp.max = "100"; inp.value = String(p.traits[t]); inp.id = `${t}-${i}`; lab.htmlFor = inp.id;
+        const out = el("span", null, String(p.traits[t]));
+        inp.addEventListener("input", () => { out.textContent = inp.value; });
+        inp.addEventListener("change", () => update(i, { traits: { ...cast[i].traits, [t]: Number(inp.value) } }));
+        row.append(lab, inp, out); box.appendChild(row);
+      }
+      const pr = profile(p);
+      const st = el("p"); st.appendChild(el("span", "style", pr.conflict.style)); st.appendChild(document.createTextNode(` ${pr.conflict.why}.`)); st.className = "note"; box.appendChild(st);
+      const ul = el("ul", "reads"); for (const r of pr.reads) ul.appendChild(el("li", null, r.text)); box.appendChild(ul);
+      const det = el("details"); det.appendChild(el("summary", null, "How to talk to them"));
+      const tl = el("ul", "reads"); for (const t of pr.tips) tl.appendChild(el("li", null, t)); det.appendChild(tl);
+      if (pr.stressors.length) det.appendChild(el("p", "note", `Wound up by: ${pr.stressors.join("; ")}.`));
+      box.appendChild(det);
+      return box;
+    }
+    function update(i, patch) {
+      const p = cast[i];
+      const text = [patch.name, patch.role].filter(Boolean).join(" ");
+      const ok = checkFictional(text);
+      if (!ok.ok) { $("cast-status").textContent = ok.why; $("cast-status").className = "error"; setTimeout(paint); return; }
+      cast[i] = { ...p, ...patch, name: (patch.name ?? p.name).trim() || p.name };
+      // Repaint after the event: rebuilding the card inside its own change
+      // handler removes the field the browser is still blurring.
+      setTimeout(paint);
+    }
+    function paintDynamics() {
+      const box = $("dynamics"); box.replaceChildren();
+      const g = group(cast);
+      const name = (id) => cast.find((p) => p.id === id)?.name.split(" ")[0] ?? id;
+      if (g.notes.length) { const ul = el("ul"); for (const n of g.notes) ul.appendChild(el("li", null, n)); box.appendChild(ul); }
+      for (const pr of g.pairs) {
+        box.appendChild(el("h3", null, `${name(pr.a)} and ${name(pr.b)}: ${pr.verdict}`));
+        if (!pr.notes.length) box.appendChild(el("p", "note", "No large trait gaps or shared extremes: nothing stands out either way."));
+        const ul = el("ul", "reads");
+        for (const n of pr.notes) ul.appendChild(el("li", n.kind, n.text));
+        box.appendChild(ul);
+      }
+      box.appendChild(el("p", "note", "Read from trait gaps with hand-set rules. Tendencies, not predictions."));
+    }
+    function paint() {
+      const box = $("cast"); box.replaceChildren();
+      cast.forEach((p, i) => box.appendChild(personaCard(p, i)));
+      $("add").disabled = cast.length >= 6;
+      paintDynamics();
+    }
+    const nameOf = (id) => cast.find((p) => p.id === id)?.name ?? id;
+    async function runOnce() {
+      const s = scenario();
+      let r;
+      try { r = simulate(s, cast, { seed: $("seed").value || "1" }); }
+      catch (e) { $("status").textContent = e.message; $("status").className = "error"; return; }
+      let turns = r.turns, aiNote = "";
+      const provider = $("ai-provider").value;
+      if (provider) {
+        $("status").textContent = "Asking your model to voice the lines…"; $("status").className = "note";
+        const x = await voiceWithAi({ provider, model: $("ai-model").value.trim(), baseUrl: $("ai-base").value.trim(), apiKey: $("ai-key").value.trim(), browser: true }, cast, r.turns, s.title);
+        turns = x.turns;
+        aiNote = x.source === "model" ? ` Your model reworded ${x.kept} line${x.kept === 1 ? "" : "s"}; ${x.dropped} kept the rules' wording because a rewrite changed a number or failed.` : ` AI voicing did not run (${x.error}); these are the rules' lines.`;
+        if (x.source === "model") record("ai_voice_run");
+      }
+      last = { scenario: s.id, seed: $("seed").value || "1", cast, run: { ...r, turns } };
+      record("sim_run");
+      $("result").hidden = false;
+      $("verdict").textContent = r.outcome.label;
+      const t = $("transcript"); t.replaceChildren();
+      for (const turn of turns) {
+        const line = el("div", "line");
+        line.appendChild(el("b", null, nameOf(turn.speaker).split(" ")[0] + ": "));
+        line.appendChild(document.createTextNode(turn.text));
+        line.appendChild(el("span", "move", turn.move));
+        t.appendChild(line);
+      }
+      $("status").textContent = `Seed ${last.seed}. Change the seed for a different conversation with the same cast.` + aiNote;
+      $("status").className = "note";
+    }
+    function runLots() {
+      const s = scenario();
+      let m;
+      try { m = runMany(s, cast, { runs: 300, seed: $("seed").value || "1" }); }
+      catch (e) { $("status").textContent = e.message; $("status").className = "error"; return; }
+      record("many_run");
+      const box = $("many-out"); box.replaceChildren();
+      const label = (k) => k.startsWith("decided: ") ? `Decided: ${s.options.find((o) => o.id === k.slice(9)).label}` : k === "deal" ? "Deal" : k === "walked away" ? "Someone walked away" : k === "postponed" ? "Broke down: postponed" : "Ran out of time";
+      const tb = el("table"); tb.innerHTML = "<thead><tr><th>Outcome</th><th>Share of runs</th><th></th></tr></thead>";
+      const body = el("tbody");
+      for (const o of m.outcomes) {
+        const tr = el("tr"); tr.appendChild(el("td", null, label(o.outcome))); tr.appendChild(el("td", null, `${Math.round(o.share * 100)}%`));
+        const td = el("td"); td.style.width = "45%"; const bar = el("div", "bar"); bar.style.width = `${Math.max(2, o.share * 100)}%`; td.appendChild(bar); tr.appendChild(td); body.appendChild(tr);
+      }
+      tb.appendChild(body); box.appendChild(tb);
+      if (m.price) box.appendChild(el("p", null, `When they agree, the price lands between ${s.unit}${m.price.p10.toLocaleString("en-US")} and ${s.unit}${m.price.p90.toLocaleString("en-US")} in 8 runs out of 10 (median ${s.unit}${m.price.median.toLocaleString("en-US")}).`));
+      const pt = el("table"); pt.innerHTML = "<thead><tr><th>Character</th><th>Share of turns</th><th>Got what they wanted (0–1)</th></tr></thead>";
+      const pb = el("tbody");
+      for (const p of m.perPerson) { const tr = el("tr"); tr.appendChild(el("td", null, p.name)); tr.appendChild(el("td", null, `${Math.round(p.airtime * 100)}%`)); tr.appendChild(el("td", null, p.satisfaction.toFixed(2))); pb.appendChild(tr); }
+      pt.appendChild(pb); box.appendChild(pt);
+      box.appendChild(el("p", "note", `${m.runs} runs, ${m.meanTurns.toFixed(1)} turns on average. Change a slider and run again to see what moves the result.`));
+      $("many-result").hidden = false;
+    }
+    $("add").addEventListener("click", () => { if (cast.length < 6) { const taken = new Set(cast.map((c) => c.name.split(" ")[0]));
+        let np = makePersona({ seed: Math.random().toString(36).slice(2, 8) });
+        for (let k = 0; k < 50 && taken.has(np.name.split(" ")[0]); k++) np = makePersona({ seed: Math.random().toString(36).slice(2, 8) });
+        cast.push(np); record("character_added"); paint(); } });
+    $("reroll").addEventListener("click", () => { cast = makeCast(Math.random().toString(36).slice(2, 8), cast.length); paint(); });
+    $("run").addEventListener("click", runOnce);
+    $("many").addEventListener("click", runLots);
+    $("copy").addEventListener("click", async () => {
+      if (!last) return;
+      try { await navigator.clipboard.writeText(transcriptText(last.run, cast)); $("export-status").textContent = "Copied."; record("export_used"); }
+      catch { $("export-status").textContent = "Could not copy here: select the transcript and copy it by hand."; }
+    });
+    $("dl-json").addEventListener("click", () => {
+      if (!last) return;
+      const a = el("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(last, null, 2)], { type: "application/json" })); a.download = `simulation-${last.scenario}-${last.seed}.json`; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("export_used");
+    });
+    const optout = $("optout");
+    const paintOpt = () => { optout.textContent = usageOptedOut() ? "Usage counting is off — turn it back on" : "Turn usage counting off"; };
+    optout.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paintOpt(); });
+    paintOpt();
+    blurb();
+    paint();
+  </script>
+</body>
+</html>

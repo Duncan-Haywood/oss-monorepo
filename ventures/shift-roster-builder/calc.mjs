@@ -357,7 +357,7 @@ const DEFAULTS = {
   splitPremium: 0, splitGap: 1, // split-shift premium: dollars owed on each day a person's shifts have a gap over splitGap hours (0 = off)
   diffWhen: "", diffPerHour: 0, diffPct: 0, // pay differential: extra $/hour and/or % of wage for hours inside the diffWhen windows ("Sat-Sun; 10pm-6am"; none = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
-  balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
+  exact: "auto", exactNodes: 400000, exactMs: 8000, exactTolerance: 0.5, balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0, longPass: true,
 };
 
 function qualified(person, slot) {
@@ -627,6 +627,50 @@ function anneal(ctx, seed, iterations, jitter) {
   return { owner: bestOwner, score: bestScore };
 }
 
+// Ejection chains, as a pass over a finished roster. Annealing moves one shift at a time, so an open shift that cannot simply be
+// added (overlap, rest gap, weekly limit) stays open unless two moves happen back to back. Here an open shift goes to someone who
+// gives up one of theirs for it, and that shift moves on to a third person, or stays open if it is the shorter of the two. Moves that
+// cost more than they gain are taken at a falling temperature. Measured on seeded 8-person, 22-shift weeks, the open hours the search
+// left fell from 63/11/105/38 to 57/4/98/35 (eval/ejection-bench.mjs). Only run while shifts are open, and only kept if the total falls.
+function ejectPass(ctx, owner0, seed, iterations) {
+  const { P, S, slots, elig } = ctx;
+  const rng = mulberry32(seed);
+  const owner = owner0.slice();
+  const lists = Array.from({ length: P }, () => []);
+  owner.forEach((p, i) => { if (p >= 0) lists[p] = insertSorted(ctx, lists[p], i); });
+  const pScore = lists.map((l, p) => personScore(ctx, p, l));
+  const hrs = (i) => (slots[i].end - slots[i].start) / 60;
+  const removeFrom = (list, i) => list.filter((x) => x !== i);
+  let score = pScore.reduce((a, b) => a + b, 0) + BIG * owner.reduce((t, p, i) => t + (p < 0 ? hrs(i) : 0), 0);
+  let bestScore = score, bestOwner = owner.slice();
+  const T0 = Math.max(0.5, ctx.avgWage * (ctx.totalHours / Math.max(1, S)) * 0.4), T1 = 0.01;
+  for (let it = 0; it < iterations; it++) {
+    const open = [];
+    owner.forEach((p, i) => { if (p < 0) open.push(i); });
+    if (!open.length) break;
+    const T = T0 * (T1 / T0) ** (it / iterations);
+    const i = open[Math.floor(rng() * open.length)];
+    const q = Math.floor(rng() * P);
+    if (!elig[q][i] || !lists[q].length) continue;
+    const j = lists[q][Math.floor(rng() * lists[q].length)];
+    const nq = insertSorted(ctx, removeFrom(lists[q], j), i);
+    if (!validList(ctx, q, nq)) continue;
+    const r = Math.floor(rng() * P);
+    let nr = null;
+    if (r !== q && elig[r][j]) { nr = insertSorted(ctx, lists[r], j); if (!validList(ctx, r, nr)) nr = null; }
+    const sq = personScore(ctx, q, nq);
+    let delta = sq - pScore[q] - BIG * hrs(i), sr = 0;
+    if (nr) { sr = personScore(ctx, r, nr); delta += sr - pScore[r]; } else delta += BIG * hrs(j);
+    if (delta < 0 || rng() < Math.exp(-delta / T)) {
+      lists[q] = nq; pScore[q] = sq; owner[i] = q;
+      if (nr) { lists[r] = nr; pScore[r] = sr; owner[j] = r; } else owner[j] = -1;
+      score += delta;
+      if (score < bestScore - 1e-9) { bestScore = score; bestOwner = owner.slice(); }
+    }
+  }
+  return bestOwner;
+}
+
 function search(ctx, restarts, iterations, first = 0) {
   let best = null;
   for (let r = first; r < first + restarts; r++) {
@@ -635,6 +679,564 @@ function search(ctx, restarts, iterations, first = 0) {
     if (!best || re.total < best.score - 1e-9) best = { owner: res.owner, score: re.total };
   }
   return best;
+}
+
+// Exact search for small problems: branch and bound over "who takes each shift, or nobody", with a lower bound built only from
+// parts of the score that cannot fall as shifts are added (pay at the straight rate and overtime already earned, avoid and tough
+// penalties) plus the cheapest possible pay for every shift still undecided and the smallest the convex hours terms (minimum
+// hours, balance) can reach. Hard rules are monotone (a superset of a broken list is broken), so a branch that breaks one is cut.
+// Seeded with the annealed score as the incumbent. `proven` is true only when the tree was exhausted inside the node and time
+// limits, so the result is then the true optimum and the annealing gap is exact; otherwise `rootBound` is the bound at the root.
+// "auto" runs the exact search by itself on weeks this small, where it finishes in well under a second; 150 random 5-10 shift weeks
+// had the quick search beaten in 38 (each by covering more hours) before this was on by default.
+const EXACT_AUTO_SLOTS = 14;
+const TANGENTS = 8; // tangent lines under each person's hours curve inside the coverage flow
+function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, tolerance = 0 } = {}) {
+  let coverNodes = 0;
+  const { P, S, slots, staff, o, elig } = ctx;
+  const mono = o.otMult >= 1 && o.dtMult >= 1;
+  const mFloor = Math.min(1, o.otMult, o.dtMult);
+  const burden = 1 + o.burdenPct / 100;
+  const len = slots.map((s) => (s.end - s.start) / 60);
+  const cheapest = slots.map((s, i) => {
+    let m = Infinity;
+    for (let p = 0; p < P; p++) if (elig[p][i]) m = Math.min(m, burden * staff[p].wage * mFloor * paidMinutes(o, s) / 60);
+    return m === Infinity ? 0 : m; // nobody can take it: it stays open, which the coverage bound already charges
+  });
+  const maxRate = Math.max(0, ...cheapest.map((c, i) => c / len[i]));
+  const order = [...Array(S).keys()].sort((a, b) => {
+    const ea = elig.reduce((t, r) => t + (r[a] ? 1 : 0), 0), eb = elig.reduce((t, r) => t + (r[b] ? 1 : 0), 0);
+    return ea - eb || slots[a].start - slots[b].start;
+  });
+  // suffix tables: from position k on, the hours (and prefer-window hours) each person could still take
+  const sufHours = Array.from({ length: S + 1 }, () => new Array(P).fill(0));
+  const sufPrefer = Array.from({ length: S + 1 }, () => new Array(P).fill(0));
+  const sufCheap = new Array(S + 1).fill(0);
+  for (let k = S - 1; k >= 0; k--) {
+    const i = order[k];
+    sufCheap[k] = sufCheap[k + 1] + cheapest[i];
+    for (let p = 0; p < P; p++) {
+      sufHours[k][p] = sufHours[k + 1][p] + (elig[p][i] ? len[i] : 0);
+      sufPrefer[k][p] = sufPrefer[k + 1][p] + (elig[p][i] && staff[p].prefer ? avoidMinutes(staff[p], slots[i], "prefer") / 60 : 0);
+    }
+  }
+  // Smallest value of the convex hours terms (shortfall + balance) for hours anywhere in [h0, h1].
+  const gMin = (p, h0, h1) => {
+    const a = o.shortfallValue, c = (o.balance / 100) * ctx.avgWage * 0.1, t = ctx.target[p], m = staff[p].minHours;
+    const g = (h) => a * Math.max(0, m - h) + c * (h - t) ** 2;
+    const clamp = (h) => Math.min(h1, Math.max(h0, h));
+    let best = Math.min(g(h0), g(h1), g(clamp(t)), g(clamp(m)));
+    if (c > 0) best = Math.min(best, g(clamp(t + a / (2 * c))));
+    return best;
+  };
+  // Symmetry: people who differ only by name (same wage, limits, availability, preferences, history) are interchangeable, so when
+  // two of them hold exactly the same shifts, giving the next shift to either leads to mirror-image subtrees and only one is tried.
+  const cls = staff.map((p, q) => JSON.stringify([{ ...p, name: 0 }, elig[q], ctx.target[q]]));
+  const lists = Array.from({ length: P }, () => []);
+  const owner = new Array(S).fill(-1);
+  let minOpenH = 0; // least hours that must stay open, once the coverage pass has proven it
+  let covMode = false; // coverage-first pass: only the hours left open count
+  const lowerBound = (k, unfilledH, cutoff = Infinity) => {
+    if (covMode) return coverBound(k, unfilledH, cutoff);
+    let lb = BIG * unfilledH, capacity = 0, gSum = 0;
+    for (let p = 0; p < P; p++) {
+      const L = lists[p], h = hoursOf(ctx, L);
+      let pay = 0;
+      if (mono) { const q = payParts(ctx, L); pay = burden * staff[p].wage * (q.straight + q.ot * o.otMult + q.dt * o.dtMult); }
+      const h1 = Math.max(h, Math.min(staff[p].maxHours, h + sufHours[k][p]));
+      lo0[p] = h; hi0[p] = h1;
+      const g0 = gMin(p, h, h1);
+      gSum += g0;
+      let lo = pay + avoidPenalty(ctx, p, L) + toughPenalty(ctx, p, L) + g0;
+      if (staff[p].prefer) {
+        let pm = 0;
+        for (const i of L) pm += avoidMinutes(staff[p], slots[i], "prefer");
+        lo -= (pm / 60 + sufPrefer[k][p]) * o.preferValue * Math.max(staff[p].wage, 1);
+      }
+      lb += lo;
+      capacity += Math.max(0, Math.min(staff[p].maxHours, h + sufHours[k][p]) - h);
+      hoursLeft[p] = Math.max(0, staff[p].maxHours - h);
+    }
+    // Weekly hour limits can force hours open: whatever the people still free cannot absorb costs BIG, which dwarfs any pay.
+    // Counting only total capacity ignores who can work which shift; a max flow from the undecided shifts (their hours) to the
+    // people (the weekly hours they have left), along who is available, is the most that could still be covered.
+    let demand = 0;
+    for (let j = k; j < S; j++) demand += len[order[j]];
+    // The flow is the dear part of a node. The bound without it (open hours from total capacity alone) is already a valid bound,
+    // so when it reaches the cutoff the branch is cut without building the graph.
+    const openCap = Math.max(0, demand - capacity);
+    if (lb + BIG * openCap + Math.max(0, sufCheap[k] - openCap * maxRate) >= cutoff) return Infinity;
+    const cov = coverableHours(k, hoursLeft);
+    const flowOpen = Math.max(0, demand - capacity, demand - cov.flow);
+    const open = Math.max(flowOpen, minOpenH - unfilledH);
+    // cov.cost and cov.joint price covering the most hours the flow can; when the coverage pass forces more hours open than that,
+    // fewer hours get covered and those prices can overstate, so they are used only when the open hours are the flow's own.
+    const flowPriced = open <= flowOpen + 1e-9;
+    // The shifts that have to stay open are not paid for, so take back at most the dearest rate per hour for each forced open hour.
+    // gSum lets every person sit at their own best hours. The covered hours are fixed in total, so they cannot all do that.
+    const coupled = coupledHours(demand - open, gSum);
+    const apart = lb + coupled - gSum + BIG * open + Math.max(0, sufCheap[k] - open * maxRate, flowPriced ? cov.cost : 0);
+    // With the hours terms inside the flow, who can work when and how far each person's hours sit from their target are priced
+    // together: the cheapest way to cover the most hours, pay and the convex terms both, is the bound.
+    return cov.joint === undefined || !flowPriced ? apart : Math.max(apart, lb - gSum + cov.joint + BIG * open);
+  };
+  // Least hours that must stay open (BIG each) given the decided shifts: total capacity first, the flow only if that does not cut.
+  const coverBound = (k, unfilledH, cutoff) => {
+    let capacity = 0, demand = 0;
+    for (let p = 0; p < P; p++) {
+      const h = hoursOf(ctx, lists[p]);
+      capacity += Math.max(0, Math.min(staff[p].maxHours, h + sufHours[k][p]) - h);
+      hoursLeft[p] = Math.max(0, staff[p].maxHours - h);
+    }
+    for (let j = k; j < S; j++) demand += len[order[j]];
+    const base = BIG * unfilledH;
+    const openCap = Math.max(0, demand - capacity);
+    if (base + BIG * openCap >= cutoff) return Infinity;
+    return base + BIG * Math.max(openCap, minOpenH - unfilledH, demand - coverableHours(k, hoursLeft, true).flow);
+  };
+  // Lagrangian bound on the convex hours terms when the undecided shifts add at most `x` hours in all: for any price lam,
+  // sum_p min_h [g_p(h) - lam (h - h0_p)] + lam x is a lower bound on the least total (weak duality), and an open hour costs
+  // BIG > lam, so taking all x hours is the cheapest case. A negative lam prices hours as too many to place. lam = 0 gives gSum back; the
+  // best lam is found by ternary search.
+  const lo0 = new Array(P).fill(0), hi0 = new Array(P).fill(0);
+  const coupledHours = (x, gSum) => {
+    const a = o.shortfallValue, c = (o.balance / 100) * ctx.avgWage * 0.1;
+    let room = 0, maxH = 0;
+    for (let p = 0; p < P; p++) { room += hi0[p] - lo0[p]; maxH = Math.max(maxH, staff[p].maxHours); }
+    if (!(c > 0) || x >= room - 1e-9) return gSum;
+    const dual = (lam) => {
+      let t = lam * x;
+      for (let p = 0; p < P; p++) {
+        const tp = ctx.target[p], m = staff[p].minHours, l = lo0[p], u = hi0[p];
+        const g = (h) => a * Math.max(0, m - h) + c * (h - tp) ** 2 - lam * (h - l);
+        const cl = (h) => Math.min(u, Math.max(l, h));
+        t += Math.min(g(l), g(u), g(cl(m)), g(cl(tp + (a + lam) / (2 * c))), g(cl(tp + lam / (2 * c))));
+      }
+      return t;
+    };
+    const span = a + 2 * c * maxH + 1;
+    let lo = -span, hi = Math.min(BIG, span);
+    for (let it = 0; it < 24; it++) {
+      const m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;
+      if (dual(m1) < dual(m2)) lo = m1; else hi = m2;
+    }
+    return Math.max(gSum, dual((lo + hi) / 2));
+  };
+  const days = [...new Set(slots.map((x) => x.day))].sort((x, y) => x - y);
+  const dayAt = new Map(days.map((d, j) => [d, j]));
+  const D = days.length;
+  const quarter = len.every((h) => Math.abs(h * 4 - Math.round(h * 4)) < 1e-9);
+  const pairOk = Array.from({ length: P }, () => new Map()); // person -> "i,j" -> can one person hold both
+  const compatible = (p, i, j) => {
+    const key = i < j ? i * S + j : j * S + i;
+    let v = pairOk[p].get(key);
+    if (v === undefined) { v = validList(ctx, p, [i, j].sort((x, y) => slots[x].start - slots[y].start || x - y)); pairOk[p].set(key, v); }
+    return v;
+  };
+  // Heaviest set of shifts on one day that one person could hold together (no two overlap or break the rest rule), in hours.
+  const bestDay = (p, items) => {
+    let best = 0;
+    const go = (from, chosen, hours) => {
+      if (hours > best) best = hours;
+      for (let x = from; x < items.length; x++) {
+        if (chosen.every((c) => compatible(p, c, items[x]))) { chosen.push(items[x]); go(x + 1, chosen, hours + len[items[x]]); chosen.pop(); }
+      }
+    };
+    go(0, [], 0);
+    return best;
+  };
+  // Most hours of shifts order[k..] that could still be covered, ignoring everything but who is available, what is left of each
+  // person's week and which shifts can sit together: a max flow (Edmonds-Karp) from the undecided shifts through each person-day
+  // (capped by the heaviest compatible set that person could hold that day) to each person (capped by the best whole-shift subset
+  // that fits in their remaining weekly hours). A person gets an edge only if the shift is still a valid addition to what they
+  // hold, so overlaps and rest gaps with decided shifts count. Every cap is an upper bound, so the result never undercounts.
+  // Most hours of `items` that person p could hold on top of what they have, with every rule checked together (overlap, rest
+  // across days, daily cap, consecutive days, weekly limit), not each alone as the day and week caps above do. At most `cap`.
+  const heldMost = (p, items, cap) => {
+    const its = [...items].sort((x, y) => slots[x].start - slots[y].start || x - y);
+    const suffix = new Array(its.length + 1).fill(0);
+    for (let x = its.length - 1; x >= 0; x--) suffix[x] = suffix[x + 1] + len[its[x]];
+    let best = 0;
+    const go = (x, list, hours) => {
+      if (hours > best) best = hours;
+      if (best >= cap - 1e-9) return;
+      for (; x < its.length; x++) {
+        if (hours + suffix[x] <= best + 1e-9) return;
+        const nl = insertSorted(ctx, list, its[x]);
+        if (validList(ctx, p, nl)) { go(x + 1, nl, hours + len[its[x]]); if (best >= cap - 1e-9) return; }
+      }
+    };
+    go(0, lists[p], 0);
+    return best;
+  };
+  const rate = (p, i) => burden * staff[p].wage * mFloor * paidMinutes(o, slots[i]) / 60 / len[i]; // cheapest pay per hour of the shift
+  const hoursLeft = new Array(P).fill(0);
+  const coverableHours = (k, left, flowOnly = false) => {
+    const n = S - k, N = n + P * D + P + 2, src = N - 2, snk = N - 1, eps = 1e-9;
+    const pd = (p, j) => n + p * D + j, pn = (p) => n + P * D + p;
+    // Sparse residual graph: edge e goes to[e] with capacity cap[e] and cost cst[e]; its reverse is e ^ 1.
+    const to = [], cap = [], cst = [], adj = Array.from({ length: N }, () => []);
+    let joint0 = 0; // the hours terms at no extra hours, summed over people
+    const link = (u, v, c, w) => {
+      adj[u].push(to.length); to.push(v); cap.push(c); cst.push(w);
+      adj[v].push(to.length); to.push(u); cap.push(0); cst.push(-w);
+    };
+    const edge = Array.from({ length: P }, () => []);
+    const byDay = Array.from({ length: P }, () => Array.from({ length: D }, () => []));
+    for (let a = 0; a < n; a++) {
+      const i = order[k + a];
+      link(src, a, len[i], 0);
+      for (let p = 0; p < P; p++) {
+        if (!elig[p][i] || left[p] <= eps || !validList(ctx, p, insertSorted(ctx, lists[p], i))) continue;
+        const j = dayAt.get(slots[i].day);
+        link(a, pd(p, j), len[i], rate(p, i));
+        edge[p].push(i);
+        byDay[p][j].push(i);
+      }
+    }
+    for (let p = 0; p < P; p++) {
+      for (let j = 0; j < D; j++) if (byDay[p][j].length) link(pd(p, j), pn(p), bestDay(p, byDay[p][j]), 0);
+      let room = left[p];
+      if (quarter) {
+        const r = Math.floor(left[p] * 4 + 1e-6);
+        const fits = new Uint8Array(r + 1);
+        fits[0] = 1;
+        for (const i of edge[p]) {
+          const w = Math.round(len[i] * 4);
+          for (let x = r; x >= w; x--) if (fits[x - w]) fits[x] = 1;
+        }
+        room = 0;
+        for (let x = r; x > 0; x--) if (fits[x]) { room = x / 4; break; }
+      }
+      if (room > eps && edge[p].length > 1) room = Math.min(room, heldMost(p, edge[p], room));
+      if (!flowOnly && o.flowBalance !== false && o.balance > 0 && room > eps) {
+        // g_p(h) = shortfall + balance terms is convex, so the largest of a few tangent lines is a lower bound on it and is itself
+        // convex: each stretch between neighbouring tangents becomes a parallel edge at the tangent's slope, cheapest used first.
+        const a = o.shortfallValue, c = (o.balance / 100) * ctx.avgWage * 0.1, t = ctx.target[p], m = staff[p].minHours, l = lo0[p];
+        const g = (h) => a * Math.max(0, m - h) + c * (h - t) ** 2;
+        const slope = (h) => (h < m ? -a : 0) + 2 * c * (h - t); // right derivative: a valid subgradient
+        const xs = [];
+        for (let x = 0; x <= TANGENTS; x++) xs.push(l + (room * x) / TANGENTS);
+        if (m > l && m < l + room) xs.push(m);
+        xs.sort((u, v) => u - v);
+        const lines = xs.map((x) => ({ s: slope(x), b: g(x) - slope(x) * x }));
+        const env = (h) => Math.max(...lines.map((ln) => ln.s * h + ln.b));
+        joint0 += env(l);
+        let at = l;
+        for (let q = 0; q < lines.length; q++) {
+          const next = q === lines.length - 1 ? l + room : Math.min(l + room, Math.max(at, (lines[q + 1].b - lines[q].b) / (lines[q].s - lines[q + 1].s)));
+          if (lines[q + 1] && lines[q + 1].s === lines[q].s) continue;
+          if (next > at + eps) { link(pn(p), snk, next - at, lines[q].s); at = next; }
+        }
+      } else link(pn(p), snk, room, 0);
+    }
+    // Successive cheapest augmenting paths (SPFA): the most hours that can be covered, and the least straight-time pay for them.
+    let flow = 0, cost = 0;
+    const dist = new Float64Array(N), prevE = new Int32Array(N), inQ = new Uint8Array(N);
+    for (;;) {
+      dist.fill(Infinity); prevE.fill(-1); inQ.fill(0);
+      dist[src] = 0;
+      const q = [src];
+      inQ[src] = 1;
+      for (let h = 0; h < q.length; h++) {
+        const u = q[h];
+        inQ[u] = 0;
+        for (const e of adj[u]) {
+          const v = to[e];
+          if (cap[e] > eps && dist[u] + cst[e] < dist[v] - 1e-12) {
+            dist[v] = dist[u] + cst[e]; prevE[v] = e;
+            if (!inQ[v]) { inQ[v] = 1; q.push(v); }
+          }
+        }
+      }
+      if (prevE[snk] < 0) return o.flowBalance !== false && o.balance > 0 ? { flow, cost, joint: cost + joint0 } : { flow, cost };
+      let f = Infinity;
+      for (let v = snk; v !== src; v = to[prevE[v] ^ 1]) f = Math.min(f, cap[prevE[v]]);
+      for (let v = snk; v !== src; v = to[prevE[v] ^ 1]) { cap[prevE[v]] -= f; cap[prevE[v] ^ 1] += f; }
+      flow += f;
+      cost += f * dist[snk];
+    }
+  };
+  // Pricing shifts gives a floor on open hours that sees who can hold which whole sets (the flow splits a shift between people).
+  // Open hours are sums of shift lengths, so when those share a grid (hours, halves, quarters) the floor rounds up to it.
+  const incHours = Math.floor(incumbent / BIG + 1e-9);
+  let banned = null, bannedCount = 0; // (person, shift) pairs ruled out by reduced-cost fixing
+  let dualBranchStats = null;
+  let scoreDual = -Infinity; // whole-score floor from pricing shifts (see priceScoreBound)
+  if (incHours > 0 && o.pricingFloor !== false) {
+    const pf = priceOpenFloor(ctx, { incumbentOpen: incHours, incumbentScore: o.scoreDual === false ? null : incumbent, cutoff: o.reducedCostFixing === false ? null : incumbent - tolerance - 1e-9 });
+    if (pf) {
+      if (pf.scoreBound != null) scoreDual = pf.scoreBound;
+      if (pf.dual && o.dualBranch !== false && scoreDual < incumbent - tolerance - 1e-9) {
+        const db = branchDual(ctx, pf.dual, scoreDual, incumbent, incumbent - tolerance - 1e-9, { maxNodes: o.dualBranchNodes, ms: o.dualBranchMs });
+        dualBranchStats = db.stats;
+        if (db.bound > scoreDual) scoreDual = db.bound;
+      }
+      if (pf.banned) { banned = pf.banned; bannedCount = pf.banCount; }
+      const unit = [1, 0.5, 0.25].find((u) => len.every((h) => Math.abs(h / u - Math.round(h / u)) < 1e-9)); // open hours come in whole shifts
+      minOpenH = unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6);
+    }
+  }
+  const rootBound = Math.max(lowerBound(0, 0), scoreDual);
+  let best = incumbent, bestOwner = null, nodes = 0, aborted = false;
+  const t0 = Date.now();
+  const rec = (k, unfilledH) => {
+    if (aborted) return;
+    if (++nodes > (covMode ? 2 * nodeLimit : nodeLimit) || ((nodes & 1023) === 0 && Date.now() - t0 > (covMode ? timeLimitMs / 2 : timeLimitMs))) { aborted = true; return; }
+    if (!covMode && scoreDual >= best - tolerance - 1e-9) return; // the priced bound already shows no roster beats the incumbent
+    if (lowerBound(k, unfilledH, best - tolerance - 1e-9) >= best - tolerance - 1e-9) return;
+    if (k === S) {
+      const total = covMode ? BIG * unfilledH : scoreOwner(ctx, owner).total;
+      if (total < best - 1e-9) { best = total; bestOwner = owner.slice(); }
+      return;
+    }
+    const i = order[k];
+    const opts = [], seen = new Set();
+    for (let p = 0; p < P; p++) {
+      if (!elig[p][i] || (banned && !covMode && banned[p][i])) continue;
+      const twin = cls[p] + "|" + lists[p].join(",");
+      if (seen.has(twin)) continue;
+      seen.add(twin);
+      const nl = insertSorted(ctx, lists[p], i);
+      if (!validList(ctx, p, nl)) continue;
+      opts.push({ p, nl, d: personScore(ctx, p, nl) - personScore(ctx, p, lists[p]) });
+    }
+    opts.sort((a, b) => a.d - b.d);
+    for (const { p, nl } of opts) {
+      const old = lists[p];
+      lists[p] = nl; owner[i] = p;
+      rec(k + 1, unfilledH);
+      lists[p] = old; owner[i] = -1;
+      if (aborted) return;
+    }
+    rec(k + 1, unfilledH + len[i]);
+  };
+  // Coverage first: how few hours can stay open at all, ignoring pay? Cost bounds are weak against whole open hours (BIG each),
+  // so the cost search below is told the answer. It gets the node limit again and half the time limit; an unfinished pass proves nothing and is dropped.
+    const incOpen = Math.floor(incumbent / BIG + 1e-9);
+  if (incOpen > 0 && incOpen > Math.floor(rootBound / BIG + 1e-9) && incOpen > minOpenH + 1e-9) {
+    covMode = true;
+    const savedBest = best;
+    best = BIG * incOpen;
+    rec(0, 0);
+    coverNodes = nodes;
+    if (!aborted) minOpenH = Math.max(minOpenH, Math.round(best / BIG * 4) / 4);
+    // A pass that found fewer open hours than the incumbent has found a better roster, even before pay is looked at.
+    const coverOwner = bestOwner;
+    covMode = false; aborted = false; nodes = 0; bestOwner = null; best = savedBest;
+    if (coverOwner) {
+      const total = scoreOwner(ctx, coverOwner).total;
+      if (total < best - 1e-9) { best = total; bestOwner = coverOwner; }
+    }
+  }
+  rec(0, 0);
+  return { proven: !aborted, banned: bannedCount, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, owner: bestOwner, score: bestOwner ? best : null };
+}
+
+// Fewest hours that must stay open, by pricing shifts (Lagrangian dual of "each shift is covered by at most one person").
+// Each person independently takes their best feasible set of shifts, where a shift costs `lam` hours of value; for any lam >= 0
+// sum(lam) + sum_p max_set sum(len - lam) bounds the coverable hours from above (weak duality), and subgradient steps tighten lam.
+// The flow bound lets a shift be split between people; this one cannot, but it enumerates each person's real feasible sets, so it
+// returns null when a person has more than `maxSets` of them. Returns { floor, coverable, demand, sets } with floor in hours.
+export function openFloorByPricing(staff, slots, options = {}, cfg = {}) {
+  return priceOpenFloor(buildContext(staff, slots, options), cfg);
+}
+// Test and bench hook: the priced bound after branch and bound on contested shifts (see branchDual). cutoff defaults to never reached.
+export function branchedScoreBound(staff, slots, options = {}, { incumbentScore, cutoff = Infinity, maxNodes = 40, ms = 8000 } = {}) {
+  const ctx = buildContext(staff, slots, options);
+  const pf = priceOpenFloor(ctx, { incumbentOpen: 0, incumbentScore, cutoff: incumbentScore });
+  if (!pf?.dual) return null;
+  return { root: pf.scoreBound, ...branchDual(ctx, pf.dual, pf.scoreBound, incumbentScore, cutoff, { maxNodes, ms }) };
+}
+function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = null, incumbentScore = null, scoreRounds = 300, cutoff = null } = {}) {
+  const { P, S, elig, slots } = ctx;
+  const len = slots.map((s) => (s.end - s.start) / 60);
+  const demand = len.reduce((a, b) => a + b, 0);
+  const sets = [];
+  let total = 0;
+  for (let p = 0; p < P; p++) {
+    const items = [...Array(S).keys()].filter((i) => elig[p][i] && validList(ctx, p, [i])).sort((a, b) => slots[a].start - slots[b].start || a - b);
+    const found = [];
+    let blown = false;
+    const go = (x, list) => {
+      if (blown) return;
+      found.push(list);
+      if (found.length > maxSets) { blown = true; return; }
+      for (; x < items.length; x++) {
+        const nl = insertSorted(ctx, list, items[x]);
+        if (validList(ctx, p, nl)) go(x + 1, nl);
+      }
+    };
+    go(0, []);
+    if (blown) return null;
+    sets.push(found);
+    total += found.length;
+  }
+  const lam = new Float64Array(S);
+  let bestBound = demand;
+  let bestLam = new Float64Array(S);
+  const target = incumbentOpen == null ? 0 : demand - incumbentOpen;
+  let theta = 1;
+  for (let r = 0; r < rounds; r++) {
+    let L = 0;
+    for (let i = 0; i < S; i++) L += lam[i];
+    const cnt = new Float64Array(S);
+    for (let p = 0; p < P; p++) {
+      let bestV = -Infinity, bestSet = null;
+      for (const f of sets[p]) {
+        let v = 0;
+        for (const i of f) v += len[i] - lam[i];
+        if (v > bestV) { bestV = v; bestSet = f; }
+      }
+      L += bestV;
+      for (const i of bestSet) cnt[i]++;
+    }
+    if (L < bestBound) { bestBound = L; bestLam = lam.slice(); } else if (r % 10 === 9) theta *= 0.7;
+    let norm = 0;
+    const gr = new Float64Array(S);
+    for (let i = 0; i < S; i++) { gr[i] = 1 - cnt[i]; norm += gr[i] * gr[i]; }
+    if (norm === 0) break;
+    const step = (theta * Math.max(L - target, 0.5)) / norm;
+    for (let i = 0; i < S; i++) lam[i] = Math.max(0, lam[i] - step * gr[i]);
+  }
+  const out = { floor: Math.max(0, demand - bestBound), coverable: bestBound, demand, sets: total };
+  if (incumbentScore != null) {
+    const sb = priceScoreBound(ctx, sets, len, bestLam, incumbentScore, scoreRounds, cutoff);
+    if (cutoff == null) out.scoreBound = sb;
+    else { out.scoreBound = sb.bound; out.banned = sb.banned; out.banCount = sb.count; out.dual = { sets, vals: sb.vals, len, lam: sb.lam }; }
+  }
+  return out;
+}
+// Subgradient loop behind priceScoreBound. `fixed[i]` (when given) marks shifts a branch has already decided (held by a named person
+// or left open); their price is pinned at 0 and `constant` carries any open cost already paid, so the bound is for the sub-problem.
+function scoreDualCore(P, S, sets, vals, cap, fixed, constant, lam0, incumbent, rounds) {
+  const lam = lam0.slice();
+  let best = -Infinity, theta = 1, stale = 0, bestLam = lam.slice();
+  for (let r = 0; r < rounds; r++) {
+    let L = constant;
+    const gr = new Float64Array(S);
+    for (let i = 0; i < S; i++) {
+      if (fixed && fixed[i] !== -2) { lam[i] = 0; continue; }
+      L += lam[i];
+      gr[i] = 1;
+      if (lam[i] >= cap[i] - 1e-9) { L += cap[i] - lam[i]; gr[i] = 0; } // priced at its open cost: staying open is the cheaper side
+    }
+    for (let p = 0; p < P; p++) {
+      let bestV = Infinity, bestK = -1;
+      const fs = sets[p], vp = vals[p];
+      for (let k = 0; k < fs.length; k++) {
+        let v = vp[k];
+        for (const i of fs[k]) v -= lam[i];
+        if (v < bestV) { bestV = v; bestK = k; }
+      }
+      if (bestK < 0) return { best: Infinity, bestLam: lam.slice(), gr }; // a person with no valid set: this branch is infeasible
+      L += bestV;
+      for (const i of fs[bestK]) if (!fixed || fixed[i] === -2) gr[i]--;
+    }
+    if (L > best + 1e-9) { best = L; stale = 0; bestLam = lam.slice(); } else if (++stale >= 8) { theta *= 0.6; stale = 0; }
+    let norm = 0;
+    for (let i = 0; i < S; i++) norm += gr[i] * gr[i];
+    if (norm === 0) break;
+    const step = (theta * Math.max(incumbent - L, 1)) / norm;
+    for (let i = 0; i < S; i++) if (!fixed || fixed[i] === -2) lam[i] = Math.min(cap[i], lam[i] + step * gr[i]);
+  }
+  return { best, bestLam };
+}
+// Lagrangian lower bound on the whole score (pay, penalties and BIG per open hour), not only the open hours. Each shift is held by
+// one person or stays open at BIG x its hours; pricing shift i at lam[i] splits that into independent pieces: each person's best set
+// (its personScore minus the prices of its shifts) plus min(0, BIG x hours - lam[i]) per shift. Valid for any lam; started from the
+// open-hours prices scaled by BIG, then tightened by subgradient steps toward the incumbent.
+function priceScoreBound(ctx, sets, len, lam0, incumbent, rounds, cutoff = null) {
+  const { P, S } = ctx;
+  const vals = sets.map((fs, p) => Float64Array.from(fs, (f) => personScore(ctx, p, f)));
+  const cap = len.map((h) => BIG * h);
+  const { best, bestLam } = scoreDualCore(P, S, sets, vals, cap, null, 0, Float64Array.from(lam0, (x, i) => Math.min(cap[i], x * BIG)), incumbent, rounds);
+  if (cutoff == null) return best;
+  // Reduced-cost fixing: at the best prices, a roster that makes person p hold shift i scores at least best - bestV_p + (p's best set
+  // holding i). When that already reaches the cutoff, nobody can beat the incumbent that way, so (p, i) is banned from the search.
+  const banned = Array.from({ length: P }, () => new Uint8Array(S));
+  let count = 0;
+  for (let p = 0; p < P; p++) {
+    const fs = sets[p], vp = vals[p];
+    const w = new Float64Array(fs.length);
+    let bestV = Infinity;
+    for (let k = 0; k < fs.length; k++) {
+      let v = vp[k];
+      for (const i of fs[k]) v -= bestLam[i];
+      w[k] = v;
+      if (v < bestV) bestV = v;
+    }
+    const inV = new Float64Array(S).fill(Infinity);
+    for (let k = 0; k < fs.length; k++) for (const i of fs[k]) if (w[k] < inV[i]) inV[i] = w[k];
+    for (let i = 0; i < S; i++) if (best - bestV + inV[i] >= cutoff) { banned[p][i] = 1; count++; }
+  }
+  return { bound: best, banned, count, lam: bestLam, vals };
+}
+
+// Branch and bound on the priced bound itself. The root price leaves a gap because shifts several people want are split in the
+// relaxation; fixing one such shift (to each person who could hold it, or to staying open) and re-pricing the pieces closes part of it,
+// and when every piece reaches the cutoff no roster can beat the incumbent. Returns a valid whole-score lower bound (never above the
+// optimum) and how much work it did. Stops at the node or time limit with the lowest bound still open.
+function branchDual(ctx, dual, rootBound, incumbent, cutoff, { maxNodes = 40, ms = 8000, rounds = 120 } = {}) {
+  const { P, S } = ctx;
+  const cap = dual.len.map((h) => BIG * h);
+  const t0 = Date.now();
+  const stats = { evaluated: 0, expanded: 0, ms: 0 };
+  const holders = (nd) => {
+    const cnt = new Int32Array(S);
+    for (let p = 0; p < P; p++) {
+      let bestV = Infinity, bestK = -1;
+      const fs = nd.sets[p], vp = nd.vals[p];
+      for (let k = 0; k < fs.length; k++) {
+        let v = vp[k];
+        for (const i of fs[k]) v -= nd.lam[i];
+        if (v < bestV) { bestV = v; bestK = k; }
+      }
+      if (bestK >= 0) for (const i of fs[bestK]) cnt[i]++;
+    }
+    return cnt;
+  };
+  const evaluate = (nd) => {
+    stats.evaluated++;
+    const r = scoreDualCore(P, S, nd.sets, nd.vals, cap, nd.fixed, nd.constant, nd.lam, incumbent, rounds);
+    nd.bound = r.best; nd.lam = r.bestLam;
+    return nd;
+  };
+  const child = (nd, i, q) => {
+    const sets = [], vals = [];
+    for (let p = 0; p < P; p++) {
+      const keep = [];
+      nd.sets[p].forEach((f, k) => { if (f.includes(i) === (p === q)) keep.push(k); });
+      sets.push(keep.map((k) => nd.sets[p][k]));
+      vals.push(Float64Array.from(keep, (k) => nd.vals[p][k]));
+    }
+    const fixed = nd.fixed.slice(); fixed[i] = q;
+    return evaluate({ sets, vals, fixed, constant: nd.constant + (q < 0 ? cap[i] : 0), lam: nd.lam, bound: -Infinity });
+  };
+  const root = { sets: dual.sets, vals: dual.vals, fixed: new Array(S).fill(-2), constant: 0, lam: Float64Array.from(dual.lam), bound: rootBound };
+  const open = [root];
+  let floor = Infinity; // lowest bound among pieces already cut off at the cutoff
+  const finish = () => { stats.ms = Date.now() - t0; return { bound: Math.min(floor, ...open.map((n) => n.bound), incumbent), stats }; };
+  while (open.length && stats.expanded < maxNodes && Date.now() - t0 < ms) {
+    open.sort((a, b) => a.bound - b.bound);
+    const nd = open[0];
+    if (nd.bound >= cutoff) break;
+    const cnt = holders(nd);
+    let pick = -1;
+    for (let i = 0; i < S; i++) if (cnt[i] > 1 && (pick < 0 || cnt[i] > cnt[pick] || (cnt[i] === cnt[pick] && cap[i] > cap[pick]))) pick = i;
+    if (pick < 0) break; // the priced solution is a roster: this piece's bound is its optimum and cannot be raised
+    open.shift();
+    stats.expanded++;
+    const holdersOf = [];
+    for (let p = 0; p < P; p++) if (nd.sets[p].some((f) => f.includes(pick))) holdersOf.push(p);
+    for (const q of [-1, ...holdersOf]) {
+      const c = child(nd, pick, q);
+      if (c.bound >= cutoff) floor = Math.min(floor, c.bound);
+      else if (c.bound < Infinity) open.push(c);
+    }
+  }
+  if (!open.length) return { bound: Math.max(Math.min(floor, incumbent), 0), stats: { ...stats, ms: Date.now() - t0 } };
+  return finish();
 }
 
 // What a manager gets filling shifts in time order with the first valid person in the list.
@@ -713,6 +1315,18 @@ function whyUnfilled(ctx, owner, i) {
   return { ...why, text };
 }
 
+// One plain sentence for the result of the optional exact check (buildRoster with exact: true).
+export function optimalityText(opt) {
+  if (!opt) return "";
+  if (opt.status === "optimal") return `Checked against an exact search: no roster under your rules scores better than this one${opt.tolerance > 0 ? ` by more than ${money2(opt.tolerance)} of score` : ""}.`;
+  if (opt.status === "improved") return `Checked against an exact search: the quick search was ${num(opt.gapPct)}% off the best possible, so this roster is the better one the exact search found (proven best${opt.tolerance > 0 ? `, to within ${money2(opt.tolerance)} of score` : ""}).`;
+  if (opt.gap < BIG && opt.coverageProven) {
+    const h = opt.forcedOpenHours;
+    return `Exact search ran out of time before it could prove the cheapest roster, but it did prove the coverage: ${h > 0 ? `${num(h)} hour${h === 1 ? "" : "s"} of shifts cannot be covered under your rules, however the week is arranged` : "every shift can be covered"}, and this roster covers all the rest. The cheapest way to do that could still save at most ${money(opt.gap)} in the score (pay plus penalties).`;
+  }
+  return `Exact search ran out of time before it could prove anything. The best roster it found is shown; the true best could still be better by up to ${num(opt.gapPct)}% of the score by a loose bound, so treat this as a good roster, not a proven one.`;
+}
+
 export function buildRoster(staff, slots, options = {}) {
   const ctx = buildContext(staff, slots, options);
   if (!ctx.P) return { error: "Add at least one person." };
@@ -723,8 +1337,37 @@ export function buildRoster(staff, slots, options = {}) {
   // Covering shifts outranks everything else, so while any shift is open spend as many extra restarts again on finding a roster that
   // covers more. A balance of 50 on the sample week left 8 coverable hours open after four restarts; twelve found them.
   if (scoreOwner(ctx, best.owner).unfilled > 0) {
-    const more = search(ctx, o.restarts * 2, iterations, o.restarts);
+    const more = search(ctx, o.restarts * 6, iterations, o.restarts);
     if (more.score < best.score - 1e-9) best = more;
+  }
+  // Still open: the annealer's short runs stop too soon on weeks of about twenty shifts or more (eval/effort-bench.mjs), so give
+  // a few restarts five times the iterations before the ejection passes.
+  if (o.longPass !== false && scoreOwner(ctx, best.owner).unfilled > 0) {
+    const long = search(ctx, o.restarts, iterations * 5, o.restarts * 7);
+    if (long.score < best.score - 1e-9) best = long;
+  }
+  if (scoreOwner(ctx, best.owner).unfilled > 0) {
+    // A few seeds, each from the best so far: one chain of moves rarely finds the best way to free the hours.
+    for (let k = 0; k < 4; k++) {
+      const eo = ejectPass(ctx, best.owner, o.seed + 104729 * (k + 1), Math.max(20000, ctx.S * 1500));
+      const es = scoreOwner(ctx, eo).total;
+      if (es < best.score - 1e-9) best = { owner: eo, score: es };
+    }
+  }
+  // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
+  let optimality = null;
+  if (o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS)) {
+    const ex = exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs, tolerance: o.exactTolerance });
+    const annealScore = best.score;
+    if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
+    const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);
+    optimality = {
+      status: ex.proven ? (gap > 1e-6 ? "improved" : "optimal") : "bounded",
+      annealScore, bestScore: best.score, lowerBound: ex.proven ? best.score : ex.rootBound,
+      forcedOpenHours: ex.proven ? Math.floor(best.score / BIG + 1e-9) : Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)),
+      coverageProven: ex.proven || Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)) === Math.floor(best.score / BIG + 1e-9),
+      tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
+    };
   }
   const res = summarise(ctx, best.owner);
   const base = summarise(ctx, listedOrder(ctx));
@@ -762,7 +1405,10 @@ export function buildRoster(staff, slots, options = {}) {
     const hctx = buildContext([...staff, extra], slots, { ...o, restarts: 1, iterations: Math.max(5000, ctx.S * 40) });
     const hres = summarise(hctx, search(hctx, 1, Math.max(5000, ctx.S * 40)).owner);
     const covered = res.unfilledHours - hres.unfilledHours;
-    if (covered > 1e-9) hireTest = { wage, maxHours, coveredHours: covered, stillUnfilledHours: hres.unfilledHours, extraCost: hres.cost - res.cost };
+    // The shifts that hire takes, as a posting line: the availability the job actually needs.
+    const windows = (hres.lists[staff.length] || []).map((i) => slots[i]).sort((a, b) => a.day - b.day || a.startMin - b.startMin)
+      .map((s) => `${DAYS[s.day]} ${fmtClock(s.startMin)}–${fmtClock(s.endMin)}${s.role ? " [" + s.role + "]" : ""}`);
+    if (covered > 1e-9) hireTest = { wage, maxHours, coveredHours: covered, stillUnfilledHours: hres.unfilledHours, extraCost: hres.cost - res.cost, windows };
   }
 
   const warnings = [];
@@ -793,7 +1439,7 @@ export function buildRoster(staff, slots, options = {}) {
     cost: res.cost, hours: res.hours, otHours: res.otHours, unfilledHours: res.unfilledHours, unfilledSlots: res.unfilled.length,
     people: res.people, assignments, grid, unfilled, onlyOne, critical, hireTest, warnings,
     listed: { cost: base.cost, otHours: base.otHours, unfilledHours: base.unfilledHours, unfilledSlots: base.unfilled.length },
-    savingVsListed, score: best.score, owner: res.owner,
+    savingVsListed, score: best.score, owner: res.owner, optimality,
     filledAll: res.unfilled.length === 0,
   };
 }
@@ -1653,7 +2299,7 @@ export function parseTimeOffRequest(from, to = "") {
   if (!real(from) || !real(to)) return { error: "Write the dates as YYYY-MM-DD." };
   const days = utcDay(to) - utcDay(from);
   if (days < 0) return { error: "The last day is before the first day." };
-  if (days > 60) return { error: "Ask for 60 days or fewer at a time." };
+  if (days > 59) return { error: "Ask for 60 days or fewer at a time." };
   return { entry: from === to ? from : `${from}..${to}` };
 }
 

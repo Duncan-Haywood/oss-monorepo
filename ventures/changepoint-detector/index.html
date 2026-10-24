@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Changepoint Detector — find when a time series changed (PELT + Bayesian)</title>
+  <meta name="description" content="Free changepoint detection for any time series. Paste a CSV and see when the level or volatility changed, with exact PELT segmentation and Bayesian online changepoint probabilities (Adams &amp; MacKay 2007; Killick et al. 2012). Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Changepoint Detector — when did your series change?">
+  <meta property="og:description" content="PELT and Bayesian online changepoint detection on your own data, in your browser, with the papers cited.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Changepoint Detector", "applicationCategory": "ScientificApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Detect changes in the level or volatility of a time series with PELT (Killick, Fearnhead and Eckley 2012) and Bayesian online changepoint detection (Adams and MacKay 2007). Paste a CSV, get the segments, the change dates and a probability for each. Runs in your browser.", "featureList": "changepoint detection, PELT, Bayesian online changepoint detection, change in mean, change in variance, regime change detection, structural break detection, time series segmentation, CSV upload, CSV download", "citation": [{"@type": "ScholarlyArticle", "name": "Bayesian Online Changepoint Detection", "author": "Ryan Prescott Adams; David J. C. MacKay", "datePublished": "2007", "url": "https://arxiv.org/abs/0710.3742"}, {"@type": "ScholarlyArticle", "name": "Optimal Detection of Changepoints With a Linear Computational Cost", "author": "Rebecca Killick; Paul Fearnhead; Idris A. Eckley", "datePublished": "2012", "url": "https://doi.org/10.1080/01621459.2012.737745"}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is changepoint detection?", "acceptedAnswer": {"@type": "Answer", "text": "Changepoint detection finds the points in a series where its behaviour changed: the average level stepped up or down, or the volatility grew or shrank. It answers \"did something change, and when?\" for sales, sensor readings, response times, prices or any measurement taken in order."}}, {"@type": "Question", "name": "What is the difference between PELT and Bayesian online changepoint detection?", "acceptedAnswer": {"@type": "Answer", "text": "PELT looks at the whole series at once and returns the single best segmentation under a penalty for each extra change; it is exact, not a heuristic. Bayesian online changepoint detection reads the series one point at a time and gives a probability that a new segment started at each point. Use PELT for the answer and the Bayesian probability for how sure to be; a change both methods agree on is strong evidence."}}, {"@type": "Question", "name": "Which penalty should I choose?", "acceptedAnswer": {"@type": "Answer", "text": "BIC is the default and a sensible one: it charges each extra change about log(n) per parameter, so it rarely invents changes in long series. AIC charges less and finds more, smaller changes. You can also type your own number; a larger penalty means fewer changes."}}, {"@type": "Question", "name": "Should I detect a change in mean or in mean and variance?", "acceptedAnswer": {"@type": "Answer", "text": "Choose mean if you care about shifts in level and the noise looks roughly constant. Choose mean and variance if the series can become calmer or more volatile, for example error rates or returns. The mean-and-variance model needs at least five points per segment, because a variance fitted to two or three points is unreliable."}}, {"@type": "Question", "name": "Does a detected changepoint prove that something caused the change?", "acceptedAnswer": {"@type": "Answer", "text": "No. It shows that the data before and after are better described as two segments than one. Whether a price change, a release or an outage caused it is a separate question that needs your knowledge of what happened then."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .summary { font-size: 1.05rem; background: #f2f7f9; border-radius: 10px; padding: 14px; }
+    .error { color: #7d1f16; font-weight: 600; }
+    pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .8rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CHANGEPOINT DETECTOR · RESEARCH ALGORITHMS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>When did your series change?</h1>
+    <p>Paste or upload a time series — sales, sign-ups, sensor readings, latency, prices — and find the points where its <strong>level</strong> or its <strong>volatility</strong> shifted. Two published methods run side by side: <strong>PELT</strong> returns the exact best segmentation, and <strong>Bayesian online changepoint detection</strong> gives the probability that a change happened at each point.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical analysis of data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card" aria-labelledby="data-h">
+    <h2 id="data-h">1. Your data</h2>
+    <label for="csv">CSV or one number per line (a header row and a date column are optional)</label>
+    <textarea id="csv" spellcheck="false" placeholder="date,value&#10;2024-01-01,120&#10;2024-01-02,118&#10;..."></textarea>
+    <label for="file">Or open a CSV file</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="grid">
+      <div><label for="column">Value column (name or number; blank = last numeric)</label><input id="column" type="text" placeholder="e.g. volume"></div>
+      <div><label for="model">Look for a change in</label>
+        <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option></select></div>
+      <div><label for="penalty">Penalty per change (PELT)</label>
+        <select id="penalty"><option value="bic">BIC (default)</option><option value="aic">AIC (finds more)</option><option value="hannan-quinn">Hannan-Quinn</option><option value="custom">Custom number…</option></select></div>
+      <div><label for="penaltyValue">Custom penalty</label><input id="penaltyValue" type="number" min="0" step="any" value="10" disabled></div>
+      <div><label for="trend">Trend under the steps</label><select id="trend"><option value="">None</option><option value="1">One straight slope</option><option value="bend">Slope changes once</option><option value="bends">Slope changes up to three times</option></select></div>
+      <div><label for="jointKnots"><input id="jointKnots" type="checkbox"> Score every pair of slope changes (slower; with "up to three times")</label></div>
+      <div><label for="knotMargin">Where slope changes may sit</label><select id="knotMargin"><option value="0.1">Middle 80% (default; finds early or late bends)</option><option value="0.2">Middle 60% (the old default)</option></select></div>
+      <div><label for="overdispersion">Clumpy or sticky counts (counts model)</label><select id="overdispersion"><option value="">Assume Poisson</option><option value="1">Scale the penalty by the dispersion</option><option value="nb">Negative-binomial cost</option></select></div>
+      <div><label for="holidays">Known holidays (counts model; dates or row numbers, comma-separated)</label><input id="holidays" type="text" placeholder="e.g. 2024-12-25, 2025-01-01"></div>
+      <div><label for="bursts"><input id="bursts" type="checkbox"> Cut back isolated spikes before fitting (counts model; e.g. a post going viral)</label></div>
+      <div><label for="drift"><input id="drift" type="checkbox"> Seasonal shape drifts (needs a period)</label></div>
+      <div><label for="period">Seasonal period in points (0 = none)</label><input id="period" type="number" min="0" step="1" value="0"></div>
+      <div><label for="ar1">Autocorrelated noise (level model)</label><select id="ar1"><option value="">Assume independent</option><option value="1">Allow for it</option><option value="joint">Allow for it (joint fit)</option></select></div>
+      <div><label for="hazard">Expected points between changes (Bayesian)</label><input id="hazard" type="number" min="2" step="1" value="100"></div>
+      <div><label for="threshold">Report Bayesian changes above</label><input id="threshold" type="number" min="0.05" max="0.99" step="0.05" value="0.5"></div>
+    </div>
+    <button type="button" id="run">Find changepoints</button>
+    <button type="button" class="secondary" id="example">Load example: Nile river flow 1871–1970</button>
+  </section>
+
+  <section class="card" aria-labelledby="res-h" id="results" hidden>
+    <h2 id="res-h">2. What changed</h2>
+    <p class="summary" id="summary"></p>
+    <div class="legend"><span>● series</span><span style="color:#c0392b">— segment mean (PELT)</span><span style="color:#1f5f86">▮ change probability (Bayesian)</span></div>
+    <div id="chart" role="img" aria-label="Chart of the series with segment means and change probabilities"></div>
+    <h3>Changes (PELT)</h3>
+    <div class="scroll"><table id="changes"></table></div>
+    <h3>Segments</h3>
+    <div class="scroll"><table id="segments"></table></div>
+    <button type="button" class="secondary" id="download">Download per-point results (CSV)</button>
+  </section>
+  <p class="error" id="error" role="alert"></p>
+
+  <section class="card" aria-labelledby="method-h">
+    <h2 id="method-h">Method and citation</h2>
+    <p><strong>PELT</strong> (Pruned Exact Linear Time; Killick, Fearnhead &amp; Eckley 2012) minimises the total cost of a segmentation — twice the negative Gaussian log-likelihood of each segment, plus a penalty for every change — over <em>every</em> possible set of changes. Dynamic programming makes this exact; pruning discards candidate change locations that can never be optimal, which makes it about linear in the length of the series. For a change in level, the noise standard deviation is estimated once from the median absolute difference of successive points, so the level shifts themselves do not inflate it.</p>
+    <p><strong>Bayesian online changepoint detection</strong> (Adams &amp; MacKay 2007) keeps a posterior distribution over the <em>run length</em> — how many points since the last change — and updates it with each new point. Each segment has an unknown mean and variance with a Normal-Inverse-Gamma prior, so predictions are Student-t and the update is exact. The prior is centred on your data (its median and robust noise variance) and kept weak. Because the probability of a change <em>at</em> the newest point always equals the hazard, this tool reports, for each point, the posterior probability — seen five points later — that a new segment began there.</p>
+    <p><strong>Limits.</strong> Both methods assume the points within a segment are independent around a constant level; strong seasonality or autocorrelation shows up as extra changes, so remove a known seasonal pattern first. Gradual trends are approximated as steps unless you choose the level-or-slope model, which fits a straight line per segment. BIC, the default penalty, still splits roughly one series in ten of pure noise of length 300 (our tests measure this), so treat a single small change with care. A changepoint is a statement about the data, not about what caused it.</p>
+    <p>Source, tests and a command-line version: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changepoint-detector">GitHub</a>. AI agents can call the same engine: <code>node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'</code>.</p>
+    <h3>Cite the methods</h3>
+<pre>@article{adams2007bayesian,
+  title   = {Bayesian Online Changepoint Detection},
+  author  = {Adams, Ryan Prescott and MacKay, David J. C.},
+  journal = {arXiv preprint arXiv:0710.3742},
+  year    = {2007}
+}
+@article{killick2012optimal,
+  title   = {Optimal Detection of Changepoints With a Linear Computational Cost},
+  author  = {Killick, Rebecca and Fearnhead, Paul and Eckley, Idris A.},
+  journal = {Journal of the American Statistical Association},
+  volume  = {107}, number = {500}, pages = {1590--1598}, year = {2012},
+  doi     = {10.1080/01621459.2012.737745}
+}</pre>
+    <p class="note">Example data: annual flow of the Nile at Aswan, 1871–1970 (10<sup>8</sup> m³), first analysed for a changepoint by Cobb (1978, <em>Biometrika</em> 65(2):243–251); public domain, as distributed with statsmodels. Both methods here put the change after 1898, as the literature does.</p>
+  </section>
+
+  <section class="card" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>What is changepoint detection?</h3>
+    <p>Changepoint detection finds the points in a series where its behaviour changed: the average level stepped up or down, or the volatility grew or shrank. It answers "did something change, and when?" for sales, sensor readings, response times, prices or any measurement taken in order.</p>
+    <h3>What is the difference between PELT and Bayesian online changepoint detection?</h3>
+    <p>PELT looks at the whole series at once and returns the single best segmentation under a penalty for each extra change; it is exact, not a heuristic. Bayesian online changepoint detection reads the series one point at a time and gives a probability that a new segment started at each point. Use PELT for the answer and the Bayesian probability for how sure to be; a change both methods agree on is strong evidence.</p>
+    <h3>Which penalty should I choose?</h3>
+    <p>BIC is the default and a sensible one: it charges each extra change about log(n) per parameter, so it rarely invents changes in long series. AIC charges less and finds more, smaller changes. You can also type your own number; a larger penalty means fewer changes.</p>
+    <h3>Should I detect a change in mean or in mean and variance?</h3>
+    <p>Choose mean if you care about shifts in level and the noise looks roughly constant. Choose mean and variance if the series can become calmer or more volatile, for example error rates or returns. The mean-and-variance model needs at least five points per segment, because a variance fitted to two or three points is unreliable.</p>
+    <h3>Does a detected changepoint prove that something caused the change?</h3>
+    <p>No. It shows that the data before and after are better described as two segments than one. Whether a price change, a release or an outage caused it is a separate question that needs your knowledge of what happened then.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. The file is read and analysed in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> An independent implementation from the published papers; not affiliated with or endorsed by the papers' authors or their institutions.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, DEFAULTS } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const fmt = (v) => (typeof v !== "number" ? esc(v) : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toFixed(2) : v.toPrecision(3));
+    let last = null;
+
+    $("#penalty").addEventListener("change", () => { $("#penaltyValue").disabled = $("#penalty").value !== "custom"; });
+
+    function chart(r) {
+      const W = 900, H1 = 260, H2 = 90, P = 44, n = r.values.length;
+      const lo = Math.min(...r.values), hi = Math.max(...r.values);
+      const pad = (hi - lo) * 0.06 || 1;
+      const X = (i) => P + (i / Math.max(1, n - 1)) * (W - P - 10);
+      const Y = (v) => 10 + (1 - (v - lo + pad) / (hi - lo + 2 * pad)) * (H1 - 30);
+      const parts = [];
+      parts.push(`<line x1="${P}" y1="${H1 - 20}" x2="${W - 10}" y2="${H1 - 20}" stroke="#ccd5dd"/>`);
+      for (const t of [lo, (lo + hi) / 2, hi]) parts.push(`<text x="${P - 6}" y="${Y(t) + 4}" font-size="11" text-anchor="end" fill="#4c5a68">${fmt(t)}</text>`);
+      const tickEvery = Math.max(1, Math.ceil(n / 8));
+      for (let i = 0; i < n; i += tickEvery) parts.push(`<text x="${X(i)}" y="${H1 - 6}" font-size="11" text-anchor="middle" fill="#4c5a68">${esc(r.labels[i]).slice(0, 10)}</text>`);
+      const path = r.values.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+      parts.push(`<path d="${path}" fill="none" stroke="#8aa1b1" stroke-width="1.2"/>`);
+      if (n <= 600) for (let i = 0; i < n; i++) parts.push(`<circle cx="${X(i).toFixed(1)}" cy="${Y(r.values[i]).toFixed(1)}" r="2" fill="#4c6a7d"/>`);
+      for (const s of r.pelt.segments) parts.push(`<line x1="${X(s.start)}" x2="${X(s.end)}" y1="${Y(s.mean)}" y2="${Y(s.mean)}" stroke="#c0392b" stroke-width="3"/>`);
+      for (const c of r.pelt.changepoints) parts.push(`<line x1="${X(c.index - 0.5)}" x2="${X(c.index - 0.5)}" y1="10" y2="${H1 - 20}" stroke="#c0392b" stroke-dasharray="4 4"/>`);
+      const base = H1 + H2 - 10;
+      parts.push(`<text x="${P - 6}" y="${H1 + 14}" font-size="11" text-anchor="end" fill="#4c5a68">100%</text><text x="${P - 6}" y="${base}" font-size="11" text-anchor="end" fill="#4c5a68">0%</text>`);
+      const bw = Math.max(1, (W - P - 10) / n - 1);
+      r.bocpd.changeProb.forEach((p, i) => { if (p > 0.005) parts.push(`<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${(base - p * (H2 - 14)).toFixed(1)}" width="${bw.toFixed(1)}" height="${(p * (H2 - 14)).toFixed(1)}" fill="#1f5f86"><title>${esc(r.labels[i])}: ${(p * 100).toFixed(0)}%</title></rect>`); });
+      parts.push(`<line x1="${P}" y1="${base}" x2="${W - 10}" y2="${base}" stroke="#ccd5dd"/>`);
+      return `<svg viewBox="0 0 ${W} ${H1 + H2}" xmlns="http://www.w3.org/2000/svg">${parts.join("")}</svg>`;
+    }
+
+    function run() {
+      $("#error").textContent = "";
+      const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
+      try {
+        last = analyze({ csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" ? "nb" : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) });
+      } catch (e) { $("#results").hidden = true; $("#error").textContent = e.message; return; }
+      const r = last;
+      $("#summary").textContent = r.summary + (r.bursts && r.bursts.length ? ` Spikes cut back before fitting: ${r.bursts.slice(0, 10).map((b) => `${b.label} (${b.value} kept as ${b.keptAs})`).join(", ")}${r.bursts.length > 10 ? `, and ${r.bursts.length - 10} more` : ""}.` : "");
+      $("#chart").innerHTML = chart(r);
+      $("#changes").innerHTML = r.pelt.changepoints.length
+        ? `<tr><th>New segment from</th><th class="n">Mean before</th><th class="n">Mean after</th><th class="n">Shift (noise sd)</th><th class="n">SD before → after</th><th class="n">Bayesian prob. (±3 points)</th></tr>` +
+          r.pelt.changepoints.map((c) => `<tr><td>${esc(c.label)}</td><td class="n">${fmt(c.meanBefore)}</td><td class="n">${fmt(c.meanAfter)}</td><td class="n">${fmt(c.shiftInNoiseSd)}</td><td class="n">${fmt(c.sdBefore)} → ${fmt(c.sdAfter)}</td><td class="n">${Math.round(c.bocpdProbWithin3 * 100)}%</td></tr>`).join("")
+        : `<tr><td>No change found at this penalty.</td></tr>`;
+      $("#segments").innerHTML = `<tr><th>From</th><th>To</th><th class="n">Points</th><th class="n">Mean</th><th class="n">SD</th></tr>` +
+        r.pelt.segments.map((s) => `<tr><td>${esc(s.from)}</td><td>${esc(s.to)}</td><td class="n">${s.n}</td><td class="n">${fmt(s.mean)}</td><td class="n">${fmt(s.sd)}</td></tr>`).join("");
+      $("#results").hidden = false;
+      record("analysis_run");
+    }
+
+    $("#run").addEventListener("click", run);
+    $("#example").addEventListener("click", () => { $("#csv").value = DEFAULTS.csv; $("#column").value = ""; record("example_loaded"); run(); });
+    $("#file").addEventListener("change", async (e) => { const f = e.target.files?.[0]; if (!f) return; $("#csv").value = await f.text(); record("file_opened"); run(); });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const seg = new Array(last.n);
+      last.pelt.segments.forEach((s, k) => { for (let i = s.start; i <= s.end; i++) seg[i] = [k + 1, s.mean]; });
+      const q = (s) => (/[",\n]/.test(s) ? `"${String(s).replace(/"/g, '""')}"` : s);
+      const rows = ["label,value,segment,segment_mean,bayesian_change_probability,map_run_length"].concat(
+        last.values.map((v, i) => [q(last.labels[i]), v, seg[i][0], seg[i][1], last.bocpd.changeProb[i], last.bocpd.mapRunLength[i]].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "changepoints.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

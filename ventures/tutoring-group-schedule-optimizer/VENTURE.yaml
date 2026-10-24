@@ -1,0 +1,49 @@
+name: tutoring-group-schedule-optimizer
+description: >-
+  Free browser tool for tutoring centres, test-prep, music, swim and language schools that teach in small weekly
+  groups: list the sessions you could run (capacity, minimum group, cost) and each student's fee and available
+  slots, and get the most profitable timetable. Exact for up to 10 slots (minimum-cost-flow seating inside a search
+  over which slots to run), seeded local search above that. Shows which slots to run, who sits where, why a student
+  could not be placed, and what flipping each slot is worth. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-19 in an explore-track run. duplicate_check.py on "tutoring center which student groups to merge
+# to fill sessions from attendance": closest was trampoline-park-profit-calculator at 0.25, far below the bar.
+# Sibling tutor-weekly-schedule-optimizer covers one-to-one lessons with time windows; this one is the group case
+# (capacity, minimum group, which slots to open at all), which that tool does not model.
+#
+# First visitor: centre owners searching "how to schedule tutoring groups", "minimum class size tutoring",
+# "which classes to run enrollment"; r/Tutoring, r/musicteachers, after-school-program and learning-centre owner
+# groups. Volume not measured with an external tool.
+#
+# Privacy is the liability boundary: student lists never leave the browser. No vendor is ranked.
+# Path to revenue (payment rails stay off): lead magnet and donations only.
+# Liability: arithmetic on supplied figures, not advice.
+# Unverified: exactness is tested against an exhaustive oracle on random small instances, not a real centre.
+
+hypotheses:
+  - claim: >-
+      Small learning centres that choose their weekly group slots by hand will use a private, no-signup tool that
+      builds the timetable from student availability, and will come back each term.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a timetable that is not a valid seating or that a hand check shows to be less profitable than an obvious alternative.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/tutoring-group-schedule-optimizer/
+  analytics: null

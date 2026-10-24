@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot against load level: the DC OPF reports a cost 2 to 3 percent below the AC optimum, and its dispatch costs 0.7 to 1.9 percent more than the AC optimum once losses are paid">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">IEEE 118-bus: what the DC model gets wrong</text>
+<line x1="64" x2="624" y1="274.3" y2="274.3" stroke="#ddd"/><text x="58" y="278.3" text-anchor="end" font-family="sans-serif" font-size="11">-2</text>
+<line x1="64" x2="624" y1="219.1" y2="219.1" stroke="#ddd"/><text x="58" y="223.1" text-anchor="end" font-family="sans-serif" font-size="11">-1</text>
+<line x1="64" x2="624" y1="163.8" y2="163.8" stroke="#ddd"/><text x="58" y="167.8" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="108.6" y2="108.6" stroke="#ddd"/><text x="58" y="112.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="512.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">load (multiple of the case)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">% of AC optimal cost</text>
+<polyline points="64.0,271.0 288.0,311.3 512.0,324.0 624.0,304.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="271.0" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="311.3" r="3" fill="#c0392b"/>
+<circle cx="512.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="304.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">DC OPF cost minus AC optimum (%)</text>
+<polyline points="64.0,123.6 288.0,122.4 512.0,82.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="123.6" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="122.4" r="3" fill="#1f6fb2"/>
+<circle cx="512.0" cy="82.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">AC cost of DC dispatch minus AC optimum (%)</text>
+</svg>

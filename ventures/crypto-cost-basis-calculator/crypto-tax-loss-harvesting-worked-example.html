@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crypto Tax-Loss Harvesting, With A Worked Example And No Signup</title>
+  <meta name="description" content="Crypto is not subject to the stock wash-sale rule today, so selling coins at a loss can cancel gains. A worked example: $17,000 of unrealized losses cut an estimated tax bill from $3,000 to $450. Run it on your own holdings, privately.">
+  <meta property="og:title" content="Crypto Tax-Loss Harvesting, With A Worked Example And No Signup">
+  <meta property="og:description" content="A worked harvesting example: $2,550 of estimated tax removed, which lots to sell first, and what a wash-sale rule would change.">
+  <link rel="canonical" href="./crypto-tax-loss-harvesting-worked-example.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is crypto subject to the wash-sale rule?", "acceptedAnswer": {"@type": "Answer", "text": "As the rule is written today it applies to stock and securities, and crypto has generally been treated as property outside it. Proposals to extend it have been discussed, so the calculator shows how much loss a stock-style rule would defer without applying it. Ask a tax professional about your situation."}}, {"@type": "Question", "name": "Which losing lots should I sell first?", "acceptedAnswer": {"@type": "Answer", "text": "The ones that remove the most estimated tax. Short-term losses offset short-term gains, which are taxed at higher rates, so they are usually worth more per dollar than long-term losses. The calculator ranks lots under water by the tax each would save against your current result."}}, {"@type": "Question", "name": "Does the calculator fetch prices?", "acceptedAnswer": {"@type": "Answer", "text": "No. You type today's price for each coin, so nothing leaves your browser and no price feed can be wrong without you seeing it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2733; background: #eef2f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    a { color: #2d4fa3; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    th.n, td.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #2d4fa3; color: #fff; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer { margin-top: 40px; font-size: .86rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Crypto cost basis calculator</a></p>
+  <h1>Crypto tax-loss harvesting, with a worked example</h1>
+  <p>Tax-loss harvesting means selling coins that are worth less than you paid so the loss offsets gains you have already realized this year. This page walks one invented portfolio through it with the same arithmetic the free calculator runs, so you can check the logic before you trust it with your own numbers.</p>
+  <p><a class="cta" href="./">Open the free calculator</a></p>
+
+  <h2>The example</h2>
+  <p>An investor bought 0.5 BTC on 2023-02-01 for $10,000 and sold it on 2024-09-15 for $30,000: a $20,000 long-term gain, taxed at an assumed 15%, so $3,000 of estimated tax. They still hold three positions, all bought in 2024 and all under water. Prices typed in on 2024-12-10: BTC $60,000, ETH $3,000, SOL $150.</p>
+  <table>
+    <thead><tr><th>Lot</th><th class="n">Cost basis</th><th class="n">Value at typed price</th><th class="n">Unrealized</th><th class="n">Held</th><th class="n">Tax saved if sold alone</th></tr></thead>
+    <tbody>
+      <tr><td>10 ETH, bought 2024-03-01</td><td class="n">$40,000</td><td class="n">$30,000</td><td class="n">-$10,000</td><td>short-term</td><td class="n">$1,500</td></tr>
+      <tr><td>100 SOL, bought 2024-05-10</td><td class="n">$20,000</td><td class="n">$15,000</td><td class="n">-$5,000</td><td>short-term</td><td class="n">$750</td></tr>
+      <tr><td>0.2 BTC, bought 2024-04-01</td><td class="n">$14,000</td><td class="n">$12,000</td><td class="n">-$2,000</td><td>short-term</td><td class="n">$300</td></tr>
+    </tbody>
+  </table>
+  <p>Selling all three realizes $17,000 of short-term losses. Short-term losses are netted against long-term gains when there are no short-term gains, so the year's net gain falls from $20,000 to $3,000 and the estimated tax from $3,000 to $450: <strong>$2,550 saved</strong>. The saving per lot is ranked on its own against the current result; it is a guide to which lots matter most, not a number that adds up exactly once losses start cancelling each other.</p>
+
+  <h2>What the calculator does with it</h2>
+  <ol>
+    <li>You give it your transactions and, for each coin you still hold, a price you typed. It fetches no prices, so it cannot be wrong about them in the background.</li>
+    <li>It values every open lot, ranks the ones under water by tax saved, and shows how much of the year's estimated tax selling them would remove.</li>
+    <li>It also lists gains that turn long-term within 90 days, with the tax saved by waiting and how far the price can fall before selling now would have kept more cash.</li>
+  </ol>
+
+  <h2>The wash-sale question</h2>
+  <p>The wash-sale rule disallows a loss if you buy the same asset within 30 days before or after the sale. Today it is written for stocks and securities, and crypto has generally been treated as property outside it, but that can change and tax advisers differ on edge cases. The calculator never applies the rule to your numbers. It does show, for each losing sale, the same coin bought or received within 30 days either side, and how much loss a stock-style rule would have deferred, so you can see whether your plan still works if the rule is extended.</p>
+
+  <h2>Before you sell</h2>
+  <ul>
+    <li>Selling and rebuying costs fees and spread; the calculator uses your typed prices and does not model them for the rebuy.</li>
+    <li>If the market moves between today's typed price and the actual fill, the loss moves with it.</li>
+    <li>Capital losses beyond your gains are deductible only up to an annual limit with the remainder carried forward; the calculator chains that year to year if you give it your history.</li>
+  </ul>
+  <h2>Common questions</h2>
+  <h3>Is crypto subject to the wash-sale rule?</h3>
+  <p>As the rule is written today it applies to stock and securities, and crypto has generally been treated as property outside it. Proposals to extend it have been discussed, so the calculator shows how much loss a stock-style rule would defer without applying it. Ask a tax professional about your situation.</p>
+  <h3>Which losing lots should I sell first?</h3>
+  <p>The ones that remove the most estimated tax. Short-term losses offset short-term gains, which are taxed at higher rates, so they are usually worth more per dollar than long-term losses. The calculator ranks lots under water by the tax each would save against your current result.</p>
+  <h3>Does the calculator fetch prices?</h3>
+  <p>No. You type today's price for each coin, so nothing leaves your browser and no price feed can be wrong without you seeing it.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or investment advice. Every person, trade and price on this page is invented. Tax rules, rates and which lot-identification methods you may use depend on your jurisdiction, your records and the date; confirm with a qualified tax professional.</p>
+    <p><a href="./">Use the calculator</a> &middot; <a href="./fifo-vs-hifo-crypto-cost-basis.html">FIFO vs HIFO</a> &middot; <a href="LICENSE" rel="noopener">Licence</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a></p>
+  </footer>
+</body>
+</html>

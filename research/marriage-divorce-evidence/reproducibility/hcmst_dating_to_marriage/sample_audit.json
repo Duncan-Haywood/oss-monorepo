@@ -1,0 +1,42 @@
+{
+ "couples_unmarried_2009": 1081,
+ "fates": {
+  "censored": 492,
+  "broke_up": 400,
+  "married": 160,
+  "partner_died": 29
+ },
+ "after_marriage": {
+  "together at last report": 151,
+  "broke up after marrying": 9
+ },
+ "couple_periods": 2234,
+ "marriages": 160,
+ "breakups_before_marriage": 400,
+ "marriages_dated": 79,
+ "hcmst_counts": {
+  "respondents": 4002,
+  "partnered_qflag": 3009,
+  "wave2_completed": 2520,
+  "wave3_completed": 1960,
+  "wave4_completed": 1536,
+  "wave5_completed": 1127,
+  "wave6_records": 640
+ },
+ "hcmst2017": {
+  "unmarried_couples": 777,
+  "counts": {
+   "respondents": 3510,
+   "partnered_2017": 2862,
+   "surveyed_2020": 2107,
+   "surveyed_2022": 1722
+  },
+  "known_2020": 400,
+  "married_by_2020": 65,
+  "broke_up_by_2020": 131,
+  "known_2022": 352,
+  "married_by_2022": 73,
+  "broke_up_by_2022": 151
+ },
+ "python_sklearn": "1.7.2"
+}

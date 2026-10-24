@@ -23,6 +23,7 @@ Reads `refs/pull/<n>/head` and `main` through the same commit-only probe as
 Usage:
   python3 platform/ci/concurrency_tax.py                     # last 14 days
   python3 platform/ci/concurrency_tax.py --since 2026-10-02 --first-pr 6800
+  python3 platform/ci/concurrency_tax.py --local --since 2026-10-17 --first-pr 7800
 """
 from __future__ import annotations
 
@@ -41,16 +42,35 @@ HOUSEKEEPING = re.compile(
 MAX_OWN_COMMITS = 50
 
 
+def refresh_local(repo, since):
+    """Fetch main and every PR head into this repository, trees and blobs lazily.
+
+    One filtered fetch of the pull refs is far cheaper than refreshing a second
+    clone (38 s for 8,350 refs in a cloud session), and `--shallow-since` keeps
+    a shallow checkout from being deepened past the window.
+    """
+    cutoff = (date.fromisoformat(since) - timedelta(days=30)).isoformat()
+    uw.git(["fetch", "--quiet", "--filter=blob:none", f"--shallow-since={cutoff}", "origin",
+            "+refs/heads/main:refs/remotes/origin/main", "+refs/pull/*/head:refs/pull/*/head"],
+           repo)
+
+
 def refresh(repo, probe):
     url = uw.git(["remote", "get-url", "origin"], repo).strip()
     uw.refresh_probe(probe, url, ["+refs/heads/main:refs/remotes/origin/main"])
 
 
-def pr_rounds(probe, first, last):
+def pull_numbers(repo):
+    """PR numbers with a ref, whether stored as refs/pull/<n> or refs/pull/<n>/head."""
+    refs = uw.git(["for-each-ref", "--format=%(refname)", "refs/pull"], repo).split()
+    return [int(r.split("/")[2]) for r in refs if r.split("/")[2].isdigit()]
+
+
+def pr_rounds(probe, first, last, local=False):
     """[(n, own commits, merge-main rounds, housekeeping commits)]"""
     rows = []
     for n in range(first, last + 1):
-        ref = f"refs/pull/{n}"
+        ref = f"refs/pull/{n}/head" if local else f"refs/pull/{n}"
         if not uw.git(["rev-parse", "-q", "--verify", ref], probe, check=False).strip():
             continue
         fork = uw.git(["merge-base", ref, "refs/remotes/origin/main"], probe, check=False).strip()
@@ -82,18 +102,24 @@ def main(argv=None):
     parser.add_argument("--since", default=(date.today() - timedelta(days=14)).isoformat())
     parser.add_argument("--first-pr", type=int, help="first PR number to sample (default: last 400)")
     parser.add_argument("--last-pr", type=int)
+    parser.add_argument("--local", action="store_true",
+                        help="read this repository instead of the probe clone (faster in a cloud session)")
     parser.add_argument("--top", type=int, default=12)
     args = parser.parse_args(argv)
     try:
         repo = uw.git(["rev-parse", "--show-toplevel"], args.repo).strip()
-        probe = uw.probe_path(repo)
-        refresh(repo, probe)
-        numbers = [int(r.rsplit("/", 1)[1]) for r in
-                   uw.git(["for-each-ref", "--format=%(refname)", "refs/pull"], probe).split()
-                   if r.rsplit("/", 1)[1].isdigit()]
+        if args.local:
+            probe = repo
+            refresh_local(repo, args.since)
+        else:
+            probe = uw.probe_path(repo)
+            refresh(repo, probe)
+        numbers = pull_numbers(probe)
+        if not numbers and not args.last_pr:
+            raise uw.GitError("no pull request refs to sample")
         last = args.last_pr or max(numbers)
-        first = args.first_pr or last - 400
-        rows = pr_rounds(probe, first, last)
+        first = args.first_pr or max(1, last - 400)
+        rows = pr_rounds(probe, first, last, local=args.local)
         landed, files, prefixes = hotspots(probe, args.since)
     except uw.GitError as exc:
         print(f"concurrency_tax: could not answer: {exc}", file=sys.stderr)

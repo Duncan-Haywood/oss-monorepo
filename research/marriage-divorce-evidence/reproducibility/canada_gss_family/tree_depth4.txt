@@ -1,0 +1,46 @@
+|--- cat__cohabited_first_Yes <= 0.5000
+|   |--- num__wedding_year <= 1963.5500
+|   |   |--- num__age_at_marriage <= 22.8500
+|   |   |   |--- num__wedding_year <= 1958.6500
+|   |   |   |   |--- value: [0.0063]
+|   |   |   |--- num__wedding_year >  1958.6500
+|   |   |   |   |--- value: [0.0100]
+|   |   |--- num__age_at_marriage >  22.8500
+|   |   |   |--- num__marriage_years <= 4.5000
+|   |   |   |   |--- value: [0.0015]
+|   |   |   |--- num__marriage_years >  4.5000
+|   |   |   |   |--- value: [0.0045]
+|   |--- num__wedding_year >  1963.5500
+|   |   |--- num__age_at_marriage <= 21.5500
+|   |   |   |--- num__marriage_years <= 14.5000
+|   |   |   |   |--- value: [0.0188]
+|   |   |   |--- num__marriage_years >  14.5000
+|   |   |   |   |--- value: [0.0115]
+|   |   |--- num__age_at_marriage >  21.5500
+|   |   |   |--- cat__premarital_birth_Yes <= 0.5000
+|   |   |   |   |--- value: [0.0095]
+|   |   |   |--- cat__premarital_birth_Yes >  0.5000
+|   |   |   |   |--- value: [0.0195]
+|--- cat__cohabited_first_Yes >  0.5000
+|   |--- num__age_at_marriage <= 21.5500
+|   |   |--- num__marriage_years <= 9.5000
+|   |   |   |--- num__age_at_marriage <= 20.3500
+|   |   |   |   |--- value: [0.0565]
+|   |   |   |--- num__age_at_marriage >  20.3500
+|   |   |   |   |--- value: [0.0482]
+|   |   |--- num__marriage_years >  9.5000
+|   |   |   |--- num__wedding_year <= 1978.5500
+|   |   |   |   |--- value: [0.0255]
+|   |   |   |--- num__wedding_year >  1978.5500
+|   |   |   |   |--- value: [0.0228]
+|   |--- num__age_at_marriage >  21.5500
+|   |   |--- num__marriage_years <= 14.5000
+|   |   |   |--- cat__premarital_birth_Yes <= 0.5000
+|   |   |   |   |--- value: [0.0214]
+|   |   |   |--- cat__premarital_birth_Yes >  0.5000
+|   |   |   |   |--- value: [0.0329]
+|   |   |--- num__marriage_years >  14.5000
+|   |   |   |--- num__age_at_marriage <= 30.1500
+|   |   |   |   |--- value: [0.0154]
+|   |   |   |--- num__age_at_marriage >  30.1500
+|   |   |   |   |--- value: [0.0064]

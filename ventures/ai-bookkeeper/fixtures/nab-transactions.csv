@@ -1,0 +1,4 @@
+Date,Amount,Account Number,,Transaction Type,Transaction Details,Balance,Category,Merchant Name
+02 Mar 26,-45.20,083-004 123456789,,PURCHASE,OFFICEWORKS 0412,4954.80,Shopping,Officeworks
+04 Mar 26,2000.00,083-004 123456789,,CREDIT,CLIENT PTY INV 88,6954.80,Income,
+09 Mar 26,-300.00,083-004 123456789,,DEBIT,CHEQUE 1042,6654.80,Other,

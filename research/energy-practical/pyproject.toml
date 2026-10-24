@@ -1,0 +1,13 @@
+[project]
+name = "energy-practical"
+version = "0.1.0"
+description = "Published practical energy density and round-trip efficiency of storage products, sourced and dated, against first-principles ceilings"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-density/src"]

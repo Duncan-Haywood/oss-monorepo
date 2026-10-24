@@ -43,7 +43,7 @@ test("robots and sitemap let crawlers find the page", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["file_checked", "example_loaded", "fixes_applied", "file_split"]) {
+  for (const e of ["file_checked", "example_loaded", "fixes_applied", "file_split", "lists_used"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
@@ -62,4 +62,10 @@ test("every column the page lists as checked is a column the code knows", async 
     assert.ok(COLUMNS.includes(c), c);
     assert.ok(html.includes(c), c);
   }
+});
+
+test("page offers the optional cross-check lists with labels", () => {
+  const html = page("index.html");
+  for (const id of ["chart", "contacts", "taxrates"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  assert.match(html, /crossCheck/);
 });

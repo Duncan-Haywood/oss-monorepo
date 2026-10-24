@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01EYGod8LSJhnQbyV1YwxfXr",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T11:21:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9154",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/README.md",
+      "issue": "Install line says 'python3 -m piper.download_voices' but python3 is 3.11 while pip installs piper-tts into 3.13; needed /usr/bin/python3. huggingface.co is also denied by the cloud proxy, so audio cannot be rendered in this environment."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Rendered no audio (voice download blocked); landed text and pages only, as the prompt allows when audio cannot be added. No writing podcast or agent doc written; nothing true and new to say beyond the story."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon; piece: the-bell-at-half-past-three (Hearth & Horizon shelf, text only). Audio dir 98 MB before the run.",
+  "corrections": [],
+  "redteam": null
+}

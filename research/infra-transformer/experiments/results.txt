@@ -1,0 +1,97 @@
+Inputs: 10 homes, BDEW H0 profile scaled to 10,800 kWh/yr/home, TMY ambient, heat pump UA 0.42 kW/K, balance 16 C,
+COP 3.2 at 8.3 C, +0.054/K (floor 1), EV 10 kWh/night at 7.2 kW, arrival 18 h +/- 1.5, transformer 55/25 K rise, R 3.2, n=m=0.8, tau 3 h.
+Reference: ageing at FAA = 1 for a year consumes 4.87 % of insulation life (180,000 h).
+
+A. Annual loss of life (% per year) by transformer loading and scenario. loading = baseline annual peak / kVA rating.
+-- greensboro
+loading kva base EV_100%_uncoord EV_100%_smart HP_100% HP+EV_uncoord HP+EV_smart
+0.5 45.5 0.00187 0.0354 0.00262 0.334 5.6 1.07
+0.7 32.5 0.00543 2.33 0.00932 >100(fail) >100(fail) >100(fail)
+-- sandpoint
+loading kva base EV_100%_uncoord EV_100%_smart HP_100% HP+EV_uncoord HP+EV_smart
+0.5 45.5 0.000222 0.00782 0.000353 0.0827 8.87 0.185
+0.7 32.5 0.000714 0.784 0.00145 44.2 >100(fail) >100(fail)
+-- miami
+loading kva base EV_100%_uncoord EV_100%_smart HP_100% HP+EV_uncoord HP+EV_smart
+0.5 45.5 0.0039 0.0747 0.00574 0.00392 0.075 0.0058
+0.7 32.5 0.0109 4.58 0.0199 0.011 4.61 0.0204
+
+B. Peak load (kW, hourly) and peak hot spot, Greensboro, loading 0.7
+base: peak 22.7 kW (0.70 pu), peak hot spot 80 C, hours above 110 C 0, above 140 C 0, LOL 0.00543 %/yr
+EV 100% uncoord: peak 69.9 kW (2.15 pu), peak hot spot 173 C, hours above 110 C 392, above 140 C 48, LOL 2.33 %/yr
+EV 100% smart: peak 22.7 kW (0.70 pu), peak hot spot 81 C, hours above 110 C 0, above 140 C 0, LOL 0.00932 %/yr
+HP 100%: peak 78.7 kW (2.42 pu), peak hot spot 268 C, hours above 110 C 529, above 140 C 253, LOL >100(fail) %/yr
+HP+EV uncoord: peak 108.0 kW (3.33 pu), peak hot spot 355 C, hours above 110 C 1300, above 140 C 595, LOL >100(fail) %/yr
+HP+EV smart: peak 79.7 kW (2.46 pu), peak hot spot 282 C, hours above 110 C 763, above 140 C 383, LOL >100(fail) %/yr
+
+C. Electrified share (HP and EV together) at which loss of life first reaches the rated-life rate (>= 4.87 pct per year); loading 0.7
+climate coordination share_at_threshold
+greensboro loading 0.5 uncoord 100%
+greensboro loading 0.5 smart >100%
+greensboro loading 0.7 uncoord 65%
+greensboro loading 0.7 smart 75%
+sandpoint loading 0.5 uncoord 95%
+sandpoint loading 0.5 smart >100%
+sandpoint loading 0.7 uncoord 60%
+sandpoint loading 0.7 smart 85%
+miami loading 0.5 uncoord >100%
+miami loading 0.5 smart >100%
+miami loading 0.7 uncoord >100%
+miami loading 0.7 smart >100%
+   (HP-only and EV-only variants, same threshold, Greensboro loading 0.5)
+HP only: >100%
+EV only uncoord: >100%
+EV only smart: >100%
+
+D. Uniform load growth multiplier that doubles loss of life versus the 1.0x baseline (all-load scaling, Greensboro)
+loading 0.5: baseline 0.00187 %/yr, growth to double 1.275x, growth to reach 4.87 %/yr 3.12x
+loading 0.7: baseline 0.00543 %/yr, growth to double 1.160x, growth to reach 4.87 %/yr 2.23x
+loading 0.9: baseline 0.0204 %/yr, growth to double 1.105x, growth to reach 4.87 %/yr 1.73x
+
+E. Sensitivity (HP and EV in 50% of homes, Greensboro, rating sized to loading 0.5 with the default parameters): LOL uncoord / smart (%/yr) and ratio
+param value uncoord smart
+d_to_r 45.0 0.0033 0.00133
+d_to_r 55.0 0.00752 0.00255
+d_to_r 65.0 0.0177 0.00492
+d_h_r 15.0 0.00334 0.00181
+d_h_r 25.0 0.00752 0.00255
+d_h_r 35.0 0.0231 0.0038
+r 2.0 0.0109 0.0046
+r 3.2 0.00752 0.00255
+r 5.0 0.0059 0.00161
+n 0.8 0.00752 0.00255
+n 0.9 0.00652 0.00185
+n 1.0 0.00606 0.00139
+m 0.8 0.00752 0.00255
+m 0.9 0.00777 0.00226
+m 1.0 0.00866 0.00204
+tau_to 1.5 0.0136 0.00262
+tau_to 3.0 0.00752 0.00255
+tau_to 5.0 0.00552 0.0025
+-- plant-side parameters (ratings re-sized to keep loading 0.5 on the baseline)
+ua_kw_per_k 0.25 0.0052 0.00218
+ua_kw_per_k 0.42 0.00752 0.00255
+ua_kw_per_k 0.6 0.0406 0.00853
+cop_at_8 2.5 0.0509 0.0146
+cop_at_8 3.2 0.00752 0.00255
+cop_at_8 4.0 0.00563 0.00227
+ev_kwh_day 6.0 0.00396 0.00236
+ev_kwh_day 10.0 0.00752 0.00255
+ev_kwh_day 15.0 0.0241 0.00292
+annual_kwh 6000.0 5.92 0.24
+annual_kwh 10800.0 0.00752 0.00255
+annual_kwh 14000.0 0.00379 0.00218
+
+F. Annual loss of life (%/yr) against share of homes with a heat pump and an EV, Greensboro, loading 0.5
+share uncoord smart
+0 0.001868 0.001868
+10 0.002092 0.001909
+20 0.002442 0.001968
+30 0.003013 0.002057
+40 0.004258 0.002208
+50 0.007524 0.002547
+60 0.01399 0.003641
+70 0.04295 0.00867
+80 0.2073 0.03545
+90 1.286 0.2007
+100 5.605 1.068

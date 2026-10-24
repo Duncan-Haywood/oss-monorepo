@@ -1,0 +1,71 @@
+name: open-robot-mower
+description: >-
+  Open-source hardware and software for a DIY robotic lawn mower: wire-free RTK
+  GNSS navigation (perimeter-wire option described), rear-wheel drive with front
+  casters, a 232 mm pivoting razor-blade disc inside a full guard ring with
+  20-50 mm height adjustment, a floating shell on hall-effect lift and bump
+  sensors, tilt, rain and stop-button inputs, a 7S Li-ion pack and a charging
+  dock. Ships a Python planning package (coverage planner, closed-loop RTK
+  simulation, charge sessions, blade stop time, slope limits), ESP32 firmware
+  with a blade interlock, BOMs and design docs, a browser lawn planner, and a
+  complete manufacturing package (DXF, STL, STEP, BOM, drawings) generated from
+  parametric code-CAD for the mower and the dock.
+stage: prototype
+owner: duncan
+
+# Requested directly by the owner on 2026-10-20: "some projects to add on robo
+# vaccum cleaner robo mopper. robo vaaccum-mopper. robo lawn mower. fully
+# designed projects under mit licenses." Named task, so session_gate did not
+# apply. This venture is the lawn mower; the floor robots are a separate
+# venture (ventures/open-floor-robots). Modelled on open-tennis-robots, whose
+# CAD generator pattern it reuses.
+#
+# First visitor: searches "DIY robot lawn mower", "open source robotic mower",
+# "build a robot lawn mower", "RTK robot mower", "robot mower without boundary
+# wire"; r/robotics, r/lawncare and maker communities (posting there under the
+# portfolio's name is owner-only). Volume not measured with an external tool.
+#
+# Liability boundary: design files and simulation, explicitly v0.1 and unbuilt;
+# not engineering, electrical or safety advice; safety.md (hazard in numbers,
+# what is and is not protected, rules for running it) and the no-warranty
+# clause on every surface. IEC 60335-2-107 is named for builders and sellers to
+# meet, with no claim of compliance. Firmware enforces the blade interlock,
+# latched stops and watchdog; the stop button cuts the blade in hardware.
+# Sellers are the manufacturer. Not affiliated with any mower maker.
+#
+# Path to revenue (rails off): donations; third parties building kits; a
+# hosted lawn-mapping tool later.
+
+hypotheses:
+  - claim: >-
+      Makers will star, fork or open build issues on an open-source RTK robot
+      mower design within 90 days of it being on the published site.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A stripe planner with two edge loops and obstacle loops, followed segment
+      by segment on RTK fixes, cuts more than 99% of a typical garden lawn
+      (simulation: 99.86-99.88% on the back-yard example); a first build can
+      confirm it.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, forks or build reports) engage within 120 days of the page being reachable from the published site.
+  - A builder reports that the blade cannot be made to stop within the 1 s design target with the specified relay brake, and no change to the design fixes it.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/open-robot-mower/
+  analytics: null

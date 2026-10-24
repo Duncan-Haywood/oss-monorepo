@@ -86,3 +86,8 @@ test('the worked example is reachable from a control on the page', () => {
   assert.match(html, /id="loadExample"/);
   assert.match(html, /Load a worked example/);
 });
+
+test("the footer links AI Bookkeeper, the ledger these journals feed", async () => {
+  const { readFileSync } = await import("node:fs");
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/ai-bookkeeper\/"/);
+});

@@ -53,6 +53,7 @@
     <p>The <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-tennis-robots">designs, firmware and software</a> are free to build, change and sell. Try the shot planner below; it runs the same flight model the robot uses.</p>
     <p class="note">Status: the collector has a complete manufacturing package (v0.2); the feeder is a v0.1 design whose CAD is next. Everything has been simulated, but no robot has been built yet. Not engineering or safety advice.</p>
   </header>
+<main>
 
   <section class="card" id="feeder">
     <h2>Shot planner: aim the ball machine</h2>
@@ -161,7 +162,9 @@
     <p>Only if you build it carefully. Launcher wheels at several thousand rpm and balls at over 100 km/h can injure people. The design includes a hard-wired emergency stop, wheel guards, a firmware watchdog that stops every motor if the controller goes quiet, a feed interlock and command limits. You are still responsible for building, testing and operating your machine safely.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
+    <p>More open hardware from this project: the <a href="../open-robot-mower/">open-source robotic lawn mower</a> (RTK-GNSS stripe planner and a full fabrication package), and <a href="../open-floor-robots/">Open Floor Robots</a>: a DIY robot vacuum, robot mop and vacuum-mop on one chassis.</p>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering or safety advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for building and operating any machine safely and lawfully. To the maximum extent permitted by law, the authors accept no liability for any loss, damage or injury arising from its use.</p>
     <p><strong>Privacy.</strong> Everything runs in your browser. Nothing you type is uploaded, and there are no accounts, tracking cookies or analytics vendor. Anonymous counts of which features get used are stored in your own browser only. <label class="check" for="optout"><input type="checkbox" id="optout"> Turn usage counting off</label></p>
     <p>Not affiliated with any ball machine maker, tennis brand, or Amazon. Open source under the MIT licence. Like it? <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work on GitHub</a>.</p>

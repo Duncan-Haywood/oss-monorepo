@@ -1,0 +1,68 @@
+buildbot-taskbook: 210 framing pieces, 134 ft of wall, 32 wall sheets, 46 roof sheets, 72 drywall sheets, 2062 ft2 of board (28 x 40 ft one-storey house of house-framing, conventional 2x6 at 16 in)
+payload envelopes: buildbot-payload results.json; minutes swept log-uniformly x1/3 to x3, 4000 draws, seed 1
+
+A. cross-check of the framing rows against one cited norm
+   lumber in the takeoff 1569 lf x 0.0366 man-hours/ft (Methvin, 0.12 mhr/m, a 2x3 rate) = 57.4 h
+   my framing rows (F1-F6) at their mid minutes: 10.4 h; the norm is 5.5x that. Scenario B scales F1-F6 by 5.54
+
+B. scenario 'A my minutes': total 46 crew-hours at mid minutes; 5-95% over the sweep 40-77
+   share of hours in tasks whose payload test a robot passes (hand tasks only; force, vision and tolerance not tested): G1 palm 0.06-0.22 (median 0.12), H1 palm 0.54-0.81 (median 0.69)
+
+B. scenario 'B framing scaled to the norm': total 93 crew-hours at mid minutes; 5-95% over the sweep 80-150
+   share of hours in tasks whose payload test a robot passes (hand tasks only; force, vision and tolerance not tested): G1 palm 0.07-0.31 (median 0.16), H1 palm 0.57-0.85 (median 0.73)
+
+C. the task book (scenario A hours; P(top5) = share of sweep draws where the task is among the five costliest)
+   id  verb     task                                                     unit              n          kg tol mm  h mid     h 5-95%  P(top5)            H1            G1  load
+   F1  lay out  mark plates and openings with chalk and pencil           ft of wall      134         0.1    3.0    2.2   0.8-  6.1     0.34           yes           yes  0.01
+   F2  carry    move a stud, plate, header ply or cripple from the stack piece           210    5.8-10.1           1.1   0.4-  2.8     0.03           yes            no  0.71
+   F3  cut      cut headers, sills, cripples, jacks and plates to length cut              96         5.8    1.6    1.6   0.6-  4.3     0.19           yes            no  0.46
+   F4  place    hold a piece in position against the layout              piece           210    5.8-10.1   38.1    1.4   0.5-  3.8     0.12           yes            no  0.80
+   F5  fasten   drive end nails with a framing nailer                    nail            840         3.4   19.0    1.4   0.5-  3.8     0.12           yes            no  0.27
+   F6  raise    tilt a framed wall up and brace it                       wall              4       305.0   12.0    2.7   1.0-  7.1     0.42            no  out of reach 12.11
+   S1  carry    move a 4x8 OSB sheet from the stack to the wall          sheet            32   20.3-23.2           0.4   0.2-  1.1     0.00            no            no  1.64
+   S2  place    hold and square a sheet on the frame                     sheet            32   20.3-23.2   19.0    0.8   0.3-  2.2     0.01           yes  out of reach  0.93
+   S3  cut      cut out the window and door openings                     opening          10         3.4    6.0    0.5   0.2-  1.4     0.00           yes            no  0.27
+   S4  fasten   nail sheathing, 6 in edge and 12 in field                nail           1984         3.4   19.0    3.3   1.2-  9.0     0.53           yes            no  0.27
+   R1  carry    bring OSB sheets up to the roof                          sheet            46   20.3-23.2           1.1   0.4-  3.1     0.05  out of reach  out of reach      
+   R2  place    lay and square a roof sheet                              sheet            46   20.3-23.2   19.0    1.1   0.4-  3.1     0.05  out of reach  out of reach      
+   R3  fasten   nail roof sheathing                                      nail           2852         3.4   19.0    5.7   2.1- 15.4     0.81  out of reach  out of reach      
+   I1  place    cut and fit a batt in a wall cavity                      bay              75         0.5   12.0    1.2   0.5-  3.4     0.08           yes           yes  0.04
+   D1  carry    carry a 4x8 drywall sheet                                sheet            72        23.2           1.2   0.4-  3.2     0.07            no            no  1.64
+   D2  hold     hold a wall sheet while it is screwed                    sheet            33        23.2   19.0    1.1   0.4-  2.9     0.05           yes  out of reach  0.93
+   D3  hold     hold a ceiling sheet while it is screwed                 sheet            39        23.2   19.0    1.9   0.7-  5.2     0.28  out of reach  out of reach      
+   D4  cut      score and snap or cut around openings                    sheet            72         1.0    3.0    2.4   0.9-  6.5     0.37           yes           yes  0.08
+   D5  fasten   drive drywall screws                                     screw          2304         1.5   19.0    3.1   1.1-  8.2     0.49           yes  out of reach  0.12
+   D6  finish   tape, mud and sand joints, three coats                   ft2 of board   2062         2.0    1.0   12.0   4.5- 32.1     1.00           yes  out of reach  0.16
+   load = needed mass (half if shared) over the H1's conservative capacity at the task's hand height and reach
+
+D. hours by what the stock humanoids can do, mid minutes, scenario A / scenario B
+   H1 passes the payload test           32.1 h ( 69%) /   67.1 h ( 72%)
+   H1 fails payload (too heavy)          4.3 h (  9%) /   16.4 h ( 18%)
+   out of the H1's reach envelope       10.0 h ( 21%) /   10.0 h ( 11%)
+   G1 passes the payload test            5.9 h ( 13%) /   16.0 h ( 17%)
+
+E. cost per unit of robot difficulty: hours divided by the H1 load ratio (floor 0.25), tasks the H1 can reach, scenario A
+   D6  tape, mud and sand joints, three coats                         48.1 h per unit load ratio
+   D5  drive drywall screws                                           12.3 h per unit load ratio
+   S4  nail sheathing, 6 in edge and 12 in field                      12.3 h per unit load ratio
+   D4  score and snap or cut around openings                           9.6 h per unit load ratio
+   F1  mark plates and openings with chalk and pencil                  8.9 h per unit load ratio
+   F5  drive end nails with a framing nailer                           5.2 h per unit load ratio
+
+F. hours by trade, scenario A / B
+   framing       10.4 h /   57.4 h
+   sheathing      5.0 h /    5.0 h
+   roof           8.0 h /    8.0 h
+   insulation     1.2 h /    1.2 h
+   drywall       21.7 h /   21.7 h
+
+G. hours by verb, scenario A / B, and the number of fasteners driven
+   lay out     2.2 h (  5%) /   12.4 h ( 13%)
+   carry       3.8 h (  8%) /    8.6 h (  9%)
+   cut         4.5 h ( 10%) /   11.8 h ( 13%)
+   place       4.6 h ( 10%) /   11.0 h ( 12%)
+   fasten     13.5 h ( 29%) /   19.8 h ( 21%)
+   raise       2.7 h (  6%) /   14.8 h ( 16%)
+   hold        3.0 h (  7%) /    3.0 h (  3%)
+   finish     12.0 h ( 26%) /   12.0 h ( 13%)
+   fasteners driven: 7980

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Singapore GST InvoiceNow requirement: dates, who is covered and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="Singapore's GST InvoiceNow requirement phases in from 1 Nov 2025 for new voluntary GST registrants and from 1 Apr 2028 to 1 Apr 2031 for existing GST-registered businesses by annual supplies. The dates, what is unconfirmed, and a free local EN 16931 invoice checker.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/singapore-invoicenow-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Singapore GST InvoiceNow requirement: dates, who is covered and a free pre-send check">
+<meta property="og:description" content="Singapore's GST InvoiceNow requirement phases in from 1 Nov 2025 for new voluntary GST registrants and from 1 Apr 2028 to 1 Apr 2031 for existing GST-registered businesses by annual supplies. The dates, what is unconfirmed, and a free local EN 16931 invoice checker.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/singapore-invoicenow-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When does Singapore's GST InvoiceNow requirement start?","acceptedAnswer":{"@type":"Answer","text":"It started on 1 November 2025 for newly incorporated companies that register for GST voluntarily, and from 1 April 2026 it covers all new voluntary GST registrants. Existing GST-registered businesses are reported to be phased in by annual supplies from 1 April 2028 to 1 April 2031. Confirm your own date on the IRAS GST InvoiceNow page; this page is a summary, not advice."}},{"@type":"Question","name":"Which format does InvoiceNow use?","acceptedAnswer":{"@type":"Answer","text":"InvoiceNow is Singapore's national e-invoicing network, built on the Peppol network. Invoice data travels through a Peppol access point, which also transmits the invoice data to IRAS. Singapore uses its own Peppol International (PINT) profile; when an invoice's specification identifier (BT-24) names the Singapore profile, this checker runs OpenPeppol's Singapore PINT rules, including the GST rules, in your browser."}},{"@type":"Question","name":"What are the penalties for not using InvoiceNow?","acceptedAnswer":{"@type":"Answer","text":"We could not confirm a specific penalty for non-compliance with the GST InvoiceNow requirement; one commentator reports none has been published yet. Late GST registration has its own penalties, which are a different matter. Check the IRAS page before relying on any figure."}},{"@type":"Question","name":"What can this checker do for a Singapore invoice?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker: it tests the totals and tax breakdown arithmetic against the EN 16931 core rules, and VAT, IBAN and BIC typos, each with a rule ID and a fix. For a UBL invoice that names the Singapore profile it also runs the PINT-SG rules and GST category codes; it is still not an access point's acceptance. Nothing is uploaded when you use the page."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Singapore's GST InvoiceNow requirement: what applies now</h1>
+<p class="lede">Singapore is moving GST-registered businesses onto InvoiceNow, the national Peppol-based e-invoicing network, which also passes invoice data to the tax authority (IRAS). Below: the phase dates as reported, what we could not confirm, and how to test an invoice file before it goes out.</p>
+</header>
+<section>
+<h2>The timeline</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">Who is covered</th></tr></thead>
+<tbody>
+<tr><td>1 Nov 2025</td><td>Newly incorporated companies that register for GST voluntarily (incorporated within six months of applying).</td></tr>
+<tr><td>1 Apr 2026</td><td>All new voluntary GST registrants, whatever their incorporation date or structure.</td></tr>
+<tr><td>1 Apr 2028</td><td>Existing GST-registered businesses with annual supplies up to S$200,000 (reported; also compulsory registrants from this date).</td></tr>
+<tr><td>1 Apr 2029</td><td>Annual supplies up to S$1,000,000 (reported).</td></tr>
+<tr><td>1 Apr 2030</td><td>Annual supplies up to S$4,000,000 (reported).</td></tr>
+<tr><td>1 Apr 2031</td><td>Annual supplies above S$4,000,000 (reported).</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">The 2025 and 2026 dates come from IRAS announcements as summarised by law firms; the 2028 to 2031 steps come from secondary guides and were not read on the IRAS page itself, so treat them as reported, not confirmed. Reverse-charge and overseas-vendor-registration businesses are reported as excluded. A penalty for non-compliance was not found. Confirm with IRAS or your accountant.</p>
+</section>
+<section>
+<h2>How it travels</h2>
+<p>The invoice is sent through a <strong>Peppol access point</strong> on the InvoiceNow network, and the access point also transmits the invoice data to IRAS for GST administration. Singapore uses its own Peppol International (PINT) profile on top of the European standard EN 16931 model. Newly incorporated businesses were offered a year of free InvoiceNow services through the InvoiceNow Accelerate Programme; check the current terms.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a> and drop your XML. It tests the totals and tax breakdown arithmetic against the EN 16931 core rules, a missing tax reason on a 0% or exempt line, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). <strong>It does not apply the Singapore PINT rules or GST code lists</strong>, so a pass here is not a pass at your access point. No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Elsewhere: <a href="australia-e-invoice-mandate.html">Australia</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, or the <a href="e-invoicing-mandates-by-country.html">full country table</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>When does Singapore's GST InvoiceNow requirement start?</h3>
+<p>It started on 1 November 2025 for newly incorporated companies that register for GST voluntarily, and from 1 April 2026 it covers all new voluntary GST registrants. Existing GST-registered businesses are reported to be phased in by annual supplies from 1 April 2028 to 1 April 2031. Confirm your own date on the IRAS GST InvoiceNow page; this page is a summary, not advice.</p>
+<h3>Which format does InvoiceNow use?</h3>
+<p>InvoiceNow is Singapore's national e-invoicing network, built on the Peppol network. Invoice data travels through a Peppol access point, which also transmits the invoice data to IRAS. Singapore uses its own Peppol International (PINT) profile; when an invoice's specification identifier (BT-24) names the Singapore profile, this checker runs OpenPeppol's Singapore PINT rules, including the GST rules, in your browser.</p>
+<h3>What are the penalties for not using InvoiceNow?</h3>
+<p>We could not confirm a specific penalty for non-compliance with the GST InvoiceNow requirement; one commentator reports none has been published yet. Late GST registration has its own penalties, which are a different matter. Check the IRAS page before relying on any figure.</p>
+<h3>What can this checker do for a Singapore invoice?</h3>
+<p>Drop the file into the checker: it tests the totals and tax breakdown arithmetic against the EN 16931 core rules, and VAT, IBAN and BIC typos, each with a rule ID and a fix. For a UBL invoice that names the Singapore profile it also runs the PINT-SG rules and GST category codes; it is still not an access point's acceptance. Nothing is uploaded when you use the page.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Singapore rules as publicly reported (IRAS page "GST InvoiceNow Requirement" and law-firm summaries); dates and thresholds can change, so check the IRAS guidance (iras.gov.sg, GST InvoiceNow) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

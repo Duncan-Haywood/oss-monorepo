@@ -1,0 +1,10 @@
+file,part,qty,material,thickness_mm,width_mm,height_mm,area_cm2,cut_length_mm,holes_and_cutouts,notes
+head_motor_plate__aluminium_5mm.dxf,head_motor_plate,1,aluminium 5052,5.0,360.0,415.0,1485.8,1905,20,Both outrunners mount on this plate (M4 on a 25 mm square; check your motor). Pivot bolt M8 through the lower hole.
+head_guard_plate__aluminium_5mm.dxf,head_guard_plate,1,aluminium 5052,5.0,360.0,415.0,1490.1,1707,10,Keeps hands and balls off the open side of the wheels; held by four M5 standoffs.
+trunnion_cheek__aluminium_5mm.dxf,trunnion_cheek,2,aluminium 5052,5.0,120.0,165.0,196.6,610,3,Holds the head's M8 pivot bolt; a printed foot on each cheek bolts it to the turntable plate.
+mast_plate__aluminium_5mm.dxf,mast_plate,1,aluminium 5052,5.0,220.0,340.0,732.7,1367,9,Bolts to the end-tapped posts (M5) and to the fixed ring of the turntable bearing.
+turntable_plate__aluminium_5mm.dxf,turntable_plate,1,aluminium 5052,5.0,200.0,175.0,335.0,983,9,Bolts to the rotating ring of the bearing; a servo or stepper drives it (not modelled).
+base_deck__aluminium_5mm.dxf,base_deck,1,aluminium 5052,5.0,450.0,880.0,3920.8,6901,402,Sits on the rails (M5 and T-nuts); holds the battery and electronics.
+drive_bracket__aluminium_5mm.dxf,drive_bracket,2,aluminium 5052,5.0,90.0,165.0,145.4,639,9,"Gearmotor (37 mm class, M3 on a 31 mm circle) bolts to the inside face. M5 into the side rail's T-slot."
+idler_bracket__aluminium_5mm.dxf,idler_bracket,2,aluminium 5052,5.0,90.0,165.0,143.7,600,3,"608 bearing in the bore, 8 mm axle bolt. M5 into the side rail's T-slot."
+hopper_shelf__aluminium_5mm.dxf,hopper_shelf,1,aluminium 5052,5.0,460.0,500.0,2240.3,2532,11,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the outlet spigot under the outlet hole."

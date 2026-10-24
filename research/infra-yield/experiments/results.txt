@@ -1,0 +1,76 @@
+A. Yield against A*D0, five models (alpha=3 and n=10 are assumed)
+x poisson murphy seeds bose10 negbin3
+0.1 0.9048 0.9056 0.9091 0.9053 0.9063
+0.25 0.7788 0.7829 0.8000 0.7812 0.7865
+0.5 0.6065 0.6193 0.6667 0.6139 0.6297
+1 0.3679 0.3996 0.5000 0.3855 0.4219
+2 0.1353 0.1869 0.3333 0.1615 0.2160
+3 0.0498 0.1003 0.2500 0.0725 0.1250
+5 0.0067 0.0395 0.1667 0.0173 0.0527
+
+B. Dies per wafer, 300 mm, 3 mm edge: closed form against exact grid count (square dies)
+area_mm2 closed exact diff_pct
+25 2584 2608 -0.9
+100 613 626 -2.1
+200 293 303 -3.3
+400 137 148 -7.4
+600 86 93 -7.5
+800 61 69 -11.6
+
+C. Cost per good die, USD, negative binomial alpha=3 (wafer price and D0 from the sources above)
+area_mm2 dpw yield7 cost7 yield5 cost5 ratio5to7
+50 1265 0.956 8 0.947 14 1.84
+100 613 0.915 17 0.898 31 1.85
+200 293 0.840 38 0.809 72 1.89
+300 188 0.772 64 0.731 124 1.92
+400 137 0.712 96 0.663 187 1.95
+600 86 0.609 179 0.551 359 2.01
+800 61 0.524 292 0.462 602 2.06
+
+D. The 600 mm2 die: cost by yield model (CSET quotes about $233 at 7nm and $238 at 5nm for a die of about this size)
+model cost7 cost5
+poisson 186 382
+murphy 182 369
+seeds 167 328
+bose_einstein 184 374
+neg_binomial 179 359
+negbin_alpha1 167 328
+negbin_alpha2 175 349
+negbin_alpha5 181 367
+negbin_alpha10 184 374
+
+E. Chiplet break-even: smallest logic area (mm2) where n chiplets beat one die (N5 wafer, 10% die-to-die overhead, 99% bond yield)
+d0 pkg bond n2 n4
+0.05 10 2 362 315
+0.05 30 5 454 428
+0.05 60 10 574 558
+0.05 120 20 720 728
+0.11 10 2 233 216
+0.11 30 5 304 301
+0.11 60 10 383 392
+0.11 120 20 490 515
+0.2 10 2 163 157
+0.2 30 5 220 222
+0.2 60 10 279 291
+0.2 120 20 358 383
+0.3 10 2 128 126
+0.3 30 5 173 179
+0.3 60 10 221 235
+0.3 120 20 286 308
+
+F. Chiplet cost at 800 mm2 logic, N5 wafer, D0 0.11, pkg 30 bond 5 (cost USD per assembled part)
+n cost
+1 639
+2 482
+3 416
+4 390
+6 374
+8 375
+
+G. Does the break-even depend on the yield model? (N5, D0 0.11, pkg 30 bond 5, n=2)
+model breakeven_mm2
+poisson 290
+murphy 299
+seeds 333
+bose_einstein 298
+neg_binomial 304

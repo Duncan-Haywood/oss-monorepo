@@ -1,0 +1,5 @@
+model,heldout_mean_deviance,deviance_improvement_percent,improvement_over_duration_only_percent,observed_expected_ratio,fold_improvement_min,fold_improvement_max
+constant,0.361625,0,-0.38366,0.999697,0,0
+duration_only,0.360243,0.382194,0,0.999803,0.264651,0.495688
+additive_spline,0.350688,3.02443,2.65237,0.988395,2.29649,4.13105
+tree_depth3,0.358319,0.914136,0.533983,0.98782,-0.329969,1.70642

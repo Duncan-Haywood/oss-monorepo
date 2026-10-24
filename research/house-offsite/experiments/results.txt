@@ -55,3 +55,24 @@ G. What the fixed overheads cost (panelised cost minus site-built, $, at ratio 0
          no crane day cost:      -127
   factory wage = site wage:    +1,664
               trip cost x3:    +3,173
+
+H. Closed panels: wrap, insulation, wiring and window/door setting built in the factory (1.2 min/ft2 + 90 min/opening on site)
+ ratio  weather  site d  panel d   site $  panel $  diff %
+   0.3     0.00    2.64     2.00    5,444    4,884   -10.3
+   0.3     0.15    3.18     2.16    5,444    4,884   -10.3
+  0.45     0.00    2.64     2.00    5,444    5,494    +0.9
+  0.45     0.15    3.18     2.16    5,444    5,494    +0.9
+   0.6     0.00    2.64     2.00    5,444    6,104   +12.1
+   0.6     0.15    3.18     2.16    5,444    6,104   +12.1
+   0.8     0.00    2.64     2.00    5,444    6,918   +27.1
+   0.8     0.15    3.18     2.16    5,444    6,918   +27.1
+
+I. Closed panels, shortest house length (ft, step 2) at which panelising is cheaper, by factory ratio and crane-day cost
+ ratio       crane $0     crane $750    crane $1500
+   0.3             24             24             24
+  0.45             24             24             42
+   0.6             24             34    none to 200
+   0.8             24    none to 200    none to 200
+
+J. Closed panels at the baseline house: labour hours and calendar days
+closed: site labour 85 h, factory labour 43 h; days site 3.18, panelised 2.16

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: PSNR of the synthesised view with background hole filling, with a hard disagreement gate, with a soft disagreement weight, and of the nearest camera alone, against the angle between the two source cameras in degrees">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Soft against hard confidence gating of stereo-depth view synthesis, against camera gap</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="282.8" y2="282.8" stroke="#ddd"/><text x="58" y="286.8" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="241.6" y2="241.6" stroke="#ddd"/><text x="58" y="245.6" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="200.3" y2="200.3" stroke="#ddd"/><text x="58" y="204.3" text-anchor="end" font-family="sans-serif" font-size="11">15</text>
+<line x1="64" x2="624" y1="159.1" y2="159.1" stroke="#ddd"/><text x="58" y="163.1" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="117.9" y2="117.9" stroke="#ddd"/><text x="58" y="121.9" text-anchor="end" font-family="sans-serif" font-size="11">25</text>
+<line x1="64" x2="624" y1="76.7" y2="76.7" stroke="#ddd"/><text x="58" y="80.7" text-anchor="end" font-family="sans-serif" font-size="11">30</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="242.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">15</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">gap between source cameras (degrees)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">PSNR against ray-traced truth (dB)</text>
+<polyline points="64.0,88.6 242.2,97.8 624.0,103.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="88.6" r="3" fill="#c0392b"/>
+<circle cx="242.2" cy="97.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="103.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">hole fill</text>
+<polyline points="64.0,74.1 242.2,82.3 624.0,95.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="74.1" r="3" fill="#1f6fb2"/>
+<circle cx="242.2" cy="82.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="95.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">hard gate</text>
+<polyline points="64.0,71.2 242.2,80.3 624.0,95.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="242.2" cy="80.3" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="95.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">soft gate</text>
+<polyline points="64.0,105.7 242.2,119.5 624.0,130.3" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="105.7" r="3" fill="#8e44ad"/>
+<circle cx="242.2" cy="119.5" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="130.3" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">nearest camera, no synthesis</text>
+</svg>

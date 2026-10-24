@@ -1,0 +1,19 @@
+|--- num__current_marriage_years <= 18.3750
+|   |--- num__current_marriage_years <= 10.9583
+|   |   |--- value: [0.0164]
+|   |--- num__current_marriage_years >  10.9583
+|   |   |--- num__current_marriage_years <= 14.9583
+|   |   |   |--- value: [0.0099]
+|   |   |--- num__current_marriage_years >  14.9583
+|   |   |   |--- value: [0.0093]
+|--- num__current_marriage_years >  18.3750
+|   |--- num__age <= 52.5000
+|   |   |--- num__current_marriage_years <= 23.9583
+|   |   |   |--- value: [0.0085]
+|   |   |--- num__current_marriage_years >  23.9583
+|   |   |   |--- value: [0.0050]
+|   |--- num__age >  52.5000
+|   |   |--- num__current_marriage_years <= 31.2083
+|   |   |   |--- value: [0.0034]
+|   |   |--- num__current_marriage_years >  31.2083
+|   |   |   |--- value: [0.0021]

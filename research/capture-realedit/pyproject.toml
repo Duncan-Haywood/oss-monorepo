@@ -1,0 +1,13 @@
+[project]
+name = "capture-realedit"
+version = "0.1.0"
+description = "Does an automatic multi-camera edit survive the audio-sync errors measured on real recorded clips?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../capture-syncedit/src", "../capture-realaudio/src", "../capture-audiosync/src", "../capture-edit/src"]

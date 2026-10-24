@@ -1,0 +1,139 @@
+[
+  {
+    "sample": "legally_married_including_separated",
+    "n": 45977,
+    "respondents": 6238,
+    "events": 1463,
+    "numeric_support": {
+      "age": {
+        "min": 35.0,
+        "max": 64.0,
+        "missing": 0
+      },
+      "first_marriage_age": {
+        "min": 13.0,
+        "max": 61.0,
+        "missing": 1055
+      }
+    },
+    "categories": {
+      "sex": [
+        "Men",
+        "Women"
+      ],
+      "education_model": [
+        "Associate",
+        "Bachelor",
+        "Graduate",
+        "High school",
+        "Less than high school",
+        "Some college",
+        "Unknown"
+      ],
+      "work": [
+        "1\u20131,999 hours",
+        "2,000+ hours",
+        "No work hours",
+        "Unknown"
+      ],
+      "income_quartile": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4",
+        "Unknown"
+      ],
+      "religion_2000": [
+        "Less than weekly",
+        "Never",
+        "Unknown",
+        "Weekly or more"
+      ],
+      "baseline_status": [
+        "Married",
+        "Separated"
+      ],
+      "start_wave": [
+        "2000",
+        "2002",
+        "2004",
+        "2006",
+        "2008",
+        "2010",
+        "2012",
+        "2014",
+        "2016",
+        "2018",
+        "2020"
+      ]
+    }
+  },
+  {
+    "sample": "currently_married_only",
+    "n": 42259,
+    "respondents": 5899,
+    "events": 854,
+    "numeric_support": {
+      "age": {
+        "min": 35.0,
+        "max": 64.0,
+        "missing": 0
+      },
+      "first_marriage_age": {
+        "min": 13.0,
+        "max": 61.0,
+        "missing": 867
+      }
+    },
+    "categories": {
+      "sex": [
+        "Men",
+        "Women"
+      ],
+      "education_model": [
+        "Associate",
+        "Bachelor",
+        "Graduate",
+        "High school",
+        "Less than high school",
+        "Some college",
+        "Unknown"
+      ],
+      "work": [
+        "1\u20131,999 hours",
+        "2,000+ hours",
+        "No work hours",
+        "Unknown"
+      ],
+      "income_quartile": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4",
+        "Unknown"
+      ],
+      "religion_2000": [
+        "Less than weekly",
+        "Never",
+        "Unknown",
+        "Weekly or more"
+      ],
+      "baseline_status": [
+        "Married"
+      ],
+      "start_wave": [
+        "2000",
+        "2002",
+        "2004",
+        "2006",
+        "2008",
+        "2010",
+        "2012",
+        "2014",
+        "2016",
+        "2018",
+        "2020"
+      ]
+    }
+  }
+]

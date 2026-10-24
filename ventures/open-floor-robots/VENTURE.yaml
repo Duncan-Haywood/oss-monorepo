@@ -1,0 +1,71 @@
+name: open-floor-robots
+description: >-
+  Open-source hardware and software for a robot vacuum, a robot mop and a robot
+  vacuum-mop combo built on one 330 mm round chassis with swappable cleaning
+  modules. Parametric code-CAD generates a manufacturing package per robot (DXF,
+  STL, STEP, BOM, drawings) and checks collisions (including the pad lift and
+  bumper travel), insert-hole alignment, balance and cliff-stopping distance.
+  Ships ESP32 firmware with cliff back-off, bumper, wheel-drop, battery,
+  temperature and no-puddle pump interlocks; a Python coverage planner
+  (edge pass plus boustrophedon lanes), a noisy closed-loop simulator, battery
+  and return-to-dock planning, fan and mop-water sizing; and a browser
+  simulator running the same planner.
+stage: prototype
+owner: duncan
+
+# Requested directly by the owner on 2026-10-20: "some projects to add on robo
+# vaccum cleaner robo mopper. robo vaaccum-mopper. robo lawn mower. fully
+# designed projects under mit licenses." The lawn mower is a separate venture
+# (ventures/open-robot-mower); the three floor robots share one chassis, so they
+# are one venture with three builds. Named task, so session_gate did not apply.
+# Nearest neighbour in the portfolio: open-tennis-robots (same code-CAD and
+# firmware conventions, different machines). No other robotics venture.
+#
+# First visitor: searches "DIY robot vacuum", "build your own robot vacuum",
+# "open source robot vacuum", "DIY robot mop", "robot vacuum mop combo design",
+# "coverage path planning robot vacuum"; r/robotics, r/3Dprinting, maker and ROS
+# communities. Volume not measured with an external tool.
+#
+# Liability boundary: design files and simulation, explicitly v0.1 and unbuilt;
+# not engineering, electrical or safety advice; safety.md and the no-warranty
+# clause on every surface; no compliance claim (IEC 60335-2-2 named only as what
+# a seller would need); firmware enforces the stop button, watchdog, cliff,
+# bumper, wheel-drop, battery and temperature rules whatever the Pi sends;
+# certified chargers only, never a home-built mains supply. Sellers are the
+# manufacturer. Not affiliated with any robot vacuum maker.
+#
+# Path to revenue (rails off): donations; third-party kit sellers; a hosted map
+# and schedule app later.
+
+hypotheses:
+  - claim: >-
+      Makers will star, fork or open build issues on an open-source robot
+      vacuum / mop design within 90 days of it being on the published site.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A round mop-only robot reaches 77-87% of the floor in typical rooms
+      because its pad cannot reach the wall (simulation); a first build with a
+      flour test can confirm or refute it.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, forks or build reports) engage within 120 days of the page being reachable from the published site.
+  - A builder reports that the cliff handling cannot be made to stop the robot before an edge at a useful speed, and no sensor layout in the CAD fixes it.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/open-floor-robots/
+  analytics: null

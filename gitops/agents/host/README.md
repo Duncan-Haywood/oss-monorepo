@@ -11,7 +11,7 @@ were down, two of them for reasons that turned out to be the same reason:
 
 | route | state | why |
 |---|---|---|
-| k3s CronJob (`agents/governor/cronjob.yaml`) | down | `:6443` refused on both boxes — [`Outage triage`](../../../.github/workflows/outage-triage.yml) run 33889983086 |
+| k3s CronJob (`agents/governor/cronjob.yaml`) | down | `:6443` refused on both boxes — `Outage triage` run 33889983086 (workflow since removed) |
 | GitHub Actions | down | metered minutes exhausted; every job returns `runner_id: 0` — `ci_starvation.py --run 33935905418` |
 | self-hosted runners ([`gitops/ci/`](../../ci/README.md)) | down | they run **as pods in the cluster**, so they are downstream of the outage they insure against |
 

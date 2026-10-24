@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01FcUcNP6oqsyqdRvUA6m9AQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T16:12:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6): rainouts across divisions",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8870",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "allocate.py fetch exceeded 50s on the shallow clone; 7-day commit counts partial."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Top flagship (changepoint-detector, 19 commits this week) skipped for league-schedule-generator (1 commit) to spread depth work across flagships."
+    }
+  ],
+  "goal": null,
+  "notes": "Added applyDivisionRainouts to divisions.mjs (night / division / team rainouts, optional make-up date, linked-team aware, re-validated), page step 4, CLI rainouts field, README, flagships next. node --test *.test.mjs in the venture: 248 pass. Did not run venture-preflight or the full CI workflow locally.",
+  "corrections": [],
+  "redteam": null
+}

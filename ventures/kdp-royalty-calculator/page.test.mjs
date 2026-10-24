@@ -173,3 +173,8 @@ test('every authored FAQPage question and answer text is echoed on the how-much 
     assert.ok(html.includes(acceptedAnswer.text), `answer not visible verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
   }
 });
+
+// Closest sibling: Publish Kit builds the EPUB and paperback cover this tool prices.
+test('index links one hop to the publish-kit sibling', () => {
+  assert.match(readFileSync(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/publish-kit\/"/);
+});

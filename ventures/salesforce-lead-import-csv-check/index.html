@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Salesforce Lead Import CSV Check — Find Errors Before You Import</title>
-  <meta name="description" content="Free Salesforce lead import CSV checker: finds rows with no LastName or Company, invalid or duplicate emails, status, rating and salutation values the default picklists do not have, revenue and employee counts that are not numbers, over-long fields, Excel-damaged phones and IDs, and mixed date orders, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta name="description" content="Catch what makes Salesforce reject or duplicate imported leads, with the line number, before you run the import. Nothing leaves your device.">
   <meta property="og:title" content="Salesforce Lead Import CSV Check — free, private, in your browser">
   <meta property="og:description" content="Catch what makes Salesforce reject or duplicate imported leads, with the line number, before you run the import. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
@@ -59,6 +59,7 @@
     <p>Paste or drop your <strong>lead CSV</strong> and get every problem <strong>with its line number</strong> before you run the Data Import Wizard or Data Loader: <strong>rows with no LastName or Company</strong>, <strong>the same email twice</strong>, several addresses in one cell, <code>gmial.com</code> typos, a <strong>Status</strong> your org does not have, <code>AnnualRevenue</code> written as <code>$1.2M</code>, <code>NumberOfEmployees</code> as <code>11-50</code>, phone numbers Excel turned into <code>4.15556E+09</code>, and dates that <strong>mix 03/14 and 14/03</strong>. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of Salesforce, Inc. Field names, picklist defaults and limits are read from memory of Salesforce's public import documentation; no Salesforce org was available when this was built, and your org may have custom picklists, validation rules and required fields.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your lead CSV</h2>
@@ -122,7 +123,8 @@
     <p>Your validation and duplicate rules, required custom fields, whether an address receives mail, whether you have consent to contact the people in it, and whether Salesforce will accept the file today. A clean result is not a promise of success.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace Salesforce's own import checks or your obligations under email and privacy law. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by importing a small sample into a sandbox first, and a clean result is not a promise that Salesforce will accept the file or that you may contact the people in it.</p>
     <p><strong>Not affiliated with Salesforce.</strong> This tool is independent and is not sponsored, endorsed or connected to Salesforce, Inc. or any CRM vendor. Salesforce is a trademark of its owner, used here only to say which file format the tool reads. The field list, picklist defaults and limits are read from memory of public sources and may be out of date or miss a variant; check them against your org and Salesforce's documentation.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>

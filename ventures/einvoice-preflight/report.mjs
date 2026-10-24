@@ -1,8 +1,10 @@
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
+import { inspectCreditLinks } from "./creditlink.mjs";
 import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } from "./profile.mjs";
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
+import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
 export const DEFAULT_MAX_FILES = 50;
@@ -22,19 +24,21 @@ export async function inspectInvoiceSource(name, source) {
   }
   const text = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
   let invoice;
+  let xml = "";
   if (looksLikeXml(name, text) || looksLikeCii(text)) {
+    xml = text;
     invoice = looksLikeCii(text) ? parseCiiInvoice(text) : parseUblInvoice(text);
   } else {
     invoice = JSON.parse(text);
   }
-  return { invoice, envelope };
+  return { invoice, envelope, xml };
 }
 
 export async function parseInvoiceSource(name, source) {
   return (await inspectInvoiceSource(name, source)).invoice;
 }
 
-export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES, profile = "" } = {}) {
+export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES, profile = "", schematron = false } = {}) {
   const reports = [];
   const readErrors = [];
   const parsed = [];
@@ -61,12 +65,28 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       continue;
     }
     try {
-      const { invoice, envelope } = await inspectInvoiceSource(name, source);
+      const peek = typeof source === "string" ? source : new TextDecoder().decode(source);
+      if (!looksLikePdf(name, source) && looksLikeFatturaPa(peek)) {
+        // Italy's FatturaPA is its own schema, not EN 16931: own rules, no UBL/CII reading.
+        const italian = checkFatturaPa(peek);
+        reports.push({ file: name, errors: italian.findings, envelope: "Read as Italian FatturaPA (SdI), not EN 16931", ...(italian.skipped.length ? { skipped: italian.skipped } : {}) });
+        continue;
+      }
+      const { invoice, envelope, xml } = await inspectInvoiceSource(name, source);
       const errors = checkInvoice(invoice);
       if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
       if (profile === "peppol") errors.push(...inspectPeppolProfile(invoice));
       if (profile === "france") errors.push(...inspectFrenchProfile(invoice));
-      reports.push({ file: name, errors, envelope });
+      let schematronStatus = "";
+      if (schematron) {
+        // The official rules, beside the built-in ones. JSON drafts have no XML to check.
+        // Loaded on demand: schematron.mjs needs node:fs, which a browser page cannot import.
+        const { runSchematron } = await import("./schematron.mjs");
+        const official = xml ? runSchematron(xml) : { status: "unavailable", findings: [] };
+        schematronStatus = official.status;
+        errors.push(...official.findings);
+      }
+      reports.push({ file: name, errors, envelope, ...(schematron ? { schematron: schematronStatus } : {}) });
       parsed.push({ name, invoice });
     } catch (error) {
       readErrors.push({
@@ -86,6 +106,11 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         path: "/invoice_number",
       });
     }
+  }
+
+  const links = inspectCreditLinks(parsed);
+  for (const report of reports) {
+    if (links.has(report.file)) report.errors.push(...links.get(report.file));
   }
 
   return { reports, readErrors };
@@ -227,6 +252,7 @@ export function buildJsonReport({ reports, readErrors }) {
     reports: reports.map((report) => ({
       file: report.file,
       status: report.errors.length ? "fail" : "pass",
+      ...(report.schematron ? { schematron: report.schematron } : {}),
       observations: report.errors.length,
       errors: report.errors,
     })),

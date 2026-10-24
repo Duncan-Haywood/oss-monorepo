@@ -368,6 +368,49 @@ export function analyze(products, resources, opts = {}) {
   return result;
 }
 
+// ------------------------------------------------------------ price breaks
+
+// For each product, the selling price at which the best plan starts or stops making it,
+// holding every other figure fixed. Found by re-solving the whole problem at trial prices,
+// so it includes batches, minimums and overtime. A product already in the plan gets the
+// lowest price at which it stays in; one that is left out gets the lowest price that earns
+// it a place. `breakPrice` is null when no price changes the answer (a promised minimum
+// holds it in, a maximum below one batch keeps it out, or even a very high price does not
+// move it).
+export function priceBreaks(products, resources, opts = {}) {
+  if (!products.length || !resources.length || products.length > 25) return [];
+  const nodeLimit = Math.max(50, num(opts.nodeLimit, 600));
+  const madeAt = (i, price) => {
+    const P = products.map((p, k) => (k === i ? { ...p, price, margin: price - p.cost } : p));
+    const bb = branchAndBound({ P, R: resources }, nodeLimit);
+    return bb.status === "optimal" ? bb.best.ev.units[i] > 0 : null;
+  };
+  return products.map((p, i) => {
+    const row = { name: p.name, price: p.price, inPlan: null, breakPrice: null, change: null, note: "" };
+    const now = madeAt(i, p.price);
+    if (now === null) return row;
+    row.inPlan = now;
+    let lo, hi; // invariant: not made at lo, made at hi
+    if (now) {
+      if (madeAt(i, 0)) { row.note = p.min > 0 ? "held in by your promised minimum" : "made at any price"; return row; }
+      lo = 0; hi = p.price;
+    } else {
+      if (Number.isFinite(p.max) && p.max < p.batch) { row.note = "your maximum is below one batch"; return row; }
+      lo = p.price; hi = Math.max(p.price * 2, p.price + 1);
+      let found = false;
+      for (let t = 0; t < 12 && !found; t++) { if (madeAt(i, hi)) found = true; else { lo = hi; hi *= 2; } }
+      if (!found) { row.note = "no price gets it into the plan"; return row; }
+    }
+    for (let t = 0; t < 30 && hi - lo > 0.005; t++) {
+      const mid = (lo + hi) / 2;
+      if (madeAt(i, mid)) hi = mid; else lo = mid;
+    }
+    row.breakPrice = Math.round(hi * 100) / 100;
+    row.change = row.breakPrice - p.price;
+    return row;
+  });
+}
+
 export function money(x) { return Number.isFinite(x) ? (x < 0 ? "-$" : "$") + Math.round(Math.abs(x)).toLocaleString("en-US") : "—"; }
 export function money2(x) { return Number.isFinite(x) ? (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2) : "—"; }
 export function pct(x, d = 0) { return Number.isFinite(x) ? `${(x * 100).toFixed(d)}%` : "—"; }
@@ -393,6 +436,11 @@ export function reportCsv(r) {
   out.push("");
   out.push(["resource", "capacity", "used", "overtime", "utilisation", "value_of_one_more"].join(","));
   for (const x of r.plan.resources) out.push([q(x.name), x.cap, +x.used.toFixed(3), +x.overtime.toFixed(3), Number.isFinite(x.utilisation) ? +x.utilisation.toFixed(3) : "", +x.shadow.toFixed(2)].join(","));
+  if (r.breaks && r.breaks.length) {
+    out.push("");
+    out.push(["product", "current_price", "in_plan", "price_that_flips_it", "change", "note"].join(","));
+    for (const b of r.breaks) out.push([q(b.name), b.price, b.inPlan === null ? "" : b.inPlan ? "yes" : "no", b.breakPrice === null ? "" : b.breakPrice, b.change === null ? "" : +b.change.toFixed(2), q(b.note)].join(","));
+  }
   return out.join("\n");
 }
 

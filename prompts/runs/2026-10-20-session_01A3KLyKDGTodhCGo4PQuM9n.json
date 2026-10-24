@@ -1,0 +1,45 @@
+{
+ "date": "2026-10-20",
+ "session": "https://claude.ai/code/session_01A3KLyKDGTodhCGo4PQuM9n",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-20T11:16:27Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "Deepen flagship 6 league-schedule-generator: travel times",
+ "projects": [
+  "league-schedule-generator"
+ ],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8805",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": true,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 3,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "portfolio/router/allocate.py",
+   "why": "Took flagship 6 not top row 1: changepoint-detector had just landed a slice (#8800)."
+  }
+ ],
+ "goal": null,
+ "notes": "Local checks only: node --test *.test.mjs in the venture (243 pass). Travel-aware search needed 10x iterations to beat flat cost.",
+ "corrections": [],
+ "redteam": null
+}

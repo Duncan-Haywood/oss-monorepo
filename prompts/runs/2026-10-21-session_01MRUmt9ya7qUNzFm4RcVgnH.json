@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01MRUmt9ya7qUNzFm4RcVgnH",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T00:26:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 8977,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to run python3 for tests, but scipy/numpy only exist in /usr/bin/python3.13 (pyenv.py returns it); a bare python3 import of scipy fails."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Track 16 energy-tou next step 2: LP dispatch. Local checks: 8 pytest pass, homepage build ok, check_md_links ok, live links written. Two other open research PRs (8972, 8975) were minutes old and left to their sessions. Task: energy-tou-lp.",
+  "corrections": [],
+  "redteam": null
+}

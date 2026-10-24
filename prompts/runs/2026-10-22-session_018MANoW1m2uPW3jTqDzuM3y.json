@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_018MANoW1m2uPW3jTqDzuM3y",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T11:24:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9467",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "Said comma-decimal receipts are not read; they are (receipts.test.mjs). Fixed."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Its next: listed the Amazon date-range CSV as open; another session landed it (#9465) while this run built the same thing. Overlapping flagship runs duplicate work."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Built an Amazon date-range CSV reader (17/17 tests), then found #9465 had landed the same slice minutes earlier; discarded mine. Shipped only a stale-README fix. No new feature.",
+  "corrections": [],
+  "redteam": null
+}

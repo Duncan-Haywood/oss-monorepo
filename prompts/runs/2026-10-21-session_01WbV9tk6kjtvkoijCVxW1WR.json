@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01WbV9tk6kjtvkoijCVxW1WR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T18:10:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9241",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: is one multi-thousand-word paragraph; hard to find the actual next milestone"
+    },
+    {
+      "file": "ventures/ai-bookkeeper/eval/browser-click.mjs",
+      "issue": "header says it skips without playwright; global playwright needs PLAYWRIGHT_PATH=<root>/playwright/index.mjs and CHROMIUM_PATH, undocumented"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "two parallel runs both took the same 'not on the page' item from the top flagship; no claim mechanism"
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Built a VAT card on the ai-bookkeeper page; PR #9240 landed the same feature first. Resolved by taking main's version; this PR carries only the run record. Duplicate PR search ran before I started but #9240 opened later (parallel run).",
+  "corrections": [],
+  "redteam": null
+}

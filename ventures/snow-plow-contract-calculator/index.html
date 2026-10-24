@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Snow Plow Contract Calculator — Per Push vs Seasonal</title>
-  <meta name="description" content="Compare per-push, per-inch, seasonal flat, capped flat and hybrid snow plow contracts across a low, normal and high snow year: expected season revenue, effective hourly, the storm count where each stops paying, the flat price that loses money in a high-snow year and a walk-away price, plus an audit of past seasons by contract model. Free, runs in your browser, nothing is uploaded.">
+  <meta name="description" content="Compare per-push, seasonal flat, capped and hybrid snow plow contracts across low, normal and high snow years, with break-even storms and a walk-away price.">
   <meta property="og:title" content="Per push or seasonal? What each snow plow contract pays you in a low, normal and high snow year">
   <meta property="og:description" content="Per push vs per inch vs seasonal flat vs capped vs hybrid on your own route, with truck, fuel, blade, deadhead and salt priced in, plus an audit of past seasons. Your numbers, not market rates. No account, no upload.">
   <link rel="canonical" href="./index.html">
@@ -45,6 +45,7 @@
     <p>List your sites and the storms you expect in a low, a normal and a high snow year. See <strong>expected season revenue and effective hourly under every contract model</strong>, <strong>the storm count where each one stops paying</strong>, <strong>the seasonal flat price you need in a low year versus the price that loses money in a high year</strong> and <strong>a walk-away price</strong>. Paste past seasons and see <strong>which model really paid best per hour</strong>.</p>
     <p class="note"><strong>Your numbers, not market rates and not advice.</strong> This page knows no going rates and gives no legal, tax, insurance or contract advice: every price, depth, storm count and cost is a number you type. Nothing is uploaded: the inputs are used in this browser tab only.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your sites</h2>
@@ -185,7 +186,8 @@ node cli.mjs audit seasons.csv --target 35 --json</pre>
     <p>No. The browser page works on the numbers and text you enter, in your own browser, and never sends them anywhere. The CLI reads a local file or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, insurance or investment advice, it is not a market rate or a price survey, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the numbers you enter, for your contract terms, insurance and liability for snow and ice, and for any local rules that apply to you. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Not affiliated with, endorsed by or sponsored by any plow manufacturer, salt supplier, landscaping association or field-service software company; no product names are used to imply otherwise.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

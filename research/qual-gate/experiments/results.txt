@@ -1,0 +1,37 @@
+GoEmotions (first file): 5313 examples; 2125 train naive-Bayes, 3188 evaluated. 1000 hand-coded draws per cell.
+estimand: human negative-emotion prevalence over the 3188 evaluated items = 0.2560
+coder: naive-Bayes ranking with the cut set so it codes 1 for ratio x the true share of items (same ranking, only the cut moves); lexicon = the fixed 38-word list.
+gate: |mean(human - coder) / se| on the hand-coded sample > 1.96 -> prediction-powered estimate, else the naive one.
+
+E1. Coder against the humans
+coder coded_share bias sens spec
+nb_x0.6 0.1537 -0.1023 0.268 0.886
+nb_x0.8 0.2048 -0.0511 0.358 0.848
+nb_x0.9 0.2302 -0.0257 0.400 0.828
+nb_x1.0 0.2560 +0.0000 0.434 0.805
+nb_x1.1 0.2817 +0.0257 0.467 0.782
+nb_x1.25 0.3199 +0.0640 0.525 0.750
+nb_x1.5 0.3839 +0.1280 0.594 0.688
+lexicon 0.1459 -0.1101 0.346 0.923
+
+E2. Coverage of the 95% interval and gate behaviour, 200 hand-coded items
+coder gate_corrects naive human ppi gated width_naive width_ppi width_gated
+nb_x0.6 0.825 0.000 0.950 0.947 0.803 0.0250 0.1436 0.1229
+nb_x0.8 0.287 0.000 0.948 0.964 0.272 0.0280 0.1476 0.0622
+nb_x0.9 0.110 0.000 0.949 0.959 0.085 0.0292 0.1494 0.0423
+nb_x1.0 0.040 1.000 0.951 0.963 0.963 0.0303 0.1523 0.0352
+nb_x1.1 0.101 0.000 0.954 0.951 0.078 0.0312 0.1539 0.0437
+nb_x1.25 0.379 0.000 0.943 0.958 0.361 0.0324 0.1561 0.0789
+nb_x1.5 0.898 0.000 0.952 0.967 0.879 0.0338 0.1598 0.1468
+lexicon 0.925 0.000 0.953 0.953 0.909 0.0245 0.1299 0.1221
+
+E3. Gated-interval coverage and the share of draws where the gate corrects, by hand-coded sample size
+coder cov_n=100 corr_n=100 cov_n=200 corr_n=200 cov_n=400 corr_n=400
+nb_x0.6 0.498 0.528 0.792 0.814 0.975 0.989
+nb_x0.8 0.153 0.178 0.257 0.273 0.470 0.484
+nb_x0.9 0.034 0.063 0.080 0.098 0.124 0.139
+nb_x1.0 0.947 0.055 0.961 0.042 0.970 0.040
+nb_x1.1 0.044 0.069 0.080 0.107 0.130 0.142
+nb_x1.25 0.192 0.219 0.339 0.361 0.632 0.642
+nb_x1.5 0.609 0.622 0.884 0.899 0.962 0.996
+lexicon 0.655 0.675 0.913 0.930 0.961 0.998

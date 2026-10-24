@@ -3,23 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Duncan Haywood — Verifiable ML Research</title>
-<meta name="description" content="{{PROJECT_COUNT}} open-source research projects with reproducible code: verifiable decentralised ML training, proper scoring and digital twins.">
-<meta property="og:title" content="Duncan Haywood — Verifiable ML Research">
-<meta property="og:description" content="{{PROJECT_COUNT}} open-source research projects on incentive-compatible verification of decentralised ML training.">
+<title>Open research: {{PROJECT_COUNT}} reproducible projects with code and tests | Open Tools and Research</title>
+<meta name="description" content="{{PROJECT_COUNT}} open-source research projects, each with its code, tests and results: digital twins, robotics, chip design, energy storage, verifiable ML training.">
+<meta property="og:title" content="Open research: {{PROJECT_COUNT}} reproducible projects with code and tests">
+<meta property="og:description" content="{{PROJECT_COUNT}} open-source research projects, each with its code, tests and results: digital twins, robotics, chip design, energy storage, verifiable ML training.">
 <meta property="og:type" content="website">
 {{SOCIAL_META}}<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
+{{FONTS}}<style>
 :root{
   --bg:#fbfaf7;--bg-2:#f3f1ec;--surface:#ffffff;--text:#1c1b22;--muted:#5d5b66;--faint:#8b8994;
   --border:#e4e1da;--border-strong:#d3cfc6;--accent:#4f46e5;--accent-ink:#3730a3;--accent-soft:#eef0ff;
   --code-bg:#f1efe9;--shadow:0 1px 2px rgba(28,27,34,.04),0 4px 16px rgba(28,27,34,.05);
   --shadow-hover:0 2px 4px rgba(28,27,34,.06),0 12px 32px rgba(28,27,34,.09);
   --t-scoring:#4f46e5;--t-effort:#0e9f6e;--t-games:#d9480f;--t-detection:#c2255c;
-  --t-routing:#1c7ed6;--t-markets:#9c36b5;--t-contributions:#b08900;--t-systems:#0b7285;--t-twins:#e8590c;--t-chip:#2f9e44;--t-robofab:#5f3dc4;--t-ambient:#d6336c;--t-selfrep:#868e00;--t-simdesign:#1098ad;--t-garment:#a61e4d;--t-accel:#c2255c;--t-eda:#0c8599;--t-osrobot:#37b24d;--t-swe:#e67700;--t-mimic:#7048e8;--t-house:#8f5b2e;--t-capture:#1971c2;--t-sensing:#087f5b;--t-energy:#d9480f;--t-society:#c92a2a;--t-codesign:#2b8a3e;
+  --t-routing:#1c7ed6;--t-markets:#9c36b5;--t-contributions:#b08900;--t-systems:#0b7285;--t-twins:#e8590c;--t-chip:#2f9e44;--t-robofab:#5f3dc4;--t-ambient:#d6336c;--t-selfrep:#868e00;--t-simdesign:#1098ad;--t-garment:#a61e4d;--t-accel:#c2255c;--t-eda:#0c8599;--t-osrobot:#37b24d;--t-swe:#e67700;--t-mimic:#7048e8;--t-house:#8f5b2e;--t-capture:#1971c2;--t-sensing:#087f5b;--t-energy:#d9480f;--t-society:#c92a2a;--t-codesign:#2b8a3e;--t-hanger:#5c7cfa;--t-qual:#ae3ec9;--t-buildbot:#b35c00;--t-humanities:#6741d9;--t-civ:#5c940d;
   --serif:"Newsreader",Georgia,"Times New Roman",serif;
   --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -29,7 +26,7 @@
   --border:#2a2a33;--border-strong:#3a3a45;--accent:#8b87ff;--accent-ink:#b4b1ff;--accent-soft:#1f1e36;
   --code-bg:#23232c;--shadow:0 1px 2px rgba(0,0,0,.3);--shadow-hover:0 8px 28px rgba(0,0,0,.45);
   --t-scoring:#8b87ff;--t-effort:#38d9a9;--t-games:#ff8c5a;--t-detection:#f783ac;
-  --t-routing:#74c0fc;--t-markets:#da77f2;--t-contributions:#ffd43b;--t-systems:#3bc9db;--t-twins:#ffa94d;--t-chip:#69db7c;--t-robofab:#9775fa;--t-ambient:#f06595;--t-selfrep:#c0eb75;--t-simdesign:#66d9e8;--t-garment:#faa2c1;--t-accel:#f783ac;--t-eda:#3bc9db;--t-osrobot:#8ce99a;--t-swe:#ffc078;--t-mimic:#b197fc;--t-house:#e0a872;--t-capture:#74c0fc;--t-sensing:#63e6be;--t-energy:#ff922b;--t-society:#ff8787;--t-codesign:#8ce99a;
+  --t-routing:#74c0fc;--t-markets:#da77f2;--t-contributions:#ffd43b;--t-systems:#3bc9db;--t-twins:#ffa94d;--t-chip:#69db7c;--t-robofab:#9775fa;--t-ambient:#f06595;--t-selfrep:#c0eb75;--t-simdesign:#66d9e8;--t-garment:#faa2c1;--t-accel:#f783ac;--t-eda:#3bc9db;--t-osrobot:#8ce99a;--t-swe:#ffc078;--t-mimic:#b197fc;--t-house:#e0a872;--t-capture:#74c0fc;--t-sensing:#63e6be;--t-energy:#ff922b;--t-society:#ff8787;--t-codesign:#8ce99a;--t-hanger:#91a7ff;--t-qual:#e599f7;--t-buildbot:#ffa94d;--t-humanities:#b197fc;--t-civ:#a9e34b;
 }}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:5.5rem}
@@ -58,8 +55,13 @@ code{font:0.86em var(--mono);background:var(--code-bg);padding:.08em .35em;borde
   background-image:radial-gradient(var(--border-strong) 1px,transparent 1px);background-size:22px 22px;
   mask-image:linear-gradient(180deg,rgba(0,0,0,.6),transparent 85%);-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.6),transparent 85%)}
 .hero .wrap{position:relative;z-index:1}
-.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:56px;align-items:center}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:56px;align-items:start}
 @media (max-width:1000px){.hero-grid{grid-template-columns:1fr}}
+/* The map lists every theme (28 and growing). Centred against the hero copy it
+ * pushed the headline below the fold behind a screen of empty space; capped and
+ * scrolled, it sits beside the copy at the copy's own height. */
+.map{max-height:min(640px,calc(100vh - 120px));overflow:auto;scrollbar-width:thin}
+@media (max-width:1000px){.map{max-height:360px}}
 @media (max-width:600px){.hero{padding:48px 0 40px}}
 .map{background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid var(--border);border-radius:16px;padding:1.3rem 1.3rem .9rem;box-shadow:var(--shadow);backdrop-filter:blur(6px)}
 .map .label{margin-bottom:.6rem}
@@ -123,16 +125,17 @@ h1 em{font-style:italic;color:var(--accent-ink)}
 .theme-head{display:grid;grid-template-columns:auto 1fr;gap:.25rem 1rem;align-items:baseline;margin-bottom:1.5rem}
 .theme-num{font:500 13px var(--mono);color:var(--c)}
 .theme h2{font:600 clamp(1.6rem,3vw,2.1rem)/1.15 var(--serif);letter-spacing:-.015em;margin:0}
+.theme h2 a{color:inherit}
 .theme-head p{grid-column:2;margin:.25rem 0 0;color:var(--muted);max-width:70ch}
 .theme-tag{display:inline-flex;align-items:center;gap:.4rem;font:500 11.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--c)}
 .theme-tag::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--c)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
-@media (max-width:400px){.grid{grid-template-columns:1fr}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:14px}
+@media (max-width:400px){.grid{grid-template-columns:minmax(0,1fr)}}
 .card{position:relative;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.15rem 1.2rem 1rem;box-shadow:var(--shadow);transition:box-shadow .2s,border-color .2s}
 .card::before{content:"";position:absolute;left:-1px;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:var(--c);opacity:.85}
 .card:hover{box-shadow:var(--shadow-hover);border-color:var(--border-strong)}
 .card-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.55rem}
-.slug{font:12px var(--mono);color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slug{min-width:0;font:12px var(--mono);color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tests{flex:0 0 auto;font:500 11.5px var(--mono);color:var(--muted);background:var(--bg-2);border:1px solid var(--border);border-radius:6px;padding:.05rem .45rem}
 .card h3{font:600 1.08rem/1.3 var(--sans);letter-spacing:-.01em;margin:0 0 .45rem}
 .card h3 a{color:var(--text)}
@@ -145,6 +148,8 @@ h1 em{font-style:italic;color:var(--accent-ink)}
 .card details[open] summary .chev{transform:rotate(180deg)}
 .card summary a{font-weight:500;color:var(--accent-ink)}
 .abstract{font-size:13.5px;line-height:1.6;color:var(--text);margin:.7rem 0 .2rem}
+.card-foot{margin-top:auto;border-top:1px solid var(--border);padding-top:.6rem;display:flex;justify-content:space-between;gap:.5rem;font-size:13px;font-weight:500}
+.card-foot a{color:var(--accent-ink)}
 .empty{display:none;text-align:center;color:var(--muted);padding:4rem 0}
 
 footer{margin-top:72px;border-top:1px solid var(--border);padding:32px 0 48px;color:var(--faint);font-size:13.5px}
@@ -163,8 +168,8 @@ footer a{color:var(--muted)}
 <section class="hero"><div class="wrap hero-grid">
   <div>
   <span class="eyebrow"><span class="dot"></span>Open research · MIT licensed</span>
-  <h1>Incentives for <em>verifiable</em> decentralised ML</h1>
-  <p class="intro">Research code and white papers on incentive-compatible verification of decentralised ML training: proper scoring rules, peer prediction, inspection games, prediction markets and expert routing. Each project states a question, derives closed-form results, checks them numerically, and lists its limitations. Builds on algorithmic economics and information elicitation (CU Boulder, Frongillo, Waggoner) and Gensyn's verifiable-ML work.</p>
+  <h1>Open research you can <em>rerun</em></h1>
+  <p class="intro">{{PROJECT_COUNT}} projects across {{THEME_COUNT}} themes, from proper scoring rules and verifiable decentralised ML training to digital twins, chip-design loops and robot manufacturing. Each project states a question, answers it with its own code and tests, and lists its limitations. The incentive work builds on algorithmic economics and information elicitation (CU Boulder, Frongillo, Waggoner) and Gensyn's verifiable-ML work.</p>
   <div class="cta">
     <a class="btn primary" href="#projects">Browse {{PROJECT_COUNT}} projects ↓</a>
     <a class="btn" href="{{REPO_URL}}"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Source on GitHub</a>

@@ -68,6 +68,7 @@
     <h1>Know what can be cleaned up before you delete it.</h1>
     <p>A repository with hundreds of stale branches has two kinds of ref in it, and they look identical in a branch list: the ones whose work is already on the default branch, and the ones holding the only copy of something. This page sorts a snapshot into both, in your browser. It never deletes anything and it never says a branch is safe to delete &mdash; it says which ones a human still has to look at.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste a snapshot</h2>
@@ -143,7 +144,8 @@ python3 src/branch_hygiene.py --repo /path/to/checkout --pr-json prs.json --emit
     <p>No. The snapshot you paste is parsed and classified entirely in this browser; nothing is uploaded and there is no server to upload it to. The scanner likewise makes no network requests. The optional <code>--usage-log</code> and this page's counting record only an aggregate event name and count &mdash; never branch names, commit messages, repository names, or file contents.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use, including deletion of a branch it classified.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scan_completed</code>, <code>example_loaded</code>, <code>report_copied</code>, <code>manifest_downloaded</code>) are counted only in local storage and can be deleted with the button above. Do Not Track and Global Privacy Control are honoured. <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a> if this saved a unique branch &mdash; entirely optional, the tool stays free either way.</p>

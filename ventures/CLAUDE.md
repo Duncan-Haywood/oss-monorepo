@@ -20,15 +20,20 @@ Coffee exception: `../PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can
 deploy it themselves".
 
 **Deploy-first.** Products already on `main` with no public URL outrank new
-candidates. Prepare a GitHub Pages artifact or a Hetzner product-box
-deploy; do not clone another undeployed calculator. The host is decided
-([`portfolio/hosting/`](../portfolio/hosting/README.md)). The owner flip is
-`deploy-settings` — do not add a second ask. See `../portfolio/DIRECTION.md`.
+candidates: give them a way to reach people (a GitHub Pages page, a package,
+a release or an app build; there is no static-only rule) rather than starting another product
+([`portfolio/hosting/`](../portfolio/hosting/README.md)).
 
 Target super-niches where users have money and a real problem — especially
 tools that help them earn more. Low variable cost, traditional software, AI
 only where it clearly helps. Payment code is allowed only off by default and on
 the deployer's own keys, never the owner's accounts (`../prompts/goals.md`,
 "Payments: never the owner's"); the owner's own instances take GitHub Sponsors
-donations only. Prefer higher-value work to another single-page calculator: a
-principle, not a ban (owner, 2026-10-16; `../prompts/ventures/prompt-1.md`).
+donations only. Calculators are a poor use of a run: a new one rarely beats
+what a chatbot gives in one reply, so build depth elsewhere and fix existing
+ones only when broken; already-built calculator work can still be merged
+(owner, 2026-10-21; `../prompts/goals.md`, "Direction:
+depth over calculators").
+
+Running venture tests: `python3 platform/ci/run_venture_tests.py --changed`
+(or named slugs; no args runs all, in minutes); it beats looping `node --test` serially.

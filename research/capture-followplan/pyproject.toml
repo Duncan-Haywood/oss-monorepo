@@ -1,0 +1,13 @@
+[project]
+name = "capture-followplan"
+version = "0.1.0"
+description = "Does a predictive gap-seeking planner recover the framing a follow camera loses when it avoids pedestrians? (2-D crowd simulation)"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../capture-follow/src"]

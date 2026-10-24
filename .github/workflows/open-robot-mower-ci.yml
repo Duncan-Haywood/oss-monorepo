@@ -1,0 +1,80 @@
+name: open-robot-mower CI
+
+# Two suites for one venture. Python (stdlib unittest, no dependencies): lawn
+# geometry, the coverage planner and raster, the line follower, the closed-loop
+# RTK simulation, power and charge sessions, blade stop time, slope limits, the
+# serial protocol and the ESP32 controller logic (run on CPython with a fake
+# board). Node: the browser port in sim.mjs checked against fixtures the Python
+# package writes, plus page wiring, disclaimers, quoted figures and the usage
+# counter. The cad job installs the pinned build123d, regenerates the mower and
+# dock manufacturing packages and fails if a committed copy under
+# manufacturing/ is stale, or if any part collides (at any cut height, or with
+# the shell pushed), misses a mating hole, leaves the ground or overflows the
+# printer bed. Nothing here publishes anything.
+on:
+  pull_request:
+    paths:
+      - "ventures/open-robot-mower/**"
+      - ".github/workflows/open-robot-mower-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/open-robot-mower/**"
+      - ".github/workflows/open-robot-mower-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: open-robot-mower-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/open-robot-mower
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: Python tests
+        run: PYTHONPATH=src python -m unittest discover -s tests -v
+      - name: Fixtures are current
+        run: |
+          PYTHONPATH=src python -m mowerbot.fixtures
+          git diff --exit-code -- fixtures/
+      - name: Package installs and the CLI runs
+        run: |
+          python -m pip install .
+          mowerbot plan --example backyard
+          mowerbot plan --lawn lawn.example.json --angle 30
+          mowerbot blade-stop
+      - name: Node tests (browser port, page, usage)
+        run: node --test sim.test.mjs page.test.mjs usage.test.mjs
+
+  cad:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Install build123d (pinned)
+        run: python -m pip install -r cad/requirements.txt
+      - name: CAD checks and committed-package freshness
+        working-directory: ventures/open-robot-mower/cad
+        run: python -m unittest discover -s tests -v

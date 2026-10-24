@@ -1,0 +1,69 @@
+name: interview-content-studio
+description: >-
+  Free interview-to-content-calendar tool for businesses and personal brands.
+  A guided interview (stories, opinions, advice, proof, offer, voice, hours a
+  week) becomes a per-platform posting plan sized to the user's time, a 4-week
+  calendar, and drafts for X, Threads, Bluesky, LinkedIn, Instagram, Facebook,
+  TikTok, YouTube, newsletters, blogs, Medium, Reddit, Pinterest and podcast
+  clips, built only from the user's own answers. Runs in the browser; optional
+  AI rewriting on the user's own key or a local model; CSV export for
+  schedulers; zero-dependency CLI. Never posts anything.
+stage: prototype
+
+owner: duncan
+
+# Requested by the owner on 2026-10-20: "creation for all the platforms. can
+# be ai generated ... one for businesses or individuals to create brands etc.
+# ... have an interview or multiple interviews for your topic and then create
+# idealized amounts of content across all distribution platforms."
+# duplicate_check.py (2026-10-20): nothing near the line (top score 0.22,
+# influencer-media-kit-generator and brand-deal-rate-calculator, different
+# jobs). Closest idea on file: "LinkedIn Content Engine" in ai-first-markets
+# (single platform, paid ghostwriter + scheduler); this is multi-platform,
+# free, interview-first, and does not schedule or post.
+# Alternatives: paid AI repurposing and ghostwriting tools, scheduler suites
+# with AI captions, hiring a content agency. Angle: the interview is the
+# source of truth, so drafts cannot invent results; the plan is sized to the
+# hours the person actually has; free, private, works with no key.
+# Distribution: searches such as "content calendar generator", "how often to
+# post on each platform", "repurpose content for every platform", "social
+# media content plan for small business". Volume not measured.
+# Liability boundary: drafts for the user to review and post themselves; no
+# posting, scheduling or account access; posting-rules and AI-label note on
+# the page and in every export.
+# Path to revenue (payment rails stay off): lead magnet and donations. A later
+# tier could add a hosted scheduler integration on the deployer's own keys.
+
+hypotheses:
+  - claim: >-
+      People who stall at "what do I post" will finish the interview and
+      export at least one week of drafts, because the questions ask for
+      material they already have (stories, opinions, results) rather than
+      posts.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A plan sized to stated hours, with platforms the time cannot cover named
+      explicitly, is more useful than a generic "post daily everywhere"
+      recommendation, and users will drop platforms rather than skip the plan.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct users export drafts within 90 days of the tool being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/interview-content-studio/
+  analytics: null

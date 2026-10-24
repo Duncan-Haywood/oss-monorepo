@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Dog Grooming Price Calculator — Price by Breed and Time</title>
-  <meta name="description" content="Price dog grooming by breed class and time: the effective hourly each class earns after matting and de-shedding extras, drive time, supplies and no-shows, the price needed for your target hourly, a walk-away price, and an audit of past appointments showing which classes underpay. Free, runs in your browser, nothing is uploaded.">
+  <meta name="description" content="Price each breed class from its real minutes, drive time, supplies and no-shows, then audit past appointments to see which classes underpay. Your numbers, not market rates. No account, no upload.">
   <meta property="og:title" content="Which dog grooming classes underpay your hourly rate?">
   <meta property="og:description" content="Price each breed class from its real minutes, drive time, supplies and no-shows, then audit past appointments to see which classes underpay. Your numbers, not market rates. No account, no upload.">
   <link rel="canonical" href="./index.html">
@@ -45,6 +45,7 @@
     <p>For independent salon and mobile groomers. Enter each breed class with its base price and the minutes it really takes, plus matting and de-shedding extras, drive time, supplies and your no-show rate. See <strong>the effective hourly per class</strong>, <strong>the price needed to hit your target</strong> and <strong>a walk-away price</strong>. Paste past appointments and see <strong>which classes underpay</strong>.</p>
     <p class="note"><strong>Your numbers, not market rates and not advice.</strong> This page knows no going rates and gives no business, tax or legal advice: every price, minute and percentage is a number you type. Nothing is uploaded: the inputs are used in this browser tab only.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your rate and costs</h2>
@@ -130,7 +131,8 @@ node cli.mjs audit appointments.csv --target 60 --json</pre>
     <p>(Price - supplies) x (1 - no-show rate) / ((minutes + drive minutes) / 60). The price for target solves that for the price. The walk-away price does the same at a floor rate, a percent of your target.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, it is not a market rate or a price survey, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the numbers you enter and for what you charge your clients. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Not affiliated with, endorsed by or sponsored by any grooming software, franchise or pet-industry association; no product names are used to imply otherwise.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-stance"
+version = "0.1.0"
+description = "How many stances does a standing G1 need to nail a 4x8 sheet? Sideways and vertical reach with a nailer, from MuJoCo statics."
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+sim = ["mujoco>=3.1"]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../buildbot-custom/src", "../buildbot-payload/src", "../buildbot-fasten/src"]

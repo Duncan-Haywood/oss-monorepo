@@ -1,0 +1,75 @@
+name: ai-bookkeeper
+description: >-
+  Double-entry bookkeeping from bank and card CSV exports that learns from the
+  owner's corrections. Suggests an account per line with a confidence and a
+  reason (your rules, payee memory, a naive Bayes classifier, built-in
+  keywords; optionally a language model on the user's own key or a local
+  model), posts only what memory or rules are sure of, pairs transfers between
+  the user's own accounts, reconciles to the statement's running balance, and
+  produces a trial balance, monthly profit and loss, balance sheet, close
+  checks and QuickBooks Online, Xero and IIF journals. Browser page, CLI and
+  agent engine; nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Started 2026-10-21 on the owner's direction that day: "I want to make ai
+# accounting systems". The portfolio already had about ninety single-purpose
+# accounting tools (seventeen payout-to-journal converters, Schedule C and E
+# categorizers, a payment reconciliation workbench, QuickBooks and Xero file
+# checkers), each doing one step and none keeping books. This is the system
+# they were steps of: a ledger that persists, a categorizer that learns, and
+# the reports and checks a bookkeeper produces at month end.
+#
+# First visitor: owner-operators and freelancers who do their own books from
+# bank exports, people leaving a bookkeeping subscription, and bookkeepers who
+# want a first pass on a new client's statements. Searches like "bookkeeping
+# from bank statements", "categorize bank transactions csv", "free double
+# entry bookkeeping". Search volume not measured.
+#
+# Why AI here and not elsewhere: categorising thousands of messy bank
+# descriptors is the slow part of bookkeeping, and the business's own past
+# choices are the best predictor. The deterministic layers learn locally at no
+# cost; a language model is offered only for the leftover review queue and
+# never posts on its own (PRODUCT_PLAYBOOK.md section 3).
+#
+# Liability boundary: arithmetic and suggestions on the user's own files, kept
+# in their browser; no bank credentials or aggregator; nothing posts from a
+# model without the user accepting it; not accounting or tax advice, stated on
+# the page, the guide, the CLI help and the README.
+#
+# Unverified: no real bank export has been tested yet; the learning curve is
+# measured on synthetic data whose generator and built-in keywords share an
+# author (README, Verification). The AI layer's accuracy is unmeasured.
+
+hypotheses:
+  - claim: >-
+      People who do their own books from bank exports will come back monthly
+      because the second month is faster than the first (payees post
+      themselves), which a one-off categorizer cannot offer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      On real bank exports, at least half of a month's lines post by memory
+      after three months of filing, with under 1% of those wrong.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real bank export the tool cannot read, or books that do not reconcile when every line is filed, at which point the parser or the engine needs revisiting before anything else.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/
+  analytics: null

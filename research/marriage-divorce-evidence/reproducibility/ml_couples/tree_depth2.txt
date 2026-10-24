@@ -1,0 +1,10 @@
+|--- num__current_marriage_years <= 18.3750
+|   |--- num__current_marriage_years <= 10.9583
+|   |   |--- value: [0.0164]
+|   |--- num__current_marriage_years >  10.9583
+|   |   |--- value: [0.0096]
+|--- num__current_marriage_years >  18.3750
+|   |--- num__age <= 52.5000
+|   |   |--- value: [0.0069]
+|   |--- num__age >  52.5000
+|   |   |--- value: [0.0027]

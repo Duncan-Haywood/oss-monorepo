@@ -1,0 +1,8 @@
+automatic_payout_id,automatic_payout_effective_at,balance_transaction_id,created,reporting_category,gross,fee,net,description
+po_1,2026-03-05,txn_a,2026-03-02,charge,500.00,14.80,485.20,Order 1
+po_1,2026-03-05,txn_b,2026-03-03,charge,300.00,9.00,291.00,Order 2
+po_1,2026-03-05,txn_c,2026-03-04,refund,-50.00,0.00,-50.00,Refund order 1
+po_1,2026-03-05,txn_d,2026-03-04,dispute,-100.00,15.00,-115.00,Dispute
+po_1,2026-03-05,txn_p,2026-03-05,payout,-611.20,0.00,-611.20,STRIPE PAYOUT
+po_2,2026-03-12,txn_e,2026-03-10,charge,100.00,3.20,96.80,Order 3
+,,txn_f,2026-03-14,charge,40.00,1.46,38.54,Not paid out yet

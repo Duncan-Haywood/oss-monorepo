@@ -1,0 +1,16 @@
+FIRST EXAMPLE BANK            Business Checking
+Statement period: December 15, 2025 through January 14, 2026
+Account number ending 1234
+
+Beginning balance                               5,000.00
+Deposits and other credits
+12/18 Deposit - Client Alpha Invoice 1042       2,400.00
+01/05 ACH Credit STRIPE PAYOUT                  1,150.25
+Withdrawals and other debits
+12/20 CHECKCARD 1219 STAPLES #1182 SPRINGFIELD    86.40
+12/29 ADOBE CREATIVE CLOUD
+      800-833-6687 CA                            59.99
+01/02 ONLINE TRANSFER TO SAVINGS                500.00
+Page 2 of 2
+01/09 SQ *CAFE LUNA                              (12.50)
+Ending balance                                  7,891.36

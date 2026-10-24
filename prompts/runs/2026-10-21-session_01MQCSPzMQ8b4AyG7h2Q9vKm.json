@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01MQCSPzMQ8b4AyG7h2Q9vKm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo, revenue products",
+  "input_sha256": "ad747cd0c1c1085ecab6ff1e488a1a0be4975ee7a797cbd0fb59645d22ef4225",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T14:59:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9199,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR search is advised before opening a PR, but the clash was on the flagship next: item; checking recent main commits for the named item before coding would have caught it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Router said review track; the scheduled brief asked for product work on a flagship."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Built the Section 179 dollar-limit and phase-out worksheet warning for ai-bookkeeper, then found a parallel session had landed the same feature on main (s179Check) before my merge. Dropped my copy and kept theirs (19 taxdepr tests pass). Nothing else shipped by this run: duplicate work, which the repo's own duplicate-PR search before starting would have caught.",
+  "corrections": [],
+  "redteam": null
+}

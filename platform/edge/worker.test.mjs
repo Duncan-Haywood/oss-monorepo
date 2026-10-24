@@ -1,0 +1,120 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import worker from './worker.mjs';
+import { feedbackRecord, MESSAGE_MAX } from './feedback.mjs';
+import { mergeFeedback } from './pull-feedback.mjs';
+
+/** An in-memory stand-in for the three D1 statements the worker issues. */
+function fakeDb() {
+  const counts = new Map();
+  const daily = new Map();
+  const feedback = [];
+  return {
+    counts,
+    feedback,
+    prepare(sql) {
+      return {
+        bind(...args) {
+          return {
+            async run() {
+              if (sql.startsWith('INSERT INTO counts')) {
+                const [day, slug, cap] = args;
+                const k = `${day}|${slug}`;
+                const n = counts.get(k) || 0;
+                if (n >= cap) return { meta: { changes: 0 } };
+                counts.set(k, n + 1);
+                return { meta: { changes: 1 } };
+              }
+              if (sql.startsWith('INSERT INTO feedback_daily')) {
+                const [day, cap] = args;
+                const n = daily.get(day) || 0;
+                if (n >= cap) return { meta: { changes: 0 } };
+                daily.set(day, n + 1);
+                return { meta: { changes: 1 } };
+              }
+              if (sql.startsWith('INSERT INTO feedback ')) {
+                const [day, type, tool, page, message] = args;
+                feedback.push({ id: feedback.length + 1, day, type, tool, page, message });
+                return { meta: { changes: 1 } };
+              }
+              throw new Error(`unexpected run: ${sql}`);
+            },
+            async all() {
+              if (sql.includes('FROM feedback')) return { results: feedback.filter((r) => r.id > args[0]) };
+              const [since] = args;
+              const results = [...counts].map(([k, n]) => { const [day, slug] = k.split('|'); return { day, slug, n }; })
+                .filter((r) => r.day >= since);
+              return { results };
+            },
+          };
+        },
+      };
+    },
+  };
+}
+
+const ORIGIN = 'https://duncan-haywood.github.io';
+const env = (over = {}) => ({
+  DB: fakeDb(), ALLOWED_ORIGIN: ORIGIN, FEEDBACK_DAILY_CAP: '2', ...over,
+});
+const req = (path, { method = 'POST', body, headers = {} } = {}) =>
+  new Request(`https://edge.example${path}`, { method, body, headers: { 'user-agent': 'Mozilla/5.0', ...headers } });
+
+test('a hit is counted per day and slug, and /counts returns it', async () => {
+  const e = env();
+  for (let i = 0; i < 2; i++) await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid', r: 'npm', s: 'google' }) }), e);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid', s: 'example.com' }) }), e);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid' }), headers: { dnt: '1' } }), e);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: '../etc' }) }), e);
+  const res = await worker.fetch(req('/counts', { method: 'GET' }), e);
+  const { days } = await res.json();
+  const [day] = Object.keys(days);
+  assert.deepEqual(days[day], { 'roof-bid': 3, 'ref:npm': 2, 'src:google': 2 }, 'a source outside the closed list is dropped');
+});
+
+test('feedback validation, with emails removed', () => {
+  const { record } = feedbackRecord({ type: 'problem', tool: 'roof-bid', page: '/monorepo-projects/roof-bid/', message: 'Total is wrong, mail me a@b.co' });
+  assert.deepEqual(record, { type: 'problem', tool: 'roof-bid', page: '/monorepo-projects/roof-bid/', message: 'Total is wrong, mail me [email removed]' });
+  assert.deepEqual(feedbackRecord({ type: 'idea', message: 'hi', website: 'spam' }), { drop: true });
+  assert.equal(feedbackRecord({ type: 'nope', message: 'hello there' }).error, 'type');
+  assert.equal(feedbackRecord({ type: 'idea', tool: 'a b', message: 'hello there' }).error, 'tool');
+  assert.equal(feedbackRecord({ type: 'idea', message: 'x' }).error, 'message');
+  assert.equal(feedbackRecord({ type: 'idea', message: 'x'.repeat(MESSAGE_MAX + 1) }).error, 'message');
+  assert.equal(feedbackRecord({ type: 'other', message: 'hello there', page: 'javascript:alert(1)' }).record.page, '');
+});
+
+test('/feedback stores a message, refuses other origins, honours the daily cap, and serves what it stored', async (t) => {
+  const net = t.mock.method(globalThis, 'fetch', async () => { throw new Error('the worker makes no outbound call'); });
+  const e = env();
+  const send = (origin, message = 'Add a metric toggle please') => worker.fetch(req('/feedback', {
+    body: JSON.stringify({ type: 'idea', tool: 'roof-bid', message }),
+    headers: { origin, 'content-type': 'application/json' },
+  }), e);
+  assert.equal((await send('https://evil.example')).status, 403);
+  const ok = await send(ORIGIN);
+  assert.equal(ok.status, 201);
+  assert.equal(ok.headers.get('access-control-allow-origin'), ORIGIN);
+  assert.equal((await send(ORIGIN, 'Second message here')).status, 201);
+  assert.equal((await send(ORIGIN)).status, 429, 'third of the day is over the cap of 2');
+  assert.equal(net.mock.callCount(), 0);
+
+  const all = await (await worker.fetch(req('/feedback', { method: 'GET' }), e)).json();
+  assert.deepEqual(all.feedback.map((r) => [r.id, r.tool, r.message]), [[1, 'roof-bid', 'Add a metric toggle please'], [2, 'roof-bid', 'Second message here']]);
+  const later = await (await worker.fetch(req('/feedback?after=1', { method: 'GET' }), e)).json();
+  assert.deepEqual(later.feedback.map((r) => r.id), [2]);
+});
+
+test('a filled honeypot is accepted and dropped', async () => {
+  const e = env();
+  const res = await worker.fetch(req('/feedback', {
+    body: JSON.stringify({ type: 'other', message: 'Buy now', website: 'x' }), headers: { origin: ORIGIN },
+  }), e);
+  assert.equal(res.status, 200);
+  assert.equal(e.DB.feedback.length, 0);
+});
+
+test('pulling feedback is append-only by id', () => {
+  const a = { id: 1, day: '2026-10-20', type: 'idea', tool: '', page: '', message: 'one' };
+  const merged = mergeFeedback([a], [{ ...a, message: 'rewritten' }, { id: 2, day: '2026-10-21', type: 'problem', message: 'two' }, { id: 'x', message: 'bad' }]);
+  assert.deepEqual(merged.map((r) => [r.id, r.message]), [[1, 'one'], [2, 'two']]);
+});

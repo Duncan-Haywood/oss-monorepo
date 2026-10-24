@@ -4,8 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Where to Sell Calculator — eBay vs Etsy vs Amazon</title>
-  <meta name="description" content="Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, Mercari, Reverb, your own store, and a local sale.">
+  <meta name="description" content="Free marketplace fee comparison: enter one item and see net profit after fees and returns on eBay, Etsy, Amazon, Mercari, Reverb and a dozen more.">
   <meta name="robots" content="index, follow">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#4b32a8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Where to Sell">
   <link rel="canonical" href=".">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b32a8'/%3E%3Cg fill='%23fff'%3E%3Crect x='7' y='18' width='4' height='7' rx='1'/%3E%3Crect x='14' y='13' width='4' height='12' rx='1'/%3E%3Crect x='21' y='7' width='4' height='18' rx='1'/%3E%3C/g%3E%3C/svg%3E">
   <meta property="og:title" content="Where to Sell Calculator — compare marketplace fees on one item">
@@ -391,6 +396,23 @@
     </section>
   </main>
 
+  <section class="rates" aria-labelledby="sourcing-heading">
+    <h2 id="sourcing-heading">Sourcing: the most you can pay for it</h2>
+    <p class="note">
+      Standing at a thrift-store shelf or estate sale? Enter the price you
+      expect to sell for (above) and the profit you want per item. This works
+      backwards through every channel’s fees and your returns overlay and shows
+      the highest purchase price that still gets you there. It ignores what
+      you entered for “what you paid”.
+    </p>
+    <label>Profit I want per item ($) <input id="buyTarget" type="number" min="0" step="0.01" value="10"></label>
+    <p id="buyVerdict" class="note" aria-live="polite"></p>
+    <table>
+      <thead><tr><th scope="col" data-table="sourcing">Channel</th><th scope="col" data-table="sourcing">Most you can pay</th></tr></thead>
+      <tbody id="buyRows"></tbody>
+    </table>
+  </section>
+
   <section class="rates" aria-labelledby="shelf-heading">
     <h2 id="shelf-heading">And how often does it actually sell there?</h2>
     <p id="shelfVerdict" class="shelf-verdict" aria-live="polite">—</p>
@@ -468,6 +490,9 @@
       <a href="reverb-vs-ebay-for-gear.html">Reverb vs eBay for selling gear</a>
       works an $800 guitar through the case where the two answers disagree —
       the cheaper channel pays more per sale and less per month of shelf.
+      <a href="poshmark-vs-mercari-vs-ebay-fees.html">Poshmark vs Mercari vs eBay fees</a>
+      works a $60 jacket through the same split for clothing: the biggest fee
+      leaves the most per sale and the least per month of shelf.
     </p>
     <h3>Margin is not the same question as turnover</h3>
     <p>
@@ -521,10 +546,11 @@
     <label class="check"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Everything runs in your browser. Your prices, costs and rates are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. Your entries are saved in this browser only, so the page remembers them next time; clearing site data removes them. The optional local counter records only an event name (<code>comparison_calculated</code>, <code>channel_rates_edited</code>, <code>channel_toggled</code>, <code>subscription_toggled</code>, <code>channel_volume_edited</code>, <code>returns_compared</code>, <code>shelf_time_compared</code>, <code>share_link_copied</code>, <code>handoff_ebay</code>, <code>handoff_etsy</code>, <code>handoff_amazon</code>, <code>handoff_reverb</code>, <code>handoff_own-store</code>, <code>handoff_tiktok</code>, <code>handoff_whatnot</code>, <code>handoff_poshmark</code>, <code>handoff_stockx</code>, <code>handoff_mercari</code>, <code>handoff_depop</code>, <code>handoff_grailed</code>, <code>handoff_facebook-marketplace</code>, <code>handoff_walmart</code>, <code>handoff_tcgplayer</code>, <code>handoff_discogs</code>) and the day, never your inputs — turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Everything runs in your browser. Your prices, costs and rates are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. Your entries are saved in this browser only, so the page remembers them next time; clearing site data removes them. The optional local counter records only an event name (<code>comparison_calculated</code>, <code>channel_rates_edited</code>, <code>channel_toggled</code>, <code>subscription_toggled</code>, <code>channel_volume_edited</code>, <code>returns_compared</code>, <code>shelf_time_compared</code>, <code>max_buy_price_checked</code>, <code>share_link_copied</code>, <code>handoff_ebay</code>, <code>handoff_etsy</code>, <code>handoff_amazon</code>, <code>handoff_reverb</code>, <code>handoff_own-store</code>, <code>handoff_tiktok</code>, <code>handoff_whatnot</code>, <code>handoff_poshmark</code>, <code>handoff_stockx</code>, <code>handoff_mercari</code>, <code>handoff_depop</code>, <code>handoff_grailed</code>, <code>handoff_facebook-marketplace</code>, <code>handoff_walmart</code>, <code>handoff_tcgplayer</code>, <code>handoff_discogs</code>) and the day, never your inputs — turn it off above, or with Do Not Track / Global Privacy Control.</p>
     <p>Free and open source. If it stopped you listing in the wrong place, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
     <p>More seller arithmetic: <a href="../ebay-fee-calculator/">eBay fee calculator</a> · <a href="../etsy-profit-calculator/">Etsy profit calculator</a> · <a href="../amazon-fba-calculator/">Amazon FBA vs FBM calculator</a> · <a href="../reverb-fee-calculator/">Reverb fee calculator</a> · <a href="../shopify-fee-calculator/">Shopify fee calculator</a> · <a href="../tiktok-shop-fee-calculator/">TikTok Shop fee calculator</a> · <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> · <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> · <a href="../stockx-seller-payout-calculator/">StockX seller payout calculator</a> · <a href="../mercari-fee-calculator/">Mercari fee calculator</a> · <a href="../depop-fee-calculator/">Depop fee calculator</a> · <a href="../grailed-fee-calculator/">Grailed fee calculator</a> · <a href="../facebook-marketplace-fee-calculator/">Facebook Marketplace fee calculator</a> · <a href="../walmart-marketplace-calculator/">Walmart Marketplace calculator</a> · <a href="../tcgplayer-fee-calculator/">TCGplayer fee calculator</a> · <a href="../discogs-fee-calculator/">Discogs fee calculator</a>.</p>
-    <p>Comparing headline fees across channels that include Walmart and TikTok Shop first? The <a href="../marketplace-fee-compare/">marketplace fee compare</a> ranks those six channels from one set of inputs, then points at the deeper per-channel calculators.</p>
+    <p>Comparing headline fees across channels that include Walmart and TikTok Shop first? The <a id="quickCompareLink" href="../marketplace-fee-compare/">marketplace fee compare</a> (it opens with the item above) ranks those six channels from one set of inputs, then points at the deeper per-channel calculators.</p>
+    <p><strong>Install it:</strong> in Chrome or Safari choose "Add to Home Screen" (Android: "Install app") and it opens full screen and works with no signal, for checking an item at the thrift store or estate sale before you buy it. Building a store app from the same files: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/where-to-sell-calculator/mobile">mobile/ README</a>.</p>
   </footer>
 
   <style>
@@ -535,9 +561,10 @@
   </style>
   <script type="module">
     import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
+    import { maxBuyPrices } from "./sourcing.mjs";
     import { comparisonCsv } from "./export.mjs";
     import { decodeComparison, encodeComparison } from "./share.mjs";
-    import { handoffsForResults } from "./handoff.mjs";
+    import { handoffsForResults, quickCompareUrl } from "./handoff.mjs";
     import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
 
     const SHARED_FIELDS = [
@@ -738,6 +765,35 @@
       document.getElementById("shelfRows").innerHTML = "";
     }
 
+    // Built as nodes, not markup: a channel label is free text the reader can edit.
+    function renderSourcing() {
+      const verdict = document.getElementById("buyVerdict");
+      const body = document.getElementById("buyRows");
+      body.replaceChildren();
+      try {
+        const shared = readShared();
+        const target = Number(document.getElementById("buyTarget").value || 0);
+        const out = maxBuyPrices(channels, shared, target);
+        verdict.textContent = out.best
+          ? `Pay up to ${money(out.best.maxBuy)} and ${out.best.label} still leaves you ${money(target)}${shared.includeReturns ? " after expected returns" : ""}.`
+          : `No channel reaches ${money(target)} at this sale price, even for a free item.`;
+        for (const row of out.rows) {
+          const tr = document.createElement("tr");
+          const th = document.createElement("th");
+          th.scope = "row";
+          th.style.cssText = "text-align:left;font-weight:650";
+          th.textContent = row.label;
+          const td = document.createElement("td");
+          td.className = "money";
+          td.textContent = row.maxBuy === null ? "not at this price" : money(row.maxBuy);
+          tr.append(th, td);
+          body.append(tr);
+        }
+      } catch (error) {
+        verdict.textContent = error.message;
+      }
+    }
+
     // Built with DOM nodes rather than innerHTML: a channel label is free text
     // the reader can edit, and this is the one place it would be re-parsed as
     // markup.
@@ -877,6 +933,8 @@
       document.getElementById("spread").textContent = spreadText;
 
       renderContinue(comparison.results, readShared());
+      renderSourcing();
+      document.getElementById("quickCompareLink").href = quickCompareUrl(readShared());
 
       document.getElementById("rows").innerHTML = comparison.results
         .slice()
@@ -943,6 +1001,8 @@
         save();
       });
     }
+    document.getElementById("buyTarget").addEventListener("input", renderSourcing);
+    document.getElementById("buyTarget").addEventListener("change", () => recordUsage(localStorage, optedOut(), "max_buy_price_checked"));
     for (const radio of document.querySelectorAll('input[name="rankBy"]')) {
       radio.addEventListener("change", () => {
         update();
@@ -1049,5 +1109,8 @@
     renderPanels();
     update();
   </script>
+<script>
+  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
 </body>
 </html>

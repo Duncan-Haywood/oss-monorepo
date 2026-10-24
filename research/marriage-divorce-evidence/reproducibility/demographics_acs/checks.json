@@ -1,0 +1,254 @@
+{
+  "chunks": [
+    {
+      "n": 42656,
+      "events": 512,
+      "risk_n": 26461,
+      "foreign_n": 4163,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 41415,
+      "events": 417,
+      "risk_n": 23808,
+      "foreign_n": 6830,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 46073,
+      "events": 368,
+      "risk_n": 29754,
+      "foreign_n": 17572,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 46196,
+      "events": 368,
+      "risk_n": 30021,
+      "foreign_n": 17890,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 46069,
+      "events": 345,
+      "risk_n": 30059,
+      "foreign_n": 17428,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 46037,
+      "events": 396,
+      "risk_n": 30232,
+      "foreign_n": 12613,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43921,
+      "events": 374,
+      "risk_n": 26245,
+      "foreign_n": 7604,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 44045,
+      "events": 470,
+      "risk_n": 28784,
+      "foreign_n": 12219,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43779,
+      "events": 475,
+      "risk_n": 27816,
+      "foreign_n": 11450,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 45358,
+      "events": 407,
+      "risk_n": 30843,
+      "foreign_n": 7213,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43608,
+      "events": 375,
+      "risk_n": 28470,
+      "foreign_n": 6721,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 44194,
+      "events": 414,
+      "risk_n": 29308,
+      "foreign_n": 5698,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 41901,
+      "events": 424,
+      "risk_n": 28283,
+      "foreign_n": 2647,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43375,
+      "events": 419,
+      "risk_n": 27583,
+      "foreign_n": 2298,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43975,
+      "events": 395,
+      "risk_n": 28502,
+      "foreign_n": 8662,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 44413,
+      "events": 361,
+      "risk_n": 28768,
+      "foreign_n": 6062,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43539,
+      "events": 349,
+      "risk_n": 29773,
+      "foreign_n": 2868,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 13871,
+      "events": 171,
+      "risk_n": 8654,
+      "foreign_n": 549,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 42402,
+      "events": 437,
+      "risk_n": 28320,
+      "foreign_n": 2531,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 45413,
+      "events": 391,
+      "risk_n": 29883,
+      "foreign_n": 11576,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43157,
+      "events": 324,
+      "risk_n": 25804,
+      "foreign_n": 10635,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 45826,
+      "events": 375,
+      "risk_n": 29488,
+      "foreign_n": 12003,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 44167,
+      "events": 419,
+      "risk_n": 28066,
+      "foreign_n": 9118,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43447,
+      "events": 378,
+      "risk_n": 28813,
+      "foreign_n": 4361,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43926,
+      "events": 388,
+      "risk_n": 28791,
+      "foreign_n": 2430,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 42263,
+      "events": 463,
+      "risk_n": 25926,
+      "foreign_n": 3798,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 44188,
+      "events": 386,
+      "risk_n": 29938,
+      "foreign_n": 3238,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 42627,
+      "events": 368,
+      "risk_n": 27896,
+      "foreign_n": 3284,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43569,
+      "events": 435,
+      "risk_n": 27091,
+      "foreign_n": 4381,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 44992,
+      "events": 409,
+      "risk_n": 31563,
+      "foreign_n": 10496,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 44444,
+      "events": 439,
+      "risk_n": 31071,
+      "foreign_n": 10420,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 43433,
+      "events": 397,
+      "risk_n": 30922,
+      "foreign_n": 8719,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 44096,
+      "events": 417,
+      "risk_n": 30371,
+      "foreign_n": 6761,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 44855,
+      "events": 425,
+      "risk_n": 29499,
+      "foreign_n": 7658,
+      "foreign_missing_entry": 0
+    },
+    {
+      "n": 32029,
+      "events": 297,
+      "risk_n": 21596,
+      "foreign_n": 1369,
+      "foreign_missing_entry": 0
+    }
+  ],
+  "n": 1499259,
+  "events": 13788,
+  "risk_n": 978402,
+  "source": "/Users/duncan/Documents/Codex/2026-10-19/referenced-chatgpt-conversation-this-is-an/work/acs/csv_pus.zip",
+  "zip_sha256": "98b6ecb14b4830d1f2b54c265a5bd997828415c2dab14e17369c40e98b78d9d4"
+}

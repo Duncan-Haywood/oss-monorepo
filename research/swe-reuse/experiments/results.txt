@@ -1,0 +1,33 @@
+projects with a creation date 723 (excluded, undated: 5); reference pairs 1909
+  backward edges (cited project created strictly earlier) 1807; forward 77; same-second 1
+
+A. does an earlier project get built on? (inbound from a later project's README)
+  projects with >= 1 inbound 446/723 = 61.7%  [58.1%, 65.2%]
+  inbound count distribution: 0: 277, 1: 145, 2: 75, 3: 62, 4: 49, 5+: 115
+  max inbound 50; Gini of inbound counts 0.69
+  most-referenced: workcell-twin (50); selfrep-closure (41); simdesign-dfm (28); chip-pnr (26); twin-transfer (25); chip-accel (23); selfrep-growth (23); accel-kws (22)
+  restricted to 244 projects at least 7 days old: 114 (46.7%) [40.6%, 53.0%]
+
+B. who builds on whom: same track prefix or across tracks?
+  same-prefix edges 1285/1807 = 71.1% [69.0%, 73.2%]
+  expected if each citer cited uniformly among earlier projects: 61 = 3.4%
+  by track (projects with a date, share with >= 1 inbound, share of inbound that is same-prefix):
+    simdesign   45/ 57 = 78.9%   inbound  201, same-prefix 95.0%
+    robofab     35/ 48 = 72.9%   inbound  146, same-prefix 95.9%
+    ambient     34/ 46 = 73.9%   inbound  116, same-prefix 95.7%
+    garment     31/ 45 = 68.9%   inbound  128, same-prefix 97.7%
+    selfrep     27/ 39 = 69.2%   inbound  144, same-prefix 93.1%
+    chip        26/ 33 = 78.8%   inbound  142, same-prefix 73.9%
+    swe         22/ 31 = 71.0%   inbound   75, same-prefix 98.7%
+    house       18/ 30 = 60.0%   inbound   77, same-prefix 98.7%
+    accel       19/ 28 = 67.9%   inbound   80, same-prefix 93.8%
+    osrobot     18/ 26 = 69.2%   inbound   47, same-prefix 97.9%
+    mimic       17/ 24 = 70.8%   inbound   65, same-prefix 86.2%
+    eda         16/ 21 = 76.2%   inbound   56, same-prefix 100.0%
+
+C. how far back do references reach? (rank distance in creation order)
+  median 39 projects back; 25% 11; 75% 124; 90% 274
+  median 11.8 hours between cited and citing project's creation
+
+D. projects citing nothing earlier
+  124/723 = 17.2% [14.6%, 20.1%] name no earlier project in their README

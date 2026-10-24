@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of display PSNR in the edge ring against subject speed; no ring treatment gets within 4 dB of the large frame">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Edge ring of a moving subject, N = 8 frames (4x area ratio)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="245.0" y2="245.0" stroke="#ddd"/><text x="58" y="249.0" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="166.1" y2="166.1" stroke="#ddd"/><text x="58" y="170.1" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="87.1" y2="87.1" stroke="#ddd"/><text x="58" y="91.1" text-anchor="end" font-family="sans-serif" font-size="11">30</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">subject speed (px per frame)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">display PSNR in the edge ring (dB)</text>
+<polyline points="64.0,118.5 250.7,120.3 437.3,116.7 624.0,116.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="118.5" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="120.3" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="116.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="116.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">reject only</text>
+<polyline points="64.0,105.8 250.7,110.8 437.3,110.2 624.0,113.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="105.8" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="110.8" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="110.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="113.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">aligned + reject</text>
+<polyline points="64.0,122.6 250.7,124.5 437.3,124.3 624.0,123.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="122.6" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="124.5" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="124.3" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="123.4" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">ring: frame 0 only</text>
+<polyline points="64.0,153.7 250.7,148.2 437.3,145.5 624.0,137.4" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="153.7" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="148.2" r="3" fill="#8e44ad"/>
+<circle cx="437.3" cy="145.5" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="137.4" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">ring: temporal median</text>
+<polyline points="64.0,108.9 250.7,113.3 437.3,111.0 624.0,112.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="108.9" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="113.3" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="111.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="112.5" r="3" fill="#c0392b"/>
+<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">ring: aligned + reject</text>
+<polyline points="64.0,74.1 250.7,72.9 437.3,73.4 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="74.1" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="72.9" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="73.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="914" y="32" width="14" height="10" fill="#1f6fb2"/><text x="934" y="41" font-family="sans-serif" font-size="11">one large-sensor frame</text>
+</svg>

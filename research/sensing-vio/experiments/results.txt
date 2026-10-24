@@ -1,0 +1,22 @@
+# sensing-vio: planar VIO drift, 8 seeds, 12 s paths, synthetic
+# columns: group | setting | rms drift % of path (mean, sem) | final drift % (mean, median) | rms vs base (paired ratio)
+## A. one knob at a time
+base | base | 1.649 0.259 | 4.10 3.08 | 1.00
+A | width 80px | 2.578 0.548 | 4.87 3.88 | 1.48
+A | width 160px | 2.899 0.434 | 6.12 6.26 | 1.80
+A | width 320px | 8.862 3.570 | 20.44 10.20 | 3.19
+A | width 1280px | 1.175 0.192 | 2.05 2.25 | 0.71
+A | 5 fps | 2.622 0.920 | 5.79 4.11 | 1.18
+A | 20 fps | 4.992 1.417 | 10.48 11.17 | 2.41
+B | gyro x0.25 | 1.662 0.259 | 4.01 3.08 | 1.02
+B | gyro x0.5 | 2.610 0.806 | 6.46 6.41 | 1.37
+B | gyro x2 | 1.815 0.325 | 4.82 4.87 | 1.08
+B | gyro x4 | 1.702 0.318 | 4.24 3.47 | 1.00
+B | accel x0.25 | 1.783 0.388 | 4.38 3.69 | 0.99
+B | accel x0.5 | 1.600 0.369 | 3.47 2.55 | 0.91
+B | accel x2 | 1.620 0.182 | 3.82 2.90 | 1.04
+B | accel x4 | 1.775 0.207 | 4.01 3.67 | 1.13
+C | width 160 + IMU x0.25 | 2.890 0.577 | 5.28 3.65 | 1.67
+C | width 1280 + IMU x4 | 1.219 0.245 | 2.05 2.10 | 0.71
+C | IMU x0.25 both | 1.717 0.323 | 4.21 3.64 | 0.99
+C | IMU x4 both | 1.684 0.208 | 4.12 3.45 | 1.07

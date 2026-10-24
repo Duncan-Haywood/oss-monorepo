@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the whole crowd's mean cost per door encounter against the robot share, for robots that always yield and robots that always go">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Doorway: mean cost per encounter, whole crowd</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="274.0" y2="274.0" stroke="#ddd"/><text x="58" y="278.0" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="224.1" y2="224.1" stroke="#ddd"/><text x="58" y="228.1" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="174.1" y2="174.1" stroke="#ddd"/><text x="58" y="178.1" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<line x1="64" x2="624" y1="124.1" y2="124.1" stroke="#ddd"/><text x="58" y="128.1" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="74.2" y2="74.2" stroke="#ddd"/><text x="58" y="78.2" text-anchor="end" font-family="sans-serif" font-size="11">2.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="188.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="312.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="561.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">share of the crowd that is robots</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean cost per encounter</text>
+<polyline points="64.0,217.7 126.2,219.4 188.4,221.2 250.7,223.1 312.9,225.2 375.1,227.3 437.3,229.4 499.6,231.4 561.8,232.4 624.0,230.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="217.7" r="3" fill="#c0392b"/>
+<circle cx="126.2" cy="219.4" r="3" fill="#c0392b"/>
+<circle cx="188.4" cy="221.2" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="223.1" r="3" fill="#c0392b"/>
+<circle cx="312.9" cy="225.2" r="3" fill="#c0392b"/>
+<circle cx="375.1" cy="227.3" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="229.4" r="3" fill="#c0392b"/>
+<circle cx="499.6" cy="231.4" r="3" fill="#c0392b"/>
+<circle cx="561.8" cy="232.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="230.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">robots always yield</text>
+<polyline points="64.0,217.7 126.2,214.7 188.4,210.8 250.7,205.5 312.9,197.9 375.1,186.8 437.3,170.1 499.6,145.3 561.8,111.9 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="217.7" r="3" fill="#1f6fb2"/>
+<circle cx="126.2" cy="214.7" r="3" fill="#1f6fb2"/>
+<circle cx="188.4" cy="210.8" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="205.5" r="3" fill="#1f6fb2"/>
+<circle cx="312.9" cy="197.9" r="3" fill="#1f6fb2"/>
+<circle cx="375.1" cy="186.8" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="170.1" r="3" fill="#1f6fb2"/>
+<circle cx="499.6" cy="145.3" r="3" fill="#1f6fb2"/>
+<circle cx="561.8" cy="111.9" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">robots always go</text>
+</svg>

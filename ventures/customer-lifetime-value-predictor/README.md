@@ -6,7 +6,7 @@ the BG/NBD and Gamma-Gamma models to your own data, reports the probability each
 big spenders who look ready to leave, values a brand-new customer (the ceiling on what to pay to acquire one), and
 back-tests itself against your most recent weeks so you can see how far to trust it. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/customer-lifetime-value-predictor/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/customer-lifetime-value-predictor/
 
 After using this, you can now **see which customers are worth winning back, stop spending on ones who have left,
 and know what a new customer is worth before you buy one**.
@@ -29,6 +29,8 @@ and know what a new customer is worth before you buy one**.
 
 Not modelled: subscriptions with fixed billing, one-off purchases, seasonality, promotions, returns, customers who
 pause and return, frequency-spend correlation (warned about). Unverified against a published customer dataset.
+
+Guide: [`predict-customer-lifetime-value-from-orders.html`](predict-customer-lifetime-value-from-orders.html) compares the model with the "orders per year" shortcut on a held-out 26 weeks (`compareForecasts` in `calc.mjs`); its numbers are recomputed by `page.test.mjs`.
 
 ## Alternatives, and what this does differently
 

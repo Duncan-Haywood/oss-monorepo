@@ -6,7 +6,7 @@ margin, the **walk-away price** below which the job loses money, the labor
 slip that erases your profit, and what a competitor's lower quote leaves you.
 It also converts markup to margin (25% markup is only a 20% margin).
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/trade-bid-studio/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/trade-bid-studio/
 
 It is also the single front door to the portfolio's 121 trade-specific
 `*-bid-calculator` ventures: `trades.json` is generated from them
@@ -29,6 +29,35 @@ cancellation wording, only text you typed. The layout is the shared
 here, kept in step by that module's sync test); [`quote.mjs`](quote.mjs) holds
 the two studio-specific rules (draft scope, which price is quoted) and
 [`quote.test.mjs`](quote.test.mjs) checks them.
+
+## Send the proposal as a link: your own estimate hub
+
+Printing a PDF still leaves the contractor chasing "did you see it?". `server.mjs` is a small self-hosted
+**estimate hub**: you create a proposal, send the customer **one link**, they read it on their phone and type their
+name to accept (or decline with a reason), and you see who opened it and who said yes. Optionally an accepted
+proposal shows a "Pay the deposit" button that opens a payment link from **your own** processor account.
+
+- **Alternatives today:** Jobber, Housecall Pro, Workiz and Joist bundle online estimates into a per-month
+  field-service subscription that also holds your customer list. This is the one piece most solo trades use first
+  (estimate out, acceptance back), on a server you own, MIT-licensed, with no per-seat price. It does not do
+  scheduling, invoicing, a customer database or card processing; if you need those, use one of them.
+- **What it stores:** only the customer-facing proposal (the same text and numbers as the printed one) and the
+  customer's answer: typed name and time. Never your costs, wages, burden or margin. State is one JSON file.
+- **Run:** `ADMIN_KEY=a STATE=./state.json node server.mjs`, or `docker compose up -d` (`docker-compose.yml`), Fly
+  (`fly.toml`) or Render (`render.yaml`, deploy from your fork; it generates `ADMIN_KEY`). Nothing runs on the
+  author's accounts. Open `/admin?key=<ADMIN_KEY>` once: it sets a cookie so later visits and the prefill button work
+  without the key in the address.
+- **Optional env:** `PUBLIC_BASE_URL` (so copied links are complete), `PAYMENT_LINK_URL` (an https payment link from
+  your own account; the studio never touches money or card data).
+- **From the calculator:** in "Hand the customer a proposal", open "Send it as a link", type your hub's address and
+  press **Open in my hub**: the hub's new-proposal form opens with the customer, scope, price, deposit and terms
+  filled in. They travel in the URL fragment, which browsers never send to a server.
+- **Safety:** customer links are 128-bit random and carry `noindex`; a price held for N days cannot be accepted after
+  that; an answer is final (a second click cannot flip it); CSV export neutralises spreadsheet formulas; the page sets
+  a strict Content-Security-Policy.
+- **What accepting means:** a click-wrap record of the name and time the customer typed. It is not an e-signature
+  service and the software supplies no contract terms; whether it binds anyone depends on your jurisdiction and your
+  own wording. Tests: `node --test server.test.mjs deploy.test.mjs`.
 
 ## Start from your trade
 

@@ -5,7 +5,7 @@ business whose customers are meant to come back: **paste or upload a CSV of clie
 spent, and get who is due, who is overdue but still recoverable, and who has probably gone, each judged against that
 client's own rhythm rather than a flat "90 days" rule.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/client-rebooking-predictor/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/client-rebooking-predictor/
 
 After using this, you can now **call the twelve overdue clients worth calling this week, and stop chasing the thirty who
 have already left**, which used to take a booking system's flat "lapsed" report or a guess.
@@ -24,6 +24,13 @@ have already left**, which used to take a booking system's flat "lapsed" report 
 - Back-test: refit at a cut-off one window ago and score who actually came back, by AUC and Brier score against the plain
   base rate and against ranking by recency alone. The page says so plainly when the ranking is no better than chance.
 - Refuses: fewer than 30 clients, fewer than 40 return gaps, or a history shorter than 180 days.
+
+## Contact plan
+
+Turns the list into a schedule: overdue clients ranked by chance back times average spend, then due clients, spread over
+N contacts a week. Shows expected bookings and revenue, fills a message template (`{name}`, `{last_visit}`,
+`{usual_weeks}`), and copies the messages or downloads a plan CSV. The tool sends nothing; message only clients who agreed
+to hear from you (CAN-SPAM, TCPA, GDPR).
 
 ## Limits
 

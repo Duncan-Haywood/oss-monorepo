@@ -1,0 +1,13 @@
+[project]
+name = "house-liftnails"
+version = "0.1.0"
+description = "Does the nail load path carry a hung wall panel? Sheathing-to-top-plate nails by the yield-limit equations, and the stud end nails NDS gives no credit"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-panellift/src", "../house-offsite/src", "../house-framing/src"]

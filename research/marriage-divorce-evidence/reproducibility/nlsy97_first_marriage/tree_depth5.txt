@@ -1,0 +1,64 @@
+|--- cat__spouse_education_16+ years <= 0.5000
+|   |--- cat__spouse_education_13-15 years <= 0.5000
+|   |   |--- num__marriage_years <= 8.5000
+|   |   |   |--- num__age_at_marriage <= 24.6250
+|   |   |   |   |--- cat__family_at_12_Both biological parents <= 0.5000
+|   |   |   |   |   |--- value: [0.0848]
+|   |   |   |   |--- cat__family_at_12_Both biological parents >  0.5000
+|   |   |   |   |   |--- value: [0.0512]
+|   |   |   |--- num__age_at_marriage >  24.6250
+|   |   |   |   |--- num__cohab_months_before <= 15.5000
+|   |   |   |   |   |--- value: [0.0587]
+|   |   |   |   |--- num__cohab_months_before >  15.5000
+|   |   |   |   |   |--- value: [0.0340]
+|   |   |--- num__marriage_years >  8.5000
+|   |   |   |--- num__afqt_percentile <= 65.6075
+|   |   |   |   |--- num__substance_1997 <= 2.5000
+|   |   |   |   |   |--- value: [0.0405]
+|   |   |   |   |--- num__substance_1997 >  2.5000
+|   |   |   |   |   |--- value: [0.0651]
+|   |   |   |--- num__afqt_percentile >  65.6075
+|   |   |   |   |--- value: [0.0203]
+|   |--- cat__spouse_education_13-15 years >  0.5000
+|   |   |--- num__spouse_age_gap <= 5.1250
+|   |   |   |--- cat__education_at_marriage_Bachelor <= 0.5000
+|   |   |   |   |--- num__marriage_years <= 5.5000
+|   |   |   |   |   |--- value: [0.0416]
+|   |   |   |   |--- num__marriage_years >  5.5000
+|   |   |   |   |   |--- value: [0.0257]
+|   |   |   |--- cat__education_at_marriage_Bachelor >  0.5000
+|   |   |   |   |--- num__poverty_ratio_1997 <= 2.8700
+|   |   |   |   |   |--- value: [0.0211]
+|   |   |   |   |--- num__poverty_ratio_1997 >  2.8700
+|   |   |   |   |   |--- value: [0.0110]
+|   |   |--- num__spouse_age_gap >  5.1250
+|   |   |   |--- value: [0.0584]
+|--- cat__spouse_education_16+ years >  0.5000
+|   |--- cat__family_at_12_Both biological parents <= 0.5000
+|   |   |--- num__earnings_year_before_k <= 40.5000
+|   |   |   |--- num__spouse_age_gap <= 0.3750
+|   |   |   |   |--- num__parent_max_grade <= 13.5000
+|   |   |   |   |   |--- value: [0.0285]
+|   |   |   |   |--- num__parent_max_grade >  13.5000
+|   |   |   |   |   |--- value: [0.0131]
+|   |   |   |--- num__spouse_age_gap >  0.3750
+|   |   |   |   |--- value: [0.0365]
+|   |   |--- num__earnings_year_before_k >  40.5000
+|   |   |   |--- value: [0.0121]
+|   |--- cat__family_at_12_Both biological parents >  0.5000
+|   |   |--- cat__education_at_marriage_Bachelor <= 0.5000
+|   |   |   |--- cat__education_at_marriage_Graduate degree <= 0.5000
+|   |   |   |   |--- cat__sex_Male <= 0.5000
+|   |   |   |   |   |--- value: [0.0130]
+|   |   |   |   |--- cat__sex_Male >  0.5000
+|   |   |   |   |   |--- value: [0.0309]
+|   |   |   |--- cat__education_at_marriage_Graduate degree >  0.5000
+|   |   |   |   |--- value: [0.0084]
+|   |   |--- cat__education_at_marriage_Bachelor >  0.5000
+|   |   |   |--- num__parent_max_grade <= 17.5000
+|   |   |   |   |--- num__earnings_year_before_k <= 41.5000
+|   |   |   |   |   |--- value: [0.0134]
+|   |   |   |   |--- num__earnings_year_before_k >  41.5000
+|   |   |   |   |   |--- value: [0.0052]
+|   |   |   |--- num__parent_max_grade >  17.5000
+|   |   |   |   |--- value: [0.0037]

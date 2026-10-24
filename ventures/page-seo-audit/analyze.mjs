@@ -77,6 +77,8 @@ export function parse(html) {
     canonical: rel("canonical")?.href ?? null,
     canonicalCount: links.filter((l) => (l.rel || "").toLowerCase().split(/\s+/).includes("canonical")).length,
     titleCount: (body.match(/<title\b/gi) || []).length,
+    hreflangs: links.filter((l) => (l.rel || "").toLowerCase().split(/\s+/).includes("alternate") && l.hreflang).map((l) => ({ lang: l.hreflang.toLowerCase(), href: l.href || "" })),
+    refresh: metas.find((m) => (m["http-equiv"] || "").toLowerCase() === "refresh")?.content ?? null,
     icon: Boolean(links.find((l) => /(^|\s)icon(\s|$)/i.test(l.rel || ""))),
     og: Object.fromEntries(metas.filter((m) => /^og:/i.test(m.property || "")).map((m) => [m.property.toLowerCase(), squash(m.content || "")])),
     twitterCard: meta("name", "twitter:card"),
@@ -112,10 +114,17 @@ export function audit(html, { url = "" } = {}) {
   const h1 = p.headings.filter((x) => x.level === 1);
   if (h1.length === 0) add("h1", "warning", "No <h1>", "The h1 tells readers and crawlers what the page is about.", "Add exactly one h1 that matches the page's purpose.");
   else if (h1.length > 1) add("h1-many", "info", `${h1.length} <h1> headings`, "More than one top heading blurs the page's topic.", "Keep one h1; demote the rest to h2.");
+  if (h1.length && h1.every((x) => !x.text)) add("h1-empty", "warning", "The <h1> is empty", "An h1 with no text (often an image or icon only) gives crawlers no topic.", "Put the page's name in the h1 as text; hide it visually if the design needs to.");
   const skips = p.headings.filter((x, i) => i && x.level > p.headings[i - 1].level + 1);
   if (skips.length) add("heading-skip", "info", "Heading levels skip", `Example: "${skips[0].text.slice(0, 50)}" jumps to h${skips[0].level}. Skipped levels weaken the outline screen readers and AI summarisers use.`, "Nest headings one level at a time.");
   if (!p.canonical) add("canonical", "warning", "No canonical link", "Without rel=canonical, URL variants (tracking parameters, www vs bare) can split ranking signals.", "Add <link rel=\"canonical\" href=\"https://…\"> pointing at this page's preferred URL.");
   else if (!/^https?:\/\//i.test(p.canonical)) add("canonical-relative", "warning", "Canonical is not an absolute URL", `Found \`${p.canonical}\`. Engines expect a full https:// URL.`, "Use the full absolute URL.");
+  const norm = (u) => String(u).replace(/[#?].*$/, "").replace(/\/+$/, "").toLowerCase();
+  if (p.canonical && p.og["og:url"] && /^https?:\/\//i.test(p.canonical) && /^https?:\/\//i.test(p.og["og:url"]) && norm(p.canonical) !== norm(p.og["og:url"]))
+    add("og-url-mismatch", "info", "og:url differs from the canonical", `og:url is \`${p.og["og:url"].slice(0, 70)}\` but the canonical is \`${p.canonical.slice(0, 70)}\`. Shares and engines may count two addresses.`, "Make og:url the same URL as the canonical.");
+  if (p.hreflangs.length && /^https?:\/\//i.test(p.canonical || "") && !p.hreflangs.some((x) => norm(x.href) === norm(p.canonical)))
+    add("hreflang-no-self", "warning", "hreflang set does not include this page", "Language alternates must list the page itself too; a set without a self-reference is often ignored.", "Add an hreflang link for this page's own language pointing at its canonical URL.");
+  if (p.refresh != null) add("meta-refresh", "warning", "Page uses a meta refresh", `Found \`${p.refresh.slice(0, 60)}\`. Meta refresh redirects are slow and weaker than a server 301.`, "Redirect with an HTTP 301 from the server or host instead.");
   if (!p.viewport) add("viewport", "warning", "No viewport meta tag", "Pages without it render zoomed-out on phones and fail mobile-friendly checks.", "Add <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">.");
   if (!p.lang) add("lang", "info", "<html> has no lang", "The language attribute helps engines, translators and screen readers.", "Add lang=\"en\" (or your language) to <html>.");
   if (p.titleCount > 1) add("title-many", "warning", `${p.titleCount} <title> tags`, "Engines may pick any of them, or the wrong one.", "Keep a single <title> in <head>; remove the others.");

@@ -1,0 +1,40 @@
+{"label":"unsubscribe","subject":"Re: your note","body":"Can you please not email this address in future. Thanks."}
+{"label":"unsubscribe","subject":"Re: idea","body":"I have not consented to receive marketing from you. Cease all communication."}
+{"label":"unsubscribe","subject":"Re: catch up?","body":"Please could you take my name off your system."}
+{"label":"unsubscribe","subject":"Re: hello","body":"Leave me alone please."}
+{"label":"unsubscribe","subject":"Re: dispatch software","body":"Hi, we'd prefer not to receive further emails like this. Regards, Tim"}
+{"label":"bounce","subject":"Undeliverable: Re: idea","body":"Your message to sales@acme.example couldn't be delivered. sales wasn't found at acme.example."}
+{"label":"bounce","subject":"failure notice","body":"Sorry, we were unable to deliver your message to the following address. Remote host said: 550 Requested action not taken: mailbox unavailable"}
+{"label":"out_of_office","subject":"Automatic reply: dispatch software","body":"I'm on holiday until 2 January and won't be checking email. Happy new year!"}
+{"label":"out_of_office","subject":"Out of office","body":"Hello, I am off work this week. I will respond to your email on my return."}
+{"label":"out_of_office","subject":"Automatic reply","body":"Thank you for your email. Please note I work Monday to Wednesday and will reply on my next working day."}
+{"label":"out_of_office","subject":"Re: idea","body":"I'm currently out on a family emergency. My colleague tara@acme.example can help."}
+{"label":"left_company","subject":"Re: idea","body":"Hi, Greg has moved on from the company. I've forwarded your email to his successor."}
+{"label":"left_company","subject":"Re: dispatch","body":"This person is no longer employed by Acme Ltd. Your email will not be forwarded."}
+{"label":"left_company","subject":"Re: intro","body":"You've got the wrong Sam, I work in finance not operations."}
+{"label":"left_company","subject":"Re: hello","body":"Operations is run by our sister company now, so I'm not the one you want."}
+{"label":"not_now","subject":"Re: idea","body":"We're just about to go into peak season. Come back to me in the new year."}
+{"label":"not_now","subject":"Re: your note","body":"Not for the moment, thanks. Possibly worth a conversation in 2027."}
+{"label":"not_now","subject":"Re: catch up?","body":"Can we park this until after our audit? Should be done by end of November."}
+{"label":"not_now","subject":"Re: hello","body":"We've got too much on at the moment to look at new tools. Maybe in six months."}
+{"label":"not_now","subject":"Re: dispatch","body":"Bad timing I'm afraid. Drop me a line in September."}
+{"label":"not_interested","subject":"Re: your note","body":"Thanks but no thanks."}
+{"label":"not_interested","subject":"Re: catch up?","body":"We have decided not to proceed. All the best."}
+{"label":"not_interested","subject":"Re: idea","body":"Not for us I'm afraid."}
+{"label":"not_interested","subject":"Re: dispatch","body":"We don't use outside software for this and don't plan to."}
+{"label":"not_interested","subject":"Re: hi","body":"We're a two-person shop, this is overkill for us. Good luck though."}
+{"label":"objection","subtype":"competitor","subject":"Re: idea","body":"We signed with one of your competitors in the summer."}
+{"label":"objection","subtype":"competitor","subject":"Re: your note","body":"Our team is pretty attached to the spreadsheet we've used for years."}
+{"label":"objection","subtype":"price","subject":"Re: dispatch","body":"Last time we looked at software like this the subscription was more than a driver's wages."}
+{"label":"objection","subtype":"price","subject":"Re: hi","body":"I like it but we couldn't stretch to it this year financially."}
+{"label":"objection","subtype":"authority","subject":"Re: catch up?","body":"Decisions like this go through head office, not me."}
+{"label":"objection","subtype":"need","subject":"Re: idea","body":"Routing isn't really a problem for us, our issue is finding drivers."}
+{"label":"question","subject":"Re: your note","body":"Does it need an internet connection in the van?"}
+{"label":"question","subject":"Re: dispatch","body":"Hi Sam, quick one: can it import from Excel? We have everything in xlsx."}
+{"label":"question","subject":"Re: idea","body":"Is it GDPR compliant and where are your servers?"}
+{"label":"interested","subject":"Re: idea","body":"Funny you should email, we were just complaining about this. Grab a slot on my calendar: https://cal.example/jo"}
+{"label":"interested","subject":"Re: your note","body":"Go on then, convince me. 20 minutes Thursday?"}
+{"label":"interested","subject":"Re: catch up?","body":"Yeah I'd be up for a chat. What's your availability like?"}
+{"label":"interested","subject":"Re: hello","body":"Interesting! Our dispatcher Lee would want to see this too. Can you do a demo for both of us?"}
+{"label":"interested","subject":"Re: dispatch","body":"OK you've got my attention. Send over the details."}
+{"label":"unclear","subject":"Re: hi","body":"Sorry, which company is this?"}

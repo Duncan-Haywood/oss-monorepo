@@ -51,5 +51,5 @@ kill_criteria:
   - A user reports a payment or money factor that disagrees with their written lease contract by more than rounding.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/car-lease-deal-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/car-lease-deal-checker/
   analytics: null

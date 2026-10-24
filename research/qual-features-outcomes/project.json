@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "Do LLM-style qualitative codes predict outcomes better than bag-of-words at the same labelling budget?",
+ "summary": "On 5,313 real GoEmotions comments, 28 human-coded emotion codes (an upper bound for an LLM coder) predicted whether a comment replies to another comment with test AUC 0.527 at 1,600 labelled outcomes, below bag-of-words (0.557) and a 100-d LSA embedding (0.595 with numeric features); 5% simulated coder error erased the codes&rsquo; small gain over numeric features alone. Every feature set was weak (AUC at most 0.60) because the outcomes are not emotional, a coin-flip control stayed within 0.494&ndash;0.511, and a nine-subreddit outcome was too thin to rank anything. The codes are human votes, not an LLM&rsquo;s.",
+ "lede": "do LLM-style qualitative codes predict outcomes better than bag-of-words at the same labelling budget? On 5,313 GoEmotions comments, not for a reply-vs-top-level outcome: emotion codes (human, an upper bound) reach AUC 0.527 against 0.557 for words and 0.595 for LSA, and 5% coder error erases their gain. All sets are weak; not an LLM."
+}

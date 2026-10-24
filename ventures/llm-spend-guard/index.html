@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>LLM Spend Guard — Hard Budget Caps and Runaway-Loop Breakers for OpenAI and Claude API Calls</title>
-  <meta name="description" content="Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent loops. Free, open source, self-hosted proxy or a zero-dependency library. Replay your own usage log here to see what a policy would have stopped.">
+  <meta name="description" content="Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent loops. Free, open source, self-hosted proxy or a zero-dependency library.">
   <meta property="og:title" content="Would a spend cap have stopped your runaway LLM bill?">
   <meta property="og:description" content="Hard dollar budgets, per-run step caps and loop breakers for LLM API calls. Replay your usage log through a policy in your browser; nothing is uploaded.">
   <link rel="canonical" href="./index.html">
@@ -47,6 +47,7 @@
     <p>Replay your own usage log through a policy below to see what it would have refused. Then run the same policy as a local proxy (one base-URL change) or as a library call around your SDK.</p>
     <p class="note">The simulator runs in this browser. Your log and policy never leave your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Replay a usage log through a policy</h2>
@@ -115,7 +116,8 @@ const text = await guard.guarded(
     <p>No. The simulator on this page replays the log you paste in your own browser and never sends it anywhere. The proxy runs on your machine or your server, and only talks to the provider you point it at.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice, and it is not a billing system: it estimates cost from the prices you configure and the usage providers report, and its figures can differ from your invoice. Keep your provider's own spend limits switched on as well. <strong>You are responsible for reviewing and verifying its configuration and output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Vendor and model names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything on this page runs in your browser. The log and policy you paste are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>replay_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Email Authentication Checker vs. checking DNS records by hand with dig</title>
-<meta name="description" content="dig txt yourdomain.com shows your top-level SPF record in one look. It reliably misses SPF's recursive lookup count across nested include: chains, which DKIM selector name your provider actually uses, and whether DMARC is enforced strictly enough for BIMI to display -- each needs several DNS queries cross-referenced together, which is what this free checker automates in one run.">
+<meta name="description" content="dig shows your SPF record but not the nested include lookup count, your DKIM selector or whether DMARC is strict enough for BIMI. This free checker does.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="./vs-checking-dns-records-by-hand.html">
 <meta property="og:type" content="website">

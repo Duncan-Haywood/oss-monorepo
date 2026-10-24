@@ -1,0 +1,51 @@
+== A. Parameter sweeps on development seeds 0-2 (gap 15 deg, baseline 0.2 m, noise 0.01, no bystander); PSNR dB
+hard gate tau   psnr
+         0.10   27.36
+         0.20   28.38
+         0.30   29.20
+         0.50   29.32
+chosen tau = 0.5 (best of the sweep)
+
+soft gate (t0, t1)   psnr
+        (0.05, 0.3)   28.98
+         (0.1, 0.5)   29.54
+        (0.15, 0.5)   29.56
+         (0.1, 1.0)   29.41
+         (0.2, 1.0)   29.30
+chosen (t0, t1) = (0.15, 0.5)
+
+cost gate ct   psnr
+        0.05   26.81
+        0.07   27.44
+        0.10   27.63
+        0.15   27.53
+        0.25   27.52
+chosen ct = 0.1
+
+== B. By gap between the source cameras (PSNR dB, seeds 0-2)
+                  fill      hard      soft      cost  softcost    oracle      near
+       gap 8     28.55     30.32     30.67     28.38     30.38     32.62     26.48
+      gap 15     27.44     29.32     29.56     27.63     29.33     31.90     24.81
+      gap 30     26.79     27.69     27.76     26.58     27.39     29.80     23.50
+
+== C. Held out: seeds 7-9, parameters frozen from A (PSNR dB)
+                  fill      hard      soft      cost  softcost    oracle      near
+  no bystand     27.31     29.29     29.54     27.59     29.29     31.89     24.82
+   bystander     26.20     26.48     26.68     24.47     24.92     28.18     21.55
+
+== D. With a bystander, by gap (PSNR dB, seeds 0-2)
+                  fill      hard      soft      cost  softcost    oracle      near
+       gap 8     28.27     28.57     28.99     26.11     26.83     30.52     23.10
+      gap 15     26.28     26.53     26.72     24.49     24.96     28.23     21.56
+      gap 30     24.50     23.85     23.99     23.17     23.05     25.76     20.38
+
+== E. By sensor noise (gap 15 deg; PSNR dB, seeds 0-2)
+                  fill      hard      soft      cost  softcost    oracle      near
+   noise 0.0     27.14     29.57     29.88     27.46     29.77     32.71     24.95
+  noise 0.03     25.82     26.79     27.10     24.06     24.07     28.52     23.87
+  noise 0.06     22.64     22.86     23.31     21.68     21.68     24.10     21.68
+
+== F. Seam score: mean gradient magnitude minus the truth's, held-out seeds (lower is better; 0 = no false edges)
+                  fill      hard      soft      cost  softcost    oracle      near
+  no bystand    0.0075    0.0087    0.0067    0.0102    0.0070    0.0072    0.0070
+   bystander    0.0058    0.0095    0.0072    0.0103    0.0074    0.0078    0.0066

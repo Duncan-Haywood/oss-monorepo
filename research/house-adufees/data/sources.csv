@@ -1,0 +1,5 @@
+source,title,publisher,url,read_on
+dwsdc2026,2026 System Development Charges,Denver Water,https://www.denverwater.org/contractors/construction-information/system-development-charges/2026,2026-10-20
+csi2026,Denver 2026 fee figures as recorded in house-market data/facts.csv (denver_water_sewer_sdc),CSI via house-market,../house-market/data/sources.csv,2026-10-20
+doti2026fees,2026 Sewer Permit Fees,Denver DOTI Right-of-Way Services,https://www.denvergov.org/files/assets/public/v/1/doti/documents/permits/sudp/2026-sewer-permit-fees.pdf,2026-10-20
+doti2026res,SUDP Residential Permit Requirements (DOTIPT-405.1 2026),Denver DOTI Right-of-Way Services,https://www.denvergov.org/files/assets/public/v/5/doti/documents/permits/sudp/dotipt-405.1.2026_sudp-residential-permit-requirements.pdf,2026-10-20

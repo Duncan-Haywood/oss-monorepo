@@ -1,0 +1,185 @@
+support_grid,own_high,partner_high,intervals,respondents,events,person_years,screen_supported,earnings_pair,both_high,sex,couple_wage_quartile
+own_high x partner_high,False,False,19407,3364,372,38968.41666666667,True,,,,
+own_high x partner_high,False,True,3691,664,59,7455.416666666668,True,,,,
+own_high x partner_high,True,False,4331,722,83,8739.75,True,,,,
+own_high x partner_high,True,True,6930,983,78,14021.833333333343,True,,,,
+own_high x earnings_pair,False,,6017,1988,114,12103.916666666672,True,Balanced 40–60% wife,,,
+own_high x earnings_pair,False,,8340,2382,146,16749.750000000015,True,"Husband majority, both positive",,,
+own_high x earnings_pair,False,,4830,1616,90,9711.66666666666,True,Husband only,,,
+own_high x earnings_pair,False,,1730,819,43,3511.2500000000045,True,"Wife majority, both positive",,,
+own_high x earnings_pair,False,,2181,972,38,4347.249999999997,True,Wife only,,,
+own_high x earnings_pair,True,,3042,842,64,6148.3333333333385,True,Balanced 40–60% wife,,,
+own_high x earnings_pair,True,,4180,1018,45,8467.58333333334,True,"Husband majority, both positive",,,
+own_high x earnings_pair,True,,2102,608,17,4238.666666666667,True,Husband only,,,
+own_high x earnings_pair,True,,1198,433,25,2418.916666666666,True,"Wife majority, both positive",,,
+own_high x earnings_pair,True,,739,355,10,1488.0833333333321,True,Wife only,,,
+both_high x earnings_pair,,,7203,2319,146,14494.666666666672,True,Balanced 40–60% wife,False,,
+both_high x earnings_pair,,,9798,2752,169,19696.58333333335,True,"Husband majority, both positive",False,,
+both_high x earnings_pair,,,5590,1828,99,11240.249999999993,True,Husband only,False,,
+both_high x earnings_pair,,,2299,1003,57,4664.333333333338,True,"Wife majority, both positive",False,,
+both_high x earnings_pair,,,2539,1123,43,5067.749999999996,True,Wife only,False,,
+both_high x earnings_pair,,,1856,503,32,3757.5833333333376,True,Balanced 40–60% wife,True,,
+both_high x earnings_pair,,,2722,635,22,5520.7500000000055,True,"Husband majority, both positive",True,,
+both_high x earnings_pair,,,1342,378,8,2710.083333333333,False,Husband only,True,,
+both_high x earnings_pair,,,629,240,11,1265.833333333334,True,"Wife majority, both positive",True,,
+both_high x earnings_pair,,,381,196,5,767.5833333333328,False,Wife only,True,,
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,618,345,14,1248.5000000000016,True,Balanced 40–60% wife,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,879,452,14,1769.2500000000048,True,"Husband majority, both positive",,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,1504,591,25,3016.9166666666642,True,Husband only,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,226,158,10,465.8333333333335,True,"Wife majority, both positive",,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,666,316,10,1344.1666666666647,True,Wife only,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,841,380,13,1703.0833333333328,True,Balanced 40–60% wife,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,1280,530,32,2575.0833333333394,True,"Husband majority, both positive",,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,618,287,11,1247.2500000000005,True,Husband only,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,121,81,3,242.50000000000045,False,"Wife majority, both positive",,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,47,35,3,97.83333333333348,False,Wife only,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,648,281,14,1305.166666666666,True,Balanced 40–60% wife,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,1061,433,17,2135.583333333333,True,"Husband majority, both positive",,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,254,120,10,500.7499999999984,True,Husband only,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,121,61,5,242.5833333333337,False,"Wife majority, both positive",,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,14,11,0,29.499999999999773,False,Wife only,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,211,107,7,428.16666666666697,False,Balanced 40–60% wife,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,503,198,6,1015.5000000000009,False,"Husband majority, both positive",,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,145,64,4,286.41666666666606,False,Husband only,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,34,23,0,72.33333333333303,False,"Wife majority, both positive",,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,2,2,0,4.000000000000227,False,Wife only,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,45,32,3,85.16666666666606,False,Balanced 40–60% wife,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,76,39,1,150.83333333333348,False,"Husband majority, both positive",,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,111,57,1,229.08333333333258,False,Husband only,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,49,32,2,100.41666666666765,False,"Wife majority, both positive",,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,96,56,3,189.33333333333326,False,Wife only,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,162,77,3,332.7499999999998,False,Balanced 40–60% wife,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,148,70,1,303.5833333333351,False,"Husband majority, both positive",,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,62,38,3,119.33333333333258,False,Husband only,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,47,32,1,94.83333333333348,False,"Wife majority, both positive",,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,31,18,1,63.916666666666515,False,Wife only,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,282,112,3,573.9166666666656,False,Balanced 40–60% wife,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,174,85,1,348.0833333333344,False,"Husband majority, both positive",,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,40,21,0,82.83333333333303,False,Husband only,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,112,57,4,228.9166666666672,False,"Wife majority, both positive",,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,12,8,0,24.749999999999773,False,Wife only,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,209,83,3,419.9999999999993,False,Balanced 40–60% wife,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,169,71,3,335.9166666666674,False,"Husband majority, both positive",,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,27,14,1,54.50000000000023,False,Husband only,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,114,44,2,232.24999999999977,False,"Wife majority, both positive",,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,3,2,0,6.0,False,Wife only,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,50,23,2,101.00000000000023,False,Balanced 40–60% wife,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,58,34,0,115.58333333333303,False,"Husband majority, both positive",,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,98,50,3,199.00000000000068,False,Husband only,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,23,20,1,47.166666666666515,False,"Wife majority, both positive",,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,67,36,2,133.58333333333326,False,Wife only,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,98,47,5,199.83333333333258,False,Balanced 40–60% wife,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,200,93,2,399.4166666666672,False,"Husband majority, both positive",,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,134,61,1,268.0833333333328,False,Husband only,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,24,18,1,50.25000000000023,False,"Wife majority, both positive",,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,12,8,0,26.25,False,Wife only,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,125,55,7,250.50000000000045,False,Balanced 40–60% wife,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,288,110,8,588.4999999999986,False,"Husband majority, both positive",,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,164,58,1,331.8333333333326,False,Husband only,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,23,14,0,46.91666666666674,False,"Wife majority, both positive",,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,7,4,0,14.666666666666742,False,Wife only,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,114,43,3,226.4166666666672,False,Balanced 40–60% wife,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,393,120,7,795.7500000000011,False,"Husband majority, both positive",,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,150,56,2,301.58333333333394,False,Husband only,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,30,9,1,60.24999999999932,False,"Wife majority, both positive",,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,1,1,0,2.083333333333485,False,Wife only,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,12,12,0,23.666666666666288,False,Balanced 40–60% wife,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,48,31,1,92.25000000000068,False,"Husband majority, both positive",,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,99,49,1,197.66666666666606,False,Husband only,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,22,17,1,42.16666666666674,False,"Wife majority, both positive",,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,86,48,2,175.66666666666583,False,Wife only,,Men,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,107,54,1,217.24999999999955,False,Balanced 40–60% wife,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,167,81,4,341.2500000000002,False,"Husband majority, both positive",,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,82,55,0,162.16666666666742,False,Husband only,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,68,43,3,131.91666666666674,False,"Wife majority, both positive",,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,45,30,0,92.08333333333371,False,Wife only,,Men,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,278,102,6,563.6666666666683,False,Balanced 40–60% wife,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,350,143,0,711.7500000000005,False,"Husband majority, both positive",,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,175,77,1,354.2499999999993,False,Husband only,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,62,33,1,127.16666666666697,False,"Wife majority, both positive",,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,24,15,0,48.16666666666629,False,Wife only,,Men,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,552,154,8,1118.1666666666683,False,Balanced 40–60% wife,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,871,221,5,1757.5000000000016,False,"Husband majority, both positive",,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,390,107,1,797.5833333333339,False,Husband only,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,144,56,2,289.5833333333337,False,"Wife majority, both positive",,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,29,15,1,58.08333333333326,False,Wife only,,Men,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,786,393,17,1571.6666666666672,True,Balanced 40–60% wife,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,860,461,22,1708.1666666666679,True,"Husband majority, both positive",,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,995,452,18,2005.4166666666674,True,Husband only,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,306,193,4,619.6666666666667,False,"Wife majority, both positive",,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,1054,454,18,2072.583333333332,True,Wife only,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,1015,428,16,2028.833333333341,True,Balanced 40–60% wife,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,1126,499,17,2250.333333333331,True,"Husband majority, both positive",,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,419,200,5,857.4166666666656,False,Husband only,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,231,134,3,471.08333333333485,False,"Wife majority, both positive",,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,90,52,1,183.16666666666697,False,Wife only,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,632,289,12,1261.4999999999961,True,Balanced 40–60% wife,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,894,358,16,1808.0833333333346,True,"Husband majority, both positive",,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,197,99,5,385.4166666666647,False,Husband only,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,183,92,7,367.75,False,"Wife majority, both positive",,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,28,15,1,57.16666666666674,False,Wife only,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,237,114,4,471.5000000000009,False,Balanced 40–60% wife,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,354,167,4,704.4166666666649,False,"Husband majority, both positive",,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,114,51,2,229.75000000000068,False,Husband only,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,88,39,2,174.16666666666697,False,"Wife majority, both positive",,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,False,5,4,0,9.916666666666742,False,Wife only,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,29,25,2,55.16666666666697,False,Balanced 40–60% wife,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,69,44,1,138.66666666666697,False,"Husband majority, both positive",,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,93,50,1,188.16666666666697,False,Husband only,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,27,18,0,54.58333333333371,False,"Wife majority, both positive",,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,101,56,1,201.08333333333303,False,Wife only,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,77,40,1,157.49999999999977,False,Balanced 40–60% wife,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,202,82,1,407.9166666666663,False,"Husband majority, both positive",,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,84,38,0,176.66666666666583,False,Husband only,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,29,17,0,59.666666666666515,False,"Wife majority, both positive",,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,20,13,0,39.50000000000023,False,Wife only,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,151,64,0,313.0000000000002,False,Balanced 40–60% wife,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,300,102,5,611.0833333333323,False,"Husband majority, both positive",,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,54,33,0,107.91666666666742,False,Husband only,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,32,21,0,64.9166666666672,False,"Wife majority, both positive",,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,10,7,0,20.0,False,Wife only,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,74,37,2,147.99999999999977,False,Balanced 40–60% wife,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,245,90,5,487.2500000000007,False,"Husband majority, both positive",,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,113,35,4,223.83333333333326,False,Husband only,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,10,8,0,19.75,False,"Wife majority, both positive",,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,False,True,2,2,0,4.333333333333485,False,Wife only,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,76,37,3,151.33333333333303,False,Balanced 40–60% wife,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,106,50,1,217.9166666666663,False,"Husband majority, both positive",,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,98,51,2,192.41666666666674,False,Husband only,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,62,39,0,130.33333333333326,False,"Wife majority, both positive",,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,148,77,2,295.66666666666697,False,Wife only,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,215,85,1,433.6666666666665,False,Balanced 40–60% wife,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,119,71,0,238.08333333333394,False,"Husband majority, both positive",,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,60,22,0,121.16666666666697,False,Husband only,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,101,51,2,207.41666666666515,False,"Wife majority, both positive",,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,86,42,1,173.49999999999955,False,Wife only,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,263,113,5,530.7500000000011,False,Balanced 40–60% wife,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,143,69,2,288.83333333333417,False,"Husband majority, both positive",,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,36,17,0,71.66666666666674,False,Husband only,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,143,78,6,280.00000000000045,False,"Wife majority, both positive",,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,29,17,0,57.91666666666583,False,Wife only,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,245,91,6,497.24999999999955,False,Balanced 40–60% wife,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,151,63,3,302.7499999999993,False,"Husband majority, both positive",,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,20,9,0,42.83333333333326,False,Husband only,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,163,51,3,330.7500000000007,False,"Wife majority, both positive",,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,False,8,4,0,16.833333333333485,False,Wife only,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,29,21,1,58.583333333333485,False,Balanced 40–60% wife,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,43,32,0,89.91666666666697,False,"Husband majority, both positive",,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,68,35,0,138.4999999999991,False,Husband only,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,29,21,0,58.0833333333328,False,"Wife majority, both positive",,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,89,62,1,176.83333333333303,False,Wife only,,Women,Q1
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,118,59,2,236.50000000000023,False,Balanced 40–60% wife,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,124,67,0,249.75000000000045,False,"Husband majority, both positive",,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,105,56,1,208.66666666666674,False,Husband only,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,47,29,1,93.58333333333371,False,"Wife majority, both positive",,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,60,34,1,120.25000000000091,False,Wife only,,Women,Q2
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,270,104,3,546.8333333333339,False,Balanced 40–60% wife,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,419,149,1,848.8333333333344,False,"Husband majority, both positive",,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,110,64,1,224.75,False,Husband only,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,91,47,2,185.83333333333303,False,"Wife majority, both positive",,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,28,20,0,56.666666666666515,False,Wife only,,Women,Q3
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,490,165,11,992.9166666666677,True,Balanced 40–60% wife,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,700,208,11,1429.500000000001,True,"Husband majority, both positive",,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,313,89,3,626.5000000000007,False,Husband only,,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,166,59,1,337.5000000000002,False,"Wife majority, both positive",,Women,Q4
+sex x own_high x partner_high x couple_wage_quartile x earnings_pair,True,True,20,8,0,39.83333333333326,False,Wife only,,Women,Q4

@@ -1,9 +1,9 @@
-# deploy-concurrency-check
+# Deploy Concurrency Check — find the race that ships an older commit
 
 Find the ways a GitHub Actions deploy workflow is permitted to apply an **older**
 revision over a newer one.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/deploy-concurrency-check/
 
 A deployment race does not fail. Both runs go green, the older one happens to
 finish last, and what is left is a green check on the newer commit above a live

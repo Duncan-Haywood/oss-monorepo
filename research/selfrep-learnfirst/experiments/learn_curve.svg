@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of closure points gained against the number of vitamin lines learned, best first: after 10 lines units 51, mass 69 and cost 70 points">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Selfrep-learnfirst: closure gained by learning k vitamin lines</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="251.3" y2="251.3" stroke="#ddd"/><text x="58" y="255.3" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="178.7" y2="178.7" stroke="#ddd"/><text x="58" y="182.7" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="106.0" y2="106.0" stroke="#ddd"/><text x="58" y="110.0" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="188.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="312.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">7</text>
+<text x="561.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">9</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">vitamin lines learned (best first for each metric)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">closure points gained</text>
+<polyline points="64.0,246.3 126.2,207.4 188.4,168.9 250.7,160.9 312.9,156.2 375.1,151.8 437.3,147.1 499.6,143.1 561.8,140.2 624.0,137.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="246.3" r="3" fill="#c0392b"/>
+<circle cx="126.2" cy="207.4" r="3" fill="#c0392b"/>
+<circle cx="188.4" cy="168.9" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="160.9" r="3" fill="#c0392b"/>
+<circle cx="312.9" cy="156.2" r="3" fill="#c0392b"/>
+<circle cx="375.1" cy="151.8" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="147.1" r="3" fill="#c0392b"/>
+<circle cx="499.6" cy="143.1" r="3" fill="#c0392b"/>
+<circle cx="561.8" cy="140.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="137.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">unit closure gained</text>
+<polyline points="64.0,244.1 126.2,206.3 188.4,184.1 250.7,163.4 312.9,144.5 375.1,126.4 437.3,109.3 499.6,93.3 561.8,81.7 624.0,73.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="244.1" r="3" fill="#1f6fb2"/>
+<circle cx="126.2" cy="206.3" r="3" fill="#1f6fb2"/>
+<circle cx="188.4" cy="184.1" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="163.4" r="3" fill="#1f6fb2"/>
+<circle cx="312.9" cy="144.5" r="3" fill="#1f6fb2"/>
+<circle cx="375.1" cy="126.4" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="109.3" r="3" fill="#1f6fb2"/>
+<circle cx="499.6" cy="93.3" r="3" fill="#1f6fb2"/>
+<circle cx="561.8" cy="81.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="73.3" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">mass closure gained</text>
+<polyline points="64.0,229.6 126.2,172.9 188.4,135.1 250.7,116.2 312.9,106.8 375.1,97.7 437.3,90.1 499.6,83.5 561.8,77.0 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="229.6" r="3" fill="#2e8b57"/>
+<circle cx="126.2" cy="172.9" r="3" fill="#2e8b57"/>
+<circle cx="188.4" cy="135.1" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="116.2" r="3" fill="#2e8b57"/>
+<circle cx="312.9" cy="106.8" r="3" fill="#2e8b57"/>
+<circle cx="375.1" cy="97.7" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="90.1" r="3" fill="#2e8b57"/>
+<circle cx="499.6" cy="83.5" r="3" fill="#2e8b57"/>
+<circle cx="561.8" cy="77.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">cost closure gained</text>
+</svg>

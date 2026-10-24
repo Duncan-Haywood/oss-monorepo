@@ -1,0 +1,46 @@
+{
+ "date": "2026-10-23",
+ "session": "https://claude.ai/code/session_01HJSm6Vc99DoAVSBiHVgqBW",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-23T00:21:15Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9621",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "day_stats crashed on a node-count mismatch after a 25-minute run; fixed and rerun"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "pyenv.py cannot import OpenDSSDirect.py (package name vs module opendssdirect) and pip hits PEP 668; I made a venv by hand."
+  }
+ ],
+ "deviations": [],
+ "writeups": [],
+ "goal": null,
+ "notes": "Track 21 infra-hosting-feeders next step 2: quasi-static day on 123-node with OpenDSS-shipped PV/load shapes. No separate docs/posts write-up; results are in the project README.",
+ "corrections": [],
+ "redteam": null
+}

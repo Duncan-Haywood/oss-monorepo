@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Docker Cache Order Check — Is Your Dockerfile Busting Its Own Build Cache?</title>
-  <meta name="description" content="Paste a Dockerfile and see whether its instruction order defeats Docker's own layer cache: a dependency manifest copied and installed after the whole build context, an install command with no isolated manifest COPY at all, and an apt-get update run without install in the same layer. Free, deterministic, runs entirely in your browser.">
+  <meta name="description" content="Paste a Dockerfile and see whether its instruction order defeats Docker's layer cache, from late dependency installs to a lone apt-get update. Runs in your browser.">
   <meta property="og:title" content="Is your Dockerfile busting its own build cache?">
   <meta property="og:description" content="A deterministic Dockerfile instruction-order checker: catches the COPY . . before package.json mistake, an install with no isolated manifest copy, and a split apt-get update / apt-get install layer. No account, no upload.">
   <link rel="canonical" href="./index.html">
@@ -48,6 +48,7 @@
     <p>Paste a Dockerfile and see whether its instruction order defeats Docker's own layer cache: a dependency manifest copied and installed <strong>after</strong> the whole build context, an install command with <strong>no isolated manifest copy</strong> at all, and an <code>apt-get update</code> run <strong>without install</strong> in the same layer — the exact anti-patterns Docker's own "Leverage build cache" documentation names and gives the fix for.</p>
     <p class="note">Nothing is uploaded. Everything runs in this browser against the text you paste in.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Check a Dockerfile</h2>
@@ -104,7 +105,8 @@ node cli.mjs --fail-on-risk        # exit 2 if any finding exists</pre>
     <p>No. Everything is computed in your browser from the Dockerfile text you paste in, and nothing you type is sent anywhere. The CLI makes no network call either — it only reads files already on your own disk.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace actually building the image and measuring your cache hit rate. It reports whether an instruction order matches one of three documented cache-busting patterns — nothing more, and it does not know whether a flagged pattern was deliberate in your case (some multi-stage builds intentionally copy broadly in a stage that is never cache-sensitive). <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. Nothing you type is ever uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>dockerfile_checked</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

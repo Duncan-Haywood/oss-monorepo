@@ -1,0 +1,7 @@
+{
+  "test": "Respondent-cluster robust Wald test of all seven duration indicators jointly zero",
+  "statistic": 16.194686220338927,
+  "degrees_freedom": 7,
+  "p_value": 0.023395995147156092,
+  "interpretation": "Overall association across fixed duration bands, not evidence of a particular step or causal threshold"
+}

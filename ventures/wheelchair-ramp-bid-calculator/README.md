@@ -5,7 +5,7 @@ residential wheelchair ramp from the rise, the landings a lineal-foot special
 cannot see, both-side handrails, surface, demo, and permit — and shows the
 margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wheelchair-ramp-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/wheelchair-ramp-bid-calculator/
 
 **After using this, you can now send a ramp price that includes the landings,
 rails, and footings**, which used to take a spreadsheet that still started from
@@ -13,10 +13,7 @@ the coupon’s lineal feet.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

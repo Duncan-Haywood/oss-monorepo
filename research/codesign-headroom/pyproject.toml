@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-headroom"
+version = "0.1.0"
+description = "Does diagnostic feedback help a gripper design loop once the scene generator no longer hides unreachable scenes?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "cma", "mujoco", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

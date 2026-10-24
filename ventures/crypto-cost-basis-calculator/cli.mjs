@@ -14,7 +14,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
-import { analyze, planSale, donationPlan, parsePrices, harvestPlan, waitPlan, toForm8949Csv, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
+import { analyze, planSale, idRecord, donationPlan, parsePrices, parse1099da, reconcile1099da, harvestPlan, waitPlan, toForm8949Csv, toTurboTaxCsv, turboTaxSkipped, toIncomeCsv, form8949Totals, form8949BoxTotals, METHODS, METHOD_LABELS, NIIT_THRESHOLDS, SAMPLE_CSV } from "./calc.mjs";
 import { convertMany, FORMAT_LABELS } from "./importers.mjs";
 
 const USAGE = `Crypto cost basis from exchange CSVs: lot matching, method comparison, Form 8949 style rows.
@@ -37,13 +37,16 @@ Options:
   --sell <COIN>       sell planner: compare the five methods for selling COIN; needs --price and --qty or --cash
   --donate <COIN>     gift planner: which long-held lots of COIN to give to a public charity, and the gain tax avoided; needs --price and --qty
   --deduction-rate <r> your rate (0-1) to value the deduction in --donate (default 0: deduction ignored)
+  --id-record <METHOD> with --sell: print a written lot-identification record for that method's lots, to date and keep before selling
   --price <usd>       price per coin for --sell or --donate
   --qty <coins>       coins to sell with --sell
   --cash <usd>        dollars to raise with --sell (used when --qty is absent)
   --sale-date <date>  date of the planned sale or price check (default: today)
   --prices <list>     prices you type, e.g. "BTC=65000,ETH=3200": adds tax-loss harvesting and wait-for-long-term (90 days) views of the lots you still hold
   --form8949 <file>   also write Form 8949 style rows to this file
+  --tax-software <file> also write the sales as a Currency/Purchase Date/Cost Basis/Date Sold/Proceeds CSV for tax-software import (rows with no purchase on record are left out and counted)
   --income-csv <file> also write the year's staking/mining/airdrop income by coin to this file
+  --reconcile <file>  compare each coin with the proceeds and basis your broker reported on Form 1099-DA (CSV: asset,proceeds,basis)
   --json              print the full analysis as JSON
   --example           use the built-in sample instead of a file
   -h, --help          this message
@@ -55,7 +58,7 @@ prices, and rows an export gives no USD value for are flagged, never zero.
 `;
 
 export function parseArgs(argv) {
-  const opts = { files: [], method: "FIFO", year: null, perWallet: false, shortRate: 0.24, longRate: 0.15, form8949: null, incomeCsv: null, carryShort: 0, carryLong: 0, lossLimit: 3000, json: false, example: false, help: false };
+  const opts = { files: [], method: "FIFO", year: null, perWallet: false, shortRate: 0.24, longRate: 0.15, form8949: null, taxSoftware: null, incomeCsv: null, carryShort: 0, carryLong: 0, lossLimit: 3000, json: false, example: false, help: false };
   const need = (i, arg) => { if (i >= argv.length) throw new Error(`${arg} needs a value`); return argv[i]; };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -90,6 +93,7 @@ export function parseArgs(argv) {
       opts.filing = f;
     }
     else if (arg === "--sell") opts.sell = need(++i, arg).toUpperCase();
+    else if (arg === "--id-record") { opts.idRecord = need(++i, arg).toUpperCase(); if (!METHODS.includes(opts.idRecord)) throw new Error(`--id-record must be one of ${METHODS.join(", ")}`); }
     else if (arg === "--donate") opts.donate = need(++i, arg).toUpperCase();
     else if (arg === "--deduction-rate") opts.deductionRate = Number(need(++i, arg));
     else if (arg === "--price" || arg === "--qty" || arg === "--cash") {
@@ -107,7 +111,9 @@ export function parseArgs(argv) {
       if (!Object.keys(prices).length) throw new Error("--prices needs at least one coin, e.g. BTC=65000");
       opts.prices = prices;
     }
+    else if (arg === "--reconcile") opts.reconcile = need(++i, arg);
     else if (arg === "--form8949") opts.form8949 = need(++i, arg);
+    else if (arg === "--tax-software") opts.taxSoftware = need(++i, arg);
     else if (arg === "--income-csv") opts.incomeCsv = need(++i, arg);
     else if (arg.startsWith("-") && arg !== "-") throw new Error(`unknown option: ${arg}`);
     else opts.files.push(arg);
@@ -194,6 +200,14 @@ export function renderDonation(d) {
   return out.join("\n") + "\n";
 }
 
+export function renderReconcile(rec) {
+  const d = (v) => (v === null ? "-" : usd(v));
+  const out = ["", "Form 1099-DA check (your lot matching vs the broker's figures)"];
+  for (const i of rec.items) out.push(`  ${i.asset.padEnd(8)} proceeds ${d(i.myProceeds).padStart(12)} vs ${d(i.brokerProceeds).padStart(12)}  basis ${d(i.myBasis).padStart(12)} vs ${d(i.brokerBasis).padStart(12)}  ${i.status}`);
+  out.push(rec.mismatches ? `  ${rec.mismatches} coin(s) differ. A basis gap usually means the broker did not see purchases made elsewhere; keep your records and ask a tax professional how to report it.` : "  Everything matches.");
+  return out.join("\n") + "\n";
+}
+
 function totalsLine(result) {
   const f = form8949Totals(result.rows);
   const bt = result.rows.some((r) => r.reported) ? "\n" + form8949BoxTotals(result.rows).map((b) => `Box ${b.box}: ${b.rows} row(s), proceeds ${usd(b.proceeds)}, basis ${usd(b.basis)}, gain ${usd(b.gain)}`).join("\n") : "";
@@ -218,12 +232,26 @@ export async function main(argv) {
   catch (e) { process.stderr.write(`cannot read input: ${e.message}\n`); return 2; }
   const r = run(files, opts);
   if (r.error) { process.stderr.write(`${r.error}\n`); return 1; }
+  if (opts.idRecord && !opts.sell) { process.stderr.write("--id-record needs --sell\n"); return 2; }
   if (opts.sell) {
     if (!opts.price || (!opts.qty && !opts.cash)) { process.stderr.write("--sell needs --price and --qty or --cash\n"); return 2; }
   }
   if (opts.donate && (!opts.price || !opts.qty)) { process.stderr.write("--donate needs --price and --qty\n"); return 2; }
   if (opts.incomeCsv) await writeFile(opts.incomeCsv, toIncomeCsv(r.result.incomeReport));
   if (opts.form8949) await writeFile(opts.form8949, toForm8949Csv(r.result.rows));
+  if (opts.taxSoftware) {
+    await writeFile(opts.taxSoftware, toTurboTaxCsv(r.result.rows));
+    const n = turboTaxSkipped(r.result.rows);
+    if (n) process.stderr.write(`--tax-software: ${n} sale row(s) with no purchase on record were left out\n`);
+  }
+  let rec = null;
+  if (opts.reconcile) {
+    let bt;
+    try { bt = await readFile(opts.reconcile, "utf8"); } catch (e) { process.stderr.write(`cannot read ${opts.reconcile}: ${e.message}\n`); return 2; }
+    const b = parse1099da(bt);
+    if (b.errors.length) { process.stderr.write(`--reconcile: ${b.errors[0]}\n`); return 2; }
+    rec = reconcile1099da(r.result.rows, b.entries);
+  }
   const plan = opts.sell ? planSale(r.result.openLots, { asset: opts.sell, price: opts.price, asOf: opts.saleDate || new Date().toISOString().slice(0, 10), qty: opts.qty ?? null, cash: opts.qty ? null : opts.cash ?? null, summary: r.result.summary, shortRate: opts.shortRate, longRate: opts.longRate }) : null;
   let pr = null;
   if (opts.prices) {
@@ -232,8 +260,8 @@ export async function main(argv) {
     pr = { harvest: harvestPlan(r.result.openLots, opts.prices, common), wait: waitPlan(r.result.openLots, opts.prices, common) };
   }
   const gift = opts.donate ? donationPlan(r.result.openLots, { asset: opts.donate, price: opts.price, asOf: opts.saleDate || new Date().toISOString().slice(0, 10), qty: opts.qty, longRate: opts.longRate, deductionRate: opts.deductionRate || 0 }) : null;
-  if (opts.json) process.stdout.write(JSON.stringify({ ...r.result, ...(plan ? { plan } : {}), ...(pr ? { harvest: pr.harvest, wait: pr.wait } : {}), ...(gift ? { gift } : {}) }, null, 2) + "\n");
-  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : "") + (pr ? renderPrices(pr.harvest, pr.wait) : "") + (gift ? renderDonation(gift) : ""));
+  if (opts.json) process.stdout.write(JSON.stringify({ ...r.result, ...(plan ? { plan } : {}), ...(pr ? { harvest: pr.harvest, wait: pr.wait } : {}), ...(gift ? { gift } : {}), ...(rec ? { reconcile: rec } : {}) }, null, 2) + "\n");
+  else process.stdout.write(render(r, opts) + (plan ? renderPlan(plan) : "") + (plan && opts.idRecord ? "\n" + (idRecord(plan, opts.idRecord)?.text || "No lots to identify.\n") : "") + (pr ? renderPrices(pr.harvest, pr.wait) : "") + (gift ? renderDonation(gift) : "") + (rec ? renderReconcile(rec) : ""));
   return 0;
 }
 

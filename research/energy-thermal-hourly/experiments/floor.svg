@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: levelised cost of heat from a house-sized sand store minus an air-source heat pump, in EUR per kWh, against the wholesale price paid in surplus-renewable hours, for daily and weekly cycling">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Sand store minus heat pump: cost of heat against the surplus-hour price floor</text>
+<line x1="64" x2="624" y1="314.5" y2="314.5" stroke="#ddd"/><text x="58" y="318.5" text-anchor="end" font-family="sans-serif" font-size="11">-0.04</text>
+<line x1="64" x2="624" y1="251.3" y2="251.3" stroke="#ddd"/><text x="58" y="255.3" text-anchor="end" font-family="sans-serif" font-size="11">-0.02</text>
+<line x1="64" x2="624" y1="188.1" y2="188.1" stroke="#ddd"/><text x="58" y="192.1" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="124.9" y2="124.9" stroke="#ddd"/><text x="58" y="128.9" text-anchor="end" font-family="sans-serif" font-size="11">0.02</text>
+<line x1="64" x2="624" y1="61.7" y2="61.7" stroke="#ddd"/><text x="58" y="65.7" text-anchor="end" font-family="sans-serif" font-size="11">0.04</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">40</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">price in surplus hours (EUR/MWh)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">store minus heat pump (EUR/kWh); below 0 the store wins</text>
+<polyline points="64.0,324.0 204.0,289.2 344.0,251.3 484.0,213.4 624.0,175.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="289.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="251.3" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="213.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="175.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">house, daily cycle</text>
+<polyline points="64.0,311.4 204.0,251.3 344.0,191.3 484.0,131.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="311.4" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="251.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="191.3" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="131.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">house, weekly cycle</text>
+</svg>

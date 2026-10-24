@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of cost closure points against weeks of capability learning for four orders: after 40 weeks the optimal order is at 68 points, the budget-frontier order 68; the optimal order is ahead from the first weeks">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Selfrep-capsequence: cost closure by week for four learning orders</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="250.2" y2="250.2" stroke="#ddd"/><text x="58" y="254.2" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="176.4" y2="176.4" stroke="#ddd"/><text x="58" y="180.4" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="102.5" y2="102.5" stroke="#ddd"/><text x="58" y="106.5" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="148.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="232.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="316.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">18</text>
+<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">24</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="568.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">36</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">weeks of capability development (assumed efforts)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">cost closure gained (points)</text>
+<polyline points="64.0,324.0 92.0,324.0 120.0,318.1 148.0,318.1 176.0,212.5 204.0,212.5 232.0,175.3 260.0,175.3 288.0,131.3 316.0,131.3 344.0,131.3 372.0,112.1 400.0,112.1 428.0,87.0 456.0,87.0 484.0,87.0 512.0,79.3 540.0,79.3 568.0,79.3 596.0,71.9 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="92.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="318.1" r="3" fill="#c0392b"/>
+<circle cx="148.0" cy="318.1" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="212.5" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="212.5" r="3" fill="#c0392b"/>
+<circle cx="232.0" cy="175.3" r="3" fill="#c0392b"/>
+<circle cx="260.0" cy="175.3" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="131.3" r="3" fill="#c0392b"/>
+<circle cx="316.0" cy="131.3" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="131.3" r="3" fill="#c0392b"/>
+<circle cx="372.0" cy="112.1" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="112.1" r="3" fill="#c0392b"/>
+<circle cx="428.0" cy="87.0" r="3" fill="#c0392b"/>
+<circle cx="456.0" cy="87.0" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="87.0" r="3" fill="#c0392b"/>
+<circle cx="512.0" cy="79.3" r="3" fill="#c0392b"/>
+<circle cx="540.0" cy="79.3" r="3" fill="#c0392b"/>
+<circle cx="568.0" cy="79.3" r="3" fill="#c0392b"/>
+<circle cx="596.0" cy="71.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">optimal order</text>
+<polyline points="64.0,324.0 92.0,324.0 120.0,318.1 148.0,318.1 176.0,212.5 204.0,212.5 232.0,212.5 260.0,212.5 288.0,131.3 316.0,131.3 344.0,131.3 372.0,131.3 400.0,131.3 428.0,87.0 456.0,87.0 484.0,87.0 512.0,79.3 540.0,79.3 568.0,79.3 596.0,71.9 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="92.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="318.1" r="3" fill="#1f6fb2"/>
+<circle cx="148.0" cy="318.1" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="212.5" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="212.5" r="3" fill="#1f6fb2"/>
+<circle cx="232.0" cy="212.5" r="3" fill="#1f6fb2"/>
+<circle cx="260.0" cy="212.5" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="131.3" r="3" fill="#1f6fb2"/>
+<circle cx="316.0" cy="131.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="131.3" r="3" fill="#1f6fb2"/>
+<circle cx="372.0" cy="131.3" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="131.3" r="3" fill="#1f6fb2"/>
+<circle cx="428.0" cy="87.0" r="3" fill="#1f6fb2"/>
+<circle cx="456.0" cy="87.0" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="87.0" r="3" fill="#1f6fb2"/>
+<circle cx="512.0" cy="79.3" r="3" fill="#1f6fb2"/>
+<circle cx="540.0" cy="79.3" r="3" fill="#1f6fb2"/>
+<circle cx="568.0" cy="79.3" r="3" fill="#1f6fb2"/>
+<circle cx="596.0" cy="71.9" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">lookahead rule</text>
+<polyline points="64.0,324.0 92.0,323.3 120.0,323.3 148.0,317.4 176.0,317.4 204.0,280.1 232.0,236.2 260.0,236.2 288.0,236.2 316.0,130.6 344.0,130.6 372.0,122.8 400.0,122.8 428.0,122.8 456.0,103.7 484.0,103.7 512.0,103.7 540.0,78.6 568.0,78.6 596.0,78.6 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="92.0" cy="323.3" r="3" fill="#2e8b57"/>
+<circle cx="120.0" cy="323.3" r="3" fill="#2e8b57"/>
+<circle cx="148.0" cy="317.4" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="317.4" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="280.1" r="3" fill="#2e8b57"/>
+<circle cx="232.0" cy="236.2" r="3" fill="#2e8b57"/>
+<circle cx="260.0" cy="236.2" r="3" fill="#2e8b57"/>
+<circle cx="288.0" cy="236.2" r="3" fill="#2e8b57"/>
+<circle cx="316.0" cy="130.6" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="130.6" r="3" fill="#2e8b57"/>
+<circle cx="372.0" cy="122.8" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="122.8" r="3" fill="#2e8b57"/>
+<circle cx="428.0" cy="122.8" r="3" fill="#2e8b57"/>
+<circle cx="456.0" cy="103.7" r="3" fill="#2e8b57"/>
+<circle cx="484.0" cy="103.7" r="3" fill="#2e8b57"/>
+<circle cx="512.0" cy="103.7" r="3" fill="#2e8b57"/>
+<circle cx="540.0" cy="78.6" r="3" fill="#2e8b57"/>
+<circle cx="568.0" cy="78.6" r="3" fill="#2e8b57"/>
+<circle cx="596.0" cy="78.6" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">budget-frontier order</text>
+<polyline points="64.0,324.0 92.0,324.0 120.0,286.7 148.0,286.7 176.0,242.4 204.0,242.4 232.0,242.4 260.0,223.2 288.0,223.2 316.0,198.5 344.0,198.5 372.0,192.6 400.0,192.6 428.0,87.0 456.0,87.0 484.0,87.0 512.0,79.3 540.0,79.3 568.0,79.3 596.0,71.9 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#8e44ad"/>
+<circle cx="92.0" cy="324.0" r="3" fill="#8e44ad"/>
+<circle cx="120.0" cy="286.7" r="3" fill="#8e44ad"/>
+<circle cx="148.0" cy="286.7" r="3" fill="#8e44ad"/>
+<circle cx="176.0" cy="242.4" r="3" fill="#8e44ad"/>
+<circle cx="204.0" cy="242.4" r="3" fill="#8e44ad"/>
+<circle cx="232.0" cy="242.4" r="3" fill="#8e44ad"/>
+<circle cx="260.0" cy="223.2" r="3" fill="#8e44ad"/>
+<circle cx="288.0" cy="223.2" r="3" fill="#8e44ad"/>
+<circle cx="316.0" cy="198.5" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="198.5" r="3" fill="#8e44ad"/>
+<circle cx="372.0" cy="192.6" r="3" fill="#8e44ad"/>
+<circle cx="400.0" cy="192.6" r="3" fill="#8e44ad"/>
+<circle cx="428.0" cy="87.0" r="3" fill="#8e44ad"/>
+<circle cx="456.0" cy="87.0" r="3" fill="#8e44ad"/>
+<circle cx="484.0" cy="87.0" r="3" fill="#8e44ad"/>
+<circle cx="512.0" cy="79.3" r="3" fill="#8e44ad"/>
+<circle cx="540.0" cy="79.3" r="3" fill="#8e44ad"/>
+<circle cx="568.0" cy="79.3" r="3" fill="#8e44ad"/>
+<circle cx="596.0" cy="71.9" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">myopic rule</text>
+</svg>

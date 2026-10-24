@@ -1,0 +1,6 @@
+{
+ "theme": "society",
+ "title": "At what collision cost does a door stop tempting robots to go first?",
+ "summary": "A sweep of the go-or-yield door game of society-doorway over the collision cost k and dithering cost d (waiting cost w = 1). With 30% robots and d = 1, a fleet that always yields is individually stable only above k* = 2.80: below it a single robot gains by going, although yielding is still best for the crowd (a dilemma). The threshold rises with d (k* = 1.46 at d = 0.25, 7.64 at d = 4) and with robot share (3.82 at 50% robots, d = 1). When collisions are cheaper than waiting (k = 0.5) going is best for everyone. society-doorway's k = 3 sat just above the threshold. Mean field; simulation agrees on costs within 0.04. Stylised: random pairing, fixed costs, no geometry.",
+ "lede": "at what collision cost does a door stop tempting robots to go first? With 30% robots and dithering cost 1, always-yielding robots are individually stable only above a collision cost of 2.80 (waiting cost 1); below it a single robot gains by going though yielding is best for the crowd. The threshold rises with dithering cost and robot share."
+}

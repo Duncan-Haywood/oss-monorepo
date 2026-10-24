@@ -1,0 +1,6 @@
+{
+ "theme": "society",
+ "title": "Should a robot yield only to people in a hurry, or to everyone?",
+ "summary": "The go-or-yield door game of society-doorway with a share of urgent people (waiting cost 3x) and robots that read a partner's urgency. With 30% robots, 20% urgent people, collision cost 3 and dithering cost 1, a fleet that yields only to urgent people and goes first against the rest cuts urgent people's cost per encounter from 1.130 to 0.676 (&minus;40%) and raises normal people's from 1.051 to 1.087 (+3%); it is individually stable, but robots' own cost rises from 1.00 to 1.29 and the crowd overall is worse off (1.091 vs 1.047) unless urgent people are 40% or more. Mean field, checked by simulation within 0.02. Assumed, not sourced: round-figure costs (swept), perfect urgency reading, random pairing, no geometry.",
+ "lede": "should a robot yield only to people in a hurry, or to everyone? With 30% robots and 20% urgent people, a fleet that yields only to the urgent cuts their cost by 40% (1.130 to 0.676) at a 3% cost to everyone else, is individually stable, and costs the robots 29%."
+}

@@ -1,0 +1,74 @@
+eda-rankpayoff results. Yosys 0.33 (git sha1 2584903a060); ABC 'strash; dc2; map; topo; stime'; SKY130 HD at ORFS e5cc6e799f5ddf36e6bdf2d8c5db73373b88f52c.
+40 designs; pools of 20, 5000 draws per capture figure. Sources: eda-latencyhalve/experiments/mapped.json, eda-delayproxy/experiments/proxies.json
+
+== truth: area x latency (207 screens)
+A. named screens: Spearman, Kendall, top-5 overlap, rank of true best, P(best mapped) at k=1 and 3, mean ratio at k=1
+none (cells x cycles)    0.926 0.782 0.6   1 0.636 0.970 1.078
+x unit                   0.932 0.795 0.6   1 0.640 0.989 1.071
+x type                   0.933 0.803 0.6   1 0.637 0.976 1.071
+x fanout                 0.976 0.890 0.8   1 0.750 0.997 1.020
+x le                     0.972 0.877 0.8   1 0.734 1.000 1.024
+x max_fanout             0.965 0.856 0.8   1 0.746 1.000 1.021
+x gates                  0.920 0.772 0.8   3 0.327 0.917 1.240
+B. does agreement predict payoff? Spearman across all screens (95% bootstrap over screens)
+cap1    vs spearman   0.598   0.504 to  0.678
+cap1    vs kendall    0.591   0.496 to  0.673
+cap1    vs top5       0.696   0.618 to  0.767
+cap1    vs best_rank  0.207   0.120 to  0.313
+cap3    vs spearman   0.567   0.463 to  0.656
+cap3    vs kendall    0.603   0.506 to  0.685
+cap3    vs top5       0.385   0.258 to  0.499
+cap3    vs best_rank  0.162   0.077 to  0.255
+ratio1  vs spearman   0.567   0.470 to  0.654
+ratio1  vs kendall    0.540   0.438 to  0.634
+ratio1  vs top5       0.668   0.588 to  0.744
+ratio1  vs best_rank  0.207   0.120 to  0.313
+C. sweep screens only: spread of agreement and payoff
+spearman  min 0.932 median 0.964 max 0.982
+best_rank min 1.000 median 1.000 max 2.000
+cap1      min 0.494 median 0.731 max 0.807
+cap3      min 0.964 median 0.997 max 1.000
+D. highest-Spearman screen vs highest-capture-at-1 screen
+agreement x le-sweep-72        spearman 0.982 best_rank 1 cap1 0.746 cap3 0.999
+payoff    x le-sweep-67        spearman 0.963 best_rank 1 cap1 0.807 cap3 0.997
+E. screens that rank >= 0.9 (Spearman) but whose best design is not in the top 3 of the screen order
+0 of 207 screens with Spearman >= 0.9
+
+== truth: latency (207 screens)
+A. named screens: Spearman, Kendall, top-5 overlap, rank of true best, P(best mapped) at k=1 and 3, mean ratio at k=1
+none (cycles)            0.815 0.672 0.2   6 0.150 0.555 1.157
+x unit                   0.931 0.788 0.4   5 0.160 0.589 1.153
+x type                   0.936 0.800 0.2   6 0.147 0.504 1.149
+x fanout                 0.937 0.808 0.6   2 0.461 0.948 1.045
+x le                     0.931 0.797 0.4   2 0.397 0.781 1.061
+x max_fanout             0.898 0.756 0.8   2 0.483 0.923 1.042
+x gates                  0.551 0.421 0.6   1 0.692 0.934 1.113
+B. does agreement predict payoff? Spearman across all screens (95% bootstrap over screens)
+cap1    vs spearman  -0.129  -0.261 to  0.019
+cap1    vs kendall   -0.036  -0.179 to  0.115
+cap1    vs top5       0.433   0.292 to  0.561
+cap1    vs best_rank  0.898   0.871 to  0.916
+cap3    vs spearman   0.221   0.068 to  0.360
+cap3    vs kendall    0.285   0.132 to  0.420
+cap3    vs top5       0.614   0.525 to  0.692
+cap3    vs best_rank  0.137  -0.006 to  0.273
+ratio1  vs spearman  -0.048  -0.181 to  0.101
+ratio1  vs kendall    0.023  -0.117 to  0.178
+ratio1  vs top5       0.319   0.169 to  0.467
+ratio1  vs best_rank  0.869   0.803 to  0.908
+C. sweep screens only: spread of agreement and payoff
+spearman  min 0.851 median 0.920 max 0.958
+best_rank min 1.000 median 2.000 max 6.000
+cap1      min 0.163 median 0.394 max 0.645
+cap3      min 0.579 median 0.807 max 0.930
+D. highest-Spearman screen vs highest-capture-at-1 screen
+agreement x le-sweep-26        spearman 0.958 best_rank 3 cap1 0.324 cap3 0.914
+payoff    x gates              spearman 0.551 best_rank 1 cap1 0.692 cap3 0.934
+E. screens that rank >= 0.9 (Spearman) but whose best design is not in the top 3 of the screen order
+14 of 175 screens with Spearman >= 0.9
+x unit                   spearman 0.931 best_rank 5 cap3 0.589
+x type                   spearman 0.936 best_rank 6 cap3 0.504
+x le-sweep-15            spearman 0.917 best_rank 4 cap3 0.822
+x le-sweep-16            spearman 0.915 best_rank 4 cap3 0.767
+x le-sweep-29            spearman 0.915 best_rank 4 cap3 0.819
+

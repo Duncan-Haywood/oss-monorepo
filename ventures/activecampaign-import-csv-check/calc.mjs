@@ -284,6 +284,8 @@ export function validate(input, options = {}) {
   const emails = new Map(), names = new Map(), titles = new Map();
   const owners = new Map(), stages = new Map(), pipelines = new Map();
   const list = [];
+  const sup = kind === "contacts" ? parseSuppression(options.suppress) : null;
+  let suppressed = 0;
   const dateCols = header.map((h, i) => (cols[i] && cols[i][2] === "date") || (!cols[i] && /date|birth|time|close/i.test(h)) ? i : -1).filter((i) => i >= 0);
   const dateSeen = new Map(dateCols.map((i) => [i, { dmy: [], mdy: [], amb: 0, ymd: [], n: 0 }]));
   const currencies = new Set();
@@ -312,6 +314,8 @@ export function validate(input, options = {}) {
         add(sev, L, `Email "${em}" ${prob}`, /more than one/.test(prob) ? "ActiveCampaign keeps one address per email field. Import one address per contact; keep the main one." : /mailto/.test(prob) ? "ActiveCampaign wants the bare address. Safe fixes removes the prefix." : "ActiveCampaign rejects an email that is not a valid address. Correct it in the source.");
       } else {
         const e = em.toLowerCase();
+        const sb = suppressedBy(sup, e);
+        if (sb) { suppressed++; add("error", L, `On your do-not-email list: ${e}`, sb === "domain" ? `The whole domain ${e.slice(e.lastIndexOf("@") + 1)} is on the list you supplied. Importing this contact can put someone who opted out back on your lists. Apply safe fixes drops the row.` : "This address is on the do-not-email list you supplied (unsubscribed, bounced or complained). Importing it can put someone who opted out back on your lists. Apply safe fixes drops the row."); }
         if (!emails.has(e)) emails.set(e, []);
         emails.get(e).push(L);
       }
@@ -422,8 +426,31 @@ export function validate(input, options = {}) {
   return {
     findings,
     notChecked: NOT_CHECKED,
-    summary: { rows: data.length, records: data.length - blankRows, columns: header.length, delimiter: delim, kind, bytes, withEmail, duplicates: dupes, list, owners: [...owners.entries()].map(([value, ls]) => ({ value, rows: ls.length })), totalValue, currencies: [...currencies] },
+    summary: { suppressionLoaded: !!sup, suppressed, rows: data.length, records: data.length - blankRows, columns: header.length, delimiter: delim, kind, bytes, withEmail, duplicates: dupes, list, owners: [...owners.entries()].map(([value, ls]) => ({ value, rows: ls.length })), totalValue, currencies: [...currencies] },
   };
+}
+
+// ---------- suppression list ----------
+// A do-not-email list: any text with addresses in it (one per line, an unsubscribe or bounce
+// export). A token like "@example.com" blocks a whole domain. Returns null when nothing usable.
+const EMAIL_TOKEN = /[^\s,;"'<>()[\]]*@[^\s,;"'<>()[\]]+/g;
+export function parseSuppression(text) {
+  if (!text || !text.trim()) return null;
+  const emails = new Set(), domains = new Set();
+  for (let t of text.replace(/^\ufeff/, "").match(EMAIL_TOKEN) || []) {
+    t = t.replace(/^\.+|\.+$/g, "").toLowerCase();
+    if (t.startsWith("@")) { if (/^@[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/.test(t)) domains.add(t.slice(1)); continue; }
+    if (EMAIL.test(t)) emails.add(t);
+  }
+  return emails.size || domains.size ? { emails, domains } : null;
+}
+
+// "exact" or "domain" when the address is on the list, else "".
+export function suppressedBy(sup, email) {
+  if (!sup) return "";
+  const e = email.trim().toLowerCase();
+  if (sup.emails.has(e)) return "exact";
+  return sup.domains.has(e.slice(e.lastIndexOf("@") + 1)) ? "domain" : "";
 }
 
 // ---------- repair ----------
@@ -448,9 +475,15 @@ export function repair(input, options = {}) {
   if (delim !== ",") changes.push(`Separator ${delim === ";" ? "semicolon" : "tab"} → comma`);
   const firstIdx = new Map();
   cols.forEach((p, i) => { if (p && !firstIdx.has(p[1])) firstIdx.set(p[1], i); });
-  let removed = 0;
+  let removed = 0, dropped = 0;
+  const sup = kind === "contacts" ? parseSuppression(options.suppress) : null;
+  const emailAt = firstIdx.has("email") ? firstIdx.get("email") : -1;
   for (const r of rows.slice(1)) {
     if (isBlankRow(r.cells)) { removed++; changes.push(`Line ${r.line}: blank row removed`); continue; }
+    if (sup && emailAt >= 0 && emailAt < r.cells.length) {
+      const addr = r.cells[emailAt].trim().replace(/^mailto:/i, "").trim();
+      if (suppressedBy(sup, addr)) { dropped++; changes.push(`Line ${r.line}: ${addr.toLowerCase()} dropped (on your do-not-email list)`); continue; }
+    }
     const cells = r.cells.slice();
     const edit = (i, v, why) => { if (cells[i] !== v) { changes.push(`Line ${r.line}: ${cols[i] ? cols[i][0] : header[i] || `column ${i + 1}`} "${cells[i]}" → "${v}" (${why})`); cells[i] = v; } };
     cells.forEach((c, i) => { if (c !== c.trim()) edit(i, c.trim(), "stray spaces trimmed"); });
@@ -475,6 +508,7 @@ export function repair(input, options = {}) {
     });
     out.push(cells);
   }
+  if (dropped) changes.push(`${dropped} contact${dropped === 1 ? "" : "s"} on your do-not-email list dropped in total`);
   if (removed) changes.push(`${removed} blank row${removed === 1 ? "" : "s"} removed in total`);
   return { text: toCsv(out, ","), changes, error: "" };
 }

@@ -5,7 +5,7 @@ potty / portable restroom event rental the way the yard actually loses money
 when it skips the math — every day the boxes sit, every extra pump-out, and
 two truck round trips — and shows the margin before the quote goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/portable-restroom-event-quote/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/portable-restroom-event-quote/
 
 Once the number is right, **Print proposal** turns it into the one-page sheet
 the event organiser signs: the units as line items, the days on site, the
@@ -15,10 +15,7 @@ not on it and are not printed.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

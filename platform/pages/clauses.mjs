@@ -22,26 +22,24 @@
 //
 // Reading the *sources* rather than a built site is the point. The build takes
 // seconds and needs the whole tree; this walks the venture directories
-// directly, so it is cheap enough to run from a venture's own CI, scoped to
-// just that slug (`node platform/pages/clauses.mjs <slug>`, wired into every
-// venture-ci.yml) -- a second, redundant check next to `portfolio-validate.yml`
-// running the same command unscoped over every venture on any PR touching
-// `ventures/**/*.html`.
+// directly, so it is cheap enough to run on every venture PR, scoped to what
+// the PR touched.
 //
-// That redundancy is deliberate, not leftover: this comment used to justify
-// the venture-scoped run as "the only place a PR that adds a venture reliably
-// gets checked, since PRs opened with GITHUB_TOKEN do not trigger the
-// portfolio-wide workflows." Neither half held. `portfolio-validate.yml`'s own
-// `pull_request.paths` already covers `ventures/**/*.html`, and an agent PR
-// here authenticates with a fine-grained PAT (`GH_TOKEN`), not the in-workflow
-// `secrets.GITHUB_TOKEN` GitHub's no-recursion rule applies to, so it triggers
-// `pull_request` workflows the same as a human's PR (see CLAUDE.md's "Absent
-// CI is not failed CI"). The venture-scoped run stays worth keeping anyway:
-// it is the faster, narrower signal on the PR that actually adds the venture,
-// and it still catches the omission if `portfolio-validate.yml`'s own path
-// list ever falls behind a new publishable extension the way it once did for
-// `.css`/`.js` (see that workflow's own trigger comment).
-import { promises as fs } from 'node:fs';
+// Where it runs, and why there. The property worth keeping is that the
+// venture that breaks the rule is the one that goes red, on its own PR,
+// named. Until 2026-10-20 that was done by a step copied into 281
+// `<slug>-ci.yml` files (`node platform/pages/clauses.mjs <slug>`). Those
+// copies only covered ventures that had a workflow, every fix had to be made
+// 281 times, and every new venture had to remember to copy it. Now
+// `ventures-tests.yml`, which fires on any `ventures/**` change, runs
+// `--changed-since <base>`: every venture the diff touched, tests or not,
+// with each failing venture named in the log and the page annotated in the
+// PR's diff (docs/history/venture-clause-check-2026-10-20.md).
+// `portfolio-validate.yml` runs the same command unscoped as the
+// portfolio-wide backstop, so a page that goes bad without its venture being
+// touched still turns a run red.
+import { execFileSync } from 'node:child_process';
+import { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
@@ -2683,17 +2681,73 @@ async function isVenture(venturesDir, slug) {
   }
 }
 
-export async function main(argv = process.argv.slice(2)) {
-  const slug = argv.find((arg) => !arg.startsWith('-'));
-  const { pages, surfaces, known } = await collectPages({ slug });
+/**
+ * The venture slugs a change touched since `base`, for `--changed-since`.
+ *
+ * `null` means "no usable base" -- a first push, or a zero SHA from a new
+ * branch -- and the caller then checks every venture, which is the safe
+ * reading of "unknown change". Slugs whose directory the change deleted are
+ * dropped: a venture that no longer exists publishes nothing.
+ */
+export function touchedVentures(base, { repoRoot = REPO_ROOT } = {}) {
+  if (!base || /^0+$/.test(base)) return null;
+  const out = execFileSync('git', ['diff', '--name-only', base, 'HEAD', '--', 'ventures'], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  const slugs = new Set();
+  for (const line of out.split('\n')) {
+    // A file directly under ventures/ (its CLAUDE.md) belongs to no venture.
+    const [top, slug, ...rest] = line.split('/');
+    if (top === 'ventures' && slug && rest.length > 0 && existsSync(path.join(repoRoot, 'ventures', slug))) slugs.add(slug);
+  }
+  return [...slugs].sort();
+}
 
-  if (slug && !known) return unknownVenture(slug);
+/**
+ * `node clauses.mjs`                        every surface
+ * `node clauses.mjs <slug> [<slug> ...]`    those ventures
+ * `node clauses.mjs --changed-since <sha>`  every venture `git diff <sha> HEAD` touched
+ *
+ * The last form is what `ventures-tests.yml` runs on every PR and push that
+ * touches `ventures/**`. It replaced a step copied into 281 `<slug>-ci.yml`
+ * files on 2026-10-20 (docs/history/venture-clause-check-2026-10-20.md), and
+ * keeps what those copies were for: the failure lands on the PR that broke
+ * the page, names the venture, and -- under GitHub Actions -- annotates the
+ * offending file in that PR's diff.
+ */
+export async function main(
+  argv = process.argv.slice(2),
+  { repoRoot = REPO_ROOT, env = process.env, log = console.log, error = console.error } = {},
+) {
+  const venturesDir = path.join(repoRoot, 'ventures');
+  const sinceAt = argv.indexOf('--changed-since');
+  let slugs;
+  if (sinceAt !== -1) {
+    const touched = touchedVentures(argv[sinceAt + 1], { repoRoot });
+    if (touched !== null && touched.length === 0) {
+      log('no venture touched, nothing to check');
+      return 0;
+    }
+    slugs = touched; // null: no usable base, check everything
+  } else {
+    const named = argv.filter((arg) => !arg.startsWith('-'));
+    slugs = named.length > 0 ? named : null;
+  }
 
-  if (slug && surfaces.length === 0) {
-    // Not a failure: plenty of ventures are CLIs or libraries with no browser
-    // entry point, and their CI passes this flag unconditionally.
-    console.log(`${slug}: no published browser surface, nothing to check`);
-    return 0;
+  const pages = [];
+  const surfaces = [];
+  for (const slug of slugs ?? [undefined]) {
+    const found = await collectPages({ venturesDir, slug });
+    if (slug && !found.known) return unknownVenture(slug, { log: error });
+    if (slug && found.surfaces.length === 0) {
+      // Not a failure: plenty of ventures are CLIs or libraries with no
+      // browser entry point, and CI passes their slug unconditionally.
+      log(`${slug}: no published browser surface, nothing to check`);
+      continue;
+    }
+    pages.push(...found.pages);
+    surfaces.push(...found.surfaces);
   }
 
   const missing = missingClauses(pages);
@@ -2721,15 +2775,28 @@ export async function main(argv = process.argv.slice(2)) {
         ...byClause['not-affiliated'].map((page) => `  ${page}`),
       );
     }
+    const failing = [...new Set(missing.map((m) => m.page.split('/')[0]))];
     lines.push(
+      `\nVenture(s) to fix: ${failing.join(', ')}`,
       '\nThe no-SLA clause is not checked here: build.mjs injects it into every\n' +
         'published page, so a venture does not have to carry it.',
     );
-    console.error(lines.join('\n'));
+    error(lines.join('\n'));
+
+    // One annotation per page, on the file itself, so the author sees it in
+    // their PR's diff rather than only in a shared job's log.
+    if (env.GITHUB_ACTIONS === 'true') {
+      const sourceDir = new Map(surfaces.map((s) => [s.slug, s.sourceDir]));
+      for (const { page, clause } of missing) {
+        const [slug, ...rest] = page.split('/');
+        const file = path.relative(repoRoot, path.join(sourceDir.get(slug), ...rest));
+        log(`::error file=${file},title=${slug}: ${clause} clause missing::${page} lacks the ${clause} clause (PRODUCT_PLAYBOOK.md ${clause === 'no-warranty' ? '5b' : '5f'})`);
+      }
+    }
     return 1;
   }
 
-  console.log(
+  log(
     `${pages.length} published page(s) across ${surfaces.length} surface(s) carry their required clauses`,
   );
   return 0;

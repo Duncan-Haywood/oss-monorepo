@@ -1,0 +1,6 @@
+{
+ "theme": "society",
+ "title": "Does the observed rate of objection to line-cutting keep a queueing norm in a robot crowd?",
+ "lede": "do real objection rates keep a queue norm? People alone need to stop a lone cut at least 0.786 of the time; Milgram's field reactions (about 0.5, secondary source) imply 7.5% enforcer robots even with no cutters. Inputs not read from the paper; p0 is swept.",
+ "summary": "<em>society-enforcers</em> assumed people stop a lone line-cut with probability <em>p</em><sub>0</sub> = 0.9. In the same memory-9 model, people alone keep a queueing norm only if <em>p</em><sub>0</sub> &ge; 0.786 (0.901 at memory 3, 0.698 at 25). Milgram et al. (1986) report, in a popular summary I have not checked against the paper, that field crowds reacted to one intruder about half the time and ejected the intruder 10% of the time, which bounds <em>p</em><sub>0</sub> between 0.1 and 0.5. Across that range the norm needs enforcers even with no cutter robots: 7.5% at <em>p</em><sub>0</sub> = 0.5 and 12.3% at 0.1 (10 in view, stop chance 0.5), and 9.2% and 12.6% against 30% cutters, versus 5.4% at 0.9. Two intruders drew 91% objection against 75% if viewers were independent. Limitations: inputs from a secondary source, a reaction is not a stopped cut, <em>L</em> and <em>q</em> unsourced, binary memory model."
+}

@@ -1,0 +1,68 @@
+name: sales-cadence-builder
+description: >-
+  Free browser and command-line sales cadence builder for founders and small
+  B2B sales teams. Paste a prospect list you already have and a few lines about
+  your offer, and get a multi-channel prospecting sequence (email, phone call
+  with a voicemail script, LinkedIn connection note, mailed letter) on business
+  days, with every call inside the prospect's own 9-5 (two-zone states get the
+  overlap), a draft for every touch, and a CSV task list and calendar file.
+  Before planning, each prospect is checked against the user's suppression
+  list, do-not-contact column and duplicates, and email is held back for
+  Canada (CASL), the EU and UK personal addresses without a recorded consent
+  basis. Every email gets the sender's postal address and an opt-out appended
+  by code. Optional AI personalisation on the seller's own key, rejected if it
+  states a number not in the user's inputs. It never sends, dials or posts.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-20 on the owner's request to work on "AI sales agents and automated sales and marketing through all
+# the traditional methods". Duplicate check: open PRs searched for outreach/cadence/sequence/prospecting (none); the
+# nearest ventures are icp-lens (who to contact first, one first email) and sales-call-notes-desk (after the call).
+# This fills the "follow-up timing" and "personalised first drafts of outreach the user sends themselves" rows of
+# portfolio/sales-tools/README.md across channels, the step between the ranked list and the booked call.
+#
+# Why this niche: sales engagement platforms (Outreach, Salesloft, Apollo sequences, HubSpot Sequences) charge per
+# seat per month and send on your behalf. A founder or two-person team needs the plan, the drafts and the dates; it
+# is safer for them to send from their own mailbox and phone, and the compliance gating those tools leave to the
+# user (call hours by the prospect's time zone, CASL/EU consent, suppression) is where small teams get hurt.
+#
+# First visitor: people searching "sales cadence template", "outreach sequence", "b2b prospecting cadence",
+# "how many follow-ups sales", "best time to cold call", "cold email CAN-SPAM requirements"; r/sales and
+# r/startups founder-led-sales threads. Volume not measured with an external tool.
+#
+# Liability boundary (portfolio/sales-tools/README.md, "The user sends, the tool drafts"): it never sends, dials,
+# posts or stores a contact outside the visitor's browser. Templates state no number, customer or result; the
+# "proof" touch uses only the user's own typed result and otherwise becomes a referral ask. Call windows are
+# 9:00-17:00 prospect local, inside the federal TCPA 8am-9pm window and the 8am-8pm windows of stricter states. The
+# page and README say it is not legal advice and that the user is responsible for CAN-SPAM, TCPA/DNC, CASL,
+# GDPR/PECR and LinkedIn's terms.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural front end for a self-hosted team
+# tier (shared suppression list, sending from the deployer's own mailbox through their own SMTP with reply and
+# bounce detection that stops a cadence, CRM write-back on the deployer's keys); not built.
+
+hypotheses:
+  - claim: >-
+      Founders and small sales teams with a prospect list will paste it in, download the task list or calendar, and
+      run the cadence from their own mailbox and phone, and will come back for the next batch.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a scheduled call outside the prospect's 9:00-17:00 local time, or an email draft without the postal address and opt-out, that the checks passed.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/sales-cadence-builder/
+  analytics: null

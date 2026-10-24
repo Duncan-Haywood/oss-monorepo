@@ -1,7 +1,7 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19 and tracks 16 and 17 on 2026-10-19. Runs
-started from `prompt.md` take their new work from here. There are seventeen tracks. Each one is
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 tracks 20 and 21 on 2026-10-21 tracks 22 and 23 on 2026-10-24 track 24 on 2026-10-24 and track 25 the same day. Runs
+started from `prompt.md` take their new work from here. The tracks are numbered below. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
@@ -73,14 +73,20 @@ deleted; its pull requests, review threads and old Pages site stay there.
 
 ## Picking work
 
+Since 2026-10-24 the unit of work is the programme, not the project: one hard question
+pursued across sessions toward a paper ([`PROGRAMMES.md`](PROGRAMMES.md), which sets the bar).
+`pick_track.py` draws an open programme for most runs. A track draw means opening a programme
+in that area, or advancing one, and the track's milestones below become raw material for it,
+not separate slugs. The steps below still apply to track and free-choice draws.
+
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-17, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-25, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
    twenty works on whatever research question it finds most interesting, in or out of the
    tracks below: a hunch from a recent project, an unusual method, a gap nobody here has
-   looked at. Pick something you can finish and land in one run. It follows every rule in
+   looked at. Aim it at a question worth a programme; land a real step this run. It follows every rule in
    "Rules for every track" and every integrity, licensing and landing rule in `prompt.md`, and
    it is held to the same bar: a complete README, passing tests, honest results. Use the
    `free` slug prefix and theme id unless the project fits an existing track's theme better,
@@ -91,7 +97,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
    in the last three hours. When the listed milestones are done, take the next step from the
    latest project's "Next steps" section in that track. If that chain has gone to micro-variants
    of one result (a new seed, a bigger N, the same test on a neighbouring dataset), skip it:
-   ask a new question of the track's theme instead, and say so in the README's first lines.
+   ask the harder question the chain was circling, and make it a programme (`PROGRAMMES.md`).
 3. **Use the track's slug prefix and theme.** The prefix starts the slug (`selfrep-closure`).
    The theme id goes in `_homepage/projects.json`. The first project in a track adds that theme,
    with a `--t-<id>` colour in both the light and dark blocks of `_homepage/template.html`.
@@ -115,6 +121,14 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 15. Sensor fusion, imaging and 3D from real captures | `sensing` |
 | 16. Energy supply and dense energy storage | `energy` |
 | 17. Societies of AI agents in robots among people | `society` |
+| 18. Laundry-hanging robots and custom hangers | `hanger` |
+| 19. Machine learning on qualitative data with LLMs | `qual` |
+| 20. Robots on the residential building site | `buildbot` |
+| 21. Applied R&D for the industries modern life runs on | `infra` |
+| 22. Autonomous flying machines for commercial logistics | `aerolog` |
+| 23. Autonomous water vehicles of every sort | `marine` |
+| 24. Civilizations, group psychology and interventions | `civ` |
+| 25. Open-source construction, mining and heavy equipment | `heavy` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -792,6 +806,43 @@ agents. Pillutla et al. (2021), MAUVE, compares model and human text as distribu
    from updating weights, as in RADAR, does prompt-only adaptation reach? Fine-tuning on a GPU
    is an owner step.
 
+**Owner direction, 2026-10-20: three subjects, code as a free parameter, shared feedback.**
+The owner asked for browser use and webcam to be subjects alongside writing, for code (not only
+the prompt) to be something either side may change, and for the detector and imitator agents
+to share feedback. This widens "what is free" above:
+- *Subjects.* Writing (milestones 1 to 6), browser use (how a person moves a cursor, types and
+  scrolls in a web page) and webcam (how a person's face and head behave on camera, as signals
+  such as expression, head pose and blinks). Each needs licence-checked human references.
+- *Code is free too.* Either side's program may change, not only its prompt: an imitator's
+  generator (for a cursor, its path, speed profile, event clock and noise components), a
+  detector's feature functions. Say whether the code comes from a fixed component library, a
+  search over it, or a model that writes code, because those are different claims.
+- *Shared feedback.* Besides the blind game, run conditions where the detector tells the
+  imitator why it caught it (which features, how far apart), and where the imitator shares its
+  program with the detector. Hold the evaluation budget equal across conditions and report
+  which channel helps which side, on a detector neither side saw.
+
+9. `mimic-cursor`: browser use, code as the free parameter, with and without shared feedback.
+   Human cursor strokes from DUX (Bieber et al. 2023, CC-BY-4.0: 46 people filling in a web
+   form), split by person. The imitator is a stroke generator built from code components;
+   the detector picks feature functions. Four feedback conditions at equal budget, scored by a
+   reference detector the loop never sees, with a memorization check on any component that
+   draws on human examples. Keystroke timing and scrolling from the same corpus come next.
+   Landed 2026-10-20: every final imitator is caught at reference AUROC 0.99 to 1.00, shared
+   feedback did not help the imitator, and an 8 times larger search stops at the level of
+   replaying real strokes (0.88), so the component library is the limit; two-way sharing gave
+   the strongest detectors in cross-play, not yet significant at 8 seeds.
+10. `mimic-webcam`: webcam signals, signals first. Start from derived per-frame signals, not
+   pixels: DUX also logs webcam emotion scores from a facial-coding tool for each event, and
+   open face-landmark or head-pose corpora with a known licence are candidates. The imitator
+   writes the signal sequence for a context (filling in a form, reading an error message); the
+   detector tells it from a person's. Rendering faces is out of scope until the guardrails
+   below are met. Time any vision model on the CPU first, as in milestone 7.
+11. `mimic-codeloop`: code written by a model. Replace the component search with an open
+   code model that reads the detector's feedback and rewrites the generator or the feature
+   functions, at the same budget as the component search, so the two can be compared. Size the
+   model to the CPU and give a GPU's priced cost as an owner step if it does not fit.
+
 **Guardrails: research on detection, not an evasion service.**
 - *Both sides ship.* Every imitator result ships with the detector prompts and the cross-play
   results that answer it. The detector is a deliverable, not a foil.
@@ -820,6 +871,14 @@ agents. Pillutla et al. (2021), MAUVE, compares model and human text as distribu
 - *Synthetic media.* Before generated audio, images or video leave the repository, check the
   disclosure duties that apply, such as Article 50 of the EU AI Act, which applies from 2 August
   2026.
+- *Browser use stays in the lab.* Generated cursor, keyboard and scroll input is scored only
+  offline by detectors built here. It is never replayed in a live site, a CAPTCHA, a login or
+  a platform's bot filter, and the generators are not packaged as plug-ins for browser
+  automation tools. Every generator ships with the detector that answers it.
+- *Webcam is signals, not faces.* Use derived signals (expression scores, landmarks, head pose)
+  from licence-checked corpora. Never render, synthesise or alter video of a real or
+  identifiable person, and never capture anyone's webcam: recording people is an owner step,
+  as for human judges above.
 - *Lab tags.* Milestones that use the imitator as a simulated partner build on CAIRO's and
   HIRO's directions in `prompt.md`, simulated human models and social intelligence. The others
   build on none of the groups, so say so.
@@ -877,6 +936,12 @@ Census Survey of Construction for where a house's price goes.
    dwelling unit) generated from milestones 2 to 8, with drawings, a takeoff, a cost estimate,
    energy and structural reports, all reproducible from code. A licensed review and a permit
    are owner steps.
+10. `open-house-plans` (product, first version done 2026-10-21, in `ventures/open-house-plans/`): the
+   generator milestone 9 pointed at. From a brief or a sentence it searches single-storey layouts
+   (studio to five bedrooms, six styles, garage, porch, accessible option), sizes members with the
+   house-spans and house-framing checks (ported to JS, pinned by tests), runs IRC-paraphrased checks,
+   takes off materials, prices with an NAHB-anchored model and exports SVG, DXF, IFC4, OBJ and CSV
+   under CC0. Two storeys, L-shaped plans, a site plan and a licensed review of one design are next.
 
 Each project that prices a build cites every price and its date. Building anything is an owner
 step.
@@ -939,7 +1004,7 @@ ArduPilot (track 9).
 5. `capture-edit`: the automated edit. An open pipeline from multi-camera raw footage to a reel
    (sync, shot detection, reframing, angle selection, a film-look grade), scored on openly
    licensed footage against a fixed-cut baseline.
-6. `capture-bystander`: filming in public without harm. Automatic blurring of bystanders' faces
+6. `capture-bystander` (done 2026-10-19): filming in public without harm. Automatic blurring of bystanders' faces
    and plates, and how conspicuous each platform is; a design input, not a way to hide filming.
 7. Owner steps: build the best kit from open hardware, with a priced bill of materials, and test
    it on a trip.
@@ -1132,10 +1197,10 @@ tools: PyBaMM, PyPSA, HiGHS, CoolProp, Cantera, pymatgen.
    loading, N/P ratio) scored on energy density at a required power and on modelled
    degradation, with an LLM or session proposer against random search and Bayesian optimisation
    at the same budget.
-4. `energy-lcos`: levelised cost of storage. Cost per kWh delivered over a lifetime for each
+4. `energy-lcos` (first version done 2026-10-19, assumed inputs): levelised cost of storage. Cost per kWh delivered over a lifetime for each
    technology and duration (hours to weeks), from capital cost, efficiency, cycle life and
    degradation, every price sourced and dated. Which technology wins at which duration?
-5. `energy-mix`: supply design. The least-cost mix of solar, wind, firm supply and storage that
+5. `energy-mix` (first version done 2026-10-20, assumed costs, Germany 2019): supply design. The least-cost mix of solar, wind, firm supply and storage that
    meets a year of hourly demand in an open dataset, in PyPSA, and how sensitive it is to the
    cost and duration of storage.
 6. `energy-thermal`: heat storage designed. A sand or rock store as a transient model (charging,
@@ -1230,9 +1295,648 @@ Factors*. Open tools: Mesa, PettingZoo, Gymnasium, and a browser canvas for repl
 - *Lab tags.* Milestones 1 to 4 may build on HIRO (social intelligence) and CAIRO (human-robot
   collaboration, simulated human models). Say so only where the project actually does.
 
+## 18. Laundry-hanging robots and custom hangers (`hanger`)
+
+Added on 2026-10-19 at the owner's request, as a long-term robotics project.
+
+**Goal.** A robot that takes clothes out of a dryer, or from a loader that a person or a
+washer-dryer fills, and puts every item on a hanger, so laundry comes out hung and needs
+little or no pressing. "Every item" is the hard part: tees, shirts, trousers, dresses,
+children's clothes and knits all differ in size, opening and how they want to hang. So the
+hangers are part of the design. They can be custom shapes, a small rack of sizes, or an
+adjustable hanger the robot sets per garment, and they are designed in a simulation feedback
+loop: a cloth model scores how well a hanger holds a garment in its worn, pressed shape, a
+proposer changes the hanger, and the cycle repeats. The robot also decides, per item, whether
+hanging will leave it better pressed than folding (a heavy knit can stretch on any hanger),
+and folds or sets aside what should not hang.
+
+**Prior work.** Maitin-Shepard, Cusumano-Towner, Lei and Abbeel (2010), towel folding with a
+PR2, ICRA. Doumanoglou et al. (2016), garment unfolding and recognition, *IEEE T-RO*.
+Seita et al. (2019–2021), fabric smoothing and VisuoSpatial Foresight, RSS. Ha and Song
+(2022), FlingBot, CoRL. Avigal et al. (2022), SpeedFolding, IROS. Chi et al. (2023), diffusion
+policy, RSS. Kawabata (1980), the KES-FB fabric measurement system. Baraff and Witkin (1998),
+large steps in cloth simulation, SIGGRAPH, and Bergou et al. (2008), discrete elastic rods,
+SIGGRAPH. Hansen (2016), the CMA evolution strategy tutorial. Commercial folding machines
+(FoldiMate, Laundroid) are context, not sources of data. Open tools: NumPy, MuJoCo,
+PyBullet, SoftGym, Blender's cloth solver, Gymnasium. Check each before citing it.
+
+**Milestones.**
+1. `hanger-fit` (done 2026-10-19): a hanger designed in a sim loop. A 2D drape model of a garment's shoulder
+   line and sleeve over a hanger arm scores how far the garment hangs from its worn shape and
+   how sharply it is bent (the cause of shoulder bumps). Compare stock hangers, a custom hanger
+   per garment, one universal hanger, an adjustable-width hanger and a rack of k sizes, with
+   CMA-ES against random search at the same budget.
+2. `hanger-fold` (done 2026-10-20; the fold side is a one-line crease model and drives the result): hang or fold? Add a wrinkle and stretch-set model per fabric and the folded
+   alternative, and learn the decision rule a robot can apply from what it can sense (size,
+   weight, stretch when lifted).
+3. `hanger-insert` (done 2026-10-20; a perimeter-bound model, not cloth: rigid hangers need 43–61 cm of loop, a collapsing one 31 cm): getting the hanger in. Simulate inserting a rigid, collapsible or
+   adjustable hanger through the neck or hem of a garment held by one or two grippers. Score
+   success, neck stretch and time, and feed the result back into the hanger design.
+4. `hanger-3d` (done 2026-10-20; one 20 cm strip, assumed constants: matches the 2D chain on a deep arm, and arm depth drives the 3D error): the drape in 3D with an open cloth solver (front and back panels, sleeves,
+   collars), checked against milestone 1 on the cases both can run.
+5. `hanger-pick` (done 2026-10-20; stylised disc pile with assumed times: aiming at a visible opening takes 13.4 s per garment, pinching and regrasping 22.7 s, and blind sweeping is slower than aiming): picking one garment out of a tangled dryer load and finding its neck or
+   waistband, on simulated cloth, with a scripted baseline before any learned policy.
+6. `hanger-cell` (done 2026-10-20; station times other than insertion are assumed placeholders: pick and fold dominate, the hanger design moves time per load by under 3%): the whole cell as a discrete-event model (dryer or loader, picker, hanger
+   feeder, rail): throughput, failure and recovery rates, and the cost of each station, built
+   on milestones 2 to 5.
+7. `hanger-print` (done 2026-10-20; strength never limits the round-ended designs, the print bed does: nothing useful fits 220 mm whole): the winning hanger shapes as parametric, printable CAD (OpenSCAD or
+   CadQuery) with a strength check, a printable by-product people can use today.
+8. Owner steps: buying or printing hangers, building the robot, measuring real fabrics and
+   garments, and any test with real laundry.
+
+**Guardrails.**
+- *Simulated cloth is not cloth.* Fabric constants are assumed until an owner step measures
+  them; say which result depends on which assumption, and keep simulated hanging quality apart
+  from any claim about real garments.
+- *Safety.* A real cell has pinch points, heat from the dryer and moving rails near people;
+  every hardware design lists the hazards and a stop, and no run builds or powers hardware.
+- *Lab tags.* This track may build on track 9's purpose-built robots and track 14's co-design
+  loop; say so only where a project actually does.
+
+## 19. Machine learning on qualitative data with LLMs (`qual`)
+
+Added on 2026-10-20 at the owner's request, marked as an interesting topic for future research
+and applications.
+
+**Goal.** Machine learning has needed numbers. Qualitative data (interviews, open survey answers,
+reviews, support tickets, field notes) could join in only after slow hand-coding or crude word
+counts. LLMs read text the way a coder does and follow a codebook written in plain language, so
+qualitative data can now be coded, counted, compared, modelled and used to generate hypotheses at
+scale. This track asks what that makes possible and when the resulting numbers can be trusted:
+an LLM's code is a measurement with error, and the error can differ between groups.
+
+**Prior work.** Gilardi, Alizadeh and Kubli (2023), *PNAS*, LLM vs crowd-worker annotation.
+Ziems et al. (2024), *Computational Linguistics*, LLMs on 24 computational social science
+benchmarks. Egami, Hinck, Stewart and Wei (2023), NeurIPS, design-based supervised learning for
+LLM labels. Angelopoulos et al. (2023), *Science*, prediction-powered inference. Pham et al.
+(2024), NAACL, TopicGPT. Lam et al. (2024), CHI, LLooM concept induction. Hegselmann et al.
+(2023), AISTATS, TabLLM. Ludwig and Mullainathan (2024), *QJE*, ML for hypothesis generation.
+Argyle et al. (2023), *Political Analysis*, simulated survey samples. Krippendorff (2011),
+alpha reliability. Check each before citing it.
+
+**Milestones.**
+1. `qual-correction` (done 2026-10-20): when can you count an LLM's codes? Naive, human-only and
+   prediction-powered estimates of a code's prevalence and of a group gap, against simulated
+   coders with known error. An 89%-accurate coder is confidently wrong; with differential error
+   the naive gap has the wrong sign; PPI with 200 hand-coded items fixes both, and stops paying
+   below about 80% coder accuracy.
+2. `qual-real`: the same pipeline on a public, hand-coded corpus (open-ended survey answers or
+   annotated reviews with a licence that allows it), with a model behind `ANTHROPIC_API_KEY` and a
+   deterministic stub. Without a key, label any session-agent coding as such.
+3. `qual-dialect` (done 2026-10-21, no LLM yet): measure milestone 1's mechanism on real data, whether LLM coding accuracy
+   differs across dialects, languages or writing fluency, and how much that moves group
+   comparisons.
+4. `qual-induce` (no-LLM baseline done 2026-10-21; an LLM-proposed codebook still open): inductive coding. Compare LLM-proposed codebooks (TopicGPT/LLooM style) with
+   a human codebook on the same corpus: coverage, redundancy, and agreement when each is applied.
+5. `qual-features` (done 2026-10-21): qualitative codes and LLM-scored dimensions as features next to numeric ones
+   in a predictive model, against embeddings and bag-of-words at the same labelling budget.
+6. `qual-hypothesis` (done 2026-10-20): LLM-proposed, human-readable hypotheses about what separates two sets of
+   documents, scored on held-out data, with a check for hypotheses that merely restate the label.
+7. `qual-regression` (done 2026-10-20): extend the correction from means to regression coefficients (DSL, PPI++)
+   and to multi-class codes.
+
+**Applications.** Customer feedback and support-ticket analytics, open-ended survey analysis,
+user research synthesis, policy consultation responses, qualitative health research, and the
+portfolio's own run records. Each needs the same validation step.
+
+**Guardrails.**
+- *Codes are measurements.* Every count, gap or model built on LLM codes reports how it was
+  validated against a random hand-coded sample, not just an agreement score.
+- *Privacy and consent.* Use only public data whose licence allows the use; never put personal
+  data in the repository.
+- *No benchmark claims without a real model.* Simulated coders are labelled as simulated.
+
+## 20. Robots on the residential building site (`buildbot`)
+
+Added on 2026-10-21 at the owner's request, as a long-term direction: "physics sims with
+already available consumer robots training on construction tasks to reduce the cost of new
+residential home construction. maybe alongside humans? the goal is to have outputs of useful
+skills. either on already manufactured robots like unitree or alternatively on custom built
+robotics fully designed."
+
+**Goal.** Cut the labour cost of building a new home with robots that work on an ordinary
+residential site, alone or beside a crew, and publish the skills as reusable outputs: trained
+policies, controllers, task specifications and the simulation scenes that score them. Labour
+is a large share of a new house's construction cost, and the track-12 models (`house-cost`,
+`house-schedule`, `house-offsite`) already say which tasks take the hours. Two kinds of robot
+are in scope. *Off the shelf*: robots anyone can buy now, such as Unitree's G1 and H1
+humanoids, its Go2 quadruped and Z1 arm, or the SO-101 arm of track 4, which have open
+simulation models in MuJoCo Menagerie. *Purpose-built*: robots designed from the task in the
+loop of tracks 9 and 14, such as a framing-table gantry or a sheet-hanging lift. The question
+is the same for both. Which residential tasks can a robot do to a builder's tolerance in
+simulation, at what speed, and what does that take off a house's price once the robot's own
+cost is counted? Where does a robot beside a person beat either alone?
+
+**Prior work (not yet checked; check before citing).** Todorov et al. (2012), MuJoCo; Zakka
+et al. (2022), MuJoCo Menagerie; Zakka et al. (2025), MuJoCo Playground; Rudin et al. (2022),
+massively parallel legged RL (track 14). Radosavovic et al. (2024), real-world humanoid
+locomotion with RL, *Science Robotics*. Sferrazza et al. (2024), HumanoidBench. Zhao et al.
+(2023), ACT and ALOHA; Chi et al. (2023), diffusion policy (track 18). Kumagai et al. (2019),
+AIST's HRP-5P humanoid installing gypsum board. Dorfler et al. (2016), ETH Zurich's In situ
+Fabricator. Commercial site robots as context, not as open work: FBR's Hadrian X
+(bricklaying), Construction Robotics' SAM and MULE (masonry lift assist), Canvas (drywall
+finishing), Dusty Robotics (layout printing), Built Robotics (autonomous excavation).
+ISO 10218-1 and -2 (2025) and ISO/TS 15066 (2016) for robots working with people. Waters et
+al. (1993), the revised NIOSH lifting equation, for the human side of a shared lift.
+
+**Milestones.**
+1. `buildbot-payload` (done 2026-10-21): what can a stock humanoid lift? Whole-body static
+   payload envelopes of the Menagerie G1 and H1 (feet fixed, balance kept, every joint within
+   its torque limit) over hand height and reach, and a table of residential handling tasks
+   against them, solo and shared with a person.
+2. `buildbot-taskbook` (done 2026-10-21): an open task specification of a wood-frame house. For each task
+   (carry, place, hold, fasten, cut, lay out, finish): masses, forces, reach, tolerance,
+   cycle count and crew hours, taken from the track-12 takeoffs and schedule. Which tasks hold
+   the most labour cost per unit of robot difficulty? The output is a dataset other robot
+   projects can score against.
+3. `buildbot-carry` (envelope done 2026-10-21; a walking policy, falls and drops still open): dynamic carrying. A learned (or model-based) walking policy carries a stud,
+   a sheet or a block across a site floor and over thresholds and ramps from `terrain-twin`.
+   Score falls, items dropped, metres per minute and energy per item, on a CPU budget stated
+   in the README. Does a stock humanoid's carry rate beat one labourer's?
+4. `buildbot-fasten`: driving nails and screws. Tool reaction forces, the stud-face tolerance
+   (a 1.5 in face behind sheathing) against arm placement error, and a policy that drives a
+   sheathing nailing schedule. The skill is the output: a policy plus its test scene.
+   *Stud-finding follow-up (`buildbot-studfind`, done 2026-10-22):* a single stud read must be good to 0.89 mm for 95% clean sheets; averaging and pooling help, re-measuring each nail does not.
+5. `buildbot-cohold` (done 2026-10-21): a person and a robot holding one sheet. The robot follows a simulated
+   person's lead under impedance control while the person fastens. Score interaction forces
+   against ISO/TS 15066 body-region limits, sheet placement error and the person's lifted load
+   against the NIOSH limit.
+6. `buildbot-skills` (sim-to-sim check of the cohold follow skill done 2026-10-22; loadable skill files, a loader and a re-scorer done 2026-10-22 as `buildbot-skillpack`; the carry and fasten skills as controllers are still open): a skill library. Train the skills of milestones 3 to 5 with domain
+   randomisation, check them across a second simulator or contact model (sim-to-sim as the
+   proxy for sim-to-real, `codesign-transfer`), and publish policies, scenes and success rates
+   in a form a robot owner could load.
+7. `buildbot-custom` (done 2026-10-21, a modelled sheathing-nailing gantry; no machine built or quoted): purpose-built against humanoid. Design a task-specific machine for the
+   costliest task from milestone 2 with the track-9 and track-14 loops, and compare it with the
+   best stock robot on cost, cycle time and success.
+8. `buildbot-cost` (done 2026-10-21): what it is worth. Crew hours replaced or shortened, times wages, against the
+   robot's purchase, upkeep and supervision per hour, fed through `house-cost` and
+   `house-schedule`. What share of a new home's price does a credible robot crew remove?
+9. Owner steps: buy or rent a robot (a G1 is the cheapest humanoid in the Menagerie set) and
+   test the published skills on a mock-up wall, with a priced bill of materials.
+
+**Guardrails.**
+- *Simulation is not a safety case.* A robot carrying lumber beside a person is a
+  falling-object and crush hazard. Any test near people needs the owner's risk assessment
+  against ISO 10218 and ISO/TS 15066 and the site's OSHA obligations. Never present a simulated
+  envelope as a rated payload.
+- *Vendor numbers are claims.* Quote a manufacturer's payload, torque or speed as the
+  manufacturer's figure with its date and source, and keep it apart from simulated results.
+  The Menagerie models are the community's approximations of the robots, not the vendor's
+  validated dynamics.
+- *Model licences.* The Unitree models in Menagerie are BSD-3-Clause; fetch them at a pinned
+  commit rather than copying meshes into the tree, and credit them.
+- *Honest about labour.* Report hours and costs, not claims about jobs. A result about a robot
+  "beside a crew" says what the people still do.
+- *Lab tags.* No group in `prompt.md` covers construction; milestones 3 and 7 may build on the
+  groups track 9 names. Say so rather than stretching a connection.
+
+## 21. Applied R&D for the industries modern life runs on (`infra`)
+
+Added on 2026-10-21 at the owner's request: "I want to work on tools for water and sanitation
+shelter and climate control energy electric utiltiies and grid mining and extraction basic
+materials and heavy industry transportation and logistic including other propulsion and
+trasnportation methods. Semiconductors and electronics Finance and payments Manufacturing and
+machine tools Waste management looking for innovations and applications of advanced research to
+these domains to improve efficiency be useful in smalll or large jumps." And, on order: "Energy
+as the master resource ... If you had to pick just one, pick energy, including the grid."
+
+**Goal.** Take methods that already work somewhere (optimisation, statistics, simulation,
+machine learning, robotics, the repo's own research tools) and apply them where they are thin:
+the physical industries everything else depends on. Water and sanitation, shelter and climate
+control, energy and the grid, mining, basic materials (cement, steel, chemicals), transport and
+logistics (including other propulsion), semiconductors, payments, manufacturing and machine
+tools, and waste. Each project picks one costly, measurable problem in one of them, reproduces
+the standard method on an open benchmark, then asks whether a transferred method does better at
+the same budget. A small, checked gain on a real benchmark beats a large one on a toy.
+Energy comes first: most of these industries are limited by cheap, reliable energy, so grid
+and energy milestones lead the list and take ties. Track 16 (`energy`) covers storage and supply
+mix; this track covers the grid and energy use inside the other industries. A project that is
+really a storage question belongs in track 16, a house-scale one in track 12, and robots on a building site in track 20.
+
+**Prior work and open tools.** Check each before citing it. Grid: EPRI's OpenDSS
+(`opendssdirect.py`), pandapower (Thurner et al. 2018, *IEEE Trans. Power Systems*), the IEEE PES
+distribution test feeders, IEEE C57.91 (transformer loading and insulation ageing). Water:
+EPANET and WNTR (Klise et al. 2017), the BattLeDIM 2020 leakage benchmark and its L-Town network
+(Vrachimis et al. 2022, *J. Water Resources Planning and Management*). Logistics: Solomon's
+(1987) VRPTW instances, the electric VRP with recharging stations (Schneider, Stenger and Goeke
+2014, *Transportation Science*), OR-Tools and HiGHS. Materials: limestone calcined clay cement
+(Scrivener et al. 2018, *Cement and Concrete Research*). Mining: Bond's (1952) work index for
+grinding energy. Machine tools: analytical chatter stability (Altintas and Budak 1995, *CIRP
+Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech and Soram&auml;ki
+2001; Martin and McAndrews 2008, *J. Monetary Economics*). Waste: the ZeroWaste sorting dataset
+(Bashkirova et al. 2022, CVPR). Buildings: MPC for buildings (Drgo&ntilde;a et al. 2020,
+*Annual Reviews in Control*).
+
+**Milestones.** Grid and energy first; the rest in any order.
+1. `infra-hosting` (done 2026-10-21; IEEE 13-node only, snapshots): how much rooftop PV and EV charging can a distribution feeder take before
+   voltage or thermal limits bind, and how much do cheap measures (inverter volt-var, smart
+   charging, a tap change) add? OpenDSS on IEEE test feeders, hosting capacity as a stochastic
+   sweep, each measure scored on the same placements.
+2. `infra-transformer` (done 2026-10-21; transformer constants swept, not verified against the standard): distribution transformer ageing under heat-pump and EV load growth. The
+   IEEE C57.91 hot-spot and ageing model on an hourly load profile: how much load growth doubles
+   loss of life, and how much of it a charging schedule buys back, before a replacement is due.
+3. `infra-waterloss` (done 2026-10-21; Net3 with simulated leaks, BattLeDIM unreachable from the proxy, so the L-Town baseline is still open): finding leaks from pressure data. WNTR on BattLeDIM's L-Town with its
+   published leak schedule: the competition's best methods as baselines, and the repo's
+   `changepoint-detector` (PELT, Bayesian online) applied to residuals, scored by detection
+   delay and false alarms.
+4. `infra-propulsion` (done 2026-10-21; floors only, most inputs assumed and swept): energy per tonne-km by mode from first principles (rolling resistance,
+   aerodynamic and hull drag, lift), reproducing published figures, then the range and payload
+   each storage technology from `energy-density` and `energy-practical` gives a truck, train,
+   ship and aircraft. Which modes can electrify directly, and which need a fuel?
+5. `infra-routing` (done 2026-10-22; Solomon RC208 with assumed battery, Schneider instances unreachable, no tariff): electric delivery fleets. EVRPTW on the Schneider et al. instances, OR-Tools
+   and an LLM or session proposer against the published best-known solutions at the same
+   budget, with charging cost on a time-of-use tariff (track 16's `energy-tou`).
+6. `infra-cement` (done 2026-10-21; strength from one study's table read via search summary, primary papers unreachable): clinker substitution. Mass and energy balance of OPC, LC3 and slag blends
+   per tonne of cement, with CO<sub>2</sub> split into calcination and fuel, every factor
+   sourced; which substitution levels keep a published strength class?
+7. `infra-grind` (done 2026-10-21; model parameters typical values, swept, not fitted to a mill; open/closed gap far above the published factors): comminution circuits. A population-balance ball-mill and classifier model
+   against Bond's law; the energy saved by circuit choices (cut size, recirculation load) at
+   the same product size, set against published plant figures.
+8. `infra-chatter` (done 2026-10-21; one benchmark mode, no measured FRF): stability lobes for milling. The Altintas-Budak zero-order solution against
+   time-domain simulation, then the spindle speeds that maximise metal removal rate for a
+   measured tool tip FRF from a public dataset.
+9. `infra-yield` (done 2026-10-21; wafer prices and D0 are 2020 secondary-source snapshots, packaging assumed and swept): cost per good die. Poisson, Murphy and negative-binomial yield models against
+   die area and defect density, reproducing published curves, and the chiplet break-even
+   (tracks 3, 7 and 8 cover design; this covers the fab and packaging economics).
+10. `infra-sorting` (done 2026-10-22; TACO annotations only, detector assumed not trained): robotic waste sorting. A detector trained on ZeroWaste or TACO, and a
+    simulated conveyor pick cell (with track 4's twin) scored on purity, recovery and picks per
+    minute against belt speed.
+11. `infra-netting` (done 2026-10-22; synthetic payments fitted to the paper's published bounds, Finnish delay reduction unexplained): liquidity in payment systems. A simulated RTGS day with a published
+    payment-size distribution: how much liquidity bilateral and multilateral offsetting saves,
+    and how much delay it costs, against the Bech-Soram&auml;ki algorithm.
+12. `infra-hvacmpc` (done 2026-10-22; envelope from recalled ASHRAE 140 values, no measured dataset reachable so nothing fitted): heating and cooling control. A grey-box RC building model fitted to an
+    open dataset, MPC against a thermostat rule on a time-of-use tariff and a forecast that
+    is not perfect (the lesson of `energy-tou-lp-forecast`).
+13. `infra-pumpsched` (done 2026-10-23; Net3 only, tariff shapes assumed and swept): pump scheduling. A daily lake-pump window on Net3 against time-of-use tariffs, separating the energy saved by changing the source mix from what the tariff adds.
+
+14. `infra-dcopf` (done 2026-10-23; three MATPOWER cases, branch limits never bind on case118, tightened-limit solves often fail): how wrong is the DC approximation of optimal power flow, in cost and in the AC feasibility of its dispatch.
+15. `infra-leakpdd` (done 2026-10-23; Net3 only, noise-free sensor response, required pressure assumed and swept): does demand-driven simulation mislead leak detection. Net3 leak signals under demand-driven and pressure-driven demand across demand levels: identical to 1.25 times base demand, both models fail beyond 1.5 times.
+**Method transfers worth trying.** The point of the track is the transfer, so say in each README
+where the method came from. Changepoint detection and conformal prediction for sensor and meter
+data; Bayesian optimisation and LLM proposers for process settings; LP and MILP (HiGHS) for
+scheduling and dispatch; queueing and discrete-event twins (track 4's `robofab-cell`) for ports,
+yards and warehouses; survival analysis for asset failure; graph algorithms for networks and
+netting; simulators plus learned surrogates for anything slow.
+
+**Guardrails.**
+- *Models are not plants.* Keep simulated, benchmark and field figures apart, and never present a
+  modelled feeder, network, mill or cell as a measured one.
+- *No connection to real operational systems.* No SCADA, OT, utility, payment-network or plant
+  system is touched, scanned or probed, and no vulnerability research targets real
+  infrastructure. Public datasets and simulators only.
+- *Safety-critical designs are research.* Drinking water, grid protection, pressure, structural
+  and machine-guarding work needs licensed engineers and the operator's approval before any use;
+  say so in the README. Track 16's grid and electrical rule applies.
+- *Payments and money.* No real accounts, funds or customer data. Results are not financial
+  advice.
+- *Every price, emission factor and device figure is sourced and dated, or swept.*
+
+## 22. Autonomous flying machines for commercial logistics (`aerolog`)
+
+Added on 2026-10-24 at the owner's request: "I want one of the research directions to be
+commmercial logistics autonomous flying machines. to work on both at scale models and 1:1 work".
+
+**Goal.** Uncrewed aircraft that move goods for a living: parcel and medical drones, cargo
+VTOL and fixed-wing feeders, the fleets that fly them and the ground they work from. Work at
+two sizes and keep them joined. *Scale models* are what this repo and the owner can build and
+fly: sub-scale and small aircraft (under the 55 lb FAA Part 107 limit) that test an airframe,
+controller or operation cheaply. *1:1 work* is the full-size vehicle and its operation: a cargo
+VTOL or a converted feeder aircraft sized for a real payload and route, studied by design and
+simulation. The question that runs through the track is what a model at 1:N tells you about
+the machine at 1:1, and where it lies: similitude says Froude, Reynolds and Mach numbers cannot
+all be matched at once, and batteries, motors and structure do not scale the same way either.
+Each project says which size it works at, and a project at one size names what would change at
+the other.
+
+Neighbouring tracks already hold pieces of this. `osrobot-uav` and its follow-ups size a
+purpose-built observation UAV, `codesign-aero` sizes an airframe and a learned attitude
+controller together, `uav-energy-twin` plans battery margin under wind, `infra-propulsion`
+compares freight modes per tonne-km and `infra-routing` routes electric delivery vans. This
+track builds on them and asks the logistics questions they leave out: payload, cost per
+delivery, fleet and hub throughput, airspace and noise, and the jump between sizes.
+
+**Prior work and open tools.** Check each before citing it. Similitude and sub-scale flight
+testing: Wolowicz, Bowman and Gilbert (1979), NASA TP-1435; NASA's AirSTAR dynamically scaled
+transport model (Jordan et al. 2006, AIAA). Delivery-drone energy and emissions: Stolaroff et al.
+(2018), *Nature Communications*; Rodrigues et al. (2022), *Patterns*, with an open dataset of
+measured delivery-quadcopter flights; D'Andrea (2014), "Can drones deliver?", *IEEE T-ASE*.
+Truck-and-drone routing: Murray and Chu (2015), the flying sidekick TSP, *Transportation
+Research C*; Agatz, Bouman and Schmidt (2018), *Transportation Science*. Full-size concepts:
+Johnson, Silva and Solis (2018), NASA's concept vehicles for VTOL air taxi operations (the
+sizing method transfers to cargo). Airspace: the BlueSky open ATM simulator (Hoekstra and
+Ellerbroek 2016, ICRAT). Propellers at small scale: the UIUC propeller database (Brandt and Selig
+2011, AIAA 2011-1255). Open tools: AeroSandbox (Sharpe, MIT), OpenVSP, XFOIL, PX4 or ArduPilot
+software-in-the-loop with Gazebo, OR-Tools and HiGHS. Raymer, *Aircraft Design: A Conceptual
+Approach*, for the full-size weight and sizing relations.
+
+**Milestones.** A starting order; follow the results.
+1. `aerolog-scaling`: what does a 1:N model tell you about the 1:1 aircraft? Take one cargo
+   airframe, model it in AeroSandbox at full size and at 1:2 to 1:10, and measure which
+   quantities a Froude-scaled model reproduces (trim, dynamic modes, gust response) and which
+   it misses (Reynolds-driven drag and stall, battery and motor mass fractions). Reproduce the
+   scaling relations of NASA TP-1435 first. The by-product is a scaling calculator both halves
+   of the track use.
+2. `aerolog-energy`: energy and cost per delivery. A first-principles multicopter, fixed-wing
+   and lift-plus-cruise model fitted to the measured flights in Rodrigues et al. (2022), checked
+   against Stolaroff et al. (2018), then compared with a van per parcel at the same route
+   density. Where in payload and distance does each win?
+3. `aerolog-sizing` (1:1): size a full-size cargo VTOL for payloads from 5 to 500 kg and
+   ranges to a few hundred km, battery against hybrid, with sourced battery figures from
+   `energy-density`. Where does battery-electric stop closing, and how sensitive is that to
+   cell specific energy? Then use milestone 1 to derive the sub-scale demonstrator that would
+   test the winning configuration.
+4. `aerolog-sitl` (scale model): fly the sub-scale demonstrator in PX4 or ArduPilot SITL on a
+   delivery mission in wind, and compare endurance and tracking against milestone 2's
+   analytic model and `uav-energy-twin`'s wind margin.
+5. `aerolog-dispatch`: fleet operations. Truck-and-drone and hub-and-spoke drone delivery on
+   published instances (Murray and Chu's, or Solomon's), with battery and wind from the models
+   above, against a van-only baseline. How many aircraft per hub, and what does wind
+   cancellation do to the service level?
+6. `aerolog-hub`: the ground side. Charging against battery swap, landing-pad and loading
+   throughput, as a queueing or discrete-event model (track 4's `robofab-cell` method); which
+   resource binds first as demand grows?
+7. `aerolog-airspace`: traffic density. BlueSky with a city-scale delivery demand: conflict
+   rate and deconfliction cost against aircraft per km<sup>2</sup>, and the capacity a corridor
+   or layered airspace buys.
+8. `aerolog-noise`: community noise. Sound level on the ground against altitude, rotor tip
+   speed and configuration, checked against published delivery-drone measurements; which
+   design changes buy the most decibels per watt?
+9. `aerolog-handoff`: the last metre. Winch-lowered against landed and dropped delivery:
+   precision, time on station and energy, with a simple tether-and-gust model.
+10. Owner steps: build and fly the sub-scale demonstrator under Part 107 (or the local
+    equivalent), log real flights and record measured against simulated endurance and energy.
+    Full-size hardware and flight are for a certificated operator and manufacturer, never
+    for this repo.
+
+**Guardrails.**
+- *Civilian logistics only.* No weapons, no payload release aimed at people or property, no
+  targeting, no anti-jamming, counter-detection or evasion features, and no tuning to military
+  missions. Track 14's rule applies.
+- *Export control.* Complete designs of long-range uncrewed aircraft can be controlled (the
+  EAR's 9A012 and 600 series; MTCR Category II covers UAV systems with a range of 300 km or
+  more). Keep published 1:1 work at the conceptual-sizing level, and flag to the owner before
+  publishing anything closer to a buildable design of such an aircraft.
+- *Flying is an owner step.* No flight, no airspace use, no connection to real aircraft,
+  ground stations, UTM/LAANC services or air-navigation systems from this repo. Any flight
+  follows the local rules (FAA Part 107 in the US; commercial delivery needs more, such as Part
+  135, and the proposed Part 108 for beyond-visual-line-of-sight work).
+- *Simulation is not airworthiness.* Results are research, not a safety case or a
+  certification basis; say so in each README. Keep scale-model, SITL, full-size simulated and
+  measured figures apart, and never present a modelled aircraft as a flown one.
+- *Every battery, motor, mass and price figure is sourced and dated, or swept*, as the
+  research rules require.
+- *Lab tags.* RECUV fits most milestones (UAV flight and airspace); say so where it does and
+  say none fits otherwise.
+
+## 23. Autonomous water vehicles of every sort (`marine`)
+
+Added on 2026-10-24 at the owner's request: "I also want one of the development directions to be
+autonomous water vehicles of multiple sorts very cool system."
+
+**Goal.** Autonomous craft on and under the water, treated as one system: the vehicle, its
+energy, its sense of where it is, the rules of the road it must follow, and the fleet it works
+in. "Multiple sorts" is the point. Surface vessels (small survey boats, catamarans, hydrofoils,
+autonomous ferries), sailing and wing-sail drones, wave- and solar-powered station keepers,
+propeller AUVs, buoyancy-driven gliders, tethered ROVs and amphibious craft each trade speed,
+endurance, payload and cost differently. Which body suits which job (bathymetric survey, water
+quality sampling, harbour inspection, aquaculture net checks, search patterns, small-cargo
+shuttles), and what limits each: drag, energy, navigation without GNSS, acoustic communication,
+or collision rules? Track 9 (`osrobot`) builds purpose-built robots in general and track 14
+(`codesign`) co-designs bodies with RL, and track 22 (`aerolog`) takes the air; this track owns anything whose medium is water. The
+freight-ship energy floor in `infra-propulsion` (track 21) is a starting point, not this track.
+
+**Prior work and open tools.** Check each before citing it. Dynamics and control: Fossen (2011),
+*Handbook of Marine Craft Hydrodynamics and Motion Control* (Wiley) and his open Python and MATLAB
+vehicle toolbox (MSS). Resistance: the ITTC 1957 friction line and Holtrop and Mennen (1982), *An
+approximate power prediction method*, International Shipbuilding Progress. Sea states:
+Pierson and Moskowitz (1964) and the JONSWAP spectrum (Hasselmann et al. 1973). Rules of the road:
+the IMO COLREGs (1972); velocity obstacles (Fiorini and Shiller 1998, *IJRR*) and their COLREGs
+form for USVs (Kuwata et al. 2014, *IEEE J. Oceanic Engineering*). Gliders: Rudnick et al. (2004),
+*Underwater gliders for ocean research*, Marine Technology Society Journal. Simulators and stacks:
+Gazebo's VRX (Virtual RobotX; Bingham et al. 2019, OCEANS), Stonefish (Cie&sacute;lak 2019, OCEANS),
+ArduPilot Rover (boat frames) and ArduSub, ROS 2. Perception data: MaSTr1325 (Bovcon et al. 2019,
+IROS) and its successors for maritime obstacle segmentation. Environment data: NOAA tides and
+currents, Copernicus Marine and public AIS archives (probe each through the proxy first).
+
+**Milestones.** A starting order; follow the results.
+1. `marine-hull`: which small hull carries a survey payload furthest per kWh? Monohull, catamaran,
+   SWATH, planing hull and hydrofoil from ITTC 1957 plus form factors (Holtrop-Mennen where it
+   applies), checked against a published resistance curve, then endurance on a sourced battery
+   and solar figure from track 16's `energy-density` at survey speeds.
+2. `marine-path`: holding a survey line in wind, waves and current. Fossen's 3-DOF surface model,
+   line-of-sight guidance with PID, integral LOS and MPC, scored on cross-track error and energy
+   across sea states from a JONSWAP spectrum.
+3. `marine-colregs`: collision avoidance that obeys the rules. Velocity obstacles, sampling MPC and
+   a rule-based baseline on a scripted library of head-on, crossing and overtaking encounters (and
+   real encounter geometries replayed from public AIS where reachable), scored on closest point of
+   approach, rule compliance and detour length. An LLM or session proposer may tune the cost
+   weights against CMA-ES at the same budget.
+4. `marine-glider`: when does a glider beat a propeller AUV? A buoyancy-engine saw-tooth model:
+   range against glide angle and dive depth, against a propeller AUV of the same mass and battery,
+   reproducing a published glider range figure first.
+5. `marine-sail`: autonomous sailing routes. A polar diagram for a small wing-sail drone,
+   isochrone weather routing on a recorded wind and current field, and how much a tack-aware
+   controller loses to the ideal route.
+6. `marine-dr`: navigating under water without GNSS. DVL plus IMU dead-reckoning drift, then the
+   gain from acoustic range aids (LBL, USBL) and surfacing for a fix, scored on position error
+   against energy spent; builds on track 15's filters and the repo's `gnss-twin` and `doppler-twin`.
+7. `marine-fleet`: one big vehicle or several small ones? Coverage planning for a bathymetric or
+   water-quality survey with heterogeneous craft, acoustic bandwidth and range limits, and battery
+   swaps, against a single larger vehicle at the same cost.
+8. `marine-dock`: autonomous docking and charging. Approach and capture into a dock in current and
+   waves, success rate against approach strategy and sensor noise; the dock is a by-product design.
+9. `marine-detect`: seeing obstacles on the water. Reproduce a published segmentation baseline on
+   MaSTr1325 (or a successor), then measure how glare, fog and small-object size cut recall, and
+   what the detector's miss rate does to `marine-colregs`.
+10. `marine-wave`: station keeping on wave and solar power alone. A Wave Glider-style two-body
+    thrust model and a solar budget by latitude and month, against a battery-only buoy drone.
+
+**Method transfers worth trying.** Twins and domain randomisation from the `*-twin` projects;
+CMA-ES, Bayesian optimisation and LLM proposers for hull and controller parameters; MPC and LP
+from tracks 16 and 21; coverage and routing solvers (OR-Tools) for fleets; track 15's filters
+for navigation.
+
+**Guardrails.**
+- *Simulation first, as every track.* Building, buying or putting a vehicle in the water is an
+  owner step with a sourced bill of materials. Never present a simulated craft as a tested one.
+- *Rules of the water.* Any real operation needs the flag state's and local authority's rules
+  (COLREGs, coast guard or harbour master, permits for protected waters and wildlife). Say so in
+  the README; a COLREGs-compliant planner here is research, not a certified system.
+- *No weapons, no surveillance of people.* No military, mine-countermeasure or targeting work, no
+  tracking or identifying people or particular vessels; public AIS is used only as anonymised
+  encounter geometry. Check export-control limits (EAR, ITAR) before publishing anything about
+  long-range autonomous underwater navigation; track 14's rule applies.
+- *No interference with real systems.* Never transmit, spoof or probe AIS, GNSS or any vessel or
+  port system. Public datasets and simulators only.
+- *Every hull, battery, sensor and price figure is sourced and dated, or swept.*
+
+## 24. Civilizations, group psychology and interventions (`civ`)
+
+Added on 2026-10-24 at the owner's request, as a curiosity project: "civilization simulations of
+group psychology and civilization and society, both modeling and modeling interventions to change
+the path of large groups of people. it's a curiosity project more than anything."
+
+**Goal.** Simulate large groups of people with the established models of social influence,
+cultural drift, contagion, cooperation and collective action, and ask which interventions change
+where a society goes. Track 17 (`society`) asks this about robots among people; this track is
+about people among people, at the scale of towns to civilizations. The standing method: the
+inputs that matter most (how far people accept or reject other views, how much they copy,
+punish or cooperate) are rarely measured, so each project **sweeps them and reports which
+recommendations survive**, checks its model against a published result first, and ships a
+browser sandbox where a reader can try the levers. Results are about simulated people following
+stated rules, never forecasts or advice for steering real populations; nothing here targets a
+real group or individual.
+
+**Prior work.** DeGroot (1974), *JASA*. Granovetter (1978), threshold models of collective
+behaviour, *AJS*. Axelrod (1997), the dissemination of culture, *J. Conflict Resolution*.
+Deffuant et al. (2000), *Adv. Complex Syst.* Hegselmann and Krause (2002), *JASSS*. Jager and
+Amblard (2005), *Comput. Math. Organ. Theory*. Castellano, Fortunato and Loreto (2009),
+statistical physics of social dynamics, *Rev. Mod. Phys.* Centola and Macy (2007), complex
+contagions, *AJS*. Fehr and Gächter (2000), cooperation and punishment in public goods
+experiments, *AER*. Turchin (2003), *Historical Dynamics*. Pettigrew and Tropp (2006),
+*JPSP*. Bail et al. (2018), *PNAS*. Guess and Coppock (2020), *BJPolS*. Park et al. (2023),
+generative agents, UIST.
+
+**Milestones.**
+
+1. `civ-levers` (done 2026-10-24): which interventions merge a polarized two-camp society under
+   bounded confidence with backfire swept from none to strong? Bridging contact backfires; a
+   ladder of committed voices within reach merges the camps in 24 of 25 settings. Ships a
+   browser simulator.
+2. `civ-contact`: contact that also widens tolerance (Pettigrew and Tropp's prejudice reduction
+   as a change in ε), and identity: a moderate voice each camp reads as the other side's. Does
+   the bridging verdict flip?
+3. `civ-cascades`: Granovetter thresholds and complex contagion on clustered against random
+   networks. Where to seed a behaviour (hubs, bridges, clustered patches) and how many seeds it
+   takes; check against Centola and Macy (2007) and Centola et al. (2018)'s 25% tipping point.
+4. `civ-culture`: Axelrod's culture model with media and migration. Does a common broadcast
+   homogenise or fragment culture (Shibanai, Yasuno and Ishiguro 2001)? Reproduce the
+   order–disorder transition of Castellano, Marsili and Vespignani (2000) first.
+5. `civ-commons`: public goods with punishment and institutions. Which sanctioning
+   institutions keep cooperation in large, mobile populations; fit contribution decay to
+   Fehr and Gächter's published rounds.
+6. `civ-calibrate`: estimate ε and τ from public panel data on attitude change (e.g. ANES or
+   GSS panels) and rerun milestones 1–2 at the fitted values.
+7. `civ-history`: structural-demographic dynamics (Turchin) as a toy civilization: population,
+   elites and state capacity over centuries, and which policy levers damp the cycles.
+8. `civ-llmsociety`: a town of language-model agents against the same levers, behind an
+   environment variable with a deterministic stub. Do LLM agents assimilate and backfire like
+   the rule-based models, and does `civ-levers`' ranking survive?
+
+## 25. Open-source construction, mining and heavy equipment (`heavy`)
+
+Added on 2026-10-24 at the owner's request, as a long-term direction: "I want one of the
+directions to be working on open source hardware-firmware-software for construction machines.
+open source reduce the cost of entry in construction equipment and machines. autonomy is plus in
+this but creating low cost competitors to existing stuff is also acceptable. also mining and
+other heavy equipment."
+
+**Goal.** Lower the cost of owning and running heavy machines (excavators, loaders, skid steers,
+compact track loaders, dozers, telehandlers, haul trucks, drills and the like) by publishing
+open designs a small contractor, mine or fabricator can build, repair, retrofit or extend: the
+hardware (structure, hydraulics, drivetrain, electrics), the firmware (machine controllers,
+CAN bus, valve drivers, interlocks) and the software (operator interfaces, telematics,
+simulation, autonomy). Two kinds of output are equally welcome. *Low-cost competitors*: an
+open machine or subsystem that does a stock machine's job for much less, priced from a sourced
+bill of materials. *Autonomy and assistance*: remote operation, operator assist and autonomous
+work cycles, on an open machine or as a retrofit kit for one already on site. The question for
+every project is the same: what does the open version cost and do, against the machine it would
+replace, with both sides sourced? Mining is in scope (haulage, loading, drilling, ventilation);
+track 21's `infra-grind` covers the processing plant, this track covers the machines. Robots on
+a house site belong in track 20 and residential structure in track 12; a compact machine that
+digs a house's footings belongs here.
+
+**Prior work and open tools (not yet checked; check before citing).** Open Source Ecology's
+Global Village Construction Set: LifeTrac (an open tractor and loader), MicroTrac, the CEB press
+and the hydraulic power unit (track 1 already cites the GVCS). ETH Zurich's HEAP walking
+excavator: Jud et al. (2021), autonomous excavation with a walking excavator, *Science
+Robotics*. Project Chrono (BSD-3) and its SCM deformable soil; Bekker (1969) and Wong (2008),
+*Theory of Ground Vehicles*, for terramechanics; Reece (1964) and McKyes (1985), the fundamental
+earthmoving equation, for cutting force. ROS 2, Nav2, Autoware and ArduPilot Rover as open
+autonomy stacks. SAE J1939 (heavy-vehicle CAN), ISO 11783 (ISOBUS), SocketCAN, `python-can` and
+`cantools`. ISO 15143-3 (the AEMP 2.0 telematics API). Safety standards to design against, not
+to claim: ISO 20474 (earth-moving machinery safety), ISO 19014 (functional safety for
+earth-moving machinery), ISO 17757 (autonomous and semi-autonomous machine system safety, earth
+moving and mining), ISO 13849 and ISO 3471 (ROPS). Commercial systems as context, not as open
+work: Built Robotics (autonomous excavation retrofits), SafeAI, Caterpillar MineStar Command and
+Komatsu FrontRunner (autonomous haulage), Teleo (remote operation retrofits). Right to repair as
+context: Colorado HB23-1011 (agricultural equipment, 2023) and the US Copyright Office's DMCA
+section 1201 exemptions for vehicle diagnosis and repair.
+
+**Milestones.** A starting order, not a checklist.
+1. `heavy-market`: where the money goes. A sourced market report on compact and mid-size
+   machines: new and used prices by class and operating weight, ownership and operating cost per
+   hour (fuel, wear parts, hydraulics, repairs), dealer and parts margins where public, and the
+   open-source BOM floor (LifeTrac and similar). Which machine class has the widest gap between
+   price and the cost of its parts, and which subsystem holds it? Every price sourced and dated.
+2. `heavy-hydraulics`: the hydraulic system as a model. Pump, valves, hoses and cylinders of an
+   excavator arm or loader as a lumped simulation; open-centre against load-sensing against
+   electro-hydraulic independent metering on a published dig or load cycle; energy per cycle,
+   heat, and the parts cost of each circuit. Which open circuit gets closest to a stock machine
+   for the least money?
+3. `heavy-digtwin`: an open digging twin. Arm kinematics and dynamics with a soil model (the
+   fundamental earthmoving equation first, Chrono SCM if it installs), reproducing a published
+   bucket-force or fill-factor figure, and scored on payload per pass, cycle time and energy.
+   This is the scene later milestones score against.
+4. `heavy-controller`: open machine-controller firmware. A J1939 CAN stack, joystick input,
+   proportional-valve PWM drivers and the interlocks (operator presence, neutral start, e-stop,
+   boom lock-out) for a cheap microcontroller, in Rust or C (the Rust direction applies),
+   tested software-in-the-loop over virtual CAN against the milestone 2 or 3 twin, with fault
+   injection (dropped frames, stuck valve, sensor out of range). The firmware and its test
+   harness are the output.
+5. `heavy-autodig`: autonomous work cycles. A trenching or truck-loading policy (model-based or
+   learned, track 14's loop) against a scripted baseline in the milestone 3 twin: volume per
+   hour, trench grade tolerance, energy, and failures. What does autonomy add over a skilled
+   operator figure from the literature?
+6. `heavy-retrofit`: a retrofit kit. What it takes to make an existing machine remote-operable
+   or autonomous: sensors, actuators on the pilot hydraulics or the joystick, compute, radio,
+   e-stop chain, with a priced BOM against the commercial retrofits' public prices.
+7. `heavy-electric`: battery-electric compact machines. Duty-cycle energy from milestone 3,
+   battery size and cost from track 16, charging on site, and the cost per operating hour
+   against diesel. Where does electric win today?
+8. `heavy-haul`: mining haulage. A discrete-event open-pit haul cycle (shovel, trucks, dump,
+   queues; track 4's `robofab-cell` and track 21's twins), manned against autonomous fleets of
+   smaller, cheaper trucks: tonnes per hour, cost per tonne and sensitivity to truck size. Does a
+   fleet of small open trucks beat a few large ones?
+9. `heavy-structure`: a weldable open boom and frame. Plate-steel boom, stick and loader arms
+   designed with track 5's simulation loop (FEA, buckling, fatigue at weld toes) for a shop that
+   has a plasma table and a welder; mass, cost and safety factor against a stock part's
+   published figures.
+10. `heavy-telematics`: open telematics. Read J1939 and ISO 15143-3 data into an owner's own
+    fleet tool, and test whether survival analysis or changepoint detection (track 21's method
+    transfers) predicts wear-part failures on a public or simulated dataset.
+11. Owner steps: build or buy a machine or subsystem, bench-test the controller on real valves,
+    and any field trial, each with a priced BOM, a risk assessment and a qualified engineer.
+
+**Guardrails.**
+- *Heavy machines kill.* Crush, rollover, struck-by and hydraulic-injection hazards are real.
+  Every design, controller and autonomy result is research, not a certified machine or safety
+  system; say so in the README. Nothing is run on a real machine, near a person, by a session.
+  Any physical test is an owner step with a risk assessment against ISO 20474, ISO 19014 and,
+  for autonomy, ISO 17757, plus OSHA or MSHA obligations. Never present a simulated interlock
+  as a functional-safety rating.
+- *No emissions tampering.* Nothing that removes, bypasses or defeats an engine's emissions
+  controls (EGR, DPF, SCR, DEF) or its software. In the US that is a Clean Air Act violation;
+  it is out of scope however it is framed.
+- *Interoperate, don't break locks.* Read published buses and standards (J1939, ISO 15143-3)
+  and the owner's own data. No circumventing an OEM's access controls or copying proprietary
+  firmware, service software or service manuals; work within the law and the DMCA exemptions,
+  and when unsure, don't.
+- *Names and marks.* Describe compatibility factually ("fits a 1.7 t class mini excavator");
+  never use a manufacturer's marks in a way that implies affiliation. Vendor figures are the
+  vendor's claims, sourced and dated, kept apart from simulated results.
+- *Licences.* Original designs, firmware and software are MIT like the rest of the repository.
+  GVCS material is CC BY-SA and GPL; build on its ideas with credit, and keep its files under
+  their own licence if one is ever needed.
+- *Every price is sourced and dated, or swept.* Used-machine prices move fast; give the source,
+  date and class.
+- *Lab tags.* No group in `prompt.md` covers heavy equipment; milestones 3, 5 and 9 may build on
+  the groups tracks 5, 9 and 14 name. Say so rather than stretching a connection.
+
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; tracks 20's and 21's, added on 2026-10-21, and tracks 22's to 25's, added on 2026-10-24, are not yet checked. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
@@ -1434,3 +2138,20 @@ citing one, as `prompt.md` requires.
 - Kruse, Pandey, Alami and Kirsch (2013). Human-aware robot navigation: a survey. *Robotics and Autonomous Systems* 61(12):1726–1743. <https://doi.org/10.1016/j.robot.2013.05.007>
 - Mavrogiannis, Baldini, Wang, Zhao, Trautman, Steinfeld and Oh (2023). Core challenges of social robot navigation: a survey. *ACM Trans. Hum.-Robot Interact.* 12. <https://doi.org/10.1145/3583741>
 - Hancock, Billings, Schaefer, Chen, de Visser and Parasuraman (2011). A meta-analysis of factors affecting trust in human-robot interaction. *Human Factors* 53(5):517–527. <https://doi.org/10.1177/0018720811417254>
+
+**Track 22.** Added on 2026-10-24; not yet checked. Verify each entry before citing it.
+- Wolowicz, Bowman and Gilbert (1979). Similitude requirements and scaling relationships as applied to model testing. NASA TP-1435.
+- Jordan, Foster, Bailey and Belcastro (2006). AirSTAR: a UAV platform for flight dynamics and control system testing. AIAA 2006-3307.
+- D'Andrea (2014). Guest editorial: can drones deliver? *IEEE Trans. Automation Science and Engineering* 11(3):647–648.
+- Murray and Chu (2015). The flying sidekick traveling salesman problem. *Transportation Research Part C* 54:86–109. <https://doi.org/10.1016/j.trc.2015.03.005>
+- Stolaroff et al. (2018). Energy use and life cycle greenhouse gas emissions of drones for commercial package delivery. *Nature Communications* 9:409. <https://doi.org/10.1038/s41467-017-02411-5>
+- Agatz, Bouman and Schmidt (2018). Optimization approaches for the traveling salesman problem with drone. *Transportation Science* 52(4):965–981.
+- Johnson, Silva and Solis (2018). Concept vehicles for VTOL air taxi operations. AHS Technical Conference on Aeromechanics Design for Transformative Vertical Flight.
+- Rodrigues et al. (2022). Drone flight data reveal energy and greenhouse gas emissions savings for very small package delivery. *Patterns* 3(8).
+- Hoekstra and Ellerbroek (2016). BlueSky ATC simulator project: an open data and open source approach. ICRAT.
+- Brandt and Selig (2011). Propeller performance data at low Reynolds numbers. AIAA 2011-1255. UIUC Propeller Database: <https://m-selig.ae.illinois.edu/props/propDB.html>
+- Sharpe. AeroSandbox. <https://github.com/peterdsharpe/AeroSandbox>
+- Raymer. *Aircraft Design: A Conceptual Approach*. AIAA Education Series.
+
+**Track 23.**
+- Not yet checked; check before citing: Fossen (2011), *Handbook of Marine Craft Hydrodynamics and Motion Control*, Wiley; ITTC (1957) model-ship correlation line; Holtrop and Mennen (1982), An approximate power prediction method, *International Shipbuilding Progress* 29; Pierson and Moskowitz (1964), *J. Geophysical Research* 69(24); Hasselmann et al. (1973), JONSWAP, *Deutsche Hydrographische Zeitschrift* A8(12); IMO (1972), Convention on the International Regulations for Preventing Collisions at Sea; Fiorini and Shiller (1998), Motion planning in dynamic environments using velocity obstacles, *IJRR* 17(7); Kuwata et al. (2014), Safe maritime autonomous navigation with COLREGS, using velocity obstacles, *IEEE J. Oceanic Engineering* 39(1); Rudnick et al. (2004), Underwater gliders for ocean research, *Marine Technology Society Journal* 38(2); Bingham et al. (2019), Toward maritime robotic simulation in Gazebo, OCEANS; Cie&sacute;lak (2019), Stonefish, OCEANS; Bovcon et al. (2019), The MaSTr1325 dataset for training deep USV obstacle detection models, IROS; VRX <https://github.com/osrf/vrx>; ArduPilot <https://ardupilot.org>.

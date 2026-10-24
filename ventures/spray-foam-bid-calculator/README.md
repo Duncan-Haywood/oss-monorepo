@@ -5,7 +5,7 @@ residential foam job from the board feet an attic-square-foot special cannot
 see, the cell (open, closed, or hybrid), the rim joists, and the ignition
 coating — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/spray-foam-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/spray-foam-bid-calculator/
 
 **After using this, you can now send a spray-foam price that includes board
 feet, the rim, and the coating**, which used to take a spreadsheet that still
@@ -13,10 +13,7 @@ started from the coupon’s attic square feet.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

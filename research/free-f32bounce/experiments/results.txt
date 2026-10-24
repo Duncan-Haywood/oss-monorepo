@@ -1,0 +1,31 @@
+# free-f32bounce results. Sinai billiard (unit square, circle radius 0.25), N = 1000 members, 2000 collisions each; seeds fixed in code.
+
+== 1. collisions until a twin leaves the float64 reference (position differs by > 0.1)
+float64, start moved by 0.0001    11.0 (q10-q90  8.0-15.0, never 0%)
+float64, start moved by 1e-06     17.0 (q10-q90 14.0-21.0, never 0%)
+float64, start moved by 1e-08     23.0 (q10-q90 19.0-28.0, never 0%)
+float64, start moved by 1e-10     29.0 (q10-q90 25.0-34.0, never 0%)
+float64, start moved by 1e-12     35.0 (q10-q90 30.0-40.0, never 0%)
+float32 arithmetic             21.0 (q10-q90 17.0-25.0, never 0%)
+fit: collisions = -1.00 + 1.30 * ln(1/delta0)  (so lambda = 0.768 per collision)
+float32 matches a float64 start error of 4.64e-08 (float32 unit roundoff 6.0e-08, ratio 1)
+
+== 2. collisions until the event order changes (first different surface hit)
+float64, start moved by 0.0001    12.0 (q10-q90  9.0-16.0, never 0%)
+float64, start moved by 1e-06     18.0 (q10-q90 15.0-23.0, never 0%)
+float64, start moved by 1e-08     24.0 (q10-q90 20.0-29.0, never 0%)
+float64, start moved by 1e-10     30.0 (q10-q90 26.0-35.0, never 0%)
+float64, start moved by 1e-12     36.0 (q10-q90 31.0-41.0, never 0%)
+float32 arithmetic             22.0 (q10-q90 18.0-27.0, never 0%)
+
+== 3. long-run statistics over 2000 collisions (per-member means; Welch z of the difference from float64)
+float64                    mfp 0.45325  circle share 0.2821  |d| 1.0000000..1.0000000  escapes 0
+float32                    mfp 0.45296  circle share 0.2821  |d| 0.9999676..1.0000373  escapes 0  z(mfp)=-0.51 z(circle)=-0.01
+float64 start moved 1e-12  mfp 0.45355  circle share 0.2817  |d| 1.0000000..1.0000000  escapes 0  z(mfp)= 0.52 z(circle)=-0.93
+Cauchy mean free path pi*(1-pi r^2)/(4+2 pi r) = 0.45321
+z against the exact value: float64 0.09, float32 -0.63
+
+== 4. drift of the direction vector length |d| in float32 (no renormalisation)
+after  100 collisions: mean |d|-1 = +7.18e-08, sd 2.63e-06
+after  500 collisions: mean |d|-1 = +1.36e-07, sd 5.83e-06
+after 2000 collisions: mean |d|-1 = -5.47e-08, sd 1.11e-05

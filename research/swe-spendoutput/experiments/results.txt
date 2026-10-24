@@ -1,0 +1,18 @@
+priced runs 822; with tests_added recorded 174 (21%)
+of those, tests_added > 0: 157; zero: 17
+
+track      priced filled  pos  median$  rho(cost,tests) [95% boot]   elasticity [95% boot]  (positive-test runs)
+  research    346    107   94     0.98  +0.19 [-0.02, +0.39]   +0.33 [+0.10, +0.46]
+  ventures    232     47   46     0.67  +0.39 [+0.11, +0.64]   +1.19 [+0.48, +1.88]
+  explore      45     10    7  too few positive-test runs
+  process      96      8    8  too few positive-test runs
+  redteam      80      2    2  too few positive-test runs
+
+all tracks, positive-test runs n=157: rho +0.57 [+0.44, +0.68]; elasticity +0.80 [+0.63, +1.02]
+
+cost tercile (positive-test runs): n   cost range      tests   tests per $
+   52   $0.32 to $0.74      174     5.39
+   52   $0.75 to $1.01      276     6.02
+   53   $1.03 to $19.24      456     3.68
+
+recorded tests_added = 0: n=17, median cost $0.56 (positive-test median $0.88)

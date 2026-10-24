@@ -85,3 +85,17 @@ test("probe: confirms a known catastrophic pattern, leaves a linear one alone, s
   assert.equal(probePattern("^[a-z]+$").status, "not-reproduced");
   assert.equal(probePattern("(a").status, "skipped");
 });
+
+test("--sarif emits SARIF 2.1.0 with level, rule and line for code scanning", async () => {
+  const dir = await tree({ "src/bad.js": "export const re = /^(\\w+\\s?)+$/;\n", "ok.js": "const r = /^[a-z]+$/;\n" });
+  const { exitCode, output } = await run(["scan", dir, "--sarif"]);
+  assert.equal(exitCode, 1);
+  const sarif = JSON.parse(output);
+  assert.equal(sarif.version, "2.1.0");
+  const r = sarif.runs[0].results[0];
+  assert.equal(r.ruleId, "nested-quantifier");
+  assert.equal(r.level, "error");
+  assert.equal(r.locations[0].physicalLocation.region.startLine, 1);
+  assert.match(r.locations[0].physicalLocation.artifactLocation.uri, /src\/bad\.js$/);
+  assert.ok(sarif.runs[0].tool.driver.rules.some((x) => x.id === "nested-quantifier"));
+});

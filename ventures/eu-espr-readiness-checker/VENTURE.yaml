@@ -39,5 +39,5 @@ kill_criteria:
   - A report that a date, size rule or exception differs from the Regulation's text or the delegated acts on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-espr-readiness-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-espr-readiness-checker/
   analytics: null

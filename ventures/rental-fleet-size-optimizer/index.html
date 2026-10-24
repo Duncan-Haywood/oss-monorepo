@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Rental Fleet Size Optimizer — how many units to own, from your own demand</title>
-  <meta name="description" content="Free rental fleet size optimizer for tent, equipment, kayak, tool and party rental businesses. Enter your seasons, rental lengths, price and what a unit costs to own; it finds the number of units that maximises yearly profit using the Erlang loss formula and a day-by-day simulation. Runs in your browser; nothing is uploaded.">
+  <meta name="description" content="Free rental fleet size optimizer for tent, equipment, kayak, tool and party rental businesses. Enter your seasons, rental lengths, price and what a unit costs to own; it finds the number of units that maximises yearly profit using the Erlang loss formula and a day-by-day simulation.">
   <meta property="og:title" content="Rental Fleet Size Optimizer — free, private, in your browser">
   <meta property="og:description" content="How many units should you own? See the yearly profit of every fleet size, the share of customers you would turn away, and a bad year, from your own demand figures.">
   <link rel="canonical" href="./index.html">
@@ -57,6 +57,7 @@
     <p>Enter your <strong>seasons of demand</strong>, how <strong>long rentals last</strong>, what you <strong>charge</strong> and what a unit <strong>costs to own</strong>. The tool computes the yearly profit of <strong>every fleet size</strong> two ways, with the <strong>Erlang loss formula</strong> and a repeatable <strong>day-by-day simulation</strong>, then recommends how many units to own, how many customers that turns away, what a <strong>bad year</strong> looks like and how the answer moves if demand does.</p>
     <p class="note">Arithmetic and simulation on figures you supply. Not legal, tax, or financial advice. New to this? Read <a href="./how-many-rental-units-to-own.html">how many rental units to own, and why the last one rarely pays</a>.</p>
   </header>
+<main>
 
   <section class="card">
     <div class="two">
@@ -80,6 +81,8 @@
       <div><label for="costPerRental">Cost of each rental: cleaning, delivery, wear ($)</label><input id="costPerRental" inputmode="decimal" value="18"></div>
       <div><label for="unitCost">Yearly cost of owning one unit ($)</label><input id="unitCost" inputmode="decimal" value="1100"></div>
       <div><label for="lostCost">Extra cost of turning a customer away ($)</label><input id="lostCost" inputmode="decimal" value="0"></div>
+      <div><label for="overflowMargin">Optional: what you keep when you sub-rent a turned-away request from a partner ($)</label><input id="overflowMargin" inputmode="decimal" value="0"></div>
+      <div><label for="overflowShare">Optional: share of turned-away requests you can fill that way (%)</label><input id="overflowShare" inputmode="decimal" value="0"></div>
     </div>
     <p class="note">The cost of owning a unit is what it costs you whether or not it is out: depreciation or finance, storage, insurance, upkeep.</p>
 
@@ -137,7 +140,8 @@
     <p>No. Everything runs in your browser from the figures you type, nothing is sent to a server, there are no accounts, and it works offline after the page loads.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice and does not replace an accountant or a qualified business adviser. Results are arithmetic and simulation on the figures you type; real demand differs from a model and a recommended fleet size is not a forecast. You are responsible for reviewing and verifying its output.</p>
     <p><strong>Independent.</strong> Not affiliated with any rental software, equipment maker or marketplace, and none is named or ranked here. The example business and its prices are invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
@@ -154,7 +158,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const FIELDS = ["price", "costPerRental", "unitCost", "lostCost", "bookingStyle", "vmr", "maxTurnAway", "currentUnits", "maxUnits", "years"];
+    const FIELDS = ["price", "costPerRental", "unitCost", "lostCost", "overflowMargin", "overflowShare", "bookingStyle", "vmr", "maxTurnAway", "currentUnits", "maxUnits", "years"];
     let last = null;
 
     function run() {

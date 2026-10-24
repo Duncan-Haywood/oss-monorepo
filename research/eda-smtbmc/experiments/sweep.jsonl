@@ -1,0 +1,12 @@
+{"id": "0:del@122:delete", "depth": 2, "verdict": "pass", "seconds": 0.1}
+{"id": "0:del@122:delete", "depth": 4, "verdict": "pass", "seconds": 0.3}
+{"id": "0:del@122:delete", "depth": 6, "verdict": "pass", "seconds": 0.3}
+{"id": "0:del@122:delete", "depth": 8, "verdict": "pass", "seconds": 0.9}
+{"id": "0:del@122:delete", "depth": 10, "verdict": "pass", "seconds": 3.4}
+{"id": "0:del@122:delete", "depth": 12, "verdict": "timeout", "seconds": 240.0}
+{"id": "1:lit@123:0+1", "depth": 2, "verdict": "pass", "seconds": 0.1}
+{"id": "1:lit@123:0+1", "depth": 4, "verdict": "pass", "seconds": 0.3}
+{"id": "1:lit@123:0+1", "depth": 6, "verdict": "pass", "seconds": 0.6}
+{"id": "1:lit@123:0+1", "depth": 8, "verdict": "pass", "seconds": 0.8}
+{"id": "1:lit@123:0+1", "depth": 10, "verdict": "pass", "seconds": 3.1}
+{"id": "1:lit@123:0+1", "depth": 12, "verdict": "timeout", "seconds": 240.0}

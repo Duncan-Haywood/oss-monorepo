@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:podcast="https://podcastindex.org/namespace/1.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Little Lamps</title>
+    <link>https://example.invalid/hearth-and-horizon/#little-lamps</link>
+    <atom:link href="https://example.invalid/hearth-and-horizon/feeds/little-lamps.xml" rel="self" type="application/rss+xml"/>
+    <description>Gentle bedtime stories for children about the saints, real ones told truthfully and invented ones told in the tradition, with a short prayer and a note for grown-ups on what is history and what is legend. Every story is free to read, listen to, share and adapt under CC BY-SA 4.0.</description>
+    <language>en</language>
+    <copyright>CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Written by Claude, an AI model made by Anthropic.</copyright>
+    <podcast:license url="https://creativecommons.org/licenses/by-sa/4.0/">cc-by-sa-4.0</podcast:license>
+    <podcast:medium>podcast</podcast:medium>
+    <itunes:author>Claude (AI) for Hearth &amp; Horizon</itunes:author>
+    <itunes:image href="https://example.invalid/hearth-and-horizon/covers/little-lamps.png"/>
+    <image><url>https://example.invalid/hearth-and-horizon/covers/little-lamps.png</url><title>Little Lamps</title><link>https://example.invalid/hearth-and-horizon/</link></image>
+    <itunes:category text="Kids &amp; Family"><itunes:category text="Stories for Kids"/></itunes:category>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:type>episodic</itunes:type>
+    <item>
+      <title>Columba and the White Horse</title>
+      <link>https://example.invalid/hearth-and-horizon/columba-and-the-white-horse.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/columba-and-the-white-horse.html</guid>
+      <pubDate>Fri, 23 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Columba of Iona in his last days, and the old white horse who carried the milk every day and who came to say goodbye. Told from the Life of Columba written by Abbot Adomnán about a hundred years later, with a note for grown-ups on what is history and what is told in the Life. For ages 3 to 8, about ten minutes read aloud. His feast day is the 9th of June. Setting: The island of Iona, off the west coast of Scotland, in the first week of June, about fourteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/columba-and-the-white-horse.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Columba of Iona in his last days, and the old white horse who carried the milk every day and who came to say goodbye. Told from the Life of Columba written by Abbot Adomnán about a hundred years later, with a note for grown-ups on what is history and what is told in the Life. For ages 3 to 8, about ten minutes read aloud. His feast day is the 9th of June.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>Brigid and the Cloak</title>
+      <link>https://example.invalid/hearth-and-horizon/brigid-and-the-cloak.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/brigid-and-the-cloak.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Brigid of Kildare, who asked a king for only as much land as her cloak could cover, and the cloak that went on spreading. Told as the old tradition tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 1st of February. Setting: Ireland, in the time of the old kings, about fifteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/brigid-and-the-cloak.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Brigid of Kildare, who asked a king for only as much land as her cloak could cover, and the cloak that went on spreading. Told as the old tradition tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 1st of February.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/brigid-and-the-cloak.mp3" length="3866815" type="audio/mpeg"/>
+      <itunes:duration>0:10:44</itunes:duration>
+    </item>
+    <item>
+      <title>Isidore and the Angels Who Ploughed</title>
+      <link>https://example.invalid/hearth-and-horizon/isidore-and-the-angels-who-ploughed.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/isidore-and-the-angels-who-ploughed.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Isidore the Farmer, who stopped his ploughing each morning to pray, and about the old legend that angels finished his furrows while he did. Told as the old story tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 15th of May. Setting: Fields outside Madrid, Spain, about nine hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/isidore-and-the-angels-who-ploughed.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Isidore the Farmer, who stopped his ploughing each morning to pray, and about the old legend that angels finished his furrows while he did. Told as the old story tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 15th of May.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/isidore-and-the-angels-who-ploughed.mp3" length="2663107" type="audio/mpeg"/>
+      <itunes:duration>0:07:24</itunes:duration>
+    </item>
+    <item>
+      <title>Kevin and the Blackbird</title>
+      <link>https://example.invalid/hearth-and-horizon/kevin-and-the-blackbird.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/kevin-and-the-blackbird.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Kevin of Glendalough, who was praying with his hand held out of a window when a blackbird laid an egg in it, and who stayed still until the chick hatched. Told as the old legend tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about nine minutes read aloud. His feast day is the 3rd of June. Setting: Glendalough, the valley of two lakes in the Wicklow mountains, Ireland, about fourteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/kevin-and-the-blackbird.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Kevin of Glendalough, who was praying with his hand held out of a window when a blackbird laid an egg in it, and who stayed still until the chick hatched. Told as the old legend tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about nine minutes read aloud. His feast day is the 3rd of June.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/kevin-and-the-blackbird.mp3" length="3579993" type="audio/mpeg"/>
+      <itunes:duration>0:09:57</itunes:duration>
+    </item>
+    <item>
+      <title>Martin of Tours and Half a Cloak</title>
+      <link>https://example.invalid/hearth-and-horizon/martin-of-tours-and-the-half-a-cloak.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/martin-of-tours-and-the-half-a-cloak.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Martin of Tours, the young soldier who met a freezing beggar at a town gate and cut his own cloak in two, as his friend Sulpicius Severus tells it. With a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 11th of November. Setting: The gate of the town of Amiens, in what is now France, about sixteen hundred and fifty years ago. Read the full text at https://example.invalid/hearth-and-horizon/martin-of-tours-and-the-half-a-cloak.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Martin of Tours, the young soldier who met a freezing beggar at a town gate and cut his own cloak in two, as his friend Sulpicius Severus tells it. With a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 11th of November.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/martin-of-tours-and-the-half-a-cloak.mp3" length="3274687" type="audio/mpeg"/>
+      <itunes:duration>0:09:06</itunes:duration>
+    </item>
+    <item>
+      <title>Nicholas and the Three Bags of Gold</title>
+      <link>https://example.invalid/hearth-and-horizon/nicholas-and-the-three-bags-of-gold.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/nicholas-and-the-three-bags-of-gold.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Nicholas of Myra and the old tale of the poor father with three daughters, and the gold that appeared on three dark nights. Told as the old story tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 6th of December. Setting: The harbour town of Myra, in what is now Turkey, about seventeen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/nicholas-and-the-three-bags-of-gold.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Nicholas of Myra and the old tale of the poor father with three daughters, and the gold that appeared on three dark nights. Told as the old story tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 6th of December.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/nicholas-and-the-three-bags-of-gold.mp3" length="3014350" type="audio/mpeg"/>
+      <itunes:duration>0:08:22</itunes:duration>
+    </item>
+    <item>
+      <title>Thérèse and the Small Way</title>
+      <link>https://example.invalid/hearth-and-horizon/therese-and-the-small-way.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/therese-and-the-small-way.html</guid>
+      <pubDate>Thu, 22 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Thérèse of Lisieux, who as a little girl chose the whole basket of dolls' clothes, and who as a grown-up found that she was too small to climb to heaven and decided to be carried instead. Told from her own writing, with a note for grown-ups on what is history. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 1st of October. Setting: Alençon and Lisieux, France, about a hundred and fifty years ago. Read the full text at https://example.invalid/hearth-and-horizon/therese-and-the-small-way.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Thérèse of Lisieux, who as a little girl chose the whole basket of dolls' clothes, and who as a grown-up found that she was too small to climb to heaven and decided to be carried instead. Told from her own writing, with a note for grown-ups on what is history. For ages 3 to 8, about ten minutes read aloud. Her feast day is the 1st of October.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/therese-and-the-small-way.mp3" length="3212453" type="audio/mpeg"/>
+      <itunes:duration>0:08:55</itunes:duration>
+    </item>
+    <item>
+      <title>Francis and the Wolf of Gubbio</title>
+      <link>https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Francis of Assisi and the hungry wolf that frightened the town of Gubbio, told the way the old Little Flowers of Saint Francis tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 4th of October. Setting: Gubbio, in the hills of Umbria, Italy, in the time of Saint Francis (an old story). Read the full text at https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Francis of Assisi and the hungry wolf that frightened the town of Gubbio, told the way the old Little Flowers of Saint Francis tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about ten minutes read aloud. His feast day is the 4th of October.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/francis-and-the-wolf-of-gubbio.mp3" length="4063213" type="audio/mpeg"/>
+      <itunes:duration>0:11:17</itunes:duration>
+    </item>
+    <item>
+      <title>Brother Martin and the Mice</title>
+      <link>https://example.invalid/hearth-and-horizon/brother-martin-and-the-mice.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/brother-martin-and-the-mice.html</guid>
+      <pubDate>Tue, 20 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Martin de Porres, the kind brother with the broom, who made peace between a convent full of friars and a convent full of mice. For ages 3 to 8, about ten minutes read aloud. His feast day is the 3rd of November. Setting: Lima, Peru, around the year 1610. Read the full text at https://example.invalid/hearth-and-horizon/brother-martin-and-the-mice.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Martin de Porres, the kind brother with the broom, who made peace between a convent full of friars and a convent full of mice. For ages 3 to 8, about ten minutes read aloud. His feast day is the 3rd of November.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/brother-martin-and-the-mice.mp3" length="3381571" type="audio/mpeg"/>
+      <itunes:duration>0:09:24</itunes:duration>
+    </item>
+  </channel>
+</rss>

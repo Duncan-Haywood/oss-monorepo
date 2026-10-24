@@ -48,6 +48,7 @@
     <p>Paste your <code>robots.txt</code> and this checks it against 20 named AI-crawler user-agents — GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and more — so you can see in one place who's allowed in, who's blocked, and who falls through to your wildcard rule by accident.</p>
     <p class="note">Nothing is uploaded. The text you paste is parsed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Try fetching it automatically, or paste it</h2>
@@ -107,7 +108,8 @@ node cli.mjs --robots-file ./robots.txt --llms-file ./llms.txt</code></pre>
     <p>Don't have an <code>llms.txt</code> yet, or want one built from your docs instead of hand-written? <a href="../llms-txt-generator/">llms.txt Generator</a> builds a spec-compliant one from a pasted page list, a sitemap.xml, or a local Markdown docs tree — the complementary job to this page's structural check.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports what a robots.txt or llms.txt file says — it is not a guarantee that any crawler will honor those directives, and it does not replace reading the crawler operator's own current documentation. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>fetch_attempted</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

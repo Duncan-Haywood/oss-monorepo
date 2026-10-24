@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  parseResources, parseProducts, simplex, analyze, evaluatePlan, reportCsv, sampleResources, sampleProducts, money, money2,
+  parseResources, parseProducts, simplex, analyze, priceBreaks, evaluatePlan, reportCsv, sampleResources, sampleProducts, money, money2,
 } from "./calc.mjs";
 
 const res = (name, cap, otMax = 0, otCost = 0) => ({ name, cap, otMax, otCost });
@@ -197,4 +197,36 @@ test("money formatting", () => {
   assert.equal(money(1234.4), "$1,234");
   assert.equal(money(-5), "-$5");
   assert.equal(money2(8.428), "$8.43");
+});
+
+test("price breaks: a product left out enters at the price where its net per unit reaches zero", () => {
+  // One hour of labour is worth $10 via A (margin 10, 1 h). B uses 2 h, so B needs margin 20 -> price 25 at cost 5.
+  const P = [prod("A", 20, 10, [1]), prod("B", 12, 5, [2])];
+  P[0].max = 100; P[1].max = 100;
+  const R = [res("h", 40)];
+  const r = analyze(P, R, {});
+  assert.equal(r.plan.lines[1].units, 0);
+  const b = priceBreaks(P, R);
+  assert.ok(Math.abs(b[1].breakPrice - 25) <= 0.02, String(b[1].breakPrice));
+  assert.equal(b[1].inPlan, false);
+  assert.ok(b[1].change > 0);
+});
+
+test("price breaks: a product in the plan drops out below the price where it stops beating the alternative", () => {
+  const P = [prod("A", 20, 10, [1]), prod("B", 40, 5, [2])];
+  P[0].max = 100; P[1].max = 100;
+  const R = [res("h", 40)];
+  const b = priceBreaks(P, R);
+  assert.equal(b[1].inPlan, true);
+  // B beats A while (price-5)/2 > 10, i.e. price > 25.
+  assert.ok(Math.abs(b[1].breakPrice - 25) <= 0.02, String(b[1].breakPrice));
+  assert.ok(b[1].change < 0);
+});
+
+test("price breaks: a promised minimum holds a product in at any price", () => {
+  const P = [prod("A", 20, 10, [1]), prod("B", 12, 5, [2], { min: 4 })];
+  P[0].max = 100; P[1].max = 100;
+  const b = priceBreaks(P, [res("h", 40)]);
+  assert.equal(b[1].breakPrice, null);
+  assert.match(b[1].note, /minimum/);
 });

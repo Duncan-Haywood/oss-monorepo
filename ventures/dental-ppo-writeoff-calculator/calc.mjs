@@ -206,11 +206,19 @@ export function effectiveReimbursement(input = {}) {
         // practice to renegotiate a contract it did not use.
         belowBreakEven: p.gross > 0 && rate < breakEvenReimbursementRate,
         annualWriteOff: round2(p.writeOff * 12),
+        // What this plan would have to pay on the same production, in this
+        // period's dollars, to reach the break-even rate. Zero at or above it.
+        shortfallToBreakEven: p.gross > 0 && rate < breakEvenReimbursementRate ? round2((breakEvenReimbursementRate - rate) * p.gross) : 0,
+        // The same gap as a rise in what the plan pays per dollar it pays now:
+        // 0.25 means its allowed amounts would have to be 25% higher. Null when
+        // the plan paid nothing, where a ratio has no meaning.
+        payRiseToBreakEven: p.gross > 0 && rate > 0 && rate < breakEvenReimbursementRate ? round4(breakEvenReimbursementRate / rate - 1) : null,
       };
     })
     .sort((a, b) => b.writeOff - a.writeOff);
 
   const belowBreakEven = planResults.filter((p) => p.belowBreakEven);
+  const totalShortfallToBreakEven = round2(belowBreakEven.reduce((sum, p) => sum + p.shortfallToBreakEven, 0));
 
   // How concentrated the write-off is. A practice with one bad contract and a
   // practice with eight mediocre ones have the same total and entirely
@@ -262,6 +270,8 @@ export function effectiveReimbursement(input = {}) {
       belowBreakEven.reduce((sum, p) => sum + p.grossProduction, 0),
     ),
     plansToHalfTheWriteOff,
+    totalShortfallToBreakEven,
+    annualShortfallToBreakEven: round2(totalShortfallToBreakEven * 12),
     annualWriteOff: round2(totalWriteOff * 12),
     feeRaiseImpact,
   };

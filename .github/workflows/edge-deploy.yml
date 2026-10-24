@@ -1,0 +1,78 @@
+# Deploys platform/edge (the Cloudflare Worker behind the site's feedback form
+# and page-view counts) on the free plan. Does nothing until the repository has
+# the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets (owner, 2026-10-20);
+# the owner saved them as cloudflarerestrictedapikey / cloudflareaccountid
+# (2026-10-21), so any of these spellings works (secret names are
+# case-insensitive);
+# see platform/edge/README.md. Free plan: going over a daily limit fails
+# requests, never bills.
+name: edge-deploy
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'platform/edge/**'
+      - '!platform/edge/site.json'
+      - 'platform/counter/core.mjs'
+      - '.github/workflows/edge-deploy.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: edge-deploy
+  cancel-in-progress: false
+jobs:
+  # A job-level `if:` cannot read secrets, so a first job reports whether the
+  # Cloudflare ones exist; without them the deploy is skipped, not failed.
+  gate:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 2
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          CONFIGURED: ${{ (secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY) != '' && (secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID) != '' }}
+        run: |
+          if [ "$CONFIGURED" = true ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Cloudflare secrets are not set; skipping the deploy."
+          fi
+  deploy:
+    needs: gate
+    if: ${{ needs.gate.outputs.ready == 'true' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
+      DB_NAME: monorepo-projects-edge
+    defaults:
+      run:
+        working-directory: platform/edge
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Install wrangler (pinned)
+        run: npm install --global wrangler@4.145.0
+      - name: Test
+        run: node --test worker.test.mjs
+      - name: Find or create the D1 database
+        run: |
+          id=$(wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const db=JSON.parse(s).find(d=>d.name===process.env.DB_NAME);process.stdout.write(db?db.uuid:"")})')
+          if [ -z "$id" ]; then
+            wrangler d1 create "$DB_NAME"
+            id=$(wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const db=JSON.parse(s).find(d=>d.name===process.env.DB_NAME);process.stdout.write(db?db.uuid:"")})')
+          fi
+          test -n "$id"
+          sed -i "s/^database_id = .*/database_id = \"$id\"/" wrangler.toml
+      - name: Apply the schema (idempotent)
+        run: wrangler d1 execute "$DB_NAME" --remote --file schema.sql
+      - name: Deploy
+        run: wrangler deploy

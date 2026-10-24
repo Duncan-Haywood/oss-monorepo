@@ -27,9 +27,7 @@
 // older one. A visitor can therefore be at most one navigation behind, and
 // never mixes files from two builds.
 
-import zlib from 'node:zlib';
-
-import { drawText, headlineFrom, layout } from './cardtext.mjs';
+import { renderCard, renderMarkIcon } from './sharecard.mjs';
 
 export const THEME_COLOR = '#12594a';
 const BACKGROUND_COLOR = '#eef2f7';
@@ -42,148 +40,28 @@ const BACKGROUND_COLOR = '#eef2f7';
 // missing icon is the difference between "Install app" appearing and not.
 // ---------------------------------------------------------------------------
 
-const CRC_TABLE = (() => {
-  const table = new Int32Array(256);
-  for (let n = 0; n < 256; n += 1) {
-    let c = n;
-    for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    table[n] = c;
-  }
-  return table;
-})();
-
-function crc32(buf) {
-  let c = -1;
-  for (let i = 0; i < buf.length; i += 1) c = CRC_TABLE[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
-  return (c ^ -1) >>> 0;
-}
-
-function chunk(type, data) {
-  const length = Buffer.alloc(4);
-  length.writeUInt32BE(data.length, 0);
-  const body = Buffer.concat([Buffer.from(type, 'latin1'), data]);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(body), 0);
-  return Buffer.concat([length, body, crc]);
-}
-
-function encodePngRect(width, height, rgba, { alpha = true } = {}) {
-  if (!alpha) {
-    const rgb = Buffer.alloc(width * height * 3);
-    for (let i = 0, j = 0; i < rgba.length; i += 4, j += 3) { rgb[j] = rgba[i]; rgb[j + 1] = rgba[i + 1]; rgb[j + 2] = rgba[i + 2]; }
-    return encodeRaw(width, height, rgb, 3, 2);
-  }
-  return encodeRaw(width, height, rgba, 4, 6);
-}
-
-function encodeRaw(width, height, rgba, channels, colourType) {
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(width, 0);
-  ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = colourType; // 6 = RGBA, 2 = RGB
-  // 10..12 stay zero: deflate, adaptive filtering, no interlace.
-
-  // One filter byte (0 = none) per scanline, ahead of that row's pixels.
-  const stride = width * channels;
-  const raw = Buffer.alloc((stride + 1) * height);
-  for (let y = 0; y < height; y += 1) {
-    const rowStart = y * (stride + 1);
-    raw[rowStart] = 0;
-    rgba.copy(raw, rowStart + 1, y * stride, (y + 1) * stride);
-  }
-
-  return Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    chunk('IHDR', ihdr),
-    chunk('IDAT', zlib.deflateSync(raw, { level: 9 })),
-    chunk('IEND', Buffer.alloc(0)),
-  ]);
-}
-
-const encodePng = (size, rgba) => encodePngRect(size, size, rgba);
-
-const hexToRgb = (hex) => [
-  parseInt(hex.slice(1, 3), 16),
-  parseInt(hex.slice(3, 5), 16),
-  parseInt(hex.slice(5, 7), 16),
-];
-
 /**
- * A calculator mark: a keypad body, a display bar, and two rows of keys.
+ * The app icon: the brand mark (three rising bars on the header's
+ * teal-to-indigo square), drawn by `sharecard.mjs` so the tab, the home-screen
+ * tile and every share card carry one logo. It used to be a calculator, from
+ * when the site was only calculators; it now also holds research and apps.
  *
  * `maskable` renders full-bleed with the mark inside the 80% safe zone, which
  * is what Android crops to a circle; the plain variant keeps a rounded square
- * so it still reads as an icon where no mask is applied.
+ * so it still reads as an icon where no mask is applied. `opaque` is a
+ * full-bleed square with no alpha, which is what Apple's touch icon needs
+ * (iOS paints a transparent corner black and rounds the corners itself).
  */
 export function renderIcon({ size = 192, maskable = false, opaque = false } = {}) {
-  const rgba = Buffer.alloc(size * size * 4);
-  const [ar, ag, ab] = hexToRgb(THEME_COLOR);
-
-  const put = (x, y, r, g, b, a = 255) => {
-    if (x < 0 || y < 0 || x >= size || y >= size) return;
-    const i = (y * size + x) * 4;
-    rgba[i] = r;
-    rgba[i + 1] = g;
-    rgba[i + 2] = b;
-    rgba[i + 3] = a;
-  };
-
-  const inRoundedRect = (x, y, left, top, w, h, radius) => {
-    if (x < left || y < top || x >= left + w || y >= top + h) return false;
-    const dx = Math.min(x - left, left + w - 1 - x);
-    const dy = Math.min(y - top, top + h - 1 - y);
-    if (dx >= radius || dy >= radius) return true;
-    const cx = radius - dx;
-    const cy = radius - dy;
-    return cx * cx + cy * cy <= radius * radius;
-  };
-
-  const pad = maskable ? size * 0.1 : 0;
-  const plate = size - pad * 2;
-  // `opaque` is a full-bleed square with no transparent corners: the App Store
-  // rejects an icon with an alpha channel and rounds the corners itself.
-  const plateRadius = opaque ? 0 : maskable ? plate * 0.5 : size * 0.22;
-
-  for (let y = 0; y < size; y += 1) {
-    for (let x = 0; x < size; x += 1) {
-      if (inRoundedRect(x, y, pad, pad, plate, plate, plateRadius)) put(x, y, ar, ag, ab);
-    }
-  }
-
-  // Mark geometry, in fractions of the plate.
-  const mx = pad + plate * 0.24;
-  const my = pad + plate * 0.2;
-  const mw = plate * 0.52;
-  const displayH = plate * 0.16;
-  const keySize = plate * 0.12;
-  const gap = (mw - keySize * 3) / 2;
-
-  for (let y = 0; y < size; y += 1) {
-    for (let x = 0; x < size; x += 1) {
-      if (inRoundedRect(x, y, mx, my, mw, displayH, plate * 0.03)) {
-        put(x, y, 255, 255, 255);
-        continue;
-      }
-      for (let row = 0; row < 2; row += 1) {
-        for (let col = 0; col < 3; col += 1) {
-          const kx = mx + col * (keySize + gap);
-          const ky = my + displayH + plate * 0.1 + row * (keySize + plate * 0.06);
-          if (inRoundedRect(x, y, kx, ky, keySize, keySize, plate * 0.025)) {
-            put(x, y, 255, 255, 255);
-          }
-        }
-      }
-    }
-  }
-
-  return opaque ? encodePngRect(size, size, rgba, { alpha: false }) : encodePng(size, rgba);
+  return renderMarkIcon({ size, maskable, opaque });
 }
 
 export const ICONS = [
   { file: 'icon-192.png', size: 192, purpose: 'any' },
   { file: 'icon-512.png', size: 512, purpose: 'any' },
   { file: 'icon-maskable-512.png', size: 512, purpose: 'maskable', maskable: true },
+  // Not in the manifest: iOS reads `<link rel="apple-touch-icon">` instead.
+  { file: 'apple-touch-icon.png', size: 180, opaque: true, manifest: false },
 ];
 
 // 1200x630 is the size every scraper crops to for a wide card, and the ratio
@@ -191,163 +69,23 @@ export const ICONS = [
 // Facebook and rendered as a small square by X.
 export const SOCIAL_CARD_WIDTH = 1200;
 export const SOCIAL_CARD_HEIGHT = 630;
-// Every scraper crops a wide card differently at the edges — X trims the sides,
-// Slack rounds the corners. 72px keeps the lockup, the headline and the footer
-// clear of all of it.
-const MARGIN = 72;
 
 /**
- * The wide card a link to this site previews as.
+ * The wide card a link to this site previews as. See `sharecard.mjs` for the
+ * drawing: the homepage hero's night field and aurora, the brand lockup, the
+ * page's section as a coloured kicker and its name set in Inter.
  *
- * Deliberately typeless. The PNG encoder above is 40 lines of `zlib` and has no
- * font rasteriser, and pulling one in to draw a headline would add a dependency
- * to a repo whose whole build is dependency-free — for a string the scraper
- * already reads out of `og:title` and renders in its own type beside the image.
- * So this draws the mark and the brand field only, which is the half an image
- * is actually needed for, and lets the words stay words.
- *
- * The mark is `renderIcon`'s calculator, centred. An earlier draft set it
- * left-of-centre to leave room for a headline, and with no headline to fill
- * that room the card read as a picture someone had cropped badly — which is a
- * worse first impression than no image. Centred, it reads as a logo card,
- * which is what it is.
- *
- * `color` swaps the field the mark sits on, so a share into the marketplace-fee
- * forum and a share into a roofing group are visibly different cards.
- *
- * `headline` sets the tool's own name across the card. It is optional, and the
- * two layouts are deliberately different rather than one with an empty slot:
- *
- *   - **With a headline** the mark shrinks to a lockup in the top-left and the
- *     name takes the middle. This is what a tool page and a category page use.
- *   - **Without one** the mark is centred and alone, which is what the hub and
- *     the About page use. An earlier draft kept the mark left-of-centre in both
- *     cases, and with no headline to fill the space the card read as a picture
- *     someone had cropped badly.
- *
- * `cardtext.mjs` is what made the first case possible — a stroke font in a
- * build that still imports nothing but Node builtins. Until it existed, all
- * 164 tools shared one picture, because the encoder here has no rasteriser and
- * a real font would have meant a binary asset and a shaping library.
+ * `color` is the section's accent (the corner glow, the kicker and the rule),
+ * so a share into the marketplace-fee forum and a share into a roofing group
+ * are visibly different cards. `headline` is the page's name; without one the
+ * card is the brand lockup alone. `kicker`, `subtitle`, `footer`, `address`
+ * and `highlight` pass straight through to `renderCard`.
  */
 export function renderSocialCard(options = {}) {
   // Callers before the headline existed passed the field colour positionally.
   const opts = typeof options === 'string' ? { color: options } : (options ?? {});
-  const { color = THEME_COLOR, headline = '', kicker = '', footer = '' } = opts;
-  const width = SOCIAL_CARD_WIDTH;
-  const height = SOCIAL_CARD_HEIGHT;
-  const rgba = Buffer.alloc(width * height * 4);
-  const [ar, ag, ab] = hexToRgb(color);
-  const title = headlineFrom(headline);
-
-  const put = (x, y, r, g, b) => {
-    const i = (y * width + x) * 4;
-    rgba[i] = r;
-    rgba[i + 1] = g;
-    rgba[i + 2] = b;
-    rgba[i + 3] = 255;
-  };
-
-  const inRoundedRect = (x, y, left, top, w, h, radius) => {
-    if (x < left || y < top || x >= left + w || y >= top + h) return false;
-    const dx = Math.min(x - left, left + w - 1 - x);
-    const dy = Math.min(y - top, top + h - 1 - y);
-    if (dx >= radius || dy >= radius) return true;
-    const cx = radius - dx;
-    const cy = radius - dy;
-    return cx * cx + cy * cy <= radius * radius;
-  };
-
-  // The mark's plate, on the same geometry `renderIcon` uses. Centred and
-  // large when the mark is the whole card; a small top-left lockup when a
-  // headline needs the middle.
-  const plate = title ? Math.round(height * 0.22) : Math.round(height * 0.62);
-  const plateLeft = title ? MARGIN : Math.round((width - plate) / 2);
-  const plateTop = title ? MARGIN : Math.round((height - plate) / 2);
-  const plateRadius = plate * 0.22;
-
-  const mx = plateLeft + plate * 0.24;
-  const my = plateTop + plate * 0.2;
-  const mw = plate * 0.52;
-  const displayH = plate * 0.16;
-  const keySize = plate * 0.12;
-  const gap = (mw - keySize * 3) / 2;
-
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      put(x, y, ar, ag, ab);
-      if (!inRoundedRect(x, y, plateLeft, plateTop, plate, plate, plateRadius)) continue;
-      // The plate is a shade lighter than the field so the mark reads as an
-      // object on a background rather than as a hole punched in it.
-      put(x, y, Math.min(255, ar + 18), Math.min(255, ag + 24), Math.min(255, ab + 20));
-      if (inRoundedRect(x, y, mx, my, mw, displayH, plate * 0.03)) {
-        put(x, y, 255, 255, 255);
-        continue;
-      }
-      for (let row = 0; row < 2; row += 1) {
-        for (let col = 0; col < 3; col += 1) {
-          const kx = mx + col * (keySize + gap);
-          const ky = my + displayH + plate * 0.1 + row * (keySize + plate * 0.06);
-          if (inRoundedRect(x, y, kx, ky, keySize, keySize, plate * 0.025)) put(x, y, 255, 255, 255);
-        }
-      }
-    }
-  }
-
-  if (title) {
-    const target = { width, height, rgba };
-    // Supporting type is white mixed back towards the field so the headline
-    // stays the one thing read first. Mixing rather than alpha-blending keeps
-    // `drawText` to a single opaque composite per run.
-    const muted = [ar, ag, ab].map((c) => Math.round(c + (255 - c) * 0.72));
-    const textLeft = MARGIN;
-    const textRight = width - MARGIN;
-
-    if (kicker) {
-      const size = 26;
-      drawText(target, kicker.toUpperCase(), {
-        x: plateLeft + plate + 26,
-        y: plateTop + plate / 2 + size * 0.5,
-        size,
-        weight: 0.16,
-        rgb: muted,
-      });
-    }
-
-    // The headline gets everything between the lockup and the footer. Three
-    // lines is the practical ceiling: at four, the size that fits is smaller
-    // than the footer, and the card stops reading as a headline at all.
-    const bandTop = plateTop + plate + 54;
-    const bandBottom = height - MARGIN - (footer ? 96 : 0);
-    const { lines, size, lineHeight } = layout(title, {
-      maxWidth: textRight - textLeft,
-      maxHeight: bandBottom - bandTop,
-      maxLines: 3,
-      maxSize: 96,
-    });
-    // Optically centre the block in the band rather than hanging it from the
-    // top: a one-line title otherwise floats against the lockup with the whole
-    // lower half of the card empty under it.
-    const blockHeight = size + (lines.length - 1) * lineHeight;
-    let baseline = bandTop + (bandBottom - bandTop - blockHeight) / 2 + size;
-    for (const line of lines) {
-      drawText(target, line, { x: textLeft, y: baseline, size, weight: 0.135 });
-      baseline += lineHeight;
-    }
-
-    if (footer) {
-      const size = 24;
-      drawText(target, footer.toUpperCase(), {
-        x: textLeft,
-        y: height - MARGIN + size * 0.2,
-        size,
-        weight: 0.16,
-        rgb: muted,
-      });
-    }
-  }
-
-  return encodePngRect(width, height, rgba);
+  const { color = THEME_COLOR, ...rest } = opts;
+  return renderCard({ accent: color, ...rest });
 }
 
 // ---------------------------------------------------------------------------
@@ -358,9 +96,10 @@ export function renderManifest(baseUrl, toolCount, hasExternalCallException = fa
   return `${JSON.stringify(
     {
       name: 'Open Tools and Research',
-      short_name: 'Calculators',
+      // What a home screen prints under the icon: twelve characters at most.
+      short_name: 'Open Tools',
       description:
-        `${toolCount} free calculators for marketplace sellers, trade contractors, and small teams. ` +
+        `${toolCount} free tools for marketplace sellers, trade contractors and small teams, plus open research. ` +
         (hasExternalCallException
           ? 'Everything runs in your browser, offline included, except one lookup tool that checks a public API — see the About page for which one.'
           : 'Everything runs in your browser, offline included — nothing you type is uploaded.'),
@@ -370,7 +109,7 @@ export function renderManifest(baseUrl, toolCount, hasExternalCallException = fa
       orientation: 'any',
       background_color: BACKGROUND_COLOR,
       theme_color: THEME_COLOR,
-      icons: ICONS.map(({ file, size, purpose }) => ({
+      icons: ICONS.filter((icon) => icon.manifest !== false).map(({ file, size, purpose }) => ({
         src: `${baseUrl}${file}`,
         sizes: `${size}x${size}`,
         type: 'image/png',
@@ -588,7 +327,7 @@ self.addEventListener('activate', (event) => {
 export function offlineHead(rootRel) {
   return `  <link rel="manifest" href="${rootRel}manifest.webmanifest">
   <meta name="theme-color" content="${THEME_COLOR}">
-  <link rel="apple-touch-icon" href="${rootRel}icon-192.png">
+  <link rel="apple-touch-icon" href="${rootRel}apple-touch-icon.png">
   <!-- The build also emits /favicon.ico, which is what a browser fetches with
        no markup to go on; a linked PNG is preferred where both exist and is
        the one that stays sharp on a high-DPI tab strip. -->

@@ -1,0 +1,5 @@
+reference (codesign-aero-robust, 50-cell grid, 96 evals/cell = 4800 evals): wide-tuned gains, held-out wide-plant RMS: best cell 6.00 deg (chosen on the held-out set, so optimistic), median cell 7.54
+cma    budget   960: held-out RMS median 5.75 (min 5.70, max 5.87) deg; training-score median 5.28; train-to-held-out optimism +0.48 deg; designs L 0.127 m, D 0.094 m (median over 8 seeds)
+random budget   960: held-out RMS median 6.17 (min 5.87, max 6.33) deg; training-score median 5.76; train-to-held-out optimism +0.39 deg; designs L 0.137 m, D 0.106 m (median over 8 seeds)
+cma    budget  4800: held-out RMS median 5.74 (min 5.70, max 5.89) deg; training-score median 5.25; train-to-held-out optimism +0.49 deg; designs L 0.125 m, D 0.094 m (median over 8 seeds)
+random budget  4800: held-out RMS median 5.96 (min 5.87, max 6.33) deg; training-score median 5.54; train-to-held-out optimism +0.41 deg; designs L 0.107 m, D 0.097 m (median over 8 seeds)

@@ -1,0 +1,54 @@
+Kepler problem, GM=1, a=1, period 2*pi, start at periapsis. Exact solution from Kepler's equation.
+pos err = distance to exact position after the run (a = 1); dE = relative energy change at the end
+
+1. 100 steps per orbit, 10 orbits, eccentricity sweep: |position error| (units of a; the largest possible is 2a, so values near 2 mean the phase is lost)
+  e            euler         semi       verlet          rk4
+  0.00         2.783       0.1754      0.08254     0.000103
+  0.10         1.665       0.2645       0.1087    0.0001455
+  0.30         6.981       0.7949       0.3233     0.001152
+  0.50         11.62        1.995        1.321      0.02708
+  0.70         73.05        1.188        2.211        1.478
+  0.90           452        443.1        261.6        80.43
+
+2. same runs: worst relative energy excursion at any step
+  e            euler         semi       verlet          rk4
+  0.00        0.6686     0.003952    3.873e-06    1.711e-06
+  0.10        0.6842     0.009983    0.0004253    2.335e-06
+  0.30        0.8126      0.03628     0.002155    1.592e-05
+  0.50         1.142       0.1239      0.01084    0.0002986
+  0.70         2.323       0.7073       0.1079      0.02711
+  0.90         53.94        54.51        19.29        14.62
+
+3. steps per orbit needed for position error < 0.01 a after 10 orbits (first n where n, 2n and 4n all pass; search up to 2^13)
+  e            euler         semi       verlet          rk4
+  0.00         >8192          512          512           64
+  0.30         >8192         1024         1024          128
+  0.70         >8192         8192         8192          512
+  0.90         >8192        >8192        >8192         4096
+
+4. periapsis direction (rad, exact 0) at e=0.5, 100 steps per orbit, after k orbits: the symplectic methods' angle wanders, RK4's grows linearly
+  orbits       euler         semi       verlet          rk4
+      1       0.3991       0.1117    -0.007906    7.783e-05
+      2       0.3997       0.1827     -0.01921    0.0001557
+      5       0.3998       0.1674     -0.06639    0.0003898
+     10       0.3698      0.08453      -0.1462    0.0007813
+     20       0.3698      -0.0675      -0.3014     0.001569
+     50       0.3698       -0.624      -0.7658     0.003925
+    200       0.3698        -2.75       -3.037      0.01561
+
+4b. same after 1 orbit against steps per orbit
+  steps        euler         semi       verlet          rk4
+     50       0.5794       0.3934     -0.01577     0.001097
+    100       0.3991       0.1117    -0.007906    7.783e-05
+    200       0.2468     0.003091    -0.003392    5.034e-06
+    400       0.1377   -0.0006619   -0.0009442    3.174e-07
+    800      0.06821   -0.0002284    -0.000242    1.988e-08
+
+5. position error against steps per orbit, e=0.5, 10 orbits
+  steps        euler         semi       verlet          rk4
+     50        44.43        2.244        1.861       0.7161
+    100        11.62        1.995        1.321      0.02708
+    200        1.069       0.9168       0.4291    0.0009401
+    400        5.398       0.2674       0.1105    3.506e-05
+    800         4.67      0.06787      0.02765    1.451e-06
+   1600       0.6357      0.01698     0.006911    6.753e-08

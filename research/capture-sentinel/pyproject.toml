@@ -1,0 +1,13 @@
+[project]
+name = "capture-sentinel"
+version = "0.1.0"
+description = "Which camera in a ring should be the rig's sentinel when the subject faces a favourite direction: miss rate by view angle, and the cost of assuming independent misses"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

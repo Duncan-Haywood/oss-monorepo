@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AI Agent Permission Config Check — Claude Code &amp; MCP Settings Linter</title>
-  <meta name="description" content="Paste your Claude Code .claude/settings.json or an .mcp.json / .cursor/mcp.json / .vscode/mcp.json MCP-server config and see every blanket Bash allow-all rule, unscoped destructive-command allow with no matching deny, plain-http MCP server URL, and hardcoded-looking secret in a committed env/header value. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta name="description" content="Lint Claude Code settings.json or MCP configs for blanket Bash allow rules, plain-http MCP URLs and hardcoded secrets. Free, runs in your browser.">
   <meta property="og:title" content="Is your AI coding agent's permission config over-broad?">
   <meta property="og:description" content="A deterministic static linter for Claude Code / Cursor / VS Code MCP permission and server configs: allow-all Bash, unguarded destructive commands, plain-http MCP endpoints, and hardcoded secrets. No account, no upload.">
   <link rel="canonical" href="./index.html">
@@ -47,6 +47,7 @@
     <p>Paste your Claude Code <code>.claude/settings.json</code>, or an <code>.mcp.json</code> / <code>.cursor/mcp.json</code> / <code>.vscode/mcp.json</code> MCP-server config, and see every blanket <code>Bash</code> allow-all rule, unscoped destructive-command allow with no matching deny rule, MCP server reached over plain <code>http://</code>, and hardcoded-looking secret sitting in a server's <code>env</code> or <code>headers</code> instead of an environment-variable reference.</p>
     <p class="note">Nothing is uploaded. The JSON you paste is parsed entirely in this browser and never sent anywhere. This tool never launches a server's command and never contacts a server's URL — it only reads the text you give it.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your config</h2>
@@ -107,7 +108,8 @@ node cli.mjs check --json</pre>
     <p>A value matching a known token format (an Anthropic, OpenAI, GitHub, Slack, AWS, Google, GitLab, or npm token prefix) is reported at high confidence. A long, space-free, unrecognised literal is reported at medium confidence — flagged because it looks more like a token than a normal setting, not because it is proven to be a secret. Either way, verify by reading the value yourself before rotating anything.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified professional or a careful read of your own config. It reports whether your config contains one of a fixed, named set of risky shapes — nothing more, and a clean result is not a guarantee that the config is safe or that no other risk exists. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for rotating any credential you have reason to believe was exposed. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The JSON you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

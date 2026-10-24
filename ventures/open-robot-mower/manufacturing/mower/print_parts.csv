@@ -1,0 +1,17 @@
+file,part,qty,material,volume_cm3,size_mm,settings,notes
+motor_clamp_cradle.stl,motor_clamp_cradle,2,ASA,43.6,60 x 45 x 26,"0.2 mm layers, 4 walls, 40% gyroid","ASA, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
+motor_clamp_cap.stl,motor_clamp_cap,2,ASA,45.2,60 x 45 x 26,"0.2 mm layers, 4 walls, 40% gyroid","ASA, 4 walls, 40% infill. M4 heat-set inserts in the cradle; M4x50 through the cap."
+wheel_hub.stl,wheel_hub,2,ASA,26.2,50 x 50 x 14,"0.2 mm layers, 4 walls, 40% gyroid",6 mm D bore with an M3 grub screw insert; four M4 to the wheel. Check your wheel's bolt circle.
+caster_fork.stl,caster_fork,2,ASA,56.6,77 x 43 x 52,"0.2 mm layers, 4 walls, 40% gyroid","M8 x 60 stem bolt with a flanged bushing in the chassis; M8 axle. 6 walls, 60% infill."
+guard_segment.stl,guard_segment,4,ASA,63.0,149 x 149 x 65,"0.2 mm layers, 4 walls, 40% gyroid",Four identical quarters. Bolt each tab up into the chassis (M4 into a heat-set insert). The ring is the barrier between the blade and feet: never run without all four.
+shell_post.stl,shell_post,4,ASA,68.3,40 x 40 x 138,"0.2 mm layers, 4 walls, 40% gyroid","3-axis hall sensor (TLV493D class) in the top pocket reads the shell magnet: up = lift, sideways = bump."
+mast_socket.stl,mast_socket,1,ASA,43.8,36 x 36 x 40,"0.2 mm layers, 4 walls, 40% gyroid","16 mm tube push fit, M4 grub screw."
+contact_block.stl,contact_block,1,ASA,67.4,30 x 80 x 30,"0.2 mm layers, 4 walls, 40% gyroid","Two spring contacts (pogo or leaf, 5 A) face forward; the dock's strips press on them."
+shell_r1c1.stl,shell_r1c1,1,ASA,363.8,213 x 245 x 150,"0.24 mm layers, 3 walls, 15% gyroid","0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+shell_r2c1.stl,shell_r2c1,1,ASA,363.6,213 x 245 x 150,"0.24 mm layers, 3 walls, 15% gyroid","0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+shell_r1c2.stl,shell_r1c2,1,ASA,278.7,213 x 245 x 150,"0.24 mm layers, 3 walls, 15% gyroid","0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+shell_r2c2.stl,shell_r2c2,1,ASA,274.9,213 x 245 x 150,"0.24 mm layers, 3 walls, 15% gyroid","0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+shell_r1c3.stl,shell_r1c3,1,ASA,362.6,213 x 245 x 150,"0.24 mm layers, 3 walls, 15% gyroid","0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+shell_r2c3.stl,shell_r2c3,1,ASA,363.8,213 x 245 x 150,"0.24 mm layers, 3 walls, 15% gyroid","0.24 mm layers, 3 walls, 15% gyroid; print open side down. M4 x 12 + nut through the seam ribs, then solvent-weld the seam (acetone)."
+blade_hub.stl,blade_hub,1,ASA,18.9,40 x 40 x 16,"0.2 mm layers, 4 walls, 40% gyroid",8 mm bore on the outrunner shaft with two M4 grub screws on a flat; M4 into inserts from the disc.
+height_gauge.stl,height_gauge,1,ASA,31.9,84 x 20 x 34,"0.2 mm layers, 4 walls, 40% gyroid","Each step is the gap between the chassis underside and the height plate for one cut height (20, 25, 30, 35, 40, 45, 50 mm, left to right). Not part of the assembly."

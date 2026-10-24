@@ -1,0 +1,41 @@
+== A. data rate per camera (GB per recording hour, high quality)
+360 camera         54.0 GB/h  battery  35.4 g/h  card  0.058 g/h  ratio   609
+action camera      45.0 GB/h  battery  31.8 g/h  card  0.048 g/h  ratio   658
+phone telephoto    27.0 GB/h  battery  28.3 g/h  card  0.029 g/h  ratio   975
+mirrorless body    90.0 GB/h  battery  42.4 g/h  card  0.097 g/h  ratio   439
+
+== B. rig size, 4 h/day for 7 days (n cameras taken in catalogue order, repeating the 360 camera)
+n  day_GB  trip_GB  cards_only_g  offload_g  cards ssds readers offload_h  exposed_GB
+1     216     1512           2.0      160.4      1    2       2      0.67         216
+2     396     2772           3.5      225.8      2    2       3      0.81         396
+3     504     3528           4.5      251.2      3    2       4      0.78         504
+4     864     6048           7.5      452.0      5    4       6      0.89         864
+5    1080     7560           9.5      627.4      6    6       7      0.95        1080
+6    1260     8820          11.0      652.8      7    6       8      0.97        1260
+7    1368     9576          12.0  infeasible within 8 readers
+8    1728    12096          15.0  infeasible within 8 readers
+
+== C. evening offload time of a 4-camera rig against hours filmed per day, one reader, one copy
+hours_per_day  offload_h
+            1       0.67
+            2       1.33
+            3       2.00
+            4       2.67
+            6       4.00
+            8       5.33
+
+== D. bitrate scale (codec / quality setting) for the 4-camera rig, 4 h/day, 7 days, two SSD copies, 1 h limit
+scale  day_GB  grams readers offload_h
+ 0.25     216  161.6       2      0.67
+ 0.50     432  226.6       3      0.89
+ 0.75     648  402.0       4      1.00
+ 1.00     864  452.0       6      0.89
+ 1.50    1296  652.4       8      1.00
+
+== E. offload time limit for the 4-camera rig, 4 h/day, 7 days, two SSD copies
+limit_h  grams readers offload_h
+    0.5  infeasible
+    1.0  452.0       6      0.89
+    2.0  377.0       3      1.78
+    3.0  352.0       2      2.67
+    4.0  352.0       2      2.67

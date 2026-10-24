@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>SQL Migration Lock Check vs. reading the migration by hand</title>
-  <meta name="description" content="A careful read catches the obvious case: CREATE INDEX with no CONCURRENTLY. It's much harder to catch by eye whether a lock_timeout earlier in the file actually protects a given statement, whether NOT VALID and VALIDATE share one transaction, or whether five exclusive-lock statements in a row compound into one long outage.">
+  <meta name="description" content="Reading a migration catches CREATE INDEX without CONCURRENTLY, not whether lock_timeout covers a statement or exclusive locks compound into one long outage.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="./vs-reading-the-migration-by-hand.html">
   <meta property="og:type" content="article">

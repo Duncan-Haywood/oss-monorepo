@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wall Framing Takeoff — stud layout, cut list and lumber order for a house</title>
+  <meta name="description" content="Free wall framing calculator for builders and framers. Enter walls, doors and windows; get the stud layout 16 or 24 on center, kings, jacks, headers and cripples, a cut list, plate splices over studs and the cheapest mix of board lengths to buy. Runs in your browser.">
+  <meta property="og:title" content="Wall Framing Takeoff — free, private, in your browser">
+  <meta property="og:description" content="Stud layout, cut list and an optimised lumber order for every wall in a house, with a drawing of each wall and the lower bound that proves how close the order is to the cheapest.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Wall Framing Takeoff", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Lays out the studs, kings, jacks, headers, sills and cripples in every wall of a house, splices plates over studs, lists every cut and chooses the cheapest mix of board lengths to buy, with a lower bound on the cost.", "license": "https://opensource.org/licenses/MIT"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many studs do I need for a wall?", "acceptedAnswer": {"@type": "Answer", "text": "Lay the wall out rather than divide: one stud at each end, one centred on every 16 inches (or 24) in between, then two king studs and the jacks for every door and window, the backing at corners and where other walls meet, and cripples above headers and under sills. The common rule of one stud per foot of wall is a rough allowance; this tool counts the actual members."}}, {"@type": "Question", "name": "Where does the first stud go when laying out 16 inches on center?", "acceptedAnswer": {"@type": "Answer", "text": "The end stud sits flush with the end of the plate. The second stud's leading edge is at 15-1/4 inches, so its centre is at 16 and a 4 ft sheet that starts at the wall end breaks on the centre of a stud. Every later stud is 16 inches further on. The layout marks here are the left edge of each member, measured from the wall start."}}, {"@type": "Question", "name": "Why is a precut stud 92-5/8 inches long?", "acceptedAnswer": {"@type": "Answer", "text": "A 92-5/8 inch stud with one bottom plate and two top plates of 1-1/2 inches each makes a 97-1/8 inch wall, which leaves room for an 8 ft ceiling sheet plus clearance. Precuts of 104-5/8 and 116-5/8 inches do the same for 9 and 10 ft walls."}}, {"@type": "Question", "name": "How long are jack studs, headers and cripples?", "acceptedAnswer": {"@type": "Answer", "text": "A jack stud runs from the top of the bottom plate to the underside of the header, so it is the header height less 1-1/2 inches. A header is the rough opening width plus 1-1/2 inches for every jack on each side. Top cripples fill the space between the header and the top plate; bottom cripples fill the space between the bottom plate and the rough sill. The tool works each one out from your opening sizes."}}, {"@type": "Question", "name": "Where should top plate joints go?", "acceptedAnswer": {"@type": "Answer", "text": "Over the centre of a full-length stud, and the cap plate's joints away from the top plate's. The International Residential Code (section R602.3.2 in recent editions) asks for end joints in double top plates to be offset at least 24 inches; check the edition your jurisdiction adopted. The tool places every plate joint on a stud and keeps the cap plate joints at least the distance you set from the top plate joints."}}, {"@type": "Question", "name": "How does it choose which board lengths to buy?", "acceptedAnswer": {"@type": "Answer", "text": "It solves a cutting-stock problem for each lumber size over the lengths and prices you list: column generation gives a lower bound on the cost and a near-cheapest order, first-fit-decreasing is kept as a fallback, and small groups are solved exactly. The page shows the order's cost next to the bound, so you can see how close it is to the cheapest possible."}}, {"@type": "Question", "name": "Does it size headers or check the building code?", "acceptedAnswer": {"@type": "Answer", "text": "No. Header size, plies and jack count are inputs. Nothing here checks them against a span table, a load or a code, and nothing here replaces your plans, your engineer or your building department."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 1120px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 12px; color: #33302a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #33302a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #555044; }
+    .card { background: #fff; border: 1px solid #dcd7cb; border-radius: 12px; padding: 18px; margin: 16px 0; overflow-x: auto; }
+    [hidden] { display: none !important; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px 14px; }
+    .grid[hidden] { display: none; }
+    label { display: block; font-weight: 600; margin: 8px 0 4px; font-size: .92rem; }
+    input, select { box-sizing: border-box; padding: 7px 8px; border: 1px solid #7d796a; border-radius: 6px; font: 15px system-ui, sans-serif; background: #fff; width: 100%; }
+    input[type=checkbox] { width: auto; }
+    button { border: 0; border-radius: 7px; padding: 9px 13px; background: #1d5c7a; color: #fff; font-weight: 700; cursor: pointer; margin: 10px 8px 0 0; }
+    button.secondary { background: #e9e5da; color: #33302a; }
+    button.small { padding: 5px 9px; margin: 0; font-size: .82rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+    th, td { text-align: left; padding: 5px 5px; border-bottom: 1px solid #ebe7dc; vertical-align: top; }
+    th { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: #555044; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .edit td { padding: 3px 3px; }
+    .edit input, .edit select { padding: 5px 6px; font-size: 14px; min-width: 64px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 8px 0 12px; }
+    .big div { background: #f5f2ea; border-radius: 9px; padding: 10px; }
+    .big strong { display: block; font-size: 1.35rem; color: #33302a; }
+    .err { color: #8a1f12; }
+    svg { width: 100%; height: auto; background: #fbfaf7; border: 1px solid #e3dfd3; border-radius: 8px; }
+    .legend span { display: inline-block; margin-right: 12px; font-size: .82rem; }
+    .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 4px; vertical-align: -2px; }
+    code { font-size: .9em; }
+    footer { margin-top: 24px; border-top: 1px solid #dcd7cb; padding-top: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Wall Framing Takeoff</h1>
+    <p>Type the walls, doors and windows of a house. Get the stud layout (16 or 24 on center), every king, jack, header, sill and cripple, plate splices that land on studs, a cut list, and the <strong>cheapest mix of board lengths to buy</strong>, with a lower bound that shows how close the order is to the cheapest possible. Free, no sign-up, and nothing leaves your browser.</p>
+    <p class="note">Lengths take feet and inches: <code>40'</code>, <code>13' 3"</code>, <code>92-5/8</code>, <code>150 1/2</code>. A bare number is inches. Positions are measured from the start of the wall (the end you lay out from). <a href="how-many-studs-for-a-wall.html">How the stud count is worked out</a>.</p>
+  </header>
+<main>
+
+  <section class="card" aria-labelledby="h-settings">
+    <h2 id="h-settings">1. Wall settings</h2>
+    <div class="grid">
+      <div><label for="height">Wall height</label>
+        <select id="height"><option value="8ft">8 ft wall (92-5/8" precut studs)</option><option value="9ft">9 ft wall (104-5/8" precut)</option><option value="10ft">10 ft wall (116-5/8" precut)</option><option value="custom">Custom stud length</option></select></div>
+      <div><label for="studLength">Stud length</label><input id="studLength" value="92-5/8"></div>
+      <div><label for="spacing">Stud spacing on center</label>
+        <select id="spacing"><option value="16">16 in</option><option value="24">24 in</option><option value="19.2">19.2 in</option><option value="12">12 in</option></select></div>
+      <div><label for="headerHeight">Default header height (top of rough opening)</label><input id="headerHeight" value="82-1/2"></div>
+      <div><label for="lap">Cap plate joint offset from top plate joints</label><input id="lap" value="24"></div>
+      <div><label for="kerf">Saw kerf</label><input id="kerf" value="1/8"></div>
+      <div><label for="panelMax">Longest shop panel for the drawings (blank: whole walls)</label><input id="panelMax" placeholder="e.g. 12 ft"></div>
+      <div><label for="sheathPsf">Sheathing weight on shop panels (lb per sq ft, blank: not weighed)</label><input id="sheathPsf" type="number" min="0" max="10" step="0.1" placeholder="e.g. 1.5 for 1/2 in OSB"></div>
+      <div><label for="cornerStuds">Extra studs at a corner</label><input id="cornerStuds" type="number" min="0" max="4" step="1" value="2"></div>
+      <div><label for="teeStuds">Extra studs where a wall meets this one</label><input id="teeStuds" type="number" min="0" max="4" step="1" value="2"></div>
+      <div><label for="blockRows">Rows of blocking between studs</label><input id="blockRows" type="number" min="0" max="6" step="1" value="0"></div>
+      <div><label for="plateLaps">Plates at corners</label><select id="plateLaps"><option value="">Every plate ends at the wall end</option><option value="lap">Lap plates at corners (top plate runs through, cap laps the other way)</option></select></div>
+      <div><label for="advFrame">Advanced framing</label><select id="advFrame"><option value="">Standard (3-stud corners, 2 backing studs at tees)</option><option value="corners">Two-stud corners (drywall clips; engineer's call)</option><option value="tees">Ladder blocking at tees instead of backing studs</option><option value="both">Both</option><option value="single">Single top plate (framing stacks over studs; engineer's call)</option></select></div>
+      <div><label for="fireBlock">Fire blocking</label><select id="fireBlock"><option value="">Only the rows above</option><option value="fire">Add rows so no stud run passes 10 ft</option></select></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-walls">
+    <h2 id="h-walls">2. Walls</h2>
+    <p class="note">"Corner at start" adds corner backing at the start end. "Walls meet at" lists where other walls tee into this one (comma-separated positions), which adds backing there. "Butts into" is optional and used with the corner-lap setting: <code>Front @ 14'</code> means this wall's start ends against wall Front 14' along it (add <code>end</code> for its far end); its cap plate then runs over that wall and that wall's cap is cut for it.</p>
+    <table class="edit"><thead><tr><th>Name</th><th>Length</th><th>Studs</th><th>Treated bottom plate</th><th>Corner at start</th><th>Walls meet at</th><th>Butts into (tee lap)</th><th>Gable pitch (rise per 12 in)</th><th>Gable peak at</th><th></th></tr></thead><tbody id="walls"></tbody></table>
+    <button type="button" class="secondary" id="addWall">Add a wall</button>
+  </section>
+
+  <section class="card" aria-labelledby="h-openings">
+    <h2 id="h-openings">3. Doors and windows (rough openings)</h2>
+    <p class="note">"From wall start" is the left edge of the rough opening. Height is the rough opening height; a window's sill is that far below the header. Leave header height blank to use the default. Plies blank: 2 in a 2x4 wall, 3 in a 2x6 wall.</p>
+    <table class="edit"><thead><tr><th>Wall</th><th>Kind</th><th>Label</th><th>From wall start</th><th>Width</th><th>Height</th><th>Header height</th><th>Header</th><th>Plies</th><th>Jacks each side</th><th></th></tr></thead><tbody id="openings"></tbody></table>
+    <button type="button" class="secondary" id="addOpening">Add a door or window</button>
+    <details style="margin-top:.75rem"><summary>Size headers from your own span table (optional)</summary>
+      <p class="note">One row per line: <code>longest span, header size, plies</code> (plies optional), for example <code>3 ft, 2x6</code>. Copy the rows from the span table your inspector accepts for your load and species; nothing here carries code values. Set an opening's header to <b>auto</b> and it takes the first row that covers its width; a hand-picked header lighter than the table asks for is listed below.</p>
+      <label for="hdrTable">Header table</label>
+      <textarea id="hdrTable" rows="4" placeholder="3 ft, 2x6&#10;5 ft, 2x8, 2&#10;7 ft, 2x10"></textarea>
+      <div id="hdrNotes" class="note" aria-live="polite"></div>
+    </details>
+  </section>
+
+  <section class="card" aria-labelledby="h-stock">
+    <h2 id="h-stock">4. Lumber you can buy</h2>
+    <p class="note">The starting prices are 1 per foot of board, so the order minimises the length bought. Type your lumberyard's prices per board to minimise cost instead. No real price is stated or implied.</p>
+    <details><summary>Edit board lengths and prices (<span id="stockCount">0</span> rows)</summary>
+      <table class="edit"><thead><tr><th>Size</th><th>Length</th><th>Price per board</th><th>Note</th><th></th></tr></thead><tbody id="stock"></tbody></table>
+      <button type="button" class="secondary" id="addStock">Add a board</button>
+      <button type="button" class="secondary" id="resetStock">Reset to defaults</button>
+    </details>
+  </section>
+
+  <section class="card" aria-labelledby="h-run">
+    <h2 id="h-run">5. Takeoff</h2>
+    <button type="button" id="run">Run the takeoff</button>
+    <button type="button" class="secondary" id="example">Load the example house</button>
+    <button type="button" class="secondary" id="clear">Start empty</button>
+    <button type="button" class="secondary" id="csv">Download CSV</button>
+    <button type="button" class="secondary" id="drawings">Download wall drawings (printable)</button>
+    <button type="button" class="secondary" id="panelOrderBtn">Download shop-panel lumber order (needs a panel length above)</button>
+    <button type="button" class="secondary" id="savePlan">Save plan file</button>
+    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json" style="width:auto">
+    <p><input type="checkbox" id="sheath" style="width:auto"> <label for="sheath" style="display:inline">Also lay out wall sheathing (4 x 8 to 4 x 12 sheets, 1 per square foot)</label>
+      <input type="checkbox" id="sheathH" style="width:auto;margin-left:1rem"> <label for="sheathH" style="display:inline">sheets long side along the wall</label>
+      <input type="checkbox" id="sheathO" style="width:auto;margin-left:1rem"> <label for="sheathO" style="display:inline">run sheathing past corners</label>
+      <label for="sheathR" style="display:inline;margin-left:1rem">rim lap (in)</label> <input type="number" id="sheathR" min="0" step="0.25" value="0" style="width:5rem"></p>
+    <p><input type="checkbox" id="flOn" style="width:auto"> <label for="flOn" style="display:inline">Also frame a floor under the walls (joists, rim boards, blocking and subfloor sheets; the lumber joins the order)</label></p>
+    <div class="grid" id="flFields" hidden>
+      <div><label for="flW">Floor width (along the rim)</label><input id="flW" value="40 ft"></div>
+      <div><label for="flD">Floor depth (the joist direction)</label><input id="flD" value="28 ft"></div>
+      <div><label for="flJoist">Joist size</label><select id="flJoist"><option>2x8</option><option selected>2x10</option><option>2x12</option></select></div>
+      <div><label for="flSpacing">Joist spacing on center</label><select id="flSpacing"><option value="16" selected>16 in</option><option value="24">24 in</option><option value="12">12 in</option></select></div>
+      <div><label for="flBeam">Beam from the front edge (blank: none)</label><input id="flBeam" value="14 ft"></div>
+      <div><label for="flBlock">Rows of joist blocking</label><input id="flBlock" type="number" min="0" max="6" step="1" value="0"></div>
+      <div><label for="flUnder">Walls above that need doubled joists, at these positions across the width (comma-separated)</label><input id="flUnder" placeholder="e.g. 10 ft, 22 ft"></div>
+      <div><label for="flOpen">Stairwell openings: from left edge, from front edge, width, depth; separate several with a semicolon (blank: none)</label><input id="flOpen" placeholder="e.g. 20 ft, 8 ft, 3 ft, 10 ft; 30 ft, 20 ft, 3 ft, 8 ft"></div>
+    </div>
+    <p><input type="checkbox" id="fnOn" style="width:auto"> <label for="fnOn" style="display:inline">Also price the foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel and vapor barrier; bought separately from the lumber)</label></p>
+    <div class="grid" id="fnFields" hidden>
+      <div><label for="fnType">Type</label><select id="fnType"><option value="stem" selected>footing + stem wall + slab</option><option value="monolithic">monolithic slab, thickened edge</option></select></div>
+      <div><label for="fnW">Footing outside width</label><input id="fnW" value="40 ft"></div>
+      <div><label for="fnD">Footing outside depth</label><input id="fnD" value="28 ft"></div>
+      <div><label for="fnFootW">Footing width (in)</label><input id="fnFootW" type="number" min="8" max="60" value="20"></div>
+      <div><label for="fnFootD">Footing depth (in)</label><input id="fnFootD" type="number" min="6" max="48" value="10"></div>
+      <div><label for="fnStemH">Stem wall height (in; stem type only)</label><input id="fnStemH" type="number" min="8" max="120" value="32"></div>
+      <div><label for="fnStemT">Stem wall thickness (in; stem type only)</label><input id="fnStemT" type="number" min="6" max="58" value="8"></div>
+      <div><label for="fnSlab">Slab thickness (in)</label><input id="fnSlab" type="number" min="3" max="12" value="4"></div>
+      <div><label for="fnPrice">Concrete price per cu yd (blank: none)</label><input id="fnPrice" type="number" min="0" step="1" placeholder="e.g. 165"></div>
+    </div>
+    <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a roof, gable or hip (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
+    <div class="grid" id="rfFields" hidden>
+      <div><label for="rfShape">Roof shape</label><select id="rfShape"><option value="gable" selected>gable</option><option value="hip">hip (four planes; length must be at least width)</option></select></div>
+      <div id="rfHipBox" hidden><label for="rfHip">Hip rafter size (one size deeper than the rafters is usual)</label><select id="rfHip"><option value="">same as rafters</option><option>2x8</option><option>2x10</option><option>2x12</option></select></div>
+      <div><label for="rfW">Roof width (eave to eave, outside of the walls)</label><input id="rfW" value="28 ft"></div>
+      <div><label for="rfL">Roof length (along the ridge)</label><input id="rfL" value="40 ft"></div>
+      <div><label for="rfPitch">Pitch (rise in 12 of run)</label><input id="rfPitch" type="number" min="1" max="24" step="0.5" value="4"></div>
+      <div><label for="rfRafter">Rafter size</label><select id="rfRafter"><option>2x6</option><option selected>2x8</option><option>2x10</option><option>2x12</option></select></div>
+      <div><label for="rfSpacing">Rafter spacing on center</label><select id="rfSpacing"><option value="16" selected>16 in</option><option value="24">24 in</option><option value="12">12 in</option></select></div>
+      <div><label for="rfRidge">Ridge board (blank: none)</label><select id="rfRidge"><option value="">none</option><option>2x8</option><option selected>2x10</option><option>2x12</option></select></div>
+      <div><label for="rfOver">Eave overhang</label><input id="rfOver" value="12 in"></div>
+      <div><label for="rfRake">Rake (gable) overhang</label><input id="rfRake" value="12 in"></div>
+      <div><label for="rfJoist">Ceiling joist size (blank: none)</label><select id="rfJoist"><option value="">none</option><option selected>2x6</option><option>2x8</option></select></div>
+      <div><label for="rfCollar">Collar ties on every other pair</label><select id="rfCollar"><option value="1" selected>yes</option><option value="0">no</option></select></div>
+      <div id="rfWingOn" class="wingbox"><label for="rfWing">Cross wing (L or T plan, gable roof only)</label><select id="rfWing"><option value="0" selected>none</option><option value="1">add a wing</option></select></div>
+      <div class="wing" hidden><label for="rfWingW">Wing width (eave to eave; at least 2 ft under the roof width)</label><input id="rfWingW" value="16 ft"></div>
+      <div class="wing" hidden><label for="rfWingP">Wing projection (main wall to the wing's gable wall)</label><input id="rfWingP" value="12 ft"></div>
+      <div class="wing" hidden><label for="rfWingPitch">Wing pitch (rise in 12; blank: as the main roof)</label><input id="rfWingPitch" placeholder="e.g. 6"></div>
+      <div class="wing" hidden><label for="rfWingAt">Wing centre from the first gable wall (blank: middle)</label><input id="rfWingAt" placeholder="e.g. 14 ft"></div>
+      <div class="wing" hidden><label for="rfWingSide">Wing side</label><select id="rfWingSide"><option value="right" selected>right</option><option value="left">left</option></select></div>
+      <div class="wing" hidden><label for="rfValleyBacking">Valley backing (one board per valley, at the valley's length and size)</label><select id="rfValleyBacking"><option value="0" selected>no</option><option value="1">yes</option></select></div>
+      <div class="wing" hidden><label for="rfWingValley">Valley rafter size (blank: as rafters; one size deeper is usual)</label><select id="rfWingValley"><option value="">same as rafters</option><option>2x8</option><option>2x10</option><option>2x12</option></select></div>
+      <div id="rfWing2On" class="wing2" hidden><label for="rfWing2">Second cross wing (needs the first; 2 ft clear of it on the same side)</label><select id="rfWing2"><option value="0" selected>none</option><option value="1">add a wing</option></select></div>
+      <div class="wing2" hidden><label for="rfWing2W">Second wing width (eave to eave; at least 2 ft under the roof width)</label><input id="rfWing2W" value="14 ft"></div>
+      <div class="wing2" hidden><label for="rfWing2P">Second wing projection (main wall to the wing's gable wall)</label><input id="rfWing2P" value="12 ft"></div>
+      <div class="wing2" hidden><label for="rfWing2Pitch">Second wing pitch (rise in 12; blank: as the main roof)</label><input id="rfWing2Pitch" placeholder="e.g. 6"></div>
+      <div class="wing2" hidden><label for="rfWing2At">Second wing centre from the first gable wall (blank: middle)</label><input id="rfWing2At" placeholder="e.g. 14 ft"></div>
+      <div class="wing2" hidden><label for="rfWing2Side">Second wing side</label><select id="rfWing2Side"><option value="right">right</option><option value="left" selected>left</option></select></div>
+      <div class="wing2" hidden><label for="rfWing2Valley">Valley rafter size (blank: as rafters; one size deeper is usual)</label><select id="rfWing2Valley"><option value="">same as rafters</option><option>2x8</option><option>2x10</option><option>2x12</option></select></div>
+    </div>
+    <p id="status" class="note" role="status"></p>
+    <div id="errors" class="err" role="alert"></div>
+    <div id="summary" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-order">
+    <h2 id="h-order">Lumber order</h2>
+    <div id="order"></div>
+    <div id="notes"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-floor" id="floorCard" hidden>
+    <h2 id="h-floor">Floor framing</h2>
+    <div id="floorOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-budget" id="budgetCard" hidden>
+    <h2 id="h-budget">Budget from your prices</h2>
+    <p class="note">Type one price per line as <code>name, number</code> (names: wallSheet, floorSheet, roofSheet, truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle, starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd; tax and contingency as fractions, e.g. <code>tax, 0.07</code>). Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
+    <textarea id="priceText" rows="5" style="width:100%" aria-label="Unit prices, one per line" placeholder="wallSheet, 24&#10;laborWallFoot, 11&#10;tax, 0.07"></textarea>
+    <p><button type="button" class="secondary" id="budgetCsvBtn">Download budget CSV</button></p>
+    <div id="budgetOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-foundation" id="foundationCard" hidden>
+    <h2 id="h-foundation">Foundation</h2>
+    <div id="foundationOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-roof" id="roofCard" hidden>
+    <h2 id="h-roof">Roof framing</h2>
+    <div id="roofOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-sheath" id="sheathCard" hidden>
+    <h2 id="h-sheath">Sheathing</h2>
+    <div id="sheathing"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-wall">
+    <h2 id="h-wall">Wall drawing and layout marks</h2>
+    <label for="wallPick">Wall</label><select id="wallPick" style="max-width:320px"></select>
+    <div id="drawing"></div>
+    <p class="legend" id="legend"></p>
+    <div id="marks"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-cuts">
+    <h2 id="h-cuts">Cut list</h2>
+    <div id="cuts"></div>
+    <details><summary>Board by board: which pieces come from which board</summary><div id="boards"></div></details>
+  </section>
+
+  <section class="card" aria-labelledby="h-faq">
+    <h2 id="h-faq">Questions</h2>
+    <h3>How many studs do I need for a wall?</h3>
+    <p>Lay the wall out rather than divide: one stud at each end, one centred on every 16 inches (or 24) in between, then two king studs and the jacks for every door and window, the backing at corners and where other walls meet, and cripples above headers and under sills. The common rule of one stud per foot of wall is a rough allowance; this tool counts the actual members.</p>
+    <h3>Where does the first stud go when laying out 16 inches on center?</h3>
+    <p>The end stud sits flush with the end of the plate. The second stud's leading edge is at 15-1/4 inches, so its centre is at 16 and a 4 ft sheet that starts at the wall end breaks on the centre of a stud. Every later stud is 16 inches further on. The layout marks here are the left edge of each member, measured from the wall start.</p>
+    <h3>Why is a precut stud 92-5/8 inches long?</h3>
+    <p>A 92-5/8 inch stud with one bottom plate and two top plates of 1-1/2 inches each makes a 97-1/8 inch wall, which leaves room for an 8 ft ceiling sheet plus clearance. Precuts of 104-5/8 and 116-5/8 inches do the same for 9 and 10 ft walls.</p>
+    <h3>How long are jack studs, headers and cripples?</h3>
+    <p>A jack stud runs from the top of the bottom plate to the underside of the header, so it is the header height less 1-1/2 inches. A header is the rough opening width plus 1-1/2 inches for every jack on each side. Top cripples fill the space between the header and the top plate; bottom cripples fill the space between the bottom plate and the rough sill. The tool works each one out from your opening sizes.</p>
+    <h3>Where should top plate joints go?</h3>
+    <p>Over the centre of a full-length stud, and the cap plate's joints away from the top plate's. The International Residential Code (section R602.3.2 in recent editions) asks for end joints in double top plates to be offset at least 24 inches; check the edition your jurisdiction adopted. The tool places every plate joint on a stud and keeps the cap plate joints at least the distance you set from the top plate joints.</p>
+    <h3>How does it choose which board lengths to buy?</h3>
+    <p>It solves a cutting-stock problem for each lumber size over the lengths and prices you list: column generation gives a lower bound on the cost and a near-cheapest order, first-fit-decreasing is kept as a fallback, and small groups are solved exactly. The page shows the order's cost next to the bound, so you can see how close it is to the cheapest possible.</p>
+    <h3>Does it size headers or check the building code?</h3>
+    <p>No. Header size, plies and jack count are inputs. Nothing here checks them against a span table, a load or a code, and nothing here replaces your plans, your engineer or your building department.</p>
+    <p class="note">Not modelled yet: bracing, rough sills doubled under wide windows unless you set it in a plan file, header spacers, hardware and nails, walls with a window inside the gable triangle, and walls with steps in height. The example house is invented.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
+    import { drawingSetHtml } from "./drawings.mjs";
+    import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
+    import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
+    import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
+    import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
+    import { layoutFoundation, foundationText } from "./foundation.mjs";
+    import { budget, budgetCsv } from "./budget.mjs";
+    import { resolveHeaders } from "./headers.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const KEY = "wall-framing-takeoff-plan";
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const len = (v) => (typeof v === "number" ? formatLength(v) : v);
+    const HEADER_SIZES = Object.keys(DEPTH);
+    const LUMBER = ["2x4", "2x4 PT", "2x6", "2x6 PT", "2x8", "2x10", "2x12"];
+    let ui = { walls: [], openings: [], stock: [] };
+    let last = null;
+
+    // "Front @ 14' end" -> { tee: { wall: "Front", at: 168, end: "end" } }; blank -> nothing
+    function teeField(w, L, bad) {
+      const t = String(w.tee || "").trim();
+      if (!t) return {};
+      const m = t.match(/^(.*\S)\s*@\s*(.+?)(?:\s+(start|end))?$/i);
+      if (!m) { bad.push(`Wall ${w.id}, butts into: write it as  Wall name @ 14'  (add "end" for the far end).`); return {}; }
+      return { tee: { wall: m[1].trim(), at: L(m[2], `wall ${w.id}, butts into`), end: (m[3] || "start").toLowerCase() } };
+    }
+
+    // pitch "6" (rise per 12 in), optional peak "10 ft" from the wall start; blank pitch -> a level wall
+    function gableField(w, L, bad) {
+      const t = String(w.gable ?? "").trim();
+      if (!t) return {};
+      const pitch = Number(t);
+      if (!(pitch > 0 && pitch <= 24)) { bad.push(`Wall ${w.id}, gable pitch: write the rise per 12 in of run, more than 0 and at most 24 (6 means 6:12).`); return {}; }
+      return { gable: { pitch, ...(String(w.peak || "").trim() ? { peak: L(w.peak, `wall ${w.id}, gable peak`) } : {}) } };
+    }
+
+    function fromPlan(plan) {
+      return {
+        walls: plan.walls.map((w) => ({ id: w.id, length: len(w.length), stud: w.stud || "2x4", treatedPlate: Boolean(w.treatedPlate), corner: Boolean(w.corner), tees: (w.tees || []).map(len).join(", "), tee: w.tee ? `${w.tee.wall} @ ${len(w.tee.at)}${w.tee.end === "end" ? " end" : ""}` : "", gable: w.gable ? String(w.gable.pitch) : "", peak: w.gable?.peak !== undefined ? len(w.gable.peak) : "" })),
+        openings: plan.walls.flatMap((w) => (w.openings || []).map((o) => ({ wall: w.id, kind: o.kind, label: o.label || "", offset: len(o.offset), width: len(o.width), height: len(o.height), headerHeight: o.headerHeight ? len(o.headerHeight) : "", header: o.header || "2x10", plies: o.headerPlies ?? "", jacks: o.jacks ?? 1, sillPlies: o.sillPlies }))),
+        stock: plan.stock.map((s) => ({ size: s.size, length: len(s.length), price: s.price, label: s.label || "" })),
+        settings: { studLength: plan.studLength, spacing: plan.studSpacing, headerHeight: plan.defaultHeaderHeight, lap: plan.topPlateLap, kerf: plan.kerf, cornerStuds: plan.cornerExtraStuds, teeStuds: plan.teeExtraStuds, blockRows: plan.blocking?.rows || 0, fire: Boolean(plan.blocking?.fire), plateLaps: Boolean(plan.plateLaps), advFrame: plan.advanced ? (plan.advanced.singleTopPlate ? "single" : plan.advanced.twoStudCorners && plan.advanced.ladderTees ? "both" : plan.advanced.twoStudCorners ? "corners" : plan.advanced.ladderTees ? "tees" : "") : "" },
+      };
+    }
+
+    function setSettings(s) {
+      const preset = Object.entries(PRECUT).find(([, v]) => Math.abs(v - s.studLength) < 1e-6);
+      $("#height").value = preset ? preset[0] : "custom";
+      $("#studLength").value = formatInches(s.studLength).replace('"', "");
+      $("#spacing").value = String(s.spacing);
+      $("#headerHeight").value = formatInches(s.headerHeight).replace('"', "");
+      $("#lap").value = formatInches(s.lap).replace('"', "");
+      $("#kerf").value = s.kerf === 0.125 ? "1/8" : String(s.kerf);
+      $("#cornerStuds").value = String(s.cornerStuds);
+      $("#teeStuds").value = String(s.teeStuds);
+      $("#blockRows").value = String(s.blockRows || 0);
+      $("#fireBlock").value = s.fire ? "fire" : "";
+      $("#plateLaps").value = s.plateLaps ? "lap" : "";
+      $("#advFrame").value = s.advFrame || "";
+    }
+
+    /** Build the engine's plan from the form; lengths that cannot be read become errors. */
+    function toPlan() {
+      const bad = [];
+      const L = (v, what) => {
+        const x = parseLength(v);
+        if (!Number.isFinite(x)) bad.push(`Could not read "${v}" as a length (${what}).`);
+        return x;
+      };
+      const plan = {
+        studLength: L($("#studLength").value, "stud length"),
+        studSpacing: Number($("#spacing").value),
+        defaultHeaderHeight: L($("#headerHeight").value, "default header height"),
+        topPlateLap: L($("#lap").value, "cap plate joint offset"),
+        kerf: L($("#kerf").value, "saw kerf"),
+        cornerExtraStuds: Math.max(0, Math.round(Number($("#cornerStuds").value) || 0)),
+        teeExtraStuds: Math.max(0, Math.round(Number($("#teeStuds").value) || 0)),
+        plateLaps: $("#plateLaps").value === "lap",
+        advanced: { twoStudCorners: ["corners", "both"].includes($("#advFrame").value), ladderTees: ["tees", "both"].includes($("#advFrame").value), singleTopPlate: $("#advFrame").value === "single" },
+        blocking: { rows: Math.max(0, Math.min(6, Math.round(Number($("#blockRows").value) || 0))), fire: $("#fireBlock").value === "fire" },
+        stock: ui.stock.map((s) => ({ size: s.size, length: L(s.length, `${s.size} board`), price: Number(s.price), ...(s.label ? { label: s.label } : {}) })),
+        walls: ui.walls.map((w) => ({
+          id: w.id.trim(), length: L(w.length, `wall ${w.id}`), stud: w.stud, treatedPlate: w.treatedPlate, corner: w.corner,
+          tees: String(w.tees || "").split(",").map((t) => t.trim()).filter(Boolean).map((t) => L(t, `wall ${w.id}, walls meet at`)),
+          ...teeField(w, L, bad),
+          ...gableField(w, L, bad),
+          openings: [],
+        })),
+      };
+      if ($("#flOn").checked) {
+        const fl = { id: "Floor", width: L($("#flW").value, "floor width"), depth: L($("#flD").value, "floor depth"), joist: $("#flJoist").value, spacing: Number($("#flSpacing").value), rim: true, blockingRows: Math.max(0, Math.min(6, Math.round(Number($("#flBlock").value) || 0))) };
+        if ($("#flBeam").value.trim()) fl.beam = L($("#flBeam").value, "floor beam");
+        const under = $("#flUnder").value.split(",").map((t) => t.trim()).filter(Boolean).map((t) => L(t, "doubled joist position"));
+        if (under.length) fl.doubleUnder = under;
+        if ($("#flOpen").value.trim()) {
+          fl.openings = [];
+          for (const part of $("#flOpen").value.split(";").map((t) => t.trim()).filter(Boolean)) {
+            const q = part.split(",").map((t) => t.trim());
+            if (q.length !== 4) bad.push(`Stairwell opening "${part}": write four lengths, from the left edge, from the front edge, width, depth.`);
+            else { const [x, y, width, depth] = q.map((t) => L(t, "stairwell opening")); fl.openings.push({ x, y, width, depth }); }
+          }
+        }
+        plan.floor = fl;
+      }
+      if ($("#rfOn").checked) {
+        const rf = { id: "Roof", width: L($("#rfW").value, "roof width"), length: L($("#rfL").value, "roof length"), pitch: Number($("#rfPitch").value), rafter: $("#rfRafter").value, spacing: Number($("#rfSpacing").value), overhang: L($("#rfOver").value, "eave overhang"), gableOverhang: L($("#rfRake").value, "rake overhang"), collarTies: $("#rfCollar").value === "1" };
+        if ($("#rfShape").value === "hip") { rf.shape = "hip"; if ($("#rfHip").value) rf.hip = $("#rfHip").value; }
+        if ($("#rfWing").value === "1" && rf.shape !== "hip") {
+          rf.wing = { width: L($("#rfWingW").value, "wing width"), projection: L($("#rfWingP").value, "wing projection"), side: $("#rfWingSide").value };
+          if ($("#rfWingPitch").value.trim()) rf.wing.pitch = parseFloat($("#rfWingPitch").value);
+          if ($("#rfWingAt").value.trim()) rf.wing.at = L($("#rfWingAt").value, "wing position");
+          if ($("#rfWingValley").value) rf.wing.valley = $("#rfWingValley").value;
+        }
+        if (rf.wing && $("#rfValleyBacking").value === "1") rf.valleyBacking = true;
+        if (rf.wing && $("#rfWing2").value === "1") {
+          rf.wing2 = { width: L($("#rfWing2W").value, "second wing width"), projection: L($("#rfWing2P").value, "second wing projection"), side: $("#rfWing2Side").value };
+          if ($("#rfWing2Pitch").value.trim()) rf.wing2.pitch = parseFloat($("#rfWing2Pitch").value);
+          if ($("#rfWing2At").value.trim()) rf.wing2.at = L($("#rfWing2At").value, "second wing position");
+          if ($("#rfWing2Valley").value) rf.wing2.valley = $("#rfWing2Valley").value;
+        }
+        if ($("#rfRidge").value) rf.ridge = $("#rfRidge").value;
+        if ($("#rfJoist").value) rf.ceilingJoist = $("#rfJoist").value;
+        plan.roof = rf;
+      }
+      if ($("#fnOn").checked) {
+        const fn = { id: "Foundation", type: $("#fnType").value, width: L($("#fnW").value, "foundation width"), depth: L($("#fnD").value, "foundation depth"), footing: { width: Number($("#fnFootW").value), depth: Number($("#fnFootD").value) }, slab: { thickness: Number($("#fnSlab").value) } };
+        if (fn.type === "stem") fn.stem = { height: Number($("#fnStemH").value), thickness: Number($("#fnStemT").value) };
+        if ($("#fnPrice").value.trim()) fn.price = Number($("#fnPrice").value);
+        plan.foundation = fn;
+      }
+      for (const o of ui.openings) {
+        const wall = plan.walls.find((w) => w.id === String(o.wall).trim());
+        if (!wall) { bad.push(`The ${o.label || o.kind} is on a wall named "${o.wall}", which is not in the wall list.`); continue; }
+        const op = { kind: o.kind, label: o.label, offset: L(o.offset, `${o.label || o.kind} position`), width: L(o.width, `${o.label || o.kind} width`), height: L(o.height, `${o.label || o.kind} height`), header: o.header, jacks: Math.max(1, Math.round(Number(o.jacks) || 1)) };
+        if (String(o.headerHeight).trim()) op.headerHeight = L(o.headerHeight, `${o.label || o.kind} header height`);
+        if (String(o.plies).trim()) op.headerPlies = Math.max(1, Math.round(Number(o.plies) || 1));
+        if (o.sillPlies) op.sillPlies = o.sillPlies;
+        wall.openings.push(op);
+      }
+      const source = plan;
+      { const pr = parsePrices(); if (!pr.bad.length && Object.keys(pr.prices).length) plan.prices = pr.prices; }
+      const tableText = $("#hdrTable").value.trim();
+      let resolved = plan, hdrRows = [];
+      if (tableText) {
+        const rows = [];
+        tableText.split(/\n+/).forEach((line, n) => {
+          const t = line.split(",").map((x) => x.trim());
+          const upTo = parseLength(t[0]);
+          if (t.length < 2 || !Number.isFinite(upTo) || !t[1]) { bad.push(`Header table line ${n + 1}: write it as  3 ft, 2x6  (longest span, header size, plies optional).`); return; }
+          const row = { upTo, header: t[1] };
+          if (t[2]) row.plies = Math.max(1, Math.round(Number(t[2]) || 1));
+          rows.push(row);
+        });
+        if (!bad.length) {
+          plan.headerTable = rows;
+          const r = resolveHeaders(plan);
+          if (!r.ok) bad.push(...r.errors); else { resolved = r.plan; hdrRows = r.rows; }
+        }
+      } else if (plan.walls.some((w) => w.openings.some((o) => o.header === "auto"))) bad.push("An opening's header is set to auto, but the header table is empty.");
+      $("#hdrNotes").innerHTML = hdrRows.length ? `<ul>${hdrRows.map((x) => `<li>${esc(x.opening)}, ${formatLength(x.span)}: table asks ${esc(x.required)}; ${x.status === "set" ? "set from the table" : x.status === "under" ? `<b>you chose ${esc(x.chosen)}, lighter than the table asks</b>` : `you chose ${esc(x.chosen)}, fine`}</li>`).join("")}</ul>` : "";
+      return { plan: resolved, bad, source };
+    }
+
+    const f = (t, i, k, v, label, attrs = "") => `<input data-t="${t}" data-i="${i}" data-k="${k}" value="${esc(v)}" aria-label="${esc(label)}" ${attrs}>`;
+    const sel = (t, i, k, v, opts, label) => `<select data-t="${t}" data-i="${i}" data-k="${k}" aria-label="${esc(label)}">${opts.map((o) => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>`;
+    const chk = (t, i, k, v, label) => `<input type="checkbox" data-t="${t}" data-i="${i}" data-k="${k}"${v ? " checked" : ""} aria-label="${esc(label)}">`;
+    const del = (t, i, label) => `<button type="button" class="small secondary" data-del="${t}" data-i="${i}" aria-label="${esc(label)}">Remove</button>`;
+
+    function renderWalls() {
+      $("#walls").innerHTML = ui.walls.map((w, i) => `<tr>
+        <td>${f("walls", i, "id", w.id, `Wall ${i + 1} name`)}</td>
+        <td>${f("walls", i, "length", w.length, `Wall ${i + 1} length`)}</td>
+        <td>${sel("walls", i, "stud", w.stud, ["2x4", "2x6"], `Wall ${i + 1} stud size`)}</td>
+        <td>${chk("walls", i, "treatedPlate", w.treatedPlate, `Wall ${i + 1} treated bottom plate`)}</td>
+        <td>${chk("walls", i, "corner", w.corner, `Wall ${i + 1} corner at start`)}</td>
+        <td>${f("walls", i, "tees", w.tees, `Wall ${i + 1} positions where other walls meet it`)}</td>
+        <td>${f("walls", i, "tee", w.tee, `Wall ${i + 1} wall it butts into, position and end`)}</td>
+        <td>${f("walls", i, "gable", w.gable, `Wall ${i + 1} gable pitch`, 'placeholder="level"')}</td>
+        <td>${f("walls", i, "peak", w.peak, `Wall ${i + 1} gable peak position`, 'placeholder="middle"')}</td>
+        <td>${del("walls", i, `Remove wall ${i + 1}`)}</td></tr>`).join("");
+    }
+    function renderOpenings() {
+      const names = ui.walls.map((w) => w.id);
+      $("#openings").innerHTML = ui.openings.map((o, i) => `<tr>
+        <td>${sel("openings", i, "wall", o.wall, names.includes(o.wall) ? names : [o.wall, ...names], `Opening ${i + 1} wall`)}</td>
+        <td>${sel("openings", i, "kind", o.kind, ["window", "door"], `Opening ${i + 1} kind`)}</td>
+        <td>${f("openings", i, "label", o.label, `Opening ${i + 1} label`)}</td>
+        <td>${f("openings", i, "offset", o.offset, `Opening ${i + 1} distance from wall start`)}</td>
+        <td>${f("openings", i, "width", o.width, `Opening ${i + 1} rough opening width`)}</td>
+        <td>${f("openings", i, "height", o.height, `Opening ${i + 1} rough opening height`)}</td>
+        <td>${f("openings", i, "headerHeight", o.headerHeight, `Opening ${i + 1} header height`, 'placeholder="default"')}</td>
+        <td>${sel("openings", i, "header", o.header, ["auto", ...HEADER_SIZES], `Opening ${i + 1} header size`)}</td>
+        <td>${f("openings", i, "plies", o.plies, `Opening ${i + 1} header plies`, 'placeholder="auto"')}</td>
+        <td>${f("openings", i, "jacks", o.jacks, `Opening ${i + 1} jack studs each side`)}</td>
+        <td>${del("openings", i, `Remove opening ${i + 1}`)}</td></tr>`).join("");
+    }
+    function renderStock() {
+      $("#stockCount").textContent = String(ui.stock.length);
+      $("#stock").innerHTML = ui.stock.map((s, i) => `<tr>
+        <td>${sel("stock", i, "size", s.size, LUMBER.includes(s.size) ? LUMBER : [s.size, ...LUMBER], `Board ${i + 1} lumber size`)}</td>
+        <td>${f("stock", i, "length", s.length, `Board ${i + 1} length`)}</td>
+        <td>${f("stock", i, "price", s.price, `Board ${i + 1} price per board`, 'type="number" min="0" step="0.01"')}</td>
+        <td>${f("stock", i, "label", s.label, `Board ${i + 1} note`)}</td>
+        <td>${del("stock", i, `Remove board ${i + 1}`)}</td></tr>`).join("");
+    }
+    function renderAll() { renderWalls(); renderOpenings(); renderStock(); }
+
+    const COLORS = { plate: "#a3824f", stud: "#d9b97c", king: "#c48a3a", jack: "#8d6a2f", header: "#6f4e22", cripple: "#e4cf9f", sill: "#b88d4a", corner: "#9cb36b", tee: "#6f9fb3" };
+    const NAMES = { plate: "plates", stud: "studs", king: "kings", jack: "jacks", header: "headers", cripple: "cripples", sill: "rough sills", corner: "corner backing", tee: "tee backing" };
+
+    function drawWall(w, wall) {
+      const H = w.height;
+      const pad = 6;
+      const rects = w.members.map((m) => `<rect x="${m.x}" y="${H - m.y - m.h}" width="${m.w}" height="${m.h}" fill="${COLORS[m.kind] || "#ccc"}" stroke="#4a3a1f" stroke-width="0.25"><title>${esc(m.label)}: ${esc(formatInches(m.length))} at ${esc(formatLength(m.x))}</title></rect>`).join("");
+      const ros = (wall.openings || []).map((o) => {
+        const top = o.headerHeight ?? last.plan.defaultHeaderHeight;
+        return `<rect x="${o.offset}" y="${H - top}" width="${o.width}" height="${o.height}" fill="none" stroke="#1d5c7a" stroke-dasharray="3 2" stroke-width="0.6"><title>${esc(o.label || o.kind)} rough opening ${esc(formatInches(o.width))} x ${esc(formatInches(o.height))}</title></rect>`;
+      }).join("");
+      const joints = Object.entries(w.joints).flatMap(([k, list]) => list.map((j) => {
+        const y = k === "bottom" ? H - 1.5 : k === "top" ? 1.5 : 0;
+        return `<line x1="${j}" x2="${j}" y1="${y}" y2="${y + 1.5}" stroke="#b3261e" stroke-width="0.8"><title>${k} plate joint at ${esc(formatLength(j))}</title></line>`;
+      })).join("");
+      return `<svg viewBox="${-pad} ${-pad} ${w.length + 2 * pad} ${H + 2 * pad}" role="img" aria-label="Elevation of wall ${esc(w.id)}, ${esc(formatLength(w.length))} long">${rects}${ros}${joints}</svg>`;
+    }
+
+    function showWall() {
+      if (!last || !last.result.ok) { $("#drawing").innerHTML = ""; $("#marks").innerHTML = ""; return; }
+      const i = Math.max(0, $("#wallPick").selectedIndex);
+      const w = last.result.walls[i];
+      const wall = last.plan.walls[i];
+      if (!w) return;
+      $("#drawing").innerHTML = drawWall(w, wall);
+      const kinds = [...new Set(w.members.map((m) => m.kind))];
+      $("#legend").innerHTML = kinds.map((k) => `<span><i style="background:${COLORS[k]}"></i>${NAMES[k] || k}</span>`).join("") + `<span><i style="background:none;border:1px dashed #1d5c7a"></i>rough opening</span><span><i style="background:#b3261e"></i>plate joint</span>`;
+      const problems = verifyWall(w, wall);
+      const marks = w.members.filter((m) => m.orient === "v").sort((a, b) => a.x - b.x || a.y - b.y);
+      $("#marks").innerHTML = `<p class="note">${problems.length ? `<span class="err">Layout check found ${problems.length} problem(s): ${problems.map(esc).join("; ")}</span>` : "Layout check: every member inside the wall, none overlapping, every rough opening clear, every plate joint over a full stud."}</p>
+        <p class="note">Plate joints: bottom ${w.joints.bottom.map(formatLength).join(", ") || "none"}; top ${w.joints.top.map(formatLength).join(", ") || "none"}; cap ${w.joints.cap.map(formatLength).join(", ") || "none"}.</p>
+        <table><thead><tr><th class="n">Left edge from start</th><th>Member</th><th class="n">Length</th></tr></thead><tbody>${marks.map((m) => `<tr><td class="n">${formatInches(m.x)}</td><td>${esc(m.label)}</td><td class="n">${formatInches(m.length)}</td></tr>`).join("")}</tbody></table>`;
+    }
+
+    function renderFloor(floor) {
+      $("#floorCard").hidden = !floor;
+      if (!floor) return;
+      $("#floorOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(floorText(floor).join("\n"))}</pre><p class="note">The floor's joists, rim boards and blocking are in the lumber order and cut list above, pooled with the walls so they use each other's offcuts. Subfloor sheets (4 x 8) are bought separately. Check spans and sizes against your tables or engineer.</p>`;
+    }
+
+    function renderSheathing(plan, result) {
+      const card = $("#sheathCard");
+      card.hidden = !$("#sheath").checked;
+      if (card.hidden) return;
+      const sh = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}), ...($("#sheathO").checked ? { overhang: true } : {}), ...(Number($("#sheathR").value) > 0 ? { rimLap: Number($("#sheathR").value) } : {}) } }, result);
+      if (!sh.ok) { $("#sheathing").innerHTML = `<ul class="err">${sh.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return; }
+      const q = sh.summary;
+      $("#sheathing").innerHTML = `<p><strong>${q.sheets}</strong> sheets of ${esc(sh.order.label)} for ${q.panels} panels (lower bound cost ${q.bound.toFixed(2)}, gap ${(100 * q.gap).toFixed(2)}%; one sheet per panel would be ${q.naiveSheets}). ${q.areaBought.toFixed(0)} sq ft bought for ${q.areaCovered.toFixed(0)} sq ft on the walls: ${(100 * q.waste).toFixed(1)}% offcut and opening cut-outs.</p>
+        <p class="note">${sh.orientation === "horizontal" ? "Sheets run long side along the wall in courses from the floor; end joints land on studs and alternate courses are staggered, and each course joint is blocked between studs. Lengths left to right:" : "Panels run vertically from the wall start; every joint lands on framing that runs the panel's height. Widths left to right:"}</p>
+        <table><thead><tr><th>Wall</th><th>Panels (width, cut-outs)</th></tr></thead><tbody>${sh.walls.map((w) => `<tr><td>${esc(w.id)}${w.check.length ? " (CHECK FAILED)" : ""}</td><td>${w.panels.map((p) => formatInches(p.width) + (p.cutouts.length ? ` (cut ${esc(p.cutouts.map((c) => c.label).join(", "))})` : "")).join(" | ")}</td></tr>`).join("")}</tbody></table>
+        ${sh.notes.length ? `<ul>${sh.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}`;
+    }
+
+    function renderRoof(roof) {
+      $("#roofCard").hidden = !roof;
+      if (!roof) return;
+      $("#roofOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(roofText(roof).join("\n"))}</pre><p class="note">The roof's rafters, ridge, ceiling joists and collar ties are in the lumber order and cut list above, pooled with the walls so they use each other's offcuts. Roof sheets, felt, drip edge and shingles are bought separately. Check rafter size, spacing and bracing against your span tables or engineer.</p>`;
+    }
+    function renderFoundation(fn) {
+      $("#foundationCard").hidden = !fn;
+      if (!fn) return;
+      $("#foundationOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(foundationText(fn).join("\n"))}</pre><p class="note">Concrete, rebar, forms and gravel are not in the lumber order. Bar sizes, footing size, frost depth and soil bearing are your inputs; check them against your plans and engineer.</p>`;
+    }
+    function parsePrices() {
+      const prices = {}, bad = [];
+      ($("#priceText").value || "").split(/\n+/).map((x) => x.trim()).filter(Boolean).forEach((line, n) => {
+        const t = line.split(/[,=:\t]+/).map((x) => x.trim());
+        const v = Number(t[1]);
+        if (t.length < 2 || !t[0] || !Number.isFinite(v) || v < 0) bad.push(`Price line ${n + 1}: write it as  wallSheet, 24`);
+        else prices[t[0]] = v;
+      });
+      return { prices, bad };
+    }
+    function renderBudget() {
+      const card = $("#budgetCard");
+      if (!last) { card.hidden = true; return; }
+      const pr = parsePrices();
+      if (pr.bad.length) { $("#budgetOut").innerHTML = `<div class="err"><ul>${pr.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; card.hidden = false; return; }
+      const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation };
+      const b = budget(res, pr.prices);
+      last.budget = b;
+      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      $("#budgetOut").innerHTML = `<table><thead><tr><th>Section</th><th>Item</th><th class="n">Qty</th><th>Unit</th><th class="n">Price</th><th class="n">Amount</th></tr></thead><tbody>${b.lines.map((l) => `<tr><td>${esc(l.section)}</td><td>${esc(l.item)}</td><td class="n">${l.qty}</td><td>${esc(l.unit)}</td><td class="n">${l.unitPrice == null ? "no price" : m(l.unitPrice)}</td><td class="n">${l.amount == null ? "" : m(l.amount)}</td></tr>`).join("")}</tbody></table>
+        <p><strong>Materials ${m(b.materials)}</strong>${b.taxRate ? `; tax ${m(b.tax)}` : ""}${b.contingencyRate ? `; contingency ${m(b.contingency)}` : ""}${b.labor ? `; labor ${m(b.labor)}` : ""}; <strong>total ${m(b.total)}</strong></p>
+        ${b.unpriced.length ? `<p class="note">Not in the total, no price typed: ${esc(b.unpriced.join("; "))}.</p>` : ""}
+        <p class="note">Excludes equipment, permits, delivery and overhead. An estimate from the prices you typed, not a quote.</p>`;
+      card.hidden = false;
+    }
+    function run() {
+      const { plan, bad, source } = toPlan();
+      $("#errors").innerHTML = "";
+      if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
+      let result, nailers = [], floor = null, floorExtra = [], roof = null, foundation = null;
+      try {
+        if (plan.foundation) {
+          foundation = layoutFoundation(plan.foundation);
+          if (!foundation.ok) { $("#errors").innerHTML = `<ul>${foundation.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#foundationCard").hidden = true; return false; }
+        }
+        if (plan.floor) {
+          floor = layoutFloor(plan.floor, plan);
+          if (!floor.ok) { $("#errors").innerHTML = `<ul>${floor.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#floorCard").hidden = true; return false; }
+          floorExtra = floorCuts(floor);
+        }
+        if (plan.roof) {
+          roof = layoutRoof(plan.roof, plan);
+          if (!roof.ok) { $("#errors").innerHTML = `<ul>${roof.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#roofCard").hidden = true; return false; }
+          floorExtra = [...floorExtra, ...roofCuts(roof)];
+        }
+        result = takeoff(plan, floorExtra);
+        if (result.ok && $("#sheath").checked) {
+          const extra = nailerCuts(sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}), ...($("#sheathO").checked ? { overhang: true } : {}), ...(Number($("#sheathR").value) > 0 ? { rimLap: Number($("#sheathR").value) } : {}) } }, result));
+          nailers = extra;
+          if (extra.length) result = takeoff(plan, [...extra, ...floorExtra]);
+        }
+      } catch (e) { result = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+      if (!result.ok) {
+        $("#errors").innerHTML = `<ul>${result.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`;
+        $("#summary").innerHTML = ""; $("#order").innerHTML = ""; $("#cuts").innerHTML = ""; $("#boards").innerHTML = ""; $("#notes").innerHTML = "";
+        last = null; showWall();
+        return false;
+      }
+      last = { plan, result, nailers, floor, roof, foundation };
+      const s = result.summary;
+      const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      $("#summary").innerHTML = `<div class="big">
+        <div><strong>${money(s.cost)}</strong>order cost at your prices</div>
+        <div><strong>${s.boards}</strong>boards for ${s.pieces} pieces</div>
+        <div><strong>${(100 * s.waste).toFixed(1)}%</strong>offcut and kerf</div>
+        <div><strong>${(100 * s.gap).toFixed(2)}%</strong>above the lower bound (${money(s.bound)})</div>
+        <div><strong>${money(s.naiveCost)}</strong>if every piece were bought on its own board</div>
+      </div><p class="note">${s.walls} walls, ${s.wallFeet.toFixed(1)} ft of wall; ${s.fullHeightMembers} full-height studs, kings and backing. Bought ${s.boughtFeet.toFixed(1)} ft of board for ${s.neededFeet.toFixed(1)} ft of pieces.</p>`;
+      $("#order").innerHTML = `<table><thead><tr><th class="n">Qty</th><th>Size</th><th>Length</th><th>Note</th><th class="n">Price each</th><th class="n">Total</th></tr></thead><tbody>${result.orders.flatMap((o) => o.lines.map((l) => `<tr><td class="n">${l.qty}</td><td>${esc(o.size)}</td><td>${formatLength(l.length)}</td><td>${esc(l.label)}</td><td class="n">${money(l.price)}</td><td class="n">${money(l.price * l.qty)}</td></tr>`)).join("")}</tbody></table>
+        <p class="note">${result.orders.map((o) => `${esc(o.size)}: ${esc(o.method)}${o.proven ? ", proven cheapest" : `, within ${money(o.cost - o.bound)} of the bound`}; first fit decreasing would cost ${money(o.ffdCost)}.`).join(" ")}</p>`;
+      $("#notes").innerHTML = result.notes.length ? `<h3>Notes</h3><ul>${result.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : "";
+      $("#cuts").innerHTML = `<table><thead><tr><th class="n">Qty</th><th>Size</th><th class="n">Length</th><th>Piece</th><th>Walls</th></tr></thead><tbody>${result.cuts.map((c) => `<tr><td class="n">${c.qty}</td><td>${esc(c.size)}</td><td class="n">${formatInches(c.length)}</td><td>${esc(c.kind)}</td><td>${esc(c.walls.join(", "))}</td></tr>`).join("")}</tbody></table>`;
+      $("#boards").innerHTML = result.orders.map((o) => `<h3>${esc(o.size)}</h3><ol>${o.bars.map((b) => `<li>${formatLength(b.length)}${b.label ? ` ${esc(b.label)}` : ""}: ${b.cuts.map((c) => `${formatInches(c.length)} ${esc(c.ref)}`).join(" + ")}${b.offcut >= 0.5 ? `; offcut ${formatInches(b.offcut)}` : ""}</li>`).join("")}</ol>`).join("");
+      renderFloor(floor);
+      renderRoof(roof);
+      renderFoundation(foundation);
+      renderSheathing(plan, result);
+      renderBudget();
+      const prev = $("#wallPick").value;
+      $("#wallPick").innerHTML = result.walls.map((w) => `<option>${esc(w.id)}</option>`).join("");
+      if (result.walls.some((w) => w.id === prev)) $("#wallPick").value = prev;
+      showWall();
+      try { localStorage.setItem(KEY, JSON.stringify(source)); } catch (e) { /* storage is optional */ }
+      return true;
+    }
+
+    let timer = 0;
+    const later = (fn, ms = 250) => { clearTimeout(timer); timer = setTimeout(fn, ms); };
+
+    function load(plan) {
+      ui = fromPlan(plan);
+      setSettings(ui.settings);
+      $("#hdrTable").value = (plan.headerTable || []).map((r) => [formatLength(r.upTo), r.header, r.plies].filter((x) => x != null).join(", ")).join("\n");
+      const fl = plan.floor;
+      $("#flOn").checked = Boolean(fl); $("#flFields").hidden = !fl;
+      if (fl) {
+        $("#flW").value = formatLength(fl.width); $("#flD").value = formatLength(fl.depth); $("#flJoist").value = fl.joist; $("#flSpacing").value = String(fl.spacing);
+        $("#flBeam").value = fl.beam != null ? formatLength(fl.beam) : ""; $("#flBlock").value = String(fl.blockingRows || 0);
+        $("#flUnder").value = (fl.doubleUnder || []).map(formatLength).join(", ");
+        $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
+      }
+      if (plan.prices && typeof plan.prices === "object") { $("#priceText").value = Object.entries(plan.prices).filter(([, v]) => Number.isFinite(v)).map(([k, v]) => `${k}, ${v}`).join("\n"); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } }
+      const fn = plan.foundation;
+      $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
+      if (fn) {
+        $("#fnType").value = fn.type || "stem"; $("#fnW").value = formatLength(fn.width); $("#fnD").value = formatLength(fn.depth);
+        $("#fnFootW").value = String(fn.footing?.width ?? 16); $("#fnFootD").value = String(fn.footing?.depth ?? 8);
+        $("#fnStemH").value = String(fn.stem?.height ?? 32); $("#fnStemT").value = String(fn.stem?.thickness ?? 8);
+        $("#fnSlab").value = String(fn.slab?.thickness ?? 4); $("#fnPrice").value = fn.price != null ? String(fn.price) : "";
+      }
+      const rf = plan.roof;
+      $("#rfOn").checked = Boolean(rf); $("#rfFields").hidden = !rf;
+      if (rf) {
+        $("#rfW").value = formatLength(rf.width); $("#rfL").value = formatLength(rf.length); $("#rfPitch").value = String(rf.pitch);
+        $("#rfRafter").value = rf.rafter || "2x8"; $("#rfSpacing").value = String(rf.spacing || 16); $("#rfRidge").value = rf.ridge || "";
+        $("#rfOver").value = formatLength(rf.overhang ?? 12); $("#rfRake").value = formatLength(rf.gableOverhang ?? 12);
+        $("#rfShape").value = rf.shape === "hip" ? "hip" : "gable"; $("#rfHipBox").hidden = rf.shape !== "hip"; $("#rfHip").value = rf.hip || "";
+        $("#rfJoist").value = rf.ceilingJoist || ""; $("#rfCollar").value = rf.collarTies ? "1" : "0";
+        const wg = rf.wing;
+        $("#rfValleyBacking").value = wg && rf.valleyBacking ? "1" : "0";
+        $("#rfWing").value = wg ? "1" : "0";
+        if (wg) { $("#rfWingW").value = formatLength(wg.width); $("#rfWingP").value = formatLength(wg.projection); $("#rfWingAt").value = wg.at != null ? formatLength(wg.at) : ""; $("#rfWingSide").value = wg.side || "right"; $("#rfWingValley").value = wg.valley || ""; $("#rfWingPitch").value = wg.pitch != null ? String(wg.pitch) : ""; }
+        const w2 = rf.wing2;
+        $("#rfWing2").value = w2 ? "1" : "0";
+        if (w2) { $("#rfWing2W").value = formatLength(w2.width); $("#rfWing2P").value = formatLength(w2.projection); $("#rfWing2At").value = w2.at != null ? formatLength(w2.at) : ""; $("#rfWing2Side").value = w2.side || "right"; $("#rfWing2Valley").value = w2.valley || ""; $("#rfWing2Pitch").value = w2.pitch != null ? String(w2.pitch) : ""; }
+        syncWing();
+      }
+      renderAll();
+      return run();
+    }
+
+    document.addEventListener("input", (e) => {
+      const t = /** @type {HTMLInputElement} */ (e.target);
+      if (t.dataset && t.dataset.t) {
+        const row = ui[t.dataset.t][Number(t.dataset.i)];
+        row[t.dataset.k] = t.type === "checkbox" ? t.checked : t.value;
+      }
+      if (t.id === "height" && t.value !== "custom") {
+        const v = PRECUT[t.value];
+        $("#studLength").value = formatInches(v).replace('"', "");
+        for (const s of ui.stock) if (s.label === "precut stud") s.length = formatLength(v);
+        renderStock();
+      }
+      if (t.id === "studLength") $("#height").value = Object.entries(PRECUT).find(([, v]) => Math.abs(v - parseLength(t.value)) < 1e-6)?.[0] || "custom";
+      later(run);
+    });
+    document.addEventListener("change", (e) => {
+      const t = /** @type {HTMLInputElement} */ (e.target);
+      if (t.dataset && t.dataset.t === "walls" && t.dataset.k === "id") renderOpenings();
+    });
+    document.addEventListener("click", (e) => {
+      const b = /** @type {HTMLElement} */ (e.target);
+      if (b.dataset && b.dataset.del) {
+        const name = b.dataset.del;
+        ui[name].splice(Number(b.dataset.i), 1);
+        renderAll();
+        later(run, 0);
+      }
+    });
+    $("#addWall").addEventListener("click", () => { ui.walls.push({ id: `Wall ${ui.walls.length + 1}`, length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "" }); renderAll(); later(run, 0); });
+    $("#addOpening").addEventListener("click", () => { ui.openings.push({ wall: ui.walls[0]?.id || "", kind: "window", label: "", offset: "24", width: "36", height: "48", headerHeight: "", header: "2x10", plies: "", jacks: 1 }); renderOpenings(); later(run, 0); });
+    $("#addStock").addEventListener("click", () => { ui.stock.push({ size: "2x4", length: "8'", price: 8, label: "" }); renderStock(); });
+    $("#resetStock").addEventListener("click", () => { ui.stock = defaultStock(parseLength($("#studLength").value) || PRECUT["8ft"]).map((s) => ({ size: s.size, length: formatLength(s.length), price: s.price, label: s.label || "" })); renderStock(); later(run, 0); });
+    $("#sheath").addEventListener("change", () => run());
+    $("#sheathH").addEventListener("change", () => run());
+    $("#sheathO").addEventListener("change", () => run());
+    $("#sheathR").addEventListener("change", () => run());
+    $("#run").addEventListener("click", () => { if (run()) record("takeoff_run"); });
+    $("#example").addEventListener("click", () => { if (load(samplePlan())) { record("example_loaded"); $("#status").textContent = "Example: an invented 40 x 28 ft ranch, not a real plan."; } });
+    $("#clear").addEventListener("click", () => { ui.walls = [{ id: "Wall 1", length: "12'", stud: "2x4", treatedPlate: false, corner: false, tees: "", tee: "", gable: "", peak: "" }]; ui.openings = []; renderAll(); run(); $("#status").textContent = "Started an empty plan with one wall."; });
+    $("#wallPick").addEventListener("change", showWall);
+    const download = (name, type, text) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+    $("#csv").addEventListener("click", () => { if (run() && last) { download("framing-takeoff.csv", "text/csv", toCsv(last.result)); record("csv_downloaded"); } });
+    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0) })); record("drawings_downloaded"); } });
+    $("#panelOrderBtn").addEventListener("click", () => {
+      if (!run() || !last) return;
+      const panelMax = Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0);
+      if (!panelMax) { $("#status").textContent = "Enter the longest shop panel (e.g. 12 ft) in the wall settings first."; return; }
+      const po = panelOrder(last.result, last.plan, panelMax, last.nailers);
+      download("shop-panel-lumber-order.txt", "text/plain", [...panelOrderText(po), "", ...panelPullText(po)].join("\n") + "\n");
+      record("panel_order_downloaded");
+    });
+    $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
+    $("#budgetCsvBtn").addEventListener("click", () => { if (run() && last?.budget) { download("framing-budget.csv", "text/csv", budgetCsv(last.budget)); record("budget_csv_downloaded"); } });
+    $("#savePlan").addEventListener("click", () => { const { source, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(source, null, 2)); record("plan_saved"); });
+    $("#openPlan").addEventListener("change", async (e) => {
+      const input = /** @type {HTMLInputElement} */ (e.target);
+      const file = input.files && input.files[0];
+      if (!file) return;
+      try {
+        const plan = JSON.parse(await file.text());
+        const base = samplePlan();
+        for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
+        load(plan);
+        record("plan_opened");
+        $("#status").textContent = `Opened ${file.name}.`;
+      } catch (err) {
+        $("#status").textContent = `Could not read ${file.name} as a plan file.`;
+      }
+    });
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    $("#flOn").addEventListener("change", () => { $("#flFields").hidden = !$("#flOn").checked; if ($("#flOn").checked) record("floor_on"); });
+    function syncWing() { const gable = $("#rfShape").value !== "hip", one = gable && $("#rfWing").value === "1"; $("#rfWingOn").hidden = !gable; for (const el of document.querySelectorAll(".wing")) el.hidden = !one; for (const el of document.querySelectorAll(".wing2")) el.hidden = !one || el.id !== "rfWing2On" && $("#rfWing2").value !== "1"; }
+    $("#rfShape").addEventListener("change", () => { $("#rfHipBox").hidden = $("#rfShape").value !== "hip"; syncWing(); });
+    $("#rfWing").addEventListener("change", syncWing);
+    $("#rfWing2").addEventListener("change", syncWing);
+    $("#fnOn").addEventListener("change", () => { $("#fnFields").hidden = !$("#fnOn").checked; if ($("#fnOn").checked) record("foundation_on"); });
+    $("#rfOn").addEventListener("change", () => { $("#rfFields").hidden = !$("#rfOn").checked; if ($("#rfOn").checked) record("roof_on"); });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+
+    let restored = false;
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (saved && Array.isArray(saved.walls) && saved.walls.length) { restored = load(saved) || true; $("#status").textContent = "Restored your last entries from this device."; }
+    } catch (e) { /* storage is optional */ }
+    if (!restored) { load(samplePlan()); $("#status").textContent = "Showing the example house (invented). Change any field, or start empty."; }
+  </script>
+</body>
+</html>

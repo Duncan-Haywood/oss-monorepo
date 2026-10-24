@@ -1,0 +1,6 @@
+{
+ "theme": "codesign",
+ "title": "Do the codesign-agri conclusions survive when its assumed constants change?",
+ "lede": "does the optimiser ranking of codesign-agri survive a sweep of its 12 invented constants? Mostly: Bayesian optimisation beats CMA-ES beats random search in 82 of 100 worlds, but the best gripper has 2, 3 or 4 fingers depending on stem strength and the nominal winner loses 0.06 J or goes over budget in most worlds",
+ "summary": "Re-runs the <code>codesign-agri</code> soft-fruit gripper model in 100 Latin-hypercube worlds that move its 12 assumed constants (fruit size, bruise threshold, stem force, placement error, wetness, friction, collision length, prices, bruised-fruit value) by factors of about two, with the original optimisers at 40 evaluations and 8 seeds. Median regret to a per-world reference optimum is 0.013 for Bayesian optimisation, 0.060 for CMA-ES and 0.093 for random search; the original order holds in 82 worlds and Bayesian optimisation loses to random search in 4, where a flat landscape leaves some seeds on designs that pick nothing. The reference optimum has 2, 3 or 4 fingers in 42, 21 and 37 worlds (Spearman +0.74 with stem strength), and the nominal winner is over the cost cap in 37 worlds and, in the other 63, 0.056 J short at the median. The sweep ranges are my choices, not sourced; no gripper was printed."
+}

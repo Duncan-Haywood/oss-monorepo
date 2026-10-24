@@ -198,3 +198,57 @@ test('pricing: margin at a selling price and minimum price for a target margin',
   assert.equal(blank.pricing.marginPct, null);
   assert.throws(() => calculateLandedCost({ targetMarginPct: 100 }), /under 100/);
 });
+
+import { calculateEntry } from './calc.mjs';
+
+test('a one-line entry matches the single-shipment calculation', () => {
+  const d = LANDED_COST_DEFAULTS;
+  const single = calculateLandedCost(d);
+  const entry = calculateEntry(
+    [{ itemCost: d.itemCost, quantity: d.quantity, dutyRatePct: d.dutyRatePct, supplementalRatePct: d.supplementalRatePct }],
+    d,
+  );
+  assert.ok(Math.abs(entry.totalLandedCost - single.totalLandedCost) < 1e-9);
+  assert.ok(Math.abs(entry.lines[0].perUnitLandedCost - single.perUnitLandedCost) < 1e-9);
+});
+
+test('MPF is charged once on the combined entry, not per line', () => {
+  // Two $10,000 lines: combined customs value $20,000 -> 0.3464% = $69.28.
+  // Per-line MPF would be 2 x $34.64; here it is one fee on $20,000.
+  const e = calculateEntry(
+    [
+      { name: 'A', itemCost: 10000, quantity: 100, dutyRatePct: 0, supplementalRatePct: 0 },
+      { name: 'B', itemCost: 10000, quantity: 100, dutyRatePct: 0, supplementalRatePct: 0 },
+    ],
+    { brokerFee: 0, entryType: 'formal', oceanFreight: false },
+  );
+  assert.equal(Number(e.fees.mpf.toFixed(2)), 69.28);
+  assert.equal(Number(e.lines[0].entryFees.toFixed(2)), 34.64);
+});
+
+test('three small lines share one MPF floor instead of paying it three times', () => {
+  const lines = [1, 2, 3].map(n => ({ itemCost: 1000, quantity: 10, dutyRatePct: 0, supplementalRatePct: 0 }));
+  const e = calculateEntry(lines, { brokerFee: 0, entryType: 'formal' });
+  assert.equal(e.fees.mpf, MPF_FORMAL_MIN); // $3,000 -> 10.39 raw, floor 32.71 once
+});
+
+test('freight splits by item cost and each line uses its own rates', () => {
+  const e = calculateEntry(
+    [
+      { itemCost: 3000, quantity: 1, dutyRatePct: 10, supplementalRatePct: 0 },
+      { itemCost: 1000, quantity: 1, dutyRatePct: 0, supplementalRatePct: 25 },
+    ],
+    { freightCost: 400, brokerFee: 0, entryType: 'informal' },
+  );
+  assert.equal(e.lines[0].freight, 300);
+  assert.equal(e.lines[1].freight, 100);
+  assert.equal(e.lines[0].duty, 330); // 10% of 3,300
+  assert.equal(e.lines[1].supplementalTariff, 275); // 25% of 1,100
+  const sum = e.lines.reduce((s, l) => s + l.totalLandedCost, 0);
+  assert.ok(Math.abs(sum - e.totalLandedCost) < 1e-9);
+});
+
+test('calculateEntry rejects empty entries and fractional quantities', () => {
+  assert.throws(() => calculateEntry([]), /at least one/);
+  assert.throws(() => calculateEntry([{ itemCost: 10, quantity: 1.5 }]), /whole number/);
+});

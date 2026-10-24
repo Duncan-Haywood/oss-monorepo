@@ -7,7 +7,7 @@ fitting box, counting dimensional weight, the box itself and void fill, and
 shows what each extra size saves a month, which box each product goes in, and
 how far today's boxes are from the best set. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shipping-box-size-optimizer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shipping-box-size-optimizer/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
@@ -15,6 +15,8 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   candidates, and the solver: exact enumeration of every K-size set when that
   is small enough, otherwise greedy plus multi-start one-swap (Teitz-Bart)
   local search on the p-median objective.
+- `whatIf` in `calc.mjs` - type a carrier's new DIM divisor or postage and it re-solves, prices
+  the boxes you would keep under the new rates, and says whether to change them.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-many-box-sizes-to-stock.html` - guide with a worked example that the
   test suite recomputes.
@@ -29,3 +31,14 @@ hand-calculated examples and against exhaustive search.
 Anonymous feature counts stay in local storage and can be switched off.
 
 MIT licence, see `LICENSE`.
+
+## Host your own copy
+
+It is a static site: the server only hands out files and never sees a figure you type, so you can serve it from an
+address you control.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.

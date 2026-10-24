@@ -1,0 +1,86 @@
+A. LCOS ($/MWh, 7%, $30/MWh charging) with sourced 2030 costs; winner; winner in the assumed energy-lcos map
+ hours     li-ion vanadium f pumped hyd compressed   hydrogen    sourced    assumed
+     1        180        256        496        358       1576     li-ion     li-ion
+     2        140        217        275        209        835     li-ion     li-ion
+     4        121        198        165        134        465     li-ion     li-ion
+     6        118        205        136        114        365 compressed compressed
+     8        133        253        143        114        364 compressed compressed
+    10        154        302        149        115        364 compressed compressed
+    12        175        350        155        115        363 compressed compressed
+    24        303        640        192        119        361 compressed compressed
+    48        559       1219        265        126        358 compressed compressed
+   100       1114       2474        424        141        358 compressed compressed
+   168       1839       4116        633        161        365 compressed compressed
+   500       5381      12130       1649        258        425 compressed   hydrogen
+
+B. Sourced estimates behind the Monte Carlo: lowest and highest as a multiple of the 2030 value (power block, energy block)
+  li-ion (LFP)             power x0.38 to x1.69   energy x0.53 to x1.90
+  vanadium flow            power x1.00 to x1.16   energy x1.00 to x1.23
+  pumped hydro             power x0.44 to x1.15   energy x0.44 to x1.15
+  compressed air (cavern)  power x1.00 to x1.00   energy x1.00 to x1.00
+  hydrogen (cavern)        power x0.69 to x1.27   energy x0.60 to x1.50
+
+C. Share of 4000 scenarios in which each technology is cheapest (%); block costs between the lowest and highest sourced estimate, rate 3-10% and charging $10-100/MWh swept (seed 20261021)
+ hours     li-ion vanadium f pumped hyd compressed   hydrogen
+     1         97          1          2          0          0
+     2         85          0         12          3          0
+     4         47          0         38         15          0
+     6         30          0         51         19          0
+     8         22          0         52         27          0
+    10         12          0         53         35          0
+    12          7          0         51         42          0
+    24          0          0         27         73          0
+    48          0          0          5         95          0
+   100          0          0          0        100          0
+   168          0          0          0        100          0
+   500          0          0          0        100          0
+
+D. Same, rate fixed at 7% and charging price at $30/MWh (only the sourced cost spread varies)
+ hours     li-ion vanadium f pumped hyd compressed   hydrogen
+     1         97          2          1          0          0
+     2         86          0         11          3          0
+     4         41          0         29         30          0
+     6         24          0         37         40          0
+     8         15          0         33         52          0
+    10          6          0         28         66          0
+    12          1          0         22         77          0
+    24          0          0          3         97          0
+    48          0          0          0        100          0
+   100          0          0          0        100          0
+   168          0          0          0        100          0
+   500          0          0          0        100          0
+
+E. Cost-year view: winner at point costs for technology-data years 2020, 2030, 2050 (no spread)
+ hours       2020       2030       2050
+     1     li-ion     li-ion     li-ion
+     2 compressed     li-ion     li-ion
+     4 compressed     li-ion     li-ion
+     6 compressed compressed     li-ion
+     8 compressed compressed     li-ion
+    10 compressed compressed     li-ion
+    12 compressed compressed     li-ion
+    24 compressed compressed compressed
+    48 compressed compressed compressed
+   100 compressed compressed compressed
+   168 compressed compressed compressed
+   500 compressed compressed compressed
+
+F. Cavern compressed air has no sourced spread (technology-data holds one value for 2020 to 2050). Cost multiple m on both its blocks
+   at which it stops being the point-estimate winner (rate 7%, $30/MWh); 'none' = still wins at m=10
+     8 h: m = 1.33 (cavern $114/MWh, best other $133/MWh)
+    12 h: m = 1.69 (cavern $115/MWh, best other $155/MWh)
+    24 h: m = 2.19 (cavern $119/MWh, best other $192/MWh)
+   100 h: m = 3.61 (cavern $141/MWh, best other $358/MWh)
+   500 h: m = 1.83 (cavern $258/MWh, best other $425/MWh)
+
+G. Unsourced inputs (cycle life, annual fade stay at energy-lcos values): Li-ion LCOS ($/MWh) at 4 h and 8 h, base then swept
+  base (6000 cycles, 1.5%/y)   4 h $121   8 h $133   (best non-Li-ion at 8 h $114)
+  cycle life x0.5              4 h $164   8 h $167   (best non-Li-ion at 8 h $114)
+  cycle life x2                4 h $111   8 h $133   (best non-Li-ion at 8 h $114)
+  fade 3%/y                    4 h $132   8 h $150   (best non-Li-ion at 8 h $114)
+  fade 0.5%/y                  4 h $114   8 h $124   (best non-Li-ion at 8 h $114)
+
+H. Cross-check against NREL ATB 2024, Li-ion overnight capital cost ($/kW) at 2, 4, 8 h: technology-data 2030 against ATB 2030 fit
+  2 h: technology-data 671; ATB Advanced 581, Moderate 809, Conservative 975
+  4 h: technology-data 1100; ATB Advanced 978, Moderate 1300, Conservative 1612
+  8 h: technology-data 1958; ATB Advanced 1772, Moderate 2283, Conservative 2887

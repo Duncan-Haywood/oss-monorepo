@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Podcast Feed Validator — Apple Podcasts / RSS 2.0 Spec Checker</title>
-  <meta name="description" content="Free tool: paste your podcast's RSS feed XML and check it against the documented Apple Podcasts feed requirements and the RSS 2.0 spec -- missing title/description/language/category/explicit/artwork, an invalid pubDate format, a missing atom:link rel=self, and duplicate episode guids (the documented cause of an episode reappearing as new or disappearing from a podcast app). A zero-dependency CLI fetches your feed URL for real. Runs in your browser or as a CI check. Nothing uploaded.">
+  <meta name="description" content="Paste your podcast RSS feed to check it against Apple Podcasts requirements and the RSS 2.0 spec: missing tags, bad pubDates, duplicate guids. Nothing uploaded.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Podcast Feed Validator">
   <meta property="og:description" content="Checks a podcast RSS feed against Apple Podcasts' documented requirements and the RSS 2.0 spec -- missing required elements, an invalid pubDate, a missing atom:link rel=self, and duplicate episode guids -- from pasted feed XML in your browser, or for real over HTTP with the CLI.">
@@ -56,6 +56,7 @@
     </p>
     <p class="note">Nothing is uploaded. The feed XML you paste is parsed in this browser and never leaves your device — see "Why can't this page fetch my feed URL itself?" below for what the CLI adds.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Check a feed</h2>
@@ -119,7 +120,9 @@ node check.mjs https://example.com/feed.xml --timeout 20000</pre>
     <p>No. It checks specific, mechanically verifiable properties of the feed XML you provide — required elements, format validity, and duplicate/unstable guids. It is not a guarantee Apple, Spotify, or any other podcast app will accept or display your show, and it does not check account-level submission steps.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
+    <p>No feed yet? <a href="../publish-kit/">Publish Kit</a> builds one from your episode audio files: a podcast RSS feed generator, in the browser or as a CLI.</p>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice, and it does not replace a qualified professional. It reports whether the feed XML you provided satisfies specific, mechanically checkable rules — nothing more. It is not a guarantee that Apple Podcasts, Spotify, or any other podcast app will accept or display your show. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
     <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>

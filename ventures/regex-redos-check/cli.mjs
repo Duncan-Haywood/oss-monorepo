@@ -7,6 +7,7 @@
 //   node cli.mjs scan . --json
 //   node cli.mjs scan src --probe              # confirm suspects by timing the real JS engine
 //   node cli.mjs scan src --fail-on warn       # exit 1 on polynomial warnings too (default: exponential only)
+//   node cli.mjs scan . --sarif > redos.sarif  # GitHub code scanning upload format
 //   node cli.mjs check '(a+)+$'                # analyse one pattern
 
 import fs from "node:fs/promises";
@@ -17,10 +18,11 @@ const SCAN_EXTENSIONS = new Set([".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", "
 const IGNORE_DIRS = new Set(["node_modules", ".git", "dist", "build", "out", "coverage", "vendor", ".next", ".venv", "venv", "target", "__pycache__"]);
 
 function parseArgs(argv) {
-  const args = { json: false, probe: false, failOn: "error", positional: [] };
+  const args = { json: false, sarif: false, probe: false, failOn: "error", positional: [] };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === "--json") args.json = true;
+    else if (a === "--sarif") args.sarif = true;
     else if (a === "--probe") args.probe = true;
     else if (a === "--fail-on") args.failOn = argv[++i];
     else if (a === "--flags") args.flags = argv[++i] || "";
@@ -47,7 +49,7 @@ async function walk(root, readdir, out = []) {
 
 const USAGE = [
   "Usage:",
-  "  node cli.mjs scan <dir-or-file> [...] [--json] [--probe] [--fail-on error|warn]",
+  "  node cli.mjs scan <dir-or-file> [...] [--json|--sarif] [--probe] [--fail-on error|warn]",
   "  node cli.mjs check <pattern> [--flags gi] [--json] [--probe]",
   "",
   "Finds regular expressions in .js/.ts/.py source that can backtrack",
@@ -56,6 +58,25 @@ const USAGE = [
   "suspect; --probe times the real JavaScript engine on a generated input to",
   "confirm it (JS patterns only; each run has a hard timeout). No network call.",
 ].join("\n");
+
+const SARIF_LEVEL = { error: "error", warn: "warning", info: "note" };
+
+export function toSarif(findings) {
+  const rules = [...new Set(findings.map((f) => f.rule))].sort();
+  return {
+    $schema: "https://json.schemastore.org/sarif-2.1.0.json",
+    version: "2.1.0",
+    runs: [{
+      tool: { driver: { name: "regex-redos-check", informationUri: "https://duncan-haywood.github.io/monorepo-projects/regex-redos-check/", rules: rules.map((id) => ({ id, shortDescription: { text: id }, help: { text: FIXES[id] || id } })) } },
+      results: findings.map((f) => ({
+        ruleId: f.rule,
+        level: SARIF_LEVEL[f.severity] || "note",
+        message: { text: f.message },
+        locations: [{ physicalLocation: { artifactLocation: { uri: String(f.file).split(path.sep).join("/").replace(/^\.\//, "") }, region: { startLine: f.line || 1 } } }],
+      })),
+    }],
+  };
+}
 
 async function applyProbe(findings) {
   const { probePattern, describeAttack } = await import("./probe.mjs");
@@ -110,6 +131,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stat
   const failing = merged.findings.some((f) => f.severity === "error" || (args.failOn === "warn" && f.severity === "warn"));
   const exitCode = failing ? 1 : 0;
 
+  if (args.sarif) return { exitCode, output: JSON.stringify(toSarif(merged.findings), null, 2) };
   if (args.json) return { exitCode, output: JSON.stringify({ filesScanned: files.length, summary, findings: merged.findings }, null, 2) };
 
   const lines = [`scanned ${files.length} source file(s) -- ${summary.text}`];

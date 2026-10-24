@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Belgium e-invoice mandate: dates, Peppol format and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="Since 1 January 2026 Belgian VAT-registered businesses must send B2B invoices as structured Peppol e-invoices; a tolerance period without fines ran through the first quarter of 2026. The dates, the fines (EUR 1,500 to 5,000) and a free local Peppol BIS 3.0 checker.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/belgium-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Belgium e-invoice mandate: dates, Peppol format and a free pre-send check">
+<meta property="og:description" content="Since 1 January 2026 Belgian VAT-registered businesses must send B2B invoices as structured Peppol e-invoices; a tolerance period without fines ran through the first quarter of 2026. The dates, the fines (EUR 1,500 to 5,000) and a free local Peppol BIS 3.0 checker.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/belgium-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When did Belgium's B2B e-invoicing mandate start?","acceptedAnswer":{"@type":"Answer","text":"On 1 January 2026 structured e-invoicing became mandatory for domestic B2B transactions between Belgian VAT-registered businesses; the same date applies to receiving and issuing. A tolerance period without fines ran for the first quarter of 2026. Exceptions exist (for example sales to consumers and some exempt activities). Confirm your own situation with your accountant or FPS Finance; this page is a summary, not advice."}},{"@type":"Question","name":"Which invoice format does Belgium require?","acceptedAnswer":{"@type":"Answer","text":"A structured invoice in the Peppol BIS Billing 3.0 format (UBL, based on EN 16931), sent over the Peppol network through an access point. A PDF or a paper invoice no longer counts as the invoice for domestic B2B sales. This checker reads JSON, UBL, CII and Factur-X PDFs and has a Peppol BIS 3.0 option."}},{"@type":"Question","name":"What are the fines for not e-invoicing in Belgium?","acceptedAnswer":{"@type":"Answer","text":"The law sets fines of EUR 1,500 for a first offence, EUR 3,000 for a second and EUR 5,000 for a third or later offence in a calendar year, after the first-quarter 2026 tolerance period. Confirm the current amounts with FPS Finance before relying on them."}},{"@type":"Question","name":"How do I check a Belgian invoice before sending it?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker and tick the Peppol option. It tests the Peppol business process and specification identifiers, the seller and buyer electronic addresses and their scheme, the totals and tax breakdown arithmetic, and VAT, IBAN and BIC typos, each with a rule ID and a fix. Nothing is uploaded when you use the page. It is an offline observation, not an access point's acceptance and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Belgium's e-invoice mandate: what applies now</h1>
+<p class="lede">Since 1 January 2026, Belgian VAT-registered businesses must send domestic B2B invoices as structured Peppol e-invoices. Below: the date, the fines, the format that counts, and how to test a file before it goes to a customer.</p>
+</header>
+<section>
+<h2>The timeline (domestic B2B)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>1 Jan 2026</td><td>Structured e-invoicing is mandatory between Belgian VAT-registered businesses: you must be able to <strong>receive</strong> and you must <strong>issue</strong> e-invoices. A tolerance period without fines runs for the first quarter.</td></tr>
+<tr><td>After Q1 2026</td><td>Fines apply: EUR 1,500 for a first offence, EUR 3,000 for a second and EUR 5,000 for a third or later offence in a calendar year.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Exceptions exist (for example sales to consumers and some exempt activities), and a separate e-reporting duty has been announced for later. This is a summary, not tax advice; confirm with your accountant or FPS Finance.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>The invoice is a <strong>Peppol BIS Billing 3.0</strong> document (UBL, on top of the European standard EN 16931) sent over the Peppol network through an access point your business or your software provider uses. The buyer's Peppol address decides where it lands. A PDF emailed to the customer is no longer the invoice for domestic B2B sales. A rejection comes back after you have submitted.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your XML, and tick <em>Also apply the Peppol BIS Billing 3.0 rules</em>. It flags a wrong business process or specification identifier, a missing or malformed electronic address, arithmetic that does not add up, a missing tax reason on a 0% or exempt line, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Selling into other countries? See <a href="germany-e-invoice-mandate.html">the German dates</a> and <a href="france-e-invoice-mandate.html">the French dates</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, or the <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>. Also: <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>When did Belgium's B2B e-invoicing mandate start?</h3>
+<p>On 1 January 2026 structured e-invoicing became mandatory for domestic B2B transactions between Belgian VAT-registered businesses; the same date applies to receiving and issuing. A tolerance period without fines ran for the first quarter of 2026. Exceptions exist (for example sales to consumers and some exempt activities). Confirm your own situation with your accountant or FPS Finance; this page is a summary, not advice.</p>
+<h3>Which invoice format does Belgium require?</h3>
+<p>A structured invoice in the Peppol BIS Billing 3.0 format (UBL, based on EN 16931), sent over the Peppol network through an access point. A PDF or a paper invoice no longer counts as the invoice for domestic B2B sales. This checker reads JSON, UBL, CII and Factur-X PDFs and has a Peppol BIS 3.0 option.</p>
+<h3>What are the fines for not e-invoicing in Belgium?</h3>
+<p>The law sets fines of EUR 1,500 for a first offence, EUR 3,000 for a second and EUR 5,000 for a third or later offence in a calendar year, after the first-quarter 2026 tolerance period. Confirm the current amounts with FPS Finance before relying on them.</p>
+<h3>How do I check a Belgian invoice before sending it?</h3>
+<p>Drop the file into the checker and tick the Peppol option. It tests the Peppol business process and specification identifiers, the seller and buyer electronic addresses and their scheme, the totals and tax breakdown arithmetic, and VAT, IBAN and BIC typos, each with a rule ID and a fix. Nothing is uploaded when you use the page. It is an offline observation, not an access point's acceptance and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Belgian rules as publicly documented; dates and fines can change, so check the FPS Finance guidance (financien.belgium.be, e-invoicing) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

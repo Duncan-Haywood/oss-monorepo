@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01HqqT1sM9uagb3H1cBCtTUZ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T10:00:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "infra next step 2 (infra-pumpdemand)",
+  "projects": [
+    "research/infra-pumpdays"
+  ],
+  "pr": 9748,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Process-kill commands whose pattern matched my own shell's command line ended the shell three times; the wntr install took several minutes"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to pass a distinct file_prefix per process for wntr; works, but wntr still leaves random 8-character scratch files in the cwd during runs, which trips the stop hook's untracked-files check; the project .gitignore needs a pattern for them."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "The 'Next steps' of infra-pumpdemand did not say how to source a day-to-day demand distribution; I swept a multiplier instead and cited a planning document I could not verify against a primary source."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-23-water-pump-demand-charge-booster-pump.md (extended with a follow-up section)"
+  ],
+  "goal": null,
+  "notes": "Simulations: 21,806 masks x 5 demand multipliers at 900 s plus a 554-mask threshold scan; all numbers in experiments/results*.txt. Caveat recorded in the README: periodic-day simulation overstates booster need; next step is tank carry-over between days. No agent doc in docs/reports was written; the post was extended instead.",
+  "corrections": [],
+  "redteam": null
+}

@@ -22,20 +22,29 @@ def num(tok):
         return None
 
 
-def table(text, section, xcol, ycols, maxrows=None):
+def table(text, section, xcol, ycols, maxrows=None, sep=None):
     """Numeric rows of the results.txt block that starts with `section`; skips rows whose x is not a number.
 
-    `section` is a literal prefix of the heading line, spaces included ("== C." matches a line "== C. ...").
+    `text` is a list of lines or one string. `section` is a prefix of the heading line ("== C." matches a line
+    "== C. ..."); runs of "=" and spaces are ignored, so "C." matches too.
     The block ends at the next line starting "==" or like "1. " / "E3".
+    Cells split on whitespace; pass sep="|" for markdown-style tables (cells are stripped, empty edge cells dropped).
     """
+    if isinstance(text, str):
+        text = text.splitlines()
     xs, ys, on = [], [[] for _ in ycols], False
+    flat = lambda t: re.sub(r"[=\s]+", " ", t).strip()
     for l in text:
-        if l.startswith(section):
+        if l.startswith(section) or (flat(section) and flat(l).startswith(flat(section))):
             on = True
             continue
-        if on and (l.startswith("==") or (re.match(r"(\d\. |E\d)", l) and not l.startswith(section))):
+        if on and (l.startswith("==") or (re.match(r"(\d\. |E\d)", l) and not flat(l).startswith(flat(section)))):
             break
         p = l.split()
+        if sep:
+            p = [c.strip() for c in l.split(sep)]
+            if p and not p[0]:
+                p = p[1:]
         if on and len(p) > max([xcol] + ycols) and num(p[xcol]) is not None and all(num(p[c]) is not None for c in ycols):
             xs.append(float(p[xcol]))
             for k, c in enumerate(ycols):

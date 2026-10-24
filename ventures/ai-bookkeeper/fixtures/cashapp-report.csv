@@ -1,0 +1,5 @@
+Transaction ID,Date,Transaction Type,Currency,Amount,Fee,Net Amount,Asset Type,Asset Price,Asset Amount,Status,Notes,Name of sender/receiver,Account
+#CASH0001,2026-03-02 14:05:11 EST,Payment received,USD,$120.00,-$3.48,$116.52,,,,COMPLETE,Fence repair deposit,Pat Customer,Cash balance
+#CASH0002,2026-03-03 09:12:40 EST,Payment sent,USD,-$45.00,$0.00,-$45.00,,,,COMPLETE,Paint supplies,Hardware Depot,Cash balance
+#CASH0003,2026-03-04 10:00:00 EST,Payment received,USD,$60.00,-$1.84,$58.16,,,,PAYMENT CANCELED,Test,Sam Test,Cash balance
+#CASH0004,2026-03-05 18:30:02 EST,Cash out,USD,-$100.00,$0.00,-$100.00,,,,COMPLETE,,,Cash balance

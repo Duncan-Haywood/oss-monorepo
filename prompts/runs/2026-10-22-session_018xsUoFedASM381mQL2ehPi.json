@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_018xsUoFedASM381mQL2ehPi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T09:21:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9440,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 40,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Open items for ai-bookkeeper all need real files, a local model or web docs; none is doable in a sandbox with blocked hosts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Did not land a milestone slice of the flagship `next:`; items need network or real data. Shipped a verification test instead."
+    }
+  ],
+  "writeups": [
+    "ventures/ai-bookkeeper/README.md"
+  ],
+  "goal": null,
+  "notes": "Top flagship ai-bookkeeper. Its open items need real exports or a local model, and developer/docs hosts (Square, Stripe) were blocked by the proxy (403), so Square payouts could not be checked against a published layout and were not guessed. Landed a seeded round-trip property test of the statement reader instead (40/40 pass). Did not rewrite flagships next: (no item completed). Small value; real-input items remain open.",
+  "corrections": [],
+  "redteam": null
+}

@@ -120,5 +120,5 @@ kill_criteria:
     zero-install, CI-usable bar, such that the wedge no longer holds.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/k8s-rollout-safety-check/
   analytics: null

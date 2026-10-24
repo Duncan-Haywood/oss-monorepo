@@ -121,3 +121,20 @@ test("findings CSV and NOT_CHECKED travel with the result", () => {
   assert.equal(parseCsv(findingsCsv(r)).rows.length, r.findings.length + 1);
   assert.equal(toCsv([["a,b", 'c"d']]), '"a,b","c""d"\r\n');
 });
+
+test("do-not-email list flags and drops listed contacts and domains", async () => {
+  const { parseSuppression } = await import("./calc.mjs");
+  const csv = "Email,First Name\nann@example.com,Ann\nBob@Gone.example,Bob\ncy@ok.example,Cy\n";
+  const sup = "Ann@Example.com\n@gone.example\nnot an address";
+  assert.equal(parseSuppression("nothing here"), null);
+  const r = validate(csv, { suppress: sup });
+  const hits = r.findings.filter((f) => f.title.startsWith("On your do-not-email list"));
+  assert.deepEqual(hits.map((f) => f.line), [2, 3]);
+  assert.equal(r.summary.suppressed, 2);
+  const fixed = repair(csv, { suppress: sup });
+  assert.match(fixed.text, /cy@ok\.example/);
+  assert.doesNotMatch(fixed.text, /ann@example|gone\.example/i);
+  assert.ok(fixed.changes.some((c) => /2 contacts on your do-not-email list dropped/.test(c)));
+  assert.equal(validate(csv).summary.suppressed, 0);
+  assert.equal(repair(csv).text.includes("Ann"), true);
+});

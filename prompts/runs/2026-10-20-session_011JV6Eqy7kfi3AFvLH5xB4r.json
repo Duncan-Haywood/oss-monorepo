@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_011JV6Eqy7kfi3AFvLH5xB4r",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T17:18:28Z",
+  "ended": "2026-10-20T17:28:29Z",
+  "wall_minutes": 10.34,
+  "tokens_in": 2599764,
+  "tokens_out": 11862,
+  "cost_usd": 0.9169,
+  "tool_calls": 33,
+  "task": "Deepen flagship 1: Poisson count trends",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8887",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "the changepoint-detector next: entry is a multi-kilobyte changelog that allocate.py prints in full; hard to read for the next step"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Full changepoint-detector node tests run locally (engine suite ~200 s, over the 120 s foreground limit); one existing test updated for the new behaviour. CI not awaited beyond local checks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ee65fb0f-4cc5-572c-b924-02648e05e026",
+    "transcripts": 1,
+    "first": "2026-10-20T17:18:28Z",
+    "last": "2026-10-20T17:28:49Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 30,
+        "input": 60,
+        "output": 11862,
+        "thinking": 1812,
+        "cache_read": 2526496,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73208,
+        "api_equivalent_usd": 0.9169,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 60,
+      "output": 11862,
+      "thinking": 1812,
+      "cache_read": 2526496,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73208,
+      "api_equivalent_usd": 0.9169,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 25,
+      "Edit": 3,
+      "Read": 1,
+      "bash_placeholder": 1,
+      "bash_placeholder2": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.34,
+      "active_minutes": 10.34,
+      "model_minutes": 2.9,
+      "tool_minutes": 7.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "estimate: design, implement, measure and document a new cost model",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 327.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

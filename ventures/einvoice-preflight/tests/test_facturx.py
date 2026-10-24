@@ -42,6 +42,12 @@ class FacturxDetectionTest(unittest.TestCase):
         self.assertEqual(syntax, "cii")
         self.assertEqual(document["invoice_number"], "INV-2026-0043")
 
+    def test_shipped_credit_note_unwraps_and_checks_clean(self) -> None:
+        document, syntax = parse_bytes((EXAMPLES / "factur-x-credit-note.pdf").read_bytes())
+        self.assertEqual(syntax, "cii")
+        self.assertEqual(document["invoice_number"], "GS-2026-0011")
+        self.assertEqual(document["original_invoice"], "RE-2026-0107")
+
     def test_flate_compressed_attachment_still_unwraps(self) -> None:
         pdf = build_pdf_with_attachment(CII.read_bytes(), flate=True)
         extracted = extract_embedded_invoice_xml(pdf)
@@ -116,3 +122,44 @@ class FacturxCliTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("Unwrapped factur-x.xml (CII) from the PDF.", buffer.getvalue())
         self.assertNotIn("notes.txt", buffer.getvalue())
+
+
+class StreamShapeTests(unittest.TestCase):
+    """Dictionary key order and indirect /Length vary between PDF generators."""
+
+    XML = (
+        b'<?xml version="1.0"?><rsm:CrossIndustryInvoice xmlns:rsm="urn:un:unece:uncefact:'
+        b'data:standard:CrossIndustryInvoice:100">' + b"x" * 300 + b"</rsm:CrossIndustryInvoice>"
+    )
+
+    def pdf(self, dict_text: bytes, body: bytes, length_object: bytes = b"") -> bytes:
+        return (
+            b"%PDF-1.7\n1 0 obj\n<< /Type /Catalog >>\nendobj\n4 0 obj\n" + dict_text + b"\nstream\n"
+            + body + b"\nendstream\nendobj\n" + length_object
+            + b"trailer\n<< /Size 6 /Root 1 0 R >>\n%%EOF\n"
+        )
+
+    def test_shapes(self) -> None:
+        import zlib
+
+        packed = zlib.compress(self.XML)
+
+        def length_of(n: int) -> bytes:
+            return b"5 0 obj\n%d\nendobj\n" % n
+
+        cases = {
+            "indirect length": self.pdf(b"<< /Type /EmbeddedFile /Length 5 0 R >>", self.XML, length_of(len(self.XML))),
+            "filter before type": self.pdf(
+                b"<< /Length %d /Filter /FlateDecode /Type /EmbeddedFile >>" % len(packed), packed
+            ),
+            "filter before type, indirect length": self.pdf(
+                b"<< /Filter /FlateDecode /Length 5 0 R /Type /EmbeddedFile >>", packed, length_of(len(packed))
+            ),
+            "filter after type, indirect length": self.pdf(
+                b"<< /Type /EmbeddedFile /Filter /FlateDecode /Length 5 0 R >>", packed, length_of(len(packed))
+            ),
+            "wrong direct length": self.pdf(b"<< /Type /EmbeddedFile /Length 7 >>", self.XML),
+        }
+        for label, data in cases.items():
+            with self.subTest(label):
+                self.assertEqual(extract_embedded_invoice_xml(data), self.XML)

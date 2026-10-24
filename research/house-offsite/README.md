@@ -2,7 +2,7 @@
 
 Eighth project of track 12, open-source residential construction (`PROJECTS.md`, milestone 7). It takes the exterior walls of the [`house-framing`](../house-framing) house (advanced 2x6 at 24 in) and asks the offsite question on a small, checkable model: split the walls into panels, nest the sheathing, load the trailers, then compare the crew days and an assumed cost of panelising against framing on site. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-offsite/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-offsite/
 
 **Headline.** In this stylised model **panelising the walls of a 28 x 40 ft house does not pay**: the shell takes 1.96 calendar days on site and 2.17 panelised, and the panelised shell costs 38% more at assumed rates. Factory work hides behind the foundation (it is off the critical path whatever the factory's productivity), so the only lever on *days* is the fixed delivery-plus-crane time against site labour that grows with the house: panelised is faster from about **58 ft long at 15% weather loss (78 ft with no weather, 44 ft at 30%)**. On *cost*, with a $1,500 crane day it never wins up to 200 ft; with $750 only if factory labour is about 3x as productive as site labour; with a free crane day it wins from 24 ft. **Nesting the sheathing in a factory saves 1 sheet in 33** (lower bound 26): a 4 x 9 sheet cut to a 97 in wall leaves an 11 in strip that few pieces can use, so sheet waste is a property of the wall height, not the cutting method. Every rate is my assumption; what the model supports is the *shape* (fixed costs against size), not the dollars.
 
@@ -22,7 +22,7 @@ Eighth project of track 12, open-source residential construction (`PROJECTS.md`,
 ```bash
 pip install pytest
 cd research/house-offsite
-python -m pytest -q tests                      # 11 tests; needs ../house-framing/src (set in pyproject)
+python -m pytest -q tests                      # 13 tests; needs ../house-framing/src (set in pyproject)
 python experiments/run.py > experiments/results.txt   # under a second, deterministic
 python experiments/figure.py                   # experiments/size.svg from results.txt
 ```
@@ -36,18 +36,20 @@ python experiments/figure.py                   # experiments/size.svg from resul
 - **Cost break-even** (F0): with a free crane day panelising wins from 24 ft at factory ratios of 0.6 or better; at $750 per crane day only a ratio of 0.3 wins, and only from 34 ft; at $1,500 it never wins up to 200 ft.
 - **Overheads** (G): a free crane day takes panelising from +$1,373 to −$127; tripling the trip cost adds $1,800.
 
+- **Closed panels** (H, I, J; `Process(closed=True)`). Moving wrap, cavity insulation, wiring rough-in and window and door setting into the panel (placeholders: 1.2 min per ft<sup>2</sup> of wall, 90 min per opening, all done on site otherwise) takes site labour from 51 to 85 h and the factory share to 43 h at ratio 0.6. Panelised then takes 2.16 days against 3.18 on site with 15% weather loss (2.00 against 2.64 with none), and its cost relative to site-built is &minus;10% at factory ratio 0.3, +1% at 0.45, +12% at 0.6 and +27% at 0.8. With a $1,500 crane day panelising is cheaper at any length only if the ratio is 0.3 (or from 42 ft at 0.45); at $750 it wins from 34 ft at 0.6. So the open-panel "does not pay" result is the weakest case for offsite, as the limitations said, and the verdict now turns on one number this project does not measure: the plant's labour ratio. Materials are the same either way and are left out.
+
 ![Calendar days of the wall shell by house length](experiments/size.svg)
 
 ## Limitations
 - **The labour rates are guesses.** I did not find or use measured crew productivity; the 12 min per member and 0.6 factory ratio are placeholders that give a believable 51 hours for the walls of a small house. Change them in `Process`.
-- **Only the wall shell.** Floors, roof trusses, windows installed in the factory, wiring and insulation in the panel (the usual offsite gains) are not counted, so this is the weakest version of the offsite case. Closed panels would move more labour into the factory.
+- **Only the wall shell.** Floors and roof trusses are not counted. The open-panel baseline is the weakest version of the offsite case; the closed-panel variant (H to J) adds wall trades with placeholder minutes, not measured ones.
 - **Savings elsewhere are excluded**: less site theft and weather damage, interest on a shorter build (`house-schedule` sizes that), and quality. Costs elsewhere too: design freeze, plant utilisation, minimum order sizes, and the permit and inspection of factory work.
 - **Crane and transport are one-line models.** One crane day at a fixed price, a 48 ft trailer, no width or weight limits, no escort, no lifting-frame design.
 - **Weather is a coin flip per day**, the same every day; the shell is under three days, so the draw matters.
 - **Sheathing nesting is greedy**, one run of each policy, no exact solver; rotation of OSB may not be allowed structurally.
 
 ## Next steps
-Calibrate labour to a published productivity source and the factory ratio to a real plant; add floors and trusses and a closed-panel variant; let `house-schedule` consume the shell step so the interest saving is priced together with the labour; check panel handling loads with `house-structure` once it exists.
+Calibrate labour to a published productivity source and the factory ratio to a real plant; add floors and trusses; replace the closed-panel placeholders with measured trade productivity; let `house-schedule` consume the shell step so the interest saving is priced together with the labour; check panel handling loads with `house-structure` once it exists.
 
 ## Owner steps
 None required. Any real panelised build needs an engineer's design for lifting and bracing and the local authority's approval of factory-built walls.

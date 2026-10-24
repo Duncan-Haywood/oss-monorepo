@@ -4,6 +4,9 @@ them into that same interpreter if none can.
 
     PY=$(python3 platform/ci/pyenv.py pytest numpy) && "$PY" -m pytest ...
 
+When the pip name and the import name differ and are not in PIP_NAMES, pass
+`pip-name:module` (e.g. `OpenDSSDirect.py:opendssdirect`).
+
 Why: on 2026-10-16 about 20 of the day's 66 CLAUDE.md friction reports were
 one problem. Some session images put a bare /usr/local/bin/python3 first on
 PATH while `pip` and `apt-get install python3-*` install into /usr/bin/python3,
@@ -28,10 +31,28 @@ import sys
 # import name -> package name, where they differ
 PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow",
              "skfem": "scikit-fem", "skimage": "scikit-image", "cv2": "opencv-python-headless",
-             "bs4": "beautifulsoup4", "dateutil": "python-dateutil"}
+             "bs4": "beautifulsoup4", "dateutil": "python-dateutil",
+             "opendssdirect": "OpenDSSDirect.py"}
 APT_NAMES = {"sklearn": "python3-sklearn", "yaml": "python3-yaml", "PIL": "python3-pil",
              "skimage": "python3-skimage", "cv2": "python3-opencv", "bs4": "python3-bs4",
              "dateutil": "python3-dateutil"}
+
+
+# pip distribution name -> import name, so `pyenv.py scikit-learn` works
+# (2026-10-20: it built `import scikit-learn`, a SyntaxError, and reported
+# "no interpreter imports" after a venv that had everything installed)
+IMPORT_NAMES = {v.lower(): k for k, v in PIP_NAMES.items()}
+
+
+def import_name(arg):
+    """Import name for a module or pip name; other dashes become underscores.
+    `pip-name:module` names both when neither table knows the pair (it is
+    remembered in PIP_NAMES for the install)."""
+    if ":" in arg:
+        pkg, mod = arg.split(":", 1)
+        PIP_NAMES.setdefault(mod, pkg)
+        return mod
+    return IMPORT_NAMES.get(arg.lower(), arg.replace("-", "_"))
 
 
 def candidates(path=None, extra_globs=("/usr/bin/python3*", "/usr/local/bin/python3*")):
@@ -73,6 +94,11 @@ def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys
             return True
         tail = (getattr(done, "stderr", None) or b"").decode(errors="replace").strip().splitlines()[-1:]
         log(f"pyenv: {py} -m pip install {' '.join(pkgs)} failed: {tail[0] if tail else 'no output'}")
+        if b"Cannot uninstall" in (getattr(done, "stderr", None) or b""):
+            # A distro-owned package (e.g. packaging) blocks the upgrade; the
+            # other flag variants fail identically and each costs a full
+            # resolve, so go on to the next interpreter or the venv.
+            return False
     return False
 
 
@@ -108,7 +134,9 @@ def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.std
     for py in cands:
         if imports(py, modules, run):
             return py
-    log(f"pyenv: none of {cands} imports {', '.join(modules)}; installing")
+    log(f"pyenv: none of {cands} imports {', '.join(modules)}; installing "
+        "(can take over 120 s: if your shell tool times out, rerun with run_in_background "
+        "and read the path from its output)")
     for py in cands:
         if pip_install(py, modules, run, log) and imports(py, modules, run):
             log(f"pyenv: installed with {py} -m pip")
@@ -133,6 +161,7 @@ def main(argv=None):
     if any(m.startswith("-") for m in modules):
         print(__doc__, file=sys.stderr)
         return 2
+    modules = [import_name(m) for m in modules]
     cands = candidates()
     venv_dir = os.environ.get("PYENV_VENV") or os.path.join(os.path.expanduser("~"), ".cache", "pyenv-venv")
     py = find(modules, cands, venv_dir=venv_dir)

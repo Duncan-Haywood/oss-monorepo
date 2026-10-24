@@ -1,0 +1,35 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# No third-party key is required. HANDOFF_WEBHOOK_URL (a Support Desk mailbox's /in/<token> URL), KB_SOURCE_URL
+# (a Help Keeper site) and a model key (ANTHROPIC_API_KEY, or LLM_PROVIDER/LLM_MODEL/LLM_BASE_URL) are optional.
+services:
+  - type: web
+    name: support-agent
+    runtime: docker
+    dockerContext: ventures/support-agent
+    dockerfilePath: ventures/support-agent/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: PUBLIC_URL
+        sync: false
+      - key: HANDOFF_WEBHOOK_URL
+        sync: false
+      - key: KB_SOURCE_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LOG_DAYS
+        value: "90"

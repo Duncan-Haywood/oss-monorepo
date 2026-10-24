@@ -1,0 +1,11 @@
+{
+  "married_baseline_intervals": 45073,
+  "missing_followup_or_weight": 2708,
+  "invalid_terminal_event_date": 47,
+  "terminal_status_without_terminal_event": 47,
+  "retained_intervals": 42271,
+  "respondents": 5904,
+  "divorces": 854,
+  "widow_censors": 308,
+  "unweighted_person_years": 84793.66666666669
+}

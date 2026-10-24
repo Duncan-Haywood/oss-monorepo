@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" role="img" aria-label="csel4 cells times depth range over 36 operand orders, with and without opt_merge, per ABC script">
+<rect width="600" height="300" fill="#fff"/>
+<text x="300.0" y="24" text-anchor="middle" font-family="sans-serif" font-size="14">16-bit carry-select adder: cells &#215; depth over 36 operand orders</text>
+<text x="112" y="72" text-anchor="end" font-family="sans-serif" font-size="12">yosys_default</text>
+<rect x="367.5" y="60" width="21.1" height="14" fill="#1f6fb2" opacity="0.55"/>
+<text x="392.6" y="71" font-family="sans-serif" font-size="10">2090 to 2268</text>
+<rect x="388.6" y="80" width="118.0" height="14" fill="#c0392b" opacity="0.55"/>
+<text x="510.6" y="91" font-family="sans-serif" font-size="10">2268 to 3264</text>
+<text x="112" y="142" text-anchor="end" font-family="sans-serif" font-size="12">dch_map</text>
+<rect x="241.3" y="130" width="24.6" height="14" fill="#1f6fb2" opacity="0.55"/>
+<text x="269.9" y="141" font-family="sans-serif" font-size="10">1024 to 1232</text>
+<rect x="241.3" y="150" width="263.7" height="14" fill="#c0392b" opacity="0.55"/>
+<text x="508.9" y="161" font-family="sans-serif" font-size="10">1024 to 3250</text>
+<text x="112" y="212" text-anchor="end" font-family="sans-serif" font-size="12">resyn2_map</text>
+<rect x="274.0" y="200" width="43.2" height="14" fill="#1f6fb2" opacity="0.55"/>
+<text x="321.2" y="211" font-family="sans-serif" font-size="10">1300 to 1665</text>
+<rect x="274.0" y="220" width="271.9" height="14" fill="#c0392b" opacity="0.55"/>
+<text x="549.9" y="231" font-family="sans-serif" font-size="10">1300 to 3596</text>
+<text x="120" y="276" font-family="sans-serif" font-size="11" fill="#1f6fb2">blue: normal flow (opt_merge on)</text>
+<text x="120" y="292" font-family="sans-serif" font-size="11" fill="#c0392b">red: same flow with opt_merge removed (ablation)</text>
+</svg>

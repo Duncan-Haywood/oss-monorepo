@@ -1,0 +1,55 @@
+A. Longest step (m) before touchdown (mu 0.6), load held at reach 0.3 m, height 0.6 m, feet 0.20 m apart
+   rows: load kg; columns: swing foot lands this much higher (m). 'x' = no step of 0.05 m passes (binding joint at the first fail in the JSON).
+  G1    0.000  0.020  0.050  0.100  0.150  0.197
+    0.0   0.70   0.70   0.70   0.75   0.75   0.75
+    1.0   0.70   0.70   0.70   0.75   0.75   0.75
+    2.0   0.65   0.70   0.70   0.75   0.75   0.75
+    3.0   0.55   0.60   0.70   0.70   0.75   0.75
+    3.8   0.50   0.60   0.65   0.70   0.75   0.75
+    4.6   0.45   0.55   0.65   0.70   0.75   0.05
+  H1    0.000  0.020  0.050  0.100  0.150  0.197
+    0.0   0.25   0.35   0.55   0.60   0.50      x
+    3.8   0.20   0.30   0.45   0.50   0.45      x
+    5.9   0.20   0.25   0.40   0.50   0.40      x
+    8.0   0.15   0.25   0.35   0.45   0.35      x
+   11.8   0.15   0.25   0.30   0.40   0.30      x
+   15.0   0.10   0.20   0.25   0.35   0.25      x
+
+   Binding joint at the longest step on level ground (s = 0):
+  G1: 0.0 kg: left_ankle_pitch_joint (0.46); 1.0 kg: left_ankle_pitch_joint (0.48); 2.0 kg: left_hip_roll_joint (0.48); 3.0 kg: waist_pitch_joint (0.63); 3.8 kg: waist_pitch_joint (0.77); 4.6 kg: waist_pitch_joint (0.87)
+  H1: 0.0 kg: left_ankle (0.60); 3.8 kg: left_ankle (0.62); 5.9 kg: left_ankle (0.64); 8.0 kg: left_hip_pitch (0.72); 11.8 kg: left_hip_pitch (0.87); 15.0 kg: left_hip_pitch (0.93)
+
+B. Sensitivity of the longest level step (m) to the foot gap and the friction coefficient
+  G1  0.0 kg: gap 0.15: 0.7, gap 0.2: 0.7, gap 0.25: 0.7, mu 0.3: 0.35, mu 0.4: 0.5, mu 0.6: 0.7
+  G1  3.8 kg: gap 0.15: 0.55, gap 0.2: 0.5, gap 0.25: 0.55, mu 0.3: 0.35, mu 0.4: 0.5, mu 0.6: 0.5
+  H1  0.0 kg: gap 0.15: 0.3, gap 0.2: 0.25, gap 0.25: 0.2, mu 0.3: 0.25, mu 0.4: 0.25, mu 0.6: 0.25
+  H1  3.8 kg: gap 0.15: 0.25, gap 0.2: 0.2, gap 0.25: 0.15, mu 0.3: 0.2, mu 0.4: 0.2, mu 0.6: 0.2
+
+C. Carry rate of 8 ft 2x4s (pieces/min), robot vs labourer, trips of D m each way
+   robot speed = min(L_max / T, vendor peak); pieces per trip chosen by the robot to maximise its rate
+  G1 longest level step by studs in hand: 1: 0.5, 2: None, 3: None, 4: None
+    T=0.4s D= 5 m (20 s handling): robot 2.14/min (1 stud(s) at 1.25 m/s) vs labourer 1.1 m/s: 2.06/min (1 stud), 8.25/min (4 studs); robot/labourer 1.04 and 0.26
+    T=0.4s D=15 m (20 s handling): robot 1.36/min (1 stud(s) at 1.25 m/s) vs labourer 1.1 m/s: 1.27/min (1 stud), 5.08/min (4 studs); robot/labourer 1.07 and 0.27
+    T=0.4s D=30 m (20 s handling): robot 0.88/min (1 stud(s) at 1.25 m/s) vs labourer 1.1 m/s: 0.80/min (1 stud), 3.22/min (4 studs); robot/labourer 1.10 and 0.27
+    T=0.5s D= 5 m (20 s handling): robot 2.00/min (1 stud(s) at 1.00 m/s) vs labourer 1.1 m/s: 2.06/min (1 stud), 8.25/min (4 studs); robot/labourer 0.97 and 0.24
+    T=0.5s D=15 m (20 s handling): robot 1.20/min (1 stud(s) at 1.00 m/s) vs labourer 1.1 m/s: 1.27/min (1 stud), 5.08/min (4 studs); robot/labourer 0.95 and 0.24
+    T=0.5s D=30 m (20 s handling): robot 0.75/min (1 stud(s) at 1.00 m/s) vs labourer 1.1 m/s: 0.80/min (1 stud), 3.22/min (4 studs); robot/labourer 0.93 and 0.23
+    T=0.6s D= 5 m (20 s handling): robot 1.88/min (1 stud(s) at 0.83 m/s) vs labourer 1.1 m/s: 2.06/min (1 stud), 8.25/min (4 studs); robot/labourer 0.91 and 0.23
+    T=0.6s D=15 m (20 s handling): robot 1.07/min (1 stud(s) at 0.83 m/s) vs labourer 1.1 m/s: 1.27/min (1 stud), 5.08/min (4 studs); robot/labourer 0.84 and 0.21
+    T=0.6s D=30 m (20 s handling): robot 0.65/min (1 stud(s) at 0.83 m/s) vs labourer 1.1 m/s: 0.80/min (1 stud), 3.22/min (4 studs); robot/labourer 0.81 and 0.20
+    T=0.8s D= 5 m (20 s handling): robot 1.67/min (1 stud(s) at 0.62 m/s) vs labourer 1.1 m/s: 2.06/min (1 stud), 8.25/min (4 studs); robot/labourer 0.81 and 0.20
+    T=0.8s D=15 m (20 s handling): robot 0.88/min (1 stud(s) at 0.62 m/s) vs labourer 1.1 m/s: 1.27/min (1 stud), 5.08/min (4 studs); robot/labourer 0.70 and 0.17
+    T=0.8s D=30 m (20 s handling): robot 0.52/min (1 stud(s) at 0.62 m/s) vs labourer 1.1 m/s: 0.80/min (1 stud), 3.22/min (4 studs); robot/labourer 0.64 and 0.16
+  H1 longest level step by studs in hand: 1: 0.2, 2: 0.15, 3: 0.15, 4: 0.1
+    T=0.4s D= 5 m (20 s handling): robot 4.00/min (4 stud(s) at 0.25 m/s) vs labourer 1.1 m/s: 2.06/min (1 stud), 8.25/min (4 studs); robot/labourer 1.94 and 0.48
+    T=0.4s D=15 m (20 s handling): robot 1.80/min (3 stud(s) at 0.37 m/s) vs labourer 1.1 m/s: 1.27/min (1 stud), 5.08/min (4 studs); robot/labourer 1.42 and 0.35
+    T=0.4s D=30 m (20 s handling): robot 1.00/min (3 stud(s) at 0.37 m/s) vs labourer 1.1 m/s: 0.80/min (1 stud), 3.22/min (4 studs); robot/labourer 1.24 and 0.31
+    T=0.5s D= 5 m (20 s handling): robot 3.43/min (4 stud(s) at 0.20 m/s) vs labourer 1.1 m/s: 2.06/min (1 stud), 8.25/min (4 studs); robot/labourer 1.66 and 0.42
+    T=0.5s D=15 m (20 s handling): robot 1.50/min (3 stud(s) at 0.30 m/s) vs labourer 1.1 m/s: 1.27/min (1 stud), 5.08/min (4 studs); robot/labourer 1.18 and 0.30
+    T=0.5s D=30 m (20 s handling): robot 0.82/min (3 stud(s) at 0.30 m/s) vs labourer 1.1 m/s: 0.80/min (1 stud), 3.22/min (4 studs); robot/labourer 1.02 and 0.25
+    T=0.6s D= 5 m (20 s handling): robot 3.00/min (3 stud(s) at 0.25 m/s) vs labourer 1.1 m/s: 2.06/min (1 stud), 8.25/min (4 studs); robot/labourer 1.45 and 0.36
+    T=0.6s D=15 m (20 s handling): robot 1.29/min (3 stud(s) at 0.25 m/s) vs labourer 1.1 m/s: 1.27/min (1 stud), 5.08/min (4 studs); robot/labourer 1.01 and 0.25
+    T=0.6s D=30 m (20 s handling): robot 0.69/min (3 stud(s) at 0.25 m/s) vs labourer 1.1 m/s: 0.80/min (1 stud), 3.22/min (4 studs); robot/labourer 0.86 and 0.22
+    T=0.8s D= 5 m (20 s handling): robot 2.45/min (3 stud(s) at 0.19 m/s) vs labourer 1.1 m/s: 2.06/min (1 stud), 8.25/min (4 studs); robot/labourer 1.19 and 0.30
+    T=0.8s D=15 m (20 s handling): robot 1.00/min (3 stud(s) at 0.19 m/s) vs labourer 1.1 m/s: 1.27/min (1 stud), 5.08/min (4 studs); robot/labourer 0.79 and 0.20
+    T=0.8s D=30 m (20 s handling): robot 0.53/min (3 stud(s) at 0.19 m/s) vs labourer 1.1 m/s: 0.80/min (1 stud), 3.22/min (4 studs); robot/labourer 0.66 and 0.16

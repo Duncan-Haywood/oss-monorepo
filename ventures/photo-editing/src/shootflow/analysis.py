@@ -4,14 +4,19 @@ import json
 import math
 import os
 import re
+from dataclasses import replace
 from pathlib import Path
 from typing import Literal
 
+from shootflow.frame_analysis import hamming_distance
 from shootflow.production import ProductionJob, ProductionPlan
 from shootflow.story import AssetAnalysis
 
 _ANALYSIS_FILE_PATTERN = re.compile(r"analysis/[0-9]{5}\.json$")
 _SUPPORTED_MEDIA_TYPES = {"photo", "video"}
+_HASH_PATTERN = re.compile(r"[0-9a-f]{16}")
+# dHash Hamming distance at or below this treats two frames as the same shot.
+NEAR_DUPLICATE_MAX_DISTANCE = 8
 
 
 class AnalysisLoaderError(ValueError):
@@ -45,7 +50,45 @@ def load_asset_analyses(plan: ProductionPlan, workspace_root: Path | str) -> lis
 
         analyses.append(_analysis_from_json(raw_analysis, analysis_job=analysis_job, grade_job=grade_job))
 
-    return analyses
+    return group_near_duplicates(analyses)
+
+
+def group_near_duplicates(analyses: list[AssetAnalysis]) -> list[AssetAnalysis]:
+    """Give assets with near-identical perceptual hashes one shared scene label.
+
+    The story planner keeps one asset per scene label, so burst frames and
+    repeated takes collapse to the best of the group. Grouping is transitive
+    (single linkage) and the label comes from the first member by asset path,
+    which keeps the result independent of load order. Assets without a hash
+    keep their own label.
+    """
+
+    hashed = sorted(
+        (item for item in analyses if item.perceptual_hash and item.media_type == "photo"),
+        key=lambda item: item.asset_path,
+    )
+    parent = list(range(len(hashed)))
+
+    def find(index: int) -> int:
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = parent[index]
+        return index
+
+    for i in range(len(hashed)):
+        for j in range(i + 1, len(hashed)):
+            hash_i, hash_j = hashed[i].perceptual_hash or "", hashed[j].perceptual_hash or ""
+            if hamming_distance(hash_i, hash_j) <= NEAR_DUPLICATE_MAX_DISTANCE:
+                root_i, root_j = find(i), find(j)
+                if root_i != root_j:
+                    parent[max(root_i, root_j)] = min(root_i, root_j)
+    label_by_path = {
+        item.asset_path: hashed[find(index)].scene_label for index, item in enumerate(hashed)
+    }
+    return [
+        replace(item, scene_label=label_by_path[item.asset_path]) if item.asset_path in label_by_path else item
+        for item in analyses
+    ]
 
 
 def _grade_jobs_by_analysis_id(plan: ProductionPlan) -> dict[str, ProductionJob]:
@@ -193,6 +236,7 @@ def _analysis_from_json(
         motion_score=_required_score(raw_analysis, "motion_score"),
         duration_seconds=duration_seconds,
         tags=_optional_tags(raw_analysis),
+        perceptual_hash=_optional_hash(raw_analysis),
     )
 
 
@@ -258,3 +302,12 @@ def _optional_tags(raw_analysis: dict[str, object]) -> tuple[str, ...]:
     if any(not isinstance(tag, str) or not tag for tag in value):
         raise AnalysisLoaderError("Analysis tags must be a list of non-empty strings")
     return tuple(value)
+
+
+def _optional_hash(raw_analysis: dict[str, object]) -> str | None:
+    value = raw_analysis.get("perceptual_hash")
+    if value is None:
+        return None
+    if not isinstance(value, str) or not _HASH_PATTERN.fullmatch(value):
+        raise AnalysisLoaderError("Analysis perceptual_hash must be 16 lowercase hex digits")
+    return value

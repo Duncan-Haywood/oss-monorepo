@@ -2,7 +2,7 @@
 
 Free browser tool for freelancers and small service businesses. Enter an invoice amount, terms, late-rate assumption, and outstanding invoices to get the due date, **when the cash actually lands on your client's payment run**, cash-flow exposure, 30/60/90-day late-fee scenarios, copyable payment-terms wording, whether a **2/10 Net 30 discount still beats waiting**, and whether **factoring still beats waiting** after your carrying cost. Before the first invoice goes out, it also prices the **billing schedule** — how much of your finished work a deposit or milestone split actually leaves unpaid on handover day.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/invoice-payment-terms-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/
 
 **After using this, you can now** see when the invoice is due, when the money actually arrives, how many operating days several unpaid invoices consume, whether giving 2% to get paid in 10 days still covers the float, whether a 3% factor fee still beats waiting, and how much of a project you are financing under each billing schedule — which used to mean a spreadsheet that forgot grace days, treated “2/10 Net 30” and “get paid now” as slogans, or argued about the deposit percentage without checking when the deposit arrives.
 
@@ -32,6 +32,8 @@ when batching actually gives leverage — where every shift is one-for-one, as
 on a weekdays-only schedule, there is nothing useful to report and it stays
 quiet.
 
+**Add the dates to your calendar.** One button downloads an `.ics` file with the due date, the expected cash date and the day the grace period ends, so the chase reminder is in your calendar before the invoice is late. It is built in your browser and works in Google, Apple and Outlook calendars.
+
 This models the schedule you tell it. It does not predict whether a client
 pays on time.
 Open [`index.html`](index.html) in a browser. The calculation is local and works without an account, network request, or API key.
@@ -45,6 +47,10 @@ They match at about 36.1%. At 50%, the discount flips ahead.
 answers the third-party fee question. On 24% money, waiting still leaves
 $1,176.33 against $1,161.24 after a 3% fee and 90% advance. They match
 at a 1.74% fee. At 50%, factoring flips ahead.
+
+[UK late payment interest](uk-late-payment-interest.html) works out the statutory
+interest (8% over the Bank of England reference rate) and £40/£70/£100 fixed
+compensation you can add to a late UK business-to-business invoice.
 
 [Already overdue? Wait, chase, settle, or collections](chasing-a-late-invoice.html)
 picks up where the due date runs out. The same invoice, 15 days late, scored
@@ -78,6 +84,16 @@ schedule (that is construction withhold), and not a Faire payout-speed
 page (that is marketplace processing). This page is invoice terms for
 service firms.
 
+## Payment reminder schedule
+
+Under the payment-terms wording the page lists dated follow-ups — three days
+before the due date, on it, then 7, 14 and 30 days after — with editable
+wording for each, and a **Download calendar (.ics)** button that creates
+all-day events you can import into Google, Apple or Outlook calendar. The file
+is built in your browser and never uploaded. The wording is a neutral template,
+not legal advice, and says nothing about what a late fee or collection step is
+permitted to do where you are ([`reminders.mjs`](reminders.mjs)).
+
 ## Run
 
 ```sh
@@ -86,9 +102,20 @@ python3 -m http.server 8877 --directory ventures/invoice-payment-terms-calculato
 
 Then open `http://localhost:8877`. There is no build step.
 
+## Host your own copy
+
+Your data stays in your browser either way, but you can serve the page from an address you control. It is a static
+site: the server only hands out files and never sees a figure you type.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
+
 ## Privacy and usage
 
-Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`, `schedule_compared`, `schedule_copied`) and can be disabled in the footer. Saved drafts stay on this device.
+Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`, `schedule_compared`, `schedule_copied`, `calendar_exported`, `reminders_copied`, `reminders_downloaded`) and can be disabled in the footer. Saved drafts stay on this device.
 ## Safety
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. It does not determine whether a late-fee term is permitted or enforceable, and it does not tell you to offer or withhold an early-pay discount or to factor an invoice. **You are responsible for reviewing and verifying its output before relying on it.** To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.

@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01H1SAPDjgz2Y73vPKMZ9jpt",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T23:16:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6): league-schedule-generator, fairness-vs-travel weight",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 8959,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/ledger",
+      "why": "Did not run supersede_check output review beyond the identical-feature finding; PR 8959 reused for the replacement work rather than closed."
+    }
+  ],
+  "goal": null,
+  "notes": "Explore-track draw. First built a beta-negative-binomial Bayesian pass for changepoint-detector (80/80 tests), but PR #8955 landed the same feature on main meanwhile; dropped mine (duplicate), took main. Then shipped fairnessWeight for league-schedule-generator: 3 seasons x 8 seeds, weight 1.5 cuts imbalance 5.83 -> 1.73 at 1,020 venue changes vs 1,028 off. divisions/page/calc tests 245/245 pass locally.",
+  "corrections": [],
+  "redteam": null
+}

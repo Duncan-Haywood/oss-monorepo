@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Matrix Profile Online — Find Repeated Patterns and Anomalies in a Time Series</title>
+  <meta name="description" content="Free matrix profile tool for time series anomaly detection and motif discovery. Paste or upload a CSV and find repeated patterns (motifs) and the most unusual stretches (discords) with the exact STOMP algorithm. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Matrix Profile Explorer — find repeated patterns and anomalies in a time series">
+  <meta property="og:description" content="Paste a time series, get its matrix profile: the closest repeated patterns, the most unusual stretches, and a plain-language summary. Exact STOMP, in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Matrix Profile Explorer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste or upload a time series and compute its exact matrix profile with the STOMP algorithm: the top motifs (most similar pairs of subsequences), the top discords (subsequences farthest from any other, i.e. anomalies), the matrix profile index, a chart and a plain-language summary. Runs in your browser.", "featureList": "matrix profile online, time series anomaly detection, find repeated patterns in time series, motif discovery, discord discovery, STOMP algorithm, z-normalized Euclidean distance, automatic window length suggestion, CSV upload, CSV download of the profile", "citation": [{"@type": "ScholarlyArticle", "name": "Matrix Profile I: All Pairs Similarity Joins for Time Series: A Unifying View That Includes Motifs, Discords and Shapelets", "url": "https://doi.org/10.1109/ICDM.2016.0179"}, {"@type": "ScholarlyArticle", "name": "Matrix Profile II: Exploiting a Novel Algorithm and GPUs to Break the One Hundred Million Barrier for Time Series Motifs and Joins", "url": "https://doi.org/10.1109/ICDM.2016.0085"}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a matrix profile?", "acceptedAnswer": {"@type": "Answer", "text": "Slide a window of m points along your series. For every window, find the most similar window elsewhere in the series, comparing shape only. The matrix profile is the list of those nearest-neighbour distances, one per window, and the matrix profile index says where each nearest neighbour is. Low values mark patterns that repeat; high values mark stretches unlike anything else. It was introduced by Yeh, Keogh and colleagues in 2016."}}, {"@type": "Question", "name": "How do I find repeated patterns in a time series?", "acceptedAnswer": {"@type": "Answer", "text": "Look for the lowest points of the matrix profile. The window with the smallest nearest-neighbour distance, together with that neighbour, is the top motif: the two stretches of your series with the most similar shape. This tool lists the top motifs, marks them on the chart and gives each pair's correlation, so 0.99 means almost the same shape."}}, {"@type": "Question", "name": "How does the matrix profile detect anomalies in a time series?", "acceptedAnswer": {"@type": "Answer", "text": "An anomaly, or discord, is a stretch whose nearest neighbour is far away: nothing else in the series looks like it. The highest points of the matrix profile are the discords. Unlike a threshold on the values, this catches unusual shapes even when every value is within the normal range, and it needs no training data or labels."}}, {"@type": "Question", "name": "How do I choose the window length?", "acceptedAnswer": {"@type": "Answer", "text": "Use the length of the pattern you care about: 12 for a yearly cycle in monthly data, 24 or 168 for a daily or weekly cycle in hourly data, one heartbeat for an ECG. If you leave it blank, the tool removes a quadratic trend, finds the first clear peak of the autocorrelation and uses that period. Results can change a lot with the window, so try a few."}}, {"@type": "Question", "name": "Why does the matrix profile ignore the level of my data?", "acceptedAnswer": {"@type": "Answer", "text": "Each window is z-normalized, shifted to mean zero and scaled to unit spread, before it is compared. That makes the comparison about shape, so a seasonal cycle at 320 ppm matches the same cycle at 420 ppm. The flip side is that a window that is only unusually high or low, with an ordinary shape, is not a discord. Look at the raw values for level shifts."}}, {"@type": "Question", "name": "How long a time series can I analyse in the browser?", "acceptedAnswer": {"@type": "Answer", "text": "The exact matrix profile compares every window with every other, so time grows with the square of the length. About 20,000 points takes one to three seconds on a typical laptop; 100,000 takes about 25 times as long. Above 200,000 points the tool refuses; downsample or analyse a shorter stretch."}}, {"@type": "Question", "name": "Is my time series uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed inside this browser tab, in a background worker when your browser supports it. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    label.inline { display: flex; gap: 8px; align-items: center; font-weight: 600; margin-top: 38px; }
+    label.inline input { width: auto; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.4rem; color: #1f4a5d; }
+    .summary { background: #f2f7f9; border-left: 4px solid #1f5f86; padding: 10px 14px; border-radius: 6px; }
+    .warn { color: #7c5e10; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 12px; }
+    .pair figure { margin: 0; border: 1px solid #ece7f2; border-radius: 10px; padding: 8px; }
+    figcaption { font-size: .86rem; color: #4c5a68; margin-top: 4px; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+    pre { background: #f6f8fa; border: 1px solid #e3e8ee; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .8rem; line-height: 1.4; }
+    code { font-size: .9em; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MATRIX PROFILE EXPLORER · TIME SERIES MOTIFS AND ANOMALIES · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Find repeated patterns and anomalies in a time series</h1>
+    <p>Paste or upload a time series. This tool computes its <strong>matrix profile</strong>, exactly, with the STOMP algorithm, and tells you <strong>which stretches repeat</strong> (motifs: the most similar pairs of subsequences) and <strong>which stretch is unlike anything else</strong> (discords: the best-known definition of a time series anomaly). It needs no labels, no training and no model of what normal looks like.</p>
+    <p class="note">Nothing you enter leaves this browser tab. A statistical description of the data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your time series</h2>
+    <label for="data">Paste a CSV: one number per line, or columns with a header row (time,value,...)</label>
+    <textarea id="data" spellcheck="false" placeholder="month,value&#10;2024-01,421.1&#10;2024-02,422.8&#10;..."></textarea>
+    <div class="grid">
+      <div><label for="file">Or upload a CSV or text file</label><input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain"></div>
+      <div><label for="column">Column to analyse</label><select id="column"><option value="">Automatic (first value column)</option></select></div>
+      <div><label for="window">Window length m, in points</label><input id="window" inputmode="numeric" placeholder="auto (suggested from the data)"></div>
+      <div><label for="top">How many motifs and discords</label><select id="top"><option value="1">1</option><option value="3" selected>3</option><option value="5">5</option><option value="10">10</option></select></div>
+      <div><label class="inline" for="detrend"><input id="detrend" type="checkbox"> Remove a linear trend first</label></div>
+    </div>
+    <p class="note">The window is the length of the pattern you are looking for, in rows: 12 for a yearly cycle in monthly data, 24 for a daily cycle in hourly data. Leave it blank to have one suggested from the strongest cycle in the data. Empty or non-numeric cells inside the column are filled by straight-line interpolation and reported.</p>
+    <button type="button" id="analyze">Find motifs and anomalies</button>
+    <button type="button" class="secondary" id="load-example">Load example: Mauna Loa CO2</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste a series or load the example, then click Find motifs and anomalies.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <p id="summary" class="summary"></p>
+    <div class="big" id="big"></div>
+    <p id="warnings" class="note warn"></p>
+    <div class="legend" id="legend"></div>
+    <div id="chart"></div>
+    <p class="note">Top: your series, with each motif pair and discord shaded. Positions count from 0 at the first value analysed. Bottom: the matrix profile, the distance from the window starting at each point to its nearest match elsewhere. Low is repeated, high is unusual.</p>
+    <div class="pair" id="pair"></div>
+    <h3>Motifs: the most similar pairs of windows</h3>
+    <div class="scroll"><table id="motif-table"><thead><tr><th>#</th><th>First starts at</th><th>Second starts at</th><th class="n">Distance</th><th class="n">Correlation</th></tr></thead><tbody></tbody></table></div>
+    <h3>Discords: the windows least like anything else</h3>
+    <div class="scroll"><table id="discord-table"><thead><tr><th>#</th><th>Starts at</th><th class="n">Distance to nearest</th><th>Nearest match starts at</th><th class="n">Correlation</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download the matrix profile (CSV)</button>
+  </section>
+
+  <section class="card" id="method">
+    <h2>Method and citation</h2>
+    <p><strong>Matrix profile.</strong> For a series of n points and a window of m points there are n &minus; m + 1 subsequences. Each is z-normalized (mean 0, population standard deviation 1) and compared with every other by Euclidean distance. The matrix profile P[i] is the distance from subsequence i to its nearest neighbour, and the matrix profile index I[i] is where that neighbour starts (Yeh et al. 2016). The distance runs from 0 (same shape) to 2&radic;m (opposite shape) and equals &radic;(2m(1 &minus; r)) for Pearson correlation r, which is why the tables also show r.</p>
+    <p><strong>Exclusion zone.</strong> A window's neighbour must start more than <strong>&lceil;m/4&rceil;</strong> points away, so that it is not matched with a copy of itself shifted by one or two points (a trivial match). Paper I used m/2; m/4 is the value used in Paper II and common libraries. When listing the top motifs and discords, a result is skipped if it starts within m points of one already listed, so the listed ones do not overlap; the two members of a motif pair only need to be more than &lceil;m/4&rceil; apart.</p>
+    <p><strong>Algorithm.</strong> STOMP (Zhu et al. 2016): the dot products of the first window with every other are computed directly, then each next row from the previous one with the O(1) update QT[i][j] = QT[i&minus;1][j&minus;1] &minus; T[i&minus;1]T[j&minus;1] + T[i+m&minus;1]T[j+m&minus;1], and each distance from its dot product and the two windows' mean and standard deviation. Total time is O(n&sup2;), exact, not approximate. Only pairs with j &gt; i are evaluated, and each updates both P[i] and P[j]. The series is centred first and window statistics are computed in two passes, for accuracy. It runs in a background worker when your browser allows it.</p>
+    <p><strong>Flat windows.</strong> A window whose values are all identical has no z-normalized shape. It is treated as all zeros: two flat windows are at distance 0, and a flat window and any other are at distance &radic;m. No NaN is produced.</p>
+    <p><strong>Suggested window.</strong> When you leave the window blank: remove the least-squares quadratic trend, compute the autocorrelation for lags 3 to min(n/4, 1000), and take the first local peak after it first drops below zero, if that peak is at least 0.2. That is one period of the strongest cycle. Otherwise the window is n/50, kept between 8 and 100.</p>
+    <p><strong>Checked against</strong> a brute-force O(n&sup2;m) implementation that z-normalizes every window explicitly, on seeded random series, and against the output of the open-source STUMPY library (version 1.14.1) on the Mauna Loa series, a random walk and a series with flat stretches: largest difference below 10<sup>&minus;10</sup>. Planted motifs and planted anomalies are found at the planted positions.</p>
+    <p>Please cite the papers if you use these results. Further reading: the <a href="https://www.cs.ucr.edu/~eamonn/MatrixProfile.html" rel="noopener">UCR Matrix Profile page</a> by Eamonn Keogh's group, with the papers, data and many more uses of the matrix profile.</p>
+    <pre>@inproceedings{yeh2016matrixprofile1,
+  author    = {Yeh, Chin-Chia Michael and Zhu, Yan and Ulanova, Liudmila and Begum, Nurjahan and Ding, Yifei and Dau, Hoang Anh and Silva, Diego Furtado and Mueen, Abdullah and Keogh, Eamonn},
+  title     = {Matrix Profile I: All Pairs Similarity Joins for Time Series: A Unifying View That Includes Motifs, Discords and Shapelets},
+  booktitle = {2016 IEEE 16th International Conference on Data Mining (ICDM)},
+  pages     = {1317--1322},
+  year      = {2016},
+  doi       = {10.1109/ICDM.2016.0179}
+}
+
+@inproceedings{zhu2016matrixprofile2,
+  author    = {Zhu, Yan and Zimmerman, Zachary and Senobari, Nader Shakibay and Yeh, Chin-Chia Michael and Funning, Gareth and Mueen, Abdullah and Brisk, Philip and Keogh, Eamonn},
+  title     = {Matrix Profile II: Exploiting a Novel Algorithm and GPUs to Break the One Hundred Million Barrier for Time Series Motifs and Joins},
+  booktitle = {2016 IEEE 16th International Conference on Data Mining (ICDM)},
+  pages     = {739--748},
+  year      = {2016},
+  doi       = {10.1109/ICDM.2016.0085}
+}</pre>
+    <p class="note">Implemented from the papers' definitions; no code was copied from any matrix profile library.</p>
+  </section>
+
+  <section class="card">
+    <h2>Limits</h2>
+    <ul>
+      <li><strong>Shape, not level.</strong> Z-normalization compares shapes. A stretch that is only unusually high or low, or unusually noisy at the same shape, is not a discord, and a flat-but-noisy window is scaled up until its noise looks like a pattern.</li>
+      <li><strong>The window matters.</strong> Motifs and discords are defined for one window length. Too short and noise dominates; too long and one event is averaged with ordinary data. Try the suggested window and a couple of others.</li>
+      <li><strong>O(n&sup2;) time.</strong> Exact computation compares every pair of windows. Around 20,000 points takes one to three seconds; the tool warns above that and refuses above 200,000.</li>
+      <li><strong>One series, evenly spaced.</strong> Rows are treated as equally spaced in time; gaps in the timestamps are not detected. Multivariate series and joins of two series are not supported.</li>
+      <li><strong>A discord is the most unusual stretch, not proof of a fault.</strong> Every series has a top discord. Compare its distance with the typical (median) value shown above before calling it an anomaly.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Example data</h2>
+    <p>The example is the monthly mean atmospheric CO2 at Mauna Loa Observatory, Hawaii, from March 1958 to September 2026 (823 months, ppm), from the NOAA Global Monitoring Laboratory. Data from March 1958 to April 1974 were obtained by C. David Keeling of the Scripps Institution of Oceanography. Measurements were made at Maunakea, about 21 miles north, from December 2022 to July 4, 2023 after the Mauna Loa eruption. Credit: Dr. Xin Lan, NOAA/GML (<a href="https://gml.noaa.gov/ccgg/trends/" rel="noopener">gml.noaa.gov/ccgg/trends/</a>) and Dr. Ralph Keeling, Scripps Institution of Oceanography (<a href="https://scrippsco2.ucsd.edu/" rel="noopener">scrippsco2.ucsd.edu</a>). Retrieved 2026-10-20. A US government work; NOAA asks that it be cited.</p>
+    <p>With the suggested 12-month window, the top motif is the pair of 12-month stretches starting September 2014 and September 2024: the seasonal cycle repeats with correlation 0.999. The top discord is the 12 months starting January 2024, the stretch whose shape is least like any other 12-month stretch in the record (its nearest match, starting January 2005, still correlates 0.977; the typical nearest-match distance is less than half as large). The matrix profile says the shape is unusual, not why.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a matrix profile?</h3>
+    <p>Slide a window of m points along your series. For every window, find the most similar window elsewhere in the series, comparing shape only. The matrix profile is the list of those nearest-neighbour distances, one per window, and the matrix profile index says where each nearest neighbour is. Low values mark patterns that repeat; high values mark stretches unlike anything else. It was introduced by Yeh, Keogh and colleagues in 2016.</p>
+    <h3>How do I find repeated patterns in a time series?</h3>
+    <p>Look for the lowest points of the matrix profile. The window with the smallest nearest-neighbour distance, together with that neighbour, is the top motif: the two stretches of your series with the most similar shape. This tool lists the top motifs, marks them on the chart and gives each pair's correlation, so 0.99 means almost the same shape.</p>
+    <h3>How does the matrix profile detect anomalies in a time series?</h3>
+    <p>An anomaly, or discord, is a stretch whose nearest neighbour is far away: nothing else in the series looks like it. The highest points of the matrix profile are the discords. Unlike a threshold on the values, this catches unusual shapes even when every value is within the normal range, and it needs no training data or labels.</p>
+    <h3>How do I choose the window length?</h3>
+    <p>Use the length of the pattern you care about: 12 for a yearly cycle in monthly data, 24 or 168 for a daily or weekly cycle in hourly data, one heartbeat for an ECG. If you leave it blank, the tool removes a quadratic trend, finds the first clear peak of the autocorrelation and uses that period. Results can change a lot with the window, so try a few.</p>
+    <h3>Why does the matrix profile ignore the level of my data?</h3>
+    <p>Each window is z-normalized, shifted to mean zero and scaled to unit spread, before it is compared. That makes the comparison about shape, so a seasonal cycle at 320 ppm matches the same cycle at 420 ppm. The flip side is that a window that is only unusually high or low, with an ordinary shape, is not a discord. Look at the raw values for level shifts.</p>
+    <h3>How long a time series can I analyse in the browser?</h3>
+    <p>The exact matrix profile compares every window with every other, so time grows with the square of the length. About 20,000 points takes one to three seconds on a typical laptop; 100,000 takes about 25 times as long. Above 200,000 points the tool refuses; downsample or analyse a shorter stretch.</p>
+    <h3>Is my time series uploaded anywhere?</h3>
+    <p>No. The file is read and analysed inside this browser tab, in a background worker when your browser supports it. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Also available from the command line (<code>node cli.mjs series.csv --window 12 --json</code>) and to AI agents through the repository's tool server. Source on <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/matrix-profile-explorer" rel="noopener">GitHub</a>.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician or domain expert. Results describe the data you enter; a motif or discord is a pattern in the numbers, not a diagnosis of its cause. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with NOAA, the Scripps Institution of Oceanography, the University of California, Riverside, or the papers' authors. Their work is cited, not endorsed by them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed level or volatility, and <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> give prediction ranges with a coverage guarantee.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, exampleCsv, LIMITS } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const MOTIF = ["#1f6fb2", "#2a9d8f", "#7b5ea7", "#3d7a2a", "#0e7490"];
+    const DISCORD = ["#c0392b", "#d97706", "#92400e", "#be123c", "#a16207"];
+    const colour = (list, k) => list[k % list.length];
+    let last = null;
+
+    // A module worker keeps the tab responsive on long series; fall back to the main thread if it cannot start.
+    let worker = null, seq = 0;
+    try { worker = new Worker("./worker.mjs", { type: "module" }); } catch { worker = null; }
+    function compute(input) {
+      return new Promise((resolve) => {
+        if (!worker) { resolve(analyze(input)); return; }
+        const id = ++seq;
+        const done = (result) => { worker.removeEventListener("message", onMessage); worker.removeEventListener("error", onError); resolve(result); };
+        const onMessage = (event) => { if (event.data && event.data.id === id) done(event.data.result); };
+        const onError = (event) => { if (event.preventDefault) event.preventDefault(); worker = null; done(analyze(input)); };
+        worker.addEventListener("message", onMessage);
+        worker.addEventListener("error", onError);
+        worker.postMessage({ id, input });
+      });
+    }
+
+    let columnsKey = "";
+    function refreshColumns() {
+      const text = $("#data").value;
+      const sel = $("#column");
+      const p = text.trim() ? parseCsv(text.split(/\r\n|\n|\r/).slice(0, 60).join("\n")) : { columns: [] };
+      const cols = p.error ? [] : p.columns;
+      const key = cols.join("\u0001");
+      if (key === columnsKey) return;
+      columnsKey = key;
+      const keep = sel.value;
+      sel.innerHTML = `<option value="">Automatic (first value column)</option>` + (cols.length > 1 ? cols.map((c, k) => `<option value="${k + 1}">${esc(c)}</option>`).join("") : "");
+      if (keep && Number(keep) <= cols.length) sel.value = keep;
+    }
+    let timer = null;
+    $("#data").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(refreshColumns, 250); });
+
+    function linePath(values, from, to, X, Y) {
+      // Min/max per bucket keeps long series to about 1,200 drawn points without hiding spikes.
+      const count = to - from;
+      const bucket = Math.max(1, Math.ceil(count / 600));
+      const pts = [];
+      for (let s = from; s < to; s += bucket) {
+        const e = Math.min(to, s + bucket);
+        if (bucket === 1) { pts.push([s, values[s]]); continue; }
+        let lo = s, hi = s;
+        for (let i = s; i < e; i++) { if (values[i] < values[lo]) lo = i; if (values[i] > values[hi]) hi = i; }
+        for (const i of lo < hi ? [lo, hi] : [hi, lo]) pts.push([i, values[i]]);
+      }
+      return pts.map(([i, v], k) => `${k ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+    }
+
+    function chart(r) {
+      const W = 1000, padL = 56, padR = 12, H1 = 240, gap = 36, H2 = 140, H = H1 + gap + H2 + 30;
+      const x = r.values, P = r.profile, n = x.length, m = r.window;
+      const X = (i) => padL + (i / Math.max(1, n - 1)) * (W - padL - padR);
+      let lo = Infinity, hi = -Infinity;
+      for (const v of x) { if (v < lo) lo = v; if (v > hi) hi = v; }
+      const span = hi - lo || 1;
+      const Y1 = (v) => 14 + (1 - (v - lo) / span) * (H1 - 28);
+      const pmax = Math.max(r.profileStats.max, 1e-9);
+      const top2 = H1 + gap;
+      const Y2 = (d) => top2 + 8 + (1 - d / pmax) * (H2 - 16);
+      const fmt = (v) => (Math.abs(v) >= 1000 || Math.abs(v) < 0.01) && v !== 0 ? v.toExponential(2) : v.toFixed(2);
+      const parts = [];
+      parts.push(`<rect x="${padL}" y="0" width="${W - padL - padR}" height="${H1}" fill="#fbfcfd" stroke="#e3e8ee"/>`);
+      parts.push(`<rect x="${padL}" y="${top2}" width="${W - padL - padR}" height="${H2}" fill="#fbfcfd" stroke="#e3e8ee"/>`);
+      const shade = (i, c, label, y0, h) => `<rect x="${X(i).toFixed(1)}" y="${y0}" width="${Math.max(2, X(i + m - 1) - X(i)).toFixed(1)}" height="${h}" fill="${c}" opacity="0.14"/><text x="${X(i).toFixed(1)}" y="${y0 + 11}" font-size="11" fill="${c}" font-weight="700">${label}</text>`;
+      r.motifs.forEach((t, k) => { const c = colour(MOTIF, k); parts.push(shade(t.a, c, `M${t.rank}`, 0, H1), shade(t.b, c, `M${t.rank}`, 0, H1)); });
+      r.discords.forEach((t, k) => parts.push(shade(t.index, colour(DISCORD, k), `D${t.rank}`, 0, H1)));
+      parts.push(`<path d="${linePath(x, 0, n, X, Y1)}" fill="none" stroke="#56636f" stroke-width="1.1"/>`);
+      r.motifs.forEach((t, k) => { const c = colour(MOTIF, k); for (const s of [t.a, t.b]) parts.push(`<path d="${linePath(x, s, s + m, X, Y1)}" fill="none" stroke="${c}" stroke-width="2.6"/>`); });
+      r.discords.forEach((t, k) => parts.push(`<path d="${linePath(x, t.index, t.index + m, X, Y1)}" fill="none" stroke="${colour(DISCORD, k)}" stroke-width="2.6"/>`));
+      parts.push(`<path d="${linePath(P, 0, P.length, X, Y2)}" fill="none" stroke="#1f4a5d" stroke-width="1.1"/>`);
+      r.motifs.forEach((t, k) => parts.push(`<circle cx="${X(t.a).toFixed(1)}" cy="${Y2(t.distance).toFixed(1)}" r="4.5" fill="${colour(MOTIF, k)}"/><circle cx="${X(t.b).toFixed(1)}" cy="${Y2(t.distance).toFixed(1)}" r="4.5" fill="${colour(MOTIF, k)}"/>`));
+      r.discords.forEach((t, k) => parts.push(`<circle cx="${X(t.index).toFixed(1)}" cy="${Y2(t.distance).toFixed(1)}" r="4.5" fill="${colour(DISCORD, k)}"/>`));
+      const tx = (t, xx, y, anchor = "end") => `<text x="${xx}" y="${y}" font-size="12" fill="#4c5a68" text-anchor="${anchor}">${esc(t)}</text>`;
+      parts.push(tx(fmt(hi), padL - 6, 18), tx(fmt(lo), padL - 6, H1 - 6), tx(esc(r.column), padL + 6, H1 - 8, "start"));
+      parts.push(tx(fmt(pmax), padL - 6, top2 + 14), tx("0", padL - 6, top2 + H2 - 4), tx("matrix profile (distance to nearest match)", padL, top2 - 8, "start"));
+      const lab = (i) => (r.labels ? r.labels[i] : `point ${i}`);
+      parts.push(tx(lab(0), padL, H - 8, "start"), tx(lab(n - 1), W - padR, H - 8, "end"));
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(r.summary)}">${parts.join("")}</svg>`;
+    }
+
+    function znorm(values, s, m) {
+      const w = values.slice(s, s + m);
+      const mu = w.reduce((a, b) => a + b, 0) / m;
+      const sd = Math.sqrt(w.reduce((a, b) => a + (b - mu) ** 2, 0) / m);
+      return w.map((v) => (sd > 0 ? (v - mu) / sd : 0));
+    }
+    function overlay(r, starts, colours, names, title) {
+      const W = 420, H = 180, pad = 16, m = r.window;
+      const series = starts.map((s) => znorm(r.values, s, m));
+      let lo = -2, hi = 2;
+      for (const z of series) for (const v of z) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+      const X = (k) => pad + (k / Math.max(1, m - 1)) * (W - 2 * pad);
+      const Y = (v) => pad + (1 - (v - lo) / (hi - lo)) * (H - 2 * pad);
+      const paths = series.map((z, k) => `<path d="${z.map((v, j) => `${j ? "L" : "M"}${X(j).toFixed(1)},${Y(v).toFixed(1)}`).join("")}" fill="none" stroke="${colours[k]}" stroke-width="2.4" ${k ? 'stroke-dasharray="6 4"' : ""}/>`).join("");
+      return `<figure><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}"><line x1="${pad}" x2="${W - pad}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="#e3e8ee"/>${paths}</svg><figcaption>${esc(title)}: ${names.map((t, k) => `<span class="swatch" style="background:${colours[k]}"></span>${esc(t)}`).join(" &nbsp; ")} (z-normalized)</figcaption></figure>`;
+    }
+
+    const where = (r, i) => (r.labels && r.labels[i] !== String(i) ? `${r.labels[i]} (position ${i})` : `position ${i}`);
+
+    async function run() {
+      const text = $("#data").value;
+      if (!text.trim()) { status.textContent = "Paste a series or load the example first."; report.hidden = true; return false; }
+      const rows = text.split(/\r\n|\n|\r/).length;
+      status.textContent = rows > LIMITS.warnPoints ? `Computing the exact matrix profile of about ${rows.toLocaleString("en-US")} points; this can take several seconds…` : "Computing…";
+      $("#analyze").disabled = true;
+      const input = { csv: text, column: $("#column").value || null, window: $("#window").value.trim() || null, top: Number($("#top").value), detrend: $("#detrend").checked, includeProfile: true };
+      const t0 = performance.now();
+      const r = await compute(input);
+      $("#analyze").disabled = false;
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#summary").textContent = r.summary;
+      $("#big").innerHTML = [
+        [r.n.toLocaleString("en-US"), `values of “${r.column}”`],
+        [String(r.window), r.windowSource === "given" ? "window length (yours)" : "window length (suggested)"],
+        [r.motifs[0] ? r.motifs[0].correlation.toFixed(3) : "n/a", "correlation of the top motif pair"],
+        [r.discords[0] ? r.discords[0].distance.toFixed(3) : "n/a", `top discord distance (median ${r.profileStats.median.toFixed(3)})`],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#warnings").textContent = [...r.warnings, `Exclusion zone ${r.exclusionZone} points; ${r.subsequences.toLocaleString("en-US")} windows compared.`].join(" ");
+      $("#legend").innerHTML = r.motifs.map((t, k) => `<span><span class="swatch" style="background:${colour(MOTIF, k)}"></span>Motif ${t.rank}</span>`).join("") + r.discords.map((t, k) => `<span><span class="swatch" style="background:${colour(DISCORD, k)}"></span>Discord ${t.rank}</span>`).join("");
+      $("#chart").innerHTML = chart(r);
+      const figs = [];
+      if (r.motifs[0]) figs.push(overlay(r, [r.motifs[0].a, r.motifs[0].b], [MOTIF[0], "#e09f3e"], [where(r, r.motifs[0].a), where(r, r.motifs[0].b)], "Top motif, the two windows overlaid"));
+      if (r.discords[0]) figs.push(overlay(r, [r.discords[0].index, r.discords[0].nearest], [DISCORD[0], "#56636f"], [where(r, r.discords[0].index), `nearest match ${where(r, r.discords[0].nearest)}`], "Top discord against its nearest match"));
+      $("#pair").innerHTML = figs.join("");
+      $("#motif-table tbody").innerHTML = r.motifs.map((t) => `<tr><td>${t.rank}</td><td>${esc(where(r, t.a))}</td><td>${esc(where(r, t.b))}</td><td class="n">${t.distance.toFixed(4)}</td><td class="n">${t.correlation.toFixed(4)}</td></tr>`).join("");
+      $("#discord-table tbody").innerHTML = r.discords.map((t) => `<tr><td>${t.rank}</td><td>${esc(where(r, t.index))}</td><td class="n">${t.distance.toFixed(4)}</td><td>${esc(where(r, t.nearest))}</td><td class="n">${t.correlation.toFixed(4)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = `Done in ${Math.round(performance.now() - t0).toLocaleString("en-US")} ms. Scroll down for the result.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => { if (await run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", async () => {
+      $("#data").value = exampleCsv();
+      $("#window").value = "";
+      $("#detrend").checked = false;
+      refreshColumns();
+      $("#column").value = "";
+      if (await run()) { record("example_loaded"); status.textContent = "Example: NOAA Mauna Loa monthly mean CO2, 1958 to 2026 (real data; source below)."; }
+    });
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      if (f.size > 20 * 1024 * 1024) { status.textContent = "That file is over 20 MB; analyse a shorter stretch."; return; }
+      $("#data").value = await f.text();
+      refreshColumns();
+      status.textContent = `Loaded ${f.name}. Pick the column and window, then click Find motifs and anomalies.`;
+      record("file_loaded");
+    });
+    $("#clear-all").addEventListener("click", () => {
+      $("#data").value = ""; $("#window").value = ""; $("#file").value = ""; $("#detrend").checked = false;
+      refreshColumns(); report.hidden = true; last = null;
+      status.textContent = "Paste a series or load the example, then click Find motifs and anomalies.";
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (s) => (/[",\n]/.test(s) ? `"${String(s).replace(/"/g, '""')}"` : s);
+      const lines = ["position,label,value,matrix_profile,nearest_position"];
+      for (let i = 0; i < last.values.length; i++) {
+        const p = i < last.profile.length ? `${last.profile[i]},${last.profileIndex[i]}` : ",";
+        lines.push(`${i},${q(last.labels ? last.labels[i] : "")},${last.values[i]},${p}`);
+      }
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
+      a.download = "matrix-profile.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

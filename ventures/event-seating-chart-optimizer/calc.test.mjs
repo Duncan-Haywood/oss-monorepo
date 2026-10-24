@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, shareFragment, parseShareFragment, baselinePlan, sampleSpec, planCsv, tableSignsHtml, floorPlanHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove, suggestFixes, compareTableCounts,
+  setupJson, parseSetup, shareFragment, parseShareFragment, baselinePlan, sampleSpec, planCsv, tableSignsHtml, floorPlanHtml, escortBoardHtml, placeCardsHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, importGuestSheet, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS, orderTable, parseAccessTables, checkMove, suggestFixes, compareTableCounts, applyMoves,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -551,4 +551,44 @@ test("share link ignores other hashes and rejects damaged ones", () => {
   assert.deepEqual(parseShareFragment("#top"), { state: null, error: null });
   assert.ok(parseShareFragment("#s=%%%").state === null);
   assert.ok(parseShareFragment("#s=AAAA").error);
+});
+
+test("applyMoves applies a suggested fix, re-verifies, and refuses a move that breaks capacity, a pin or access", () => {
+  const spec = specFrom("A\nB\nC\nD\nE\nF\nG\nH", "A + B", { seatsPerTable: 5, tableCount: 2 });
+  const res = optimize(spec);
+  const bad = { ...res, table: [0, 1, 0, 0, 1, 1, 0, 1] };
+  const fix = suggestFixes(spec, { ...bad, broken: [{ kind: "want", a: 0, b: 1, aName: "A", bName: "B" }] })[0];
+  assert.ok(fix.moves.length >= 1);
+  const next = applyMoves(spec, bad, fix.moves);
+  assert.deepEqual(next.errors, []);
+  assert.deepEqual(verifyPlan(spec, next), []);
+  assert.equal(next.table[0], next.table[1], "the fixed wish is now met");
+  assert.deepEqual(bad.table, [0, 1, 0, 0, 1, 1, 0, 1], "input plan is not mutated");
+  // Balanced tables hold 4 each, so a sixth guest is refused.
+  const full = applyMoves(spec, { ...res, table: [0, 0, 0, 0, 0, 1, 1, 1] }, [{ guest: "F", to: 1 }]);
+  assert.match(full.errors[0], /Table 1 would have 6 guests for 4 seats/);
+  assert.match(applyMoves(spec, res, [{ guest: "Nobody", to: 1 }]).errors[0], /No guest named/);
+  assert.match(applyMoves(spec, res, [{ guest: "A", to: 9 }]).errors[0], /1 to 2/);
+  const pinned = specFrom("A\nB\nC\nD", "A @ 1", { seatsPerTable: 3, tableCount: 2 });
+  const pr = optimize(pinned);
+  assert.match(applyMoves(pinned, pr, [{ guest: "A", to: 2 }]).errors.join(" "), /pinned to table 1/);
+  const acc = specFrom("A\nB\nC\nD", "A @ accessible", { seatsPerTable: 3, tableCount: 2, accessTables: [0] });
+  assert.match(applyMoves(acc, optimize(acc), [{ guest: "A", to: 2 }]).errors.join(" "), /accessible/);
+});
+
+test("parseRules: 'group Kids @ 2' pins every guest in that group, and the plan honours it", () => {
+  const spec = specFrom("Ann | | Adults\nBo | | Kids\nCy | | Kids\nDee | | Adults\nEd | | Kids\nFay | | Adults\nGus | | Adults\nHal | | Adults",
+    "group Kids @ 2\nGroup: adults @ 1", { seatsPerTable: 5, tableCount: 2, balance: false });
+  assert.equal(spec.rules.filter((r) => r.kind === "pin").length, 8);
+  assert.deepEqual(validateSpec(spec), []);
+  const res = optimize(spec);
+  spec.guests.forEach((g, i) => assert.equal(res.table[i], g.group === "Kids" ? 1 : 0, g.name));
+  assert.deepEqual(verifyPlan(spec, res), []);
+});
+
+test("parseRules: group pin reports an unknown group and a bad table number", () => {
+  const { guests } = parseGuests("Ann | | Adults\nBo | | Kids");
+  const { errors } = parseRules("group Teens @ 2\ngroup Kids @ x", guests);
+  assert.equal(errors.length, 2);
+  assert.match(errors[0], /no guest has the group "Teens"/);
 });

@@ -1,0 +1,64 @@
+Baseline (OKane2022 cell): SPMe 109.1 Wh/kg, DFN 116.3 Wh/kg at cycle 100
+Designs re-scored: 48 (+ baseline); both models cycled 45; SPMe-only failures 3, DFN-only failures 0, both failed 0
+
+A. Agreement between models over the designs both cycled
+  Spearman rank correlation, cycle-100 Wh/kg : 0.864
+  Spearman rank correlation, beginning-of-life: 0.933
+  DFN minus SPMe, cycle 100 (Wh/kg): mean +18.6, min +1.7, max +126.6
+  relative difference |DFN-SPMe|/DFN: median 9.2 %, max 87.0 %
+
+B. Does the SPMe winner win under DFN?
+  SPMe best of the set: session  SPMe 143.4  DFN 160.9  (DFN rank 3 of 45)
+  DFN best of the set : session  SPMe 140.7  DFN 163.0
+  Gain over baseline: SPMe winner +31.4% (SPMe), +38.4% (DFN); DFN winner +40.2% (DFN)
+
+C. Every design (x = pos_thickness_um, pos_porosity, neg_porosity, np_ratio_rel)
+  source       thick   e_pos  e_neg  np_rel   SPMe    DFN
+  session      120.0   0.400  0.320   1.300  143.4  160.9
+  bayes1       132.9   0.391  0.336   1.295  143.0  160.4
+  bayes0       128.7   0.370  0.336   1.300  142.5  159.5
+  bayes3       120.1   0.365  0.325   1.298  142.4  159.0
+  bayes0       110.9   0.400  0.295   1.280  142.4  160.2
+  random1      112.3   0.355  0.323   1.267  140.8  154.3
+  bayes4       120.8   0.339  0.349   1.296  140.8  154.0
+  session      115.0   0.380  0.280   1.300  140.7  163.0
+  bayes2       107.8   0.370  0.301   1.262  140.3  156.0
+  bayes2       110.2   0.381  0.269   1.280  139.6  161.4
+  random2       98.8   0.324  0.301   1.275  138.8  151.4
+  random0      131.3   0.383  0.321   1.192  138.6  155.1
+  random4       99.8   0.299  0.300   1.283  138.5  151.8
+  bayes0       113.8   0.377  0.351   1.243  138.4  147.9
+  random3      133.0   0.332  0.337   1.228  137.6  153.7
+  bayes4       147.3   0.339  0.381   1.273  137.6  151.4
+  bayes2       106.9   0.305  0.303   1.248  136.5  151.7
+  bayes2       108.7   0.265  0.285   1.264  135.2  154.0
+  bayes0       137.2   0.355  0.371   1.184  134.2  145.4
+  bayes3       144.0   0.397  0.303   1.056  132.0  149.4
+  bayes2       123.3   0.314  0.270   1.244  130.2  158.6
+  session      120.0   0.300  0.300   1.100  129.1  144.0
+  random2      139.2   0.323  0.366   1.099  127.8  138.0
+  bayes1       146.2   0.345  0.308   1.011  126.9  143.0
+  session      110.0   0.350  0.350   1.100  125.6  132.0
+  bayes4       137.2   0.309  0.380   1.091  124.0  132.4
+  bayes1        83.0   0.358  0.261   1.081  121.8  130.6
+  bayes4        85.0   0.245  0.304   1.156  120.0  126.9
+  bayes4        59.2   0.262  0.204   1.280  118.5  130.5
+  bayes3       123.5   0.223  0.278   1.107  117.3  141.4
+  bayes1       149.8   0.386  0.363   0.901  116.4  123.6
+  bayes1       105.0   0.206  0.351   1.115  115.0  121.4
+  random3      106.2   0.280  0.323   0.979  113.3  119.2
+  random1       77.4   0.201  0.329   1.188  110.9  115.6
+  random1      130.5   0.393  0.230   1.093  108.6  151.7
+  random4       68.3   0.257  0.258   1.066  106.3  111.9
+  bayes0       104.4   0.387  0.363   0.901  101.8  105.1
+  random1       81.2   0.285  0.366   1.064  100.3  103.0
+  random4       56.3   0.245  0.214   1.053   98.4  103.3
+  bayes4        51.2   0.299  0.201   1.059   95.3  100.1
+  bayes2        56.0   0.208  0.212   0.974   89.6   93.5
+  random0       51.5   0.373  0.396   1.283   84.2   85.9
+  bayes0       144.0   0.226  0.389   1.289   80.1  141.7
+  random1      149.6   0.249  0.251   0.929   27.6  129.9
+  bayes3       113.1   0.288  0.204   1.160   18.9  145.5
+  random0      137.6   0.212  0.267   0.960    0.0  127.9
+  bayes1       149.7   0.201  0.389   1.299    0.0  139.4
+  bayes1       138.7   0.209  0.204   1.282    0.0  120.5

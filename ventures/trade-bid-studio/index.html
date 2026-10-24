@@ -221,6 +221,14 @@
       <button type="button" class="linkish" id="forgetCompany">Forget my business details</button>
       <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
     </div>
+    <details id="hubBox" style="margin:12px 0">
+      <summary>Send it as a link the customer can accept online (your own estimate hub)</summary>
+      <p class="note">Run the free <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trade-bid-studio#send-the-proposal-as-a-link-your-own-estimate-hub">estimate hub</a> on your own server (one click on Render, Fly or Docker). Type its address here and this button opens its "new proposal" form with the fields above filled in. The details travel in the part of the address after the #, which browsers never send to any server. Your costs, wages and margin are not part of it.</p>
+      <div class="fields" style="grid-template-columns:1fr">
+        <label>Your hub address<input id="hubUrl" type="url" placeholder="https://estimates.example.com"></label>
+      </div>
+      <div class="summary-actions"><button type="button" class="btn" id="sendToHub">Open in my hub</button></div>
+    </details>
     <p class="note" style="margin-bottom:0">Everything on the printed page is text you typed or a number worked out above. It contains no warranty, lien or cancellation wording: those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
   </section>
 
@@ -488,6 +496,27 @@
       el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
       requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
     }
+    function sendToHub() {
+      let hub;
+      try { hub = new URL(el('hubUrl').value.trim()); if (hub.protocol !== 'https:' && hub.hostname !== 'localhost') throw new Error(); } catch { el('proposalStatus').textContent = 'Type your hub address, starting with https://'; return; }
+      let proposal;
+      try {
+        const bid = currentBid();
+        proposal = buildProposal({
+          ...Object.fromEntries(PROPOSAL_IDS.map(id => [id, el(id).value])),
+          companyName: el('companyName').value || 'x',
+          price: quotedPrice(bid.price, el('quotePrice').value),
+          scope: el('proposalScope').value,
+        });
+      } catch (error) { el('proposalStatus').textContent = error.message; return; }
+      try { localStorage.setItem('trade-bid-studio-hub', hub.origin); } catch {}
+      const f = { clientName: proposal.client.name, clientAddress: proposal.client.address, jobTitle: proposal.job.title, scope: proposal.job.scope.join('\n'), price: String(proposal.pricing.price), depositPercent: String(proposal.pricing.depositPercent), validDays: String(proposal.validDays), paymentTerms: proposal.pricing.paymentTerms, proposalExclusions: proposal.job.exclusions.join('\n'), proposalNotes: proposal.job.notes };
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(f)))).replace(/\+/g, '-').replace(/\//g, '_');
+      count('proposal_hub_opened');
+      window.open(hub.origin + '/admin#prefill=' + b64, '_blank', 'noopener');
+    }
+    el('sendToHub').addEventListener('click', sendToHub);
+    try { el('hubUrl').value = localStorage.getItem('trade-bid-studio-hub') || ''; } catch {}
     el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
     el('jobTitle').addEventListener('input', () => { el('jobTitle').dataset.edited = '1'; });
     el('printProposal').addEventListener('click', printProposal);

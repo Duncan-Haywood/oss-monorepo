@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Agent Permission Config Check vs. reading the JSON by eye</title>
-  <meta name="description" content="Skimming .claude/settings.json or an mcpServers block by eye catches an obviously wrong Bash allow-all rule on the day you happen to read it -- it does not scale to a config that grows over months, and a Bearer-scheme header holding a live token instead of a variable reference is easy to miss in a wall of JSON. This free tool checks every rule and every server entry the same way every time. Nothing uploaded either way.">
+  <meta name="description" content="Skimming settings.json by eye misses a token in a Bearer header or a rule that grew over months. This free tool checks every rule and server every time.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="./vs-manual-config-review.html">
   <meta property="og:type" content="website">

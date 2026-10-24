@@ -1,0 +1,122 @@
+{
+ "crossOriginIsolated": false,
+ "hc": 4,
+ "gpu": true,
+ "cases": [
+  {
+   "form": "ebay",
+   "say": "item price 55, shipping charged to buyer 8",
+   "round": 0,
+   "expect": {
+    "price": "55",
+    "shippingCharged": "8"
+   },
+   "raw": "{\"price\": 55, \"quantity\": 1, \"combinedItemCount\": 1, \"shippingCharged\": 8, \"finalValueRate\": 0, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "price": "55",
+    "quantity": "1",
+    "shippingCharged": "8",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "0",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "price": "55",
+    "shippingCharged": "8"
+   },
+   "ms": 107205.9,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "I'm selling it for forty dollars and I paid twelve for the item",
+   "round": 0,
+   "expect": {
+    "price": "40",
+    "costOfGoods": "12"
+   },
+   "raw": "{\"price\": 40.0, \"quantity\": 1, \"combinedItemCount\": 1, \"shippingCharged\": 0, \"finalValueRate\": 0, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 12.0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "price": "40",
+    "quantity": "1",
+    "shippingCharged": "0",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "12",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "price": "40",
+    "costOfGoods": "12"
+   },
+   "ms": 37727.30000000005,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "price $1,250",
+   "round": 0,
+   "expect": {
+    "price": "1250"
+   },
+   "raw": "{\"price\": 1250, \"quantity\": 1, \"combinedItemCount\": 1, \"shippingCharged\": 0, \"finalValueRate\": 0, \"fixedFee\": 0, \"promotedRate\": 0, \"costOfGoods\": 0, \"shippingCost\": 0, \"packagingCost\": 0, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "price": "1250",
+    "quantity": "1",
+    "shippingCharged": "0",
+    "finalValueRate": "0",
+    "fixedFee": "0",
+    "promotedRate": "0",
+    "costOfGoods": "0",
+    "shippingCost": "0",
+    "packagingCost": "0",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "price": "1250"
+   },
+   "ms": 34786.79999999999,
+   "err": null
+  },
+  {
+   "form": "ebay",
+   "say": "promoted listings 5 percent",
+   "round": 0,
+   "expect": {
+    "promotedRate": "5"
+   },
+   "raw": "{\"promotedRate\": 5, \"targetMargin\": 0, \"returnRatePercent\": 0}",
+   "model": {
+    "promotedRate": "5",
+    "targetMargin": "0",
+    "returnRatePercent": "0"
+   },
+   "rules": {
+    "promotedRate": "5"
+   },
+   "ms": 11186.700000000012,
+   "err": null
+  }
+ ],
+ "loadMs": 9625.5,
+ "multithread": false,
+ "threads": 1,
+ "answer": {
+  "ms": 37724.80000000002,
+  "firstMs": 7197.899999999994,
+  "chunks": 99,
+  "text": "A final value fee on eBay is a fee that buyers pay when they sell their items on the platform. This fee is typically a percentage of the final sale price of the item, and it is a way for eBay to collect a portion of the transaction fees that buyers pay to sellers. This fee is intended to help ensure that buyers are not overcharged for the final sale price of their item, and it is a way for sellers to recoup their costs of selling their items on the platform."
+ },
+ "wallMs": 238279,
+ "model": "qwen2.5-0.5b-instruct-q4_0.gguf"
+}

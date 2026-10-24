@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Subdomain Takeover Checker — Is Your CNAME Dangling?</title>
-<meta name="description" content="Free tool: paste a hostname and it follows its real CNAME chain, then -- if the chain ends at a known takeover-prone provider (S3, Heroku, GitHub Pages, Azure, and 20 more) -- sends one live GET request and checks the response against that provider's own 'nothing is claimed at this name' page. Confirms a dangling CNAME with live evidence, not just a DNS guess. Nothing uploaded to us.">
+<meta name="description" content="Free tool: paste a hostname and it follows its real CNAME chain, then -- if the chain ends at a known takeover-prone provider (S3, Heroku, GitHub Pages, Azure, and 20 more) -- sends one live GET request and checks the response against that provider's own 'nothing is claimed at this name' page.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/subdomain-takeover-check/">
 <meta property="og:type" content="website">
@@ -91,6 +91,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Subdomain Takeover Checker</h1>
 <p>
   Paste a hostname. This follows its real CNAME chain over public DNS, and when the chain ends at
@@ -262,6 +263,7 @@
   }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks the hostnames you give it against

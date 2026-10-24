@@ -1,0 +1,22 @@
+|--- num__marriage_years <= 14.5000
+|   |--- cat__spouse_education_16+ years <= 0.5000
+|   |   |--- num__age_at_marriage <= 20.9583
+|   |   |   |--- value: [0.0583]
+|   |   |--- num__age_at_marriage >  20.9583
+|   |   |   |--- value: [0.0323]
+|   |--- cat__spouse_education_16+ years >  0.5000
+|   |   |--- num__afqt <= 74.1925
+|   |   |   |--- value: [0.0204]
+|   |   |--- num__afqt >  74.1925
+|   |   |   |--- value: [0.0106]
+|--- num__marriage_years >  14.5000
+|   |--- num__marriage_years <= 21.5000
+|   |   |--- cat__spouse_education_16+ years <= 0.5000
+|   |   |   |--- value: [0.0207]
+|   |   |--- cat__spouse_education_16+ years >  0.5000
+|   |   |   |--- value: [0.0091]
+|   |--- num__marriage_years >  21.5000
+|   |   |--- num__income_percentile <= 77.4063
+|   |   |   |--- value: [0.0100]
+|   |   |--- num__income_percentile >  77.4063
+|   |   |   |--- value: [0.0045]

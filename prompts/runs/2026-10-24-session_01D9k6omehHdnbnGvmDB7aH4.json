@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01D9k6omehHdnbnGvmDB7aH4",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: continue revenue-product work",
+  "input_sha256": "933f619f23e002a1e6471c5855af5f62ef9bb1eb442678c0e03e16c83b5a8378",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T00:59:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper: bank statement to QuickBooks/Xero landing page",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 9946,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/routing.json",
+      "why": "router drew redteam; the scheduled task asked for revenue product work, so I used the ventures track"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "New SEO landing page whose figures come from running the CLI (import, confirm, export qbo/xero/iif, report) on fixtures/chase-checking.csv; page.test.mjs passes (21). No real QuickBooks/Xero file tried; page says so.",
+  "corrections": [],
+  "redteam": null
+}

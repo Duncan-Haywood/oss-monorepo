@@ -8,9 +8,8 @@
  *   node platform/pages/engineering.mjs --out=dist --today=2026-10-16
  *
  * `build.mjs` calls `buildEngineeringPage` on every site build, so the page is
- * exactly as current as the published snapshot: every `publish-branch.sh` run
- * (by hand, or by `publish-pages-branch.yml` once the owner turns it on)
- * rebuilds it from `main`.
+ * exactly as current as the deployed site: `portfolio-pages.yml` rebuilds it
+ * from `main` on every merge.
  *
  * Every number is read from something committed, never typed:
  *
@@ -34,7 +33,8 @@ import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { REPO_URL, withSiteHeader } from './site-nav.mjs';
+import { REPO_URL, sponsorsNote, withSiteHeader } from './site-nav.mjs';
+import { loadResearchRegistry } from './research-registry.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
@@ -44,7 +44,7 @@ export { REPO_URL };
 
 // Fixed order so a track keeps its colour from build to build. Anything a
 // future run record calls itself lands in "other" rather than breaking the key.
-export const TRACKS = ['ventures', 'research', 'process', 'review', 'redteam', 'explore', 'other'];
+export const TRACKS = ['ventures', 'research', 'process', 'review', 'redteam', 'explore', 'creative', 'other'];
 
 const DAY = 86400000;
 
@@ -167,7 +167,7 @@ function loadVentures(root) {
 }
 
 function loadResearch(root) {
-  const data = readJson(path.join(root, 'research', '_homepage', 'projects.json'));
+  const data = loadResearchRegistry(root);
   const themes = (data?.themes ?? []).map((t) => ({ name: t.name, count: (t.projects ?? []).length }));
   const logs = [];
   const dir = path.join(root, 'research');
@@ -597,12 +597,12 @@ ${canonical}<style>
 :root{
   --bg:#f7f7f4;--surface:#fff;--text:#1d1d22;--muted:#5c5b66;--faint:#8a8994;--border:#e3e1da;--accent:#3949ab;--code:#efede7;
   --ok:#2b8a3e;--warn:#b35c00;--bad:#c92a2a;
-  --t-ventures:#1c7ed6;--t-research:#7048e8;--t-process:#e8590c;--t-review:#2b8a3e;--t-redteam:#c2255c;--t-explore:#0b7285;--t-other:#868e96;
+  --t-ventures:#1c7ed6;--t-research:#7048e8;--t-process:#e8590c;--t-review:#2b8a3e;--t-redteam:#c2255c;--t-explore:#0b7285;--t-creative:#9c36b5;--t-other:#868e96;
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#111114;--surface:#19191e;--text:#ececf1;--muted:#a3a2ad;--faint:#75747f;--border:#2c2c34;--accent:#9fa8ff;--code:#25252d;
   --ok:#69db7c;--warn:#ffa94d;--bad:#ff8787;
-  --t-ventures:#4dabf7;--t-research:#9775fa;--t-process:#ff922b;--t-review:#51cf66;--t-redteam:#f06595;--t-explore:#3bc9db;--t-other:#adb5bd;
+  --t-ventures:#4dabf7;--t-research:#9775fa;--t-process:#ff922b;--t-review:#51cf66;--t-redteam:#f06595;--t-explore:#3bc9db;--t-creative:#da77f2;--t-other:#adb5bd;
 }}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
@@ -765,6 +765,7 @@ ${mergeRows}
 <footer>
   <p>Built by <a href="${REPO_URL}/blob/main/platform/pages/engineering.mjs"><code>platform/pages/engineering.mjs</code></a> from files committed to the repository; nothing here is typed by hand. Compute figures are API-list-price equivalents that the sessions measured from their own transcripts (<code>prompts/runcost.py</code>), not charges. A figure a source could not supply is marked as such rather than shown as zero.</p>
   <p>Provided as-is, with no warranty of accuracy or completeness; it describes how the repository is being worked on and is not advice of any kind.</p>
+  <p>${sponsorsNote()}</p>
 </footer>
 </div>
 </body>

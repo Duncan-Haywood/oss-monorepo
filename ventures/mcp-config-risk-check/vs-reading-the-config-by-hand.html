@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MCP Config Risk Check vs. reading the config by hand</title>
-<meta name="description" content="Reading a short config with one server catches an obvious problem, like a bare shell command. It reliably misses a secret-shaped literal sitting under an unrelated key name, a missing version pin buried in one of four different package-manager syntaxes, and a tool name that collides across two servers loaded together -- which is what this free, no-upload checker computes exactly, every time.">
+<meta name="description" content="Reading an MCP config catches a bare shell command, not a secret under an odd key, a missing version pin or colliding tool names. This free checker does.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="./vs-reading-the-config-by-hand.html">
 <meta property="og:type" content="website">

@@ -1,0 +1,10 @@
+|--- num__relationship_years <= 2.600
+|   |--- cat__parental_approval_Neutral or unsure <= 0.500
+|   |   |--- value: [0.290]
+|   |--- cat__parental_approval_Neutral or unsure >  0.500
+|   |   |--- value: [0.512]
+|--- num__relationship_years >  2.600
+|   |--- cat__cohabiting_Yes <= 0.500
+|   |   |--- value: [0.203]
+|   |--- cat__cohabiting_Yes >  0.500
+|   |   |--- value: [0.095]

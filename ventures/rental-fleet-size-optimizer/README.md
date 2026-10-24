@@ -6,10 +6,11 @@ demand, how long rentals last, what you charge and what a unit costs to own. It
 computes the yearly profit of every fleet size from one upward, two ways (the
 Erlang loss formula and a repeatable day-by-day simulation), and recommends how
 many units to own, with the share of customers turned away, a bad year, an
-optional turn-away cap, and how the answer moves if demand does. Nothing is
+optional turn-away cap, an optional sub-rent-from-a-partner margin for
+turned-away requests (so you can see how owning fewer units pays), and how the answer moves if demand does. Nothing is
 uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rental-fleet-size-optimizer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/rental-fleet-size-optimizer/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
@@ -31,3 +32,14 @@ simulation.
 Anonymous feature counts stay in local storage and can be switched off.
 
 MIT licence, see `LICENSE`.
+
+## Host your own copy
+
+It is a static site: the server only hands out files and never sees a figure you type, so you can serve it from an
+address you control.
+
+- **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
+- **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
+- **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
+- Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
+  so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.

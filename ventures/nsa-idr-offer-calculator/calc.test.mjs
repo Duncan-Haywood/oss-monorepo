@@ -120,3 +120,54 @@ test("sample data analyzes and exports", () => {
   assert.equal(money(-1234.5), "-$1,235");
   assert.equal(pct(0.256), "25.6%");
 });
+
+import { parseOutcomes, fitWinCurve, sampleOutcomes, wilson } from "./calc.mjs";
+
+test("parseOutcomes reads results, skips bad lines, places offers between QPA and billed", () => {
+  const r = parseOutcomes("label,billed,QPA,offer,result\nA,1000,500,750,won\nB,1000,500,500,L\nbad line\nC,1000,500,9999,yes\nD,400,500,450,no");
+  assert.equal(r.rows.length, 4);
+  assert.equal(r.rows[0].t, 0.5);
+  assert.equal(r.rows[1].won, 0);
+  assert.equal(r.rows[2].t, 1); // offer above billed clamps to the billed end
+  assert.equal(r.rows[3].t, 0); // billed at or below QPA can only sit at the QPA
+  assert.equal(r.warnings.length, 1);
+  assert.ok(parseOutcomes("nothing here").error);
+});
+
+test("fitWinCurve: more history moves the curve toward the data, and it stays monotone", () => {
+  const rows = parseOutcomes(sampleOutcomes()).rows;
+  const f = fitWinCurve(rows, { pWinAtQpa: 85, pWinAtBilled: 25 });
+  assert.equal(f.n, 12);
+  assert.equal(f.wins, 7);
+  assert.ok(f.pWinAtQpa > f.pWinAtBilled);
+  assert.ok(f.brierFit < f.brierPrior, "fit explains these results better than the guess");
+  assert.ok(f.pWinAtBilled < 25, "results show high asks lose more than assumed");
+  const weak = fitWinCurve(rows, { pWinAtQpa: 85, pWinAtBilled: 25, priorWeight: 50 });
+  assert.ok(Math.abs(weak.pWinAtBilled - 25) < Math.abs(f.pWinAtBilled - 25), "a strong prior stays near the assumption");
+  const strong = fitWinCurve(rows, { priorWeight: 0 });
+  assert.ok(Number.isFinite(strong.pWinAtQpa) && Number.isFinite(strong.pWinAtBilled));
+  // Results where higher asks win more often: the curve is held flat, not inverted.
+  const inv = parseOutcomes("a,1000,500,510,lost\nb,1000,500,520,lost\nc,1000,500,900,won\nd,1000,500,950,won\ne,1000,500,980,won").rows;
+  const g = fitWinCurve(inv, { priorWeight: 0.05 });
+  assert.ok(g.flattened);
+  assert.ok(g.pWinAtQpa >= g.pWinAtBilled - 1e-9);
+});
+
+test("fitWinCurve recovers a known curve from many simulated results", () => {
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
+  const rows = [];
+  for (let i = 0; i < 4000; i++) {
+    const t = rnd(), p = 0.9 - 0.6 * t; // true: 90% at QPA falling to 30% at billed (on the probability scale)
+    rows.push({ t, won: rnd() < p ? 1 : 0 });
+  }
+  const f = fitWinCurve(rows, { pWinAtQpa: 50, pWinAtBilled: 50 });
+  assert.ok(Math.abs(f.pWinAtQpa - 90) < 4, String(f.pWinAtQpa));
+  assert.ok(Math.abs(f.pWinAtBilled - 30) < 6, String(f.pWinAtBilled));
+});
+
+test("wilson interval brackets the rate and is null for no data", () => {
+  const [lo, hi] = wilson(7, 12);
+  assert.ok(lo < 7 / 12 && hi > 7 / 12 && lo > 0 && hi < 1);
+  assert.equal(wilson(0, 0), null);
+});

@@ -1,0 +1,22 @@
+M tee, arm half-depth 3 cm, CMA-ES 4 variables, 3D loops 64 drapes on err_all (bounds widened: bow -2..5, r 0.15..6), 2D loops 150 drapes on centre-line error (original bounds), both drawn in 3D
+loop seed err err_all crease sag design
+3d-wide 0 0.903 1.107 9.7 2.68 w=21.5 slope=5.1 bow=1.26 r=6.00
+3d-wide 1 0.337 1.181 12.4 3.28 w=22.8 slope=20.9 bow=-1.63 r=4.69
+3d-wide 2 0.756 1.186 9.7 2.63 w=23.5 slope=18.1 bow=-0.48 r=6.00
+3d-wide 3 0.712 0.828 9.7 2.68 w=22.8 slope=5.2 bow=1.54 r=6.00
+3d-wide 4 0.891 1.275 10.6 2.91 w=22.2 slope=0.2 bow=3.62 r=5.50
+3d-wide 5 0.733 0.933 10.8 2.96 w=22.1 slope=0.0 bow=2.45 r=5.38
+3d-wide 6 0.623 0.886 9.7 2.70 w=22.9 slope=0.0 bow=3.21 r=6.00
+3d-wide 7 1.198 1.596 12.2 3.27 w=24.7 slope=11.6 bow=4.55 r=4.77
+2d-design 0 0.527 1.632 22.9 4.55 w=22.7 slope=10.8 bow=2.80 r=2.54
+2d-design 1 0.369 1.836 21.3 4.23 w=23.1 slope=20.8 bow=-0.56 r=2.73
+2d-design 2 0.436 1.675 25.0 4.67 w=22.7 slope=11.9 bow=2.07 r=2.32
+2d-design 3 0.360 1.818 24.3 4.51 w=23.1 slope=16.6 bow=0.85 r=2.39
+2d-design 4 0.425 1.663 24.3 4.61 w=22.8 slope=12.7 bow=1.99 r=2.40
+2d-design 5 0.287 1.945 25.7 4.56 w=23.3 slope=19.0 bow=0.01 r=2.26
+2d-design 6 0.446 1.861 25.8 4.66 w=23.0 slope=15.4 bow=1.58 r=2.25
+2d-design 7 0.311 1.963 28.3 4.72 w=23.0 slope=17.2 bow=0.60 r=2.06
+stock-wood-shaped - 0.470 1.968 29.1 4.79 w=22.5 slope=16.0 bow=0.80 r=2.00
+
+err_all, 3D-designed minus 2D-designed (cm; negative = 3D better)
+n=8 vs 8  mean3d=1.124 sd=0.249  mean2d=1.799 sd=0.129  diff=-0.675  95% bootstrap CI [-0.851, -0.487]  permutation p=0.000

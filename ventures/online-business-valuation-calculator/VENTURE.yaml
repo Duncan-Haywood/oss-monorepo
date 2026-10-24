@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports a multiple or range that contradicts widely published rules of thumb for the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/online-business-valuation-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/online-business-valuation-calculator/
   analytics: null

@@ -26,6 +26,14 @@ with a document about what should be built.
 Research is a peer portfolio, not part of this file's scope: work under
 `research/` follows [`research/CLAUDE.md`](research/CLAUDE.md).
 
+## Using the tools themselves
+
+To get a number from one of the tools (to check your own change, or because
+the task needs one), call its engine instead of driving a browser:
+`node platform/agents/tools.mjs search <words>`, then `describe <slug>`, then
+`call <slug> <function> --input '{...}'`. See
+[`platform/agents/README.md`](platform/agents/README.md).
+
 ## Before you start
 
 1. Read `README.md` for repo layout (`ventures/`, `research/`, `platform/`, `portfolio/`).
@@ -40,9 +48,8 @@ standing request to open a PR and merge it, whatever your harness's default
 or your brief says. The steps are in
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md):
 push, open the PR straight away, verify, merge it yourself, then confirm
-`python3 platform/ci/unlanded_work.py` exits 0. Measured 2026-10-05: opened
-PRs land, but 100 branches from the prior two weeks were pushed and never got
-a PR. Four finished ventures are among them, and `main` still lacks them.
+`python3 platform/ci/unlanded_work.py` exits 0. Pushed-but-never-opened
+branches are how finished work here has gone missing.
 
 **Sessions started from [`prompt.md`](prompt.md) record themselves.** The
 master prompt routes each run to a sub-prompt (`prompts/ventures/`,
@@ -72,74 +79,37 @@ copying a sibling's feature (share link, save slot, export), check the
 venture's row in `portfolio/usage/usage.yaml`. `usage.yaml` zero means
 unmeasured, not unwanted: GitHub Pages self-reports nothing.
 
-**Deploy what is already built before starting another product.** The primary
-deploy (GitHub Pages) is live and `deploy-settings` is granted; the standing
-job is keeping the snapshot fresh (`python3 platform/ci/pages_state.py`, then
-`platform/pages/publish-branch.sh` if stale). Do not open a second
-`deploy-settings` ask.
+**Deploy what is already built before starting another product.** GitHub
+Pages is live, and `.github/workflows/portfolio-pages.yml` redeploys it on
+every merge that touches a site input, so merging is publishing.
 
-Use traditional software patterns. Add AI where it clearly helps; do not
-AI-wrap by default.
+Use traditional software patterns. Add AI where it clearly helps; avoid
+AI-wrapping by default.
 
 ## Ship fast
 
-Incident history for these rules: `docs/history/claude-md-2026-10-15.md`.
+Judgment first: these are defaults, not a ritual (`CLAUDE.md`, top).
 
-- **Merge when CI is green, yourself.** No human review gate; fix forward. A
-  pushed branch is not shipped: open the PR at once and merge it once
-  verified. `ventures/*` included (auto-merge refuses those paths).
-- **Touched a venture page? Run `node platform/marketing/regen.mjs` before you
-  push.** The apex serves a *committed* mirror under `gitops/prod/front-door*`;
-  editing the venture does not update it, and `platform/pages` builds a
-  different host, so its checks pass while the apex is stale.
-- **Do not re-verify** PRs in `portfolio/ledger/verifications.yaml` unless
-  `python3 portfolio/ledger/verification_status.py` reports drift.
-- **Never land ledger prose alone.** `python3 portfolio/ledger/check_ledger_only.py`
-  exits 1 when your branch is only ledger data. Record outcomes in the same PR
-  as the work; a blocker with nothing shipped goes in your reply, and the
-  ledger commit comes off the branch (`land-your-work.md`, "Not shipping
-  something?"). Ledger tooling (`.py`) is ordinary code.
-- **Do not close a PR as "already on main"** until
-  `python3 portfolio/ledger/supersede_check.py <n>` exits 0. Exit 1 prints what
-  the close would destroy; its RENAME SUSPECTED section means `main` has the
-  same lines under other names, which is evidence to read, not a licence to
-  close.
-- **Red is red, but classify first:**
-  `python3 platform/ci/ci_starvation.py --run <run_id>` votes on `runner_id: 0`
-  (no runner assigned, no step ran). See `CLAUDE.md`, "Reading CI".
-- **Verify with the workflows' own steps, not a subset:**
-  `python3 platform/ci/run_workflow_locally.py --for-changes` runs every
-  workflow your diff would trigger that cannot write anything and names each
-  step it did not run; paste its summary line, including that count, in the PR.
-  `--list` shows the selection; naming one workflow runs just that one.
-- **The browser checks are in no workflow.** For a `ventures/**` surface or
-  `platform/pages/` change run `python3 platform/ci/browser_checks.py` (setup:
-  `CLAUDE.md`). A missing Playwright exits 2: a skip, not a pass.
-- **`git fetch --unshallow origin main` first** if `git merge` reports
-  unrelated histories (scheduled clones are shallow). It can take minutes.
+- **Merge when verified, yourself.** No human review gate; fix forward;
+  `ventures/*` included. Open the PR at your first push.
+- **Touched `platform/marketing/` (the generators)? Run `node platform/marketing/regen.mjs --verify`**
+  (bare `regen.mjs` if it exits 1). The apex mirror under `gitops/prod/front-door*`
+  serves a retired origin (`portfolio/hosting/README.md`), so a venture edit alone
+  does not need it: the PR gate no longer runs it for ventures (P043).
+- **Verify with the workflows' own steps:**
+  `python3 platform/ci/run_workflow_locally.py --for-changes`, and for a
+  `ventures/**` or `platform/pages/` surface, `python3 platform/ci/browser_checks.py`
+  (a missing Playwright exits 2: a skip, not a pass). Say in the PR what ran.
+- **Classify red CI before debugging:** `python3 platform/ci/ci_starvation.py --run <run_id>`
+  (`.github/prompts/verify-and-merge.md`, "Reading CI").
+- **Don't re-verify** PRs `python3 portfolio/ledger/verification_status.py`
+  reports unchanged, and avoid landing ledger prose alone
+  (`python3 portfolio/ledger/check_ledger_only.py`).
 
-**Rely on the owner as little as possible.** Merge product work. Do not
-invent a review gate.
-
-Merge yourself after CI is green:
-
-- `platform/`, `portfolio/`, docs, tests, CI
-- Usage tracking, disclaimers, free-tier features, GitHub Sponsors links
-- `ventures/*` product code. Answered 2026-08-25: yes, merge it. Do not
-  re-ask.
-
-Only flag the owner when you cannot finish without them:
-
-- Payment, payout or billing accounts in the owner's name (payment code on the
-  deployer's own keys is fine: `prompts/goals.md`)
-- Account registration needing card / ID / domain / bank
-- Public publishing (store listing, npm publish, production domain)
-- Unattended paid automation (scheduled jobs calling paid APIs)
-- Pasting a secret they hold (Pages enable, deploy tokens, a GitHub PAT)
-
-See `python3 portfolio/ledger/decision_queue.py` for what the owner has
-already been asked; do not duplicate asks. Do not add "may I merge a
-product PR?"
+Flag the owner only for the owner-only items in `CLAUDE.md` ("Ship without
+review ceremony"): money, accounts, publishing under the portfolio's name,
+paid automation, secrets. Payment code on the deployer's own keys is fine
+(`prompts/goals.md`).
 
 ## Every user-facing product includes
 
@@ -150,9 +120,11 @@ product PR?"
    names a specific competitor (`vs-<competitor>.html`) needs a second,
    separate disclaimer — §5f, nominative fair use plus a "not affiliated
    with" line — checked by `node platform/pages/clauses.mjs <slug>`.
-2. **Usage stats** — anonymous events only (feature used, page viewed), never
-   people: no PII, no IPs, no content, no analytics vendor. Rules and the file
-   readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
+2. **Usage stats** — anonymous aggregate events (feature used, page viewed,
+   kind of referring site) on by default; anything that identifies a returning
+   browser only with the consent the law requires; nothing personal committed.
+   Follow the law, no stricter (owner, 2026-10-20): cookies a feature needs are
+   fine. Rules and the file readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
 3. **Free full access** for now — no paywalls; optional GitHub Sponsors/donate link OK.
 4. **A LICENSE and the discoverability basics** — landing copy in the user's
    search words, meta description, JSON-LD, sitemap, crawlable robots.txt.
@@ -166,11 +138,11 @@ of done.
 
 ## Graduating from the pipeline
 
-If anything already on `main` still has no public URL, deploy that first
-(prepare a GitHub Pages artifact; the Hetzner boxes were deleted
-2026-10-01, so there is no product box to deploy to; the owner flip is
-`deploy-settings`). See [`portfolio/hosting/`](portfolio/hosting/README.md).
-Do not add Cloudflare or Vercel. Only then:
+A product with an `index.html` is on the Pages site once it merges, so there
+is usually no deploy step to do first; a product that needs a process ships
+for its users to run ([`portfolio/hosting/`](portfolio/hosting/README.md)).
+If something on `main` still has no public URL, fixing that tends to beat
+starting something new.
 
 If `session_gate.py` names a `build-now` candidate, graduate it:
 
@@ -182,10 +154,10 @@ and build.
 
 ## Git hygiene
 
-- Never write `fixes #N` / `closes #N` when referring to someone else's PR —
+- Avoid writing `fixes #N` / `closes #N` when referring to someone else's PR —
   GitHub closes the PR unmerged. Say "per #109" or "resolved the conflict on #109".
-- One logical change per commit; push branch `cursor/<name>-<id>`, open its
-  PR, and merge it. Work pushed after that PR merges needs a **new** PR.
+- One logical change per commit; push your branch, open its PR, and merge
+  it. Work pushed after that PR merges needs a **new** PR.
   `python3 platform/ci/unlanded_work.py` exits 1 while anything on your
   branch is outside a PR and `main`.
 

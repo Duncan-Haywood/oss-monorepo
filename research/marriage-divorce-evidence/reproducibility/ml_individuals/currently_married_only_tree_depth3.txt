@@ -1,0 +1,22 @@
+|--- num__age <= 0.16309
+|   |--- cat__education_model_Bachelor <= 0.50000
+|   |   |--- num__age <= -1.44491
+|   |   |   |--- value: [0.02146]
+|   |   |--- num__age >  -1.44491
+|   |   |   |--- value: [0.01244]
+|   |--- cat__education_model_Bachelor >  0.50000
+|   |   |--- num__first_marriage_age <= 0.43222
+|   |   |   |--- value: [0.00966]
+|   |   |--- num__first_marriage_age >  0.43222
+|   |   |   |--- value: [0.00644]
+|--- num__age >  0.16309
+|   |--- num__age <= 0.60164
+|   |   |--- cat__sex_Women <= 0.50000
+|   |   |   |--- value: [0.01011]
+|   |   |--- cat__sex_Women >  0.50000
+|   |   |   |--- value: [0.00643]
+|   |--- num__age >  0.60164
+|   |   |--- num__first_marriage_age <= 1.85339
+|   |   |   |--- value: [0.00481]
+|   |   |--- num__first_marriage_age >  1.85339
+|   |   |   |--- value: [0.01062]

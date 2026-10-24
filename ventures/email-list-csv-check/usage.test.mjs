@@ -1,6 +1,6 @@
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { record, readUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+import { record, readUsage, setUsageOptOut, usageOptedOut, usageShare } from "./usage.mjs";
 
 function fakeStorage() {
   const store = new Map();
@@ -60,4 +60,16 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   assert.deepEqual(readUsage(), {});
   record("file_checked");
   assert.equal(readUsage().file_checked, 1);
+});
+
+test("usageShare reports only the known event counts and builds an issue link", () => {
+  const s = usageShare({ file_checked: 4, suppression_used: 1, secret: "a@b.com", rejected_downloaded: "x" });
+  assert.equal(s.total, 5);
+  assert.match(s.text, /^file_checked: 4$/m);
+  assert.match(s.text, /^suppression_used: 1$/m);
+  assert.match(s.text, /^rejected_downloaded: 0$/m);
+  assert.ok(!s.text.includes("a@b.com"));
+  assert.ok(s.url.startsWith("https://github.com/Duncan-Haywood/oss-monorepo/issues/new?"));
+  assert.match(s.text, /^suppression_share: 25% of file checks$/m);
+  assert.equal(usageShare(null).total, 0);
 });

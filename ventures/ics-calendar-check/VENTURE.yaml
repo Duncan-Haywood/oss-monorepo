@@ -28,3 +28,8 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-every-calendar-vendor
 # clause, trademarks used nominatively, no acceptance promise.
+
+# 2026-10-20: built the CLI half of the stated revenue path (`cli.mjs`: check/fix files, folders and a
+# feed URL, --json/--strict, CI exit codes). No hosted feed monitor, no npm publish (owner gate).
+# Hypothesis to test: developers who generate calendar feeds reach the CLI section of the README from
+# search; reading is the opt-in usage counter on the page, not a download count.

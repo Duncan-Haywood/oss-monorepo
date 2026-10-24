@@ -1,0 +1,19 @@
+kits: 11520; 2 SSD copies, offload within 1 h, UHS-I ceiling; hours/day is also the kit's recording floor
+A. lightest total carried weight (g) reaching all 18 shots ('-' = none within 8 readers / the catalogue)
+hours_per_day  3d      7d      14d     28d   
+2              3492    3512    3552    3702  
+4              4076    4116    4266    4566  
+6              4142    4292    4442    4892  
+8              4257    4407    4707    5307  
+B. storage share (g) of that lightest 18-shot kit
+hours_per_day  3d      7d      14d     28d   
+2              140     160     200     350   
+4              186     226     376     676   
+6              251     401     551     1001  
+8              276     426     726     1326  
+C. most shots within 4000 g total
+hours_per_day  3d      7d      14d     28d   
+2              18      18      18      18    
+4              15      15      15      15    
+6              15      15      15      12    
+8              15      15      12      12    

@@ -7,7 +7,7 @@ and a transformer versus an add-on home-run, easy lawn versus irrigated
 turf versus rocky soil, then well lights, a photocell, and a driveway
 saw-cut — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/landscape-lighting-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/landscape-lighting-bid-calculator/
 
 **After using this, you can now** send a walk-away landscape-lighting
 price that sees the fixtures and the trench, **which used to take**
@@ -16,10 +16,7 @@ as the same job as an 18-fixture architectural install.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

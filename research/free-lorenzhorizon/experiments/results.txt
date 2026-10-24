@@ -1,0 +1,21 @@
+lambda_1 (Benettin, t=400) = 0.9044  (published 0.9056)
+tol=1.0, N=40 start points on the attractor
+
+A. initial-state error only (twin params exact)
+delta0  mean_T  predicted ln(tol/d0)/lambda  mean-pred
+1e-02     4.06     5.09  -1.03
+1e-03     6.42     7.64  -1.22
+1e-04     9.31    10.18  -0.87
+1e-05    11.55    12.73  -1.18
+1e-06    14.42    15.28  -0.86
+1e-07    16.94    17.82  -0.89
+fit slope dT/dln(1/d0) = 1.124  vs 1/lambda = 1.106
+
+B. parameter error only (rho_twin = 28(1+eps), state exact)
+eps  mean_T
+1e-01     0.10
+1e-02     0.95
+1e-03     2.84
+1e-04     5.19
+1e-05     7.81
+fit slope dT/dln(1/eps) = 0.853  (1/lambda = 1.106)

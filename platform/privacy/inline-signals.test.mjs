@@ -377,3 +377,43 @@ test("the CLI exits 0 when every inline counter is gated", () => {
   });
   assert.equal(run.status, 0, run.stderr);
 });
+
+// Red-team 2026-10-19: escaped mutants on the function-head slice and the block-depth bound.
+
+test("a minified `=>{` sibling function is still a function boundary", () => {
+  // The brace sits directly after `=>`; dropping one more character before the
+  // brace hides the arrow and lets a sibling's signal read vouch for the write.
+  const v = venture({
+    "index.html": page(`const a=()=>{return navigator.doNotTrack;};const track=(e)=>{localStorage.setItem('probe:'+e,'1');};`),
+  });
+  try {
+    assert.equal(checkInlinePage(v.page).status, "unguarded");
+  } finally { v.cleanup(); }
+});
+
+test("a minified `function f(){` sibling is still a function boundary", () => {
+  const v = venture({
+    "index.html": page(`function a(){return navigator.doNotTrack;}function track(e){localStorage.setItem('probe:'+e,'1');}`),
+  });
+  try {
+    assert.equal(checkInlinePage(v.page).status, "unguarded");
+  } finally { v.cleanup(); }
+});
+
+function nested(levels) {
+  return `function track(e){if(navigator.doNotTrack)return;${"if(e){".repeat(levels)}localStorage.setItem('probe:'+e,'1');${"}".repeat(levels)}}`;
+}
+
+test("a guard nine blocks out is found", () => {
+  const v = venture({ "index.html": page(nested(9)) });
+  try {
+    assert.equal(checkInlinePage(v.page).status, "pass");
+  } finally { v.cleanup(); }
+});
+
+test("the walk outward stops after MAX_ENCLOSING_BLOCKS (10) blocks", () => {
+  const v = venture({ "index.html": page(nested(10)) });
+  try {
+    assert.equal(checkInlinePage(v.page).status, "unguarded");
+  } finally { v.cleanup(); }
+});

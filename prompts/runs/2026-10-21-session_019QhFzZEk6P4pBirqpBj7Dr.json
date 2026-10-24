@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_019QhFzZEk6P4pBirqpBj7Dr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T18:44:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9249,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "The flagship next: for changepoint-detector is a ~5k-word log; costly to read to find the actual Next."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No agent doc/post written in docs/; the README entry carries the write-up for a negative result."
+    }
+  ],
+  "writeups": [
+    "ventures/changepoint-detector/README.md: A sharper second-bend test? section"
+  ],
+  "goal": null,
+  "notes": "Measured a sharper second-bend test for clumpy counts before building it; result negative (AUC 0.22). Added measurement script, diag array, README entry, flagship next. Venture tests run in background; see PR.",
+  "corrections": [],
+  "redteam": null
+}

@@ -14,7 +14,7 @@ with `--skip-review`.
 
 **Short on time (a scheduled run)?** A reduced pass is a valid review: do
 steps 1, 3, 7 and 8 and one fix from step 5, skip the audit and the drift
-report when recent outputs are doc-only, and say so in the log. Do not report
+report when recent outputs are doc-only, and say so in the log. No need to report
 the skip as friction (37 reports said a full pass was too large).
 
 ## 1. Measure
@@ -23,13 +23,14 @@ the skip as friction (37 reports said a full pass was too large).
 python3 prompts/promptctl.py measure
 ```
 
-Read the tables. Then make the numbers true before you trust them:
+Read the tables (full output is 50KB+: `--section candidates`, `--section friction`
+print one part). Then make the numbers true before you trust them:
 
 - **Measure what runs could not know.** Run first:
   `python3 prompts/derive.py fetch && python3 prompts/derive.py build`. It
   measures `merged`, PR size, red-CI commits and 14-day rework for every
   record that names a PR, upstream ones included, into `prompts/derived/`.
-  `measure` reads that, so do not hand-edit records for these facts. Commit
+  `measure` reads that, so these facts need no hand edits to records. Commit
   the regenerated `prompts/derived/` with the review. `fetch` is incremental and
   stops at ~100s (30 PRs per call): run it with `run_in_background` once, not
   in a loop. On a 403 (no GitHub API), skip both and say so in the log.
@@ -44,7 +45,7 @@ and code, and check that the README's numbers match what the code produces.
 For research, check citations; for a venture, its disclaimer and usage
 tracking. Skip mirrored upstream records and doc-only runs (most of them
 today): audit what is auditable, say in one line what was not (this is expected,
-not friction; do not report it). Log each problem as a correction (integrity issue or
+not friction; no need to report it). Log each problem as a correction (integrity issue or
 error) on the producing run's record.
 
 ## 3. Decide the active candidates
@@ -70,8 +71,8 @@ For a track without a candidate that has at least about 10 runs, write the next 
 `prompts/<track>/prompt-<n+1>.md`. Start from a full copy of the champion and
 make one focused change, aimed at that track's most common failure in the
 records. One change at a time, so its effect can be measured. Give it
-`"candidate_share": 0.2`. Every version must keep its link to
-`prompts/goals.md`; `validate` checks this.
+`"candidate_share": 0.2`. Every version keeps its link to
+`prompts/goals.md`, which carries the guardrails; `validate` checks this.
 
 ## 5. Improve the documentation
 
@@ -95,7 +96,7 @@ the file with the most of them; what you cannot fix goes into
 ## 6. Drift audit
 
 Added 2026-10-15 at the owner's request: the owner reviews little, so agents
-must notice and fix drift ("Judgment over rules" in `prompts/goals.md`).
+should notice and fix drift ("Judgment over rules" in `prompts/goals.md`).
 
 1. **Read the owner's own words.** These are the `input` fields of run records
    that are not a routine trigger ("By starting message"), the owner's brief
@@ -111,6 +112,9 @@ must notice and fix drift ("Judgment over rules" in `prompts/goals.md`).
    report. Cut the file that grew most or costs most: stale history, rules
    about things that no longer exist, duplicates. Judge the cut by friction
    after it (step 5). Never drop a `goals.md` guardrail.
+   Cut at least one rule or check that no longer earns its place, and name
+   one lesson from how other organisations run at this throughput
+   (`steering.md`, "Cut the deadweight").
 4. **Fix what is clear, propose what is not.** Correct drifted documents and
    sub-prompts directly (a sub-prompt through a candidate, step 4). If it
    needs the owner (touches `goals.md`, intent unclear), add a short proposal

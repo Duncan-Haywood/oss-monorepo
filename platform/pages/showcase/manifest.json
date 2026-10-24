@@ -1,0 +1,56 @@
+{
+  "generated": "2026-10-20",
+  "shots": [
+    {
+      "slug": "container-load-planner",
+      "file": "container-load-planner.webp",
+      "caption": "Packs cartons and pallets into containers, drawn to scale"
+    },
+    {
+      "slug": "band-tour-profit-planner",
+      "file": "band-tour-profit-planner.webp",
+      "caption": "Shows which tour dates lose money before you book the van"
+    },
+    {
+      "slug": "league-schedule-generator",
+      "file": "league-schedule-generator.webp",
+      "caption": "Builds a fair round-robin league schedule in a minute"
+    },
+    {
+      "slug": "event-seating-chart-optimizer",
+      "file": "event-seating-chart-optimizer.webp",
+      "caption": "Seats every guest with the most wishes met"
+    },
+    {
+      "slug": "invoice-maker",
+      "file": "invoice-maker.webp",
+      "caption": "Makes invoices and ages what is still owed"
+    },
+    {
+      "slug": "ebay-fee-calculator",
+      "file": "ebay-fee-calculator.webp",
+      "caption": "Says what an eBay sale really leaves after fees"
+    },
+    {
+      "slug": "incident-postmortem-timeline",
+      "file": "incident-postmortem-timeline.webp",
+      "caption": "Measures detect-to-resolve times and drafts a blameless postmortem"
+    },
+    {
+      "slug": "greenhouse-bench-planner",
+      "file": "greenhouse-bench-planner.webp",
+      "caption": "Plans sowing weeks against greenhouse bench space"
+    }
+  ],
+  "reel": {
+    "webm": "reel.webm",
+    "mp4": "reel.mp4",
+    "poster": "reel-poster.webp",
+    "tools": [
+      "container-load-planner",
+      "league-schedule-generator",
+      "band-tour-profit-planner",
+      "event-seating-chart-optimizer"
+    ]
+  }
+}

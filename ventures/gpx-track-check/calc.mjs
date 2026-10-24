@@ -180,6 +180,67 @@ export function repair(text) {
   return { text: out, changes };
 }
 
+// Shrinks a track to at most maxPoints by Ramer-Douglas-Peucker thinning: the shape is kept within the smallest
+// tolerance (metres) that fits, each segment keeps its first and last point, and every kept point is left
+// byte-for-byte as it was (time, elevation and extensions included). Returns { text, kept, removed, toleranceM }.
+export function thin(text, maxPoints) {
+  const g = parse(text);
+  const total = g.segments.reduce((n, s) => n + s.points.length, 0);
+  const floor = g.segments.reduce((n, s) => n + Math.min(2, s.points.length), 0);
+  const cap = Math.max(floor, Math.floor(maxPoints));
+  if (!g.root || total <= cap) return { text, kept: total, removed: 0, toleranceM: 0 };
+  const lat0 = (g.segments.flatMap((s) => s.points).find((p) => Number.isFinite(p.lat))?.lat ?? 0) * Math.PI / 180;
+  const xy = (p) => [p.lon * Math.PI / 180 * Math.cos(lat0) * R, p.lat * Math.PI / 180 * R];
+  const dist = (p, a, b) => {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy;
+    if (!L) return Math.hypot(p[0] - a[0], p[1] - a[1]);
+    const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L));
+    return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
+  };
+  const keepSet = (eps) => {
+    const keep = g.segments.map((seg) => {
+      const k = new Uint8Array(seg.points.length);
+      const pts = seg.points.map((p) => (Number.isFinite(p.lat) && Number.isFinite(p.lon) ? xy(p) : null));
+      if (k.length) k[0] = k[k.length - 1] = 1;
+      const stack = k.length > 2 ? [[0, k.length - 1]] : [];
+      while (stack.length) {
+        const [i, j] = stack.pop();
+        let far = -1, fd = -1;
+        for (let m = i + 1; m < j; m++) {
+          const d = pts[m] && pts[i] && pts[j] ? dist(pts[m], pts[i], pts[j]) : Infinity;
+          if (d > fd) { fd = d; far = m; }
+        }
+        if (far > 0 && fd > eps) { k[far] = 1; stack.push([i, far], [far, j]); }
+      }
+      return k;
+    });
+    return { keep, count: keep.reduce((n, k) => n + k.reduce((a, b) => a + b, 0), 0) };
+  };
+  let lo = 0, hi = 1, best = null;
+  while (keepSet(hi).count > cap && hi < 1e7) hi *= 2;
+  for (let i = 0; i < 40; i++) {
+    const mid = (lo + hi) / 2;
+    const r = keepSet(mid);
+    if (r.count > cap) lo = mid; else { hi = mid; best = { ...r, eps: mid }; }
+  }
+  best = best || { ...keepSet(hi), eps: hi };
+  let out = "", cursor = 0, removed = 0;
+  g.segments.forEach((seg, si) => seg.points.forEach((pt, pi) => {
+    if (best.keep[si][pi]) return;
+    const i = text.indexOf(pt.raw, cursor);
+    if (i < 0) return;
+    let a = i, b = i + pt.raw.length;
+    while (a > cursor && (text[a - 1] === " " || text[a - 1] === "\t")) a--;
+    if (text[b] === "\r") b++;
+    if (text[b] === "\n" && (a === 0 || text[a - 1] === "\n")) b++;
+    out += text.slice(cursor, a);
+    cursor = b;
+    removed++;
+  }));
+  out += text.slice(cursor);
+  return { text: out, kept: total - removed, removed, toleranceM: Math.round(best.eps * 10) / 10 };
+}
+
 export function findingsCsv(result) {
   const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
   return ["line,severity,code,message", ...result.findings.map((f) => [f.line, f.severity, f.code, q(f.message)].join(","))].join("\r\n") + "\r\n";

@@ -1,0 +1,42 @@
+wordfreq input 136 MB; csvmonthly input 4.6 MB
+checks: primes prints 50847534; wordfreq names the true top 10 words; csvmonthly prints >=4 of 6 known totals
+cores=4  inputs: wordfreq 20M words, csvmonthly 200k rows, primes below 1e9
+csvmonthly default/agent lang=Python     lines=  15 ok=True  secs=0.45    
+csvmonthly default/agent lang=Python     lines=  13 ok=True  secs=0.47    
+csvmonthly default/agent lang=Python     lines=  15 ok=True  secs=0.5     
+csvmonthly default/bare  lang=?          lines=   0 ok=False secs=-       no code
+csvmonthly default/bare  lang=?          lines=   0 ok=False secs=-       no code
+csvmonthly default/bare  lang=Python     lines=  17 ok=True  secs=0.45    
+csvmonthly pushed Go     lang=Go         lines= 102 ok=True  secs=0.11    
+csvmonthly pushed Go     lang=Go         lines= 102 ok=True  secs=0.09    
+csvmonthly pushed Go     lang=Go         lines= 102 ok=True  secs=0.08    
+csvmonthly pushed Rust   lang=Rust       lines=  44 ok=True  secs=0.05    
+csvmonthly pushed Rust   lang=Rust       lines=  52 ok=True  secs=0.05    
+csvmonthly pushed Rust   lang=Rust       lines=  57 ok=True  secs=0.05    
+primes     default/agent lang=C++        lines=  50 ok=True  secs=0.35    
+primes     default/agent lang=C++        lines=  58 ok=True  secs=0.22    
+primes     default/agent lang=C++        lines=  76 ok=True  secs=0.22    
+primes     default/bare  lang=C          lines=  59 ok=True  secs=0.27    
+primes     default/bare  lang=C          lines=  64 ok=True  secs=0.24    
+primes     default/bare  lang=C          lines=  66 ok=True  secs=0.19    
+primes     pushed C      lang=C          lines=  42 ok=True  secs=0.26    
+primes     pushed C      lang=C          lines=  57 ok=True  secs=0.21    
+primes     pushed C      lang=C          lines=  58 ok=True  secs=0.23    
+primes     pushed Python lang=Python     lines=  59 ok=True  secs=1.14    
+primes     pushed Python lang=Python     lines=  42 ok=True  secs=2.98    
+primes     pushed Python lang=Python     lines=  33 ok=True  secs=0.14    
+primes     pushed Rust   lang=Rust       lines=  80 ok=True  secs=0.16    
+primes     pushed Rust   lang=Rust       lines=  80 ok=True  secs=0.16    
+primes     pushed Rust   lang=Rust       lines=  73 ok=True  secs=0.18    
+wordfreq   default/agent lang=Python     lines=  20 ok=True  secs=5.66    
+wordfreq   default/agent lang=Python     lines=  21 ok=True  secs=5.28    
+wordfreq   default/agent lang=Python     lines=  20 ok=True  secs=5.07    
+wordfreq   default/bare  lang=Python     lines=  27 ok=True  secs=5.09    
+wordfreq   default/bare  lang=Python     lines=  30 ok=True  secs=5.4     
+wordfreq   default/bare  lang=Python     lines=  30 ok=True  secs=5.02    
+wordfreq   pushed Go     lang=Go         lines=  64 ok=True  secs=2.1     
+wordfreq   pushed Go     lang=Go         lines=  64 ok=True  secs=2.09    
+wordfreq   pushed Go     lang=Go         lines=  66 ok=True  secs=2.02    
+wordfreq   pushed Rust   lang=Rust       lines=  39 ok=True  secs=1.31    
+wordfreq   pushed Rust   lang=Rust       lines=  39 ok=True  secs=1.3     
+wordfreq   pushed Rust   lang=Rust       lines=  39 ok=True  secs=1.63    

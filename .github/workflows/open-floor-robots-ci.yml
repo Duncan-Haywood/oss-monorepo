@@ -1,0 +1,80 @@
+name: open-floor-robots CI
+
+# Two suites for one venture. Python (stdlib unittest, no dependencies): the
+# room grids, coverage planner, closed-loop simulator, battery and dock
+# planning, fan and mop-water sizing, serial protocol, ESP32 controller logic
+# (run on CPython with a fake board) and the check that the planner's numbers
+# match the CAD parameters. Node: the browser port in sim.mjs checked against
+# fixtures the Python planner writes (identical paths), plus page wiring,
+# disclaimers and the usage counter. The cad job installs the pinned
+# build123d, regenerates all three manufacturing packages and fails if a
+# committed copy under manufacturing/ is stale, or if any part collides (also
+# with the pad lifted and the bumper pressed), misses a mating hole, leaves
+# the ground, or the robot would tip. Nothing here publishes anything.
+on:
+  pull_request:
+    paths:
+      - "ventures/open-floor-robots/**"
+      - ".github/workflows/open-floor-robots-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/open-floor-robots/**"
+      - ".github/workflows/open-floor-robots-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: open-floor-robots-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/open-floor-robots
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: Python tests
+        run: PYTHONPATH=src python -m unittest discover -s tests -v
+      - name: Fixtures are current
+        run: |
+          PYTHONPATH=src python -m floorbots.fixtures
+          git diff --exit-code -- fixtures/
+      - name: Package installs and the CLI runs
+        run: |
+          python -m pip install .
+          floorbots compare --room living
+          floorbots plan --room-json room.example.json --variant combo
+          floorbots size-fan
+      - name: Node tests (browser port, page, usage)
+        run: node --test sim.test.mjs page.test.mjs usage.test.mjs
+
+  cad:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Install build123d (pinned)
+        run: python -m pip install -r cad/requirements.txt
+      - name: CAD checks and committed-package freshness
+        working-directory: ventures/open-floor-robots/cad
+        run: python -m unittest discover -s tests -v

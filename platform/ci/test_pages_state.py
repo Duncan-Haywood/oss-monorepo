@@ -147,7 +147,7 @@ class Freshness(unittest.TestCase):
         self.assertEqual(state, "unknown")
 
 
-PATTERNS = ["ventures/**", "platform/pages/**", ".github/workflows/publish-pages-branch.yml"]
+PATTERNS = ["ventures/**", "platform/pages/**", ".github/workflows/portfolio-pages.yml"]
 
 
 class BuildInputs(unittest.TestCase):
@@ -177,7 +177,7 @@ class BuildInputs(unittest.TestCase):
 
     def test_a_literal_path_matches_exactly(self):
         self.assertTrue(
-            ps.is_build_input(".github/workflows/publish-pages-branch.yml", PATTERNS)
+            ps.is_build_input(".github/workflows/portfolio-pages.yml", PATTERNS)
         )
         self.assertFalse(ps.is_build_input(".github/workflows/other.yml", PATTERNS))
 
@@ -190,6 +190,11 @@ class BuildInputs(unittest.TestCase):
         """
         api = fake_api(compare=[f"ventures/v{i}/index.html" for i in range(300)])
         self.assertIsNone(ps.read_changed_paths(api, "a" * 40, "b" * 40))
+
+    def test_a_missing_base_or_head_alone_is_none(self):
+        api = fake_api(compare=["ventures/v1/index.html"])
+        self.assertIsNone(ps.read_changed_paths(api, "", "b" * 40))
+        self.assertIsNone(ps.read_changed_paths(api, "a" * 40, ""))
 
     def test_an_unreadable_comparison_is_none(self):
         api = fake_api(compare_fail=True)
@@ -812,20 +817,20 @@ class IndexingVerdict(unittest.TestCase):
     """
 
     def test_a_subpath_site_names_the_file_crawlers_actually_read(self):
-        verdict, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        verdict, why = ps.indexing_verdict("https://duncan-haywood.github.io/oss-monorepo/")
         self.assertEqual(verdict, "subpath-robots")
         self.assertIn("https://duncan-haywood.github.io/robots.txt", why)
-        self.assertIn("monorepo-projects/robots.txt", why)
+        self.assertIn("oss-monorepo/robots.txt", why)
 
     def test_a_subpath_site_names_all_three_owner_fixes(self):
-        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/oss-monorepo/")
         self.assertIn("Search Console", why)
         self.assertIn("custom domain", why)
         # The host-root robots.txt route, added 2026-09-17. It is the cheapest
         # of the three and was missing entirely, so the report offered only the
         # two expensive ones while 1143 published pages stayed unenumerable.
         self.assertIn("https://duncan-haywood.github.io/robots.txt", why)
-        self.assertIn("Sitemap: https://duncan-haywood.github.io/monorepo-projects/sitemap.xml", why)
+        self.assertIn("Sitemap: https://duncan-haywood.github.io/oss-monorepo/sitemap.xml", why)
 
     def test_the_cheapest_fix_is_offered_before_the_expensive_ones(self):
         """Order is the whole point of naming a third option.
@@ -835,7 +840,7 @@ class IndexingVerdict(unittest.TestCase):
         host-root robots.txt is two lines and reaches every crawler, so a
         report that buried it would have been no better than not adding it.
         """
-        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/oss-monorepo/")
         self.assertLess(why.index("robots.txt -- a repository named"), why.index("Search Console"))
         self.assertLess(why.index("Search Console"), why.index("custom domain"))
 
@@ -846,13 +851,13 @@ class IndexingVerdict(unittest.TestCase):
         already Disallow. Telling the owner to 'create' one would either fail
         or replace a file governing something else.
         """
-        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/oss-monorepo/")
         self.assertIn("already exists", why)
         self.assertIn("Disallow", why)
 
     def test_a_subpath_site_says_crawling_is_still_allowed(self):
         """The row must not read as 'the site is blocked from search'."""
-        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/oss-monorepo/")
         self.assertIn("Crawling is still allowed", why)
 
     def test_an_origin_root_site_is_fine_and_says_so(self):
@@ -882,6 +887,11 @@ class IndexingVerdict(unittest.TestCase):
         # Wrapped rather than one long line: an unwrapped paragraph runs off a
         # terminal and is skipped by the reader this row exists for.
         self.assertTrue(all(len(line) <= 100 for line in out.split("\n")), out)
+        # The paragraph wraps at 76 columns: a 77-character reason must break,
+        # so a row never passes 96 characters with its 20-column gutter.
+        state["indexing_reason"] = "a" * 38 + " " + "b" * 38
+        rows = [l for l in ps.render(state).split("\n") if l.strip(" ").startswith(("a", "b"))]
+        self.assertEqual(len(rows), 2, rows)
 
     def test_it_does_not_change_the_exit_code(self):
         """A subpath robots.txt is an owner action, not a broken route -- and

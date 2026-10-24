@@ -1,0 +1,6 @@
+{
+ "theme": "codesign",
+ "title": "Do 24 runs per method rank gripper co-design methods that 8 runs could not?",
+ "lede": "do more seeds separate the gripper co-design methods? Not yet: with 24 runs per method CMA-ES leads random search by 0.025 (interval -0.007 to +0.056), the rollout-log reader trails by 0.022, and a 0.02 gap would need about 140 runs per method",
+ "summary": "Adds 16 new runs per method (24 in all) to the <code>codesign-headroom</code> comparison and scores every run&rsquo;s final design on 600 scenes. Mean true success after 40 designs: CMA-ES 0.858, Bayesian optimisation 0.842, score-only reader 0.837, random search 0.833, failure-summary reader 0.832, rollout-log reader 0.811. No difference to random search is significant (CMA-ES +0.025, interval &minus;0.007 to +0.056, p&nbsp;=&nbsp;0.15); CMA-ES tied random search on the original 8 runs but led by 0.037 on the new 16, showing how far 8 runs can mislead. Richer feedback does not help. Run-to-run SD is about 0.06, so a 0.02 gap needs about 140 runs per method. Stylised; readers are rules, not an LLM."
+}

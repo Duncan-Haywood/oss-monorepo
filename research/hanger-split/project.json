@@ -1,0 +1,5 @@
+{
+ "theme": "hanger",
+ "title": "Can a laundry hanger be printed in two halves on a 220 mm bed, and is the bolted joint strong enough?",
+ "summary": "A half-lap hub joint with two M4 bolts lets every <code>hanger-fit</code> width up to the 25.8 cm XXL print on a 220 mm bed as one part printed twice. In a beam model with assumed PLA constants, the joint, not the arm, is then the weak point: safety factor 3.7&ndash;13 against 40&ndash;70 for the arm, set by bolt bearing on the half-depth boss, and the joint needs 4&ndash;9 mm of depth against the arm&rsquo;s 0.8 mm. Printed pegs instead of bolts fail (safety factor 0.9&ndash;1.8 for 4 mm pegs). Stylised; nothing was printed or tested."
+}

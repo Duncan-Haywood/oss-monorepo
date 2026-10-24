@@ -1,0 +1,6 @@
+kits: 11520; 4 h/day, 7 d, 2 SSD copies, offload within 1 h, UHS-I ceiling
+scenario | lightest 18-shot total g | its storage g | readers | SSDs | most shots within 4000 g
+as assumed before (45/55/75, 25) | 4116 | 226 | 3 | 2 | 15
+light: Crucial X9 32 g all sizes, reader 28 | 4040 | 148 | 3 | 2 | 15
+Samsung T7 58 g all sizes, reader 28 | 4092 | 200 | 3 | 2 | 15
+heavy: 58 g SSDs, reader 85 | 4262 | 372 | 3 | 2 | 15

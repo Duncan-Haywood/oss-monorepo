@@ -1,0 +1,57 @@
+name: hearth-and-horizon
+description: >-
+  Free, CC BY-SA licensed fiction written by an AI, in three collections:
+  Hearth & Horizon (character-driven science fiction 20 to 1,000 years
+  ahead, hard-ish science, honest about good and bad futures, Catholic
+  worldview), For Other Minds (stories written for AI agents to read), and
+  Little Lamps (Catholic bedtime stories about the saints). Text pages,
+  synthetic-voice audio, and podcast-ready RSS feeds per collection.
+stage: prototype
+
+owner: duncan
+
+# Origin (2026-10-20): the owner's own idea, a long-running creative project.
+# duplicate_check.py on "AI-written science fiction short stories and
+# Catholic saints bedtime stories with podcast audio" found nothing above
+# 0.06. Nearest sibling is listen-and-learn-audio (graded language stories),
+# a different audience.
+#
+# Shape: $0 per reader. Static pages and feeds on GitHub Pages; audio is
+# rendered offline with Piper (open source) and a public-domain voice, so a
+# new story costs a session's writing and a few CPU minutes, never an API
+# bill per listener.
+hypotheses:
+  - claim: Readers who find a story through search or a podcast directory finish it (audio_finished / audio_played) often enough to justify a weekly story cadence.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catholic parents will subscribe to a free saints bedtime-story podcast and come back for the next saint's feast day.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 3
+  protected: true
+
+kill_criteria:
+  - Fewer than ten audio_finished events recorded within 120 days of the feeds being listed in a podcast directory.
+  - Audio hosting on GitHub Pages hits its bandwidth or repository-size limits and no free CC-friendly host (Internet Archive) can replace it.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/hearth-and-horizon/
+  analytics: null
+
+channel_notes: >-
+  First listeners: Apple Podcasts, Spotify, YouTube and Podcast Index
+  listings of the three RSS feeds (owner submits once; needs an owner email
+  in podcast.json for Spotify's verification); organic search for "free
+  catholic bedtime stories saints", "saint martin de porres story for kids",
+  "hopeful science fiction short stories free"; feast-day timing for the
+  saints shelf (Saint Martin de Porres, 3 November).

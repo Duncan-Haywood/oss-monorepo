@@ -51,6 +51,8 @@ row are true; those are facts you confirm by opening the file.
 | `CoupleView` | `/couple` | `couple/compare`, `couple/create`, `couple/join` | error + retry in place | sign-in prompt | yes |
 | `FeedbackWidget` | via `InsightsView` | `feedback` | swallowed on purpose — see below | swallowed | no |
 | `InsightsView` | `/insights` | `insights` | error + retry in place | same as any failure | yes |
+| `SurveyBuilder` | via `AdminView` | `admin/surveys`, `admin/surveys/[slug]/ranking` | server messages listed, form stays filled | — (the admin screen handles it) | yes |
+| `SurveyRespondent` | `/s/[slug]` | `surveys/[slug]`, `surveys/[slug]/join`, `trials/next`, `trials/answer` | a failed answer keeps the pair and says so; a failed start offers Try again | — | yes |
 | `ProfileView` | `/profile` | `auth/me`, `session/start`, `auth/logout` | inline error, stored session untouched | reads as signed out | yes |
 | `ReportWidget` | layout | `report` | inline error, message kept | — | no |
 | `UnifiedRunner` | `/app` | `auth/me`, `session/status`, `session/start`, `trials/next`, `trials/answer`, `trials/undo`, and the two financial twins | error + Retry; a 409 on an answer is "already recorded", not a failure | falls back to the anonymous session | yes |

@@ -1,0 +1,13 @@
+window,model_horizon_years,outcome,model,couples,events,observed_share_weighted,predicted_share_weighted,auc
+2017 to 2020,2.2,married,additive_harmonized,400,65,0.1648,0.1576,0.7668
+2017 to 2020,2.2,broke_up,additive_harmonized,400,131,0.3307,0.3444,0.8375
+2017 to 2020,2.2,married,period_only,400,65,0.1648,0.1192,0.5
+2017 to 2020,2.2,broke_up,period_only,400,131,0.3307,0.3815,0.5
+2017 to 2020,2.2,married,tree_depth2,400,65,0.1648,0.1563,0.6932
+2017 to 2020,2.2,broke_up,tree_depth2,400,131,0.3307,0.3157,0.7397
+2017 to 2022,4.1,married,additive_harmonized,352,73,0.2171,0.2165,0.7857
+2017 to 2022,4.1,broke_up,additive_harmonized,352,151,0.4377,0.4494,0.8465
+2017 to 2022,4.1,married,period_only,352,73,0.2171,0.1755,0.5
+2017 to 2022,4.1,broke_up,period_only,352,151,0.4377,0.4866,0.5
+2017 to 2022,4.1,married,tree_depth2,352,73,0.2171,0.1948,0.708
+2017 to 2022,4.1,broke_up,tree_depth2,352,151,0.4377,0.4022,0.7681

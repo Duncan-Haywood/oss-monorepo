@@ -6,7 +6,7 @@ does not.** It fits a diminishing-returns curve to each channel's own history, r
 spend, finds the split of the same total budget that earns most, and back-tests itself on your last weeks. Nothing
 is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ad-spend-saturation-optimizer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ad-spend-saturation-optimizer/
 
 After using this, you can now **move budget from saturated channels to ones with headroom, see whether a channel's
 next dollar loses money at your margin, and know how much to trust the advice before you act on it**.
@@ -16,6 +16,10 @@ next dollar loses money at your margin, and know how much to trust the advice be
 One row per date and channel: a date, a channel (or source, platform, campaign), the spend, and the revenue you
 credit to that channel. Columns are found by header name; a file without a channel column is treated as one channel.
 Daily rows are summed into Monday weeks. Amounts in one currency.
+
+## In a terminal
+
+`node cli.mjs spend.csv` runs the same analysis from a file or `-` (stdin), with no dependencies and no network: `--margin 45`, `--skip "2025-11-24..2025-12-07"`, `--budget 12000` (best split of another weekly total), `--csv`, `--json`, `--example`, `--snapshot-out jan.json` (save the answers only, no rows) and `--since jan.json` (next month: how much of the suggested move was made and how each channel's marginal return changed). The web page has the same Save snapshot / Compare buttons. Tests in `cli.test.mjs`.
 
 ## Model
 

@@ -1,0 +1,6 @@
+{
+ "theme": "eda",
+ "title": "Can RTL checks that need no golden reference model catch the bugs a design loop injects?",
+ "lede": "five golden-free properties (latency, done pulse, output hold, start-glitch and reset-abort invariance) kill 22 of the 66 killable eda-verify mutants, all control-flow bugs, and none of the 15 ROM or other datapath bugs; the 16 directed vectors catch all 22 too.",
+ "summary": "A design loop that generates unseen RTL has no trusted reference output, so this project scores five properties that need only the spec's 20-cycle latency and the module's own repeatability on the 91 compilable <em>eda-verify</em> mutants of the MAC engine. They kill 22 of the 66 killable mutants (0.33) and flag none of the 16 proved-equivalent or 9 undecided ones. Every kill is a latency change or hang; all datapath mutants (including all 15 ROM edits) pass, since a wrong value is still timed and repeatable. The 16 coverage-directed vectors with a golden model catch all 22 as well and 40 more, so the golden-free checks add nothing on this design. Preliminary: one design, five author-chosen properties, simulation only; value-level properties and a formal check were not tried."
+}

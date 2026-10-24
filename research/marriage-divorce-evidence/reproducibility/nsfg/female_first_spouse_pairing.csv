@@ -1,0 +1,27 @@
+pairing_level,wife,first_husband,outcome,n,events,percent,se_percentage_points,ci_low,ci_high,design_df,sparse
+BAplus_2x2,Wife BA+,First husband BA+,first_marriage_divorced_separated,558,106,14.490677608025724,1.9816625252596036,10.95097607140077,18.931284567296284,54,False
+BAplus_2x2,Wife BA+,First husband BA+,first_marriage_divorced_annulled,558,91,12.405829557621226,1.9010437881060616,9.068635733986888,16.74494012806865,54,False
+BAplus_2x2,Wife BA+,First husband below BA,first_marriage_divorced_separated,410,161,33.89904183969082,3.1072507405409886,27.972779937392637,40.37700760989906,54,False
+BAplus_2x2,Wife BA+,First husband below BA,first_marriage_divorced_annulled,410,146,32.34454547723477,3.0572838063420322,26.540017719597444,38.748932682294644,54,False
+BAplus_2x2,Wife below BA,First husband BA+,first_marriage_divorced_separated,203,73,33.06312878490352,4.185318722216618,25.265952520427266,41.91693022376254,54,False
+BAplus_2x2,Wife below BA,First husband BA+,first_marriage_divorced_annulled,203,64,30.822174372220452,4.312589012527349,22.900272999553117,40.0605919190802,54,False
+BAplus_2x2,Wife below BA,First husband below BA,first_marriage_divorced_separated,1417,669,40.891824890187884,2.428077405226783,36.12731818573943,45.83378930760894,54,False
+BAplus_2x2,Wife below BA,First husband below BA,first_marriage_divorced_annulled,1417,546,35.648034021089174,2.4473710737831684,30.90501744353315,40.690293474891845,54,False
+degree_3x3,Wife bachelor,First husband bachelor,first_marriage_divorced_separated,218,45,18.201557358293442,3.627979900681596,12.012041564378245,26.61564174334618,54,False
+degree_3x3,Wife bachelor,First husband bachelor,first_marriage_divorced_annulled,218,42,17.665173253536988,3.570671809244988,11.594600636530817,25.980069980143416,54,False
+degree_3x3,Wife bachelor,First husband below BA,first_marriage_divorced_separated,272,107,36.55289718233246,4.201463265115392,28.604844803887307,45.30789031708522,54,False
+degree_3x3,Wife bachelor,First husband below BA,first_marriage_divorced_annulled,272,95,34.594688322344645,4.222788643004416,26.677049857562867,43.46911055387252,54,False
+degree_3x3,Wife bachelor,First husband graduate/professional,first_marriage_divorced_separated,100,13,7.490353003157827,1.6647525704861998,4.763566533542795,11.588097653117735,54,True
+degree_3x3,Wife bachelor,First husband graduate/professional,first_marriage_divorced_annulled,100,9,5.275912186560634,1.5972064550170737,2.8510149032830756,9.560312469482042,54,True
+degree_3x3,Wife below BA,First husband bachelor,first_marriage_divorced_separated,147,46,31.84020121203354,4.3655321324916905,23.786528702568205,41.14845601346644,54,False
+degree_3x3,Wife below BA,First husband bachelor,first_marriage_divorced_annulled,147,41,30.179147481009238,4.469831795856418,22.027344407832327,39.807571796196626,54,False
+degree_3x3,Wife below BA,First husband below BA,first_marriage_divorced_separated,1417,669,40.891824890187884,2.428077405226783,36.12731818573943,45.83378930760894,54,False
+degree_3x3,Wife below BA,First husband below BA,first_marriage_divorced_annulled,1417,546,35.648034021089174,2.4473710737831684,30.90501744353315,40.690293474891845,54,False
+degree_3x3,Wife below BA,First husband graduate/professional,first_marriage_divorced_separated,56,27,36.19435872780655,8.804392265355705,20.894768333724574,54.91912450072793,54,True
+degree_3x3,Wife below BA,First husband graduate/professional,first_marriage_divorced_annulled,56,23,32.46860470915952,8.698580491000934,17.833258590911623,51.57566452469751,54,True
+degree_3x3,Wife graduate/professional,First husband bachelor,first_marriage_divorced_separated,111,26,15.121151972714792,3.3425892744812584,9.558518554576292,23.094365819889042,54,False
+degree_3x3,Wife graduate/professional,First husband bachelor,first_marriage_divorced_annulled,111,21,10.935945337351423,2.426574704810887,6.934552395282285,16.828722371502728,54,False
+degree_3x3,Wife graduate/professional,First husband below BA,first_marriage_divorced_separated,138,54,27.73055793477775,4.2751415166015025,20.01186792675762,37.04748998274202,54,False
+degree_3x3,Wife graduate/professional,First husband below BA,first_marriage_divorced_annulled,138,51,27.11442999173906,4.260642310273965,19.4495313446797,36.43372317562053,54,False
+degree_3x3,Wife graduate/professional,First husband graduate/professional,first_marriage_divorced_separated,129,22,13.169919412763656,3.4765834404479183,7.617163449055039,21.814688489851406,54,False
+degree_3x3,Wife graduate/professional,First husband graduate/professional,first_marriage_divorced_annulled,129,19,10.172187289868802,2.6613090126474352,5.940333115175921,16.8778282882441,54,True

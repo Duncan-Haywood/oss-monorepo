@@ -35,7 +35,7 @@ test("JSON-LD blocks parse and the inline module script is syntactically valid",
   for (const b of blocks) JSON.parse(b[1]);
   const m = /<script type="module">([\s\S]*?)<\/script>/.exec(html);
   assert.ok(m);
-  assert.doesNotThrow(() => new Function(m[1].replace(/^\s*import .*$/gm, "")));
+  assert.doesNotThrow(() => new Function(m[1].replace(/^\s*import\s[^;]*;?$/gm, "")));
 });
 
 test("sibling links resolve to real ventures", () => {

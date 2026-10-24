@@ -1,0 +1,6 @@
+{
+ "theme": "twins",
+ "title": "How wrong is a simulator's pendulum period at its default timestep?",
+ "summary": "Exact large-angle period (complete elliptic integral, 2.367842 s at 90&deg;) against explicit Euler, semi-implicit Euler, velocity Verlet and RK4 at 0.5 to 16 ms. Explicit Euler is unusable (energy +81% and period +14% after 60 s at 2 ms). Semi-implicit Euler and Verlet keep energy error under 0.3% and have period error 0.75 ppm at 2 ms, falling 4&times; per halving; RK4 reaches 1.8&times;10<sup>&minus;6</sup> ppm. Started on the same orbit the two second-order methods have identical period error, but releasing from rest makes semi-implicit Euler look 4th order (&le;10<sup>&minus;4</sup> ppm), an initial-condition artefact. Textbook integrators on an undamped pendulum, not the MuJoCo or PyBullet code. Every input is sourced or swept; nothing is assumed.",
+ "lede": "how wrong is a simulator's pendulum period at its default timestep? Exact elliptic-integral period against Euler, semi-implicit Euler, Verlet and RK4: Euler fails (14% period error at 2 ms), the symplectic pair is 0.75 ppm, and releasing from rest hides the symplectic error."
+}

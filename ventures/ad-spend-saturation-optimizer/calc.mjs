@@ -555,6 +555,69 @@ export function reportCsv(res) {
   return [h, ...rows].join("\n") + "\n";
 }
 
+// ---------- snapshots: come back with new weeks, see what moved ----------
+
+// A snapshot keeps the answer, never the data: per channel the spend, marginal
+// return and recommendation, nothing from the rows. The user holds the file.
+export function snapshot(res) {
+  if (!res || !res.modelled) return null;
+  return {
+    v: 1, tool: "ad-spend-saturation-optimizer", asOf: dayToIso(res.summary.lastWeek + 6),
+    margin: res.summary.margin, budget: res.summary.budget, gain: res.summary.gain,
+    channels: res.modelled.map((c) => ({ name: c.name, current: c.current, mroas: c.mroas, recommended: c.recommended })),
+  };
+}
+
+export function parseSnapshot(text) {
+  let o;
+  try { o = JSON.parse(text); } catch { return { error: "That file is not a snapshot from this tool (not valid JSON)." }; }
+  if (!o || o.tool !== "ad-spend-saturation-optimizer" || o.v !== 1 || !Array.isArray(o.channels)) return { error: "That file is not a snapshot from this tool." };
+  const ok = o.channels.every((c) => c && typeof c.name === "string" && [c.current, c.mroas, c.recommended].every(Number.isFinite));
+  return ok && typeof o.asOf === "string" ? { snap: o } : { error: "That snapshot is damaged or from a different version." };
+}
+
+// Per channel: how much of last time's recommended move was made (followed:
+// 0 = none, 1 = all, null when the advice was to hold) and how the marginal
+// return changed. Channels new or gone since then are listed apart.
+export function compareSnapshot(prev, res) {
+  const now = snapshot(res);
+  if (!prev || !now) return null;
+  const before = new Map(prev.channels.map((c) => [c.name, c]));
+  const rows = [];
+  for (const c of now.channels) {
+    const p = before.get(c.name);
+    if (!p) continue;
+    const asked = p.recommended - p.current, did = c.current - p.current;
+    const small = Math.abs(asked) < 0.05 * Math.max(p.current, 1);
+    rows.push({ name: c.name, prevSpend: p.current, spend: c.current, prevRecommended: p.recommended, recommended: c.recommended,
+      prevMroas: p.mroas, mroas: c.mroas, dMroas: c.mroas - p.mroas,
+      followed: small ? null : did / asked, direction: small ? "hold" : asked > 0 ? "raise" : "cut" });
+  }
+  return {
+    since: prev.asOf, until: now.asOf, rows,
+    added: now.channels.filter((c) => !before.has(c.name)).map((c) => c.name),
+    dropped: prev.channels.filter((c) => !now.channels.some((n) => n.name === c.name)).map((c) => c.name),
+    dBudget: now.budget - prev.budget,
+  };
+}
+
+export function describeComparison(cmp) {
+  if (!cmp) return [];
+  const out = [];
+  for (const r of cmp.rows) {
+    let t = `${r.name}: spend ${money(r.prevSpend)} -> ${money(r.spend)}, marginal return ${r.prevMroas.toFixed(2)} -> ${r.mroas.toFixed(2)}.`;
+    if (r.followed === null) t += " Last time the advice was to hold.";
+    else if (r.followed >= 0.5) t += ` You made ${Math.round(Math.min(r.followed, 9.99) * 100)}% of the ${r.direction} suggested last time.`;
+    else if (r.followed <= 0.1) t += ` The suggested ${r.direction} was not made.`;
+    else t += ` About ${Math.round(r.followed * 100)}% of the suggested ${r.direction} was made.`;
+    if (r.followed !== null && r.followed >= 0.5 && Math.abs(r.dMroas) >= 0.05) t += r.direction === "raise" ? (r.dMroas < 0 ? " The extra spend lowered its marginal return, as a saturating curve predicts." : " Its marginal return held up or rose, so the extra spend was not yet in the flat part.") : (r.dMroas > 0 ? " Its marginal return rose after the cut, as a saturating curve predicts." : " Its marginal return did not rise after the cut.");
+    out.push(t);
+  }
+  if (cmp.added.length) out.push(`New since then: ${cmp.added.join(", ")}.`);
+  if (cmp.dropped.length) out.push(`No longer modelled: ${cmp.dropped.join(", ")}.`);
+  return out;
+}
+
 // ---------- simulation (sample data, and the tests' ground truth) ----------
 
 // channels: [{ name, type, p, mean, cv, noise }]; weekly rows, revenue = R(spend) * (1 + noise * z).

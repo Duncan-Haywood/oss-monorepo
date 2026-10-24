@@ -1,0 +1,28 @@
+run records (dated): 1589, 2026-10-01 to 2026-10-20
+runs listing >=1 friction entry: 995 (63%, Wilson 60%-65%)
+friction entries: 1232 over 159 files
+entries naming a Markdown document (text written for agents): 939 (76%)
+
+keyword themes (swe-friction rules, first match wins):
+  other                  552 44.8%
+  missing-tooling        231 18.8%
+  stale-or-wrong         111  9.0%
+  shallow-clone           92  7.5%
+  unclear-or-missing      92  7.5%
+  too-long                43  3.5%
+  duplicate-check         37  3.0%
+  timeout                 37  3.0%
+  no-good-candidate       20  1.6%
+  red-on-clean-main       17  1.4%
+
+hand-coded sample: 60 entries, seed 20261020, one coder
+  stale            5    8%  (Wilson 4%-18%)  text was true once, not now (counts, status, 'still open', renamed paths)
+  case-missing    15   25%  (Wilson 16%-37%)  text is silent on the situation the reader was in (what to do when X fails, 403, conflict)
+  contradiction    3    5%  (Wilson 2%-14%)  two instructions, or an instruction and a tool, disagree
+  wrong            6   10%  (Wilson 5%-20%)  text or tool output was wrong when written, or misleads
+  cost            16   27%  (Wilson 17%-39%)  following it costs too much: slow, timeout, too long to read, laborious manual steps
+  environment      8   13%  (Wilson 7%-24%)  the reader's machine differs from the writer's (missing package, shallow clone, no network)
+  ranking          4    7%  (Wilson 3%-16%)  a tool's recommendation did not fit the brief or the reader's judgement
+  none             3    5%  (Wilson 2%-14%)  no friction, or praise
+
+sample entries the keyword rules left as 'other': 26 of 60; hand codes for them: {'case-missing': 8, 'wrong': 5, 'cost': 5, 'none': 3, 'contradiction': 2, 'ranking': 2, 'stale': 1}

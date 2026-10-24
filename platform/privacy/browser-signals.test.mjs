@@ -4,7 +4,7 @@
 // module obeying them is not falsely accused.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -170,6 +170,18 @@ test("discovery outside the repository keeps everything, including a dist", () =
     mkdirSync(join(root, "dist"), { recursive: true });
     writeFileSync(join(root, "dist", "usage.mjs"), HONOURING);
     assert.deepEqual(findUsageModules(root), [join(root, "dist", "usage.mjs")]);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("discovery skips an entry that vanishes mid-walk instead of crashing", () => {
+  // Test files run in parallel, and the probe above makes and removes a
+  // scratch venture under ventures/ while other files walk it. A dangling
+  // symlink is the same readdir-then-ENOENT race, made deterministic.
+  const root = mkdtempSync(join(tmpdir(), "discovery-vanish-"));
+  try {
+    writeFileSync(join(root, "usage.mjs"), HONOURING);
+    symlinkSync(join(root, "gone"), join(root, "dangling"));
+    assert.deepEqual(findUsageModules(root), [join(root, "usage.mjs")]);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

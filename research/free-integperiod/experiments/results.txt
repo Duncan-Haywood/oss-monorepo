@@ -1,0 +1,62 @@
+Pendulum L=1 m, g=9.81; run length 60 s. period err = (sim - exact)/exact; drift = (E_end - E_0)/E_0
+
+1. exact period vs small-angle 2*pi/w (large-angle error the twin ignores if linearised)
+  theta0= 10 deg  exact T=2.009893 s  small-angle error -0.190%
+  theta0= 30 deg  exact T=2.040990 s  small-angle error -1.711%
+  theta0= 60 deg  exact T=2.152875 s  small-angle error -6.819%
+  theta0= 90 deg  exact T=2.367842 s  small-angle error -15.279%
+  theta0=120 deg  exact T=2.754090 s  small-angle error -27.160%
+  theta0=150 deg  exact T=3.535098 s  small-angle error -43.253%
+
+2. timestep sweep at theta0=90 deg (columns: dt, then period err %, energy drift %)
+  dt(s)                     euler                    semi                  verlet                     rk4
+  0.016667   +23.1947      +495.4     +0.0000      +2.316     -0.0078    -0.02221     -0.0000  -6.041e-05
+  0.005000   +29.2093      +159.1     +0.0000     +0.6846     -0.0007   -0.002096     +0.0000  -1.603e-07
+  0.004167   +24.4908      +136.9     +0.0000     +0.5702     -0.0005   -0.001449     +0.0000  -6.603e-08
+  0.002000   +13.9897      +80.93     +0.0000     +0.2728     -0.0001  -0.0003364     +0.0000  -1.938e-09
+  0.001000    +5.2987      +41.48     -0.0000     +0.1362     -0.0000  -8.413e-05     +0.0000  -7.473e-11
+  0.000500    +2.4393      +20.35     -0.0000    +0.06808     -0.0000  -2.103e-05     +0.0000  -5.505e-12
+
+3. amplitude sweep at dt=0.002 s (MuJoCo default) and dt=1/240 s (PyBullet default)
+  dt=0.002000
+  theta0                    euler                    semi                  verlet                     rk4
+    10deg     +0.1704      +221.1     -0.0002     +0.3016     -0.0002  -0.0006227     +0.0000  -2.494e-09
+    30deg     +1.4872      +196.3     -0.0001     +0.2933     -0.0002  -0.0003129     +0.0000  -2.352e-09
+    60deg     +5.9616      +136.9     -0.0001     +0.2935     -0.0001  -0.0003448     +0.0000  -2.077e-09
+    90deg    +13.9897      +80.93     +0.0000     +0.2728     -0.0001  -0.0003364     +0.0000  -1.938e-09
+   120deg    +22.4816      +41.08     +0.0001     +0.1744     -0.0001  -0.0005686     +0.0000  -1.273e-09
+   150deg    +13.4086       +27.3     +0.0001    +0.01339     -0.0000  +5.294e-06     -0.0000  -1.057e-09
+   170deg        +nan      +25.61     +0.0002     +0.1036     +0.0000  -0.0005931     -0.0000  -3.607e-10
+  dt=0.004167
+  theta0                    euler                    semi                  verlet                     rk4
+    10deg     +0.6203       +1005     -0.0007     +0.6316     -0.0007   -0.002698     +0.0000  -9.775e-08
+    30deg     +5.1493      +695.5     -0.0006     +0.6121     -0.0007   -0.001354     +0.0000  -9.055e-08
+    60deg    +19.0567      +297.8     -0.0004     +0.6131     -0.0006   -0.001493     +0.0000  -7.532e-08
+    90deg    +24.4807      +136.9     -0.0000     +0.5699     -0.0005   -0.001457     +0.0000  -6.597e-08
+   120deg    +21.3512      +80.56     +0.0004     +0.3653     -0.0003   -0.002466     -0.0000  -5.038e-08
+   150deg    +10.2887      +59.18     +0.0006    +0.02795     -0.0001  +2.296e-05     -0.0000  -4.138e-08
+   170deg        +nan      +55.92     +0.0007     +0.2174     +0.0002   -0.002575     -0.0000  -2.212e-08
+
+4. convergence order: slope of log|period err| vs log dt at theta0=90 deg, dt 0.004 -> 0.001
+  euler   errors 4.976e-01 3.313e-01 1.255e-01  order 0.59, 1.40
+  semi    errors 1.040e-10 2.233e-12 7.851e-13  order 5.54, 1.51
+  verlet  errors 1.061e-05 2.654e-06 6.634e-07  order 2.00, 2.00
+  rk4     errors 1.042e-10 1.043e-11 7.843e-13  order 3.32, 3.73
+
+5. does the start convention matter? theta0=90 deg, 600 s, period err in parts per million
+  dt(s)     method  from rest at theta0   from bottom, exact energy
+  0.004     semi               +0.0001                  +2.9889
+  0.004     verlet             -4.4827                  +2.9888
+  0.002     semi               +0.0000                  +0.7471
+  0.002     verlet             -1.1207                  +0.7471
+  0.001     semi               +0.0000                  +0.1868
+  0.001     verlet             -0.2802                  +0.1868
+
+6. absolute period error in ppm, theta0=90 deg, started at the bottom with exact energy, 120 s
+   dt(s)      euler       semi     verlet        rk4
+  0.0160  2.785e+05      47.91      47.91     0.0875
+  0.0080    2.1e+05      11.96      11.96   0.002086
+  0.0040  2.275e+05      2.989      2.989  2.453e-05
+  0.0020  2.419e+05     0.7471     0.7471  1.775e-06
+  0.0010  1.399e+05     0.1868     0.1868  2.091e-07
+  0.0005  5.444e+04    0.04669    0.04669  1.407e-08

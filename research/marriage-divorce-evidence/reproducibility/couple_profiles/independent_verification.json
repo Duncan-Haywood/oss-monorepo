@@ -1,0 +1,44 @@
+{
+  "model_rank": 30,
+  "parameters": 30,
+  "normalized_score": 3.114918931687916e-18,
+  "independently_reconstructed_profiles": [
+    {
+      "profile": "P1",
+      "independent_rate_per_1000": 10.106812308896926,
+      "ci_low": 7.6666960160401825,
+      "ci_high": 13.323556175118737
+    },
+    {
+      "profile": "P2",
+      "independent_rate_per_1000": 7.334014572560227,
+      "ci_low": 5.6209683630029,
+      "ci_high": 9.569128711799157
+    },
+    {
+      "profile": "P3",
+      "independent_rate_per_1000": 9.434116621634447,
+      "ci_low": 7.069203026826825,
+      "ci_high": 12.590182527343565
+    },
+    {
+      "profile": "P4",
+      "independent_rate_per_1000": 9.091376809356735,
+      "ci_low": 7.043952310170809,
+      "ci_high": 11.733914235956147
+    },
+    {
+      "profile": "P5",
+      "independent_rate_per_1000": 6.286043002402309,
+      "ci_low": 4.6578119482679785,
+      "ci_high": 8.483454692228303
+    },
+    {
+      "profile": "P6",
+      "independent_rate_per_1000": 4.561470973669484,
+      "ci_low": 3.4026313514247213,
+      "ci_high": 6.114978466567378
+    }
+  ],
+  "checks": "Passed design reconstruction from saved term labels, weighted score/fitted-count identities, standardized profile rates and log-delta CIs, direct difference/ratio arithmetic, and sparse-profile suppression."
+}

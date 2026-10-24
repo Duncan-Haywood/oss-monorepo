@@ -5,7 +5,7 @@
 
 `pages_state.py`'s `indexing` row measured that sitemap auto-discovery cannot
 happen for this site: it is served from a project-Pages *subpath*
-(`https://duncan-haywood.github.io/monorepo-projects/`), while crawlers fetch
+(`https://duncan-haywood.github.io/oss-monorepo/`), while crawlers fetch
 `robots.txt` — and the `Sitemap:` line inside it — from the *host* root, which
 belongs to the owner's separate user-level Pages site. The owner-only fixes
 (submit the sitemap in Search Console, or set a custom domain) are queued.
@@ -120,7 +120,10 @@ from ci_starvation import (  # noqa: E402  (path shim must precede the import)
     resolve_repo,
 )
 
-PUBLISH_WORKFLOW = "publish-pages-branch.yml"
+# `publish-pages-branch.yml` until 2026-10-20, when the Pages source moved to
+# GitHub Actions and that workflow was retired; the deploy job of
+# `portfolio-pages.yml` announces now.
+PUBLISH_WORKFLOW = "portfolio-pages.yml"
 SERVING_BRANCH = "gh-pages"
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
@@ -143,12 +146,17 @@ RUNS_PATH = (
 JOBS_PATH = f"repos/{REPO_PLACEHOLDER}/actions/runs/{{run_id}}/jobs?per_page=100"
 BRANCH_PATH = f"repos/{REPO_PLACEHOLDER}/branches/{SERVING_BRANCH}"
 
-# Matched case-insensitively against a step's name. Both spellings are listed
+# Matched case-insensitively against a step's name. Every spelling is listed
 # because the step was renamed when it moved: `Notify IndexNow` was the
-# original (#4366), `Announce the live snapshot to IndexNow` is the current
-# one. A historical run carries the name it ran under, so a reading that knew
+# original (#4366), then `Announce the live snapshot to IndexNow`, and
+# `Announce the deployed site to IndexNow` in `portfolio-pages.yml` is the
+# current one. A historical run carries the name it ran under, so a reading that knew
 # only today's name would report a genuine past submission as `never`.
-ANNOUNCE_STEP_NAMES = ("notify indexnow", "announce the live snapshot to indexnow")
+ANNOUNCE_STEP_NAMES = (
+    "notify indexnow",
+    "announce the live snapshot to indexnow",
+    "announce the deployed site to indexnow",
+)
 
 # How far back to look. A submission that happened but has aged out of this
 # window reads as `never`, which is the safe direction: it would prompt a

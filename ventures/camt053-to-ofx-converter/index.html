@@ -59,6 +59,7 @@
     <p>Paste or drop a <strong>camt.053 (XML)</strong> or <strong>MT940</strong> statement. It is <strong>balance-checked first</strong> (opening balance plus entries must equal the closing balance), then written as <strong>OFX/QBO for QuickBooks and Quicken</strong>, <strong>QIF</strong>, or <strong>Xero's statement CSV</strong> — one file per account, each entry with a <strong>stable transaction ID</strong> so importing the same statement twice does not double-post.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. Account numbers are masked to their last four characters unless you tick the box. Independent of SWIFT, ISO and every bank. The layouts are read from memory of the public ISO 20022, SWIFT and import-help documents; no real bank file, bank validator or live QuickBooks, Quicken or Xero import was available when this was built.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your statement file</h2>
@@ -133,7 +134,8 @@
     <p>Whether the file agrees with your bank's online statement or your books, bank-specific variants and private codes, camt files with several currencies on one statement, and signatures or envelopes. A clean result means the file is consistent, nothing more.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, accounting, compliance, or financial advice, and it does not replace a qualified professional or your bank's own reporting. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including against your bank's statement before you book or reconcile anything, and a clean result is not a promise that your software will import the file.</p>
     <p><strong>Not affiliated with SWIFT, ISO or any bank.</strong> SWIFT and MT940 are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to SWIFT, the International Organization for Standardization, the European Payments Council or any bank or software vendor. The layouts and rules are read from memory of the public formats and may not match every bank's variant.</p>
     <p><strong>Financial data.</strong> Bank statements contain account numbers, balances and the names of the people or companies you deal with. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Account numbers are masked to their last four characters in the report and the downloads unless you choose otherwise. Whether you may open bank data in a browser tool is a question for your own security policies.</p>

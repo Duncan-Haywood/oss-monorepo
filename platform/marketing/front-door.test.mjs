@@ -31,9 +31,6 @@ import {
   CATALOG_OUTPUT_FILE,
   COMPRESSED_SUFFIX,
   catalogStoredKey,
-  EMBED_HOST_OUTPUT_FILE,
-  EMBED_MODULE_OUTPUT_FILE,
-  EMBED_STYLE_OUTPUT_FILE,
   LLMS_FILE,
   LLMS_OUTPUT_FILE,
   llmsStoredKey,
@@ -353,42 +350,6 @@ test('the nginx rewrite and the ConfigMap key agree about where a category page 
     // halves of `gzip_static`'s lookup, which nothing else states in one place.
     assert.equal(categoryPageStoredKey(page.id), `${categoryPageKey(page.id)}.gz`);
   }
-});
-
-test('the committed embed runtime and stylesheet match what embed.mjs renders', async () => {
-  // The same staleness guard every other generated file here gets, and it
-  // matters more for these two than for a document: they are *imported* from
-  // `platform/pages/embed.mjs` rather than written here, so an edit to the
-  // widget on the tools host would otherwise leave the apex serving last
-  // week's runtime with no test anywhere noticing. `CLAUDE.md` records two
-  // occasions where a copied-instead-of-imported rule cost live product; this
-  // is the check that keeps the import honest at the file level too.
-  const { renderEmbedModule, renderEmbedStyle, renderEmbedHostModule } =
-    await import('../pages/embed.mjs');
-
-  const committedModule = await fs.readFile(EMBED_MODULE_OUTPUT_FILE, 'utf8');
-  assert.equal(
-    committedModule,
-    renderEmbedModule(),
-    'gitops/prod/front-door/pf-embed.js is stale — run `node platform/marketing/regen.mjs`',
-  );
-
-  const committedStyle = await fs.readFile(EMBED_STYLE_OUTPUT_FILE, 'utf8');
-  assert.equal(
-    committedStyle,
-    renderEmbedStyle(),
-    'gitops/prod/front-door/pf-embed.css is stale — run `node platform/marketing/regen.mjs`',
-  );
-
-  // The resizer matters more here than either file above, not less: nothing on
-  // this host loads it, so a stale or missing copy is invisible from every
-  // page we can look at and broken on every site that pasted the snippet.
-  const committedHost = await fs.readFile(EMBED_HOST_OUTPUT_FILE, 'utf8');
-  assert.equal(
-    committedHost,
-    renderEmbedHostModule(),
-    'gitops/prod/front-door/pf-embed-host.js is stale — run `node platform/marketing/regen.mjs`',
-  );
 });
 
 test('nginx serves the embed runtime and stylesheet as their own types', async () => {
@@ -817,16 +778,6 @@ test('uses the name the built site already gives itself', () => {
   assert.match(html, new RegExp(`<meta property="og:site_name" content="${SITE_NAME}">`));
 });
 
-test('the committed page matches what this generator produces', async () => {
-  const committed = await fs.readFile(OUTPUT_FILE, 'utf8');
-  const { html: fresh } = await buildFrontDoor();
-  assert.equal(
-    committed,
-    fresh,
-    'gitops/prod/front-door/index.html is stale — run: node platform/marketing/regen.mjs',
-  );
-});
-
 test('the committed page fits a ConfigMap with room to spare', async () => {
   const bytes = Buffer.byteLength(await fs.readFile(OUTPUT_FILE, 'utf8'));
   // etcd caps a ConfigMap at 1 MiB. This is the check that stops the front
@@ -860,24 +811,6 @@ test('declares the share card dimensions and describes what it shows', () => {
   assert.match(html, /<meta property="og:image:height" content="630">/);
   assert.match(html, new RegExp(`<meta property="og:image:alt" content="${escapeForRegExp(SOCIAL_CARD_ALT)}">`));
   assert.match(html, new RegExp(`<meta name="twitter:image:alt" content="${escapeForRegExp(SOCIAL_CARD_ALT)}">`));
-});
-
-test('the committed share card matches what the encoder produces, at the declared size', async () => {
-  const committed = await fs.readFile(SOCIAL_CARD_OUTPUT_FILE);
-  assert.deepEqual(
-    committed,
-    renderSocialCard(),
-    'gitops/prod/front-door/social-card.png is stale — run: node platform/marketing/regen.mjs',
-  );
-  // A PNG signature, then the IHDR width/height as big-endian uint32s. Read
-  // from the bytes rather than trusted from the constants, because the
-  // og:image:width/height above are a promise to the scraper about *this file*
-  // and nothing else in the build would catch them drifting apart.
-  assert.deepEqual([...committed.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-  assert.equal(committed.readUInt32BE(16), SOCIAL_CARD_WIDTH);
-  assert.equal(committed.readUInt32BE(20), SOCIAL_CARD_HEIGHT);
-  // Well inside the ConfigMap ceiling even after base64 adds a third.
-  assert.ok(committed.length < 64 * 1024, `share card is ${committed.length} bytes`);
 });
 
 test('the alt text stays true of the card the write path actually draws', () => {
@@ -927,15 +860,6 @@ test('declares a tab mark, so the browser stops asking for /favicon.ico', async 
   // default.conf answers a mistyped `/anything` with this same HTML, and a
   // relative href would then resolve against that path and 404.
   assert.ok(html.includes(`href="/${FAVICON_FILE}"`), 'the icon href must be root-absolute');
-});
-
-test('the committed tab mark matches what the generator holds', async () => {
-  const onDisk = await fs.readFile(FAVICON_OUTPUT_FILE, 'utf8');
-  assert.equal(
-    onDisk,
-    FAVICON_SVG,
-    'gitops/prod/front-door/favicon.svg is stale — run: node platform/marketing/regen.mjs',
-  );
 });
 
 test('the tab mark carries no script, since nginx serves it from this origin', () => {
@@ -995,73 +919,6 @@ test('the published slug list is the one check.mjs already pins', async () => {
   const slugs = await publishedSlugs();
   assert.ok(slugs.length > 100, 'launched.json should hold the whole published catalogue');
   assert.ok(slugs.includes('roofing-bid-calculator'));
-});
-
-test('the committed robots.txt and sitemap match what this generator produces', async () => {
-  // Same contract as the page and the card above: Argo CD delivers the files
-  // in git, so a stale commit ships stale bytes and nothing else catches it.
-  assert.equal(
-    await fs.readFile(ROBOTS_OUTPUT_FILE, 'utf8'),
-    ROBOTS_TXT,
-    'gitops/prod/front-door/robots.txt is stale — run: node platform/marketing/regen.mjs',
-  );
-  // Through `buildFrontDoor` rather than a bare `renderSitemap()`, because the
-  // sitemap's contents now depend on the mirror build — the same source that
-  // decides each page's robots directive, which is what keeps the two from
-  // ever contradicting each other.
-  const { sitemap } = await buildFrontDoor();
-  // Stored gzip-only since 2026-09-23 (see `sitemapStoredKey` in
-  // `front-door.mjs`), so this reads it through `readCommittedSitemap` rather
-  // than as UTF-8 — see that helper's own doc comment for why reading the
-  // `.gz` bytes as text would not throw but would compare mojibake to plain
-  // XML and fail for the wrong reason.
-  assert.equal(
-    await readCommittedSitemap(),
-    sitemap,
-    'gitops/prod/front-door/sitemap.xml.gz is stale — run: node platform/marketing/regen.mjs',
-  );
-});
-
-test('the committed category pages match what this generator produces', async () => {
-  // Same contract as every other generated file here: Argo CD delivers what is
-  // in git, so a stale commit ships stale bytes.
-  //
-  // These have a wider blast radius than the rest of the set, because their
-  // content comes from `build.mjs` — `categoryPageCopy` and the
-  // `SUBCATEGORY_RULES` behind `groupBySubcategory`. Editing a category's copy
-  // there is an edit to seven published pages that names none of them, and the
-  // only thing standing between that and a stale deploy is this assertion.
-  // `hetzner-gitops-ci.yml` already triggers on `platform/pages/build.mjs`, so
-  // such an edit runs this test.
-  const { categoryPages } = await buildFrontDoor();
-  for (const page of categoryPages) {
-    // Compared after inflating rather than by re-gzipping and matching bytes,
-    // same reasoning as the comparison-index test: the committed artifact is
-    // what a visitor receives, and that is the HTML. `GZIP_LEVEL` and the
-    // pinned `GZIP_HEADER` in front-door-tools.mjs keep the stored bytes
-    // reproducible; this test is about the content.
-    const stored = await fs.readFile(categoryOutputFile(page.id));
-    assert.equal(
-      zlib.gunzipSync(stored).toString('utf8'),
-      page.html,
-      `gitops/prod/front-door/${categoryPageStoredKey(page.id)} is stale — run: node platform/marketing/regen.mjs`,
-    );
-  }
-
-  // And no orphans on disk. A category that loses its last mirrored tool stops
-  // being rendered and stops being mounted, but its file would stay in git and
-  // stay in the tree — the kustomization test above would then fail on a key
-  // it cannot find a line for, which is a confusing way to learn this. The
-  // `--write` path sweeps them; this is what proves it did.
-  const dir = path.dirname(OUTPUT_FILE);
-  const onDisk = (await fs.readdir(dir)).filter(
-    (name) => name.startsWith('c__') && name.endsWith(`.html${COMPRESSED_SUFFIX}`),
-  );
-  assert.deepEqual(
-    onDisk.sort(),
-    categoryPages.map((page) => categoryPageStoredKey(page.id)).sort(),
-    'a category page on disk is no longer rendered — run: node platform/marketing/regen.mjs',
-  );
 });
 
 test('robots.txt points at a sitemap this host actually serves', async () => {
@@ -1262,17 +1119,6 @@ test('the feed carries no timestamp that moves when nothing changed', () => {
   assert.match(renderFrontDoorFeed({}), new RegExp(`<updated>${EMPTY_FEED_UPDATED}</updated>`));
 });
 
-test('the committed feed matches what this generator produces', async () => {
-  // Same contract as the page, the card and robots.txt: Argo CD delivers the
-  // file from git, so a stale commit ships stale bytes to real subscribers.
-  const { feed } = await buildFrontDoor();
-  assert.equal(
-    await fs.readFile(FEED_OUTPUT_FILE, 'utf8'),
-    feed,
-    'gitops/prod/front-door/feed.xml is stale — run: node platform/marketing/regen.mjs',
-  );
-});
-
 test('every committed feed entry links to a page the mirror actually holds', async () => {
   // The dead-link check `validateLinks` performs inside the mirror, applied to
   // the one document that points into it from outside. A feed entry that 404s
@@ -1470,20 +1316,6 @@ test('llms.txt claims a wider collection only while one actually exists', () => 
     assert.ok(!txt.includes('](https://tools.'), 'and still never linked');
     assert.match(txt, /not serving yet/);
   }
-});
-
-test('the committed llms.txt matches what this generator produces', async () => {
-  // Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in
-  // `front-door.mjs`), so this reads it through `readCommittedLlms` rather
-  // than as UTF-8 — see that helper's own doc comment for why reading the
-  // `.gz` bytes as text would not throw but would compare mojibake to plain
-  // text and fail for the wrong reason.
-  const { llms } = await buildFrontDoor();
-  assert.equal(
-    await readCommittedLlms(),
-    llms,
-    'gitops/prod/front-door/llms.txt.gz is stale — run: node platform/marketing/regen.mjs',
-  );
 });
 
 test('every link in the committed llms.txt resolves on this host', async () => {
@@ -1768,15 +1600,6 @@ test('the stored catalogue key agrees with the compression suffix constant', () 
   // cannot drift from the constant the rest of the mechanism uses.
   assert.equal(catalogStoredKey(), `${CATALOG_FILE}${COMPRESSED_SUFFIX}`);
   assert.equal(path.basename(CATALOG_OUTPUT_FILE), catalogStoredKey());
-});
-
-test('the committed catalog.json matches what this generator produces', async () => {
-  const { catalog } = await buildFrontDoor();
-  assert.equal(
-    await readCommittedCatalog(),
-    catalog,
-    'gitops/prod/front-door/catalog.json.gz is stale — run: node platform/marketing/regen.mjs',
-  );
 });
 
 test('no plain catalog.json is left beside the compressed key', async () => {

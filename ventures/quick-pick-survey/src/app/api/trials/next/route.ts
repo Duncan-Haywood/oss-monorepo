@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { pairKey, selectNextPair, surveyConfidence } from "@/lib/pairing";
+import { pairKey, selectNextPair, selectNextPairHybrid, surveyConfidence } from "@/lib/pairing";
 import { loadRatedItems } from "@/lib/participantRatings";
 
 const RECENT_TRIALS_TO_AVOID = 10;
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   try {
     const participant = await prisma.participant.findUnique({
       where: { id: participantId },
-      select: { id: true, surveyId: true },
+      select: { id: true, surveyId: true, survey: { select: { pairSelector: true } } },
     });
     if (!participant) {
       return NextResponse.json({ error: "Participant not found" }, { status: 404 });
@@ -96,7 +96,12 @@ export async function POST(req: NextRequest) {
 
     const recentPairKeys = new Set(recentTrials.map((t) => pairKey(t.itemAId, t.itemBId)));
 
-    const [pickedA, pickedB] = selectNextPair({
+    // "staged": shipped selector for the first 120 answers, then the
+    // information score (docs/INFORMATION-GAIN-SELECTOR.md). The survey's own
+    // setting wins; unset follows PAIR_SELECTOR. Off by default.
+    const selector = participant.survey.pairSelector ?? process.env.PAIR_SELECTOR;
+    const choosePair = selector === "staged" ? selectNextPairHybrid : selectNextPair;
+    const [pickedA, pickedB] = choosePair({
       items: items.map((i) => ({ id: i.id, rating: i.rating, rd: i.rd, category: i.category, dimensions: i.dimensions })),
       timesShown,
       recentPairKeys,

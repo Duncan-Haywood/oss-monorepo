@@ -1,0 +1,55 @@
+{
+ "date": "2026-10-23",
+ "session": "https://claude.ai/code/session_01Hv3Xbx6tEBMKbvJCaFLUx6",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-23T20:27:16Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9889",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "pyenv.py pytest numpy scipy ... failed on a debian-owned 'packaging' and fell back to /usr/bin/python3.13, which already had pandapower; took a 120s timeout to learn that."
+  },
+  {
+   "file": "research/PROJECTS.md",
+   "issue": "pick_track redraws to track 17, which has 30 micro-variant projects; I switched to the least-populated track by hand (infra)."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/PROJECTS.md",
+   "why": "Ignored the pick_track draw (track 17, saturated with micro-variants) and took track 21 as a new question; DOIs not looked up since the resolver 403s."
+  }
+ ],
+ "writeups": [
+  "research/infra-dcopf/README.md"
+ ],
+ "goal": null,
+ "notes": "Run locally: pytest 6 passed, build.py ok, check_md_links ok. cite_check blocked by proxy 403; no docs/posts write-up this run.",
+ "corrections": [],
+ "redteam": null
+}

@@ -5,7 +5,7 @@ collects for an hour of labor, where the rest of its posted rate went, and what
 the door rate would have to be to fix it. Nothing is uploaded; the arithmetic
 runs on the visitor's own device.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/auto-repair-effective-labor-rate/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/auto-repair-effective-labor-rate/
 
 ```
 cd ventures/auto-repair-effective-labor-rate && node --test
@@ -14,6 +14,8 @@ cd ventures/auto-repair-effective-labor-rate && node --test
 Open `index.html` in a browser to use it — there is no build step.
 
 **Start from your repair orders.** Paste the month's labor lines (CSV, or cells copied from a spreadsheet) with columns for pay type, hours billed and labor sales; `ro-import.mjs` totals them into the customer-pay, warranty and internal boxes, and shows each technician's rate over sold hours. Lines it cannot classify are listed and left out, never guessed. Nothing is uploaded.
+
+**From a terminal.** `node cli.mjs ros.csv --posted 165 --overhead 42000 --parts-gp 18000 --techs 4 --tech-pay 21000` runs the same import and arithmetic on a repair-order CSV (`--json` for scripts, `--example` for a sample file, `-` for stdin). No dependencies, no network.
 
 ## Why it exists
 

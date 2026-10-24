@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01WP8PWUDs91gpZrgd394FeL",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T13:50:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": 9184,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "Render instructions say pip install kokoro-onnx soundfile, but in this container `python3` and `pip` resolve to different interpreters, so the install was invisible to render_audio.py until run via /usr/local/bin/python3 -m pip."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports agent doc or docs/posts post written; the creative deliverable was a full episode and time went to rendering."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Creative track, Saints by Candlelight episode 6 (columba-and-the-beast-in-the-river-ness), 5560 words, ~32 min audio (9.7 MB). Audio dir was ~109 MB, under the 400 MB limit. node --test 12/12 pass. Used the project's own Kokoro render (python3.13 at /usr/local/bin; /usr/bin/python3 is a different 3.11-vs-3.13 split, pip went to the wrong one at first). Writeups: none this run (episode itself is the deliverable); no blog post written.",
+  "corrections": [],
+  "redteam": null
+}

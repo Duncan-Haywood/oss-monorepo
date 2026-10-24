@@ -20,7 +20,7 @@ This builder is the missing half. It lays out
 and it is the *single source of truth* for that layout. Ventures currently
 disagree about where they will live -- most sitemaps say
 `https://example.invalid/<slug>/`, four say
-`https://duncan-haywood.github.io/monorepo-projects/ventures/<slug>/` -- because
+`https://duncan-haywood.github.io/oss-monorepo/ventures/<slug>/` -- because
 until now nothing existed to settle it. Rather than hand-editing 30 sitemaps
 (which the next session would guess at again), the build rewrites every
 `<loc>` and `Sitemap:` line to the base URL it actually deploys to.
@@ -48,7 +48,7 @@ DEFAULT_OUT = REPO_ROOT / "_site"
 # The project-site URL for this repo. Overridable so moving to a custom domain
 # (registrar A/CNAME straight to GitHub -- see portfolio/hosting/README.md) is a
 # workflow input, not a code change.
-DEFAULT_BASE_URL = "https://duncan-haywood.github.io/monorepo-projects"
+DEFAULT_BASE_URL = "https://duncan-haywood.github.io/oss-monorepo"
 
 # Static web assets a browser product can ask for. Everything else in a venture
 # directory (tests, READMEs, VENTURE.yaml, fixtures) stays out of the artifact.
@@ -104,7 +104,7 @@ EXCLUDED_DIRS = frozenset(
 # before a deploy existed; all of them get rewritten to the real base.
 PLACEHOLDER_URL_RE = re.compile(
     r"https?://(?:example\.invalid|duncan-haywood\.github\.io)"
-    r"(?:/monorepo-projects)?(?:/ventures)?",
+    r"(?:/oss-monorepo|/monorepo-projects)?(?:/ventures)?",
 )
 
 
@@ -583,7 +583,8 @@ def render_hub(products: list[Product], base_url: str) -> str:
 
     <p>
       Free to use and free to keep. If one of these saved you money, you can
-      <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a> —
+      <a href="https://github.com/sponsors/Duncan-Haywood">sponsor on GitHub</a> or
+      <a href="https://buymeacoffee.com/duncanhaywood">buy me a coffee</a> —
       entirely optional, and nothing here is gated behind it.
     </p>
   </footer>

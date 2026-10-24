@@ -30,7 +30,7 @@ kill_criteria:
   - Fewer than three lawyers or practice managers complete a calculation and read a result within 90 days.
   - Firms report their billing system will not produce recorded, billed and collected totals per timekeeper for one period, so the table cannot be filled from a report they already run.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/law-firm-realization-rate-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/law-firm-realization-rate-calculator/
   analytics: null
 
 # Screened 2026-10-05 in a new-venture-first session. No venture, ledger entry or screened-out row covers law-firm

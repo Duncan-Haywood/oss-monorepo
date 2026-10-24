@@ -139,3 +139,8 @@ test("findings CSV and samples", () => {
   assert.ok(validate(sampleBrokenFile()).summary.errors >= 6);
   assert.equal(parseCsv('a,"b,c"\n').rows[0].cells[1], "b,c");
 });
+
+test("flags targets on staging, preview or local hosts, not the live site", () => {
+  const r = validate(csv(["/a", "https://staging.example.com/a"], ["/b", "http://localhost:3000/b"], ["/c", "https://shop.myshopify.com/c"], ["/d", "https://www.example.com/d"], ["/e", "https://partner.org/e"]), { site: "example.com" });
+  assert.deepEqual(r.findings.filter((f) => f.code === "staging-target").map((f) => f.line), [2, 3, 4]);
+});

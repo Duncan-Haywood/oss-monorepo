@@ -1,8 +1,8 @@
 # When a spoon-feeding arm meets a moving mouth, what sets the force on the lips: the sensor, the approach speed or a force cap?
 
-Sixth milestone (`osrobot-assist`) of track 9, open-source purpose-built robots, in the direction of the CAIRO Lab interest in human-robot collaboration and assistive robotics. Produced with AI assistance (Claude). Pure Python standard library. **Every constant (tip mass, loop gains, lip stiffness, mouth opening, sway shape, comfort limit) is an assumed round number marked ASSUMED in `model.py`, not a measurement of a person or a product, and no robot was built or tested with anyone.** All numbers below are from `experiments/results.txt`. Simulation only; **a stylised, preliminary study, and the Assistive Gym / MuJoCo human model the milestone mentions was not used** (neither is installed here; this is a planar point-mass stand-in).
+Sixth milestone (`osrobot-assist`) of track 9, open-source purpose-built robots, in the direction of the CAIRO Lab interest in human-robot collaboration and assistive robotics. Produced with AI assistance (Claude). Pure Python standard library. **Except the lip stiffness sweep (sweep 5 and 6, sourced from IFA Report 2/2022), every constant (tip mass, loop gains, default lip stiffness, mouth opening, sway shape, comfort limit) is an assumed round number marked ASSUMED in `model.py`, not a measurement of a person or a product, and no robot was built or tested with anyone.** All numbers below are from `experiments/results.txt`. Simulation only; **a stylised, preliminary study, and the Assistive Gym / MuJoCo human model the milestone mentions was not used** (neither is installed here; this is a planar point-mass stand-in).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-assist/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-assist/
 
 ![Peak lip force and contact share against approach speed and sensing delay](experiments/force_sweeps.svg)
 
@@ -11,13 +11,14 @@ Sixth milestone (`osrobot-assist`) of track 9, open-source purpose-built robots,
 - **A camera mostly cuts how often the lips are touched, not how hard.** At 0.05 m/s and 30 mm sway the camera design touches the lips in 0.40 of trials against 0.72 for the open-loop arm; peak force is the same 1.0 N. At 50 mm: 0.56 against 0.83.
 - **Latency is what costs the camera its advantage.** At 0.10 m/s and 30 mm sway the touch share rises from 0.07 with no delay to 0.30 (0.05 s), 0.47 (0.10 s), 0.61 (0.20 s) and 0.71 (0.40 s). Sensing noise from 0 to 12 mm changes the touch share little (0.49, 0.47, 0.38, 0.46) but lengthens the feeding time from 1.68 to 2.93 s, because the arm waits to line up.
 - **A force cap (1 N or 0.5 N) at 0.20 m/s lowers the worst peak from 4.0 to 2.7 and 2.4 N and the mean peak at 50 mm sway from 2.26 to 1.52 and 1.46 N, but it did not raise the safe share** (0.42 → 0.44 and 0.41 at 50 mm; 0.71 → 0.63 and 0.60 at 30 mm), because the impact at the lip plane (a Hunt–Crossley contact, assumed) still exceeds 2 N in many fast approaches. It costs 0.1 to 0.3 s. A cap does not substitute for a slow approach.
+- **Sourced lip stiffness overturns the "safe at 0.10 m/s" reading.** The 800 N/m lip wall was an assumed round number. The IFA Report 2/2022 (Behrens and Zimmermann, DGUV, Table 2) measured two-slope tissue stiffness at head sites in volunteers: masseter (cheek) 4.3 then 16.0 N/mm, temple 10.6 then 35.6, forehead 90.1 then 232.6. There is no lip row, so these are the nearest sites, and they are 5 to 110 times stiffer than the old assumption. Re-running the camera design at 0.10 m/s and 30 mm sway (sweep 5), the share fed with peak force at most 2 N falls from 1.00 to 0.53 at the masseter value and 0.52 at the forehead value; it equals one minus the touch share (0.48) because with a stiff wall every touch peaks above 2 N. The mean peak rises from 0.92 N to 1.42 (masseter c1), 2.48 (masseter c2) and 5.63 (forehead c1), the worst from 2.0 to 3.0, 5.2 and 11.8 N. The 1 N cap at 0.20 m/s (sweep 6) gives worst peaks of 5.4 to 23 N. So with plausibly sourced tissue stiffness the controller's stall push (1 N at 0.05 m/s, 2 N at 0.10) is no longer the whole story: the impact term, set by tissue stiffness and contact speed, dominates, and the earlier safe-speed and force-cap numbers should be read as conditional on very soft lips. The 2 N comfort limit is still assumed (the same report gives forces at which tissue stiffness changes, 13.8 N at the masseter, which are not pain or injury limits, and this project uses them as neither).
 - **Every design eventually feeds (fed = 1.00 everywhere)** because the model is patient: the tip waits against the lips or in front of them until the sway brings the mouth over it, within the 12 s limit. So the cost of a poor design shows up as time and force, never as a failed feed, which a real user would not tolerate silently.
 
 ## Reproduce
 ```bash
 cd research/osrobot-assist
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests, under a second
-PYTHONPATH=src python3 experiments/run.py                 # about 5 s; writes experiments/results.txt
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests, under a second
+PYTHONPATH=src python3 experiments/run.py                 # about 25 s; writes experiments/results.txt
 python3 experiments/figure.py                             # experiments/force_sweeps.svg, parsed from results.txt
 ```
 
@@ -33,11 +34,11 @@ The human-robot collaboration and assistive-robotics interests of the CAIRO Lab 
 ## Limitations
 - A planar point mass: no spoon geometry, tilt, food, head rotation, mouth opening timing, tongue, or the arm's own links and joint limits. Lateral edge contact after entry is not modelled, so "fed" is optimistic.
 - The user is passive and sways on a fixed schedule; real people anticipate, lean toward the spoon and react to contact. Comfort is a single assumed 2 N threshold, not a measured or standard value, and nothing here is a safety case. ISO 13482 (personal-care robots) and a risk assessment apply before any test with a person.
-- The peak-force result is nearly an identity of the chosen controller (stall push = `KP × LEAD × speed`), so the ranking of speeds would change with a different loop; the contact stiffness and damping were not swept.
+- The peak-force result is nearly an identity of the chosen controller (stall push = `KP × LEAD × speed`), so the ranking of speeds would change with a different loop; the contact stiffness is swept in sweeps 5 and 6 (the other findings above use the soft assumed value) and the damping was not.
 - No comparison with a general-purpose arm's cost or reach, so the "purpose-built" question is only partly addressed.
 
 ## Next steps
-Run the same sweeps in MuJoCo or Assistive Gym with a human model; sweep lip stiffness and the force-loop design; add anticipation by the user; compare a 2-DOF purpose-built arm with a 6-DOF arm on the same task, with bills of materials.
+Run the same sweeps in MuJoCo or Assistive Gym with a human model; sweep the force-loop design and the Hunt-Crossley damping; find lip-specific stiffness or pain-threshold data (the IFA table has no lip row and ISO/TS 15066 values were only seen second-hand); add anticipation by the user; compare a 2-DOF purpose-built arm with a 6-DOF arm on the same task, with bills of materials.
 
 ## Owner steps
 Building a feeding arm and testing it with people are owner steps (risk assessment, consent, relevant standards); no purchases or hardware were made or priced here.

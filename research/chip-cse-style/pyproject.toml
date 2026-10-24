@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chip-cse-style"
+version = "0.1.0"
+description = "Does the way a carry-select adder shares its a+b sum (written style) change what Yosys/ABC synthesises?"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

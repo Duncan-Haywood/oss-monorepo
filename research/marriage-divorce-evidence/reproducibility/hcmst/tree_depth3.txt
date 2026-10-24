@@ -1,0 +1,19 @@
+|--- cat__cohabiting_Yes <= 0.5000
+|   |--- num__relationship_years <= 2.5417
+|   |   |--- value: [0.4043]
+|   |--- num__relationship_years >  2.5417
+|   |   |--- num__edu_years_mean <= 13.2500
+|   |   |   |--- value: [0.2623]
+|   |   |--- num__edu_years_mean >  13.2500
+|   |   |   |--- value: [0.1691]
+|--- cat__cohabiting_Yes >  0.5000
+|   |--- cat__married_Yes <= 0.5000
+|   |   |--- num__relationship_years <= 5.3333
+|   |   |   |--- value: [0.1812]
+|   |   |--- num__relationship_years >  5.3333
+|   |   |   |--- value: [0.0545]
+|   |--- cat__married_Yes >  0.5000
+|   |   |--- num__relationship_years <= 21.5000
+|   |   |   |--- value: [0.0295]
+|   |   |--- num__relationship_years >  21.5000
+|   |   |   |--- value: [0.0028]

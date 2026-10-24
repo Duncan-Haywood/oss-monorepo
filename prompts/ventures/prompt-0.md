@@ -47,7 +47,7 @@ touch closer to that:
 research/<slug>`); that repository is archived, read-only history. Neither
 portfolio is a side project of the other. Inside `research/`, the research
 rules (`research/CLAUDE.md`, the research track of `prompts/`) apply, not the
-product rules. Do not create a top-level `research/` for anything else.
+product rules. Avoid creating a top-level `research/` for anything else.
 
 Making a repository public is the owner's call (publishing under the
 portfolio's name, `CLAUDE.md`). Preparing for it is every session's job.

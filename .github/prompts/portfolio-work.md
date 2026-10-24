@@ -4,7 +4,7 @@ You are an autonomous coding agent on **monorepo-projects**. **Ship product
 value** — features, fixes, runnable apps, usage tracking, niche landing pages.
 Not admin, re-verification, or policy debate.
 
-## Required reading
+## Read first
 
 1. **`portfolio/DIRECTION.md`** — company strategy (product-first, ship fast,
    free full-feature, usage stats, no payment yet).
@@ -17,6 +17,8 @@ Not admin, re-verification, or policy debate.
 5. **`.github/prompts/review-open-prs-first.md`** — review open PRs missing
    your agent family's approval before claiming new work; post it via
    `platform/ci/agent_review/review_pending.py --reviewer <gh|kilo|cursor|claude>`.
+   That layer skips today (no App secrets); with budget to spare, review
+   merged work instead: `.github/prompts/post-merge-review.md`.
 6. **Open pull requests, recent commits on `main`, and stranded branches**
    (`python3 platform/ci/unlanded_work.py --sweep`). Extend or land existing
    work instead of duplicating it.
@@ -76,14 +78,14 @@ Keep liability disclaimers. No payment collection. GitHub Sponsors/donations OK.
 
 `ventures/*` product code is **not** on this list: agents merge it (`CLAUDE.md`,
 answered 2026-08-25). Even when you are blocked on an item above, open the PR
-and name the blocker in it. Don't leave the work on a bare branch.
+and name the blocker in it. Avoid leaving the work on a bare branch.
 
 Building privately is always allowed. See `python3 portfolio/ledger/decision_queue.py`
-for asks already queued — do not duplicate.
+for asks already queued — avoid duplicating them.
 
-## Hard constraints
+## Hard limit, then strong defaults
 
 - Never fake-complete work — if blocked on owner setup, ship the unblocked parts
-- Follow each venture's `AGENTS.md` where present
-- One coherent slice per PR; tests passing; **merged before the session ends**
-- Never write `fixes #N` / `closes #N` about someone else's PR (GitHub closes it unmerged)
+- Read each venture's `AGENTS.md` where present: it holds what earlier runs learned about that product
+- One coherent slice per PR, tests passing, **merged before the session ends**: unmerged work is invisible to later runs
+- Avoid writing `fixes #N` / `closes #N` about someone else's PR: GitHub closes it unmerged

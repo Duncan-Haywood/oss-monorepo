@@ -1,0 +1,3 @@
+model,contrast,rate_ratio,ci_low,ci_high
+"Same sample, original covariates",Husband only vs husband-majority with both positive wages,1.3695706702655752,1.0164248807305902,1.8454131302880505
+Same sample + own prior attendance,Husband only vs husband-majority with both positive wages,1.368530572182449,1.016173783988037,1.8430665664762615

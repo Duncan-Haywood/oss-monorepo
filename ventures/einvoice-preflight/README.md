@@ -6,7 +6,7 @@ local preflight — in the browser or in CI — which used to mean waiting for a
 network rejection. Open `index.html` and drop a JSON, UBL, CII, or Factur-X
 PDF file, or run the CLI below. The page never uploads the invoice.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/einvoice-preflight/
 
 This free local CLI also checks a small, transparent JSON, UBL XML,
 UN/CEFACT CII (XRechnung CII / Factur-X), or Factur-X / ZUGFeRD PDF invoice
@@ -16,7 +16,11 @@ searching for an e-invoice preflight check. CII is the XML an ERP actually
 emits when it is not UBL; a Factur-X PDF is only the envelope around that XML.
 When a PDF unwraps, the result names the standard attachment
 (`factur-x.xml`, `zugferd-invoice.xml`, or `xrechnung.xml`) and the syntax
-(CII or UBL). Custom attachment names are not echoed.
+(CII or UBL). Custom attachment names are not echoed. The attachment stream is
+found whatever order the generator wrote its dictionary in (`/Filter` or `/Length`
+before `/Type`) and with an indirect `/Length 5 0 R`; before 2026-10-22 those
+PDFs were refused as having no invoice XML (found by building such files; tested
+on hand-made PDFs, not yet on a real Mustang, Ghostscript or Acrobat export).
 
 **XRechnung profile (Germany).** Tick "Also apply the German XRechnung rules"
 on the page, or call the API with `POST /v1/validate?profile=xrechnung`, to add
@@ -52,6 +56,43 @@ capture the party legal identifier and the invoice and payment-terms notes.
 Off by default, JS only, and an offline observation, not a certified
 platform's validator or legal advice. Findings never echo the number.
 
+**Italy: FatturaPA (new).** An XML file whose root is `FatturaElettronica` (FPR12 business, FPA12 public body) is not EN 16931, so it is read by `fatturapa.mjs` with its own rules `IT-001`..`IT-018`: partita IVA (Luhn) and codice fiscale check digits, SdI destination code length, TipoDocumento, RegimeFiscale and Natura codes, 0% lines needing a Natura, line / VAT-summary / document-total arithmetic to the cent, payment IBAN, and element order inside the main blocks (`IT-018`, the sequence SdI's schema demands; written from memory of the XSD, unchecked against the file). Rule ids are this tool's own, not SdI error codes; the one-cent tolerance and the code lists are assumptions to check against the current Agenzia delle Entrate technical specification (the official site was not reachable when this was written). When a cassa, bollo, withholding, rounding or document discount is present the totals checks are skipped and named in `skipped`, never reported as a pass. Not checked: the full XSD, the signature, duplicate numbers, SdI acceptance. `examples/fatturapa-invoice.xml` is clean; `examples/fatturapa-invoice-with-defects.xml` is the same invoice with six planted faults that raise eight rules (IT-002, 003, 006, 011, 012, 014, 015, 016), pinned in `fatturapa.test.mjs`.
+
+**Official Schematron (optional).** Beside the built-in rules you can
+run the CEN EN 16931 validation artefacts (ConnectingEurope/eInvoicing-EN16931,
+EUPL-1.2) for UBL and CII invoices, in Saxon-JS, with each BR-xx failure mapped
+to a plain-language fix (`schematron-fixes.mjs`). When the invoice's
+specification identifier (BT-24) names XRechnung, the KoSIT XRechnung rules
+(BR-DE-xx, Apache-2.0, UBL and CII) run too; when it names Peppol BIS Billing 3,
+the OpenPEPPOL rules (PEPPOL-EN16931-Rxxx, MPL-2.0, UBL invoices and credit notes, and CII) run. Findings carry
+the official rule ID and `source` of `en16931-schematron`, `xrechnung-schematron`
+or `peppol-schematron`; the built-in `INV-nnn` rules still run. Neither the engine nor the compiled rules ship in this folder:
+
+```sh
+cd ventures/einvoice-preflight
+npm i --no-save saxon-js xslt3     # Saxon-JS is Saxonica's, free to use, not MIT
+node build-schematron.mjs          # clones the artefacts (needs git, curl, unzip), compiles ./schematron/*.sef.json (~2 min)
+node schematron-cli.mjs examples/ubl-invoice-with-defects.xml   # or --json
+# API: POST /v1/validate?schematron=1 (report.reports[].schematron is "ok" or "unavailable")
+```
+
+Checked on the bundled examples: the clean UBL, CII and Factur-X invoices pass
+the base rules, and the defects file raises BR-CO-15, BR-CO-16, BR-CO-17, BR-S-09
+and BR-61. The bundled UBL example names XRechnung 3.0 and the XRechnung rules
+find what a German public buyer would reject: no seller contact (BR-DE-2) and no
+buyer post code (BR-DE-9). The Docker image builds the rules in a first stage and
+ships them with Saxon-JS (`?schematron=1`). JSON drafts have no XML to check. On a self-hosted copy the web page has an "Also run the official EN 16931 Schematron" box: it posts the XML to the page's own `/v1/validate?schematron=1` (`official.mjs`) and lists the official findings beside the built-in ones; on a static host with no API it says the check did not run, never a pass.
+
+**In the page, on any static host (shipped).** `plain/` holds the same official rules as plain JSON, compiled from the Schematron source by `node build-plain-rules.mjs` (`plain-compile.mjs`; needs `npm i --no-save slimdom fontoxpath esbuild`), and fontoxpath (MIT, bundled) to run them (`plain-schematron.mjs`, loaded by `official-browser.mjs`). No Saxon, no server, no licence caveat: the web page runs the EN 16931, XRechnung and Peppol rules in your browser and downloads only the sets your file's BT-24 needs (about 0.3 MB for a base-only check). `plain/manifest.json` records the upstream commit of each set. It is checked against the Saxon route: every example in `examples/` and the official eInvoicing-EN16931 examples (40 files) give the same rule at the same location as the compiled SEFs, and 353 of 353 randomly edited copies (deleted elements, changed amounts and codes, blanked values) do too (`plain-schematron.test.mjs` repeats the example comparison when the SEFs are built). Where it differs from XSLT by design, it says so:
+- fontoxpath keeps numbers in doubles where the rules assume exact `xs:decimal`; a failed top-level equality is re-asked as "equal within 1e-7", which can only clear a finding (the XRechnung-O example's BR-O-08 is floating-point noise without it), never raise one;
+- IBAN mod-97 checks (DE-R-019/020 and XRechnung's `checkIBAN`) cast a 24-digit string to `xs:integer`; they run as a digit-by-digit remainder;
+- a rule that cannot be evaluated is returned in `skipped` and named on the page ("N rule(s) ... were NOT checked"), never counted as a pass. None skip on the examples.
+Both are `EUPL-1.2` (EN 16931), `Apache-2.0` (XRechnung) and `MPL-2.0` (Peppol) data; the licences and commits are in `plain/manifest.json`.
+
+**No server needed (in-browser).** `node build-schematron.mjs && node build-browser.mjs` writes `./browser/` (Saxon-JS's browser runtime fetched from saxonica.com, the compiled rules, a manifest). Serve it beside `index.html` on any static host and the same box runs the official rules in the visitor's browser (`official-browser.mjs`): the invoice never leaves the page, and the note says so. Checked in headless Chromium on `ubl-invoice-with-defects.xml`: BR-CO-15, BR-61, BR-CO-16, BR-S-09 and the XRechnung BR-DE-2, zero POST requests. The folder is git-ignored and not on the owner's Pages copy on purpose: Saxon-JS's licence does not allow copying it to a site whose main purpose is to serve it to third parties, so each deployer builds their own (`official-browser.test.mjs` runs the real runtime when it exists). The
+XRechnung messages are in German, as the KoSIT rules publish them; the `fix` line
+is English. `examples/xrechnung-cii-invoice.xml`, `examples/xrechnung-cii-credit-note.xml` (CII credit note, type 381, with its BT-25 invoice reference) and `examples/peppol-credit-note.xml` (Peppol BIS 3 UBL credit note) pass the official rules (the CII ones with one information-level note, BR-DE-TMP-32) and are pinned by tests. `examples/ubl-credit-note-with-defects.xml` is a credit note with six faults (a 380 type code, no buyer reference, a VAT total that disagrees with its subtotal, a German seller without a contact); the official rules report BR-CL-01, BR-CO-14, BR-CO-15, DE-R-015, PEPPOL-EN16931-P0101 and PEPPOL-EN16931-R003, each with a specific English fix, pinned by tests. `examples/xrechnung-cii-credit-note-with-defects.xml` is the clean CII credit note with four faults (no buyer reference, no seller contact, a VAT amount that is not 19% of its basis, a type code outside UNTDID 1001); the official EN 16931 and XRechnung rules report BR-CL-01, BR-CO-14, BR-CO-17, BR-DE-15, BR-DE-17, BR-DE-2, BR-DE-TMP-32 and BR-S-09, each with a specific English fix, pinned by tests. `examples/peppol-nl-credit-note.xml` (a Dutch Peppol credit note, KVK identifiers) passes; `examples/peppol-nl-credit-note-with-defects.xml` drops the invoice reference, the seller's street and the KVK scheme, and the official rules report NL-R-001, NL-R-002 and NL-R-003, each with an English fix (all nine Peppol NL-R rules now have one; pinned by tests). Building it also showed the endpoint check rejected scheme 0106 (the Dutch KVK number, a registered EAS code), a false INV-039 on Dutch KVK endpoints; it is accepted now (JS and Python). The NLCIUS rules themselves are still not run: the official source could not be reached from the build environment. Peppol also applies its German `DE-R-nnn` rules to a domestic German invoice (seller contact, buyer post code, payment groups); each has an English fix.
+
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
@@ -73,7 +114,9 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/cii-invoice.xml
 PYTHONPATH=src python3 -m einvoice_preflight examples/factur-x-invoice.pdf
+# examples/factur-x-credit-note.pdf: a Factur-X (EN 16931) credit note, type 381; its XML passes the official rules. Both readers now take BT-25 (the invoice a CII credit note reverses) from the settlement header; before, every CII or Factur-X credit note drew a false INV-033.
 PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice.xml
+PYTHONPATH=src python3 -m einvoice_preflight examples/peppol-credit-note.xml
 # The one example that is meant to fail: six planted defects, annotated at the
 # top of the file and pinned by tests/test_examples.py. Exits 1.
 PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice-with-defects.xml
@@ -126,6 +169,10 @@ The tool never submits an invoice, chooses a tax rate, contacts a tax
 authority, or claims that an invoice is legally valid. It only checks the
 document facts represented in the input schema. The user remains responsible
 for selecting the correct format, tax treatment, and submission process.
+
+**Peppol PINT: Singapore InvoiceNow and Australia/New Zealand (shipped 2026-10-23).** A UBL file whose BT-24 names `...billing:international:sg:3.0`, `...billing:international:aunz:3.0` or the A-NZ self-billing id is checked by that profile's own rules *instead of* the EU base and the Peppol BIS add-on, because PINT uses GST category codes (SR, ZR, NG...) that the EU base rejects (before this, an SG invoice drew a false `PEPPOL-EN16931-R004`/category finding). Singapore runs three sets (the CEN subset with GST amounts, the Peppol subset, the SG GST rules, 931 checks), A-NZ two (958 checks, including the ABN rules AUNZ-R-004 and PEPPOL-COMMON-R050). OpenPeppol publishes these only as Schematron already compiled to XSLT, and GitHub is not reachable from every build host, so `build-pint-rules.mjs` takes the XSLT from the `phive-rules-peppol` artefact on Maven Central (set `EINVOICE_PINT_JAR` to use a jar on disk) and `plain-from-xslt.mjs` reads the generator's fixed XSLT shape back into the same plain JSON (rules, rule order, lets, `xsl:param` roots, XQuery functions). It throws on any template shape it does not know rather than dropping a rule. Fidelity check: the same reader on OpenPeppol's own BIS XSLT yields 55 checks, every id also in the `.sch`-compiled Peppol set, and on the EN 16931 XSLT 979 checks against 982 (the XSLT is a newer release: it adds BR-CO-25, BR-66, BR-67, UBL-CR-631 and drops UBL-SR-53..59). Verification (`pint.test.mjs`, 6 tests, made-up invoices in `examples/pint-sg-invoice.xml`, `pint-sg-invoice-with-defects.xml`, `pint-aunz-invoice.xml`): both clean files pass with no skipped rule; the SG defect file raises BR-109-GST-SG, BR-NG-08/09/12-GST-SG and BR-CO-17-GST-SG; a missing buyer ABN raises AUNZ-R-004 and a wrong check digit PEPPOL-COMMON-R050; ordinary Peppol BIS files still get the EU base. Not done: the Saxon route and the server API still run the EU base on a PINT file (the browser/plain route is the one fixed); CII has no PINT form; no real InvoiceNow or Peppol A-NZ invoice or an access point's verdict has been tried, only the rule sets as published (versions: SG 2026.6, A-NZ 1.0.12); the Japan and Malaysia PINT sets are not in that artefact. The same Maven artefacts also hold RO_CIUS (`phive-rules-cius-ro`) and the Dutch NLCIUS XSDs (`phive-rules-energieefactuur`), the open items below, readable with this same tool next.
+
+**Romania RO e-Factura national rules, CIUS-RO (shipped 2026-10-24).** A UBL file whose BT-24 names `CIUS-RO` now also gets Romania's 122 national rules (v1.0.9 from `phive-rules-cius-ro` on Maven Central) after the EU base, in the browser and on the Node plain route: date format `YYYY-MM-DD`, an invoice number with a digit, the profile id, RON as the VAT accounting currency, `SECTOR1..6` city and `RO-xx` county codes, address and tax-id presence, two-decimal amounts and the length caps. It is an add-on (`ADDONS["cius-ro"]`), not a replacement like PINT, because the national file only adds to EN 16931. The messages are bilingual in the source (`Romanian #English`); the English half is shown, each rule has an English fix. `build-ro-rules.mjs` rebuilds `plain/cius-ro-ubl.json` (set `EINVOICE_RO_JAR` for a jar on disk). Verification (`cius-ro.test.mjs`, 5 tests; made-up invoices `examples/ro-invoice.xml` and `ro-invoice-with-defects.xml`): the clean RON invoice passes both sets with no skipped rule; the defect file raises BR-RO-001, -010, -030, -110 and -DT001; removing the buyer street raises BR-RO-082. Not done: the Saxon route and server API do not run it (no `.sef.json` built); the bundled `EN16931-CIUS_RO` XSLT (EN rules with RO changes) is not used; no real invoice from a Romanian ERP and no ANAF SPV verdict has been tried, so false positives or gaps against ANAF's live validator are unmeasured.
 
 ## Run it as your own API (self-hosted, one click)
 
@@ -425,6 +472,12 @@ SARIF uses paths relative to the input directory. An empty directory is an
 input error and exits `2`. Batch scans also flag a supplier (matched by id, VAT id or
 name) who reuses an `invoice_number` as `INV-019`; the number itself is never
 emitted. Two different suppliers that both issue `1001` are not flagged.
+Credit notes are tied to their originals when both are in the batch (same seller,
+reference matched ignoring case): `INV-056` for a currency mismatch, `INV-057` when
+the credit notes against one invoice add up to more than its gross total, `INV-058`
+when the named invoice in the batch belongs to a different seller. A credit note whose
+original is not in the batch is left alone. Tested on hand-written invoices (JS and
+Python CLI); not tried on real ERP exports.
 JSON output uses the same versioned summary fields for single files and
 directories: `schema_version` (currently `1`), `status`, `exit_code`,
 `files_checked`, `files_failed`, `observations`, `rules`, `fixes`, and `read_errors`.
@@ -578,3 +631,74 @@ IBAN is present and, when it looks like an RF creditor reference, is
 checked with the published ISO 11649 checksum only. The tool never
 contacts a bank, never stores the account number, BIC, or remittance,
 and never claims funds can be received or allocated there.
+
+`examples/factur-x-credit-note-with-defects.pdf` wraps the defective CII credit note in a Factur-X envelope: the built-in rules report INV-032 (unknown type code) and INV-038 (tax amount), identical to the bare XML (`facturx.test.mjs`); the official-rule findings for the same XML are pinned in `schematron.test.mjs`.
+
+## Repair a JSON invoice's arithmetic
+
+UBL files (Invoice, CreditNote) are repaired too, in place: see "Repair a UBL file" below.
+
+`node repair-cli.mjs invoice.json -o fixed.json` (or `POST /v1/repair`)
+recomputes line nets, the net, tax, gross and amount-due totals from the
+invoice's own quantities, unit prices, tax percents and header adjustments,
+and upper-cases a lower-case currency code. It logs each change (path, old
+value, new value, reason), re-runs the checks on the result and lists what is
+left. It never chooses a tax rate, date, identifier, bank detail or party:
+those findings stay for a person (exit 1 while any remain). If a line's
+quantity, price or tax percent is invalid, no totals are touched. Tests in
+`repair.test.mjs` and `server.test.mjs`. The web page has a "Repair the arithmetic (JSON, UBL or CII)" button (paste JSON, click, read the change table; clicked through with `eval/browser-repair.mjs`).
+
+## Repair a UBL file
+
+`node repair-cli.mjs invoice.xml -o fixed.xml` (or `POST /v1/repair` with the
+XML as the body) edits only the amount elements of a UBL Invoice or
+CreditNote and leaves every other byte alone (comments, namespaces, order).
+It recomputes each line's net (quantity x price / base quantity), the taxable
+amount and VAT of each `TaxSubtotal` (taxable x rate, rounded half up, the
+EN 16931 way), the document `TaxAmount`, the line-extension, tax-exclusive,
+tax-inclusive and payable totals. It skips, and says so in `skipped`, any
+line with its own allowance, charge or sub-line, any document with header
+allowances or charges, more than one `TaxTotal`, and any tax group that does
+not match the subtotals one to one: it never adds a subtotal or picks a rate
+or category. The result is re-parsed and re-checked. On
+`examples/ubl-invoice-with-defects.xml` it fixes 3 amounts and clears
+INV-017, INV-018, INV-029 and INV-038; INV-021 (due date) and INV-045 (no
+IBAN) stay for a person. Tested on the repo's hand-written UBL examples only
+(`repair-ubl.test.mjs`, `server.test.mjs`); not tried on a real ERP export.
+
+## Repair a CII file (XRechnung CII, ZUGFeRD, Factur-X XML)
+
+The same command and endpoint take a `CrossIndustryInvoice` file
+(`repair-cii.mjs`; the CLI and `POST /v1/repair` pick CII or UBL by content).
+**Factur-X PDFs** (CII inside) are repaired too (`repair-facturx.mjs`; CLI
+`node repair-cli.mjs in.pdf -o out.pdf`; `POST /v1/repair` with the PDF returns
+`pdf_base64`): the embedded XML goes through the CII repair and the PDF is
+extended by an incremental update (all original bytes kept, a newer copy of the
+attachment appended). The printed pages are not re-rendered, so if they show
+wrong amounts, re-issue the PDF from the source system. A PDF 1.5 file whose
+newest cross-reference is a stream (most modern generators) gets an appended
+uncompressed xref stream (`/W [1 4 2]`, `/Prev` chained) instead of a table
+(2026-10-22). Encrypted PDFs, or ones whose xref dictionary cannot be read, come
+back with only the corrected XML. Tested on PDFs built by this repo's own writer
+(plain and Flate streams, classic table and a hand-built xref-stream file); no
+real ERP or Factur-X export tried, so a PDF viewer or veraPDF opening the
+result is the open check.
+Same contract as UBL: only amounts are edited, in place: each line's
+`LineTotalAmount` (quantity x net price / basis quantity), each header
+`ApplicableTradeTax` block's `BasisAmount` and `CalculatedAmount`, and the
+header monetary summation (line total, tax basis, tax, grand total, amount due
+= grand - prepaid + rounding). Skipped, and said so: lines with their own
+allowance, charge or sub-line, header allowances or charges, more than one
+`TaxTotalAmount`, and tax groups that do not match the header blocks one to
+one. On `examples/xrechnung-cii-credit-note-with-defects.xml` it fixes the
+wrong VAT amount (150.00 to 190.00) and leaves the type code and missing
+fields for a person. Hand-written examples only (`repair-cii.test.mjs`,
+`server.test.mjs`), no real ERP or Factur-X export tried. The web page's
+repair button takes pasted JSON, UBL or CII (clicked through in headless
+Chromium with `eval/browser-repair.mjs`, which pastes the defective CII
+credit note).
+
+The web page's repair button also takes one dropped Factur-X PDF (empty paste
+box): it lists the changes and offers `<name>-repaired.pdf` to download. The
+printed pages are not redrawn. Clicked through in headless Chromium with
+`eval/browser-repair.mjs` on a PDF built by this repo.

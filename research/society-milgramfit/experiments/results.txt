@@ -1,0 +1,32 @@
+society-milgramfit results. Model of society-enforcers (M=9, k=1, eps=0.02; enforcers L=10, q=0.5 unless stated).
+Milgram et al. 1986 inputs are from a secondary summary (spring.org.uk, 2008): ~0.5 any reaction to one intruder,
+0.10 physically ejected, 0.91 with two intruders, 0.05 behind a buffer. Not checked against the paper.
+
+== A. least lone-cut stopping chance p* at which people alone keep a norm (rho=0, e=0), by memory M
+M= 3 p*=0.901
+M= 5 p*=0.846
+M= 9 p*=0.786
+M=15 p*=0.739
+M=25 p*=0.698
+
+== B. enforcers needed (L=10,q=0.5) against rho cutter robots, by lone-cut stop chance p0 (nan = none can)
+p0    rho0.00 rho0.10 rho0.20 rho0.30
+0.1   0.123    0.124    0.125    0.126  
+0.3   0.100    0.103    0.107    0.110  
+0.5   0.075    0.081    0.087    0.092  
+0.7   0.037    0.056    0.065    0.074  
+0.9   0.000    0.000    0.030    0.054  
+
+== C. enforcers needed with no cutters (rho=0) at p0=0.5, by memory M
+M= 3 e_min=0.075
+M= 5 e_min=0.075
+M= 9 e_min=0.075
+M=15 e_min=0.075
+
+== D. independence check: one intruder objected to 0.5 -> two intruders if independent vs reported 0.91
+independent=0.750 reported=0.91
+per-viewer reaction r for 'any reaction'=0.5 by people in view L: L=2:0.293, L=5:0.129, L=10:0.067, L=20:0.034
+
+== E. can viewer influence explain 0.91? (step 2 of Next steps)
+P(any of 10 viewers reacts), per-viewer r0=0.067, by contagion boost c per earlier reaction: c=0.0:0.500, c=0.1:0.500, c=0.5:0.500, c=1.0:0.500
+so contagion cannot lift the any-reaction rate. Hazard growing as n**a with a=1.80 reproduces 0.5 -> 0.91 (a=1 is independence, 0.75). One free parameter fit to one reported number: description, not test.

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: median rooftop PV hosting capacity in kilowatts of the IEEE 123-node feeder at two load levels, for no measure, a fixed power factor, volt-var and a lower regulator set-point">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">IEEE 123-node feeder: median PV hosting capacity (200 placements)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="264.4" y2="264.4" stroke="#ddd"/><text x="58" y="268.4" text-anchor="end" font-family="sans-serif" font-size="11">500</text>
+<line x1="64" x2="624" y1="204.7" y2="204.7" stroke="#ddd"/><text x="58" y="208.7" text-anchor="end" font-family="sans-serif" font-size="11">1000</text>
+<line x1="64" x2="624" y1="145.1" y2="145.1" stroke="#ddd"/><text x="58" y="149.1" text-anchor="end" font-family="sans-serif" font-size="11">1500</text>
+<line x1="64" x2="624" y1="85.5" y2="85.5" stroke="#ddd"/><text x="58" y="89.5" text-anchor="end" font-family="sans-serif" font-size="11">2000</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">load level (fraction of peak)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">median hosting capacity, kW</text>
+<polyline points="64.0,185.7 624.0,190.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="185.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="190.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">baseline</text>
+<polyline points="64.0,157.0 624.0,166.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="157.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="166.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">fixed pf 0.95</text>
+<polyline points="64.0,173.7 624.0,189.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="173.7" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="189.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">volt-var</text>
+<polyline points="64.0,71.2 624.0,72.4" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="72.4" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">regulator -2 V</text>
+</svg>

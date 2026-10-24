@@ -49,16 +49,25 @@ type: software
 authors:
   - name: "oss-monorepo contributors"
 repository-code: "${REPO_URL}"
-url: "https://duncan-haywood.github.io/monorepo-projects/"
+url: "https://duncan-haywood.github.io/oss-monorepo/"
 license: MIT
 abstract: >-
   A monorepo of MIT-licensed free tools (ventures/) and open research (research/),
-  produced with AI assistance. Research results are mostly stylised or simulated;
-  each project's README states its limits. Per-project BibTeX is in research/CITATIONS.bib.
+  produced with AI assistance. The tools are browser calculators, quoting and
+  pricing tools, CSV import checkers, CI checks and self-hostable business apps
+  for small businesses, freelancers and developers. The research covers mechanism
+  design for verifying decentralised ML training, chip design, robotics, digital
+  twins and more. Research results are mostly stylised or simulated; each
+  project's README states its limits. Per-project BibTeX is in research/CITATIONS.bib.
 keywords:
   - open source
   - open research
   - AI-assisted
+  - small business tools
+  - calculators
+  - self-hosted
+  - reproducible research
+  - mechanism design
 `;
 }
 

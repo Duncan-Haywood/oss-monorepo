@@ -1,0 +1,13 @@
+model,gain_percent,gain_ci95_low,gain_ci95_high,diff_vs_reference_points,diff_ci95_low,diff_ci95_high,reference,subset,women,dissolutions,intervals
+constant,0.0000,0.0000,0.0000,-5.6877,-6.1278,-5.2145,current model,all women (1995-2023),29202,10529,249868
+current model,5.6877,5.2145,6.1278,0.0000,0.0000,0.0000,current model,all women (1995-2023),29202,10529,249868
+"current + family of origin, 6 levels (replaces wife_intact_family)",5.6611,5.1853,6.1084,-0.0266,-0.0891,0.0346,current model,all women (1995-2023),29202,10529,249868
+"current + attendance at 14, 7 levels",5.6823,5.2096,6.1251,-0.0054,-0.0208,0.0107,current model,all women (1995-2023),29202,10529,249868
+"current + religion raised, full detail (replaces the 4-level version)",5.6762,5.2006,6.1281,-0.0115,-0.0458,0.0234,current model,all women (1995-2023),29202,10529,249868
+current + all new blocks,5.6402,5.1673,6.0808,-0.0475,-0.1192,0.0235,current model,all women (1995-2023),29202,10529,249868
+constant,0.0000,0.0000,0.0000,-5.1720,-5.8275,-4.5554,current model,women in 2006-2010 to 2017-2019 (items asked),29202,10529,249868
+current model,5.1720,4.5554,5.8275,0.0000,0.0000,0.0000,current model,women in 2006-2010 to 2017-2019 (items asked),29202,10529,249868
+"current + family of origin, 6 levels (replaces wife_intact_family)",5.1813,4.5642,5.8621,0.0093,-0.0470,0.0715,current model,women in 2006-2010 to 2017-2019 (items asked),29202,10529,249868
+"current + attendance at 14, 7 levels",5.1625,4.5379,5.8151,-0.0095,-0.0322,0.0196,current model,women in 2006-2010 to 2017-2019 (items asked),29202,10529,249868
+"current + religion raised, full detail (replaces the 4-level version)",5.1437,4.5145,5.8031,-0.0283,-0.0927,0.0307,current model,women in 2006-2010 to 2017-2019 (items asked),29202,10529,249868
+current + all new blocks,5.1399,4.5028,5.8160,-0.0321,-0.1206,0.0623,current model,women in 2006-2010 to 2017-2019 (items asked),29202,10529,249868

@@ -1,0 +1,4 @@
+experiments/cache_*.npz
+temp.*
+# EPANET scratch files WNTR writes in the cwd while a run is in progress
+/en[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9]

@@ -1,0 +1,47 @@
+Assumed inputs: 8,000 kWh/yr load, 40N, PV perf ratio 0.80, battery 90% usable, 90% round trip, C/2; import $0.30,
+export $0.05, PV $2,800/kW 25 y, battery $800/kWh 15 y, 6% discount. Mean over 20 weather seeds.
+
+A. PV only: size vs self-sufficiency and self-consumption
+pv_kw yield_kwh self_suff self_cons
+1 1093 0.134 0.981
+2 2185 0.221 0.809
+3 3278 0.271 0.663
+4 4370 0.305 0.560
+6 6556 0.347 0.425
+8 8741 0.372 0.341
+10 10926 0.389 0.286
+12 13111 0.402 0.246
+
+B. 6 kW PV: battery size vs self-sufficiency (marginal kWh of imports avoided per nameplate kWh)
+batt_kwh self_suff self_cons import_kwh marginal
+0 0.347 0.425 5220 -
+2.5 0.422 0.525 4627 237
+5 0.485 0.611 4119 203
+10 0.585 0.746 3322 159
+15 0.624 0.799 3011 62
+20 0.636 0.816 2914 19
+30 0.651 0.836 2794 12
+40 0.661 0.849 2715 8
+
+C. Cheapest sizing (annualised $, grid search PV 0-12 kW x battery 0-30 kWh) by export price
+export_price pv_kw batt_kwh annual_cost grid_only_cost saving
+0.00 2 0 2308 2400 92
+0.05 2 0 2287 2400 113
+0.10 2 0 2266 2400 134
+0.20 12 0 2085 2400 315
+0.30 12 0 1095 2400 1305
+
+D. Break-even installed battery price ($/kWh nameplate, 15 y, 6%) for a 10 kWh battery at 6 kW PV
+export_price breakeven_price_per_kwh vs_assumed_800
+0.00 553 does not pay
+0.05 451 does not pay
+0.10 348 does not pay
+0.20 143 does not pay
+0.30 -61 does not pay
+
+E. Weather-seed spread, 6 kW PV, 10 kWh battery (20 seeds)
+metric mean min max
+pv 6555.505 6092.111 7198.490
+self_sufficiency 0.585 0.562 0.620
+imp 3321.866 3043.013 3505.148
+exp 1666.462 1346.616 2056.486

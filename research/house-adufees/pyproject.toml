@@ -1,0 +1,13 @@
+[project]
+name = "house-adufees"
+version = "0.1.0"
+description = "What does Denver Water's 2026 tap fee (system development charge) cost a 480 sq ft ADU against a house?"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

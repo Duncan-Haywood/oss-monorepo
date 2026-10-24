@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CSV to SEPA Direct Debit File (pain.008) — Free Mandate Collection Converter</title>
+  <meta name="description" content="Free CSV to SEPA direct debit converter: turn a spreadsheet of member or customer collections into a pain.008 XML file for your bank. Checks every IBAN, mandate and your creditor identifier first, groups FRST/RCUR/OOFF/FNAL batches, and never uploads your list.">
+  <meta property="og:title" content="CSV to SEPA pain.008 direct debit — free, private, in your browser">
+  <meta property="og:description" content="Make a bank-ready SEPA direct debit collection file from a spreadsheet. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "CSV to SEPA Direct Debit", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Converts a CSV or spreadsheet export of mandate-based collections into a SEPA direct debit file (ISO 20022 pain.008) for upload to a business bank account. IBANs, amounts, mandates and the creditor identifier are checked first and no file is written while anything is wrong. Runs entirely in your browser; the list is never uploaded.", "featureList": "CSV to pain.008 converter, SEPA direct debit XML generator, creditor identifier check, FRST RCUR OOFF FNAL batches, exact control totals"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I turn a spreadsheet of members or customers into a SEPA direct debit file?", "acceptedAnswer": {"@type": "Answer", "text": "Export the sheet as CSV with a debtor name, IBAN, amount, mandate reference and the date the mandate was signed on each row (a payment reference and a sequence type are optional). Enter your own name, account IBAN, creditor identifier and the collection date, and download the pain.008 XML. Most business banking portals take direct debits as a file upload in this format."}}, {"@type": "Question", "name": "What does my bank need that I might not have?", "acceptedAnswer": {"@type": "Answer", "text": "A SEPA creditor identifier, issued by your national authority (in Germany the Bundesbank, elsewhere often your bank or a national register), and a signed mandate for every debtor with a unique mandate reference. The tool checks the identifier's check digits and refuses rows with no mandate reference or signature date."}}, {"@type": "Question", "name": "What are FRST, RCUR, FNAL and OOFF?", "acceptedAnswer": {"@type": "Answer", "text": "The sequence type says where a collection sits under a mandate: the first (FRST), a recurring one (RCUR), the last (FNAL), or a one-off (OOFF). Banks want each type in its own payment block, so the tool groups your rows by type and writes one block per type with its own control total. Put the type in a column, or choose a default."}}, {"@type": "Question", "name": "What happens if a row has an error?", "acceptedAnswer": {"@type": "Answer", "text": "No file is written at all. Every problem is listed with its line number, so a half-correct batch is never produced. Warnings, such as a character the SEPA set does not allow, are fixed and reported but do not block the file."}}, {"@type": "Question", "name": "Which scheme and file version does it write?", "acceptedAnswer": {"@type": "Answer", "text": "The SEPA Core scheme or the Business-to-Business (B2B) scheme, in pain.008.001.02, the long-standing SEPA direct debit version. If your bank's specification asks for a different version, this tool is not the right fit."}}, {"@type": "Question", "name": "Is the list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The conversion runs in your browser tab and a test in the code asserts there are no network calls. Debtor bank details and your own IBAN never leave your device."}}, {"@type": "Question", "name": "What does this not do?", "acceptedAnswer": {"@type": "Answer", "text": "It does not send the file, connect to your bank, store mandates, send pre-notifications to debtors, handle returns, refunds or R-transactions, check that a mandate is still valid, or produce credit transfers or non-euro collections. Your bank remains the final validator."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2f5d8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d3f66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d3f66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d3f6610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f5d8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf4; color: #1d3f66; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1d3f66; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #a9bdd3; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    td.short { color: #9a3412; font-weight: 700; }
+    textarea.small { min-height: 90px; }
+    input[type=date] { width: 100%; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CSV TO SEPA PAIN.008 · DIRECT DEBIT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Turn a collections spreadsheet into a SEPA direct debit file</h1>
+    <p>Paste or drop a <strong>CSV from Excel or your membership or billing system</strong> (debtor, IBAN, amount, mandate reference, mandate date) and download an <strong>ISO 20022 pain.008 direct debit file</strong> for your bank's upload. Your <strong>creditor identifier and every IBAN are check-digit tested</strong>, every <strong>amount is read as exact cents</strong>, rows are grouped into the <strong>FRST / RCUR / FNAL / OOFF</strong> blocks banks require, and the <strong>file is not written while anything is wrong</strong>.</p>
+    <p class="note">Your list and your own IBAN are read in this browser tab and never leave your device. This makes the file; it does not collect money, store mandates or notify debtors, and your bank remains the final check. Independent of every bank and payment scheme named.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Your collections</h2>
+    <p class="note">CSV, TSV or semicolon-separated. Columns are found from the header (debtor/name, IBAN, amount, mandate id, mandate date, reference, sequence, BIC, id); with no header the order is name, IBAN, amount, mandate id, mandate date, reference, sequence. Dates are YYYY-MM-DD or DD.MM.YYYY. Amounts are in euros.</p>
+    <label for="file">Choose a file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain">
+    <label for="paste">…or paste the text</label>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="debtor,iban,amount,mandate id,mandate date,reference,sequence&#10;Jan de Vries,NL91ABNA0417164300,29.90,MAND-0001,2025-03-14,Membership,RCUR"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. You, as creditor, and the collection date</h2>
+    <div class="grid">
+      <div><label for="creditor-name">Your name (as on the account)</label><input id="creditor-name" autocomplete="off" placeholder="Example Gym Club"></div>
+      <div><label for="creditor-id">Your creditor identifier</label><input id="creditor-id" autocomplete="off" placeholder="DE98ZZZ09999999999"></div>
+      <div><label for="creditor-iban">Your account IBAN</label><input id="creditor-iban" autocomplete="off" placeholder="ES91 2100 0418 4502 0005 1332"></div>
+      <div><label for="creditor-bic">Your BIC (optional)</label><input id="creditor-bic" autocomplete="off" placeholder="CAIXESBBXXX"></div>
+      <div><label for="exec-date">Collection date</label><input type="date" id="exec-date"></div>
+      <div><label for="scheme">Scheme</label><select id="scheme"><option value="CORE">Core (consumers and businesses)</option><option value="B2B">B2B (businesses only)</option></select></div>
+      <div><label for="default-seq">Sequence type when the column is empty</label><select id="default-seq"><option value="RCUR">RCUR (recurring)</option><option value="FRST">FRST (first collection)</option><option value="OOFF">OOFF (one-off)</option><option value="FNAL">FNAL (final)</option></select></div>
+      <div class="checkbox-row"><input type="checkbox" id="batch" checked><label for="batch">Book each block as one line on my statement</label></div>
+    </div>
+    <p>
+      <button type="button" id="convert">Check and make file</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, fill in your details, then click Check and make file.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <div id="file-box" hidden>
+      <h3>SEPA direct debit file</h3>
+      <label for="xml-out">Preview</label>
+      <textarea id="xml-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
+      <p><button type="button" id="download-xml">Download pain.008 XML</button> <button type="button" class="secondary" id="copy-xml">Copy</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+      <p class="note">Before uploading, run the file through the <a href="../sepa-pain001-validator/">SEPA pain.001 / pain.008 validator</a> for an independent check, and compare the control total with your ledger. Debtors must be told the amount and date (pre-notification) before you collect; the tool does not do that.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The rules, and what they leave out</h2>
+    <ul>
+      <li><strong>Creditor identifier:</strong> ISO 7064 mod 97-10 check digits, with the three-character business code left out of the check as the scheme specifies. A mistyped identifier is the most common reason a first file is refused.</li>
+      <li><strong>IBANs:</strong> ISO 13616 mod-97 check digits and the country's length, for the SEPA-area countries. Spaces, hyphens and lower case are cleaned; nothing else is guessed.</li>
+      <li><strong>Mandates:</strong> every row needs a mandate reference and a signature date; a mandate signed in the future, or on or after the collection date, is refused.</li>
+      <li><strong>Sequence types:</strong> rows are grouped into one payment block per FRST, RCUR, FNAL or OOFF, each with its own count and control sum. Words such as "first", "recurring" and "one-off" are read.</li>
+      <li><strong>Amounts:</strong> exact cents, no floating point. <code>34,50</code>, <code>1.200,50</code> and <code>1,200.50</code> are read; an ambiguous <code>1,234</code> is refused. Zero, negative and three-decimal amounts are errors.</li>
+      <li><strong>Text:</strong> names, mandate ids and references are transliterated to the SEPA character set (for example ü becomes ue), cut to length and XML-escaped, each change reported.</li>
+      <li><strong>Also flagged:</strong> a possible duplicate collection, a repeated collection id, a weekend, past or far-future collection date, a debtor IBAN equal to your own, and B2B mandates that must also be registered at the debtor's bank.</li>
+      <li><strong>Not done:</strong> sending the file, bank connections, storing mandates, pre-notification to debtors, returns, refunds and R-transactions, checking that a mandate is still valid (a mandate unused for 36 months lapses), SDD Core1, non-euro collections, bank-specific variants, limits and cut-off times. Reference data is read from memory of public sources; confirm against your bank's file specification.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I turn a spreadsheet of members or customers into a SEPA direct debit file?</h3>
+    <p>Export the sheet as CSV with a debtor name, IBAN, amount, mandate reference and the date the mandate was signed on each row (a payment reference and a sequence type are optional). Enter your own name, account IBAN, creditor identifier and the collection date, and download the pain.008 XML. Most business banking portals take direct debits as a file upload in this format.</p>
+    <h3>What does my bank need that I might not have?</h3>
+    <p>A SEPA creditor identifier, issued by your national authority (in Germany the Bundesbank, elsewhere often your bank or a national register), and a signed mandate for every debtor with a unique mandate reference. The tool checks the identifier's check digits and refuses rows with no mandate reference or signature date.</p>
+    <h3>What are FRST, RCUR, FNAL and OOFF?</h3>
+    <p>The sequence type says where a collection sits under a mandate: the first (FRST), a recurring one (RCUR), the last (FNAL), or a one-off (OOFF). Banks want each type in its own payment block, so the tool groups your rows by type and writes one block per type with its own control total. Put the type in a column, or choose a default.</p>
+    <h3>What happens if a row has an error?</h3>
+    <p>No file is written at all. Every problem is listed with its line number, so a half-correct batch is never produced. Warnings, such as a character the SEPA set does not allow, are fixed and reported but do not block the file.</p>
+    <h3>Which scheme and file version does it write?</h3>
+    <p>The SEPA Core scheme or the Business-to-Business (B2B) scheme, in pain.008.001.02, the long-standing SEPA direct debit version. If your bank's specification asks for a different version, this tool is not the right fit.</p>
+    <h3>Is the list uploaded anywhere?</h3>
+    <p>No. The conversion runs in your browser tab and a test in the code asserts there are no network calls. Debtor bank details and your own IBAN never leave your device.</p>
+    <h3>What does this not do?</h3>
+    <p>It does not send the file, connect to your bank, store mandates, send pre-notifications to debtors, handle returns, refunds or R-transactions, check that a mandate is still valid, or produce credit transfers or non-euro collections. Your bank remains the final validator.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, banking, compliance, or financial advice, and it does not replace your bank's own validation. Results depend entirely on the file and details you provide. <strong>You are responsible for reviewing the generated file and every payment in it before you upload or authorise it</strong>, including confirming bank details with each payee, and a clean result is not a promise that your bank will accept the file or that a payment will reach the right person.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to SWIFT, any bank, the European Payments Council or any other company named. Their names are trademarks of their owners, used here only to say which format is meant. Specifications are read from memory of public sources and may be out of date.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_converted</code>, <code>example_loaded</code>, <code>xml_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../csv-to-sepa-pain001/">CSV to SEPA pain.001 converter</a> makes credit transfers, the <a href="../iban-list-check/">IBAN list check</a> cleans a whole IBAN column first, the <a href="../sepa-pain001-validator/">SEPA pain.001 / pain.008 validator</a> checks a finished file, and the <a href="../sepa-pain002-status-reader/">SEPA pain.002 status reader</a> explains the bank's answer.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { convert, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function download(name, body, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type }));
+      a.download = name;
+      a.click();
+    }
+    const pad = (n) => String(n).padStart(2, "0");
+    const localStamp = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    function nextBusinessDay() {
+      const d = new Date(); let n = 3;
+      while (n > 0) { d.setDate(d.getDate() + 1); if (![0, 6].includes(d.getDay())) n--; }
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    }
+    $("#exec-date").value = nextBusinessDay();
+    const settings = () => {
+      const now = new Date();
+      return {
+        creditorName: $("#creditor-name").value, creditorId: $("#creditor-id").value, creditorIban: $("#creditor-iban").value, creditorBic: $("#creditor-bic").value,
+        date: $("#exec-date").value, scheme: $("#scheme").value, defaultSeq: $("#default-seq").value, version: "pain.008.001.02", batchBooking: $("#batch").checked,
+        created: localStamp(now), today: new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())),
+      };
+    };
+
+    function run(text) {
+      const r = convert(text, settings());
+      last = r;
+      const s = r.summary;
+      $("#report-stats").innerHTML = `<strong>${s.errors} error${s.errors === 1 ? "" : "s"}</strong>, ${s.warnings} warning${s.warnings === 1 ? "" : "s"} · ${s.rows} row${s.rows === 1 ? "" : "s"} read, ${s.payments} ready in ${s.batches} block${s.batches === 1 ? "" : "s"} · control total EUR ${s.total}`;
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : "medium"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
+      $("#file-box").hidden = !r.xml;
+      $("#xml-out").value = r.xml || "";
+      report.hidden = false;
+      status.textContent = r.xml ? `File ready: ${s.payments} payment(s), EUR ${s.total}.` : `No file written: fix the ${s.errors} error(s) listed.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    function example(text, note) {
+      $("#paste").value = text; $("#file").value = "";
+      if (!$("#creditor-name").value) $("#creditor-name").value = "Example Gym Club";
+      if (!$("#creditor-iban").value) $("#creditor-iban").value = "FR14 2004 1010 0505 0001 3M02 606";
+      if (!$("#creditor-id").value) $("#creditor-id").value = "DE98ZZZ09999999999";
+      if (run(text)) { record("example_loaded"); status.textContent = note; }
+    }
+
+    $("#convert").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text) && last.xml) record("file_converted");
+    });
+    $("#load-example").addEventListener("click", () => example(sampleFile(), "Worked example: three made-up members using published example IBANs and the published example creditor identifier, not real accounts."));
+    $("#load-broken").addEventListener("click", () => example(sampleBrokenFile(), "Worked example: a wrong check digit, an over-precise amount, a missing mandate id, a mandate dated in the future and a duplicate row."));
+    $("#clear-all").addEventListener("click", () => { for (const id of ["#paste", "#file", "#creditor-name", "#creditor-id", "#creditor-iban", "#creditor-bic"]) $(id).value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, fill in your details, then click Check and make file."; });
+    $("#download-xml").addEventListener("click", () => { if (last && last.xml) { record("xml_downloaded"); download(`sepa-direct-debit-${$("#exec-date").value || "file"}.xml`, last.xml, "application/xml"); } });
+    $("#copy-xml").addEventListener("click", async () => { try { await navigator.clipboard.writeText((last && last.xml) || ""); status.textContent = "Copied."; record("xml_downloaded"); } catch { $("#xml-out").select(); status.textContent = "Select the preview and copy it."; } });
+    $("#download-csv").addEventListener("click", () => { if (last) download("sepa-direct-debit-findings.csv", findingsCsv(last), "text/csv"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

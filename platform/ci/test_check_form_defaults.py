@@ -46,6 +46,10 @@ class CheckInput(unittest.TestCase):
         self.assertIsNone(check_input(attrs(type="number", min="0", value="7")))
         self.assertIsNotNone(check_input(attrs(type="number", min="0", value="7.5")))
 
+    def test_a_value_equal_to_min_or_max_is_in_range(self):
+        self.assertIsNone(check_input(attrs(type="number", min="1", step="1", value="1")))
+        self.assertIsNone(check_input(attrs(type="number", max="10", step="1", value="10")))
+
     def test_below_min_and_above_max(self):
         self.assertIn("below min", check_input(attrs(type="number", min="1", step="1", value="0")))
         self.assertIn("above max", check_input(attrs(type="number", max="10", step="1", value="11")))

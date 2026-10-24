@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Conformal Prediction Intervals Calculator — distribution-free prediction intervals online</title>
+  <meta name="description" content="Free conformal prediction intervals calculator. Paste a CSV, pick the column to predict and a coverage level, and get distribution-free prediction intervals with a finite-sample guarantee: split conformal, locally weighted conformal and conformalized quantile regression (CQR), checked on held-out rows. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Conformal Prediction Intervals Calculator — free, private, in your browser">
+  <meta property="og:description" content="Distribution-free prediction intervals for your own CSV: split conformal, locally weighted conformal and CQR, with held-out coverage and width.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Conformal Prediction Intervals Calculator", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a CSV of numeric columns, choose a target column and a coverage level, and get distribution-free prediction intervals with a finite-sample coverage guarantee from split conformal prediction, locally weighted conformal prediction and conformalized quantile regression, with empirical coverage and width on held-out rows. Runs in your browser.", "featureList": "conformal prediction intervals calculator, distribution-free prediction intervals online, split conformal prediction, locally weighted conformal prediction, conformalized quantile regression (CQR), linear quantile regression, ridge regression with cross-validation, held-out coverage check, prediction intervals for new rows, CSV download", "citation": ["https://doi.org/10.1080/01621459.2017.1307116", "https://arxiv.org/abs/1905.03222", "https://doi.org/10.1007/b106715"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a conformal prediction interval?", "acceptedAnswer": {"@type": "Answer", "text": "It is a range around a model's prediction that is built so that, if your rows are exchangeable (for example a random sample), a new row's true value falls inside it at least as often as the coverage level you ask for, such as 90%. The guarantee holds for any data distribution and any underlying model, and in finite samples. The width is set by how large the model's errors were on calibration rows it did not train on."}}, {"@type": "Question", "name": "How is this different from a regression prediction interval?", "acceptedAnswer": {"@type": "Answer", "text": "A textbook regression prediction interval assumes normal errors with constant variance and a correct linear model. If those fail, its coverage can be well below what it claims. A conformal interval assumes only exchangeable rows; a poor model gives wider intervals, not wrong coverage."}}, {"@type": "Question", "name": "Which method should I use: split conformal, locally weighted or CQR?", "acceptedAnswer": {"@type": "Answer", "text": "All three have the same guarantee, so pick the narrowest on your held-out rows. Split conformal gives the same width everywhere. Locally weighted conformal and CQR widen the interval where errors are larger, which helps when noise grows with a feature. With constant noise, plain split conformal is often as narrow and simpler."}}, {"@type": "Question", "name": "Why is the held-out coverage not exactly 90%?", "acceptedAnswer": {"@type": "Answer", "text": "The guarantee is on average over random splits and new rows. A single test set of 100 rows varies by several points by chance, which is why the tool also averages over 20 random splits. With continuous scores the long-run average lies between the target and the target plus 1/(n+1), where n is the number of calibration rows."}}, {"@type": "Question", "name": "Why did I get an infinite interval?", "acceptedAnswer": {"@type": "Answer", "text": "When the calibration set is so small that k = ceil((n+1)(1-alpha)) exceeds n, no finite width can be guaranteed. At 90% coverage you need at least 9 calibration rows; at 95%, 19; at 99%, 99. Add rows or raise the calibration share."}}, {"@type": "Question", "name": "Does the 90% hold for every subgroup or every row?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is marginal: averaged over all rows. Locally weighted conformal and CQR usually make coverage more even, but neither guarantees conditional coverage, and nothing holds if new data drift away from the calibration data."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The CSV is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    select[multiple] { min-height: 132px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f5f7f9; border: 1px solid #e1e6eb; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+    code { font-size: .9em; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CONFORMAL PREDICTION INTERVALS CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Prediction intervals that actually cover 90%</h1>
+    <p>Paste a CSV, pick the column you want to predict and a coverage level. You get <strong>distribution-free prediction intervals</strong> with a <strong>finite-sample guarantee</strong>: if your rows are exchangeable, a new row lands inside its interval at least 90% of the time, whatever the error distribution. Three published methods are compared side by side — <strong>split conformal</strong>, <strong>locally weighted conformal</strong> and <strong>conformalized quantile regression (CQR)</strong> — and each is checked on rows it never saw.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">CSV with a header row and numeric columns (comma, tab or semicolon)</label>
+    <textarea id="csv" spellcheck="false" placeholder="x1,x2,y&#10;0.3,12,4.1&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: diabetes progression (442 patients)</button>
+    <p class="note" id="data-status">Rows with a missing value in a column you use are dropped and counted. Non-numeric columns are left out of the features.</p>
+
+    <div class="grid">
+      <div><label for="target">Column to predict (target)</label><select id="target"></select></div>
+      <div><label for="features">Feature columns (Ctrl/Cmd-click for several)</label><select id="features" multiple></select></div>
+      <div><label for="coverage">Coverage level</label><select id="coverage"><option value="0.8">80%</option><option value="0.9" selected>90%</option><option value="0.95">95%</option><option value="0.99">99%</option></select></div>
+      <div><label for="method">Method</label><select id="method"><option value="all" selected>Compare all three</option><option value="split">Split conformal (ridge)</option><option value="normalized">Locally weighted split conformal</option><option value="cqr">Conformalized quantile regression (CQR)</option></select></div>
+      <div><label for="test-frac">Share held out for testing</label><input id="test-frac" inputmode="decimal" value="0.25"></div>
+      <div><label for="cal-frac">Share used for calibration</label><input id="cal-frac" inputmode="decimal" value="0.25"></div>
+      <div><label for="seed">Random seed for the split</label><input id="seed" inputmode="numeric" value="1"></div>
+      <div><label for="repeats">Extra random splits to average over</label><input id="repeats" inputmode="numeric" value="20"></div>
+    </div>
+    <p class="note">The rows are shuffled with the seed, then split three ways: training (fits the model), calibration (sets the interval width) and test (checks coverage honestly). The rest of the rows after test and calibration are training rows.</p>
+    <button type="button" id="analyze">Compute intervals</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="warnings"></div>
+    <div class="scroll">
+      <table id="methods-table">
+        <thead><tr><th>Method</th><th class="n">Test coverage</th><th class="n">Covered</th><th class="n">Mean width</th><th class="n">Median width</th><th class="n">Calibrated quantile</th><th class="n">Rank k of n</th><th class="n">Avg coverage over splits</th><th class="n">Avg width over splits</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note">The calibrated quantile is in the units of each method's score: target units for split conformal, multiples of the fitted error spread for locally weighted, and an outward shift of the fitted quantile band (target units) for CQR.</p>
+    <h3>Test rows, sorted by prediction</h3>
+    <label for="chart-method">Show method</label>
+    <select id="chart-method"></select>
+    <div id="chart" role="img" aria-label="Chart of prediction intervals for test rows"></div>
+    <p class="legend"><span><i class="swatch" style="background:#9cc3d9"></i>prediction interval</span><span><i class="swatch" style="background:#1f4a5d"></i>prediction</span><span><i class="swatch" style="background:#2d7a3e"></i>actual, inside</span><span><i class="swatch" style="background:#c0392b"></i>actual, outside</span></p>
+    <button type="button" class="secondary" id="download">Download intervals (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Intervals for new rows</h2>
+    <label for="new-rows">New rows: CSV with the same feature columns (header required, no target needed)</label>
+    <textarea id="new-rows" spellcheck="false" placeholder="AGE,SEX,BMI,BP,S1,S2,S3,S4,S5,S6&#10;50,1,25,90,180,110,50,4,4.5,90"></textarea>
+    <button type="button" id="predict">Get intervals for these rows</button>
+    <p id="new-status" class="note" role="status"></p>
+    <div class="scroll"><table id="new-table" hidden><thead><tr><th>Row</th><th>Method</th><th class="n">Lower</th><th class="n">Prediction</th><th class="n">Upper</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">New rows use the same fitted and calibrated predictor that was evaluated above (same seed and split), so the guarantee carries over if the new rows come from the same population.</p>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>Each method fits a model on the <strong>training</strong> rows, computes a <strong>conformity score</strong> on each of the <em>n</em> <strong>calibration</strong> rows, and takes the <em>k</em>-th smallest score with <code>k = ceil((n+1)(1-alpha))</code>, where 1&minus;alpha is the coverage. That rank, and not the plain 90th percentile, is what makes the guarantee hold for small <em>n</em>: under exchangeability a new score is at most the <em>k</em>-th smallest with probability exactly <em>k</em>/(<em>n</em>+1) when scores have no ties. If <em>k</em> &gt; <em>n</em> the interval is infinite and the tool says so.</p>
+    <ul>
+      <li><strong>Split conformal</strong> (Lei, G'Sell, Rinaldo, Tibshirani &amp; Wasserman 2018, Algorithm 2). Model: ridge regression on standardised features, penalty chosen by 5-fold cross-validation on the training rows. Score |y &minus; &mu;(x)|. Interval &mu;(x) &plusmn; Q: the same width for every row.</li>
+      <li><strong>Locally weighted split conformal</strong> (Lei et al. 2018, Section 5.2). A second ridge regression &rho;(x) predicts the size of the error from out-of-fold training residuals (floored at 10% of their mean so it stays positive). Score |y &minus; &mu;(x)| / &rho;(x). Interval &mu;(x) &plusmn; Q&middot;&rho;(x): wider where errors are larger.</li>
+      <li><strong>Conformalized quantile regression, CQR</strong> (Romano, Patterson &amp; Candès 2019). Linear quantile regressions at alpha/2 and 1&minus;alpha/2 (Koenker &amp; Bassett 1978), solved exactly as a linear program with a bounded-variable simplex. Score max(q<sub>lo</sub>(x) &minus; y, y &minus; q<sub>hi</sub>(x)). Interval [q<sub>lo</sub>(x) &minus; Q, q<sub>hi</sub>(x) + Q]. Crossed quantiles are swapped for that row. Training sets above 4,000 rows are subsampled (seeded) for the quantile fits.</li>
+    </ul>
+    <p>The <strong>evaluation</strong> uses the held-out test rows, which played no part in fitting or calibration, then repeats the whole procedure on 20 further random splits (seeded) and reports the averages. Over random splits of the same data the expected coverage is at least the target, so the average is the fair check; a single split moves by several points by chance.</p>
+    <p>Verified by tests in the source: the rank <em>k</em> against exact integer arithmetic for every <em>n</em> up to 400; coverage averaged over 200 seeded simulations with normal, skewed and two kinds of heteroskedastic noise falls within [1&minus;alpha, 1&minus;alpha+1/(n+1)] to within 0.01 for every method; ridge against the closed-form normal equations; quantile regression against a brute-force search over every exact-fit line and plane, and against random perturbations on the diabetes data.</p>
+    <h3>BibTeX</h3>
+    <pre>@article{lei2018distribution,
+  author  = {Lei, Jing and G'Sell, Max and Rinaldo, Alessandro and Tibshirani, Ryan J. and Wasserman, Larry},
+  title   = {Distribution-Free Predictive Inference for Regression},
+  journal = {Journal of the American Statistical Association},
+  volume  = {113}, number = {523}, pages = {1094--1111}, year = {2018},
+  doi     = {10.1080/01621459.2017.1307116}
+}
+@inproceedings{romano2019conformalized,
+  author    = {Romano, Yaniv and Patterson, Evan and Cand{\`e}s, Emmanuel J.},
+  title     = {Conformalized Quantile Regression},
+  booktitle = {Advances in Neural Information Processing Systems 32},
+  year      = {2019},
+  eprint    = {1905.03222}, archivePrefix = {arXiv}
+}
+@book{vovk2005algorithmic,
+  author    = {Vovk, Vladimir and Gammerman, Alex and Shafer, Glenn},
+  title     = {Algorithmic Learning in a Random World},
+  publisher = {Springer}, year = {2005},
+  doi       = {10.1007/b106715}
+}
+@article{koenker1978regression,
+  author  = {Koenker, Roger and Bassett, Gilbert, Jr.},
+  title   = {Regression Quantiles},
+  journal = {Econometrica},
+  volume  = {46}, number = {1}, pages = {33--50}, year = {1978},
+  doi     = {10.2307/1913643}
+}
+@article{hoerl1970ridge,
+  author  = {Hoerl, Arthur E. and Kennard, Robert W.},
+  title   = {Ridge Regression: Biased Estimation for Nonorthogonal Problems},
+  journal = {Technometrics},
+  volume  = {12}, number = {1}, pages = {55--67}, year = {1970},
+  doi     = {10.1080/00401706.1970.10488634}
+}
+@article{efron2004least,
+  author  = {Efron, Bradley and Hastie, Trevor and Johnstone, Iain and Tibshirani, Robert},
+  title   = {Least Angle Regression},
+  journal = {The Annals of Statistics},
+  volume  = {32}, number = {2}, pages = {407--499}, year = {2004},
+  doi     = {10.1214/009053604000000067}
+}</pre>
+    <p class="note">This is an independent implementation from the papers' mathematics; no code from the authors or from other libraries was copied.</p>
+    <h3>Example data</h3>
+    <p>"Load example" uses the diabetes data from Efron, Hastie, Johnstone &amp; Tibshirani (2004), "Least Angle Regression", <em>The Annals of Statistics</em> 32(2): 442 patients, ten baseline measurements (age, sex, body mass index, blood pressure and six blood serum measurements S1&ndash;S6), and Y, a quantitative measure of disease progression one year later. File from the authors' companion page (<code>www4.stat.ncsu.edu/~boos/var.select/diabetes.tab.txt</code>), retrieved 2026-10-20; distributed publicly by the authors for research and teaching and redistributed in scikit-learn (BSD-3-Clause). It is bundled with this page, so loading it makes no network request.</p>
+  </section>
+
+  <section class="card">
+    <h2>Limits</h2>
+    <ul>
+      <li><strong>Exchangeability.</strong> The guarantee needs calibration rows and new rows to be exchangeable, for example independent draws from the same population. It does not hold for time series with trend or drift, for data sorted in a meaningful order before a split, or when new rows come from a different population.</li>
+      <li><strong>Marginal, not conditional.</strong> 90% is an average over rows. A subgroup can be covered 70% of the time while another is covered 99%. Nothing here guarantees coverage for one particular person or row.</li>
+      <li><strong>Linear base models.</strong> The point predictor, the error-spread model and the quantile models are all linear in the features you give. Validity does not depend on that, but width does: if the error size depends on |x| or x&sup2;, add that column yourself, or the adaptive methods cannot follow it.</li>
+      <li><strong>Split conformal spends data.</strong> Rows used for calibration and testing are not used for fitting. Full conformal and cross-conformal methods, which reuse data, are not implemented.</li>
+      <li><strong>Random split.</strong> Results depend on the seed. Change it, or read the average over repeated splits, before drawing conclusions from small data.</li>
+      <li><strong>Not modelled:</strong> classification, categorical features (recode them as numbers yourself), weighted or covariate-shift conformal, and grouped or clustered rows.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is a conformal prediction interval?</h3>
+    <p>It is a range around a model's prediction that is built so that, if your rows are exchangeable (for example a random sample), a new row's true value falls inside it at least as often as the coverage level you ask for, such as 90%. The guarantee holds for any data distribution and any underlying model, and in finite samples. The width is set by how large the model's errors were on calibration rows it did not train on.</p>
+    <h3>How is this different from a regression prediction interval?</h3>
+    <p>A textbook regression prediction interval assumes normal errors with constant variance and a correct linear model. If those fail, its coverage can be well below what it claims. A conformal interval assumes only exchangeable rows; a poor model gives wider intervals, not wrong coverage.</p>
+    <h3>Which method should I use: split conformal, locally weighted or CQR?</h3>
+    <p>All three have the same guarantee, so pick the narrowest on your held-out rows. Split conformal gives the same width everywhere. Locally weighted conformal and CQR widen the interval where errors are larger, which helps when noise grows with a feature. With constant noise, plain split conformal is often as narrow and simpler.</p>
+    <h3>Why is the held-out coverage not exactly 90%?</h3>
+    <p>The guarantee is on average over random splits and new rows. A single test set of 100 rows varies by several points by chance, which is why the tool also averages over 20 random splits. With continuous scores the long-run average lies between the target and the target plus 1/(n+1), where n is the number of calibration rows.</p>
+    <h3>Why did I get an infinite interval?</h3>
+    <p>When the calibration set is so small that k = ceil((n+1)(1-alpha)) exceeds n, no finite width can be guaranteed. At 90% coverage you need at least 9 calibration rows; at 95%, 19; at 99%, 99. Add rows or raise the calibration share.</p>
+    <h3>Does the 90% hold for every subgroup or every row?</h3>
+    <p>No. It is marginal: averaged over all rows. Locally weighted conformal and CQR usually make coverage more even, but neither guarantees conditional coverage, and nothing holds if new data drift away from the calibration data.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The CSV is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; they do not guarantee what will happen for any particular case, and they are not medical advice. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>predict_run</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data.csv --coverage 0.9 --method cqr</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/conformal-prediction-intervals" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed level or volatility, and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns and anomalies.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, parseCsv } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const num = (v) => (typeof v !== "number" ? String(v) : Math.abs(v) >= 100 ? v.toFixed(1) : Math.abs(v) >= 1 ? v.toFixed(2) : v.toPrecision(3));
+    const pct = (v) => (typeof v === "number" ? `${(100 * v).toFixed(1)}%` : "—");
+    let last = null;
+
+    function refreshColumns() {
+      const p = parseCsv($("#csv").value);
+      const tSel = $("#target"), fSel = $("#features");
+      if (p.error) { tSel.innerHTML = ""; fSel.innerHTML = ""; $("#data-status").textContent = $("#csv").value.trim() ? p.error : "Paste a CSV or load the example."; return; }
+      const prevT = tSel.value;
+      const opts = p.columns.map((c, j) => `<option value="${esc(c)}"${p.numeric[j] ? "" : " disabled"}>${esc(c)}${p.numeric[j] ? "" : " (not numeric)"}</option>`).join("");
+      tSel.innerHTML = opts;
+      const numericCols = p.columns.filter((_, j) => p.numeric[j]);
+      tSel.value = p.columns.includes(prevT) && numericCols.includes(prevT) ? prevT : numericCols[numericCols.length - 1] || "";
+      fillFeatures(p);
+      $("#data-status").textContent = `${p.rows.length} rows, ${p.columns.length} columns${p.hasHeader ? "" : " (no header found: columns named c1, c2, ...)"}.`;
+    }
+    function fillFeatures(p) {
+      const t = $("#target").value;
+      $("#features").innerHTML = p.columns.map((c, j) => (c === t || !p.numeric[j] ? "" : `<option value="${esc(c)}" selected>${esc(c)}</option>`)).join("");
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#target").addEventListener("change", () => fillFeatures(parseCsv($("#csv").value)));
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs(extra = {}) {
+      return {
+        csv: $("#csv").value,
+        target: $("#target").value,
+        features: [...$("#features").selectedOptions].map((o) => o.value),
+        coverage: Number($("#coverage").value),
+        method: $("#method").value,
+        testFraction: Number($("#test-frac").value),
+        calibrationFraction: Number($("#cal-frac").value),
+        seed: Number($("#seed").value),
+        repeats: Number($("#repeats").value),
+        ...extra,
+      };
+    }
+
+    function chart(m) {
+      const rows = m.test.filter((r) => typeof r.pred === "number").sort((a, b) => a.pred - b.pred);
+      if (!rows.length) return "<p class=\"note\">No test rows to plot.</p>";
+      const W = 820, H = 340, L = 54, R = 12, T = 12, B = 34;
+      const finite = (v) => typeof v === "number";
+      let lo = Infinity, hi = -Infinity;
+      for (const r of rows) for (const v of [r.y, r.pred, r.lo, r.hi]) if (finite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+      if (!(hi > lo)) { hi = lo + 1; }
+      const pad = (hi - lo) * 0.05; lo -= pad; hi += pad;
+      const sx = (i) => L + ((i + 0.5) / rows.length) * (W - L - R);
+      const sy = (v) => (v === "Infinity" ? T : v === "-Infinity" ? H - B : T + (1 - (v - lo) / (hi - lo)) * (H - T - B));
+      const bw = Math.max(1, Math.min(8, ((W - L - R) / rows.length) * 0.7));
+      const ticks = Array.from({ length: 5 }, (_, i) => lo + ((hi - lo) * i) / 4);
+      let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      s += ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${sy(t).toFixed(1)}" y2="${sy(t).toFixed(1)}" stroke="#e6ebef"/><text x="${L - 6}" y="${(sy(t) + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#4c5a68">${esc(num(t))}</text>`).join("");
+      s += rows.map((r, i) => `<rect x="${(sx(i) - bw / 2).toFixed(1)}" y="${sy(r.hi).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1, sy(r.lo) - sy(r.hi)).toFixed(1)}" fill="#9cc3d9" rx="1"/>`).join("");
+      s += `<polyline fill="none" stroke="#1f4a5d" stroke-width="1.5" points="${rows.map((r, i) => `${sx(i).toFixed(1)},${sy(r.pred).toFixed(1)}`).join(" ")}"/>`;
+      s += rows.map((r, i) => `<circle cx="${sx(i).toFixed(1)}" cy="${sy(r.y).toFixed(1)}" r="${r.covered ? 2.6 : 3.6}" fill="${r.covered ? "#2d7a3e" : "#c0392b"}"><title>line ${r.line}: actual ${esc(num(r.y))}, interval ${esc(num(r.lo))} to ${esc(num(r.hi))}</title></circle>`).join("");
+      s += `<text x="${(L + W - R) / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="#4c5a68">${rows.length} test rows, ordered by predicted value</text></svg>`;
+      return s;
+    }
+
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#methods-table tbody").innerHTML = r.methods.map((m) => `<tr><td>${esc(m.name)}</td><td class="n">${pct(m.empiricalCoverage)}</td><td class="n">${m.covered}/${m.testRows}</td><td class="n">${esc(num(m.meanWidth))}</td><td class="n">${esc(num(m.medianWidth))}</td><td class="n">${esc(num(m.quantile))}</td><td class="n">${m.quantileIndex} of ${r.split.calibration}</td><td class="n">${m.repeated ? pct(m.repeated.meanCoverage) + ` (${m.repeated.splits})` : "—"}</td><td class="n">${m.repeated ? esc(num(m.repeated.meanWidth)) : "—"}</td></tr>`).join("");
+      const cm = $("#chart-method");
+      const prev = cm.value;
+      cm.innerHTML = r.methods.map((m) => `<option value="${m.id}">${esc(m.name)}</option>`).join("");
+      if (r.methods.some((m) => m.id === prev)) cm.value = prev;
+      drawChart();
+    }
+    function drawChart() {
+      if (!last) return;
+      const m = last.methods.find((x) => x.id === $("#chart-method").value) || last.methods[0];
+      $("#chart").innerHTML = chart(m);
+    }
+    $("#chart-method").addEventListener("change", drawChart);
+
+    function runAnalysis() {
+      const st = $("#status");
+      const r = analyze(inputs());
+      if (r.error) { st.textContent = r.error; $("#results").hidden = true; last = null; return false; }
+      last = r;
+      st.textContent = `Done: ${r.methods.length} method${r.methods.length === 1 ? "" : "s"} on ${r.rows.used} rows.`;
+      show(r);
+      return true;
+    }
+    function start(after) {
+      $("#status").textContent = "Fitting models and calibrating…";
+      setTimeout(() => { if (runAnalysis()) after(); }, 20);
+    }
+    $("#analyze").addEventListener("click", () => start(() => record("analysis_run")));
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#target").value = "Y";
+      fillFeatures(parseCsv(EXAMPLE_CSV));
+      $("#new-rows").value = "AGE,SEX,BMI,BP,S1,S2,S3,S4,S5,S6\n50,1,25,90,180,110,50,4,4.5,90\n60,2,35,110,200,120,40,5,5.2,100";
+      start(() => { record("example_loaded"); $("#data-status").textContent = "Example: diabetes data of Efron, Hastie, Johnstone & Tibshirani (2004), 442 real patients; Y is disease progression after one year."; });
+    });
+    $("#predict").addEventListener("click", () => {
+      const ns = $("#new-status"), tbl = $("#new-table");
+      if (!$("#new-rows").value.trim()) { ns.textContent = "Paste one or more rows with the feature columns first."; return; }
+      const r = analyze(inputs({ newRows: $("#new-rows").value, repeats: 0 }));
+      if (r.error) { ns.textContent = r.error; tbl.hidden = true; return; }
+      const body = [];
+      r.methods[0].newRows.forEach((_, i) => r.methods.forEach((m) => body.push(`<tr><td>${i + 1}</td><td>${esc(m.name)}</td><td class="n">${esc(num(m.newRows[i].lo))}</td><td class="n">${esc(num(m.newRows[i].pred))}</td><td class="n">${esc(num(m.newRows[i].hi))}</td></tr>`)));
+      tbl.querySelector("tbody").innerHTML = body.join("");
+      tbl.hidden = false;
+      ns.textContent = `${r.methods[0].newRows.length} row(s) at ${pct(r.coverage)} coverage, predicting ${r.target}.`;
+      record("predict_run");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const lines = ["method,csv_line,actual,prediction,lower,upper,covered"];
+      for (const m of last.methods) for (const t of m.test) lines.push([m.id, t.line, t.y, t.pred, t.lo, t.hi, t.covered].join(","));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
+      a.download = "conformal-intervals.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

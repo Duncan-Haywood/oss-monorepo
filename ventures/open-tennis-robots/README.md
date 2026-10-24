@@ -13,7 +13,7 @@ tennis practice better:
   the feeder.
 
 **Try the shot planner and route demo in your browser:**
-https://duncan-haywood.github.io/monorepo-projects/open-tennis-robots/
+https://duncan-haywood.github.io/oss-monorepo/open-tennis-robots/
 
 Everything is MIT-licensed. You can build it, change it, and **sell it**
 under your own brand ([seller's guide](sell/README.md), including a
@@ -35,7 +35,18 @@ or [browse it](manufacturing/collector/) (GitHub renders the STLs in 3D):
 
 Every build checks for part-to-part collisions, bolt-hole alignment, ground
 contact and design rules, and is byte-reproducible. CI fails if the
-committed package goes stale. The feeder's CAD is next on the roadmap.
+committed package goes stale.
+
+**The feeder has a first package too** ([`manufacturing/feeder-package.zip`](manufacturing/feeder-package.zip),
+[browse](manufacturing/feeder/)): launcher head plates, trunnion cheeks and
+turntable, the 2040 base with drive and idler brackets, mast, 3 m net beam,
+net poles, elbows and a stereo camera bar. Its build also tilts the head
+through its whole elevation range to check it never hits the mast, and
+sizes the ballast the net needs against wind. The feed is modelled too: a
+hopper tub on a sloped shelf and four posts, a hose to the head, and a printed
+shuttle that meters one ball at a time to the wheels. Not yet modelled: netting
+and trough, hopper agitator, the shuttle and elevation actuators' brackets and
+the azimuth drive ([`cad/README.md`](cad/README.md)).
 
 > **Status:** the collector is design v0.2 with a complete package; the
 > feeder is a v0.1 design. The physics, planners, tracker and firmware
@@ -131,8 +142,10 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
 1. **Build the collector first** from the manufacturing package. It is
    simpler, cheaper and safer, and it tests the vision, localisation and
    drive stack.
-2. **Feeder CAD**: launcher head, hopper, lateral base and catch-net frame as
-   a second package, generated the same way.
+2. **Feeder CAD**: launcher head, lateral base, mast and catch-net frame are
+   in `manufacturing/feeder/` (v0.1), with the hopper, hose and feed shuttle.
+   Still to model: the actuator brackets (shuttle and elevation), azimuth
+   drive, netting trough, post bracing.
 3. Bench-test the feeder head: calibrate wheel efficiencies
    (`launcher.calibrate`) with a radar gun, then validate the flight model
    against real landing spots.

@@ -1,11 +1,11 @@
-# waitlist-keeper
+# Waitlist Keeper — Free Self-Hosted Referral Waitlist
 
 After using this, you can now **run a pre-launch waitlist where confirmed
 referrals move people up the line, with the signup list in your own account**,
 which used to mean paying a waitlist tool per subscriber or writing the
 anti-abuse plumbing yourself.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/waitlist-keeper/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/waitlist-keeper/
 
 Two parts, both free and MIT:
 

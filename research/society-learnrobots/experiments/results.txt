@@ -1,0 +1,51 @@
+society-learnrobots: share 0.3, d=1.0, w=1, people m=9 beta=8; robot step alpha=0.05, 3000 rounds (first 1500 discarded), n=200, 8 seeds
+k* (a fixed always-yield fleet is stable above it, society-doorcost) = 2.799
+
+== A. where the fleet settles: logit-QRE prediction vs simulation (start from yielding, g0=0)
+# k beta_r qre_g sim_g sim_g_sd sim_people_go cost_all_sim cost_all_always_yield
+0.50 4 0.890 0.889 0.000 0.984 0.501 0.546
+1.00 4 0.708 0.701 0.001 0.810 0.827 0.769
+1.50 4 0.593 0.569 0.004 0.614 0.940 0.886
+2.00 4 0.500 0.458 0.004 0.510 0.994 0.945
+2.80 4 0.378 0.308 0.005 0.430 1.039 1.000
+4.00 4 0.244 0.157 0.008 0.377 1.074 1.050
+6.00 4 0.120 0.047 0.003 0.325 1.109 1.099
+0.50 16 1.000 0.997 0.000 0.983 0.500 0.546
+1.00 16 0.947 0.925 0.002 0.770 0.850 0.769
+1.50 16 0.739 0.513 0.007 0.628 0.935 0.886
+2.00 16 0.500 0.176 0.009 0.582 0.962 0.945
+2.80 16 0.230 0.027 0.004 0.504 1.002 1.000
+4.00 16 0.045 0.006 0.002 0.417 1.049 1.050
+6.00 16 0.001 0.002 0.002 0.338 1.099 1.099
+
+== B. does the start matter? simulation from yielding (g0=0) and from going (g0=1), beta_r=16
+# k sim_g_from_0 sim_g_from_1 qre_g
+0.50 0.997 0.997 1.000
+1.00 0.925 0.925 0.947
+1.50 0.513 0.523 0.739
+2.00 0.176 0.171 0.500
+2.80 0.027 0.028 0.230
+4.00 0.006 0.007 0.045
+6.00 0.002 0.002 0.001
+
+== C. how sharp must the robots be? QRE fleet go share at k=2.8 (about k*) and k=1.5, and the k at
+# which it falls below 0.1 (robot share 0.3, d=1)
+# beta_r g_at_k1.5 g_at_k2.8 g_at_k4 k_where_g_below_0.1
+1 0.527 0.462 0.410 19.23
+2 0.551 0.430 0.341 12.24
+4 0.593 0.378 0.244 6.35
+8 0.657 0.308 0.135 4.42
+16 0.739 0.230 0.045 3.50
+32 0.824 0.159 0.004 3.04
+64 0.897 0.103 0.000 2.81
+
+== D. robot share, beta_r=16, k=1.5 and k=3, d=1: QRE vs simulation from g0=0
+# share k qre_g sim_g
+0.10 1.50 0.785 0.477
+0.10 3.00 0.102 0.010
+0.30 1.50 0.739 0.510
+0.30 3.00 0.185 0.020
+0.50 1.50 0.702 0.551
+0.50 3.00 0.252 0.047
+0.70 1.50 0.674 0.566
+0.70 3.00 0.300 0.108

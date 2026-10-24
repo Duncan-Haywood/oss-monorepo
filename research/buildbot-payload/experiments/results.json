@@ -1,0 +1,987 @@
+{
+ "menagerie_commit": "cda5236f98383f6fbaa4820c6b18dba892cd087f",
+ "mass_kg": {
+  "g1": 33.341142000000005,
+  "h1": 51.437000000000005
+ },
+ "envelope": {
+  "g1-palm": [
+   {
+    "z": 0.2,
+    "x": 0.2,
+    "kg": 8.14453125,
+    "limit": "left_wrist_pitch_joint"
+   },
+   {
+    "z": 0.2,
+    "x": 0.3,
+    "kg": 4.27734375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.2,
+    "x": 0.4,
+    "kg": 2.87109375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.2,
+    "x": 0.5,
+    "kg": 1.0546875,
+    "limit": "reach"
+   },
+   {
+    "z": 0.2,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.4,
+    "x": 0.2,
+    "kg": 6.15234375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.4,
+    "x": 0.3,
+    "kg": 3.80859375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.4,
+    "x": 0.4,
+    "kg": 2.40234375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.4,
+    "x": 0.5,
+    "kg": 1.46484375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.4,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.6,
+    "x": 0.2,
+    "kg": 7.8515625,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.6,
+    "x": 0.3,
+    "kg": 4.62890625,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.6,
+    "x": 0.4,
+    "kg": 2.75390625,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.6,
+    "x": 0.5,
+    "kg": 1.5234375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.6,
+    "x": 0.6,
+    "kg": 0.5859375,
+    "limit": "reach"
+   },
+   {
+    "z": 0.8,
+    "x": 0.2,
+    "kg": 8.49609375,
+    "limit": "left_wrist_pitch_joint"
+   },
+   {
+    "z": 0.8,
+    "x": 0.3,
+    "kg": 7.08984375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.8,
+    "x": 0.4,
+    "kg": 3.8671875,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.8,
+    "x": 0.5,
+    "kg": 1.93359375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.8,
+    "x": 0.6,
+    "kg": 0.29296875,
+    "limit": "reach"
+   },
+   {
+    "z": 1.0,
+    "x": 0.2,
+    "kg": 8.203125,
+    "limit": "left_wrist_pitch_joint"
+   },
+   {
+    "z": 1.0,
+    "x": 0.3,
+    "kg": 7.67578125,
+    "limit": "left_wrist_pitch_joint"
+   },
+   {
+    "z": 1.0,
+    "x": 0.4,
+    "kg": 4.74609375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 1.0,
+    "x": 0.5,
+    "kg": 2.2265625,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 1.0,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.2,
+    "x": 0.2,
+    "kg": 9.55078125,
+    "limit": "left_shoulder_pitch_joint"
+   },
+   {
+    "z": 1.2,
+    "x": 0.3,
+    "kg": 8.73046875,
+    "limit": "left_wrist_pitch_joint"
+   },
+   {
+    "z": 1.2,
+    "x": 0.4,
+    "kg": 4.51171875,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 1.2,
+    "x": 0.5,
+    "kg": 0.17578125,
+    "limit": "reach"
+   },
+   {
+    "z": 1.2,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.4,
+    "x": 0.2,
+    "kg": 12.36328125,
+    "limit": "left_shoulder_pitch_joint"
+   },
+   {
+    "z": 1.4,
+    "x": 0.3,
+    "kg": 5.68359375,
+    "limit": "reach"
+   },
+   {
+    "z": 1.4,
+    "x": 0.4,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.4,
+    "x": 0.5,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.4,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   }
+  ],
+  "g1-cradle": [
+   {
+    "z": 0.2,
+    "x": 0.2,
+    "kg": 6.38671875,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.2,
+    "x": 0.3,
+    "kg": 3.28125,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.2,
+    "x": 0.4,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.2,
+    "x": 0.5,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.2,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.4,
+    "x": 0.2,
+    "kg": 7.44140625,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.4,
+    "x": 0.3,
+    "kg": 2.87109375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.4,
+    "x": 0.4,
+    "kg": 1.46484375,
+    "limit": "reach"
+   },
+   {
+    "z": 0.4,
+    "x": 0.5,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.4,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.6,
+    "x": 0.2,
+    "kg": 5.15625,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.6,
+    "x": 0.3,
+    "kg": 2.6953125,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.6,
+    "x": 0.4,
+    "kg": 1.23046875,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.6,
+    "x": 0.5,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.6,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.8,
+    "x": 0.2,
+    "kg": 7.08984375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.8,
+    "x": 0.3,
+    "kg": 3.515625,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.8,
+    "x": 0.4,
+    "kg": 1.46484375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 0.8,
+    "x": 0.5,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.8,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.0,
+    "x": 0.2,
+    "kg": 9.84375,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 1.0,
+    "x": 0.3,
+    "kg": 4.453125,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 1.0,
+    "x": 0.4,
+    "kg": 0.46875,
+    "limit": "reach"
+   },
+   {
+    "z": 1.0,
+    "x": 0.5,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.0,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.2,
+    "x": 0.2,
+    "kg": 9.66796875,
+    "limit": "waist_pitch_joint"
+   },
+   {
+    "z": 1.2,
+    "x": 0.3,
+    "kg": 1.81640625,
+    "limit": "reach"
+   },
+   {
+    "z": 1.2,
+    "x": 0.4,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.2,
+    "x": 0.5,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.2,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.4,
+    "x": 0.2,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.4,
+    "x": 0.3,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.4,
+    "x": 0.4,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.4,
+    "x": 0.5,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 1.4,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   }
+  ],
+  "h1-palm": [
+   {
+    "z": 0.2,
+    "x": 0.2,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.2,
+    "x": 0.3,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.2,
+    "x": 0.4,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.2,
+    "x": 0.5,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.2,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 0.4,
+    "x": 0.2,
+    "kg": 36.38671875,
+    "limit": "reach"
+   },
+   {
+    "z": 0.4,
+    "x": 0.3,
+    "kg": 22.67578125,
+    "limit": "reach"
+   },
+   {
+    "z": 0.4,
+    "x": 0.4,
+    "kg": 14.70703125,
+    "limit": "reach"
+   },
+   {
+    "z": 0.4,
+    "x": 0.5,
+    "kg": 8.49609375,
+    "limit": "reach"
+   },
+   {
+    "z": 0.4,
+    "x": 0.6,
+    "kg": 3.046875,
+    "limit": "reach"
+   },
+   {
+    "z": 0.6,
+    "x": 0.2,
+    "kg": 26.015625,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 0.6,
+    "x": 0.3,
+    "kg": 18.75,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 0.6,
+    "x": 0.4,
+    "kg": 15.52734375,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 0.6,
+    "x": 0.5,
+    "kg": 14.0625,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 0.6,
+    "x": 0.6,
+    "kg": 13.06640625,
+    "limit": "reach"
+   },
+   {
+    "z": 0.8,
+    "x": 0.2,
+    "kg": 21.03515625,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 0.8,
+    "x": 0.3,
+    "kg": 16.34765625,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 0.8,
+    "x": 0.4,
+    "kg": 14.1796875,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 0.8,
+    "x": 0.5,
+    "kg": 13.2421875,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 0.8,
+    "x": 0.6,
+    "kg": 12.94921875,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 1.0,
+    "x": 0.2,
+    "kg": 14.53125,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 1.0,
+    "x": 0.3,
+    "kg": 13.4765625,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 1.0,
+    "x": 0.4,
+    "kg": 12.83203125,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 1.0,
+    "x": 0.5,
+    "kg": 12.71484375,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 1.0,
+    "x": 0.6,
+    "kg": 12.83203125,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 1.2,
+    "x": 0.2,
+    "kg": 12.5390625,
+    "limit": "left_elbow"
+   },
+   {
+    "z": 1.2,
+    "x": 0.3,
+    "kg": 12.421875,
+    "limit": "left_elbow"
+   },
+   {
+    "z": 1.2,
+    "x": 0.4,
+    "kg": 12.59765625,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 1.2,
+    "x": 0.5,
+    "kg": 12.94921875,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 1.2,
+    "x": 0.6,
+    "kg": 13.30078125,
+    "limit": "right_elbow"
+   },
+   {
+    "z": 1.4,
+    "x": 0.2,
+    "kg": 19.04296875,
+    "limit": "left_elbow"
+   },
+   {
+    "z": 1.4,
+    "x": 0.3,
+    "kg": 15.8203125,
+    "limit": "left_elbow"
+   },
+   {
+    "z": 1.4,
+    "x": 0.4,
+    "kg": 14.765625,
+    "limit": "left_elbow"
+   },
+   {
+    "z": 1.4,
+    "x": 0.5,
+    "kg": 14.1796875,
+    "limit": "right_shoulder_pitch"
+   },
+   {
+    "z": 1.4,
+    "x": 0.6,
+    "kg": 13.06640625,
+    "limit": "right_shoulder_pitch"
+   },
+   {
+    "z": 1.6,
+    "x": 0.2,
+    "kg": 19.16015625,
+    "limit": "left_shoulder_pitch"
+   },
+   {
+    "z": 1.6,
+    "x": 0.3,
+    "kg": 16.46484375,
+    "limit": "left_shoulder_pitch"
+   },
+   {
+    "z": 1.6,
+    "x": 0.4,
+    "kg": 14.82421875,
+    "limit": "right_shoulder_pitch"
+   },
+   {
+    "z": 1.6,
+    "x": 0.5,
+    "kg": 13.7109375,
+    "limit": "right_shoulder_pitch"
+   },
+   {
+    "z": 1.6,
+    "x": 0.6,
+    "kg": 13.59375,
+    "limit": "right_shoulder_pitch"
+   },
+   {
+    "z": 1.8,
+    "x": 0.2,
+    "kg": 20.21484375,
+    "limit": "left_shoulder_pitch"
+   },
+   {
+    "z": 1.8,
+    "x": 0.3,
+    "kg": 17.28515625,
+    "limit": "right_shoulder_pitch"
+   },
+   {
+    "z": 1.8,
+    "x": 0.4,
+    "kg": 15.64453125,
+    "limit": "right_shoulder_pitch"
+   },
+   {
+    "z": 1.8,
+    "x": 0.5,
+    "kg": 14.82421875,
+    "limit": "reach"
+   },
+   {
+    "z": 1.8,
+    "x": 0.6,
+    "kg": 5.859375,
+    "limit": "reach"
+   },
+   {
+    "z": 2.0,
+    "x": 0.2,
+    "kg": 25.25390625,
+    "limit": "right_shoulder_pitch"
+   },
+   {
+    "z": 2.0,
+    "x": 0.3,
+    "kg": 21.4453125,
+    "limit": "reach"
+   },
+   {
+    "z": 2.0,
+    "x": 0.4,
+    "kg": 6.4453125,
+    "limit": "reach"
+   },
+   {
+    "z": 2.0,
+    "x": 0.5,
+    "kg": null,
+    "limit": "reach"
+   },
+   {
+    "z": 2.0,
+    "x": 0.6,
+    "kg": null,
+    "limit": "reach"
+   }
+  ]
+ },
+ "tasks": [
+  {
+   "task": "carry an 8 ft 2x4 stud",
+   "kg": [
+    3.78,
+    3.78
+   ],
+   "z": 0.6,
+   "x": 0.3,
+   "source": "SPF at 28.5 lb/ft3 from NDS G = 0.42",
+   "g1-palm": {
+    "cap": 4.62890625,
+    "limit": "waist_pitch_joint",
+    "verdict": "yes"
+   },
+   "g1-cradle": {
+    "cap": 2.6953125,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "h1-palm": {
+    "cap": 18.75,
+    "limit": "right_elbow",
+    "verdict": "yes"
+   }
+  },
+  {
+   "task": "carry an 8 ft 2x6",
+   "kg": [
+    5.94,
+    5.94
+   ],
+   "z": 0.6,
+   "x": 0.3,
+   "source": "as above",
+   "g1-palm": {
+    "cap": 4.62890625,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "g1-cradle": {
+    "cap": 2.6953125,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "h1-palm": {
+    "cap": 18.75,
+    "limit": "right_elbow",
+    "verdict": "yes"
+   }
+  },
+  {
+   "task": "hold a framing nailer at stud height",
+   "kg": [
+    3.4,
+    3.4
+   ],
+   "z": 1.0,
+   "x": 0.4,
+   "source": "Metabo HPT NR90AES1, 7.5 lb (maker's listing)",
+   "g1-palm": {
+    "cap": 4.74609375,
+    "limit": "waist_pitch_joint",
+    "verdict": "yes"
+   },
+   "g1-cradle": {
+    "cap": 0.46875,
+    "limit": "reach",
+    "verdict": "no"
+   },
+   "h1-palm": {
+    "cap": 12.83203125,
+    "limit": "right_elbow",
+    "verdict": "yes"
+   }
+  },
+  {
+   "task": "carry a 4x8 OSB sheet alone",
+   "kg": [
+    20.32,
+    23.22
+   ],
+   "z": 0.6,
+   "x": 0.3,
+   "source": "7/16 in OSB, 1.4-1.6 lb/ft2",
+   "g1-palm": {
+    "cap": 4.62890625,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "g1-cradle": {
+    "cap": 2.6953125,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "h1-palm": {
+    "cap": 18.75,
+    "limit": "right_elbow",
+    "verdict": "no"
+   }
+  },
+  {
+   "task": "carry one end of a 4x8 OSB sheet with a person",
+   "kg": [
+    10.16,
+    11.61
+   ],
+   "z": 0.6,
+   "x": 0.3,
+   "source": "half the sheet",
+   "g1-palm": {
+    "cap": 4.62890625,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "g1-cradle": {
+    "cap": 2.6953125,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "h1-palm": {
+    "cap": 18.75,
+    "limit": "right_elbow",
+    "verdict": "yes"
+   }
+  },
+  {
+   "task": "set a lightweight concrete block on the 3rd course",
+   "kg": [
+    11.79,
+    11.79
+   ],
+   "z": 0.6,
+   "x": 0.4,
+   "source": "8x8x16 in lightweight CMU, average 26 lb (TMS journal survey)",
+   "g1-palm": {
+    "cap": 2.75390625,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "g1-cradle": {
+    "cap": 1.23046875,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "h1-palm": {
+    "cap": 15.52734375,
+    "limit": "right_elbow",
+    "verdict": "yes"
+   }
+  },
+  {
+   "task": "set a normal-weight concrete block on the 3rd course",
+   "kg": [
+    16.78,
+    16.78
+   ],
+   "z": 0.6,
+   "x": 0.4,
+   "source": "8x8x16 in normal-weight CMU, average 37 lb (same survey)",
+   "g1-palm": {
+    "cap": 2.75390625,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "g1-cradle": {
+    "cap": 1.23046875,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "h1-palm": {
+    "cap": 15.52734375,
+    "limit": "right_elbow",
+    "verdict": "no"
+   }
+  },
+  {
+   "task": "lift a 60 lb bag of concrete mix",
+   "kg": [
+    27.22,
+    27.22
+   ],
+   "z": 0.4,
+   "x": 0.3,
+   "source": "labelled bag mass",
+   "g1-palm": {
+    "cap": 3.80859375,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "g1-cradle": {
+    "cap": 2.87109375,
+    "limit": "waist_pitch_joint",
+    "verdict": "no"
+   },
+   "h1-palm": {
+    "cap": 22.67578125,
+    "limit": "reach",
+    "verdict": "no"
+   }
+  },
+  {
+   "task": "hold one end of a 1/2 in drywall sheet at wall mid-height with a person",
+   "kg": [
+    11.61,
+    11.61
+   ],
+   "z": 1.2,
+   "x": 0.3,
+   "source": "4x8 sheet at 1.6 lb/ft2 (51 lb); half of it",
+   "g1-palm": {
+    "cap": 8.73046875,
+    "limit": "left_wrist_pitch_joint",
+    "verdict": "no"
+   },
+   "g1-cradle": {
+    "cap": 1.81640625,
+    "limit": "reach",
+    "verdict": "no"
+   },
+   "h1-palm": {
+    "cap": 12.421875,
+    "limit": "left_elbow",
+    "verdict": "yes"
+   }
+  },
+  {
+   "task": "hold a drywall sheet up to an 8 ft ceiling with a person",
+   "kg": [
+    11.61,
+    11.61
+   ],
+   "z": 2.3,
+   "x": 0.2,
+   "source": "as above; hands near 2.3 m",
+   "g1-palm": {
+    "cap": null,
+    "limit": "reach",
+    "verdict": "out of reach"
+   },
+   "g1-cradle": {
+    "cap": null,
+    "limit": "reach",
+    "verdict": "out of reach"
+   },
+   "h1-palm": {
+    "cap": null,
+    "limit": "reach",
+    "verdict": "out of reach"
+   }
+  }
+ ]
+}

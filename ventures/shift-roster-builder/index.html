@@ -71,8 +71,9 @@
     <p class="note">SHIFT ROSTER BUILDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Build this week's schedule without the spreadsheet puzzle</h1>
     <p>List <strong>the shifts you need covered</strong> and <strong>your people</strong> with their availability, weekly hour limits and wages. The tool assigns people to shifts so that <strong>every shift is covered if it can be</strong>, nobody works outside their availability, gets less rest than you allow, or goes into <strong>overtime</strong> when someone cheaper is free. Shifts it cannot fill come back with the reason, and it shows <strong>who the week depends on</strong>. Download the roster as a CSV.</p>
-    <p class="note">Your staff list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It does not know your local scheduling-notice, break or minor-labor laws. See <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a> for the method, and <a href="do-i-need-to-hire-another-employee.html">do I need to hire another employee?</a> for testing a hire before you post the job. Checking payroll against sales? See <a href="labor-cost-percentage-by-day.html">labor cost percentage by day</a>. Worried about close-then-open shifts? See <a href="how-to-avoid-clopening.html">what a rest gap costs</a>, or <a href="how-to-reduce-overtime-in-a-schedule.html">how to reduce overtime in a schedule</a>. Scheduling a 14 or 15 year old? See <a href="scheduling-14-and-15-year-olds.html">what the youth hour limits do to a roster</a>, <a href="free-alternative-to-7shifts-when-i-work-homebase.html">a free alternative to paid scheduling apps for the rota</a>. Need a blank grid to print? See the <a href="employee-schedule-template.html">free weekly employee schedule template</a>. Someone just called out? See <a href="how-to-cover-a-shift-when-someone-calls-out.html">patch it or rebuild the week</a>.</p>
+    <p class="note">Your staff list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It does not know your local scheduling-notice, break or minor-labor laws. See <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a> for the method, and <a href="do-i-need-to-hire-another-employee.html">do I need to hire another employee?</a> for testing a hire before you post the job. Checking payroll against sales? See <a href="labor-cost-percentage-by-day.html">labor cost percentage by day</a>. Worried about close-then-open shifts? See <a href="how-to-avoid-clopening.html">what a rest gap costs</a>, or <a href="how-to-reduce-overtime-in-a-schedule.html">how to reduce overtime in a schedule</a>. Scheduling a 14 or 15 year old? See <a href="scheduling-14-and-15-year-olds.html">what the youth hour limits do to a roster</a>, <a href="free-alternative-to-7shifts-when-i-work-homebase.html">a free alternative to paid scheduling apps for the rota</a>. Need a blank grid to print? See the <a href="employee-schedule-template.html">free weekly employee schedule template</a>. Closes and weekends landing on the same people? See <a href="how-to-rotate-closing-and-weekend-shifts-fairly.html">how to rotate them fairly</a>. Someone just called out? See <a href="how-to-cover-a-shift-when-someone-calls-out.html">patch it or rebuild the week</a>. Weekend requests piling up? See <a href="how-to-handle-time-off-requests.html">how many you can grant</a>. Shifts staying open? See <a href="whose-availability-is-worth-widening.html">whose availability is worth asking to widen</a>.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Your people</h2>
@@ -113,6 +114,7 @@
       <div><label for="tippot">Tip pot to split this week ($, optional)</label><input id="tippot" inputmode="decimal" placeholder="e.g. 1450"></div>
       <div><label for="labortarget">Target labor cost (% of sales)</label><input id="labortarget" inputmode="decimal" placeholder="e.g. 30"></div>
       <div><label for="balance">Balance hours across people (0–100)</label><input id="balance" inputmode="decimal" value="25"></div>
+      <div><label for="prove">Check against an exact search (small weeks, a few seconds)</label><select id="prove"><option value="">Auto (up to 14 shifts)</option><option value="1">Always</option><option value="0">Never</option></select></div>
       <div><label for="tough">Spread weekend, closing and opening shifts (0–100)</label><input id="tough" inputmode="decimal" value="0"></div>
     </div>
     <button type="button" id="analyze">Build the roster</button>
@@ -231,7 +233,8 @@
     <p>No. Names, wages and availability are read and solved in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool does not store your roster. It works offline once the page has loaded.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional or your own knowledge of the labor rules that apply to you. Results are planning estimates from the numbers you supply. You are responsible for reviewing and verifying its output before relying on it.</p>
     <p><strong>Independent.</strong> Not affiliated with any scheduling, payroll or point-of-sale vendor, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
@@ -247,7 +250,7 @@
   </footer>
 
   <script type="module">
-    import { planWeeks, planFairness, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { planWeeks, planFairness, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -309,6 +312,7 @@
         weeks: val("planweeks", 4), weekStart: $("#weekstart").value || null,
         minRestHours: val("rest", 10), maxConsecDays: val("consec", 6), maxDailyHours: val("daily", 0), otAfter: val("otafter", 40), otMult: val("otmult", 1.5),
         burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))), toughBalance: Math.min(100, Math.max(0, val("tough", 0))),
+        exact: $("#prove").value === "1" ? true : $("#prove").value === "0" ? false : "auto", exactMs: 4000,
       });
       if (p.error) { out.innerHTML = `<div class="warn">${esc(p.error)}</div>`; return; }
       out.innerHTML = `<div class="scroll"><table><thead><tr><th>Week</th><th class="n">Shifts open</th><th class="n">Overtime hours</th><th class="n">Payroll</th><th></th></tr></thead><tbody>${p.weeks.map((w) => `<tr><td>${w.weekStart ? esc(w.weekStart) : "Week " + w.week}</td><td class="n">${w.roster.unfilledSlots}</td><td class="n">${num(w.roster.otHours)}</td><td class="n">${money(w.roster.cost)}</td><td><button type="button" class="secondary plan-csv" data-k="${w.week - 1}">CSV</button></td></tr>`).join("")}</tbody><tfoot><tr><th>Total</th><th class="n">${num(p.totalOpenHours)} h open</th><th></th><th class="n">${money(p.totalCost)}</th><th></th></tr></tfoot></table></div>${(() => { const f = planFairness(p); if (f.rows.length < 2) return ""; return `<div class="scroll"><table><caption>Who gets the hard shifts, over these ${f.weeks} weeks</caption><thead><tr><th>Person</th><th class="n">Hours</th><th class="n">Weekend</th><th class="n">Closing</th><th class="n">Opening</th><th class="n">Hard shifts</th></tr></thead><tbody>${f.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours)}</td><td class="n">${x.weekend}</td><td class="n">${x.closing}</td><td class="n">${x.opening}</td><td class="n">${x.tough}</td></tr>`).join("")}</tbody></table></div>${f.flag ? `<div class="warn">${esc(f.most.name)} has ${f.spread} more weekend, closing or opening shifts than ${esc(f.least.name)} over these weeks. Raise the spread setting to rotate them.</div>` : ""}`; })()}<p class="note">Set the spread setting above 0 to rotate weekend and closing shifts across these weeks. Open the CSV for a week and use it with "Carry over last week" to publish and then adjust.</p>`;
@@ -355,6 +359,7 @@
       ];
       const brk = placeBreaks(r);
       if (brk.length) flagMsgs.push("Suggested meal breaks (30 min, before the 5th hour, staggered so others stay on): " + brk.map((x) => `${x.person} ${x.dayName} ${fmtClock(x.startMin)}${x.alone ? " (nobody else on)" : ""}`).join("; ") + ".");
+      if (r.optimality) flagMsgs.unshift(optimalityText(r.optimality));
       $("#notices").innerHTML = r.warnings.concat(st.notes, flagMsgs).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const big = [
         [r.filledAll ? "All filled" : `${r.unfilledSlots} open`, r.filledAll ? `Every one of the ${r.slots} shifts has a person` : `shift${r.unfilledSlots === 1 ? "" : "s"} could not be filled (${num(r.unfilledHours)} hours)`],
@@ -377,7 +382,7 @@
         return `<tr><td>${esc(p.name)}</td><td class="n">${p.shifts}</td><td class="n">${num(p.hours)}</td><td class="n">${num(p.otHours)}</td><td class="n">${money(p.cost)}</td><td>${note}</td></tr>`;
       }).join("");
       $("#hire-box").innerHTML = r.hireTest
-        ? `<p class="note"><strong>Would one more person fix it?</strong> Adding someone free at any time (${num(r.hireTest.maxHours)} h a week, at the average wage of ${money2(r.hireTest.wage)}) would cover ${num(r.hireTest.coveredHours)} of the uncovered hours${r.hireTest.stillUnfilledHours > 0.01 ? ` and leave ${num(r.hireTest.stillUnfilledHours)} still open` : ""}, adding about ${money(r.hireTest.extraCost)} of payroll. A what-if only; it is not added to your list.</p>`
+        ? `<p class="note"><strong>Would one more person fix it?</strong> Adding someone free at any time (${num(r.hireTest.maxHours)} h a week, at the average wage of ${money2(r.hireTest.wage)}) would cover ${num(r.hireTest.coveredHours)} of the uncovered hours${r.hireTest.stillUnfilledHours > 0.01 ? ` and leave ${num(r.hireTest.stillUnfilledHours)} still open` : ""}, adding about ${money(r.hireTest.extraCost)} of payroll.${r.hireTest.windows && r.hireTest.windows.length ? ` The hire would work: ${r.hireTest.windows.join("; ")}. That is the availability to ask for in the job post.` : ""} A what-if only; it is not added to your list.</p>`
         : "";
       $("#critical").innerHTML = r.critical.length
         ? `<div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours left uncovered without them</th></tr></thead><tbody>${r.critical.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${num(c.extraUnfilledHours)}</td></tr>`).join("")}</tbody></table></div>`

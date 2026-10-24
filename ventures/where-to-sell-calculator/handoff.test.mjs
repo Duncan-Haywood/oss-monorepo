@@ -368,3 +368,34 @@ test('TCGplayer receives the item with packaging folded into other costs and dec
   assert.equal(got.buyerShipping, 6);
   assert.equal(got.itemCost, 12);
 });
+
+test('quickCompareUrl carries the item into marketplace-fee-compare under its own decoder', async () => {
+  const { quickCompareUrl } = await import('./handoff.mjs');
+  const { decodeShare } = await import('../marketplace-fee-compare/share.mjs');
+  const url = quickCompareUrl({
+    price: '40', shippingCharged: '5', shippingCost: '6', itemCost: '12',
+    packagingCost: '1', otherCost: '0.5', monthlyOrders: '30', targetProfit: '9',
+  });
+  assert.match(url, /^\.\.\/marketplace-fee-compare\/#/);
+  const decoded = decodeShare(url.split('#')[1]);
+  assert.deepEqual(decoded.item, {
+    price: 40, shippingCharged: 5, shippingCost: 6, itemCost: 12, otherCost: 1.5, monthlyOrders: 30,
+  });
+});
+
+test('quickCompareUrl leaves blank fields out and gives the bare link for an empty item', async () => {
+  const { quickCompareUrl } = await import('./handoff.mjs');
+  assert.equal(quickCompareUrl({}), '../marketplace-fee-compare/');
+  assert.equal(quickCompareUrl({ price: '', itemCost: 'abc', shippingCost: '-3' }), '../marketplace-fee-compare/');
+});
+
+test('README discloses a usage event for every handoff channel', async () => {
+  const { readFileSync } = await import('node:fs');
+  const readme = readFileSync(new URL('./README.md', import.meta.url), 'utf8');
+  for (const entry of HANDOFFS) {
+    assert.ok(
+      readme.includes(`\`handoff_${entry.channel}\``),
+      `README does not list handoff_${entry.channel}`,
+    );
+  }
+});

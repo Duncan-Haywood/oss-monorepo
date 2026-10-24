@@ -1,0 +1,86 @@
+{
+  "female": {
+    "n": 6141,
+    "ever_married_n": 2722,
+    "ever_married_age25_49_n": 2609,
+    "strata": 18,
+    "psu": 72,
+    "age_range": [
+      15,
+      50
+    ],
+    "marend_counts": {
+      "NaN": 5046,
+      "1.0": 873,
+      "2.0": 177,
+      "3.0": 45
+    },
+    "duration_counts": {
+      "NaN": 3419,
+      "5.0": 1819,
+      "1.0": 254,
+      "2.0": 231,
+      "4.0": 209,
+      "3.0": 209
+    }
+  },
+  "male": {
+    "n": 5206,
+    "ever_married_n": 1961,
+    "ever_married_age25_49_n": 1908,
+    "strata": 18,
+    "psu": 72,
+    "age_range": [
+      15,
+      50
+    ],
+    "marend_counts": {
+      "NaN": 4488,
+      "1.0": 579,
+      "2.0": 120,
+      "3.0": 19
+    },
+    "duration_counts": {
+      "NaN": 3245,
+      "5.0": 1271,
+      "2.0": 215,
+      "1.0": 197,
+      "3.0": 163,
+      "4.0": 115
+    }
+  }
+}
+   sex dimension                   group                           outcome   n  events   percent  se_percentage_points    ci_low   ci_high  design_df  sparse
+female education                Bachelor first_marriage_divorced_separated 592     167 24.540161              2.198896 20.401987 29.209676         54   False
+female education       High school / GED first_marriage_divorced_separated 639     313 41.026598              3.244017 34.713002 47.650400         54   False
+female education Some college, no degree first_marriage_divorced_separated 482     229 42.481454              3.895563 34.917387 50.414812         54   False
+female education   Less than high school first_marriage_divorced_separated 239      95 35.976153              4.513352 27.502940 45.424202         54   False
+female education               Associate first_marriage_divorced_separated 278     118 36.080873              3.499770 29.398698 43.349312         54   False
+female education               Doctorate first_marriage_divorced_separated  32       7 13.670955              6.221829  5.216182 31.303847         54    True
+female education                  Master first_marriage_divorced_separated 306      84 18.986442              2.422307 14.596298 24.320988         54   False
+female education            Professional first_marriage_divorced_separated  41      12 22.772728              8.736846  9.821794 44.393823         54    True
+  male education                  Master first_marriage_divorced_separated 170      33 15.784492              3.332723 10.183500 23.654743         54   False
+  male education   Less than high school first_marriage_divorced_separated 158      64 33.931735              5.080998 24.587445 44.721299         54   False
+  male education       High school / GED first_marriage_divorced_separated 580     261 39.062176              2.783498 33.645292 44.762847         54   False
+  male education                Bachelor first_marriage_divorced_separated 424     114 23.065856              2.720550 18.064811 28.962007         54   False
+  male education Some college, no degree first_marriage_divorced_separated 350     136 37.655432              3.716502 30.542592 45.343357         54   False
+  male education            Professional first_marriage_divorced_separated  31       7 17.688643              6.824417  7.746432 35.483253         54    True
+  male education               Associate first_marriage_divorced_separated 172      72 33.329048              4.909098 24.300673 43.772140         54   False
+  male education               Doctorate first_marriage_divorced_separated  23       4 13.422922              8.524154  3.440129 40.287786         54    True
+marend01  -1.0   1.0   2.0   3.0
+chedmarn                        
+-1.0      3419     0     0     0
+ 1.0       180   125    40    10
+ 2.0       408   387    78    23
+ 3.0       285   136    19     3
+ 4.0       162    57    13     2
+ 5.0       364   104    13     3
+ 6.0       224    51    11     3
+ 8.0         2     1     0     0
+ 9.0         2    12     3     1
+eligible 2609 valid 2588
+pairing_level          wife          first_husband                           outcome    n  events   percent  se_percentage_points    ci_low   ci_high  design_df  sparse
+   BAplus_2x2      Wife BA+      First husband BA+ first_marriage_divorced_separated  558     106 14.490678              1.981663 10.950976 18.931285         54   False
+   BAplus_2x2      Wife BA+ First husband below BA first_marriage_divorced_separated  410     161 33.899042              3.107251 27.972780 40.377008         54   False
+   BAplus_2x2 Wife below BA      First husband BA+ first_marriage_divorced_separated  203      73 33.063129              4.185319 25.265953 41.916930         54   False
+   BAplus_2x2 Wife below BA First husband below BA first_marriage_divorced_separated 1417     669 40.891825              2.428077 36.127318 45.833789         54   False

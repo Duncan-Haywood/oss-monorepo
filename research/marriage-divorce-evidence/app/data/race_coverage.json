@@ -1,0 +1,525 @@
+{
+ "id": "race_coverage",
+ "version": 1,
+ "built": "2026-10-20",
+ "about": "How each lens can use a person's race and ethnicity. form_categories are the answers the form offers; form_mapping gives the category each lens scores for that answer, or null when the lens cannot place it (the app should say so, and refuse when the model has no unknown level). Hispanic is an origin, so \"Hispanic\" means Hispanic of any race and the other categories are non-Hispanic.",
+ "form_categories": [
+  "White",
+  "Black",
+  "Hispanic",
+  "Asian",
+  "American Indian or Alaska Native",
+  "Native Hawaiian or Pacific Islander",
+  "Multiracial",
+  "Other"
+ ],
+ "lenses": [
+  {
+   "lens": "nlsy79_couples",
+   "input": null,
+   "categories": [],
+   "form_mapping": {
+    "White": null,
+    "Black": null,
+    "Hispanic": null,
+    "Asian": null,
+    "American Indian or Alaska Native": null,
+    "Native Hawaiian or Pacific Islander": null,
+    "Multiracial": null,
+    "Other": null
+   },
+   "note": "These models have no race-ethnicity input (the couple models use schooling, earnings, ages, religion and marriage history)."
+  },
+  {
+   "lens": "nlsy79_individuals",
+   "input": null,
+   "categories": [],
+   "form_mapping": {
+    "White": null,
+    "Black": null,
+    "Hispanic": null,
+    "Asian": null,
+    "American Indian or Alaska Native": null,
+    "Native Hawaiian or Pacific Islander": null,
+    "Multiracial": null,
+    "Other": null
+   },
+   "note": "No race-ethnicity input."
+  },
+  {
+   "lens": "nlsy79_first_marriage",
+   "input": "race",
+   "source": "screener race-ethnicity cohort (R0214700)",
+   "categories": [
+    "Hispanic",
+    "Black",
+    "Non-Black non-Hispanic"
+   ],
+   "form_mapping": {
+    "White": "Non-Black non-Hispanic",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Non-Black non-Hispanic",
+    "American Indian or Alaska Native": "Non-Black non-Hispanic",
+    "Native Hawaiian or Pacific Islander": "Non-Black non-Hispanic",
+    "Multiracial": null,
+    "Other": "Non-Black non-Hispanic"
+   },
+   "finer_available": {
+    "where": "models_extended (race_detail)",
+    "categories": [
+     "Hispanic",
+     "Black",
+     "Asian or Pacific Islander",
+     "American Indian",
+     "White and other"
+    ],
+    "note": "from the 1979 first racial/ethnic origin among non-Black non-Hispanic respondents; small Asian cell, American Indian origin overstated in 1979 (NLS note); held out it added nothing"
+   },
+   "note": "NLSY79 sampled Hispanic, Black and 'non-Black non-Hispanic' cohorts; Asian, AIAN, NHPI and Other are scored as non-Black non-Hispanic. Multiracial cannot be placed (a multiracial Black or Hispanic person would be in those cohorts)."
+  },
+  {
+   "lens": "nlsy97_cohab_marriage",
+   "input": "race_ethnicity",
+   "source": "KEY!RACE_ETHNICITY (1997)",
+   "categories": [
+    "Black",
+    "Hispanic",
+    "Non-Black non-Hispanic"
+   ],
+   "form_mapping": {
+    "White": "Non-Black non-Hispanic",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Non-Black non-Hispanic",
+    "American Indian or Alaska Native": "Non-Black non-Hispanic",
+    "Native Hawaiian or Pacific Islander": "Non-Black non-Hispanic",
+    "Multiracial": "Non-Black non-Hispanic",
+    "Other": "Non-Black non-Hispanic"
+   },
+   "note": "Same NLSY97 race-ethnicity coding as the first-marriage lens: Asian, AIAN, NHPI, Multiracial and Other are scored as non-Black non-Hispanic."
+  },
+  {
+   "lens": "nlsy97_cohab_split",
+   "input": "race_ethnicity",
+   "source": "KEY!RACE_ETHNICITY (1997)",
+   "categories": [
+    "Black",
+    "Hispanic",
+    "Non-Black non-Hispanic"
+   ],
+   "form_mapping": {
+    "White": "Non-Black non-Hispanic",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Non-Black non-Hispanic",
+    "American Indian or Alaska Native": "Non-Black non-Hispanic",
+    "Native Hawaiian or Pacific Islander": "Non-Black non-Hispanic",
+    "Multiracial": "Non-Black non-Hispanic",
+    "Other": "Non-Black non-Hispanic"
+   },
+   "note": "Same NLSY97 race-ethnicity coding as the first-marriage lens: Asian, AIAN, NHPI, Multiracial and Other are scored as non-Black non-Hispanic."
+  },
+  {
+   "lens": "nlsy97_first_marriage",
+   "input": "race_ethnicity",
+   "source": "KEY!RACE_ETHNICITY (1997)",
+   "categories": [
+    "Black",
+    "Hispanic",
+    "Non-Black non-Hispanic"
+   ],
+   "form_mapping": {
+    "White": "Non-Black non-Hispanic",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Non-Black non-Hispanic",
+    "American Indian or Alaska Native": "Non-Black non-Hispanic",
+    "Native Hawaiian or Pacific Islander": "Non-Black non-Hispanic",
+    "Multiracial": "Non-Black non-Hispanic",
+    "Other": "Non-Black non-Hispanic"
+   },
+   "finer_available": {
+    "where": "models_extended (race_detail)",
+    "categories": [
+     "Hispanic",
+     "White",
+     "Black",
+     "American Indian or Alaska Native",
+     "Asian or Pacific Islander",
+     "Other"
+    ],
+    "note": "KEY!RACE x KEY!ETHNICITY; Asian and Pacific Islander are one category; 74 Asian/PI first marriages; added nothing held out"
+   },
+   "note": "NLSY97 groups mixed race (non-Hispanic) with non-Black non-Hispanic."
+  },
+  {
+   "lens": "nsfg_pooled_first_marriage",
+   "input": "wife_race_ethnicity",
+   "source": "HISPRACE / HISPRACE2",
+   "categories": [
+    "Hispanic",
+    "White",
+    "Black",
+    "Other"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "NSFG public files give Hispanic, non-Hispanic White, non-Hispanic Black and non-Hispanic Other (Asian, AIAN, NHPI and multiple races are all 'Other'). The husband's group is coded the same way."
+  },
+  {
+   "lens": "nsfg2002_first_marriage",
+   "input": "wife_race_ethnicity",
+   "source": "HISPRACE (2002)",
+   "categories": [
+    "Hispanic",
+    "White",
+    "Black",
+    "Other"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "Asian, AIAN, NHPI and multiracial are 'Other'."
+  },
+  {
+   "lens": "nsfg2002_family",
+   "input": "wife_race_ethnicity",
+   "source": "HISPRACE (2002)",
+   "categories": [
+    "Hispanic",
+    "White",
+    "Black",
+    "Other"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "Asian, AIAN, NHPI and multiracial are 'Other'."
+  },
+  {
+   "lens": "gss_panel_marriages",
+   "input": "race",
+   "source": "RACE (interviewer-coded White / Black / Other)",
+   "categories": [
+    "White",
+    "Black",
+    "Other"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": null,
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": null,
+    "Other": "Other"
+   },
+   "finer_available": {
+    "where": "models_extended (race_detail)",
+    "categories": [
+     "White",
+     "Black",
+     "Hispanic",
+     "Asian",
+     "American Indian or Alaska Native",
+     "Native Hawaiian or Pacific Islander",
+     "Multiracial",
+     "Other"
+    ],
+    "note": "RACECEN1-2 and HISPANIC; 135 Asian, 9 AIAN and 2 NHPI follow-ups, so these levels are very imprecise; added nothing held out"
+   },
+   "note": "GSS RACE does not ask Hispanic origin and a multiracial respondent picks one race, so Hispanic and Multiracial cannot be placed in the current model (the adapter refuses rather than guess)."
+  },
+  {
+   "lens": "hcmst_couples",
+   "input": "couple_race",
+   "source": "HCMST couple race composition",
+   "categories": [
+    "White",
+    "Black",
+    "Hispanic",
+    "Other"
+   ],
+   "couple_categories": [
+    "Both White",
+    "Both Black",
+    "Both Hispanic",
+    "Both Other",
+    "Interracial"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "Per partner: White, Black, Hispanic (any race), Other (Asian, Native American, other). The couple input is 'Both <group>' when the two partners map to the same group, else 'Interracial'."
+  },
+  {
+   "lens": "hcmst_dating_marriage",
+   "input": "couple_race",
+   "source": "HCMST couple race composition (unmarried couples, 2009)",
+   "categories": [
+    "White",
+    "Black",
+    "Hispanic",
+    "Other"
+   ],
+   "couple_categories": [
+    "Both White",
+    "Both Hispanic",
+    "Both Other",
+    "Interracial",
+    "Unknown"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "Same coding as the HCMST couples lens: per partner White, Black, Hispanic (any race) or Other; the couple input is 'Both <group>' when both map to the same group, else 'Interracial' (Both Black is the reference level)."
+  },
+  {
+   "lens": "hcmst_dating_breakup",
+   "input": "couple_race",
+   "source": "HCMST couple race composition (unmarried couples, 2009)",
+   "categories": [
+    "White",
+    "Black",
+    "Hispanic",
+    "Other"
+   ],
+   "couple_categories": [
+    "Both White",
+    "Both Hispanic",
+    "Both Other",
+    "Interracial",
+    "Unknown"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "Same coding as the HCMST couples lens: per partner White, Black, Hispanic (any race) or Other; the couple input is 'Both <group>' when both map to the same group, else 'Interracial' (Both Black is the reference level)."
+  },
+  {
+   "lens": "prewedding_harmonized",
+   "input": "respondent_race",
+   "source": "NSFG race-ethnicity recode (HISPRACE), harmonized",
+   "categories": [
+    "Hispanic",
+    "White",
+    "Black",
+    "Other"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Other",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "Four groups, as harmonized across NSFG, NLSY, SIPP and Canada: Asian, AIAN, NHPI and Multiracial are scored as 'Other'. The spouse's race uses the same four groups and same_race compares them."
+  },
+  {
+   "lens": "newlywed_la_couples",
+   "input": null,
+   "categories": [],
+   "form_mapping": {
+    "White": null,
+    "Black": null,
+    "Hispanic": null,
+    "Asian": null,
+    "American Indian or Alaska Native": null,
+    "Native Hawaiian or Pacific Islander": null,
+    "Multiracial": null,
+    "Other": null
+   },
+   "note": "No race-ethnicity input."
+  },
+  {
+   "lens": "canada_gss_first_marriage",
+   "input": null,
+   "categories": [],
+   "form_mapping": {
+    "White": null,
+    "Black": null,
+    "Hispanic": null,
+    "Asian": null,
+    "American Indian or Alaska Native": null,
+    "Native Hawaiian or Pacific Islander": null,
+    "Multiracial": null,
+    "Other": null
+   },
+   "note": "The Canadian GSS PUMF has no race input in these models (it carries a visible-minority flag only); the lens uses first language and birthplace instead."
+  },
+  {
+   "lens": "sipp_first_marriage",
+   "input": "race_ethnicity",
+   "source": "ERACE and EORIGIN",
+   "categories": [
+    "Hispanic",
+    "White",
+    "Black",
+    "Asian",
+    "Other"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Asian",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "note": "SIPP's public ERACE is White alone / Black alone / Asian alone / residual: AIAN, NHPI and multiracial are one residual group ('Other'). The 2001-2008 panels code Asian with Pacific Islander."
+  },
+  {
+   "lens": "sipp_prospective_couples",
+   "input": "wife_race_ethnicity",
+   "source": "ERACE and EORIGIN",
+   "categories": [
+    "Hispanic",
+    "White",
+    "Black",
+    "Asian",
+    "Other"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Asian",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "finer_available": {
+    "where": "models_extended (husband_race_ethnicity)",
+    "categories": [
+     "Hispanic",
+     "White",
+     "Black",
+     "Asian",
+     "Other"
+    ],
+    "note": "the husband's own group; SIPP has no finer public categories"
+   },
+   "note": "AIAN, NHPI and multiracial are the SIPP residual group."
+  },
+  {
+   "lens": "acs_one_year_divorce",
+   "input": "race_ethnicity",
+   "source": "RAC1P and HISP",
+   "categories": [
+    "Hispanic",
+    "White",
+    "Black",
+    "Asian",
+    "Other"
+   ],
+   "form_mapping": {
+    "White": "White",
+    "Black": "Black",
+    "Hispanic": "Hispanic",
+    "Asian": "Asian",
+    "American Indian or Alaska Native": "Other",
+    "Native Hawaiian or Pacific Islander": "Other",
+    "Multiracial": "Other",
+    "Other": "Other"
+   },
+   "finer_available": {
+    "where": "app/data/acs_divorce_baselines.json cells race_detail, asian_detail, hispanic_origin",
+    "categories": [
+     "Hispanic",
+     "White",
+     "Black",
+     "Asian",
+     "American Indian or Alaska Native",
+     "Native Hawaiian or Pacific Islander",
+     "Multiracial",
+     "Other"
+    ],
+    "note": "observed rates only (no model), cells >= 200 people with replicate-weight CIs; Asian subgroups (Chinese, Asian Indian, Filipino, Vietnamese, Korean, Japanese, ...) and Hispanic origins (Mexican, Puerto Rican, Cuban, Dominican, ...)"
+   },
+   "note": "The models use five groups; the baselines file has every census group (see finer_available)."
+  },
+  {
+   "lens": "fair_pt1969",
+   "input": null,
+   "categories": [],
+   "form_mapping": {
+    "White": null,
+    "Black": null,
+    "Hispanic": null,
+    "Asian": null,
+    "American Indian or Alaska Native": null,
+    "Native Hawaiian or Pacific Islander": null,
+    "Multiracial": null,
+    "Other": null
+   },
+   "note": "No race-ethnicity input (affairs data)."
+  },
+  {
+   "lens": "fair_redbook1974",
+   "input": null,
+   "categories": [],
+   "form_mapping": {
+    "White": null,
+    "Black": null,
+    "Hispanic": null,
+    "Asian": null,
+    "American Indian or Alaska Native": null,
+    "Native Hawaiian or Pacific Islander": null,
+    "Multiracial": null,
+    "Other": null
+   },
+   "note": "No race-ethnicity input (affairs data)."
+  }
+ ]
+}

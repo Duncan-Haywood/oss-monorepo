@@ -1,0 +1,3 @@
+dataset,model,predictors_removed,gain_with_percent,gain_without_percent,change_points
+sipp,additive_spline (all five surveys; published 4.07229),none,4.07229,4.07229,0.00000
+sipp,additive_spline_education (2001-2008 modules; published 4.41039),education_at_wedding,4.41039,4.14490,-0.26549

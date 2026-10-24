@@ -1,0 +1,373 @@
+{
+ "cycles": [
+  "1995",
+  "2002",
+  "2006_2010",
+  "2011_2013",
+  "2013_2015",
+  "2015_2017",
+  "2017_2019",
+  "2022_2023"
+ ],
+ "files": [
+  {
+   "cycle": "1995",
+   "sex": "F",
+   "records": 10847,
+   "official_records": 10847,
+   "weighted_total_millions": 60.2,
+   "ever_married": 6844,
+   "first_marriages": 6844,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 11,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 2427,
+   "divorce_or_annulment": 2073,
+   "separations": 354,
+   "widowed_censored": 110,
+   "wedding_years": [
+    1964,
+    1995
+   ]
+  },
+  {
+   "cycle": "2002",
+   "sex": "F",
+   "records": 7643,
+   "official_records": 7643,
+   "weighted_total_millions": 61.56,
+   "ever_married": 4126,
+   "first_marriages": 4126,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 1492,
+   "divorce_or_annulment": 1232,
+   "separations": 260,
+   "widowed_censored": 58,
+   "wedding_years": [
+    1972,
+    2002
+   ]
+  },
+  {
+   "cycle": "2002",
+   "sex": "M",
+   "records": 4928,
+   "official_records": 4928,
+   "weighted_total_millions": 61.15,
+   "ever_married": 1754,
+   "first_marriages": 1754,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 2,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 691,
+   "divorce_or_annulment": 582,
+   "separations": 109,
+   "widowed_censored": 12,
+   "wedding_years": [
+    1974,
+    2002
+   ]
+  },
+  {
+   "cycle": "2006_2010",
+   "sex": "F",
+   "records": 12279,
+   "official_records": 12279,
+   "weighted_total_millions": 61.75,
+   "ever_married": 5534,
+   "first_marriages": 5534,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 3,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 1979,
+   "divorce_or_annulment": 1574,
+   "separations": 405,
+   "widowed_censored": 68,
+   "wedding_years": [
+    1976,
+    2010
+   ]
+  },
+  {
+   "cycle": "2006_2010",
+   "sex": "M",
+   "records": 10403,
+   "official_records": 10403,
+   "weighted_total_millions": 62.13,
+   "ever_married": 3733,
+   "first_marriages": 3733,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 8,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 1217,
+   "divorce_or_annulment": 1004,
+   "separations": 213,
+   "widowed_censored": 18,
+   "wedding_years": [
+    1979,
+    2010
+   ]
+  },
+  {
+   "cycle": "2011_2013",
+   "sex": "F",
+   "records": 5601,
+   "official_records": 5601,
+   "weighted_total_millions": 60.89,
+   "ever_married": 2452,
+   "first_marriages": 2452,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 969,
+   "divorce_or_annulment": 755,
+   "separations": 214,
+   "widowed_censored": 26,
+   "wedding_years": [
+    1983,
+    2013
+   ]
+  },
+  {
+   "cycle": "2011_2013",
+   "sex": "M",
+   "records": 4815,
+   "official_records": 4815,
+   "weighted_total_millions": 60.52,
+   "ever_married": 1684,
+   "first_marriages": 1684,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 583,
+   "divorce_or_annulment": 474,
+   "separations": 109,
+   "widowed_censored": 9,
+   "wedding_years": [
+    1985,
+    2013
+   ]
+  },
+  {
+   "cycle": "2013_2015",
+   "sex": "F",
+   "records": 5699,
+   "official_records": 5699,
+   "weighted_total_millions": 61.49,
+   "ever_married": 2401,
+   "first_marriages": 2401,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 925,
+   "divorce_or_annulment": 756,
+   "separations": 169,
+   "widowed_censored": 28,
+   "wedding_years": [
+    1985,
+    2015
+   ]
+  },
+  {
+   "cycle": "2013_2015",
+   "sex": "M",
+   "records": 4506,
+   "official_records": 4506,
+   "weighted_total_millions": 61.16,
+   "ever_married": 1611,
+   "first_marriages": 1611,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 535,
+   "divorce_or_annulment": 442,
+   "separations": 93,
+   "widowed_censored": 10,
+   "wedding_years": [
+    1981,
+    2015
+   ]
+  },
+  {
+   "cycle": "2015_2017",
+   "sex": "F",
+   "records": 5554,
+   "official_records": 5554,
+   "weighted_total_millions": 72.22,
+   "ever_married": 2582,
+   "first_marriages": 2582,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 984,
+   "divorce_or_annulment": 818,
+   "separations": 166,
+   "widowed_censored": 55,
+   "wedding_years": [
+    1980,
+    2017
+   ]
+  },
+  {
+   "cycle": "2015_2017",
+   "sex": "M",
+   "records": 4540,
+   "official_records": 4540,
+   "weighted_total_millions": 71.62,
+   "ever_married": 1770,
+   "first_marriages": 1770,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 600,
+   "divorce_or_annulment": 522,
+   "separations": 78,
+   "widowed_censored": 17,
+   "wedding_years": [
+    1983,
+    2017
+   ]
+  },
+  {
+   "cycle": "2017_2019",
+   "sex": "F",
+   "records": 6141,
+   "official_records": 6141,
+   "weighted_total_millions": 72.67,
+   "ever_married": 2722,
+   "first_marriages": 2722,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 1050,
+   "divorce_or_annulment": 873,
+   "separations": 177,
+   "widowed_censored": 45,
+   "wedding_years": [
+    1982,
+    2019
+   ]
+  },
+  {
+   "cycle": "2017_2019",
+   "sex": "M",
+   "records": 5206,
+   "official_records": 5206,
+   "weighted_total_millions": 72.22,
+   "ever_married": 1961,
+   "first_marriages": 1961,
+   "dropped_missing_dates": 0,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 699,
+   "divorce_or_annulment": 579,
+   "separations": 120,
+   "widowed_censored": 19,
+   "wedding_years": [
+    1986,
+    2019
+   ]
+  },
+  {
+   "cycle": "2022_2023",
+   "sex": "F",
+   "records": 5586,
+   "official_records": 5586,
+   "weighted_total_millions": 74.94,
+   "ever_married": 2562,
+   "first_marriages": 2541,
+   "dropped_missing_dates": 21,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 703,
+   "divorce_or_annulment": 621,
+   "separations": 82,
+   "widowed_censored": 25,
+   "wedding_years": [
+    1990,
+    2023
+   ]
+  },
+  {
+   "cycle": "2022_2023",
+   "sex": "M",
+   "records": 4371,
+   "official_records": 4371,
+   "weighted_total_millions": 75.7,
+   "ever_married": 1624,
+   "first_marriages": 1621,
+   "dropped_missing_dates": 3,
+   "cm_mismatch_mar1diss": 0,
+   "year_cycle_group_inconsistent": 0,
+   "dissolutions": 402,
+   "divorce_or_annulment": 363,
+   "separations": 39,
+   "widowed_censored": 14,
+   "wedding_years": [
+    1989,
+    2023
+   ]
+  }
+ ],
+ "women": {
+  "marriages": 29202,
+  "dissolutions": 10529,
+  "divorce_or_annulment": 8702,
+  "widowed_censored": 415,
+  "intervals": 249868,
+  "person_years": 235174.2,
+  "dates_imputed": 7845,
+  "husband_age_from_2022_bands": 2491,
+  "husband_age_missing": 435
+ },
+ "men": {
+  "marriages": 14134,
+  "dissolutions": 4727,
+  "divorce_or_annulment": 3966
+ },
+ "both": {
+  "marriages": 43336,
+  "dissolutions": 15256,
+  "intervals": 361218,
+  "person_years": 339276.3
+ },
+ "unknown_counts": {
+  "cohabited_first": 68,
+  "husband_married_before": 92,
+  "husband_prior_children": 72,
+  "wife_race_ethnicity": 0,
+  "same_race_ethnicity": 69,
+  "wife_intact_family": 5,
+  "wife_premarital_birth": 0,
+  "wife_premarital_partners": 2772,
+  "wife_ba_by_wedding": 4139,
+  "wife_mother_education": 0,
+  "wife_mother_age_first_birth": 0,
+  "wife_religion_raised": 41,
+  "wife_born_outside_us": 225
+ },
+ "not_asked_counts": {
+  "cohabited_first": 0,
+  "husband_married_before": 0,
+  "husband_prior_children": 6844,
+  "wife_race_ethnicity": 0,
+  "same_race_ethnicity": 2541,
+  "wife_intact_family": 0,
+  "wife_premarital_birth": 0,
+  "wife_premarital_partners": 0,
+  "wife_ba_by_wedding": 0,
+  "wife_mother_education": 0,
+  "wife_mother_age_first_birth": 0,
+  "wife_religion_raised": 2541,
+  "wife_born_outside_us": 0
+ },
+ "wedding_years": [
+  1964,
+  2023
+ ],
+ "folds": "5 folds by person, seeded permutation",
+ "python_sklearn": "1.7.2",
+ "shipped_model": "mean survival of additive_spline and gradient_boosting"
+}

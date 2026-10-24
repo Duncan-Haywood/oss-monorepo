@@ -1,0 +1,134 @@
+{
+  "2000": {
+    "couple_positive_wages_quartiles": [
+      45000.0,
+      64000.0,
+      89000.0
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      20000.0,
+      34000.0,
+      52000.0
+    ]
+  },
+  "2002": {
+    "couple_positive_wages_quartiles": [
+      47349.2945997803,
+      68071.8267753907,
+      96051.2842464828
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      21000.0,
+      35000.0,
+      56000.0
+    ]
+  },
+  "2004": {
+    "couple_positive_wages_quartiles": [
+      50000.0,
+      73571.32622489783,
+      105000.0
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      23000.0,
+      40000.0,
+      60000.0
+    ]
+  },
+  "2006": {
+    "couple_positive_wages_quartiles": [
+      53000.0,
+      77890.93465312729,
+      111514.4891775897
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      25000.0,
+      40000.0,
+      65000.0
+    ]
+  },
+  "2008": {
+    "couple_positive_wages_quartiles": [
+      58000.0,
+      85284.88826258673,
+      125000.0
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      26000.0,
+      45000.0,
+      70000.0
+    ]
+  },
+  "2010": {
+    "couple_positive_wages_quartiles": [
+      55000.0,
+      86000.0,
+      128000.0
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      26000.0,
+      45000.0,
+      73000.0
+    ]
+  },
+  "2012": {
+    "couple_positive_wages_quartiles": [
+      57000.0,
+      90000.0,
+      134000.0
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      28000.0,
+      48000.0,
+      78000.0
+    ]
+  },
+  "2014": {
+    "couple_positive_wages_quartiles": [
+      59000.0,
+      93000.14988325069,
+      140000.0
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      30000.0,
+      50000.0,
+      82000.0
+    ]
+  },
+  "2016": {
+    "couple_positive_wages_quartiles": [
+      60000.0,
+      95000.0,
+      145000.0
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      30000.0,
+      52000.0,
+      85000.0
+    ]
+  },
+  "2018": {
+    "couple_positive_wages_quartiles": [
+      59000.0,
+      98062.91516334629,
+      151029.09619533733
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      31000.0,
+      55000.0,
+      90000.0
+    ]
+  },
+  "2020": {
+    "couple_positive_wages_quartiles": [
+      56000.0,
+      99000.0,
+      152000.0
+    ],
+    "pooled_positive_spouse_wage_quartiles": [
+      32000.0,
+      55940.89865346045,
+      95000.0
+    ]
+  }
+}

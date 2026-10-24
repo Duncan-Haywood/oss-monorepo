@@ -1,0 +1,10 @@
+{
+  "divisions": "U10: Hawks, Owls, Lynx, Otters, Foxes, Wolves\nU12: Hawks, Owls, Lynx, Otters, Foxes, Wolves, Bears, Eagles\nAdult: Rams, Kings, Stars, Comets, Pilots, Bolts (double)",
+  "courts": "Field 1 @ Park, Field 2 @ Park, Gym A @ School, Gym B @ School",
+  "times": "18:00, 19:30",
+  "start": "2026-10-06",
+  "weekdays": "Tue, Thu",
+  "skip": "2026-11-26",
+  "courtClosures": "Gym A: 2026-12-03",
+  "links": "U10/Hawks, U12/Hawks\nU10/Owls, U12/Owls\nU12/Bears, Adult/Rams"
+}

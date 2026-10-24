@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseRows, analyze, reportCsv, sampleText, money, pct } from "./calc.mjs";
+import { parseRows, analyze, reportCsv, parseReport, compareReports, sampleText, money, pct } from "./calc.mjs";
 
 const base = { revenue: 18, varCost: 2, instructorCost: 70, capacity: 20 };
 const sample = () => parseRows(sampleText()).rows;
@@ -89,4 +89,18 @@ test("csv and formatters", () => {
   assert.match(csv, /^slot,classes,/);
   assert.equal(money(-1234.4), "-$1,234");
   assert.equal(pct(0.456), "46%");
+});
+
+test("comparing with last term's CSV flags changed, new and dropped slots", () => {
+  const r = analyze(sample(), base);
+  const prev = parseReport(reportCsv(r));
+  assert.equal(prev.rows.length, r.rows.length);
+  assert.ok(compareReports(prev.rows, r).every((x) => x.status === "same" && Math.abs(x.delta) < 0.01));
+  const edited = prev.rows.slice(1).concat([{ slot: "Old 7am", classes: 5, adjMean: 3, cutGain: 1, verdict: "watch" }]);
+  edited[0] = { ...edited[0], verdict: "nonsense" };
+  const c = compareReports(edited, r);
+  assert.equal(c.find((x) => x.slot === r.rows[0].slot).status, "new slot");
+  assert.equal(c.find((x) => x.slot === edited[0].slot).status, "changed");
+  assert.equal(c.find((x) => x.slot === "Old 7am").status, "dropped");
+  assert.ok(parseReport("a,b\n1,2").error);
 });

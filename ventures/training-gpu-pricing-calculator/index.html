@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>GPU Training Pricing Calculator — H100, A100, L40S, RTX 4090 on RunPod, Lambda, AWS, Vast.ai and more</title>
+  <title>GPU Training Pricing Calculator — H100, A100, RTX 4090 Cloud Costs</title>
   <meta name="description" content="Enter the GPU, the busy GPU-hours per month and how much of the time it is really busy, and see what RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal charge, the 12-month spend, and how many hours a month it takes before buying the card beats renting. Free, runs in your browser, nothing is uploaded.">
   <meta property="og:title" content="What will your GPU workload cost on each GPU cloud, and when is it cheaper to buy the card?">
   <meta property="og:description" content="Type your GPU, busy hours and utilisation, get every GPU cloud priced side by side plus the rent-versus-buy breakeven. No account, no upload.">
@@ -49,6 +49,7 @@
     <p>Pick a <strong>GPU</strong>, enter the <strong>busy GPU-hours per month</strong> and how much of the rented time the GPU is really busy. Get <strong>RunPod, Lambda, Vast.ai, CoreWeave, AWS, Google Cloud and Modal</strong> priced side by side, the 12-month spend, and the <strong>hours a month above which owning the card wins</strong> — before you leave an H100 idling on a bill.</p>
     <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your cloud account or your invoice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your workload</h2>
@@ -119,7 +120,8 @@ node cli.mjs providers</pre>
     <p>No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or engineering advice. It multiplies GPU-hours by list prices that may be out of date and ignores spot and reserved pricing, egress, regions, instance shapes and contracts; it is not a quote and not a guarantee of what any vendor will charge. Product names belong to their owners; this project is not affiliated with any of them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

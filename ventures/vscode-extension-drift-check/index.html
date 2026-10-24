@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?</title>
-  <meta name="description" content="Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta name="description" content="Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check.">
   <meta property="og:title" content="Did an extension you already trust just change what it does?">
   <meta property="og:description" content="Paste a snapshot of your installed VS Code / Cursor / Windsurf extensions and get a deterministic diff of what changed since your last check -- plus a CLI-only live check against the VS Code Marketplace. The mechanism behind the GlassWorm and Nx Console incidents. No account, no upload.">
   <link rel="canonical" href="./index.html">
@@ -50,6 +50,7 @@
     <p>Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their <strong>activation surface</strong> -- a new startup trigger, a new extension dependency, or a changed entry point -- since an earlier snapshot. Neither VS Code nor the marketplaces warn you when this happens, or when an extension you already have installed is later pulled for being malicious -- the mechanism behind the GlassWorm and Nx Console incidents.</p>
     <p class="note">Nothing is uploaded. The text you paste is parsed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your extension snapshot</h2>
@@ -148,7 +149,8 @@ node cli.mjs check current.json               # live Marketplace lookup -- the o
     <p>The output of <code>node cli.mjs snapshot</code> for the full picture, or the plain output of <code>code --list-extensions --show-versions</code> (Cursor and Windsurf have the same flag) for a quick id/version-only check.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports a structural difference between two snapshots of an extension's declared manifest fields, and whether an id currently resolves on the VS Code Marketplace — it is not a malware scanner, not a security audit, and not a guarantee that an unflagged extension is safe or a flagged one is dangerous. It does not replace reading the extension's source yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

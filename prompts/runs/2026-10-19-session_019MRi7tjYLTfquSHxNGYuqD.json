@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_019MRi7tjYLTfquSHxNGYuqD",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-19T12:12:02Z",
+  "ended": "2026-10-19T12:26:54Z",
+  "wall_minutes": 14.96,
+  "tokens_in": 2950045,
+  "tokens_out": 8502,
+  "cost_usd": 0.9217,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8391",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/test_allocate.py",
+      "issue": "test_real_portfolio_rollup_is_consistent_with_queue runs the full real portfolio and takes minutes; unittest discover in portfolio/router exceeds the 2-minute foreground limit"
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog had only owner rows; measure's doc_friction list led to a live bug (allocate.py shallow-clone commit counts) after reading code, fine"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Process, critique mode (no agent-owned backlog items). allocate.py recent_commits saw 54 commits in a shallow clone vs 3334 real, so HOT_COMMITS demotion never fired; now deepens with --shallow-since. Backlog ids touched: none.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "59ce83ed-9441-5169-a884-a672e3785a96",
+    "transcripts": 1,
+    "first": "2026-10-19T12:12:02Z",
+    "last": "2026-10-19T12:27:00Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 36,
+        "input": 72,
+        "output": 8502,
+        "thinking": 1599,
+        "cache_read": 2885084,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64889,
+        "api_equivalent_usd": 0.9217,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 72,
+      "output": 8502,
+      "thinking": 1599,
+      "cache_read": 2885084,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64889,
+      "api_equivalent_usd": 0.9217,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 29,
+      "Monitor": 4,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.96,
+      "active_minutes": 14.96,
+      "model_minutes": 2.17,
+      "tool_minutes": 12.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "read code, find root cause, small fix plus test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 108.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

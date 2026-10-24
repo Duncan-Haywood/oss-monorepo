@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "Does a coder's error depend on writing register, and can a hand-coded sample tell?",
+ "summary": "On 3,188 real GoEmotions comments split by writing register (formal: capitalised and ends in punctuation), a naive-Bayes coder's error rate differs by only 1.9 points (0.282 formal, 0.263 informal) and a lexicon coder's by none, yet the naive register gap is three times too large (&minus;0.043 against &minus;0.0145, coverage 0%). A z test for differential error on a random hand-coded sample of 50 to 800 items flagged 3&ndash;6.5% of samples, the false-positive rate, so an ordinary audit cannot see a difference of this size (a rough calculation puts it near 8,000 items per group); prediction-powered inference covers the gap (95.6&ndash;96.8%). Register is a typography proxy, not a dialect label, and the coders are not LLMs.",
+ "lede": "does a coder's error depend on writing register, and can a hand-coded sample tell? On 3,188 GoEmotions comments, error differs by 1.9 points (naive-Bayes) or none (lexicon) between formal and informal text, yet the naive register gap is three times too large; an audit with up to 800 hand-coded items flags it no more often than chance. Not an LLM (no key); register is a proxy, not a dialect."
+}

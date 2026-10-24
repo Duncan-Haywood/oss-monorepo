@@ -1,0 +1,19 @@
+600 random feasible designs, nominal world (codesign-agri's 600 fruit, no tolerance) vs 30 held-out shifted worlds, 3 printed copies per design per world.
+
+Spearman rank correlation, nominal J vs mean J over worlds: 0.993
+Per-world Spearman: median 0.967, min 0.924, max 0.992
+Share of the nominal top 10% that is still in a world's top 10%: median 0.85, min 0.65
+Designs whose J falls by more than 0.10 from nominal to the mean shifted world: 0.20
+Best nominal random design: nominal J 0.618, mean shifted J 0.560; regret against each world's best random design: median 0.004, max 0.049
+
+design | x = [w mm, l mm, E MPa, Fg N, n] | nominal J | mean J shifted | 5th percentile | worst world
+nominal-world CMA-ES optimum | [24.984, 24.902, 0.18, 8.0, 3.0] | 0.653 | 0.567 | 0.465 | 0.425
+robust CMA-ES optimum (mean of 10 worlds) | [25.0, 29.97, 0.151, 7.98, 3.0] | 0.623 | 0.582 | 0.502 | 0.459
+best random design in nominal world | [18.867, 28.453, 0.154, 7.47, 3.0] | 0.618 | 0.560 | 0.452 | 0.411
+
+Widening sweep (the 600 designs, scored in 10 worlds drawn at each spread width): width | Spearman vs nominal | nominal-best design's mean J
+0.00 | 0.998 | 0.654
+0.25 | 0.998 | 0.646
+0.50 | 0.997 | 0.634
+0.75 | 0.996 | 0.620
+1.00 | 0.993 | 0.598

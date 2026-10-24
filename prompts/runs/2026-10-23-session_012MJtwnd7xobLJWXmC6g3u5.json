@@ -1,0 +1,237 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_012MJtwnd7xobLJWXmC6g3u5",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-23T20:18:22Z",
+  "ended": "2026-10-23T20:18:38Z",
+  "wall_minutes": 3.02,
+  "tokens_in": 908960,
+  "tokens_out": 4772,
+  "cost_usd": 0.3934,
+  "tool_calls": 16,
+  "task": null,
+  "projects": [],
+  "pr": 9888,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target platform/ci/compliance_scan.py, 8 mutants: 4 caught, 3 gaps (sniff window, tag start offset, cookie detail cut) guarded by 3 new tests, 1 equivalent. Catch rate 0.5 -> 1.0 after fix (rerun). No real defects found in a short read. No agent doc/post written: small run.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/compliance_scan.py",
+        "test": "/usr/local/bin/python3 -m pytest -q -x -p no:cacheprovider test_compliance_scan.py  (in platform/ci)",
+        "seed": 278908809,
+        "commit": "be33e44b",
+        "sites": 30,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "platform/ci/compliance_scan.py",
+            "line": 109,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "if b\"\\0\" in data[:8192]:",
+            "after": "if b\"\\0\" in data[:8193]:",
+            "line_text": "    if b\"\\0\" in data[:8192]:",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Added a boundary test in test_compliance_scan.py."
+          },
+          {
+            "file": "platform/ci/compliance_scan.py",
+            "line": 139,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "html = text_of(page) or \"\"",
+            "after": "html = text_of(page) and \"\"",
+            "line_text": "            html = text_of(page) or \"\"",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/compliance_scan.py",
+            "line": 143,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "tag_start = html.rfind(\"<\", 0, match.end())",
+            "after": "tag_start = html.rfind(\"<\", 1, match.end())",
+            "line_text": "                tag_start = html.rfind(\"<\", 0, match.end())",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Added a boundary test in test_compliance_scan.py."
+          },
+          {
+            "file": "platform/ci/compliance_scan.py",
+            "line": 144,
+            "col": 65,
+            "operator": "plus-to-minus",
+            "before": "tag = html[tag_start:html.find(\">\", match.end()) + 1]",
+            "after": "tag = html[tag_start:html.find(\">\", match.end()) - 1]",
+            "line_text": "                tag = html[tag_start:html.find(\">\", match.end()) + 1]",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Drops only the closing quote before \">\"; NON_FETCHING_LINK matches the rel value prefix (canonical/me/...), so the cut tag still matches."
+          },
+          {
+            "file": "platform/ci/compliance_scan.py",
+            "line": 146,
+            "col": 49,
+            "operator": "or-to-and",
+            "before": "if NON_FETCHING_LINK.search(tag) or host.endswith(OWN_HOSTS):",
+            "after": "if NON_FETCHING_LINK.search(tag) and host.endswith(OWN_HOSTS):",
+            "line_text": "                if NON_FETCHING_LINK.search(tag) or host.endswith(OWN_HOSTS):",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/compliance_scan.py",
+            "line": 150,
+            "col": 96,
+            "operator": "const-plus-one",
+            "before": "yield \"unsourced-competitor-figure\", page, COMPETITOR_FIGURE.search(html).group(0)",
+            "after": "yield \"unsourced-competitor-figure\", page, COMPETITOR_FIGURE.search(html).group(1)",
+            "line_text": "                yield \"unsourced-competitor-figure\", page, COMPETITOR_FIGURE.search(html).group(0)",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/compliance_scan.py",
+            "line": 154,
+            "col": 32,
+            "operator": "or-to-and",
+            "before": "src = text_of(path) or \"\"",
+            "after": "src = text_of(path) and \"\"",
+            "line_text": "            src = text_of(path) or \"\"",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/compliance_scan.py",
+            "line": 157,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "yield \"tracking-cookie\", path, line.strip()[:80]",
+            "after": "yield \"tracking-cookie\", path, line.strip()[:81]",
+            "line_text": "                    yield \"tracking-cookie\", path, line.strip()[:80]",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Added a boundary test in test_compliance_scan.py."
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d5176b3d-dac1-5edf-9cc5-1cdd0e5ff459",
+    "transcripts": 1,
+    "first": "2026-10-23T20:18:22Z",
+    "last": "2026-10-23T20:21:23Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 14,
+        "input": 28,
+        "output": 4772,
+        "thinking": 930,
+        "cache_read": 865813,
+        "cache_write_5m": 0,
+        "cache_write_1h": 43119,
+        "api_equivalent_usd": 0.3934,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 14,
+      "input": 28,
+      "output": 4772,
+      "thinking": 930,
+      "cache_read": 865813,
+      "cache_write_5m": 0,
+      "cache_write_1h": 43119,
+      "api_equivalent_usd": 0.3934,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.953,
+    "tool_calls": 16,
+    "tools": {
+      "Bash": 12,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.02,
+      "active_minutes": 3.02,
+      "model_minutes": 0.89,
+      "tool_minutes": 2.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

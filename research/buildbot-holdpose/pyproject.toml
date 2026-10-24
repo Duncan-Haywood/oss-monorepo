@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-holdpose"
+version = "0.1.0"
+description = "Does a searched arm and waist posture let a Unitree G1 hold a building load longer than the default balanced pose?"
+requires-python = ">=3.9"
+dependencies = ["mujoco>=3.1", "numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../buildbot-payload/src", "../buildbot-holdheat/src"]

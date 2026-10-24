@@ -10,6 +10,11 @@ Status: **design v0.1, not yet built.** Every dimension below is a starting
 point chosen by calculation and simulation (`tennisbots catch-study`), not
 a tested build. Open an issue with what you change and why.
 
+A first CAD package (plates, mast, base, net frame, with an elevation-sweep
+collision check and a wind-ballast figure) is in
+[`../manufacturing/feeder/`](../manufacturing/feeder/); see
+[`../cad/README.md`](../cad/README.md) for what it does not model yet.
+
 ![Side view](diagrams/feeder-side.svg)
 
 ## How it works
@@ -69,6 +74,14 @@ at 7,000 rpm.
 **Hopper and feed.** A sloped funnel (sheet PETG or a cut storage tub) with
 a slowly turning agitator over a single-ball outlet. A servo-driven gate
 releases one ball at a time down a 70 mm ID tube into the wheels.
+
+*As drawn in `cad/` (2026-10-21):* the tub sits on a shelf 12 degrees off
+level so balls roll to an outlet, and a smooth-bore hose (72 mm ID) runs to a
+column on the head. The gate is a printed shuttle between the head plates, not
+a servo gate at the hopper: it holds one ball in a pocket, slides it to the
+wheels with a linear actuator, and its solid back shuts the column meanwhile.
+A pusher is needed because the head tilts up to 45 degrees, where gravity alone
+would not deliver a ball uphill to the wheels. The agitator is not drawn.
 
 **Catch net.** A frame of fibreglass or aluminium poles (tent-pole style
 sections for transport) holds knotless polyester netting, 25-35 mm mesh,

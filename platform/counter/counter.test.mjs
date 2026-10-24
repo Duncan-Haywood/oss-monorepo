@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { classify, Tally, createCounterServer, loadStore, saveStore } from './counter.mjs';
+import { classify, Tally, createCounterServer, loadStore, saveStore, sourceOf, SOURCE_HOSTS, SOURCE_LABELS, SOURCES } from './counter.mjs';
 import { mergeDays, summarise } from './pull.mjs';
 
 const ok = { method: 'POST', url: '/hit', headers: { 'user-agent': 'Mozilla/5.0' }, body: '{"p":"shop-rate-calculator"}' };
@@ -73,7 +73,7 @@ test('server: counts a hit, persists nothing about the request, serves aggregate
 test('pull merge never shrinks a recorded day and ignores junk', () => {
   const merged = mergeDays({ '2026-10-15': { hub: 5 } }, { '2026-10-15': { hub: 3, a: 1 }, '2026-10-16': { hub: 2, bad: -1 }, nope: { x: 1 } });
   assert.deepEqual(merged, { '2026-10-15': { a: 1, hub: 5 }, '2026-10-16': { hub: 2 } });
-  assert.deepEqual(summarise(merged), { days: 2, page_loads: 8, top: [['hub', 7], ['a', 1]], channels: {} });
+  assert.deepEqual(summarise(merged), { days: 2, page_loads: 8, top: [['hub', 7], ['a', 1]], channels: {}, sources: {} });
 });
 
 test('a known channel tag is attributed; an unknown one is dropped but the view still counts', () => {
@@ -95,4 +95,36 @@ test('the server adds ref:<tag> beside the page count, and summarise does not do
   const s = summarise(tally.days);
   assert.equal(s.page_loads, 3);
   assert.deepEqual(s.channels, { bluesky: 2 });
+});
+
+test('sourceOf reduces a referring host to a closed class, never the host', () => {
+  const of = (h) => sourceOf(h, SOURCE_HOSTS, SOURCE_LABELS);
+  assert.equal(of('www.google.com'), 'google');
+  assert.equal(of('google.co.uk'), 'google');
+  assert.equal(of('old.reddit.com'), 'reddit');
+  assert.equal(of('t.co'), 'x');
+  assert.equal(of('news.ycombinator.com'), 'hackernews');
+  assert.equal(of('chatgpt.com'), 'chatgpt');
+  assert.equal(of('someones-blog.example'), 'other');
+  assert.equal(of('constructor.example'), 'other', 'prototype keys are not classes');
+  assert.equal(of('google'), 'other', 'the last label alone is never matched');
+  assert.equal(of(''), '');
+  for (const v of [...Object.values(SOURCE_HOSTS), ...Object.values(SOURCE_LABELS)]) assert.ok(SOURCES.includes(v));
+});
+
+test('the server adds src:<class> beside the page count; a host or unknown class is dropped', async () => {
+  assert.deepEqual(classify({ ...ok, body: '{"p":"hub","s":"google"}' }), { count: true, slug: 'hub', src: 'google' });
+  assert.deepEqual(classify({ ...ok, body: '{"p":"hub","s":"someones-blog.example"}' }), { count: true, slug: 'hub' });
+  const tally = new Tally();
+  const server = createCounterServer({ tally, allowOrigin: 'https://x.example', now: () => new Date('2026-10-20T12:00:00Z') });
+  await new Promise((r) => server.listen(0, r));
+  const { port } = server.address();
+  for (const body of ['{"p":"hub","s":"google"}', '{"p":"a","s":"google","r":"npm"}', '{"p":"a","s":"reddit"}']) {
+    await fetch(`http://127.0.0.1:${port}/hit`, { method: 'POST', body, headers: { 'user-agent': 'Mozilla/5.0' } });
+  }
+  server.close();
+  assert.deepEqual(tally.days, { '2026-10-20': { hub: 1, a: 2, 'src:google': 2, 'ref:npm': 1, 'src:reddit': 1 } });
+  const s = summarise(tally.days);
+  assert.equal(s.page_loads, 3);
+  assert.deepEqual(s.sources, { google: 2, reddit: 1 });
 });

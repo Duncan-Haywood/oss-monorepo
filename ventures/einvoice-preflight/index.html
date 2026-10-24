@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>E-invoice Preflight — Check JSON, UBL, CII, or Factur-X</title>
-  <meta name="description" content="Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, payment terms days that do not match the due date, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.">
+  <meta name="description" content="Free local e-invoice check: drop a JSON, UBL, CII or Factur-X/ZUGFeRD invoice to catch missing fields, bad totals, VAT and IBAN typos. Nothing is uploaded.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <link rel="sitemap" type="application/xml" href="sitemap.xml">
@@ -127,8 +127,10 @@
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
         <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
+        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL, CII or a dropped Factur-X PDF)</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
+      <div id="repairLog" aria-live="polite"></div>
     </section>
     <section>
       <h2>Preflight result</h2>
@@ -183,6 +185,28 @@
   <p>Group the lines by rate, sum each rate's net, multiply by that rate, and round to the cent — see the <a href="how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html">worked example</a> the INV-037/INV-038 checks are built from.</p>
   <h3>What does this e-invoice error code mean?</h3>
   <p>Every rule this checker reports has an <code>INV-</code> code naming one specific defect and the field it was found in — <a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a> lists all of them with a fix for each. They are this tool's own identifiers, not EN 16931 <code>BR-</code> rules or a submission network's rejection codes.</p>
+  <h3>When must German businesses issue e-invoices?</h3>
+  <p>Receiving structured e-invoices has been mandatory since 1 January 2025; issuing is mandatory from 2027 (businesses above 800,000 euro prior-year turnover) and 2028 (everyone) for domestic B2B. See <a href="germany-e-invoice-mandate.html">the dates, the formats that count and a free XRechnung check</a>.</p>
+  <p>France: every business must receive e-invoices from 1 September 2026, and large and mid-size companies must issue them; the rest follow on 1 September 2027. See <a href="france-e-invoice-mandate.html">the French dates, formats and mentions</a>.</p>
+  <p>All countries side by side: <a href="e-invoicing-mandates-by-country.html">e-invoicing mandates by country, with dates, formats and what this checker covers</a>.</p>
+  <p>Slovakia: domestic B2B and B2G e-invoicing is reported to become mandatory on 1 January 2027 over Peppol; vendor sources only, said plainly. See <a href="slovakia-e-invoice-mandate.html">the Slovak dates and what this checker does not cover</a>.</p>
+  <p>Hungary: every domestic B2B invoice is reported to NAV (Online Számla) but there is no general structured e-invoice mandate yet; vendor sources only, said plainly. See <a href="hungary-e-invoice-mandate.html">the Hungarian rules and what this checker does not cover</a>.</p>
+  <p>Singapore: GST InvoiceNow phases in from 1 November 2025 for new voluntary GST registrants. See <a href="singapore-invoicenow-e-invoice-mandate.html">the dates and what is unconfirmed</a>.</p>
+  <p>Australia: federal agencies receive Peppol e-invoices; B2B is voluntary. See <a href="australia-e-invoice-mandate.html">the dates and what is unconfirmed</a>.</p>
+  <p>Ireland: structured EN 16931 e-invoicing over Peppol is planned from November 2028 for large corporates, with every VAT-registered business receiving; vendor sources only, said plainly. See <a href="ireland-e-invoice-mandate.html">the Irish phases and what is unconfirmed</a>.</p>
+  <p>Belgium: structured Peppol e-invoicing has been mandatory for domestic B2B since 1 January 2026, with fines from the second quarter. See <a href="belgium-e-invoice-mandate.html">the Belgian date, fines and format</a>.</p>
+  <p>Poland: KSeF became mandatory on 1 February 2026 for the largest taxpayers and on 1 April 2026 for most others; its FA(3) format is not EN 16931. See <a href="poland-ksef-e-invoice-mandate.html">the Polish dates, penalty position and what to check first</a>.</p>
+  <p>Croatia: structured EN 16931 e-invoicing with reporting to the Tax Administration has been mandatory for VAT-registered domestic B2B and B2G since 1 January 2026. See <a href="croatia-e-invoice-mandate.html">the Croatian date and format</a>.</p>
+  <p>Romania: domestic B2B invoices have gone through ANAF's RO e-Factura as UBL 2.1 XML (RO_CIUS) since 1 January 2024, with B2C added in 2025. See <a href="romania-e-factura-e-invoice-mandate.html">the Romanian dates and format</a>.</p>
+  <p>Bulgaria: no B2B e-invoicing mandate is in force; a draft VAT Act amendment (consultation to 23 October 2026) proposes structured EN 16931 invoices through the NRA's NISSEF mostly from 1 January 2028. See <a href="bulgaria-e-invoice-mandate.html">what is law and what is proposed</a>.</p>
+  <p>United Arab Emirates: e-invoicing in the Peppol-based PINT AE format through an Accredited Service Provider becomes mandatory on 1 January 2027 for businesses with revenue of AED 50 million or more and on 1 July 2027 for the rest. See <a href="uae-e-invoice-mandate.html">the dates and what this checker covers</a>.</p>
+  <p>Malaysia: MyInvois e-invoicing has been phased in by turnover since 1 August 2024, with a relaxation period reported to run to 31 December 2027. See <a href="malaysia-myinvois-e-invoice-mandate.html">the phases, the penalties and what this checker covers</a>.</p>
+  <p>Saudi Arabia: ZATCA e-invoicing integrates taxpayers with the Fatoora platform in waves; Wave 24 was due on 30 June 2026 and Wave 25 (taxable turnover above SAR 187,500) must integrate by 1 February 2027. See <a href="saudi-arabia-zatca-e-invoice-mandate.html">the waves and what this checker covers</a>.</p>
+  <p>Portugal: no B2B e-invoicing date is confirmed; B2G is phased in, certified software and monthly reporting apply, and PDFs need a qualified signature from 2027 per most sources. See <a href="portugal-e-invoice-mandate.html">what applies and where sources disagree</a>.</p>
+  <p>Greece: B2B invoices are cleared through AADE's myDATA platform via a certified provider (MARK number), phased in from early 2026 for larger businesses and from October 2026 for the rest; the format is not EN 16931. See <a href="greece-mydata-e-invoice-mandate.html">the Greek dates and model</a>.</p>
+  <p>Spain: the Verifactu rules for invoicing software were delayed to 1 January 2027 (corporate taxpayers) and 1 July 2027 (others); they are not an e-invoicing mandate. See <a href="spain-verifactu-e-invoice-mandate.html">what Verifactu covers and what this checker does</a>.</p>
+  <p>Italy: e-invoices have gone through the SdI exchange as FatturaPA XML since 2019, a national format rather than EN 16931. See <a href="italy-sdi-e-invoice-mandate.html">how SdI works and what this checker covers</a>.</p>
+  <p>Netherlands: e-invoices are mandatory for government suppliers (NLCIUS, a Dutch EN 16931 profile); domestic B2B is still voluntary. See <a href="netherlands-e-invoice-mandate.html">the dates, format and what this checker covers</a>.</p>
   <h3>Should I use this checker or a platform like Avalara?</h3>
   <p>Different jobs: Avalara (or a comparable platform) calculates and files tax and routes e-invoices across a whole operation as an ongoing subscription. This checker is a free, local, no-account validation of one invoice file's fields and arithmetic before it reaches that pipeline — see <a href="vs-avalara.html">this checker vs. Avalara</a>.</p>
 
@@ -192,6 +216,7 @@
     <label><input id="xrechnung" type="checkbox" style="width:auto"> Also apply the German XRechnung rules (BR-DE, Leitweg-ID check digits) &mdash; for invoices to German public bodies</label><br>
     <label><input id="peppol" type="checkbox" style="width:auto"> Also apply the Peppol BIS Billing 3.0 rules (business process, specification id, electronic addresses) &mdash; for invoices sent through a Peppol access point</label><br>
     <label><input id="france" type="checkbox" style="width:auto"> Also apply the French rules (SIREN/SIRET check digits, late-penalty, 40&nbsp;&euro; recovery indemnity and early-payment-discount mentions) &mdash; for invoices to French buyers under the 2026 e-invoicing reform</label><br>
+    <label><input id="official" type="checkbox" style="width:auto"> Also run the official EN 16931 Schematron (and the XRechnung / Peppol add-ons for the chosen profile) &mdash; XML invoices only; runs in your browser from the rules published with this page (the file stays on your machine); only a copy without those rules <strong>sends the file to the server this page is served from</strong></label><br>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
@@ -202,6 +227,12 @@
   </footer>
   <script type="module">
     import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, buildRemediationCsv, summarizePreflight } from "./report.mjs";
+    import { addOfficialFindings, officialNote } from "./official.mjs";
+    import { repairInvoice } from "./repair.mjs";
+    import { repairUbl } from "./repair-ubl.mjs";
+    import { repairCii } from "./repair-cii.mjs";
+    import { repairFacturX } from "./repair-facturx.mjs";
+    import { looksLikeCii } from "./cii.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -367,9 +398,8 @@
       ].map(([value, label]) => `<div class="metric"><strong>${value}</strong><span>${label}</span></div>`).join("");
 
       const articles = result.reports.map((report) => {
-        const envelope = report.envelope
-          ? `<p class="note">${escapeHtml(report.envelope)}</p>`
-          : "";
+        const envelope = (report.envelope ? `<p class="note">${escapeHtml(report.envelope)}</p>` : "")
+          + (report.schematron ? `<p class="note">${escapeHtml(officialNote(report))}</p>` : "");
         if (!report.errors.length) {
           return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="pass">PASS — no supported defects found.</p></article>`;
         }
@@ -423,11 +453,60 @@
         downloadRemediationCsv.disabled = true;
         return;
       }
-      const result = await preflightDocuments(inputs, { profile: document.getElementById("xrechnung").checked ? "xrechnung" : document.getElementById("peppol").checked ? "peppol" : document.getElementById("france").checked ? "france" : "" });
+      const profile = document.getElementById("xrechnung").checked ? "xrechnung" : document.getElementById("peppol").checked ? "peppol" : document.getElementById("france").checked ? "france" : "";
+      const result = await preflightDocuments(inputs, { profile });
+      if (document.getElementById("official").checked) await addOfficialFindings(result, inputs, { profile });
       render(result);
       for (const report of result.reports) {
         recordUsage(localStorage, optedOut(), "invoice_preflight_checked");
       }
+    });
+
+    document.getElementById("repair").addEventListener("click", async () => {
+      const log = document.getElementById("repairLog");
+      log.innerHTML = "";
+      inputError.textContent = "";
+      const text = paste.value;
+      const pdfFile = !text.trim() && dropped.length === 1 && /\.pdf$/i.test(dropped[0].name) ? dropped[0] : null;
+      if (pdfFile) {
+        let x;
+        try {
+          x = await repairFacturX(new Uint8Array(await pdfFile.arrayBuffer()));
+        } catch (e) {
+          inputError.textContent = `Repair could not read this PDF: ${e.message}`;
+          return;
+        }
+        if (!x.repaired) {
+          const why = (x.skipped || []).length ? " " + x.skipped.map(escapeHtml).join(" ") : "";
+          log.innerHTML = '<p class="note">Nothing to repair in the PDF\'s invoice: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).' + why + '</p>';
+          return;
+        }
+        const url = URL.createObjectURL(new Blob([x.pdf], { type: "application/pdf" }));
+        const name = pdfFile.name.replace(/\.pdf$/i, "") + "-repaired.pdf";
+        const rows = x.changes.map((c) => `<tr><td><code>${escapeHtml(c.path)}</code></td><td>${escapeHtml(String(c.from))}</td><td>${escapeHtml(String(c.to))}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("");
+        log.innerHTML = `<p class="note">Repaired ${x.changes.length} value(s) in the PDF's embedded invoice; ${x.remaining.length} finding(s) still need a person. The printed pages are not redrawn: if they show the wrong totals, re-issue the PDF from your accounting system. <a id="repairedPdf" href="${url}" download="${escapeHtml(name)}">Download ${escapeHtml(name)}</a></p><table><thead><tr><th>Path</th><th>Was</th><th>Now</th><th>Why</th></tr></thead><tbody>${rows}</tbody></table>`;
+        return;
+      }
+      const isXml = text.trimStart().startsWith("<");
+      let out;
+      try {
+        out = isXml ? (looksLikeCii(text) ? repairCii(text) : repairUbl(text)) : repairInvoice(JSON.parse(text));
+      } catch (e) {
+        inputError.textContent = isXml ? `Repair could not read this XML as a UBL or CII invoice: ${e.message}` : "Repair works on a pasted JSON invoice or one UBL or CII XML file. Paste one first.";
+        return;
+      }
+      if (!out.repaired) {
+        const why = (out.skipped || []).length ? " " + out.skipped.map(escapeHtml).join(" ") : "";
+        log.innerHTML = '<p class="note">Nothing to repair: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).' + why + '</p>';
+        return;
+      }
+      paste.value = isXml ? out.xml : JSON.stringify(out.invoice, null, 2);
+      filesInput.value = "";
+      dropped = [];
+      const rows = out.changes.map((c) => `<tr><td><code>${escapeHtml(c.path)}</code></td><td>${escapeHtml(String(c.from))}</td><td>${escapeHtml(String(c.to))}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("");
+      const left = out.remaining.length;
+      log.innerHTML = `<p class="note">Repaired ${out.changes.length} value(s) in the box above. Rates, dates, identifiers and parties are never touched; ${left} finding(s) still need a person.</p><table><thead><tr><th>Path</th><th>Was</th><th>Now</th><th>Why</th></tr></thead><tbody>${rows}</tbody></table>`;
+      document.getElementById("check").click();
     });
 
     function fallbackCopy(text) {

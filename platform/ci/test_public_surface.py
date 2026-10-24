@@ -426,6 +426,14 @@ class EgressGatewayTests(unittest.TestCase):
         self.assertEqual(payload["unmeasured"], 0)
 
 
+class ContentTypeTests(unittest.TestCase):
+    def test_run_probe_reports_the_content_type_served(self):
+        url = "https://example.test/"
+        probe = ps.Probe(url=url, expect="serves", why="test")
+        opener = StubOpener({url: served(ctype="text/html")})
+        self.assertEqual(ps.run_probe(probe, opener=opener).content_type, "text/html")
+
+
 class SampleTests(unittest.TestCase):
     def test_sample_is_deterministic(self):
         urls = [f"u{i}" for i in range(100)]
@@ -445,6 +453,14 @@ class SampleTests(unittest.TestCase):
         self.assertEqual(ps.DEFAULT_SAMPLE, 24)
         urls = [f"u{i}" for i in range(100)]
         self.assertEqual(len(ps.sitemap_probes(urls=urls)), 24)
+
+    def test_sample_at_exactly_the_limit_returns_everything(self):
+        urls = [f"u{i}" for i in range(5)]
+        self.assertEqual(ps.sample(urls, 5), urls)
+
+    def test_sample_steps_forward_through_the_list(self):
+        urls = [f"u{i}" for i in range(100)]
+        self.assertEqual(ps.sample(urls, 4), ["u0", "u25", "u50", "u75"])
 
     def test_sample_of_zero_returns_everything(self):
         """`--all` passes 0 through `limit or len(urls)`; guard the raw call."""
@@ -507,15 +523,15 @@ class PagesSitemapTests(unittest.TestCase):
 
     INDEX = (
         "<sitemapindex>"
-        "<sitemap><loc>https://duncan-haywood.github.io/monorepo-projects/sitemap-hub.xml</loc></sitemap>"
-        "<sitemap><loc>https://duncan-haywood.github.io/monorepo-projects/a-calculator/sitemap.xml</loc></sitemap>"
+        "<sitemap><loc>https://duncan-haywood.github.io/oss-monorepo/sitemap-hub.xml</loc></sitemap>"
+        "<sitemap><loc>https://duncan-haywood.github.io/oss-monorepo/a-calculator/sitemap.xml</loc></sitemap>"
         "</sitemapindex>"
     )
-    HUB = "<urlset><url><loc>https://duncan-haywood.github.io/monorepo-projects/</loc></url></urlset>"
+    HUB = "<urlset><url><loc>https://duncan-haywood.github.io/oss-monorepo/</loc></url></urlset>"
     CHILD = (
         "<urlset>"
-        "<url><loc>https://duncan-haywood.github.io/monorepo-projects/a-calculator/</loc></url>"
-        "<url><loc>https://duncan-haywood.github.io/monorepo-projects/a-calculator/vs-x.html</loc></url>"
+        "<url><loc>https://duncan-haywood.github.io/oss-monorepo/a-calculator/</loc></url>"
+        "<url><loc>https://duncan-haywood.github.io/oss-monorepo/a-calculator/vs-x.html</loc></url>"
         "</urlset>"
     )
 
@@ -534,13 +550,13 @@ class PagesSitemapTests(unittest.TestCase):
         with unittest.mock.patch.object(
             ps.publish_surface, "pages_branch_survey", return_value={"ref": "origin/gh-pages"}
         ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub(table)):
-            urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/monorepo-projects/")
+            urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/oss-monorepo/")
         self.assertEqual(
             urls,
             [
-                "https://duncan-haywood.github.io/monorepo-projects/",
-                "https://duncan-haywood.github.io/monorepo-projects/a-calculator/",
-                "https://duncan-haywood.github.io/monorepo-projects/a-calculator/vs-x.html",
+                "https://duncan-haywood.github.io/oss-monorepo/",
+                "https://duncan-haywood.github.io/oss-monorepo/a-calculator/",
+                "https://duncan-haywood.github.io/oss-monorepo/a-calculator/vs-x.html",
             ],
         )
 
@@ -566,7 +582,7 @@ class PagesSitemapTests(unittest.TestCase):
         with unittest.mock.patch.object(
             ps.publish_surface, "pages_branch_survey", return_value={"ref": "origin/gh-pages"}
         ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub(table)):
-            urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/monorepo-projects/")
+            urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/oss-monorepo/")
         self.assertEqual(urls, [])
 
     def test_the_base_url_defaults_to_the_one_build_mjs_exports(self):
@@ -625,7 +641,7 @@ class RenderTests(unittest.TestCase):
     def test_a_broken_pages_sitemap_url_is_listed_separately_from_the_apex(self):
         dead = ps.Result(
             probe=ps.Probe(
-                "https://duncan-haywood.github.io/monorepo-projects/x/", "serves", "GitHub Pages sitemap"
+                "https://duncan-haywood.github.io/oss-monorepo/x/", "serves", "GitHub Pages sitemap"
             ),
             status=404,
         )

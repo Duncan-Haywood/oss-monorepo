@@ -1,0 +1,22 @@
+!Account
+NChecking
+TBank
+^
+!Type:Bank
+D01/05/2026
+T-45.20
+PCorner Cafe
+^
+D01/06/2026
+T2500.00
+PClient payment
+^
+!Account
+NVisa Card
+TCCard
+^
+!Type:CCard
+D01/07/2026
+T-89.99
+POffice Supply Co
+^

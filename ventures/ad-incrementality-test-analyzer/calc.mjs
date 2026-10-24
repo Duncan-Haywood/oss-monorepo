@@ -258,6 +258,53 @@ export function analyze(panel, opts = {}) {
   };
 }
 
+// Before spending: from history alone (no campaign yet), how small a lift could
+// a test of each length detect for these test regions? Replays the placebo
+// method for every candidate length and reports the 90% half-width relative to
+// the predicted total, plus the shortest length that reaches `targetLift`.
+export function planTest(panel, opts = {}) {
+  if (!panel || panel.error) return { error: panel?.error || "No data." };
+  const { testUnits = [], durations = [7, 14, 21, 28, 42], targetLift = null } = opts;
+  const lower = new Map(panel.units.map((u) => [u.toLowerCase(), u]));
+  const tests = [...new Set(testUnits.map((t) => String(t).trim()).filter(Boolean).map((t) => lower.get(t.toLowerCase())))];
+  if (!tests.length) return { error: "Name at least one test store or region, exactly as it appears in your header or unit column." };
+  if (tests.includes(undefined)) {
+    const missing = testUnits.filter((t) => !lower.has(String(t).trim().toLowerCase()));
+    return { error: `Not found in your data: ${missing.join(", ")}. Available: ${panel.units.join(", ")}.` };
+  }
+  const controls = panel.units.filter((u) => !tests.includes(u));
+  if (!controls.length) return { error: "Every unit is marked as a test unit, so nothing is left to compare against." };
+  const T = panel.days.length;
+  const y = panel.dates.map((_, i) => sum(tests.map((u) => panel.series[u][i])));
+  const X = panel.dates.map((_, i) => controls.map((u) => panel.series[u][i]));
+  const minTrain = Math.max(10, MIN_PRE);
+  if (T < minTrain + MIN_POST + 5) return { error: `Only ${T} periods of history. Planning needs at least ${minTrain + MIN_POST + 5}.` };
+  const rows = [];
+  for (const L of durations) {
+    if (!Number.isInteger(L) || L < MIN_POST || minTrain + L > T) continue;
+    const gaps = [], preds = [];
+    const starts = [];
+    for (let p = minTrain; p + L <= T; p++) starts.push(p);
+    const k = Math.min(starts.length, 40);
+    for (let j = 0; j < k; j++) {
+      const p = starts[k === 1 ? 0 : Math.round((j * (starts.length - 1)) / (k - 1))];
+      const w = fitWeights(X, y, Array.from({ length: p }, (_, i) => i));
+      let g = 0, c = 0;
+      for (let i = p; i < p + L; i++) { const f = dot(X[i], w); g += y[i] - f; c += f; }
+      gaps.push(g); preds.push(c);
+    }
+    if (gaps.length < 5) continue;
+    const sorted = [...gaps].sort((a, b) => a - b);
+    const half = (quantile(sorted, 0.95) - quantile(sorted, 0.05)) / 2;
+    const base = sum(preds) / preds.length;
+    rows.push({ periods: L, windows: gaps.length, mde: base > 0 ? half / base : NaN, mdeValue: half });
+  }
+  if (!rows.length) return { error: "Not enough history to test any of the campaign lengths. Add more periods before planning." };
+  const target = targetLift === null || targetLift === "" || !Number.isFinite(Number(targetLift)) ? null : Number(targetLift) / 100;
+  const hit = target === null ? null : rows.find((r) => Number.isFinite(r.mde) && r.mde <= target) || null;
+  return { tests, controls, rows, target, shortest: hit ? hit.periods : null, historyPeriods: T };
+}
+
 export function reportCsv(r) {
   const lines = ["date,period,actual,counterfactual,gap,cumulative_gap_since_start"];
   let cum = 0;

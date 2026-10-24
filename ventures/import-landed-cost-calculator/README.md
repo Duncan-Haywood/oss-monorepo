@@ -7,7 +7,7 @@ Fee, and your customs broker's fee, all in one breakdown. Use it when you are
 pricing a SKU before you order it, or checking a shipment's numbers against
 your broker's entry summary after it lands.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/import-landed-cost-calculator/
 
 **Not a customs broker, freight forwarder, or licensed customs classification
 service.** It does not determine your HTS code, your duty rate, or your
@@ -53,6 +53,12 @@ for a worked example of what changed.
 - **Total landed cost, cost per unit, and effective tariff burden** as a
   percent of item cost — the single number sellers care about most: how much
   you're really paying on top of the invoice price.
+
+- **Several products on one entry.** A second section prices a mixed
+  shipment line by line: each product has its own duty and tariff rates,
+  freight and insurance are split by item cost, and the MPF (with its floor
+  and ceiling), HMF and broker fee are charged once per entry and then split
+  by customs value, so each product gets its own landed cost per unit.
 
 None of the duty or tariff *rates* are stored or assumed. They are fields you
 fill in from your own HTS lookup (hts.usitc.gov) or your broker's guidance,

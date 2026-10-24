@@ -1,0 +1,24 @@
+{
+  "id": "P042",
+  "title": "Turn on GitHub's merge queue for main (owner setting)",
+  "status": "open",
+  "owner": "owner",
+  "effect": 2,
+  "cost": 1,
+  "problem": "What merges is rarely exactly what was tested: a PR head is a median 1 (p90 5) commits behind main when it merges, and only 34% are on the tip. With conflicts now rare (20% tax) a batching merge queue is cheap and closes that gap (docs/parallel-agents.md fix 4).",
+  "evidence": [
+    "924 PRs merged 2026-10-17..10-20T06:00: commits on main between the PR's merge-base and its merge: median 1, p75 3, p90 5; 310 at 0"
+  ],
+  "change": "Owner: enable the merge queue on main in branch protection, with batching (e.g. up to 5) and the required checks that already run on PRs. Agents then: add `merge_group:` to the triggers of each required workflow, and switch land-your-work.md step 5 from 'squash-merge' to 'enable auto-merge / add to the queue'. Do this after P037-P039 so CI tells the truth first.",
+  "touches": [
+    ".github/workflows/*.yml",
+    ".github/prompts/land-your-work.md"
+  ],
+  "metric": "share of merged PRs whose tested head was not the tip of main at merge",
+  "baseline": "66% (2026-10-17..10-20)",
+  "opened": "2026-10-20",
+  "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
+  "pr": null,
+  "result": null,
+  "history": []
+}

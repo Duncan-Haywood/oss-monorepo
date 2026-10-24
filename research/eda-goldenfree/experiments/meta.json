@@ -1,0 +1,13 @@
+{
+ "tools": {
+  "yosys": "Yosys 0.33 (git sha1 2584903a060)",
+  "iverilog": "Icarus Verilog version 12.0 (stable) ()",
+  "openroad": false
+ },
+ "candidate": {
+  "p": 8,
+  "wb": 4
+ },
+ "latency": 20,
+ "golden_pass_seconds": 0.12375722500001984
+}

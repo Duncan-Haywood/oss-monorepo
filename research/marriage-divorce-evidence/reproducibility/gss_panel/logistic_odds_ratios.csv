@@ -1,0 +1,82 @@
+feature,per,odds_ratio,ci_low,ci_high
+num__age,10 years,0.6349,0.4664,0.7715
+num__childs,one step,0.9585,0.8140,1.1239
+num__attend,one step,1.0196,0.9358,1.1102
+cat__hapmar_Pretty happy,vs reference,2.0722,1.2175,3.5530
+cat__hapmar_Not too happy,vs reference,10.8545,6.3037,28.5799
+cat__hapmar_Unknown,vs reference,11.0940,0.9905,75.3357
+cat__happy_Pretty happy,vs reference,1.1031,0.6615,1.9796
+cat__happy_Not too happy,vs reference,1.0119,0.3635,2.2841
+cat__happy_Unknown,vs reference,1.3809,0.0060,13.7325
+cat__sex_Female,vs reference,0.7804,0.5068,1.1705
+cat__race_Black,vs reference,1.7537,0.9739,3.0445
+cat__race_Other,vs reference,0.7930,0.3239,1.7325
+cat__degree_Less than high school,vs reference,0.5288,0.2430,1.0836
+cat__degree_Junior college,vs reference,0.8709,0.3924,1.6735
+cat__degree_Bachelor,vs reference,1.0273,0.5334,1.7260
+cat__degree_Graduate,vs reference,0.7875,0.2311,1.7603
+cat__degree_Unknown,vs reference,0.9174,0.2850,1.0000
+cat__spouse_degree_Less than high school,vs reference,1.5530,0.6576,2.7087
+cat__spouse_degree_Junior college,vs reference,1.0781,0.5767,2.1346
+cat__spouse_degree_Bachelor,vs reference,1.1429,0.5490,2.0939
+cat__spouse_degree_Graduate,vs reference,0.5267,0.1458,1.2555
+cat__spouse_degree_Unknown,vs reference,6.3686,0.5124,45.6985
+cat__work_Part-time,vs reference,0.8346,0.4588,1.3938
+cat__work_Not working,vs reference,1.5696,0.3325,3.3904
+cat__work_Retired,vs reference,0.4343,0.1197,1.3373
+cat__work_Keeping house,vs reference,1.1731,0.5779,1.8952
+cat__work_Other,vs reference,0.4325,0.1248,0.9743
+cat__work_Unknown,vs reference,0.9152,0.5664,1.0000
+cat__spouse_work_Part-time,vs reference,0.7990,0.3618,1.5010
+cat__spouse_work_Not working,vs reference,1.1260,0.3527,2.5471
+cat__spouse_work_Retired,vs reference,1.3451,0.3576,2.8963
+cat__spouse_work_Keeping house,vs reference,0.8513,0.4496,1.5137
+cat__spouse_work_Other,vs reference,0.3391,0.0617,0.8409
+cat__spouse_work_Unknown,vs reference,0.2449,0.0151,2.4927
+cat__family_income_Under $20k,vs reference,1.8774,1.0355,4.2976
+cat__family_income_$20k-$40k,vs reference,1.6547,1.0254,2.7575
+cat__family_income_$75k+,vs reference,0.7925,0.4461,1.3745
+cat__family_income_Unknown,vs reference,1.4595,0.5916,2.8648
+cat__religion_Catholic,vs reference,1.0940,0.5288,2.3872
+cat__religion_None,vs reference,1.7612,0.9582,3.6395
+cat__religion_Other,vs reference,0.6729,0.2559,1.6977
+cat__religion_Unknown,vs reference,1.7809,0.0771,16.0950
+cat__spouse_religion_Catholic,vs reference,0.7303,0.3108,1.6295
+cat__spouse_religion_None,vs reference,1.0075,0.5306,1.8643
+cat__spouse_religion_Other,vs reference,1.1871,0.5370,2.7559
+cat__spouse_religion_Unknown,vs reference,0.2966,0.0021,1.1933
+cat__same_religion_Different,vs reference,1.0344,0.6144,1.6038
+cat__same_religion_Unknown,vs reference,1.6197,0.3335,28.7833
+cat__divorced_before_Yes,vs reference,2.5087,1.7637,4.1409
+cat__divorced_before_Unknown,vs reference,0.8069,0.1761,1.0000
+cat__family_at_16_Parents divorced or separated,vs reference,1.5962,0.9496,2.3766
+cat__family_at_16_Parent died,vs reference,1.4120,0.7710,2.7495
+cat__family_at_16_Other,vs reference,2.0989,0.8197,4.2474
+cat__family_at_16_Unknown,vs reference,1.0000,1.0000,1.0000
+cat__health_Good,vs reference,0.8383,0.4507,1.5015
+cat__health_Fair,vs reference,0.7363,0.3224,1.4929
+cat__health_Poor,vs reference,0.9793,0.0999,2.6411
+cat__health_Unknown,vs reference,1.1022,0.2179,7.2616
+cat__fefam_Agree,vs reference,1.5738,0.5617,5.7093
+cat__fefam_Disagree,vs reference,1.3554,0.4882,4.8703
+cat__fefam_Strongly disagree,vs reference,1.9172,0.6496,8.0789
+cat__fefam_Unknown,vs reference,1.5978,0.5375,6.3586
+cat__sexfreq_Not at all,vs reference,1.5890,0.3648,5.0031
+cat__sexfreq_Once a month or less,vs reference,1.2293,0.5585,2.7612
+cat__sexfreq_2+ times a week,vs reference,1.2343,0.6632,2.5677
+cat__sexfreq_Unknown,vs reference,1.0296,0.4072,2.4321
+cat__evstray_Yes,vs reference,1.5897,0.7781,2.7505
+cat__evstray_Unknown,vs reference,1.4983,0.7660,3.7194
+cat__satfin_More or less,vs reference,1.1035,0.6410,1.8894
+cat__satfin_Not at all,vs reference,1.2877,0.7593,2.2171
+cat__satfin_Unknown,vs reference,0.3406,0.0107,0.7567
+cat__xmarsex_Almost always wrong,vs reference,1.0082,0.4101,2.1973
+cat__xmarsex_Sometimes or not wrong,vs reference,0.9975,0.3426,2.3639
+cat__xmarsex_Unknown,vs reference,1.1540,0.1692,5.5849
+cat__region_Northeast,vs reference,1.3996,0.6925,2.5993
+cat__region_Midwest,vs reference,0.6943,0.4138,1.1623
+cat__region_West,vs reference,1.3713,0.8093,2.4777
+cat__place_Large central city,vs reference,0.6977,0.3670,1.2402
+cat__place_Other urban,vs reference,0.8558,0.4925,1.3477
+cat__place_Rural,vs reference,1.0593,0.5693,2.0346
+cat__place_Unknown,vs reference,1.0000,1.0000,1.0000

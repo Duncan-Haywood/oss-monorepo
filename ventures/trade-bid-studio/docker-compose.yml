@@ -1,0 +1,14 @@
+# Any box with Docker:  ADMIN_KEY=$(openssl rand -hex 16) docker compose up -d
+# Optional: PUBLIC_BASE_URL=https://your.host  PAYMENT_LINK_URL=<a payment link from YOUR processor>
+services:
+  estimate-hub:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data"]
+    environment:
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
+      PAYMENT_LINK_URL: ${PAYMENT_LINK_URL:-}
+volumes:
+  state:

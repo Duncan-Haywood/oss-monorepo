@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>App Store &amp; Google Play Listing Checker — Keyword Field, Character Limits and Rejection Risks</title>
-  <meta name="description" content="Free tool: paste your App Store or Google Play listing text and check it before you submit — character limits, wasted keyword-field characters, repeated words, promotional claims in the name, placeholder text and keyword stuffing. Runs in your browser; nothing is uploaded. A zero-dependency CLI lints a fastlane metadata folder in CI.">
+  <meta name="description" content="Free tool: paste your App Store or Google Play listing text and check it before you submit — character limits, wasted keyword-field characters, repeated words, promotional claims in the name, placeholder text and keyword stuffing. Runs in your browser; nothing is uploaded.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="App Store &amp; Google Play Listing Checker">
   <meta property="og:description" content="Check listing text for character limits, wasted keyword-field characters and rejection risks before you submit. Nothing leaves your browser.">
@@ -51,6 +51,7 @@
     </p>
     <p class="note">Nothing is uploaded. Your text is checked in this browser and is not transmitted or stored.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your listing</h2>
@@ -97,7 +98,8 @@ node check.mjs fastlane/metadata --json</pre>
     <p>No. The text you paste is checked in your browser and is never transmitted or stored. The page keeps only an anonymous local count of how many times the check button was pressed, which you can switch off below.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, business, or app-review advice, and it does not replace reading each store's own current guidelines. It reports whether the text you provided trips specific, mechanically checkable rules — nothing more. It is not a guarantee that a submission will be accepted, and passing every check here does not mean an app will pass review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Not affiliated with Apple or Google.</strong> "App Store", "App Store Connect", "Google Play" and "Google Play Console" are the trademarks of their respective owners, used here only to say which store's published rules a check refers to. The limits and rules in this tool were last reviewed on 2026-10-06 and may be out of date; each store's own documentation is authoritative.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>

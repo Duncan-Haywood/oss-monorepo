@@ -1,0 +1,21 @@
+A. Couples: Wh/kg (energy-density), Wh/L all reactants (O2 liquid), Wh/L with O2 from air
+couple                                          Wh/kg  Wh/L all  Wh/L air
+Lead-acid (Pb + PbO2 + 2 H2SO4)                   170       724       724
+Li-ion, graphite / LiCoO2 (half the Li cyc        380      1382      1382
+Li-ion, graphite / LiFePO4                        385      1040      1040
+Lithium-sulfur (2 Li + S -> Li2S)                2567      2843      2843
+Zinc-air (Zn + 1/2 O2 -> ZnO)                    1087      3816      9659
+Aluminium-air (Al + 3/4 O2 + 3/2 H2O -> Al       2793      3754      5887
+Lithium-oxygen, non-aqueous (2 Li + O2 ->        3458      2936      6104
+
+B. Hydrogen (Gibbs energy of H2 + O2 from air; Wh per litre of H2 alone)
+H2 gas, 700 bar                                 32678      1314
+H2 liquid, 20 K                                 32678      2314
+
+C. Stores (Wh/kg, bulk kg/L, Wh/L)
+Sand 20-500 C, heat (1.6 kg/L bulk)             106.7     170.7
+Sand 20-500 C, exergy                            43.5      69.6
+Solar salt 290-565 C, exergy (1.8 kg/L)          66.0     118.8
+Water 25-85 C, heat                              69.7      69.7
+Water lifted 300 m (1.0 kg/L)                     0.8       0.8
+CFRP flywheel rim (1.56 kg/L, 2860 MPa)         254.6     397.2

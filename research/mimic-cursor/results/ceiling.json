@@ -1,0 +1,310 @@
+[
+ {
+  "restart": 0,
+  "evaluations": 1000,
+  "reference": 0.8820687500000001,
+  "copy_rate": 0.09125,
+  "trace": [
+   {
+    "generation": 25,
+    "neg_logloss": -0.09115377515634822
+   },
+   {
+    "generation": 50,
+    "neg_logloss": -0.3939089834328813
+   },
+   {
+    "generation": 75,
+    "neg_logloss": -0.5172566699906066
+   },
+   {
+    "generation": 100,
+    "neg_logloss": -0.5214878687443046
+   },
+   {
+    "generation": 125,
+    "neg_logloss": -0.5031917354567375
+   },
+   {
+    "generation": 150,
+    "neg_logloss": -0.4852788568322775
+   },
+   {
+    "generation": 175,
+    "neg_logloss": -0.5098755077923864
+   },
+   {
+    "generation": 200,
+    "neg_logloss": -0.5386292454965038
+   }
+  ],
+  "genome": {
+   "dur": {
+    "kind": "template",
+    "a": 400.0,
+    "b": 76.49864603546233,
+    "sd": 0.0
+   },
+   "path": {
+    "kind": "template",
+    "curv": 0.1,
+    "tmix": 0.0,
+    "tol": 45.0
+   },
+   "profile": {
+    "kind": "minjerk",
+    "peak": 0.5
+   },
+   "sub": {
+    "kind": "undershoot",
+    "mag": 0.18607273397989516,
+    "prob": 0.6269588849207914,
+    "frac": 0.7990369251660072
+   },
+   "noise": {
+    "kind": "none",
+    "sd": 0.0,
+    "rho": 0.8
+   },
+   "clock": {
+    "kind": "template",
+    "dt": 16.0,
+    "cv": 0.3
+   },
+   "round": {
+    "kind": "yes"
+   }
+  }
+ },
+ {
+  "restart": 1,
+  "evaluations": 1000,
+  "reference": 0.9534562500000001,
+  "copy_rate": 0.11375,
+  "trace": [
+   {
+    "generation": 25,
+    "neg_logloss": -0.3208919816378504
+   },
+   {
+    "generation": 50,
+    "neg_logloss": -0.5121758795256259
+   },
+   {
+    "generation": 75,
+    "neg_logloss": -0.5278442542366459
+   },
+   {
+    "generation": 100,
+    "neg_logloss": -0.5253729925529599
+   },
+   {
+    "generation": 125,
+    "neg_logloss": -0.5203791301538908
+   },
+   {
+    "generation": 150,
+    "neg_logloss": -0.5316019887348232
+   },
+   {
+    "generation": 175,
+    "neg_logloss": -0.5391143394310711
+   },
+   {
+    "generation": 200,
+    "neg_logloss": -0.3494097178947395
+   }
+  ],
+  "genome": {
+   "dur": {
+    "kind": "template",
+    "a": 400.0,
+    "b": 0.0,
+    "sd": 0.0
+   },
+   "path": {
+    "kind": "template",
+    "curv": 0.1,
+    "tmix": 0.0914431840426797,
+    "tol": 32.42056168112888
+   },
+   "profile": {
+    "kind": "skew",
+    "peak": 0.5
+   },
+   "sub": {
+    "kind": "overshoot",
+    "mag": 0.08,
+    "prob": 0.6939572920468278,
+    "frac": 0.9
+   },
+   "noise": {
+    "kind": "none",
+    "sd": 1.0,
+    "rho": 0.8
+   },
+   "clock": {
+    "kind": "empirical",
+    "dt": 9.03034568143285,
+    "cv": 0.3
+   },
+   "round": {
+    "kind": "yes"
+   }
+  }
+ },
+ {
+  "restart": 2,
+  "evaluations": 1000,
+  "reference": 0.951665625,
+  "copy_rate": 0.11375,
+  "trace": [
+   {
+    "generation": 25,
+    "neg_logloss": -0.10942320964704881
+   },
+   {
+    "generation": 50,
+    "neg_logloss": -0.11151650090405578
+   },
+   {
+    "generation": 75,
+    "neg_logloss": -0.11182655843007988
+   },
+   {
+    "generation": 100,
+    "neg_logloss": -0.5015435656907665
+   },
+   {
+    "generation": 125,
+    "neg_logloss": 1000000.0
+   },
+   {
+    "generation": 150,
+    "neg_logloss": -0.5202099887902496
+   },
+   {
+    "generation": 175,
+    "neg_logloss": -0.018093259490586346
+   },
+   {
+    "generation": 200,
+    "neg_logloss": -0.325361715190173
+   }
+  ],
+  "genome": {
+   "dur": {
+    "kind": "template",
+    "a": 269.342718467512,
+    "b": 63.61319900770927,
+    "sd": 0.0
+   },
+   "path": {
+    "kind": "template",
+    "curv": 0.10670741594955925,
+    "tmix": 0.0,
+    "tol": 31.8024152078984
+   },
+   "profile": {
+    "kind": "minjerk",
+    "peak": 0.3287282912660947
+   },
+   "sub": {
+    "kind": "overshoot",
+    "mag": 0.07283772970557631,
+    "prob": 0.7129511035414393,
+    "frac": 0.98
+   },
+   "noise": {
+    "kind": "smooth",
+    "sd": 0.3629580151539094,
+    "rho": 0.9588758783161875
+   },
+   "clock": {
+    "kind": "empirical",
+    "dt": 17.31200154721521,
+    "cv": 0.6604635277660642
+   },
+   "round": {
+    "kind": "yes"
+   }
+  }
+ },
+ {
+  "restart": 3,
+  "evaluations": 1000,
+  "reference": 0.99283125,
+  "copy_rate": 0.115,
+  "trace": [
+   {
+    "generation": 25,
+    "neg_logloss": -0.5279209281236531
+   },
+   {
+    "generation": 50,
+    "neg_logloss": -0.5453954974928754
+   },
+   {
+    "generation": 75,
+    "neg_logloss": 1000000.0
+   },
+   {
+    "generation": 100,
+    "neg_logloss": -0.372481059167786
+   },
+   {
+    "generation": 125,
+    "neg_logloss": -0.2857564969519812
+   },
+   {
+    "generation": 150,
+    "neg_logloss": -0.08452118672265514
+   },
+   {
+    "generation": 175,
+    "neg_logloss": -0.10581351741186275
+   },
+   {
+    "generation": 200,
+    "neg_logloss": -0.4907729561183298
+   }
+  ],
+  "genome": {
+   "dur": {
+    "kind": "fitts",
+    "a": 575.7076289912746,
+    "b": 0.0,
+    "sd": 0.05291942643581099
+   },
+   "path": {
+    "kind": "template",
+    "curv": 0.1,
+    "tmix": 0.0,
+    "tol": 28.5907972474467
+   },
+   "profile": {
+    "kind": "skew",
+    "peak": 0.26087649674297414
+   },
+   "sub": {
+    "kind": "undershoot",
+    "mag": 0.08,
+    "prob": 0.5,
+    "frac": 0.9676024521180308
+   },
+   "noise": {
+    "kind": "none",
+    "sd": 0.11108042942073595,
+    "rho": 0.8
+   },
+   "clock": {
+    "kind": "template",
+    "dt": 16.0,
+    "cv": 0.3
+   },
+   "round": {
+    "kind": "yes"
+   }
+  }
+ }
+]

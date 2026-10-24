@@ -1,0 +1,45 @@
+name: ci-profile CI
+
+# Unit tests for platform/ci/ci_profile.py, the runner-pool profiler
+# (docs/history/ci-perf-2026-10-21.md). Fixtures only: the tool reads the
+# Actions API when run by hand, never here. A workflow of its own, not a step
+# in portfolio-validate.yml, because editing that file also runs the apex
+# mirror check, which goes stale on every catalogue change while the mirror
+# serves nothing.
+
+on:
+  pull_request:
+    paths:
+      - "platform/ci/ci_profile.py"
+      - "platform/ci/test_ci_profile.py"
+      - ".github/workflows/ci-profile-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "platform/ci/ci_profile.py"
+      - "platform/ci/test_ci_profile.py"
+      - ".github/workflows/ci-profile-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: ci-profile-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: CI-profile unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_ci_profile

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-3d"
+version = "0.1.0"
+description = "A 3D cloth-sheet drape of a garment's shoulder over a hanger arm, checked against hanger-fit's 2D chain: front and back panels, arm depth, and whether the width finding survives"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy", "hanger-fit"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

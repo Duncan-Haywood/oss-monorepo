@@ -1,0 +1,17 @@
+{
+  "intervals": 34359,
+  "respondents": 5295,
+  "events": 592,
+  "person_years": 69185.41666666669,
+  "rank": 30,
+  "parameters": 30,
+  "iterations": 6,
+  "normalized_max_score": 4.420341388536379e-18,
+  "weighted_fitted_events": 554.7362760582068,
+  "weighted_observed_events": 554.7362760582073,
+  "target": "Baseline-weighted observed person-year distribution of age, marriage duration, first/subsequent order, wave and respondent sex; other covariates preserved unless explicitly set",
+  "gradient_finite_difference_max_error": 1.8129486627216362e-12,
+  "covariance_min_eigenvalue": 0.00047629898185819024,
+  "profile_support_minimum": "100 distinct respondents and 10 observed divorces",
+  "standardization_target_fixed": true
+}

@@ -65,3 +65,8 @@ test("related-tool links point at ventures that exist", () => {
     assert.ok(existsSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
   }
 });
+
+test("the footer links AI Bookkeeper, the ledger these journals feed", async () => {
+  const { readFileSync } = await import("node:fs");
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/ai-bookkeeper\/"/);
+});

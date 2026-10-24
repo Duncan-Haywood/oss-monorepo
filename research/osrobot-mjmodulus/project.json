@@ -1,0 +1,6 @@
+{
+ "theme": "osrobot",
+ "title": "Is the feeding-arm tip's contact pressure computable at a measured face modulus?",
+ "lede": "published in-vivo face and lip moduli are 4 to 45 kPa, below the 0.05 to 5 MPa that osrobot-mjpress swept; at them a 4 mm tip at 53 N would sink 48 to 241 mm in a Hertz model, so the model is out of range and tip radius or depth, not 65 N, is the design question (closed-form, simulation forces)",
+ "summary": "<code>osrobot-mjpress</code> found the pass or fail of the feeding arm's tip pressure flipped on an unsourced face modulus swept from 0.05 to 5&nbsp;MPa. Published in-vivo values are 4 to 45&nbsp;kPa (a one-subject lip and cheek device, Hertz fits to skin indentation, an aspiration study), all below that sweep. At those moduli a Hertz sphere of the 4&nbsp;mm tip at the worst trial force (53.3&nbsp;N) has a contact radius 3.5 to 7.8 times the tip radius and an indentation depth of 48 to 241&nbsp;mm, so the half-space model is out of range and its 1.8 to 8.8&nbsp;N/cm&sup2; pressures are a bound, not a result. Hertz holds (a/R &le; 0.5) only for a tip radius of about 73 to 245&nbsp;mm. The forces come from a stiff kinematic-lip simulation that is not self-consistent with a soft face; the modulus values come from small studies read as summaries; pressure limits remain unconfirmed. Not a safety case."
+}

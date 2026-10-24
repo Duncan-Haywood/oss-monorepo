@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GitHub Actions OIDC Trust Policy Checker — AWS sub/aud conditions</title>
-<meta name="description" content="Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role. Catches a missing sub condition, a wildcard that spans repositories, repo:org/name:* (which includes pull requests from forks), and a literal * under StringEquals. Nothing is uploaded.">
+<meta name="description" content="Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/oidc-trust-policy-check/">
 <meta property="og:type" content="website">
@@ -97,6 +97,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>GitHub Actions OIDC Trust Policy Checker</h1>
 <p>
   Paste an AWS IAM role trust policy and find out whether its conditions actually restrict
@@ -331,6 +332,7 @@ aws iam get-role --role-name my-deploy-role \
     }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks a specific set of documented

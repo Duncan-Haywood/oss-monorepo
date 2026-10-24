@@ -74,7 +74,7 @@ def test_trips_hold_every_panel_within_trailer():
 def test_factory_ratio_one_and_no_overheads_gives_no_labour_saving():
     from house_offsite.model import labour_hours
     q = shell_quantities(H, ADVANCED_2X6, 24.0)
-    s, f = labour_hours(q, Process(factory_ratio=1.0), 40, 40)
+    s, f = labour_hours(q, Process(factory_ratio=1.0, wall_raise_hours=0.0), 40, 40)
     assert abs(s - f) < 1e-9
 
 
@@ -95,3 +95,20 @@ def test_more_weather_never_helps_site():
 
 def test_deterministic():
     assert compare(draws=50)["site_days"] == compare(draws=50)["site_days"]
+
+
+def test_closed_panels_add_labour_on_both_sides_in_ratio():
+    from house_offsite.model import labour_hours
+    r = compare(Process(), draws=10)
+    s0, f0 = labour_hours(r["q"], Process(), r["site_sheets"], r["fac_sheets"])
+    p = Process(closed=True)
+    s1, f1 = labour_hours(r["q"], p, r["site_sheets"], r["fac_sheets"])
+    extra = s1 - s0
+    assert extra > 0 and abs((f1 - f0) - p.factory_ratio * extra) < 1e-9
+
+
+def test_closed_panels_off_by_default_and_close_the_cost_gap():
+    a = compare(Process(), draws=10)
+    b = compare(Process(closed=True), draws=10)
+    assert b["site_cost"] > a["site_cost"]
+    assert (b["off_cost"] / b["site_cost"]) < (a["off_cost"] / a["site_cost"])

@@ -1,0 +1,34 @@
+== value = pass_A; arms: accel (n=6, 2815 lines, decay +0.083/pull), ambient (n=19, 7675 lines, decay -0.021/pull), chip (n=18, 10757 lines, decay -0.055/pull), garment (n=31, 8003 lines, decay -0.019/pull), robofab (n=33, 18801 lines, decay -0.028/pull), selfrep (n=24, 6442 lines, decay +0.010/pull), simdesign (n=29, 15290 lines, decay -0.009/pull)
+-- budget 5000 lines; hindsight-greedy reference 42 value points; best single track garment 40
+uniform       mean   30.0  95% CI [  29.4,   30.6]  (71% of hindsight)  tracks exhausted 0.00
+greedy        mean   24.0  95% CI [  24.0,   24.0]  (57% of hindsight)  tracks exhausted 0.00
+thompson      mean   24.0  95% CI [  24.0,   24.0]  (57% of hindsight)  tracks exhausted 0.00
+knapsack-ucb  mean   24.0  95% CI [  24.0,   24.0]  (57% of hindsight)  tracks exhausted 0.00
+-- budget 10000 lines; hindsight-greedy reference 80 value points; best single track garment 56
+uniform       mean   58.4  95% CI [  57.7,   59.0]  (73% of hindsight)  tracks exhausted 0.06
+greedy        mean   58.0  95% CI [  58.0,   58.0]  (72% of hindsight)  tracks exhausted 0.00
+thompson      mean   59.4  95% CI [  59.3,   59.5]  (74% of hindsight)  tracks exhausted 0.00
+knapsack-ucb  mean   57.0  95% CI [  57.0,   57.0]  (71% of hindsight)  tracks exhausted 0.00
+-- budget 20000 lines; hindsight-greedy reference 138 value points; best single track robofab 63
+uniform       mean  114.0  95% CI [ 113.3,  114.7]  (83% of hindsight)  tracks exhausted 0.53
+greedy        mean  134.0  95% CI [ 134.0,  134.0]  (97% of hindsight)  tracks exhausted 1.00
+thompson      mean  129.9  95% CI [ 129.5,  130.2]  (94% of hindsight)  tracks exhausted 0.81
+knapsack-ucb  mean  116.0  95% CI [ 116.0,  116.0]  (84% of hindsight)  tracks exhausted 1.00
+
+== value = pass_B; arms: accel (n=6, 2815 lines, decay +0.094/pull), ambient (n=19, 7675 lines, decay -0.063/pull), chip (n=18, 10757 lines, decay -0.052/pull), garment (n=31, 8003 lines, decay -0.023/pull), robofab (n=33, 18801 lines, decay -0.050/pull), selfrep (n=24, 6442 lines, decay -0.004/pull), simdesign (n=29, 15290 lines, decay -0.019/pull)
+-- budget 5000 lines; hindsight-greedy reference 43 value points; best single track garment 41
+uniform       mean   27.5  95% CI [  27.0,   28.1]  (64% of hindsight)  tracks exhausted 0.00
+greedy        mean   22.0  95% CI [  22.0,   22.0]  (51% of hindsight)  tracks exhausted 0.00
+thompson      mean   22.0  95% CI [  22.0,   22.0]  (51% of hindsight)  tracks exhausted 0.00
+knapsack-ucb  mean   22.0  95% CI [  22.0,   22.0]  (51% of hindsight)  tracks exhausted 0.00
+-- budget 10000 lines; hindsight-greedy reference 73 value points; best single track garment 57
+uniform       mean   51.9  95% CI [  51.3,   52.5]  (71% of hindsight)  tracks exhausted 0.06
+greedy        mean   62.0  95% CI [  62.0,   62.0]  (85% of hindsight)  tracks exhausted 0.00
+thompson      mean   56.3  95% CI [  56.0,   56.6]  (77% of hindsight)  tracks exhausted 0.00
+knapsack-ucb  mean   52.0  95% CI [  52.0,   52.0]  (71% of hindsight)  tracks exhausted 0.00
+-- budget 20000 lines; hindsight-greedy reference 130 value points; best single track robofab 57
+uniform       mean  101.3  95% CI [ 100.5,  102.0]  (78% of hindsight)  tracks exhausted 0.53
+greedy        mean  107.0  95% CI [ 107.0,  107.0]  (82% of hindsight)  tracks exhausted 1.00
+thompson      mean  112.5  95% CI [ 112.1,  112.9]  (87% of hindsight)  tracks exhausted 0.84
+knapsack-ucb  mean  105.0  95% CI [ 105.0,  105.0]  (81% of hindsight)  tracks exhausted 0.00
+

@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""PreToolUse hook: refuse `pkill -f` / `pgrep -f` / `killall`-by-pattern in Bash.
+
+The Bash tool's shell has the pattern on its own command line, so the
+pattern matches the shell and kills it (exit 144). 18 run records hit this
+despite three prose warnings. A bracketed first letter ('[n]ame') is fine.
+"""
+import json, re, sys
+
+try:
+    cmd = json.load(sys.stdin).get("tool_input", {}).get("command", "")
+except Exception:
+    sys.exit(0)
+
+for m in re.finditer(r"\b(?:pkill|pgrep)\b([^|;&\n]*)", cmd):
+    args = m.group(1)
+    if not re.search(r"(?:^|\s)-[a-zA-Z]*f", args):
+        continue
+    pats = [t.strip("'\"") for t in args.split() if not t.startswith("-")]
+    if pats and all(re.match(r"\[.\]", p) for p in pats[:1]):
+        continue
+    print("Blocked: `%s -f` matches this shell's own command line and kills it "
+          "(exit 144). Use `%s -f '[n]ame'` (bracket the first letter) or `kill <pid>`."
+          % (m.group(0).split()[0], m.group(0).split()[0]), file=sys.stderr)
+    sys.exit(2)

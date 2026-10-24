@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Amazon Inventory Loader Check — Find Flat File Errors Before You Upload</title>
-  <meta name="description" content="Free Amazon Seller Central inventory file checker: finds comma or UTF-16 files, UPCs that lost a leading zero, bad UPC and EAN check digits, scientific-notation SKUs, bad prices and quantities, wrong add-delete codes and missing condition notes, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta name="description" content="Free Amazon Seller Central inventory file checker: finds comma or UTF-16 files, UPCs that lost a leading zero, bad UPC and EAN check digits, scientific-notation SKUs, bad prices and quantities, wrong add-delete codes and missing condition notes, with line numbers, and applies safe fixes.">
   <meta property="og:title" content="Amazon Inventory Loader Check — free, private, in your browser">
   <meta property="og:description" content="Catch what breaks an Amazon inventory file upload, with the line number, before you upload. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
@@ -59,6 +59,7 @@
     <p>Paste or drop your <strong>inventory file</strong> and get every problem <strong>with its line number</strong> before you upload: files that are <strong>comma-separated instead of tab-delimited</strong>, <strong>UPCs that lost their leading zero</strong>, UPCs and EANs <strong>whose check digit is wrong</strong>, SKUs Excel turned into <code>1.23457E+12</code>, prices like <code>$18.00</code> or <code>26,50</code>, negative or fractional quantities, wrong <code>add-delete</code> codes and used items with no condition note. Then <strong>apply the safe fixes</strong> and download a cleaned tab-delimited file.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of Amazon.com, Inc. Column names, codes and limits are read from memory of Amazon's public inventory file documentation; no Seller Central upload was available when this was built.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your inventory file</h2>
@@ -120,7 +121,8 @@
     <p>Whether Amazon will accept the file today, category listing files, restricted products and brand approval, and whether a product id matches your item. A clean result is not a promise of success: upload a few rows first.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace Amazon's own upload checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by uploading a small sample first, and a clean result is not a promise that Amazon will accept the file or that the offers will sell.</p>
     <p><strong>Not affiliated with Amazon.</strong> This tool is independent and is not sponsored, endorsed or connected to Amazon.com, Inc. or any app or marketplace vendor. Amazon is a trademark of its owner, used here only to say which file format the tool reads. The column list, codes and limits are read from memory of public sources and may be out of date or miss a variant; check them against Amazon's current documentation.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>

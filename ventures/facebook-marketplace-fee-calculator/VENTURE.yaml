@@ -32,5 +32,5 @@ kill_criteria:
   - Facebook changes its published fee schedule again and the calculator's fixed constants no longer match a real payout statement.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/facebook-marketplace-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/facebook-marketplace-fee-calculator/
   analytics: null

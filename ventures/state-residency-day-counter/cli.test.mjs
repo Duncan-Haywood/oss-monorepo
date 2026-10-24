@@ -99,3 +99,15 @@ test("--trip rejects malformed input with a reason", async () => {
   assert.throws(() => parseTrip("NY 2025-13-45 3", 2025), /not a real date/);
   assert.equal(parseTrip("ny 2025-11-01 3", 2025).state, "NY");
 });
+
+test("--check exits 1 only when a state is over its limit", async () => {
+  const over = "2025-01-01 to 2025-12-31 NY\n";
+  const under = "2025-01-01 to 2025-03-31 NY\n";
+  const args = ["--year", "2025", "--abode", "NY", "--check"];
+  assert.equal((await run([...args, "s.txt"], { read: async () => over })).code, 1);
+  assert.equal((await run([...args, "s.txt"], { read: async () => under })).code, 0);
+  assert.equal((await run(["--year", "2025", "--abode", "NY", "s.txt"], { read: async () => over })).code, 0);
+  const trip = [...args, "--trip", "NY 2025-04-01 200", "s.txt"];
+  assert.equal((await run(trip, { read: async () => under })).code, 1);
+  assert.equal((await run([...args, "--trip", "NY 2025-04-01 10", "s.txt"], { read: async () => under })).code, 0);
+});

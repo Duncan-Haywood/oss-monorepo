@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01XMBP4dfhGtRhmGCVpcgEVR",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T16:11:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 8867,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR search is advised before opening a PR, but the overlap appeared during the run; a recheck of recent main commits before starting a long benchmark would have caught #8866."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Duplicate: PR 8866 landed the same --knot-margin measurement (ar1, joint, period, web menu) while this run benchmarked it. Took main for README and flagships.yaml; this PR carries only the run record. Cost: a 5-minute benchmark. Fresh duplicate-work search before picking the flagship slice was skipped.",
+  "corrections": [],
+  "redteam": null
+}

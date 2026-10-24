@@ -1,0 +1,40 @@
+sensing-bafocal: bundle adjustment with the focal length (and k1) as unknowns, 6 seeds per cell, 300 features. Synthetic only.
+Default cell: 12-view full orbit, 0.5 px noise, pose error 0.5 deg/axis and 0.02 radii/axis, true focal 800 px, no distortion.
+Mean surface error in object radii after a similarity alignment. fixed = focal held at the told value; selfcal = shared focal free;
+oracle = true focal held; f_err = |estimated - true| / true focal after selfcal.
+
+== A. relative error of the focal length the solver is told
+err  tri  fixed  selfcal  oracle  fixed/selfcal  f_err
+-0.20 0.0125 0.0049 0.0014 0.0014 3.4 0.0032
+-0.10 0.0116 0.0027 0.0014 0.0014 1.8 0.0032
+-0.05 0.0116 0.0018 0.0014 0.0014 1.3 0.0032
+-0.02 0.0118 0.0015 0.0014 0.0014 1.0 0.0032
++0.00 0.0119 0.0014 0.0014 0.0014 1.0 0.0032
++0.02 0.0121 0.0015 0.0014 0.0014 1.0 0.0032
++0.05 0.0123 0.0018 0.0014 0.0014 1.2 0.0032
++0.10 0.0129 0.0025 0.0014 0.0014 1.7 0.0032
++0.20 0.0144 0.0039 0.0014 0.0014 2.7 0.0032
+
+== B. views, focal told 5% too long
+views  tri  fixed  selfcal  oracle  fixed/selfcal  f_err
+4 0.0109 0.0078 0.0078 0.0068 1.0 0.0240
+6 0.0131 0.0019 0.0017 0.0017 1.1 0.0040
+8 0.0164 0.0021 0.0017 0.0017 1.2 0.0030
+12 0.0123 0.0018 0.0014 0.0014 1.2 0.0032
+24 0.0099 0.0013 0.0010 0.0010 1.2 0.0017
+
+== C. pixel noise (px), focal told 5% too long
+sigma  tri  fixed  selfcal  oracle  fixed/selfcal  f_err
+0.1 0.0123 0.0010 0.0003 0.0003 3.6 0.0006
+0.5 0.0123 0.0018 0.0014 0.0014 1.2 0.0032
+1.0 0.0126 0.0031 0.0029 0.0029 1.1 0.0065
+2.0 0.0135 0.0058 0.0058 0.0057 1.0 0.0131
+4.0 0.0164 0.0116 0.0115 0.0115 1.0 0.0265
+
+== D. unmodelled radial distortion k1 (focal told correctly). selfcal here also solves k1 (est_k1); oracle column is not comparable and omitted
+k1  tri  fixed  selfcal  k1_est  f_err
+0.0 0.0119 0.0014 0.0015 +0.001 0.0085
+-0.05 0.0120 0.0015 0.0015 -0.049 0.0085
+-0.1 0.0120 0.0018 0.0015 -0.098 0.0085
+-0.2 0.0123 0.0025 0.0015 -0.196 0.0086
+-0.3 0.0126 0.0034 0.0015 -0.295 0.0085

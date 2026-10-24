@@ -1,0 +1,9 @@
+exposure,group,exposed_divorced,exposed_married,unexposed_divorced,unexposed_married,odds_ratio,ci_low,ci_high
+PremaritalSex,Women,71,29,250,326,3.193,2.011,5.069
+PremaritalSex,Men,88,53,85,134,2.618,1.693,4.048
+PremaritalSex,All (crude),159,82,335,460,2.663,1.97,3.599
+PremaritalSex,Gender-adjusted (Mantel-Haenszel),,,,,2.883,2.1,3.957
+ExtramaritalSex,Women,53,8,268,347,8.578,4.01,18.348
+ExtramaritalSex,Men,45,15,128,172,4.031,2.152,7.551
+ExtramaritalSex,All (crude),98,23,396,519,5.584,3.481,8.958
+ExtramaritalSex,Gender-adjusted (Mantel-Haenszel),,,,,5.727,3.549,9.24

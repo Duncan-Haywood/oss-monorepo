@@ -1,0 +1,46 @@
+survey,comparison,gain_diff_points,lo,hi,c_diff,verdict
+nsfg,pooled_glm minus single_glm,-0.847,-0.999,-0.711,-0.0123,pooled worse
+nsfg,pooled_glm minus single_hgb,-1.611,-1.879,-1.382,-0.0219,pooled worse
+nsfg,pooled_glm minus pooled_hgb,-1.828,-2.051,-1.6,-0.0235,pooled worse
+nsfg,pooled_glm_recal minus single_glm,-1.784,-2.012,-1.546,-0.0313,pooled worse
+nsfg,pooled_glm_mean_base minus single_glm,-3.702,-4.047,-3.31,-0.0311,pooled worse
+nlsy79,pooled_glm minus single_glm,-0.499,-0.727,-0.198,-0.0083,pooled worse
+nlsy79,pooled_glm minus single_hgb,2.392,1.581,3.349,0.0107,pooled better
+nlsy79,pooled_glm minus pooled_hgb,-0.912,-1.436,-0.339,-0.009,pooled worse
+nlsy79,pooled_glm_recal minus single_glm,-1.084,-1.53,-0.649,-0.0194,pooled worse
+nlsy79,pooled_glm_mean_base minus single_glm,-1.315,-1.756,-0.884,-0.0185,pooled worse
+nlsy97,pooled_glm minus single_glm,-0.343,-0.732,0.088,-0.0075,tie
+nlsy97,pooled_glm minus single_hgb,4.221,3.05,5.526,0.0099,pooled better
+nlsy97,pooled_glm minus pooled_hgb,-0.384,-0.981,0.087,-0.0065,tie
+nlsy97,pooled_glm_recal minus single_glm,-0.964,-1.428,-0.391,-0.0199,pooled worse
+nlsy97,pooled_glm_mean_base minus single_glm,-1.321,-1.88,-0.785,-0.0199,pooled worse
+sipp_retro,pooled_glm minus single_glm,-0.028,-0.043,-0.009,-0.0005,pooled worse
+sipp_retro,pooled_glm minus single_hgb,-1.551,-1.641,-1.475,-0.0051,pooled worse
+sipp_retro,pooled_glm minus pooled_hgb,-1.351,-1.414,-1.288,-0.0045,pooled worse
+sipp_retro,pooled_glm_recal minus single_glm,-1.133,-1.213,-1.054,-0.0268,pooled worse
+sipp_retro,pooled_glm_mean_base minus single_glm,-5.426,-5.561,-5.279,-0.0268,pooled worse
+sipp_couples,pooled_glm minus single_glm,-0.392,-2.884,1.767,0.0223,tie
+sipp_couples,pooled_glm minus single_hgb,15.211,11.773,18.304,0.1062,pooled better
+sipp_couples,pooled_glm minus pooled_hgb,0.683,-0.795,2.107,0.0082,tie
+sipp_couples,pooled_glm_recal minus single_glm,-1.858,-4.758,0.608,0.02,tie
+sipp_couples,pooled_glm_mean_base minus single_glm,-2.262,-5.224,0.419,0.0094,tie
+canada_gss,pooled_glm minus single_glm,-0.403,-0.509,-0.301,-0.0102,pooled worse
+canada_gss,pooled_glm minus single_hgb,-0.664,-0.858,-0.471,-0.0144,pooled worse
+canada_gss,pooled_glm minus pooled_hgb,-1.161,-1.341,-0.988,-0.0164,pooled worse
+canada_gss,pooled_glm_recal minus single_glm,-1.094,-1.266,-0.919,-0.0308,pooled worse
+canada_gss,pooled_glm_mean_base minus single_glm,-0.701,-0.89,-0.48,-0.0307,pooled worse
+gss_panel,pooled_glm minus single_glm,1.697,-1.016,4.682,0.0037,tie
+gss_panel,pooled_glm minus single_hgb,8.153,3.666,11.255,0.0343,pooled better
+gss_panel,pooled_glm minus pooled_hgb,-0.996,-3.175,0.977,-0.0121,tie
+gss_panel,pooled_glm_recal minus single_glm,1.756,-2.051,5.474,0.0105,tie
+gss_panel,pooled_glm_mean_base minus single_glm,-69.16,-88.994,-50.918,0.011,pooled worse
+hcmst,pooled_glm minus single_glm,4.812,1.884,7.785,0.023,pooled better
+hcmst,pooled_glm minus single_hgb,5.582,1.952,9.113,0.0139,pooled better
+hcmst,pooled_glm minus pooled_hgb,1.925,-0.511,4.377,-0.0023,tie
+hcmst,pooled_glm_recal minus single_glm,-8.497,-13.52,-4.145,-0.0459,pooled worse
+hcmst,pooled_glm_mean_base minus single_glm,-22.084,-29.122,-15.458,-0.1126,pooled worse
+la_newlyweds,pooled_glm minus single_glm,1.777,0.598,3.159,0.0215,pooled better
+la_newlyweds,pooled_glm minus single_hgb,8.063,4.309,13.009,0.0483,pooled better
+la_newlyweds,pooled_glm minus pooled_hgb,0.955,-0.723,3.112,0.014,tie
+la_newlyweds,pooled_glm_recal minus single_glm,-0.202,-2.33,2.392,-0.0153,tie
+la_newlyweds,pooled_glm_mean_base minus single_glm,-0.429,-2.691,2.637,-0.0136,tie

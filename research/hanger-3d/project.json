@@ -1,0 +1,5 @@
+{
+ "theme": "hanger",
+ "title": "Does the 2D hanger result survive in 3D, with front and back panels and a hanger arm of finite depth?",
+ "summary": "A 3D cloth sheet (stretch, shear and bending in both directions, penalty contact with a swept arm) reproduces the 2D hanger-fit drape when the arm is as deep as the garment: shape error within 0.05 cm for the round-ended and wooden hangers and within 0.6 cm for thin wire (which is resolution-sensitive). The width finding holds: the best arm is 1 cm wider than the half shoulder for child, M and XXL tees, in 2D and 3D. What 2D cannot show is depth: on a 3 cm half-depth arm the wooden hanger's whole-sheet error rises from 0.4 to 2.0 cm, and on a rod to 3.8 cm, as the front and back panels fall 5&ndash;8 cm below the arm. A CMA-ES design loop rerun in 3D (M tee, 64 drapes, two seeds) shows arm depth sets the whole-sheet error floor (about 2.1, 1.5 and 0.7 cm at 1.5, 3 and 6 cm half-depth) while shape matters less: hangers designed on the 2D centre line are within seed noise of 3D-designed ones. Stylised: assumed fabric constants, one 20 cm strip, coarse grid (0.5 cm by 2.2 cm), no collar, sleeve seam or friction."
+}

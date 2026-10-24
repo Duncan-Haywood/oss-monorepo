@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "free-f32shadow"
+version = "0.1.0"
+description = "How long does a float32 twin of a chaotic system shadow the float64 one, and do its long-run statistics survive after they part?"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

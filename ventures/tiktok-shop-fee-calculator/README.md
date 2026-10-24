@@ -6,7 +6,7 @@ returns — including the usual case where **affiliate commission is not
 clawed back on a refund** — then compares the same order under the mid-2026
 US defaults and the announced 1 October 2026 schedule.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/tiktok-shop-fee-calculator/
 
 **After using this, you can now see whether a creator listing still makes
 money after returns, and what the announced October rates do to that
@@ -15,10 +15,7 @@ as the whole cost.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

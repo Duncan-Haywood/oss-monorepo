@@ -1,0 +1,576 @@
+{
+ "about": "Where each record's quote is checked. Rebuild the texts with scripts/fetch_sources.py; they are git-ignored (copyright).",
+ "sources": {
+  "pmc_PMC2902195": {
+   "title": "Stanley et al. (2010), J Couple Relatsh Ther 9(2)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2902195/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC2902195"
+   ],
+   "cache_files": [
+    "pmc_PMC2902195.txt"
+   ]
+  },
+  "pmc_PMC4237282": {
+   "title": "Stanley et al. (2014), Family Relations 63(4)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4237282/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC4237282"
+   ],
+   "cache_files": [
+    "pmc_PMC4237282.txt"
+   ]
+  },
+  "pmc_PMC4461475": {
+   "title": "Rhoades et al. (2015), J Fam Psychol 29(3)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4461475/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC4461475"
+   ],
+   "cache_files": [
+    "pmc_PMC4461475.txt"
+   ]
+  },
+  "pubmed_24060193": {
+   "title": "Rogge et al. (2013), J Consult Clin Psychol 81(6)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/24060193/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "24060193"
+   ],
+   "cache_files": [
+    "pubmed_24060193.txt"
+   ]
+  },
+  "pdf_bsf36": {
+   "title": "Wood, Moore, Clarkwest, Killewald & Monahan (2012), The Long-Term Effects of Building Strong Families, OPRE Report 2012-28A",
+   "url": "https://mdrc.org/publication/long-term-effects-building-strong-families/file-full",
+   "kind": "pdf",
+   "pdf_sha256": "5b906ec107faddaf3b80e5eb89662a3ff0c9f9eac1c29f84a0748c0a35cd626e",
+   "license": "public domain (U.S. federal government report)",
+   "fetch": [
+    "pdf",
+    "https://mdrc.org/publication/long-term-effects-building-strong-families/file-full",
+    "bsf36"
+   ],
+   "cache_files": [
+    "pdf_bsf36.layout.txt",
+    "pdf_bsf36.raw.txt"
+   ]
+  },
+  "pdf_shm30": {
+   "title": "Lundquist et al. (2014), A Family-Strengthening Program for Low-Income Families: Final Impacts from the Supporting Healthy Marriage Evaluation, OPRE Report 2014-09A",
+   "url": "https://www.mdrc.org/work/publications/family-strengthening-program-low-income-families/file-full",
+   "kind": "pdf",
+   "pdf_sha256": "31804a6d9d433f3d06fd06f2b0df6d10ebe497b2a10125a93e8e435a4988b142",
+   "license": "public domain (U.S. federal government report)",
+   "fetch": [
+    "pdf",
+    "https://www.mdrc.org/work/publications/family-strengthening-program-low-income-families/file-full",
+    "shm30"
+   ],
+   "cache_files": [
+    "pdf_shm30.layout.txt",
+    "pdf_shm30.raw.txt"
+   ]
+  },
+  "pubmed_18837590": {
+   "title": "Hawkins et al. (2008), J Consult Clin Psychol 76(5)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/18837590/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "18837590"
+   ],
+   "cache_files": [
+    "pubmed_18837590.txt"
+   ]
+  },
+  "pubmed_25419911": {
+   "title": "Hawkins & Erickson (2015), J Fam Psychol 29(1)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/25419911/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "25419911"
+   ],
+   "cache_files": [
+    "pubmed_25419911.txt"
+   ]
+  },
+  "pubmed_35040124": {
+   "title": "Hawkins et al. (2022), Family Process 61(3)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/35040124/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "35040124"
+   ],
+   "cache_files": [
+    "pubmed_35040124.txt"
+   ]
+  },
+  "doi_10_1111_j_1741_3729_2003_00105_x": {
+   "title": "Carroll & Doherty (2003), Family Relations 52(2)",
+   "url": "https://doi.org/10.1111/j.1741-3729.2003.00105.x",
+   "kind": "abstract",
+   "license": "abstract (Crossref / OpenAlex / Europe PMC); short quotes only",
+   "fetch": [
+    "doi",
+    "10.1111/j.1741-3729.2003.00105.x"
+   ],
+   "cache_files": [
+    "doi_10_1111_j_1741_3729_2003_00105_x.txt"
+   ]
+  },
+  "pubmed_8450110": {
+   "title": "Markman et al. (1993), J Consult Clin Psychol 61(1)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/8450110/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "8450110"
+   ],
+   "cache_files": [
+    "pubmed_8450110.txt"
+   ]
+  },
+  "pubmed_16569096": {
+   "title": "Stanley et al. (2006), J Fam Psychol 20(1)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/16569096/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "16569096"
+   ],
+   "cache_files": [
+    "pubmed_16569096.txt"
+   ]
+  },
+  "pubmed_20350033": {
+   "title": "Christensen et al. (2010), J Consult Clin Psychol 78(2)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/20350033/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "20350033"
+   ],
+   "cache_files": [
+    "pubmed_20350033.txt"
+   ]
+  },
+  "pubmed_15709827": {
+   "title": "Shadish & Baldwin (2005), J Consult Clin Psychol 73(1)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/15709827/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "15709827"
+   ],
+   "cache_files": [
+    "pubmed_15709827.txt"
+   ]
+  },
+  "pubmed_32551734": {
+   "title": "Roddy et al. (2020), J Consult Clin Psychol 88(7)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/32551734/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "32551734"
+   ],
+   "cache_files": [
+    "pubmed_32551734.txt"
+   ]
+  },
+  "pmc_PMC9645475": {
+   "title": "Bodenmann et al. (2020), Clinical Psychology in Europe 2(3)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9645475/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC9645475"
+   ],
+   "cache_files": [
+    "pmc_PMC9645475.txt"
+   ]
+  },
+  "pmc_PMC13474905": {
+   "title": "Jackson et al. (2026), J Marital Fam Ther 52(4) (abstract only in PMC XML)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13474905/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC13474905"
+   ],
+   "cache_files": [
+    "pmc_PMC13474905.txt"
+   ]
+  },
+  "pdf_nber_w10014": {
+   "title": "Wolfers (2003), NBER Working Paper 10014",
+   "url": "https://www.nber.org/system/files/working_papers/w10014/w10014.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "0657eda5a318dde7dfdba4212d15a6aead7f134875cd04672bfa3cb5263e3dc2",
+   "license": "NBER working paper; short quotes only",
+   "fetch": [
+    "pdf",
+    "https://www.nber.org/system/files/working_papers/w10014/w10014.pdf",
+    "nber_w10014"
+   ],
+   "cache_files": [
+    "pdf_nber_w10014.layout.txt",
+    "pdf_nber_w10014.raw.txt"
+   ]
+  },
+  "doi_10_1257_aer_96_5_1802": {
+   "title": "Wolfers (2006), American Economic Review 96(5)",
+   "url": "https://doi.org/10.1257/aer.96.5.1802",
+   "kind": "abstract",
+   "license": "abstract (Crossref / OpenAlex / Europe PMC); short quotes only",
+   "fetch": [
+    "doi",
+    "10.1257/aer.96.5.1802"
+   ],
+   "cache_files": [
+    "doi_10_1257_aer_96_5_1802.txt"
+   ]
+  },
+  "pdf_nber_w8578": {
+   "title": "Charles & Stephens (2001), NBER Working Paper 8578",
+   "url": "https://www.nber.org/system/files/working_papers/w8578/w8578.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "b44efa92fcb819ff01bb16b6b61e7916273184a0d6ae8168670e35f85f43907f",
+   "license": "NBER working paper; short quotes only",
+   "fetch": [
+    "pdf",
+    "https://www.nber.org/system/files/working_papers/w8578/w8578.pdf",
+    "nber_w8578"
+   ],
+   "cache_files": [
+    "pdf_nber_w8578.layout.txt",
+    "pdf_nber_w8578.raw.txt"
+   ]
+  },
+  "doi_10_1086_381258": {
+   "title": "Charles & Stephens (2004), Journal of Labor Economics 22(2)",
+   "url": "https://doi.org/10.1086/381258",
+   "kind": "abstract",
+   "license": "abstract (Crossref / OpenAlex / Europe PMC); short quotes only",
+   "fetch": [
+    "doi",
+    "10.1086/381258"
+   ],
+   "cache_files": [
+    "doi_10_1086_381258.txt"
+   ]
+  },
+  "pdf_iser2004_21": {
+   "title": "Eliason (2004), ISER Working Paper 2004-21",
+   "url": "https://www.iser.essex.ac.uk/wp-content/uploads/files/working-papers/iser/2004-21.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "14ea7a928bd5a6a8a684196cf4be32792593ce861fcae97af8eac0d05f95732d",
+   "license": "ISER working paper; short quotes only",
+   "fetch": [
+    "pdf",
+    "https://www.iser.essex.ac.uk/wp-content/uploads/files/working-papers/iser/2004-21.pdf",
+    "iser2004_21"
+   ],
+   "cache_files": [
+    "pdf_iser2004_21.layout.txt",
+    "pdf_iser2004_21.raw.txt"
+   ]
+  },
+  "doi_10_3368_jhr_46_2_403": {
+   "title": "Hankins & Hoekstra (2011), Journal of Human Resources 46(2)",
+   "url": "https://doi.org/10.3368/jhr.46.2.403",
+   "kind": "abstract",
+   "license": "abstract (Crossref / OpenAlex / Europe PMC); short quotes only",
+   "fetch": [
+    "doi",
+    "10.3368/jhr.46.2.403"
+   ],
+   "cache_files": [
+    "doi_10_3368_jhr_46_2_403.txt"
+   ]
+  },
+  "pdf_mfip2003": {
+   "title": "Gennetian & Knox (2003), The Long-Term Effects of the Minnesota Family Investment Program on Marriage and Divorce Among Two-Parent Families (MDRC for ASPE)",
+   "url": "https://aspe.hhs.gov/sites/default/files/migrated_legacy_files//39951/report.pdf",
+   "kind": "pdf",
+   "pdf_sha256": "f0ad279567d21bcca51658b72638953987c4e64ae7a33c5110b86be27a14fb2e",
+   "license": "public domain (U.S. federal government report)",
+   "fetch": [
+    "pdf",
+    "https://aspe.hhs.gov/sites/default/files/migrated_legacy_files//39951/report.pdf",
+    "mfip2003"
+   ],
+   "cache_files": [
+    "pdf_mfip2003.layout.txt",
+    "pdf_mfip2003.raw.txt"
+   ]
+  },
+  "doi_10_1086_229428": {
+   "title": "Cain & Wissoker (1990), American Journal of Sociology 95(5)",
+   "url": "https://doi.org/10.1086/229428",
+   "kind": "abstract",
+   "license": "abstract (Crossref / OpenAlex / Europe PMC); short quotes only",
+   "fetch": [
+    "doi",
+    "10.1086/229428"
+   ],
+   "cache_files": [
+    "doi_10_1086_229428.txt"
+   ]
+  },
+  "doi_10_1086_229429": {
+   "title": "Hannan & Tuma (1990), American Journal of Sociology 95(5)",
+   "url": "https://doi.org/10.1086/229429",
+   "kind": "abstract",
+   "license": "abstract (Crossref / OpenAlex / Europe PMC); short quotes only",
+   "fetch": [
+    "doi",
+    "10.1086/229429"
+   ],
+   "cache_files": [
+    "doi_10_1086_229429.txt"
+   ]
+  },
+  "doi_10_1353_dem_0_0120": {
+   "title": "Dahl (2010), Demography 47(3)",
+   "url": "https://doi.org/10.1353/dem.0.0120",
+   "kind": "abstract",
+   "license": "abstract (Crossref / OpenAlex / Europe PMC); short quotes only",
+   "fetch": [
+    "doi",
+    "10.1353/dem.0.0120"
+   ],
+   "cache_files": [
+    "doi_10_1353_dem_0_0120.txt"
+   ]
+  },
+  "doi_10_2307_2061690": {
+   "title": "Lillard, Brien & Waite (1995), Demography 32(3)",
+   "url": "https://doi.org/10.2307/2061690",
+   "kind": "abstract",
+   "license": "abstract (Crossref / OpenAlex / Europe PMC); short quotes only",
+   "fetch": [
+    "doi",
+    "10.2307/2061690"
+   ],
+   "cache_files": [
+    "doi_10_2307_2061690.txt"
+   ]
+  },
+  "doi_10_3368_jhr_51_4_0214_6224r": {
+   "title": "Rotz (2016), Journal of Human Resources 51(4)",
+   "url": "https://doi.org/10.3368/jhr.51.4.0214-6224r",
+   "kind": "abstract",
+   "license": "abstract (Crossref / OpenAlex / Europe PMC); short quotes only",
+   "fetch": [
+    "doi",
+    "10.3368/jhr.51.4.0214-6224r"
+   ],
+   "cache_files": [
+    "doi_10_3368_jhr_51_4_0214_6224r.txt"
+   ]
+  },
+  "doi_10_1111_j_1741_3729_2012_00715_x": {
+   "title": "Dew, Britt & Huston (2012), Family Relations 61(4)",
+   "url": "https://doi.org/10.1111/j.1741-3729.2012.00715.x",
+   "kind": "abstract",
+   "license": "abstract (Crossref / OpenAlex / Europe PMC); short quotes only",
+   "fetch": [
+    "doi",
+    "10.1111/j.1741-3729.2012.00715.x"
+   ],
+   "cache_files": [
+    "doi_10_1111_j_1741_3729_2012_00715_x.txt"
+   ]
+  },
+  "repo_nsfg_pooled": {
+   "title": "This project: NSFG 1995-2023 pooled first marriages, METHODS.md",
+   "url": "reproducibility/nsfg_pooled_first_marriage/METHODS.md",
+   "kind": "repo",
+   "license": "this repository (MIT)",
+   "repo_path": "reproducibility/nsfg_pooled_first_marriage/METHODS.md",
+   "cache_files": [
+    "reproducibility/nsfg_pooled_first_marriage/METHODS.md"
+   ]
+  },
+  "repo_sipp": {
+   "title": "This project: SIPP marital histories and couples, METHODS.md",
+   "url": "reproducibility/sipp_marital_history/METHODS.md",
+   "kind": "repo",
+   "license": "this repository (MIT)",
+   "repo_path": "reproducibility/sipp_marital_history/METHODS.md",
+   "cache_files": [
+    "reproducibility/sipp_marital_history/METHODS.md"
+   ]
+  },
+  "pmc_PMC1553508": {
+   "title": "Elwyn et al. (2006), BMJ 333:417",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC1553508/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC1553508"
+   ],
+   "cache_files": [
+    "pmc_PMC1553508.txt"
+   ]
+  },
+  "pubmed_23963501": {
+   "title": "Joseph-Williams et al. (2014), Med Decis Making 34(6)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/23963501/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "23963501"
+   ],
+   "cache_files": [
+    "pubmed_23963501.txt"
+   ]
+  },
+  "pmc_PMC4045391": {
+   "title": "Trevena et al. (2013), BMC Med Inform Decis Mak 13(Suppl 2):S7",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4045391/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC4045391"
+   ],
+   "cache_files": [
+    "pmc_PMC4045391.txt"
+   ]
+  },
+  "pubmed_33660551": {
+   "title": "Bonner et al. (2021), Med Decis Making 41(7)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33660551/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "33660551"
+   ],
+   "cache_files": [
+    "pubmed_33660551.txt"
+   ]
+  },
+  "pmc_PMC6464912": {
+   "title": "Akl et al. (2011), Cochrane Database Syst Rev CD006776",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6464912/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC6464912"
+   ],
+   "cache_files": [
+    "pmc_PMC6464912.txt"
+   ]
+  },
+  "pubmed_19290713": {
+   "title": "Galesic, Garcia-Retamero & Gigerenzer (2009), Health Psychol 28(2)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/19290713/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "19290713"
+   ],
+   "cache_files": [
+    "pubmed_19290713.txt"
+   ]
+  },
+  "pmc_PMC2988162": {
+   "title": "Garcia-Retamero & Galesic (2010), J Gen Intern Med 25(12)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2988162/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC2988162"
+   ],
+   "cache_files": [
+    "pmc_PMC2988162.txt"
+   ]
+  },
+  "pmc_PMC8482297": {
+   "title": "Witteman et al. (2021), Med Decis Making 41(7)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8482297/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC8482297"
+   ],
+   "cache_files": [
+    "pmc_PMC8482297.txt"
+   ]
+  },
+  "pubmed_25133362": {
+   "title": "Zipkin et al. (2014), Ann Intern Med 161(4)",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/25133362/",
+   "kind": "abstract",
+   "license": "abstract (NCBI PubMed); short quotes only",
+   "fetch": [
+    "pubmed",
+    "25133362"
+   ],
+   "cache_files": [
+    "pubmed_25133362.txt"
+   ]
+  },
+  "pmc_PMC7149229": {
+   "title": "van der Bles et al. (2020), PNAS 117(14)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7149229/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC7149229"
+   ],
+   "cache_files": [
+    "pmc_PMC7149229.txt"
+   ]
+  },
+  "pmc_PMC10823577": {
+   "title": "Stacey et al. (2024), Cochrane Database Syst Rev CD001431",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10823577/",
+   "kind": "pmc",
+   "license": "open access (PubMed Central)",
+   "fetch": [
+    "pmc",
+    "PMC10823577"
+   ],
+   "cache_files": [
+    "pmc_PMC10823577.txt"
+   ]
+  }
+ }
+}

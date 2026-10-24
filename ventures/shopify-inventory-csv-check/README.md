@@ -1,11 +1,11 @@
-# shopify-inventory-csv-check
+# Shopify Inventory CSV Check — Catch Bad Stock Counts Before You Import
 
 Checks a Shopify inventory import CSV in the browser before it is imported: the `On hand (new)` column,
 quantities that are text, fractions or have a thousands comma, tenfold jumps, duplicate variant-and-location
 rows, malformed handles, locations spelled two ways and Excel-damaged SKUs, each with its line number, plus a
 safe-fixes pass that only touches formatting and never a quantity's value.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-inventory-csv-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shopify-inventory-csv-check/
 
 - Static ES modules, no build step, no dependencies. Open `index.html` or run `node --test`.
 - `calc.mjs` is pure (no DOM, no network); `usage.mjs` keeps opt-out, local-only event counts.

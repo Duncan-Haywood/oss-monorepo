@@ -1,0 +1,19 @@
+|--- num__cohab_years <= 4.5000
+|   |--- cat__race_ethnicity_Non-Black non-Hispanic <= 0.5000
+|   |   |--- num__afqt_percentile <= 58.7095
+|   |   |   |--- value: [0.1000]
+|   |   |--- num__afqt_percentile >  58.7095
+|   |   |   |--- value: [0.1820]
+|   |--- cat__race_ethnicity_Non-Black non-Hispanic >  0.5000
+|   |   |--- cat__education_at_start_Bachelor or higher <= 0.5000
+|   |   |   |--- value: [0.1864]
+|   |   |--- cat__education_at_start_Bachelor or higher >  0.5000
+|   |   |   |--- value: [0.2832]
+|--- num__cohab_years >  4.5000
+|   |--- num__cohab_years <= 9.5000
+|   |   |--- num__afqt_percentile <= 43.0535
+|   |   |   |--- value: [0.0575]
+|   |   |--- num__afqt_percentile >  43.0535
+|   |   |   |--- value: [0.1019]
+|   |--- num__cohab_years >  9.5000
+|   |   |--- value: [0.0337]

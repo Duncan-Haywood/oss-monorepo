@@ -1,170 +1,170 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1297 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1317 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-19T00:00:00Z</updated>
+  <updated>2026-10-24T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Agent Workroom — A 3D Room for Your AI Agents&#39; Tasks, by Voice or Text</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-workroom/"/>
+    <id>tag:marisstella.dev,2026:tool/agent-workroom</id>
+    <updated>2026-10-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Walk around a 3D room where each AI coding agent has a desk and every task sits on the wall. Add and move tasks by voice or text, and pull progress from a GitHub repo&#39;s pull requests. Free, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>AI Bookkeeper: free double-entry books from your bank CSV, that learn</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ai-bookkeeper/"/>
+    <id>tag:marisstella.dev,2026:tool/ai-bookkeeper</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free AI bookkeeping in your browser. Import bank and card CSVs, get an account suggested for every line with a reason, file the review queue once and it learns your payees. Transfers paired, trial balance, P&amp;L, balance sheet, close checks, QuickBooks and Xero journals. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Open Floor Robots — build your own robot vacuum, robot mop or vacuum-mop combo (open source)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-floor-robots/"/>
+    <id>tag:marisstella.dev,2026:tool/open-floor-robots</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Open hardware, robots &amp; house plans"/>
+    <summary type="text">DIY robot vacuum, robot mop and robot vacuum-mop combo: open-source hardware (MIT) with laser-cut and 3D-printed parts, ESP32 firmware, a coverage path planner, and a cleaning simulator you can try in your browser on your own room.</summary>
+  </entry>
+  <entry>
+    <title>Free House Plan Generator: Parametric Home Designs to Download (CC0)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-house-plans/"/>
+    <id>tag:marisstella.dev,2026:tool/open-house-plans</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Open hardware, robots &amp; house plans"/>
+    <summary type="text">Generate a free house plan from a sentence: floor plan, elevations, 3D model (IFC, OBJ), CAD (DXF), bill of materials and a cost estimate. 1 to 5 bedrooms, farmhouse, craftsman, modern, ranch and cottage styles. Public domain, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Open Robot Mower — DIY robot lawn mower: open-source, wire-free RTK, full CAD</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-robot-mower/"/>
+    <id>tag:marisstella.dev,2026:tool/open-robot-mower</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Open hardware, robots &amp; house plans"/>
+    <summary type="text">Build your own robot lawn mower. An open-source robotic mower with wire-free RTK GNSS navigation, a guarded pivoting-blade disc, a floating bump shell, ESP32 safety firmware and a complete CAD manufacturing package (MIT). Plan your own lawn&#39;s mowing pattern in the browser.</summary>
+  </entry>
+  <entry>
+    <title>Sales Agent — an AI sales inbox agent that sorts replies and drafts answers you approve, free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sales-agent/"/>
+    <id>tag:marisstella.dev,2026:tool/sales-agent</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free AI sales agent for the replies to your outreach. Paste them in: it spots unsubscribes, bounces, out-of-office and not-now replies, updates your list, and drafts answers to the interested ones for you to approve. Never sends anything.</summary>
+  </entry>
+  <entry>
+    <title>Support Agent — Self-Hosted AI Customer Service That Answers From Your Help Articles</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/support-agent/"/>
+    <id>tag:marisstella.dev,2026:tool/support-agent</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">An open-source AI support agent you host yourself: it answers customers from your own help articles, cites them, offers articles when unsure and hands off to a person on refunds, legal threats or anything it can&#39;t answer. Measured on BANKING77. Try it in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Wall Framing Takeoff — stud layout, cut list and lumber order for a house</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wall-framing-takeoff/"/>
+    <id>tag:marisstella.dev,2026:tool/wall-framing-takeoff</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free wall framing calculator for builders and framers. Enter walls, doors and windows; get the stud layout 16 or 24 on center, kings, jacks, headers and cripples, a cut list, plate splices over studs and the cheapest mix of board lengths to buy. Runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Changepoint Detector — find when a time series changed (PELT + Bayesian)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/changepoint-detector/"/>
+    <id>tag:marisstella.dev,2026:tool/changepoint-detector</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free changepoint detection for any time series. Paste a CSV and see when the level or volatility changed, with exact PELT segmentation and Bayesian online changepoint probabilities (Adams &amp; MacKay 2007; Killick et al. 2012). Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Conformal Prediction Intervals Calculator — distribution-free prediction intervals online</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/conformal-prediction-intervals/"/>
+    <id>tag:marisstella.dev,2026:tool/conformal-prediction-intervals</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free conformal prediction intervals calculator. Paste a CSV, pick the column to predict and a coverage level, and get distribution-free prediction intervals with a finite-sample guarantee: split conformal, locally weighted conformal and conformalized quantile regression (CQR), checked on held-out rows. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>CSV to SEPA Payment File (pain.001) — Free Bulk Credit Transfer Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sepa-pain001/"/>
+    <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain001</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free CSV to SEPA converter: turn a spreadsheet of supplier or payroll payments into a pain.001 XML file for your bank&#39;s bulk upload. Checks every IBAN and amount first, writes exact control totals, and never uploads your list.</summary>
+  </entry>
+  <entry>
+    <title>CSV to SEPA Direct Debit File (pain.008) — Free Mandate Collection Converter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/csv-to-sepa-pain008/"/>
+    <id>tag:marisstella.dev,2026:tool/csv-to-sepa-pain008</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free CSV to SEPA direct debit converter: turn a spreadsheet of member or customer collections into a pain.008 XML file for your bank. Checks every IBAN, mandate and your creditor identifier first, groups FRST/RCUR/OOFF/FNAL batches, and never uploads your list.</summary>
+  </entry>
+  <entry>
+    <title>Hearth &amp; Horizon: free AI-written science fiction and Catholic bedtime stories, with audio</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hearth-and-horizon/"/>
+    <id>tag:marisstella.dev,2026:tool/hearth-and-horizon</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Learning &amp; practice"/>
+    <summary type="text">Free short science fiction about the next thousand years, stories written for AI agents, and Catholic bedtime stories about the saints. Read or listen; podcast RSS feeds; CC BY-SA 4.0.</summary>
+  </entry>
+  <entry>
+    <title>Interview to Content Calendar: Posts for Every Platform (Free)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/interview-content-studio/"/>
+    <id>tag:marisstella.dev,2026:tool/interview-content-studio</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Answer one guided interview about your brand or topic and get a 4-week content calendar with drafts for LinkedIn, Instagram, TikTok, YouTube, X, newsletters, blogs and more. Free, runs in your browser, optional AI on your own key.</summary>
+  </entry>
+  <entry>
+    <title>Matrix Profile Online — Find Repeated Patterns and Anomalies in a Time Series</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/matrix-profile-explorer/"/>
+    <id>tag:marisstella.dev,2026:tool/matrix-profile-explorer</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Research algorithms &amp; ML"/>
+    <summary type="text">Free matrix profile tool for time series anomaly detection and motif discovery. Paste or upload a CSV and find repeated patterns (motifs) and the most unusual stretches (discords) with the exact STOMP algorithm. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Personality Conversation Simulator: Fictional Characters (Free)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/persona-conversation-simulator/"/>
+    <id>tag:marisstella.dev,2026:tool/persona-conversation-simulator</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Build fictional characters with Big Five personalities and simulate negotiations, team meetings and arguments between them. Free, private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Free Podcast RSS Feed Generator, Markdown to EPUB &amp; Audiobook Checker — Publish Kit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/publish-kit/"/>
+    <id>tag:marisstella.dev,2026:tool/publish-kit</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free podcast RSS feed generator, Markdown to EPUB converter, ACX audiobook checker and KDP spine calculator. Runs in your browser, or as a CLI for AI agents.</summary>
+  </entry>
+  <entry>
+    <title>Saints by Candlelight: a free bedtime podcast of saints, angels and Bible stories</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/saints-by-candlelight/"/>
+    <id>tag:marisstella.dev,2026:tool/saints-by-candlelight</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free bedtime story podcast of Catholic and Orthodox saints, angels and patriarchs: lighthearted, faithful, 30 to 60 minute episodes with full scripts and an honest note on what is history and what is legend.</summary>
+  </entry>
+  <entry>
+    <title>Sales Cadence Builder — plan email, call, LinkedIn and letter outreach, free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sales-cadence-builder/"/>
+    <id>tag:marisstella.dev,2026:tool/sales-cadence-builder</id>
+    <updated>2026-10-20T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free sales cadence builder and outreach sequence planner. Paste your prospect list and get a multi-channel cadence (email, phone call with voicemail script, LinkedIn note, mailed letter) on business days, call times inside each prospect&#39;s local business hours, suppression and consent checks, and a CSV and calendar file. Runs in your browser.</summary>
+  </entry>
   <entry>
     <title>Bid Price Engine — Job Bid Calculator for 120+ Trades, Margin Not Markup</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bid-price-engine/"/>
     <id>tag:marisstella.dev,2026:tool/bid-price-engine</id>
     <updated>2026-10-19T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Free job bid calculator for contractors and service trades: labor with payroll burden, materials with waste, subs, contingency and overhead turned into a price at the profit margin you choose. Shows your walk-away price and how far labor can overrun. Private, no signup.</summary>
-  </entry>
-  <entry>
-    <title>Canada Crypto ACB Calculator — adjusted cost base and the superficial loss rule, in your browser</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ca-crypto-acb-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ca-crypto-acb-calculator</id>
-    <updated>2026-10-19T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
-    <summary type="text">Free Canadian crypto capital gains calculator. Paste your buys, sales, swaps and staking income as a CSV and it works out the average adjusted cost base (ACB) of each coin, applies the CRA superficial loss rule to losses, and shows each year&#39;s taxable capital gain. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Discogs Fee Calculator — What You Keep After the 9% Fee and Processing</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/discogs-fee-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/discogs-fee-calculator</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Discogs seller fee calculator: the 9% selling fee on item price plus shipping ($0.10 minimum, $150 maximum), editable payment processing, your payout and profit after postage and cost, the price that hits a target profit, and a fee ladder from $3 singles to $2,500 grails. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Hands-Free Language Coach — voice-only language practice while you drive or walk</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hands-free-language-coach/"/>
-    <id>tag:marisstella.dev,2026:tool/hands-free-language-coach</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Learning &amp; practice"/>
-    <summary type="text">Learn a language by voice alone: the coach says a phrase, you say it back, it listens and scores you, and moves on. No tapping, no screen. Streaks, XP and spaced review like a language game, free in your browser, plus a skill for Claude and ChatGPT voice mode.</summary>
-  </entry>
-  <entry>
-    <title>Listen &amp; Learn Audio — bilingual audio stories for language learners, hands-free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/listen-and-learn-audio/"/>
-    <id>tag:marisstella.dev,2026:tool/listen-and-learn-audio</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Learning &amp; practice"/>
-    <summary type="text">Short graded stories read aloud in Spanish, French, German and Italian, each line followed by English. Press play and listen while you walk or commute. Free in your browser, plus an AI skill for Claude and ChatGPT voice mode that tells new stories and podcast-style episodes on any topic, at your level.</summary>
-  </entry>
-  <entry>
-    <title>Open Tennis Robots — open-source tennis ball machine with a catch net, and a ball pickup robot</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-tennis-robots/"/>
-    <id>tag:marisstella.dev,2026:tool/open-tennis-robots</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Build your own tennis ball machine that catches your returns with a moving net, and a robot that picks up tennis balls while you practise. Open-source hardware designs, firmware and software (MIT), plus a shot simulator you can try in your browser.</summary>
-  </entry>
-  <entry>
-    <title>US Substantial Presence Test Calculator — 183-Day Weighted Count</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/us-substantial-presence-test-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/us-substantial-presence-test-calculator</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the IRS substantial presence test: enter your days in the US and see the 183-day weighted count (this year + a third of last year + a sixth of the year before), how many more days you can spend before you become a US tax resident, and when you crossed the line. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Demand Forecast Back-Tester — safety stock and reorder points from your sales</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/demand-forecast-backtester/"/>
-    <id>tag:marisstella.dev,2026:tool/demand-forecast-backtester</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free demand forecasting for small sellers. Upload a sales CSV to get a back-tested forecast per SKU, safety stock and reorder points at your service level, ABC-XYZ classes, and an honest check of whether the forecast beats repeating last month. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Grailed Fee Calculator — What You Keep After the New 6% / 9% Commission</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/grailed-fee-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/grailed-fee-calculator</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Grailed seller fee calculator for the tiered commission (6% under $120 with a $1.99 minimum, 9% from $120) plus 3.49% + $0.49 payment processing. See your payout, profit, the price for a target profit, and the $120 step where the whole sale jumps to 9%. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Meeting Notes to Action Items Extractor (Free)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/meeting-action-items/"/>
-    <id>tag:marisstella.dev,2026:tool/meeting-action-items</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Paste meeting notes or a transcript and get action items with owner and due date, decisions and open questions, plus a follow-up email. Free, private, no upload.</summary>
-  </entry>
-  <entry>
-    <title>Free On-Page SEO Audit and AI-Readiness Checker — Page SEO Audit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/page-seo-audit/"/>
-    <id>tag:marisstella.dev,2026:tool/page-seo-audit</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a page&#39;s HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.</summary>
-  </entry>
-  <entry>
-    <title>Free Price Drop and Back-in-Stock Alerts (Self-Hosted)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/price-drop-watcher/"/>
-    <id>tag:marisstella.dev,2026:tool/price-drop-watcher</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Get price drop and back-in-stock alerts for any product page, free. Runs on your own GitHub Actions, alerts your phone, no account or tracking. Test a page in your browser first.</summary>
-  </entry>
-  <entry>
-    <title>TCGplayer Fee Calculator — What You Keep After 10.75% Commission and the $0.30 Order Fee</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tcgplayer-fee-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/tcgplayer-fee-calculator</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free TCGplayer seller fee calculator: 10.75% marketplace commission (capped at $75 per product, charged on cards plus shipping) and 2.5% + $0.30 per-order transaction fee. See your payout, profit per order, the price for a target profit, and Pro or pre-February-2026 rates side by side. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>UK Crypto CGT Calculator — Section 104 pool, same-day and 30-day rules, in your browser</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-crypto-cgt-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-crypto-cgt-calculator</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="UK tax, pay &amp; benefits"/>
-    <summary type="text">Free UK crypto capital gains calculator. Paste your buys, sales, swaps and staking income as a CSV and it applies HMRC&#39;s same-day, 30-day and Section 104 pooling rules, works out each tax year&#39;s gain, exempt amount and estimated CGT, and exports the working. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>UK Statutory Residence Test Checker — Days, Ties and Automatic Tests</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/uk-statutory-residence-test-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/uk-statutory-residence-test-checker</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="UK tax, pay &amp; benefits"/>
-    <summary type="text">Free UK Statutory Residence Test checker: enter your UK stays and ties to see which test decides, whether you are UK resident, and how many more days you can spend in the UK before that changes. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Youth Lineup Rotator — fair playing time for every kid, free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/youth-lineup-rotator/"/>
-    <id>tag:marisstella.dev,2026:tool/youth-lineup-rotator</id>
-    <updated>2026-10-18T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free youth sports lineup generator for volunteer coaches. Equal playing time, nobody benched twice in a row, goalkeeper turns shared, subs planned per period. Soccer, basketball, hockey and more. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>GitHub Actions Schedule Cron Check — Invalid, Too-Frequent and Top-of-Hour Crons</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-schedule-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-schedule-check</id>
-    <updated>2026-10-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find every schedule cron that is invalid, faster than GitHub&#39;s 5-minute minimum, or pinned to the top of the hour where scheduled runs get delayed. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Financial Aid Award Letter Comparator — true cost of each college offer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aid-award-letter-comparator/"/>
-    <id>tag:marisstella.dev,2026:tool/aid-award-letter-comparator</id>
-    <updated>2026-10-17T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free financial aid award letter comparator. Type in each college&#39;s cost, grants, loans and work-study and see the true four-year cost, loans repaid with interest, the year-2 price jump and the grant that would match the cheapest offer. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>JWT Security Check — decode a token and find misconfigurations</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/jwt-security-check/"/>
-    <id>tag:marisstella.dev,2026:tool/jwt-security-check</id>
-    <updated>2026-10-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a JWT and get its header and payload decoded, plus every common security misconfiguration flagged: alg:none, embedded jwk/jku/x5u/x5c key material, symmetric-vs-asymmetric algorithm confusion, a kid header shaped like path traversal or SQL injection, missing/excessive exp, and sensitive-looking fields in the unencrypted payload. Free JWT decoder and security checker, runs entirely in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Review Reply Desk — free Google review reply generator for local businesses</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/review-reply-desk/"/>
-    <id>tag:marisstella.dev,2026:tool/review-reply-desk</id>
-    <updated>2026-10-17T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free review response generator. Paste your Google, Yelp or Facebook reviews and get a ready-to-post reply to each one: rating-aware, specific, safe around legal, health-privacy and refund traps, and checked before you post. Runs in your browser; nothing is uploaded.</summary>
+    <summary type="text">Free job bid calculator for contractors and service trades: labor with payroll burden, materials with waste, subs, contingency and overhead turned into a price at the profit margin you choose. Shows your walk-away price and how far labor can overrun. Private, no signup.</summary>
   </entry>
 </feed>

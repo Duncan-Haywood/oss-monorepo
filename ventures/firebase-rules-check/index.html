@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Firebase Security Rules Exposure Checker — Is Your Database Public?</title>
-<meta name="description" content="Free, in-browser tool: enter your Firebase project ID (plus its Realtime Database URL and/or Firestore collection names) and it sends real, read-only, unauthenticated requests, naming which paths return real data with no login -- the default-open / left-in-test-mode security rules exposure documented since Appthority's 2018 Firebase mismanagement report. Nothing uploaded to us.">
+<meta name="description" content="Enter a Firebase project ID to test, with read-only unauthenticated requests, which database or Firestore paths are publicly readable. Nothing uploaded to us.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/firebase-rules-check/">
 <meta property="og:type" content="website">
@@ -89,6 +89,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Firebase Security Rules Exposure Checker</h1>
 <p>
   Enter your Firebase project ID, plus its Realtime Database URL and/or one or more Firestore
@@ -275,6 +276,7 @@
   }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented

@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-23",
+ "session": "https://claude.ai/code/session_01U8Z98Zuq1bm2mp572Fbi4q",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-23T03:14:23Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9669",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "CLAUDE.md",
+   "issue": "A blocked `rm -rf experiments/*` after cd cost a turn; no doc warns the safety check rejects relative-glob removals."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "Skipped writing a separate agent doc/post: scope was a single data-sourcing follow-up; README carries the write-up."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Sourced c=CP/(2piCT) from 160 UIUC static prop files; reran joint CMA-ES (60 jobs). Local checks: pytest 19 pass, build.py ok, check_md_links ok. CI not awaited.",
+ "corrections": [],
+ "redteam": null
+}

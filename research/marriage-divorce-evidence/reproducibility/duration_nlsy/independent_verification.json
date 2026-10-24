@@ -1,0 +1,10 @@
+{
+  "input_intervals": 34359,
+  "segments": 46227,
+  "events": 592,
+  "unweighted_person_years": 69185.41666666669,
+  "model_rank": 36,
+  "parameters": 36,
+  "normalized_score": 6.24676073950302e-18,
+  "checks": "Passed every-interval exposure/event/widow conservation, terminal-event placement, independent crude rates, independent design/score reconstruction, common-target rates/log CIs, adjacent coefficient contrasts and Holm calculations."
+}

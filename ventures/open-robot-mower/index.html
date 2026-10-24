@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Open Robot Mower — DIY robot lawn mower: open-source, wire-free RTK, full CAD</title>
+  <meta name="description" content="Build your own robot lawn mower. An open-source robotic mower with wire-free RTK GNSS navigation, a guarded pivoting-blade disc, a floating bump shell, ESP32 safety firmware and a complete CAD manufacturing package (MIT). Plan your own lawn's mowing pattern in the browser.">
+  <meta property="og:title" content="Open Robot Mower — build a DIY robotic lawn mower">
+  <meta property="og:description" content="Open-source robotic mower: RTK GNSS, no boundary wire, blade interlock firmware, DXF/STL/STEP files and a lawn coverage planner you can try in your browser.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Open Robot Mower", "applicationCategory": "DesignApplication", "operatingSystem": "Any modern browser; Python 3.9+ on Raspberry Pi; MicroPython on ESP32", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "license": "https://opensource.org/licenses/MIT", "description": "Open-source hardware and software for a DIY robotic lawn mower: wire-free RTK GNSS navigation, a 232 mm pivoting razor-blade disc inside a full guard ring, a floating shell on hall-effect lift and bump sensors, ESP32 firmware with a blade interlock and latched stops, a charging dock, and a parametric CAD model that generates the laser-cut, printed and STEP files. Includes a lawn coverage planner, a closed-loop mowing simulation, a battery session scheduler, blade stop-time and slope calculators.", "featureList": "Robot lawn mower coverage planner, stripe angle optimiser, perimeter and obstacle passes, RTK GNSS mowing simulation, battery runtime and charge sessions, blade stop time with short braking, blade tip energy, slope traction and tip-over limits, ESP32 blade interlock firmware, DXF STL STEP manufacturing package, bill of materials"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I build my own robot lawn mower?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. This design uses two 24 V gearmotors driving the rear wheels, two front casters, an outrunner motor spinning a 200 mm disc with three pivoting razor blades, a Raspberry Pi with an RTK GNSS receiver for navigation and an ESP32 for the motors and every safety input. The laser-cut, printed and STEP files, the bill of materials, wiring, firmware and planning software are all in the repository under the MIT licence. It is a v0.1 design that has been checked in CAD and simulation, not yet built and tested."}}, {"@type": "Question", "name": "Does a robot mower need a boundary wire?", "acceptedAnswer": {"@type": "Answer", "text": "Not this one. It navigates by RTK GNSS: a fixed base station near the lawn sends corrections, and the mower knows its position to a couple of centimetres. You walk or draw the lawn boundary and the no-go areas once, and the planner does the rest. If you would rather bury a perimeter wire, the navigation notes describe that option too; it needs a signal generator and two coil sensors instead of the base station."}}, {"@type": "Question", "name": "How does the mower plan its route across the lawn?", "acceptedAnswer": {"@type": "Answer", "text": "It cuts two loops round the edge, one loop round each flowerbed or tree, then fills the rest with parallel stripes. It tries every stripe angle in 5 degree steps and keeps the quickest, counting both distance and the time spent turning at stripe ends. Moves between stripes that would cross a flowerbed are routed round it. The planner above runs the same code as the robot."}}, {"@type": "Question", "name": "How long does it mow on one charge?", "acceptedAnswer": {"@type": "Answer", "text": "With a 126 Wh pack (7S, 5 Ah) the power model estimates about 33 W while cutting at 0.35 m/s on flat grass, or roughly three hours, but every coefficient in it is an assumption until someone measures a real build. When the battery runs low part-way through a lawn, the scheduler sends the mower home to charge and back to where it stopped."}}, {"@type": "Question", "name": "Is a DIY robot mower safe?", "acceptedAnswer": {"@type": "Answer", "text": "Only if it is built and tested carefully. The blade tips move at about 34 m/s and the disc stores about 50 joules. The design puts a guard ring round the blade that reaches below the blade plane, keeps the blade at least 100 mm inside the shell edge, and stops the blade when the shell is lifted or bumped, when it tilts past 20 degrees, when the stop button is pressed, when it rains or when the controller goes quiet. The model predicts the disc stops in about half a second with short braking. You are still responsible for building, testing and running your mower safely, and for keeping children and pets away while it works."}}, {"@type": "Question", "name": "How steep a lawn can it mow?", "acceptedAnswer": {"@type": "Answer", "text": "The statics model gives about 17 degrees (30%) on dry grass, limited by the rear wheels' grip when climbing, and only about 5 degrees on wet grass. Those friction figures are assumptions. It will not tip sideways before it slides. Steep lawns need more weight over the drive wheels, better tyres, or all-wheel drive."}}, {"@type": "Question", "name": "How much does it cost to build?", "acceptedAnswer": {"@type": "Answer", "text": "The bills of materials add up to roughly 1,050 US dollars for the mower and dock, plus about 300 for an RTK base station if no correction network covers your area. These are rough planning estimates, not quotes. The RTK receivers and the battery are the largest items. Check current prices before you buy."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #18222b; background: #f2f5ef; --accent: #2e6b2c; --grass: #9fcf7a; --stripe: #7fb85a; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #245c9a; }
+    h1 { font-size: clamp(1.8rem, 4.6vw, 2.7rem); line-height: 1.1; margin: 0 0 14px; color: var(--accent); }
+    h2 { font-size: 1.2rem; margin: 0 0 10px; color: var(--accent); }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5964; }
+    .card { background: #fff; border: 1px solid #d8dee3; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #708896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { font: 13px ui-monospace, monospace; min-height: 90px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; }
+    button.secondary { background: #e3ece1; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e6eaee; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5964; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 12px 0; }
+    .big div { background: #f1f6ef; border-radius: 10px; padding: 10px; }
+    .big strong { display: block; font-size: 1.35rem; color: var(--accent); }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    svg.lawn { width: 100%; height: auto; background: #e9efe4; border-radius: 10px; touch-action: manipulation; cursor: crosshair; }
+    .scroll { overflow-x: auto; }
+    code { overflow-wrap: anywhere; }
+    footer { margin-top: 28px; border-top: 1px solid #d8dee3; padding-top: 16px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+    .check input { width: auto; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">OPEN ROBOT MOWER · OPEN-SOURCE HARDWARE + SOFTWARE · MIT LICENCE</p>
+    <h1>Build your own robot lawn mower: open-source, wire-free, fully designed</h1>
+    <p>A <strong>DIY robotic lawn mower</strong> you can make from laser-cut aluminium, 3D-printed parts and parts you can buy. It finds its way by <strong>RTK GNSS</strong>, so there is <strong>no boundary wire to bury</strong>. It cuts a 232 mm swath with pivoting razor blades inside a full guard ring, rides a floating shell that stops the blade when it is lifted or bumped, and goes home to its dock to charge.</p>
+    <p>The <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-robot-mower">CAD, firmware, planner and design notes</a> are free to build, change and sell. Try the lawn planner below: it runs the same code the mower uses.</p>
+    <p class="note">Status: design v0.1. The CAD passes its collision, clearance and fit checks and the software is tested in simulation, but no robot has been built yet. Not engineering, electrical or safety advice.</p>
+  </header>
+<main>
+
+  <section class="card" id="planner">
+    <h2>Lawn planner: how would the mower cut your lawn?</h2>
+    <p>Pick an example, or draw your own: click to place the corners of the lawn, then add flowerbeds, trees or a pond as no-go areas. The planner adds two loops round the edge and one round each no-go area, then tries every stripe angle and keeps the quickest.</p>
+    <div class="two">
+      <div>
+        <svg class="lawn" id="lawn" viewBox="0 0 100 70" role="img" aria-label="Top view of the lawn with the planned mowing path; click to draw">
+          <title>Lawn and mowing path, top view</title>
+        </svg>
+        <p class="note">Green: lawn. Brown: no-go areas. Dark line: the path the cutting disc's centre follows. Red square: the dock. Grid: 1 m.</p>
+        <button class="secondary" id="draw">Draw a new lawn</button>
+        <button class="secondary" id="hole">Add a no-go area</button>
+        <button class="secondary" id="done">Finish shape</button>
+        <p class="note" id="mode" aria-live="polite"></p>
+      </div>
+      <div>
+        <div class="grid">
+          <div><label for="example">Example lawn</label><select id="example"><option value="backyard">Back yard with a bed and a tree</option><option value="front">Front lawn, 10 x 6 m</option><option value="curved">Curved lawn with a patio</option></select></div>
+          <div><label for="angle">Stripe angle, degrees (blank = quickest)</label><input id="angle" type="number" step="5" min="0" max="179" placeholder="auto"></div>
+          <div><label for="passes">Edge loops</label><input id="passes" type="number" min="0" max="4" value="2"></div>
+          <div><label for="overlap">Overlap between passes, cm</label><input id="overlap" type="number" step="0.5" min="0" max="10" value="3"></div>
+          <div><label for="speed">Cutting speed, m/s</label><input id="speed" type="number" step="0.05" min="0.15" max="0.6" value="0.35"></div>
+          <div><label for="battery">Battery, Wh</label><input id="battery" type="number" step="1" min="20" max="500" value="126"></div>
+        </div>
+        <button id="plan">Plan this lawn</button>
+        <div id="result" aria-live="polite"></div>
+      </div>
+    </div>
+    <label for="json">Lawn as JSON, for <code>mowerbot plan --lawn lawn.json</code> (metres)</label>
+    <textarea id="json" readonly></textarea>
+    <p class="note">Times include turning on the spot at stripe ends. Coverage is computed on a 5 cm grid from the planned path; the closed-loop simulation in the Python package adds RTK noise, wheel slip and fix losses (<code>mowerbot simulate</code>).</p>
+  </section>
+
+  <section class="card" id="numbers">
+    <h2>What the design checks say</h2>
+    <p>Every figure here comes from the project's own models, run on the default design. They are simulation and estimates under stated assumptions, not measurements on a built mower.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Question</th><th class="n">Answer</th><th>From</th></tr></thead>
+        <tbody>
+          <tr><td>Blade stop time, short-braked, from 2,800 rpm</td><td class="n">0.46 s</td><td><code>mowerbot blade-stop</code> (motor constants assumed)</td></tr>
+          <tr><td>Blade stop time if it only coasts</td><td class="n">13.7 s</td><td>why the brake relay matters</td></tr>
+          <tr><td>Blade tip speed / energy stored in the disc</td><td class="n">34 m/s / 51 J</td><td><code>mowerbot blade-stop</code></td></tr>
+          <tr><td>Steepest workable slope, dry / wet grass</td><td class="n">17° / 5°</td><td><code>mowerbot slope</code> (friction assumed)</td></tr>
+          <tr><td>Power while cutting on flat grass</td><td class="n">33 W</td><td><code>mowerbot runtime</code> (coefficients assumed)</td></tr>
+          <tr><td>Back-yard example (186 m²): closed-loop coverage, 3 runs</td><td class="n">99.86–99.88%</td><td><code>mowerbot simulate --runs 3</code></td></tr>
+          <tr><td>Blade tips to guard wall / shell edge to blade</td><td class="n">29 mm / 129 mm</td><td>CAD design rules</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" id="make">
+    <h2>Manufacture it: download the fab package</h2>
+    <p>One parametric CAD model generates everything a fabricator needs: laser-cut <strong>DXF</strong> files (flat 5052 aluminium, true millimetres, no bends or tapped holes), <strong>STL</strong> files for the printed ASA parts (each fits a 256 mm printer bed), <strong>STEP</strong> files for any CAD or CAM tool, a cut list, a full bill of materials with every fastener, and assembly drawings. Every build checks each part against every other at all seven cut heights, with the spinning parts given running clearance and the shell pushed 8 mm each way, and checks that every printed part's bolt holes land on holes in the plate it bolts to.</p>
+    <p><a href="https://github.com/duncan-haywood/oss-monorepo/raw/main/ventures/open-robot-mower/manufacturing/mower-package.zip">Download the mower package (zip, 1.4 MB)</a>, <a href="https://github.com/duncan-haywood/oss-monorepo/raw/main/ventures/open-robot-mower/manufacturing/dock-package.zip">the dock package (zip, 0.1 MB)</a>, or <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-robot-mower/manufacturing/mower">browse the files</a> (GitHub shows the STLs in 3D).</p>
+    <div class="big">
+      <div>Cut width<strong>232 mm</strong></div>
+      <div>Cut height<strong>20–50 mm</strong></div>
+      <div>Size<strong>64 × 49 cm</strong></div>
+      <div>Mass (estimate)<strong>~8.5 kg</strong></div>
+    </div>
+    <p class="note">Design v0.1, not yet built: the first build will find things to fix. Change any dimension and regenerate with <code>python -m orm_cad mower</code> (<a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-robot-mower/cad">parametric CAD source</a>).</p>
+  </section>
+
+  <section class="card" id="build">
+    <h2>Build one</h2>
+    <ul>
+      <li><a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-robot-mower/hardware/mower.md">The mower</a>: chassis, drive, cutting system, height adjustment, floating shell and sensors.</li>
+      <li><a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-robot-mower/hardware/navigation.md">Navigation</a>: RTK base station and rover, mapping your lawn, and the perimeter-wire alternative.</li>
+      <li><a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-robot-mower/hardware/dock.md">Charging dock</a>, <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-robot-mower/hardware/electronics.md">electronics and pin map</a>, <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-robot-mower/firmware/esp32/README.md">ESP32 firmware</a>, and <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-robot-mower/hardware/safety.md">safety</a>.</li>
+      <li>Bills of materials: <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-robot-mower/hardware/bom-mower.csv">mower</a> and <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/open-robot-mower/hardware/bom-dock-and-base.csv">dock and RTK base</a> (rough estimates).</li>
+      <li>Software: <code>pip install "git+https://github.com/duncan-haywood/oss-monorepo#subdirectory=ventures/open-robot-mower"</code>, then <code>mowerbot plan --example backyard</code>.</li>
+    </ul>
+    <p>Building a ball-collecting rover instead? The <a href="../open-tennis-robots/">Open Tennis Robots</a> collector uses the same drive, firmware pattern and CAD generator.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>Can I build my own robot lawn mower?</h3>
+    <p>Yes. This design uses two 24 V gearmotors driving the rear wheels, two front casters, an outrunner motor spinning a 200 mm disc with three pivoting razor blades, a Raspberry Pi with an RTK GNSS receiver for navigation and an ESP32 for the motors and every safety input. The laser-cut, printed and STEP files, the bill of materials, wiring, firmware and planning software are all in the repository under the MIT licence. It is a v0.1 design that has been checked in CAD and simulation, not yet built and tested.</p>
+    <h3>Does a robot mower need a boundary wire?</h3>
+    <p>Not this one. It navigates by RTK GNSS: a fixed base station near the lawn sends corrections, and the mower knows its position to a couple of centimetres. You walk or draw the lawn boundary and the no-go areas once, and the planner does the rest. If you would rather bury a perimeter wire, the navigation notes describe that option too; it needs a signal generator and two coil sensors instead of the base station.</p>
+    <h3>How does the mower plan its route across the lawn?</h3>
+    <p>It cuts two loops round the edge, one loop round each flowerbed or tree, then fills the rest with parallel stripes. It tries every stripe angle in 5 degree steps and keeps the quickest, counting both distance and the time spent turning at stripe ends. Moves between stripes that would cross a flowerbed are routed round it. The planner above runs the same code as the robot.</p>
+    <h3>How long does it mow on one charge?</h3>
+    <p>With a 126 Wh pack (7S, 5 Ah) the power model estimates about 33 W while cutting at 0.35 m/s on flat grass, or roughly three hours, but every coefficient in it is an assumption until someone measures a real build. When the battery runs low part-way through a lawn, the scheduler sends the mower home to charge and back to where it stopped.</p>
+    <h3>Is a DIY robot mower safe?</h3>
+    <p>Only if it is built and tested carefully. The blade tips move at about 34 m/s and the disc stores about 50 joules. The design puts a guard ring round the blade that reaches below the blade plane, keeps the blade at least 100 mm inside the shell edge, and stops the blade when the shell is lifted or bumped, when it tilts past 20 degrees, when the stop button is pressed, when it rains or when the controller goes quiet. The model predicts the disc stops in about half a second with short braking. You are still responsible for building, testing and running your mower safely, and for keeping children and pets away while it works.</p>
+    <h3>How steep a lawn can it mow?</h3>
+    <p>The statics model gives about 17 degrees (30%) on dry grass, limited by the rear wheels' grip when climbing, and only about 5 degrees on wet grass. Those friction figures are assumptions. It will not tip sideways before it slides. Steep lawns need more weight over the drive wheels, better tyres, or all-wheel drive.</p>
+    <h3>How much does it cost to build?</h3>
+    <p>The bills of materials add up to roughly 1,050 US dollars for the mower and dock, plus about 300 for an RTK base station if no correction network covers your area. These are rough planning estimates, not quotes. The RTK receivers and the battery are the largest items. Check current prices before you buy.</p>
+  </section>
+
+  </main>
+<footer>
+    <p>More open hardware from this project: <a href="../open-tennis-robots/">Open Tennis Robots</a>, a DIY ball machine with a moving catch net and a ball-collecting rover, and <a href="../open-floor-robots/">Open Floor Robots</a>: a DIY robot vacuum, robot mop and vacuum-mop on one chassis.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, electrical or safety advice, and it does not replace a qualified professional. Spinning mower blades can cause serious injury. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for building and operating any machine safely and lawfully. To the maximum extent permitted by law, the authors accept no liability for any loss, damage or injury arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser. Nothing you type or draw is uploaded, and there are no accounts, tracking cookies or analytics vendor. Anonymous counts of which features get used are stored in your own browser only. <label class="check" for="optout"><input type="checkbox" id="optout"> Turn usage counting off</label></p>
+    <p>Not affiliated with any lawn mower or robotic mower maker. Open source under the MIT licence. Like it? <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work on GitHub</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { LAWNS, plan, settings, coverageOf, schedule, powerSpec, lawnArea, pointInRing } from "./sim.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const NS = "http://www.w3.org/2000/svg";
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, attrs, parent) => {
+      const e = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+      if (parent) parent.appendChild(e);
+      return e;
+    };
+    const svg = $("lawn");
+    const VIEW = { w: 30, h: 21 };  // metres shown; the y axis points up
+    let lawn = structuredClone(LAWNS.backyard);
+    let drawing = null;   // { kind: "outer" | "hole", pts: [] }
+    let lastPlan = null;
+
+    function fitView(l) {
+      const xs = l.outer.map((p) => p[0]), ys = l.outer.map((p) => p[1]);
+      const x0 = Math.min(...xs) - 1, y0 = Math.min(...ys) - 1;
+      const w = Math.max(...xs) - x0 + 1, h = Math.max(...ys) - y0 + 1;
+      const s = Math.max(w / 100, h / 70);
+      return { x0, y0, s, top: y0 + 70 * s };
+    }
+    let view = fitView(lawn);
+    const sx = (x) => (x - view.x0) / view.s;
+    const sy = (y) => (view.top - y) / view.s;
+    const pts = (ring) => ring.map((p) => `${sx(p[0]).toFixed(2)},${sy(p[1]).toFixed(2)}`).join(" ");
+
+    function render() {
+      svg.querySelectorAll(".layer").forEach((n) => n.remove());
+      const g = el("g", { class: "layer" }, svg);
+      const grid = el("g", { stroke: "#d6dfd0", "stroke-width": "0.15" }, g);
+      for (let x = Math.ceil(view.x0); x < view.x0 + 100 * view.s; x++) el("line", { x1: sx(x), y1: 0, x2: sx(x), y2: 70 }, grid);
+      for (let y = Math.ceil(view.top - 70 * view.s); y < view.top; y++) el("line", { x1: 0, y1: sy(y), x2: 100, y2: sy(y) }, grid);
+      if (lawn.outer.length >= 3) {
+        el("polygon", { points: pts(lawn.outer), fill: "#a7d585", stroke: "#2e6b2c", "stroke-width": "0.4" }, g);
+        for (const h of lawn.holes) el("polygon", { points: pts(h), fill: "#b08a5a", stroke: "#6b4d2a", "stroke-width": "0.3" }, g);
+      }
+      if (lastPlan) el("polyline", { points: pts(lastPlan.path), fill: "none", stroke: "#1f3d1e", "stroke-width": "0.22", "stroke-linejoin": "round" }, g);
+      if (lawn.dock) el("rect", { x: sx(lawn.dock[0]) - 1, y: sy(lawn.dock[1]) - 1, width: 2, height: 2, fill: "#d9472b" }, g);
+      if (drawing && drawing.pts.length) {
+        el("polyline", { points: pts(drawing.pts), fill: "none", stroke: "#d9472b", "stroke-width": "0.4", "stroke-dasharray": "1 0.6" }, g);
+        for (const p of drawing.pts) el("circle", { cx: sx(p[0]), cy: sy(p[1]), r: 0.7, fill: "#d9472b" }, g);
+      }
+      $("json").value = JSON.stringify({ name: lawn.name, outer: lawn.outer, holes: lawn.holes, dock: lawn.dock });
+    }
+
+    function dockFor(outer) {
+      // Half a metre in from the first corner, toward the middle of the lawn.
+      const cx = outer.reduce((s, p) => s + p[0], 0) / outer.length, cy = outer.reduce((s, p) => s + p[1], 0) / outer.length;
+      const [x, y] = outer[0];
+      const d = Math.hypot(cx - x, cy - y) || 1;
+      for (const k of [0.5, 1, 2, 3]) {
+        const p = [x + (cx - x) * k / d, y + (cy - y) * k / d];
+        if (pointInRing(p, outer)) return [Math.round(p[0] * 100) / 100, Math.round(p[1] * 100) / 100];
+      }
+      return [cx, cy];
+    }
+
+    function readSettings() {
+      const num = (id, lo, hi, dflt) => { const v = Number($(id).value); return Number.isFinite(v) && $(id).value !== "" ? Math.max(lo, Math.min(hi, v)) : dflt; };
+      return settings({ perimeterPasses: Math.round(num("passes", 0, 4, 2)), overlap: num("overlap", 0, 10, 3) / 100, speed: num("speed", 0.15, 0.6, 0.35) });
+    }
+
+    function runPlan(silent = false) {
+      const out = $("result");
+      if (lawn.outer.length < 3) { out.innerHTML = `<p class="warn">Draw at least three corners first.</p>`; return; }
+      const s = readSettings();
+      const angleText = $("angle").value.trim();
+      const angle = angleText === "" ? null : Math.max(0, Math.min(179, Number(angleText)));
+      try {
+        const p = plan(lawn, s, angle);
+        lastPlan = p;
+        const cov = coverageOf(lawn, p.path, s.cutWidth);
+        const sch = schedule(lawn, p, powerSpec({ batteryWh: Math.max(20, Math.min(500, Number($("battery").value) || 126)) }));
+        const charges = sch.sessions.length - 1;
+        out.innerHTML = `<div class="big">
+          <div>Lawn<strong>${lawnArea(lawn).toFixed(0)} m²</strong></div>
+          <div>Stripe angle<strong>${p.angleDeg}°</strong></div>
+          <div>Path<strong>${p.length.toFixed(0)} m</strong></div>
+          <div>Mowing time<strong>${(p.timeS / 60).toFixed(0)} min</strong></div>
+          <div>Planned coverage<strong>${(100 * cov.fraction).toFixed(2)}%</strong></div>
+          <div>Trips to charge<strong>${charges}</strong></div></div>
+          <p class="note">${p.stripes} stripes, ${p.perimeterLoops} edge loop${p.perimeterLoops === 1 ? "" : "s"}, ${p.obstacleLoops} loop${p.obstacleLoops === 1 ? "" : "s"} round no-go areas. Missed: ${cov.missedArea.toFixed(2)} m² (mostly sharp inside corners the disc cannot reach). Start to finish, including any stops to charge: ${(sch.totalS / 3600).toFixed(1)} h.</p>` +
+          (p.skipped.length ? `<p class="warn">${p.skipped.join("; ")}.</p>` : "");
+        if (!silent) record("plan_run");
+      } catch (e) {
+        lastPlan = null;
+        out.innerHTML = `<p class="warn">${e.message}. Is the lawn wider than the mower everywhere?</p>`;
+        if (!silent) record("plan_failed");
+      }
+      render();
+    }
+
+    svg.addEventListener("click", (ev) => {
+      if (!drawing) return;
+      const pt = svg.createSVGPoint();
+      pt.x = ev.clientX; pt.y = ev.clientY;
+      const q = pt.matrixTransform(svg.getScreenCTM().inverse());
+      drawing.pts.push([Math.round((q.x * view.s + view.x0) * 10) / 10, Math.round((view.top - q.y * view.s) * 10) / 10]);
+      render();
+    });
+    $("draw").addEventListener("click", () => {
+      drawing = { kind: "outer", pts: [] };
+      lawn = { name: "my-lawn", outer: [], holes: [], dock: null };
+      lastPlan = null;
+      view = { x0: -1, y0: -1, s: VIEW.w / 100, top: -1 + 70 * (VIEW.w / 100) };
+      $("mode").textContent = "Click the lawn's corners in order (the grid is 1 m), then Finish shape.";
+      $("result").innerHTML = "";
+      record("lawn_drawn");
+      render();
+    });
+    $("hole").addEventListener("click", () => {
+      if (lawn.outer.length < 3) { $("mode").textContent = "Draw the lawn first."; return; }
+      drawing = { kind: "hole", pts: [] };
+      $("mode").textContent = "Click round the flowerbed, tree or pond, then Finish shape.";
+    });
+    $("done").addEventListener("click", () => {
+      if (!drawing) return;
+      if (drawing.pts.length < 3) { $("mode").textContent = "A shape needs at least three corners."; return; }
+      if (drawing.kind === "outer") { lawn.outer = drawing.pts; lawn.dock = dockFor(lawn.outer); view = fitView(lawn); }
+      else lawn.holes.push(drawing.pts);
+      drawing = null;
+      $("mode").textContent = "Add a no-go area, or plan the lawn.";
+      runPlan(true);
+    });
+    $("example").addEventListener("change", () => {
+      lawn = structuredClone(LAWNS[$("example").value]);
+      drawing = null;
+      view = fitView(lawn);
+      $("mode").textContent = "";
+      record("example_loaded");
+      runPlan(true);
+    });
+    $("plan").addEventListener("click", () => runPlan());
+    $("json").addEventListener("copy", () => record("json_copied"));
+
+    const opt = $("optout");
+    opt.checked = usageOptedOut();
+    opt.addEventListener("change", () => setUsageOptOut(opt.checked));
+    runPlan(true);
+  </script>
+</body>
+</html>

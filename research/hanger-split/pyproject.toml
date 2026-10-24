@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-split"
+version = "0.1.0"
+description = "A two-piece printable hanger: a half-lap bolted hub joint so every width prints on a 220 mm bed, with bolt-bearing, tear-out and shear checks"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

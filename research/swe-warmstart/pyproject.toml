@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swe-warmstart"
+version = "0.1.0"
+description = "Cheap-prior starts for track-allocation policies, tested on the observed history and block-bootstrap histories"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

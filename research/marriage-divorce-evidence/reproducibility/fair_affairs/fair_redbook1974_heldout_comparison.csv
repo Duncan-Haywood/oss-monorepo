@@ -1,0 +1,5 @@
+model,logloss_improvement_percent,auc,brier,improvement_min,improvement_max,auc_min,auc_max
+constant,0,0.5,0.218492,,,,
+rating_only,8.61137,0.686758,0.19443,6.07504,10.5731,0.659801,0.712533
+logistic_additive,13.1903,0.743506,0.183436,9.74624,15.7848,0.718188,0.764808
+tree_depth3,11.2656,0.722262,0.188211,8.426,13.8971,0.697086,0.747038

@@ -1,0 +1,11 @@
+Description,,Summary Amt.
+Beginning balance as of 03/01/2026,,"5,000.00"
+Total credits,,"4,200.00"
+Total debits,,"-909.99"
+Ending balance as of 03/31/2026,,"8,290.01"
+
+Date,Description,Amount,Running Bal.
+03/01/2026,Beginning balance as of 03/01/2026,,"5,000.00"
+03/02/2026,"NORTHWIND LLC DES:PAYROLL ID:1041 INDN:STUDIO CO ID:9100000001 PPD","4,200.00","9,200.00"
+03/03/2026,"ADOBE *CREATIVE CLD DES:ADOBE ID:XXXXX1 INDN:STUDIO CO CCD","-59.99","9,140.01"
+03/05/2026,"Check 1007","-850.00","8,290.01"

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-kindlink"
+version = "0.1.0"
+description = "Links the hanger-pick pile garment kinds to the hanger-cell archetypes, so the same garment sets its pick difficulty and its hang-or-fold decision"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

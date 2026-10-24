@@ -1,0 +1,29 @@
+/* Profile report view (report-ui.js). Uses the colour tokens defined in style.css, so light and
+   dark themes follow automatically. */
+.rep-frame { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.rep-two { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 12px; }
+.rep-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px 14px; min-width: 0; }
+.rep-card h3 { margin: 4px 0 8px; }
+.rep-card h3 small { display: inline; margin-left: 6px; }
+.rep-card h4 { margin: 16px 0 6px; font-size: 0.97rem; }
+.rep-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.rep-table th, .rep-table td { text-align: left; padding: 6px 6px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+.rep-table th[scope="row"] { font-weight: 500; }
+.rep-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rep-table tr.ref th, .rep-table tr.ref td { color: var(--text-secondary); }
+.rep-bar { position: relative; display: block; min-width: 120px; height: 14px; margin-top: 3px; background: linear-gradient(var(--grid), var(--grid)) center / 100% 1px no-repeat; }
+.rep-rng { position: absolute; top: 4px; height: 6px; border-radius: 3px; background: var(--band); }
+.rep-dot { position: absolute; top: 2px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--series-1); border: 2px solid var(--surface-1); }
+.rep-impcell { min-width: 110px; width: 22%; }
+.rep-imp { display: block; height: 8px; min-width: 2px; margin-top: 6px; border-radius: 3px; background: var(--series-1); }
+.rep-list { padding-left: 1.3em; font-size: 0.9rem; margin: 4px 0; }
+.rep-list li { margin: 4px 0; }
+.rep-stand { font-size: 0.92rem; }
+.rep-miss { padding-left: 1.2em; }
+.tag.causal { border-color: var(--good); color: var(--good); }
+.sat-chart svg { width: 100%; height: auto; display: block; }
+.sat-chart text { fill: var(--text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; }
+:root { --sat-2: #c2571a; --sat-3: #2a78d6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sat-2: #f08a4b; --sat-3: #3987e5; } }
+:root[data-theme="dark"] { --sat-2: #f08a4b; --sat-3: #3987e5; }
+.rep-table tr.mine th, .rep-table tr.mine td { font-weight: 600; background: var(--band); }

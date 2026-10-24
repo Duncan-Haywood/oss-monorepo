@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netherlands e-invoicing: B2G rules, NLCIUS, Peppol and what a free checker covers | E-invoice Preflight</title>
+<meta name="description" content="The Netherlands requires e-invoices for government suppliers (NLCIUS, a Dutch EN 16931 profile), while domestic B2B is still voluntary. Dates, ViDA direction and what a free local checker does and does not cover.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/netherlands-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netherlands e-invoicing: B2G rules, NLCIUS, Peppol and what a free checker covers">
+<meta property="og:description" content="The Netherlands requires e-invoices for government suppliers (NLCIUS, a Dutch EN 16931 profile), while domestic B2B is still voluntary. Dates, ViDA direction and what a free local checker does and does not cover.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/netherlands-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the Netherlands' e-invoicing mandate?","acceptedAnswer":{"@type":"Answer","text":"Suppliers to central government have had to invoice electronically since 2017 on new contracts, and suppliers to all other public authorities since 18 April 2019. Domestic business-to-business invoicing is not mandatory today; it is voluntary. The government has been studying a Peppol-based B2B mandate, with a phased start reported around 2030 to 2032. No law has been adopted, so confirm the current position with the Belastingdienst or your adviser."}},{"@type":"Question","name":"What format do Dutch public bodies require?","acceptedAnswer":{"@type":"Answer","text":"NLCIUS, the Dutch implementation of EN 16931, usually sent as UBL (SI-UBL 2.0), through Peppol or the government's DIGIPOORT channel. An EN 16931 UBL invoice is the starting point, but NLCIUS adds national rules."}},{"@type":"Question","name":"Can this checker validate an NLCIUS invoice?","acceptedAnswer":{"@type":"Answer","text":"Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 and Peppol BIS 3.0 rules: totals, tax breakdown, VAT, IBAN and BIC typos, each with a rule ID and a fix. For a Dutch seller on a Peppol invoice it also applies Peppol's nine NL-R rules (KVK/OIN identifiers, street and post code, invoice reference on a credit note, payment means). It does not apply the NLCIUS rules themselves or a Dutch public body's own acceptance checks."}},{"@type":"Question","name":"How do I check an invoice before sending it to a Dutch customer?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker. Nothing is uploaded when you use the page. It is an offline observation, not acceptance by a Dutch platform and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>The Netherlands' e-invoicing: B2G and NLCIUS</h1>
+<p class="lede">Dutch government suppliers have to send e-invoices; business-to-business invoicing is still voluntary, with a Peppol-based mandate under study. Below: the dates, the format, and what a free local checker covers.</p>
+</header>
+<section>
+<h2>How it works (as reported)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changed</th></tr></thead>
+<tbody>
+<tr><td>2017</td><td>Suppliers to central government must invoice electronically on new contracts.</td></tr>
+<tr><td>18 Apr 2019</td><td>The same applies to all other public authorities; Peppol is preferred.</td></tr>
+<tr><td>2030 to 2032 (policy direction)</td><td>A phased, Peppol-based B2B mandate with near real-time reporting was recommended in a 2026 report to Parliament. No law has been adopted.</td></tr>
+<tr><td>1 Jul 2030</td><td>EU ViDA deadline for e-invoicing of intra-EU B2B sales.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Public bodies receive NLCIUS invoices (UBL) over Peppol or DIGIPOORT. This is a summary from secondary sources, not tax advice; the later dates are reported plans and sources differ, so confirm with the Belastingdienst or your adviser.</p>
+</section>
+<section>
+<h2>What it covers, and what it does not</h2>
+<p>NLCIUS is a Dutch profile of EN 16931, so a valid <strong>UBL</strong> invoice is the foundation. The checker does run the nine <code>NL-R-001</code> to <code>NL-R-009</code> rules that Peppol BIS Billing 3.0 applies to a Dutch seller (a credit note must name the invoice it credits, addresses carry street, city and post code, legal IDs are KVK or OIN numbers, a payment means is present), each with an English fix. It does not run the NLCIUS rules themselves.</p>
+</section>
+<section>
+<h2>What this checker does and does not do</h2>
+<p>It reads JSON, UBL, CII and Factur-X files and applies the EN 16931 and Peppol BIS 3.0 rules: arithmetic, tax breakdown, VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). For an invoice with a Dutch seller and a Peppol BT-24, it also applies Peppol's nine NL-R rules (the official Schematron, run in your browser). It does not apply the NLCIUS rules themselves. Open the <a href="./">checker</a>; no account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a> and <a href="croatia-e-invoice-mandate.html">Croatia</a>, or the <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>. Also: <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is the Netherlands' e-invoicing mandate?</h3>
+<p>Suppliers to central government have had to invoice electronically since 2017 on new contracts, and suppliers to all other public authorities since 18 April 2019. Domestic business-to-business invoicing is not mandatory today; it is voluntary. The government has been studying a Peppol-based B2B mandate, with a phased start reported around 2030 to 2032. No law has been adopted, so confirm the current position with the Belastingdienst or your adviser.</p>
+<h3>What format do Dutch public bodies require?</h3>
+<p>NLCIUS, the Dutch implementation of EN 16931, usually sent as UBL (SI-UBL 2.0), through Peppol or the government's DIGIPOORT channel. An EN 16931 UBL invoice is the starting point, but NLCIUS adds national rules.</p>
+<h3>Can this checker validate an NLCIUS invoice?</h3>
+<p>Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 and Peppol BIS 3.0 rules: totals, tax breakdown, VAT, IBAN and BIC typos, each with a rule ID and a fix. For a Dutch seller on a Peppol invoice it also applies Peppol's nine NL-R rules (KVK/OIN identifiers, street and post code, invoice reference on a credit note, payment means). It does not apply the NLCIUS rules themselves or a Dutch public body's own acceptance checks.</p>
+<h3>How do I check an invoice before sending it to a Dutch customer?</h3>
+<p>Drop the file into the checker. Nothing is uploaded when you use the page. It is an offline observation, not acceptance by a Dutch platform and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Dutch rules as reported by secondary sources; they can change, so check the Belastingdienst and Logius guidance before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

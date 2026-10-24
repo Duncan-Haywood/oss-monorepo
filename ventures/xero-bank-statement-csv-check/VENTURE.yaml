@@ -30,7 +30,7 @@ kill_criteria:
   - Fewer than three bookkeepers or owners check a file and read a result within 90 days.
   - Xero's documented statement CSV rules turn out to differ materially from the ones in calc.mjs (read from memory, no import available) and cannot be corrected from public documentation.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/xero-bank-statement-csv-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/xero-bank-statement-csv-check/
   analytics: null
 
 # Screened 2026-10-05 in a new-venture-first session. Siblings cover Xero invoices and contacts

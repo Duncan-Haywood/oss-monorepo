@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_0185CynsCcEB3sa4dUx68Jfs",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "I want to add performance engineering to the cicd workflows. I think that's an obvious place where there can be improvements and enough usage already that performance eningeering runs would be worthwhile. is there anywhere else that might benefit?",
+  "input_sha256": "d0488d84dfc9938c6a7292b9012e0e27a4dff19b797ce51976a0a35c90cdf941",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T01:55:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "CI performance: measure the runner pool and cut checkout overhead",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": 9012,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 4,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    "Edited portfolio-validate.yml, which triggers the apex mirror check; mirror was stale on main and re-staled during CI after a regen. Moved the tests to ci-profile-ci.yml instead.",
+    "New workflow missed publish-surface.yaml; fixed with publish_surface.py --write.",
+    "Pre-existing parallel-test race in platform/privacy (findUsageModules ENOENT on browser-signals.test.mjs's scratch venture); fixed with an ENOENT skip and a dangling-symlink regression test."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/runs/README.md",
+      "why": "model left null: this session's harness forbids writing a model identifier into any pushed artifact"
+    }
+  ],
+  "goal": null,
+  "notes": "ci_profile.py over 1,000 runs (98 min): 1,741 job-minutes, 21% checkout; three workflows cloned full history (5.3 GB, 279s) needlessly or could go blob-less. research-ci: dropped fetch-depth 0. ventures-tests: depth 1 + one-commit base fetch (slug list identical to full clone on a 25-commit-back base; clauses.mjs --changed-since passes). page-integrity, a11y-external-coverage-reference: filter blob:none (61/61 and 29/29 pass, 0 skipped, on a blob-less clone). Local checks: validate_workflows.py (544 valid), test_validate_workflows OK, test_ci_profile 12 OK. Ranked follow-ups in docs/history/ci-perf-2026-10-21.md.",
+  "corrections": [],
+  "redteam": null
+}

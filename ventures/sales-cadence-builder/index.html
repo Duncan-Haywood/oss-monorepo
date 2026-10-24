@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sales Cadence Builder — plan email, call, LinkedIn and letter outreach, free</title>
+  <meta name="description" content="Free sales cadence builder and outreach sequence planner. Paste your prospect list and get a multi-channel cadence (email, phone call with voicemail script, LinkedIn note, mailed letter) on business days, call times inside each prospect's local business hours, suppression and consent checks, and a CSV and calendar file. Runs in your browser.">
+  <meta property="og:title" content="Sales Cadence Builder — a prospecting sequence for every lead, checked before you send">
+  <meta property="og:description" content="Email, call, voicemail, LinkedIn and letter touches for your own prospect list, scheduled in their business hours, with CAN-SPAM, CASL and suppression checks. Optional AI on your own key.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sales Cadence Builder", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Plan a multi-channel sales cadence for your own prospect list: emails, calls with voicemail scripts, LinkedIn connection notes and mailed letters on business days, calls inside each prospect's local business hours, suppression, do-not-contact and consent checks, and a CSV task list and calendar file. Runs in your browser; nothing is uploaded or sent."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a sales cadence?", "acceptedAnswer": {"@type": "Answer", "text": "A sales cadence is the planned order of touches you make with one prospect: which day you email, call, connect on LinkedIn or send a letter, and what each touch says. A typical B2B cadence is six to ten touches over two to four weeks, mixing channels, and ending with a short note that says you will stop."}}, {"@type": "Question", "name": "Does this tool send emails or make calls for me?", "acceptedAnswer": {"@type": "Answer", "text": "No. It plans and drafts; you send. You get a dated task list, a calendar file and a draft for every touch, and you send each email from your own mailbox, place each call yourself and post each letter. That keeps you in control of every message and inside the sending rules of your email provider and LinkedIn."}}, {"@type": "Question", "name": "When is it legal to make a sales call?", "acceptedAnswer": {"@type": "Answer", "text": "In the United States the federal TCPA rule allows telephone solicitation between 8am and 9pm in the called person's local time, and some states, such as Florida, Oklahoma and Maryland, narrow that to 8am to 8pm. This tool schedules calls only between 9am and 5pm in the prospect's own time zone, shown in yours, and uses the overlap for a state that spans two time zones. Consumer numbers must also be checked against the Do Not Call registry."}}, {"@type": "Question", "name": "Why did it drop the emails for some prospects?", "acceptedAnswer": {"@type": "Answer", "text": "Canada's anti-spam law (CASL) needs express or implied consent before commercial email, several EU countries such as Germany require consent even for business email, and in the UK a personal address counts as an individual who must opt in. Without a consent value in your list those prospects keep their calls, letters and LinkedIn note but no email. Add the basis in a consent column and run it again."}}, {"@type": "Question", "name": "What does every cold email need?", "acceptedAnswer": {"@type": "Answer", "text": "Under CAN-SPAM a commercial email needs an honest subject line, a sender you can identify, your valid postal address and a clear way to opt out that you honour. The tool appends your name, address and an opt-out line to every email and blocks a draft whose subject pretends to be a reply."}}, {"@type": "Question", "name": "Is Sales Cadence Builder free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no signup, no limit and no seat price. It runs in your browser, so your prospect list is never uploaded, and it is MIT-licensed open source you can host yourself or run from the command line."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f4f4f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #2b4ea8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f2a55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f2a55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f5e; }
+    .card { background: #fff; border: 1px solid #d6d9e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f2a5512; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6076; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2b4ea8; color: #fff; font-weight: 700; cursor: pointer; margin: 10px 8px 0 0; }
+    button.secondary { background: #e4e7f2; color: #1f2a55; }
+    button.small { padding: 6px 10px; font-size: .85rem; margin-top: 6px; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef0f8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f2a55; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin: 0 6px 4px 0; background: #e4e7f2; color: #1f2a55; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 8px 12px; margin: 6px 0; color: #5c4508; font-size: .9rem; }
+    .err { background: #f8d9d6; border-radius: 10px; padding: 8px 12px; margin: 6px 0; color: #7d1f16; font-size: .9rem; }
+    .task { border: 1px solid #d6d9e4; border-radius: 12px; padding: 12px 14px; margin: 10px 0; background: #fcfcfe; }
+    .task summary { cursor: pointer; }
+    .day { margin-top: 22px; color: #1f2a55; }
+    table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #d6d9e4; vertical-align: top; }
+    .scroll { overflow-x: auto; }
+    pre { white-space: pre-wrap; background: #fff; border: 1px solid #d6d9e4; border-radius: 10px; padding: 12px; font: 14px/1.5 system-ui, sans-serif; margin: 8px 0; }
+    footer { margin-top: 28px; border-top: 1px solid #d6d9e4; padding-top: 16px; }
+    details > summary { font-weight: 700; color: #1f2a55; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SALES CADENCE BUILDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED OR SENT</p>
+    <h1>A prospecting cadence for every lead on your list, checked before you send</h1>
+    <p>Paste the <strong>prospect list you already have</strong> and describe what you sell in a few lines. You get a dated plan of <strong>emails, calls with a voicemail script, LinkedIn connection notes and mailed letters</strong> on business days, every call placed <strong>inside the prospect's own business hours</strong>, a draft for every touch, and a <strong>CSV task list and calendar file</strong> for your CRM or calendar.</p>
+    <p class="note">Before anything is planned, each prospect is checked against your suppression list, your do-not-contact column and duplicates, and email is held back where Canadian, EU or UK rules want consent first. Every email carries your postal address and an opt-out. Want the method? Read the <a href="./sales-cadence-template.html">B2B sales cadence template</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. You and your offer</h2>
+    <div class="row3">
+      <div><label for="sender_name">Your name</label><input id="sender_name" autocomplete="name" placeholder="Sam Ortiz"></div>
+      <div><label for="sender_company">Your company</label><input id="sender_company" autocomplete="organization" placeholder="RouteLoop"></div>
+      <div><label for="sender_phone">Your phone (for voicemails and letters)</label><input id="sender_phone" autocomplete="tel" placeholder="(720) 555-0188"></div>
+      <div><label for="sender_address">Your postal address (required in every email)</label><input id="sender_address" autocomplete="street-address" placeholder="500 Main Street, Suite 210, Boulder, CO 80302"></div>
+      <div><label for="topic">The problem you solve, in a few words</label><input id="topic" autocomplete="off" placeholder="route planning"></div>
+      <div><label for="cta">Your ask</label><input id="cta" autocomplete="off" placeholder="a 15-minute call next week"></div>
+    </div>
+    <label for="offer">What you offer, one sentence</label><input id="offer" autocomplete="off" placeholder="RouteLoop plans delivery routes for regional fleets.">
+    <label for="outcome">What customers get, finishing "We help teams …"</label><input id="outcome" autocomplete="off" placeholder="spend less time building routes by hand">
+    <label for="proof">A real result you can show (optional; leave blank rather than guess)</label><input id="proof" autocomplete="off" placeholder="Northwind Freight now builds its routes in a morning instead of two days">
+    <p class="note">Without a real result, the "proof" email becomes a polite ask for the right person instead. The tool never invents a customer or a number.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. The cadence</h2>
+    <div class="row3">
+      <div><label for="cadence">Cadence</label><select id="cadence"></select></div>
+      <div><label for="start">Start date</label><input id="start" type="date"></div>
+      <div><label for="tz">Your time zone</label><input id="tz" autocomplete="off" placeholder="America/Denver"></div>
+      <div><label for="holidays">Days off (YYYY-MM-DD, comma separated)</label><input id="holidays" autocomplete="off" placeholder="2026-11-26, 2026-11-27"></div>
+    </div>
+    <h2 style="margin-top:18px">3. Your prospects</h2>
+    <label for="prospects">CSV with a header row. Recognised columns: first_name, last_name (or name), email, phone, company, title, address, state, country, timezone, trigger (why now), consent, do_not_contact.</label>
+    <textarea id="prospects" rows="9" placeholder="first_name,last_name,company,email,phone,state,country,trigger&#10;Dana,Reyes,Brightline Logistics,dana@brightline.example,(303) 555-0142,CO,US,you opened a second depot"></textarea>
+    <label for="prospects-file">…or load a CSV file (it stays in this browser)</label><input id="prospects-file" type="file" accept=".csv,text/csv">
+    <label for="suppression">Suppression list: emails, @domains or phone numbers never to contact (one per line)</label>
+    <textarea id="suppression" rows="3" placeholder="former-customer@acme.example&#10;@competitor.example&#10;(555) 010-0000"></textarea>
+    <button type="button" id="go">Build the cadence</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="status" role="status" class="note">Fill in your details and paste prospects, then click Build the cadence.</p>
+  </section>
+
+  <section class="card" id="out" hidden>
+    <h2>4. The plan</h2>
+    <div class="big" id="summary"></div>
+    <div id="blocked"></div>
+    <h3>Who is in, and what was held back</h3>
+    <div class="scroll"><table><thead><tr><th>Row</th><th>Prospect</th><th>Status</th><th>Notes</th></tr></thead><tbody id="people"></tbody></table></div>
+    <button type="button" id="dl-csv">Download task list (CSV)</button>
+    <button type="button" class="secondary" id="dl-ics">Download calendar (.ics)</button>
+    <h3>Touches by day</h3>
+    <p class="note">Call windows are in your time zone and keep to 9:00–17:00 in the prospect's. Each draft is yours to read and edit before you send it from your own mailbox, phone or post.</p>
+    <div id="tasks"></div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Optional: personalise emails with AI, on your own key</summary>
+      <p class="note">Off by default. With a key, the "Personalise with AI" button on an email sends only that prospect's name, title, company and trigger, your offer fields and the draft, straight from this browser to the provider you pick, never to us. The model draft must pass the same checks, and may not state any number that is not in your own inputs; otherwise the template draft is kept and you are told. Your address and opt-out line are always added by the tool, not the model. The key is kept only in this browser if you tick the box.</p>
+      <p class="note">To keep everything on your own computer, run a model locally with Ollama, LM Studio or llama.cpp and pick it below: no key, no cost per use. The local server must allow this page: start Ollama with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code>.</p>
+      <div class="row3">
+        <div><label for="ai-provider">Provider</label><select id="ai-provider"><option value="">None (template drafts only)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="ollama">Ollama (on your computer, no key)</option><option value="lmstudio">LM Studio (on your computer, no key)</option><option value="llamacpp">llama.cpp server (on your computer, no key)</option><option value="openai-compatible">Other OpenAI-compatible endpoint</option></select></div>
+        <div><label for="ai-model">Model (required except for Anthropic)</label><input id="ai-model" autocomplete="off" placeholder="model name"></div>
+        <div><label for="ai-base">Base URL (other providers only)</label><input id="ai-base" autocomplete="off" placeholder="http://localhost:11434/v1"></div>
+        <div><label for="ai-key">API key</label><input id="ai-key" type="password" autocomplete="off"></div>
+      </div>
+      <div class="check"><input type="checkbox" id="ai-remember"><label for="ai-remember" style="display:inline;margin:0;font-weight:400">Remember the key in this browser</label></div>
+    </details>
+  </section>
+  </main>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>What is a sales cadence?</h3>
+    <p>A sales cadence is the planned order of touches you make with one prospect: which day you email, call, connect on LinkedIn or send a letter, and what each touch says. A typical B2B cadence is six to ten touches over two to four weeks, mixing channels, and ending with a short note that says you will stop.</p>
+    <h3>Does this tool send emails or make calls for me?</h3>
+    <p>No. It plans and drafts; you send. You get a dated task list, a calendar file and a draft for every touch, and you send each email from your own mailbox, place each call yourself and post each letter. That keeps you in control of every message and inside the sending rules of your email provider and LinkedIn.</p>
+    <h3>When is it legal to make a sales call?</h3>
+    <p>In the United States the federal TCPA rule allows telephone solicitation between 8am and 9pm in the called person's local time, and some states, such as Florida, Oklahoma and Maryland, narrow that to 8am to 8pm. This tool schedules calls only between 9am and 5pm in the prospect's own time zone, shown in yours, and uses the overlap for a state that spans two time zones. Consumer numbers must also be checked against the Do Not Call registry.</p>
+    <h3>Why did it drop the emails for some prospects?</h3>
+    <p>Canada's anti-spam law (CASL) needs express or implied consent before commercial email, several EU countries such as Germany require consent even for business email, and in the UK a personal address counts as an individual who must opt in. Without a consent value in your list those prospects keep their calls, letters and LinkedIn note but no email. Add the basis in a consent column and run it again.</p>
+    <h3>What does every cold email need?</h3>
+    <p>Under CAN-SPAM a commercial email needs an honest subject line, a sender you can identify, your valid postal address and a clear way to opt out that you honour. The tool appends your name, address and an opt-out line to every email and blocks a draft whose subject pretends to be a reply.</p>
+    <h3>Is Sales Cadence Builder free?</h3>
+    <p>Yes. There is no signup, no limit and no seat price. It runs in your browser, so your prospect list is never uploaded, and it is MIT-licensed open source you can host yourself or run from the command line.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or sales-compliance advice: its checks are simple rules that can be wrong for your situation, jurisdiction or list, and time-zone guesses from a state or country can be off. <strong>You are responsible for every message and call you make</strong>, including CAN-SPAM, TCPA and Do Not Call rules, CASL, GDPR and PECR, LinkedIn's terms, honouring every opt-out, and having the right to contact everyone on your list. Use only lists you are allowed to use.</p>
+    <p><strong>Independent.</strong> Not affiliated with Outreach, Salesloft, Apollo, HubSpot, LinkedIn or any sales vendor, and none is endorsed here. The example people and companies are invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Do not use this as a system of record: download the CSV and calendar.</p>
+    <p>Everything runs in your browser. Your prospect list and drafts are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_built</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>ics_downloaded</code>, <code>draft_copied</code>, <code>ai_personalised</code>) are counted in this browser's local storage only and can be turned off.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../icp-lens/">ICP lens</a> for choosing who goes on the list, <a href="../email-auth-check/">email authentication check</a> for SPF, DKIM and DMARC before you send, the <a href="../sales-agent/">sales agent</a> for sorting the replies and honouring opt-outs, the <a href="../sales-call-notes-desk/">sales call notes desk</a> for after the call is booked, and the <a href="../lead-response-time-analyzer/">lead response time analyzer</a> for inbound leads.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { buildPlan, toCsv, toIcs, checkMessage, CADENCES, CHANNEL_LABELS, SAMPLE_PROSPECTS, SAMPLE_SENDER } from "./calc.mjs";
+    import { personalise } from "./ai.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const SAVE = "sales-cadence-builder:setup";
+    const AIKEY = "sales-cadence-builder:ai";
+    const SENDER = ["sender_name", "sender_company", "sender_phone", "sender_address", "topic", "cta", "offer", "outcome", "proof"];
+    const KEEP = [...SENDER, "cadence", "tz", "holidays"];
+    const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+    const PLURAL = { email: ["email", "emails"], call: ["call", "calls"], linkedin: ["LinkedIn note", "LinkedIn notes"], letter: ["letter", "letters"] };
+    let plan = null;
+
+    for (const [k, c] of Object.entries(CADENCES)) { const o = el("option", "", c.label); o.value = k; $("#cadence").append(o); }
+    try { $("#tz").value = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch { /* optional */ }
+    const nextMonday = () => { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); return d.toISOString().slice(0, 10); };
+    $("#start").value = nextMonday();
+
+    const sender = () => Object.fromEntries(SENDER.map((k) => [k, $("#" + k).value.trim()]));
+    function aiConfig() {
+      const provider = $("#ai-provider").value;
+      return provider ? { provider, model: $("#ai-model").value.trim(), baseUrl: $("#ai-base").value.trim(), apiKey: $("#ai-key").value.trim(), browser: true } : {};
+    }
+    function issues(box, check) {
+      box.replaceChildren();
+      for (const e of check.errors) box.append(el("div", "err", e));
+      for (const w of check.warnings) box.append(el("div", "warn", w));
+    }
+    function download(name, text, type) {
+      const a = el("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); URL.revokeObjectURL(a.href);
+    }
+
+    function renderTask(t, i) {
+      const box = el("details", "task");
+      const sum = el("summary");
+      sum.append(el("span", "pill", CHANNEL_LABELS[t.channel]), document.createTextNode(`${t.prospect}${t.company ? " · " + t.company : ""}`));
+      if (t.window) sum.append(document.createTextNode(` · call ${t.window.label} your time`));
+      else if (t.windowNote) sum.append(document.createTextNode(" · " + t.windowNote));
+      if (t.check.errors.length) sum.append(document.createTextNode(" "), el("span", "pill high", "needs a fix"));
+      box.append(sum);
+      if (t.channel === "call" && t.phone) box.append(el("div", "note", "Phone: " + t.phone));
+      if (t.subject) { box.append(el("label", "", "Subject")); const s = el("input"); s.value = t.subject; s.setAttribute("aria-label", "Subject"); s.dataset.i = i; s.dataset.f = "subject"; box.append(s); }
+      const ta = el("textarea"); ta.rows = Math.min(16, t.body.split("\n").length + 2); ta.value = t.body; ta.setAttribute("aria-label", t.channel === "call" ? "Call script" : "Draft"); ta.dataset.i = i; ta.dataset.f = "body"; box.append(ta);
+      if (t.voicemail) { box.append(el("label", "", "Voicemail (about 30 seconds)")); box.append(el("pre", "", t.voicemail)); }
+      const iss = el("div"); iss.dataset.issues = i; issues(iss, t.check); box.append(iss);
+      for (const w of t.warnings) box.append(el("div", "warn", w));
+      const copy = el("button", "small secondary", "Copy"); copy.dataset.copy = i; box.append(copy);
+      if (t.channel === "email") { const ai = el("button", "small secondary", "Personalise with AI"); ai.dataset.ai = i; box.append(ai); }
+      return box;
+    }
+
+    function render() {
+      $("#out").hidden = false;
+      const s = plan.summary;
+      const big = $("#summary"); big.replaceChildren();
+      const stats = [[s.included + "/" + s.prospects, "prospects in"], [s.tasks, "touches"], ...Object.entries(s.byChannel).map(([k, v]) => [v, PLURAL[k][v === 1 ? 0 : 1]]), [s.first ? s.first.slice(5) + " → " + s.last.slice(5) : "—", "dates"]];
+      for (const [n, label] of stats) { const d = el("div"); d.append(el("strong", "", String(n)), document.createTextNode(label)); big.append(d); }
+      $("#blocked").replaceChildren(...(s.blocked ? [el("div", "err", `${s.blocked} touches need a fix before you use them: usually a missing field shown as [like_this]. Fill it in above and build again.`)] : []));
+      const people = $("#people"); people.replaceChildren();
+      for (const p of plan.people) {
+        const tr = el("tr");
+        const status = el("td"); status.append(el("span", "pill " + (p.excluded ? "high" : "good"), p.excluded ? "left out" : p.touches + " touches"));
+        const notes = el("td");
+        if (p.excluded) notes.append(el("div", "", p.excluded));
+        for (const [ch, why] of Object.entries(p.dropped)) notes.append(el("div", "", `No ${CHANNEL_LABELS[ch].toLowerCase()}: ${why}`));
+        for (const w of p.warnings) notes.append(el("div", "", w));
+        tr.append(el("td", "", String(p.row)), el("td", "", [p.first_name, p.last_name].filter(Boolean).join(" ") + (p.company ? " · " + p.company : "")), status, notes);
+        people.append(tr);
+      }
+      const box = $("#tasks"); box.replaceChildren();
+      let day = "";
+      plan.tasks.forEach((t, i) => {
+        if (t.date !== day) { day = t.date; box.append(el("h3", "day", new Date(day + "T12:00:00Z").toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }))); }
+        box.append(renderTask(t, i));
+      });
+    }
+
+    function run() {
+      const csv = $("#prospects").value;
+      if (!csv.trim()) { $("#status").textContent = "Paste or load your prospect list first."; return; }
+      try {
+        plan = buildPlan(csv, sender(), { cadence: $("#cadence").value, start: $("#start").value, sellerTz: $("#tz").value.trim(), holidays: $("#holidays").value.split(/[\s,]+/).filter(Boolean), suppression: $("#suppression").value });
+      } catch (e) { $("#status").textContent = "Could not build the plan: " + e.message; return; }
+      if (!plan.people.length) { $("#status").textContent = "No prospect rows found under the header."; return; }
+      const missingCols = ["email", "phone", "state", "country"].filter((c) => !(c in plan.columns));
+      $("#status").textContent = `Planned ${plan.summary.tasks} touches for ${plan.summary.included} prospects.` + (missingCols.length ? ` Columns not found: ${missingCols.join(", ")}.` : "") + (plan.unknown.length ? ` Ignored columns: ${plan.unknown.join(", ")}.` : "");
+      render();
+      record("plan_built");
+      try { localStorage.setItem(SAVE, JSON.stringify(Object.fromEntries(KEEP.map((k) => [k, $("#" + k).value])))); } catch { /* storage is optional */ }
+    }
+
+    $("#go").addEventListener("click", run);
+    $("#load-example").addEventListener("click", () => {
+      $("#prospects").value = SAMPLE_PROSPECTS;
+      for (const k of SENDER) if (!$("#" + k).value) $("#" + k).value = SAMPLE_SENDER[k] || "";
+      if (!$("#tz").value) $("#tz").value = "America/Denver";
+      run(); record("example_loaded");
+    });
+    $("#clear-all").addEventListener("click", () => { $("#prospects").value = ""; $("#suppression").value = ""; $("#out").hidden = true; plan = null; try { localStorage.removeItem(SAVE); } catch { /* optional */ } });
+    $("#prospects-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) { $("#prospects").value = await f.text(); $("#status").textContent = `Loaded ${f.name}. Click Build the cadence.`; } });
+    $("#dl-csv").addEventListener("click", () => { download("cadence-tasks.csv", toCsv(plan.tasks), "text/csv"); record("csv_downloaded"); });
+    $("#dl-ics").addEventListener("click", () => { download("cadence.ics", toIcs(plan.tasks), "text/calendar"); record("ics_downloaded"); });
+
+    $("#tasks").addEventListener("input", (e) => {
+      const i = e.target.dataset.i, f = e.target.dataset.f;
+      if (i == null || !f) return;
+      const t = plan.tasks[+i]; t[f] = e.target.value; t.check = checkMessage(t.channel, t);
+      issues(document.querySelector(`[data-issues="${i}"]`), t.check);
+    });
+    $("#tasks").addEventListener("click", async (e) => {
+      const b = e.target;
+      if (b.dataset.copy != null) {
+        const t = plan.tasks[+b.dataset.copy];
+        const text = (t.subject ? "Subject: " + t.subject + "\n\n" : "") + t.body + (t.voicemail ? "\n\nVoicemail: " + t.voicemail : "");
+        try { await navigator.clipboard.writeText(text); b.textContent = "Copied"; record("draft_copied"); } catch { b.textContent = "Select and copy by hand"; }
+      }
+      if (b.dataset.ai != null) {
+        const i = +b.dataset.ai, t = plan.tasks[i], cfg = aiConfig();
+        if (!cfg.provider) { b.textContent = "Choose a provider under Optional AI first"; return; }
+        const p = plan.people.find((x) => x.row === t.row);
+        b.disabled = true; b.textContent = "Working…";
+        try {
+          const r = await personalise(cfg, t, p, sender());
+          t.body = r.body; t.check = checkMessage(t.channel, t);
+          const ta = b.parentElement.querySelector("textarea"); ta.value = r.body;
+          issues(document.querySelector(`[data-issues="${i}"]`), t.check);
+          b.textContent = r.source === "model" ? "Personalised (read it before sending)" : "Kept the template" + (r.error ? ": " + r.error : "");
+          if (r.source === "model") record("ai_personalised");
+        } catch (err) { b.textContent = "Failed: " + err.message; }
+        b.disabled = false;
+      }
+    });
+
+    try {
+      const s = JSON.parse(localStorage.getItem(SAVE) || "null");
+      if (s) for (const k of KEEP) if (typeof s[k] === "string" && s[k]) $("#" + k).value = s[k];
+      const c = JSON.parse(localStorage.getItem(AIKEY) || "null");
+      if (c) { $("#ai-provider").value = c.provider || ""; $("#ai-model").value = c.model || ""; $("#ai-base").value = c.baseUrl || ""; $("#ai-key").value = c.apiKey || ""; $("#ai-remember").checked = !!c.apiKey; }
+    } catch { /* optional */ }
+    for (const id of ["#ai-provider", "#ai-model", "#ai-base", "#ai-key", "#ai-remember"]) {
+      $(id).addEventListener("change", () => { try { if ($("#ai-remember").checked) localStorage.setItem(AIKEY, JSON.stringify(aiConfig())); else localStorage.removeItem(AIKEY); } catch { /* optional */ } });
+    }
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>

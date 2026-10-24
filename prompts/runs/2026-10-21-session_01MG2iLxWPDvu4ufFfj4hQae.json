@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01MG2iLxWPDvu4ufFfj4hQae",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "are there any more projects that would help with seo or discovery for all of this? maybe posting to some platforms that allow bots to post? / okay pulish a blog and agent doc on the matter",
+  "input_sha256": "60b6ddce0f23f481b90a40bddc7ea1d9e4c89591db9bfb347b92134083970905",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T02:32:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9030",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/pages_state.py",
+      "issue": "Still reports the served subpath as /monorepo-projects/ (which 404s) and tells the reader to open it; the live site is /oss-monorepo/. PR #8592 covers it but is a stalled draft."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Hosting' names https://duncan-haywood.github.io/monorepo-projects/ as the catalogue URL; it returns 404 since the repo rename."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Route said ventures/1; the owner asked a direct question and then for a write-up, so the run did a read-only distribution audit and two docs instead of flagship venture work."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-10-21-discovery-switched-off.md",
+    "docs/posts/2026-10-21-thirteen-publishers-zero-posts.md"
+  ],
+  "goal": null,
+  "notes": "Owner-directed: SEO/discovery question, then 'publish a blog and agent doc'. Read-only audit of 13 distribute-* workflows via GitHub MCP (subagent): 25 runs, all dry runs; 7 never run; links name 404 /monorepo-projects/. curl checks of live URLs. Did not touch PR #8592 (open draft doing the rename). Local checks: check_md_links.py ok on both files; node --test platform/pages/writing*.test.mjs 13/13; run_workflow_locally.py --for-changes: portfolio-pages build exceeded 300s local budget, re-run with longer budget (see PR).",
+  "corrections": [],
+  "redteam": null
+}

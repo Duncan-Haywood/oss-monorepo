@@ -61,6 +61,7 @@
     <p>Paste or drop an <strong>X12 EDI file</strong> (850 purchase order, 810 invoice, 856 ship notice or a 997 you were sent back) and get every <strong>structural error with its segment number</strong>: wrong SE, GE and IEA counts, control numbers that do not match, UPC and SSCC check digits, an invoice total that is not its lines and a ship-notice hierarchy that does not hang together. Then <strong>read the documents as tables</strong>, <strong>download the lines as CSV</strong>, or <strong>rebuild the segment counts</strong> after a hand edit.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of every retailer, EDI network and standards body. The layouts are read from memory of the public X12 004010 format; no retailer's implementation guide or validator was available when this was built, so a partner's own rules are not checked.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your EDI file</h2>
@@ -122,7 +123,8 @@
     <p>The page runs in your browser, the file is read locally and nothing is uploaded; a test in the code asserts there are no network calls. Whether you may open order data in a browser tool is a question for your own policies and your trading-partner agreement.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, trade, compliance, or financial advice, and it does not replace a qualified professional, your EDI provider, or your trading partner's own validation. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use, including chargebacks or rejected orders.</p>
     <p><strong>Not affiliated with any retailer or EDI provider.</strong> X12, GS1, UPC and SSCC are names of standards owned by others. This tool is independent and is not sponsored, endorsed or connected to ASC X12, GS1, any retailer, or any EDI network. The segment layouts and code lists are read from memory of the public formats and may not match every partner's variant.</p>
     <p><strong>Business data.</strong> EDI files contain your customers' order numbers, prices and ship-to details. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open order data in a browser tool is a question for your own policies and trading-partner agreement.</p>

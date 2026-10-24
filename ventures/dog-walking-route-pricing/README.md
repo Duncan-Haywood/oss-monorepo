@@ -2,17 +2,18 @@
 
 Independent dog walkers and pet sitters can use this free browser-local calculator to price a walk, drop-in visit, or overnight stay from on-site time, drive time, mileage, extra-pet surcharges, and overhead — then roll a client list up into monthly route revenue and check it against an income goal. **After using this, you can set a defensible per-visit price and know how many more visits it takes to hit your income goal, which used to take a spreadsheet and a guess about drive time and on-call nights.**
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/dog-walking-route-pricing/
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
 ## Why this is different from a flat per-walk rate
 
-A generic "$20 a walk" number ignores four things that change the real economics for an independent operator (not a marketplace app that sets the rate for you):
+A generic "$20 a walk" number ignores five things that change the real economics for an independent operator (not a marketplace app that sets the rate for you):
 
 - **Drive time between stops** is paid time even though no dog is being walked during it.
 - **Extra pets at the same household** take more attention and leash-handling than a flat rate assumes.
 - **An overnight stay commits the whole night**, not just the minutes spent walking a dog at 7am and 9pm — the calculator prices on-call hours separately from active minutes.
+- **Late cancellations you don't bill** leave an unpaid gap in the route, so the price carries a cushion for them.
 - **A payment app's processing fee** comes out of your margin unless the price is grossed up to cover it.
 
 The route section then answers the question a single visit price can't: given your actual client list, does this route hit your monthly income goal, and if not, how many more visits at your average price close the gap?

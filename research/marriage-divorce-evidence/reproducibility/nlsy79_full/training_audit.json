@@ -1,0 +1,45 @@
+{
+ "marriages": 6645,
+ "divorces": 2727,
+ "widowed_censored": 264,
+ "intervals": 116985,
+ "person_years": 110538.29166666667,
+ "wedding_years": [
+  1981,
+  2022
+ ],
+ "entry_years_median": 0.6666666666666666,
+ "followup_years_max": 42.458333333333336,
+ "excluded_spouse_roster_unconfirmed_or_ambiguous": 40,
+ "missing_share": {
+  "age_at_marriage": 0.0,
+  "wedding_year": 0.0,
+  "afqt": 0.0454,
+  "rotter": 0.0093,
+  "rosenberg": 0.0429,
+  "delinquency": 0.0608,
+  "income_percentile": 0.171,
+  "spouse_age_at_marriage": 0.0889
+ },
+ "unknown_share": {
+  "own_education": 0.0042,
+  "enrolled": 0.0215,
+  "mother_education": 0.0554,
+  "father_education": 0.1226,
+  "family_at_14": 0.002,
+  "religion_raised": 0.0044,
+  "attendance": 0.0002,
+  "poverty": 0.171,
+  "region": 0.0114,
+  "urban": 0.0871,
+  "cohabiting_before": 0.0445,
+  "lived_with_parents": 0.0445,
+  "spouse_education": 0.0986,
+  "spouse_worked": 0.0906
+ },
+ "repeats": 3,
+ "folds": 5,
+ "bootstrap": 500,
+ "shipped_reference_model": "gradient_boosting",
+ "python_sklearn": "1.7.2"
+}

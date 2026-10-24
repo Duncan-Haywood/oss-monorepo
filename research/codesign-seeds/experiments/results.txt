@@ -1,0 +1,31 @@
+Final designs after 40 evaluations, 600-scene success (scene seed 4004); 8 original runs (seeds 0-7), 16 new (seeds 8-23).
+mean [95% bootstrap interval over runs]; SD is the run-to-run standard deviation of the final design's true success.
+
+method                          runs                all runs      SD           original 8 only             new 16 only
+random search                     24    0.833 [0.810, 0.857]   0.060      0.846 [0.813, 0.886]    0.827 [0.798, 0.856]
+CMA-ES                            24    0.858 [0.835, 0.880]   0.056      0.846 [0.815, 0.878]    0.864 [0.835, 0.891]
+Bayesian opt (GP-EI)              24    0.842 [0.822, 0.863]   0.052      0.845 [0.820, 0.877]    0.841 [0.814, 0.867]
+reader L0: score only             24    0.837 [0.813, 0.860]   0.059      0.845 [0.810, 0.880]    0.833 [0.802, 0.862]
+reader L1: failure summary        24    0.832 [0.802, 0.854]   0.067      0.836 [0.822, 0.851]    0.830 [0.787, 0.861]
+reader L2: full rollout logs      24    0.811 [0.782, 0.833]   0.065      0.817 [0.795, 0.836]    0.808 [0.766, 0.840]
+
+Difference in true success, method minus random search (all 24 runs per method; bootstrap interval and two-sided permutation p):
+CMA-ES                          +0.025  [-0.007, +0.056]  p=0.146
+Bayesian opt (GP-EI)            +0.009  [-0.022, +0.040]  p=0.584
+reader L0: score only           +0.004  [-0.029, +0.036]  p=0.831
+reader L1: failure summary      -0.001  [-0.038, +0.032]  p=0.971
+reader L2: full rollout logs    -0.022  [-0.058, +0.011]  p=0.239
+
+Feedback levels against each other:
+reader L1: failure summary     - reader L0: score only         -0.005  [-0.042, +0.028]  p=0.819
+reader L2: full rollout logs   - reader L0: score only         -0.026  [-0.063, +0.007]  p=0.163
+reader L2: full rollout logs   - reader L1: failure summary    -0.021  [-0.058, +0.016]  p=0.304
+
+Same comparison on the original 8 runs alone, to see whether earlier conclusions held (method minus random search):
+CMA-ES                          +0.001  [-0.049, +0.046]
+Bayesian opt (GP-EI)            -0.001  [-0.049, +0.045]
+reader L0: score only           -0.001  [-0.053, +0.049]
+reader L1: failure summary      -0.009  [-0.051, +0.027]
+reader L2: full rollout logs    -0.029  [-0.073, +0.010]
+
+Pooled run-to-run SD 0.060. Runs per method needed to detect a true difference of 0.02 / 0.03 with 80% power (two-sided 5%, normal approximation): 142 / 64.

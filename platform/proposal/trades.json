@@ -4139,5 +4139,27 @@
       "notes": "Avoid rolling windows down for 3-5 days while the film cures."
     },
     "disclaimerTail": "This price does not check your state's window tint darkness (VLT%) law, medical-exemption rules, reflectivity limits, or any other film-legality requirement \u2014 confirm legality before installing."
+  },
+  "hydroseeding-job-bid-calculator": {
+    "calcFn": "calculateBid",
+    "priceField": "price",
+    "jobTitle": "Hydroseeding — {areaSqft} sq ft",
+    "scope": [
+      "Mix and spray a seed, mulch and tackifier slurry over approximately {areaSqft} sq ft",
+      "Supply the water, equipment and crew for the application",
+      {
+        "line": "Apply the slurry in {loads} tank loads",
+        "when": "loads"
+      },
+      "Leave the site clear of equipment and spilled slurry when the work is done"
+    ],
+    "placeholders": {
+      "companyName": "Greenline Hydroseeding LLC",
+      "scope": "Spray seed, mulch and tackifier slurry over 20000 sq ft\nSupply water, equipment and crew",
+      "exclusions": "Grading, topsoil and soil amendments\nWatering after application\nRe-seeding of areas damaged by weather, traffic or pets",
+      "paymentTerms": "Balance due on completion of the application.",
+      "notes": "Germination depends on weather and on the customer watering the area as instructed. The price is for one application."
+    },
+    "disclaimerTail": "It is not a germination guarantee, an erosion-control plan or a permit."
   }
 }

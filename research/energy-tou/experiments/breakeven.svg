@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: the installed battery price in dollars per kWh at which a home battery just pays, for an assumed time-of-use tariff with grid charging and for a flat tariff, falling as the battery grows">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Home battery: break-even installed price vs size (6 kW PV)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="264.9" y2="264.9" stroke="#ddd"/><text x="58" y="268.9" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="205.9" y2="205.9" stroke="#ddd"/><text x="58" y="209.9" text-anchor="end" font-family="sans-serif" font-size="11">400</text>
+<line x1="64" x2="624" y1="146.8" y2="146.8" stroke="#ddd"/><text x="58" y="150.8" text-anchor="end" font-family="sans-serif" font-size="11">600</text>
+<line x1="64" x2="624" y1="87.7" y2="87.7" stroke="#ddd"/><text x="58" y="91.7" text-anchor="end" font-family="sans-serif" font-size="11">800</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="134.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2.5</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">15</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">battery nameplate kWh</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">break-even $/kWh</text>
+<polyline points="134.0,71.2 204.0,73.8 344.0,134.7 484.0,197.9 624.0,229.5 64.0,106.6 120.0,119.0 176.0,128.5 232.0,134.7 288.0,139.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="134.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="73.8" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="134.7" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="197.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="229.5" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="106.6" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="119.0" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="128.5" r="3" fill="#c0392b"/>
+<circle cx="232.0" cy="134.7" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="139.1" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">time-of-use, peak dispatch + grid charge</text>
+<polyline points="134.0,159.5 204.0,171.6 344.0,192.9 484.0,222.4 624.0,244.5 64.0,324.0 120.0,297.1 176.0,231.8 232.0,192.9 288.0,170.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="134.0" cy="159.5" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="171.6" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="192.9" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="222.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="244.5" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="297.1" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="231.8" r="3" fill="#1f6fb2"/>
+<circle cx="232.0" cy="192.9" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="170.1" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">flat tariff, greedy</text>
+</svg>

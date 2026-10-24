@@ -1,0 +1,118 @@
+# 200 seeds; true-view hypervolume ratio (ref 1.1, objectives scaled over the 40 designs) of what each proposer picked
+# Yosys 0.33 (git sha1 2584903a060); PDK commit e5cc6e799f5ddf36e6bdf2d8c5db73373b88f52c; ABC: strash; dc2; map; topo; stime
+# true view = SKY130 mapped area, cycles x mapped delay, error (eda-sky130rung/experiments/mapped.json); 'cells' = generic cells, cycles, error;
+# 'cells_dep' = generic cells, cycles x generic depth, error; 'noisyS' = the true view plus iid N(0, S) per objective (eda-noisy's model)
+
+## measured disagreement between each cheap view and the true view (scaled units; objective range = 1)
+view        rms obj1  rms obj2  rms obj3  spearman1  spearman2  spearman3
+cells          0.036     0.123     0.000      0.995      0.742      1.000
+cells_dep      0.036     0.053     0.000      0.995      0.930      1.000
+
+## Pareto fronts (non-dominated designs)
+true       ['p1w4', 'p1w5', 'p1w6', 'p2w4', 'p2w5', 'p2w6', 'p4w4', 'p4w5', 'p4w6', 'p4w7', 'p8w8']
+cells      ['p1w4', 'p1w5', 'p1w6', 'p2w4', 'p2w5', 'p2w6', 'p4w4', 'p4w5', 'p4w6', 'p8w4', 'p8w5', 'p8w6']
+cells_dep  ['p1w4', 'p1w5', 'p1w6', 'p2w4', 'p2w5', 'p2w6', 'p4w4', 'p4w5', 'p4w6', 'p8w4', 'p8w5', 'p8w6']
+
+## budget 12 of 40: mean true-view hypervolume ratio
+search             random  annealing    genetic      nsga2        tpe
+true                0.870      0.840      0.867      0.871      0.896
+cells               0.870      0.844      0.861      0.874      0.897
+cells_dep           0.870      0.848      0.864      0.875      0.894
+noisy0.079          0.870      0.829      0.866      0.874      0.892
+noisy0.2            0.870      0.839      0.864      0.872      0.888
+
+## budget 12: paired gain over random searching the same view, mean [95% bootstrap CI]
+true          annealing  -0.031 [-0.047, -0.015]
+true          genetic    -0.004 [-0.012, +0.004]
+true          nsga2      +0.001 [-0.007, +0.010]
+true          tpe        +0.026 [+0.018, +0.033]
+cells         annealing  -0.026 [-0.043, -0.010]
+cells         genetic    -0.009 [-0.017, -0.001]
+cells         nsga2      +0.004 [-0.004, +0.012]
+cells         tpe        +0.027 [+0.019, +0.036]
+cells_dep     annealing  -0.023 [-0.040, -0.006]
+cells_dep     genetic    -0.006 [-0.013, +0.001]
+cells_dep     nsga2      +0.005 [-0.003, +0.013]
+cells_dep     tpe        +0.024 [+0.016, +0.031]
+noisy0.079    annealing  -0.041 [-0.058, -0.023]
+noisy0.079    genetic    -0.005 [-0.012, +0.003]
+noisy0.079    nsga2      +0.004 [-0.005, +0.012]
+noisy0.079    tpe        +0.022 [+0.013, +0.030]
+noisy0.2      annealing  -0.031 [-0.050, -0.014]
+noisy0.2      genetic    -0.007 [-0.015, +0.002]
+noisy0.2      nsga2      +0.002 [-0.005, +0.010]
+noisy0.2      tpe        +0.018 [+0.010, +0.025]
+
+## budget 12: cost of searching the cheap view, paired (same seed) vs searching the true view, mean [95% CI]
+cells         random     +0.000 [+0.000, +0.000]
+cells         annealing  +0.005 [-0.008, +0.017]
+cells         genetic    -0.005 [-0.011, -0.000]
+cells         nsga2      +0.002 [-0.002, +0.007]
+cells         tpe        +0.001 [-0.003, +0.007]
+cells_dep     random     +0.000 [+0.000, +0.000]
+cells_dep     annealing  +0.008 [-0.004, +0.022]
+cells_dep     genetic    -0.003 [-0.007, +0.002]
+cells_dep     nsga2      +0.004 [-0.000, +0.008]
+cells_dep     tpe        -0.002 [-0.006, +0.002]
+noisy0.079    random     +0.000 [+0.000, +0.000]
+noisy0.079    annealing  -0.010 [-0.024, +0.004]
+noisy0.079    genetic    -0.001 [-0.007, +0.004]
+noisy0.079    nsga2      +0.002 [-0.003, +0.008]
+noisy0.079    tpe        -0.004 [-0.009, +0.002]
+noisy0.2      random     +0.000 [+0.000, +0.000]
+noisy0.2      annealing  -0.001 [-0.015, +0.015]
+noisy0.2      genetic    -0.003 [-0.009, +0.003]
+noisy0.2      nsga2      +0.001 [-0.005, +0.007]
+noisy0.2      tpe        -0.008 [-0.015, -0.000]
+
+## budget 20 of 40: mean true-view hypervolume ratio
+search             random  annealing    genetic      nsga2        tpe
+true                0.931      0.939      0.939      0.944      0.968
+cells               0.931      0.934      0.937      0.942      0.968
+cells_dep           0.931      0.933      0.941      0.942      0.966
+noisy0.079          0.931      0.944      0.941      0.939      0.964
+noisy0.2            0.931      0.931      0.934      0.932      0.956
+
+## budget 20: paired gain over random searching the same view, mean [95% bootstrap CI]
+true          annealing  +0.008 [-0.001, +0.017]
+true          genetic    +0.008 [+0.002, +0.014]
+true          nsga2      +0.013 [+0.007, +0.019]
+true          tpe        +0.037 [+0.032, +0.042]
+cells         annealing  +0.003 [-0.005, +0.012]
+cells         genetic    +0.006 [-0.000, +0.012]
+cells         nsga2      +0.011 [+0.005, +0.018]
+cells         tpe        +0.037 [+0.032, +0.042]
+cells_dep     annealing  +0.002 [-0.008, +0.012]
+cells_dep     genetic    +0.010 [+0.004, +0.016]
+cells_dep     nsga2      +0.011 [+0.005, +0.017]
+cells_dep     tpe        +0.035 [+0.029, +0.040]
+noisy0.079    annealing  +0.013 [+0.004, +0.022]
+noisy0.079    genetic    +0.010 [+0.004, +0.016]
+noisy0.079    nsga2      +0.008 [+0.002, +0.015]
+noisy0.079    tpe        +0.033 [+0.027, +0.038]
+noisy0.2      annealing  +0.000 [-0.010, +0.011]
+noisy0.2      genetic    +0.003 [-0.002, +0.009]
+noisy0.2      nsga2      +0.001 [-0.005, +0.007]
+noisy0.2      tpe        +0.025 [+0.019, +0.030]
+
+## budget 20: cost of searching the cheap view, paired (same seed) vs searching the true view, mean [95% CI]
+cells         random     +0.000 [+0.000, +0.000]
+cells         annealing  -0.005 [-0.012, +0.003]
+cells         genetic    -0.002 [-0.007, +0.003]
+cells         nsga2      -0.002 [-0.006, +0.002]
+cells         tpe        -0.000 [-0.004, +0.004]
+cells_dep     random     +0.000 [+0.000, +0.000]
+cells_dep     annealing  -0.006 [-0.014, +0.002]
+cells_dep     genetic    +0.002 [-0.003, +0.007]
+cells_dep     nsga2      -0.002 [-0.006, +0.002]
+cells_dep     tpe        -0.002 [-0.006, +0.001]
+noisy0.079    random     +0.000 [+0.000, +0.000]
+noisy0.079    annealing  +0.005 [-0.003, +0.013]
+noisy0.079    genetic    +0.002 [-0.004, +0.007]
+noisy0.079    nsga2      -0.005 [-0.010, +0.001]
+noisy0.079    tpe        -0.004 [-0.008, -0.001]
+noisy0.2      random     +0.000 [+0.000, +0.000]
+noisy0.2      annealing  -0.008 [-0.017, +0.001]
+noisy0.2      genetic    -0.005 [-0.010, +0.001]
+noisy0.2      nsga2      -0.012 [-0.017, -0.007]
+noisy0.2      tpe        -0.012 [-0.016, -0.008]

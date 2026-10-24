@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 304" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="320.0" y="20" text-anchor="middle" font-size="14">Negative-emotion share, 60 hand-coded of 300 comments</text>
+<line x1="353.31" y1="36" x2="353.31" y2="276" stroke="#555" stroke-dasharray="4"/>
+<text x="353.31" y="294" text-anchor="middle">human truth 0.233</text>
+<text x="180" y="48" text-anchor="end">agent / naive</text>
+<line x1="458.625" y1="44" x2="537.375" y2="44" stroke="#c0392b" stroke-width="3"/>
+<circle cx="498.0" cy="44" r="5" fill="#c0392b"/>
+<text x="180" y="74" text-anchor="end">agent / human</text>
+<line x1="278.865" y1="70" x2="428.595" y2="70" stroke="#1f6fb2" stroke-width="3"/>
+<circle cx="353.73" cy="70" r="5" fill="#1f6fb2"/>
+<text x="180" y="100" text-anchor="end">agent / ppi</text>
+<line x1="257.27" y1="96" x2="450.75" y2="96" stroke="#2e8b57" stroke-width="3"/>
+<circle cx="354.01" cy="96" r="5" fill="#2e8b57"/>
+<text x="180" y="126" text-anchor="end">naive-bayes / naive</text>
+<line x1="256.325" y1="122" x2="310.295" y2="122" stroke="#c0392b" stroke-width="3"/>
+<circle cx="283.31" cy="122" r="5" fill="#c0392b"/>
+<text x="180" y="152" text-anchor="end">naive-bayes / human</text>
+<line x1="279.11" y1="148" x2="429.05" y2="148" stroke="#1f6fb2" stroke-width="3"/>
+<circle cx="354.08" cy="148" r="5" fill="#1f6fb2"/>
+<text x="180" y="178" text-anchor="end">naive-bayes / ppi</text>
+<line x1="261.365" y1="174" x2="446.65500000000003" y2="174" stroke="#2e8b57" stroke-width="3"/>
+<circle cx="354.01" cy="174" r="5" fill="#2e8b57"/>
+<text x="180" y="204" text-anchor="end">lexicon / naive</text>
+<line x1="254.33" y1="200" x2="307.67" y2="200" stroke="#c0392b" stroke-width="3"/>
+<circle cx="281.0" cy="200" r="5" fill="#c0392b"/>
+<text x="180" y="230" text-anchor="end">lexicon / human</text>
+<line x1="279.39" y1="226" x2="429.47" y2="226" stroke="#1f6fb2" stroke-width="3"/>
+<circle cx="354.43" cy="226" r="5" fill="#1f6fb2"/>
+<text x="180" y="256" text-anchor="end">lexicon / ppi</text>
+<line x1="281.03499999999997" y1="252" x2="426.145" y2="252" stroke="#2e8b57" stroke-width="3"/>
+<circle cx="353.59000000000003" cy="252" r="5" fill="#2e8b57"/>
+</svg>

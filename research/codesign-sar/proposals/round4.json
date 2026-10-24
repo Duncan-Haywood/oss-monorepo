@@ -1,0 +1,3 @@
+{"round": 4, "notes": "Round 3 read: R=90 at torque 0.5 and up reaches the same 0.783 ceiling at 69 USD, flippers and wheelbase never change J here, and smaller wheels lose even with the longest flipper. Final round: a cheap R=90 design family around the torque edge, in case something sits just above the ceiling.",
+ "designs": [[90,120,0,0.5,5],[90,120,0,0.5,5.5],[90,140,0,0.5,6],[90,160,20,0.5,5],[90,120,0,0.65,5],
+             [90,180,0,0.5,8],[90,200,40,0.5,5],[90,120,0,0.7,5],[90,150,0,0.55,5],[90,240,0,0.5,5]]}

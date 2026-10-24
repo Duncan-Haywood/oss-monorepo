@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Australia e-invoicing: what is required, Peppol PINT A-NZ and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="Australia has no general B2B e-invoicing mandate: federal agencies must be able to receive Peppol e-invoices (since 1 July 2022) and pay them within five days. The dates, what is unconfirmed, and a free local invoice checker that runs the PINT A-NZ rules.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/australia-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Australia e-invoicing: what is required, Peppol PINT A-NZ and a free pre-send check">
+<meta property="og:description" content="Australia has no general B2B e-invoicing mandate: federal agencies must be able to receive Peppol e-invoices (since 1 July 2022) and pay them within five days. The dates, what is unconfirmed, and a free local invoice checker that runs the PINT A-NZ rules.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/australia-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is e-invoicing mandatory in Australia?","acceptedAnswer":{"@type":"Answer","text":"Not for business-to-business invoices as far as we could confirm: sources agree sending a Peppol e-invoice is voluntary for suppliers, and the proposed Business eInvoicing Right was reported as not enacted. It is a requirement on federal government agencies, which have had to be able to receive Peppol e-invoices since 1 July 2022. Confirm with the ATO or your accountant; this page is a summary, not advice."}},{"@type":"Question","name":"What format does Australian e-invoicing use?","acceptedAnswer":{"@type":"Answer","text":"Peppol, using the PINT A-NZ specification shared with New Zealand (Peppol BIS Billing 3.0 is reported as retired from the AU/NZ network, with PINT A-NZ the only supported specification from 15 May 2025). When an invoice's specification identifier (BT-24) names the A-NZ profile, this checker runs OpenPeppol's A-NZ rules, including the ABN rules, in your browser."}},{"@type":"Question","name":"Do government agencies pay e-invoices faster?","acceptedAnswer":{"@type":"Answer","text":"Yes, reportedly: the Commonwealth pays eligible Peppol e-invoices within five calendar days, a policy that began for invoices up to A$1 million in 2020 and was reported as extended without the cap from 1 July 2022. Check the Treasury or Department of Finance guidance for the terms that apply to your contract."}},{"@type":"Question","name":"What can this checker do for an Australian invoice?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker: it tests the totals and tax breakdown arithmetic against the EN 16931 core rules, each failure with a rule ID and a fix. For a UBL invoice that names the A-NZ profile it runs the PINT A-NZ rules instead, including ABN and GST checks; it is still not an access point's acceptance. Nothing is uploaded when you use the page."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Australian e-invoicing: what applies now</h1>
+<p class="lede">Australia sends and receives e-invoices over Peppol, using the PINT A-NZ specification it shares with New Zealand. Unlike the EU countries and Singapore, there is no general business-to-business mandate; the requirement falls on federal government agencies. Below: the dates as reported, what we could not confirm, and how to test an invoice file before it goes out.</p>
+</header>
+<section>
+<h2>The timeline</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What happened</th></tr></thead>
+<tbody>
+<tr><td>1 Jan 2020</td><td>Commonwealth pays eligible supplier invoices within five calendar days (reported: invoices up to A$1 million).</td></tr>
+<tr><td>1 Jul 2022</td><td>Non-corporate Commonwealth entities must be able to receive Peppol e-invoices; the five-day policy is reported as extended with the A$1 million cap removed.</td></tr>
+<tr><td>15 May 2025</td><td>PINT A-NZ reported as the only supported specification on the AU/NZ Peppol network (BIS Billing 3.0 retired).</td></tr>
+<tr><td>1 Jul 2026</td><td>Reported target: at least 30% of invoices received by those agencies arrive through Peppol.</td></tr>
+<tr><td>Dec 2026</td><td>Reported deadline: agencies enable automated processing and sending of Peppol e-invoices.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">These dates come from commentators' summaries (ecosio, Invopop, Cygnet and others) and were not read on the ATO, Treasury or Department of Finance pages, so treat them as reported, not confirmed. One guide claims every business must send e-invoices on request under the Business eInvoicing Right; other sources, including one dated May 2026, say it was not enacted, and we follow those. No penalty applies to suppliers who do not use Peppol that we could find. Confirm with the ATO or your accountant.</p>
+</section>
+<section>
+<h2>How it travels</h2>
+<p>The invoice is sent through a <strong>Peppol access point</strong>, addressed to the buyer's Australian Business Number (ABN) or New Zealand Business Number. The ATO is the Peppol authority for the Australian network. A-NZ invoices follow the European standard EN 16931 model with Australian and New Zealand additions such as ABN and GST rules. Many accounting packages (Xero, MYOB and others) can send over Peppol without extra cost to the supplier; check your own provider's terms.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a> and drop your UBL XML. If its specification identifier (BT-24) names the A-NZ profile, the file is checked by OpenPeppol's PINT A-NZ rules, including the ABN rules, in your browser; any other file gets the EN 16931 core checks: totals and tax breakdown arithmetic, a missing tax reason on a zero-rated or exempt line, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). <strong>A pass here is not an access point's acceptance.</strong> No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Elsewhere: <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="ireland-e-invoice-mandate.html">Ireland</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, or the <a href="e-invoicing-mandates-by-country.html">full country table</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Is e-invoicing mandatory in Australia?</h3>
+<p>Not for business-to-business invoices as far as we could confirm: sources agree sending a Peppol e-invoice is voluntary for suppliers, and the proposed Business eInvoicing Right was reported as not enacted. It is a requirement on federal government agencies, which have had to be able to receive Peppol e-invoices since 1 July 2022. Confirm with the ATO or your accountant; this page is a summary, not advice.</p>
+<h3>What format does Australian e-invoicing use?</h3>
+<p>Peppol, using the PINT A-NZ specification shared with New Zealand (Peppol BIS Billing 3.0 is reported as retired from the AU/NZ network, with PINT A-NZ the only supported specification from 15 May 2025). When an invoice's specification identifier (BT-24) names the A-NZ profile, this checker runs OpenPeppol's A-NZ rules, including the ABN rules, in your browser.</p>
+<h3>Do government agencies pay e-invoices faster?</h3>
+<p>Yes, reportedly: the Commonwealth pays eligible Peppol e-invoices within five calendar days, a policy that began for invoices up to A$1 million in 2020 and was reported as extended without the cap from 1 July 2022. Check the Treasury or Department of Finance guidance for the terms that apply to your contract.</p>
+<h3>What can this checker do for an Australian invoice?</h3>
+<p>Drop the file into the checker: it tests the totals and tax breakdown arithmetic against the EN 16931 core rules, each failure with a rule ID and a fix. For a UBL invoice that names the A-NZ profile it runs the PINT A-NZ rules instead, including ABN and GST checks; it is still not an access point's acceptance. Nothing is uploaded when you use the page.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Australian position as publicly reported (commentator summaries of ATO, Treasury and Department of Finance policy); dates can change, so check the ATO e-invoicing pages (ato.gov.au) and the Department of Finance before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

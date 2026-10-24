@@ -1,0 +1,61 @@
+== A. mean field vs simulation (n=200, m=9, beta=8, 12 seeds)
+# share_robots robot_go  p_go_people_mf p_go_people_sim  cost_people_mf cost_people_sim  cost_robot_mf cost_robot_sim
+0.00 0.00 0.388 0.388 1.064 1.065 1.000 nan
+0.20 0.00 0.450 0.450 1.036 1.035 1.000 1.000
+0.50 0.00 0.595 0.597 0.936 0.937 1.000 1.000
+0.20 1.00 0.294 0.294 1.090 1.089 1.305 1.293
+0.50 1.00 0.113 0.111 1.076 1.075 1.670 1.657
+0.30 0.33 0.403 0.404 1.058 1.056 1.048 1.046
+
+== B0. mean field, robot share sweep, robots always yield (g=0)
+# share  g  p_go_people  cost_people  cost_robot  cost_all
+0.00 0 0.388 1.064 1.000 1.064
+0.10 0 0.417 1.052 1.000 1.047
+0.20 0 0.450 1.036 1.000 1.029
+0.30 0 0.490 1.014 1.000 1.010
+0.40 0 0.537 0.982 1.000 0.989
+0.50 0 0.595 0.936 1.000 0.968
+0.60 0 0.667 0.867 1.000 0.947
+0.70 0 0.755 0.758 1.000 0.927
+0.80 0 0.860 0.584 1.000 0.917
+0.90 0 0.960 0.316 1.000 0.932
+
+== B1. mean field, robot share sweep, robots always go (g=1)
+# share  g  p_go_people  cost_people  cost_robot  cost_all
+0.00 1 0.388 1.064 1.165 1.064
+0.10 1 0.344 1.079 1.229 1.094
+0.20 1 0.294 1.090 1.305 1.133
+0.30 1 0.238 1.095 1.399 1.186
+0.40 1 0.176 1.091 1.517 1.262
+0.50 1 0.113 1.076 1.670 1.373
+0.60 1 0.057 1.049 1.868 1.540
+0.70 1 0.019 1.021 2.117 1.788
+0.80 1 0.003 1.004 2.402 2.122
+0.90 1 0.000 1.000 2.700 2.530
+
+
+== C. mean field, best fixed robot go probability for the crowd's total cost
+# share  best_g  cost_all_best  cost_all_g0  cost_all_g1  cost_people_best
+0.10 0.00 1.047 1.047 1.094 1.052
+0.20 0.00 1.029 1.029 1.133 1.036
+0.30 0.00 1.010 1.010 1.186 1.014
+0.50 0.00 0.968 0.968 1.373 0.936
+0.70 0.00 0.927 0.927 1.788 0.758
+
+== D. dilemma: fleet at share 0.3 plays g_fleet; one robot (negligible share) plays g_dev
+# g_fleet  cost_fleet_robot(g=g_fleet)  cost_deviator_g0  cost_deviator_g1  cost_person
+0.00 1.000 1.000 1.029 1.014
+0.33 1.048 1.000 1.144 1.058
+1.00 1.399 1.000 1.399 1.095
+
+== E. memory and sharpness: people's go probability with 30% always-yield robots (mean field)
+# m beta p_go_people_r0 p_go_people_r30 shift
+3 2 0.421 0.496 +0.075
+3 8 0.414 0.498 +0.084
+3 20 0.414 0.498 +0.084
+9 2 0.409 0.490 +0.081
+9 8 0.388 0.490 +0.101
+9 20 0.387 0.490 +0.103
+25 2 0.404 0.488 +0.085
+25 8 0.373 0.485 +0.111
+25 20 0.369 0.485 +0.116

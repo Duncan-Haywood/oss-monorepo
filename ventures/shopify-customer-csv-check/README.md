@@ -1,11 +1,11 @@
-# shopify-customer-csv-check
+# Shopify Customer CSV Check — Find Import Errors Before You Import
 
 Checks a Shopify customer import CSV in the browser before it is imported: emails and duplicates,
 phone format, Excel damage to zips and phones, country and province codes, marketing and
 tax-exempt values, tag limits and rows with no contact, each with its line number, plus a
 safe-fixes pass that only touches formatting.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shopify-customer-csv-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shopify-customer-csv-check/
 
 - Static ES modules, no build step, no dependencies. Open `index.html` or run `node --test`.
 - `calc.mjs` is pure (no DOM, no network); `usage.mjs` keeps opt-out, local-only event counts.

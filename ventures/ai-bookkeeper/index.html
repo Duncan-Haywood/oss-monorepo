@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Bookkeeper: free double-entry books from your bank CSV, that learn</title>
+  <meta name="description" content="Free AI bookkeeping in your browser. Import bank and card CSVs, get an account suggested for every line with a reason, file the review queue once and it learns your payees. Transfers paired, trial balance, P&amp;L, balance sheet, close checks, QuickBooks and Xero journals. Nothing uploaded.">
+  <meta property="og:title" content="AI Bookkeeper: double-entry books that learn from your corrections">
+  <meta property="og:description" content="Bank and card CSVs in, balanced books out. Learns your payees, pairs transfers, reconciles to the statement, exports QuickBooks Online, Xero and IIF journals. Optional AI on your own key or a local model.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "AI Bookkeeper", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Double-entry bookkeeping from bank and card CSV exports. Suggests an account for every line with a confidence and a reason, learns from each line you confirm, pairs transfers between your own accounts, reconciles to the statement's running balance, and produces a trial balance, profit and loss, balance sheet, close checks and journals for QuickBooks Online, Xero and QuickBooks Desktop. Optional AI suggestions on your own API key or a model on your own computer. Runs in the browser.", "featureList": "bank CSV import, transaction categorization, learns payees, review queue, transfer matching, double-entry journal, trial balance, profit and loss, balance sheet, bank reconciliation, close checklist, QuickBooks Online journal import, Xero manual journal, IIF, bring-your-own-key AI, local model (Ollama, LM Studio)"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does AI Bookkeeper actually do with my bank file?", "acceptedAnswer": {"@type": "Answer", "text": "It reads each line, suggests the account it belongs to with a confidence and the reason, and turns every line you accept into a balanced double-entry journal entry. From those entries it builds a trial balance, a profit and loss by month and a balance sheet. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "How does it learn?", "acceptedAnswer": {"@type": "Answer", "text": "Every line you file is remembered by its payee, cleaned of store numbers and reference codes. Next time the same payee posts itself once you have filed it the same way three times, and a small naive Bayes classifier trained on everything you filed suggests accounts for payees it has not seen exactly. On a synthetic year of a small studio's lines, 60% of each month posted by itself from the fourth month on, and 1 of those 1,300 lines went to the wrong account."}}, {"@type": "Question", "name": "Is the AI required, and where does my data go?", "acceptedAnswer": {"@type": "Answer", "text": "No. The rules, memory and classifier run in your browser with no key. If you add your own Anthropic, OpenAI or Gemini key, or point it at a model on your own computer such as Ollama or LM Studio, the dates, descriptions and amounts of the lines still in review, your chart of accounts and up to 40 lines you already filed are sent from your browser straight to that provider, never to us. The model only suggests; nothing is posted until you accept it."}}, {"@type": "Question", "name": "Why doesn't a credit card payment show up as an expense?", "acceptedAnswer": {"@type": "Answer", "text": "Because it is not one. Paying the card from checking moves money between two of your own accounts. When you import both statements, the payment out of checking and the payment received on the card are paired into one transfer entry, so the expense is counted once, when you bought the thing."}}, {"@type": "Question", "name": "Can I take the books to QuickBooks or Xero, or to my accountant?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Export a QuickBooks Online journal entry import, a Xero manual journal CSV, a QuickBooks Desktop IIF file, a plain journal CSV, or a CSV of every line with its account, suggestion and reason. Check the account names match your company file before you import."}}, {"@type": "Question", "name": "Where are my books saved?", "acceptedAnswer": {"@type": "Answer", "text": "In this browser's local storage and in the books file you download. Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser."}}, {"@type": "Question", "name": "Is this a replacement for an accountant?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does the sorting and the arithmetic of bookkeeping and tells you what to check. It does not know your tax position, accrual adjustments, depreciation, payroll filings or sales tax rules. Have a qualified accountant review the books before you file anything."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2430; background: #f3f5f2; }
+    body { max-width: 1120px; margin: auto; padding: 28px; }
+    a { color: #23613f; }
+    h1 { font-size: clamp(1.8rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #183d2a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #183d2a; }
+    h3 { font-size: 1rem; margin: 16px 0 6px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5560; }
+    .card { background: #fff; border: 1px solid #d5ddd6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #183d2a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6b7a70; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 90px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #23613f; color: #fff; font-weight: 700; cursor: pointer; margin: 10px 8px 0 0; }
+    button.secondary { background: #e3ece5; color: #183d2a; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 8px 0; }
+    .stats div { background: #edf3ee; border-radius: 10px; padding: 10px 12px; }
+    .stats strong { display: block; font-size: 1.4rem; color: #183d2a; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #e6ebe7; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5560; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    tr.total td, tr.total th { font-weight: 700; border-top: 2px solid #c9d3cb; }
+    td select { min-width: 190px; padding: 5px 6px; font-size: .88rem; }
+    .pill { display: inline-block; font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.hi { background: #d8eedd; color: #1d5a2c; }
+    .pill.mid { background: #fbefd2; color: #5c4508; }
+    .pill.lo { background: #f6dad6; color: #7d1f16; }
+    .pill.ai { background: #e2e3fb; color: #2d2f7a; }
+    .finding { border-left: 4px solid #c9d3cb; padding: 4px 10px; margin: 8px 0; }
+    .finding.high { border-color: #b3261e; } .finding.medium { border-color: #b7791f; } .finding.ok { border-color: #2f855a; }
+    .reason { font-size: .8rem; color: #4a5560; }
+    footer { margin-top: 28px; border-top: 1px solid #d5ddd6; padding-top: 16px; }
+    details summary { cursor: pointer; font-weight: 700; color: #183d2a; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AI BOOKKEEPER · DOUBLE-ENTRY · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Books from your bank file that learn your business.</h1>
+    <p>Import the <strong>CSV from your bank and your card</strong>. Every line gets a <strong>suggested account, a confidence and the reason</strong>. You file the ones it is unsure of, and it <strong>remembers</strong>: next month the payees you have filed post themselves. A card payment from checking is <strong>paired into one transfer</strong>, not counted as an expense. Out come a <strong>trial balance, profit and loss and balance sheet</strong>, the <strong>close checks</strong> a bookkeeper runs, and journals for <strong>QuickBooks Online, Xero</strong> or your accountant.</p>
+    <p class="note">AI is optional: on your own API key or a model running on your own computer, it suggests accounts for the lines still in review, and never posts by itself. Independent of every bank, card issuer and accounting software company. Not accounting or tax advice. New to this? Read <a href="./how-to-do-bookkeeping-from-bank-statements.html">how to do bookkeeping from bank statements</a>, with a worked example of the two mistakes that turn a profit into a loss. Moving to QuickBooks or Xero? See <a href="./bank-statement-to-quickbooks-xero.html">bank statement to QuickBooks or Xero</a> or a <a href="./mint-export-to-business-books.html">Mint-style export</a>. Selling online? See bookkeeping for <a href="./stripe-bookkeeping.html">Stripe</a>, <a href="./shopify-bookkeeping.html">Shopify</a>, <a href="./amazon-seller-bookkeeping.html">Amazon sellers</a> <a href="./etsy-bookkeeping.html">Etsy</a> and <a href="./airbnb-bookkeeping.html">Airbnb hosts</a>; got a 1099-K that does not match? <a href="./form-1099-k-reconciliation.html">Bridge it to your books</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" aria-labelledby="h-import">
+    <h2 id="h-import">1. Import a statement</h2>
+    <div class="grid">
+      <div><label for="bank">Which account is this statement for?</label><select id="bank"></select></div>
+      <div><label for="file">Bank or card file (CSV, Excel .xlsx or .xls, OFX, QFX, QIF, MT940, BAI2, Norma 43, CFONB 120, CAMT.053 or a statement PDF with a text layer, or statement text pasted into a .txt file)</label><input id="file" type="file" accept=".csv,.xlsx,.xls,.pdf,.txt,application/pdf,.ofx,.qfx,.qbo,.qif,.sta,.mt940,.n43,.c43,.cfonb,.xml,text/csv,text/plain,text/xml"></div>
+      <div><label for="auto">Post by itself at confidence</label><input id="auto" type="number" min="0.5" max="1" step="0.01" value="0.85"></div>
+    </div>
+    <div id="ofx-map" hidden>
+      <p class="muted" id="ofx-map-note"></p>
+      <div class="grid" id="ofx-map-rows"></div>
+    </div>
+    <label for="paste">Or paste the CSV</label>
+    <textarea id="paste" placeholder="Date,Description,Amount,Balance&#10;2026-01-02,STRIPE TRANSFER,1000.00,6000.00"></textarea>
+    <div class="check"><input id="invert" type="checkbox"><label for="invert">Charges are positive in this file (most card exports)</label></div>
+    <div class="check"><input id="dayfirst" type="checkbox"><label for="dayfirst">Dates are day first (31/01/2026)</label></div>
+    <button type="button" id="import">Import</button>
+    <button type="button" class="secondary" id="example">Load the example (three synthetic months)</button>
+    <p id="import-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-status">
+    <h2 id="h-status">Where the books stand</h2>
+    <div class="stats" id="summary" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-review">
+    <h2 id="h-review">2. Review queue</h2>
+    <p class="note">Each line shows the suggested account, how sure it is and why. Change any account, tick the lines to file, and file them. Every line you file teaches the memory and the classifier.</p>
+    <div class="grid">
+      <div><label for="accept-min">Accept every suggestion at or above</label><input id="accept-min" type="number" min="0" max="1" step="0.05" value="0.7"></div>
+    </div>
+    <button type="button" id="file-checked">File the ticked lines</button>
+    <button type="button" class="secondary" id="accept-all">Accept suggestions at or above that</button>
+    <div class="scroll"><table><thead><tr><th scope="col"><input type="checkbox" id="tick-all" aria-label="Tick every line"></th><th scope="col">Date</th><th scope="col">From</th><th scope="col">Description</th><th class="n" scope="col">Amount</th><th scope="col">Account</th><th scope="col">Why</th></tr></thead><tbody id="queue"></tbody></table></div>
+    <p id="queue-note" class="note"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-ai">
+    <h2 id="h-ai">3. Optional: ask an AI about the review queue</h2>
+    <p id="ai-state" class="note">AI suggestions are off. Add your own Anthropic, OpenAI or Gemini key, or point it at a model running on your own computer (Ollama, LM Studio, llama.cpp). Nothing is ever sent to us.</p>
+    <div class="grid">
+      <div><label for="provider">Provider</label><select id="provider"><option value="">Off</option><option value="ollama">Ollama on this computer</option><option value="lmstudio">LM Studio on this computer</option><option value="llamacpp">llama.cpp on this computer</option><option value="anthropic">Anthropic (your key)</option><option value="openai">OpenAI (your key)</option><option value="gemini">Google Gemini (your key)</option><option value="openai-compatible">Other OpenAI-compatible endpoint</option></select></div>
+      <div><label for="model">Model</label><input id="model" placeholder="e.g. llama3.2 or claude-opus-5-5" autocomplete="off"></div>
+      <div><label for="apikey">API key (kept in this browser only)</label><input id="apikey" type="password" autocomplete="off"></div>
+      <div><label for="baseurl">Server address (optional)</label><input id="baseurl" placeholder="http://localhost:11434/v1" autocomplete="off"></div>
+    </div>
+    <div class="check"><input id="remember" type="checkbox"><label for="remember">Remember these settings in this browser</label></div>
+    <button type="button" class="secondary" id="detect">Find a model on this computer</button>
+    <button type="button" id="ask-ai">Suggest accounts for the review queue</button>
+    <p class="note">What is sent, from your browser straight to the provider you chose: the dates, descriptions and amounts of up to 40 lines still in review, your chart of accounts, and up to 40 lines you already filed as examples. A local model keeps it all on your computer. For Ollama on a web page, start it with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code>.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-assets">
+    <h2 id="h-assets">Optional: equipment and depreciation</h2>
+    <p class="note">A computer, a van or a tool that lasts more than a year is spread over its life instead of counted all at once. File the purchase to account 1500 Equipment, then register it here; depreciation is booked monthly (straight-line, or written off in full the first month if you and your preparer choose). The books use straight-line; the US tax schedule (MACRS) is a separate worksheet below. Ask your accountant.</p>
+    <div class="grid">
+      <div><label for="fa-name">Asset</label><input id="fa-name" autocomplete="off" placeholder="e.g. Laptop"></div>
+      <div><label for="fa-date">Placed in service</label><input id="fa-date" type="date"></div>
+      <div><label for="fa-cost">Cost</label><input id="fa-cost" inputmode="decimal" autocomplete="off" placeholder="1800.00"></div>
+      <div><label for="fa-life">Life (months)</label><input id="fa-life" inputmode="numeric" value="60"></div>
+      <div><label for="fa-salvage">Salvage value</label><input id="fa-salvage" inputmode="decimal" value="0"></div>
+      <div><label for="fa-proceeds">Sale proceeds (to sell or scrap, set the date above first)</label><input id="fa-proceeds" inputmode="decimal" value="0"></div>
+      <div><label for="fa-method">Method</label><select id="fa-method"><option value="straight-line">Straight-line</option><option value="expense">Expense in full</option></select></div>
+    </div>
+    <button type="button" id="fa-add">Add to the register</button>
+    <p id="fa-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="fa-register"></div>
+    <h3 id="h-macrs">US tax depreciation (MACRS)</h3>
+    <p class="note">The tax return uses its own schedule: an optional Section 179 deduction, optional bonus depreciation, then the IRS half-year percentage table (Publication 946, Table A-1) on the rest. Set a treatment for each asset, then read the year's worksheet beside the book figures. Whether you may elect 179 or bonus, and the dollar limits, are for you or your preparer; the worksheet lists what it cannot check.</p>
+    <div class="grid">
+      <div><label for="tx-asset">Asset</label><select id="tx-asset"></select></div>
+      <div><label for="tx-class">MACRS class</label><select id="tx-class"><option>3</option><option selected>5</option><option>7</option><option>10</option><option>15</option><option>20</option></select></div>
+      <div><label for="tx-179">Section 179 amount</label><input id="tx-179" inputmode="decimal" value="0"></div>
+      <div><label for="tx-bonus">Bonus percent</label><input id="tx-bonus" inputmode="numeric" value="0"></div>
+      <div><label for="tx-year">Tax year</label><input id="tx-year" inputmode="numeric"></div>
+      <div><label for="tx-carry">179 carried in (blank: from earlier years)</label><input id="tx-carry" inputmode="decimal" value="" placeholder="automatic"></div>
+    </div>
+    <button type="button" id="tx-set" class="secondary">Set tax treatment</button>
+    <button type="button" id="tx-csv" class="secondary">Download tax depreciation worksheet (CSV)</button>
+    <p id="tx-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="tx-sheet"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-prepaid">
+    <h2 id="h-prepaid">Optional: prepaid expenses</h2>
+    <p class="note">A year of insurance, software or rent paid up front belongs to the months it covers. File the bank line to 1400 Prepaid expenses, then register it here; each month's share moves to the expense account, so profit is not lumpy and the balance sheet shows what is still paid ahead. Whether a prepayment may be deducted at once for tax (such as the 12-month rule) is for you or your preparer.</p>
+    <div class="grid">
+      <div><label for="pp-name">Item</label><input id="pp-name" autocomplete="off" placeholder="e.g. Liability policy"></div>
+      <div><label for="pp-date">First month covered</label><input id="pp-date" type="date"></div>
+      <div><label for="pp-amount">Amount paid</label><input id="pp-amount" inputmode="decimal" autocomplete="off" placeholder="2400.00"></div>
+      <div><label for="pp-months">Months covered</label><input id="pp-months" inputmode="numeric" value="12"></div>
+      <div><label for="pp-account">Expense account</label><select id="pp-account"></select></div>
+    </div>
+    <button type="button" id="pp-add">Add to the register</button>
+    <p id="pp-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="pp-register"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-inv">
+    <h2 id="h-inv">Optional: stock you resell</h2>
+    <p class="note">If you buy goods and sell them later, the cost of what you sold is an expense in the month of the sale, not the month of the purchase. File the supplier payment to 1450 Inventory, record the purchase here, then record each sale (or lost or damaged stock) by quantity: the cost moves to 5000 Cost of goods sold, first-in first-out or at the moving average. Whether to count your stock this way for tax is for you or your preparer.</p>
+    <div class="grid">
+      <div><label for="iv-kind">Move</label><select id="iv-kind"><option value="buy">Bought</option><option value="sell">Sold</option><option value="adjust">Lost or damaged</option></select></div>
+      <div><label for="iv-sku">Item (SKU)</label><input id="iv-sku" autocomplete="off" placeholder="e.g. MUG-BLUE"></div>
+      <div><label for="iv-date">Date</label><input id="iv-date" type="date"></div>
+      <div><label for="iv-qty">Quantity</label><input id="iv-qty" inputmode="decimal" autocomplete="off" placeholder="100"></div>
+      <div><label for="iv-amount">Total paid (purchases only)</label><input id="iv-amount" inputmode="decimal" autocomplete="off" placeholder="450.00"></div>
+      <div><label for="iv-method">Costing</label><select id="iv-method"><option value="fifo">First in, first out</option><option value="avg">Moving average</option></select></div>
+    </div>
+    <button type="button" id="iv-add">Record the move</button>
+    <p id="iv-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="iv-register"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-loans">
+    <h2 id="h-loans">Optional: loans</h2>
+    <p class="note">A fixed-rate loan with equal monthly payments. Enter the terms and the schedule is worked out in cents; then a bank payment of exactly the scheduled amount, within five days of its due date, is split into interest (6040) and principal (2200) for you. File the money you received to 2200 yourself. Variable rates, balloons and interest-only periods are not modelled, and a lender's own figures win where they differ.</p>
+    <div class="grid">
+      <div><label for="ln-name">Loan</label><input id="ln-name" autocomplete="off" placeholder="e.g. Van loan"></div>
+      <div><label for="ln-amount">Amount borrowed</label><input id="ln-amount" inputmode="decimal" autocomplete="off" placeholder="12000.00"></div>
+      <div><label for="ln-rate">Annual rate (%)</label><input id="ln-rate" inputmode="decimal" autocomplete="off" placeholder="6.5"></div>
+      <div><label for="ln-months">Months</label><input id="ln-months" inputmode="numeric" value="36"></div>
+      <div><label for="ln-first">First payment date</label><input id="ln-first" type="date"></div>
+    </div>
+    <button type="button" id="ln-add">Add the loan</button>
+    <button type="button" id="ln-apply" class="secondary">Split matching bank payments</button>
+    <p id="ln-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="ln-register"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-billpay">
+    <h2 id="h-billpay">Optional: when to pay your bills</h2>
+    <p class="note">Takes the open bills you loaded below, the bank balance and the cash forecast, and suggests a pay date for each so the balance stays above a reserve you choose: on the due date, held back until cash arrives, or flagged when it cannot fit. Overdue bills go first. It is a plan to read; nothing is paid from here. Supplier terms are optional: one line per supplier, <code>name, discount %, days, late fee %</code> (for example <code>Acme Supply, 2, 10, 5</code> for 2% off if paid within 10 days of the bill date and a 5% late fee). A discount is taken when the cash holds; a late fee is reported, not counted against the reserve.</p>
+    <label for="bp-reserve">Keep at least this much in the bank</label><input id="bp-reserve" inputmode="decimal" autocomplete="off" value="0">
+    <label for="bp-terms">Supplier terms (optional, one per line)</label>
+    <textarea id="bp-terms" placeholder="Acme Supply, 2, 10, 5"></textarea>
+    <button type="button" id="bp-plan">Plan the bills</button>
+    <p id="bp-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="bp-result"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-payouts">
+    <h2 id="h-payouts">Optional: card-processor payouts</h2>
+    <p class="note">A Stripe, Shopify, Square or PayPal deposit reaches the bank as one lump: sales less fees. Load the processor's payout report and each deposit already in your books is split into gross sales, refunds and fees, so profit shows what you really sold and what taking cards cost. Stripe: the payout reconciliation report. Shopify: payout transactions. Square: the payout report. PayPal: the activity download (rows are grouped under each withdrawal, and split only when they add up to it). Nothing is posted until you press Post.</p>
+    <label for="po-file">Payout report CSV file</label><input id="po-file" type="file" accept=".csv,text/csv,text/plain">
+    <label for="po-paste">Or paste the CSV</label>
+    <textarea id="po-paste" placeholder="automatic_payout_id,automatic_payout_effective_at,reporting_category,gross,fee,net"></textarea>
+    <button type="button" id="po-plan" class="secondary">Match to bank lines</button>
+    <button type="button" id="po-post">Post the matched splits</button>
+    <p id="po-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="po-result"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-payroll">
+    <h2 id="h-payroll">Optional: payroll provider reports</h2>
+    <p class="note">Load a pay-run report from Gusto, ADP, Paychex, QuickBooks Payroll or a spreadsheet (one row per employee per pay date: pay date, gross, net, federal, social security and Medicare withholding, employer shares, FUTA and SUTA). Each pay date becomes one entry: wages, employer taxes and the payroll liability (2300). The bank lines that paid the net pay and the tax deposits are then found, and a Form 941 worksheet is summed for the quarter. Worksheet only: not a filing. Nothing is posted until you press Post.</p>
+    <label for="pr-file">Pay-run report CSV file</label><input id="pr-file" type="file" accept=".csv,text/csv,text/plain">
+    <label for="pr-paste">Or paste the CSV</label>
+    <textarea id="pr-paste" placeholder="pay date,gross pay,net pay,federal tax,social security,medicare,employer social security,employer medicare"></textarea>
+    <button type="button" id="pr-add">Book the pay runs</button>
+    <button type="button" id="pr-post" class="secondary">Post matched bank lines to 2300</button>
+    <label for="pr-year">Form 941 year</label><input id="pr-year" type="number" min="2000" max="2100" placeholder="2026">
+    <label for="pr-q">Quarter</label><select id="pr-q"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+    <button type="button" id="pr-941" class="secondary">Form 941 worksheet</button>
+    <p id="pr-status" class="note" role="status" aria-live="polite"></p>
+    <div class="scroll" id="pr-result"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-docs">
+    <h2 id="h-docs">Optional: invoices and bills (accruals)</h2>
+    <p class="note">Bank lines alone give cash-basis books. Load a list of invoices you sent and bills you owe and each is booked on its own date; a bank line with the exact amount and the invoice number or the party's name then clears it instead of counting as income twice. Header: <code>type,number,date,due,party,amount,account</code>, type <code>invoice</code> or <code>bill</code>; rows sharing a number are one document.</p>
+    <label for="docs-file">Invoice and bill CSV file</label><input id="docs-file" type="file" accept=".csv,text/csv,text/plain">
+    <label for="docs-paste">Or paste the CSV</label>
+    <textarea id="docs-paste" placeholder="type,number,date,due,party,amount,account&#10;invoice,INV-101,2026-01-05,2026-02-04,Acme Corp,1200.00,4000"></textarea>
+    <button type="button" id="docs-load">Load invoices and bills</button>
+    <p id="docs-status" class="note" role="status" aria-live="polite"></p>
+    <details id="profile"><summary>Your details for printed invoices</summary>
+      <p class="note">Shown at the top of an invoice or credit note. Kept in your books file only; nothing is sent anywhere.</p>
+      <label for="pf-name">Business name</label><input id="pf-name" autocomplete="organization">
+      <label for="pf-address">Address</label><textarea id="pf-address" rows="2"></textarea>
+      <label for="pf-email">Email</label><input id="pf-email" type="email">
+      <label for="pf-taxId">Tax or VAT number</label><input id="pf-taxId">
+      <label for="pf-payTo">How to pay you (bank details, payment link)</label><textarea id="pf-payTo" rows="2"></textarea>
+      <label for="pf-terms">Terms</label><input id="pf-terms" placeholder="Payment due within 30 days">
+      <button type="button" id="pf-save" class="secondary">Save details</button>
+    </details>
+    <div class="scroll" id="aging"></div>
+    <div class="scroll" id="salestax"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-open">
+    <h2 id="h-open">Optional: opening balances from a trial balance</h2>
+    <p class="note">Already keeping books somewhere else? Start mid-stream with what you have: one account per line, <code>code,amount</code> (what the account holds in its natural sign: an asset you own, a loan you owe) or <code>code,debit,credit</code> with that header. Anything that does not balance goes to 3000 Opening balance equity and is reported. Import statements from the day after the date below.</p>
+    <div class="grid">
+      <div><label for="open-date">Balances as of</label><input id="open-date" type="date"></div>
+      <div><label for="open-file">Trial balance CSV file</label><input id="open-file" type="file" accept=".csv,text/csv,text/plain"></div>
+    </div>
+    <label for="open-paste">Or paste the CSV</label>
+    <textarea id="open-paste" placeholder="code,amount&#10;1000,5000.00&#10;2000,1200.00"></textarea>
+    <button type="button" id="open-set">Set opening balances</button>
+    <button type="button" class="secondary" id="open-clear">Remove them</button>
+    <p id="open-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-reports">
+    <h2 id="h-reports">4. Reports</h2>
+    <div class="grid">
+      <div><label for="from">From</label><input id="from" type="date"></div>
+      <div><label for="to">To</label><input id="to" type="date"></div>
+    </div>
+    <h3>Profit and loss</h3>
+    <div class="scroll" id="pnl"></div>
+    <h3>Balance sheet</h3>
+    <div class="scroll" id="bs"></div>
+    <h3>Cash flow</h3>
+    <p class="note">Indirect method: net profit adjusted for receivables, payables, tax and the like, then purchases of fixed assets, then loans and owner money. A card counts as a liability, so card spending shows as operating until the card is paid. The sections add up to the change in your bank accounts.</p>
+    <div class="scroll" id="cf"></div>
+    <details><summary>Trial balance</summary><div class="scroll" id="tb"></div></details>
+    <h3>US Schedule C worksheet</h3>
+    <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation and self-employment tax; miles and a simplified home office come in from the card below the reports.</p>
+    <div class="scroll" id="schedc"></div>
+    <button type="button" id="schedc-csv" class="secondary">Download Schedule C worksheet (CSV)</button>
+    <h3>US contractors (1099-NEC worksheet)</h3>
+    <p class="note">Contract labor (account 6020) paid by bank in the latest year of your books, per payee, against the 1099-NEC line ($600 to 2025, $2,000 from 2026; check the IRS page). Tick a W-9 once you hold one (only a flag is kept, never a tax ID). Merge two spellings of one person so their payments add up. A worksheet, not a filing: whether someone is a contractor, and any exemption, is for you or your preparer to decide.</p>
+    <div class="scroll" id="nec"></div>
+    <p id="nec-merge" hidden><label>Count <select id="nec-from"></select></label> <label>with <select id="nec-into"></select></label> <button type="button" id="nec-merge-go" class="secondary">Merge</button></p>
+    <button type="button" id="nec-csv" class="secondary">Download contractors worksheet (CSV)</button>
+    <button type="button" id="nec-filing-csv" class="secondary">Download filing-prep CSV (Form 1099-NEC boxes)</button>
+    <p class="note">The filing-prep file has one row per payee over the line, in the form's own box names. Tax ID and address columns are blank on purpose: this page never stores them, so fill them from the W-9 in your filing service. Services take their own column layouts, so reorder the columns to match theirs.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-recurring">
+    <h2 id="h-recurring">Optional: recurring payments and cash forecast</h2>
+    <p class="note">Payees whose lines come at a steady interval (three or more), what they cost per year, and which are overdue, lapsed or changed amount. The forecast rolls your bank balance forward 90 days with those items and your open invoices and bills. A guess from your own history, not a promise.</p>
+    <div class="scroll" id="recurring"></div>
+    <div id="forecast"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-deduct">
+    <h2 id="h-deduct">Optional: business miles and home office</h2>
+    <p class="note">Deductions the bank feed cannot see. Log business trips (the IRS asks for a date, miles and a purpose) and, if you qualify, a simplified home office ($5 a square foot, 300 at most). They go to Schedule C lines 9 and 30 in the worksheet above, for the year of the From date (or the latest year in your books). Mileage uses the IRS rates by trip date (2026: 72.5 cents to June 30, 76 cents from July 1). Whether a space qualifies is for you or your preparer. Stored in this browser only.</p>
+    <p><label>Date <input id="trip-date" type="date"></label> <label>Miles <input id="trip-miles" inputmode="decimal" size="6" placeholder="12.5"></label> <label>Purpose <input id="trip-purpose" size="22" placeholder="Client site visit"></label> <button type="button" id="trip-add" class="secondary">Add trip</button></p>
+    <p><label>Home office sq ft <input id="ho-sqft" inputmode="decimal" size="6" placeholder="150"></label> <button type="button" id="ho-set" class="secondary">Set home office</button> <span id="deduct-status" class="note" role="status"></span></p>
+    <div class="scroll" id="deduct"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-est">
+    <h2 id="h-est">Optional: federal tax estimate and quarterly payments (US)</h2>
+    <p class="note">Takes the year's Schedule C profit (annualised from the months elapsed), self-employment tax, the standard deduction and a simplified 20% QBI deduction, then the bracket tax, and spreads the IRS safe harbour (the smaller of 90% of this year's total and 100% of last year's tax, 110% above $150,000 AGI) over the Form 1040-ES dates still ahead. Leaves out state tax, credits and itemising. A worksheet, not tax advice; the year is that of the From date (or your latest year). Blank boxes mean zero.</p>
+    <p><label>Filing status <select id="est-filing"><option value="single">Single</option><option value="mfj">Married filing jointly</option><option value="hoh">Head of household</option></select></label> <label>Months of the year in the books <input id="est-months" inputmode="numeric" size="3" value="12"></label></p>
+    <p><label>Wages elsewhere $ <input id="est-wages" inputmode="decimal" size="9"></label> <label>Other income $ <input id="est-other" inputmode="decimal" size="9"></label> <label>Withholding $ <input id="est-withheld" inputmode="decimal" size="9"></label> <label>Already paid in estimates $ <input id="est-paid" inputmode="decimal" size="9"></label></p>
+    <p><label>Last year's total tax $ <input id="est-prior" inputmode="decimal" size="9"></label> <label>Last year's AGI $ <input id="est-prior-agi" inputmode="decimal" size="9"></label> <button type="button" id="est-run">Estimate</button> <span id="est-status" class="note" role="status"></span></p>
+    <div class="scroll" id="est"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-budget">
+    <h2 id="h-budget">Optional: budget against actual</h2>
+    <p class="note">Set a monthly amount for an income or expense account, then see it beside what was posted in the From and To dates above (the latest month if they are empty). "Better" and "worse" mean for profit. Lines still waiting in the queue are not counted.</p>
+    <p><label>Account <select id="budget-account"></select></label> <label>Per month <input id="budget-amount" inputmode="decimal" placeholder="200.00" size="10"></label> <button type="button" id="budget-set" class="secondary">Set budget</button> <span id="budget-status" class="note" role="status"></span></p>
+    <div class="scroll" id="budget"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-recon">
+    <h2 id="h-recon">Optional: reconcile to a paper statement</h2>
+    <p class="note">Type the closing balance printed on a bank or card statement (a card statement's amount owed goes in as printed, positive). If the books differ, this names the likeliest lines behind the gap: lines still waiting for an account, one line equal to the gap, a sign slip, a pair of lines, swapped digits. It only points at lines; it never changes your books. Hints are a search, not proof.</p>
+    <p><label>Account <select id="recon-account"></select></label> <label>Statement date <input id="recon-date" type="date"></label> <label>Closing balance <input id="recon-balance" inputmode="decimal" placeholder="691.50" size="10"></label> <button type="button" id="recon-check" class="secondary">Check</button> <span id="recon-status" class="note" role="status"></span></p>
+    <div class="scroll" id="recon"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-yearend">
+    <h2 id="h-yearend">Optional: year-end close</h2>
+    <p class="note">Closing a calendar year moves its income and expense into retained earnings (3900) with one dated entry and locks the books through December 31. The profit and loss and tax worksheets still show the year; the balance sheet and journal exports include the entry. Only the latest closed year can be reopened. Calendar years only.</p>
+    <p><label>Year <input id="ye-year" inputmode="numeric" size="6" placeholder="2025"></label> <label>Year ends in <select id="ye-month"><option value="12">December</option><option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option></select></label> <label style="display:inline;font-weight:400"><input type="checkbox" id="ye-draws"> Also close owner draws and contributions</label> <button type="button" id="ye-close" class="secondary">Close year</button> <button type="button" id="ye-reopen" class="secondary">Reopen latest</button> <span id="ye-status" class="note" role="status"></span></p>
+    <div class="scroll" id="yearend"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-receipts">
+    <h2 id="h-receipts">Optional: match receipts to bank lines</h2>
+    <p class="note">Paste the text of receipts (typed, copied from an email, or read off a photo by any OCR tool), with a line of <code>---</code> between them. Each is read into a merchant, date, total and tax, then paired with the bank or card line that paid it (the same amount, within a few days; a tip up to 25% on top counts when the name agrees). Below: receipts with no bank line, and spending over the amount you choose that has no receipt. The text stays in this browser. A reading aid, not a statement of what any tax authority requires you to keep.</p>
+    <p><textarea id="receipts-text" aria-label="Receipt text, one receipt per block" rows="6" placeholder="Blue Bottle Coffee&#10;03/14/2026&#10;Subtotal 9.75&#10;Sales Tax 0.87&#10;Total 10.62&#10;---&#10;Hardware Hank&#10;2026-03-16&#10;Total 43.20" style="width:100%;font-family:monospace"></textarea></p>
+    <p><button type="button" id="receipts-read" class="secondary">Read receipts</button> <label>Ask for a receipt at or over <input id="receipts-min" inputmode="decimal" value="75" size="6"></label> <button type="button" id="receipts-clear" class="secondary">Remove all receipts</button> <span id="receipts-status" class="note" role="status"></span></p>
+    <div class="scroll" id="receipts"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-vat">
+    <h2 id="h-vat">Optional: UK VAT return worksheet</h2>
+    <p class="note">The nine boxes of the UK VAT return from invoices and bills dated inside the From and To dates above (invoice basis; VAT on sales in account 2100, VAT on purchases in 1300). Boxes 2, 8 and 9 (EU) stay 0. Flat-rate, cash accounting and partial exemption are not modelled. A worksheet to check a return against, not a filing.</p>
+    <div class="scroll" id="vat"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-checks">
+    <h2 id="h-checks">5. Close checks</h2>
+    <p class="note">Reconciles each account to the statement's own closing balance (when the file has a running balance), and checks for lines left in review, money in the uncategorized account, duplicates, charges far above a payee's usual, and purchases that may be equipment.</p>
+    <div id="checks"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-export">
+    <h2 id="h-export">6. Export and save</h2>
+    <button type="button" data-export="qbo">QuickBooks Online journal</button>
+    <button type="button" data-export="xero">Xero manual journal</button>
+    <button type="button" data-export="iif">QuickBooks Desktop IIF</button>
+    <button type="button" class="secondary" data-export="ledger">ledger / hledger journal</button>
+    <button type="button" class="secondary" data-export="beancount">Beancount file</button>
+    <button type="button" class="secondary" data-export="csv">Journal CSV</button>
+    <button type="button" class="secondary" data-export="lines">Every line with its account</button>
+    <br>
+    <button type="button" class="secondary" id="save">Download the books file</button>
+    <label for="open">Open a books file</label><input id="open" type="file" accept=".json,application/json">
+    <button type="button" class="secondary" id="clear">Start empty books</button>
+    <p id="save-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-setup">
+    <h2 id="h-setup">Your rules and chart of accounts</h2>
+    <label for="rules">Your rules, one per line: <code>keyword =&gt; account</code> (code or name; <code>/regex/</code> allowed)</label>
+    <textarea id="rules" placeholder="acme corp => 4000&#10;blue bottle => Meals&#10;/^venmo .*design/ => Contract labor"></textarea>
+    <div id="rule-suggest"></div>
+    <details><summary>Chart of accounts</summary>
+      <p class="note">One account per line: <code>code,name,type[,bank]</code>, type one of asset, liability, equity, income, expense; <code>bank</code> marks an account you import statements into. Keep 3000 Opening balance equity. Changing the chart does not move lines already filed.</p>
+      <label for="coa">Accounts</label><textarea id="coa" style="min-height:220px"></textarea>
+      <button type="button" class="secondary" id="save-setup">Save rules and chart</button>
+    </details>
+    <p id="setup-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-how">
+    <h2 id="h-how">How it decides, and what it leaves out</h2>
+    <p><strong>Four layers, then you.</strong> (1) Your rules. (2) Memory: the account you chose before for the same payee, after store numbers, card numbers and reference codes are stripped ("SQ *BLUE BOTTLE 0412 OAKLAND CA" and "POS DEBIT SQ *BLUE BOTTLE 9981" are one payee). Confidence is how many times you chose it over how often you saw the payee; at three unanimous choices it reaches 0.86 and posts by itself. (3) A naive Bayes classifier trained on everything you filed, for payees it has not seen exactly; it only suggests. (4) Conservative built-in keywords for common merchants; they only suggest. A language model, if you turn one on, is a fifth suggester for the review queue.</p>
+    <p><strong>Measured, on synthetic data.</strong> A seeded generator writes a year of lines for a made-up studio (payroll, software, Amazon bought for two different accounts, coffee, one-off local merchants, a card paid from checking). Importing a month at a time and filing each month's queue correctly, from the fourth month on 60% of lines posted by themselves (1,300 of 2,164), 1 of those 1,300 to the wrong account, and 84% of the review suggestions were right (542 of 642; 5 seeds, 2,892 lines; the README has the table and the command). The built-in keywords were written by the same person as the generator, so the first month's accuracy flatters them; the learning numbers are the honest part. Real bank files will be messier.</p>
+    <p><strong>Not modelled:</strong> accruals (invoices and bills not yet paid), depreciation, inventory, payroll filings (a Form 941 worksheet is offered) and sales tax filings, foreign-currency invoices (foreign bank accounts are covered in the CLI), splitting one line across accounts, and locking a closed period. It is cash-basis bookkeeping from bank lines. Reconciles to the statement only when the file has a running balance column.</p>
+  </section>
+  <section class="card" aria-labelledby="h-faq">
+    <h2 id="h-faq">Questions</h2>
+    <h3>What does AI Bookkeeper actually do with my bank file?</h3>
+    <p>It reads each line, suggests the account it belongs to with a confidence and the reason, and turns every line you accept into a balanced double-entry journal entry. From those entries it builds a trial balance, a profit and loss by month and a balance sheet. The file is read in your browser and never uploaded.</p>
+    <h3>How does it learn?</h3>
+    <p>Every line you file is remembered by its payee, cleaned of store numbers and reference codes. Next time the same payee posts itself once you have filed it the same way three times, and a small naive Bayes classifier trained on everything you filed suggests accounts for payees it has not seen exactly. On a synthetic year of a small studio's lines, 60% of each month posted by itself from the fourth month on, and 1 of those 1,300 lines went to the wrong account.</p>
+    <h3>Is the AI required, and where does my data go?</h3>
+    <p>No. The rules, memory and classifier run in your browser with no key. If you add your own Anthropic, OpenAI or Gemini key, or point it at a model on your own computer such as Ollama or LM Studio, the dates, descriptions and amounts of the lines still in review, your chart of accounts and up to 40 lines you already filed are sent from your browser straight to that provider, never to us. The model only suggests; nothing is posted until you accept it.</p>
+    <h3>Why doesn't a credit card payment show up as an expense?</h3>
+    <p>Because it is not one. Paying the card from checking moves money between two of your own accounts. When you import both statements, the payment out of checking and the payment received on the card are paired into one transfer entry, so the expense is counted once, when you bought the thing.</p>
+    <h3>Can I take the books to QuickBooks or Xero, or to my accountant?</h3>
+    <p>Yes. Export a QuickBooks Online journal entry import, a Xero manual journal CSV, a QuickBooks Desktop IIF file, a plain journal CSV, or a CSV of every line with its account, suggestion and reason. Check the account names match your company file before you import.</p>
+    <h3>Where are my books saved?</h3>
+    <p>In this browser's local storage and in the books file you download. Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser.</p>
+    <h3>Is this a replacement for an accountant?</h3>
+    <p>No. It does the sorting and the arithmetic of bookkeeping and tells you what to check. It does not know your tax position, accrual adjustments, depreciation, payroll filings or sales tax rules. Have a qualified accountant review the books before you file anything.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the files you provide and the choices you make. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including before you file a return or import it into your accounting software. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any bank or software company.</strong> QuickBooks, Xero, Stripe, Gusto, Amazon, Ollama, LM Studio and the other names are trademarks of their owners, named only to describe file formats and payees. This tool is independent and is not sponsored or endorsed by any of them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental and may be slow, broken, moved or taken offline without notice. Your books are kept only in this browser's storage and in the file you download; download it regularly. Clearing site data deletes the browser copy.</p>
+    <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies or analytics vendors. If you turn on AI, the lines described above go from your browser to the provider you chose. Anonymous feature events (<code>statement_imported</code>, <code>lines_filed</code>, <code>ai_suggested</code>, <code>exported</code>, <code>example_loaded</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a>, <a href="../sales-export-to-journal/">sales export to journal</a>, <a href="../freelancer-schedule-c-categorizer/">Schedule C categorizer</a>, <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a>.</p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
+    import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
+    import { newBooks, importStatement, importOfxAccounts, importQifAccounts, importCsvAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
+    import { parseCents } from "./bank.mjs";
+    import { decodeBytes } from "./textcodec.mjs";
+    import { pdfToText } from "./pdftext.mjs";
+    import { xlsxToCsv, looksLikeXlsx } from "./xlsx.mjs";
+    import { xlsToCsv, looksLikeXls } from "./xls.mjs";
+    import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
+    import { parseAccounts } from "./ledger.mjs";
+    import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
+    import { detectRecurring, forecastCash } from "./recurring.mjs";
+    import { addLoan, applyLoanPayments, loanRegister } from "./loans.mjs";
+    import { planBills } from "./billpay.mjs";
+    import { setBudget, budgetVsActual } from "./budget.mjs";
+    import { reconcile } from "./reconcile.mjs";
+    import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
+    import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, employerCost } from "./payroll.mjs";
+    import { addTrip, removeTrip, setHomeOffice, mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
+    import { estimatedTax } from "./estimatedtax.mjs";
+    import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
+    import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
+    import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
+    import { renderStatement } from "./statement.mjs";
+    import { reminders } from "./collections.mjs";
+    import { aiSuggest } from "./ai.mjs";
+    import { detectLocal, isLocal } from "./byok.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const STORE = "ai-bookkeeper-books", AI_STORE = "ai-bookkeeper-ai";
+    const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v); } for (const k of kids) e.append(k); return e; };
+    const load = () => { try { const s = localStorage.getItem(STORE); return s ? JSON.parse(s) : null; } catch { return null; } };
+    let books = load() ?? newBooks();
+    const persist = () => { try { localStorage.setItem(STORE, JSON.stringify(books)); } catch { $("#save-status").textContent = "This browser would not save the books (private window or storage full). Download the books file to keep them."; } };
+    const opts = () => ({ autoPost: Math.min(1, Math.max(0.5, parseFloat($("#auto").value) || 0.85)), invert: $("#invert").checked || undefined, dayFirst: $("#dayfirst").checked || undefined });
+    const name = (c) => books.accounts.find((a) => a.code === c)?.name ?? c;
+
+    function fillSetup() {
+      const sel = $("#bank"), keep = sel.value;
+      sel.replaceChildren(...books.accounts.filter((a) => a.bank).map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+      if (keep) sel.value = keep;
+      $("#rules").value = books.rules ?? "";
+      $("#coa").value = books.accounts.map((a) => [a.code, a.name, a.type, a.bank ? "bank" : ""].filter(Boolean).join(",")).join("\n");
+    }
+
+    function pill(s) {
+      if (!s?.account) return el("span", { class: "pill lo", text: "no idea" });
+      if (s.source === "ai") return el("span", { class: "pill ai", text: `AI ${s.confidence.toFixed(2)}` });
+      return el("span", { class: `pill ${s.confidence >= 0.85 ? "hi" : s.confidence >= 0.6 ? "mid" : "lo"}`, text: `${s.source} ${s.confidence.toFixed(2)}` });
+    }
+
+    // A line that is several things at once (a payout of sales less fees, a loan
+    // payment of principal plus interest): "4000:1000.00, 6010:-30.00".
+    function splitEditor(t) {
+      const input = el("input", { type: "text", placeholder: "4000:1000.00, 6010:-30.00", "aria-label": `Split ${t.desc} into accounts`, size: 26 });
+      const msg = el("span", { class: "reason", role: "status" });
+      const go = el("button", { type: "button", class: "secondary", text: "Split" });
+      go.addEventListener("click", () => {
+        try {
+          const parts = parseSplit(input.value);
+          if (!Array.isArray(parts)) { msg.textContent = "Give two or more accounts: code:amount, code:amount. Amounts are signed like the line; one may be left out."; return; }
+          books = confirm(books, { [t.id]: parts });
+          record("lines_filed");
+          render();
+        } catch (e) { msg.textContent = e.message; }
+      });
+      return el("details", {}, el("summary", { text: "Split" }), input, " ", go, " ", msg);
+    }
+
+    function renderQueue() {
+      const q = books.transactions.filter((t) => t.status === "review").sort((a, b) => a.date.localeCompare(b.date));
+      const shown = q.slice(0, 300);
+      const options = books.accounts.map((a) => [a.code, `${a.code} ${a.name}`]);
+      $("#queue").replaceChildren(...shown.map((t) => {
+        const sel = el("select", { "data-id": t.id, "aria-label": `Account for ${t.desc}` }, el("option", { value: "", text: "Choose an account" }), ...options.map(([v, l]) => el("option", { value: v, text: l })));
+        sel.value = t.suggestion?.account ?? "";
+        const tick = el("input", { type: "checkbox", "data-tick": t.id, "aria-label": `File ${t.desc}` });
+        if (t.suggestion?.account) tick.checked = t.suggestion.confidence >= 0.6;
+        sel.addEventListener("change", () => { tick.checked = !!sel.value; });
+        return el("tr", {}, el("td", {}, tick), el("td", { text: t.date }), el("td", { text: name(t.account) }), el("td", { text: t.desc }), el("td", { class: "n", text: fmt(t.cents) }), el("td", {}, sel), el("td", {}, pill(t.suggestion), " ", el("span", { class: "reason", text: t.suggestion?.reason ?? "" }), splitEditor(t)));
+      }));
+      $("#queue-note").textContent = q.length ? (q.length > shown.length ? `Showing the first ${shown.length} of ${q.length}.` : `${q.length} line${q.length === 1 ? "" : "s"} waiting.`) : "Nothing is waiting. Import another statement.";
+    }
+
+    function table(head, rows, totalRows = []) {
+      return el("table", {}, el("thead", {}, el("tr", {}, ...head.map((h, i) => el("th", { scope: "col", class: i ? "n" : "", text: h })))), el("tbody", {}, ...rows.map((r) => el("tr", {}, ...r.map((c, i) => el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c })))), ...totalRows.map((r) => el("tr", { class: "total" }, ...r.map((c, i) => el(i ? "td" : "th", i ? { class: "n", text: c } : { scope: "row", text: c }))))));
+    }
+
+    function renderReports() {
+      const r = reports(books, { from: $("#from").value || null, to: $("#to").value || null });
+      const p = r.profitAndLoss, m = p.months;
+      const line = (l) => [l.name, ...l.months.map((v) => fmt(v)), fmt(l.total)];
+      $("#pnl").replaceChildren(m.length ? table(["Account", ...m, "Total"], [...p.income.map(line), ["Total income", ...p.incomeByMonth.map((v) => fmt(v)), fmt(p.totalIncome)], ...p.expense.map(line)], [["Total expenses", ...p.expenseByMonth.map((v) => fmt(v)), fmt(p.totalExpense)], ["Net profit", ...p.netByMonth.map((v) => fmt(v)), fmt(p.net)]]) : el("p", { class: "note", text: "Nothing posted yet." }));
+      const b = r.balanceSheet;
+      const sec = (h, list) => [[h, ""], ...list.map((l) => [`   ${l.name}`, fmt(l.amount)])];
+      $("#bs").replaceChildren(table(["", "Amount"], [...sec("Assets", b.assets), ["Total assets", fmt(b.totalAssets)], ...sec("Liabilities", b.liabilities), ...sec("Equity", b.equity), ["   Current earnings (not yet closed)", fmt(b.currentEarnings)]], [["Liabilities + equity", fmt(b.totalLiabilities + b.totalEquity)], [b.balanced ? "Balanced" : "NOT BALANCED", ""]]));
+      const cfl = r.cashFlow, cashRow = (n, v) => [n, fmt(v)];
+      $("#cf").replaceChildren(table(["", "Amount"], [cashRow("Net profit", cfl.netProfit), ...cfl.operatingItems.map((l) => cashRow(`   Change in ${l.name.toLowerCase()}`, l.amount)), cashRow("Cash from operations", cfl.operating), ...cfl.investingItems.map((l) => cashRow(`   ${l.name}`, l.amount)), cashRow("Cash from investing", cfl.investing), ...cfl.financingItems.map((l) => cashRow(`   ${l.name}`, l.amount)), cashRow("Cash from financing", cfl.financing)], [cashRow("Change in cash", cfl.change), [`Cash ${fmt(cfl.openingCash)} to ${fmt(cfl.closingCash)}`, cfl.ties ? "Ties to the bank accounts" : "DOES NOT TIE"]]));
+      const t = r.trialBalance;
+      $("#tb").replaceChildren(table(["Account", "Debit", "Credit"], t.rows.map((x) => [`${x.code} ${x.name}`, x.debit ? fmt(x.debit) : "", x.credit ? fmt(x.credit) : ""]), [["Total", fmt(t.debit), fmt(t.credit)]]));
+      const c = closeChecks(books, opts());
+      $("#checks").replaceChildren(...(c.length ? c.map((x) => el("div", { class: `finding ${x.severity}` }, el("strong", { text: `${x.severity === "ok" ? "OK" : x.severity}: ` }), x.message)) : [el("p", { class: "note", text: "Nothing to check yet." })]));
+    }
+
+    function renderStatus() {
+      const s = status(books);
+      const tile = (v, l) => el("div", {}, el("strong", { text: String(v) }), l);
+      $("#summary").replaceChildren(tile(s.lines, "lines in the books"), tile(s.review, "waiting for you"), tile(s.auto, "posted by memory or rules"), tile(s.confirmed, "filed by you"), tile(s.transfer, "transfer lines paired"), tile(s.learnedFrom, "choices learned from"));
+    }
+
+    function renderRuleSuggestions() {
+      const sug = suggestRules(books);
+      const box = $("#rule-suggest");
+      if (!sug.length) { box.replaceChildren(); return; }
+      const add = el("button", { type: "button", class: "secondary", id: "add-rules", text: `Add these ${sug.length} as rules` });
+      add.addEventListener("click", () => { books = categorize(addRules(books, sug.map((r) => r.rule))); record("rules_added"); render(); $("#setup-status").textContent = `${sug.length} rule${sug.length === 1 ? "" : "s"} added. Matching lines now post by themselves.`; });
+      box.replaceChildren(el("p", { class: "note", text: "You filed these payees the same way every time. As rules they post at once, without waiting to reach the memory's confidence:" }), el("ul", {}, ...sug.slice(0, 15).map((r) => el("li", {}, el("code", { text: r.rule }), ` (${name(r.account)}, filed ${r.count} times)`))), add);
+    }
+
+    function renderRecurring() {
+      const rec = detectRecurring(books);
+      if (!rec.length) { $("#recurring").replaceChildren(el("p", { class: "note", text: "No payee has three or more lines at a steady interval yet." })); $("#forecast").replaceChildren(); return; }
+      $("#recurring").replaceChildren(table(["Payee", "Cadence", "Typical", "Per year", "Next", "Status"], rec.map((x) => [x.payee, x.cadence, fmt(x.typical), fmt(x.perYear), x.next, x.note ? `${x.status} (${x.note})` : x.status])));
+      const f = forecastCash(books);
+      const msg = f.runwayDays === null ? "The balance stays above zero." : f.runwayDays === 0 ? "The balance is already below zero." : `The balance goes below zero in ${f.runwayDays} days.`;
+      let bal = f.start;
+      const rows = f.items.slice(0, 40).map((it) => { bal += it.cents; return [it.date, it.label, fmt(it.cents), fmt(bal)]; });
+      $("#forecast").replaceChildren(el("p", { class: "note", text: `Forecast ${f.asOf} to ${f.to}: start ${fmt(f.start)}, end ${fmt(f.end)}, lowest ${fmt(f.lowest.cents)} on ${f.lowest.date}. ${msg}` }), table(["Date", "Item", "Amount", "Balance"], rows));
+    }
+
+    function renderReconcile() {
+      const sel = $("#recon-account"), keep = sel.value;
+      sel.replaceChildren(...books.accounts.filter((a) => a.type === "asset" || a.type === "liability").map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+      if (keep) sel.value = keep;
+    }
+    function renderBudget() {
+      const sel = $("#budget-account"), keep = sel.value;
+      sel.replaceChildren(...books.accounts.filter((a) => a.type === "income" || a.type === "expense").map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+      if (keep) sel.value = keep;
+      const b = budgetVsActual(books, { from: $("#from").value || null, to: $("#to").value || null });
+      if (!b) { $("#budget").replaceChildren(el("p", { class: "note", text: "Import a statement first." })); return; }
+      const pct = (x) => x.pct === null ? "" : ` ${(x.pct * 100).toFixed(0)}%`;
+      const rows = b.rows.map((x) => [`${x.code} ${x.name}`, fmt(x.budget), fmt(x.actual), fmt(x.variance), x.status + pct(x)]);
+      $("#budget").replaceChildren(
+        el("p", { class: "note", text: `${b.from} to ${b.to}, ${b.months} month${b.months === 1 ? "" : "s"}.${b.empty ? ` ${b.empty.replace("use `budget CODE AMOUNT`", "pick an account above")}.` : ""}${b.partial ? ` ${b.partial}.` : ""}` }),
+        table(["Account", "Budget", "Actual", "Variance", "Status"], rows, [["Net profit", fmt(b.net.budget), fmt(b.net.actual), fmt(b.net.variance), ""]]));
+    }
+
+    function renderYearEnd() {
+      const done = books.yearEnd ?? [];
+      const rows = done.map((y) => { const r = yearEndReport(books, y.year); return [String(y.year), r.netToRetained >= 0 ? "profit" : "loss", fmt(Math.abs(r.netToRetained)), fmt(r.retainedBefore), fmt(r.retainedAfter), y.draws ? "yes" : "no"]; });
+      $("#yearend").replaceChildren(rows.length
+        ? el("div", {}, el("p", { class: "note", text: `Locked through ${books.lockedThrough}.` }), table(["Year", "Result", "Moved", "Retained before", "Retained after", "Draws closed"], rows))
+        : el("p", { class: "note", text: "No year is closed." }));
+      $("#ye-reopen").disabled = !done.length;
+    }
+
+    function renderReceipts() {
+      if (!(books.receipts ?? []).length && !$("#receipts-text").value.trim()) { $("#receipts").replaceChildren(); return; }
+      const min = parseCents($("#receipts-min").value || "75");
+      const rep = receiptReport(books, { minCents: Number.isFinite(min) && min > 0 ? min : 7500, from: $("#from").value || null, to: $("#to").value || null });
+      const out = [el("p", { class: "note", text: `${rep.receipts} receipt${rep.receipts === 1 ? "" : "s"} on file: ${rep.matched.length} matched, ${rep.unmatched.length} without a bank line. ${fmt(rep.coveredCents)} of ${fmt(rep.spendCents)} spending is covered by a receipt.` })];
+      if (rep.matched.length) out.push(table(["Receipt", "Date", "Total", "Bank line", ""], rep.matched.map((m) => [m.merchant, m.date, fmt(m.cents), `${m.line.date} ${m.line.desc}`, [m.tipCents ? `+${fmt(m.tipCents)} tip` : "", m.payeeAgrees === false ? "name differs: check" : ""].filter(Boolean).join(", ")])));
+      const splittable = rep.matched.filter((m) => m.items?.length && m.line.status !== "split").map((m) => { try { return { m, plan: planReceiptSplit(books, m.id) }; } catch { return null; } }).filter((x) => x && !x.plan.single && x.plan.parts.length > 1);
+      if (splittable.length) out.push(el("p", { class: "note", text: "These receipts list items that belong to different accounts. Split the bank line by the items (tax is shared out by amount, a tip goes with the biggest part):" }), el("ul", {}, ...splittable.map(({ m, plan }) => {
+        const b = el("button", { type: "button", class: "secondary", "aria-label": `Split ${m.merchant} ${m.date} by items`, text: "Split by items" });
+        b.addEventListener("click", () => {
+          try { const r = splitFromReceipt(books, m.id); books = categorize(r.books, opts()); record("receipt_split"); render(); $("#receipts-status").textContent = `Split ${m.merchant} across ${r.plan.parts.length} accounts.`; } catch (e) { $("#receipts-status").textContent = e.message; }
+        });
+        return el("li", {}, `${m.merchant} ${m.date}: ${plan.parts.map((p) => `${p.account} ${fmt(Math.abs(p.cents))}`).join(", ")} `, b);
+      })));
+      if (rep.unmatched.length) out.push(el("p", { class: "note", text: "No bank line found (paid another way, or not imported yet):" }), table(["Receipt", "Date", "Total"], rep.unmatched.map((u) => [u.merchant, u.date, fmt(u.cents)])));
+      out.push(el("p", { class: "note", text: `${rep.missing.length} line${rep.missing.length === 1 ? "" : "s"} of ${fmt(rep.minCents)} or more with no receipt (${fmt(rep.missingCents)}). Wages, owner draws and transfers are left out.` }));
+      if (rep.missing.length) out.push(table(["Date", "Bank line", "Amount"], rep.missing.slice(0, 200).map((t) => [t.date, t.desc, fmt(t.cents)])));
+      const tax = taxOnReceipts(books, { from: $("#from").value || null, to: $("#to").value || null });
+      if (tax.receipts) out.push(el("p", { class: "note", text: `Tax printed on receipts: ${fmt(tax.taxCents)} across ${tax.receipts} (${tax.noTax.length} with no tax line, not counted).` }), table(["Month", "Tax", "Before tax"], tax.byMonth.map((m) => [m.month, fmt(m.taxCents), fmt(m.baseCents)])));
+      $("#receipts").replaceChildren(...out);
+    }
+
+    function renderAging() {
+      const docs = books.documents ?? [];
+      if (!docs.length) { $("#aging").replaceChildren(); return; }
+      const a = aging(books);
+      const row = (label, side) => [label, ...side.byBucket.map((v) => fmt(v)), fmt(side.total)];
+      $("#aging").replaceChildren(el("p", { class: "note", text: `${docs.filter((d) => d.settledBy).length} of ${docs.length} documents are paid by a bank line. Open items as of ${a.asOf}, by days past due:` }), table(["", ...a.buckets, "Total"], [row("Owed to you", a.receivable), row("You owe", a.payable)]), writeOffList(a), reminderList());
+    }
+
+    // One reminder draft per customer with an overdue invoice. Copied or downloaded, never sent from here.
+    function reminderList() {
+      const rs = reminders(books);
+      if (!rs.length) return el("span");
+      const rows = rs.map((r) => {
+        const b = el("button", { type: "button", class: "secondary", "aria-label": `Copy reminder for ${r.party}`, text: "Copy draft" });
+        b.addEventListener("click", async () => {
+          const text = `Subject: ${r.subject}\n\n${r.text}`;
+          try { await navigator.clipboard.writeText(text); $("#docs-status").textContent = `Reminder for ${r.party} copied.`; }
+          catch { const u = URL.createObjectURL(new Blob([text], { type: "text/plain" })), a = el("a", { href: u, download: `reminder-${r.party}.txt` }); document.body.append(a); a.click(); a.remove(); $("#docs-status").textContent = `Reminder for ${r.party} downloaded.`; }
+          record("reminder_drafted");
+        });
+        return el("tr", {}, el("td", { text: r.party }), el("td", { text: r.tone }), el("td", { class: "n", text: `${r.daysLate} days` }), el("td", { class: "n", text: fmt(r.overdue) }), el("td", {}, b));
+      });
+      return el("div", {}, el("p", { class: "note", text: "Payment reminders: a draft per customer with overdue invoices, friendlier or firmer by how late. Edit before you send; nothing is sent from here." }), el("table", {}, el("thead", {}, el("tr", {}, ...["Customer", "Tone", "Oldest", "Overdue", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
+    }
+
+    // Open invoices with a write-off button: for a customer who will not pay. Books the balance to bad debts (6900).
+    function writeOffList(a) {
+      const open = a.open.filter((o) => o.kind === "invoice" && !o.credit).slice(0, 25);
+      if (!open.length) return settledList(a.open);
+      const rows = open.map((o) => {
+        const b = el("button", { type: "button", class: "secondary", "aria-label": `Write off invoice ${o.id}`, text: "Write off" });
+        b.addEventListener("click", () => {
+          try { const r = writeOff(books, o.id); books = categorize(r.books, opts()); record("invoice_written_off"); render(); $("#docs-status").textContent = `Wrote off ${fmt(r.cents)} of ${o.id} to bad debts (6900).`; } catch (e) { $("#docs-status").textContent = e.message; }
+        });
+        const pr = printButton(o);
+        const st = el("button", { type: "button", class: "secondary", "aria-label": `Statement for ${o.party}`, text: "Statement" });
+        st.addEventListener("click", () => {
+          try {
+            const html = renderStatement(books, o.party).html, url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+            if (!window.open(url, "_blank")) { const a = el("a", { href: url, download: `statement-${o.party}.html` }); document.body.append(a); a.click(); a.remove(); }
+            record("statement_printed"); $("#docs-status").textContent = `Statement for ${o.party} opened; use your browser's Print and choose Save as PDF.`;
+          } catch (e) { $("#docs-status").textContent = e.message; }
+        });
+        return el("tr", {}, el("td", { text: o.id }), el("td", { text: o.party }), el("td", { class: "n", text: o.due ?? o.date }), el("td", { class: "n", text: `${o.daysLate} days` }), el("td", { class: "n", text: fmt(o.total) }), el("td", {}, pr, st, b));
+      });
+      return el("div", {}, el("p", { class: "note", text: "Open invoices. Print one to send (your details are under Your details above), or write off one that will not be paid; its unpaid balance goes to bad debts and it leaves the aging table:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Invoice", "Customer", "Due", "Late", "Owed", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)), settledList(a.open));
+    }
+
+    function printButton(o) {
+      const noun = o.credit ? "credit note" : "invoice";
+      const pr = el("button", { type: "button", class: "secondary", "aria-label": `Print ${noun} ${o.id}`, text: "Print" });
+      pr.addEventListener("click", () => {
+        try {
+          const html = renderInvoice(books, o.id).html, url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+          if (!window.open(url, "_blank")) { const a = el("a", { href: url, download: `${noun.replace(" ", "-")}-${o.id}.html` }); document.body.append(a); a.click(); a.remove(); }
+          record("invoice_printed"); $("#docs-status").textContent = `${noun[0].toUpperCase() + noun.slice(1)} ${o.id} opened; use your browser's Print and choose Save as PDF.`;
+        } catch (e) { $("#docs-status").textContent = e.message; }
+      });
+      return pr;
+    }
+
+    // Paid invoices and credit notes: no write-off, but a copy or a receipt can still be printed.
+    function settledList(open) {
+      const openIds = new Set(open.filter((o) => !o.credit).map((o) => o.id));
+      const rows = (books.documents ?? []).filter((d) => d.kind === "invoice" && !openIds.has(d.id)).slice(-25).reverse().map((d) =>
+        el("tr", {}, el("td", { text: d.id }), el("td", { text: d.party }), el("td", { text: d.credit ? "Credit note" : "Paid" }), el("td", { class: "n", text: fmt(d.total) }), el("td", {}, printButton(d))));
+      if (!rows.length) return el("span");
+      return el("div", {}, el("p", { class: "note", text: "Paid invoices and credit notes (latest 25). Print a copy or a paid receipt:" }), el("table", {}, el("thead", {}, el("tr", {}, ...["Document", "Customer", "Status", "Total", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
+    }
+
+    function renderPrepaid() {
+      const sel = $("#pp-account"), keep = sel.value;
+      sel.replaceChildren(...books.accounts.filter((a) => a.type === "expense").map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+      sel.value = keep || (books.accounts.some((a) => a.code === "6030") ? "6030" : sel.value);
+      const r = prepaidRegister(books);
+      if (!r.rows.length) { $("#pp-register").replaceChildren(); return; }
+      const rows = r.rows.map((p) => el("tr", {}, el("td", { text: `${p.id} ${p.name}` }), el("td", { class: "n", text: `${p.date} for ${p.months} months` }), el("td", { class: "n", text: fmt(p.cents) }), el("td", { class: "n", text: fmt(p.expensed) }), el("td", { class: "n", text: fmt(p.remaining) })));
+      $("#pp-register").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, ...["Item", "Covers", "Paid", "Expensed", "Still paid ahead"].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows, el("tr", { class: "total" }, el("th", { scope: "row", text: `Total as of ${r.asOf}` }), el("td"), el("td", { class: "n", text: fmt(r.cents) }), el("td", { class: "n", text: fmt(r.cents - r.remaining) }), el("td", { class: "n", text: fmt(r.remaining) })))));
+    }
+    $("#pp-add").addEventListener("click", () => {
+      try {
+        const r = addPrepaid(books, { name: $("#pp-name").value, date: $("#pp-date").value, amount: $("#pp-amount").value, months: $("#pp-months").value, expenseAccount: $("#pp-account").value });
+        books = categorize(r.books, opts()); record("prepaid_added"); render(); $("#pp-status").textContent = `${r.prepaid.id} ${r.prepaid.name} added: ${fmt(r.prepaid.cents)} over ${r.prepaid.months} months. File the payment to 1400 if you have not.`;
+      } catch (e) { $("#pp-status").textContent = e.message; }
+    });
+
+    function renderInventory() {
+      const g = inventoryRegister(books);
+      $("#iv-method").value = g.method;
+      if (!g.rows.length) { $("#iv-register").replaceChildren(); return; }
+      const rows = g.rows.map((a) => el("tr", {}, el("td", { text: a.sku }), el("td", { class: "n", text: String(a.onHand) }), el("td", { class: "n", text: fmt(a.unitCost) }), el("td", { class: "n", text: fmt(a.value) }), el("td", { class: "n", text: String(a.sold) }), el("td", { class: "n", text: fmt(a.cogs) })));
+      $("#iv-register").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, ...["Item", "On hand", "Unit cost", "Value on hand", "Sold", "Cost of goods sold"].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows, el("tr", { class: "total" }, el("th", { scope: "row", text: "Total (should equal account 1450)" }), el("td"), el("td"), el("td", { class: "n", text: fmt(g.value) }), el("td"), el("td", { class: "n", text: fmt(g.cogs) })))));
+    }
+    $("#iv-method").addEventListener("change", () => {
+      try { books = categorize(setInventoryMethod(books, $("#iv-method").value), opts()); record("inventory_method"); render(); $("#iv-status").textContent = "Costing method changed."; }
+      catch (e) { $("#iv-status").textContent = e.message; render(); }
+    });
+    $("#iv-add").addEventListener("click", () => {
+      try {
+        const kind = $("#iv-kind").value;
+        const r = addInventoryMove(books, { kind, sku: $("#iv-sku").value, date: $("#iv-date").value, qty: $("#iv-qty").value, amount: kind === "buy" ? $("#iv-amount").value : undefined });
+        books = categorize(r.books, opts()); record("inventory_move"); render();
+        $("#iv-status").textContent = kind === "buy" ? `${r.move.id} recorded: ${fmt(r.move.cents)}. File the payment to 1450 if you have not.` : `${r.move.id} recorded: the cost moved to 5000.`;
+      } catch (e) { $("#iv-status").textContent = e.message; }
+    });
+
+    function renderLoans() {
+      const g = loanRegister(books);
+      if (!g.rows.length) { $("#ln-register").replaceChildren(); return; }
+      const rows = g.rows.map((l) => el("tr", {}, el("td", { text: `${l.id} ${l.name}` }), el("td", { class: "n", text: `${fmt(l.cents)} at ${l.rate}%` }), el("td", { class: "n", text: `${l.paid} of ${l.months}` }), el("td", { class: "n", text: fmt(l.interestPaid) }), el("td", { class: "n", text: fmt(l.balance) }), el("td", { class: "n", text: l.next ? `${l.next.date} ${fmt(l.next.payment)}` : "paid off" })));
+      $("#ln-register").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, ...["Loan", "Terms", "Payments split", "Interest so far", "Owing by schedule", "Next payment"].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows, el("tr", { class: "total" }, el("th", { scope: "row", text: "Total owing by schedule" }), el("td"), el("td"), el("td"), el("td", { class: "n", text: fmt(g.balance) }), el("td")))));
+    }
+    $("#ln-add").addEventListener("click", () => {
+      try {
+        const r = addLoan(books, { name: $("#ln-name").value, amount: $("#ln-amount").value, rate: $("#ln-rate").value, months: $("#ln-months").value, first: $("#ln-first").value });
+        books = categorize(r.books, opts()); record("loan_added"); render(); $("#ln-status").textContent = `${r.loan.id} ${r.loan.name} added: payment ${fmt(r.loan.payment)} a month. File the money received to 2200, then split the payments.`;
+      } catch (e) { $("#ln-status").textContent = e.message; }
+    });
+    $("#ln-apply").addEventListener("click", () => {
+      try {
+        let n = 0;
+        for (const l of books.loans ?? []) { const r = applyLoanPayments(books, l.id); books = r.books; n += r.matched.length; }
+        if (!(books.loans ?? []).length) throw new Error("Add a loan first.");
+        if (n) { books = categorize(books, opts()); record("loan_applied"); }
+        render(); $("#ln-status").textContent = n ? `${n} bank payment${n === 1 ? "" : "s"} split into interest and principal.` : "No unfiled bank payment matches a scheduled amount within five days of its due date.";
+      } catch (e) { $("#ln-status").textContent = e.message; }
+    });
+
+    $("#bp-plan").addEventListener("click", () => {
+      try {
+        const reserve = $("#bp-reserve").value.trim() ? parseCents($("#bp-reserve").value) : 0;
+        if (!Number.isFinite(reserve) || reserve < 0) throw new Error("The reserve must be an amount of zero or more.");
+        const terms = {};
+        for (const [i, line] of $("#bp-terms").value.split("\n").entries()) {
+          if (!line.trim()) continue;
+          const c = line.split(",").map((x) => x.trim());
+          const [d, dd, lf] = [c[1] || "0", c[2] || "0", c[3] || "0"].map(Number);
+          if (!c[0] || [d, dd, lf].some((x) => !Number.isFinite(x) || x < 0) || d > 100 || lf > 100) throw new Error(`Supplier terms line ${i + 1}: use name, discount %, days, late fee %.`);
+          terms[c[0]] = { discountPct: d, discountDays: dd, lateFeePct: lf };
+        }
+        const p = planBills(books, { reserve, terms });
+        if (!p.rows.length) { $("#bp-result").replaceChildren(); $("#bp-status").textContent = "No open bills fall in the next 90 days. Load bills in the invoices and bills card."; return; }
+        record("billpay_planned");
+        const rows = p.rows.map((r) => el("tr", {}, el("td", { text: `${r.id} ${r.party}` }), el("td", { class: "n", text: fmt(r.cents) }), el("td", { class: "n", text: r.due }), el("td", { class: "n", text: r.payOn }), el("td", { text: r.status }), el("td", { text: r.note })));
+        $("#bp-result").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, ...["Bill", "Amount", "Due", "Pay on", "Status", "Note"].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows)));
+        $("#bp-status").textContent = `From ${fmt(p.start)} on ${p.asOf}, the lowest balance is ${fmt(p.lowest.cents)} on ${p.lowest.date}${p.shortfall ? ", counting the bills that cannot fit" : ""}.${p.shortfall ? ` ${fmt(p.shortfall)} of bills cannot fit above the reserve.` : ""}`;
+      } catch (e) { $("#bp-status").textContent = e.message; }
+    });
+
+    async function payoutPlan() {
+      const f = $("#po-file").files[0];
+      const text = f ? await f.text() : $("#po-paste").value;
+      if (!text.trim()) throw new Error("Choose the payout report file or paste its CSV.");
+      return planPayouts(books, readPayoutReport(text));
+    }
+    function showPayouts(plan, posted = null) {
+      const rows = [
+        ...plan.matched.map((m) => [m.id, m.date, fmt(m.net), fmt(m.gross), fmt(m.fees), `line ${m.line}${m.ambiguous ? " (ambiguous, skipped)" : ""}`]),
+        ...plan.done.map((m) => [m.id, m.date, fmt(m.net), fmt(m.gross), fmt(m.fees), `already split on ${m.line}`]),
+        ...plan.unmatched.map((m) => [m.id, m.date ?? "", fmt(m.net), fmt(m.gross), fmt(m.fees), `not matched: ${m.why}`]),
+      ];
+      const kids = [];
+      if (rows.length) kids.push(table(["Payout", "Date", "Deposit", "Gross", "Fees", "Bank line"], rows));
+      if (plan.pending.length) kids.push(el("p", { class: "note", text: `${plan.pending.length} row${plan.pending.length > 1 ? "s" : ""} not paid out yet (${fmt(plan.pending.reduce((a, x) => a + x.net, 0))}); they match once the payout lands.` }));
+      for (const p of plan.problems) kids.push(el("p", { class: "note", text: p }));
+      $("#po-result").replaceChildren(...kids);
+      $("#po-status").textContent = posted === null ? (plan.matched.length ? `${plan.matched.length} payout${plan.matched.length === 1 ? "" : "s"} matched to bank lines. Press Post to split them.` : "Nothing to post.") : `${posted} payout${posted === 1 ? "" : "s"} split in the books.`;
+    }
+    $("#po-plan").addEventListener("click", async () => {
+      try { const plan = await payoutPlan(); record("payouts_planned"); showPayouts(plan); } catch (e) { $("#po-status").textContent = e.message; $("#po-result").replaceChildren(); }
+    });
+    $("#po-post").addEventListener("click", async () => {
+      try {
+        const plan = await payoutPlan();
+        const r = applyPayouts(books, plan);
+        if (r.posted) { books = categorize(r.books, opts()); record("payouts_posted"); render(); }
+        showPayouts(planPayouts(books, readPayoutReport(($("#po-file").files[0] ? await $("#po-file").files[0].text() : $("#po-paste").value))), r.posted);
+      } catch (e) { $("#po-status").textContent = e.message; }
+    });
+
+    function showPayroll(note = "") {
+      const s = payrollSummary(books), plan = planPayroll(books);
+      const kids = [];
+      if ((books.payroll ?? []).length) kids.push(table(["Pay date", "Employees", "Gross", "Net", "Employer cost"], books.payroll.map((r) => [r.date, String(r.employees), fmt(r.gross), fmt(r.net), fmt(employerCost(r))])));
+      if (plan.matched.length || plan.unmatched.length) kids.push(table(["Pay run", "What", "Amount", "Bank line"], [
+        ...plan.matched.map((m) => [m.run, m.kind, fmt(m.amount), `line ${m.line} ${m.lineDate}${m.ambiguous ? " (ambiguous, skipped)" : ""}`]),
+        ...plan.unmatched.map((m) => [m.run, m.kind, fmt(m.amount), `not matched: ${m.why}`]),
+      ]));
+      $("#pr-result").replaceChildren(...kids);
+      $("#pr-status").textContent = `${note}${s.runs ? ` Accrued ${fmt(s.accrued)}, paid from the bank ${fmt(s.paid)}, still owed ${fmt(s.owed)}.` : ""}`.trim();
+    }
+    async function payrollText() {
+      const f = $("#pr-file").files[0];
+      const text = f ? await f.text() : $("#pr-paste").value;
+      if (!text.trim()) throw new Error("Choose the pay-run report file or paste its CSV.");
+      return text;
+    }
+    $("#pr-add").addEventListener("click", async () => {
+      try {
+        const r = addPayroll(books, await payrollText());
+        books = categorize(r.books, opts()); record("payroll_booked"); render();
+        showPayroll(`${r.added.length} pay run${r.added.length === 1 ? "" : "s"} booked${r.skipped.length ? `, ${r.skipped.length} already in the books` : ""}. ${r.problems.join(" ")}`);
+      } catch (e) { $("#pr-status").textContent = e.message; $("#pr-result").replaceChildren(); }
+    });
+    $("#pr-post").addEventListener("click", () => {
+      try {
+        const r = applyPayroll(books, planPayroll(books));
+        if (r.posted) { books = categorize(r.books, opts()); record("payroll_posted"); render(); }
+        showPayroll(`${r.posted} bank line${r.posted === 1 ? "" : "s"} filed to 2300.`);
+      } catch (e) { $("#pr-status").textContent = e.message; }
+    });
+    $("#pr-941").addEventListener("click", () => {
+      try {
+        const f = form941(books, $("#pr-year").value || new Date().getFullYear(), $("#pr-q").value);
+        record("form941_viewed");
+        const rows = [["Wages (line 2)", f.wages], ["Federal income tax withheld (line 3)", f.federalWithheld], ["Social security tax, both shares (line 5a)", f.socialSecurityTax], ["Medicare tax, both shares (line 5c)", f.medicareTax], ["Total taxes before adjustments", f.totalTaxes], ["Federal deposits due from the register", f.deposited], ["FUTA (Form 940)", f.futa]].map(([l, v]) => [l, fmt(v)]);
+        $("#pr-result").replaceChildren(table(["Line", "Amount"], rows), ...f.warnings.map((w) => el("p", { class: "note", text: `Check: ${w}` })), el("p", { class: "note", text: "Worksheet only: tips, adjustments, the social security wage base and credits are not modelled." }));
+        $("#pr-status").textContent = `${f.year} Q${f.quarter} (${f.from} to ${f.to}), ${f.runs} pay run${f.runs === 1 ? "" : "s"}.`;
+      } catch (e) { $("#pr-status").textContent = e.message; }
+    });
+
+    function renderAssets() {
+      const r = register(books);
+      if (!r.rows.length) { $("#fa-register").replaceChildren(); return; }
+      const rows = r.rows.map((a) => {
+        const act = a.disposed ? el("span", { text: `Disposed ${a.disposed.date}` }) : el("button", { type: "button", class: "secondary", "aria-label": `Dispose of ${a.name}`, text: "Sell or scrap" });
+        if (!a.disposed) act.addEventListener("click", () => {
+          const date = $("#fa-date").value, proceeds = $("#fa-proceeds").value || "0";
+          try { const d = disposeAsset(books, a.id, { date, proceeds }); books = categorize(d.books, opts()); record("asset_disposed"); render(); $("#fa-status").textContent = `${a.id} disposed on ${date}.`; } catch (e) { $("#fa-status").textContent = e.message; }
+        });
+        return el("tr", {}, el("td", { text: `${a.id} ${a.name}` }), el("td", { class: "n", text: a.date }), el("td", { class: "n", text: fmt(a.cost) }), el("td", { class: "n", text: fmt(a.accumulated) }), el("td", { class: "n", text: fmt(a.netBookValue) }), el("td", {}, act));
+      });
+      $("#fa-register").replaceChildren(el("table", {}, el("thead", {}, el("tr", {}, ...["Asset", "In service", "Cost", "Depreciated", "Net book value", ""].map((h) => el("th", { scope: "col", text: h })))), el("tbody", {}, ...rows, el("tr", { class: "total" }, el("th", { scope: "row", text: `Total as of ${r.asOf}` }), el("td"), el("td", { class: "n", text: fmt(r.cost) }), el("td", { class: "n", text: fmt(r.accumulated) }), el("td", { class: "n", text: fmt(r.netBookValue) }), el("td")))));
+    }
+    $("#fa-add").addEventListener("click", () => {
+      try {
+        const m = $("#fa-method").value;
+        const r = addAsset(books, { name: $("#fa-name").value, date: $("#fa-date").value, cost: $("#fa-cost").value, lifeMonths: m === "expense" ? 1 : parseInt($("#fa-life").value, 10), salvage: $("#fa-salvage").value || "0", method: m });
+        books = categorize(r.books, opts()); record("asset_added"); render(); $("#fa-status").textContent = `${r.asset.id} ${r.asset.name} added.`;
+      } catch (e) { $("#fa-status").textContent = e.message; }
+    });
+
+    const taxYear = () => { const y = parseInt($("#tx-year").value, 10); return y >= 1990 && y <= 2100 ? y : Math.max(0, ...books.transactions.map((t) => +t.date.slice(0, 4)).filter(Boolean)) || new Date().getFullYear(); };
+    const taxDepr = () => {
+      const y = taxYear(), elected = (books.assets ?? []).some((a) => a.tax?.s179);
+      let carryIn = 0, typed = $("#tx-carry").value.trim() !== "";
+      try { carryIn = typed ? parseCents($("#tx-carry").value) : elected ? s179Carryforward(books, y).carryIn : 0; } catch {}
+      return taxDepreciation(books, y, { businessIncome: elected || carryIn ? taxableBusinessIncome(books, y) : null, carryIn });
+    };
+    function renderTaxDepr() {
+      const sel = $("#tx-asset"), keep = sel.value;
+      sel.replaceChildren(...(books.assets ?? []).map((a) => el("option", { value: a.id, text: `${a.id} ${a.name}` })));
+      if (keep) sel.value = keep;
+      const wrap = $("#tx-sheet");
+      if (!(books.assets ?? []).some((a) => a.tax)) { wrap.replaceChildren(); return; }
+      const w = taxDepr();
+      const row = (r) => [`${r.id} ${r.name}`, `${r.class}-yr`, fmt(r.s179), fmt(r.bonus), fmt(r.macrs), fmt(r.total), fmt(r.book), fmt(r.difference)];
+      wrap.replaceChildren(table(["Asset", "Class", "Section 179", "Bonus", "MACRS", "Tax", "Book", "Difference"], w.rows.map(row), [["Total", "", fmt(w.totals.s179), fmt(w.totals.bonus), fmt(w.totals.macrs), fmt(w.totals.total), fmt(w.totals.book), fmt(w.totals.difference)]]), ...w.warnings.map((x) => el("p", { class: "note", text: x })));
+    }
+    $("#tx-set").addEventListener("click", () => {
+      try {
+        const r = setTaxTreatment(books, $("#tx-asset").value, { macrsClass: $("#tx-class").value, s179: $("#tx-179").value || "0", bonusPct: $("#tx-bonus").value || "0" });
+        books = r.books; record("asset_tax_set"); render(); $("#tx-status").textContent = `${r.asset.id}: MACRS ${r.asset.tax.macrsClass}-year, section 179 ${fmt(r.asset.tax.s179)}, bonus ${r.asset.tax.bonusPct}%.`;
+      } catch (e) { $("#tx-status").textContent = e.message; }
+    });
+    $("#tx-year").addEventListener("change", renderTaxDepr);
+    $("#tx-carry").addEventListener("change", renderTaxDepr);
+    $("#tx-csv").addEventListener("click", () => {
+      if (!(books.assets ?? []).some((a) => a.tax)) { $("#tx-status").textContent = "Set a tax treatment on at least one asset first."; return; }
+      record("tax_depreciation_downloaded"); download(taxDepreciationCsv(taxDepr()), `tax-depreciation-${taxYear()}.csv`, "text/csv");
+    });
+
+    function renderSalesTax() {
+      const t = salesTax(books);
+      if (!t.months.some((m) => m.collected || m.credited || m.remitted)) { $("#salestax").replaceChildren(); return; }
+      const r = (label, m) => [label, fmt(m.sales), fmt(m.collected), fmt(m.credited), fmt(m.remitted), fmt(m.owed ?? t.owed)];
+      $("#salestax").replaceChildren(el("p", { class: "note", text: `Sales tax (account ${t.account}): collected on invoices, taken off by credit notes, paid over by bank lines. ${fmt(t.owed)} is still owed to the tax authority.` }), table(["Month", "Sales", "Collected", "Credited", "Paid over", "Owed"], [...t.months.map((m) => r(m.month, m)), r("Total", t.totals)]));
+    }
+
+    function renderVat() {
+      const v = vatReturn(books, { from: $("#from").value || null, to: $("#to").value || null });
+      if (!Object.values(v.boxes).some((x) => x) && !v.paid) { $("#vat").replaceChildren(el("p", { class: "note", text: "No VAT on any invoice or bill in this period yet." })); return; }
+      const label = { 1: "VAT due on sales", 2: "VAT due on EU acquisitions", 3: "Total VAT due", 4: "VAT reclaimed on purchases", 5: v.payable === "pay" ? "Net VAT to pay" : "Net VAT to reclaim", 6: "Sales ex VAT (whole pounds)", 7: "Purchases ex VAT (whole pounds)", 8: "EU supplies ex VAT", 9: "EU acquisitions ex VAT" };
+      $("#vat").replaceChildren(table(["Box", "Description", "Amount"], Object.keys(v.boxes).map((k) => [k, label[k], k >= 6 ? String(v.boxes[k]) : fmt(Math.abs(v.boxes[k]))])), el("p", { class: "note", text: `VAT already paid over by bank lines in the period: ${fmt(v.paid)}.` }), ...v.warnings.map((w) => el("p", { class: "note", text: w })));
+    }
+
+    function dollars(sel) { const v = $(sel).value.replace(/[$,\s]/g, ""); if (!v) return undefined; const n = Number(v); if (!Number.isFinite(n)) throw new Error("Use plain numbers in the dollar boxes."); return Math.round(n * 100); }
+    $("#est-run").addEventListener("click", () => {
+      try {
+        const r = estimatedTax(books, { year: deductYear(), monthsElapsed: parseInt($("#est-months").value, 10) || 12, filing: $("#est-filing").value, wages: dollars("#est-wages"), otherIncome: dollars("#est-other"), withholding: dollars("#est-withheld"), paid: dollars("#est-paid"), priorYearTax: dollars("#est-prior"), priorAgi: dollars("#est-prior-agi"), asOf: new Date().toISOString().slice(0, 10) });
+        record("tax_estimated");
+        const rows = [["Schedule C profit (annualised)", fmt(r.profit)], ["Adjusted gross income", fmt(r.agi)], ["Standard deduction", fmt(r.standardDeduction)], ["QBI deduction", fmt(r.qbiDeduction)], ["Taxable income", fmt(r.taxable)], [`Income tax (${Math.round(r.marginalRate * 100)}% top bracket)`, fmt(r.incomeTax)], ["Self-employment tax", fmt(r.se.tax)], ["Additional Medicare tax", fmt(r.addlMedicare)]];
+        $("#est").replaceChildren(table(["Item", "Amount"], rows, [["Total federal tax", `${fmt(r.totalTax)} (${(r.effectiveRate * 100).toFixed(1)}% of income)`]]), el("p", { class: "note", text: `Safe harbour: 90% of this year is ${fmt(r.safeHarbor.current90)}${r.safeHarbor.prior != null ? `, last year's route ${fmt(r.safeHarbor.prior)}` : ""}; pay ${fmt(r.safeHarbor.required)} in estimates.` }), table(["Due", "Pay"], r.payments.map((p) => [p.due, p.status === "past" ? "(past)" : fmt(p.cents)])), ...r.warnings.map((w) => el("p", { class: "note", text: w })));
+        $("#est-status").textContent = "";
+      } catch (e) { $("#est-status").textContent = e.message; }
+    });
+
+    function deductYear() { return +($("#from").value || "").slice(0, 4) || Math.max(0, ...books.transactions.map((t) => +t.date.slice(0, 4)).filter(Boolean)) || new Date().getFullYear(); }
+    function renderDeduct() {
+      const y = deductYear(), m = mileageDeduction(books, y), h = homeOfficeDeduction(books, y);
+      const rows = m.trips.map((t) => [t.date, `${t.miles} mi`, t.purpose]);
+      const out = [el("p", { class: "note", text: `${y}: ${m.miles} business miles${m.rate ? ` at ${m.rate / 10} cents = ${fmt(m.cents)}` : ""}; home office ${h.sqft ? `${h.sqft} sq ft, ${h.months} months = ${fmt(h.cents)}` : "not set"}.` })];
+      if (rows.length) out.push(table(["Date", "Miles", "Purpose"], rows));
+      for (const t of m.trips) { const b = el("button", { type: "button", class: "secondary", text: `Remove ${t.date} ${t.miles} mi` }); b.addEventListener("click", () => { books = removeTrip(books, t.id); render(); }); out.push(b); }
+      $("#deduct").replaceChildren(...out);
+    }
+    $("#trip-add").addEventListener("click", () => {
+      try { const r = addTrip(books, { date: $("#trip-date").value, miles: $("#trip-miles").value, purpose: $("#trip-purpose").value }); books = r.books; record("trip_added"); render(); $("#deduct-status").textContent = `Added ${r.trip.miles} miles.`; }
+      catch (e) { $("#deduct-status").textContent = e.message; }
+    });
+    $("#ho-set").addEventListener("click", () => {
+      try { books = setHomeOffice(books, { sqft: $("#ho-sqft").value || 0 }); record("home_office_set"); render(); $("#deduct-status").textContent = "Home office saved."; }
+      catch (e) { $("#deduct-status").textContent = e.message; }
+    });
+
+    function renderScheduleC() {
+      const dates = { from: $("#from").value || null, to: $("#to").value || null };
+      const sc = scheduleC(books, { ...dates, year: deductYear() });
+      if (!sc.lines.length) { $("#schedc").replaceChildren(el("p", { class: "note", text: "Nothing filed to income or expense accounts yet." })); return; }
+      const rows = [...sc.lines.map((l) => [l.line, l.label, fmt(l.cents)])];
+      $("#schedc").replaceChildren(table(["Line", "Description", "Amount"], rows, [["7", "Gross income", fmt(sc.grossIncome)], ["28", "Total expenses", fmt(sc.totalExpenses)], ["31", "Net profit or (loss)", fmt(sc.netProfit)]]), ...sc.warnings.map((w) => el("p", { class: "note", text: w })));
+    }
+    $("#schedc-csv").addEventListener("click", () => { record("schedule_c_downloaded"); download(scheduleCCsv(scheduleC(books, { from: $("#from").value || null, to: $("#to").value || null, year: deductYear() })), "schedule-c-worksheet.csv", "text/csv"); });
+
+    const necYear = () => Math.max(0, ...books.transactions.map((t) => +t.date.slice(0, 4)).filter(Boolean)) || new Date().getFullYear();
+    function renderNec() {
+      const r = contractors1099(books, { year: necYear() });
+      const box = $("#nec");
+      if (!r.payees.length) { box.replaceChildren(el("p", { class: "note", text: r.warnings[0] })); $("#nec-merge").hidden = true; return; }
+      const t = table(["Payee", "Paid by bank", "1099-NEC", "By card"], r.payees.map((p) => [p.name, fmt(p.cents), p.over ? "Report" : "Under", p.cardCents ? fmt(p.cardCents) : ""]));
+      t.querySelector("thead tr").append(el("th", { scope: "col", text: "W-9 on file" }));
+      [...t.querySelectorAll("tbody tr")].forEach((tr, i) => {
+        const p = r.payees[i], cb = el("input", { type: "checkbox", "aria-label": `W-9 on file for ${p.name}` });
+        cb.checked = p.w9;
+        cb.addEventListener("change", () => { books = markW9(books, p.name, cb.checked); record("w9_flag_set"); render(); });
+        tr.append(el("td", {}, cb));
+      });
+      box.replaceChildren(el("p", { class: "note", text: `${r.year}, 1099-NEC line ${fmt(r.threshold)}` }), t, ...r.warnings.map((w) => el("p", { class: "note", text: w })));
+      for (const id of ["#nec-from", "#nec-into"]) $(id).replaceChildren(...r.payees.map((p) => el("option", { value: p.name, text: p.name })));
+      $("#nec-merge").hidden = r.payees.length < 2;
+    }
+    $("#nec-merge-go").addEventListener("click", () => {
+      try { books = mergePayees(books, $("#nec-from").value, $("#nec-into").value); record("payees_merged"); render(); } catch (e) { alert(e.message); }
+    });
+    $("#nec-csv").addEventListener("click", () => { record("contractors_downloaded"); download(contractors1099Csv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-worksheet.csv", "text/csv"); });
+
+    $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
+
+    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderInventory(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+
+    function renderOpening() {
+      const tb = books.openingTB;
+      $("#open-clear").hidden = !tb;
+      if (tb && !$("#open-status").textContent) $("#open-status").textContent = `${tb.lines.length} opening balances set as of ${tb.date}.`;
+    }
+    $("#open-set").addEventListener("click", async () => {
+      const f = $("#open-file").files[0];
+      const text = f ? await f.text() : $("#open-paste").value;
+      if (!text.trim()) { $("#open-status").textContent = "Choose a CSV file or paste one first."; return; }
+      try {
+        const r = setOpeningBalances(books, text, { date: $("#open-date").value, decimalComma: false });
+        if (!r.lines.length) { $("#open-status").textContent = r.problems.slice(0, 3).join(" "); return; }
+        books = categorize(r.books, opts());
+        $("#open-file").value = ""; $("#open-paste").value = "";
+        record("opening_set");
+        render();
+        $("#open-status").textContent = [`${r.lines.length} opening balances set as of ${r.books.openingTB.date}.`, r.plug ? `${fmt(Math.abs(r.plug))} did not balance and went to 3000 Opening balance equity.` : "They balance.", ...r.problems.slice(0, 3)].join(" ");
+      } catch (e) { $("#open-status").textContent = e.message; }
+    });
+    $("#open-clear").addEventListener("click", () => {
+      try { books = categorize(clearOpeningBalances(books), opts()); record("opening_cleared"); render(); $("#open-status").textContent = "Opening balances removed."; } catch (e) { $("#open-status").textContent = e.message; }
+    });
+
+    $("#pf-save").addEventListener("click", () => {
+      for (const k of PROFILE_KEYS) books = setProfile(books, k, $(`#pf-${k}`).value.trim());
+      $("#docs-status").textContent = "Details saved for printed invoices.";
+    });
+    $("#docs-load").addEventListener("click", async () => {
+      const f = $("#docs-file").files[0];
+      const text = f ? await f.text() : $("#docs-paste").value;
+      if (!text.trim()) { $("#docs-status").textContent = "Choose a CSV file or paste one first."; return; }
+      const r = addDocuments(books, text, opts());
+      books = categorize(r.books, opts());
+      $("#docs-status").textContent = [`${r.added} document${r.added === 1 ? "" : "s"} added${r.skipped ? `, ${r.skipped} already in the books` : ""}.`, ...r.problems.slice(0, 3)].join(" ");
+      $("#docs-file").value = ""; $("#docs-paste").value = "";
+      record("documents_loaded");
+      render();
+    });
+
+    async function readInput() {
+      const f = $("#file").files[0];
+      if (f && /\.pdf$/i.test(f.name)) {
+        // The PDF is read in this tab; nothing is uploaded.
+        const text = await pdfToText(await f.arrayBuffer());
+        if (!text.trim()) throw new Error("This PDF has no text layer (a scan). Statements are not OCR'd; download the bank's CSV or OFX instead.");
+        return text;
+      }
+      if (f) {
+        const bytes = new Uint8Array(await f.arrayBuffer());
+        // An Excel export is unzipped and read in this tab as well.
+        return looksLikeXlsx(bytes) ? await xlsxToCsv(bytes) : looksLikeXls(bytes) ? xlsToCsv(bytes) : decodeBytes(bytes);
+      }
+      return $("#paste").value;
+    }
+
+    // A multi-account OFX file: one select per account in the file, so each
+    // goes to its own chart code (or is left out).
+    let ofxParts = [];
+    async function showOfxMap() {
+      const f = $("#file").files[0];
+      ofxParts = [];
+      if (f && !/\.pdf$/i.test(f.name)) { const text = await readInput(); const fmtName = sniffFormat(text); if (fmtName === "ofx") { const p = splitOfx(text); if (p.length > 1) ofxParts = p; } else if (fmtName === "qif") { ofxParts = splitQif(text).map((q) => ({ id: q.id, type: q.type, qif: true })); } else { const n = readStatement(text, opts()).accountNames; if (n) ofxParts = n.map((id) => ({ id, csv: true })); } }
+      $("#ofx-map").hidden = !ofxParts.length;
+      if (!ofxParts.length) return;
+      $("#ofx-map-note").textContent = `This file holds ${ofxParts.length} accounts. Choose the chart account each one goes to.`;
+      const banks = books.accounts.filter((a) => a.bank);
+      $("#ofx-map-rows").replaceChildren(...ofxParts.map((p, i) => {
+        const sel = el("select", { id: `ofx-acct-${i}` }, el("option", { value: "", text: "Leave out" }), ...banks.map((a) => el("option", { value: a.code, text: `${a.code} ${a.name}` })));
+        const label = el("label", { for: `ofx-acct-${i}`, text: p.csv || p.qif ? `Account "${p.id}"` : `Account ${p.id || "(no id)"} (${p.card ? "card" : p.type || "bank"})` });
+        return el("div", {}, label, sel);
+      }));
+    }
+    $("#file").addEventListener("change", showOfxMap);
+
+    $("#import").addEventListener("click", async () => {
+      let text;
+      try { text = await readInput(); } catch (e) { $("#import-status").textContent = e.message; return; }
+      if (!text.trim()) { $("#import-status").textContent = "Choose a CSV file or paste one first."; return; }
+      if (ofxParts.length && $("#file").files[0]) {
+        const map = {};
+        ofxParts.forEach((p, i) => { const v = $(`#ofx-acct-${i}`).value; if (v) map[p.id] = v; });
+        const r = ofxParts[0].csv ? importCsvAccounts(books, text, map, opts()) : ofxParts[0].qif ? importQifAccounts(books, text, map, opts()) : importOfxAccounts(books, text, map, opts());
+        books = r.books;
+        $("#import-status").textContent = [`${r.added} line${r.added === 1 ? "" : "s"} added across ${Object.keys(map).length} account${Object.keys(map).length === 1 ? "" : "s"}${r.skipped ? `, ${r.skipped} already in the books` : ""}.`, ...r.problems.slice(0, 3)].join(" ");
+        $("#file").value = ""; $("#paste").value = ""; ofxParts = []; $("#ofx-map").hidden = true;
+        record("statement_imported");
+        render();
+        return;
+      }
+      const r = importStatement(books, text, $("#bank").value, opts());
+      books = r.books;
+      const msg = [`${r.added} line${r.added === 1 ? "" : "s"} added to ${name($("#bank").value)}${r.skipped ? `, ${r.skipped} already in the books` : ""}.`];
+      if (r.balanceCheck?.checked) msg.push(r.balanceCheck.breaks.length ? `The statement's running balance breaks at line ${r.balanceCheck.breaks[0].line}: a row may be missing, doubled or have the wrong sign.` : "Every row agrees with the statement's running balance.");
+      msg.push(...r.problems.slice(0, 3));
+      $("#import-status").textContent = msg.join(" ");
+      $("#file").value = ""; $("#paste").value = "";
+      record("statement_imported");
+      render();
+    });
+
+    $("#example").addEventListener("click", () => {
+      books = analyze({ example: true }).books;
+      $("#import-status").textContent = "Loaded three synthetic months for a made-up studio: a checking statement with a running balance, and a card statement. File the queue, then import nothing more and look at the reports.";
+      record("example_loaded");
+      render();
+    });
+
+    $("#tick-all").addEventListener("change", (e) => { for (const t of document.querySelectorAll("[data-tick]")) t.checked = e.target.checked; });
+
+    $("#file-checked").addEventListener("click", () => {
+      const choices = {};
+      for (const t of document.querySelectorAll("[data-tick]")) {
+        if (!t.checked) continue;
+        const v = document.querySelector(`select[data-id="${CSS.escape(t.dataset.tick)}"]`).value;
+        if (v) choices[t.dataset.tick] = v;
+      }
+      if (!Object.keys(choices).length) { $("#queue-note").textContent = "Tick at least one line that has an account chosen."; return; }
+      books = confirm(books, choices);
+      record("lines_filed");
+      render();
+    });
+
+    $("#accept-all").addEventListener("click", () => {
+      books = acceptSuggestions(books, parseFloat($("#accept-min").value) || 0.7);
+      record("lines_filed");
+      render();
+    });
+
+    const aiConfig = () => ({ provider: $("#provider").value, model: $("#model").value.trim() || undefined, apiKey: $("#apikey").value.trim() || undefined, baseUrl: $("#baseurl").value.trim() || undefined, browser: true });
+    try { const s = JSON.parse(localStorage.getItem(AI_STORE) || "null"); if (s) { for (const k of ["provider", "model", "apikey", "baseurl"]) $(`#${k}`).value = s[k] ?? ""; $("#remember").checked = true; } } catch { /* storage is optional */ }
+    const rememberAi = () => { try { if ($("#remember").checked) localStorage.setItem(AI_STORE, JSON.stringify({ provider: $("#provider").value, model: $("#model").value, apikey: $("#apikey").value, baseurl: $("#baseurl").value })); else localStorage.removeItem(AI_STORE); } catch { /* storage is optional */ } };
+    for (const id of ["provider", "model", "apikey", "baseurl", "remember"]) $(`#${id}`).addEventListener("change", rememberAi);
+
+    $("#detect").addEventListener("click", async () => {
+      $("#ai-state").textContent = "Looking for Ollama, LM Studio and llama.cpp on this computer...";
+      const found = await detectLocal();
+      if (!found.length) { $("#ai-state").textContent = "No local model answered. Start Ollama with OLLAMA_ORIGINS=https://duncan-haywood.github.io (or turn on CORS in LM Studio's server settings), allow this page to reach your computer if the browser asks, and try again."; return; }
+      $("#provider").value = found[0].provider;
+      if (found[0].models[0]) $("#model").value = found[0].models[0];
+      rememberAi();
+      $("#ai-state").textContent = `Found ${found.map((f) => `${f.provider} (${f.models.length} model${f.models.length === 1 ? "" : "s"})`).join(", ")}. Lines stay on your computer.`;
+    });
+
+    $("#ask-ai").addEventListener("click", async () => {
+      const cfg = aiConfig();
+      if (!cfg.provider) { $("#ai-state").textContent = "Choose a provider first. AI is optional: the review queue already has every suggestion the rules, memory and classifier can make."; return; }
+      $("#ai-state").textContent = `Asking ${isLocal(cfg) ? "the model on your computer" : cfg.provider} about up to 40 review lines...`;
+      const r = await aiSuggest(cfg, books);
+      if (r.source !== "model") { $("#ai-state").textContent = `No AI suggestions: ${r.error ?? "AI is off"}. The review queue is unchanged.`; return; }
+      books = categorize(r.books, opts());
+      $("#ai-state").textContent = `${r.suggested} line${r.suggested === 1 ? "" : "s"} now have an AI suggestion (purple). Check each before you file it.${r.dropped ? ` ${r.dropped} answer${r.dropped === 1 ? " was" : "s were"} dropped for naming an account not in your chart.` : ""}`;
+      record("ai_suggested");
+      render();
+    });
+
+    $("#ye-close").addEventListener("click", () => {
+      try { books = closeYear(books, $("#ye-year").value.trim(), { draws: $("#ye-draws").checked, month: $("#ye-month").value }); record("year_close"); const y = $("#ye-year").value.trim(); render(); $("#ye-status").textContent = `${y} closed. Locked through ${books.lockedThrough}.`; }
+      catch (e) { $("#ye-status").textContent = e.message; }
+    });
+    $("#ye-reopen").addEventListener("click", () => {
+      try { const y = (books.yearEnd ?? []).at(-1)?.year; books = reopenYear(books, y); render(); $("#ye-status").textContent = `${y} reopened.`; }
+      catch (e) { $("#ye-status").textContent = e.message; }
+    });
+    $("#recon-check").addEventListener("click", () => {
+      try {
+        const cents = parseCents($("#recon-balance").value);
+        if (cents === null || cents === undefined || Number.isNaN(cents)) throw new Error("Enter the closing balance as printed, such as 691.50.");
+        const r = reconcile(books, { account: $("#recon-account").value, date: $("#recon-date").value, balance: cents });
+        record("reconcile_checked");
+        $("#recon-status").textContent = "";
+        const kids = [el("p", { class: "note", text: `On ${r.date}: books ${fmt(r.book)}, statement ${fmt(r.statement)}. ${r.agrees ? "They agree." : `Difference ${fmt(r.difference)}.`}` })];
+        if (!r.agrees) {
+          kids.push(r.hints.length ? el("ul", {}, ...r.hints.map((h) => el("li", { text: h.message }))) : el("p", { class: "note", text: "No single line, pair or still-unfiled line explains it. Compare the statement to the list line by line, and check the opening balance." }));
+        }
+        $("#recon").replaceChildren(...kids);
+      } catch (e) { $("#recon-status").textContent = e.message; $("#recon").replaceChildren(); }
+    });
+    $("#budget-set").addEventListener("click", () => {
+      try { const cents = parseCents($("#budget-amount").value || "0"); if (cents === null || Number.isNaN(cents)) throw new Error("Enter an amount such as 200.00."); books = setBudget(books, $("#budget-account").value, cents); record("budget_set"); render(); $("#budget-status").textContent = cents ? `Budget set: ${fmt(cents)} a month.` : "Budget removed."; }
+      catch (e) { $("#budget-status").textContent = e.message; }
+    });
+    $("#receipts-read").addEventListener("click", () => {
+      const r = addReceipts(books, $("#receipts-text").value);
+      books = r.books; record("receipts_read"); render();
+      $("#receipts-status").textContent = `Read ${r.added.length}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read${r.skipped.length ? ` (${r.skipped.map((x) => `"${x.text.slice(0, 24)}": ${x.notes.join(", ")}`).join("; ")})` : ""}.`;
+      if (r.added.length) $("#receipts-text").value = "";
+    });
+    $("#receipts-min").addEventListener("change", renderReceipts);
+    $("#receipts-clear").addEventListener("click", () => { books = { ...books, receipts: [] }; render(); $("#receipts-status").textContent = "Receipts removed."; });
+    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderReceipts(); renderVat(); });
+    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderReceipts(); renderVat(); });
+
+    const download = (text, file, type) => { const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: file }); document.body.append(a); a.click(); a.remove(); };
+    for (const b of document.querySelectorAll("[data-export]")) b.addEventListener("click", () => {
+      const f = b.dataset.export;
+      if (f === "lines") download(exportLines(books), "bookkeeper-lines.csv", "text/csv");
+      else download(exportJournal(books, f), `bookkeeper-journal-${f}.${f === "iif" ? "iif" : f === "ledger" ? "journal" : f === "beancount" ? "beancount" : "csv"}`, ["iif", "ledger", "beancount"].includes(f) ? "text/plain" : "text/csv");
+      record("exported");
+    });
+    $("#save").addEventListener("click", () => { download(JSON.stringify(books, null, 1), `books-${new Date().toISOString().slice(0, 10)}.json`, "application/json"); $("#save-status").textContent = "Books file downloaded. Open it here on any computer to carry on."; });
+    $("#open").addEventListener("change", async () => {
+      const f = $("#open").files[0];
+      if (!f) return;
+      try { const b = JSON.parse(await f.text()); if (!Array.isArray(b.transactions) || !Array.isArray(b.accounts)) throw new Error("not a books file"); books = b; $("#save-status").textContent = `Opened ${f.name}.`; render(); }
+      catch (e) { $("#save-status").textContent = `Could not open that file: ${e.message}.`; }
+    });
+    $("#clear").addEventListener("click", () => { if (!confirm_("Start empty books? Download the books file first if you want to keep these.")) return; books = newBooks(); render(); });
+    function confirm_(msg) { return typeof window.confirm === "function" ? window.confirm(msg) : true; }
+
+    $("#save-setup").addEventListener("click", () => {
+      const { accounts, problems } = parseAccounts($("#coa").value);
+      if (!accounts.some((a) => a.code === "3000")) problems.push("Keep account 3000 (Opening balance equity).");
+      if (problems.length) { $("#setup-status").textContent = problems.slice(0, 3).join(" "); return; }
+      books.accounts = accounts.map((a) => ({ ...a, ...(DEFAULT_ACCOUNTS.find((d) => d.code === a.code && d.suspense) ? { suspense: true } : {}) }));
+      books.rules = $("#rules").value;
+      books = categorize(books, opts());
+      $("#setup-status").textContent = "Saved. Open lines were re-suggested.";
+      render();
+    });
+    $("#rules").addEventListener("change", () => { books.rules = $("#rules").value; books = categorize(books, opts()); render(); });
+
+    const opt = $("#optout");
+    const syncOpt = () => { opt.textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+    opt.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); });
+    syncOpt();
+    render();
+  </script>
+</body>
+</html>

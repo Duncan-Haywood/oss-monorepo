@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01GXaYXUwh88FimvorHToakr",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "scheduled: develop, deploy, market revenue-generating products",
+  "input_sha256": "aecd0d853884130612a45393a65e9f8f47ec1dd8af66faddcb9117f073e6fa74",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T23:58:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2): einvoice-preflight Portugal mandate page",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 8969,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "promptctl routed to research; the scheduled task asked for revenue ventures, so the run took the top venture flagship slice instead."
+    }
+  ],
+  "goal": null,
+  "notes": "Portugal page with conflicting sources stated (B2G smaller-supplier date 2026 vs 2027, PDF signature). Local check: node --test in ventures/einvoice-preflight, 414 pass, 0 fail.",
+  "corrections": [],
+  "redteam": null
+}

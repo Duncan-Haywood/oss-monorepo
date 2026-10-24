@@ -1,0 +1,9 @@
+target,model,deviance_improvement_percent,fold_min,fold_max,observed_expected
+married,constant,0,0,0,0.99905
+married,duration_only,2.7863,1.9381,3.6434,0.99945
+married,additive_spline,4.9287,4.4028,5.7311,0.99313
+married,tree_depth3,3.9105,2.3697,5,0.99713
+split,constant,0,0,0,0.99868
+split,duration_only,4.6906,3.8809,5.5406,0.99926
+split,additive_spline,9.2697,7.6402,10.37,0.99288
+split,tree_depth3,7.5681,6.0961,8.7035,0.99436

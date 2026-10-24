@@ -1,0 +1,39 @@
+{
+ "respondents": 8984,
+ "first_cohabitations": 6020,
+ "skipped": {
+  "no_cohabitation": 2961,
+  "married_before_cohabiting": 3
+ },
+ "events": {
+  "split": 3481,
+  "married": 2109,
+  "censored": 430
+ },
+ "intervals": 18613,
+ "person_years": 15624.7,
+ "partner_link_missing": 3,
+ "partner_item_leakage": {
+  "partner_education": {
+   "known": 0.874,
+   "unknown": 0.474
+  },
+  "partner_married_before": {
+   "known": 0.331,
+   "unknown": 0.628
+  },
+  "partner_has_children": {
+   "known": 0.33,
+   "unknown": 0.628
+  },
+  "partner_age_gap": {
+   "present": 0.566,
+   "missing": 0.823
+  }
+ },
+ "start_years": [
+  1994,
+  2023
+ ],
+ "python_sklearn": "1.7.2"
+}

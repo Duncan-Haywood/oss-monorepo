@@ -515,6 +515,35 @@ export function verifyLayout(spec, result) {
   return [...new Set(problems)];
 }
 
+// ---------- materials: grout and thinset ----------
+// Trowel notch -> thinset spread in kg per m2 of floor, from typical bag coverage charts
+// (about 2.6 kg/m2 for 6 mm, 3.8 for 6x10 mm, 5.9 for 12 mm square notch). Bags differ: the
+// coverage printed on yours wins, and the page lets you enter it.
+export const NOTCHES = [
+  { id: "6", label: "6 mm (1/4 in) square notch, tile up to about 20 cm", kgPerM2: 2.6 },
+  { id: "10", label: "6 x 10 mm (1/4 x 3/8 in) notch, tile 20 to 30 cm", kgPerM2: 3.8 },
+  { id: "12", label: "12 mm (1/2 in) square notch, tile over 30 cm or uneven floors", kgPerM2: 5.9 },
+];
+export const GROUT_KG_PER_L = 1.86; // typical cement grout powder per litre of cured joint
+export const DEFAULT_TILE_THICKNESS = 10;
+
+// Joint volume is exact for the layout: the floor tiled minus the tile faces laid, times the
+// tile thickness (joints filled to the top). Wall-edge joints count as grouted.
+export function materials(spec, result, o = {}) {
+  const thick = o.thickness > 0 ? o.thickness : DEFAULT_TILE_THICKNESS;
+  const notch = NOTCHES.find((n) => n.id === o.notch) || NOTCHES[1];
+  const growPct = Number.isFinite(o.wastePct) && o.wastePct >= 0 ? o.wastePct : 10;
+  const area = tileableArea(spec);
+  const jointMm2 = Math.max(0, area - result.visible);
+  const liters = (jointMm2 * thick) / 1e6;
+  const groutKg = liters * GROUT_KG_PER_L * (1 + growPct / 100);
+  const thinsetKg = (area / 1e6) * notch.kgPerM2 * (1 + growPct / 100);
+  const out = { thickness: thick, notch, areaM2: area / 1e6, jointM2: jointMm2 / 1e6, groutKg, thinsetKg, groutBags: null, thinsetBags: null };
+  if (o.groutBagKg > 0) out.groutBags = Math.ceil(groutKg / o.groutBagKg - 1e-9);
+  if (o.thinsetBagKg > 0) out.thinsetBags = Math.ceil(thinsetKg / o.thinsetBagKg - 1e-9);
+  return out;
+}
+
 export function sampleSpec() {
   // A bathroom 2.74 m x 2.13 m (9 ft x 7 ft) with a tub along the top wall.
   return {

@@ -112,8 +112,8 @@ def test_proceed_also_surfaces_an_empty_pipeline():
     looked at the pipeline -- "screen a fresh niche" only reached a session
     through the BUILD branch, which fires on *high* meta-work share. An
     empty build-now queue should reach the common case too, not only the
-    rare one -- pointed at consolidation first, since 2026-10-16, rather
-    than at one more clone (docs/reports/2026-10-16-calculator-glut.md).
+    rare one -- pointed at the flagships first (owner, 2026-10-20), rather
+    than at one more small tool.
     """
     call, reasons = sg.verdict(
         revenue=False, meta=sg.META_SHARE_THRESHOLD - 0.01, cadence=2.0, targets=[]
@@ -121,7 +121,8 @@ def test_proceed_also_surfaces_an_empty_pipeline():
     assert call == "PROCEED"
     joined = " ".join(reasons)
     assert "screened-out.md" in joined
-    assert "consolidate" in joined.lower()
+    assert "portfolio/flagships.yaml" in joined
+    assert "Deepen (flagship" in joined
     assert "new ventures rank first" not in joined.lower()
 
 
@@ -885,8 +886,8 @@ def _entries():
 def test_a_stale_snapshot_leads_the_reasons_ahead_of_the_verdicts_own():
     r = sg.report(_entries(), 1.0, snapshot=("stale", "built from abc1234"))
     assert r["published_snapshot"] == "stale"
-    assert "THE LIVE SITE IS BEHIND" in r["reasons"][0]
-    assert "publish-branch.sh" in r["reasons"][0]
+    assert "THE PUBLISHED SNAPSHOT IS BEHIND" in r["reasons"][0]
+    assert "NOT run `publish-branch.sh`" in r["reasons"][0]
     assert "built from abc1234" in r["reasons"][0]
 
 
@@ -977,4 +978,4 @@ def test_main_propagates_the_snapshot_reading(monkeypatch, capsys):
 
     out = capsys.readouterr().out
     assert "published snapshot ............. stale" in out
-    assert "THE LIVE SITE IS BEHIND `main`" in out
+    assert "THE PUBLISHED SNAPSHOT IS BEHIND `main`" in out

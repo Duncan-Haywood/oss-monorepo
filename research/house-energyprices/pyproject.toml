@@ -1,0 +1,13 @@
+[project]
+name = "house-energyprices"
+version = "0.1.0"
+description = "Does house-energy's cost-optimal envelope change when its invented fuel prices are replaced by EIA state residential prices?"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-energy/src", "../house-framing/src"]

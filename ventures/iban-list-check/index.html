@@ -9,7 +9,7 @@
   <meta property="og:description" content="Catch typos in supplier and payroll IBANs before the bank rejects the payment file. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "IBAN List Check", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a list of IBANs for wrong check digits, wrong length for the country, unknown countries, stray spaces and lower case, duplicates and blanks, and writes the list back cleaned. Runs entirely in your browser; the file is never uploaded.", "featureList": "Bulk IBAN validator, IBAN mod-97 check, IBAN length by country, IBAN cleaner for payment files"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the IBAN check and what does it catch?", "acceptedAnswer": {"@type": "Answer", "text": "An IBAN has two check digits right after the country code. Move the first four characters to the end, turn letters into numbers (A=10 to Z=35), and the whole number divided by 97 must leave a remainder of 1. The check catches every single mistyped character and every swap of two neighbouring characters, which are the usual typing errors. It does not prove the account exists."}}, {"@type": "Question", "name": "Why does my bank or payment file reject an IBAN that looks right?", "acceptedAnswer": {"@type": "Answer", "text": "Most often a character is wrong or two are swapped, there are stray spaces or a hidden non-breaking space from a PDF or web page, the letters are lower case, or the IBAN is shorter or longer than the country allows. This tool names which of those it is, with the line number."}}, {"@type": "Question", "name": "Can the tool tell me whether the account exists or whose it is?", "acceptedAnswer": {"@type": "Answer", "text": "No. A valid IBAN is well formed. Whether the account is open, and whether it belongs to the supplier you intend to pay, is only known to the bank. Confirm new or changed bank details with the payee through a channel you already trust before sending money."}}, {"@type": "Question", "name": "How long is an IBAN in each country?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the country: for example Germany 22, the United Kingdom 22, France 27, the Netherlands 18, Spain 24, Italy 27, Belgium 16, Switzerland 21. The tool checks the length for each country it knows and tells you how many characters are missing or extra."}}, {"@type": "Question", "name": "Is my supplier or payroll list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads the file in your browser and a test in the code asserts there are no network calls. Bank details are sensitive; that is why this runs on your device."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether an account exists or matches a name, BIC/SWIFT codes, sort codes and account numbers that are not IBANs, sanctions or fraud screening, whether your bank supports payments to a country, or the country-specific national check digits inside the account part. It reads one column of one file."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the IBAN check and what does it catch?", "acceptedAnswer": {"@type": "Answer", "text": "An IBAN has two check digits right after the country code. Move the first four characters to the end, turn letters into numbers (A=10 to Z=35), and the whole number divided by 97 must leave a remainder of 1. The check catches every single mistyped character and every swap of two neighbouring characters, which are the usual typing errors. It does not prove the account exists."}}, {"@type": "Question", "name": "Why does my bank or payment file reject an IBAN that looks right?", "acceptedAnswer": {"@type": "Answer", "text": "Most often a character is wrong or two are swapped, there are stray spaces or a hidden non-breaking space from a PDF or web page, the letters are lower case, or the IBAN is shorter or longer than the country allows. This tool names which of those it is, with the line number."}}, {"@type": "Question", "name": "Can the tool tell me whether the account exists or whose it is?", "acceptedAnswer": {"@type": "Answer", "text": "No. A valid IBAN is well formed. Whether the account is open, and whether it belongs to the supplier you intend to pay, is only known to the bank. Confirm new or changed bank details with the payee through a channel you already trust before sending money."}}, {"@type": "Question", "name": "How long is an IBAN in each country?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the country: for example Germany 22, the United Kingdom 22, France 27, the Netherlands 18, Spain 24, Italy 27, Belgium 16, Switzerland 21. The tool checks the length for each country it knows and tells you how many characters are missing or extra."}}, {"@type": "Question", "name": "Is my supplier or payroll list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads the file in your browser and a test in the code asserts there are no network calls. Bank details are sensitive; that is why this runs on your device."}}, {"@type": "Question", "name": "What does this not check?", "acceptedAnswer": {"@type": "Answer", "text": "Whether an account exists or matches a name, BIC/SWIFT codes, sort codes and account numbers that are not IBANs, sanctions or fraud screening, whether your bank supports payments to a country, or national check digits for countries other than Belgium, Spain, France and Italy. It reads one column of one file."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -59,6 +59,7 @@
     <p>Paste or drop a <strong>supplier, payroll or refund list with an IBAN column</strong> and get every bad one <strong>with its line number</strong> before the bank or your accounting package rejects the batch: <strong>wrong check digits</strong> (with the swapped-digit fix when one swap proves it), <strong>wrong length for the country</strong>, <strong>unknown countries</strong>, <strong>spaces and lower case</strong> from copy-paste, <strong>duplicates</strong> and <strong>blanks</strong>. Then download the file with every provable clean-up applied.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. A valid IBAN is well formed, not proof that the account exists or belongs to the payee. Independent of every bank and payment scheme named.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your list</h2>
@@ -71,6 +72,9 @@
       <div>
         <label for="column">IBAN column number (optional)</label>
         <input id="column" inputmode="numeric" placeholder="1 is the first column; blank = detect">
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="sepa"><label for="sepa">This is a SEPA-only batch: flag IBANs from outside the core SEPA countries</label>
       </div>
       <div class="checkbox-row">
         <input type="checkbox" id="groups"><label for="groups">Write IBANs in groups of four (print format) instead of unbroken</label>
@@ -103,10 +107,11 @@
     <h2>The rules, and what they leave out</h2>
     <ul>
       <li><strong>Check digits:</strong> the ISO 13616 mod-97 test. Catches every single wrong character and every swap of two neighbours. When exactly one adjacent swap would make a bad IBAN valid it is suggested, never applied.</li>
+      <li><strong>National check digits (BE, ES, FR, IT):</strong> the domestic check inside the account part. An IBAN can pass mod-97 and still be wrong when a generator recomputed the IBAN check digits for a mistyped account; this is reported as a warning.</li>
       <li><strong>Length and shape:</strong> total length per country for about 80 countries, and for common ones (Germany, UK, France-length, Netherlands, Spain, Belgium, Austria and others) whether the account part is digits or letters where it must be.</li>
       <li><strong>Cleaned automatically:</strong> spaces, hyphens and non-breaking spaces, lower case, a leading apostrophe, Excel's <code>="…"</code> wrapper and a leading "IBAN:" label.</li>
       <li><strong>Warned:</strong> duplicate IBANs, blank cells, and a list that mixes several countries.</li>
-      <li><strong>Not checked:</strong> whether the account exists or belongs to the payee, BIC/SWIFT codes, plain account numbers and sort codes, sanctions or fraud screening, national check digits inside the account part. The country list and lengths are read from memory of the public IBAN registry; confirm against your bank's current documentation.</li>
+      <li><strong>Not checked:</strong> whether the account exists or belongs to the payee, BIC/SWIFT codes, plain account numbers and sort codes, sanctions or fraud screening, national check digits for countries other than BE, ES, FR and IT. The country list and lengths are read from memory of the public IBAN registry; confirm against your bank's current documentation.</li>
     </ul>
   </section>
 
@@ -123,16 +128,17 @@
     <h3>Is my supplier or payroll list uploaded anywhere?</h3>
     <p>No. The page reads the file in your browser and a test in the code asserts there are no network calls. Bank details are sensitive; that is why this runs on your device.</p>
     <h3>What does this not check?</h3>
-    <p>Whether an account exists or matches a name, BIC/SWIFT codes, sort codes and account numbers that are not IBANs, sanctions or fraud screening, whether your bank supports payments to a country, or the country-specific national check digits inside the account part. It reads one column of one file.</p>
+    <p>Whether an account exists or matches a name, BIC/SWIFT codes, sort codes and account numbers that are not IBANs, sanctions or fraud screening, whether your bank supports payments to a country, or national check digits for countries other than Belgium, Spain, France and Italy. It reads one column of one file.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your bank's own validation or a payee-verification service. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming any bank details with the payee, and a clean result is not a promise that a payment will be accepted or reach the right person.</p>
     <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to SWIFT, any bank, the European Payments Council or any other company named. Their names are trademarks of their owners, used here only to say which format is meant. Specifications are read from memory of public sources and may be out of date.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
     <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Related tools: the <a href="../payroll-hours-csv-check/">payroll hours CSV check</a>, the <a href="../irs-iris-1099-csv-check/">IRIS 1099 CSV check</a>, the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> and the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> check other files you hand to a finance system.</p>
+    <p>Related tools: the <a href="../csv-to-sepa-pain001/">CSV to SEPA pain.001 converter</a> turns a checked list into a bank-ready payment file, the <a href="../payroll-hours-csv-check/">payroll hours CSV check</a>, the <a href="../irs-iris-1099-csv-check/">IRIS 1099 CSV check</a>, the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> and the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> check other files you hand to a finance system.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -151,7 +157,7 @@
       a.download = name;
       a.click();
     }
-    const options = () => ({ column: $("#column").value, excelSafe: $("#groups").checked });
+    const options = () => ({ column: $("#column").value, excelSafe: $("#groups").checked, sepaOnly: $("#sepa").checked });
 
     function run(text) {
       const o = options();

@@ -49,6 +49,7 @@
     <p>Paste <code>kubectl top pod --containers</code> output together with <code>kubectl get pods -A -o json</code> (or a simple CSV with p95 usage) and get, per container, <strong>over- and under-provisioned CPU and memory</strong>, a <strong>recommended request</strong> (usage plus headroom you set), the <strong>monthly saving</strong> at prices you edit, <strong>out-of-memory warnings</strong> and <strong>YAML patches</strong> to paste.</p>
     <p class="note">Nothing is uploaded and no cluster is contacted. The text box is analysed in this browser and never leaves your device. This is a recommendation from a snapshot, not a bill: usage must be sampled over a representative period.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste usage and requests</h2>
@@ -119,7 +120,8 @@ node cli.mjs analyze containers.csv --json</pre>
     <p>No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads local files or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It reads text you paste and recommends requests from a snapshot; it is not a bill, not a guarantee of what any cloud will charge, and a request it suggests can cause throttling, eviction or out-of-memory kills where your real workload differs. <strong>Usage must be sampled over a representative period, and you are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Kubernetes and other product names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>, <code>patches_copied</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

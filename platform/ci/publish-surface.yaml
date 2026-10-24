@@ -239,6 +239,9 @@ workflows:
 - workflow: business-loan-offer-comparator-ci.yml
   classification: none
   publishes: []
+- workflow: business-template-ci.yml
+  classification: none
+  publishes: []
 - workflow: business-vehicle-depreciation-calculator-ci.yml
   classification: none
   publishes: []
@@ -309,6 +312,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ci-minutes-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: ci-profile-ci.yml
   classification: none
   publishes: []
 - workflow: ci-test-shard-balancer-ci.yml
@@ -467,6 +473,13 @@ workflows:
 - workflow: distribute-bluesky.yml
   classification: none
   publishes: []
+- workflow: distribute-desktop.yml
+  classification: dispatch
+  publishes:
+  - job: release
+    step: runs 'gh release create'
+    gates:
+    - vars.DISTRIBUTE_DESKTOP == 'true'
 - workflow: distribute-devto.yml
   classification: none
   publishes: []
@@ -477,6 +490,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: distribute-homebrew.yml
+  classification: none
+  publishes: []
+- workflow: distribute-hub.yml
   classification: none
   publishes: []
 - workflow: distribute-mastodon.yml
@@ -495,6 +511,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: distribute-releases.yml
+  classification: none
+  publishes: []
+- workflow: distribute-shorts.yml
   classification: none
   publishes: []
 - workflow: dns-configuration-evidence-ci.yml
@@ -566,6 +585,13 @@ workflows:
 - workflow: ebs-volume-cost-advisor-ci.yml
   classification: none
   publishes: []
+- workflow: edge-deploy.yml
+  classification: gated
+  publishes:
+  - job: deploy
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ needs.gate.outputs.ready == 'true' }}
 - workflow: egress-window-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -740,6 +766,9 @@ workflows:
 - workflow: hardwood-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hearth-and-horizon-ci.yml
+  classification: none
+  publishes: []
 - workflow: helm-values-schema-check-ci.yml
   classification: none
   publishes: []
@@ -782,6 +811,9 @@ workflows:
 - workflow: ice-dam-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: ig-media-pipeline-ci.yml
+  classification: none
+  publishes: []
 - workflow: import-landed-cost-calculator-ci.yml
   classification: none
   publishes: []
@@ -792,6 +824,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: interview-content-studio-ci.yml
   classification: none
   publishes: []
 - workflow: invoice-payment-terms-calculator-ci.yml
@@ -1007,6 +1042,12 @@ workflows:
 - workflow: oidc-trust-policy-check-ci.yml
   classification: none
   publishes: []
+- workflow: open-floor-robots-ci.yml
+  classification: none
+  publishes: []
+- workflow: open-robot-mower-ci.yml
+  classification: none
+  publishes: []
 - workflow: open-tennis-robots-ci.yml
   classification: none
   publishes: []
@@ -1019,9 +1060,6 @@ workflows:
 - workflow: osha-trir-dart-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: outage-triage.yml
-  classification: none
-  publishes: []
 - workflow: overtime-pay-calculator-ci.yml
   classification: none
   publishes: []
@@ -1032,9 +1070,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: page-integrity-ci.yml
-  classification: none
-  publishes: []
-- workflow: pages-freshness-ci.yml
   classification: none
   publishes: []
 - workflow: pages.yml
@@ -1062,6 +1097,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: pergola-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: persona-conversation-simulator-ci.yml
   classification: none
   publishes: []
 - workflow: personal-trainer-package-pricing-calculator-ci.yml
@@ -1125,7 +1163,7 @@ workflows:
     step: uses actions/deploy-pages
     gates:
     - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED
-      == 'true' }}
+      != 'false' }}
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
@@ -1171,13 +1209,9 @@ workflows:
 - workflow: public-surface-check.yml
   classification: none
   publishes: []
-- workflow: publish-pages-branch.yml
-  classification: gated
-  publishes:
-  - job: publish
-    step: runs 'publish-branch.sh'
-    gates:
-    - vars.PAGES_BRANCH_PUBLISH == 'true'
+- workflow: publish-kit-ci.yml
+  classification: none
+  publishes: []
 - workflow: pwa-installability-check-ci.yml
   classification: none
   publishes: []
@@ -1295,6 +1329,9 @@ workflows:
 - workflow: saas-seat-true-up-ci.yml
   classification: none
   publishes: []
+- workflow: saints-by-candlelight-ci.yml
+  classification: none
+  publishes: []
 - workflow: salary-range-posting-check-ci.yml
   classification: none
   publishes: []
@@ -1353,6 +1390,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: sign-language-interpreter-rate-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: site-usage-pull.yml
   classification: none
   publishes: []
 - workflow: sitemap-lastmod-freshness-check-ci.yml

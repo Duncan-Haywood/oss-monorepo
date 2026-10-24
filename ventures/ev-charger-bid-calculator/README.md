@@ -4,14 +4,11 @@ A free browser calculator for electrical contractors. It prices a residential
 Level 2 EV charger (EVSE) install from the circuit, the run, the trench, and
 the panel work — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ev-charger-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ev-charger-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 Search page: [`how-much-to-charge.html`](how-much-to-charge.html).
 

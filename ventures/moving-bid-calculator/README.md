@@ -5,17 +5,14 @@ the trade actually keeps a Saturday from losing money — inventory hours for a
 first-floor short carry, then the extra trips stairs and a long carry create —
 and shows the margin before the quote goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/moving-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/moving-bid-calculator/
 
 **After using this, you can now see whether a cheap “3-bedroom for $800” quote
 covers a third-floor walk-up**, which used to take a guess and a lost Saturday.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 Search page: [`how-much-to-charge.html`](how-much-to-charge.html).
 

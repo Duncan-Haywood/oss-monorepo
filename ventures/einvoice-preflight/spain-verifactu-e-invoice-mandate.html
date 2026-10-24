@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spain Verifactu deadline: dates, what it covers and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="Spain's Verifactu rules for invoicing software were delayed to 1 January 2027 (corporate taxpayers) and 1 July 2027 (others). What Verifactu is, how it differs from e-invoicing, and what a free local EN 16931 checker covers.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/spain-verifactu-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spain Verifactu deadline: dates, what it covers and a free pre-send check">
+<meta property="og:description" content="Spain's Verifactu rules for invoicing software were delayed to 1 January 2027 (corporate taxpayers) and 1 July 2027 (others). What Verifactu is, how it differs from e-invoicing, and what a free local EN 16931 checker covers.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/spain-verifactu-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is Spain's Verifactu deadline?","acceptedAnswer":{"@type":"Answer","text":"Verifactu is Spain's anti-fraud rule for invoicing software: programs must produce tamper-evident invoice records, and many send them to the Tax Agency (AEAT). After a delay approved in December 2025 (Royal Decree-Law 15/2025), the reported dates are 1 January 2027 for corporate taxpayers outside the SII regime and 1 July 2027 for other businesses and self-employed people who use invoicing software. The technical order that fixes the rules must be issued first, so confirm the dates with your adviser or the AEAT."}},{"@type":"Question","name":"Is Verifactu the same as e-invoicing?","acceptedAnswer":{"@type":"Answer","text":"No. Verifactu governs how invoicing software records and, optionally, reports invoices to the tax authority. Spain's separate B2B e-invoicing duty (the Crea y Crece law) depends on regulations and has its own timeline, which this page does not state. Neither is a Peppol mandate like Belgium's."}},{"@type":"Question","name":"Can this checker validate Verifactu records?","acceptedAnswer":{"@type":"Answer","text":"No. It does not read Verifactu records or QR codes. It reads JSON, UBL, CII and Factur-X invoices and applies the EN 16931 and Peppol BIS 3.0 rules, which helps with the invoice content itself: totals, tax breakdown, VAT, IBAN and BIC typos, each with a rule ID and a fix."}},{"@type":"Question","name":"How do I check an invoice before sending it to a Spanish customer?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker. Nothing is uploaded when you use the page. It is an offline observation, not the tax authority's acceptance and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Spain's Verifactu deadline: what applies and when</h1>
+<p class="lede">Spain regulates invoicing software with Verifactu: tamper-evident invoice records, and for many businesses reporting to the Tax Agency. The start was delayed to 2027. Below: the dates as reported, what it is not, and what a free local checker covers.</p>
+</header>
+<section>
+<h2>The timeline (as reported)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>1 Jan 2027</td><td>Corporate taxpayers outside the SII immediate-supply reporting regime must use compliant invoicing software.</td></tr>
+<tr><td>1 Jul 2027</td><td>Other businesses and self-employed people who use invoicing software follow.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Exemptions exist (for example taxpayers under TicketBAI in the Basque Country and Navarra). The ministerial order with the technical rules must be issued first, so the dates are working targets. This is a summary from secondary sources, not tax advice; confirm with your adviser or the AEAT.</p>
+</section>
+<section>
+<h2>What it covers, and what it does not</h2>
+<p>Verifactu is about the <strong>software</strong>: invoice records that cannot be altered unnoticed, a QR code on the invoice and, in one mode, submission of each record to the AEAT. It is not a Peppol mandate and not the separate Spanish B2B e-invoicing duty, whose timeline depends on regulations this page does not state.</p>
+</section>
+<section>
+<h2>What this checker does and does not do</h2>
+<p>It does not read Verifactu records. It reads JSON, UBL, CII and Factur-X files and applies the EN 16931 and Peppol BIS 3.0 rules: arithmetic, tax breakdown, VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). Open the <a href="./">checker</a>; no account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a> and <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, or the <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>. Also: <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is Spain's Verifactu deadline?</h3>
+<p>Verifactu is Spain's anti-fraud rule for invoicing software: programs must produce tamper-evident invoice records, and many send them to the Tax Agency (AEAT). After a delay approved in December 2025 (Royal Decree-Law 15/2025), the reported dates are 1 January 2027 for corporate taxpayers outside the SII regime and 1 July 2027 for other businesses and self-employed people who use invoicing software. The technical order that fixes the rules must be issued first, so confirm the dates with your adviser or the AEAT.</p>
+<h3>Is Verifactu the same as e-invoicing?</h3>
+<p>No. Verifactu governs how invoicing software records and, optionally, reports invoices to the tax authority. Spain's separate B2B e-invoicing duty (the Crea y Crece law) depends on regulations and has its own timeline, which this page does not state. Neither is a Peppol mandate like Belgium's.</p>
+<h3>Can this checker validate Verifactu records?</h3>
+<p>No. It does not read Verifactu records or QR codes. It reads JSON, UBL, CII and Factur-X invoices and applies the EN 16931 and Peppol BIS 3.0 rules, which helps with the invoice content itself: totals, tax breakdown, VAT, IBAN and BIC typos, each with a rule ID and a fix.</p>
+<h3>How do I check an invoice before sending it to a Spanish customer?</h3>
+<p>Drop the file into the checker. Nothing is uploaded when you use the page. It is an offline observation, not the tax authority's acceptance and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Spanish rules as reported by secondary sources; dates can change, so check the AEAT Verifactu guidance (sede.agenciatributaria.gob.es) before relying on them.gov.hr) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

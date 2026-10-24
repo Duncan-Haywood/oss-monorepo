@@ -1,0 +1,56 @@
+== A. Seconds per garment to empty a pile of n garments, by policy (mean of 300 piles; assumed times)
+n     pinch      see    sweep   visible0  direct_see  direct_sweep
+4     21.29    11.69    13.96       0.32         0.62         0.62
+8     22.13    12.69    15.81       0.19         0.60         0.60
+12    22.49    13.06    16.61       0.14         0.61         0.61
+18    22.68    13.44    17.67       0.09         0.61         0.61
+25    22.97    13.66    18.53       0.07         0.60         0.60
+35    23.19    13.88    18.82       0.05         0.61         0.61
+
+== B. Seconds per garment (n = 18) against q, the chance one regrasp finds the opening (pinch is the policy that pays it)
+q       pinch      see    sweep   best
+0.15    31.82    17.15    21.42   see
+0.25    26.44    14.98    19.35   see
+0.35    22.68    13.44    17.67   see
+0.50    18.74    11.84    16.20   see
+0.70    15.45    10.58    14.97   see
+0.90    13.65     9.79    14.20   see
+
+== C. Seconds per garment (n = 18) against theta, the visible fraction needed to aim at an opening
+theta     see    sweep
+0.20    13.46    17.64
+0.35    13.41    17.70
+0.50    13.44    17.67
+0.65    13.46    17.81
+0.80    13.51    18.02
+0.95    13.53    18.08
+
+== C2. Seconds per garment (n = 18) against p_hidden, the share of garments whose opening is hidden by the garment itself
+p_hidden   pinch      see    sweep   direct_see  direct_sweep
+0.00       22.68     7.34     7.34         1.00          1.00
+0.20       22.68    10.34    12.68         0.80          0.80
+0.40       22.68    13.44    17.67         0.61          0.61
+0.60       22.68    16.43    22.42         0.41          0.41
+0.80       22.68    19.55    26.66         0.21          0.21
+1.00       22.68    22.68    30.93         0.00          0.00
+
+== D. Where the time goes (n = 18, defaults): regrasps, sweeps, second garments and set-asides per garment
+policy  regrasps  sweeps  doubles  fails
+pinch       2.61    0.00     0.67   0.08
+see         1.04    0.00     0.64   0.03
+sweep       1.02    1.55     0.55   0.03
+
+== E. Pick time against the cost of a second garment coming along, p_double_each (n = 18)
+p_each   pinch      see    sweep
+0.00     20.58    11.36    16.05
+0.04     22.13    12.81    17.29
+0.08     22.68    13.44    17.67
+0.15     22.90    13.70    18.12
+0.25     23.07    13.86    18.26
+
+== F. Into hanger-cell: replace its assumed pick (8 s, 0.85 success, 3 tries) by each policy's mean (n = 25 load, one arm, learned rule)
+pick               s/pick  min/load  items/h  bottleneck
+hanger-cell default    8.0      8.93    168.6  arms
+pinch                23.0     13.63    110.1  arms
+see                  13.7      9.96    150.9  arms
+sweep                18.5     11.82    127.0  arms

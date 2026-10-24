@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: percent revenue gain of value-first and value-per-second dispatch over FIFO rises from near 0 at 1 item per metre to about 5 percent at 10">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Gain over FIFO from value-aware pick order, against belt density</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="271.3" y2="271.3" stroke="#ddd"/><text x="58" y="275.3" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="218.7" y2="218.7" stroke="#ddd"/><text x="58" y="222.7" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="166.0" y2="166.0" stroke="#ddd"/><text x="58" y="170.0" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<line x1="64" x2="624" y1="113.3" y2="113.3" stroke="#ddd"/><text x="58" y="117.3" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="60.6" y2="60.6" stroke="#ddd"/><text x="58" y="64.6" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="126.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="188.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="375.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">items per metre of belt (0.5 m/s)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">revenue gain over FIFO (%)</text>
+<polyline points="64.0,318.7 126.2,313.5 188.4,292.4 250.7,297.7 375.1,218.7 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="318.7" r="3" fill="#c0392b"/>
+<circle cx="126.2" cy="313.5" r="3" fill="#c0392b"/>
+<circle cx="188.4" cy="292.4" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="297.7" r="3" fill="#c0392b"/>
+<circle cx="375.1" cy="218.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">highest value first</text>
+<polyline points="64.0,318.7 126.2,313.5 188.4,292.4 250.7,292.4 375.1,223.9 624.0,76.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="318.7" r="3" fill="#1f6fb2"/>
+<circle cx="126.2" cy="313.5" r="3" fill="#1f6fb2"/>
+<circle cx="188.4" cy="292.4" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="292.4" r="3" fill="#1f6fb2"/>
+<circle cx="375.1" cy="223.9" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="76.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">value per second</text>
+</svg>

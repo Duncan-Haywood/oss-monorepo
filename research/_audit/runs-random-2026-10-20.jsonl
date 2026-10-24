@@ -1,0 +1,9 @@
+{"slug": "swe-allocate", "runner": "experiments/run.py", "commands": 1, "seconds": 3.6, "files": {"experiments/results.txt": "exact"}, "outcome": "exact"}
+{"slug": "house-coldcop", "runner": "experiments/run.py", "commands": 1, "seconds": 3.7, "source": "stdout", "files": {"experiments/results.txt": "exact"}, "outcome": "exact"}
+{"slug": "partial-participation", "runner": "experiments/run.py", "commands": 1, "seconds": 20.2, "source": "stdout", "files": {"experiments/results.txt": "exact"}, "outcome": "exact"}
+{"slug": "ratelimit-burst", "runner": "experiments/run.py", "commands": 1, "seconds": 89.4, "source": "stdout", "files": {"experiments/results.txt": "exact"}, "outcome": "exact"}
+{"slug": "eiv-twin", "runner": "experiments/run.py", "commands": 1, "outcome": "timeout", "seconds": 120}
+{"slug": "chip-rtl-probe", "runner": "experiments/run.py", "commands": 1, "outcome": "missing-dep", "dep": "verilator", "seconds": 3.4, "stderr": "FileNotFoundError: [Errno 2] No such file or directory: 'verilator'"}
+{"slug": "watchdog-twin", "runner": "experiments/run.py", "commands": 1, "outcome": "timeout", "seconds": 120}
+{"slug": "eda-verify", "runner": "experiments/run.py", "commands": 1, "outcome": "timeout", "seconds": 120}
+{"slug": "simdesign-webbuckle", "runner": "readme", "commands": 1, "seconds": 3.0, "files": {"experiments/scan.txt": "exact"}, "outcome": "exact"}

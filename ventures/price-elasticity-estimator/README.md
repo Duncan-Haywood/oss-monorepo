@@ -4,7 +4,7 @@ A free browser tool for sellers of any product: **paste or upload a CSV of date,
 price elasticity with a confidence interval, the profit-maximising price inside the prices you have actually charged,
 and a back-test that says whether price explains your sales at all.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/price-elasticity-estimator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/price-elasticity-estimator/
 
 After using this, you can now **tell whether raising or lowering your price would have earned more, how sure that is,
 and whether your data can answer the question at all**.
@@ -22,6 +22,7 @@ and whether your data can answer the question at all**.
 - Refuses: fewer than 12 rows, fewer than 3 price levels, or a price that barely moved (sd of ln price under 3%).
 - Flags: a non-negative slope (price raised in busy periods), price and time moving in a line, zero-unit rows.
 - Back-test: fit on the first 75%, predict the last 25%, compare with the same model without price.
+- Return visits: the last elasticity and row count are kept in this browser only (localStorage, never sent) so a re-run after a price change shows the shift.
 
 ## Limits
 

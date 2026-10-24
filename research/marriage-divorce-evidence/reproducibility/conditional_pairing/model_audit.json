@@ -1,0 +1,32 @@
+[
+  {
+    "iterations": 6,
+    "n": 34359,
+    "respondents": 5295,
+    "events": 592,
+    "parameters": 30,
+    "rank": 30,
+    "score": 4.420341388536379e-18,
+    "model": "additive"
+  },
+  {
+    "iterations": 6,
+    "n": 34359,
+    "respondents": 5295,
+    "events": 592,
+    "parameters": 31,
+    "rank": 31,
+    "score": 1.6091593651250853e-18,
+    "model": "school_interaction"
+  },
+  {
+    "iterations": 6,
+    "n": 34359,
+    "respondents": 5295,
+    "events": 592,
+    "parameters": 36,
+    "rank": 36,
+    "score": 1.4476779609641894e-17,
+    "model": "school_and_earnings_interactions"
+  }
+]

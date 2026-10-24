@@ -1,0 +1,12 @@
+{
+  "model_rows": 34359,
+  "respondents": 5295,
+  "events": 592,
+  "rate_ratio_direct_coefficient": 1.2863509512145788,
+  "ratio_ci95_low": 0.9779212983790333,
+  "ratio_ci95_high": 1.6920571956387696,
+  "RR_identity_max_error": 8.881784197001252e-16,
+  "gradient_max_error": 3.2880610126989618e-12,
+  "unsupported_highschooling_Q4_singleincome_events": 4,
+  "uncertainty": "Saved respondent-cluster sandwich; fixed empirical target, no original surveyPSU/strata; exploratory"
+}

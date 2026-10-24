@@ -5,7 +5,7 @@ ActiveCampaign from a spreadsheet, a mailing platform or another CRM: **paste or
 every problem with its line number before the import skips rows or doubles your list, then download a
 cleaned copy.** The file is read in the browser; nothing is uploaded and no login or API key is needed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/activecampaign-import-csv-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/activecampaign-import-csv-check/
 
 After using this, you can now **find the contact with no email, the same address on two rows, the tags written `vip;wholesale`, the deal Value written `$12,000`, the Status of `won`, the phone number Excel turned into `4.41175E+11`, and the date column that mixes `25/03/2026` with `03/25/2026`**, which used to mean a half-imported list and a hunt through the rows.
 
@@ -14,6 +14,10 @@ After using this, you can now **find the contact with no email, the same address
 A contacts, accounts or deals CSV whose headings are ActiveCampaign field names (`Email`, `First Name`,
 `Tags`, `Account Name`, `Title`, `Value`, `Status`). Comma, semicolon or tab separated; UTF-8 with or
 without a BOM. The kind is worked out from the headings, or chosen.
+
+Optional: a do-not-email list (unsubscribes, bounces, complaints; one address per line, or `@domain` to
+block a domain). Contacts on it are flagged as errors and Apply safe fixes drops those rows, so the
+import cannot re-subscribe them. Read in the browser like the file.
 
 ## Checks
 

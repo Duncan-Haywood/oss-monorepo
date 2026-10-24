@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01LbwBLuUe1EpNEeAWGwj4mj",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T02:12:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9019",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Drew track 3 whose 'Next steps' chain is chip-abc-* micro-variants; had to skip it per PROJECTS.md step 2 and pick a new question by hand."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Said registry --write for lede bullets; actual command is research/_homepage/registry.py --write, found by trial."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-20-chip-design-loops-what-35-open-experiments-found.md (extended)"
+  ],
+  "goal": null,
+  "notes": "New project research/chip-digits; 6 tests pass, build.py ok, link checks pass. SKY130 liberty unavailable offline so generic gates only. No human-hours estimate.",
+  "corrections": [],
+  "redteam": null
+}

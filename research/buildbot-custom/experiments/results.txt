@@ -1,0 +1,49 @@
+62-nail schedule of one 4x8 sheet (buildbot-fasten layout); hand nailing at the taskbook's 0.1 min/nail = 372 s a sheet
+
+A. machine time per sheet (s) = travel + 62 x fire time; stop-and-fire, serpentine order (best of rows/greedy), no scan or load
+   fire time per nail: 0.125 s is the tool's 8 nails/s ceiling (Senco listing), longer values include settling
+   v (m/s)      a (m/s2) | fire 0.125 s   0.3 s   0.6 s   1.0 s
+   0.5          1.0      |    60.5     71.3     89.9    114.7
+   1.0          3.0      |    38.1     49.0     67.6     92.4
+   2.0          6.0      |    29.2     40.1     58.7     83.5
+   3.0          10.0     |    24.4     35.2     53.8     78.6
+   5.0          20.0     |    19.5     30.4     49.0     73.8
+   baseline design (1 m/s, 3 m/s2, 0.5 s a nail): 61.4 s a sheet, of which travel 30.4 s (greedy order) and firing 31.0 s
+   -> 6.1x faster than hand nailing at the taskbook's minutes
+   travel is 49% of the sheet time at the baseline; doubling axis speed and acceleration saves 9 s, halving the fire time saves 16 s
+
+B. what a sheet costs the line: nailing + scan to find studs + sheet loaded and squared (both swept; no source)
+   scan  10 s, load  30 s -> 101 s a sheet (36 sheets/h); machine hours per house (78 sheets) 2.2
+   scan  20 s, load  60 s -> 141 s a sheet (25 sheets/h); machine hours per house (78 sheets) 3.1
+   scan  30 s, load 120 s -> 211 s a sheet (17 sheets/h); machine hours per house (78 sheets) 4.6
+   scan  60 s, load 180 s -> 301 s a sheet (12 sheets/h); machine hours per house (78 sheets) 6.5
+
+C. positioning budget (95% of sheets with every nail inside its window): total tip scatter <= 1.24 mm
+   axis repeatability 0.05 mm (1 sigma) leaves a stud-finding (vision + frame) scatter of 1.24 mm
+   axis repeatability 0.10 mm (1 sigma) leaves a stud-finding (vision + frame) scatter of 1.23 mm
+   axis repeatability 0.25 mm (1 sigma) leaves a stud-finding (vision + frame) scatter of 1.21 mm
+   axis repeatability 0.50 mm (1 sigma) leaves a stud-finding (vision + frame) scatter of 1.13 mm
+   axis repeatability 1.00 mm (1 sigma) leaves a stud-finding (vision + frame) scatter of 0.73 mm
+   total scatter 0.5 mm -> 100.0% of sheets all in window
+   total scatter 1.0 mm -> 99.7% of sheets all in window
+   total scatter 1.5 mm -> 74.1% of sheets all in window
+   total scatter 2.0 mm -> 17.9% of sheets all in window
+   total scatter 3.0 mm -> 0.1% of sheets all in window
+
+D. what the gantry saves: hand nailing hours of the taskbook (A); wall sheathing S4 rescaled to 62 nails a sheet, roof deck R3 as booked
+   wall 3.31 h (32 sheets), roof 5.70 h (46 sheets); roof counts only if roofs are sheathed as flat cassettes on the table
+   at the loaded hour $37.86 the wall nailing is worth $125 a house, wall + roof $341
+
+   houses a year needed to break even (0 interest, 10 y, upkeep 5%, operator keeps 0.2 of the hours), by machine price
+   wall       $50k:    75   $100k:   150   $200k:   299   $400k:   599
+   wall+roof  $50k:    27   $100k:    55   $200k:   110   $400k:   220
+   one machine nails ~653 houses a year at 2,000 machine-hours (3.1 h a house): volume, not capacity, is the limit
+
+E. sweep (4000 draws, seed 1): price $40k-600k (log), life 7-20 y, interest 4-10%, upkeep 3-12%, wage $25-35, burden 1.0-1.6, operator keeps 0-50% of the hours
+   wall       houses a year to break even: 5% 85, median 326, 95% 1249
+   wall+roof  houses a year to break even: 5% 31, median 120, 95% 459
+
+F. the stock humanoids on the same wall-nailing hours (buildbot-cost model, 4000 draws; H1 passes the payload test for S4, G1 does not)
+   H1: eligible 3.31 h, P(saves money) 0.004, median $-356 a house, best draw $23
+   G1: eligible 0.00 h, P(saves money) 0.000, median $0 a house, best draw $0
+   (the roof deck is out of reach of both robots, so the gantry is the only option for it)

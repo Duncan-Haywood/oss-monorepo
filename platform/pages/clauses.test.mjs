@@ -6,13 +6,19 @@
 // actually shipped, and that it does not quietly pass a page it should catch.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
-import { NO_SLA_PATTERN } from './build.mjs';
+import { NO_SLA_PATTERN, REPO_ROOT } from './build.mjs';
 import {
   NO_WARRANTY,
   NOT_AFFILIATED,
   collectPages,
+  main,
   missingClauses,
+  touchedVentures,
   unknownVenture,
 } from './clauses.mjs';
 
@@ -219,4 +225,127 @@ test('every vs- page in the real venture tree carries the disclaimer or is exemp
     [],
     'a vs-<competitor> page is missing its trademark disclaimer; run `node platform/pages/clauses.mjs`',
   );
+});
+
+// The check that replaced the step copied into 281 <slug>-ci.yml files
+// (2026-10-20). Those copies existed so the venture that broke the rule went
+// red on its own PR, named. These tests pin that the replacement still does,
+// for a venture with no tests of its own -- the case the old loop in
+// ventures-tests.yml skipped.
+
+/** A throwaway git repo: a clean venture committed, then `changes` on top. */
+function fixtureRepo(changes, baseFiles = {}) {
+  const root = mkdtempSync(path.join(tmpdir(), 'clauses-'));
+  const git = (...args) =>
+    execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { cwd: root, encoding: 'utf8' });
+  const write = (rel, text) => {
+    mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
+    writeFileSync(path.join(root, rel), text);
+  };
+  git('init', '-q');
+  write('ventures/clean-tool/index.html', BOTH);
+  for (const [rel, text] of Object.entries(baseFiles)) write(rel, text);
+  git('add', '-A');
+  git('commit', '-qm', 'base');
+  const base = git('rev-parse', 'HEAD').trim();
+  for (const [rel, text] of Object.entries(changes)) write(rel, text);
+  git('add', '-A');
+  git('commit', '-qm', 'change');
+  return { root, base };
+}
+
+function run(argv, opts) {
+  const out = [];
+  const err = [];
+  return main(argv, { log: (m) => out.push(m), error: (m) => err.push(m), env: {}, ...opts }).then((code) => ({
+    code,
+    out: out.join('\n'),
+    err: err.join('\n'),
+  }));
+}
+
+test('--changed-since fails on a touched venture page with no warranty clause, naming the venture', async () => {
+  // No *.test.mjs in the venture: the old per-test loop never reached it.
+  const { root, base } = fixtureRepo({ 'ventures/broken-tool/index.html': SLA_ONLY });
+  try {
+    assert.deepEqual(touchedVentures(base, { repoRoot: root }), ['broken-tool']);
+    const { code, out, err } = await run(['--changed-since', base], {
+      repoRoot: root,
+      env: { GITHUB_ACTIONS: 'true' },
+    });
+    assert.equal(code, 1);
+    assert.match(err, /broken-tool\/index\.html/);
+    assert.match(err, /Venture\(s\) to fix: broken-tool$/m);
+    assert.doesNotMatch(err, /clean-tool/);
+    assert.match(out, /^::error file=ventures\/broken-tool\/index\.html,title=broken-tool: no-warranty clause missing::/m);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('--changed-since passes when the touched venture carries the clause', async () => {
+  const { root, base } = fixtureRepo({ 'ventures/fixed-tool/index.html': BOTH });
+  try {
+    const { code } = await run(['--changed-since', base], { repoRoot: root });
+    assert.equal(code, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('--changed-since checks only what the change touched', async () => {
+  // A dirty venture already on the base is not this PR's to fix; the
+  // unscoped run in portfolio-validate.yml is what reports it.
+  const { root, base } = fixtureRepo(
+    { 'ventures/clean-tool/README.md': 'docs only\n' },
+    { 'ventures/old-broken-tool/index.html': SLA_ONLY },
+  );
+  try {
+    assert.deepEqual(touchedVentures(base, { repoRoot: root }), ['clean-tool']);
+    const { code } = await run(['--changed-since', base], { repoRoot: root });
+    assert.equal(code, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('--changed-since ignores files directly under ventures/', async () => {
+  const { root, base } = fixtureRepo({ 'ventures/CLAUDE.md': 'notes\n' });
+  try {
+    assert.deepEqual(touchedVentures(base, { repoRoot: root }), []);
+    const { code, out } = await run(['--changed-since', base], { repoRoot: root });
+    assert.equal(code, 0);
+    assert.match(out, /no venture touched/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('--changed-since with no usable base checks every venture', () => {
+  assert.equal(touchedVentures(''), null);
+  assert.equal(touchedVentures('0000000000000000000000000000000000000000'), null);
+});
+
+test('several slugs are checked together and the failing one is named', async () => {
+  const { root } = fixtureRepo({ 'ventures/broken-tool/index.html': SLA_ONLY });
+  try {
+    const { code, err } = await run(['clean-tool', 'broken-tool'], { repoRoot: root });
+    assert.equal(code, 1);
+    assert.match(err, /Venture\(s\) to fix: broken-tool$/m);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('ventures-tests.yml runs the clause check for every touched venture, as its own step', () => {
+  // The per-venture copies were removed on the strength of this step, so it
+  // must not slide back inside the loop that skips ventures without tests.
+  const workflow = readFileSync(path.join(REPO_ROOT, '.github/workflows/ventures-tests.yml'), 'utf8');
+  const steps = workflow.split(/\n(?=      - )/);
+  const step = steps.find((s) => s.includes('clauses.mjs'));
+  assert.ok(step, 'ventures-tests.yml no longer runs clauses.mjs');
+  assert.match(step, /node platform\/pages\/clauses\.mjs --changed-since "\$BASE"/);
+  assert.doesNotMatch(step, /\*\.test\.mjs/, 'the clause check is gated on the venture having tests again');
+  assert.match(step, /if: \$\{\{ !cancelled\(\) \}\}/, 'a test failure would skip the clause check');
+  assert.match(workflow, /pull_request:\n    paths:\n      - "ventures\/\*\*"/);
 });

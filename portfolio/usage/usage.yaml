@@ -7181,6 +7181,39 @@ products:
           watching, the same discrimination as its sibling
           agent-instructions-drift-check: a visitor who only ever loads the
           worked example has not brought their own config to it.
+  - slug: open-floor-robots
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-10-21
+        signals:
+          live_url_visitors: null
+          plan_run: 0
+          plan_failed: 0
+          map_edited: 0
+          replay: 0
+        note: >-
+          Baseline at first commit. Unmeasured, not zero: Pages self-reports
+          nothing and the counters are local to each visitor's browser. Page
+          load does not count; only a visitor's own plan or edited room does.
+          GitHub stars, forks and build-report issues are the signal for the
+          hardware side.
+  - slug: open-robot-mower
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-10-21
+        signals:
+          live_url_visitors: null
+          plan_run: 0
+          plan_failed: 0
+          example_loaded: 0
+          lawn_drawn: 0
+          json_copied: 0
+        note: >-
+          Baseline at first commit. Unmeasured, not zero: Pages self-reports
+          nothing and the counters are local to each visitor's browser. Page
+          load does not count; only a visitor's own plan or drawn lawn does.
+          GitHub stars, forks and build-report issues are the signal for the
+          hardware side.
   - slug: open-tennis-robots
     surface: static-page-in-repo
     readings:

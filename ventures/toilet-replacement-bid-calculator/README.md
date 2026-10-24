@@ -9,7 +9,7 @@ owner-supplied bowl still leaves a margin on a $249 set, and whether
 Saturday / after-hours still covers — and shows the margin before the
 price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/toilet-replacement-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/toilet-replacement-bid-calculator/
 
 **After using this, you can now** send a walk-away toilet-replacement
 price that sees the closet and the bowl, **which used to take**
@@ -18,10 +18,7 @@ matching a published $249 installed special that treats a two-piece
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

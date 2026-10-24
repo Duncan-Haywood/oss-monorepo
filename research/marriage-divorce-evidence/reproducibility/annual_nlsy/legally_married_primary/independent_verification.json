@@ -1,0 +1,21 @@
+{
+  "All": {
+    "independent_rate_per_1000": 14.309476932087295,
+    "saved_rate": 14.309476932087293,
+    "events": 1463,
+    "unweighted_person_years": 91578.75000000001
+  },
+  "Men": {
+    "independent_rate_per_1000": 14.238984471756021,
+    "saved_rate": 14.238984471756025,
+    "events": 714,
+    "unweighted_person_years": 44620.250000000015
+  },
+  "Women": {
+    "independent_rate_per_1000": 14.382939217107378,
+    "saved_rate": 14.38293921710738,
+    "events": 749,
+    "unweighted_person_years": 46958.5
+  },
+  "checks": "Passed exposure, endpoint, independent crude-rate, full-rank, score, and fitted-count checks."
+}

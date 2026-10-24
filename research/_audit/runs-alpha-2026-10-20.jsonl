@@ -1,0 +1,23 @@
+{"slug": "accel-codesign", "runner": "experiments/run.py", "commands": 1, "seconds": 0.2, "files": {"experiments/results.txt": "exact", "experiments/results.json": "exact"}, "outcome": "exact"}
+{"slug": "accel-fetchprice", "runner": "experiments/run.py", "commands": 1, "seconds": 0.0, "files": {"experiments/results.txt": "exact", "experiments/results.json": "exact"}, "outcome": "exact"}
+{"slug": "abstention-scoring", "runner": "experiments/run.py", "commands": 1, "seconds": 3.4, "source": "stdout", "files": {"experiments/results.txt": "exact"}, "outcome": "exact"}
+{"slug": "accel-gatedlanes", "runner": "experiments/run.py", "commands": 1, "outcome": "error", "dep": null, "seconds": 0.9, "stderr": "run: sh ../accel-pdkprice/fetch_pdk.sh ../accel-pdkprice/pdk"}
+{"slug": "accel-gatedmux", "runner": "experiments/run.py", "commands": 1, "outcome": "error", "dep": null, "seconds": 0.7, "stderr": "run: sh ../accel-pdkprice/fetch_pdk.sh ../accel-pdkprice/pdk"}
+{"slug": "accel-gatedprice", "runner": "experiments/run.py", "commands": 1, "outcome": "error", "dep": null, "seconds": 0.1, "stderr": "run: sh fetch_pdk.sh pdk   (in this directory)"}
+{"slug": "accel-gatedrtl", "runner": "experiments/run.py", "commands": 1, "outcome": "error", "dep": null, "seconds": 0.5, "stderr": "run: sh ../accel-pdkprice/fetch_pdk.sh ../accel-pdkprice/pdk"}
+{"slug": "accel-ihpprice", "runner": "experiments/run.py", "commands": 1, "outcome": "error", "dep": null, "seconds": 0.1, "stderr": "run: sh fetch_pdk.sh pdk"}
+{"slug": "accel-kws", "runner": "experiments/run.py", "commands": 1, "outcome": "error", "dep": null, "seconds": 0.8, "stderr": "IndexError: list index out of range"}
+{"slug": "accel-kwssparse", "runner": "experiments/run.py", "commands": 1, "outcome": "error", "dep": null, "seconds": 0.4, "stderr": "IndexError: list index out of range"}
+{"slug": "accel-fpga", "runner": "experiments/run.py", "commands": 1, "outcome": "error", "dep": null, "seconds": 9.2, "stderr": "TypeError: expected str, bytes or os.PathLike object, not NoneType"}
+{"slug": "accel-lut", "runner": "experiments/run.py", "commands": 1, "seconds": 57.6, "files": {"experiments/results.txt": "exact", "experiments/results.json": "exact"}, "outcome": "exact"}
+{"slug": "accel-dataflow", "runner": "experiments/run.py", "commands": 1, "seconds": 145.0, "files": {"experiments/results.txt": "exact", "experiments/results.json": "exact"}, "outcome": "exact"}
+{"slug": "accel-lutrtl", "runner": "experiments/run.py", "commands": 1, "seconds": 197.7, "files": {"experiments/results.json": "exact"}, "outcome": "exact"}
+{"slug": "accel-nsga", "runner": "experiments/run.py", "commands": 1, "seconds": 84.1, "files": {"experiments/results.txt": "exact", "experiments/results.json": "exact"}, "outcome": "exact"}
+{"slug": "accel-lutft", "runner": "experiments/run.py", "commands": 1, "seconds": 365.4, "files": {"experiments/results.txt": "exact", "experiments/results.json": "exact"}, "outcome": "exact"}
+{"slug": "accel-pdkprice", "runner": "experiments/run.py", "commands": 1, "seconds": 0.2, "files": {"experiments/results.txt": "exact", "experiments/results.json": "exact"}, "outcome": "exact"}
+{"slug": "accel-dataflowbuf", "runner": "experiments/run.py", "commands": 1, "seconds": 392.4, "files": {"experiments/results.txt": "exact", "experiments/results.json": "exact"}, "outcome": "exact"}
+{"slug": "accel-planebatch", "runner": "experiments/run.py", "commands": 1, "seconds": 296.2, "files": {"experiments/results.txt": "exact", "experiments/results.json": "exact"}, "outcome": "exact"}
+{"slug": "accel-planefpga", "runner": "experiments/run.py", "commands": 1, "outcome": "error", "dep": null, "seconds": 6.4, "stderr": "TypeError: expected str, bytes or os.PathLike object, not NoneType"}
+{"slug": "accel-lutwide", "runner": "experiments/run.py", "commands": 1, "outcome": "timeout", "seconds": 600}
+{"slug": "accel-nsgatune", "runner": "experiments/run.py", "commands": 1, "outcome": "timeout", "seconds": 600}
+{"slug": "accel-plane", "runner": "experiments/run.py", "commands": 1, "outcome": "timeout", "seconds": 600}

@@ -1,0 +1,32 @@
+{
+  "R0000100": {
+    "ref": "R00001.00",
+    "name": "CASEID",
+    "year": "1979",
+    "block": "R00001.00    [CASEID]                                       Survey Year: 1979\n  PRIMARY VARIABLE\n\n             IDENTIFICATION CODE\n \nORIGINAL QUESTION NAME: CASEID\n \nNOTE: THIS NUMBER WAS ASSIGNED ACCORDING TO THE RECORD NUMBER OF EACH RESPONDENT\nON THE TAPE. THE FIRST RESPONDENT WAS ASSIGNED ID#1, THE SECOND WAS ASSIGNED \nID#2, ETC.\n \nACTUAL NUMBER\n \nUNIVERSE: All\n \nRefusal(-1)            0\nDon't Know(-2)         0\nTOTAL =========>   12686   VALID SKIP(-4)       0     NON-INTERVIEW(-5)       0\n \nMin:              1        Max:          12686        Mean:              6343.5\n \nLead In: None.\nDefault Next Question: R00001.49\n--------------------------------------------------------------------------------\n"
+  },
+  "R6533500": {
+    "ref": "R65335.00",
+    "name": "R_REL-2",
+    "year": "2000",
+    "block": "R65335.00    [R_REL-2]                                      Survey Year: 2000\n  PRIMARY VARIABLE\n\n             PRESENT RELIGIOUS AFFILIATION\n \nWhat is your present religion, if any?\n \nINTERVIEWER: IF PROTESTANT OR CHRISTIAN, PROBE: What denomination was that, if \nany?\n \nUNIVERSE: All\n \n    1261       1 PROTESTANT, CHRISTIAN, NO DENOMINATION KNOWN OR \n                      NON-DENOMINATIONAL CHURCH\n    2106       2 BAPTIST\n      90       3 ESPISCOPALIAN\n     360       4 LUTHERAN\n     384       5 METHODIST\n     150       6 PRESBYTERIAN\n    2104       7 ROMAN CATHOLIC\n      59       8 JEWISH\n     644       9 OTHER (SPECIFY)\n     861      10 NONE, NO RELIGION\n  -------\n    8019\n \nRefusal(-1)           10\nDon't Know(-2)         3\nTOTAL =========>    8032   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    4654\n \nMin:              1        Max:             10        Mean:                4.94\n \nLead In: R65334.00[Default]\nDefault Next Question: R65336.00\n--------------------------------------------------------------------------------\n"
+  },
+  "R6533600": {
+    "ref": "R65336.00",
+    "name": "R_REL-3",
+    "year": "2000",
+    "block": "R65336.00    [R_REL-3]                                      Survey Year: 2000\n  PRIMARY VARIABLE\n\n             FREQUENCY OF R'S RELIGIOUS ATTENDANCE\n \nIn the past year, about how often have you attended religious services? More \nthan once a week, about once a week, two or three times a month, about once a \nmonth, several times or less during the year, or not at all?\n \nUNIVERSE: All\n \nNOTE: RESPONSE SET INVERTED FROM 1979 AND 1982 QUESTIONS (R00105.00 AND \nR06559.00)\n \n    1674       1 More than once a week\n    2123       2 About once a week\n      10       3 Two or three times a month\n    1819       4 About once a month\n    1491       5 Several times a year or less\n     902       6 Not at all\n  -------\n    8019\n \nRefusal(-1)           11\nDon't Know(-2)         2\nTOTAL =========>    8032   VALID SKIP(-4)       0     NON-INTERVIEW(-5)    4654\n \nMin:              1        Max:              6        Mean:                3.25\n \nLead In: R65335.00[Default]\nDefault Next Question: R65337.00\n--------------------------------------------------------------------------------\n"
+  },
+  "R6538600": {
+    "ref": "R65386.00",
+    "name": "SP_REL-2",
+    "year": "2000",
+    "block": "R65386.00    [SP_REL-2]                                     Survey Year: 2000\n  PRIMARY VARIABLE\n\n             PRESENT RELIGIOUS AFFILIATION OF SPOUSE\n \nWhat is [Spouse/partner's name]'s present religion, if any?\n \nINTERVIEWER: IF PROTESTANT OR CHRISTIAN, PROBE: What denomination was that, if \nany?\n \nUNIVERSE: R is married\n \n     793       1 PROTESTANT, CHRISTIAN, NO DENOMINATION KNOWN OR \n                      NON-DENOMINATIONAL CHURCH\n    1121       2 BAPTIST\n      63       3 ESPISCOPALIAN\n     268       4 LUTHERAN\n     263       5 METHODIST\n     105       6 PRESBYTERIAN\n    1529       7 ROMAN CATHOLIC\n      48       8 JEWISH\n     404       9 OTHER (SPECIFY)\n     591      10 NONE, NO RELIGION\n  -------\n    5185\n \nRefusal(-1)           13\nDon't Know(-2)        59\nTOTAL =========>    5257   VALID SKIP(-4)    2775     NON-INTERVIEW(-5)    4654\n \nMin:              1        Max:             10        Mean:                5.18\n \nLead In: R65385.00[Default]\nDefault Next Question: R65387.00\n--------------------------------------------------------------------------------\n"
+  },
+  "R6538700": {
+    "ref": "R65387.00",
+    "name": "SP_REL-3",
+    "year": "2000",
+    "block": "R65387.00    [SP_REL-3]                                     Survey Year: 2000\n  PRIMARY VARIABLE\n\n             FREQUENCY OF RELIGIOUS ATTENDANCE OF SPOUSE\n \nIn the past year, about how often has [Spouse/partner's name] attended religious\nservices? More than once a week, about once a week, two or three times a month, \nabout once a month, several times or less during the year, or not at all?\n \nUNIVERSE: R is married \n \nNOTE: RESPONSE SET INVERTED FROM 1982 QUESTION (R06617.00)\n \n    1123       1 More than once a week\n    1293       2 About once a week\n       9       3 Two or three times a month\n    1080       4 About once a month\n    1085       5 Several times a year or less\n     607       6 Not at all\n  -------\n    5197\n \nRefusal(-1)           18\nDon't Know(-2)        42\nTOTAL =========>    5257   VALID SKIP(-4)    2775     NON-INTERVIEW(-5)    4654\n \nMin:              1        Max:              6        Mean:                3.29\n \nLead In: R65386.00[Default]\nDefault Next Question: R65388.00\n--------------------------------------------------------------------------------\n"
+  }
+}

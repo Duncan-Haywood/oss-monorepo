@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>eBay File Exchange Check — Find Bulk Listing CSV Errors Before You Upload</title>
-  <meta name="description" content="Free eBay File Exchange and bulk listing CSV checker: finds semicolon or UTF-16 files, titles over 80 characters, UPCs that lost a leading zero, bad UPC and EAN check digits, scientific-notation ItemIDs and SKUs, bad prices, quantities, durations and picture URLs, and active content in descriptions, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta name="description" content="Catch what breaks an eBay bulk listing upload, with the line number, before you upload. Nothing leaves your device.">
   <meta property="og:title" content="eBay File Exchange Check — free, private, in your browser">
   <meta property="og:description" content="Catch what breaks an eBay bulk listing upload, with the line number, before you upload. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
@@ -59,6 +59,7 @@
     <p>Paste or drop your <strong>File Exchange CSV</strong> and get every problem <strong>with its line number</strong> before you upload: <strong>titles over 80 characters</strong>, a missing or misspelled <code>Action</code>, <strong>UPCs that lost their leading zero</strong>, UPCs and EANs <strong>whose check digit is wrong</strong>, ItemIDs and SKUs Excel turned into <code>1.23457E+11</code>, prices like <code>$18.00</code> or <code>26,50</code>, an auction set to <code>GTC</code>, pictures separated by commas, and JavaScript in the description. Then <strong>apply the safe fixes</strong> and download a cleaned CSV.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of eBay Inc. Column names, codes and limits are read from memory of eBay's public bulk-listing documentation; no eBay upload was available when this was built.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your listing file</h2>
@@ -122,7 +123,8 @@
     <p>Whether eBay will accept the file today, whether a category ID exists or accepts a condition, item specifics, business policy names, variation listings, VeRO and prohibited items, and whether the price is competitive. A clean result is not a promise of success: upload a few rows first.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace eBay's own upload checks. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by uploading a small sample first, and a clean result is not a promise that eBay will accept the file or that the listings will sell.</p>
     <p><strong>Not affiliated with eBay.</strong> This tool is independent and is not sponsored, endorsed or connected to eBay Inc. or any listing-tool vendor. eBay is a trademark of its owner, used here only to say which file format the tool reads. The column list, codes and limits are read from memory of public sources and may be out of date or miss a variant; check them against eBay's current documentation.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>

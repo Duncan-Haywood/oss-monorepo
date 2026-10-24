@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etsy Bookkeeping: Why Your Deposits Understate Your Sales (Worked Example)</title>
+<meta name="description" content="Etsy pays you what is left after fees, shipping labels, ads and refunds. A worked month shows $389.50 of sales arriving as a $315.09 deposit, and how to book the gap for Schedule C and the 1099-K.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./etsy-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Etsy bookkeeping: why your bank deposits understate your sales">
+<meta property="og:description" content="A worked month: $389.50 of Etsy sales, $315.09 in the bank. Where the $74.41 went and how to book it.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why don't my Etsy deposits match my sales?","acceptedAnswer":{"@type":"Answer","text":"Etsy deposits sales net of transaction and processing fees, listing fees, ads, shipping labels bought through Etsy and refunds. In the worked example, $389.50 of sales became a $315.09 deposit."}},{"@type":"Question","name":"Should I book Etsy deposits or Etsy sales as income?","acceptedAnswer":{"@type":"Answer","text":"Book the gross sales as income and the fees, ads and shipping as expenses, so the books match the gross figure on a 1099-K. Booking only deposits understates both income and expenses."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Etsy bookkeeping: why your deposits understate your sales</h1>
+<p class="lede">Etsy pays out what is left after its fees, ads, shipping labels and refunds. If you book the deposits as income, your books show less than you sold, and less than the 1099-K Etsy may report.</p>
+</header>
+
+<section>
+<h2>Worked example: one month, five orders</h2>
+<p>The tool ships a <strong>synthetic</strong> Etsy payment-account ledger for April 2026: five orders, one refund, a listing fee, an ad charge, a shipping label and one deposit to the bank. Read by the tool's payout reader, the month splits like this:</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from fixtures/etsy-ledger.csv, read by payouts.mjs. Synthetic data, not a real shop.</caption>
+<thead><tr><th scope="col">April 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Sales, five orders</th><td>$389.50</td></tr>
+<tr><th scope="row">Refund to a buyer (order #1006)</th><td>&minus;$28.00</td></tr>
+<tr class="total"><th scope="row">Net sales (gross receipts)</th><td>$361.50</td></tr>
+<tr><th scope="row">Transaction and processing fees</th><td>&minus;$31.16</td></tr>
+<tr><th scope="row">Shipping label bought through Etsy</th><td>&minus;$7.85</td></tr>
+<tr><th scope="row">Listing fee</th><td>&minus;$1.00</td></tr>
+<tr><th scope="row">Etsy Ads</th><td>&minus;$6.40</td></tr>
+<tr class="total"><th scope="row">Deposit to the bank</th><td>$315.09</td></tr>
+</tbody>
+</table>
+</div>
+<p>Booked from the bank line alone, the shop shows $315.09 of income and no expenses. Booked from the ledger, it shows $361.50 of sales and $46.41 of Etsy costs: the same $315.09 profit, but income and expenses that match what you actually sold and spent. That matters when the numbers are compared with a 1099-K, which reports gross payments, and when you claim fees and shipping on Schedule C.</p>
+</section>
+
+<section>
+<h2>How to book it</h2>
+<ol>
+<li><strong>Download the payment account ledger</strong> from Etsy's Payment account, as a CSV, and the deposit lines from your bank.</li>
+<li><strong>Import the bank statement</strong> in <a href="./">AI Bookkeeper</a>, then run the payout import on the Etsy CSV (<code>payouts etsy-ledger.csv</code>). Each deposit is matched to its bank line and split into sales, refunds, fees, ads and shipping.</li>
+<li><strong>Check that the deposit equals the activity.</strong> If the rows since the previous deposit do not net to the deposit, a balance was carried over from before the report; the tool says so and does not split it. Download an earlier start date.</li>
+<li><strong>Keep sales tax out of income.</strong> Marketplace facilitators usually collect and remit sales tax; do not book it as your sales.</li>
+</ol>
+<p>The Etsy layout is read from memory of Etsy's help pages and one hand-written fixture. No real export has been tried, so check the totals against your own statement.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Why don't my Etsy deposits match my sales?</h3>
+<p>Etsy deposits sales net of transaction and processing fees, listing fees, ads, shipping labels bought through Etsy and refunds. In the worked example, $389.50 of sales became a $315.09 deposit.</p>
+<h3>Should I book Etsy deposits or Etsy sales as income?</h3>
+<p>Book the gross sales as income and the fees, ads and shipping as expenses, so the books match the gross figure on a 1099-K. Booking only deposits understates both income and expenses.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your Etsy ledger and bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Stripe is a trademark of its owner, named only to describe a payee.</p>
+</footer>
+</body>
+</html>

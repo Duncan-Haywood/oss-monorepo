@@ -1,0 +1,22 @@
+== A. Stereo baseline (m) at 3 m range, sensor noise 0.01, gap 15 deg, no bystander, mean of 3 noise seeds. Depth error is relative, true-surface pixels
+baseline_m  coverage  err_median_pct  err_mean_pct  err_p90_pct  psnr_measured  psnr_exact  psnr_iid_same_mean_err  psnr_nearest  hole_frac_measured
+      0.03     0.546            9.80         14.87        35.21          13.51       27.29                   20.83         24.81               0.317
+      0.06     0.785            6.52         10.73        23.01          16.30       27.29                   21.34         24.81               0.162
+      0.10     0.870            3.93          6.85        14.82          18.88       27.29                   22.34         24.81               0.085
+      0.20     0.908            2.41          4.29         9.03          22.29       27.29                   23.45         24.81               0.029
+      0.30     0.882            1.75          3.34         6.66          22.02       27.29                   24.12         24.81               0.031
+      0.50     0.819            1.45          2.72         5.15          20.04       27.29                   24.67         24.81               0.058
+
+== B. Sensor noise (sigma per channel, 0-1 scale), baseline 0.2 m
+noise  coverage  err_median_pct  err_mean_pct  psnr_measured  psnr_iid_same_mean_err  psnr_nearest
+ 0.00     0.927            1.54          2.94          23.68                   24.51         24.93
+ 0.01     0.908            2.41          4.29          22.29                   23.45         24.81
+ 0.03     0.827            4.03          7.84          18.97                   21.73         23.87
+ 0.06     0.654            8.48         18.54          15.43                   19.54         21.69
+ 0.10     0.475           18.44         37.24          13.28                   17.52         18.87
+
+== C. A bystander in the scene, baseline 0.2 m, sensor noise 0.01
+gap_deg  coverage  err_mean_pct  psnr_measured  psnr_exact  psnr_nearest
+      8     0.878          4.28          19.65       27.46         22.79
+     15     0.879          4.59          17.50       20.50         21.24
+     30     0.879          4.04          16.28       18.81         19.58

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks } from "./calc.mjs";
+import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, validateSchedule, dayLabel, parseDate } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-round-robin-schedule.html";
@@ -518,4 +518,296 @@ test("the ladder guide's worked example matches ladderStandings() and is linked 
   assert.match(page("sitemap.xml"), /how-to-run-a-ladder-league\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-run-a-ladder-league\.html"/);
   assert.match(page("index.html"), /id="build-ladder"/);
+});
+
+test("the referees guide's worked example matches assignOfficials() and is linked and in the sitemap", async () => {
+  const { readSpec, buildSchedule, parseOfficials, assignOfficials, validateOfficials } = await import("./calc.mjs");
+  const html = page("how-to-assign-referees-to-a-league-schedule.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-assign-referees-to-a-league-schedule\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const { spec, errors } = readSpec({ teams: "Hawks\nOwls\nWolves\nLynx", double: false, start: "2026-10-06", weekdays: ["Tue"], skip: "" });
+  assert.deepEqual(errors, []);
+  const o = parseOfficials(html.match(/<pre>(.*?)<\/pre>/s)[1], spec.teams);
+  assert.deepEqual(o.errors, []);
+  const a = assignOfficials(buildSchedule(spec), o.officials);
+  assert.deepEqual(validateOfficials(a.schedule, o.officials), []);
+  a.schedule.rounds.forEach((r, i) => r.matches.forEach((m) => assert.ok(html.includes(`<tr><td>${i + 1}</td><td>${m.homeName} v ${m.awayName}</td><td>${m.official}</td></tr>`), `${m.homeName} v ${m.awayName}`)));
+  assert.match(page("sitemap.xml"), /how-to-assign-referees-to-a-league-schedule\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-assign-referees-to-a-league-schedule\.html"/);
+});
+
+test("the pickleball guide's worked example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "pickleball-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const { errors, spec } = readSpec({ teams: "Dinkers\nSpinners\nLobbers\nVolleys\nBangers\nDrop Shots\nKitchen Crew\nPaddle Pals", start: "2026-10-07", weekdays: ["Wed"], courts: "Court 1\nCourt 2", times: "18:00\n19:00" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.length, 7);
+  const early = {};
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.number}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, r.matches.length);
+    for (const m of r.matches) if (m.time === "18:00") for (const t of [m.homeName, m.awayName]) early[t] = (early[t] || 0) + 1;
+  });
+  assert.ok(Object.values(early).every((c) => c === 3 || c === 4));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the youth soccer guide's 9-team example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "youth-soccer-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Rockets", "Falcons", "Tigers", "Comets", "Rangers", "Strikers", "Blazers", "Wolves", "Sharks"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-10-24", weekdays: ["Sat"], courts: "Field 1\nField 2", times: "09:00\n10:30" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.length, 9);
+  const byes = {};
+  s.rounds.forEach((r) => {
+    const playing = new Set(r.matches.flatMap((m) => [m.homeName, m.awayName]));
+    const bye = teams.filter((t) => !playing.has(t));
+    assert.equal(bye.length, 1);
+    byes[bye[0]] = (byes[bye[0]] || 0) + 1;
+    const row = `<tr><td>${r.number}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td><td>${bye[0]}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, r.matches.length);
+  });
+  assert.ok(teams.every((t) => byes[t] === 1));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the rec basketball guide's 10-team example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "rec-basketball-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Hoopers", "Bruisers", "Skyhooks", "Fastbreak", "Pivots", "Rim Riders", "Buzzers", "Dunkers", "Zone D", "Net Gains"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-11-04", weekdays: ["Wed"], courts: "Court A\nCourt B", times: "18:00\n19:00\n20:00" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.length, 9);
+  const early = {};
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.number}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(r.matches.length, 5);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, 5);
+    for (const m of r.matches) if (m.time === "18:00") for (const t of [m.homeName, m.awayName]) early[t] = (early[t] || 0) + 1;
+  });
+  assert.ok(teams.every((t) => early[t] === 3));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the volleyball guide's closed-gym example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "volleyball-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Spikers", "Setters", "Diggers", "Blockers", "Aces", "Floaters"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-11-05", weekdays: ["Thu"], courts: "Gym 1\nGym 2", times: "19:00\n20:00", courtClosures: "Gym 2: 2026-11-19, 2026-11-26" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.ok(validateSchedule(s).ok);
+  let played = 0;
+  s.rounds.forEach((r) => {
+    const night = new Date(r.day * 864e5).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+    const row = `<tr><td>${r.label}</td><td>${night}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    played += r.matches.length;
+    if (night === "Thu 19 Nov" || night === "Thu 26 Nov") assert.ok(r.matches.every((m) => m.court === "Gym 1"));
+  });
+  assert.equal(played, 15);
+  assert.equal(s.rounds.filter((r) => r.makeup).length, 2);
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the fantasy football guide's 12-team, 14-week example matches buildSchedule() and is linked and in the sitemap", async () => {
+  const { rematchReport } = await import("./calc.mjs");
+  const html = page("how-to-make-a-fantasy-football-schedule.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-make-a-fantasy-football-schedule\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const names = "Ace,Bolt,Colt,Dash,Echo,Fox,Gale,Hawk,Iris,Jinx,Kite,Lynx".split(",");
+  assert.ok(html.includes(names.join(", ")));
+  const { errors, spec } = readSpec({ teams: names.join("\n"), start: "2026-09-10", weekdays: "Thu", double: true, rounds: "14" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(validateSchedule(s).ok, true);
+  assert.equal(s.rounds.length, 14);
+  const meets = new Map();
+  for (const r of s.rounds) for (const m of r.matches) {
+    const k = Math.min(m.home, m.away) + "-" + Math.max(m.home, m.away);
+    meets.set(k, (meets.get(k) || 0) + 1);
+  }
+  assert.equal(meets.size, 66);
+  assert.equal([...meets.values()].filter((v) => v === 2).length, 18);
+  const rematches = Array(12).fill(0);
+  for (const [k, v] of meets) if (v === 2) for (const t of k.split("-")) rematches[t]++;
+  assert.ok(rematches.every((x) => x === 3));
+  assert.equal(rematchReport(s).shortest, 77);
+  assert.match(page("sitemap.xml"), /how-to-make-a-fantasy-football-schedule\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-make-a-fantasy-football-schedule\.html"/);
+});
+
+test("the adult softball guide's 6-team example with a blackout matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "adult-softball-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Bat Pack", "Dugout Dogs", "Foul Ballers", "Grand Slammers", "Pitch Perfect", "Walk-Offs"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-04-14", weekdays: ["Tue"], courts: "Diamond 1\nDiamond 2", times: "18:30\n20:00", blackouts: "Walk-Offs: 2026-05-05", minutes: 90 });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(validateSchedule(s).ok, true);
+  assert.equal(s.rounds.length, 6);
+  let games = 0;
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.label}</td><td>${dayLabel(r.day)}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, r.matches.length);
+    games += r.matches.length;
+  });
+  assert.equal(games, 15);
+  const blackedOut = s.rounds.find((r) => dayLabel(r.day) === "Tue 5 May 2026");
+  assert.ok(blackedOut.matches.every((m) => m.homeName !== "Walk-Offs" && m.awayName !== "Walk-Offs"));
+  assert.equal(s.rounds.filter((r) => r.makeup).length, 1);
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the darts guide's 6-pub double round robin matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "darts-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Red Lion", "Kings Arms", "Royal Oak", "Black Horse", "Crown", "White Hart"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-09-10", weekdays: ["Thu"], double: true });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.ok(validateSchedule(s).ok);
+  assert.equal(s.rounds.length, 10);
+  const home = {};
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.label}</td><td>${dayLabel(r.day)}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName}`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    r.matches.forEach((m) => { home[m.homeName] = (home[m.homeName] || 0) + 1; });
+  });
+  assert.ok(teams.every((t) => home[t] === 5));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the chess club guide's 7-player round robin matches buildSchedule() with one bye each and is linked and in the sitemap", () => {
+  const name = "chess-club-round-robin-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Ana", "Ben", "Chloe", "Dev", "Ella", "Finn", "Gus"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-09-14", weekdays: ["Mon"], courts: "Board 1\nBoard 2\nBoard 3", times: "19:00" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.ok(validateSchedule(s).ok);
+  assert.equal(s.rounds.length, 7);
+  const byes = {}, white = {};
+  s.rounds.forEach((r) => {
+    const playing = new Set(r.matches.flatMap((m) => [m.homeName, m.awayName]));
+    const bye = teams.find((t) => !playing.has(t));
+    byes[bye] = (byes[bye] || 0) + 1;
+    r.matches.forEach((m) => { white[m.homeName] = (white[m.homeName] || 0) + 1; });
+    const row = `<tr><td>${r.label}</td><td>${dayLabel(r.day)}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court})`).join(", ")}; bye: ${bye}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  });
+  assert.ok(teams.every((t) => byes[t] === 1 && white[t] === 3));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the cornhole guide's 8-team schedule with a skipped week matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "cornhole-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Bag Daddies", "Hole Punchers", "Toss Bosses", "Sack Attack", "Board Meeting", "Corn Stars", "Slide Rules", "Airmailers"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2026-06-03", weekdays: ["Wed"], skip: "2026-07-01", courts: "Lane 1\nLane 2", times: "18:30\n19:30" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.ok(validateSchedule(s).ok);
+  assert.equal(s.rounds.length, 7);
+  assert.ok(s.rounds.every((r) => dayLabel(r.day) !== dayLabel(parseDate("2026-07-01"))));
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.label}</td><td>${dayLabel(r.day)}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court}${m.time ? " " + m.time : ""})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  });
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("multi-division page: disclaimer, imports, element ids, sitemap and link from the index", () => {
+  const html = page("multi-division-league-schedule.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal or financial advice/i);
+  assert.match(html, /never uploaded/);
+  assert.match(html, /id="optout"/);
+  assert.match(html, /<link rel="canonical" href="\.\/multi-division-league-schedule\.html">/);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./divisions.mjs", "./usage.mjs"]);
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("#([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
+  const faq = blocks.find((b) => b["@type"] === "FAQPage");
+  for (const q of faq.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  assert.match(page("sitemap.xml"), /multi-division-league-schedule\.html/);
+  assert.match(page("index.html"), /href="\.\/multi-division-league-schedule\.html"/);
+});
+
+test("divisions.mjs guards its command-line entry so it loads in a browser", () => {
+  assert.match(page("divisions.mjs"), /typeof process !== "undefined"/);
+});
+
+test("the multi-division page offers venue fairness and prints next season's history", () => {
+  const html = page("multi-division-league-schedule.html");
+  for (const id of ['id="venueFairness"', 'id="venueHistory"', 'id="next-history"']) assert.ok(html.includes(id), id);
+  assert.match(html, /carryVenueHistory\(s\)/);
+});
+
+test("the multi-division page has the four make-up checkboxes and passes them to the rainout pass", () => {
+  const html = page("multi-division-league-schedule.html");
+  for (const id of ["balance", "flip", "relocate", "swapNights"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /applyDivisionRainouts\(s, f\.rainouts, rainoutOptions\(f\)\)/);
 });

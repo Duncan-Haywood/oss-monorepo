@@ -1,0 +1,55 @@
+compiling mutants: 91; killable (any random or formal kill): 66
+random-vector behaviour of all compiling mutants: first-vector 41, fixed-index 1, never 25, sampled 24
+
+per-vector detection probability, geometric MLE (kills / trials) over the 'sampled' mutants:
+  rom@101:+1             formal=undecided  seeds hit 16/20  p_hat 0.028  (95% to see it: 106 vectors)
+  lit@125:0+1            formal=killed     seeds hit 17/20  p_hat 0.030  (95% to see it: 100 vectors)
+  rom@60:+1              formal=killed     seeds hit 19/20  p_hat 0.051  (95% to see it: 58 vectors)
+  rom@55:+1              formal=killed     seeds hit 20/20  p_hat 0.127  (95% to see it: 22 vectors)
+  lit@150:0+1            formal=undecided  seeds hit 20/20  p_hat 0.134  (95% to see it: 21 vectors)
+  rom@84:+1              formal=undecided  seeds hit 20/20  p_hat 0.142  (95% to see it: 20 vectors)
+  rom@70:+1              formal=undecided  seeds hit 20/20  p_hat 0.144  (95% to see it: 20 vectors)
+  rom@10:+1              formal=killed     seeds hit 20/20  p_hat 0.155  (95% to see it: 18 vectors)
+  rom@23:+1              formal=killed     seeds hit 20/20  p_hat 0.190  (95% to see it: 15 vectors)
+  rom@29:+1              formal=killed     seeds hit 20/20  p_hat 0.202  (95% to see it: 14 vectors)
+  rom@74:+1              formal=killed     seeds hit 20/20  p_hat 0.217  (95% to see it: 13 vectors)
+  rom@12:+1              formal=killed     seeds hit 20/20  p_hat 0.220  (95% to see it: 13 vectors)
+  rom@14:+1              formal=undecided  seeds hit 20/20  p_hat 0.227  (95% to see it: 12 vectors)
+  rom@51:+1              formal=killed     seeds hit 20/20  p_hat 0.238  (95% to see it: 12 vectors)
+  rom@32:+1              formal=undecided  seeds hit 20/20  p_hat 0.250  (95% to see it: 11 vectors)
+  rom@62:+1              formal=undecided  seeds hit 20/20  p_hat 0.370  (95% to see it: 7 vectors)
+  lit@137:8-1            formal=undecided  seeds hit 20/20  p_hat 0.541  (95% to see it: 4 vectors)
+  lit@137:4-1            formal=killed     seeds hit 20/20  p_hat 0.800  (95% to see it: 2 vectors)
+  op@138:+->-            formal=killed     seeds hit 20/20  p_hat 0.800  (95% to see it: 2 vectors)
+  rom@46:+1              formal=killed     seeds hit 20/20  p_hat 0.833  (95% to see it: 2 vectors)
+  lit@127:0+1            formal=killed     seeds hit 20/20  p_hat 0.952  (95% to see it: 1 vectors)
+  lit@127:1+1            formal=killed     seeds hit 20/20  p_hat 0.952  (95% to see it: 1 vectors)
+  lit@135:1+1            formal=killed     seeds hit 20/20  p_hat 0.952  (95% to see it: 1 vectors)
+  lit@135:0+1            formal=killed     seeds hit 20/20  p_hat 0.952  (95% to see it: 1 vectors)
+
+'fixed-index' mutants (same first-mismatch index in all 20 seeds, index > 0): 1
+  del@122:delete         formal=undecided  index 54
+
+never detected by random vectors: 25 mutants; formal verdicts: equivalent 16, undecided 9
+each had 1280 random vectors with no mismatch: per-vector detection probability < 0.00234 at 95% (rule of three: 3/1280 = 0.00234)
+  a bug that rare needs about 1281 vectors to be seen with 95% probability
+
+vectors needed to see a bug with per-vector detection probability p (95% / 99%):
+  p = 0.5          5 /      7
+  p = 0.1         29 /     44
+  p = 0.01       299 /    459
+  p = 0.001     2995 /   4603
+  p = 0.0001   29956 /  46050
+
+== C. miss rate of random vectors over the 66 detectable mutants, observed vs geometric model fitted on the same data
+n observed model
+1 0.2364 0.2347
+2 0.1848 0.1888
+4 0.1326 0.1382
+8 0.0871 0.0868
+16 0.0530 0.0496
+32 0.0303 0.0306
+64 0.0061 0.0052
+
+model: vectors until the expected miss rate over detectable mutants is <= 1.0%: 45
+model: vectors until the expected miss rate over detectable mutants is <= 0.1%: 118

@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-23",
+ "session": "https://claude.ai/code/session_017i1nJRhN8wnyN36JFWNDHD",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "follow the instructions in ./prompt.md",
+ "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-23T02:46:05Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9664",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/PROJECTS.md",
+   "issue": "Track 7 chain is micro-variants (39 eda-* projects); next-steps lists repeat the same items already done, so I had to pick a new question myself."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "No agent doc/post written; run kept to one small project. Also a first run had an index-order tie-break artefact (constant model scored 1.0); caught, fixed by shuffling, rerun."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "eda-screenplaced: cross-family screen of placed area-period front; fronts tiny (1-1.6 designs) so test is easy, disclosed.",
+ "corrections": [],
+ "redteam": null
+}

@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Interview to Content Calendar: Posts for Every Platform (Free)</title>
+  <meta name="description" content="Answer one guided interview about your brand or topic and get a 4-week content calendar with drafts for LinkedIn, Instagram, TikTok, YouTube, X, newsletters, blogs and more. Free, runs in your browser, optional AI on your own key.">
+  <meta property="og:title" content="Interview Content Studio: one interview, a month of content for every platform">
+  <meta property="og:description" content="A guided interview about your brand becomes a posting plan sized to your hours, a 4-week calendar and platform-ready drafts built only from your own answers.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Interview Content Studio", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A guided interview about your brand, business or topic becomes a per-platform posting plan scaled to your hours, a 4-week content calendar, and drafts for X, Threads, Bluesky, LinkedIn, Instagram, Facebook, TikTok, YouTube, newsletters, blogs, Medium, Reddit, Pinterest and podcast clips. Drafts are built only from your answers; optional AI rewriting runs on your own key or a local model. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I turn one interview into content for every platform?", "acceptedAnswer": {"@type": "Answer", "text": "Answer the guided interview: who you are, who you serve, their problem, three to five real stories, your opinions, your advice, results you can show, and your offer. The studio turns each answer into a different angle and reshapes it for each platform: a short post for X, Threads and Bluesky, a longer post for LinkedIn, a script for Reels, TikTok and Shorts, slides for a carousel, a newsletter issue and a blog article."}}, {"@type": "Question", "name": "How often should I post on each platform?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single right number. The studio starts from a floor and an ideal rhythm for each format, then fits them to the hours a week you say you have, cheapest formats first, and tells you which platforms your time cannot cover. Treat the numbers as a starting point for a month, then adjust to what you can keep up and what gets replies."}}, {"@type": "Question", "name": "Does it make up facts or results?", "acceptedAnswer": {"@type": "Answer", "text": "No. The built-in drafts are assembled only from your own answers, with short connecting phrases. If you turn on AI, it is told to use only facts from your interview, and any AI draft containing a number that is not in your interview is thrown away and the original draft kept."}}, {"@type": "Question", "name": "Do I need an AI key?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every draft works without one. Optionally, add your own Anthropic, OpenAI, Gemini or OpenAI-compatible key, or point it at a model on your own computer (Ollama, LM Studio, llama.cpp), to rewrite drafts in your voice. The key stays in your browser and goes only to the provider you pick."}}, {"@type": "Question", "name": "Does it post for me?", "acceptedAnswer": {"@type": "Answer", "text": "No. It never posts anywhere. Copy drafts one by one, or export a CSV with date, platform, format, title and text to import into the scheduler you already use, then review and post yourself."}}]}</script>
+  <style>
+    :root {
+      --bg: #f5f4f0; --card: #ffffff; --ink: #1c1d21; --muted: #5b5d66; --line: #dddbd3; --accent: #1f5f8b; --accent-ink: #ffffff;
+      --soft: #eef3f7; --warn: #8a4b08; --ok: #1d6b3a; --chip: #e6eef4; --field: #ffffff;
+      color-scheme: light dark; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) { --bg: #15171b; --card: #1e2127; --ink: #e9eaee; --muted: #a8adb8; --line: #343944; --accent: #7cb8e4; --accent-ink: #0d1a24; --soft: #1b2733; --warn: #f0b36a; --ok: #7fd1a0; --chip: #22313f; --field: #171a1f; }
+    }
+    :root[data-theme="dark"] { --bg: #15171b; --card: #1e2127; --ink: #e9eaee; --muted: #a8adb8; --line: #343944; --accent: #7cb8e4; --accent-ink: #0d1a24; --soft: #1b2733; --warn: #f0b36a; --ok: #7fd1a0; --chip: #22313f; --field: #171a1f; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { max-width: 1080px; margin: 0 auto; padding: 28px 16px; background: var(--bg); color: var(--ink); }
+    a { color: var(--accent); }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; }
+    h2 { font-size: 1.2rem; margin: 0 0 10px; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    .eyebrow, .note, footer { font-size: .88rem; color: var(--muted); }
+    .eyebrow { letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+    nav.steps { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 4px; }
+    nav.steps a { text-decoration: none; background: var(--chip); color: var(--ink); padding: 6px 12px; border-radius: 999px; font-size: .9rem; font-weight: 600; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 8px 0 4px; }
+    input[type=text], input[type=url], input[type=password], input[type=number], input[type=date], select, textarea {
+      width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; font: inherit; background: var(--field); color: var(--ink);
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    textarea.tall { min-height: 180px; }
+    input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: var(--chip); color: var(--ink); }
+    button.small { padding: 5px 10px; font-size: .85rem; font-weight: 600; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-items: end; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .toolbar select { width: auto; min-width: 200px; max-width: 100%; }
+    .progress { height: 8px; background: var(--chip); border-radius: 4px; overflow: hidden; margin: 8px 0 14px; }
+    .progress > div { height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+    .question { border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin: 10px 0; background: var(--soft); }
+    .question .q { font-size: 1.08rem; font-weight: 700; margin: 0 0 4px; }
+    .question .section { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }
+    .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 6px 14px; margin-top: 8px; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 500; margin: 0; }
+    .slider { display: grid; grid-template-columns: 90px 1fr 90px; gap: 8px; align-items: center; font-size: .9rem; }
+    .slider span:last-child { text-align: right; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .05em; }
+    .table-wrap { overflow-x: auto; }
+    .status-ideal { color: var(--ok); font-weight: 600; } .status-below-floor, .status-skipped { color: var(--warn); font-weight: 600; }
+    .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
+    .cal .head { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; text-align: center; }
+    .day { border: 1px solid var(--line); border-radius: 8px; padding: 6px; min-height: 86px; background: var(--card); }
+    .day .date { font-size: .78rem; color: var(--muted); font-weight: 700; }
+    .chip { display: block; width: 100%; text-align: left; margin: 3px 0 0; padding: 3px 6px; border-radius: 6px; background: var(--chip); color: var(--ink); font-size: .74rem; font-weight: 600; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .draft { border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin: 12px 0; }
+    .draft header { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; justify-content: space-between; }
+    .draft h3 { margin: 0; }
+    .badge { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; background: var(--chip); }
+    .draft textarea { font: .92rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; min-height: 160px; margin-top: 8px; }
+    .warn { color: var(--warn); font-size: .86rem; margin: 6px 0 0; padding-left: 18px; }
+    .count { font-size: .82rem; color: var(--muted); }
+    .error { color: var(--warn); font-weight: 600; }
+    details { margin-top: 10px; } summary { cursor: pointer; font-weight: 700; }
+    pre.cmd { background: var(--soft); padding: 12px; border-radius: 8px; font-size: .86rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; }
+    footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px; }
+    @media (max-width: 760px) {
+      .cal { grid-template-columns: 1fr; } .cal .head { display: none; } .day { min-height: 0; }
+      .card { padding: 16px; } body { padding: 20px 16px; }
+      .slider { grid-template-columns: 70px 1fr 70px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">Interview Content Studio · free · runs in your browser</p>
+    <h1>Turn one interview into a month of content for every platform</h1>
+    <p>Answer a guided interview about your brand, business or topic: who you serve, the problem you solve, your real stories, opinions, advice and results. The studio sizes a posting plan to the hours you actually have, lays out a 4-week calendar, and drafts every piece in the shape each platform wants: posts for X, Threads, Bluesky, LinkedIn and Facebook, Instagram captions and carousels, scripts for Reels, TikTok and YouTube Shorts, YouTube outlines, newsletter issues, blog articles, Reddit and Pinterest posts, and podcast clips.</p>
+    <p class="note">Drafts are built only from your own answers, so nothing is made up. Your answers stay in this browser and nothing is uploaded. AI rewriting is optional and runs on your own key or a model on your own computer. The studio never posts anything for you.</p>
+    <nav class="steps" aria-label="Steps">
+      <a href="#interview">1. Interview</a><a href="#plan">2. Plan and calendar</a><a href="#drafts">3. Drafts</a><a href="#export">4. Export</a>
+    </nav>
+  </header>
+
+  <main>
+  <section class="card" id="interview" aria-labelledby="interview-h">
+    <h2 id="interview-h">1. The interview</h2>
+    <div class="toolbar">
+      <label for="interview-select" style="margin:0">Interview</label>
+      <select id="interview-select"></select>
+      <button type="button" class="secondary small" id="new-interview">New interview</button>
+      <button type="button" class="secondary small" id="delete-interview">Delete this one</button>
+      <button type="button" class="secondary small" id="mode" aria-pressed="false">Show all questions</button>
+    </div>
+    <p class="note">Run as many interviews as you like: one per brand, product, client or topic. Each is saved separately in this browser.</p>
+    <div class="progress" aria-hidden="true"><div id="progress-bar"></div></div>
+    <p class="note" id="progress-text" role="status"></p>
+    <div id="q-area"></div>
+    <div class="toolbar" id="q-nav">
+      <button type="button" class="secondary" id="prev">Back</button>
+      <button type="button" id="next">Next question</button>
+    </div>
+    <details>
+      <summary>Save, move or share your interviews</summary>
+      <p class="note">Answers are kept in this browser's local storage. Download a copy to keep them safe, move them to another device, or run the command-line version.</p>
+      <div class="toolbar">
+        <button type="button" class="secondary small" id="download-state">Download all interviews (.json)</button>
+        <label for="import-file" style="margin:0">Import a .json file</label>
+        <input type="file" id="import-file" accept="application/json,.json">
+      </div>
+      <p class="note" id="import-status" role="status"></p>
+    </details>
+  </section>
+
+  <section class="card" id="plan" aria-labelledby="plan-h">
+    <h2 id="plan-h">2. How much to post, and when</h2>
+    <div class="row">
+      <div><label for="start-date">Calendar starts on</label><input type="date" id="start-date"></div>
+      <div><button type="button" id="build">Build my plan and drafts</button></div>
+    </div>
+    <p class="note" id="plan-status" role="status">Answer the interview (or as much as you can), then build your plan.</p>
+    <div id="plan-out" hidden>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Platform</th><th>Format</th><th>Per week</th><th>Minutes each</th><th>Why this rhythm</th></tr></thead>
+        <tbody id="plan-rows"></tbody>
+      </table></div>
+      <p id="plan-time"></p>
+      <ul id="plan-notes" class="note"></ul>
+      <p class="note">These rhythms are this tool's starting points, not measured benchmarks: a floor and an ideal per format, fitted to your hours with the cheapest formats first. Try them for a month and adjust to what you can keep up and what gets replies.</p>
+      <h3>Your 4-week calendar</h3>
+      <div class="cal" id="calendar"></div>
+    </div>
+  </section>
+
+  <section class="card" id="drafts" aria-labelledby="drafts-h">
+    <h2 id="drafts-h">3. Drafts for every slot</h2>
+    <p class="note">Each draft is assembled from your answers and fitted to the platform's limits. Edit any draft in place; your edits are what gets copied and exported.</p>
+    <details id="ai-box">
+      <summary>Optional: rewrite drafts in your voice with your own AI key</summary>
+      <p class="note">AI is off unless you set it up here. It sends your interview answers and the drafts straight from this browser to the provider you pick; your key stays in this browser and is never sent to us. The model is told to use only facts from your interview, and any AI draft that adds a number not in your interview is thrown away. If a call fails, the built-in draft stays. A model on your own computer (Ollama, LM Studio, llama.cpp) needs no key and nothing leaves your machine: start Ollama with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code>, or turn on CORS in LM Studio's server settings.</p>
+      <div class="row">
+        <div><label for="ai-provider">Provider</label><select id="ai-provider"><option value="">Off (built-in drafts only)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">Other (OpenAI-compatible, e.g. OpenRouter)</option><option value="ollama">Ollama on this computer</option><option value="lmstudio">LM Studio on this computer</option><option value="llamacpp">llama.cpp on this computer</option></select></div>
+        <div><label for="ai-model">Model (required except Anthropic)</label><input id="ai-model" type="text" autocomplete="off"></div>
+        <div><label for="ai-base">Base URL (OpenAI-compatible only)</label><input id="ai-base" type="text" autocomplete="off" placeholder="https://openrouter.ai/api/v1"></div>
+        <div><label for="ai-key">API key</label><input id="ai-key" type="password" autocomplete="off"></div>
+      </div>
+      <div class="checks"><label><input type="checkbox" id="ai-remember"> Remember these settings and key in this browser</label></div>
+      <div class="toolbar" style="margin-top:10px">
+        <button type="button" class="secondary small" id="ai-detect">Find a model on this computer</button>
+        <button type="button" id="ai-all" disabled>Rewrite the shown drafts with AI</button>
+      </div>
+      <p class="note" id="ai-status" role="status"></p>
+    </details>
+    <div class="toolbar" style="margin-top:12px">
+      <label for="filter" style="margin:0">Show</label>
+      <select id="filter"><option value="">All platforms</option></select>
+    </div>
+    <div id="draft-list"><p class="note">Build your plan to see drafts here.</p></div>
+  </section>
+
+  <section class="card" id="export" aria-labelledby="export-h">
+    <h2 id="export-h">4. Export</h2>
+    <p><strong>This tool does not post anywhere.</strong> Review every draft, follow each platform's rules, label AI-generated content where a platform requires it (TikTok, YouTube and Meta ask creators to disclose realistic AI-generated or altered media), and do not use it for spam, fake accounts or fake reviews.</p>
+    <div class="toolbar">
+      <button type="button" id="dl-csv" disabled>Download CSV for your scheduler</button>
+      <button type="button" class="secondary" id="dl-md" disabled>Download Markdown</button>
+      <button type="button" class="secondary" id="dl-json" disabled>Download JSON</button>
+      <button type="button" class="secondary" id="copy-md" disabled>Copy everything as Markdown</button>
+    </div>
+    <p class="note">The CSV has one row per draft with the columns date, platform, format, title and text, which most schedulers and spreadsheets can import (map the columns on import).</p>
+    <p class="note" id="export-status" role="status"></p>
+  </section>
+
+  <section class="card">
+    <h2>Run it from the command line</h2>
+    <p class="note">Zero dependencies, Node 18+. Feed it the file from "Download all interviews".</p>
+    <pre class="cmd">node cli.mjs studio.json --format plan
+node cli.mjs studio.json --start 2026-11-02 --format csv &gt; calendar.csv
+node cli.mjs studio.json --interview "Bakery launch" --format md</pre>
+  </section>
+
+  <section class="card">
+    <h2>Questions people ask</h2>
+    <h3>How do I turn one interview into content for every platform?</h3>
+    <p>Answer the guided interview: who you are, who you serve, their problem, three to five real stories, your opinions, your advice, results you can show, and your offer. The studio turns each answer into a different angle and reshapes it for each platform: a short post for X, Threads and Bluesky, a longer post for LinkedIn, a script for Reels, TikTok and Shorts, slides for a carousel, a newsletter issue and a blog article.</p>
+    <h3>How often should I post on each platform?</h3>
+    <p>There is no single right number. The studio starts from a floor and an ideal rhythm for each format, then fits them to the hours a week you say you have, cheapest formats first, and tells you which platforms your time cannot cover. Treat the numbers as a starting point for a month, then adjust to what you can keep up and what gets replies.</p>
+    <h3>Does it make up facts or results?</h3>
+    <p>No. The built-in drafts are assembled only from your own answers, with short connecting phrases. If you turn on AI, it is told to use only facts from your interview, and any AI draft containing a number that is not in your interview is thrown away and the original draft kept.</p>
+    <h3>Do I need an AI key?</h3>
+    <p>No. Every draft works without one. Optionally, add your own Anthropic, OpenAI, Gemini or OpenAI-compatible key, or point it at a model on your own computer (Ollama, LM Studio, llama.cpp), to rewrite drafts in your voice. The key stays in your browser and goes only to the provider you pick.</p>
+    <h3>Does it post for me?</h3>
+    <p>No. It never posts anywhere. Copy drafts one by one, or export a CSV with date, platform, format, title and text to import into the scheduler you already use, then review and post yourself.</p>
+    <p class="note">Longer version, with every format's limits and starting rhythm: <a href="how-often-to-post-on-each-platform.html">How often to post on each platform, and how to fill the calendar from one interview</a>.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not marketing, legal or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every claim in a draft, each platform's rules and any advertising or disclosure law that applies to you. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. Download your interviews to keep them, or get <a href="studio.mjs" rel="noopener">studio.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. Your interviews are saved only in this browser's local storage and are never uploaded, unless you turn on the optional AI rewrite, in which case your answers and drafts go straight from your browser to the provider you pick. There are no accounts, tracking cookies or analytics vendors. Anonymous feature counts (<code>plan_built</code>, <code>draft_copied</code>, <code>export_used</code>, <code>ai_rewrite_run</code>, <code>import_used</code>, <code>interview_added</code>) are kept only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: <a href="../influencer-media-kit-generator/">Influencer Media Kit Generator</a> · <a href="../caption-quality-check/">Caption Quality Check</a> · <a href="../social-preview-check/">Social Preview Check</a></p>
+    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { QUESTIONS, PLATFORMS, FORMATS, emptyState, loadState, saveState, newInterview, normalizeAnswers, importState, splitList, joinList, completeness, generate, measure, platformName, weekday, nextMonday, toCSV, toMarkdown, toJSON } from "./studio.mjs";
+    import { rewriteWithAi, callCount } from "./ai.mjs";
+    import { detectLocal } from "./byok.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+    const store = (() => { try { return window.localStorage; } catch { return null; } })();
+    const AI_KEY = "interview-content-studio-ai";
+    const today = new Date().toISOString().slice(0, 10);
+
+    let state = loadState(store) || emptyState(today);
+    let qIndex = 0;
+    let showAll = false;
+    let result = null; // { plan, slots, drafts, interviewId }
+    let saveTimer = null;
+
+    const active = () => state.interviews.find((i) => i.id === state.activeId) || state.interviews[0];
+    const persist = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => saveState(store, state), 250); };
+
+    // ---- Interview -------------------------------------------------------
+    function paintSelect() {
+      const sel = $("interview-select"); sel.replaceChildren();
+      for (const it of state.interviews) { const o = el("option", null, it.answers.topic || it.topic || "Untitled interview"); o.value = it.id; sel.appendChild(o); }
+      sel.value = active().id;
+      $("delete-interview").disabled = state.interviews.length < 2;
+    }
+    function setAnswer(key, value) {
+      const it = active();
+      it.answers = normalizeAnswers({ ...it.answers, [key]: value });
+      // normalizeAnswers trims; keep the raw text for text fields so typing a space works.
+      if (typeof value === "string" && ["topic", "name", "about", "audience", "problem", "outcome", "offer"].includes(key)) it.answers[key] = value;
+      if (key === "topic") { it.topic = value; paintSelect(); }
+      if (key === "link") it.answers.link = value.trim();
+      paintProgress(); persist();
+    }
+    function field(q) {
+      const a = active().answers;
+      const wrap = el("div", "question");
+      wrap.appendChild(el("div", "section", q.section));
+      const id = `q-${q.id}`;
+      const lab = el("label", "q", q.prompt); lab.htmlFor = id; wrap.appendChild(lab);
+      const help = el("p", "note", q.help); help.id = `${id}-help`; wrap.appendChild(help);
+      if (q.type === "text" || q.type === "url") {
+        const inp = el("input"); inp.type = q.type === "url" ? "url" : "text"; inp.id = id; inp.value = a[q.id] || ""; inp.placeholder = q.placeholder || ""; inp.setAttribute("aria-describedby", help.id);
+        inp.addEventListener("input", () => setAnswer(q.id, inp.value));
+        if (q.type === "url") inp.addEventListener("change", () => { if (inp.value && !/^https?:\/\/\S+$/i.test(inp.value.trim())) help.textContent = "That does not look like a full link (it should start with https://). It will be left out until it does."; else help.textContent = q.help; });
+        wrap.appendChild(inp);
+      } else if (q.type === "long" || q.type === "stories" || q.type === "list" || q.type === "tags") {
+        const ta = el("textarea"); ta.id = id; ta.placeholder = q.placeholder || ""; ta.setAttribute("aria-describedby", help.id);
+        if (q.type === "stories") ta.className = "tall";
+        ta.value = q.type === "long" ? (a[q.id] || "") : joinList(a[q.id] || [], q.type);
+        ta.addEventListener("input", () => setAnswer(q.id, q.type === "long" ? ta.value : splitList(ta.value, q.type)));
+        wrap.appendChild(ta);
+        if (q.type === "stories") { const c = el("p", "count"); const upd = () => { c.textContent = `${active().answers.stories.length} stor${active().answers.stories.length === 1 ? "y" : "ies"} so far (aim for 3 to 5).`; }; ta.addEventListener("input", upd); upd(); wrap.appendChild(c); }
+      } else if (q.type === "voice") {
+        lab.htmlFor = "q-voice-formal";
+        for (const [key, lo, hi] of [["formal", "Formal", "Casual"], ["playful", "Serious", "Playful"], ["detailed", "Concise", "Detailed"]]) {
+          const row = el("div", "slider");
+          const inp = el("input"); inp.type = "range"; inp.min = "0"; inp.max = "100"; inp.value = String(a.voice[key]); inp.id = `q-voice-${key}`;
+          inp.setAttribute("aria-label", `${lo} to ${hi}`);
+          inp.addEventListener("input", () => setAnswer("voice", { ...active().answers.voice, [key]: Number(inp.value) }));
+          row.append(el("span", null, lo), inp, el("span", null, hi)); wrap.appendChild(row);
+        }
+        const sl = el("label", null, "A sample of your own writing (optional, used by AI only)"); sl.htmlFor = "q-voice-sample";
+        const ta = el("textarea"); ta.id = "q-voice-sample"; ta.placeholder = q.placeholder || ""; ta.value = a.voice.sample;
+        ta.addEventListener("input", () => setAnswer("voice", { ...active().answers.voice, sample: ta.value }));
+        wrap.append(sl, ta);
+      } else if (q.type === "platforms") {
+        lab.removeAttribute("for");
+        const box = el("div", "checks"); box.setAttribute("role", "group"); box.setAttribute("aria-label", q.prompt);
+        for (const p of PLATFORMS) {
+          const l = el("label"); const cb = el("input"); cb.type = "checkbox"; cb.value = p.id; cb.checked = a.platforms.includes(p.id);
+          cb.addEventListener("change", () => setAnswer("platforms", [...box.querySelectorAll("input:checked")].map((x) => x.value)));
+          l.append(cb, document.createTextNode(` ${p.name}`)); box.appendChild(l);
+        }
+        wrap.appendChild(box);
+      } else if (q.type === "hours") {
+        const inp = el("input"); inp.type = "number"; inp.min = "0"; inp.max = "60"; inp.step = "0.5"; inp.id = id; inp.value = String(a.hours); inp.setAttribute("aria-describedby", help.id);
+        inp.addEventListener("input", () => setAnswer("hours", Number(inp.value)));
+        wrap.appendChild(inp);
+      }
+      return wrap;
+    }
+    function paintQuestions(focus) {
+      const area = $("q-area"); area.replaceChildren();
+      const qs = showAll ? QUESTIONS : [QUESTIONS[qIndex]];
+      for (const q of qs) area.appendChild(field(q));
+      $("q-nav").hidden = showAll;
+      $("prev").disabled = qIndex === 0;
+      $("next").textContent = qIndex === QUESTIONS.length - 1 ? "Done: build my plan" : "Next question";
+      $("mode").textContent = showAll ? "One question at a time" : "Show all questions";
+      $("mode").setAttribute("aria-pressed", String(showAll));
+      if (focus) area.querySelector("input, textarea")?.focus();
+      paintProgress();
+    }
+    function paintProgress() {
+      const c = completeness(active().answers);
+      $("progress-bar").style.width = `${Math.round((c.done / c.total) * 100)}%`;
+      $("progress-text").textContent = `${showAll ? "All questions" : `Question ${qIndex + 1} of ${QUESTIONS.length}`}. ${c.done} of ${c.total} key answers filled${c.missing.length ? ` (still open: ${c.missing.join(", ")})` : ""}.`;
+    }
+    $("prev").addEventListener("click", () => { if (qIndex > 0) { qIndex--; paintQuestions(true); } });
+    $("next").addEventListener("click", () => {
+      if (qIndex < QUESTIONS.length - 1) { qIndex++; paintQuestions(true); }
+      else { build(); $("plan").scrollIntoView({ behavior: "smooth" }); }
+    });
+    $("mode").addEventListener("click", () => { showAll = !showAll; paintQuestions(false); });
+    $("interview-select").addEventListener("change", (e) => { state.activeId = e.target.value; qIndex = 0; persist(); paintQuestions(false); clearResult(); });
+    $("new-interview").addEventListener("click", () => {
+      const it = newInterview(`Interview ${state.interviews.length + 1}`);
+      const prev = active().answers;
+      it.answers.platforms = [...prev.platforms]; it.answers.hours = prev.hours; it.answers.name = prev.name; it.answers.voice = { ...prev.voice };
+      state.interviews.push(it); state.activeId = it.id; qIndex = 0; record("interview_added");
+      persist(); paintSelect(); paintQuestions(true); clearResult();
+    });
+    $("delete-interview").addEventListener("click", () => {
+      if (state.interviews.length < 2) return;
+      const it = active();
+      if (!confirm(`Delete the interview "${it.answers.topic || "Untitled"}"? Download a copy first if you want to keep it.`)) return;
+      state.interviews = state.interviews.filter((x) => x.id !== it.id); state.activeId = state.interviews[0].id; qIndex = 0;
+      persist(); paintSelect(); paintQuestions(false); clearResult();
+    });
+
+    // ---- Import / export of interviews -------------------------------------
+    const download = (name, text, type) => {
+      const a = el("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+    $("download-state").addEventListener("click", () => { download("interview-content-studio.json", JSON.stringify(state, null, 2), "application/json"); record("export_used"); });
+    $("import-file").addEventListener("change", async (e) => {
+      const file = e.target.files?.[0]; if (!file) return;
+      try {
+        const incoming = importState(await file.text());
+        const ids = new Set(state.interviews.map((i) => i.id));
+        for (const it of incoming.interviews) { while (ids.has(it.id)) it.id += "x"; ids.add(it.id); state.interviews.push(it); }
+        state.activeId = incoming.interviews[0].id; qIndex = 0;
+        persist(); paintSelect(); paintQuestions(false); clearResult(); record("import_used");
+        $("import-status").textContent = `Imported ${incoming.interviews.length} interview${incoming.interviews.length === 1 ? "" : "s"}.`; $("import-status").className = "note";
+      } catch (err) { $("import-status").textContent = `Could not import: ${err.message}.`; $("import-status").className = "error"; }
+      e.target.value = "";
+    });
+
+    // ---- Plan, calendar and drafts -----------------------------------------
+    $("start-date").value = state.startDate || nextMonday(today);
+    $("start-date").addEventListener("change", () => { if ($("start-date").value) { state.startDate = $("start-date").value; persist(); } });
+    const SHORT = { x: "X", threads: "Threads", bluesky: "Bluesky", linkedin: "LinkedIn", instagram: "IG", facebook: "FB", tiktok: "TikTok", youtube: "YT", newsletter: "Email", blog: "Blog", medium: "Medium", reddit: "Reddit", pinterest: "Pin", podcast: "Podcast" };
+    const chipLabel = (d) => { const f = FORMATS[d.format]; const p = PLATFORMS.find((x) => x.id === d.platform); return p.formats.length > 1 ? `${SHORT[d.platform]} ${f.name.toLowerCase()}` : SHORT[d.platform]; };
+
+    function clearResult() { result = null; $("plan-out").hidden = true; $("draft-list").replaceChildren(el("p", "note", "Build your plan to see drafts here.")); setExport(false); $("plan-status").textContent = "Build your plan for this interview."; }
+    function setExport(on) { for (const id of ["dl-csv", "dl-md", "dl-json", "copy-md", "ai-all"]) $(id).disabled = !on; paintAiButton(); }
+
+    function build() {
+      const it = active();
+      const start = $("start-date").value || nextMonday(today);
+      state.startDate = start; persist();
+      result = { ...generate(it, start), interviewId: it.id, start };
+      record("plan_built");
+      const { plan } = result;
+      const body = $("plan-rows"); body.replaceChildren();
+      for (const r of plan.rows) {
+        const tr = el("tr");
+        tr.append(el("td", null, platformName(r.platform)), el("td", null, FORMATS[r.format].name));
+        const per = el("td", `status-${r.status}`, r.perMonth ? `${r.perWeek}` : "not this month"); per.title = `${r.perMonth} in 4 weeks (floor ${r.floor}, ideal ${r.ideal})`;
+        tr.append(per, el("td", null, String(r.minutes)), el("td", "note", r.rationale));
+        body.appendChild(tr);
+      }
+      $("plan-time").textContent = plan.hours ? `About ${Math.round((plan.usedPerWeek / 60) * 10) / 10} of your ${plan.hours} hours a week, ${result.drafts.length} pieces over 4 weeks. Minutes are rough estimates for editing a draft from this tool, filming included for video.` : "";
+      const notes = $("plan-notes"); notes.replaceChildren(); for (const n of plan.notes) notes.appendChild(el("li", null, n));
+      const c = completeness(it.answers);
+      $("plan-status").textContent = c.missing.length ? `Built from what you have answered so far. Answering ${c.missing.join(", ")} gives the drafts more to work with.` : "Built. Scroll down for the calendar and every draft.";
+      $("plan-status").className = "note";
+      paintCalendar(); paintFilter(); paintDrafts(); setExport(result.drafts.length > 0);
+      $("plan-out").hidden = false;
+    }
+    $("build").addEventListener("click", build);
+
+    function paintCalendar() {
+      const cal = $("calendar"); cal.replaceChildren();
+      const startDay = result.start;
+      for (let i = 0; i < 7; i++) { const d = new Date(`${startDay}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + i); cal.appendChild(el("div", "head", ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getUTCDay()])); }
+      for (let i = 0; i < 28; i++) {
+        const d = new Date(`${startDay}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + i);
+        const iso = d.toISOString().slice(0, 10);
+        const cell = el("div", "day");
+        cell.appendChild(el("div", "date", `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][weekday(iso)]} ${d.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" })}`));
+        for (const dr of result.drafts.filter((x) => x.date === iso)) {
+          const a = el("a", "chip", chipLabel(dr)); a.href = `#d-${dr.slotId}`;
+          a.addEventListener("click", () => { $("filter").value = ""; paintDrafts(); });
+          cell.appendChild(a);
+        }
+        cal.appendChild(cell);
+      }
+    }
+    function paintFilter() {
+      const f = $("filter"); const keep = f.value; f.replaceChildren(el("option", null, "All platforms")); f.firstChild.value = "";
+      for (const p of PLATFORMS) if (result.drafts.some((d) => d.platform === p.id)) { const o = el("option", null, p.name); o.value = p.id; f.appendChild(o); }
+      f.value = [...f.options].some((o) => o.value === keep) ? keep : "";
+    }
+    $("filter").addEventListener("change", () => { paintDrafts(); paintAiButton(); });
+    const shown = () => (result ? result.drafts.filter((d) => !$("filter").value || d.platform === $("filter").value) : []);
+
+    function limitLine(d) {
+      const f = FORMATS[d.format];
+      if (f.fields.length === 1 && !f.parts && f.fields[0].max) { const spec = f.fields[0]; return `${measure(d.text, spec.unit)} / ${spec.max}${spec.unit === "x" ? " (links count as 23)" : ""}`; }
+      return "";
+    }
+    function paintDrafts() {
+      const box = $("draft-list"); box.replaceChildren();
+      if (!result) return;
+      const list = shown();
+      if (!list.length) { box.appendChild(el("p", "note", "No drafts yet: pick at least one platform and set your hours in the interview.")); return; }
+      for (const d of list) box.appendChild(draftCard(d));
+    }
+    function draftCard(d) {
+      const art = el("article", "draft"); art.id = `d-${d.slotId}`;
+      const head = el("header");
+      const h = el("h3", null, `${platformName(d.platform)} ${FORMATS[d.format].name.toLowerCase()}`);
+      const meta = el("span", "note", `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][weekday(d.date)]} ${d.date} · from your ${d.angle.kind}`);
+      const badge = el("span", "badge", d.source === "model" ? "AI draft" : "Built from your answers");
+      head.append(h, meta, badge); art.appendChild(head);
+      const taId = `t-${d.slotId}`;
+      const lab = el("label", "note", "Draft (edit freely)"); lab.htmlFor = taId;
+      const ta = el("textarea"); ta.id = taId; ta.value = d.text;
+      const count = el("span", "count", limitLine(d));
+      ta.addEventListener("input", () => { d.text = ta.value; d.edited = true; count.textContent = limitLine(d); });
+      art.append(lab, ta, count);
+      if (d.warnings.length) { const ul = el("ul", "warn"); for (const w of d.warnings) ul.appendChild(el("li", null, w)); art.appendChild(ul); }
+      const bar = el("div", "toolbar"); bar.style.marginTop = "8px";
+      const copy = el("button", "secondary small", "Copy"); copy.type = "button";
+      copy.addEventListener("click", async () => { try { await navigator.clipboard.writeText(d.text); copy.textContent = "Copied"; record("draft_copied"); } catch { ta.select(); copy.textContent = "Press Ctrl+C / Cmd+C"; } setTimeout(() => { copy.textContent = "Copy"; }, 1800); });
+      const ai = el("button", "secondary small", "Rewrite with AI"); ai.type = "button"; ai.disabled = !aiConfig();
+      ai.addEventListener("click", async () => {
+        ai.disabled = true; ai.textContent = "Rewriting…";
+        const r = await rewriteWithAi(aiConfig(), normalizeAnswers(active().answers), [d], { batchSize: 1 });
+        replaceDrafts(r.drafts); report(r);
+      });
+      bar.append(copy, ai); art.appendChild(bar);
+      return art;
+    }
+    function replaceDrafts(list) {
+      for (const nd of list) { const i = result.drafts.findIndex((x) => x.slotId === nd.slotId); if (i >= 0) result.drafts[i] = nd; }
+      paintDrafts();
+    }
+
+    // ---- Optional AI --------------------------------------------------------
+    function aiConfig() {
+      const provider = $("ai-provider").value;
+      if (!provider) return null;
+      return { provider, model: $("ai-model").value.trim(), baseUrl: $("ai-base").value.trim(), apiKey: $("ai-key").value.trim(), browser: true };
+    }
+    function paintAiButton() {
+      const n = shown().length;
+      $("ai-all").textContent = n ? `Rewrite the ${n} shown draft${n === 1 ? "" : "s"} with AI (${callCount(n)} call${callCount(n) === 1 ? "" : "s"})` : "Rewrite the shown drafts with AI";
+      $("ai-all").disabled = !result || !n || !aiConfig();
+    }
+    function rememberAi() {
+      try {
+        if ($("ai-remember").checked) store?.setItem(AI_KEY, JSON.stringify({ provider: $("ai-provider").value, model: $("ai-model").value, baseUrl: $("ai-base").value, apiKey: $("ai-key").value }));
+        else store?.removeItem(AI_KEY);
+      } catch { /* storage is optional */ }
+    }
+    try {
+      const saved = JSON.parse(store?.getItem(AI_KEY) || "null");
+      if (saved && typeof saved === "object") { $("ai-provider").value = saved.provider || ""; $("ai-model").value = saved.model || ""; $("ai-base").value = saved.baseUrl || ""; $("ai-key").value = saved.apiKey || ""; $("ai-remember").checked = true; }
+    } catch { /* nothing saved */ }
+    for (const id of ["ai-provider", "ai-model", "ai-base", "ai-key", "ai-remember"]) $(id).addEventListener("change", () => { rememberAi(); paintAiButton(); if (result) paintDrafts(); });
+    function report(r) {
+      const parts = [];
+      if (r.kept) parts.push(`Your model rewrote ${r.kept} draft${r.kept === 1 ? "" : "s"}.`);
+      if (r.discarded) parts.push(`${r.discarded} kept the built-in wording (a reply was missing, empty, or added a number not in your interview).`);
+      if (r.errors.length) parts.push(`Did not run for some drafts: ${r.errors.join("; ")}. The built-in drafts stand.`);
+      $("ai-status").textContent = parts.join(" ") || "Nothing changed."; $("ai-status").className = r.errors.length && !r.kept ? "error" : "note";
+      if (r.kept) record("ai_rewrite_run");
+    }
+    $("ai-all").addEventListener("click", async () => {
+      const list = shown(); if (!list.length || !aiConfig()) return;
+      $("ai-all").disabled = true;
+      const r = await rewriteWithAi(aiConfig(), normalizeAnswers(active().answers), list, { onProgress: (done, total) => { $("ai-status").textContent = `Rewriting… ${done} of ${total}`; $("ai-status").className = "note"; } });
+      replaceDrafts(r.drafts); report(r); paintAiButton();
+    });
+    $("ai-detect").addEventListener("click", async () => {
+      $("ai-status").textContent = "Looking for Ollama, LM Studio and llama.cpp on this computer…"; $("ai-status").className = "note";
+      const found = await detectLocal();
+      if (!found.length) { $("ai-status").textContent = "No local model answered. If one is running, it may be blocking this page: start Ollama with OLLAMA_ORIGINS set to this site's address, or turn on CORS in LM Studio. Your browser may also ask permission to reach this computer."; return; }
+      const f = found[0];
+      $("ai-provider").value = f.provider; $("ai-model").value = f.models[0] || ""; rememberAi(); paintAiButton(); if (result) paintDrafts();
+      $("ai-status").textContent = `Found ${found.map((x) => `${x.provider} (${x.models.length} model${x.models.length === 1 ? "" : "s"})`).join(", ")}. Using ${f.provider}${f.models[0] ? ` with ${f.models[0]}` : ""}; nothing leaves your computer.`;
+    });
+
+    // ---- Export ---------------------------------------------------------------
+    const slug = () => (active().answers.topic || "content-plan").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "content-plan";
+    $("dl-csv").addEventListener("click", () => { if (!result) return; download(`${slug()}-calendar.csv`, toCSV(result.drafts), "text/csv"); record("export_used"); $("export-status").textContent = "CSV downloaded."; });
+    $("dl-md").addEventListener("click", () => { if (!result) return; download(`${slug()}-content.md`, toMarkdown(result.drafts, result.plan, active()), "text/markdown"); record("export_used"); $("export-status").textContent = "Markdown downloaded."; });
+    $("dl-json").addEventListener("click", () => { if (!result) return; download(`${slug()}-content.json`, toJSON(result.drafts, result.plan, active()), "application/json"); record("export_used"); $("export-status").textContent = "JSON downloaded."; });
+    $("copy-md").addEventListener("click", async () => {
+      if (!result) return;
+      try { await navigator.clipboard.writeText(toMarkdown(result.drafts, result.plan, active())); $("export-status").textContent = "Copied."; record("export_used"); }
+      catch { $("export-status").textContent = "Could not copy here; use Download Markdown instead."; }
+    });
+
+    const optout = $("optout");
+    const paintOpt = () => { optout.textContent = usageOptedOut() ? "Usage counting is off — turn it back on" : "Turn usage counting off"; };
+    optout.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paintOpt(); });
+    paintOpt();
+
+    paintSelect();
+    paintQuestions(false);
+    paintAiButton();
+  </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+deadline 50 us: exact front 41 designs; budget 400, 30 seeds
+  random         pop None mut None: front found 0.129+-0.044 HV 0.992
+  nsga2          pop   10 mut 0.02: front found 0.398+-0.073 HV 0.974
+  nsga2          pop   10 mut 0.05: front found 0.399+-0.063 HV 0.980
+  nsga2          pop   10 mut  0.1: front found 0.359+-0.078 HV 0.986
+  nsga2          pop   10 mut 0.25: front found 0.297+-0.076 HV 0.990
+  nsga2          pop   10 mut  0.5: front found 0.171+-0.059 HV 0.993
+  nsga2          pop   20 mut 0.02: front found 0.388+-0.094 HV 0.981
+  nsga2          pop   20 mut 0.05: front found 0.386+-0.059 HV 0.984
+  nsga2          pop   20 mut  0.1: front found 0.375+-0.073 HV 0.986
+  nsga2          pop   20 mut 0.25: front found 0.282+-0.069 HV 0.989
+  nsga2          pop   20 mut  0.5: front found 0.187+-0.062 HV 0.993
+  nsga2          pop   40 mut 0.02: front found 0.338+-0.063 HV 0.988
+  nsga2          pop   40 mut 0.05: front found 0.363+-0.064 HV 0.989
+  nsga2          pop   40 mut  0.1: front found 0.319+-0.083 HV 0.990
+  nsga2          pop   40 mut 0.25: front found 0.251+-0.077 HV 0.991
+  nsga2          pop   40 mut  0.5: front found 0.174+-0.062 HV 0.993
+  nsga2          pop   80 mut 0.02: front found 0.268+-0.094 HV 0.990
+  nsga2          pop   80 mut 0.05: front found 0.239+-0.085 HV 0.991
+  nsga2          pop   80 mut  0.1: front found 0.202+-0.079 HV 0.992
+  nsga2          pop   80 mut 0.25: front found 0.178+-0.069 HV 0.992
+  nsga2          pop   80 mut  0.5: front found 0.132+-0.059 HV 0.992
+  nsga2-nocross  pop   20 mut 0.02: front found 0.450+-0.066 HV 0.986
+  nsga2-nocross  pop   20 mut 0.05: front found 0.416+-0.066 HV 0.989
+  nsga2-nocross  pop   20 mut  0.1: front found 0.387+-0.077 HV 0.988
+  nsga2-nocross  pop   20 mut 0.25: front found 0.296+-0.071 HV 0.992
+  nsga2-nocross  pop   20 mut  0.5: front found 0.195+-0.072 HV 0.993
+  nsga2-nocross  pop   40 mut 0.02: front found 0.347+-0.074 HV 0.990
+  nsga2-nocross  pop   40 mut 0.05: front found 0.328+-0.075 HV 0.990
+  nsga2-nocross  pop   40 mut  0.1: front found 0.307+-0.061 HV 0.992
+  nsga2-nocross  pop   40 mut 0.25: front found 0.258+-0.077 HV 0.992
+  nsga2-nocross  pop   40 mut  0.5: front found 0.187+-0.056 HV 0.993
+deadline 200 us: exact front 33 designs; budget 400, 30 seeds
+  random         pop None mut None: front found 0.116+-0.052 HV 0.996
+  nsga2          pop   10 mut 0.02: front found 0.773+-0.043 HV 0.995
+  nsga2          pop   10 mut 0.05: front found 0.759+-0.061 HV 0.996
+  nsga2          pop   10 mut  0.1: front found 0.725+-0.068 HV 0.997
+  nsga2          pop   10 mut 0.25: front found 0.570+-0.081 HV 0.998
+  nsga2          pop   10 mut  0.5: front found 0.325+-0.114 HV 0.998
+  nsga2          pop   20 mut 0.02: front found 0.714+-0.067 HV 0.996
+  nsga2          pop   20 mut 0.05: front found 0.705+-0.064 HV 0.997
+  nsga2          pop   20 mut  0.1: front found 0.730+-0.062 HV 0.996
+  nsga2          pop   20 mut 0.25: front found 0.587+-0.092 HV 0.998
+  nsga2          pop   20 mut  0.5: front found 0.297+-0.076 HV 0.998
+  nsga2          pop   40 mut 0.02: front found 0.615+-0.084 HV 0.996
+  nsga2          pop   40 mut 0.05: front found 0.677+-0.069 HV 0.997
+  nsga2          pop   40 mut  0.1: front found 0.663+-0.079 HV 0.998
+  nsga2          pop   40 mut 0.25: front found 0.546+-0.107 HV 0.998
+  nsga2          pop   40 mut  0.5: front found 0.262+-0.083 HV 0.998
+  nsga2          pop   80 mut 0.02: front found 0.493+-0.141 HV 0.997
+  nsga2          pop   80 mut 0.05: front found 0.455+-0.116 HV 0.997
+  nsga2          pop   80 mut  0.1: front found 0.459+-0.099 HV 0.998
+  nsga2          pop   80 mut 0.25: front found 0.297+-0.096 HV 0.998
+  nsga2          pop   80 mut  0.5: front found 0.185+-0.080 HV 0.997
+  nsga2-nocross  pop   20 mut 0.02: front found 0.731+-0.073 HV 0.997
+  nsga2-nocross  pop   20 mut 0.05: front found 0.682+-0.093 HV 0.997
+  nsga2-nocross  pop   20 mut  0.1: front found 0.634+-0.096 HV 0.997
+  nsga2-nocross  pop   20 mut 0.25: front found 0.474+-0.122 HV 0.998
+  nsga2-nocross  pop   20 mut  0.5: front found 0.267+-0.111 HV 0.998
+  nsga2-nocross  pop   40 mut 0.02: front found 0.623+-0.093 HV 0.998
+  nsga2-nocross  pop   40 mut 0.05: front found 0.553+-0.129 HV 0.998
+  nsga2-nocross  pop   40 mut  0.1: front found 0.486+-0.136 HV 0.998
+  nsga2-nocross  pop   40 mut 0.25: front found 0.399+-0.114 HV 0.998
+  nsga2-nocross  pop   40 mut  0.5: front found 0.262+-0.099 HV 0.998
+== front found by mutation rate (pop 20 and 80, with crossover, mean of 30 seeds)
+mut pop20_50us pop80_50us pop20_200us pop80_200us
+0.02 0.388 0.268 0.714 0.493
+0.05 0.386 0.239 0.705 0.455
+0.1 0.375 0.202 0.730 0.459
+0.25 0.282 0.178 0.587 0.297
+0.5 0.187 0.132 0.297 0.185

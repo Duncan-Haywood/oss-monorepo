@@ -1,0 +1,28 @@
+== A. depth-24 BMC (yosys-smtbmc + z3), 10 undecided targets, 900 s limit each
+bmc=pass: 0
+bmc=fail: 0
+bmc=timeout: 10
+induction attempted: 0
+
+== B. depth sweep (240 s limit)
+target (deepest depth finished, seconds) first_timeout_depth
+0:del@122:delete (10, 3.4) 12
+1:lit@123:0+1 (10, 3.1) 12
+
+every sweep point:
+  0:del@122:delete depth=2 pass 0.1 s
+  0:del@122:delete depth=4 pass 0.3 s
+  0:del@122:delete depth=6 pass 0.3 s
+  0:del@122:delete depth=8 pass 0.9 s
+  0:del@122:delete depth=10 pass 3.4 s
+  0:del@122:delete depth=12 timeout 240.0 s
+  1:lit@123:0+1 depth=2 pass 0.1 s
+  1:lit@123:0+1 depth=4 pass 0.3 s
+  1:lit@123:0+1 depth=6 pass 0.6 s
+  1:lit@123:0+1 depth=8 pass 0.8 s
+  1:lit@123:0+1 depth=10 pass 3.1 s
+  1:lit@123:0+1 depth=12 timeout 240.0 s
+
+== C. word-level encoding (no memory_map), z3, 240 s limit
+  0:del@122:delete depth=1 timeout 240.1 s
+  1:lit@123:0+1 depth=1 timeout 240.1 s

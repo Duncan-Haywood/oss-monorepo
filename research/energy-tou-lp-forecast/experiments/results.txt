@@ -1,0 +1,21 @@
+Assumed inputs as energy-tou-lp: 8,000 kWh/yr load, 6 kW PV, 90% round trip, C/2, export $0.05, 6% discount, 4,000-cycle life (assumed).
+Rolling 36 h plan, 24 h committed, wear charge $0.05/kWh in the optimiser, executed on actual PV and load. Mean of 10 weather seeds.
+
+A. Controller by forecast, 10 kWh, TOU tariff
+controller saving_per_year breakeven_life_limited cycles_per_year annual_bill share_of_gap_rule_to_perfect
+best_rule 694 674 226 671 0.00
+persistence 726 667 291 639 0.16
+week_mean 691 663 271 674 -0.01
+noisy_100pct 544 528 221 822 -0.76
+noisy_50pct 669 648 264 697 -0.13
+noisy_25pct 771 694 300 595 0.39
+noisy_10pct 843 718 326 523 0.75
+perfect 892 733 343 473 1.00
+
+B. By battery size (TOU): life-limited break-even $/kWh, best rule / week_mean forecast / persistence / perfect
+batt_kwh best_rule week_mean persistence perfect
+2.5 822 748 760 855
+5 805 773 779 869
+10 674 663 667 733
+15 506 465 495 611
+20 397 349 373 461

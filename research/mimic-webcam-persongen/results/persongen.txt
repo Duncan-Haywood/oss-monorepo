@@ -1,0 +1,9 @@
+generator	population detector	profile-aware detector	(mean AUROC of 6 seeds; min..max of population)
+own replay	0.593	0.594	0.570..0.623
+own stitch50	0.654	0.663	0.626..0.677
+own stitch50+match	0.565	0.563	0.526..0.612
+own param	1.000	1.000	1.000..1.000
+pooled replay	0.582	0.926	0.574..0.590
+pooled stitch50	0.913	0.971	0.908..0.919
+pooled stitch50+match	0.833	0.959	0.820..0.848
+pooled param	1.000	1.000	1.000..1.000

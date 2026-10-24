@@ -38,7 +38,7 @@
 <body>
   <main>
   <h1>Annual plans, spread across the months they cover</h1>
-  <p>When a customer pays $2,900 up front for a year, only a twelfth of it is revenue this month. Bookkeepers want that as a schedule: <strong>billings, revenue recognised and deferred revenue by month, plus journal entries</strong>. Stripe sells this as an add-on priced on your volume. Rev Rec builds it from your paid invoices and credit notes. Try it below on an invoice-line export (nothing is uploaded), then <a href="#run">run the open-source server</a> with a read-only key.</p>
+  <p>When a customer pays $2,900 up front for a year, only a twelfth of it is revenue this month. Bookkeepers want that as a schedule: <strong>billings, revenue recognised and deferred revenue by month, plus journal entries</strong>. Stripe sells this as an add-on priced on your volume. Rev Rec builds it from your paid invoices and credit notes. Try it below on an invoice-line export (nothing is uploaded), then <a href="#self-host">run the open-source server</a> with a read-only key.</p>
 
   <section class="card" aria-labelledby="try">
     <h2 id="try">Try it on an invoice export</h2>
@@ -67,7 +67,7 @@
     </table>
   </section>
 
-  <section class="card" id="run">
+  <section class="card" id="self-host">
     <h2>Run it yourself</h2>
     <pre>git clone https://github.com/Duncan-Haywood/fp-monorepo &amp;&amp; cd fp-monorepo/ventures/rev-rec
 STRIPE_SECRET_KEY=rk_live_...  ADMIN_KEY=$(openssl rand -hex 16) \

@@ -1,0 +1,13 @@
+[project]
+name = "energy-volumetric"
+version = "0.1.0"
+description = "Volumetric (Wh per litre) ceilings for storage chemistries and stores, from reactant densities"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-density/src"]

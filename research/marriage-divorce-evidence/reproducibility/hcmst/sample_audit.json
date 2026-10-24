@@ -1,0 +1,100 @@
+{
+ "hcmst2009": {
+  "respondents": 4002,
+  "partnered_qflag": 3009,
+  "wave2_completed": 2520,
+  "wave3_completed": 1960,
+  "wave4_completed": 1536,
+  "wave5_completed": 1127,
+  "wave6_records": 640,
+  "documented": {
+   "respondents": 4002,
+   "partnered": 3009,
+   "wave2": 2520,
+   "wave3": 1960,
+   "wave4": 1536,
+   "wave5": 1127,
+   "source": "HCMST brief user guide v5 (2016) and data.stanford.edu/hcmst"
+  },
+  "couples_with_followup": 2625,
+  "couples_without_followup": 384,
+  "person_periods": 8046,
+  "breakups": 527,
+  "breakups_matching_w2345_combo_plus_w6": true,
+  "partner_deaths_censored": 98,
+  "breakups_reported_after_a_skipped_wave": 60,
+  "breakups_with_reported_date": 270,
+  "outcome_by_reporting_wave": {
+   "breakup": {
+    "1": 0,
+    "2": 248,
+    "3": 112,
+    "4": 95,
+    "5": 48,
+    "6": 24
+   },
+   "censored": {
+    "1": 340,
+    "2": 279,
+    "3": 328,
+    "4": 380,
+    "5": 449,
+    "6": 608
+   },
+   "partner_died": {
+    "1": 0,
+    "2": 41,
+    "3": 20,
+    "4": 16,
+    "5": 13,
+    "6": 8
+   }
+  },
+  "unknown_counts": {
+   "relationship_quality": 13,
+   "married": 0,
+   "cohabiting": 4,
+   "couple_type": 0,
+   "couple_race": 11,
+   "party_pair": 0,
+   "how_met": 69,
+   "prior_marriage": 8,
+   "earnings": 31,
+   "religion_pair": 17,
+   "parental_approval": 6
+  },
+  "missing_numeric": {
+   "mean_age": 19,
+   "age_gap": 19,
+   "relationship_years": 27,
+   "edu_years_mean": 8,
+   "edu_gap": 8,
+   "hh_income_k": 0,
+   "children_in_hh": 0
+  }
+ },
+ "hcmst2017": {
+  "respondents": 3510,
+  "partnered_2017": 2862,
+  "surveyed_2020": 2107,
+  "surveyed_2022": 1722,
+  "documented": {
+   "respondents": 3510,
+   "partnered": 2862,
+   "surveyed_2020": 2107,
+   "surveyed_2022": 1722,
+   "source": "data.stanford.edu/hcmst2017"
+  },
+  "breakups_by_2020": 183,
+  "known_2020": 1658,
+  "breakups_by_2022": 218,
+  "known_2022": 1391
+ },
+ "cv": "5 repeats x 5-fold GroupKFold by couple (shuffled, seeds 20261020+repeat); L2 C chosen once by 5-fold grouped CV on all couples from [0.03, 0.1, 0.3, 1.0]",
+ "final_C": {
+  "additive_core": 0.3,
+  "additive_full": 0.3
+ },
+ "bootstrap": "1000 couple resamples",
+ "python_sklearn": "1.7.2"
+}

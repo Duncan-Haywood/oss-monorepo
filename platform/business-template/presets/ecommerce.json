@@ -1,0 +1,24 @@
+{
+  "label": "Online shop (physical or digital products)",
+  "default_stack": "Static storefront with product pages and structured data on GitHub Pages; checkout through Stripe Payment Links, Shopify Starter or Gumroad, chosen by the owner; inventory and orders as CSV in the repository.",
+  "weights": {
+    "build":  {"product": 0.45, "marketing": 0.20, "sales": 0.05, "finance": 0.15, "legal": 0.10, "support": 0.00, "review": 0.05},
+    "launch": {"product": 0.20, "marketing": 0.40, "sales": 0.10, "finance": 0.15, "legal": 0.05, "support": 0.05, "review": 0.05},
+    "grow":   {"product": 0.15, "marketing": 0.40, "sales": 0.10, "finance": 0.20, "legal": 0.00, "support": 0.10, "review": 0.05}
+  },
+  "questions": [
+    {"id": "products", "ask": "What are the first three products, and where do they come from (make, wholesale, print on demand, digital)?", "default": "Three products from the idea, sourced print-on-demand or digital so there is no stock to buy."},
+    {"id": "margin", "ask": "What does each product cost you, landed, and what do you want to sell it for?", "default": "Agent builds a margin sheet in finance/ from supplier list prices and marketplace fees, with sources."},
+    {"id": "channels", "ask": "Own site only, or also Etsy, Amazon, eBay?", "default": "Own site first; marketplace listings drafted for the owner to post."},
+    {"id": "shipping", "ask": "Where will you ship, and who pays shipping?", "default": "Domestic only, flat rate, built into the price."},
+    {"id": "region", "ask": "Which country will the business be registered in (sales tax / VAT)?", "default": "United States; the agent lists the sales-tax registrations your volume would trigger."},
+    {"id": "hours", "ask": "How many hours a week can you give it (packing, approvals, sign-ups)?", "default": "Three hours a week."}
+  ],
+  "owner_setup": [
+    {"id": "entity", "what": "Decide whether to trade as yourself or register a company.", "why": "Liability and tax; an agent cannot sign registration forms."},
+    {"id": "checkout", "what": "Create the checkout account (Stripe, Shopify or Gumroad) and add its key or link where SETUP.md says.", "why": "Takes money into your account; needs your identity."},
+    {"id": "tax", "what": "Register for sales tax / VAT where the finance checklist says you must.", "why": "A government registration in your name."},
+    {"id": "bank", "what": "Open a separate business bank account.", "why": "Keeps the books clean; needs your ID."},
+    {"id": "supplier", "what": "Open the supplier or print-on-demand account the product plan names.", "why": "Needs a card."}
+  ]
+}

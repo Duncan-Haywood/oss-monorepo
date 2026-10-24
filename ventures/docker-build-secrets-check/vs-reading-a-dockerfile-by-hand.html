@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Docker Build Secrets Check vs. reading a Dockerfile by hand</title>
-<meta name="description" content="Skimming a Dockerfile for an obvious ARG PASSWORD=hunter2 catches the easy case. It also depends on remembering that an ENV value is baked into the image config even when it comes from a build argument, that a bare ARG with no default is still a risk, and reading every COPY/ADD source against a list of well-known credential filenames every time.">
+<meta name="description" content="Skimming a Dockerfile catches ARG PASSWORD=hunter2 but not ENV values baked into the image or credential files in COPY. This free tool checks every line.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="./vs-reading-a-dockerfile-by-hand.html">
 <meta property="og:type" content="article">

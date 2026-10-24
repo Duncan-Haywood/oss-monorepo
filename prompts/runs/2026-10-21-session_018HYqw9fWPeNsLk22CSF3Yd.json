@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_018HYqw9fWPeNsLk22CSF3Yd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled)",
+  "input_sha256": "22ad619f9509f3b95d15aa5aec6eb43d01c80a2b2fc6623eadb43ae7f245ba82",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T05:58:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 1): ai-bookkeeper bundled payments and sales tax report",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 9083,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/runs",
+      "why": "promptctl route drew the research track, but the scheduled prompt asked for revenue products, so the run took the top flagship under the ventures track."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "node --test ventures/ai-bookkeeper/*.test.mjs: 54 pass. Headless Chromium: example plus an invoice with a tax line shows the sales tax table (80.00 owed), no page errors beyond a favicon 404.",
+  "corrections": [],
+  "redteam": null
+}

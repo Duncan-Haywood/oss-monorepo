@@ -1,0 +1,46 @@
+name: publish-kit CI
+
+# Zero-dependency publishing CLI + browser page. Tests build synthetic MP3,
+# WAV, M4A, PNG and JPEG bytes (no ffmpeg needed) and read built feeds back
+# through ventures/podcast-feed-check, so changes there run this too.
+on:
+  pull_request:
+    paths:
+      - "ventures/publish-kit/**"
+      - "ventures/podcast-feed-check/**"
+      - ".github/workflows/publish-kit-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/publish-kit/**"
+      - "ventures/podcast-feed-check/**"
+      - ".github/workflows/publish-kit-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-kit-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/publish-kit
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: Run media, podcast, book, audiobook, CLI, usage and page tests
+        run: node --test
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs publish-kit

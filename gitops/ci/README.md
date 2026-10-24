@@ -87,10 +87,12 @@ k3s back up.
 
 ## The switch
 
-575 of the 577 `runs-on` lines across 536 workflows now read this. The other
-two are the Docker-dependent jobs `gitops/tests/test_ci_runner.py`'s
+589 of the 592 `runs-on` lines across 548 workflows now read this. The other
+three are the Docker-dependent jobs `gitops/tests/test_ci_runner.py`'s
 `DOCKER_DEPENDENT_JOBS` names and pins to `ubuntu-latest` instead (they need a
-Docker daemon the self-hosted pod does not have):
+Docker daemon the self-hosted pod does not have), and the desktop build in
+`distribute-desktop.yml` (`OS_MATRIX_JOBS`), which needs macOS and Windows
+runners:
 
 ```yaml
 runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}

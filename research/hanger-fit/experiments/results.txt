@@ -1,0 +1,92 @@
+objective: penalised (shape error cm RMS + 0.05 cm per deg/cm of crease above 30 deg/cm); err columns in B-F are this objective
+== A. Stock hangers (assumed dimensions): shape error cm RMS / sharpest bend deg per cm / peak strain
+-- fabric tee
+size  half_shoulder                    wire                 plastic             wood-shaped
+child          15.0        3.07  66.6 0.010        3.03  62.7 0.011        5.30  28.8 0.010
+wS             18.0        0.64  65.4 0.012        0.52  63.3 0.013        3.02  28.9 0.011
+S              21.0        2.11  68.1 0.012        2.20  65.0 0.014        0.54  28.8 0.012
+M              22.0        3.02  67.4 0.019        3.10  64.7 0.015        0.38  28.8 0.013
+L              23.0        3.89  68.4 0.013        4.01  65.5 0.016        1.23  29.0 0.013
+XL             24.0        4.83  68.0 0.021        4.92  64.5 0.016        2.11  29.0 0.014
+XXL            25.0        5.69  67.9 0.017        5.82  65.3 0.017        3.00  29.0 0.015
+-- fabric shirt
+size  half_shoulder                    wire                 plastic             wood-shaped
+child          15.0        3.37  57.0 0.003        3.32  57.9 0.003        5.91  28.8 0.003
+wS             18.0        0.71  62.8 0.004        0.59  59.4 0.003        3.33  28.8 0.003
+S              21.0        2.19  62.0 0.005        2.29  61.8 0.004        0.63  28.7 0.004
+M              22.0        3.12  64.4 0.003        3.23  62.8 0.004        0.36  28.7 0.004
+L              23.0        4.07  62.9 0.005        4.19  62.5 0.004        1.26  28.8 0.004
+XL             24.0        5.00  64.4 0.003        5.13  63.3 0.004        2.19  28.8 0.004
+XXL            25.0        5.93  65.1 0.005        6.07  62.5 0.004        3.12  28.8 0.004
+-- fabric sweater
+size  half_shoulder                    wire                 plastic             wood-shaped
+child          15.0        2.97  57.3 0.143        2.89  53.3 0.186        5.24  32.1 0.179
+wS             18.0        1.85  62.8 0.185        2.22  59.6 0.223        2.87  31.9 0.183
+S              21.0        4.27  67.5 0.257        4.49  64.3 0.238        2.17  31.9 0.201
+M              22.0        4.96  68.4 0.227        5.63  64.6 0.262        3.11  33.0 0.222
+L              23.0        6.40  66.4 0.308        6.82  65.6 0.280        4.10  34.0 0.246
+XL             24.0        7.24  67.0 0.312        7.85  66.1 0.281        4.95  34.1 0.250
+XXL            25.0        8.18  67.9 0.299        9.10  65.9 0.313        5.99  34.5 0.263
+== B. Custom hanger per garment: CMA-ES, budget 150, best of 3 seeds (all 3 shown)
+size fabric  err_best  err_seeds            design            crease  strain
+child tee      0.133  0.133 0.358 0.282  w=15.63 slope=16.65 bow= 0.69 r=2.23   25.9 0.013
+wS    tee      0.247  0.247 0.800        w=19.09 slope=21.49 bow=-0.45 r=1.98   29.3 0.013
+S     tee      0.291  0.291 0.390        w=22.05 slope=22.29 bow=-1.26 r=3.00   19.3 0.013
+M     tee      0.262  0.262 0.377        w=23.11 slope=20.80 bow=-0.56 r=2.73   21.1 0.012
+L     tee      0.156  0.156 0.482        w=24.24 slope=19.43 bow=-0.24 r=3.00   19.3 0.013
+XL    tee      0.195  0.195 0.210        w=25.23 slope=19.80 bow=-0.60 r=2.30   25.1 0.012
+XXL   tee      0.241  0.241              w=25.78 slope=15.41 bow= 0.97 r=2.75   21.0 0.013
+M     shirt    0.237  0.237 0.286        w=23.32 slope=20.26 bow=-0.57 r=2.25   25.5 0.003
+M     sweater  1.308  1.308 1.330 1.600  w=22.96 slope=14.20 bow=-2.00 r=2.31   28.6 0.175
+== C. One fixed universal hanger for all 7 sizes (tee), CMA-ES budget 100 x 7 drapes, 3 seeds
+seeds mean err: 2.177 2.109 2.315
+size  err   design
+child  5.38  w=24.17 slope=24.11 bow=-1.68 r=2.70
+wS     3.48  w=24.17 slope=24.11 bow=-1.68 r=2.70
+S      1.26  w=24.17 slope=24.11 bow=-1.68 r=2.70
+M      0.55  w=24.17 slope=24.11 bow=-1.68 r=2.70
+L      0.58  w=24.17 slope=24.11 bow=-1.68 r=2.70
+XL     1.34  w=24.17 slope=24.11 bow=-1.68 r=2.70
+XXL    2.17  w=24.17 slope=24.11 bow=-1.68 r=2.70
+mean 2.109 worst 5.382
+== D. One adjustable-width hanger (width = half shoulder + offset; shape shared), same budget
+seeds mean err: 0.176 0.356 0.435
+size  err   design
+child  0.22  w=15.80 slope=15.92 bow= 0.59 r=2.86
+wS     0.16  w=18.80 slope=15.92 bow= 0.59 r=2.86
+S      0.15  w=21.80 slope=15.92 bow= 0.59 r=2.86
+M      0.16  w=22.80 slope=15.92 bow= 0.59 r=2.86
+L      0.17  w=23.80 slope=15.92 bow= 0.59 r=2.86
+XL     0.18  w=24.80 slope=15.92 bow= 0.59 r=2.86
+XXL    0.20  w=25.80 slope=15.92 bow= 0.59 r=2.86
+mean 0.176 worst 0.216
+== E. Rack of k fixed widths with D's shape (slope=15.92 bow=0.59 r=2.86); widths 13..28 cm
+width   child     wS      S      M      L     XL    XXL
+ 13.0    2.45   5.33   8.15   9.09  10.04  10.97  11.91
+ 14.0    1.48   4.35   7.17   8.10   9.06   9.99  10.91
+ 15.0    0.55   3.39   6.19   7.12   8.07   9.00   9.93
+ 16.0    0.38   2.44   5.23   6.16   7.10   8.03   8.95
+ 17.0    1.25   1.51   4.28   5.20   6.13   7.06   7.97
+ 18.0    2.10   0.61   3.35   4.26   5.19   6.11   7.03
+ 19.0    2.91   0.31   2.43   3.34   4.26   5.16   6.08
+ 20.0    3.66   1.15   1.53   2.43   3.34   4.24   5.14
+ 21.0    4.38   1.95   0.67   1.55   2.44   3.33   4.22
+ 22.0    5.05   2.73   0.25   0.69   1.56   2.44   3.33
+ 23.0    5.66   3.47   1.03   0.23   0.71   1.57   2.44
+ 24.0    6.22   4.16   1.81   1.00   0.22   0.73   1.58
+ 25.0    6.72   4.80   2.56   1.77   0.97   0.21   0.75
+ 26.0    7.16   5.40   3.27   2.51   1.74   0.94   0.21
+ 27.0    7.54   5.94   3.93   3.21   2.48   1.70   0.91
+ 28.0    7.84   6.43   4.55   3.87   3.17   2.42   1.66
+k  mean_err  worst_err  widths
+1     2.159      5.659  23
+2     1.150      2.096  18 24
+3     0.797      2.096  18 22 25
+4     0.509      0.971  16 19 22 25
+custom per size (B) mean 0.218 worst 0.291
+== F. Proposers on M tee, 5 seeds each, best-so-far error at budget
+budget  random_median  random_worst  cmaes_median  cmaes_worst
+    25          1.007         1.217         1.007        2.647
+    50          0.542         1.135         0.707        1.171
+   100          0.462         0.721         0.287        0.644
+   150          0.443         0.634         0.190        0.318

@@ -33,10 +33,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -46,6 +48,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES_DIR = REPO_ROOT / "ventures"
 LEDGER_DIR = REPO_ROOT / "portfolio" / "ledger"
 SCORES_PATH = REPO_ROOT / "portfolio" / "scoring" / "venture-scores.yaml"
+FLAGSHIPS_PATH = REPO_ROOT / "portfolio" / "flagships.yaml"
 
 # Stage at or beyond which a venture is no longer "early" for the protected
 # explore-budget split described in README.md.
@@ -74,6 +77,14 @@ class Venture:
     # Set from VENTURE.yaml `consolidated_into: <host>` once this venture's
     # calculation lives in a shared engine; the family task skips it.
     consolidated_into: Optional[str] = None
+    # Position in portfolio/flagships.yaml (0 = first) and its next deep
+    # milestone; None for every venture not on that list.
+    flagship_rank: Optional[int] = None
+    flagship_next: Optional[str] = None
+
+    @property
+    def flagship(self) -> bool:
+        return self.flagship_rank is not None
 
     @property
     def _first_untested(self) -> Optional[dict]:
@@ -119,7 +130,26 @@ class Venture:
 
     @property
     def dispatchable(self) -> bool:
-        return self.blocker is None
+        # A flagship's task is a code milestone, which no customer has to answer.
+        return self.flagship or self.blocker is None
+
+    @property
+    def awaits_visitors(self) -> bool:
+        """The next hypothesis needs a response from visitors, and the venture is published.
+
+        Code cannot settle it: the surface is built and live, so the next
+        unit of work is distribution or measurement, not another feature.
+        Run records (2026-10-19/20) say the top Explore rows kept sending
+        sessions to products whose handoff was already shipped.
+        """
+        h = self._first_untested
+        return bool(h and h.get("evidence") == "customer-contact" and self.production_url)
+
+    @property
+    def maintain_only(self) -> bool:
+        """A calculator that is not a flagship: kept live and fixed when broken,
+        never deepened (owner, 2026-10-21)."""
+        return not self.flagship and is_calculator(self.name)
 
     @property
     def measured(self) -> bool:
@@ -150,12 +180,29 @@ def count_ledger_entries(ledger_dir: Path = LEDGER_DIR) -> dict[str, int]:
     if not ledger_dir.is_dir():
         return counts
     for ledger_path in sorted(ledger_dir.glob("*.yaml")):
-        data = yaml.safe_load(ledger_path.read_text()) or {}
+        data = _load_yaml(ledger_path)
         for entry in data.get("entries") or []:
             name = entry.get("venture")
             if name:
                 counts[name] = counts.get(name, 0) + 1
     return counts
+
+
+_WARNED_NO_LIBYAML = False
+
+
+def _load_yaml(path: Path) -> dict:
+    """safe_load, through libyaml when installed (the pure-Python parser was 35s of a 60s run)."""
+    loader = getattr(yaml, "CSafeLoader", None)
+    if loader is None:
+        global _WARNED_NO_LIBYAML
+        if not _WARNED_NO_LIBYAML:
+            _WARNED_NO_LIBYAML = True
+            print("(this python's PyYAML has no libyaml: loading ~1,300 VENTURE.yaml takes ~35s. "
+                  "Another interpreter is ~15x faster, e.g. /usr/bin/python3.13 or a venv with "
+                  "`pip install pyyaml`.)", file=sys.stderr)
+        loader = yaml.SafeLoader
+    return yaml.load(path.read_text(), Loader=loader) or {}
 
 
 def count_portfolio_mentions(
@@ -182,18 +229,24 @@ def count_portfolio_mentions(
     # "alpha-venture" inside "alpha-venture-extended" at the second hyphen.
     # Treat '-' as part of the "word" for boundary purposes instead, so a
     # slug only matches when it is not itself part of a longer slug.
+    # A slug counts when it equals a whole run of [\w-] characters in the text, which is the same
+    # test as the boundary lookarounds. One tokenise per entry replaces ~1,300 regex scans per
+    # entry (46s of a 60s run on 2026-10-19).
+    plain = {name for name in venture_names if re.fullmatch(r"[\w-]+", name)}
     patterns = {
         name: re.compile(r"(?<![\w-])" + re.escape(name) + r"(?![\w-])")
-        for name in venture_names
+        for name in venture_names if name not in plain
     }
     if not ledger_dir.is_dir():
         return counts
     for ledger_path in sorted(ledger_dir.glob("*.yaml")):
-        data = yaml.safe_load(ledger_path.read_text()) or {}
+        data = _load_yaml(ledger_path)
         for entry in data.get("entries") or []:
             if entry.get("venture") != "portfolio":
                 continue
             text = "\n".join(str(o) for o in entry.get("outcomes") or [])
+            for name in plain.intersection(re.findall(r"[\w-]+", text)):
+                counts[name] += 1
             for name, pattern in patterns.items():
                 if pattern.search(text):
                     counts[name] += 1
@@ -211,7 +264,7 @@ def load_merit_scores(scores_path: Path = SCORES_PATH) -> dict[str, float]:
     """
     if not scores_path.is_file():
         return {}
-    doc = yaml.safe_load(scores_path.read_text()) or {}
+    doc = _load_yaml(scores_path)
     return {
         v["slug"]: float(v["composite"])
         for v in doc.get("ventures") or []
@@ -219,13 +272,31 @@ def load_merit_scores(scores_path: Path = SCORES_PATH) -> dict[str, float]:
     }
 
 
+def load_flagships(path: Path = FLAGSHIPS_PATH) -> dict[str, tuple[int, str]]:
+    """{venture: (rank, next milestone)} from portfolio/flagships.yaml.
+
+    The flagships are the few ventures with real depth that most venture runs
+    should deepen instead of adding another small tool (owner, 2026-10-20;
+    see that file). A missing file means no flagships, not an error.
+    """
+    if not path.is_file():
+        return {}
+    out: dict[str, tuple[int, str]] = {}
+    for i, entry in enumerate(_load_yaml(path).get("flagships") or []):
+        if isinstance(entry, dict) and entry.get("venture"):
+            out[entry["venture"]] = (i, str(entry.get("next") or "").strip())
+    return out
+
+
 def load_ventures(
     ventures_dir: Path = VENTURES_DIR,
     ledger_dir: Path = LEDGER_DIR,
     scores_path: Path = SCORES_PATH,
+    flagships_path: Path = FLAGSHIPS_PATH,
 ) -> list[Venture]:
     ledger_counts = count_ledger_entries(ledger_dir)
     merit_scores = load_merit_scores(scores_path)
+    flagships = load_flagships(flagships_path)
     venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
     names = []
     parsed = []
@@ -235,7 +306,7 @@ def load_ventures(
         yaml_path = venture_dir / "VENTURE.yaml"
         if not yaml_path.is_file():
             continue
-        data = yaml.safe_load(yaml_path.read_text()) or {}
+        data = _load_yaml(yaml_path)
         name = data.get("name", venture_dir.name)
         names.append(name)
         parsed.append((name, data))
@@ -245,6 +316,7 @@ def load_ventures(
         economics = data.get("economics") or {}
         budget = data.get("budget") or {}
         links = data.get("links") or {}
+        flag_rank, flag_next = flagships.get(name, (None, None))
         ventures.append(
             Venture(
                 name=name,
@@ -260,6 +332,8 @@ def load_ventures(
                 portfolio_mentions=mention_counts.get(name, 0),
                 merit=merit_scores.get(name),
                 consolidated_into=data.get("consolidated_into"),
+                flagship_rank=flag_rank,
+                flagship_next=flag_next,
             )
         )
     return ventures
@@ -282,9 +356,22 @@ def rank(ventures: list[Venture]) -> list[Venture]:
          came to be ignored: separate cycles kept concluding in the ledger
          that the top-ranked task was "outside what an unattended session
          can drive", each in prose, none of it reaching the router.
-      3. Unmeasured ventures -- still owed their protected explore budget;
-         null MRR is "not yet measured", not "measured and failing".
-      4. Everything else: later stage before earlier stage, then ventures not
+      3. Flagships (portfolio/flagships.yaml), in that file's order. These
+         are the ventures with real depth; the owner asked (2026-10-20) for
+         more of the work to deepen them rather than add small tools. They
+         are exempt from the HOT_COMMITS demotion below, which exists to
+         spread effort across shallow ventures, the opposite of what a
+         flagship needs.
+      4. Not a calculator. Calculators are maintain-only (owner, 2026-10-21,
+         `prompts/goals.md` "Direction: depth over calculators"), so they
+         sink below every other dispatchable venture and their task says
+         fix-if-broken rather than explore or consolidate.
+      5. Unmeasured ventures -- still owed their protected explore budget;
+         null MRR is "not yet measured", not "measured and failing". Among
+         them, ventures with an untested hypothesis come before ones with none:
+         "write a hypothesis" is a thin task, and dozens of them at the top
+         hid the ventures that had a real claim to test.
+      6. Everything else: later stage before earlier stage, then ventures not
          already folded into another (consolidated_into) before those that
          were (their Explore task has no product left to test), then ventures not
          worked heavily this week (HOT_COMMITS+ commits in 7 days) before
@@ -305,7 +392,11 @@ def rank(ventures: list[Venture]) -> list[Venture]:
         return (
             0 if v.needs_decision else 1,
             0 if v.dispatchable else 1,
+            v.flagship_rank if v.flagship_rank is not None else 1_000_000,
+            1 if v.maintain_only else 0,
+            1 if v.awaits_visitors else 0,
             0 if not v.measured else 1,
+            0 if v.untested_hypothesis else 1,
             0 if v.later_stage else 1,
             1 if v.consolidated_into else 0,
             1 if v.recent_commits >= HOT_COMMITS else 0,
@@ -315,143 +406,87 @@ def rank(ventures: list[Venture]) -> list[Venture]:
             v.name,
         )
 
-    return diversify(sorted(ventures, key=sort_key), tier=lambda v: sort_key(v)[:4])
+    return sorted(ventures, key=sort_key)
 
 
 # ---------------------------------------------------------------------------
-# Families
+# Calculators
 #
 # Measured 2026-10-16 (docs/reports/2026-10-16-calculator-glut.md): 121
-# `*-bid-calculator` ventures are 9.6% of the portfolio but held 63 of the
-# top 100 queue slots. Each one was scored on its own by the session that
-# created it, 85 of them with an identical score vector, and nothing here
-# could see that they were one product cloned per trade. So the queue told
-# session after session to polish clone #37 instead of building the product
-# the clones add up to.
-#
-# A family is ventures sharing a template suffix: `*-bid-calculator`,
-# `*-fee-calculator`, `*-cost-calculator`. It is a crude key, on purpose: it
-# needs no file reads, a reader can check it by eye, and it catches the shape
-# that actually happened.
+# `*-bid-calculator` ventures held 63 of the top 100 queue slots, so the queue
+# told session after session to polish clone #37. The fix then was to cap each
+# template family and hand its top member a "Consolidate" task. The owner,
+# 2026-10-21, went further: drop the work that keeps runs on calculators at
+# all. So a calculator that is not a flagship sinks below every other
+# dispatchable venture and is offered only maintenance.
 # ---------------------------------------------------------------------------
 
-# Compound suffixes: the word before `-calculator` that names a template.
-CALCULATOR_KINDS = frozenset(
-    {"bid", "fee", "roi", "price", "cost", "rate", "payout", "margin", "profit", "tax"}
+def is_calculator(name: str) -> bool:
+    """A calculator by its slug: the last word is `calculator` or `estimator`.
+    Crude on purpose, like `family_of`: a reader can check it by eye."""
+    return name.rsplit("-", 1)[-1] in ("calculator", "estimator")
+
+
+MAINTAIN_TASK = (
+    "Maintain only (owner, 2026-10-21): this is a calculator. Fix it if it is broken "
+    "(a failing test, a wrong result, a dead link); otherwise add no features, pages, "
+    "comparison pages or consolidation work -- take a flagship or research task instead. "
+    "Already-built work for it (an open PR, a stranded branch) can still be merged."
 )
-# A family this big is a product built many times, not a set of products.
-FAMILY_MIN = 5
-# The most members of one family allowed ahead of every other family's
-# members within a tier. Later members still appear, after the rest of the tier.
-FAMILY_CAP = 3
 
 
-def family_of(name: str) -> str:
-    """`<kind>-calculator` for the template families; otherwise the venture is
-    its own family. A bare shared suffix (`-check`, `-keeper`, `-optimizer`)
-    is not enough: those slugs name different products that happen to share
-    a word, and telling a session to merge them would be wrong."""
-    parts = name.split("-")
-    if len(parts) >= 3 and parts[-1] == "calculator" and parts[-2] in CALCULATOR_KINDS:
-        return f"{parts[-2]}-calculator"
-    return name
-
-
-def family_sizes(ventures: list[Venture]) -> dict[str, int]:
-    sizes: dict[str, int] = {}
-    for v in ventures:
-        if v.consolidated_into:
-            continue
-        f = family_of(v.name)
-        sizes[f] = sizes.get(f, 0) + 1
-    return sizes
-
-
-def diversify(ordered: list[Venture], tier=lambda v: 0, cap: int = FAMILY_CAP) -> list[Venture]:
-    """Within each run of equal `tier`, let at most `cap` members of any large
-    family keep their place; push the rest to the end of that tier, in order.
-
-    Tiers (decision needed, dispatchable, measured, stage) are never crossed:
-    this only reorders ventures `rank` already considers interchangeable on
-    everything but merit, which is where the clones were winning.
-    """
-    sizes = family_sizes(ordered)
-    out: list[Venture] = []
-    i = 0
-    while i < len(ordered):
-        j = i
-        while j < len(ordered) and tier(ordered[j]) == tier(ordered[i]):
-            j += 1
-        seen: dict[str, int] = {}
-        kept, deferred = [], []
-        for v in ordered[i:j]:
-            f = family_of(v.name)
-            if sizes.get(f, 0) >= FAMILY_MIN and not v.consolidated_into:
-                seen[f] = seen.get(f, 0) + 1
-                if seen[f] > cap:
-                    deferred.append(v)
-                    continue
-            kept.append(v)
-        out.extend(kept + deferred)
-        i = j
-    return out
-
-
-def consolidation_task(family: str, size: int) -> str:
-    return (
-        f"Consolidate: this is the top-ranked of {size} '*-{family}' ventures. Where they "
-        "share one calculation shape, ship one product with a shared engine and the niches "
-        "as data (every old URL kept, linked into it) instead of polishing a single copy; "
-        "where they do not, say which members differ in the PR and deepen this one. "
-        "See docs/reports/2026-10-16-calculator-glut.md."
-    )
+NO_HYPOTHESIS_PREFIX = "Explore: no hypothesis recorded"
+NO_HYPOTHESIS_ROWS = 3
+FLAGSHIP_NEXT_CHARS = 500
 
 
 def next_task(v: Venture) -> str:
     if v.needs_decision:
         return "Review: measured at $0 MRR past revenue stage -- check against kill_criteria before further spend."
+    if v.maintain_only:
+        return MAINTAIN_TASK
+    if v.flagship:
+        milestone = v.flagship_next or "the venture's own roadmap"
+        if len(milestone) > FLAGSHIP_NEXT_CHARS:
+            # The full history is in flagships.yaml; the queue prints the head.
+            milestone = milestone[:FLAGSHIP_NEXT_CHARS].rstrip() + " ... (full `next:` in portfolio/flagships.yaml)"
+        return (
+            f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
+            "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml."
+        )
     if not v.measured:
         claim = v.untested_hypothesis
         if claim and v.blocker:
             return f'BLOCKED (unpublished) -- "{claim}"'
+        if claim and v.awaits_visitors:
+            return (
+                f'Explore (awaiting visitors; needs distribution or a usage reading, not more features): "{claim}"'
+            )
         if claim:
             return f'Explore: test the untested hypothesis -- "{claim}"'
+        if not v.hypotheses:
+            return (
+                f"{NO_HYPOTHESIS_PREFIX} -- add a `hypotheses:` list to VENTURE.yaml "
+                "(`- claim: ...`, `status: untested`; see 1099-k-threshold-checker), then test it."
+            )
         return "Explore: every recorded hypothesis is settled -- write the next one in VENTURE.yaml, then test it."
     if v.mrr is not None and v.monthly_cost is not None and v.mrr < v.monthly_cost:
         return "Review: monthly_cost exceeds mrr -- check against kill_criteria."
     return (
         "Continue: if this venture has no public URL, deploy the built surface "
-        "(see portfolio/DIRECTION.md Current priority); otherwise advance the "
+        "(see portfolio/hosting/README.md); otherwise advance the "
         "next documented roadmap task."
     )
 
 
 def work_queue(ventures: list[Venture]) -> list[dict]:
-    # The first member of each large family to appear gets the family's
-    # consolidation task instead of its own; that is the one unit of work
-    # that improves all of them.
-    sizes = family_sizes(ventures)
-    claimed: set[str] = set()
-
-    def task_for(v: Venture) -> str:
-        f = family_of(v.name)
-        if (
-            not v.consolidated_into
-            and sizes.get(f, 0) >= FAMILY_MIN
-            and f not in claimed
-            and not v.needs_decision
-            and v.dispatchable
-        ):
-            claimed.add(f)
-            return consolidation_task(f, sizes[f])
-        return next_task(v)
-
     return [
         {
             "venture": v.name,
             "stage": v.stage,
             "protected": v.protected,
-            "task": task_for(v),
+            "flagship": v.flagship,
+            "task": next_task(v),
             "dispatchable": v.dispatchable,
             "blocked_on": v.blocker,
             "spend_ceiling_usd": v.monthly_cap,
@@ -510,16 +545,63 @@ def decisions_by_merit(ventures: list[Venture]) -> list[dict]:
     return rows
 
 
-def recent_commits(days: int = 7) -> dict[str, int]:
+# The whole run must fit a 120s foreground tool call (run-record doc_friction, 2026-10-19: the
+# 120s fetch alone pushed allocate.py into the background with empty output).
+FETCH_TIMEOUT_S = 50
+
+
+def _history_reaches(cutoff: datetime, cwd: Path) -> bool:
+    """True when origin/main's oldest reachable commit is already near `cutoff`, so a fetch adds
+    nothing. --shallow-since leaves the clone shallow, so without this every run refetched
+    (3 min on 2026-10-19)."""
+    out = subprocess.run(["git", "log", "origin/main", "--format=%ct"], capture_output=True, text=True,
+                         timeout=20, cwd=cwd).stdout.split()
+    return bool(out) and int(out[-1]) <= cutoff.timestamp() + 2 * 86400
+
+
+def deepen_to_window(days: int) -> bool:
+    """In a shallow clone, fetch main back `days` days so commit counts mean something."""
+    try:
+        shallow = subprocess.run(
+            ["git", "rev-parse", "--is-shallow-repository"],
+            capture_output=True, text=True, timeout=30, cwd=Path(__file__).resolve().parent,
+        ).stdout.strip() == "true"
+        if not shallow:
+            return False
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days + 1)
+        if _history_reaches(cutoff, Path(__file__).resolve().parent):
+            return False
+        since = cutoff.strftime("%Y-%m-%d")
+        print(f"(shallow clone: fetching main since {since} for 7-day commit counts)", file=sys.stderr)
+        return subprocess.run(
+            ["git", "fetch", "-q", f"--shallow-since={since}", "origin", "main"],
+            capture_output=True, timeout=FETCH_TIMEOUT_S, cwd=Path(__file__).resolve().parent,
+        ).returncode == 0
+    except subprocess.TimeoutExpired:
+        # Runs reported 10+ minutes of silence here (2026-10-19); rank on what is local instead.
+        print(f"(fetch exceeded {FETCH_TIMEOUT_S}s; 7-day commit counts are partial. "
+              "Run `git fetch --unshallow origin main` in the background for full ones.)", file=sys.stderr)
+        return False
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+def recent_commits(days: int = 7, deepen: bool = True) -> dict[str, int]:
     """Commits in the last `days` days touching each ventures/<slug>/.
 
     Display-only: a venture with many recent commits is usually already deep,
     and its Explore task needs visitors more than code (run-record doc_friction,
-    2026-10-18/19). Empty when git history is unavailable."""
+    2026-10-18/19). Empty when git history is unavailable.
+
+    A shallow clone (every cloud session) holds a few hours of history, so
+    every count came out 1-2 and nothing was ever demoted; deepen it to the
+    window first (about a minute, far cheaper than --unshallow)."""
+    if deepen:
+        deepen_to_window(days)
     try:
         out = subprocess.run(
             ["git", "log", f"--since={days}.days", "--name-only", "--format=%x00"],
-            capture_output=True, text=True, timeout=120, cwd=Path(__file__).resolve().parent,
+            capture_output=True, text=True, timeout=30, cwd=Path(__file__).resolve().parent,
         ).stdout
     except (OSError, subprocess.SubprocessError):
         return {}
@@ -564,13 +646,26 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
                 f"{best['venture']}, which is blocked. Merit and dispatchability "
                 f"do not agree -- see portfolio/scoring/README.md."
             )
+    flagships = [item["venture"] for item in queue if item["flagship"]]
+    if flagships:
+        print(
+            f"Flagships ({len(flagships)}, portfolio/flagships.yaml): deepen these before "
+            "adding another small tool -- owner, 2026-10-20."
+        )
     print()
     print(
         f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'merit':>7}"
         f"{'ledger':>8}{'mentions':>10}{'7d-commits':>12}  task"
     )
     recent = recent_commits()
+    empty_shown = 0
+    empty_hidden = 0
     for i, item in enumerate(queue, 1):
+        if item["task"].startswith(NO_HYPOTHESIS_PREFIX):
+            empty_shown += 1
+            if empty_shown > NO_HYPOTHESIS_ROWS:
+                empty_hidden += 1
+                continue
         merit = f"{item['merit']:.2f}" if item["merit"] is not None else "-"
         print(
             f"{i:<3}{item['venture']:<32}{item['stage']:<12}"
@@ -578,6 +673,11 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
             f"{item['ledger_entries_this_period']:>8}"
             f"{item['portfolio_mentions_this_period']:>10}"
             f"{recent.get(item['venture'], 0):>12}  {item['task']}"
+        )
+    if empty_hidden:
+        print(
+            f"... and {empty_hidden} more ventures with no hypothesis recorded "
+            f"(identical task; `--json` lists them all)."
         )
 
     decisions = decisions_by_merit(ventures)
@@ -609,6 +709,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         action="store_true",
         help="emit the owner-decision / merit-unblocked rollup as JSON",
     )
+    parser.add_argument("--no-deepen", action="store_true",
+                        help="skip the shallow-clone fetch; 7-day commit counts may be partial")
     args = parser.parse_args(argv)
 
     ventures = load_ventures()
@@ -620,7 +722,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(json.dumps(decisions_by_merit(ventures), indent=2))
         return 0
 
-    recent = recent_commits()
+    recent = recent_commits(deepen=not args.no_deepen)
     for v in ventures:
         v.recent_commits = recent.get(v.name, 0)
     queue = work_queue(ventures)
@@ -632,5 +734,22 @@ def main(argv: Optional[list[str]] = None) -> int:
     return 0
 
 
+def _reexec_with_libyaml() -> None:
+    """Re-run this script under an interpreter whose PyYAML has libyaml (35s -> ~2s).
+
+    Only when run as a script and the current PyYAML lacks libyaml; one hop
+    (ALLOCATE_REEXEC) so a bad candidate cannot loop. Silent if none is found.
+    """
+    if getattr(yaml, "CSafeLoader", None) or os.environ.get("ALLOCATE_REEXEC"):
+        return
+    probe = "import yaml,sys; sys.exit(0 if getattr(yaml,'CSafeLoader',None) else 1)"
+    for cand in ("/usr/bin/python3.13", "/usr/bin/python3.12", "/usr/bin/python3"):
+        if cand != sys.executable and os.path.exists(cand) and \
+                subprocess.run([cand, "-I", "-c", probe], capture_output=True).returncode == 0:
+            os.environ["ALLOCATE_REEXEC"] = "1"
+            os.execv(cand, [cand, *sys.argv])
+
+
 if __name__ == "__main__":
+    _reexec_with_libyaml()
     sys.exit(main())

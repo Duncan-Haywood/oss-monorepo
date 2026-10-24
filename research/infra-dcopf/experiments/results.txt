@@ -1,0 +1,48 @@
+case    load  lim   AC_cost    DC_cost  DC-AC%   DCinAC_cost  excess%  Vviol  Lover  maxL%   vmax   loss_MW
+case30  0.60 1.00     300.1      296.2   -1.30        300.5    0.123      0      0   69.4  1.000      1.3
+case30  0.80 1.00     432.6      426.3   -1.47        433.3    0.152      0      0   89.9  1.000      1.9
+case30  1.00 1.00     578.5      565.2   -2.30        576.7   -0.311      0      1  111.1  1.000      3.0
+case30  1.10 1.00  ac_opf=no solution dc_opf=ok
+case30  0.60 0.70     300.1      296.2   -1.30        300.5    0.123      0      0   99.2  1.000      1.3
+case30  0.80 0.70  ac_opf=no solution dc_opf=ok
+case30  1.00 0.70  ac_opf=no solution dc_opf=no solution
+case30  1.10 0.70  ac_opf=no solution dc_opf=no solution
+case30  0.60 0.50  ac_opf=no solution dc_opf=ok
+case30  0.80 0.50  ac_opf=no solution dc_opf=no solution
+case30  1.00 0.50  ac_opf=no solution dc_opf=no solution
+case30  1.10 0.50  ac_opf=no solution dc_opf=no solution
+case39  0.60 1.00   15361.3    15209.3   -0.99      15351.7   -0.062     15      0   53.3  1.079     17.8
+case39  0.80 1.00   26865.6    26536.9   -1.22      26873.9    0.031      5      0   71.6  1.067     31.7
+case39  1.00 1.00   41872.3    41263.9   -1.45      41890.5    0.043      1      0   86.3  1.064     45.8
+case39  1.10 1.00  ac_opf=no solution dc_opf=no solution
+case39  0.60 0.70  ac_opf=no solution dc_opf=ok
+case39  0.80 0.70   26897.8    26547.9   -1.30      26922.4    0.092      4      0   94.8  1.064     34.5
+case39  1.00 0.70   46188.5    44691.8   -3.24      45329.1   -1.861      1      3  100.1  1.064     46.6
+case39  1.10 0.70  ac_opf=no solution dc_opf=no solution
+case39  0.60 0.50   15398.3    15232.6   -1.08      15410.4    0.078      8      0   93.8  1.079     21.3
+case39  0.80 0.50   33039.7    32083.1   -2.90      32465.6   -1.738      1      4  103.1  1.064     28.3
+case39  1.00 0.50  ac_opf=no solution dc_opf=no solution
+case39  1.10 0.50  ac_opf=no solution dc_opf=no solution
+case118 0.60 1.00   67000.3    65702.8   -1.94      67487.9    0.728      0      0    2.9  1.050     54.6
+case118 0.80 1.00   96764.8    94181.0   -2.67      97490.1    0.750      0      0    3.6  1.050     88.9
+case118 1.00 1.00  129704.7   125947.9   -2.90     131622.5    1.479      0      0    4.4  1.050    135.1
+case118 1.10 1.00  146629.5   142895.2   -2.55     149089.3    1.678      0      0    4.5  1.050    144.3
+case118 0.60 0.70   67020.3    65702.8   -1.97      67508.7    0.729      0      0    4.2  1.050     55.2
+case118 0.80 0.70   96809.0    94181.0   -2.71      97553.9    0.769      0      0    5.2  1.050     90.5
+case118 1.00 0.70  129759.6   125947.9   -2.94     131762.0    1.543      0      0    6.2  1.050    138.2
+case118 1.10 0.70  146687.4   142895.2   -2.59     149256.6    1.751      0      0    6.4  1.050    147.9
+case118 0.60 0.50   67046.8    65702.8   -2.00      67542.9    0.740      0      0    5.9  1.050     56.2
+case118 0.80 0.50   96864.6    94181.0   -2.77      97642.6    0.803      0      0    7.2  1.050     92.8
+case118 1.00 0.50  129825.3   125947.9   -2.99     131946.8    1.634      0      0    8.7  1.050    142.4
+case118 1.10 0.50  146755.6   142895.2   -2.63     149476.8    1.854      0      0    9.0  1.050    152.7
+
+== case39, limits x1.00: load, DC-minus-AC OPF cost %, AC cost of DC dispatch above AC optimum %, buses out of voltage limits
+ 0.60    -0.99   -0.062   15
+ 0.80    -1.22    0.031    5
+ 1.00    -1.45    0.043    1
+
+== case118, limits x1.00: load, DC-minus-AC OPF cost %, AC cost of DC dispatch above AC optimum %, buses out of voltage limits
+ 0.60    -1.94    0.728    0
+ 0.80    -2.67    0.750    0
+ 1.00    -2.90    1.479    0
+ 1.10    -2.55    1.678    0

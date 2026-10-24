@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01YBsaoRL9SQyvMQhzrsKYcg",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T00:07:51Z",
+  "ended": "2026-10-20T00:08:00Z",
+  "wall_minutes": 0.59,
+  "tokens_in": 623917,
+  "tokens_out": 2472,
+  "cost_usd": 0.291,
+  "tool_calls": 10,
+  "task": null,
+  "projects": [],
+  "pr": 8564,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "One campaign on platform/pages/link.mjs: 8 seeded, 6 caught, 1 gap closed with an anchored assertion, 1 equivalent (CSS 1px). No real defects found; hunt was brief.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/link.mjs",
+        "test": "node --test platform/pages/link.test.mjs  (in .)",
+        "seed": 991714504,
+        "commit": "b3c4f45f",
+        "sites": 211,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 173,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "let count = 0;",
+            "after": "let count = 1;",
+            "line_text": "  let count = 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 275,
+            "col": 49,
+            "operator": "eq-flip",
+            "before": "const b = normalizeHeadlineAmount(typeof shown === 'string' ? shown : '');",
+            "after": "const b = normalizeHeadlineAmount(typeof shown !== 'string' ? shown : '');",
+            "line_text": "  const b = normalizeHeadlineAmount(typeof shown === 'string' ? shown : '');",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 326,
+            "col": 18,
+            "operator": "neq-flip",
+            "before": "if (typeof html !== 'string') return false;",
+            "after": "if (typeof html === 'string') return false;",
+            "line_text": "  if (typeof html !== 'string') return false;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 409,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "max-width:1060px;padding:0 18px;box-sizing:border-box}",
+            "after": "max-width:1060px;padding:1 18px;box-sizing:border-box}",
+            "line_text": "  max-width:1060px;padding:0 18px;box-sizing:border-box}",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "1px change to a max-width on a cosmetic note box; no behaviour a user can see."
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 486,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "counts[event] = (counts[event] || 0) + 1;",
+            "after": "counts[event] = (counts[event] || 0) + 2;",
+            "line_text": "      counts[event] = (counts[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 500,
+            "col": 100,
+            "operator": "const-plus-one",
+            "before": "if (node.tagName === 'INPUT' && UNSHAREABLE.indexOf((node.type || 'text').toLowerCase()) !== -1) continue;",
+            "after": "if (node.tagName === 'INPUT' && UNSHAREABLE.indexOf((node.type || 'text').toLowerCase()) !== -2) continue;",
+            "line_text": "      if (node.tagName === 'INPUT' && UNSHAREABLE.indexOf((node.type || 'text').toLowerCase()) !== -1) continue;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 522,
+            "col": 22,
+            "operator": "lt-to-le",
+            "before": "for (var i = 0; i < controls.length; i++) {",
+            "after": "for (var i = 0; i <= controls.length; i++) {",
+            "line_text": "    for (var i = 0; i < controls.length; i++) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 691,
+            "col": 42,
+            "operator": "plus-to-minus",
+            "before": "say('Opened from a shared bid — ' + written + ' fields. The sender saw ' + incoming.amount +",
+            "after": "say('Opened from a shared bid — ' - written + ' fields. The sender saw ' + incoming.amount +",
+            "line_text": "        say('Opened from a shared bid — ' + written + ' fields. The sender saw ' + incoming.amount +",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Disagreement-branch message prefix was unasserted; test now anchors the full opening."
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "706a928d-2807-5ecf-9436-433a6a00b0c5",
+    "transcripts": 1,
+    "first": "2026-10-20T00:07:51Z",
+    "last": "2026-10-20T00:08:27Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 10,
+        "input": 20,
+        "output": 2472,
+        "thinking": 115,
+        "cache_read": 586673,
+        "cache_write_5m": 0,
+        "cache_write_1h": 37224,
+        "api_equivalent_usd": 0.291,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 10,
+      "input": 20,
+      "output": 2472,
+      "thinking": 115,
+      "cache_read": 586673,
+      "cache_write_5m": 0,
+      "cache_write_1h": 37224,
+      "api_equivalent_usd": 0.291,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.94,
+    "tool_calls": 10,
+    "tools": {
+      "Bash": 8,
+      "Read": 2
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 0.59,
+      "active_minutes": 0.59,
+      "model_minutes": 0.45,
+      "tool_minutes": 0.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "read target, triage 2 mutants, one test edit",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 171.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

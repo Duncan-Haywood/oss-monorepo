@@ -40,6 +40,14 @@ export const CATEGORY_PRESETS = Object.freeze({
     commissionRate: 4,
     commissionCap: 1500,
   },
+  volume: {
+    id: 'volume',
+    label: 'High-volume seller (reduced commission)',
+    short: '3%, no cap',
+    note: 'Whatnot’s seller-fees page says commission falls as 4-week sales grow, to as low as 3% for qualified high-volume sellers (reduced rates unlock around $15K in 4 weeks). 3% is the floor; use the rate on your own statement.',
+    commissionRate: 3,
+    commissionCap: '',
+  },
   pallets: {
     id: 'pallets',
     label: 'Pallets (wholesale)',

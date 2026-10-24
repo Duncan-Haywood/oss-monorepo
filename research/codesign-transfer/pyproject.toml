@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-transfer"
+version = "0.1.0"
+description = "Does the ranking of soft-fruit gripper designs survive a shift in friction, fruit, placement error and print tolerance? Nominal-world optimum vs robust optimum."
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "cma", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

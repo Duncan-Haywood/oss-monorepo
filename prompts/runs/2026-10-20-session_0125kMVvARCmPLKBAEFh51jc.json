@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_0125kMVvARCmPLKBAEFh51jc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T12:27:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 7 (open-tennis-robots): feeder CAD package",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 8822,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "No mention that build123d is absent for the default python3 and installs under /usr/bin/python3.13 only; cost a few calls to find."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Chose flagship 7 because 1-6 had heavy recent commits or needed owner decisions. build123d was not installed for the default python3 (3.11); it installed into python3.13 and the collector package still reproduced byte-for-byte there. Added Feeder params, feeder.py, a generic package builder, elevation-sweep collision check (proved able to fail), wind ballast figure, tests, committed manufacturing/feeder. CI cad job runs on Python 3.12; feeder zip was built on 3.13 so CI is the check that the bytes match. Local CAD tests (python3.13): 20 of 20 pass.",
+  "corrections": [],
+  "redteam": null
+}

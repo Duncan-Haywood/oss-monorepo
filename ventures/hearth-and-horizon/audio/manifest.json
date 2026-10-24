@@ -1,0 +1,122 @@
+{
+  "brigid-and-the-cloak": {
+    "bytes": 3866815,
+    "seconds": 644.4,
+    "voice": "en_US-ljspeech-high"
+  },
+  "brother-martin-and-the-mice": {
+    "bytes": 3381571,
+    "seconds": 563.5,
+    "voice": "en_US-ljspeech-high"
+  },
+  "francis-and-the-wolf-of-gubbio": {
+    "bytes": 4063213,
+    "seconds": 677.1,
+    "voice": "en_US-ljspeech-high"
+  },
+  "isidore-and-the-angels-who-ploughed": {
+    "bytes": 2663107,
+    "seconds": 443.8,
+    "voice": "en_US-ljspeech-high"
+  },
+  "kevin-and-the-blackbird": {
+    "bytes": 3579993,
+    "seconds": 596.6,
+    "voice": "en_US-ljspeech-high"
+  },
+  "martin-of-tours-and-the-half-a-cloak": {
+    "bytes": 3274687,
+    "seconds": 545.7,
+    "voice": "en_US-ljspeech-high"
+  },
+  "nicholas-and-the-three-bags-of-gold": {
+    "bytes": 3014350,
+    "seconds": 502.3,
+    "voice": "en_US-ljspeech-high"
+  },
+  "notes-dot-md": {
+    "bytes": 7372335,
+    "seconds": 1228.6,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-bell-at-half-past-three": {
+    "bytes": 8055870,
+    "seconds": 1342.6,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-cold-meter": {
+    "bytes": 10979116,
+    "seconds": 1829.7,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-control-vial": {
+    "bytes": 7766527,
+    "seconds": 1294.3,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-dark-week": {
+    "bytes": 8700976,
+    "seconds": 1450.1,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-dry-bread": {
+    "bytes": 9125257,
+    "seconds": 1520.8,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-grader": {
+    "bytes": 5381959,
+    "seconds": 896.9,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-ice-road": {
+    "bytes": 8090964,
+    "seconds": 1348.4,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-last-message-in-the-window": {
+    "bytes": 6346681,
+    "seconds": 1057.7,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-long-sea": {
+    "bytes": 7561827,
+    "seconds": 1260.2,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-patches": {
+    "bytes": 7012471,
+    "seconds": 1168.7,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-return-gate": {
+    "bytes": 8578882,
+    "seconds": 1429.7,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-slowest-bell-on-the-moon": {
+    "bytes": 8949259,
+    "seconds": 1491.4,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-warm-pew": {
+    "bytes": 6602611,
+    "seconds": 1100.3,
+    "voice": "en_US-ljspeech-high"
+  },
+  "the-weight-of-a-hive": {
+    "bytes": 9368673,
+    "seconds": 1561.4,
+    "voice": "en_US-ljspeech-high"
+  },
+  "therese-and-the-small-way": {
+    "bytes": 3212453,
+    "seconds": 535.3,
+    "voice": "en_US-ljspeech-high"
+  },
+  "thirty-nine-minutes": {
+    "bytes": 9521958,
+    "seconds": 1586.9,
+    "voice": "en_US-ljspeech-high"
+  }
+}

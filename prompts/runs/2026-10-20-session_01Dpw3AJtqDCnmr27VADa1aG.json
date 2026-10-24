@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01Dpw3AJtqDCnmr27VADa1aG",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "I think it might be beneficial to have more structure to the claude and the prompt and etc. like a system potentially and also about the guidance given in the dev process and the",
+  "input_sha256": "6e279251b289a04d47292970301b96fa966cac61b49fab03d17e496b5157fe2a",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-20T08:02:49Z",
+  "ended": "2026-10-20T08:09:54Z",
+  "wall_minutes": 7.21,
+  "tokens_in": 6031575,
+  "tokens_out": 35531,
+  "cost_usd": 2.7947,
+  "tool_calls": 51,
+  "task": "Owner asked for more structure in the agent guidance (CLAUDE.md, prompt.md, dev-process docs); message was truncated mid-sentence, so scope was inferred.",
+  "projects": [
+    "prompts"
+  ],
+  "pr": "8729",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "No stated precedence between CLAUDE.md, prompt.md, sub-prompts, AGENTS.md and runbooks; the same container facts were copied into three always-read files (fixed in this PR with prompts/SYSTEM.md)."
+    },
+    {
+      "file": "portfolio/ledger/check_ledger_only.py",
+      "issue": "Prints 'git failed:' with an empty message on a branch with uncommitted changes, then passes; unclear whether it checked anything."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Session gate skipped: named task. Process track chosen with --track since the work is guidance structure."
+    }
+  ],
+  "goal": null,
+  "notes": "Verified: promptctl validate ok; unittest discover -s prompts 86 OK; check_md_links, check_code_refs, usage_state --require-honest, checklist_coverage, validate_workflows exit 0; pytest gitops/tests/test_manifests.py + checklist_coverage + usage_state + md_links + session_gate tests: 233 passed. Friction baseline in experiments.md E53.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b97d7384-d108-5c79-8ac7-190cc20e87a3",
+    "transcripts": 1,
+    "first": "2026-10-20T08:02:49Z",
+    "last": "2026-10-20T08:10:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 98,
+        "output": 35531,
+        "thinking": 8698,
+        "cache_read": 5918989,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112488,
+        "api_equivalent_usd": 2.7947,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 98,
+      "output": 35531,
+      "thinking": 8698,
+      "cache_read": 5918989,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112488,
+      "api_equivalent_usd": 2.7947,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__get_session": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.21,
+      "active_minutes": 7.21,
+      "model_minutes": 5.54,
+      "tool_minutes": 1.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "survey 30 guidance files and 1.5k run records, design layers, write manifest+validator+tests, move four sections with link fixes",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 214.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

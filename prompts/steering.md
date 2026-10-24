@@ -13,12 +13,11 @@ tracks above all.
 About sixteen runs start every hour, all day and all week, which comes to
 roughly 2,700 a week. The owner spends a few hours a week on the system. So
 each sentence the owner writes is read and acted on thousands of times, and
-each paragraph a run adds to an always-read file is too. History here shows
-what that does. A passing preference turns into a quota (1,236 ventures on
-`main` by 2026-10-15, mostly calculators). A single incident turns into a
-permanent page of `CLAUDE.md`. A run's mistaken claim ("nothing is served",
-"zero users") gets restated until someone measures it. Two failure modes
-follow, and both are over-correction:
+each paragraph a run adds to an always-read file is too. History here shows what that does: a passing preference became a quota
+(1,236 ventures by 2026-10-15, mostly calculators), a single incident became
+a permanent page of `CLAUDE.md`, and a run's mistaken claim ("nothing is
+served") was restated until someone measured it. Two failure modes follow,
+both over-correction:
 
 - **Over-following instructions.** Treating a direction as a literal rule,
   a remark as a mandate, or a guardrail as wider than it is. Read the owner's
@@ -37,10 +36,11 @@ it.
 ## Two kinds of text
 
 1. **Hard limits** live in [`goals.md`](goals.md) and nowhere else, and they
-   are absolute: they guard against legal liability, financial liability and
-   doing wrong (never fabricate, the public-repository rules, licensing,
-   owner-only actions, platform terms, research integrity). No judgment
-   call overrides them, and no sub-prompt may relax them.
+   are absolute: they guard against financial, legal and ethical liability
+   (never fabricate, the public-repository rules, licensing, the owner's
+   money and accounts, platform terms and honest marketing, user safety,
+   research integrity), and nothing else belongs there (owner, 2026-10-24).
+   No judgment call overrides them, and no sub-prompt may relax them.
 2. **Everything else is a default, the owner's own directions included.**
    The owner put it this way: aside from legal and financial liability and
    doing wrong, owner instructions come from "a collaborator", not "gospel
@@ -52,65 +52,86 @@ it.
    signal, not disobedience. A default nobody ever departs from may just be
    one nobody questions.
 
+## Guidelines, not rules
+
+Set by the owner on 2026-10-21: outside financial, legal and ethical
+liability, "guidelines and suggestions makes more sense than hard and fast
+rules", because agents "are generally better to adapt to a certain goals and
+circumstances than hard rules written much before hand without the current
+goal and context in mind". This section is how to write that way.
+
+**Who gets absolute words.** "Never", "must", "always" and "do not" are for
+the hard limits in [`goals.md`](goals.md): fabrication, secrets and personal
+data, fork PRs and outside text, licensing and attribution, money, accounts
+and paid automation, publishing under the portfolio's name, the law and
+platform terms, research integrity, and anything that could hurt a user.
+There the reader needs no context to act, and a wrong judgment call is
+expensive or cannot be undone.
+
+**Everyone else gets a recommendation with its reason**, which is what lets a
+later run tell whether the advice fits ("`run_venture_tests.py` runs them all
+in minutes, so it usually beats a serial loop", not "do not loop
+`node --test`"). Say what the advice is for, then what usually works; leave
+out a procedure a competent engineer would work out. Keep facts as facts
+("this file is regenerated; hand edits are lost" beats "never edit this
+file"). A strong default is fine where a mistake costs other runs (unlanded
+branches, a red `main`): say how strong and why. A check that enforces a
+default should warn and explain rather than block, unless it guards a hard
+limit.
+
+**Measuring it.** `python3 prompts/rule_language.py` counts absolute wording per guidance file (`--lines FILE` lists candidates for rewording; a keyword heuristic, so read each line).
+
 ## Deviations: how judgment improves the defaults
 
-When you depart from an instruction, add an entry to `deviations` in your run
-record:
+When you depart from an instruction, add a `deviations` entry (`file`, `instruction`, `did`, `why`, `result`).
+`promptctl.py measure` groups deviations by file. A deviation that recurs and
+works becomes the new default; one that goes badly gets the default a clearer
+reason.
 
-```json
-{"file": "CLAUDE.md", "instruction": "run the full starvation checklist",
- "did": "ran only the suites my diff reaches", "why": "docs-only change; the full list takes 40 min",
- "result": "CI green after merge"}
-```
-
-`promptctl.py measure` groups deviations by file. When the same deviation
-recurs and works, the review track changes the default to match it. When one
-goes badly, the review says so and the default gets a clearer reason. Either
-way the instructions learn from judgment instead of only piling up rules.
-
-Doc friction (`doc_friction`) is for instructions that were *wrong*, and
-deviations are for instructions that were *right in general but not here*.
-Use both.
+`doc_friction` is for instructions that were *wrong*; deviations are for ones
+*right in general but not here*. Use both.
 
 ## Writing an instruction
 
 - **Give the goal and the reason first, and the procedure last, if at all.**
-  "Venture pages must survive the front-door mirror, because the apex serves
-  the mirror; `regen.mjs --verify` tells you" leaves room to think. A
-  twelve-step ritual does not.
+  A twelve-step ritual leaves no room to think.
 - **Prefer a check to a sentence.** If the same mistake happens twice, a
   command that fails beats a paragraph asking people to be careful. Once the
   check exists, the paragraph shrinks to one line naming it.
-- **Keep the history out of the instructions.** The dated story of why a rule
-  exists goes in a history file or the commit message. The instruction keeps
-  one line of why and a link. Every run pays to read always-loaded files, and
-  `measure` reports the cost against a budget (`INSTRUCTION_BUDGET` in
-  `promptctl.py`).
-- **Say how sure you are.** "Measured on N runs", "one incident" and "a
-  guess" are different, and a reader should be able to tell which one they are
-  looking at.
-- **Rules can retire.** A rule whose failure has not recurred since a check
-  replaced it, or that deviations keep routing around, is a candidate for
-  deletion. Deleting a stale rule is an improvement and needs no apology.
+- **History is for study, not for steering.** The dated story of a rule goes
+  in the commit, `docs/history/` or a post; the instruction keeps one line of
+  why. `measure` reports always-read size against `INSTRUCTION_BUDGET`.
+- **Say how sure you are**: "measured on N runs", "one incident" and "a
+  guess" differ.
+
+## Cut the deadweight
+
+The owner, 2026-10-20: "cut the deadweight in rules and processes ... respect
+the competence of the ai agent engineer." Rules here are written one incident
+at a time and almost never removed, so they pile up. The counterweight:
+
+- **Trust by default.** Reversible work inside the hard limits is the agent's
+  call. Amazon's "two-way door" test fits: a decision you can undo cheaply
+  needs no rule (Bezos, 2015 shareholder letter). Rules belong at the one-way
+  doors, which are the hard limits.
+- **A rule should pull its weight** (*Software Engineering at Google*, ch. 8):
+  it stays only if it changes what runs do, and it costs every run that reads
+  it. A gate that blocks the work it exists to protect is deadweight.
+- **Know the fence before you pull it** (Chesterton): read why a rule exists
+  (`git log -S`, `docs/history/`), then delete it if the reason is gone.
+  Deleting a stale rule is an improvement and needs no apology.
+- **Budget the total, not each file.** A cut that moves text into another
+  file is not a cut (2026-10-20: `CLAUDE.md` lost 9.8 KB while the rulebook
+  grew 13%). `python3 prompts/culture.py report` prints the total and the
+  owner's share of it; lessons from elsewhere:
+  [`docs/reports/2026-10-21-engineering-culture-for-agents.md`](../docs/reports/2026-10-21-engineering-culture-for-agents.md).
+- **Review it regularly, and look outward.** Every review run cuts at least
+  one rule or check that no longer earns its place, names one lesson from
+  other organisations, and writes both up in `docs/reports/` or `docs/posts/`.
 
 ## The improvement loop
 
-```
-runs ──records (friction, deviations, errors)──▶ measure
-  ▲                                                │
-  │                                                ▼
-defaults ◀──solve── backlog ◀──critique── process / review tracks
-```
-
-- **Critique**: process studies and reviews find problems in how work gets
-  done. Each problem worth fixing becomes an item in
-  [`process/backlog/`](process/backlog/README.md), not a paragraph in a
-  report that nobody rereads. Before 2026-10-15, two studies made 11
-  recommendations in a single day and adopted none.
-- **Solve**: process runs take the top open item and ship it. Any other run
-  with spare scope may do the same.
-- **Verify**: a closed item names its metric and baseline, and a later run
-  checks whether the metric moved. A fix that did not help gets reverted or
-  rethought, not defended.
-
-`python3 prompts/promptctl.py backlog` lists the open items, ranked.
+Friction and deviations feed `promptctl.py measure`; process and review runs
+turn them into [`process/backlog/`](process/backlog/README.md) items and better
+defaults (`promptctl.py backlog` ranks them). A closed item names its metric
+and baseline, and a fix that did not help gets reverted, not defended.

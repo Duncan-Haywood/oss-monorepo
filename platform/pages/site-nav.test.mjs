@@ -11,6 +11,8 @@ import {
   SITE_NAV,
   SITE_HEADER_CSS,
   HEADER_MARKER,
+  VENTURE_CHROME_CSS,
+  VENTURE_CHROME_JS,
   renderSiteHeader,
   renderSiteStyle,
   researchChromeTemplate,
@@ -27,7 +29,7 @@ test('the header carries every nav item, in order, relative to the page', () => 
   assert.deepEqual(navHrefs(html), SITE_NAV.map((i) => `../../${i.href}`));
   assert.deepEqual(
     SITE_NAV.map((i) => i.label),
-    ['Tools', 'Research', 'Writing', 'Updates', 'Deploy your own', 'About'],
+    ['Tools', 'Research', 'Blog', 'Podcast', 'Stories', 'Updates', 'Ask', 'Deploy your own', 'About'],
   );
   // One landmark, labelled, and the section the page is in is marked current.
   assert.equal(html.match(/<nav\b/g).length, 1);
@@ -114,5 +116,64 @@ test('the research builder gets the same markup, and splices it in', async () =>
   assert.deepEqual([...new Set(template.header.match(/\{\{\w+\}\}/g))], ['{{ROOT}}']);
   const builder = readFileSync(path.join(REPO, 'research', '_homepage', 'build.py'), 'utf8');
   assert.match(builder, /--site-chrome/);
-  assert.match(builder, /chrome\["header"\]\.replace\("\{\{ROOT\}\}", root\)/);
+  assert.match(builder, /chrome\[header_key\]\.replace\("\{\{ROOT\}\}", root\)/);
+});
+
+test('research topic and project pages get the breadcrumb variants of the same header', () => {
+  const template = researchChromeTemplate();
+  assert.deepEqual(
+    [...new Set(template.topic_header.match(/\{\{\w+\}\}/g))].sort(),
+    ['{{ROOT}}', '{{TOPIC}}'],
+  );
+  assert.deepEqual(
+    [...new Set(template.project_header.match(/\{\{\w+\}\}/g))].sort(),
+    ['{{ROOT}}', '{{TITLE}}', '{{TOPIC_ID}}', '{{TOPIC}}'],
+  );
+  // Home › Research › topic › project, the topic linking its own page.
+  assert.match(template.project_header, /class="pfs-crumbs"/);
+  assert.match(template.project_header, /href="\{\{ROOT\}\}research\/">Research<\/a>/);
+  assert.match(template.project_header, /href="\{\{ROOT\}\}research\/topics\/\{\{TOPIC_ID\}\}\/">\{\{TOPIC\}\}<\/a>/);
+  assert.match(template.project_header, /<span aria-current="page">\{\{TITLE\}\}<\/span>/);
+  assert.match(template.topic_header, /<span aria-current="page">\{\{TOPIC\}\}<\/span>/);
+});
+
+test('the venture header and footer carry the site palette in both themes, on selectors a venture rule cannot beat', () => {
+  // Light by default, dark only when the script measured the host page as
+  // dark, each with the brand mark's gradient: without it the mark rendered as
+  // a black square on every tool page. Never the OS theme (build.test.mjs).
+  assert.match(VENTURE_CHROME_CSS, /--pfs-head-bg:#ffffff[\s\S]*--pfs-mark:linear-gradient[\s\S]*\[data-pfs-theme="dark"\][\s\S]*--pfs-head-bg:#171e27/);
+  assert.doesNotMatch(VENTURE_CHROME_CSS, /prefers-color-scheme/);
+  // Three classes plus an attribute out-rank `nav a`, `.nav a` and `header nav`.
+  assert.match(VENTURE_CHROME_CSS, /nav\.pf-chrome\.pf-chrome-top\[data-pfs-head\] a\{/);
+  assert.match(VENTURE_CHROME_CSS, /aside\.pf-chrome\.pf-chrome-foot a\{/);
+  // Contrast is measured, so no de-emphasis by opacity.
+  assert.doesNotMatch(VENTURE_CHROME_CSS, /opacity\s*:/);
+});
+
+test('the full-width pass measures with clientWidth and undoes itself if the page would scroll sideways', () => {
+  assert.match(VENTURE_CHROME_JS, /clientWidth/);
+  assert.doesNotMatch(VENTURE_CHROME_JS, /100vw/, '100vw counts the scrollbar and adds a sideways scroll');
+  assert.match(VENTURE_CHROME_JS, /scrollWidth>root\.clientWidth\)\)reset\(el\)/);
+  // It is parseable as the classic script it ships in, and a no-op where
+  // there is no DOM to measure (the counter tests run pf-site.js on a stub).
+  assert.doesNotThrow(() => new Function(VENTURE_CHROME_JS));
+  assert.doesNotThrow(() => new Function('document', VENTURE_CHROME_JS)({}));
+});
+
+test('the chrome goes dark only on a page whose own background is dark', () => {
+  // The theme check, run against stub elements: a cream page keeps the light
+  // bar, a near-black one gets the dark palette.
+  const run = (background) => {
+    const attrs = {};
+    const el = { tagName: 'NAV', style: {}, setAttribute: (k, v) => { attrs[k] = v; }, removeAttribute: (k) => { delete attrs[k]; },
+      getBoundingClientRect: () => ({ left: 0, width: 800, top: 0 }) };
+    const body = { nodeType: 1, parentElement: null };
+    const doc = { querySelectorAll: () => [el], documentElement: { clientWidth: 800, scrollWidth: 800 }, body };
+    new Function('document', 'getComputedStyle', 'window', 'addEventListener', 'matchMedia', 'setTimeout', 'clearTimeout', VENTURE_CHROME_JS)(
+      doc, () => ({ backgroundColor: background }), { scrollY: 0 }, () => {}, null, () => {}, () => {});
+    return attrs['data-pfs-theme'];
+  };
+  assert.equal(run('rgb(250, 246, 238)'), undefined);
+  assert.equal(run('rgb(18, 16, 14)'), 'dark');
+  assert.equal(run('rgba(0, 0, 0, 0)'), undefined, 'a transparent page reads as the browser default white');
 });

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-misaim"
+version = "0.1.0"
+description = "How inaccurate may an opening detector be before a laundry robot is faster pinching blind: break-even detector error on the hanger-pick pile model"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

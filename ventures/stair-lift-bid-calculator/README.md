@@ -9,7 +9,7 @@ versus power-pack versus heavy-duty, then wood versus concrete
 versus open-riser attach, folding rail, circuit, and pull-out —
 and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/stair-lift-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/stair-lift-bid-calculator/
 
 **After using this, you can now** send a walk-away stair-lift
 price that sees the rail and the chair, **which used to take**
@@ -19,10 +19,7 @@ install.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

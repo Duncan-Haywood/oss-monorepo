@@ -1,0 +1,29 @@
+Best objective J after n simulator evaluations (budget 40); J = mean pick value (a held item is worth 1/(1+(t/1.2)^4) for pick time t, a dropped or unreachable one 0) - 0.002 x cost, designs over the 80 USD cap score -1.
+Baselines: median [min, max] over 20 seeds. Session agent: one run of 4 rounds x 10.
+
+method | n=10 | n=20 | n=30 | n=40
+random search | 0.203 [-0.052, 0.464] | 0.261 [0.121, 0.464] | 0.317 [0.121, 0.464] | 0.328 [0.205, 0.464]
+CMA-ES | 0.151 [-0.076, 0.366] | 0.263 [-0.002, 0.460] | 0.291 [0.146, 0.474] | 0.361 [0.200, 0.474]
+Bayesian opt (GP-EI) | 0.284 [0.053, 0.465] | 0.411 [0.249, 0.515] | 0.461 [0.423, 0.519] | 0.478 [0.432, 0.521]
+session agent | 0.409 | 0.503 | 0.508 | 0.519
+
+At n=40, seeds that matched or beat the agent's best (J = 0.519):
+random search: 0 of 20
+CMA-ES: 0 of 20
+Bayesian opt (GP-EI): 1 of 20
+
+Evaluations to first reach J >= 0.45 (median over seeds that reach it; seeds that never do in brackets):
+random search: 13.0 (18 of 20 never)
+CMA-ES: 30.0 (15 of 20 never)
+Bayesian opt (GP-EI): 22.5 (4 of 20 never)
+session agent: 11
+
+Fraction of evaluations over the cost cap:
+random search: 0.000
+CMA-ES: 0.000
+Bayesian opt (GP-EI): 0.001
+session agent: 0.000
+
+Best design seen in any run: x = [18.53, 2.0, 80.0, 60.0, 0.84] (cup diameter mm, cups, vacuum kPa, flow L/min, compliance), J = 0.521, cost 70 USD, fast holds 0.77, slow holds 0.00, too weak 0.20, cups do not fit 0.04
+
+Catalogue-default reference [30, 1, 60, 30, 0.5] (one 30 mm cup, 60 kPa, 30 L/min, mid compliance; not optimised): J = 0.075, cost 48 USD, fast holds 0.00, slow 0.59, too weak 0.26, cup does not fit 0.15

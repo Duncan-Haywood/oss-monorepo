@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-burst"
+version = "0.1.0"
+description = "How many frames from a small sensor, aligned and merged, match one frame from a larger sensor: Poisson-Gaussian noise model, break-even frame count, alignment, HDR bracketing"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

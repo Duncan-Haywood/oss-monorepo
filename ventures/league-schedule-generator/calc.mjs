@@ -105,19 +105,31 @@ export function parseTime(text) {
 
 // ---------------------------------------------------------------- text fields
 
+/**
+ * Team names from whatever the organiser pasted: one per line, a single
+ * comma/semicolon list, a spreadsheet column (extra tab columns dropped), with
+ * list numbering or bullets and surrounding quotes removed. A multi-line list
+ * keeps its commas, so "Smith, J. XI" stays one team.
+ */
+function teamLines(text) {
+  let lines = String(text ?? "").split(/\r?\n/).map((l) => l.split("\t")[0].replace(/\s+/g, " ").trim()).filter(Boolean);
+  if (lines.length === 1 && /[,;]/.test(lines[0])) lines = lines[0].split(/[,;]/).map((l) => l.trim()).filter(Boolean);
+  const marker = /^(\d{1,3}[.)]|[-•*–])\s+/;
+  if (lines.length > 1 && lines.every((l) => marker.test(l))) lines = lines.map((l) => l.replace(marker, ""));
+  return lines.map((l) => l.replace(/^(["“'])(.+)(["”'])$/, "$2").trim()).filter(Boolean);
+}
+
 export function parseTeams(text) {
   const teams = [];
   const errors = [];
   const seen = new Map();
-  for (const line of String(text ?? "").split(/\r?\n/)) {
-    const name = line.replace(/\s+/g, " ").trim();
-    if (!name) continue;
+  for (const name of teamLines(text)) {
     const key = name.toLowerCase();
     if (seen.has(key)) { errors.push(`"${name}" is listed twice.`); continue; }
     seen.set(key, teams.length);
     teams.push(name);
   }
-  if (teams.length < 2) errors.push("Enter at least two teams, one per line.");
+  if (teams.length < 2) errors.push("Enter at least two teams, one per line (a comma-separated list also works).");
   if (teams.length > MAX_TEAMS) errors.push(`Up to ${MAX_TEAMS} teams are supported.`);
   return { teams, errors };
 }
@@ -313,7 +325,7 @@ export function roundRobin(n, { double = false } = {}) {
  * matches spread over `courts` courts in waves, and every wave given a clock time. Nothing here
  * can put a team in two matches at once because a round never repeats a team.
  */
-export function oneDayTimetable(teams, { courts = 1, start = "09:00", matchMinutes = 30, changeoverMinutes = 0, double = false } = {}) {
+export function oneDayTimetable(teams, { courts = 1, start = "09:00", matchMinutes = 30, changeoverMinutes = 0, double = false, minRest = 0 } = {}) {
   const n = teams.length;
   if (n < 3) throw new Error("A one-day round robin needs at least three teams.");
   if (!Number.isInteger(courts) || courts < 1) throw new Error("Courts must be a whole number of at least 1.");
@@ -324,15 +336,71 @@ export function oneDayTimetable(teams, { courts = 1, start = "09:00", matchMinut
   const hhmm = (mins) => `${String(Math.floor(mins / 60) % 24).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
   const step = matchMinutes + changeoverMinutes;
   let clock = Number(t0.slice(0, 2)) * 60 + Number(t0.slice(3));
+  if (!Number.isInteger(minRest) || minRest < 0 || minRest > 6) throw new Error("Rest slots must be a whole number from 0 to 6.");
   const slots = [];
-  roundRobin(n, { double }).forEach((r, ri) => {
-    for (let i = 0; i < r.matches.length; i += courts) {
-      const matches = r.matches.slice(i, i + courts).map(([h, a], k) => ({ court: k + 1, home: h, away: a }));
-      slots.push({ round: ri + 1, time: hhmm(clock), end: hhmm(clock + matchMinutes), bye: i === 0 && r.bye !== null ? r.bye : null, matches });
-      clock += step;
+  if (minRest === 0) {
+    roundRobin(n, { double }).forEach((r, ri) => {
+      for (let i = 0; i < r.matches.length; i += courts) {
+        const matches = r.matches.slice(i, i + courts).map(([h, a], k) => ({ court: k + 1, home: h, away: a }));
+        slots.push({ round: ri + 1, time: hhmm(clock), end: hhmm(clock + matchMinutes), bye: i === 0 && r.bye !== null ? r.bye : null, matches });
+        clock += step;
+      }
+    });
+  } else {
+    // Rest mode: ignore round order and fill each time slot with matches whose teams have sat out
+    // at least minRest slots, most-constrained teams (most games still to play) first. Greedy fills
+    // are retried with seeded random tie-breaks and the best kept (most rest, then fewest slots). A
+    // slot where nobody is rested enough is left empty (a break), so the asked-for rest is always met.
+    const all = roundRobin(n, { double }).flatMap((r) => r.matches.map(([h, a]) => [h, a]));
+    const restOf = (plan) => {
+      const seenAt = Array(n).fill(-1);
+      let r = Infinity;
+      plan.forEach((ms, si) => ms.forEach(([h, a]) => { for (const t of [h, a]) { if (seenAt[t] >= 0) r = Math.min(r, si - seenAt[t] - 1); seenAt[t] = si; } }));
+      return r;
+    };
+    const fill = (rand) => {
+      const pending = all.map((m) => m.slice());
+      const last = Array(n).fill(-Infinity);
+      const left = Array(n).fill(0);
+      for (const [h, a] of pending) { left[h]++; left[a]++; }
+      const plan = [];
+      while (pending.length) {
+        const slot = plan.length;
+        const order = pending.map((m, idx) => ({ m, idx, g: Math.min(slot - last[m[0]], slot - last[m[1]]) - 1, w: left[m[0]] + left[m[1]], r: rand ? rand() : idx }))
+          .sort((x, y) => (Math.min(y.g, minRest) - Math.min(x.g, minRest)) || (y.w - x.w) || (y.g - x.g) || (x.r - y.r));
+        const busy = new Set();
+        const chosen = [];
+        for (const c of order) {
+          if (chosen.length === courts) break;
+          if (busy.has(c.m[0]) || busy.has(c.m[1])) continue;
+          if (c.g < minRest) continue;
+          busy.add(c.m[0]); busy.add(c.m[1]); chosen.push(c);
+        }
+        for (const c of chosen) { last[c.m[0]] = slot; last[c.m[1]] = slot; left[c.m[0]]--; left[c.m[1]]--; }
+        for (const c of [...chosen].sort((x, y) => y.idx - x.idx)) pending.splice(c.idx, 1);
+        plan.push(chosen.map((c) => c.m));
+      }
+      return plan;
+    };
+    const rng = mulberry32(20261020);
+    let best = fill(null);
+    let bestRest = restOf(best);
+    for (let i = 0; i < 300 && !(bestRest >= minRest && best.length === Math.ceil(all.length / courts)); i++) {
+      const plan = fill(rng);
+      const r = restOf(plan);
+      if (Math.min(r, minRest) > Math.min(bestRest, minRest) || (Math.min(r, minRest) === Math.min(bestRest, minRest) && plan.length < best.length)) { best = plan; bestRest = r; }
     }
-  });
-  return { teams, courts, slots, finish: slots[slots.length - 1].end, games: slots.reduce((s, x) => s + x.matches.length, 0) };
+    best.forEach((ms, si) => {
+      slots.push({ round: si + 1, time: hhmm(clock), end: hhmm(clock + matchMinutes), bye: null, matches: ms.map(([h, a], k) => ({ court: k + 1, home: h, away: a })) });
+      clock += step;
+    });
+  }
+  const seen = Array(n).fill(-1);
+  let restSlots = Infinity;
+  slots.forEach((s, si) => s.matches.forEach((m) => {
+    for (const t of [m.home, m.away]) { if (seen[t] >= 0) restSlots = Math.min(restSlots, si - seen[t] - 1); seen[t] = si; }
+  }));
+  return { teams, courts, slots, finish: slots[slots.length - 1].end, games: slots.reduce((s, x) => s + x.matches.length, 0), restSlots: restSlots === Infinity ? 0 : restSlots, minRest };
 }
 
 export function oneDayText(tt) {
@@ -341,8 +409,10 @@ export function oneDayText(tt) {
     lines.push(`${s.time}-${s.end}  Round ${s.round}`);
     for (const m of s.matches) lines.push(`  Court ${m.court}: ${tt.teams[m.home]} v ${tt.teams[m.away]}`);
     if (s.bye !== null) lines.push(`  Bye: ${tt.teams[s.bye]}`);
+    if (!s.matches.length) lines.push("  Break: no game, so teams can rest");
   }
   lines.push(`Last game ends ${tt.finish} (${tt.games} games, ${tt.slots.length} time slots).`);
+  if (tt.minRest > 0) lines.push(tt.restSlots >= tt.minRest ? `Every team rests at least ${tt.restSlots} slot${tt.restSlots === 1 ? "" : "s"} between games.` : `Could not give every team ${tt.minRest} slot${tt.minRest === 1 ? "" : "s"} of rest: the shortest break is ${tt.restSlots}. Add courts or fewer teams per day, or lower the rest.`);
   return lines.join("\n");
 }
 
@@ -1613,6 +1683,26 @@ export function officialMessages(schedule) {
   }));
 }
 
+// Teams down the side, dates across the top: one cell per team per round, "v Opp" at
+// home, "@ Opp" away, "BYE" for a bye, blank when the team has no game that round.
+export function seasonGrid(schedule) {
+  const header = ["Team", ...schedule.rounds.map((r) => `${r.label} ${dayIso(r.day)}`)];
+  const rows = schedule.teams.map((name, i) => {
+    const cells = schedule.rounds.map((r) => {
+      const m = r.matches.find((x) => x.home === i || x.away === i);
+      if (m) return m.home === i ? `v ${m.awayName}` : `@ ${m.homeName}`;
+      return r.bye === i ? "BYE" : "";
+    });
+    return [name, ...cells];
+  });
+  return { header, rows };
+}
+
+export function seasonGridCsv(schedule) {
+  const { header, rows } = seasonGrid(schedule);
+  return [header, ...rows].map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
+}
+
 export function scheduleText(schedule, bracket = null) {
   const n = schedule.teams.length;
   const lines = [`${n}-team ${schedule.config.double ? "double" : "single"} round robin`, ""];
@@ -1656,6 +1746,29 @@ ${stand}
 ${brk}
 <footer>Made with the free league schedule generator. Check dates and venues with your organiser.</footer>
 <script>(function(){var f=document.getElementById("f");function a(){var v=f.value;document.querySelectorAll("tr[data-t]").forEach(function(r){r.hidden=v!==""&&r.getAttribute("data-t").split(" ").indexOf(v)<0});document.querySelectorAll(".round").forEach(function(s){s.hidden=!s.querySelector("tr[data-t]:not([hidden])")})}f.addEventListener("change",a)})();</script>
+</body></html>
+`;
+}
+
+/**
+ * Printable game-night score sheets: one page per round with every match, blank score boxes, a
+ * forfeit tick and a signature line, so the person at the table can write results down and the
+ * organiser can type them in afterwards (lines like "Hawks 3 - 2 Owls"). Self-contained, every
+ * typed name escaped, no external requests.
+ */
+export function scoreSheetsHtml(schedule, { title = "League score sheets" } = {}) {
+  const t = htmlEsc(title);
+  const pages = schedule.rounds.map((r) => {
+    const rows = r.matches.map((m) => `<tr><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td class="n">${htmlEsc(m.homeName)}</td><td class="b"></td><td class="b"></td><td class="n">${htmlEsc(m.awayName)}</td><td class="f">&#9744;</td><td>${htmlEsc(m.official ?? "")}</td></tr>`);
+    const bye = r.bye !== null && r.bye !== undefined ? `<p class="bye">Bye: ${htmlEsc(schedule.teams[r.bye])}</p>` : "";
+    return `<section class="sheet"><h2>${htmlEsc(r.label)} <span>${htmlEsc(dayLabel(r.day))}</span></h2><table><thead><tr><th>Time</th><th>Court</th><th>Home</th><th colspan="2">Score</th><th>Away</th><th>Forfeit</th><th>Official</th></tr></thead><tbody>${rows.join("")}</tbody></table>${bye}<p class="sig">Scorekeeper: ____________________ &nbsp; Notes (injuries, protests, rainouts): ______________________________________</p></section>`;
+  }).join("\n");
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${t}</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}h2 span{font-weight:400;color:#555}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.5rem;text-align:left}td.b{width:3.5rem;height:2.4rem}td.n{font-weight:600}td.f{text-align:center;font-size:1.3rem}.sheet{page-break-after:always;margin-bottom:2rem}.sig{margin-top:1.5rem}.bye{color:#555;font-style:italic}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}h2 span,.bye{color:#aaa}}@media print{body{background:#fff;color:#000}}</style></head>
+<body><h1>${t}</h1>
+${pages}
 </body></html>
 `;
 }

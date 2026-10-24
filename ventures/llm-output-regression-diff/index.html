@@ -47,6 +47,7 @@
     <p>Paste your <strong>saved outputs from before</strong> and <strong>after</strong> a model swap or prompt edit (one JSON object per line with an <code>id</code> and an <code>output</code>). Get a per-case list of what broke: <strong>invalid JSON, lost keys, new refusals, truncation, lost numbers, lost formatting</strong>.</p>
     <p class="note">Nothing is uploaded and no model is called. It compares text you already have. It is a tripwire for changes, not a judge of quality.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your outputs</h2>
@@ -92,7 +93,8 @@ node cli.mjs diff baseline.jsonl candidate.jsonl --json</pre>
     <p>No. The page works in your browser and sends nothing. The CLI reads local files only.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not professional advice. It applies simple deterministic text checks and cannot tell whether an output is correct, safe or better; a clean result is not a guarantee that a model or prompt change is safe to ship. <strong>You are responsible for reviewing and verifying its output</strong> before relying on it. Product and model names belong to their owners; this project is not affiliated with any of them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

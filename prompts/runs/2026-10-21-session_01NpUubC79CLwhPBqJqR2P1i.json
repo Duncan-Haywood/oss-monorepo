@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01NpUubC79CLwhPBqJqR2P1i",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-21T03:06:58Z",
+  "ended": "2026-10-21T04:13:24Z",
+  "wall_minutes": 66.62,
+  "tokens_in": 6810229,
+  "tokens_out": 21483,
+  "cost_usd": 1.9567,
+  "tool_calls": 54,
+  "task": "eda track 7 next step from eda-biasdraw",
+  "projects": [
+    "research/eda-smtbmc"
+  ],
+  "pr": 9052,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "pkill -f matched and killed my own shell once; my script name clashed with eda-deepdraw's run.py (renamed to smtrun.py)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says yosys/iverilog are missing from the image; they were already installed. python3 on PATH (/usr/local) lacked z3 and sklearn that /usr/bin/python3.13 had, so pyenv.py output was needed."
+    },
+    {
+      "file": "research/eda-biasdraw/README.md",
+      "issue": "next step names SymbiYosys+Boolector, which cannot be installed here; only yosys-smtbmc+z3 is practical."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No docs/reports agent doc or docs/posts post written this run: a single negative result was folded into the project README, to keep the PR small."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Negative result: yosys-smtbmc+z3 decides 0 of 10 undecided survivors at depth 24 (900 s); sweep passes to depth 10 (~3 s), times out at 12 (240 s). Checks run locally: research/_homepage/build.py ok, check_md_links ok, 3 unit tests pass. Yices/Boolector/SymbiYosys not installable (apt boolector is a 2013 build, not tried).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fab52352-6e5d-5971-99f8-7bcedeb4bc40",
+    "transcripts": 1,
+    "first": "2026-10-21T03:06:58Z",
+    "last": "2026-10-21T04:13:35Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 67,
+        "input": 163,
+        "output": 21483,
+        "thinking": 3132,
+        "cache_read": 6710186,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99880,
+        "api_equivalent_usd": 1.9567,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 163,
+      "output": 21483,
+      "thinking": 3132,
+      "cache_read": 6710186,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99880,
+      "api_equivalent_usd": 1.9567,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 39,
+      "Monitor": 11,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 66.62,
+      "active_minutes": 11.22,
+      "model_minutes": 3.69,
+      "tool_minutes": 7.53,
+      "waiting_on_human_minutes": 55.4,
+      "human_prompts": 17,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

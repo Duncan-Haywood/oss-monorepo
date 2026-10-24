@@ -1,0 +1,103 @@
+A. Sourced inputs (PyPSA technology-data, commit 65244b4c, cost year 2030; v0.9.2 in section C). Currency years as in the table.
+technology                         investment unit             FOM_%/yr life_yr   eff
+Sand-store                             8425.2 EUR/MWh              0.33      35     -
+Sand-charger                         181297.9 EUR/MW               1.07      35  0.99
+decentral water tank storage            527.9 EUR/kWh              1.00      30     -
+central water tank storage                3.8 EUR/kWhCapacity      1.00      40     -
+decentral air-sourced heat pump        1135.4 EUR/kW_th            3.00      18  3.60
+central air-sourced heat pump          1143.8 EUR/kW_th            0.23      25  3.20
+decentral resistive heater              133.6 EUR/kWhth            2.00      20  0.90
+central resistive heater                 80.1 EUR/kW_th            1.70      20  0.99
+
+B. Levelised cost of heat (EUR/kWh), store charged at 0.05 EUR/kWh. hp = heat pump at the same price; hp_needed = price the heat pump may pay
+before it costs as much as the store; ratio = hp_needed / 0.05 (how many times dearer than the store's electricity).
+scale     case      store     V_m3   out/in      cap   energy   total      hp hp_needed   ratio
+house     daily     sand       0.3     0.63    0.011    0.080   0.091   0.076    0.104     2.1
+house     daily     water      0.6     0.59    0.136    0.094   0.231   0.076    0.609    12.2
+house     weekly    sand       2.3     0.48    0.027    0.105   0.132   0.076    0.252     5.0
+house     weekly    water      3.8     0.56    0.786    0.100   0.886   0.076    2.965    59.3
+house     monthly   sand      15.1     0.32    0.120    0.159   0.279   0.076    0.782    15.6
+house     monthly   water     18.7     0.49    3.790    0.113   3.903   0.076   13.828   276.6
+house     seasonal  sand     222.0     0.26    1.534    0.195   1.729   0.076    6.002   120.0
+house     seasonal  water    250.0     0.44   50.416    0.125  50.542   0.076  181.727  3634.5
+house     resistive heater, no store: 0.062 EUR/kWh at 0.05
+district  daily     sand     120.0     0.80    0.008    0.063   0.072   0.054    0.108     2.2
+district  daily     water    297.7     0.62    0.006    0.081   0.087   0.054    0.158     3.2
+district  weekly    sand     711.7     0.78    0.017    0.065   0.082   0.054    0.140     2.8
+district  weekly    water   1727.0     0.62    0.010    0.082   0.092   0.054    0.172     3.4
+district  monthly   sand    3255.3     0.73    0.052    0.069   0.120   0.054    0.264     5.3
+district  monthly   water   7584.7     0.61    0.025    0.083   0.108   0.054    0.224     4.5
+district  seasonal  sand   40451.1     0.71    0.559    0.071   0.630   0.054    1.895    37.9
+district  seasonal  water  92451.1     0.60    0.246    0.084   0.330   0.054    0.935    18.7
+district  resistive heater, no store: 0.054 EUR/kWh at 0.05
+
+F. Water store at house size on the older v0.9.2 costs (decentral tank EUR 19.4/kWh in 2015 euros, against EUR 527.9/kWh in the 2025 table), store price 0.05.
+scale     case         V_m3    total       hp    ratio
+house     daily         0.6    0.108    0.063      4.2
+house     weekly        3.8    0.143    0.063      6.8
+house     monthly      18.7    0.293    0.063     17.6
+house     seasonal    250.0    2.423    0.063    170.9
+
+C. Sensitivity of the price ratio (hp_needed / store price) for the sand store. Rows change one input from the base (disc 4%, head_2030 costs,
+2000 full-load hours, 0.5 m wool, store price 0.05, store cost x1).
+change                               house_1d   house_7d   dist_30d  dist_120d
+base                                      2.1        5.0        5.3       37.9
+costs v0.9.2 (2015/2020 euros)            2.9        5.6        5.1       31.1
+discount rate 2%                          2.4        5.1        5.0       29.8
+discount rate 8%                          1.3        4.9        6.0       57.0
+heat pump full-load hours 1000           -2.4        0.6        2.8       35.5
+heat pump full-load hours 3000            3.6        6.5        6.1       38.7
+heat pump COP 2.5 (table 3.6/3.2)         1.5        3.5        4.1       29.6
+heat pump COP 4.5 (table 3.6/3.2)         2.6        6.3        7.4       53.3
+insulation 0.25 m                         2.3        7.0        5.7       40.1
+insulation 1.00 m                         2.1        4.2        5.0       36.0
+house store cost x0.5 (district unchanged)        2.0        4.5        5.3       37.9
+house store cost x3 (district unchanged)        2.4        7.3        5.3       37.9
+house store cost x10 (district unchanged)        3.4       15.2        5.3       37.9
+store electricity 0.02 EUR/kWh           -3.5        1.2        6.6       87.9
+store electricity 0.10 EUR/kWh            3.9        6.3        4.8       21.2
+
+D. Longest standby at which the sand store still costs no more than a heat pump whose electricity is `ratio` times dearer (store price 0.05).
+Cycles per year N = min(300, 365 / standby days). Standby grid: 0.5 1 2 3 5 7 10 14 21 30 45 60 90 120 days. '0' means it loses even at 0.5 days.
+scale      ratio longest_days
+house        1.5          0.5
+house        2.0          0.5
+house        3.0            2
+house        5.0            5
+house       10.0           14
+district     1.5            0
+district     2.0            0
+district     3.0            7
+district     5.0           21
+district    10.0           60
+
+E. Ratio against standby for the figure (sand, N = min(300, 365 / days), store price 0.05).
+scale         days    ratio
+house          0.5     1.48
+house          1.0     2.09
+house          2.0     2.75
+house          3.0     3.24
+house          5.0     4.15
+house          7.0     5.04
+house         10.0     6.35
+house         14.0     8.10
+house         21.0    11.28
+house         30.0    15.64
+house         45.0    23.66
+house         60.0    32.69
+house         90.0    53.76
+house        120.0    78.79
+district       0.5     2.12
+district       1.0     2.16
+district       2.0     2.26
+district       3.0     2.37
+district       5.0     2.58
+district       7.0     2.80
+district      10.0     3.12
+district      14.0     3.54
+district      21.0     4.28
+district      30.0     5.24
+district      45.0     6.86
+district      60.0     8.50
+district      90.0    11.87
+district     120.0    15.33

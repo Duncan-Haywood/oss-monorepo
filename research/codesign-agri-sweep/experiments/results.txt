@@ -1,0 +1,44 @@
+100 Latin-hypercube worlds over 12 assumed constants; per world 8 seeds x 40 evaluations per method, regret = reference-optimum J minus median best J.
+Nominal world (original constants): reference J 0.638; median best J random search 0.569, CMA-ES 0.614, Bayesian opt (GP-EI) 0.634.
+
+Regret to the reference optimum across worlds (median [10th, 90th percentile]; mean):
+random search: 0.093 [0.053, 0.157]; mean 0.097
+CMA-ES: 0.060 [0.030, 0.122]; mean 0.069
+Bayesian opt (GP-EI): 0.013 [0.004, 0.070]; mean 0.035
+
+Pairwise, per world (median over seeds; ties within 0.002 J count as ties):
+Bayesian opt (GP-EI) vs random search: wins 96, losses 4, ties 0; sign test p = 6.4e-24; median gap +0.065
+Bayesian opt (GP-EI) vs CMA-ES: wins 91, losses 5, ties 4; sign test p = 1.6e-21; median gap +0.037
+CMA-ES vs random search: wins 88, losses 11, ties 1; sign test p = 4.5e-16; median gap +0.029
+Original ordering BO >= CMA-ES >= random holds in 82 of 100 worlds.
+Best method per world: random search 2, CMA-ES 7, Bayesian opt (GP-EI) 91
+Worlds where the method's median is within 0.01 J of the reference: random search 0, CMA-ES 0, Bayesian opt (GP-EI) 42
+
+Seeds (of 8) reaching J >= reference - 0.02 within 40 evaluations, summed over worlds, and median first-hit evaluation among those that do:
+random search: 27 of 800; median evaluation 23
+CMA-ES: 89 of 800; median evaluation 28
+Bayesian opt (GP-EI): 432 of 800; median evaluation 22
+
+Reference-optimum design across worlds: fingers 2/3/4 = 42/21/37 (nominal 3); grip force at the 8 N bound (>= 7.9 N) in 52 worlds; pad width at the 25 mm bound (>= 24.5) in 32; reference J range 0.099 to 0.860; cost median 50 USD.
+Nominal-optimum transfer: the nominal reference design scored in each world, regret to that world's reference: over the cap in 37 of 100 worlds (cost rises with servo and plastic price); in the other 63, regret median 0.056, 90th percentile 0.120, worst 0.189; regret over 0.05 in 36.
+Reference check: smallest regret of any method's median in any world 0.0019 (negative would mean the reference was beaten).
+
+Spearman rank correlation of each constant with (a) reference-optimum J, (b) reference finger count, (c) BO-minus-random gap, (d) BO-minus-CMA-ES gap (|rho| > 0.2 marked *; n = 100, 5% critical value about 0.20):
+bruise_scale: +0.10 | -0.16 | -0.54* | -0.41*
+diam_mean: -0.15 | -0.15 | -0.26* | -0.24*
+diam_sd: +0.05 | -0.21* | -0.19 | -0.16
+stem_median: -0.62* | +0.74* | +0.17 | +0.24*
+place_sd: -0.06 | -0.12 | -0.12 | -0.19
+wet_share: -0.29* | +0.25* | +0.23* | +0.28*
+mu_scale: +0.45* | -0.42* | -0.11 | -0.11
+clutter_len: +0.36* | +0.25* | -0.00 | -0.04
+value_bruised: +0.08 | -0.04 | +0.06 | +0.05
+cost_weight: -0.37* | +0.09 | +0.03 | -0.01
+servo_price: -0.22* | +0.05 | -0.42* | -0.40*
+plastic_price: -0.09 | -0.04 | -0.18 | -0.22*
+
+Stuck seeds (best J < 0.05 although the world's reference J >= 0.25), of 8 seeds, summed over worlds with such a reference:
+random search: 4 of 776 seeds (97 worlds)
+CMA-ES: 14 of 776 seeds (97 worlds)
+Bayesian opt (GP-EI): 10 of 776 seeds (97 worlds)
+Worlds where BO's median is below random search's: world 61 (reference 0.121, BO 0.019, random 0.028); world 80 (reference 0.374, BO -0.018, random 0.209); world 83 (reference 0.444, BO 0.111, random 0.148); world 91 (reference 0.099, BO -0.076, random -0.003)

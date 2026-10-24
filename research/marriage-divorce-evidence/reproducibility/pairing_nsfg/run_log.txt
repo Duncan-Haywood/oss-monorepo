@@ -1,0 +1,106 @@
+{
+  "female": {
+    "n": 6141,
+    "ever_married_n": 2722,
+    "ever_married_age25_49_n": 2609,
+    "strata": 18,
+    "psu": 72,
+    "age_range": [
+      15,
+      50
+    ],
+    "marend_counts": {
+      "NaN": 5046,
+      "1.0": 873,
+      "2.0": 177,
+      "3.0": 45
+    },
+    "duration_counts": {
+      "NaN": 3419,
+      "5.0": 1819,
+      "1.0": 254,
+      "2.0": 231,
+      "4.0": 209,
+      "3.0": 209
+    }
+  },
+  "male": {
+    "n": 5206,
+    "ever_married_n": 1961,
+    "ever_married_age25_49_n": 1908,
+    "strata": 18,
+    "psu": 72,
+    "age_range": [
+      15,
+      50
+    ],
+    "marend_counts": {
+      "NaN": 4488,
+      "1.0": 579,
+      "2.0": 120,
+      "3.0": 19
+    },
+    "duration_counts": {
+      "NaN": 3245,
+      "5.0": 1271,
+      "2.0": 215,
+      "1.0": 197,
+      "3.0": 163,
+      "4.0": 115
+    }
+  }
+}
+   sex dimension                   group                           outcome   n  events   percent  se_percentage_points    ci_low   ci_high  design_df  sparse
+female education                Bachelor first_marriage_divorced_separated 592     167 24.540161              2.198896 20.401987 29.209676         54   False
+female education       High school / GED first_marriage_divorced_separated 639     313 41.026598              3.244017 34.713002 47.650400         54   False
+female education Some college, no degree first_marriage_divorced_separated 482     229 42.481454              3.895563 34.917387 50.414812         54   False
+female education   Less than high school first_marriage_divorced_separated 239      95 35.976153              4.513352 27.502940 45.424202         54   False
+female education               Associate first_marriage_divorced_separated 278     118 36.080873              3.499770 29.398698 43.349312         54   False
+female education               Doctorate first_marriage_divorced_separated  32       7 13.670955              6.221829  5.216182 31.303847         54    True
+female education                  Master first_marriage_divorced_separated 306      84 18.986442              2.422307 14.596298 24.320988         54   False
+female education            Professional first_marriage_divorced_separated  41      12 22.772728              8.736846  9.821794 44.393823         54    True
+  male education                  Master first_marriage_divorced_separated 170      33 15.784492              3.332723 10.183500 23.654743         54   False
+  male education   Less than high school first_marriage_divorced_separated 158      64 33.931735              5.080998 24.587445 44.721299         54   False
+  male education       High school / GED first_marriage_divorced_separated 580     261 39.062176              2.783498 33.645292 44.762847         54   False
+  male education                Bachelor first_marriage_divorced_separated 424     114 23.065856              2.720550 18.064811 28.962007         54   False
+  male education Some college, no degree first_marriage_divorced_separated 350     136 37.655432              3.716502 30.542592 45.343357         54   False
+  male education            Professional first_marriage_divorced_separated  31       7 17.688643              6.824417  7.746432 35.483253         54    True
+  male education               Associate first_marriage_divorced_separated 172      72 33.329048              4.909098 24.300673 43.772140         54   False
+  male education               Doctorate first_marriage_divorced_separated  23       4 13.422922              8.524154  3.440129 40.287786         54    True
+   sex                    analysis                                  group                     estimand      n  min_age_cell_n  estimate_pct_or_pp    se_pp     ci_low    ci_high  design_df
+female        religious_attendance                                  Never  age_standardized_prevalence  670.0            88.0           42.040499 2.538458  37.052247  47.196791         54
+female        religious_attendance                         Weekly or more  age_standardized_prevalence  787.0           109.0           26.348949 2.093250  22.371175  30.753803         54
+female        religious_attendance             Never minus weekly or more difference_percentage_points    NaN             NaN           15.691551 3.189467   9.297055  22.086047         54
+female female_first_spouse_pairing Wife below BA / first husband below BA  age_standardized_prevalence 1417.0           222.0           41.517727 2.471752  36.663046  46.542856         54
+female female_first_spouse_pairing      Wife below BA / first husband BA+  age_standardized_prevalence  203.0            26.0           32.070913 4.082985  24.485108  40.739016         54
+female female_first_spouse_pairing      Wife BA+ / first husband below BA  age_standardized_prevalence  410.0            36.0           33.163030 2.655566  28.069407  38.683876         54
+female female_first_spouse_pairing           Wife BA+ / first husband BA+  age_standardized_prevalence  558.0            59.0           14.364154 1.962747  10.858565  18.763271         54
+female female_first_spouse_pairing           Both BA+ minus both below BA difference_percentage_points    NaN             NaN          -27.153573 3.200982 -33.571155 -20.735991         54
+  male        religious_attendance                                  Never  age_standardized_prevalence  576.0            57.0           40.901199 3.027145  34.997976  47.078971         54
+  male        religious_attendance                         Weekly or more  age_standardized_prevalence  449.0            62.0           28.203615 3.698171  21.407392  36.164613         54
+  male        religious_attendance             Never minus weekly or more difference_percentage_points    NaN             NaN           12.697584 4.838114   2.997750  22.397418         54
+ level                  wife               husband    n  events  min_age_cell_n  sparse  estimate_pct_or_pp    se_pp    ci_low   ci_high  design_df
+     2              Below BA              Below BA 1417     669             222   False           41.517727 2.471752 36.663046 46.542856         54
+     2              Below BA                   BA+  203      73              26   False           32.070913 4.082985 24.485108 40.739016         54
+     2                   BA+              Below BA  410     161              36   False           33.163030 2.655566 28.069407 38.683876         54
+     2                   BA+                   BA+  558     106              59   False           14.364154 1.962747 10.858565 18.763271         54
+     3              Below BA              Below BA 1417     669             222   False           41.517727 2.471752 36.663046 46.542856         54
+     3              Below BA              Bachelor  147      46              21   False           30.890862 4.484396 22.681797 40.514169         54
+     3              Below BA Graduate/professional   56      27               5    True           33.796233 7.763611 20.293437 50.581932         54
+     3              Bachelor              Below BA  272     107              29   False           36.218866 3.365024 29.777368 43.196644         54
+     3              Bachelor              Bachelor  218      45              33   False           19.344715 3.879291 12.716708 28.306923         54
+     3              Bachelor Graduate/professional  100      13               8    True            7.234424 1.761086  4.405184 11.659131         54
+     3 Graduate/professional              Below BA  138      54               7    True           27.076405 4.449431 19.115287 36.842893         54
+     3 Graduate/professional              Bachelor  111      26               2    True           15.114392 3.529675  9.302690 23.611644         54
+     3 Graduate/professional Graduate/professional  129      22              11   False           12.200418 2.880727  7.496894 19.241098         54
+ level                                                                contrast  estimate_pct_or_pp    se_pp     ci_low   ci_high  design_df    log_or  odds_ratio  or_ci_low  or_ci_high  model_n  model_rank
+     2                             Equal-cell average mismatched minus matched            4.676031 3.366348  -2.073091 11.425153         54       NaN         NaN        NaN         NaN      NaN         NaN
+     2               Wife BA+/husband below BA minus wife below BA/husband BA+            1.092117 4.533884  -7.997773 10.182006         54       NaN         NaN        NaN         NaN      NaN         NaN
+     2                             Within wife BA+: husband below BA minus BA+           18.798876 3.422100  11.937979 25.659772         54       NaN         NaN        NaN         NaN      NaN         NaN
+     2                        Within wife below BA: husband BA+ minus below BA           -9.446814 5.181324 -19.834743  0.941115         54       NaN         NaN        NaN         NaN      NaN         NaN
+     2                             Within husband BA+: wife below BA minus BA+           17.706759 4.679191   8.325545 27.087973         54       NaN         NaN        NaN         NaN      NaN         NaN
+     2                        Within husband below BA: wife BA+ minus below BA           -8.354697 3.959782 -16.293582 -0.415813         54       NaN         NaN        NaN         NaN      NaN         NaN
+     2     Logistic Mismatched vs matched; age+wife+husband level main effects                 NaN      NaN        NaN       NaN         54  0.333407    1.395716   0.971740    2.004675   2588.0         8.0
+     3                             Equal-cell average mismatched minus matched            0.700910 2.595092  -4.501936  5.903756         54       NaN         NaN        NaN         NaN      NaN         NaN
+     3    Logistic Wife higher vs matched; age+wife+husband level main effects                 NaN      NaN        NaN       NaN         54  0.783750    2.189669   1.115632    4.297698   2588.0        11.0
+     3 Logistic Husband higher vs matched; age+wife+husband level main effects                 NaN      NaN        NaN       NaN         54 -0.426915    0.652519   0.353113    1.205793   2588.0        11.0

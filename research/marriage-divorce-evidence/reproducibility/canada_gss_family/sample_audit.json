@@ -1,0 +1,134 @@
+{
+ "cycles": [
+  "1995",
+  "2006",
+  "2011",
+  "2017"
+ ],
+ "files": {
+  "1995": {
+   "first_marriages_in_file": 7468,
+   "events_raw": 1732,
+   "dropped": {
+    "age_80_plus_or_unknown": 339,
+    "age_at_marriage_unknown": 171,
+    "end_type_or_end_age_unknown": 99,
+    "end_before_wedding": 0,
+    "wedding_before_1950": 778
+   },
+   "analysed": 6081,
+   "events": 1596,
+   "divorced": 1270,
+   "widowed_censored": 324,
+   "weighted_population_millions": 13.505
+  },
+  "2006": {
+   "first_marriages_in_file": 16476,
+   "events_raw": 4648,
+   "dropped": {
+    "age_80_plus_or_unknown": 967,
+    "age_at_marriage_unknown": 107,
+    "end_type_or_end_age_unknown": 176,
+    "end_before_wedding": 17,
+    "wedding_before_1950": 241
+   },
+   "analysed": 14968,
+   "events": 4482,
+   "divorced": 3501,
+   "widowed_censored": 1219,
+   "weighted_population_millions": 16.204
+  },
+  "2011": {
+   "first_marriages_in_file": 16407,
+   "events_raw": 4515,
+   "widowed_death_age_imputed": 1283,
+   "dropped": {
+    "age_80_plus_or_unknown": 1323,
+    "age_at_marriage_unknown": 114,
+    "end_type_or_end_age_unknown": 175,
+    "end_before_wedding": 8,
+    "wedding_before_1950": 16
+   },
+   "analysed": 14771,
+   "events": 4329,
+   "divorced": 3507,
+   "widowed_censored": 1273,
+   "weighted_population_millions": 17.222
+  },
+  "2017": {
+   "first_marriages_in_file": 14365,
+   "events_raw": 4042,
+   "dropped": {
+    "age_80_plus_or_unknown": 1129,
+    "age_at_marriage_unknown": 183,
+    "end_type_or_end_age_unknown": 192,
+    "end_before_wedding": 25,
+    "wedding_before_1950": 0
+   },
+   "analysed": 12836,
+   "events": 3828,
+   "divorced": 3093,
+   "widowed_censored": 1059,
+   "weighted_population_millions": 17.489
+  }
+ },
+ "marriages": 48656,
+ "dissolutions": 14235,
+ "divorce_recorded": 11371,
+ "widowed_censored": 3875,
+ "dissolutions_within_30y": 13610,
+ "intervals": 893155,
+ "person_years": 878794.3,
+ "by_cycle": {
+  "1995": {
+   "marriages": 6081,
+   "dissolutions": 1596
+  },
+  "2006": {
+   "marriages": 14968,
+   "dissolutions": 4482
+  },
+  "2011": {
+   "marriages": 14771,
+   "dissolutions": 4329
+  },
+  "2017": {
+   "marriages": 12836,
+   "dissolutions": 3828
+  }
+ },
+ "by_sex": {
+  "Female": {
+   "marriages": 27483,
+   "dissolutions": 8392
+  },
+  "Male": {
+   "marriages": 21173,
+   "dissolutions": 5843
+  }
+ },
+ "unknown_counts": {
+  "respondent_sex": 0,
+  "cohabited_first": 106,
+  "prior_union": 0,
+  "premarital_birth": 0,
+  "intact_family_15": 70,
+  "born_outside_canada": 481,
+  "first_language": 589,
+  "region": 0,
+  "survey_cycle": 0
+ },
+ "wedding_years": [
+  1950.0,
+  2017.6000000000001
+ ],
+ "out_of_time": {
+  "train_marriages": 33168,
+  "train_dissolutions": 11235,
+  "test_marriages": 15488,
+  "test_dissolutions": 3000
+ },
+ "folds": "5 folds by person (respondent), seeded permutation",
+ "python_sklearn": "1.7.2",
+ "shipped_model": "gradient_boosting"
+}

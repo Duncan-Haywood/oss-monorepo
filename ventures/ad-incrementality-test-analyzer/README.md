@@ -4,7 +4,7 @@ A free browser tool for anyone who runs ads: **paste sales by store or region, n
 start date, and get the incremental lift with an interval, incremental ROAS, profit after ad spend, and the smallest
 lift the test could have detected.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ad-incrementality-test-analyzer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ad-incrementality-test-analyzer/
 
 After using this, you can now **tell how many extra sales a campaign really caused, how sure that is, and whether the
 spend paid back**, which used to take a marketing-science vendor or an analyst with R.
@@ -22,6 +22,23 @@ spend paid back**, which used to take a marketing-science vendor or an analyst w
 - Second opinion: difference in differences against the pooled comparison regions; warns when it points the other way.
 - Refuses: fewer than 14 pre or 3 post periods, unknown test names, no comparison region. Flags poor pre-fit
   (R² under 0.5) as unreliable, one region carrying over 80% of the counterfactual, and few placebo windows.
+
+## Test planner
+
+Before you spend: paste your history (no campaign yet), name the planned test regions, optionally enter the lift you hope
+to detect, and click **Plan a test instead**. It replays the placebo method for campaign lengths of 7 to 42 periods and
+shows the smallest lift each length could tell from noise, and the shortest length that reaches your target. Use history
+without a campaign in it; any past campaign inside it inflates the noise estimate.
+
+## Region-split designer (`plan.mjs`)
+
+Paste sales history with no campaign in it, say how many regions will run ads and for how many periods, and the
+planner ranks splits of regions into campaign and comparison groups. For each split it replays up to 12 fake campaigns
+of that length on the history (fit on earlier periods, predict forward, same non-negative regression as the analyzer)
+and reports the smallest lift that split could tell from noise (half the 5th-to-95th percentile spread of the fake
+lifts), the pre-fit R² and the split's share of sales. It also shows how that detectable lift changes with campaign
+length. Up to 120 splits are tried; beyond that it samples them with a fixed seed and says so. Needs 3+ regions and at
+least max(28, 2 x length) periods. Tested on simulated panels where one region is deliberately erratic.
 
 ## Limits
 

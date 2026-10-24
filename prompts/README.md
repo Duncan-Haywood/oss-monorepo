@@ -6,6 +6,8 @@ How work in this repository is directed, measured and improved. The pieces:
 prompt.md                  master prompt: route, work, record, improve
 prompts/goals.md           goals, guardrails and how a run is scored (owner-owned)
 prompts/steering.md        how instructions are written, followed and changed
+prompts/SYSTEM.md          the guidance map: layers, precedence, where new guidance goes
+prompts/system.json        every guidance file, its layer, owner and line budget
 prompts/process/backlog/   process problems, one per file: evidence, fix, metric
 prompts/routing.json       tracks, their weights, champion and candidate versions
 prompts/<track>/prompt-<n>.md
@@ -15,11 +17,12 @@ prompts/runs/*.json        one record per run
 prompts/process/reports/   one process study per file (the process track)
 prompts/experiments.md     every change the review track makes, and its result
 prompts/drift/             drift reports: does the work still match the owner's words?
-prompts/promptctl.py       route | record | measure | validate
+prompts/promptctl.py       route | record | measure | map | validate
 prompts/runcost.py         measure | attach | report: what a run cost
+prompts/culture.py         report [--history]: rulebook size, owner's share, run mix, outside usage
 prompts/pricing.json       list prices runcost.py uses, and the human hourly rate
 prompts/derive.py          fetch | build | report: PR facts and rework, measured not typed
-prompts/derived/           what derive.py measured (regenerated, never hand-edited)
+prompts/derived/           what derive.py measured (regenerated, so hand edits are lost)
 ```
 
 ## The loop
@@ -134,8 +137,9 @@ team", so no rate is ever typed by hand.
 ```
 python3 prompts/promptctl.py route [--track T] [--skip-review] [--json]
 python3 prompts/promptctl.py record --track T --version N --session URL [--model M] [--input TEXT]
-python3 prompts/promptctl.py measure [--json]
+python3 prompts/promptctl.py measure [--json | --section <title text>]
 python3 prompts/promptctl.py backlog
+python3 prompts/promptctl.py map [--track T]
 python3 prompts/promptctl.py validate
 python3 prompts/runcost.py attach prompts/runs/<record>.json --human-hours H --human-basis "..."
 python3 prompts/runcost.py report

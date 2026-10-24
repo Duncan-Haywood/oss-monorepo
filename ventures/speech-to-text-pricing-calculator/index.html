@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Speech-to-Text Pricing Calculator — Whisper API vs Deepgram vs AssemblyAI vs Google vs AWS vs self-hosted</title>
-  <meta name="description" content="Enter how many audio hours you transcribe a month and whether you need real-time streaming or speaker labels, and see what the OpenAI Whisper API, Deepgram, AssemblyAI, Google, AWS, Azure and a self-hosted GPU charge, the 12-month spend as volume grows, and the hours where the cheapest option changes. Free, runs in your browser, nothing is uploaded.">
+  <title>Speech-to-Text Pricing Calculator — Whisper vs Deepgram vs AssemblyAI</title>
+  <meta name="description" content="Type your monthly audio hours and growth, get every speech-to-text API priced side by side and the volume where self-hosting Whisper starts to win. No account, no upload.">
   <meta property="og:title" content="What will transcription cost for your audio hours, and who is cheapest?">
   <meta property="og:description" content="Type your monthly audio hours and growth, get every speech-to-text API priced side by side and the volume where self-hosting Whisper starts to win. No account, no upload.">
   <link rel="canonical" href="./index.html">
@@ -50,6 +50,7 @@
     <p>Enter the <strong>audio hours you transcribe per month</strong> and whether you need <strong>real-time streaming</strong> or <strong>speaker labels</strong>. Get the <strong>OpenAI Whisper API, Deepgram, AssemblyAI, Google, AWS, Azure and a self-hosted Whisper GPU</strong> priced side by side, the 12-month spend as volume grows, and the <strong>hours where self-hosting starts to win</strong> — before the bill surprises you.</p>
     <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate prices you can edit. It never receives audio and never contacts the vendors.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your transcription needs</h2>
@@ -107,7 +108,8 @@ node cli.mjs compare --hours 500 --prices prices.json --json</pre>
     <p>No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or engineering advice. It matches typed needs against list prices that may be out of date and ignores accuracy differences, add-ons, discounts, free credits and engineering time; it is not a quote and not a guarantee of what any vendor will charge. Product names belong to their owners; this project is not affiliated with any of them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

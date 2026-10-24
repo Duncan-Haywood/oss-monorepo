@@ -1,0 +1,30 @@
+{
+  "id": "P040",
+  "title": "research/_homepage/projects.json and research/README.md are the new top conflict files (~24% of PRs)",
+  "status": "done",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "Every new research project edits two shared lists, so any two research PRs open at once conflict on both. It is the same shape as launched.json/build.mjs before the venture registrations moved (docs/parallel-agents.md fix 3).",
+  "evidence": [
+    "first-parent merges on main 2026-10-17..10-20, 1,111 PRs: research/_homepage/projects.json touched by 24%, research/README.md by 23% (the top two files)"
+  ],
+  "change": "Split into one-PR steps. Step 1: let research/_homepage/build.py read each project's card fields (title, abstract, themes) from research/<slug>/ (e.g. a front-matter block or a small project.json in the project's own directory) with projects.json as a fallback, and migrate the existing entries. Step 2: generate the project list in research/README.md between markers from the same per-project data, so a new project PR touches only its own directory. Keep build.py's existing consistency errors meaningful. Re-run the measurement afterwards.",
+  "touches": [
+    "research/_homepage/build.py",
+    "research/_homepage/projects.json",
+    "research/README.md",
+    "research/CLAUDE.md"
+  ],
+  "metric": "share of PRs merged in a 4-day window that touch research/_homepage/projects.json",
+  "baseline": "24% (2026-10-17..10-20)",
+  "opened": "2026-10-20",
+  "source": "git-pattern re-measurement, PR #8765 (docs/parallel-agents.md, 'Re-measured 2026-10-20')",
+  "pr": "this",
+  "result": "Helped. First-parent merges on origin/main since registry.py landed (2026-10-20T13:00 -06:00, 51 PRs, shallow window): projects.json touched by 0 (baseline 24%); 21 PRs added a research/<slug>/project.json. research/README.md was still touched by 21 of the 51 (baseline 23%, here all inside the slug-sorted projects:start/end block, so inserts land at different lines and rarely collide). Not migrated: the ~800 legacy projects.json entries. Registry appends cards after listed entries, sorted by slug, so a bulk move would reorder every theme on the homepage; they are edited rarely, so left in place. Sample is 1 day; re-measure once 4 days of history exist (command: git log origin/main --first-parent --since=<date> -- research/_homepage/projects.json).",
+  "history": [
+    "2026-10-20 step 1 shipped: research/<slug>/project.json cards merged by research/_homepage/registry.py (+ research-registry.mjs); qual-register migrated as the pilot. Remaining: step 2 (generate README.md list between markers), migrating the other 793 entries (mechanical, order-preserving).",
+    "2026-10-20 step 2 shipped: a project.json `lede` becomes its research/README.md bullet, generated sorted by slug between projects:start/end markers by research_live_links.py --write; qual-register migrated. Remaining: migrating the other ~800 entries (cards + bullets), then re-measure.",
+    "2026-10-20 verified and closed: new projects need no shared-file edit; legacy migration dropped as order-lossy and low value."
+  ]
+}

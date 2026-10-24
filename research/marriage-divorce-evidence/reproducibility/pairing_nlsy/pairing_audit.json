@@ -1,0 +1,11 @@
+{
+  "married_baseline_risk_intervals": 42259,
+  "no_unique_coresident_spouse": 1362,
+  "not_confirmed_opposite_sex": 79,
+  "confirmed_coresident_opposite_sex_intervals": 40818,
+  "confirmed_respondents": 5735,
+  "education_complete_intervals": 40675,
+  "wages_complete_intervals": 36778,
+  "wages_missing_intervals": 4040,
+  "both_zero_wages_intervals": 1962
+}

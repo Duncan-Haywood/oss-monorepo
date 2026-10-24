@@ -1,8 +1,8 @@
-# parcel-dim-weight-calculator
+# Dimensional Weight Calculator | What Your Parcel Actually Bills At
 
 What a parcel actually bills at, before you buy the cartons.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/parcel-dim-weight-calculator/
 
 Carriers charge on the **greater** of a package's actual weight and its
 *dimensional* weight — the cube of the carton divided by a contract constant

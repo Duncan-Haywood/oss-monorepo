@@ -109,3 +109,20 @@ test("--donate prints a gift plan and rejects missing inputs", async () => {
   assert.equal(parseArgs(["--donate", "btc", "--price", "9", "--qty", "1", "x.csv"]).donate, "BTC");
   assert.equal(await main(["--example", "--donate", "BTC"]), 2);
 });
+
+test("--id-record needs --sell and a known method", async () => {
+  const { main, parseArgs } = await import("./cli.mjs");
+  assert.equal(parseArgs(["--id-record", "hifo", "x.csv"]).idRecord, "HIFO");
+  assert.throws(() => parseArgs(["--id-record", "nope"]), /--id-record must be one of/);
+  assert.equal(await main(["--example", "--id-record", "HIFO"]), 2);
+});
+
+test("--tax-software writes the five-column import file", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "cbc-"));
+  const out = join(dir, "ts.csv");
+  execFileSync("node", [CLI, "--example", "--tax-software", out], { encoding: "utf8" });
+  const lines = (await readFile(out, "utf8")).trim().split("\n");
+  assert.equal(lines[0], "Currency Name,Purchase Date,Cost Basis,Date Sold,Proceeds");
+  assert.ok(lines.length > 1);
+  assert.match(lines[1], /^[A-Z0-9]+,\d\d\/\d\d\/\d{4},\d+\.\d\d,\d\d\/\d\d\/\d{4},-?\d+\.\d\d$/);
+});

@@ -1,0 +1,45 @@
+Weather: PVGIS-ERA5 typical-meteorological-year hourly GHI (energy-tou-lp-tmy/data). Load: energy-home synthetic shape, 8,000 kWh/yr, 3 noise seeds.
+Tariff, battery, LP and wear charge as energy-tou-lp-tmy (assumed). 10 kWh, 6 kW PV. The plan covers 36 h and is re-made every `step` hours; step 24 = energy-tou-lp-tmy.
+
+A. Saving over no battery ($/yr, mean of seeds) by forecast and re-plan interval; load forecast = yesterday (perfect forecast: perfect load)
+site forecast step24 step12 step6 step3 step1
+golden-co best_rule 734
+golden-co persistence 722 745 735 758 755
+golden-co smart 725 749 738 754 749
+golden-co nowcast 725 746 737 751 738
+golden-co perfect 930 930 930 930 930
+phoenix-az best_rule 669
+phoenix-az persistence 786 796 795 801 799
+phoenix-az smart 780 795 794 797 795
+phoenix-az nowcast 780 792 790 791 788
+phoenix-az perfect 881 881 881 881 881
+seattle-wa best_rule 618
+seattle-wa persistence 678 695 690 707 706
+seattle-wa smart 678 708 705 713 711
+seattle-wa nowcast 679 703 701 702 698
+seattle-wa perfect 853 853 853 853 853
+
+B. Share of the rule-to-perfect gap kept (step 24 -> step 1) and life-limited break-even $/kWh (step 24 / step 1) and cycles per year (step 24 / step 1)
+site forecast share24 share1 breakeven24 breakeven1 cycles24 cycles1
+golden-co persistence -0.06 0.11 672 660 285 314
+golden-co smart -0.05 0.08 673 656 286 313
+golden-co nowcast -0.05 0.02 673 650 286 310
+phoenix-az persistence 0.55 0.62 671 672 324 332
+phoenix-az smart 0.53 0.60 668 665 324 335
+phoenix-az nowcast 0.53 0.56 668 660 324 334
+seattle-wa persistence 0.26 0.37 628 625 287 308
+seattle-wa smart 0.26 0.40 632 620 285 315
+seattle-wa nowcast 0.26 0.34 632 608 285 315
+
+C. Nowcast with a perfect load forecast (saving $/yr at step 24 / 3 / 1), against nowcast with yesterday's load
+site step24 step3 step1 | yesterday_load step24 step3 step1
+golden-co 740 771 757 | 725 751 738
+phoenix-az 799 812 808 | 780 791 788
+seattle-wa 694 721 718 | 679 702 698
+
+D. Golden CO nowcast relaxation time tau (h), hourly re-planning: saving $/yr
+tau saving
+1 742
+3 738
+6 735
+12 732

@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_017wZrNBpTpy5muuJ1rjBELr",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T07:19:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9412",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: was an 18 KB log with repeated passages; fixed in this PR (log moved to ventures/ai-bookkeeper/HISTORY.md)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A foreground python heredoc plus unittest exceeded the 120s tool timeout and was auto-backgrounded."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate-PR search was not rerun before pushing; a parallel run landed the same fix. Merged main and kept the non-overlapping HISTORY.md."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode (no agent-owned open backlog item except in_progress P035). Fixed top doc_friction file. Checks: yaml parse, session_gate, portfolio/router tests, promptctl validate. Another run shortened the same next: on main first (duplicate work, found only at merge); kept only HISTORY.md, took main's flagships.yaml.",
+  "corrections": [],
+  "redteam": null
+}

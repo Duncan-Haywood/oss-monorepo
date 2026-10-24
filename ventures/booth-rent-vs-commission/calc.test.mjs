@@ -319,11 +319,11 @@ test('the Social Security cap applies once a year, not once a week', () => {
     ...midBook(),
     averageTicket: 400,
     clientsPerWeek: 30,
-    socialSecurityWageBase: 176100,
+    socialSecurityWageBase: 184500,
   });
   const base = big.afterTax.boothDetail.taxableBase;
-  assert.ok(base > 176100, 'the book clears the cap, or this test proves nothing');
-  assert.ok(Math.abs(big.afterTax.boothDetail.socialSecurity - 176100 * 0.124) < 1e-6,
+  assert.ok(base > 184500, 'the book clears the cap, or this test proves nothing');
+  assert.ok(Math.abs(big.afterTax.boothDetail.socialSecurity - 184500 * 0.124) < 1e-6,
     'Social Security stops at the wage base');
   assert.ok(Math.abs(big.afterTax.boothDetail.medicare - base * 0.029) < 1e-6,
     'Medicare does not stop');
@@ -340,4 +340,19 @@ test('a losing book pays no self-employment tax on the loss', () => {
   // No rent matches commission here, and the tool says so rather than
   // reporting a negative rent as if it were an offer.
   assert.equal(underwater.afterTax.winner, 'commission');
+});
+
+test('sliding-scale commission: step only applies above the threshold', () => {
+  const base = { averageTicket: 100, clientsPerWeek: 30, retailPerWeek: 0, weeksWorkedPerYear: 50,
+    commissionPercent: 50, retailCommissionPercent: 0, boothRentAmount: 300, boothRentCadence: 'weekly',
+    cardFeePercent: 0, backbarPercent: 0, retailCostPercent: 0, otherWeeklyCost: 0,
+    unpaidHoursCommission: 0, unpaidHoursBooth: 0 };
+  const flat = compareCompensation(base);
+  const above = compareCompensation({ ...base, commissionStepSales: 2000, commissionStepPercent: 60 });
+  const all = compareCompensation({ ...base, commissionStepSales: 2000, commissionStepPercent: 60, commissionStepMode: 'all' });
+  assert.equal(flat.commission.weeklyTakeHome, 1500);
+  assert.equal(above.commission.weeklyTakeHome, 1000 + 1000 * 0.6);
+  assert.equal(all.commission.weeklyTakeHome, 1800);
+  // below the step both are linear: 100c-300 = 50c, so c = 6
+  assert.ok(Math.abs(above.breakEvenClients - 6) < 1e-6, String(above.breakEvenClients));
 });

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Whose Availability Is Worth Asking To Widen? A Scheduling Test</title>
+  <meta name="description" content="Which employee's wider availability closes the most open shifts? Each of seven people freed up one at a time on the same invented cafe roster: open shifts, hours covered and payroll. Free, private roster builder included.">
+  <meta property="og:title" content="Whose availability is worth asking to widen?">
+  <meta property="og:description" content="Same cafe, seven people freed up one by one. Measured with the free roster builder.">
+  <link rel="canonical" href="./whose-availability-is-worth-widening.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Whose availability should I ask a team member to widen?", "acceptedAnswer": {"@type": "Answer", "text": "Rebuild the week once per person with that person free at any time, and compare open shifts. The person whose change closes the most open shifts is the one to ask. Often it is not the person with the most hours already; it is the one whose current availability misses the shifts nobody else can take. The roster builder shows which shifts stay open and why, which points at who to ask."}}, {"@type": "Question", "name": "Is it worth asking someone to work more hours or more days?", "acceptedAnswer": {"@type": "Answer", "text": "Check whether the cap is what blocks the open shifts. In the example, raising the weekly limit for the two people sitting at their cap closed one open shift each, while raising it for people with room to spare changed nothing. Try the change in the tool before you ask."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Shift roster builder</a></p>
+  <h1>Whose availability is worth asking to widen?</h1>
+  <p>When shifts stay open, the instinct is to ask whoever works the most. The better question is whose limit is actually in the way. We tested every person on one cafe roster: free them up to work any time, then separately raise their weekly cap to 40 hours, and rebuild the week each time.</p>
+  <p><a class="cta" href="./">Open the free roster builder</a></p>
+  <h2>The experiment</h2>
+  <p>The roster builder's built-in invented example: a seven-person cafe, 32 shifts, 235 hours to cover, a 10-hour rest gap. It starts with 3 shifts open, 216 hours covered and $3,622 payroll. For each person we changed one thing and rebuilt, leaving everything else as it was.</p>
+  <table>
+    <tr><th rowspan="2">Person</th><th colspan="3" class="n">Free at any time</th><th colspan="3" class="n">Weekly cap raised to 40 h</th></tr>
+    <tr><th class="n">Open</th><th class="n">Hours</th><th class="n">Payroll</th><th class="n">Open</th><th class="n">Hours</th><th class="n">Payroll</th></tr>
+    <tr><td>Ana</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+    <tr><td>Ben</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td><td class="n">2</td><td class="n">224</td><td class="n">$3,750</td></tr>
+    <tr><td>Cleo</td><td class="n">1</td><td class="n">227</td><td class="n">$3,777</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+    <tr><td>Dev</td><td class="n">3</td><td class="n">216</td><td class="n">$3,620</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+    <tr><td>Eli</td><td class="n">2</td><td class="n">219</td><td class="n">$3,647</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+    <tr><td>Fay</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td><td class="n">2</td><td class="n">224</td><td class="n">$3,746</td></tr>
+    <tr><td>Gus</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+  </table>
+  <h2>What it shows</h2>
+  <p>Only a few changes matter. Freeing Cleo, who is limited to evenings on weekdays, closes two of the three open shifts and lifts coverage to 227 hours. Raising the cap for Ben or Fay, who sit below 40 hours, closes one open shift each. Ana and Gus, the two people with the widest availability, change nothing either way: they were never the bottleneck. And freeing Ben, Dev or Fay changes nothing in coverage (Dev saves $2). This is one invented example, not a benchmark, and your own constraints decide who the right person is.</p>
+  <p><a class="cta" href="./">Test your own team</a></p>
+  <h2>How to do it by hand</h2>
+  <h3>1. Start from the open shifts</h3>
+  <p>List the shifts you could not fill and the reason each fails: nobody available, hour cap, or rest gap.</p>
+  <h3>2. Ask the person whose limit is the reason</h3>
+  <p>If the reason is an hour cap, ask the people near their cap. If it is availability, ask whoever is free just outside the shift.</p>
+  <h3>3. Rebuild before you ask</h3>
+  <p>Confirm that the change would fill the shift without creating overtime or breaking a rest gap, so the ask is specific.</p>
+  <h2>Questions</h2>
+  <h3>Whose availability should I ask a team member to widen?</h3>
+  <p>Rebuild the week once per person with that person free at any time, and compare open shifts. The person whose change closes the most open shifts is the one to ask. Often it is not the person with the most hours already; it is the one whose current availability misses the shifts nobody else can take. The roster builder shows which shifts stay open and why, which points at who to ask.</p>
+  <h3>Is it worth asking someone to work more hours or more days?</h3>
+  <p>Check whether the cap is what blocks the open shifts. In the example, raising the weekly limit for the two people sitting at their cap closed one open shift each, while raising it for people with room to spare changed nothing. Try the change in the tool before you ask.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what scheduling law requires of you. The example is invented and the numbers come from running this tool's own engine on it.</p>
+    <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. See also <a href="how-to-handle-time-off-requests.html">time-off requests</a> and <a href="do-i-need-to-hire-another-employee.html">do I need to hire another employee?</a></p>
+  </footer>
+</body>
+</html>

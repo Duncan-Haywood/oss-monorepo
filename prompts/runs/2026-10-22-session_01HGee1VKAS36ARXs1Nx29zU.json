@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01HGee1VKAS36ARXs1Nx29zU",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T08:34:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "eda-systolicclock (track 7 next step)",
+  "projects": [
+    "research/eda-systolicclock"
+  ],
+  "pr": 9424,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "plain python3 here cannot import numpy when PYTHONPATH/cwd sits in research/; had to use /usr/bin/python3.13 from pyenv.py by hand"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "No docs/posts write-up this run: the README holds the result; ran out of scope for a short run"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "168 SKY130 mappings run locally (yosys 0.33 via apt); 4 unit tests pass; build.py ok; check_md_links ok. No separate agent doc/post written.",
+  "corrections": [],
+  "redteam": null
+}

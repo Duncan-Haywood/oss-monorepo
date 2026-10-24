@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-ghostring"
+version = "0.1.0"
+description = "Edge-ring handling for burst merging of a moving subject: a temporal-median background and a subject mask against reject-only and aligned merges"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

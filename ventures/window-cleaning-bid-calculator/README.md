@@ -5,17 +5,14 @@ a visit the way the jobs that lose money actually fail — each glass type timed
 per pane and per side, plus the travel-and-setup block that does not shrink
 when the house is small — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/window-cleaning-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/window-cleaning-bid-calculator/
 
 **After using this, you can now name a visit price from your own pane times
 and drive time**, which used to take a copied per-window flyer and a guess.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

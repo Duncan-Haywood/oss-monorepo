@@ -1,0 +1,10 @@
+model,contrast,difference_per_1000,ci95_low,ci95_high
+age_sex_separation_adjusted,Republican minus Democrat,-2.1944892355270675,-11.060543434371136,6.671564963317
+age_sex_separation_adjusted,Independent minus Democrat,1.4808828413980513,-7.959585073225948,10.92135075602205
+age_sex_separation_adjusted,No preference minus Democrat,-4.540854093132436,-16.029015398246166,6.9473072119812915
+extended_education_income_2000religion,Republican minus Democrat,-9.967574278274022,-19.27308226901502,-0.6620662875330245
+extended_education_income_2000religion,Independent minus Democrat,0.4999990833450263,-11.956266601612008,12.95626476830206
+extended_education_income_2000religion,No preference minus Democrat,-6.375773517604634,-21.09793538284307,8.3463883476338
+age_sex_same_extended_complete_cases,Republican minus Democrat,-5.636762263084181,-14.831757373651298,3.558232847482936
+age_sex_same_extended_complete_cases,Independent minus Democrat,2.669279357283647,-8.418342213824184,13.75690092839148
+age_sex_same_extended_complete_cases,No preference minus Democrat,-3.944090640676462,-17.65668007391844,9.768498792565516

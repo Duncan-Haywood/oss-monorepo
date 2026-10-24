@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Croatia e-invoice mandate (Fiskalizacija 2.0): dates, format and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="From 1 January 2026 Croatian VAT-registered businesses issue and receive B2B and B2G invoices as structured EN 16931 e-invoices reported to the Tax Administration. The date, the format, and what a free local checker covers.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/croatia-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Croatia e-invoice mandate (Fiskalizacija 2.0): dates, format and a free pre-send check">
+<meta property="og:description" content="From 1 January 2026 Croatian VAT-registered businesses issue and receive B2B and B2G invoices as structured EN 16931 e-invoices reported to the Tax Administration. The date, the format, and what a free local checker covers.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/croatia-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When did Croatia's B2B e-invoicing mandate start?","acceptedAnswer":{"@type":"Answer","text":"On 1 January 2026 Croatian VAT-registered businesses had to issue and receive structured e-invoices for domestic B2B and B2G transactions, with the invoice data reported to the Tax Administration under the Fiskalizacija 2.0 rules. Entities outside the VAT system have a later start. Confirm your own situation with your accountant or the Croatian Tax Administration; this page is a summary, not advice."}},{"@type":"Question","name":"Which invoice format does Croatia require?","acceptedAnswer":{"@type":"Answer","text":"A structured invoice that conforms to the European standard EN 16931, in UBL 2.1 or CII syntax, following the Croatian national profile (CIUS-HR), exchanged through a certified access point. A PDF or paper invoice is no longer the invoice for domestic B2B sales."}},{"@type":"Question","name":"Can this checker validate a Croatian invoice?","acceptedAnswer":{"@type":"Answer","text":"Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus VAT, IBAN and BIC typo catches, each with a rule ID and a fix. It does not apply the Croatian national profile rules, the Tax Administration reporting or an access point's acceptance, so a clean result is an offline observation, not approval."}},{"@type":"Question","name":"How do I check an invoice before sending it?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker. Nothing is uploaded: every check runs in your browser. Fix what it flags, then send through your access point or invoicing software."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Croatia's e-invoice mandate: what applies now</h1>
+<p class="lede">Since 1 January 2026, Croatian VAT-registered businesses issue and receive domestic B2B and B2G invoices as structured e-invoices, with the data reported to the Tax Administration. Below: the date, the format, and what a free local checker covers.</p>
+</header>
+<section>
+<h2>The timeline (domestic B2B and B2G)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>1 Jan 2026</td><td>Fiskalizacija 2.0 starts for VAT-registered businesses: you must <strong>issue</strong> and <strong>receive</strong> structured e-invoices, and invoice data is reported to the Tax Administration.</td></tr>
+<tr><td>Later</td><td>Entities outside the VAT system follow on a later date set in the rules.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Exceptions and transition rules exist. This is a summary, not tax advice; confirm with your accountant or the Croatian Tax Administration.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>The invoice is a structured document in <strong>UBL 2.1 or CII</strong> syntax that follows <strong>EN 16931</strong> and the Croatian national profile, exchanged through a certified access point, with the data reported to the Tax Administration. A PDF emailed to the customer is no longer the invoice for domestic B2B sales.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a> and drop your XML. It flags totals and tax breakdowns that do not add up, a missing tax reason on a 0% or exempt line, malformed identifiers, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). It does <strong>not</strong> apply the Croatian national profile or the Tax Administration reporting. No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, or the <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>. Also: <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>When did Croatia's B2B e-invoicing mandate start?</h3>
+<p>On 1 January 2026 Croatian VAT-registered businesses had to issue and receive structured e-invoices for domestic B2B and B2G transactions, with the invoice data reported to the Tax Administration under the Fiskalizacija 2.0 rules. Entities outside the VAT system have a later start. Confirm your own situation with your accountant or the Croatian Tax Administration; this page is a summary, not advice.</p>
+<h3>Which invoice format does Croatia require?</h3>
+<p>A structured invoice that conforms to the European standard EN 16931, in UBL 2.1 or CII syntax, following the Croatian national profile (CIUS-HR), exchanged through a certified access point. A PDF or paper invoice is no longer the invoice for domestic B2B sales.</p>
+<h3>Can this checker validate a Croatian invoice?</h3>
+<p>Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus VAT, IBAN and BIC typo catches, each with a rule ID and a fix. It does not apply the Croatian national profile rules, the Tax Administration reporting or an access point's acceptance, so a clean result is an offline observation, not approval.</p>
+<h3>How do I check an invoice before sending it?</h3>
+<p>Drop the file into the checker. Nothing is uploaded: every check runs in your browser. Fix what it flags, then send through your access point or invoicing software.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Croatian rules as publicly documented; dates and rules can change, so check the Croatian Tax Administration guidance (porezna-uprava.gov.hr) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

@@ -4,7 +4,7 @@ A free browser tool for freelancers, agencies and small sales teams: **paste or 
 (leads, deals won, revenue won), enter the revenue you want next period, and see your real conversion rate, the
 chance of hitting the target, and how many leads give you a 50%, 80% or 90% chance.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/revenue-target-lead-planner/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/revenue-target-lead-planner/
 
 After using this, you can now **set a lead-generation target that reaches your revenue goal most of the time, not
 half the time**, which used to mean dividing the target by your average deal and your conversion rate and hoping.
@@ -21,6 +21,11 @@ half the time**, which used to mean dividing the target by your average deal and
 - Back-test: for each of the last min(4, periods/3) periods, refit on the earlier ones and check whether the real
   win count is inside the predicted 80% range. Misses produce a warning.
 - Refuses: fewer than 6 periods, 60 leads or 10 wins, or a history with no variation.
+
+## Coming back
+
+Tick "Remember my history" and the pasted periods, target and planned leads are kept in this browser's local storage
+(never uploaded). Next period, add one row with "Add this period" and click Plan again. Unticking or Clear deletes it.
 
 ## Limits
 

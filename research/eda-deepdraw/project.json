@@ -1,0 +1,5 @@
+{
+ "theme": "eda",
+ "title": "Do 20,000 random vectors catch any RTL bug that 64 missed, and do they contradict the formal equivalence proofs?",
+ "summary": "A deep random draw on the 26 eda-verify mutants that 64-vector random testing never caught or flagged oddly (16 proved equivalent, 10 formal timeouts). 20,000 further uniform vectors catch none of the 25 survivors, so none contradicts a formal equivalence proof, and a random-visible bug among the 9 undecided mutants has per-vector detection probability below 1.4&times;10<sup>&minus;4</sup> (95%), sixteen times tighter than before. The one apparent failure, <em>del@122</em>, again fails exactly 10 vectors short of the draw, consistent with truncated output rather than a wrong value (not confirmed). Stylised: one design, uniform random inputs, same vector stream for every mutant."
+}

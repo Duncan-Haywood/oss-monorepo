@@ -82,3 +82,22 @@ def test_headline_counts_match_the_data():
         text = (root / rel).read_text(encoding="utf-8")
         for m in re.finditer(r"(\d+) practices from (\d+) sources", text):
             assert (int(m.group(1)), int(m.group(2))) == want, rel
+
+
+def test_readme_counts_match_the_csvs():
+    import re
+    readme = (Path(__file__).resolve().parents[1] / "README.md").read_text()
+    practices, sources = read_csv("practices.csv"), read_csv("sources.csv")
+    assert f"{len(sources)} sources, with the year" in readme
+    assert f"{len(practices)} practices, one row each" in readme
+    assert f"Of {len(practices)} practices," in readme
+    assert f"The catalogue has {len(practices)} rows" in readme
+    ev = [r["evidence"] for r in practices]
+    n = lambda *kinds: sum(e in kinds for e in ev)
+    para = re.search(r"Of \d+ practices,.*?\.\s", readme, re.S).group(0)
+    for count, phrase in [(n("measured"), "rest on measurement"), (n("survey and interview"), "on a survey and interviews"),
+                          (n("case study"), "on case studies"), (n("postmortem"), "on postmortems"),
+                          (n("regulatory finding"), "on regulatory or official findings"),
+                          (n("practitioner account", "practitioner book"), "on practitioner accounts or books")]:
+        assert re.search(rf"\b{count} {re.escape(phrase)}", para), (phrase, count)
+    assert f"{len(ev) - n('measured', 'survey and interview', 'case study', 'postmortem', 'regulatory finding', 'practitioner account', 'practitioner book')} on opinion" in para

@@ -1,0 +1,36 @@
+name: business-template CI
+
+# platform/business-template: the generator writes a repository for every
+# preset, and each generated repository must pass its own ops/check.py and
+# ops tests, because that is the gate its scheduled runs merge through.
+on:
+  pull_request:
+    paths:
+      - "platform/business-template/**"
+      - ".github/workflows/business-template-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "platform/business-template/**"
+      - ".github/workflows/business-template-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: business-template-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m unittest discover -s platform/business-template -v

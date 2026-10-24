@@ -1,0 +1,27 @@
+name: Report a problem with a tool
+description: A wrong result, a broken page, or something confusing on one of the free tools.
+title: "[tool] "
+labels: ["bug", "site-feedback"]
+body:
+  - type: input
+    id: tool
+    attributes:
+      label: Which tool?
+      description: The tool's name or its address, e.g. https://duncan-haywood.github.io/monorepo-projects/roofing-bid-calculator/
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what did you expect?
+      description: If a number looks wrong, say what you entered and what you expected to see. Screenshots help.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device (optional)
+      placeholder: e.g. Safari on iPhone, Chrome on Windows
+  - type: markdown
+    attributes:
+      value: Issues here are public. Please leave out names, addresses and anything else private.

@@ -1,0 +1,3 @@
+{"round": 1, "notes": "Prior from the statics: step height reachable scales with wheel radius, so go large (80-90 mm), keep cost under the cap with a mid battery, try flippers of 0, 60 and 120 mm and a range of torques.",
+ "designs": [[85,200,60,1.0,20],[90,240,80,0.8,25],[80,180,0,1.0,20],[85,220,120,1.2,15],[75,200,60,0.6,30],
+             [90,260,100,1.5,20],[70,160,60,1.0,25],[88,200,40,0.5,35],[82,300,150,1.0,10],[90,180,70,2.0,12]]}

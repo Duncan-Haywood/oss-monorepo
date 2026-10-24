@@ -1,0 +1,59 @@
+item,kind,qty,what,notes
+base_plate,laser,1,aluminium 5052 3 mm,All holes are clearance holes; no tapping.
+top_deck,laser,1,cast acrylic 3 mm,Cast (not extruded) acrylic cuts clean; 3 mm aluminium also works.
+bumper_left,print,1,PETG,"Bumper: rides on M3 shoulder screws in radial slots, sprung outward; two microswitches behind it."
+bumper_right,print,1,PETG,"Bumper: rides on M3 shoulder screws in radial slots, sprung outward; two microswitches behind it."
+skirt_left,print,1,PETG,Fixed skirt: M3 into heat-set inserts in the tabs.
+skirt_right,print,1,PETG,Fixed skirt: M3 into heat-set inserts in the tabs.
+wheel_pod_cradle,print,2,PETG,"M3 heat-set inserts: two underneath (to the base), four on top (cap bolts)."
+wheel_pod_cap,print,2,PETG,M3 x 20 through the cap into the cradle.
+caster_spacer,print,1,PETG,Between base and ball caster; drill the caster's own pattern through if it differs.
+cliff_sensor_mount,print,6,PETG,Holds a downward IR module over the base window; black PETG cuts stray light.
+deck_post,print,4,PETG,Inserts at both ends.
+nozzle_housing,print,1,PETG,Over the base slot; duct to the bin at the back. Foam gasket between duct and bin.
+side_brush_mount,print,1,PETG,"N20 gearmotor on top, shaft down through the base to the brush hub."
+dust_bin,print,1,PETG,Lifts out through the deck hatch with the fan; a magnet in the wall trips the bin reed switch.
+bin_lid,print,1,PETG,Filter pad sits under the lid; fan screws on top.
+gearmotor,cots,2,"25 mm gearmotor, 12 V, ~130 rpm, with Hall encoder (JGA25-370 class)",
+wheel,cots,2,72 x 22 mm rubber-tyred wheel + 4 mm D hub,
+ball_caster,cots,1,"ball caster, 13 mm mounting height, two holes 12 mm apart",
+battery,cots,1,"4S2P 18650 Li-ion pack with 4S BMS and thermistor, max 75 x 75 x 40 mm",
+electronics_carrier,cots,1,"perfboard carrier: Pi Zero 2 W, ESP32-S3, 2 x DRV8871, PCA9685, 5 V buck",
+standoff,cots,4,M3 x 6 mm nylon standoff,
+cliff_sensor,cots,6,TCRT5000-class IR reflective module with comparator (digital out),
+lidar,cots,1,"360-degree robot-vacuum lidar (LDS class, UART, ~5 V)",
+roller_brush,cots,1,"40 mm x 160 mm bristle/rubber roller, end bearings",
+brush_motor,cots,1,25 mm 12 V DC motor + GT2 belt to the roller,
+nozzle_lip,cots,2,"silicone strip 2 x 14 mm, cut 164 mm, glued to the slot edges",
+side_brush_motor,cots,1,"N20 gearmotor, 12 V, ~100 rpm",
+side_brush_hub,cots,1,robot-vacuum side brush hub,
+side_brush_sweep,cots,1,"side brush, 110 mm sweep",
+fan,cots,1,"60 mm brushless vacuum fan, 12-14 V, PWM speed input, ~2,500 Pa shut-off",
+"M3 heat-set insert, 5.7 mm long",cots,44,"M3 heat-set insert, 5.7 mm long",all printed parts
+M3 x 8 socket cap screw,cots,28,M3 x 8 socket cap screw,from under the base into printed parts
+M3 x 20 socket cap screw,cots,8,M3 x 20 socket cap screw,wheel pod caps
+M3 x 8 button head,cots,8,M3 x 8 button head,deck to posts; skirt tabs
+M3 x 12 shoulder screw (4 mm shoulder) + nyloc nut,cots,4,M3 x 12 shoulder screw (4 mm shoulder) + nyloc nut,bumper slots
+M3 x 3 mm nylon spacer,cots,8,M3 x 3 mm nylon spacer,between base and every tab
+"Compression spring, 5 mm OD x 10 mm, light",cots,4,"Compression spring, 5 mm OD x 10 mm, light",pushes the bumper out
+M3 x 10 screw,cots,4,M3 x 10 screw,electronics carrier on standoffs
+M2.5 x 8 screw,cots,4,M2.5 x 8 screw,lidar to deck
+Raspberry Pi Zero 2 W + 16 GB microSD,cots,1,Raspberry Pi Zero 2 W + 16 GB microSD,"planner, lidar localisation"
+"ESP32-S3-DevKitC-1 (N8, no PSRAM)",cots,1,"ESP32-S3-DevKitC-1 (N8, no PSRAM)",firmware/esp32: motors and safety
+DRV8871 motor driver breakout,cots,2,DRV8871 motor driver breakout,one per wheel
+PCA9685 16-channel PWM board,cots,1,PCA9685 16-channel PWM board,"fan, brushes, pump, vibration; OE pin = hard enable"
+Logic-level N-MOSFET module (IRLZ44N class) + flyback diode,cots,4,Logic-level N-MOSFET module (IRLZ44N class) + flyback diode,"brush, side brush, pump, vibration"
+5 V 3 A buck converter,cots,1,5 V 3 A buck converter,Pi and lidar
+"4S BMS, 10 A, with balance leads",cots,1,"4S BMS, 10 A, with balance leads",if the pack has none
+Blade fuse 7.5 A + inline holder,cots,1,Blade fuse 7.5 A + inline holder,"battery positive, before the switch"
+"Rocker switch, 10 A DC",cots,1,"Rocker switch, 10 A DC",main power
+"16 mm momentary panel button, NC",cots,1,"16 mm momentary panel button, NC",stop button on the deck
+Microswitch with roller lever,cots,4,Microswitch with roller lever,"two per bumper side behind the bumper, plus two as wheel-drop / lift switches"
+10k NTC thermistor,cots,1,10k NTC thermistor,taped to the battery pack
+BNO085 (or similar) IMU,cots,1,BNO085 (or similar) IMU,yaw for odometry
+Charging contacts (spring pogo pair) + 16.8 V 2 A Li-ion charger,cots,1,Charging contacts (spring pogo pair) + 16.8 V 2 A Li-ion charger,dock; charger must be a certified unit
+"Silicone wire 18 AWG / 24 AWG, JST-XH connectors",cots,1,"Silicone wire 18 AWG / 24 AWG, JST-XH connectors",wiring
+Filter pad 55 x 95 mm (cut from a replacement HEPA sheet),cots,2,Filter pad 55 x 95 mm (cut from a replacement HEPA sheet),under the bin lid
+Reed switch + 6 mm magnet,cots,1,Reed switch + 6 mm magnet,bin present
+"GT2 belt, 6 mm, and two pulleys",cots,1,"GT2 belt, 6 mm, and two pulleys",brush motor to roller
+Foam gasket strip 5 mm,cots,1,Foam gasket strip 5 mm,duct to bin

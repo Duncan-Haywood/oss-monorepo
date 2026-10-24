@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>npm Provenance Check — Which of Your Dependencies Lack Trusted Publishing?</title>
-  <meta name="description" content="Paste a package-lock.json, package.json, or a plain package list and see which packages were published with a provenance attestation (npm trusted publishing / OIDC, or --provenance) and which still rely on a classic publish token -- the mechanism the 2025-2026 Shai-Hulud worm abused. Free, no account, one read-only request per package to the public npm registry.">
+  <meta name="description" content="Paste a package-lock.json or package list to see which npm dependencies have provenance attestations and which still rely on classic publish tokens.">
   <meta property="og:title" content="Which of your npm dependencies lack a provenance attestation?">
   <meta property="og:description" content="Paste a package-lock.json and get a deterministic list of which packages were published via npm trusted publishing / provenance, and which still depend on a classic, stealable publish token. No account, no upload of your file -- only package names and versions leave the browser, straight to the public npm registry.">
   <link rel="canonical" href="./index.html">
@@ -47,6 +47,7 @@
     <p>Paste a <code>package-lock.json</code>, a <code>package.json</code>, or a plain list of package names, and see which ones were published with an npm <strong>provenance attestation</strong> -- <a href="https://docs.npmjs.com/trusted-publishers/" rel="noopener">trusted publishing</a> (OIDC, no long-lived token to steal) or <code>npm publish --provenance</code> from a supported CI -- and which still rely on a classic publish token, the exact mechanism the 2025-2026 Shai-Hulud worm abused to compromise maintainer accounts and push malicious versions.</p>
     <p class="note">Your file is parsed in this browser and never uploaded. Checking a package makes one GET request, from your browser, to the public npm registry -- the same one <code>npm install</code> already talks to.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste a lockfile, package.json, or a plain list</h2>
@@ -100,7 +101,8 @@ echo "vite\nleft-pad@1.3.0" | node cli.mjs -    # freeform list on stdin</pre>
     <p>Been checking packages one at a time on npmjs.com? See <a href="vs-checking-each-package-on-npmjs-by-hand.html">this checker vs. checking each package on npmjs.com by hand</a>.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified security review. It reports one factual field the npm registry publishes about each version you asked about -- nothing more. The absence of a provenance attestation is not evidence of compromise, and its presence is not a guarantee of safety. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The file you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Checking a package sends its name and version to the public npm registry, from your browser, over HTTPS -- nothing about your project beyond what you pasted. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

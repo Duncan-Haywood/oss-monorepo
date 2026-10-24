@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-fieldtour"
+version = "0.1.0"
+description = "Does a better tour (2-opt, Or-opt) rescue scout-then-treat weeding against treating inline?"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

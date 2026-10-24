@@ -2,10 +2,11 @@
 # surface assembled into one GitHub Pages deployment.
 #
 # The build runs on every push to `main` so a broken site is caught at merge
-# time, whether or not publishing is switched on. Publishing itself is gated on
-# the owner-set `PAGES_ENABLED` variable, because `actions/deploy-pages`
-# 404s until Pages is enabled in repository settings and would otherwise turn
-# this workflow red on every merge.
+# time. Since the owner switched the Pages source to GitHub Actions
+# (2026-10-20), every such push also deploys; `PAGES_ENABLED=false` pauses it.
+# The gate used to be opt-in (`== 'true'`), from when `actions/deploy-pages`
+# 404'd because Pages was not enabled yet; left that way after the switch, it
+# skipped every deploy and the live site stopped updating.
 #
 # Not `GITHUB_PAGES_ENABLED`, which this workflow's own gate carried until
 # found and fixed: GitHub rejects any Actions configuration-variable name that
@@ -19,24 +20,40 @@
 # reference for exactly this reason.
 #
 # This is the workflow that owner flip publishes. See portfolio/DIRECTION.md
-# ("Current priority: deploy what is already built") and platform/pages/README.md.
+# ("Deploy first (resolved)") and platform/pages/README.md.
 name: Portfolio Pages
 
 on:
   push:
     branches: [main]
-    paths:
-      - "ventures/**"
-      - "platform/pages/**"
-      - "research/_homepage/**"
-      - "research/README.md"
-      - ".github/workflows/portfolio-pages.yml"
+    # Every merge to `main`, with no path filter (owner, 2026-10-20: "if
+    # something is landing in main there is probably an update worth noting
+    # in the ghp site and the site should be updated automatically"). The
+    # filter this replaced listed site inputs by hand and kept falling behind
+    # them: `docs/podcast/` (the episode audio and scripts) and research
+    # READMEs were missing, so a merge could land with the live site still
+    # serving the old copy. The site also shows what landed (the development
+    # dashboard, the changelog), which every merge changes anyway. Runs on a
+    # busy day queue rather than pile up: GitHub keeps one pending run per
+    # concurrency group and drops the older pending ones, so the deploy always
+    # catches up to the newest `main`.
+  # The development dashboard's CI, review and branch numbers move without a
+  # merge; refresh the site every three hours.
+  schedule:
+    - cron: "41 */3 * * *"
   pull_request:
     paths:
       - "ventures/**"
       - "platform/pages/**"
+      # The writing section (platform/pages/writing.mjs) renders docs/posts/,
+      # and loadPosts throws on a malformed post, so a post-only PR is a build input.
+      - "docs/posts/**"
+      - "docs/podcast/**"
       - "research/_homepage/**"
       - "research/README.md"
+      - "research/*/app/**"
+      - "platform/daily/**"
+      - "platform/devstats/**"
       - ".github/workflows/portfolio-pages.yml"
   workflow_dispatch:
 
@@ -60,20 +77,23 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  # The test suites run beside the build, not before it. In series they took
+  # 13-15 of the build job's 20 minutes, so on a busy day a slow runner hit
+  # the cap mid-build and the run ended `cancelled` with nothing deployed
+  # (2026-10-20: one green run in thirty on main). The deploy waits only for
+  # the build and check.mjs on the built artifact; a red test job still fails
+  # the run and the PR, which is where these suites gate.
+  test:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read
-    # Builds and checks the whole 500+-page site artifact -- measured at 173s
-    # on a recent PR. See hetzner-gitops-ci.yml's timeout-minutes addition for
-    # why an unbounded job is worth capping on a metered-minutes account.
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
 
@@ -85,12 +105,53 @@ jobs:
         run: node --test "*.test.mjs"
         working-directory: platform/pages
 
+      # The dashboard and the daily brief are added to the artifact after
+      # check.mjs, so their own suites are the only check they get.
+      - name: Test the development dashboard and the daily brief
+        run: node --test platform/devstats/*.test.mjs platform/daily/*.test.mjs
+
+  build:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+      # Read-only, for the development dashboard's PR, review and CI metrics.
+      actions: read
+      pull-requests: read
+    # Builds and checks the whole 500+-page site artifact -- measured at 173s
+    # on a recent PR. See hetzner-gitops-ci.yml's timeout-minutes addition for
+    # why an unbounded job is worth capping on a metered-minutes account.
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          # The engineering page's "landed on main" view and the changelog's
+          # 14 days (~100-150 merges a day) read history. A pull request only
+          # needs the build to pass, so it keeps the cheap depth-1 clone.
+          fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 3000 }}
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
+      # "Build the daily brief" runs portfolio/ledger/decision_queue.py.
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
       - name: Build the site
         env:
           # Owner-overridable (a custom domain, say). The default is where
-          # GitHub serves a project Pages site for this repository.
+          # GitHub serves a project Pages site for this repository, derived
+          # from the repository rather than build.mjs's DEFAULT_BASE_URL,
+          # which still names the old `monorepo-projects` path: the live site
+          # is at /oss-monorepo/ (the deploy step's page_url, 2026-10-20), and
+          # canonicals, sitemaps and feed enclosures must name that origin.
           PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
-        run: node build.mjs --out=dist
+        run: |
+          export PAGES_BASE_URL="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
+          echo "base URL: $PAGES_BASE_URL"
+          node build.mjs --out=dist
         working-directory: platform/pages
 
       # Runs against the artifact, not the sources. A dead link, a leftover
@@ -101,9 +162,58 @@ jobs:
         run: node check.mjs dist
         working-directory: platform/pages
 
+      # The same three additions `platform/pages/publish-branch.sh` makes,
+      # after `check.mjs` for the reasons given there: each is a separate app
+      # or document set, not a catalogue page. Without them `/dev/`,
+      # `/dev/analyses/` and `/deploy/` 404 on the live site.
+      - name: Build the development analyses and the self-deploy page
+        run: |
+          node platform/devlog/build.mjs --out=platform/pages/dist/dev/analyses >/dev/null
+          node platform/deploy/build.mjs --out=platform/pages/dist/deploy >/dev/null
+
+      # The dashboard's GitHub API metrics need a token, so pull requests skip
+      # it. The live `stats.json` lets it reuse the CI counts of days it
+      # already counted (a few dozen API requests rather than ~170); a missing
+      # one just costs the full count.
+      - name: Build the development dashboard
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SITE_URL: ${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
+        run: |
+          prev="${RUNNER_TEMP}/prev-stats.json"
+          curl -fsS --retry 3 "${SITE_URL%/}/dev/stats.json" -o "$prev" || rm -f "$prev"
+          node platform/devstats/build.mjs --out=platform/pages/dist/dev --previous="$prev" >/dev/null
+
+      # The engineering brief and The Merge Report (platform/daily/): the last
+      # seven days from git and the run records, the newest with the CI
+      # snapshot the dashboard just took. Pull requests build it too (no
+      # stats.json there, so the snapshot reads "not recorded") so a broken
+      # generator fails the PR rather than the publish.
+      - name: Build the daily brief
+        env:
+          PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+        run: |
+          export PAGES_BASE_URL="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
+          asks="${RUNNER_TEMP}/asks.json"
+          python3 portfolio/ledger/decision_queue.py --json > "$asks" || rm -f "$asks"
+          node platform/daily/build.mjs --out=platform/pages/dist/dev/daily \
+            --stats=platform/pages/dist/dev/stats.json --asks="$asks"
+
+      # The deploy guide, the analyses, the dashboard and the daily brief are
+      # written into the artifact by the steps above, after build.mjs ran its
+      # share pass, so they shipped with no og:/twitter: tags and no icon
+      # links. The same pass, run over just those directories.
+      - name: Give the pages built after the site their share cards and tags
+        env:
+          PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+        run: |
+          export PAGES_BASE_URL="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
+          node platform/pages/share.mjs platform/pages/dist --base="$PAGES_BASE_URL" --only=deploy,dev
+
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: platform/pages/dist
 
@@ -112,7 +222,12 @@ jobs:
     # `github.ref` as well as the event: `workflow_dispatch` can be run against
     # any branch, and publishing the live site from a feature branch by accident
     # is not a mistake anyone would notice quickly.
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true' }}
+    # On by default since 2026-10-20, when the owner switched the Pages source
+    # to GitHub Actions: "merging is publishing" (CLAUDE.md). The gate used to
+    # be `vars.PAGES_ENABLED == 'true'`, which was never set, so every deploy
+    # was skipped and the live site stopped updating at the switch. Set
+    # `PAGES_ENABLED` to `false` to pause publishing.
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED != 'false' }}
     # GitHub serves one Pages site per repository, so two deployments must never
     # race — this is where that constraint actually lives, and the group is
     # deliberately not keyed by ref so nothing can publish alongside `main`.
@@ -136,7 +251,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
 
       - name: Verify the published site answers
         # A completed deploy step is not evidence that anything serves. Check
@@ -177,15 +292,51 @@ jobs:
             echo "${code}  ${base}${path}"
             [ "$code" = "200" ] || { echo "::error::${base}${path} returned ${code}"; exit 1; }
           done
-          curl -sS "${base}/sitemap.xml" | grep -q "<sitemapindex" \
+          curl -sS "${base}/sitemap.xml" -o "$RUNNER_TEMP/sitemap.xml" && grep -q "<sitemapindex" "$RUNNER_TEMP/sitemap.xml" \
             || { echo "::error::sitemap.xml served without a sitemap index"; exit 1; }
           # A 200 on llms.txt is not enough: Pages would serve an empty file
           # just as happily, and an assistant reading it would find no tools.
-          curl -sS "${base}/llms.txt" | grep -q "^- \[" \
+          curl -sS "${base}/llms.txt" -o "$RUNNER_TEMP/llms.txt" && grep -q "^- \[" "$RUNNER_TEMP/llms.txt" \
             || { echo "::error::llms.txt served without any tool entries"; exit 1; }
           # Same argument for the feed, and one more: a feed that serves 200
           # with zero entries is indistinguishable from a healthy one to every
           # subscriber, who simply never hears about a new tool again.
-          curl -sS "${base}/feed.xml" | grep -q "<entry>" \
+          curl -sS "${base}/feed.xml" -o "$RUNNER_TEMP/feed.xml" && grep -q "<entry>" "$RUNNER_TEMP/feed.xml" \
             || { echo "::error::feed.xml served without any entries"; exit 1; }
           echo "Published and verified: ${base}/ (product page /${slug}/)"
+
+      # Tell IndexNow-participating engines (Bing, Yandex, ...) which URLs the
+      # deploy just published. It reads the artifact this run deployed, not the
+      # `gh-pages` branch, which stopped being the serving copy when the Pages
+      # source moved to GitHub Actions. IndexNow is free and this pushes
+      # nothing. A runner with no egress to it (`EXIT_NO_EGRESS`) has broken
+      # nothing; a genuine refusal (a bad key file) fails the step.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
+      - name: Fetch the deployed artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/pages-artifact
+
+      - name: Announce the deployed site to IndexNow
+        env:
+          EXIT_NO_EGRESS: "3"
+          ARTIFACT: ${{ runner.temp }}/pages-artifact
+        run: |
+          site="${RUNNER_TEMP}/site"
+          mkdir -p "$site"
+          tar -xf "${ARTIFACT}/artifact.tar" -C "$site"
+          status=0
+          node platform/marketing/indexnow.mjs --submit --dir "$site" || status=$?
+          case "${status}" in
+            0) echo "IndexNow notified (accepted means asked, not indexed)." ;;
+            "${EXIT_NO_EGRESS}") echo "::notice::This runner has no egress to api.indexnow.org; nothing was submitted." ;;
+            *) echo "::error::IndexNow refused the submission -- see the log above."; exit "${status}" ;;
+          esac

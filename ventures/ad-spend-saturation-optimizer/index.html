@@ -9,7 +9,7 @@
   <meta property="og:description" content="Fit a diminishing-returns curve to each ad channel, find where the next dollar still pays, and move budget with a back-test you can check.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ad Spend Saturation Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Upload weekly or daily ad spend and revenue per channel and get a fitted diminishing-returns curve for each channel, the marginal return on the next dollar, the split of the same budget that earns most, where extra spend stops paying at your margin, and a back-test of the fit against your own recent weeks. Runs entirely in your browser.", "featureList": "marginal ROAS calculator, ad budget allocation across channels, diminishing returns curve fitting, Hill curve, saturation point, media mix model in the browser, budget reallocation, forecast back-test, CSV export"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is marginal ROAS and why does it matter more than average ROAS?", "acceptedAnswer": {"@type": "Answer", "text": "Average ROAS is total revenue divided by total spend. Marginal ROAS is what the next dollar earns. Because ad channels saturate, the marginal figure is always lower than the average and is the one that tells you where to put more money. A channel with a 3.0 average ROAS can have a marginal ROAS under 1.0 if it is already spending near its ceiling."}}, {"@type": "Question", "name": "How does the tool find the best split of my budget?", "acceptedAnswer": {"@type": "Answer", "text": "For each channel it fits a diminishing-returns curve to your own weekly spend and revenue, then searches every split of the same total budget with an exact dynamic programme and keeps the one with the highest total fitted revenue. Each channel is limited to between a quarter and double its current spend, and never beyond 1.25 times its highest week, so the advice stays near spend you have actually tried."}}, {"@type": "Question", "name": "What data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "One row per date and channel with the date, the channel name, the spend and the revenue credited to that channel. Daily or weekly rows both work; daily rows are added up into weeks. Each channel needs at least eight weeks, and spend has to have varied. A channel whose spend never changed cannot show what happens when it does."}}, {"@type": "Question", "name": "How accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "The tool tests itself. It refits on your data up to some weeks before the end, predicts revenue in the final weeks from the spend that really happened, and compares that with a flat ROAS line. If the curve does not beat the flat line, or the error is large, something other than spend, such as seasonality or promotions, is driving your revenue and the split should be tried on a small share of budget first. The resampled ranges show noise in the fit, not whether the curve shape is right."}}, {"@type": "Question", "name": "What is it not good at?", "acceptedAnswer": {"@type": "Answer", "text": "It models carry-over from one week to the next as a single decay rate, and ignores seasonality, promotions, price changes, overlap between channels and brand effects. It uses whatever revenue your file credits to each channel, which is often platform-reported and overstated and is not proof that the ad caused the sale. It cannot see what happens at spend levels you have never run."}}, {"@type": "Question", "name": "What does the profit view mean?", "acceptedAnswer": {"@type": "Answer", "text": "You enter your gross margin. Contribution is margin times fitted revenue minus ad spend. The tool reports the weekly total where that peaks along the fitted curves. It ignores everything except attributed revenue and ad spend, and the peak is usually flat, so treat it as a range to test rather than a target."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your spend or revenue."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is marginal ROAS and why does it matter more than average ROAS?", "acceptedAnswer": {"@type": "Answer", "text": "Average ROAS is total revenue divided by total spend. Marginal ROAS is what the next dollar earns. Because ad channels saturate, the marginal figure is always lower than the average and is the one that tells you where to put more money. A channel with a 3.0 average ROAS can have a marginal ROAS under 1.0 if it is already spending near its ceiling."}}, {"@type": "Question", "name": "How does the tool find the best split of my budget?", "acceptedAnswer": {"@type": "Answer", "text": "For each channel it fits a diminishing-returns curve to your own weekly spend and revenue, then searches every split of the same total budget with an exact dynamic programme and keeps the one with the highest total fitted revenue. Each channel is limited to between a quarter and double its current spend, and never beyond 1.25 times its highest week, so the advice stays near spend you have actually tried."}}, {"@type": "Question", "name": "What data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "One row per date and channel with the date, the channel name, the spend and the revenue credited to that channel. Daily or weekly rows both work; daily rows are added up into weeks. Each channel needs at least eight weeks, and spend has to have varied. A channel whose spend never changed cannot show what happens when it does."}}, {"@type": "Question", "name": "How accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "The tool tests itself. It refits on your data up to some weeks before the end, predicts revenue in the final weeks from the spend that really happened, and compares that with a flat ROAS line. If the curve does not beat the flat line, or the error is large, something other than spend, such as seasonality or promotions, is driving your revenue and the split should be tried on a small share of budget first. The resampled ranges show noise in the fit, not whether the curve shape is right."}}, {"@type": "Question", "name": "What is it not good at?", "acceptedAnswer": {"@type": "Answer", "text": "It models carry-over from one week to the next as a single decay rate, and ignores seasonality, promotions, price changes, overlap between channels and brand effects. It uses whatever revenue your file credits to each channel, which is often platform-reported and overstated and is not proof that the ad caused the sale. It cannot see what happens at spend levels you have never run."}}, {"@type": "Question", "name": "What does the profit view mean?", "acceptedAnswer": {"@type": "Answer", "text": "You enter your gross margin. Contribution is margin times fitted revenue minus ad spend. The tool reports the weekly total where that peaks along the fitted curves. It ignores everything except attributed revenue and ad spend, and the peak is usually flat, so treat it as a range to test rather than a target."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your spend or revenue. A snapshot you save holds only the answers (spend, marginal return and recommendation per channel), in a file you keep."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -57,6 +57,7 @@
     <p>Drop in weekly spend and revenue by channel. The tool fits a <strong>diminishing-returns curve</strong> to each channel's own history, shows the <strong>marginal return at today's spend</strong> (what the next dollar earns, not the average), finds the <strong>split of the same budget that earns most</strong>, and <strong>back-tests itself</strong> on your last weeks so you can see how far to trust it.</p>
     <p class="note">Your numbers never leave this browser tab. Statistical fit of data you supply, not advice. Not legal, tax, or financial advice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Your spend and revenue</h2>
@@ -96,6 +97,9 @@
     <h3>Fitted models</h3>
     <p class="note" id="params"></p>
     <button type="button" id="download">Download channel table CSV</button>
+    <button type="button" class="secondary" id="save-snap">Save snapshot (answers only, no data)</button>
+    <label class="secondary" style="display:inline-block;margin-top:.5rem">Compare with an earlier snapshot <input type="file" id="snap-file" aria-label="Earlier snapshot file" accept=".json,application/json"></label>
+    <div id="snap-out" aria-live="polite"></div>
   </section>
 
   <section class="card">
@@ -119,14 +123,15 @@
     <h3>What does the profit view mean?</h3>
     <p>You enter your gross margin. Contribution is margin times fitted revenue minus ad spend. The tool reports the weekly total where that peaks along the fitted curves. It ignores everything except attributed revenue and ad spend, and the peak is usually flat, so treat it as a range to test rather than a target.</p>
     <h3>Is my data uploaded anywhere?</h3>
-    <p>No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your spend or revenue.</p>
+    <p>No. The file is read and analyzed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and the tool never stores your spend or revenue. A snapshot you save holds only the answers (spend, marginal return and recommendation per channel), in a file you keep.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified analyst. Results are statistical fits of the numbers you supply; they do not guarantee what a channel will return at a different spend. You are responsible for reviewing and verifying its output before relying on it, and for any budget decision you make.</p>
     <p><strong>Independent.</strong> Not affiliated with any ad platform, analytics vendor or agency, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your spend and revenue are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your spend and revenue are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>, <code>snapshot_compared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Read: <a href="marginal-roas-vs-average-roas.html">marginal ROAS vs average ROAS</a>, worked on the built-in example.</p>
     <p>Related tools: the <a href="../customer-lifetime-value-predictor/">customer lifetime value predictor</a>, the <a href="../ab-test-significance-calculator/">A/B test significance calculator</a> and the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>.</p>
@@ -134,7 +139,7 @@
   </footer>
 
   <script type="module">
-    import { parseSpend, analyze, reportCsv, sampleText, money, pct, dayToIso, curveValue, budgetPlan, budgetLadder } from "./calc.mjs";
+    import { parseSpend, analyze, reportCsv, snapshot, parseSnapshot, compareSnapshot, describeComparison, sampleText, money, pct, dayToIso, curveValue, budgetPlan, budgetLadder } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -217,6 +222,26 @@
       a.download = "ad-spend-saturation.csv";
       a.click();
       record("report_downloaded");
+    });
+    $("#save-snap").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(snapshot(last), null, 1)], { type: "application/json" }));
+      a.download = `ad-spend-snapshot-${snapshot(last).asOf}.json`;
+      a.click();
+    });
+    $("#snap-file").addEventListener("change", (e) => {
+      const f = e.target.files[0], out = $("#snap-out"); if (!f) return;
+      if (!last) { out.textContent = "Fit the curves on your newer data first, then pick the earlier snapshot."; return; }
+      const rd = new FileReader();
+      rd.onload = () => {
+        const p = parseSnapshot(String(rd.result));
+        if (p.error) { out.textContent = p.error; return; }
+        const cmp = compareSnapshot(p.snap, last);
+        out.innerHTML = `<h3>Since ${esc(cmp.since)}</h3><ul>${describeComparison(cmp).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
+        record("snapshot_compared");
+      };
+      rd.readAsText(f);
     });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }

@@ -1,0 +1,22 @@
+|--- num__age <= 51.5000
+|   |--- cat__family_income_$75k+ <= 0.5000
+|   |   |--- cat__divorced_before_Yes <= 0.5000
+|   |   |   |--- value: [0.0681]
+|   |   |--- cat__divorced_before_Yes >  0.5000
+|   |   |   |--- value: [0.1283]
+|   |--- cat__family_income_$75k+ >  0.5000
+|   |   |--- num__age <= 44.5000
+|   |   |   |--- value: [0.0153]
+|   |   |--- num__age >  44.5000
+|   |   |   |--- value: [0.0462]
+|--- num__age >  51.5000
+|   |--- cat__divorced_before_Yes <= 0.5000
+|   |   |--- num__age <= 57.5000
+|   |   |   |--- value: [0.0176]
+|   |   |--- num__age >  57.5000
+|   |   |   |--- value: [0.0031]
+|   |--- cat__divorced_before_Yes >  0.5000
+|   |   |--- cat__sex_Female <= 0.5000
+|   |   |   |--- value: [0.0289]
+|   |   |--- cat__sex_Female >  0.5000
+|   |   |   |--- value: [0.0573]

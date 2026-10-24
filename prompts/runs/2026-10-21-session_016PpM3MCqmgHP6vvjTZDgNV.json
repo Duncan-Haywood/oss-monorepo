@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_016PpM3MCqmgHP6vvjTZDgNV",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "what industries do you think ai agents will depend on and benefit the most from in comparison and contrast to humans? / blog post and agent doc. these are some more domains to look into projects in.",
+  "input_sha256": "70c8fc3ddbb9e0d7c849a1922c8371fba26bd50c00b46cb3889a0df99ae7458b",
+  "follow_up_inputs": [
+    "blog post and agent doc. these are some more domains to look into projects in."
+  ],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T02:40:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9033,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Merged PR 9033 with the Pages 'build' check red: the post's front-matter description was 208 characters, over writing.mjs's 160 limit. The get_check_runs listing read before merging did not include the build job, so it looked green.",
+      "fix": "Follow-up PR shortens the description to 137 characters; loadPosts() and the full site build verified locally."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/scoring/venture-scores.yaml",
+      "issue": "No per-venture domain/category field anywhere in portfolio/, so counting coverage by domain had to fall back to name keywords (docs/reports/assets/agent-domains/count.py)."
+    },
+    {
+      "file": "prompts/goals.md",
+      "issue": "The 160-character post description limit lives only in platform/pages/writing.mjs; nothing in the writing guidance (goals.md 'Write about the work') states it, and get_check_runs on the PR did not show the Pages build job before merge."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Direct owner question, not a routed run; recorded under explore/0 as the closest track instead of following a routed sub-prompt."
+    },
+    {
+      "file": "goals.md",
+      "why": "No product llms.txt or marketing page: the PR changes no product."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-21-what-ai-agents-depend-on-and-where-they-beat-people.md",
+    "docs/reports/2026-10-21-agent-dependent-domains-for-agents.md"
+  ],
+  "goal": null,
+  "notes": "Owner asked which industries agents depend on/benefit from vs humans, then for a post and agent doc as domains for future projects. Sources checked via web search 2026-10-21: IEA Energy and AI (415 TWh 2024, ~945 TWh 2030; Key Questions update ~950) and Anthropic Economic Index (37.2% computer/math vs 3.4% of US workforce). iea.org news page returned 403 to WebFetch; figures taken from the IEA executive summary via search results. Repo coverage counted by name keywords (results.txt). Checks: promptctl validate; links in both docs resolve to existing files. Follow-up PR 9034 also rewords docs/posts/2026-10-21-thirteen-publishers-zero-posts.md (merged in PR 9030), whose bare 'duncan-haywood.github.io' host failed custom-domain.test.mjs on main; custom-domain + writing tests 15/15 locally, full site build + check.mjs pass.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malaysia e-invoicing: MyInvois phases, penalties and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="Malaysia's MyInvois e-invoicing is phased in by turnover from 2024 to 2026, with a relaxation period reported to run to 31 December 2027. Phases, the RM10,000 rule, penalties, and what a free local checker covers.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/malaysia-myinvois-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Malaysia e-invoicing: MyInvois phases, penalties and a free pre-send check | E-invoice Preflight">
+<meta property="og:description" content="Malaysia's MyInvois e-invoicing is phased in by turnover from 2024 to 2026, with a relaxation period reported to run to 31 December 2027. Phases, the RM10,000 rule, penalties, and what a free local checker covers.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/malaysia-myinvois-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When did Malaysian e-invoicing become mandatory?","acceptedAnswer":{"@type":"Answer","text":"MyInvois, run by the Inland Revenue Board (LHDN/IRBM), is phased by annual turnover: from 1 August 2024 above RM100 million, 1 January 2025 for RM25 to 100 million, 1 July 2025 for RM5 to 25 million, and 1 January 2026 for RM1 to 5 million. Sources differ on the smallest businesses: the June 2025 announcement as reported put those up to RM1 million on 1 July 2026 with a RM500,000 exemption, while some adviser sites now say businesses below RM1 million are exempt. Check LHDN for your own turnover band; this page is a summary, not advice."}},{"@type":"Question","name":"Is there a relaxation period?","acceptedAnswer":{"@type":"Answer","text":"Yes, reported as a concession and not a deferment: businesses must still register on MyInvois, but penalties are not enforced during it. One adviser newsletter reports the Phase 4 period was extended to 31 December 2027, with enforcement from 1 January 2028; an older table shows 30 June 2026. Confirm the current date with LHDN."}},{"@type":"Question","name":"What are the penalties?","acceptedAnswer":{"@type":"Answer","text":"Reported under section 120 of the Income Tax Act 1967: a fine of RM200 to RM20,000 per offence, and each non-compliant transaction can count as a separate offence. Penalties are said not to be enforced during the relaxation period. Amounts can change, so check LHDN."}},{"@type":"Question","name":"Can this checker validate a MyInvois document?","acceptedAnswer":{"@type":"Answer","text":"Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus IBAN and BIC typo catches, each with a rule ID and a fix. It does not apply the MyInvois document rules, TIN checks, or the Malaysian tax codes, so a clean result is an offline observation, not approval. The MyInvois validation remains the authority."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Malaysia e-invoicing: MyInvois phases and what to check first</h1>
+<p class="lede">Malaysia's MyInvois system, run by the Inland Revenue Board (LHDN/IRBM), was phased in by annual turnover from 1 August 2024, with a relaxation period reported to run to 31 December 2027. Below: the phases, the RM10,000 rule, the reported penalties, and what a free local checker covers.</p>
+</header>
+<section>
+<h2>Phases</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">Who</th></tr></thead>
+<tbody>
+<tr><td>1 Aug 2024</td><td>Turnover above RM100 million.</td></tr>
+<tr><td>1 Jan 2025</td><td>Turnover RM25 million to RM100 million.</td></tr>
+<tr><td>1 Jul 2025</td><td>Turnover RM5 million to RM25 million.</td></tr>
+<tr><td>1 Jan 2026</td><td>Turnover RM1 million to RM5 million (Phase 4, announced June 2025).</td></tr>
+<tr><td>1 Jul 2026</td><td>Turnover up to RM1 million, per the June 2025 announcement as reported; a RM500,000 exemption was announced with it.</td></tr>
+<tr><td>31 Dec 2027</td><td>End of the Phase 4 relaxation period, per one adviser newsletter; full enforcement from 1 Jan 2028.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Sources disagree and the rules have moved: some sites now say businesses below RM1 million are exempt, and an older table shows the relaxation ending 30 Jun 2026. Reports also say that from 1 Jan 2026 a transaction above RM10,000 needs an individual e-invoice, not a consolidated one, even during relaxation. Penalties (Income Tax Act 1967, section 120, as reported): RM200 to RM20,000 per offence. This is a summary from secondary sources, not tax advice; confirm with LHDN or your accountant.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>Documents are submitted to the <strong>MyInvois</strong> system as structured XML or JSON in a UBL 2.1-based layout, through the MyInvois portal or API or an intermediary, and validated by LHDN, which returns a unique identifier and a QR code for the validated document. Validation by MyInvois is the one that decides. Consolidated e-invoices for small B2C sales are allowed within limits.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a> and drop your XML or JSON. It flags totals and tax breakdowns that do not add up, a missing tax reason on a 0% or exempt line, malformed identifiers, and IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). It does <strong>not</strong> apply the MyInvois document rules, TIN validation or Malaysian tax codes. No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, or the <a href="e-invoicing-mandates-by-country.html">full country table</a>. Also: <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>When did Malaysian e-invoicing become mandatory?</h3>
+<p>MyInvois, run by the Inland Revenue Board (LHDN/IRBM), is phased by annual turnover: from 1 August 2024 above RM100 million, 1 January 2025 for RM25 to 100 million, 1 July 2025 for RM5 to 25 million, and 1 January 2026 for RM1 to 5 million. Sources differ on the smallest businesses: the June 2025 announcement as reported put those up to RM1 million on 1 July 2026 with a RM500,000 exemption, while some adviser sites now say businesses below RM1 million are exempt. Check LHDN for your own turnover band; this page is a summary, not advice.</p>
+<h3>Is there a relaxation period?</h3>
+<p>Yes, reported as a concession and not a deferment: businesses must still register on MyInvois, but penalties are not enforced during it. One adviser newsletter reports the Phase 4 period was extended to 31 December 2027, with enforcement from 1 January 2028; an older table shows 30 June 2026. Confirm the current date with LHDN.</p>
+<h3>What are the penalties?</h3>
+<p>Reported under section 120 of the Income Tax Act 1967: a fine of RM200 to RM20,000 per offence, and each non-compliant transaction can count as a separate offence. Penalties are said not to be enforced during the relaxation period. Amounts can change, so check LHDN.</p>
+<h3>Can this checker validate a MyInvois document?</h3>
+<p>Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus IBAN and BIC typo catches, each with a rule ID and a fix. It does not apply the MyInvois document rules, TIN checks, or the Malaysian tax codes, so a clean result is an offline observation, not approval. The MyInvois validation remains the authority.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Malaysian mandate as publicly reported; dates, penalties and rules can change, so check LHDN/IRBM guidance (hasil.gov.my) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

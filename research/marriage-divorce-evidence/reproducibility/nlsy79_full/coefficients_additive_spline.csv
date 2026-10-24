@@ -1,0 +1,92 @@
+feature,coef
+num__marriage_years_sp_0,0.13386
+num__marriage_years_sp_1,0.637238
+num__marriage_years_sp_2,0.458514
+num__marriage_years_sp_3,0.115652
+num__age_at_marriage_sp_0,0.117906
+num__age_at_marriage_sp_1,0.110199
+num__age_at_marriage_sp_2,0.00874538
+num__age_at_marriage_sp_3,-0.206023
+num__wedding_year_sp_0,0.0624609
+num__wedding_year_sp_1,0.00841015
+num__wedding_year_sp_2,0.100914
+num__wedding_year_sp_3,0.0216135
+num__afqt_sp_0,-0.0465881
+num__afqt_sp_1,0.101536
+num__afqt_sp_2,0.0451553
+num__afqt_sp_3,0.0456458
+num__rotter_sp_0,0.0168535
+num__rotter_sp_1,-0.0320443
+num__rotter_sp_2,-0.00545596
+num__rotter_sp_3,-0.0396734
+num__rosenberg_sp_0,0.0386365
+num__rosenberg_sp_1,-0.00441885
+num__rosenberg_sp_2,0.0334121
+num__rosenberg_sp_3,0.0182251
+num__delinquency_sp_0,-0.0249975
+num__delinquency_sp_1,-0.114319
+num__delinquency_sp_2,-0.0610961
+num__delinquency_sp_3,0.0640386
+num__income_percentile_sp_0,-0.0173435
+num__income_percentile_sp_1,0.0153673
+num__income_percentile_sp_2,-0.00851108
+num__income_percentile_sp_3,-0.026503
+num__spouse_age_at_marriage_sp_0,0.0409543
+num__spouse_age_at_marriage_sp_1,0.121385
+num__spouse_age_at_marriage_sp_2,0.105752
+num__spouse_age_at_marriage_sp_3,0.0991917
+cat__sex_Woman,0.0343221
+cat__race_Hispanic,-0.0838903
+cat__race_Non-Black non-Hispanic,0.0389553
+cat__own_education_13-15 years,-0.0416381
+cat__own_education_16+ years,-0.240255
+cat__own_education_<12 years,0.0911847
+cat__own_education_Unknown,0.0697219
+cat__enrolled_Not enrolled,0.174555
+cat__enrolled_Unknown,0.21911
+cat__mother_education_13-15 years,-0.0165506
+cat__mother_education_16+ years,0.0801031
+cat__mother_education_<12 years,-0.158999
+cat__mother_education_Unknown,-0.090478
+cat__father_education_13-15 years,0.136938
+cat__father_education_16+ years,-0.0583763
+cat__father_education_<12 years,0.0243003
+cat__father_education_Unknown,0.137603
+cat__family_at_14_Other arrangement,0.131827
+cat__family_at_14_Parent and step-parent,0.00293836
+cat__family_at_14_Single parent,0.100524
+cat__family_at_14_Unknown,0.249583
+cat__religion_raised_Catholic,-0.139407
+cat__religion_raised_Jewish,-0.355339
+cat__religion_raised_No religion,0.0163539
+cat__religion_raised_Other,0.0776917
+cat__religion_raised_Other Protestant,-0.144939
+cat__religion_raised_Unknown,0.10186
+cat__attendance_Never,0.0344869
+cat__attendance_Several times a year or less,0.044022
+cat__attendance_Unknown,-0.0229283
+cat__attendance_Weekly or more,-0.151104
+cat__poverty_Not in poverty,-0.131311
+cat__poverty_Unknown,0.0034233
+cat__region_Northeast,-0.0259051
+cat__region_South,0.216574
+cat__region_Unknown,-0.158076
+cat__region_West,0.187738
+cat__urban_Unknown,0.158539
+cat__urban_Urban,0.0829105
+cat__premarital_birth_Yes,0.0118747
+cat__cohabiting_before_Unknown,0.125681
+cat__cohabiting_before_Yes,0.0514547
+cat__lived_with_parents_Unknown,0.125681
+cat__lived_with_parents_Yes,-0.251847
+cat__spouse_in_household_Yes,-0.543079
+cat__spouse_education_13-15 years,-0.0670791
+cat__spouse_education_16+ years,-0.413387
+cat__spouse_education_<12 years,0.164487
+cat__spouse_education_Unknown,-0.0111244
+cat__spouse_worked_Unknown,0.373729
+cat__spouse_worked_Yes,0.104011
+cat__afqt_missing_Observed,0.175532
+cat__income_missing_Observed,-0.0034233
+cat__rosenberg_missing_Observed,-0.0145711
+cat__delinquency_missing_Observed,-0.0715762

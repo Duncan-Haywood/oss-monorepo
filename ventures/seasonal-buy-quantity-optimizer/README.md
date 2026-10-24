@@ -5,7 +5,7 @@ seasons handled) or a low / likely / high guess, plus price, cost, supplier pric
 order quantity that maximises expected profit, a cautious order, the chance of selling out or losing money, and a
 back-test on your own history.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/seasonal-buy-quantity-optimizer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/seasonal-buy-quantity-optimizer/
 
 After using this, you can now **decide how many units to order for a holiday, a drop or an event, see what a supplier
 price break is really worth, and know how much cash you are risking**.
@@ -22,6 +22,10 @@ price break is really worth, and know how much cash you are risking**.
   Textbook newsvendor quantile shown as a reference. Value of knowing demand is an upper bound.
 - Back-test: leave-one-season-out against "order the average" and "order the best ever".
 - Refuses: fewer than 3 seasons, fewer than 2 that did not sell out, leftover value above price, bad ranges.
+
+- Cash-limited basket: analyse several products, then split one pot of cash between them. Starts from the concave hull
+  of each product's (cash, expected profit) curve, spends on the best profit per dollar first, then a swap pass. It is a
+  heuristic with price breaks, so it reports the fractional upper bound and the profit given up to the limit.
 
 ## Limits
 

@@ -8,6 +8,11 @@
   <meta property="og:title" content="Bid Price Engine — price any job at the margin you need">
   <meta property="og:description" content="One bid calculator for 120+ trades. Cost, overhead, contingency and target margin to a price, with the walk-away number and overrun headroom. Runs in your browser.">
   <link rel="canonical" href="./index.html">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#8a4b0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Bid Price">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Bid Price Engine", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free job bid calculator for 120+ trades: labor with burden, materials with waste, subs, contingency, overhead and a target margin turned into a price, walk-away price and overrun headroom."}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the difference between markup and margin?", "acceptedAnswer": {"@type": "Answer", "text": "Markup is the percentage you add on top of your cost. Margin is the share of the final price that is profit. A 25% markup is a 20% margin, and a 25% margin needs a 33.3% markup. This tool takes the margin you want and works out the price as cost divided by one minus the margin, so you never have to convert in your head."}}, {"@type": "Question", "name": "How do I price a job so that I actually make money?", "acceptedAnswer": {"@type": "Answer", "text": "Add up what the job costs you in labor (wages plus payroll burden), materials (plus the waste you buy), subcontractors, equipment and travel. Add a contingency for surprises and your overhead, then divide by one minus the profit margin you need. That figure is the price; anything lower trades profit for the chance of winning the job."}}, {"@type": "Question", "name": "What overhead and burden percentages should I use?", "acceptedAnswer": {"@type": "Answer", "text": "The defaults on the page are planning starting points for the kind of work you pick, not industry benchmarks. For burden, use your payroll taxes, workers' compensation and benefits as a share of wages. For overhead, divide last year's non-job costs (insurance, vehicles, office, software, owner's admin time) by last year's direct job cost; the helper on the page does that sum."}}, {"@type": "Question", "name": "Does it work for my trade?", "acceptedAnswer": {"@type": "Answer", "text": "It prices any job built from labor, materials, subcontractors and equipment. Pick your trade to load starting inputs for that kind of work and a link to the specialist calculator for it, which models the details that are particular to that trade, such as dump weight for junk removal or squares for roofing."}}, {"@type": "Question", "name": "What does the walk-away price mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is your full cost: direct cost, contingency and overhead, with zero profit. Below it you lose money on the job once the business's own costs are counted. The cash floor is lower, only what you spend out of pocket, and is the figure to compare against a bid you are tempted to match in a slow week."}}, {"@type": "Question", "name": "Is my pricing sent anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every figure is calculated in this browser tab. Nothing is uploaded, there are no accounts, and a share link stores the inputs in the web address after the # sign, which your browser never sends to a server."}}, {"@type": "Question", "name": "Is this legal, tax or accounting advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the numbers you type. It does not know your licensing, bonding, sales tax, prevailing wage or lien rules, and it makes no promise that a job will cost what you entered."}}]}</script>
   <style>
@@ -79,6 +84,16 @@
 
   <section class="card" id="result" aria-live="polite"></section>
 
+  <section class="card" id="winrate">
+    <h2>Which margin wins the most money? Learn it from your own bids</h2>
+    <p class="note">A margin that looks right on the cost side ignores the bids you lose by quoting high. After each quote, log whether you won it. From eight bids with at least two wins and two losses, the page fits a win-chance curve to your history and shows the margin with the best expected profit per bid. The log stays on this device; nothing is uploaded.</p>
+    <button type="button" id="wr-won">Log the bid above: won</button> <button type="button" class="secondary" id="wr-lost">Log the bid above: lost</button> <span id="wr-msg" class="note" role="status"></span>
+    <label for="wr-import">Or paste past bids, one per line: <code>price,cost,won</code> (won = 1 or 0; cost is your full cost incl. overhead)</label>
+    <textarea id="wr-import" rows="3" placeholder="12400,9800,1&#10;15100,11000,0"></textarea>
+    <button type="button" class="secondary" id="wr-add">Add pasted bids</button>
+    <div id="wr-result" aria-live="polite"></div>
+  </section>
+
   <section class="card" id="closeout">
     <h2>Close out the job: what it really left</h2>
     <p class="note">When the job is done, enter what it actually took. The bid above is the comparison. Closed jobs are kept on this device only; after three, the page shows how far your jobs run over and the contingency that would have covered it.</p>
@@ -116,12 +131,17 @@
 
   <footer>
     <p><strong>No warranty.</strong> This is arithmetic on the numbers you type; it is not legal, tax, or financial advice. Defaults are planning starting points, not benchmarks. It does not model licensing, bonding, sales tax, prevailing wage or lien rules. Everything runs in your browser. Nothing is uploaded and there are no accounts. Anonymous feature counts (<code>bid_priced</code>, <code>link_copied</code>) stay in local storage on your device and are off under Do Not Track. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p><strong>Install it:</strong> in Chrome or Safari choose "Add to Home Screen" (Android: "Install app") and it opens full screen and works with no signal on a job site. Building a store app from the same files: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/bid-price-engine/mobile">mobile/ README</a>.</p>
     <p>Free and MIT licensed. If it saves you a bad bid, <a href="https://github.com/sponsors/Duncan-Haywood">support the creator on GitHub Sponsors</a>.</p>
   </footer>
 </main>
+<script>
+  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
 <script type="module">
   import { priceJob, parseLabor, parseCosts, overheadPctFrom, priceLadder } from "./calc.mjs";
   import { closeoutJob, trackRecord } from "./closeout.mjs";
+  import { winRateCurve, bidMarginPct } from "./winrate.mjs";
   import { TRADES, CATEGORIES } from "./trades.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   const $ = (s) => document.querySelector(s);
@@ -245,6 +265,53 @@
     } catch (e) { $("#co-msg").textContent = e.message; }
   };
   renderRecord();
+
+  // Bid log for the win-rate curve. Stays on this device; storage may be blocked.
+  const BIDS_KEY = "bid-price-engine-bid-log";
+  const loadBids = () => { try { const a = JSON.parse(localStorage.getItem(BIDS_KEY) || "[]"); return Array.isArray(a) ? a.filter((b) => b && Number.isFinite(b.marginPct)) : []; } catch { return []; } };
+  const saveBids = (a) => { try { localStorage.setItem(BIDS_KEY, JSON.stringify(a.slice(-500))); return true; } catch { return false; } };
+  function renderWinRate() {
+    const bids = loadBids(); const el = $("#wr-result");
+    if (!bids.length) { el.innerHTML = ""; return; }
+    const r = winRateCurve(bids);
+    const tools = `<p><button type="button" class="secondary" id="wr-clear">Delete this log</button></p>`;
+    let body;
+    if (!r.ready) {
+      body = r.reason === "too-few" ? `<p class="note">${r.bids} bid${r.bids === 1 ? "" : "s"} logged. Log ${r.need} more to fit a curve.</p>`
+        : r.reason === "one-sided" ? `<p class="note">${r.wins} won, ${r.losses} lost so far. A curve needs at least two of each, or it cannot tell what price loses you work.</p>`
+        : `<p class="note">Every bid so far carries nearly the same margin, so there is nothing to compare. Log some bids at a higher or lower margin.</p>`;
+    } else if (!r.found) {
+      body = `<div class="warn">Across ${r.bids} bids (${r.winRate}% won) your win rate does not fall as margin rises, so the log cannot say that a lower margin would win more. Keep logging; do not read this as permission to raise prices without limit.</div>`;
+    } else {
+      const range = r.interval ? ` Resampling your bids puts it between <b>${r.interval.low}%</b> and <b>${r.interval.high}%</b>${r.confident ? "." : ", a wide range: treat it as a direction, not a number."}` : "";
+      body = `<div class="ok">Across <b>${r.bids}</b> bids (${r.winRate}% won), expected profit per bid peaks near a <b>${r.bestMarginPct}%</b> margin, where the curve gives about a ${r.winChanceAtBestPct}% chance of winning. Your average quoted margin is ${r.avgMarginPct}% (${r.winChanceAtAvgPct}% chance); at ${r.bestMarginPct}% the model expects ${r.liftPct >= 0 ? "+" : ""}${r.liftPct}% more profit per bid quoted.${range}</div>
+        <p class="note">It only looks inside the margins you have actually quoted, and it sees price, not the customer, the trade or the season, so a big job and a small one are treated alike. <button type="button" class="secondary" id="wr-apply">Set target margin to ${r.bestMarginPct}%</button></p>`;
+    }
+    el.innerHTML = body + tools;
+    const ap = $("#wr-apply"); if (ap) ap.onclick = () => { $("#margin").value = r.bestMarginPct; render(false); $("#wr-msg").textContent = "Target margin updated. The bid price above has changed."; };
+    $("#wr-clear").onclick = () => { if (confirm("Delete every logged bid saved on this device?")) { saveBids([]); renderWinRate(); } };
+  }
+  for (const [id, won] of [["#wr-won", true], ["#wr-lost", false]]) $(id).onclick = () => {
+    if (!last) { $("#wr-msg").textContent = "Fix the bid above first."; return; }
+    const m = bidMarginPct(last.price, last.fullCost);
+    if (m === null) { $("#wr-msg").textContent = "That bid has no margin to log."; return; }
+    saveBids(loadBids().concat([{ marginPct: Math.round(m * 100) / 100, won, date: new Date().toISOString().slice(0, 10) }]));
+    record("bid_logged"); $("#wr-msg").textContent = won ? "Logged as won." : "Logged as lost."; renderWinRate();
+  };
+  $("#wr-add").onclick = () => {
+    const rows = $("#wr-import").value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const added = []; let skipped = 0;
+    for (const row of rows) {
+      const [p, c, w] = row.replace(/[$]/g, "").split(",").map((x) => x.trim());
+      const m = bidMarginPct(p, c);
+      if (m === null || !/^(1|0|won|lost|true|false|yes|no)$/i.test(w || "")) { skipped++; continue; }
+      added.push({ marginPct: Math.round(m * 100) / 100, won: /^(1|won|true|yes)$/i.test(w), date: new Date().toISOString().slice(0, 10) });
+    }
+    if (added.length) { saveBids(loadBids().concat(added)); record("bids_imported"); $("#wr-import").value = ""; }
+    $("#wr-msg").textContent = `${added.length} added${skipped ? `, ${skipped} line${skipped === 1 ? "" : "s"} skipped (need price,cost,won with cost below price)` : ""}.`;
+    renderWinRate();
+  };
+  renderWinRate();
 </script>
 </body>
 </html>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-labelledby="t d">
+<title id="t">Detectability of a wrong digital twin against the cost of tuning on it</title>
+<desc id="d">Each point is one wrong pendulum twin: C2ST AUROC on the x axis, mean extra real-system cost of a controller tuned on the twin on the y axis. Most twins that the classifier separates from the real system cost nothing extra.</desc>
+<style>text{font:12px sans-serif;fill:#222}.g{stroke:#ddd}.a{stroke:#555}@media(prefers-color-scheme:dark){text{fill:#ddd}.g{stroke:#444}.a{stroke:#aaa}}</style>
+<rect width="720" height="420" fill="none"/>
+<text x="70" y="24" style="font-size:14px;font-weight:bold">Only the gravity errors cost much; detectability does not predict cost</text>
+<line class="g" x1="70" x2="700" y1="364.0" y2="364.0"/><text x="64" y="368.0" text-anchor="end">0.000</text>
+<line class="g" x1="70" x2="700" y1="344.8" y2="344.8"/><text x="64" y="348.8" text-anchor="end">0.002</text>
+<line class="g" x1="70" x2="700" y1="325.6" y2="325.6"/><text x="64" y="329.6" text-anchor="end">0.004</text>
+<line class="g" x1="70" x2="700" y1="306.4" y2="306.4"/><text x="64" y="310.4" text-anchor="end">0.006</text>
+<line class="g" x1="70" x2="700" y1="287.2" y2="287.2"/><text x="64" y="291.2" text-anchor="end">0.008</text>
+<line class="g" x1="70" x2="700" y1="268.0" y2="268.0"/><text x="64" y="272.0" text-anchor="end">0.010</text>
+<line class="g" x1="124.3" x2="124.3" y1="50" y2="364"/><text x="124.3" y="380" text-anchor="middle">0.5</text>
+<line class="g" x1="232.9" x2="232.9" y1="50" y2="364"/><text x="232.9" y="380" text-anchor="middle">0.6</text>
+<line class="g" x1="341.6" x2="341.6" y1="50" y2="364"/><text x="341.6" y="380" text-anchor="middle">0.7</text>
+<line class="g" x1="450.2" x2="450.2" y1="50" y2="364"/><text x="450.2" y="380" text-anchor="middle">0.8</text>
+<line class="g" x1="558.8" x2="558.8" y1="50" y2="364"/><text x="558.8" y="380" text-anchor="middle">0.9</text>
+<line class="g" x1="667.4" x2="667.4" y1="50" y2="364"/><text x="667.4" y="380" text-anchor="middle">1.0</text>
+<line class="a" x1="70" x2="700" y1="364" y2="364"/><line class="a" x1="70" x2="70" y1="50" y2="364"/>
+<text x="385.0" y="406" text-anchor="middle">C2ST AUROC of the twin against the real system (0.5 = cannot tell)</text>
+<text transform="translate(16 207.0) rotate(-90)" text-anchor="middle">extra real cost of twin-tuned gains (regret)</text>
+<circle cx="138.1" cy="363.1" r="5" fill="none" stroke="#1f6fb2" stroke-width="2"><title>exact twin (null): AUROC 0.513, regret 0.00009</title></circle>
+<text x="130.1" y="355.1" text-anchor="end" style="font-size:11px">exact twin (null)</text>
+<circle cx="212.4" cy="363.3" r="5" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="2"><title>coul -10%: AUROC 0.581, regret 0.00007</title></circle>
+<circle cx="474.8" cy="360.9" r="5" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="2"><title>coul -20%: AUROC 0.823, regret 0.00032</title></circle>
+<circle cx="623.8" cy="363.3" r="5" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="2"><title>coul -33%: AUROC 0.960, regret 0.00007</title></circle>
+<circle cx="664.0" cy="363.4" r="5" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="2"><title>coul -67%: AUROC 0.997, regret 0.00006</title></circle>
+<circle cx="666.8" cy="355.0" r="5" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="2"><title>coul = 0: AUROC 0.999, regret 0.00094</title></circle>
+<circle cx="622.7" cy="362.4" r="5" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="2"><title>visc x2: AUROC 0.959, regret 0.00016</title></circle>
+<circle cx="570.4" cy="363.0" r="5" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="2"><title>visc x0.5: AUROC 0.911, regret 0.00011</title></circle>
+<circle cx="665.7" cy="83.6" r="5" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="2"><title>g/L +20%: AUROC 0.998, regret 0.02921</title></circle>
+<text x="657.7" y="75.6" text-anchor="end" style="font-size:11px">g/L +20%</text>
+<circle cx="665.9" cy="239.6" r="5" fill="#1f6fb2" stroke="#1f6fb2" stroke-width="2"><title>g/L -20%: AUROC 0.999, regret 0.01296</title></circle>
+<text x="657.9" y="231.6" text-anchor="end" style="font-size:11px">g/L -20%</text>
+<circle cx="582.5" cy="356.8" r="5" fill="#c0392b" stroke="#c0392b" stroke-width="2"><title>gauss noise, same sd: AUROC 0.922, regret 0.00075</title></circle>
+<circle cx="659.2" cy="363.4" r="5" fill="#c0392b" stroke="#c0392b" stroke-width="2"><title>noise sd x0.5: AUROC 0.992, regret 0.00006</title></circle>
+<circle cx="516.3" cy="363.4" r="5" fill="#c0392b" stroke="#c0392b" stroke-width="2"><title>noise sd x0.75: AUROC 0.861, regret 0.00006</title></circle>
+<circle cx="603.9" cy="355.4" r="5" fill="#c0392b" stroke="#c0392b" stroke-width="2"><title>noise sd x1.5: AUROC 0.941, regret 0.00090</title></circle>
+<circle cx="659.8" cy="354.4" r="5" fill="#c0392b" stroke="#c0392b" stroke-width="2"><title>noise sd x2: AUROC 0.993, regret 0.00100</title></circle>
+<circle cx="667.4" cy="363.4" r="5" fill="#c0392b" stroke="#c0392b" stroke-width="2"><title>noise sd x0 (no noise): AUROC 1.000, regret 0.00006</title></circle>
+<text x="700" y="64" text-anchor="end" style="fill:#1f6fb2">blue: dynamics errors</text><text x="700" y="80" text-anchor="end" style="fill:#c0392b">red: sensor-noise errors</text>
+</svg>

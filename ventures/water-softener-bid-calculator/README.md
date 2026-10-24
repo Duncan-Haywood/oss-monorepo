@@ -7,14 +7,11 @@ under-sink RO, the brine drain, haul-away of the old unit, and a brine
 receptacle as their own hours — and shows the margin before the price
 goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/water-softener-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/water-softener-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

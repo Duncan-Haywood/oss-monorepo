@@ -1,0 +1,7 @@
+{
+  "retained_birth_year_min": 1957,
+  "retained_birth_year_max": 1964,
+  "complete_30_status_waves_n": 3529,
+  "no_recorded_divorce_n": 2681,
+  "no_recorded_divorce_with_any_missing_status_wave_n": 893
+}

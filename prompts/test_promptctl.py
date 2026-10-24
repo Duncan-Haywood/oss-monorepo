@@ -267,6 +267,13 @@ class MeasureTest(PromptTestCase):
         self.assertAlmostEqual(low, 0.4902, places=3)
         self.assertAlmostEqual(high, 0.9433, places=3)
 
+    def test_filter_sections_keeps_only_matching_titles(self):
+        text = "# Title\n\n## One\na\n\n## Two friction\nb\n"
+        self.assertEqual(promptctl.filter_sections(text, "FRICTION"), "## Two friction\nb\n".rstrip("\n"))
+        self.assertEqual(promptctl.filter_sections(text, None), text)
+        with self.assertRaises(SystemExit):
+            promptctl.filter_sections(text, "missing")
+
     def test_measure_groups_by_version_model_and_friction(self):
         friction = [{"file": "CLAUDE.md", "issue": "stale command"}]
         self.fx.run("2026-10-12-a.json", _record(day="2026-10-01", model="m1", merged=True,
@@ -291,6 +298,37 @@ class MeasureTest(PromptTestCase):
         self.fx.run("2026-10-12-a.json", _record(day="2026-10-01", doc_friction=friction))
         m = promptctl.measure(self.fx.root)
         self.assertEqual(m["doc_friction"]["CLAUDE.md"]["reports"], 2)
+
+    def test_measure_hides_friction_the_reporting_run_fixed(self):
+        friction = [{"file": "CLAUDE.md", "issue": "stale command; fixed here."},
+                    {"file": "CLAUDE.md", "issue": "flag unmentioned (fixed)"},
+                    {"file": "CLAUDE.md", "issue": "plots nothing; not fixed here"},
+                    {"file": "CLAUDE.md", "issue": "stale command"}]
+        self.fx.run("2026-10-12-a.json", _record(day="2026-10-01", doc_friction=friction))
+        m = promptctl.measure(self.fx.root)
+        self.assertEqual(m["doc_friction"]["CLAUDE.md"]["reports"], 2)
+
+    def test_friction_listing_drops_reports_older_than_the_fresh_window(self):
+        import contextlib, io
+        self.fx.run("2026-10-01-a.json", _record(day="2026-10-01", doc_friction=[{"file": "CLAUDE.md", "issue": "ancient"}]))
+        self.fx.run("2026-10-20-a.json", _record(day="2026-10-20", doc_friction=[{"file": "CLAUDE.md", "issue": "recent"}]))
+        m = promptctl.measure(self.fx.root)
+        self.assertEqual(m["doc_friction"]["CLAUDE.md"]["reports"], 2)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_measure(m)
+        self.assertNotIn("ancient", out.getvalue())
+        self.assertIn("recent", out.getvalue())
+
+    def test_friction_listing_truncates_long_reports(self):
+        import contextlib, io
+        long = "x" * 500
+        self.fx.run("2026-10-20-a.json", _record(day="2026-10-20", doc_friction=[{"file": "CLAUDE.md", "issue": long}]))
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_measure(promptctl.measure(self.fx.root))
+        self.assertNotIn("x" * 300, out.getvalue())
+        self.assertIn("x" * 150, out.getvalue())
 
     def test_verdict_rules(self):
         champ = {"runs": 20, "success_rate": 0.5, "integrity_issues": 0,
@@ -320,7 +358,75 @@ class RepositoryTest(unittest.TestCase):
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
         self.assertAlmostEqual(weights["explore"] / sum(weights.values()), 0.05, places=3)
 
+    def test_creative_work_gets_about_ten_percent(self):
+        # The owner, 2026-10-21: a portion of the scheduled fleet operates the
+        # creative projects (prompts/creative/prompt-0.md).
+        tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
+        weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
+        self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.10, places=3)
 
+
+
+
+class SystemMapTest(PromptTestCase):
+    """prompts/system.json: every guidance file has a layer (prompts/SYSTEM.md)."""
+
+    def system(self, docs, **extra) -> None:
+        data = {"layers": [{"id": "goals", "question": "?"}, {"id": "entry", "question": "?"},
+                           {"id": "area", "question": "?"}],
+                "changed_by": ["owner", "review", "any"], "docs": docs,
+                "guidance_patterns": ["prompt.md", "**/CLAUDE.md"], "ignore": ["**/fixtures/**"]}
+        data.update(extra)
+        (self.fx.root / "system.json").write_text(json.dumps(data))
+
+    def entry(self, **doc):
+        return {"layer": "entry", "changed_by": "review", "answers": "x", **doc}
+
+    def test_no_map_is_not_an_error(self):
+        self.assertEqual(promptctl.validate_system(self.fx.root), [])
+
+    def test_a_mapped_tree_is_valid(self):
+        (self.fx.repo / "ventures" / "a").mkdir(parents=True)
+        (self.fx.repo / "ventures" / "a" / "CLAUDE.md").write_text("notes\n")
+        self.system([self.entry(path="prompt.md"),
+                     {"glob": "ventures/*/CLAUDE.md", "layer": "area", "changed_by": "any", "answers": "x"}])
+        self.assertEqual(promptctl.validate_system(self.fx.root), [])
+
+    def test_an_unmapped_guidance_file_fails(self):
+        (self.fx.repo / "research" / "deep" / "p").mkdir(parents=True)
+        (self.fx.repo / "research" / "deep" / "p" / "CLAUDE.md").write_text("notes\n")
+        self.system([self.entry(path="prompt.md")])
+        errors = promptctl.validate_system(self.fx.root)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("research/deep/p/CLAUDE.md", errors[0])
+
+    def test_ignored_paths_are_not_guidance(self):
+        (self.fx.repo / "x" / "fixtures" / "repo").mkdir(parents=True)
+        (self.fx.repo / "x" / "fixtures" / "repo" / "CLAUDE.md").write_text("bait\n")
+        self.system([self.entry(path="prompt.md")])
+        self.assertEqual(promptctl.validate_system(self.fx.root), [])
+
+    def test_bad_entries_fail(self):
+        self.system([self.entry(path="prompt.md"), self.entry(path="gone.md"),
+                     self.entry(path="prompt.md"), {"path": "prompt.md", "glob": "x", "layer": "entry"},
+                     self.entry(path="prompts/goals.md", layer="nowhere", budget=0, answers=""),
+                     {"path": "prompts/README.md", "layer": "goals", "changed_by": "review", "answers": "x"}])
+        text = "\n".join(promptctl.validate_system(self.fx.root))
+        for needle in ("gone.md does not exist", "listed twice", "exactly one of path or glob",
+                       "layer 'nowhere'", "budget must be", "which question", "belongs to the owner"):
+            self.assertIn(needle, text)
+
+    def test_glob(self):
+        self.assertTrue(promptctl.glob_re("**/CLAUDE.md").match("CLAUDE.md"))
+        self.assertTrue(promptctl.glob_re("**/CLAUDE.md").match("a/b/CLAUDE.md"))
+        self.assertFalse(promptctl.glob_re("ventures/*/CLAUDE.md").match("ventures/a/b/CLAUDE.md"))
+        self.assertTrue(promptctl.glob_re("**/fixtures/**").match("v/t/fixtures/r/AGENTS.md"))
+        self.assertFalse(promptctl.glob_re("prompt.md").match("prompt.mdx"))
+
+    def test_the_real_map_feeds_measure(self):
+        self.assertIn("CLAUDE.md", promptctl.INSTRUCTION_FILES)
+        self.assertIn("prompts/goals.md", promptctl.INSTRUCTION_FILES)
+        self.assertEqual(promptctl.budget_for("prompts/ventures/prompt-9.md"), promptctl.SUBPROMPT_BUDGET)
 
 
 class RedteamTest(PromptTestCase):
@@ -331,12 +437,14 @@ class RedteamTest(PromptTestCase):
                                      "candidate_share": 0}
         self.fx.routing(data)
 
-    def test_share_must_stay_between_five_and_ten_percent(self):
+    def test_share_outside_five_to_ten_percent_warns_but_validates(self):
         self._with_redteam(0.15)  # 0.15 / 2.15 = 7.0%
         self.assertEqual(promptctl.validate(self.fx.root), [])
+        self.assertIsNone(promptctl.redteam_band_warning(self.fx.root))
         for weight in (0.05, 0.5):  # 2.4% and 20%
             self._with_redteam(weight)
-            self.assertTrue(any("redteam is" in e for e in promptctl.validate(self.fx.root)))
+            self.assertEqual(promptctl.validate(self.fx.root), [])
+            self.assertIn("redteam is", promptctl.redteam_band_warning(self.fx.root))
 
     def test_redteam_records_are_checked_and_measured(self):
         self._with_redteam(0.15)
@@ -424,6 +532,27 @@ class DeviationTest(PromptTestCase):
         self.assertEqual(promptctl.validate(self.fx.root), [])
 
 
+class WriteupTest(PromptTestCase):
+    def test_writeups_are_checked_and_counted_from_the_start_date(self):
+        ups = ["docs/reports/2026-10-21-x-for-agents.md", "docs/posts/2026-10-21-x.md"]
+        self.fx.run("2026-10-20-a.json", _record(date="2026-10-20", pr="1", writeups=ups))
+        self.fx.run("2026-10-21-b.json", _record(date="2026-10-21", pr="1", writeups=ups))
+        self.fx.run("2026-10-21-c.json", _record(date="2026-10-21", pr="1", writeups=ups[1:]))
+        self.assertEqual(promptctl.validate(self.fx.root), [])
+        self.assertEqual(promptctl.measure(self.fx.root)["writeups"],
+                         {"runs": 2, "agent_doc": 1, "post": 2})
+        self.fx.run("2026-10-21-c.json", _record(date="2026-10-21", pr="1", writeups="docs/posts/x.md"))
+        self.assertTrue(any("writeups must" in e for e in promptctl.validate(self.fx.root)))
+
+    def test_posts_per_day_counts_filename_dates_up_to_the_newest(self):
+        posts = self.fx.repo / "docs" / "posts"
+        posts.mkdir(parents=True)
+        for name in ("2026-10-20-a.md", "2026-10-22-b.md", "2026-10-22-c.md", "notes.md"):
+            (posts / name).write_text("x\n")
+        self.assertEqual(promptctl.posts_per_day(self.fx.root, days=4),
+                         [("2026-10-19", 0), ("2026-10-20", 1), ("2026-10-21", 0), ("2026-10-22", 2)])
+
+
 class BackfillPrTest(unittest.TestCase):
     def test_pr_number_comes_from_the_squash_subject(self):
         import subprocess
@@ -464,13 +593,27 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
         self.assertEqual(promptctl._flag_stale("2026-10-17T13:00: x", "2026-10-17T12:00:00+00:00"),
                          "2026-10-17T13:00: x")
 
+    def test_changed_note_ignores_the_shallow_boundary(self):
+        from unittest import mock
+        run = mock.Mock(return_value=mock.Mock(stdout="abc123 2026-10-20T04:30:00+00:00\n"))
+        with mock.patch.object(promptctl.subprocess, "run", run), \
+                mock.patch.object(promptctl, "_shallow_boundary", return_value={"abc123"}):
+            note, changed = promptctl._changed_note("CLAUDE.md")
+        self.assertEqual(changed, "")
+        self.assertIn("shallow-clone edge", note)
+        with mock.patch.object(promptctl.subprocess, "run", run), \
+                mock.patch.object(promptctl, "_shallow_boundary", return_value=set()):
+            self.assertEqual(promptctl._changed_note("CLAUDE.md")[1], "2026-10-20T04:30:00+00:00")
+
     def test_latest_and_named_files(self):
         self.assertEqual(promptctl._latest("", "2026-10-17"), "2026-10-17")
         self.assertEqual(promptctl._latest("2026-10-18", "2026-10-17"), "2026-10-18")
         self.assertEqual(promptctl._latest("2026-10-18", ""), "2026-10-18")
         self.assertEqual(promptctl._named_files_changed("no path here"), "")
         self.assertEqual(promptctl._named_files_changed("nonexistent/zzz.py broke"), "")
-        self.assertTrue(promptctl._named_files_changed("prompts/promptctl.py is long"))
+        from unittest import mock
+        with mock.patch.object(promptctl, "_shallow_boundary", return_value=set()):  # shallow clones know no dates
+            self.assertTrue(promptctl._named_files_changed("prompts/promptctl.py is long"))
 
     def test_string_friction_and_deviation_entries_do_not_crash(self):
         import tempfile, json

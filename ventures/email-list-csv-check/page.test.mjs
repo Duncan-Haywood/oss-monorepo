@@ -46,7 +46,7 @@ test("robots and sitemap let crawlers find the page", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["file_checked", "example_loaded", "fixes_applied", "rejected_downloaded"]) {
+  for (const e of ["file_checked", "example_loaded", "fixes_applied", "rejected_downloaded", "suppression_used"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }

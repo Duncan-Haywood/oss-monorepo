@@ -1,0 +1,10 @@
+|--- cat__baseline_status_Separated <= 0.50000
+|   |--- num__age <= 0.16447
+|   |   |--- value: [0.01231]
+|   |--- num__age >  0.16447
+|   |   |--- value: [0.00607]
+|--- cat__baseline_status_Separated >  0.50000
+|   |--- num__age <= -0.12792
+|   |   |--- value: [0.15766]
+|   |--- num__age >  -0.12792
+|   |   |--- value: [0.08664]

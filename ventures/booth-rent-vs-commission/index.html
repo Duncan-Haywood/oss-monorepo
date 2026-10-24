@@ -101,6 +101,9 @@
         <div class="fields">
           <label>Service commission (%) <input id="commissionPercent" type="number" min="0" max="100" step="0.5" value="50"></label>
           <label>Retail commission (%) <input id="retailCommissionPercent" type="number" min="0" max="100" step="0.5" value="10"></label>
+          <label>Step-up at weekly service sales ($, optional) <input id="commissionStepSales" type="number" min="0" step="50" value=""></label>
+          <label>Split after the step-up (%) <input id="commissionStepPercent" type="number" min="0" max="100" step="0.5" value=""></label>
+          <label>Step-up applies to <select id="commissionStepMode"><option value="above">only sales above the threshold</option><option value="all">all sales once reached</option></select></label>
           <label>Unpaid hours / week <input id="unpaidHoursCommission" type="number" min="0" step="0.5" value="2"></label>
         </div>
       </section>
@@ -126,9 +129,9 @@
         <p class="hint">On commission you are a W-2 employee and the salon pays half your FICA. On booth rent you are self-employed and pay both halves &mdash; an effective 14.1% of net against 7.65% of wages, charged to the booth side only. Until that comes out, the two checks are not the same dollars.</p>
         <div class="fields">
           <label>Marginal income-tax bracket (%) <input id="marginalIncomeTaxPercent" type="number" min="0" max="100" step="1" value="0" placeholder="0 = ignore"></label>
-          <label>Social Security wage base ($) <input id="socialSecurityWageBase" type="number" min="1" step="any" value="176100"></label>
+          <label>Social Security wage base ($) <input id="socialSecurityWageBase" type="number" min="1" step="any" value="184500"></label>
         </div>
-        <p class="hint">The bracket is optional: half of self-employment tax is deductible against income tax, and naming your bracket credits that back. Left at 0 it is worth nothing here, which understates booth rent rather than overstating it. Social Security stops at the wage base and Medicare does not; the default is the 2025 amount, indexed every January, so check yours if your chair income is near it. Income tax itself is not modelled &mdash; it lands on either deal much the same and depends on your whole household.</p>
+        <p class="hint">The bracket is optional: half of self-employment tax is deductible against income tax, and naming your bracket credits that back. Left at 0 it is worth nothing here, which understates booth rent rather than overstating it. Social Security stops at the wage base and Medicare does not; the default is the 2026 amount, indexed every January, so check yours if your chair income is near it. Income tax itself is not modelled &mdash; it lands on either deal much the same and depends on your whole household.</p>
       </section>
 
       <section class="faq" id="faq">
@@ -236,7 +239,7 @@
 
     const FIELD_IDS = [
       'averageTicket','clientsPerWeek','retailPerWeek','weeksWorkedPerYear',
-      'averageServiceMinutes','commissionPercent','retailCommissionPercent',
+      'averageServiceMinutes','commissionPercent','commissionStepSales','commissionStepPercent','commissionStepMode','retailCommissionPercent',
       'unpaidHoursCommission','boothRentAmount','boothRentCadence',
       'cardFeePercent','backbarPercent','retailCostPercent','otherWeeklyCost',
       'unpaidHoursBooth','offeredRentAmount','offeredRentCadence',

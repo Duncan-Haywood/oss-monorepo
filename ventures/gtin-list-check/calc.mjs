@@ -29,6 +29,18 @@ export function isbn10To13(s) {
   return body + computeCheck(body);
 }
 
+// UPC-E (8 digits, number system 0 or 1) is a zero-suppressed UPC-A; its check digit is the UPC-A one.
+export function upcEToUpcA(e) {
+  if (!/^[01]\d{7}$/.test(e)) return null;
+  const [n, a, b, c, d, f, g, chk] = e;
+  const mid = "012".includes(g) ? a + b + g + "0000" + c + d + f
+    : g === "3" ? a + b + c + "00000" + d + f
+    : g === "4" ? a + b + c + d + "00000" + f
+    : a + b + c + d + f + "0000" + g;
+  const out = n + mid + chk;
+  return checkDigitOk(out) ? out : null;
+}
+
 export function decodeBuffer(buf) {
   const b = new Uint8Array(buf);
   if (b[0] === 0xff && b[1] === 0xfe) return new TextDecoder("utf-16le").decode(b.subarray(2));
@@ -64,6 +76,22 @@ export function classify(raw) {
   let s = String(raw ?? "").trim();
   if (s === "") return { kind: "empty" };
   let notes = [];
+  // Invisible and look-alike characters that arrive from web pages, PDFs and ERP exports.
+  const tidy = s
+    .replace(/[\u200b-\u200d\u2060\ufeff\u00ad]/g, "")
+    .replace(/[\uff10-\uff19]/g, (c) => String(c.charCodeAt(0) - 0xff10))
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/[\u00a0\u2007\u202f]/g, " ")
+    .trim();
+  if (tidy !== s) { notes.push("invisible, full-width or look-alike characters were replaced"); s = tidy; }
+  const label = /^(?:gtin(?:-?\d+)?|upc(?:-?[aeAE])?|ean(?:-?\d+)?|isbn(?:-?\d+)?|barcode)\s*[:#=]?\s*(?=[\d'"=])/i.exec(s);
+  if (label) { notes.push(`the "${label[0].trim()}" label was removed`); s = s.slice(label[0].length); }
+  // GS1 data carriers: a Digital Link URL (.../01/<gtin>), the (01) Application Identifier, a scanner symbology prefix (]E0, ]C1, ]d2).
+  const link = /^https?:\/\/[^\s/]+(?:\/[^\s/?#]+)*?\/01\/(\d{8,14})(?=[/?#]|$)\S*$/i.exec(s);
+  if (link) { notes.push("the GTIN was taken from a GS1 Digital Link URL"); s = link[1]; }
+  else if (/^\(01\)\s*\d[\d\s-]*$/.test(s)) { notes.push("the (01) GS1 application identifier was removed"); s = s.replace(/^\(01\)\s*/, ""); }
+  else if (/^\][A-Za-z][0-9A-Za-z]\d[\d\s-]*$/.test(s)) { notes.push("a scanner symbology prefix was removed"); s = s.slice(3); }
+  if (/^\d{1,3}(?:,\d{3})+$/.test(s)) { notes.push("thousands separators were removed"); s = s.replace(/,/g, ""); }
   if (/^'/.test(s)) { s = s.slice(1); notes.push("a leading apostrophe was removed"); }
   s = s.replace(/^="?|"$/g, "").trim();
   const sci = /^(\d+)(?:\.(\d+))?[eE]\+?(\d+)$/.exec(s);
@@ -88,6 +116,8 @@ export function classify(raw) {
   if (s.length === 10 && isbn10Ok(s)) return { kind: "ok", value: isbn10To13(s), fixed: true, notes: [...notes, "ISBN-10 converted to ISBN-13 (978 prefix)"] };
   const t = tryDigits(s);
   if (t.ok) return { kind: "ok", value: t.value, fixed: t.value !== s || notes.length > 0, notes: t.value !== s ? [...notes, `leading zero${t.value.length - s.length === 1 ? "" : "s"} restored (${s.length} to ${t.value.length} digits)`] : notes };
+  const upca = upcEToUpcA(s);
+  if (upca) return { kind: "ok", value: upca, fixed: true, notes: [...notes, `read as a UPC-E (8-digit short UPC) and expanded to UPC-A; it is not a valid GTIN-8 as written`] };
   if (s.length > 14) return { kind: "bad", why: "too long", detail: `${s.length} digits; a GTIN has 8, 12, 13 or 14.` };
   const swap = findTransposition(s);
   return { kind: "bad", why: s.length < 8 || [9, 10, 11].includes(s.length) ? "wrong length" : "check digit", digits: s, swap };
@@ -186,6 +216,16 @@ export function validate(text, options = {}) {
     else if (c.why === "too long") add("error", r.line, "Too many digits", c.detail);
     else add("error", r.line, `Not a barcode: ${c.why}`, c.detail || `"${String(raw).slice(0, 40)}"`);
   }
+  // A GTIN-14 with a non-zero indicator digit is a case or inner pack of the GTIN-13 made from its middle 12 digits.
+  // When that item code is also in the list, say so: marketplaces treat the pack code as a different product.
+  const lineOf = new Map(items.filter((i) => i.result.kind === "ok").map((i) => [i.result.value.padStart(14, "0"), i.line]));
+  for (const it of items) {
+    const v = it.result.kind === "ok" ? it.result.value : "";
+    if (v.length !== 14 || v[0] === "0") continue;
+    const inner = "0" + v.slice(1, 13) + computeCheck(v.slice(1, 13));
+    const at = lineOf.get(inner);
+    if (at !== undefined) add("info", it.line, "Case-pack code of another row", `${v} has indicator digit ${v[0]} and wraps the item code ${inner.slice(1)} on line ${at}. If this row is the single sellable item, use the item code; a pack code is a different product to most marketplaces.`);
+  }
   if (blanks) add("warning", 0, `${blanks} blank code${blanks === 1 ? "" : "s"}`, "Rows with an empty barcode cell; some marketplaces need a GTIN or an explicit exemption.");
   if (lengths.size > 1) add("info", 0, "Mixed code lengths", [...lengths.entries()].sort((a, b) => a[0] - b[0]).map(([n, k]) => `${k} × ${n}-digit`).join(", ") + ". Mixing is legal; some importers want one length, and 12-digit UPC-A can be written as 13-digit EAN-13 with a leading 0.");
   const total = body.length - blanks;
@@ -196,15 +236,30 @@ export function validate(text, options = {}) {
   };
 }
 
+// Re-express a valid GTIN at a target length (12, 13 or 14). Leading zeros are added or removed, which never changes
+// the check digit; returns null when the code has significant digits that would not fit.
+export function toLength(value, n) {
+  if (![12, 13, 14].includes(n) || !/^\d+$/.test(value)) return null;
+  if (value.length <= n) return value.padStart(n, "0");
+  const extra = value.length - n;
+  return /^0+$/.test(value.slice(0, extra)) ? value.slice(extra) : null;
+}
+
 // Rewrite the chosen column with normalised codes. Rows that cannot be fixed are left exactly as they were.
 export function repair(text, options = {}) {
   const table = parseTable(String(text ?? ""));
   const { col, header } = pickColumn(table, options.column);
   const changes = [];
+  const skipped = [];
   const outRows = table.rows.map((r, i) => {
     if (header && i === 0) return r.cells;
     const c = classify(r.cells[col]);
     const cells = r.cells.slice();
+    if (c.kind === "ok" && options.length) {
+      const v = toLength(c.value, Number(options.length));
+      if (v === null) skipped.push(`Line ${r.line}: ${c.value} cannot be written as ${options.length} digits without losing a significant digit, so it was left at ${c.value.length}`);
+      else if (v !== c.value) { c.value = v; c.fixed = true; c.notes = [...(c.notes || []), `written as ${options.length} digits`]; }
+    }
     if (c.kind === "ok" && c.fixed && cells[col] !== undefined) {
       changes.push(`Line ${r.line}: ${String(cells[col]).trim()} to ${c.value} (${c.notes.join("; ")})`);
       cells[col] = options.excelSafe ? `="${c.value}"` : c.value;
@@ -213,7 +268,7 @@ export function repair(text, options = {}) {
   });
   const d = table.delim;
   const q = (v) => (/["\n\r]/.test(v) || v.includes(d) ? `"${v.replace(/"/g, '""')}"` : v);
-  return { text: outRows.map((c) => c.map((v) => q(String(v ?? ""))).join(d)).join("\n") + "\n", changes };
+  return { text: outRows.map((c) => c.map((v) => q(String(v ?? ""))).join(d)).join("\n") + "\n", changes, skipped };
 }
 
 export function findingsCsv(result) {

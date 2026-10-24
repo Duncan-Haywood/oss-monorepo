@@ -1,0 +1,22 @@
+{
+  "name": "bid-price-engine-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Capacitor wrapper that packages Bid Price Engine as an Android and iOS app. Build it in your own developer accounts.",
+  "license": "MIT",
+  "scripts": {
+    "sync-web": "node sync-web.mjs",
+    "add:android": "npm run sync-web && npx cap add android && npx cap sync android",
+    "add:ios": "npm run sync-web && npx cap add ios && npx cap sync ios",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.0",
+    "@capacitor/core": "^6.1.0",
+    "@capacitor/ios": "^6.1.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.0"
+  }
+}

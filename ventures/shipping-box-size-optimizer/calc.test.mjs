@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseSkus, parseBoxes, parseRateTable, postage, fits, landedCost, customCandidates,
-  solveK, analyze, reportCsv, sampleSkus, sampleBoxes, money, money2, DEFAULTS,
+  solveK, analyze, whatIf, reportCsv, sampleSkus, sampleBoxes, money, money2, DEFAULTS,
 } from "./calc.mjs";
 
 const near = (a, b, e = 1e-9) => assert.ok(Math.abs(a - b) < e, `${a} vs ${b}`);
@@ -184,4 +184,23 @@ test("money formatting", () => {
   assert.equal(money(1234.4), "$1,234");
   assert.equal(money(-5), "−$5");
   assert.equal(money2(3.456), "$3.46");
+});
+
+test("what-if: a divisor change re-prices the old set, never beats the new optimum, and rejects no-ops", () => {
+  const skus = parseSkus(sampleSkus()).rows, boxes = parseBoxes(sampleBoxes()).rows;
+  const w = whatIf(skus, boxes, {}, { dimDivisor: 166 });
+  assert.equal(w.error, undefined);
+  assert.ok(w.regret >= -1e-9, "keeping the old set is never cheaper than the new optimum at the same size count");
+  assert.ok(w.todayUnderNew > w.keepOldMonthly, "today's boxes cost more than the recommended ones");
+  assert.ok(w.afterMonthly <= w.newBestMonthly + 1e-9 || !w.sameK);
+  // direct check: re-price the old set by hand under the new divisor
+  const after = analyze(skus, boxes, { dimDivisor: 166 });
+  assert.equal(after.options.dimDivisor, 166);
+  assert.ok(Math.abs(w.afterMonthly - after.recommended.monthly) < 1e-9);
+  assert.ok(whatIf(skus, boxes, {}, { dimDivisor: 139 }).error, "139 is already the default");
+  assert.ok(whatIf(skus, boxes, {}, {}).error);
+  // a tiny change leaves the same boxes optimal
+  const s = whatIf(skus, boxes, {}, { addlLb: 0.86 });
+  assert.equal(s.sameSet, true);
+  assert.ok(Math.abs(s.regret) < 1e-6);
 });

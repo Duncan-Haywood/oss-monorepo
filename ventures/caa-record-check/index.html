@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CAA Record Checker — Which CA Can Issue Your Certificate?</title>
-<meta name="description" content="Free tool: paste a hostname and it resolves the CAA record set that actually governs certificate issuance -- walking up your DNS tree per RFC 8659 to the ancestor domain that publishes one, not just the exact name you typed -- flags malformed records and a critical unrecognized tag that silently blocks every CA, and names whether Let's Encrypt, Google Trust Services, DigiCert, and 5 more are authorized to issue. Nothing uploaded to us; only public DNS is read.">
+<meta name="description" content="Enter a hostname to see the CAA record set that governs certificate issuance per RFC 8659, and which CAs may issue. Only public DNS is read; nothing uploaded.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/caa-record-check/">
 <meta property="og:type" content="website">
@@ -95,6 +95,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>CAA Record Checker</h1>
 <p>
   Paste a hostname. This resolves the CAA record set that actually governs certificate issuance for
@@ -291,6 +292,7 @@
   void KNOWN_CAS;
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This reads the CAA record set your DNS actually

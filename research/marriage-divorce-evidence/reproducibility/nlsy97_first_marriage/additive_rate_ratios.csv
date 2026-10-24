@@ -1,0 +1,62 @@
+input,reference,value,rate_ratio,ci95_low,ci95_high
+age_at_marriage,20 (p10),34.33 (p90),0.5500,0.4402,0.6839
+cohab_months_before,0 (p10),48 (p90),0.6763,0.5611,0.8209
+parent_max_grade,10 (p10),18 (p90),1.0842,0.8722,1.3234
+poverty_ratio_1997,0.55 (p10),5.69 (p90),1.1003,0.8494,1.3334
+afqt_percentile,10.26 (p10),89.52 (p90),0.7553,0.6137,0.8757
+delinquency_1997,0 (p10),4 (p90),0.9856,0.8076,1.1713
+substance_1997,0 (p10),3 (p90),1.2009,1.0232,1.3777
+mhi5_before,53.33 (p10),86.67 (p90),0.7224,0.6137,0.8086
+hours_year_before,0 (p10),2723 (p90),0.9534,0.7711,1.1107
+earnings_year_before_k,0 (p10),60 (p90),0.7537,0.5956,0.9751
+net_worth_before_k,-6 (p10),45.5 (p90),0.9986,0.8358,1.2585
+spouse_age_gap,-4 (p10),5.5 (p90),0.9865,0.7896,1.1278
+sex,Female,Male,1.0388,0.9357,1.1408
+race_ethnicity,Non-Black non-Hispanic,Black,1.0495,0.9360,1.1265
+race_ethnicity,Non-Black non-Hispanic,Hispanic,0.9633,0.8238,1.0836
+region,South,North Central,0.8500,0.7766,0.9258
+region,South,Northeast,0.8619,0.7570,0.9850
+region,South,Unknown,0.9169,0.8176,1.0563
+region,South,West,0.8589,0.7480,0.9704
+urban,Urban,Rural,0.9796,0.8790,1.0650
+urban,Urban,Unknown,0.9046,0.7426,1.0588
+cohabited_first,Yes,No,0.8277,0.7206,0.9379
+prior_cohabitations_band,0,1,1.1908,1.0893,1.3087
+prior_cohabitations_band,0,2+,1.3345,1.1634,1.5012
+children_before_marriage,0,1,1.1319,0.9872,1.2898
+children_before_marriage,0,2+,1.1717,1.0229,1.3027
+pregnant_at_wedding,No,Yes,0.9807,0.8707,1.0774
+family_at_12,Both biological parents,Biological parent and step or other parent,1.1773,1.0555,1.3275
+family_at_12,Both biological parents,Other arrangement,1.4541,1.2134,1.7256
+family_at_12,Both biological parents,Single biological parent,1.1648,1.0554,1.2919
+family_at_12,Both biological parents,Unknown,1.2052,1.0523,1.4055
+religion_raised,Protestant,Catholic,0.9846,0.8828,1.0741
+religion_raised,Protestant,None,1.0564,0.9185,1.2565
+religion_raised,Protestant,Other,0.9752,0.8376,1.1417
+religion_raised,Protestant,Unknown,0.9216,0.8010,1.0520
+parent_attendance_1997,Weekly or more,About monthly,1.1046,1.0245,1.1869
+parent_attendance_1997,Weekly or more,Less than monthly,1.0337,0.9135,1.1684
+parent_attendance_1997,Weekly or more,Never,1.0813,0.9297,1.2158
+parent_attendance_1997,Weekly or more,Unknown,1.0696,0.9179,1.2545
+first_sex,"17 or older, or not by 2001",15-16,0.9922,0.9078,1.0671
+first_sex,"17 or older, or not by 2001",Under 15,1.0631,0.9056,1.1948
+first_sex,"17 or older, or not by 2001",Unknown,0.8768,0.7844,1.0084
+attendance_before,Never,About monthly,0.9643,0.8754,1.0695
+attendance_before,Never,Less than monthly,0.9472,0.8558,1.0373
+attendance_before,Never,Not measured before wedding,1.0046,0.8585,1.1581
+attendance_before,Never,Weekly or more,0.8647,0.7508,0.9941
+education_at_marriage,High school or GED,Associate,0.9632,0.8749,1.0657
+education_at_marriage,High school or GED,Bachelor,0.7552,0.6375,0.8626
+education_at_marriage,High school or GED,Graduate degree,0.8170,0.6905,0.9464
+education_at_marriage,High school or GED,No high school credential,1.0115,0.8853,1.1328
+enrolled_at_marriage,No,Yes,0.9123,0.8258,1.0072
+spouse_education,12 years,13-15 years,0.8516,0.7786,0.9486
+spouse_education,12 years,16+ years,0.6396,0.5637,0.7121
+spouse_education,12 years,Less than 12 years,1.0447,0.9453,1.1892
+spouse_race_ethnicity,Non-Black non-Hispanic,Black,1.0535,0.9470,1.1658
+spouse_race_ethnicity,Non-Black non-Hispanic,Hispanic,1.0052,0.9055,1.1275
+same_race_ethnicity,Same,Different,1.0708,0.9461,1.1721
+spouse_married_before,No,Unknown,1.0337,0.9460,1.1186
+spouse_married_before,No,Yes,1.1454,1.0091,1.3230
+spouse_has_children,No,Unknown,1.0586,0.9626,1.1528
+spouse_has_children,No,Yes,1.2342,1.0848,1.4149

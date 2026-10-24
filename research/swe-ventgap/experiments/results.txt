@@ -1,0 +1,62 @@
+commits on origin/main 13316   records 1471   landed sessions from 2026-10-13: 1838   ventures-only 515   research-only 447
+
+== A. landed sessions with a run record, from 2026-10-13 (k/n, Wilson 95%)
+  ventures only               410/515    79.6% (75.9-82.9)
+  research only               412/447    92.2% (89.3-94.3)
+
+== B1. ventures sessions by ventures prompt version
+  ventures/1                  316/400    79.0% (74.7-82.7)
+  ventures/2                   88/103    85.4% (77.4-91.0)
+  ventures/0                    5/10     50.0% (23.7-76.3)
+  ventures/1,ventures/2         1/1     100.0% (20.7-100.0)
+  ventures/none                 0/1       0.0% (0.0-79.3)
+
+== B2. ventures sessions by scope (venture directories touched)
+  one venture                 328/409    80.2% (76.1-83.8)
+  several ventures             45/65     69.2% (57.2-79.1)
+  no venture files             37/41     90.2% (77.5-96.1)
+
+== B3. ventures sessions by hand-written files touched (generated trees excluded)
+  1-5 files                   221/280    78.9% (73.8-83.3)
+  6-20 files                  166/202    82.2% (76.3-86.8)
+  21+ files                    23/33     69.7% (52.7-82.6)
+
+== B4. ventures sessions by first commit subject
+  venture feature or fix      326/411    79.3% (75.1-83.0)
+  other subject                82/99     82.8% (74.2-89.0)
+  new venture                   2/5      40.0% (11.8-76.9)
+
+== B5. ventures sessions by number of commits on main
+  1 commit                    371/462    80.3% (76.4-83.7)
+  2+ commits                   39/53     73.6% (60.4-83.6)
+
+== C. ventures sessions by day (day  sessions  recorded%)
+  2026-10-14     15   53.3
+  2026-10-15     92   71.7
+  2026-10-16     88   77.3
+  2026-10-17    104   77.9
+  2026-10-18    124   88.7
+  2026-10-19     92   83.7
+
+== D. odds of a record, matched by day (so a change in the mix over time cannot explain it)
+  ventures/2 against ventures/1                Mantel-Haenszel odds ratio of a record, matched by day: 1.58
+  ventures/1 against ventures/2 (reference)    Mantel-Haenszel odds ratio of a record, matched by day: 0.63
+  research-only against ventures-only          Mantel-Haenszel odds ratio of a record, matched by day: 2.85
+  one venture against several ventures         Mantel-Haenszel odds ratio of a record, matched by day: 1.32
+  1-5 files against 21+ files                  Mantel-Haenszel odds ratio of a record, matched by day: 1.17
+  venture feature subject against other subject Mantel-Haenszel odds ratio of a record, matched by day: 0.53
+
+== E. does the sub-prompt tell the reader to write the run record? (matches 'promptctl.py record' or 'run record')
+  prompt.md                           yes
+  prompts/explore/prompt-0.md         yes
+  prompts/process/prompt-0.md         yes
+  prompts/process/prompt-1.md         yes
+  prompts/redteam/prompt-0.md         yes
+  prompts/research/prompt-0.md        yes
+  prompts/research/prompt-1.md        yes
+  prompts/review/prompt-0.md          no
+  prompts/review/prompt-1.md          yes
+  prompts/review/prompt-2.md          yes
+  prompts/ventures/prompt-0.md        no
+  prompts/ventures/prompt-1.md        no
+  prompts/ventures/prompt-2.md        no

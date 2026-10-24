@@ -1,0 +1,6 @@
+{
+ "theme": "sensing",
+ "title": "Does the epipolar gate survive mismatches that repeat across views?",
+ "lede": "when a bad feature is wrong by the same offset in more consecutive views, the gate's recall falls from 0.81 to 0.59 at a 10% wrong rate and its lead over a RANSAC start shrinks from 1.7x to a tie within seed noise, though typical errors stay at 2 to 3.5 times the clean floor; a single failed seed in 12 can dominate a mean",
+ "summary": "<code>sensing-gatemix</code> drew every mismatch independently and flagged that as flattering the gate's voting. Here each bad feature is wrong by the same 10&ndash;40 px offset in <em>span</em> consecutive views (1, 2, 4, 8, 12 of a 12-view synthetic rig), at the wrong-match rates SIFT gives after a ratio test of 0.8, 0.7, 0.6 (10.2%, 6.1%, 4.7%, measured by <code>sensing-matchreal</code>). Gate recall falls from 0.81 to 0.59 at 0.8; gate + Cauchy adjustment goes from 0.0031 to 0.0048 object radii (clean floor 0.0014) over spans 1 to 8 while the RANSAC start stays at 0.0051&ndash;0.0062, so the gate's 1.7&times; lead becomes 1.06&times;, a tie at 12 seeds. One seed in 12 failed outright (0.64 for gate + Cauchy at span 12; 0.24 for plain Cauchy at span 1) and dominates those means. Limits: the span is swept, not measured; synthetic geometry; one image-space offset model, near-miss type only; 12 seeds."
+}

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GraphQL Introspection Exposure Checker — Is Your Schema Public?</title>
-<meta name="description" content="Free tool: sends one real introspection query to a GraphQL endpoint URL you choose and reports whether introspection is enabled -- exposing every query, mutation, and type name, including ones no client links to. Runs in your browser when the target's CORS policy allows it, or via a zero-dependency CLI. Nothing uploaded.">
+<meta name="description" content="Free tool: sends one real introspection query to a GraphQL endpoint URL you choose and reports whether introspection is enabled -- exposing every query, mutation, and type name, including ones no client links to.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/graphql-introspection-exposure-check/">
 <meta property="og:type" content="website">
@@ -89,6 +89,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>GraphQL Introspection Exposure Checker</h1>
 <p>
   Sends one real GraphQL introspection query to an endpoint URL you choose and reports whether
@@ -331,6 +332,7 @@
   }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks exactly one thing -- whether an

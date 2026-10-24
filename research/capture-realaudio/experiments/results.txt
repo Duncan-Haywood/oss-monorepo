@@ -1,0 +1,50 @@
+# 10 real clips (>= 3.9 s) from the LibreOffice gallery: applause drama falling gong roll romans soft space2 untie wallewal
+# 20 trials per clip per cell, 2 s window, delay uniform in [0.2, 0.8] s; 'bad' = error > one 30 fps frame (33.3 ms)
+
+## Share of windows more than one frame off, 2 s window, by SNR and noise type
+snr_db | synthetic_white | real_white_mean | real_white_worst_clip | real_wind_mean | real_wind_worst_clip
+-20 | 1.00 | 0.99 | 1.00 | 0.47 | 1.00
+-15 | 0.33 | 0.81 | 1.00 | 0.35 | 1.00
+-10 | 0.00 | 0.53 | 0.95 | 0.20 | 1.00
+-5 | 0.00 | 0.36 | 0.95 | 0.09 | 0.90
+0 | 0.00 | 0.26 | 0.80 | 0.04 | 0.45
+10 | 0.00 | 0.02 | 0.20 | 0.01 | 0.05
+
+## Per clip, white noise, 2 s window: share bad at -15, -10, -5 dB; median error (ms) at 0 dB
+clip | bad@-15 | bad@-10 | bad@-5 | median_ms@0
+applause | 0.00 | 0.00 | 0.00 | 0.001
+drama | 1.00 | 0.65 | 0.05 | 0.006
+falling | 1.00 | 0.95 | 0.90 | 0.020
+gong | 0.95 | 0.40 | 0.00 | 0.006
+roll | 0.35 | 0.00 | 0.00 | 0.004
+romans | 0.80 | 0.00 | 0.00 | 0.002
+soft | 0.95 | 0.50 | 0.05 | 0.004
+space2 | 1.00 | 0.95 | 0.90 | 446.250
+untie | 1.00 | 0.90 | 0.75 | 382.291
+wallewal | 1.00 | 0.95 | 0.95 | 611.251
+
+## Where the delay is found, error among good windows (white, 0 dB): median and 95th percentile ms, all clips pooled
+good_share 0.740 | median_ms 0.003 | p95_ms 6.654
+synthetic: good_share 1.000 | median_ms 0.001 | p95_ms 0.002
+
+## Clip character vs failure (white noise, 2 s, -10 dB): spectral flatness in 100-4000 Hz, share of active frames, bad share for gamma 1 (PHAT), 0.5, 0
+clip | flatness | active | bad_g1.0 | bad_g0.5 | bad_g0.0
+applause | 0.085 | 1.00 | 0.00 | 0.00 | 0.00
+drama | 0.098 | 1.00 | 0.75 | 0.40 | 0.15
+falling | 0.019 | 1.00 | 1.00 | 0.95 | 0.55
+gong | 0.051 | 1.00 | 0.20 | 0.00 | 0.00
+roll | 0.107 | 0.95 | 0.00 | 0.00 | 0.00
+romans | 0.099 | 1.00 | 0.00 | 0.00 | 0.00
+soft | 0.045 | 0.98 | 0.60 | 0.20 | 0.05
+space2 | 0.001 | 0.95 | 0.90 | 1.00 | 0.45
+untie | 0.002 | 0.95 | 0.90 | 0.35 | 0.10
+wallewal | 0.019 | 1.00 | 0.95 | 0.95 | 0.90
+mean bad share over clips: gamma 1.0: 0.53 | gamma 0.5: 0.38 | gamma 0.0: 0.22
+
+## Same, all SNRs, mean over the clips (white noise, 2 s)
+snr_db | g1.0 | g0.75 | g0.5 | g0.25 | g0.0
+-15 | 0.73 | 0.69 | 0.64 | 0.56 | 0.49
+-10 | 0.52 | 0.42 | 0.37 | 0.28 | 0.25
+-5 | 0.38 | 0.29 | 0.18 | 0.11 | 0.10
+0 | 0.24 | 0.11 | 0.04 | 0.01 | 0.01
+10 | 0.03 | 0.00 | 0.00 | 0.00 | 0.01

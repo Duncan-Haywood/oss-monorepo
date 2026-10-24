@@ -1,0 +1,26 @@
+records 1638   with cost and tool calls 882   dates 2026-10-16 to 2026-10-20
+cost per call: median $0.031  10th-90th pct $0.026 to $0.038
+tool calls: median 22  cost: median $0.68
+
+== A. pooled log-log fit: log cost = a + b log calls
+  a -4.144  b 1.220  (95% bootstrap 1.178 to 1.260)  R2 0.908
+  b above 1 means cost per call grows with run length
+
+== B. held-out error (5-fold, absolute % error of predicted dollars)
+  log-log fit      median 9%  90th pct 25%
+  cost-per-call    median 9%  90th pct 26%
+
+== C. slope by track
+  explore   n   46  b 1.122 (0.927 to 1.303)  R2 0.853
+  process   n  110  b 1.289 (1.193 to 1.385)  R2 0.910
+  redteam   n   81  b 0.851 (0.777 to 0.912)  R2 0.900
+  research  n  367  b 1.120 (1.035 to 1.189)  R2 0.875
+  review    n   24  b 0.678 (0.418 to 0.927)  R2 0.592
+  ventures  n  254  b 1.206 (1.104 to 1.284)  R2 0.919
+
+== D. slope by model (runs with a model id)
+  claude-opus-5-5             n   38  b 0.959 (0.738 to 1.153)  R2 0.815  median $3.83
+  claude-sonnet-5-5           n  843  b 1.102 (1.074 to 1.131)  R2 0.895  median $0.66
+
+== E. unpriced records that carry tool calls
+  756 records lack cost or calls; 0 of them have tool calls

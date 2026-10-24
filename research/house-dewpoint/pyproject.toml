@@ -1,0 +1,13 @@
+[project]
+name = "house-dewpoint"
+version = "0.1.0"
+description = "Steady-state (Glaser) wall condensation check: where in a wall does vapor reach saturation, by climate and vapor-retarder choice"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

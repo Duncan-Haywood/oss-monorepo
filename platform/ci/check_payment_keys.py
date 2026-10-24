@@ -37,9 +37,12 @@ PATTERNS = (
     ("PayPal hosted button", re.compile(r"hosted_button_id=[A-Z0-9]{8,}")),
 )
 
-SUFFIXES = {
-    ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".py", ".html", ".md",
-    ".json", ".yaml", ".yml", ".toml", ".env", ".tf", ".tfvars", ".example",
+# Anything text is scanned (a key in a .sh, .vue or .txt file is as public as
+# one in a .ts); only binary formats are skipped.
+BINARY_SUFFIXES = {
+    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".pdf", ".zip", ".gz",
+    ".tgz", ".woff", ".woff2", ".ttf", ".otf", ".mp3", ".mp4", ".wasm",
+    ".sqlite", ".db",
 }
 SKIP_DIRS = {"node_modules", ".next", "dist", "build", "__pycache__", ".git"}
 SKIP_NAMES = {"package-lock.json", "pnpm-lock.yaml", "yarn.lock"}
@@ -50,14 +53,17 @@ def findings_in(root: Path):
     for path in root.rglob("*"):
         if not path.is_file() or path.name in SKIP_NAMES:
             continue
-        if any(part in SKIP_DIRS for part in path.parts):
+        if any(part in SKIP_DIRS for part in path.relative_to(root).parts):
             continue
-        if path.suffix not in SUFFIXES and not path.name.startswith(".env"):
+        if path.suffix.lower() in BINARY_SUFFIXES:
             continue
         try:
-            text = path.read_text(encoding="utf-8", errors="ignore")
+            data = path.read_bytes()
         except OSError:
             continue
+        if b"\0" in data[:8192]:
+            continue
+        text = data.decode("utf-8", errors="ignore")
         for kind, pattern in PATTERNS:
             if pattern.search(text):
                 yield path, kind

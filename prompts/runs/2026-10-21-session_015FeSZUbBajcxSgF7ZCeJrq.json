@@ -1,0 +1,47 @@
+{
+ "date": "2026-10-21",
+ "session": "https://claude.ai/code/session_015FeSZUbBajcxSgF7ZCeJrq",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "the updates on the ghp site look great. let's keep vamping that up significantly. (+ follow-ups: sub-pages across the board; link previews and icons, be thorough about the public presentation; upgrade home graphics, organization, SEO, marketing)",
+ "input_sha256": "a807a1f14f2b7434b25f43f538c7f470e3505b84a483d85a6f98ba90da877ad0",
+ "follow_up_inputs": [
+  "keep improving"
+ ],
+ "model": "claude-opus-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-21T00:49:14Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/8981",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "card worker threads inherited --input-type=module from a `node -e` build and crashed (gitops test_site_usage); fixed with execArgv: []"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "platform/pages/offline.mjs",
+   "issue": "renderSocialCard's docs claimed no font rasteriser could exist in a dependency-free build; a TrueType reader is ~300 lines of builtins."
+  }
+ ],
+ "deviations": [],
+ "goal": null,
+ "notes": "Share cards for every page in Inter (fontraster.mjs, sharecard.mjs, share.mjs): 2,282 cards (936 new page cards), indexed PNG ~50 KB each, build time unchanged via worker pool; one brand mark across favicon.ico (16/32/48), favicon.svg, app icons, opaque apple-touch-icon and cards; complete og:/twitter: tags on 3,899 pages. Verified: CI green on f33ac1e8 (test, build, gitops, validate, homepage...); local gitops/tests 603 pass; check.mjs publishable 3,900 pages no dead links. Parallel forks in this session landed PR 8979 (sub-page hero band) and PR 8987 (homepage graphics/SEO). Follow-up ('keep improving'): share pass extended to deploy/ and dev/ pages built after build.mjs (68 pages had no og/twitter tags); forks D (tool-page chrome, showcase stills) and E (audience pages, JSON-LD, perf) launched. Fork D (PR 9020): tool-page chrome now carries the site palette and spans the window on all ~1,300 venture pages (theme from the host page's measured background, never the OS; 40-page x 2-width sweep: 0 boxed or sideways-scrolling); showcase stills verified real (blank only in non-scrolling captures, lazy-loaded); reel frame no longer overlaps its caption.",
+ "corrections": [],
+ "redteam": null
+}

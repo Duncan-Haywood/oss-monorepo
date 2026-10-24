@@ -1,0 +1,115 @@
+revision,cost_year,technology,parameter,value,unit,currency_year,primary_source
+65244b4c,2020,Compressed-Air-Adiabatic-bicharger,FOM,0.9265,%/year,2020.0,Viswanathan_2022
+65244b4c,2020,Compressed-Air-Adiabatic-bicharger,efficiency,0.7211,per unit,2020.0,Viswanathan_2022
+65244b4c,2020,Compressed-Air-Adiabatic-bicharger,investment,1189666.0381,EUR/MW,2025.0,Viswanathan_2022
+65244b4c,2020,Compressed-Air-Adiabatic-bicharger,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2020,Compressed-Air-Adiabatic-store,FOM,0.43,%/year,2020.0,Viswanathan_2022
+65244b4c,2020,Compressed-Air-Adiabatic-store,investment,6850.9515,EUR/MWh,2025.0,Viswanathan_2022
+65244b4c,2020,Compressed-Air-Adiabatic-store,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2020,Pumped-Storage-Hydro-bicharger,FOM,0.9951,%/year,2020.0,Viswanathan_2022
+65244b4c,2020,Pumped-Storage-Hydro-bicharger,efficiency,0.8944,per unit,2020.0,Viswanathan_2022
+65244b4c,2020,Pumped-Storage-Hydro-bicharger,investment,1756657.9565,EUR/MW,2025.0,Viswanathan_2022
+65244b4c,2020,Pumped-Storage-Hydro-bicharger,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2020,Pumped-Storage-Hydro-store,FOM,0.43,%/year,2020.0,Viswanathan_2022
+65244b4c,2020,Pumped-Storage-Hydro-store,investment,71761.1936,EUR/MWh,2025.0,Viswanathan_2022
+65244b4c,2020,Pumped-Storage-Hydro-store,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2020,Vanadium-Redox-Flow-bicharger,FOM,2.4028,%/year,2020.0,Viswanathan_2022
+65244b4c,2020,Vanadium-Redox-Flow-bicharger,efficiency,0.8062,per unit,2020.0,Viswanathan_2022
+65244b4c,2020,Vanadium-Redox-Flow-bicharger,investment,188537.586,EUR/MW,2025.0,Viswanathan_2022
+65244b4c,2020,Vanadium-Redox-Flow-bicharger,lifetime,12.0,years,2020.0,Viswanathan_2022
+65244b4c,2020,Vanadium-Redox-Flow-store,FOM,0.2335,%/year,2020.0,Viswanathan_2022
+65244b4c,2020,Vanadium-Redox-Flow-store,investment,399347.305,EUR/MWh,2025.0,Viswanathan_2022
+65244b4c,2020,Vanadium-Redox-Flow-store,lifetime,12.0,years,2020.0,Viswanathan_2022
+65244b4c,2020,battery inverter,FOM,0.2,%/year,2020.0,Danish Energy Agency
+65244b4c,2020,battery inverter,efficiency,0.95,per unit,2020.0,Danish Energy Agency
+65244b4c,2020,battery inverter,investment,361.0034,EUR/kW,2025.0,Danish Energy Agency
+65244b4c,2020,battery inverter,lifetime,10.0,years,2020.0,Danish Energy Agency
+65244b4c,2020,battery storage,investment,310.1955,EUR/kWh,2025.0,Danish Energy Agency
+65244b4c,2020,battery storage,lifetime,20.0,years,2020.0,Danish Energy Agency
+65244b4c,2020,electrolysis,FOM,4.0,%/year,2020.0,Danish Energy Agency
+65244b4c,2020,electrolysis,efficiency,0.5773,per unit,2020.0,Danish Energy Agency
+65244b4c,2020,electrolysis,investment,2514.6692,EUR/kW_e,2025.0,private communications; IEA https://iea.
+65244b4c,2020,electrolysis,lifetime,25.0,years,2020.0,Danish Energy Agency
+65244b4c,2020,fuel cell,FOM,5.0,%/year,2015.0,Danish Energy Agency
+65244b4c,2020,fuel cell,efficiency,0.5,per unit,2015.0,Danish Energy Agency
+65244b4c,2020,fuel cell,investment,1736.544,EUR/kW_e,2025.0,Danish Energy Agency
+65244b4c,2020,fuel cell,lifetime,10.0,years,2015.0,Danish Energy Agency
+65244b4c,2020,hydrogen storage underground,FOM,0.0,%/year,2020.0,Danish Energy Agency
+65244b4c,2020,hydrogen storage underground,investment,4.0111,EUR/kWh,2025.0,Danish Energy Agency
+65244b4c,2020,hydrogen storage underground,lifetime,100.0,years,2020.0,Danish Energy Agency
+65244b4c,2030,Compressed-Air-Adiabatic-bicharger,FOM,0.9265,%/year,2020.0,Viswanathan_2022
+65244b4c,2030,Compressed-Air-Adiabatic-bicharger,efficiency,0.7211,per unit,2020.0,Viswanathan_2022
+65244b4c,2030,Compressed-Air-Adiabatic-bicharger,investment,1189666.0381,EUR/MW,2025.0,Viswanathan_2022
+65244b4c,2030,Compressed-Air-Adiabatic-bicharger,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2030,Compressed-Air-Adiabatic-store,FOM,0.43,%/year,2020.0,Viswanathan_2022
+65244b4c,2030,Compressed-Air-Adiabatic-store,investment,6850.9515,EUR/MWh,2025.0,Viswanathan_2022
+65244b4c,2030,Compressed-Air-Adiabatic-store,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2030,Pumped-Storage-Hydro-bicharger,FOM,0.9951,%/year,2020.0,Viswanathan_2022
+65244b4c,2030,Pumped-Storage-Hydro-bicharger,efficiency,0.8944,per unit,2020.0,Viswanathan_2022
+65244b4c,2030,Pumped-Storage-Hydro-bicharger,investment,1756657.9565,EUR/MW,2025.0,Viswanathan_2022
+65244b4c,2030,Pumped-Storage-Hydro-bicharger,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2030,Pumped-Storage-Hydro-store,FOM,0.43,%/year,2020.0,Viswanathan_2022
+65244b4c,2030,Pumped-Storage-Hydro-store,investment,71761.1936,EUR/MWh,2025.0,Viswanathan_2022
+65244b4c,2030,Pumped-Storage-Hydro-store,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2030,Vanadium-Redox-Flow-bicharger,FOM,2.4395,%/year,2020.0,Viswanathan_2022
+65244b4c,2030,Vanadium-Redox-Flow-bicharger,efficiency,0.8062,per unit,2020.0,Viswanathan_2022
+65244b4c,2030,Vanadium-Redox-Flow-bicharger,investment,162225.1483,EUR/MW,2025.0,Viswanathan_2022
+65244b4c,2030,Vanadium-Redox-Flow-bicharger,lifetime,12.0,years,2020.0,Viswanathan_2022
+65244b4c,2030,Vanadium-Redox-Flow-store,FOM,0.2345,%/year,2020.0,Viswanathan_2022
+65244b4c,2030,Vanadium-Redox-Flow-store,investment,324483.9347,EUR/MWh,2025.0,Viswanathan_2022
+65244b4c,2030,Vanadium-Redox-Flow-store,lifetime,12.0,years,2020.0,Viswanathan_2022
+65244b4c,2030,battery inverter,FOM,0.3375,%/year,2020.0,Danish Energy Agency
+65244b4c,2030,battery inverter,efficiency,0.96,per unit,2020.0,Danish Energy Agency
+65244b4c,2030,battery inverter,investment,213.9279,EUR/kW,2025.0,Danish Energy Agency
+65244b4c,2030,battery inverter,lifetime,10.0,years,2020.0,Danish Energy Agency
+65244b4c,2030,battery storage,investment,189.861,EUR/kWh,2025.0,Danish Energy Agency
+65244b4c,2030,battery storage,lifetime,25.0,years,2020.0,Danish Energy Agency
+65244b4c,2030,electrolysis,FOM,4.0,%/year,2020.0,Danish Energy Agency
+65244b4c,2030,electrolysis,efficiency,0.6217,per unit,2020.0,Danish Energy Agency
+65244b4c,2030,electrolysis,investment,1886.0019,EUR/kW_e,2025.0,private communications; IEA https://iea.
+65244b4c,2030,electrolysis,lifetime,25.0,years,2020.0,Danish Energy Agency
+65244b4c,2030,fuel cell,FOM,5.0,%/year,2015.0,Danish Energy Agency
+65244b4c,2030,fuel cell,efficiency,0.5,per unit,2015.0,Danish Energy Agency
+65244b4c,2030,fuel cell,investment,1469.3834,EUR/kW_e,2025.0,Danish Energy Agency
+65244b4c,2030,fuel cell,lifetime,10.0,years,2015.0,Danish Energy Agency
+65244b4c,2030,hydrogen storage underground,FOM,0.0,%/year,2020.0,Danish Energy Agency
+65244b4c,2030,hydrogen storage underground,investment,2.6741,EUR/kWh,2025.0,Danish Energy Agency
+65244b4c,2030,hydrogen storage underground,lifetime,100.0,years,2020.0,Danish Energy Agency
+65244b4c,2050,Compressed-Air-Adiabatic-bicharger,FOM,0.9265,%/year,2020.0,Viswanathan_2022
+65244b4c,2050,Compressed-Air-Adiabatic-bicharger,efficiency,0.7211,per unit,2020.0,Viswanathan_2022
+65244b4c,2050,Compressed-Air-Adiabatic-bicharger,investment,1189666.0381,EUR/MW,2025.0,Viswanathan_2022
+65244b4c,2050,Compressed-Air-Adiabatic-bicharger,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2050,Compressed-Air-Adiabatic-store,FOM,0.43,%/year,2020.0,Viswanathan_2022
+65244b4c,2050,Compressed-Air-Adiabatic-store,investment,6850.9515,EUR/MWh,2025.0,Viswanathan_2022
+65244b4c,2050,Compressed-Air-Adiabatic-store,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2050,Pumped-Storage-Hydro-bicharger,FOM,0.9951,%/year,2020.0,Viswanathan_2022
+65244b4c,2050,Pumped-Storage-Hydro-bicharger,efficiency,0.8944,per unit,2020.0,Viswanathan_2022
+65244b4c,2050,Pumped-Storage-Hydro-bicharger,investment,1756657.9565,EUR/MW,2025.0,Viswanathan_2022
+65244b4c,2050,Pumped-Storage-Hydro-bicharger,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2050,Pumped-Storage-Hydro-store,FOM,0.43,%/year,2020.0,Viswanathan_2022
+65244b4c,2050,Pumped-Storage-Hydro-store,investment,71761.1936,EUR/MWh,2025.0,Viswanathan_2022
+65244b4c,2050,Pumped-Storage-Hydro-store,lifetime,60.0,years,2020.0,Viswanathan_2022
+65244b4c,2050,Vanadium-Redox-Flow-bicharger,FOM,2.4395,%/year,2020.0,Viswanathan_2022
+65244b4c,2050,Vanadium-Redox-Flow-bicharger,efficiency,0.8062,per unit,2020.0,Viswanathan_2022
+65244b4c,2050,Vanadium-Redox-Flow-bicharger,investment,162225.1483,EUR/MW,2025.0,Viswanathan_2022
+65244b4c,2050,Vanadium-Redox-Flow-bicharger,lifetime,12.0,years,2020.0,Viswanathan_2022
+65244b4c,2050,Vanadium-Redox-Flow-store,FOM,0.2345,%/year,2020.0,Viswanathan_2022
+65244b4c,2050,Vanadium-Redox-Flow-store,investment,324483.9347,EUR/MWh,2025.0,Viswanathan_2022
+65244b4c,2050,Vanadium-Redox-Flow-store,lifetime,12.0,years,2020.0,Viswanathan_2022
+65244b4c,2050,battery inverter,FOM,0.9,%/year,2020.0,Danish Energy Agency
+65244b4c,2050,battery inverter,efficiency,0.96,per unit,2020.0,Danish Energy Agency
+65244b4c,2050,battery inverter,investment,80.223,EUR/kW,2025.0,Danish Energy Agency
+65244b4c,2050,battery inverter,lifetime,10.0,years,2020.0,Danish Energy Agency
+65244b4c,2050,battery storage,investment,100.2787,EUR/kWh,2025.0,Danish Energy Agency
+65244b4c,2050,battery storage,lifetime,30.0,years,2020.0,Danish Energy Agency
+65244b4c,2050,electrolysis,FOM,4.0,%/year,2020.0,Danish Energy Agency
+65244b4c,2050,electrolysis,efficiency,0.6994,per unit,2020.0,Danish Energy Agency
+65244b4c,2050,electrolysis,investment,1257.3346,EUR/kW_e,2025.0,private communications; IEA https://iea.
+65244b4c,2050,electrolysis,lifetime,25.0,years,2020.0,Danish Energy Agency
+65244b4c,2050,fuel cell,FOM,5.0,%/year,2015.0,Danish Energy Agency
+65244b4c,2050,fuel cell,efficiency,0.5,per unit,2015.0,Danish Energy Agency
+65244b4c,2050,fuel cell,investment,1068.6425,EUR/kW_e,2025.0,Danish Energy Agency
+65244b4c,2050,fuel cell,lifetime,10.0,years,2015.0,Danish Energy Agency
+65244b4c,2050,hydrogen storage underground,FOM,0.0,%/year,2020.0,Danish Energy Agency
+65244b4c,2050,hydrogen storage underground,investment,1.6045,EUR/kWh,2025.0,Danish Energy Agency
+65244b4c,2050,hydrogen storage underground,lifetime,100.0,years,2020.0,Danish Energy Agency

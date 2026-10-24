@@ -7,12 +7,24 @@ case / labels from copy-paste (cleaned when provably harmless), duplicates and b
 line number. It writes the file back cleaned, optionally in print groups of four. The file is read
 locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/iban-list-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/iban-list-check/
 
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API
 key; the work happens in your browser and nothing you paste is uploaded.
+
+`cli.mjs` is the same checker for a terminal or a CI job, with no
+dependencies and no network calls. Before a payment run:
+
+```
+node cli.mjs check suppliers.csv                  # exit 1 if any IBAN is invalid
+node cli.mjs check exports/ --strict --sepa-only  # every .csv/.tsv/.txt under a folder; duplicates, blanks and non-SEPA fail too
+node cli.mjs check suppliers.csv --column iban --json
+node cli.mjs fix suppliers.csv                    # writes suppliers.fixed.csv (--in-place overwrites, --groups prints in fours)
+```
+
+Exit codes: 0 clean, 1 findings at the failing level, 2 usage or read error.
 
 To run the tests (Node 20 or newer):
 
@@ -24,6 +36,7 @@ node --test ventures/iban-list-check/
 
 - `index.html`: the tool's page.
 - `calc.mjs`: the logic, kept separate from the page so it can be tested.
+- `cli.mjs`: the command-line and CI wrapper around `calc.mjs`.
 - `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see
   `portfolio/usage/README.md` in the monorepo).
 - `*.test.mjs`: tests for the logic and the page.

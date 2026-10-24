@@ -1,0 +1,55 @@
+name: saints-by-candlelight
+description: >-
+  A free bedtime story podcast of Catholic and Orthodox saints, angels and
+  patriarchs: lighthearted, faithful 30 to 60 minute episodes written by an
+  AI to a series guide with doctrine and honesty rules, read offline by an
+  open-weight voice, and served from GitHub Pages as pages with full
+  scripts plus an RSS feed for podcast apps.
+stage: prototype
+
+owner: duncan
+
+# Origin (2026-10-20): the owner's own request, "myths and legends style
+# podcasts except ... catholic and orthodox christian stories of saints
+# angels patriarchs ... entertaining lighthearted bedtime style ... 30min-1hr
+# ... indefinitely ongoing". Kept apart from hearth-and-horizon (open PR at
+# the time), whose Little Lamps shelf is ten-minute stories for children
+# aged 3 to 8: this is a long-form show with its own feed, audience and
+# directory category (Religion & Spirituality, not Kids & Family).
+#
+# Shape: $0 per listener and per episode. Scripts are text in the repo,
+# audio is rendered offline with Kokoro (Apache 2.0), and Pages serves it.
+hypotheses:
+  - claim: Listeners who start an episode finish it (episode_finished / episode_played) often enough to show that 30 to 60 minute AI-written, synthetic-voice saints stories hold attention at bedtime.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Once the feed is listed in Apple Podcasts and Spotify, directory search for "saints podcast", "Catholic bedtime stories" and "Orthodox stories" brings listeners we did not ask for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than ten episodes played (episode_played) within 90 days of the feed being listed in a podcast directory.
+  - A doctrinal error is reported that the series guide's rules cannot prevent from recurring.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/
+  analytics: null
+
+channel_notes: >-
+  First listeners: podcast directories once the owner submits the feed
+  (Apple Podcasts, Spotify, YouTube Music, Podcast Index); search for
+  "saints stories podcast", "Catholic bedtime stories for adults",
+  "Orthodox saints stories", "Book of Tobit story"; parish and homeschool
+  communities sharing a free, CC BY-SA resource.

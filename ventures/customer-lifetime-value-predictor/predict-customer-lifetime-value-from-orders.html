@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Predict Customer Lifetime Value: Why "Orders Per Year" Overshoots by 68%</title>
+  <meta name="description" content="Carrying each customer's past order rate forward overshot next-26-week orders by 68% on a test shop; the BG/NBD model was 5% off. A worked, reproducible comparison, with a free private tool that runs it on your own orders.">
+  <meta property="og:title" content="Predicting customer lifetime value: the simple formula vs BG/NBD">
+  <meta property="og:description" content="Same shop, same held-out 26 weeks, three forecasts. Past order rate carried forward is 68% too high; the model is 5% off. Free and private.">
+  <link rel="canonical" href="./predict-customer-lifetime-value-from-orders.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the simplest way to estimate customer lifetime value?","acceptedAnswer":{"@type":"Answer","text":"Average order value times orders per customer per year times expected years. It is fine for a rough budget, but it treats every customer as still buying, so it overstates the value of anyone who has quietly left."}},{"@type":"Question","name":"What is BG/NBD?","acceptedAnswer":{"@type":"Answer","text":"BG/NBD (Fader, Hardie and Lee, 2005) is a published model for shops where customers buy at irregular times. From each customer's purchase count, the time of their last purchase and how long they have been observed, it estimates the chance they are still active and how many more purchases to expect."}},{"@type":"Question","name":"How much order history do I need?","acceptedAnswer":{"@type":"Answer","text":"Enough that a good share of customers have bought more than once. A few hundred customers and a year or more of orders is a reasonable floor; the tool back-tests itself on your recent weeks so you can see how far to trust the result."}},{"@type":"Question","name":"Does this work for subscriptions?","acceptedAnswer":{"@type":"Answer","text":"No. BG/NBD assumes customers can buy on any day and quietly stop. A subscription with fixed billing needs a churn or retention calculation instead."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Customer lifetime value predictor</a></p>
+  <h1>How to predict customer lifetime value: why "orders per year" overshoots by 68%</h1>
+  <p>The usual shortcut is <strong>average order value &times; orders per year &times; years</strong>. It treats every customer as still buying. In a shop where customers come and go without telling you, many of them have already left, so the shortcut is too high, and it cannot tell your best customers from your quiet ones. A published model, <strong>BG/NBD</strong>, estimates the chance each customer is still active from just three numbers per customer.</p>
+  <p><a class="cta" href="./">Predict it on your own orders, free</a></p>
+  <h2>The experiment</h2>
+  <p>The tool's built-in invented shop: 1,200 customers and 3,307 orders over about two years. Every forecast below sees only orders up to 26 weeks before the end, then is scored against the repeat purchases customers actually made in those last 26 weeks (1,064 customers had bought by then; they made 578).</p>
+  <table>
+    <tr><th>Forecast of next 26 weeks</th><th class="n">Orders predicted</th><th class="n">Total error</th><th class="n">Error per customer</th><th class="n">Real orders in the 10% it ranks highest</th></tr>
+    <tr><td>BG/NBD model</td><td class="n">608</td><td class="n">+5%</td><td class="n">0.60</td><td class="n">48%</td></tr>
+    <tr><td>Each customer's own past rate carried forward</td><td class="n">973</td><td class="n">+68%</td><td class="n">0.85</td><td class="n">42%</td></tr>
+    <tr><td>Shop-wide average repeat rate for everyone</td><td class="n">879</td><td class="n">+52%</td><td class="n">0.99</td><td class="n">13%</td></tr>
+  </table>
+  <h2>What it shows</h2>
+  <p>Both shortcuts overshoot by half or more, because they keep counting customers who have gone. Carrying each customer's own rate forward is the "orders per year" formula applied per person. It ranks customers fairly well (the top tenth it picks holds 42% of the real orders) but the total is far too high. The shop-wide average is both too high and cannot rank at all. The model is within 5% on the total, gives the best per-customer error, and its top tenth holds 48% of the real orders.</p>
+  <p>The sharpest gap is among customers who bought at least three times and then went silent: the model gives 26 such customers a low chance of being active, expects 3 orders from them and they made 5; the own-rate shortcut expects about 85.</p>
+  <p>This is one invented shop whose customers were generated to follow the model's own assumptions, so it shows the method works when those hold, not that your shop looks like this. Real data has seasonality, promotions, returns and customers who pause and come back, none of which the tool models. The tool back-tests itself on your last weeks so you can see how it does on your data.</p>
+  <p><a class="cta" href="./">Run the same comparison's model on your orders</a></p>
+  <h2>How to do it by hand</h2>
+  <h3>1. Export customer, date and amount</h3>
+  <p>One row per order, from your store or accounting tool. Orders on one day count as one purchase.</p>
+  <h3>2. Find who is still buying</h3>
+  <p>For each customer note the number of repeat purchases, how long between their first and last, and how long since their first. A customer whose gap since last purchase is far longer than their usual gap has probably left.</p>
+  <h3>3. Value the ones still active</h3>
+  <p>Expected orders &times; typical order value &times; margin, discounted over the horizon. Do not apply it to customers who have probably left.</p>
+  <h3>4. Check it on the past</h3>
+  <p>Hide the last few months, forecast them, and compare. If you cannot test the number, do not budget on it.</p>
+  <h2>Questions</h2>
+  <h3>What is the simplest way to estimate customer lifetime value?</h3>
+  <p>Average order value times orders per customer per year times expected years. It is fine for a rough budget, but it treats every customer as still buying, so it overstates the value of anyone who has quietly left.</p>
+  <h3>What is BG/NBD?</h3>
+  <p>BG/NBD (Fader, Hardie and Lee, 2005) is a published model for shops where customers buy at irregular times. From each customer's purchase count, the time of their last purchase and how long they have been observed, it estimates the chance they are still active and how many more purchases to expect.</p>
+  <h3>How much order history do I need?</h3>
+  <p>Enough that a good share of customers have bought more than once. A few hundred customers and a year or more of orders is a reasonable floor; the tool back-tests itself on your recent weeks so you can see how far to trust the result.</p>
+  <h3>Does this work for subscriptions?</h3>
+  <p>No. BG/NBD assumes customers can buy on any day and quietly stop. A subscription with fixed billing needs a churn or retention calculation instead.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what to spend on acquiring customers. The example is invented and the numbers come from running this tool's own engine on it. Not affiliated with any retention or analytics vendor.</p>
+    <p>Everything the predictor does runs in your browser; your order file is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="../ad-spend-saturation-optimizer/">ad spend saturation optimizer</a>, <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>.</p>
+  </footer>
+</body>
+</html>

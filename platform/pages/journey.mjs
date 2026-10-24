@@ -11,7 +11,7 @@
 //   node platform/pages/journey.mjs
 //
 //   # or against production:
-//   BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
+//   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/journey.mjs
 //
 // **Check what is answering before you believe the result.** A server left
 // running by an earlier build keeps the port, the second `http.server` exits

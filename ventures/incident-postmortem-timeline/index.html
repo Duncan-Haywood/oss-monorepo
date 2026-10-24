@@ -43,6 +43,7 @@
     <p>Incident platforms such as incident.io, FireHydrant and Rootly build timelines inside a paid product. This page does the core of it for free: paste timestamped lines from chat, a pager or your terminal and get <strong>time to detect</strong>, <strong>acknowledge</strong>, <strong>mitigate</strong> and <strong>resolve</strong>, the longest stretches where nothing was logged, and a blameless postmortem in Markdown.</p>
     <p class="note">Nothing is uploaded. The log you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own. Phases are guessed from wording; tag any line with <code>start:</code>, <code>detected:</code>, <code>ack:</code>, <code>mitigated:</code> or <code>resolved:</code> to be exact.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Paste your timeline</h2>
@@ -97,7 +98,8 @@ node postmortem.mjs incident.txt --max-ttr 60m         # exit 1 if resolve took 
     <p>More: <a href="how-to-write-a-blameless-postmortem.html">how to write a blameless postmortem from a timeline</a></p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Its phase detection is a keyword heuristic and can be wrong. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="postmortem.mjs" rel="noopener">postmortem.mjs from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The log you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>timeline_built</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

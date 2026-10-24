@@ -1,0 +1,53 @@
+block bootstrap: 200 histories x 5 policy seeds; difference = policy minus uniform, value points
+== value = pass_A
+-- block 1, budget 5000; mean hindsight reference 42
+greedy        diff    +0.7  95% [   -6.8,    +7.4]  beats uniform in 58% of histories
+thompson      diff    +0.7  95% [   -6.8,    +7.4]  beats uniform in 58% of histories
+knapsack-ucb  diff    +0.8  95% [   -6.8,    +7.4]  beats uniform in 59% of histories
+-- block 1, budget 10000; mean hindsight reference 77
+greedy        diff   +12.0  95% [   -0.2,   +22.4]  beats uniform in 98% of histories
+thompson      diff   +10.1  95% [   +1.0,   +20.0]  beats uniform in 98% of histories
+knapsack-ucb  diff    +4.9  95% [   -1.2,   +12.2]  beats uniform in 92% of histories
+-- block 1, budget 20000; mean hindsight reference 139
+greedy        diff   +34.8  95% [  +14.4,   +52.6]  beats uniform in 100% of histories
+thompson      diff   +31.0  95% [  +16.8,   +46.8]  beats uniform in 100% of histories
+knapsack-ucb  diff    +7.8  95% [   -2.2,   +19.4]  beats uniform in 93% of histories
+-- block 4, budget 5000; mean hindsight reference 42
+greedy        diff    +1.2  95% [   -7.4,    +6.4]  beats uniform in 66% of histories
+thompson      diff    +1.2  95% [   -7.4,    +6.4]  beats uniform in 66% of histories
+knapsack-ucb  diff    +1.2  95% [   -7.4,    +6.4]  beats uniform in 66% of histories
+-- block 4, budget 10000; mean hindsight reference 76
+greedy        diff   +12.5  95% [   -1.8,   +24.8]  beats uniform in 96% of histories
+thompson      diff   +10.4  95% [   +0.2,   +21.8]  beats uniform in 98% of histories
+knapsack-ucb  diff    +6.0  95% [   -2.6,   +13.2]  beats uniform in 93% of histories
+-- block 4, budget 20000; mean hindsight reference 140
+greedy        diff   +33.4  95% [  +15.0,   +52.6]  beats uniform in 100% of histories
+thompson      diff   +30.8  95% [  +14.6,   +50.2]  beats uniform in 100% of histories
+knapsack-ucb  diff    +8.9  95% [   -4.2,   +25.0]  beats uniform in 90% of histories
+
+== value = pass_B
+-- block 1, budget 5000; mean hindsight reference 33
+greedy        diff    +0.7  95% [   -5.2,    +6.0]  beats uniform in 61% of histories
+thompson      diff    +0.7  95% [   -5.2,    +6.0]  beats uniform in 60% of histories
+knapsack-ucb  diff    +0.7  95% [   -5.2,    +6.0]  beats uniform in 62% of histories
+-- block 1, budget 10000; mean hindsight reference 61
+greedy        diff    +8.9  95% [   -2.2,   +19.6]  beats uniform in 93% of histories
+thompson      diff    +7.0  95% [   -2.2,   +17.6]  beats uniform in 92% of histories
+knapsack-ucb  diff    +2.9  95% [   -3.0,   +11.0]  beats uniform in 78% of histories
+-- block 1, budget 20000; mean hindsight reference 115
+greedy        diff   +26.9  95% [   +2.4,   +41.0]  beats uniform in 98% of histories
+thompson      diff   +24.2  95% [   +1.8,   +38.8]  beats uniform in 99% of histories
+knapsack-ucb  diff    +3.9  95% [   -7.2,   +14.6]  beats uniform in 74% of histories
+-- block 4, budget 5000; mean hindsight reference 35
+greedy        diff    +1.0  95% [   -6.4,    +5.6]  beats uniform in 65% of histories
+thompson      diff    +0.9  95% [   -6.4,    +5.6]  beats uniform in 64% of histories
+knapsack-ucb  diff    +1.0  95% [   -6.4,    +5.6]  beats uniform in 65% of histories
+-- block 4, budget 10000; mean hindsight reference 63
+greedy        diff    +8.2  95% [   -3.6,   +22.6]  beats uniform in 90% of histories
+thompson      diff    +6.1  95% [   -3.2,   +20.0]  beats uniform in 86% of histories
+knapsack-ucb  diff    +4.3  95% [   -2.4,   +12.6]  beats uniform in 88% of histories
+-- block 4, budget 20000; mean hindsight reference 116
+greedy        diff   +26.7  95% [   +5.6,   +46.0]  beats uniform in 99% of histories
+thompson      diff   +23.5  95% [   +2.0,   +44.4]  beats uniform in 98% of histories
+knapsack-ucb  diff    +4.7  95% [   -8.2,   +23.6]  beats uniform in 72% of histories
+

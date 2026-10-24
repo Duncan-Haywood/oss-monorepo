@@ -31,10 +31,11 @@ from build123d import Compound, ExportDXF, ExportSVG, LineType, Unit, export_ste
 
 from . import __version__
 from . import collector as C
-from .params import Collector
+from . import feeder as F
+from .params import Collector, Feeder
 
 DENSITY = {"aluminium 5052": 2.68, "PETG": 1.27 * 0.55, "spring-steel (music) wire": 7.85,
-           "aluminium tube": 2.7 * 0.28}  # g/cm^3; PETG at ~55% effective infill, tube at 1.5 mm wall
+           "aluminium tube": 2.7 * 0.28, "aluminium extrusion": 2.7 * 0.47}  # g/cm^3; PETG at ~55% effective infill, tube at 1.5 mm wall
 
 
 def fasteners(p: Collector) -> list[tuple[str, int, str]]:
@@ -98,10 +99,11 @@ for building and operating this safely.
 
 
 def collisions(parts: list[C.Part], tol_mm3: float = 1.0) -> list[str]:
-    placed = []
-    for part in parts:
-        for i, s in enumerate(part.placed()):
-            placed.append((f"{part.name}[{i}]", s, s.bounding_box()))
+    return clashes([(f"{part.name}[{i}]", s) for part in parts for i, s in enumerate(part.placed())], tol_mm3)
+
+
+def clashes(named: list[tuple[str, object]], tol_mm3: float = 1.0) -> list[str]:
+    placed = [(n, s, s.bounding_box()) for n, s in named]
     out = []
     for (na, a, ba), (nb, b, bb) in combinations(placed, 2):
         if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
@@ -113,9 +115,17 @@ def collisions(parts: list[C.Part], tol_mm3: float = 1.0) -> list[str]:
     return out
 
 
-def ground_contacts(parts: list[C.Part]) -> dict[str, float]:
+def elevation_sweep(p: Feeder, steps: int = 4) -> list[str]:
+    """Clashes with the head tilted through its whole elevation range."""
+    out = []
+    for i in range(steps + 1):
+        e = p.elev_min + (p.elev_max - p.elev_min) * i / steps
+        out += [f"at {e:+.0f} deg: {c}" for c in clashes(F.swept_solids(p, e))]
+    return out
+
+
+def ground_contacts(parts: list[C.Part], want=("wheel", "ball_caster", "drum_disc")) -> dict[str, float]:
     """Lowest z of each part that should touch the ground."""
-    want = {"wheel", "ball_caster", "drum_disc"}
     out = {}
     for part in parts:
         if part.name in want:
@@ -165,20 +175,30 @@ def _cut_length(face) -> float:
     return sum(e.length for e in face.edges())
 
 
-def build(out: Path, p: Collector = Collector(), *, drawings: bool = True, zip_it: bool = True) -> dict:
+def build(out: Path, p: Collector | Feeder = Collector(), *, drawings: bool = True, zip_it: bool = True) -> dict:
+    if isinstance(p, Feeder):
+        return _build(out, p, F, "feeder", F.fasteners(p), F.COTS_EXTRA, FEEDER_README, drawings, zip_it)
+    return _build(out, p, C, "collector", fasteners(p), COTS_EXTRA, README, drawings, zip_it)
+
+
+def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -> dict:
+    feeder = robot == "feeder"
     out = Path(out)
     if out.exists():
         shutil.rmtree(out)
     for d in ("laser", "print", "step", "drawings"):
         (out / d).mkdir(parents=True)
     rules = p.check()
-    parts = C.all_parts(p)
-    clashes = collisions(parts)
-    contacts = ground_contacts(parts)
+    parts = M.all_parts(p)
+    clash = collisions(parts)
+    if feeder:
+        clash += elevation_sweep(p)
+    contacts = ground_contacts(parts, ('wheel', 'levelling_foot') if feeder else ('wheel', 'ball_caster', 'drum_disc'))
     ground_ok = all(abs(z) < 0.05 for z in contacts.values())
 
     laser_rows, print_rows, cut_rows, bom_rows = [], [], [], []
     mass_g = 0.0
+    hopper_g = 0.0  # tall and toward the rear wheel line: not credited against tipping
     for part in parts:
         if part.kind in ("laser", "print"):
             export_step(part.shape, str(out / "step" / f"{part.name}.step"))
@@ -205,11 +225,14 @@ def build(out: Path, p: Collector = Collector(), *, drawings: bool = True, zip_i
         elif part.kind == "stock":
             cut_rows.append({"part": part.name, "qty": part.qty, "stock": part.spec, "notes": part.notes})
         if part.material in DENSITY:
-            mass_g += DENSITY[part.material] * part.shape.volume / 1000 * part.qty
+            part_g = DENSITY[part.material] * part.shape.volume / 1000 * part.qty
+            mass_g += part_g
+            if part.name.startswith("hopper"):
+                hopper_g += part_g
         bom_rows.append({"item": part.name, "kind": part.kind, "qty": part.qty,
                          "what": part.spec or f"{part.material}" + (f" {part.thickness:g} mm" if part.thickness else ""),
                          "notes": part.notes})
-    for name, qty, note in fasteners(p) + COTS_EXTRA:
+    for name, qty, note in fasteners_ + cots_extra:
         bom_rows.append({"item": name, "kind": "cots", "qty": qty, "what": name, "notes": note})
 
     def write_csv(name, rows):
@@ -228,26 +251,30 @@ def build(out: Path, p: Collector = Collector(), *, drawings: bool = True, zip_i
     if drawings:
         _drawings(assembly, out / "drawings")
 
-    length, width = p.overall
-    checks = [
-        f"design rules: {'pass' if not rules else '; '.join(rules)}",
-        f"collisions between parts: {'none' if not clashes else '; '.join(clashes)}",
-        f"ground contact (wheels, caster, drum at z=0): {'pass' if ground_ok else contacts}",
-        f"rods: {p.n_rods} x {p.rod_d:g} mm, clear gap {p.rod_gap:.1f} mm for a {p.ball_d:g} mm ball",
-        f"drum capacity (loose packing): ~{p.drum_capacity()} balls",
-        f"overall: {length:.0f} mm long x {width:.0f} mm wide, track {p.track:.0f} mm",
-        f"made-part mass (estimate, excludes bought-in parts): {mass_g / 1000:.1f} kg",
-    ]
-    (out / "README.txt").write_text(README.format(version=__version__, checks="\n".join("- " + c for c in checks)))
+    if feeder:
+        checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g)
+    else:
+        length, width = p.overall
+        checks = [
+            f"design rules: {'pass' if not rules else '; '.join(rules)}",
+            f"collisions between parts: {'none' if not clash else '; '.join(clash)}",
+            f"ground contact (wheels, caster, drum at z=0): {'pass' if ground_ok else contacts}",
+            f"rods: {p.n_rods} x {p.rod_d:g} mm, clear gap {p.rod_gap:.1f} mm for a {p.ball_d:g} mm ball",
+            f"drum capacity (loose packing): ~{p.drum_capacity()} balls",
+            f"overall: {length:.0f} mm long x {width:.0f} mm wide, track {p.track:.0f} mm",
+            f"made-part mass (estimate, excludes bought-in parts): {mass_g / 1000:.1f} kg",
+        ]
+        derived = {"n_rods": p.n_rods, "rod_gap_mm": round(p.rod_gap, 2), "rod_len_mm": p.rod_len,
+                   "track_mm": p.track, "overall_mm": [round(length), round(width)],
+                   "drum_capacity_balls": p.drum_capacity(), "made_part_mass_kg": round(mass_g / 1000, 2)}
+    (out / "README.txt").write_text(readme.format(version=__version__, checks="\n".join("- " + c for c in checks)))
     manifest = {
         "generator": f"otr_cad {__version__}",
-        "robot": "collector",
+        "robot": robot,
         "params": {k: v for k, v in asdict(p).items() if k != "notes"},
-        "derived": {"n_rods": p.n_rods, "rod_gap_mm": round(p.rod_gap, 2), "rod_len_mm": p.rod_len,
-                    "track_mm": p.track, "overall_mm": [round(length), round(width)],
-                    "drum_capacity_balls": p.drum_capacity(), "made_part_mass_kg": round(mass_g / 1000, 2)},
+        "derived": derived,
         "design_rules": rules,
-        "collisions": clashes,
+        "collisions": clash,
         "ground_contacts_z_mm": {k: round(v, 3) for k, v in contacts.items()},
         "files": {},
     }
@@ -272,6 +299,33 @@ def write_zip(folder: Path, dest: Path) -> None:
                 info.external_attr = 0o644 << 16
                 info.compress_type = zipfile.ZIP_DEFLATED
                 z.writestr(info, f.read_bytes())
+
+
+FEEDER_README = """Open Tennis Robots: feeder + catch net manufacturing package (generator v{version})
+
+Generated from parameters in manifest.json. Rebuild after any change:
+    python -m otr_cad feeder --out dist/feeder
+
+ORDER
+1. laser/      Upload the DXFs to a laser or waterjet cutting service.
+               Material and thickness per part are in laser_parts.csv.
+               Units are millimetres. No bends or tapped holes.
+2. print/      Print the STLs in PETG (settings in print_parts.csv).
+3. cut_list.csv  Cut the 2040 / 2020 extrusion and the poles to length;
+               tap M5 into the extrusion ends where noted.
+4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
+
+NOT IN THIS PACKAGE YET: netting and trough, hopper agitator, shuttle actuator
+bracket, elevation actuator and bracket, azimuth drive, post bracing, cabling. See hardware/feeder-catcher.md.
+
+CHECKS RUN WHEN THIS PACKAGE WAS BUILT
+{checks}
+
+STATUS
+Design v0.1, not yet built, and the launcher head throws balls at 30+ m/s:
+read hardware/safety.md before you power anything. No warranty: see LICENSE.
+Report what you find: https://github.com/duncan-haywood/oss-monorepo/issues
+"""
 
 
 def _drawings(assembly, folder: Path) -> None:

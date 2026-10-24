@@ -7,6 +7,7 @@ needs:
 ```
 pip install -r requirements.txt        # build123d, pinned
 python -m otr_cad collector --out ../manufacturing/collector
+python -m otr_cad feeder --out ../manufacturing/feeder
 ```
 
 | Output | For |
@@ -56,6 +57,40 @@ the part you actually buy before cutting metal.
 
 - **Collector: v0.2 package complete.** It has not been built yet, so
   expect a revision after the first build.
-- **Feeder: not yet modelled.** It is next. The launcher head, hopper,
-  lateral base and catch-net frame follow the same pattern: flat plates,
-  printed brackets and an extrusion cut list.
+- **Feeder: v0.1 package.** Launcher head (two plates, standoffs, wheel and
+  motor envelopes), trunnion cheeks with printed feet, mast plate and
+  turntable plate over a lazy-susan bearing, a 2040 base with drive and
+  idler brackets, the 3 m net beam, poles, printed foot and elbow sockets,
+  and a 2020 camera bar. Checks beyond the collector's:
+  the head is tilted through -15 to +45 degrees and tested for collisions at
+  each step (`package.elevation_sweep`), the head plates must clear the
+  67 mm ball path, cheek-foot pilots must land on turntable-plate holes, and
+  the wind force on the net sets a ballast figure in the manifest
+  (`Feeder.ballast_kg`: moment balance about the wheel line; solidity and drag
+  coefficient are assumptions to replace with a measurement).
+  **Feed (added 2026-10-21):** a printed floor and roof between the head
+  plates, a column that carries balls down from a hose socket, and a printed
+  shuttle with a ball-sized pocket that slides forward 95 mm to the wheels
+  while its solid rear shuts the column, so one ball leaves per stroke. A
+  storage tub sits on a laser shelf that falls 12 degrees toward the outlet,
+  on four posts bolted to the deck, and a hose joins the outlet spigot to the
+  column. Extra checks: the shuttle is taller than one ball and shorter than
+  two; the column clears the top wheel; the stroke reaches the wheels' contact
+  point; the tub holds the wanted balls (`Feeder.tub_capacity`); the hose
+  chord falls at least 30 degrees at every elevation and its circular-arc
+  bend radius, taken at the closest pose, is not under the hose's limit
+  (`Feeder.hose_chords`, `hose_bow_radius`: an approximation that ignores the
+  hose's end directions); the shuttle fully advanced clears the head.
+  **Front retainer (added 2026-10-22):** the shuttle's open front is narrowed to
+  87% of the ball (58 mm) between two 1.6 mm PETG flexure arms, each with a
+  5 mm relief behind it. Checks (`Feeder.retain_*`, end-loaded cantilever
+  worst case): arm strain 1.0% against a 2% limit, about 17 N to drag a ball
+  through against 0.14 N of ball weight at -15 deg, and 1.5x that must stay
+  under the wheels' assumed 60 N pull. The modulus (1.5 GPa) and the wheel pull
+  are assumptions: print one and pull a ball through with a scale.
+  **Known gaps, found by this model:** the hose end swings about 450 mm as the
+  head tilts (`mouth_world`), which the 600 mm cut length only just absorbs; the
+  1.4 m posts need bracing before the tub is filled.
+  **Not yet modelled:** the netting and trough, hopper agitator, brackets for
+  the shuttle and elevation actuators, azimuth drive and cabling. The BOM
+  lists the actuators and drive as bought parts without a mount.

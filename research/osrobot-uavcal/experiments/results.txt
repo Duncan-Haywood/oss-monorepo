@@ -1,0 +1,25 @@
+# model constants: FM=0.70 eta_drive=0.8075 P_avionics=5.0 W CDA_K=0.012
+# endurance_model/endurance_published; >1 means the model is optimistic
+
+DJI Mavic 3E  mass 1.050 kg  pack 77.0 Wh  published 45 min  speed model best-range
+usable  d=0.15  d=0.18  d=0.20  d=0.22  d=0.25  d=0.28  d=0.30
+0.80      0.68    0.88    1.02    1.16    1.38    1.61    1.77
+0.90      0.77    0.99    1.15    1.31    1.56    1.82    1.99
+1.00      0.85    1.10    1.27    1.45    1.73    2.02    2.21
+at d=0.22 usable=0.90: model speed 15.1 m/s, endurance 58.9 min, hover power 95.8 W
+
+Parrot Anafi UKR  mass 1.450 kg  pack 78.5 Wh  published 38 min  speed 6.00 m/s
+usable  d=0.15  d=0.18  d=0.20  d=0.22  d=0.25  d=0.28  d=0.30
+0.80      0.47    0.58    0.67    0.76    0.90    1.06    1.18
+0.90      0.53    0.66    0.75    0.85    1.01    1.19    1.32
+1.00      0.58    0.73    0.83    0.94    1.13    1.33    1.47
+at d=0.22 usable=0.90: model speed 6.0 m/s, endurance 32.3 min, hover power 155.5 W
+
+# rotor diameter (m) at which the model reproduces the published endurance
+DJI Mavic 3E  usable 0.80: 0.197  usable 0.90: 0.181  usable 1.00: 0.168
+Parrot Anafi UKR  usable 0.80: 0.269  usable 0.90: 0.248  usable 1.00: 0.230
+
+# at the sourced rotor diameter (DJI Mavic 3 propellers, 9.4 in = 0.239 m)
+DJI Mavic 3E usable 0.80: model 58.5 min at 14.5 m/s = 1.30 x published; hover power 88.3 W
+DJI Mavic 3E usable 0.90: model 65.8 min at 14.5 m/s = 1.46 x published; hover power 88.3 W
+DJI Mavic 3E usable 1.00: model 73.2 min at 14.5 m/s = 1.63 x published; hover power 88.3 W

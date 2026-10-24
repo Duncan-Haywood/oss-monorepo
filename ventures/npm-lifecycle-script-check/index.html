@@ -51,6 +51,7 @@
     <p>Paste your <code>package-lock.json</code> and see every package that runs a <code>preinstall</code>, <code>install</code>, <code>postinstall</code>, or <code>prepare</code> script the moment <code>npm install</code> touches it. Add an older lockfile and this also names exactly which packages <strong>gained</strong> one since then -- the mechanism behind the ua-parser-js (2021), coa/rc (2021), and Shai-Hulud (2025) npm supply-chain attacks. <code>npm audit</code> checks versions against a CVE database and has nothing to say about this.</p>
     <p class="note">Nothing is uploaded. The text you paste is parsed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your package-lock.json</h2>
@@ -134,7 +135,8 @@ node cli.mjs diff baseline.json current.json --ignore node-sass,esbuild</code></
     <p>Your project's own <code>package-lock.json</code> (npm 7+, lockfileVersion 2 or 3) — no extra step. For the diff, an older copy of the same file (from git history, a backup, or a previous run of <code>node cli.mjs snapshot</code>) goes in the optional second box.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports which packages declare an install-time script and flags a small set of keyword patterns in that script's text — it is not a malware scanner, not a security audit, and not a guarantee that an unflagged script is safe or a flagged one is dangerous. It does not replace reading the script yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

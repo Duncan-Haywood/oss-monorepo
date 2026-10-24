@@ -327,6 +327,44 @@ export function backtest(orders, holdoutWeeks) {
   };
 }
 
+// Held-out comparison of three ways to forecast each customer's next purchases:
+// the model, the shop-wide average repeat rate, and each customer's own past
+// rate carried forward. All three use only data before the cut.
+export function compareForecasts(orders, holdoutWeeks) {
+  const end = Math.max(...orders.map((o) => o.day));
+  const calEnd = end - Math.round(holdoutWeeks * 7);
+  const cal = summarize(orders, calEnd);
+  if (cal.length < 50) return null;
+  const params = fitBgnbd(cal);
+  const actual = new Map();
+  for (const o of orders) {
+    if (o.day <= calEnd) continue;
+    let s = actual.get(o.id); if (!s) actual.set(o.id, (s = new Set()));
+    s.add(o.day);
+  }
+  const popRate = cal.reduce((s, r) => s + r.x, 0) / cal.reduce((s, r) => s + r.T, 0);
+  const rows = cal.map((r) => ({
+    actual: actual.get(r.id)?.size ?? 0,
+    model: expectedPurchases(params, r.x, r.tx, r.T, holdoutWeeks),
+    shopAverage: popRate * holdoutWeeks,
+    ownRate: r.T > 0 ? (r.x / r.T) * holdoutWeeks : 0,
+  }));
+  const total = rows.reduce((s, r) => s + r.actual, 0);
+  const top = Math.round(rows.length / 10);
+  const out = { holdoutWeeks, customers: rows.length, actual: total, methods: {} };
+  for (const k of ["model", "shopAverage", "ownRate"]) {
+    const predicted = rows.reduce((s, r) => s + r[k], 0);
+    const best = [...rows].sort((a, b) => b[k] - a[k]).slice(0, top);
+    out.methods[k] = {
+      predicted,
+      errorPct: total > 0 ? (predicted - total) / total : null,
+      meanAbsError: rows.reduce((s, r) => s + Math.abs(r[k] - r.actual), 0) / rows.length,
+      topDecileShare: total > 0 ? best.reduce((s, r) => s + r.actual, 0) / total : null,
+    };
+  }
+  return out;
+}
+
 // ---------- the whole analysis ----------
 
 export function analyze(orders, opts = {}) {

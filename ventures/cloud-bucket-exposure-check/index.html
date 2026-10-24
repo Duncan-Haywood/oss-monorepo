@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cloud Bucket Exposure Checker — is your S3/GCS/Azure bucket publicly listable?</title>
-<meta name="description" content="Free tool: run a CLI that sends one real, read-only request to an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob container you name, then paste the JSON here for a plain-English report on whether anyone on the internet can list its contents with no credentials. Never fetches an object's own content, only the listing. Nothing uploaded.">
+<meta name="description" content="Free tool: run a CLI that sends one real, read-only request to an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob container you name, then paste the JSON here for a plain-English report on whether anyone on the internet can list its contents with no credentials.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/cloud-bucket-exposure-check/">
 <meta property="og:type" content="website">
@@ -87,6 +87,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Cloud Bucket Exposure Checker</h1>
 <p>
   Sends one real, read-only HTTP GET request -- a cloud provider's own anonymous listing
@@ -271,6 +272,7 @@ node check.mjs --provider azure --bucket your-container --account your-storage-a
   }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented

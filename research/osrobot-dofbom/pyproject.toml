@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-dofbom"
+version = "0.1.0"
+description = "Full bill of materials for a 2 to 6 joint feeding arm from the published SO-ARM101 parts list, with a sourced price for every part"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

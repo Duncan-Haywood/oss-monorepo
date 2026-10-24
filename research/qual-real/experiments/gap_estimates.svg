@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 372" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="320.0" y="20" text-anchor="middle" font-size="14">Short-minus-long gap in negative-emotion share, 200 hand-coded items</text>
+<line x1="443.20000000000005" y1="40" x2="443.20000000000005" y2="347" stroke="#555" stroke-dasharray="4"/>
+<text x="443.20000000000005" y="364" text-anchor="middle">truth -0.028</text>
+<text x="180" y="64.0" text-anchor="end">naive-bayes / naive</text>
+<line x1="346.09000000000003" y1="60.0" x2="369.67" y2="60.0" stroke="#c0392b" stroke-width="3"/>
+<circle cx="357.88" cy="60.0" r="5" fill="#c0392b"/>
+<text x="180" y="109.75999999999999" text-anchor="end">naive-bayes / human</text>
+<line x1="368.08000000000004" y1="105.75999999999999" x2="516.2800000000001" y2="105.75999999999999" stroke="#1f6fb2" stroke-width="3"/>
+<circle cx="442.18" cy="105.75999999999999" r="5" fill="#1f6fb2"/>
+<text x="180" y="155.51999999999998" text-anchor="end">naive-bayes / ppi</text>
+<line x1="358.90000000000003" y1="151.51999999999998" x2="524.74" y2="151.51999999999998" stroke="#2e8b57" stroke-width="3"/>
+<circle cx="441.82000000000005" cy="151.51999999999998" r="5" fill="#2e8b57"/>
+<text x="180" y="201.28" text-anchor="end">lexicon / naive</text>
+<line x1="415.21000000000004" y1="197.28" x2="444.67" y2="197.28" stroke="#c0392b" stroke-width="3"/>
+<circle cx="429.94000000000005" cy="197.28" r="5" fill="#c0392b"/>
+<text x="180" y="247.04" text-anchor="end">lexicon / human</text>
+<line x1="368.65" y1="243.04" x2="516.7900000000001" y2="243.04" stroke="#1f6fb2" stroke-width="3"/>
+<circle cx="442.72" cy="243.04" r="5" fill="#1f6fb2"/>
+<text x="180" y="292.8" text-anchor="end">lexicon / ppi</text>
+<line x1="366.82000000000005" y1="288.8" x2="520.4200000000001" y2="288.8" stroke="#2e8b57" stroke-width="3"/>
+<circle cx="443.62" cy="288.8" r="5" fill="#2e8b57"/>
+</svg>

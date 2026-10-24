@@ -71,5 +71,5 @@ kill_criteria:
   - A user reports a real SSA figure the tool contradicts on a point of arithmetic, at which point the model (spousal or survivor handling) needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/social-security-claiming-age-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/social-security-claiming-age-calculator/
   analytics: null

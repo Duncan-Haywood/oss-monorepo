@@ -1,0 +1,39 @@
+records 1659   with per-component usage, cost and tool calls 893   dates 2026-10-16 to 2026-10-20
+
+== A. share of API-equivalent cost by token kind (median and 10th-90th pct across runs)
+  cache_read      median  45.3%  10th-90th  38.3% to  53.8%
+  cache_write_1h  median  40.5%  10th-90th  30.5% to  49.7%
+  cache_write_5m  median   0.0%  10th-90th   0.0% to   0.0%
+  output          median  12.7%  10th-90th   9.0% to  20.8%
+  input           median   0.0%  10th-90th   0.0% to   0.0%
+  token-level cache-hit share (reads / all input-side tokens): median 95.8%
+
+== B. log-log slopes against API requests (n = 893)
+  cost vs requests                            b 1.159 (1.114 to 1.201)  R2 0.882
+  cache-read tokens vs requests               b 1.364 (1.332 to 1.395)  R2 0.961
+  output tokens vs requests                   b 1.359 (1.294 to 1.438)  R2 0.715
+  cache-write tokens (5m+1h) vs requests      b 0.634 (0.597 to 0.674)  R2 0.716
+  tool calls vs requests                      b 0.943 (0.924 to 0.964)  R2 0.965
+  b = 2 for cache reads would mean the context grows linearly with each request and is re-read every time
+
+== C. does the slope above 1 survive when cost is split? slope of each component's dollars vs tool calls
+  cache_read dollars vs tool calls            b 1.408 (1.363 to 1.448)  R2 0.945
+  output dollars vs tool calls                b 1.613 (1.538 to 1.693)  R2 0.764
+  cache_write_1h dollars vs tool calls        b 0.770 (0.713 to 0.824)  R2 0.729
+  total cost vs tool calls                    b 1.223 (1.183 to 1.261)  R2 0.907
+
+== D. per-request quantities against run length (requests)
+  requests   1- 10  n   28  cache-read tokens per request median    60,544   cost per request median $0.032
+  requests  11- 25  n  640  cache-read tokens per request median    74,948   cost per request median $0.034
+  requests  26- 60  n  199  cache-read tokens per request median    91,335   cost per request median $0.036
+  requests  61- up  n   26  cache-read tokens per request median   146,472   cost per request median $0.059
+
+== E. tool calls per API request
+  median 1.11  10th-90th 1.00 to 1.22
+  (a request can emit several calls in parallel, and a final reply makes none)
+
+== F. context model: cache-read tokens per request = C0 + (g/2) x requests
+  C0 = context a run starts with, g = tokens the context grows per request (linear growth, every request re-reads it)
+  C0 59,888 tokens   g 1,867 tokens per request   R2 0.308
+  bootstrap 95% interval for g: 1,544 to 2,198
+  at the median run (20 requests) the starting context is 76% of the average re-read

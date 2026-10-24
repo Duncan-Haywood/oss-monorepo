@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01JFj3ftan5GEaTgyvLFfLaa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T03:22:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 1): faster NB bend search",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 9049,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No separate docs/reports or post this run; the README Speed entry carries the measurement."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Bend search under NB ranks knots on Poisson cost, refits best 8 under NB: 6.4s->1.8s on 240 points; weekly power 22->21 kept, knot-near 18->14 of 40 (README Speed). node --test: 97/97 pass locally. Tried caching/fewer-passes first: no gain (profile: 96% in NB cost). No new write-up beyond README; no post.",
+  "corrections": [],
+  "redteam": null
+}

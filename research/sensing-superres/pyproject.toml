@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-superres"
+version = "0.1.0"
+description = "Burst super-resolution: handshake-shifted low-resolution frames, regularised least-squares reconstruction on a finer grid, against merge-then-upsample and a sensor with more pixels"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

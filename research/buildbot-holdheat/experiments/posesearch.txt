@@ -1,0 +1,30 @@
+collision check control (hands 0.06 m apart, x 0.1, z 0.7): 8 body pairs flagged, e.g. [('left_elbow_link', 'torso_link'), ('left_shoulder_yaw_link', 'torso_link')]
+0 of 150 poses have a self-collision deeper than 5 mm; the tables below use only the other 150
+buildbot-holdheat pose search: 3.8 kg stud, 150 grid poses, 150 reachable with both feet loaded
+baseline (x 0.3, z 0.6, com_dx 0): u_max 0.910 (waist_pitch_joint)
+best 8: x, z, com_dx, u_max, joint, u_max empty
+   0.15 0.7 +0.00  0.330 left_wrist_pitch_joint  0.089
+   0.20 0.7 +0.02  0.334 left_wrist_pitch_joint  0.126
+   0.15 0.7 -0.02  0.334 left_wrist_pitch_joint  0.123
+   0.20 0.7 +0.04  0.343 right_wrist_pitch_joint  0.183
+   0.25 0.7 +0.06  0.343 left_ankle_pitch_joint  0.237
+   0.15 0.9 +0.04  0.374 right_shoulder_pitch_joint  0.316
+   0.20 0.9 +0.06  0.383 right_shoulder_pitch_joint  0.282
+   0.15 0.7 +0.02  0.385 right_wrist_pitch_joint  0.128
+best by com_dx (min u_max over x, z):
+   com_dx -0.02: 0.334 at x 0.15 z 0.7 (left_wrist_pitch_joint)
+   com_dx +0.00: 0.330 at x 0.15 z 0.7 (left_wrist_pitch_joint)
+   com_dx +0.02: 0.334 at x 0.2 z 0.7 (left_wrist_pitch_joint)
+   com_dx +0.04: 0.343 at x 0.2 z 0.7 (right_wrist_pitch_joint)
+   com_dx +0.06: 0.343 at x 0.25 z 0.7 (left_ankle_pitch_joint)
+best by z (min u_max over x, com_dx):
+   z 0.4: 0.437 at x 0.15 com_dx +0.06 (left_shoulder_pitch_joint)
+   z 0.5: 0.598 at x 0.15 com_dx +0.06 (waist_pitch_joint)
+   z 0.6: 0.441 at x 0.15 com_dx +0.06 (waist_pitch_joint)
+   z 0.7: 0.330 at x 0.15 com_dx +0.00 (left_wrist_pitch_joint)
+   z 0.8: 0.476 at x 0.25 com_dx +0.00 (left_wrist_pitch_joint)
+   z 0.9: 0.374 at x 0.15 com_dx +0.04 (right_shoulder_pitch_joint)
+hold time in thermal time constants, baseline vs best:
+   rho 0.4: baseline 0.21, best inf
+   rho 0.5: baseline 0.36, best inf
+   rho 0.6: baseline 0.57, best inf

@@ -1,0 +1,50 @@
+name: changepoint-detector
+description: >-
+  Free in-browser changepoint detection: paste a time series and see when its
+  level or volatility changed, with PELT (Killick et al. 2012) segmentation
+  and Bayesian online changepoint probabilities (Adams & MacKay 2007). Also a
+  CLI and an agent-callable engine. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-20 as the first tool of "research algorithms as free tools"
+# (portfolio/research-tools/README.md), on the owner's direction that day.
+# duplicate_check.py on "Bayesian online changepoint detection for time
+# series CSV in the browser": top match 0.16, unrelated (no time-series
+# analysis tool in the catalogue).
+#
+# First visitor: searches "changepoint detection online", "detect change in
+# time series", "structural break test", "PELT changepoint"; analysts and
+# engineers who would otherwise open R or Python for one question; r/datascience,
+# r/statistics and Cross Validated threads asking whether a series shifted.
+# Volume not measured with an external tool.
+#
+# Liability: statistical analysis of supplied data, not advice. Data never
+# leaves the browser (page tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts and engineers with a one-off "did this series change, and
+      when?" question will use a no-install page that cites the methods
+      rather than set up R or Python for it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a segmentation that disagrees with R's changepoint package on the same data, model and penalty, and the cause is a bug here.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/
+  analytics: null

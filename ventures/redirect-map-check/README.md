@@ -3,18 +3,30 @@
 Free browser tool that checks a site-migration redirect map (CSV, TSV or one old-new pair per line)
 before launch: redirect loops and self-redirects, chains that should be one hop, the same old URL
 sent to two places, a large share of rows redirected to the homepage (a soft-404 pattern), spaces,
-#fragments, missing leading slashes, wildcards and other-host sources, temporary status codes, and
+#fragments, missing leading slashes, wildcards and other-host sources, temporary status codes, targets left on a staging or preview host, and
 -- if the new site's URL list is pasted -- redirects that end on a 404, plus old URLs with no rule
 at all, each with its line number. It then writes the map flattened, so every old URL points
 straight at its final destination, as a Shopify CSV, Netlify or Cloudflare Pages _redirects, Apache
 Redirect lines or an nginx map. The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/redirect-map-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/redirect-map-check/
 
 ## Run it
 
 Open `index.html` in a browser. There is no build step, no account and no API
 key; the work happens in your browser and nothing you paste is uploaded.
+
+## Check a map from the command line or CI
+
+```
+node cli.mjs redirects.csv --new-urls new-site-urls.txt --format netlify --out _redirects
+```
+
+Prints each finding with its line number and exits 1 if any is an error (`--fail-on warning`
+also fails on warnings, `--fail-on never` never fails), so a bad map can block a deploy. `--json`
+and `--csv` print machine-readable results; `--old-urls`, `--site` and `--case-sensitive` match
+the page's options; `-` reads stdin. Nothing is uploaded. Exit code 2 means bad usage or an
+unreadable file.
 
 To run the tests (Node 20 or newer):
 
@@ -25,6 +37,7 @@ node --test ventures/redirect-map-check/
 ## Files
 
 - `index.html`: the tool's page.
+- `cli.mjs`: the command-line wrapper for CI.
 - `calc.mjs`: the logic, kept separate from the page so it can be tested.
 - `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see
   `portfolio/usage/README.md` in the monorepo).

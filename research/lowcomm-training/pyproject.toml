@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lowcomm"
+version = "0.1.0"
+description = "Simulated M-worker DiLoCo harness on a small GPT for the lowcomm-training programme"
+requires-python = ">=3.9"
+dependencies = ["torch"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

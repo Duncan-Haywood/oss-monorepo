@@ -1,0 +1,10 @@
+generator	level	spread	extremes	roughness	autocorr	holds	floor	cross	all
+own markov8 centroid	0.978	0.962	1.000	0.963	0.930	1.000	0.918	0.757	1.000
+own markov128 member	0.980	0.983	0.995	0.998	1.000	0.998	0.965	0.834	1.000
+pooled markov128 member	0.995	0.997	1.000	0.999	1.000	1.000	0.997	0.862	1.000
+
+between-window std of the window mean (held half, averaged over people)
+real	2.83
+own markov8 centroid	2.39
+own markov128 member	1.25
+pooled markov128 member	4.56

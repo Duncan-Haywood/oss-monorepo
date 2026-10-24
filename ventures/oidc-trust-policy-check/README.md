@@ -1,10 +1,10 @@
-# oidc-trust-policy-check
+# GitHub Actions OIDC Trust Policy Checker — AWS sub/aud conditions
 
 Reads an AWS IAM role trust policy that federates GitHub Actions over OIDC and
 reports whether its conditions actually restrict **which repository, branch or
 environment** can assume the role.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/oidc-trust-policy-check/
 
 Two surfaces, one classifier:
 

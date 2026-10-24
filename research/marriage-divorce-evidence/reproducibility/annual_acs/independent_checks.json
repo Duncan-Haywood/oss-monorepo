@@ -1,0 +1,16 @@
+[
+  {
+    "sex": "Men",
+    "max_logodds_difference": 2.2221113837872508e-13,
+    "profile_margin_check": "passed",
+    "n": 369235,
+    "events": 4379
+  },
+  {
+    "sex": "Women",
+    "max_logodds_difference": 1.0765849700611341e-07,
+    "profile_margin_check": "passed",
+    "n": 386283,
+    "events": 4888
+  }
+]

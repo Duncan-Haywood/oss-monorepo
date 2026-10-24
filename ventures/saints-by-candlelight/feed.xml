@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:podcast="https://podcastindex.org/namespace/1.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Saints by Candlelight</title>
+    <link>https://example.invalid/saints-by-candlelight/</link>
+    <atom:link href="https://example.invalid/saints-by-candlelight/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>Lighthearted, faithful bedtime stories of the saints, angels and patriarchs of the Catholic and Orthodox traditions: the Archangel Raphael on the road with Tobias, the lion of Saint Gerasimus, Saint Nicholas and the three bags of gold, and many more. Each episode runs thirty minutes to an hour, slows down as it goes, and says plainly what is Scripture, what is history, what is legend and what we made up. Written by an AI, read by a synthetic voice, free to share under CC BY-SA 4.0.</description>
+    <language>en</language>
+    <copyright>CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Written by Claude, an AI model made by Anthropic.</copyright>
+    <podcast:license url="https://creativecommons.org/licenses/by-sa/4.0/">cc-by-sa-4.0</podcast:license>
+    <podcast:medium>podcast</podcast:medium>
+    <podcast:guid>53a01eb0-7011-5478-a9d7-698a7e64cd95</podcast:guid>
+    <itunes:author>Saints by Candlelight (written by Claude, an AI)</itunes:author>
+    <itunes:image href="https://example.invalid/saints-by-candlelight/cover.png"/>
+    <image><url>https://example.invalid/saints-by-candlelight/cover.png</url><title>Saints by Candlelight</title><link>https://example.invalid/saints-by-candlelight/</link></image>
+    <itunes:category text="Religion &amp; Spirituality"><itunes:category text="Christianity"/></itunes:category>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:type>episodic</itunes:type>
+    <item>
+      <title>A Winter Night at the Hill Convent</title>
+      <link>https://example.invalid/saints-by-candlelight/a-winter-night-at-the-hill-convent.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-a-winter-night-at-the-hill-convent</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A snowed-in convent, a novice who cannot sleep and an old abbess who cannot stop talking. Between the kettle and the candle she tells three true stories of saints, Brigid and her cloak, Francis on the road in the cold, and Seraphim of Sarov and his one greeting. What&#39;s true: Brigid was a real abbess of Kildare in the late fifth and early sixth centuries, Francis a real friar who died in 1226, and Seraphim a real monk who died in 1833; the stories are retold from their standard sources Legend: the cloak that covered the plain is from the old Lives of Brigid and is told as the old story says; the Francis story is from the Little Flowers of Saint Francis, written down after his death; the Seraphim greeting is well attested by those who knew him Invented for this episode: this episode is fiction; the convent, Mother Aldith, the novice Wenna, the sister who keeps the bell and every conversation are invented, in a traditional setting, and nothing in them is a claim about a real person Feast day: Brigid on 1 February, Francis on 4 October in the Catholic calendar, and Seraphim on 2 January in the Orthodox calendar and 1 August for his glorification Full script and sources: https://example.invalid/saints-by-candlelight/a-winter-night-at-the-hill-convent.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A snowed-in convent, a novice who cannot sleep and an old abbess who cannot stop talking. Between the kettle and the candle she tells three true stories of saints, Brigid and her cloak, Francis on the road in the cold, and Seraphim of Sarov and his one greeting.</itunes:summary>
+      <itunes:episode>19</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/a-winter-night-at-the-hill-convent.mp3" length="8202844" type="audio/mpeg"/>
+      <itunes:duration>0:27:21</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/a-winter-night-at-the-hill-convent.html" type="text/html"/>
+    </item>
+    <item>
+      <title>George and the Dragon of Silene</title>
+      <link>https://example.invalid/saints-by-candlelight/george-and-the-dragon-of-silene.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-george-and-the-dragon-of-silene</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A bedtime telling of Saint George, the soldier who gave away everything he owned, and of the old story of the town by the lake, the dragon that frightened it, and the knight who would take no reward. With honest notes on which parts are history and which are a thousand-year-old story. What&#39;s true: George was a Christian soldier who was put to death for his faith in the persecution under the emperor Diocletian, around the year three hundred and three; his tomb has been honoured at Lydda in Palestine since early times, and devotion to him spread across the whole Church Legend: the dragon, the lake and the town of Silene are a medieval story, first told in this form in the Golden Legend of the thirteenth century and older Georgian and Latin tales, and are told here as the old story says; the long and wonderful details of his trials in the old Acts are left out Invented for this episode: the shepherd Masin, his grandmother, the old fisherman Hanno, the town crier and nearly all the conversations are our own invention, told in the spirit of the old story Feast day: 23 April in both the Catholic and the Orthodox calendars; the Orthodox call him the Great-martyr and Trophy-bearer Full script and sources: https://example.invalid/saints-by-candlelight/george-and-the-dragon-of-silene.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime telling of Saint George, the soldier who gave away everything he owned, and of the old story of the town by the lake, the dragon that frightened it, and the knight who would take no reward. With honest notes on which parts are history and which are a thousand-year-old story.</itunes:summary>
+      <itunes:episode>18</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/george-and-the-dragon-of-silene.mp3" length="9480490" type="audio/mpeg"/>
+      <itunes:duration>0:31:36</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/george-and-the-dragon-of-silene.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Kevin and the Blackbird</title>
+      <link>https://example.invalid/saints-by-candlelight/kevin-and-the-blackbird.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-kevin-and-the-blackbird</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A young hermit in a Wicklow valley kneels at a window with his arm held out in prayer, and a blackbird builds a nest in his open hand. A bedtime telling of Saint Kevin of Glendalough, the valley of the two lakes, and the lesson of a very long, very still afternoon, with a young monk who is bad at waiting. What&#39;s true: Kevin, in Irish Cóemgen, was a real abbot who founded the monastery at Glendalough in County Wicklow, and the Irish annals record his death in the early seventh century, around the year six hundred and eighteen; the valley of the two lakes became one of Ireland&#39;s great monastic sites and pilgrimages Legend: the blackbird and the egg in his hand, and the other animal tales, come from the medieval Latin and Irish Lives written long after his death, and are told here as the old story says; the very great age the Lives give him is skipped Invented for this episode: the young monk Fintan of the Ford, the cook Brother Mochua, the farmer&#39;s wife Gobnait, the thrush, and nearly all the conversations are our own invention, told in the spirit of the old Lives Feast day: 3 June in the Catholic calendar and the Irish martyrologies Full script and sources: https://example.invalid/saints-by-candlelight/kevin-and-the-blackbird.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A young hermit in a Wicklow valley kneels at a window with his arm held out in prayer, and a blackbird builds a nest in his open hand. A bedtime telling of Saint Kevin of Glendalough, the valley of the two lakes, and the lesson of a very long, very still afternoon, with a young monk who is bad at waiting.</itunes:summary>
+      <itunes:episode>17</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/kevin-and-the-blackbird.mp3" length="10690082" type="audio/mpeg"/>
+      <itunes:duration>0:35:38</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/kevin-and-the-blackbird.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Spyridon and the Snake That Became Gold</title>
+      <link>https://example.invalid/saints-by-candlelight/spyridon-and-the-snake-that-became-gold.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-spyridon-and-the-snake-that-became-gold</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A shepherd who became a bishop and never quite stopped being a shepherd. A snake in a poor man&#39;s debt, a clay brick at a great council, a night of thieves who were let go with a ram, and a good long look at what it means to keep a door open. What&#39;s true: Spyridon was a real bishop of Trimythous in Cyprus in the fourth century, said by early church historians to have been a married shepherd before he was a bishop, and later tradition places him at the Council of Nicaea in the year three hundred and twenty-five Legend: the snake that turned to gold, the brick at Nicaea that gave fire, water and clay, and the thieves held fast in the night come from his later lives, chiefly the seventh-century life by Theodore of Paphos, and are told here as the old story says Invented for this episode: the farmer Demetrios, the shepherd boy Kallias, the old sheepdog Argos, the innkeeper&#39;s wife Maria, and nearly all the small conversations are our own invention, told in the spirit of the old lives Feast day: 12 December in the Orthodox Churches; the Roman Martyrology also remembers him in December; he is especially loved on the island of Corfu, where his relics rest Full script and sources: https://example.invalid/saints-by-candlelight/spyridon-and-the-snake-that-became-gold.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A shepherd who became a bishop and never quite stopped being a shepherd. A snake in a poor man&#39;s debt, a clay brick at a great council, a night of thieves who were let go with a ram, and a good long look at what it means to keep a door open.</itunes:summary>
+      <itunes:episode>16</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/spyridon-and-the-snake-that-became-gold.mp3" length="10686310" type="audio/mpeg"/>
+      <itunes:duration>0:35:37</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/spyridon-and-the-snake-that-became-gold.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Nicholas and the Grain Ships</title>
+      <link>https://example.invalid/saints-by-candlelight/nicholas-and-the-grain-ships.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-nicholas-and-the-grain-ships</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A storm far out at sea, a ship&#39;s captain who swears he saw a bishop at the steering oar, and a famine in Myra with the emperor&#39;s wheat sitting in the harbour. The second night with Saint Nicholas, after the three bags of gold, is about asking for bread for strangers, the world&#39;s most nervous grain auditor, and a hundred measures that were never missed. What&#39;s true: Nicholas was a real bishop of Myra in Lycia in the fourth century; Myra&#39;s harbour at Andriake had a huge imperial granary built under Hadrian, and Egyptian grain ships really did call along the Lycian coast, as Acts chapter 27 shows Legend: the calming of the storm and the sailors who saw the bishop at their ship, and the grain ships at Myra with the hundred measures that were never missed, are both from later lives, chiefly Michael the Archimandrite in the ninth century, and are told here as the old story says Invented for this episode: the captain Zosimos, his mate Kallinikos, the ship&#39;s boy Dorotheos, the imperial clerk Antiochos, the harbour woman Eupraxia, and almost every conversation are our own invention, told in the spirit of the old lives Feast day: 6 December in both traditions; the Orthodox also keep 9 May for the translation of his relics to Bari in 1087 Full script and sources: https://example.invalid/saints-by-candlelight/nicholas-and-the-grain-ships.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A storm far out at sea, a ship&#39;s captain who swears he saw a bishop at the steering oar, and a famine in Myra with the emperor&#39;s wheat sitting in the harbour. The second night with Saint Nicholas, after the three bags of gold, is about asking for bread for strangers, the world&#39;s most nervous grain auditor, and a hundred measures that were never missed.</itunes:summary>
+      <itunes:episode>15</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/nicholas-and-the-grain-ships.mp3" length="13392454" type="audio/mpeg"/>
+      <itunes:duration>0:44:38</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/nicholas-and-the-grain-ships.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Joseph and the Coat with Long Sleeves</title>
+      <link>https://example.invalid/saints-by-candlelight/joseph-and-the-coat-with-long-sleeves.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-joseph-and-the-coat-with-long-sleeves</guid>
+      <pubDate>Fri, 23 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A favourite son with a splendid coat and a gift for annoying his brothers is sold into Egypt, forgotten in a prison, and raised up to feed a hungry world. Years later his brothers kneel before him without knowing who he is, and he has to decide what to do with the power to pay them back. The Patriarch Joseph, from the book of Genesis. What&#39;s true: that Joseph, son of Jacob, was sold into Egypt, rose there to high office and was reunited with his family is the witness of the Scriptures; the story is told as the Bible tells it Legend: none in the main telling; the reading of Joseph as a figure of Christ, betrayed by his brothers for silver and raising up the very people who wronged him, is an old tradition of the Fathers and is labelled as a tradition of interpretation Invented for this episode: the weather, the pit, the road, the cell, the thoughts of the brothers, Joseph&#39;s side of the long wait and the small conversations are our own invention, told in the spirit of the original; nothing that changes what happens in the Scripture or what it means has been added Feast day: the Orthodox Church remembers the Patriarch Joseph on Great and Holy Monday, at the start of Holy Week, and in the Orthodox Church his story is read in the evenings of Lent; in the Catholic Church the story of Joseph and his brothers is read at Mass in the second week of Lent Full script and sources: https://example.invalid/saints-by-candlelight/joseph-and-the-coat-with-long-sleeves.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A favourite son with a splendid coat and a gift for annoying his brothers is sold into Egypt, forgotten in a prison, and raised up to feed a hungry world. Years later his brothers kneel before him without knowing who he is, and he has to decide what to do with the power to pay them back. The Patriarch Joseph, from the book of Genesis.</itunes:summary>
+      <itunes:episode>14</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/joseph-and-the-coat-with-long-sleeves.mp3" length="13086831" type="audio/mpeg"/>
+      <itunes:duration>0:43:37</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/joseph-and-the-coat-with-long-sleeves.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Abraham and the Three Visitors at Mamre</title>
+      <link>https://example.invalid/saints-by-candlelight/abraham-and-the-three-visitors-at-mamre.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-abraham-and-the-three-visitors-at-mamre</guid>
+      <pubDate>Thu, 22 Oct 2026 20:00:00 GMT</pubDate>
+      <description>An old man sitting at his tent door in the heat of the day sees three strangers, runs to meet them, and gives them everything he has. They tell him that his wife will have a son within the year, his wife laughs behind the tent flap, and a gentle question is asked: is anything too hard for the Lord? The Patriarch Abraham and his wife Sarah, from the book of Genesis. What&#39;s true: that Abraham and Sarah are the ancestors of the people of Israel, and that the Lord appeared to Abraham by the oaks of Mamre, is the witness of the Scriptures; the story is told as the Bible tells it Legend: none in the main telling; the reading of the three visitors as a sign of the Holy Trinity, which many of the Fathers of the Church held and which the icon paints, is mentioned and labelled as a tradition of interpretation Invented for this episode: the heat, Abraham&#39;s thoughts as he runs, the conversations in the camp, Sarah&#39;s side of the tent flap and the narrator&#39;s jokes are our own invention, told in the spirit of the original; nothing that changes what happens in the Scripture or what it means has been added Feast day: 9 October for Abraham in the Roman Martyrology and, with his nephew Lot, in the Orthodox calendar; the Orthodox Church also keeps the Forefathers of Christ in the weeks before Christmas, and the visit at Mamre is the subject of the famous Orthodox icon of the Holy Trinity Full script and sources: https://example.invalid/saints-by-candlelight/abraham-and-the-three-visitors-at-mamre.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>An old man sitting at his tent door in the heat of the day sees three strangers, runs to meet them, and gives them everything he has. They tell him that his wife will have a son within the year, his wife laughs behind the tent flap, and a gentle question is asked: is anything too hard for the Lord? The Patriarch Abraham and his wife Sarah, from the book of Genesis.</itunes:summary>
+      <itunes:episode>13</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/abraham-and-the-three-visitors-at-mamre.mp3" length="9994457" type="audio/mpeg"/>
+      <itunes:duration>0:33:19</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/abraham-and-the-three-visitors-at-mamre.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Elijah and the Still Small Voice</title>
+      <link>https://example.invalid/saints-by-candlelight/elijah-and-the-still-small-voice.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-elijah-and-the-still-small-voice</guid>
+      <pubDate>Thu, 22 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A prophet who tells a king it will not rain, is fed by ravens, lodges with a widow whose flour never quite runs out, calls down fire on a mountain, and then runs away to the desert in despair, where an angel brings him a cake and the Lord comes to him not in the storm but in a whisper. The Prophet Elijah, from the first book of Kings. What&#39;s true: that Elijah the Tishbite was a prophet in the northern kingdom of Israel in the days of King Ahab, in the ninth century before Christ, is the witness of the Scriptures; the story is told as the Bible tells it Legend: none in the main telling; the later Christian tradition that the Carmelite order looks back to Elijah on Mount Carmel is mentioned in the notes and labelled as a tradition Invented for this episode: the ravens&#39; manners, the conversations in the widow&#39;s kitchen, Elijah&#39;s thoughts on the road, the remarks of the servant on Mount Carmel and the jokes are our own invention, told in the spirit of the original; nothing that changes what happens in the Scripture or what it means has been added Feast day: 20 July in the Catholic calendar as kept by the Carmelites and in many local calendars, and 20 July in the Orthodox calendar, which falls on 2 August in the civil calendar for churches that keep the old Julian reckoning Full script and sources: https://example.invalid/saints-by-candlelight/elijah-and-the-still-small-voice.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A prophet who tells a king it will not rain, is fed by ravens, lodges with a widow whose flour never quite runs out, calls down fire on a mountain, and then runs away to the desert in despair, where an angel brings him a cake and the Lord comes to him not in the storm but in a whisper. The Prophet Elijah, from the first book of Kings.</itunes:summary>
+      <itunes:episode>12</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/elijah-and-the-still-small-voice.mp3" length="13430728" type="audio/mpeg"/>
+      <itunes:duration>0:44:46</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/elijah-and-the-still-small-voice.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Herman and the Garden on Spruce Island</title>
+      <link>https://example.invalid/saints-by-candlelight/herman-and-the-garden-on-spruce-island.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-herman-and-the-garden-on-spruce-island</guid>
+      <pubDate>Thu, 22 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A Russian monk sails for the edge of the world, ends up on a small spruce-covered island off Kodiak, and spends forty years growing cabbages, baking bread and teaching children. Saint Herman of Alaska, who is loved by the Orthodox Church and who has a very good way with seaweed. What&#39;s true: that Herman was born in Russia about 1756, became a monk, lived at Valaam on Lake Ladoga, sailed with the Russian mission to Kodiak in 1794, later lived as a hermit on Spruce Island which he called New Valaam, grew a garden, kept an orphans&#39; school, helped the Alutiiq people against harsh treatment, nursed the sick in the epidemic of 1819 and died in 1837, is well attested Legend: the stories of the bear and the ermines, of the wave that stopped at the shore, and of the fire in the forest are traditions told by his students and by people who knew him, written down some time after the events; we tell them as traditions and not as official history Invented for this episode: the children Anna and Peter, their conversations, the weather on each day, the particular cabbages, the jokes, and the journey of the story as it is told here are our own invention, told in the spirit of the original; no new miracles are attributed to Herman Feast day: 13 December, the day of his death, and 9 August, the day he was proclaimed a saint, in the calendar of the Orthodox Church in America Full script and sources: https://example.invalid/saints-by-candlelight/herman-and-the-garden-on-spruce-island.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A Russian monk sails for the edge of the world, ends up on a small spruce-covered island off Kodiak, and spends forty years growing cabbages, baking bread and teaching children. Saint Herman of Alaska, who is loved by the Orthodox Church and who has a very good way with seaweed.</itunes:summary>
+      <itunes:episode>11</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/herman-and-the-garden-on-spruce-island.mp3" length="9605623" type="audio/mpeg"/>
+      <itunes:duration>0:32:01</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/herman-and-the-garden-on-spruce-island.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Brendan and the Island That Moved</title>
+      <link>https://example.invalid/saints-by-candlelight/brendan-and-the-island-that-moved.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-brendan-and-the-island-that-moved</guid>
+      <pubDate>Thu, 22 Oct 2026 20:00:00 GMT</pubDate>
+      <description>An Irish abbot builds a boat out of leather, butter and optimism, and sails into the Atlantic with his friends to look for the Promised Land of the Saints. Along the way they cook breakfast on an island that turns out to be alive. Saint Brendan the Navigator, from the old Latin voyage story, told as the legend it is. What&#39;s true: Brendan was a real abbot, born in the south west of Ireland in the late fifth century, who founded the monastery at Clonfert and died there in the later sixth century; he was fostered and taught by Saint Ita, and he was known in his own lifetime and afterwards as a traveller by sea Legend: the voyage itself, the sheep island, the island that moved, the hermit on the rock and the Promised Land are from the Navigatio Sancti Brendani, a Latin story written down some three hundred years after his death, and nobody claims it is a record of a real journey Invented for this episode: the conversations, the weather, the narrator&#39;s opinions about butter, the names of the sheep and the boatbuilder&#39;s jokes are our own invention, told in the spirit of the original; the voyage story contains an episode about birds that are fallen angels, and this retelling leaves it out and says why, because the Church does not teach that there are half-fallen angels Feast day: 16 May in the Catholic calendar and in the Orthodox calendar Full script and sources: https://example.invalid/saints-by-candlelight/brendan-and-the-island-that-moved.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>An Irish abbot builds a boat out of leather, butter and optimism, and sails into the Atlantic with his friends to look for the Promised Land of the Saints. Along the way they cook breakfast on an island that turns out to be alive. Saint Brendan the Navigator, from the old Latin voyage story, told as the legend it is.</itunes:summary>
+      <itunes:episode>10</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/brendan-and-the-island-that-moved.mp3" length="10509063" type="audio/mpeg"/>
+      <itunes:duration>0:35:02</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/brendan-and-the-island-that-moved.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Patrick and the Ship That Was Ready</title>
+      <link>https://example.invalid/saints-by-candlelight/patrick-and-the-ship-that-was-ready.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-patrick-and-the-ship-that-was-ready</guid>
+      <pubDate>Thu, 22 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A sixteen-year-old farm boy is carried off across the sea to mind sheep in Ireland. Years later he walks two hundred miles to a ship, loses his lunch to a lack of pigs, and comes back to the island that took him. Saint Patrick, in his own words, with no snakes and no shamrocks. What&#39;s true: the outline of Patrick&#39;s life in this story, his capture at nearly sixteen, six years as a herdsman in Ireland, his escape, the ship, the journey through a deserted land, the dream of the letter, and his return as a missionary bishop, comes from two short Latin writings that Patrick himself left, the Confession and the Letter to the soldiers of Coroticus Legend: the shamrock, the snakes, the lit fire on the hill, and the contest with the druids are all later stories and are mentioned only to be set aside; the hill where he is said to have been a slave is a later tradition and the Confession names no place Invented for this episode: the weather, the sheep, the dog, the conversations on the road and aboard the ship, the sailors&#39; names for nothing and the little jokes are our own invention, told in the spirit of the original; Patrick says what he prayed and what he heard, and we have kept his words wherever we could Feast day: 17 March in the Catholic calendar and in the Orthodox calendar Full script and sources: https://example.invalid/saints-by-candlelight/patrick-and-the-ship-that-was-ready.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A sixteen-year-old farm boy is carried off across the sea to mind sheep in Ireland. Years later he walks two hundred miles to a ship, loses his lunch to a lack of pigs, and comes back to the island that took him. Saint Patrick, in his own words, with no snakes and no shamrocks.</itunes:summary>
+      <itunes:episode>9</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/patrick-and-the-ship-that-was-ready.mp3" length="9130975" type="audio/mpeg"/>
+      <itunes:duration>0:30:26</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/patrick-and-the-ship-that-was-ready.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Hilda of Whitby and the Cowherd Who Could Not Sing</title>
+      <link>https://example.invalid/saints-by-candlelight/hilda-of-whitby-and-the-cowherd-who-could-not-sing.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-hilda-of-whitby-and-the-cowherd-who-could-not-sing</guid>
+      <pubDate>Thu, 22 Oct 2026 20:00:00 GMT</pubDate>
+      <description>On a cliff above the North Sea, an abbess who advises kings meets an elderly cowherd who has just woken up able to sing. Saint Hilda of Whitby, the stableman Caedmon, and the first English poem, as Bede tells it. What&#39;s true: Hilda was a real woman, born in 614 into the Northumbrian royal family, baptised in 627, abbess first of Hartlepool and then of Whitby, where the great Council of 664 was held; she died on 17 November 680 after a long illness; Caedmon is the first English poet known by name, and Bede wrote about him about fifty years after his death Legend: the vision of a bell and angels seen by a nun at a distant house on the night of her death is reported by Bede from the nun herself; it is told here as Bede reports it Invented for this episode: the cowherd&#39;s thoughts, the feast and its jokes, the weather, the conversations in the abbess&#39;s room, the name of nothing but the people Bede names, and the small talk of the brothers are our own invention, told in the spirit of the original; Bede does not describe the feast, and he gives the abbess no words at all in this scene Feast day: 17 November in the Catholic calendar, the day of her death in 680; Orthodox calendars that keep the saints of the early English church name her as well, on days that vary Full script and sources: https://example.invalid/saints-by-candlelight/hilda-of-whitby-and-the-cowherd-who-could-not-sing.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>On a cliff above the North Sea, an abbess who advises kings meets an elderly cowherd who has just woken up able to sing. Saint Hilda of Whitby, the stableman Caedmon, and the first English poem, as Bede tells it.</itunes:summary>
+      <itunes:episode>8</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/hilda-of-whitby-and-the-cowherd-who-could-not-sing.mp3" length="9848574" type="audio/mpeg"/>
+      <itunes:duration>0:32:50</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/hilda-of-whitby-and-the-cowherd-who-could-not-sing.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Seraphim of Sarov and the Bear</title>
+      <link>https://example.invalid/saints-by-candlelight/seraphim-of-sarov-and-the-bear.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-seraphim-of-sarov-and-the-bear</guid>
+      <pubDate>Wed, 21 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A merchant&#39;s son from Kursk goes into the Russian forest to pray, and over thirty years becomes the most loved holy man in Russia. Saint Seraphim of Sarov, his bread-loving bear, his thousand nights on a rock, and the greeting that made strangers weep with joy, told gently for bedtime. What&#39;s true: Seraphim was a real man, born Prokhor Moshnin in Kursk in 1754 or 1759 (the sources differ), who entered Sarov monastery in 1778, lived as a hermit in the forest from about 1794, was attacked by robbers in 1804, and died at Sarov on 2 January 1833; he was glorified by the Russian Orthodox Church in 1903 Legend: the bear, the long nights on the rock and the sayings are all reported by people who knew him or heard of him in his own lifetime and were written down soon after, but they are told here as stories the pilgrims carried home, not as measured fact Invented for this episode: the conversations, the monk who meets the bear, the pilgrim in the snow, the weather, the food, the bear&#39;s opinions and almost all the small moments are our own invention, told in the spirit of the old accounts Feast day: 2 January (15 January in the civil calendar) is the day of his death, and 1 August (19 July in the older calendar) the day of his glorification, in the Orthodox calendar; he is not canonised by the Catholic Church, which does not list him as a saint, though many Catholics read and love him Full script and sources: https://example.invalid/saints-by-candlelight/seraphim-of-sarov-and-the-bear.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A merchant&#39;s son from Kursk goes into the Russian forest to pray, and over thirty years becomes the most loved holy man in Russia. Saint Seraphim of Sarov, his bread-loving bear, his thousand nights on a rock, and the greeting that made strangers weep with joy, told gently for bedtime.</itunes:summary>
+      <itunes:episode>7</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/seraphim-of-sarov-and-the-bear.mp3" length="10327379" type="audio/mpeg"/>
+      <itunes:duration>0:34:25</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/seraphim-of-sarov-and-the-bear.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Columba and the Beast in the River Ness</title>
+      <link>https://example.invalid/saints-by-candlelight/columba-and-the-beast-in-the-river-ness.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-columba-and-the-beast-in-the-river-ness</guid>
+      <pubDate>Wed, 21 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A holy man from Ireland travels to the far north of Scotland to meet a Pictish king, and on the way he comes to a river where something large and unfriendly lives. Saint Columba of Iona, the dove of the church, and the oldest story of a monster in the Ness, told as Adomnán told it, with the real Columba around it. What&#39;s true: Columba was a real man, born in Ireland about 521, who founded the monastery on Iona about 563 and died there in 597; King Bridei son of Maelchon was a real Pictish king; the journey to visit him is recorded by Adomnán Legend: the beast in the river, the gates that opened, and the floating stone all come from Adomnán&#39;s Life of Columba, written about a century after Columba&#39;s death, and are told here as stories the monks of Iona handed down Invented for this episode: the conversations on the road, the boy at the river, Lugne&#39;s private thoughts, the narrator&#39;s guesses about food and weather, and most of the small moments are our own invention, told in the spirit of the old story Feast day: 9 June, in both the Catholic and the Orthodox calendars, the day he died in 597 Full script and sources: https://example.invalid/saints-by-candlelight/columba-and-the-beast-in-the-river-ness.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A holy man from Ireland travels to the far north of Scotland to meet a Pictish king, and on the way he comes to a river where something large and unfriendly lives. Saint Columba of Iona, the dove of the church, and the oldest story of a monster in the Ness, told as Adomnán told it, with the real Columba around it.</itunes:summary>
+      <itunes:episode>6</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/columba-and-the-beast-in-the-river-ness.mp3" length="9660482" type="audio/mpeg"/>
+      <itunes:duration>0:32:12</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/columba-and-the-beast-in-the-river-ness.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Francis and the Wolf of Gubbio</title>
+      <link>https://example.invalid/saints-by-candlelight/francis-and-the-wolf-of-gubbio.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-francis-and-the-wolf-of-gubbio</guid>
+      <pubDate>Wed, 21 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A hungry wolf is terrorising the Umbrian town of Gubbio, and the townspeople have run out of patience, and out of sheep. Saint Francis of Assisi walks out to meet it with no weapon at all. The gentle, funny, much-loved legend of the wolf who made a treaty, told as legend, with the real Francis around it. What&#39;s true: Francis was a real man, born in Assisi around 1181 and died there in 1226, canonised in 1228; he really did spend time in Gubbio, and the Canticle of the Creatures is really his Legend: the wolf of Gubbio comes from the Little Flowers of Saint Francis, put together about a century and a half after his death from older Latin stories, and none of the earliest lives of Francis mentions it Invented for this episode: the townspeople&#39;s conversations, the baker and the shepherd, the companions&#39; grumbling, the wolf&#39;s manners and most of the small moments are our own invention, told in the spirit of the old story Feast day: 4 October in the Catholic Church, the day after his death in 1226; Orthodox Christians do not keep him in their calendar, though many admire him Full script and sources: https://example.invalid/saints-by-candlelight/francis-and-the-wolf-of-gubbio.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A hungry wolf is terrorising the Umbrian town of Gubbio, and the townspeople have run out of patience, and out of sheep. Saint Francis of Assisi walks out to meet it with no weapon at all. The gentle, funny, much-loved legend of the wolf who made a treaty, told as legend, with the real Francis around it.</itunes:summary>
+      <itunes:episode>5</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/francis-and-the-wolf-of-gubbio.mp3" length="9948473" type="audio/mpeg"/>
+      <itunes:duration>0:33:10</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/francis-and-the-wolf-of-gubbio.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Cuthbert and the Otters</title>
+      <link>https://example.invalid/saints-by-candlelight/cuthbert-and-the-otters.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-cuthbert-and-the-otters</guid>
+      <pubDate>Wed, 21 Oct 2026 20:00:00 GMT</pubDate>
+      <description>On a winter night on the Northumbrian coast, a young monk follows Cuthbert down to the sea to find out where he goes after dark, and sees something he is told to keep to himself for a very long time. The warm, funny, true-hearted story of the shepherd boy who became the best-loved saint of northern England, as Bede tells it. What&#39;s true: Cuthbert was a real monk, prior, hermit and bishop in seventh-century Northumbria, who died on Inner Farne on 20 March 687; his life is unusually well recorded, in an anonymous life written at Lindisfarne within about fifteen years of his death and in two lives by Bede Legend: the otters on the beach, the ravens and the thatch, the eagle and the fish, and the angel at the door are all from the early lives and are told here as the old stories they are, as the monks wrote them down Invented for this episode: the young monk&#39;s thoughts and his conversations with Cuthbert, the name of the fishing village, the jokes about cold feet, and the small talk in the guest house are our own invention, told in the spirit of the old lives; Bede does not name the monk who followed Cuthbert Feast day: 20 March in both traditions; the Catholic Church in England also keeps 4 September for the translation of his body to Durham Full script and sources: https://example.invalid/saints-by-candlelight/cuthbert-and-the-otters.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>On a winter night on the Northumbrian coast, a young monk follows Cuthbert down to the sea to find out where he goes after dark, and sees something he is told to keep to himself for a very long time. The warm, funny, true-hearted story of the shepherd boy who became the best-loved saint of northern England, as Bede tells it.</itunes:summary>
+      <itunes:episode>4</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/cuthbert-and-the-otters.mp3" length="13283519" type="audio/mpeg"/>
+      <itunes:duration>0:44:17</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/cuthbert-and-the-otters.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Nicholas and the Three Bags of Gold</title>
+      <link>https://example.invalid/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-nicholas-and-the-three-bags-of-gold</guid>
+      <pubDate>Tue, 20 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A young man in fourth-century Lycia hears that his neighbour&#39;s three daughters cannot marry for want of a dowry, and on three dark nights a bag of gold comes through their window. The gentle, funny, true-hearted story of how Saint Nicholas of Myra learned to give in secret, and how the secret got out anyway. What&#39;s true: Nicholas was a real bishop of Myra in Lycia in the fourth century, and his tomb at Myra was a place of pilgrimage from early times; almost every detail of his life comes from later lives Legend: the three bags of gold, his childhood fasting, his election by a dream, the calming of the storm, the grain ships at Myra, and the striking of Arius at Nicaea are all from later lives and legends, labelled as such in the script Invented for this episode: the daughters&#39; names and personalities, the father&#39;s dialogue and embarrassment, the neighbours, and most small conversations are our own invention, told in the spirit of the old lives Feast day: 6 December in both traditions; the Orthodox also keep 9 May for the translation of his relics to Bari in 1087, a date also kept in Bari itself Full script and sources: https://example.invalid/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A young man in fourth-century Lycia hears that his neighbour&#39;s three daughters cannot marry for want of a dowry, and on three dark nights a bag of gold comes through their window. The gentle, funny, true-hearted story of how Saint Nicholas of Myra learned to give in secret, and how the secret got out anyway.</itunes:summary>
+      <itunes:episode>3</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/nicholas-and-the-three-bags-of-gold.mp3" length="13545800" type="audio/mpeg"/>
+      <itunes:duration>0:45:09</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html" type="text/html"/>
+    </item>
+    <item>
+      <title>Gerasimus and the Lion Who Lost the Donkey</title>
+      <link>https://example.invalid/saints-by-candlelight/gerasimus-and-the-lion.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-gerasimus-and-the-lion</guid>
+      <pubDate>Tue, 20 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A fifth-century abbot by the river Jordan pulls a thorn from a lion&#39;s paw, gives him a job guarding the monastery donkey, and learns something about blame when the donkey goes missing and the lion is left carrying the water. What&#39;s true: Gerasimus, his lavra near Jericho by the Jordan, its way of life, and his death in about the year four hundred and seventy-five are historical, attested by Cyril of Scythopolis Legend: The lion, the thorn, the lost donkey, the camel caravan and the lion&#39;s death at the grave come from John Moschus&#39;s Spiritual Meadow, written down well over a century after Gerasimus died Invented for this episode: The lion&#39;s and the donkey&#39;s personalities, most dialogue, the young monk Brother Theodore, the soldier&#39;s words, the camel drivers coming back to apologise, and small details of daily life are our own invention Feast day: Orthodox churches keep Saint Gerasimus on the fourth of March; the Roman Martyrology names him on the fifth of March Full script and sources: https://example.invalid/saints-by-candlelight/gerasimus-and-the-lion.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A fifth-century abbot by the river Jordan pulls a thorn from a lion&#39;s paw, gives him a job guarding the monastery donkey, and learns something about blame when the donkey goes missing and the lion is left carrying the water.</itunes:summary>
+      <itunes:episode>2</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/gerasimus-and-the-lion.mp3" length="12184154" type="audio/mpeg"/>
+      <itunes:duration>0:40:37</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/gerasimus-and-the-lion.html" type="text/html"/>
+    </item>
+    <item>
+      <title>The Angel Who Called Himself Azarias</title>
+      <link>https://example.invalid/saints-by-candlelight/the-angel-who-called-himself-azarias.html</link>
+      <guid isPermaLink="false">saints-by-candlelight-the-angel-who-called-himself-azarias</guid>
+      <pubDate>Tue, 20 Oct 2026 20:00:00 GMT</pubDate>
+      <description>A blind old man, a nervous young man, a bride with a very bad wedding-night record, a large fish, a dog with no name, and a travelling companion who is not quite who he says he is. The Book of Tobit, told for bedtime, with the Archangel Raphael. What&#39;s true: The events follow the Book of Tobit, which Catholic and Orthodox Christians read as part of the Old Testament. Legend: None beyond the book itself; the dog&#39;s wagging tail comes from Saint Jerome&#39;s Latin translation. Invented for this episode: Small conversations, the travellers&#39; jokes, and the narrator&#39;s guesses about the dog and the fish are our own; nothing invented changes what happens or what it means. Feast day: Saint Raphael is honoured with the other archangels on the twenty-ninth of September in the Catholic calendar and at the Synaxis of the Archangels on the eighth of November in the Orthodox calendar. Full script and sources: https://example.invalid/saints-by-candlelight/the-angel-who-called-himself-azarias.html. Written by Claude, an AI model made by Anthropic, and read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A blind old man, a nervous young man, a bride with a very bad wedding-night record, a large fish, a dog with no name, and a travelling companion who is not quite who he says he is. The Book of Tobit, told for bedtime, with the Archangel Raphael.</itunes:summary>
+      <itunes:episode>1</itunes:episode>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/saints-by-candlelight/audio/the-angel-who-called-himself-azarias.mp3" length="16040364" type="audio/mpeg"/>
+      <itunes:duration>0:53:28</itunes:duration>
+      <podcast:transcript url="https://example.invalid/saints-by-candlelight/the-angel-who-called-himself-azarias.html" type="text/html"/>
+    </item>
+  </channel>
+</rss>

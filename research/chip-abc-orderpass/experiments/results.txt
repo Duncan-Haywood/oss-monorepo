@@ -1,0 +1,49 @@
+csel4: every operand order (6 x 6 = 36 uniform variants) of the const-0 chains (order0) and const-1 chains (order1); k = the constant
+adds4 = $add/$alu cells after `opt -nodffe -nosdff`; first-diff = first pass whose cell counts differ from abk/abk
+scores are cells x depth: with opt_merge / without opt_merge
+order0 order1 adds4 first-diff    yosys_default         dch_map               resyn2_map            
+abk    abk    7     None                 2090 / 2268           1232 / 1024           1665 / 1300           
+abk    akb    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3250           1300 / 3596           
+abk    bak    7     None                 2090 / 2268           1232 / 1024           1665 / 1300           
+abk    bka    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3250           1300 / 3596           
+abk    kab    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3250           1300 / 3596           
+abk    kba    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3250           1300 / 3596           
+akb    abk    10    opt -nodffe -nosdff  2268 / 2268           1024 / 1024           1300 / 1300           
+akb    akb    10    opt -nodffe -nosdff  2268 / 3264           1024 / 3198           1300 / 3596           
+akb    bak    10    opt -nodffe -nosdff  2268 / 2268           1024 / 1024           1300 / 1300           
+akb    bka    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3198           1300 / 3596           
+akb    kab    10    opt -nodffe -nosdff  2268 / 3264           1024 / 3198           1300 / 3596           
+akb    kba    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3198           1300 / 3596           
+bak    abk    7     None                 2090 / 2268           1232 / 1024           1665 / 1300           
+bak    akb    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3250           1300 / 3596           
+bak    bak    7     None                 2090 / 2268           1232 / 1024           1665 / 1300           
+bak    bka    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3250           1300 / 3596           
+bak    kab    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3250           1300 / 3596           
+bak    kba    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3250           1300 / 3596           
+bka    abk    10    opt -nodffe -nosdff  2268 / 2268           1024 / 1024           1300 / 1300           
+bka    akb    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3198           1300 / 3596           
+bka    bak    10    opt -nodffe -nosdff  2268 / 2268           1024 / 1024           1300 / 1300           
+bka    bka    10    opt -nodffe -nosdff  2268 / 3264           1024 / 3198           1300 / 3596           
+bka    kab    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3198           1300 / 3596           
+bka    kba    10    opt -nodffe -nosdff  2268 / 3264           1024 / 3198           1300 / 3596           
+kab    abk    10    opt -nodffe -nosdff  2268 / 2268           1024 / 1024           1300 / 1300           
+kab    akb    10    opt -nodffe -nosdff  2268 / 3264           1024 / 3198           1300 / 3596           
+kab    bak    10    opt -nodffe -nosdff  2268 / 2268           1024 / 1024           1300 / 1300           
+kab    bka    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3198           1300 / 3596           
+kab    kab    10    opt -nodffe -nosdff  2268 / 3264           1024 / 3198           1300 / 3596           
+kab    kba    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3198           1300 / 3596           
+kba    abk    10    opt -nodffe -nosdff  2268 / 2268           1024 / 1024           1300 / 1300           
+kba    akb    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3198           1300 / 3596           
+kba    bak    10    opt -nodffe -nosdff  2268 / 2268           1024 / 1024           1300 / 1300           
+kba    bka    10    opt -nodffe -nosdff  2268 / 3264           1024 / 3198           1300 / 3596           
+kba    kab    10    opt -nodffe -nosdff  2268 / 3230           1024 / 3198           1300 / 3596           
+kba    kba    10    opt -nodffe -nosdff  2268 / 3264           1024 / 3198           1300 / 3596           
+
+yosys_default with opt_merge: min 2090 max 2268 ratio 1.085 distinct 2
+yosys_default without opt_merge: min 2268 max 3264 ratio 1.439 distinct 3
+dch_map with opt_merge: min 1024 max 1232 ratio 1.203 distinct 2
+dch_map without opt_merge: min 1024 max 3250 ratio 3.174 distinct 3
+resyn2_map with opt_merge: min 1300 max 1665 ratio 1.281 distinct 2
+resyn2_map without opt_merge: min 1300 max 3596 ratio 2.766 distinct 2
+variants not proved equivalent to add16.v: 0 of 36
+tool: Yosys 0.33 (git sha1 2584903a060)

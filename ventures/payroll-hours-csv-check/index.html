@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Payroll Hours CSV Check — Find Timesheet Errors Before You Run Payroll</title>
-  <meta name="description" content="Free payroll hours CSV checker: finds 8:30 mixed with 8.5, text like 8h, Excel date serials, mixed date formats, duplicate person-days, hours over 24, Start/End times that disagree with the hours typed and unquoted commas in names, with line numbers, and applies formatting-only safe fixes. Runs in your browser; the file is never uploaded.">
+  <meta name="description" content="Free payroll hours CSV checker: finds 8:30 mixed with 8.5, text like 8h, Excel date serials, mixed date formats, duplicate person-days, hours over 24, Start/End times that disagree with the hours typed and unquoted commas in names, with line numbers, and applies formatting-only safe fixes.">
   <meta property="og:title" content="Payroll Hours CSV Check — free, private, in your browser">
   <meta property="og:description" content="Catch what breaks or quietly corrupts a payroll hours import, with the line number, before you run payroll. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
@@ -58,6 +58,7 @@
     <p class="note">The file is read in this browser tab and never leaves your device. Independent of any payroll or time-tracking vendor. It checks the sheet, not any one vendor's importer, whose exact columns it does not claim to know.</p>
     <p class="note"><strong>About pay rules.</strong> Overtime, meal-break, minimum-wage and record-keeping rules depend on where you operate. This tool checks formatting and arithmetic. It never enters, removes or recalculates anyone's pay, and a clean result is not evidence that anyone was paid correctly.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your hours CSV</h2>
@@ -119,7 +120,8 @@
     <p>Pay rates, overtime law, whether your payroll service will accept the file today, or whether anyone was paid correctly. A clean result is not a promise of success: run a small sample first.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it is not wage-and-hour or payroll advice. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including by running a small sample through your payroll service first, and a clean result is not a promise that your payroll service will accept the file or that anyone was paid correctly.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
     <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

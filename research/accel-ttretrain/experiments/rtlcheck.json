@@ -1,0 +1,258 @@
+[
+ {
+  "inputs": 70,
+  "hidden": 8,
+  "wbits": 2,
+  "clips": 30,
+  "classes_seen": 8,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 8,
+  "wbits": 3,
+  "clips": 30,
+  "classes_seen": 10,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 8,
+  "wbits": 4,
+  "clips": 30,
+  "classes_seen": 10,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 8,
+  "wbits": 8,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 16,
+  "wbits": 2,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 16,
+  "wbits": 3,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 16,
+  "wbits": 4,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 16,
+  "wbits": 8,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 32,
+  "wbits": 2,
+  "clips": 30,
+  "classes_seen": 10,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 32,
+  "wbits": 3,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 32,
+  "wbits": 4,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 32,
+  "wbits": 8,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 64,
+  "wbits": 2,
+  "clips": 30,
+  "classes_seen": 10,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 64,
+  "wbits": 3,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 64,
+  "wbits": 4,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 70,
+  "hidden": 64,
+  "wbits": 8,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 8,
+  "wbits": 2,
+  "clips": 30,
+  "classes_seen": 7,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 8,
+  "wbits": 3,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 8,
+  "wbits": 4,
+  "clips": 30,
+  "classes_seen": 10,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 8,
+  "wbits": 8,
+  "clips": 30,
+  "classes_seen": 10,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 16,
+  "wbits": 2,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 16,
+  "wbits": 3,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 16,
+  "wbits": 4,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 16,
+  "wbits": 8,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 32,
+  "wbits": 2,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 32,
+  "wbits": 3,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 32,
+  "wbits": 4,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 32,
+  "wbits": 8,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 64,
+  "wbits": 2,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 64,
+  "wbits": 3,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 64,
+  "wbits": 4,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ },
+ {
+  "inputs": 120,
+  "hidden": 64,
+  "wbits": 8,
+  "clips": 30,
+  "classes_seen": 11,
+  "rtl_exact": true
+ }
+]

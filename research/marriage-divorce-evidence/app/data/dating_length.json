@@ -1,0 +1,178 @@
+{
+ "about": "Dating length before marriage. HCMST 2009 married couples (held-out test, ../reproducibility/dating_length/) and verified published estimates. Built by reproducibility/dating_length/scripts/export_app.py; aggregates only.",
+ "grade": {
+  "design": "retrospective_observational",
+  "label": "retrospective surveys; held-out test null",
+  "applied": false,
+  "reason": "Not applied to any lens number: HCMST shows no held-out gain, and the only verified hazard ratios come from an opt-in online retrospective survey that the evidence review marks not usable in the app."
+ },
+ "hcmst_bands": [
+  {
+   "band": "under 1 year",
+   "couples": 311.0,
+   "breakups": 21.0,
+   "weighted_breakup_by_2017": 0.0869,
+   "median_dating_years": 0.0
+  },
+  {
+   "band": "1-2 years",
+   "couples": 891.0,
+   "breakups": 53.0,
+   "weighted_breakup_by_2017": 0.0835,
+   "median_dating_years": 1.0
+  },
+  {
+   "band": "3+ years",
+   "couples": 697.0,
+   "breakups": 43.0,
+   "weighted_breakup_by_2017": 0.0837,
+   "median_dating_years": 5.0
+  }
+ ],
+ "heldout": [
+  {
+   "model": "core",
+   "inputs": "mean_age+age_gap+relationship_years+edu_years_mean+edu_gap+hh_income_k+children_in_hh+period+relationship_quality+cohabiting+couple_type+couple_race+party_pair+how_met+prior_marriage+earnings",
+   "gain_vs_constant_pct": 17.21402,
+   "gain_vs_constant_pct_lo": 11.92579,
+   "gain_vs_constant_pct_hi": 21.94887,
+   "c_index": 0.83277,
+   "c_index_lo": 0.79294,
+   "c_index_hi": 0.86881,
+   "delta_gain_vs_constant_pct": null,
+   "delta_gain_vs_constant_pct_lo": null,
+   "delta_gain_vs_constant_pct_hi": null,
+   "delta_c_index": null,
+   "delta_c_index_lo": null,
+   "delta_c_index_hi": null
+  },
+  {
+   "model": "core+dating",
+   "inputs": "mean_age+age_gap+relationship_years+edu_years_mean+edu_gap+hh_income_k+children_in_hh+dating_years+period+relationship_quality+cohabiting+couple_type+couple_race+party_pair+how_met+prior_marriage+earnings",
+   "gain_vs_constant_pct": 17.09491,
+   "gain_vs_constant_pct_lo": 11.94532,
+   "gain_vs_constant_pct_hi": 21.63534,
+   "c_index": 0.83211,
+   "c_index_lo": 0.7931,
+   "c_index_hi": 0.86861,
+   "delta_gain_vs_constant_pct": -0.11911,
+   "delta_gain_vs_constant_pct_lo": -0.89556,
+   "delta_gain_vs_constant_pct_hi": 0.7218,
+   "delta_c_index": -0.00066,
+   "delta_c_index_lo": -0.00693,
+   "delta_c_index_hi": 0.00606
+  },
+  {
+   "model": "core+band",
+   "inputs": "mean_age+age_gap+relationship_years+edu_years_mean+edu_gap+hh_income_k+children_in_hh+period+relationship_quality+cohabiting+couple_type+couple_race+party_pair+how_met+prior_marriage+earnings+dating_band",
+   "gain_vs_constant_pct": 16.82881,
+   "gain_vs_constant_pct_lo": 11.56619,
+   "gain_vs_constant_pct_hi": 21.5014,
+   "c_index": 0.83039,
+   "c_index_lo": 0.79003,
+   "c_index_hi": 0.86695,
+   "delta_gain_vs_constant_pct": -0.38521,
+   "delta_gain_vs_constant_pct_lo": -0.90097,
+   "delta_gain_vs_constant_pct_hi": 0.12193,
+   "delta_c_index": -0.00237,
+   "delta_c_index_lo": -0.00564,
+   "delta_c_index_hi": 0.0011
+  },
+  {
+   "model": "core+known",
+   "inputs": "mean_age+age_gap+relationship_years+edu_years_mean+edu_gap+hh_income_k+children_in_hh+known_years+period+relationship_quality+cohabiting+couple_type+couple_race+party_pair+how_met+prior_marriage+earnings",
+   "gain_vs_constant_pct": 16.88753,
+   "gain_vs_constant_pct_lo": 11.44534,
+   "gain_vs_constant_pct_hi": 21.5141,
+   "c_index": 0.8309,
+   "c_index_lo": 0.7911,
+   "c_index_hi": 0.86602,
+   "delta_gain_vs_constant_pct": -0.32649,
+   "delta_gain_vs_constant_pct_lo": -1.14481,
+   "delta_gain_vs_constant_pct_hi": 0.42085,
+   "delta_c_index": -0.00187,
+   "delta_c_index_lo": -0.00819,
+   "delta_c_index_hi": 0.00383
+  },
+  {
+   "model": "period+dating",
+   "inputs": "dating_years+period",
+   "gain_vs_constant_pct": -0.18619,
+   "gain_vs_constant_pct_lo": -1.43844,
+   "gain_vs_constant_pct_hi": 1.05346,
+   "c_index": 0.45674,
+   "c_index_lo": 0.42199,
+   "c_index_hi": 0.49707,
+   "delta_gain_vs_constant_pct": null,
+   "delta_gain_vs_constant_pct_lo": null,
+   "delta_gain_vs_constant_pct_hi": null,
+   "delta_c_index": null,
+   "delta_c_index_lo": null,
+   "delta_c_index_hi": null
+  }
+ ],
+ "audit": {
+  "married_couples": 1928,
+  "with_follow_up": 1686,
+  "breakups": 118,
+  "person_periods": 5575,
+  "dating_known": 1899,
+  "known_known": 1903,
+  "C": 1.0,
+  "repeats": 5,
+  "bootstrap": 1000,
+  "seed": 20261020,
+  "band_odds_ratios_vs_1_2_years_adjusted": {
+   "3+ years": 1.265308899627264,
+   "Unknown": 3.7049499097228074,
+   "under 1 year": 1.6349676224100491
+  },
+  "note": "Odds ratios are per follow-up period, from one unpenalised fit (no interval); the held-out comparison is the test."
+ },
+ "literature": [
+  {
+   "id": "FTM2015_dated3plus",
+   "predictor": "Premarital relationship length",
+   "contrast": "Dated 3+ years before proposal vs <1 year (all persons)",
+   "measure": "HR (Cox, population-weighted)",
+   "estimate": 0.764,
+   "ci_low": 0.627,
+   "ci_high": 0.931,
+   "n": "3,151 ever-married persons (1,455 men, 1,696 women)",
+   "population": "US online survey (SurveyMonkey Audience) of ever-married adults, weighted to ACS",
+   "years": "survey 2014",
+   "design": "retrospective, Cox (respondent-reported)",
+   "adjusted_for": "age, marriage age, sex, race, education, employment, household income, region, religious attendance, spouse age/race/education differences, children, knew spouse well, dating length, attitudes, honeymoon, ring cost, attendance, wedding cost",
+   "citation": "Francis-Tan, A., & Mialon, H. M. (2015). \"A diamond is forever\" and other fairy tales: The relationship between wedding expenses and marriage duration. Economic Inquiry, 53(4), 1919-1930.",
+   "doi": "10.1111/ecin.12206",
+   "locator": "Table 2 (population-weighted Cox regressions; columns: Bivariate All Persons; Multivariate All Persons; Men Only; Women Only). \"Hazard ratios are reported with standard errors in parentheses.\" Stars: * 10%, ** 5%, *** 1%. Value = Multivariate All",
+   "quote": "3 or more years 0.518*** (0.046) 0.764*** (0.077) 0.576*** (0.087) 0.980 (0.135)",
+   "provenance": "primary",
+   "verified": true,
+   "usable_in_app": false,
+   "caveats": "Opt-in online sample, retrospective recall of costs; many covariates (some arguably mediators); significance at 10% flagged as *."
+  },
+  {
+   "id": "FTM2015_dated1to2",
+   "predictor": "Premarital relationship length",
+   "contrast": "Dated 1-2 years vs <1 year (all persons)",
+   "measure": "HR (Cox, population-weighted)",
+   "estimate": 0.915,
+   "ci_low": 0.781,
+   "ci_high": 1.072,
+   "n": "3,151 ever-married persons (1,455 men, 1,696 women)",
+   "population": "US online survey (SurveyMonkey Audience) of ever-married adults, weighted to ACS",
+   "years": "survey 2014",
+   "design": "retrospective, Cox (respondent-reported)",
+   "adjusted_for": "age, marriage age, sex, race, education, employment, household income, region, religious attendance, spouse age/race/education differences, children, knew spouse well, dating length, attitudes, honeymoon, ring cost, attendance, wedding cost",
+   "citation": "Francis-Tan, A., & Mialon, H. M. (2015). \"A diamond is forever\" and other fairy tales: The relationship between wedding expenses and marriage duration. Economic Inquiry, 53(4), 1919-1930.",
+   "doi": "10.1111/ecin.12206",
+   "locator": "Table 2 (population-weighted Cox regressions; columns: Bivariate All Persons; Multivariate All Persons; Men Only; Women Only). \"Hazard ratios are reported with standard errors in parentheses.\" Stars: * 10%, ** 5%, *** 1%. Value = Multivariate All",
+   "quote": "1–2 years 0.788*** (0.059) 0.915 (0.074) 0.784* (0.099) 0.997 (0.107)",
+   "provenance": "primary",
+   "verified": true,
+   "usable_in_app": false,
+   "caveats": "Opt-in online sample, retrospective recall of costs; many covariates (some arguably mediators); significance at 10% flagged as *."
+  }
+ ]
+}

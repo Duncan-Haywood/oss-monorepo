@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Robot Town: five simulated episodes (fiction)</title>
+<style>
+:root{--bg:#fff;--fg:#1c2128;--mut:#57606a;--hi:#2a7d46;--lo:#b3261e;--wall:#ccd1d6;--acc:#1f6fb2}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9aa4af;--hi:#56d364;--lo:#ff7b72;--wall:#30363d;--acc:#58a6ff}}
+body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif;max-width:900px;margin-inline:auto}
+canvas{width:100%;border:1px solid var(--wall);border-radius:6px;background:var(--bg);display:block;margin:8px 0}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.banner{border:2px solid var(--acc);border-radius:6px;padding:8px 12px}
+small,.note{color:var(--mut)}
+button{font:inherit;padding:4px 12px;cursor:pointer}
+button[aria-pressed=true]{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+ol#log{padding-left:1.4em}ol#log li{margin:.3em 0;color:var(--mut)}ol#log li.on{color:var(--fg);font-weight:600}
+</style></head><body>
+<h1>Robot Town</h1>
+<p class="banner"><strong>This is a simulation and a work of fiction.</strong> The forty-eight townspeople are invented and the robots are a stylised fleet.
+Nothing here depicts a real person, place or event, and it is not footage. Each dot is a person; green is high trust in the town’s robots, red is low, and a ring marks someone who has stopped using robots at all.
+Part of the research project <code>society-show</code>, built on <code>society-trust</code>.</p>
+<div class="row" id="tabs" role="group" aria-label="Episodes"></div>
+<h2 id="title"></h2>
+<p id="blurb"></p>
+<canvas id="town" width="900" height="260" role="img" aria-label="Animated grid of simulated townspeople coloured by trust in robots"></canvas>
+<canvas id="plot" width="900" height="180" role="img" aria-label="Line chart of the town's average trust over time"></canvas>
+<div class="row"><button id="pp">Pause</button><input id="t" type="range" min="0" value="0" style="flex:1" aria-label="Round"><span id="lab"></span></div>
+<h3>Turning points</h3>
+<ol id="log"></ol>
+<p id="end"></p>
+<p id="cap"><small></small></p>
+<script id="d" type="application/json">__DATA__</script>
+<script>
+const E=JSON.parse(document.getElementById('d').textContent);
+const town=document.getElementById('town'),g=town.getContext('2d'),plot=document.getElementById('plot'),h=plot.getContext('2d');
+const t=document.getElementById('t'),lab=document.getElementById('lab'),pp=document.getElementById('pp');
+let ep=E[0],f=0,play=true,last=0;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function hex(c){return [1,3,5].map(i=>parseInt(c.slice(i,i+2),16))}
+function mix(v){const a=hex(css('--lo')),b=hex(css('--hi'));return 'rgb('+a.map((x,i)=>Math.round(x+(b[i]-x)*v/100)).join(',')+')'}
+function mean(r){return r.reduce((a,b)=>a+b,0)/r.length}
+function draw(){
+ const row=ep.trust[f],cols=12,n=row.length,rows=Math.ceil(n/cols),cw=town.width/cols,ch=town.height/rows,th=ep.settings.theta*100;
+ g.clearRect(0,0,town.width,town.height);g.textAlign='center';g.font='11px system-ui';
+ for(let i=0;i<n;i++){const x=(i%cols+.5)*cw,y=(Math.floor(i/cols)+.4)*ch;
+  g.beginPath();g.arc(x,y,Math.min(cw,ch)*0.3,0,7);g.fillStyle=mix(row[i]);g.fill();
+  if(row[i]<th){g.lineWidth=3;g.strokeStyle=css('--fg');g.stroke();}
+  g.fillStyle=css('--mut');g.fillText(ep.cast[i],x,y+Math.min(cw,ch)*0.3+11);}
+ const m=ep.trust.map(mean),W=plot.width,H=plot.height;h.clearRect(0,0,W,H);
+ const X=r=>10+r/(m.length-1)*(W-20),Y=v=>H-10-v/100*(H-20);
+ h.strokeStyle=css('--wall');h.beginPath();h.moveTo(10,Y(0));h.lineTo(W-10,Y(0));h.stroke();
+ h.fillStyle=css('--lo');h.globalAlpha=.15;h.fillRect(X(ep.settings.start),10,X(ep.settings.start+ep.settings.length)-X(ep.settings.start),H-20);h.globalAlpha=1;
+ h.setLineDash([4,4]);h.strokeStyle=css('--mut');h.beginPath();h.moveTo(10,Y(ep.baseline*100));h.lineTo(W-10,Y(ep.baseline*100));h.stroke();h.setLineDash([]);
+ h.strokeStyle=css('--acc');h.lineWidth=2;h.beginPath();for(let r=0;r<=f;r++){r?h.lineTo(X(r),Y(m[r])):h.moveTo(X(r),Y(m[r]))}h.stroke();h.lineWidth=1;
+ h.fillStyle=css('--mut');h.font='11px system-ui';h.textAlign='left';h.fillText('average trust (dashed: normal level; shaded: the incident)',14,22);
+ const av=row.filter(x=>x<th).length;
+ lab.textContent='round '+f+' · average trust '+(m[f]/100).toFixed(2)+' · avoiding robots: '+av+' of '+n;t.value=f;
+ document.querySelectorAll('#log li').forEach(li=>li.classList.toggle('on',+li.dataset.r<=f));}
+function load(k){ep=E[k];f=0;t.max=ep.trust.length-1;
+ document.getElementById('title').textContent=ep.title;document.getElementById('blurb').textContent=ep.blurb;
+ document.getElementById('log').innerHTML='';ep.story.forEach(([r,s])=>{const li=document.createElement('li');li.dataset.r=r;li.textContent=s;document.getElementById('log').appendChild(li)});
+ document.getElementById('end').textContent='Ending: '+ep.outcome+'. A fictional episode of a seeded simulation; one run, not a statistic.';
+ document.querySelector('#cap small').textContent='Seed '+ep.seed+', gossip negativity '+ep.settings.beta+', explanation discount '+ep.settings.tau+', people avoid robots below trust '+ep.settings.theta+'.';
+ document.querySelectorAll('#tabs button').forEach((b,i)=>b.setAttribute('aria-pressed',i===k));draw();}
+E.forEach((e,k)=>{const b=document.createElement('button');b.textContent=e.title.replace(/^Episode (\d): /,'$1. ');b.onclick=()=>load(k);document.getElementById('tabs').appendChild(b)});
+function loop(ts){if(play&&ts-last>40){f=Math.min(f+1,ep.trust.length-1);last=ts;}draw();requestAnimationFrame(loop);}
+pp.onclick=()=>{play=!play;pp.textContent=play?'Pause':'Play'};t.oninput=()=>{f=+t.value;draw()};
+load(0);requestAnimationFrame(loop);
+</script></body></html>

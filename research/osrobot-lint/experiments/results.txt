@@ -1,0 +1,15 @@
+Clean reference protocols with any lint finding: 0 of 3; statements skipped as unanalysable: 0
+
+fault                              mutants  twin  lint  real  lint=twin codes (lint)
+typo labware                            50    50    50    50         50  DISPENSE_EXCESS x50, BAD_REFERENCE x50
+well off plate                          50    50    50    50         50  BAD_REFERENCE x50
+drop pick_up_tip                        35    35    35    35         35  NO_TIP x35
+second pick_up_tip                      35    35    35    35         35  TIP_PRESENT x35
+reuse a used tip                        32    32    32     0         32  TIP_REUSED x32
+drop the last drop_tip                   3     3     3     0          3  TIP_LEFT x3
+volume 350 uL                           50    50    50    50         50  TIP_OVERFILL x50, VOLUME_RANGE x50, SOURCE_EMPTY x23
+volume 5 uL                             50    50    50     0         50  VOLUME_RANGE x50
+overdraw source (5000 uL)               50    50    50    50         50  TIP_OVERFILL x50, VOLUME_RANGE x50, SOURCE_EMPTY x39
+skip tip change between samples         32     7     7     0         32  CARRY_OVER x7
+low travel (30 mm)                     135     4     0     0        131  
+total                                  522   366   362   270        518

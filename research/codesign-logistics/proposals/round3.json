@@ -1,0 +1,2 @@
+{"round": 3, "notes": "Round 2: a 17 mm x2 cup at 80 kPa / 60 L/min led (J 0.503, t 0.69 s); fewer cups pump down faster and cost less. Remaining loss is 'too weak' (16-36%), lowest for the biggest cups (18 mm x3: 0.16) but those lose time. Try 2 cups at 17-24 mm, 80 kPa, flow 55-60, and drop compliance to 0.2-0.5 to save cost.",
+ "designs": [[19,2,80,60,0.4],[21,2,80,60,0.4],[17,2,80,60,0.2],[23,2,80,60,0.3],[18,2,80,55,0.3],[20,2,75,60,0.5],[25,2,80,60,0.3],[17,3,80,60,0.2],[19,1,80,60,0.4],[21,2,80,50,0.2]]}

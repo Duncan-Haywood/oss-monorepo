@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrobot-mjfeed"
+version = "0.1.0"
+description = "Re-run the osrobot-assist spoon-feeding lip-force study in MuJoCo contact physics (stylised)"
+requires-python = ">=3.9"
+dependencies = ["mujoco>=3.0"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

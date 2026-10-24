@@ -6,7 +6,7 @@ soil-specific extraction rate, then stairs, pet-urine extra passes,
 upholstery, furniture moving, and the drive — and shows the margin before
 the quote goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/carpet-cleaning-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/carpet-cleaning-bid-calculator/
 
 **After using this, you can now quote a house from rooms and add-ons and
 see whether a posted per-room special still covers the stop**, which used
@@ -14,10 +14,7 @@ to take a guess on the driveway plus a number copied from a competitor.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

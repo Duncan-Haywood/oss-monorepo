@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01GaZmL2bDSAYShnSTHNARn9",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T09:59:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder: fairness guide page",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 8354,
+  "repo": null,
+  "commits": [
+    "9099e2eae8"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Idea: a search-landing guide on rotating closes/weekends, with figures a test re-derives from the engine (6 identical staff, 8 weeks: tough-shift gap 8 to 2 at identical payroll). Also found the builder's sample cafe is availability-bound so the spread setting changes nothing there; the page says so. Next if it pays: carry-over demo in the UI.",
+  "corrections": [],
+  "redteam": null
+}

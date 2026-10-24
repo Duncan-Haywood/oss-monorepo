@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the rms attitude error of a gyro-camera complementary filter against camera clock skew in parts per million, with no correction, a fixed-offset fit and an offset-plus-skew fit; the first two rise with skew and the last stays flat near 0.155 degrees">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Attitude error against camera clock skew (synthetic)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="272.4" y2="272.4" stroke="#ddd"/><text x="58" y="276.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="220.8" y2="220.8" stroke="#ddd"/><text x="58" y="224.8" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="169.2" y2="169.2" stroke="#ddd"/><text x="58" y="173.2" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="117.6" y2="117.6" stroke="#ddd"/><text x="58" y="121.6" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="66.0" y2="66.0" stroke="#ddd"/><text x="58" y="70.0" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="92.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">500</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1000</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">camera clock skew (ppm)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">rms angle error (deg)</text>
+<polyline points="64.0,284.8 92.0,282.2 204.0,248.4 344.0,191.4 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="284.8" r="3" fill="#c0392b"/>
+<circle cx="92.0" cy="282.2" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="248.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="191.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">no correction</text>
+<polyline points="64.0,284.0 92.0,283.5 204.0,276.3 344.0,258.5 624.0,214.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="284.0" r="3" fill="#1f6fb2"/>
+<circle cx="92.0" cy="283.5" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="276.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="258.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="214.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">fixed-offset fit</text>
+<polyline points="64.0,283.8 92.0,284.0 204.0,283.8 344.0,284.0 624.0,284.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="283.8" r="3" fill="#2e8b57"/>
+<circle cx="92.0" cy="284.0" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="283.8" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="284.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="284.0" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">offset + skew fit</text>
+</svg>

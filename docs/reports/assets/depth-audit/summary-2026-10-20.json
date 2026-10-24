@@ -1,0 +1,191 @@
+{
+  "ventures": 1304,
+  "lines": {
+    "median": 350,
+    "p90": 1155,
+    "under200": 151,
+    "under500": 925,
+    "from500to3000": 363,
+    "atLeast3000": 16
+  },
+  "surfaces": {
+    "web": 1302,
+    "cli": 172,
+    "mcp": 1264,
+    "npm": 0,
+    "pyproject": 9,
+    "server": 64
+  },
+  "surfaceCountHistogram": {
+    "0": 1,
+    "1": 31,
+    "2": 1051,
+    "3": 207,
+    "4": 13,
+    "5": 1
+  },
+  "cites": {
+    "none": 1188,
+    "atLeast3": 53,
+    "lightAndNone": 876
+  },
+  "largest20": {
+    "notInAgentCatalogue": [
+      "local-site-studio",
+      "photo-editing",
+      "print-atelier",
+      "quick-pick-survey",
+      "retail-pilot-intel",
+      "real-estate-agent-photo-app",
+      "workflow-audit",
+      "ai-first-markets",
+      "ai-engineering-academy",
+      "photos-import-tools"
+    ],
+    "noSurfaceFound": [
+      "ai-engineering-academy"
+    ],
+    "rows": [
+      {
+        "slug": "local-site-studio",
+        "lines": 97354,
+        "tests": 242,
+        "cites": 30,
+        "surfaces": 1
+      },
+      {
+        "slug": "photo-editing",
+        "lines": 31614,
+        "tests": 60,
+        "cites": 2,
+        "surfaces": 2
+      },
+      {
+        "slug": "print-atelier",
+        "lines": 19479,
+        "tests": 40,
+        "cites": 12,
+        "surfaces": 1
+      },
+      {
+        "slug": "quick-pick-survey",
+        "lines": 10856,
+        "tests": 42,
+        "cites": 1,
+        "surfaces": 1
+      },
+      {
+        "slug": "einvoice-preflight",
+        "lines": 9181,
+        "tests": 67,
+        "cites": 2,
+        "surfaces": 5
+      },
+      {
+        "slug": "retail-pilot-intel",
+        "lines": 8615,
+        "tests": 10,
+        "cites": 5,
+        "surfaces": 1
+      },
+      {
+        "slug": "real-estate-agent-photo-app",
+        "lines": 8174,
+        "tests": 14,
+        "cites": 24,
+        "surfaces": 1
+      },
+      {
+        "slug": "sales-export-to-journal",
+        "lines": 6512,
+        "tests": 3,
+        "cites": 0,
+        "surfaces": 2
+      },
+      {
+        "slug": "ebay-fee-calculator",
+        "lines": 5617,
+        "tests": 29,
+        "cites": 0,
+        "surfaces": 2
+      },
+      {
+        "slug": "amazon-fba-calculator",
+        "lines": 4407,
+        "tests": 18,
+        "cites": 0,
+        "surfaces": 3
+      },
+      {
+        "slug": "workflow-audit",
+        "lines": 4284,
+        "tests": 2,
+        "cites": 0,
+        "surfaces": 1
+      },
+      {
+        "slug": "shopify-fee-calculator",
+        "lines": 3699,
+        "tests": 24,
+        "cites": 0,
+        "surfaces": 3
+      },
+      {
+        "slug": "ai-first-markets",
+        "lines": 3505,
+        "tests": 6,
+        "cites": 4,
+        "surfaces": 1
+      },
+      {
+        "slug": "open-tennis-robots",
+        "lines": 3362,
+        "tests": 7,
+        "cites": 4,
+        "surfaces": 3
+      },
+      {
+        "slug": "league-schedule-generator",
+        "lines": 3265,
+        "tests": 5,
+        "cites": 1,
+        "surfaces": 3
+      },
+      {
+        "slug": "ai-engineering-academy",
+        "lines": 3070,
+        "tests": 22,
+        "cites": 0,
+        "surfaces": 0
+      },
+      {
+        "slug": "reseller-books",
+        "lines": 2898,
+        "tests": 3,
+        "cites": 0,
+        "surfaces": 2
+      },
+      {
+        "slug": "shift-roster-builder",
+        "lines": 2478,
+        "tests": 6,
+        "cites": 1,
+        "surfaces": 4
+      },
+      {
+        "slug": "where-to-sell-calculator",
+        "lines": 2401,
+        "tests": 17,
+        "cites": 0,
+        "surfaces": 4
+      },
+      {
+        "slug": "photos-import-tools",
+        "lines": 2390,
+        "tests": 5,
+        "cites": 0,
+        "surfaces": 2
+      }
+    ]
+  }
+}

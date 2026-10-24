@@ -1,0 +1,214 @@
+# Flagship ventures: the few with real depth that most venture runs deepen.
+#
+# The owner, 2026-10-20: "on the one hand I like the thousand plus small tools,
+# but on the other hand I want to work on deeper business and engineering
+# problems and more of the work to be to deepening and improving existing
+# projects that have real depth to them."
+#
+# `portfolio/router/allocate.py` ranks these first, in this order, with the
+# task "Deepen (flagship N): <next>". A run that lands a slice of `next`
+# rewrites it to the following milestone in the same PR. The owner can
+# reorder, add or drop entries; agents may too, with the evidence in the PR.
+#
+# Why depth, argued at more length (an opinion, not a rule):
+# portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
+#
+# Chosen 2026-10-20 from an audit of the largest ventures by source size,
+# keeping those whose code works today and whose next step is a hard business
+# or engineering problem. Passed over for now: local-site-studio (real
+# integrations but bloated, its core site generator is thin),
+# sales-export-to-journal (engines copied from sibling ventures),
+# retail-pilot-intel, print-atelier and real-estate-agent-photo-app (mostly
+# plans and demo UI), workflow-audit and marketplace-fee-compare (thin).
+flagships:
+  # Added 2026-10-21 first, on the owner's direction that day: "I want to make
+  # ai accounting systems". It joins up what about ninety single-step
+  # accounting tools in ventures/ already did into books that persist and learn.
+  - venture: ai-bookkeeper
+    why: >-
+      A double-entry ledger in integer cents with a four-layer categorizer that
+      learns from each filed line (rules, payee memory, naive Bayes, built-in
+      keywords) and an optional bring-your-own-key or local model for the review
+      queue. It pairs transfers, reconciles to the statement's running balance,
+      and produces a P&L, balance sheet, close checks and QuickBooks, Xero and
+      IIF journals; page, CLI and agent engine. Learning curve measured on
+      synthetic data (README Verification).
+    next: >-
+      Everything built so far is tested on hand-written fixtures; the next slices
+      are about real inputs (the landed log is in the README and git history, not
+      here). Open items, most valuable first: (1) the AI layer in fill-only mode
+      on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
+      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers (Excel, BAI2, Norma 43, CFONB120 and many regional CSV headers, CJK code pages; all tested only on hand-built or made-up files, see README) (CSV, OFX/QFX/QIF, statement PDFs, regional code pages and layouts) on real
+      exports from Chase, Bank of America, Wells Fargo, Amex, Capital One and
+      others; (3) a real Stripe, Square, PayPal or Amazon settlement export for
+      the payment-processor import (`form1099k`: try a real 1099-K); (4) a real
+      supplier's terms letter checked against the fee and discount rules, and one
+      named lender's own schedule against the loan register (`loan check`); (5)
+      receipts and the reconcile-to-statement command on real paper, and reading
+      receipt photos in the page; (6) payroll (941, Schedule B, 940, deposits,
+      `payroll reconcile`): a real Gusto or ADP report (deposit rules checked against Pub. 15 (2026) 2026-10-24); (7) one named filing service's import layout,
+      from its own spec; (8) `salestax return`: check it against one state's real
+      return layout and holiday calendar; (9) 2027 `estimate`: the indexed QBI minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is in). A run that lands a slice replaces
+      its item here; keep this under 2,000 characters.
+
+  # Added 2026-10-21 second, on the owner's direction that day: "I want to make
+  # tools that can automate part of the new home construction process in the
+  # us. to drop prices and increase efficiency this is a long standing project
+  # to work on continually." The program is ventures/wall-framing-takeoff/ROADMAP.md.
+  - venture: wall-framing-takeoff
+    why: >-
+      Wall layout engine (studs on layout, kings, jacks, headers, cripples,
+      plate splices over studs) with a per-wall self-check, and a Gilmore-Gomory
+      cutting-stock order within 0.02% of its LP bound on whole houses; page,
+      CLI and agent engine. First tool of the new-home construction program.
+    next: >-
+      Open items only; landed work is in ventures/wall-framing-takeoff/README.md
+      and ROADMAP.md. Roof framing, wings, valley backing and their page controls have landed (README and ROADMAP). Foundation quantities (concrete, trucks, rebar, forms, gravel; `--foundation`) landed 2026-10-24 (engine/CLI, hand arithmetic); foundation on the page landed 2026-10-24 (fields, stem/monolithic switch, click check; a real foundation plan still open). Next: a floor drawing (several stairwells on the page landed 2026-10-23, semicolon-separated, overlap refused, click check); gable walls on the page landed 2026-10-24 (pitch and peak columns, click check); gable sheathing in the horizontal layout (vertical-sheet order landed 2026-10-22; offcut-triangle nesting of the sloped top courses landed 2026-10-24, hand heights, not a nested cut on real sheets);
+      drywall sheet counts per wall and ceiling landed 2026-10-24 (`--drywall`, hand counts; joints not on studs, no page);
+      budget from typed unit prices landed 2026-10-24 (`--budget`; page, labor lines and CSV landed 2026-10-24; prices saved in the plan file landed 2026-10-24; foundation labor rates landed 2026-10-24 (`laborFoundationSqFt`, `laborConcreteYd`); next: a real sub's rates);
+      code edition, typed by a person who has the book, is open); a 2D reuse of opening cut-outs (sample house: 0 panels fit a hole, `cutout-reuse-bench.mjs`, so only worth rechecking on a real plan);
+      the panel sheathing-weight field and the panel order and pull-list
+      download were clicked through in headless Chromium 2026-10-23 (example plan, `eval-browser-click.mjs`).
+
+  # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
+  # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
+  - venture: sales-agent
+    why: >-
+      An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
+      sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
+      real replies reliably, keeping consent records, and earning each step of autonomy with measurements.
+    next: >-
+      M1 (inbox agent: reply triage, automatic stop/pause/suppress, approval queue, page, CLI, MCP tool) is in.
+      Its rules read 15 of 40 fresh hand-written replies right (README "How well it reads replies"). Next (M2):
+      score a hosted and a local model with eval/model.mjs on eval/fresh-2026-10-21.jsonl, and write a new fresh
+      set by a different author before any rule change; then M3, the daily run over the cadence builder's tasks.
+  # Added 2026-10-20 first, on the owner's direction that day for research
+  # algorithms as tools (prompts/goals.md). New tools of that kind follow
+  # portfolio/research-tools/README.md; this entry deepens the first one.
+  - venture: changepoint-detector
+    why: >-
+      PELT and Bayesian online changepoint detection from the papers, exact
+      against brute force and a closed-form evidence check, reproducing the
+      published Nile 1898 change; page, CLI and agent engine.
+    next: >-
+      Landed history (Poisson, seasonal, --ar1 and joint AR(1), trend, holidays,
+      bursts, change-date range95 incl. counts, seasonal and trend, each measured
+      on seeded series; slope-change range and growth-change range for counts
+      2026-10-22, the latter calibrated to ~95% on three seeded sets) lives in the README
+      and git. Open: range95 on a real series with a true holiday closure or
+      documented slope break; the growth-change range on clumpy (NB) counts is ~90% not 95% (scored with the NB cost itself 2026-10-23, narrower than the ratio widening; the miss is at large bumps, where a bump-0.04 cell on one seed covers 10 of 15).
+  - venture: einvoice-preflight
+    why: >-
+      Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
+      XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
+      deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
+    next: >-
+      Landed history (official Schematron, in-browser path, 20+ country mandate
+      pages, credit-note links, JSON/UBL/CII/Factur-X arithmetic repair, FatturaPA
+      IT-001..IT-018) lives in the README and git. Open: a repair tried on a real
+      ERP or Factur-X export (xref-stream PDF repair landed 2026-10-22 on a hand-built
+      fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
+      FatturaPA code lists, tolerances and IT-018 sequences against the current
+      specification and add a full FatturaPA XSD check; Singapore InvoiceNow page landed 2026-10-23 (2028-31 dates from secondary guides, not read on iras.gov.sg); PINT SG and A-NZ rules run in the browser 2026-10-23 (build-pint-rules.mjs, from Maven Central's phive-rules-peppol; not yet on the Saxon/server route; no real PINT file tried; Australia mandate page landed 2026-10-24 (dates from commentators, not read on ato.gov.au)); Ireland page landed 2026-10-23 (Nov 2028 phases from vendor guides, not revenue.ie); refresh the Bulgaria page
+      when its draft passes or changes; RO_CIUS landed 2026-10-24 (122 national rules in the browser; no
+      real ANAF file tried, not on the Saxon route); NLCIUS: plain-from-xslt.mjs can compile it.
+  - venture: shift-roster-builder
+    why: >-
+      Simulated-annealing scheduler over a dollar cost (availability, rest,
+      youth labour rules, state overtime presets, roles) with a self-host
+      server, .ics feeds and availability intake.
+    next: >-
+      Landed work is in the README and eval/*-bench.mjs, not here. State:
+      exact check with a min-cost-flow coverage bound, symmetry cuts, a stated
+      $0.50 tolerance, coverage-first pass, ejection chains, contested-shift
+      pricing, whole-score pricing and reduced-cost fixing. Measured
+      (eval/scale-bench.mjs): proof breaks at larger sizes (6/8 weeks proven at
+      6 people x 14 shifts, 4/8 at 8x18, 2/8 at 8x22, 0/8 at 10 people); every
+      unproven week at 8-12 people failed at coverage. On 8 x 22 the floor is
+      383 h against 387 h open; more subgradient rounds move the bound <0.1%,
+      so the root gap is a relaxation gap, not convergence. Branching on the
+      priced bound (2026-10-24) cut one 8 x 22 week's gap from 0.66 open hours
+      to $2.53; 3 of 4 still unproven. Case 3 stays 36 h open vs floor 35 h at 20x the nodes
+      (eval/case-bench.mjs), so more search will not settle it. Next: pair cuts on contested shifts; then a tighter pay bound once coverage is proven (or branching
+      on the most contested shift; branch order tried, no gain), the 10 x 28
+      and 12 x 30 sizes, then a joint multi-week solve. Multi-week fairness
+      measured (eval/fairness-bench.mjs: tough-shift spread 13.2 -> 3.2 over 8
+      weeks for +0.4% payroll, synthetic crews).
+
+  - venture: photo-editing
+    why: >-
+      ShootFlow works end to end on real media: checksum-verified ingest,
+      catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
+    next: >-
+      Sharpness, exposure, motion and dHash near-duplicate grouping now run
+      on real frames (src/shootflow/frame_analysis.py). Subject framing without a
+      model landed 2026-10-21 (detail-energy centroid against thirds points plus
+      detail concentration; `framing`, `subject_x/y`, 15% of story_score; synthetic
+      patches only, not yet checked against human picks). Horizon tilt
+      (tilt_degrees, 2026-10-22; synthetic horizons only) costs a crooked frame up to 8% of story score. Grain (noise_sigma, 2026-10-23; synthetic Gaussian noise only) is taken out of sharpness and costs technical score. Next: face and
+      closed-eye scores for the story score (a small
+      on-device model, opt-in, behind the same analysis/NNNNN.json contract).
+      RAW stills are scored from their embedded JPEG preview (raw_preview.py,
+      2026-10-22; synthetic containers only, so try real CR2/CR3/NEF/ARW/DNG
+      files); developing RAW into proxies and masters (a RAW developer) is
+      still open.
+  - venture: quick-pick-survey
+    why: >-
+      Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
+      Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
+      deploy-to-your-own-Vercel button.
+    next: >-
+      Done so far (docs/INFORMATION-GAIN-SELECTOR.md and the READMEs hold
+      the numbers): the survey builder (POST /api/admin/surveys, the /admin
+      form, the /s/[slug] respondent page, pooled ranking with random-
+      effects 95% intervals, rank ranges, CSV, coverage note sized from
+      measured answers per respondent); an information-gain pair selector
+      and a staged hybrid (equals the shipped one at 90 answers, keeps 66 of
+      70 settled items at 300 answers on 220 items), chosen per survey by
+      `pairSelector`; an INFO_POOL_CAP of 400 (3000 items 1983 -> 36 ms;
+      capped equals uncapped on 600 and 1000 items at 600 answers,
+      poolCap.simulation.test.ts); and a live-Postgres ranking integration
+      test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy at 3000 items measured 2026-10-22 (selector loop,
+      2 respondents). Next: the same check through the route with Postgres,
+      and budgets well past the list length.
+
+  - venture: league-schedule-generator
+    why: >-
+      Circle-method round robins with minimal home/away breaks, court and slot
+      assignment under rest constraints, blackouts, play-offs, ladders and
+      Swiss formats, with a self-hosted league page.
+    next: >-
+      Done so far (README holds the measurements): multi-division scheduling
+      on shared venues (divisions.mjs and multi-division-league-
+      schedule.html; venue changes -25% against the naive order), venue-to-
+      venue `travel` times, rainouts across divisions with make-up dates,
+      share links carrying the division form, partial-night filling
+      (splitRounds), home/away break counting with a balance option and a
+      flip pass, make-up relocation (`relocate: true`), and venue fairness
+      with multi-season carry-over (venueFairness, CLI --history; 3-season
+      imbalance 5.83 -> 1.29 matches, at +18% venue changes) with a
+      fairnessWeight box on the page. Swapping pairs of moved matches was
+      measured and dropped. Trading two make-ups' nights (`swapNights`, 2026-10-23;
+      300 -> 280 breaks on 7 seeds with `balance`). Choosing the fairness weight from the league's own travel (`suggestFairnessWeight`, CLI `--suggest-weight`, 2026-10-24; simulated leagues). Next: a page button for it (about 20 s of search, so a worker), then a real league's travel times. Page checkboxes for balance, flip, relocate and swapNights landed 2026-10-23 (share link and CLI too); `node eval/browser-click.mjs` clicks them in Chromium (2026-10-23: 28 checks, ticks survive the share link).
+
+  - venture: open-tennis-robots
+    why: >-
+      Parametric CAD (build123d) generating a collector's DXF/STL/STEP
+      package, ballistics and tracking planners, ESP32 firmware and a browser
+      simulator. Unbuilt hardware, long payoff.
+    next: >-
+      The feeder CAD v0.1 package is in (manufacturing/feeder/: launcher head,
+      trunnion cheeks, turntable, 2040 base with brackets, mast, 3 m net beam,
+      poles and camera bar; the build tilts the head through -15..+45 deg for
+      collisions and sizes wind ballast). The hopper and feed landed
+      2026-10-21: a tub on a sloped shelf and four posts, a hose, and a
+      printed floor, roof, column and metering shuttle between the head
+      plates (checks for one-ball metering, column and wheel clearance, tub
+      capacity, hose slope and bend radius, shuttle clear when advanced;
+      cad/README.md "Feed"); a printed front retainer (two flexure arms, strain,
+      hold and pull-through forces checked) landed 2026-10-22. Next: close the feed's
+      remaining gaps (post bracing, the hose end swinging about 450 mm), then the
+      actuator brackets (shuttle and elevation) and azimuth drive, then the netting
+      trough that rolls balls to the hopper inlet; then check the head's
+      wheel-to-wheel gap and plate clearance against the ball path with the
+      flight model's launch speeds.

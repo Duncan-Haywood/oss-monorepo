@@ -1,0 +1,51 @@
+sensing-matchreal: SIFT (OpenCV 5.0.0, 3000 features) against ground truth. ok = within 3 px; along = off by more but within 2 px of the true epipolar line; near = within 40 px; far = beyond.
+
+== A. Middlebury 2014 'Motorcycle' rectified stereo pair (741x500), left to right, truth from the disparity map
+ratio mutual kept mismatch_rate | share of mismatches: along near far
+none False  2319 0.563 | 0.064 0.098 0.838
+none  True  1250 0.223 | 0.186 0.186 0.627
+ 0.9 False  1240 0.233 | 0.187 0.211 0.602
+ 0.9  True  1058 0.120 | 0.354 0.260 0.386
+ 0.8 False   995 0.102 | 0.386 0.287 0.327
+ 0.8  True   950 0.076 | 0.500 0.264 0.236
+ 0.7 False   862 0.061 | 0.623 0.264 0.113
+ 0.7  True   842 0.052 | 0.705 0.227 0.068
+ 0.6 False   747 0.047 | 0.743 0.229 0.029
+ 0.6  True   736 0.041 | 0.800 0.200 0.000
+
+== A2. stereo, no mutual check: ratio-test threshold (1.0 = none), mismatch rate, then shares along / near / far
+thresh mismatch along near far
+1.0 0.563 0.064 0.098 0.838
+0.9 0.233 0.187 0.211 0.602
+0.8 0.102 0.386 0.287 0.327
+0.7 0.061 0.623 0.264 0.113
+0.6 0.047 0.743 0.229 0.029
+
+median |error| of mismatches without ratio test (px): along=13.8 near=17.3 far=249.7
+control (random right keypoint instead of the match): along-share of the wrong ones = 0.011, near 0.019
+
+== B. Known-homography pairs (rotation +-15 deg, scale 0.85-1.15, perspective), per-image rows use one seed (own seed per image); the pooled table adds two more seeds per image
+astronaut  none: n=1108 mismatch=0.442 near-share=0.141 far-share=0.847 | ratio<0.8: n= 608 mismatch=0.028
+camera     none: n= 514 mismatch=0.315 near-share=0.142 far-share=0.827 | ratio<0.8: n= 351 mismatch=0.028
+coffee     none: n= 674 mismatch=0.559 near-share=0.170 far-share=0.812 | ratio<0.8: n= 314 mismatch=0.080
+chelsea    none: n= 549 mismatch=0.353 near-share=0.113 far-share=0.866 | ratio<0.8: n= 355 mismatch=0.023
+brick      none: n= 811 mismatch=0.381 near-share=0.023 far-share=0.961 | ratio<0.8: n= 487 mismatch=0.090
+gravel     none: n=2020 mismatch=0.273 near-share=0.022 far-share=0.973 | ratio<0.8: n=1427 mismatch=0.011
+grass      none: n=3000 mismatch=0.489 near-share=0.031 far-share=0.965 | ratio<0.8: n=1555 mismatch=0.074
+text       none: n= 484 mismatch=0.399 near-share=0.088 far-share=0.865 | ratio<0.8: n= 296 mismatch=0.081
+page       none: n= 460 mismatch=0.378 near-share=0.092 far-share=0.862 | ratio<0.8: n= 296 mismatch=0.101
+moon       none: n=  95 mismatch=0.337 near-share=0.125 far-share=0.812 | ratio<0.8: n=  63 mismatch=0.032
+
+pooled over the ten images, three warps each (a homography pair has no single epipolar line, so the 'along' class is only a
+2 px horizontal band here and is not meaningful; read near and far):
+ratio mutual kept mismatch_rate | share of mismatches: along near far
+none False 29710 0.396 | 0.018 0.071 0.911
+none  True 19258 0.092 | 0.021 0.093 0.886
+ 0.9 False 20117 0.128 | 0.026 0.112 0.862
+ 0.9  True 18004 0.045 | 0.022 0.129 0.848
+ 0.8 False 17904 0.051 | 0.023 0.137 0.840
+ 0.8  True 17132 0.023 | 0.020 0.163 0.817
+ 0.7 False 16824 0.030 | 0.016 0.131 0.853
+ 0.7  True 16361 0.014 | 0.025 0.186 0.789
+ 0.6 False 15721 0.021 | 0.012 0.122 0.865
+ 0.6  True 15400 0.010 | 0.026 0.175 0.799

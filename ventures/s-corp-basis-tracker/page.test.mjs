@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { run, parseYears, SAMPLE, step } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "form-7203-basis-order.html", "s-corp-distributions-over-basis.html", "s-corp-suspended-losses.html"];
+const PAGES = ["index.html", "form-7203-basis-order.html", "s-corp-distributions-over-basis.html", "s-corp-suspended-losses.html", "s-corp-loan-or-contribution-to-deduct-losses.html", "s-corp-k1-boxes-for-basis.html"];
 
 test("every page carries the no-warranty clause; the app also has privacy, independence and sponsor lines", () => {
   for (const n of PAGES) assert.match(page(n), /No warranty/, n);
@@ -98,6 +98,21 @@ test("the suspended-loss guide's three years are recomputed", () => {
   assert.ok(html.includes("$10,000 of gain"));
 });
 
+test("the loan-or-contribution guide's figures are recomputed", () => {
+  const z = { year: 2024, contributions: 0, loansMade: 0, loansRepaid: 0, income: 0, taxExempt: 0, distributions: 0, nondeductible: 0, losses: 0 };
+  const html = page("s-corp-loan-or-contribution-to-deduct-losses.html");
+  const open = { stock: 5000, debtBasis: 0, debtFace: 0, suspended: 0, ndCarry: 0 };
+  const none = step(open, { ...z, losses: 30000 });
+  assert.equal(none.deductedLosses, 5000); assert.equal(none.close.suspended, 25000);
+  const con = step(open, { ...z, losses: 30000, contributions: 25000 });
+  assert.equal(con.deductedLosses, 30000); assert.equal(con.close.suspended, 0); assert.equal(con.close.debtFace, 0);
+  const loan = step(open, { ...z, losses: 30000, loansMade: 25000 });
+  assert.equal(loan.deductedLosses, 30000); assert.equal(loan.close.debtBasis, 0); assert.equal(loan.close.debtFace, 25000);
+  assert.equal(step(loan.close, { ...z, year: 2025, loansRepaid: 25000 }).lines.repaymentGain, 25000);
+  assert.equal(step(loan.close, { ...z, year: 2025, income: 10000, loansRepaid: 25000 }).lines.repaymentGain, 15000);
+  for (const t of ["$25,000 is suspended", "you deduct $30,000", "$25,000 of gain", "$15,000 of gain"]) assert.ok(html.includes(t), t);
+});
+
 test("the year-end planner is on the page and its event is disclosed", async () => {
   const { readFileSync } = await import("node:fs");
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
@@ -133,4 +148,17 @@ test("K-1 box card is on the page, wired to fromK1Boxes, and its event is disclo
   assert.match(html, /id="k1-in"/);
   assert.match(html, /fromK1Boxes/);
   assert.match(html, /<code>k1_converted<\/code>/);
+});
+
+test("the K-1 box guide's year is recomputed from the typed box line", async () => {
+  const { fromK1Boxes } = await import("./calc.mjs");
+  const html = page("s-corp-k1-boxes-for-basis.html");
+  const k = fromK1Boxes("2024: 1=50000, 16A=2000, 16C=3000, 16D=20000");
+  assert.deepEqual(k.errors, []);
+  const r = run({ stock: 30000 }, k.rows);
+  assert.equal(r.closing.stock, 59000);
+  assert.equal(r.rows[0].lines.stockBeforeDistributions, 82000);
+  assert.equal(r.rows[0].lines.excessDistributions, 0);
+  for (const s of ["$30,000", "$82,000", "$59,000", "2024: 1=50000, 16A=2000, 16C=3000, 16D=20000"]) assert.ok(html.includes(s), s);
+  assert.ok(page("index.html").includes("s-corp-k1-boxes-for-basis.html") && page("sitemap.xml").includes("s-corp-k1-boxes-for-basis.html"));
 });

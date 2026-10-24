@@ -1,0 +1,11 @@
+item,kind,qty,what,notes
+base_plate,laser,1,aluminium 5052 3 mm,Peg to the lawn through the six holes (steel tent pegs).
+contact_tower,print,1,ASA,"Hollow, open at the back for the charger lead. M4 into heat-set inserts from under the plate."
+wheel_guide,print,2,ASA,Rails the rear wheels run between; they centre the mower on the contacts.
+contact_strip,cots,2,"Spring stainless strip 3 x 20 mm, bent to a 30 mm leaf (cut and bend from 0.3 mm stock)",
+charger,cots,1,"29.4 V 2 A Li-ion charger (7S), outdoor-rated or in a sealed box; its mains side stays indoors or in an IP-rated enclosure",
+M4 x 12 screw + heat-set insert,cots,8,M4 x 12 screw + heat-set insert,"tower and guides, from under the plate"
+"Steel tent peg, 8 mm, 200 mm",cots,6,"Steel tent peg, 8 mm, 200 mm",through the base plate into the lawn
+"Ring terminal + 1.5 mm^2 wire, 1 m",cots,2,"Ring terminal + 1.5 mm^2 wire, 1 m",strips to the charge-enable relay
+Charge-enable relay or MOSFET + mower-present sense (see hardware/dock.md),cots,1,Charge-enable relay or MOSFET + mower-present sense (see hardware/dock.md),keeps the strips dead until a mower is docked
+"Cable gland, IP68, M16",cots,1,"Cable gland, IP68, M16",charger lead into the tower

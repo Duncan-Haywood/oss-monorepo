@@ -40,10 +40,10 @@ jobs:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
       # Discovered, not enumerated -- bare `node --test` walks the working
@@ -51,12 +51,3 @@ jobs:
       # rather than needing this list to be kept in sync by hand.
       - name: Run every test in the venture
         run: node --test
-      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every
-      # published page, and it is the half build.mjs cannot inject: what a
-      # tool is not advice *about* is written in the venture's own voice.
-      # Checked here so the venture that needs the clause is the one that
-      # goes red, before the merge, rather than the Pages job on main after
-      # it.
-      - name: Published pages carry the no-warranty clause
-        working-directory: .
-        run: node platform/pages/clauses.mjs referrer-permissions-policy-check

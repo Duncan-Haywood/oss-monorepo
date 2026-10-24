@@ -1,0 +1,58 @@
+|--- num__marriage_years <= 31.50000
+|   |--- num__marriage_years <= 0.50000
+|   |   |--- cat__sex_Woman <= 0.50000
+|   |   |   |--- value: [0.00061]
+|   |   |--- cat__sex_Woman >  0.50000
+|   |   |   |--- value: [0.00139]
+|   |--- num__marriage_years >  0.50000
+|   |   |--- num__age <= 48.50000
+|   |   |   |--- cat__education_Graduate or professional <= 0.50000
+|   |   |   |   |--- cat__education_Bachelor <= 0.50000
+|   |   |   |   |   |--- value: [0.02324]
+|   |   |   |   |--- cat__education_Bachelor >  0.50000
+|   |   |   |   |   |--- value: [0.01528]
+|   |   |   |--- cat__education_Graduate or professional >  0.50000
+|   |   |   |   |--- cat__sex_Woman <= 0.50000
+|   |   |   |   |   |--- value: [0.01032]
+|   |   |   |   |--- cat__sex_Woman >  0.50000
+|   |   |   |   |   |--- value: [0.01543]
+|   |   |--- num__age >  48.50000
+|   |   |   |--- num__marriage_years <= 16.50000
+|   |   |   |   |--- num__age <= 62.50000
+|   |   |   |   |   |--- value: [0.01925]
+|   |   |   |   |--- num__age >  62.50000
+|   |   |   |   |   |--- value: [0.01209]
+|   |   |   |--- num__marriage_years >  16.50000
+|   |   |   |   |--- cat__race_ethnicity_Black <= 0.50000
+|   |   |   |   |   |--- value: [0.01093]
+|   |   |   |   |--- cat__race_ethnicity_Black >  0.50000
+|   |   |   |   |   |--- value: [0.01902]
+|--- num__marriage_years >  31.50000
+|   |--- num__marriage_years <= 44.50000
+|   |   |--- cat__race_ethnicity_Black <= 0.50000
+|   |   |   |--- cat__education_Less than high school <= 0.50000
+|   |   |   |   |--- cat__race_ethnicity_Hispanic <= 0.50000
+|   |   |   |   |   |--- value: [0.00502]
+|   |   |   |   |--- cat__race_ethnicity_Hispanic >  0.50000
+|   |   |   |   |   |--- value: [0.00943]
+|   |   |   |--- cat__education_Less than high school >  0.50000
+|   |   |   |   |--- cat__nativity_US-born <= 0.50000
+|   |   |   |   |   |--- value: [0.00579]
+|   |   |   |   |--- cat__nativity_US-born >  0.50000
+|   |   |   |   |   |--- value: [0.01452]
+|   |   |--- cat__race_ethnicity_Black >  0.50000
+|   |   |   |--- value: [0.01222]
+|   |--- num__marriage_years >  44.50000
+|   |   |--- cat__race_ethnicity_Black <= 0.50000
+|   |   |   |--- num__marriage_years <= 56.50000
+|   |   |   |   |--- num__age <= 79.50000
+|   |   |   |   |   |--- value: [0.00263]
+|   |   |   |   |--- num__age >  79.50000
+|   |   |   |   |   |--- value: [0.00773]
+|   |   |   |--- num__marriage_years >  56.50000
+|   |   |   |   |--- num__age <= 80.50000
+|   |   |   |   |   |--- value: [0.00174]
+|   |   |   |   |--- num__age >  80.50000
+|   |   |   |   |   |--- value: [0.00104]
+|   |   |--- cat__race_ethnicity_Black >  0.50000
+|   |   |   |--- value: [0.01077]

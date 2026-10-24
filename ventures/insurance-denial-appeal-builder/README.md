@@ -5,7 +5,7 @@ denial reason, your appeal deadline, a draft appeal letter, a checklist of what 
 calendar file with reminders.** The text is read in the browser. Nothing is uploaded and no
 account is needed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/insurance-denial-appeal-builder/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/insurance-denial-appeal-builder/
 
 After using this, you can **appeal a denied claim with the right deadline, the right attachments
 for that kind of denial and a letter that asks for the plan's criteria and claim file**, which
@@ -16,7 +16,9 @@ used to mean reading a dense notice, guessing the window and writing the letter 
 - **Reads the denial.** Adjustment reason codes (CO-50, CO-197, CO-96, CO-18 and others) and
   phrases ("not medically necessary", "prior authorization", "out of network", "investigational")
   are scored. The best match is suggested with the evidence for it; the user can change it. It
-  also picks up the notice date, a stated appeal window, claim number, member ID and urgency.
+  Bundled or downcoded lines (CO-97), coverage-ended denials (CO-27) and out-of-network bills after
+  emergency care or at an in-network facility (No Surprises Act) get their own letters and checklists.
+  It also picks up the notice date, a stated appeal window, claim number, member ID and urgency.
 - **Computes deadlines** from plan type and the date the notice was received: 180 days for employer
   and individual plans, 60 for Medicare Advantage, 120 for Original Medicare; Medicaid varies by
   state, so the days from the notice are entered. A number stated in the notice always wins. Shows
@@ -26,6 +28,9 @@ used to mean reading a dense notice, guessing the window and writing the letter 
   request when they apply. Missing facts are shown as `[placeholders]`, never invented.
 - **Lists what to do first.** For billing, authorization and filing problems it says to call the
   provider before appealing, since a corrected claim is often quicker.
+- **Writes the other two documents an appeal usually needs.** A letter for your doctor to review and
+  sign (clinical facts left as placeholders, with a peer-to-peer request), and, once the insurer
+  upholds the denial, a request for independent external review that cites your internal appeal.
 - **Exports** the letter as text and the deadline plus two reminders as an `.ics` file.
 
 Not checked: whether the plan covers the service, whether the denial is right, state-specific
@@ -50,7 +55,7 @@ Independent of any insurer, health plan, hospital, clinic or government agency.
 
 **Privacy.** Nothing is uploaded; a denial letter contains health information and stays in the
 browser. Anonymous feature counts (`denial_read`, `appeal_built`, `letter_copied`,
-`example_loaded`) are kept only in local storage, can be switched off on the page, and honour Do
+`example_loaded`, `doc_provider`, `doc_external`) are kept only in local storage, can be switched off on the page, and honour Do
 Not Track.
 
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken,

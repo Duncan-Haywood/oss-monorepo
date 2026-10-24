@@ -57,5 +57,5 @@ kill_criteria:
   - A user reports a tax figure that disagrees with the IRS rules the page states, and it is not fixed within 30 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/retirement-withdrawal-sequencer/
+  production: https://duncan-haywood.github.io/oss-monorepo/retirement-withdrawal-sequencer/
   analytics: null

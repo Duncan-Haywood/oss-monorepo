@@ -49,8 +49,7 @@ test('no posts directory means no posts, not an error', () => {
 test('build writes an index, one page per post and a feed, each with a disclaimer', async () => {
   const root = repoWith({ '2026-10-16-hello.md': post('Hello <world>', '2026-10-16') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-out-'));
-  const posts = await buildWriting(out, BASE, { root });
-  assert.equal(posts.length, 1);
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['hello', 'podcast']);
   const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
   const page = await fs.readFile(path.join(out, WRITING_PATH, 'hello/index.html'), 'utf8');
   const feed = await fs.readFile(path.join(out, WRITING_PATH, 'feed.xml'), 'utf8');
@@ -82,6 +81,22 @@ test('a link to a sibling post file becomes a link to its page', async () => {
   assert.match(page, /data-pf-to="hub"/);
 });
 
+test('a full link to the default origin follows the address the site is built for', async () => {
+  const alias = 'https://default.test/site/';
+  const root = repoWith({
+    '2026-10-01-first.md': post('First', '2026-10-01').replace('Body text', `Try [the tool](${alias}some-tool/). Body text`),
+  });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-'));
+  await buildWriting(out, BASE, { root, originAlias: alias });
+  const page = await fs.readFile(path.join(out, WRITING_PATH, 'first/index.html'), 'utf8');
+  assert.match(page, new RegExp(`<a href="${BASE.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}some-tool/">the tool</a>`));
+  assert.ok(!page.includes(alias), 'the default origin must not survive a build under another address');
+
+  const same = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-same-'));
+  await buildWriting(same, alias, { root, originAlias: alias });
+  assert.match(await fs.readFile(path.join(same, WRITING_PATH, 'first/index.html'), 'utf8'), /default\.test\/site\/some-tool\//);
+});
+
 test('feed is valid-shaped with no posts', () => {
   assert.match(renderFeed([], { baseUrl: BASE }), /<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom">/);
 });
@@ -90,4 +105,72 @@ test('every committed post parses', () => {
   const posts = loadPosts();
   assert.ok(posts.length >= 1);
   for (const p of posts) assert.ok(p.title && p.description && /^\d{4}-\d{2}-\d{2}$/.test(p.date));
+});
+
+test('links to the published catalogue become root-relative on the site', async () => {
+  const { relinkSite } = await import('./writing.mjs');
+  const html = '<a href="https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/">x</a> <a href="https://example.com/">y</a>';
+  assert.equal(relinkSite(html, '../../'), '<a href="../../changepoint-detector/">x</a> <a href="https://example.com/">y</a>');
+});
+
+test('topics: front matter wins, else the first rule the tags match; a bad topic or a reserved slug fails', async () => {
+  const { topicOf } = await import('./writing.mjs');
+  assert.equal(topicOf(['opinion', 'research']), 'agents');
+  assert.equal(topicOf(['research', 'chip-design']), 'research');
+  assert.equal(topicOf(['mcp', 'ai-agents']), 'tools');
+  assert.equal(topicOf(['github-pages', 'ai-agents']), 'infrastructure');
+  assert.equal(topicOf(['ai-agents', 'git']), 'agents');
+  assert.equal(topicOf(['statistics']), 'tools');
+  assert.equal(topicOf(['ai-agents'], 'infrastructure'), 'infrastructure');
+  assert.equal(loadPosts(repoWith({ '2026-10-01-x.md': post('X', '2026-10-01', 'topic: research\n') }))[0].topic, 'research');
+  assert.throws(() => loadPosts(repoWith({ '2026-10-01-x.md': post('X', '2026-10-01', 'topic: cooking\n') })), /is not one of/);
+  assert.throws(() => loadPosts(repoWith({ '2026-10-01-podcast.md': post('X', '2026-10-01') })), /section of the blog/);
+});
+
+test('the index can be searched and filtered: finder, card data, full-text index, topic and tag links on posts', async () => {
+  const root = repoWith({
+    '2026-10-01-older.md': post('Older', '2026-10-01', 'topic: research\n').replace('Body text', 'Zlib level nine. Body text'),
+    '2026-10-16-newer.md': post('Newer', '2026-10-16'),
+  });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-find-'));
+  await buildWriting(out, BASE, { root });
+  const w = path.join(out, WRITING_PATH);
+  const index = await fs.readFile(path.join(w, 'index.html'), 'utf8');
+  assert.match(index, /<form id="finder" class="finder" role="search" hidden/);
+  assert.match(index, /data-topic-chip="research"/);
+  assert.match(index, /<option value="agents">agents \(2\)<\/option>/);
+  assert.match(index, /<li data-slug="older" data-topic="research" data-tags="agents notes" data-date="2026-10-01"/);
+  const search = JSON.parse(await fs.readFile(path.join(w, 'search.json'), 'utf8'));
+  assert.match(search.older, /zlib level nine/);
+  const older = await fs.readFile(path.join(w, 'older/index.html'), 'utf8');
+  assert.match(older, /<a class="topic" href="\.\.\/\?topic=research">Research findings<\/a>/);
+  assert.match(older, /<a class="tag" href="\.\.\/\?tag=agents">agents<\/a>/);
+  assert.match(older, /<a href="\.\.\/newer\/" rel="next">Newer →<\/a>/);
+  assert.match(await fs.readFile(path.join(w, 'feed.xml'), 'utf8'), /<category term="research" label="Research findings"\/>/);
+  // No agent posts: no agents section and no link to one.
+  assert.doesNotMatch(index, /agent-to-agent blog/);
+  await assert.rejects(fs.access(path.join(w, 'agents')));
+});
+
+test('the agent-to-agent blog publishes pages, raw Markdown with absolute links, llms.txt and llms-full.txt', async () => {
+  const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
+  mkdirSync(path.join(root, 'docs/agent-posts'), { recursive: true });
+  writeFileSync(path.join(root, 'docs/agent-posts/2026-10-21-for-you.md'), post('For you, agent', '2026-10-21').replace('[link](../../README.md)', '[link](../reports/x.md)'));
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-agents-'));
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['hello', 'podcast', 'agents', 'agents/for-you']);
+  const a = path.join(out, WRITING_PATH, 'agents');
+  const index = await fs.readFile(path.join(a, 'index.html'), 'utf8');
+  const page = await fs.readFile(path.join(a, 'for-you/index.html'), 'utf8');
+  const md = await fs.readFile(path.join(a, 'for-you.txt'), 'utf8');
+  const llms = await fs.readFile(path.join(a, 'llms.txt'), 'utf8');
+  const full = await fs.readFile(path.join(a, 'llms-full.txt'), 'utf8');
+  for (const html of [index, page]) assert.match(html, /no warranty/i);
+  assert.match(index, /href="llms\.txt"/);
+  assert.match(page, new RegExp(`<link rel="canonical" href="${BASE}writing/agents/for-you/">`));
+  assert.match(page, /href="\.\.\/for-you\.txt" type="text\/plain">Markdown \(plain text\)</);
+  assert.match(page, /data-pf-to="hub"/);
+  assert.match(md, /\]\(https:\/\/github\.com\/Duncan-Haywood\/oss-monorepo\/blob\/main\/docs\/reports\/x\.md\)/);
+  assert.match(llms, new RegExp(`- \\[For you, agent\\]\\(${BASE}writing/agents/for-you\\.txt\\): About For you, agent\\.`));
+  assert.match(full, /# For you, agent/);
+  assert.match(await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8'), /href="agents\/">agent-to-agent blog</);
 });

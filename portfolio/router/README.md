@@ -2,6 +2,11 @@
 
 Decides which venture gets the next unit of agent effort.
 
+**Flagships first (owner, 2026-10-20).** The ventures listed in
+[`../flagships.yaml`](../flagships.yaml) rank ahead of all other startable
+work, in that file's order, with a "Deepen (flagship N)" task naming their
+next milestone. Edit that file to change what most venture runs work on.
+
 **2026-08-24 direction:** the router ranks work, but the fleet's default is
 product shipping, not router maintenance. Prefer dispatchable `in-repo`
 hypotheses and ventures with runnable software over blocked

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Backup File Exposure Checker — Is Your backup.zip or .sql Dump Public?</title>
-<meta name="description" content="Free tool: paste your site's URL and it sends real GET requests to eight well-known backup filenames (backup.zip, backup.tar.gz, backup.sql, db.sql, and more), verifying the response against a real archive's magic bytes or a real SQL dump's line shape -- not just an HTTP status -- to name whether your deployment is publicly serving a full site or database backup. Never reads row data out of a matched SQL dump, never extracts a matched archive. Nothing uploaded to us.">
+<meta name="description" content="Enter a site URL to test eight well-known backup filenames (backup.zip, db.sql and more) for a publicly served site or database backup. Nothing uploaded to us.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/backup-file-exposure-check/">
 <meta property="og:type" content="website">
@@ -91,6 +91,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Backup File Exposure Checker</h1>
 <p>
   Paste your site's URL. This sends a plain GET request to eight well-known backup filenames
@@ -273,6 +274,7 @@
   }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks eight well-known paths with one GET

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>This checker vs. checking a DST calendar by hand — Cron DST Drift Check</title>
-<meta name="description" content="Looking up when daylight saving starts and eyeballing whether a cron time is close catches an obvious spring-forward skip and misses almost everything else: the day-of-month/day-of-week OR rule, the fall-back time that is ambiguous rather than absent, and the fixed-UTC-cron drift that never looks like a DST problem at all.">
+<meta name="description" content="A DST calendar catches the spring-forward skip but misses the day-of-month/week OR rule, ambiguous fall-back times and fixed-UTC drift. This check finds them.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="./vs-checking-a-dst-calendar-by-hand.html">
 <meta property="og:type" content="website">

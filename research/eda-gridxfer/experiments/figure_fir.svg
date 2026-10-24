@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the fraction of the true Pareto-front hypervolume found against designs evaluated, for six grid orders, on the fir design family">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Grid orders at equal budgets (fir family, 36 designs)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="89.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="114.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="165.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="216.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="318.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="420.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">24</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">distinct designs evaluated</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">hypervolume / true-front hypervolume</text>
+<polyline points="64.0,130.6 89.5,130.6 114.9,89.9 165.8,89.9 216.7,71.2 318.5,71.2 420.4,71.2 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="130.6" r="3" fill="#c0392b"/>
+<circle cx="89.5" cy="130.6" r="3" fill="#c0392b"/>
+<circle cx="114.9" cy="89.9" r="3" fill="#c0392b"/>
+<circle cx="165.8" cy="89.9" r="3" fill="#c0392b"/>
+<circle cx="216.7" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="318.5" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="420.4" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">lexicographic</text>
+<polyline points="64.0,122.0 89.5,122.0 114.9,120.5 165.8,102.5 216.7,89.1 318.5,85.8 420.4,81.5 624.0,76.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="122.0" r="3" fill="#1f6fb2"/>
+<circle cx="89.5" cy="122.0" r="3" fill="#1f6fb2"/>
+<circle cx="114.9" cy="120.5" r="3" fill="#1f6fb2"/>
+<circle cx="165.8" cy="102.5" r="3" fill="#1f6fb2"/>
+<circle cx="216.7" cy="89.1" r="3" fill="#1f6fb2"/>
+<circle cx="318.5" cy="85.8" r="3" fill="#1f6fb2"/>
+<circle cx="420.4" cy="81.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="76.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">halton</text>
+<polyline points="64.0,152.6 89.5,152.6 114.9,147.8 165.8,74.2 216.7,74.2 318.5,74.2 420.4,71.2 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="152.6" r="3" fill="#2e8b57"/>
+<circle cx="89.5" cy="152.6" r="3" fill="#2e8b57"/>
+<circle cx="114.9" cy="147.8" r="3" fill="#2e8b57"/>
+<circle cx="165.8" cy="74.2" r="3" fill="#2e8b57"/>
+<circle cx="216.7" cy="74.2" r="3" fill="#2e8b57"/>
+<circle cx="318.5" cy="74.2" r="3" fill="#2e8b57"/>
+<circle cx="420.4" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">farthest</text>
+<polyline points="64.0,144.2 89.5,117.9 114.9,107.8 165.8,95.2 216.7,86.1 318.5,83.1 420.4,76.7 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="144.2" r="3" fill="#8e44ad"/>
+<circle cx="89.5" cy="117.9" r="3" fill="#8e44ad"/>
+<circle cx="114.9" cy="107.8" r="3" fill="#8e44ad"/>
+<circle cx="165.8" cy="95.2" r="3" fill="#8e44ad"/>
+<circle cx="216.7" cy="86.1" r="3" fill="#8e44ad"/>
+<circle cx="318.5" cy="83.1" r="3" fill="#8e44ad"/>
+<circle cx="420.4" cy="76.7" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">farthest-rand-start</text>
+<polyline points="64.0,149.0 89.5,126.3 114.9,118.2 165.8,106.1 216.7,98.2 318.5,90.4 420.4,84.8 624.0,77.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="149.0" r="3" fill="#c0392b"/>
+<circle cx="89.5" cy="126.3" r="3" fill="#c0392b"/>
+<circle cx="114.9" cy="118.2" r="3" fill="#c0392b"/>
+<circle cx="165.8" cy="106.1" r="3" fill="#c0392b"/>
+<circle cx="216.7" cy="98.2" r="3" fill="#c0392b"/>
+<circle cx="318.5" cy="90.4" r="3" fill="#c0392b"/>
+<circle cx="420.4" cy="84.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="77.5" r="3" fill="#c0392b"/>
+<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">latin</text>
+<polyline points="64.0,151.8 89.5,130.1 114.9,119.5 165.8,107.3 216.7,100.0 318.5,90.1 420.4,84.6 624.0,76.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="151.8" r="3" fill="#1f6fb2"/>
+<circle cx="89.5" cy="130.1" r="3" fill="#1f6fb2"/>
+<circle cx="114.9" cy="119.5" r="3" fill="#1f6fb2"/>
+<circle cx="165.8" cy="107.3" r="3" fill="#1f6fb2"/>
+<circle cx="216.7" cy="100.0" r="3" fill="#1f6fb2"/>
+<circle cx="318.5" cy="90.1" r="3" fill="#1f6fb2"/>
+<circle cx="420.4" cy="84.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="76.5" r="3" fill="#1f6fb2"/>
+<rect x="914" y="32" width="14" height="10" fill="#1f6fb2"/><text x="934" y="41" font-family="sans-serif" font-size="11">random</text>
+</svg>

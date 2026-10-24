@@ -43,6 +43,7 @@
     <p>Booking turnovers in the order owners ask, or the biggest fee first, fills the day with the wrong work. Paste the queue — <strong>fee, supplies, clean minutes, the checkout and the next check-in and where each unit is</strong> — and get <strong>the exact set of cleans with the highest profit for the day, which crew does each and in what order</strong>, the drive and idle time it implies, <strong>what each turnover it declines would need to pay</strong>, and what first-come booking leaves behind.</p>
     <p class="note">For vacation-rental cleaning companies and property managers. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste the turnovers</h2>
@@ -117,7 +118,8 @@ cat turnovers.csv | node cli.mjs plan - --crews 3 --speed 25</pre>
     <p>Vacation-rental cleaning companies and property managers with one to three crews choosing which of the day's turnovers to take and who does them.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the prices, costs, times and distances you type, for the promises you have made to customers, and for any management contract that requires you to take a turnover and for guest-ready standards you have promised owners and platforms. Check-in times are safety- and reputation-sensitive: a late clean can strand a guest, so do not rely on the plan to cut it close. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will happen on the day.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

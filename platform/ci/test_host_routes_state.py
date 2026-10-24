@@ -80,9 +80,41 @@ class ReadsFromTheDriversRatherThanRestating(unittest.TestCase):
         )
         facts = route.read()
         self.assertFalse(facts["exists"])
+        self.assertFalse(facts["executable"])
         report, ready = hrs.render(routes=[route])
         self.assertIn("MISSING", report)
         self.assertFalse(ready, "an absent driver must not report locally ready")
+
+
+class DriverFacts(unittest.TestCase):
+    def test_a_driver_that_is_not_executable_is_reported_so(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "driver.sh"
+            script.write_text("#!/bin/sh\n")
+            script.chmod(0o644)
+            route = hrs.Route(driver="driver.sh", unblocks="x", credential="y",
+                              starts="z", installed_hint="w")
+            with unittest.mock.patch.object(hrs, "SCRIPTS", Path(tmp)):
+                self.assertFalse(route.read()["executable"])
+                script.chmod(0o755)
+                self.assertTrue(route.read()["executable"])
+
+
+class Wrap(unittest.TestCase):
+    def test_lines_fill_to_exactly_the_width_and_no_further(self):
+        # "aaaa bbbb" is 9 wide: fits width 9, breaks at width 8.
+        self.assertEqual(hrs._wrap("aaaa bbbb", width=9, indent=2), "aaaa bbbb")
+        self.assertEqual(hrs._wrap("aaaa bbbb", width=8, indent=2), "aaaa\n  bbbb")
+
+    def test_a_long_run_of_words_wraps_each_line_within_width(self):
+        out = hrs._wrap("one two three four five six", width=10, indent=0)
+        self.assertEqual(out.split("\n"), ["one two", "three four", "five six"])
+
+    def test_help_text_is_the_first_line_of_the_docstring(self):
+        with self.assertRaises(SystemExit), unittest.mock.patch("sys.stdout", io.StringIO()) as out:
+            hrs.main(["--help"])
+        self.assertIn(hrs.__doc__.splitlines()[0][:30], out.getvalue().replace("\n", " "))
 
 
 class LocalReadiness(unittest.TestCase):
@@ -155,12 +187,6 @@ class ClaimsNothingItDidNotMeasure(unittest.TestCase):
                 f"the report claims {forbidden!r}, which it cannot measure -- "
                 "no session can reach these boxes",
             )
-        self.assertIn(
-            "outage-triage",
-            lowered,
-            "the report must name who CAN answer reachability rather than "
-            "leaving the reader to assume it did",
-        )
 
     def test_the_module_makes_no_network_call_at_all(self):
         source = Path(hrs.__file__).read_text()

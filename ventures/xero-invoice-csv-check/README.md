@@ -6,7 +6,7 @@ problem with its line number before the import fails or posts the wrong thing, t
 cleaned copy or a set of import-sized files.** The file is read in the browser; nothing is
 uploaded and no login or API key is needed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/xero-invoice-csv-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/xero-invoice-csv-check/
 
 After using this, you can now **find the date written in two different orders, the invoice whose
 second line has a different due date, the Account Code that is really an account name, the Tax Type
@@ -28,6 +28,18 @@ per-invoice agreement of contact, dates and currency; line grouping; date order,
 numbers and two-digit years; due date before invoice date; quantity, unit amount and discount
 formats; account code and tax type shape; invoice number and contact spelling variants; Excel
 damage; currency codes; email; tracking pairs; encoding; file length.
+
+## Check against your own Xero lists
+
+Paste the chart of accounts export, the contacts export (or one name per line) and your tax rate
+names, and `crossCheck()` compares every line: account codes that do not exist, an account *name*
+in the code column (the safe-fixes pass swaps in the code), archived accounts, non-revenue
+accounts, contacts that differ from an existing one only by case, punctuation or a `Ltd`/`Limited`
+suffix (Xero would create a duplicate), and tax rate names that are not spelled exactly. Export
+headings were read from memory, so matching is loose. The lists stay in the browser.
+
+The report also prints control totals (net before tax, per currency, with invoice counts) so a
+bookkeeper can reconcile the file against the source system before importing.
 
 ## Safe fixes and splitting
 

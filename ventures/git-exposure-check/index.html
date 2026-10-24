@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Git Exposure Checker — is your .git directory publicly readable?</title>
-<meta name="description" content="Free tool: run a CLI that sends two real requests to your site (.git/HEAD and .git/config), then paste the JSON here for a plain-English report on whether your .git directory is publicly exposed -- letting anyone reconstruct your full source history, including secrets removed in a later commit. Correctly tells a real exposure apart from a 200-status soft-404 page. Nothing uploaded.">
+<meta name="description" content="Free tool: run a CLI that sends two real requests to your site (.git/HEAD and .git/config), then paste the JSON here for a plain-English report on whether your .git directory is publicly exposed -- letting anyone reconstruct your full source history, including secrets removed in a later commit.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/git-exposure-check/">
 <meta property="og:type" content="website">
@@ -87,6 +87,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Git Exposure Checker</h1>
 <p>
   Sends two real HTTP GET requests to a site you choose -- <code>.git/HEAD</code> and
@@ -267,6 +268,7 @@
   }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented

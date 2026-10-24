@@ -1,0 +1,2593 @@
+model,dimension,group,n,horizon,quantile,value
+quality_only,all,All couples,3009,by_2011_2.2y,p1,0.0736
+quality_only,all,All couples,3009,by_2011_2.2y,p5,0.0745
+quality_only,all,All couples,3009,by_2011_2.2y,p10,0.0750
+quality_only,all,All couples,3009,by_2011_2.2y,p25,0.0760
+quality_only,all,All couples,3009,by_2011_2.2y,p50,0.0777
+quality_only,all,All couples,3009,by_2011_2.2y,p75,0.2101
+quality_only,all,All couples,3009,by_2011_2.2y,p90,0.3501
+quality_only,all,All couples,3009,by_2011_2.2y,p95,0.3667
+quality_only,all,All couples,3009,by_2011_2.2y,p99,0.4709
+quality_only,all,All couples,3009,by_2013_4.1y,p1,0.1022
+quality_only,all,All couples,3009,by_2013_4.1y,p5,0.1032
+quality_only,all,All couples,3009,by_2013_4.1y,p10,0.1038
+quality_only,all,All couples,3009,by_2013_4.1y,p25,0.1050
+quality_only,all,All couples,3009,by_2013_4.1y,p50,0.1070
+quality_only,all,All couples,3009,by_2013_4.1y,p75,0.2826
+quality_only,all,All couples,3009,by_2013_4.1y,p90,0.4576
+quality_only,all,All couples,3009,by_2013_4.1y,p95,0.4757
+quality_only,all,All couples,3009,by_2013_4.1y,p99,0.5929
+quality_only,all,All couples,3009,by_2017_8.4y,p1,0.1341
+quality_only,all,All couples,3009,by_2017_8.4y,p5,0.1354
+quality_only,all,All couples,3009,by_2017_8.4y,p10,0.1362
+quality_only,all,All couples,3009,by_2017_8.4y,p25,0.1381
+quality_only,all,All couples,3009,by_2017_8.4y,p50,0.1413
+quality_only,all,All couples,3009,by_2017_8.4y,p75,0.3607
+quality_only,all,All couples,3009,by_2017_8.4y,p90,0.5653
+quality_only,all,All couples,3009,by_2017_8.4y,p95,0.5836
+quality_only,all,All couples,3009,by_2017_8.4y,p99,0.7076
+quality_only,married,Married,1928,by_2011_2.2y,p1,0.0736
+quality_only,married,Married,1928,by_2011_2.2y,p5,0.0745
+quality_only,married,Married,1928,by_2011_2.2y,p10,0.0749
+quality_only,married,Married,1928,by_2011_2.2y,p25,0.0759
+quality_only,married,Married,1928,by_2011_2.2y,p50,0.0774
+quality_only,married,Married,1928,by_2011_2.2y,p75,0.2094
+quality_only,married,Married,1928,by_2011_2.2y,p90,0.2140
+quality_only,married,Married,1928,by_2011_2.2y,p95,0.3652
+quality_only,married,Married,1928,by_2011_2.2y,p99,0.4761
+quality_only,married,Married,1928,by_2013_4.1y,p1,0.1023
+quality_only,married,Married,1928,by_2013_4.1y,p5,0.1032
+quality_only,married,Married,1928,by_2013_4.1y,p10,0.1037
+quality_only,married,Married,1928,by_2013_4.1y,p25,0.1049
+quality_only,married,Married,1928,by_2013_4.1y,p50,0.1066
+quality_only,married,Married,1928,by_2013_4.1y,p75,0.2815
+quality_only,married,Married,1928,by_2013_4.1y,p90,0.2880
+quality_only,married,Married,1928,by_2013_4.1y,p95,0.4736
+quality_only,married,Married,1928,by_2013_4.1y,p99,0.5981
+quality_only,married,Married,1928,by_2017_8.4y,p1,0.1340
+quality_only,married,Married,1928,by_2017_8.4y,p5,0.1354
+quality_only,married,Married,1928,by_2017_8.4y,p10,0.1361
+quality_only,married,Married,1928,by_2017_8.4y,p25,0.1380
+quality_only,married,Married,1928,by_2017_8.4y,p50,0.1406
+quality_only,married,Married,1928,by_2017_8.4y,p75,0.3594
+quality_only,married,Married,1928,by_2017_8.4y,p90,0.3677
+quality_only,married,Married,1928,by_2017_8.4y,p95,0.5827
+quality_only,married,Married,1928,by_2017_8.4y,p99,0.7129
+quality_only,married,Unmarried,1081,by_2011_2.2y,p1,0.0738
+quality_only,married,Unmarried,1081,by_2011_2.2y,p5,0.0746
+quality_only,married,Unmarried,1081,by_2011_2.2y,p10,0.0751
+quality_only,married,Unmarried,1081,by_2011_2.2y,p25,0.0762
+quality_only,married,Unmarried,1081,by_2011_2.2y,p50,0.2062
+quality_only,married,Unmarried,1081,by_2011_2.2y,p75,0.2117
+quality_only,married,Unmarried,1081,by_2011_2.2y,p90,0.3609
+quality_only,married,Unmarried,1081,by_2011_2.2y,p95,0.3672
+quality_only,married,Unmarried,1081,by_2011_2.2y,p99,0.4564
+quality_only,married,Unmarried,1081,by_2013_4.1y,p1,0.1020
+quality_only,married,Unmarried,1081,by_2013_4.1y,p5,0.1035
+quality_only,married,Unmarried,1081,by_2013_4.1y,p10,0.1040
+quality_only,married,Unmarried,1081,by_2013_4.1y,p25,0.1053
+quality_only,married,Unmarried,1081,by_2013_4.1y,p50,0.2764
+quality_only,married,Unmarried,1081,by_2013_4.1y,p75,0.2849
+quality_only,married,Unmarried,1081,by_2013_4.1y,p90,0.4688
+quality_only,married,Unmarried,1081,by_2013_4.1y,p95,0.4765
+quality_only,married,Unmarried,1081,by_2013_4.1y,p99,0.5751
+quality_only,married,Unmarried,1081,by_2017_8.4y,p1,0.1341
+quality_only,married,Unmarried,1081,by_2017_8.4y,p5,0.1355
+quality_only,married,Unmarried,1081,by_2017_8.4y,p10,0.1365
+quality_only,married,Unmarried,1081,by_2017_8.4y,p25,0.1388
+quality_only,married,Unmarried,1081,by_2017_8.4y,p50,0.3526
+quality_only,married,Unmarried,1081,by_2017_8.4y,p75,0.3637
+quality_only,married,Unmarried,1081,by_2017_8.4y,p90,0.5762
+quality_only,married,Unmarried,1081,by_2017_8.4y,p95,0.5843
+quality_only,married,Unmarried,1081,by_2017_8.4y,p99,0.6879
+quality_only,couple_type,Different-sex,2535,by_2011_2.2y,p1,0.0736
+quality_only,couple_type,Different-sex,2535,by_2011_2.2y,p5,0.0745
+quality_only,couple_type,Different-sex,2535,by_2011_2.2y,p10,0.0750
+quality_only,couple_type,Different-sex,2535,by_2011_2.2y,p25,0.0760
+quality_only,couple_type,Different-sex,2535,by_2011_2.2y,p50,0.0777
+quality_only,couple_type,Different-sex,2535,by_2011_2.2y,p75,0.2100
+quality_only,couple_type,Different-sex,2535,by_2011_2.2y,p90,0.3492
+quality_only,couple_type,Different-sex,2535,by_2011_2.2y,p95,0.3666
+quality_only,couple_type,Different-sex,2535,by_2011_2.2y,p99,0.4645
+quality_only,couple_type,Different-sex,2535,by_2013_4.1y,p1,0.1022
+quality_only,couple_type,Different-sex,2535,by_2013_4.1y,p5,0.1032
+quality_only,couple_type,Different-sex,2535,by_2013_4.1y,p10,0.1038
+quality_only,couple_type,Different-sex,2535,by_2013_4.1y,p25,0.1050
+quality_only,couple_type,Different-sex,2535,by_2013_4.1y,p50,0.1070
+quality_only,couple_type,Different-sex,2535,by_2013_4.1y,p75,0.2825
+quality_only,couple_type,Different-sex,2535,by_2013_4.1y,p90,0.4576
+quality_only,couple_type,Different-sex,2535,by_2013_4.1y,p95,0.4754
+quality_only,couple_type,Different-sex,2535,by_2013_4.1y,p99,0.5881
+quality_only,couple_type,Different-sex,2535,by_2017_8.4y,p1,0.1341
+quality_only,couple_type,Different-sex,2535,by_2017_8.4y,p5,0.1354
+quality_only,couple_type,Different-sex,2535,by_2017_8.4y,p10,0.1362
+quality_only,couple_type,Different-sex,2535,by_2017_8.4y,p25,0.1381
+quality_only,couple_type,Different-sex,2535,by_2017_8.4y,p50,0.1412
+quality_only,couple_type,Different-sex,2535,by_2017_8.4y,p75,0.3606
+quality_only,couple_type,Different-sex,2535,by_2017_8.4y,p90,0.5652
+quality_only,couple_type,Different-sex,2535,by_2017_8.4y,p95,0.5835
+quality_only,couple_type,Different-sex,2535,by_2017_8.4y,p99,0.7016
+quality_only,couple_type,Same-sex,474,by_2011_2.2y,p1,
+quality_only,couple_type,Same-sex,474,by_2011_2.2y,p5,0.0744
+quality_only,couple_type,Same-sex,474,by_2011_2.2y,p10,0.0754
+quality_only,couple_type,Same-sex,474,by_2011_2.2y,p25,0.0760
+quality_only,couple_type,Same-sex,474,by_2011_2.2y,p50,0.2077
+quality_only,couple_type,Same-sex,474,by_2011_2.2y,p75,0.2112
+quality_only,couple_type,Same-sex,474,by_2011_2.2y,p90,0.3585
+quality_only,couple_type,Same-sex,474,by_2011_2.2y,p95,0.4736
+quality_only,couple_type,Same-sex,474,by_2011_2.2y,p99,
+quality_only,couple_type,Same-sex,474,by_2013_4.1y,p1,
+quality_only,couple_type,Same-sex,474,by_2013_4.1y,p5,0.1027
+quality_only,couple_type,Same-sex,474,by_2013_4.1y,p10,0.1043
+quality_only,couple_type,Same-sex,474,by_2013_4.1y,p25,0.1056
+quality_only,couple_type,Same-sex,474,by_2013_4.1y,p50,0.2775
+quality_only,couple_type,Same-sex,474,by_2013_4.1y,p75,0.2848
+quality_only,couple_type,Same-sex,474,by_2013_4.1y,p90,0.4654
+quality_only,couple_type,Same-sex,474,by_2013_4.1y,p95,0.5986
+quality_only,couple_type,Same-sex,474,by_2013_4.1y,p99,
+quality_only,couple_type,Same-sex,474,by_2017_8.4y,p1,
+quality_only,couple_type,Same-sex,474,by_2017_8.4y,p5,0.1355
+quality_only,couple_type,Same-sex,474,by_2017_8.4y,p10,0.1364
+quality_only,couple_type,Same-sex,474,by_2017_8.4y,p25,0.1390
+quality_only,couple_type,Same-sex,474,by_2017_8.4y,p50,0.3538
+quality_only,couple_type,Same-sex,474,by_2017_8.4y,p75,0.3632
+quality_only,couple_type,Same-sex,474,by_2017_8.4y,p90,0.5724
+quality_only,couple_type,Same-sex,474,by_2017_8.4y,p95,0.7131
+quality_only,couple_type,Same-sex,474,by_2017_8.4y,p99,
+quality_only,relationship_quality,Excellent,1771,by_2011_2.2y,p1,0.0734
+quality_only,relationship_quality,Excellent,1771,by_2011_2.2y,p5,0.0742
+quality_only,relationship_quality,Excellent,1771,by_2011_2.2y,p10,0.0746
+quality_only,relationship_quality,Excellent,1771,by_2011_2.2y,p25,0.0753
+quality_only,relationship_quality,Excellent,1771,by_2011_2.2y,p50,0.0763
+quality_only,relationship_quality,Excellent,1771,by_2011_2.2y,p75,0.0772
+quality_only,relationship_quality,Excellent,1771,by_2011_2.2y,p90,0.0780
+quality_only,relationship_quality,Excellent,1771,by_2011_2.2y,p95,0.0784
+quality_only,relationship_quality,Excellent,1771,by_2011_2.2y,p99,0.0796
+quality_only,relationship_quality,Excellent,1771,by_2013_4.1y,p1,0.1019
+quality_only,relationship_quality,Excellent,1771,by_2013_4.1y,p5,0.1028
+quality_only,relationship_quality,Excellent,1771,by_2013_4.1y,p10,0.1033
+quality_only,relationship_quality,Excellent,1771,by_2013_4.1y,p25,0.1042
+quality_only,relationship_quality,Excellent,1771,by_2013_4.1y,p50,0.1053
+quality_only,relationship_quality,Excellent,1771,by_2013_4.1y,p75,0.1064
+quality_only,relationship_quality,Excellent,1771,by_2013_4.1y,p90,0.1075
+quality_only,relationship_quality,Excellent,1771,by_2013_4.1y,p95,0.1080
+quality_only,relationship_quality,Excellent,1771,by_2013_4.1y,p99,0.1087
+quality_only,relationship_quality,Excellent,1771,by_2017_8.4y,p1,0.1338
+quality_only,relationship_quality,Excellent,1771,by_2017_8.4y,p5,0.1349
+quality_only,relationship_quality,Excellent,1771,by_2017_8.4y,p10,0.1356
+quality_only,relationship_quality,Excellent,1771,by_2017_8.4y,p25,0.1370
+quality_only,relationship_quality,Excellent,1771,by_2017_8.4y,p50,0.1386
+quality_only,relationship_quality,Excellent,1771,by_2017_8.4y,p75,0.1404
+quality_only,relationship_quality,Excellent,1771,by_2017_8.4y,p90,0.1421
+quality_only,relationship_quality,Excellent,1771,by_2017_8.4y,p95,0.1425
+quality_only,relationship_quality,Excellent,1771,by_2017_8.4y,p99,0.1437
+quality_only,relationship_quality,Good,911,by_2011_2.2y,p1,0.2036
+quality_only,relationship_quality,Good,911,by_2011_2.2y,p5,0.2054
+quality_only,relationship_quality,Good,911,by_2011_2.2y,p10,0.2066
+quality_only,relationship_quality,Good,911,by_2011_2.2y,p25,0.2080
+quality_only,relationship_quality,Good,911,by_2011_2.2y,p50,0.2099
+quality_only,relationship_quality,Good,911,by_2011_2.2y,p75,0.2117
+quality_only,relationship_quality,Good,911,by_2011_2.2y,p90,0.2132
+quality_only,relationship_quality,Good,911,by_2011_2.2y,p95,0.2140
+quality_only,relationship_quality,Good,911,by_2011_2.2y,p99,0.2155
+quality_only,relationship_quality,Good,911,by_2013_4.1y,p1,0.2728
+quality_only,relationship_quality,Good,911,by_2013_4.1y,p5,0.2754
+quality_only,relationship_quality,Good,911,by_2013_4.1y,p10,0.2771
+quality_only,relationship_quality,Good,911,by_2013_4.1y,p25,0.2794
+quality_only,relationship_quality,Good,911,by_2013_4.1y,p50,0.2823
+quality_only,relationship_quality,Good,911,by_2013_4.1y,p75,0.2847
+quality_only,relationship_quality,Good,911,by_2013_4.1y,p90,0.2871
+quality_only,relationship_quality,Good,911,by_2013_4.1y,p95,0.2881
+quality_only,relationship_quality,Good,911,by_2013_4.1y,p99,0.2904
+quality_only,relationship_quality,Good,911,by_2017_8.4y,p1,0.3488
+quality_only,relationship_quality,Good,911,by_2017_8.4y,p5,0.3516
+quality_only,relationship_quality,Good,911,by_2017_8.4y,p10,0.3533
+quality_only,relationship_quality,Good,911,by_2017_8.4y,p25,0.3568
+quality_only,relationship_quality,Good,911,by_2017_8.4y,p50,0.3604
+quality_only,relationship_quality,Good,911,by_2017_8.4y,p75,0.3636
+quality_only,relationship_quality,Good,911,by_2017_8.4y,p90,0.3661
+quality_only,relationship_quality,Good,911,by_2017_8.4y,p95,0.3675
+quality_only,relationship_quality,Good,911,by_2017_8.4y,p99,0.3702
+quality_only,relationship_quality,Fair,252,by_2011_2.2y,p1,
+quality_only,relationship_quality,Fair,252,by_2011_2.2y,p5,0.3490
+quality_only,relationship_quality,Fair,252,by_2011_2.2y,p10,0.3517
+quality_only,relationship_quality,Fair,252,by_2011_2.2y,p25,0.3576
+quality_only,relationship_quality,Fair,252,by_2011_2.2y,p50,0.3637
+quality_only,relationship_quality,Fair,252,by_2011_2.2y,p75,0.3688
+quality_only,relationship_quality,Fair,252,by_2011_2.2y,p90,0.3742
+quality_only,relationship_quality,Fair,252,by_2011_2.2y,p95,0.3762
+quality_only,relationship_quality,Fair,252,by_2011_2.2y,p99,
+quality_only,relationship_quality,Fair,252,by_2013_4.1y,p1,
+quality_only,relationship_quality,Fair,252,by_2013_4.1y,p5,0.4570
+quality_only,relationship_quality,Fair,252,by_2013_4.1y,p10,0.4582
+quality_only,relationship_quality,Fair,252,by_2013_4.1y,p25,0.4656
+quality_only,relationship_quality,Fair,252,by_2013_4.1y,p50,0.4719
+quality_only,relationship_quality,Fair,252,by_2013_4.1y,p75,0.4780
+quality_only,relationship_quality,Fair,252,by_2013_4.1y,p90,0.4844
+quality_only,relationship_quality,Fair,252,by_2013_4.1y,p95,0.4859
+quality_only,relationship_quality,Fair,252,by_2013_4.1y,p99,
+quality_only,relationship_quality,Fair,252,by_2017_8.4y,p1,
+quality_only,relationship_quality,Fair,252,by_2017_8.4y,p5,0.5633
+quality_only,relationship_quality,Fair,252,by_2017_8.4y,p10,0.5666
+quality_only,relationship_quality,Fair,252,by_2017_8.4y,p25,0.5726
+quality_only,relationship_quality,Fair,252,by_2017_8.4y,p50,0.5804
+quality_only,relationship_quality,Fair,252,by_2017_8.4y,p75,0.5863
+quality_only,relationship_quality,Fair,252,by_2017_8.4y,p90,0.5916
+quality_only,relationship_quality,Fair,252,by_2017_8.4y,p95,0.5947
+quality_only,relationship_quality,Fair,252,by_2017_8.4y,p99,
+quality_only,relationship_quality,Poor or very poor,62,by_2011_2.2y,p1,
+quality_only,relationship_quality,Poor or very poor,62,by_2011_2.2y,p5,
+quality_only,relationship_quality,Poor or very poor,62,by_2011_2.2y,p10,0.4447
+quality_only,relationship_quality,Poor or very poor,62,by_2011_2.2y,p25,0.4518
+quality_only,relationship_quality,Poor or very poor,62,by_2011_2.2y,p50,0.4715
+quality_only,relationship_quality,Poor or very poor,62,by_2011_2.2y,p75,0.4791
+quality_only,relationship_quality,Poor or very poor,62,by_2011_2.2y,p90,0.4925
+quality_only,relationship_quality,Poor or very poor,62,by_2011_2.2y,p95,
+quality_only,relationship_quality,Poor or very poor,62,by_2011_2.2y,p99,
+quality_only,relationship_quality,Poor or very poor,62,by_2013_4.1y,p1,
+quality_only,relationship_quality,Poor or very poor,62,by_2013_4.1y,p5,
+quality_only,relationship_quality,Poor or very poor,62,by_2013_4.1y,p10,0.5653
+quality_only,relationship_quality,Poor or very poor,62,by_2013_4.1y,p25,0.5721
+quality_only,relationship_quality,Poor or very poor,62,by_2013_4.1y,p50,0.5943
+quality_only,relationship_quality,Poor or very poor,62,by_2013_4.1y,p75,0.6028
+quality_only,relationship_quality,Poor or very poor,62,by_2013_4.1y,p90,0.6146
+quality_only,relationship_quality,Poor or very poor,62,by_2013_4.1y,p95,
+quality_only,relationship_quality,Poor or very poor,62,by_2013_4.1y,p99,
+quality_only,relationship_quality,Poor or very poor,62,by_2017_8.4y,p1,
+quality_only,relationship_quality,Poor or very poor,62,by_2017_8.4y,p5,
+quality_only,relationship_quality,Poor or very poor,62,by_2017_8.4y,p10,0.6803
+quality_only,relationship_quality,Poor or very poor,62,by_2017_8.4y,p25,0.6846
+quality_only,relationship_quality,Poor or very poor,62,by_2017_8.4y,p50,0.7077
+quality_only,relationship_quality,Poor or very poor,62,by_2017_8.4y,p75,0.7183
+quality_only,relationship_quality,Poor or very poor,62,by_2017_8.4y,p90,0.7277
+quality_only,relationship_quality,Poor or very poor,62,by_2017_8.4y,p95,
+quality_only,relationship_quality,Poor or very poor,62,by_2017_8.4y,p99,
+quality_only,mean_age_band,under 30,497,by_2011_2.2y,p1,
+quality_only,mean_age_band,under 30,497,by_2011_2.2y,p5,0.0747
+quality_only,mean_age_band,under 30,497,by_2011_2.2y,p10,0.0751
+quality_only,mean_age_band,under 30,497,by_2011_2.2y,p25,0.0760
+quality_only,mean_age_band,under 30,497,by_2011_2.2y,p50,0.0778
+quality_only,mean_age_band,under 30,497,by_2011_2.2y,p75,0.2094
+quality_only,mean_age_band,under 30,497,by_2011_2.2y,p90,0.3489
+quality_only,mean_age_band,under 30,497,by_2011_2.2y,p95,0.3644
+quality_only,mean_age_band,under 30,497,by_2011_2.2y,p99,
+quality_only,mean_age_band,under 30,497,by_2013_4.1y,p1,
+quality_only,mean_age_band,under 30,497,by_2013_4.1y,p5,0.1036
+quality_only,mean_age_band,under 30,497,by_2013_4.1y,p10,0.1041
+quality_only,mean_age_band,under 30,497,by_2013_4.1y,p25,0.1049
+quality_only,mean_age_band,under 30,497,by_2013_4.1y,p50,0.1070
+quality_only,mean_age_band,under 30,497,by_2013_4.1y,p75,0.2814
+quality_only,mean_age_band,under 30,497,by_2013_4.1y,p90,0.4559
+quality_only,mean_age_band,under 30,497,by_2013_4.1y,p95,0.4731
+quality_only,mean_age_band,under 30,497,by_2013_4.1y,p99,
+quality_only,mean_age_band,under 30,497,by_2017_8.4y,p1,
+quality_only,mean_age_band,under 30,497,by_2017_8.4y,p5,0.1355
+quality_only,mean_age_band,under 30,497,by_2017_8.4y,p10,0.1365
+quality_only,mean_age_band,under 30,497,by_2017_8.4y,p25,0.1383
+quality_only,mean_age_band,under 30,497,by_2017_8.4y,p50,0.1416
+quality_only,mean_age_band,under 30,497,by_2017_8.4y,p75,0.3595
+quality_only,mean_age_band,under 30,497,by_2017_8.4y,p90,0.5628
+quality_only,mean_age_band,under 30,497,by_2017_8.4y,p95,0.5824
+quality_only,mean_age_band,under 30,497,by_2017_8.4y,p99,
+quality_only,mean_age_band,30-44,968,by_2011_2.2y,p1,0.0735
+quality_only,mean_age_band,30-44,968,by_2011_2.2y,p5,0.0743
+quality_only,mean_age_band,30-44,968,by_2011_2.2y,p10,0.0748
+quality_only,mean_age_band,30-44,968,by_2011_2.2y,p25,0.0760
+quality_only,mean_age_band,30-44,968,by_2011_2.2y,p50,0.0778
+quality_only,mean_age_band,30-44,968,by_2011_2.2y,p75,0.2103
+quality_only,mean_age_band,30-44,968,by_2011_2.2y,p90,0.3546
+quality_only,mean_age_band,30-44,968,by_2011_2.2y,p95,0.3678
+quality_only,mean_age_band,30-44,968,by_2011_2.2y,p99,0.4725
+quality_only,mean_age_band,30-44,968,by_2013_4.1y,p1,0.1020
+quality_only,mean_age_band,30-44,968,by_2013_4.1y,p5,0.1031
+quality_only,mean_age_band,30-44,968,by_2013_4.1y,p10,0.1036
+quality_only,mean_age_band,30-44,968,by_2013_4.1y,p25,0.1050
+quality_only,mean_age_band,30-44,968,by_2013_4.1y,p50,0.1073
+quality_only,mean_age_band,30-44,968,by_2013_4.1y,p75,0.2834
+quality_only,mean_age_band,30-44,968,by_2013_4.1y,p90,0.4628
+quality_only,mean_age_band,30-44,968,by_2013_4.1y,p95,0.4765
+quality_only,mean_age_band,30-44,968,by_2013_4.1y,p99,0.5943
+quality_only,mean_age_band,30-44,968,by_2017_8.4y,p1,0.1337
+quality_only,mean_age_band,30-44,968,by_2017_8.4y,p5,0.1351
+quality_only,mean_age_band,30-44,968,by_2017_8.4y,p10,0.1361
+quality_only,mean_age_band,30-44,968,by_2017_8.4y,p25,0.1381
+quality_only,mean_age_band,30-44,968,by_2017_8.4y,p50,0.1414
+quality_only,mean_age_band,30-44,968,by_2017_8.4y,p75,0.3616
+quality_only,mean_age_band,30-44,968,by_2017_8.4y,p90,0.5708
+quality_only,mean_age_band,30-44,968,by_2017_8.4y,p95,0.5829
+quality_only,mean_age_band,30-44,968,by_2017_8.4y,p99,0.7105
+quality_only,mean_age_band,45-59,929,by_2011_2.2y,p1,0.0741
+quality_only,mean_age_band,45-59,929,by_2011_2.2y,p5,0.0748
+quality_only,mean_age_band,45-59,929,by_2011_2.2y,p10,0.0752
+quality_only,mean_age_band,45-59,929,by_2011_2.2y,p25,0.0762
+quality_only,mean_age_band,45-59,929,by_2011_2.2y,p50,0.0783
+quality_only,mean_age_band,45-59,929,by_2011_2.2y,p75,0.2109
+quality_only,mean_age_band,45-59,929,by_2011_2.2y,p90,0.3596
+quality_only,mean_age_band,45-59,929,by_2011_2.2y,p95,0.3707
+quality_only,mean_age_band,45-59,929,by_2011_2.2y,p99,0.4677
+quality_only,mean_age_band,45-59,929,by_2013_4.1y,p1,0.1024
+quality_only,mean_age_band,45-59,929,by_2013_4.1y,p5,0.1034
+quality_only,mean_age_band,45-59,929,by_2013_4.1y,p10,0.1040
+quality_only,mean_age_band,45-59,929,by_2013_4.1y,p25,0.1052
+quality_only,mean_age_band,45-59,929,by_2013_4.1y,p50,0.1078
+quality_only,mean_age_band,45-59,929,by_2013_4.1y,p75,0.2838
+quality_only,mean_age_band,45-59,929,by_2013_4.1y,p90,0.4667
+quality_only,mean_age_band,45-59,929,by_2013_4.1y,p95,0.4783
+quality_only,mean_age_band,45-59,929,by_2013_4.1y,p99,0.5897
+quality_only,mean_age_band,45-59,929,by_2017_8.4y,p1,0.1344
+quality_only,mean_age_band,45-59,929,by_2017_8.4y,p5,0.1357
+quality_only,mean_age_band,45-59,929,by_2017_8.4y,p10,0.1365
+quality_only,mean_age_band,45-59,929,by_2017_8.4y,p25,0.1385
+quality_only,mean_age_band,45-59,929,by_2017_8.4y,p50,0.1424
+quality_only,mean_age_band,45-59,929,by_2017_8.4y,p75,0.3623
+quality_only,mean_age_band,45-59,929,by_2017_8.4y,p90,0.5722
+quality_only,mean_age_band,45-59,929,by_2017_8.4y,p95,0.5863
+quality_only,mean_age_band,45-59,929,by_2017_8.4y,p99,0.7025
+quality_only,mean_age_band,60+,596,by_2011_2.2y,p1,0.0732
+quality_only,mean_age_band,60+,596,by_2011_2.2y,p5,0.0745
+quality_only,mean_age_band,60+,596,by_2011_2.2y,p10,0.0749
+quality_only,mean_age_band,60+,596,by_2011_2.2y,p25,0.0758
+quality_only,mean_age_band,60+,596,by_2011_2.2y,p50,0.0773
+quality_only,mean_age_band,60+,596,by_2011_2.2y,p75,0.2080
+quality_only,mean_age_band,60+,596,by_2011_2.2y,p90,0.2131
+quality_only,mean_age_band,60+,596,by_2011_2.2y,p95,0.3637
+quality_only,mean_age_band,60+,596,by_2011_2.2y,p99,0.4784
+quality_only,mean_age_band,60+,596,by_2013_4.1y,p1,0.1019
+quality_only,mean_age_band,60+,596,by_2013_4.1y,p5,0.1028
+quality_only,mean_age_band,60+,596,by_2013_4.1y,p10,0.1036
+quality_only,mean_age_band,60+,596,by_2013_4.1y,p25,0.1049
+quality_only,mean_age_band,60+,596,by_2013_4.1y,p50,0.1064
+quality_only,mean_age_band,60+,596,by_2013_4.1y,p75,0.2800
+quality_only,mean_age_band,60+,596,by_2013_4.1y,p90,0.2872
+quality_only,mean_age_band,60+,596,by_2013_4.1y,p95,0.4720
+quality_only,mean_age_band,60+,596,by_2013_4.1y,p99,0.6053
+quality_only,mean_age_band,60+,596,by_2017_8.4y,p1,0.1340
+quality_only,mean_age_band,60+,596,by_2017_8.4y,p5,0.1349
+quality_only,mean_age_band,60+,596,by_2017_8.4y,p10,0.1358
+quality_only,mean_age_band,60+,596,by_2017_8.4y,p25,0.1379
+quality_only,mean_age_band,60+,596,by_2017_8.4y,p50,0.1403
+quality_only,mean_age_band,60+,596,by_2017_8.4y,p75,0.3569
+quality_only,mean_age_band,60+,596,by_2017_8.4y,p90,0.3660
+quality_only,mean_age_band,60+,596,by_2017_8.4y,p95,0.5781
+quality_only,mean_age_band,60+,596,by_2017_8.4y,p99,0.7184
+quality_only,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p1,
+quality_only,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p5,0.0747
+quality_only,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p10,0.0752
+quality_only,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p25,0.0759
+quality_only,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p50,0.0777
+quality_only,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p75,0.2105
+quality_only,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p90,0.3644
+quality_only,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p95,0.3756
+quality_only,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p99,
+quality_only,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p1,
+quality_only,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p5,0.1033
+quality_only,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p10,0.1038
+quality_only,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p25,0.1051
+quality_only,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p50,0.1071
+quality_only,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p75,0.2838
+quality_only,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p90,0.4730
+quality_only,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p95,0.4848
+quality_only,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p99,
+quality_only,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p1,
+quality_only,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p5,0.1355
+quality_only,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p10,0.1367
+quality_only,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p25,0.1383
+quality_only,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p50,0.1413
+quality_only,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p75,0.3630
+quality_only,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p90,0.5823
+quality_only,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p95,0.5902
+quality_only,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p99,
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p1,0.0738
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p5,0.0745
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p10,0.0750
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p25,0.0762
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p50,0.0778
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p75,0.2102
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p90,0.3540
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p95,0.3669
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p99,0.4563
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p1,0.1022
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p5,0.1033
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p10,0.1038
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p25,0.1051
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p50,0.1072
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p75,0.2830
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p90,0.4623
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p95,0.4754
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p99,0.5766
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p1,0.1341
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p5,0.1355
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p10,0.1362
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p25,0.1383
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p50,0.1414
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p75,0.3614
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p90,0.5695
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p95,0.5839
+quality_only,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p99,0.6886
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p1,0.0736
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p5,0.0746
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p10,0.0752
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p25,0.0761
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p50,0.0780
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p75,0.2103
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p90,0.2154
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p95,0.3630
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p99,0.4282
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p1,0.1023
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p5,0.1032
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p10,0.1040
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p25,0.1051
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p50,0.1076
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p75,0.2826
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p90,0.2903
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p95,0.4711
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p99,0.5612
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p1,0.1341
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p5,0.1355
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p10,0.1363
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p25,0.1384
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p50,0.1422
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p75,0.3603
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p90,0.3698
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p95,0.5771
+quality_only,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p99,0.6767
+quality_only,edu_years_mean_band,16+ years,781,by_2011_2.2y,p1,0.0735
+quality_only,edu_years_mean_band,16+ years,781,by_2011_2.2y,p5,0.0743
+quality_only,edu_years_mean_band,16+ years,781,by_2011_2.2y,p10,0.0748
+quality_only,edu_years_mean_band,16+ years,781,by_2011_2.2y,p25,0.0755
+quality_only,edu_years_mean_band,16+ years,781,by_2011_2.2y,p50,0.0770
+quality_only,edu_years_mean_band,16+ years,781,by_2011_2.2y,p75,0.2085
+quality_only,edu_years_mean_band,16+ years,781,by_2011_2.2y,p90,0.2131
+quality_only,edu_years_mean_band,16+ years,781,by_2011_2.2y,p95,0.3580
+quality_only,edu_years_mean_band,16+ years,781,by_2011_2.2y,p99,0.4710
+quality_only,edu_years_mean_band,16+ years,781,by_2013_4.1y,p1,0.1021
+quality_only,edu_years_mean_band,16+ years,781,by_2013_4.1y,p5,0.1032
+quality_only,edu_years_mean_band,16+ years,781,by_2013_4.1y,p10,0.1035
+quality_only,edu_years_mean_band,16+ years,781,by_2013_4.1y,p25,0.1045
+quality_only,edu_years_mean_band,16+ years,781,by_2013_4.1y,p50,0.1062
+quality_only,edu_years_mean_band,16+ years,781,by_2013_4.1y,p75,0.2806
+quality_only,edu_years_mean_band,16+ years,781,by_2013_4.1y,p90,0.2867
+quality_only,edu_years_mean_band,16+ years,781,by_2013_4.1y,p95,0.4651
+quality_only,edu_years_mean_band,16+ years,781,by_2013_4.1y,p99,0.5931
+quality_only,edu_years_mean_band,16+ years,781,by_2017_8.4y,p1,0.1341
+quality_only,edu_years_mean_band,16+ years,781,by_2017_8.4y,p5,0.1353
+quality_only,edu_years_mean_band,16+ years,781,by_2017_8.4y,p10,0.1359
+quality_only,edu_years_mean_band,16+ years,781,by_2017_8.4y,p25,0.1375
+quality_only,edu_years_mean_band,16+ years,781,by_2017_8.4y,p50,0.1401
+quality_only,edu_years_mean_band,16+ years,781,by_2017_8.4y,p75,0.3573
+quality_only,edu_years_mean_band,16+ years,781,by_2017_8.4y,p90,0.3653
+quality_only,edu_years_mean_band,16+ years,781,by_2017_8.4y,p95,0.5713
+quality_only,edu_years_mean_band,16+ years,781,by_2017_8.4y,p99,0.7058
+quality_only,how_met,Bar or restaurant,267,by_2011_2.2y,p1,
+quality_only,how_met,Bar or restaurant,267,by_2011_2.2y,p5,0.0744
+quality_only,how_met,Bar or restaurant,267,by_2011_2.2y,p10,0.0751
+quality_only,how_met,Bar or restaurant,267,by_2011_2.2y,p25,0.0759
+quality_only,how_met,Bar or restaurant,267,by_2011_2.2y,p50,0.0778
+quality_only,how_met,Bar or restaurant,267,by_2011_2.2y,p75,0.2095
+quality_only,how_met,Bar or restaurant,267,by_2011_2.2y,p90,0.3508
+quality_only,how_met,Bar or restaurant,267,by_2011_2.2y,p95,0.3631
+quality_only,how_met,Bar or restaurant,267,by_2011_2.2y,p99,
+quality_only,how_met,Bar or restaurant,267,by_2013_4.1y,p1,
+quality_only,how_met,Bar or restaurant,267,by_2013_4.1y,p5,0.1032
+quality_only,how_met,Bar or restaurant,267,by_2013_4.1y,p10,0.1036
+quality_only,how_met,Bar or restaurant,267,by_2013_4.1y,p25,0.1051
+quality_only,how_met,Bar or restaurant,267,by_2013_4.1y,p50,0.1070
+quality_only,how_met,Bar or restaurant,267,by_2013_4.1y,p75,0.2825
+quality_only,how_met,Bar or restaurant,267,by_2013_4.1y,p90,0.4588
+quality_only,how_met,Bar or restaurant,267,by_2013_4.1y,p95,0.4710
+quality_only,how_met,Bar or restaurant,267,by_2013_4.1y,p99,
+quality_only,how_met,Bar or restaurant,267,by_2017_8.4y,p1,
+quality_only,how_met,Bar or restaurant,267,by_2017_8.4y,p5,0.1352
+quality_only,how_met,Bar or restaurant,267,by_2017_8.4y,p10,0.1360
+quality_only,how_met,Bar or restaurant,267,by_2017_8.4y,p25,0.1379
+quality_only,how_met,Bar or restaurant,267,by_2017_8.4y,p50,0.1416
+quality_only,how_met,Bar or restaurant,267,by_2017_8.4y,p75,0.3601
+quality_only,how_met,Bar or restaurant,267,by_2017_8.4y,p90,0.5648
+quality_only,how_met,Bar or restaurant,267,by_2017_8.4y,p95,0.5774
+quality_only,how_met,Bar or restaurant,267,by_2017_8.4y,p99,
+quality_only,how_met,Church,78,by_2011_2.2y,p1,
+quality_only,how_met,Church,78,by_2011_2.2y,p5,
+quality_only,how_met,Church,78,by_2011_2.2y,p10,0.0751
+quality_only,how_met,Church,78,by_2011_2.2y,p25,0.0757
+quality_only,how_met,Church,78,by_2011_2.2y,p50,0.0776
+quality_only,how_met,Church,78,by_2011_2.2y,p75,0.2078
+quality_only,how_met,Church,78,by_2011_2.2y,p90,0.2111
+quality_only,how_met,Church,78,by_2011_2.2y,p95,
+quality_only,how_met,Church,78,by_2011_2.2y,p99,
+quality_only,how_met,Church,78,by_2013_4.1y,p1,
+quality_only,how_met,Church,78,by_2013_4.1y,p5,
+quality_only,how_met,Church,78,by_2013_4.1y,p10,0.1036
+quality_only,how_met,Church,78,by_2013_4.1y,p25,0.1041
+quality_only,how_met,Church,78,by_2013_4.1y,p50,0.1066
+quality_only,how_met,Church,78,by_2013_4.1y,p75,0.2796
+quality_only,how_met,Church,78,by_2013_4.1y,p90,0.2850
+quality_only,how_met,Church,78,by_2013_4.1y,p95,
+quality_only,how_met,Church,78,by_2013_4.1y,p99,
+quality_only,how_met,Church,78,by_2017_8.4y,p1,
+quality_only,how_met,Church,78,by_2017_8.4y,p5,
+quality_only,how_met,Church,78,by_2017_8.4y,p10,0.1355
+quality_only,how_met,Church,78,by_2017_8.4y,p25,0.1371
+quality_only,how_met,Church,78,by_2017_8.4y,p50,0.1403
+quality_only,how_met,Church,78,by_2017_8.4y,p75,0.3554
+quality_only,how_met,Church,78,by_2017_8.4y,p90,0.3631
+quality_only,how_met,Church,78,by_2017_8.4y,p95,
+quality_only,how_met,Church,78,by_2017_8.4y,p99,
+quality_only,how_met,Online,286,by_2011_2.2y,p1,
+quality_only,how_met,Online,286,by_2011_2.2y,p5,0.0748
+quality_only,how_met,Online,286,by_2011_2.2y,p10,0.0750
+quality_only,how_met,Online,286,by_2011_2.2y,p25,0.0761
+quality_only,how_met,Online,286,by_2011_2.2y,p50,0.0779
+quality_only,how_met,Online,286,by_2011_2.2y,p75,0.2091
+quality_only,how_met,Online,286,by_2011_2.2y,p90,0.2126
+quality_only,how_met,Online,286,by_2011_2.2y,p95,0.3608
+quality_only,how_met,Online,286,by_2011_2.2y,p99,
+quality_only,how_met,Online,286,by_2013_4.1y,p1,
+quality_only,how_met,Online,286,by_2013_4.1y,p5,0.1035
+quality_only,how_met,Online,286,by_2013_4.1y,p10,0.1043
+quality_only,how_met,Online,286,by_2013_4.1y,p25,0.1051
+quality_only,how_met,Online,286,by_2013_4.1y,p50,0.1073
+quality_only,how_met,Online,286,by_2013_4.1y,p75,0.2810
+quality_only,how_met,Online,286,by_2013_4.1y,p90,0.2869
+quality_only,how_met,Online,286,by_2013_4.1y,p95,0.4691
+quality_only,how_met,Online,286,by_2013_4.1y,p99,
+quality_only,how_met,Online,286,by_2017_8.4y,p1,
+quality_only,how_met,Online,286,by_2017_8.4y,p5,0.1359
+quality_only,how_met,Online,286,by_2017_8.4y,p10,0.1371
+quality_only,how_met,Online,286,by_2017_8.4y,p25,0.1385
+quality_only,how_met,Online,286,by_2017_8.4y,p50,0.1416
+quality_only,how_met,Online,286,by_2017_8.4y,p75,0.3592
+quality_only,how_met,Online,286,by_2017_8.4y,p90,0.3668
+quality_only,how_met,Online,286,by_2017_8.4y,p95,0.5752
+quality_only,how_met,Online,286,by_2017_8.4y,p99,
+quality_only,how_met,Other,434,by_2011_2.2y,p1,
+quality_only,how_met,Other,434,by_2011_2.2y,p5,0.0749
+quality_only,how_met,Other,434,by_2011_2.2y,p10,0.0755
+quality_only,how_met,Other,434,by_2011_2.2y,p25,0.0763
+quality_only,how_met,Other,434,by_2011_2.2y,p50,0.0783
+quality_only,how_met,Other,434,by_2011_2.2y,p75,0.2114
+quality_only,how_met,Other,434,by_2011_2.2y,p90,0.3630
+quality_only,how_met,Other,434,by_2011_2.2y,p95,0.3688
+quality_only,how_met,Other,434,by_2011_2.2y,p99,
+quality_only,how_met,Other,434,by_2013_4.1y,p1,
+quality_only,how_met,Other,434,by_2013_4.1y,p5,0.1037
+quality_only,how_met,Other,434,by_2013_4.1y,p10,0.1043
+quality_only,how_met,Other,434,by_2013_4.1y,p25,0.1055
+quality_only,how_met,Other,434,by_2013_4.1y,p50,0.1077
+quality_only,how_met,Other,434,by_2013_4.1y,p75,0.2845
+quality_only,how_met,Other,434,by_2013_4.1y,p90,0.4698
+quality_only,how_met,Other,434,by_2013_4.1y,p95,0.4784
+quality_only,how_met,Other,434,by_2013_4.1y,p99,
+quality_only,how_met,Other,434,by_2017_8.4y,p1,
+quality_only,how_met,Other,434,by_2017_8.4y,p5,0.1356
+quality_only,how_met,Other,434,by_2017_8.4y,p10,0.1370
+quality_only,how_met,Other,434,by_2017_8.4y,p25,0.1388
+quality_only,how_met,Other,434,by_2017_8.4y,p50,0.1424
+quality_only,how_met,Other,434,by_2017_8.4y,p75,0.3632
+quality_only,how_met,Other,434,by_2017_8.4y,p90,0.5783
+quality_only,how_met,Other,434,by_2017_8.4y,p95,0.5863
+quality_only,how_met,Other,434,by_2017_8.4y,p99,
+quality_only,how_met,School or college,271,by_2011_2.2y,p1,
+quality_only,how_met,School or college,271,by_2011_2.2y,p5,0.0745
+quality_only,how_met,School or college,271,by_2011_2.2y,p10,0.0749
+quality_only,how_met,School or college,271,by_2011_2.2y,p25,0.0755
+quality_only,how_met,School or college,271,by_2011_2.2y,p50,0.0770
+quality_only,how_met,School or college,271,by_2011_2.2y,p75,0.2080
+quality_only,how_met,School or college,271,by_2011_2.2y,p90,0.2137
+quality_only,how_met,School or college,271,by_2011_2.2y,p95,0.3609
+quality_only,how_met,School or college,271,by_2011_2.2y,p99,
+quality_only,how_met,School or college,271,by_2013_4.1y,p1,
+quality_only,how_met,School or college,271,by_2013_4.1y,p5,0.1031
+quality_only,how_met,School or college,271,by_2013_4.1y,p10,0.1037
+quality_only,how_met,School or college,271,by_2013_4.1y,p25,0.1045
+quality_only,how_met,School or college,271,by_2013_4.1y,p50,0.1062
+quality_only,how_met,School or college,271,by_2013_4.1y,p75,0.2790
+quality_only,how_met,School or college,271,by_2013_4.1y,p90,0.2888
+quality_only,how_met,School or college,271,by_2013_4.1y,p95,0.4689
+quality_only,how_met,School or college,271,by_2013_4.1y,p99,
+quality_only,how_met,School or college,271,by_2017_8.4y,p1,
+quality_only,how_met,School or college,271,by_2017_8.4y,p5,0.1355
+quality_only,how_met,School or college,271,by_2017_8.4y,p10,0.1358
+quality_only,how_met,School or college,271,by_2017_8.4y,p25,0.1375
+quality_only,how_met,School or college,271,by_2017_8.4y,p50,0.1397
+quality_only,how_met,School or college,271,by_2017_8.4y,p75,0.3556
+quality_only,how_met,School or college,271,by_2017_8.4y,p90,0.3679
+quality_only,how_met,School or college,271,by_2017_8.4y,p95,0.5726
+quality_only,how_met,School or college,271,by_2017_8.4y,p99,
+quality_only,how_met,Through family,265,by_2011_2.2y,p1,
+quality_only,how_met,Through family,265,by_2011_2.2y,p5,0.0746
+quality_only,how_met,Through family,265,by_2011_2.2y,p10,0.0752
+quality_only,how_met,Through family,265,by_2011_2.2y,p25,0.0763
+quality_only,how_met,Through family,265,by_2011_2.2y,p50,0.0780
+quality_only,how_met,Through family,265,by_2011_2.2y,p75,0.2108
+quality_only,how_met,Through family,265,by_2011_2.2y,p90,0.3623
+quality_only,how_met,Through family,265,by_2011_2.2y,p95,0.3758
+quality_only,how_met,Through family,265,by_2011_2.2y,p99,
+quality_only,how_met,Through family,265,by_2013_4.1y,p1,
+quality_only,how_met,Through family,265,by_2013_4.1y,p5,0.1034
+quality_only,how_met,Through family,265,by_2013_4.1y,p10,0.1040
+quality_only,how_met,Through family,265,by_2013_4.1y,p25,0.1052
+quality_only,how_met,Through family,265,by_2013_4.1y,p50,0.1074
+quality_only,how_met,Through family,265,by_2013_4.1y,p75,0.2839
+quality_only,how_met,Through family,265,by_2013_4.1y,p90,0.4694
+quality_only,how_met,Through family,265,by_2013_4.1y,p95,0.4844
+quality_only,how_met,Through family,265,by_2013_4.1y,p99,
+quality_only,how_met,Through family,265,by_2017_8.4y,p1,
+quality_only,how_met,Through family,265,by_2017_8.4y,p5,0.1358
+quality_only,how_met,Through family,265,by_2017_8.4y,p10,0.1365
+quality_only,how_met,Through family,265,by_2017_8.4y,p25,0.1385
+quality_only,how_met,Through family,265,by_2017_8.4y,p50,0.1421
+quality_only,how_met,Through family,265,by_2017_8.4y,p75,0.3622
+quality_only,how_met,Through family,265,by_2017_8.4y,p90,0.5765
+quality_only,how_met,Through family,265,by_2017_8.4y,p95,0.5911
+quality_only,how_met,Through family,265,by_2017_8.4y,p99,
+quality_only,how_met,Through friends,995,by_2011_2.2y,p1,0.0737
+quality_only,how_met,Through friends,995,by_2011_2.2y,p5,0.0743
+quality_only,how_met,Through friends,995,by_2011_2.2y,p10,0.0748
+quality_only,how_met,Through friends,995,by_2011_2.2y,p25,0.0759
+quality_only,how_met,Through friends,995,by_2011_2.2y,p50,0.0776
+quality_only,how_met,Through friends,995,by_2011_2.2y,p75,0.2100
+quality_only,how_met,Through friends,995,by_2011_2.2y,p90,0.2144
+quality_only,how_met,Through friends,995,by_2011_2.2y,p95,0.3662
+quality_only,how_met,Through friends,995,by_2011_2.2y,p99,0.4669
+quality_only,how_met,Through friends,995,by_2013_4.1y,p1,0.1020
+quality_only,how_met,Through friends,995,by_2013_4.1y,p5,0.1032
+quality_only,how_met,Through friends,995,by_2013_4.1y,p10,0.1037
+quality_only,how_met,Through friends,995,by_2013_4.1y,p25,0.1049
+quality_only,how_met,Through friends,995,by_2013_4.1y,p50,0.1068
+quality_only,how_met,Through friends,995,by_2013_4.1y,p75,0.2827
+quality_only,how_met,Through friends,995,by_2013_4.1y,p90,0.2881
+quality_only,how_met,Through friends,995,by_2013_4.1y,p95,0.4755
+quality_only,how_met,Through friends,995,by_2013_4.1y,p99,0.5917
+quality_only,how_met,Through friends,995,by_2017_8.4y,p1,0.1338
+quality_only,how_met,Through friends,995,by_2017_8.4y,p5,0.1354
+quality_only,how_met,Through friends,995,by_2017_8.4y,p10,0.1363
+quality_only,how_met,Through friends,995,by_2017_8.4y,p25,0.1380
+quality_only,how_met,Through friends,995,by_2017_8.4y,p50,0.1410
+quality_only,how_met,Through friends,995,by_2017_8.4y,p75,0.3609
+quality_only,how_met,Through friends,995,by_2017_8.4y,p90,0.3686
+quality_only,how_met,Through friends,995,by_2017_8.4y,p95,0.5838
+quality_only,how_met,Through friends,995,by_2017_8.4y,p99,0.7047
+quality_only,how_met,Work or coworkers,344,by_2011_2.2y,p1,
+quality_only,how_met,Work or coworkers,344,by_2011_2.2y,p5,0.0742
+quality_only,how_met,Work or coworkers,344,by_2011_2.2y,p10,0.0749
+quality_only,how_met,Work or coworkers,344,by_2011_2.2y,p25,0.0759
+quality_only,how_met,Work or coworkers,344,by_2011_2.2y,p50,0.0774
+quality_only,how_met,Work or coworkers,344,by_2011_2.2y,p75,0.2091
+quality_only,how_met,Work or coworkers,344,by_2011_2.2y,p90,0.2137
+quality_only,how_met,Work or coworkers,344,by_2011_2.2y,p95,0.3628
+quality_only,how_met,Work or coworkers,344,by_2011_2.2y,p99,
+quality_only,how_met,Work or coworkers,344,by_2013_4.1y,p1,
+quality_only,how_met,Work or coworkers,344,by_2013_4.1y,p5,0.1027
+quality_only,how_met,Work or coworkers,344,by_2013_4.1y,p10,0.1035
+quality_only,how_met,Work or coworkers,344,by_2013_4.1y,p25,0.1048
+quality_only,how_met,Work or coworkers,344,by_2013_4.1y,p50,0.1067
+quality_only,how_met,Work or coworkers,344,by_2013_4.1y,p75,0.2818
+quality_only,how_met,Work or coworkers,344,by_2013_4.1y,p90,0.2878
+quality_only,how_met,Work or coworkers,344,by_2013_4.1y,p95,0.4712
+quality_only,how_met,Work or coworkers,344,by_2013_4.1y,p99,
+quality_only,how_met,Work or coworkers,344,by_2017_8.4y,p1,
+quality_only,how_met,Work or coworkers,344,by_2017_8.4y,p5,0.1348
+quality_only,how_met,Work or coworkers,344,by_2017_8.4y,p10,0.1359
+quality_only,how_met,Work or coworkers,344,by_2017_8.4y,p25,0.1380
+quality_only,how_met,Work or coworkers,344,by_2017_8.4y,p50,0.1406
+quality_only,how_met,Work or coworkers,344,by_2017_8.4y,p75,0.3590
+quality_only,how_met,Work or coworkers,344,by_2017_8.4y,p90,0.3661
+quality_only,how_met,Work or coworkers,344,by_2017_8.4y,p95,0.5786
+quality_only,how_met,Work or coworkers,344,by_2017_8.4y,p99,
+quality_only,interracial,Interracial,508,by_2011_2.2y,p1,0.0739
+quality_only,interracial,Interracial,508,by_2011_2.2y,p5,0.0745
+quality_only,interracial,Interracial,508,by_2011_2.2y,p10,0.0750
+quality_only,interracial,Interracial,508,by_2011_2.2y,p25,0.0761
+quality_only,interracial,Interracial,508,by_2011_2.2y,p50,0.0785
+quality_only,interracial,Interracial,508,by_2011_2.2y,p75,0.2107
+quality_only,interracial,Interracial,508,by_2011_2.2y,p90,0.3620
+quality_only,interracial,Interracial,508,by_2011_2.2y,p95,0.3701
+quality_only,interracial,Interracial,508,by_2011_2.2y,p99,0.4776
+quality_only,interracial,Interracial,508,by_2013_4.1y,p1,0.1026
+quality_only,interracial,Interracial,508,by_2013_4.1y,p5,0.1034
+quality_only,interracial,Interracial,508,by_2013_4.1y,p10,0.1040
+quality_only,interracial,Interracial,508,by_2013_4.1y,p25,0.1050
+quality_only,interracial,Interracial,508,by_2013_4.1y,p50,0.1081
+quality_only,interracial,Interracial,508,by_2013_4.1y,p75,0.2840
+quality_only,interracial,Interracial,508,by_2013_4.1y,p90,0.4693
+quality_only,interracial,Interracial,508,by_2013_4.1y,p95,0.4801
+quality_only,interracial,Interracial,508,by_2013_4.1y,p99,0.6025
+quality_only,interracial,Interracial,508,by_2017_8.4y,p1,0.1342
+quality_only,interracial,Interracial,508,by_2017_8.4y,p5,0.1356
+quality_only,interracial,Interracial,508,by_2017_8.4y,p10,0.1364
+quality_only,interracial,Interracial,508,by_2017_8.4y,p25,0.1381
+quality_only,interracial,Interracial,508,by_2017_8.4y,p50,0.1422
+quality_only,interracial,Interracial,508,by_2017_8.4y,p75,0.3629
+quality_only,interracial,Interracial,508,by_2017_8.4y,p90,0.5754
+quality_only,interracial,Interracial,508,by_2017_8.4y,p95,0.5879
+quality_only,interracial,Interracial,508,by_2017_8.4y,p99,0.7165
+quality_only,interracial,Same race-ethnicity,2490,by_2011_2.2y,p1,0.0736
+quality_only,interracial,Same race-ethnicity,2490,by_2011_2.2y,p5,0.0745
+quality_only,interracial,Same race-ethnicity,2490,by_2011_2.2y,p10,0.0750
+quality_only,interracial,Same race-ethnicity,2490,by_2011_2.2y,p25,0.0760
+quality_only,interracial,Same race-ethnicity,2490,by_2011_2.2y,p50,0.0776
+quality_only,interracial,Same race-ethnicity,2490,by_2011_2.2y,p75,0.2099
+quality_only,interracial,Same race-ethnicity,2490,by_2011_2.2y,p90,0.3469
+quality_only,interracial,Same race-ethnicity,2490,by_2011_2.2y,p95,0.3645
+quality_only,interracial,Same race-ethnicity,2490,by_2011_2.2y,p99,0.4598
+quality_only,interracial,Same race-ethnicity,2490,by_2013_4.1y,p1,0.1022
+quality_only,interracial,Same race-ethnicity,2490,by_2013_4.1y,p5,0.1032
+quality_only,interracial,Same race-ethnicity,2490,by_2013_4.1y,p10,0.1037
+quality_only,interracial,Same race-ethnicity,2490,by_2013_4.1y,p25,0.1050
+quality_only,interracial,Same race-ethnicity,2490,by_2013_4.1y,p50,0.1069
+quality_only,interracial,Same race-ethnicity,2490,by_2013_4.1y,p75,0.2823
+quality_only,interracial,Same race-ethnicity,2490,by_2013_4.1y,p90,0.4545
+quality_only,interracial,Same race-ethnicity,2490,by_2013_4.1y,p95,0.4737
+quality_only,interracial,Same race-ethnicity,2490,by_2013_4.1y,p99,0.5853
+quality_only,interracial,Same race-ethnicity,2490,by_2017_8.4y,p1,0.1341
+quality_only,interracial,Same race-ethnicity,2490,by_2017_8.4y,p5,0.1354
+quality_only,interracial,Same race-ethnicity,2490,by_2017_8.4y,p10,0.1361
+quality_only,interracial,Same race-ethnicity,2490,by_2017_8.4y,p25,0.1381
+quality_only,interracial,Same race-ethnicity,2490,by_2017_8.4y,p50,0.1411
+quality_only,interracial,Same race-ethnicity,2490,by_2017_8.4y,p75,0.3604
+quality_only,interracial,Same race-ethnicity,2490,by_2017_8.4y,p90,0.5605
+quality_only,interracial,Same race-ethnicity,2490,by_2017_8.4y,p95,0.5820
+quality_only,interracial,Same race-ethnicity,2490,by_2017_8.4y,p99,0.6974
+quality_only,relationship_years_band,under 2 years,354,by_2011_2.2y,p1,
+quality_only,relationship_years_band,under 2 years,354,by_2011_2.2y,p5,0.0746
+quality_only,relationship_years_band,under 2 years,354,by_2011_2.2y,p10,0.0749
+quality_only,relationship_years_band,under 2 years,354,by_2011_2.2y,p25,0.0762
+quality_only,relationship_years_band,under 2 years,354,by_2011_2.2y,p50,0.2032
+quality_only,relationship_years_band,under 2 years,354,by_2011_2.2y,p75,0.2105
+quality_only,relationship_years_band,under 2 years,354,by_2011_2.2y,p90,0.3598
+quality_only,relationship_years_band,under 2 years,354,by_2011_2.2y,p95,0.3669
+quality_only,relationship_years_band,under 2 years,354,by_2011_2.2y,p99,
+quality_only,relationship_years_band,under 2 years,354,by_2013_4.1y,p1,
+quality_only,relationship_years_band,under 2 years,354,by_2013_4.1y,p5,0.1034
+quality_only,relationship_years_band,under 2 years,354,by_2013_4.1y,p10,0.1040
+quality_only,relationship_years_band,under 2 years,354,by_2013_4.1y,p25,0.1055
+quality_only,relationship_years_band,under 2 years,354,by_2013_4.1y,p50,0.2685
+quality_only,relationship_years_band,under 2 years,354,by_2013_4.1y,p75,0.2834
+quality_only,relationship_years_band,under 2 years,354,by_2013_4.1y,p90,0.4678
+quality_only,relationship_years_band,under 2 years,354,by_2013_4.1y,p95,0.4761
+quality_only,relationship_years_band,under 2 years,354,by_2013_4.1y,p99,
+quality_only,relationship_years_band,under 2 years,354,by_2017_8.4y,p1,
+quality_only,relationship_years_band,under 2 years,354,by_2017_8.4y,p5,0.1357
+quality_only,relationship_years_band,under 2 years,354,by_2017_8.4y,p10,0.1369
+quality_only,relationship_years_band,under 2 years,354,by_2017_8.4y,p25,0.1389
+quality_only,relationship_years_band,under 2 years,354,by_2017_8.4y,p50,0.3463
+quality_only,relationship_years_band,under 2 years,354,by_2017_8.4y,p75,0.3631
+quality_only,relationship_years_band,under 2 years,354,by_2017_8.4y,p90,0.5746
+quality_only,relationship_years_band,under 2 years,354,by_2017_8.4y,p95,0.5859
+quality_only,relationship_years_band,under 2 years,354,by_2017_8.4y,p99,
+quality_only,relationship_years_band,2-4 years,294,by_2011_2.2y,p1,
+quality_only,relationship_years_band,2-4 years,294,by_2011_2.2y,p5,0.0747
+quality_only,relationship_years_band,2-4 years,294,by_2011_2.2y,p10,0.0752
+quality_only,relationship_years_band,2-4 years,294,by_2011_2.2y,p25,0.0760
+quality_only,relationship_years_band,2-4 years,294,by_2011_2.2y,p50,0.0781
+quality_only,relationship_years_band,2-4 years,294,by_2011_2.2y,p75,0.2101
+quality_only,relationship_years_band,2-4 years,294,by_2011_2.2y,p90,0.3492
+quality_only,relationship_years_band,2-4 years,294,by_2011_2.2y,p95,0.3640
+quality_only,relationship_years_band,2-4 years,294,by_2011_2.2y,p99,
+quality_only,relationship_years_band,2-4 years,294,by_2013_4.1y,p1,
+quality_only,relationship_years_band,2-4 years,294,by_2013_4.1y,p5,0.1036
+quality_only,relationship_years_band,2-4 years,294,by_2013_4.1y,p10,0.1042
+quality_only,relationship_years_band,2-4 years,294,by_2013_4.1y,p25,0.1052
+quality_only,relationship_years_band,2-4 years,294,by_2013_4.1y,p50,0.1072
+quality_only,relationship_years_band,2-4 years,294,by_2013_4.1y,p75,0.2829
+quality_only,relationship_years_band,2-4 years,294,by_2013_4.1y,p90,0.4577
+quality_only,relationship_years_band,2-4 years,294,by_2013_4.1y,p95,0.4726
+quality_only,relationship_years_band,2-4 years,294,by_2013_4.1y,p99,
+quality_only,relationship_years_band,2-4 years,294,by_2017_8.4y,p1,
+quality_only,relationship_years_band,2-4 years,294,by_2017_8.4y,p5,0.1356
+quality_only,relationship_years_band,2-4 years,294,by_2017_8.4y,p10,0.1369
+quality_only,relationship_years_band,2-4 years,294,by_2017_8.4y,p25,0.1387
+quality_only,relationship_years_band,2-4 years,294,by_2017_8.4y,p50,0.1418
+quality_only,relationship_years_band,2-4 years,294,by_2017_8.4y,p75,0.3611
+quality_only,relationship_years_band,2-4 years,294,by_2017_8.4y,p90,0.5633
+quality_only,relationship_years_band,2-4 years,294,by_2017_8.4y,p95,0.5779
+quality_only,relationship_years_band,2-4 years,294,by_2017_8.4y,p99,
+quality_only,relationship_years_band,5-9 years,524,by_2011_2.2y,p1,0.0735
+quality_only,relationship_years_band,5-9 years,524,by_2011_2.2y,p5,0.0746
+quality_only,relationship_years_band,5-9 years,524,by_2011_2.2y,p10,0.0749
+quality_only,relationship_years_band,5-9 years,524,by_2011_2.2y,p25,0.0760
+quality_only,relationship_years_band,5-9 years,524,by_2011_2.2y,p50,0.0779
+quality_only,relationship_years_band,5-9 years,524,by_2011_2.2y,p75,0.2102
+quality_only,relationship_years_band,5-9 years,524,by_2011_2.2y,p90,0.2146
+quality_only,relationship_years_band,5-9 years,524,by_2011_2.2y,p95,0.3637
+quality_only,relationship_years_band,5-9 years,524,by_2011_2.2y,p99,0.4472
+quality_only,relationship_years_band,5-9 years,524,by_2013_4.1y,p1,0.1024
+quality_only,relationship_years_band,5-9 years,524,by_2013_4.1y,p5,0.1032
+quality_only,relationship_years_band,5-9 years,524,by_2013_4.1y,p10,0.1036
+quality_only,relationship_years_band,5-9 years,524,by_2013_4.1y,p25,0.1048
+quality_only,relationship_years_band,5-9 years,524,by_2013_4.1y,p50,0.1074
+quality_only,relationship_years_band,5-9 years,524,by_2013_4.1y,p75,0.2826
+quality_only,relationship_years_band,5-9 years,524,by_2013_4.1y,p90,0.2898
+quality_only,relationship_years_band,5-9 years,524,by_2013_4.1y,p95,0.4730
+quality_only,relationship_years_band,5-9 years,524,by_2013_4.1y,p99,0.5722
+quality_only,relationship_years_band,5-9 years,524,by_2017_8.4y,p1,0.1340
+quality_only,relationship_years_band,5-9 years,524,by_2017_8.4y,p5,0.1354
+quality_only,relationship_years_band,5-9 years,524,by_2017_8.4y,p10,0.1358
+quality_only,relationship_years_band,5-9 years,524,by_2017_8.4y,p25,0.1380
+quality_only,relationship_years_band,5-9 years,524,by_2017_8.4y,p50,0.1413
+quality_only,relationship_years_band,5-9 years,524,by_2017_8.4y,p75,0.3604
+quality_only,relationship_years_band,5-9 years,524,by_2017_8.4y,p90,0.3688
+quality_only,relationship_years_band,5-9 years,524,by_2017_8.4y,p95,0.5813
+quality_only,relationship_years_band,5-9 years,524,by_2017_8.4y,p99,0.6846
+quality_only,relationship_years_band,10-19 years,753,by_2011_2.2y,p1,0.0736
+quality_only,relationship_years_band,10-19 years,753,by_2011_2.2y,p5,0.0743
+quality_only,relationship_years_band,10-19 years,753,by_2011_2.2y,p10,0.0749
+quality_only,relationship_years_band,10-19 years,753,by_2011_2.2y,p25,0.0758
+quality_only,relationship_years_band,10-19 years,753,by_2011_2.2y,p50,0.0774
+quality_only,relationship_years_band,10-19 years,753,by_2011_2.2y,p75,0.2099
+quality_only,relationship_years_band,10-19 years,753,by_2011_2.2y,p90,0.3553
+quality_only,relationship_years_band,10-19 years,753,by_2011_2.2y,p95,0.3682
+quality_only,relationship_years_band,10-19 years,753,by_2011_2.2y,p99,0.4775
+quality_only,relationship_years_band,10-19 years,753,by_2013_4.1y,p1,0.1022
+quality_only,relationship_years_band,10-19 years,753,by_2013_4.1y,p5,0.1032
+quality_only,relationship_years_band,10-19 years,753,by_2013_4.1y,p10,0.1036
+quality_only,relationship_years_band,10-19 years,753,by_2013_4.1y,p25,0.1048
+quality_only,relationship_years_band,10-19 years,753,by_2013_4.1y,p50,0.1065
+quality_only,relationship_years_band,10-19 years,753,by_2013_4.1y,p75,0.2828
+quality_only,relationship_years_band,10-19 years,753,by_2013_4.1y,p90,0.4618
+quality_only,relationship_years_band,10-19 years,753,by_2013_4.1y,p95,0.4768
+quality_only,relationship_years_band,10-19 years,753,by_2013_4.1y,p99,0.5984
+quality_only,relationship_years_band,10-19 years,753,by_2017_8.4y,p1,0.1341
+quality_only,relationship_years_band,10-19 years,753,by_2017_8.4y,p5,0.1353
+quality_only,relationship_years_band,10-19 years,753,by_2017_8.4y,p10,0.1361
+quality_only,relationship_years_band,10-19 years,753,by_2017_8.4y,p25,0.1379
+quality_only,relationship_years_band,10-19 years,753,by_2017_8.4y,p50,0.1406
+quality_only,relationship_years_band,10-19 years,753,by_2017_8.4y,p75,0.3609
+quality_only,relationship_years_band,10-19 years,753,by_2017_8.4y,p90,0.5675
+quality_only,relationship_years_band,10-19 years,753,by_2017_8.4y,p95,0.5831
+quality_only,relationship_years_band,10-19 years,753,by_2017_8.4y,p99,0.7140
+quality_only,relationship_years_band,20+ years,1057,by_2011_2.2y,p1,0.0735
+quality_only,relationship_years_band,20+ years,1057,by_2011_2.2y,p5,0.0745
+quality_only,relationship_years_band,20+ years,1057,by_2011_2.2y,p10,0.0750
+quality_only,relationship_years_band,20+ years,1057,by_2011_2.2y,p25,0.0760
+quality_only,relationship_years_band,20+ years,1057,by_2011_2.2y,p50,0.0776
+quality_only,relationship_years_band,20+ years,1057,by_2011_2.2y,p75,0.2102
+quality_only,relationship_years_band,20+ years,1057,by_2011_2.2y,p90,0.2153
+quality_only,relationship_years_band,20+ years,1057,by_2011_2.2y,p95,0.3703
+quality_only,relationship_years_band,20+ years,1057,by_2011_2.2y,p99,0.4762
+quality_only,relationship_years_band,20+ years,1057,by_2013_4.1y,p1,0.1022
+quality_only,relationship_years_band,20+ years,1057,by_2013_4.1y,p5,0.1032
+quality_only,relationship_years_band,20+ years,1057,by_2013_4.1y,p10,0.1038
+quality_only,relationship_years_band,20+ years,1057,by_2013_4.1y,p25,0.1051
+quality_only,relationship_years_band,20+ years,1057,by_2013_4.1y,p50,0.1069
+quality_only,relationship_years_band,20+ years,1057,by_2013_4.1y,p75,0.2819
+quality_only,relationship_years_band,20+ years,1057,by_2013_4.1y,p90,0.2905
+quality_only,relationship_years_band,20+ years,1057,by_2013_4.1y,p95,0.4783
+quality_only,relationship_years_band,20+ years,1057,by_2013_4.1y,p99,0.6015
+quality_only,relationship_years_band,20+ years,1057,by_2017_8.4y,p1,0.1341
+quality_only,relationship_years_band,20+ years,1057,by_2017_8.4y,p5,0.1354
+quality_only,relationship_years_band,20+ years,1057,by_2017_8.4y,p10,0.1361
+quality_only,relationship_years_band,20+ years,1057,by_2017_8.4y,p25,0.1381
+quality_only,relationship_years_band,20+ years,1057,by_2017_8.4y,p50,0.1412
+quality_only,relationship_years_band,20+ years,1057,by_2017_8.4y,p75,0.3604
+quality_only,relationship_years_band,20+ years,1057,by_2017_8.4y,p90,0.3705
+quality_only,relationship_years_band,20+ years,1057,by_2017_8.4y,p95,0.5868
+quality_only,relationship_years_band,20+ years,1057,by_2017_8.4y,p99,0.7129
+additive_core,all,All couples,3009,by_2011_2.2y,p1,0.0027
+additive_core,all,All couples,3009,by_2011_2.2y,p5,0.0061
+additive_core,all,All couples,3009,by_2011_2.2y,p10,0.0094
+additive_core,all,All couples,3009,by_2011_2.2y,p25,0.0194
+additive_core,all,All couples,3009,by_2011_2.2y,p50,0.0450
+additive_core,all,All couples,3009,by_2011_2.2y,p75,0.1501
+additive_core,all,All couples,3009,by_2011_2.2y,p90,0.4875
+additive_core,all,All couples,3009,by_2011_2.2y,p95,0.6389
+additive_core,all,All couples,3009,by_2011_2.2y,p99,0.8862
+additive_core,all,All couples,3009,by_2013_4.1y,p1,0.0046
+additive_core,all,All couples,3009,by_2013_4.1y,p5,0.0102
+additive_core,all,All couples,3009,by_2013_4.1y,p10,0.0156
+additive_core,all,All couples,3009,by_2013_4.1y,p25,0.0315
+additive_core,all,All couples,3009,by_2013_4.1y,p50,0.0722
+additive_core,all,All couples,3009,by_2013_4.1y,p75,0.2280
+additive_core,all,All couples,3009,by_2013_4.1y,p90,0.6325
+additive_core,all,All couples,3009,by_2013_4.1y,p95,0.7831
+additive_core,all,All couples,3009,by_2013_4.1y,p99,0.9600
+additive_core,all,All couples,3009,by_2017_8.4y,p1,0.0078
+additive_core,all,All couples,3009,by_2017_8.4y,p5,0.0170
+additive_core,all,All couples,3009,by_2017_8.4y,p10,0.0256
+additive_core,all,All couples,3009,by_2017_8.4y,p25,0.0504
+additive_core,all,All couples,3009,by_2017_8.4y,p50,0.1116
+additive_core,all,All couples,3009,by_2017_8.4y,p75,0.3265
+additive_core,all,All couples,3009,by_2017_8.4y,p90,0.7565
+additive_core,all,All couples,3009,by_2017_8.4y,p95,0.8887
+additive_core,all,All couples,3009,by_2017_8.4y,p99,0.9902
+additive_core,married,Married,1928,by_2011_2.2y,p1,0.0017
+additive_core,married,Married,1928,by_2011_2.2y,p5,0.0054
+additive_core,married,Married,1928,by_2011_2.2y,p10,0.0074
+additive_core,married,Married,1928,by_2011_2.2y,p25,0.0147
+additive_core,married,Married,1928,by_2011_2.2y,p50,0.0277
+additive_core,married,Married,1928,by_2011_2.2y,p75,0.0524
+additive_core,married,Married,1928,by_2011_2.2y,p90,0.0891
+additive_core,married,Married,1928,by_2011_2.2y,p95,0.1337
+additive_core,married,Married,1928,by_2011_2.2y,p99,0.2780
+additive_core,married,Married,1928,by_2013_4.1y,p1,0.0029
+additive_core,married,Married,1928,by_2013_4.1y,p5,0.0091
+additive_core,married,Married,1928,by_2013_4.1y,p10,0.0123
+additive_core,married,Married,1928,by_2013_4.1y,p25,0.0240
+additive_core,married,Married,1928,by_2013_4.1y,p50,0.0449
+additive_core,married,Married,1928,by_2013_4.1y,p75,0.0841
+additive_core,married,Married,1928,by_2013_4.1y,p90,0.1401
+additive_core,married,Married,1928,by_2013_4.1y,p95,0.2006
+additive_core,married,Married,1928,by_2013_4.1y,p99,0.4094
+additive_core,married,Married,1928,by_2017_8.4y,p1,0.0048
+additive_core,married,Married,1928,by_2017_8.4y,p5,0.0149
+additive_core,married,Married,1928,by_2017_8.4y,p10,0.0204
+additive_core,married,Married,1928,by_2017_8.4y,p25,0.0380
+additive_core,married,Married,1928,by_2017_8.4y,p50,0.0706
+additive_core,married,Married,1928,by_2017_8.4y,p75,0.1291
+additive_core,married,Married,1928,by_2017_8.4y,p90,0.2125
+additive_core,married,Married,1928,by_2017_8.4y,p95,0.2908
+additive_core,married,Married,1928,by_2017_8.4y,p99,0.5635
+additive_core,married,Unmarried,1081,by_2011_2.2y,p1,0.0293
+additive_core,married,Unmarried,1081,by_2011_2.2y,p5,0.0564
+additive_core,married,Unmarried,1081,by_2011_2.2y,p10,0.0763
+additive_core,married,Unmarried,1081,by_2011_2.2y,p25,0.1610
+additive_core,married,Unmarried,1081,by_2011_2.2y,p50,0.3318
+additive_core,married,Unmarried,1081,by_2011_2.2y,p75,0.5583
+additive_core,married,Unmarried,1081,by_2011_2.2y,p90,0.7377
+additive_core,married,Unmarried,1081,by_2011_2.2y,p95,0.8327
+additive_core,married,Unmarried,1081,by_2011_2.2y,p99,0.9262
+additive_core,married,Unmarried,1081,by_2013_4.1y,p1,0.0477
+additive_core,married,Unmarried,1081,by_2013_4.1y,p5,0.0928
+additive_core,married,Unmarried,1081,by_2013_4.1y,p10,0.1199
+additive_core,married,Unmarried,1081,by_2013_4.1y,p25,0.2374
+additive_core,married,Unmarried,1081,by_2013_4.1y,p50,0.4556
+additive_core,married,Unmarried,1081,by_2013_4.1y,p75,0.7065
+additive_core,married,Unmarried,1081,by_2013_4.1y,p90,0.8646
+additive_core,married,Unmarried,1081,by_2013_4.1y,p95,0.9301
+additive_core,married,Unmarried,1081,by_2013_4.1y,p99,0.9798
+additive_core,married,Unmarried,1081,by_2017_8.4y,p1,0.0748
+additive_core,married,Unmarried,1081,by_2017_8.4y,p5,0.1364
+additive_core,married,Unmarried,1081,by_2017_8.4y,p10,0.1800
+additive_core,married,Unmarried,1081,by_2017_8.4y,p25,0.3377
+additive_core,married,Unmarried,1081,by_2017_8.4y,p50,0.6024
+additive_core,married,Unmarried,1081,by_2017_8.4y,p75,0.8344
+additive_core,married,Unmarried,1081,by_2017_8.4y,p90,0.9390
+additive_core,married,Unmarried,1081,by_2017_8.4y,p95,0.9775
+additive_core,married,Unmarried,1081,by_2017_8.4y,p99,0.9962
+additive_core,couple_type,Different-sex,2535,by_2011_2.2y,p1,0.0027
+additive_core,couple_type,Different-sex,2535,by_2011_2.2y,p5,0.0060
+additive_core,couple_type,Different-sex,2535,by_2011_2.2y,p10,0.0093
+additive_core,couple_type,Different-sex,2535,by_2011_2.2y,p25,0.0191
+additive_core,couple_type,Different-sex,2535,by_2011_2.2y,p50,0.0436
+additive_core,couple_type,Different-sex,2535,by_2011_2.2y,p75,0.1461
+additive_core,couple_type,Different-sex,2535,by_2011_2.2y,p90,0.4758
+additive_core,couple_type,Different-sex,2535,by_2011_2.2y,p95,0.6163
+additive_core,couple_type,Different-sex,2535,by_2011_2.2y,p99,0.8630
+additive_core,couple_type,Different-sex,2535,by_2013_4.1y,p1,0.0046
+additive_core,couple_type,Different-sex,2535,by_2013_4.1y,p5,0.0102
+additive_core,couple_type,Different-sex,2535,by_2013_4.1y,p10,0.0155
+additive_core,couple_type,Different-sex,2535,by_2013_4.1y,p25,0.0313
+additive_core,couple_type,Different-sex,2535,by_2013_4.1y,p50,0.0703
+additive_core,couple_type,Different-sex,2535,by_2013_4.1y,p75,0.2216
+additive_core,couple_type,Different-sex,2535,by_2013_4.1y,p90,0.6243
+additive_core,couple_type,Different-sex,2535,by_2013_4.1y,p95,0.7686
+additive_core,couple_type,Different-sex,2535,by_2013_4.1y,p99,0.9485
+additive_core,couple_type,Different-sex,2535,by_2017_8.4y,p1,0.0077
+additive_core,couple_type,Different-sex,2535,by_2017_8.4y,p5,0.0169
+additive_core,couple_type,Different-sex,2535,by_2017_8.4y,p10,0.0254
+additive_core,couple_type,Different-sex,2535,by_2017_8.4y,p25,0.0498
+additive_core,couple_type,Different-sex,2535,by_2017_8.4y,p50,0.1080
+additive_core,couple_type,Different-sex,2535,by_2017_8.4y,p75,0.3216
+additive_core,couple_type,Different-sex,2535,by_2017_8.4y,p90,0.7510
+additive_core,couple_type,Different-sex,2535,by_2017_8.4y,p95,0.8721
+additive_core,couple_type,Different-sex,2535,by_2017_8.4y,p99,0.9853
+additive_core,couple_type,Same-sex,474,by_2011_2.2y,p1,
+additive_core,couple_type,Same-sex,474,by_2011_2.2y,p5,0.0177
+additive_core,couple_type,Same-sex,474,by_2011_2.2y,p10,0.0279
+additive_core,couple_type,Same-sex,474,by_2011_2.2y,p25,0.0614
+additive_core,couple_type,Same-sex,474,by_2011_2.2y,p50,0.1932
+additive_core,couple_type,Same-sex,474,by_2011_2.2y,p75,0.5619
+additive_core,couple_type,Same-sex,474,by_2011_2.2y,p90,0.8399
+additive_core,couple_type,Same-sex,474,by_2011_2.2y,p95,0.9140
+additive_core,couple_type,Same-sex,474,by_2011_2.2y,p99,
+additive_core,couple_type,Same-sex,474,by_2013_4.1y,p1,
+additive_core,couple_type,Same-sex,474,by_2013_4.1y,p5,0.0298
+additive_core,couple_type,Same-sex,474,by_2013_4.1y,p10,0.0457
+additive_core,couple_type,Same-sex,474,by_2013_4.1y,p25,0.0993
+additive_core,couple_type,Same-sex,474,by_2013_4.1y,p50,0.2926
+additive_core,couple_type,Same-sex,474,by_2013_4.1y,p75,0.7074
+additive_core,couple_type,Same-sex,474,by_2013_4.1y,p90,0.9410
+additive_core,couple_type,Same-sex,474,by_2013_4.1y,p95,0.9750
+additive_core,couple_type,Same-sex,474,by_2013_4.1y,p99,
+additive_core,couple_type,Same-sex,474,by_2017_8.4y,p1,
+additive_core,couple_type,Same-sex,474,by_2017_8.4y,p5,0.0470
+additive_core,couple_type,Same-sex,474,by_2017_8.4y,p10,0.0699
+additive_core,couple_type,Same-sex,474,by_2017_8.4y,p25,0.1548
+additive_core,couple_type,Same-sex,474,by_2017_8.4y,p50,0.3949
+additive_core,couple_type,Same-sex,474,by_2017_8.4y,p75,0.8285
+additive_core,couple_type,Same-sex,474,by_2017_8.4y,p90,0.9804
+additive_core,couple_type,Same-sex,474,by_2017_8.4y,p95,0.9952
+additive_core,couple_type,Same-sex,474,by_2017_8.4y,p99,
+additive_core,relationship_quality,Excellent,1771,by_2011_2.2y,p1,0.0026
+additive_core,relationship_quality,Excellent,1771,by_2011_2.2y,p5,0.0054
+additive_core,relationship_quality,Excellent,1771,by_2011_2.2y,p10,0.0068
+additive_core,relationship_quality,Excellent,1771,by_2011_2.2y,p25,0.0135
+additive_core,relationship_quality,Excellent,1771,by_2011_2.2y,p50,0.0259
+additive_core,relationship_quality,Excellent,1771,by_2011_2.2y,p75,0.0557
+additive_core,relationship_quality,Excellent,1771,by_2011_2.2y,p90,0.2307
+additive_core,relationship_quality,Excellent,1771,by_2011_2.2y,p95,0.4291
+additive_core,relationship_quality,Excellent,1771,by_2011_2.2y,p99,0.5995
+additive_core,relationship_quality,Excellent,1771,by_2013_4.1y,p1,0.0044
+additive_core,relationship_quality,Excellent,1771,by_2013_4.1y,p5,0.0090
+additive_core,relationship_quality,Excellent,1771,by_2013_4.1y,p10,0.0113
+additive_core,relationship_quality,Excellent,1771,by_2013_4.1y,p25,0.0223
+additive_core,relationship_quality,Excellent,1771,by_2013_4.1y,p50,0.0422
+additive_core,relationship_quality,Excellent,1771,by_2013_4.1y,p75,0.0877
+additive_core,relationship_quality,Excellent,1771,by_2013_4.1y,p90,0.3302
+additive_core,relationship_quality,Excellent,1771,by_2013_4.1y,p95,0.5675
+additive_core,relationship_quality,Excellent,1771,by_2013_4.1y,p99,0.7350
+additive_core,relationship_quality,Excellent,1771,by_2017_8.4y,p1,0.0074
+additive_core,relationship_quality,Excellent,1771,by_2017_8.4y,p5,0.0147
+additive_core,relationship_quality,Excellent,1771,by_2017_8.4y,p10,0.0189
+additive_core,relationship_quality,Excellent,1771,by_2017_8.4y,p25,0.0356
+additive_core,relationship_quality,Excellent,1771,by_2017_8.4y,p50,0.0670
+additive_core,relationship_quality,Excellent,1771,by_2017_8.4y,p75,0.1332
+additive_core,relationship_quality,Excellent,1771,by_2017_8.4y,p90,0.4444
+additive_core,relationship_quality,Excellent,1771,by_2017_8.4y,p95,0.6867
+additive_core,relationship_quality,Excellent,1771,by_2017_8.4y,p99,0.8398
+additive_core,relationship_quality,Good,911,by_2011_2.2y,p1,0.0104
+additive_core,relationship_quality,Good,911,by_2011_2.2y,p5,0.0152
+additive_core,relationship_quality,Good,911,by_2011_2.2y,p10,0.0220
+additive_core,relationship_quality,Good,911,by_2011_2.2y,p25,0.0417
+additive_core,relationship_quality,Good,911,by_2011_2.2y,p50,0.0743
+additive_core,relationship_quality,Good,911,by_2011_2.2y,p75,0.2373
+additive_core,relationship_quality,Good,911,by_2011_2.2y,p90,0.6079
+additive_core,relationship_quality,Good,911,by_2011_2.2y,p95,0.7187
+additive_core,relationship_quality,Good,911,by_2011_2.2y,p99,0.8310
+additive_core,relationship_quality,Good,911,by_2013_4.1y,p1,0.0169
+additive_core,relationship_quality,Good,911,by_2013_4.1y,p5,0.0249
+additive_core,relationship_quality,Good,911,by_2013_4.1y,p10,0.0362
+additive_core,relationship_quality,Good,911,by_2013_4.1y,p25,0.0673
+additive_core,relationship_quality,Good,911,by_2013_4.1y,p50,0.1193
+additive_core,relationship_quality,Good,911,by_2013_4.1y,p75,0.3567
+additive_core,relationship_quality,Good,911,by_2013_4.1y,p90,0.7479
+additive_core,relationship_quality,Good,911,by_2013_4.1y,p95,0.8428
+additive_core,relationship_quality,Good,911,by_2013_4.1y,p99,0.9282
+additive_core,relationship_quality,Good,911,by_2017_8.4y,p1,0.0285
+additive_core,relationship_quality,Good,911,by_2017_8.4y,p5,0.0417
+additive_core,relationship_quality,Good,911,by_2017_8.4y,p10,0.0577
+additive_core,relationship_quality,Good,911,by_2017_8.4y,p25,0.1063
+additive_core,relationship_quality,Good,911,by_2017_8.4y,p50,0.1812
+additive_core,relationship_quality,Good,911,by_2017_8.4y,p75,0.4903
+additive_core,relationship_quality,Good,911,by_2017_8.4y,p90,0.8545
+additive_core,relationship_quality,Good,911,by_2017_8.4y,p95,0.9231
+additive_core,relationship_quality,Good,911,by_2017_8.4y,p99,0.9731
+additive_core,relationship_quality,Fair,252,by_2011_2.2y,p1,
+additive_core,relationship_quality,Fair,252,by_2011_2.2y,p5,0.0217
+additive_core,relationship_quality,Fair,252,by_2011_2.2y,p10,0.0454
+additive_core,relationship_quality,Fair,252,by_2011_2.2y,p25,0.0916
+additive_core,relationship_quality,Fair,252,by_2011_2.2y,p50,0.2296
+additive_core,relationship_quality,Fair,252,by_2011_2.2y,p75,0.5689
+additive_core,relationship_quality,Fair,252,by_2011_2.2y,p90,0.8564
+additive_core,relationship_quality,Fair,252,by_2011_2.2y,p95,0.9028
+additive_core,relationship_quality,Fair,252,by_2011_2.2y,p99,
+additive_core,relationship_quality,Fair,252,by_2013_4.1y,p1,
+additive_core,relationship_quality,Fair,252,by_2013_4.1y,p5,0.0356
+additive_core,relationship_quality,Fair,252,by_2013_4.1y,p10,0.0741
+additive_core,relationship_quality,Fair,252,by_2013_4.1y,p25,0.1476
+additive_core,relationship_quality,Fair,252,by_2013_4.1y,p50,0.3455
+additive_core,relationship_quality,Fair,252,by_2013_4.1y,p75,0.7339
+additive_core,relationship_quality,Fair,252,by_2013_4.1y,p90,0.9452
+additive_core,relationship_quality,Fair,252,by_2013_4.1y,p95,0.9674
+additive_core,relationship_quality,Fair,252,by_2013_4.1y,p99,
+additive_core,relationship_quality,Fair,252,by_2017_8.4y,p1,
+additive_core,relationship_quality,Fair,252,by_2017_8.4y,p5,0.0563
+additive_core,relationship_quality,Fair,252,by_2017_8.4y,p10,0.1177
+additive_core,relationship_quality,Fair,252,by_2017_8.4y,p25,0.2233
+additive_core,relationship_quality,Fair,252,by_2017_8.4y,p50,0.4805
+additive_core,relationship_quality,Fair,252,by_2017_8.4y,p75,0.8653
+additive_core,relationship_quality,Fair,252,by_2017_8.4y,p90,0.9835
+additive_core,relationship_quality,Fair,252,by_2017_8.4y,p95,0.9949
+additive_core,relationship_quality,Fair,252,by_2017_8.4y,p99,
+additive_core,relationship_quality,Poor or very poor,62,by_2011_2.2y,p1,
+additive_core,relationship_quality,Poor or very poor,62,by_2011_2.2y,p5,
+additive_core,relationship_quality,Poor or very poor,62,by_2011_2.2y,p10,0.0852
+additive_core,relationship_quality,Poor or very poor,62,by_2011_2.2y,p25,0.1304
+additive_core,relationship_quality,Poor or very poor,62,by_2011_2.2y,p50,0.2151
+additive_core,relationship_quality,Poor or very poor,62,by_2011_2.2y,p75,0.4844
+additive_core,relationship_quality,Poor or very poor,62,by_2011_2.2y,p90,0.9095
+additive_core,relationship_quality,Poor or very poor,62,by_2011_2.2y,p95,
+additive_core,relationship_quality,Poor or very poor,62,by_2011_2.2y,p99,
+additive_core,relationship_quality,Poor or very poor,62,by_2013_4.1y,p1,
+additive_core,relationship_quality,Poor or very poor,62,by_2013_4.1y,p5,
+additive_core,relationship_quality,Poor or very poor,62,by_2013_4.1y,p10,0.1338
+additive_core,relationship_quality,Poor or very poor,62,by_2013_4.1y,p25,0.2040
+additive_core,relationship_quality,Poor or very poor,62,by_2013_4.1y,p50,0.3270
+additive_core,relationship_quality,Poor or very poor,62,by_2013_4.1y,p75,0.6526
+additive_core,relationship_quality,Poor or very poor,62,by_2013_4.1y,p90,0.9731
+additive_core,relationship_quality,Poor or very poor,62,by_2013_4.1y,p95,
+additive_core,relationship_quality,Poor or very poor,62,by_2013_4.1y,p99,
+additive_core,relationship_quality,Poor or very poor,62,by_2017_8.4y,p1,
+additive_core,relationship_quality,Poor or very poor,62,by_2017_8.4y,p5,
+additive_core,relationship_quality,Poor or very poor,62,by_2017_8.4y,p10,0.1998
+additive_core,relationship_quality,Poor or very poor,62,by_2017_8.4y,p25,0.3006
+additive_core,relationship_quality,Poor or very poor,62,by_2017_8.4y,p50,0.4705
+additive_core,relationship_quality,Poor or very poor,62,by_2017_8.4y,p75,0.8116
+additive_core,relationship_quality,Poor or very poor,62,by_2017_8.4y,p90,0.9939
+additive_core,relationship_quality,Poor or very poor,62,by_2017_8.4y,p95,
+additive_core,relationship_quality,Poor or very poor,62,by_2017_8.4y,p99,
+additive_core,mean_age_band,under 30,497,by_2011_2.2y,p1,
+additive_core,mean_age_band,under 30,497,by_2011_2.2y,p5,0.0190
+additive_core,mean_age_band,under 30,497,by_2011_2.2y,p10,0.0234
+additive_core,mean_age_band,under 30,497,by_2011_2.2y,p25,0.0423
+additive_core,mean_age_band,under 30,497,by_2011_2.2y,p50,0.1427
+additive_core,mean_age_band,under 30,497,by_2011_2.2y,p75,0.4871
+additive_core,mean_age_band,under 30,497,by_2011_2.2y,p90,0.7112
+additive_core,mean_age_band,under 30,497,by_2011_2.2y,p95,0.8004
+additive_core,mean_age_band,under 30,497,by_2011_2.2y,p99,
+additive_core,mean_age_band,under 30,497,by_2013_4.1y,p1,
+additive_core,mean_age_band,under 30,497,by_2013_4.1y,p5,0.0304
+additive_core,mean_age_band,under 30,497,by_2013_4.1y,p10,0.0376
+additive_core,mean_age_band,under 30,497,by_2013_4.1y,p25,0.0685
+additive_core,mean_age_band,under 30,497,by_2013_4.1y,p50,0.2130
+additive_core,mean_age_band,under 30,497,by_2013_4.1y,p75,0.6261
+additive_core,mean_age_band,under 30,497,by_2013_4.1y,p90,0.8391
+additive_core,mean_age_band,under 30,497,by_2013_4.1y,p95,0.9063
+additive_core,mean_age_band,under 30,497,by_2013_4.1y,p99,
+additive_core,mean_age_band,under 30,497,by_2017_8.4y,p1,
+additive_core,mean_age_band,under 30,497,by_2017_8.4y,p5,0.0488
+additive_core,mean_age_band,under 30,497,by_2017_8.4y,p10,0.0597
+additive_core,mean_age_band,under 30,497,by_2017_8.4y,p25,0.1034
+additive_core,mean_age_band,under 30,497,by_2017_8.4y,p50,0.2962
+additive_core,mean_age_band,under 30,497,by_2017_8.4y,p75,0.7435
+additive_core,mean_age_band,under 30,497,by_2017_8.4y,p90,0.9201
+additive_core,mean_age_band,under 30,497,by_2017_8.4y,p95,0.9627
+additive_core,mean_age_band,under 30,497,by_2017_8.4y,p99,
+additive_core,mean_age_band,30-44,968,by_2011_2.2y,p1,0.0090
+additive_core,mean_age_band,30-44,968,by_2011_2.2y,p5,0.0156
+additive_core,mean_age_band,30-44,968,by_2011_2.2y,p10,0.0194
+additive_core,mean_age_band,30-44,968,by_2011_2.2y,p25,0.0286
+additive_core,mean_age_band,30-44,968,by_2011_2.2y,p50,0.0499
+additive_core,mean_age_band,30-44,968,by_2011_2.2y,p75,0.1357
+additive_core,mean_age_band,30-44,968,by_2011_2.2y,p90,0.4499
+additive_core,mean_age_band,30-44,968,by_2011_2.2y,p95,0.6081
+additive_core,mean_age_band,30-44,968,by_2011_2.2y,p99,0.8863
+additive_core,mean_age_band,30-44,968,by_2013_4.1y,p1,0.0151
+additive_core,mean_age_band,30-44,968,by_2013_4.1y,p5,0.0256
+additive_core,mean_age_band,30-44,968,by_2013_4.1y,p10,0.0317
+additive_core,mean_age_band,30-44,968,by_2013_4.1y,p25,0.0465
+additive_core,mean_age_band,30-44,968,by_2013_4.1y,p50,0.0804
+additive_core,mean_age_band,30-44,968,by_2013_4.1y,p75,0.2053
+additive_core,mean_age_band,30-44,968,by_2013_4.1y,p90,0.5999
+additive_core,mean_age_band,30-44,968,by_2013_4.1y,p95,0.7498
+additive_core,mean_age_band,30-44,968,by_2013_4.1y,p99,0.9662
+additive_core,mean_age_band,30-44,968,by_2017_8.4y,p1,0.0239
+additive_core,mean_age_band,30-44,968,by_2017_8.4y,p5,0.0402
+additive_core,mean_age_band,30-44,968,by_2017_8.4y,p10,0.0513
+additive_core,mean_age_band,30-44,968,by_2017_8.4y,p25,0.0736
+additive_core,mean_age_band,30-44,968,by_2017_8.4y,p50,0.1249
+additive_core,mean_age_band,30-44,968,by_2017_8.4y,p75,0.2923
+additive_core,mean_age_band,30-44,968,by_2017_8.4y,p90,0.7515
+additive_core,mean_age_band,30-44,968,by_2017_8.4y,p95,0.8601
+additive_core,mean_age_band,30-44,968,by_2017_8.4y,p99,0.9931
+additive_core,mean_age_band,45-59,929,by_2011_2.2y,p1,0.0014
+additive_core,mean_age_band,45-59,929,by_2011_2.2y,p5,0.0088
+additive_core,mean_age_band,45-59,929,by_2011_2.2y,p10,0.0115
+additive_core,mean_age_band,45-59,929,by_2011_2.2y,p25,0.0182
+additive_core,mean_age_band,45-59,929,by_2011_2.2y,p50,0.0419
+additive_core,mean_age_band,45-59,929,by_2011_2.2y,p75,0.1475
+additive_core,mean_age_band,45-59,929,by_2011_2.2y,p90,0.3900
+additive_core,mean_age_band,45-59,929,by_2011_2.2y,p95,0.5682
+additive_core,mean_age_band,45-59,929,by_2011_2.2y,p99,0.8389
+additive_core,mean_age_band,45-59,929,by_2013_4.1y,p1,0.0023
+additive_core,mean_age_band,45-59,929,by_2013_4.1y,p5,0.0143
+additive_core,mean_age_band,45-59,929,by_2013_4.1y,p10,0.0188
+additive_core,mean_age_band,45-59,929,by_2013_4.1y,p25,0.0297
+additive_core,mean_age_band,45-59,929,by_2013_4.1y,p50,0.0667
+additive_core,mean_age_band,45-59,929,by_2013_4.1y,p75,0.2250
+additive_core,mean_age_band,45-59,929,by_2013_4.1y,p90,0.5345
+additive_core,mean_age_band,45-59,929,by_2013_4.1y,p95,0.7242
+additive_core,mean_age_band,45-59,929,by_2013_4.1y,p99,0.9418
+additive_core,mean_age_band,45-59,929,by_2017_8.4y,p1,0.0036
+additive_core,mean_age_band,45-59,929,by_2017_8.4y,p5,0.0225
+additive_core,mean_age_band,45-59,929,by_2017_8.4y,p10,0.0297
+additive_core,mean_age_band,45-59,929,by_2017_8.4y,p25,0.0471
+additive_core,mean_age_band,45-59,929,by_2017_8.4y,p50,0.1029
+additive_core,mean_age_band,45-59,929,by_2017_8.4y,p75,0.3240
+additive_core,mean_age_band,45-59,929,by_2017_8.4y,p90,0.6818
+additive_core,mean_age_band,45-59,929,by_2017_8.4y,p95,0.8462
+additive_core,mean_age_band,45-59,929,by_2017_8.4y,p99,0.9804
+additive_core,mean_age_band,60+,596,by_2011_2.2y,p1,0.0007
+additive_core,mean_age_band,60+,596,by_2011_2.2y,p5,0.0035
+additive_core,mean_age_band,60+,596,by_2011_2.2y,p10,0.0048
+additive_core,mean_age_band,60+,596,by_2011_2.2y,p25,0.0068
+additive_core,mean_age_band,60+,596,by_2011_2.2y,p50,0.0128
+additive_core,mean_age_band,60+,596,by_2011_2.2y,p75,0.0303
+additive_core,mean_age_band,60+,596,by_2011_2.2y,p90,0.1214
+additive_core,mean_age_band,60+,596,by_2011_2.2y,p95,0.2379
+additive_core,mean_age_band,60+,596,by_2011_2.2y,p99,0.5475
+additive_core,mean_age_band,60+,596,by_2013_4.1y,p1,0.0011
+additive_core,mean_age_band,60+,596,by_2013_4.1y,p5,0.0060
+additive_core,mean_age_band,60+,596,by_2013_4.1y,p10,0.0081
+additive_core,mean_age_band,60+,596,by_2013_4.1y,p25,0.0113
+additive_core,mean_age_band,60+,596,by_2013_4.1y,p50,0.0212
+additive_core,mean_age_band,60+,596,by_2013_4.1y,p75,0.0492
+additive_core,mean_age_band,60+,596,by_2013_4.1y,p90,0.1846
+additive_core,mean_age_band,60+,596,by_2013_4.1y,p95,0.3564
+additive_core,mean_age_band,60+,596,by_2013_4.1y,p99,0.6868
+additive_core,mean_age_band,60+,596,by_2017_8.4y,p1,0.0018
+additive_core,mean_age_band,60+,596,by_2017_8.4y,p5,0.0102
+additive_core,mean_age_band,60+,596,by_2017_8.4y,p10,0.0139
+additive_core,mean_age_band,60+,596,by_2017_8.4y,p25,0.0190
+additive_core,mean_age_band,60+,596,by_2017_8.4y,p50,0.0346
+additive_core,mean_age_band,60+,596,by_2017_8.4y,p75,0.0807
+additive_core,mean_age_band,60+,596,by_2017_8.4y,p90,0.2675
+additive_core,mean_age_band,60+,596,by_2017_8.4y,p95,0.4937
+additive_core,mean_age_band,60+,596,by_2017_8.4y,p99,0.8049
+additive_core,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p1,
+additive_core,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p5,0.0014
+additive_core,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p10,0.0041
+additive_core,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p25,0.0094
+additive_core,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p50,0.0270
+additive_core,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p75,0.0953
+additive_core,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p90,0.1958
+additive_core,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p95,0.4171
+additive_core,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p99,
+additive_core,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p1,
+additive_core,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p5,0.0023
+additive_core,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p10,0.0070
+additive_core,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p25,0.0156
+additive_core,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p50,0.0436
+additive_core,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p75,0.1494
+additive_core,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p90,0.3097
+additive_core,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p95,0.5637
+additive_core,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p99,
+additive_core,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p1,
+additive_core,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p5,0.0037
+additive_core,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p10,0.0118
+additive_core,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p25,0.0270
+additive_core,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p50,0.0682
+additive_core,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p75,0.2211
+additive_core,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p90,0.4455
+additive_core,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p95,0.6695
+additive_core,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p99,
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p1,0.0053
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p5,0.0077
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p10,0.0117
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p25,0.0237
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p50,0.0561
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p75,0.2123
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p90,0.5427
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p95,0.6810
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p99,0.8913
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p1,0.0088
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p5,0.0132
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p10,0.0192
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p25,0.0386
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p50,0.0907
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p75,0.3106
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p90,0.6880
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p95,0.8217
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p99,0.9639
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p1,0.0149
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p5,0.0217
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p10,0.0307
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p25,0.0613
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p50,0.1408
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p75,0.4187
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p90,0.8093
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p95,0.9164
+additive_core,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p99,0.9918
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p1,0.0044
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p5,0.0081
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p10,0.0122
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p25,0.0250
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p50,0.0519
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p75,0.1848
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p90,0.5059
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p95,0.7071
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p99,0.8634
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p1,0.0073
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p5,0.0135
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p10,0.0201
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p25,0.0413
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p50,0.0839
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p75,0.2821
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p90,0.6445
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p95,0.8417
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p99,0.9468
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p1,0.0123
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p5,0.0220
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p10,0.0320
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p25,0.0661
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p50,0.1291
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p75,0.3978
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p90,0.7801
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p95,0.9195
+additive_core,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p99,0.9858
+additive_core,edu_years_mean_band,16+ years,781,by_2011_2.2y,p1,0.0033
+additive_core,edu_years_mean_band,16+ years,781,by_2011_2.2y,p5,0.0059
+additive_core,edu_years_mean_band,16+ years,781,by_2011_2.2y,p10,0.0092
+additive_core,edu_years_mean_band,16+ years,781,by_2011_2.2y,p25,0.0161
+additive_core,edu_years_mean_band,16+ years,781,by_2011_2.2y,p50,0.0273
+additive_core,edu_years_mean_band,16+ years,781,by_2011_2.2y,p75,0.0660
+additive_core,edu_years_mean_band,16+ years,781,by_2011_2.2y,p90,0.2555
+additive_core,edu_years_mean_band,16+ years,781,by_2011_2.2y,p95,0.5235
+additive_core,edu_years_mean_band,16+ years,781,by_2011_2.2y,p99,0.7308
+additive_core,edu_years_mean_band,16+ years,781,by_2013_4.1y,p1,0.0055
+additive_core,edu_years_mean_band,16+ years,781,by_2013_4.1y,p5,0.0097
+additive_core,edu_years_mean_band,16+ years,781,by_2013_4.1y,p10,0.0153
+additive_core,edu_years_mean_band,16+ years,781,by_2013_4.1y,p25,0.0263
+additive_core,edu_years_mean_band,16+ years,781,by_2013_4.1y,p50,0.0448
+additive_core,edu_years_mean_band,16+ years,781,by_2013_4.1y,p75,0.1013
+additive_core,edu_years_mean_band,16+ years,781,by_2013_4.1y,p90,0.3626
+additive_core,edu_years_mean_band,16+ years,781,by_2013_4.1y,p95,0.6700
+additive_core,edu_years_mean_band,16+ years,781,by_2013_4.1y,p99,0.8542
+additive_core,edu_years_mean_band,16+ years,781,by_2017_8.4y,p1,0.0090
+additive_core,edu_years_mean_band,16+ years,781,by_2017_8.4y,p5,0.0162
+additive_core,edu_years_mean_band,16+ years,781,by_2017_8.4y,p10,0.0243
+additive_core,edu_years_mean_band,16+ years,781,by_2017_8.4y,p25,0.0413
+additive_core,edu_years_mean_band,16+ years,781,by_2017_8.4y,p50,0.0692
+additive_core,edu_years_mean_band,16+ years,781,by_2017_8.4y,p75,0.1584
+additive_core,edu_years_mean_band,16+ years,781,by_2017_8.4y,p90,0.4789
+additive_core,edu_years_mean_band,16+ years,781,by_2017_8.4y,p95,0.7837
+additive_core,edu_years_mean_band,16+ years,781,by_2017_8.4y,p99,0.9280
+additive_core,how_met,Bar or restaurant,267,by_2011_2.2y,p1,
+additive_core,how_met,Bar or restaurant,267,by_2011_2.2y,p5,0.0059
+additive_core,how_met,Bar or restaurant,267,by_2011_2.2y,p10,0.0091
+additive_core,how_met,Bar or restaurant,267,by_2011_2.2y,p25,0.0154
+additive_core,how_met,Bar or restaurant,267,by_2011_2.2y,p50,0.0368
+additive_core,how_met,Bar or restaurant,267,by_2011_2.2y,p75,0.1042
+additive_core,how_met,Bar or restaurant,267,by_2011_2.2y,p90,0.4188
+additive_core,how_met,Bar or restaurant,267,by_2011_2.2y,p95,0.6975
+additive_core,how_met,Bar or restaurant,267,by_2011_2.2y,p99,
+additive_core,how_met,Bar or restaurant,267,by_2013_4.1y,p1,
+additive_core,how_met,Bar or restaurant,267,by_2013_4.1y,p5,0.0100
+additive_core,how_met,Bar or restaurant,267,by_2013_4.1y,p10,0.0153
+additive_core,how_met,Bar or restaurant,267,by_2013_4.1y,p25,0.0257
+additive_core,how_met,Bar or restaurant,267,by_2013_4.1y,p50,0.0591
+additive_core,how_met,Bar or restaurant,267,by_2013_4.1y,p75,0.1668
+additive_core,how_met,Bar or restaurant,267,by_2013_4.1y,p90,0.5723
+additive_core,how_met,Bar or restaurant,267,by_2013_4.1y,p95,0.8270
+additive_core,how_met,Bar or restaurant,267,by_2013_4.1y,p99,
+additive_core,how_met,Bar or restaurant,267,by_2017_8.4y,p1,
+additive_core,how_met,Bar or restaurant,267,by_2017_8.4y,p5,0.0164
+additive_core,how_met,Bar or restaurant,267,by_2017_8.4y,p10,0.0253
+additive_core,how_met,Bar or restaurant,267,by_2017_8.4y,p25,0.0403
+additive_core,how_met,Bar or restaurant,267,by_2017_8.4y,p50,0.0911
+additive_core,how_met,Bar or restaurant,267,by_2017_8.4y,p75,0.2511
+additive_core,how_met,Bar or restaurant,267,by_2017_8.4y,p90,0.7229
+additive_core,how_met,Bar or restaurant,267,by_2017_8.4y,p95,0.9060
+additive_core,how_met,Bar or restaurant,267,by_2017_8.4y,p99,
+additive_core,how_met,Church,78,by_2011_2.2y,p1,
+additive_core,how_met,Church,78,by_2011_2.2y,p5,
+additive_core,how_met,Church,78,by_2011_2.2y,p10,0.0073
+additive_core,how_met,Church,78,by_2011_2.2y,p25,0.0120
+additive_core,how_met,Church,78,by_2011_2.2y,p50,0.0194
+additive_core,how_met,Church,78,by_2011_2.2y,p75,0.0512
+additive_core,how_met,Church,78,by_2011_2.2y,p90,0.0950
+additive_core,how_met,Church,78,by_2011_2.2y,p95,
+additive_core,how_met,Church,78,by_2011_2.2y,p99,
+additive_core,how_met,Church,78,by_2013_4.1y,p1,
+additive_core,how_met,Church,78,by_2013_4.1y,p5,
+additive_core,how_met,Church,78,by_2013_4.1y,p10,0.0120
+additive_core,how_met,Church,78,by_2013_4.1y,p25,0.0197
+additive_core,how_met,Church,78,by_2013_4.1y,p50,0.0330
+additive_core,how_met,Church,78,by_2013_4.1y,p75,0.0723
+additive_core,how_met,Church,78,by_2013_4.1y,p90,0.1496
+additive_core,how_met,Church,78,by_2013_4.1y,p95,
+additive_core,how_met,Church,78,by_2013_4.1y,p99,
+additive_core,how_met,Church,78,by_2017_8.4y,p1,
+additive_core,how_met,Church,78,by_2017_8.4y,p5,
+additive_core,how_met,Church,78,by_2017_8.4y,p10,0.0195
+additive_core,how_met,Church,78,by_2017_8.4y,p25,0.0319
+additive_core,how_met,Church,78,by_2017_8.4y,p50,0.0513
+additive_core,how_met,Church,78,by_2017_8.4y,p75,0.1090
+additive_core,how_met,Church,78,by_2017_8.4y,p90,0.2349
+additive_core,how_met,Church,78,by_2017_8.4y,p95,
+additive_core,how_met,Church,78,by_2017_8.4y,p99,
+additive_core,how_met,Online,286,by_2011_2.2y,p1,
+additive_core,how_met,Online,286,by_2011_2.2y,p5,0.0251
+additive_core,how_met,Online,286,by_2011_2.2y,p10,0.0300
+additive_core,how_met,Online,286,by_2011_2.2y,p25,0.0638
+additive_core,how_met,Online,286,by_2011_2.2y,p50,0.1680
+additive_core,how_met,Online,286,by_2011_2.2y,p75,0.4810
+additive_core,how_met,Online,286,by_2011_2.2y,p90,0.7017
+additive_core,how_met,Online,286,by_2011_2.2y,p95,0.7595
+additive_core,how_met,Online,286,by_2011_2.2y,p99,
+additive_core,how_met,Online,286,by_2013_4.1y,p1,
+additive_core,how_met,Online,286,by_2013_4.1y,p5,0.0413
+additive_core,how_met,Online,286,by_2013_4.1y,p10,0.0490
+additive_core,how_met,Online,286,by_2013_4.1y,p25,0.0967
+additive_core,how_met,Online,286,by_2013_4.1y,p50,0.2420
+additive_core,how_met,Online,286,by_2013_4.1y,p75,0.6203
+additive_core,how_met,Online,286,by_2013_4.1y,p90,0.8363
+additive_core,how_met,Online,286,by_2013_4.1y,p95,0.8786
+additive_core,how_met,Online,286,by_2013_4.1y,p99,
+additive_core,how_met,Online,286,by_2017_8.4y,p1,
+additive_core,how_met,Online,286,by_2017_8.4y,p5,0.0624
+additive_core,how_met,Online,286,by_2017_8.4y,p10,0.0784
+additive_core,how_met,Online,286,by_2017_8.4y,p25,0.1397
+additive_core,how_met,Online,286,by_2017_8.4y,p50,0.3254
+additive_core,how_met,Online,286,by_2017_8.4y,p75,0.7448
+additive_core,how_met,Online,286,by_2017_8.4y,p90,0.9163
+additive_core,how_met,Online,286,by_2017_8.4y,p95,0.9472
+additive_core,how_met,Online,286,by_2017_8.4y,p99,
+additive_core,how_met,Other,434,by_2011_2.2y,p1,
+additive_core,how_met,Other,434,by_2011_2.2y,p5,0.0048
+additive_core,how_met,Other,434,by_2011_2.2y,p10,0.0064
+additive_core,how_met,Other,434,by_2011_2.2y,p25,0.0171
+additive_core,how_met,Other,434,by_2011_2.2y,p50,0.0492
+additive_core,how_met,Other,434,by_2011_2.2y,p75,0.2110
+additive_core,how_met,Other,434,by_2011_2.2y,p90,0.5349
+additive_core,how_met,Other,434,by_2011_2.2y,p95,0.6801
+additive_core,how_met,Other,434,by_2011_2.2y,p99,
+additive_core,how_met,Other,434,by_2013_4.1y,p1,
+additive_core,how_met,Other,434,by_2013_4.1y,p5,0.0080
+additive_core,how_met,Other,434,by_2013_4.1y,p10,0.0109
+additive_core,how_met,Other,434,by_2013_4.1y,p25,0.0281
+additive_core,how_met,Other,434,by_2013_4.1y,p50,0.0803
+additive_core,how_met,Other,434,by_2013_4.1y,p75,0.3079
+additive_core,how_met,Other,434,by_2013_4.1y,p90,0.6839
+additive_core,how_met,Other,434,by_2013_4.1y,p95,0.8161
+additive_core,how_met,Other,434,by_2013_4.1y,p99,
+additive_core,how_met,Other,434,by_2017_8.4y,p1,
+additive_core,how_met,Other,434,by_2017_8.4y,p5,0.0139
+additive_core,how_met,Other,434,by_2017_8.4y,p10,0.0175
+additive_core,how_met,Other,434,by_2017_8.4y,p25,0.0443
+additive_core,how_met,Other,434,by_2017_8.4y,p50,0.1252
+additive_core,how_met,Other,434,by_2017_8.4y,p75,0.4417
+additive_core,how_met,Other,434,by_2017_8.4y,p90,0.7928
+additive_core,how_met,Other,434,by_2017_8.4y,p95,0.9196
+additive_core,how_met,Other,434,by_2017_8.4y,p99,
+additive_core,how_met,School or college,271,by_2011_2.2y,p1,
+additive_core,how_met,School or college,271,by_2011_2.2y,p5,0.0047
+additive_core,how_met,School or college,271,by_2011_2.2y,p10,0.0064
+additive_core,how_met,School or college,271,by_2011_2.2y,p25,0.0153
+additive_core,how_met,School or college,271,by_2011_2.2y,p50,0.0299
+additive_core,how_met,School or college,271,by_2011_2.2y,p75,0.0764
+additive_core,how_met,School or college,271,by_2011_2.2y,p90,0.3739
+additive_core,how_met,School or college,271,by_2011_2.2y,p95,0.4891
+additive_core,how_met,School or college,271,by_2011_2.2y,p99,
+additive_core,how_met,School or college,271,by_2013_4.1y,p1,
+additive_core,how_met,School or college,271,by_2013_4.1y,p5,0.0080
+additive_core,how_met,School or college,271,by_2013_4.1y,p10,0.0105
+additive_core,how_met,School or college,271,by_2013_4.1y,p25,0.0252
+additive_core,how_met,School or college,271,by_2013_4.1y,p50,0.0462
+additive_core,how_met,School or college,271,by_2013_4.1y,p75,0.1197
+additive_core,how_met,School or college,271,by_2013_4.1y,p90,0.5008
+additive_core,how_met,School or college,271,by_2013_4.1y,p95,0.6376
+additive_core,how_met,School or college,271,by_2013_4.1y,p99,
+additive_core,how_met,School or college,271,by_2017_8.4y,p1,
+additive_core,how_met,School or college,271,by_2017_8.4y,p5,0.0135
+additive_core,how_met,School or college,271,by_2017_8.4y,p10,0.0173
+additive_core,how_met,School or college,271,by_2017_8.4y,p25,0.0398
+additive_core,how_met,School or college,271,by_2017_8.4y,p50,0.0730
+additive_core,how_met,School or college,271,by_2017_8.4y,p75,0.1650
+additive_core,how_met,School or college,271,by_2017_8.4y,p90,0.6551
+additive_core,how_met,School or college,271,by_2017_8.4y,p95,0.7488
+additive_core,how_met,School or college,271,by_2017_8.4y,p99,
+additive_core,how_met,Through family,265,by_2011_2.2y,p1,
+additive_core,how_met,Through family,265,by_2011_2.2y,p5,0.0053
+additive_core,how_met,Through family,265,by_2011_2.2y,p10,0.0088
+additive_core,how_met,Through family,265,by_2011_2.2y,p25,0.0190
+additive_core,how_met,Through family,265,by_2011_2.2y,p50,0.0492
+additive_core,how_met,Through family,265,by_2011_2.2y,p75,0.1167
+additive_core,how_met,Through family,265,by_2011_2.2y,p90,0.2966
+additive_core,how_met,Through family,265,by_2011_2.2y,p95,0.5574
+additive_core,how_met,Through family,265,by_2011_2.2y,p99,
+additive_core,how_met,Through family,265,by_2013_4.1y,p1,
+additive_core,how_met,Through family,265,by_2013_4.1y,p5,0.0091
+additive_core,how_met,Through family,265,by_2013_4.1y,p10,0.0148
+additive_core,how_met,Through family,265,by_2013_4.1y,p25,0.0311
+additive_core,how_met,Through family,265,by_2013_4.1y,p50,0.0789
+additive_core,how_met,Through family,265,by_2013_4.1y,p75,0.1853
+additive_core,how_met,Through family,265,by_2013_4.1y,p90,0.4186
+additive_core,how_met,Through family,265,by_2013_4.1y,p95,0.7266
+additive_core,how_met,Through family,265,by_2013_4.1y,p99,
+additive_core,how_met,Through family,265,by_2017_8.4y,p1,
+additive_core,how_met,Through family,265,by_2017_8.4y,p5,0.0153
+additive_core,how_met,Through family,265,by_2017_8.4y,p10,0.0242
+additive_core,how_met,Through family,265,by_2017_8.4y,p25,0.0490
+additive_core,how_met,Through family,265,by_2017_8.4y,p50,0.1222
+additive_core,how_met,Through family,265,by_2017_8.4y,p75,0.2753
+additive_core,how_met,Through family,265,by_2017_8.4y,p90,0.5709
+additive_core,how_met,Through family,265,by_2017_8.4y,p95,0.8470
+additive_core,how_met,Through family,265,by_2017_8.4y,p99,
+additive_core,how_met,Through friends,995,by_2011_2.2y,p1,0.0038
+additive_core,how_met,Through friends,995,by_2011_2.2y,p5,0.0077
+additive_core,how_met,Through friends,995,by_2011_2.2y,p10,0.0109
+additive_core,how_met,Through friends,995,by_2011_2.2y,p25,0.0215
+additive_core,how_met,Through friends,995,by_2011_2.2y,p50,0.0438
+additive_core,how_met,Through friends,995,by_2011_2.2y,p75,0.1354
+additive_core,how_met,Through friends,995,by_2011_2.2y,p90,0.4660
+additive_core,how_met,Through friends,995,by_2011_2.2y,p95,0.6086
+additive_core,how_met,Through friends,995,by_2011_2.2y,p99,0.8294
+additive_core,how_met,Through friends,995,by_2013_4.1y,p1,0.0063
+additive_core,how_met,Through friends,995,by_2013_4.1y,p5,0.0131
+additive_core,how_met,Through friends,995,by_2013_4.1y,p10,0.0182
+additive_core,how_met,Through friends,995,by_2013_4.1y,p25,0.0351
+additive_core,how_met,Through friends,995,by_2013_4.1y,p50,0.0705
+additive_core,how_met,Through friends,995,by_2013_4.1y,p75,0.2039
+additive_core,how_met,Through friends,995,by_2013_4.1y,p90,0.6091
+additive_core,how_met,Through friends,995,by_2013_4.1y,p95,0.7528
+additive_core,how_met,Through friends,995,by_2013_4.1y,p99,0.9274
+additive_core,how_met,Through friends,995,by_2017_8.4y,p1,0.0106
+additive_core,how_met,Through friends,995,by_2017_8.4y,p5,0.0210
+additive_core,how_met,Through friends,995,by_2017_8.4y,p10,0.0294
+additive_core,how_met,Through friends,995,by_2017_8.4y,p25,0.0557
+additive_core,how_met,Through friends,995,by_2017_8.4y,p50,0.1118
+additive_core,how_met,Through friends,995,by_2017_8.4y,p75,0.2809
+additive_core,how_met,Through friends,995,by_2017_8.4y,p90,0.7435
+additive_core,how_met,Through friends,995,by_2017_8.4y,p95,0.8577
+additive_core,how_met,Through friends,995,by_2017_8.4y,p99,0.9706
+additive_core,how_met,Work or coworkers,344,by_2011_2.2y,p1,
+additive_core,how_met,Work or coworkers,344,by_2011_2.2y,p5,0.0065
+additive_core,how_met,Work or coworkers,344,by_2011_2.2y,p10,0.0108
+additive_core,how_met,Work or coworkers,344,by_2011_2.2y,p25,0.0194
+additive_core,how_met,Work or coworkers,344,by_2011_2.2y,p50,0.0368
+additive_core,how_met,Work or coworkers,344,by_2011_2.2y,p75,0.1336
+additive_core,how_met,Work or coworkers,344,by_2011_2.2y,p90,0.3559
+additive_core,how_met,Work or coworkers,344,by_2011_2.2y,p95,0.5450
+additive_core,how_met,Work or coworkers,344,by_2011_2.2y,p99,
+additive_core,how_met,Work or coworkers,344,by_2013_4.1y,p1,
+additive_core,how_met,Work or coworkers,344,by_2013_4.1y,p5,0.0106
+additive_core,how_met,Work or coworkers,344,by_2013_4.1y,p10,0.0178
+additive_core,how_met,Work or coworkers,344,by_2013_4.1y,p25,0.0315
+additive_core,how_met,Work or coworkers,344,by_2013_4.1y,p50,0.0605
+additive_core,how_met,Work or coworkers,344,by_2013_4.1y,p75,0.2064
+additive_core,how_met,Work or coworkers,344,by_2013_4.1y,p90,0.4756
+additive_core,how_met,Work or coworkers,344,by_2013_4.1y,p95,0.6973
+additive_core,how_met,Work or coworkers,344,by_2013_4.1y,p99,
+additive_core,how_met,Work or coworkers,344,by_2017_8.4y,p1,
+additive_core,how_met,Work or coworkers,344,by_2017_8.4y,p5,0.0176
+additive_core,how_met,Work or coworkers,344,by_2017_8.4y,p10,0.0292
+additive_core,how_met,Work or coworkers,344,by_2017_8.4y,p25,0.0499
+additive_core,how_met,Work or coworkers,344,by_2017_8.4y,p50,0.0946
+additive_core,how_met,Work or coworkers,344,by_2017_8.4y,p75,0.2996
+additive_core,how_met,Work or coworkers,344,by_2017_8.4y,p90,0.6004
+additive_core,how_met,Work or coworkers,344,by_2017_8.4y,p95,0.8372
+additive_core,how_met,Work or coworkers,344,by_2017_8.4y,p99,
+additive_core,interracial,Interracial,508,by_2011_2.2y,p1,0.0040
+additive_core,interracial,Interracial,508,by_2011_2.2y,p5,0.0085
+additive_core,interracial,Interracial,508,by_2011_2.2y,p10,0.0134
+additive_core,interracial,Interracial,508,by_2011_2.2y,p25,0.0280
+additive_core,interracial,Interracial,508,by_2011_2.2y,p50,0.0644
+additive_core,interracial,Interracial,508,by_2011_2.2y,p75,0.2305
+additive_core,interracial,Interracial,508,by_2011_2.2y,p90,0.5842
+additive_core,interracial,Interracial,508,by_2011_2.2y,p95,0.7030
+additive_core,interracial,Interracial,508,by_2011_2.2y,p99,0.9176
+additive_core,interracial,Interracial,508,by_2013_4.1y,p1,0.0068
+additive_core,interracial,Interracial,508,by_2013_4.1y,p5,0.0142
+additive_core,interracial,Interracial,508,by_2013_4.1y,p10,0.0219
+additive_core,interracial,Interracial,508,by_2013_4.1y,p25,0.0457
+additive_core,interracial,Interracial,508,by_2013_4.1y,p50,0.0995
+additive_core,interracial,Interracial,508,by_2013_4.1y,p75,0.3453
+additive_core,interracial,Interracial,508,by_2013_4.1y,p90,0.7282
+additive_core,interracial,Interracial,508,by_2013_4.1y,p95,0.8398
+additive_core,interracial,Interracial,508,by_2013_4.1y,p99,0.9762
+additive_core,interracial,Interracial,508,by_2017_8.4y,p1,0.0116
+additive_core,interracial,Interracial,508,by_2017_8.4y,p5,0.0229
+additive_core,interracial,Interracial,508,by_2017_8.4y,p10,0.0342
+additive_core,interracial,Interracial,508,by_2017_8.4y,p25,0.0733
+additive_core,interracial,Interracial,508,by_2017_8.4y,p50,0.1573
+additive_core,interracial,Interracial,508,by_2017_8.4y,p75,0.4797
+additive_core,interracial,Interracial,508,by_2017_8.4y,p90,0.8393
+additive_core,interracial,Interracial,508,by_2017_8.4y,p95,0.9211
+additive_core,interracial,Interracial,508,by_2017_8.4y,p99,0.9956
+additive_core,interracial,Same race-ethnicity,2490,by_2011_2.2y,p1,0.0027
+additive_core,interracial,Same race-ethnicity,2490,by_2011_2.2y,p5,0.0058
+additive_core,interracial,Same race-ethnicity,2490,by_2011_2.2y,p10,0.0089
+additive_core,interracial,Same race-ethnicity,2490,by_2011_2.2y,p25,0.0180
+additive_core,interracial,Same race-ethnicity,2490,by_2011_2.2y,p50,0.0408
+additive_core,interracial,Same race-ethnicity,2490,by_2011_2.2y,p75,0.1351
+additive_core,interracial,Same race-ethnicity,2490,by_2011_2.2y,p90,0.4495
+additive_core,interracial,Same race-ethnicity,2490,by_2011_2.2y,p95,0.6116
+additive_core,interracial,Same race-ethnicity,2490,by_2011_2.2y,p99,0.8626
+additive_core,interracial,Same race-ethnicity,2490,by_2013_4.1y,p1,0.0045
+additive_core,interracial,Same race-ethnicity,2490,by_2013_4.1y,p5,0.0098
+additive_core,interracial,Same race-ethnicity,2490,by_2013_4.1y,p10,0.0147
+additive_core,interracial,Same race-ethnicity,2490,by_2013_4.1y,p25,0.0293
+additive_core,interracial,Same race-ethnicity,2490,by_2013_4.1y,p50,0.0659
+additive_core,interracial,Same race-ethnicity,2490,by_2013_4.1y,p75,0.2044
+additive_core,interracial,Same race-ethnicity,2490,by_2013_4.1y,p90,0.5991
+additive_core,interracial,Same race-ethnicity,2490,by_2013_4.1y,p95,0.7600
+additive_core,interracial,Same race-ethnicity,2490,by_2013_4.1y,p99,0.9485
+additive_core,interracial,Same race-ethnicity,2490,by_2017_8.4y,p1,0.0074
+additive_core,interracial,Same race-ethnicity,2490,by_2017_8.4y,p5,0.0164
+additive_core,interracial,Same race-ethnicity,2490,by_2017_8.4y,p10,0.0241
+additive_core,interracial,Same race-ethnicity,2490,by_2017_8.4y,p25,0.0472
+additive_core,interracial,Same race-ethnicity,2490,by_2017_8.4y,p50,0.1030
+additive_core,interracial,Same race-ethnicity,2490,by_2017_8.4y,p75,0.2883
+additive_core,interracial,Same race-ethnicity,2490,by_2017_8.4y,p90,0.7410
+additive_core,interracial,Same race-ethnicity,2490,by_2017_8.4y,p95,0.8707
+additive_core,interracial,Same race-ethnicity,2490,by_2017_8.4y,p99,0.9853
+additive_core,relationship_years_band,under 2 years,354,by_2011_2.2y,p1,
+additive_core,relationship_years_band,under 2 years,354,by_2011_2.2y,p5,0.1455
+additive_core,relationship_years_band,under 2 years,354,by_2011_2.2y,p10,0.1710
+additive_core,relationship_years_band,under 2 years,354,by_2011_2.2y,p25,0.3284
+additive_core,relationship_years_band,under 2 years,354,by_2011_2.2y,p50,0.5392
+additive_core,relationship_years_band,under 2 years,354,by_2011_2.2y,p75,0.7135
+additive_core,relationship_years_band,under 2 years,354,by_2011_2.2y,p90,0.8317
+additive_core,relationship_years_band,under 2 years,354,by_2011_2.2y,p95,0.8985
+additive_core,relationship_years_band,under 2 years,354,by_2011_2.2y,p99,
+additive_core,relationship_years_band,under 2 years,354,by_2013_4.1y,p1,
+additive_core,relationship_years_band,under 2 years,354,by_2013_4.1y,p5,0.2040
+additive_core,relationship_years_band,under 2 years,354,by_2013_4.1y,p10,0.2403
+additive_core,relationship_years_band,under 2 years,354,by_2013_4.1y,p25,0.4411
+additive_core,relationship_years_band,under 2 years,354,by_2013_4.1y,p50,0.6783
+additive_core,relationship_years_band,under 2 years,354,by_2013_4.1y,p75,0.8403
+additive_core,relationship_years_band,under 2 years,354,by_2013_4.1y,p90,0.9299
+additive_core,relationship_years_band,under 2 years,354,by_2013_4.1y,p95,0.9641
+additive_core,relationship_years_band,under 2 years,354,by_2013_4.1y,p99,
+additive_core,relationship_years_band,under 2 years,354,by_2017_8.4y,p1,
+additive_core,relationship_years_band,under 2 years,354,by_2017_8.4y,p5,0.2576
+additive_core,relationship_years_band,under 2 years,354,by_2017_8.4y,p10,0.3052
+additive_core,relationship_years_band,under 2 years,354,by_2017_8.4y,p25,0.5438
+additive_core,relationship_years_band,under 2 years,354,by_2017_8.4y,p50,0.7847
+additive_core,relationship_years_band,under 2 years,354,by_2017_8.4y,p75,0.9196
+additive_core,relationship_years_band,under 2 years,354,by_2017_8.4y,p90,0.9738
+additive_core,relationship_years_band,under 2 years,354,by_2017_8.4y,p95,0.9915
+additive_core,relationship_years_band,under 2 years,354,by_2017_8.4y,p99,
+additive_core,relationship_years_band,2-4 years,294,by_2011_2.2y,p1,
+additive_core,relationship_years_band,2-4 years,294,by_2011_2.2y,p5,0.0368
+additive_core,relationship_years_band,2-4 years,294,by_2011_2.2y,p10,0.0507
+additive_core,relationship_years_band,2-4 years,294,by_2011_2.2y,p25,0.0817
+additive_core,relationship_years_band,2-4 years,294,by_2011_2.2y,p50,0.1852
+additive_core,relationship_years_band,2-4 years,294,by_2011_2.2y,p75,0.4152
+additive_core,relationship_years_band,2-4 years,294,by_2011_2.2y,p90,0.6124
+additive_core,relationship_years_band,2-4 years,294,by_2011_2.2y,p95,0.7265
+additive_core,relationship_years_band,2-4 years,294,by_2011_2.2y,p99,
+additive_core,relationship_years_band,2-4 years,294,by_2013_4.1y,p1,
+additive_core,relationship_years_band,2-4 years,294,by_2013_4.1y,p5,0.0561
+additive_core,relationship_years_band,2-4 years,294,by_2013_4.1y,p10,0.0756
+additive_core,relationship_years_band,2-4 years,294,by_2013_4.1y,p25,0.1218
+additive_core,relationship_years_band,2-4 years,294,by_2013_4.1y,p50,0.2655
+additive_core,relationship_years_band,2-4 years,294,by_2013_4.1y,p75,0.5569
+additive_core,relationship_years_band,2-4 years,294,by_2013_4.1y,p90,0.7616
+additive_core,relationship_years_band,2-4 years,294,by_2013_4.1y,p95,0.8558
+additive_core,relationship_years_band,2-4 years,294,by_2013_4.1y,p99,
+additive_core,relationship_years_band,2-4 years,294,by_2017_8.4y,p1,
+additive_core,relationship_years_band,2-4 years,294,by_2017_8.4y,p5,0.0801
+additive_core,relationship_years_band,2-4 years,294,by_2017_8.4y,p10,0.1099
+additive_core,relationship_years_band,2-4 years,294,by_2017_8.4y,p25,0.1723
+additive_core,relationship_years_band,2-4 years,294,by_2017_8.4y,p50,0.3575
+additive_core,relationship_years_band,2-4 years,294,by_2017_8.4y,p75,0.6865
+additive_core,relationship_years_band,2-4 years,294,by_2017_8.4y,p90,0.8704
+additive_core,relationship_years_band,2-4 years,294,by_2017_8.4y,p95,0.9398
+additive_core,relationship_years_band,2-4 years,294,by_2017_8.4y,p99,
+additive_core,relationship_years_band,5-9 years,524,by_2011_2.2y,p1,0.0145
+additive_core,relationship_years_band,5-9 years,524,by_2011_2.2y,p5,0.0186
+additive_core,relationship_years_band,5-9 years,524,by_2011_2.2y,p10,0.0224
+additive_core,relationship_years_band,5-9 years,524,by_2011_2.2y,p25,0.0330
+additive_core,relationship_years_band,5-9 years,524,by_2011_2.2y,p50,0.0548
+additive_core,relationship_years_band,5-9 years,524,by_2011_2.2y,p75,0.1356
+additive_core,relationship_years_band,5-9 years,524,by_2011_2.2y,p90,0.3576
+additive_core,relationship_years_band,5-9 years,524,by_2011_2.2y,p95,0.4679
+additive_core,relationship_years_band,5-9 years,524,by_2011_2.2y,p99,0.7374
+additive_core,relationship_years_band,5-9 years,524,by_2013_4.1y,p1,0.0234
+additive_core,relationship_years_band,5-9 years,524,by_2013_4.1y,p5,0.0295
+additive_core,relationship_years_band,5-9 years,524,by_2013_4.1y,p10,0.0357
+additive_core,relationship_years_band,5-9 years,524,by_2013_4.1y,p25,0.0523
+additive_core,relationship_years_band,5-9 years,524,by_2013_4.1y,p50,0.0851
+additive_core,relationship_years_band,5-9 years,524,by_2013_4.1y,p75,0.2102
+additive_core,relationship_years_band,5-9 years,524,by_2013_4.1y,p90,0.4968
+additive_core,relationship_years_band,5-9 years,524,by_2013_4.1y,p95,0.6251
+additive_core,relationship_years_band,5-9 years,524,by_2013_4.1y,p99,0.8754
+additive_core,relationship_years_band,5-9 years,524,by_2017_8.4y,p1,0.0371
+additive_core,relationship_years_band,5-9 years,524,by_2017_8.4y,p5,0.0474
+additive_core,relationship_years_band,5-9 years,524,by_2017_8.4y,p10,0.0553
+additive_core,relationship_years_band,5-9 years,524,by_2017_8.4y,p25,0.0824
+additive_core,relationship_years_band,5-9 years,524,by_2017_8.4y,p50,0.1325
+additive_core,relationship_years_band,5-9 years,524,by_2017_8.4y,p75,0.3040
+additive_core,relationship_years_band,5-9 years,524,by_2017_8.4y,p90,0.6455
+additive_core,relationship_years_band,5-9 years,524,by_2017_8.4y,p95,0.7935
+additive_core,relationship_years_band,5-9 years,524,by_2017_8.4y,p99,0.9605
+additive_core,relationship_years_band,10-19 years,753,by_2011_2.2y,p1,0.0086
+additive_core,relationship_years_band,10-19 years,753,by_2011_2.2y,p5,0.0140
+additive_core,relationship_years_band,10-19 years,753,by_2011_2.2y,p10,0.0173
+additive_core,relationship_years_band,10-19 years,753,by_2011_2.2y,p25,0.0244
+additive_core,relationship_years_band,10-19 years,753,by_2011_2.2y,p50,0.0419
+additive_core,relationship_years_band,10-19 years,753,by_2011_2.2y,p75,0.0782
+additive_core,relationship_years_band,10-19 years,753,by_2011_2.2y,p90,0.1848
+additive_core,relationship_years_band,10-19 years,753,by_2011_2.2y,p95,0.2754
+additive_core,relationship_years_band,10-19 years,753,by_2011_2.2y,p99,0.5588
+additive_core,relationship_years_band,10-19 years,753,by_2013_4.1y,p1,0.0145
+additive_core,relationship_years_band,10-19 years,753,by_2013_4.1y,p5,0.0230
+additive_core,relationship_years_band,10-19 years,753,by_2013_4.1y,p10,0.0285
+additive_core,relationship_years_band,10-19 years,753,by_2013_4.1y,p25,0.0405
+additive_core,relationship_years_band,10-19 years,753,by_2013_4.1y,p50,0.0694
+additive_core,relationship_years_band,10-19 years,753,by_2013_4.1y,p75,0.1272
+additive_core,relationship_years_band,10-19 years,753,by_2013_4.1y,p90,0.2845
+additive_core,relationship_years_band,10-19 years,753,by_2013_4.1y,p95,0.4151
+additive_core,relationship_years_band,10-19 years,753,by_2013_4.1y,p99,0.7364
+additive_core,relationship_years_band,10-19 years,753,by_2017_8.4y,p1,0.0235
+additive_core,relationship_years_band,10-19 years,753,by_2017_8.4y,p5,0.0370
+additive_core,relationship_years_band,10-19 years,753,by_2017_8.4y,p10,0.0456
+additive_core,relationship_years_band,10-19 years,753,by_2017_8.4y,p25,0.0640
+additive_core,relationship_years_band,10-19 years,753,by_2017_8.4y,p50,0.1082
+additive_core,relationship_years_band,10-19 years,753,by_2017_8.4y,p75,0.1967
+additive_core,relationship_years_band,10-19 years,753,by_2017_8.4y,p90,0.4164
+additive_core,relationship_years_band,10-19 years,753,by_2017_8.4y,p95,0.5803
+additive_core,relationship_years_band,10-19 years,753,by_2017_8.4y,p99,0.8808
+additive_core,relationship_years_band,20+ years,1057,by_2011_2.2y,p1,0.0012
+additive_core,relationship_years_band,20+ years,1057,by_2011_2.2y,p5,0.0041
+additive_core,relationship_years_band,20+ years,1057,by_2011_2.2y,p10,0.0055
+additive_core,relationship_years_band,20+ years,1057,by_2011_2.2y,p25,0.0092
+additive_core,relationship_years_band,20+ years,1057,by_2011_2.2y,p50,0.0166
+additive_core,relationship_years_band,20+ years,1057,by_2011_2.2y,p75,0.0369
+additive_core,relationship_years_band,20+ years,1057,by_2011_2.2y,p90,0.0823
+additive_core,relationship_years_band,20+ years,1057,by_2011_2.2y,p95,0.1697
+additive_core,relationship_years_band,20+ years,1057,by_2011_2.2y,p99,0.3778
+additive_core,relationship_years_band,20+ years,1057,by_2013_4.1y,p1,0.0020
+additive_core,relationship_years_band,20+ years,1057,by_2013_4.1y,p5,0.0069
+additive_core,relationship_years_band,20+ years,1057,by_2013_4.1y,p10,0.0094
+additive_core,relationship_years_band,20+ years,1057,by_2013_4.1y,p25,0.0153
+additive_core,relationship_years_band,20+ years,1057,by_2013_4.1y,p50,0.0277
+additive_core,relationship_years_band,20+ years,1057,by_2013_4.1y,p75,0.0600
+additive_core,relationship_years_band,20+ years,1057,by_2013_4.1y,p90,0.1326
+additive_core,relationship_years_band,20+ years,1057,by_2013_4.1y,p95,0.2577
+additive_core,relationship_years_band,20+ years,1057,by_2013_4.1y,p99,0.5357
+additive_core,relationship_years_band,20+ years,1057,by_2017_8.4y,p1,0.0031
+additive_core,relationship_years_band,20+ years,1057,by_2017_8.4y,p5,0.0117
+additive_core,relationship_years_band,20+ years,1057,by_2017_8.4y,p10,0.0155
+additive_core,relationship_years_band,20+ years,1057,by_2017_8.4y,p25,0.0248
+additive_core,relationship_years_band,20+ years,1057,by_2017_8.4y,p50,0.0439
+additive_core,relationship_years_band,20+ years,1057,by_2017_8.4y,p75,0.0931
+additive_core,relationship_years_band,20+ years,1057,by_2017_8.4y,p90,0.1996
+additive_core,relationship_years_band,20+ years,1057,by_2017_8.4y,p95,0.3716
+additive_core,relationship_years_band,20+ years,1057,by_2017_8.4y,p99,0.7035
+additive_full,all,All couples,3009,by_2011_2.2y,p1,0.0028
+additive_full,all,All couples,3009,by_2011_2.2y,p5,0.0064
+additive_full,all,All couples,3009,by_2011_2.2y,p10,0.0098
+additive_full,all,All couples,3009,by_2011_2.2y,p25,0.0192
+additive_full,all,All couples,3009,by_2011_2.2y,p50,0.0441
+additive_full,all,All couples,3009,by_2011_2.2y,p75,0.1510
+additive_full,all,All couples,3009,by_2011_2.2y,p90,0.4770
+additive_full,all,All couples,3009,by_2011_2.2y,p95,0.6366
+additive_full,all,All couples,3009,by_2011_2.2y,p99,0.8861
+additive_full,all,All couples,3009,by_2013_4.1y,p1,0.0048
+additive_full,all,All couples,3009,by_2013_4.1y,p5,0.0107
+additive_full,all,All couples,3009,by_2013_4.1y,p10,0.0162
+additive_full,all,All couples,3009,by_2013_4.1y,p25,0.0315
+additive_full,all,All couples,3009,by_2013_4.1y,p50,0.0709
+additive_full,all,All couples,3009,by_2013_4.1y,p75,0.2301
+additive_full,all,All couples,3009,by_2013_4.1y,p90,0.6283
+additive_full,all,All couples,3009,by_2013_4.1y,p95,0.7816
+additive_full,all,All couples,3009,by_2013_4.1y,p99,0.9629
+additive_full,all,All couples,3009,by_2017_8.4y,p1,0.0079
+additive_full,all,All couples,3009,by_2017_8.4y,p5,0.0178
+additive_full,all,All couples,3009,by_2017_8.4y,p10,0.0266
+additive_full,all,All couples,3009,by_2017_8.4y,p25,0.0498
+additive_full,all,All couples,3009,by_2017_8.4y,p50,0.1097
+additive_full,all,All couples,3009,by_2017_8.4y,p75,0.3232
+additive_full,all,All couples,3009,by_2017_8.4y,p90,0.7653
+additive_full,all,All couples,3009,by_2017_8.4y,p95,0.8871
+additive_full,all,All couples,3009,by_2017_8.4y,p99,0.9911
+additive_full,married,Married,1928,by_2011_2.2y,p1,0.0018
+additive_full,married,Married,1928,by_2011_2.2y,p5,0.0056
+additive_full,married,Married,1928,by_2011_2.2y,p10,0.0078
+additive_full,married,Married,1928,by_2011_2.2y,p25,0.0146
+additive_full,married,Married,1928,by_2011_2.2y,p50,0.0276
+additive_full,married,Married,1928,by_2011_2.2y,p75,0.0508
+additive_full,married,Married,1928,by_2011_2.2y,p90,0.0890
+additive_full,married,Married,1928,by_2011_2.2y,p95,0.1353
+additive_full,married,Married,1928,by_2011_2.2y,p99,0.2787
+additive_full,married,Married,1928,by_2013_4.1y,p1,0.0031
+additive_full,married,Married,1928,by_2013_4.1y,p5,0.0094
+additive_full,married,Married,1928,by_2013_4.1y,p10,0.0129
+additive_full,married,Married,1928,by_2013_4.1y,p25,0.0238
+additive_full,married,Married,1928,by_2013_4.1y,p50,0.0454
+additive_full,married,Married,1928,by_2013_4.1y,p75,0.0819
+additive_full,married,Married,1928,by_2013_4.1y,p90,0.1414
+additive_full,married,Married,1928,by_2013_4.1y,p95,0.2040
+additive_full,married,Married,1928,by_2013_4.1y,p99,0.4132
+additive_full,married,Married,1928,by_2017_8.4y,p1,0.0050
+additive_full,married,Married,1928,by_2017_8.4y,p5,0.0158
+additive_full,married,Married,1928,by_2017_8.4y,p10,0.0209
+additive_full,married,Married,1928,by_2017_8.4y,p25,0.0383
+additive_full,married,Married,1928,by_2017_8.4y,p50,0.0714
+additive_full,married,Married,1928,by_2017_8.4y,p75,0.1272
+additive_full,married,Married,1928,by_2017_8.4y,p90,0.2124
+additive_full,married,Married,1928,by_2017_8.4y,p95,0.2898
+additive_full,married,Married,1928,by_2017_8.4y,p99,0.5722
+additive_full,married,Unmarried,1081,by_2011_2.2y,p1,0.0360
+additive_full,married,Unmarried,1081,by_2011_2.2y,p5,0.0559
+additive_full,married,Unmarried,1081,by_2011_2.2y,p10,0.0765
+additive_full,married,Unmarried,1081,by_2011_2.2y,p25,0.1590
+additive_full,married,Unmarried,1081,by_2011_2.2y,p50,0.3274
+additive_full,married,Unmarried,1081,by_2011_2.2y,p75,0.5534
+additive_full,married,Unmarried,1081,by_2011_2.2y,p90,0.7583
+additive_full,married,Unmarried,1081,by_2011_2.2y,p95,0.8559
+additive_full,married,Unmarried,1081,by_2011_2.2y,p99,0.9514
+additive_full,married,Unmarried,1081,by_2013_4.1y,p1,0.0567
+additive_full,married,Unmarried,1081,by_2013_4.1y,p5,0.0854
+additive_full,married,Unmarried,1081,by_2013_4.1y,p10,0.1206
+additive_full,married,Unmarried,1081,by_2013_4.1y,p25,0.2405
+additive_full,married,Unmarried,1081,by_2013_4.1y,p50,0.4643
+additive_full,married,Unmarried,1081,by_2013_4.1y,p75,0.6993
+additive_full,married,Unmarried,1081,by_2013_4.1y,p90,0.8739
+additive_full,married,Unmarried,1081,by_2013_4.1y,p95,0.9448
+additive_full,married,Unmarried,1081,by_2013_4.1y,p99,0.9894
+additive_full,married,Unmarried,1081,by_2017_8.4y,p1,0.0881
+additive_full,married,Unmarried,1081,by_2017_8.4y,p5,0.1265
+additive_full,married,Unmarried,1081,by_2017_8.4y,p10,0.1824
+additive_full,married,Unmarried,1081,by_2017_8.4y,p25,0.3402
+additive_full,married,Unmarried,1081,by_2017_8.4y,p50,0.6054
+additive_full,married,Unmarried,1081,by_2017_8.4y,p75,0.8256
+additive_full,married,Unmarried,1081,by_2017_8.4y,p90,0.9472
+additive_full,married,Unmarried,1081,by_2017_8.4y,p95,0.9830
+additive_full,married,Unmarried,1081,by_2017_8.4y,p99,0.9988
+additive_full,couple_type,Different-sex,2535,by_2011_2.2y,p1,0.0028
+additive_full,couple_type,Different-sex,2535,by_2011_2.2y,p5,0.0062
+additive_full,couple_type,Different-sex,2535,by_2011_2.2y,p10,0.0097
+additive_full,couple_type,Different-sex,2535,by_2011_2.2y,p25,0.0189
+additive_full,couple_type,Different-sex,2535,by_2011_2.2y,p50,0.0436
+additive_full,couple_type,Different-sex,2535,by_2011_2.2y,p75,0.1444
+additive_full,couple_type,Different-sex,2535,by_2011_2.2y,p90,0.4645
+additive_full,couple_type,Different-sex,2535,by_2011_2.2y,p95,0.6185
+additive_full,couple_type,Different-sex,2535,by_2011_2.2y,p99,0.8846
+additive_full,couple_type,Different-sex,2535,by_2013_4.1y,p1,0.0047
+additive_full,couple_type,Different-sex,2535,by_2013_4.1y,p5,0.0105
+additive_full,couple_type,Different-sex,2535,by_2013_4.1y,p10,0.0160
+additive_full,couple_type,Different-sex,2535,by_2013_4.1y,p25,0.0311
+additive_full,couple_type,Different-sex,2535,by_2013_4.1y,p50,0.0699
+additive_full,couple_type,Different-sex,2535,by_2013_4.1y,p75,0.2155
+additive_full,couple_type,Different-sex,2535,by_2013_4.1y,p90,0.6205
+additive_full,couple_type,Different-sex,2535,by_2013_4.1y,p95,0.7678
+additive_full,couple_type,Different-sex,2535,by_2013_4.1y,p99,0.9606
+additive_full,couple_type,Different-sex,2535,by_2017_8.4y,p1,0.0076
+additive_full,couple_type,Different-sex,2535,by_2017_8.4y,p5,0.0176
+additive_full,couple_type,Different-sex,2535,by_2017_8.4y,p10,0.0262
+additive_full,couple_type,Different-sex,2535,by_2017_8.4y,p25,0.0491
+additive_full,couple_type,Different-sex,2535,by_2017_8.4y,p50,0.1056
+additive_full,couple_type,Different-sex,2535,by_2017_8.4y,p75,0.3060
+additive_full,couple_type,Different-sex,2535,by_2017_8.4y,p90,0.7547
+additive_full,couple_type,Different-sex,2535,by_2017_8.4y,p95,0.8804
+additive_full,couple_type,Different-sex,2535,by_2017_8.4y,p99,0.9898
+additive_full,couple_type,Same-sex,474,by_2011_2.2y,p1,
+additive_full,couple_type,Same-sex,474,by_2011_2.2y,p5,0.0164
+additive_full,couple_type,Same-sex,474,by_2011_2.2y,p10,0.0258
+additive_full,couple_type,Same-sex,474,by_2011_2.2y,p25,0.0581
+additive_full,couple_type,Same-sex,474,by_2011_2.2y,p50,0.1733
+additive_full,couple_type,Same-sex,474,by_2011_2.2y,p75,0.5560
+additive_full,couple_type,Same-sex,474,by_2011_2.2y,p90,0.8538
+additive_full,couple_type,Same-sex,474,by_2011_2.2y,p95,0.9416
+additive_full,couple_type,Same-sex,474,by_2011_2.2y,p99,
+additive_full,couple_type,Same-sex,474,by_2013_4.1y,p1,
+additive_full,couple_type,Same-sex,474,by_2013_4.1y,p5,0.0271
+additive_full,couple_type,Same-sex,474,by_2013_4.1y,p10,0.0411
+additive_full,couple_type,Same-sex,474,by_2013_4.1y,p25,0.0952
+additive_full,couple_type,Same-sex,474,by_2013_4.1y,p50,0.2606
+additive_full,couple_type,Same-sex,474,by_2013_4.1y,p75,0.6971
+additive_full,couple_type,Same-sex,474,by_2013_4.1y,p90,0.9482
+additive_full,couple_type,Same-sex,474,by_2013_4.1y,p95,0.9854
+additive_full,couple_type,Same-sex,474,by_2013_4.1y,p99,
+additive_full,couple_type,Same-sex,474,by_2017_8.4y,p1,
+additive_full,couple_type,Same-sex,474,by_2017_8.4y,p5,0.0426
+additive_full,couple_type,Same-sex,474,by_2017_8.4y,p10,0.0628
+additive_full,couple_type,Same-sex,474,by_2017_8.4y,p25,0.1522
+additive_full,couple_type,Same-sex,474,by_2017_8.4y,p50,0.3869
+additive_full,couple_type,Same-sex,474,by_2017_8.4y,p75,0.8074
+additive_full,couple_type,Same-sex,474,by_2017_8.4y,p90,0.9862
+additive_full,couple_type,Same-sex,474,by_2017_8.4y,p95,0.9988
+additive_full,couple_type,Same-sex,474,by_2017_8.4y,p99,
+additive_full,relationship_quality,Excellent,1771,by_2011_2.2y,p1,0.0027
+additive_full,relationship_quality,Excellent,1771,by_2011_2.2y,p5,0.0056
+additive_full,relationship_quality,Excellent,1771,by_2011_2.2y,p10,0.0072
+additive_full,relationship_quality,Excellent,1771,by_2011_2.2y,p25,0.0136
+additive_full,relationship_quality,Excellent,1771,by_2011_2.2y,p50,0.0255
+additive_full,relationship_quality,Excellent,1771,by_2011_2.2y,p75,0.0557
+additive_full,relationship_quality,Excellent,1771,by_2011_2.2y,p90,0.2348
+additive_full,relationship_quality,Excellent,1771,by_2011_2.2y,p95,0.4294
+additive_full,relationship_quality,Excellent,1771,by_2011_2.2y,p99,0.5957
+additive_full,relationship_quality,Excellent,1771,by_2013_4.1y,p1,0.0046
+additive_full,relationship_quality,Excellent,1771,by_2013_4.1y,p5,0.0092
+additive_full,relationship_quality,Excellent,1771,by_2013_4.1y,p10,0.0121
+additive_full,relationship_quality,Excellent,1771,by_2013_4.1y,p25,0.0223
+additive_full,relationship_quality,Excellent,1771,by_2013_4.1y,p50,0.0414
+additive_full,relationship_quality,Excellent,1771,by_2013_4.1y,p75,0.0864
+additive_full,relationship_quality,Excellent,1771,by_2013_4.1y,p90,0.3349
+additive_full,relationship_quality,Excellent,1771,by_2013_4.1y,p95,0.5677
+additive_full,relationship_quality,Excellent,1771,by_2013_4.1y,p99,0.7416
+additive_full,relationship_quality,Excellent,1771,by_2017_8.4y,p1,0.0074
+additive_full,relationship_quality,Excellent,1771,by_2017_8.4y,p5,0.0155
+additive_full,relationship_quality,Excellent,1771,by_2017_8.4y,p10,0.0199
+additive_full,relationship_quality,Excellent,1771,by_2017_8.4y,p25,0.0353
+additive_full,relationship_quality,Excellent,1771,by_2017_8.4y,p50,0.0648
+additive_full,relationship_quality,Excellent,1771,by_2017_8.4y,p75,0.1315
+additive_full,relationship_quality,Excellent,1771,by_2017_8.4y,p90,0.4331
+additive_full,relationship_quality,Excellent,1771,by_2017_8.4y,p95,0.6942
+additive_full,relationship_quality,Excellent,1771,by_2017_8.4y,p99,0.8501
+additive_full,relationship_quality,Good,911,by_2011_2.2y,p1,0.0095
+additive_full,relationship_quality,Good,911,by_2011_2.2y,p5,0.0158
+additive_full,relationship_quality,Good,911,by_2011_2.2y,p10,0.0222
+additive_full,relationship_quality,Good,911,by_2011_2.2y,p25,0.0417
+additive_full,relationship_quality,Good,911,by_2011_2.2y,p50,0.0725
+additive_full,relationship_quality,Good,911,by_2011_2.2y,p75,0.2385
+additive_full,relationship_quality,Good,911,by_2011_2.2y,p90,0.5735
+additive_full,relationship_quality,Good,911,by_2011_2.2y,p95,0.7430
+additive_full,relationship_quality,Good,911,by_2011_2.2y,p99,0.8351
+additive_full,relationship_quality,Good,911,by_2013_4.1y,p1,0.0156
+additive_full,relationship_quality,Good,911,by_2013_4.1y,p5,0.0255
+additive_full,relationship_quality,Good,911,by_2013_4.1y,p10,0.0373
+additive_full,relationship_quality,Good,911,by_2013_4.1y,p25,0.0679
+additive_full,relationship_quality,Good,911,by_2013_4.1y,p50,0.1159
+additive_full,relationship_quality,Good,911,by_2013_4.1y,p75,0.3640
+additive_full,relationship_quality,Good,911,by_2013_4.1y,p90,0.7325
+additive_full,relationship_quality,Good,911,by_2013_4.1y,p95,0.8643
+additive_full,relationship_quality,Good,911,by_2013_4.1y,p99,0.9322
+additive_full,relationship_quality,Good,911,by_2017_8.4y,p1,0.0259
+additive_full,relationship_quality,Good,911,by_2017_8.4y,p5,0.0419
+additive_full,relationship_quality,Good,911,by_2017_8.4y,p10,0.0605
+additive_full,relationship_quality,Good,911,by_2017_8.4y,p25,0.1047
+additive_full,relationship_quality,Good,911,by_2017_8.4y,p50,0.1761
+additive_full,relationship_quality,Good,911,by_2017_8.4y,p75,0.4919
+additive_full,relationship_quality,Good,911,by_2017_8.4y,p90,0.8509
+additive_full,relationship_quality,Good,911,by_2017_8.4y,p95,0.9381
+additive_full,relationship_quality,Good,911,by_2017_8.4y,p99,0.9786
+additive_full,relationship_quality,Fair,252,by_2011_2.2y,p1,
+additive_full,relationship_quality,Fair,252,by_2011_2.2y,p5,0.0156
+additive_full,relationship_quality,Fair,252,by_2011_2.2y,p10,0.0389
+additive_full,relationship_quality,Fair,252,by_2011_2.2y,p25,0.0944
+additive_full,relationship_quality,Fair,252,by_2011_2.2y,p50,0.2175
+additive_full,relationship_quality,Fair,252,by_2011_2.2y,p75,0.5621
+additive_full,relationship_quality,Fair,252,by_2011_2.2y,p90,0.8653
+additive_full,relationship_quality,Fair,252,by_2011_2.2y,p95,0.9190
+additive_full,relationship_quality,Fair,252,by_2011_2.2y,p99,
+additive_full,relationship_quality,Fair,252,by_2013_4.1y,p1,
+additive_full,relationship_quality,Fair,252,by_2013_4.1y,p5,0.0260
+additive_full,relationship_quality,Fair,252,by_2013_4.1y,p10,0.0641
+additive_full,relationship_quality,Fair,252,by_2013_4.1y,p25,0.1523
+additive_full,relationship_quality,Fair,252,by_2013_4.1y,p50,0.3311
+additive_full,relationship_quality,Fair,252,by_2013_4.1y,p75,0.7284
+additive_full,relationship_quality,Fair,252,by_2013_4.1y,p90,0.9505
+additive_full,relationship_quality,Fair,252,by_2013_4.1y,p95,0.9746
+additive_full,relationship_quality,Fair,252,by_2013_4.1y,p99,
+additive_full,relationship_quality,Fair,252,by_2017_8.4y,p1,
+additive_full,relationship_quality,Fair,252,by_2017_8.4y,p5,0.0439
+additive_full,relationship_quality,Fair,252,by_2017_8.4y,p10,0.1040
+additive_full,relationship_quality,Fair,252,by_2017_8.4y,p25,0.2270
+additive_full,relationship_quality,Fair,252,by_2017_8.4y,p50,0.4527
+additive_full,relationship_quality,Fair,252,by_2017_8.4y,p75,0.8476
+additive_full,relationship_quality,Fair,252,by_2017_8.4y,p90,0.9869
+additive_full,relationship_quality,Fair,252,by_2017_8.4y,p95,0.9962
+additive_full,relationship_quality,Fair,252,by_2017_8.4y,p99,
+additive_full,relationship_quality,Poor or very poor,62,by_2011_2.2y,p1,
+additive_full,relationship_quality,Poor or very poor,62,by_2011_2.2y,p5,
+additive_full,relationship_quality,Poor or very poor,62,by_2011_2.2y,p10,0.0797
+additive_full,relationship_quality,Poor or very poor,62,by_2011_2.2y,p25,0.1163
+additive_full,relationship_quality,Poor or very poor,62,by_2011_2.2y,p50,0.2162
+additive_full,relationship_quality,Poor or very poor,62,by_2011_2.2y,p75,0.4745
+additive_full,relationship_quality,Poor or very poor,62,by_2011_2.2y,p90,0.9193
+additive_full,relationship_quality,Poor or very poor,62,by_2011_2.2y,p95,
+additive_full,relationship_quality,Poor or very poor,62,by_2011_2.2y,p99,
+additive_full,relationship_quality,Poor or very poor,62,by_2013_4.1y,p1,
+additive_full,relationship_quality,Poor or very poor,62,by_2013_4.1y,p5,
+additive_full,relationship_quality,Poor or very poor,62,by_2013_4.1y,p10,0.1260
+additive_full,relationship_quality,Poor or very poor,62,by_2013_4.1y,p25,0.1814
+additive_full,relationship_quality,Poor or very poor,62,by_2013_4.1y,p50,0.3270
+additive_full,relationship_quality,Poor or very poor,62,by_2013_4.1y,p75,0.6347
+additive_full,relationship_quality,Poor or very poor,62,by_2013_4.1y,p90,0.9764
+additive_full,relationship_quality,Poor or very poor,62,by_2013_4.1y,p95,
+additive_full,relationship_quality,Poor or very poor,62,by_2013_4.1y,p99,
+additive_full,relationship_quality,Poor or very poor,62,by_2017_8.4y,p1,
+additive_full,relationship_quality,Poor or very poor,62,by_2017_8.4y,p5,
+additive_full,relationship_quality,Poor or very poor,62,by_2017_8.4y,p10,0.1876
+additive_full,relationship_quality,Poor or very poor,62,by_2017_8.4y,p25,0.2703
+additive_full,relationship_quality,Poor or very poor,62,by_2017_8.4y,p50,0.4608
+additive_full,relationship_quality,Poor or very poor,62,by_2017_8.4y,p75,0.8004
+additive_full,relationship_quality,Poor or very poor,62,by_2017_8.4y,p90,0.9952
+additive_full,relationship_quality,Poor or very poor,62,by_2017_8.4y,p95,
+additive_full,relationship_quality,Poor or very poor,62,by_2017_8.4y,p99,
+additive_full,mean_age_band,under 30,497,by_2011_2.2y,p1,
+additive_full,mean_age_band,under 30,497,by_2011_2.2y,p5,0.0179
+additive_full,mean_age_band,under 30,497,by_2011_2.2y,p10,0.0235
+additive_full,mean_age_band,under 30,497,by_2011_2.2y,p25,0.0424
+additive_full,mean_age_band,under 30,497,by_2011_2.2y,p50,0.1454
+additive_full,mean_age_band,under 30,497,by_2011_2.2y,p75,0.4699
+additive_full,mean_age_band,under 30,497,by_2011_2.2y,p90,0.7057
+additive_full,mean_age_band,under 30,497,by_2011_2.2y,p95,0.7961
+additive_full,mean_age_band,under 30,497,by_2011_2.2y,p99,
+additive_full,mean_age_band,under 30,497,by_2013_4.1y,p1,
+additive_full,mean_age_band,under 30,497,by_2013_4.1y,p5,0.0292
+additive_full,mean_age_band,under 30,497,by_2013_4.1y,p10,0.0382
+additive_full,mean_age_band,under 30,497,by_2013_4.1y,p25,0.0667
+additive_full,mean_age_band,under 30,497,by_2013_4.1y,p50,0.2102
+additive_full,mean_age_band,under 30,497,by_2013_4.1y,p75,0.6187
+additive_full,mean_age_band,under 30,497,by_2013_4.1y,p90,0.8392
+additive_full,mean_age_band,under 30,497,by_2013_4.1y,p95,0.9069
+additive_full,mean_age_band,under 30,497,by_2013_4.1y,p99,
+additive_full,mean_age_band,under 30,497,by_2017_8.4y,p1,
+additive_full,mean_age_band,under 30,497,by_2017_8.4y,p5,0.0464
+additive_full,mean_age_band,under 30,497,by_2017_8.4y,p10,0.0594
+additive_full,mean_age_band,under 30,497,by_2017_8.4y,p25,0.0984
+additive_full,mean_age_band,under 30,497,by_2017_8.4y,p50,0.3028
+additive_full,mean_age_band,under 30,497,by_2017_8.4y,p75,0.7399
+additive_full,mean_age_band,under 30,497,by_2017_8.4y,p90,0.9255
+additive_full,mean_age_band,under 30,497,by_2017_8.4y,p95,0.9658
+additive_full,mean_age_band,under 30,497,by_2017_8.4y,p99,
+additive_full,mean_age_band,30-44,968,by_2011_2.2y,p1,0.0097
+additive_full,mean_age_band,30-44,968,by_2011_2.2y,p5,0.0147
+additive_full,mean_age_band,30-44,968,by_2011_2.2y,p10,0.0189
+additive_full,mean_age_band,30-44,968,by_2011_2.2y,p25,0.0278
+additive_full,mean_age_band,30-44,968,by_2011_2.2y,p50,0.0480
+additive_full,mean_age_band,30-44,968,by_2011_2.2y,p75,0.1328
+additive_full,mean_age_band,30-44,968,by_2011_2.2y,p90,0.4447
+additive_full,mean_age_band,30-44,968,by_2011_2.2y,p95,0.5805
+additive_full,mean_age_band,30-44,968,by_2011_2.2y,p99,0.8860
+additive_full,mean_age_band,30-44,968,by_2013_4.1y,p1,0.0160
+additive_full,mean_age_band,30-44,968,by_2013_4.1y,p5,0.0244
+additive_full,mean_age_band,30-44,968,by_2013_4.1y,p10,0.0314
+additive_full,mean_age_band,30-44,968,by_2013_4.1y,p25,0.0460
+additive_full,mean_age_band,30-44,968,by_2013_4.1y,p50,0.0789
+additive_full,mean_age_band,30-44,968,by_2013_4.1y,p75,0.2015
+additive_full,mean_age_band,30-44,968,by_2013_4.1y,p90,0.6063
+additive_full,mean_age_band,30-44,968,by_2013_4.1y,p95,0.7321
+additive_full,mean_age_band,30-44,968,by_2013_4.1y,p99,0.9659
+additive_full,mean_age_band,30-44,968,by_2017_8.4y,p1,0.0258
+additive_full,mean_age_band,30-44,968,by_2017_8.4y,p5,0.0394
+additive_full,mean_age_band,30-44,968,by_2017_8.4y,p10,0.0491
+additive_full,mean_age_band,30-44,968,by_2017_8.4y,p25,0.0722
+additive_full,mean_age_band,30-44,968,by_2017_8.4y,p50,0.1243
+additive_full,mean_age_band,30-44,968,by_2017_8.4y,p75,0.2928
+additive_full,mean_age_band,30-44,968,by_2017_8.4y,p90,0.7309
+additive_full,mean_age_band,30-44,968,by_2017_8.4y,p95,0.8514
+additive_full,mean_age_band,30-44,968,by_2017_8.4y,p99,0.9947
+additive_full,mean_age_band,45-59,929,by_2011_2.2y,p1,0.0017
+additive_full,mean_age_band,45-59,929,by_2011_2.2y,p5,0.0082
+additive_full,mean_age_band,45-59,929,by_2011_2.2y,p10,0.0114
+additive_full,mean_age_band,45-59,929,by_2011_2.2y,p25,0.0181
+additive_full,mean_age_band,45-59,929,by_2011_2.2y,p50,0.0427
+additive_full,mean_age_band,45-59,929,by_2011_2.2y,p75,0.1407
+additive_full,mean_age_band,45-59,929,by_2011_2.2y,p90,0.3696
+additive_full,mean_age_band,45-59,929,by_2011_2.2y,p95,0.5731
+additive_full,mean_age_band,45-59,929,by_2011_2.2y,p99,0.8615
+additive_full,mean_age_band,45-59,929,by_2013_4.1y,p1,0.0028
+additive_full,mean_age_band,45-59,929,by_2013_4.1y,p5,0.0134
+additive_full,mean_age_band,45-59,929,by_2013_4.1y,p10,0.0186
+additive_full,mean_age_band,45-59,929,by_2013_4.1y,p25,0.0293
+additive_full,mean_age_band,45-59,929,by_2013_4.1y,p50,0.0679
+additive_full,mean_age_band,45-59,929,by_2013_4.1y,p75,0.2170
+additive_full,mean_age_band,45-59,929,by_2013_4.1y,p90,0.5178
+additive_full,mean_age_band,45-59,929,by_2013_4.1y,p95,0.7317
+additive_full,mean_age_band,45-59,929,by_2013_4.1y,p99,0.9495
+additive_full,mean_age_band,45-59,929,by_2017_8.4y,p1,0.0044
+additive_full,mean_age_band,45-59,929,by_2017_8.4y,p5,0.0207
+additive_full,mean_age_band,45-59,929,by_2017_8.4y,p10,0.0293
+additive_full,mean_age_band,45-59,929,by_2017_8.4y,p25,0.0452
+additive_full,mean_age_band,45-59,929,by_2017_8.4y,p50,0.1012
+additive_full,mean_age_band,45-59,929,by_2017_8.4y,p75,0.3040
+additive_full,mean_age_band,45-59,929,by_2017_8.4y,p90,0.6722
+additive_full,mean_age_band,45-59,929,by_2017_8.4y,p95,0.8482
+additive_full,mean_age_band,45-59,929,by_2017_8.4y,p99,0.9870
+additive_full,mean_age_band,60+,596,by_2011_2.2y,p1,0.0007
+additive_full,mean_age_band,60+,596,by_2011_2.2y,p5,0.0037
+additive_full,mean_age_band,60+,596,by_2011_2.2y,p10,0.0052
+additive_full,mean_age_band,60+,596,by_2011_2.2y,p25,0.0072
+additive_full,mean_age_band,60+,596,by_2011_2.2y,p50,0.0130
+additive_full,mean_age_band,60+,596,by_2011_2.2y,p75,0.0296
+additive_full,mean_age_band,60+,596,by_2011_2.2y,p90,0.1181
+additive_full,mean_age_band,60+,596,by_2011_2.2y,p95,0.2337
+additive_full,mean_age_band,60+,596,by_2011_2.2y,p99,0.5337
+additive_full,mean_age_band,60+,596,by_2013_4.1y,p1,0.0012
+additive_full,mean_age_band,60+,596,by_2013_4.1y,p5,0.0064
+additive_full,mean_age_band,60+,596,by_2013_4.1y,p10,0.0087
+additive_full,mean_age_band,60+,596,by_2013_4.1y,p25,0.0122
+additive_full,mean_age_band,60+,596,by_2013_4.1y,p50,0.0217
+additive_full,mean_age_band,60+,596,by_2013_4.1y,p75,0.0490
+additive_full,mean_age_band,60+,596,by_2013_4.1y,p90,0.1824
+additive_full,mean_age_band,60+,596,by_2013_4.1y,p95,0.3557
+additive_full,mean_age_band,60+,596,by_2013_4.1y,p99,0.6773
+additive_full,mean_age_band,60+,596,by_2017_8.4y,p1,0.0020
+additive_full,mean_age_band,60+,596,by_2017_8.4y,p5,0.0110
+additive_full,mean_age_band,60+,596,by_2017_8.4y,p10,0.0144
+additive_full,mean_age_band,60+,596,by_2017_8.4y,p25,0.0205
+additive_full,mean_age_band,60+,596,by_2017_8.4y,p50,0.0350
+additive_full,mean_age_band,60+,596,by_2017_8.4y,p75,0.0796
+additive_full,mean_age_band,60+,596,by_2017_8.4y,p90,0.2655
+additive_full,mean_age_band,60+,596,by_2017_8.4y,p95,0.4924
+additive_full,mean_age_band,60+,596,by_2017_8.4y,p99,0.8012
+additive_full,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p1,
+additive_full,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p5,0.0016
+additive_full,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p10,0.0042
+additive_full,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p25,0.0098
+additive_full,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p50,0.0273
+additive_full,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p75,0.0934
+additive_full,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p90,0.2375
+additive_full,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p95,0.3941
+additive_full,edu_years_mean_band,under 12 years,283,by_2011_2.2y,p99,
+additive_full,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p1,
+additive_full,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p5,0.0027
+additive_full,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p10,0.0070
+additive_full,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p25,0.0163
+additive_full,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p50,0.0452
+additive_full,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p75,0.1498
+additive_full,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p90,0.3622
+additive_full,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p95,0.5533
+additive_full,edu_years_mean_band,under 12 years,283,by_2013_4.1y,p99,
+additive_full,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p1,
+additive_full,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p5,0.0043
+additive_full,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p10,0.0114
+additive_full,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p25,0.0273
+additive_full,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p50,0.0730
+additive_full,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p75,0.2292
+additive_full,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p90,0.5044
+additive_full,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p95,0.7105
+additive_full,edu_years_mean_band,under 12 years,283,by_2017_8.4y,p99,
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p1,0.0057
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p5,0.0080
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p10,0.0119
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p25,0.0235
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p50,0.0557
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p75,0.2076
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p90,0.5422
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p95,0.6655
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2011_2.2y,p99,0.8898
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p1,0.0096
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p5,0.0133
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p10,0.0197
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p25,0.0386
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p50,0.0901
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p75,0.3056
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p90,0.6924
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p95,0.8052
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2013_4.1y,p99,0.9674
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p1,0.0161
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p5,0.0221
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p10,0.0311
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p25,0.0622
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p50,0.1388
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p75,0.4229
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p90,0.8168
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p95,0.9076
+additive_full,edu_years_mean_band,12-13.5 years,1277,by_2017_8.4y,p99,0.9944
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p1,0.0048
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p5,0.0079
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p10,0.0109
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p25,0.0240
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p50,0.0487
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p75,0.1734
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p90,0.5079
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p95,0.6892
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2011_2.2y,p99,0.8885
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p1,0.0080
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p5,0.0128
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p10,0.0182
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p25,0.0391
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p50,0.0799
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p75,0.2656
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p90,0.6491
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p95,0.8275
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2013_4.1y,p99,0.9608
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p1,0.0133
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p5,0.0209
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p10,0.0294
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p25,0.0617
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p50,0.1251
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p75,0.3776
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p90,0.7756
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p95,0.9312
+additive_full,edu_years_mean_band,14-15.5 years,660,by_2017_8.4y,p99,0.9901
+additive_full,edu_years_mean_band,16+ years,781,by_2011_2.2y,p1,0.0036
+additive_full,edu_years_mean_band,16+ years,781,by_2011_2.2y,p5,0.0059
+additive_full,edu_years_mean_band,16+ years,781,by_2011_2.2y,p10,0.0099
+additive_full,edu_years_mean_band,16+ years,781,by_2011_2.2y,p25,0.0159
+additive_full,edu_years_mean_band,16+ years,781,by_2011_2.2y,p50,0.0266
+additive_full,edu_years_mean_band,16+ years,781,by_2011_2.2y,p75,0.0599
+additive_full,edu_years_mean_band,16+ years,781,by_2011_2.2y,p90,0.2681
+additive_full,edu_years_mean_band,16+ years,781,by_2011_2.2y,p95,0.5161
+additive_full,edu_years_mean_band,16+ years,781,by_2011_2.2y,p99,0.7559
+additive_full,edu_years_mean_band,16+ years,781,by_2013_4.1y,p1,0.0061
+additive_full,edu_years_mean_band,16+ years,781,by_2013_4.1y,p5,0.0099
+additive_full,edu_years_mean_band,16+ years,781,by_2013_4.1y,p10,0.0165
+additive_full,edu_years_mean_band,16+ years,781,by_2013_4.1y,p25,0.0260
+additive_full,edu_years_mean_band,16+ years,781,by_2013_4.1y,p50,0.0429
+additive_full,edu_years_mean_band,16+ years,781,by_2013_4.1y,p75,0.0965
+additive_full,edu_years_mean_band,16+ years,781,by_2013_4.1y,p90,0.3771
+additive_full,edu_years_mean_band,16+ years,781,by_2013_4.1y,p95,0.6705
+additive_full,edu_years_mean_band,16+ years,781,by_2013_4.1y,p99,0.8722
+additive_full,edu_years_mean_band,16+ years,781,by_2017_8.4y,p1,0.0095
+additive_full,edu_years_mean_band,16+ years,781,by_2017_8.4y,p5,0.0161
+additive_full,edu_years_mean_band,16+ years,781,by_2017_8.4y,p10,0.0260
+additive_full,edu_years_mean_band,16+ years,781,by_2017_8.4y,p25,0.0405
+additive_full,edu_years_mean_band,16+ years,781,by_2017_8.4y,p50,0.0666
+additive_full,edu_years_mean_band,16+ years,781,by_2017_8.4y,p75,0.1475
+additive_full,edu_years_mean_band,16+ years,781,by_2017_8.4y,p90,0.4864
+additive_full,edu_years_mean_band,16+ years,781,by_2017_8.4y,p95,0.7842
+additive_full,edu_years_mean_band,16+ years,781,by_2017_8.4y,p99,0.9467
+additive_full,how_met,Bar or restaurant,267,by_2011_2.2y,p1,
+additive_full,how_met,Bar or restaurant,267,by_2011_2.2y,p5,0.0063
+additive_full,how_met,Bar or restaurant,267,by_2011_2.2y,p10,0.0092
+additive_full,how_met,Bar or restaurant,267,by_2011_2.2y,p25,0.0158
+additive_full,how_met,Bar or restaurant,267,by_2011_2.2y,p50,0.0383
+additive_full,how_met,Bar or restaurant,267,by_2011_2.2y,p75,0.1074
+additive_full,how_met,Bar or restaurant,267,by_2011_2.2y,p90,0.3777
+additive_full,how_met,Bar or restaurant,267,by_2011_2.2y,p95,0.7347
+additive_full,how_met,Bar or restaurant,267,by_2011_2.2y,p99,
+additive_full,how_met,Bar or restaurant,267,by_2013_4.1y,p1,
+additive_full,how_met,Bar or restaurant,267,by_2013_4.1y,p5,0.0107
+additive_full,how_met,Bar or restaurant,267,by_2013_4.1y,p10,0.0151
+additive_full,how_met,Bar or restaurant,267,by_2013_4.1y,p25,0.0257
+additive_full,how_met,Bar or restaurant,267,by_2013_4.1y,p50,0.0616
+additive_full,how_met,Bar or restaurant,267,by_2013_4.1y,p75,0.1672
+additive_full,how_met,Bar or restaurant,267,by_2013_4.1y,p90,0.5374
+additive_full,how_met,Bar or restaurant,267,by_2013_4.1y,p95,0.8573
+additive_full,how_met,Bar or restaurant,267,by_2013_4.1y,p99,
+additive_full,how_met,Bar or restaurant,267,by_2017_8.4y,p1,
+additive_full,how_met,Bar or restaurant,267,by_2017_8.4y,p5,0.0177
+additive_full,how_met,Bar or restaurant,267,by_2017_8.4y,p10,0.0245
+additive_full,how_met,Bar or restaurant,267,by_2017_8.4y,p25,0.0407
+additive_full,how_met,Bar or restaurant,267,by_2017_8.4y,p50,0.0951
+additive_full,how_met,Bar or restaurant,267,by_2017_8.4y,p75,0.2481
+additive_full,how_met,Bar or restaurant,267,by_2017_8.4y,p90,0.6434
+additive_full,how_met,Bar or restaurant,267,by_2017_8.4y,p95,0.9331
+additive_full,how_met,Bar or restaurant,267,by_2017_8.4y,p99,
+additive_full,how_met,Church,78,by_2011_2.2y,p1,
+additive_full,how_met,Church,78,by_2011_2.2y,p5,
+additive_full,how_met,Church,78,by_2011_2.2y,p10,0.0071
+additive_full,how_met,Church,78,by_2011_2.2y,p25,0.0108
+additive_full,how_met,Church,78,by_2011_2.2y,p50,0.0200
+additive_full,how_met,Church,78,by_2011_2.2y,p75,0.0462
+additive_full,how_met,Church,78,by_2011_2.2y,p90,0.1009
+additive_full,how_met,Church,78,by_2011_2.2y,p95,
+additive_full,how_met,Church,78,by_2011_2.2y,p99,
+additive_full,how_met,Church,78,by_2013_4.1y,p1,
+additive_full,how_met,Church,78,by_2013_4.1y,p5,
+additive_full,how_met,Church,78,by_2013_4.1y,p10,0.0116
+additive_full,how_met,Church,78,by_2013_4.1y,p25,0.0176
+additive_full,how_met,Church,78,by_2013_4.1y,p50,0.0325
+additive_full,how_met,Church,78,by_2013_4.1y,p75,0.0714
+additive_full,how_met,Church,78,by_2013_4.1y,p90,0.1660
+additive_full,how_met,Church,78,by_2013_4.1y,p95,
+additive_full,how_met,Church,78,by_2013_4.1y,p99,
+additive_full,how_met,Church,78,by_2017_8.4y,p1,
+additive_full,how_met,Church,78,by_2017_8.4y,p5,
+additive_full,how_met,Church,78,by_2017_8.4y,p10,0.0194
+additive_full,how_met,Church,78,by_2017_8.4y,p25,0.0286
+additive_full,how_met,Church,78,by_2017_8.4y,p50,0.0499
+additive_full,how_met,Church,78,by_2017_8.4y,p75,0.1028
+additive_full,how_met,Church,78,by_2017_8.4y,p90,0.2411
+additive_full,how_met,Church,78,by_2017_8.4y,p95,
+additive_full,how_met,Church,78,by_2017_8.4y,p99,
+additive_full,how_met,Online,286,by_2011_2.2y,p1,
+additive_full,how_met,Online,286,by_2011_2.2y,p5,0.0227
+additive_full,how_met,Online,286,by_2011_2.2y,p10,0.0330
+additive_full,how_met,Online,286,by_2011_2.2y,p25,0.0564
+additive_full,how_met,Online,286,by_2011_2.2y,p50,0.1473
+additive_full,how_met,Online,286,by_2011_2.2y,p75,0.4621
+additive_full,how_met,Online,286,by_2011_2.2y,p90,0.6782
+additive_full,how_met,Online,286,by_2011_2.2y,p95,0.7873
+additive_full,how_met,Online,286,by_2011_2.2y,p99,
+additive_full,how_met,Online,286,by_2013_4.1y,p1,
+additive_full,how_met,Online,286,by_2013_4.1y,p5,0.0383
+additive_full,how_met,Online,286,by_2013_4.1y,p10,0.0534
+additive_full,how_met,Online,286,by_2013_4.1y,p25,0.0874
+additive_full,how_met,Online,286,by_2013_4.1y,p50,0.2114
+additive_full,how_met,Online,286,by_2013_4.1y,p75,0.6015
+additive_full,how_met,Online,286,by_2013_4.1y,p90,0.8170
+additive_full,how_met,Online,286,by_2013_4.1y,p95,0.8986
+additive_full,how_met,Online,286,by_2013_4.1y,p99,
+additive_full,how_met,Online,286,by_2017_8.4y,p1,
+additive_full,how_met,Online,286,by_2017_8.4y,p5,0.0625
+additive_full,how_met,Online,286,by_2017_8.4y,p10,0.0843
+additive_full,how_met,Online,286,by_2017_8.4y,p25,0.1321
+additive_full,how_met,Online,286,by_2017_8.4y,p50,0.2773
+additive_full,how_met,Online,286,by_2017_8.4y,p75,0.7525
+additive_full,how_met,Online,286,by_2017_8.4y,p90,0.9082
+additive_full,how_met,Online,286,by_2017_8.4y,p95,0.9584
+additive_full,how_met,Online,286,by_2017_8.4y,p99,
+additive_full,how_met,Other,434,by_2011_2.2y,p1,
+additive_full,how_met,Other,434,by_2011_2.2y,p5,0.0052
+additive_full,how_met,Other,434,by_2011_2.2y,p10,0.0066
+additive_full,how_met,Other,434,by_2011_2.2y,p25,0.0168
+additive_full,how_met,Other,434,by_2011_2.2y,p50,0.0499
+additive_full,how_met,Other,434,by_2011_2.2y,p75,0.2067
+additive_full,how_met,Other,434,by_2011_2.2y,p90,0.5377
+additive_full,how_met,Other,434,by_2011_2.2y,p95,0.6460
+additive_full,how_met,Other,434,by_2011_2.2y,p99,
+additive_full,how_met,Other,434,by_2013_4.1y,p1,
+additive_full,how_met,Other,434,by_2013_4.1y,p5,0.0089
+additive_full,how_met,Other,434,by_2013_4.1y,p10,0.0114
+additive_full,how_met,Other,434,by_2013_4.1y,p25,0.0275
+additive_full,how_met,Other,434,by_2013_4.1y,p50,0.0814
+additive_full,how_met,Other,434,by_2013_4.1y,p75,0.3036
+additive_full,how_met,Other,434,by_2013_4.1y,p90,0.6905
+additive_full,how_met,Other,434,by_2013_4.1y,p95,0.7865
+additive_full,how_met,Other,434,by_2013_4.1y,p99,
+additive_full,how_met,Other,434,by_2017_8.4y,p1,
+additive_full,how_met,Other,434,by_2017_8.4y,p5,0.0144
+additive_full,how_met,Other,434,by_2017_8.4y,p10,0.0187
+additive_full,how_met,Other,434,by_2017_8.4y,p25,0.0429
+additive_full,how_met,Other,434,by_2017_8.4y,p50,0.1269
+additive_full,how_met,Other,434,by_2017_8.4y,p75,0.4323
+additive_full,how_met,Other,434,by_2017_8.4y,p90,0.8166
+additive_full,how_met,Other,434,by_2017_8.4y,p95,0.8910
+additive_full,how_met,Other,434,by_2017_8.4y,p99,
+additive_full,how_met,School or college,271,by_2011_2.2y,p1,
+additive_full,how_met,School or college,271,by_2011_2.2y,p5,0.0052
+additive_full,how_met,School or college,271,by_2011_2.2y,p10,0.0077
+additive_full,how_met,School or college,271,by_2011_2.2y,p25,0.0146
+additive_full,how_met,School or college,271,by_2011_2.2y,p50,0.0288
+additive_full,how_met,School or college,271,by_2011_2.2y,p75,0.0716
+additive_full,how_met,School or college,271,by_2011_2.2y,p90,0.3575
+additive_full,how_met,School or college,271,by_2011_2.2y,p95,0.4829
+additive_full,how_met,School or college,271,by_2011_2.2y,p99,
+additive_full,how_met,School or college,271,by_2013_4.1y,p1,
+additive_full,how_met,School or college,271,by_2013_4.1y,p5,0.0089
+additive_full,how_met,School or college,271,by_2013_4.1y,p10,0.0125
+additive_full,how_met,School or college,271,by_2013_4.1y,p25,0.0240
+additive_full,how_met,School or college,271,by_2013_4.1y,p50,0.0471
+additive_full,how_met,School or college,271,by_2013_4.1y,p75,0.1097
+additive_full,how_met,School or college,271,by_2013_4.1y,p90,0.5017
+additive_full,how_met,School or college,271,by_2013_4.1y,p95,0.6300
+additive_full,how_met,School or college,271,by_2013_4.1y,p99,
+additive_full,how_met,School or college,271,by_2017_8.4y,p1,
+additive_full,how_met,School or college,271,by_2017_8.4y,p5,0.0153
+additive_full,how_met,School or college,271,by_2017_8.4y,p10,0.0204
+additive_full,how_met,School or college,271,by_2017_8.4y,p25,0.0391
+additive_full,how_met,School or college,271,by_2017_8.4y,p50,0.0751
+additive_full,how_met,School or college,271,by_2017_8.4y,p75,0.1697
+additive_full,how_met,School or college,271,by_2017_8.4y,p90,0.6452
+additive_full,how_met,School or college,271,by_2017_8.4y,p95,0.7916
+additive_full,how_met,School or college,271,by_2017_8.4y,p99,
+additive_full,how_met,Through family,265,by_2011_2.2y,p1,
+additive_full,how_met,Through family,265,by_2011_2.2y,p5,0.0053
+additive_full,how_met,Through family,265,by_2011_2.2y,p10,0.0088
+additive_full,how_met,Through family,265,by_2011_2.2y,p25,0.0189
+additive_full,how_met,Through family,265,by_2011_2.2y,p50,0.0464
+additive_full,how_met,Through family,265,by_2011_2.2y,p75,0.1267
+additive_full,how_met,Through family,265,by_2011_2.2y,p90,0.2928
+additive_full,how_met,Through family,265,by_2011_2.2y,p95,0.5393
+additive_full,how_met,Through family,265,by_2011_2.2y,p99,
+additive_full,how_met,Through family,265,by_2013_4.1y,p1,
+additive_full,how_met,Through family,265,by_2013_4.1y,p5,0.0091
+additive_full,how_met,Through family,265,by_2013_4.1y,p10,0.0145
+additive_full,how_met,Through family,265,by_2013_4.1y,p25,0.0314
+additive_full,how_met,Through family,265,by_2013_4.1y,p50,0.0754
+additive_full,how_met,Through family,265,by_2013_4.1y,p75,0.1979
+additive_full,how_met,Through family,265,by_2013_4.1y,p90,0.4234
+additive_full,how_met,Through family,265,by_2013_4.1y,p95,0.6946
+additive_full,how_met,Through family,265,by_2013_4.1y,p99,
+additive_full,how_met,Through family,265,by_2017_8.4y,p1,
+additive_full,how_met,Through family,265,by_2017_8.4y,p5,0.0153
+additive_full,how_met,Through family,265,by_2017_8.4y,p10,0.0247
+additive_full,how_met,Through family,265,by_2017_8.4y,p25,0.0490
+additive_full,how_met,Through family,265,by_2017_8.4y,p50,0.1171
+additive_full,how_met,Through family,265,by_2017_8.4y,p75,0.2850
+additive_full,how_met,Through family,265,by_2017_8.4y,p90,0.5845
+additive_full,how_met,Through family,265,by_2017_8.4y,p95,0.8392
+additive_full,how_met,Through family,265,by_2017_8.4y,p99,
+additive_full,how_met,Through friends,995,by_2011_2.2y,p1,0.0038
+additive_full,how_met,Through friends,995,by_2011_2.2y,p5,0.0079
+additive_full,how_met,Through friends,995,by_2011_2.2y,p10,0.0110
+additive_full,how_met,Through friends,995,by_2011_2.2y,p25,0.0212
+additive_full,how_met,Through friends,995,by_2011_2.2y,p50,0.0440
+additive_full,how_met,Through friends,995,by_2011_2.2y,p75,0.1286
+additive_full,how_met,Through friends,995,by_2011_2.2y,p90,0.4484
+additive_full,how_met,Through friends,995,by_2011_2.2y,p95,0.5900
+additive_full,how_met,Through friends,995,by_2011_2.2y,p99,0.8487
+additive_full,how_met,Through friends,995,by_2013_4.1y,p1,0.0064
+additive_full,how_met,Through friends,995,by_2013_4.1y,p5,0.0129
+additive_full,how_met,Through friends,995,by_2013_4.1y,p10,0.0184
+additive_full,how_met,Through friends,995,by_2013_4.1y,p25,0.0350
+additive_full,how_met,Through friends,995,by_2013_4.1y,p50,0.0708
+additive_full,how_met,Through friends,995,by_2013_4.1y,p75,0.1958
+additive_full,how_met,Through friends,995,by_2013_4.1y,p90,0.6023
+additive_full,how_met,Through friends,995,by_2013_4.1y,p95,0.7319
+additive_full,how_met,Through friends,995,by_2013_4.1y,p99,0.9399
+additive_full,how_met,Through friends,995,by_2017_8.4y,p1,0.0109
+additive_full,how_met,Through friends,995,by_2017_8.4y,p5,0.0211
+additive_full,how_met,Through friends,995,by_2017_8.4y,p10,0.0297
+additive_full,how_met,Through friends,995,by_2017_8.4y,p25,0.0553
+additive_full,how_met,Through friends,995,by_2017_8.4y,p50,0.1108
+additive_full,how_met,Through friends,995,by_2017_8.4y,p75,0.2903
+additive_full,how_met,Through friends,995,by_2017_8.4y,p90,0.7390
+additive_full,how_met,Through friends,995,by_2017_8.4y,p95,0.8469
+additive_full,how_met,Through friends,995,by_2017_8.4y,p99,0.9816
+additive_full,how_met,Work or coworkers,344,by_2011_2.2y,p1,
+additive_full,how_met,Work or coworkers,344,by_2011_2.2y,p5,0.0064
+additive_full,how_met,Work or coworkers,344,by_2011_2.2y,p10,0.0111
+additive_full,how_met,Work or coworkers,344,by_2011_2.2y,p25,0.0194
+additive_full,how_met,Work or coworkers,344,by_2011_2.2y,p50,0.0366
+additive_full,how_met,Work or coworkers,344,by_2011_2.2y,p75,0.1319
+additive_full,how_met,Work or coworkers,344,by_2011_2.2y,p90,0.3313
+additive_full,how_met,Work or coworkers,344,by_2011_2.2y,p95,0.5274
+additive_full,how_met,Work or coworkers,344,by_2011_2.2y,p99,
+additive_full,how_met,Work or coworkers,344,by_2013_4.1y,p1,
+additive_full,how_met,Work or coworkers,344,by_2013_4.1y,p5,0.0107
+additive_full,how_met,Work or coworkers,344,by_2013_4.1y,p10,0.0185
+additive_full,how_met,Work or coworkers,344,by_2013_4.1y,p25,0.0319
+additive_full,how_met,Work or coworkers,344,by_2013_4.1y,p50,0.0586
+additive_full,how_met,Work or coworkers,344,by_2013_4.1y,p75,0.2012
+additive_full,how_met,Work or coworkers,344,by_2013_4.1y,p90,0.4797
+additive_full,how_met,Work or coworkers,344,by_2013_4.1y,p95,0.6793
+additive_full,how_met,Work or coworkers,344,by_2013_4.1y,p99,
+additive_full,how_met,Work or coworkers,344,by_2017_8.4y,p1,
+additive_full,how_met,Work or coworkers,344,by_2017_8.4y,p5,0.0174
+additive_full,how_met,Work or coworkers,344,by_2017_8.4y,p10,0.0300
+additive_full,how_met,Work or coworkers,344,by_2017_8.4y,p25,0.0506
+additive_full,how_met,Work or coworkers,344,by_2017_8.4y,p50,0.0926
+additive_full,how_met,Work or coworkers,344,by_2017_8.4y,p75,0.3011
+additive_full,how_met,Work or coworkers,344,by_2017_8.4y,p90,0.6098
+additive_full,how_met,Work or coworkers,344,by_2017_8.4y,p95,0.8012
+additive_full,how_met,Work or coworkers,344,by_2017_8.4y,p99,
+additive_full,interracial,Interracial,508,by_2011_2.2y,p1,0.0036
+additive_full,interracial,Interracial,508,by_2011_2.2y,p5,0.0090
+additive_full,interracial,Interracial,508,by_2011_2.2y,p10,0.0127
+additive_full,interracial,Interracial,508,by_2011_2.2y,p25,0.0267
+additive_full,interracial,Interracial,508,by_2011_2.2y,p50,0.0613
+additive_full,interracial,Interracial,508,by_2011_2.2y,p75,0.2140
+additive_full,interracial,Interracial,508,by_2011_2.2y,p90,0.5653
+additive_full,interracial,Interracial,508,by_2011_2.2y,p95,0.7022
+additive_full,interracial,Interracial,508,by_2011_2.2y,p99,0.9393
+additive_full,interracial,Interracial,508,by_2013_4.1y,p1,0.0062
+additive_full,interracial,Interracial,508,by_2013_4.1y,p5,0.0147
+additive_full,interracial,Interracial,508,by_2013_4.1y,p10,0.0208
+additive_full,interracial,Interracial,508,by_2013_4.1y,p25,0.0440
+additive_full,interracial,Interracial,508,by_2013_4.1y,p50,0.0993
+additive_full,interracial,Interracial,508,by_2013_4.1y,p75,0.3246
+additive_full,interracial,Interracial,508,by_2013_4.1y,p90,0.7144
+additive_full,interracial,Interracial,508,by_2013_4.1y,p95,0.8332
+additive_full,interracial,Interracial,508,by_2013_4.1y,p99,0.9847
+additive_full,interracial,Interracial,508,by_2017_8.4y,p1,0.0106
+additive_full,interracial,Interracial,508,by_2017_8.4y,p5,0.0234
+additive_full,interracial,Interracial,508,by_2017_8.4y,p10,0.0338
+additive_full,interracial,Interracial,508,by_2017_8.4y,p25,0.0697
+additive_full,interracial,Interracial,508,by_2017_8.4y,p50,0.1465
+additive_full,interracial,Interracial,508,by_2017_8.4y,p75,0.4464
+additive_full,interracial,Interracial,508,by_2017_8.4y,p90,0.8347
+additive_full,interracial,Interracial,508,by_2017_8.4y,p95,0.9258
+additive_full,interracial,Interracial,508,by_2017_8.4y,p99,0.9976
+additive_full,interracial,Same race-ethnicity,2490,by_2011_2.2y,p1,0.0026
+additive_full,interracial,Same race-ethnicity,2490,by_2011_2.2y,p5,0.0061
+additive_full,interracial,Same race-ethnicity,2490,by_2011_2.2y,p10,0.0092
+additive_full,interracial,Same race-ethnicity,2490,by_2011_2.2y,p25,0.0180
+additive_full,interracial,Same race-ethnicity,2490,by_2011_2.2y,p50,0.0393
+additive_full,interracial,Same race-ethnicity,2490,by_2011_2.2y,p75,0.1325
+additive_full,interracial,Same race-ethnicity,2490,by_2011_2.2y,p90,0.4464
+additive_full,interracial,Same race-ethnicity,2490,by_2011_2.2y,p95,0.6020
+additive_full,interracial,Same race-ethnicity,2490,by_2011_2.2y,p99,0.8737
+additive_full,interracial,Same race-ethnicity,2490,by_2013_4.1y,p1,0.0044
+additive_full,interracial,Same race-ethnicity,2490,by_2013_4.1y,p5,0.0103
+additive_full,interracial,Same race-ethnicity,2490,by_2013_4.1y,p10,0.0151
+additive_full,interracial,Same race-ethnicity,2490,by_2013_4.1y,p25,0.0294
+additive_full,interracial,Same race-ethnicity,2490,by_2013_4.1y,p50,0.0636
+additive_full,interracial,Same race-ethnicity,2490,by_2013_4.1y,p75,0.2014
+additive_full,interracial,Same race-ethnicity,2490,by_2013_4.1y,p90,0.5932
+additive_full,interracial,Same race-ethnicity,2490,by_2013_4.1y,p95,0.7640
+additive_full,interracial,Same race-ethnicity,2490,by_2013_4.1y,p99,0.9520
+additive_full,interracial,Same race-ethnicity,2490,by_2017_8.4y,p1,0.0072
+additive_full,interracial,Same race-ethnicity,2490,by_2017_8.4y,p5,0.0172
+additive_full,interracial,Same race-ethnicity,2490,by_2017_8.4y,p10,0.0245
+additive_full,interracial,Same race-ethnicity,2490,by_2017_8.4y,p25,0.0467
+additive_full,interracial,Same race-ethnicity,2490,by_2017_8.4y,p50,0.0985
+additive_full,interracial,Same race-ethnicity,2490,by_2017_8.4y,p75,0.2861
+additive_full,interracial,Same race-ethnicity,2490,by_2017_8.4y,p90,0.7273
+additive_full,interracial,Same race-ethnicity,2490,by_2017_8.4y,p95,0.8797
+additive_full,interracial,Same race-ethnicity,2490,by_2017_8.4y,p99,0.9881
+additive_full,relationship_years_band,under 2 years,354,by_2011_2.2y,p1,
+additive_full,relationship_years_band,under 2 years,354,by_2011_2.2y,p5,0.1392
+additive_full,relationship_years_band,under 2 years,354,by_2011_2.2y,p10,0.1679
+additive_full,relationship_years_band,under 2 years,354,by_2011_2.2y,p25,0.3226
+additive_full,relationship_years_band,under 2 years,354,by_2011_2.2y,p50,0.5341
+additive_full,relationship_years_band,under 2 years,354,by_2011_2.2y,p75,0.7177
+additive_full,relationship_years_band,under 2 years,354,by_2011_2.2y,p90,0.8482
+additive_full,relationship_years_band,under 2 years,354,by_2011_2.2y,p95,0.9091
+additive_full,relationship_years_band,under 2 years,354,by_2011_2.2y,p99,
+additive_full,relationship_years_band,under 2 years,354,by_2013_4.1y,p1,
+additive_full,relationship_years_band,under 2 years,354,by_2013_4.1y,p5,0.1998
+additive_full,relationship_years_band,under 2 years,354,by_2013_4.1y,p10,0.2339
+additive_full,relationship_years_band,under 2 years,354,by_2013_4.1y,p25,0.4371
+additive_full,relationship_years_band,under 2 years,354,by_2013_4.1y,p50,0.6766
+additive_full,relationship_years_band,under 2 years,354,by_2013_4.1y,p75,0.8502
+additive_full,relationship_years_band,under 2 years,354,by_2013_4.1y,p90,0.9392
+additive_full,relationship_years_band,under 2 years,354,by_2013_4.1y,p95,0.9718
+additive_full,relationship_years_band,under 2 years,354,by_2013_4.1y,p99,
+additive_full,relationship_years_band,under 2 years,354,by_2017_8.4y,p1,
+additive_full,relationship_years_band,under 2 years,354,by_2017_8.4y,p5,0.2639
+additive_full,relationship_years_band,under 2 years,354,by_2017_8.4y,p10,0.3046
+additive_full,relationship_years_band,under 2 years,354,by_2017_8.4y,p25,0.5452
+additive_full,relationship_years_band,under 2 years,354,by_2017_8.4y,p50,0.7878
+additive_full,relationship_years_band,under 2 years,354,by_2017_8.4y,p75,0.9315
+additive_full,relationship_years_band,under 2 years,354,by_2017_8.4y,p90,0.9820
+additive_full,relationship_years_band,under 2 years,354,by_2017_8.4y,p95,0.9942
+additive_full,relationship_years_band,under 2 years,354,by_2017_8.4y,p99,
+additive_full,relationship_years_band,2-4 years,294,by_2011_2.2y,p1,
+additive_full,relationship_years_band,2-4 years,294,by_2011_2.2y,p5,0.0406
+additive_full,relationship_years_band,2-4 years,294,by_2011_2.2y,p10,0.0471
+additive_full,relationship_years_band,2-4 years,294,by_2011_2.2y,p25,0.0799
+additive_full,relationship_years_band,2-4 years,294,by_2011_2.2y,p50,0.1759
+additive_full,relationship_years_band,2-4 years,294,by_2011_2.2y,p75,0.3754
+additive_full,relationship_years_band,2-4 years,294,by_2011_2.2y,p90,0.6290
+additive_full,relationship_years_band,2-4 years,294,by_2011_2.2y,p95,0.7090
+additive_full,relationship_years_band,2-4 years,294,by_2011_2.2y,p99,
+additive_full,relationship_years_band,2-4 years,294,by_2013_4.1y,p1,
+additive_full,relationship_years_band,2-4 years,294,by_2013_4.1y,p5,0.0608
+additive_full,relationship_years_band,2-4 years,294,by_2013_4.1y,p10,0.0719
+additive_full,relationship_years_band,2-4 years,294,by_2013_4.1y,p25,0.1213
+additive_full,relationship_years_band,2-4 years,294,by_2013_4.1y,p50,0.2559
+additive_full,relationship_years_band,2-4 years,294,by_2013_4.1y,p75,0.5118
+additive_full,relationship_years_band,2-4 years,294,by_2013_4.1y,p90,0.7807
+additive_full,relationship_years_band,2-4 years,294,by_2013_4.1y,p95,0.8449
+additive_full,relationship_years_band,2-4 years,294,by_2013_4.1y,p99,
+additive_full,relationship_years_band,2-4 years,294,by_2017_8.4y,p1,
+additive_full,relationship_years_band,2-4 years,294,by_2017_8.4y,p5,0.0880
+additive_full,relationship_years_band,2-4 years,294,by_2017_8.4y,p10,0.1012
+additive_full,relationship_years_band,2-4 years,294,by_2017_8.4y,p25,0.1691
+additive_full,relationship_years_band,2-4 years,294,by_2017_8.4y,p50,0.3439
+additive_full,relationship_years_band,2-4 years,294,by_2017_8.4y,p75,0.6499
+additive_full,relationship_years_band,2-4 years,294,by_2017_8.4y,p90,0.8879
+additive_full,relationship_years_band,2-4 years,294,by_2017_8.4y,p95,0.9337
+additive_full,relationship_years_band,2-4 years,294,by_2017_8.4y,p99,
+additive_full,relationship_years_band,5-9 years,524,by_2011_2.2y,p1,0.0143
+additive_full,relationship_years_band,5-9 years,524,by_2011_2.2y,p5,0.0179
+additive_full,relationship_years_band,5-9 years,524,by_2011_2.2y,p10,0.0216
+additive_full,relationship_years_band,5-9 years,524,by_2011_2.2y,p25,0.0320
+additive_full,relationship_years_band,5-9 years,524,by_2011_2.2y,p50,0.0561
+additive_full,relationship_years_band,5-9 years,524,by_2011_2.2y,p75,0.1351
+additive_full,relationship_years_band,5-9 years,524,by_2011_2.2y,p90,0.3333
+additive_full,relationship_years_band,5-9 years,524,by_2011_2.2y,p95,0.4753
+additive_full,relationship_years_band,5-9 years,524,by_2011_2.2y,p99,0.7054
+additive_full,relationship_years_band,5-9 years,524,by_2013_4.1y,p1,0.0230
+additive_full,relationship_years_band,5-9 years,524,by_2013_4.1y,p5,0.0288
+additive_full,relationship_years_band,5-9 years,524,by_2013_4.1y,p10,0.0352
+additive_full,relationship_years_band,5-9 years,524,by_2013_4.1y,p25,0.0513
+additive_full,relationship_years_band,5-9 years,524,by_2013_4.1y,p50,0.0875
+additive_full,relationship_years_band,5-9 years,524,by_2013_4.1y,p75,0.2058
+additive_full,relationship_years_band,5-9 years,524,by_2013_4.1y,p90,0.4699
+additive_full,relationship_years_band,5-9 years,524,by_2013_4.1y,p95,0.6389
+additive_full,relationship_years_band,5-9 years,524,by_2013_4.1y,p99,0.8512
+additive_full,relationship_years_band,5-9 years,524,by_2017_8.4y,p1,0.0353
+additive_full,relationship_years_band,5-9 years,524,by_2017_8.4y,p5,0.0453
+additive_full,relationship_years_band,5-9 years,524,by_2017_8.4y,p10,0.0551
+additive_full,relationship_years_band,5-9 years,524,by_2017_8.4y,p25,0.0817
+additive_full,relationship_years_band,5-9 years,524,by_2017_8.4y,p50,0.1338
+additive_full,relationship_years_band,5-9 years,524,by_2017_8.4y,p75,0.3049
+additive_full,relationship_years_band,5-9 years,524,by_2017_8.4y,p90,0.6275
+additive_full,relationship_years_band,5-9 years,524,by_2017_8.4y,p95,0.7991
+additive_full,relationship_years_band,5-9 years,524,by_2017_8.4y,p99,0.9520
+additive_full,relationship_years_band,10-19 years,753,by_2011_2.2y,p1,0.0090
+additive_full,relationship_years_band,10-19 years,753,by_2011_2.2y,p5,0.0135
+additive_full,relationship_years_band,10-19 years,753,by_2011_2.2y,p10,0.0164
+additive_full,relationship_years_band,10-19 years,753,by_2011_2.2y,p25,0.0234
+additive_full,relationship_years_band,10-19 years,753,by_2011_2.2y,p50,0.0411
+additive_full,relationship_years_band,10-19 years,753,by_2011_2.2y,p75,0.0799
+additive_full,relationship_years_band,10-19 years,753,by_2011_2.2y,p90,0.1875
+additive_full,relationship_years_band,10-19 years,753,by_2011_2.2y,p95,0.3017
+additive_full,relationship_years_band,10-19 years,753,by_2011_2.2y,p99,0.5632
+additive_full,relationship_years_band,10-19 years,753,by_2013_4.1y,p1,0.0148
+additive_full,relationship_years_band,10-19 years,753,by_2013_4.1y,p5,0.0220
+additive_full,relationship_years_band,10-19 years,753,by_2013_4.1y,p10,0.0270
+additive_full,relationship_years_band,10-19 years,753,by_2013_4.1y,p25,0.0387
+additive_full,relationship_years_band,10-19 years,753,by_2013_4.1y,p50,0.0664
+additive_full,relationship_years_band,10-19 years,753,by_2013_4.1y,p75,0.1281
+additive_full,relationship_years_band,10-19 years,753,by_2013_4.1y,p90,0.2913
+additive_full,relationship_years_band,10-19 years,753,by_2013_4.1y,p95,0.4402
+additive_full,relationship_years_band,10-19 years,753,by_2013_4.1y,p99,0.7389
+additive_full,relationship_years_band,10-19 years,753,by_2017_8.4y,p1,0.0233
+additive_full,relationship_years_band,10-19 years,753,by_2017_8.4y,p5,0.0348
+additive_full,relationship_years_band,10-19 years,753,by_2017_8.4y,p10,0.0429
+additive_full,relationship_years_band,10-19 years,753,by_2017_8.4y,p25,0.0624
+additive_full,relationship_years_band,10-19 years,753,by_2017_8.4y,p50,0.1044
+additive_full,relationship_years_band,10-19 years,753,by_2017_8.4y,p75,0.1978
+additive_full,relationship_years_band,10-19 years,753,by_2017_8.4y,p90,0.4232
+additive_full,relationship_years_band,10-19 years,753,by_2017_8.4y,p95,0.6093
+additive_full,relationship_years_band,10-19 years,753,by_2017_8.4y,p99,0.8810
+additive_full,relationship_years_band,20+ years,1057,by_2011_2.2y,p1,0.0010
+additive_full,relationship_years_band,20+ years,1057,by_2011_2.2y,p5,0.0042
+additive_full,relationship_years_band,20+ years,1057,by_2011_2.2y,p10,0.0058
+additive_full,relationship_years_band,20+ years,1057,by_2011_2.2y,p25,0.0095
+additive_full,relationship_years_band,20+ years,1057,by_2011_2.2y,p50,0.0168
+additive_full,relationship_years_band,20+ years,1057,by_2011_2.2y,p75,0.0367
+additive_full,relationship_years_band,20+ years,1057,by_2011_2.2y,p90,0.0814
+additive_full,relationship_years_band,20+ years,1057,by_2011_2.2y,p95,0.1565
+additive_full,relationship_years_band,20+ years,1057,by_2011_2.2y,p99,0.3569
+additive_full,relationship_years_band,20+ years,1057,by_2013_4.1y,p1,0.0016
+additive_full,relationship_years_band,20+ years,1057,by_2013_4.1y,p5,0.0071
+additive_full,relationship_years_band,20+ years,1057,by_2013_4.1y,p10,0.0097
+additive_full,relationship_years_band,20+ years,1057,by_2013_4.1y,p25,0.0159
+additive_full,relationship_years_band,20+ years,1057,by_2013_4.1y,p50,0.0277
+additive_full,relationship_years_band,20+ years,1057,by_2013_4.1y,p75,0.0601
+additive_full,relationship_years_band,20+ years,1057,by_2013_4.1y,p90,0.1328
+additive_full,relationship_years_band,20+ years,1057,by_2013_4.1y,p95,0.2421
+additive_full,relationship_years_band,20+ years,1057,by_2013_4.1y,p99,0.5062
+additive_full,relationship_years_band,20+ years,1057,by_2017_8.4y,p1,0.0024
+additive_full,relationship_years_band,20+ years,1057,by_2017_8.4y,p5,0.0120
+additive_full,relationship_years_band,20+ years,1057,by_2017_8.4y,p10,0.0161
+additive_full,relationship_years_band,20+ years,1057,by_2017_8.4y,p25,0.0257
+additive_full,relationship_years_band,20+ years,1057,by_2017_8.4y,p50,0.0438
+additive_full,relationship_years_band,20+ years,1057,by_2017_8.4y,p75,0.0943
+additive_full,relationship_years_band,20+ years,1057,by_2017_8.4y,p90,0.2068
+additive_full,relationship_years_band,20+ years,1057,by_2017_8.4y,p95,0.3534
+additive_full,relationship_years_band,20+ years,1057,by_2017_8.4y,p99,0.6717

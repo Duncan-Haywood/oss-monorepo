@@ -1,0 +1,8 @@
+style     yosys_default cells/depth/product dch_map cells/depth/product       resyn2_map cells/depth/product    proved
+gen       95/22/2090                        112/11/1232                       111/15/1665                       True
+explicit  95/22/2090                        112/11/1232                       111/15/1665                       True
+inc       95/22/2090                        112/11/1232                       111/15/1665                       True
+right     84/27/2268                        128/8/1024                        130/10/1300                       True
+cin       77/31/2387                        89/24/2136                        89/25/2225                        True
+plus      82/31/2542                        110/14/1540                       108/15/1620                       True
+tool: Yosys 0.33 (git sha1 2584903a060)

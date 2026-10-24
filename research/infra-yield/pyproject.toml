@@ -1,0 +1,13 @@
+[project]
+name = "infra-yield"
+version = "0.1.0"
+description = "Cost per good die: yield models, dies per wafer and the chiplet break-even"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

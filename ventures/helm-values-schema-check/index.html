@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Helm Values Schema Check — Find a values.yaml Typo Helm Won't</title>
-  <meta name="description" content="Paste a Helm chart's values.yaml and its values.schema.json and get a deterministic report of every field values.yaml sets that the schema does not declare (Helm's template engine never errors on this -- it silently returns no value), every schema-required field missing from values.yaml, and every type, enum, or min/max mismatch. Free, runs entirely in your browser, no Helm binary needed, nothing is uploaded.">
+  <meta name="description" content="Paste a Helm values.yaml and values.schema.json to find silently ignored typos, missing required fields and type mismatches. Runs in your browser, no Helm needed.">
   <meta property="og:title" content="Does your values.yaml actually match its own schema?">
   <meta property="og:description" content="Check a Helm chart's values.yaml against values.schema.json without installing Helm -- catches the undeclared-field typo helm lint misses when additionalProperties isn't set to false, plus real schema violations. No account, no upload, with a matching CLI for CI.">
   <meta property="og:type" content="website">
@@ -48,6 +48,7 @@
     <p>Paste a Helm chart's <code>values.yaml</code> and its <code>values.schema.json</code> and get a deterministic report: every field <code>values.yaml</code> sets that the schema never declares -- the exact shape a typo like <code>imgae:</code> instead of <code>image:</code> takes, and <code>helm lint</code> misses unless the schema forbids extra fields outright -- plus every real schema violation (missing required field, wrong type, bad enum value, out-of-range number).</p>
     <p class="note">Nothing is uploaded. Files you load are read in this browser and never leave your device. No Helm binary, no cluster, no network call.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Load your files</h2>
@@ -112,7 +113,8 @@ node cli.mjs check chart/values.yaml chart/values.schema.json --json</pre>
     <p><code>type</code>, <code>properties</code>, <code>required</code>, <code>additionalProperties</code>, <code>enum</code>, <code>minimum</code>, <code>maximum</code>, and <code>items</code> for arrays — the subset that covers the overwhelming majority of real Helm <code>values.schema.json</code> files. It does not evaluate <code>$ref</code>, <code>oneOf</code>/<code>anyOf</code>/<code>allOf</code>, or regex patterns; a schema using those is read but those specific rules are not checked.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not infrastructure, security, or compliance advice, and it does not replace testing an actual <code>helm install --dry-run</code> against a real cluster. It checks the JSON Schema subset it supports against the values you supplied — it cannot prove your chart renders correctly, only report the mismatches it found. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. Files you load are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

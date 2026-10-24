@@ -1,0 +1,138 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01SsUX22XmvNxAkkUbJLJxx3",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "Owner: can you force a rebuild; why does the site not update more frequently, can you work on that.",
+  "input_sha256": "bc2b931db5ef1b799b0e03e320d536216b28f258898ded20d3eebe50b182b006",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Pages deploys: make merging publish again and stop builds hitting the 20-minute cap.",
+  "projects": [
+    ".github/workflows/portfolio-pages.yml"
+  ],
+  "pr": 8776,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says the site is 'built and deployed by portfolio-pages.yml on every merge'; in fact every deploy job was skipped because vars.PAGES_ENABLED was never set, so nothing deployed after the source switch."
+    },
+    {
+      "file": "platform/ci/pages_state.py",
+      "issue": "Still reports the branch source from the 02:11 UTC branch build; it cannot see the Actions source, so it pointed at publish-branch.sh, which no longer reaches the live site."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Flipped the deploy gate from opt-in (PAGES_ENABLED == 'true') to opt-out (!= 'false'). The owner already chose the Actions source and CLAUDE.md says merging is publishing; the opt-in variable was an unset leftover. The owner can pause with PAGES_ENABLED=false."
+    }
+  ],
+  "goal": "Live site updates within minutes of a merge instead of never.",
+  "notes": "Evidence (2026-10-20, main): 30 most recent Portfolio Pages runs had 1 success; deploy job 'skipped' on every successful run (39392058290, 39396110224); run 39398976634 cancelled at exactly the 20-minute build cap after the 15-minute test step. Change: tests moved to a parallel 'test' job (30-min cap); deploy needs only build; deploy gate opt-out; added setup-python to build (fixes test_every_job_that_runs_python_or_node_sets_it_up on main). Verified locally: pytest gitops/tests/test_ci_runner.py + platform/ci/test_publish_surface.py + test_public_surface.py + test_validate_workflows.py 219 passed; validate_workflows OK; publish_surface --check 0 after --write. Also ran publish-branch.sh PUSH=1 to refresh gh-pages in case the branch source is still live.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c080a5b0-8929-53ce-9001-407fcbc84c20",
+    "transcripts": 1,
+    "first": "2026-10-20T06:15:26Z",
+    "last": "2026-10-20T07:23:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 206,
+        "input": 438,
+        "output": 120733,
+        "thinking": 34606,
+        "cache_read": 50103472,
+        "cache_write_5m": 0,
+        "cache_write_1h": 306859,
+        "api_equivalent_usd": 14.892,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 206,
+      "input": 438,
+      "output": 120733,
+      "thinking": 34606,
+      "cache_read": 50103472,
+      "cache_write_5m": 0,
+      "cache_write_1h": 306859,
+      "api_equivalent_usd": 14.892,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.994,
+    "tool_calls": 202,
+    "tools": {
+      "Bash": 164,
+      "mcp__github__get_job_logs": 8,
+      "Write": 7,
+      "ReadNotifications": 6,
+      "ToolSearch": 4,
+      "Read": 4,
+      "Monitor": 2,
+      "mcp__github__actions_list": 2,
+      "mcp__github__search_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 67.67,
+      "active_minutes": 62.86,
+      "model_minutes": 22.92,
+      "tool_minutes": 39.95,
+      "waiting_on_human_minutes": 4.81,
+      "human_prompts": 14,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "writing three edited, fact-checked stories (~8.4k words), recording ~55 min of narration, and building the feed/site generator by hand",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 67.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

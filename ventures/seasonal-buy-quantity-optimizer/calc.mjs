@@ -295,6 +295,58 @@ export function backtest(seasons, e, opts = {}) {
   return { rows, tool: tot("toolProfit"), avg: tot("avgProfit"), max: tot("maxProfit") };
 }
 
+// Several products, one cash limit. Each item is { name, curve } with the curve
+// from analyze(). Ordering nothing is always allowed (outlay 0, profit 0). The
+// plan starts from the concave hull of each item's (outlay, expected profit)
+// points, spends on the steepest profit per dollar first, then a local pass
+// swaps each item to its best affordable quantity given the others. Because
+// price breaks make profit non-concave this is a heuristic; `bound` is the
+// fractional-spend optimum, which no whole-unit plan can beat.
+export function allocateBudget(items, budget) {
+  if (!Array.isArray(items) || !items.length) return { error: "Add at least one analysed product first." };
+  if (!(budget > 0)) return { error: "Enter the cash you can spend, above zero." };
+  const pts = items.map((it) => [{ q: 0, outlay: 0, profit: 0 }, ...it.curve.map((c) => ({ q: c.q, outlay: c.outlay, profit: c.expProfit }))]);
+  const hulls = pts.map((list) => {
+    const sorted = [...list].sort((a, b) => a.outlay - b.outlay || b.profit - a.profit);
+    const h = [];
+    for (const p of sorted) {
+      if (h.length && p.outlay === h[h.length - 1].outlay) continue;
+      while (h.length >= 2) {
+        const a = h[h.length - 2], b = h[h.length - 1];
+        if ((b.profit - a.profit) * (p.outlay - b.outlay) <= (p.profit - b.profit) * (b.outlay - a.outlay)) h.pop(); else break;
+      }
+      h.push(p);
+    }
+    return h;
+  });
+  const steps = [];
+  hulls.forEach((h, i) => { for (let k = 1; k < h.length; k++) { const dO = h[k].outlay - h[k - 1].outlay, dP = h[k].profit - h[k - 1].profit; if (dP > 0) steps.push({ i, k, dO, dP, slope: dP / dO }); else break; } });
+  steps.sort((a, b) => b.slope - a.slope || a.i - b.i || a.k - b.k);
+  const pick = pts.map((l) => l[0]);
+  let spent = 0, bound = 0, boundLeft = budget;
+  for (const st of steps) {
+    const take = Math.min(1, boundLeft / st.dO);
+    if (take > 0) { bound += take * st.dP; boundLeft -= take * st.dO; }
+    const nxt = hulls[st.i][st.k];
+    if (hulls[st.i].indexOf(pick[st.i]) === st.k - 1 && spent + st.dO <= budget + 1e-9) { spent += st.dO; pick[st.i] = nxt; }
+  }
+  for (let pass = 0; pass < 20; pass++) {
+    let moved = false;
+    pick.forEach((cur, i) => {
+      const room = budget - (spent - cur.outlay);
+      let best = cur;
+      for (const p of pts[i]) if (p.outlay <= room + 1e-9 && p.profit > best.profit + 1e-9) best = p;
+      if (best !== cur) { spent += best.outlay - cur.outlay; pick[i] = best; moved = true; }
+    });
+    if (!moved) break;
+  }
+  const rows = items.map((it, i) => ({ name: it.name, q: pick[i].q, outlay: pick[i].outlay, expProfit: pick[i].profit, unconstrainedQ: it.best?.q ?? null, unconstrainedProfit: it.best?.expProfit ?? null }));
+  const total = rows.reduce((a, r) => a + r.expProfit, 0);
+  const free = rows.reduce((a, r) => a + (r.unconstrainedProfit ?? 0), 0);
+  const freeOutlay = items.reduce((a, it) => a + (it.best?.outlay ?? 0), 0);
+  return { rows, spent, total, bound: Math.max(bound, total), unconstrainedProfit: free, unconstrainedOutlay: freeOutlay, binding: freeOutlay > budget };
+}
+
 export function reportCsv(r) {
   const out = ["quantity,unit_cost,expected_profit,p10_profit,median_profit,p90_profit,prob_sell_out,prob_loss,expected_leftover"];
   for (const c of r.curve) out.push([c.q, c.cost, c.expProfit.toFixed(2), c.p10.toFixed(2), c.p50.toFixed(2), c.p90.toFixed(2), c.pSellOut.toFixed(4), c.pLoss.toFixed(4), c.expLeftover.toFixed(1)].join(","));

@@ -1,0 +1,42 @@
+images with a found 9x6 board: 13 of 13 (left01.jpg, left02.jpg, left03.jpg, left04.jpg, left05.jpg, left06.jpg, left07.jpg, left08.jpg, left09.jpg, left11.jpg, left12.jpg, left13.jpg, left14.jpg)
+size (640, 480)
+
+== model full: all 13 views: fx=536.1 fy=536.0 cx=342.4 cy=235.5 rms=0.409 px dist=[-0.2651, -0.0467, 0.0018, -0.0003, 0.2523]
+A. real images, random subsets; focal error relative to the all-views fit
+  k draws median% p5% p95% within2% heldout_px
+  3   150   -0.19   -1.21   +1.13     99    0.469
+  4   150   -0.20   -0.69   +0.97     99    0.473
+  5   150   -0.05   -0.61   +0.61    100    0.482
+  6   150   +0.02   -0.61   +0.63    100    0.368
+  8   150   +0.07   -0.48   +0.43    100    0.290
+ 10   150   +0.04   -0.44   +0.22    100    0.252
+ 12   150   +0.01   -0.36   +0.13    100    0.208
+B. synthetic: the all-views poses and intrinsics re-rendered with noise sigma=0.409 px; error vs known truth
+  k draws median% p5% p95% within2%
+  3   150   -0.01   -1.81   +1.18     95
+  4   150   +0.02   -0.81   +0.94     97
+  5   150   -0.09   -0.86   +0.72    100
+  6   150   -0.00   -0.65   +0.75    100
+  8   150   +0.02   -0.54   +0.63    100
+ 10   150   -0.01   -0.42   +0.41    100
+ 12   150   +0.02   -0.32   +0.49    100
+
+== model lean: all 13 views: fx=537.8 fy=537.8 cx=320.0 cy=240.0 rms=0.508 px dist=[-0.2568, 0.0, 0.0, 0.0, 0.0]
+A. real images, random subsets; focal error relative to the all-views fit
+  k draws median% p5% p95% within2% heldout_px
+  3   150   -0.34   -2.41   +1.95     87    0.553
+  4   150   -0.19   -1.60   +1.56     99    0.560
+  5   150   -0.01   -1.48   +1.07    100    0.566
+  6   150   +0.09   -1.36   +1.18    100    0.461
+  8   150   +0.20   -0.97   +0.84    100    0.433
+ 10   150   +0.09   -0.97   +0.59    100    0.430
+ 12   150   +0.00   -0.79   +0.36    100    0.430
+B. synthetic: the all-views poses and intrinsics re-rendered with noise sigma=0.508 px; error vs known truth
+  k draws median% p5% p95% within2%
+  3   150   +0.06   -1.04   +0.94    100
+  4   150   +0.00   -0.77   +0.77    100
+  5   150   -0.01   -0.80   +0.77    100
+  6   150   +0.02   -0.62   +0.66    100
+  8   150   +0.02   -0.55   +0.56    100
+ 10   150   +0.01   -0.44   +0.55    100
+ 12   150   +0.01   -0.37   +0.58    100

@@ -1,0 +1,65 @@
+model,term,rate_ratio,ci_low,ci_high
+"Same sample, original covariates",Intercept,0.015297790448597566,0.009432582958927358,0.02481000099635648
+"Same sample, original covariates",husband_school: <12 years vs 12 years,0.8308124007734901,0.5467418655527759,1.2624773933877242
+"Same sample, original covariates",husband_school: 13–15 years vs 12 years,0.9321209331812683,0.7294937907351144,1.1910306093204366
+"Same sample, original covariates",husband_school: 16–17 years vs 12 years,0.8077325740141877,0.5952198417885876,1.0961192240552333
+"Same sample, original covariates",husband_school: 18+ years vs 12 years,0.5659138873437127,0.3681383026818855,0.8699407954982973
+"Same sample, original covariates",wife_school: <12 years vs 12 years,1.1043161295081432,0.7136165546346154,1.7089207165552085
+"Same sample, original covariates",wife_school: 13–15 years vs 12 years,1.2347022518070303,0.9723696292227071,1.5678087887586514
+"Same sample, original covariates",wife_school: 16–17 years vs 12 years,0.7066173743151137,0.5129947474982615,0.9733201287517621
+"Same sample, original covariates",wife_school: 18+ years vs 12 years,0.9057281801072921,0.6158083518627167,1.332140971714765
+"Same sample, original covariates",couple_wage_quartile: Q1 vs Q2,1.0547039083771443,0.8028988920031535,1.3854799719186242
+"Same sample, original covariates",couple_wage_quartile: Q3 vs Q2,1.0169809623062145,0.7718284955887,1.3400001212761858
+"Same sample, original covariates",couple_wage_quartile: Q4 vs Q2,1.1540485692645648,0.8518348934133647,1.5634815038919763
+"Same sample, original covariates","work: No work hours vs 2,000+ hours",1.0409115604136032,0.7062784294747365,1.5340931159521396
+"Same sample, original covariates","work: 1–1,999 hours vs 2,000+ hours",1.2363147113159356,0.9706670176286815,1.574663646396716
+"Same sample, original covariates","earnings_pair: Husband majority, both positive vs Balanced 40–60% wife",0.7164520126071949,0.5594886566621912,0.9174511051415711
+"Same sample, original covariates",earnings_pair: Husband only vs Balanced 40–60% wife,0.9812316631195563,0.7127778488555854,1.3507933478211172
+"Same sample, original covariates","earnings_pair: Wife majority, both positive vs Balanced 40–60% wife",1.3826986010261242,0.9886948437864971,1.9337163871084726
+"Same sample, original covariates",earnings_pair: Wife only vs Balanced 40–60% wife,1.064294300556022,0.6985036160084036,1.621641366252289
+"Same sample, original covariates",Age per 10 years,0.5916126349929656,0.3818471589978989,0.9166115332685919
+"Same sample, original covariates",Current marriage years per 10,0.635343548533969,0.5652047066864233,0.7141862406458834
+"Same sample, original covariates",Women respondents vs men,0.787667701157359,0.6389513110410466,0.9709979410413362
+"Same sample, original covariates",Wave 2002 vs 2000,1.4590777139276683,1.0072343790795109,2.11361706818025
+"Same sample, original covariates",Wave 2004 vs 2000,1.2990731693266808,0.8674466790532749,1.945469548752313
+"Same sample, original covariates",Wave 2006 vs 2000,1.5010962476603062,0.9530971183683158,2.364176641932819
+"Same sample, original covariates",Wave 2008 vs 2000,1.75367881983569,1.0833255723048687,2.8388413250479654
+"Same sample, original covariates",Wave 2010 vs 2000,2.621547139916104,1.5896551200475797,4.323270702010261
+"Same sample, original covariates",Wave 2012 vs 2000,1.7992901308654408,0.9221597420732685,3.5107203528003823
+"Same sample, original covariates",Wave 2014 vs 2000,1.0805882628160475,0.47346411479566625,2.4662291338378135
+"Same sample, original covariates",Wave 2016 vs 2000,2.170536660629013,0.9553514355386848,4.931409761768004
+"Same sample, original covariates",Wave 2018 vs 2000,1.9646989561103145,0.7929296888769785,4.868076000039693
+"Same sample, original covariates",Wave 2020 vs 2000,1.8760959756754578,0.6481281121354933,5.430617873291439
+Same sample + own prior attendance,Intercept,0.016019680031982564,0.009303363639403461,0.027584662738557236
+Same sample + own prior attendance,husband_school: <12 years vs 12 years,0.8251618677155038,0.5432952982356029,1.2532633912772535
+Same sample + own prior attendance,husband_school: 13–15 years vs 12 years,0.9342990373756226,0.7310264697508994,1.1940945059601806
+Same sample + own prior attendance,husband_school: 16–17 years vs 12 years,0.8136434783393528,0.5993408345575542,1.1045730103353872
+Same sample + own prior attendance,husband_school: 18+ years vs 12 years,0.5715708690264926,0.3713171263678913,0.8798227582856514
+Same sample + own prior attendance,wife_school: <12 years vs 12 years,1.0980905111028731,0.7084055667608633,1.7021362156816766
+Same sample + own prior attendance,wife_school: 13–15 years vs 12 years,1.2420154102219798,0.9782288857890918,1.5769338869854852
+Same sample + own prior attendance,wife_school: 16–17 years vs 12 years,0.7108662628378465,0.5159961970133745,0.9793305581822888
+Same sample + own prior attendance,wife_school: 18+ years vs 12 years,0.9138362389945297,0.6222523079112737,1.342054759913792
+Same sample + own prior attendance,couple_wage_quartile: Q1 vs Q2,1.0548512820546225,0.8029360296630641,1.3858030853581296
+Same sample + own prior attendance,couple_wage_quartile: Q3 vs Q2,1.0224120375458625,0.7753090326053309,1.3482705999258016
+Same sample + own prior attendance,couple_wage_quartile: Q4 vs Q2,1.1595457717015922,0.8546580704651624,1.5731980345534542
+Same sample + own prior attendance,"work: No work hours vs 2,000+ hours",1.04128607679046,0.7068146730359857,1.5340325195292943
+Same sample + own prior attendance,"work: 1–1,999 hours vs 2,000+ hours",1.2350962701391308,0.9700046172013902,1.5726345725165547
+Same sample + own prior attendance,"earnings_pair: Husband majority, both positive vs Balanced 40–60% wife",0.7163300231217905,0.5595043847164037,0.9171129235846018
+Same sample + own prior attendance,earnings_pair: Husband only vs Balanced 40–60% wife,0.9803195364143308,0.7123685035053023,1.3490579506909028
+Same sample + own prior attendance,"earnings_pair: Wife majority, both positive vs Balanced 40–60% wife",1.3843420649422067,0.9903247748479058,1.935125729902874
+Same sample + own prior attendance,earnings_pair: Wife only vs Balanced 40–60% wife,1.0620876579838578,0.6971091416432454,1.618154354686285
+Same sample + own prior attendance,religion_refresh: Less than weekly vs Never,0.882772108715799,0.6554043543779362,1.1890165067123832
+Same sample + own prior attendance,religion_refresh: Weekly or more vs Never,0.9932133519532764,0.736955954636835,1.3385776399410296
+Same sample + own prior attendance,Age per 10 years,0.5965306925003315,0.38528413660296906,0.9236011381948572
+Same sample + own prior attendance,Current marriage years per 10,0.6373137709685526,0.566835458436963,0.7165551071666527
+Same sample + own prior attendance,Women respondents vs men,0.7903853009961382,0.6416669576576985,0.9735719076312656
+Same sample + own prior attendance,Wave 2002 vs 2000,1.4564427111568639,1.0053266013859243,2.1099863148529785
+Same sample + own prior attendance,Wave 2004 vs 2000,1.2920453369679854,0.8626263978148925,1.9352307754659517
+Same sample + own prior attendance,Wave 2006 vs 2000,1.489325954547379,0.946297725468301,2.343968223944297
+Same sample + own prior attendance,Wave 2008 vs 2000,1.7335204289955475,1.0712918537077938,2.805111480446838
+Same sample + own prior attendance,Wave 2010 vs 2000,2.5892594596041656,1.5698704282907527,4.27058464719865
+Same sample + own prior attendance,Wave 2012 vs 2000,1.7818103680887978,0.9134607043983324,3.475626452831278
+Same sample + own prior attendance,Wave 2014 vs 2000,1.066648373073524,0.46663387008160434,2.4381829625471227
+Same sample + own prior attendance,Wave 2016 vs 2000,2.139420523275487,0.947014042415448,4.833212571735457
+Same sample + own prior attendance,Wave 2018 vs 2000,1.933349790734207,0.7767043176865039,4.812438051671399
+Same sample + own prior attendance,Wave 2020 vs 2000,1.8428664211386503,0.6383479875854499,5.320227700578071

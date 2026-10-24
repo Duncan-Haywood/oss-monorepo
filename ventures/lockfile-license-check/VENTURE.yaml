@@ -47,5 +47,5 @@ kill_criteria:
   - No external repository is found using license-check.mjs or classify.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/lockfile-license-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/lockfile-license-check/
   analytics: null

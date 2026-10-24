@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: share of target items recovered falls from 0.66 at 0.1 m/s to zero at 1.5 m/s; picks per minute divided by 20 rises then collapses">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Pick cell: recovery against belt speed (1 s pick, 1 m reach)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="260.4" y2="260.4" stroke="#ddd"/><text x="58" y="264.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="196.8" y2="196.8" stroke="#ddd"/><text x="58" y="200.8" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="133.2" y2="133.2" stroke="#ddd"/><text x="58" y="137.2" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="69.6" y2="69.6" stroke="#ddd"/><text x="58" y="73.6" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="93.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="122.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="181.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="255.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.75</text>
+<text x="329.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="476.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">belt speed (m/s)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">recovery (and picks/min / 20)</text>
+<polyline points="64.0,114.7 93.5,112.8 122.9,112.2 181.9,117.6 255.6,149.1 329.3,172.9 476.6,324.0 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="114.7" r="3" fill="#c0392b"/>
+<circle cx="93.5" cy="112.8" r="3" fill="#c0392b"/>
+<circle cx="122.9" cy="112.2" r="3" fill="#c0392b"/>
+<circle cx="181.9" cy="117.6" r="3" fill="#c0392b"/>
+<circle cx="255.6" cy="149.1" r="3" fill="#c0392b"/>
+<circle cx="329.3" cy="172.9" r="3" fill="#c0392b"/>
+<circle cx="476.6" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">recovery</text>
+<polyline points="64.0,289.0 93.5,255.6 122.9,219.1 181.9,153.9 255.6,107.7 329.3,71.2 476.6,324.0 624.0,324.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="289.0" r="3" fill="#1f6fb2"/>
+<circle cx="93.5" cy="255.6" r="3" fill="#1f6fb2"/>
+<circle cx="122.9" cy="219.1" r="3" fill="#1f6fb2"/>
+<circle cx="181.9" cy="153.9" r="3" fill="#1f6fb2"/>
+<circle cx="255.6" cy="107.7" r="3" fill="#1f6fb2"/>
+<circle cx="329.3" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="476.6" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">picks per min / 20</text>
+</svg>

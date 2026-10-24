@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-22",
+ "session": "https://claude.ai/code/session_01LSwjVySrG3VxMGPYYdiJ3G",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there (scheduled routine)",
+ "input_sha256": "a6a4cbde3a8ae3e1ab5d2e28da941c9c5bc4a128b1f75087cee1b6d8d8eb85d8",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-22T14:46:56Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 9476,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "DFN re-scoring hung twice: Pool.map workers were OOM-killed (DFN needs 4-13 GB per design and never frees it); fixed with one process per design and incremental jsonl output. ~2.5 h lost.",
+  "pkill/pgrep -f patterns matched my own shell command line and killed the shell twice."
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "No note that PyBaMM DFN uses several GB per solve and Pool(4) on a 16 GB container hangs silently; suggest maxtasksperchild=1."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "research/energy-cell-dfn/README.md (new project write-up)"
+ ],
+ "goal": null,
+ "notes": "Track 16 fidelity follow-up: 49 energy-cell designs re-scored under DFN; rank corr 0.86, SPMe winner 3rd of 45. Tests 4 pass, build.py ok, md links ok. No docs/posts write-up this run.",
+ "corrections": [],
+ "redteam": null
+}

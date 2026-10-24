@@ -1,0 +1,10 @@
+|--- num__mean_age <= 37.125
+|   |--- num__edu_years_mean <= 15.250
+|   |   |--- value: [0.085]
+|   |--- num__edu_years_mean >  15.250
+|   |   |--- value: [0.296]
+|--- num__mean_age >  37.125
+|   |--- cat__cohabiting_Yes <= 0.500
+|   |   |--- value: [0.020]
+|   |--- cat__cohabiting_Yes >  0.500
+|   |   |--- value: [0.074]

@@ -1,0 +1,48 @@
+{
+  "population": "Full available baseline co-resident opposite-sex married respondent intervals; includes explicit zero and unknown earnings",
+  "intervals": 40818,
+  "respondents": 5735,
+  "events": 726,
+  "person_years": 82039.00000000001,
+  "both_zero_wage_intervals": 1962,
+  "missing_couple_wage_intervals": 4040,
+  "missing_prior_religion_intervals": 1013,
+  "folds": [
+    {
+      "fold": 1,
+      "training_respondents": 4588,
+      "test_respondents": 1147,
+      "test_events": 133
+    },
+    {
+      "fold": 2,
+      "training_respondents": 4588,
+      "test_respondents": 1147,
+      "test_events": 146
+    },
+    {
+      "fold": 3,
+      "training_respondents": 4588,
+      "test_respondents": 1147,
+      "test_events": 151
+    },
+    {
+      "fold": 4,
+      "training_respondents": 4588,
+      "test_respondents": 1147,
+      "test_events": 156
+    },
+    {
+      "fold": 5,
+      "training_respondents": 4588,
+      "test_respondents": 1147,
+      "test_events": 140
+    }
+  ],
+  "selection": "Minimum aggregate heldout deviance among six fixed candidates is exploratory CV selection, not external testing",
+  "later_wave_training_people": 5487,
+  "later_wave_test_people": 3952,
+  "later_wave_overlapping_people": 3704,
+  "later_wave_feature_handling": "Post-2012 waves map to latest 2012 training-wave categorical encoding and wage/income cutpoints; no future outcomes or test-distribution quartiles used",
+  "python_sklearn": "1.7.2"
+}

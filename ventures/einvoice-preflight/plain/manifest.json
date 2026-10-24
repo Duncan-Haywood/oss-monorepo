@@ -1,0 +1,71 @@
+{
+  "built": "2026-10-21",
+  "sets": {
+    "en16931-ubl": {
+      "source": "eInvoicing-EN16931 (EUPL-1.2)",
+      "commit": "6e35e0ab8b09eb183f7d84b282e24ef95f9f5715",
+      "checks": 982
+    },
+    "en16931-cii": {
+      "source": "eInvoicing-EN16931 (EUPL-1.2)",
+      "commit": "6e35e0ab8b09eb183f7d84b282e24ef95f9f5715",
+      "checks": 810
+    },
+    "xrechnung-ubl": {
+      "source": "xrechnung-schematron (Apache-2.0)",
+      "commit": "7e3ddbe224674427fd174a8406635708b0d50ed1",
+      "checks": 56
+    },
+    "xrechnung-cii": {
+      "source": "xrechnung-schematron (Apache-2.0)",
+      "commit": "7e3ddbe224674427fd174a8406635708b0d50ed1",
+      "checks": 52
+    },
+    "peppol-ubl": {
+      "source": "peppol-bis-invoice-3 (MPL-2.0)",
+      "commit": "261c458474e27d58a25be629cccac28883171c92",
+      "checks": 159
+    },
+    "peppol-cii": {
+      "source": "peppol-bis-invoice-3 (MPL-2.0)",
+      "commit": "261c458474e27d58a25be629cccac28883171c92",
+      "checks": 86
+    },
+    "pint-sg-en16931-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-sg/2026.6/xslt/SG-Subset-CEN-EN16931-UBL.xslt",
+      "checks": 825
+    },
+    "pint-sg-peppol-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-sg/2026.6/xslt/SG-Subset-PEPPOL-EN16931-UBL.xslt",
+      "checks": 45
+    },
+    "pint-sg-billing3-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-sg/2026.6/xslt/SG-Billing3-UBL.xslt",
+      "checks": 61
+    },
+    "pint-aunz-en16931-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-aunz/1.0.12/xslt/AUNZ-UBL-validation.xslt",
+      "checks": 908
+    },
+    "pint-aunz-peppol-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-aunz/1.0.12/xslt/AUNZ-PEPPOL-validation.xslt",
+      "checks": 50
+    },
+    "pint-aunz-sb-peppol-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-aunz/1.0.12/xslt/AUNZ-PEPPOL-SB-validation.xslt",
+      "checks": 50
+    },
+    "cius-ro-ubl": {
+      "source": "RO e-Factura CIUS-RO v1.0.9 via phive-rules-cius-ro 4.6.3 on Maven Central",
+      "from": "ROeFactura-UBL-validation-Invoice_v1.0.9.xslt",
+      "checks": 122
+    }
+  },
+  "fontoxpath": "3.34.0"
+}

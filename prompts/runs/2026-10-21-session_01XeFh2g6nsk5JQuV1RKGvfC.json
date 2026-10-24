@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01XeFh2g6nsk5JQuV1RKGvfC",
+  "track": "research",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T06:16:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "track 3 next step of chip-digits-qat",
+  "projects": [
+    "chip-digits-pot"
+  ],
+  "pr": 9088,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No agent doc or post written; the project README carries the write-up. Time-boxed scheduled run."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "4 tests pass; build.py ok; check_md_links ok. Shifter cost is stage counts, not synthesised (no yosys run).",
+  "corrections": [],
+  "redteam": null
+}

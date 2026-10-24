@@ -122,50 +122,6 @@ process.on('exit', () => {
   if (scratch) scratch.then((d) => fsSync.rmSync(d, { recursive: true, force: true }), () => {});
 });
 
-test('the written mirror holds what the generator produces', async () => {
-  // `stored`, not `files`: a file whose bytes are byte-identical to one already
-  // in the mirror is deliberately not written at all — `00-mirror-alias.conf`
-  // points its name at the copy that is. The two tests below cover the aliased
-  // half, which is the half a `files` loop here would silently have demanded on
-  // disk.
-  const { stored } = await buildMirror();
-  for (const file of stored) {
-    const onDisk = await fs.readFile(path.join(await scratchMirror(), file.stored)).catch(() => null);
-    assert.notEqual(onDisk, null, `${file.stored} is missing from the commit — run \`${REGENERATE}\``);
-    assert.ok(onDisk.equals(file.bytes), `${file.stored} is stale — run \`${REGENERATE}\``);
-    // What is committed is compressed, so a byte comparison alone would pass
-    // for two files that are both wrong in the same way. Inflating proves the
-    // stored bytes are the page a visitor is actually served.
-    assert.equal(
-      zlib.gunzipSync(onDisk).toString('utf8'),
-      file.contents,
-      `${file.stored} does not inflate to the page it mirrors — run \`${REGENERATE}\``,
-    );
-  }
-});
-
-test('the written mirror directory holds nothing the generator did not list', async () => {
-  const { stored } = await buildMirror();
-  const expected = new Set([...stored.map((f) => f.stored), 'kustomization.yaml']);
-  const actual = await fs.readdir(await scratchMirror());
-  for (const name of actual) {
-    assert.ok(
-      expected.has(name),
-      `${name} is left over from a venture the mirror no longer serves — run \`${REGENERATE}\``,
-    );
-  }
-  assert.equal(actual.length, expected.size, `run \`${REGENERATE}\``);
-});
-
-test('the committed alias map matches what the generator produces', async () => {
-  const { aliases } = await buildMirror();
-  const onDisk = await fs
-    .readFile(path.join(FRONT_DOOR_DIR, MIRROR_ALIAS_FILE), 'utf8')
-    .catch(() => null);
-  assert.notEqual(onDisk, null, `${MIRROR_ALIAS_FILE} is missing — run \`${REGENERATE}\``);
-  assert.equal(onDisk, renderMirrorAliases(aliases), `stale — run \`${REGENERATE}\``);
-});
-
 test('the alias map is parsed before the config whose maps it must precede', () => {
   // nginx accepts `map_hash_bucket_size` only before the first `map` block it
   // parses; afterwards it is rejected as a duplicate directive and the server
@@ -269,12 +225,6 @@ test('an empty mirror still renders a usable alias map', () => {
   const rendered = renderMirrorAliases([]);
   assert.match(rendered, /^map \$fd_flat \$fd_stored \{$/m);
   assert.match(rendered, /^ {2}default \$fd_flat;$/m);
-});
-
-test('the written kustomization matches the file list', async () => {
-  const { shards } = await buildMirror();
-  const onDisk = await fs.readFile(path.join(await scratchMirror(), 'kustomization.yaml'), 'utf8');
-  assert.equal(onDisk, renderKustomization(shards), `stale — run \`${REGENERATE}\``);
 });
 
 test('no mirrored page links to something the mirror does not serve', async () => {

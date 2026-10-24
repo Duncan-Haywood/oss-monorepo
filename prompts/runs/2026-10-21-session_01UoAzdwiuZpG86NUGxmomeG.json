@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01UoAzdwiuZpG86NUGxmomeG",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T00:40:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/backlog/P036-cut-the-deadweight-follow-ups.json",
+      "issue": "Part 1 (delete hetzner-gitops-ci.yml) is entangled with front-door tests and two test files asserting its hcloud-scope job; not a one-PR item as written."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "P036 part 3 only (PRODUCT_PLAYBOOK.md definition of done trimmed, -7 lines). validate and prompts unittest pass. Remainder split in item history.",
+  "corrections": [],
+  "redteam": null
+}

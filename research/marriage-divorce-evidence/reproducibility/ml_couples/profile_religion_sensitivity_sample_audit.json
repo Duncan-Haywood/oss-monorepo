@@ -1,0 +1,52 @@
+{
+  "Profile specification, same attendance-complete sample": {
+    "intervals": 33662,
+    "respondents": 5153,
+    "events": 575,
+    "person_years": 67759.08333333336,
+    "rank": 30,
+    "parameters": 30,
+    "normalized_max_score": 5.443904656741694e-18,
+    "fitted_count": 539.5794023523506,
+    "observed_count": 539.579402352351,
+    "iterations": 6,
+    "baseline_waves": [
+      2000,
+      2002,
+      2004,
+      2006,
+      2008,
+      2010,
+      2012,
+      2014,
+      2016,
+      2018,
+      2020
+    ]
+  },
+  "Profile specification + own prior attendance": {
+    "intervals": 33662,
+    "respondents": 5153,
+    "events": 575,
+    "person_years": 67759.08333333336,
+    "rank": 32,
+    "parameters": 32,
+    "normalized_max_score": 1.5184679476484604e-17,
+    "fitted_count": 539.5794023523506,
+    "observed_count": 539.579402352351,
+    "iterations": 6,
+    "baseline_waves": [
+      2000,
+      2002,
+      2004,
+      2006,
+      2008,
+      2010,
+      2012,
+      2014,
+      2016,
+      2018,
+      2020
+    ]
+  }
+}

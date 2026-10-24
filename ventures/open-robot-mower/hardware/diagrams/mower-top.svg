@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 600" width="720" height="600" font-family="system-ui, sans-serif" font-size="12">
+<title>Open Robot Mower top view</title>
+<rect width="720" height="600" fill="#ffffff"/>
+<rect x="40.0" y="79.5" width="576.0" height="441.0" rx="45.0" fill="none" stroke="#2e6b2c" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="71.5" y="165.0" width="508.5" height="270.0" rx="18.0" fill="#e8ecef" stroke="#556" stroke-width="1.5"/>
+<rect x="58.0" y="100.2" width="198.0" height="54.0" rx="6" fill="#333"/>
+<rect x="487.8" y="162.8" width="67.5" height="22.5" rx="4" fill="#555"/>
+<rect x="140.3" y="169.5" width="33.3" height="112.5" fill="#9aa7b1"/>
+<rect x="58.0" y="445.8" width="198.0" height="54.0" rx="6" fill="#333"/>
+<rect x="487.8" y="414.8" width="67.5" height="22.5" rx="4" fill="#555"/>
+<rect x="140.3" y="318.0" width="33.3" height="112.5" fill="#9aa7b1"/>
+<circle cx="364.0" cy="300.0" r="134.1" fill="none" stroke="#b5651d" stroke-width="4.6"/>
+<circle cx="364.0" cy="300.0" r="104.4" fill="#fbe3e0" stroke="#d9472b" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="364.0" cy="300.0" r="90.0" fill="none" stroke="#d9472b" stroke-width="1"/>
+<circle cx="479.2" cy="300.0" r="4" fill="#333"/>
+<circle cx="306.4" cy="200.2" r="4" fill="#333"/>
+<circle cx="306.4" cy="399.8" r="4" fill="#333"/>
+<rect x="215.5" y="232.5" width="63.0" height="135.0" fill="#f6c445" stroke="#8a6d10"/>
+<rect x="107.5" y="201.0" width="220.5" height="198.0" fill="none" stroke="#245c9a" stroke-width="1.5" stroke-dasharray="3 3"/>
+<circle cx="86.8" cy="192.0" r="10.8" fill="#7a8a99"/>
+<circle cx="86.8" cy="408.0" r="10.8" fill="#7a8a99"/>
+<circle cx="508.0" cy="210.0" r="10.8" fill="#7a8a99"/>
+<circle cx="508.0" cy="390.0" r="10.8" fill="#7a8a99"/>
+<circle cx="292.0" cy="264.0" r="27.0" fill="none" stroke="#245c9a" stroke-width="1.5"/>
+<circle cx="499.0" cy="354.0" r="18.0" fill="#d9472b"/>
+<rect x="548.5" y="264.0" width="27.0" height="72.0" fill="#c9a227"/>
+<text x="250.0" y="470.0" fill="#18222b">blade guard + tip circle (232 mm cut)</text>
+<text x="215.5" y="225.3" fill="#18222b">battery</text>
+<text x="40.0" y="68.7" fill="#18222b">shell (floating, 6 printed segments)</text>
+<text x="100.0" y="130.0" fill="#ffffff">drive wheel</text>
+<text x="488.0" y="412.0" fill="#18222b">caster</text>
+<text x="472.0" y="327.0" fill="#18222b">stop</text>
+<text x="283.0" y="228.0" fill="#18222b">GNSS antenna</text>
+<text x="508.0" y="250.5" fill="#18222b">charge contacts</text>
+<text x="107.5" y="411.6" fill="#18222b">electronics tray (dashed)</text>
+<text x="20" y="22" font-weight="700" fill="#2e6b2c">Open Robot Mower: top view (drawn from cad/orm_cad/params.py; 640 x 490 mm)</text>
+<text x="661.0" y="304.0" fill="#4b5964">forward &#8594;</text>
+</svg>

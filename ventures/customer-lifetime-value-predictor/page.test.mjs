@@ -98,3 +98,45 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: customer-lifetime-value-predictor$/m);
 });
+
+test("lifetime value guide's table is what the engine returns for the sample shop", async () => {
+  const { compareForecasts, parseOrders, sampleText } = await import("./calc.mjs");
+  const html = readFileSync(new URL("./predict-customer-lifetime-value-from-orders.html", import.meta.url), "utf8");
+  const r = compareForecasts(parseOrders(sampleText()).orders, 26);
+  assert.equal(r.customers, 1064);
+  assert.equal(r.actual, 578);
+  const m = r.methods;
+  assert.equal(Math.round(m.model.predicted), 608);
+  assert.equal(Math.round(m.ownRate.predicted), 973);
+  assert.equal(Math.round(m.shopAverage.predicted), 879);
+  assert.equal(Math.round(m.model.errorPct * 100), 5);
+  assert.equal(Math.round(m.ownRate.errorPct * 100), 68);
+  assert.equal(Math.round(m.shopAverage.errorPct * 100), 52);
+  assert.equal(m.model.meanAbsError.toFixed(2), "0.60");
+  assert.equal(m.ownRate.meanAbsError.toFixed(2), "0.85");
+  assert.equal(m.shopAverage.meanAbsError.toFixed(2), "0.99");
+  assert.equal(Math.round(m.model.topDecileShare * 100), 48);
+  assert.equal(Math.round(m.ownRate.topDecileShare * 100), 42);
+  assert.equal(Math.round(m.shopAverage.topDecileShare * 100), 13);
+  assert.ok(m.model.meanAbsError < m.ownRate.meanAbsError && m.model.meanAbsError < m.shopAverage.meanAbsError);
+  for (const s of ["608", "973", "879", "+5%", "+68%", "+52%", "overshoots by 68%"]) assert.ok(html.includes(s), s);
+  assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /predict-customer-lifetime-value-from-orders\.html/);
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /predict-customer-lifetime-value-from-orders\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
+
+test("guide's lapsed-regulars sentence matches the engine", async () => {
+  const c = await import("./calc.mjs");
+  const orders = c.parseOrders(c.sampleText()).orders;
+  const calEnd = Math.max(...orders.map((o) => o.day)) - 26 * 7;
+  const cal = c.summarize(orders, calEnd), p = c.fitBgnbd(cal);
+  const actual = new Map();
+  for (const o of orders) if (o.day > calEnd) (actual.get(o.id) ?? actual.set(o.id, new Set()).get(o.id)).add(o.day);
+  const g = cal.filter((r) => r.x >= 3 && c.probAlive(p, r.x, r.tx, r.T) < 0.2);
+  assert.equal(g.length, 26);
+  assert.equal(Math.round(g.reduce((s, r) => s + c.expectedPurchases(p, r.x, r.tx, r.T, 26), 0)), 3);
+  assert.equal(g.reduce((s, r) => s + (actual.get(r.id)?.size ?? 0), 0), 5);
+  assert.equal(Math.round(g.reduce((s, r) => s + (r.x / r.T) * 26, 0)), 85);
+});

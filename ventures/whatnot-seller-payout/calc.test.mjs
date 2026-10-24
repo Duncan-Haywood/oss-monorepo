@@ -206,3 +206,10 @@ test('every preset has a rate and a label a form can render', () => {
     assert.ok(INPUT_IDS.includes('commissionCap'));
   }
 });
+
+test('volume preset applies the 3% floor to the hammer only', () => {
+  const r = calculateSale({ ...applyCategoryPreset({}, 'volume'), salePrice: 100, itemCost: 0 });
+  assert.equal(CATEGORY_PRESETS.volume.commissionRate, 3);
+  assert.equal(r.commission, 3);
+  assert.ok(Math.abs(r.payout - 93.8) < 1e-9);
+});

@@ -57,6 +57,7 @@
     <p>Paste one <strong>IAM policy, role trust policy or bucket/queue/key policy</strong> as JSON. You get a score, and every <strong>admin wildcard, privilege-escalation action, Allow+NotAction grant and public principal</strong>, each with a fix to review.</p>
     <p class="note">The text is read in this browser tab. No credentials, no account lookup, no upload.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste the policy</h2>
@@ -109,7 +110,8 @@
     <p>No. It applies a fixed set of rules to the text of one policy. It does not see permission boundaries, SCPs, session policies, resource policies on the other side, or which identities the policy is attached to. Use IAM Access Analyzer and the policy simulator as well.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. It is not a security audit. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any change you make to your AWS account. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
     <p>Everything runs in your browser. Your policy is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>policy_checked</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

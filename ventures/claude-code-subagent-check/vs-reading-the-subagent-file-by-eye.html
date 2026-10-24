@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Claude Code Subagent Check vs. reading the subagent file by eye</title>
-<meta name="description" content="Reading a short subagent definition catches an obviously empty tools list. It reliably misses a description that reads fine to a person but carries no trigger cue an orchestrator matches on, a duplicated tool name buried in a long comma-separated list, and an unrecognized model alias that looks plausible -- which is what this free, no-upload checker computes exactly, every time.">
+<meta name="description" content="Reading a subagent file misses a description with no trigger cue, a duplicated tool, or a bad model alias. This free, no-upload checker finds them.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="./vs-reading-the-subagent-file-by-eye.html">
 <meta property="og:type" content="website">

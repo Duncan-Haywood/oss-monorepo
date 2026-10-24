@@ -1,0 +1,70 @@
+{
+  "person_folds_disjoint": true,
+  "all_crossfit_predictions_complete": true,
+  "artifact_checks": [
+    {
+      "sample": "legally_married_including_separated",
+      "model": "additive_poisson",
+      "loaded_pipeline_predictions_valid": true,
+      "observed_weighted_events": 6524990.15,
+      "training_fitted_weighted_events": 6524987.204775555,
+      "relative_event_total_error": -4.513760753053727e-07
+    },
+    {
+      "sample": "legally_married_including_separated",
+      "model": "spline_additive_poisson",
+      "loaded_pipeline_predictions_valid": true,
+      "observed_weighted_events": 6524990.15,
+      "training_fitted_weighted_events": 6524989.264215463,
+      "relative_event_total_error": -1.3575262447429678e-07
+    },
+    {
+      "sample": "legally_married_including_separated",
+      "model": "tree_depth2",
+      "loaded_pipeline_predictions_valid": true,
+      "observed_weighted_events": 6524990.15,
+      "training_fitted_weighted_events": 6524990.150000002,
+      "relative_event_total_error": 2.8546328904894314e-16
+    },
+    {
+      "sample": "legally_married_including_separated",
+      "model": "tree_depth3",
+      "loaded_pipeline_predictions_valid": true,
+      "observed_weighted_events": 6524990.15,
+      "training_fitted_weighted_events": 6524990.149999991,
+      "relative_event_total_error": -1.4273164452447158e-15
+    },
+    {
+      "sample": "currently_married_only",
+      "model": "additive_poisson",
+      "loaded_pipeline_predictions_valid": true,
+      "observed_weighted_events": 4066085.5500000007,
+      "training_fitted_weighted_events": 4066086.3193836506,
+      "relative_event_total_error": 1.892197398078413e-07
+    },
+    {
+      "sample": "currently_married_only",
+      "model": "spline_additive_poisson",
+      "loaded_pipeline_predictions_valid": true,
+      "observed_weighted_events": 4066085.5500000007,
+      "training_fitted_weighted_events": 4066085.32690541,
+      "relative_event_total_error": -5.486716602398623e-08
+    },
+    {
+      "sample": "currently_married_only",
+      "model": "tree_depth2",
+      "loaded_pipeline_predictions_valid": true,
+      "observed_weighted_events": 4066085.5500000007,
+      "training_fitted_weighted_events": 4066085.5499999886,
+      "relative_event_total_error": -2.9776042144517146e-15
+    },
+    {
+      "sample": "currently_married_only",
+      "model": "tree_depth3",
+      "loaded_pipeline_predictions_valid": true,
+      "observed_weighted_events": 4066085.5500000007,
+      "training_fitted_weighted_events": 4066085.550000004,
+      "relative_event_total_error": 8.016626731216155e-16
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 ## Documentation policy (TSX)
 
 1. **Canonical format:** Product documentation lives in **`apps/docs/src/pages/*.tsx`**, not Markdown or HTML reports.
-2. **Do not** create new long-form `.md` or `.html` under `docs/` or `reports/`; extend the Vite docs app instead.
+2. **Prefer not to** create new long-form `.md` or `.html` under `docs/` or `reports/`; extend the Vite docs app instead.
 3. **One-off sharing:** Run `pnpm docs:export` for static HTML (`apps/docs/dist/`). For PDF, use browser Print from `pnpm docs:preview` on the target route.
 4. **Migration:** `pnpm docs:convert-html` only when refreshing TSX from legacy HTML sources.
 
@@ -22,7 +22,7 @@ pnpm run ci            # typecheck, lint, build, bootstrap smoke
 ## Code changes
 
 - Match existing monorepo conventions (pnpm workspaces, ESLint, TypeScript strict).
-- Minimize scope; do not refactor unrelated packages.
+- Minimize scope; avoid refactoring unrelated packages.
 - Package READMEs: CLI only + link to docs site routes.
 
 ## Cursor Cloud specific instructions
@@ -59,8 +59,8 @@ Run both servers in separate terminals (or tmux panes) for the full stakeholder 
 
 - Prioritize profitable-first, software-first, AI-first, hiring-last, and minimal founder intervention for scheduled or autonomous agent runs.
 - Hourly automation should ship one incremental, shippable step per run when possible; default to the smallest diff that passes CI.
-- Scheduled automations must read `.cursor/automations/retail-pilot-intel-orchestrator.md` from repo `main` — the dashboard bootstrap is only a pointer, not the full prompt.
-- Do not execute business-model pivots without explicit founder approval; log pivot signals and stop for review.
+- Scheduled automations should read `.cursor/automations/retail-pilot-intel-orchestrator.md` from repo `main` — the dashboard bootstrap is only a pointer, not the full prompt.
+- Leave business-model pivots to the founder, since they change what the product is: log pivot signals and stop for review rather than executing one.
 - Do not invent pilot customers, revenue figures, or signed legal artifacts (e.g. DPIAs).
 - Treat GDPR/EU privacy as a go-live gate alongside profit metrics; prepare compliance artifacts but do not claim compliance without a signed pilot DPIA.
 - Product and stakeholder documentation belongs in TSX under `apps/docs`; TypeScript is the default for infra and CI scripts too.

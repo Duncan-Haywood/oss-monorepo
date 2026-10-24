@@ -1,0 +1,37 @@
+|--- cat__wife_ba_by_wedding_Yes <= 0.5000
+|   |--- cat__wife_premarital_partners_Unknown <= 0.5000
+|   |   |--- num__wife_age_at_marriage <= 20.7083
+|   |   |   |--- num__marriage_years <= 7.5000
+|   |   |   |   |--- value: [0.0791]
+|   |   |   |--- num__marriage_years >  7.5000
+|   |   |   |   |--- value: [0.0403]
+|   |   |--- num__wife_age_at_marriage >  20.7083
+|   |   |   |--- num__wife_premarital_sex_years <= 1.3750
+|   |   |   |   |--- value: [0.0155]
+|   |   |   |--- num__wife_premarital_sex_years >  1.3750
+|   |   |   |   |--- value: [0.0419]
+|   |--- cat__wife_premarital_partners_Unknown >  0.5000
+|   |   |--- num__wedding_year <= 1988.5000
+|   |   |   |--- num__wife_age_at_marriage <= 18.9583
+|   |   |   |   |--- value: [0.0193]
+|   |   |   |--- num__wife_age_at_marriage >  18.9583
+|   |   |   |   |--- value: [0.0101]
+|   |   |--- num__wedding_year >  1988.5000
+|   |   |   |--- value: [0.0325]
+|--- cat__wife_ba_by_wedding_Yes >  0.5000
+|   |--- num__wife_premarital_sex_years <= 3.0417
+|   |   |--- num__wedding_year <= 1995.5000
+|   |   |   |--- value: [0.0149]
+|   |   |--- num__wedding_year >  1995.5000
+|   |   |   |--- num__wife_age_at_marriage <= 24.4583
+|   |   |   |   |--- value: [0.0085]
+|   |   |   |--- num__wife_age_at_marriage >  24.4583
+|   |   |   |   |--- value: [0.0040]
+|   |--- num__wife_premarital_sex_years >  3.0417
+|   |   |--- cat__husband_married_before_Yes <= 0.5000
+|   |   |   |--- cat__wife_intact_family_Yes <= 0.5000
+|   |   |   |   |--- value: [0.0231]
+|   |   |   |--- cat__wife_intact_family_Yes >  0.5000
+|   |   |   |   |--- value: [0.0153]
+|   |   |--- cat__husband_married_before_Yes >  0.5000
+|   |   |   |--- value: [0.0383]

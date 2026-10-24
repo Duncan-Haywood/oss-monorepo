@@ -1,0 +1,3199 @@
+{
+ "data": {
+  "rows": 8046,
+  "groups": 2625,
+  "events": 527.0,
+  "family": "binary",
+  "numeric": [
+   "mean_age",
+   "age_gap",
+   "relationship_years",
+   "edu_years_mean",
+   "edu_gap",
+   "hh_income_k",
+   "children_in_hh",
+   "r_age",
+   "p_age",
+   "r_yrsed",
+   "p_yrsed",
+   "r_mom_yrsed",
+   "p_mom_yrsed",
+   "relatives_seen",
+   "distance_moved_10mi",
+   "age_met",
+   "years_since_met",
+   "years_since_cohab"
+  ],
+  "categorical": [
+   "period",
+   "relationship_quality",
+   "married",
+   "cohabiting",
+   "couple_type",
+   "couple_race",
+   "party_pair",
+   "how_met",
+   "prior_marriage",
+   "earnings",
+   "religion_pair",
+   "parental_approval",
+   "r_race",
+   "p_race",
+   "r_party",
+   "p_party",
+   "r_religion",
+   "p_religion",
+   "r_sex",
+   "r_work",
+   "metro",
+   "region4",
+   "housing",
+   "r_evangelical",
+   "same_high_school",
+   "same_college",
+   "same_town",
+   "parents_knew",
+   "us_raised",
+   "glb_status",
+   "r_religion_changed"
+  ],
+  "duration": null,
+  "baseline": "additive logistic hazard, all lens inputs (train_models.py additive_full; C by inner grouped CV)",
+  "lens_models": [
+   "lens_boosting",
+   "dyad_separate_glm",
+   "dyad_apim_glm",
+   "baseline_all_inputs"
+  ],
+  "notes": [
+   "unweighted, as the lens fits; couples without follow-up have no rows",
+   "GroupKFold by couple, 3 repeats"
+  ],
+  "sample": null,
+  "metric": "log-loss gain vs constant (couple-periods); C-index"
+ },
+ "main": {
+  "rows": [
+   {
+    "model": "baseline",
+    "heldout_gain": 27.00073,
+    "heldout_gain_ci": [
+     24.197795,
+     29.772651
+    ],
+    "diff_vs_baseline": 0.0,
+    "diff_vs_baseline_ci": [
+     0.0,
+     0.0
+    ],
+    "heldout_gain_by_repeat": [
+     26.673491,
+     27.324826,
+     27.003875
+    ],
+    "train_gain": 30.403833,
+    "train_minus_heldout": 3.403102,
+    "observed_expected": 0.984398,
+    "calibration_slope": 0.968447,
+    "calibration_intercept": -0.080461,
+    "top_decile_lift": 5.17137,
+    "top_bottom_ratio": null,
+    "decile_observed": [
+     0.0,
+     0.006211,
+     0.007463,
+     0.008696,
+     0.016169,
+     0.017391,
+     0.039752,
+     0.078358,
+     0.147826,
+     0.332919
+    ],
+    "decile_predicted": [
+     0.003335,
+     0.006741,
+     0.009826,
+     0.013234,
+     0.017905,
+     0.024715,
+     0.035618,
+     0.060284,
+     0.123794,
+     0.374742
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.878189,
+     "ci": [
+      0.866251,
+      0.893486
+     ],
+     "diff_vs_baseline": 0.0,
+     "diff_ci": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "model": "lightgbm_tuned",
+    "heldout_gain": 27.206346,
+    "heldout_gain_ci": [
+     24.386709,
+     29.946576
+    ],
+    "diff_vs_baseline": 0.205616,
+    "diff_vs_baseline_ci": [
+     -0.746559,
+     1.215012
+    ],
+    "heldout_gain_by_repeat": [
+     26.735095,
+     27.842497,
+     27.041481
+    ],
+    "train_gain": 42.470654,
+    "train_minus_heldout": 15.264297,
+    "observed_expected": 0.979251,
+    "calibration_slope": 0.985898,
+    "calibration_intercept": -0.05391,
+    "top_decile_lift": 5.234589,
+    "top_bottom_ratio": 227.383851,
+    "decile_observed": [
+     0.001244,
+     0.001242,
+     0.013682,
+     0.01118,
+     0.008706,
+     0.023602,
+     0.037267,
+     0.078358,
+     0.144099,
+     0.335404
+    ],
+    "decile_predicted": [
+     0.004001,
+     0.006589,
+     0.00914,
+     0.012188,
+     0.015915,
+     0.022931,
+     0.037929,
+     0.066365,
+     0.140661,
+     0.361188
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.876512,
+     "ci": [
+      0.865863,
+      0.894563
+     ],
+     "diff_vs_baseline": -0.001677,
+     "diff_ci": [
+      -0.005015,
+      0.005384
+     ]
+    }
+   },
+   {
+    "model": "hgb_tuned",
+    "heldout_gain": 27.124818,
+    "heldout_gain_ci": [
+     24.302465,
+     29.704822
+    ],
+    "diff_vs_baseline": 0.124088,
+    "diff_vs_baseline_ci": [
+     -0.919756,
+     1.130988
+    ],
+    "heldout_gain_by_repeat": [
+     27.155264,
+     27.684301,
+     26.535002
+    ],
+    "train_gain": 41.379778,
+    "train_minus_heldout": 14.254922,
+    "observed_expected": 0.969729,
+    "calibration_slope": 1.003229,
+    "calibration_intercept": -0.035239,
+    "top_decile_lift": 5.152404,
+    "top_bottom_ratio": 271.329193,
+    "decile_observed": [
+     0.001244,
+     0.004969,
+     0.004975,
+     0.007453,
+     0.016169,
+     0.028571,
+     0.031056,
+     0.074627,
+     0.145342,
+     0.340373
+    ],
+    "decile_predicted": [
+     0.00421,
+     0.006946,
+     0.009338,
+     0.01284,
+     0.016478,
+     0.023348,
+     0.038938,
+     0.068794,
+     0.142629,
+     0.356017
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.877206,
+     "ci": [
+      0.865941,
+      0.894211
+     ],
+     "diff_vs_baseline": -0.000983,
+     "diff_ci": [
+      -0.004892,
+      0.006677
+     ]
+    }
+   },
+   {
+    "model": "random_forest_tuned",
+    "heldout_gain": 27.176556,
+    "heldout_gain_ci": [
+     24.279522,
+     29.95103
+    ],
+    "diff_vs_baseline": 0.175826,
+    "diff_vs_baseline_ci": [
+     -1.27421,
+     1.61014
+    ],
+    "heldout_gain_by_repeat": [
+     26.972267,
+     27.459906,
+     27.097511
+    ],
+    "train_gain": 42.871482,
+    "train_minus_heldout": 15.69492,
+    "observed_expected": 0.942661,
+    "calibration_slope": 1.023014,
+    "calibration_intercept": -0.037805,
+    "top_decile_lift": 5.209301,
+    "top_bottom_ratio": 184.936646,
+    "decile_observed": [
+     0.0,
+     0.006211,
+     0.007463,
+     0.01118,
+     0.017413,
+     0.019876,
+     0.03354,
+     0.063433,
+     0.161491,
+     0.334161
+    ],
+    "decile_predicted": [
+     0.000603,
+     0.002732,
+     0.005674,
+     0.010169,
+     0.016885,
+     0.028185,
+     0.046038,
+     0.078068,
+     0.166659,
+     0.34143
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.878016,
+     "ci": [
+      0.865869,
+      0.894658
+     ],
+     "diff_vs_baseline": -0.000173,
+     "diff_ci": [
+      -0.006368,
+      0.006739
+     ]
+    }
+   },
+   {
+    "model": "extra_trees_tuned",
+    "heldout_gain": 25.941829,
+    "heldout_gain_ci": [
+     22.886093,
+     28.92792
+    ],
+    "diff_vs_baseline": -1.058902,
+    "diff_vs_baseline_ci": [
+     -2.687222,
+     0.503046
+    ],
+    "heldout_gain_by_repeat": [
+     26.032565,
+     26.068371,
+     25.724591
+    ],
+    "train_gain": 44.421742,
+    "train_minus_heldout": 18.479899,
+    "observed_expected": 0.925558,
+    "calibration_slope": 0.981868,
+    "calibration_intercept": -0.13134,
+    "top_decile_lift": 4.905847,
+    "top_bottom_ratio": 100.375155,
+    "decile_observed": [
+     0.002488,
+     0.004969,
+     0.004975,
+     0.01118,
+     0.011194,
+     0.032298,
+     0.03354,
+     0.062189,
+     0.172671,
+     0.319255
+    ],
+    "decile_predicted": [
+     0.000477,
+     0.002142,
+     0.004593,
+     0.008803,
+     0.016562,
+     0.028796,
+     0.049329,
+     0.083728,
+     0.169709,
+     0.345698
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.873595,
+     "ci": [
+      0.861616,
+      0.89033
+     ],
+     "diff_vs_baseline": -0.004594,
+     "diff_ci": [
+      -0.010853,
+      0.002734
+     ]
+    }
+   },
+   {
+    "model": "enet_spline_pairwise",
+    "heldout_gain": 26.434351,
+    "heldout_gain_ci": [
+     23.82973,
+     29.018083
+    ],
+    "diff_vs_baseline": -0.566379,
+    "diff_vs_baseline_ci": [
+     -1.486968,
+     0.337166
+    ],
+    "heldout_gain_by_repeat": [
+     26.530071,
+     26.191877,
+     26.581077
+    ],
+    "train_gain": 29.813662,
+    "train_minus_heldout": 3.37932,
+    "observed_expected": 0.983537,
+    "calibration_slope": 1.059515,
+    "calibration_intercept": 0.093828,
+    "top_decile_lift": 5.101828,
+    "top_bottom_ratio": 136.330435,
+    "decile_observed": [
+     0.0,
+     0.003727,
+     0.008706,
+     0.01118,
+     0.00995,
+     0.034783,
+     0.031056,
+     0.074627,
+     0.150311,
+     0.330435
+    ],
+    "decile_predicted": [
+     0.008067,
+     0.012885,
+     0.016279,
+     0.019688,
+     0.0228,
+     0.027426,
+     0.036547,
+     0.058953,
+     0.124826,
+     0.336873
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.876265,
+     "ci": [
+      0.865518,
+      0.893292
+     ],
+     "diff_vs_baseline": -0.001924,
+     "diff_ci": [
+      -0.004738,
+      0.004488
+     ]
+    }
+   },
+   {
+    "model": "ebm",
+    "heldout_gain": 27.424218,
+    "heldout_gain_ci": [
+     24.529961,
+     30.153813
+    ],
+    "diff_vs_baseline": 0.423488,
+    "diff_vs_baseline_ci": [
+     -0.522048,
+     1.439698
+    ],
+    "heldout_gain_by_repeat": [
+     27.863356,
+     27.459046,
+     26.950343
+    ],
+    "train_gain": 34.08343,
+    "train_minus_heldout": 6.659182,
+    "observed_expected": 0.98046,
+    "calibration_slope": 0.96683,
+    "calibration_intercept": -0.086085,
+    "top_decile_lift": 5.152404,
+    "top_bottom_ratio": 133.83354,
+    "decile_observed": [
+     0.002488,
+     0.003727,
+     0.001244,
+     0.01118,
+     0.014925,
+     0.023602,
+     0.034783,
+     0.077114,
+     0.152795,
+     0.332919
+    ],
+    "decile_predicted": [
+     0.001525,
+     0.004484,
+     0.007937,
+     0.011723,
+     0.01643,
+     0.023283,
+     0.035341,
+     0.064035,
+     0.140241,
+     0.36002
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.878566,
+     "ci": [
+      0.865816,
+      0.894709
+     ],
+     "diff_vs_baseline": 0.000377,
+     "diff_ci": [
+      -0.004661,
+      0.005078
+     ]
+    }
+   },
+   {
+    "model": "stack_glm_lgbm",
+    "heldout_gain": 27.649669,
+    "heldout_gain_ci": [
+     24.827943,
+     30.35145
+    ],
+    "diff_vs_baseline": 0.648938,
+    "diff_vs_baseline_ci": [
+     -0.106863,
+     1.434546
+    ],
+    "heldout_gain_by_repeat": [
+     27.313014,
+     28.190246,
+     27.445787
+    ],
+    "train_gain": 40.034553,
+    "train_minus_heldout": 12.38487,
+    "observed_expected": 0.99036,
+    "calibration_slope": 1.002414,
+    "calibration_intercept": -0.008601,
+    "top_decile_lift": 5.266199,
+    "top_bottom_ratio": 271.162733,
+    "decile_observed": [
+     0.001244,
+     0.001242,
+     0.011194,
+     0.008696,
+     0.012438,
+     0.02236,
+     0.032298,
+     0.077114,
+     0.152795,
+     0.335404
+    ],
+    "decile_predicted": [
+     0.004057,
+     0.006697,
+     0.009425,
+     0.012445,
+     0.01629,
+     0.023433,
+     0.03715,
+     0.063837,
+     0.135508,
+     0.357961
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.879274,
+     "ci": [
+      0.867697,
+      0.896259
+     ],
+     "diff_vs_baseline": 0.001084,
+     "diff_ci": [
+      -0.001722,
+      0.00622
+     ]
+    }
+   },
+   {
+    "model": "lens_boosting",
+    "heldout_gain": 28.009092,
+    "heldout_gain_ci": [
+     25.337958,
+     30.658416
+    ],
+    "diff_vs_baseline": 1.008362,
+    "diff_vs_baseline_ci": [
+     0.027515,
+     1.987648
+    ],
+    "heldout_gain_by_repeat": [
+     27.751731,
+     28.493495,
+     27.782095
+    ],
+    "train_gain": 35.719179,
+    "train_minus_heldout": 7.710072,
+    "observed_expected": 0.978373,
+    "calibration_slope": 1.029069,
+    "calibration_intercept": 0.023599,
+    "top_decile_lift": 5.304131,
+    "top_bottom_ratio": 282.648447,
+    "decile_observed": [
+     0.0,
+     0.002484,
+     0.008706,
+     0.014907,
+     0.013682,
+     0.016149,
+     0.037267,
+     0.068408,
+     0.151553,
+     0.341615
+    ],
+    "decile_predicted": [
+     0.003111,
+     0.005659,
+     0.009507,
+     0.0139,
+     0.017939,
+     0.024231,
+     0.038059,
+     0.064763,
+     0.13952,
+     0.356341
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.882308,
+     "ci": [
+      0.872319,
+      0.898981
+     ],
+     "diff_vs_baseline": 0.004119,
+     "diff_ci": [
+      0.000867,
+      0.010922
+     ]
+    }
+   },
+   {
+    "model": "dyad_separate_glm",
+    "heldout_gain": 25.980509,
+    "heldout_gain_ci": [
+     23.173544,
+     28.72561
+    ],
+    "diff_vs_baseline": -1.020221,
+    "diff_vs_baseline_ci": [
+     -1.758565,
+     -0.289246
+    ],
+    "heldout_gain_by_repeat": [
+     26.071251,
+     25.891704,
+     25.978574
+    ],
+    "train_gain": 30.291334,
+    "train_minus_heldout": 4.310825,
+    "observed_expected": 0.976911,
+    "calibration_slope": 0.970401,
+    "calibration_intercept": -0.08728,
+    "top_decile_lift": 5.13976,
+    "top_bottom_ratio": 270.163975,
+    "decile_observed": [
+     0.0,
+     0.003727,
+     0.00995,
+     0.009938,
+     0.016169,
+     0.024845,
+     0.034783,
+     0.084577,
+     0.132919,
+     0.337888
+    ],
+    "decile_predicted": [
+     0.004139,
+     0.007964,
+     0.011353,
+     0.015034,
+     0.019594,
+     0.026312,
+     0.037993,
+     0.061847,
+     0.124628,
+     0.363263
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.870611,
+     "ci": [
+      0.857863,
+      0.888181
+     ],
+     "diff_vs_baseline": -0.007579,
+     "diff_ci": [
+      -0.011435,
+      -0.002574
+     ]
+    }
+   },
+   {
+    "model": "dyad_apim_glm",
+    "heldout_gain": 25.567475,
+    "heldout_gain_ci": [
+     22.824582,
+     28.258282
+    ],
+    "diff_vs_baseline": -1.433255,
+    "diff_vs_baseline_ci": [
+     -2.169424,
+     -0.726352
+    ],
+    "heldout_gain_by_repeat": [
+     25.669359,
+     25.679755,
+     25.353352
+    ],
+    "train_gain": 30.264881,
+    "train_minus_heldout": 4.697392,
+    "observed_expected": 0.977102,
+    "calibration_slope": 0.967018,
+    "calibration_intercept": -0.093833,
+    "top_decile_lift": 5.063896,
+    "top_bottom_ratio": 135.831056,
+    "decile_observed": [
+     0.0,
+     0.006211,
+     0.007463,
+     0.012422,
+     0.016169,
+     0.023602,
+     0.03354,
+     0.077114,
+     0.146584,
+     0.331677
+    ],
+    "decile_predicted": [
+     0.003979,
+     0.007721,
+     0.011103,
+     0.014842,
+     0.019597,
+     0.026369,
+     0.037866,
+     0.061573,
+     0.125068,
+     0.365964
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.869142,
+     "ci": [
+      0.855903,
+      0.886642
+     ],
+     "diff_vs_baseline": -0.009047,
+     "diff_ci": [
+      -0.013322,
+      -0.003735
+     ]
+    }
+   },
+   {
+    "model": "baseline_all_inputs",
+    "heldout_gain": 24.066727,
+    "heldout_gain_ci": [
+     21.253075,
+     26.892599
+    ],
+    "diff_vs_baseline": -2.934004,
+    "diff_vs_baseline_ci": [
+     -4.291624,
+     -1.705262
+    ],
+    "heldout_gain_by_repeat": [
+     24.653626,
+     23.293245,
+     24.253271
+    ],
+    "train_gain": 31.615912,
+    "train_minus_heldout": 7.549198,
+    "observed_expected": 0.965904,
+    "calibration_slope": 0.92102,
+    "calibration_intercept": -0.195191,
+    "top_decile_lift": 4.962745,
+    "top_bottom_ratio": 108.614907,
+    "decile_observed": [
+     0.0,
+     0.007453,
+     0.007463,
+     0.014907,
+     0.022388,
+     0.017391,
+     0.042236,
+     0.070896,
+     0.145342,
+     0.326708
+    ],
+    "decile_predicted": [
+     0.002896,
+     0.006423,
+     0.010138,
+     0.013959,
+     0.018791,
+     0.025826,
+     0.037411,
+     0.061817,
+     0.129399,
+     0.373315
+    ],
+    "discrimination": {
+     "metric": "discrete-time C-index (cumulative break-up risk over 5 periods)",
+     "value": 0.859251,
+     "ci": [
+      0.846479,
+      0.877711
+     ],
+     "diff_vs_baseline": -0.018938,
+     "diff_ci": [
+      -0.028154,
+      -0.010033
+     ]
+    }
+   }
+  ],
+  "info": [
+   {
+    "repeat": 0,
+    "fold": 0,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 31,
+      "min_child_frac": 0.002,
+      "lambda_l2": 10.0,
+      "feature_fraction": 1.0,
+      "max_depth": -1
+     },
+     "rounds": 34,
+     "ranking": [
+      "cohabiting",
+      "relationship_years",
+      "married",
+      "relationship_quality",
+      "years_since_met",
+      "years_since_cohab",
+      "p_age",
+      "period",
+      "mean_age",
+      "hh_income_k",
+      "parental_approval",
+      "distance_moved_10mi",
+      "age_met",
+      "edu_years_mean",
+      "p_mom_yrsed",
+      "relatives_seen",
+      "r_mom_yrsed",
+      "r_age",
+      "age_gap",
+      "p_religion",
+      "r_religion",
+      "region4",
+      "religion_pair",
+      "couple_type",
+      "p_party",
+      "p_race",
+      "p_yrsed",
+      "r_yrsed",
+      "glb_status",
+      "party_pair",
+      "same_college",
+      "edu_gap",
+      "r_race",
+      "how_met",
+      "r_evangelical",
+      "metro",
+      "r_work",
+      "prior_marriage",
+      "couple_race",
+      "same_high_school",
+      "children_in_hh",
+      "same_town",
+      "r_party",
+      "housing",
+      "r_sex",
+      "earnings",
+      "parents_knew",
+      "r_religion_changed",
+      "us_raised"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 0.0
+     },
+     "iters": 101
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.013484,
+     "terms": 202,
+     "nonzero": 29,
+     "pairs_among": [
+      "cohabiting",
+      "relationship_years",
+      "married",
+      "relationship_quality",
+      "years_since_met",
+      "years_since_cohab"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 1,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 16,
+      "min_child_frac": 0.002,
+      "lambda_l2": 0.0,
+      "feature_fraction": 0.5,
+      "max_depth": 6
+     },
+     "rounds": 225,
+     "ranking": [
+      "cohabiting",
+      "married",
+      "relationship_years",
+      "years_since_cohab",
+      "relationship_quality",
+      "years_since_met",
+      "p_age",
+      "mean_age",
+      "edu_years_mean",
+      "age_gap",
+      "period",
+      "distance_moved_10mi",
+      "r_age",
+      "age_met",
+      "hh_income_k",
+      "parental_approval",
+      "p_religion",
+      "couple_type",
+      "relatives_seen",
+      "p_yrsed",
+      "p_mom_yrsed",
+      "p_party",
+      "r_mom_yrsed",
+      "party_pair",
+      "edu_gap",
+      "r_religion",
+      "prior_marriage",
+      "region4",
+      "r_yrsed",
+      "couple_race",
+      "religion_pair",
+      "same_college",
+      "children_in_hh",
+      "glb_status",
+      "r_race",
+      "p_race",
+      "r_party",
+      "how_met",
+      "r_work",
+      "metro",
+      "earnings",
+      "housing",
+      "same_high_school",
+      "same_town",
+      "r_religion_changed",
+      "r_evangelical",
+      "parents_knew",
+      "us_raised",
+      "r_sex"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 0.0
+     },
+     "iters": 226
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.006472,
+     "terms": 204,
+     "nonzero": 62,
+     "pairs_among": [
+      "cohabiting",
+      "married",
+      "relationship_years",
+      "years_since_cohab",
+      "relationship_quality",
+      "years_since_met"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 2,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 31,
+      "min_child_frac": 0.03,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.5,
+      "max_depth": 6
+     },
+     "rounds": 40,
+     "ranking": [
+      "cohabiting",
+      "years_since_cohab",
+      "relationship_quality",
+      "married",
+      "relationship_years",
+      "years_since_met",
+      "period",
+      "p_age",
+      "edu_years_mean",
+      "parental_approval",
+      "mean_age",
+      "r_age",
+      "hh_income_k",
+      "age_met",
+      "couple_type",
+      "relatives_seen",
+      "r_mom_yrsed",
+      "how_met",
+      "distance_moved_10mi",
+      "p_yrsed",
+      "glb_status",
+      "p_mom_yrsed",
+      "same_college",
+      "region4",
+      "p_party",
+      "p_religion",
+      "couple_race",
+      "edu_gap",
+      "age_gap",
+      "religion_pair",
+      "same_high_school",
+      "r_race",
+      "children_in_hh",
+      "party_pair",
+      "r_evangelical",
+      "p_race",
+      "r_religion",
+      "housing",
+      "r_yrsed",
+      "metro",
+      "r_party",
+      "prior_marriage",
+      "same_town",
+      "r_religion_changed",
+      "r_sex",
+      "earnings",
+      "parents_knew",
+      "r_work",
+      "us_raised"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 1.0
+     },
+     "iters": 76
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.012425,
+     "terms": 203,
+     "nonzero": 36,
+     "pairs_among": [
+      "cohabiting",
+      "years_since_cohab",
+      "relationship_quality",
+      "married",
+      "relationship_years",
+      "years_since_met"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 3,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 8,
+      "min_child_frac": 0.002,
+      "lambda_l2": 10.0,
+      "feature_fraction": 1.0,
+      "max_depth": 6
+     },
+     "rounds": 171,
+     "ranking": [
+      "cohabiting",
+      "relationship_years",
+      "married",
+      "relationship_quality",
+      "p_age",
+      "parental_approval",
+      "period",
+      "mean_age",
+      "years_since_met",
+      "years_since_cohab",
+      "hh_income_k",
+      "distance_moved_10mi",
+      "edu_years_mean",
+      "relatives_seen",
+      "r_age",
+      "couple_type",
+      "how_met",
+      "p_religion",
+      "edu_gap",
+      "p_yrsed",
+      "glb_status",
+      "age_gap",
+      "religion_pair",
+      "age_met",
+      "p_mom_yrsed",
+      "prior_marriage",
+      "r_mom_yrsed",
+      "p_party",
+      "party_pair",
+      "region4",
+      "same_college",
+      "r_yrsed",
+      "housing",
+      "couple_race",
+      "children_in_hh",
+      "r_religion",
+      "same_high_school",
+      "earnings",
+      "metro",
+      "r_party",
+      "r_work",
+      "p_race",
+      "same_town",
+      "r_sex",
+      "r_race",
+      "r_evangelical",
+      "parents_knew",
+      "r_religion_changed",
+      "us_raised"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 10.0
+     },
+     "iters": 51
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.006428,
+     "terms": 217,
+     "nonzero": 67,
+     "pairs_among": [
+      "cohabiting",
+      "relationship_years",
+      "married",
+      "relationship_quality",
+      "p_age",
+      "parental_approval"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.3
+    }
+   },
+   {
+    "repeat": 0,
+    "fold": 4,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 31,
+      "min_child_frac": 0.0005,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.8,
+      "max_depth": 3
+     },
+     "rounds": 91,
+     "ranking": [
+      "cohabiting",
+      "relationship_quality",
+      "married",
+      "relationship_years",
+      "years_since_cohab",
+      "years_since_met",
+      "mean_age",
+      "edu_years_mean",
+      "parental_approval",
+      "r_age",
+      "age_gap",
+      "p_age",
+      "period",
+      "relatives_seen",
+      "hh_income_k",
+      "distance_moved_10mi",
+      "age_met",
+      "party_pair",
+      "couple_type",
+      "p_party",
+      "p_mom_yrsed",
+      "r_religion",
+      "glb_status",
+      "same_high_school",
+      "how_met",
+      "r_yrsed",
+      "r_race",
+      "religion_pair",
+      "region4",
+      "housing",
+      "prior_marriage",
+      "r_evangelical",
+      "p_religion",
+      "p_race",
+      "couple_race",
+      "same_college",
+      "edu_gap",
+      "r_mom_yrsed",
+      "p_yrsed",
+      "same_town",
+      "earnings",
+      "children_in_hh",
+      "r_party",
+      "r_sex",
+      "us_raised",
+      "metro",
+      "parents_knew",
+      "r_religion_changed",
+      "r_work"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 1.0
+     },
+     "iters": 176
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.006409,
+     "terms": 202,
+     "nonzero": 60,
+     "pairs_among": [
+      "cohabiting",
+      "relationship_quality",
+      "married",
+      "relationship_years",
+      "years_since_cohab",
+      "years_since_met"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.3
+    }
+   },
+   {
+    "repeat": 1,
+    "fold": 0,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 63,
+      "min_child_frac": 0.01,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.5,
+      "max_depth": -1
+     },
+     "rounds": 251,
+     "ranking": [
+      "cohabiting",
+      "years_since_cohab",
+      "relationship_years",
+      "relationship_quality",
+      "years_since_met",
+      "married",
+      "p_age",
+      "mean_age",
+      "r_age",
+      "period",
+      "edu_years_mean",
+      "age_met",
+      "age_gap",
+      "distance_moved_10mi",
+      "hh_income_k",
+      "relatives_seen",
+      "parental_approval",
+      "p_yrsed",
+      "r_mom_yrsed",
+      "region4",
+      "p_party",
+      "p_mom_yrsed",
+      "r_religion",
+      "p_religion",
+      "same_college",
+      "edu_gap",
+      "religion_pair",
+      "party_pair",
+      "couple_type",
+      "r_yrsed",
+      "glb_status",
+      "children_in_hh",
+      "housing",
+      "how_met",
+      "couple_race",
+      "prior_marriage",
+      "r_party",
+      "r_work",
+      "r_sex",
+      "r_race",
+      "same_town",
+      "r_evangelical",
+      "p_race",
+      "same_high_school",
+      "metro",
+      "r_religion_changed",
+      "earnings",
+      "parents_knew",
+      "us_raised"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 10.0
+     },
+     "iters": 226
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.00318,
+     "terms": 203,
+     "nonzero": 89,
+     "pairs_among": [
+      "cohabiting",
+      "years_since_cohab",
+      "relationship_years",
+      "relationship_quality",
+      "years_since_met",
+      "married"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.4
+    }
+   },
+   {
+    "repeat": 1,
+    "fold": 1,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 63,
+      "min_child_frac": 0.01,
+      "lambda_l2": 10.0,
+      "feature_fraction": 0.5,
+      "max_depth": -1
+     },
+     "rounds": 86,
+     "ranking": [
+      "cohabiting",
+      "married",
+      "years_since_cohab",
+      "relationship_quality",
+      "relationship_years",
+      "years_since_met",
+      "mean_age",
+      "p_age",
+      "r_age",
+      "age_met",
+      "edu_years_mean",
+      "period",
+      "hh_income_k",
+      "p_mom_yrsed",
+      "parental_approval",
+      "relatives_seen",
+      "age_gap",
+      "distance_moved_10mi",
+      "r_yrsed",
+      "p_religion",
+      "couple_type",
+      "how_met",
+      "r_mom_yrsed",
+      "r_religion",
+      "p_party",
+      "edu_gap",
+      "religion_pair",
+      "p_yrsed",
+      "party_pair",
+      "region4",
+      "same_college",
+      "prior_marriage",
+      "r_race",
+      "glb_status",
+      "metro",
+      "housing",
+      "p_race",
+      "r_work",
+      "r_party",
+      "same_town",
+      "couple_race",
+      "earnings",
+      "children_in_hh",
+      "same_high_school",
+      "r_evangelical",
+      "r_religion_changed",
+      "r_sex",
+      "parents_knew",
+      "us_raised"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 10.0
+     },
+     "iters": 214
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.005989,
+     "terms": 203,
+     "nonzero": 63,
+     "pairs_among": [
+      "cohabiting",
+      "married",
+      "years_since_cohab",
+      "relationship_quality",
+      "relationship_years",
+      "years_since_met"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 1,
+    "fold": 2,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 4,
+      "min_child_frac": 0.002,
+      "lambda_l2": 10.0,
+      "feature_fraction": 1.0,
+      "max_depth": 6
+     },
+     "rounds": 480,
+     "ranking": [
+      "cohabiting",
+      "relationship_years",
+      "married",
+      "relationship_quality",
+      "years_since_cohab",
+      "years_since_met",
+      "parental_approval",
+      "mean_age",
+      "hh_income_k",
+      "p_age",
+      "couple_type",
+      "distance_moved_10mi",
+      "edu_years_mean",
+      "period",
+      "relatives_seen",
+      "how_met",
+      "r_religion",
+      "age_met",
+      "prior_marriage",
+      "r_age",
+      "glb_status",
+      "p_party",
+      "p_religion",
+      "region4",
+      "p_yrsed",
+      "p_mom_yrsed",
+      "r_mom_yrsed",
+      "age_gap",
+      "edu_gap",
+      "religion_pair",
+      "party_pair",
+      "r_yrsed",
+      "housing",
+      "r_party",
+      "metro",
+      "couple_race",
+      "same_college",
+      "r_evangelical",
+      "r_work",
+      "earnings",
+      "same_town",
+      "r_sex",
+      "r_religion_changed",
+      "children_in_hh",
+      "p_race",
+      "parents_knew",
+      "r_race",
+      "same_high_school",
+      "us_raised"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 1.0
+     },
+     "iters": 51
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.006102,
+     "terms": 202,
+     "nonzero": 58,
+     "pairs_among": [
+      "cohabiting",
+      "relationship_years",
+      "married",
+      "relationship_quality",
+      "years_since_cohab",
+      "years_since_met"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 1,
+    "fold": 3,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 4,
+      "min_child_frac": 0.01,
+      "lambda_l2": 0.0,
+      "feature_fraction": 1.0,
+      "max_depth": -1
+     },
+     "rounds": 60,
+     "ranking": [
+      "cohabiting",
+      "married",
+      "relationship_years",
+      "relationship_quality",
+      "years_since_cohab",
+      "parental_approval",
+      "p_age",
+      "mean_age",
+      "years_since_met",
+      "edu_years_mean",
+      "couple_type",
+      "period",
+      "prior_marriage",
+      "p_party",
+      "hh_income_k",
+      "distance_moved_10mi",
+      "relatives_seen",
+      "p_yrsed",
+      "party_pair",
+      "housing",
+      "same_college",
+      "metro",
+      "r_age",
+      "p_religion",
+      "r_mom_yrsed",
+      "r_evangelical",
+      "r_race",
+      "r_party",
+      "p_mom_yrsed",
+      "same_high_school",
+      "same_town",
+      "r_religion",
+      "couple_race",
+      "children_in_hh",
+      "age_gap",
+      "age_met",
+      "earnings",
+      "edu_gap",
+      "glb_status",
+      "how_met",
+      "p_race",
+      "parents_knew",
+      "r_religion_changed",
+      "r_sex",
+      "r_work",
+      "r_yrsed",
+      "region4",
+      "religion_pair",
+      "us_raised"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 1.0
+     },
+     "iters": 39
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.012013,
+     "terms": 217,
+     "nonzero": 43,
+     "pairs_among": [
+      "cohabiting",
+      "married",
+      "relationship_years",
+      "relationship_quality",
+      "years_since_cohab",
+      "parental_approval"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 1,
+    "fold": 4,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 16,
+      "min_child_frac": 0.01,
+      "lambda_l2": 0.0,
+      "feature_fraction": 0.5,
+      "max_depth": 3
+     },
+     "rounds": 305,
+     "ranking": [
+      "cohabiting",
+      "years_since_cohab",
+      "married",
+      "relationship_quality",
+      "relationship_years",
+      "years_since_met",
+      "parental_approval",
+      "mean_age",
+      "period",
+      "p_age",
+      "r_age",
+      "age_gap",
+      "edu_years_mean",
+      "p_religion",
+      "age_met",
+      "couple_type",
+      "hh_income_k",
+      "relatives_seen",
+      "distance_moved_10mi",
+      "glb_status",
+      "how_met",
+      "r_race",
+      "party_pair",
+      "housing",
+      "p_party",
+      "r_yrsed",
+      "same_college",
+      "edu_gap",
+      "p_mom_yrsed",
+      "p_yrsed",
+      "religion_pair",
+      "couple_race",
+      "r_mom_yrsed",
+      "p_race",
+      "r_party",
+      "region4",
+      "same_high_school",
+      "r_religion_changed",
+      "prior_marriage",
+      "r_work",
+      "r_sex",
+      "children_in_hh",
+      "r_religion",
+      "metro",
+      "same_town",
+      "earnings",
+      "r_evangelical",
+      "us_raised",
+      "parents_knew"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 0.0
+     },
+     "iters": 139
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.6
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.012279,
+     "terms": 204,
+     "nonzero": 37,
+     "pairs_among": [
+      "cohabiting",
+      "years_since_cohab",
+      "married",
+      "relationship_quality",
+      "relationship_years",
+      "years_since_met"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.1
+    }
+   },
+   {
+    "repeat": 2,
+    "fold": 0,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 4,
+      "min_child_frac": 0.002,
+      "lambda_l2": 10.0,
+      "feature_fraction": 0.5,
+      "max_depth": 3
+     },
+     "rounds": 150,
+     "ranking": [
+      "cohabiting",
+      "years_since_cohab",
+      "relationship_quality",
+      "married",
+      "relationship_years",
+      "years_since_met",
+      "edu_years_mean",
+      "mean_age",
+      "p_age",
+      "period",
+      "distance_moved_10mi",
+      "couple_type",
+      "hh_income_k",
+      "how_met",
+      "parental_approval",
+      "p_religion",
+      "p_party",
+      "r_age",
+      "r_yrsed",
+      "prior_marriage",
+      "p_yrsed",
+      "age_gap",
+      "relatives_seen",
+      "party_pair",
+      "age_met",
+      "same_high_school",
+      "p_mom_yrsed",
+      "r_mom_yrsed",
+      "religion_pair",
+      "housing",
+      "p_race",
+      "r_race",
+      "r_religion",
+      "region4",
+      "glb_status",
+      "edu_gap",
+      "r_party",
+      "earnings",
+      "same_college",
+      "couple_race",
+      "metro",
+      "r_work",
+      "r_religion_changed",
+      "children_in_hh",
+      "us_raised",
+      "r_sex",
+      "parents_knew",
+      "r_evangelical",
+      "same_town"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 10.0
+     },
+     "iters": 101
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.006091,
+     "terms": 203,
+     "nonzero": 64,
+     "pairs_among": [
+      "cohabiting",
+      "years_since_cohab",
+      "relationship_quality",
+      "married",
+      "relationship_years",
+      "years_since_met"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.2
+    }
+   },
+   {
+    "repeat": 2,
+    "fold": 1,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "num_leaves": 4,
+      "min_child_frac": 0.002,
+      "lambda_l2": 1.0,
+      "feature_fraction": 0.8,
+      "max_depth": 3
+     },
+     "rounds": 78,
+     "ranking": [
+      "cohabiting",
+      "relationship_years",
+      "married",
+      "relationship_quality",
+      "years_since_cohab",
+      "mean_age",
+      "p_age",
+      "parental_approval",
+      "period",
+      "couple_type",
+      "edu_years_mean",
+      "hh_income_k",
+      "distance_moved_10mi",
+      "glb_status",
+      "relatives_seen",
+      "r_yrsed",
+      "age_met",
+      "age_gap",
+      "p_yrsed",
+      "r_age",
+      "p_party",
+      "p_mom_yrsed",
+      "how_met",
+      "p_religion",
+      "prior_marriage",
+      "housing",
+      "p_race",
+      "r_mom_yrsed",
+      "r_race",
+      "r_evangelical",
+      "r_party",
+      "metro",
+      "same_town",
+      "years_since_met",
+      "r_work",
+      "r_religion",
+      "religion_pair",
+      "couple_race",
+      "party_pair",
+      "edu_gap",
+      "children_in_hh",
+      "earnings",
+      "parents_knew",
+      "r_religion_changed",
+      "r_sex",
+      "region4",
+      "same_college",
+      "same_high_school",
+      "us_raised"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.005,
+      "l2_regularization": 10.0
+     },
+     "iters": 139
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.006411,
+     "terms": 202,
+     "nonzero": 53,
+     "pairs_among": [
+      "cohabiting",
+      "relationship_years",
+      "married",
+      "relationship_quality",
+      "years_since_cohab",
+      "mean_age"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.0
+    }
+   },
+   {
+    "repeat": 2,
+    "fold": 2,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 4,
+      "min_child_frac": 0.002,
+      "lambda_l2": 0.0,
+      "feature_fraction": 0.8,
+      "max_depth": 6
+     },
+     "rounds": 308,
+     "ranking": [
+      "cohabiting",
+      "relationship_years",
+      "relationship_quality",
+      "married",
+      "years_since_cohab",
+      "mean_age",
+      "years_since_met",
+      "period",
+      "p_age",
+      "parental_approval",
+      "edu_years_mean",
+      "age_met",
+      "relatives_seen",
+      "r_age",
+      "age_gap",
+      "distance_moved_10mi",
+      "hh_income_k",
+      "p_mom_yrsed",
+      "couple_type",
+      "p_religion",
+      "r_mom_yrsed",
+      "p_yrsed",
+      "region4",
+      "r_religion",
+      "r_race",
+      "edu_gap",
+      "glb_status",
+      "party_pair",
+      "prior_marriage",
+      "religion_pair",
+      "p_party",
+      "same_college",
+      "how_met",
+      "metro",
+      "children_in_hh",
+      "housing",
+      "couple_race",
+      "same_high_school",
+      "r_yrsed",
+      "r_evangelical",
+      "p_race",
+      "r_party",
+      "same_town",
+      "earnings",
+      "us_raised",
+      "r_religion_changed",
+      "parents_knew",
+      "r_sex",
+      "r_work"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 15,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 10.0
+     },
+     "iters": 64
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.006212,
+     "terms": 203,
+     "nonzero": 68,
+     "pairs_among": [
+      "cohabiting",
+      "relationship_years",
+      "relationship_quality",
+      "married",
+      "years_since_cohab",
+      "mean_age"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.3
+    }
+   },
+   {
+    "repeat": 2,
+    "fold": 3,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.05,
+      "num_leaves": 31,
+      "min_child_frac": 0.01,
+      "lambda_l2": 0.0,
+      "feature_fraction": 1.0,
+      "max_depth": 3
+     },
+     "rounds": 286,
+     "ranking": [
+      "cohabiting",
+      "relationship_years",
+      "relationship_quality",
+      "married",
+      "years_since_cohab",
+      "years_since_met",
+      "p_age",
+      "mean_age",
+      "period",
+      "parental_approval",
+      "distance_moved_10mi",
+      "age_met",
+      "edu_years_mean",
+      "hh_income_k",
+      "age_gap",
+      "r_age",
+      "p_religion",
+      "r_mom_yrsed",
+      "relatives_seen",
+      "p_mom_yrsed",
+      "how_met",
+      "couple_type",
+      "p_yrsed",
+      "party_pair",
+      "p_party",
+      "r_yrsed",
+      "r_race",
+      "p_race",
+      "housing",
+      "prior_marriage",
+      "same_college",
+      "edu_gap",
+      "r_religion",
+      "glb_status",
+      "region4",
+      "religion_pair",
+      "same_town",
+      "couple_race",
+      "r_work",
+      "children_in_hh",
+      "r_party",
+      "metro",
+      "r_sex",
+      "r_evangelical",
+      "r_religion_changed",
+      "earnings",
+      "same_high_school",
+      "us_raised",
+      "parents_knew"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.001,
+      "l2_regularization": 0.0
+     },
+     "iters": 89
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.006446,
+     "terms": 203,
+     "nonzero": 61,
+     "pairs_among": [
+      "cohabiting",
+      "relationship_years",
+      "relationship_quality",
+      "married",
+      "years_since_cohab",
+      "years_since_met"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.3
+    }
+   },
+   {
+    "repeat": 2,
+    "fold": 4,
+    "lightgbm_tuned": {
+     "config": {
+      "learning_rate": 0.02,
+      "num_leaves": 4,
+      "min_child_frac": 0.0005,
+      "lambda_l2": 1.0,
+      "feature_fraction": 1.0,
+      "max_depth": -1
+     },
+     "rounds": 358,
+     "ranking": [
+      "cohabiting",
+      "relationship_quality",
+      "relationship_years",
+      "married",
+      "years_since_met",
+      "p_age",
+      "couple_type",
+      "edu_years_mean",
+      "years_since_cohab",
+      "period",
+      "mean_age",
+      "hh_income_k",
+      "relatives_seen",
+      "parental_approval",
+      "prior_marriage",
+      "p_yrsed",
+      "age_met",
+      "r_religion",
+      "r_age",
+      "p_party",
+      "r_yrsed",
+      "p_religion",
+      "distance_moved_10mi",
+      "age_gap",
+      "p_mom_yrsed",
+      "r_mom_yrsed",
+      "region4",
+      "party_pair",
+      "same_high_school",
+      "r_party",
+      "couple_race",
+      "children_in_hh",
+      "r_race",
+      "how_met",
+      "earnings",
+      "housing",
+      "p_race",
+      "us_raised",
+      "r_evangelical",
+      "r_work",
+      "religion_pair",
+      "metro",
+      "edu_gap",
+      "same_town",
+      "r_sex",
+      "same_college",
+      "glb_status",
+      "parents_knew",
+      "r_religion_changed"
+     ]
+    },
+    "hgb_tuned": {
+     "config": {
+      "learning_rate": 0.03,
+      "max_leaf_nodes": 7,
+      "min_leaf_frac": 0.02,
+      "l2_regularization": 10.0
+     },
+     "iters": 176
+    },
+    "random_forest_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "extra_trees_tuned": {
+     "config": {
+      "min_leaf_frac": 0.003,
+      "max_features": 0.33
+     }
+    },
+    "enet_spline_pairwise": {
+     "l1_ratio": 0.5,
+     "alpha": 0.006308,
+     "terms": 202,
+     "nonzero": 60,
+     "pairs_among": [
+      "cohabiting",
+      "relationship_quality",
+      "relationship_years",
+      "married",
+      "years_since_met",
+      "p_age"
+     ]
+    },
+    "stack_glm_lgbm": {
+     "glm_weight": 0.4
+    }
+   }
+  ],
+  "times": [
+   {
+    "repeat": 0,
+    "fold": 0,
+    "baseline": 6.802616,
+    "lightgbm_tuned": 135.60233,
+    "hgb_tuned": 39.01378,
+    "random_forest_tuned": 19.613097,
+    "extra_trees_tuned": 14.899222,
+    "enet_spline_pairwise": 12.762633,
+    "ebm": 36.548918,
+    "stack_glm_lgbm": 6.863291,
+    "lens_boosting": 5.039588,
+    "dyad_separate_glm": 4.873175,
+    "dyad_apim_glm": 3.807318,
+    "baseline_all_inputs": 7.138615
+   },
+   {
+    "repeat": 0,
+    "fold": 1,
+    "baseline": 5.193554,
+    "lightgbm_tuned": 76.527835,
+    "hgb_tuned": 26.765478,
+    "random_forest_tuned": 16.442038,
+    "extra_trees_tuned": 13.584203,
+    "enet_spline_pairwise": 6.284796,
+    "ebm": 16.452899,
+    "stack_glm_lgbm": 4.64659,
+    "lens_boosting": 4.982181,
+    "dyad_separate_glm": 3.176352,
+    "dyad_apim_glm": 3.826949,
+    "baseline_all_inputs": 5.168394
+   },
+   {
+    "repeat": 0,
+    "fold": 2,
+    "baseline": 3.06378,
+    "lightgbm_tuned": 27.383993,
+    "hgb_tuned": 21.747947,
+    "random_forest_tuned": 14.127241,
+    "extra_trees_tuned": 13.055775,
+    "enet_spline_pairwise": 6.385705,
+    "ebm": 22.02318,
+    "stack_glm_lgbm": 2.847484,
+    "lens_boosting": 2.949737,
+    "dyad_separate_glm": 2.225856,
+    "dyad_apim_glm": 3.256034,
+    "baseline_all_inputs": 5.685684
+   },
+   {
+    "repeat": 0,
+    "fold": 3,
+    "baseline": 3.259318,
+    "lightgbm_tuned": 65.129891,
+    "hgb_tuned": 23.493484,
+    "random_forest_tuned": 13.017359,
+    "extra_trees_tuned": 11.001127,
+    "enet_spline_pairwise": 5.561616,
+    "ebm": 13.229954,
+    "stack_glm_lgbm": 3.324579,
+    "lens_boosting": 9.987839,
+    "dyad_separate_glm": 4.392885,
+    "dyad_apim_glm": 4.935547,
+    "baseline_all_inputs": 7.182248
+   },
+   {
+    "repeat": 0,
+    "fold": 4,
+    "baseline": 5.166632,
+    "lightgbm_tuned": 53.733436,
+    "hgb_tuned": 7.918648,
+    "random_forest_tuned": 17.327157,
+    "extra_trees_tuned": 15.020959,
+    "enet_spline_pairwise": 12.814337,
+    "ebm": 28.548986,
+    "stack_glm_lgbm": 5.669854,
+    "lens_boosting": 23.496117,
+    "dyad_separate_glm": 1.924137,
+    "dyad_apim_glm": 2.573967,
+    "baseline_all_inputs": 4.902009
+   },
+   {
+    "repeat": 1,
+    "fold": 0,
+    "baseline": 2.458774,
+    "lightgbm_tuned": 56.586519,
+    "hgb_tuned": 50.772082,
+    "random_forest_tuned": 15.565866,
+    "extra_trees_tuned": 10.90877,
+    "enet_spline_pairwise": 5.558792,
+    "ebm": 14.65084,
+    "stack_glm_lgbm": 2.257628,
+    "lens_boosting": 6.934569,
+    "dyad_separate_glm": 2.474011,
+    "dyad_apim_glm": 2.741113,
+    "baseline_all_inputs": 5.181625
+   },
+   {
+    "repeat": 1,
+    "fold": 1,
+    "baseline": 2.678538,
+    "lightgbm_tuned": 86.007339,
+    "hgb_tuned": 24.091247,
+    "random_forest_tuned": 13.571357,
+    "extra_trees_tuned": 8.338409,
+    "enet_spline_pairwise": 2.561212,
+    "ebm": 10.650468,
+    "stack_glm_lgbm": 1.923735,
+    "lens_boosting": 0.865131,
+    "dyad_separate_glm": 1.600663,
+    "dyad_apim_glm": 1.908514,
+    "baseline_all_inputs": 3.901614
+   },
+   {
+    "repeat": 1,
+    "fold": 2,
+    "baseline": 2.092322,
+    "lightgbm_tuned": 7.177753,
+    "hgb_tuned": 3.978957,
+    "random_forest_tuned": 9.402439,
+    "extra_trees_tuned": 7.230841,
+    "enet_spline_pairwise": 2.284678,
+    "ebm": 7.028988,
+    "stack_glm_lgbm": 2.170907,
+    "lens_boosting": 0.548797,
+    "dyad_separate_glm": 1.521607,
+    "dyad_apim_glm": 2.056998,
+    "baseline_all_inputs": 4.299291
+   },
+   {
+    "repeat": 1,
+    "fold": 3,
+    "baseline": 2.072131,
+    "lightgbm_tuned": 8.327081,
+    "hgb_tuned": 8.383857,
+    "random_forest_tuned": 8.004392,
+    "extra_trees_tuned": 7.402801,
+    "enet_spline_pairwise": 3.279333,
+    "ebm": 9.165034,
+    "stack_glm_lgbm": 1.618241,
+    "lens_boosting": 1.123323,
+    "dyad_separate_glm": 1.525072,
+    "dyad_apim_glm": 1.887336,
+    "baseline_all_inputs": 3.608944
+   },
+   {
+    "repeat": 1,
+    "fold": 4,
+    "baseline": 2.144138,
+    "lightgbm_tuned": 17.468075,
+    "hgb_tuned": 7.843236,
+    "random_forest_tuned": 10.123429,
+    "extra_trees_tuned": 7.001817,
+    "enet_spline_pairwise": 2.773105,
+    "ebm": 12.036944,
+    "stack_glm_lgbm": 2.045603,
+    "lens_boosting": 0.799588,
+    "dyad_separate_glm": 1.75484,
+    "dyad_apim_glm": 2.134228,
+    "baseline_all_inputs": 3.909803
+   },
+   {
+    "repeat": 2,
+    "fold": 0,
+    "baseline": 1.921731,
+    "lightgbm_tuned": 8.613678,
+    "hgb_tuned": 7.379349,
+    "random_forest_tuned": 7.239207,
+    "extra_trees_tuned": 7.267022,
+    "enet_spline_pairwise": 4.812905,
+    "ebm": 12.489518,
+    "stack_glm_lgbm": 2.715846,
+    "lens_boosting": 2.865507,
+    "dyad_separate_glm": 1.973942,
+    "dyad_apim_glm": 2.616188,
+    "baseline_all_inputs": 4.495302
+   },
+   {
+    "repeat": 2,
+    "fold": 1,
+    "baseline": 3.224884,
+    "lightgbm_tuned": 29.45433,
+    "hgb_tuned": 23.863946,
+    "random_forest_tuned": 12.454814,
+    "extra_trees_tuned": 10.271625,
+    "enet_spline_pairwise": 4.111348,
+    "ebm": 17.722316,
+    "stack_glm_lgbm": 3.566937,
+    "lens_boosting": 4.632968,
+    "dyad_separate_glm": 2.146443,
+    "dyad_apim_glm": 2.72413,
+    "baseline_all_inputs": 5.994799
+   },
+   {
+    "repeat": 2,
+    "fold": 2,
+    "baseline": 2.353315,
+    "lightgbm_tuned": 41.791048,
+    "hgb_tuned": 17.177281,
+    "random_forest_tuned": 12.953464,
+    "extra_trees_tuned": 10.679097,
+    "enet_spline_pairwise": 3.700454,
+    "ebm": 12.509257,
+    "stack_glm_lgbm": 2.372554,
+    "lens_boosting": 2.164488,
+    "dyad_separate_glm": 2.853458,
+    "dyad_apim_glm": 3.620653,
+    "baseline_all_inputs": 6.531977
+   },
+   {
+    "repeat": 2,
+    "fold": 3,
+    "baseline": 2.799374,
+    "lightgbm_tuned": 40.131306,
+    "hgb_tuned": 21.795388,
+    "random_forest_tuned": 14.017479,
+    "extra_trees_tuned": 11.634388,
+    "enet_spline_pairwise": 4.991268,
+    "ebm": 17.524289,
+    "stack_glm_lgbm": 3.393121,
+    "lens_boosting": 3.017232,
+    "dyad_separate_glm": 2.520763,
+    "dyad_apim_glm": 2.852828,
+    "baseline_all_inputs": 5.418221
+   },
+   {
+    "repeat": 2,
+    "fold": 4,
+    "baseline": 3.026188,
+    "lightgbm_tuned": 33.857552,
+    "hgb_tuned": 28.870727,
+    "random_forest_tuned": 12.206305,
+    "extra_trees_tuned": 10.364389,
+    "enet_spline_pairwise": 5.072882,
+    "ebm": 23.213094,
+    "stack_glm_lgbm": 3.441867,
+    "lens_boosting": 4.410939,
+    "dyad_separate_glm": 3.409911,
+    "dyad_apim_glm": 3.305366,
+    "baseline_all_inputs": 5.104399
+   }
+  ],
+  "repeats": 3,
+  "minutes": 33.919153,
+  "permutation_importance_fold0": {
+   "lightgbm_tuned": {
+    "cohabiting": 11.702939,
+    "relationship_quality": 4.647465,
+    "married": 3.739013,
+    "relationship_years": 2.274376,
+    "period": 0.793175,
+    "mean_age": 0.663097,
+    "parental_approval": 0.633408,
+    "hh_income_k": 0.606824,
+    "couple_type": 0.451944,
+    "p_yrsed": 0.405236,
+    "distance_moved_10mi": 0.40449,
+    "p_party": 0.323775,
+    "prior_marriage": 0.258483,
+    "p_religion": 0.235222,
+    "years_since_met": 0.219343,
+    "metro": 0.165665,
+    "age_met": 0.164,
+    "same_high_school": 0.134653,
+    "age_gap": 0.125565,
+    "p_race": 0.124,
+    "glb_status": 0.114072,
+    "edu_gap": 0.09254,
+    "p_mom_yrsed": 0.06028,
+    "r_religion": 0.05483,
+    "years_since_cohab": 0.052277,
+    "r_age": 0.037767,
+    "r_work": 0.023823,
+    "r_sex": 0.005718,
+    "earnings": 0.0,
+    "parents_knew": 0.0,
+    "us_raised": 0.0,
+    "r_religion_changed": 0.0,
+    "housing": -0.010274,
+    "couple_race": -0.012895,
+    "how_met": -0.027399,
+    "r_evangelical": -0.028971,
+    "r_party": -0.047911,
+    "children_in_hh": -0.067063,
+    "same_town": -0.094877,
+    "r_race": -0.111839,
+    "religion_pair": -0.122559,
+    "r_yrsed": -0.140344,
+    "party_pair": -0.222023,
+    "same_college": -0.282775,
+    "edu_years_mean": -0.293214,
+    "r_mom_yrsed": -0.321324,
+    "region4": -0.350433,
+    "p_age": -0.357567,
+    "relatives_seen": -0.483024
+   },
+   "baseline": {
+    "cohabiting": 8.722868,
+    "relationship_quality": 7.848295,
+    "relationship_years": 7.458303,
+    "mean_age": 2.975603,
+    "edu_years_mean": 2.70783,
+    "married": 2.383546,
+    "parental_approval": 1.140254,
+    "party_pair": 1.050942,
+    "couple_type": 1.014003,
+    "prior_marriage": 0.831819,
+    "age_gap": 0.554105,
+    "how_met": 0.423336,
+    "couple_race": 0.319309,
+    "edu_gap": 0.283852,
+    "r_age": 0.0,
+    "p_age": 0.0,
+    "r_yrsed": 0.0,
+    "p_yrsed": 0.0,
+    "r_mom_yrsed": 0.0,
+    "p_mom_yrsed": 0.0,
+    "relatives_seen": 0.0,
+    "distance_moved_10mi": 0.0,
+    "age_met": 0.0,
+    "years_since_met": 0.0,
+    "years_since_cohab": 0.0,
+    "r_race": 0.0,
+    "p_race": 0.0,
+    "r_party": 0.0,
+    "p_party": 0.0,
+    "r_religion": 0.0,
+    "p_religion": 0.0,
+    "r_sex": 0.0,
+    "r_work": 0.0,
+    "metro": 0.0,
+    "region4": 0.0,
+    "housing": 0.0,
+    "r_evangelical": 0.0,
+    "same_high_school": 0.0,
+    "same_college": 0.0,
+    "same_town": 0.0,
+    "parents_knew": 0.0,
+    "us_raised": 0.0,
+    "glb_status": 0.0,
+    "r_religion_changed": 0.0,
+    "religion_pair": -0.113697,
+    "children_in_hh": -0.179036,
+    "earnings": -0.321408,
+    "period": -0.327289,
+    "hh_income_k": -0.59781
+   }
+  },
+  "lightgbm_mean_abs_shap_fold0": {
+   "cohabiting": 0.413766,
+   "relationship_quality": 0.384569,
+   "married": 0.269241,
+   "relationship_years": 0.233855,
+   "years_since_cohab": 0.13666,
+   "period": 0.087029,
+   "years_since_met": 0.082995,
+   "p_age": 0.061868,
+   "parental_approval": 0.046785,
+   "mean_age": 0.041702,
+   "edu_years_mean": 0.036847,
+   "glb_status": 0.032419,
+   "couple_type": 0.029982,
+   "relatives_seen": 0.027394,
+   "r_mom_yrsed": 0.026917,
+   "r_age": 0.025119,
+   "hh_income_k": 0.023139,
+   "p_religion": 0.02299,
+   "age_met": 0.018986,
+   "distance_moved_10mi": 0.018758,
+   "party_pair": 0.016943,
+   "region4": 0.015791,
+   "religion_pair": 0.015688,
+   "prior_marriage": 0.015258,
+   "r_yrsed": 0.014432,
+   "p_party": 0.014364,
+   "r_religion": 0.014105,
+   "age_gap": 0.014087,
+   "p_mom_yrsed": 0.013879,
+   "p_yrsed": 0.013435,
+   "same_college": 0.01306,
+   "how_met": 0.011902,
+   "metro": 0.009132,
+   "p_race": 0.008695,
+   "couple_race": 0.007031,
+   "edu_gap": 0.006891,
+   "r_race": 0.006501,
+   "children_in_hh": 0.005684,
+   "r_evangelical": 0.005097,
+   "r_work": 0.004608,
+   "same_high_school": 0.004175,
+   "r_party": 0.002323,
+   "same_town": 0.001311,
+   "housing": 0.000472,
+   "r_sex": 0.000309,
+   "earnings": 0.0,
+   "parents_knew": 0.0,
+   "us_raised": 0.0,
+   "r_religion_changed": 0.0
+  },
+  "ebm_terms_fold0": [
+   [
+    "relationship_quality",
+    0.425948
+   ],
+   [
+    "married",
+    0.331672
+   ],
+   [
+    "cohabiting",
+    0.308654
+   ],
+   [
+    "years_since_cohab",
+    0.145261
+   ],
+   [
+    "relationship_years",
+    0.120942
+   ],
+   [
+    "period",
+    0.113956
+   ],
+   [
+    "years_since_cohab & cohabiting",
+    0.099206
+   ],
+   [
+    "parental_approval",
+    0.098197
+   ],
+   [
+    "years_since_met",
+    0.088727
+   ],
+   [
+    "years_since_met & cohabiting",
+    0.084299
+   ],
+   [
+    "relationship_years & cohabiting",
+    0.083216
+   ],
+   [
+    "glb_status",
+    0.070436
+   ],
+   [
+    "p_age",
+    0.06569
+   ],
+   [
+    "prior_marriage",
+    0.064858
+   ],
+   [
+    "mean_age",
+    0.062565
+   ],
+   [
+    "edu_years_mean & years_since_met",
+    0.061251
+   ],
+   [
+    "how_met",
+    0.060587
+   ],
+   [
+    "r_age",
+    0.058591
+   ],
+   [
+    "r_party",
+    0.057645
+   ],
+   [
+    "region4",
+    0.055315
+   ],
+   [
+    "couple_type",
+    0.047298
+   ],
+   [
+    "hh_income_k & years_since_cohab",
+    0.043266
+   ],
+   [
+    "r_work",
+    0.043129
+   ],
+   [
+    "housing",
+    0.041913
+   ],
+   [
+    "hh_income_k",
+    0.041669
+   ],
+   [
+    "metro",
+    0.036895
+   ],
+   [
+    "relationship_years & years_since_cohab",
+    0.035855
+   ],
+   [
+    "p_religion",
+    0.034547
+   ],
+   [
+    "mean_age & housing",
+    0.034421
+   ],
+   [
+    "relationship_years & p_age",
+    0.033634
+   ],
+   [
+    "edu_years_mean",
+    0.033253
+   ],
+   [
+    "religion_pair",
+    0.032393
+   ],
+   [
+    "p_age & housing",
+    0.032162
+   ],
+   [
+    "p_party",
+    0.031039
+   ],
+   [
+    "r_yrsed",
+    0.029323
+   ],
+   [
+    "same_college",
+    0.028589
+   ],
+   [
+    "r_religion_changed",
+    0.028376
+   ],
+   [
+    "p_yrsed",
+    0.025334
+   ],
+   [
+    "r_evangelical",
+    0.024747
+   ],
+   [
+    "same_high_school",
+    0.024446
+   ],
+   [
+    "relatives_seen",
+    0.020679
+   ],
+   [
+    "distance_moved_10mi",
+    0.020102
+   ],
+   [
+    "age_met",
+    0.018792
+   ],
+   [
+    "r_religion",
+    0.018282
+   ],
+   [
+    "couple_race",
+    0.016114
+   ],
+   [
+    "years_since_met & housing",
+    0.015974
+   ],
+   [
+    "us_raised",
+    0.012635
+   ],
+   [
+    "party_pair",
+    0.012114
+   ],
+   [
+    "r_race",
+    0.01183
+   ],
+   [
+    "p_race",
+    0.011132
+   ],
+   [
+    "edu_gap",
+    0.009966
+   ],
+   [
+    "p_mom_yrsed",
+    0.009438
+   ],
+   [
+    "age_gap",
+    0.008122
+   ],
+   [
+    "r_sex",
+    0.007325
+   ],
+   [
+    "parents_knew",
+    0.007227
+   ],
+   [
+    "r_mom_yrsed",
+    0.00577
+   ],
+   [
+    "children_in_hh",
+    0.005523
+   ],
+   [
+    "earnings",
+    0.00371
+   ],
+   [
+    "same_town",
+    0.001759
+   ]
+  ],
+  "ebm_pairs_fold0": [
+   [
+    "years_since_cohab & cohabiting",
+    0.099206
+   ],
+   [
+    "years_since_met & cohabiting",
+    0.084299
+   ],
+   [
+    "relationship_years & cohabiting",
+    0.083216
+   ],
+   [
+    "edu_years_mean & years_since_met",
+    0.061251
+   ],
+   [
+    "hh_income_k & years_since_cohab",
+    0.043266
+   ],
+   [
+    "relationship_years & years_since_cohab",
+    0.035855
+   ],
+   [
+    "mean_age & housing",
+    0.034421
+   ],
+   [
+    "relationship_years & p_age",
+    0.033634
+   ],
+   [
+    "p_age & housing",
+    0.032162
+   ],
+   [
+    "years_since_met & housing",
+    0.015974
+   ]
+  ]
+ },
+ "null_permuted_labels": {
+  "heldout_gain": {
+   "baseline": -2.855791,
+   "lightgbm_tuned": -1.864424,
+   "enet_spline_pairwise": -0.413271
+  },
+  "note": "outcomes shuffled within each fold of repeat 0; gains are on the REAL held-out outcomes"
+ },
+ "learning_curve": [
+  {
+   "fraction": 0.1,
+   "model": "baseline",
+   "heldout_gain": 19.550007
+  },
+  {
+   "fraction": 0.1,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 16.70323
+  },
+  {
+   "fraction": 0.25,
+   "model": "baseline",
+   "heldout_gain": 22.264517
+  },
+  {
+   "fraction": 0.25,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 22.737424
+  },
+  {
+   "fraction": 0.5,
+   "model": "baseline",
+   "heldout_gain": 25.004868
+  },
+  {
+   "fraction": 0.5,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 25.031676
+  },
+  {
+   "fraction": 0.75,
+   "model": "baseline",
+   "heldout_gain": 26.660255
+  },
+  {
+   "fraction": 0.75,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 26.989872
+  },
+  {
+   "fraction": 1.0,
+   "model": "baseline",
+   "heldout_gain": 26.673491
+  },
+  {
+   "fraction": 1.0,
+   "model": "lightgbm_tuned",
+   "heldout_gain": 26.925262
+  }
+ ],
+ "feature_curve": {
+  "rows": [
+   {
+    "k": 1,
+    "model": "lightgbm",
+    "heldout_gain": 16.200862
+   },
+   {
+    "k": 1,
+    "model": "additive_glm",
+    "heldout_gain": 15.958551
+   },
+   {
+    "k": 2,
+    "model": "lightgbm",
+    "heldout_gain": 19.320239
+   },
+   {
+    "k": 2,
+    "model": "additive_glm",
+    "heldout_gain": 19.226335
+   },
+   {
+    "k": 4,
+    "model": "lightgbm",
+    "heldout_gain": 26.820474
+   },
+   {
+    "k": 4,
+    "model": "additive_glm",
+    "heldout_gain": 26.340169
+   },
+   {
+    "k": 8,
+    "model": "lightgbm",
+    "heldout_gain": 26.908863
+   },
+   {
+    "k": 8,
+    "model": "additive_glm",
+    "heldout_gain": 26.623614
+   },
+   {
+    "k": 16,
+    "model": "lightgbm",
+    "heldout_gain": 26.909015
+   },
+   {
+    "k": 16,
+    "model": "additive_glm",
+    "heldout_gain": 26.82869
+   },
+   {
+    "k": 32,
+    "model": "lightgbm",
+    "heldout_gain": 26.735163
+   },
+   {
+    "k": 32,
+    "model": "additive_glm",
+    "heldout_gain": 26.238597
+   },
+   {
+    "k": 49,
+    "model": "lightgbm",
+    "heldout_gain": 26.925262
+   },
+   {
+    "k": 49,
+    "model": "additive_glm",
+    "heldout_gain": 25.561276
+   }
+  ],
+  "note": "k = number of non-duration features, ranked by each training fold's tuned LightGBM gain; duration (if any) always included; additive_glm = ridge spline GLM (glum)"
+ }
+}

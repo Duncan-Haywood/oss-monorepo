@@ -118,3 +118,10 @@ test("an unrecognized filing status behaves like single (no DSUE applied)", () =
   assert.equal(r.dsue, 0);
   assert.equal(r.totalExclusion, 15_000_000);
 });
+
+test("no 'gifts exceed exclusion' finding when gifts are zero or exactly use the exclusion", () => {
+  const none = estateTaxOutcome({ grossEstate: 5_000_000, filingStatus: "single" });
+  assert.equal(none.findings.some((f) => /already exceeds your total exclusion/.test(f.title)), false);
+  const exact = estateTaxOutcome({ grossEstate: 5_000_000, priorTaxableGifts: 15_000_000, filingStatus: "single" });
+  assert.equal(exact.findings.some((f) => /already exceeds your total exclusion/.test(f.title)), false);
+});

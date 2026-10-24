@@ -1,0 +1,14 @@
+# Yosys 0.33 (git sha1 2584903a060); designs 40; metrics compared: passed, rtl_match, cycles, cycles_ok, gate_match, cells, ff, depth, cells_x_cycles
+
+metric differences between the two modes: 0
+
+total wall seconds over 40 uncached designs:
+  two Yosys runs per design: 561.4
+  one Yosys run per design:  280.0
+  saving: 50.1%
+
+seconds by stage:
+  two_runs  generate=0.0  lint=5.8  rtl_sim=1.8  gate_equiv=290.0  synth=263.6
+  one_run   generate=0.0  lint=5.5  rtl_sim=1.8  gate_equiv=272.6  synth=0.0
+
+designs where one run was faster: 40 of 40

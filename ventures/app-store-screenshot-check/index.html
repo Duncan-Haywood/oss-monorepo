@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>App Store Screenshot Checker — Catch a Rejected Icon or Wrong-Size Screenshot Before Upload</title>
-  <meta name="description" content="Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic &quot;can't contain an alpha channel&quot; rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size. Runs entirely in your browser; nothing is uploaded. A zero-dependency CLI does the same in CI.">
+  <meta name="description" content="Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic &quot;can't contain an alpha channel&quot; rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="App Store Screenshot &amp; Icon Checker">
   <meta property="og:description" content="Check App Store Connect and Google Play listing images for icon transparency, wrong dimensions, the wrong file format, and a screenshot set that disagrees with itself — before the upload rejects them. Nothing leaves your browser.">
@@ -61,6 +61,7 @@
     </p>
     <p class="note">Nothing is uploaded. Your files are read in this browser — only each file's first few dozen header bytes are examined, no pixels are decoded, and no filename, size or result is transmitted or stored anywhere.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Check your listing images</h2>
@@ -148,7 +149,8 @@ node check.mjs ./screenshots --strict   # notices fail too</pre>
     <p>No. The files are read in your browser with the File API and only the first few dozen header bytes of each are examined — no pixels are decoded, no image is transmitted, and no filename, dimension or result is recorded anywhere. Your unreleased app's artwork stays on your machine. The page keeps only an anonymous local count of how many times the check button was pressed, which you can switch off below.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, business, or app-review advice, and it does not replace reading each store's own current documentation. It reports whether the image files you provided satisfy specific, mechanically checkable rules — nothing more. It is not a guarantee that a submission will be accepted, and passing every check here does not mean an app will pass review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Not affiliated with Apple or Google.</strong> "App Store", "App Store Connect", "Google Play" and "Google Play Console" are the trademarks of their respective owners, used here only to say which store's published requirements a check refers to. The size tables in this tool were last reviewed on 2026-09-11 and may be out of date; each store's own documentation is authoritative.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>

@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_015XKAK1LqDgJUCivFWpaCz8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-20T10:14:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 8786,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "record step asks for runcost attach with human-hours; skipped, not enough budget of attention for estimating"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Flagship 2: coverage flow in exactSearch moved from dense matrices to a sparse graph (SPFA); 57k->94k nodes in 8s, identical bounds; 114 calc tests pass. Memoizing bestDay/subset-sum gave no gain and was dropped. Cheapest-roster proof on the sample week still not closed. runcost attach not run.",
+  "corrections": [],
+  "redteam": null
+}

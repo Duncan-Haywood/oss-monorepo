@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UAE e-invoicing: 2027 dates, PINT AE and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="UAE e-invoicing is mandatory from 1 January 2027 for businesses with revenue of AED 50 million or more, and from 1 July 2027 for the rest, in the Peppol-based PINT AE format. Dates, penalties, and what a free local checker covers.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/uae-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UAE e-invoicing: 2027 dates, PINT AE and a free pre-send check">
+<meta property="og:description" content="UAE e-invoicing is mandatory from 1 January 2027 for businesses with revenue of AED 50 million or more, and from 1 July 2027 for the rest, in the Peppol-based PINT AE format. Dates, penalties, and what a free local checker covers.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/uae-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When does UAE e-invoicing become mandatory?","acceptedAnswer":{"@type":"Answer","text":"As reported from Ministerial Decisions 243 and 244 of 2025 (as amended by Decision 66 of 2026): businesses with revenue of AED 50 million or more go live on 1 January 2027 after appointing an Accredited Service Provider by 30 October 2026; smaller businesses appoint by 31 March 2027 and go live on 1 July 2027; government entities go live on 1 October 2027. Some guides still show older dates. Confirm with the Ministry of Finance, the Federal Tax Authority or your accountant; this page is a summary, not advice."}},{"@type":"Question","name":"What format does UAE e-invoicing use?","acceptedAnswer":{"@type":"Answer","text":"Structured XML in PINT AE, the UAE specification of the Peppol International invoice model, sent through an Accredited Service Provider. A PDF or scanned image is no longer a compliant tax invoice once the mandate applies to you. PINT AE is built on the same UBL 2.1 syntax and invoice model family as EN 16931."}},{"@type":"Question","name":"What are the penalties?","acceptedAnswer":{"@type":"Answer","text":"Reported under Cabinet Decision 106 of 2025: AED 5,000 per month for not implementing e-invoicing or appointing a provider on time, and AED 100 per invoice or credit note issued in the wrong form or not transmitted, capped at AED 5,000 per month. Sources differ and amounts can change, so check the Federal Tax Authority."}},{"@type":"Question","name":"Can this checker validate a UAE invoice?","acceptedAnswer":{"@type":"Answer","text":"Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus IBAN and BIC typo catches, each with a rule ID and a fix. It does not apply the PINT AE rules or the UAE's own checks, so a clean result is an offline observation, not approval. Your Accredited Service Provider remains the authority."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>UAE e-invoicing: the 2027 dates and what to check first</h1>
+<p class="lede">The UAE's mandatory e-invoicing starts on 1 January 2027 for businesses with revenue of AED 50 million or more, and on 1 July 2027 for the rest, in the Peppol-based PINT AE format through an Accredited Service Provider. Below: the dates, the reported penalties, and what a free local checker covers.</p>
+</header>
+<section>
+<h2>Dates</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>1 Jul 2026</td><td>Voluntary adoption and pilot begin; penalties apply only once the mandate applies to you.</td></tr>
+<tr><td>30 Oct 2026</td><td>Appoint an Accredited Service Provider (revenue AED 50 million or more). Moved from 31 Jul 2026 by Ministerial Decision 66 of 2026.</td></tr>
+<tr><td>1 Jan 2027</td><td>Go-live for businesses with revenue of AED 50 million or more.</td></tr>
+<tr><td>31 Mar 2027</td><td>Provider deadline for smaller businesses and for government entities.</td></tr>
+<tr><td>1 Jul 2027</td><td>Go-live for businesses below AED 50 million.</td></tr>
+<tr><td>1 Oct 2027</td><td>Go-live for government entities.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Dates are as reported by adviser sites from the Ministry of Finance decisions; one site gives a single 1 July 2027 date for everyone, which the others contradict, and older guides predate the October 2026 move. Business-to-consumer sales are reported as outside the first phases. Penalties (Cabinet Decision 106 of 2025, as reported): AED 5,000 per month for missing the implementation or provider deadline, and AED 100 per wrong or untransmitted invoice or credit note, capped at AED 5,000 per month. This is a summary, not tax advice; confirm with the Ministry of Finance, the Federal Tax Authority or your accountant.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>Invoices are structured XML in <strong>PINT AE</strong>, the UAE specification of the Peppol International model on UBL 2.1, exchanged between providers on a five-corner model, with the data reported to the tax authority. A PDF alone stops being a tax invoice once the mandate applies to you. You do not send the file yourself: your <strong>Accredited Service Provider</strong> does, and its validation is the one that decides.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a> and drop your XML. It flags totals and tax breakdowns that do not add up, a missing tax reason on a 0% or exempt line, malformed identifiers, and IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). It does <strong>not</strong> apply the PINT AE rules or UAE-specific checks such as the trade licence or TRN formats. No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. European dates: <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="netherlands-e-invoice-mandate.html">the Netherlands</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>. Also: <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>When does UAE e-invoicing become mandatory?</h3>
+<p>As reported from Ministerial Decisions 243 and 244 of 2025 (as amended by Decision 66 of 2026): businesses with revenue of AED 50 million or more go live on 1 January 2027 after appointing an Accredited Service Provider by 30 October 2026; smaller businesses appoint by 31 March 2027 and go live on 1 July 2027; government entities go live on 1 October 2027. Some guides still show older dates. Confirm with the Ministry of Finance, the Federal Tax Authority or your accountant; this page is a summary, not advice.</p>
+<h3>What format does UAE e-invoicing use?</h3>
+<p>Structured XML in PINT AE, the UAE specification of the Peppol International invoice model, sent through an Accredited Service Provider. A PDF or scanned image is no longer a compliant tax invoice once the mandate applies to you. PINT AE is built on the same UBL 2.1 syntax and invoice model family as EN 16931.</p>
+<h3>What are the penalties?</h3>
+<p>Reported under Cabinet Decision 106 of 2025: AED 5,000 per month for not implementing e-invoicing or appointing a provider on time, and AED 100 per invoice or credit note issued in the wrong form or not transmitted, capped at AED 5,000 per month. Sources differ and amounts can change, so check the Federal Tax Authority.</p>
+<h3>Can this checker validate a UAE invoice?</h3>
+<p>Partly. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus IBAN and BIC typo catches, each with a rule ID and a fix. It does not apply the PINT AE rules or the UAE's own checks, so a clean result is an offline observation, not approval. Your Accredited Service Provider remains the authority.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the UAE mandate as publicly reported; dates, penalties and rules can change, so check Ministry of Finance and Federal Tax Authority guidance (mof.gov.ae, tax.gov.ae) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

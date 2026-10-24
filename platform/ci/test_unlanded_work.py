@@ -9,6 +9,7 @@ import os
 import subprocess
 import tempfile
 import unittest
+import unittest.mock
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
@@ -237,6 +238,24 @@ class TestSweep(Fixture):
         self.assertEqual(sorted(row[1] for row in everything),
                          ["claude/old", "claude/stranded"])
 
+    def test_same_day_branches_are_listed_in_reverse_name_order(self):
+        # Red-team seeding (2026-10-19): sorting on the commit list instead of
+        # the branch name passed every test.
+        for name in ("claude/aaa", "claude/zzz"):
+            self.branch(name)
+            self.commit(f"{name}.txt", "x\n", name, day="2026-10-01")
+            self.push(name)
+        found = uw.sweep(str(self.clone), since=None, probe=self.probe)
+        self.assertEqual([row[1] for row in found], ["claude/zzz", "claude/aaa"])
+
+    def test_probe_is_created_under_directories_that_do_not_exist_yet(self):
+        deep = self.probe.parent / "not" / "yet" / "probe.git"
+        self.branch("claude/stranded")
+        self.commit("a.txt", "a\n", "a", day="2026-10-01")
+        self.push("claude/stranded")
+        found = uw.sweep(str(self.clone), since=None, probe=deep)
+        self.assertEqual([row[1] for row in found], ["claude/stranded"])
+
     def test_sweep_finds_its_own_probe_when_none_is_given(self):
         self.branch("claude/stranded")
         self.commit("a.txt", "a\n", "a", day="2026-10-01")
@@ -316,6 +335,42 @@ class TestMain(Fixture):
         self.push("claude/tabbed")
         found = uw.sweep(str(self.clone), since="2026-09-01", probe=self.probe)
         self.assertEqual([c.subject for c in found[0][2]], ["left\tright"])
+
+    def test_subject_with_several_tabs_is_kept_whole(self):
+        self.branch("claude/many-tabs")
+        self.commit("a.txt", "a\n", "a\tb\tc", day="2026-10-02")
+        self.push("claude/many-tabs")
+        found = uw.sweep(str(self.clone), since="2026-09-01", probe=self.probe)
+        self.assertEqual([c.subject for c in found[0][2]], ["a\tb\tc"])
+
+    def test_stranded_commits_keep_a_subject_with_several_tabs(self):
+        self.branch("claude/tabs-check")
+        self.commit("a.txt", "a\n", "a\tb\tc")
+        run(self.clone, "push", "-q", "origin", "claude/tabs-check")
+        report = self.check()
+        self.assertEqual(report.exit_code, 1)
+        self.assertIn("a\tb\tc", "\n".join(report.problems))
+
+    def test_commits_are_listed_newest_first(self):
+        self.branch("claude/two-days")
+        self.commit("a.txt", "a\n", "older", day="2026-10-01")
+        self.commit("b.txt", "b\n", "newer", day="2026-10-03")
+        self.push("claude/two-days")
+        found = uw.sweep(str(self.clone), since="2026-09-01", probe=self.probe)
+        self.assertEqual([c.subject for c in found[0][2]], ["newer", "older"])
+
+    def test_remote_refs_ignores_pull_refs_that_are_not_heads(self):
+        listing = "\n".join([
+            "a" * 40 + "\trefs/pull/7/head",
+            "b" * 40 + "\trefs/pull/8/merge",
+            "c" * 40 + "\trefs/pull/head",
+            "e" * 40 + "\trefs/tags/12/head",
+            "d" * 40 + "\trefs/heads/main",
+        ])
+        with unittest.mock.patch.object(uw, "git", return_value=listing):
+            heads, pulls = uw.remote_refs(".", "origin")
+        self.assertEqual(heads, {"main": "d" * 40})
+        self.assertEqual(pulls, {"a" * 40: [7]})
 
     def test_unreadable_diff_does_not_raise(self):
         self.branch("claude/x")

@@ -1,0 +1,5 @@
+model,deviance_improvement_percent,auc,top_decile_lift,observed_expected_ratio,ci95_low,ci95_high,auc_low,auc_high
+constant,0,0.5,1,1.0003,0,0,0.5,0.5
+demographics,5.77013,0.69468,2.76304,1.01186,3.66364,7.85945,0.660899,0.725521
+demographics_wealth,5.02545,0.695053,2.52818,1.00276,3.39405,6.47666,0.660749,0.724729
+gradient_boosting,4.34433,0.6808,2.27939,1.00837,2.97627,5.59062,0.647192,0.711822

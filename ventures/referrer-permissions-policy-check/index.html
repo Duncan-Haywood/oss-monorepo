@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Referrer-Policy & Permissions-Policy Checker — unsafe-url, wildcard features, syntax</title>
-<meta name="description" content="Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Referrer-Policy: unsafe-url (leaks full URLs, even on a downgrade), a missing or invalid Referrer-Policy, Permissions-Policy directives with a malformed allowlist syntax, and a wildcard allowlist on a sensitive feature like camera or microphone. Nothing uploaded.">
+<meta name="description" content="Check your site's Referrer-Policy and Permissions-Policy headers for unsafe-url, invalid syntax and wildcard camera or microphone access. Nothing uploaded.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/referrer-permissions-policy-check/">
 <meta property="og:type" content="website">
@@ -92,6 +92,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Referrer-Policy &amp; Permissions-Policy Checker</h1>
 <p>
   Sends one real HTTP GET request to a URL you choose and classifies the response's
@@ -262,6 +263,7 @@
     }
 </script>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks a specific, well-documented set

@@ -1,0 +1,54 @@
+== A. Energy (Wh over a 16 h day) against interesting moments per hour; 30 s events, miss 0.1, 2 false alarms/h (simulated mean of 20 days)
+rate  continuous  sleep+trigger  standby+preroll
+0.5         80.0         3.5        15.8
+1           80.0         3.8        16.1
+2           80.0         4.6        17.0
+4           80.0         5.9        18.5
+8           80.0         8.6        21.6
+12          80.0        11.0        24.3
+20          80.0        15.3        29.2
+40          80.0        25.0        39.6
+60          80.0        32.3        47.2
+
+== B. Share of interesting seconds captured, same sweep (simulated mean of 20 days)
+rate  continuous  sleep+trigger  standby+preroll
+0.5        1.000       0.685       0.897
+1          1.000       0.680       0.887
+2          1.000       0.690       0.898
+4          1.000       0.693       0.899
+8          1.000       0.700       0.905
+12         1.000       0.708       0.911
+20         1.000       0.702       0.899
+40         1.000       0.721       0.908
+60         1.000       0.735       0.914
+
+== C. Captured share of event seconds against trigger miss probability (closed form; 6 events/h, 30 s)
+miss  sleep+trigger  standby+preroll
+0.0          0.767         1.000
+0.05         0.728         0.950
+0.1          0.690         0.900
+0.2          0.613         0.800
+0.3          0.537         0.700
+0.5          0.383         0.500
+
+== D. Break-even event rate (events/h above which the mode uses more energy than continuous; closed form)
+event_s  sleep+trigger  standby+preroll
+10               219.6          158.5
+20               141.2          113.2
+30               104.0           88.0
+60                58.1           52.8
+120              never           29.3
+
+== E. Standby draw against energy saved (6 events/h, 30 s events; closed form, Wh over 16 h; continuous = 80.0)
+idle_w  energy  saving_pct
+0.3       10.6      86.8
+0.6       15.0      81.2
+0.9       19.4      75.7
+1.5       28.3      64.6
+2.5       43.1      46.2
+4.0       65.2      18.5
+
+== F. 99 Wh packs to carry for the day (6 events/h, 30 s events; closed form)
+continuous: 80.0 Wh -> 1 pack(s)
+sleep + trigger: 7.7 Wh -> 1 pack(s)
+standby + pre-roll: 19.4 Wh -> 1 pack(s)

@@ -1,0 +1,85 @@
+item,published,reproduced,tolerance,match,note
+couples with known final outcome,368.0,368.0,0.0,True,
+"couples divorced by the final follow-up (any status 1, T2-T10)",145.0,145.0,0.0,True,README/brief: 145 of 368
+Table S1 mean: Husband relationship satisfaction,25.9,25.8451,0.060000000000000005,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Husband relationship satisfaction,3.1,3.1137,0.05,True,
+Table S1 mean: Wife relationship satisfaction,25.1,25.1168,0.060000000000000005,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Wife relationship satisfaction,3.5,3.4507,0.05,True,
+Table S1 mean: Husband positivity,2.4,2.365,0.060000000000000005,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Husband positivity,0.77,0.77,0.05,True,
+Table S1 mean: Wife positivity,2.3,2.3343,0.060000000000000005,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Wife positivity,0.75,0.7461,0.05,True,
+Table S1 mean: Husband negativity,1.9,1.9125,0.060000000000000005,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Husband negativity,0.59,0.5929,0.05,True,
+Table S1 mean: Wife negativity,2.0,1.9503,0.060000000000000005,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Wife negativity,0.58,0.5834,0.05,True,
+Table S1 mean: Husband effective communication,4.2,4.1716,0.060000000000000005,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Husband effective communication,0.89,0.8908,0.05,True,
+Table S1 mean: Wife effective communication,4.3,4.2748,0.060000000000000005,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Wife effective communication,0.86,0.863,0.05,True,
+Table S1 mean: Husband hostility,3.2,3.1862,0.060000000000000005,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Husband hostility,3.5,3.5245,0.05,True,
+Table S1 mean: Wife hostility,3.1,3.0859,0.060000000000000005,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Wife hostility,3.6,3.5537,0.05,True,
+Table S1 mean: Annual household income ($),50570.0,50570.3552,1.0,True,tolerance = rounding of the published value + 0.01
+Table S1 SD: Annual household income ($),28037.0,28036.6993,1.0,True,
+"Table S2.1 % at risk, column headed Included: Husband parents’ marriage",51.6,51.6304,0.5,True,
+"Table S2.1 % at risk, column headed Excluded: Husband parents’ marriage",50.7,51.6304,0.5,False,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Wife parents’ marriage",55.6,46.7391,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Wife parents’ marriage",46.7,46.7391,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Husband neg. affect.",19.0,19.0217,0.5,True,
+"Table S2.1 % at risk, column headed Excluded: Husband neg. affect.",19.0,19.0217,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Wife neg. affect.",22.2,24.4565,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Wife neg. affect.",24.5,24.4565,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Husband abuse history",23.8,33.8798,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Husband abuse history",33.9,33.8798,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Wife abuse history",36.5,40.7609,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Wife abuse history",40.8,40.7609,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Husband ACE",42.0,45.8084,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Husband ACE",45.8,45.8084,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Wife ACE",38.0,41.1411,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Wife ACE",41.1,41.1411,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Husband substance use",42.6,29.8592,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Husband substance use",29.9,29.8592,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Wife substance use",9.7,14.5299,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Wife substance use",14.5,14.5299,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Husband education",82.5,80.109,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Husband education",80.1,80.109,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Wife education",69.8,72.2826,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Wife education",72.2,72.2826,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Couple low-income status",37.1,46.9945,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Couple low-income status",47.0,46.9945,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Couple unemployment",25.4,17.663,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Couple unemployment",17.7,17.663,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Couple financial strain",23.8,19.0217,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Couple financial strain",19.0,19.0217,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Neighborhood unemployment",28.6,24.7283,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Neighborhood unemployment",24.7,24.7283,0.5,True,headers appear swapped
+"Table S2.1 % at risk, column headed Included: Neighborhood median income",30.2,24.1848,0.5,False,
+"Table S2.1 % at risk, column headed Excluded: Neighborhood median income",24.2,24.1848,0.5,True,headers appear swapped
+"Table S8 % at risk, husbands: parents’ marriage",51.6,51.6304,0.5,True,
+"Table S8 % at risk, wives: parents’ marriage",46.7,46.7391,0.5,True,
+"Table S8 % at risk, husbands: abuse history",33.9,33.8798,0.5,True,
+"Table S8 % at risk, wives: abuse history",40.8,40.7609,0.5,True,
+"Table S8 % at risk, husbands: ACE",45.8,45.8084,0.5,True,
+"Table S8 % at risk, wives: ACE",41.1,41.1411,0.5,True,
+"Table S8 % at risk, husbands: substance use",29.9,29.8592,0.5,True,
+"Table S8 % at risk, wives: substance use",14.5,14.5299,0.5,True,
+"Table S11 empty-model hazard h(2), maximum likelihood",0.031,0.0299,0.0015,True,11/368
+"Table S11 empty-model hazard h(2), Jeffreys posterior mean",0.031,0.0312,0.0015,True,approximates the Bayesian summary
+"Table S11 empty-model hazard h(3), maximum likelihood",0.037,0.0364,0.0015,True,13/357
+"Table S11 empty-model hazard h(3), Jeffreys posterior mean",0.037,0.0377,0.0015,True,approximates the Bayesian summary
+"Table S11 empty-model hazard h(4), maximum likelihood",0.036,0.0349,0.0015,True,12/344
+"Table S11 empty-model hazard h(4), Jeffreys posterior mean",0.036,0.0362,0.0015,True,approximates the Bayesian summary
+"Table S11 empty-model hazard h(5), maximum likelihood",0.055,0.0542,0.0015,True,18/332
+"Table S11 empty-model hazard h(5), Jeffreys posterior mean",0.055,0.0556,0.0015,True,approximates the Bayesian summary
+"Table S11 empty-model hazard h(6), maximum likelihood",0.182,0.1815,0.0015,True,57/314
+"Table S11 empty-model hazard h(6), Jeffreys posterior mean",0.182,0.1825,0.0015,True,approximates the Bayesian summary
+"Table S11 empty-model hazard h(7), maximum likelihood",0.075,0.0739,0.0015,True,19/257
+"Table S11 empty-model hazard h(7), Jeffreys posterior mean",0.075,0.0756,0.0015,True,approximates the Bayesian summary
+"Table S11 empty-model hazard h(8), maximum likelihood",0.023,0.021,0.0015,False,5/238
+"Table S11 empty-model hazard h(8), Jeffreys posterior mean",0.023,0.023,0.0015,True,approximates the Bayesian summary
+"Table S11 empty-model hazard h(9), maximum likelihood",0.023,0.0215,0.0015,False,5/233
+"Table S11 empty-model hazard h(9), Jeffreys posterior mean",0.023,0.0235,0.0015,True,approximates the Bayesian summary
+"Table S11 empty-model hazard h(10), maximum likelihood",0.024,0.0219,0.0015,False,5/228
+"Table S11 empty-model hazard h(10), Jeffreys posterior mean",0.024,0.024,0.0015,True,approximates the Bayesian summary

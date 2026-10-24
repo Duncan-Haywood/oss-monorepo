@@ -9,7 +9,7 @@ month. Then it asks the question a fee table cannot: **how often does it
 actually sell there**, and what is one listing worth per month of shelf once
 you count that.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/
 
 **Discogs** (records and music media, added 2026-10-19, off by default; its 9% commission on item plus shipping is from Discogs' own fee page and hands the item to [`../discogs-fee-calculator`](../discogs-fee-calculator/); the 2.9% + $0.30 processing default is not a Discogs-published rate and is flagged as such on the page) joins **TCGplayer** (trading cards, added 2026-10-18, off by default; it hands the
 item to [`../tcgplayer-fee-calculator`](../tcgplayer-fee-calculator/) for order
@@ -232,8 +232,10 @@ tool sits unused and the comparison ends at a ranking nobody acts on.
 
 So under the verdict, every channel that has a dedicated calculator **and** can
 accept inputs from a link gets a "keep going with this item" link, built from
-what is on screen. Today that is eBay, Etsy, Amazon, Mercari, Reverb, TikTok
-Shop, Whatnot, Poshmark, StockX and an own store (Shopify); a channel gains
+what is on screen. Today that is all 16 (`HANDOFFS` in `handoff.mjs`): eBay,
+Etsy, Amazon, Mercari, Reverb, TikTok Shop, Whatnot, Poshmark, StockX, Depop,
+Grailed, Facebook Marketplace, Walmart, TCGplayer, Discogs and an own store
+(Shopify); a channel gains
 one the day its calculator learns to read a link.
 
 **The handoff now runs both ways for every channel that has one.** Each of
@@ -241,7 +243,10 @@ one the day its calculator learns to read a link.
 `../amazon-fba-calculator/`, `../reverb-fee-calculator/`,
 `../shopify-fee-calculator/`, `../tiktok-shop-fee-calculator/`,
 `../whatnot-seller-payout/`, `../poshmark-fee-calculator/`,
-`../stockx-seller-payout-calculator/` and `../mercari-fee-calculator/`
+`../stockx-seller-payout-calculator/`, `../mercari-fee-calculator/`,
+`../depop-fee-calculator/`, `../grailed-fee-calculator/`,
+`../facebook-marketplace-fee-calculator/`, `../walmart-marketplace-calculator/`,
+`../tcgplayer-fee-calculator/` and `../discogs-fee-calculator/`
 carries its own item back into this page with
 that channel already switched on (each ships its own `to-where-to-sell.mjs`,
 mirroring this page's `handoff.mjs` in reverse). Reverb was first; eBay, Etsy,
@@ -288,6 +293,13 @@ Two details that are not obvious:
   one that is merely incomplete. Its own round-trip test now asserts the net
   profit on the two pages is the same number.
 
+**The link back to the quick triage carries the item too.** The footer link to
+`../marketplace-fee-compare/` (headline fees, plus a bulk catalogue view) is rewritten on every
+calculation with price, postage, cost and monthly orders, packaging folded into `otherCost`.
+Before, it opened empty, so a seller who wanted the shorter view had to retype the item —
+the same failure this section exists to remove, in the one direction left. `handoff.test.mjs`
+round-trips it through that page's own `decodeShare`.
+
 Nothing is uploaded. The values ride in the URL fragment — the same mechanism
 the "Copy share link" button already uses — which browsers never send to a
 server, and they only travel inside your own browser as you follow the link.
@@ -297,6 +309,29 @@ eBay and `materialCost` on Etsy), and a name the receiver does not recognise is
 *silently dropped* rather than raising an error. `handoff.test.mjs` therefore
 imports each target's own field list and fails if a name stops matching, so
 that drift breaks a test here instead of a number there.
+
+## A whole inventory at once: the command-line version
+
+Resellers rarely have one item. `cli.mjs` runs a spreadsheet of items through the
+same channel presets and the same arithmetic as the page, and prints the best
+channel for each item, how far ahead it is of the runner-up, and what routing
+every item to its own best channel is worth against listing everything on the
+single best channel.
+
+```
+node cli.mjs items.csv                       # columns: item, price, cost (or itemCost), shippingCharged, shippingCost, packagingCost, otherCost
+node cli.mjs items.csv --also poshmark,depop # add channels that are off by default
+node cli.mjs items.csv --channels ebay,etsy  # compare exactly these
+node cli.mjs items.csv --csv > routed.csv    # one row per item and channel
+node cli.mjs --example                       # try it on invented items
+node cli.mjs --list-channels
+```
+
+Zero dependencies and no network, so prices and costs never leave the machine. A
+fee-free direct sale is left out unless you ask for it with `--also local`,
+because it would win every item. The fee and return rates are the page's
+illustrative presets, not your account's: treat the output as a ranking to
+check, not a forecast. Tests: `cli.test.mjs`.
 
 ## Rates are inputs, not a published schedule
 
@@ -409,7 +444,7 @@ The optional usage counter records only an event name (`comparison_calculated`,
 `channel_volume_edited`, `returns_compared`, `shelf_time_compared`,
 `share_link_copied`, `comparison_csv_downloaded`, `handoff_ebay`, `handoff_etsy`,
 `handoff_amazon`, `handoff_reverb`, `handoff_own-store`, `handoff_tiktok`,
-`handoff_whatnot`, `handoff_poshmark`, `handoff_walmart`, `handoff_tcgplayer`) and the
+`handoff_whatnot`, `handoff_poshmark`, `handoff_stockx`, `handoff_mercari`, `handoff_depop`, `handoff_grailed`, `handoff_facebook-marketplace`, `handoff_walmart`, `handoff_tcgplayer`, `handoff_discogs`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was
@@ -445,6 +480,7 @@ MIT licensed.
 Your data stays in your browser either way, but you can serve the page from an address you control. It is a static
 site: the server only hands out files and never sees a figure you type.
 
+- **Phone app:** the page is an installable offline PWA (Chrome "Install app", Safari "Add to Home Screen"), handy for checking an item at a thrift store before buying. `mobile/` packages the same files with Capacitor for Android and iOS builds under your own developer accounts (`mobile/README.md`).
 - **Docker:** `docker compose up -d`, then open <http://localhost:8080> (`Dockerfile` is nginx plus the page's files).
 - **Fly.io:** `fly launch --copy-config --no-deploy --dockerfile Dockerfile`, then `fly deploy` (`fly.toml`).
 - **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).

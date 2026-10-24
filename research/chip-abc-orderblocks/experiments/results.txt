@@ -1,0 +1,16 @@
+csel4: 400 random mixed variants (seed 1); each of the 7 chains gets its own operand order out of 6
+pred = blocks whose x and y chains both start with {a,b}; adds4 = $add/$alu cells after `opt -nodffe -nosdff` (10 - shared blocks predicted)
+scores are cells x depth: yosys_default / dch_map / resyn2_map
+
+variants where adds4 != 10 - len(pred): 0 of 400
+pred-set  n  distinct scores per script (min..max)
+()         265 1 (2268..2268)  1 (1024..1024)  1 (1300..1300)
+(1,)       43  1 (2262..2262)  1 (1408..1408)  1 (1750..1750)
+(2,)       45  1 (2262..2262)  1 (1150..1150)  1 (1573..1573)
+(3,)       40  1 (2262..2262)  1 (1026..1026)  1 (1220..1220)
+(1, 2)     4   1 (2116..2116)  1 (1309..1309)  1 (1624..1624)
+(1, 3)     1   1 (2250..2250)  1 (1298..1298)  1 (1652..1652)
+(2, 3)     1   1 (2250..2250)  1 (1090..1090)  1 (1482..1482)
+(1, 2, 3)  1   1 (2090..2090)  1 (1232..1232)  1 (1665..1665)
+variants not proved equivalent to add16.v: 0 of 400
+tool: Yosys 0.33 (git sha1 2584903a060)

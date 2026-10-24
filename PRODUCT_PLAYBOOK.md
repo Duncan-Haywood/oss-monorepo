@@ -39,36 +39,45 @@ is wrong, and no amount of code fixes it. The strongest version of that sentence
 ends in the user earning more: a job they can now bid on, an invoice they can
 now issue, a client they can now keep.
 
-## 2. Choose a shape that costs us nothing per user
+## 2. Choose the shape that fits the user; keep our cost per user at zero
 
-In rough order of preference. **This order is about cost, not about what to
-build next** (2026-10-16): read as a recipe, it produced 121 near-identical
+**A menu, not a ranking.** There is no static-only or static-first rule
+(owner, 2026-10-21: "applications can and should be distributable in a
+variety of ways to a variety of platforms"; `prompts/goals.md`, "Direction:
+every platform"). Pick the form the user would actually reach for, and ship
+the same engine through several of them where that helps (web page, CLI,
+MCP server, desktop and mobile packages in `platform/distribution/`). An
+earlier static-first ordering, read as a recipe, produced 121 near-identical
 `<trade>-bid-calculator` ventures
-([`docs/reports/2026-10-16-calculator-glut.md`](docs/reports/2026-10-16-calculator-glut.md)).
-A CLI, library, desktop app or extension (shape 2) costs nothing to serve
-either, and the owner wants that track run alongside web tools. Before adding
-a product in an existing template family, extend or consolidate the family.
+([`docs/reports/2026-10-16-calculator-glut.md`](docs/reports/2026-10-16-calculator-glut.md)). Before adding
+a product in an existing template family, don't. Start no new calculators and
+spend no runs deepening existing ones beyond fixes; already-built work can
+still merge (owner, 2026-10-21; `prompts/goals.md`, "Depth
+over calculators"). A browser tool's engine should be one a chatbot can't
+reproduce in one reply and a maths graduate can't follow at a glance.
 
-1. **Static site / browser app.** All computation client-side, state in
-   `localStorage` or a file the user downloads. GitHub Pages hosts it. Zero
-   marginal cost, no data of theirs on our side, no outage we have to answer
-   for.
+1. **Browser app.** Computation client-side, state in `localStorage` or a
+   file the user downloads. GitHub Pages hosts it at no cost to us.
 2. **CLI or library.** Distributed through a package registry or a GitHub
    release; runs on the user's machine. Great for developer and technical-trade
    niches, and it makes the repo page the landing page.
 3. **Generator / checker that runs in the user's own CI.** A GitHub Action or a
    script they schedule. Their compute, their secrets, their data.
-4. **Small service on the Hetzner product box.** Only when the product
-   genuinely cannot be any of the above. Keep it stateless, keep the data
-   the user's, and include the no-SLA clause in §5b. Never host a public
-   product on the agent box. Details: [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
+4. **Native, desktop or mobile app; browser or editor extension.** Built by
+   the packagers in `platform/distribution/`; runs on the user's device.
+5. **A service, with a server, database or long-running process.** Fine when
+   the product is better for it. We run no product servers on the owner's
+   bill (the Hetzner box was retired on 2026-10-01), so ship it for others to
+   run: a container image, a one-click self-deploy (below), or a package the
+   user runs locally, with the no-SLA clause in §5b. Details:
+   [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
 
 Rules that keep the cost floor at zero: no per-user paid API on our account, no
 per-user database we pay for, no per-user human step, no account system unless
 the product is useless without one (and if you need one, prefer "bring your own
-GitHub login" over storing credentials). Do not add Cloudflare or Vercel as
-the way a new product goes live — GitHub Pages and the existing Hetzner
-boxes are the host.
+GitHub login" over storing credentials). GitHub Pages hosts our web surfaces
+at $0; another host (Cloudflare, Vercel) means an account only the owner can
+open, so it needs a stated reason Pages cannot meet.
 
 ### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
 
@@ -124,7 +133,7 @@ When someone builds it, these rules apply:
   own copy.
 - **One platform feature, not 1,200 per-venture ones.** Build it once under
   `platform/deploy/`. Derive the list of apps from `discoverSurfaces()` in
-  `platform/pages/build.mjs`. Do not keep a second list. Giving each venture
+  `platform/pages/build.mjs`. Avoid keeping a second list. Giving each venture
   its own deploy button is the fleet-parity trap.
 - **Credentials never touch anything of ours.** Nothing we run or log ever
   sees them. The page states exactly where they go: GitHub, encrypted, and
@@ -197,19 +206,66 @@ One session should produce something usable. Concretely:
   execute the action. If you can't run it, you can't say it ships.
 - **Leave `main` working.**
 
-### Rule of thumb: plain JavaScript, checked by TypeScript (2026-10-16)
+### Rule of thumb: every way in: see, type, speak, delegate (owner, 2026-10-20)
 
-Venture code stays build-free `.mjs`, served as committed. TypeScript is used
-only as a checker, never as a build step:
+People would often rather say "2,400 square feet, 8/12 pitch" than click
+through twenty fields, and an AI agent should be able to use a tool as
+easily as a person. So voice, chat and agent use are primary interfaces, not
+add-ons (`prompts/goals.md`, "Direction: voice, chat and agents"). For a
+browser tool on the Pages site most of this comes free from the site
+assistant (`platform/pages/assistant.mjs`): the header's Ask link, a
+"Speak or type" button on every tool page, voice-only mode, and WebMCP
+tools for agents. A product's part is:
 
-- **Start every new `.mjs` file with `// @ts-check`.** Add JSDoc types only
+- **Keep the form readable by machines.** Every control has a real
+  `<label>` that names it in a user's words ("Shipping label cost", not
+  "Cost 2"), a `type="number"` with honest `min`/`max`/`step` where it is a
+  number, and real `<option>` text. The reader matches what people say to
+  these labels, and agents get them as a JSON Schema.
+- **Put the result where it can be read aloud**: an `aria-live` region, an
+  `<output>`, or an element with id `results`/`summary`. A result announced
+  to a screen reader is one the assistant can speak.
+- **Recompute on `input`/`change`**, so a value written by voice or by an
+  agent updates the result the same way typing does.
+- **Opt in to anything heavy.** A model, a speech recogniser, a voice: none
+  of these loads until the person clicks something that names the download
+  size and where their words go. The page without any of it stays fast and
+  fully usable. Never use cloud speech recognition silently. It sends audio
+  to a third party.
+- **Show your work.** Every value written by voice, chat or an agent is listed
+  with its source words and an Undo. Every reply names the engine that made
+  it. Accuracy is measured on real sentences (`platform/pages/assistant/evals.json`),
+  and the measured score is published beside the limitations. When a real
+  sentence fails, add it there.
+
+### Language: pick what fits the product (2026-10-21)
+
+There is no required language or file format for venture code. The owner,
+2026-10-21, lifted the 2026-10-16 rule that venture code must be build-free
+`.mjs`: choose the language and tooling that make the product best, the way a
+competent engineer would. What still holds is physical, not a style rule:
+
+- **The site serves committed files.** `platform/pages/build.mjs` copies a
+  venture's files as they are and drops source-only extensions (`.ts`,
+  `.tsx`, `.py`, …; `NON_WEB_EXTENSIONS`). Whatever the browser loads has to
+  be in the tree, or produced by a step you add to the Pages build in the
+  same PR. A compile step nobody runs means a broken page.
+- **The $0-marginal-cost shapes and the five things in §5 apply whatever the
+  language.**
+
+Plain `.mjs` is still what most of the portfolio is written in and what the
+shared tooling (tests, `clauses.mjs`, `regen.mjs`) is most used to, so it is
+the easy path for a small calculator, not an obligation. If you write plain
+JavaScript, TypeScript's checker is cheap insurance:
+
+- **Start new `.mjs` files with `// @ts-check`.** Add JSDoc types only
   where tsc asks for them (`/** @type {HTMLFormElement} */` on a
   `querySelector`, a `@typedef` for an object that is built up after its
   literal). Keep the JSDoc true: a `@param {number}` the form actually passes
   as `''` misleads the next session.
 - **A file you edit gets the pragma too, if it already passes.**
   `node platform/pages/typecheck.mjs --candidates <slug>` lists which of the
-  venture's files pass today. Do not retrofit files that fail, and do not add
+  venture's files pass today. Prefer not to retrofit files that fail or add
   `--checkJs` across the tree.
 - **CI keeps opted-in files clean.** `node platform/pages/typecheck.mjs <slug>`
   runs in `ventures-tests` on every venture a PR touches. It exits 1 on any
@@ -252,8 +308,8 @@ first-run notice). Copy this, adjusting only the bracketed part:
 > working. Do not use this as a system of record. If a tool needs to
 > survive, export your inputs and run it yourself.
 
-The no-SLA paragraph is required on every hosted surface (GitHub Pages or
-Hetzner). It covers availability. It does **not** let us store personal
+The no-SLA paragraph is required on every hosted surface (GitHub Pages or a
+self-deployed copy). It covers availability. It does **not** let us store personal
 data on a box and call that fine — if anything leaves the browser, the
 privacy line in §5c has to name it.
 
@@ -272,10 +328,13 @@ venture, not just `index.html`:
 node platform/pages/clauses.mjs <venture-slug>
 ```
 
-Your venture's CI runs exactly that, so it fails on the PR. Do not rely on
-the Pages suite for it: bot PRs authored with `GITHUB_TOKEN` do not trigger
-Actions here, so that one first runs *after* the merge, on `main`, where it
-turns the Pages build red in a workflow you never touched. Six pages across
+`ventures-tests.yml` runs it for every venture a PR touches
+(`clauses.mjs --changed-since <base>`), so it fails on your PR, names your
+venture and annotates the page in the diff. You needn't add it to a
+`<slug>-ci.yml`; until 2026-10-20 each of those carried a copy. Avoid relying
+on the Pages suite for it, which runs only on `platform/pages/**` and so
+first catches the page *after* the merge, on `main`, red in a workflow you
+never touched. Six pages across
 three ventures reached `main` that way before the clause was injected — all
 of them copied a sibling's footer instead of this file.
 
@@ -287,7 +346,12 @@ observation they act on ("3 of 12 checks did not pass — here is each one").
 
 ### c. A privacy line, honestly stated
 
-One short section. If everything is client-side, say so — it is a feature:
+One short section that says what the product actually does. The rules behind
+it are the law's, not stricter ones (owner, 2026-10-20;
+[`portfolio/usage/README.md`](portfolio/usage/README.md), rule 1): a cookie or
+`localStorage` entry a feature needs is fine, and is named here; an identifier
+used for analytics needs consent from EU/UK visitors first. If everything is
+client-side, say so. It is a feature:
 
 > Everything runs in your browser. Your data is never uploaded, and we don't
 > have accounts, tracking cookies, or an analytics vendor. We count anonymous
@@ -299,9 +363,10 @@ lives. Never write a privacy claim you haven't checked against the code.
 
 ### d. Usage counting
 
-Per [`portfolio/usage/README.md`](portfolio/usage/README.md). Count events,
-never people. No PII, no IPs, no content, no cross-site identifiers. Make it
-visible and switch-off-able. Then write the numbers into
+Per [`portfolio/usage/README.md`](portfolio/usage/README.md). Anonymous
+aggregate counts are on by default. Anything that identifies a returning
+browser goes behind the consent the law requires. No content, and nothing
+personal committed to the repository. Make it visible and switch-off-able. Then write the numbers into
 `portfolio/usage/usage.yaml` so the router can see which products are alive.
 
 ### e. Discoverability
@@ -393,7 +458,7 @@ okay with me"). Build it so that:
 The owner's own instances (the GitHub Pages site) take donations only: the
 GitHub Sponsors link below, and the one approved Buy Me a Coffee link.
 
-**Two separate things exist here — do not conflate them:**
+**Two separate things exist here — keep them apart:**
 
 1. **A per-product `github.com/sponsors/<owner>` link in the footer or about
    section.** This is agent-decidable, needs no owner action, and now ships
@@ -406,7 +471,7 @@ GitHub Sponsors link below, and the one approved Buy Me a Coffee link.
 2. **The native repo-level GitHub "Sponsor this project" button**, via
    `.github/FUNDING.yml`, which is a separate, owner-only account-ownership
    decision (queued as `funding-sponsors-live`, PR #839 — read the queue with
-   `python3 portfolio/ledger/decision_queue.py`; do not open a second one). It
+   `python3 portfolio/ledger/decision_queue.py`; there is no need to open a second one). It
    was merged once and reverted the same day (#862), so the safe state on
    `main` today is no `FUNDING.yml`. This only adds a second entry point on
    top of links that already work — it is not what turns donations on.
@@ -423,7 +488,7 @@ already load counts a click into `portfolio-hub-usage` under the literal event
 [`portfolio/usage/README.md`](portfolio/usage/README.md) "Wired the same day,
 on the published site, in one place rather than 186."
 
-**Do not hand-wire a second listener into a venture's own `usage.mjs` for
+**Avoid hand-wiring a second listener into a venture's own `usage.mjs` for
 this** — the build already covers the published site, and adding one anyway
 is the fleet-parity trap described in `portfolio/DIRECTION.md`, not new
 signal. The one legitimate reason to wire it in a venture's own code: that
@@ -456,6 +521,12 @@ Ship when every line is true:
       tools (`prompts/goals.md`, web presence). The page says what it does and
       for whom, shows it (a screenshot or a demo), and links to try it and to
       the code.
+- [ ] It has a marketing page aimed at the people who would use it (who it
+      is for, their problem in their words, a worked example, when to use
+      something else), and an `llms.txt` beside its page for assistants
+      (`prompts/goals.md`, "LLM docs and a marketing page"). Every
+      claim on them is one a file backs: no invented reviews, testimonials,
+      ratings or user counts (Guardrails, "Honest marketing").
 - [ ] It runs with no key, no account, and no paid dependency of ours.
 - [ ] LICENSE, disclaimer, and privacy line are in the README **and** the
       product.
@@ -469,11 +540,9 @@ Ship when every line is true:
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
 - [ ] The §5b **no-warranty** clause is on every page the venture publishes,
-      not just the calculator, and any `vs-<competitor>.html` page carries the
-      §5f **not-affiliated** trademark disclaimer — `node
-      platform/pages/clauses.mjs <slug>` checks both. The venture's own CI runs
-      this, so it fails on the PR rather than on `main`. (The no-SLA clause is
-      injected by the Pages build and is not yours to carry; see §5b.)
+      and any `vs-<competitor>.html` page carries the §5f **not-affiliated**
+      disclaimer — `node platform/pages/clauses.mjs <slug>` checks both (the
+      Pages build injects the no-SLA clause; see §5b).
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
 - [ ] If you added `.github/workflows/<slug>-ci.yml` (and
@@ -484,18 +553,11 @@ Ship when every line is true:
       venture CI. `publish_surface.py --check` fails until the snapshot names
       it, by design: a new workflow is a new thing a merge to `main` could
       publish, and that classification is confirmed rather than inferred.
-      This line exists because the step was carried by recollection and got
-      missed: #4573 added the workflow without the snapshot row and left
-      `main` red on two steps for the rest of the day, invisible behind
-      starved checks.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
 - [ ] A stranger can reach it without cloning this repo — a public URL or an
       install command. Merged-to-`main` is not deployed. Static products go
-      to GitHub Pages; processes go to the Hetzner product box
-      ([`portfolio/hosting/`](portfolio/hosting/README.md)). If Pages is
-      still gated, the next session prepares that deploy and points at
-      `deploy-settings`; it does not start a sibling product and does not
-      add Cloudflare or Vercel.
+      to GitHub Pages; processes ship as a self-deploy the user runs
+      ([`portfolio/hosting/`](portfolio/hosting/README.md)).
 
 ## 8. After it ships
 

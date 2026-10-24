@@ -82,3 +82,7 @@ test("the FAQ in the structured data matches the visible questions", () => {
 test("the footer links the pain.002 status reader for the bank's answer", () => {
   assert.match(page("index.html"), /href="\.\.\/sepa-pain002-status-reader\/"/);
 });
+
+test("links to the CSV to SEPA pain.001 converter", () => {
+  assert.match(page("index.html"), /href="\.\.\/csv-to-sepa-pain001\/"/);
+});

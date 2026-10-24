@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01QDwGpsoUaA47Sn92b7qtiD",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T14:15:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 8419,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "took >120s in a shallow clone before main's cap fix (#8416); blocked the start of the run"
+    },
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "top router row was an Explore hypothesis needing real usage data, which is unmeasurable in a session; shipped a factual feature gap instead"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added UK statutory late-payment interest module, page, tests to invoice-payment-terms-calculator.",
+  "corrections": [],
+  "redteam": null
+}

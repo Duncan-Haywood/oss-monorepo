@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: break-even installed battery price in dollars per kWh against battery size on a measured-derived typical year for Golden, Colorado, for a fixed peak-discharge rule, a rolling optimiser fed yesterday's weather, one fed a clear-sky-index forecast, and one with a perfect forecast; both realistic forecasts fall below the fixed rule, far below the perfect forecast">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Home battery on real weather (Golden CO): break-even price by forecast</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="266.3" y2="266.3" stroke="#ddd"/><text x="58" y="270.3" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="208.7" y2="208.7" stroke="#ddd"/><text x="58" y="212.7" text-anchor="end" font-family="sans-serif" font-size="11">400</text>
+<line x1="64" x2="624" y1="151.0" y2="151.0" stroke="#ddd"/><text x="58" y="155.0" text-anchor="end" font-family="sans-serif" font-size="11">600</text>
+<line x1="64" x2="624" y1="93.4" y2="93.4" stroke="#ddd"/><text x="58" y="97.4" text-anchor="end" font-family="sans-serif" font-size="11">800</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2.5</text>
+<text x="144.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="304.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="464.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">15</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">battery nameplate kWh</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">break-even $/kWh (life-limited)</text>
+<polyline points="64.0,77.8 144.0,80.4 304.0,118.4 464.0,175.8 624.0,210.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="77.8" r="3" fill="#c0392b"/>
+<circle cx="144.0" cy="80.4" r="3" fill="#c0392b"/>
+<circle cx="304.0" cy="118.4" r="3" fill="#c0392b"/>
+<circle cx="464.0" cy="175.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="210.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">fixed rule (energy-tou)</text>
+<polyline points="64.0,112.1 144.0,101.7 304.0,130.3 464.0,180.7 624.0,216.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="112.1" r="3" fill="#1f6fb2"/>
+<circle cx="144.0" cy="101.7" r="3" fill="#1f6fb2"/>
+<circle cx="304.0" cy="130.3" r="3" fill="#1f6fb2"/>
+<circle cx="464.0" cy="180.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="216.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">optimiser, yesterday's weather</text>
+<polyline points="64.0,104.6 144.0,97.7 304.0,130.0 464.0,181.3 624.0,216.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="104.6" r="3" fill="#2e8b57"/>
+<circle cx="144.0" cy="97.7" r="3" fill="#2e8b57"/>
+<circle cx="304.0" cy="130.0" r="3" fill="#2e8b57"/>
+<circle cx="464.0" cy="181.3" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="216.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">optimiser, clear-sky-index forecast</text>
+<polyline points="64.0,76.4 144.0,71.2 304.0,111.2 464.0,145.5 624.0,185.9" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="76.4" r="3" fill="#8e44ad"/>
+<circle cx="144.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="304.0" cy="111.2" r="3" fill="#8e44ad"/>
+<circle cx="464.0" cy="145.5" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="185.9" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">optimiser, perfect forecast</text>
+</svg>

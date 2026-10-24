@@ -1,0 +1,5 @@
+{
+ "theme": "house",
+ "title": "Can a crane or telehandler lift the house's wall panels, and does anything but weight and wind limit it?",
+ "summary": "Takes the eight wall panels of <code>house-offsite</code> and finds their weight (343&ndash;559 lb open, 376&ndash;877 lb closed; 3,753 and 5,031 lb for the shell), the best two pick points on each, and the top-plate bending at a 1.5 impact factor: 4&ndash;12% of the allowable stress, and plate bending alone would allow a solid panel of 60 ft with two picks (28 ft with one). Bending never limits the layout; the lift is a weight and wind problem. At the NIOSH 51 lb limit a panel needs 7&ndash;18 people, so hand-lifting is out, and a 20 ft open panel hung broad face to the wind swings 10&deg; at about 12 mph (15 mph closed). Stylised: densities, glazing weight, impact and drag are assumed, the lift is a rigid-body estimate, and the sheathing is ignored."
+}

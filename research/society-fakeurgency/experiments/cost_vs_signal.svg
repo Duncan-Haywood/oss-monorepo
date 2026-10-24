@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of urgent, normal and overall cost per door encounter against the cost of sending an urgency signal, 30 percent robots; urgent people never get near the 0.68 they reach with perfect reading">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Signal-reading robots: cost per encounter against signal cost</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="245.3" y2="245.3" stroke="#ddd"/><text x="58" y="249.3" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="166.6" y2="166.6" stroke="#ddd"/><text x="58" y="170.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="87.9" y2="87.9" stroke="#ddd"/><text x="58" y="91.9" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="110.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.1</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.3</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">signal cost c</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">cost per encounter</text>
+<polyline points="64.0,150.0 110.7,139.8 157.3,139.0 204.0,148.9 250.7,145.2 344.0,117.6 437.3,86.1 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="150.0" r="3" fill="#c0392b"/>
+<circle cx="110.7" cy="139.8" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="139.0" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="148.9" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="145.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="117.6" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="86.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">urgent</text>
+<polyline points="64.0,157.6 110.7,142.5 157.3,132.1 204.0,136.5 250.7,143.9 344.0,150.4 437.3,152.2 624.0,152.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="157.6" r="3" fill="#1f6fb2"/>
+<circle cx="110.7" cy="142.5" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="132.1" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="136.5" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="143.9" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="150.4" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="152.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="152.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">normal</text>
+<polyline points="64.0,130.5 110.7,120.4 157.3,115.2 204.0,124.4 250.7,132.7 344.0,134.9 437.3,129.1 624.0,119.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="130.5" r="3" fill="#2e8b57"/>
+<circle cx="110.7" cy="120.4" r="3" fill="#2e8b57"/>
+<circle cx="157.3" cy="115.2" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="124.4" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="132.7" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="134.9" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="129.1" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="119.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">everyone</text>
+</svg>

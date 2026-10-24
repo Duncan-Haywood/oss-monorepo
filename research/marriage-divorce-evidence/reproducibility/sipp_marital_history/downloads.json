@@ -1,0 +1,178 @@
+[
+ {
+  "file": "pu2018_csv.zip",
+  "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2018/pu2018_csv.zip",
+  "sha256": "ab26c1eca7dbe021cff81b9a2522caffad02e9fd23a40dba6c7741039ce176ba",
+  "bytes": 164090517,
+  "person_month_rows": 763186,
+  "persons": 63915,
+  "missing_columns": [
+   "EWIDIV1",
+   "EWIDIV2",
+   "RSSMC",
+   "TEND1_YR",
+   "TEND2_YR",
+   "TEND3_YR",
+   "TMAR1_YR",
+   "TMAR2_YR",
+   "TMAR3_YR",
+   "TSEP1_YR",
+   "TSEP2_YR",
+   "TSEP3_YR"
+  ],
+  "retrieved": "2026-10-20",
+  "longitudinal_weights": null
+ },
+ {
+  "file": "pu2019_csv.zip",
+  "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2019/pu2019_csv.zip",
+  "sha256": "c648b45506b5c5ca76386c379b561ab34fc6cb81a9817abb00721f43bfa18ea2",
+  "bytes": 135068548,
+  "person_month_rows": 593604,
+  "persons": 50212,
+  "missing_columns": [
+   "EWIDIV1",
+   "EWIDIV2",
+   "RSSMC",
+   "TEND1_YR",
+   "TEND2_YR",
+   "TEND3_YR",
+   "TMAR1_YR",
+   "TMAR2_YR",
+   "TMAR3_YR",
+   "TSEP1_YR",
+   "TSEP2_YR",
+   "TSEP3_YR"
+  ],
+  "retrieved": "2026-10-20",
+  "longitudinal_weights": {
+   "file": "lgtwgt2019_csv.zip",
+   "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2019/lgtwgt2019_csv.zip",
+   "sha256": "28492fa09fe7181b733f22d0e46cbf2d96afa190b7d1e3b35ceec6721e9f28b5",
+   "bytes": 335248,
+   "rows": 32775,
+   "positive": 32775
+  }
+ },
+ {
+  "file": "pu2020_csv.zip",
+  "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2020/pu2020_csv.zip",
+  "sha256": "7e6f2b6c7913f9c1e9ed6cf0b644b479981633902411efa488094f3ccdc3a693",
+  "bytes": 139336635,
+  "person_month_rows": 622339,
+  "persons": 52572,
+  "missing_columns": [
+   "EWIDIV1",
+   "EWIDIV2",
+   "RSSMC",
+   "TEND1_YR",
+   "TEND2_YR",
+   "TEND3_YR",
+   "TMAR1_YR",
+   "TMAR2_YR",
+   "TMAR3_YR",
+   "TSEP1_YR",
+   "TSEP2_YR",
+   "TSEP3_YR"
+  ],
+  "retrieved": "2026-10-20",
+  "longitudinal_weights": {
+   "file": "lgtwgt2020yr2_csv.zip",
+   "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2020/lgtwgt2020yr2_csv.zip",
+   "sha256": "82ff80ddfd0c9e5cf2c5f4b779e5092d4be5b8d8fbc14f68bf726628fcb8c19d",
+   "bytes": 230724,
+   "rows": 21918,
+   "positive": 21918
+  }
+ },
+ {
+  "file": "pu2021_csv.zip",
+  "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2021/pu2021_csv.zip",
+  "sha256": "3fde59d11af2ada49ed3fd92db61427d5f7c85bf66bb7fa38c5992d5ac9782ca",
+  "bytes": 157173933,
+  "person_month_rows": 670678,
+  "persons": 56872,
+  "missing_columns": [],
+  "retrieved": "2026-10-20",
+  "longitudinal_weights": {
+   "file": "lgtwgt2021yr2_csv.zip",
+   "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2021/lgtwgt2021yr2_csv.zip",
+   "sha256": "61ff15300e2440ce4ab4f2d3e3a258722d6d64ad6c53007438b42d33bd8ab5cb",
+   "bytes": 337942,
+   "rows": 31726,
+   "positive": 31726
+  }
+ },
+ {
+  "file": "pu2022_csv.zip",
+  "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2022/pu2022_csv.zip",
+  "sha256": "0b165cdbc5fd0d6df307488c82b6b7435fd6ef08b46eb4e5cc22e7cb5a981213",
+  "bytes": 116681072,
+  "person_month_rows": 487736,
+  "persons": 41070,
+  "missing_columns": [],
+  "retrieved": "2026-10-20",
+  "longitudinal_weights": {
+   "file": "lgtwgt2022yr2_csv.zip",
+   "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2022/lgtwgt2022yr2_csv.zip",
+   "sha256": "c75ff8ad31d187fe989346bf9c395517184c07e4cd1ac2187e4a016e7f87d088",
+   "bytes": 152655,
+   "rows": 14278,
+   "positive": 14278
+  }
+ },
+ {
+  "file": "pu2023_csv.zip",
+  "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2023/pu2023_csv.zip",
+  "sha256": "9c5363d56aca2041db20d46d17b81e9be931eb5b18bd5f5238b367d2dd7fb74b",
+  "bytes": 109036604,
+  "person_month_rows": 476744,
+  "persons": 40263,
+  "missing_columns": [],
+  "retrieved": "2026-10-20",
+  "longitudinal_weights": {
+   "file": "lgtwgt2023yr2_csv.zip",
+   "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2023/lgtwgt2023yr2_csv.zip",
+   "sha256": "c55817fe68b3d526f50c789f39447189c68a8ad11c61c377c11e19dd84393e20",
+   "bytes": 254505,
+   "rows": 23878,
+   "positive": 23878
+  }
+ },
+ {
+  "file": "pu2024_csv.zip",
+  "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2024/pu2024_csv.zip",
+  "sha256": "3a78b26988c76c02b9e206f72507390fb6ec9dac7974ec31aa90abc9d9809764",
+  "bytes": 102122301,
+  "person_month_rows": 437168,
+  "persons": 36915,
+  "missing_columns": [],
+  "retrieved": "2026-10-20",
+  "longitudinal_weights": {
+   "file": "lgtwgt2024yr2_csv.zip",
+   "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2024/lgtwgt2024yr2_csv.zip",
+   "sha256": "4339b0375d4759ff27089e57d5bee9fa0e13f6d2e3f13b00f146e2b86b3e64ac",
+   "bytes": 218657,
+   "rows": 20262,
+   "positive": 20262
+  }
+ },
+ {
+  "file": "pu2025_csv.zip",
+  "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2025/pu2025_csv.zip",
+  "sha256": "570798a6f512c8f82af311ee01a1668d178063c9076c18a05bc3a5a0039b67ed",
+  "bytes": 88088487,
+  "person_month_rows": 379215,
+  "persons": 32052,
+  "missing_columns": [],
+  "retrieved": "2026-10-20",
+  "longitudinal_weights": {
+   "file": "lgtwgt2025yr2_csv.zip",
+   "url": "https://www2.census.gov/programs-surveys/sipp/data/datasets/2025/lgtwgt2025yr2_csv.zip",
+   "sha256": "1d7c7f658aeecdb821c31509673c79a837f044c2d4228aac15eabb5996c373c2",
+   "bytes": 196964,
+   "rows": 18207,
+   "positive": 18207
+  }
+ }
+]

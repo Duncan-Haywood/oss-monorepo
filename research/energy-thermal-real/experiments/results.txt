@@ -1,0 +1,82 @@
+A. Real day-ahead price (EUR/kWh) and the cheap hours a store can use. Zone: DE-AT-LU to 30 Sep 2018, DE-LU after (OPSD, ENTSO-E).
+year      mean heat_mean    neg_h  q_daily q_weekly  q_month q_season min_eur/MWh
+2015    0.0319   0.0319       71   0.0216   0.0188   0.0180   0.0174    -23.0
+2016    0.0292   0.0307       66   0.0207   0.0183   0.0175   0.0162    -51.0
+2017    0.0347   0.0388      141   0.0230   0.0193   0.0177   0.0168    -76.0
+2018    0.0444   0.0423      125   0.0321   0.0276   0.0263   0.0224    -57.0
+2019    0.0377   0.0391      211   0.0265   0.0217   0.0207   0.0195    -90.0
+
+B. Does the one-fuel merit-order model of energy-thermal-hourly reproduce the real price? Model uses the year's installed solar and onshore wind (GW, OPSD) and gas at 54.6 EUR/MWh.
+year   solGW windGW real_mean model_mean real_q_day model_q_day    corr
+2015    37.9   28.4    0.0319    0.0546    0.0216    0.0546  -0.000
+2016    39.1   32.3    0.0292    0.0546    0.0207    0.0546  -0.000
+2017    40.9   36.7    0.0347    0.0546    0.0230    0.0546  -0.000
+2018    44.5   42.0    0.0444    0.0546    0.0321    0.0546   0.000
+2019    49.5   44.2    0.0377    0.0546    0.0265    0.0546  -0.000
+
+C. Levelised cost of heat (EUR/kWh) on real prices. diff = store - heat pump (negative: the store wins). 'bepr' = break-even store price (EUR/kWh) at which diff = 0.
+scale     case      year  store_p    hp_p    store       hp     diff     bepr
+house     daily     2015   0.0216  0.0319    0.045    0.071   -0.025   0.0375
+house     daily     2016   0.0207  0.0307    0.044    0.070   -0.027   0.0372
+house     daily     2017   0.0230  0.0388    0.048    0.073   -0.025   0.0386
+house     daily     2018   0.0321  0.0423    0.062    0.074   -0.012   0.0392
+house     daily     2019   0.0265  0.0391    0.053    0.073   -0.020   0.0387
+house     weekly    2015   0.0188  0.0319    0.066    0.071   -0.004   0.0209
+house     weekly    2016   0.0183  0.0307    0.065    0.070   -0.005   0.0208
+house     weekly    2017   0.0193  0.0388    0.067    0.073   -0.005   0.0218
+house     weekly    2018   0.0276  0.0423    0.085    0.074   +0.011   0.0223
+house     weekly    2019   0.0217  0.0391    0.072    0.073   -0.000   0.0219
+house     monthly   2015   0.0180  0.0319    0.177    0.071   +0.106  -0.0154
+house     monthly   2016   0.0175  0.0307    0.176    0.070   +0.105  -0.0155
+house     monthly   2017   0.0177  0.0388    0.176    0.073   +0.104  -0.0148
+house     monthly   2018   0.0263  0.0423    0.204    0.074   +0.130  -0.0145
+house     monthly   2019   0.0207  0.0391    0.186    0.073   +0.113  -0.0147
+house     seasonal  2015   0.0174  0.0319    1.602    0.071   +1.531  -0.3745
+house     seasonal  2016   0.0162  0.0307    1.597    0.070   +1.527  -0.3746
+house     seasonal  2017   0.0168  0.0388    1.599    0.073   +1.527  -0.3740
+house     seasonal  2018   0.0224  0.0423    1.621    0.074   +1.547  -0.3738
+house     seasonal  2019   0.0195  0.0391    1.610    0.073   +1.537  -0.3740
+district  daily     2015   0.0216  0.0319    0.036    0.048   -0.012   0.0312
+district  daily     2016   0.0207  0.0307    0.035    0.048   -0.013   0.0309
+district  daily     2017   0.0230  0.0388    0.037    0.050   -0.013   0.0329
+district  daily     2018   0.0321  0.0423    0.049    0.051   -0.002   0.0338
+district  daily     2019   0.0265  0.0391    0.042    0.050   -0.008   0.0330
+district  weekly    2015   0.0188  0.0319    0.041    0.048   -0.007   0.0241
+district  weekly    2016   0.0183  0.0307    0.040    0.048   -0.007   0.0238
+district  weekly    2017   0.0193  0.0388    0.042    0.050   -0.008   0.0257
+district  weekly    2018   0.0276  0.0423    0.052    0.051   +0.001   0.0266
+district  weekly    2019   0.0217  0.0391    0.045    0.050   -0.005   0.0258
+district  monthly   2015   0.0180  0.0319    0.076    0.048   +0.028  -0.0027
+district  monthly   2016   0.0175  0.0307    0.076    0.048   +0.028  -0.0030
+district  monthly   2017   0.0177  0.0388    0.076    0.050   +0.026  -0.0011
+district  monthly   2018   0.0263  0.0423    0.088    0.051   +0.037  -0.0003
+district  monthly   2019   0.0207  0.0391    0.080    0.050   +0.030  -0.0011
+district  seasonal  2015   0.0174  0.0319    0.584    0.048   +0.536  -0.3589
+district  seasonal  2016   0.0162  0.0307    0.582    0.048   +0.535  -0.3592
+district  seasonal  2017   0.0168  0.0388    0.583    0.050   +0.533  -0.3574
+district  seasonal  2018   0.0224  0.0423    0.591    0.051   +0.540  -0.3567
+district  seasonal  2019   0.0195  0.0391    0.587    0.050   +0.537  -0.3574
+
+D. Years (of 5) in which the store beats the heat pump on real prices, with no levy and with a levy of 0.10 EUR/kWh on both prices.
+scale     case        wins wins@0.10
+house     daily        5/5       0/5
+house     weekly       4/5       0/5
+house     monthly      0/5       0/5
+house     seasonal     0/5       0/5
+district  daily        5/5       0/5
+district  weekly       4/5       0/5
+district  monthly      0/5       0/5
+district  seasonal     0/5       0/5
+
+E. Sensitivity (house, daily and weekly, 2019 real prices): charge window and heat pump weighting.
+change                       case     store_p    hp_p    store       hp     diff
+base                         daily     0.0265  0.0391    0.053    0.073   -0.020
+base                         weekly    0.0217  0.0391    0.072    0.073   -0.000
+charge in 1/8 of cycle       daily     0.0241  0.0391    0.058    0.073   -0.015
+charge in 1/8 of cycle       weekly    0.0152  0.0391    0.070    0.073   -0.003
+charge in 1/2 of cycle       daily     0.0306  0.0391    0.056    0.073   -0.017
+charge in 1/2 of cycle       weekly    0.0284  0.0391    0.081    0.073   +0.008
+hp on all-year mean          daily     0.0265  0.0377    0.053    0.072   -0.019
+hp on all-year mean          weekly    0.0217  0.0377    0.072    0.072   -0.000
+hp Dec-Feb only              daily     0.0265  0.0414    0.053    0.073   -0.020
+hp Dec-Feb only              weekly    0.0217  0.0414    0.072    0.073   -0.001

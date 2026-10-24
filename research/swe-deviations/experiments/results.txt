@@ -1,0 +1,67 @@
+records 1564   dates 2026-10-01 to 2026-10-20   with deviations 203 (13.0%)
+
+== A. share of records that list a deviation, by track
+  research     36/713     5.0%
+  ventures    118/444    26.6%
+  process      10/153     6.5%
+  redteam       4/124     3.2%
+  explore       5/79      6.3%
+  review       30/51     58.8%
+
+== B. medians within strata (track x early/late recording regime); with deviation vs without
+
+  cost_usd: strata with >=3 records in each arm: 5 of 7
+    stratum              n_dev  n_no   median_dev  median_no
+    explore  late           3    42         0.51       0.59
+    process  late           7    89         3.69       0.43
+    research late          32   312         0.97       0.83
+    review   late          10    13         0.49       0.41
+    ventures late          61   171         0.65       0.64
+    pooled log cost ratio (dev/no) +0.200  = x1.22   permutation p = 0.0004  (5000 shuffles of the label inside strata)
+
+  wall_minutes: strata with >=3 records in each arm: 5 of 7
+    stratum              n_dev  n_no   median_dev  median_no
+    explore  late           3    42        10.05       2.45
+    process  late           7    89        34.78       1.37
+    research late          32   312         4.83       3.83
+    review   late          10    13         1.91       1.29
+    ventures late          61   171         4.24       3.47
+    pooled log cost ratio (dev/no) +0.446  = x1.56   permutation p = 0.0002  (5000 shuffles of the label inside strata)
+
+  tool_calls: strata with >=3 records in each arm: 5 of 6
+    stratum              n_dev  n_no   median_dev  median_no
+    explore  late           3    42        20.00      21.00
+    process  late           7    89        66.00      17.00
+    research late          32   312        28.00      26.00
+    review   late          10    13        18.00      16.00
+    ventures late          61   171        22.00      21.00
+    pooled log cost ratio (dev/no) +0.139  = x1.15   permutation p = 0.0002  (5000 shuffles of the label inside strata)
+
+== C. partial outcomes
+    stratum              partial/n with dev   partial/n without
+    explore  early        2/2                 0/9   
+    explore  late         0/3                 4/65  
+    process  early        0/2                 1/17  
+    process  late         2/8                23/126 
+    redteam  late         0/4                 4/105 
+    research early        0/1                 7/312 
+    research late         0/35                1/365 
+    review   early        3/10                1/2   
+    review   late         1/20                0/19  
+    ventures early        2/15                4/43  
+    ventures late        15/103              22/283 
+    pooled difference in partial share (dev - no) +5.2 points   permutation p = 0.0176
+
+== D. leave one track out: pooled cost ratio (dev/no) and permutation p, cost_usd and wall_minutes
+  cost_usd
+    without explore   x1.23   p = 0.0002
+    without process   x1.07   p = 0.0524
+    without research  x1.25   p = 0.0002
+    without review    x1.22   p = 0.0006
+    without ventures  x1.51   p = 0.0002
+  wall_minutes
+    without explore   x1.52   p = 0.0004
+    without process   x1.30   p = 0.0136
+    without research  x1.70   p = 0.0004
+    without review    x1.57   p = 0.0006
+    without ventures  x2.08   p = 0.0002

@@ -22,6 +22,7 @@ from shootflow.ffmpeg_media import (
     proxy_command,
     require_workspace_file,
 )
+from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.production import ProductionJob, ProductionPlan
 from shootflow.production_status import (
     ProductionJobStatus,
@@ -1030,6 +1031,7 @@ def _materialize_analysis_production_outputs(
         label="analysis production input",
     )
     media_type = _analysis_media_type_from_plan(action, trusted_plan=trusted_plan)
+    metrics = _measure_analysis_input(root, action.inputs[0], media_type=media_type)
     materialized: list[str] = []
     for output in action.outputs:
         _write_analysis_output(
@@ -1038,6 +1040,7 @@ def _materialize_analysis_production_outputs(
             output=output,
             input_metadata=input_metadata,
             media_type=media_type,
+            metrics=metrics,
         )
         materialized.append(output)
     return tuple(materialized)
@@ -1918,6 +1921,20 @@ def _write_metadata_output(
     _write_production_output_bytes(root, output=output, content=content, label="metadata production")
 
 
+def _measure_analysis_input(root: Path, input_ref: str, *, media_type: str) -> FrameMetrics | None:
+    """Read real frame metrics, or None so the caller keeps the sha256 stand-in.
+
+    RAW files, undecodable media and a missing ffmpeg all fall back; the payload's
+    ``analysis_method`` records which path produced the scores.
+    """
+
+    try:
+        input_path = _workspace_input_path(root, input_ref, label="analysis production input")
+        return analyze_media(find_ffmpeg_tools(), input_path, media_type=media_type)
+    except (FfmpegMediaError, OSError):
+        return None
+
+
 def _write_analysis_output(
     root: Path,
     *,
@@ -1925,12 +1942,14 @@ def _write_analysis_output(
     output: str,
     input_metadata: dict[str, object],
     media_type: str,
+    metrics: FrameMetrics | None = None,
 ) -> None:
     content = _analysis_output_bytes(
         action,
         output=output,
         input_metadata=input_metadata,
         media_type=media_type,
+        metrics=metrics,
     )
     _write_production_output_bytes(root, output=output, content=content, label="analysis production")
 
@@ -2197,6 +2216,7 @@ def _analysis_output_bytes(
     output: str,
     input_metadata: dict[str, object],
     media_type: str,
+    metrics: FrameMetrics | None = None,
 ) -> bytes:
     sha256 = input_metadata["sha256"]
     if not isinstance(sha256, str):
@@ -2224,6 +2244,40 @@ def _analysis_output_bytes(
     }
     if media_type == "video":
         payload["duration_seconds"] = 0.0
+    if metrics is not None:
+        payload.update(
+            {
+                "analysis_method": "frame_metrics",
+                "scene_label": f"frame_{metrics.dhash}",
+                "aesthetic_score": metrics.aesthetic_score,
+                "story_score": metrics.story_score,
+                "technical_score": metrics.technical_score,
+                "motion_score": metrics.motion,
+                "perceptual_hash": metrics.dhash,
+                "tags": ("frame_metrics", media_type),
+                "frame_metrics": {
+                    "sharpness": metrics.sharpness,
+                    "exposure": metrics.exposure,
+                    "contrast": metrics.contrast,
+                    "framing": metrics.framing,
+                    "tilt_degrees": metrics.tilt_degrees,
+                    "tilt_confidence": metrics.tilt_confidence,
+                    "noise_sigma": metrics.noise_sigma,
+                    "noise": metrics.noise,
+                    "subject_x": metrics.subject_x,
+                    "subject_y": metrics.subject_y,
+                    "mean_luma": metrics.mean_luma,
+                    "clipped_shadows": metrics.clipped_shadows,
+                    "clipped_highlights": metrics.clipped_highlights,
+                    "frames_sampled": metrics.frames_sampled,
+                    "story_score_basis": "blend of aesthetic, technical and detail-placement framing; no semantic model",
+                },
+            }
+        )
+        if media_type == "video":
+            payload["duration_seconds"] = metrics.duration_seconds or 0.0
+    else:
+        payload["analysis_method"] = "sha256_probe"
     return (json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 

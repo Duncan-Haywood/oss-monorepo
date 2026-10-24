@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-19",
+  "session": "https://claude.ai/code/session_01Y6s1SSahBonKBdZffVFGnx",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-19T19:39:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 8492,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog had only owner rows; took Critique from measure's friction list as written."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Critique pick from measure friction list collided with a sibling run fixing the same research/CLAUDE.md lines minutes earlier; no claim step for process runs."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Backlog ids touched: none. Sibling run landed the identical research/CLAUDE.md fix first; PR carries only this record (conflict resolved to main's wording).",
+  "corrections": [],
+  "redteam": null
+}

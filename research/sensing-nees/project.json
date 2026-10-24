@@ -1,0 +1,6 @@
+{
+ "theme": "sensing",
+ "title": "Is an INS/GNSS Kalman filter honest about its drift when accelerometer bias is flicker noise?",
+ "lede": "with a 1/f accelerometer bias, a filter with no bias state claims 2.9 m after a 300 s GNSS outage when the RMS is 151 m (NEES/dof 514 to 2,000 at 100 ug); a random walk read off the Allan curve at 1 s or 10 s claims 2.4 to 3.7 times the true error, and at 100 s close to honest (0.9 to 1.6). Synthetic bias, swept instability",
+ "summary": "Tests whether a 1-D INS/GNSS Kalman filter reports its own error correctly when the accelerometer bias is 1/f noise (five Gauss-Markov processes, 1 to 10,000 s) on top of white noise of 70 &micro;g/&radic;Hz (ICM-42688-P product page). Bias instability is swept from 10 to 300 &micro;g and GNSS drops out for 300 s. NEES per degree of freedom (1 is honest): a filter with no bias state scores 21 to 21,700; a random walk read off the Allan curve at 1 s or 10 s scores 0.06 to 0.16 at 300 s (too pessimistic) and at 100 s 0.9 to 2.3; the matched model scores 0.88 to 1.05. At 100 &micro;g the 300 s position RMS is 66 m matched, 81 m tuned at 100 s and 103 m tuned at 10 s. The bias is synthetic with a swept (not sourced) instability, one axis, no attitude coupling, 400 Monte Carlo paths."
+}

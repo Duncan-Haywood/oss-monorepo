@@ -1,0 +1,13 @@
+[project]
+name = "capture-syncslope"
+version = "0.1.0"
+description = "Does holding a fitted clock slope between audio re-syncs lengthen the interval cameras can go unrefreshed?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

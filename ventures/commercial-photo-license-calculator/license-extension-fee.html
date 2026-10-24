@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>License Extension Fee Calculator for Photographers</title>
+<meta name="description" content="A client wants to extend or widen an image license: price the extension as the new usage-rights fee minus what they already paid. Free, in your browser, with a client-ready note.">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/commercial-photo-license-calculator/license-extension-fee.html">
+<meta property="og:title" content="What to charge when a client wants to extend a photo license">
+<meta property="og:description" content="Extension fee = new scope's usage rights minus the rights already paid. Term, channels, territory and exclusivity, nothing uploaded.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What should I charge when a client wants to extend an image license?", "acceptedAnswer": {"@type": "Answer", "text": "Charge the difference between the usage-rights price of the new scope and the usage-rights price of the scope the client already paid for. On a $1,200 creative fee, a 6-month national web-only non-exclusive license prices its rights at $525.00. Extending it to 12 months prices rights at $742.46, so the extension fee is $217.46, not a second $525.00. Term grows with the square root of months, so each added month costs less than the ones before."}}, {"@type": "Question", "name": "Should I credit what the client already paid?", "acceptedAnswer": {"@type": "Answer", "text": "Usually yes, in full, if the original term is still running and the client is adding to it. If the first term already ended and the client wants to keep using the images without a gap, lower the credit percentage: they have already had the use they paid for, so a smaller share of the old fee is credited against the new term."}}, {"@type": "Question", "name": "What if the client asks to add paid ads or worldwide use?", "acceptedAnswer": {"@type": "Answer", "text": "Widening the scope raises the multipliers, and the fee is again the new rights price minus the credit. A web-only national license widened to web plus paid social, worldwide, prices rights at $1,041.60 against $525.00 already paid: an extension fee of $516.60 on the same $1,200 creative fee. Paid advertising and wider territory are worth more to the client, and they stop you licensing the same reach to someone else."}}, {"@type": "Question", "name": "Does the rush premium apply to extensions?", "acceptedAnswer": {"@type": "Answer", "text": "Only to the new rights price, if you choose to charge it. The credit is for the original rights, which were priced without it."}}, {"@type": "Question", "name": "Is this a contract?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a quote worksheet. Put the specific images, permitted uses, new term dates, credit and payment in a written agreement."}}]}</script>
+</head>
+<body>
+<header class="hero">
+<p class="eyebrow"><a href="./">&larr; Commercial photography licensing quote calculator</a></p>
+<h1>The client wants more. Charge the difference.</h1>
+<p class="lede">Campaign extended, a new channel added, or the license is about to lapse. Enter the scope they already hold and the scope they now want; the extension fee is the new usage-rights price less what they already paid.</p>
+</header>
+<main>
+<form id="ext-form" novalidate>
+<section class="panel">
+<div class="section-heading"><span>01</span><h2>The original job</h2></div>
+<div class="grid">
+<label>Creative / production fee of the original job<input id="creative" type="number" min="0" step="0.01" value="1200"></label>
+<label>Final images licensed<input id="images" type="number" min="1" step="1" value="5"></label>
+<label>Credit for rights already paid (%)<input id="credit" type="number" min="0" max="100" step="5" value="100"><small>100 while the first term is running. Lower it if it already ran out.</small></label>
+<label>Rush premium on the new rights (%)<input id="rush" type="number" min="0" max="100" step="1" value="0"></label>
+</div>
+</section>
+<section class="panel">
+<div class="section-heading"><span>02</span><h2>Before and after</h2></div>
+<div class="grid">
+<div><fieldset><legend>Already licensed</legend>
+<div class="grid">
+<label>Term<select id="cur-term"><option value="1">1 month</option><option value="3">3 months</option><option value="6" selected>6 months</option><option value="12">12 months</option><option value="24">24 months</option><option value="36">36 months</option><option value="60">60 months</option></select></label>
+<label>Territory<select id="cur-territory"><option value="local">Local / one city</option><option value="national" selected>Country / national</option><option value="worldwide">Worldwide</option></select></label>
+<label>Exclusivity<select id="cur-exclusivity"><option value="none" selected>Non-exclusive</option><option value="category">Category-exclusive</option><option value="full">Fully exclusive</option></select></label>
+</div>
+<label class="check"><input type="checkbox" data-scope="cur" name="cur-channel" value="web" checked> Website, email, and organic social</label>
+<label class="check"><input type="checkbox" data-scope="cur" name="cur-channel" value="paid"> Paid social or display advertising</label>
+<label class="check"><input type="checkbox" data-scope="cur" name="cur-channel" value="print"> Print, packaging, or point-of-sale</label>
+<label class="check"><input type="checkbox" data-scope="cur" name="cur-channel" value="outdoor"> Outdoor, signage, or broadcast</label>
+</fieldset></div>
+<div><fieldset><legend>Now requested</legend>
+<div class="grid">
+<label>Term<select id="new-term"><option value="1">1 month</option><option value="3">3 months</option><option value="6">6 months</option><option value="12" selected>12 months</option><option value="24">24 months</option><option value="36">36 months</option><option value="60">60 months</option></select></label>
+<label>Territory<select id="new-territory"><option value="local">Local / one city</option><option value="national" selected>Country / national</option><option value="worldwide">Worldwide</option></select></label>
+<label>Exclusivity<select id="new-exclusivity"><option value="none" selected>Non-exclusive</option><option value="category">Category-exclusive</option><option value="full">Fully exclusive</option></select></label>
+</div>
+<label class="check"><input type="checkbox" data-scope="new" name="new-channel" value="web" checked> Website, email, and organic social</label>
+<label class="check"><input type="checkbox" data-scope="new" name="new-channel" value="paid"> Paid social or display advertising</label>
+<label class="check"><input type="checkbox" data-scope="new" name="new-channel" value="print"> Print, packaging, or point-of-sale</label>
+<label class="check"><input type="checkbox" data-scope="new" name="new-channel" value="outdoor"> Outdoor, signage, or broadcast</label>
+</fieldset></div>
+</div>
+</section>
+</form>
+<div id="errors" class="error" role="alert" hidden></div>
+<section id="results" class="panel result" aria-live="polite">
+<div class="section-heading"><span>03</span><h2>Extension fee</h2></div>
+<div class="total"><span>Quote for the extension</span><strong id="fee"></strong></div>
+<dl class="breakdown"><div><dt>Rights already paid</dt><dd id="paid"></dd></div><div><dt>Rights, new scope</dt><dd id="wanted"></dd></div><div><dt>Credit applied</dt><dd id="credit-out"></dd></div></dl>
+<p id="note" class="callout"></p>
+<h3>Note to the client</h3>
+<textarea id="draft" rows="8" aria-label="Extension note" readonly></textarea>
+<button type="button" id="copy">Copy note</button> <span id="copy-status" role="status"></span>
+</section>
+<section class="plain">
+<h2>Common questions</h2>
+<h3>What should I charge when a client wants to extend an image license?</h3>
+<p>Charge the difference between the usage-rights price of the new scope and the usage-rights price of the scope the client already paid for. On a $1,200 creative fee, a 6-month national web-only non-exclusive license prices its rights at $525.00. Extending it to 12 months prices rights at $742.46, so the extension fee is $217.46, not a second $525.00. Term grows with the square root of months, so each added month costs less than the ones before.</p>
+<h3>Should I credit what the client already paid?</h3>
+<p>Usually yes, in full, if the original term is still running and the client is adding to it. If the first term already ended and the client wants to keep using the images without a gap, lower the credit percentage: they have already had the use they paid for, so a smaller share of the old fee is credited against the new term.</p>
+<h3>What if the client asks to add paid ads or worldwide use?</h3>
+<p>Widening the scope raises the multipliers, and the fee is again the new rights price minus the credit. A web-only national license widened to web plus paid social, worldwide, prices rights at $1,041.60 against $525.00 already paid: an extension fee of $516.60 on the same $1,200 creative fee. Paid advertising and wider territory are worth more to the client, and they stop you licensing the same reach to someone else.</p>
+<h3>Does the rush premium apply to extensions?</h3>
+<p>Only to the new rights price, if you choose to charge it. The credit is for the original rights, which were priced without it.</p>
+<h3>Is this a contract?</h3>
+<p>No. It is a quote worksheet. Put the specific images, permitted uses, new term dates, credit and payment in a written agreement.</p>
+<p>Pricing the original job from scratch? <a href="./">The licensing quote calculator</a> uses the same formula, so the two always agree. See also <a href="how-much-more-does-a-national-or-worldwide-license-cost.html">how much more a national or worldwide license costs</a>.</p>
+</section>
+<section class="disclaimer"><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or copyright advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+<p>Nothing you type leaves your browser. <label class="check"><input type="checkbox" id="usage-opt-out"> Do not keep anonymous local usage counts</label></p>
+<p>Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. It never changes what the calculator does.</p></section>
+</main>
+<script type="module">
+import { priceExtension } from './extension.mjs';
+const $ = (id) => document.getElementById(id);
+const scopeOf = (p) => ({ term: Number($(p + '-term').value), territory: $(p + '-territory').value, exclusivity: $(p + '-exclusivity').value, channels: [...document.querySelectorAll('[name=' + p + '-channel]:checked')].map((i) => i.value) });
+const money = (v) => new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(v);
+let counted = false;
+function optedOut() { try { return localStorage.getItem('photo-license-usage-opt-out') === 'true' || navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true; } catch { return true; } }
+function count() {
+  if (counted || optedOut()) return; counted = true;
+  try { const d = JSON.parse(localStorage.getItem('photo-license-usage') || '{}'); d.extension_priced = (d.extension_priced || 0) + 1; localStorage.setItem('photo-license-usage', JSON.stringify(d)); } catch {}
+}
+function update() {
+  let r;
+  try {
+    r = priceExtension({ creative: $('creative').value, images: $('images').value, rush: $('rush').value, creditPercent: $('credit').value, current: scopeOf('cur'), extended: scopeOf('new') });
+  } catch (e) { $('errors').hidden = false; $('errors').textContent = e.message; $('results').hidden = true; return; }
+  $('errors').hidden = true; $('results').hidden = false;
+  $('fee').textContent = money(r.extensionFee);
+  $('paid').textContent = money(r.paidRights);
+  $('wanted').textContent = money(r.newScopeRights);
+  $('credit-out').textContent = money(r.credit);
+  $('note').textContent = r.narrower
+    ? 'The new scope is no wider than what the client already holds, so there is nothing to add. Check the two columns.'
+    : `Quoting the new scope from scratch would be ${money(r.freshQuote)} with the creative fee. The extension is ${money(r.extensionFee)} (${money(r.perImage)} per image) because the client has already paid ${money(r.credit)} of its rights.`;
+  $('draft').value = r.narrower ? '' : `LICENSE EXTENSION QUOTE\n\nExtension fee: ${money(r.extensionFee)}\nUsage rights for the new scope: ${money(r.newScopeRights)}\nCredited for rights already paid: ${money(r.credit)}\n\nThis is a quote for discussion, not a contract. Confirm the specific images, new term dates, permitted uses, territory, exclusivity, credit and payment in writing before the extended use begins.`;
+  count();
+}
+document.querySelectorAll('#ext-form input, #ext-form select').forEach((el) => el.addEventListener('input', update));
+$('copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('draft').value); $('copy-status').textContent = 'Note copied.'; } catch { $('copy-status').textContent = 'Select the text and copy it manually.'; } });
+try { $('usage-opt-out').checked = localStorage.getItem('photo-license-usage-opt-out') === 'true'; } catch {}
+$('usage-opt-out').addEventListener('change', (e) => { try { localStorage.setItem('photo-license-usage-opt-out', String(e.target.checked)); } catch {} });
+update();
+</script>
+</body>
+</html>

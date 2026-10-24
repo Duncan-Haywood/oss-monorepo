@@ -59,6 +59,7 @@
     <p>Paste or drop a <strong>.gpx track</strong> and get every problem <strong>with its line number</strong> before Strava, Garmin Connect or Komoot rejects it: <strong>missing creator, version or namespace, points at 0,0, GPS jumps, timestamps out of order, no times, impossible elevations</strong>. Then download a repaired copy.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. It checks the file against the GPX format, not against any one service. Independent of every service named.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your GPX file</h2>
@@ -87,6 +88,13 @@
       <label for="fixed-out">Preview</label>
       <textarea id="fixed-out" class="small" readonly spellcheck="false" wrap="off"></textarea>
       <p><button type="button" id="download-fixed">Download fixed file</button> <button type="button" class="secondary" id="copy-fixed">Copy</button> <button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+    </div>
+    <div id="thin-box" hidden>
+      <h3>Too many points for a device?</h3>
+      <p class="note">Some watches and head units limit the points in an imported course. This keeps the shape of the track within the smallest tolerance that fits and leaves every kept point exactly as it was, with its time and elevation.</p>
+      <p><label for="thin-max">Keep at most</label> <input type="number" id="thin-max" min="2" step="1" value="1000"> points <button type="button" class="secondary" id="thin-run">Thin track</button></p>
+      <p class="note" id="thin-note"></p>
+      <p><button type="button" id="download-thin" hidden>Download thinned file</button></p>
     </div>
   </section>
 
@@ -118,24 +126,25 @@
     <p>Whether a given service will accept the file, heart-rate or cadence extensions, the accuracy of the recorded positions, or whether a route is safe or legal to travel. It reads the standard track, route and waypoint elements.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace any mapping or fitness service's own validation. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking that repaired events show at the right time, and a clean result is not a promise that an app will accept the file.</p>
     <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to Google, Microsoft, Apple or any other company named. Their names are trademarks of their owners, used here only to say which behaviour is meant. Specifications are read from memory of public sources and may be out of date.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
-    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>, <code>track_thinned</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../ics-calendar-check/">ICS calendar check</a> does the same for calendar files, the <a href="../vcard-contacts-check/">vCard contacts check</a> for contacts, and the <a href="../youtube-chapters-check/">YouTube chapters check</a> for video chapter lists.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { validate, repair, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
+    import { validate, repair, thin, findingsCsv, sampleFile, sampleBrokenFile, decodeBuffer } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    let lastResult = null, fixedText = null;
+    let lastResult = null, fixedText = null, sourceText = "", thinText = null;
 
     function download(name, body, type) {
       const a = document.createElement("a");
@@ -153,6 +162,10 @@
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.code)}</h4><p>${esc(f.message)}</p></div>`).join("") || "<p>No problems found.</p>";
       const fix = repair(text);
       fixedText = fix.text;
+      sourceText = fix.text; thinText = null;
+      $("#thin-box").hidden = !(r.stats && r.stats.points > 2);
+      $("#thin-note").textContent = ""; $("#download-thin").hidden = true;
+      if (r.stats && r.stats.points > 2) $("#thin-max").value = Math.max(2, Math.min(1000, Math.floor(r.stats.points / 2)));
       $("#fix-box").hidden = false;
       $("#fixed-out").value = fix.text;
       $("#fix-note").textContent = fix.changes.length ? `${fix.changes.length} change${fix.changes.length === 1 ? "" : "s"} made. Anything that cannot be proven is left exactly as it was and named above.` : "No provable fixes: the file is unchanged.";
@@ -181,6 +194,16 @@
     $("#download-fixed").addEventListener("click", () => { if (fixedText) { record("fixes_applied"); download("track-fixed.gpx", fixedText, "application/gpx+xml"); } });
     $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText(fixedText || ""); status.textContent = "Copied."; record("fixes_applied"); } catch { $("#fixed-out").select(); status.textContent = "Selected; press Ctrl+C to copy."; } });
     $("#download-csv").addEventListener("click", () => { if (lastResult) download("track-findings.csv", findingsCsv(lastResult), "text/csv"); });
+    $("#thin-run").addEventListener("click", () => {
+      const max = Number($("#thin-max").value);
+      if (!Number.isFinite(max) || max < 2) { $("#thin-note").textContent = "Enter a number of points, 2 or more."; return; }
+      const t = thin(sourceText, max);
+      thinText = t.text;
+      $("#thin-note").textContent = t.removed ? `Kept ${t.kept} points (removed ${t.removed}); the track stays within about ${t.toleranceM} m of the original.` : `The track already has ${t.kept} points: nothing to remove.`;
+      $("#download-thin").hidden = !t.removed;
+      if (t.removed) record("track_thinned");
+    });
+    $("#download-thin").addEventListener("click", () => { if (thinText) download("track-thinned.gpx", thinText, "application/gpx+xml"); });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>

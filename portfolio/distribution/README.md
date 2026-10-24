@@ -125,6 +125,95 @@ one switch per channel:
 Never put a token in the tree, a log or a PR. A pipeline that needs a paid
 API is out of scope for this goal.
 
+## The hub: every platform from one command, and what works best
+
+**Owner request, 2026-10-20:** output to "most platforms" (Substack,
+Instagram, Facebook, Threads, X, TikTok, YouTube, email, search, AI
+assistants) from one tool that also measures what does best.
+[`platform/distribution/hub.mjs`](../../platform/distribution/hub.mjs) is
+that tool:
+
+```
+node platform/distribution/hub.mjs platforms          # 18 platforms: mode, limits, how to enable, what it measures, why
+node platform/distribution/hub.mjs plan               # dry run: every platform's text for recent tools and posts
+node platform/distribution/hub.mjs pack --out <dir>   # paste-ready drafts per platform + drafts.csv
+node platform/distribution/hub.mjs publish            # live where enabled, dry run elsewhere
+node platform/distribution/hub.mjs score              # scoreboard: platforms and copy templates
+```
+
+- **One item, one fitted variant per platform** (`hub/compose.mjs`): new
+  tools from `launched.json` and new posts from `docs/posts/`. Each variant
+  fits the platform's limits, uses only the item's own title and
+  description, links back with the platform's `?ref=` tag, and says it is
+  free and open source. Video platforms get a 30-second script, Hacker News
+  a Show HN title, email a weekly digest.
+- **Mode per platform** (`hub/platforms.mjs`, with the day each fact was
+  read): `api` (Threads, Facebook Page, Instagram, Buttondown email; off
+  until `DISTRIBUTE_<PLATFORM>=true` plus secrets), `delegated` (Bluesky,
+  Mastodon, dev.to, Hashnode: the existing scripts), `draft` (X, LinkedIn,
+  Substack, Medium, TikTok, YouTube, Reddit, Hacker News: drafts only, with
+  the reason) and `discovery` (search engines and AI assistants: nothing to
+  post). **X is drafts-only** because its API became pay-per-use for new
+  developers on 2026-02-06, and unpaid means unpaid.
+- **Measuring what works** (`hub/metrics.mjs`): per-post numbers where the
+  platform lets us read them (Bluesky and Mastodon publicly, Threads
+  Insights, Facebook and Instagram fields, dev.to views), joined with the
+  site's own `ref:<tag>` arrivals. Platforms are ranked by arrivals per post,
+  shrunk toward the mean so two lucky posts do not beat fifty steady ones,
+  and nothing with fewer than 5 posts is ranked. Short posts rotate between
+  honest copy templates (`TEMPLATES`, a deterministic pick per item and
+  platform), and the scoreboard compares templates by engagement relative to
+  each platform's own average.
+- **Workflow** [`distribute-hub.yml`](../../.github/workflows/distribute-hub.yml):
+  daily, dry run unless enabled, uploads the drafts pack and
+  `scoreboard.json` as a run artifact. It pushes no commits.
+
+The `?ref=` tags it adds (`threads`, `facebook`, `instagram`, `email`, `x`,
+`linkedin`, `substack`, `medium`, `tiktok`, `youtube`, `reddit`, `hn`) are in
+the counter's closed list and in `channels.yaml` as `hub-*` rows.
+
+## Short-form video
+
+**Owner request, 2026-10-24:** "automated short form video content".
+The hub already wrote a 30-second script per item for TikTok and YouTube
+Shorts; [`platform/distribution/shorts.mjs`](../../platform/distribution/shorts.mjs)
+now renders that script into a finished video, so the only step left by hand
+is the upload.
+
+```
+node platform/distribution/shorts.mjs plan                         # the storyboard per recent tool or post
+node platform/distribution/shorts.mjs render --out shorts          # one video per item in the hub window
+node platform/distribution/shorts.mjs render --out shorts --slug ai-bookkeeper,wall-framing-takeoff
+  [--piper <exe> --model <voice.onnx>]                             # optional offline narration (the podcast's voice)
+```
+
+Each video is 1080x1920, 30 fps, H.264 with an AAC track, about 30 seconds:
+a hook card, a card with the item's first sentence, then **the real
+published page** on a phone-sized screen, with its own worked example
+loaded, scrolled down to its answer, then a hold on that answer captioned
+with a figure read off the page ("432 of 870: Units in the first container"),
+then a closing card (free and open source, not professional advice). Next to
+it go `short.srt`, `poster.png` and `post.md` (the TikTok caption and
+YouTube title and description from the hub, links tagged `?ref=tiktok` and
+`?ref=youtube`, so arrivals land on the scoreboard).
+
+Honesty rules the renderer keeps (tested in `shorts.test.mjs`):
+
+- Every word comes from the page: the cards use the title and description
+  the hub uses, and the figure is text the page showed, read from a named
+  answer (a "Result" heading's section or an output region), never from an
+  axis tick or a numbered step.
+- Captions claim only what the capture did: "its own worked example, loaded"
+  only when an example button was pressed, "scrolled to its main result"
+  only when one was found. Otherwise the caption says less.
+- Nothing is uploaded. Both platforms lock API uploads from unaudited apps to
+  private, and posting under the portfolio's name is the owner's call.
+
+**Workflow** [`distribute-shorts.yml`](../../.github/workflows/distribute-shorts.yml):
+daily and on demand (`slugs`, `narrate`), renders the hub window with Piper
+narration when the voice installs and silent otherwise, and uploads the
+videos as a 14-day run artifact. It pushes no commits and calls no paid API.
+
 ## Drafts for the venues that forbid automation
 
 `node platform/distribution/launch-kit.mjs [--slug <slug>] [--days 7] [--max 3]`
@@ -213,4 +302,8 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 
 `nix-flake` is at `artifact` (2026-10-17): the same linters are also packages and apps of a root `flake.nix`, so `nix run github:duncan-haywood/oss-monorepo#actions-timeout-check -- --fail-on-risk .` runs one with nothing installed. It needs no account, token or publish step. Dry run: `node platform/distribution/nixflake.mjs` (`--write` regenerates, `--check` exits 1 when stale).
 
+`desktop-apps` is at `artifact` (2026-10-20): any static venture page (1,213 of 1,285), or a catalogue section as a suite with a launcher, becomes an offline Tauri v2 desktop app for macOS, Windows and Linux. The CSP blocks the network, the page gets no native capability, and links that leave the bundle open in the browser. Dry run: `node platform/distribution/desktop.mjs` (`--suites` lists suites, `--build <slug|suite> <dir>` writes the project). `.github/workflows/distribute-desktop.yml` is manual only and needs `DISTRIBUTE_DESKTOP=true`. It builds unsigned .dmg, .msi/.exe, .AppImage and .deb installers and attaches them, with winget manifests, to a pre-release. Verified on Linux only: the generated project compiled and rendered offline. Owner steps: signing, notarisation and the winget submission. Flatpak and Snap are follow-ups described in the generated BUILD.md.
+
 `wordpress-plugin` is at `artifact` (2026-10-19): one plugin, "Free Tools Embed", whose `[free_tool slug="..."]` shortcode embeds any launched tool as a sandboxed iframe with a link back. Dry run: `node platform/distribution/wordpress.mjs` (`--build <dir>` writes the zip). Owner step: a wordpress.org account and a submission.
+
+The distribution hub (2026-10-20) adds `hub-threads`, `hub-facebook`, `hub-instagram` and `hub-email` at `artifact` (live adapters, off by default) and eight `hub-*-drafts` rows for platforms that cannot be automated within their terms for free. Dry run: `node platform/distribution/hub.mjs plan`.

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tutoring Group Schedule Optimizer — which group sessions to run and who sits where</title>
+  <meta name="description" content="Free group schedule optimizer for tutoring centres, music, swim and language schools. Paste your possible weekly sessions and student availability to get the most profitable timetable. Exact for up to 10 slots. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Tutoring Group Schedule Optimizer — free, private, in your browser">
+  <meta property="og:description" content="Which weekly group sessions to run, which to skip, and who sits in each, from your students' availability.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Tutoring Group Schedule Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the weekly group sessions you could run and your students' availability, and get the most profitable timetable: which sessions to run, who sits where, and what each session is worth. Exact for up to 10 slots. Runs entirely in your browser.", "featureList": "tutoring group scheduling, which sessions to run, minimum group size, class timetable optimizer, min-cost flow seating, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I decide which tutoring group sessions to run?", "acceptedAnswer": {"@type": "Answer", "text": "Run a session only if the students you can seat in it pay more than it costs to run, and every student can only sit in one session they can actually attend. That is a matching problem, not a gut call: moving one student from Monday to Tuesday can make both sessions viable. This tool takes your slots, your minimum and maximum group sizes, what each session costs and each student's availability, and finds the most profitable set of sessions and seating."}}, {"@type": "Question", "name": "What is the minimum group size for a tutoring session to be profitable?", "acceptedAnswer": {"@type": "Answer", "text": "Cost to run the session divided by what each student pays. If a session costs $40 and students pay $25, you need two students just to cover the cost. Set that as the minimum for a slot and the tool will only open it when it can really fill it, taking into account who else needs those students."}}, {"@type": "Question", "name": "Is the answer exact or a heuristic?", "acceptedAnswer": {"@type": "Answer", "text": "For up to 10 slots it tries every combination of open slots and seats the students optimally in each, so the answer is exact. With more slots it uses a seeded local search and says plainly that the plan is good but not proven best. The seating itself, for any chosen set of slots, is always optimal."}}, {"@type": "Question", "name": "Does it handle students who can attend several slots?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Each student lists every slot that works for them, and is seated in at most one. The tool shows which closed slots would have fitted each student it could not place, so you can see what opening or moving a session would be worth."}}, {"@type": "Question", "name": "Does this work for music, swim, language or sports lessons?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, anything run as weekly small groups with a cost per session, a capacity and a minimum: tutoring, test prep, music or dance classes, swim lessons, language classes and after-school clubs. It does not model pricing per head by group size; each student has a price per session."}}, {"@type": "Question", "name": "Is my student list uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Names and prices are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and it works offline once the page has loaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .stop { background: #f8d9d6; color: #6b1a12; }
+    .bar { display: inline-block; height: .7rem; background: #1f5f86; border-radius: 3px; vertical-align: middle; }
+    .bar.slow { background: #b5533c; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TUTORING GROUP SCHEDULE OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which group sessions should you run this term, and who sits in which?</h1>
+    <p>List the <strong>weekly group slots you could run</strong> (capacity, minimum group, what each costs you) and your <strong>students with what each pays and every slot they can attend</strong>. The tool finds the <strong>most profitable timetable</strong>: which slots to run, who to seat where, who cannot be placed and why, and what each slot is worth to you.</p>
+    <p class="note">Your student list never leaves this browser tab. Arithmetic on figures you supply, not advice. It does not model group-size pricing, tutor availability or travel.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your slots and students</h2>
+    <label for="slots">Slots you could run (header optional: slot, capacity, min, cost)</label>
+    <textarea id="slots" spellcheck="false" placeholder="slot,capacity,min,cost&#10;Mon 4pm,6,3,40&#10;Tue 4pm,6,3,40"></textarea>
+    <label for="students">Students (name, price per session, then the slots they can attend, separated by ; or |)</label>
+    <textarea id="students" spellcheck="false" placeholder="name,price,slots&#10;Ana,25,Mon 4pm;Tue 4pm&#10;Ben,28,Tue 4pm"></textarea>
+    <label for="file">…or upload a students CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="row3">
+      <div><label for="defmin">Default minimum group (if no column)</label><input id="defmin" inputmode="numeric" placeholder="1"></div>
+    </div>
+    <p class="note">Every student is seated in at most one slot a week. At least 4 students. Names of slots must match between the two boxes (case does not matter).</p>
+    <button type="button" id="analyze">Build the timetable</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Paste your slots and students, then click Build the timetable.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Every slot</h3>
+    <p class="note">"If flipped" is the change in weekly profit if you did the opposite for that one slot (run a skipped slot, drop a running one) and re-seated everyone optimally.</p>
+    <div class="scroll"><table id="slotsOut"><thead><tr><th>Slot</th><th>Decision</th><th class="n">Students</th><th class="n">Capacity</th><th class="n">Revenue</th><th class="n">Cost</th><th class="n">If flipped</th></tr></thead><tbody></tbody></table></div>
+    <h3>Seating</h3>
+    <div class="scroll"><table id="seats"><thead><tr><th>Student</th><th class="n">Pays</th><th>Slot</th><th>Why not placed</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download timetable CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Model:</strong> for a chosen set of running slots, the best seating is a minimum-cost flow: each student takes at most one seat in a slot they can attend, each slot holds up to its capacity, and the first seats up to the minimum are weighted so that a slot is only valid if its minimum is really met. Which slots to run is then searched: every combination for up to 10 slots (exact), or a seeded local search with swaps and restarts above that (reported as not proven best). Profit is the fees of seated students minus the cost of every running slot.</p>
+    <p><strong>Not modelled:</strong> prices that change with group size, tutor availability and travel between sites, students who want more than one session a week, mixed subjects within a slot, drop-outs and trial periods. <strong>Unverified:</strong> checked in unit tests against an exhaustive search on 60 random small instances and against the exact answer on 12-slot instances, not against a real centre's timetable. Treat the output as a starting point and check it against students' real constraints.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I decide which tutoring group sessions to run?</h3>
+    <p>Run a session only if the students you can seat in it pay more than it costs to run, and every student can only sit in one session they can actually attend. That is a matching problem, not a gut call: moving one student from Monday to Tuesday can make both sessions viable. This tool takes your slots, your minimum and maximum group sizes, what each session costs and each student's availability, and finds the most profitable set of sessions and seating.</p>
+    <h3>What is the minimum group size for a tutoring session to be profitable?</h3>
+    <p>Cost to run the session divided by what each student pays. If a session costs $40 and students pay $25, you need two students just to cover the cost. Set that as the minimum for a slot and the tool will only open it when it can really fill it, taking into account who else needs those students.</p>
+    <h3>Is the answer exact or a heuristic?</h3>
+    <p>For up to 10 slots it tries every combination of open slots and seats the students optimally in each, so the answer is exact. With more slots it uses a seeded local search and says plainly that the plan is good but not proven best. The seating itself, for any chosen set of slots, is always optimal.</p>
+    <h3>Does it handle students who can attend several slots?</h3>
+    <p>Yes. Each student lists every slot that works for them, and is seated in at most one. The tool shows which closed slots would have fitted each student it could not place, so you can see what opening or moving a session would be worth.</p>
+    <h3>Does this work for music, swim, language or sports lessons?</h3>
+    <p>Yes, anything run as weekly small groups with a cost per session, a capacity and a minimum: tutoring, test prep, music or dance classes, swim lessons, language classes and after-school clubs. It does not model pricing per head by group size; each student has a price per session.</p>
+    <h3>Is my student list uploaded anywhere?</h3>
+    <p>No. Names and prices are read and analysed in this browser tab. Nothing is sent to a server, there are no accounts or cookies, and it works offline once the page has loaded.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are arithmetic on the figures you supply; they do not guarantee what any session will earn.</p>
+    <p><strong>Independent.</strong> Not affiliated with any tutoring-management or booking-software vendor, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your student list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track, Global Privacy Control, or the button below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../tutor-weekly-schedule-optimizer/">tutor weekly schedule optimizer</a> for one-to-one lessons, the <a href="../studio-class-slot-optimizer/">studio class slot optimizer</a> for which classes to cut, the <a href="../class-price-and-minimum-optimizer/">class price and minimum optimizer</a>, the <a href="../childcare-enrollment-mix-optimizer/">childcare enrollment mix optimizer</a> and the <a href="../appointment-overbooking-optimizer/">appointment overbooking optimizer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSlots, parseStudents, analyze, reportCsv, sampleText, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function run() {
+      const dm = $("#defmin").value.trim();
+      const ps = parseSlots($("#slots").value, dm ? { min: Number(dm) } : {});
+      if (ps.error) { status.textContent = ps.error; report.hidden = true; return false; }
+      const pt = parseStudents($("#students").value);
+      if (pt.error) { status.textContent = pt.error; report.hidden = true; return false; }
+      const r = analyze(ps.slots, pt.students);
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      $("#notices").innerHTML = [...ps.warnings, ...pt.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const big = [
+        [money(r.profit), "Weekly profit with this timetable" + (r.exact ? " (best possible)" : " (best found)")],
+        [`${r.opened} of ${r.slotsTotal}`, "Slots to run"],
+        [`${r.placed} of ${r.studentsTotal}`, "Students seated"],
+        [money(r.gainVsAll), `Better than running every slot (${money(r.baseline)})`],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#slotsOut tbody").innerHTML = r.rows.map((s) => `<tr><td>${esc(s.slot)}</td><td><span class="pill ${s.open ? "good" : "info"}">${s.open ? "run" : "skip"}</span></td><td class="n">${s.students}</td><td class="n">${s.capacity}</td><td class="n">${money(s.revenue)}</td><td class="n">${s.open ? money(s.cost) : "–"}</td><td class="n">${s.flipDelta === null ? "not possible" : money(s.flipDelta)}</td></tr>`).join("");
+      const why = new Map(r.unplaced.map((u) => [u.name, u.reason]));
+      $("#seats tbody").innerHTML = r.assignments.map((a) => `<tr><td>${esc(a.name)}</td><td class="n">${money(a.price)}</td><td>${esc(a.slot || "not placed")}</td><td>${esc(a.slot ? "" : why.get(a.name) || "")}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      const t = sampleText();
+      $("#slots").value = t.slots; $("#students").value = t.students;
+      if (run()) { record("example_loaded"); status.textContent = "Sample data: 34 invented students and 9 slots, not a real centre."; }
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#students").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name} into the students box. Add your slots and click Build the timetable.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#slots").value = ""; $("#students").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Paste your slots and students, then click Build the timetable."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "group-timetable.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

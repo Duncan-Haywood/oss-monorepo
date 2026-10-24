@@ -1,0 +1,65 @@
+{
+ "read": 206877,
+ "read_by_source": {
+  "SIPP 2001 panel wave 2": 40887,
+  "SIPP 2004 panel wave 2": 58525,
+  "SIPP 2008 panel wave 2": 55497,
+  "SIPP 2021 public-use file": 33135,
+  "SIPP 2025 public-use file": 18833
+ },
+ "kept_after_cohort_age_order_filters": 176303,
+ "marriages": 176303,
+ "dissolutions": 60868,
+ "widowed_censored": 8331,
+ "intervals": 2694990,
+ "person_years": 2618020.175,
+ "households": 102497,
+ "by_source": {
+  "SIPP 2001 panel wave 2": {
+   "marriages": 32111,
+   "dissolutions": 11109
+  },
+  "SIPP 2004 panel wave 2": {
+   "marriages": 47518,
+   "dissolutions": 16473
+  },
+  "SIPP 2008 panel wave 2": {
+   "marriages": 47640,
+   "dissolutions": 15841
+  },
+  "SIPP 2021 public-use file": {
+   "marriages": 30932,
+   "dissolutions": 11156
+  },
+  "SIPP 2025 public-use file": {
+   "marriages": 18102,
+   "dissolutions": 6289
+  }
+ },
+ "unknown_counts": {
+  "sex": 0,
+  "race_ethnicity": 0,
+  "nativity": 0,
+  "education_at_wedding": 470
+ },
+ "education_at_wedding_tm2": {
+  "High school": 40347,
+  "Some college": 37832,
+  "Bachelor or higher": 25477,
+  "Less than high school": 23143,
+  "Unknown": 470
+ },
+ "wedding_years": [
+  1960,
+  2025
+ ],
+ "education_gain_over_same_model_percent": {
+  "percent": 0.2769717538257388,
+  "ci95": [
+   0.23565781599054814,
+   0.31690945180988694
+  ]
+ },
+ "folds": "5 folds by household (SSUID within survey), seeded shuffle",
+ "python_sklearn": "1.7.2"
+}

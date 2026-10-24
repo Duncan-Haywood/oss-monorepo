@@ -24,7 +24,28 @@ owner: duncan
 # and the page tells the user to confirm the two transactions really differ.
 #
 # Path to revenue (payment rails stay off): lead magnet for bookkeeper and accounting-software audiences;
-# a paid version, if usage appears, is a bulk CLI / CI check behind an env-var switch; none built.
+# a paid version, if usage appears, is a hosted bulk check behind an env-var switch; none built. The bulk CLI itself (cli.mjs) shipped 2026-10-20 as free open source.
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-every-vendor clause,
 # trademarks used nominatively, no acceptance promise.
+
+hypotheses:
+  - claim: >-
+      People whose bank download "won't import into QuickBooks" will find a
+      free checker through plain-language searches ("QFX file won't import
+      QuickBooks", "OFX invalid date") and, in most visits that check a file,
+      go on to download or copy the repaired file, because the repair (not
+      the diagnosis) is what they came for.
+    status: untested
+    checked: null
+    evidence: customer-contact
+    measure: >-
+      ratio of fixes_applied to file_checked in the opt-in local counters
+      (usage.mjs); needs a reading from real visitors, none yet.
+  - claim: >-
+      Bookkeepers who clean several clients' exports will use the bulk CLI
+      (cli.mjs) rather than the page, so the CLI is the feature that earns
+      repeat use.
+    status: untested
+    checked: null
+    evidence: customer-contact

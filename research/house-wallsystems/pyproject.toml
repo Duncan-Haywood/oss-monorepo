@@ -1,0 +1,13 @@
+[project]
+name = "house-wallsystems"
+version = "0.1.0"
+description = "Six exterior wall systems for the house-framing house compared on installed cost, embodied carbon, whole-wall R, labour and 30-year heat-loss cost, with Monte Carlo over stylised input ranges"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-framing/src"]

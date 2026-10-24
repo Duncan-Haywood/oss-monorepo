@@ -1,0 +1,6 @@
+{
+ "theme": "society",
+ "title": "How much cheaper must an urgency cue be for the urgent before a door robot can rely on it?",
+ "summary": "society-fakeurgency gave everyone the same signalling cost and found no gain for urgent people. Here the urgent pay a share rho of what normal people pay. With 30% robots, 20% urgent people, collision cost 3 and dithering cost 1, rho = 0.5 gives urgent people +0.14 per encounter over yield-all at a normal cost of 0.6, rho = 0.25 gives +0.29 and rho = 0 gives +0.44 (perfect reading gives +0.45); at rho &ge; 0.75 there is no gain. A 10% misreading rate cuts the usable rho to 0.75 or below at the edge and 20% to 0.4. The crowd, robots included, is worse off than under yield-all in all 35 cells (+0.045 to +0.28), as it is even with perfect reading (+0.045): the fleet transfers cost from urgent people to normal people and robots. Mean field from society-fakeurgency, which was checked by simulation. Assumed, not sourced: rho and the signal costs (swept), round-figure door costs, logit sharpness, no robot learning, random pairing.",
+ "lede": "how much cheaper must an urgency cue be for the urgent before a door robot can rely on it? Urgent people must pay at most about half what normal people do; the crowd is worse off than under yield-all in every cell."
+}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Germany e-invoice mandate: dates, formats and a free XRechnung check | E-invoice Preflight</title>
+<meta name="description" content="Germany requires businesses to receive EN 16931 e-invoices since 2025 and to issue them from 2027 or 2028. The dates, which formats count (XRechnung, ZUGFeRD) and a free local checker to test a file before you send it.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/germany-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Germany e-invoice mandate: dates, formats and a free XRechnung check">
+<meta property="og:description" content="Germany requires businesses to receive EN 16931 e-invoices since 2025 and to issue them from 2027 or 2028. The dates, which formats count (XRechnung, ZUGFeRD) and a free local checker to test a file before you send it.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/germany-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Since when must German businesses accept e-invoices?","acceptedAnswer":{"@type":"Answer","text":"Since 1 January 2025, every German business that receives an invoice from another domestic business must be able to receive a structured e-invoice in the EN 16931 standard. Issuing is phased in: until 31 December 2026 a paper or PDF invoice is still allowed, until 31 December 2027 a business whose prior-year turnover was at most 800,000 euro (and any business, with the buyer's agreement, for other electronic formats) may still use other formats, and from 1 January 2028 every domestic B2B invoice must be a structured e-invoice. Confirm your own situation with a tax adviser; this page is a summary, not advice."}},{"@type":"Question","name":"Is a PDF invoice still enough in Germany?","acceptedAnswer":{"@type":"Answer","text":"For issuing, only during the transition periods above. An ordinary PDF is an image of an invoice, not a structured e-invoice. A ZUGFeRD or Factur-X PDF is different: it carries a machine-readable XML invoice inside the PDF, and that XML is what counts. Only the profiles that meet EN 16931 (EN 16931, Extended) qualify, not the Minimum or Basic WL profiles."}},{"@type":"Question","name":"Which formats are accepted?","acceptedAnswer":{"@type":"Answer","text":"XRechnung (XML, in UBL or UN/CEFACT CII syntax) and ZUGFeRD or Factur-X (a PDF/A-3 with embedded CII XML) in an EN 16931 profile. Other formats are acceptable if they can be converted to a conforming one and both sides agree. This checker reads JSON, UBL, CII and Factur-X or ZUGFeRD PDFs."}},{"@type":"Question","name":"How do I check an XRechnung or ZUGFeRD invoice before sending it?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker and tick the XRechnung option. It reports missing buyer reference (BT-10), a Leitweg-ID with wrong check digits, absent payment instructions or seller contact, arithmetic that does not add up, and bad VAT, IBAN or BIC values, each with a rule ID and a fix. For the official rule set, the optional Schematron mode runs the EN 16931 and KoSIT XRechnung rules. Nothing is uploaded when you use the page. It is an offline observation, not the KoSIT validator's certificate and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Germany's e-invoice mandate: what applies when</h1>
+<p class="lede">Receiving structured e-invoices has been mandatory in Germany since 2025. Issuing them becomes mandatory in two steps, 2027 and 2028. Below: the dates, the formats that count, and how to test a file before it goes to a customer.</p>
+</header>
+<section>
+<h2>The timeline (domestic B2B)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>1 Jan 2025</td><td>Every business must be able to <strong>receive</strong> an EN 16931 e-invoice. Issuing: paper and PDF still allowed.</td></tr>
+<tr><td>1 Jan 2027</td><td>Businesses with prior-year turnover above 800,000 euro must <strong>issue</strong> structured e-invoices. Smaller businesses may still use other formats.</td></tr>
+<tr><td>1 Jan 2028</td><td>Every business must issue structured e-invoices for domestic B2B sales.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Exceptions exist (small-amount invoices, tickets and others) and the rules are set by the Umsatzsteuergesetz and Ministry of Finance guidance. This is a summary, not tax advice; confirm with your adviser.</p>
+</section>
+<section>
+<h2>Which files count</h2>
+<p><strong>XRechnung</strong> is plain XML in UBL or CII syntax. <strong>ZUGFeRD</strong> (called Factur-X in France) is a PDF that carries the same kind of XML inside it. Either must follow the European standard EN 16931. A PDF without embedded XML does not count, and neither do the ZUGFeRD Minimum and Basic WL profiles.</p>
+<p>Public bodies add the XRechnung rules (BR-DE): a buyer reference or Leitweg-ID (BT-10), seller contact, payment instructions and more. A portal that rejects the file gives you a code, but only after you have sent it.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your XML or ZUGFeRD PDF, and tick <em>Also apply the German XRechnung rules</em>. It flags arithmetic that does not add up, missing buyer reference, bad Leitweg-ID check digits, VAT, IBAN and BIC typos, and credit notes sent as invoices, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Italy has its own rules: see <a href="italy-sdi-e-invoice-mandate.html">the Italian SdI mandate</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>. To see which deadline applies in other countries, try the <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>. Also: <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Since when must German businesses accept e-invoices?</h3>
+<p>Since 1 January 2025, every German business that receives an invoice from another domestic business must be able to receive a structured e-invoice in the EN 16931 standard. Issuing is phased in: until 31 December 2026 a paper or PDF invoice is still allowed, until 31 December 2027 a business whose prior-year turnover was at most 800,000 euro (and any business, with the buyer's agreement, for other electronic formats) may still use other formats, and from 1 January 2028 every domestic B2B invoice must be a structured e-invoice. Confirm your own situation with a tax adviser; this page is a summary, not advice.</p>
+<h3>Is a PDF invoice still enough in Germany?</h3>
+<p>For issuing, only during the transition periods above. An ordinary PDF is an image of an invoice, not a structured e-invoice. A ZUGFeRD or Factur-X PDF is different: it carries a machine-readable XML invoice inside the PDF, and that XML is what counts. Only the profiles that meet EN 16931 (EN 16931, Extended) qualify, not the Minimum or Basic WL profiles.</p>
+<h3>Which formats are accepted?</h3>
+<p>XRechnung (XML, in UBL or UN/CEFACT CII syntax) and ZUGFeRD or Factur-X (a PDF/A-3 with embedded CII XML) in an EN 16931 profile. Other formats are acceptable if they can be converted to a conforming one and both sides agree. This checker reads JSON, UBL, CII and Factur-X or ZUGFeRD PDFs.</p>
+<h3>How do I check an XRechnung or ZUGFeRD invoice before sending it?</h3>
+<p>Drop the file into the checker and tick the XRechnung option. It reports missing buyer reference (BT-10), a Leitweg-ID with wrong check digits, absent payment instructions or seller contact, arithmetic that does not add up, and bad VAT, IBAN or BIC values, each with a rule ID and a fix. For the official rule set, the optional Schematron mode runs the EN 16931 and KoSIT XRechnung rules. Nothing is uploaded when you use the page. It is an offline observation, not the KoSIT validator's certificate and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the German rules as publicly documented; dates and thresholds can change, so check the Federal Ministry of Finance's current guidance (BMF-Schreiben on e-invoicing) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

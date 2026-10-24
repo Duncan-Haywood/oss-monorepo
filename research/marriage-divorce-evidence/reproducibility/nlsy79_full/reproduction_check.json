@@ -1,0 +1,176 @@
+{
+ "source": "https://nlsinfo.org/cohort-data/nlsy79_all_1979-2022.zip (sha256 in SHA256SUMS)",
+ "numpy_cpu_features_disabled": null,
+ "python": [
+  "3.11.17",
+  "2.3.4",
+  "2.3.3",
+  "1.7.2"
+ ],
+ "published_sample": {
+  "intervals": 40818,
+  "respondents": 5735,
+  "events": 726
+ },
+ "reproduced_sample": {
+  "intervals": 40818,
+  "respondents": 5735,
+  "events": 726
+ },
+ "heldout_deviance_improvement_percent": {
+  "Constant": {
+   "committed": 0.0,
+   "reproduced": 0.0
+  },
+  "Additive core": {
+   "committed": 3.1084,
+   "reproduced": 3.1069
+  },
+  "Additive enriched": {
+   "committed": 3.4016,
+   "reproduced": 3.3988
+  },
+  "Spline + pair interactions": {
+   "committed": 2.8904,
+   "reproduced": 2.8899
+  },
+  "Poisson tree depth 2": {
+   "committed": 2.4303,
+   "reproduced": 2.4303
+  },
+  "Poisson tree depth 3": {
+   "committed": 2.3086,
+   "reproduced": 2.3086
+  }
+ },
+ "all_identical": false,
+ "checks": [
+  {
+   "file": "annual_nlsy/annual_audit.json",
+   "identical": false,
+   "differences": {
+    ".missing_followup_or_weight": {
+     "committed": 2708,
+     "reproduced": 2720
+    },
+    ".retained_intervals": {
+     "committed": 42271,
+     "reproduced": 42259
+    },
+    ".respondents": {
+     "committed": 5904,
+     "reproduced": 5899
+    },
+    ".unweighted_person_years": {
+     "committed": 84793.66666666669,
+     "reproduced": 84771.25000000003
+    }
+   }
+  },
+  {
+   "file": "annual_nlsy/legally_married_primary/annual_audit.json",
+   "identical": true,
+   "differences": {}
+  },
+  {
+   "file": "pairing_nlsy/pairing_audit.json",
+   "identical": true,
+   "differences": {}
+  },
+  {
+   "file": "couple_profiles/joint_model_audit.json",
+   "identical": false,
+   "differences": {
+    ".covariance_min_eigenvalue": {
+     "committed": 0.00047629898185819024,
+     "reproduced": 0.0004762328512987092
+    }
+   }
+  },
+  {
+   "file": "ml_couples/sample_audit.json",
+   "identical": true,
+   "differences": {}
+  },
+  {
+   "file": "annual_nlsy/legally_married_primary/annual_crude_rates.csv",
+   "rows_committed": 72,
+   "rows_reproduced": 72,
+   "identical": false,
+   "max_relative_difference": 0.00045169158498590325,
+   "worst_column": "person_years"
+  },
+  {
+   "file": "pairing_nlsy/pairing_crude_rates.csv",
+   "rows_committed": 27,
+   "rows_reproduced": 27,
+   "identical": false,
+   "max_relative_difference": 7.04227786746869e-16,
+   "worst_column": "ci_high"
+  },
+  {
+   "file": "couple_profiles/joint_model_coefficients.csv",
+   "rows_committed": 30,
+   "rows_reproduced": 30,
+   "identical": false,
+   "max_relative_difference": 0.1446993494859683,
+   "worst_column": "coefficient"
+  },
+  {
+   "file": "ml_couples/fold_metrics.csv",
+   "rows_committed": 30,
+   "rows_reproduced": 30,
+   "identical": false,
+   "max_relative_difference": 0.0002832893585394856,
+   "worst_column": "weighted_poisson_deviance_per_year"
+  },
+  {
+   "file": "ml_couples/heldout_model_comparison.csv",
+   "rows_committed": 6,
+   "rows_reproduced": 6,
+   "identical": false,
+   "max_relative_difference": 0.0008093830454702805,
+   "worst_column": "deviance_improvement_percent"
+  },
+  {
+   "file": "ml_couples/heldout_calibration.csv",
+   "rows_committed": 55,
+   "rows_reproduced": 55,
+   "identical": false,
+   "max_relative_difference": 0.045454545454545456,
+   "worst_column": "events"
+  },
+  {
+   "file": "ml_couples/later_wave_model_comparison.csv",
+   "rows_committed": 6,
+   "rows_reproduced": 6,
+   "identical": false,
+   "max_relative_difference": 0.000663417950152843,
+   "worst_column": "predicted_rate_per_1000"
+  },
+  {
+   "file": "ml_couples/coefficients_additive_core.csv",
+   "rows_committed": 37,
+   "rows_reproduced": 37,
+   "identical": false,
+   "max_relative_difference": 1.4617631638400481,
+   "worst_column": "coefficient"
+  },
+  {
+   "file": "ml_couples/coefficients_additive_enriched.csv",
+   "rows_committed": 69,
+   "rows_reproduced": 69,
+   "identical": false,
+   "max_relative_difference": 0.1583047958784394,
+   "worst_column": "coefficient"
+  },
+  {
+   "file": "ml_couples/coefficients_spline_and_pair_interactions.csv",
+   "rows_committed": 132,
+   "rows_reproduced": 132,
+   "identical": false,
+   "max_relative_difference": 1.095297977468745,
+   "worst_column": "coefficient"
+  }
+ ]
+}

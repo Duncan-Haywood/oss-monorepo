@@ -1,11 +1,11 @@
-# payroll-hours-csv-check
+# Payroll Hours CSV Check — Find Timesheet Errors Before You Run Payroll
 
 Checks a payroll hours / timesheet CSV in the browser before it is keyed or imported into a payroll
 service: 8:30 mixed with 8.5, unit text, Excel date serials, mixed date formats, duplicate person-days,
 hours over 24, Start/End arithmetic that disagrees with the hours typed, overnight shifts and unquoted
 commas in names, each with its line number, plus a safe-fixes pass that only touches formatting.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/payroll-hours-csv-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/payroll-hours-csv-check/
 
 - Static ES modules, no build step, no dependencies. Open `index.html` or run `node --test`.
 - `calc.mjs` is pure (no DOM, no network); `usage.mjs` keeps opt-out, local-only event counts.

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of seam shape error in cm against hanger arm half-width in cm; the 2D chain and the 3D sheet both reach their minimum at 22.8 cm and differ by under 0.5 cm">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Arm width sweep, size M tee: 2D chain against 3D sheet</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="266.1" y2="266.1" stroke="#ddd"/><text x="58" y="270.1" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="208.3" y2="208.3" stroke="#ddd"/><text x="58" y="212.3" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="150.4" y2="150.4" stroke="#ddd"/><text x="58" y="154.4" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<line x1="64" x2="624" y1="92.6" y2="92.6" stroke="#ddd"/><text x="58" y="96.6" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">18</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">22</text>
+<text x="484.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">24</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">26</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">arm half-width (cm)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">seam shape error (cm)</text>
+<polyline points="64.0,71.2 134.0,124.4 204.0,177.0 274.0,228.5 344.0,278.3 400.0,313.0 484.0,271.4 554.0,226.8 624.0,183.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="134.0" cy="124.4" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="177.0" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="228.5" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="278.3" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="313.0" r="3" fill="#c0392b"/>
+<circle cx="484.0" cy="271.4" r="3" fill="#c0392b"/>
+<circle cx="554.0" cy="226.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="183.4" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">2D chain (hanger-fit)</text>
+<polyline points="64.0,83.3 134.0,124.4 204.0,183.4 274.0,225.6 344.0,271.4 400.0,287.6 484.0,257.5 554.0,210.0 624.0,167.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="83.3" r="3" fill="#1f6fb2"/>
+<circle cx="134.0" cy="124.4" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="183.4" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="225.6" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="271.4" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="287.6" r="3" fill="#1f6fb2"/>
+<circle cx="484.0" cy="257.5" r="3" fill="#1f6fb2"/>
+<circle cx="554.0" cy="210.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="167.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">3D sheet</text>
+</svg>

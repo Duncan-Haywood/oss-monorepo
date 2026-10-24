@@ -7,7 +7,7 @@ shows host payout, the price the guest actually pays, the listed-price
 raise that restores the old 3% deposit, and how many stays you must keep
 going direct before the fee gap is real money.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/str-host-payout-calculator/
 
 **After using this, you can now see which channel actually pays you on
 the same stay — and how much occupancy you can lose leaving a
@@ -16,10 +16,7 @@ taken from different bases.**
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no
-build step, no network calls, no accounts. Not yet deployed to a public
-URL — publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is
-ready to deploy as-is.
+build step, no network calls, no accounts. It is live at the URL above, and you can host your own copy by serving this directory as static files.
 
 ```bash
 # Serve it locally

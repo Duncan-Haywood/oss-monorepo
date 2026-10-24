@@ -1,0 +1,80 @@
+{
+  "id": "P036",
+  "title": "Finish the deadweight cut: dead workflows, DIRECTION.md, the playbook, the red-team gate",
+  "status": "done",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "PR #8733 cut CLAUDE.md from 352 to 155 lines and removed stale rules (gh-pages hand publish, Hetzner deploys, the ventures/* auto-merge refusal), but left the largest steering files and some automation untouched. The owner, 2026-10-20: 'cut the deadweight in rules and processes ... respect the competence of the ai agent engineer', and 'what you don't complete leave as an action item for a later run.'",
+  "evidence": [
+    "docs/reports/2026-10-20-rules-deadweight.md, 'Candidates for the next cut'",
+    "13 files under .github/workflows/ name the retired cluster's IPs, HETZNER, k3s or self-hosted runners (grep -lE, 2026-10-20)",
+    "portfolio/DIRECTION.md: 873 lines, 49 dated references; PRODUCT_PLAYBOOK.md: 42 never/must/do-not words",
+    "land-your-work.md 166 lines against a 160 budget; steering.md 124 against 120 (promptctl.py measure)",
+    "promptctl.py validate fails CI when the redteam routing share leaves 5-10%; the change to a reported default was reverted pending the owner's explicit yes"
+  ],
+  "change": "(1) Delete or disarm the workflows that only served the retired cluster, after reading what each still does. (2) Cut portfolio/DIRECTION.md to what is true now, moving history to docs/history/. (3) Strip incident stories from PRODUCT_PLAYBOOK.md's definition of done. (4) Bring land-your-work.md and steering.md under budget. (5) Make run_workflow_locally.py --for-changes the one verify command and verify-and-merge.md's list a reference. (6) Only if the owner says yes: make the red-team 5-10% band a reported default in promptctl.py instead of a validate failure. (7) Fix the drifted byok.mjs copies in ventures/ats-resume-checker and ventures/persona-conversation-simulator (their tests fail on main).",
+  "touches": [
+    ".github/workflows/",
+    "portfolio/DIRECTION.md",
+    "PRODUCT_PLAYBOOK.md",
+    ".github/prompts/land-your-work.md",
+    ".github/prompts/verify-and-merge.md",
+    "prompts/steering.md",
+    "prompts/promptctl.py",
+    "ventures/ats-resume-checker/byok.mjs",
+    "ventures/persona-conversation-simulator/byok.mjs"
+  ],
+  "metric": "total bytes of the twelve steering files listed in docs/reports/2026-10-20-rules-deadweight.md",
+  "baseline": "170,362 bytes after PR #8733's first commit (2026-10-20)",
+  "opened": "2026-10-20",
+  "source": "owner, in session 2026-10-20",
+  "pr": 9023,
+  "result": "Parts 1-5 and 7 done or confirmed; part 6 needs an owner yes (see decision queue). Remaining retired-tree CI is test-pinned and guards the live front-door mirror.",
+  "history": [
+    {
+      "date": "2026-10-20",
+      "note": "Parts (4) and (7) done: land-your-work.md 166->158 lines and steering.md 124->120 (both at/under budget); byok.mjs copies already identical on main and tests pass (ats-resume-checker 66, persona-conversation-simulator 21). Parts 1,2,3,5,6 remain; split before the next run."
+    },
+    {
+      "date": "2026-10-20",
+      "note": "Part 1 started: removed outage-triage.yml (dispatch-only, probed deleted Hetzner servers) with outage_triage.py, its test and the references. Still open in part 1: hetzner-gitops-ci.yml, public-surface-check.yml (its Hetzner half). Parts 2,3,5,6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 3 done: PRODUCT_PLAYBOOK.md definition of done lost the #4573 incident story and a trimmed clause line (-7 lines). Part 1 remainder: hetzner-gitops-ci.yml is tied to front-door/site tests and its hcloud-scope job is asserted by infra/tests/test_infra_layout.py and platform/ci/test_run_workflow_locally.py; needs its own PR. Parts 2,5,6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 2 started: DIRECTION.md 875->723 lines. 'Before rewriting this brief' and 'Current priority: deploy' replaced by short pointers; originals archived in docs/history/direction-superseded-sections-2026-10-21.md. Still in part 2: 'North star', 'Owner direction, relayed again', 'What changes now that distribution is solved' overlap and carry dated stories. Parts 1 (hetzner-gitops-ci.yml, 20 referencing files), 5, 6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 2 done (finishes the earlier started cut): portfolio/DIRECTION.md 875 -> 166 lines (53,180 -> 8,898 bytes); full text archived in docs/history/direction-full-text-2026-10-21.md. Section names other files cite (North star, Current priority, Owner direction) kept. Parts 1 remainder (hetzner-gitops-ci.yml), 5, 6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 1 slice: removed the hcloud-scope job (probe of HETZNERREADAPIKEY for the retired cluster) from hetzner-gitops-ci.yml; tests that pinned it updated (infra/tests/test_infra_layout.py, platform/ci/test_run_workflow_locally.py, 118 pass). Still in part 1: the gitops pytest/kustomize/tofu jobs of that workflow and assert_hcloud_read_only.sh. Parts 5,6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 5 done: verify-and-merge.md now opens with run_workflow_locally.py --for-changes as the one command and calls the block a reference. Part 1 remainder (hetzner-gitops-ci.yml gitops jobs, entangled with ~20 files) and 6 remain."
+    },
+    {
+      "date": "2026-10-22",
+      "note": "Part 7 already holds: all 13 ventures/*/byok.mjs copies are byte-identical (md5sum), and `node --test` passes in ats-resume-checker (66) and persona-conversation-simulator (21). Remaining: part 1 remainder (hetzner-gitops-ci.yml gitops jobs) and part 6 (owner yes needed)."
+    },
+    {
+      "date": "2026-10-22",
+      "note": "Part 1 slice: removed the tofu fmt/validate job from hetzner-gitops-ci.yml (validated only the retired cluster's infra/*.tf; no test pinned it; 140 infra/gitops/ci tests pass). Still in part 1: the gitops pytest/kustomize/kubeconform job (entangled with ~20 files). Part 6 needs an owner yes."
+    },
+    {
+      "date": "2026-10-22",
+      "note": "Part 1 slice: removed the kustomize build and kubeconform steps (rendered the retired cluster's manifests, two network downloads; no test pinned them; 140 infra/gitops/ci tests pass). Part 1 left: gitops pytest job, shellcheck list. Part 6 needs an owner yes."
+    },
+    {
+      "date": "2026-10-22",
+      "note": "Checked the part 1 residue: the gitops pytest job (10 min) also guards the live front-door mirror and platform/marketing generator; the shellcheck list is pinned by gitops/tests/test_shellcheck_coverage.py (every bootstrap/infra/gitops script must be named, no dead path); assert_hcloud_read_only.sh is a documented laptop tool (infra/README.md, Makefile). Cutting any of these means deleting the retired tree wholesale (~40 files, the reason P013 was dropped), not trimming CI. Part 1 is closed as far as CI trimming goes; only part 6 (owner yes) remains."
+    }
+  ]
+}

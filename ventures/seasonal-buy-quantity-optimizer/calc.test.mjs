@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseSeasons, parseBreaks, tierCost, fitSeasons, fitRange, drawDemand, evalQty, analyze, reportCsv, sampleText, sampleBreaks, invNorm, money } from "./calc.mjs";
+import { parseSeasons, parseBreaks, tierCost, fitSeasons, fitRange, drawDemand, evalQty, analyze, allocateBudget, reportCsv, sampleText, sampleBreaks, invNorm, money } from "./calc.mjs";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg || ""} ${a} vs ${b} (tol ${tol})`);
 const tiers1 = (c) => [{ min: 1, cost: c }];
@@ -142,4 +142,40 @@ test("parseBreaks reads tiers, a bare cost, and rejects nonsense", () => {
 test("fitRange widens the spread and money formats", () => {
   assert.ok(fitRange({ low: 300, likely: 500, high: 800, widen: 1.5 }).s > fitRange({ low: 300, likely: 500, high: 800, widen: 1 }).s);
   assert.equal(money(1234.5), "$1,234.50");
+});
+
+test("budget allocation: a cash limit moves money to the product that earns most per dollar", () => {
+  const mk = (name, price, cost) => { const r = analyze({ mode: "range", range: { low: 300, likely: 500, high: 800 }, tiers: tiers1(cost), price, salvage: 0 }); return { name, curve: r.curve, best: r.best }; };
+  const a = mk("a", 10, 4), b = mk("b", 6, 4);
+  const free = allocateBudget([a, b], 1e9);
+  assert.equal(free.rows[0].q, a.best.q);
+  assert.equal(free.rows[1].q, b.best.q);
+  assert.equal(free.binding, false);
+  const tight = allocateBudget([a, b], 1500);
+  assert.ok(tight.spent <= 1500 + 1e-6);
+  assert.equal(tight.binding, true);
+  assert.ok(tight.rows[0].outlay > tight.rows[1].outlay, "higher-margin product gets the cash");
+  assert.ok(tight.total <= tight.bound + 1e-6);
+  assert.ok(tight.total < tight.unconstrainedProfit);
+  // never worse than putting everything into one product
+  const only = (it) => Math.max(0, ...it.curve.filter((c) => c.outlay <= 1500).map((c) => c.expProfit));
+  assert.ok(tight.total >= Math.max(only(a), only(b)) - 1e-6);
+});
+
+test("budget allocation: brute force on small curves agrees within the heuristic", () => {
+  const mk = (price, cost, tiers) => { const r = analyze({ mode: "range", range: { low: 20, likely: 40, high: 80 }, tiers: tiers || tiers1(cost), price, salvage: 1 }); return { name: "x", curve: r.curve, best: r.best }; };
+  const items = [mk(9, 4), mk(7, 3), mk(12, 0, [{ min: 10, cost: 6 }, { min: 40, cost: 4.5 }])];
+  const B = 300;
+  const opts = items.map((it) => [{ outlay: 0, profit: 0 }, ...it.curve.map((c) => ({ outlay: c.outlay, profit: c.expProfit }))]);
+  let bestP = 0;
+  for (const x of opts[0]) for (const y of opts[1]) for (const z of opts[2]) if (x.outlay + y.outlay + z.outlay <= B) bestP = Math.max(bestP, x.profit + y.profit + z.profit);
+  const r = allocateBudget(items, B);
+  assert.ok(r.total <= bestP + 1e-6);
+  assert.ok(r.total >= bestP * 0.97, `${r.total} vs optimum ${bestP}`);
+  assert.ok(r.bound >= bestP - 1e-6);
+});
+
+test("budget allocation refuses empty input and a missing budget", () => {
+  assert.ok(allocateBudget([], 100).error);
+  assert.ok(allocateBudget([{ name: "a", curve: [] }], 0).error);
 });

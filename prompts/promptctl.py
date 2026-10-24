@@ -5,6 +5,7 @@
     python3 prompts/promptctl.py record --track T --version N --session URL
     python3 prompts/promptctl.py measure            # scores per track, version and model
     python3 prompts/promptctl.py backlog            # open process improvements, ranked
+    python3 prompts/promptctl.py map [--track T]    # the guidance files, by layer
     python3 prompts/promptctl.py validate           # what CI runs
 
 `prompt.md` at the repository root is the master prompt and tells a session
@@ -20,7 +21,9 @@ Standard library only, so it runs in any session without an install step.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
+import io
 import json
 import math
 import random
@@ -29,7 +32,7 @@ import statistics
 import subprocess
 import sys
 from collections import defaultdict
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -81,6 +84,7 @@ RECORD_FIELDS: dict[str, Any] = {
     "integrity_issues": [],
     "doc_friction": [],
     "deviations": [],
+    "writeups": [],  # repo paths of the agent doc and post this run wrote or extended (goals.md)
     "goal": None,
     "notes": "",
     "corrections": [],
@@ -89,29 +93,50 @@ RECORD_FIELDS: dict[str, Any] = {
 REQUIRED = ("date", "session", "track", "prompt_version", "outcome",
             "errors", "integrity_issues", "doc_friction")
 
-# Instruction files whose length `measure` reports: what a run reads before it
-# can start work is a cost the review track is asked to keep down.
-INSTRUCTION_FILES = (
-    "prompt.md",
-    "prompts/goals.md",
-    "prompts/steering.md",
-    "CLAUDE.md",
-    "AGENTS.md",
-    "research/CLAUDE.md",
-    ".github/prompts/land-your-work.md",
-)
+# Every agent-guidance file, its layer and its line budget, live in
+# prompts/system.json (prompts/SYSTEM.md explains the layers). `measure`
+# reports the length of the always-read ones against their budget: what a run
+# reads before it can start work is a cost the review track is asked to keep
+# down. Nothing fails on a budget, because cutting a file well takes judgment
+# a check cannot make; `validate` fails only on a file the map does not know.
 
-# Line budgets for always-read files (prompts/steering.md). `measure` reports
-# overruns; nothing fails on them, because cutting a file well takes judgment
-# a check cannot make. Sub-prompts share SUBPROMPT_BUDGET.
-INSTRUCTION_BUDGET = {
-    "prompt.md": 100,
-    "prompts/steering.md": 120,
-    "CLAUDE.md": 500,
-    "AGENTS.md": 250,
-    ".github/prompts/land-your-work.md": 160,
-}
-SUBPROMPT_BUDGET = 130
+
+def load_system(root: Path = ROOT) -> dict[str, Any]:
+    path = root / "system.json"
+    return json.loads(path.read_text()) if path.is_file() else {"layers": [], "docs": []}
+
+
+def glob_re(pattern: str) -> re.Pattern[str]:
+    """`*` stays inside one directory; `**/` spans any number of them, a bare `**` anything."""
+    out, i = "", 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif pattern.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif pattern[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        else:
+            out, i = out + re.escape(pattern[i]), i + 1
+    return re.compile(out + r"\Z")
+
+
+def doc_for(rel: str, system: dict[str, Any]) -> dict[str, Any] | None:
+    """The map entry covering `rel`: an exact path first, then the first glob."""
+    for doc in system.get("docs", []):
+        if doc.get("path") == rel:
+            return doc
+    for doc in system.get("docs", []):
+        if "glob" in doc and glob_re(doc["glob"]).match(rel):
+            return doc
+    return None
+
+
+_SYSTEM = load_system()
+INSTRUCTION_FILES = tuple(d["path"] for d in _SYSTEM["docs"] if d.get("always_read") and "path" in d)
+INSTRUCTION_BUDGET = {d["path"]: d["budget"] for d in _SYSTEM["docs"] if "path" in d and "budget" in d}
+SUBPROMPT_BUDGET = next((d["budget"] for d in _SYSTEM["docs"]
+                         if d.get("glob") == "prompts/*/prompt-*.md" and "budget" in d), 130)
 
 # prompts/process/backlog/: one improvement per file (prompts/steering.md).
 BACKLOG_STATUSES = ("open", "in_progress", "done", "dropped")
@@ -330,6 +355,9 @@ def validate_record(root: Path, path: Path, rec: Any, tracks: dict[str, Any]) ->
             isinstance(d, dict) and isinstance(d.get("file"), str) and isinstance(d.get("why"), str)
             for d in devs):
         errors.append(f"{where}: deviations must be a list of entries with a 'file' and a 'why'")
+    ups = rec.get("writeups", [])
+    if not isinstance(ups, list) or not all(isinstance(u, str) for u in ups):
+        errors.append(f"{where}: writeups must be a list of repository paths")
     rt = rec.get("redteam")
     if rt is not None:
         errors.extend(validate_redteam(where, rt))
@@ -452,6 +480,13 @@ def print_backlog(root: Path = ROOT) -> None:
     print("|---|---|---|---|---|")
     for i in ranked:
         print(f"| {i['id']} | {i['owner']} | {i['effect']}/{i['cost']} | {i['status']} | {i['title']} |")
+    started = [i for i in ranked if i["status"] == "in_progress" and i.get("history")]
+    if started:
+        print("\nIn progress, latest history line (what is left):")
+        for i in started:
+            last = i["history"][-1]
+            last = last.get("note", "") if isinstance(last, dict) else last
+            print(f"- {i['id']}: {last[:300]}")
     if s["done_unverified"]:
         print(f"\nDone but metric not yet checked: {', '.join(s['done_unverified'])}")
 
@@ -463,6 +498,20 @@ def redteam_share(tracks: dict[str, Any]) -> float | None:
     weights = {t: float(c.get("weight", 0)) for t, c in tracks.items() if t != REVIEW}
     total = sum(weights.values())
     return weights[REDTEAM] / total if total else 0.0
+
+
+def redteam_band_warning(root: Path = ROOT) -> str | None:
+    """A default, not a hard limit (goals.md, "Strong defaults"): warn, don't fail."""
+    try:
+        tracks = load_routing(root).get("tracks")
+    except (OSError, ValueError):
+        return None
+    share = redteam_share(tracks) if isinstance(tracks, dict) else None
+    if share is None or REDTEAM_SHARE[0] <= share <= REDTEAM_SHARE[1]:
+        return None
+    low, high = REDTEAM_SHARE
+    return (f"routing.json: redteam is {share:.1%} of non-review weight; "
+            f"prompts/goals.md aims for {low:.0%}-{high:.0%}")
 
 
 def validate(root: Path = ROOT) -> list[str]:
@@ -488,11 +537,6 @@ def validate(root: Path = ROOT) -> list[str]:
         return errors + ["routing.json: tracks must be an object that includes 'review'"]
     if not any(float(c.get("weight", 0)) > 0 for t, c in tracks.items() if t != REVIEW):
         errors.append("routing.json: at least one non-review track needs a positive weight")
-    share = redteam_share(tracks)
-    if share is not None and not REDTEAM_SHARE[0] <= share <= REDTEAM_SHARE[1]:
-        low, high = REDTEAM_SHARE
-        errors.append(f"routing.json: redteam is {share:.1%} of non-review weight; "
-                      f"prompts/goals.md holds it between {low:.0%} and {high:.0%}")
 
     for track, cfg in tracks.items():
         label = f"routing.json: {track}"
@@ -547,7 +591,98 @@ def validate(root: Path = ROOT) -> list[str]:
                 errors.append(f"prompts/process/backlog/{path.name}: id {item['id']} is also "
                               f"used by {seen[item['id']]}; take the next free number")
             seen[item["id"]] = path.name
+    errors.extend(validate_system(root))
     return errors
+
+
+def tracked_files(repo: Path) -> list[str]:
+    try:
+        out = subprocess.run(["git", "ls-files"], cwd=repo, capture_output=True, text=True, check=True)
+        files = out.stdout.splitlines()
+        if files:
+            return files
+    except (OSError, subprocess.CalledProcessError):
+        pass
+    return [str(p.relative_to(repo)) for p in repo.rglob("*.md")
+            if p.is_file() and "node_modules" not in p.parts and ".git" not in p.parts]
+
+
+def validate_system(root: Path = ROOT) -> list[str]:
+    """prompts/system.json must know every guidance file, and only real ones."""
+    if not (root / "system.json").is_file():
+        return []
+    where = "prompts/system.json"
+    try:
+        system = load_system(root)
+    except json.JSONDecodeError as exc:
+        return [f"{where}: invalid JSON ({exc})"]
+    errors: list[str] = []
+    layers = [layer.get("id") for layer in system.get("layers", [])]
+    changers = set(system.get("changed_by", []))
+    repo = root.parent
+    seen: set[str] = set()
+    for doc in system.get("docs", []):
+        key = doc.get("path") or doc.get("glob")
+        if not key or ("path" in doc) == ("glob" in doc):
+            errors.append(f"{where}: each doc names exactly one of path or glob ({doc})")
+            continue
+        if key in seen:
+            errors.append(f"{where}: {key} is listed twice")
+        seen.add(key)
+        if doc.get("layer") not in layers:
+            errors.append(f"{where}: {key} has layer {doc.get('layer')!r}; layers are {layers}")
+        if doc.get("changed_by") not in changers:
+            errors.append(f"{where}: {key} has changed_by {doc.get('changed_by')!r}; one of {sorted(changers)}")
+        if not doc.get("answers"):
+            errors.append(f"{where}: {key} must say which question it answers")
+        if "path" in doc and not (repo / key).is_file():
+            errors.append(f"{where}: {key} does not exist; remove it or fix the path")
+        budget = doc.get("budget")
+        if budget is not None and (not isinstance(budget, int) or isinstance(budget, bool) or budget < 1):
+            errors.append(f"{where}: {key} budget must be a positive integer of lines")
+    if any(d.get("layer") == "goals" and d.get("changed_by") != "owner" for d in system.get("docs", [])):
+        errors.append(f"{where}: the goals layer belongs to the owner (changed_by: owner)")
+
+    patterns = [glob_re(g) for g in system.get("guidance_patterns", [])]
+    ignored = [glob_re(g) for g in system.get("ignore", [])]
+    for rel in tracked_files(repo):
+        if not any(p.match(rel) for p in patterns) or any(p.match(rel) for p in ignored):
+            continue
+        if doc_for(rel, system) is None:
+            errors.append(f"{rel}: agent guidance with no entry in {where}; add it with its "
+                          "layer and the question it answers (prompts/SYSTEM.md, \"Where new guidance goes\")")
+    return errors
+
+
+def print_map(root: Path = ROOT, track: str | None = None) -> None:
+    """The guidance a run reads, by layer, highest precedence first."""
+    system = load_system(root)
+    repo = root.parent
+    print("# Guidance map (prompts/SYSTEM.md); a higher layer wins a conflict\n")
+    for layer in system.get("layers", []):
+        docs = [d for d in system.get("docs", []) if d.get("layer") == layer["id"]
+                and (track is None or not d.get("for") or track in d["for"])]
+        if not docs:
+            continue
+        print(f"## {layer['id']}: {layer['question']}\n")
+        for d in docs:
+            key = d.get("path") or d.get("glob")
+            if track and "glob" in d and d["glob"] == "prompts/*/prompt-*.md":
+                cfg = load_routing(root)["tracks"].get(track)
+                if cfg:
+                    key = f"prompts/{track}/prompt-{cfg['champion']}.md"
+            tags = []
+            if d.get("always_read"):
+                tags.append("always read")
+            path = repo / key
+            if path.is_file():
+                lines = len(path.read_text().splitlines())
+                budget = d.get("budget")
+                tags.append(f"{lines} lines" + (f" / budget {budget}" if budget else "")
+                            + (" OVER" if budget and lines > budget else ""))
+            tags.append(f"changed by {d['changed_by']}")
+            print(f"- `{key}` ({', '.join(tags)}): {d['answers']}")
+        print()
 
 
 # --------------------------------------------------------------------------
@@ -641,6 +776,8 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
                 item = {"file": "(unattributed)", "issue": str(item)}
             if _NO_FRICTION.match(str(item.get("issue") or "")):
                 continue  # "none significant" says there was no friction; counting it buries real reports
+            if _SELF_FIXED.search(str(item.get("issue") or "")):
+                continue  # the reporting run fixed it in its own PR; listing it sends the next run to re-check
             # the run's end time (minutes) when known, so a same-day report can be told from a stale one
             friction[item["file"]].append(f"{(rec.get('ended') or rec['date'])[:16]}: {item['issue']}")
         for item in rec.get("deviations") or []:
@@ -686,10 +823,68 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
                          for f, v in sorted(friction.items(), key=lambda kv: -len(kv[1]))},
         "deviations": {f: {"reports": len(v), "recent": v[-3:]}
                        for f, v in sorted(deviations.items(), key=lambda kv: -len(kv[1]))},
+        "writeups": writeup_share(runs),
+        "posts_per_day": posts_per_day(root),
         "instruction_lines": sizes,
         "instruction_budget": {rel: budget_for(rel) for rel in sizes},
         "backlog": backlog_summary([item for _, item in load_backlog(root)]),
     }
+
+
+WRITEUPS_FROM = "2026-10-21"  # the owner asked for an agent doc and a post from most runs
+FRICTION_MAX_FILES = 25  # files listed in "Doc friction by file"; the rest are counted
+FRICTION_MAX_CHARS = 200  # per report; the full text is in the run record
+FRICTION_FRESH_DAYS = 3  # "measure" lists friction reports from this many days before the newest
+
+
+def writeup_share(runs: list[dict[str, Any]]) -> dict[str, Any]:
+    """How many of the last 100 records since WRITEUPS_FROM name an agent doc and a post."""
+    recent = [r for r in runs if str(r.get("date") or "") >= WRITEUPS_FROM][-100:]
+    def has(r: dict[str, Any], prefix: str) -> bool:
+        return any(str(u).startswith(prefix) for u in r.get("writeups") or [])
+    return {"runs": len(recent),
+            "agent_doc": sum(has(r, "docs/reports/") for r in recent),
+            "post": sum(has(r, "docs/posts/") for r in recent)}
+
+
+POSTS_DAYS = 14  # days of docs/posts/ shown by "measure" (owner, 2026-10-24: more posts per day)
+
+
+def posts_per_day(root: Path, days: int = POSTS_DAYS) -> list[tuple[str, int]]:
+    """New posts per day in docs/posts/, from the YYYY-MM-DD filename prefix, newest day last."""
+    counts: dict[str, int] = {}
+    for f in (root.parent / "docs" / "posts").glob("*.md"):
+        day = f.name[:10]
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+            counts[day] = counts.get(day, 0) + 1
+    if not counts:
+        return []
+    last = date.fromisoformat(max(counts))
+    span = [(last - timedelta(days=n)).isoformat() for n in range(days - 1, -1, -1)]
+    return [(d, counts.get(d, 0)) for d in span]
+
+
+def filter_sections(text: str, section: str | None) -> str:
+    """Keep only the `## ` sections whose title contains `section` (case-insensitive)."""
+    if not section:
+        return text
+    out: list[str] = []
+    keep = False
+    for line in text.splitlines():
+        if line.startswith("## "):
+            keep = section.lower() in line.lower()
+        if keep:
+            out.append(line)
+    if not out:
+        raise SystemExit(f"no '## ' section title contains {section!r}")
+    return "\n".join(out)
+
+
+def print_measure_section(m: dict[str, Any], section: str | None) -> None:
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        print_measure(m)
+    print(filter_sections(buf.getvalue(), section))
 
 
 def budget_for(rel: str) -> int | None:
@@ -733,19 +928,40 @@ def print_measure(m: dict[str, Any]) -> None:
     print("\n## Doc friction by file\n")
     if not m["doc_friction"]:
         print("None reported.\n")
-    for path, f in m["doc_friction"].items():
+    if m["doc_friction"] and _is_shallow():
+        print("(Shallow clone: a file's \"last changed\" date is only as old as the fetched history, so "
+              "[file changed since] tags may be wrong. `git fetch --unshallow origin main` first.)\n")
+    stamps = [t for f in m["doc_friction"].values() for r in f["recent"] if (t := _when(r))]
+    cutoff = max(stamps) - timedelta(days=FRICTION_FRESH_DAYS) if stamps else None
+    for path, f in list(m["doc_friction"].items())[:FRICTION_MAX_FILES]:
         note, changed = _changed_note(path)
-        tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in f["recent"]]
+        # Older reports are mostly fixed by now and each costs a run several calls to check.
+        fresh = [r for r in f["recent"] if not (t := _when(r)) or t >= cutoff] or f["recent"][-1:]
+        tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in fresh]
         live = [r for r in tagged if not r.startswith("[file changed since]")]
-        shown = (live or tagged)[-3:]
-        hidden = len(tagged) - len(shown)
+        shown = [r if len(r) <= FRICTION_MAX_CHARS else r[:FRICTION_MAX_CHARS - 1] + "…"
+                 for r in (live or tagged)[-3:]]
+        hidden = f["reports"] - len(shown)
         tail = f" (+{hidden} older or since-changed, not shown)" if hidden > 0 else ""
         print(f"- `{path}`{note}: {f['reports']} report(s); latest: " + " | ".join(shown) + tail)
+    if len(m["doc_friction"]) > FRICTION_MAX_FILES:
+        print(f"\n(+{len(m['doc_friction']) - FRICTION_MAX_FILES} more files with fewer reports, not shown)")
+    if m["doc_friction"]:
+        print("\nA report can predate its fix without the file changing (a new tool, a doc elsewhere). "
+              "Before building on one, grep `git log origin/main --since=<report time> -i --grep=<keyword>` "
+              "and the tree for the tool it asks for.")
     print("\n## Deviations by file (judgment calls; prompts/steering.md)\n")
     if not m["deviations"]:
         print("None recorded.\n")
     for path, f in m["deviations"].items():
         print(f"- `{path}`: {f['reports']} deviation(s); latest: " + " | ".join(f["recent"]))
+    w = m["writeups"]
+    print("\n## Write-ups (goals.md, \"Write about the work\")\n")
+    print(f"- Last {w['runs']} records since {WRITEUPS_FROM}: {w['agent_doc']} name an agent doc "
+          f"(docs/reports/), {w['post']} a post (docs/posts/)")
+    if m["posts_per_day"]:
+        print(f"- New posts per day, last {len(m['posts_per_day'])} days: "
+              + ", ".join(f"{d[5:]} {n}" for d, n in m["posts_per_day"]))
     b = m["backlog"]
     c = b["counts"]
     print("\n## Process backlog (`promptctl.py backlog`)\n")
@@ -782,14 +998,40 @@ def print_measure(m: dict[str, Any]) -> None:
 # --------------------------------------------------------------------------
 
 
-def _changed_note(path: str) -> tuple[str, str]:
-    """(' (file last changed D)', D): so a reader can tell a stale complaint from a live one."""
+def _is_shallow() -> bool:
     try:
-        out = subprocess.run(["git", "log", "-1", "--format=%cI", "--", path], cwd=ROOT.parent,
+        out = subprocess.run(["git", "rev-parse", "--is-shallow-repository"], cwd=ROOT.parent,
+                             capture_output=True, text=True, timeout=20).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return out == "true"
+
+
+def _shallow_boundary() -> set[str]:
+    """Commits a shallow clone cuts history at; git shows every file as changed there."""
+    try:
+        out = subprocess.run(["git", "rev-parse", "--git-path", "shallow"], cwd=ROOT.parent,
+                             capture_output=True, text=True, timeout=20).stdout.strip()
+        return set((ROOT.parent / out).read_text().split())
+    except (OSError, subprocess.SubprocessError):
+        return set()
+
+
+def _changed_note(path: str) -> tuple[str, str]:
+    """(' (file last changed D)', D): so a reader can tell a stale complaint from a live one.
+    When the last change git can see is the shallow boundary, the real date is unknown: say so and
+    return '' so no report is tagged stale against it (2026-10-20: every file read "changed 10-20")."""
+    try:
+        out = subprocess.run(["git", "log", "-1", "--format=%H %cI", "--", path], cwd=ROOT.parent,
                              capture_output=True, text=True, timeout=20).stdout.strip()
     except (OSError, subprocess.SubprocessError):
         return "", ""
-    return (f" (file last changed {out[:10]})", out) if out else ("", "")
+    sha, _, when = out.partition(" ")
+    if not when:
+        return "", ""
+    if sha in _shallow_boundary():
+        return f" (file last changed on or before {when[:10]}, the shallow-clone edge)", ""
+    return f" (file last changed {when[:10]})", when
 
 
 _PATH_RE = re.compile(r"[\w./-]+\.(?:py|sh|mjs|md|json|yaml)\b")
@@ -814,6 +1056,7 @@ def _named_files_changed(report: str) -> str:
     return latest
 
 
+_SELF_FIXED = re.compile(r"(?<!not )(?<!un)\bfixed (here|in this PR)\W*$|\((now )?fixed\)\W*$", re.I)
 _NO_FRICTION = re.compile(r"\s*(none|no friction|nothing)\b[^.;:]{0,20}([.;:]|$)", re.I)
 
 
@@ -894,10 +1137,14 @@ def main(argv: list[str] | None = None) -> int:
                    "(e.g. the upstream research repo), so a review can look the PR up")
     p = sub.add_parser("measure", help="score prompt versions from the run records")
     p.add_argument("--json", action="store_true")
+    p.add_argument("--section", help="print only the '## ' sections whose title contains this "
+                   "text (case-insensitive), e.g. 'friction' or 'candidates'; the full output is 50KB+")
     sub.add_parser("backlog", help="list open process improvements, best first")
     p = sub.add_parser("backfill-pr", help="fill empty `pr` in run records from the merge commit subject")
     p.add_argument("--dry-run", action="store_true")
-    sub.add_parser("validate", help="check routing, prompts, run records and the backlog")
+    sub.add_parser("validate", help="check routing, prompts, run records, the backlog and the guidance map")
+    p = sub.add_parser("map", help="the guidance files, by layer and precedence (prompts/SYSTEM.md)")
+    p.add_argument("--track", help="only what this track reads")
     args = parser.parse_args(argv)
 
     if args.cmd == "route":
@@ -908,16 +1155,21 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "record":
         path = record(ROOT, args.track, args.version, args.session, args.model, args.input, args.date, args.repo)
         print(f"Wrote {path.relative_to(ROOT.parent)}. Fill in outcome, pr, errors, "
-              "integrity_issues and doc_friction, then commit it as the last commit on your "
-              "work branch, before merging.\n"
+              "integrity_issues and doc_friction, then commit it as a final commit on your "
+              "work branch (after the PR is open, so `pr` is known) and push, before merging.\n"
               f"Shapes the validator enforces: outcome is one of {', '.join(OUTCOMES)} "
               "(a bare word, not a sentence; put the story in notes); doc_friction is a list of "
-              '{"file": ..., "issue": ...}; deviations a list of {"file": ..., "why": ...}. '
+              '{"file": ..., "issue": ...}; deviations a list of {"file": ..., "why": ...}, '
+              'plus "did" and "result" when you can say them (measure needs a result to tell '
+              'whether a departure worked). '
               "Check with: python3 prompts/promptctl.py validate")
         return 0
     if args.cmd == "measure":
         m = measure(ROOT)
-        print(json.dumps(m, indent=2)) if args.json else print_measure(m)
+        if args.json:
+            print(json.dumps(m, indent=2))
+        else:
+            print_measure_section(m, args.section)
         return 0
     if args.cmd == "backfill-pr":
         found = backfill_prs(ROOT, not args.dry_run)
@@ -926,6 +1178,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "backlog":
         print_backlog(ROOT)
         return 0
+    if args.cmd == "map":
+        print_map(ROOT, args.track)
+        return 0
+    warning = redteam_band_warning(ROOT)
+    if warning:
+        print(f"warning: {warning}", file=sys.stderr)
     errors = validate(ROOT)
     for err in errors:
         print(f"error: {err}", file=sys.stderr)

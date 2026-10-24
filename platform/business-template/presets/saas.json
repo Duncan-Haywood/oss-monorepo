@@ -1,0 +1,24 @@
+{
+  "label": "Software as a service (web app, subscription)",
+  "default_stack": "Static front end on GitHub Pages or Cloudflare Pages; app back end on a free tier (Cloudflare Workers, Fly.io, Supabase) declared as code; Stripe Checkout behind an environment variable, off until the owner adds a key.",
+  "weights": {
+    "build":  {"product": 0.55, "marketing": 0.15, "sales": 0.05, "finance": 0.05, "legal": 0.10, "support": 0.05, "review": 0.05},
+    "launch": {"product": 0.30, "marketing": 0.30, "sales": 0.15, "finance": 0.05, "legal": 0.05, "support": 0.10, "review": 0.05},
+    "grow":   {"product": 0.30, "marketing": 0.30, "sales": 0.15, "finance": 0.10, "legal": 0.00, "support": 0.10, "review": 0.05}
+  },
+  "questions": [
+    {"id": "customer", "ask": "Who is the first customer, as specifically as you can say it (job, company size, situation)?", "default": "Agent picks the narrowest customer the idea serves and writes it down for you to correct."},
+    {"id": "problem", "ask": "What do they do today instead, and what does that cost them?", "default": "Agent researches public forums and competitor pages and records what it finds, with links."},
+    {"id": "price", "ask": "What would you like to charge, and is a free tier acceptable?", "default": "Free tier plus one paid plan priced at the median of three named competitors."},
+    {"id": "brand", "ask": "Do you have a name, domain or brand colours already?", "default": "Agent proposes three names; the first is used until you pick one."},
+    {"id": "region", "ask": "Which country will the business be registered in (affects tax, privacy law and payments)?", "default": "United States; privacy pages also cover GDPR basics."},
+    {"id": "hours", "ask": "How many hours a week can you give it (approvals, sales calls, account sign-ups)?", "default": "Two hours a week, batched into one owner checklist."}
+  ],
+  "owner_setup": [
+    {"id": "entity", "what": "Decide whether to trade as yourself or register a company (LLC, Ltd).", "why": "Liability and tax; an agent cannot sign registration forms."},
+    {"id": "bank", "what": "Open a separate business bank account.", "why": "Keeps the books clean; needs your ID."},
+    {"id": "payments", "what": "Create a Stripe (or Paddle / Lemon Squeezy) account and add the secret key as a repository or hosting secret.", "why": "Payment code ships off by default and switches on only with your key."},
+    {"id": "domain", "what": "Buy the domain the agent proposes in BUSINESS.md and point it at the host in SETUP.md.", "why": "Needs a card."},
+    {"id": "email", "what": "Create a support mailbox (or forwarding address) on the domain.", "why": "Customers need a reply-to address; the agent drafts replies, you send them."}
+  ]
+}

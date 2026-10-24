@@ -55,5 +55,5 @@ kill_criteria:
   - A user reports that the result contradicts their own arithmetic on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/pslf-vs-refinance-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/pslf-vs-refinance-calculator/
   analytics: null

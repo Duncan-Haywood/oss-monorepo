@@ -1,0 +1,13 @@
+[project]
+name = "capture-followtrack"
+version = "0.1.0"
+description = "How much of a predictive follow camera's contact reduction survives noisy, delayed pedestrian detections? (2-D crowd simulation)"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../capture-followplan/src", "../capture-follow/src"]

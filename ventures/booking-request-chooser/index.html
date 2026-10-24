@@ -43,6 +43,7 @@
     <p>Two requests want the same week and one pays more. Or a 2-night request would leave a 1-night hole nobody can book. Paste your <strong>confirmed bookings and pending requests</strong> and see <strong>the exact set to accept for the most income</strong>, counting <strong>turnover cost</strong>, the <strong>dead gap nights</strong> each choice leaves, and <strong>counter-offers</strong> (a night earlier or later) worth sending the guests you would otherwise decline.</p>
     <p class="note">For hosts of vacation rentals, cabins, campsites, B&amp;Bs, boats and event spaces. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your calendar</h2>
@@ -116,7 +117,8 @@ cat calendar.csv | node cli.mjs plan - --json</pre>
     <p>Yes for anything sold by the night with a minimum stay and a changeover cost: bed and breakfasts, cabins, campsites, boat and RV rentals, vacation homes and event spaces booked by the day.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the prices and dates you type, and for complying with the rules of any booking platform you use, including any obligation to honour or respond to a request. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will book.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

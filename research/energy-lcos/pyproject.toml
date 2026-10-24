@@ -1,0 +1,13 @@
+[project]
+name = "energy-lcos"
+version = "0.1.0"
+description = "Levelised cost of storage by technology and duration, from capital cost, efficiency, cycle life and fade"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

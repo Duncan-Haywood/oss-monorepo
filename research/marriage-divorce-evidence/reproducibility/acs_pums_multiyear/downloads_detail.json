@@ -1,0 +1,142 @@
+[
+ {
+  "year": 2024,
+  "kind": "person",
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2024/1-Year/csv_pus.zip",
+  "sha256": "afdc6d90c6e2f0bab365ed32d95ba4c4d8ac651162f46ac7861295b2dc469894",
+  "bytes": 602847146,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "rows_read": 3422888,
+  "rows_kept": 1553739,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2024,
+  "kind": "housing",
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2024/1-Year/csv_hus.zip",
+  "sha256": "8281008e53de98f0ef81e7a2ee5a8725991dda1ecfd2713ead73246425e515d0",
+  "bytes": 251500587,
+  "members": [
+   "psam_husa.csv",
+   "psam_husb.csv"
+  ],
+  "rows_read": 1631969,
+  "rows_kept": 813301,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2023,
+  "kind": "person",
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2023/1-Year/csv_pus.zip",
+  "sha256": "98b6ecb14b4830d1f2b54c265a5bd997828415c2dab14e17369c40e98b78d9d4",
+  "bytes": 597292173,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "rows_read": 3405809,
+  "rows_kept": 1546577,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2023,
+  "kind": "housing",
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2023/1-Year/csv_hus.zip",
+  "sha256": "32c4331bd0fa969c11a056a854a87bcc167a1f95e7bcd51ab2dce596d81d1bb0",
+  "bytes": 250285521,
+  "members": [
+   "psam_husa.csv",
+   "psam_husb.csv"
+  ],
+  "rows_read": 1620290,
+  "rows_kept": 809272,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2022,
+  "kind": "person",
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2022/1-Year/csv_pus.zip",
+  "sha256": "687a97773d0fdfec6c624ea6bf48466f12059d3ee80283a2ad8604ea7a66231e",
+  "bytes": 591122084,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "rows_read": 3373378,
+  "rows_kept": 1526178,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2022,
+  "kind": "housing",
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2022/1-Year/csv_hus.zip",
+  "sha256": "1f4da07a86d149bc85f786346e86730e0c7b73512ce7e1299d77ec15befd12a7",
+  "bytes": 248018621,
+  "members": [
+   "psam_husa.csv",
+   "psam_husb.csv"
+  ],
+  "rows_read": 1611650,
+  "rows_kept": 799600,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2021,
+  "kind": "person",
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2021/1-Year/csv_pus.zip",
+  "sha256": "e1e64f81718e7d478cf2bf4ad8d1ae1fa03c690f6c86afa3984d1a6bd38dc8f2",
+  "bytes": 571180899,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "rows_read": 3252599,
+  "rows_kept": 1466429,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2021,
+  "kind": "housing",
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2021/1-Year/csv_hus.zip",
+  "sha256": "e1f4fb85a089d6bd662ad1bd3f3f3696f6849140971fb81fae6600dceaac50ee",
+  "bytes": 241790917,
+  "members": [
+   "psam_husa.csv",
+   "psam_husb.csv"
+  ],
+  "rows_read": 1560255,
+  "rows_kept": 767634,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2019,
+  "kind": "person",
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2019/1-Year/csv_pus.zip",
+  "sha256": "18e4ece4cc24781c01e8046c2d5afbabeb1f15452ddec43f60fdf3b1f6e67b92",
+  "bytes": 567851237,
+  "members": [
+   "psam_pusa.csv",
+   "psam_pusb.csv"
+  ],
+  "rows_read": 3239553,
+  "rows_kept": 1476601,
+  "retrieved": "2026-10-20"
+ },
+ {
+  "year": 2019,
+  "kind": "housing",
+  "url": "https://www2.census.gov/programs-surveys/acs/data/pums/2019/1-Year/csv_hus.zip",
+  "sha256": "82b1b11747a1259698db0254af0a8ca3064f83c22b028377d0f93e46f01c27e7",
+  "bytes": 236656453,
+  "members": [
+   "psam_husa.csv",
+   "psam_husb.csv"
+  ],
+  "rows_read": 1548188,
+  "rows_kept": 773312,
+  "retrieved": "2026-10-20"
+ }
+]

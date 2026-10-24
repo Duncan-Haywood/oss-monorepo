@@ -1,0 +1,30 @@
+name: csv-to-sepa-pain001
+description: >-
+  Free browser tool that turns a CSV or Excel export of payments (payee, IBAN, amount, reference) into a SEPA credit
+  transfer file (ISO 20022 pain.001.001.03 or .09) for a business bank's bulk upload. Every IBAN gets the mod-97 and
+  country-length check, amounts are read as exact cents (1.200,50 and 1,200.50 both work; an ambiguous 1,234 is refused),
+  names and references are made SEPA-safe, duplicates and weekend or past dates are flagged, and no file is written while
+  any payment has an error. The list is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-20 as the missing generator half of the SEPA set: `iban-list-check` cleans the IBAN column,
+# `sepa-pain001-validator` checks a finished file, `sepa-pain002-status-reader` reads the bank's answer, and nothing made
+# the file. A test feeds this tool's output to the validator when both sit in the monorepo; it reports no errors for
+# pain.001.001.03 and .09.
+#
+# Archetype: paste-your-file converter with an arithmetic core (exact-cent control totals). Competitors are
+# CSV-to-SEPA converters and the bulk-import features of accounting packages; the angle here is private (nothing uploaded),
+# free, refuses to emit a half-correct batch, and says why per line.
+#
+# First visitor: a bookkeeper, club treasurer or small-business owner in the euro area whose bank accepts a pain.001 upload
+# but whose accounting package does not export one, searching "CSV to SEPA", "Excel to pain.001", "bulk SEPA payment file".
+# Volume not measured with an external tool.
+#
+# Path to revenue (payment rails stay off): lead magnet. A paid version, if usage appears, is saved payer profiles and
+# per-bank rule sets (limits, version quirks, SCT Inst), recurring payment runs, pain.008 direct debits, and an API behind an
+# env-var switch; none built.
+#
+# Liability: generates a file from the user's own list, no warranty, independent of every bank and the EPC, no promise the
+# bank accepts it, user reviews every payment and confirms changed bank details with the payee. Reference data read from
+# memory of public sources.

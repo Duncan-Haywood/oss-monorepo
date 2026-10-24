@@ -1,11 +1,11 @@
-# dunning-engine
+# Dunning Engine — Free Self-Hosted Stripe Failed Payment Recovery
 
 After using this, you can now **win back failed Stripe subscription payments
 with a plan per decline reason, on your own server and with your own
 emails**, which used to mean paying a recovery service a cut of what it
 recovers, or living with Stripe's one-size-fits-all retries.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dunning-engine/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/dunning-engine/
 
 Two parts, both free and MIT:
 
@@ -41,7 +41,7 @@ notice asks the customer instead). It does not claim a recovery uplift over
 Stripe's own retries; measure that on your own data (`/v1/summary` reports what
 it recovered). If Smart Retries already works for you, keep it.
 
-Reference pages: [which Stripe decline codes to retry and which never to](https://duncan-haywood.github.io/monorepo-projects/dunning-engine/stripe-decline-codes.html) and [Dunning Engine vs paid recovery services](https://duncan-haywood.github.io/monorepo-projects/dunning-engine/vs-paid-recovery-services.html).
+Reference pages: [which Stripe decline codes to retry and which never to](https://duncan-haywood.github.io/oss-monorepo/dunning-engine/stripe-decline-codes.html) and [Dunning Engine vs paid recovery services](https://duncan-haywood.github.io/oss-monorepo/dunning-engine/vs-paid-recovery-services.html).
 
 ## What it does
 
@@ -77,7 +77,7 @@ Reference pages: [which Stripe decline codes to retry and which never to](https:
 
 ```sh
 cd ventures/dunning-engine
-node --test        # 85 tests, no network
+node --test        # 91 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://dunning.example.com node server.mjs
@@ -86,7 +86,7 @@ PUBLIC_URL=https://dunning.example.com node server.mjs
 It starts in **DRY_RUN** (the default): failures are recorded and every email or
 retry it *would* do is logged, but Stripe and your customers are not touched.
 Try it with a **test-mode** key and `stripe trigger invoice.payment_failed`,
-read the log, then set `DRY_RUN=false` with `RESEND_API_KEY` and `MAIL_FROM`.
+read the log, then set `DRY_RUN=false` with a mail provider key (Resend by default, or Postmark, SendGrid or Mailgun via `MAIL_PROVIDER`) and `MAIL_FROM`.
 
 Before going live, run the preflight with the same environment:
 `node doctor.mjs` (in Docker: `docker exec <container> node doctor.mjs`). It checks the
@@ -118,7 +118,9 @@ Setup in Stripe:
 | `ADMIN_KEY` | bearer token for `GET /v1/summary` and `/v1/cases` |
 | `LINK_SECRET` | signs the `/update/` links |
 | `PUBLIC_URL` | where this server is reachable (used in emails) |
-| `RESEND_API_KEY`, `MAIL_FROM` | email sending (needed when `DRY_RUN=false`) |
+| `MAIL_FROM` | sender address, e.g. `Acme Billing <billing@acme.com>` (needed when `DRY_RUN=false`) |
+| `MAIL_PROVIDER` | `resend` (default), `postmark`, `sendgrid` or `mailgun` |
+| `RESEND_API_KEY` / `POSTMARK_SERVER_TOKEN` (+ optional `POSTMARK_STREAM`) / `SENDGRID_API_KEY` / `MAILGUN_API_KEY` + `MAILGUN_DOMAIN` (+ `MAILGUN_REGION=eu`) | the key for the provider you chose |
 | `COMPANY_NAME`, `COMPANY_ADDRESS` | email wording and footer |
 | `POLICY_JSON` | override the schedule, e.g. `{"graceDays":10,"softRetryDays":[2,5]}` |
 | `EXPIRY_NOTICES`, `EXPIRY_DAYS` | card-expiry heads-up emails (default on, 30 days) |

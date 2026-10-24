@@ -1,0 +1,27 @@
+tools: {'yosys': 'Yosys 0.33 (git sha1 2584903a060)', 'iverilog': 'Icarus Verilog version 12.0 (stable) ()', 'openroad': False}
+design: p=8, wb=4 MAC accelerator, spec latency 20 cycles; property run = 32 plain + 8 glitch + 8 abort + 8 plain vectors; golden passes in 0.12 s
+mutants: 91 (killable 66, proved equivalent 16, undecided 9; ground truth from eda-verify)
+
+golden-free properties (any) kill 22/66 killable mutants = 0.333
+violations on mutants proved equivalent: 0/16; on undecided: 0/9
+
+per property (killable mutants it violates; violated alone):
+  latency   22  alone   0
+  pulse      8  alone   0
+  hold       6  alone   0
+  repeat     8  alone   0
+  glitch    22  alone   0
+  abort     22  alone   0
+
+by kind (killed / killable):
+  del: 1/3
+  lit: 15/33
+  op: 6/15
+  rom: 0/15
+
+overlap with golden-based checks over the 66 killable: random-64 (any seed) 62, directed-16 61
+  golden-free only (not directed-16): 0; directed-16 only: 40; both: 21; neither: 5
+killable mutants the properties miss (44): lit@125:0+1, lit@125:0+1, lit@125:0+1, lit@125:0+1, lit@127:0+1, lit@127:1+1, op@128:+->-, op@128:*->+, op@130:+->-, op@130:*->+, del@130:delete, lit@135:1+1, lit@135:0+1, op@136:+->-, op@136:*->+, lit@137:4-1, op@138:+->-, lit@137:8-1, op@139:==->!=, lit@139:0+1, lit@140:3+1, lit@140:3-1, lit@140:0+1, op@143:>>>->>>, lit@143:3+1, lit@143:3-1, del@147:delete, lit@151:1-1, lit@153:0+1, rom@10:+1, rom@12:+1, rom@23:+1, rom@29:+1, rom@46:+1, rom@55:+1, rom@60:+1, rom@51:+1, rom@14:+1, rom@32:+1, rom@74:+1, rom@62:+1, rom@70:+1, rom@84:+1, rom@101:+1
+
+signature counts: {('abort', 'glitch', 'latency', 'pulse', 'repeat'): 2, (): 44, ('abort', 'glitch', 'hold', 'latency', 'pulse', 'repeat'): 6, ('abort', 'glitch', 'latency'): 14}
+CPU seconds per mutant for the property run: 1.34; kills per CPU-minute: 14.3

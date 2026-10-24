@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-pickbreak"
+version = "0.1.0"
+description = "Break-even look time for aiming at a garment's opening versus blind pinching, on the hanger-pick pile model, with paired bootstrap intervals"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,11 +1,11 @@
-# staffing-markup-calculator
+# Staffing Markup Calculator | What a 45% Markup Actually Earns
 
 A browser calculator for independent staffing agencies and recruiters. It
 prices one placement the way the trade actually quotes it — a **markup on the
 pay rate** — and then shows what that markup earns once the employer burden it
 has to carry is counted.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/staffing-markup-calculator/
 
 Everything runs in the visitor's browser. No account, no network requests, no
 build step, no dependencies.

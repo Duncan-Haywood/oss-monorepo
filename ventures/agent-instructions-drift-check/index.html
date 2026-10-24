@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AGENTS.md / CLAUDE.md Drift Check — Broken Links &amp; Footguns in Agent Instructions</title>
-  <meta name="description" content="Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn't defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.">
+  <meta name="description" content="Paste AGENTS.md or CLAUDE.md and find referenced file paths that no longer exist, undefined npm scripts and shell footguns. Free, runs in your browser.">
   <meta property="og:title" content="Does your AI coding agent's instruction file still match your repo?">
   <meta property="og:description" content="A deterministic drift checker for AGENTS.md / CLAUDE.md and similar AI-coding-agent instruction files: broken file references, undefined npm scripts, and known interpreter-mismatch footguns. No account, no upload.">
   <link rel="canonical" href="./index.html">
@@ -49,6 +49,7 @@
     <p>Paste your <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>.cursorrules</code>, or <code>copilot-instructions.md</code> and see every file path it references that no longer exists, every <code>npm run</code> script it names that isn't defined in <code>package.json</code>, and known interpreter-mismatch shell footguns — a bare <code>pytest</code> or <code>mypy</code> that can silently resolve to the wrong Python and waste an agent's whole run chasing a phantom failure.</p>
     <p class="note">Nothing is uploaded. Pasted text is parsed entirely in this browser. The optional folder picker reads only file <em>names</em> from your chosen folder, never file contents, and nothing leaves your device either way.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your instructions file</h2>
@@ -115,12 +116,13 @@ node cli.mjs check AGENTS.md --json                   # machine-readable</pre>
     <p>No. The browser page parses the text you paste and the file names it reads from a folder you pick entirely in your own browser, and never sends any of it anywhere. It reads only file names from the folder picker, never file contents. The CLI reads only local files -- no network call, ever.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security, or engineering advice, and it does not replace a qualified professional or a careful read of your own instruction file. It reports whether a referenced path, script, or known shell pattern matches what it was told about your repo — nothing more, and a clean result is not a guarantee that your instructions are correct or complete. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste and the file names read from a chosen folder are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>folder_selected</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Also worth a pass on the same repo: <a href="../env-example-drift-check/">.env.example Drift Check</a>, <a href="../structured-data-drift-check/">Structured Data Drift Check</a>, and <a href="../license-drift-check/">License Drift Check</a> ask the same "does the doc still match the code" question about different pairs — an env file, a page's JSON-LD, a dependency tree — with the same deterministic, no-upload shape. <a href="../cron-dst-drift-check/">Cron DST Drift Check</a> checks a different kind of drift entirely — a cron schedule against the real calendar's daylight-saving transitions. <a href="../agent-permission-config-check/">Agent Permission Config Check</a> checks the same AI-coding-agent's config for a different question again — not whether the file still matches the repo, but whether it grants Bash too broadly or leaks a secret in an MCP server's env.</p>
+    <p>Also worth a pass on the same repo: <a href="../env-example-drift-check/">.env.example Drift Check</a>, <a href="../structured-data-drift-check/">Structured Data Drift Check</a>, and <a href="../license-drift-check/">License Drift Check</a> ask the same "does the doc still match the code" question about different pairs — an env file, a page's JSON-LD, a dependency tree — with the same deterministic, no-upload shape. <a href="../cron-dst-drift-check/">Cron DST Drift Check</a> checks a different kind of drift entirely — a cron schedule against the real calendar's daylight-saving transitions. <a href="../agent-permission-config-check/">Agent Permission Config Check</a> checks the same AI-coding-agent's config for a different question again — not whether the file still matches the repo, but whether it grants Bash too broadly or leaks a secret in an MCP server's env. And to keep track of what each agent is working on, <a href="../agent-workroom/">Agent Workroom</a> gives every agent a desk in a small 3D room, with tasks added by voice or text.</p>
     <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

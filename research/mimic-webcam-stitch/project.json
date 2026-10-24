@@ -1,0 +1,3 @@
+{"theme": "mimic",
+ "title": "Why is block-stitched real webcam signal still caught: the joins, or mixing people?",
+ "summary": "Ceiling study on the DUX webcam expression signals: 100-frame windows stitched from real blocks of 5 to 50 frames, scored by a boosted-tree detector on 14 held-out people (8 seeds). With 50-frame blocks random stitching is caught at AUROC 0.887; blocks from one person only give 0.687; join-matched blocks 0.796; both together 0.588, equal to replaying whole windows (0.597). At 5 frames everything is caught (&ge;0.989). Mixing people is the larger giveaway, join mismatch smaller, and removing both only reaches the replay ceiling. Every frame is real, so this is not a generator. Stylised: one form-filling context, 46 people."}

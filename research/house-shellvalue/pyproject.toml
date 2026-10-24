@@ -1,0 +1,13 @@
+[project]
+name = "house-shellvalue"
+version = "0.1.0"
+description = "Does a factory shell pay once the interest on the days it saves is counted? Joins house-offsite's extra cost to house-schedule's days saved"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-schedule/src", "../house-offsite/src", "../house-framing/src"]

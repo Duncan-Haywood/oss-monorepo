@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-20",
+  "session": "https://claude.ai/code/session_01NvwTwMoDUATfzGDB6XTsbR",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-20T17:37:49Z",
+  "ended": "2026-10-20T17:42:26Z",
+  "wall_minutes": 5.0,
+  "tokens_in": 1342431,
+  "tokens_out": 6525,
+  "cost_usd": 0.5551,
+  "tool_calls": 20,
+  "task": "mimic-webcam-tails next step: per-window max/min match",
+  "projects": [
+    "mimic-webcam-tails"
+  ],
+  "pr": 8889,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "pick_track redraw landed on track 11 quickly but 'newest projects' order is not by date on a shallow clone, so choosing the next project took reading several READMEs."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Tests 5/5, 8-seed run.py reproduced G0-G5 exactly and added G6; build.py ok, link checks ok. CI/merge status filled by session.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c0fcd1e4-3b39-50df-88d2-a9be4646b52b",
+    "transcripts": 1,
+    "first": "2026-10-20T17:37:49Z",
+    "last": "2026-10-20T17:42:50Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 18,
+        "input": 36,
+        "output": 6525,
+        "thinking": 663,
+        "cache_read": 1284153,
+        "cache_write_5m": 0,
+        "cache_write_1h": 58242,
+        "api_equivalent_usd": 0.5551,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 18,
+      "input": 36,
+      "output": 6525,
+      "thinking": 663,
+      "cache_read": 1284153,
+      "cache_write_5m": 0,
+      "cache_write_1h": 58242,
+      "api_equivalent_usd": 0.5551,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.957,
+    "tool_calls": 20,
+    "tools": {
+      "Bash": 16,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.0,
+      "active_minutes": 5.0,
+      "model_minutes": 1.57,
+      "tool_minutes": 3.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "design, run and write up one small generator variant",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 540.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

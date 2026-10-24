@@ -1,0 +1,2 @@
+{"round": 2, "notes": "Round 1: bruising was near zero (median pressure 21-55 kPa, far under the 40-110 kPa threshold) while slip was 7-47% and collision 16-32%. So spend the pressure headroom on grip force (5-8 N), and cut collisions with 3 fingers and shorter length where slip allows. Best so far was 22 mm wide, 35 mm long, 6 N, 4 fingers (J 0.506, collision 0.32).",
+ "designs": [[22,28,0.5,7,3],[25,26,0.4,8,3],[20,30,0.6,7,3],[24,24,0.5,8,3],[25,32,0.3,8,4],[22,22,0.5,8,3],[25,28,0.8,8,3],[18,26,0.5,7,3],[25,35,0.4,8,3],[25,20,0.4,8,3]]}

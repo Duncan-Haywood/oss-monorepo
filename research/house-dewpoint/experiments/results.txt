@@ -1,0 +1,35 @@
+house-dewpoint results (deterministic; steady-state Glaser, assumed inputs)
+
+A. Condensation rate, g/m2/day (0 = none), then unclamped RH at the sheathing's outer face
+== winter month
+  Miami (1A)     ext=none  none:  0.00@  71%  paint:  0.00@  71%  kraft:  0.00@  73%  poly:  0.00@  75%
+  Miami (1A)     ext=xps1  none:  0.00@  55%  paint:  0.00@  55%  kraft:  0.00@  62%  poly:  0.00@  72%
+  Miami (1A)     ext=xps2  none:  0.00@  50%  paint:  0.00@  50%  kraft:  0.00@  56%  poly:  0.00@  70%
+  Atlanta (3A)   ext=none  none:  0.00@  75%  paint:  0.00@  75%  kraft:  0.00@  73%  poly:  0.00@  72%
+  Atlanta (3A)   ext=xps1  none:  0.00@  69%  paint:  0.00@  69%  kraft:  0.00@  66%  poly:  0.00@  61%
+  Atlanta (3A)   ext=xps2  none:  0.00@  63%  paint:  0.00@  63%  kraft:  0.00@  60%  poly:  0.00@  54%
+  Chicago (5A)   ext=none  none:  6.14@  85%  paint:  6.18@  85%  kraft:  0.05@  77%  poly:  0.00@  71%
+  Chicago (5A)   ext=xps1  none:  2.33@  97%  paint:  2.34@  97%  kraft:  0.00@  81%  poly:  0.00@  55%
+  Chicago (5A)   ext=xps2  none:  0.00@  87%  paint:  0.00@  87%  kraft:  0.00@  75%  poly:  0.00@  47%
+  Duluth (7A)    ext=none  none: 11.38@ 102%  paint: 11.43@ 102%  kraft:  1.47@  84%  poly:  0.00@  70%
+  Duluth (7A)    ext=xps1  none:  7.96@ 140%  paint:  8.00@ 140%  kraft:  0.85@ 106%  poly:  0.00@  53%
+  Duluth (7A)    ext=xps2  none:  4.74@ 120%  paint:  4.76@ 120%  kraft:  0.25@  97%  poly:  0.00@  45%
+== summer month
+  Miami (1A)     ext=none  none:  0.00@  75%  paint:  0.00@  75%  kraft:  0.00@  78%  poly:  0.00@  80%
+  Miami (1A)     ext=xps1  none:  0.00@  58%  paint:  0.00@  58%  kraft:  0.00@  68%  poly:  0.00@  82%
+  Miami (1A)     ext=xps2  none:  0.00@  54%  paint:  0.00@  54%  kraft:  0.00@  63%  poly:  0.00@  82%
+  Atlanta (3A)   ext=none  none:  0.00@  71%  paint:  0.00@  71%  kraft:  0.00@  73%  poly:  0.00@  75%
+  Atlanta (3A)   ext=xps1  none:  0.00@  58%  paint:  0.00@  58%  kraft:  0.00@  65%  poly:  0.00@  75%
+  Atlanta (3A)   ext=xps2  none:  0.00@  54%  paint:  0.00@  54%  kraft:  0.00@  61%  poly:  0.00@  75%
+  Chicago (5A)   ext=none  none:  0.00@  67%  paint:  0.00@  67%  kraft:  0.00@  69%  poly:  0.00@  70%
+  Chicago (5A)   ext=xps1  none:  0.00@  58%  paint:  0.00@  58%  kraft:  0.00@  62%  poly:  0.00@  69%
+  Chicago (5A)   ext=xps2  none:  0.00@  55%  paint:  0.00@  55%  kraft:  0.00@  59%  poly:  0.00@  68%
+  Duluth (7A)    ext=none  none:  0.00@  69%  paint:  0.00@  69%  kraft:  0.00@  69%  poly:  0.00@  69%
+  Duluth (7A)    ext=xps1  none:  0.00@  64%  paint:  0.00@  64%  kraft:  0.00@  65%  poly:  0.00@  65%
+  Duluth (7A)    ext=xps2  none:  0.00@  62%  paint:  0.00@  62%  kraft:  0.00@  62%  poly:  0.00@  63%
+
+B. Every retarder + exterior-foam combination with zero condensation in both months
+  Miami (1A)     none+none, none+xps1, none+xps2, paint+none, paint+xps1, paint+xps2, kraft+none, kraft+xps1, kraft+xps2, poly+none, poly+xps1, poly+xps2
+  Atlanta (3A)   none+none, none+xps1, none+xps2, paint+none, paint+xps1, paint+xps2, kraft+none, kraft+xps1, kraft+xps2, poly+none, poly+xps1, poly+xps2
+  Chicago (5A)   none+xps2, paint+xps2, kraft+xps1, kraft+xps2, poly+none, poly+xps1, poly+xps2
+  Duluth (7A)    poly+none, poly+xps1, poly+xps2
