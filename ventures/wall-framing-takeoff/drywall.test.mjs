@@ -82,3 +82,10 @@ test("corner bead: a 36 x 48 in window is two 48 in jambs and a 36 in head = 11 
   assert.equal(layoutDrywall({ openingBead: false }, plan([{ id: "A", length: 192, openings: [{ offset: 60, width: 36, height: 48 }] }])).finishing.beadFt, 0);
   assert.ok(validateDrywall({ beadStickFt: 7 }).length);
 });
+
+test("inside angles: one 8 ft run at a corner, two where a partition tees in, added to the tape", () => {
+  const l = layoutDrywall({}, plan([{ id: "A", length: 192, sheathed: true, corner: true, tees: [96] }]));
+  // height 96 in: corner 96 + tee 2 x 96 = 288 in = 24 ft
+  assert.equal(l.finishing.insideCornerFt, 24);
+  assert.equal(l.finishing.tapeFt, 40 + 24);
+});
