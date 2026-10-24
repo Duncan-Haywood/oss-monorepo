@@ -58,6 +58,7 @@ const REQUIRED_ROOT_FILES = [
   // so a build that drops it drops the site's machine-readable front door
   // without any page 404ing to show it.
   'llms.txt',
+  'llms-full.txt',
   // The "what's new" door. Unlike the pages, nothing 404s when this is
   // missing -- a subscriber's reader just quietly stops seeing new tools, and
   // nothing on the site says so. That silence is why it is a required file
@@ -901,7 +902,8 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // Same reachability argument as the hub, for the machine-readable door. A
   // tool missing from llms.txt is invisible to an assistant recommending one,
   // and nothing else in the artifact would show it: every page still resolves.
-  const llms = await fs.readFile(path.join(site, 'llms.txt'), 'utf8').catch(() => null);
+  // `llms-full.txt` is the complete list; `llms.txt` is a short index.
+  const llms = await fs.readFile(path.join(site, 'llms-full.txt'), 'utf8').catch(() => null);
   if (llms !== null) {
     // The parent segment is captured as well as the leaf, because a leaf alone
     // cannot tell a product from a page filed *under* a site-own directory.
@@ -920,7 +922,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     );
     for (const product of productDirs) {
       if (!listed.has(product)) {
-        problems.push(`${product}/: shipped but llms.txt does not list it, so AI discovery misses it`);
+        problems.push(`${product}/: shipped but llms-full.txt does not list it, so AI discovery misses it`);
       }
     }
     for (const slug of listed) {
@@ -930,7 +932,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       // not products, so the "no such product shipped" reading is wrong for
       // them; that they shipped is checked in their own blocks above.
       if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug)) {
-        problems.push(`llms.txt: lists "${slug}" but no such product shipped`);
+        problems.push(`llms-full.txt: lists "${slug}" but no such product shipped`);
       }
     }
   }

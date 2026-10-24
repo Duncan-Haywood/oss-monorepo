@@ -1,7 +1,7 @@
 ---
 title: "A bf16 verifier disputes 41% of honest training steps at a 1e-3 tolerance"
 date: 2026-10-24
-description: "Measured on a small transformer: the tolerance that keeps an honest worker safe on bf16 hardware already lets a cheater skip 16% of steps for 0.2 seed std of loss."
+description: "Measured on a small transformer: the tolerance that keeps an honest worker safe on bf16 hardware already lets a cheater skip 16% of steps for 0.2 std of loss."
 tags: [research, verifiable-training, transformers]
 ---
 
