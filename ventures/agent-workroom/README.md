@@ -5,7 +5,7 @@ whose monitor shows what it is on; the back wall holds every task as a sticky
 note in *to do*, *in progress*, *in review* or *done*. Type or say what needs
 doing, and pull real progress from a GitHub repository's pull requests.
 
-**Live:** https://duncan-haywood.github.io/monorepo-projects/agent-workroom/
+**Live:** https://duncan-haywood.github.io/oss-monorepo/agent-workroom/
 
 It started as a for-fun project (owner, 2026-10-24: "vr like workplace for
 working with agents ... a browser etc ui for adding tasks. by voice or text").
