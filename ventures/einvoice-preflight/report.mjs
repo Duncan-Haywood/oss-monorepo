@@ -116,9 +116,13 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
   return { reports, readErrors };
 }
 
+// A "note" is listed but does not fail a file: a style observation the standard does not require.
+export const isBlocking = (finding) => finding.severity !== "note";
+const blockingCount = (report) => report.errors.filter(isBlocking).length;
+
 export function summarizePreflight({ reports, readErrors }) {
   const findings = reports.flatMap((report) => report.errors);
-  const failed = reports.filter((report) => report.errors.length > 0).length;
+  const failed = reports.filter((report) => blockingCount(report) > 0).length;
   const ruleCounts = {};
   const ruleMessages = {};
   const ruleFixes = {};
@@ -128,7 +132,7 @@ export function summarizePreflight({ reports, readErrors }) {
     ruleFixes[error.rule] = error.fix;
   }
   return {
-    status: findings.length || readErrors.length ? "fail" : "pass",
+    status: findings.some(isBlocking) || readErrors.length ? "fail" : "pass",
     filesChecked: reports.length,
     filesFailed: failed,
     filesPassed: reports.length - failed,
@@ -213,9 +217,9 @@ export function buildMarkdown({ reports, readErrors }) {
       lines.push("", "Status: **PASS**", "", "No defects found in the supported checks.", "");
       continue;
     }
-    lines.push("", "Status: **FAIL**", "");
+    lines.push("", blockingCount(report) ? "Status: **FAIL**" : "Status: **PASS** (notes only)", "");
     for (const error of report.errors) {
-      lines.push(`- **${escape(error.rule)}** at \`${escape(error.path || "/")}\`: ${escape(error.message)}`);
+      lines.push(`- ${error.severity === "note" ? "_note_ " : ""}**${escape(error.rule)}** at \`${escape(error.path || "/")}\`: ${escape(error.message)}`);
       lines.push(`  Fix: ${escape(error.fix)}`);
     }
     lines.push("");
@@ -240,7 +244,7 @@ export function buildJsonReport({ reports, readErrors }) {
   return {
     schema_version: 1,
     status: summary.status,
-    exit_code: readErrors.length ? 2 : errors.length ? 1 : 0,
+    exit_code: readErrors.length ? 2 : errors.some(isBlocking) ? 1 : 0,
     files_checked: summary.filesChecked,
     files_failed: summary.filesFailed,
     observations: summary.observations,
@@ -251,7 +255,7 @@ export function buildJsonReport({ reports, readErrors }) {
     read_errors: readErrors,
     reports: reports.map((report) => ({
       file: report.file,
-      status: report.errors.length ? "fail" : "pass",
+      status: blockingCount(report) ? "fail" : "pass",
       ...(report.schematron ? { schematron: report.schematron } : {}),
       observations: report.errors.length,
       errors: report.errors,
