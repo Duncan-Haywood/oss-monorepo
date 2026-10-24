@@ -205,4 +205,9 @@ test("headers beat words: a DSN names the failed prospect, a temporary one does 
   r = runInbox({ replies: toReplyBlock(auto), prospects, today: "2026-10-26" });
   assert.equal(r.items[0].triage.category, "out_of_office");
   assert.equal(r.items[0].triage.date, "2026-11-02");
+  const prec = parseMessage(mail("mo@acme.test", "Re: hello", "I am out of the office until 2 November.", "Precedence: auto_reply\r\n"));
+  r = runInbox({ replies: toReplyBlock(prec), prospects, today: "2026-10-26" });
+  assert.equal(r.items[0].triage.category, "out_of_office");
+  const bulk = parseMessage(mail("mo@acme.test", "Re: hello", "Sounds good, send me times.", "Precedence: bulk\r\n"));
+  assert.ok(!/X-Signal/.test(toReplyBlock(bulk)));
 });
