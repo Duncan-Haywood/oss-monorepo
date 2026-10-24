@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 10: paper body drafted from the log (no new experiment)
+- Wrote the introduction, related work (partial), model, margin (with a table covering the three setups and the 20-split run), contracts and bound, collusion, H6 and limitations sections of `paper/main.tex`, and updated the abstract to the three-task, 20-split result. Every number is copied from `experiments/*/results.txt` or this log. The 39 tests pass, and `paper/make_figures.sh` regenerates both figures with no diff.
+- Still open for the paper: the H5 proof is not yet moved out of the `peer.py` docstring, the eight remaining proposal references are not added or checked, the draft is uncompiled (no LaTeX here), and a transformer step is not done (no `torch` in this session's interpreter).
+- Next: references and proof; a transformer margin step once an installable framework is available.
+
 ## 2026-10-24 · Milestone 9: the margin with the data split resampled (H1), planned before running
 - Why: milestone 8 left open that the breast-cancer gain from skipping (-0.0115 at tau = 1e-2) could be an artefact of one 171-sample test set, since seed pairing varied init and batch order but not the split. Here seed s also draws split s (70/30 permutation seed s), so the seed std includes split variance and the paired difference is honest-vs-skip on the same split.
 - Prediction: on breast cancer the mean degradation at tau = 1e-2 and 3e-2 stays at or below zero but its CI is wider, and may include zero; on digits-deep it stays within one (now larger) seed std at tau = 1e-2. Refutation of "skipping helps on breast cancer": the 95% CI at tau = 1e-2 or 3e-2 lies entirely above zero or contains zero with a mean above 0.
