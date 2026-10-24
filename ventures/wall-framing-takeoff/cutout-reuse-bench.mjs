@@ -12,7 +12,7 @@ import { sheathe, defaultSheathing } from "./sheathing.mjs";
 const EPS = 1e-6;
 for (const orientation of ["vertical", "horizontal"]) {
   const plan = samplePlan();
-  plan.sheathing = { ...defaultSheathing(), orientation };
+  /** @type {any} */ (plan).sheathing = { ...defaultSheathing(), orientation };
   const s = sheathe(plan, takeoff(plan));
   const panels = s.walls.flatMap((w) => w.panels);
   const holes = [];
