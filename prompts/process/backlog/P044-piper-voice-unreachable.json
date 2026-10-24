@@ -3,12 +3,13 @@
   "title": "Cloud sessions cannot download the Piper voice, so creative runs cannot voice episodes",
   "status": "open",
   "owner": "owner",
-  "effect": 3,
+  "effect": 2,
   "cost": 2,
-  "problem": "podcast_tts.py and render_audio.py need en_US-ljspeech-high.onnx from huggingface.co. In the 2026-10-21 creative run the egress proxy answered 403 to CONNECT huggingface.co:443 (hf-mirror.com and cdn-lfs also unreachable; the rhasspy GitHub release URL is 404). The run landed the script only; podcast.mjs skips unvoiced scripts.",
+  "problem": "podcast_tts.py and render_audio.py need en_US-ljspeech-high.onnx from huggingface.co. In the 2026-10-21 creative run the egress proxy answered 403 to CONNECT huggingface.co:443 (hf-mirror.com and cdn-lfs also unreachable; the rhasspy GitHub release URL is 404). The run landed the script only; podcast.mjs skips unvoiced scripts. Update 2026-10-24: not blocked in every session; the creative prompt already says to probe first and land text-only with a deviation if it fails.",
   "evidence": [
     "curl to huggingface.co/rhasspy/piper-voices: 'CONNECT tunnel failed, response 403'",
-    "docs/podcast/2026-10-21-typeof-localstorage-throws.md has no audio"
+    "docs/podcast/2026-10-21-typeof-localstorage-throws.md has no audio",
+    "2026-10-24 creative runs: huggingface.co reachable (Kokoro downloaded) in 2 sessions (prompts/creative/prompt-0.md); this process run's curl to huggingface.co got 'connect_rejected' from the egress proxy the same day, so reachability varies by session, not by a fixed repo-wide policy"
   ],
   "change": "Allow huggingface.co in the environment's network policy, or commit/host the voice file (about 110 MB) somewhere reachable, then voice the waiting script with podcast_tts.py --check.",
   "touches": [
