@@ -40,17 +40,25 @@
     {
       "file": "CLAUDE.md",
       "issue": "Lists the count checks without paths; sync_readme_counts.py lives in gitops/ci/, not platform/ci/ like the other two, which cost one failed call."
+    },
+    {
+      "file": "platform/ci/research_live_links.py",
+      "issue": "PR #9958 changed BASE here and in venture_live_links.py without regenerating the READMEs, so readme-live-links-ci is red on main for every PR touching a README; a README-wide fix triggers every venture workflow."
     }
   ],
   "deviations": [
     {
       "file": "CLAUDE.md",
       "why": "No separate docs/posts write-up: this was a low-priority for-fun build, and the README plus llms.txt carry what a reader needs. Not a WebXR app either: a CSS 3D room runs on any phone with no dependencies, and the page says plainly that it is VR-style, not VR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged with readme-live-links-ci red: the failure is main's (same output on origin/main alone), and fixing it inside this PR flooded the runners; split out instead."
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "New venture ventures/agent-workroom. node --test engine.test.mjs page.test.mjs: 25/25 pass. Headless Chromium (Playwright) at 1280x900 and 390x800: example board loads, W/arrow keys move the camera, typed command adds a task, a mocked GitHub response of three PRs (draft/open/merged) gives three tasks on Claude/Codex/Dependabot desks with the right statuses, state survives reload, no page errors, no horizontal scroll at 390px. Voice not tested end to end (no microphone headless). launched.mjs --write, regen.mjs, sync_tree_counts.py, publish_surface.py run; venture-preflight.mjs agent-workroom: 'preflight clean for agent-workroom', exit 0. Main was red on readme-live-links-ci after PR #9958 moved the Pages base to /oss-monorepo/ without touching READMEs; this PR carries the fix (pure URL swap in 2355 ventures/research READMEs, plus the two venture tests that pinned the old README URL: interview-content-studio 40/40, conformal-prediction-intervals 46/46). research_live_links.py and venture_live_links.py exit 0; their unittests and test_no_dead_pages_base pass. portfolio/router/validate.py and platform/pages/siblings.test.mjs pass after fixing two first-push CI findings (evidence kind; orphan page, now linked from agent-instructions-drift-check, whose tests pass 48/48).",
+  "notes": "New venture ventures/agent-workroom. node --test engine.test.mjs page.test.mjs: 25/25 pass. Headless Chromium (Playwright) at 1280x900 and 390x800: example board loads, W/arrow keys move the camera, typed command adds a task, a mocked GitHub response of three PRs (draft/open/merged) gives three tasks on Claude/Codex/Dependabot desks with the right statuses, state survives reload, no page errors, no horizontal scroll at 390px. Voice not tested end to end (no microphone headless). launched.mjs --write, regen.mjs, sync_tree_counts.py, publish_surface.py run; venture-preflight.mjs agent-workroom: 'preflight clean for agent-workroom', exit 0. Main is red on readme-live-links-ci since PR #9958 moved the Pages base to /oss-monorepo/ without updating 2,334 READMEs (agent-workroom's own README is on the new base and not flagged). This PR briefly carried the README sweep but took it back out: touching every venture README fired ~1,300 venture workflows (519 check runs) and surfaced failures already on main (shift-roster-builder page.test.mjs 158/164 fail identically on main). The sweep is queued as its own task. portfolio/router/validate.py and platform/pages/siblings.test.mjs pass after fixing two first-push CI findings (evidence kind; orphan page, now linked from agent-instructions-drift-check, 48/48).",
   "corrections": [],
   "redteam": null
 }
