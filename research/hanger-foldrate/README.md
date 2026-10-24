@@ -2,7 +2,7 @@
 
 **Using a published robot folding rate instead of an assumed one turns `hanger-cell`'s conclusion over: with the fold at SpeedFolding's 90–120 s per garment, the one-arm cell with the learned hang-or-fold rule handles 58 to 44 garments an hour (1.8 to 1.3 dryers on a 45-minute cycle) instead of 169 (5.1 dryers), and the fold table is 98% busy while the arm idles 70–75% of the time. Always hanging holds 146 an hour whatever the fold time, 3.3 times the learned rule at 120 s, and beats always folding for any fold time above about 24 s.** Produced with AI assistance (Claude). Track 18 (`hanger`, `PROJECTS.md`), a follow-up to `hanger-cell` under the "run the numbers" rule in `research/CLAUDE.md`. Simulated; only the fold time is sourced.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-foldrate/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-foldrate/
 
 ![Output by policy against fold time](experiments/policy_vs_fold.svg)
 

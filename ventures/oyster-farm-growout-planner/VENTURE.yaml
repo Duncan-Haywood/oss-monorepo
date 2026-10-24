@@ -51,5 +51,5 @@ kill_criteria:
   - Growers report that a single-gear, single-cohort crop misses how they stage seed through nurseries and upweller sizes, at which point the tool should model staged growout.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/oyster-farm-growout-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/oyster-farm-growout-planner/
   analytics: null

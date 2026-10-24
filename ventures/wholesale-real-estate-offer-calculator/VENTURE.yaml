@@ -40,5 +40,5 @@ kill_criteria:
   - A user reports a calculation that disagrees with their hand arithmetic.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/wholesale-real-estate-offer-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/wholesale-real-estate-offer-calculator/
   analytics: null

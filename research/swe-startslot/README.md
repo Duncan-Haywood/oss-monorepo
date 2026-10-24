@@ -2,7 +2,7 @@
 
 Pure Python standard library. A new question for track 10 (the software-engineering loop), not a milestone from the list: `swe-schedule` simulated what happens when runs start together under assumed timings, and this project asks what the run records show. It uses the 660 records in `prompts/runs/` that have a start time (1 to 19 October 2026). Produced with AI assistance (Claude). **Preliminary and mostly negative.** All numbers are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-startslot/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-startslot/
 
 ![Share of runs recording an error, by day](experiments/errors_by_day.svg)
 

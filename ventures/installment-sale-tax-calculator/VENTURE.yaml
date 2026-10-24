@@ -48,5 +48,5 @@ kill_criteria:
   - A report that a result differs materially from a correctly prepared Form 6252 on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/installment-sale-tax-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/installment-sale-tax-calculator/
   analytics: null

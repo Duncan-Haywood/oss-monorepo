@@ -245,6 +245,18 @@ The deterministic path stays the product, and a model only suggests
 [`ventures/ai-bookkeeper`](../ventures/ai-bookkeeper/README.md), first in
 `portfolio/flagships.yaml`.
 
+## Direction: autonomous water vehicles
+
+Set by the owner on 2026-10-24: "I also want one of the development directions to be
+autonomous water vehicles of multiple sorts very cool system."
+
+Surface boats, sailing and wave-powered drones, AUVs, gliders and ROVs as one system: hull and
+energy, navigation without GNSS, collision rules (COLREGs), perception and fleets. It starts as
+research track 23 (`marine`) in
+[`research/PROJECTS.md`](../research/PROJECTS.md), simulation first; a product (a survey
+planner, an endurance or COLREGs checker) follows when a result earns one. No weapons or
+surveillance work, and real-water operation is an owner step.
+
 ## Direction: local models as an option beside API keys
 
 Set by the owner on 2026-10-18: "for the majority of applications, I think
@@ -830,9 +842,12 @@ time budgets. Each change should move one of the dashboard's CI numbers.
   one of the few ventures listed in
   [`portfolio/flagships.yaml`](../portfolio/flagships.yaml), which
   `allocate.py` ranks first.
-- **Research:** merged projects that pass the research guardrails and a
-  quality audit: the code re-runs, the README numbers match its output, and
-  every citation checks out.
+- **Research:** programmes that reach a paper ready for a named peer-reviewed
+  venue (owner, 2026-10-24: "phd + in ambition and scope ... publishable";
+  `research/PROGRAMMES.md`), and on the way merged steps that pass the research
+  guardrails and a quality audit: the code re-runs, the README numbers match
+  its output, and every citation checks out. Progress is judged by
+  programmes advanced, not projects counted.
 - **Explore:** merged work the agent chose itself, about 5% of runs. Judged
   on the same success and integrity measures; the review also notes which
   free-choice ideas graduated into a regular track.

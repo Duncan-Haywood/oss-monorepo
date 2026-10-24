@@ -2,7 +2,7 @@
 
 **Partly. Across five fabric cases (size M tee) the CMA-ES loop of `hanger-fit` puts the best arm half-width 0.9 cm past the half shoulder for the base tee, 1.1 cm for a stiff one and 1.5 to 1.8 cm for stretchy ones (EA 40 N/m), but the slope, bow and end radius it finds scatter widely between seeds at nearly the same error, so only the width is pinned down at a 150-score budget.** A hanger designed for the base tee scores 0.22 cm RMS on it and 1.06 cm on a soft, double-weight knit; a hanger designed for that knit scores 0.52 cm there (about half) and 0.76 cm on the tee. On the narrowest, heaviest case (10 cm strip) every hanger is poor (best 0.99 cm) and the stock wood-shaped hanger (1.60) beats the tee-designed one (1.79). CMA-ES beat random search at equal budget in all five cases (best of 3 seeds). Produced with AI assistance (Claude). **Simulation only: fabric constants are the swept corners of `hanger-sweep`, not measurements; none of this says anything about real garments.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-knit/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-knit/
 
 ![Shape error of each designed hanger on each case](experiments/cross.svg)
 

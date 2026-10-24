@@ -57,5 +57,5 @@ kill_criteria:
   - A user reports a schedule where a pair does not meet the right number of times or a team plays twice in a round.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/
+  production: https://duncan-haywood.github.io/oss-monorepo/league-schedule-generator/
   analytics: null

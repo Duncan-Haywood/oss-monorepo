@@ -64,5 +64,5 @@ kill_criteria:
   - A report of a false outage published on a status page, or of lost history; check accuracy and durable state come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/status-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/status-keeper/
   analytics: null

@@ -7,7 +7,7 @@ each insurance panel and your cash fee, the refill share at which dropping a pan
 breaks even, annual results at 25 to 100 percent refill, and the contract rate that
 would match your cash net. Rows are payers, never clients; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/private-practice-payer-mix-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/private-practice-payer-mix-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

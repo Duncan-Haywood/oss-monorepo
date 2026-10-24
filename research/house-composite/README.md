@@ -4,7 +4,7 @@
 
 **Headline.** For a 2x10 SPF No. 2 joist at 16 in with a 23/32 in subfloor, whether composite action matters depends entirely on two assumed numbers that this project does not source: the panel's stiffness along the joist span and the efficiency gamma of the panel-to-joist connection. With a panel modulus of 0.5 million psi, the first-mode frequency of a 15 ft span rises from 10.5 Hz (joist alone) to 11.7 Hz at gamma 0.25, 12.6 Hz at 0.5 and 14.0 Hz at 1 (a rigid glued T-beam). Under a 15 Hz limit the 2x10 at 16 in span grows from 12 ft 6 in to between 13 ft 2 in and 14 ft 6 in, and the least-lumber joist for a 14 ft span goes from 2x12 at 16 in (1.50 board feet per sq ft) to 2x12 at 24 in (1.00) once gamma reaches 0.5. At gamma 0 the result is the `house-vibration` one, as it must be. Up to 10 Hz nothing changes at any gamma.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-composite/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-composite/
 
 **Builds on.** `house-vibration` (frequency form, 10 psf dead mass) and `house-spans` (NDS checks, species values, board-feet measure), imported from `../house-vibration/src` and `../house-spans/src`. Method: the gamma method for mechanically jointed beams (Moehler), as standardised in Eurocode 5 (EN 1995-1-1, Annex B); the formula here is rederived from the parallel-axis theorem and checked in tests, not copied. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

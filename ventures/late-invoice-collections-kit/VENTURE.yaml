@@ -89,5 +89,5 @@ kill_criteria:
   - A user reports a state rate or a letter claim that is wrong, at which point the reference table or the wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/late-invoice-collections-kit/
+  production: https://duncan-haywood.github.io/oss-monorepo/late-invoice-collections-kit/
   analytics: null

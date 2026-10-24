@@ -41,5 +41,5 @@ kill_criteria:
   - No operator reports changing a call they accept or a price they quote because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mobile-signing-agent-day-picker/
+  production: https://duncan-haywood.github.io/oss-monorepo/mobile-signing-agent-day-picker/
   analytics: null

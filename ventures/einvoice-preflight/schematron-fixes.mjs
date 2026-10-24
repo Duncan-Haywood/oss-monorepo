@@ -3,6 +3,22 @@
 // change in the invoice. Rules not listed fall back to a family hint.
 
 const FIXES = {
+  "BR-RO-001": "Set the specification identifier (BT-24) to urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1, the Romanian profile id ANAF expects.",
+  "BR-RO-010": "Romania: the invoice number (BT-1) must contain at least one digit, for example FA-2026-0001.",
+  "BR-RO-020_2": "Romania: use an invoice type code ANAF accepts (380 invoice, 381 credit note, 384 corrected invoice, 389 self-billed invoice, 751 invoice information for accounting purposes).",
+  "BR-RO-020_1": "Romania: use an invoice type code ANAF accepts (380 invoice, 381 credit note, 384 corrected invoice, 389 self-billed invoice, 751 invoice information for accounting purposes).",
+  "BR-RO-030": "Romania: when the invoice currency (BT-5) is not RON, give the VAT accounting currency (BT-6) as RON and the VAT total in RON (BT-111).",
+  "BR-RO-040": "Romania: the VAT due date code (BT-8) must be one of the codes in the message (3, 35 or 432).",
+  "BR-RO-065": "Romania: give the seller's tax registration number (BT-32) or VAT identifier (BT-31); RO e-Factura rejects an invoice with neither.",
+  "BR-RO-120": "Romania: give the buyer's legal registration identifier (BT-47) or VAT identifier (BT-48), for a Romanian company the CUI/CIF.",
+  "BR-RO-081": "Romania: add the seller's street address, line 1 (BT-35).",
+  "BR-RO-082": "Romania: add the buyer's street address, line 1 (BT-50).",
+  "BR-RO-091": "Romania: add the seller's city (BT-37).",
+  "BR-RO-092": "Romania: add the buyer's city (BT-52).",
+  "BR-RO-100": "Romania: a Bucharest address (county RO-B) needs a city that is SECTOR1 to SECTOR6, written as in the message.",
+  "BR-RO-101": "Romania: a Bucharest address (county RO-B) needs a city that is SECTOR1 to SECTOR6, written as in the message.",
+  "BR-RO-110": "Romania: a Romanian seller address needs the county (BT-39) as an ISO 3166-2:RO code such as RO-B, RO-CJ or RO-TM.",
+  "BR-RO-111": "Romania: a Romanian buyer address needs the county (BT-54) as an ISO 3166-2:RO code such as RO-B, RO-CJ or RO-TM.",
   "BR-01": "Set the specification identifier (BT-24), for example urn:cen.eu:en16931:2017 for a plain EN 16931 invoice.",
   "BR-02": "Give the invoice a number (BT-1).",
   "BR-03": "Give the invoice an issue date (BT-2).",
@@ -356,6 +372,10 @@ Object.assign(FIXES, {
 });
 
 const FAMILIES = [
+  [/^BR-RO-DT/, "Romania (RO e-Factura): write the date as YYYY-MM-DD, for example 2026-03-31, with no time or time zone."],
+  [/^BR-RO-L\d/, "Romania (RO e-Factura) caps this text field at the length in the message (ANAF rejects longer values than the EN 16931 standard allows). Shorten it."],
+  [/^BR-RO-A\d/, "Romania (RO e-Factura) caps how many times this group may repeat. Merge or drop the extra entries."],
+  [/^BR-DEC-RO-/, "Romania (RO e-Factura): this amount may have at most two decimals. Round it."],
   [/^BR-S-/, "Standard-rated VAT: the line, allowance or charge category S needs a rate above 0, and the breakdown must show a taxable amount and tax amount that agree with it."],
   [/^BR-Z-/, "Zero-rated VAT (category Z): the rate must be 0 and the breakdown amounts must agree with the lines."],
   [/^BR-E-/, "Exempt from VAT (category E): the rate must be 0 and an exemption reason (BT-120) or reason code (BT-121) is required."],

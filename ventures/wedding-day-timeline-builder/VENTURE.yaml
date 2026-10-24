@@ -69,5 +69,5 @@ kill_criteria:
   - A user reports a timeline whose times contradict each other, or a sunset more than five minutes from the published almanac value for their city and date.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/wedding-day-timeline-builder/
+  production: https://duncan-haywood.github.io/oss-monorepo/wedding-day-timeline-builder/
   analytics: null

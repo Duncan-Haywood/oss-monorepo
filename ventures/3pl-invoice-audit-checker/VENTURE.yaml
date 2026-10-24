@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports sending a dispute on a finding the tool got wrong, or relying on it instead of reading their contract -- at that point the wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/3pl-invoice-audit-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/3pl-invoice-audit-checker/
   analytics: null

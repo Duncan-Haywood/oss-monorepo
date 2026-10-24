@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports a result that differs from their preparer on a plain 60/40 case, at which point the arithmetic needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/section-1256-futures-tax-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/section-1256-futures-tax-calculator/
   analytics: null

@@ -4,7 +4,7 @@ A free tool that checks a `sitemap.xml`'s `<lastmod>` dates for the
 well-documented "freshness faking" anti-pattern Google's own sitemap
 documentation names directly:
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sitemap-lastmod-freshness-check/
 
 - **Invalid or malformed format** — the sitemap protocol requires a full
   [W3C Datetime](https://www.sitemaps.org/protocol.html) (a bare date, or a

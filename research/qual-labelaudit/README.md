@@ -2,7 +2,7 @@
 
 **Sampling the audit by the coder's own label barely helped, and auditing only the coder's positives was badly wrong. On 3,188 real Reddit comments (GoEmotions), a prediction-powered prevalence interval from a random audit was about 23% wider than the same random audit read as stratified by coder label (0.163 against 0.201 at 100 items, mean of four coders); equal numbers per coder label were no better than that, and Neyman allocation (an oracle) only 1% narrower.** The "sensitivity audit", hand-coding only items the coder labelled positive and assuming the rest hold no positives, produced intervals a quarter of the width and a 95% interval that covered the truth in 0 of 1,000 draws for every coder and audit size, because the coder missed 12–16% of the corpus's positives (bias −0.117 to −0.160 on a true prevalence of 0.247). **The coders are not LLMs** (no API key in the session): a naive-Bayes classifier at three cut-offs and a word list. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-labelaudit/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-labelaudit/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). It takes the "sensitivity-based audit (hand-code only items the coder labels positive)" item from [`qual-gate`](../qual-gate)'s and [`qual-equivalence`](../qual-equivalence)'s "Next steps", and asks the design question for a single code's prevalence that [`qual-stratified`](../qual-stratified) asked for a group gap. Estimators from [`qual-correction`](../qual-correction).
 

@@ -7,7 +7,7 @@ Free, MIT-licensed, no dependencies, no account, no network. The CLI reads
 local files and prints a report; the browser page reads a visitor's files with
 the File API and uploads nothing.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/app-store-screenshot-check/
 
 ## Why
 

@@ -54,5 +54,5 @@ kill_criteria:
   - A user reports a result that disagrees with the arithmetic in the guide and it is not corrected within a week.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/franchise-item-19-reality-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/franchise-item-19-reality-check/
   analytics: null

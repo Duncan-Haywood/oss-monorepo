@@ -2,7 +2,7 @@
 
 **On 5,313 real Reddit comments (GoEmotions), a counting proposer that picks the 20 words most associated with negative emotion in a small discovery sample overstates every effect it finds, and the overstatement shrinks only as the discovery sample grows: at 100 discovery comments the mean absolute effect is 0.095 in discovery and 0.013 on 3,000 held-out comments (7.6 times too large), at 2,000 it is 0.021 against 0.014 (1.5 times).** A Benjamini-Hochberg check on the held-out comments (5%) confirms 0.8 of the 20 hypotheses at 100 discovery comments and 14.7 at 2,000, and with the labels shuffled it confirms almost none (0.03 to 0.07 per split, at most 5.5% of splits with any), so the check controls false discoveries. But 36–59% of the confirmed hypotheses are the label's own vocabulary ("sorry", "hate", "worst"), which restates the label rather than explaining it. **The proposer is not an LLM**: the session had no API key, so a word-counting baseline stands in for the hypothesis generator, and the project measures the *validation step* an LLM proposer would need. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-hypothesis/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-hypothesis/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 6. Ludwig and Mullainathan (2024) use machine learning to generate human-readable hypotheses and test them on held-out data; this project is a small stylised version of the test, on text, with a baseline proposer. The question of the milestone, "does the check catch hypotheses that merely restate the label", is answered only crudely (below).
 

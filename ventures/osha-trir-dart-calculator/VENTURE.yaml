@@ -36,5 +36,5 @@ kill_criteria:
   - The injury-free-hours-to-target framing is read as encouraging under-reporting of recordable cases to keep the rate low, rather than as a planning figure — making it unusable as a shared, non-punitive tool.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/osha-trir-dart-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/osha-trir-dart-calculator/
   analytics: null

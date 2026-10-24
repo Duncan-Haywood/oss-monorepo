@@ -53,5 +53,5 @@ kill_criteria:
   - An owner reports that the per-visit, break-even class size or crossover arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/boutique-fitness-studio-pricing-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/boutique-fitness-studio-pricing-planner/
   analytics: null

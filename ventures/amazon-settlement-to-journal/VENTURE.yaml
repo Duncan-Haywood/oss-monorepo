@@ -61,5 +61,5 @@ kill_criteria:
   - A user reports a settlement this tool misreads, or a journal that Xero or QuickBooks refuses, at which point the layouts need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/amazon-settlement-to-journal/
+  production: https://duncan-haywood.github.io/oss-monorepo/amazon-settlement-to-journal/
   analytics: null

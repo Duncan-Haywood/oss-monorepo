@@ -60,5 +60,5 @@ kill_criteria:
   - A user reports an event counted twice or a Stripe meter event lost without appearing in the dead-letter list; the counting and queue paths come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/meter-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/meter-keeper/
   analytics: null

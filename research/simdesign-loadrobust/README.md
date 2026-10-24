@@ -4,7 +4,7 @@ A topology-optimisation design is only as good as the load case it was optimised
 
 **Headline (one deterministic run per setting).** On a 48×24 cantilever at volume fraction 0.4, the design optimised for a straight-down tip load is within 5% of its own best when the load tilts up to 30°, but 1.57× at 60° and 2.58× when the load is horizontal (compared with a design optimised for that load alone). Optimising the mean compliance over loads at 0, ±60° cuts the worst case over −90° to 90° from 2.58× to 2.00× and costs 0.6% on the nominal load; ±90° gets 1.88× at a 2.9% nominal cost. Even the best multi-load design stays 1.7–1.9× off at 75–90°: one fixed topology cannot be stiff in every direction.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-loadrobust/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-loadrobust/
 
 **Builds on.** `simdesign-topopt` (this repository): its Q4 plane-stress element, SIMP law, solver, sensitivity filter and cantilever problem are imported, not copied. Sigmund (2001), "A 99 line topology optimization code written in Matlab", *Struct. Multidisc. Optim.* 21(2):120–127, <https://doi.org/10.1007/s001580050176>. Multiple load cases in compliance minimisation are standard (a weighted sum of compliances, as in Bendsøe and Sigmund 2003, *Topology Optimization: Theory, Methods and Applications*, Springer); this project only measures how it behaves under load-direction error. It builds on no lab named in `prompt.md`.
 
