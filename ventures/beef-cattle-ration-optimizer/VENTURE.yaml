@@ -59,5 +59,5 @@ kill_criteria:
   - A user reports a ration that breaks a stated requirement or feed maximum, or that is dearer than a simple alternative the solver should have found.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/beef-cattle-ration-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/beef-cattle-ration-optimizer/
   analytics: null

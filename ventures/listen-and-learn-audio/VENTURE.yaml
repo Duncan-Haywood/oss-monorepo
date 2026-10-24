@@ -47,7 +47,7 @@ kill_criteria:
   - Device text-to-speech proves too poor for learners in the target languages and pre-rendered audio cannot be produced at $0.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/listen-and-learn-audio/
+  production: https://duncan-haywood.github.io/oss-monorepo/listen-and-learn-audio/
   analytics: null
 
 channel_notes: >-

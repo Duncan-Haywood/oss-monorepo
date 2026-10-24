@@ -40,5 +40,5 @@ kill_criteria:
   - No seller reports changing which cards they grade because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/card-grading-submission-picker/
+  production: https://duncan-haywood.github.io/oss-monorepo/card-grading-submission-picker/
   analytics: null

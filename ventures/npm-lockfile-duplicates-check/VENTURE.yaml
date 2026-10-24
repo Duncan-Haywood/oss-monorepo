@@ -41,5 +41,5 @@ kill_criteria:
   - No external repository is found using dupes-check.mjs or dupes.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/npm-lockfile-duplicates-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/npm-lockfile-duplicates-check/
   analytics: null

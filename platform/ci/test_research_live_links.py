@@ -13,12 +13,11 @@ class InsertLink(unittest.TestCase):
         out = r.insert_link("# T\n\nPara one\nstill one.\n\nPara two.\n", "foo")
         self.assertEqual(out, f"# T\n\nPara one\nstill one.\n\n**Live page:** {URL}\n\nPara two.\n")
 
-    def test_old_base_url_replaced_not_duplicated(self):
-        old = "# T\n\nAbout.\n\n**Live page:** https://example.github.io/monorepo-projects/research/x/\n\nMore.\n"
+    def test_stale_base_rewritten_in_place(self):
+        old = "# t\n\nBody.\n\n**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/x/\n\nMore.\n"
         out = r.insert_link(old, "x")
-        self.assertEqual(out.count("**Live page:**"), 1)
-        self.assertIn(r.url_for("x"), out)
-        self.assertEqual(out, old.replace("https://example.github.io/monorepo-projects/research/x/", r.url_for("x")))
+        self.assertEqual(out, old.replace("monorepo-projects", "oss-monorepo"))
+        self.assertEqual(out.count("Live page"), 1)
 
     def test_idempotent(self):
         once = r.insert_link("# T\n\nPara.\n\nMore.\n", "foo")

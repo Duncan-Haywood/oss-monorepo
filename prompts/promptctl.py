@@ -1129,7 +1129,9 @@ def main(argv: list[str] | None = None) -> int:
               "work branch (after the PR is open, so `pr` is known) and push, before merging.\n"
               f"Shapes the validator enforces: outcome is one of {', '.join(OUTCOMES)} "
               "(a bare word, not a sentence; put the story in notes); doc_friction is a list of "
-              '{"file": ..., "issue": ...}; deviations a list of {"file": ..., "why": ...}. '
+              '{"file": ..., "issue": ...}; deviations a list of {"file": ..., "why": ...}, '
+              'plus "did" and "result" when you can say them (measure needs a result to tell '
+              'whether a departure worked). '
               "Check with: python3 prompts/promptctl.py validate")
         return 0
     if args.cmd == "measure":

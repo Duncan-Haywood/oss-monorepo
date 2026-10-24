@@ -71,5 +71,5 @@ kill_criteria:
   - A user reports that an effective hourly rate or a share of underpaid months disagrees with a hand count of the same log.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-vs-hourly-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-vs-hourly-calculator/
   analytics: null

@@ -2,7 +2,7 @@
 
 **Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-yieldcost/
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-yieldcost/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-yieldcost/
 
 [`hanger-lookahead`](../hanger-lookahead) found that steering clear of the other arm's *predicted next* pick loses garments an hour in 14 of 18 settings. Its first next step: yield only when the predicted clash would cost a wait longer than the garment is worth. **Gating the yield by predicted overlap removes most of the loss** (aiming at 0.15 m: −11.3 an hour ungated, −0.2 at a 20 s threshold) **and turns up one real gain: pinching with 0.30 m clearance gains +0.7 to +1.35 garments an hour over avoiding only the current pick, at every threshold from 0 to 20 s (best +1.35, interval 0.93 to 1.80).** In the other 8 settings no threshold gives a gain whose interval excludes zero except hairline cases noted below. Simulated, placeholder inputs.
 

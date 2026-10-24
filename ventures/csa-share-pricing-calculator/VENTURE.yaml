@@ -41,5 +41,5 @@ kill_criteria:
   - No farmer reports changing a share price or box because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/csa-share-pricing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/csa-share-pricing-calculator/
   analytics: null

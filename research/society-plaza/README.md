@@ -15,7 +15,7 @@ not about real crowds.
 
 **Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-plaza/
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-plaza/ ·
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-plaza/ ·
 **Browser replay (a labelled simulation):** [`experiments/plaza_replay.html`](experiments/plaza_replay.html)
 (download and open; no network needed).
 

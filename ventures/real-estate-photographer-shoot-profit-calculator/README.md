@@ -5,7 +5,7 @@ and add-ons and see the **true hourly earnings of each package tier**, the fee t
 target, what drone, twilight and floor-plan add-ons add, whether outsourcing editing frees time worth
 more than it costs, and your month at your tier mix. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/real-estate-photographer-shoot-profit-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/real-estate-photographer-shoot-profit-calculator/
 
 ## Model
 

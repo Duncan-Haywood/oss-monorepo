@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Contractors report the containment-class distinction is not news -- the trade already prices it that way -- and the flat per-square-foot framing this tool argues against is not what real bids look like.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/asbestos-abatement-bid-calculator/
   analytics: null

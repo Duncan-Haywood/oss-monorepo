@@ -33,5 +33,5 @@ kill_criteria:
   - A report that a CRA figure differs from canada.ca.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ca-self-employed-tax-set-aside-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/ca-self-employed-tax-set-aside-calculator/
   analytics: null

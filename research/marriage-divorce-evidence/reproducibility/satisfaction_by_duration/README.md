@@ -12,7 +12,7 @@ lower). The rise at long durations in cross-sections is at least partly **surviv
 "excellent", against 17% (10–26%) of the 102 who broke up by 2015, and those marriages are
 missing from the later bands.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/app/ (the "Profile report" tab charts it).
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/marriage-divorce-evidence/app/ (the "Profile report" tab charts it).
 
 ## Three views, kept apart
 

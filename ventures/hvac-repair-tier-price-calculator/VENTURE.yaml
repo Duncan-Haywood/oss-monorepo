@@ -37,5 +37,5 @@ kill_criteria:
   - No HVAC contractor reports changing a price, a diagnostic fee or a price book because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/hvac-repair-tier-price-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/hvac-repair-tier-price-calculator/
   analytics: null

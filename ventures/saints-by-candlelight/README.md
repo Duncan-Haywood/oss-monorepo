@@ -6,9 +6,9 @@ you'd tell an old legend by the fire. Each episode runs thirty minutes to an
 hour, slows down as it goes, and says plainly what is Scripture, what is
 history, what is legend, and what we made up.
 
-**Listen in your browser:** https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/
+**Listen in your browser:** https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/
 
-**Podcast feed (paste into any podcast app):** `https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/feed.xml`
+**Podcast feed (paste into any podcast app):** `https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/feed.xml`
 
 ## Episodes
 

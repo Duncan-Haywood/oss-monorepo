@@ -35,5 +35,5 @@ kill_criteria:
   - A report that a rate or threshold differs from HMRC guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-cis-deduction-refund-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-cis-deduction-refund-calculator/
   analytics: null

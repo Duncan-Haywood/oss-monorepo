@@ -52,5 +52,5 @@ kill_criteria:
   - A user reports that a figure disagrees with the same inputs done by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/childcare-enrollment-mix-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/childcare-enrollment-mix-optimizer/
   analytics: null

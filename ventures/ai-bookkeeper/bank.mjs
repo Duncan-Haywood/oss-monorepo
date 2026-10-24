@@ -11,7 +11,7 @@ import { isCfonb, readCfonb } from "./cfonb.mjs";
 import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
-  date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date",
+  date: ["дата операции", "дата", "дата проводки", "תאריך", "תאריך עסקה", "תאריך ערך", "ημερομηνία", "ημερομηνία συναλλαγής", "ngày giao dịch", "ngày", "date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date", "created utc", "created", "created at",
     // German, French, Spanish, Italian, Dutch headers
     "datum", "buchungstag", "buchungsdatum", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "boekingsdatum", "transactiedatum",
     // Hungarian (OTP workbook): booking date before transaction date
@@ -28,18 +28,18 @@ const ALIASES = {
     "wertstellung", "valuta",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
-  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
+  desc: ["item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
     "beschreibung", "avisierungstext", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "közlemény",
     "text", "tekst", "rubrik", "beskrivelse", "forklaring", "meddelande", "meddelelse",
     "opis transakcji", "dane kontrahenta", "tytuł przelewu", "saaja/maksaja", "descrição", "descricao", "histórico", "historico", "opis", "tytuł", "tytul", "nadawca/odbiorca", "selitys", "saaja/maksaja", "açıklama", "aciklama", "popis", "zpráva pro příjemce", "opis operacji", "keterangan", "uraian", "الوصف", "البيان", "التفاصيل",
     "摘要", "お取引内容", "取引内容", "内容", "備考", "お取り扱い内容", "적요", "거래내용", "내용", "기재내용", "보낸분/받는분", "摘要", "交易摘要", "交易备注", "交易備註", "对方户名", "對方戶名", "附言", "用途"],
-  amount: ["amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "bedrag (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma", "összeg", "belopp", "beløb", "belop", "beløp", "valor", "kwota", "määrä", "määrä euroa", "montante", "maara", "tutar", "částka", "castka", "金額", "取引金額", "거래금액", "交易金额", "交易金額", "发生额", "發生額"],
-  debit: ["debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "debet", "soll", "lastschrift", "lastschrift in chf", "lastschrift in eur", "débit", "debit (eur)", "cargo", "dare", "uscite", "ut fra konto", "ut fra", "débito", "debito", "borç", "مدين", "出金金額", "出金", "お支払金額", "お引出し", "支払金額", "引出金額", "출금금액", "출금액", "출금", "찾으신금액", "지급금액", "支出", "支出金额", "支出金額", "借方发生额", "借方發生額", "借方金额", "借方金額", "付款金额"],
-  credit: ["credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "credit amount (positive)", "inflow", "haben", "gutschrift", "gutschrift in chf", "gutschrift in eur", "crédit", "credito", "crédito", "abono", "avere", "entrate", "inn på konto", "inn pa konto", "inn på", "alacak", "kredit", "دائن", "入金金額", "入金", "お預入れ", "預入金額", "お預り金額", "입금금액", "입금액", "입금", "맡기신금액", "수입금액", "收入", "收入金额", "收入金額", "贷方发生额", "貸方發生額", "贷方金额", "貸方金額", "存入金额"],
-  balance: ["balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)", "saldo in chf", "saldo in eur", "saldo na trn", "saldo po operacji", "saldo po transakcji", "saldo após", "saldo apos", "saldo contabilístico", "saldo contabilistico", "bakiye", "الرصيد", "zůstatek", "残高", "差引残高", "現在残高", "잔액", "거래후잔액", "거래 후 잔액", "余额", "餘額", "账户余额", "賬戶餘額", "当前余额"],
+  amount: ["сумма", "סכום", "ποσό", "số tiền", "amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "bedrag (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma", "összeg", "belopp", "beløb", "belop", "beløp", "valor", "kwota", "määrä", "määrä euroa", "montante", "maara", "tutar", "částka", "castka", "金額", "取引金額", "거래금액", "交易金额", "交易金額", "发生额", "發生額"],
+  debit: ["расход", "списание", "сумма списания", "חובה", "χρέωση", "ghi nợ", "số tiền ghi nợ", "debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "debet", "soll", "lastschrift", "lastschrift in chf", "lastschrift in eur", "débit", "debit (eur)", "cargo", "dare", "uscite", "ut fra konto", "ut fra", "débito", "debito", "borç", "مدين", "出金金額", "出金", "お支払金額", "お引出し", "支払金額", "引出金額", "출금금액", "출금액", "출금", "찾으신금액", "지급금액", "支出", "支出金额", "支出金額", "借方发生额", "借方發生額", "借方金额", "借方金額", "付款金额"],
+  credit: ["приход", "зачисление", "сумма зачисления", "זכות", "πίστωση", "ghi có", "số tiền ghi có", "credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "credit amount (positive)", "inflow", "haben", "gutschrift", "gutschrift in chf", "gutschrift in eur", "crédit", "credito", "crédito", "abono", "avere", "entrate", "inn på konto", "inn pa konto", "inn på", "alacak", "kredit", "دائن", "入金金額", "入金", "お預入れ", "預入金額", "お預り金額", "입금금액", "입금액", "입금", "맡기신금액", "수입금액", "收入", "收入金额", "收入金額", "贷方发生额", "貸方發生額", "贷方金额", "貸方金額", "存入金额"],
+  balance: ["остаток", "остаток по счёту", "יתרה", "υπόλοιπο", "số dư", "balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)", "saldo in chf", "saldo in eur", "saldo na trn", "saldo po operacji", "saldo po transakcji", "saldo após", "saldo apos", "saldo contabilístico", "saldo contabilistico", "bakiye", "الرصيد", "zůstatek", "残高", "差引残高", "現在残高", "잔액", "거래후잔액", "거래 후 잔액", "余额", "餘額", "账户余额", "賬戶餘額", "当前余额"],
 };
 
-const DAY_FIRST_HEADER = /^(narration|withdrawal amt\.?|deposit amt\.?|value dt|chq\.?\/ref\.?no\.?|cargo|abono|concepto|fecha (operaci[oó]n|valor)|tanggal|keterangan|uraian|kredit|data (mov\.?|movimento|lan[cç]amento|valor|operacji|contabile|operazione|valuta|da opera[cç][aã]o)|descri[cç][aã]o|descrizione|hist[oó]rico|d[eé]bito|dare|avere|kwota|opis operacji|data ksi[eę]gowania|kirjausp[aä]iv[aä]|maksup[aä]iv[aä]|tarih|datum zaú[cč]tov[aá]n[ií]|datum proveden[ií]|saldo po operacji|saldo ap[oó]s)$/;
+const DAY_FIRST_HEADER = /^(дата операции|расход|приход|остаток|תאריך|תאריך עסקה|חובה|זכות|יתרה|ημερομηνία|ημερομηνία συναλλαγής|χρέωση|πίστωση|υπόλοιπο|ngày giao dịch|ghi nợ|ghi có|số dư|narration|withdrawal amt\.?|deposit amt\.?|value dt|chq\.?\/ref\.?no\.?|cargo|abono|concepto|fecha (operaci[oó]n|valor)|tanggal|keterangan|uraian|kredit|data (mov\.?|movimento|lan[cç]amento|valor|operacji|contabile|operazione|valuta|da opera[cç][aã]o)|descri[cç][aã]o|descrizione|hist[oó]rico|d[eé]bito|dare|avere|kwota|opis operacji|data ksi[eę]gowania|kirjausp[aä]iv[aä]|maksup[aä]iv[aä]|tarih|datum zaú[cč]tov[aá]n[ií]|datum proveden[ií]|saldo po operacji|saldo ap[oó]s)$/;
 
 // The delimiter is the one that splits most of the first lines into the same
 // number of fields, so a one-line preamble ("Account summary") or a prose line
@@ -90,6 +90,8 @@ export function parseCents(v, decimalComma = false) {
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
   if (/\d\s*e\s*[-+]?\d/i.test(s)) return NaN; // "1e3" is not 13.00
   const neg = /\(\s*[^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−]/.test(s) || /-\s*$/.test(s) || /\d\s*(?:dr|db|debit)\.?\s*$/i.test(s);
+  // A currency written in letters ahead of the number ("د.ا.‏4.750", "Rs. 1,200") would leave stray dots.
+  s = s.replace(/^[^0-9]*\p{L}[^0-9]*/u, "").replace(/[^0-9]+$/, (t) => (/\p{L}/u.test(t) ? "" : t));
   s = s.replace(/[^0-9.,]/g, "");
   // Both separators: the last one is the decimal point, whatever the flag says.
   // One separator with 1-2 digits after it is a decimal point too; only a
@@ -141,7 +143,7 @@ export function parseDate(v, dayFirst = false) {
   return dt.toISOString().slice(0, 10);
 }
 
-const norm = (h) => String(h).trim().toLowerCase().replace(/\s+/g, " ").replace(/^"|"$/g, "").replace(/^#/, "");
+const norm = (h) => String(h).trim().toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").replace(/^"|"$/g, "").replace(/^#/, "");
 
 export function detectColumns(header) {
   const h = header.map(norm);
@@ -704,6 +706,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
   const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
   const accountNames = new Set();
+  const labelCols = ["reporting category", "category", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
+  const idCol = hdr.findIndex((x) => /^(balance transaction id|transaction id|txn id|reference id)$/.test(x));
+  const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
   for (let i = first; i < rows.length; i++) {
     const r = rows[i];
     const acctName = acctCol === -1 ? "" : String(r[acctCol] ?? "").trim();
@@ -757,6 +762,17 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       // The note is free text; name the other party, and fall back to the type for transfers.
       const who = String(r[hdr.indexOf(cents < 0 ? "to" : "from")] ?? "").trim();
       desc = [who, desc || String(r[hdr.indexOf("type")] ?? "").trim()].filter(Boolean).join(" - ");
+    }
+    // No description at all (Stripe balance rows, Monefy without a note): say what the
+    // row is from its category or type column, else its transaction id, so the payee
+    // memory and the categorizer have something to learn from.
+    if (!desc && labelCols.length) desc = labelCols.map((ix) => String(r[ix] ?? "").trim()).find(Boolean) ?? "";
+    if (!desc && idCol !== -1) desc = String(r[idCol] ?? "").trim();
+    // "To/From" beside an unsigned amount (Amazon Payments): To is money out.
+    if (dirCol !== -1) {
+      const m = String(r[dirCol] ?? "").trim().toLowerCase();
+      if (m === "to") cents = -Math.abs(cents);
+      else if (m === "from") cents = Math.abs(cents);
     }
     out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null });
   }

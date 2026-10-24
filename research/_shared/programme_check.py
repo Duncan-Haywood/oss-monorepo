@@ -12,7 +12,7 @@ many sessions toward a paper. A directory created after that date passes if it
   programme); or
 - explains why it stands alone (`"programme": "none"` with a non-empty `why_standalone`).
 
-Directories that existed on 2026-10-24 are listed in legacy_projects.txt and exempt.
+Directories on main before the programme bar landed (2026-10-24) are listed in legacy_projects.txt and exempt.
 Exit 1 lists each failing directory and what it lacks.
 """
 import json

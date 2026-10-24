@@ -5,7 +5,7 @@ sheet (name, basis, quantity, unit cost) and see the per-guest price that delive
 a share of the quote, the deposit, a price-by-headcount table and the break-even guest count for a price you name.
 Browser page or zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/catering-quote-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/catering-quote-calculator/
 
 ```
 node cli.mjs quote event.csv --guests 60

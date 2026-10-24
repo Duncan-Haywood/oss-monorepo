@@ -12,7 +12,7 @@ sensors, electronics) and swap only the rear module:
 
 **Try the cleaning simulator in your browser** (pick a room, add
 furniture, see what each robot reaches):
-https://duncan-haywood.github.io/monorepo-projects/open-floor-robots/
+https://duncan-haywood.github.io/oss-monorepo/open-floor-robots/
 
 Everything is MIT-licensed. You can build it, change it, and sell it
 under your own brand; if you sell one, you are the manufacturer

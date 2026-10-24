@@ -4,7 +4,7 @@
 
 **Live page:** https://duncan-haywood.github.io/oss-monorepo/research/garment-bowdenbend/
 
-Follow-up to `research/garment-assistloc` (track 6, `PROJECTS.md`), taking "model Bowden loss against cable bend angle" from its next steps. Everything is a CPU model with assumed constants; no suit or person was measured. Produced with AI assistance (Claude). **Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-bowdenbend/
+Follow-up to `research/garment-assistloc` (track 6, `PROJECTS.md`), taking "model Bowden loss against cable bend angle" from its next steps. Everything is a CPU model with assumed constants; no suit or person was measured. Produced with AI assistance (Claude). **Live page:** https://duncan-haywood.github.io/oss-monorepo/research/garment-bowdenbend/
 
 **Builds on.** `garment-assistloc`, `garment-assistpower` and `garment-assist`, imported unchanged from sibling directories. The capstan (Euler-Eytelwein) law is textbook mechanics; I took no friction coefficient from a source in this run, so `mu` is an assumed value and swept. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. **Citation check.** The references are copied from `garment-assistloc` (checked 2026-10-12); not re-checked here (no access to doi.org).
 

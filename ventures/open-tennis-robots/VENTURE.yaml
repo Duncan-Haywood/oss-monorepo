@@ -66,5 +66,5 @@ kill_criteria:
   - A builder reports the flight model misses real landing spots by more than a metre after calibration, and the model cannot be fixed.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/open-tennis-robots/
+  production: https://duncan-haywood.github.io/oss-monorepo/open-tennis-robots/
   analytics: null

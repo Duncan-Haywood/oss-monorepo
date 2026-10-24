@@ -41,5 +41,5 @@ kill_criteria:
   - A report that the scope, exemption or Article reference differs from the Directive's text on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eaa-accessibility-act-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eaa-accessibility-act-checker/
   analytics: null

@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports a materially wrong price, at which point the maths needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/bid-price-engine/
+  production: https://duncan-haywood.github.io/oss-monorepo/bid-price-engine/
   analytics: null
