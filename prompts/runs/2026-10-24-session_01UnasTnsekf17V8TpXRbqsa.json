@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01UnasTnsekf17V8TpXRbqsa",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "how's progress doing. do an analysis of the progress, add a blog post, last 24-72 hours. this should be a daily thing that gets a blog post.",
+  "input_sha256": "6879ab7f19a294e380794def92bc136c92ed4d2d8aeb26d77bda5dcfc7447a16",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T01:26:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Daily progress analysis post (21-24 Oct) with DORA delivery metrics and bug rates; delivery metrics automated in platform/devstats; owner rule 'software for the routine, agents for judgment' in goals.md and CLAUDE.md",
+  "projects": [
+    "docs/posts",
+    "platform/devstats",
+    "platform/daily",
+    "prompts"
+  ],
+  "pr": 9955,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 3,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says the site is duncan-haywood.github.io/oss-monorepo/ while platform/daily/README.md and recent posts link monorepo-projects/; unclear which one is canonical for links in posts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Wrote no separate docs/reports agent doc. The post plus the .github/prompts runbook already hold the method; a third copy would duplicate them."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-progress-922-merges-zero-measured-users.md"
+  ],
+  "goal": null,
+  "notes": "Numbers come from git log --first-parent origin/main (window 2026-10-21T01:20Z to 2026-10-24T01:20Z, shallow-since fetch) and prompts/runs/*.json dated 2026-10-21..24. Checked: loadPosts parses the post; check_md_links clean. Set up a daily scheduled task that writes the next edition. Follow-up on owner request: DORA metrics from Actions runs API on main (portfolio-pages.yml, portfolio-validate.yml, filtered by branch to avoid the 1,000-run cap): 294 deploys; merge-to-live p50 15 min, p90 124 min; Pages red 33% of the window, validate 26%; #9893 merged over its own red validate. First CI run failed custom-domain.test.mjs because the post linked /oss-monorepo/ while PUBLISHED_ORIGIN was monorepo-projects; #9958 then moved PUBLISHED_ORIGIN to /oss-monorepo/, so after merging main the original link is right; custom-domain.test.mjs passes locally (5/5). Owner then asked that such metrics be recorded by software, not agents, as a general rule: added delivery()/fromDelivery() to platform/devstats (stats.json `delivery`, dashboard section, 3 new tests; node --test platform/devstats platform/daily 26/26). A live run of fromDelivery against the API for the same window reproduced the hand counts (294 deploys, merge-to-live p50 15.2 min, Pages red 32.6%, validate 25.5%); p90 restore differs slightly (2.8 vs 3.0 h) because quantile() interpolates. Rule added to prompts/goals.md and CLAUDE.md; runbook now reads stats.json instead of recounting. CI on 3e666467b was red only in readme-live-link (BASE moved by #9958 without updating its regex); ported a fix, and #9965 landed the same fix on main, so the merge takes main's file. Before merging: CI green on 3e666467b (test, build, validate x2, check x2, coverage); locally node --test platform/pages 1241/1241, devstats+daily 26/26, agent-permission-harness 92 tests + harness.py + check_results_current.py OK, promptctl validate OK.",
+  "corrections": [],
+  "redteam": null
+}

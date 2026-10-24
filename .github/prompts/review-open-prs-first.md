@@ -54,7 +54,7 @@ PR is blocking the queue):
 python3 platform/ci/agent_review/review_pending.py --reviewer <gh|kilo|cursor|claude> --max 5
 ```
 
-`GH_TOKEN` must be the **reviewer GitHub App** installation token for that
+The script needs `GH_TOKEN` to be the **reviewer GitHub App** installation token for that
 family (set in CI workflows; local runs need `gh auth` as the App or workflow
 dispatch).
 

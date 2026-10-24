@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_012nNqVJ3kuVU5FziKJk78nm",
+  "track": "review",
+  "prompt_version": 2,
+  "input": "lets review the documentation from a chronicalling and lesson pov without hard fast rules that limit agents when their intelligence could figure out a solution.",
+  "input_sha256": "1526669ef1d6a7e07492988cc3698d6977c191f26c952788ae7dae0dc7311a28",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T01:33:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Review documentation from a chronicle-and-lessons point of view",
+  "projects": [
+    "portfolio/hosting",
+    "docs/history"
+  ],
+  "pr": 9961,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first commit included the unfilled run-record skeleton, so prompts-ci validate went red",
+      "fix": "filled record pushed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/hosting/README.md",
+      "issue": "Nine stacked dated amendments; current state (Pages via Actions) only in the last section, Hetzner route described at length after its retirement."
+    },
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "issue": "Printed advice pointed at DIRECTION.md 'Current priority' (cut 2026-10-21) and named deploy-settings as pending (granted 2026-09-06)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "instruction": "score candidates with promptctl measure",
+      "did": "skipped scoring",
+      "why": "the owner's brief was a documentation review; scoring was not asked for and other review runs cover it",
+      "result": "none"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-10-24-reference-docs-are-not-chronicles.md",
+    "docs/posts/2026-10-21-guidelines-not-rules-for-ai-agents.md",
+    "docs/history/README.md"
+  ],
+  "goal": "Reference docs say what is true now; dated history lives in docs/history with its lessons",
+  "notes": "Local checks: promptctl validate ok; pytest portfolio/ledger/test_session_gate.py portfolio/router 148 passed. run_workflow_locally --for-changes was stopped early (stuck on agent-permission-harness for several minutes); GitHub CI is the verification.",
+  "corrections": [],
+  "redteam": null
+}

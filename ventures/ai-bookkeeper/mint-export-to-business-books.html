@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mint Export to Business Books: Profit and Loss From a Multi-Account CSV</title>
+<meta name="description" content="Turn a Mint, Monarch, Tiller or YNAB-style CSV that lists every account in one file into double-entry books with a profit and loss, balance sheet and QuickBooks or Xero journals. Free, open source, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./mint-export-to-business-books.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mint export to business books">
+<meta property="og:description" content="A worked example: one multi-account CSV becomes a profit and loss of 2,782.49, with the card payment kept out of expenses.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Mint shut down. What can a small business or freelancer use instead?", "acceptedAnswer": {"@type": "Answer", "text": "Mint's consumer app closed, but a Mint, Monarch, Tiller or YNAB-style CSV export is still just a file. AI Bookkeeper reads a file that names the account on every row, files the lines into double-entry books, and produces a profit and loss, balance sheet and journals for QuickBooks Online, Xero or QuickBooks Desktop. It is free and open source, and nothing is uploaded."}}, {"@type": "Question", "name": "Does it understand a CSV with several accounts in one file?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Give it a mapping from each account name in the file to a chart code (for example Business Checking to 1000 and Business Visa to 2000). Each account's rows are imported separately and a payment from checking to the card is paired as a transfer, not counted as an expense."}}, {"@type": "Question", "name": "Why is the credit card payment not an expense?", "acceptedAnswer": {"@type": "Answer", "text": "The payment moves money from checking to pay down the card. The purchases on the card were the expenses. Counting both double-counts. The tool pairs the two sides and keeps the transfer out of the profit and loss."}}, {"@type": "Question", "name": "Is it a replacement for a budgeting app?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does bookkeeping (a profit and loss and balance sheet from bank lines), not budgeting goals, net-worth tracking or a bank connection."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Mint export to business books: one multi-account CSV to a profit and loss</h1>
+<p class="lede">If you tracked a side business or freelance income in Mint, Monarch, Tiller or YNAB, you may hold one CSV with every account in it. That file is a good start for real books, as long as each account is read on its own and the card payment is not counted as spending.</p>
+</header>
+<section>
+<h2>Worked example: seven lines, two accounts</h2>
+<p>The tool ships a <strong>synthetic</strong> file in the Mint column layout (<code>fixtures/mint-export.csv</code>: Date, Description, Original Description, Amount, Transaction Type, Category, Account Name). Amounts are unsigned and the Transaction Type column says debit or credit. The commands were <code>import fixtures/mint-export.csv --map "Business Checking"=1000,"Business Visa"=2000</code>, <code>accept 0.5</code> (two lines were filed by built-in keywords), three lines filed with <code>confirm</code>, then <code>report</code>.</p>
+<div class="table-wrap">
+<table>
+<caption>Synthetic data, not a real business. Figures are from the command line run.</caption>
+<thead><tr><th scope="col">Original description</th><th scope="col">Account</th><th scope="col">Amount</th><th scope="col">Filed to</th></tr></thead>
+<tbody>
+<tr><th scope="row">ACH CREDIT NORTHWIND LLC INV 2210</th><td>Business Checking</td><td>3,800.00</td><td>4000 Sales</td></tr>
+<tr><th scope="row">ADOBE *CREATIVE CLD</th><td>Business Checking</td><td>&minus;59.99</td><td>6060 Software and subscriptions</td></tr>
+<tr><th scope="row">STAPLES 00123 PORTLAND</th><td>Business Visa</td><td>&minus;84.12</td><td>6070 Office supplies and postage</td></tr>
+<tr><th scope="row">UBER *TRIP HELP.UBER.COM</th><td>Business Visa</td><td>&minus;23.40</td><td>6120 Travel</td></tr>
+<tr><th scope="row">CHECK 1012</th><td>Business Checking</td><td>&minus;850.00</td><td>6080 Rent</td></tr>
+<tr><th scope="row">PAYMENT THANK YOU / ONLINE PAYMENT TO BUSINESS VISA</th><td>both accounts</td><td>&minus;100.00 / +100.00</td><td>paired as a transfer</td></tr>
+<tr class="total"><th scope="row">Net profit for March 2026</th><td></td><td>2,782.49</td><td>income 3,800.00 less expenses 1,017.51</td></tr>
+</tbody>
+</table>
+</div>
+<p>The balance sheet agrees: checking 2,790.01 equals the card balance owed 7.52 plus current earnings 2,782.49. The Mint category column is ignored on purpose; consumer categories (Taxi, Office Supplies) are not tax categories, so the tool suggests from the payee and your own corrections instead.</p>
+</section>
+<section>
+<h2>How to do it with your own export</h2>
+<ol>
+<li><strong>Download the CSV</strong> from your app (Mint is gone, but an export you saved, or a Monarch, Tiller or YNAB export, has the same shape).</li>
+<li><strong>Open <a href="./">AI Bookkeeper</a></strong>, import the file and map each account name to a chart account. Keep only business accounts and business rows; personal spending does not belong in business books.</li>
+<li><strong>Clear the review queue.</strong> Each line you file teaches the payee, so later months need fewer clicks.</li>
+<li><strong>Read the reports</strong> or export a journal: <code>export qbo</code>, <code>export xero</code>, <code>export iif</code>, or plain-text <code>ledger</code>/<code>beancount</code>.</li>
+</ol>
+<p>Honest limits: the layout comes from the column names of Mint exports as seen in a third-party project's sample file; the file here is hand-written and no real Mint or Monarch download was tried. Check a small month first. Cash-basis only: no invoices-first workflow here, no bank connection, no tax filing.</p>
+</section>
+<section>
+<h2>Questions</h2>
+<h3>Mint shut down. What can a small business or freelancer use instead?</h3>
+<p>Mint's consumer app closed, but a Mint, Monarch, Tiller or YNAB-style CSV export is still just a file. AI Bookkeeper reads a file that names the account on every row, files the lines into double-entry books, and produces a profit and loss, balance sheet and journals for QuickBooks Online, Xero or QuickBooks Desktop. It is free and open source, and nothing is uploaded.</p>
+<h3>Does it understand a CSV with several accounts in one file?</h3>
+<p>Yes. Give it a mapping from each account name in the file to a chart code (for example Business Checking to 1000 and Business Visa to 2000). Each account's rows are imported separately and a payment from checking to the card is paired as a transfer, not counted as an expense.</p>
+<h3>Why is the credit card payment not an expense?</h3>
+<p>The payment moves money from checking to pay down the card. The purchases on the card were the expenses. Counting both double-counts. The tool pairs the two sides and keeps the transfer out of the profit and loss.</p>
+<h3>Is it a replacement for a budgeting app?</h3>
+<p>No. It does bookkeeping (a profit and loss and balance sheet from bank lines), not budgeting goals, net-worth tracking or a bank connection.</p>
+</section>
+<p><a href="./">Open AI Bookkeeper</a> and import your export.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Mint, Monarch, Tiller, YNAB, QuickBooks and Xero are trademarks of their owners, named only to describe a file layout or an import target; this project is not affiliated with them.</p>
+</footer>
+</body>
+</html>

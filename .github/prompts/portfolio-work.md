@@ -83,9 +83,9 @@ and name the blocker in it. Avoid leaving the work on a bare branch.
 Building privately is always allowed. See `python3 portfolio/ledger/decision_queue.py`
 for asks already queued — avoid duplicating them.
 
-## Hard constraints
+## Hard limit, then strong defaults
 
 - Never fake-complete work — if blocked on owner setup, ship the unblocked parts
-- Follow each venture's `AGENTS.md` where present
-- One coherent slice per PR; tests passing; **merged before the session ends**
+- Read each venture's `AGENTS.md` where present: it holds what earlier runs learned about that product
+- One coherent slice per PR, tests passing, **merged before the session ends**: unmerged work is invisible to later runs
 - Avoid writing `fixes #N` / `closes #N` about someone else's PR: GitHub closes it unmerged

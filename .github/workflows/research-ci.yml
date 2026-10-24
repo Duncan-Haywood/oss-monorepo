@@ -37,3 +37,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: python3 research/_homepage/build.py
+      # New research/ directories belong to a programme (research/PROGRAMMES.md).
+      - run: python3 research/_shared/programme_check.py
+      - run: python3 -m unittest test_programme_check test_pick_track
+        working-directory: research/_shared

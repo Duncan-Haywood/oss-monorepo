@@ -152,6 +152,16 @@ export function detectColumns(header) {
     return -1;
   };
   const cols = Object.fromEntries(Object.keys(ALIASES).map((k) => [k, find(k)]));
+  // A currency code after the column name ("Amount USD", "Betrag EUR",
+  // "Balance GBP", "Debit CAD") names the same column as the bare word.
+  const CCY = /^(.+?)\s*[(\[]?\s*[a-z]{3}\s*[)\]]?$/;
+  for (const k of ["amount", "debit", "credit", "balance"]) {
+    if (cols[k] !== -1) continue;
+    cols[k] = h.findIndex((x, i) => {
+      const m = CCY.exec(x);
+      return m && ALIASES[k].includes(m[1]) && !Object.values(cols).includes(i);
+    });
+  }
   // "Value" is the value date in PostFinance (Date, Posting details, Credit,
   // Debit, Value, Balance): beside money-in/out columns it is not the amount.
   if (cols.amount !== -1 && h[cols.amount] === "value" && (cols.debit !== -1 || cols.credit !== -1)) cols.amount = -1;

@@ -10,7 +10,8 @@
 //      PRs, CI attempts before green, open PRs and branches by age, and
 //      (fromCI) every completed workflow run of the last two weeks: passed,
 //      failed and cancelled per day, by workflow and trigger, durations,
-//      re-runs, what is red on main now and how long main took to recover.
+//      re-runs, what is red on main now and how long main took to recover,
+//      and (fromDelivery) the DORA delivery metrics over the last 3 days.
 // A metric whose source was unavailable is reported as `null` with the reason,
 // never as zero.
 
@@ -380,6 +381,116 @@ export async function fromCI({ token, repo, now = Date.now(), fetch: fetchImpl =
   }
 }
 
+// ---------------------------------------------------------------------------
+// Delivery: the four DORA metrics, so no agent run has to recount them.
+//
+// The owner, 2026-10-24: metrics like these should be "automatically recorded
+// metrics not from ai agents". Read from every run on main of two workflows
+// over the last DELIVERY_DAYS days (filtered by workflow and branch, which
+// stays under the API's 1,000-run cap: about 950 Pages runs in 3 days,
+// measured 2026-10-24):
+//   - portfolio-pages.yml tests, builds and deploys the site: a passing run
+//     on main is a deploy;
+//   - portfolio-validate.yml is the other gate a merge has to clear.
+// Merge to live is a merge commit's time to the end of the first passing
+// deploy run created after it (that run builds a main which contains it).
+
+export const DELIVERY_DAYS = 3;
+export const DEPLOY_WORKFLOW = 'portfolio-pages.yml';
+export const DELIVERY_WORKFLOWS = [DEPLOY_WORKFLOW, 'portfolio-validate.yml'];
+
+/** Pure: merge times (ms) and each workflow's completed runs on main. */
+export function delivery({ merges = [], workflows = {} } = {}, { now = Date.now(), days = DELIVERY_DAYS, deploy = DEPLOY_WORKFLOW } = {}) {
+  const start = now - days * DAY;
+  const inWindow = (r) => {
+    const t = Date.parse(r.created_at);
+    return t >= start && t <= now;
+  };
+  const deploys = (workflows[deploy] ?? [])
+    .filter((r) => inWindow(r) && outcomeOf(r.conclusion) === 'passed')
+    .map((r) => ({ created: Date.parse(r.created_at), done: Date.parse(r.updated_at) }))
+    .sort((a, b) => a.created - b.created);
+  const perDay = Object.fromEntries(dayRange(now, days + 1).map((d) => [d, 0]));
+  for (const d of deploys) if (dayOf(d.done) in perDay) perDay[dayOf(d.done)] += 1;
+
+  const live = [];
+  let waiting = 0;
+  for (const at of merges.filter((t) => t >= start && t <= now)) {
+    const d = deploys.find((x) => x.created >= at);
+    if (d) live.push((d.done - at) / 60_000);
+    else waiting += 1;
+  }
+
+  const gates = Object.entries(workflows).map(([file, runs]) => {
+    const decided = runs
+      .filter((r) => inWindow(r) && ['passed', 'failed'].includes(outcomeOf(r.conclusion)))
+      .sort((a, b) => a.created_at.localeCompare(b.created_at));
+    const restore = [];
+    let redSince = null;
+    for (const r of decided) {
+      const t = Date.parse(r.created_at);
+      if (outcomeOf(r.conclusion) === 'failed') redSince ??= t;
+      else if (redSince != null) {
+        restore.push((t - redSince) / HOUR);
+        redSince = null;
+      }
+    }
+    const openHours = redSince == null ? 0 : (now - redSince) / HOUR;
+    const redHours = restore.reduce((a, b) => a + b, 0) + openHours;
+    const failed = decided.filter((r) => outcomeOf(r.conclusion) === 'failed').length;
+    return {
+      workflow: file,
+      name: runs[0]?.name ?? file,
+      decided: decided.length,
+      failed,
+      failed_share: decided.length ? round(failed / decided.length, 3) : null,
+      red_spells: restore.length + (redSince == null ? 0 : 1),
+      restore_hours: { n: restore.length, p50: round(quantile(restore, 0.5), 2), p90: round(quantile(restore, 0.9), 2) },
+      red_hours: round(redHours),
+      red_share: round(redHours / (days * 24), 3),
+      red_now: redSince != null,
+    };
+  });
+
+  return {
+    window_days: days,
+    from: new Date(start).toISOString(),
+    to: new Date(now).toISOString(),
+    deploy_workflow: deploy,
+    deploys: deploys.length,
+    deploys_per_day: perDay,
+    merges: live.length + waiting,
+    merge_to_live_minutes: {
+      n: live.length,
+      p50: round(quantile(live, 0.5)),
+      p75: round(quantile(live, 0.75)),
+      p90: round(quantile(live, 0.9)),
+      max: round(live.length ? Math.max(...live) : null),
+      over_60: live.filter((m) => m > 60).length,
+      waiting,
+    },
+    gates,
+    note: 'A red spell runs from a failing run on main to the next passing one; one still open at the window end counts up to now. A spell that began before the window is counted from its first failing run inside it.',
+  };
+}
+
+export async function fromDelivery({ token, repo, gitRepo, now = Date.now(), fetch: fetchImpl = globalThis.fetch, days = DELIVERY_DAYS } = {}) {
+  if (!token || !repo) return { available: false, reason: 'no GITHUB_TOKEN in this build (the publish workflow supplies one)' };
+  const api = `https://api.github.com/repos/${repo}`;
+  const start = now - days * DAY;
+  try {
+    const merges = git(gitRepo, ['log', '--first-parent', `--since=${new Date(start).toISOString()}`, '--format=%ct'])
+      .split('\n').filter(Boolean).map((s) => Number(s) * 1000);
+    const workflows = {};
+    for (const file of DELIVERY_WORKFLOWS) {
+      workflows[file] = await ghPages(fetchImpl, token, `${api}/actions/workflows/${file}/runs?branch=main&status=completed&created=%3E%3D${isoSec(start)}`, 15);
+    }
+    return { available: true, ...delivery({ merges, workflows }, { now, days }) };
+  } catch (err) {
+    return { available: false, reason: err.message };
+  }
+}
+
 export async function fromGitHub({ token, repo, now = Date.now(), fetch: fetchImpl = globalThis.fetch } = {}) {
   if (!token || !repo) return { available: false, reason: 'no GITHUB_TOKEN in this build (the publish workflow supplies one)' };
   const api = `https://api.github.com/repos/${repo}`;
@@ -481,5 +592,6 @@ export async function collect(repo, { now = Date.now(), token, ghRepo, fetch, pr
     runs: fromRuns(repo, { now }),
     github: await fromGitHub({ token, repo: ghRepo, now, fetch }),
     ci: await fromCI({ token, repo: ghRepo, now, fetch, previous: previous?.ci?.available ? previous.ci : null }),
+    delivery: await fromDelivery({ token, repo: ghRepo, gitRepo: repo, now, fetch }),
   };
 }

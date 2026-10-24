@@ -22,7 +22,7 @@ prompts/runcost.py         measure | attach | report: what a run cost
 prompts/culture.py         report [--history]: rulebook size, owner's share, run mix, outside usage
 prompts/pricing.json       list prices runcost.py uses, and the human hourly rate
 prompts/derive.py          fetch | build | report: PR facts and rework, measured not typed
-prompts/derived/           what derive.py measured (regenerated, never hand-edited)
+prompts/derived/           what derive.py measured (regenerated, so hand edits are lost)
 ```
 
 ## The loop
