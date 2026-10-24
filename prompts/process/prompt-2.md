@@ -77,9 +77,9 @@ file the two new problems you hit along the way.
 
 ## Practicalities
 
-- History in a cloud clone is shallow. Start
-  `git fetch --unshallow origin main` in the background early (it can take
-  several minutes), and check `git rev-list --count origin/main` rather than
+- History in a cloud clone is shallow. For recent dates, `git fetch
+  --shallow-since=<7 days ago> origin main && git merge --ff-only origin/main`
+  takes about 16 s; a full `--unshallow` takes minutes (background it). Check `git rev-list --count origin/main` rather than
   trusting the shallow flag.
 - For a random sample of merged PRs, list `git log origin/main --merges
   --since=<date> --format=%s` and pick with `shuf --random-source=<(yes)`, so

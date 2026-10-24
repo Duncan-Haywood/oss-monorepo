@@ -930,7 +930,7 @@ def print_measure(m: dict[str, Any]) -> None:
         print("None reported.\n")
     if m["doc_friction"] and _is_shallow():
         print("(Shallow clone: a file's \"last changed\" date is only as old as the fetched history, so "
-              "[file changed since] tags may be wrong. `git fetch --unshallow origin main` first.)\n")
+              "[file changed since] tags may be wrong. `git fetch --shallow-since=<7 days ago> origin main && git merge --ff-only origin/main` (16 s) first.)\n")
     stamps = [t for f in m["doc_friction"].values() for r in f["recent"] if (t := _when(r))]
     cutoff = max(stamps) - timedelta(days=FRICTION_FRESH_DAYS) if stamps else None
     for path, f in list(m["doc_friction"].items())[:FRICTION_MAX_FILES]:
