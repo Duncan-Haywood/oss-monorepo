@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 2d: bootstrap intervals for B_simple (planned before running)
+- Why: 2c's values at single checkpoints came from 64 batches and moved several-fold between neighbours, so its "tens of sequences" claim had no error bars. Question: with n = 256 batches per checkpoint and a bootstrap over batches, how wide is the 95% interval of B_simple, and does the "rises by more than 10x from init" result still hold at the interval's lower end?
+- Design (`experiments/numpy_h_sweep/noise_scale_boot.py`): same model, data, training and checkpoints as 2c (3 seeds), n = 256 gradients at b = 16 per checkpoint; 1,000 bootstrap resamples of the batches; each resample recomputes S, the unbiased |G|^2 and the ratio. Resamples with |G|^2 <= 0 are counted and excluded from the percentile interval (reported).
+- **H2d-i:** at steps 80 to 640 the lower 95% limit of B_simple exceeds 3x its init-step upper limit in every seed and checkpoint (rise is real). Refuted if any cell fails.
+- **H2d-ii:** the interval's upper/lower ratio at n = 256 is below 3 at every step >= 160 (so 2c's "factor 2 to 3" noise was a small-n effect). Refuted otherwise; prior: it will hold at 80 and 160 but not at the late checkpoints, where |G|^2 is small.
+- Limits: the bootstrap is over batches at one parameter vector, so it covers estimator error only, not the variation of the training trajectory (that is the seed spread); the ratio estimator is biased at small |G|^2.
+
 ## 2026-10-24 · Milestone 2c: simple gradient noise scale B_simple along training (planned before running)
 - Why: the proposal's composition rule needs a measured noise constant `B_noise`; PR 10109 (another session) widens the outer-lr grid, so this step takes the other open item from 2a's "Next".
 - Design (`experiments/numpy_h_sweep/noise_scale.py`): same 14k-parameter model and data as the sweeps. Train synchronous AdamW (batch 4x16, seed s) and at steps {0, 80, 160, 320, 640} take n=64 independent gradients at batch size b=16 on training text. Estimator (McCandlish et al. 2018 "simple" scale, to be checked against the reference): S = sum over coordinates of the across-batch variance (unbiased), so tr(Sigma) = b*S; |G|^2 = |mean grad|^2 - S/n (unbiased); B_simple = b*S/|G|^2. 3 seeds.
