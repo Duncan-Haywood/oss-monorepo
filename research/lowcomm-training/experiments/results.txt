@@ -1,0 +1,6 @@
+(a) model 413312 params, vocab 65; M=1,H=1, 100 steps: max |loss diff| 0.00e+00, max |param diff| 0.00e+00
+(b) quadratic stationary loss: closed form 0.02842; simulated 0.02794 +/- 0.00079 (95% CI, 8 seeds); ratio 0.983
+(c) unigram entropy of the corpus: 3.313 nats
+    round  20 (inner steps per worker 320): val loss 2.202  [26 s]
+    round  40 (inner steps per worker 640): val loss 1.973  [51 s]
+    round  60 (inner steps per worker 960): val loss 1.853  [77 s]
