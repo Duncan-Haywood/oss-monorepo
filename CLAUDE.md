@@ -49,10 +49,11 @@ new worth doing. world's an oyster."
 So land at least one thing of real value on `main`: a product feature or fix,
 a deployed page, a research result, an open-source tool, SEO or distribution
 work, or a write-up that uses real data to tell a reader something new.
-Most runs also write up what they learned, by their own judgment on the
-subject: an agent doc in `docs/reports/` and a post in `docs/posts/`, usually
-by extending an existing one (owner, 2026-10-21; `goals.md`, "Write about the
-work"). An
+Most PRs also carry a **new blog post** in `docs/posts/` about the project
+or whatever the run found, short is fine, plus an agent doc in `docs/reports/`
+when the next run needs to know something (owner, 2026-10-21 and 2026-10-24:
+"I want the number of blog posts per day to increase significantly";
+`goals.md`, "Write about the work"). An
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to

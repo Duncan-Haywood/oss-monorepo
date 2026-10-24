@@ -544,6 +544,14 @@ class WriteupTest(PromptTestCase):
         self.fx.run("2026-10-21-c.json", _record(date="2026-10-21", pr="1", writeups="docs/posts/x.md"))
         self.assertTrue(any("writeups must" in e for e in promptctl.validate(self.fx.root)))
 
+    def test_posts_per_day_counts_filename_dates_up_to_the_newest(self):
+        posts = self.fx.repo / "docs" / "posts"
+        posts.mkdir(parents=True)
+        for name in ("2026-10-20-a.md", "2026-10-22-b.md", "2026-10-22-c.md", "notes.md"):
+            (posts / name).write_text("x\n")
+        self.assertEqual(promptctl.posts_per_day(self.fx.root, days=4),
+                         [("2026-10-19", 0), ("2026-10-20", 1), ("2026-10-21", 0), ("2026-10-22", 2)])
+
 
 class BackfillPrTest(unittest.TestCase):
     def test_pr_number_comes_from_the_squash_subject(self):
