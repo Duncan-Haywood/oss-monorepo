@@ -37,7 +37,10 @@ unaffected, and most sessions need nothing more. When the two disagree,
 trust the content. Fetch history only for a step that needs it, such as
 merging `main` into a branch or dating a change. Try
 `git fetch --deepen=500 origin main` first, and repeat until
-`git merge-base HEAD origin/main` answers. In recent runs a full
+`git merge-base HEAD origin/main` answers. To date recent changes (file
+"last changed", `git log --since`), `git fetch --shallow-since=<7 days ago>
+origin main && git merge --ff-only origin/main` took 16 s and gave about
+2,500 commits; no background run needed. In recent runs a full
 `git fetch --unshallow origin main` took 2-15 min and up to ~5 GB, and two
 `Monitor` waits expired at 20 min before one finished. So run it with
 `run_in_background` only when you need all of it. Name the ref, because a
