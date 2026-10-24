@@ -30,7 +30,7 @@ const ALIASES = {
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
   desc: ["item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
-    "beschreibung", "avisierungstext", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "dettagli", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "közlemény",
+    "beschreibung", "avisierungstext", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "dettagli", "beneficiario", "bénéficiaire", "beneficiaire", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "közlemény",
     "text", "tekst", "rubrik", "referens", "skýring", "skyring", "รายการ", "รายละเอียด", "beskrivelse", "forklaring", "meddelande", "meddelelse",
     "opis transakcji", "dane kontrahenta", "tytuł przelewu", "saaja/maksaja", "descrição", "descricao", "histórico", "historico", "opis", "tytuł", "tytul", "nadawca/odbiorca", "selitys", "saaja/maksaja", "açıklama", "aciklama", "popis", "zpráva pro příjemce", "opis operacji", "keterangan", "uraian", "الوصف", "البيان", "التفاصيل",
     "摘要", "お取引内容", "取引内容", "内容", "備考", "お取り扱い内容", "적요", "거래내용", "내용", "기재내용", "보낸분/받는분", "摘要", "交易摘要", "交易备注", "交易備註", "对方户名", "對方戶名", "附言", "用途"],
@@ -745,7 +745,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const curCol = hdr.findIndex((x) => curRe.test(x) && x !== "valuta") !== -1 ? hdr.findIndex((x) => curRe.test(x) && x !== "valuta") : hdr.findIndex((x) => x === "valuta");
   const currencies = new Set();
   // Belgian and Dutch exports keep the free-text message apart from the counterparty's name; Intesa Sanpaolo's Descrizione estesa and Operazione sit beside Descrizione and Dettagli.
-  const msgCol = hdr.findIndex((x) => /^((vrije )?mededeling(en)?|descrizione estesa|operazione)$/.test(x));
+  const msgCol = hdr.findIndex((x) => /^((vrije )?mededeling(en)?|descrizione estesa|operazione|riferimento di pagamento|r[eé]f[eé]rence de paiement|referencia de pago)$/.test(x));
   // Rabobank splits its description over Omschrijving-1..3.
   const omsCols = hdr.map((x, ix) => (/^omschrijving-[123]$/.test(x) ? ix : -1)).filter((ix) => ix !== -1);
   // German exports keep the other party in its own column, apart from the purpose text.

@@ -243,3 +243,20 @@ test("a QFX with an INTU.BID sign-on block and SGML header reads like OFX", () =
   assert.deepEqual(r.rows.map((x) => x.cents), [-3000, -377]);
   assert.equal(r.rows[0].date, "2019-01-23");
 });
+
+// ofxstatement-n26 (column order and type names read from its sdist; rows made up here).
+// N26's Italian, French and Spanish exports name the payee "Beneficiario" / "Bénéficiaire".
+test("N26 exports in Italian, French and Spanish no longer import with empty descriptions", () => {
+  const mk = (head, a, b) => `${head}\n${a}\n${b}\n`;
+  const cases = [
+    [mk(`"Data","Beneficiario","Numero Conto","Tipo Transazione","Riferimento di pagamento","Categoria","Importo (EUR)"`, `"2026-10-15","Esselunga","","Pagamento MasterCard","","Alimentari","-23.45"`, `"2026-10-16","Cliente Srl","IT60X0542811101000000123456","Entrata","Fattura 4","Entrate","1500.00"`), "Cliente Srl Fattura 4"],
+    [mk(`"Date","Bénéficiaire","Numéro de compte","Type de transaction","Référence de paiement","Catégorie","Montant (EUR)"`, `"2026-10-15","Carrefour","","Paiement Mastercard","","Alimentation","-23.45"`, `"2026-10-16","Client SARL","FR7630006000011234567890189","Virement entrant","Facture 4","Revenus","1500.00"`), "Client SARL Facture 4"],
+    [mk(`"Fecha","Beneficiario","Número de cuenta","Tipo de transacción","Referencia de pago","Categoría","Importe (EUR)"`, `"2026-10-15","Mercadona","","Pago Mastercard","","Alimentación","-23.45"`, `"2026-10-16","Cliente SL","ES9121000418450200051332","Ingreso","Factura 4","Ingresos","1500.00"`), "Cliente SL Factura 4"],
+  ];
+  for (const [csv, second] of cases) {
+    const r = readStatement(csv);
+    assert.deepEqual(r.rows.map((x) => x.cents), [-2345, 150000]);
+    assert.equal(r.rows[1].desc, second);
+    assert.ok(r.rows[0].desc.length > 3);
+  }
+});
