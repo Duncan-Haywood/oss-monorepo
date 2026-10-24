@@ -82,6 +82,12 @@ process list for the script's own name: it matches itself and never ends.
   line contains the pattern (the `pgrep` form matches itself the same way).
   `.claude/hooks/block_pkill_f.py` refuses both, also inside heredocs that
   merely mention them; use `'[n]ame'` or `kill <pid>`.
+- Fresh model samples (for an experiment that must not see this repo's
+  instructions): run `claude -p "<prompt>" --tools "" --setting-sources ""
+  --model <id> --output-format json < /dev/null` from an empty folder in the
+  scratchpad. `--bare` fails with an authentication error here. Startup can
+  take over a minute, so run batches with `run_in_background`;
+  `docs/reports/assets/agent-fiction/generate.sh` is a worked example.
 
 ## Outbound hosts
 
