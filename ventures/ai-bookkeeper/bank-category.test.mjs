@@ -25,3 +25,10 @@ test("a keyword still wins over the bank's category, and money in is never guess
   assert.equal(suggest({ desc: "STARBUCKS 123", cents: -500, bankCat: "Travel" }, model).source, "built-in");
   assert.equal(suggest({ desc: "MYSTERY CO", cents: 5000, bankCat: "Travel" }, model).account, null);
 });
+
+test("interest and business-income labels suggest an income account on money in; a travel label still does not", () => {
+  const model = { rules: [], codes: null, classifier: { n: 0 } };
+  assert.equal(suggest({ desc: "MYSTERY CO", cents: 5000, bankCat: "Interest Income" }, model).account, "4200");
+  assert.equal(suggest({ desc: "MYSTERY CO", cents: -5000, bankCat: "Interest Income" }, model).account, null);
+  assert.equal(suggest({ desc: "MYSTERY CO", cents: -5000, bankCat: "Fees & Charges" }, model).account, "6010");
+});
