@@ -1,7 +1,7 @@
 {
   "id": "P052",
   "title": "seo: make the site's llms.txt a short index and move the full text to llms-full.txt",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -10,7 +10,7 @@
     "curl https://duncan-haywood.github.io/oss-monorepo/llms.txt on 2026-10-24: 539,214 bytes; the blockquote line is 1,776 characters",
     "curl https://duncan-haywood.github.io/oss-monorepo/llms-full.txt on 2026-10-24: 404"
   ],
-  "change": "In the pages build (platform/pages/build.mjs and whatever renders llms.txt): keep the blockquote to one sentence (what the site is, how many tools, that inputs stay in the browser); move the list of network-calling tools to its own short section; list audience pages, kinds of tool and the top products with one-line descriptions, under roughly 50 KB; write the current long body to llms-full.txt and link it from llms.txt. Keep catalog.json as the machine index. Add a test that bounds llms.txt size and the blockquote length.",
+  "change": "In the pages build (platform/pages/build.mjs and whatever renders llms.txt): keep the blockquote to one sentence (what the site is, how many tools, that inputs stay in the browser); move the list of network-calling tools to its own short section; list audience pages, kinds of tool and the top products with one-line descriptions, under roughly 50 KB; write the current long body to llms-full.txt and link it from llms.txt. Keep catalog.json as the machine index. Add a test that bounds llms.txt size and the blockquote length. Shipped: renderLlmsTxt takes compact:true for the index (category pages + counts, audiences, research, optional); the build writes the full per-tool text to llms-full.txt.",
   "touches": [
     "platform/pages/build.mjs",
     "platform/pages/*.test.mjs"
