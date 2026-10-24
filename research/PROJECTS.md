@@ -1,6 +1,6 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 and tracks 20 and 21 on 2026-10-21. Runs
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 tracks 20 and 21 on 2026-10-21 and track 22 on 2026-10-24. Runs
 started from `prompt.md` take their new work from here. The tracks are numbered below. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-21, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-22, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -119,6 +119,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 19. Machine learning on qualitative data with LLMs | `qual` |
 | 20. Robots on the residential building site | `buildbot` |
 | 21. Applied R&D for the industries modern life runs on | `infra` |
+| 22. Open-source construction, mining and heavy equipment | `heavy` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -1581,9 +1582,119 @@ netting; simulators plus learned surrogates for anything slow.
   advice.
 - *Every price, emission factor and device figure is sourced and dated, or swept.*
 
+## 22. Open-source construction, mining and heavy equipment (`heavy`)
+
+Added on 2026-10-24 at the owner's request, as a long-term direction: "I want one of the
+directions to be working on open source hardware-firmware-software for construction machines.
+open source reduce the cost of entry in construction equipment and machines. autonomy is plus in
+this but creating low cost competitors to existing stuff is also acceptable. also mining and
+other heavy equipment."
+
+**Goal.** Lower the cost of owning and running heavy machines (excavators, loaders, skid steers,
+compact track loaders, dozers, telehandlers, haul trucks, drills and the like) by publishing
+open designs a small contractor, mine or fabricator can build, repair, retrofit or extend: the
+hardware (structure, hydraulics, drivetrain, electrics), the firmware (machine controllers,
+CAN bus, valve drivers, interlocks) and the software (operator interfaces, telematics,
+simulation, autonomy). Two kinds of output are equally welcome. *Low-cost competitors*: an
+open machine or subsystem that does a stock machine's job for much less, priced from a sourced
+bill of materials. *Autonomy and assistance*: remote operation, operator assist and autonomous
+work cycles, on an open machine or as a retrofit kit for one already on site. The question for
+every project is the same: what does the open version cost and do, against the machine it would
+replace, with both sides sourced? Mining is in scope (haulage, loading, drilling, ventilation);
+track 21's `infra-grind` covers the processing plant, this track covers the machines. Robots on
+a house site belong in track 20 and residential structure in track 12; a compact machine that
+digs a house's footings belongs here.
+
+**Prior work and open tools (not yet checked; check before citing).** Open Source Ecology's
+Global Village Construction Set: LifeTrac (an open tractor and loader), MicroTrac, the CEB press
+and the hydraulic power unit (track 1 already cites the GVCS). ETH Zurich's HEAP walking
+excavator: Jud et al. (2021), autonomous excavation with a walking excavator, *Science
+Robotics*. Project Chrono (BSD-3) and its SCM deformable soil; Bekker (1969) and Wong (2008),
+*Theory of Ground Vehicles*, for terramechanics; Reece (1964) and McKyes (1985), the fundamental
+earthmoving equation, for cutting force. ROS 2, Nav2, Autoware and ArduPilot Rover as open
+autonomy stacks. SAE J1939 (heavy-vehicle CAN), ISO 11783 (ISOBUS), SocketCAN, `python-can` and
+`cantools`. ISO 15143-3 (the AEMP 2.0 telematics API). Safety standards to design against, not
+to claim: ISO 20474 (earth-moving machinery safety), ISO 19014 (functional safety for
+earth-moving machinery), ISO 17757 (autonomous and semi-autonomous machine system safety, earth
+moving and mining), ISO 13849 and ISO 3471 (ROPS). Commercial systems as context, not as open
+work: Built Robotics (autonomous excavation retrofits), SafeAI, Caterpillar MineStar Command and
+Komatsu FrontRunner (autonomous haulage), Teleo (remote operation retrofits). Right to repair as
+context: Colorado HB23-1011 (agricultural equipment, 2023) and the US Copyright Office's DMCA
+section 1201 exemptions for vehicle diagnosis and repair.
+
+**Milestones.** A starting order, not a checklist.
+1. `heavy-market`: where the money goes. A sourced market report on compact and mid-size
+   machines: new and used prices by class and operating weight, ownership and operating cost per
+   hour (fuel, wear parts, hydraulics, repairs), dealer and parts margins where public, and the
+   open-source BOM floor (LifeTrac and similar). Which machine class has the widest gap between
+   price and the cost of its parts, and which subsystem holds it? Every price sourced and dated.
+2. `heavy-hydraulics`: the hydraulic system as a model. Pump, valves, hoses and cylinders of an
+   excavator arm or loader as a lumped simulation; open-centre against load-sensing against
+   electro-hydraulic independent metering on a published dig or load cycle; energy per cycle,
+   heat, and the parts cost of each circuit. Which open circuit gets closest to a stock machine
+   for the least money?
+3. `heavy-digtwin`: an open digging twin. Arm kinematics and dynamics with a soil model (the
+   fundamental earthmoving equation first, Chrono SCM if it installs), reproducing a published
+   bucket-force or fill-factor figure, and scored on payload per pass, cycle time and energy.
+   This is the scene later milestones score against.
+4. `heavy-controller`: open machine-controller firmware. A J1939 CAN stack, joystick input,
+   proportional-valve PWM drivers and the interlocks (operator presence, neutral start, e-stop,
+   boom lock-out) for a cheap microcontroller, in Rust or C (the Rust direction applies),
+   tested software-in-the-loop over virtual CAN against the milestone 2 or 3 twin, with fault
+   injection (dropped frames, stuck valve, sensor out of range). The firmware and its test
+   harness are the output.
+5. `heavy-autodig`: autonomous work cycles. A trenching or truck-loading policy (model-based or
+   learned, track 14's loop) against a scripted baseline in the milestone 3 twin: volume per
+   hour, trench grade tolerance, energy, and failures. What does autonomy add over a skilled
+   operator figure from the literature?
+6. `heavy-retrofit`: a retrofit kit. What it takes to make an existing machine remote-operable
+   or autonomous: sensors, actuators on the pilot hydraulics or the joystick, compute, radio,
+   e-stop chain, with a priced BOM against the commercial retrofits' public prices.
+7. `heavy-electric`: battery-electric compact machines. Duty-cycle energy from milestone 3,
+   battery size and cost from track 16, charging on site, and the cost per operating hour
+   against diesel. Where does electric win today?
+8. `heavy-haul`: mining haulage. A discrete-event open-pit haul cycle (shovel, trucks, dump,
+   queues; track 4's `robofab-cell` and track 21's twins), manned against autonomous fleets of
+   smaller, cheaper trucks: tonnes per hour, cost per tonne and sensitivity to truck size. Does a
+   fleet of small open trucks beat a few large ones?
+9. `heavy-structure`: a weldable open boom and frame. Plate-steel boom, stick and loader arms
+   designed with track 5's simulation loop (FEA, buckling, fatigue at weld toes) for a shop that
+   has a plasma table and a welder; mass, cost and safety factor against a stock part's
+   published figures.
+10. `heavy-telematics`: open telematics. Read J1939 and ISO 15143-3 data into an owner's own
+    fleet tool, and test whether survival analysis or changepoint detection (track 21's method
+    transfers) predicts wear-part failures on a public or simulated dataset.
+11. Owner steps: build or buy a machine or subsystem, bench-test the controller on real valves,
+    and any field trial, each with a priced BOM, a risk assessment and a qualified engineer.
+
+**Guardrails.**
+- *Heavy machines kill.* Crush, rollover, struck-by and hydraulic-injection hazards are real.
+  Every design, controller and autonomy result is research, not a certified machine or safety
+  system; say so in the README. Nothing is run on a real machine, near a person, by a session.
+  Any physical test is an owner step with a risk assessment against ISO 20474, ISO 19014 and,
+  for autonomy, ISO 17757, plus OSHA or MSHA obligations. Never present a simulated interlock
+  as a functional-safety rating.
+- *No emissions tampering.* Nothing that removes, bypasses or defeats an engine's emissions
+  controls (EGR, DPF, SCR, DEF) or its software. In the US that is a Clean Air Act violation;
+  it is out of scope however it is framed.
+- *Interoperate, don't break locks.* Read published buses and standards (J1939, ISO 15143-3)
+  and the owner's own data. No circumventing an OEM's access controls or copying proprietary
+  firmware, service software or service manuals; work within the law and the DMCA exemptions,
+  and when unsure, don't.
+- *Names and marks.* Describe compatibility factually ("fits a 1.7 t class mini excavator");
+  never use a manufacturer's marks in a way that implies affiliation. Vendor figures are the
+  vendor's claims, sourced and dated, kept apart from simulated results.
+- *Licences.* Original designs, firmware and software are MIT like the rest of the repository.
+  GVCS material is CC BY-SA and GPL; build on its ideas with credit, and keep its files under
+  their own licence if one is ever needed.
+- *Every price is sourced and dated, or swept.* Used-machine prices move fast; give the source,
+  date and class.
+- *Lab tags.* No group in `prompt.md` covers heavy equipment; milestones 3, 5 and 9 may build on
+  the groups tracks 5, 9 and 14 name. Say so rather than stretching a connection.
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; tracks 20's and 21's, added on 2026-10-21, are not yet checked. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; tracks 20's and 21's, added on 2026-10-21, are not yet checked; track 22's, added on 2026-10-24, are not yet checked. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**

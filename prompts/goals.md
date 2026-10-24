@@ -528,6 +528,26 @@ work or a wrapper around an existing C library rarely pays off. The opinion piec
 with the test and four candidates from this repository:
 [`portfolio/opinions/2026-10-20-rust-where-it-is-essential.md`](../portfolio/opinions/2026-10-20-rust-where-it-is-essential.md).
 
+## Direction: open construction, mining and heavy equipment
+
+Set by the owner on 2026-10-24: "I want one of the directions to be working
+on open source hardware-firmware-software for construction machines. open
+source reduce the cost of entry in construction equipment and machines.
+autonomy is plus in this but creating low cost competitors to existing stuff
+is also acceptable. also mining and other heavy equipment."
+
+So open designs for excavators, loaders, haul trucks, drills and similar
+machines are a standing direction: hardware, controller firmware (a natural
+fit for the Rust direction above), operator and fleet software, simulation
+and autonomy, judged by what they take off the cost of owning and running a
+machine against the one they would replace. It is research track 22
+(`heavy`) in [`research/PROJECTS.md`](../research/PROJECTS.md), where the
+milestones and its guardrails live: designs are research, not certified
+machines; nothing runs on a real machine or near a person without the owner;
+no emissions-control tampering and no breaking OEM access controls. A piece
+that people can use (a controller, a retrofit kit's software, a fleet tool)
+can graduate to a product like any other.
+
 ## Direction: files first, not the GitHub API
 
 Set by the owner on 2026-10-20: "lets make a rule of thumb that things should
