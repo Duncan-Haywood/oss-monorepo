@@ -48,3 +48,15 @@ test("replay learns a payee from the line before it", async () => {
   assert.deepEqual([o.n, o.right, o.blank, o.bySource.memory?.right], [2, 1, 1, 1]);
   assert.equal(replay(rows, { learn: false }).right, 0);
 });
+
+// Same replay on bank text (eval/queeriouslabs-online.mjs): card numbers and dates in the descriptor must not hide a repeat payee.
+test("replay learns a raw bank descriptor despite changing dates and card digits", async () => {
+  const { replay, parseDated } = await import("./eval/queeriouslabs-online.mjs");
+  const csv = "Date,Description,Statement Description,Category,Debit,Credit,Balance\n" +
+    "1/02/2021,Zorblax,DEBIT CARD #XXXX 01/01 ZORBLAX HOSTING 415-555-0100 CA,Web Infrastructure,-75,,1\n" +
+    "2/02/2021,Zorblax,DEBIT CARD #XXXX 02/01 ZORBLAX HOSTING 415-555-0100 CA,Web Infrastructure,-75,,1\n";
+  const rows = parseDated(csv);
+  assert.equal(rows[0].date, "2021-01-02");
+  const o = replay(rows);
+  assert.deepEqual([o.n, o.right, o.bySource.memory?.right], [2, 1, 1]);
+});
