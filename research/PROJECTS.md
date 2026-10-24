@@ -1,6 +1,6 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 and tracks 20 and 21 on 2026-10-21. Runs
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 tracks 20 and 21 on 2026-10-21 tracks 22 and 23 on 2026-10-24 and track 24 on 2026-10-24. Runs
 started from `prompt.md` take their new work from here. The tracks are numbered below. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
@@ -73,14 +73,20 @@ deleted; its pull requests, review threads and old Pages site stay there.
 
 ## Picking work
 
+Since 2026-10-24 the unit of work is the programme, not the project: one hard question
+pursued across sessions toward a paper ([`PROGRAMMES.md`](PROGRAMMES.md), which sets the bar).
+`pick_track.py` draws an open programme for most runs. A track draw means opening a programme
+in that area, or advancing one, and the track's milestones below become raw material for it,
+not separate slugs. The steps below still apply to track and free-choice draws.
+
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-21, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-23, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
    twenty works on whatever research question it finds most interesting, in or out of the
    tracks below: a hunch from a recent project, an unusual method, a gap nobody here has
-   looked at. Pick something you can finish and land in one run. It follows every rule in
+   looked at. Aim it at a question worth a programme; land a real step this run. It follows every rule in
    "Rules for every track" and every integrity, licensing and landing rule in `prompt.md`, and
    it is held to the same bar: a complete README, passing tests, honest results. Use the
    `free` slug prefix and theme id unless the project fits an existing track's theme better,
@@ -91,7 +97,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
    in the last three hours. When the listed milestones are done, take the next step from the
    latest project's "Next steps" section in that track. If that chain has gone to micro-variants
    of one result (a new seed, a bigger N, the same test on a neighbouring dataset), skip it:
-   ask a new question of the track's theme instead, and say so in the README's first lines.
+   ask the harder question the chain was circling, and make it a programme (`PROGRAMMES.md`).
 3. **Use the track's slug prefix and theme.** The prefix starts the slug (`selfrep-closure`).
    The theme id goes in `_homepage/projects.json`. The first project in a track adds that theme,
    with a `--t-<id>` colour in both the light and dark blocks of `_homepage/template.html`.
@@ -119,6 +125,9 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 19. Machine learning on qualitative data with LLMs | `qual` |
 | 20. Robots on the residential building site | `buildbot` |
 | 21. Applied R&D for the industries modern life runs on | `infra` |
+| 22. Autonomous flying machines for commercial logistics | `aerolog` |
+| 23. Autonomous water vehicles of every sort | `marine` |
+| 24. Civilizations, group psychology and interventions | `civ` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -1581,9 +1590,241 @@ netting; simulators plus learned surrogates for anything slow.
   advice.
 - *Every price, emission factor and device figure is sourced and dated, or swept.*
 
+## 22. Autonomous flying machines for commercial logistics (`aerolog`)
+
+Added on 2026-10-24 at the owner's request: "I want one of the research directions to be
+commmercial logistics autonomous flying machines. to work on both at scale models and 1:1 work".
+
+**Goal.** Uncrewed aircraft that move goods for a living: parcel and medical drones, cargo
+VTOL and fixed-wing feeders, the fleets that fly them and the ground they work from. Work at
+two sizes and keep them joined. *Scale models* are what this repo and the owner can build and
+fly: sub-scale and small aircraft (under the 55 lb FAA Part 107 limit) that test an airframe,
+controller or operation cheaply. *1:1 work* is the full-size vehicle and its operation: a cargo
+VTOL or a converted feeder aircraft sized for a real payload and route, studied by design and
+simulation. The question that runs through the track is what a model at 1:N tells you about
+the machine at 1:1, and where it lies: similitude says Froude, Reynolds and Mach numbers cannot
+all be matched at once, and batteries, motors and structure do not scale the same way either.
+Each project says which size it works at, and a project at one size names what would change at
+the other.
+
+Neighbouring tracks already hold pieces of this. `osrobot-uav` and its follow-ups size a
+purpose-built observation UAV, `codesign-aero` sizes an airframe and a learned attitude
+controller together, `uav-energy-twin` plans battery margin under wind, `infra-propulsion`
+compares freight modes per tonne-km and `infra-routing` routes electric delivery vans. This
+track builds on them and asks the logistics questions they leave out: payload, cost per
+delivery, fleet and hub throughput, airspace and noise, and the jump between sizes.
+
+**Prior work and open tools.** Check each before citing it. Similitude and sub-scale flight
+testing: Wolowicz, Bowman and Gilbert (1979), NASA TP-1435; NASA's AirSTAR dynamically scaled
+transport model (Jordan et al. 2006, AIAA). Delivery-drone energy and emissions: Stolaroff et al.
+(2018), *Nature Communications*; Rodrigues et al. (2022), *Patterns*, with an open dataset of
+measured delivery-quadcopter flights; D'Andrea (2014), "Can drones deliver?", *IEEE T-ASE*.
+Truck-and-drone routing: Murray and Chu (2015), the flying sidekick TSP, *Transportation
+Research C*; Agatz, Bouman and Schmidt (2018), *Transportation Science*. Full-size concepts:
+Johnson, Silva and Solis (2018), NASA's concept vehicles for VTOL air taxi operations (the
+sizing method transfers to cargo). Airspace: the BlueSky open ATM simulator (Hoekstra and
+Ellerbroek 2016, ICRAT). Propellers at small scale: the UIUC propeller database (Brandt and Selig
+2011, AIAA 2011-1255). Open tools: AeroSandbox (Sharpe, MIT), OpenVSP, XFOIL, PX4 or ArduPilot
+software-in-the-loop with Gazebo, OR-Tools and HiGHS. Raymer, *Aircraft Design: A Conceptual
+Approach*, for the full-size weight and sizing relations.
+
+**Milestones.** A starting order; follow the results.
+1. `aerolog-scaling`: what does a 1:N model tell you about the 1:1 aircraft? Take one cargo
+   airframe, model it in AeroSandbox at full size and at 1:2 to 1:10, and measure which
+   quantities a Froude-scaled model reproduces (trim, dynamic modes, gust response) and which
+   it misses (Reynolds-driven drag and stall, battery and motor mass fractions). Reproduce the
+   scaling relations of NASA TP-1435 first. The by-product is a scaling calculator both halves
+   of the track use.
+2. `aerolog-energy`: energy and cost per delivery. A first-principles multicopter, fixed-wing
+   and lift-plus-cruise model fitted to the measured flights in Rodrigues et al. (2022), checked
+   against Stolaroff et al. (2018), then compared with a van per parcel at the same route
+   density. Where in payload and distance does each win?
+3. `aerolog-sizing` (1:1): size a full-size cargo VTOL for payloads from 5 to 500 kg and
+   ranges to a few hundred km, battery against hybrid, with sourced battery figures from
+   `energy-density`. Where does battery-electric stop closing, and how sensitive is that to
+   cell specific energy? Then use milestone 1 to derive the sub-scale demonstrator that would
+   test the winning configuration.
+4. `aerolog-sitl` (scale model): fly the sub-scale demonstrator in PX4 or ArduPilot SITL on a
+   delivery mission in wind, and compare endurance and tracking against milestone 2's
+   analytic model and `uav-energy-twin`'s wind margin.
+5. `aerolog-dispatch`: fleet operations. Truck-and-drone and hub-and-spoke drone delivery on
+   published instances (Murray and Chu's, or Solomon's), with battery and wind from the models
+   above, against a van-only baseline. How many aircraft per hub, and what does wind
+   cancellation do to the service level?
+6. `aerolog-hub`: the ground side. Charging against battery swap, landing-pad and loading
+   throughput, as a queueing or discrete-event model (track 4's `robofab-cell` method); which
+   resource binds first as demand grows?
+7. `aerolog-airspace`: traffic density. BlueSky with a city-scale delivery demand: conflict
+   rate and deconfliction cost against aircraft per km<sup>2</sup>, and the capacity a corridor
+   or layered airspace buys.
+8. `aerolog-noise`: community noise. Sound level on the ground against altitude, rotor tip
+   speed and configuration, checked against published delivery-drone measurements; which
+   design changes buy the most decibels per watt?
+9. `aerolog-handoff`: the last metre. Winch-lowered against landed and dropped delivery:
+   precision, time on station and energy, with a simple tether-and-gust model.
+10. Owner steps: build and fly the sub-scale demonstrator under Part 107 (or the local
+    equivalent), log real flights and record measured against simulated endurance and energy.
+    Full-size hardware and flight are for a certificated operator and manufacturer, never
+    for this repo.
+
+**Guardrails.**
+- *Civilian logistics only.* No weapons, no payload release aimed at people or property, no
+  targeting, no anti-jamming, counter-detection or evasion features, and no tuning to military
+  missions. Track 14's rule applies.
+- *Export control.* Complete designs of long-range uncrewed aircraft can be controlled (the
+  EAR's 9A012 and 600 series; MTCR Category II covers UAV systems with a range of 300 km or
+  more). Keep published 1:1 work at the conceptual-sizing level, and flag to the owner before
+  publishing anything closer to a buildable design of such an aircraft.
+- *Flying is an owner step.* No flight, no airspace use, no connection to real aircraft,
+  ground stations, UTM/LAANC services or air-navigation systems from this repo. Any flight
+  follows the local rules (FAA Part 107 in the US; commercial delivery needs more, such as Part
+  135, and the proposed Part 108 for beyond-visual-line-of-sight work).
+- *Simulation is not airworthiness.* Results are research, not a safety case or a
+  certification basis; say so in each README. Keep scale-model, SITL, full-size simulated and
+  measured figures apart, and never present a modelled aircraft as a flown one.
+- *Every battery, motor, mass and price figure is sourced and dated, or swept*, as the
+  research rules require.
+- *Lab tags.* RECUV fits most milestones (UAV flight and airspace); say so where it does and
+  say none fits otherwise.
+
+## 23. Autonomous water vehicles of every sort (`marine`)
+
+Added on 2026-10-24 at the owner's request: "I also want one of the development directions to be
+autonomous water vehicles of multiple sorts very cool system."
+
+**Goal.** Autonomous craft on and under the water, treated as one system: the vehicle, its
+energy, its sense of where it is, the rules of the road it must follow, and the fleet it works
+in. "Multiple sorts" is the point. Surface vessels (small survey boats, catamarans, hydrofoils,
+autonomous ferries), sailing and wing-sail drones, wave- and solar-powered station keepers,
+propeller AUVs, buoyancy-driven gliders, tethered ROVs and amphibious craft each trade speed,
+endurance, payload and cost differently. Which body suits which job (bathymetric survey, water
+quality sampling, harbour inspection, aquaculture net checks, search patterns, small-cargo
+shuttles), and what limits each: drag, energy, navigation without GNSS, acoustic communication,
+or collision rules? Track 9 (`osrobot`) builds purpose-built robots in general and track 14
+(`codesign`) co-designs bodies with RL, and track 22 (`aerolog`) takes the air; this track owns anything whose medium is water. The
+freight-ship energy floor in `infra-propulsion` (track 21) is a starting point, not this track.
+
+**Prior work and open tools.** Check each before citing it. Dynamics and control: Fossen (2011),
+*Handbook of Marine Craft Hydrodynamics and Motion Control* (Wiley) and his open Python and MATLAB
+vehicle toolbox (MSS). Resistance: the ITTC 1957 friction line and Holtrop and Mennen (1982), *An
+approximate power prediction method*, International Shipbuilding Progress. Sea states:
+Pierson and Moskowitz (1964) and the JONSWAP spectrum (Hasselmann et al. 1973). Rules of the road:
+the IMO COLREGs (1972); velocity obstacles (Fiorini and Shiller 1998, *IJRR*) and their COLREGs
+form for USVs (Kuwata et al. 2014, *IEEE J. Oceanic Engineering*). Gliders: Rudnick et al. (2004),
+*Underwater gliders for ocean research*, Marine Technology Society Journal. Simulators and stacks:
+Gazebo's VRX (Virtual RobotX; Bingham et al. 2019, OCEANS), Stonefish (Cie&sacute;lak 2019, OCEANS),
+ArduPilot Rover (boat frames) and ArduSub, ROS 2. Perception data: MaSTr1325 (Bovcon et al. 2019,
+IROS) and its successors for maritime obstacle segmentation. Environment data: NOAA tides and
+currents, Copernicus Marine and public AIS archives (probe each through the proxy first).
+
+**Milestones.** A starting order; follow the results.
+1. `marine-hull`: which small hull carries a survey payload furthest per kWh? Monohull, catamaran,
+   SWATH, planing hull and hydrofoil from ITTC 1957 plus form factors (Holtrop-Mennen where it
+   applies), checked against a published resistance curve, then endurance on a sourced battery
+   and solar figure from track 16's `energy-density` at survey speeds.
+2. `marine-path`: holding a survey line in wind, waves and current. Fossen's 3-DOF surface model,
+   line-of-sight guidance with PID, integral LOS and MPC, scored on cross-track error and energy
+   across sea states from a JONSWAP spectrum.
+3. `marine-colregs`: collision avoidance that obeys the rules. Velocity obstacles, sampling MPC and
+   a rule-based baseline on a scripted library of head-on, crossing and overtaking encounters (and
+   real encounter geometries replayed from public AIS where reachable), scored on closest point of
+   approach, rule compliance and detour length. An LLM or session proposer may tune the cost
+   weights against CMA-ES at the same budget.
+4. `marine-glider`: when does a glider beat a propeller AUV? A buoyancy-engine saw-tooth model:
+   range against glide angle and dive depth, against a propeller AUV of the same mass and battery,
+   reproducing a published glider range figure first.
+5. `marine-sail`: autonomous sailing routes. A polar diagram for a small wing-sail drone,
+   isochrone weather routing on a recorded wind and current field, and how much a tack-aware
+   controller loses to the ideal route.
+6. `marine-dr`: navigating under water without GNSS. DVL plus IMU dead-reckoning drift, then the
+   gain from acoustic range aids (LBL, USBL) and surfacing for a fix, scored on position error
+   against energy spent; builds on track 15's filters and the repo's `gnss-twin` and `doppler-twin`.
+7. `marine-fleet`: one big vehicle or several small ones? Coverage planning for a bathymetric or
+   water-quality survey with heterogeneous craft, acoustic bandwidth and range limits, and battery
+   swaps, against a single larger vehicle at the same cost.
+8. `marine-dock`: autonomous docking and charging. Approach and capture into a dock in current and
+   waves, success rate against approach strategy and sensor noise; the dock is a by-product design.
+9. `marine-detect`: seeing obstacles on the water. Reproduce a published segmentation baseline on
+   MaSTr1325 (or a successor), then measure how glare, fog and small-object size cut recall, and
+   what the detector's miss rate does to `marine-colregs`.
+10. `marine-wave`: station keeping on wave and solar power alone. A Wave Glider-style two-body
+    thrust model and a solar budget by latitude and month, against a battery-only buoy drone.
+
+**Method transfers worth trying.** Twins and domain randomisation from the `*-twin` projects;
+CMA-ES, Bayesian optimisation and LLM proposers for hull and controller parameters; MPC and LP
+from tracks 16 and 21; coverage and routing solvers (OR-Tools) for fleets; track 15's filters
+for navigation.
+
+**Guardrails.**
+- *Simulation first, as every track.* Building, buying or putting a vehicle in the water is an
+  owner step with a sourced bill of materials. Never present a simulated craft as a tested one.
+- *Rules of the water.* Any real operation needs the flag state's and local authority's rules
+  (COLREGs, coast guard or harbour master, permits for protected waters and wildlife). Say so in
+  the README; a COLREGs-compliant planner here is research, not a certified system.
+- *No weapons, no surveillance of people.* No military, mine-countermeasure or targeting work, no
+  tracking or identifying people or particular vessels; public AIS is used only as anonymised
+  encounter geometry. Check export-control limits (EAR, ITAR) before publishing anything about
+  long-range autonomous underwater navigation; track 14's rule applies.
+- *No interference with real systems.* Never transmit, spoof or probe AIS, GNSS or any vessel or
+  port system. Public datasets and simulators only.
+- *Every hull, battery, sensor and price figure is sourced and dated, or swept.*
+
+## 24. Civilizations, group psychology and interventions (`civ`)
+
+Added on 2026-10-24 at the owner's request, as a curiosity project: "civilization simulations of
+group psychology and civilization and society, both modeling and modeling interventions to change
+the path of large groups of people. it's a curiosity project more than anything."
+
+**Goal.** Simulate large groups of people with the established models of social influence,
+cultural drift, contagion, cooperation and collective action, and ask which interventions change
+where a society goes. Track 17 (`society`) asks this about robots among people; this track is
+about people among people, at the scale of towns to civilizations. The standing method: the
+inputs that matter most (how far people accept or reject other views, how much they copy,
+punish or cooperate) are rarely measured, so each project **sweeps them and reports which
+recommendations survive**, checks its model against a published result first, and ships a
+browser sandbox where a reader can try the levers. Results are about simulated people following
+stated rules, never forecasts or advice for steering real populations; nothing here targets a
+real group or individual.
+
+**Prior work.** DeGroot (1974), *JASA*. Granovetter (1978), threshold models of collective
+behaviour, *AJS*. Axelrod (1997), the dissemination of culture, *J. Conflict Resolution*.
+Deffuant et al. (2000), *Adv. Complex Syst.* Hegselmann and Krause (2002), *JASSS*. Jager and
+Amblard (2005), *Comput. Math. Organ. Theory*. Castellano, Fortunato and Loreto (2009),
+statistical physics of social dynamics, *Rev. Mod. Phys.* Centola and Macy (2007), complex
+contagions, *AJS*. Fehr and Gächter (2000), cooperation and punishment in public goods
+experiments, *AER*. Turchin (2003), *Historical Dynamics*. Pettigrew and Tropp (2006),
+*JPSP*. Bail et al. (2018), *PNAS*. Guess and Coppock (2020), *BJPolS*. Park et al. (2023),
+generative agents, UIST.
+
+**Milestones.**
+
+1. `civ-levers` (done 2026-10-24): which interventions merge a polarized two-camp society under
+   bounded confidence with backfire swept from none to strong? Bridging contact backfires; a
+   ladder of committed voices within reach merges the camps in 24 of 25 settings. Ships a
+   browser simulator.
+2. `civ-contact`: contact that also widens tolerance (Pettigrew and Tropp's prejudice reduction
+   as a change in ε), and identity: a moderate voice each camp reads as the other side's. Does
+   the bridging verdict flip?
+3. `civ-cascades`: Granovetter thresholds and complex contagion on clustered against random
+   networks. Where to seed a behaviour (hubs, bridges, clustered patches) and how many seeds it
+   takes; check against Centola and Macy (2007) and Centola et al. (2018)'s 25% tipping point.
+4. `civ-culture`: Axelrod's culture model with media and migration. Does a common broadcast
+   homogenise or fragment culture (Shibanai, Yasuno and Ishiguro 2001)? Reproduce the
+   order–disorder transition of Castellano, Marsili and Vespignani (2000) first.
+5. `civ-commons`: public goods with punishment and institutions. Which sanctioning
+   institutions keep cooperation in large, mobile populations; fit contribution decay to
+   Fehr and Gächter's published rounds.
+6. `civ-calibrate`: estimate ε and τ from public panel data on attitude change (e.g. ANES or
+   GSS panels) and rerun milestones 1–2 at the fitted values.
+7. `civ-history`: structural-demographic dynamics (Turchin) as a toy civilization: population,
+   elites and state capacity over centuries, and which policy levers damp the cycles.
+8. `civ-llmsociety`: a town of language-model agents against the same levers, behind an
+   environment variable with a deterministic stub. Do LLM agents assimilate and backfire like
+   the rule-based models, and does `civ-levers`' ranking survive?
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; tracks 20's and 21's, added on 2026-10-21, are not yet checked. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; tracks 20's and 21's, added on 2026-10-21, and tracks 22's and 23's, added on 2026-10-24, are not yet checked. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
@@ -1785,3 +2026,20 @@ citing one, as `prompt.md` requires.
 - Kruse, Pandey, Alami and Kirsch (2013). Human-aware robot navigation: a survey. *Robotics and Autonomous Systems* 61(12):1726–1743. <https://doi.org/10.1016/j.robot.2013.05.007>
 - Mavrogiannis, Baldini, Wang, Zhao, Trautman, Steinfeld and Oh (2023). Core challenges of social robot navigation: a survey. *ACM Trans. Hum.-Robot Interact.* 12. <https://doi.org/10.1145/3583741>
 - Hancock, Billings, Schaefer, Chen, de Visser and Parasuraman (2011). A meta-analysis of factors affecting trust in human-robot interaction. *Human Factors* 53(5):517–527. <https://doi.org/10.1177/0018720811417254>
+
+**Track 22.** Added on 2026-10-24; not yet checked. Verify each entry before citing it.
+- Wolowicz, Bowman and Gilbert (1979). Similitude requirements and scaling relationships as applied to model testing. NASA TP-1435.
+- Jordan, Foster, Bailey and Belcastro (2006). AirSTAR: a UAV platform for flight dynamics and control system testing. AIAA 2006-3307.
+- D'Andrea (2014). Guest editorial: can drones deliver? *IEEE Trans. Automation Science and Engineering* 11(3):647–648.
+- Murray and Chu (2015). The flying sidekick traveling salesman problem. *Transportation Research Part C* 54:86–109. <https://doi.org/10.1016/j.trc.2015.03.005>
+- Stolaroff et al. (2018). Energy use and life cycle greenhouse gas emissions of drones for commercial package delivery. *Nature Communications* 9:409. <https://doi.org/10.1038/s41467-017-02411-5>
+- Agatz, Bouman and Schmidt (2018). Optimization approaches for the traveling salesman problem with drone. *Transportation Science* 52(4):965–981.
+- Johnson, Silva and Solis (2018). Concept vehicles for VTOL air taxi operations. AHS Technical Conference on Aeromechanics Design for Transformative Vertical Flight.
+- Rodrigues et al. (2022). Drone flight data reveal energy and greenhouse gas emissions savings for very small package delivery. *Patterns* 3(8).
+- Hoekstra and Ellerbroek (2016). BlueSky ATC simulator project: an open data and open source approach. ICRAT.
+- Brandt and Selig (2011). Propeller performance data at low Reynolds numbers. AIAA 2011-1255. UIUC Propeller Database: <https://m-selig.ae.illinois.edu/props/propDB.html>
+- Sharpe. AeroSandbox. <https://github.com/peterdsharpe/AeroSandbox>
+- Raymer. *Aircraft Design: A Conceptual Approach*. AIAA Education Series.
+
+**Track 23.**
+- Not yet checked; check before citing: Fossen (2011), *Handbook of Marine Craft Hydrodynamics and Motion Control*, Wiley; ITTC (1957) model-ship correlation line; Holtrop and Mennen (1982), An approximate power prediction method, *International Shipbuilding Progress* 29; Pierson and Moskowitz (1964), *J. Geophysical Research* 69(24); Hasselmann et al. (1973), JONSWAP, *Deutsche Hydrographische Zeitschrift* A8(12); IMO (1972), Convention on the International Regulations for Preventing Collisions at Sea; Fiorini and Shiller (1998), Motion planning in dynamic environments using velocity obstacles, *IJRR* 17(7); Kuwata et al. (2014), Safe maritime autonomous navigation with COLREGS, using velocity obstacles, *IEEE J. Oceanic Engineering* 39(1); Rudnick et al. (2004), Underwater gliders for ocean research, *Marine Technology Society Journal* 38(2); Bingham et al. (2019), Toward maritime robotic simulation in Gazebo, OCEANS; Cie&sacute;lak (2019), Stonefish, OCEANS; Bovcon et al. (2019), The MaSTr1325 dataset for training deep USV obstacle detection models, IROS; VRX <https://github.com/osrf/vrx>; ArduPilot <https://ardupilot.org>.

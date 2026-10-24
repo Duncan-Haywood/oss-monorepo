@@ -60,5 +60,5 @@ kill_criteria:
   - A user reports a pairing that repeats an earlier game or a bracket that eliminates a player before the rules say so.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tournament-pairing-manager/
+  production: https://duncan-haywood.github.io/oss-monorepo/tournament-pairing-manager/
   analytics: null

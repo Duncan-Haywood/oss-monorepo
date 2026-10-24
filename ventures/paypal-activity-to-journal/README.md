@@ -9,7 +9,7 @@ end into one journal per month per currency, each balanced to a PayPal account l
 recognises are journalled to an uncategorised account rather than dropped. The file is read locally
 and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/paypal-activity-to-journal/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/paypal-activity-to-journal/
 
 ## Run it
 

@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies beyond the sibling project `free-sprtcert` (imported for its exact SPRT pieces). **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.006). Why it seemed worth doing: `research/free-sprtcert` showed Wald's SPRT needs about half the simulator rollouts of a fixed test *on average*, and listed "a truncated SPRT with a hard rollout cap, and the quantiles of the stopping time" as its next step. A certification run has a compute budget, so the average is not what you plan around: the tail is.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-sprtcap/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-sprtcap/
 
 ## Question
 

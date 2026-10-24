@@ -51,7 +51,7 @@ ones. Use `PY=$(python3 platform/ci/pyenv.py pytest)`, then
 `"$PY" -m pytest`. Some `gitops/tests` failures depend on the image. Before
 blaming your change, run the failing test on `origin/main`.
 `pip` may belong to python3.13 while `python3` is 3.11: install with
-`"$PY" -m pip`, and never run two pip installs at once (one corrupted an install).
+`"$PY" -m pip`, and run one pip install at a time (two at once corrupted an install).
 If `pyenv.py` fails (PEP 668, or a package whose import name differs from its
 pip name, e.g. OpenDSSDirect.py), skip it: `python3 -m venv /tmp/v && /tmp/v/bin/pip install <pkgs>`,
 in the background (it can exceed 120 s).
@@ -59,9 +59,9 @@ in the background (it can exceed 120 s).
 ## Long commands
 
 A foreground command times out (2 min by default, 10 min at most), and
-foreground `sleep` is blocked. Never chain a long command with `git commit`/`push` in one call (it gets auto-backgrounded and delays the commit), and the safety check rejects `rm -rf` on relative globs after a `cd`: use absolute paths.
-Start these with `run_in_background` and wait with `Monitor`. Don't also put
-`&` or a subshell inside the command: the harness then sees the wrapper exit
+foreground `sleep` is blocked. A long command chained with `git commit`/`push` in one call gets auto-backgrounded and delays the commit, so keep them separate; the safety check rejects `rm -rf` on relative globs after a `cd`, so absolute paths work better.
+Start these with `run_in_background` and wait with `Monitor`. Leave `&` and
+subshells out of the command: the harness then sees the wrapper exit
 at once and reports completion while the job still runs (two friction reports,
 2026-10-23). Run the command itself in the background call, with output to a
 file you can `tail`. To wait, give `Monitor` an until-loop on that output
@@ -102,7 +102,7 @@ product's notes that a figure could not be checked against that source, rather
 than skipping the step silently or citing from memory (`goals.md`: never
 fabricate). If a research track's next step needs a host that 403s (e.g. OPSD data
 for `energy-price-residual`), take another next step or a different data
-source; don't spend the run on workarounds. Proxy state and per-tool fixes: `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
+source; workarounds usually cost the run more than they return. Proxy state and per-tool fixes: `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
 
 ## Scheduled tasks
 

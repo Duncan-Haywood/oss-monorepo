@@ -54,5 +54,5 @@ kill_criteria:
   - A user reports a missed or wrong deadline attributable to the tool, or the fee table is found materially wrong -- at that point the wording and defaults need revisiting before it stays up.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/patent-maintenance-fee-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/patent-maintenance-fee-planner/
   analytics: null

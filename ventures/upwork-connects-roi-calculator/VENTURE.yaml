@@ -37,5 +37,5 @@ kill_criteria:
   - No freelancer reports changing their proposal volume or effort because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/upwork-connects-roi-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/upwork-connects-roi-calculator/
   analytics: null

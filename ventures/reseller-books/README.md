@@ -5,7 +5,7 @@ Etsy, Poshmark, Whatnot and Shopify reports together and get one monthly profit 
 channel really keeps of a sales dollar, and a Schedule C style worksheet for your tax
 preparer.** Files are read in the browser; nothing is uploaded and no account access is needed.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/reseller-books/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/reseller-books/
 
 After using this, you can now **see all your marketplaces in one set of books, compare what
 eBay, Etsy, Poshmark, Whatnot and Shopify actually keep after fees, postage, ads and refunds, and hand

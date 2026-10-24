@@ -67,5 +67,5 @@ kill_criteria:
   - Real bank PDFs show the reader misreading most statements even with the balance check flagging it, at which point the extraction approach needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/bank-statement-pdf-to-csv/
+  production: https://duncan-haywood.github.io/oss-monorepo/bank-statement-pdf-to-csv/
   analytics: null

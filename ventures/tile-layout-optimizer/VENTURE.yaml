@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports that a plan covers the floor wrongly, overlaps a cut-out or lists a cut that cannot come out of the tile it is assigned to.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tile-layout-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/tile-layout-optimizer/
   analytics: null

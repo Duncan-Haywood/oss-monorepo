@@ -193,7 +193,7 @@ Episodes 1 to 19 have audio (episode 20 is text only: the audio folders stood at
 ## Publishing
 
 - Episodes, pages and `feed.xml` are served from GitHub Pages at
-  `https://duncan-haywood.github.io/monorepo-projects/saints-by-candlelight/`.
+  `https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/`.
 - Audio is committed as mono 40 kbps MP3 (about 0.3 MB a minute). GitHub
   Pages publishes at most 1 GB per site; when the show's audio passes about
   300 MB, move enclosures to GitHub release assets and keep the feed URL.

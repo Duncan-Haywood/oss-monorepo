@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a Form 6251 figure the tool contradicts on a point of arithmetic, at which point the AMT handling needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/iso-exercise-amt-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/iso-exercise-amt-calculator/
   analytics: null

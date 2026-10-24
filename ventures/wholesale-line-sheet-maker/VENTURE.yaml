@@ -70,5 +70,5 @@ kill_criteria:
   - A user reports a materially wrong wholesale price, margin or order total, or lost products to browser storage clearing, at which point the maths or the backup prompting needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/wholesale-line-sheet-maker/
+  production: https://duncan-haywood.github.io/oss-monorepo/wholesale-line-sheet-maker/
   analytics: null

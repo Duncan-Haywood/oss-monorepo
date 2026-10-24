@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-crossfit`, whose first next step was "choose the cap by validation on logged data". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Mixed / preliminary result**: validation-chosen caps match or slightly beat the best fixed cap with an informed prior, and do not rescue the uninformed prior.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-capcv/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-capcv/
 
 ## Motivation
 

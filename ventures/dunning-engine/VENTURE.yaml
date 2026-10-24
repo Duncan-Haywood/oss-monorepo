@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports a double charge or a customer emailed after paying; the idempotency and close-on-paid paths come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/dunning-engine/
+  production: https://duncan-haywood.github.io/oss-monorepo/dunning-engine/
   analytics: null

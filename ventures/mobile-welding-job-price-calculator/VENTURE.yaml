@@ -51,5 +51,5 @@ kill_criteria:
   - A working mobile welder reports that the job-price arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mobile-welding-job-price-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/mobile-welding-job-price-calculator/
   analytics: null

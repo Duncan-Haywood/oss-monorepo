@@ -65,5 +65,5 @@ kill_criteria:
   - A user reports a mismatch the tool raised that was not one on a normal export, at which point the matching rules need revisiting before more features.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/insurance-commission-reconciler/
+  production: https://duncan-haywood.github.io/oss-monorepo/insurance-commission-reconciler/
   analytics: null

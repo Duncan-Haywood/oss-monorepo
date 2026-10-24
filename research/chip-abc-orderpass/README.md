@@ -2,7 +2,7 @@
 
 Track 3 (LLM chip-design loops, `PROJECTS.md`). `chip-abc-order` found that reordering the operands of `a + b + const` changes a carry-select adder's synthesised size by up to 1.43x, and guessed the cause (`alumacc`/`macc` operand grouping). This project tests that guess. It runs the synthesis flow one pass at a time to find where the netlists first diverge, enumerates every operand order of the adder's chains instead of sampling 12, and removes the suspected pass to see whether the dependence goes away. Chosen over another seed or design variant because the previous project left exactly these three steps open. Produced with AI assistance (Claude). Preliminary and small: one adder, one tool version, a generic-gate library.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-abc-orderpass/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-abc-orderpass/
 
 **Builds on.** `chip-abc-order` and `chip-abc-sweep` (same author, MIT): the `csel4` generator, the miter equivalence check, the ABC scripts and the `add16` reference are copied from them (the `resyn2` sequence is resyn2-style, written from memory there). Yosys and its integrated ABC (Brayton and Mishchenko, CAV 2010, LNCS 6174:24-40, <https://doi.org/10.1007/978-3-642-14295-6_5>, as cited in `chip-abc-sweep`; not re-read here). No connection to the CU Boulder groups in `prompt.md` is claimed.
 

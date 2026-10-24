@@ -51,5 +51,5 @@ kill_criteria:
   - A user reports that the deduction contradicts Form 7206 on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/self-employed-health-insurance-deduction-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/self-employed-health-insurance-deduction-calculator/
   analytics: null

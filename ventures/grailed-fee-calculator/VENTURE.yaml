@@ -33,5 +33,5 @@ kill_criteria:
   - A real Grailed payout statement disagrees with the calculator's constants (the tiers are from third-party fee guides, not Grailed's own help centre) and the schedule is not corrected within a week.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/grailed-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/grailed-fee-calculator/
   analytics: null

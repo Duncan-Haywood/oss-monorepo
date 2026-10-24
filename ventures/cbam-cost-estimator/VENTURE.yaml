@@ -40,5 +40,5 @@ kill_criteria:
   - A report that the phase-out schedule or the certificate formula differs from Regulation 2023/956 on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cbam-cost-estimator/
+  production: https://duncan-haywood.github.io/oss-monorepo/cbam-cost-estimator/
   analytics: null

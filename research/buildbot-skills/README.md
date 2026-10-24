@@ -2,7 +2,7 @@
 
 Sixth project of track 20, robots on the residential building site (`PROJECTS.md`, milestone 6, the sim-to-sim check). [`buildbot-cohold`](../buildbot-cohold) built a person-leads, robot-follows lift of a 4x8 sheet with hand-set impedance gains. This asks the sim-to-real question in its cheapest form: tune the skill on one simulator with randomised conditions, then test it on a second simulator that has dynamics the first lacks. It is **my own planar model of both plants, not two physics engines**, and no robot, controller or sheet was measured. Produced with AI assistance (Claude). Simulated and preliminary. It builds on no group in `prompt.md`; none is claimed.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-skills/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-skills/
 
 **Headline.** 1000 fresh episodes per plant; a pass is peak tilt of 3 degrees or less, final tilt 0.5 degrees or less and the person's peak load under the NIOSH constant (23.1 kg-equivalent).
 - **Tuned where it was trained, it passes 81 to 82% of episodes; on the held-out plant it passes 0 to 11%.** Over four seeds, random search on the rigid-sheet plant with randomised sheet mass, lift time, lag and feed-forward error picks stiff, lightly damped gains (K of 891 to 28,900 N/m, B of 20 to 44 N s/m). Without delay those are fine. With 0 to 30 ms of feedback delay and a 5 to 50 ms force actuator lag, 72 to 100% of episodes go unstable (tilt over 30 degrees).

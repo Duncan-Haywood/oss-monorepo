@@ -1,6 +1,6 @@
 # house-dewpoint: where in a wall does water vapor condense, and does a vapor retarder or exterior foam fix it, by climate?
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-dewpoint/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-dewpoint/
 
 Track 12, open-source residential construction (`PROJECTS.md`). It was picked because the 27 earlier `house-*` projects cover structure, cost, energy and schedule but none asks about moisture, the usual reason a code-compliant wall fails. This is a steady-state **Glaser** check, **not WUFI**: the permeances, R-values and climate months are **unsourced assumptions from memory**. Produced with AI assistance (Claude).
 

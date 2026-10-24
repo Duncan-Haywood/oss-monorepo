@@ -55,5 +55,5 @@ kill_criteria:
   - No external repository is found using check.py or classify.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/pinned-actions-check/
   analytics: null

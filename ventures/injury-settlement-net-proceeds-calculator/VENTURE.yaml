@@ -50,5 +50,5 @@ kill_criteria:
   - A plaintiff attorney reports a result that differs materially from a correct net computation on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/injury-settlement-net-proceeds-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/injury-settlement-net-proceeds-calculator/
   analytics: null

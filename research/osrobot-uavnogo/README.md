@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-uavgust` (track 9, open-source purpose-built robots), taking its "launch wind limit" next step, in the direction of the RECUV and Autonomous Systems IRT interest in UAV simulation and targeted observation. Worth doing because `osrobot-uavgust` hedged wind uncertainty only by building a heavier airframe or a bigger reserve; a crew can also just not fly in strong wind, which costs missions instead of mass. Produced with AI assistance (Claude). Pure Python standard library; it imports the sizing models of `osrobot-uav`, `osrobot-uavwind` and `osrobot-uavgust`. **Every technology constant is an assumed round number from those projects, and the wind and forecast-error distributions are scenario inputs, not measurements of any site; no UAV was designed for flight or flown.** All numbers below are from `experiments/results.txt`. Simulation only; a stylised, preliminary study.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uavnogo/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-uavnogo/
 
 ![Failure probability against forecast error](experiments/fail_vs_forecast_error.svg)
 

@@ -6,7 +6,7 @@ more disputes you can take before each warning line, where the trend is
 heading, and what is causing the disputes.** The file is read in the browser;
 nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/chargeback-ratio-monitor/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/chargeback-ratio-monitor/
 
 After using this, you can now **see how close you are to your payment
 provider's dispute limits, how many extra sales or fewer disputes it takes to

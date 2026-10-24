@@ -75,5 +75,5 @@ kill_criteria:
     such that the confirmed/unconfirmed split stops being reliable evidence.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/subdomain-takeover-check/
   analytics: null

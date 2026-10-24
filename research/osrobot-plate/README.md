@@ -2,7 +2,7 @@
 
 Track 9 (open-source purpose-built robots), the liquid-handling task that `osrobot-specialise` named in its "Next steps" and did not model. In the direction of the HIRO Group's interest in robots in chemistry labs; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Pure Python standard library. **Every cost, speed, accuracy and layout figure is an assumption written into `model.py` (marked ASSUMED); none is a measurement or quote for any real product.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-plate/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-plate/
 
 ![Seconds to fill a 96-well plate against volume per well for four robots](experiments/plate_time.svg)
 

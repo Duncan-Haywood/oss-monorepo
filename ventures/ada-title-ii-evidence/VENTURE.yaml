@@ -27,5 +27,5 @@ kill_criteria:
   - Fewer than three distinct government or school-district visitors use the deadline lookup or evidence report within 90 days of being indexed.
   - Users report the deadline dates or standard as wrong for their entity type after checking the cited source.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ada-title-ii-evidence/
+  production: https://duncan-haywood.github.io/oss-monorepo/ada-title-ii-evidence/
   analytics: null

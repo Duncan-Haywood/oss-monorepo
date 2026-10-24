@@ -9,7 +9,7 @@ interpreter-mismatch shell footguns (a bare `pytest` or `mypy` that can
 silently resolve to the wrong Python and waste an agent's whole turn chasing
 a phantom failure).
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/agent-instructions-drift-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/agent-instructions-drift-check/
 
 **What it is not:** a style linter, a prompt-quality checker, or a judgment
 about whether an instruction is good advice. It never evaluates tone or

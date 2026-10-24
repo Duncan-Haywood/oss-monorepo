@@ -5,7 +5,7 @@ referrals move people up the line, with the signup list in your own account**,
 which used to mean paying a waitlist tool per subscriber or writing the
 anti-abuse plumbing yourself.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/waitlist-keeper/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/waitlist-keeper/
 
 Two parts, both free and MIT:
 

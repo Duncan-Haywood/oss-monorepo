@@ -46,5 +46,5 @@ kill_criteria:
   - A user reports a segmentation that disagrees with R's changepoint package on the same data, model and penalty, and the cause is a bug here.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/
+  production: https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/
   analytics: null

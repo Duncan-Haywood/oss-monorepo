@@ -2,7 +2,7 @@
 
 A stylised, simulation-only follow-up to `research/robofab-cell-held` (track `robofab`, milestone 4's next steps). That project found that adding load and unload time to the printer's demand fixes mean value analysis (MVA) at saturation but breaks it at lower loads, and asked for a blocking-aware model. Here I build two such models and a third that separates latency from capacity, and test them against the discrete-event simulation. All numbers are from `experiments/results.txt` (20 seeds, 24 h horizon after a 4 h warm-up, mean rates in good parts per hour; times illustrative, not measured).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-cell-blocking/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-cell-blocking/
 
 - **The held-demand error at low load is double counting.** Load and unload time is already in the arm station's delay, so also adding it to the printer's demand counts it twice whenever printers are not the bottleneck. Adding a fitted stall (printers wait for the arm to unload them) on top of held demand (`block_prio`, `block_mva`) makes low and moderate loads worse, not better (8.5% and 9.5% on the 24 non-saturated rows, against 7.3% for held demand and 3.6% for plain MVA).
 - **At saturation the stall helps.** On the 8 rows with work in process 2P, `block_prio` (an unload-priority M/G/1 estimate of the wait) errs by 1.4%, against 2.9% for held demand and 8.2% for plain MVA.

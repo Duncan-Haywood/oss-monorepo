@@ -52,5 +52,5 @@ kill_criteria:
   - Brewers report that state tax or contract-brewing assignment is the common need, at which point the tool should model it.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/brewery-excise-tax-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/brewery-excise-tax-calculator/
   analytics: null

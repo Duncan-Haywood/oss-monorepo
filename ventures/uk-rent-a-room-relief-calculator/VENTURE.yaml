@@ -33,5 +33,5 @@ kill_criteria:
   - A report that a limit, rate or rule differs from HMRC guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-rent-a-room-relief-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-rent-a-room-relief-calculator/
   analytics: null

@@ -2,7 +2,7 @@
 
 Milestone 11 (`mimic-codeloop`) of track 11, adversarial human imitation: replace `mimic-cursor`'s component search with a model that writes code. **Preliminary negative result: one seed per condition, 6 rounds, one 1.5B-parameter model.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-codeloop/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-codeloop/
 
 **Result.** Qwen2.5-Coder-1.5B-Instruct, rewriting a Python generator for 24 candidates (6 rounds of 4, the same per-round budget as the component search), did not move the boosted-tree reference detector off AUROC 1.000 on held-out people, with or without the detector's feature feedback. The component search at the same 24-candidate budget also sits at 1.000 (0.999 to 1.000 over 8 runs), so at this budget the two are tied at the ceiling. The informative number is how often the model's code was usable at all: 7 of 24 candidates (29%) blind and 6 of 24 (25%) with feedback. The rest were rejected by the sandbox as containing a banned token (17 of 48; I did not log which, most likely an import such as scipy), failed to load (10 of 48) or crashed or exceeded the failure cap (8 of 48). Numbers: `results.txt`, `results.json`; per-run data including every candidate's outcome and the final program: `results/`.
 

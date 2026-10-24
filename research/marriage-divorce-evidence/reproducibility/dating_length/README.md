@@ -12,7 +12,7 @@ reports a lower divorce hazard after dating 3+ years before the proposal (HR 0.7
 this project's evidence review marks not usable in the app. So dating length is **shown as
 evidence and not applied** to any lens's number.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/app/ (the "Profile report" tab shows it, with your own dating length from the form).
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/marriage-divorce-evidence/app/ (the "Profile report" tab shows it, with your own dating length from the form).
 
 ## What measures it
 
