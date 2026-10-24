@@ -93,6 +93,8 @@ export function layoutDrywall(d, plan) {
     let sq = 0;
     // outside corners where the board wraps a door or window opening: both jambs and the head, on each drywalled face (no sill: a stool and apron cover it)
     for (const o of ops) beadIn += faces * (2 * (o.y1 - o.y0) + (o.x1 - o.x0));
+    // a free wall end (a pony wall, a stub partition, a wall that stops in the room): the board wraps the end, one full-height outside corner per drywalled face; the plan says which ends are free
+    beadIn += Math.min(2, Math.max(0, Math.floor(w.freeEnds || 0))) * faces * height;
     for (let y = 0; y < height - EPS; y += BAND) {
       const y1 = Math.min(height, y + BAND);
       const runs = bandRuns(w.length, ops, y, y1);
@@ -153,7 +155,7 @@ export function drywallText(d) {
   const f = d.finishing;
   l.push(`  tape: ${f.tapeFt} ft (${f.seamFt} ft of sheet seams plus ${f.cornerFt} ft of wall-to-ceiling angle plus ${f.insideCornerFt} ft of inside wall-to-wall angles) = ${f.tapeRolls} rolls of ${f.rollFt} ft`);
   l.push(`  compound: ${f.compoundGal} gal at ${f.compoundGalPerSqFt} gal per sq ft plus waste (a rule of thumb you can change, not a product label)`);
-  if (f.beadFt) l.push(`  corner bead: ${f.beadFt} ft around door and window openings (both jambs and the head, each drywalled face) = ${f.beadSticks} sticks of ${f.beadStickFt} ft with waste`);
-  l.push("  Joints are not placed on studs or ceiling joists here; bead on free wall ends and ceiling steps, trim and angles where a partition meets a ceiling step are not counted.");
+  if (f.beadFt) l.push(`  corner bead: ${f.beadFt} ft around door and window openings (both jambs and the head) and free wall ends (freeEnds), each drywalled face = ${f.beadSticks} sticks of ${f.beadStickFt} ft with waste`);
+  l.push("  Joints are not placed on studs or ceiling joists here; bead on ceiling steps, trim and angles where a partition meets a ceiling step are not counted.");
   return l;
 }

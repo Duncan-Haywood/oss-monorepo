@@ -558,7 +558,7 @@
     function renderDrywall(dw) {
       $("#drywallCard").hidden = !dw;
       if (!dw) return;
-      $("#drywallOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(drywallText(dw).join("\n"))}</pre><p class="note">Sheets only, counted from the wall faces in the wall list. A wall marked unsheathed is treated as a partition with drywall on both sides. Screws and compound are rates, not schedules; tape is measured from the seams and the wall-to-ceiling angle. Corner bead is counted around openings (both jambs and the head); free wall ends, ceiling steps and trim are not.</p>`;
+      $("#drywallOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(drywallText(dw).join("\n"))}</pre><p class="note">Sheets only, counted from the wall faces in the wall list. A wall marked unsheathed is treated as a partition with drywall on both sides. Screws and compound are rates, not schedules; tape is measured from the seams and the wall-to-ceiling angle. Corner bead is counted around openings (both jambs and the head); free wall ends count only when the plan JSON sets freeEnds on a wall; ceiling steps and trim are not counted.</p>`;
     }
     function renderFoundation(fn) {
       $("#foundationCard").hidden = !fn;

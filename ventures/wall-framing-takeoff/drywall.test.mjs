@@ -89,3 +89,10 @@ test("inside angles: one 8 ft run at a corner, two where a partition tees in, ad
   assert.equal(l.finishing.insideCornerFt, 24);
   assert.equal(l.finishing.tapeFt, 40 + 24);
 });
+
+test("corner bead on free wall ends: a 16 ft stub partition with one free end, 8 ft high, both faces = 16 ft; two free ends = 32 ft; an exterior wall's one face = 8 ft", () => {
+  assert.equal(layoutDrywall({}, plan([{ id: "P", length: 192, sheathed: false, freeEnds: 1 }])).finishing.beadFt, 16);
+  assert.equal(layoutDrywall({}, plan([{ id: "P", length: 192, sheathed: false, freeEnds: 2 }])).finishing.beadFt, 32);
+  assert.equal(layoutDrywall({}, plan([{ id: "A", length: 192, freeEnds: 1 }])).finishing.beadFt, 8);
+  assert.equal(layoutDrywall({ openingBead: false }, plan([{ id: "A", length: 192, freeEnds: 1 }])).finishing.beadFt, 0);
+});

@@ -41,7 +41,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  *   headerHeight?: number, header?: string, headerPlies?: number, jacks?: number,
  *   kings?: number, sillPlies?: number, label?: string }} Opening
  * @typedef {{ id: string, length: number, stud?: "2x4"|"2x6", treatedPlate?: boolean,
- *   corner?: boolean, tees?: number[], tee?: { wall: string, at: number, end?: "start"|"end" }, openings?: Opening[], sheathed?: boolean, gable?: { pitch: number, peak?: number } }} Wall
+ *   corner?: boolean, tees?: number[], tee?: { wall: string, at: number, end?: "start"|"end" }, openings?: Opening[], sheathed?: boolean, freeEnds?: 0|1|2, gable?: { pitch: number, peak?: number } }} Wall
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
