@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "sales-agent M6b: robots.txt-respecting public-page facts",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10103",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,22 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 4,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "promptctl routed to the research track, but the scheduled task asked for product work, so the ventures track was followed",
+      "did": "followed ventures",
+      "result": "landed a flagship slice"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "node --test on webfacts, research, daily and page tests: 27 pass. No live site fetched; liveFetch untested against a real host.",
   "corrections": [],
   "redteam": null
 }
