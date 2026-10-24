@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 7a: does milestone 3 replicate on a second, unstable task? (planned before running)
+- Why: the paper draft's gap 2. All of m3 to m6 use one stable tracking pendulum; a reviewer will ask whether H1/H2/H6 are properties of paired inference or of that task. New task (`experiments/m7_cartpole/pairs.py`): MuJoCo cart-pole balanced from a random start by a linear feedback law (unstable plant, a fall ends the episode), outcome = survived fraction x (1 - RMS angle / 0.25), same five omitted effects at four swept magnitudes (21 pairs incl. the no-effect pair), 4,000 contexts per pair. Baseline push noise std 1 N (3 N gave rho about 0.2 on the no-effect pair in a 200-context probe, so it was lowered to span rho; the probe is the only tuning done and used none of the pool contexts).
+- Analysis: `m3_benchmark/analyse.py` unchanged (4,000 replications, n = 30 and 60, m = 9n extra twin runs, same thresholds), run through `m7_cartpole/analyse.py`.
+- **H7a-i (H1 replicates):** coverage of `cv` and `ppi_pp` at n = 30 falls below 93.0% on at least 10 of 21 pairs (m3: 15 and 20 of 21), because the outcome is bounded and skewed. Refuted if fewer than 10.
+- **H7a-ii (H2 replicates):** paired E over unpaired E has lower 95% bound >= 2 on the pairs with rho >= 0.75 (at least 80% of them), and unpaired E stays in [0.9, 1.0] on every pair. Refuted if either fails.
+- **H7a-iii (H6 replicates):** Spearman(E, rho) > 0.95 and |Spearman(E, rho)| > |Spearman(E, KS)| with the over-pairs interval of the difference excluding 0. Refuted otherwise. Prior: the interval may include 0 here, since a fall creates a big mass at low R and makes KS informative.
+- Not tested: real-robot or per-episode real pairs (still gap 1), a task with a non-bounded outcome.
+
 ## 2026-10-24 · Milestone 6d: is |R - T| a lower-variance target than R? (planned before running)
 - Why: 6c's open question. A mean-discrepancy bound L = E[T] - E|R - T| needs an estimate of E|R - T|. It is only cheaper than estimating E[R] if the per-context variance of |R - T| (or its range) is below that of R.
 - Check (`experiments/m6d_target_variance/target_var.py`, planned before running), on the 21 m3 pools (4,000 contexts each): Var(R), Var(R - T), Var(|R - T|), and the ratio Var(|R - T|) / Var(R); also the empirical-Bernstein half-width at n = 60 and 240 for each target using its own sample range (bounded-range scaling), to see whether the width saving survives the range term.
