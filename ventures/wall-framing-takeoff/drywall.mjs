@@ -82,7 +82,7 @@ export function layoutDrywall(d, plan) {
   /** @type {Map<number, number[]>} band width -> runs */
   const bands = new Map();
   const addRuns = (/** @type {number} */ w, /** @type {number[]} */ runs) => { bands.set(w, [...(bands.get(w) || []), ...runs]); };
-  let netSqIn = 0, hungSqIn = 0, seamIn = 0, cornerIn = 0, beadIn = 0;
+  let netSqIn = 0, hungSqIn = 0, seamIn = 0, cornerIn = 0, beadIn = 0, insideIn = 0;
   const walls = [];
   for (const w of plan.walls) {
     const faces = d.faces === "both" ? 2 : w.sheathed === false ? 2 : 1;
@@ -101,6 +101,8 @@ export function layoutDrywall(d, plan) {
       seamIn += faces * (buttFt(runs, y1 - y, len) + (y > EPS ? runs.reduce((a, b) => a + b, 0) : 0));
     }
     cornerIn += w.length * faces; // the wall-to-ceiling angle, taped
+    // inside wall-to-wall angles, taped floor to ceiling: one at a corner (its inside face), two where a partition tees into the wall
+    insideIn += ((w.corner ? 1 : 0) + 2 * (w.tees || []).length) * height;
     const open = ops.reduce((s, o) => s + (o.x1 - o.x0) * (o.y1 - o.y0), 0);
     sq = (w.length * height - open) * faces;
     netSqIn += sq;
@@ -126,7 +128,7 @@ export function layoutDrywall(d, plan) {
   const netSqFt = netSqIn / 144;
   const screws = Math.ceil(netSqFt * (d.screwsPerSqFt ?? 1) * (1 + waste));
   // Finishing. Tape is measured from the seams above; compound is a rate you can change.
-  const tapeFt = Math.ceil((seamIn + cornerIn) / 12);
+  const tapeFt = Math.ceil((seamIn + cornerIn + insideIn) / 12);
   const rollFt = d.tapeRollFt ?? 250;
   const beadFt = d.openingBead === false ? 0 : Math.ceil(beadIn / 12);
   const beadStick = d.beadStickFt ?? 8;
@@ -134,7 +136,7 @@ export function layoutDrywall(d, plan) {
   const compoundGal = Math.ceil(netSqFt * galRate * (1 + waste) * 10) / 10;
   return {
     ok: true, errors: [], sheetLength: len,
-    finishing: { seamFt: Math.ceil(seamIn / 12), cornerFt: Math.ceil(cornerIn / 12), tapeFt, tapeRolls: Math.ceil(tapeFt / rollFt), rollFt, compoundGal, compoundGalPerSqFt: galRate, beadFt, beadSticks: Math.ceil((beadFt * (1 + waste)) / beadStick - EPS), beadStickFt: beadStick }, hangHeight: height, walls, ceilings, bandSheets,
+    finishing: { seamFt: Math.ceil(seamIn / 12), cornerFt: Math.ceil(cornerIn / 12), insideCornerFt: Math.ceil(insideIn / 12), tapeFt, tapeRolls: Math.ceil(tapeFt / rollFt), rollFt, compoundGal, compoundGalPerSqFt: galRate, beadFt, beadSticks: Math.ceil((beadFt * (1 + waste)) / beadStick - EPS), beadStickFt: beadStick }, hangHeight: height, walls, ceilings, bandSheets,
     sheets: { count: sheets, perSheetSqFt: sheetSqFt, price: d.price ?? null, cost: d.price != null ? sheets * d.price : null },
     netSqFt, boughtSqFt: sheets * sheetSqFt, screws, waste,
     assumptions: { screwsPerSqFt: d.screwsPerSqFt ?? 1, rule: "horizontal 48 in courses, end joints not placed on studs, ripped strips not reused" },
@@ -149,9 +151,9 @@ export function drywallText(d) {
   l.push(`  ${d.screws} screws at ${d.assumptions.screwsPerSqFt} per sq ft plus ${(100 * d.waste).toFixed(0)}% (a rate you type, not a schedule)`);
   if (d.sheets.cost != null) l.push(`  sheets at ${d.sheets.price} each: ${d.sheets.cost.toFixed(2)}`);
   const f = d.finishing;
-  l.push(`  tape: ${f.tapeFt} ft (${f.seamFt} ft of sheet seams plus ${f.cornerFt} ft of wall-to-ceiling angle) = ${f.tapeRolls} rolls of ${f.rollFt} ft`);
+  l.push(`  tape: ${f.tapeFt} ft (${f.seamFt} ft of sheet seams plus ${f.cornerFt} ft of wall-to-ceiling angle plus ${f.insideCornerFt} ft of inside wall-to-wall angles) = ${f.tapeRolls} rolls of ${f.rollFt} ft`);
   l.push(`  compound: ${f.compoundGal} gal at ${f.compoundGalPerSqFt} gal per sq ft plus waste (a rule of thumb you can change, not a product label)`);
   if (f.beadFt) l.push(`  corner bead: ${f.beadFt} ft around door and window openings (both jambs and the head, each drywalled face) = ${f.beadSticks} sticks of ${f.beadStickFt} ft with waste`);
-  l.push("  Joints are not placed on studs or ceiling joists here; bead on free wall ends and ceiling steps, inside wall-to-wall corners and trim are not counted.");
+  l.push("  Joints are not placed on studs or ceiling joists here; bead on free wall ends and ceiling steps, trim and angles where a partition meets a ceiling step are not counted.");
   return l;
 }
