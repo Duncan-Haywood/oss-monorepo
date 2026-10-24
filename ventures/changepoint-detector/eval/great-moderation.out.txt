@@ -1,0 +1,14 @@
+n 202; sd of growth before 1984Q1 4.34, 1984Q1 to 2007Q4 2.04 (annualised % points)
+
+meanvar, default min segment (5): 3 changes
+  1983Q2  sd 4.32 -> 0.745701  range95 1983Q1 to 1983Q2
+  1984Q3  sd 0.745701 -> 1.97013  range95 1984Q3 to 1984Q3
+  2008Q1  sd 1.97013 -> 3.45423  range95 2007Q3 to 2008Q3
+
+meanvar, min segment 20: 2 changes
+  1984Q3  sd 4.33153 -> 2.01753  range95 1983Q3 to 1985Q4  (holds 1984Q1)
+  2000Q3  sd 2.01753 -> 2.61476  range95 1989Q3 to 2004Q4
+
+meanvar, min segment 12: 2 changes
+  1984Q3  sd 4.33153 -> 1.99869  range95 1984Q1 to 1985Q4  (holds 1984Q1)
+  2006Q3  sd 1.99869 -> 3.28503  range95 2005Q1 to 2006Q4
