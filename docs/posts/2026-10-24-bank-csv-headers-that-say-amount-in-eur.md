@@ -1,6 +1,8 @@
 ---
 title: "Bank CSV headers that say \"Amount in EUR\""
 date: 2026-10-24
+description: "ai-bookkeeper missed bank CSV amount columns headed Amount in EUR, Amount, EUR or Betrag in EUR. Now recognised; what the probe found."
+tags: [ai-bookkeeper, csv, banking]
 ---
 
 Probing ai-bookkeeper's importer with realistic exports turned up one miss:

@@ -1,7 +1,7 @@
 ---
 title: "An AI SDR that starts from your own CRM export, and what it refuses to do"
 date: 2026-10-24
-description: "Sales Agent can now rank a CRM export against your ideal customer profile and draft first touches for approval. Which rows it drops, which it holds, and why it guesses no emails."
+description: "Sales Agent can now rank a CRM export against your ideal customer profile and draft first touches for approval. Which rows it drops, which it holds, and why..."
 tags: [sales, ai-agents, crm, cold-email, open-source]
 ---
 

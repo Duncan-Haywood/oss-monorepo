@@ -1,7 +1,7 @@
 ---
 title: "Does a cheap chip-design score beat random search? Not as a one-shot screen"
 date: 2026-10-24
-description: "Replaying search strategies on 1,200 measured SKY130 place-and-route runs: scoring every candidate cheaply and verifying the top ones loses to random search at equal wall-clock."
+description: "Replaying search strategies on 1,200 measured SKY130 place-and-route runs: scoring every candidate cheaply and verifying the top ones loses to random search..."
 tags: [research, eda, chip-design, multi-fidelity, search]
 ---
 
