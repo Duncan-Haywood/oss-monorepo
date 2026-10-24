@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 4c: pi floor sweep for the weighted audit (planned before running)
+- Why: 4b left the weighted audit's normal interval undercovering at disgust (1.32%) and sadness (1.96%), where the audit holds 0 to 3 positives. Hypothesis: raising the inclusion floor (pi_i >= f, f in 0.02, 0.05, 0.10, 0.20, 0.50 of the expected-size scale; expected n stays 200) puts positives into every audit and restores coverage, at the price of width.
+- Same corpus, split, coder, seed as `rare_audit.py` (`experiments/pi_floor.py`, imports it); categories grief, pride, disgust, fear, sadness; 1,000 draws per cell; normal and Kish-Wilson intervals; width reported against uniform Wilson, the valid baseline.
+- Prediction: coverage reaches 93% or more at disgust and sadness for floor 0.10 or higher with normal intervals; width at that floor is no narrower than uniform Wilson at disgust (the gain disappears). Refuted if no floor gets disgust and sadness to 93% with either interval, or if a floor that does still beats uniform Wilson width by 10% or more (then the design is a free fix).
+
 ## 2026-10-24 · Milestone 4b outcome: neither small-count interval fixes the weighted audit (refuted)
 - Re-ran `experiments/rare_audit.py` (same corpus, split and seed; the extra bootstrap draws shift the random stream, so the other rows differ from the milestone 4 file by Monte Carlo noise, e.g. Q coverage for disgust 85.1% vs 85.6%). New rows in `experiments/rare_audit.txt`.
 - Kish-size Wilson (`ipw_audit_wilson`) covers 82.4% (grief) and 84.2% (pride), 89.4 to 91.5% for relief, embarrassment and nervousness, 90.4% for disgust, 93.2 to 95.4% for remorse, fear and sadness. It fixes sadness (95.4% vs 87.5%) but is 1.3 to 1.6 times as wide as the normal IPW interval there, and undercovers where the audit holds almost no positives, because the effective size from a variance estimated on 0 to 3 positives is itself unreliable.
