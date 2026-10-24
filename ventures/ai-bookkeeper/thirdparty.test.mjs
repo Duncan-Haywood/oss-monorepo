@@ -200,3 +200,24 @@ test("Actual Budget's OFX and QIF samples (MIT; shape rewritten, newest-first, c
   const q = readStatement("!Type:Bank\nD12/19/18\nPCOUNTY WASTE 12/18 PURCHASE\nT-25.00\nC*\n^\nD12/20/18\nPLOFT 0845 CHES\nT-31.33\nC*\n^\n");
   assert.deepEqual(q.rows.map((x) => [x.date, x.cents]), [["2018-12-19", -2500], ["2018-12-20", -3133]]);
 });
+
+// ofxstatement-intesasp (GPLv3; its two column layouts read from the sdist, rows made up here).
+test("Intesa Sanpaolo's older export (Accrediti / Addebiti, Descrizione estesa) is read by its header", () => {
+  const csv = `Data contabile,Data valuta,Descrizione,Accrediti,Addebiti,Descrizione estesa,Mezzo
+15/03/2026,15/03/2026,Pagamento POS,,"-12,50",Bar Roma Milano,Carta
+16/03/2026,16/03/2026,Stipendio o pensione,"1.800,00",,Acme Srl stipendio marzo,Bonifico`;
+  const r = readStatement(csv);
+  assert.equal(r.rows.length, 2);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1250, 180000]);
+  assert.equal(r.rows[0].desc, "Pagamento POS Bar Roma Milano");
+  assert.ok(!r.problems.some((p) => /preamble/.test(p)));
+});
+
+test("Intesa Sanpaolo's newer export (Operazione / Dettagli) no longer imports with empty descriptions", () => {
+  const csv = `Data;Operazione;Dettagli;Conto o carta;Contabilizzazione;Categoria;Valuta;Importo
+15/03/2026;Pagamento POS;Bar Roma Milano;Carta 1234;Contabilizzato;Bar e caffè;EUR;-12,50
+16/03/2026;Stipendio;Acme Srl;Conto 99;Contabilizzato;Entrate;EUR;1.800,00`;
+  const r = readStatement(csv);
+  assert.equal(r.rows[0].desc, "Bar Roma Milano Pagamento POS");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1250, 180000]);
+});
