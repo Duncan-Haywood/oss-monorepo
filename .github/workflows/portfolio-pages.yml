@@ -129,13 +129,10 @@ jobs:
           # 14 days (~100-150 merges a day) read history. A pull request only
           # needs the build to pass, so it keeps the cheap depth-1 clone.
           fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 3000 }}
-          # Commits and trees only; file contents are fetched for HEAD alone.
-          # Every history reader but the daily brief needs names, not contents
-          # (`--name-only`, `--diff-filter=A`), and a full depth-3000 clone
-          # carried 5.2 GB of old blobs (measured 2026-10-24: 264 s versus 59 s
-          # blob-less; 97 s of the job on a hosted runner). The daily brief's
-          # `--numstat` blobs are fetched in one batch in the background below.
-          filter: ${{ github.event_name != 'pull_request' && 'blob:none' || '' }}
+          # Full blobs, not `filter: blob:none`: the daily brief's `--numstat`
+          # makes git fetch every changed blob in its 14-day window commit by
+          # commit, which was slower than this clone (measured 2026-10-24,
+          # docs/history/pages-build-speed-2026-10-24.md).
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -146,23 +143,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      # Two slow jobs that need nothing from the site build, started before it
-      # so they finish under it rather than after it (2026-10-24: the
-      # dashboard's API calls were 103 s of a 7-minute merge-to-live):
-      #   - the blobs the daily brief's `--numstat` reads (its seven editions
-      #     plus a week before them, so the last 16 days of first-parent
-      #     changes), fetched in one request. A blob this misses
-      #     is still fetched on demand by git, so it only ever costs time.
-      #     `.gz` files are marked binary for this clone only, so git need not
-      #     read one to print `-  -` for it: the retired front-door-tools
-      #     mirror churned ~978k of them before its 2026-10-19 removal, 95% of
-      #     the window's blobs (a 1M-blob want list against 52k without them);
-      #   - the development dashboard, written beside the artifact and copied
-      #     in after check.mjs, where it always went. The live `stats.json` lets
-      #     it reuse the CI counts of days it already counted (a few dozen API
-      #     requests rather than ~170); a missing one just costs the full count.
-      #     Its GitHub API metrics need a token, so pull requests skip it.
-      - name: Start the history prefetch and the dashboard in the background
+      # The development dashboard needs nothing from the site build, so it
+      # starts first and finishes under it rather than after it (2026-10-24:
+      # its API calls were 103 s of a 7-minute merge-to-live). It is written
+      # beside the artifact and copied in after check.mjs, where it always went.
+      # The live `stats.json` lets it reuse the CI counts of days it already
+      # counted (a few dozen API requests rather than ~170); a missing one just
+      # costs the full count. Its GitHub API metrics need a token, so pull
+      # requests skip it.
+      - name: Start the development dashboard in the background
         if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -170,15 +159,6 @@ jobs:
         run: |
           bg="$RUNNER_TEMP/background"
           mkdir -p "$bg"
-          echo '*.gz -diff' >> "$(git rev-parse --git-path info/attributes)"
-          (
-            git log --first-parent --diff-merges=first-parent --since="16 days ago" --raw --no-abbrev --format= HEAD \
-              | awk -F'\t' '$1 ~ /^:/ && $2 !~ /\.gz$/ { split($1, f, " "); print f[3]; print f[4] }' \
-              | grep -v '^0\{40\}$' | sort -u \
-              | git -c fetch.negotiationAlgorithm=noop fetch -q origin --no-tags --no-write-fetch-head \
-                  --recurse-submodules=no --filter=blob:none --stdin
-            echo $? > "$bg/prefetch.status"
-          ) > "$bg/prefetch.log" 2>&1 &
           (
             prev="$bg/prev-stats.json"
             curl -fsS --retry 3 "${SITE_URL%/}/dev/stats.json" -o "$prev" || rm -f "$prev"
@@ -249,8 +229,8 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           bg="$RUNNER_TEMP/background"
-          until [ -f "$bg/dashboard.status" ]; do sleep 2; done
-          status=$(cat "$bg/dashboard.status")
+          for _ in $(seq 300); do [ -f "$bg/dashboard.status" ] && break; sleep 2; done
+          status=$(cat "$bg/dashboard.status" 2>/dev/null || echo "timed out after 10 minutes")
           if [ "$status" != 0 ]; then cat "$bg/dashboard.log"; exit "$status"; fi
           mkdir -p platform/pages/dist/dev
           cp -R "$bg/dev/." platform/pages/dist/dev/
@@ -265,13 +245,6 @@ jobs:
           PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
         run: |
           export PAGES_BASE_URL="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
-          # The blobs its --numstat reads (background step above). A failed
-          # prefetch is only slower: git fetches what is missing on demand.
-          bg="$RUNNER_TEMP/background"
-          if [ -d "$bg" ]; then
-            until [ -f "$bg/prefetch.status" ]; do sleep 2; done
-            [ "$(cat "$bg/prefetch.status")" = 0 ] || { echo "::warning::blob prefetch failed; the daily brief fetches on demand"; cat "$bg/prefetch.log"; }
-          fi
           asks="${RUNNER_TEMP}/asks.json"
           python3 portfolio/ledger/decision_queue.py --json > "$asks" || rm -f "$asks"
           node platform/daily/build.mjs --out=platform/pages/dist/dev/daily \

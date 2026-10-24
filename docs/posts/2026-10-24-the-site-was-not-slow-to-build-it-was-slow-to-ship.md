@@ -55,9 +55,8 @@ A timer on each phase found the rest:
   each.
 - **Moving bytes that had not changed.** 424 MB of the 776 MB artifact was 78
   MP3 files, copied, hashed, uploaded and deployed again on every merge.
-- **History nobody read.** The checkout fetched 3,000 commits *with every old
-  version of every file*: 5.2 GB, when the pages that read history need only
-  the commit and tree data.
+- **Waiting in line.** The dashboard's 103 seconds of GitHub API calls ran
+  after the build, though they need nothing from it.
 
 ## What changed
 
@@ -69,13 +68,19 @@ A timer on each phase found the rest:
   last commit that changed it, and leaves it out of the artifact. jsDelivr
   serves `audio/mpeg` with byte ranges and a one-year cache, and because the
   URL only changes when the file does, podcast apps don't re-download.
-- The checkout skips old file contents. The daily brief, the one page that
-  diffs file contents, gets its blobs from a background fetch, and the
-  dashboard's API calls run in the background too, both while the site builds.
+- The dashboard's API calls run in the background while the site builds.
 
 The same build on the same machine went from **110 s to 50 s** with a warm card
 cache, and the artifact from 776 MB to 371 MB. The first runs on `main` will
 say what the hosted runner makes of it.
+
+One idea didn't survive measurement. The checkout downloads 3,000 commits with
+every old version of every file, 5.2 GB, and a "blob-less" clone of the same
+history took 59 seconds instead of 264. But one page, the daily engineering
+brief, counts changed lines over two weeks, and git then fetched those files
+back commit by commit, more slowly than the full clone. Most of them were
+compressed files from an old mirror that was deleted on 19 October. That clone
+stays as it was until that churn leaves the two-week window.
 
 The lesson is an old one and still true. Before choosing a faster tool, find
 out what the slow one is waiting for. Here it was waiting on one bad file, on

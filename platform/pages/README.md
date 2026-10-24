@@ -2093,11 +2093,11 @@ worst 169. What changed, and why it is not a new framework:
   jsDelivr's 20 MB limit, or that nothing links stays on Pages.
 - **Independent passes run concurrently** (`mapLimit`): the chrome pass, share
   tags and the offline layer each did one page at a time.
-- **The workflow overlaps what it can.** The checkout is blob-less (`filter:
-  blob:none`): every history reader but the daily brief needs only commit and
-  tree data. The daily brief's `--numstat` blobs and the development dashboard's
-  GitHub API calls start in the background before the build and are waited
-  for afterwards.
+- **The dashboard runs under the build.** Its GitHub API calls (103 s) start
+  in the background before the build and are waited for afterwards. A
+  blob-less checkout was measured and rejected: the daily brief's `--numstat`
+  makes git fetch its window's blobs commit by commit, which is slower than
+  the full clone (history doc, "The blob-less clone").
 
 Local build, same machine: 110 s before, 96 s with no card cache, 50 s with one.
 The language was never the problem: about 7 s of the old build was JavaScript

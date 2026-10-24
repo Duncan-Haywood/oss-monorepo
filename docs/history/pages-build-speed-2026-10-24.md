@@ -103,12 +103,11 @@ pages, no dead links" (75 s).
    injection 32 files at a time. Results are joined in input order, so outputs
    are unchanged. The offline cache name now hashes per-file digests rather
    than the bytes in one stream: same guarantee, a one-time different name.
-5. **Workflow.** Blob-less checkout (`filter: blob:none`) on pushes; history
-   readers other than the daily brief need only commits and trees. The daily
-   brief's blobs and the dashboard start in the background before the build
-   and are waited for after `check.mjs`.
+5. **Workflow.** The development dashboard (103 s of GitHub API calls) starts
+   in the background before the build and is copied in after `check.mjs`,
+   with a 10-minute bound on the wait. The checkout is unchanged (below).
 
-## The blob-less clone, measured
+## The blob-less clone, measured and not shipped
 
 Local container through the session proxy, depth 3000 of `main`:
 
@@ -125,9 +124,20 @@ minutes. A 16-day want list from `git log --raw` was 1,034,786 blobs, 95% of
 them `.gz` files in `gitops/prod/front-door-tools`, the retired mirror PR #8638
 removed on 2026-10-19. Marking `*.gz -diff` in the clone's own
 `.git/info/attributes` lets `--numstat` print `-  -` without reading them, and
-leaves a 52,355-blob want list.
+leaves a 52,355-blob want list, prefetched in 35 s (+500 MB).
 
-CLONE_RESULTS
+That was not enough. Before a `--numstat` diff, git batch-fetches *every*
+missing blob in each commit's diff queue (`diffcore_std`'s promisor prefetch),
+whatever the attributes say, so the `.gz` blobs came back one commit at a time
+anyway: 94 lazy fetches, `.git` past 2.9 GB, and the daily brief still running
+after 119 s against 35 s on the full clone, when it was stopped. The checkout
+stays a full depth-3000 clone, with a comment saying why.
+
+Worth retrying when the front-door-tools churn has left the daily brief's
+14-day window (after about 2026-11-03), or if the brief stops needing
+`--numstat` (its line counts could come from the previous day's published
+`facts` for every complete day but the newest). `gitops/prod/front-door`
+still churns about 24k `.gz` blobs a fortnight, so measure again first.
 
 ## Not changed, ranked
 
@@ -139,4 +149,5 @@ CLONE_RESULTS
    same `mapLimit` treatment should roughly halve it.
 3. **The deploy job's 72 s** is `actions/deploy-pages` plus verification; the
    artifact is half the size now, so read it again before working on it.
-4. **Copy and repair** (10 to 12 s) is sequential per tool; small.
+4. **The checkout** (97 s): see "The blob-less clone" above.
+5. **Copy and repair** (10 to 12 s) is sequential per tool; small.
