@@ -142,6 +142,23 @@ export function parseRules(text, accounts) {
 // `model` is { rules, memory, classifier, codes:Set }. `model.skip` (a Set of
 // "rule", "memory", "learned", "built-in") switches layers off, for the ablation
 // in eval/ablation.mjs; it is never set in normal use.
+// Layer 5: the category label the bank or app itself put on the line. Only labels that
+// name one account unambiguously; everything else stays in review. Lower confidence than
+// a keyword, because these labels are coarse ("Shopping", "Bills & Utilities" are left out).
+export const BANK_CATEGORY = [
+  ["6130", /^(food (&|and) drink|restaurants?|dining|dining out|coffee shops?|fast food|food & dining)$/i],
+  ["6120", /^(travel|airfare|hotels?|lodging|air travel|public transportation|taxi|rental car)/i],
+  ["6160", /^(gas|gas & fuel|fuel|automotive|auto & transport|parking)$/i],
+  ["6140", /^(utilities|bills & utilities|internet|phone|mobile phone|telephone)$/i],
+  ["6030", /^insurance$/i],
+  ["6060", /^(software|subscriptions?|software & subscriptions)$/i],
+  ["6000", /^(advertising|marketing)$/i],
+  ["6050", /^(legal|accounting|professional services)$/i],
+  ["6170", /^(education|training)$/i],
+  ["6070", /^(office supplies|office)$/i],
+  ["6180", /^(shipping|postage & shipping)$/i],
+];
+
 export function suggest(txn, model) {
   const off = model.skip ?? new Set();
   const text = String(txn.desc ?? "").toLowerCase();
@@ -172,6 +189,10 @@ export function suggest(txn, model) {
     if (rd !== "any" && rd !== d) continue;
     if (account !== "transfer" && model.codes && !model.codes.has(account)) continue;
     if (re.test(bi)) return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(bi.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
+  }
+  if (txn.bankCat && !off.has("bank-category") && d === "out") {
+    const hit = BANK_CATEGORY.find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
+    if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
   }
   return { account: null, confidence: 0, source: "none", reason: key ? `nothing known about "${key}" yet` : "the description is empty", alternatives: ranked.slice(0, 3) };
 }

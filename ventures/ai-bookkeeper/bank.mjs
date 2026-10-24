@@ -778,6 +778,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
   const accountNames = new Set();
   const labelCols = ["reporting category", "category", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
+  const catCol = hdr.indexOf("category") !== -1 && hdr.indexOf("category") !== columns.desc ? hdr.indexOf("category") : -1;
   const idCol = hdr.findIndex((x) => /^(balance transaction id|transaction id|txn id|reference id)$/.test(x));
   const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
   for (let i = first; i < rows.length; i++) {
@@ -858,7 +859,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       if (m === "to") cents = -Math.abs(cents);
       else if (m === "from") cents = Math.abs(cents);
     }
-    out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null });
+    // The bank's or app's own category label (Chase, Capital One, Mint, Maybe): kept as a weak hint for the categorizer.
+    const bankCat = catCol === -1 ? "" : String(r[catCol] ?? "").trim().slice(0, 60);
+    out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null, ...(bankCat ? { bankCat } : {}) });
   }
   if (currencies.size > 1) problems.push(`The file mixes currencies (${[...currencies].join(", ")}). Amounts are booked as written, with no conversion: import each currency on its own account.`);
   let inferred = null;
