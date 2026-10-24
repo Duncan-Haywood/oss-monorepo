@@ -104,6 +104,9 @@ def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_c
                 f"{path}/tax",
             ))
         group = expected.get(key)
+        if group is None and not unattributed and taxable == 0 and tax == 0:
+            # zero row, no line: a zero-amount header allowance or charge
+            continue
         if group is None and not unattributed:
             findings.append(_finding(
                 "INV-038",

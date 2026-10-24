@@ -117,10 +117,20 @@ class BreakdownHelpersTest(unittest.TestCase):
             tax_breakdown=[
                 {"tax_percent": 19, "taxable": 200, "tax": 38},
                 {"tax_percent": 7, "taxable": 100, "tax": 7},
-                {"tax_percent": 0, "taxable": 0, "tax": 0},
+                {"tax_percent": 0, "taxable": 50, "tax": 0},
             ],
         ))
         self.assertTrue(any("no line uses" in item["message"] for item in findings))
+
+    def test_zero_row_for_zero_header_charge_is_clean(self):
+        findings = inspect_tax_breakdown(_mixed(
+            tax_breakdown=[
+                {"tax_percent": 19, "taxable": 200, "tax": 38},
+                {"tax_percent": 7, "taxable": 100, "tax": 7},
+                {"tax_percent": 0, "taxable": 0, "tax": 0},
+            ],
+        ))
+        self.assertEqual([], findings)
 
     def test_duplicate_rate_is_inv_038(self):
         findings = inspect_tax_breakdown(_mixed(
