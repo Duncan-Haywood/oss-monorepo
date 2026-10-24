@@ -500,6 +500,20 @@ def redteam_share(tracks: dict[str, Any]) -> float | None:
     return weights[REDTEAM] / total if total else 0.0
 
 
+def redteam_band_warning(root: Path = ROOT) -> str | None:
+    """A default, not a hard limit (goals.md, "Strong defaults"): warn, don't fail."""
+    try:
+        tracks = load_routing(root).get("tracks")
+    except (OSError, ValueError):
+        return None
+    share = redteam_share(tracks) if isinstance(tracks, dict) else None
+    if share is None or REDTEAM_SHARE[0] <= share <= REDTEAM_SHARE[1]:
+        return None
+    low, high = REDTEAM_SHARE
+    return (f"routing.json: redteam is {share:.1%} of non-review weight; "
+            f"prompts/goals.md aims for {low:.0%}-{high:.0%}")
+
+
 def validate(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     for name in ("routing.json", "goals.md", "experiments.md", "README.md"):
@@ -523,11 +537,6 @@ def validate(root: Path = ROOT) -> list[str]:
         return errors + ["routing.json: tracks must be an object that includes 'review'"]
     if not any(float(c.get("weight", 0)) > 0 for t, c in tracks.items() if t != REVIEW):
         errors.append("routing.json: at least one non-review track needs a positive weight")
-    share = redteam_share(tracks)
-    if share is not None and not REDTEAM_SHARE[0] <= share <= REDTEAM_SHARE[1]:
-        low, high = REDTEAM_SHARE
-        errors.append(f"routing.json: redteam is {share:.1%} of non-review weight; "
-                      f"prompts/goals.md holds it between {low:.0%} and {high:.0%}")
 
     for track, cfg in tracks.items():
         label = f"routing.json: {track}"
@@ -1151,6 +1160,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "map":
         print_map(ROOT, args.track)
         return 0
+    warning = redteam_band_warning(ROOT)
+    if warning:
+        print(f"warning: {warning}", file=sys.stderr)
     errors = validate(ROOT)
     for err in errors:
         print(f"error: {err}", file=sys.stderr)

@@ -138,11 +138,11 @@ of done.
 
 ## Graduating from the pipeline
 
-If anything already on `main` still has no public URL, deploy that first
-(prepare a GitHub Pages artifact; the Hetzner boxes were deleted
-2026-10-01, so there is no product box to deploy to; the owner flip is
-`deploy-settings`). See [`portfolio/hosting/`](portfolio/hosting/README.md).
-Do not add Cloudflare or Vercel. Only then:
+A product with an `index.html` is on the Pages site once it merges, so there
+is usually no deploy step to do first; a product that needs a process ships
+for its users to run ([`portfolio/hosting/`](portfolio/hosting/README.md)).
+If something on `main` still has no public URL, fixing that tends to beat
+starting something new.
 
 If `session_gate.py` names a `build-now` candidate, graduate it:
 

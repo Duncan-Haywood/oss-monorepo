@@ -29,12 +29,12 @@ add value, iOS and Android apps, and real business potential. Measured on
 `*-calculator` (121 `*-bid-calculator`), there is no native mobile app, and
 no venture has a single measured visitor. That is not the brief. So:
 
-- **Don't spend runs on calculators** (owner, 2026-10-21, walking back the
-  2026-10-16 "principle, not a ban"): start no new calculators, and do not
-  add features, pages or consolidation to the 650+ that exist; fix one when
-  it is broken. Already-built calculator work (an open PR, a stranded
-  branch) is fine to merge, because the problem is where effort goes, not
-  what lands. Higher-value products are the work (`prompts/goals.md`,
+- **No new calculator work** (owner, 2026-10-21, walking back the 2026-10-16
+  "principle, not a ban"): the owner wants no new calculators and no new
+  features, pages or consolidation for the 650+ that exist. Fix one when
+  it is broken. This is about where a run's effort goes, not what may land:
+  already-built calculator work (an open PR, a stranded branch) is fine to
+  merge. Higher-value products are the work (`prompts/goals.md`,
   "Direction: depth over calculators").
 - **A new venture should say why someone would use it.** Name the free or paid
   alternatives a user has today and what this does better, in the venture's

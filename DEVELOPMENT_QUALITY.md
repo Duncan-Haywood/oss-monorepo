@@ -20,13 +20,11 @@ Three things this document no longer implies:
   you verify by running the tests, the linter, and the product itself, and merge
   when CI is green. What still needs the account owner is the short owner-only
   list in `DIRECTION.md`, not this framework.
-- **It is not the default next task.** The default is putting something a
-  stranger can already run on a public URL. If `main` has undeployed
-  products, that deploy outranks this tier chart and outranks the next
-  `build-now` candidate. Host is GitHub Pages or the Hetzner product box
-  ([`portfolio/hosting/README.md`](portfolio/hosting/README.md)). See
-  [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md)
-  "Current priority". `python3 portfolio/ledger/session_gate.py` names a
+- **It is not the default next task.** The default is work on a product
+  people can use: the top flagship in `portfolio/flagships.yaml`, or a
+  product on `main` that still has no public URL. Web surfaces are served by
+  GitHub Pages; products with a process ship for users to run
+  ([`portfolio/hosting/README.md`](portfolio/hosting/README.md)). `python3 portfolio/ledger/session_gate.py` names a
   concrete target in two seconds; take that over the roadmap here.
 - **It does not outrank the five things every product ships** — license,
   disclaimer, privacy line, usage counting, and discoverability. Those are in

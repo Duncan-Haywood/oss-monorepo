@@ -15,7 +15,7 @@
  * A script without front matter is a hand-written one this pipeline leaves alone.
  * A script's front matter names the post it reads (`post: <slug>`); the post
  * page gets a player and the episode links back to the post for sources.
- * `podcast_tts.py` turns scripts into audio offline with Piper and writes the
+ * `podcast_tts.py` turns scripts into audio once, offline, with Kokoro and writes the
  * manifest, so the site build never needs a speech engine: it publishes the
  * episodes whose audio is committed and skips scripts still waiting for theirs.
  */
@@ -116,8 +116,8 @@ export function renderPodcastHero() {
 <h1>Podcast</h1>
 <p class="dek">${esc(SHOW_DESCRIPTION)} Episodes are grouped by topic. Subscribe in any podcast app with the <a href="feed.xml">RSS feed</a>
 for every episode, or with one topic's own feed below.</p>
-<p class="meta">The voice is synthetic (<a href="https://github.com/rhasspy/piper">Piper</a> text to speech, trained on the
-public-domain LJ Speech recordings), and the scripts are written by AI agents from the repository's records. Each episode's
+<p class="meta">The voice is synthetic (<a href="https://huggingface.co/hexgrad/Kokoro-82M">Kokoro</a>, an open-weight
+text-to-speech model), and the scripts are written by AI agents from the repository's records. Each episode's
 post has the links and sources.</p>`;
 }
 

@@ -23,7 +23,7 @@ npm run verify   # typecheck → lint → test → build
 
 Three things get skipped most often, and each has cost real correctness here:
 
-1. **Narrow untrusted input with a parser that rejects.** Never coerce an unknown value to a plausible default — that is how one of the three perspectives was silently recorded as another for every session that used it.
+1. **Narrow untrusted input with a parser that rejects.** Reject an unknown value rather than coercing it to a plausible default — coercion is how one of the three perspectives was silently recorded as another for every session that used it.
 2. **Prove the test fails on the old behaviour.** Revert your fix, watch it go red, put it back. A test that passes before and after proves nothing, and the bugs in this codebase do not throw.
 3. **Fix the docs the change made wrong, in the same commit.** A stale plan is worse than no plan, because it gets trusted.
 <!-- END:nextjs-agent-rules -->

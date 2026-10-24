@@ -29,8 +29,10 @@ tools that help them earn more. Low variable cost, traditional software, AI
 only where it clearly helps. Payment code is allowed only off by default and on
 the deployer's own keys, never the owner's accounts (`../prompts/goals.md`,
 "Payments: never the owner's"); the owner's own instances take GitHub Sponsors
-donations only. Spend no runs on calculators beyond fixes (none started, none
-deepened); already-built calculator work can still be merged (owner, 2026-10-21; `../prompts/goals.md`, "Direction:
+donations only. Calculators are a poor use of a run: a new one rarely beats
+what a chatbot gives in one reply, so build depth elsewhere and fix existing
+ones only when broken; already-built calculator work can still be merged
+(owner, 2026-10-21; `../prompts/goals.md`, "Direction:
 depth over calculators").
 
 Running venture tests: `python3 platform/ci/run_venture_tests.py --changed`

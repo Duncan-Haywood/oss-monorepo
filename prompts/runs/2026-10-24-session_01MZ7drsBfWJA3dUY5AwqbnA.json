@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01MZ7drsBfWJA3dUY5AwqbnA",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "do we still have hard rule books. if so I want it to be slimmed down to no financial legal or ethical liabilities as the rules and the things that don't touch on that topic turn into suggestions.",
+  "input_sha256": "260156723e246c536fbf8d6d0feb62ee6554e80d56747d22823a26f88fbe4699",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T01:50:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9974,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/goals.md",
+      "issue": "Guardrails mixed liability limits with process defaults (land-your-work, every-run-ships, red-team band) under one 'every track' heading; split into Hard limits and Strong defaults."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "instruction": "default to the top flagship",
+      "did": "worked on the guidance system at the owner's direct request",
+      "why": "the owner asked for this change in the session",
+      "result": "merged"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Owner asked to slim hard rules to financial/legal/ethical liability. Three parallel subagents reworded disjoint file sets; coordinator rewrote goals.md Guardrails, CLAUDE.md, steering.md, and made the promptctl red-team band a warning. rule_language.py default pile 184 -> 157 (rest mostly descriptive). Checks run: promptctl.py validate ok; pytest test_promptctl.py test_rule_language.py pass; check_md_links.py no dead links. CI gates that check docs-vs-data consistency (session_gate, break_even --check, checklist_coverage, readme_titles) left as they are: they are correctness tests, not policy. CI: first Portfolio Pages run failed 5 readme-live-link tests, red on main since PR #9958 (regex still matched /monorepo-projects/ only); ported PR #9989's fix. Second round of runners queued 30+ min (starved), so verified locally: platform/pages node --test *.test.mjs 1236/1241 before the fix, the 5 failures all readme-live-link, which then passed 8/8; readme-live-link --check 0 missing; check_code_refs, checklist_coverage, check_conflict_markers, session_gate, readme_titles, unlanded_work all exit 0.",
+  "corrections": [],
+  "redteam": null
+}

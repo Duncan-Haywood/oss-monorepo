@@ -10,7 +10,7 @@ data, and adding more features helps an additive GLM at least as much as it help
 **Nothing was exported to the app.**
 
 This folder belongs to the [divorce-prediction project](../README.md) (**Live page:**
-https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/).
+https://duncan-haywood.github.io/oss-monorepo/research/marriage-divorce-evidence/).
 
 ## What was tested
 
