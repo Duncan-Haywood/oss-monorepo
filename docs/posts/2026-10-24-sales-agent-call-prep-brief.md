@@ -1,7 +1,7 @@
 ---
 title: "A call-prep brief that tells you what you don't know yet"
 date: 2026-10-24
-description: "The open-source sales agent now writes a one-page brief before a call: what's on file, what the person wrote, and which of nine discovery questions are still unanswered."
+description: "The open-source sales agent now writes a one-page call brief: what's on file, what the person wrote, and which of nine discovery questions remain."
 tags: [sales-agent, sales, open-source, ai-agents]
 ---
 

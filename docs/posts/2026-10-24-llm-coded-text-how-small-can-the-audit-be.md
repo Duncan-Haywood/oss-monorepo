@@ -1,7 +1,7 @@
 ---
 title: "LLM-coded text: how small can the hand-coded audit be?"
 date: 2026-10-24
-description: "A new research programme asks how much hand-coding an LLM coder can replace with a valid interval when its error differs by group and the category is rare. Proposal only, nothing measured yet."
+description: "A research programme on how much hand-coding an LLM coder can replace with a valid interval when its error differs by group. Proposal only; nothing measured."
 tags: [research, llm, qualitative-data, statistics]
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "A sales agent that reads replies: a third test set, and the unsubscribes it missed"
 date: 2026-10-24
-description: "Scoring an open-source sales-reply triage on 41 new replies: 83% right, but two unsubscribes missed, one in French. What changed and what the number does not mean."
+description: "Scoring an open-source sales-reply triage on 41 new replies: 83% right, but two unsubscribes missed, one in French. What changed and what 83% does not mean."
 tags: [sales, ai-agents, evaluation, email-compliance]
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "How many real robot trials is a simulator worth? Numbers from SIMPLER"
 date: 2026-10-24
-description: "Using the published real and simulated success rates of SIMPLER (36 policy-task cells), a calibrated simulator is worth about 10 real trials, even though its rank correlation with reality is 0.90."
+description: "On SIMPLER's published rates (36 policy-task cells), a calibrated simulator is worth about 10 real trials, though its rank correlation with reality is 0.90."
 tags: [robotics, sim-to-real, digital-twin, statistics, research]
 ---
 

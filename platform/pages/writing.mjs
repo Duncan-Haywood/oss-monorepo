@@ -237,6 +237,19 @@ const STYLE = `
   .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 `;
 
+/** Longest `<title>` a search result shows before cutting it off (rule of thumb, as in `serp_snippets.py`). */
+export const TITLE_BUDGET = 70;
+
+/**
+ * A post's `<title>`: the headline plus the site name when both fit, else the
+ * headline alone, so the words that make a searcher click are never the ones cut.
+ * Most headlines here are long enough that the suffix would push them over.
+ */
+export function postPageTitle(headline) {
+  const full = `${headline} · ${SITE_NAME}`;
+  return full.length <= TITLE_BUDGET ? full : headline;
+}
+
 function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, breadcrumb, feedHref, socialCard, podcastFeedHref, current = 'writing' }) {
   // The site's shared header (site-nav.mjs) above this section's own breadcrumb.
   return withSiteHeader(`<!doctype html>
@@ -471,7 +484,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
   const topic = `<a class="topic" href="../?topic=${esc(post.topic)}">${esc(topicLabel(post.topic))}</a>`;
   const markdown = isAgents ? ` · <a href="../${esc(post.slug)}.txt" type="text/plain">Markdown (plain text)</a>` : '';
   return shell({
-    title: `${post.title} · ${SITE_NAME}`,
+    title: postPageTitle(post.title),
     description: post.description,
     canonical,
     socialCard,
