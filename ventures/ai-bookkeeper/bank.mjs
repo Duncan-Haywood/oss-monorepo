@@ -404,6 +404,7 @@ function ofxAccount(block) {
 export function readOfx(text) {
   const problems = [];
   const out = [];
+  let booked = 0;
   const blocks = text.split(/<STMTTRN>/i).slice(1);
   blocks.forEach((raw, i) => {
     const b = raw.split(/<\/STMTTRN>/i)[0];
@@ -424,13 +425,28 @@ export function readOfx(text) {
     }
     out.push({ line: i + 1, date, desc, cents, balance: null });
   });
+  // Brokerage statements: dividends, interest and capital-gain distributions (INCOME) and fees (INVEXPENSE)
+  // are cash a business books; buys and sells move value between cash and securities and are not booked.
+  const invLines = text.split(/<(INCOME|INVEXPENSE)>/i);
+  for (let k = 1; k < invLines.length; k += 2) {
+    const kind = invLines[k].toUpperCase();
+    const b = invLines[k + 1].split(/<\/(?:INCOME|INVEXPENSE)>/i)[0];
+    const date = ofxDate(ofxTag(b, "DTTRADE") || ofxTag(b, "DTSETTLE"));
+    const total = parseCents(ofxTag(b, "TOTAL"));
+    if (!date || !Number.isFinite(total) || total === 0) { problems.push(`Brokerage ${kind.toLowerCase()} line ${(k + 1) / 2}: unreadable date or total, skipped.`); continue; }
+    const memo = ofxTag(b, "MEMO").replace(/\s+/g, " ").trim() || (kind === "INCOME" ? ofxTag(b, "INCOMETYPE").trim() || "Income" : "Brokerage expense");
+    out.push({ line: blocks.length + (k + 1) / 2, date, desc: memo, cents: kind === "INCOME" ? Math.abs(total) : -Math.abs(total), balance: null });
+    booked++;
+  }
+  const trades = (text.match(/<(BUYSTOCK|SELLSTOCK|BUYMF|SELLMF|BUYOPT|SELLOPT|BUYDEBT|SELLDEBT|BUYOTHER|SELLOTHER|REINVEST)>/gi) || []).length;
+  if (trades && (out.length || booked)) problems.push(`${trades} brokerage buy/sell line${trades === 1 ? " was" : "s were"} not booked: they move value between cash and securities. Dividends, interest and fees were booked; record trades in your investment account separately.`);
   const lb = /<LEDGERBAL>[\s\S]*?<BALAMT>\s*([-+]?[\d.,]+)/i.exec(text);
   if (lb && out.length) {
     const last = out.reduce((a, r) => (r.date >= a.date ? r : a), out[0]);
     const bal = parseCents(lb[1]);
     if (Number.isFinite(bal)) last.balance = bal;
   }
-  if (!blocks.length) {
+  if (!blocks.length && !booked) {
     // A failed download saves an error reply as a .ofx file; an investment-only file holds positions, not cash lines.
     const status = /<STATUS>\s*<CODE>\s*(\d+)\s*<SEVERITY>\s*ERROR\s*(?:<MESSAGE>([^<]*))?/i.exec(text);
     if (status && status[1] !== "0") problems.push(`The OFX file is an error reply from the bank (code ${status[1]}${status[2] ? `: ${status[2].trim()}` : ""}), not a statement. Download it again.`);
