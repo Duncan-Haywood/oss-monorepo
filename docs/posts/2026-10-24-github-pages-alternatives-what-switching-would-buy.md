@@ -8,8 +8,8 @@ tags: [github-pages, hosting, static-sites, cloudflare]
 # Alternatives to GitHub Pages: what switching or adding would buy
 
 This repository publishes about 1,300 free browser tools, the research
-write-ups, this blog and three podcasts as one static site on GitHub Pages,
-at `duncan-haywood.github.io/oss-monorepo/`. AI coding agents build nearly
+write-ups, this blog and three podcasts as one static site: a GitHub Pages
+project site under `/oss-monorepo/`. AI coding agents build nearly
 all of it. One GitHub Actions workflow, `portfolio-pages.yml`, rebuilds and
 redeploys the site on every merge to `main`. A free Cloudflare Worker
 (`platform/edge/`) sits beside it and takes the two requests a static host
