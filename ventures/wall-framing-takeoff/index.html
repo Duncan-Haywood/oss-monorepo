@@ -132,6 +132,12 @@
       <div><label for="flOpen">Stairwell openings: from left edge, from front edge, width, depth; separate several with a semicolon (blank: none)</label><input id="flOpen" placeholder="e.g. 20 ft, 8 ft, 3 ft, 10 ft; 30 ft, 20 ft, 3 ft, 8 ft"></div>
     </div>
     <p><input type="checkbox" id="fnOn" style="width:auto"> <label for="fnOn" style="display:inline">Also price the foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel and vapor barrier; bought separately from the lumber)</label></p>
+    <p><input type="checkbox" id="dwOn" style="width:auto"> <label for="dwOn" style="display:inline">Also count interior drywall (inside faces of the exterior walls, both faces of partitions you mark unsheathed, optional flat ceilings; sheets hung in 4 ft courses)</label></p>
+    <div class="grid" id="dwFields" hidden>
+      <div><label for="dwLen">Sheet length</label><select id="dwLen"><option value="96" selected>8 ft</option><option value="108">9 ft</option><option value="120">10 ft</option><option value="144">12 ft</option><option value="192">16 ft</option></select></div>
+      <div><label for="dwCeil">Flat ceilings: width, depth; separate several with a semicolon (blank: none)</label><input id="dwCeil" placeholder="e.g. 40 ft, 28 ft"></div>
+      <div><label for="dwPrice">Price per sheet (blank: none)</label><input id="dwPrice" type="number" min="0" step="0.01" placeholder="e.g. 16"></div>
+    </div>
     <div class="grid" id="fnFields" hidden>
       <div><label for="fnType">Type</label><select id="fnType"><option value="stem" selected>footing + stem wall + slab</option><option value="monolithic">monolithic slab, thickened edge</option></select></div>
       <div><label for="fnW">Footing outside width</label><input id="fnW" value="40 ft"></div>
@@ -191,10 +197,15 @@
 
   <section class="card" aria-labelledby="h-budget" id="budgetCard" hidden>
     <h2 id="h-budget">Budget from your prices</h2>
-    <p class="note">Type one price per line as <code>name, number</code> (names: wallSheet, floorSheet, roofSheet, truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle, starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd; tax and contingency as fractions, e.g. <code>tax, 0.07</code>). Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
+    <p class="note">Type one price per line as <code>name, number</code> (names: wallSheet, floorSheet, roofSheet, truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle, starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, drywallSheet, vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd; tax and contingency as fractions, e.g. <code>tax, 0.07</code>). Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
     <textarea id="priceText" rows="5" style="width:100%" aria-label="Unit prices, one per line" placeholder="wallSheet, 24&#10;laborWallFoot, 11&#10;tax, 0.07"></textarea>
     <p><button type="button" class="secondary" id="budgetCsvBtn">Download budget CSV</button></p>
     <div id="budgetOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-drywall" id="drywallCard" hidden>
+    <h2 id="h-drywall">Drywall</h2>
+    <div id="drywallOut"></div>
   </section>
 
   <section class="card" aria-labelledby="h-foundation" id="foundationCard" hidden>
@@ -250,7 +261,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -264,6 +275,7 @@
     import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
     import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
     import { layoutFoundation, foundationText } from "./foundation.mjs";
+    import { layoutDrywall, drywallText } from "./drywall.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -382,6 +394,16 @@
         if ($("#rfRidge").value) rf.ridge = $("#rfRidge").value;
         if ($("#rfJoist").value) rf.ceilingJoist = $("#rfJoist").value;
         plan.roof = rf;
+      }
+      if ($("#dwOn").checked) {
+        const dw = { sheetLength: Number($("#dwLen").value) };
+        for (const part of $("#dwCeil").value.split(";").map((t) => t.trim()).filter(Boolean)) {
+          const q = part.split(",").map((t) => t.trim());
+          if (q.length !== 2) bad.push(`Ceiling "${part}": write two lengths, width then depth.`);
+          else { const [width, depth] = q.map((t) => L(t, "ceiling size")); (dw.ceiling = dw.ceiling || []).push({ width, depth }); }
+        }
+        if ($("#dwPrice").value.trim()) dw.price = Number($("#dwPrice").value);
+        plan.drywall = dw;
       }
       if ($("#fnOn").checked) {
         const fn = { id: "Foundation", type: $("#fnType").value, width: L($("#fnW").value, "foundation width"), depth: L($("#fnD").value, "foundation depth"), footing: { width: Number($("#fnFootW").value), depth: Number($("#fnFootD").value) }, slab: { thickness: Number($("#fnSlab").value) } };
@@ -524,6 +546,11 @@
       if (!roof) return;
       $("#roofOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(roofText(roof).join("\n"))}</pre><p class="note">The roof's rafters, ridge, ceiling joists and collar ties are in the lumber order and cut list above, pooled with the walls so they use each other's offcuts. Roof sheets, felt, drip edge and shingles are bought separately. Check rafter size, spacing and bracing against your span tables or engineer.</p>`;
     }
+    function renderDrywall(dw) {
+      $("#drywallCard").hidden = !dw;
+      if (!dw) return;
+      $("#drywallOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(drywallText(dw).join("\n"))}</pre><p class="note">Sheets only, counted from the wall faces in the wall list. A wall marked unsheathed is treated as a partition with drywall on both sides. Screws are a rate, not a schedule; tape, mud, corner bead and trim are not counted.</p>`;
+    }
     function renderFoundation(fn) {
       $("#foundationCard").hidden = !fn;
       if (!fn) return;
@@ -544,7 +571,7 @@
       if (!last) { card.hidden = true; return; }
       const pr = parsePrices();
       if (pr.bad.length) { $("#budgetOut").innerHTML = `<div class="err"><ul>${pr.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; card.hidden = false; return; }
-      const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation };
+      const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall };
       const b = budget(res, pr.prices);
       last.budget = b;
       const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
@@ -558,11 +585,15 @@
       const { plan, bad, source } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
-      let result, nailers = [], floor = null, floorExtra = [], roof = null, foundation = null;
+      let result, nailers = [], floor = null, floorExtra = [], roof = null, foundation = null, drywall = null;
       try {
         if (plan.foundation) {
           foundation = layoutFoundation(plan.foundation);
           if (!foundation.ok) { $("#errors").innerHTML = `<ul>${foundation.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#foundationCard").hidden = true; return false; }
+        }
+        if (plan.drywall) {
+          drywall = layoutDrywall(plan.drywall, plan);
+          if (!drywall.ok) { $("#errors").innerHTML = `<ul>${drywall.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#drywallCard").hidden = true; return false; }
         }
         if (plan.floor) {
           floor = layoutFloor(plan.floor, plan);
@@ -587,7 +618,7 @@
         last = null; showWall();
         return false;
       }
-      last = { plan, result, nailers, floor, roof, foundation };
+      last = { plan, result, nailers, floor, roof, foundation, drywall };
       const s = result.summary;
       const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
@@ -605,6 +636,7 @@
       renderFloor(floor);
       renderRoof(roof);
       renderFoundation(foundation);
+      renderDrywall(drywall);
       renderSheathing(plan, result);
       renderBudget();
       const prev = $("#wallPick").value;
@@ -631,6 +663,13 @@
         $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
       }
       if (plan.prices && typeof plan.prices === "object") { $("#priceText").value = Object.entries(plan.prices).filter(([, v]) => Number.isFinite(v)).map(([k, v]) => `${k}, ${v}`).join("\n"); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } }
+      const dw = plan.drywall;
+      $("#dwOn").checked = Boolean(dw); $("#dwFields").hidden = !dw;
+      if (dw) {
+        $("#dwLen").value = String(dw.sheetLength || 96);
+        $("#dwCeil").value = (dw.ceiling || []).map((c) => [c.width, c.depth].map(formatLength).join(", ")).join("; ");
+        $("#dwPrice").value = dw.price != null ? String(dw.price) : "";
+      }
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
       if (fn) {
@@ -741,6 +780,7 @@
     $("#rfShape").addEventListener("change", () => { $("#rfHipBox").hidden = $("#rfShape").value !== "hip"; syncWing(); });
     $("#rfWing").addEventListener("change", syncWing);
     $("#rfWing2").addEventListener("change", syncWing);
+    $("#dwOn").addEventListener("change", () => { $("#dwFields").hidden = !$("#dwOn").checked; if ($("#dwOn").checked) record("drywall_on"); });
     $("#fnOn").addEventListener("change", () => { $("#fnFields").hidden = !$("#fnOn").checked; if ($("#fnOn").checked) record("foundation_on"); });
     $("#rfOn").addEventListener("change", () => { $("#rfFields").hidden = !$("#rfOn").checked; if ($("#rfOn").checked) record("roof_on"); });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }

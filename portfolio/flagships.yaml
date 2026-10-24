@@ -64,7 +64,7 @@ flagships:
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md
       and ROADMAP.md. Roof framing, wings, valley backing and their page controls have landed (README and ROADMAP). Foundation quantities (concrete, trucks, rebar, forms, gravel; `--foundation`) landed 2026-10-24 (engine/CLI, hand arithmetic); foundation on the page landed 2026-10-24 (fields, stem/monolithic switch, click check; a real foundation plan still open). Next: a floor drawing (several stairwells on the page landed 2026-10-23, semicolon-separated, overlap refused, click check); gable walls on the page landed 2026-10-24 (pitch and peak columns, click check); gable sheathing in the horizontal layout (vertical-sheet order landed 2026-10-22; offcut-triangle nesting of the sloped top courses landed 2026-10-24, hand heights, not a nested cut on real sheets);
-      drywall sheet counts per wall and ceiling landed 2026-10-24 (`--drywall`, hand counts; joints not on studs, no page);
+      drywall sheet counts per wall and ceiling landed 2026-10-24 (`--drywall`, hand counts; page landed 2026-10-24; joints not on studs);
       budget from typed unit prices landed 2026-10-24 (`--budget`; page, labor lines and CSV landed 2026-10-24; prices saved in the plan file landed 2026-10-24; foundation labor rates landed 2026-10-24 (`laborFoundationSqFt`, `laborConcreteYd`); next: a real sub's rates);
       code edition, typed by a person who has the book, is open); a 2D reuse of opening cut-outs (sample house: 0 panels fit a hole, `cutout-reuse-bench.mjs`, so only worth rechecking on a real plan);
       the panel sheathing-weight field and the panel order and pull-list
