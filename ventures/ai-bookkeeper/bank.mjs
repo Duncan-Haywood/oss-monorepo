@@ -414,7 +414,13 @@ export function readOfx(text) {
     // A memo that starts with the name (many banks repeat it, then add detail) is the fuller text on its own.
     const name = (ofxTag(b, "NAME") || ofxTag(b, "PAYEE")).replace(/\s+/g, " ");
     const memo = ofxTag(b, "MEMO").replace(/\s+/g, " ");
-    const desc = (memo.toLowerCase().startsWith(name.toLowerCase()) ? memo : [name, memo].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" "));
+    let desc = (memo.toLowerCase().startsWith(name.toLowerCase()) ? memo : [name, memo].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" "));
+    // Some lines carry neither NAME nor MEMO (a check, an ATM withdrawal): say what kind of line it is.
+    if (!desc) {
+      const kind = ofxTag(b, "TRNTYPE").trim();
+      const num = (ofxTag(b, "CHECKNUM") || ofxTag(b, "REFNUM")).trim();
+      desc = [kind.length <= 3 ? kind.toUpperCase() : kind[0].toUpperCase() + kind.slice(1).toLowerCase(), num ? `#${num}` : ""].filter(Boolean).join(" ");
+    }
     out.push({ line: i + 1, date, desc, cents, balance: null });
   });
   const lb = /<LEDGERBAL>[\s\S]*?<BALAMT>\s*([-+]?[\d.,]+)/i.exec(text);
