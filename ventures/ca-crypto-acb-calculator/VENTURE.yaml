@@ -66,5 +66,5 @@ kill_criteria:
   - A user reports a figure that differs from a hand calculation under the CRA's average-cost and superficial loss rules on the same rows and the difference is a bug in the engine.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ca-crypto-acb-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/ca-crypto-acb-calculator/
   analytics: null
