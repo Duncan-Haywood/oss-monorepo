@@ -96,7 +96,7 @@ Ticked items are on `main`.
       joists, collar ties, roof sheathing, underlayment and shingle squares.
       Hip roofs landed 2026-10-22 (`shape: "hip"`: commons, hips, jacks, trapezoid and triangle sheathing). Not yet: valleys, the page.
 - [x] Foundation quantities (2026-10-24, `foundation.mjs`, CLI `--foundation`): footing, stem wall and slab (or a monolithic slab with thickened edge) concrete from closed-form geometry, trucks and short-load warning, rebar with lap splices and weight, form area and plywood, gravel base, vapor barrier. Hand-arithmetic tests only. Not yet: the page, corner bars, anchor bolts, piers and columns, walkout/stepped footings, checking against a real foundation plan.
-- [ ] Interior: drywall sheet layout per wall and ceiling, insulation by
+- [ ] Interior: drywall sheet counts per wall and ceiling landed 2026-10-24 (`drywall.mjs`, CLI `--drywall`, hand-count tests; joints not on studs, no page). Not yet: joints on studs, insulation by
       cavity, trim.
 
 ### 4. Time and money
