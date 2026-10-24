@@ -146,14 +146,17 @@ export function parseRules(text, accounts) {
 // name one account unambiguously; everything else stays in review. Lower confidence than
 // a keyword, because these labels are coarse ("Shopping", "Bills & Utilities" are left out).
 export const BANK_CATEGORY = [
+  ["6040", /^(fee\/)?interest( charges?)?$|^fee\/interest charge$|^finance charges?$/i],
+  ["6010", /^(fees? (&|and) adjustments|bank fees?|service fees?|fees?)$/i],
   ["6130", /^(food (&|and) drink|restaurants?|dining|dining out|coffee shops?|fast food|food & dining)$/i],
-  ["6120", /^(travel|airfare|hotels?|lodging|air travel|public transportation|taxi|rental car)/i],
-  ["6160", /^(gas|gas & fuel|fuel|automotive|auto & transport|parking)$/i],
-  ["6140", /^(utilities|bills & utilities|internet|phone|mobile phone|telephone)$/i],
+  ["6120", /^(travel|other travel|airfare|hotels?|lodging|air travel|public transportation|taxi|rental car)/i],
+  ["6160", /^(gas|gasoline|gas\/automotive|gas & fuel|fuel|automotive|auto & transport|parking)$/i],
+  ["6140", /^(utilities|bills & utilities|internet|phone|phone\/cable|mobile phone|telephone)$/i],
   ["6030", /^insurance$/i],
   ["6060", /^(software|subscriptions?|software & subscriptions)$/i],
   ["6000", /^(advertising|marketing)$/i],
   ["6050", /^(legal|accounting|professional services)$/i],
+  ["6100", /^(home improvement|hardware)$/i],
   ["6170", /^(education|training)$/i],
   ["6070", /^(office supplies|office)$/i],
   ["6180", /^(shipping|postage & shipping)$/i],
