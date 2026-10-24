@@ -2,6 +2,9 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 7b: paper draft updated with the cart-pole replication (no new experiment)
+- `paper/main.tex` gains a "second task" paragraph (H1 shortfall is task dependent; H2 and H6 replicate; the pre-registered 0.95 rank threshold missed at 0.909) and the limitations and conclusion now say two tasks. `reproduce.sh` lists the m7 commands. Remaining gaps: per-episode real pairs, an unbounded outcome.
+
 ## 2026-10-25 · Milestone 7a: does milestone 3 replicate on a second, unstable task? (planned before running)
 - Why: the paper draft's gap 2. All of m3 to m6 use one stable tracking pendulum; a reviewer will ask whether H1/H2/H6 are properties of paired inference or of that task. New task (`experiments/m7_cartpole/pairs.py`): MuJoCo cart-pole balanced from a random start by a linear feedback law (unstable plant, a fall ends the episode), outcome = survived fraction x (1 - RMS angle / 0.25), same five omitted effects at four swept magnitudes (21 pairs incl. the no-effect pair), 4,000 contexts per pair. Baseline push noise std 1 N (3 N gave rho about 0.2 on the no-effect pair in a 200-context probe, so it was lowered to span rho; the probe is the only tuning done and used none of the pool contexts).
 - Analysis: `m3_benchmark/analyse.py` unchanged (4,000 replications, n = 30 and 60, m = 9n extra twin runs, same thresholds), run through `m7_cartpole/analyse.py`.
