@@ -28,8 +28,8 @@ def simulate(seed, mode="slope", ppm=40.0, wobble_ppm=0.0, wobble_period_s=3600.
     mode 'slope':  least-squares line through the last `keep` accepted estimates, extrapolated.
     Gate: an estimate is accepted if within ppm_max*dt + margin_s of the last accepted one
     (until 3 are held), then within margin_s of the line's prediction. The first sync is trusted.
-    reset_after=k>0 (slope mode): after k rejections in a row the next estimate is accepted and the
-    fit history is dropped, so a line gone stale cannot lock out true estimates for the rest of the shoot.
+    reset_after=k>0 (slope mode): the k-th out-of-gate estimate in a row (after k-1 rejections) is
+    accepted and the fit history is dropped, so a line gone stale cannot lock out true estimates for the rest of the shoot.
     Returns (share_bad, n_rejected, n_wrong_applied)."""
     rng = np.random.default_rng(seed)
     tau = lambda t: true_delay(t, d0_s, ppm, wobble_ppm, wobble_period_s)

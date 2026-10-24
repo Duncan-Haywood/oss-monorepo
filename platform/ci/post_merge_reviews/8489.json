@@ -1,0 +1,9 @@
+{
+ "pr": 8489,
+ "reviewed_at": "2026-10-24T03:00Z",
+ "findings": 1,
+ "severity": "low",
+ "fix_pr": 9980,
+ "note": "experiments.md E41/E48/E49 ordinals",
+ "batch": "docs/reports/assets/pr-review-flow/findings.md"
+}

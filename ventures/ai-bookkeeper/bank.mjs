@@ -165,6 +165,18 @@ export function detectColumns(header) {
   // "Value" is the value date in PostFinance (Date, Posting details, Credit,
   // Debit, Value, Balance): beside money-in/out columns it is not the amount.
   if (cols.amount !== -1 && h[cols.amount] === "value" && (cols.debit !== -1 || cols.credit !== -1)) cols.amount = -1;
+  // Amazon's order-history report (order id, items, to, date, total, tax,
+  // refund, payments): the order total is the amount, the items the memo.
+  if (cols.amount === -1 && cols.debit === -1 && cols.credit === -1 && h.includes("order id") && h.includes("total")) {
+    cols.amount = h.indexOf("total");
+    if (cols.desc === -1 && h.includes("items")) cols.desc = h.indexOf("items");
+  }
+  // Etsy's payment-account CSV (Date, Type, Title, Info, Currency, Amount,
+  // Fees & Taxes, Net): Amount is "--" on a fee row, Net is the cash effect.
+  if (h.includes("fees & taxes") && h.includes("net") && cols.amount !== -1 && h[cols.amount] === "amount") {
+    cols.amount = h.indexOf("net");
+    if (h.includes("title")) cols.desc = h.indexOf("title");
+  }
   if (cols.desc === -1) {
     // Some banks split payee and memo; take the first text-looking column left.
     cols.desc = h.findIndex((x, i) => !Object.values(cols).includes(i) && /desc|payee|name|memo|detail/.test(x));
@@ -736,7 +748,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     let cents;
     if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") { cents = parseCents(r[columns.amount], decimalComma); if (rbcUsd !== -1) currencies.add("CAD"); }
     else if (rbcUsd !== -1 && String(r[rbcUsd] ?? "").trim() !== "") { cents = parseCents(r[rbcUsd], decimalComma); currencies.add("USD"); }
-    else cents = (columns.credit !== -1 ? Math.abs(parseCents(r[columns.credit], decimalComma) || 0) : 0) - (columns.debit !== -1 ? Math.abs(parseCents(r[columns.debit], decimalComma) || 0) : 0);
+    else {
+      // A blank or placeholder cell is 0, but NaN (an exponent, or too large for exact cents) stays unreadable.
+      const side = (k) => { if (k === -1) return 0; const c = parseCents(r[k], decimalComma); return Number.isNaN(c) ? NaN : Math.abs(c || 0); };
+      cents = side(columns.credit) - side(columns.debit);
+    }
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();

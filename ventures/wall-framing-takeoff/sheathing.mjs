@@ -598,7 +598,7 @@ function nestPairs(units, sheets) {
   for (const e of edges) {
     if (used.has(e.i) || used.has(e.j)) continue;
     used.add(e.i); used.add(e.j);
-    const pair = /** @type {any} */ ([cand[e.i], cand[e.j]]);
+    const pair = /** @type {any} */ ([cand[e.i], cand[e.j]]); // an array carrying its nest
     pair.nest = e;
     pairs.push(pair);
   }

@@ -9,8 +9,8 @@
 //
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
-// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd,
-// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, tax (fraction on materials), contingency (fraction) }.
+// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, drywallSheet,
+// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, tax (fraction on materials), contingency (fraction) }.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
 
@@ -54,6 +54,8 @@ export function budget(result, prices = {}) {
       add("Roof", "Starter bundles", g.starterBundles, "bundles", P("starterBundle"), "eave feet");
     }
   }
+  if (result.drywall) add("Interior", "Drywall sheets", result.drywall.sheets.count, "sheets", P("drywallSheet") ?? result.drywall.sheets.price, "drywall.sheets.count");
+  if (result.drywall) add("Interior", "Drywall sheets", result.drywall.sheets.count, "sheets", P("drywallSheet") ?? result.drywall.sheets.price, "drywall.sheets.count");
   const f = result.foundation;
   if (f) {
     add("Foundation", "Concrete", f.concrete.order, "cu yd", P("concreteYd") ?? (f.concrete.cost != null ? f.concrete.cost / f.concrete.order : null), `${f.concrete.trucks} truck(s) incl. ${(100 * f.concrete.waste).toFixed(0)}% waste`);
@@ -68,6 +70,8 @@ export function budget(result, prices = {}) {
   if (laborTyped && result.summary?.wallFeet > 0) add("Labor", "Wall framing", result.summary.wallFeet, "ft of wall", P("laborWallFoot"), "summary.wallFeet x typed laborWallFoot");
   if (laborTyped && result.floor?.sheets?.area > 0) add("Labor", "Floor framing and subfloor", result.floor.sheets.area, "sq ft", P("laborFloorSqFt"), "floor.sheets.area x typed laborFloorSqFt");
   if (laborTyped && roof?.roofing?.squares > 0) add("Labor", "Roof framing and roofing", roof.roofing.squares, "squares", P("laborRoofSquare"), "roof.roofing.squares x typed laborRoofSquare");
+  if (laborTyped && f?.slabSqFt > 0) add("Labor", "Foundation forming, rebar and finishing", f.slabSqFt, "sq ft of slab", P("laborFoundationSqFt"), "foundation.slabSqFt x typed laborFoundationSqFt");
+  if (laborTyped && f?.concrete?.net > 0) add("Labor", "Concrete placing", f.concrete.net, "cu yd", P("laborConcreteYd"), "foundation.concrete.net (before waste) x typed laborConcreteYd");
 
   const sections = [...new Set(lines.map((l) => l.section))].map((name) => {
     const ls = lines.filter((l) => l.section === name);

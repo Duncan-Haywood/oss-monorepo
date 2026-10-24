@@ -1,6 +1,6 @@
 # Verifiable training mechanisms: what is the cheapest payment-and-audit protocol that makes honest ML training an equilibrium?
 
-**Status: open research programme, proposal stage.** No new results yet. This directory is where
+**Status: open research programme, milestone 2 done (unified library).** No results on the hypotheses yet. This directory is where
 the work toward one publishable paper accumulates across sessions; it consolidates about 60
 small scoring, audit and verifier projects in this repository into one question (see
 [`PROPOSAL.md`](PROPOSAL.md)).
@@ -20,6 +20,11 @@ small-model training.
 
 - [`PROPOSAL.md`](PROPOSAL.md): question, related work (17 checked references), gap, hypotheses
   H1 to H6, method, evaluation, milestones, target venue.
+- [`src/vtm/`](src/vtm): the unified library (stdlib only): a 2x2 equilibrium solver, the inspection
+  game from payoff matrices, audit thresholds, bribery floors and the Brier effort-rent law.
+  `PYTHONPATH=src python3 -m unittest discover -s tests -v` runs 14 tests that reproduce the closed
+  forms of `verification-game`, `audit-allocation`, `verifier-bribery` and `effort-elicitation` and
+  agree with those projects' own code.
 - [`LOG.md`](LOG.md): the research log. Hypotheses are written down before experiments are run.
 - How runs work on a programme: [`../PROGRAMMES.md`](../PROGRAMMES.md).
 

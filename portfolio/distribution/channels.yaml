@@ -398,20 +398,20 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs
-    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact)
+    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact); .github/workflows/distribute-shorts.yml (renders the finished video, platform/distribution/shorts.mjs)
     enabled_by: nothing; drafts only, never posted automatically
     why_drafts_only: "unaudited Content Posting API clients can only post privately, and every post needs a video; the hub writes the video script"
-    what_it_posts: nothing. `hub.mjs pack --out <dir>` writes tiktok.md with paste-ready text whose links carry ?ref=tiktok
+    what_it_posts: nothing. `hub.mjs pack --out <dir>` writes tiktok.md with paste-ready text whose links carry ?ref=tiktok; `shorts.mjs render` turns the same item into a captioned 1080x1920 MP4 of the real page with its worked example loaded, plus the upload text
     owner_ask: none; post by hand when wanted
     dry_run: node platform/distribution/hub.mjs plan --only tiktok
   - id: hub-youtube-drafts
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs
-    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact)
+    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact); .github/workflows/distribute-shorts.yml (renders the finished video, platform/distribution/shorts.mjs)
     enabled_by: nothing; drafts only, never posted automatically
     why_drafts_only: "every post needs a video and unverified API projects upload privately; the hub writes title, description and a Short script"
-    what_it_posts: nothing. `hub.mjs pack --out <dir>` writes youtube.md with paste-ready text whose links carry ?ref=youtube
+    what_it_posts: nothing. `hub.mjs pack --out <dir>` writes youtube.md with paste-ready text whose links carry ?ref=youtube; `shorts.mjs render` turns the same item into a captioned 1080x1920 MP4 of the real page with its worked example loaded, plus the upload text
     owner_ask: none; post by hand when wanted
     dry_run: node platform/distribution/hub.mjs plan --only youtube
   - id: hub-reddit-drafts

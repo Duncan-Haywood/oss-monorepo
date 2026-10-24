@@ -102,3 +102,11 @@ test("the sibling pain.001 validator finds no errors in what this tool writes", 
     assert.deepEqual(errs, [], version);
   }
 });
+
+test("a payment ID with a leading, trailing or double slash is warned about", () => {
+  const S2 = { debtorName: "Me", debtorIban: "ES9121000418450200051332", date: "2026-12-01" };
+  const r = convert("payee,iban,amount,reference,id\nAcme GmbH,DE89370400440532013000,10.00,Invoice 1,INV//7/\nBeta BV,NL91ABNA0417164300,5.00,Invoice 2,INV-8\n", S2);
+  const slash = r.findings.filter((f) => /slash/.test(f.title));
+  assert.equal(slash.length, 1);
+  assert.equal(slash[0].line, 2);
+});
