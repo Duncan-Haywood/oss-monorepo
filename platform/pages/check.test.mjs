@@ -69,7 +69,8 @@ async function siteWith(files = {}) {
     // About is a hub-level page, so the hub sitemap is the only one that can
     // carry it — the real `renderHubSitemap` lists it here for the same reason.
     'sitemap-hub.xml': urlset('', 'about/', 'ask/', 'compare/', 'guides/'),
-    'llms.txt': `# Tools\n\n> One tool.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n`,
+    'llms.txt': `# Tools\n\n> One tool.\n`,
+    'llms-full.txt': `# Tools\n\n> One tool.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n`,
     // The feed and the catalogue are a pair: the feed is the "what's new"
     // door, and the catalogue is where the check reads every tool's launch
     // date back out of the artifact.
@@ -277,7 +278,7 @@ test('a link from a different product also clears the orphan check', async () =>
     'tool/compare.html': '<p>compare</p>',
     'tool/sitemap.xml': urlset('tool/', 'tool/compare.html'),
     'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml', 'other/sitemap.xml'),
-    'llms.txt': `# Tools\n\n> Two tools.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n- [Other](${url('other/')}): does another thing.\n`,
+    'llms-full.txt': `# Tools\n\n> Two tools.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n- [Other](${url('other/')}): does another thing.\n`,
     'catalog.json': JSON.stringify({
       tools: [
         { slug: 'tool', launched: '2026-08-01' },
@@ -318,16 +319,16 @@ test('a product llms.txt does not list is caught', async () => {
   // The AI-discovery counterpart of the hub-link check below: the tool ships,
   // every page resolves, and an assistant recommending one never sees it.
   const problems = await problemsFor({
-    'llms.txt': '# Tools\n\n> None.\n',
+    'llms-full.txt': '# Tools\n\n> None.\n',
   });
-  assert.equal(mentioning(problems, 'tool/: shipped but llms.txt does not list it').length, 1);
+  assert.equal(mentioning(problems, 'tool/: shipped but llms-full.txt does not list it').length, 1);
 });
 
 test('an llms.txt entry with no product behind it is caught', async () => {
   const problems = await problemsFor({
-    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n- [Ghost](${url('ghost/')}): gone.\n`,
+    'llms-full.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n- [Ghost](${url('ghost/')}): gone.\n`,
   });
-  assert.equal(mentioning(problems, 'llms.txt: lists "ghost"').length, 1);
+  assert.equal(mentioning(problems, 'llms-full.txt: lists "ghost"').length, 1);
 });
 
 test('an llms.txt entry under a site-own directory is not read as a product claim', async () => {
@@ -337,7 +338,7 @@ test('an llms.txt entry under a site-own directory is not read as a product clai
   // `…/compare/<product>/`, and reading the last segment alone says a product
   // called `jobber` shipped — fourteen false problems on a healthy site.
   const problems = await problemsFor({
-    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): 32 tools compare with it.\n`,
+    'llms-full.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): 32 tools compare with it.\n`,
   });
   assert.equal(mentioning(problems, 'no such product shipped').length, 0);
 });
@@ -347,9 +348,9 @@ test('a real missing product is still caught beside a site-own link', async () =
   // broken silently: widening the parse to forgive `compare/<product>/` must
   // not forgive a bullet that genuinely names a product nothing shipped.
   const problems = await problemsFor({
-    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): fine.\n- [Ghost](${url('ghost/')}): gone.\n`,
+    'llms-full.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): fine.\n- [Ghost](${url('ghost/')}): gone.\n`,
   });
-  assert.equal(mentioning(problems, 'llms.txt: lists "ghost"').length, 1);
+  assert.equal(mentioning(problems, 'llms-full.txt: lists "ghost"').length, 1);
 });
 
 test('a product the hub does not link is caught', async () => {

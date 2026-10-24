@@ -10474,8 +10474,20 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * silently ends the list item, so a tool whose meta description wrapped would
  * publish its second half as body prose.
  */
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0 } = {}) {
+const LLMS_INDEX_DESC_MAX = 140;
+const LLMS_INDEX_TOOLS_PER_CATEGORY = 4;
+
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, full = false } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+  // The index (`llms.txt`) keeps each tool to its first sentence, capped, so
+  // the file fits one fetch (539 KB did not: backlog P052); `llms-full.txt`
+  // keeps `fullDescription`, which is what a model matches a query against.
+  const shortText = (value) => {
+    const text = oneLine(value);
+    const first = text.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? text;
+    const cut = first.length > LLMS_INDEX_DESC_MAX ? `${first.slice(0, LLMS_INDEX_DESC_MAX - 1).replace(/\s+\S*$/, '')}…` : first;
+    return cut;
+  };
   // Same fact the About page states in full; see `disclaimerHtml` for why it
   // is derived rather than hand-typed.
   const exceptions = externalCallExceptions(surfaces);
@@ -10484,15 +10496,22 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
   // which data, its limits) gets it named on its line, so an assistant that
   // matched the product here can fetch the detail without crawling the page.
   const bullet = (surface) =>
-    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}${surface.llmsDoc ? ` LLM docs: ${baseUrl}${surface.slug}/llms.txt` : ''}`;
+    full
+      ? `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}${surface.llmsDoc ? ` LLM docs: ${baseUrl}${surface.slug}/llms.txt` : ''}`
+      : `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${shortText(surface.description || surface.fullDescription)}`;
 
   const sections = groupByCategory(surfaces).map(({ category, items }) => {
     const subgroups = groupBySubcategory(category.id, items);
     // Sub-headings for a sub-grouped category, so a model reading this file can
     // answer "which of these is a roofing tool" from the structure rather than
     // by matching prose across 110 sibling bullets.
-    const body =
-      subgroups.length === 1 && subgroups[0].subcategory === null
+    const body = !full
+      ? `${items.slice(0, LLMS_INDEX_TOOLS_PER_CATEGORY).map(bullet).join('\n')}${
+          items.length > LLMS_INDEX_TOOLS_PER_CATEGORY
+            ? `\n\n${items.length - LLMS_INDEX_TOOLS_PER_CATEGORY} more tools in this category: see the category page, or [llms-full.txt](${baseUrl}llms-full.txt).`
+            : ''
+        }`
+      : subgroups.length === 1 && subgroups[0].subcategory === null
         ? items.map(bullet).join('\n')
         : subgroups
             .map(
@@ -10514,6 +10533,9 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
   const optional = [
     '## Optional',
     '',
+    full
+      ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
+      : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
@@ -10589,16 +10611,24 @@ ${research.themes
 `
     : '';
 
+  const network = exceptions.length
+    ? `## Tools that call the network
+
+On ${listProse(exceptions.map((x) => toolProseName(x.title)))} the one thing you paste is sent to the public API it checks; the [About page](${baseUrl}${ABOUT_PATH}) explains exactly what.
+
+`
+    : '';
+
   return `# Open Tools and Research
 
-> ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}. No account, no payment: every browser calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
+> ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
+${network}${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
 ${researchSection ? `${researchSection}\n` : ''}${optional}`;
 }
 
@@ -11272,10 +11302,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
-  await fs.writeFile(
-    path.join(outDir, 'llms.txt'),
-    renderLlmsTxt(surfaces, base, compareProducts, guides, { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length }),
-  );
+  const llmsOptions = { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length };
+  await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, llmsOptions));
+  await fs.writeFile(path.join(outDir, 'llms-full.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, { ...llmsOptions, full: true }));
   // Read from the committed file, not from `git log`: the in-cluster build
   // clones `--depth 1` and has no history. See `launched.mjs`.
   await fs.writeFile(path.join(outDir, FEED_FILE), renderFeed(surfaces, base, launched));

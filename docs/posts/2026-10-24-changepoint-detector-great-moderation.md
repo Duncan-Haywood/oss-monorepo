@@ -1,7 +1,7 @@
 ---
 title: "Can a changepoint detector find the Great Moderation? A real-data check, and a default that fails it"
 date: 2026-10-24
-description: "We ran our free changepoint detector on 50 years of US GDP growth. It finds the documented 1984 volatility drop, but its default setting reports a five-quarter calm patch instead, and a one-quarter range that misses the date."
+description: "Our free changepoint detector finds the documented 1984 US GDP volatility drop, but its default reports a five-quarter calm patch and a range missing the date."
 tags: [changepoint-detector, evaluation, time-series, real-data]
 ---
 
