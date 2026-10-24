@@ -378,7 +378,7 @@ export function sniffFormat(text) {
 
 function ofxDate(v) {
   const m = /^(\d{4})(\d{2})(\d{2})/.exec(String(v).trim());
-  return m ? `${m[1]}-${m[2]}-${m[3]}` : null;
+  return m ? parseDate(`${m[1]}${m[2]}${m[3]}`) : null; // 20120231 is no day: skip it, don't book it
 }
 
 function ofxTag(block, tag) {
