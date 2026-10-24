@@ -220,3 +220,22 @@ test("whole-unit tax rounding is not accepted outside HUF", () => {
   invoice.totals = { net: 1001, tax: 270, gross: 1271 };
   assert.ok(checkInvoice(invoice).some((e) => e.rule === "INV-018"));
 });
+
+// Found by running the KoSIT XRechnung test suite.
+const totalsCase = (totals) => checkInvoice({
+  invoice_number: "T-1", issue_date: "2026-08-24", currency: "EUR",
+  supplier: { id: "S1", name: "Supplier GmbH" }, customer: { id: "C1", name: "Customer GmbH" },
+  lines: [{ description: "Work", quantity: 1, unit_price: 100, tax_percent: 19, net: 100 }],
+  totals: { net: 100, tax: 19, gross: 119, ...totals },
+}).map((e) => e.rule);
+
+test("a payable rounding amount (BT-114) is part of the amount due", () => {
+  assert.deepEqual(totalsCase({ due: 119.01, rounding: 0.01 }), []);
+  assert.deepEqual(totalsCase({ due: 119, rounding: 0.01 }), ["INV-029"]);
+});
+
+test("prepayments above the gross give a stated credit balance, not an error", () => {
+  assert.deepEqual(totalsCase({ prepaid: 150, due: -31 }), []);
+  assert.deepEqual(totalsCase({ prepaid: 150, due: -20 }), ["INV-028", "INV-029"]);
+  assert.deepEqual(totalsCase({ due: -5 }), ["INV-029"]);
+});

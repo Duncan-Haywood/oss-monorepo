@@ -172,6 +172,8 @@ function optionalMonetaryTotals(total) {
   if (prepaid) extras.prepaid = asNumber(prepaid);
   const payable = textOf(total, "PayableAmount", false);
   if (payable) extras.due = asNumber(payable);
+  const rounding = textOf(total, "PayableRoundingAmount", false);
+  if (rounding) extras.rounding = asNumber(rounding);
   return extras;
 }
 
