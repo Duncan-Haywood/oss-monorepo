@@ -185,3 +185,7 @@ test("TN, AL, SC are due the 20th and NM the 25th", () => {
 test("NV and ID are due the 20th", () => {
   for (const s of ["NV", "ID"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
 });
+
+test("LA and MD are due the 20th", () => {
+  for (const s of ["LA", "MD"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
+});
