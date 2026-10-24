@@ -105,3 +105,25 @@ def test_stratified_human_closed_form():
     assert abs(est.value - (0.25 * 0.75 + 0.75 * 0.25)) < 1e-12
     v = 0.25**2 * (1 - 4 / 100) * 0.25 / 4 + 0.75**2 * (1 - 4 / 300) * 0.25 / 4
     assert abs(est.se - v**0.5) < 1e-12
+
+
+def test_ipw_audit_wilson_inside_unit_interval_and_matches_normal_when_large():
+    import random
+    rng = random.Random(3)
+    n = 4000
+    y = [int(rng.random() < 0.4) for _ in range(n)]
+    f = [int(rng.random() < 0.4) for _ in range(n)]
+    pi = [0.1] * n
+    aud = [i for i in range(n) if rng.random() < 0.1]
+    ys = {i: y[i] for i in aud}
+    est = E.ipw_audit(f, aud, ys, pi)
+    lo, hi = E.ipw_audit_wilson(f, aud, ys, pi)
+    nlo, nhi = E.interval(est)
+    assert abs(lo - nlo) < 0.01 and abs(hi - nhi) < 0.01
+    # rare: corpus prevalence ~0.1%, normal interval can leave [0, 1]; Wilson cannot
+    f0 = [0] * n
+    y0 = {i: int(i % 1000 == 0) for i in aud}
+    lo, hi = E.ipw_audit_wilson(f0, aud, y0, pi)
+    assert 0 <= lo <= hi <= 1
+    blo, bhi = E.ipw_audit_bootstrap(f, aud, ys, pi, random.Random(1), reps=200)
+    assert blo < est.value < bhi

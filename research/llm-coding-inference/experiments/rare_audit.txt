@@ -2,65 +2,83 @@ GoEmotions parts 1-3: 54619 examples after filters, corpus (test) 38234, train 1
 columns: category prevalence design estimator coverage mean_width(points) width_vs_human_uniform bias(points)
 
 # grief: true prevalence 0.10% (37 of 38234); coder-positives 170 (precision 0.06, recall 0.27); threshold -2.68
-grief | 0.10% | U human (normal) | 0.156 | 0.32 | 1.00 | -0.013
-grief | 0.10% | U human (Wilson) | 0.988 | 2.02 | 6.40 | -0.013
-grief | 0.10% | U PPI++ | 0.141 | 0.29 | 0.93 | -0.033
-grief | 0.10% | L strat PPI | 0.097 | 0.31 | 0.98 | +0.000
-grief | 0.10% | L strat human | 0.097 | 0.31 | 0.98 | +0.000
-grief | 0.10% | Q uncertainty IPW | 0.961 | 0.97 | 3.08 | +0.001
+grief | 0.10% | U human (normal) | 0.152 | 0.31 | 1.00 | -0.010
+grief | 0.10% | U human (Wilson) | 0.981 | 2.02 | 6.42 | -0.010
+grief | 0.10% | U PPI++ | 0.137 | 0.30 | 0.95 | -0.039
+grief | 0.10% | L strat PPI | 0.085 | 0.27 | 0.87 | -0.009
+grief | 0.10% | L strat human | 0.085 | 0.27 | 0.87 | -0.009
+grief | 0.10% | Q uncertainty IPW | 0.959 | 0.97 | 3.09 | -0.014
+grief | 0.10% | Q IPW Wilson | 0.824 | 1.35 | 4.30 | -0.014
+grief | 0.10% | Q IPW bootstrap | 0.938 | 0.94 | 2.99 | -0.014
 # pride: true prevalence 0.13% (50 of 38234); coder-positives 231 (precision 0.09, recall 0.42); threshold -1.92
-pride | 0.13% | U human (normal) | 0.228 | 0.48 | 1.00 | +0.003
-pride | 0.13% | U human (Wilson) | 0.963 | 2.09 | 4.38 | +0.003
-pride | 0.13% | U PPI++ | 0.207 | 0.44 | 0.93 | -0.052
-pride | 0.13% | L strat PPI | 0.159 | 0.35 | 0.74 | +0.001
-pride | 0.13% | L strat human | 0.159 | 0.35 | 0.74 | +0.001
-pride | 0.13% | Q uncertainty IPW | 0.932 | 1.11 | 2.32 | +0.006
+pride | 0.13% | U human (normal) | 0.249 | 0.52 | 1.00 | +0.012
+pride | 0.13% | U human (Wilson) | 0.964 | 2.11 | 4.07 | +0.012
+pride | 0.13% | U PPI++ | 0.220 | 0.47 | 0.90 | -0.032
+pride | 0.13% | L strat PPI | 0.151 | 0.33 | 0.64 | -0.006
+pride | 0.13% | L strat human | 0.151 | 0.33 | 0.64 | -0.006
+pride | 0.13% | Q uncertainty IPW | 0.957 | 1.11 | 2.15 | -0.017
+pride | 0.13% | Q IPW Wilson | 0.842 | 2.55 | 4.93 | -0.017
+pride | 0.13% | Q IPW bootstrap | 0.939 | 1.08 | 2.10 | -0.017
 # relief: true prevalence 0.21% (80 of 38234); coder-positives 147 (precision 0.04, recall 0.07); threshold -1.43
-relief | 0.21% | U human (normal) | 0.346 | 0.73 | 1.00 | -0.002
-relief | 0.21% | U human (Wilson) | 0.941 | 2.20 | 3.01 | -0.002
-relief | 0.21% | U PPI++ | 0.337 | 0.72 | 0.98 | -0.016
-relief | 0.21% | L strat PPI | 0.223 | 0.67 | 0.92 | -0.017
-relief | 0.21% | L strat human | 0.223 | 0.67 | 0.92 | -0.017
-relief | 0.21% | Q uncertainty IPW | 0.939 | 1.20 | 1.64 | -0.012
+relief | 0.21% | U human (normal) | 0.351 | 0.75 | 1.00 | +0.007
+relief | 0.21% | U human (Wilson) | 0.927 | 2.22 | 2.95 | +0.007
+relief | 0.21% | U PPI++ | 0.342 | 0.74 | 0.98 | -0.010
+relief | 0.21% | L strat PPI | 0.219 | 0.66 | 0.88 | -0.017
+relief | 0.21% | L strat human | 0.219 | 0.66 | 0.88 | -0.017
+relief | 0.21% | Q uncertainty IPW | 0.945 | 1.31 | 1.74 | +0.013
+relief | 0.21% | Q IPW Wilson | 0.904 | 2.10 | 2.79 | +0.013
+relief | 0.21% | Q IPW bootstrap | 0.886 | 1.25 | 1.66 | +0.013
 # embarrassment: true prevalence 0.42% (160 of 38234); coder-positives 492 (precision 0.06, recall 0.19); threshold -1.32
-embarrassment | 0.42% | U human (normal) | 0.607 | 1.44 | 1.00 | +0.050
-embarrassment | 0.42% | U human (Wilson) | 0.926 | 2.56 | 1.79 | +0.050
-embarrassment | 0.42% | U PPI++ | 0.604 | 1.39 | 0.97 | +0.016
-embarrassment | 0.42% | L strat PPI | 0.385 | 1.26 | 0.88 | +0.004
-embarrassment | 0.42% | L strat human | 0.385 | 1.26 | 0.88 | +0.004
-embarrassment | 0.42% | Q uncertainty IPW | 0.941 | 1.99 | 1.39 | -0.011
+embarrassment | 0.42% | U human (normal) | 0.572 | 1.34 | 1.00 | +0.010
+embarrassment | 0.42% | U human (Wilson) | 0.943 | 2.51 | 1.88 | +0.010
+embarrassment | 0.42% | U PPI++ | 0.572 | 1.30 | 0.98 | -0.020
+embarrassment | 0.42% | L strat PPI | 0.370 | 1.21 | 0.91 | -0.011
+embarrassment | 0.42% | L strat human | 0.370 | 1.21 | 0.91 | -0.011
+embarrassment | 0.42% | Q uncertainty IPW | 0.940 | 1.99 | 1.49 | -0.003
+embarrassment | 0.42% | Q IPW Wilson | 0.915 | 2.96 | 2.21 | -0.003
+embarrassment | 0.42% | Q IPW bootstrap | 0.910 | 1.93 | 1.44 | -0.003
 # nervousness: true prevalence 0.27% (105 of 38234); coder-positives 305 (precision 0.06, recall 0.18); threshold -1.93
-nervousness | 0.27% | U human (normal) | 0.425 | 0.92 | 1.00 | -0.005
-nervousness | 0.27% | U human (Wilson) | 0.907 | 2.29 | 2.49 | -0.005
-nervousness | 0.27% | U PPI++ | 0.413 | 0.89 | 0.97 | -0.036
-nervousness | 0.27% | L strat PPI | 0.275 | 0.87 | 0.94 | -0.005
-nervousness | 0.27% | L strat human | 0.275 | 0.87 | 0.94 | -0.005
-nervousness | 0.27% | Q uncertainty IPW | 0.959 | 1.58 | 1.72 | -0.004
+nervousness | 0.27% | U human (normal) | 0.424 | 0.92 | 1.00 | -0.007
+nervousness | 0.27% | U human (Wilson) | 0.904 | 2.29 | 2.50 | -0.007
+nervousness | 0.27% | U PPI++ | 0.414 | 0.89 | 0.97 | -0.036
+nervousness | 0.27% | L strat PPI | 0.269 | 0.86 | 0.94 | -0.002
+nervousness | 0.27% | L strat human | 0.269 | 0.86 | 0.94 | -0.002
+nervousness | 0.27% | Q uncertainty IPW | 0.948 | 1.53 | 1.66 | -0.016
+nervousness | 0.27% | Q IPW Wilson | 0.894 | 3.22 | 3.51 | -0.016
+nervousness | 0.27% | Q IPW bootstrap | 0.908 | 1.49 | 1.62 | -0.016
 # remorse: true prevalence 0.89% (341 of 38234); coder-positives 1108 (precision 0.24, recall 0.78); threshold -3.20
-remorse | 0.89% | U human (normal) | 0.835 | 2.30 | 1.00 | -0.004
-remorse | 0.89% | U human (Wilson) | 0.969 | 3.08 | 1.34 | -0.004
-remorse | 0.89% | U PPI++ | 0.821 | 2.01 | 0.87 | -0.115
-remorse | 0.89% | L strat PPI | 0.805 | 1.21 | 0.53 | +0.014
-remorse | 0.89% | L strat human | 0.805 | 1.21 | 0.53 | +0.014
-remorse | 0.89% | Q uncertainty IPW | 0.953 | 2.03 | 0.89 | +0.005
+remorse | 0.89% | U human (normal) | 0.824 | 2.27 | 1.00 | -0.011
+remorse | 0.89% | U human (Wilson) | 0.962 | 3.06 | 1.35 | -0.011
+remorse | 0.89% | U PPI++ | 0.817 | 2.00 | 0.88 | -0.107
+remorse | 0.89% | L strat PPI | 0.770 | 1.20 | 0.53 | +0.009
+remorse | 0.89% | L strat human | 0.770 | 1.20 | 0.53 | +0.009
+remorse | 0.89% | Q uncertainty IPW | 0.945 | 2.04 | 0.90 | +0.019
+remorse | 0.89% | Q IPW Wilson | 0.940 | 3.03 | 1.33 | +0.019
+remorse | 0.89% | Q IPW bootstrap | 0.926 | 1.93 | 0.85 | +0.019
 # disgust: true prevalence 1.32% (504 of 38234); coder-positives 1314 (precision 0.15, recall 0.38); threshold -1.02
-disgust | 1.32% | U human (normal) | 0.933 | 2.96 | 1.00 | +0.008
-disgust | 1.32% | U human (Wilson) | 0.955 | 3.54 | 1.20 | +0.008
-disgust | 1.32% | U PPI++ | 0.912 | 2.83 | 0.96 | -0.070
-disgust | 1.32% | L strat PPI | 0.687 | 2.57 | 0.87 | +0.003
-disgust | 1.32% | L strat human | 0.687 | 2.57 | 0.87 | +0.003
-disgust | 1.32% | Q uncertainty IPW | 0.856 | 3.37 | 1.14 | -0.010
+disgust | 1.32% | U human (normal) | 0.932 | 2.98 | 1.00 | +0.028
+disgust | 1.32% | U human (Wilson) | 0.946 | 3.56 | 1.19 | +0.028
+disgust | 1.32% | U PPI++ | 0.908 | 2.86 | 0.96 | -0.048
+disgust | 1.32% | L strat PPI | 0.682 | 2.54 | 0.85 | -0.021
+disgust | 1.32% | L strat human | 0.682 | 2.54 | 0.85 | -0.021
+disgust | 1.32% | Q uncertainty IPW | 0.851 | 3.32 | 1.11 | -0.037
+disgust | 1.32% | Q IPW Wilson | 0.904 | 4.41 | 1.48 | -0.037
+disgust | 1.32% | Q IPW bootstrap | 0.802 | 3.17 | 1.06 | -0.037
 # fear: true prevalence 1.05% (402 of 38234); coder-positives 1287 (precision 0.16, recall 0.51); threshold -1.30
-fear | 1.05% | U human (normal) | 0.888 | 2.56 | 1.00 | -0.011
-fear | 1.05% | U human (Wilson) | 0.937 | 3.25 | 1.27 | -0.011
-fear | 1.05% | U PPI++ | 0.877 | 2.42 | 0.94 | -0.079
-fear | 1.05% | L strat PPI | 0.591 | 1.99 | 0.78 | +0.001
-fear | 1.05% | L strat human | 0.591 | 1.99 | 0.78 | +0.001
-fear | 1.05% | Q uncertainty IPW | 0.944 | 2.83 | 1.10 | +0.006
+fear | 1.05% | U human (normal) | 0.882 | 2.60 | 1.00 | +0.028
+fear | 1.05% | U human (Wilson) | 0.930 | 3.28 | 1.26 | +0.028
+fear | 1.05% | U PPI++ | 0.871 | 2.44 | 0.94 | -0.038
+fear | 1.05% | L strat PPI | 0.602 | 2.02 | 0.78 | +0.026
+fear | 1.05% | L strat human | 0.602 | 2.02 | 0.78 | +0.026
+fear | 1.05% | Q uncertainty IPW | 0.935 | 2.87 | 1.10 | +0.033
+fear | 1.05% | Q IPW Wilson | 0.932 | 4.07 | 1.57 | +0.033
+fear | 1.05% | Q IPW bootstrap | 0.898 | 2.72 | 1.05 | +0.033
 # sadness: true prevalence 1.96% (751 of 38234); coder-positives 2561 (precision 0.16, recall 0.54); threshold -0.68
-sadness | 1.96% | U human (normal) | 0.910 | 3.72 | 1.00 | +0.011
-sadness | 1.96% | U human (Wilson) | 0.939 | 4.14 | 1.11 | +0.011
-sadness | 1.96% | U PPI++ | 0.909 | 3.55 | 0.95 | -0.055
-sadness | 1.96% | L strat PPI | 0.811 | 3.01 | 0.81 | -0.007
-sadness | 1.96% | L strat human | 0.811 | 3.01 | 0.81 | -0.007
-sadness | 1.96% | Q uncertainty IPW | 0.890 | 4.29 | 1.15 | -0.010
+sadness | 1.96% | U human (normal) | 0.902 | 3.71 | 1.00 | +0.001
+sadness | 1.96% | U human (Wilson) | 0.948 | 4.13 | 1.11 | +0.001
+sadness | 1.96% | U PPI++ | 0.899 | 3.53 | 0.95 | -0.043
+sadness | 1.96% | L strat PPI | 0.809 | 3.06 | 0.82 | +0.028
+sadness | 1.96% | L strat human | 0.809 | 3.06 | 0.82 | +0.028
+sadness | 1.96% | Q uncertainty IPW | 0.875 | 4.24 | 1.14 | -0.047
+sadness | 1.96% | Q IPW Wilson | 0.954 | 5.25 | 1.41 | -0.047
+sadness | 1.96% | Q IPW bootstrap | 0.775 | 3.84 | 1.03 | -0.047

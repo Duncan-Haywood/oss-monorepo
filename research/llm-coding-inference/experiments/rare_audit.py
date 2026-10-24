@@ -157,6 +157,9 @@ def main():
             if len(aud) >= 2:
                 e = E.ipw_audit(f, aud, {i: human[i] for i in aud}, pi)
                 rec("Q uncertainty IPW", *E.interval(e), e.value)
+                yd = {i: human[i] for i in aud}
+                rec("Q IPW Wilson", *E.ipw_audit_wilson(f, aud, yd, pi), e.value)
+                rec("Q IPW bootstrap", *E.ipw_audit_bootstrap(f, aud, yd, pi, rr), e.value)
         base = statistics.fmean(acc["U human (normal)"]["w"])
         for name, a in acc.items():
             m = statistics.fmean(a["w"])
