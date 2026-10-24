@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_012kVTNMUsDAMDQ5zaUGyA5t",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T06:19:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10045,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Required a post and agent doc per PR; skipped for a one-function fix, no time budget."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or agent doc: slice was a small OFX fallback fix.",
+      "did": "README Next entry only",
+      "result": "suite 655 pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "ai-bookkeeper flagship slice: OFX lines with no NAME/MEMO now described by type/check number. flagships.yaml next: not rewritten (item 2 reader work continues).",
+  "corrections": [],
+  "redteam": null
+}
