@@ -10,7 +10,7 @@ const iso = (y, m, d) => {
 };
 const cents = (s) => {
   const n = Math.round(parseFloat(String(s).trim().replace(/,/, ".")) * 100);
-  return Number.isFinite(n) ? n : NaN;
+  return Number.isSafeInteger(n) ? n : NaN; // 30 digits of fuzz is not a balance
 };
 
 export function isMt940(text) {

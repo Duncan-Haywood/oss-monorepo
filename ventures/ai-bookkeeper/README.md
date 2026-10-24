@@ -92,6 +92,17 @@ layers re-run, and posted only when you accept it.
 
 ## Verification
 
+### Mutation fuzz of the statement readers
+
+`node --test fuzz.test.mjs` corrupts every text fixture (deleted spans, junk,
+truncation, duplicated spans, shuffled lines; seeded, `FUZZ_SEED` and
+`FUZZ_ROUNDS` to explore) and asserts `readStatement` never throws and every
+row has safe-integer cents and a string date. First run, 2026-10-24: 8 seeds x
+400 rounds x every fixture found one fault, an MT940/CAMT amount of 30 digits
+read as 3.7e+21 cents (`sepa.mjs` lacked `parseCents`'s safe-integer guard);
+fixed, now a skipped line with a problem. Corrupted fixtures only, not real
+bank files.
+
 ### Learning curve (synthetic data)
 
 `node ventures/ai-bookkeeper/eval/benchmark.mjs --seeds 5`. `eval/synth.mjs`
