@@ -58,11 +58,11 @@ UBL_WITH_ALLOWANCE = b'''<?xml version="1.0" encoding="UTF-8"?>
     <cbc:Amount currencyID="EUR">20.00</cbc:Amount>
     <cbc:BaseAmount currencyID="EUR">200.00</cbc:BaseAmount>
   </cac:AllowanceCharge>
-  <cac:TaxTotal><cbc:TaxAmount currencyID="EUR">38</cbc:TaxAmount></cac:TaxTotal>
-  <cac:InvoiceLine><cbc:InvoicedQuantity>2</cbc:InvoicedQuantity><cbc:LineExtensionAmount>200</cbc:LineExtensionAmount><cac:Item><cbc:Name>Work</cbc:Name><cac:ClassifiedTaxCategory><cbc:Percent>19</cbc:Percent></cac:ClassifiedTaxCategory></cac:Item><cac:Price><cbc:PriceAmount>100</cbc:PriceAmount></cac:Price>
+  <cac:TaxTotal><cbc:TaxAmount currencyID="EUR">35.15</cbc:TaxAmount></cac:TaxTotal>
+  <cac:InvoiceLine><cbc:InvoicedQuantity>2</cbc:InvoicedQuantity><cbc:LineExtensionAmount>205</cbc:LineExtensionAmount><cac:Item><cbc:Name>Work</cbc:Name><cac:ClassifiedTaxCategory><cbc:Percent>19</cbc:Percent></cac:ClassifiedTaxCategory></cac:Item><cac:Price><cbc:PriceAmount>100</cbc:PriceAmount></cac:Price>
     <cac:AllowanceCharge><cbc:ChargeIndicator>true</cbc:ChargeIndicator><cbc:Amount currencyID="EUR">5.00</cbc:Amount><cbc:AllowanceChargeReason>Line packing</cbc:AllowanceChargeReason></cac:AllowanceCharge>
   </cac:InvoiceLine>
-  <cac:LegalMonetaryTotal><cbc:TaxExclusiveAmount>180</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>218</cbc:TaxInclusiveAmount></cac:LegalMonetaryTotal>
+  <cac:LegalMonetaryTotal><cbc:TaxExclusiveAmount>185</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>220.15</cbc:TaxInclusiveAmount></cac:LegalMonetaryTotal>
 </Invoice>'''
 
 
@@ -126,7 +126,7 @@ class AdjustmentInvoiceIntegrationTest(unittest.TestCase):
         self.assertEqual(check_invoice(_invoice()), [])
 
     def test_good_allowance_keeps_a_clean_invoice_clean(self):
-        self.assertEqual(check_invoice(_invoice([_row()], net=180, tax=38, gross=218)), [])
+        self.assertEqual(check_invoice(_invoice([_row()], net=180, tax=34.2, gross=214.2)), [])
 
     def test_forgotten_net_reduction_is_inv_014(self):
         errors = check_invoice(_invoice([_row()]))
@@ -137,7 +137,7 @@ class AdjustmentInvoiceIntegrationTest(unittest.TestCase):
         errors = check_invoice(_invoice([_row(amount=15)], net=185, tax=38, gross=223))
         self.assertTrue(any(item["rule"] == "INV-051" for item in errors))
 
-    def test_ubl_maps_invoice_level_allowance_and_ignores_line_charge(self):
+    def test_ubl_maps_invoice_level_allowance_and_counts_line_charge_in_line_net(self):
         invoice = parse_ubl_invoice(UBL_WITH_ALLOWANCE)
         self.assertEqual(invoice["adjustments"], [{
             "kind": "allowance",
@@ -173,7 +173,7 @@ class AdjustmentInvoiceIntegrationTest(unittest.TestCase):
   </cac:AllowanceCharge>
 """,
             b"",
-        ).replace(b"<cbc:TaxExclusiveAmount>180</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>218</cbc:TaxInclusiveAmount>", b"<cbc:TaxExclusiveAmount>200</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>")
+        ).replace(b"<cbc:TaxExclusiveAmount>185</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>220.15</cbc:TaxInclusiveAmount>", b"<cbc:TaxExclusiveAmount>205</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>243.95</cbc:TaxInclusiveAmount>").replace(b'<cbc:TaxAmount currencyID="EUR">35.15</cbc:TaxAmount>', b'<cbc:TaxAmount currencyID="EUR">38.95</cbc:TaxAmount>')
         invoice = parse_ubl_invoice(source)
         self.assertNotIn("adjustments", invoice)
         self.assertEqual(check_invoice(invoice), [])
@@ -190,7 +190,7 @@ class AdjustmentInvoiceIntegrationTest(unittest.TestCase):
             self.assertIn("INV-051", checklist)
             self.assertNotIn("SECRET-DISC", checklist)
 
-            placeholder = _invoice([_row(reason="N/A")], net=180, tax=38, gross=218)
+            placeholder = _invoice([_row(reason="N/A")], net=180, tax=34.2, gross=214.2)
             path.write_text(json.dumps(placeholder))
             output = io.StringIO()
             with contextlib.redirect_stdout(output):

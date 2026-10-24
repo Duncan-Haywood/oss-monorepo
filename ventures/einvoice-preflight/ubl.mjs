@@ -303,12 +303,19 @@ export function parseUblInvoice(source) {
 
   const lines = descendants(root, kind.line).map((line) => {
     const category = descendants(line, "ClassifiedTaxCategory")[0] || line;
+    const percent = textOf(category, "Percent", false);
+    const priceNode = line.children.find((child) => child.name === "Price");
+    const baseQuantity = priceNode ? textOf(priceNode, "BaseQuantity", false) : "";
+    const adjustments = lineAdjustments(line);
     return {
       description: textOf(line, "Name"),
       quantity: asNumber(textOf(line, kind.quantity)),
       unit_price: asNumber(textOf(line, "PriceAmount")),
-      tax_percent: asNumber(textOf(category, "Percent")),
+      // Category O has no Percent element (EN 16931 BR-O-05); leave it empty.
+      tax_percent: percent === "" ? "" : asNumber(percent),
       net: asNumber(textOf(line, "LineExtensionAmount")),
+      ...(baseQuantity ? { price_base_quantity: asNumber(baseQuantity) } : {}),
+      ...(adjustments.length ? { adjustments } : {}),
       ...taxCategoryFields(category),
     };
   });
@@ -318,7 +325,16 @@ export function parseUblInvoice(source) {
   const total = descendants(root, "LegalMonetaryTotal")[0] || root;
   const taxTotals = descendants(root, "TaxTotal");
   if (taxTotals.length === 0) throw new Error("UBL field TaxAmount is missing");
-  const taxTotal = taxTotals.reduce((sum, item) => sum + Number(textOf(item, "TaxAmount")), 0);
+  // BT-110 is in the document currency; a second TaxTotal in the VAT
+  // accounting currency (BT-111) is the same tax again and must not be added.
+  const docCurrency = textOf(root, "DocumentCurrencyCode", false);
+  const sameCurrency = taxTotals.filter((item) => {
+    const amount = item.children.find((child) => child.name === "TaxAmount");
+    const code = amount && amount.attrs ? amount.attrs.currencyID : "";
+    return !code || !docCurrency || code === docCurrency;
+  });
+  const taxTotal = (sameCurrency.length ? sameCurrency : taxTotals)
+    .reduce((sum, item) => sum + Number(textOf(item, "TaxAmount")), 0);
   const dueDate = textOf(root, "DueDate", false);
   const typeCode = textOf(root, "InvoiceTypeCode", false)
     || textOf(root, "CreditNoteTypeCode", false)
@@ -328,6 +344,7 @@ export function parseUblInvoice(source) {
     invoice_number: textOf(root, "ID"),
     issue_date: textOf(root, "IssueDate"),
     ...(dueDate ? { due_date: dueDate } : {}),
+    source_format: "ubl",
     document_type: kind.type,
     ...(typeCode ? { document_code: typeCode } : {}),
     ...(original ? { original_invoice: original } : {}),
@@ -366,6 +383,20 @@ export function parseUblInvoice(source) {
   return invoice;
 }
 
+// BG-27 / BG-28: allowances and charges on one line (children of the line,
+// not the price-level discount inside Price, which BT-146 already nets).
+function lineAdjustments(line) {
+  const rows = [];
+  for (const child of line.children) {
+    if (child.name !== "AllowanceCharge") continue;
+    const indicator = textOf(child, "ChargeIndicator", false).toLowerCase();
+    const amount = textOf(child, "Amount", false);
+    if (!indicator || !amount) continue;
+    rows.push({ kind: indicator === "true" || indicator === "1" ? "charge" : "allowance", amount: asNumber(amount) });
+  }
+  return rows;
+}
+
 function headerAdjustments(root) {
   const rows = [];
   for (const child of root.children) {
@@ -387,6 +418,13 @@ function headerAdjustments(root) {
     if (percent) row.percent = asNumber(percent);
     if (reason) row.reason = reason;
     if (reasonCode) row.reason_code = reasonCode;
+    const vat = descendants(child, "TaxCategory")[0];
+    if (vat) {
+      const vatPercent = textOf(vat, "Percent", false);
+      if (vatPercent) row.tax_percent = asNumber(vatPercent);
+      const vatCategory = textOf(vat, "ID", false);
+      if (vatCategory) row.tax_category = vatCategory;
+    }
     if (Object.keys(row).length) rows.push(row);
   }
   return rows;

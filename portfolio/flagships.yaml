@@ -105,7 +105,11 @@ flagships:
     next: >-
       Landed history (official Schematron, in-browser path, 20+ country mandate
       pages, credit-note links, JSON/UBL/CII/Factur-X arithmetic repair, FatturaPA
-      IT-001..IT-018) lives in the README and git. Open: a repair tried on a real
+      IT-001..IT-018) lives in the README and git. The built-in rules ran on the 41
+      official EN 16931 examples 2026-10-24 (README, "Measured on the official
+      examples": 0 passed before, arithmetic false positives fixed; open: HUF
+      whole-unit rounding, and the rules on real ERP files, not CEN examples).
+      Open: a repair tried on a real
       ERP or Factur-X export (xref-stream PDF repair landed 2026-10-22 on a hand-built
       fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
       FatturaPA code lists, tolerances and IT-018 sequences against the current
