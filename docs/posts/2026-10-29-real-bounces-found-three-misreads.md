@@ -1,7 +1,7 @@
 ---
 title: "117 real bounce emails found three ways our sales agent got it wrong"
 date: 2026-10-29
-description: "Our open-source sales agent was tested only on messages we wrote. Real mail servers' bounces from the flufl.bounce test data showed hard bounces being treated as out-of-office."
+description: "Our sales agent was tested only on messages we wrote. Real bounces from the flufl.bounce test data showed hard bounces being read as out-of-office."
 tags: [sales-agent, email, testing, real-data]
 ---
 
