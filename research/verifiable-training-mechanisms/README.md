@@ -1,6 +1,6 @@
 # Verifiable training mechanisms: what is the cheapest payment-and-audit protocol that makes honest ML training an equilibrium?
 
-**Status: open research programme, milestones 2 to 4 done.** Results on H1 and H2 (below); H3 to H6 untested. This directory is where
+**Status: open research programme, milestones 2 to 5 done.** Results on H1, H2, H3 and H5 (below); H4 and H6 untested. This directory is where
 the work toward one publishable paper accumulates across sessions; it consolidates about 60
 small scoring, audit and verifier projects in this repository into one question (see
 [`PROPOSAL.md`](PROPOSAL.md)).
@@ -22,7 +22,7 @@ small-model training.
   H1 to H6, method, evaluation, milestones, target venue.
 - [`src/vtm/`](src/vtm): the unified library (stdlib only): a 2x2 equilibrium solver, the inspection
   game from payoff matrices, audit thresholds, bribery floors and the Brier effort-rent law.
-  `PYTHONPATH=src python3 -m pytest tests` runs 25 tests (numpy and scipy needed for 11) (14 reproduce the closed
+  `PYTHONPATH=src python3 -m pytest tests` runs 33 tests (numpy and scipy needed for 11) (14 reproduce the closed
   forms of `verification-game`, `audit-allocation`, `verifier-bribery` and `effort-elicitation` and
   agree with those projects' own code, 5 test the numpy harness `src/vtm/margin.py`).
 - [`experiments/margin/`](experiments/margin): **milestone 3, the hidden margin on real training (H1).** A 64-64-10 MLP
@@ -37,6 +37,7 @@ small-model training.
   at 540 test examples; the joint contract beats both in 4 of 45 cells (ratio 0.72 to 0.81, only with 5,000 test examples). If the requester instead
   buys the quality the tolerance sanctions, one audited step deters and the cost is the effort plus 1/1500.
   ![requester cost versus tolerance](experiments/frontier/frontier.svg)
+- [`experiments/joint/`](experiments/joint): **milestone 5, peer agreement (H3) and a lower bound (H5).** `src/vtm/peer.py` solves the two-worker contract by linear programme. An agreement term between redundant workers lowers the cost when cheats cannot coordinate, but across 1,349 random instances where cheats share one trajectory and copying is excluded it never beats the audit. A one-sided resolution bound `max(C, g/p - S)` is proved and holds in 2,755 random instances (exact in 2,410), but H5's "within a constant factor" fails (worst ratio 2,093) and the bound is vacuous for a Gaussian score.
 - [`LOG.md`](LOG.md): the research log. Hypotheses are written down before experiments are run.
 - How runs work on a programme: [`../PROGRAMMES.md`](../PROGRAMMES.md).
 
