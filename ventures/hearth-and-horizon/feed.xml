@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Late Ebb</title>
+      <link>https://example.invalid/hearth-and-horizon/the-late-ebb.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-late-ebb.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>The last electric ferry of a July Friday has a second-life battery with 92 kilowatt-hours to spend, a storm due at six, eleven schoolchildren and a priest on the way, and a tide table that says the water will turn at ten past five. The pilot's gut says the river has delayed it, and the ferry's AI has no sensor that can say so. They find out twenty minutes from the pier, and the only answer is to go slower than anyone wants. Setting: Canal Quilque, between Puerto Lleuque and Isla Huildad (both invented), Chiloé, Chile, July 2050. Read the full text at https://example.invalid/hearth-and-horizon/the-late-ebb.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>The last electric ferry of a July Friday has a second-life battery with 92 kilowatt-hours to spend, a storm due at six, eleven schoolchildren and a priest on the way, and a tide table that says the water will turn at ten past five. The pilot's gut says the river has delayed it, and the ferry's AI has no sensor that can say so. They find out twenty minutes from the pier, and the only answer is to go slower than anyone wants.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Late Field</title>
       <link>https://example.invalid/hearth-and-horizon/the-late-field.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-late-field.html</guid>

@@ -1,0 +1,502 @@
+{
+ "menagerie_commit": "cda5236f98383f6fbaa4820c6b18dba892cd087f",
+ "tool_kg": 3.4,
+ "cases": [
+  {
+   "off": 0.2,
+   "standoff": 0.15,
+   "table": 0.2,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.15,
+   "table": 0.3,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.15,
+   "table": 0.4,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.15,
+   "table": 0.5,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.15,
+   "table": 0.6,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 8,
+   "generous_covered": 8
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.15,
+   "table": 0.7,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.15,
+   "table": 0.8,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.15,
+   "table": 0.9,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.15,
+   "table": 1.0,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 8,
+   "generous_covered": 8
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.15,
+   "table": 1.1,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 8,
+   "generous_covered": 8
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.25,
+   "table": 0.2,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.25,
+   "table": 0.3,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.25,
+   "table": 0.4,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 4,
+   "generous_covered": 4
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.25,
+   "table": 0.5,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 4,
+   "generous_covered": 4
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.25,
+   "table": 0.6,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 44,
+   "generous_covered": 48
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.25,
+   "table": 0.7,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 4,
+   "generous_covered": 4
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.25,
+   "table": 0.8,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 4,
+   "generous_covered": 4
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.25,
+   "table": 0.9,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 4,
+   "generous_covered": 4
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.25,
+   "table": 1.0,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 25,
+   "covered": 48,
+   "generous_stances": 24,
+   "generous_covered": 48
+  },
+  {
+   "off": 0.2,
+   "standoff": 0.25,
+   "table": 1.1,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 16,
+   "covered": 48,
+   "generous_stances": 16,
+   "generous_covered": 48
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.15,
+   "table": 0.2,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.15,
+   "table": 0.3,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.15,
+   "table": 0.4,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.15,
+   "table": 0.5,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 8,
+   "generous_covered": 8
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.15,
+   "table": 0.6,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.15,
+   "table": 0.7,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.15,
+   "table": 0.8,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.15,
+   "table": 0.9,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 8,
+   "generous_covered": 8
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.15,
+   "table": 1.0,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 8,
+   "generous_covered": 8
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.15,
+   "table": 1.1,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 8,
+   "generous_covered": 8
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.25,
+   "table": 0.2,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 0,
+   "generous_covered": 0
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.25,
+   "table": 0.3,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 4,
+   "generous_covered": 4
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.25,
+   "table": 0.4,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 4,
+   "generous_covered": 4
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.25,
+   "table": 0.5,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 44,
+   "generous_covered": 48
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.25,
+   "table": 0.6,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 4,
+   "generous_covered": 4
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.25,
+   "table": 0.7,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 4,
+   "generous_covered": 4
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.25,
+   "table": 0.8,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 0,
+   "covered": 0,
+   "generous_stances": 4,
+   "generous_covered": 4
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.25,
+   "table": 0.9,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 25,
+   "covered": 48,
+   "generous_stances": 24,
+   "generous_covered": 48
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.25,
+   "table": 1.0,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 16,
+   "covered": 48,
+   "generous_stances": 16,
+   "generous_covered": 48
+  },
+  {
+   "off": 0.3,
+   "standoff": 0.25,
+   "table": 1.1,
+   "need": 50.0,
+   "mu": 0.6,
+   "stances": 25,
+   "covered": 48,
+   "generous_stances": 24,
+   "generous_covered": 48
+  }
+ ],
+ "time": [
+  {
+   "table": 1.1,
+   "stances": 16,
+   "v": 0.5,
+   "a": 2.0,
+   "by_t_stance": {
+    "2.0": 54.4161322,
+    "5.0": 99.41613219999998,
+    "10.0": 174.41613220000005,
+    "20.0": 324.4161322000001,
+    "40.0": 624.4161322
+   },
+   "nailing_s": 24.4161322,
+   "break_even_vs_hand_s": 23.172257853333335
+  },
+  {
+   "table": 1.1,
+   "stances": 16,
+   "v": 4.0,
+   "a": 10.0,
+   "by_t_stance": {
+    "2.0": 43.44459879435872,
+    "5.0": 88.44459879435873,
+    "10.0": 163.44459879435868,
+    "20.0": 313.4445987943587,
+    "40.0": 613.4445987943587
+   },
+   "nailing_s": 13.444598794358704,
+   "break_even_vs_hand_s": 23.903693413709423
+  }
+ ],
+ "mirror": [
+  616,
+  616
+ ],
+ "push": [
+  {
+   "need": 0.0,
+   "table": 0.2,
+   "stances": 16,
+   "covered": 48
+  },
+  {
+   "need": 50.0,
+   "table": 1.1,
+   "stances": 16,
+   "covered": 48
+  },
+  {
+   "need": 100.0,
+   "table": 0.2,
+   "stances": 0,
+   "covered": 0
+  }
+ ]
+}
