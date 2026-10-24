@@ -5,7 +5,7 @@
 
 `pages_state.py`'s `indexing` row measured that sitemap auto-discovery cannot
 happen for this site: it is served from a project-Pages *subpath*
-(`https://duncan-haywood.github.io/monorepo-projects/`), while crawlers fetch
+(`https://duncan-haywood.github.io/oss-monorepo/`), while crawlers fetch
 `robots.txt` — and the `Sitemap:` line inside it — from the *host* root, which
 belongs to the owner's separate user-level Pages site. The owner-only fixes
 (submit the sitemap in Search Console, or set a custom domain) are queued.

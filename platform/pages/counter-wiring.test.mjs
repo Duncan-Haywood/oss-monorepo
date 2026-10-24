@@ -30,7 +30,7 @@ test('counter URL is reduced to an https origin', () => {
 /** Runs the real chrome module with a counter URL against a stub page at `search`; returns what was sent and the address bar after. */
 function load(search, referrer = '') {
   const sent = [];
-  let address = `/monorepo-projects/a/${search}#calc`;
+  let address = `/oss-monorepo/a/${search}#calc`;
   const [pathname] = address.split(/[?#]/);
   const navigator = { sendBeacon: (url, blob) => { sent.push({ url, blob }); return true; } };
   const location = { pathname, search, hash: '#calc', hostname: 'duncan-haywood.github.io' };
@@ -56,12 +56,12 @@ function load(search, referrer = '') {
 test('a known channel tag rides on the ping and leaves the address bar', () => {
   const r = load('?x=1&ref=npm');
   assert.deepEqual(r.hits, [{ p: 'a', r: 'npm' }]);
-  assert.equal(r.address, '/monorepo-projects/a/?x=1#calc', 'other query parameters and the hash survive');
+  assert.equal(r.address, '/oss-monorepo/a/?x=1#calc', 'other query parameters and the hash survive');
 });
 
 test('an unknown or absent tag sends the slug alone and leaves the URL untouched', () => {
   assert.deepEqual(load('?ref=someone@example.com').hits, [{ p: 'a' }]);
-  assert.equal(load('?ref=someone@example.com').address, '/monorepo-projects/a/?ref=someone@example.com#calc');
+  assert.equal(load('?ref=someone@example.com').address, '/oss-monorepo/a/?ref=someone@example.com#calc');
   assert.deepEqual(load('').hits, [{ p: 'a' }]);
 });
 
@@ -69,6 +69,6 @@ test('the referring site rides on the ping as a class, never as its host', () =>
   assert.deepEqual(load('', 'https://www.google.com/').hits, [{ p: 'a', s: 'google' }]);
   assert.deepEqual(load('?ref=npm', 'https://old.reddit.com/r/x/comments/1').hits, [{ p: 'a', r: 'npm', s: 'reddit' }]);
   assert.deepEqual(load('', 'https://someones-blog.example/post').hits, [{ p: 'a', s: 'other' }]);
-  assert.deepEqual(load('', 'https://duncan-haywood.github.io/monorepo-projects/').hits, [{ p: 'a' }], 'internal navigation is not a source');
+  assert.deepEqual(load('', 'https://duncan-haywood.github.io/oss-monorepo/').hits, [{ p: 'a' }], 'internal navigation is not a source');
   assert.deepEqual(load('', 'not a url').hits, [{ p: 'a' }]);
 });
