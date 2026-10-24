@@ -694,6 +694,44 @@ Many bookkeeping products (Dext, Hubdoc, Expensify) do this with image OCR and
 a subscription; this does the matching and the missing-receipt list on your
 own machine from text you already have.
 
+### Measured on 1,000 real receipts (CORD-v2)
+
+Until 2026-10-24 the receipt reader had only met receipts an agent wrote. CORD-v2
+(Clova AI, CC BY 4.0) is 1,000 photographed Indonesian shop and restaurant
+receipts whose text and fields were corrected and labelled by hand; the derived
+text and labels are in [`eval/cord/`](eval/cord/README.md). The score is
+whether `parseReceipt` reads the labelled total and tax exactly.
+
+| Split | Receipts with a labelled total | Total right, before | Total right, after | Tax right, before | Tax right, after |
+|---|---|---|---|---|---|
+| train (rules changed looking at these) | 779 | 42 (5.4%) | 741 (95.1%) | 9 of 352 | 316 of 352 (89.8%) |
+| validation (also looked at) | 98 | 2 (2.0%) | 96 (98.0%) | 0 of 47 | 45 of 47 |
+| **test (held out, scored once before and once after)** | **95** | **4 (4.2%)** | **89 (93.7%)** | **0 of 41** | **37 of 41 (90.2%)** |
+
+What was wrong, and what changed in `receipts.mjs`:
+
+- **Whole-unit amounts were invisible.** Rupiah (and yen, won) are printed
+  `45,500`, `60.000` or `91000`, with no decimals; the reader only knew `12.50`
+  and `12,50`, so it found no amount on 87% of these receipts. A third amount
+  style, chosen per receipt like the decimal comma, reads them: it is used when
+  grouped whole amounts outnumber amounts with decimals, or when there are no
+  decimals at all. A number glued to letters (`PB1`, `xx7730`), a percentage
+  or part of a date, time or phone number is not an amount.
+- **Total words**: `TL`, `DUE`, `GRANDTOTAL`, `Netto`, `Jumlah`, and a total word
+  with its amount alone on the next line. `Total Qty 16` and `Total Item 5` are
+  counts, not totals.
+- **Tax words**: `PB1` and `P.Rest`/`P.Resto` (Indonesia's restaurant tax), `PPN`
+  (its VAT), `Pajak`, and `Tax Total`; `Dasar Pengenaan Pajak` (the taxable base)
+  is not tax.
+
+What it does not show: OCR. The text is hand-corrected, so a phone photo read by
+tesseract will do worse; merchant names and dates are masked in CORD, so the
+merchant and date readers are still unmeasured on real receipts. The six test
+misses: a `Total Kembalian 0` (change) line read as the total, `SUB, TOTAL` with
+a stray comma, and four receipts with no total word where the largest amount (the
+cash handed over) was taken. Score it: `node eval/cord-receipts.mjs
+eval/cord/test.jsonl [--misses]`; `cord-receipts.test.mjs` pins the table.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

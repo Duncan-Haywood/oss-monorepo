@@ -247,6 +247,26 @@ approves. Letting a deployer switch on unattended sending for their own
 mailbox is the owner's call (ROADMAP M5). Accuracy claims come from labelled
 replies written after the code they score.
 
+## Direction: business functions with data to build and test against
+
+Set by the owner on 2026-10-24: "i think one interesting direction for
+products is for traditional business functions or job roles for which data
+sources exist from which one could build and test an agentic or ml or other
+type of system and test it on the data or train a very specialized ml and
+distribute it for useful tasks."
+
+Pick a job someone is paid to do (bookkeeper, support agent, contracts
+reviewer, demand planner), find public labelled data of the real work, and
+build the system against it: rules, a small trained model or an agent,
+measured on a held-out split before any claim is made. Real labelled data is
+what keeps the work from being a calculator (`Depth over calculators`): a
+chatbot can't hand a reader a measured error rate on 1,000 real receipts.
+Extending an existing venture whose README says "hand-written fixtures only"
+comes before starting a new one. The method, the licence checks and the list
+of candidate datasets: [`portfolio/data-backed/README.md`](../portfolio/data-backed/README.md).
+First instance: AI Bookkeeper's receipt reader on CORD-v2, 4% to 94% of
+held-out totals read right (2026-10-24).
+
 ## Direction: AI accounting systems
 
 Set by the owner on 2026-10-21: "I want to make ai accounting systems".

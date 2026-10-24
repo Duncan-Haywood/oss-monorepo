@@ -44,7 +44,7 @@ flagships:
       the payment-processor import (`form1099k`: try a real 1099-K); (4) a real
       supplier's terms letter checked against the fee and discount rules, and one
       named lender's own schedule against the loan register (`loan check`); (5)
-      receipts and the reconcile-to-statement command on real paper, and reading
+      receipts on real OCR (CORD-v2 layouts: 89/95 totals, 2026-10-24) and the reconcile-to-statement command on real paper, and reading
       receipt photos in the page; (6) payroll (941, Schedule B, 940, deposits,
       `payroll reconcile`): a real Gusto or ADP report (deposit rules checked against Pub. 15 (2026) 2026-10-24); (7) one named filing service's import layout,
       from its own spec; (8) `salestax return`: due dates for ~35 states landed from search excerpts or memory, not the forms (README lists which); MO and IA month end (state pages, 2026-10-24); HI, DC, WV the 20th and WY month end (search excerpts, 2026-10-24); CO and MN checked against state pages via search, MN annual Feb 5 fixed (2026-10-24); open: a real return layout; (9) 2027 `estimate`: the indexed QBI minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is in). A run that lands a slice replaces
