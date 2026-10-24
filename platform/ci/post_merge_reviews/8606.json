@@ -3,7 +3,7 @@
  "reviewed_at": "2026-10-24T03:00Z",
  "findings": 1,
  "severity": "low",
- "fix_pr": null,
+ "fix_pr": 9980,
  "note": "k8s-resource-limits-check meta said storage requests; tool checks ephemeral-storage limits",
  "batch": "docs/reports/assets/pr-review-flow/findings.md"
 }

@@ -3,7 +3,7 @@
  "reviewed_at": "2026-10-24T03:00Z",
  "findings": 1,
  "severity": "low",
- "fix_pr": null,
+ "fix_pr": 9980,
  "note": "NaN in Debit/Credit columns read as 0 and row dropped silently; now reported",
  "batch": "docs/reports/assets/pr-review-flow/findings.md"
 }
