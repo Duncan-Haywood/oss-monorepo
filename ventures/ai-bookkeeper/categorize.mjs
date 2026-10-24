@@ -41,7 +41,7 @@ export const BUILT_IN = [
   ["transfer", "any", /payment thank you|^autopay|autopay payment|card ?payment|credit card payment|amex epayment|epayment|capital one.*(pmt|payment)|chase card/],
   ["3100", "out", /personal|venmo cashout/],
   ["3010", "in", /owner contribution|capital contribution|owner deposit/],
-  ["6010", "out", /stripe fee|paypal fee|square fee|merchant fee|processing fee|service charge|monthly fee|monthly service fee|maintenance fee|wire fee|overdraft|nsf fee|bank fee|account fee/],
+  ["6010", "out", /stripe fee|paypal fee|square fee|merchant fee|processing fee|service charge|monthly fee|monthly service fee|maintenance fee|wire fee|overdraft|nsf fee|bank fee|account fee|analysis charge|analysis fee/],
   ["4200", "in", /^interest payment|interest paid|interest earned|interest credit|\binterest\b.*(savings|deposit)/],
   ["2100", "out", /sales tax|dept\.? (of )?(tax|revenue|taxation)|department of revenue|comptroller/],
   ["2200", "out", /\bsba loan|loan (pmt|payment)/],
