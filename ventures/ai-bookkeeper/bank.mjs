@@ -160,7 +160,8 @@ export function detectColumns(header) {
     if (cols[k] !== -1) continue;
     cols[k] = h.findIndex((x, i) => {
       const m = CCY.exec(x);
-      return m && ALIASES[k].includes(m[1]) && !Object.values(cols).includes(i);
+      // "Paid In (GBP)", "Money in GBP": the pattern's optional "in" ate the name's own last word
+      return m && (ALIASES[k].includes(m[1]) || ALIASES[k].includes(m[1] + " in")) && !Object.values(cols).includes(i);
     });
   }
   // "Value" is the value date in PostFinance (Date, Posting details, Credit,
@@ -224,7 +225,7 @@ function inferHeaderless(rows) {
   const width = Math.max(...body.map((r) => r.length));
   const cell = (r, i) => String(r[i] ?? "").trim();
   const col = (i) => body.map((r) => cell(r, i));
-  const isDate = (v) => { if (/^\d{8}$/.test(v)) { const d = parseDate(v); return !!d && +d.slice(0, 4) > 1990 && +d.slice(0, 4) < 2100; } return /^\d{1,4}[-/. :]\d|^\d{1,2}[ -][A-Za-z]{3}/.test(v) && (!!parseDate(v, true) || !!parseDate(v, false)); };
+  const isDate = (v) => { if (/^\d{8}$/.test(v)) { const d = parseDate(v); return !!d && +d.slice(0, 4) > 1990 && +d.slice(0, 4) < 2100; } return /^\d{1,4}[-/. :]\d|^\d{1,2}[ -][A-Za-z]{3}|^[A-Za-z]{3,9}\.? \d{1,2},? \d{4}/.test(v) && (!!parseDate(v, true) || !!parseDate(v, false)); };
   const dateCol = Array.from({ length: width }, (_, i) => i).find((i) => { const c = col(i); return isDate(c[0]) && c.filter(isDate).length >= 0.9 * c.length; });
   if (dateCol === undefined) return null;
   const money = (v) => NUMCELL.test(v) && /[.,]\d{1,2}\)?-?$/.test(v);
