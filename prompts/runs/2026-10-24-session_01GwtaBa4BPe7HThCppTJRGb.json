@@ -31,9 +31,9 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
-  "tests_added": null,
+  "tests_added": 1,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -53,6 +53,10 @@
     {
       "file": ".github/prompts/duplicate-work.md",
       "issue": "Searched open PRs for contributing/onboarding at the start and found none, then PR #9956 (another session, same topic, CONTRIBUTING.md) opened and merged while this one was writing. A search only at the start misses a parallel session; searching again right before opening the PR would have caught it."
+    },
+    {
+      "file": "platform/pages/readme-live-link.mjs",
+      "issue": "PR #9958's base-URL move updated BASE but not the regex that detects an existing link, turning main's Pages tests red; fixed here."
     }
   ],
   "deviations": [
@@ -69,7 +73,7 @@
     "docs/posts/2026-10-24-how-one-person-steers-an-agent-fleet.md"
   ],
   "goal": "Let people contribute here, and replicate the owner's process of steering agents, from written docs instead of tacit practice",
-  "notes": "Consolidated with PR #9956 (merged mid-run, also added CONTRIBUTING.md and docs/contributing/): kept its CONTRIBUTING.md, added the steering path to it, moved the guide to docs/contributing/steering-agents.md. Dropped this PR's issue-template fix because PR #9963 turned the feedback form on mid-run. Local checks: promptctl validate ok; writing.test.mjs pass; run_workflow_locally --for-changes: doc-refs, prompts-ci, duplicate-symbols passed; portfolio-pages and permission-harness hit the runner's 300 s budget (inconclusive).",
+  "notes": "Consolidated with PR #9956 (merged mid-run, also added CONTRIBUTING.md and docs/contributing/): kept its CONTRIBUTING.md, added the steering path to it, moved the guide to docs/contributing/steering-agents.md. Dropped this PR's issue-template fix because PR #9963 turned the feedback form on mid-run. Local checks: promptctl validate ok; writing.test.mjs pass; run_workflow_locally --for-changes: doc-refs, prompts-ci, duplicate-symbols passed; portfolio-pages and permission-harness hit the runner's 300 s budget (inconclusive). CI: portfolio-pages 'test' failed 5 tests in readme-live-link.test.mjs, red on main too: PR #9958 moved BASE to /oss-monorepo/ but left the already-links regex on monorepo-projects/. Ported a fix here (accept either path) plus a test; reproduced 5 failures before, 9/9 pass after; readme-live-link --check reports 0 missing.",
   "corrections": [],
   "redteam": null,
   "usage": {
