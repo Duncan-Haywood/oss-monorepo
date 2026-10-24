@@ -60,6 +60,12 @@ class LsRemote(unittest.TestCase):
         self.assertIsNone(self.run_ls("")[0])
 
 
+class Paths(unittest.TestCase):
+    def test_default_workflows_dir_is_the_repos(self):
+        self.assertEqual(pin_actions.ROOT, Path(__file__).resolve().parents[2])
+        self.assertTrue((pin_actions.WORKFLOWS / "portfolio-pages.yml").is_file())
+
+
 class Main(unittest.TestCase):
     def run_main(self, files, argv, resolve=lambda r, ref: None if ref == "gone" else SHA):
         with tempfile.TemporaryDirectory() as d:
