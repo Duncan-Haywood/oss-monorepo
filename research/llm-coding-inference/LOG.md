@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 4c outcome: a bigger floor fixes coverage at 1 to 2% by giving up the width gain, and hurts below 0.5% (prediction held)
+- Ran `experiments/pi_floor.py` (`experiments/pi_floor.txt`; 1,000 draws per cell, expected n = 200, same corpus, split, coder and seed as milestone 4; the floor is on the weight sqrt(q(1-q)) before scaling, so 0.5 is close to uniform).
+- Disgust (1.32%) and sadness (1.96%): the normal IPW interval reaches 94.1% / 95.0% at floor 0.10 (92.6% / 93.1% at 0.05), against 86.9% / 87.7% at the milestone-4 floor 0.02. Width at floor 0.10 is 1.05 and 1.10 times uniform Wilson, so the narrowing is gone: the fix is to approach a uniform audit. Fear (1.05%) is 96.4% at 0.10, 1.07 times uniform Wilson.
+- Grief (0.10%) and pride (0.13%): coverage falls as the floor rises (normal: 94.8 / 94.4% at 0.02, 83.3 / 92.4% at 0.05, 67.6 / 78.3% at 0.10, about 62 / 70% at 0.5), because positives are rarer than the floor, the audit holds none in 60 to 84% of draws and the interval collapses. The Kish-Wilson interval is worse than normal in every cell here at floors of 0.05 or more (e.g. grief floor 0.1 has one cell 10.8 points wide, 5.3 times uniform Wilson, because of one draw with a single heavily weighted positive).
+- So: no single floor is valid across 0.1% to 2% prevalence. Roughly, a low floor (0.02) with normal intervals suits at or under 0.9%, floor 0.10 suits 1 to 2% but then gains nothing over uniform Wilson. The coverage the audit has at the rarest categories rests on the sparse positives it does draw, which is not a guarantee; I have not found a design-based interval that is valid there.
+- Limits: one corpus and weak coder, five categories, a floor family chosen by me, 1,000 draws (+/- 1.4 points), five rarer categories not rerun.
+- Next: exact (Clopper-Pearson-type) weighted interval or an inclusion-probability rule that depends on the prevalence estimate; milestone 5 with a real LLM coder, which needs `ANTHROPIC_API_KEY` or a local model.
+
 ## 2026-10-24 · Milestone 4c: pi floor sweep for the weighted audit (planned before running)
 - Why: 4b left the weighted audit's normal interval undercovering at disgust (1.32%) and sadness (1.96%), where the audit holds 0 to 3 positives. Hypothesis: raising the inclusion floor (pi_i >= f, f in 0.02, 0.05, 0.10, 0.20, 0.50 of the expected-size scale; expected n stays 200) puts positives into every audit and restores coverage, at the price of width.
 - Same corpus, split, coder, seed as `rare_audit.py` (`experiments/pi_floor.py`, imports it); categories grief, pride, disgust, fear, sadness; 1,000 draws per cell; normal and Kish-Wilson intervals; width reported against uniform Wilson, the valid baseline.
