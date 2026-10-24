@@ -1,69 +1,61 @@
-"""Simulated M-worker DiLoCo on a flat parameter vector (communication is modelled, not timed).
-A round: every worker starts from the global parameters theta, runs H inner steps on its own batches with its own
-persistent inner optimiser state, and the pseudo-gradient is  g = theta - mean_m(theta_m).  The outer optimiser then
-updates theta from g:  'nesterov' (DiLoCo):  v <- b v + g;  theta <- theta - lr (g + b v)
-                       'heavyball' (the quadratic projects):  v <- b v + g;  theta <- theta - lr v.
-With M = 1, H = 1, lr = 1, b = 0 a round equals one step of the inner optimiser, which tests/ check against sync_train.
+"""Simulated M-worker DiLoCo (Douillard et al., 2023, arXiv:2311.08105) in one process.
+
+Round: every worker copies the global parameters, runs H inner steps with its own inner optimiser (state kept
+across rounds, as in DiLoCo) on its own data stream; the pseudo-gradient is global minus the mean of the workers'
+end points; the outer optimiser takes one step with it. Communication is modelled, not timed.
+
+`loss_fn(model, rng)` returns a scalar loss for one inner step, drawing its data from the generator `rng`, which
+is the worker's own. This keeps the engine independent of the model: the same code runs a transformer and the
+quadratic of the closed-form check.
 """
-import numpy as np
+import copy
 
-__all__ = ["AdamW", "SGD", "diloco_train", "sync_train", "outer_step"]
-
-
-class AdamW:
-    def __init__(self, n, lr, b1=0.9, b2=0.95, eps=1e-8, wd=0.0):
-        self.lr, self.b1, self.b2, self.eps, self.wd = lr, b1, b2, eps, wd
-        self.m, self.v, self.t = np.zeros(n), np.zeros(n), 0
-
-    def step(self, theta, g):
-        self.t += 1
-        self.m = self.b1 * self.m + (1 - self.b1) * g
-        self.v = self.b2 * self.v + (1 - self.b2) * g * g
-        mh = self.m / (1 - self.b1 ** self.t)
-        vh = self.v / (1 - self.b2 ** self.t)
-        return theta - self.lr * (mh / (np.sqrt(vh) + self.eps) + self.wd * theta)
+import torch
 
 
-class SGD:
-    def __init__(self, n, lr):
-        self.lr = lr
+class DiLoCo:
+    def __init__(self, model, loss_fn, workers=4, H=16, inner=None, outer=None, seed=0):
+        """inner(params) and outer(params) build torch optimisers; defaults are DiLoCo's AdamW and Nesterov SGD."""
+        inner = inner or (lambda p: torch.optim.AdamW(p, lr=1e-3, betas=(0.9, 0.95), weight_decay=0.0))
+        outer = outer or (lambda p: torch.optim.SGD(p, lr=0.7, momentum=0.9, nesterov=True))
+        self.model, self.loss_fn, self.H, self.rounds = model, loss_fn, H, 0
+        self.workers = [copy.deepcopy(model) for _ in range(workers)]
+        self.inner = [inner(w.parameters()) for w in self.workers]
+        self.outer = outer(model.parameters())
+        self.rngs = [torch.Generator().manual_seed(seed * 1000 + 1 + i) for i in range(workers)]
 
-    def step(self, theta, g):
-        return theta - self.lr * g
-
-
-def outer_step(theta, g, v, lr, beta, kind):
-    v = beta * v + g
-    return theta - lr * (g + beta * v if kind == "nesterov" else v), v
-
-
-def diloco_train(theta0, grad_fn, M, H, rounds, make_inner, outer_lr=1.0, outer_beta=0.0, outer_kind="nesterov",
-                 on_round=None):
-    """grad_fn(worker, step_index, theta) -> (loss, grad) for that worker's next batch. Returns final theta.
-    on_round(r, theta, mean_inner_loss) is called after each outer update."""
-    theta = theta0.copy()
-    inner = [make_inner(len(theta)) for _ in range(M)]
-    v = np.zeros_like(theta)
-    for r in range(rounds):
-        ends, losses = [], []
-        for m in range(M):
-            th = theta.copy()
-            for h in range(H):
-                L, g = grad_fn(m, r * H + h, th)
-                th = inner[m].step(th, g)
-                losses.append(L)
-            ends.append(th)
-        g = theta - np.mean(ends, axis=0)
-        theta, v = outer_step(theta, g, v, outer_lr, outer_beta, outer_kind)
-        if on_round:
-            on_round(r, theta, float(np.mean(losses)))
-    return theta
+    def round(self):
+        """One communication round: returns the mean inner-step loss of the round."""
+        g = list(self.model.parameters())
+        for w in self.workers:
+            w.load_state_dict(self.model.state_dict())
+        total = 0.0
+        for w, opt, rng in zip(self.workers, self.inner, self.rngs):
+            for _ in range(self.H):
+                opt.zero_grad(set_to_none=True)
+                loss = self.loss_fn(w, rng)
+                loss.backward()
+                opt.step()
+                total += loss.item()
+        with torch.no_grad():
+            for i, p in enumerate(g):
+                avg = torch.stack([list(w.parameters())[i] for w in self.workers]).mean(0)
+                p.grad = p.data - avg
+        self.outer.step()
+        self.outer.zero_grad(set_to_none=True)
+        self.rounds += 1
+        return total / (self.H * len(self.workers))
 
 
-def sync_train(theta0, grad_fn, M, steps, inner):
-    """Synchronous data-parallel reference: average the M workers' gradients, one inner-optimiser step."""
-    theta = theta0.copy()
-    for s in range(steps):
-        gs = [grad_fn(m, s, theta)[1] for m in range(M)]
-        theta = inner.step(theta, np.mean(gs, axis=0))
-    return theta
+def train_sync(model, loss_fn, steps, inner=None, seed=0):
+    """The synchronous reference: one worker, one optimiser, no outer step. At M = 1, H = 1 and an outer SGD of
+    learning rate 1 without momentum, DiLoCo reduces to this."""
+    inner = inner or (lambda p: torch.optim.AdamW(p, lr=1e-3, betas=(0.9, 0.95), weight_decay=0.0))
+    opt, rng, losses = inner(model.parameters()), torch.Generator().manual_seed(seed * 1000 + 1), []
+    for _ in range(steps):
+        opt.zero_grad(set_to_none=True)
+        loss = loss_fn(model, rng)
+        loss.backward()
+        opt.step()
+        losses.append(loss.item())
+    return losses

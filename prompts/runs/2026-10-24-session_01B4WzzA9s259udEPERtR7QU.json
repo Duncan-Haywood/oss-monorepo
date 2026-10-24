@@ -37,6 +37,10 @@
   {
    "file": "research/lowcomm-training/PROPOSAL.md",
    "issue": "Plans a torch-style nanoGPT; torch is not installable in cloud sessions (download.pytorch.org 403), so milestone 1 used numpy"
+  },
+  {
+   "file": "prompts/research/prompt-1.md",
+   "issue": "Two runs drew the same programme milestone in the same hours; no claim mechanism for programme milestones (the PR claim only helps after the first push)"
   }
  ],
  "deviations": [
@@ -52,7 +56,7 @@
   "research/lowcomm-training/LOG.md"
  ],
  "goal": null,
- "notes": "Citations still unchecked (arxiv/crossref 403). Ran unit tests, research build.py, link check locally; CI not awaited.",
+ "notes": "Citations still unchecked (arxiv/crossref 403). Ran unit tests, research build.py, link check locally; CI not awaited. A concurrent run landed the torch milestone 1 harness first (same paths); I merged main, kept its src/tests, and moved my numpy harness + sweep to experiments/numpy_h_sweep/. The claim step (research_idea_dupe) was skipped because the programme was drawn, not chosen.",
  "corrections": [],
  "redteam": null
 }

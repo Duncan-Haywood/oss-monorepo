@@ -4,12 +4,12 @@ import sys
 import numpy as np
 
 here = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(here, "..", "src"))
-from lowcomm import model, diloco, data  # noqa: E402
+sys.path.insert(0, here)
+from lowcomm_np import model, diloco, data  # noqa: E402
 
 M, B, T, STEPS, SEEDS = 4, 16, 32, 640, 3
 HS = [1, 4, 16, 64, 160]
-corpus, chars = data.load_chars(os.path.join(here, "tinyshakespeare.txt"))
+corpus, chars = data.load_chars(os.path.join(here, "..", "tinyshakespeare.txt"))
 cut = int(0.9 * len(corpus))
 train, val = corpus[:cut], corpus[cut:]
 cfg = model.Config(vocab=len(chars), ctx=T, d=32, ff=64)

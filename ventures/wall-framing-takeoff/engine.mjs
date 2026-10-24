@@ -537,7 +537,8 @@ function layoutGable(plan, wall) {
   }
   if (L - THICK > layout[layout.length - 1] + EPS) layout.push(L - THICK);
   const studAt = (x, kind, label) => {
-    const len = plan.studLength + Math.max(rise(x), rise(x + THICK));
+    // A stud straddling the peak reaches the peak itself, higher than either of its edges.
+    const len = plan.studLength + Math.max(rise(x), rise(x + THICK), x < mid && x + THICK > mid ? maxRise : 0);
     add(kind, x, THICK, THICK, len, stud, "v", label);
   };
   const overlaps = (x, a, b) => x < b - EPS && x + THICK > a + EPS;

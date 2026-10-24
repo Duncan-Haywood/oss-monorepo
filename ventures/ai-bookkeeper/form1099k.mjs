@@ -50,6 +50,11 @@ function totals(report, year) {
 // and IRS announcements, not re-fetched; check the year's instructions). Backup
 // withholding can force a form regardless.
 export const TPSO_1099K = { gross: 2000000, count: 200 };
+// Which rule a report's own format implies: PayPal, Etsy, Airbnb and Amazon are third-party
+// settlement organizations (the $20,000 and 200 threshold); Stripe, Square and the rest are read as
+// card processors. A Stripe Connect platform or a wallet on a card file is the caller's to say.
+export const defaultProcessor = (report) => (["paypal", "etsy", "airbnb", "amazon"].includes(report?.source) ? "marketplace" : "card");
+
 export function reportable1099K(report, year, { processor = "card" } = {}) {
   const rows = report.rows.filter((x) => x.created && x.created.startsWith(`${year}-`) && x.kind === "sales" && x.gross > 0);
   const gross = rows.reduce((a, x) => a + x.gross, 0), count = rows.length;

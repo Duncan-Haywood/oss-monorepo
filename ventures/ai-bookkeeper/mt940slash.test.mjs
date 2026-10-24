@@ -29,6 +29,16 @@ test("wrapped lines, /CNTP/ counterparty and unstructured/structured remittance"
   assert.equal(r.rows[1].desc, "Gemeente 1234567890123456");
 });
 
+test("ING-style // separators and a closing / leave no stray slash", () => {
+  const r = readStatement(file(
+    ":61:2601120112D20,00NTRFNONREF",
+    ":86:/EREF/EV12341REP1231456T1234//CNTP/NL32INGB0000012345/INGBNL2A/ING BANK NV INZAKE WEB///REMI/USTD//EV10001REP1000000T1000/",
+    ":61:2601130113D30,00NTRFNONREF",
+    ":86:/TRTP/SEPA/NAME/Jan de Vries//REMI/Factuur 1/2/",
+  ));
+  assert.deepEqual(r.rows.map((x) => x.desc), ["ING BANK NV INZAKE WEB EV10001REP1000000T1000", "Jan de Vries Factuur 1/2"]);
+});
+
 test("plain and German-style :86: text are unchanged", () => {
   const r = readStatement(file(":61:260106D9,99NCHGNONREF", ":86:BETALINGSKENMERK 123 KOSTEN", ":61:260107D5,00NCHGNONREF", ":86:166?00GUTSCHR?20Miete?32Hans"));
   assert.deepEqual(r.rows.map((x) => x.desc), ["BETALINGSKENMERK 123 KOSTEN", "Hans Miete"]);
