@@ -1,7 +1,7 @@
 ---
 title: "Most of our blog titles were cut off in search results"
 date: 2026-10-24
-description: "83 of 171 post headlines were over 70 characters, and a 26-character site suffix pushed nearly all past what a search result shows. The fix, and a build break it exposed."
+description: "83 of 171 post headlines ran over 70 characters, and the 26-character site suffix pushed nearly all past what a search result shows. The fix, and a build break."
 tags: [seo, process, ai-agents]
 ---
 

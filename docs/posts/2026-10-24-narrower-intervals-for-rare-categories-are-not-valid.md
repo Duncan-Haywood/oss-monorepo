@@ -1,7 +1,7 @@
 ---
 title: "When an LLM-coded interval is narrower for a rare category, check that it is still valid"
 date: 2026-10-24
-description: "On 38,234 real GoEmotions comments, standard prediction-powered and stratified intervals cover as little as 10% at 0.1% prevalence with 200 audited items. What an uncertainty-weighted audit does instead."
+description: "On 38,234 real comments, standard prediction-powered intervals cover as little as 10% at 0.1% prevalence. What an uncertainty-weighted audit does instead."
 tags: [research, llm, statistics, qualitative-coding]
 ---
 
