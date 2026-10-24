@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01M1bUrPcDJ5uKdommmX2Gk5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T10:09:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10094,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "reports ok for any id that resolves, even when the title is a different paper; two wrong ids passed and were caught only by reading titles"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "No blog post or homepage change: step was a citation fix only",
+      "did": "fixed two wrong ids and logged it",
+      "result": "small but corrects the proposal"
+    }
+  ],
+  "writeups": [
+    "research/llm-coding-inference/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 1a only. Remaining milestone 1: read Gligori\u0107 and Fisch in full, corpus licences, local-LLM throughput. Gonz\u00e1lez DOI got HTTP 429.",
+  "corrections": [],
+  "redteam": null
+}
