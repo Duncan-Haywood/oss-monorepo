@@ -1,7 +1,7 @@
 ---
 title: "How much training can a worker skip before a step-checking referee notices?"
 date: 2026-10-24
-description: "On real data, a tolerance referee passes a skip-steps cheat on 30% of steps, and the model loses little until tolerance is ten times the worst honest drift."
+description: "On real data, a tolerance referee passes a skip-steps cheat on 30% of steps, and the model loses little until tolerance is about 10x the worst honest drift."
 tags: [research, verifiable-training, mechanism-design, floating-point]
 ---
 
