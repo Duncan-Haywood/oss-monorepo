@@ -23,7 +23,7 @@ import { THREADS, GRAPH } from './adapters.mjs';
 export const PRIOR_POSTS = 5;
 export const MIN_POSTS = 5;
 
-const URL_RE = /https?:\/\/duncan-haywood\.github\.io\/monorepo-projects\/[^\s)"']*/;
+const URL_RE = /https?:\/\/duncan-haywood\.github\.io\/oss-monorepo\/[^\s)"']*/;
 const sum = (o) => Object.values(o).reduce((a, n) => a + (Number.isFinite(n) ? n : 0), 0);
 
 /** A normalised post reading. `metrics.views` is kept out of `engagement` because not every platform reports it. */

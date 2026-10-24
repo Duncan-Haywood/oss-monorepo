@@ -60,6 +60,11 @@
       "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
       "from": "peppol-aunz/1.0.12/xslt/AUNZ-PEPPOL-SB-validation.xslt",
       "checks": 50
+    },
+    "cius-ro-ubl": {
+      "source": "RO e-Factura CIUS-RO v1.0.9 via phive-rules-cius-ro 4.6.3 on Maven Central",
+      "from": "ROeFactura-UBL-validation-Invoice_v1.0.9.xslt",
+      "checks": 122
     }
   },
   "fontoxpath": "3.34.0"

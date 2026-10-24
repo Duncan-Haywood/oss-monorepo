@@ -1507,7 +1507,7 @@ python3 -m http.server 8793 --directory dist &
 node platform/pages/journey.mjs
 
 # or against the live site, once publishing is on:
-BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
+BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/journey.mjs
 ```
 
 It covers the hub and its grouping, search (narrowing, the empty state, and

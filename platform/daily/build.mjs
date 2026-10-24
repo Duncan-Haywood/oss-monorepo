@@ -27,7 +27,7 @@ const repo = path.resolve(here, '..', '..');
 const arg = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
 const out = path.resolve(arg('out') ?? path.join(repo, '_site', 'dev', 'daily'));
 const days = Number(arg('days') ?? 7);
-const baseUrl = process.env.PAGES_BASE_URL || 'https://duncan-haywood.github.io/monorepo-projects/';
+const baseUrl = process.env.PAGES_BASE_URL || 'https://duncan-haywood.github.io/oss-monorepo/';
 
 const readJson = (file) => {
   if (!file || !existsSync(file)) return null;

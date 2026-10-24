@@ -3,7 +3,7 @@
 // WHY THIS EXISTS
 //
 // The site is served today from a project-Pages *subpath*
-// (`https://duncan-haywood.github.io/monorepo-projects/`), and
+// (`https://duncan-haywood.github.io/oss-monorepo/`), and
 // `platform/ci/pages_state.py`'s `indexing` row records what that costs: a
 // crawler fetches `robots.txt` from the *host* root, which belongs to the
 // owner's separate user-level Pages site, so the `Sitemap:` line this build
