@@ -19,12 +19,12 @@
   "projects": [
     "league-schedule-generator"
   ],
-  "pr": null,
+  "pr": 10026,
   "repo": null,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
