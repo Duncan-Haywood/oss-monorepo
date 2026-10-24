@@ -1,10 +1,13 @@
 // Sales Agent M4a: the self-hosted inbox agent. Polls the deployer's own mailbox over IMAP (read-only: EXAMINE and
 // BODY.PEEK, so mail is never marked read, moved or deleted), runs each new message through the inbox agent, and
-// serves an approval queue on a local port. State and an append-only audit log live in DATA_DIR. It has no SMTP and
-// no send path: approving a draft marks it approved in the audit log and gives you a mailto link; you send it
-// yourself. (Sending from the mailbox is M4b and, for anything automatic, M5, which waits on the owner.)
+// serves an approval queue on a local port. State and an append-only audit log live in DATA_DIR. By default it sends
+// nothing: approving a draft marks it approved and gives you a mailto link. M4b adds an opt-in Send button (SEND_ENABLED=true
+// plus SMTP_*) that sends one approved draft per click, with List-Unsubscribe, a stop-footer and the sender's address; it
+// refuses suppressed recipients, repeats, and more than SEND_MAX_PER_DAY a day. Nothing sends without that click (M5, automatic
+// sending, waits on the owner).
 //
 // Env: IMAP_HOST IMAP_USER IMAP_PASS [IMAP_PORT=993] [IMAP_SECURE=true] [IMAP_BOX=INBOX] ADMIN_TOKEN (required)
+//      [SEND_ENABLED=true SMTP_HOST SMTP_USER SMTP_PASS [SMTP_PORT=465] [SMTP_SECURE=true] [SMTP_STARTTLS=false] [SMTP_FROM=IMAP_USER] [SEND_MAX_PER_DAY=20]]
 //      [DATA_DIR=./data] [PORT=8787] [HOST=127.0.0.1] [POLL_MINUTES=10] [SINCE_DAYS=7] [OFFER_JSON=path]
 //      plus LLM_PROVIDER/LLM_MODEL/LLM_API_KEY (or ANTHROPIC_API_KEY ...) for the optional model, same limits.
 import http from "node:http";
@@ -12,6 +15,7 @@ import { readFileSync, writeFileSync, appendFileSync, mkdirSync, existsSync } fr
 import { join } from "node:path";
 import { timingSafeEqual } from "node:crypto";
 import { Imap, parseMessage, toReplyBlock } from "./imap.mjs";
+import { Smtp, buildMessage } from "./smtp.mjs";
 import { parseReplies, csv, iso, toCsv } from "../engine.mjs";
 import { runInboxWithModel } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
@@ -86,6 +90,37 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
     return it;
   }
 
+  const sendOn = env.SEND_ENABLED === "true" && !!env.SMTP_HOST;
+  /** Send one approved draft over the deployer's own SMTP account. Returns the item, or { error }. Never throws. */
+  async function send(id) {
+    if (!sendOn) return { error: "sending is off: set SEND_ENABLED=true and SMTP_HOST" };
+    const it = state.items.find((x) => x.id === id);
+    if (!it || !it.draft) return null;
+    if (it.decision !== "approved") return { error: "approve the draft first" };
+    if (it.sentAt || it.sending) return { error: "already sent" };
+    const to = (it.from.match(/[\w.+'-]+@[\w.-]+/) || [""])[0].toLowerCase();
+    if (state.suppression.some((s) => String(s.email).toLowerCase() === to)) { audit("send_refused", { id, to, why: "suppressed" }); return { error: `${to} is on the suppression list` }; }
+    const day = new Date(now()).toISOString().slice(0, 10), cap = Number(env.SEND_MAX_PER_DAY || 20);
+    state.sentDays = state.sentDays || {};
+    if ((state.sentDays[day] || 0) >= cap) return { error: `daily cap of ${cap} reached (SEND_MAX_PER_DAY)` };
+    const user = env.SMTP_USER || "", from = env.SMTP_FROM || env.IMAP_USER || user;
+    const secure = env.SMTP_SECURE !== "false", starttls = env.SMTP_STARTTLS === "true";
+    const c = new Smtp({ host: env.SMTP_HOST, port: Number(env.SMTP_PORT || (secure ? 465 : 587)), secure, starttls, allowClear: env.SMTP_ALLOW_CLEAR === "true" });
+    it.sending = true;
+    try {
+      const m = buildMessage({ from: offer.sender && !/</.test(from) ? `${offer.sender} <${from}>` : from, to: it.from, subject: it.subject, body: it.draft.body, inReplyTo: /^<.+>$/.test(it.id) ? it.id : "", address: offer.address || "", now: now() });
+      await c.connect(); const reply = await c.send({ user, pass: env.SMTP_PASS || "", from: m.from, to: m.to, raw: m.raw });
+      it.sentAt = new Date(now()).toISOString(); it.sentMessageId = m.messageId;
+      state.sentDays[day] = (state.sentDays[day] || 0) + 1;
+      audit("send", { id, to: m.to, messageId: m.messageId, server: reply.slice(0, 80) }); save();
+      return it;
+    } catch (e) {
+      const error = String(e.message || e).replace(env.SMTP_PASS || "\0", "***");
+      audit("send_error", { id, error }); save();
+      return { error };
+    } finally { delete it.sending; await c.quit(); }
+  }
+
   const authed = (req) => { const t = (req.headers.authorization || "").replace(/^Bearer /i, "") || new URL(req.url, "http://x").searchParams.get("token") || ""; return safeEq(t, env.ADMIN_TOKEN); };
   const json = (res, code, o) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(o)); };
 
@@ -93,7 +128,7 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
     const url = new URL(req.url, "http://x");
     if (url.pathname === "/healthz") return json(res, 200, { ok: true, lastPoll: state.lastPoll, lastError: state.lastError });
     if (!authed(req)) { res.writeHead(401, { "content-type": "text/plain", "www-authenticate": "Bearer" }); return res.end("Add ?token=YOUR_ADMIN_TOKEN"); }
-    if (req.method === "GET" && url.pathname === "/") { res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" }); return res.end(page(state, url.searchParams.get("token") || "")); }
+    if (req.method === "GET" && url.pathname === "/") { res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" }); return res.end(page(state, url.searchParams.get("token") || "", sendOn)); }
     if (req.method === "GET" && url.pathname === "/api/queue") return json(res, 200, { lastPoll: state.lastPoll, lastError: state.lastError, items: state.items });
     if (req.method === "GET" && url.pathname === "/api/prospects.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.prospects, ["email", "first_name", "company", "status", "stage", "paused_until", "last_reply"])); }
     if (req.method === "GET" && url.pathname === "/api/suppression.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.suppression, ["email", "reason", "date", "evidence"])); }
@@ -105,12 +140,18 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
       const r = decide(b.id, b.decision, b.body);
       return r ? json(res, r.error ? 422 : 200, r.error ? r : { ok: true, item: r }) : json(res, 404, { error: "no such draft" });
     }
+    if (req.method === "POST" && url.pathname === "/api/send") {
+      let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 10000) return json(res, 413, { error: "too large" }); }
+      let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
+      const r = await send(b.id);
+      return r ? json(res, r.error ? 422 : 200, r.error ? r : { ok: true, item: r }) : json(res, 404, { error: "no such draft" });
+    }
     json(res, 404, { error: "not found" });
   });
-  return { server, state, poll, ingest, decide, audit };
+  return { server, state, poll, ingest, decide, send, audit, sendOn };
 }
 
-function page(state, token) {
+function page(state, token, sendOn = false) {
   const t = encodeURIComponent(token);
   const rows = state.items.slice().reverse().map((it) => {
     const d = it.draft;
@@ -120,21 +161,22 @@ function page(state, token) {
 <ul>${it.applied.map((a) => `<li>${esc(a)}</li>`).join("")}</ul>
 ${d ? `<textarea rows="7" ${it.decision !== "pending" ? "disabled" : ""}>${esc(d.body)}</textarea>
 <p>${it.approval === "guess_check_first" ? "<b>A guess: read the reply and check first.</b> " : ""}${it.lint && !it.lint.ok ? `<b>Checks failed:</b> ${esc(JSON.stringify(it.lint.errors))} ` : ""}Status: <b>${esc(it.decision)}</b></p>
-${it.decision === "pending" ? `<button data-d="approved">Approve</button> <button data-d="rejected">Reject</button>` : ""}${it.decision === "approved" ? `<a href="${esc(mailto)}">Open in your mail app to send</a>` : ""}` : `<p>Nothing to send.</p>`}</article>`;
+${it.decision === "pending" ? `<button data-d="approved">Approve</button> <button data-d="rejected">Reject</button>` : ""}${it.decision === "approved" && it.sentAt ? `<p>Sent ${esc(it.sentAt)}</p>` : it.decision === "approved" ? `${sendOn ? `<button data-send="1">Send now</button> ` : ""}<a href="${esc(mailto)}">Open in your mail app to send</a>` : ""}` : `<p>Nothing to send.</p>`}</article>`;
   }).join("") || "<p>No replies yet. The agent polls your inbox on a schedule; press Poll now to check.</p>";
   return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sales Agent: approval queue</title>
 <style>body{font:16px/1.5 system-ui;max-width:760px;margin:0 auto;padding:16px;color:#1b1f23;background:#fff}@media(prefers-color-scheme:dark){body{background:#14171a;color:#e6e8ea}blockquote{background:#1d2226}}article{border:1px solid #8884;border-radius:8px;padding:12px 16px;margin:16px 0}blockquote{margin:8px 0;padding:8px 12px;background:#f3f4f6;border-radius:6px}textarea{width:100%;box-sizing:border-box}.tag{font-size:12px;border:1px solid #8886;border-radius:10px;padding:1px 8px}.re{opacity:.7;margin:0}button{padding:6px 14px;margin-right:6px}small{opacity:.7;font-weight:400}</style>
 <h1>Approval queue</h1><p>Last poll: ${esc(state.lastPoll || "never")}${state.lastError ? ` <b>Error: ${esc(state.lastError)}</b>` : ""}. <button id="poll">Poll now</button> <a href="/api/audit?token=${t}">Audit log</a> · <a href="/api/prospects.csv?token=${t}">Prospects CSV</a> · <a href="/api/suppression.csv?token=${t}">Suppression CSV</a></p>
-<p>This server only reads your mailbox and sends nothing. Approving marks a draft approved in the audit log and gives you a link to send it yourself.</p>${rows}
+<p>${sendOn ? "Sending is on: Send now sends one approved draft from your own SMTP account, with an unsubscribe line. Nothing is sent without that click." : "This server only reads your mailbox and sends nothing. Approving marks a draft approved in the audit log and gives you a link to send it yourself."}</p>${rows}
 <script>const T=${JSON.stringify(token)};const H={authorization:"Bearer "+T,"content-type":"application/json"};
 document.getElementById("poll").onclick=async()=>{await fetch("/api/poll",{method:"POST",headers:H});location.reload()};
-document.querySelectorAll("article button").forEach(b=>b.onclick=async()=>{const a=b.closest("article");const r=await fetch("/api/decide",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id,decision:b.dataset.d,body:a.querySelector("textarea").value})});if(!r.ok){alert((await r.json()).error)}else location.reload()});</script></html>`;
+document.querySelectorAll("article button[data-send]").forEach(b=>b.onclick=async()=>{const a=b.closest("article");b.disabled=true;const r=await fetch("/api/send",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id})});if(!r.ok){alert((await r.json()).error);b.disabled=false}else location.reload()});
+document.querySelectorAll("article button[data-d]").forEach(b=>b.onclick=async()=>{const a=b.closest("article");const r=await fetch("/api/decide",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id,decision:b.dataset.d,body:a.querySelector("textarea").value})});if(!r.ok){alert((await r.json()).error)}else location.reload()});</script></html>`;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const a = createAgent();
   const port = Number(process.env.PORT || 8787), host = process.env.HOST || "127.0.0.1";
-  a.server.listen(port, host, () => console.log(`Sales Agent approval queue on http://${host}:${port}/?token=… (read-only mailbox, nothing is sent)`));
+  a.server.listen(port, host, () => console.log(`Sales Agent approval queue on http://${host}:${port}/?token=… (read-only mailbox; sending is ${a.sendOn ? 'ON, one click per draft' : 'off'})`));
   const every = Math.max(1, Number(process.env.POLL_MINUTES || 10)) * 60000;
   a.poll().then((n) => console.log(`first poll: ${n} new`)); setInterval(() => a.poll(), every).unref?.();
 }
