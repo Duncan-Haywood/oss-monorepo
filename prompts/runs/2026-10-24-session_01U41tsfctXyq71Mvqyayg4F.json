@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01U41tsfctXyq71Mvqyayg4F",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T20:21:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": 10233,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Asks for hearth-and-horizon/saints/podcast spread, but says nothing on what to do when audio is over cap beyond text-only; fine, but the cap (423 MB) means every creative run is text-only now, so enclosure migration is the real blocker."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-24-ruth-and-the-barley-harvest.md"
+  ],
+  "goal": null,
+  "notes": "Saints by Candlelight episode 23, slug ruth-and-the-barley-harvest-at-bethlehem, ~8,000 words, text only (audio 423 MB > 400 MB). check-script ok, venture node tests 12/12. No agent doc written.",
+  "corrections": [],
+  "redteam": null
+}
