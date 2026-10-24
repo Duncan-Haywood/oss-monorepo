@@ -1,0 +1,25 @@
+{
+  "id": "P056",
+  "title": "seo: once Search Console reports, find which tool pages Google declines to index and fix those",
+  "status": "open",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "Google's scaled-content policy can demote a site with many similar pages. A sample suggests the pages are not thin, but whether Google indexes them is unknown until Search Console reports (P018). Acting before the data would mean merging or rewriting pages on a guess.",
+  "evidence": [
+    "25 randomly sampled product pages on 2026-10-24: 875-1,676 visible words each (boilerplate included); all 25 carry SoftwareApplication or WebApplication, BreadcrumbList and FAQPage JSON-LD",
+    "python3 portfolio/pipeline/corpus_dupes.py --min 0.6 on 2026-10-24: 19 near-duplicate pairs in 10 clusters among 1,318 ventures (for example the *-statement-to-journal family); P015/P032 kept them because they answer different searches"
+  ],
+  "change": "Blocked on P018 step 2. When the Page indexing report exists, export the 'Crawled - currently not indexed' and 'Duplicate without user-selected canonical' URLs into docs/reports/, compare them with corpus_dupes clusters, and deepen or consolidate only the pages Google is actually rejecting (a family hub page with canonical entry points, or more unique worked examples). Record before and after counts.",
+  "touches": [
+    "docs/reports/",
+    "ventures/ pages named by the report"
+  ],
+  "metric": "indexed / submitted URLs in Search Console",
+  "baseline": "unknown: no Search Console property (2026-10-24)",
+  "opened": "2026-10-24",
+  "source": "Owner asked for SEO and AI-search action items in a Claude Code session, 2026-10-24",
+  "pr": null,
+  "result": null,
+  "history": []
+}
