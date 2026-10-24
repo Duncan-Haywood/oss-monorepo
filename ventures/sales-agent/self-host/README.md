@@ -57,3 +57,11 @@ Gmail, Fastmail, Outlook and Dovecot differ in literal and flag handling; the
 first deployer on one should expect to fix a parser edge and send a patch. Not
 built: OAuth (Gmail and Microsoft need an app password for SMTP too), IMAP IDLE, attachments, threading beyond Message-ID, a bounce-to-
 prospect match (DSNs arrive as tasks, as on the page).
+
+## Header signals (2026-10-26)
+
+The poller reads standard headers before words: an RFC 3464 delivery status
+with `Status: 5.x.x` is a bounce of the address in `Final-Recipient` (not of
+`mailer-daemon`), `4.x.x` or `Action: delayed` pauses instead of bouncing, and
+`Auto-Submitted: auto-replied` or `X-Autoreply` is an auto-reply. Tested on
+hand-built messages in `agent.test.mjs`, not on a real mail server's output.

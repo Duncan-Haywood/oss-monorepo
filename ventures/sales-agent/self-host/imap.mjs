@@ -88,8 +88,16 @@ const htmlToText = (h) => h.replace(/<(script|style)[\s\S]*?<\/\1>/gi, "").repla
 /** Parse a raw RFC 822 message into { headers, text }. Prefers text/plain, falls back to stripped text/html. */
 export function parseMessage(raw) {
   const split = (s) => { const m = s.match(/\r?\n\r?\n/); return m ? [s.slice(0, m.index), s.slice(m.index + m[0].length)] : [s, ""]; };
+  let dsn = null;
   const walk = (src) => {
     const [hb, body] = split(src), h = headerMap(hb), ct = h["content-type"] || "text/plain";
+    // RFC 3464 delivery status: Final-Recipient names the address that failed, Status 5.x.x is permanent, 4.x.x temporary.
+    if (/^message\/delivery-status/i.test(ct) && !dsn) {
+      const g = (k) => (body.match(new RegExp(`^${k}:\\s*(.+)$`, "im")) || [])[1]?.trim() || "";
+      const status = (g("Status").match(/^([245])\.\d+\.\d+/) || [])[1];
+      dsn = { recipient: (g("Final-Recipient").replace(/^rfc822;\s*/i, "").match(/[\w.+'-]+@[\w.-]+/) || [""])[0].toLowerCase(), action: g("Action").toLowerCase(), permanent: status === "5" && g("Action").toLowerCase() !== "delayed", temporary: status === "4" || g("Action").toLowerCase() === "delayed" };
+      return { h, kind: "other", text: "" };
+    }
     if (/^multipart\//i.test(ct)) {
       const b = param(ct, "boundary");
       const parts = b ? body.split(new RegExp(`\\r?\\n?--${b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:--)?[ \\t]*\\r?\\n?`)).slice(1) : [];
@@ -101,8 +109,11 @@ export function parseMessage(raw) {
     return { h, kind: "other", text: "" };
   };
   const top = walk(raw), h = top.h;
-  return { headers: { from: decodeWords(h.from || ""), subject: decodeWords(h.subject || ""), date: h.date || "", messageId: (h["message-id"] || "").trim(), autoSubmitted: h["auto-submitted"] || "", contentType: h["content-type"] || "", inReplyTo: h["in-reply-to"] || "" }, text: top.text };
+  return { headers: { from: decodeWords(h.from || ""), subject: decodeWords(h.subject || ""), date: h.date || "", messageId: (h["message-id"] || "").trim(), autoSubmitted: h["auto-submitted"] || "", precedence: h.precedence || "", xAutoreply: h["x-autoreply"] || h["x-autorespond"] || "", contentType: h["content-type"] || "", inReplyTo: h["in-reply-to"] || "" }, text: top.text, dsn };
 }
 
 /** Turn a parsed message into the `From:` block the engine's parseReplies reads (and keep the quoted history out). */
-export const toReplyBlock = (m) => `From: ${m.headers.from}\nSubject: ${m.headers.subject}\nDate: ${m.headers.date}\n\n${m.text}`;
+export const toReplyBlock = (m) => {
+  const hd = m.headers, signal = m.dsn?.permanent ? "dsn-permanent" : m.dsn?.temporary ? "dsn-temporary" : /^(auto-replied|auto-generated)/i.test(hd.autoSubmitted) || hd.xAutoreply ? "auto-reply" : "";
+  return `From: ${hd.from}\nSubject: ${hd.subject}\nDate: ${hd.date}${signal ? `\nX-Signal: ${signal}` : ""}${m.dsn?.recipient ? `\nX-Failed-Recipient: ${m.dsn.recipient}` : ""}\n\n${m.text || (m.dsn ? "Delivery status notification" : "")}`;
+};
