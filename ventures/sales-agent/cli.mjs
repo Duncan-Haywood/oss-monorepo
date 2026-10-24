@@ -8,6 +8,8 @@
 // Research: node cli.mjs --crm crm-export.csv [--icp icp.json] [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--top 25] [--web]
 //   ranks your CRM export against your ICP and writes accounts.csv (with first-touch drafts), research-left-out.csv and
 //   research-brief.md. Reads nothing but the file; guesses no addresses; sends nothing.
+// Prep: node cli.mjs --prep person@example.com [--replies thread.txt] [--prospects p.csv] [--notes notes.txt] [--crm export.csv] [--suppression s.txt]
+//   writes call-prep.md for one person: what is on file, their own words, the discovery fields still unknown. Sends nothing.
 // Writes queue.json, prospects.csv, suppression-add.csv, deals.csv and tasks.csv to DIR (default ./sales-agent-out).
 // Sends nothing. With LLM_PROVIDER/LLM_MODEL/LLM_API_KEY or ANTHROPIC_API_KEY (etc.) set, a model triages and polishes
 // under the same limits; otherwise the rules run.
@@ -17,11 +19,20 @@ import { csv, iso, runInbox } from "./engine.mjs";
 import { runDaily, csvQueue, csvLeftOut } from "./daily.mjs";
 import { runResearch, briefOf, csvAccounts, csvLeftOutResearch } from "./research.mjs";
 import { runInboxWithModel } from "./ai.mjs";
+import { runPrep } from "./prep.mjs";
 import { enrich, liveFetch } from "./webfacts.mjs";
 import { configFromEnv } from "./byok.mjs";
 
 const args = process.argv.slice(2), opt = (k) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : undefined; };
 const read = (k) => (opt(k) ? readFileSync(opt(k), "utf8") : "");
+if (opt("prep")) {
+  const o = opt("out") || "sales-agent-out";
+  const d = runPrep({ email: opt("prep"), prospects: read("prospects"), replies: read("replies"), notes: read("notes"), crm: read("crm"), suppression: read("suppression"), today: opt("today") || iso(Date.now()) });
+  mkdirSync(o, { recursive: true });
+  writeFileSync(join(o, "call-prep.md"), d.brief);
+  console.log(`${d.stop ? "Do not chase: " + d.stop + ". " : ""}${d.known.length} of 9 discovery fields known, ${d.unknown.length} to ask. Nothing was sent. Output in ${o}/call-prep.md`);
+  process.exit(0);
+}
 if (opt("crm")) {
   const o = opt("out") || "sales-agent-out";
   const d = runResearch({ crm: read("crm"), icp: opt("icp") ? JSON.parse(read("icp")) : {}, offer: opt("offer") ? JSON.parse(read("offer")) : {}, suppression: read("suppression"), existing: read("prospects"), top: opt("top") ? Number(opt("top")) : undefined, today: opt("today") || iso(Date.now()) });
