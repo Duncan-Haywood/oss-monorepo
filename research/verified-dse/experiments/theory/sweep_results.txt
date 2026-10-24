@@ -1,0 +1,30 @@
+clock, design, start, m, top: coverage of the pilot-by-pilot top-vs-all bound, median bound; per-m summary below
+m= 6 top=1: coverage median 0.898, min 0.175, cells under 0.8: 15 of 40 (realised regret > 0: 15 of 23); median bound 0.136; cells covered with bound under 0.1: 14
+m= 6 top=3: coverage median 0.992, min 0.325, cells under 0.8: 6 of 40 (realised regret > 0: 6 of 23); median bound 0.206; cells covered with bound under 0.1: 9
+m= 6 top=5: coverage median 0.992, min 0.410, cells under 0.8: 6 of 40 (realised regret > 0: 6 of 23); median bound 0.221; cells covered with bound under 0.1: 8
+m= 8 top=1: coverage median 0.975, min 0.280, cells under 0.8: 8 of 40 (realised regret > 0: 8 of 23); median bound 0.170; cells covered with bound under 0.1: 14
+m= 8 top=3: coverage median 1.000, min 0.510, cells under 0.8: 3 of 40 (realised regret > 0: 3 of 23); median bound 0.242; cells covered with bound under 0.1: 9
+m= 8 top=5: coverage median 1.000, min 0.635, cells under 0.8: 1 of 40 (realised regret > 0: 1 of 23); median bound 0.257; cells covered with bound under 0.1: 8
+m=12 top=1: coverage median 0.997, min 0.350, cells under 0.8: 4 of 40 (realised regret > 0: 4 of 23); median bound 0.187; cells covered with bound under 0.1: 13
+m=12 top=3: coverage median 1.000, min 0.660, cells under 0.8: 1 of 40 (realised regret > 0: 1 of 23); median bound 0.273; cells covered with bound under 0.1: 9
+m=12 top=5: coverage median 1.000, min 0.795, cells under 0.8: 1 of 40 (realised regret > 0: 1 of 23); median bound 0.299; cells covered with bound under 0.1: 7
+m=16 top=1: coverage median 1.000, min 0.385, cells under 0.8: 2 of 40 (realised regret > 0: 2 of 23); median bound 0.224; cells covered with bound under 0.1: 13
+m=16 top=3: coverage median 1.000, min 0.820, cells under 0.8: 0 of 40 (realised regret > 0: 0 of 23); median bound 0.290; cells covered with bound under 0.1: 9
+m=16 top=5: coverage median 1.000, min 0.925, cells under 0.8: 0 of 40 (realised regret > 0: 0 of 23); median bound 0.326; cells covered with bound under 0.1: 7
+m=24 top=1: coverage median 1.000, min 0.555, cells under 0.8: 2 of 40 (realised regret > 0: 2 of 23); median bound 0.251; cells covered with bound under 0.1: 12
+m=24 top=3: coverage median 1.000, min 0.925, cells under 0.8: 0 of 40 (realised regret > 0: 0 of 23); median bound 0.333; cells covered with bound under 0.1: 7
+m=24 top=5: coverage median 1.000, min 0.985, cells under 0.8: 0 of 40 (realised regret > 0: 0 of 23); median bound 0.357; cells covered with bound under 0.1: 6
+
+hypergeometric check: P(pilot contains one of the pool's best 3); empirical (mean over cells) vs formula
+m= 6: empirical 0.330, formula 0.323
+m= 8: empirical 0.410, formula 0.413
+m=12: empirical 0.569, formula 0.568
+m=16: empirical 0.696, formula 0.693
+m=24: empirical 0.862, formula 0.866
+
+mean coverage over cells with realised regret > 0, by m (pool sizes are equal, so a per-cell correlation with the formula is undefined)
+m= 6: top=1 0.708, top=3 0.855, top=5 0.883; formula P(hit best 3) 0.324
+m= 8: top=1 0.794, top=3 0.915, top=5 0.943; formula P(hit best 3) 0.414
+m=12: top=1 0.880, top=3 0.969, top=5 0.983; formula P(hit best 3) 0.570
+m=16: top=1 0.921, top=3 0.988, top=5 0.995; formula P(hit best 3) 0.695
+m=24: top=1 0.948, top=3 0.995, top=5 0.999; formula P(hit best 3) 0.867
