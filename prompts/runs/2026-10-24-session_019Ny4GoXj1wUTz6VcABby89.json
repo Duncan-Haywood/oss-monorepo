@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_019Ny4GoXj1wUTz6VcABby89",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "I want to do a blog post on what some alternatives to the ghp setup we have currently and what the upsides and downsides of switching or expanding could e.",
+  "input_sha256": "165a8cf23125023ceaf343298a25d7837cd1912ddd9ab5dcb45f71cbfc7db2a6",
+  "follow_up_inputs": [],
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T01:45:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 9970,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/hosting/README.md",
+      "issue": "'What we are not adding' says Cloudflare is not a portfolio default, but platform/edge/ (a Cloudflare Worker) now serves the live site's counter and feedback form; PR 9961 is rewriting this file."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runs (record schema)",
+      "why": "Left the model field out: this session's harness forbids model identifiers in pushed artifacts."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-github-pages-alternatives-what-switching-would-buy.md",
+    "docs/reports/2026-10-24-hosting-alternatives-measured.md"
+  ],
+  "goal": null,
+  "notes": "Built the site locally (build.mjs exit 0): 738,129,399 bytes, 14,941 files, 76 MP3s ~414 MB. Writing tests 16/16 pass. Host limits from provider docs; Netlify figures flagged unverified in the post. Nothing trial-deployed; github.io unreachable from the session.",
+  "corrections": [],
+  "redteam": null
+}
