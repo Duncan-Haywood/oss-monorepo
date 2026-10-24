@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 2c: simple gradient noise scale B_simple along training (planned before running)
+- Why: the proposal's composition rule needs a measured noise constant `B_noise`; PR 10109 (another session) widens the outer-lr grid, so this step takes the other open item from 2a's "Next".
+- Design (`experiments/numpy_h_sweep/noise_scale.py`): same 14k-parameter model and data as the sweeps. Train synchronous AdamW (batch 4x16, seed s) and at steps {0, 80, 160, 320, 640} take n=64 independent gradients at batch size b=16 on training text. Estimator (McCandlish et al. 2018 "simple" scale, to be checked against the reference): S = sum over coordinates of the across-batch variance (unbiased), so tr(Sigma) = b*S; |G|^2 = |mean grad|^2 - S/n (unbiased); B_simple = b*S/|G|^2. 3 seeds.
+- Hypothesis: B_simple rises as the loss falls (|G|^2 shrinks faster than the noise), so B_simple at step 640 exceeds that at step 0 in every seed. Refuted if it falls or is flat (ratio < 1.2) in any seed. Also recorded: whether B_simple is far above the per-step batch of 64 sequences (which would mean the workers are noise-dominated, the regime the quadratic closed forms assume).
+- Limits: the unbiased |G|^2 can go negative when noise dominates (reported as such, not clipped); the scale is for AdamW-preconditioned training in raw-gradient units, so it is only a proxy for the Adam-adjusted critical batch; 14k parameters.
+
+### Outcome of 2c (`experiments/numpy_h_sweep/noise_scale_results.txt`; 3 seeds, one estimate per checkpoint)
+- B_simple at init is 2.8, 4.0, 2.9 sequences (tr Sigma about 0.002); at step 80 it is 79, 63, 93; at step 640 it is 105, 82, 40. **Hypothesis supported**: the step-640 value exceeds the step-0 value by more than 10x in every seed (well past the 1.2 threshold).
+- The rise is not monotone after step 80 (e.g. seed 0: 79, 69, 26, 105; seed 2: 93, 16, 78, 40). The unbiased |G|^2 comes from only 64 batches and varies by several-fold between neighbouring checkpoints, so single-checkpoint values are good to a factor of about 2 to 3 at best; the supported claim is the order of magnitude (tens of sequences once training is under way), not a trajectory.
+- Reading against the per-step batch of 64 sequences (4 workers x 16): B_simple of 40 to 105 is the same order, so on this model the workers are neither clearly noise-dominated nor clearly curvature-dominated; the noise-dominated regime of the quadratic closed forms is not established here. Not tested: whether B_simple predicts where the H curve turns.
+- Caveats as planned: raw-gradient units with AdamW preconditioning, 14k parameters, no estimator error bars beyond the seed spread.
+- Next: bootstrap intervals for B_simple (more batches per checkpoint), then use it as the noise input to a first H-versus-loss prediction.
+
 ## 2026-10-24 · Milestone 2a: per-H outer tuning, then the H curve again (planned before running)
 - Why: the first H sweep (below) failed its weak H2 form, and the likely confound is that one outer setting (lr 0.7, Nesterov 0.9) was used for every `H`. Question: after tuning the outer optimiser separately for each `H`, is the loss-versus-`H` curve flat and then rising (H2), or still U-shaped?
 - Design (`experiments/numpy_h_sweep/tuned_h_sweep.py`, same model, data and budget as the first sweep: 14k parameters, `M=4`, 640 inner steps per worker). Held-out text is split in halves: half A is used only to pick the outer setting, half B only to report. Tuning: outer lr in {0.3, 0.7, 1.0} x momentum in {0, 0.5, 0.9} (Nesterov), 2 tuning seeds (100, 101), for `H` in {1, 4, 16, 64, 160}; the pick is the lowest mean half-A loss. Reporting: 5 fresh seeds (0 to 4) on half B, plus synchronous AdamW.
