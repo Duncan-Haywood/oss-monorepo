@@ -245,6 +245,18 @@ The deterministic path stays the product, and a model only suggests
 [`ventures/ai-bookkeeper`](../ventures/ai-bookkeeper/README.md), first in
 `portfolio/flagships.yaml`.
 
+## Direction: autonomous water vehicles
+
+Set by the owner on 2026-10-24: "I also want one of the development directions to be
+autonomous water vehicles of multiple sorts very cool system."
+
+Surface boats, sailing and wave-powered drones, AUVs, gliders and ROVs as one system: hull and
+energy, navigation without GNSS, collision rules (COLREGs), perception and fleets. It starts as
+research track 23 (`marine`) in
+[`research/PROJECTS.md`](../research/PROJECTS.md), simulation first; a product (a survey
+planner, an endurance or COLREGs checker) follows when a result earns one. No weapons or
+surveillance work, and real-water operation is an owner step.
+
 ## Direction: local models as an option beside API keys
 
 Set by the owner on 2026-10-18: "for the majority of applications, I think
