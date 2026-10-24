@@ -186,10 +186,11 @@ writing it; skip any already in `episodes/`):
 - *(Done: episode 16, Spyridon and the Snake That Became Gold.)* Saint Spyridon and the snake that became gold (legend; told with care)
 - *(Done: episode 21, Gall and the Bear Who Brought the Firewood; text only.)* Saint Gall of Lake Constance and the bear (Walafrid Strabo's Life; legend labelled)
 - *(Done: episode 19, A Winter Night at the Hill Convent.)* An invented episode: a novice and an old abbess on a winter night, with the saints she tells her about (clearly labelled fiction)
+- *(Done: episode 22, Melangell and the Hare in the Fold of Her Robe; text only.)* Saint Melangell of Pennant Melangell and the hare (Welsh; legend labelled)
 
 ## Audio status
 
-Episodes 1 to 19 have audio (episodes 20 and 21 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 19 have audio (episodes 20, 21 and 22 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 

@@ -12,7 +12,7 @@ import { isCfonb, readCfonb } from "./cfonb.mjs";
 import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
-  date: ["дата операции", "дата", "дата проводки", "תאריך", "תאריך עסקה", "תאריך ערך", "ημερομηνία", "ημερομηνία συναλλαγής", "ngày giao dịch", "ngày", "date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date", "created utc", "created", "created at",
+  date: ["дата операции", "дата", "дата проводки", "תאריך", "תאריך עסקה", "תאריך ערך", "ημερομηνία", "ημερομηνία συναλλαγής", "ngày giao dịch", "ngày", "date", "transaction date", "trans. date", "trans date", "posted date", "post date", "posting date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date", "created utc", "created", "created at",
     // German, French, Spanish, Italian, Dutch headers
     "datum", "date processed", "buchungstag", "buchungsdatum", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "boekingsdatum", "transactiedatum",
     // Hungarian (OTP workbook): booking date before transaction date
@@ -312,7 +312,8 @@ export function sniffBank(rows) {
     if (/^date\|counter party\|reference\|type\|amount \((gbp|eur|usd)\)\|balance/.test(h)) return "starling";
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
     if (/^booking date\|value date\|partner name\|partner iban\|type\|payment reference/.test(h)) return "n26";
-    if (/^id\|datetime\|type\|status\|note\|from\|to\|amount \(total\)/.test(h.replace(/^\|/, ""))) return "venmo";
+    // Newer exports name the first (once blank) column "Username" and put the account's own name on row 2.
+    if (/^(username\|)?id\|datetime\|type\|status\|note\|from\|to\|amount \(total\)/.test(h.replace(/^\|/, ""))) return "venmo";
     if (/^transaction id\|date\|transaction type\|currency\|amount\|fee\|net amount/.test(h)) return "cash-app";
     if (/^date\|description\|original description\|category\|amount\|status/.test(h)) return "usaa";
     if (/^date\|description\|type\|amount\|current balance\|status/.test(h)) return "sofi";
@@ -382,7 +383,16 @@ function ofxDate(v) {
 
 function ofxTag(block, tag) {
   const m = new RegExp(`<${tag}>(?:\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>|([^<\\r\\n]*))`, "i").exec(block);
-  return m ? (m[1] !== undefined ? m[1].trim() : decodeEntities(m[2].trim())) : "";
+  return m ? (m[1] !== undefined ? m[1].trim() : unescapeOfx(m[2].trim())) : "";
+}
+
+// Some banks escape the text twice ("&amp;lt;DEFTPYMT&amp;gt;", seen in Actual
+// Budget's html-vals.qfx), so a payee would read "&lt;DEFTPYMT&gt;". When one
+// pass leaves a basic named reference behind, one more pass is the bank's
+// intended text; numeric references and unknown names are left alone.
+function unescapeOfx(s) {
+  const once = decodeEntities(s);
+  return /&(?:amp|lt|gt|quot|apos);/.test(once) ? decodeEntities(once) : once;
 }
 
 // A file from a bank with several accounts (or a card beside a checking

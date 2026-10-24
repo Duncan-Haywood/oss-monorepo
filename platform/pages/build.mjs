@@ -22,6 +22,7 @@
 
 import { promises as fs, existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { loadLastChanged } from './lastmod.mjs';
 import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
@@ -10372,11 +10373,13 @@ export function pageUrlPath(slug, relativePath) {
  * Generating from the output makes both impossible by construction: a page is
  * listed because it shipped, at the URL it actually shipped to.
  */
-export function renderVentureSitemap(slug, relativePages, baseUrl) {
+export function renderVentureSitemap(slug, relativePages, baseUrl, lastmods = {}) {
+  // `lastmods` maps a published page to the date its source last changed
+  // (`lastmod.mjs`). A page with no known date gets no `<lastmod>` at all.
   const urls = relativePages
-    .map((relative) => `${baseUrl}${pageUrlPath(slug, relative)}`)
-    .sort()
-    .map((url) => `  <url><loc>${url}</loc></url>`);
+    .map((relative) => [`${baseUrl}${pageUrlPath(slug, relative)}`, lastmods[relative]])
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([url, date]) => `  <url><loc>${url}</loc>${date ? `<lastmod>${date}</lastmod>` : ''}</url>`);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -10972,6 +10975,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // and that order is load-bearing: a repair can rewrite a `<script src>` or a
   // stylesheet `<link href>` to a github.com URL, which is a genuine external
   // request the privacy copy has to report.
+  const sourceDates = await loadLastChanged(REPO_ROOT);
   for (const surface of discovered) {
     const html = await fs.readFile(surface.entryFile, 'utf8');
     const { title, description, fullDescription } = readMeta(html, surface.slug);
@@ -10991,7 +10995,17 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     const pages = await publishedPages(destination);
     await fs.writeFile(
       path.join(destination, 'sitemap.xml'),
-      renderVentureSitemap(surface.slug, pages, base),
+      renderVentureSitemap(
+        surface.slug,
+        pages,
+        base,
+        Object.fromEntries(
+          pages.flatMap((page) => {
+            const date = sourceDates.get(path.relative(REPO_ROOT, path.join(surface.sourceDir, page)).split(path.sep).join('/'));
+            return date ? [[page, date]] : [];
+          }),
+        ),
+      ),
     );
 
     surfaces.push({
