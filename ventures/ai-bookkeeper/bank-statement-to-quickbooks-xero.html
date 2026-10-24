@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bank Statement to QuickBooks or Xero: Categorize First, Then Import a Journal</title>
+<meta name="description" content="Turn a bank statement CSV into a categorized journal file for QuickBooks Online, Xero or QuickBooks Desktop. A worked example runs the real command line tool on a four-line statement and shows the three export files.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./bank-statement-to-quickbooks-xero.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bank statement to QuickBooks or Xero: categorize first, then import a journal">
+<meta property="og:description" content="A worked example: four bank lines become balanced journals for QuickBooks Online, Xero and QuickBooks Desktop, with a profit and loss that agrees.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I import a bank statement CSV straight into QuickBooks Online?", "acceptedAnswer": {"@type": "Answer", "text": "QuickBooks Online imports bank lines into its bank feed, where you still categorize every line by hand. A journal import instead posts finished two-sided entries. AI Bookkeeper categorizes the lines first, then writes a journal file in QuickBooks Online's journal-entry import layout (JournalNo, JournalDate, AccountName, Debits, Credits, Description)."}}, {"@type": "Question", "name": "Does the tool connect to my bank or to QuickBooks?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads a file you download from your bank and writes a file you upload to QuickBooks Online, Xero or QuickBooks Desktop. Nothing is uploaded to us and there is no login."}}, {"@type": "Question", "name": "Which accounting systems can it export to?", "acceptedAnswer": {"@type": "Answer", "text": "QuickBooks Online (journal CSV), Xero (manual journal CSV with account codes), QuickBooks Desktop (IIF, with an account list declared at the top), and plain-text ledger-cli, hledger and Beancount files."}}, {"@type": "Question", "name": "Do the account names have to match my QuickBooks or Xero chart?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, the account name (QuickBooks) or code (Xero) in the file must exist in the company file. The tool can read a QuickBooks Account List or a Xero Chart of Accounts CSV first, so its accounts use your names and codes."}}, {"@type": "Question", "name": "Is it free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is open source (MIT) and runs in your browser or as a command line tool."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Bank statement to QuickBooks or Xero: categorize first, then import a journal</h1>
+<p class="lede">A bank-feed import leaves you with a pile of uncategorized lines to click through one at a time. Doing the categorizing first, in a file you can see, and importing finished two-sided entries puts the work before the import instead of after it.</p>
+</header>
+<section>
+<h2>Worked example: a four-line Chase statement</h2>
+<p>The tool ships a <strong>synthetic</strong> Chase checking export for March 2026 (<code>fixtures/chase-checking.csv</code>: a customer payment, a software subscription, a check, and a payment to a credit card). Importing it reads the format by itself, checks the statement's running balance against every row, and leaves four lines for review; the example files each line to an account (<code>confirm</code>), then exports.</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from running <code>import</code>, <code>confirm</code>, <code>export qbo|xero|iif</code> and <code>report</code> on that file. Synthetic data, not a real business.</caption>
+<thead><tr><th scope="col">Statement line</th><th scope="col">Amount</th><th scope="col">Filed to</th></tr></thead>
+<tbody>
+<tr><th scope="row">ACH CREDIT NORTHWIND LLC INV 1041</th><td>4,200.00</td><td>4000 Sales</td></tr>
+<tr><th scope="row">ADOBE *CREATIVE CLD</th><td>&minus;59.99</td><td>6060 Software and subscriptions</td></tr>
+<tr><th scope="row">CHECK 1007</th><td>&minus;850.00</td><td>6080 Rent</td></tr>
+<tr><th scope="row">Payment to Chase card ending in 4417</th><td>&minus;300.00</td><td>2000 Credit card (a transfer, not an expense)</td></tr>
+<tr class="total"><th scope="row">Net profit for March 2026</th><td>3,290.01</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<p>The Adobe line was suggested by a built-in keyword and the rest were filed by hand; the card payment is kept out of expenses, which is the mistake bank-feed categorizing most often makes. The checking balance ends at 7,990.01, the last balance printed on the statement.</p>
+</section>
+
+<section>
+<h2>The three files it writes</h2>
+<p>All three come from the same books, so they agree to the cent. The first rows of each are below (the opening balance entry is the statement's first balance).</p>
+<ul>
+<li><strong>QuickBooks Online</strong> (<code>export qbo</code>): a journal CSV with <code>*JournalNo, *JournalDate, *AccountName, Debits, Credits, Description</code>; every entry has a debit side and a credit side, for example <code>AB-00002,03/02/2026,Checking,4200.00,,ACH CREDIT NORTHWIND LLC INV 1041</code> then the same entry's <code>Sales</code> credit.</li>
+<li><strong>Xero</strong> (<code>export xero</code>): a manual-journal CSV with <code>*Narration, *Date, Description, *AccountCode, *TaxRate, *Amount</code>; dates are written day first (<code>02/03/2026</code> is 2 March) and amounts are signed, debits positive, credits negative.</li>
+<li><strong>QuickBooks Desktop</strong> (<code>export iif</code>): an IIF file that first declares each account it uses with a QuickBooks type (<code>ACCNT Checking BANK</code>, <code>ACCNT Sales INC</code>), because Desktop rejects lines naming an account the company file lacks.</li>
+</ul>
+<p>Plain-text accounting files (<code>export ledger</code>, <code>export beancount</code>) come from the same command; the project checked those with the ledger-cli, hledger and Beancount programs themselves.</p>
+</section>
+
+<section>
+<h2>How to do it with your own statement</h2>
+<ol>
+<li><strong>Download the statement</strong> from your bank as CSV (also read: OFX/QFX, QIF, MT940, CAMT.053, BAI2, Excel, and PDFs with a text layer).</li>
+<li><strong>Open <a href="./">AI Bookkeeper</a></strong> and import it. Review the lines it could not file; filing a line teaches it that payee, so the next statement needs fewer clicks.</li>
+<li><strong>Match your chart.</strong> If the company file already exists, load its Account List (QuickBooks) or Chart of Accounts (Xero) first (<code>switch chart FILE</code>) so the exported names and codes already exist there.</li>
+<li><strong>Export and import.</strong> Upload the journal in your system. Try a month first and compare its profit and loss with the report here.</li>
+</ol>
+<p>Honest limits: the QuickBooks and Xero layouts follow their published import templates as the project understood them, but no real company file has been tried, and the Chase file here is hand-written. Import one small month before relying on it.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Can I import a bank statement CSV straight into QuickBooks Online?</h3>
+<p>QuickBooks Online imports bank lines into its bank feed, where you still categorize every line by hand. A journal import instead posts finished two-sided entries. AI Bookkeeper categorizes the lines first, then writes a journal file in QuickBooks Online's journal-entry import layout (JournalNo, JournalDate, AccountName, Debits, Credits, Description).</p>
+<h3>Does the tool connect to my bank or to QuickBooks?</h3>
+<p>No. It reads a file you download from your bank and writes a file you upload to QuickBooks Online, Xero or QuickBooks Desktop. Nothing is uploaded to us and there is no login.</p>
+<h3>Which accounting systems can it export to?</h3>
+<p>QuickBooks Online (journal CSV), Xero (manual journal CSV with account codes), QuickBooks Desktop (IIF, with an account list declared at the top), and plain-text ledger-cli, hledger and Beancount files.</p>
+<h3>Do the account names have to match my QuickBooks or Xero chart?</h3>
+<p>Yes, the account name (QuickBooks) or code (Xero) in the file must exist in the company file. The tool can read a QuickBooks Account List or a Xero Chart of Accounts CSV first, so its accounts use your names and codes.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT) and runs in your browser or as a command line tool.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Stripe, Amazon and Shopify are trademarks of their owners, named only to describe a payee or a report; this project is not affiliated with them.</p>
+</footer>
+</body>
+</html>
