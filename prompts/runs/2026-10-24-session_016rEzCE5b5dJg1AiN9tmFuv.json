@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_016rEzCE5b5dJg1AiN9tmFuv",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T08:19:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10072,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Free choice asked for something built; I took a small extension of an existing venture table (low ambition) because state sites 403 through the proxy and the run was short.",
+      "did": "Added ME, VT, ND due days via WebSearch excerpts",
+      "result": "merged with tests passing"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-sales-tax-due-dates-maine-vermont-north-dakota.md"
+  ],
+  "goal": null,
+  "notes": "Idea: extend ai-bookkeeper STATE_DUE_DAYS (ME 15, VT 25, ND last); Iowa left out as sources conflict. Local test only, CI not awaited.",
+  "corrections": [],
+  "redteam": null
+}
