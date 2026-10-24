@@ -260,3 +260,18 @@ test("N26 exports in Italian, French and Spanish no longer import with empty des
     assert.ok(r.rows[0].desc.length > 3);
   }
 });
+
+test("Stripe balance-transactions export: Created (UTC) is the date and Net the amount, not a preamble-skipped single row", () => {
+  const r = readStatement([
+    "id,Type,Source,Amount,Fee,Destination Platform Fee,Net,Currency,Created (UTC),Available On (UTC),Description",
+    "txn_1,charge,ch_1,100.00,3.20,0.00,96.80,usd,2026-03-01 10:00,2026-03-03 00:00,Pro plan",
+    "txn_2,payout,po_9,-96.80,0.00,0.00,-96.80,usd,2026-03-04 11:00,2026-03-04 00:00,STRIPE PAYOUT",
+  ].join("\n"));
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2026-03-01", 9680, "Pro plan"], ["2026-03-04", -9680, "STRIPE PAYOUT"]]);
+  assert.deepEqual(r.problems, []);
+});
+
+test("Pipe-delimited export reads like the comma one", () => {
+  const r = readStatement("Date|Description|Amount\n2026-03-02|CAFE, LUNA|-12.50\n2026-03-03|PAYROLL|1800.00\n");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2026-03-02", -1250, "CAFE, LUNA"], ["2026-03-03", 180000, "PAYROLL"]]);
+});
