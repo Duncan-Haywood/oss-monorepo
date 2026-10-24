@@ -142,3 +142,13 @@ test("NJ, GA and NC are due the 20th and OH the 23rd of the month after the peri
   assert.equal(dueDate("2026-Q1", stateDueDay("oh", "quarterly")), "2026-04-23");
   assert.equal(dueDate("2026-H2", stateDueDay("OH", "semiannual")), "2027-01-23");
 });
+
+test("Massachusetts: quarterly and annual returns are due 30 days after the period, monthly the 20th", () => {
+  assert.equal(dueDate("2026-Q1", stateDueDay("MA", "quarterly")), "2026-04-30");
+  assert.equal(dueDate("2026-Q2", stateDueDay("MA", "quarterly")), "2026-07-30");
+  assert.equal(dueDate("2026-Q4", stateDueDay("MA", "quarterly")), "2027-01-30");
+  assert.equal(dueDate("2026", stateDueDay("MA", "annual")), "2027-01-30");
+  assert.equal(dueDate("2026-03", stateDueDay("MA", "monthly")), "2026-04-20");
+  const r = salesTaxReturn(books(), { dueDay: stateDueDay("MA", "quarterly") });
+  assert.equal(r.periods.find((p) => p.period === "2026-Q1").rows[0].due, "2026-04-30");
+});
