@@ -30,3 +30,4 @@ PYTHONPATH=src python3 experiments/m1_check.py     # about 4 min, writes experim
 ```
 
 - First loss-against-`H` smoke sweep (numpy harness, 14k parameters, 3 seeds, outer step untuned): U-shaped, `H=16` 2.32, `H=4` 2.74, `H=160` diverges on one seed; synchronous 2.44. It does not test H2. See [`experiments/numpy_h_sweep/`](experiments/numpy_h_sweep) and the LOG. Run: `cd experiments/numpy_h_sweep && PYTHONPATH=. python3 h_sweep.py` (about 8 min; tests in `tests/` need numpy only).
+- Same sweep with the outer optimiser tuned per `H` (grid of 9, tuned on one held-out half, reported on the other, 5 seeds): `H=1` 2.342, `H=4` 2.348, `H=16` 2.274, `H=64` 2.410, `H=160` 2.481, synchronous 2.383. Tuning removes most of the small-`H` penalty and the divergence, but `H=4` stays 0.075 above `H=16` (Welch t = 4.3), so the weak form of H2 still fails as stated; the lr grid tops out at 1.0, which binds for three of the five `H`. See the LOG, "Milestone 2a".
