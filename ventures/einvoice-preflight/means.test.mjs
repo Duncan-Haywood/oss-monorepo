@@ -184,3 +184,15 @@ test("UBL without PaymentMeans stays clean", () => {
   assert.equal("payment" in parsed, false);
   assert.deepEqual(checkInvoice(parsed), []);
 });
+
+// Found by running the KoSIT XRechnung test suite (README, "Measured on the XRechnung test suite").
+test("every UNCL 4461 code in BR-CL-16 is known, including 68 (online payment service)", () => {
+  for (const code of ["2", "9", "23", "54", "68", "98", "ZZZ"]) assert.ok(looksLikeKnownMeans(code), code);
+  assert.ok(!looksLikeKnownMeans("71"));
+});
+
+test("a SEPA direct debit needs the payer's account, not a payee IBAN", () => {
+  for (const means of ["49", "59"]) {
+    assert.deepEqual(inspectPaymentMeans(invoice({ means })), [], means);
+  }
+});

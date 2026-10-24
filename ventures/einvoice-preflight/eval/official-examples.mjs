@@ -8,6 +8,12 @@
 //   git clone --depth 1 https://github.com/ConnectingEurope/eInvoicing-EN16931
 //   node eval/official-examples.mjs path/to/eInvoicing-EN16931
 //
+// The same script reads the KoSIT XRechnung test suite (Apache-2.0, not copied
+// here), whose business cases are valid XRechnung documents:
+//   git clone --depth 1 https://github.com/itplr-kosit/xrechnung-testsuite
+//   node eval/official-examples.mjs path/to/xrechnung-testsuite/src/test/business-cases
+// Set PATH_FILTER to a substring to limit which files are read (default: any
+// path containing "examples" or "business-cases").
 // The examples are EUPL-licensed and not copied into this repository.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -22,7 +28,7 @@ function* walk(dir) {
   for (const name of readdirSync(dir)) {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) yield* walk(path);
-    else if (name.endsWith(".xml") && path.includes("examples")) yield path;
+    else if (name.endsWith(".xml") && (process.env.PATH_FILTER ? path.includes(process.env.PATH_FILTER) : /examples|business-cases/.test(path))) yield path;
   }
 }
 
@@ -38,7 +44,7 @@ for (const path of [...walk(root)].sort()) {
   const rules = [...new Set(checkInvoice(invoice).map((e) => e.rule))].sort();
   if (!rules.length) clean++;
   for (const r of rules) tally[r] = (tally[r] || 0) + 1;
-  if (rules.length) console.log(path.split("examples/").pop(), rules.join(" "));
+  if (rules.length) console.log(path.split(/examples\/|business-cases\//).pop(), rules.join(" "));
 }
 console.log(`\n${checked} invoices read (${unreadable} not UBL/CII, ${skipped} over 1 MB skipped), ${clean} with no finding`);
 console.log("files per rule:", JSON.stringify(Object.fromEntries(Object.entries(tally).sort())));
