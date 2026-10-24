@@ -1,7 +1,7 @@
 ---
 title: "What the human does in an agent-run repository, measured, and an onboarding list for the next one"
 date: 2026-10-24
-description: "Across 1,301 measured runs, 89% got exactly one human message: the trigger. Here is where human input actually enters this monorepo, what the measurement misses, and a short onboarding list of things only a person can do."
+description: "In 89% of 1,301 measured agent runs, the only human message was the trigger. Where human input really enters, and an onboarding list for people."
 tags: [process, measurement, agents, onboarding]
 ---
 
