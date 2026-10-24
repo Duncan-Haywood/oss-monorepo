@@ -1346,6 +1346,12 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   collecting" (intervals overlap). Checked the "pyenv.py output needed tail -1"
   report: `platform/ci/pyenv.py` already prints only the path on stdout
   (progress goes to stderr), so nothing to fix.
+- Change: none to prompts or docs. Regenerated `prompts/derived/`.
+  Candidates re-measured: ventures 2, process 2 and review 2 are all "keep
+  collecting" (intervals overlap). Checked the "pyenv.py output needed
+  `tail -1`" friction in `prompt.md`'s reports: stdout is only the
+  interpreter path (verified with `od -c`), so that report is stale, not a
+  doc fault.
 - Metric: none new. E79 to E84 results stay open: too few runs since.
 - Decisions: no audit or drift report (reduced pass).
 - Result: (next review)
