@@ -49,7 +49,7 @@ type: software
 authors:
   - name: "oss-monorepo contributors"
 repository-code: "${REPO_URL}"
-url: "https://duncan-haywood.github.io/monorepo-projects/"
+url: "https://duncan-haywood.github.io/oss-monorepo/"
 license: MIT
 abstract: >-
   A monorepo of MIT-licensed free tools (ventures/) and open research (research/),

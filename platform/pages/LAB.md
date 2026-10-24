@@ -1,7 +1,7 @@
 # The lab: experiments in what this site can be
 
 A long-running, contained experiment on making the public site
-(https://duncan-haywood.github.io/monorepo-projects/lab/) more useful, more
+(https://duncan-haywood.github.io/oss-monorepo/lab/) more useful, more
 beautiful, and easier for both people and AI agents to use. Experiments that
 work get pulled into the rest of the site; the rest stay in the lab.
 
@@ -30,7 +30,7 @@ Code: [`lab.mjs`](lab.mjs) (pages and the `EXPERIMENTS` list),
 
 | Experiment | What it does |
 |---|---|
-| [`lab/handoff/`](https://duncan-haywood.github.io/monorepo-projects/lab/handoff/) | Search any tool and take it away in one of five forms: a prompt for a coding agent (embed, call or vendor it, with license and disclaimer), an iframe embed, terminal and MCP commands, a link, or its catalog.json row. |
+| [`lab/handoff/`](https://duncan-haywood.github.io/oss-monorepo/lab/handoff/) | Search any tool and take it away in one of five forms: a prompt for a coding agent (embed, call or vendor it, with license and disclaimer), an iframe embed, terminal and MCP commands, a link, or its catalog.json row. |
 | Generative covers (`coverSvg`) | A deterministic SVG picture per tool, drawn from its slug. It needs no image files and no AI spend. It is shown in the handoff search and could later draw social cards and hub cards. |
 
 ## Roadmap (long-term, owner's direction 2026-10-20)

@@ -161,9 +161,11 @@ import {
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
 
+// The Pages path used before the repository was renamed; it now answers 404.
+export const LEGACY_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
 // Owner-overridable at build time; this default is where GitHub serves a
 // project Pages site for this repository.
-export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
+export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
 
 // IndexNow (api.indexnow.org) proves ownership of a set of URLs with a key
 // file hosted at a location the submitter names in each request -- it does
@@ -5411,8 +5413,11 @@ function rewriteOrigin(contents, baseUrl) {
   // published — but canonical tags are copied through, so they are not.
   // Treating the default as a second placeholder makes the whole portfolio
   // follow the base URL it is actually built with.
-  if (baseUrl === DEFAULT_BASE_URL) return rewritten;
-  return rewritten.split(DEFAULT_BASE_URL).join(baseUrl);
+  // The retired /monorepo-projects/ path is a second default: venture pages and
+  // posts written before the move still name it, and it now answers 404.
+  const current = rewritten.split(LEGACY_BASE_URL).join(baseUrl);
+  if (baseUrl === DEFAULT_BASE_URL) return current;
+  return current.split(DEFAULT_BASE_URL).join(baseUrl);
 }
 
 export function isPublishable(name) {
@@ -11018,7 +11023,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
   // Page slugs under writing/: each post, and `podcast`.
-  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: DEFAULT_BASE_URL });
+  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [LEGACY_BASE_URL, DEFAULT_BASE_URL] });
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.
