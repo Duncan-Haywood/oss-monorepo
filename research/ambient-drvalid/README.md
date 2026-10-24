@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-capcv`, whose first next step was "lower-variance validation scores (DR rather than IPS estimates, more folds, repeated splits)". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Mostly negative / preliminary**: swapping in a DR score changes almost nothing; only 8 random folds with the DR score helps clearly (at one rate), and the uninformed-prior case stays far below the label-matched control.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-drvalid/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-drvalid/
 
 ## Motivation
 

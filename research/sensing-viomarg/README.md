@@ -2,7 +2,7 @@
 
 **On 30 s synthetic paths, replacing the pinned oldest pose of the `sensing-vio` smoother by a Schur-complement (marginalisation) prior cut rms drift from 12.3 % to 2.5 % of path length at baseline IMU noise (8 paired seeds), and made IMU grade matter: 0.25× noise gave 2.1 %, 1× 2.5 %, 4× 6.5 %. With the pinned prior the three grades were indistinguishable (23.6, 12.3, 12.3 %, standard errors 5 to 7).** Produced with AI assistance (Claude). Follow-up to `sensing-vio` (track 15, `PROJECTS.md`); it builds on none of the CU Boulder groups. Planar and synthetic; **not run on EuRoC or any real data**.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-viomarg/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-viomarg/
 
 **Builds on.** [`sensing-vio`](../sensing-vio) (world, sensors, factors and its stated first next step). Marginalisation in sliding-window VIO: Leutenegger et al., OKVIS, *IJRR* 2015; Qin, Li and Shen, VINS-Mono, *IEEE T-RO* 2018; IMU preintegration: Forster et al., *IEEE T-RO* 2017. This is a small independent re-implementation of the idea, not a reproduction.
 

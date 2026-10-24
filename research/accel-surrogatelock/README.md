@@ -2,7 +2,7 @@
 
 Track 8 (task-specific AI accelerators), follow-up to `accel-surrogate2d`, whose "Next steps" asked for a locking-free element so the simulator's own error is small, then to ask how much surrogate error a design loop tolerates. Here the 2D cantilever uses a Q6 element (bilinear quadrilateral plus two incompatible bubble modes, condensed out; Taylor, Beresford and Wilson 1976) instead of the locking Q4. An 8-32-32-1 MLP imitates the solve at three mesh sizes, is quantised to 6 and 8 weight bits, and is then used to screen designs in a minimum-mass search. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-surrogatelock/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-surrogatelock/
 
 **Why it seemed worth doing.** `accel-surrogate2d` could only say the surrogate adds little "relative to a locking simulator's error". With a simulator that is accurate (Q6 is within 0.6 % of Timoshenko beam theory even on a 16x2 mesh, a test checks it), the surrogate's error is no longer hidden behind the simulator's, and the question that matters to a designer, how many designs the surrogate gets wrong, can be measured.
 

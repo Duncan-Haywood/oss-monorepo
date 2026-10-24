@@ -2,7 +2,7 @@
 
 **Why this was worth doing.** The secretary problem (hire the best of *n* candidates seen one at a time, deciding on the spot) is usually stated with perfect comparisons. Real screening, including a digital twin that scores designs before a real test, sees a noisy score. A free-choice hunch: does noise change the best cutoff, or only the success rate? **Result (simulation, n = 50, 40,000 trials per cell):** the best cutoff barely moves. It sits at r = 19 with no noise and at r = 16 to 17 for every noise level from 0.25 to 4 (noise sd as a multiple of the quality sd), while the chance of picking the true best falls from 0.373 to 0.299 (noise 0.25), 0.145 (noise 1), 0.075 (noise 2) and 0.043 (noise 4); pure noise is a 1/50 = 0.02 lottery. Keeping the classical cutoff r = 19 instead of the best one costs at most 0.006 in P(best) at any noise level tried. A different goal, a high *average* true rank of the pick, wants a much earlier cutoff (r = 7 to 9). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-secretarynoise/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-secretarynoise/
 
 **Builds on.** Ferguson (1989), "Who solved the secretary problem?", *Statistical Science* 4(3), and Lindley (1961) for the cutoff rule and its 1/e limit (cited from memory, not re-verified: no bibliographic service was reachable from this session). No CU Boulder group's work is built on or implied; the link to the digital-twin theme is the analogy of a noisy screening score.
 

@@ -12,7 +12,7 @@ garments better hung from 41% to 8%, while a hundredfold change in the stretch p
 moves it only from 48% to 37%. Produced with AI assistance (Claude). Every number is from assumed fabric
 constants, not measurements of real garments.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-fold/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-fold/
 
 Track 18 (`hanger`, `PROJECTS.md`), milestone 2. Why it seemed worth doing: milestone 1
 ([`hanger-fit`](../hanger-fit)) found that a heavy sweater stretches 14 to 31% at the shoulder

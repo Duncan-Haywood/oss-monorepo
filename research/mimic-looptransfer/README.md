@@ -2,7 +2,7 @@
 
 Milestone 5 (`mimic-transfer`) of track 11, adversarial human imitation, a model-based slice. **Preliminary, stylised toy study: one frozen 0.5B model, 32 prompts from one seed of the loop, 24 human test texts and 48 generated texts per prompt, two families (reddit posts, film reviews). Read the numbers as a first measurement, not a result about LLM detection in general.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-looptransfer/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-looptransfer/
 
 **Question.** `mimic-loop` evolved imitator prompts against a *prompted* 0.5B detector and saw its paired accuracy drop toward chance. Is that imitation, or did the imitator only learn the prompted detector's blind spots? This project replays every imitator prompt the loop produced (4 rounds x 4 proposers x 2 families) and scores the new texts with detectors that use no prompt and that the loop never saw: the `mimic-contexts` n-gram classifier and its Binoculars-style zero-shot score (Hans et al. 2024).
 

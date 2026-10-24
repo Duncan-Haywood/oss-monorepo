@@ -11,7 +11,7 @@ still worse off than under yield-all in every setting tried (+0.006 to +0.065 pe
 assistance (Claude). Track 17 (`society`, `PROJECTS.md`), the second next step of `society-cheapcue`. Every result
 is about simulated agents following a stated rule, not real people or robots.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-learncue/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-learncue/
 
 ## Builds on
 

@@ -2,7 +2,7 @@
 
 **Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-avoid/
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-avoid/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-avoid/
 
 Two arms share one dryer pile, and when their grasps would be too close the later arm waits (`hanger-sharedpile`). Does choosing a different, non-clashing garment recover the loss? **Partly, and mostly for blind pinching.** At 0.30 m clearance blind pinching goes from 151 to 161 garments hung or folded per hour (it lost 28 to blocking), aiming from 191 to 192 (it lost 10), sweeping from 186 to 191. At 0.45 m nearly every pair clashes in the 0.60 m bin and avoiding does nothing.
 

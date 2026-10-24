@@ -2,7 +2,7 @@
 
 Milestone 10 (`mimic-webcam`) of track 11, adversarial human imitation: the third subject, webcam, **signals first**. **Preliminary, stylised: 46 people filling in one web form, one context, a fixed library of generator components (no model writes code), 8 seeds.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-webcam/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-webcam/
 
 **Result.** No generator here fools a detector on held-out people. A boosted-tree reference detector the loop never saw separates every fixed generator from people at AUROC 0.999 to 1.000, and separates the final imitator of every loop run at 0.999 to 1.000 (8 seeds at 4 candidates per side per round; 4 seeds at 32 per round also 1.000). The only thing that comes close to chance is replaying whole windows of other people (0.61, mean of 8 seeds, range 0.56 to 0.64), and that copies people. The 0.61 is also the floor of the benchmark: it is how far apart two sets of people are when the signals are identical in kind.
 
