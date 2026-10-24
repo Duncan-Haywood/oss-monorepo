@@ -154,7 +154,8 @@ export function detectColumns(header) {
   const cols = Object.fromEntries(Object.keys(ALIASES).map((k) => [k, find(k)]));
   // A currency code after the column name ("Amount USD", "Betrag EUR",
   // "Balance GBP", "Debit CAD") names the same column as the bare word.
-  const CCY = /^(.+?)\s*[(\[]?\s*[a-z]{3}\s*[)\]]?$/;
+  // Also "Amount in EUR", "Betrag in EUR", "Amount, EUR" and "Amount - EUR".
+  const CCY = /^(.+?)[\s,:\-–]*(?:\bin\b\s*)?[(\[]?\s*(?:in\s+)?[a-z]{3}\s*[)\]]?$/;
   for (const k of ["amount", "debit", "credit", "balance"]) {
     if (cols[k] !== -1) continue;
     cols[k] = h.findIndex((x, i) => {
