@@ -13,4 +13,6 @@ python3 experiments/m3f_failure_rate/failrate.py
 python3 experiments/m5a_active/active.py                         # ~20 min
 python3 experiments/m5b_anytime/anytime.py
 python3 experiments/m6_floor/floor.py                            # floor and Monte Carlo check
+python3 experiments/m6b_dfloor/dfloor.py
+python3 experiments/m6c_quantile/quantile.py
 python3 experiments/m4_simpler/analyse.py                        # SIMPLER
