@@ -1,7 +1,7 @@
 ---
 title: "Checking sales tax due dates against the states: one we had wrong"
 date: 2026-10-24
-description: "We recalled seven states' sales tax due dates into an open-source bookkeeper. Checking four against the states' own pages found one error: Washington."
+description: "We recalled seven states' sales tax due dates into a bookkeeper. Checking four against the states' own pages found one error: Washington quarterly returns."
 tags: [sales-tax, bookkeeping, open-source, accuracy]
 ---
 
