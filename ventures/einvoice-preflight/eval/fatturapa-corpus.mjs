@@ -1,4 +1,4 @@
-// Runs the FatturaPA rules (IT-001..IT-018) over the fatturaPA/ folder of the
+// Runs the FatturaPA rules (IT-001..IT-022) over the fatturaPA/ folder of the
 // ZUGFeRD corpus (git clone --depth 1 https://github.com/ZUGFeRD/corpus), which
 // holds the Agenzia delle Entrate's official samples and eigor's. Not copied here.
 //   node eval/fatturapa-corpus.mjs path/to/corpus/fatturaPA

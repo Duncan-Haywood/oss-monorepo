@@ -9,6 +9,7 @@
 // tax number.
 
 import { parseXmlTree } from "./ubl.mjs";
+import { checkAgainstSchema } from "./fatturapa-xsd.mjs";
 
 const DOC_TYPES = new Set([
   "TD01", "TD02", "TD03", "TD04", "TD05", "TD06", "TD07", "TD08", "TD09",
@@ -285,52 +286,6 @@ function ibanValid(iban) {
 }
 
 
-// Child order the schema (XSD) requires inside the blocks below. SdI rejects a
-// file whose elements are out of sequence, the commonest "not conforming to the
-// format" cause for hand-built files. Written from memory of the published
-// schema, so only the order of elements present is checked, never presence.
-const SEQUENCES = {
-  FatturaElettronicaHeader: ["DatiTrasmissione", "CedentePrestatore", "RappresentanteFiscale", "CessionarioCommittente", "TerzoIntermediarioOSoggettoEmittente", "SoggettoEmittente"],
-  DatiTrasmissione: ["IdTrasmittente", "ProgressivoInvio", "FormatoTrasmissione", "CodiceDestinatario", "ContattiTrasmittente", "PECDestinatario"],
-  DatiAnagrafici: ["IdFiscaleIVA", "CodiceFiscale", "Anagrafica", "AlboProfessionale", "ProvinciaAlbo", "NumeroIscrizioneAlbo", "DataIscrizioneAlbo", "RegimeFiscale"],
-  Sede: ["Indirizzo", "NumeroCivico", "CAP", "Comune", "Provincia", "Nazione"],
-  FatturaElettronicaBody: ["DatiGenerali", "DatiBeniServizi", "DatiVeicoli", "DatiPagamento", "Allegati"],
-  DatiGenerali: ["DatiGeneraliDocumento", "DatiOrdineAcquisto", "DatiContratto", "DatiConvenzione", "DatiRicezione", "DatiFattureCollegate", "DatiSAL", "DatiDDT", "DatiTrasporto", "FatturaPrincipale"],
-  DatiGeneraliDocumento: ["TipoDocumento", "Divisa", "Data", "Numero", "DatiRitenuta", "DatiBollo", "DatiCassaPrevidenziale", "ScontoMaggiorazione", "ImportoTotaleDocumento", "Arrotondamento", "Causale", "Art73"],
-  DatiBeniServizi: ["DettaglioLinee", "DatiRiepilogo"],
-  DettaglioLinee: ["NumeroLinea", "TipoCessionePrestazione", "CodiceArticolo", "Descrizione", "Quantita", "UnitaMisura", "DataInizioPeriodo", "DataFinePeriodo", "PrezzoUnitario", "ScontoMaggiorazione", "PrezzoTotale", "AliquotaIVA", "Ritenuta", "Natura", "RiferimentoAmministrazione", "AltriDatiGestionali"],
-  DatiRiepilogo: ["AliquotaIVA", "Natura", "SpeseAccessorie", "Arrotondamento", "ImponibileImporto", "Imposta", "EsigibilitaIVA", "RiferimentoNormativo"],
-  DatiPagamento: ["CondizioniPagamento", "DettaglioPagamento"],
-};
-
-// Elements whose relative order is not enforced: the Agenzia delle Entrate's own
-// sample IT01234567890_FPR02.xml (ZUGFeRD corpus, official/valid) puts
-// PECDestinatario before ContattiTrasmittente, against the order above, and the
-// corpus lists it as valid. Until the XSD itself is read, the pair is not ranked.
-const SAME_RANK = { DatiTrasmissione: ["ContattiTrasmittente", "PECDestinatario"] };
-
-function checkOrder(node, path, out) {
-  let seq = SEQUENCES[node.name];
-  if (seq && SAME_RANK[node.name]) seq = seq.map((n) => (SAME_RANK[node.name].includes(n) ? SAME_RANK[node.name][0] : n));
-  if (seq) {
-    let high = -1;
-    let highName = "";
-    for (const c of node.children) {
-      const same = SAME_RANK[node.name];
-      const idx = seq.indexOf(same && same.includes(c.name) ? same[0] : c.name);
-      if (idx < 0) continue;
-      if (idx < high) {
-        out.push(finding("IT-018", `${c.name} comes after ${highName} in ${node.name}, but the schema puts it before.`,
-          `Move ${c.name} ahead of ${highName}; SdI rejects elements out of sequence.`, `${path}/${c.name}`));
-        return;
-      }
-      high = idx;
-      highName = c.name;
-    }
-  }
-  for (const c of node.children) checkOrder(c, `${path}/${c.name}`, out);
-}
-
 /** @returns {{findings: object[], skipped: string[]}} */
 export function checkFatturaPa(source) {
   const text = typeof source === "string" ? source : new TextDecoder().decode(source);
@@ -375,6 +330,6 @@ export function checkFatturaPa(source) {
     out.push(finding("IT-010", "The file has no FatturaElettronicaBody.", "Add the body with DatiGenerali and DatiBeniServizi.", "/FatturaElettronica"));
   }
   bodies.forEach((b, i) => checkBody(b, i, out, skipped));
-  checkOrder(root, "/FatturaElettronica", out);
+  out.push(...checkAgainstSchema(root, text));
   return { findings: out, skipped: [...new Set(skipped)] };
 }
