@@ -77,7 +77,7 @@ flagships:
     next: >-
       M1 (inbox agent: reply triage, automatic stop/pause/suppress, approval queue, page, CLI, MCP tool) is in.
       Its rules read 15 of 40 and 27 of 41 fresh hand-written replies right (README "How well it reads replies"; two
-      sets, both by agents). M3 (daily run over the cadence builder's tasks: daily.mjs, page section 4, cli --tasks) landed 2026-10-24. M6a (CRM export to ranked account briefs and first-touch drafts: research.mjs, cli --crm; hand-built export) landed 2026-10-24; page section 5 landed 2026-10-24; research drafts into the self-host approval queue landed 2026-10-24 (POST /api/research; fake SMTP only); open: a real HubSpot/Pipedrive export.
+      sets, both by agents). M3 (daily run over the cadence builder's tasks: daily.mjs, page section 4, cli --tasks) landed 2026-10-24. M6a (CRM export to ranked account briefs and first-touch drafts: research.mjs, cli --crm; hand-built export) landed 2026-10-24; page section 5 landed 2026-10-24; research drafts into the self-host approval queue landed 2026-10-24 (POST /api/research; fake SMTP only); M6b `--web` home-page facts behind robots.txt landed 2026-10-24 (offline tests only); open: a real HubSpot/Pipedrive export.
       Next: M2 (score a hosted and a local model with eval/model.mjs on both fresh sets (needs a key), and get a set
       labelled by a person or another model family before any rule change), or run the M4a/M4b self-host server (IMAP
       poller, approval queue, audit log, click-to-send over SMTP with List-Unsubscribe landed 2026-10-24; fake IMAP and
