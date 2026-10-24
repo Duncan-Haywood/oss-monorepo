@@ -130,7 +130,7 @@ export function readCamt(xml) {
     // The counterparty is the debtor of money in, the creditor of money out.
     const party = text(inner(dtls, credit ? "Dbtr" : "Cdtr") ?? "", "Nm");
     const remit = [...dtls.matchAll(/<Ustrd>([\s\S]*?)<\/Ustrd>/g)].map((m) => unesc(m[1])).join(" ") || text(dtls, "Ref") || "";
-    const desc = [party, remit || text(head, "AddtlNtryInf") || text(dtls, "AddtlTxInf")].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ");
+    const desc = [party, remit || text(e, "AddtlNtryInf") || text(dtls, "AddtlTxInf")].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ");
     out.push({ line: i + 1, date, desc, cents: credit ? amt : -amt, balance: null });
   });
   if (!entries.length) problems.push("No <Ntry> entries were found in the CAMT file.");
