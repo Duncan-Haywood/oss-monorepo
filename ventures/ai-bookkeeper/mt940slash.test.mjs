@@ -43,3 +43,32 @@ test("plain and German-style :86: text are unchanged", () => {
   const r = readStatement(file(":61:260106D9,99NCHGNONREF", ":86:BETALINGSKENMERK 123 KOSTEN", ":61:260107D5,00NCHGNONREF", ":86:166?00GUTSCHR?20Miete?32Hans"));
   assert.deepEqual(r.rows.map((x) => x.desc), ["BETALINGSKENMERK 123 KOSTEN", "Hans Miete"]);
 });
+
+// Layouts seen in the BSD-licensed WoLpH/mt940 test files (ING, KNAB, Rabobank, PostFinance); snippets rewritten, names made up.
+test("free-text :86: lines the bank ended on purpose get a space, lines cut at 65 characters do not", () => {
+  const r = readStatement(file(
+    ":61:2601020102D12,50NMSCNONREF",
+    ":86:RC AFREKENING BETALINGSVERKEER",
+    "BETREFT REKENING 4715589",
+    ":61:2601030103C10,00NTRFNONREF",
+    ":86:GIRO AUS ONLINE-SIC 80701 AUFTRAGGEBER: XXXXXXXXX XXX XXXXXXXXSTR",
+    "ASSE 111 MITTEILUNGEN: 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX SONNE",
+    "NGLAESER",
+  ));
+  assert.equal(r.rows[0].desc, "RC AFREKENING BETALINGSVERKEER BETREFT REKENING 4715589");
+  assert.equal(r.rows[1].desc, "GIRO AUS ONLINE-SIC 80701 AUFTRAGGEBER: XXXXXXXXX XXX XXXXXXXXSTRASSE 111 MITTEILUNGEN: 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX SONNENGLAESER");
+});
+
+test("several :86: lines after one :61: (Rabobank) are all kept; a soft hyphen is dropped", () => {
+  const r = readStatement(file(
+    ":61:260102D000000001213,28N0440121470966      W.P. Jansen",
+    ":86:Terugboeking",
+    ":86:NIET AKKOORD MET AFSCHRIJVING",
+    ":86:20095731",
+    ":61:2601030103D1,00NTRFNONREF",
+    ":86:iDEAL 10­06­2026",
+  ));
+  assert.equal(r.rows[0].desc, "Terugboeking NIET AKKOORD MET AFSCHRIJVING 20095731");
+  assert.equal(r.rows[0].cents, -121328);
+  assert.equal(r.rows[1].desc, "iDEAL 10-06-2026");
+});

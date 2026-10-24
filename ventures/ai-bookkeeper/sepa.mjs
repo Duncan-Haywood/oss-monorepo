@@ -50,8 +50,14 @@ function slashTags(t) {
 }
 
 // :86: free text, or German-style structured "?20..?29" purpose lines and "?32?33" name.
+// Lines the bank cut at the 65-character SWIFT width continue mid-word, so they join with nothing;
+// a shorter line ended on purpose (ABN AMRO, ING and KNAB free text), so the next one is a new word.
+function joinLines(t) {
+  const lines = t.split("\n");
+  return lines.reduce((acc, l, i) => (i === 0 ? l : acc + (lines[i - 1].length >= 63 || /\?\d\d/.test(t) || /^\/[A-Z]{3,4}\//.test(t) ? "" : " ") + l), "");
+}
 function field86(t) {
-  t = t.replace(/\r?\n/g, "");
+  t = joinLines(t.replace(/\r/g, "")).replace(/\u00ad/g, "-");
   if (/^\/[A-Z]{3,4}\//.test(t)) { const d = slashTags(t); if (d) return d; }
   if (!/\?\d\d/.test(t)) return unesc(t);
   const sub = {};
@@ -83,7 +89,9 @@ export function readMt940(text) {
     if (!date || !Number.isFinite(amt)) { problems.push(`Entry ${i + 1}: unreadable date or amount, skipped.`); return; }
     // C credit and RD reversal of debit add money; D debit and RC reversal of credit remove it.
     const sign = m[5] === "C" || m[5] === "RD" ? 1 : -1;
-    const next = fields[i + 1]?.tag === "86" ? fields[i + 1].body : "";
+    // Rabobank writes one :86: line per fact (reason, reference, ...) after a single :61:.
+    let next = "";
+    for (let j = i + 1; fields[j]?.tag === "86"; j++) next += (next ? "\n" : "") + fields[j].body;
     const supplementary = f.body.split("\n").slice(1).join(" ");
     if (amt === 0) return;
     out.push({ line: i + 1, date, desc: field86(next) || unesc(supplementary) || unesc(first.replace(/^[\dA-Z,]+/, "")), cents: sign * amt, balance: null });
