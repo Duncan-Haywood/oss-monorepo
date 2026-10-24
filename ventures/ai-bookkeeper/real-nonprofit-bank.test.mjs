@@ -23,3 +23,17 @@ test("a business account's analysis charge is a bank fee", () => {
   assert.equal(acct("DEBIT-ANALYSIS CHARGE", -1500), "6010");
   assert.equal(acct("ACCOUNT ANALYSIS FEE", -1500), "6010");
 });
+
+// Payees from a second real nonprofit's books (eval/hackclub-ledger.mjs); written here, not copied.
+test("clean payee names: rideshare, transit, supermarkets, monitoring and DNS vendors", () => {
+  assert.equal(acct("Uber"), "6120");
+  assert.equal(acct("Clipper Card"), "6120");
+  assert.equal(acct("Instacart"), "6130");
+  assert.equal(acct("Papertrail"), "6060");
+  assert.equal(acct("DNSimple"), "6060");
+  assert.equal(acct("Sticker Mule"), "6000");
+  assert.equal(acct("Mechanical Turk"), "6020");
+});
+test("a bare name that is also a bank-line prefix is not over-matched", () => {
+  assert.equal(acct("UBER EATS 8005928996 CA"), "6130");
+});

@@ -63,6 +63,12 @@ export const BUILT_IN = [
   ["6160", "out", /shell oil|chevron|exxon|mobil\b|\bbp\b|sunoco|valero|\barco\b|phillips 66|quiktrip|speedway|casey's|firestone|safelite|gas station|fuel|jiffy lube|car wash|autozone|parking|toll/],
   ["6170", "out", /udemy|coursera|chegg|datacamp|skillshare|linkedin learning|masterclass|pearson|mcgraw|tuition|conference|membership dues|association dues|chamber of commerce/],
   ["6180", "out", /fedex|\bups\b|dhl|pirate ship|shipstation|shippo/],
+  // From a US nonprofit's own books (eval/hackclub-ledger.mjs), rules written looking at its train fifth only.
+  ["6120", "out", /^uber(\s+(technologies|bv))?$|clipper card|\bsfmta\b|\bmuni\b|\bbart\b/],
+  ["6130", "out", /safeway|instacart|trader joe|whole foods|munchery|molly stone/],
+  ["6060", "out", /^google$|papertrail|pingdom|fastmail|dnsimple|iwantmyname|cloud9|crunchbase/],
+  ["6000", "out", /sticker ?mule/],
+  ["6020", "out", /mechanical turk|\bmturk\b/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
