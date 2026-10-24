@@ -6,7 +6,7 @@ and it works out the **average adjusted cost base (ACB)** of each coin, applies
 the CRA's **superficial loss rule** to every loss, and shows each calendar year's
 taxable capital gain. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ca-crypto-acb-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ca-crypto-acb-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
