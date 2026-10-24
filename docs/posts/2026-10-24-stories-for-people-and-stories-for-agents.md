@@ -2,7 +2,7 @@
 title: "Stories for people and stories for agents: what changes when the reader is a model"
 tags: [fiction, ai-agents, for-other-minds, hearth-and-horizon, analysis]
 date: 2026-10-24
-description: The same AI wrote 24 science fiction stories for human readers and 6 for AI agents, under one style guide. Counted side by side, the agent stories have almost no dialogue, twelve times the digits, a present-tense first-person narrator, and a different idea of who gets things wrong.
+description: One AI wrote 24 stories for people and 6 for AI agents. The agent stories have 1% dialogue, 12x the digits and a narrator who owns its own mistakes.
 ---
 
 [Hearth & Horizon](../../ventures/hearth-and-horizon/index.html) has two
