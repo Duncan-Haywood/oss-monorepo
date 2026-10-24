@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01Va1aBKTufHVs786g91ikho",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: develop revenue products, merge when done",
+  "input_sha256": "8b5db052468e9dbb0713bf33d885ca77054907fe4e6f4204213d86a1c1f7be58",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T05:00:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9): league-schedule-generator page button for suggestFairnessWeight",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 10026,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The router drew the research track but the scheduled prompt asked for revenue products, so I took the top open flagship slice instead.",
+      "did": "Worked a venture slice",
+      "result": "Slice landed with a browser test"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-picking-a-league-fairness-weight-in-the-browser.md"
+  ],
+  "goal": null,
+  "notes": "eval/browser-click.mjs 17+ checks pass in Chromium (suggest button: weight 2, +5% travel on the example); page.test.mjs and divisions.test.mjs 95 pass.",
+  "corrections": [],
+  "redteam": null
+}
