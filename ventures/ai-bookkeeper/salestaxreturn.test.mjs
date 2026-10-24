@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, addDocuments, importStatement, confirm } from "./engine.mjs";
-import { salesTaxReturn, dueDate } from "./salestaxreturn.mjs";
+import { salesTaxReturn, dueDate, stateDueDay, stateEndMonth } from "./salestaxreturn.mjs";
 
 const csv = [
   "type,number,date,due,party,amount,account,description",
@@ -92,12 +92,47 @@ test("Washington quarterly returns are due at the end of the next month, monthly
   assert.equal(stateDueDay(undefined), 20);
 });
 
-test("NY, IL and PA monthly returns are due the 20th; NY calendar quarters and PA annual get a note", async () => {
+test("NY, IL and PA monthly returns are due the 20th; PA annual gets a note", async () => {
   const { stateDueDay, stateFilingNote } = await import("./salestaxreturn.mjs");
   for (const s of ["NY", "IL", "PA"]) assert.equal(dueDate("2026-10", stateDueDay(s, "monthly")), "2026-11-20");
-  assert.match(stateFilingNote("ny", "quarterly"), /March-May/);
+  assert.equal(stateFilingNote("ny", "quarterly"), null);
   assert.equal(stateFilingNote("NY", "monthly"), null);
   assert.match(stateFilingNote("PA", "annual"), /semiannual/);
   assert.equal(stateFilingNote("IL", "quarterly"), null);
   assert.equal(stateFilingNote(undefined), null);
+});
+
+test("New York quarters run Dec-Feb, Mar-May, Jun-Aug, Sep-Nov and are due the 20th after", () => {
+  assert.equal(stateEndMonth("ny", "quarterly"), 2);
+  assert.equal(stateEndMonth("NY", "monthly"), null);
+  const r = salesTaxReturn(books(), { endMonth: stateEndMonth("NY"), dueDay: stateDueDay("NY") });
+  assert.deepEqual(r.periods.map((p) => p.period), ["2026-02", "2026-05"]);
+  const first = r.periods[0].rows.find((x) => x.jurisdiction === "CA state");
+  assert.equal(first.tax, 600 - 300); // Jan 10 invoice less the Feb 15 credit; the Mar 31 invoice is the next quarter
+  assert.equal(first.due, "2026-03-20");
+  assert.equal(r.periods[1].rows.find((x) => x.jurisdiction === "CA state").due, "2026-06-22"); // Jun 20 2026 is a Saturday
+});
+
+test("Pennsylvania semiannual periods are Feb-Jul and Aug-Jan, due Aug 20 and Feb 20", () => {
+  assert.equal(stateEndMonth("PA", "semiannual"), 1);
+  const r = salesTaxReturn(books(), { frequency: "semiannual", endMonth: 1, dueDay: 20 });
+  assert.deepEqual(r.periods.map((p) => p.period), ["2026-01", "2026-07"]);
+  assert.equal(r.periods[0].rows[0].due, "2026-02-20");
+  assert.equal(r.periods[1].rows[0].due, "2026-08-20");
+  const cal = salesTaxReturn(books(), { frequency: "semiannual" });
+  assert.deepEqual(cal.periods.map((p) => p.period), ["2026-H1"]);
+});
+
+test("a payment is matched to the shifted period that ended before it", () => {
+  let b = importStatement(books(), "Date,Description,Amount\n2026-03-25,State tax,-3.00\n", "1000").books;
+  b = confirm(b, Object.fromEntries(b.transactions.filter((t) => /State tax/.test(t.desc)).map((t) => [t.id, "2100"])));
+  const r = salesTaxReturn(b, { endMonth: 2 });
+  assert.equal(r.periods[0].period, "2026-02");
+  assert.equal(r.periods[0].paid, 300);
+  assert.equal(r.periods[0].owed, 100);
+});
+
+test("endMonth outside the first period is refused", () => {
+  assert.throws(() => salesTaxReturn(books(), { endMonth: 4 }));
+  assert.throws(() => salesTaxReturn(books(), { frequency: "monthly", endMonth: 2 }));
 });
