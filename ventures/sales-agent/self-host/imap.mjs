@@ -114,6 +114,6 @@ export function parseMessage(raw) {
 
 /** Turn a parsed message into the `From:` block the engine's parseReplies reads (and keep the quoted history out). */
 export const toReplyBlock = (m) => {
-  const hd = m.headers, signal = m.dsn?.permanent ? "dsn-permanent" : m.dsn?.temporary ? "dsn-temporary" : /^(auto-replied|auto-generated)/i.test(hd.autoSubmitted) || hd.xAutoreply ? "auto-reply" : "";
+  const hd = m.headers, signal = m.dsn?.permanent ? "dsn-permanent" : m.dsn?.temporary ? "dsn-temporary" : /^(auto-replied|auto-generated)/i.test(hd.autoSubmitted) || /^auto[_-]?reply\b/i.test(hd.precedence) || hd.xAutoreply ? "auto-reply" : "";
   return `From: ${hd.from}\nSubject: ${hd.subject}\nDate: ${hd.date}${signal ? `\nX-Signal: ${signal}` : ""}${m.dsn?.recipient ? `\nX-Failed-Recipient: ${m.dsn.recipient}` : ""}\n\n${m.text || (m.dsn ? "Delivery status notification" : "")}`;
 };
