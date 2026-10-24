@@ -171,6 +171,12 @@ export function detectColumns(header) {
     cols.amount = h.indexOf("total");
     if (cols.desc === -1 && h.includes("items")) cols.desc = h.indexOf("items");
   }
+  // Etsy's payment-account CSV (Date, Type, Title, Info, Currency, Amount,
+  // Fees & Taxes, Net): Amount is "--" on a fee row, Net is the cash effect.
+  if (h.includes("fees & taxes") && h.includes("net") && cols.amount !== -1 && h[cols.amount] === "amount") {
+    cols.amount = h.indexOf("net");
+    if (h.includes("title")) cols.desc = h.indexOf("title");
+  }
   if (cols.desc === -1) {
     // Some banks split payee and memo; take the first text-looking column left.
     cols.desc = h.findIndex((x, i) => !Object.values(cols).includes(i) && /desc|payee|name|memo|detail/.test(x));
