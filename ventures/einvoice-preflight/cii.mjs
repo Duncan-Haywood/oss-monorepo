@@ -213,6 +213,7 @@ function totalsFrom(settlement) {
     gross: textOf(summation, "GrandTotalAmount"),
     prepaid: textOf(summation, "TotalPrepaidAmount"),
     payable: textOf(summation, "DuePayableAmount"),
+    rounding: textOf(summation, "RoundingAmount"),
   };
 }
 
@@ -298,7 +299,8 @@ export function parseCiiInvoice(source) {
   if (orderRef) invoice.order_reference = orderRef;
   if (headerReason) invoice.tax_exemption_reason = headerReason;
   if (totals.prepaid !== "") invoice.totals.prepaid = totals.prepaid;
-  if (totals.payable !== "") invoice.totals.payable = totals.payable;
+  if (totals.payable !== "") { invoice.totals.payable = totals.payable; invoice.totals.due = totals.payable; }
+  if (totals.rounding !== "") invoice.totals.rounding = totals.rounding;
 
   const taxBreakdown = [];
   for (const row of breakdown) {

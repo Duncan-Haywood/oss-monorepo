@@ -257,21 +257,29 @@ export function checkInvoice(invoice) {
   }
 
   const prepaid = optionalMoney(totals, "prepaid");
+  const due = optionalMoney(totals, "due");
+  // BT-114 (rounding) can be negative: BR-CO-16 is due = gross - prepaid + rounding.
+  const rounding = optionalMoney(totals, "rounding");
+  const roundingValue = rounding === undefined || rounding === null ? 0 : rounding;
+  // When prepayments exceed the gross, EN 16931 allows a negative amount due
+  // (a credit balance for the buyer) as long as the arithmetic is stated.
+  const creditBalance = gross !== null && gross >= 0 && prepaid !== undefined && prepaid !== null && prepaid > gross
+    && due !== undefined && due !== null
+    && due === roundHalfUpToCents(gross - prepaid + roundingValue);
   if (prepaid !== undefined) {
     if (prepaid === null || prepaid < 0) {
       fail("INV-028", "Prepaid amount is missing or invalid.", "Provide a non-negative numeric prepaid amount, or omit totals.prepaid.", "/totals/prepaid");
-    } else if (gross !== null && gross >= 0 && prepaid > gross) {
+    } else if (gross !== null && gross >= 0 && prepaid > gross && !creditBalance) {
       fail("INV-028", "Prepaid amount is greater than the invoice gross.", `Set prepaid to at most ${formatMoney(gross)} or correct the totals.`, "/totals/prepaid");
     }
   }
-  const due = optionalMoney(totals, "due");
   if (due !== undefined) {
-    if (due === null || due < 0) {
+    if (due === null || (due < 0 && !creditBalance)) {
       fail("INV-029", "Amount due is missing or invalid.", "Provide a non-negative numeric amount due, or omit totals.due.", "/totals/due");
     } else if (gross !== null && gross >= 0 && (prepaid === undefined || prepaid === null || prepaid >= 0)) {
       const applied = prepaid !== undefined && prepaid !== null && prepaid >= 0 ? prepaid : 0;
-      let expectedDue = roundHalfUpToCents(gross - applied);
-      if (expectedDue < 0) expectedDue = 0;
+      let expectedDue = roundHalfUpToCents(gross - applied + roundingValue);
+      if (expectedDue < 0 && !creditBalance) expectedDue = 0;
       if (due !== expectedDue) {
         fail("INV-029", "Amount due does not equal gross minus prepaid.", `Set amount due to ${formatMoney(expectedDue)} or correct prepaid and gross.`, "/totals/due");
       }

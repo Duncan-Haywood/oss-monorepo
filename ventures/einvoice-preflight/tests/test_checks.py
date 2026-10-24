@@ -1116,3 +1116,25 @@ class ChecksTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class XRechnungSuiteTotalsTests(unittest.TestCase):
+    """Found by running the KoSIT XRechnung test suite."""
+
+    def _rules(self, **totals):
+        invoice = {
+            "invoice_number": "T-1", "issue_date": "2026-08-24", "currency": "EUR",
+            "supplier": {"id": "S1", "name": "Supplier GmbH"}, "customer": {"id": "C1", "name": "Customer GmbH"},
+            "lines": [{"description": "Work", "quantity": 1, "unit_price": 100, "tax_percent": 19, "net": 100}],
+            "totals": {"net": 100, "tax": 19, "gross": 119, **totals},
+        }
+        return [e["rule"] for e in check_invoice(invoice)]
+
+    def test_rounding_amount_is_part_of_due(self):
+        self.assertEqual(self._rules(due=119.01, rounding=0.01), [])
+        self.assertEqual(self._rules(due=119, rounding=0.01), ["INV-029"])
+
+    def test_stated_credit_balance(self):
+        self.assertEqual(self._rules(prepaid=150, due=-31), [])
+        self.assertEqual(self._rules(prepaid=150, due=-20), ["INV-028", "INV-029"])
+        self.assertEqual(self._rules(due=-5), ["INV-029"])

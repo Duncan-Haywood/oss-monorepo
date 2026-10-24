@@ -374,6 +374,9 @@ def _optional_monetary_totals(total: ElementTree.Element) -> dict[str, int | flo
     payable = _text(total, "PayableAmount", required=False)
     if payable:
         extras["due"] = _number(payable)
+    rounding = _text(total, "PayableRoundingAmount", required=False)
+    if rounding:
+        extras["rounding"] = _number(rounding)
     return extras
 
 

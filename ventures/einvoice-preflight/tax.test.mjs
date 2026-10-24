@@ -137,3 +137,9 @@ test("UBL zero-rated without reason is INV-035", () => {
   assert.ok(errors.every((item) => !item.message.includes("VATEX")));
   assert.ok(errors.every((item) => !item.message.includes("Intra-community")));
 });
+
+test("a zero-rated (category Z) line needs no exemption reason; an exempt (E) one does", () => {
+  const doc = (tax_category) => ({ lines: [{ description: "Goods", quantity: 1, unit_price: 10, tax_percent: 0, net: 10, tax_category }] });
+  assert.deepEqual(inspectTaxExemption(doc("Z")), []);
+  assert.deepEqual(inspectTaxExemption(doc("E")).map((f) => f.rule), ["INV-035"]);
+});

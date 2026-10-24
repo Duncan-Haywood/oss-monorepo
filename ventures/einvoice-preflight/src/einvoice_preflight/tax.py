@@ -70,6 +70,9 @@ def inspect_tax_exemption(invoice: dict[str, Any]) -> list[dict[str, str]]:
 
 
 def _needs_reason(line: dict[str, Any]) -> bool:
+    # Zero-rated goods (category Z) carry no exemption reason (BR-Z-10).
+    if normalize_tax_category(line.get("tax_category")) == "Z":
+        return False
     if looks_like_exemption_category(line.get("tax_category")):
         return True
     tax = _number(line.get("tax_percent"))

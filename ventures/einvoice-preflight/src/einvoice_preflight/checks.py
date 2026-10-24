@@ -163,19 +163,29 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
     elif net is not None and (tax_total is not None or tax_absent) and gross != net + (tax_total or Decimal("0")):
         fail("INV-017", "Gross total does not equal net plus tax.", f"Set gross total to {net + (tax_total or Decimal('0'))} or correct the totals.", "/totals/gross")
     prepaid = _optional_money(totals, "prepaid")
+    due = _optional_money(totals, "due")
+    # BT-114 (rounding) can be negative: BR-CO-16 is due = gross - prepaid + rounding.
+    rounding = _money(totals.get("rounding")) if totals.get("rounding") not in (None, "") else None
+    rounding_value = rounding if rounding is not None else Decimal("0")
+    # When prepayments exceed the gross, EN 16931 allows a negative amount due
+    # (a credit balance for the buyer) as long as the arithmetic is stated.
+    credit_balance = (
+        gross is not None and gross >= 0 and prepaid is not None and prepaid > gross
+        and due is not None
+        and due == (gross - prepaid + rounding_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    )
     if prepaid is not None:
         if prepaid < 0:
             fail("INV-028", "Prepaid amount is missing or invalid.", "Provide a non-negative numeric prepaid amount, or omit totals.prepaid.", "/totals/prepaid")
-        elif gross is not None and gross >= 0 and prepaid > gross:
+        elif gross is not None and gross >= 0 and prepaid > gross and not credit_balance:
             fail("INV-028", "Prepaid amount is greater than the invoice gross.", f"Set prepaid to at most {gross} or correct the totals.", "/totals/prepaid")
-    due = _optional_money(totals, "due")
     if due is not None:
-        if due < 0:
+        if due < 0 and not credit_balance:
             fail("INV-029", "Amount due is missing or invalid.", "Provide a non-negative numeric amount due, or omit totals.due.", "/totals/due")
         elif gross is not None and gross >= 0 and (prepaid is None or prepaid >= 0):
             applied = prepaid if prepaid is not None and prepaid >= 0 else Decimal("0")
-            expected_due = (gross - applied).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-            if expected_due < 0:
+            expected_due = (gross - applied + rounding_value).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            if expected_due < 0 and not credit_balance:
                 expected_due = Decimal("0.00")
             if due != expected_due:
                 fail("INV-029", "Amount due does not equal gross minus prepaid.", f"Set amount due to {expected_due} or correct prepaid and gross.", "/totals/due")

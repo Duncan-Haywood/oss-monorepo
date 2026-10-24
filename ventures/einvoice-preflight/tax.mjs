@@ -36,6 +36,8 @@ function parseNumber(value) {
 }
 
 function needsReason(line) {
+  // Zero-rated goods (category Z) carry no exemption reason (BR-Z-10).
+  if (normalizeTaxCategory(line.tax_category) === "Z") return false;
   if (looksLikeExemptionCategory(line.tax_category)) return true;
   const tax = parseNumber(line.tax_percent);
   return tax !== null && tax === 0;
