@@ -2,7 +2,7 @@
 
 Project of track 12, open-source residential construction (`PROJECTS.md`). [`house-panellift`](../house-panellift) checked a lifted panel's plate bending, weight and wind, and listed the nail load path as a next step. This checks it: the weight of everything below the top plate hangs from the sheathing nails, and the stud end nails get no credit at all. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-liftnails/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-liftnails/
 
 **Headline.** In a sheathed panel the weight hangs from the 8d sheathing nails at the top plate. At 6 in spacing and a 1.5 impact factor they carry **17 to 31 lb each, 0.20 to 0.36 of the 84 lb adjusted lateral value** of one nail (worst: the closed rear-wall panel, 0.36). That holds only if the nails share the load: the closed panel reaches capacity when about **40% of the top-row nails** act, the open panel at about 25%. The stud-to-sheathing field nails are at 0.04. A bare frame (no sheathing) hung by its top plate is a different case: each stud's ~24 lb hangs from end nails in end-grain withdrawal, which the NDS gives no design value for, so this model credits it **0 lb**; it needs straps or ties, not nails. Every nail input is my assumption.
 

@@ -3,7 +3,7 @@
 Estimate a monthly Vercel Pro bill from the usage numbers on your dashboard, and
 see which changes cut it most, each with a dollar figure — before the invoice.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/vercel-bill-estimator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/vercel-bill-estimator/
 
 ```
 node cli.mjs template > usage.csv                 # product,usage CSV to fill in

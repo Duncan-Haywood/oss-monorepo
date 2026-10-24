@@ -4,7 +4,7 @@ Photo sets carry a focal length in EXIF that can be a few percent off, and real 
 
 This takes the "focal-length and distortion as unknowns" item from the "Next steps" of `sensing-ba` and `sensing-baoutlier`. It is a new question (self-calibration), not another seed or dataset.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-bafocal/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-bafocal/
 
 **Builds on.** `sensing-ba` and `sensing-recon` (this repository) for the rig, pose perturbation and Umeyama scoring, imported unchanged. Triggs, McLauchlan, Hartley and Fitzgibbon (2000), "Bundle adjustment: a modern synthesis", LNCS 1883, who treat calibration parameters as unknowns of the same least-squares problem; Brown (1966), "Decentering distortion of lenses", *Photogrammetric Engineering* 32(3), for the radial polynomial (only the first term, `x_d = x (1 + k1 r²)`, is used). Solver: SciPy `least_squares` (trust-region reflective, sparse Jacobian pattern). Track 15 (`sensing`). No lab in `prompt.md` is built on; none fits.
 

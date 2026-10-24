@@ -2,7 +2,7 @@
 
 A free browser calculator for a sole proprietor or single-member LLC choosing between a SEP-IRA and a Solo 401(k) for 2026. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sep-ira-vs-solo-401k-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sep-ira-vs-solo-401k-calculator/
 
 After using this, you can now **see how much more a Solo 401(k) lets you save than a SEP-IRA at your own profit, and what that is worth in tax**, which used to mean working two IRS worksheets by hand.
 

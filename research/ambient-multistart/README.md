@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-third` (its second "Next step": multi-start or likelihood-ranked starts so the degenerate point is rejected without a good guess). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the classifier and auditors are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-multistart/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-multistart/
 
 ## Motivation
 

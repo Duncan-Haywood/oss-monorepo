@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`, "Next steps" of [`buildbot-cost`](../buildbot-cost)). `buildbot-cost` swept the robot's slowdown over 1 to 10 because no skill was simulated. [`buildbot-carry`](../buildbot-carry) and [`buildbot-fasten`](../buildbot-fasten) have now landed, so this reads their `results.json` and replaces the swept inputs with simulated ones where they exist. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-grounded/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-grounded/
 
 **Headline.** At a $37.86 loaded hour and 0.3 supervision, an H1 breaks even at **1.07 robot-hours per replaced crew-hour** and a G1 at **2.42**. The simulated carry slowdown of the **H1 against a labourer who carries one stud a trip is 0.41 to 1.70 (median 0.85)**: it pays in 72% of the 36 cells of the grid. **Against a labourer who carries a bundle of four it is 1.63 to 6.82 (median 3.38) and never pays.** The G1 (one stud only, 3.8 kg) is 0.90 to 1.64 against the one-stud labourer (always below its 2.42) and 3.59 to 6.57 against the bundle (never below 2.42 at 0.3 supervision). So **whether a stock humanoid pays for carrying depends on how the crew carries**, not on the robot: the simulation cannot settle it, and the taskbook's own carry rate (3.3 pieces a minute) sits between the two labourers. Whatever the answer, the dollars are small: the H1's whole framing-carry task is 1.05 crew-hours, a **$40 ceiling (0.006% of an average price)**, and nailing a sheet's reachable 58% (H1) or 29% (G1) of its 62 nails caps at $31 to $73 (H1) and $15 to $36 (G1) per house. Nothing is tested on hardware.
 

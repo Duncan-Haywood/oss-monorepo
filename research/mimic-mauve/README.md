@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), a no-LLM slice of milestone 5 (`mimic-transfer`), built on `mimic-contexts` and `mimic-genshift`. **Preliminary, stylised: RAID plain-prompt text only, three chat models, a TF-IDF/SVD embedding instead of MAUVE's usual GPT-2 features, 5 draws per cell.** Produced with AI assistance (Claude). No LLM was run (the container cannot reach Hugging Face), so MAUVE's published feature extractor is **not** used and these values are not comparable with MAUVE numbers in the literature.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-mauve/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-mauve/
 
 Milestone 5 asks whether imitator and human text differ as *distributions*, because a detector that sees a batch can catch an imitator whose texts are each plausible but too alike. `mimic-genshift` looked at distinct-*n*. This project adds MAUVE (Pillutla et al., 2021), installed as a dependency (`pip install mauve-text`, GPL-3.0, not vendored), and asks whether it agrees with the per-text detector on which human-vs-machine gaps are large.
 

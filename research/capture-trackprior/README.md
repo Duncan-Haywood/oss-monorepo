@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), the second "next step" of `capture-aliaswin`. **Headline (mostly negative):** no. `capture-aliaswin` showed an oracle prior of +-10 ms (centred on the true delay) takes the four failing real clips from 37.5% wrong windows to 0%. Replacing the oracle with a prior tracked from the camera's own earlier estimates (a Theil-Sen line, half-width from its scatter) does **not** reproduce that: with 1 prior-free bootstrap window it is no better than no prior (0.374 vs 0.375 wrong on the 4 failing clips) and **locks onto a wrong alias for the rest of the hour on 37% of their cameras**; 5 bootstrap windows get it to 0.225 wrong (14% of cameras lost). A half-width capped under the clip's period makes things worse with 1 bootstrap window, because the cap is below the drift between windows and breaks clips that worked (0.338 wrong on the six clips that were at 0.000). Where an estimate fails, the tracked prior keeps it failed instead of retrying.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-trackprior/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-trackprior/
 
 **Builds on.** `capture-aliaswin` (`gcc_search`, the oracle ceiling, the ten-clip design), `capture-residgate`, `capture-realaudio` (partial whitening after Knapp and Carter (1976), *IEEE Trans. ASSP* 24(4)), `capture-audiosync`. Tracking a drifting delay with a robust line is standard (Theil 1950; Sen 1968, *JASA* 63); nothing here is claimed as new. No CU Boulder group in `prompt.md` covers this.
 

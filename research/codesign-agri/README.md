@@ -2,7 +2,7 @@
 
 Fourth milestone of the agentic co-design track (`research/PROJECTS.md`, track 14, `codesign`; agriculture domain). A printed soft-fruit gripper is described by five numbers (pad width, pad length, pad modulus, grip force, number of fingers) and scored on a fixed population of 600 simulated fruit for clean picks, bruises, slips and misses. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-agri/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-agri/
 
 ![best objective vs evaluations](experiments/curves.png)
 

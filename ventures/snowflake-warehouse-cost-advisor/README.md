@@ -4,7 +4,7 @@ Why is your Snowflake bill so high? Paste one row per warehouse and see what eac
 the idle tail a long `AUTO_SUSPEND` is billing, idle and never-suspending warehouses, and a bounded
 right-sizing note, each with the `ALTER WAREHOUSE` command. Browser page or zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/snowflake-warehouse-cost-advisor/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/snowflake-warehouse-cost-advisor/
 
 ```
 node cli.mjs analyze warehouses.csv

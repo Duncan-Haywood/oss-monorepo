@@ -2,7 +2,7 @@
 
 **In the stylised model, linking the pile's garment kinds to the cell's archetypes moves a one-arm laundry cell from 147 to 141 garments hung or folded per hour (look-then-aim), but the size and even the sign of the change on two arms depend on an assumed kind-to-archetype map: from 141 to 250 per hour across five maps. The correlation the link adds (knits hide openings more often) is small by comparison: raising a knit's hidden-opening chance from 0.2 to 1.0 costs 144 to 132 per hour on one arm and 239 to 230 on two, and sets 0.23 knits per load aside for a person.** Produced with AI assistance (Claude). **Stylised: every station time and pile probability is an assumed placeholder from `hanger-cell` or `hanger-pick`, and the map from pile kinds (trousers, dress, kids) to the cell's five archetypes is a guess (swept in D); nothing here is a measurement of a robot, a dryer or a garment.**
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-kindlink/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-kindlink/
 
 Track 18 (`hanger`, [`PROJECTS.md`](../PROJECTS.md)). Takes the "Next steps" item of [`hanger-cellpick`](../hanger-cellpick): "link pile garment kinds to the cell's archetypes so a knit's hidden opening and its hang-or-fold decision come from the same garment". (Its other item, two arms sharing one pile, is not done.) Built on none of the CU Boulder groups in `prompt.md`; no connection to them is claimed.
 

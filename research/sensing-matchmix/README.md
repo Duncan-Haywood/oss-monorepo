@@ -4,7 +4,7 @@ Bundle adjustment with wrong camera poses and feature mismatches: which defence 
 
 This takes the next step of `sensing-matchreal`: its measured `ratio -> (rate, along / near / far)` mixes replace the fixed fractions of `sensing-epigate`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-matchmix/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-matchmix/
 
 **Builds on.** `sensing-matchreal` (the mixes, measured with OpenCV SIFT on the Middlebury 2014 Motorcycle pair and on warped photographs), `sensing-epigate` (gate, mismatch kinds), `sensing-baoutlier`, `sensing-ba`, `sensing-recon` (rig, RANSAC start, robust adjustment, scoring), all in this repository. Hartley and Zisserman (2004), *Multiple View Geometry in Computer Vision*, 2nd ed., Cambridge University Press, ch. 11; Fischler and Bolles (1981), *Communications of the ACM* 24(6). Track 15 (`sensing`). No lab in `prompt.md` is built on; none fits.
 

@@ -2,7 +2,7 @@
 
 Follow-up to `simdesign-robustmove` (track 5, `PROJECTS.md`), taking the first of its listed next steps: does a move limit that shrinks after a spike do as well as a fixed small one? Result: not reliably. On the same nine cases, a fixed move of 0.2 failed in 5, a fixed 0.05 in none, and the adaptive rule in 2, because it can only react after the damaging step has been taken. Produced with AI assistance (Claude). Stylised: 2D dimensionless compliance, one problem, one deterministic run per cell; nothing was made or tested physically.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-robustadapt/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-robustadapt/
 
 **Builds on.** `simdesign-robustmove` (spike counter and failure criterion, imported), `simdesign-robust` (the robust loop, re-written here with a per-iteration move limit; same formulas, a fixed 0.2 run reproduces `robust_topopt` to 6 places, tested), `simdesign-heaviside`, `simdesign-topopt`. Wang, Lazarov and Sigmund (2011), *Struct. Multidisc. Optim.* 43(6):767–784, <https://doi.org/10.1007/s00158-010-0602-y>, for the eroded / blueprint / dilated formulation. It builds on none of the CU Boulder groups in `prompt.md`.
 

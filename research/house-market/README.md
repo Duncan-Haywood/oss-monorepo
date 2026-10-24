@@ -2,7 +2,7 @@
 
 Track 12 project, open-source residential construction (`PROJECTS.md`). A market report on new single-family homes as of October 2026. It covers the state of the market, a dollar breakdown of a new home's price, Colorado's prices, fees, codes and permits, and what each construction technique costs relative to a wood frame. Every figure is a row of [`data/facts.csv`](data/facts.csv), dated and tied to a source in [`data/sources.csv`](data/sources.csv). A short stdlib model (`src/house_market/model.py`) does the arithmetic that joins the sources, and its assumptions are stated where they are made. Produced with AI assistance (Claude). All sources were read on 2026-10-20.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-market/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-market/
 
 **Headline.**
 - **Prices are falling while costs rise.** The median new US home sold for $393,700 in August 2026, down 5.8% on a year earlier. Builder sentiment (29) is the lowest since June 2012, and 43% of builders cut prices in October. Over the same period the inputs to residential construction rose 10.3% (5.5% for materials excluding energy) and the 30-year mortgage rate rose from 6.27% to 7.40%.

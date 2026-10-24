@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-proposers` and `eda-refpoint` assumed every search query returns the true objectives. In a fidelity ladder (`eda-fidelity`) the cheap rungs are biased, and a search that only sees them is optimising the wrong numbers. `eda-refpoint` listed "a noisy space" as its next step; this runs it. Produced with AI assistance (Claude). **Stylised and preliminary:** one 80-design accelerator table, synthetic Gaussian error (not measured from any tool), generic-gate cell counts, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-noisy/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-noisy/
 
 **Builds on.** `research/eda-proposers` (table, six proposers and runner, imported unchanged) and `research/eda-refpoint` (the scoring convention: hypervolume ratio at reference 1.1 on min-max scaled objectives). Multi-fidelity search background: Peherstorfer, Willcox and Gunzburger (2018), *SIAM Review* (cited from memory, not re-read). No CU Boulder lab's work is built on.
 

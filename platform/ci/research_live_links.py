@@ -103,10 +103,19 @@ def has_link(text, slug):
     return url_for(slug) in text
 
 
+def stale_link(slug):
+    """A live-page line for slug on an older Pages base (the site moved to /oss-monorepo/ in P047)."""
+    return re.compile(r"^\*\*Live page:\*\* https://duncan-haywood\.github\.io/[^/\s]+/research/"
+                      + re.escape(slug) + r"/[ \t]*$", re.M)
+
+
 def insert_link(text, slug):
-    """Return text with the live-page line after the first paragraph under the title."""
+    """Return text with the live-page line after the first paragraph under the title;
+    a line on an older base URL is rewritten in place rather than duplicated."""
     if has_link(text, slug):
         return text
+    if stale_link(slug).search(text):
+        return stale_link(slug).sub(LINE.format(url=url_for(slug)), text, count=1)
     lines = text.split("\n")
     i = 0
     while i < len(lines) and not lines[i].startswith("# "):
