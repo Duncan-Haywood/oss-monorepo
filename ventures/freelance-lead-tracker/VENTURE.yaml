@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports a forecast, date or follow-up figure that is materially wrong or misleading.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/freelance-lead-tracker/
+  production: https://duncan-haywood.github.io/oss-monorepo/freelance-lead-tracker/
   analytics: null

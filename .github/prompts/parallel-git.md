@@ -1,9 +1,9 @@
-# Git with 16 agents on one `main`: the rules, why, and what went wrong
+# Git with 16 agents on one `main`: the defaults, why, and what went wrong
 
 About 16 agent sessions work on this repository at once and merge about 280
 PRs a day to `main` (2026-10-17 to 10-20). This file covers how to use git
 safely at that rate. [`land-your-work.md`](land-your-work.md) gives the
-landing steps; this file explains why each rule exists. The measurements are
+landing steps; this file explains why each default exists. The measurements are
 in [`docs/parallel-agents.md`](../../docs/parallel-agents.md). The public
 write-ups are `docs/posts/2026-10-20-one-branch-per-agent-280-merges-a-day.md`
 and `docs/posts/2026-10-20-what-went-wrong-sixteen-agents-one-main.md`.
@@ -18,7 +18,7 @@ to merge `main` back in, and 20% of commits are conflict overhead. The
 alternatives below were weighed against those numbers, and none of them
 beats the pattern on its own.
 
-## Rules
+## Defaults, with their reasons
 
 1. **Avoid adding a file that every PR has to edit.** A counter of the whole
    tree, a list of every project, or a generated mirror makes any two
@@ -28,7 +28,7 @@ beats the pattern on its own.
    overhead. Removing it took the median PR from 2,339 files to 6. To check
    your change, run `concurrency_tax.py`, or the method in
    `docs/parallel-agents.md` (P041 makes the script work in cloud sessions).
-2. **Generated output that nothing serves does not belong in git.** Build it
+2. **Keep generated output that nothing serves out of git.** Build it
    when you deploy. *Why:* the mirror for the server retired on 2026-10-01
    stayed in every PR for about two more weeks. It came back once (6,202
    files) before #8638 removed it and added a check that fails if it returns.

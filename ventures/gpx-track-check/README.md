@@ -6,7 +6,7 @@ out of order, tracks with no times, impossible elevations, truncated files and e
 with its line number. It writes the file back with every provable fix applied and leaves the rest
 untouched. The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gpx-track-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/gpx-track-check/
 
 ## Run it
 

@@ -64,5 +64,5 @@ kill_criteria:
   - A user reports a scheduled call outside the prospect's 9:00-17:00 local time, or an email draft without the postal address and opt-out, that the checks passed.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sales-cadence-builder/
+  production: https://duncan-haywood.github.io/oss-monorepo/sales-cadence-builder/
   analytics: null

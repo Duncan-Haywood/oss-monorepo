@@ -2,7 +2,7 @@
 
 Track 21 (`infra`), grid first. Grid operators check "N-1 security" (does the system survive losing any one line or transformer?) by screening every outage with a linear DC power flow and only running AC on the flagged ones. This project asks how many of the outages that an AC power flow calls insecure the DC screen never flags, and what extra margin on the screen closes the gap. Produced with AI assistance (Claude). No method transfer from outside power systems; the benchmark use of MATPOWER cases follows the pandapower literature. No CU Boulder group's work is reproduced and no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-n1screen/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-n1screen/
 
 **Headline (modelled in pandapower on five MATPOWER/IEEE cases, every line and transformer outage; not a measured system; results in `experiments/results.txt`).**
 - **A plain DC screen misses a real share of insecure outages, and never raises a false alarm at a threshold of 1.0.** At a rating of 25 % above the base-case flow, the screen misses **25 % (case14), 17 % (case30), 13 % (case39), 40 % (case57) and 14 % (case118)** of the outages the AC power flow calls insecure. Its false alarms are 0 to 6 % of what it flags.

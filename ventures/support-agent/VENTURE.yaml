@@ -69,5 +69,5 @@ kill_criteria:
   - A report of the agent answering with a fact the cited article does not contain, of a handoff-rule message (refund request, legal threat, card number) being answered instead of handed off, or of a script injection in the widget or admin; grounding and handoff fixes come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/support-agent/
+  production: https://duncan-haywood.github.io/oss-monorepo/support-agent/
   analytics: null

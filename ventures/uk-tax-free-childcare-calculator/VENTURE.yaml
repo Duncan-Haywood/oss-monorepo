@@ -33,5 +33,5 @@ kill_criteria:
   - A report that a threshold, cap or rule differs from GOV.UK guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-tax-free-childcare-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-tax-free-childcare-calculator/
   analytics: null

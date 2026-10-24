@@ -38,5 +38,5 @@ kill_criteria:
   - A creator reports that the usage-rights multipliers are far outside current market rates.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/ugc-creator-rate-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/ugc-creator-rate-calculator/
   analytics: null

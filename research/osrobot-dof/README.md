@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-assist` (track 9, open-source purpose-built robots), taking the one "Next steps" item in that chain that is a new question, not a variant of the lip-force result: **compare a 2-DOF purpose-built arm with a 6-DOF arm on the same task, with a priced bill of materials.** In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Pure Python standard library. **Every mass, length and inertia is an assumed round number (ASSUMED in `src/osrobot_dof/model.py`), not a measurement of any product, and no robot was built or tested with anyone.** All numbers are from `experiments/results.txt`. Simulation only; a stylised, preliminary study.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-dof/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-dof/
 
 ![Tip mass along the approach against joint count](experiments/tip_mass.svg)
 

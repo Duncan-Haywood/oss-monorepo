@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
+import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -532,4 +532,16 @@ test("a venueHistory object survives a share link as JSON, not [object Object]",
   const venueHistory = { "A/a1": { Park: 2 } };
   const back = decodeDivisionFields("#d=" + encodeDivisionFields({ divisions: "A: a1, a2", venueHistory }));
   assert.deepEqual(JSON.parse(back.venueHistory), venueHistory);
+});
+
+test("suggestFairnessWeight reads the league's own travel: free evenness on two venues, a priced fallback on three with distances", () => {
+  const two = suggestFairnessWeight(build().config && readDivisionsSpec(example).spec);
+  assert.equal(two.basis, "venue changes");
+  assert.ok(two.weight >= 1 && two.weight <= 2 && !two.overSlack, JSON.stringify(two)); // measured 1.5 (README)
+  const f = { ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School, Gym B @ Lake", courtClosures: "", travel: "Park - School: 10\nPark - Lake: 60\nSchool - Lake: 55" };
+  const three = suggestFairnessWeight(readDivisionsSpec(f).spec, { seeds: 2 });
+  assert.equal(three.basis, "minutes of travel");
+  assert.ok(three.overSlack && three.weight > 0 && three.extraTravel > 0.05, JSON.stringify(three)); // 4 seeds: 0.5, +23%; 2 seeds in the test
+  const zero = three.rows.find((r) => r.weight === 0), pick = three.rows.find((r) => r.weight === three.weight);
+  assert.ok(pick.imbalance <= zero.imbalance / 2);
 });

@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Operators report that a usage-based split is more work to explain to tenants than the even split they already do, without changing what anyone actually pays.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/commissary-kitchen-cost-split-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/commissary-kitchen-cost-split-calculator/
   analytics: null

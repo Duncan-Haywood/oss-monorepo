@@ -73,5 +73,5 @@ kill_criteria:
     self-managed deployments still ship.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/backup-file-exposure-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/backup-file-exposure-check/
   analytics: null

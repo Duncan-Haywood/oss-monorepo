@@ -6,7 +6,7 @@ supply-run time every call costs. It shows the minimum trip charge, the smallest
 worth driving to at your quoted hourly rate, the lowest price for each job you list,
 and the hourly rate you actually keep once unpaid time is counted. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/handyman-minimum-job-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/handyman-minimum-job-calculator/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

@@ -51,5 +51,5 @@ kill_criteria:
   - A user reports the model omits a cost every freelance grant writer carries, at which point the model needs review.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/grant-writer-proposal-price-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/grant-writer-proposal-price-calculator/
   analytics: null

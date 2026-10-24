@@ -12,7 +12,7 @@ import { plainFix } from "./schematron-fixes.mjs";
 
 export const PLAIN_DIR = "plain/";
 const RULE_FILES = { ubl: "en16931-ubl.json", cii: "en16931-cii.json" };
-export const PLAIN_ADDON_FILES = { xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" } };
+export const PLAIN_ADDON_FILES = { xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" }, "cius-ro": { ubl: "cius-ro-ubl.json" } };
 
 // fontoxpath works on IEEE doubles, the rules are written for exact xs:decimal.
 // A money equation like `BasisAmount = round(a*100) div 100 + round(b*100) div 100`
@@ -109,7 +109,10 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
 
   const toFinding = (f, source) => {
     const withId = f.text.match(/^\[([^\]]+)\]-?\s*(.*)$/);
-    return { rule: f.rule || withId?.[1] || "SCH", message: withId ? withId[2] : f.text, fix: plainFix(f.rule || withId?.[1] || "SCH"), path: f.path, severity: f.flag, source };
+    // The Romanian rules carry "Romanian text #English text"; show the English.
+    let message = withId ? withId[2] : f.text;
+    if (source === "cius-ro-schematron" && message.includes("#")) message = message.slice(message.indexOf("#") + 1).trim();
+    return { rule: f.rule || withId?.[1] || "SCH", message, fix: plainFix(f.rule || withId?.[1] || "SCH"), path: f.path, severity: f.flag, source };
   };
 
   // load(file) -> compiled rule set (parsed JSON) or null when that set is not shipped.

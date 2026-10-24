@@ -2,7 +2,7 @@
 
 Follow-up to `free-citeaudit`, which found Horowitz (2014) among the most-repeated "not re-checked" citations in the portfolio, and to track 8 (task-specific AI accelerators) in `PROJECTS.md`. **Headline:** every one of the 34 energy constants in `research/accel-*/src` that has a counterpart in Horowitz's Fig. 1.1.9 is within 4% of it (checked against the figure itself, not a secondary source), so the "typed from memory" flag can come off. The one modelling choice the figure does contradict is a single flat 0.16 pJ/bit for every on-chip array: the figure's energy grows as roughly the square root of array size. Re-costing `accel-kws`'s 40 designs with that law moves their energy to 0.23 to 0.81 of the as-built figure, but their energy ranking barely changes (Spearman 0.991) and 17 of the 18 designs on the accuracy-against-energy front stay on it. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-horowitzcheck/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-horowitzcheck/
 
 **Why this was worth doing.** Six READMEs say their per-operation energies are "in the spirit of Horowitz (2014), not re-checked", and ten projects carry them. This run read the source and measured how much the leftover freedom matters.
 

@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a plan whose pieces overlap a cut-out, leave the room, or do not add up to the floor they entered.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tile-layout-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/tile-layout-planner/
   analytics: null

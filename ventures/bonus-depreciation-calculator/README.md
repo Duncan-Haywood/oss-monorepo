@@ -5,7 +5,7 @@ or asset purchase: 100% bonus depreciation, a Section 179 election, and plain
 MACRS depreciation with no election. Entirely client-side; nothing is
 uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bonus-depreciation-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/bonus-depreciation-calculator/
 
 After using this, you can now **see the current-year cash tax saving under
 all three paths for the same purchase, with the 2025/2026 Section 179 dollar

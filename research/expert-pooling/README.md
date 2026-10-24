@@ -3,7 +3,7 @@
 Stdlib-only Python. Calibrated experts with shared training data (correlated errors) pooled as `sigmoid(a · mean logit)`.
 See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/expert-pooling/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/expert-pooling/
 
 ```bash
 cd research/expert-pooling

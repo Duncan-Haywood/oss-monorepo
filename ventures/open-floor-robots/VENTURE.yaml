@@ -67,5 +67,5 @@ kill_criteria:
   - A builder reports that the cliff handling cannot be made to stop the robot before an edge at a useful speed, and no sensor layout in the CAD fixes it.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/open-floor-robots/
+  production: https://duncan-haywood.github.io/oss-monorepo/open-floor-robots/
   analytics: null

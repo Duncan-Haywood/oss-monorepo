@@ -2,7 +2,7 @@
 
 Fifth milestone of the engineered-clothing track (`PROJECTS.md`, track 6). A stylised comparison of nylon, aramid and UHMWPE fabrics using a Cunniff-style specific-toughness scaling, plus mass, cost, thickness and bending stiffness of a torso panel. **Modelling only: this is not a protection claim.** A garment is armour only after certified testing, such as NIJ Standard 0101.07 (ballistic) or 0115.00 (stab). Some US states restrict civilian body armour (New York: Penal Law § 270.21). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-protective/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/garment-protective/
 
 **Builds on.** Cunniff (1999), dimensionless parameters for textile body armour, and Lee, Wetzel and Wagner (2003) on shear-thickening-fluid-treated Kevlar (as listed in `PROJECTS.md`). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

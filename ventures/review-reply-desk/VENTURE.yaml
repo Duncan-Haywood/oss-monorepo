@@ -61,5 +61,5 @@ kill_criteria:
   - A user reports a reply the checker passed that confirmed a patient relationship, offered compensation for a changed review, or accused the reviewer.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/review-reply-desk/
+  production: https://duncan-haywood.github.io/oss-monorepo/review-reply-desk/
   analytics: null

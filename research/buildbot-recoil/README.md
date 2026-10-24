@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`, milestones 4 and 6). [`buildbot-fasten`](../buildbot-fasten) asked how hard a G1 can press a nailer into a wall and how exactly a nail must land, both as static limits, and left "model the nailer's recoil" as its first next step. This is the first time-domain check on that chain: the G1's waist-and-arm joints hold a 3.4 kg nailer against a wall under a closed-loop controller, a recoil impulse hits the tip, and the tip is followed until it settles. Produced with AI assistance (Claude). Simulated and preliminary. **The recoil impulse of a real nailer is not measured here and no source for it was found, so it is swept, not assumed**; the controller gains and delay are swept too, and the legs and balance are not modelled.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-recoil/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-recoil/
 
 **Headline.**
 - **Sideways error is not the problem; losing the wall is.** With a 30 N preload against a 1e5 N/m wall, a recoil of up to **4 N s** moves the tip at most **1 to 4 mm** in the wall plane for loops of 4 to 12 Hz (window of a joint nail: ±3.9 mm), and the tip is back within 1 mm in about 0.1 s or less. But a recoil of **1 N s or more lifts the nosepiece off the wall for 25 to 140 ms** (the tip moves back 0.6 to 18 mm against a 30 N preload), and 0.5 N s does in all but the stiffest loops (8 and 12 Hz, no delay). Only 0.25 N s keeps contact in most loops. On a contact-trip tool that matters (it can fire again when it touches down); on a sequential-trip tool the robot must re-seat anyway.

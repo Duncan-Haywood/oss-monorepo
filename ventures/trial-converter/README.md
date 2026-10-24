@@ -7,7 +7,7 @@ get an honest price-and-date heads-up, trials without one get a scheduled
 paying a lifecycle-email tool that bills by contact count, or hand-writing
 webhook glue.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/trial-converter/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/trial-converter/
 
 Two parts, both free and MIT:
 

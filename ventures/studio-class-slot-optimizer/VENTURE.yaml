@@ -58,5 +58,5 @@ kill_criteria:
   - A user reports that a slot's adjusted average or the cut gain disagrees with a hand calculation from the same log and inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/studio-class-slot-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/studio-class-slot-optimizer/
   analytics: null

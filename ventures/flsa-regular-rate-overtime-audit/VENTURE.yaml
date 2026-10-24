@@ -54,5 +54,5 @@ kill_criteria:
   - A user reports a result that disagrees with 29 CFR part 778 for the preset, and the preset is not corrected within a week.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/flsa-regular-rate-overtime-audit/
+  production: https://duncan-haywood.github.io/oss-monorepo/flsa-regular-rate-overtime-audit/
   analytics: null

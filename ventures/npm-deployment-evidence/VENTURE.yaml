@@ -44,5 +44,5 @@ kill_criteria:
   - No repeat use of the local report or CI action after a two-week pilot.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/npm-deployment-evidence/
+  production: https://duncan-haywood.github.io/oss-monorepo/npm-deployment-evidence/
   analytics: null

@@ -47,5 +47,5 @@ kill_criteria:
   - No host reports using a counter-offer or a declined request the tool recommended within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/booking-request-chooser/
+  production: https://duncan-haywood.github.io/oss-monorepo/booking-request-chooser/
   analytics: null

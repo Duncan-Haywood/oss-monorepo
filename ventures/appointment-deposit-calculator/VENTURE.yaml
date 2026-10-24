@@ -35,5 +35,5 @@ kill_criteria:
   - No return usage or organic referral signal within 60 days of public deployment.
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/appointment-deposit-calculator/
   analytics: null

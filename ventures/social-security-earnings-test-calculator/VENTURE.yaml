@@ -50,5 +50,5 @@ kill_criteria:
   - A report that a result differs materially from SSA's own withholding on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/social-security-earnings-test-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/social-security-earnings-test-calculator/
   analytics: null
