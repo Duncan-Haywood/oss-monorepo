@@ -45,7 +45,7 @@ import time
 import urllib.error
 import urllib.request
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -114,6 +114,8 @@ def http_get(path: str) -> Any:
         except urllib.error.HTTPError as e:
             if e.code == 404:
                 return None
+            if e.headers.get("X-RateLimit-Remaining") == "0":
+                raise  # rate limit spent: retrying only stalls until the window resets
             if e.code not in (403, 429, 500, 502, 503) or attempt == 3:
                 raise
         except urllib.error.URLError:
@@ -185,13 +187,16 @@ def fetch(root: Path = ROOT, refresh: bool = False, get: Callable[[str], Any] = 
 
     failed = 0
     with ThreadPoolExecutor(max_workers=8) as pool:
-        results = pool.map(safe, todo)
+        # as_completed, not map: map yields in order, so one slow PR hides all progress
+        results = (f.result() for f in as_completed([pool.submit(safe, t) for t in todo]))
         for i, (k, facts) in enumerate(results, 1):
             if isinstance(facts, Exception):
                 failed += 1  # leave it uncached so the next fetch retries it
+                if failed == 1:
+                    log(f"  first failure: {k}: {facts}")
                 continue
             cache[k] = facts if facts is not None else {"missing": True, "fetched_at": now_iso()}
-            if i % 25 == 0:
+            if i % 10 == 0:
                 log(f"  {i}/{len(todo)}")
                 write_json(root / "derived" / "github.json", cache)
     write_json(root / "derived" / "github.json", cache)
