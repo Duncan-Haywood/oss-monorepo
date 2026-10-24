@@ -221,3 +221,25 @@ test("Intesa Sanpaolo's newer export (Operazione / Dettagli) no longer imports w
   assert.equal(r.rows[0].desc, "Bar Roma Milano Pagamento POS");
   assert.deepEqual(r.rows.map((x) => x.cents), [-1250, 180000]);
 });
+
+// Actual Budget's import fixtures (MIT; a 2019 Bank of America QIF and QFX, read only).
+// Shapes rewritten here with made-up payees and amounts.
+test("a Bank of America-style QIF with CRLF, cleared flags and long truncated payees reads every line", () => {
+  const q = "!Type:Bank\r\nD12/19/18\r\nPCOUNTY WASTE 12/18 PURCHASE 804-8439288 VA\r\nT-25.00\r\nC*\r\n^\r\nD12/19/18\r\nPTARGET DEBIT CRD DES:ACH TRAN ID:XXXXX0370723991 INDN:A SMITH 9321 CO I\r\nT-41.92\r\nC*\r\n^\r\n";
+  const r = readStatement(q);
+  assert.equal(r.rows.length, 2);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-2500, -4192]);
+  assert.equal(r.rows[0].date, "2018-12-19");
+  assert.deepEqual(r.problems, []);
+});
+
+test("a QFX with an INTU.BID sign-on block and SGML header reads like OFX", () => {
+  const f = `OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\nSECURITY:NONE\nENCODING:USASCII\nCHARSET:1252\nCOMPRESSION:NONE\nOLDFILEUID:NONE\nNEWFILEUID:NONE\n\n<OFX><SIGNONMSGSRSV1><SONRS><STATUS><CODE>0<SEVERITY>INFO</STATUS><DTSERVER>20190124212851.000[0:UTC]<LANGUAGE>ENG<FI><ORG>Test Bank<FID>5959</FI><INTU.BID>6526</SONRS></SIGNONMSGSRSV1>
+<BANKMSGSRSV1><STMTTRNRS><TRNUID>0<STATUS><CODE>0<SEVERITY>INFO</STATUS><STMTRS><CURDEF>USD<BANKACCTFROM><BANKID>012345678<ACCTID>123456789<ACCTTYPE>CHECKING</BANKACCTFROM><BANKTRANLIST><DTSTART>20190101<DTEND>20190123
+<STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20190123120000<TRNAMT>-30.00<FITID>1<NAME>PATIENT FIRST 01/22 PURCHA</STMTTRN>
+<STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20190123120000<TRNAMT>-3.77<FITID>2<NAME>COFFEE STORE 01/21 PURC</STMTTRN>
+</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`;
+  const r = readStatement(f);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-3000, -377]);
+  assert.equal(r.rows[0].date, "2019-01-23");
+});
