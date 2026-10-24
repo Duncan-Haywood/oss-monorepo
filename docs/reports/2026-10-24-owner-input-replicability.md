@@ -26,7 +26,7 @@ the hard third carries most of the weight.
 | 4 | Rests on the owner's own interests, values or risk appetite | 40 | 36% |
 | 5 | Needs the owner's legal standing, money or account access | 1 | 1% |
 
-110 owner inputs, 2026-10-14 to 2026-10-24 (114 direct run records minus one
+110 owner inputs, 2026-10-14 to 2026-10-24 (114 direct run records before this run, minus one
 duplicate and three follow-ups written by agents). Outside that table:
 
 - **2,679 scheduled triggers** ("follow `./prompt.md`") are tier 1: already
