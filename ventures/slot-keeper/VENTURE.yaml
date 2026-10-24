@@ -63,5 +63,5 @@ kill_criteria:
   - A report of a double-booked slot, a time shown in the wrong zone, a booking changed or read without its private link, a script injection in the admin or booking pages, or an admin action accepted without the key; correctness, escaping and auth checks come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/slot-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/slot-keeper/
   analytics: null

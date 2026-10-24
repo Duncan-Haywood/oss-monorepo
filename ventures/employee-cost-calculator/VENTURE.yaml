@@ -39,5 +39,5 @@ kill_criteria:
   - Visitors consistently misread the tool as a worker-classification determination despite the disclaimer, which would be a liability regression rather than a usage problem and requires strengthening the disclaimer or narrowing the framing, not more features.
   - The figures it produces are rejected as too far from what owners actually see on payroll statements, so the arithmetic is not trusted enough to act on.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/employee-cost-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/employee-cost-calculator/
   analytics: null

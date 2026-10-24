@@ -4,7 +4,7 @@ A free browser tool for Whatnot sellers: **load your seller orders CSV and see w
 and categories actually make money.** The file is read in the browser; nothing is uploaded
 and no Whatnot account access is needed.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/whatnot-sales-report-analyzer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/whatnot-sales-report-analyzer/
 
 After using this, you can now **see profit per sale, per show, per category and per month
 after Whatnot's commission and payment processing, the effective fee rate, cost per SKU,

@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports a suggested ladder that earns less on their own survey than prices they tried by hand.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/saas-tier-price-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/saas-tier-price-optimizer/
   analytics: null

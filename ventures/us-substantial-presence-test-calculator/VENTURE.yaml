@@ -46,5 +46,5 @@ kill_criteria:
   - No user reports changing a trip or filing decision because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/us-substantial-presence-test-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/us-substantial-presence-test-calculator/
   analytics: null

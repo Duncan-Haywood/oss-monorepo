@@ -45,5 +45,5 @@ kill_criteria:
   - A listed tool is renamed or removed and the page still links it (the page test catches this; a broken link reported by a visitor means the test missed something).
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/self-hosted-saas-stack/
+  production: https://duncan-haywood.github.io/oss-monorepo/self-hosted-saas-stack/
   analytics: null

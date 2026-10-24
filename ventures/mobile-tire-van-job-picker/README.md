@@ -6,7 +6,7 @@ the exact set and order of jobs with the highest profit for the day, the drive a
 job it turns down would need to pay, and what first-come and biggest-ticket-first dispatch leave behind. Browser
 page or zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/mobile-tire-van-job-picker/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/mobile-tire-van-job-picker/
 
 ```
 node cli.mjs plan jobs.csv --start 08:00 --end 17:00 --hourly 35 --per-mile 0.70 --json

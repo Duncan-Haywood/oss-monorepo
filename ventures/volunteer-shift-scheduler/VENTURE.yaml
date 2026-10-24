@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports a roster that double-books a volunteer, exceeds a stated maximum or places someone on a role they excluded.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/volunteer-shift-scheduler/
+  production: https://duncan-haywood.github.io/oss-monorepo/volunteer-shift-scheduler/
   analytics: null

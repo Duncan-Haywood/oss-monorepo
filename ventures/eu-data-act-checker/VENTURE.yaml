@@ -40,5 +40,5 @@ kill_criteria:
   - A report that the scope, exemption, date or Article reference differs from the Regulation's text on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-data-act-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-data-act-checker/
   analytics: null

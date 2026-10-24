@@ -139,6 +139,20 @@ class FetchForbiddenTest(unittest.TestCase):
             self.assertEqual(cache, {})
             self.assertTrue(any("could not be fetched" in m for m in logs))
 
+    def test_a_run_of_failures_stops_the_fetch(self) -> None:
+        def forbidden(path: str) -> None:
+            raise derive.urllib.error.URLError("403")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "prompts"
+            (root / "runs").mkdir(parents=True)
+            for n in range(1, 31):
+                rec = {**promptctl.RECORD_FIELDS, "date": "2026-10-01", "session": f"s{n}",
+                       "track": "ventures", "prompt_version": 1, "outcome": "success", "pr": n}
+                (root / "runs" / f"2026-10-01-s{n}.json").write_text(json.dumps(rec))
+            logs: list[str] = []
+            derive.fetch(root, get=forbidden, log=logs.append)
+            self.assertTrue(any("stopping" in m for m in logs))
+
 
 class MeasureFallbackTest(unittest.TestCase):
     def test_measured_merged_fills_a_null(self) -> None:

@@ -33,5 +33,5 @@ kill_criteria:
   - A report that a figure differs from irs.gov.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/us-freelancer-tax-set-aside-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/us-freelancer-tax-set-aside-calculator/
   analytics: null

@@ -27,5 +27,5 @@ kill_criteria:
   - Fewer than three qualified independent CAT adjusters use the calculator twice within 90 days of public distribution.
   - Users say their own fee-schedule spreadsheet or mental math produces the same accept/decline decision just as fast.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cat-adjuster-fee-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/cat-adjuster-fee-calculator/
   analytics: null

@@ -66,5 +66,5 @@ kill_criteria:
   - A user reports a plan that exceeds a crew's stated hours, ignores a required skill, or a cost the stated inputs do not reproduce.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/crew-dispatch-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/crew-dispatch-optimizer/
   analytics: null

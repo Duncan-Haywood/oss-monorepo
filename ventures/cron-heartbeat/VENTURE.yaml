@@ -55,5 +55,5 @@ kill_criteria:
   - A user reports a missed alert or a wrong next-run time, at which point the scheduler maths or the alert state machine needs revisiting before anything else.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/cron-heartbeat/
+  production: https://duncan-haywood.github.io/oss-monorepo/cron-heartbeat/
   analytics: null

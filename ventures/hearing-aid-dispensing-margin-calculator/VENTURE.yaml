@@ -47,5 +47,5 @@ kill_criteria:
   - A user reports a modelling error that changes which sale type looks unprofitable on their numbers.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/hearing-aid-dispensing-margin-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/hearing-aid-dispensing-margin-calculator/
   analytics: null

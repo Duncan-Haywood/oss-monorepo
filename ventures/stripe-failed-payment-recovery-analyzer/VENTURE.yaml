@@ -63,5 +63,5 @@ kill_criteria:
   - A user reports a materially wrong recovery or lost-revenue figure from a real Stripe export, at which point the parser or model needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/stripe-failed-payment-recovery-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/stripe-failed-payment-recovery-analyzer/
   analytics: null

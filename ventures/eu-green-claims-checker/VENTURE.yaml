@@ -40,5 +40,5 @@ kill_criteria:
   - A report that a claim's status or the date differs from the Directive's text or a national transposition on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-green-claims-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-green-claims-checker/
   analytics: null

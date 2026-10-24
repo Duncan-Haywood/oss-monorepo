@@ -36,5 +36,5 @@ kill_criteria:
   - No beekeeper reports changing a price or a sales channel because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/backyard-honey-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/backyard-honey-profit-calculator/
   analytics: null

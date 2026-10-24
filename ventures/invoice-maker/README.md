@@ -4,7 +4,7 @@ After using this, you can send a complete, professional invoice in two minutes,
 which used to mean a paid invoicing app or a spreadsheet template, and see which
 of your invoices are overdue and how old the unpaid balance is.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/invoice-maker/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/invoice-maker/
 
 Free, no account, no watermark, works offline. Everything runs in your browser;
 invoices are stored in `localStorage` on your device and never uploaded.
