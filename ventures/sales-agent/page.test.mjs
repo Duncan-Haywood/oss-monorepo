@@ -67,3 +67,15 @@ test("every input has a label, and no page code sends data anywhere itself", () 
 test("the engine has no send path", () => {
   for (const f of ["engine.mjs", "ai.mjs", "cli.mjs"]) assert.doesNotMatch(page(f), /nodemailer|smtp|sendmail|createTransport|twilio/i, f);
 });
+
+test("the research section is wired to the engine and the example runs", async () => {
+  const html = page("index.html");
+  for (const id of ["crm", "icp-industries", "icp-titles", "icp-countries", "icp-min", "icp-max", "icp-top", "go-research", "dl-accounts"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /from "\.\/research\.mjs"/);
+  const { runResearch, SAMPLE_CRM } = await import("./research.mjs");
+  const { SAMPLE_OFFER } = await import("./engine.mjs");
+  const d = runResearch({ crm: SAMPLE_CRM, icp: { industries: ["logistics"], titles: ["director", "owner", "founder", "ceo"], min_employees: 30, max_employees: 300, countries: ["US"] }, offer: SAMPLE_OFFER, today: "2026-10-24" });
+  assert.equal(d.accounts[0].company, "Brightline Logistics");
+  assert.equal(d.summary.held, 1);
+  assert.doesNotMatch(page("research.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
+});
