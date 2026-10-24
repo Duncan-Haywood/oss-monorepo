@@ -34,7 +34,7 @@
  "doc_friction": [
   {
    "file": "platform/ci/research_live_links.py",
-   "issue": "After PR #9958 moved BASE to /oss-monorepo/, --write adds a second Live page line instead of replacing the /monorepo-projects/ one, and the check flags all 1,036 research READMEs on main. Fixed in this PR (own commit); the venture half (1,298 venture READMEs, venture_live_links.py) is still red on main."
+   "issue": "After PR #9958 moved BASE to /oss-monorepo/, --write adds a second Live page line instead of replacing the /monorepo-projects/ one, and the check flags all 1,036 research READMEs on main. Fixed here, then superseded by the same fix in PR #9976 (merge kept main's); the venture half (1,298 venture READMEs, venture_live_links.py) is still red on main."
   },
   {
    "file": "research/PROJECTS.md",

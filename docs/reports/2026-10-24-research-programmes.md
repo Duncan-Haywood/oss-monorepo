@@ -64,7 +64,7 @@ Three defaults, each reasonable alone, combined with about sixteen runs an hour
 `platform/ci/research_live_links.py` moved its base URL to `/oss-monorepo/` in
 PR #9958, but `--write` adds a second "Live page" line rather than replacing
 the old `/monorepo-projects/` one, and the check now flags all 1,036 research
-READMEs on `main`. Fixed in this PR as its own commit (the tool now rewrites the
-old line in place; 1,033 one-line migrations). The venture half
+READMEs on `main`. This PR fixed it too, but PR #9976 landed the same fix on
+`main` first, and the merge kept that version. The venture half
 (`venture_live_links.py`, 1,298 venture READMEs) is still red on `main` for the
 same reason, and is left for a venture-side change.
