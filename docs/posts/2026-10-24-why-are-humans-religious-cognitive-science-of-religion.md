@@ -1,7 +1,7 @@
 ---
 title: "Why are humans religious? What the cognitive science of religion found, and what failed to replicate"
 date: 2026-10-24
-description: "Agency detection, 'born believers', God priming and the autism finding: which claims of the cognitive science of religion survived replication, what predicts belief best, and what it means for theology."
+description: "Which claims of the cognitive science of religion survived replication, what best predicts belief, and what it means for theology."
 tags: [religion, history, research, psychology, replication, cognitive-science, theology]
 ---
 

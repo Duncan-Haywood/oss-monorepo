@@ -1,7 +1,7 @@
 ---
 title: "Gods of the first states: temples, divine kings and human sacrifice"
 date: 2026-10-24
-description: "How religion changed when the first states arose in Mesopotamia, Egypt, China, India and the Americas: temple economies, god-kings, oracle bones, the Mandate of Heaven and the evidence for human sacrifice."
+description: "Religion in the first states: temple economies, god-kings, oracle bones, the Mandate of Heaven and the evidence for human sacrifice."
 tags: [religion, history, research, ancient-history, archaeology, theology]
 ---
 

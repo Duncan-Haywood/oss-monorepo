@@ -1,7 +1,7 @@
 ---
 title: "The first signs of religion: burials, cave art and Göbekli Tepe"
 date: 2026-10-24
-description: "When did religion begin? What the earliest burials, Neanderthal sites, Ice Age cave art, Göbekli Tepe and Çatalhöyük show, what they cannot show, and how scientists and theologians read them."
+description: "When did religion begin? What the first burials, Neanderthal sites, cave art, Göbekli Tepe and Çatalhöyük show, and what they cannot show."
 tags: [religion, history, research, archaeology, prehistory, theology]
 ---
 
