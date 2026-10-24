@@ -131,3 +131,14 @@ test("reads embedded streams whatever the dictionary key order or length form", 
     assert.equal(new TextDecoder().decode(xml), SHAPE_XML, label);
   }
 });
+
+test("an embedded invoice whose root follows a long licence comment still unwraps", async () => {
+  // The official ZUGFeRD samples carry a licence comment of over 5 KB before the root.
+  const xml = example("cii-invoice.xml").toString("utf8");
+  const comment = `<!-- ${"Nutzungsrechte / terms of use. ".repeat(250)}-->\n`;
+  const withComment = xml.replace(/(<\?xml[^>]*\?>\s*)/, `$1${comment}`);
+  assert.ok(withComment.indexOf("CrossIndustryInvoice") > 5000);
+  const pdf = buildPdfWithAttachment(Buffer.from(withComment), "factur-x.xml");
+  const out = await extractEmbeddedInvoiceXml(pdf);
+  assert.match(Buffer.from(out).toString("utf8"), /CrossIndustryInvoice/);
+});

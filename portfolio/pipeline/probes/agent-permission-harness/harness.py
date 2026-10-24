@@ -50,7 +50,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import functools
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, field, asdict
@@ -659,7 +661,9 @@ PROMPT_PATH_DIR = re.compile(r"`([\w][\w./*-]*/)`")
 PRUNED_DIRS = {".git", "node_modules", "dist", "build", ".next", ".venv", "vendor", "out"}
 
 
-def _expand_prompt_path(spec: str, repo_root: Path, base_dir: str = "") -> list[str]:
+def _expand_prompt_path(
+    spec: str, repo_root: Path, base_dir: str = "", index: Sequence[str] | None = None
+) -> list[str]:
     """Resolve a path a document names into the concrete files it selects.
 
     Prompts name paths the way documentation does, in three shapes, and all
@@ -687,12 +691,22 @@ def _expand_prompt_path(spec: str, repo_root: Path, base_dir: str = "") -> list[
     measured closure by more than a tenth -- a count that is mostly other
     ventures' build manifests is a statement about `rglob`, not about an
     instruction surface.
+
+    `index` is the repository's file list from `_file_index`. The closure
+    resolves a few thousand specs, and walking the tree once per spec was 95%
+    of this probe's run time (3.5 million `lstat` calls, about six minutes of
+    CI per run). With an index each spec is a scan of a list in memory. The
+    answers are the same; `_glob_regex` keeps `Path.glob`'s rule that `*`
+    stops at `/`.
     """
     normalised = re.sub(r"<[^>]+>", "*", spec).rstrip("/")
     if not normalised:
         return []
 
     if "*" in normalised:
+        if index is not None and _glob_regex(normalised) is not None:
+            rx = _glob_regex(normalised)
+            return sorted(f for f in index if rx.fullmatch(f))
         return sorted(
             str(p.relative_to(repo_root))
             for p in repo_root.glob(normalised)
@@ -706,6 +720,14 @@ def _expand_prompt_path(spec: str, repo_root: Path, base_dir: str = "") -> list[
         # A bare filename the repository root does not have. Nearest scope
         # first: the naming document's own subtree, then the whole repository.
         scope = repo_root / base_dir if base_dir else repo_root
+        if index is not None:
+            named = [f for f in index if f.rsplit("/", 1)[-1] == normalised]
+            if scope.is_dir() and scope != repo_root:
+                prefix = scope.relative_to(repo_root).as_posix() + "/"
+                scoped = [f for f in named if f.startswith(prefix)]
+                if scoped:
+                    return scoped
+            return named
         if scope.is_dir() and scope != repo_root:
             scoped = sorted(
                 str(p.relative_to(repo_root))
@@ -724,6 +746,45 @@ def _expand_prompt_path(spec: str, repo_root: Path, base_dir: str = "") -> list[
 
 def _pruned(path: Path, repo_root: Path) -> bool:
     return any(part in PRUNED_DIRS for part in path.relative_to(repo_root).parts)
+
+
+def _file_index(repo_root: Path) -> list[str]:
+    """Every file under `repo_root` outside `PRUNED_DIRS`, sorted, as posix paths.
+
+    Walked once per closure, so a tree changed between two closures is seen.
+    Like `Path.rglob` here, it does not descend into symlinked directories.
+    """
+    files = []
+    for dirpath, dirnames, filenames in os.walk(repo_root):
+        dirnames[:] = [d for d in dirnames if d not in PRUNED_DIRS]
+        rel = Path(dirpath).relative_to(repo_root).as_posix()
+        for name in filenames:
+            if os.path.isfile(os.path.join(dirpath, name)):
+                files.append(name if rel == "." else f"{rel}/{name}")
+    return sorted(files)
+
+
+@functools.lru_cache(maxsize=None)
+def _glob_regex(pattern: str) -> re.Pattern[str] | None:
+    """`Path.glob` semantics as a regex over posix paths, or None to fall back.
+
+    `**` as a whole segment is zero or more directories; any other `*` matches
+    within one segment. A pattern this does not model (an empty, `.` or `..`
+    segment, or a trailing `**`, whose meaning changed in Python 3.13) returns
+    None and the caller walks the tree as before.
+    """
+    segments = pattern.split("/")
+    if any(seg in ("", ".", "..") for seg in segments) or segments[-1] == "**":
+        return None
+    out = ""
+    for i, seg in enumerate(segments):
+        last = i == len(segments) - 1
+        if seg == "**":
+            out += "(?:[^/]+/)*"
+            continue
+        body = "".join("[^/]*" if c == "*" else re.escape(c) for c in seg)
+        out += body if last else body + "/"
+    return re.compile(out)
 
 
 def find_prompt_files(wf: WorkflowFile, repo_root: Path) -> list[str]:
@@ -807,6 +868,7 @@ def instruction_closure(
     """
     closure: dict[str, ClosureEntry] = {}
     seen: set[str] = set(prompt_files)
+    index = _file_index(repo_root)
     frontier = [(p, 0) for p in sorted(prompt_files)]
 
     while frontier:
@@ -827,7 +889,7 @@ def instruction_closure(
             # randomisation. A results file that cannot be regenerated
             # byte-identically is not a measurement anyone can check.
             for spec in sorted(specs):
-                for resolved in _expand_prompt_path(spec, repo_root, base_dir):
+                for resolved in _expand_prompt_path(spec, repo_root, base_dir, index):
                     if resolved in seen:
                         continue
                     seen.add(resolved)

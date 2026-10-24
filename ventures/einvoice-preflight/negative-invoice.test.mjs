@@ -57,3 +57,30 @@ test("other UNCL 1001 invoice codes are known document types", () => {
   bogus.document_code = "999";
   assert.ok(rules(bogus).includes("INV-032"));
 });
+
+// Factur-X / ZUGFeRD MINIMUM and BASIC WL carry header totals and no lines.
+const LINELESS = {
+  invoice_number: "FA-1", issue_date: "2017-11-13", currency: "EUR",
+  supplier: { id: "S1", name: "Supplier" }, customer: { id: "C1", name: "Customer" },
+  specification_id: "urn:factur-x.eu:1p0:minimum",
+  totals: { net: 624.9, tax: 46.25, gross: 671.15, due: 470.15 },
+};
+
+test("a MINIMUM profile invoice with no lines and a lower amount due passes", () => {
+  const r = rules(LINELESS);
+  for (const id of ["INV-007", "INV-014", "INV-018", "INV-029", "INV-038"]) assert.ok(!r.includes(id), id);
+});
+
+test("the same totals without a lineless profile still report no lines", () => {
+  const plain = clone(LINELESS);
+  delete plain.specification_id;
+  assert.ok(rules(plain).includes("INV-007"));
+});
+
+test("BASIC WL skips the line checks but still compares amount due with gross", () => {
+  const wl = clone(LINELESS);
+  wl.specification_id = "urn:factur-x.eu:1p0:basicwl";
+  const r = rules(wl);
+  assert.ok(!r.includes("INV-007") && !r.includes("INV-014"));
+  assert.ok(r.includes("INV-029"));
+});

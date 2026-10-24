@@ -8,9 +8,10 @@
 A requester pays untrusted workers to train a model; the weights cannot be checked without redoing the work.
 We ask for the cheapest payment-and-audit contract that makes full-effort training an equilibrium when the
 checks are a refereed re-execution of one step with tolerance $\tau$, a noisy held-out score, and agreement
-between redundant workers. On real training (a 64-64-10 MLP, scikit-learn digits, 20 seeds) a tolerance-$\tau$
-referee passes a skip-steps worker on 30\% of steps at $\tau=10^{-2}$ while held-out loss falls by less than one seed
-standard deviation; loss is lost only at $\tau\approx 10\times$ the worst benign drift. We solve the contract as a
+between redundant workers. On real training (MLPs on scikit-learn digits and breast-cancer data, 20 seeds, and 20 resampled train/test splits) a
+tolerance-$\tau$ referee passes a skip-steps worker on 30--67\% of steps at $\tau=10^{-2}$ (about the worst float16 drift),
+while the held-out loss it gives up is below one seed standard deviation on digits and negative on breast cancer; loss
+is lost only at 2--6$\times$ the worst benign drift, a task-dependent threshold. We solve the contract as a
 linear programme, prove a one-sided resolution bound $\max(C,g/p-S)$, and show that against a majority coalition on
 one shared cheap trajectory the deterring stake $\max(0,g/p-1)$ does not fall with the number of workers. Two
 conjectures fail: a first-order predictor of the degradation misses by 3--100$\times$, and the joint contract beats the
@@ -19,22 +20,116 @@ better single check in only 4 of 45 cells.
 \maketitle
 
 \section{Introduction}
-% TODO: motivation (Verde, proof-of-learning forgeries), contributions as the four results below.
+A requester who outsources training to untrusted workers cannot check the returned weights without redoing the work.
+Refereed re-execution of single steps (Verde \cite{arun2025verde}) narrows the dispute to one operator, but it needs a
+tolerance $\tau$ because honest hardware disagrees in the last bits; proof-of-learning \cite{jia2021pol} was shown to be
+forgeable \cite{zhang2021advpol,fang2022pol}. We ask what the tolerance costs the requester, and what payment contract
+makes honest work an equilibrium given a tolerance-$\tau$ audit, a noisy held-out score and redundant workers.
+Contributions, each tested on small real training runs or by exhaustive search: (i) a measured \emph{hidden margin}: a
+worker that skips every step the referee cannot distinguish from honest work saves a large share of steps at a loss
+cost that switches on at a task-dependent threshold (Section~\ref{sec:margin}); (ii) the cheapest contract as a linear
+programme, with a proved one-sided bound $\max(C,g/p-S)$ (Section~\ref{sec:contracts}); (iii) against a majority
+coalition on one cheap trajectory the deterring stake does not fall with the number of workers
+(Section~\ref{sec:coll}); (iv) two refuted conjectures (Section~\ref{sec:neg}).
 \section{Related work}
-% TODO: from PROPOSAL.md; Verde \cite{arun2025verde}, PoL \cite{jia2021pol,zhang2021advpol,fang2022pol},
-% peer prediction \cite{miller2005,gao2016peer}, contracts \cite{townsend1979,duetting2019simple}, scoring \cite{gneiting2007}.
-\section{Model}
-% TODO: effort profile over T steps, detection above tau, held-out score noise, LP in payments (src/vtm/contract.py).
-\section{The hidden margin on real training (H1)}
-% Fig. 1 from experiments/margin. Table: tau vs fraction of steps passed vs loss given up.
-\section{Single-check and joint contracts (H2, H5)}
-% Fig. 2 from experiments/frontier. Lower bound max(C, g/p - S): proof in src/vtm/peer.py docstring, to be moved here.
-\section{Redundancy and collusion (H3, H4)}
-% Agreement worth nothing beyond audit once cheats copy (0 of 1,349); stake flat in m (140 cells).
-\section{Negative results (H6)}
-% Both predictors overshoot; ratio in [0.5,2] in 1 of 9 settings, a trivial one.
+\paragraph{Verifying that training happened.}
+Verde \cite{arun2025verde} resolves a dispute by bisection over the training trace with reproducible operators, so a referee
+re-executes one step; it does not say what makes anyone dispute, or how much stake a tolerance requires.
+Proof-of-learning \cite{jia2021pol} replays logged checkpoints and accepts statistically; spoofing attacks
+\cite{zhang2021advpol,fang2022pol} forge cheaper traces that pass. These are the empirical form of our hidden margin, measured as
+a break, not priced as an incentive. Zero-knowledge proofs of training \cite{abbaszadeh2024zkpot} remove the tolerance at a
+large prover cost and mark the other end of the cost frontier; TOPLOC \cite{ong2025toploc} faces the same tolerance-versus-forgery
+trade-off for inference. Refereed delegation to several servers \cite{canetti2011} is secure if one is honest, has no payments,
+and is defeated by a unanimous wrong answer, which is the case our collusion section prices.
+
+\paragraph{Eliciting effort and truth with scores.}
+Proper scoring rules \cite{gneiting2007} elicit beliefs about a held-out outcome; whether the score of a model identifies the work
+behind it is not their question. Peer prediction \cite{miller2005,prelec2004} pays for agreement with peers and needs a common prior;
+multi-task and effort-aware variants \cite{dasgupta2013,shnayder2016,kong2019} make informed reporting beat uninformative play, but
+their report is a label and a training run has no label per task. The closest prior art is \citet{gao2016peer}: mixing a few
+ground-truth checks with peer prediction can hurt. Our agreement result is the training analogue, in a narrower form.
+
+\paragraph{Hidden action and costly verification.}
+Costly state verification \cite{townsend1979} is the skeleton of an audit-plus-stake design, with exact verification; ours has a
+tolerance. Payments for effort in estimation \cite{cai2015} concern data quality for a statistic, not compute for a trajectory.
+Linear contracts are near optimal under hidden action \cite{duetting2019simple}; we compare our frontier with the best linear
+contract on the final-model score and find it dearer by orders of magnitude where the score barely moves.
+\section{Model}\label{sec:model}
+A worker runs $T$ steps; honest cost is $C$. An action $a$ skips the steps whose honest update has norm at most
+$\tau'$, so its effort is one minus the skipped share and its cost is effort${}\times C$. An audit re-executes $m$
+random steps and flags a step iff the worker's checkpoint is farther than the referee tolerance $\tau$ from the
+referee's recomputation, so a skipped step is caught iff its update norm exceeds $\tau$. A held-out score is Gaussian
+with the measured mean, seed variance and per-example variance, fixed by test-set size $n_{\text{test}}$. A contract
+pays $w(\text{signal})\ge -S$ (limited liability). The cheapest contract implementing a target action is
+$\min E_{\text{target}}[w]$ subject to incentive compatibility against each other action and individual rationality,
+a linear programme in $w$ (\texttt{src/vtm/contract.py}); it equals the closed form $\max(C,C/p-S)$ on a grid and a
+$2500\times2500$ brute-force search within 1\%.
+\paragraph{A one-sided resolution bound.}
+Let $r=\min_{s:P_h(s)>0}P_a(s)/P_h(s)$ and $p=1-r$. \emph{Proposition.} Any contract implementing honest against $a$ with $w\ge -S$ costs
+$\mathbb{E}_h[w]\ge\max(C,\,g/p-S)$.
+\emph{Proof.} Incentive compatibility gives $\mathbb{E}_h[w]-\mathbb{E}_a[w]\ge g$. With $f=w+S\ge0$ we have $\mathbb{E}_a[f]\ge r\,\mathbb{E}_h[f]$
+(mass of $P_a$ off the support of $P_h$ only adds), so $g\le\mathbb{E}_h[f]-\mathbb{E}_a[f]\le p\,\mathbb{E}_h[f]$, i.e.\ $\mathbb{E}_h[w]\ge g/p-S$.
+Individual rationality gives $\mathbb{E}_h[w]\ge C$. $\square$ (Over several deviations take the largest bound.)
+\section{The hidden margin on real training (H1)}\label{sec:margin}
+Setting: minibatch SGD with a cosine schedule, 1,500 steps, float32, 20 seeds; the referee recomputes one step with
+the batch rows reordered (a float16 referee is reported separately). Benign drift is small: float32 reorder drift is at
+most $9\times10^{-8}$, float16 drift has p99 $0.9$--$2.3\times10^{-3}$ and maximum $0.009$--$0.018$, against honest
+update norms of median $0.020$--$0.026$ (digits) and $0.0047$ (breast cancer, late training). Table~\ref{tab:margin} gives, per
+tolerance, the share of steps a skipping worker passes and the paired held-out loss it gives up.
+\begin{table}[t]\caption{Skip shortcut, reorder referee: share of steps skipped / loss given up (paired by seed,
+20 seeds; 95\% bootstrap CI where noted). Source: \texttt{experiments/\{margin,setups,splits\}/results.txt}.}
+\label{tab:margin}\small
+\begin{tabular}{lccc}
+$\tau$ & digits 64-64-10 & digits 64-128-64-10 & breast cancer 30-32-2\\\hline
+$10^{-3}$ & 9.5\% / $+0.0002$ & 12\% / $+0.0002$ & $-0.0015$\\
+$10^{-2}$ & 30\% / $+0.0034$ (CI 0.0026 to 0.0042) & 37\% / $+0.0025$ (CI 0.0019 to 0.0031) & 67\% / $-0.0115$ (CI $-0.0129$ to $-0.0101$)\\
+$3\times10^{-2}$ & -- & 57\% / $+0.0074$ & 91\% / $-0.0119$\\
+$10^{-1}$ & 89\% / $+0.118$ & 82\% / $+0.034$ & 99.5\% / $+0.068$\\
+\end{tabular}\end{table}
+Resampling the train/test split with the seed (20 splits) keeps the breast-cancer gain: skipping lowers loss on 19 of 20
+splits at $\tau=10^{-2}$ (paired CI $-0.0135$ to $-0.0063$), and on digits-deep the cost at $10^{-2}$ is $+0.0016$, measurably
+above zero but $0.07$ split-seed standard deviations. The half-batch and float16-input shortcuts cost nothing
+measurable. The margin is therefore real (a worker passes the check while doing a third to two thirds less work) and,
+at drift-sized tolerances, costs the requester saved work, not a worse model; quality is lost only above a
+task-dependent threshold that follows the late update-norm distribution, which suggests stating $\tau$ as a quantile of
+honest update norms.
+\section{Single-check and joint contracts (H2, H5)}\label{sec:contracts}
+For the honest target, audit-only costs $1.001\,C$ at $\tau=0$ (one audited step) and is infeasible at every
+$\tau\ge10^{-4}$ at any stake: skipping the steps below $\tau$ passes every audit and pay cannot tell it from honest work.
+Score-only then costs $5.76\,C$ at $n_{\text{test}}=540$, $12.4\,C$ at 100 and $1.23\,C$ at 5,000 (stake $S=C$), and the best
+contract linear in the score costs $1.2\times10^{4}\,C$. The joint contract is strictly cheaper than the better single
+check in 4 of 45 cells (ratio 0.72--0.81, $n_{\text{test}}=5000$), always where audit-only is infinite, so the audit
+helps only where the score is almost precise enough; H2 holds in that narrow form. A requester who accepts the
+sanctioned margin sets the target to the skip-below-$\tau'$ action and the referee to $\tau'$; any further skipping is
+caught with probability equal to its gain per audited step, and one audited step at $S=C$ already deters (total cost
+$0.698\,C$ at $\tau'=10^{-2}$, $0.468\,C$ at $3\times10^{-2}$). \emph{Bound.} Any contract implementing honest effort
+against a deviation of gain $g$, with pay floor $-S$ and one-sided resolution $p=1-\min_s P_a(s)/P_h(s)$, costs at least
+$\max(C,g/p-S)$ (proof in Section~\ref{sec:model}). The LP never violates it on 2,755 random feasible
+instances and equals it on 2,410; it is exact for two actions with a binary audit, but H5 as first worded (a function of
+$g,\tau,S$ met within a constant factor) is false: the largest LP/bound ratio is 2,093. For a Gaussian score the bound is
+vacuous (1.0 against an LP cost of 5.76).
+\section{Redundancy and collusion (H3, H4)}\label{sec:coll}
+\emph{Agreement.} With two workers and one shared cheap trajectory, adding an agreement term to pay never raises the
+cheapest contract (a refinement) and lowers it in 1,191 of 4,000 random instances; once copying equilibria are excluded,
+it lowers it in 451 instances but in 0 of 1,349 with perfect copying ($\kappa=1$), where it is worth nothing beyond the
+audit. \emph{Collusion.} With $m$ workers, majority-output acceptance and one independent audit per job (catch
+probability $p$, gain $g$), the least stake making all-honest a strong equilibrium is $S^{*}=\max(0,g/p-1)$ for every
+$m\ge1$: a coalition of $\lfloor m/2\rfloor+1$ escapes replication with probability one and faces only the audit.
+Exhaustive search over 140 cells ($m=1$ to 7) matches the formula to $7\times10^{-10}$. The proposal's $1/m$ law is
+therefore wrong here and belongs to a setting where a briber pays each verifier separately. The flat-in-$m$ result
+follows from the payoff structure (a theorem, confirmed by the search), and the pay bill grows with $m$, so against a
+coordinating coalition replication is dominated by $m=1$ plus the audit.
+\section{Negative results (H6)}\label{sec:neg}
+Two predictors that see only the honest runs: (A) the first-order descent forgone by skipped steps, and (B) the loss of an
+honest worker trained for the shortened number of steps. Both miss: only 2 of 9 tolerances have degradation above one seed
+standard deviation, A is out by $123\times$ and $12\times$ there, B by $3.0\times$ and $1.00\times$ (trivial: every step skipped),
+and the ratio is in $[0.5,2]$ in 1 of 9 settings. Both overshoot because skipped steps are exactly the small-update steps,
+whose loss the remaining training recovers. A model of recovery is the open constructive claim.
 \section{Limitations}
-% One dataset, one MLP, plain SGD, skip family, pure strategies, swept parameters.
+Three small scikit-learn tasks and plain SGD, plus one 30k-parameter character-level transformer (10 seeds, 600 steps, loss far from converged: skipping costs $0.2$ seed standard deviations at $\tau=10^{-2}$, $1.0$ at $3\times10^{-2}$ and $7.4$ at $0.1$, with $16\%$, $29\%$ and $59\%$ of steps skipped), no realistic scale; the skip shortcut only for the dense results; one reorder
+referee; two workers for agreement and pure strategies for collusion; contract parameters ($\delta,\alpha,\kappa$, stakes)
+are swept rather than measured on real trajectories; the paper is uncompiled (no LaTeX here) and the related-work
+section is incomplete.
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{refs}
 \end{document}

@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 6d: is |R - T| a lower-variance target than R? (planned before running)
+- Why: 6c's open question. A mean-discrepancy bound L = E[T] - E|R - T| needs an estimate of E|R - T|. It is only cheaper than estimating E[R] if the per-context variance of |R - T| (or its range) is below that of R.
+- Check (`experiments/m6d_target_variance/target_var.py`, planned before running), on the 21 m3 pools (4,000 contexts each): Var(R), Var(R - T), Var(|R - T|), and the ratio Var(|R - T|) / Var(R); also the empirical-Bernstein half-width at n = 60 and 240 for each target using its own sample range (bounded-range scaling), to see whether the width saving survives the range term.
+- **H6d-i:** Var(|R - T|) < Var(R) on at least 15 of 21 pairs when rho is high (>= 0.8), and on fewer than 10 of 21 across all pairs, because low-rho pairs have a discrepancy as noisy as R itself. Refuted if the split is not like this (both thresholds must hold).
+- **H6d-ii:** on one-sided pairs |R - T| = T - R, so Var(|R - T|) = Var(R - T) and the variance ratio equals the control-variate residual ratio 1 - rho-type quantity already measured in m3; checked as an identity on the pool, tolerance 1e-9.
+- Not tested: per-episode real pairs (still the main gap), a valid interval for E|R - T| plus the twin mean (that is 3e).
+
+### Outcome (21 pools; `experiments/m6d_target_variance/results/`, 2 tests)
+- **H6d-i refuted** (the second threshold failed): Var(|R - T|) < Var(R) on 20 of 21 pairs overall (all 12 with rho >= 0.8), median ratio 0.30. Only delay-3 (rho 0.17) has the discrepancy noisier than R (ratio 1.19). I expected low-rho pairs to lose more often; they mostly do not, because |R - T| is bounded below by 0 and the twin's own variation cancels in the difference.
+- **H6d-ii supported but narrow:** only 2 of 21 pairs are strictly one-sided, and there Var(|R - T|) = Var(R - T) exactly (gap 0). 6c's "one-sided" wording should read "nearly one-sided" for the other 19.
+- Empirical-Bernstein half-width (own sample range) is smaller for |R - T| than for R on 18/21 pairs at n = 60 and 20/21 at n = 240. So a bound E[R] >= E[T] - (upper confidence bound on E|R - T|) costs fewer real runs than the real-only bound, at a price: it adds the one-sided slack E|R - T| - E[T - R] (zero only when the discrepancy is one-sided), which 3e's construction already pays. This is the same trade as the control variate with lam = 1, so no new estimator results; the variance gain is the reason 3e's twin-assisted gap can approach real-only but not beat it where the discrepancy is two-sided.
+- Limitations: one benchmark family (model pairs, not real robots); variance computed on the 4,000-context pool, not a finite-sample interval; EB constants are the Maurer-Pontil ones at delta = 0.05.
+- Next: per-episode real pairs remain the main gap for a submittable paper.
+
+
 ## 2026-10-24 · Milestone 6c: a quantile or mean discrepancy bound instead of the maximum (planned before running)
 - Why: 6b's next step. The oracle maximum |R - T| is 9 to 16 times the real-only gap, so a zero-real-run bound loses. Does an assumption on a quantile, or on the mean of |R - T|, change that?
 - **Ceiling lemma.** If P(|R - T| > D_q) <= q with D_q in [0, 1] known, and R, T in [0, 1], then E[T - R] <= E[(T - R)+] <= (1 - q) D_q + q, so L_q = E[T] - (1 - q) D_q - q is valid with no real runs. It is tight in the class (T = 1; R = 1 - D_q with probability 1 - q, R = 0 with probability q, up to the boundary case). If instead E|R - T| <= dbar is known, L = E[T] - dbar is valid (Jensen-free: E[T - R] <= E|R - T|).
