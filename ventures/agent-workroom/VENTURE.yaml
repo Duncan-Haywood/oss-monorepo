@@ -1,0 +1,41 @@
+name: agent-workroom
+description: 'A walkable 3D room (plain CSS 3D, no libraries, no headset) for keeping track of work handed to AI coding agents. Each agent gets a desk whose monitor shows its current task and progress; the back wall is a four-column task board. Tasks are added and moved by typed or spoken commands ("fix the login redirect for Builder", "start 2", "move login to review"), and progress can be pulled from a public GitHub repository''s pull requests (draft = in progress, open = in review, merged = done; claude/, codex/, copilot/ branches go to that agent''s desk). Tasks live only in local storage, with JSON export and import.'
+stage: prototype
+
+owner: duncan
+
+# Built for fun at the owner's request (2026-10-24: "a fun project would be vr
+# like workplace for working with agents ... also a browser etc ui for adding
+# tasks. by voice or text. not very high priority"). Not a niche bet and not a
+# calculator: a personal organiser for people who run several coding agents at
+# once, which is this repository's own situation (dozens of claude/* pull
+# requests a day). The owner's own use is the first test of whether it earns
+# more work.
+hypotheses:
+  - claim: Someone running several coding agents on one repository will point the GitHub import at it and come back to the room more than once in a week, because the desks answer "what is each agent on right now" faster than the pull-request list does.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Voice entry gets used for adding tasks, not just tried once (voice_used events stay above a third of task_added events for anyone who used voice at all).
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Static files. The only network call is the visitor's own browser asking
+  # GitHub's public API, on their quota; speech recognition is the browser's.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - The owner stops opening it within 60 days of launch and no one else files an issue or star mentioning it.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/agent-workroom/
+  analytics: null
