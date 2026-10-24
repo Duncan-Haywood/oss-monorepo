@@ -1,7 +1,7 @@
 ---
 title: "Picking a fairness weight for a youth league, in the browser"
 date: 2026-10-24
-description: "A league scheduler that shares the far venue fairly now tunes its own fairness knob from your courts and travel times, in about 20 seconds, with nothing uploaded."
+description: "A league scheduler that shares the far venue fairly now tunes its own fairness knob from your courts and travel times in about 20 seconds, nothing uploaded."
 tags: [scheduling, optimization, sports, open-source]
 ---
 
