@@ -1,7 +1,7 @@
 ---
 title: "Why a standard confidence bound cannot see what a digital twin saves"
 date: 2026-10-24
-description: "A digital twin cuts the variance of a robot-policy estimate by up to 3x, yet a guaranteed empirical-Bernstein interval comes out 2 to 3 times wider. A negative result, and why."
+description: "A digital twin cuts a robot-policy estimate's variance up to 3x, yet a guaranteed empirical-Bernstein interval comes out 2 to 3 times wider. A negative result."
 tags: [digital-twin, sim-to-real, statistics, robotics, negative-result]
 ---
 

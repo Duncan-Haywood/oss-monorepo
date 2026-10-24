@@ -1,0 +1,80 @@
+{
+ "ArmReach_dr_s0": {
+  "nominal": {
+   "episodes": 100,
+   "success_rate": 0.98,
+   "success_ci95": 0.02744000000000001,
+   "final_distance_median_m": 0.007851139804429055,
+   "final_distance_mean_m": 0.010190918804512967,
+   "tipped": 0
+  },
+  "latency_80ms": {
+   "episodes": 100,
+   "success_rate": 0.99,
+   "success_ci95": 0.01950175376728976,
+   "final_distance_median_m": 0.008232199795259267,
+   "final_distance_mean_m": 0.010310368796311437,
+   "tipped": 0
+  },
+  "combined": {
+   "episodes": 100,
+   "success_rate": 1.0,
+   "success_ci95": 1.9599999999999998e-07,
+   "final_distance_median_m": 0.0074109372511143605,
+   "final_distance_mean_m": 0.007949416848308606,
+   "tipped": 0
+  }
+ },
+ "BimanualReach_dr_s0": {
+  "nominal": {
+   "episodes": 100,
+   "success_rate": 0.75,
+   "success_ci95": 0.08487048957087498,
+   "final_distance_median_m": 0.01939854518065065,
+   "final_distance_mean_m": 0.036833421599453714,
+   "tipped": 0
+  },
+  "latency_80ms": {
+   "episodes": 100,
+   "success_rate": 0.75,
+   "success_ci95": 0.08487048957087498,
+   "final_distance_median_m": 0.020752175257549667,
+   "final_distance_mean_m": 0.037818848108080144,
+   "tipped": 0
+  },
+  "combined": {
+   "episodes": 100,
+   "success_rate": 0.77,
+   "success_ci95": 0.08248317161700318,
+   "final_distance_median_m": 0.021109012510433484,
+   "final_distance_mean_m": 0.031212199835016094,
+   "tipped": 0
+  }
+ },
+ "MobileReach_dr_s0": {
+  "nominal": {
+   "episodes": 100,
+   "success_rate": 0.99,
+   "success_ci95": 0.01950175376728976,
+   "final_distance_median_m": 0.013522047795642249,
+   "final_distance_mean_m": 0.013773197502455405,
+   "tipped": 0
+  },
+  "latency_80ms": {
+   "episodes": 100,
+   "success_rate": 0.98,
+   "success_ci95": 0.02744000000000001,
+   "final_distance_median_m": 0.014439272773105636,
+   "final_distance_mean_m": 0.014268821584438936,
+   "tipped": 0
+  },
+  "combined": {
+   "episodes": 100,
+   "success_rate": 0.93,
+   "success_ci95": 0.05000881522291843,
+   "final_distance_median_m": 0.013943126371988,
+   "final_distance_mean_m": 0.015431504884585077,
+   "tipped": 0
+  }
+ }
+}
