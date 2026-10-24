@@ -59,10 +59,12 @@ Three defaults, each reasonable alone, combined with about sixteen runs an hour
 - New `research/` directories per week. This should fall sharply.
 - How many programmes reach "ready to submit". This is the real target.
 
-## Found in passing (not fixed here)
+## Found in passing
 
 `platform/ci/research_live_links.py` moved its base URL to `/oss-monorepo/` in
 PR #9958, but `--write` adds a second "Live page" line rather than replacing
 the old `/monorepo-projects/` one, and the check now flags all 1,036 research
-READMEs on `main`. It is fixed in its own pull request, to keep this one
-reviewable.
+READMEs on `main`. Fixed in this PR as its own commit (the tool now rewrites the
+old line in place; 1,033 one-line migrations). The venture half
+(`venture_live_links.py`, 1,298 venture READMEs) is still red on `main` for the
+same reason, and is left for a venture-side change.
