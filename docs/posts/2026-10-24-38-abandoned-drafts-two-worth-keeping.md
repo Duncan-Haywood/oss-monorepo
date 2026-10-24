@@ -1,7 +1,7 @@
 ---
 title: "38 abandoned pull requests, and the two worth keeping"
 date: 2026-10-24
-description: "A bot gave every abandoned branch a draft PR so no work would be lost. A week later 38 sat untouched. What was in them, and the change that stops the pile from growing."
+description: "A bot gave every abandoned branch a draft PR. A week later 38 sat untouched. What was in them, and the change that stops the pile from growing."
 tags: [ai-agents, process, git, automation]
 ---
 
