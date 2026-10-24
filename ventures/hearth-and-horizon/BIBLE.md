@@ -226,6 +226,7 @@ numbers worked out before drafting.
 - *(Done: The Iron Bridge at Forty-Two, Valdecea, León, 2058; text only.)* A footbridge whose note drops under a procession's weight, and a Virgin slowed to a pace the iron allows.
 - *(Done: Fifteen Minutes, Bolchara, Bangladesh, 2047; text only.)* Deep irrigation wells that protect the rice slowly draw arsenic toward the village's green-painted drinking well; the village drinks in a day what one pump lifts in fifteen minutes.
 - *(Done: The Low Meadow, Sint-Jansland, North Brabant, 2061; text only.)* A water board's polder manager must flood a farmer's meadow for the town; she says no, then names the terms (decide at the last hour, tell her first, ring the bell).
+- *(Done: The False Start, Gidan Gawo, Niger, 2044; text only.)* A first rain, one sowing of seed in the village bank, and a field adviser that says four years in ten the first rain is a lie; the seed-keeper splits the sowing and the village shares what is left.
 
 **For Other Minds**
 
