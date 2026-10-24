@@ -41,19 +41,12 @@ flagships:
       2026-10-24 (35.8% to 85.3% suggested, 0 wrong; README Next): still
       synthetic, try a real-merchant set; (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
-<<<<<<< HEAD
-      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers (Excel, BAI2, Norma 43, CFONB120 and many regional CSV headers, CJK code pages; all tested only on hand-built or made-up files, see README; Firefly III's 41 bank layouts probed header-less 2026-10-24, headers still unseen; bank2ynab's 40 sample files imported 2026-10-24, 4 layouts fixed; Actual Budget's 21 test files in 5 encodings 2026-10-24, one double-escape fixed; Paisa's and Maybe's CSV fixtures 2026-10-24, Paytm wallet blank descriptions fixed) (CSV, OFX/QFX/QIF, statement PDFs, regional code pages and layouts) on real
-      exports from Chase, Bank of America, Wells Fargo, Amex, Capital One and
-      others; (3) a real Stripe, Square, PayPal, eBay (reader landed 2026-10-24 on a hand-made fixture) or Amazon settlement export for
-      the payment-processor import (`form1099k`: try a real 1099-K); (4) a real
-=======
       rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers
       (CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
       code pages; public sample corpora probed 2026-10-24, README) on real exports
       from Chase, Bank of America, Wells Fargo, Amex, Capital One and others;
       (3) a real Stripe, Square, PayPal, eBay or Amazon settlement export for the
       payment-processor import (`form1099k`: try a real 1099-K); (4) a real
->>>>>>> origin/main
       supplier's terms letter checked against the fee and discount rules, and one
       named lender's own schedule against the loan register (`loan check`);
       (5) receipts and the reconcile-to-statement command on real paper, and
