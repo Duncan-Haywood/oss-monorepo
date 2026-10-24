@@ -8,7 +8,10 @@ import { parseCsv, toCsv, iso, toDay, DAY, firstName, footer, checkDraft } from 
 
 // Header aliases, so a HubSpot "Company name" and a Pipedrive "Organization - Name" land in the same place.
 const ALIASES = {
-  email: ["email", "e-mail", "email_address", "person_-_email", "work_email", "primary_email"],
+  email: ["email", "e-mail", "email_address", "person_-_email", "person_-_email_-_work", "person_-_email_-_home", "person_-_email_-_other", "email_address_1", "work_email", "primary_email"],
+  full_name: ["name", "full_name", "person_-_name", "contact_name", "contact"],
+  bounce: ["email_hard_bounce_reason", "hard_bounce_reason", "email_hard_bounced", "bounced", "person_-_bounced"],
+  marketing_status: ["marketing_contact_status", "person_-_marketing_status", "marketing_status", "email_status"],
   first_name: ["first_name", "firstname", "person_-_first_name", "given_name"],
   last_name: ["last_name", "lastname", "person_-_last_name", "surname", "family_name"],
   company: ["company", "company_name", "organization", "organization_-_name", "account", "account_name", "person_-_organization"],
@@ -36,7 +39,13 @@ export function normalizeRow(raw) {
   for (const [field, names] of Object.entries(ALIASES)) {
     for (const n of names) if (raw[n] !== undefined && String(raw[n]).trim() !== "") { out[field] = String(raw[n]).trim(); break; }
   }
-  const e = (out.email || "").toLowerCase();
+  // Pipedrive and some HubSpot exports put several addresses in one cell; the first is the primary one.
+  const e = (out.email || "").split(/[,;\s]+/)[0].toLowerCase();
+  if (out.full_name && !out.first_name && !out.last_name) {
+    const parts = out.full_name.split(/\s+/);
+    out.first_name = parts[0];
+    out.last_name = parts.slice(1).join(" ");
+  }
   out.email = e;
   const c = (out.country || "").trim();
   out.country = COUNTRY[c.toLowerCase()] || (c.length === 2 ? c.toUpperCase() : c);
@@ -98,6 +107,8 @@ export function runResearch(input) {
     if (!r.email) return drop("no email address (nothing is guessed)");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.email)) return drop("not a valid email address");
     if (sup.has(r.email) || supDomains.has(r.email.split("@")[1])) return drop("on your suppression list");
+    if (r.bounce && !/^(0|n|no|false)$/i.test(r.bounce)) return drop(`the export records a hard bounce (${r.bounce})`);
+    if (/^(unsubscribed|opted[- ]?out|do not email|non-?marketing.*unsub)/i.test(r.marketing_status || "")) return drop(`marketing status "${r.marketing_status}"`);
     if (truthy(r.do_not_contact)) return drop("opted out or marked do-not-contact in the export");
     const ex = existing.get(r.email);
     if (ex && ["unsubscribed", "closed_lost", "bounced", "left", "replied"].includes((ex.status || "").toLowerCase())) return drop(`the inbox agent has them as ${ex.status}`);

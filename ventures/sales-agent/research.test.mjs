@@ -86,3 +86,19 @@ test("aliases map other CRMs' headers; csv output has a formula-safe cell", () =
   assert.match(out, /'=HYPERLINK/);
   assert.match(csvLeftOutResearch(run()), /^outcome,row,name/);
 });
+
+// Shapes real exports have and hand-built ones left out: a byte-order mark, a ";" separator, one name column,
+// several addresses in one cell, a bounce column, a marketing status.
+test("reads Pipedrive/Excel-style files: BOM, semicolons, one name column, many emails", () => {
+  const csv = "﻿Person - Name;Person - Email - Work;Person - Organization;Person - Job title;Person - Marketing status;Email Hard Bounce Reason\n" +
+    "Dana Reyes;dana@brightline.example, dana.r@other.example;Brightline Logistics;Director;subscribed;\n" +
+    "Ann Lee;ann@gone.example;Gone Co;Owner;subscribed;Mailbox does not exist\n" +
+    "Bo Wu;bo@unsub.example;Unsub Co;Owner;Unsubscribed;\n";
+  const d = runResearch({ crm: csv, icp: { titles: ["director", "owner"] }, offer: SAMPLE_OFFER, today: "2026-10-24" });
+  assert.equal(d.accounts.length, 1);
+  assert.equal(d.accounts[0].email, "dana@brightline.example");
+  assert.equal(d.accounts[0].contact, "Dana Reyes");
+  const reasons = Object.fromEntries(d.dropped.map((x) => [x.email, x.reason]));
+  assert.match(reasons["ann@gone.example"], /hard bounce/);
+  assert.match(reasons["bo@unsub.example"], /marketing status/);
+});

@@ -149,12 +149,15 @@ export function parseReplies(text) {
 export function parseCsv(text) {
   const rows = [];
   let row = [], cur = "", q = false;
-  const s = String(text || "");
+  const s = String(text || "").replace(/^\uFEFF/, "");
+  // Excel in many locales saves ";"-separated CSV: pick the separator that the header line uses more.
+  const first = s.split(/\r?\n/)[0] || "";
+  const sep = (first.match(/;/g) || []).length > (first.match(/,/g) || []).length ? ";" : ",";
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
     if (q) { if (ch === '"' && s[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') q = false; else cur += ch; }
     else if (ch === '"') q = true;
-    else if (ch === ",") { row.push(cur); cur = ""; }
+    else if (ch === sep) { row.push(cur); cur = ""; }
     else if (ch === "\n" || ch === "\r") { if (ch === "\r" && s[i + 1] === "\n") i++; row.push(cur); rows.push(row); row = []; cur = ""; }
     else cur += ch;
   }
