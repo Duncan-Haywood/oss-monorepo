@@ -153,13 +153,13 @@ class ChecksTest(unittest.TestCase):
         errors = check_invoice(parse_ubl_invoice(mismatched))
         self.assertIn("INV-029", {error["rule"] for error in errors})
 
-    def test_tax_total_rounds_each_line_to_cents(self):
+    def test_tax_total_is_worked_out_per_rate_br_co_17(self):
         invoice = json.loads(json.dumps(VALID))
         invoice["lines"] = [
             {"description": "A", "quantity": 1, "unit_price": 0.03, "tax_percent": 19, "net": 0.03},
             {"description": "B", "quantity": 1, "unit_price": 0.03, "tax_percent": 19, "net": 0.03},
         ]
-        invoice["totals"] = {"net": 0.06, "tax": 0.02, "gross": 0.08}
+        invoice["totals"] = {"net": 0.06, "tax": 0.01, "gross": 0.07}
         self.assertEqual(check_invoice(invoice), [])
 
     def test_fractional_quantity_is_not_rounded_before_line_calculation(self):

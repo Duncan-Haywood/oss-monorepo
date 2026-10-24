@@ -9,6 +9,7 @@ from .bic import inspect_payment_bic
 from .breakdown import inspect_tax_breakdown
 from .document import inspect_document_type
 from .endpoint import inspect_party_endpoint
+from .linenet import accepted_line_net, expected_line_net, summed_line_net, tax_groups, tax_percent_of
 from .iban import inspect_payment_iban
 from .means import inspect_payment_means
 from .period import inspect_invoice_period
@@ -69,7 +70,14 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
         fail("INV-004", "Currency is not a three-letter uppercase code.", "Use an ISO-style code such as EUR or GBP.", "/currency")
     for party_name in ("supplier", "customer"):
         party = invoice.get(party_name)
-        if not isinstance(party, dict) or not isinstance(party.get("id"), str) or not party.get("id", "").strip():
+        # BT-46 (buyer identifier) is optional in EN 16931. A parsed file may omit it when the buyer
+        # is identified some other way (VAT id, legal registration, endpoint); a buyer known by name
+        # alone, or a draft JSON invoice, still needs one.
+        id_optional = (
+            party_name == "customer" and isinstance(invoice.get("source_format"), str) and isinstance(party, dict)
+            and bool(party.get("vat_id") or party.get("legal_id") or party.get("endpoint"))
+        )
+        if not id_optional and (not isinstance(party, dict) or not isinstance(party.get("id"), str) or not party.get("id", "").strip()):
             fail("INV-005", f"{party_name.title()} identifier is missing.", f"Add the {party_name} identifier from the source system.", f"/{party_name}/id")
         if not isinstance(party, dict) or not isinstance(party.get("name"), str) or not party.get("name", "").strip():
             fail("INV-006", f"{party_name.title()} name is missing.", f"Add the {party_name} name.", f"/{party_name}/name")
@@ -105,28 +113,29 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
         fail("INV-007", "Invoice has no line items.", "Add at least one line item.", "/lines")
         lines = []
     expected_net = Decimal("0")
-    expected_tax = Decimal("0")
     for index, line in enumerate(lines, 1):
         if not isinstance(line, dict):
             fail("INV-008", f"Line {index} is not an object.", "Provide description, quantity, unit_price, and tax_percent.", f"/lines/{index - 1}")
             continue
         if not isinstance(line.get("description"), str) or not line.get("description", "").strip():
             fail("INV-008", f"Line {index} has no description.", "Add a human-readable line description.", f"/lines/{index - 1}/description")
-        quantity, price, tax = _number(line.get("quantity")), _money(line.get("unit_price")), _number(line.get("tax_percent"))
-        if quantity is None or quantity <= 0:
-            fail("INV-009", f"Line {index} quantity is invalid.", "Use a positive numeric quantity.", f"/lines/{index - 1}/quantity")
+        quantity, price, tax = _number(line.get("quantity")), _number(line.get("unit_price")), tax_percent_of(line)
+        # A negative quantity is a returned or credited line, which EN 16931 allows.
+        if quantity is None:
+            fail("INV-009", f"Line {index} quantity is invalid.", "Use a numeric quantity; a credit line may be negative.", f"/lines/{index - 1}/quantity")
         if price is None or price < 0:
             fail("INV-010", f"Line {index} unit price is invalid.", "Use a non-negative numeric unit price.", f"/lines/{index - 1}/unit_price")
         if tax is None or tax < 0 or tax > 100:
             fail("INV-011", f"Line {index} tax percentage is invalid.", "Use the tax percentage supplied by your authoritative source; this tool does not choose it.", f"/lines/{index - 1}/tax_percent")
-        if quantity is not None and price is not None and quantity > 0 and price >= 0:
-            line_net = (quantity * price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-            expected_net += line_net
-            if tax is not None and 0 <= tax <= 100:
-                expected_tax += (line_net * tax / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        if quantity is not None and price is not None and price >= 0:
             supplied = _money(line.get("net"))
+            line_net = accepted_line_net(line, supplied)
+            expected_net += summed_line_net(line, invoice)
             if supplied is None or supplied != line_net:
                 fail("INV-012", f"Line {index} net is missing or does not match quantity times unit price.", f"Set line net to {line_net} or correct the inputs.", f"/lines/{index - 1}/net")
+    # VAT is worked out per rate on the summed taxable amount (EN 16931 BR-CO-17), not per line.
+    groups, unattributed, _ = tax_groups(invoice)
+    expected_tax = sum((g["tax"] for g in groups.values()), Decimal("0.00"))
     expected_net = (expected_net + header_adjustment_net_delta(invoice)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     if expected_net < 0:
         expected_net = Decimal("0.00")
@@ -141,14 +150,18 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
             fail("INV-014", "Invoice net total does not match line items after header allowances and charges.", f"Set net total to {expected_net} or correct the line items and adjustments.", "/totals/net")
         else:
             fail("INV-014", "Invoice net total does not match its line items.", f"Set net total to {expected_net} or correct the line items.", "/totals/net")
-    if tax_total is None or tax_total < 0:
+    # BT-110 is absent on an invoice with no VAT at all (category O, for one).
+    tax_absent = totals.get("tax") in (None, "") and expected_tax == 0 and not unattributed
+    if tax_absent:
+        pass
+    elif tax_total is None or tax_total < 0:
         fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax")
-    elif tax_total != expected_tax:
+    elif not unattributed and tax_total != expected_tax:
         fail("INV-018", "Invoice tax total does not match its line tax percentages.", f"Set tax total to {expected_tax} or correct the line inputs.", "/totals/tax")
     if gross is None or gross < 0:
         fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross")
-    elif net is not None and tax_total is not None and gross != net + tax_total:
-        fail("INV-017", "Gross total does not equal net plus tax.", f"Set gross total to {net + tax_total} or correct the totals.", "/totals/gross")
+    elif net is not None and (tax_total is not None or tax_absent) and gross != net + (tax_total or Decimal("0")):
+        fail("INV-017", "Gross total does not equal net plus tax.", f"Set gross total to {net + (tax_total or Decimal('0'))} or correct the totals.", "/totals/gross")
     prepaid = _optional_money(totals, "prepaid")
     if prepaid is not None:
         if prepaid < 0:
