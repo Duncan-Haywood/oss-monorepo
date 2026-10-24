@@ -25,7 +25,7 @@
 //   WIDTH=320 node platform/pages/sideways.mjs   # the WCAG reflow width
 //
 //   # or against production once the owner flip lands:
-//   BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/sideways.mjs
+//   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/sideways.mjs
 //
 // **Check what is answering before you believe the result.** A server left
 // running by an earlier build keeps the port, the second `http.server` exits

@@ -35,7 +35,7 @@ import { forbiddenImports } from '../distribution/mcp.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
-export const SITE = 'https://duncan-haywood.github.io/monorepo-projects/';
+export const SITE = 'https://duncan-haywood.github.io/oss-monorepo/';
 export const SOURCE = 'https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/';
 export const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/;
 export const TIMEOUT_MS = 20_000;
