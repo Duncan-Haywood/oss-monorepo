@@ -208,3 +208,10 @@ test("HI, DC, WV file on the 20th and WY at month end", () => {
   assert.equal(dueDate("2026-Q1", stateDueDay("WY", "quarterly")), "2026-04-30");
   assert.equal(stateDueDay("RI"), 20);
 });
+
+test("RI and SD return due the 20th, listed explicitly", async () => {
+  const { STATE_DUE_DAYS } = await import("./salestaxreturn.mjs");
+  assert.equal(STATE_DUE_DAYS.RI, 20);
+  assert.equal(STATE_DUE_DAYS.SD, 20);
+  assert.equal(dueDate("2026-01", stateDueDay("sd", "monthly")), "2026-02-20");
+});
