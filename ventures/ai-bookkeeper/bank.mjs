@@ -4,6 +4,7 @@
 // balance the bank printed. Column names are matched by alias. Pure functions,
 // no DOM, no network.
 
+import { decodeEntities } from "./xmlent.mjs";
 import { isMt940, isCamt, readMt940, readCamt } from "./sepa.mjs";
 import { isBai2, readBai2 } from "./bai2.mjs";
 import { isN43, readN43 } from "./n43.mjs";
@@ -13,11 +14,11 @@ import { readStatementText } from "./statementtext.mjs";
 const ALIASES = {
   date: ["дата операции", "дата", "дата проводки", "תאריך", "תאריך עסקה", "תאריך ערך", "ημερομηνία", "ημερομηνία συναλλαγής", "ngày giao dịch", "ngày", "date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date", "created utc", "created", "created at",
     // German, French, Spanish, Italian, Dutch headers
-    "datum", "buchungstag", "buchungsdatum", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "boekingsdatum", "transactiedatum",
+    "datum", "date processed", "buchungstag", "buchungsdatum", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "boekingsdatum", "transactiedatum",
     // Hungarian (OTP workbook): booking date before transaction date
     "könyvelés dátuma", "tranzakció dátuma", "dátum",
     // Swedish, Danish, Norwegian
-    "bokföringsdatum", "transaktionsdatum", "transaktionsdag", "posteringsdato", "bogført", "bokført", "bokforingsdatum", "bokforingsdato",
+    "bokföringsdatum", "transaktionsdatum", "transaktionsdag", "posteringsdato", "bogført", "bokført", "bokforingsdatum", "bokforingsdato", "bokföringsdag", "bokforingsdag", "dato", "dagsetning", "วันที่", "วันที่ทำรายการ",
     // Portuguese and Brazilian, Polish, Finnish, Turkish, Czech
     "data mov.", "data mov", "data movimento", "data lançamento", "data lancamento", "data valor", "data operacji", "data transakcji", "data księgowania", "data ksiegowania", "kirjauspäivä", "kirjauspaiva", "maksupäivä", "tarih", "datum zaúčtování", "datum provedení",
     // Japanese
@@ -25,21 +26,22 @@ const ALIASES = {
     // Korean, Chinese
     "거래일자", "거래일시", "거래일", "기준일자", "交易日期", "记账日期", "記帳日期", "交易时间", "交易時間",
     // value dates last: German Valuta/Wertstellung are not the booking date
+    "created (utc)", "created", "created date (utc)", "created at",
     "wertstellung", "valuta",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
-  desc: ["item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
-    "beschreibung", "avisierungstext", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "közlemény",
-    "text", "tekst", "rubrik", "beskrivelse", "forklaring", "meddelande", "meddelelse",
+  desc: ["transaktionsbeschreibung", "zpráva", "název protiúčtu", "item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
+    "beschreibung", "avisierungstext", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "dettagli", "beneficiario", "bénéficiaire", "beneficiaire", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "közlemény",
+    "text", "tekst", "rubrik", "referens", "skýring", "skyring", "รายการ", "รายละเอียด", "beskrivelse", "forklaring", "meddelande", "meddelelse",
     "opis transakcji", "dane kontrahenta", "tytuł przelewu", "saaja/maksaja", "descrição", "descricao", "histórico", "historico", "opis", "tytuł", "tytul", "nadawca/odbiorca", "selitys", "saaja/maksaja", "açıklama", "aciklama", "popis", "zpráva pro příjemce", "opis operacji", "keterangan", "uraian", "الوصف", "البيان", "التفاصيل",
     "摘要", "お取引内容", "取引内容", "内容", "備考", "お取り扱い内容", "적요", "거래내용", "내용", "기재내용", "보낸분/받는분", "摘要", "交易摘要", "交易备注", "交易備註", "对方户名", "對方戶名", "附言", "用途"],
-  amount: ["сумма", "סכום", "ποσό", "số tiền", "amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "bedrag (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma", "összeg", "belopp", "beløb", "belop", "beløp", "valor", "kwota", "määrä", "määrä euroa", "montante", "maara", "tutar", "částka", "castka", "金額", "取引金額", "거래금액", "交易金额", "交易金額", "发生额", "發生額"],
-  debit: ["расход", "списание", "сумма списания", "חובה", "χρέωση", "ghi nợ", "số tiền ghi nợ", "debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "debet", "soll", "lastschrift", "lastschrift in chf", "lastschrift in eur", "débit", "debit (eur)", "cargo", "dare", "uscite", "ut fra konto", "ut fra", "débito", "debito", "borç", "مدين", "出金金額", "出金", "お支払金額", "お引出し", "支払金額", "引出金額", "출금금액", "출금액", "출금", "찾으신금액", "지급금액", "支出", "支出金额", "支出金額", "借方发生额", "借方發生額", "借方金额", "借方金額", "付款金额"],
-  credit: ["приход", "зачисление", "сумма зачисления", "זכות", "πίστωση", "ghi có", "số tiền ghi có", "credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "credit amount (positive)", "inflow", "haben", "gutschrift", "gutschrift in chf", "gutschrift in eur", "crédit", "credito", "crédito", "abono", "avere", "entrate", "inn på konto", "inn pa konto", "inn på", "alacak", "kredit", "دائن", "入金金額", "入金", "お預入れ", "預入金額", "お預り金額", "입금금액", "입금액", "입금", "맡기신금액", "수입금액", "收入", "收入金额", "收入金額", "贷方发生额", "貸方發生額", "贷方金额", "貸方金額", "存入金额"],
-  balance: ["остаток", "остаток по счёту", "יתרה", "υπόλοιπο", "số dư", "balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)", "saldo in chf", "saldo in eur", "saldo na trn", "saldo po operacji", "saldo po transakcji", "saldo após", "saldo apos", "saldo contabilístico", "saldo contabilistico", "bakiye", "الرصيد", "zůstatek", "残高", "差引残高", "現在残高", "잔액", "거래후잔액", "거래 후 잔액", "余额", "餘額", "账户余额", "賬戶餘額", "当前余额"],
+  amount: ["buchungsbetrag", "zaúčtovaná částka", "сумма", "insättning/uttag", "insattning/uttag", "upphæð", "uphaed", "จำนวนเงิน", "סכום", "ποσό", "số tiền", "amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "bedrag (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma", "összeg", "belopp", "beløb", "belop", "beløp", "valor", "kwota", "määrä", "määrä euroa", "montante", "maara", "tutar", "částka", "castka", "金額", "取引金額", "거래금액", "交易金额", "交易金額", "发生额", "發生額"],
+  debit: ["расход", "uttag", "ถอน", "เงินออก", "ถอนเงิน", "списание", "сумма списания", "חובה", "χρέωση", "ghi nợ", "số tiền ghi nợ", "debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "debet", "soll", "lastschrift", "lastschrift in chf", "lastschrift in eur", "débit", "debit (eur)", "cargo", "dare", "uscite", "addebiti", "addebito", "ut fra konto", "ut fra", "débito", "debito", "borç", "مدين", "出金金額", "出金", "お支払金額", "お引出し", "支払金額", "引出金額", "출금금액", "출금액", "출금", "찾으신금액", "지급금액", "支出", "支出金额", "支出金額", "借方发生额", "借方發生額", "借方金额", "借方金額", "付款金额"],
+  credit: ["приход", "insättning", "insattning", "ฝาก", "เงินเข้า", "ฝากเงิน", "зачисление", "сумма зачисления", "זכות", "πίστωση", "ghi có", "số tiền ghi có", "credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "credit amount (positive)", "inflow", "haben", "gutschrift", "gutschrift in chf", "gutschrift in eur", "crédit", "credito", "crédito", "abono", "avere", "entrate", "accrediti", "accredito", "inn på konto", "inn pa konto", "inn på", "alacak", "kredit", "دائن", "入金金額", "入金", "お預入れ", "預入金額", "お預り金額", "입금금액", "입금액", "입금", "맡기신금액", "수입금액", "收入", "收入金额", "收入金額", "贷方发生额", "貸方發生額", "贷方金额", "貸方金額", "存入金额"],
+  balance: ["остаток", "คงเหลือ", "ยอดคงเหลือ", "staða", "остаток по счёту", "יתרה", "υπόλοιπο", "số dư", "balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)", "saldo in chf", "saldo in eur", "saldo na trn", "saldo po operacji", "saldo po transakcji", "saldo após", "saldo apos", "saldo contabilístico", "saldo contabilistico", "bakiye", "الرصيد", "zůstatek", "残高", "差引残高", "現在残高", "잔액", "거래후잔액", "거래 후 잔액", "余额", "餘額", "账户余额", "賬戶餘額", "当前余额"],
 };
 
-const DAY_FIRST_HEADER = /^(дата операции|расход|приход|остаток|תאריך|תאריך עסקה|חובה|זכות|יתרה|ημερομηνία|ημερομηνία συναλλαγής|χρέωση|πίστωση|υπόλοιπο|ngày giao dịch|ghi nợ|ghi có|số dư|narration|withdrawal amt\.?|deposit amt\.?|value dt|chq\.?\/ref\.?no\.?|cargo|abono|concepto|fecha (operaci[oó]n|valor)|tanggal|keterangan|uraian|kredit|data (mov\.?|movimento|lan[cç]amento|valor|operacji|contabile|operazione|valuta|da opera[cç][aã]o)|descri[cç][aã]o|descrizione|hist[oó]rico|d[eé]bito|dare|avere|kwota|opis operacji|data ksi[eę]gowania|kirjausp[aä]iv[aä]|maksup[aä]iv[aä]|tarih|datum zaú[cč]tov[aá]n[ií]|datum proveden[ií]|saldo po operacji|saldo ap[oó]s)$/;
+const DAY_FIRST_HEADER = /^(дата операции|расход|приход|остаток|תאריך|תאריך עסקה|חובה|זכות|יתרה|ημερομηνία|ημερομηνία συναλλαγής|χρέωση|πίστωση|υπόλοιπο|ngày giao dịch|ghi nợ|ghi có|số dư|narration|วันที่|วันที่ทำรายการ|ถอน|ฝาก|คงเหลือ|dagsetning|withdrawal amt\.?|deposit amt\.?|value dt|chq\.?\/ref\.?no\.?|cargo|abono|concepto|fecha (operaci[oó]n|valor)|tanggal|keterangan|uraian|kredit|data (mov\.?|movimento|lan[cç]amento|valor|operacji|contabile|operazione|valuta|da opera[cç][aã]o)|descri[cç][aã]o|descrizione|hist[oó]rico|d[eé]bito|dare|avere|kwota|opis operacji|data ksi[eę]gowania|kirjausp[aä]iv[aä]|maksup[aä]iv[aä]|tarih|datum zaú[cč]tov[aá]n[ií]|datum proveden[ií]|saldo po operacji|saldo ap[oó]s)$/;
 
 // The delimiter is the one that splits most of the first lines into the same
 // number of fields, so a one-line preamble ("Account summary") or a prose line
@@ -47,7 +49,7 @@ const DAY_FIRST_HEADER = /^(дата операции|расход|приход|
 function pickDelimiter(s) {
   const lines = s.split(/\r\n|\r|\n/).filter((l) => l.trim() !== "").slice(0, 20);
   let best = ",", bestScore = -1;
-  for (const d of [",", ";", "\t"]) {
+  for (const d of [",", ";", "\t", "|"]) {
     const freq = new Map();
     for (const l of lines) { const n = l.replace(/"[^"]*"/g, "").split(d).length; if (n > 1) freq.set(n, (freq.get(n) ?? 0) + 1); }
     let score = 0;
@@ -154,17 +156,34 @@ export function detectColumns(header) {
   const cols = Object.fromEntries(Object.keys(ALIASES).map((k) => [k, find(k)]));
   // A currency code after the column name ("Amount USD", "Betrag EUR",
   // "Balance GBP", "Debit CAD") names the same column as the bare word.
-  const CCY = /^(.+?)\s*[(\[]?\s*[a-z]{3}\s*[)\]]?$/;
+  // Also "Amount in EUR", "Betrag in EUR", "Amount, EUR" and "Amount - EUR".
+  const CCY = /^(.+?)[\s,:\-–]*(?:\bin\b\s*)?[(\[]?\s*(?:in\s+)?[a-z]{3}\s*[)\]]?$/;
   for (const k of ["amount", "debit", "credit", "balance"]) {
     if (cols[k] !== -1) continue;
     cols[k] = h.findIndex((x, i) => {
       const m = CCY.exec(x);
-      return m && ALIASES[k].includes(m[1]) && !Object.values(cols).includes(i);
+      // "Paid In (GBP)", "Money in GBP": the pattern's optional "in" ate the name's own last word
+      return m && (ALIASES[k].includes(m[1]) || ALIASES[k].includes(m[1] + " in")) && !Object.values(cols).includes(i);
     });
   }
   // "Value" is the value date in PostFinance (Date, Posting details, Credit,
   // Debit, Value, Balance): beside money-in/out columns it is not the amount.
   if (cols.amount !== -1 && h[cols.amount] === "value" && (cols.debit !== -1 || cols.credit !== -1)) cols.amount = -1;
+  // Amazon's order-history report (order id, items, to, date, total, tax,
+  // refund, payments): the order total is the amount, the items the memo.
+  if (cols.amount === -1 && cols.debit === -1 && cols.credit === -1 && h.includes("order id") && h.includes("total")) {
+    cols.amount = h.indexOf("total");
+    if (cols.desc === -1 && h.includes("items")) cols.desc = h.indexOf("items");
+  }
+  // Etsy's payment-account CSV (Date, Type, Title, Info, Currency, Amount,
+  // Fees & Taxes, Net): Amount is "--" on a fee row, Net is the cash effect.
+  if (h.includes("fees & taxes") && h.includes("net") && cols.amount !== -1 && h[cols.amount] === "amount") {
+    cols.amount = h.indexOf("net");
+    if (h.includes("title")) cols.desc = h.indexOf("title");
+  }
+  // Stripe's balance-transactions export (Amount, Fee, Net, Created (UTC)):
+  // Net is what moved the Stripe balance; Amount is the gross before the fee.
+  if (h.includes("fee") && h.includes("net") && h.includes("created (utc)") && cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
   if (cols.desc === -1) {
     // Some banks split payee and memo; take the first text-looking column left.
     cols.desc = h.findIndex((x, i) => !Object.values(cols).includes(i) && /desc|payee|name|memo|detail/.test(x));
@@ -211,7 +230,7 @@ function inferHeaderless(rows) {
   const width = Math.max(...body.map((r) => r.length));
   const cell = (r, i) => String(r[i] ?? "").trim();
   const col = (i) => body.map((r) => cell(r, i));
-  const isDate = (v) => { if (/^\d{8}$/.test(v)) { const d = parseDate(v); return !!d && +d.slice(0, 4) > 1990 && +d.slice(0, 4) < 2100; } return /^\d{1,4}[-/. :]\d|^\d{1,2}[ -][A-Za-z]{3}/.test(v) && (!!parseDate(v, true) || !!parseDate(v, false)); };
+  const isDate = (v) => { if (/^\d{8}$/.test(v)) { const d = parseDate(v); return !!d && +d.slice(0, 4) > 1990 && +d.slice(0, 4) < 2100; } return /^\d{1,4}[-/. :]\d|^\d{1,2}[ -][A-Za-z]{3}|^[A-Za-z]{3,9}\.? \d{1,2},? \d{4}/.test(v) && (!!parseDate(v, true) || !!parseDate(v, false)); };
   const dateCol = Array.from({ length: width }, (_, i) => i).find((i) => { const c = col(i); return isDate(c[0]) && c.filter(isDate).length >= 0.9 * c.length; });
   if (dateCol === undefined) return null;
   const money = (v) => NUMCELL.test(v) && /[.,]\d{1,2}\)?-?$/.test(v);
@@ -363,7 +382,7 @@ function ofxDate(v) {
 
 function ofxTag(block, tag) {
   const m = new RegExp(`<${tag}>(?:\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>|([^<\\r\\n]*))`, "i").exec(block);
-  return m ? (m[1] ?? m[2]).trim().replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;|&#0?39;/g, "'").replace(/&#0?38;/g, "&").replace(/&amp;/g, "&") : "";
+  return m ? (m[1] !== undefined ? m[1].trim() : decodeEntities(m[2].trim())) : "";
 }
 
 // A file from a bank with several accounts (or a card beside a checking
@@ -391,6 +410,7 @@ function ofxAccount(block) {
 export function readOfx(text) {
   const problems = [];
   const out = [];
+  let booked = 0;
   const blocks = text.split(/<STMTTRN>/i).slice(1);
   blocks.forEach((raw, i) => {
     const b = raw.split(/<\/STMTTRN>/i)[0];
@@ -402,16 +422,37 @@ export function readOfx(text) {
     // A memo that starts with the name (many banks repeat it, then add detail) is the fuller text on its own.
     const name = (ofxTag(b, "NAME") || ofxTag(b, "PAYEE")).replace(/\s+/g, " ");
     const memo = ofxTag(b, "MEMO").replace(/\s+/g, " ");
-    const desc = (memo.toLowerCase().startsWith(name.toLowerCase()) ? memo : [name, memo].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" "));
+    let desc = (memo.toLowerCase().startsWith(name.toLowerCase()) ? memo : [name, memo].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" "));
+    // Some lines carry neither NAME nor MEMO (a check, an ATM withdrawal): say what kind of line it is.
+    if (!desc) {
+      const kind = ofxTag(b, "TRNTYPE").trim();
+      const num = (ofxTag(b, "CHECKNUM") || ofxTag(b, "REFNUM")).trim();
+      desc = [kind.length <= 3 ? kind.toUpperCase() : kind[0].toUpperCase() + kind.slice(1).toLowerCase(), num ? `#${num}` : ""].filter(Boolean).join(" ");
+    }
     out.push({ line: i + 1, date, desc, cents, balance: null });
   });
+  // Brokerage statements: dividends, interest and capital-gain distributions (INCOME) and fees (INVEXPENSE)
+  // are cash a business books; buys and sells move value between cash and securities and are not booked.
+  const invLines = text.split(/<(INCOME|INVEXPENSE)>/i);
+  for (let k = 1; k < invLines.length; k += 2) {
+    const kind = invLines[k].toUpperCase();
+    const b = invLines[k + 1].split(/<\/(?:INCOME|INVEXPENSE)>/i)[0];
+    const date = ofxDate(ofxTag(b, "DTTRADE") || ofxTag(b, "DTSETTLE"));
+    const total = parseCents(ofxTag(b, "TOTAL"));
+    if (!date || !Number.isFinite(total) || total === 0) { problems.push(`Brokerage ${kind.toLowerCase()} line ${(k + 1) / 2}: unreadable date or total, skipped.`); continue; }
+    const memo = ofxTag(b, "MEMO").replace(/\s+/g, " ").trim() || (kind === "INCOME" ? ofxTag(b, "INCOMETYPE").trim() || "Income" : "Brokerage expense");
+    out.push({ line: blocks.length + (k + 1) / 2, date, desc: memo, cents: kind === "INCOME" ? Math.abs(total) : -Math.abs(total), balance: null });
+    booked++;
+  }
+  const trades = (text.match(/<(BUYSTOCK|SELLSTOCK|BUYMF|SELLMF|BUYOPT|SELLOPT|BUYDEBT|SELLDEBT|BUYOTHER|SELLOTHER|REINVEST)>/gi) || []).length;
+  if (trades && (out.length || booked)) problems.push(`${trades} brokerage buy/sell line${trades === 1 ? " was" : "s were"} not booked: they move value between cash and securities. Dividends, interest and fees were booked; record trades in your investment account separately.`);
   const lb = /<LEDGERBAL>[\s\S]*?<BALAMT>\s*([-+]?[\d.,]+)/i.exec(text);
   if (lb && out.length) {
     const last = out.reduce((a, r) => (r.date >= a.date ? r : a), out[0]);
     const bal = parseCents(lb[1]);
     if (Number.isFinite(bal)) last.balance = bal;
   }
-  if (!blocks.length) {
+  if (!blocks.length && !booked) {
     // A failed download saves an error reply as a .ofx file; an investment-only file holds positions, not cash lines.
     const status = /<STATUS>\s*<CODE>\s*(\d+)\s*<SEVERITY>\s*ERROR\s*(?:<MESSAGE>([^<]*))?/i.exec(text);
     if (status && status[1] !== "0") problems.push(`The OFX file is an error reply from the bank (code ${status[1]}${status[2] ? `: ${status[2].trim()}` : ""}), not a statement. Download it again.`);
@@ -598,7 +639,8 @@ export function readQif(text, { dayFirst = false } = {}) {
 // Without dayFirst or decimalComma the CSV branch infers them from the cells
 // (inferLocale); passing either one, true or false, is never overridden.
 export function readStatement(text, { dayFirst, decimalComma, invert, year, onlyAccount } = {}) {
-  text = String(text ?? "");
+  // Classic-Mac files end lines with a bare CR; the line-based readers split on \n.
+  text = String(text ?? "").replace(/\r(?!\n)/g, "\n");
   const dfGiven = dayFirst !== undefined, dcGiven = decimalComma !== undefined;
   dayFirst = !!dayFirst; decimalComma = !!decimalComma;
   const format = sniffFormat(text);
@@ -617,6 +659,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
+  // A general-ledger journal (Xero's Journal Report) lists both sides of each entry: not a bank statement.
+  if (rows[0]?.some((h) => /^journal ?number$/i.test(String(h).trim())) && rows[0].some((h) => /^journal ?date$/i.test(String(h).trim())))
+    return { rows: [], problems: ["This is an accounting journal export (it has JournalNumber and JournalDate columns, with both sides of each entry), not a bank statement. Import the bank's own file instead."], columns: null };
   // A header-less file with a few lines of account summary above the data: drop leading rows until the rest has a layout.
   const hasHeader = (r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); };
   if (!rows.some(hasHeader) && !headerlessLayout(rows)) {
@@ -651,6 +696,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (!dfGiven || !dcGiven) {
     const loc = inferLocale(rows.slice(first), columns);
     if (!dfGiven && !hl && loc.dayFirst) { dayFirst = true; localeNote = "Dates read day first"; }
+    if (!dfGiven && !hl && !dayFirst && loc.compactDayFirst) { dayFirst = true; localeNote = "Dates read day first (every date is ambiguous; month first would stretch the statement over months)"; }
     if (!dcGiven && loc.decimalComma) { decimalComma = true; localeNote = (localeNote ? localeNote + " and " : "Amounts read") + (localeNote ? "amounts with decimal commas" : " with decimal commas"); }
   }
   // Italian, Portuguese, Brazilian, Polish, Finnish, Turkish and Czech headers:
@@ -705,8 +751,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // "Valuta" can be the value date, so any other currency header wins over it.
   const curCol = hdr.findIndex((x) => curRe.test(x) && x !== "valuta") !== -1 ? hdr.findIndex((x) => curRe.test(x) && x !== "valuta") : hdr.findIndex((x) => x === "valuta");
   const currencies = new Set();
-  // Belgian and Dutch exports keep the free-text message apart from the counterparty's name.
-  const msgCol = hdr.findIndex((x) => /^(vrije )?mededeling(en)?$/.test(x));
+  // Belgian and Dutch exports keep the free-text message apart from the counterparty's name; Intesa Sanpaolo's Descrizione estesa and Operazione sit beside Descrizione and Dettagli.
+  const msgCol = hdr.findIndex((x) => /^((vrije )?mededeling(en)?|descrizione estesa|operazione|riferimento di pagamento|r[eé]f[eé]rence de paiement|referencia de pago)$/.test(x));
   // Rabobank splits its description over Omschrijving-1..3.
   const omsCols = hdr.map((x, ix) => (/^omschrijving-[123]$/.test(x) ? ix : -1)).filter((ix) => ix !== -1);
   // German exports keep the other party in its own column, apart from the purpose text.
@@ -732,11 +778,22 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (/^(likutis (pradžiai|pabaigai)|opening balance|closing balance)$/i.test(String(r[columns.desc] ?? "").trim())) { problems.push(`Line ${i + 1}: a balance row, not a transaction, skipped.`); continue; }
     if (headerAt !== -1 && r.length <= Math.max(columns.amount, columns.debit, columns.credit) && String(r[columns.date] ?? "").trim()) { problems.push(`Line ${i + 1}: the row has ${r.length} columns, fewer than the header, so the amount column is missing; skipped. Check the quoting in the file.`); continue; }
     const date = parseDate(r[columns.date], dayFirst);
+    // A row with no date and no amount is the second line of the row above (OCBC's
+    // transaction history puts the card number and merchant on one): add it to that description.
+    if (!date && out.length && !String(r[columns.date] ?? "").trim() && [columns.amount, columns.debit, columns.credit].filter((k) => k !== -1).every((k) => String(r[k] ?? "").trim() === "")) {
+      const more = r.map((c) => String(c ?? "").trim()).filter(Boolean).join(" ").replace(/\s+/g, " ");
+      if (more) { out[out.length - 1].desc = `${out[out.length - 1].desc} ${more}`.trim(); continue; }
+    }
+    if (!date && /^pending$/i.test(String(r[columns.date] ?? "").trim())) { problems.push(`Line ${i + 1}: pending, not a booked transaction, skipped.`); continue; }
     if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
     let cents;
     if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") { cents = parseCents(r[columns.amount], decimalComma); if (rbcUsd !== -1) currencies.add("CAD"); }
     else if (rbcUsd !== -1 && String(r[rbcUsd] ?? "").trim() !== "") { cents = parseCents(r[rbcUsd], decimalComma); currencies.add("USD"); }
-    else cents = (columns.credit !== -1 ? Math.abs(parseCents(r[columns.credit], decimalComma) || 0) : 0) - (columns.debit !== -1 ? Math.abs(parseCents(r[columns.debit], decimalComma) || 0) : 0);
+    else {
+      // A blank or placeholder cell is 0, but NaN (an exponent, or too large for exact cents) stays unreadable.
+      const side = (k) => { if (k === -1) return 0; const c = parseCents(r[k], decimalComma); return Number.isNaN(c) ? NaN : Math.abs(c || 0); };
+      cents = side(columns.credit) - side(columns.debit);
+    }
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();
@@ -796,6 +853,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
   }
   if (flip) for (const r of out) r.cents = -r.cents;
+  // One unsigned-looking amount column, nothing says which way: a card export that lists only purchases (PC Financial's) reads as income.
+  else if (invert === undefined && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && dirCol === -1 && out.length >= 2 && out.every((r) => r.cents > 0))
+    problems.push(`Every amount is positive, so all ${out.length} lines were booked as money in. If this is a card or spending export, they are charges: import with the signs flipped (invert).`);
   if (localeNote) inferred = [inferred, localeNote + " (inferred from the file; pass dayFirst / decimalComma to override)."].filter(Boolean).join(" ");
   return { rows: out, problems, columns, bank, inferred, ...(accountNames.size > 1 ? { accountNames: [...accountNames] } : {}) };
 }
@@ -805,9 +865,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
 // (dd.mm.yyyy); decimal comma when amounts end ",dd" and none ends ".dd".
 function inferLocale(dataRows, columns) {
   let dayHi = 0, monHi = 0, dots = 0, comma = 0, point = 0;
+  const asDay = [], asMon = [];
   for (const r of dataRows) {
     const d = columns.date === -1 ? null : String(r[columns.date] ?? "").trim().match(/^(\d{1,2})([-/.])(\d{1,2})\2\d{2,4}/);
-    if (d) { if (+d[1] > 12) dayHi++; if (+d[3] > 12) monHi++; if (d[2] === ".") dots++; }
+    if (d) { if (+d[1] > 12) dayHi++; if (+d[3] > 12) monHi++; if (d[2] === ".") dots++;
+      if (+d[1] <= 12 && +d[3] <= 12) { const y = d[0].match(/(\d{2,4})$/)[1]; const yy = +y < 100 ? 2000 + +y : +y; asDay.push(Date.UTC(yy, +d[3] - 1, +d[1]) / 864e5); asMon.push(Date.UTC(yy, +d[1] - 1, +d[3]) / 864e5); } }
     for (const k of ["amount", "debit", "credit", "balance"]) {
       if (columns[k] === -1) continue;
       const a = String(r[columns[k]] ?? "").trim().replace(/[^0-9.,]/g, "");
@@ -815,7 +877,13 @@ function inferLocale(dataRows, columns) {
       else if (/\d\.\d{1,2}$/.test(a)) point++;
     }
   }
-  return { dayFirst: (dayHi > 0 && monHi === 0) || (dayHi === 0 && monHi === 0 && dots > 0), decimalComma: comma > 0 && point === 0 };
+  // Every date ambiguous: a statement covers weeks, not months, so the reading
+  // that packs the dates into a short span is the likely one (05/03..08/03 is
+  // 5-8 March day first, not May to August month first).
+  const span = (a) => (a.length > 1 ? Math.max(...a) - Math.min(...a) : 0);
+  const decided = dayHi > 0 || monHi > 0;
+  const compactDayFirst = !decided && asDay.length >= 4 && span(asDay) <= 45 && span(asMon) >= 90;
+  return { dayFirst: (dayHi > 0 && monHi === 0) || (dayHi === 0 && monHi === 0 && dots > 0), compactDayFirst, decimalComma: comma > 0 && point === 0 };
 }
 
 // A stable id per row so importing the same statement twice adds nothing: the

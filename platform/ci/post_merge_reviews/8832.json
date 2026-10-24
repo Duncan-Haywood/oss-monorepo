@@ -1,0 +1,9 @@
+{
+ "pr": 8832,
+ "reviewed_at": "2026-10-24T03:00Z",
+ "findings": 0,
+ "severity": "none",
+ "fix_pr": null,
+ "note": "numbers match results.txt; nit: tests defined after unittest.main()",
+ "batch": "docs/reports/assets/pr-review-flow/findings.md"
+}

@@ -108,6 +108,21 @@ At the best shift prices, a roster that makes person p hold shift i scores at le
 
 `priceScoreBound` runs 300 subgradient rounds by default. Raising that to 1,500 (temporary override, `node eval/dual-bench.mjs 4 8 22 1 1`, root bound only, four seeded weeks) moved the bounds by under 0.1%: 5,637,436 -> 5,640,704, 40,171 -> 40,283, 9,803,711 unchanged, 3,502,302 -> 3,502,569, with no extra week proven, at about 1.5x the time. So the gap left at the root is a duality gap of the shift-pricing relaxation, not slow convergence; a bundle method would converge to the same value. Only branching or a stronger relaxation (per-person set columns generated against the prices, or cuts on pairs of contested shifts) can close it. The default stays at 300.
 
+## Where the proof breaks now, all six sizes (measured 2026-10-24)
+
+`node eval/scale-bench.mjs 8 100000`, 8 seeded weeks per size, 100,000-node limit, 20 s per week, one run on the current code (pricing, ejection chains and reduced-cost fixing in). It finished all six sizes, including the 12 x 30 row the table below could not:
+
+| people x shifts | proven | coverage proven, cost not | coverage open | nodes | time |
+|---|---|---|---|---|---|
+| 6 x 14 | 8 of 8 | 0 | 0 | 35,893 | 6 s |
+| 8 x 18 | 4 of 8 | 3 | 1 (up to 1 h) | 681,089 | 61 s |
+| 8 x 22 | 3 of 8 | 4 | 1 (up to 1 h) | 650,550 | 102 s |
+| 10 x 22 | 0 of 8 | 5 | 3 (up to 5 h) | 1,166,235 | 129 s |
+| 10 x 28 | 0 of 8 | 0 | 8 (up to 26 h) | 788,451 | 197 s |
+| 12 x 30 | 0 of 8 | 1 | 7 (up to 27 h) | 770,370 | 188 s |
+
+Against the 2026-10-22 table: 6 x 14 went from 6 to 8 of 8 proven and 8 x 22 from 2 to 3. Up to 10 x 22 the coverage floor is now mostly settled and what remains is the pay gap; at 10 x 28 and 12 x 30 the open-hours floor is still unresolved by up to 26 and 27 h, so that is where the next bound has to work (pair cuts on contested shifts). Same seeded generator as before, so the weeks are synthetic, not a real business's rosters.
+
 ## Where the exact proof breaks (measured 2026-10-22)
 
 `node eval/scale-bench.mjs [cases] [exactNodes]` grows seeded random weeks (all-different people, 1-2 heads per shift, 100,000-node limit, 20 s) and counts how many are proven. 8 cases per size:

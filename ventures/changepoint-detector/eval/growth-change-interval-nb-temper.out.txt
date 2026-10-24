@@ -1,0 +1,21 @@
+# NB-cost range, temper 1.4 (2026-10-26); node eval/growth-change-interval-nb.mjs 100 <seed> 0.35 nb
+# tuning seeds 2026, 7, 99: temper 1.15 covered 145/161 (90%), 1.4 153/161 (95%), 1.7 157/161 (97.5%); median widths 79-88 (1.15) -> 91-100 (1.4)
+## held-out seed 3
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  18/100  18/18 (100%)  94
+0.025  20/100  18/20 (90%)  73
+0.04  16/100  14/16 (88%)  88
+## held-out seed 11
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  17/100  17/17 (100%)  94
+0.025  24/100  24/24 (100%)  85
+0.04  19/100  16/19 (84%)  64
+## held-out seed 500
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  30/100  29/30 (97%)  88
+0.025  17/100  17/17 (100%)  82
+0.04  9/100  8/9 (89%)  82
+# held-out total covered 161/170 (94.7%) at temper 1.4

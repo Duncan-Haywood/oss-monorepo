@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_0155jrGMCn54vBqNnm2qZD4z",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T15:09:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10154,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "asks for venture-preflight on changed ventures (over 5 min); skipped for a small engine change"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "skipped venture-preflight",
+      "did": "ran the venture's own tests only",
+      "result": "tests green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-a-sales-agent-should-read-the-headers-before-the-words.md"
+  ],
+  "goal": null,
+  "notes": "sales-agent flagship slice: DSN/Auto-Submitted header signals. node --test sales-agent engine, agent, page tests: 33 pass. venture-preflight not run.",
+  "corrections": [],
+  "redteam": null
+}

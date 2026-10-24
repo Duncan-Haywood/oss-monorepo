@@ -211,6 +211,7 @@ export function convert(text, settings = {}) {
     if (p.ref.length > 140) { add("warning", line, "Reference cut to 140 characters", "The payment reference field holds at most 140 characters."); p.ref = p.ref.slice(0, 140); }
     const rawId = cell(r, "id");
     p.e2e = transliterate(rawId || `P${String(idx + 1).padStart(4, "0")}`).replace(/\s+/g, "").slice(0, 35) || `P${String(idx + 1).padStart(4, "0")}`;
+    if (/^\/|\/$|\/\//.test(p.e2e)) add("warning", line, "Payment ID has a leading, trailing or double slash", `"${p.e2e}": SEPA reference fields must not begin or end with "/" or contain "//" (EPC rulebook; the pain.001 validator flags it too), and some banks reject the file.`);
     const key = `${p.iban}|${p.cents}|${p.ref}`;
     if (p.ok && seenKey.has(key)) add("warning", line, "Possible duplicate payment", `Same IBAN, amount and reference as line ${seenKey.get(key)}. Remove one if it was not meant twice.`);
     else if (p.ok) seenKey.set(key, line);

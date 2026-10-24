@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01HZLiy226KaSNFLqrC3GwWq",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "write a blog post about the agent docs org and setup and contents and system. analyzing and explaining it.",
+  "input_sha256": "68a2f61313cda5a3cf0a0029072b03b06bd2e154068513eb39376b9422fa43cd",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-24T16:53:45Z",
+  "ended": "2026-10-24T16:57:46Z",
+  "wall_minutes": 4.6,
+  "tokens_in": 2365192,
+  "tokens_out": 14754,
+  "cost_usd": 1.3309,
+  "tool_calls": 26,
+  "task": null,
+  "projects": [],
+  "pr": 10180,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Checks date against filename but not against today/merge date; 20 posts merged 10-24 carry dates 10-26..10-28."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Direct request for a blog post fits no track; took process as closest (repo/prompt docs work).",
+      "did": "route --track process",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-inside-the-agent-docs-what-they-hold-and-where-friction-went.md"
+  ],
+  "goal": null,
+  "notes": "Companion to the morning guidance-system post. Data from promptctl map, culture.py report and a scan of prompts/runs. Also fixed missing tags on the Actual Budget post (front-matter check was red on main).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "13c8c352-d6fa-55f2-905b-e0d67cd63c01",
+    "transcripts": 1,
+    "first": "2026-10-24T16:53:45Z",
+    "last": "2026-10-24T16:58:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 23,
+        "input": 46,
+        "output": 14754,
+        "thinking": 2894,
+        "cache_read": 2293014,
+        "cache_write_5m": 0,
+        "cache_write_1h": 72132,
+        "api_equivalent_usd": 1.3309,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 23,
+      "input": 46,
+      "output": 14754,
+      "thinking": 2894,
+      "cache_read": 2293014,
+      "cache_write_5m": 0,
+      "cache_write_1h": 72132,
+      "api_equivalent_usd": 1.3309,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 26,
+    "tools": {
+      "Bash": 23,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.6,
+      "active_minutes": 4.6,
+      "model_minutes": 4.12,
+      "tool_minutes": 0.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

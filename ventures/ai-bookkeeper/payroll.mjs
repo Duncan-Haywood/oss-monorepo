@@ -319,6 +319,11 @@ export function form941(books, year, quarter, opts = {}) {
 // 1.2%, per the DOL announcement of November 2025); for any other state or
 // year pass the rate from the DOL list as `creditReduction` (percent).
 export const CREDIT_REDUCTION = { CA: { 2025: 1.2 } };
+// Potential reductions on the DOL's list, not final until after November 10 of
+// the year (a state that repays its loan by then drops off). Never applied,
+// only named in a warning. California 2026: 1.5% base, up to 3.8% more as a
+// benefit-cost-rate add-on unless waived (payroll.org, Bloomberg Tax, April 2026).
+export const POTENTIAL_CREDIT_REDUCTION = { CA: { 2026: "1.5% base, up to 5.3% with the 3.8% benefit-cost-rate add-on if not waived" } };
 
 export function form940(books, year, opts = {}) {
   const from = `${year}-01-01`, to = `${year}-12-31`;
@@ -350,7 +355,9 @@ export function form940(books, year, opts = {}) {
   let pct = opts.creditReduction;
   if (pct == null && opts.state) {
     pct = CREDIT_REDUCTION[String(opts.state).toUpperCase()]?.[year];
-    if (pct == null) out.warnings.push(`No built-in credit reduction for ${opts.state} in ${year}; pass the rate from the DOL list (--credit-reduction PCT).`);
+    const maybe = POTENTIAL_CREDIT_REDUCTION[String(opts.state).toUpperCase()]?.[year];
+    if (pct == null && maybe) out.warnings.push(`${String(opts.state).toUpperCase()} is on the DOL's potential credit reduction list for ${year} (${maybe}). It is final only after November 10 of ${year}; pass the rate (--credit-reduction PCT) once the DOL confirms it.`);
+    else if (pct == null) out.warnings.push(`No built-in credit reduction for ${opts.state} in ${year}; pass the rate from the DOL list (--credit-reduction PCT).`);
   }
   if (pct != null) {
     out.creditReductionPct = +pct;

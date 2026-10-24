@@ -15,29 +15,91 @@
 // past its due date). -> { periods, warnings, totals }
 import { journal } from "./engine.mjs";
 const ym = (d) => d.slice(0, 7);
-const periodOf = (d, freq) => {
-  const [y, m] = [d.slice(0, 4), Number(d.slice(5, 7))];
+const LEN = { monthly: 1, quarterly: 3, semiannual: 6 };
+const pad = (n) => String(n).padStart(2, "0");
+// A quarter or half-year that does not end in a calendar-aligned month is labelled by the
+// month it ends in ("2026-05"); `endMonth` is the month of the year's first period end
+// (quarterly: 1-3, semiannual: 1-6). Default 3 and 6 keep "2026-Q1" and "2026-H1".
+const periodOf = (d, freq, endMonth) => {
+  const [y, m] = [Number(d.slice(0, 4)), Number(d.slice(5, 7))];
   if (freq === "monthly") return ym(d);
-  if (freq === "annual") return y;
-  return `${y}-Q${Math.ceil(m / 3)}`;
+  if (freq === "annual") return String(y);
+  const len = LEN[freq];
+  if (endMonth == null || endMonth === len) return freq === "semiannual" ? `${y}-H${Math.ceil(m / 6)}` : `${y}-Q${Math.ceil(m / 3)}`;
+  const steps = (len - ((m - endMonth) % len + len) % len) % len;
+  const t = m + steps;
+  return t > 12 ? `${y + 1}-${pad(t - 12)}` : `${y}-${pad(t)}`;
 };
 const periodEnd = (p) => {
   if (/^\d{4}$/.test(p)) return [Number(p), 12];
   if (/Q/.test(p)) return [Number(p.slice(0, 4)), Number(p.slice(6)) * 3];
+  if (/H/.test(p)) return [Number(p.slice(0, 4)), Number(p.slice(6)) * 6];
   return [Number(p.slice(0, 4)), Number(p.slice(5))];
 };
 // Due day of the month after the period, by state, from the states' published
 // monthly/quarterly schedules as the author recalls them: check yours
 // (a state's own calendar can differ by filing frequency). "last" = month end.
-export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20 };
+export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: "last", WI: "last", UT: "last", IN: 30, KS: 25, CO: 20, MN: 20, TN: 20, AL: 20, SC: 20, NM: 25, NV: 20, ID: 20, LA: 20, MD: 20, ME: 15, VT: 25, ND: "last", AR: 20, OK: 20, KY: 20, MS: 20, NE: 20, MO: "last", IA: "last", HI: 20, DC: 20, WV: 20, WY: "last", RI: 20, SD: 20 };
+// HI (GET: the 20th; semiannual Jan 20 and Jul 20 not modelled), DC (the 20th; annual Oct 20 not modelled), WV (the 20th) and WY (last day of the month after; Baker Tilly 2025 calendar, TaxCloud 2026 guide) added 2026-10-24 from search excerpts; state sites not read. Rhode Island and South Dakota left out: no schedule found.
+// RI (third-party guides via search 2026-10-24: monthly returns the 20th, quarterly dates disagree between sources, not modelled; tax.ri.gov unreachable from the session) and SD (dor.sd.gov sales and use tax page via search excerpt: return due the 20th of the month after the period; electronic payment the 25th, not modelled) added 2026-10-24. Both equal the default of 20.
+// AR, OK, KY, MS, NE: the 20th (Kintsugi and TaxJar calendars via search 2026-10-24; state sites not read). All equal the default, listed so the schedule is explicit. Missouri left out: TaxCloud lists month end, TaxJar the 20th.
+// MO (dor.mo.gov 2026 monthly due-date table and sales tax FAQ: last day of the month after; the older instructions booklet says the 20th, outdated) and IA (revenue.iowa.gov filing-frequency page: last day of the month after; Streamlined Model 1 sellers the 20th, annual filers Jan 31, not modelled) added 2026-10-24 from search excerpts.
+// ME (Rule 304, maine.gov: the 15th of the month after each reporting period), VT (tax.vermont.gov FAQ: the 25th; monthly returns for January are due the 23rd, not modelled) and
+// ND (last day of the month after; third-party guides, state site not read) added 2026-10-24 from search excerpts. Iowa still left out: sources conflict (20th prepayments vs month-end returns).
+// LA, MD: the 20th (TaxCloud and Kintsugi tables via search 2026-10-24; state sites not read).
+// TN (tn.gov/revenue due-dates page: monthly and quarterly the 20th, annual Jan 20), AL, SC (third-party guides: the 20th) and NM (aggregator calendars: the 25th; some filers differ) added 2026-10-24 from search excerpts; state sites mostly not read.
+// NV, ID: the 20th (Kintsugi/TaxJar tables via search 2026-10-24; Nevada moved from month end, effective date not confirmed). Iowa left out: sources conflict.
+// CO, MN: the 20th (third-party due-date tables, TaxCloud and TaxJar, via search 2026-10-24; state sites not read). Check your own notice.
+// MI (michigan.gov Treasury: monthly and quarterly the 20th, annual return Feb 28 not modelled), CT (OS-114: last day of the month after, monthly, quarterly
+// and annual), WI (revenue.wi.gov FAQ: last day of the month after; "early monthly" filers the 20th, not modelled), UT (tax.utah.gov: last day of the
+// month after), IN (DOR filing-deadlines page and bulletin 102: the 30th, early filers the 20th, not modelled; a 30th that does not exist in February
+// is clamped to month end) and KS (ST-36 form: the 25th) added 2026-10-24 from search excerpts of those pages, not the full forms.
+// VA (tax.virginia.gov ST-9 package, July 2023 and later: "return and payment due on 20th of month following end of period") and AZ
+// (TPT: the 20th; azdor.gov and Phoenix guidance; e-filers get until month end, not modelled) added 2026-10-24 from search excerpts.
+// Both equal the default of 20, listed so the schedule is explicit and a later change to the default cannot silently move them.
+// Added 2026-10-24 from search excerpts (NJ: nj.gov Division of Taxation, 20th after the period, quarterly or monthly;
+// GA: dor.georgia.gov File & Pay, the 20th (read 2026-10-24); NC: ncdor.gov, monthly 20th but quarterly last day of the month after (read 2026-10-24, see stateDueDay); OH: 23rd, monthly, quarterly and semiannual Jan-Jun/Jul-Dec).
+// MA: monthly returns the 20th; quarterly and annual returns 30 days after the period closes (the rule since 2021, from
+// memory and search excerpts, not re-read on mass.gov), modelled as `{ after: 30 }` in stateDueDay.
+// Checked 2026-10-24 against the states' own pages (via search excerpts): CA quarterly
+// = last day of the month after the quarter; TX = 20th, monthly and quarterly; FL = due
+// the 1st, late after the 20th; WA monthly = 25th but quarterly = end of the next month.
+// Checked 2026-10-24 (search excerpts of tax.ny.gov ST-100 instructions, tax.illinois.gov ST-1
+// instructions, revenue.pa.gov REV-819): NY, IL and PA monthly and quarterly returns are due the
+// 20th, next business day if that is a weekend or holiday. WA annual returns are due April 15 (not modelled).
+// NY quarters are Mar-May, Jun-Aug, Sep-Nov, Dec-Feb (due the 20th after), not calendar quarters;
+// PA semiannual periods are Feb-Jul and Aug-Jan (due Aug 20 and Feb 20). Both are modelled via
+// stateEndMonth (NY quarterly ends in Feb, PA semiannual in Jan); other states use calendar periods.
+// The 2026-10-24 excerpts were not re-read against the full forms: check your own notice.
+export function stateFilingNote(state, frequency = "quarterly") {
+  const s = String(state ?? "").toUpperCase();
+  if (s === "PA" && frequency === "annual") return "Pennsylvania has no annual return; assigned filers file monthly, quarterly or semiannually (due Aug 20 and Feb 20), use --freq semiannual with --state PA for the Feb-Jul and Aug-Jan periods.";
+  return null;
+}
+export function stateEndMonth(state, frequency = "quarterly") {
+  const s = String(state ?? "").toUpperCase();
+  if (s === "NY" && frequency === "quarterly") return 2;
+  if (s === "PA" && frequency === "semiannual") return 1;
+  return null;
+}
+export function stateDueDay(state, frequency = "quarterly") {
+  const s = String(state ?? "").toUpperCase();
+  if (s === "WA" && frequency !== "monthly") return "last";
+  if (s === "MA" && frequency !== "monthly") return { after: 30 };
+  // NC: monthly the 20th, quarterly the last day of Jan/Apr/Jul/Oct (ncdor.gov "Filing Frequency and Due Dates", read 2026-10-24)
+  if (s === "NC" && frequency !== "monthly") return "last";
+  return STATE_DUE_DAYS[s] ?? 20;
+}
 export function dueDate(period, dueDay = 20) {
   let [y, m] = periodEnd(period);
+  // { after: N } = N calendar days after the period's last day (Massachusetts quarterly and annual)
+  if (dueDay && typeof dueDay === "object") return iso(new Date(Date.UTC(y, m, dueDay.after)));
   m += 1; if (m > 12) { m = 1; y += 1; }
-  const day = dueDay === "last" ? new Date(Date.UTC(y, m, 0)).getUTCDate() : dueDay;
+  const monthEnd = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const day = dueDay === "last" ? monthEnd : Math.min(dueDay, monthEnd);
   return `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-const pad = (n) => String(n).padStart(2, "0");
 const iso = (dt) => `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
 // nth (1-based) weekday (0 Sun .. 6 Sat) of a month; n = -1 for the last
 const nthWeekday = (y, m, wd, n) => {
@@ -65,17 +127,18 @@ export function nextBusinessDay(date) {
     dt.setUTCDate(dt.getUTCDate() + 1);
   }
 }
-// the filing period that ended just before a payment date
-const periodBefore = (d, freq) => {
-  let y = Number(d.slice(0, 4)), m = Number(d.slice(5, 7));
-  if (freq === "monthly") { m -= 1; if (m < 1) { m = 12; y -= 1; } return `${y}-${pad(m)}`; }
-  if (freq === "annual") return String(y - 1);
-  let q = Math.ceil(m / 3) - 1; if (q < 1) { q = 4; y -= 1; }
-  return `${y}-Q${q}`;
+// the filing period that ended before the one a payment falls in
+const periodBefore = (d, freq, endMonth) => {
+  if (freq === "annual") return String(Number(d.slice(0, 4)) - 1);
+  let [y, m] = periodEnd(periodOf(d, freq, endMonth));
+  m -= LEN[freq];
+  while (m < 1) { m += 12; y -= 1; }
+  return periodOf(`${y}-${pad(m)}-01`, freq, endMonth);
 };
 
-export function salesTaxReturn(books, { account = "2100", frequency = "quarterly", dueDay = 20, from = null, to = null, rates = {}, rollover = true, discounts = {}, asOf = null } = {}) {
-  if (!["monthly", "quarterly", "annual"].includes(frequency)) throw new Error("frequency must be monthly, quarterly or annual");
+export function salesTaxReturn(books, { account = "2100", frequency = "quarterly", endMonth = null, dueDay = 20, from = null, to = null, rates = {}, rollover = true, discounts = {}, asOf = null } = {}) {
+  if (!["monthly", "quarterly", "semiannual", "annual"].includes(frequency)) throw new Error("frequency must be monthly, quarterly, semiannual or annual");
+  if (endMonth != null && !(Number.isInteger(endMonth) && endMonth >= 1 && endMonth <= (LEN[frequency] ?? 1))) throw new Error("endMonth must be a month within the first period of the year");
   const cells = new Map();
   const cell = (period, j) => {
     const k = `${period}|${j}`;
@@ -86,7 +149,7 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
   const warnings = [];
   for (const d of books.documents ?? []) {
     if (d.kind !== "invoice" || (from && d.date < from) || (to && d.date > to)) continue;
-    const period = periodOf(d.date, frequency);
+    const period = periodOf(d.date, frequency, endMonth);
     const taxLines = d.lines.filter((l) => l.account === account);
     const base = d.total - taxLines.reduce((a, l) => a + l.cents, 0);
     if (!taxLines.length) {
@@ -118,7 +181,7 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
   for (const e of journal(books)) {
     if (e.source === "invoice" || e.source === "credit" || e.source === "bill" || (from && e.date < from) || (to && e.date > to)) continue;
     for (const l of e.lines) if (l.account === account && l.debit) {
-      const k = periodBefore(e.date, frequency);
+      const k = periodBefore(e.date, frequency, endMonth);
       paid.set(k, (paid.get(k) ?? 0) + l.debit);
     }
   }

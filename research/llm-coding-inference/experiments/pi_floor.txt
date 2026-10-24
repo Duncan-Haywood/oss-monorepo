@@ -1,0 +1,102 @@
+GoEmotions parts 1-3, corpus 38234; audit n=200, 500 draws per cell, seed 20261024
+columns: category | prevalence | floor | estimator | coverage | mean_width(points) | width_vs_uniform_Wilson | share of audits with zero audited positives
+
+# grief: true prevalence 0.10% (37 of 38234); uniform Wilson width 2.05 points
+grief | 0.10% | 0.02 | IPW normal | 0.960 | 0.99 | 0.48 | 0.592
+grief | 0.10% | 0.02 | IPW Wilson | 0.800 | 1.34 | 0.65 | 0.592
+grief | 0.10% | 0.05 | IPW normal | 0.802 | 1.19 | 0.58 | 0.726
+grief | 0.10% | 0.05 | IPW Wilson | 0.738 | 1.22 | 0.60 | 0.726
+grief | 0.10% | 0.10 | IPW normal | 0.652 | 1.39 | 0.68 | 0.826
+grief | 0.10% | 0.10 | IPW Wilson | 0.608 | 11.01 | 5.38 | 0.826
+grief | 0.10% | 0.20 | IPW normal | 0.594 | 1.42 | 0.69 | 0.848
+grief | 0.10% | 0.20 | IPW Wilson | 0.554 | 0.96 | 0.47 | 0.848
+grief | 0.10% | 0.50 | IPW normal | 0.594 | 1.42 | 0.69 | 0.848
+grief | 0.10% | 0.50 | IPW Wilson | 0.554 | 0.96 | 0.47 | 0.848
+# pride: true prevalence 0.13% (50 of 38234); uniform Wilson width 2.09 points
+pride | 0.13% | 0.02 | IPW normal | 0.956 | 1.12 | 0.54 | 0.492
+pride | 0.13% | 0.02 | IPW Wilson | 0.854 | 2.63 | 1.26 | 0.492
+pride | 0.13% | 0.05 | IPW normal | 0.938 | 1.41 | 0.67 | 0.628
+pride | 0.13% | 0.05 | IPW Wilson | 0.734 | 1.57 | 0.75 | 0.628
+pride | 0.13% | 0.10 | IPW normal | 0.800 | 1.68 | 0.80 | 0.734
+pride | 0.13% | 0.10 | IPW Wilson | 0.756 | 2.07 | 0.99 | 0.734
+pride | 0.13% | 0.20 | IPW normal | 0.740 | 1.85 | 0.88 | 0.792
+pride | 0.13% | 0.20 | IPW Wilson | 0.706 | 4.25 | 2.03 | 0.792
+pride | 0.13% | 0.50 | IPW normal | 0.740 | 1.85 | 0.88 | 0.792
+pride | 0.13% | 0.50 | IPW Wilson | 0.706 | 4.25 | 2.03 | 0.792
+# relief: true prevalence 0.21% (80 of 38234); uniform Wilson width 2.23 points
+relief | 0.21% | 0.02 | IPW normal | 0.948 | 1.24 | 0.56 | 0.488
+relief | 0.21% | 0.02 | IPW Wilson | 0.908 | 2.05 | 0.92 | 0.488
+relief | 0.21% | 0.05 | IPW normal | 0.862 | 1.40 | 0.63 | 0.592
+relief | 0.21% | 0.05 | IPW Wilson | 0.788 | 1.57 | 0.71 | 0.592
+relief | 0.21% | 0.10 | IPW normal | 0.752 | 1.60 | 0.72 | 0.664
+relief | 0.21% | 0.10 | IPW Wilson | 0.618 | 13.17 | 5.90 | 0.664
+relief | 0.21% | 0.20 | IPW normal | 0.692 | 1.72 | 0.77 | 0.674
+relief | 0.21% | 0.20 | IPW Wilson | 0.544 | 1.54 | 0.69 | 0.674
+relief | 0.21% | 0.50 | IPW normal | 0.692 | 1.72 | 0.77 | 0.674
+relief | 0.21% | 0.50 | IPW Wilson | 0.544 | 1.54 | 0.69 | 0.674
+# embarrassment: true prevalence 0.42% (160 of 38234); uniform Wilson width 2.50 points
+embarrassment | 0.42% | 0.02 | IPW normal | 0.952 | 1.97 | 0.79 | 0.096
+embarrassment | 0.42% | 0.02 | IPW Wilson | 0.920 | 2.93 | 1.17 | 0.096
+embarrassment | 0.42% | 0.05 | IPW normal | 0.964 | 2.23 | 0.89 | 0.214
+embarrassment | 0.42% | 0.05 | IPW Wilson | 0.870 | 11.59 | 4.63 | 0.214
+embarrassment | 0.42% | 0.10 | IPW normal | 0.948 | 2.63 | 1.05 | 0.310
+embarrassment | 0.42% | 0.10 | IPW Wilson | 0.814 | 3.24 | 1.30 | 0.310
+embarrassment | 0.42% | 0.20 | IPW normal | 0.898 | 3.22 | 1.28 | 0.408
+embarrassment | 0.42% | 0.20 | IPW Wilson | 0.754 | 3.86 | 1.54 | 0.408
+embarrassment | 0.42% | 0.50 | IPW normal | 0.892 | 3.24 | 1.29 | 0.408
+embarrassment | 0.42% | 0.50 | IPW Wilson | 0.746 | 4.10 | 1.64 | 0.408
+# nervousness: true prevalence 0.27% (105 of 38234); uniform Wilson width 2.31 points
+nervousness | 0.27% | 0.02 | IPW normal | 0.950 | 1.49 | 0.65 | 0.224
+nervousness | 0.27% | 0.02 | IPW Wilson | 0.906 | 3.57 | 1.54 | 0.224
+nervousness | 0.27% | 0.05 | IPW normal | 0.980 | 1.82 | 0.79 | 0.378
+nervousness | 0.27% | 0.05 | IPW Wilson | 0.870 | 9.26 | 4.01 | 0.378
+nervousness | 0.27% | 0.10 | IPW normal | 0.912 | 2.20 | 0.95 | 0.496
+nervousness | 0.27% | 0.10 | IPW Wilson | 0.844 | 3.53 | 1.53 | 0.496
+nervousness | 0.27% | 0.20 | IPW normal | 0.800 | 2.47 | 1.07 | 0.550
+nervousness | 0.27% | 0.20 | IPW Wilson | 0.776 | 3.17 | 1.37 | 0.550
+nervousness | 0.27% | 0.50 | IPW normal | 0.800 | 2.47 | 1.07 | 0.550
+nervousness | 0.27% | 0.50 | IPW Wilson | 0.776 | 3.17 | 1.37 | 0.550
+# remorse: true prevalence 0.89% (341 of 38234); uniform Wilson width 3.13 points
+remorse | 0.89% | 0.02 | IPW normal | 0.914 | 2.05 | 0.65 | 0.000
+remorse | 0.89% | 0.02 | IPW Wilson | 0.934 | 2.92 | 0.93 | 0.000
+remorse | 0.89% | 0.05 | IPW normal | 0.930 | 2.37 | 0.76 | 0.004
+remorse | 0.89% | 0.05 | IPW Wilson | 0.918 | 3.71 | 1.18 | 0.004
+remorse | 0.89% | 0.10 | IPW normal | 0.918 | 2.87 | 0.91 | 0.028
+remorse | 0.89% | 0.10 | IPW Wilson | 0.880 | 3.92 | 1.25 | 0.028
+remorse | 0.89% | 0.20 | IPW normal | 0.936 | 3.65 | 1.17 | 0.094
+remorse | 0.89% | 0.20 | IPW Wilson | 0.848 | 5.01 | 1.60 | 0.094
+remorse | 0.89% | 0.50 | IPW normal | 0.930 | 4.20 | 1.34 | 0.174
+remorse | 0.89% | 0.50 | IPW Wilson | 0.816 | 5.14 | 1.64 | 0.174
+# disgust: true prevalence 1.32% (504 of 38234); uniform Wilson width 3.52 points
+disgust | 1.32% | 0.02 | IPW normal | 0.888 | 3.46 | 0.98 | 0.000
+disgust | 1.32% | 0.02 | IPW Wilson | 0.924 | 4.47 | 1.27 | 0.000
+disgust | 1.32% | 0.05 | IPW normal | 0.930 | 3.45 | 0.98 | 0.000
+disgust | 1.32% | 0.05 | IPW Wilson | 0.948 | 4.75 | 1.35 | 0.000
+disgust | 1.32% | 0.10 | IPW normal | 0.934 | 3.80 | 1.08 | 0.014
+disgust | 1.32% | 0.10 | IPW Wilson | 0.924 | 6.33 | 1.80 | 0.014
+disgust | 1.32% | 0.20 | IPW normal | 0.954 | 4.52 | 1.28 | 0.044
+disgust | 1.32% | 0.20 | IPW Wilson | 0.920 | 9.15 | 2.60 | 0.044
+disgust | 1.32% | 0.50 | IPW normal | 0.926 | 5.27 | 1.50 | 0.082
+disgust | 1.32% | 0.50 | IPW Wilson | 0.894 | 6.56 | 1.86 | 0.082
+# fear: true prevalence 1.05% (402 of 38234); uniform Wilson width 3.28 points
+fear | 1.05% | 0.02 | IPW normal | 0.928 | 2.85 | 0.87 | 0.000
+fear | 1.05% | 0.02 | IPW Wilson | 0.954 | 4.17 | 1.27 | 0.000
+fear | 1.05% | 0.05 | IPW normal | 0.948 | 3.04 | 0.92 | 0.002
+fear | 1.05% | 0.05 | IPW Wilson | 0.948 | 4.25 | 1.29 | 0.002
+fear | 1.05% | 0.10 | IPW normal | 0.956 | 3.46 | 1.05 | 0.016
+fear | 1.05% | 0.10 | IPW Wilson | 0.922 | 4.88 | 1.49 | 0.016
+fear | 1.05% | 0.20 | IPW normal | 0.940 | 4.29 | 1.31 | 0.060
+fear | 1.05% | 0.20 | IPW Wilson | 0.896 | 7.00 | 2.13 | 0.060
+fear | 1.05% | 0.50 | IPW normal | 0.934 | 4.99 | 1.52 | 0.106
+fear | 1.05% | 0.50 | IPW Wilson | 0.862 | 6.64 | 2.02 | 0.106
+# sadness: true prevalence 1.96% (751 of 38234); uniform Wilson width 4.06 points
+sadness | 1.96% | 0.02 | IPW normal | 0.902 | 4.37 | 1.08 | 0.000
+sadness | 1.96% | 0.02 | IPW Wilson | 0.960 | 5.63 | 1.39 | 0.000
+sadness | 1.96% | 0.05 | IPW normal | 0.934 | 4.25 | 1.05 | 0.000
+sadness | 1.96% | 0.05 | IPW Wilson | 0.926 | 6.52 | 1.61 | 0.000
+sadness | 1.96% | 0.10 | IPW normal | 0.950 | 4.60 | 1.13 | 0.000
+sadness | 1.96% | 0.10 | IPW Wilson | 0.932 | 7.08 | 1.74 | 0.000
+sadness | 1.96% | 0.20 | IPW normal | 0.962 | 5.45 | 1.34 | 0.002
+sadness | 1.96% | 0.20 | IPW Wilson | 0.914 | 9.42 | 2.32 | 0.002
+sadness | 1.96% | 0.50 | IPW normal | 0.946 | 7.00 | 1.72 | 0.022
+sadness | 1.96% | 0.50 | IPW Wilson | 0.910 | 10.63 | 2.62 | 0.022

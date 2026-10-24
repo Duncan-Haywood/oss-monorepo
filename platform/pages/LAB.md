@@ -87,3 +87,11 @@ every distribution channel. The roadmap is ordered roughly by cost.
   deep links (`#slug`) work, there are no page errors and nothing scrolls
   sideways. Found and fixed a shared SVG gradient id that would have
   painted every cover with the first cover's gradient.
+- **2026-10-24:** Shorts, first cut. `platform/distribution/shorts.mjs`
+  renders the hub's TikTok / YouTube Shorts script into a 1080x1920 video:
+  cards from the page copy, the real page with its worked example loaded
+  and scrolled to its answer, a figure read off the page, a closing card
+  with the not-advice line. Not the Playwright recording this plan named:
+  `recordVideo` ignores the device scale, so it is one tall 2.5x screenshot
+  panned by ffmpeg. Daily artifact from `distribute-shorts.yml`; uploading
+  is the owner's. Write-up: `docs/reports/2026-10-24-shorts-renderer.md`.

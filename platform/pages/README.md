@@ -258,6 +258,14 @@ node --test platform/pages/updates.test.mjs
   deploy workflow also reads it back off the live origin to pick the product page
   it verifies, so a renamed venture cannot make verification pass vacuously.
 
+- **`search-index.json`.** What the hub's search box (and the site assistant)
+  ranks: every tool, research project, guide or comparison page inside a tool,
+  blog post, and `c/` or `compare/` collection page. A "vs" page that a
+  `compare/<product>/` page already gathers is left out, so "jobber" returns
+  that one page rather than 43 identical rows. Fetched on the first keystroke,
+  never on a bare visit. See `renderSearchIndex` and
+  [`docs/reports/2026-10-24-site-search-and-breadcrumbs.md`](../../docs/reports/2026-10-24-site-search-and-breadcrumbs.md).
+
 - **`llms.txt`.** The same catalogue as Markdown, at the well-known path an
   assistant looks for ([llmstxt.org](https://llmstxt.org)). `catalog.json` is
   richer but nothing points at it — a model has no reason to guess the filename,

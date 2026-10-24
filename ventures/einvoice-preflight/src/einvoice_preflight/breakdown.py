@@ -13,12 +13,14 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Any
 
+from .linenet import tax_groups, tax_key, tax_percent_of
+
 
 def inspect_tax_breakdown(invoice: dict[str, Any]) -> list[dict[str, str]]:
     """Return INV-037 / INV-038 observations for tax_breakdown."""
     if not isinstance(invoice, dict):
         return []
-    expected = _line_groups(invoice.get("lines"))
+    expected, unattributed, with_category = tax_groups(invoice)
     supplied = invoice.get("tax_breakdown")
     missing = "tax_breakdown" not in invoice or supplied in (None, "")
     if missing or supplied == []:
@@ -37,32 +39,12 @@ def inspect_tax_breakdown(invoice: dict[str, Any]) -> list[dict[str, str]]:
             "Provide tax_breakdown as an array of objects with tax_percent, taxable, and tax.",
             "/tax_breakdown",
         )]
-    return _check_rows(supplied, expected)
+    return _check_rows(supplied, expected, with_category, unattributed)
 
 
-def _line_groups(lines: Any) -> dict[Decimal, dict[str, Decimal]]:
-    groups: dict[Decimal, dict[str, Decimal]] = {}
-    if not isinstance(lines, list):
-        return groups
-    for line in lines:
-        if not isinstance(line, dict):
-            continue
-        quantity, price, tax = _number(line.get("quantity")), _money(line.get("unit_price")), _number(line.get("tax_percent"))
-        if quantity is None or quantity <= 0 or price is None or price < 0:
-            continue
-        if tax is None or tax < 0 or tax > 100:
-            continue
-        line_net = (quantity * price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        line_tax = (line_net * tax / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        bucket = groups.setdefault(tax, {"taxable": Decimal("0.00"), "tax": Decimal("0.00")})
-        bucket["taxable"] += line_net
-        bucket["tax"] += line_tax
-    return groups
-
-
-def _check_rows(rows: list[Any], expected: dict[Decimal, dict[str, Decimal]]) -> list[dict[str, str]]:
+def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_category: bool, unattributed: bool) -> list[dict[str, str]]:
     findings: list[dict[str, str]] = []
-    seen: dict[Decimal, int] = {}
+    seen: dict[Any, int] = {}
     for index, row in enumerate(rows):
         path = f"/tax_breakdown/{index}"
         if not isinstance(row, dict):
@@ -73,7 +55,7 @@ def _check_rows(rows: list[Any], expected: dict[Decimal, dict[str, Decimal]]) ->
                 path,
             ))
             continue
-        percent = _number(row.get("tax_percent"))
+        percent = tax_percent_of(row)
         taxable = _money(row.get("taxable"))
         tax = _money(row.get("tax"))
         if percent is None or percent < 0 or percent > 100:
@@ -84,7 +66,10 @@ def _check_rows(rows: list[Any], expected: dict[Decimal, dict[str, Decimal]]) ->
                 f"{path}/tax_percent",
             ))
             continue
-        if percent in seen:
+        key = tax_key(row, with_category)
+        if key is None:
+            key = percent
+        if key in seen:
             findings.append(_finding(
                 "INV-038",
                 "Tax breakdown repeats the same tax percentage on more than one row.",
@@ -92,8 +77,9 @@ def _check_rows(rows: list[Any], expected: dict[Decimal, dict[str, Decimal]]) ->
                 f"{path}/tax_percent",
             ))
             continue
-        seen[percent] = index
-        if taxable is None or taxable < 0:
+        seen[key] = index
+        # A negative taxable amount is a credited line group, which is allowed.
+        if taxable is None:
             findings.append(_finding(
                 "INV-038",
                 f"Tax breakdown row {index + 1} taxable amount is missing or invalid.",
@@ -101,7 +87,7 @@ def _check_rows(rows: list[Any], expected: dict[Decimal, dict[str, Decimal]]) ->
                 f"{path}/taxable",
             ))
             continue
-        if tax is None or tax < 0:
+        if tax is None:
             findings.append(_finding(
                 "INV-038",
                 f"Tax breakdown row {index + 1} tax amount is missing or invalid.",
@@ -117,8 +103,11 @@ def _check_rows(rows: list[Any], expected: dict[Decimal, dict[str, Decimal]]) ->
                 f"Set tax to {expected_tax} or correct taxable and tax_percent.",
                 f"{path}/tax",
             ))
-        group = expected.get(percent)
-        if group is None:
+        group = expected.get(key)
+        if group is None and not unattributed and taxable == 0 and tax == 0:
+            # zero row, no line: a zero-amount header allowance or charge
+            continue
+        if group is None and not unattributed:
             findings.append(_finding(
                 "INV-038",
                 f"Tax breakdown row {index + 1} names a tax percentage that no line uses.",
@@ -126,15 +115,15 @@ def _check_rows(rows: list[Any], expected: dict[Decimal, dict[str, Decimal]]) ->
                 f"{path}/tax_percent",
             ))
             continue
-        if taxable != group["taxable"]:
+        if group is not None and not unattributed and taxable != group["taxable"]:
             findings.append(_finding(
                 "INV-038",
                 f"Tax breakdown row {index + 1} taxable amount does not match the lines at that rate.",
                 f"Set taxable to {group['taxable']} or correct the line nets.",
                 f"{path}/taxable",
             ))
-    for percent in expected:
-        if percent not in seen:
+    for key in expected:
+        if key not in seen and not unattributed:
             findings.append(_finding(
                 "INV-038",
                 "Tax breakdown is missing a row for a tax percentage used on the lines.",

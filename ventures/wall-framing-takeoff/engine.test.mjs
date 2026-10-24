@@ -543,6 +543,15 @@ test("a gable wall: studs rise with the roof, plates run along the slope, the la
   assert.ok(r.cuts.some((c) => c.kind === "stud" && c.length > plan.studLength + 50));
 });
 
+test("a gable stud straddling the peak reaches the peak, not just its higher edge", () => {
+  const plan = { ...base(), walls: [{ id: "G", length: 224, gable: { pitch: 6 } }] };
+  const w = layoutWall(plan, plan.walls[0]);
+  const peak = w.members.find((m) => m.orient === "v" && m.x < 112 && m.x + 1.5 > 112);
+  assert.ok(peak, "a 224 in wall at 16 in centres puts a stud across the peak");
+  assert.equal(peak.length, plan.studLength + 0.5 * 112);
+  assert.deepEqual(verifyWall(w, plan.walls[0]), []);
+});
+
 test("gable walls reject a flat pitch", () => {
   const plan = { ...base(), walls: [{ id: "G", length: 240, gable: { pitch: 0 } }] };
   assert.ok(validatePlan(plan).some((e) => e.includes("pitch")));

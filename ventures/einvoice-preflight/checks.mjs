@@ -15,6 +15,7 @@ import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
 import { inspectPaymentTerms } from "./terms.mjs";
 import { inspectPartyVat } from "./vat.mjs";
+import { acceptedLineNet, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
 
 function parseNumber(value) {
   if (value === undefined || value === null || value === "") return null;
@@ -28,6 +29,14 @@ export function roundHalfUpToCents(value) {
   if (!Number.isFinite(value)) return null;
   const sign = value < 0 ? -1 : 1;
   return (sign * Math.round(Math.abs(value) * 100 + Number.EPSILON)) / 100;
+}
+
+// Hungarian VAT is stated in whole forints, so a HUF invoice may round its tax
+// total to the unit instead of the cent. Accepted only when the stated total is
+// a whole number equal to the computed tax rounded half up to the unit.
+function wholeUnitTaxAgrees(currency, stated, expected) {
+  if (currency !== "HUF" || stated === null || expected === null) return false;
+  return Number.isInteger(stated) && stated === Math.round(expected);
 }
 
 function money(value) {
@@ -56,8 +65,8 @@ function isoDate(value) {
 
 export function checkInvoice(invoice) {
   const errors = [];
-  const fail = (rule, message, fix, path = "") => {
-    errors.push({ rule, message, fix, path });
+  const fail = (rule, message, fix, path = "", severity) => {
+    errors.push(severity ? { rule, message, fix, path, severity } : { rule, message, fix, path });
   };
 
   if (invoice === null || typeof invoice !== "object" || Array.isArray(invoice)) {
@@ -105,7 +114,13 @@ export function checkInvoice(invoice) {
 
   for (const partyName of ["supplier", "customer"]) {
     const party = invoice[partyName];
-    if (!party || typeof party !== "object" || Array.isArray(party) || typeof party.id !== "string" || !party.id.trim()) {
+    // BT-46 (buyer identifier) is optional in EN 16931 and many real UBL and
+    // CII files leave it out. A parsed file may do so when the buyer is
+    // identified some other way (VAT id, legal registration, endpoint); a
+    // buyer known by name alone, or a draft JSON invoice, still needs one.
+    const idOptional = partyName === "customer" && typeof invoice.source_format === "string"
+      && Boolean(party && typeof party === "object" && (party.vat_id || party.legal_id || party.endpoint));
+    if (!idOptional && (!party || typeof party !== "object" || Array.isArray(party) || typeof party.id !== "string" || !party.id.trim())) {
       fail("INV-005", `${capitalize(partyName)} identifier is missing.`, `Add the ${partyName} identifier from the source system.`, `/${partyName}/id`);
     }
     if (!party || typeof party !== "object" || Array.isArray(party) || typeof party.name !== "string" || !party.name.trim()) {
@@ -133,7 +148,7 @@ export function checkInvoice(invoice) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectPaymentRemittance(invoice)) {
-    fail(finding.rule, finding.message, finding.fix, finding.path);
+    fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
   }
   for (const finding of inspectDocumentType(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
@@ -161,7 +176,6 @@ export function checkInvoice(invoice) {
   }
 
   let expectedNet = 0;
-  let expectedTax = 0;
   lines.forEach((line, index) => {
     const n = index + 1;
     if (!line || typeof line !== "object" || Array.isArray(line)) {
@@ -172,10 +186,11 @@ export function checkInvoice(invoice) {
       fail("INV-008", `Line ${n} has no description.`, "Add a human-readable line description.", `/lines/${index}/description`);
     }
     const quantity = parseNumber(line.quantity);
-    const price = money(line.unit_price);
-    const tax = parseNumber(line.tax_percent);
-    if (quantity === null || quantity <= 0) {
-      fail("INV-009", `Line ${n} quantity is invalid.`, "Use a positive numeric quantity.", `/lines/${index}/quantity`);
+    const price = parseNumber(line.unit_price);
+    const tax = taxPercentOf(line);
+    // A negative quantity is a returned or credited line, which EN 16931 allows.
+    if (quantity === null) {
+      fail("INV-009", `Line ${n} quantity is invalid.`, "Use a numeric quantity; a credit line may be negative.", `/lines/${index}/quantity`);
     }
     if (price === null || price < 0) {
       fail("INV-010", `Line ${n} unit price is invalid.`, "Use a non-negative numeric unit price.", `/lines/${index}/unit_price`);
@@ -188,13 +203,10 @@ export function checkInvoice(invoice) {
         `/lines/${index}/tax_percent`,
       );
     }
-    if (quantity !== null && price !== null && quantity > 0 && price >= 0) {
-      const lineNet = roundHalfUpToCents(quantity * price);
-      expectedNet = roundHalfUpToCents(expectedNet + lineNet);
-      if (tax !== null && tax >= 0 && tax <= 100) {
-        expectedTax = roundHalfUpToCents(expectedTax + roundHalfUpToCents((lineNet * tax) / 100));
-      }
+    if (quantity !== null && price !== null && price >= 0) {
       const supplied = money(line.net);
+      const lineNet = acceptedLineNet(line, supplied);
+      expectedNet = roundHalfUpToCents(expectedNet + summedLineNet(line, invoice));
       if (supplied === null || supplied !== lineNet) {
         fail(
           "INV-012",
@@ -205,8 +217,14 @@ export function checkInvoice(invoice) {
       }
     }
   });
+  // VAT is worked out per rate on the summed taxable amount (EN 16931
+  // BR-CO-17), not per line, so lines that round differently still agree.
+  const perRate = taxGroups(invoice);
+  let expectedTax = 0;
+  for (const group of perRate.groups.values()) expectedTax = roundHalfUpToCents(expectedTax + group.tax);
   expectedNet = roundHalfUpToCents(expectedNet + headerAdjustmentNetDelta(invoice));
-  if (expectedNet < 0) expectedNet = 0;
+  const negativeInvoice = isNegativeInvoice(invoice);
+  if (expectedNet < 0 && !negativeInvoice) expectedNet = 0;
 
   const totals = invoice.totals && typeof invoice.totals === "object" && !Array.isArray(invoice.totals)
     ? invoice.totals
@@ -215,7 +233,7 @@ export function checkInvoice(invoice) {
   const taxTotal = money(totals.tax);
   const gross = money(totals.gross);
 
-  if (net === null || net < 0) {
+  if (net === null || (net < 0 && !negativeInvoice)) {
     fail("INV-013", "Invoice net total is missing or invalid.", "Provide a non-negative numeric net total.", "/totals/net");
   } else if (net !== expectedNet) {
     if (invoice.adjustments) {
@@ -224,33 +242,50 @@ export function checkInvoice(invoice) {
       fail("INV-014", "Invoice net total does not match its line items.", `Set net total to ${formatMoney(expectedNet)} or correct the line items.`, "/totals/net");
     }
   }
-  if (taxTotal === null || taxTotal < 0) {
+  // BT-110 is absent on an invoice with no VAT at all (category O, for one).
+  const taxAbsent = (totals.tax === undefined || totals.tax === null || totals.tax === "") && expectedTax === 0 && !perRate.unattributed;
+  if (taxAbsent) {
+    // nothing to compare
+  } else if (taxTotal === null || (taxTotal < 0 && !negativeInvoice)) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
-  } else if (taxTotal !== expectedTax) {
+  } else if (!perRate.unattributed && taxTotal !== expectedTax && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
     fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
   }
-  if (gross === null || gross < 0) {
+  if (gross === null || (gross < 0 && !negativeInvoice)) {
     fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross");
-  } else if (net !== null && taxTotal !== null && gross !== roundHalfUpToCents(net + taxTotal)) {
-    fail("INV-017", "Gross total does not equal net plus tax.", `Set gross total to ${formatMoney(roundHalfUpToCents(net + taxTotal))} or correct the totals.`, "/totals/gross");
+  } else if (net !== null && (taxTotal !== null || taxAbsent) && gross !== roundHalfUpToCents(net + (taxTotal ?? 0))) {
+    fail("INV-017", "Gross total does not equal net plus tax.", `Set gross total to ${formatMoney(roundHalfUpToCents(net + (taxTotal ?? 0)))} or correct the totals.`, "/totals/gross");
   }
 
   const prepaid = optionalMoney(totals, "prepaid");
+  const due = optionalMoney(totals, "due");
+  // BT-114 (rounding) can be negative: BR-CO-16 is due = gross - prepaid + rounding.
+  const rounding = optionalMoney(totals, "rounding");
+  const roundingValue = rounding === undefined || rounding === null ? 0 : rounding;
+  // When prepayments exceed the gross, EN 16931 allows a negative amount due
+  // (a credit balance for the buyer) as long as the arithmetic is stated.
+  // A negative prepaid amount (a correction that adds to what is owed) is accepted
+  // only when the stated amount due works out from it.
+  const debitBalance = gross !== null && prepaid !== undefined && prepaid !== null && prepaid < 0
+    && due !== undefined && due !== null
+    && due === roundHalfUpToCents(gross - prepaid + roundingValue);
+  const creditBalance = gross !== null && gross >= 0 && prepaid !== undefined && prepaid !== null && prepaid > gross
+    && due !== undefined && due !== null
+    && due === roundHalfUpToCents(gross - prepaid + roundingValue);
   if (prepaid !== undefined) {
-    if (prepaid === null || prepaid < 0) {
+    if (prepaid === null || (prepaid < 0 && !debitBalance)) {
       fail("INV-028", "Prepaid amount is missing or invalid.", "Provide a non-negative numeric prepaid amount, or omit totals.prepaid.", "/totals/prepaid");
-    } else if (gross !== null && gross >= 0 && prepaid > gross) {
+    } else if (gross !== null && gross >= 0 && prepaid > gross && !creditBalance) {
       fail("INV-028", "Prepaid amount is greater than the invoice gross.", `Set prepaid to at most ${formatMoney(gross)} or correct the totals.`, "/totals/prepaid");
     }
   }
-  const due = optionalMoney(totals, "due");
   if (due !== undefined) {
-    if (due === null || due < 0) {
+    if (due === null || (due < 0 && !creditBalance && !negativeInvoice)) {
       fail("INV-029", "Amount due is missing or invalid.", "Provide a non-negative numeric amount due, or omit totals.due.", "/totals/due");
-    } else if (gross !== null && gross >= 0 && (prepaid === undefined || prepaid === null || prepaid >= 0)) {
+    } else if (gross !== null && (gross >= 0 || negativeInvoice) && (prepaid === undefined || prepaid === null || prepaid >= 0)) {
       const applied = prepaid !== undefined && prepaid !== null && prepaid >= 0 ? prepaid : 0;
-      let expectedDue = roundHalfUpToCents(gross - applied);
-      if (expectedDue < 0) expectedDue = 0;
+      let expectedDue = roundHalfUpToCents(gross - applied + roundingValue);
+      if (expectedDue < 0 && !creditBalance && !negativeInvoice) expectedDue = 0;
       if (due !== expectedDue) {
         fail("INV-029", "Amount due does not equal gross minus prepaid.", `Set amount due to ${formatMoney(expectedDue)} or correct prepaid and gross.`, "/totals/due");
       }

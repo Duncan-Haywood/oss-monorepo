@@ -1,0 +1,12 @@
+digits_deep: honest held-out loss 0.0943 (std over splits and seeds 0.0229)
+    tau       skipped   degradation [95% CI]            splits where skipping is better
+    1e-03     0.126     +0.00012 [-0.00009, +0.00038]  0.50
+    1e-02     0.391     +0.00162 [+0.00056, +0.00268]  0.25
+    3e-02     0.595     +0.00467 [+0.00333, +0.00608]  0.05
+    1e-01     0.825     +0.02815 [+0.02420, +0.03173]  0.00
+breast_cancer: honest held-out loss 0.1142 (std over splits and seeds 0.0417)
+    tau       skipped   degradation [95% CI]            splits where skipping is better
+    1e-03     0.219     -0.00065 [-0.00111, -0.00017]  0.70
+    1e-02     0.644     -0.00980 [-0.01351, -0.00627]  0.95
+    3e-02     0.919     -0.01663 [-0.02713, -0.00753]  0.80
+    1e-01     0.995     +0.05364 [+0.03462, +0.07073]  0.05

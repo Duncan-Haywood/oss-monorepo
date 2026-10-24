@@ -35,8 +35,9 @@ print one part). Then make the numbers true before you trust them:
   record that names a PR, upstream ones included, into `prompts/derived/`.
   `measure` reads that, so these facts need no hand edits to records. Commit
   the regenerated `prompts/derived/` with the review. `fetch` is incremental and
-  stops at ~100s (30 PRs per call): run it with `run_in_background` once, not
-  in a loop. On a 403 (no GitHub API), skip both and say so in the log.
+  stops at ~100s (30 PRs per call), ~5 min in all: run it with
+  `run_in_background` once, not in a loop, then poll `prompts/derived/runs.json`
+  mtime (sleep chains and bare Monitor loops are blocked). On a 403 (no GitHub API), skip both and say so in the log.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that
   were not on `main` 24 hours later. Set `merged: false` on their records.
   Then land or close each one, per `land-your-work.md`.

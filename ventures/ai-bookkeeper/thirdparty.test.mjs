@@ -168,3 +168,110 @@ test("a Czech 'Pohyby na uctu' text statement is read: blocks, wrapped notes rej
   assert.match(r.rows[1].desc, /INVOICE 3620245785$/);
   assert.deepEqual(r.problems, []);
 });
+
+test("OFX line with no NAME or MEMO is described by its type and check number (ofxtools stmtrs shape)", () => {
+  const r = readOfx(`<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><BANKTRANLIST>
+<STMTTRN><TRNTYPE>CHECK</TRNTYPE><DTPOSTED>20051004</DTPOSTED><TRNAMT>-200.00</TRNAMT><FITID>00002</FITID><CHECKNUM>1000</CHECKNUM></STMTTRN>
+<STMTTRN><TRNTYPE>ATM</TRNTYPE><DTPOSTED>20051020</DTPOSTED><TRNAMT>-300.00</TRNAMT><FITID>00003</FITID></STMTTRN>
+</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`);
+  assert.deepEqual(r.rows.map((x) => x.desc), ["Check #1000", "ATM"]);
+});
+
+test("CAMT.053 card entry whose only text is AddtlNtryInf after NtryDtls is not blank (Actual Budget sample shape)", () => {
+  const ntry = (inf, extra = "") => `<Ntry><Amt Ccy="EUR">89.85</Amt><CdtDbtInd>DBIT</CdtDbtInd><Sts>BOOK</Sts><BookgDt><Dt>2024-03-12</Dt></BookgDt>
+<NtryDtls><TxDtls><Refs><EndToEndId>VSDB 4395 9061</EndToEndId></Refs><Amt Ccy="EUR">89.85</Amt><CdtDbtInd>DBIT</CdtDbtInd>${extra}</TxDtls></NtryDtls><AddtlNtryInf>${inf}</AddtlNtryInf></Ntry>`;
+  const doc = (n) => `<?xml version="1.0"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.04"><BkToCstmrStmt><Stmt>${n}</Stmt></BkToCstmrStmt></Document>`;
+  const r = readStatement(doc(ntry("Supermarkt A")));
+  assert.equal(r.rows[0].desc, "Supermarkt A");
+  assert.equal(r.rows[0].cents, -8985);
+  // the party and the remittance text still win over the entry-level text
+  const r2 = readStatement(doc(ntry("Rega", "<RltdPties><Cdtr><Nm>Rega</Nm></Cdtr></RltdPties><RmtInf><Ustrd>Rechnung 17</Ustrd></RmtInf>")));
+  assert.equal(r2.rows[0].desc, "Rega Rechnung 17");
+});
+
+test("Actual Budget's OFX and QIF samples (MIT; shape rewritten, newest-first, cp1252 QIF) read every line", () => {
+  const ofx = `OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\n\n<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><CURDEF>USD<BANKTRANLIST>
+<STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20190123120000<TRNAMT>-30.00<FITID>1<NAME>PATIENT FIRST TOKEN 01/22 PURCHA</STMTTRN>
+<STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20190122120000<TRNAMT>-3.77<FITID>2<NAME>STARBUCKS STORE 07604 01/21 PURC</STMTTRN>
+</BANKTRANLIST><LEDGERBAL><BALAMT>12798.01<DTASOF>20190124212851</LEDGERBAL></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`;
+  const r = readStatement(ofx);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-3000, -377]);
+  assert.equal(r.statement.cents, 1279801);
+  const q = readStatement("!Type:Bank\nD12/19/18\nPCOUNTY WASTE 12/18 PURCHASE\nT-25.00\nC*\n^\nD12/20/18\nPLOFT 0845 CHES\nT-31.33\nC*\n^\n");
+  assert.deepEqual(q.rows.map((x) => [x.date, x.cents]), [["2018-12-19", -2500], ["2018-12-20", -3133]]);
+});
+
+// ofxstatement-intesasp (GPLv3; its two column layouts read from the sdist, rows made up here).
+test("Intesa Sanpaolo's older export (Accrediti / Addebiti, Descrizione estesa) is read by its header", () => {
+  const csv = `Data contabile,Data valuta,Descrizione,Accrediti,Addebiti,Descrizione estesa,Mezzo
+15/03/2026,15/03/2026,Pagamento POS,,"-12,50",Bar Roma Milano,Carta
+16/03/2026,16/03/2026,Stipendio o pensione,"1.800,00",,Acme Srl stipendio marzo,Bonifico`;
+  const r = readStatement(csv);
+  assert.equal(r.rows.length, 2);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1250, 180000]);
+  assert.equal(r.rows[0].desc, "Pagamento POS Bar Roma Milano");
+  assert.ok(!r.problems.some((p) => /preamble/.test(p)));
+});
+
+test("Intesa Sanpaolo's newer export (Operazione / Dettagli) no longer imports with empty descriptions", () => {
+  const csv = `Data;Operazione;Dettagli;Conto o carta;Contabilizzazione;Categoria;Valuta;Importo
+15/03/2026;Pagamento POS;Bar Roma Milano;Carta 1234;Contabilizzato;Bar e caffè;EUR;-12,50
+16/03/2026;Stipendio;Acme Srl;Conto 99;Contabilizzato;Entrate;EUR;1.800,00`;
+  const r = readStatement(csv);
+  assert.equal(r.rows[0].desc, "Bar Roma Milano Pagamento POS");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1250, 180000]);
+});
+
+// Actual Budget's import fixtures (MIT; a 2019 Bank of America QIF and QFX, read only).
+// Shapes rewritten here with made-up payees and amounts.
+test("a Bank of America-style QIF with CRLF, cleared flags and long truncated payees reads every line", () => {
+  const q = "!Type:Bank\r\nD12/19/18\r\nPCOUNTY WASTE 12/18 PURCHASE 804-8439288 VA\r\nT-25.00\r\nC*\r\n^\r\nD12/19/18\r\nPTARGET DEBIT CRD DES:ACH TRAN ID:XXXXX0370723991 INDN:A SMITH 9321 CO I\r\nT-41.92\r\nC*\r\n^\r\n";
+  const r = readStatement(q);
+  assert.equal(r.rows.length, 2);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-2500, -4192]);
+  assert.equal(r.rows[0].date, "2018-12-19");
+  assert.deepEqual(r.problems, []);
+});
+
+test("a QFX with an INTU.BID sign-on block and SGML header reads like OFX", () => {
+  const f = `OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\nSECURITY:NONE\nENCODING:USASCII\nCHARSET:1252\nCOMPRESSION:NONE\nOLDFILEUID:NONE\nNEWFILEUID:NONE\n\n<OFX><SIGNONMSGSRSV1><SONRS><STATUS><CODE>0<SEVERITY>INFO</STATUS><DTSERVER>20190124212851.000[0:UTC]<LANGUAGE>ENG<FI><ORG>Test Bank<FID>5959</FI><INTU.BID>6526</SONRS></SIGNONMSGSRSV1>
+<BANKMSGSRSV1><STMTTRNRS><TRNUID>0<STATUS><CODE>0<SEVERITY>INFO</STATUS><STMTRS><CURDEF>USD<BANKACCTFROM><BANKID>012345678<ACCTID>123456789<ACCTTYPE>CHECKING</BANKACCTFROM><BANKTRANLIST><DTSTART>20190101<DTEND>20190123
+<STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20190123120000<TRNAMT>-30.00<FITID>1<NAME>PATIENT FIRST 01/22 PURCHA</STMTTRN>
+<STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20190123120000<TRNAMT>-3.77<FITID>2<NAME>COFFEE STORE 01/21 PURC</STMTTRN>
+</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`;
+  const r = readStatement(f);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-3000, -377]);
+  assert.equal(r.rows[0].date, "2019-01-23");
+});
+
+// ofxstatement-n26 (column order and type names read from its sdist; rows made up here).
+// N26's Italian, French and Spanish exports name the payee "Beneficiario" / "Bénéficiaire".
+test("N26 exports in Italian, French and Spanish no longer import with empty descriptions", () => {
+  const mk = (head, a, b) => `${head}\n${a}\n${b}\n`;
+  const cases = [
+    [mk(`"Data","Beneficiario","Numero Conto","Tipo Transazione","Riferimento di pagamento","Categoria","Importo (EUR)"`, `"2026-10-15","Esselunga","","Pagamento MasterCard","","Alimentari","-23.45"`, `"2026-10-16","Cliente Srl","IT60X0542811101000000123456","Entrata","Fattura 4","Entrate","1500.00"`), "Cliente Srl Fattura 4"],
+    [mk(`"Date","Bénéficiaire","Numéro de compte","Type de transaction","Référence de paiement","Catégorie","Montant (EUR)"`, `"2026-10-15","Carrefour","","Paiement Mastercard","","Alimentation","-23.45"`, `"2026-10-16","Client SARL","FR7630006000011234567890189","Virement entrant","Facture 4","Revenus","1500.00"`), "Client SARL Facture 4"],
+    [mk(`"Fecha","Beneficiario","Número de cuenta","Tipo de transacción","Referencia de pago","Categoría","Importe (EUR)"`, `"2026-10-15","Mercadona","","Pago Mastercard","","Alimentación","-23.45"`, `"2026-10-16","Cliente SL","ES9121000418450200051332","Ingreso","Factura 4","Ingresos","1500.00"`), "Cliente SL Factura 4"],
+  ];
+  for (const [csv, second] of cases) {
+    const r = readStatement(csv);
+    assert.deepEqual(r.rows.map((x) => x.cents), [-2345, 150000]);
+    assert.equal(r.rows[1].desc, second);
+    assert.ok(r.rows[0].desc.length > 3);
+  }
+});
+
+test("Stripe balance-transactions export: Created (UTC) is the date and Net the amount, not a preamble-skipped single row", () => {
+  const r = readStatement([
+    "id,Type,Source,Amount,Fee,Destination Platform Fee,Net,Currency,Created (UTC),Available On (UTC),Description",
+    "txn_1,charge,ch_1,100.00,3.20,0.00,96.80,usd,2026-03-01 10:00,2026-03-03 00:00,Pro plan",
+    "txn_2,payout,po_9,-96.80,0.00,0.00,-96.80,usd,2026-03-04 11:00,2026-03-04 00:00,STRIPE PAYOUT",
+  ].join("\n"));
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2026-03-01", 9680, "Pro plan"], ["2026-03-04", -9680, "STRIPE PAYOUT"]]);
+  assert.deepEqual(r.problems, []);
+});
+
+test("Pipe-delimited export reads like the comma one", () => {
+  const r = readStatement("Date|Description|Amount\n2026-03-02|CAFE, LUNA|-12.50\n2026-03-03|PAYROLL|1800.00\n");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2026-03-02", -1250, "CAFE, LUNA"], ["2026-03-03", 180000, "PAYROLL"]]);
+});

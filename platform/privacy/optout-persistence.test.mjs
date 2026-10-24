@@ -1715,7 +1715,8 @@ const RELATIVE_SELF = relative(
 // +1: `open-house-plans` graduated.
 // +1: `wall-framing-takeoff` graduated.
 // +1: `support-agent` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1287;
+// +1: `ca-crypto-acb-calculator` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1289;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
@@ -2120,6 +2121,57 @@ ${REMEMBERS}`);
   } finally {
     delete globalThis.__optoutChanged;
     delete globalThis.__optoutRemoved;
+  }
+});
+
+test("an export named like a recorder is never tried as the switch", async () => {
+  // Calling `countOptOut(true)` is what silences this module, but the name
+  // puts it with the recorders `drive` itself calls. With it excluded the
+  // module offers no switch (`no-switch`); letting it through would judge the
+  // module on a function that is the recorder's own business.
+  const result = await statusOf(`
+const KEY = "fixture-usage";
+export function record(event) {
+  if (typeof localStorage === "undefined" || globalThis.__usageOptOut) return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function countOptOut(value) { if (value === true) globalThis.__usageOptOut = true; }
+`);
+  assert.equal(result.status, "no-switch", JSON.stringify(result));
+});
+
+test("a write to a key the control never saw is counting that resumed", async () => {
+  // After the reload this recorder lands on a different key than the control
+  // run did. The key is neither a measured counter nor the switch's own, so it
+  // has to read as counting; only the switch's own bookkeeping is exempt.
+  const result = await statusOf(`
+const KEY = import.meta.url.includes("optout-reload") ? "fixture-reloaded" : "fixture-usage";
+export function record(event) {
+  if (typeof localStorage === "undefined" || globalThis.__usageOptOut) return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function setUsageOptOut(value) {
+  globalThis.__usageOptOut = Boolean(value);
+  if (value) localStorage.removeItem("fixture-usage");
+}
+`);
+  assert.equal(result.status, "fail", JSON.stringify(result));
+  assert.deepEqual(result.keys, ["fixture-reloaded"]);
+});
+
+test("a check puts back an accessor global the module replaced", async () => {
+  // Same value (undefined) and same setter, different getter: the restore must
+  // compare getters too, or a replaced accessor leaks into the next module.
+  Object.defineProperty(globalThis, "__optoutAccessor", {
+    get: () => "original", configurable: true,
+  });
+  try {
+    await statusOf(`
+Object.defineProperty(globalThis, "__optoutAccessor", { get: () => "module", configurable: true });
+${REMEMBERS}`);
+    assert.equal(globalThis.__optoutAccessor, "original");
+  } finally {
+    delete globalThis.__optoutAccessor;
   }
 });
 

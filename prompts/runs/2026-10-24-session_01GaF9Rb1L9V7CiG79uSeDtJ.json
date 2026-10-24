@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01GaF9Rb1L9V7CiG79uSeDtJ",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T09:59:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10091",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/saints-by-candlelight/episodes",
+      "why": "No audio rendered: audio size over 400 MB limit in creative prompt."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Creative track, saints-by-candlelight episode 21 (gall-and-the-bear-who-brought-the-firewood), text only because audio folders were 407 MB (over the 400 MB line). check-script ok (6449 words), node --test 12/12.",
+  "corrections": [],
+  "redteam": null
+}

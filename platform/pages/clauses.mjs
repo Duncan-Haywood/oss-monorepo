@@ -1949,6 +1949,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Photobooth Supply Co specifically and already carries the "not
   // affiliated" clause for that reason.
   'photo-booth-event-quote/vs-a-flat-package-price.html',
+  // Compares against "running dig by hand and comparing the output by eye"
+  // -- a manual DNS-checking habit any operator already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-whatsmydns.html, which names whatsmydns.net specifically and
+  // already carries the "not affiliated" clause for that reason.
+  'dns-configuration-evidence/vs-checking-dns-by-hand.html',
   // Compares against "a flat rate per square foot" -- a common pricing
   // habit any outdoor-living contractor already has, not a company or
   // product this could be mistaken for. Distinct from this venture's own

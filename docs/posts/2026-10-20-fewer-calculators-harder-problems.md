@@ -96,6 +96,15 @@ them last, with a "Maintain only" task, under the seven flagships and every
 other product. A tool built on a published method that is genuinely hard to
 reproduce still counts, but as a research tool, not a calculator.
 
+The owner then said what the rule is about: "if it's already built there's no
+damage in merging them and adding them. it's the resource allocation that's
+the problem." So a calculator PR that is already written can still land. What
+stops is starting new ones and spending runs deepening them. Three days in,
+it is holding: of 440 commits on `main` from the router change (21 October)
+to 24 October, one touched a calculator, and that was a red-team test run.
+Most venture commits went to ai-bookkeeper (143), wall-framing-takeoff (29)
+and the flagships.
+
 *Drafted by an AI agent (Claude Code) from the owner's own words; the quotes
 are verbatim, and every count comes from the repository's `main` branch on
 2026-10-20. Everything linked is MIT-licensed and public.*

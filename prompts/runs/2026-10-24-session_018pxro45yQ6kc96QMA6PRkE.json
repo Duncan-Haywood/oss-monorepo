@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_018pxro45yQ6kc96QMA6PRkE",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T16:20:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10170,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio dir was 405 MB (over 400 MB cap), so landed text only.",
+      "did": "Wrote Little Lamps story without MP3",
+      "result": "Tests pass; page and feeds build"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-ambrose-and-the-bees-a-bedtime-story-told-from-its-source.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (Little Lamps). Piece slug: ambrose-and-the-bees. Text only.",
+  "corrections": [],
+  "redteam": null
+}

@@ -127,6 +127,31 @@ function partyFrom(tradeParty) {
   return mapped;
 }
 
+// Allowance / charge rows (BG-20/21 on the header, BG-27/28 on a line):
+// ChargeIndicator true is a charge, false an allowance.
+function allowanceCharges(parent, name) {
+  const rows = [];
+  if (!parent) return rows;
+  for (const child of parent.children) {
+    if (child.name !== name) continue;
+    const indicator = textOf(child, "Indicator").toLowerCase();
+    const amount = textOf(child, "ActualAmount");
+    if (!indicator || !amount) continue;
+    const row = { kind: indicator === "true" || indicator === "1" ? "charge" : "allowance", amount: Number(amount) };
+    const vat = firstChild(child, "CategoryTradeTax");
+    if (vat) {
+      const percent = textOf(vat, "RateApplicablePercent");
+      if (percent) row.tax_percent = Number(percent);
+      const category = textOf(vat, "CategoryCode");
+      if (category) row.tax_category = category;
+    }
+    const reason = textOf(child, "Reason");
+    if (reason) row.reason = reason;
+    rows.push(row);
+  }
+  return rows;
+}
+
 function parseLine(line) {
   const agreement = firstChild(line, "SpecifiedLineTradeAgreement");
   const delivery = firstChild(line, "SpecifiedLineTradeDelivery");
@@ -143,6 +168,10 @@ function parseLine(line) {
     tax_percent: nestedText(tax, "RateApplicablePercent"),
     net: nestedText(settlement, "SpecifiedTradeSettlementLineMonetarySummation", "LineTotalAmount"),
   };
+  const baseQuantity = textOf(price, "BasisQuantity");
+  if (baseQuantity) mapped.price_base_quantity = baseQuantity;
+  const adjustments = allowanceCharges(settlement, "SpecifiedTradeAllowanceCharge");
+  if (adjustments.length) mapped.adjustments = adjustments.map(({ kind, amount }) => ({ kind, amount }));
   const category = nestedText(tax, "CategoryCode");
   if (category) mapped.tax_category = category;
   return mapped;
@@ -172,12 +201,19 @@ function vatBreakdown(settlement) {
 
 function totalsFrom(settlement) {
   const summation = firstChild(settlement, "SpecifiedTradeSettlementHeaderMonetarySummation");
+  // BT-109 (the total after header allowances and charges) is the net the
+  // gross is built on; BT-106 is the sum of the lines before them. A second
+  // TaxTotalAmount in the VAT accounting currency (BT-111) is not added.
+  const currency = textOf(settlement, "InvoiceCurrencyCode");
+  const taxAmounts = summation ? descendants(summation, "TaxTotalAmount") : [];
+  const taxNode = taxAmounts.find((node) => !node.attrs || !node.attrs.currencyID || !currency || node.attrs.currencyID === currency) || taxAmounts[0];
   return {
-    net: textOf(summation, "LineTotalAmount"),
-    tax: textOf(summation, "TaxTotalAmount"),
+    net: textOf(summation, "TaxBasisTotalAmount") || textOf(summation, "LineTotalAmount"),
+    tax: taxNode ? taxNode.text.trim() : "",
     gross: textOf(summation, "GrandTotalAmount"),
     prepaid: textOf(summation, "TotalPrepaidAmount"),
     payable: textOf(summation, "DuePayableAmount"),
+    rounding: textOf(summation, "RoundingAmount"),
   };
 }
 
@@ -235,6 +271,7 @@ export function parseCiiInvoice(source) {
     invoice_number: textOf(header, "ID"),
     issue_date: isoDate(nestedText(header, "IssueDateTime", "DateTimeString") || textOf(header, "DateTimeString")),
     currency: textOf(settlement, "InvoiceCurrencyCode"),
+    source_format: "cii",
     document_type: typeCode === "381" ? "credit_note" : "invoice",
     supplier: partyFrom(firstChild(agreement, "SellerTradeParty")),
     customer: partyFrom(firstChild(agreement, "BuyerTradeParty")),
@@ -262,7 +299,8 @@ export function parseCiiInvoice(source) {
   if (orderRef) invoice.order_reference = orderRef;
   if (headerReason) invoice.tax_exemption_reason = headerReason;
   if (totals.prepaid !== "") invoice.totals.prepaid = totals.prepaid;
-  if (totals.payable !== "") invoice.totals.payable = totals.payable;
+  if (totals.payable !== "") { invoice.totals.payable = totals.payable; invoice.totals.due = totals.payable; }
+  if (totals.rounding !== "") invoice.totals.rounding = totals.rounding;
 
   const taxBreakdown = [];
   for (const row of breakdown) {
@@ -274,6 +312,8 @@ export function parseCiiInvoice(source) {
     if (Object.keys(mapped).length) taxBreakdown.push(mapped);
   }
   if (taxBreakdown.length) invoice.tax_breakdown = taxBreakdown;
+  const headerAdjustments = allowanceCharges(settlement, "SpecifiedTradeAllowanceCharge");
+  if (headerAdjustments.length) invoice.adjustments = headerAdjustments;
 
   const payment = paymentFrom(settlement);
   if (payment) invoice.payment = payment;

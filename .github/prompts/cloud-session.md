@@ -1,22 +1,17 @@
 # Cloud sessions: the container's quirks
 
-The facts about the cloud container that runs most sessions, in one place.
-They used to be scattered through `CLAUDE.md`, `land-your-work.md` and
-`verify-and-merge.md`, and run records kept reporting them as friction
-(`gh`, shallow clones, missing `pytest`, commands that outlast the foreground
-limit). When one of these changes, fix it here and nowhere else.
+The cloud container's quirks, in one place: when one changes, fix it here and
+nowhere else.
 
 ## GitHub: MCP tools, not `gh`
 
-`gh` is installed, but its token is invalid (`gh auth status` fails), and
-`gh pr list` costs a call to learn that. Use the GitHub MCP tools
+`gh`'s token is invalid, so use the GitHub MCP tools
 (`search_pull_requests`, `create_pull_request`, `merge_pull_request`,
 `pull_request_read`). They start **deferred**, so load them first:
 `ToolSearch` with `select:mcp__github__create_pull_request,mcp__github__merge_pull_request`.
 
 - `create_pull_request` can return HTTP 500 and still create the PR. Search
-  for your branch (`head:` or the title) before you retry. It has succeeded
-  on the third call.
+  for your branch before you retry.
 - To check CI, read check runs, not statuses (`verify-and-merge.md`,
   "Reading CI").
 - `github.io` is unreachable from a session: the egress proxy returns 403.
@@ -24,56 +19,54 @@ limit). When one of these changes, fix it here and nowhere else.
 
 ## Tokens
 
-Each request re-reads the whole context (about 81,000 tokens in a median
-run), so batch independent tool calls, cap tool output (`| tail -20`) and
-read long docs by section. Measured basis and the full list:
-[`docs/reports/2026-10-20-token-flow-for-agents.md`](../../docs/reports/2026-10-20-token-flow-for-agents.md).
+Each request re-reads the whole context, so batch independent tool calls, cap
+output (`| tail -20`) and read long docs by section
+([`docs/reports/2026-10-20-token-flow-for-agents.md`](../../docs/reports/2026-10-20-token-flow-for-agents.md)).
 
 ## Shallow clones
 
-`git merge` reports unrelated histories, and every branch seems to carry
-thousands of commits. Content reads (`git show origin/main:<path>`) are
-unaffected, and most sessions need nothing more. When the two disagree,
-trust the content. Fetch history only for a step that needs it, such as
-merging `main` into a branch or dating a change. Try
-`git fetch --deepen=500 origin main` first, and repeat until
-`git merge-base HEAD origin/main` answers. In recent runs a full
-`git fetch --unshallow origin main` took 2-15 min and up to ~5 GB, and two
-`Monitor` waits expired at 20 min before one finished. So run it with
-`run_in_background` only when you need all of it. Name the ref, because a
-bare `--unshallow` skips a ref you fetched by name. Then check that
-`git rev-list --count origin/main` is in the thousands, not 1.
+`git merge` reports unrelated histories and branches seem to carry thousands
+of commits. Content reads (`git show origin/main:<path>`) are unaffected and
+usually enough; trust them over history. Fetch history only for a step that
+needs it. To merge `main`, repeat `git fetch --deepen=500 origin main` until
+`git merge-base HEAD origin/main` answers. To date changes,
+`git fetch --shallow-since=<7 days ago> origin main && git merge --ff-only origin/main`
+takes about 16 s. A full `git fetch --unshallow origin main` takes 2-15 min
+and up to ~5 GB: use `run_in_background`, only if you need all of it, and name
+the ref. Check `git rev-list --count origin/main` is in the thousands, not 1.
 
 ## Python and tests
 
-A bare `python3` often lacks `pytest` and can shadow pip packages with apt
-ones. Use `PY=$(python3 platform/ci/pyenv.py pytest)`, then
-`"$PY" -m pytest`. Some `gitops/tests` failures depend on the image. Before
-blaming your change, run the failing test on `origin/main`.
-`pip` may belong to python3.13 while `python3` is 3.11: install with
-`"$PY" -m pip`, and run one pip install at a time (two at once corrupted an install).
-If `pyenv.py` fails (PEP 668, or a package whose import name differs from its
-pip name, e.g. OpenDSSDirect.py), skip it: `python3 -m venv /tmp/v && /tmp/v/bin/pip install <pkgs>`,
-in the background (it can exceed 120 s).
+A bare `python3` often lacks `pytest`. Use `PY=$(python3 platform/ci/pyenv.py pytest)`,
+then `"$PY" -m pytest`, and install with `"$PY" -m pip`, one at a time (`pip`
+may belong to another Python, and two at once corrupted an install). CI runs
+`python3 -m unittest discover`, so write new tests as `unittest.TestCase` or
+the job finds none. Before blaming your change for a failing test (some
+`gitops/tests` depend on the image), run it on `origin/main`. If `pyenv.py`
+fails (PEP 668, import name differing from pip name), use
+`python3 -m venv /tmp/v && /tmp/v/bin/pip install <pkgs>` in the background.
 
 ## Long commands
 
-A foreground command times out (2 min by default, 10 min at most), and
-foreground `sleep` is blocked. A long command chained with `git commit`/`push` in one call gets auto-backgrounded and delays the commit, so keep them separate; the safety check rejects `rm -rf` on relative globs after a `cd`, so absolute paths work better.
-Start these with `run_in_background` and wait with `Monitor`. Leave `&` and
-subshells out of the command: the harness then sees the wrapper exit
-at once and reports completion while the job still runs (two friction reports,
-2026-10-23). Run the command itself in the background call, with output to a
-file you can `tail`. To wait, give `Monitor` an until-loop on that output
-(`until grep -q DONE out.log; do sleep 5; done`; `sleep` is fine inside it) and end the
-background command with `echo DONE`.
+A foreground command times out (2 min default, 10 min at most) and foreground
+`sleep` is blocked. Don't chain a long command with `git commit`/`push` (it is
+auto-backgrounded and delays the commit), and use absolute paths for `rm -rf`.
+Start long commands with `run_in_background`, with no `&` or subshell (the
+harness would see the wrapper exit and report completion early), output to a
+file, and `echo DONE` at the end. Wait with `Monitor` on an until-loop over
+that file (`until grep -q DONE out.log; do sleep 5; done`). Don't grep the
+process list for the script's own name: it matches itself and never ends.
 
 - `node platform/marketing/regen.mjs --verify` and the pages test suites
   (over 10 min in a shallow clone)
 - `node --test` over a whole venture (changepoint-detector alone: 280-400 s;
     Node 22 rejects `node --test .` with "Could not find '.'": run
-    `cd ventures/<slug> && node --test '*.test.mjs'`)
+    `cd ventures/<slug> && node --test '*.test.mjs'`; add `--test-force-exit`:
+    a failing test that leaks a fake SMTP/HTTP server otherwise hangs until the
+    tool timeout, and with the flag it exits 1 in under a second)
     and `node platform/pages/venture-preflight.mjs <slug>` (over 5 min)
+- browser evals such as `ventures/ai-bookkeeper/eval/browser-click.mjs`
+  (a foreground 110 s timeout killed one)
 - `python3 platform/ci/run_workflow_locally.py --for-changes` (over 5 min)
 - `python3 portfolio/router/allocate.py` (35-120 s; its shallow-clone fetch
   can time out and leave counts partial)
@@ -92,17 +85,15 @@ background command with `echo DONE`.
 
 ## Outbound hosts
 
-Egress goes through a proxy with a per-environment allow-list, so a host that
-works in one session can 403 in the next (run records name irs.gov, ssa.gov,
-the OPSD/ENTSO-E hosts and, on some days, huggingface.co). Before a plan
-depends on a host, probe it once:
-`curl -sS -o /dev/null -m 15 -w '%{http_code}\n' https://<host>/`. A 403 from
-the proxy is not the site's answer. Then say in the PR, the run record or the
-product's notes that a figure could not be checked against that source, rather
-than skipping the step silently or citing from memory (`goals.md`: never
-fabricate). If a research track's next step needs a host that 403s (e.g. OPSD data
-for `energy-price-residual`), take another next step or a different data
-source; workarounds usually cost the run more than they return. Proxy state and per-tool fixes: `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
+Egress uses a per-environment allow-list, so a host that works in one session
+can 403 in the next (irs.gov, ssa.gov, OPSD/ENTSO-E, sometimes huggingface.co).
+Before a plan depends on a host, probe it once:
+`curl -sS -o /dev/null -m 15 -w '%{http_code}\n' https://<host>/`. A proxy 403
+is not the site's answer. If a figure could not be checked, say so in the PR,
+run record or product notes rather than skipping silently or citing from
+memory (`goals.md`: never fabricate). If a research next step needs a blocked
+host, take another step or source. Proxy state:
+`curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
 
 ## Scheduled tasks
 

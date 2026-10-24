@@ -43,11 +43,11 @@ const UBL_WITH_ALLOWANCE = `<?xml version="1.0" encoding="UTF-8"?>
     <cbc:Amount currencyID="EUR">20.00</cbc:Amount>
     <cbc:BaseAmount currencyID="EUR">200.00</cbc:BaseAmount>
   </cac:AllowanceCharge>
-  <cac:TaxTotal><cbc:TaxAmount currencyID="EUR">38</cbc:TaxAmount></cac:TaxTotal>
-  <cac:InvoiceLine><cbc:InvoicedQuantity>2</cbc:InvoicedQuantity><cbc:LineExtensionAmount>200</cbc:LineExtensionAmount><cac:Item><cbc:Name>Work</cbc:Name><cac:ClassifiedTaxCategory><cbc:Percent>19</cbc:Percent></cac:ClassifiedTaxCategory></cac:Item><cac:Price><cbc:PriceAmount>100</cbc:PriceAmount></cac:Price>
+  <cac:TaxTotal><cbc:TaxAmount currencyID="EUR">35.15</cbc:TaxAmount></cac:TaxTotal>
+  <cac:InvoiceLine><cbc:InvoicedQuantity>2</cbc:InvoicedQuantity><cbc:LineExtensionAmount>205</cbc:LineExtensionAmount><cac:Item><cbc:Name>Work</cbc:Name><cac:ClassifiedTaxCategory><cbc:Percent>19</cbc:Percent></cac:ClassifiedTaxCategory></cac:Item><cac:Price><cbc:PriceAmount>100</cbc:PriceAmount></cac:Price>
     <cac:AllowanceCharge><cbc:ChargeIndicator>true</cbc:ChargeIndicator><cbc:Amount currencyID="EUR">5.00</cbc:Amount><cbc:AllowanceChargeReason>Line packing</cbc:AllowanceChargeReason></cac:AllowanceCharge>
   </cac:InvoiceLine>
-  <cac:LegalMonetaryTotal><cbc:TaxExclusiveAmount>180</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>218</cbc:TaxInclusiveAmount></cac:LegalMonetaryTotal>
+  <cac:LegalMonetaryTotal><cbc:TaxExclusiveAmount>185</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>220.15</cbc:TaxInclusiveAmount></cac:LegalMonetaryTotal>
 </Invoice>`;
 
 test("normalizeKind accepts allowance, charge, and ChargeIndicator tokens", () => {
@@ -110,7 +110,7 @@ test("invoice without adjustments stays clean", () => {
 test("good allowance keeps a clean invoice clean", () => {
   assert.deepEqual(checkInvoice(invoice({
     adjustments: [row()],
-    totals: { net: 180, tax: 38, gross: 218 },
+    totals: { net: 180, tax: 34.2, gross: 214.2 },
   })), []);
 });
 
@@ -128,7 +128,7 @@ test("percent mismatch fails preflight", () => {
   assert.ok(errors.some((item) => item.rule === "INV-051"));
 });
 
-test("UBL maps invoice-level allowance and ignores line charge", () => {
+test("UBL maps invoice-level allowance and counts the line charge in the line net", () => {
   const mapped = parseUblInvoice(UBL_WITH_ALLOWANCE);
   assert.deepEqual(mapped.adjustments, [{
     kind: "allowance",
@@ -166,8 +166,12 @@ test("UBL without header allowance stays clean", () => {
   </cac:AllowanceCharge>
 `, "")
       .replace(
-        "<cbc:TaxExclusiveAmount>180</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>218</cbc:TaxInclusiveAmount>",
-        "<cbc:TaxExclusiveAmount>200</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>",
+        "<cbc:TaxExclusiveAmount>185</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>220.15</cbc:TaxInclusiveAmount>",
+        "<cbc:TaxExclusiveAmount>205</cbc:TaxExclusiveAmount><cbc:TaxInclusiveAmount>243.95</cbc:TaxInclusiveAmount>",
+      )
+      .replace(
+        '<cbc:TaxAmount currencyID="EUR">35.15</cbc:TaxAmount>',
+        '<cbc:TaxAmount currencyID="EUR">38.95</cbc:TaxAmount>',
       ),
   );
   assert.equal("adjustments" in mapped, false);

@@ -1,0 +1,18 @@
+cost model (mean s per point, tight runs): R1 0.148 | R2 cumulative 0.773 | R4 cumulative 1.260; seeds 400; regret = R4 best found / pool minimum - 1, in %
+
+## clock tight: mean regret % over designs (each design's mean over seeds); screen_* = n/a when the budget cannot pay for screening the pool
+budget s | random_r4 | hillclimb_r4 | screen_r1 | screen_r2 | designs where screen_r2 beats / loses to random (paired 95% CI excludes 0) | same for screen_r1
+5 | 10.72 | 13.53 | n/a | n/a | 0 / 0 of 0 | 0 / 0 of 0
+10 | 6.27 | 7.35 | 15.03 | n/a | 0 / 0 of 0 | 0 / 10 of 10
+20 | 3.33 | 3.28 | 6.47 | n/a | 0 / 0 of 0 | 3 / 6 of 10
+30 | 2.06 | 1.68 | 5.25 | n/a | 0 / 0 of 0 | 3 / 6 of 10
+45 | 0.94 | 0.61 | 1.08 | 1.27 | 6 / 2 of 10 | 7 / 2 of 10
+
+## clock relaxed: mean regret % over designs (each design's mean over seeds); screen_* = n/a when the budget cannot pay for screening the pool
+budget s | random_r4 | hillclimb_r4 | screen_r1 | screen_r2 | designs where screen_r2 beats / loses to random (paired 95% CI excludes 0) | same for screen_r1
+5 | 10.04 | 12.75 | n/a | n/a | 0 / 0 of 0 | 0 / 0 of 0
+10 | 5.69 | 7.38 | 14.22 | n/a | 0 / 0 of 0 | 1 / 9 of 10
+20 | 2.68 | 3.45 | 7.09 | n/a | 0 / 0 of 0 | 2 / 7 of 10
+30 | 1.45 | 1.69 | 5.48 | n/a | 0 / 0 of 0 | 2 / 6 of 10
+45 | 0.55 | 0.49 | 1.41 | 1.35 | 8 / 1 of 10 | 5 / 4 of 10
+

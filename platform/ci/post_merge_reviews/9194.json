@@ -1,0 +1,9 @@
+{
+ "pr": 9194,
+ "reviewed_at": "2026-10-24T03:00Z",
+ "findings": 2,
+ "severity": "low",
+ "fix_pr": 9980,
+ "note": "peak stud 3/8 in short (fixed); peak plate joint not over a stud (noted, not changed)",
+ "batch": "docs/reports/assets/pr-review-flow/findings.md"
+}

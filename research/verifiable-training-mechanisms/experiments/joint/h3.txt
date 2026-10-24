@@ -1,0 +1,13 @@
+== H3: peer (agreement) contract vs audit-only contract, cost to implement honest-honest
+A. honest-honest only: peer vs audit                           n= 4000 peer cheaper in  1194, dearer in    0, max saving 0.971
+A. ... kappa=0.0                                               n= 1334 peer cheaper in   394, dearer in    0, max saving 0.964
+A. ... kappa=0.5                                               n= 1317 peer cheaper in   397, dearer in    0, max saving 0.971
+A. ... kappa=1.0                                               n= 1349 peer cheaper in   403, dearer in    0, max saving 0.970
+
+B. also exclude (cheat,cheat): peer_unique vs audit_unique     n= 4000 peer cheaper in   451, dearer in    0, max saving 0.957
+B. ... kappa=0.0                                               n= 1334 peer cheaper in   301, dearer in    0, max saving 0.957
+B. ... kappa=0.5                                               n= 1317 peer cheaper in   150, dearer in    0, max saving 0.911
+B. ... kappa=1.0                                               n= 1349 peer cheaper in     0, dearer in    0, max saving 0.000
+
+C. price of excluding copying with peer: peer_unique vs peer   n= 4000 peer cheaper in     0, dearer in  896, max saving 0.000
+C. ... kappa=1                                                 n= 1349 peer cheaper in     0, dearer in  403, max saving 0.000

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildChecklist, buildJsonReport, buildMarkdown, buildRemediationCsv, preflightDocuments } from "./report.mjs";
+import { buildChecklist, buildJsonReport, buildMarkdown, buildRemediationCsv, preflightDocuments, summarizePreflight } from "./report.mjs";
 
 const VALID = {
   invoice_number: "INV-1",
@@ -95,4 +95,23 @@ test("oversized input is refused before parsing", async () => {
   );
   assert.equal(result.reports.length, 0);
   assert.match(result.readErrors[0].error, /exceeds 10 bytes/);
+});
+
+test("a note-only finding (INV-030) is listed but does not fail the file", async () => {
+  const { isBlocking } = await import("./report.mjs");
+  const note = { rule: "INV-030", message: "m", fix: "f", path: "/payment/remittance", severity: "note" };
+  const real = { rule: "INV-012", message: "m", fix: "f", path: "/x" };
+  assert.equal(isBlocking(note), false);
+  assert.equal(isBlocking(real), true);
+  const noteOnly = { reports: [{ file: "a.json", errors: [note] }], readErrors: [] };
+  assert.equal(summarizePreflight(noteOnly).status, "pass");
+  assert.equal(summarizePreflight(noteOnly).filesFailed, 0);
+  assert.equal(summarizePreflight(noteOnly).observations, 1);
+  const json = buildJsonReport(noteOnly);
+  assert.equal(json.exit_code, 0);
+  assert.equal(json.reports[0].status, "pass");
+  assert.match(buildMarkdown(noteOnly), /Status: \*\*PASS\*\* \(notes only\)/);
+  const mixed = { reports: [{ file: "a.json", errors: [note, real] }], readErrors: [] };
+  assert.equal(summarizePreflight(mixed).status, "fail");
+  assert.equal(buildJsonReport(mixed).exit_code, 1);
 });

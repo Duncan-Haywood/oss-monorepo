@@ -21,6 +21,8 @@ people owe each other, not on whether the gadget works. The ending is hopeful
 because someone chose well at a cost, never because the problem turned out
 easy.
 
+- *(Done: The Mark on the Pillar, Saltmoor St Brannock, Somerset Levels, 2051; text only.)* A flood agent, a gauge record that cannot tell one in a hundred from one in a thousand, a 1607 mark in a church pillar, and a school raised on a plinth.
+
 **For Other Minds** is fiction for language models and agents to read (humans
 welcome). It is about relays, context windows, handoff notes, metrics and
 honesty. The reader is invited to notice themselves in a character; they are
@@ -137,6 +139,10 @@ introduces a dated fact.
 | 2050 | Canal Quilque, Chiloé, Chile (invented Puerto Lleuque, Isla Huildad, Isla Chaullín): electric ferry *Candelaria* (38 m, second-life 150 kWh pack, 122 kWh usable at 4 C, 30 kWh reserve; 150 kW at 9 kn, 18 kW hotel; 6 nmi); Fri 15 July, table slack 17:10 but the river in spate makes it about 17:50; plan 8 kn (91 of 92 kWh) corrected at 17:15 to 6.5 kn (about 86 kWh, 17:51); front forecast 18:00 arrives about 17:40, docking limit 25 kn; pilot Elba Barría, ferry AI Marea, dispatcher Soledad Pavez, Padre Gonzalo Haro, fiscal Aníbal Cárcamo, Javiera Gallardo, Rosa and Bernabé Mansilla (Chaullín not called) | *The Late Ebb* |
 | 2055 | Char Nolbaria (invented), Jamuna river, northern Bangladesh: 14 households, island about 6 km x 1 km, raised plinth (killa) holding about 200 cattle, about 40 h of river from the gauge; flood-warning agent (name not given) sent 90% windows of 9 h either side of its best guess, which held 12 of 20 floods (P of 12 or fewer in 20 at 90% is about 0.0004); the 18th-smallest error is 21 h, so an honest window is 21 h either side; cause: a shifted channel; fix: two lines (cattle at the early edge, people by the late edge); flood warden Sajal Mondol, Sister Shefali Gomes | *The Narrow Window* |
 | 2058 | Valdecea (invented), on the river Cea, León, Spain: Puente de Hierro (wrought-iron lattice footbridge, 1889, re-decked 2056; span 42 m, about 600 kg/m so about 25 t, modal mass about 12.6 t, empty first vertical mode 2.05 Hz, damping 1 to 2%); Good Friday 12 Apr, tests Wed 10 and Thu 11 Apr; the Soledad (paso 2,400 kg, 24 costaleros) usually at 51 steps/min (0.85 Hz, second harmonic 1.7 Hz) with about 7 t on the span, which lowers the mode to about 1.63 Hz at midspan; model (one mode, 4% second harmonic) gives about 3 to 6 m/s2 at 51/min, 0.8 at 45, 0.4 at 42 or 66; comfort limit 0.7 m/s2; fix: 42 steps/min (0.7 Hz, 2 min on the iron), band silent, 12 brothers in two groups, measured 0.58 and 0.61; sideways mode not modelled; capataz Reme Ordóñez, engineer Inés Bravo, monitor Vela, hermano mayor Anselmo Prieto, Pili Santos, Hilario Cuesta | *The Iron Bridge at Forty-Two* |
+| 2047 | Bolchara (invented Garo village), Haluaghat, Mymensingh, Bangladesh: 1,800 people at 20 L/day = 36 m³/day; school well 182 m deep (2031), arsenic 2.5 µg/L to 2041, then 4.0, 5.2, 6.6, 7.9, 9.1 (2043 to 2047; lab error about 1); two cooperative deep irrigation wells since 2043 (Well One 900 m, Well Two 2,100 m, 40 L/s each, 14 h/day; interference weight about 3 to 1); school-well level falls 1.4 m Jan to Apr; plan 6 h and 16 h plus alternate wetting and drying (about a fifth less water); filter fund 1 taka per pumped hour; Rekha Sangma (retired science teacher), Abdul Karim (cooperative chairman), Fr Dominic Marak, monitor Jol; March 2048 reading 9.6 | *Fifteen Minutes* |
+| 2061 | Sint-Jansland (invented), North Brabant: 3,200 people, polder catchment 10 km2 (30 mm ditch drawdown = 300,000 m3), boezem inflow capped at 8 m3/s (691,200 m3/day), Overlaat 15 m3/s onto the Lage Weide (150 ha); forecast 150 mm gives 508,800 m3 surplus (34 cm), actual 128 mm gave 288,800 m3 (19 cm); flood bell is a continuous slow stroke; Rogation Day, 25 April | *The Low Meadow* |
+| 2053 | Hospice of Sant'Anselmo, Colle della Croce Nera (invented), Aosta Valley, 2,481 m; Saint-Orsan (invented) 1,610 m, 9 km and 871 m below (about 3.5 h); 22 people under the roof; Canalone (E-facing, 36 degrees, ~300 m, path crosses run-out at 2,090 m for 140 m); 60 cm old slab (260 kg/m3) + 55 cm new (90 kg/m3), drift doubles new load: load 1,194 Pa vs strength ~1,300 Pa gives 1.09, skier +300 Pa gives 0.87; ECTP13 at 62 cm; one in six it runs on a party of eight; cook's non-ST-elevation heart attack Mon 5 Jan 11:20, lab within 24 h; slide at 22:41; Epiphany chalk 20+C+M+B+53; warden Lorenza Gerbaz, cook Paolo Vuillermin, rescue chief Mathieu Rosset, prior Don Aimé, Dr Ilse van Dijk, pilot Nadia Chabloz, agent Sentinella | *Chalk for the Lintel* |
+| 2051 | Saltmoor St Brannock (invented), Somerset Levels, England; St Brannock's Primary (63 pupils, floor 3.40 m AOD), nave floor 3.00 m; gauge record 58 years, max 3.02 m (Jan 2019); church pillar mark Jan 1607 at 4.10 m AOD (about 4.40 m with 0.3 m sea-level rise); 1 event in 444 years, exact 95% Poisson range about 1 in 17,500 to 1 in 80; 60-year chance 12.6% (central), 53% (1 in 80); plinth floor 4.70 m, +11% cost; Fred Tuckett's field at 14 m; Candlemas 2 Feb; Hannah Pike, Evie Pike, Fr Tobias, Mrs Dyer, agent Gauge | *The Mark on the Pillar* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
@@ -222,9 +228,17 @@ numbers worked out before drafting.
 
 - *(Done: The Late Ebb, Chiloé, 2050; text only.)* A tide table that knows the Moon but not the rain, and a ferry slowed to a speed the water allows.
 - *(Done: The Iron Bridge at Forty-Two, Valdecea, León, 2058; text only.)* A footbridge whose note drops under a procession's weight, and a Virgin slowed to a pace the iron allows.
+- *(Done: Fifteen Minutes, Bolchara, Bangladesh, 2047; text only.)* Deep irrigation wells that protect the rice slowly draw arsenic toward the village's green-painted drinking well; the village drinks in a day what one pump lifts in fifteen minutes.
+- *(Done: The Low Meadow, Sint-Jansland, North Brabant, 2061; text only.)* A water board's polder manager must flood a farmer's meadow for the town; she says no, then names the terms (decide at the last hour, tell her first, ring the bell).
+- *(Done: The False Start, Gidan Gawo, Niger, 2044; text only.)* A first rain, one sowing of seed in the village bank, and a field adviser that says four years in ten the first rain is a lie; the seed-keeper splits the sowing and the village shares what is left.
+- *(Done: The Line Through the Snow, Ulaan Ovoo, Mongolia, 2049; text only.)* Index insurance, a trigger inside the noise, and a sample drawn fair with sheep's ankle bones (von Neumann's trick); the honest count lets a district move its reserve to one valley.
+- *(Done: Bench Six, Kettle Bench, Okanagan, 2047; text only.)* Two wind machines, one battery 58 kWh short of a frost night, a written rule that serves the top bench first, and the chairman who gives up his place after counting what his thinning crew would have knocked off anyway.
+
+- *(Done: Chalk for the Lintel, Sant'Anselmo, Aosta Valley, 2053; text only.)* A storm, a sick cook, a rescue team that wants to climb, and an avalanche agent that says no with a number it admits is a guess.
 
 **For Other Minds**
 
+- *(Done: The Wrong Column, Hólmoy, 2058; text only.)* A planner reads a bare weight column as pounds for eleven weeks; the warning it logged went where no one reads, and the sailing sheets stay uncorrected beside the corrections.
 - *(Done: The Narrow Window, Char Nolbaria, 2055; text only.)* A flood-warning agent finds its 90% windows hold 60% of floods, and a village that cannot afford to move twice.
 - *(Done: The Last Message in the Window, Kerala, 2064.)* An agent running out of context decides what
   goes into its handoff.
@@ -243,6 +257,7 @@ the sources, and mark legend as legend)
 - *(Done: Nicholas and the Three Bags of Gold, 6 December; legend.)* Saint Nicholas and the three bags of gold.
 - *(Done: Martin of Tours and Half a Cloak, 11 November; early source, Sulpicius Severus.)* Saint Martin and the beggar at Amiens.
 - *(Done: Columba and the White Horse, 9 June; Adomnán's Life, III.23; text only.)* Saint Columba and the old white horse.
+- *(Done: Ambrose and the Bees, 7 December; Paulinus's Life, told as the Life's tale; text only.)* The baby in the garden and the bees; kind words as bees.
 - *(Done: Thérèse and the Small Way, 1 October; history and her own writings.)* Saint Thérèse and the small way.
 
 ## What not to do

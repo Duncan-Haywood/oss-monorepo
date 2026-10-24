@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>The superficial loss rule for crypto in Canada: a worked example with average-cost ACB</title>
+  <meta name="description" content="How the CRA taxes crypto sales: the average adjusted cost base (ACB) of each coin and the superficial loss rule that denies a loss when you buy the same coin back within 30 days, with one worked example in Canadian dollars.">
+  <link rel="canonical" href="./superficial-loss-rule-crypto-canada-worked-example.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"The superficial loss rule for crypto in Canada: a worked example","inLanguage":"en-CA","about":"Canadian capital gains on cryptocurrency","isAccessibleForFree":true}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 780px; margin: auto; padding: 28px; }
+    a { color: #2d4fa3; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1; color: #2b3a67; }
+    h2 { font-size: 1.2rem; color: #2b3a67; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./index.html">Canada Crypto ACB Calculator</a> · guide</p>
+  <h1>The superficial loss rule for crypto in Canada: a worked example</h1>
+  <p>If you bought Bitcoin more than once, the CRA does not let you say which coins you sold. Every unit of one coin is averaged into a single adjusted cost base (ACB). And if you sell at a loss and buy the same coin back around the same time, the loss can be denied. This page works one example in Canadian dollars. The <a href="./index.html">calculator</a> runs the same arithmetic on your own file.</p>
+
+  <h2>Two rules</h2>
+  <ol>
+    <li><strong>Average cost.</strong> Each purchase adds its cost, fees included, to the coin's total ACB. A sale uses a share of that total equal to the share of the units sold.</li>
+    <li><strong>Superficial loss.</strong> A loss is denied if the same coin was bought in the 30 days before or after the sale, and some of it is still held at the end of the 30th day after. The denied part of the loss is added to the ACB of the coins you bought. Half of a net capital gain is taxable.</li>
+  </ol>
+
+  <h2>The example</h2>
+  <p>All numbers are invented. Fees are in dollars. A fee on a purchase adds to its cost; a fee on a sale comes off the proceeds.</p>
+  <table>
+    <thead><tr><th>Date</th><th>What</th><th class="n">BTC</th><th class="n">Dollars</th><th class="n">Fee</th></tr></thead>
+    <tbody>
+      <tr><td>10 Mar 2023</td><td>Buy</td><td class="n">0.5</td><td class="n">15,000</td><td class="n">20</td></tr>
+      <tr><td>5 Sep 2023</td><td>Buy</td><td class="n">0.3</td><td class="n">9,600</td><td class="n">15</td></tr>
+      <tr><td>2 May 2024</td><td>Sell</td><td class="n">0.4</td><td class="n">16,000</td><td class="n">25</td></tr>
+      <tr><td>4 Nov 2024</td><td>Sell</td><td class="n">0.2</td><td class="n">5,400</td><td class="n">18</td></tr>
+      <tr><td>20 Nov 2024</td><td>Buy</td><td class="n">0.15</td><td class="n">4,050</td><td class="n">12</td></tr>
+    </tbody>
+  </table>
+  <p><strong>The ACB before 2024.</strong> 0.8 BTC at a cost of $15,020 + $9,615 = $24,635.</p>
+
+  <p><strong>2 May 2024.</strong> You sold 0.4 BTC for $16,000 less a $25 fee: proceeds of $15,975. Half the units are gone, so half the ACB goes with them: $24,635 × 0.4 ÷ 0.8 = $12,317.50. The <strong>gain is $3,657.50</strong>. You are left with 0.4 BTC at $12,317.50. No BTC was bought within 30 days, and a gain is never affected by the rule anyway.</p>
+
+  <p><strong>4 Nov 2024.</strong> You sold 0.2 BTC for $5,400 less an $18 fee: proceeds of $5,382. The ACB used is $12,317.50 × 0.2 ÷ 0.4 = $6,158.75, so the sale is a <strong>loss of $776.75</strong>. But on 20 Nov, 16 days later, you bought 0.15 BTC, and at the end of 4 December you hold 0.35 BTC. The rule looks at the smallest of three numbers: the 0.2 BTC sold, the 0.15 BTC bought in the window and the 0.35 BTC still held. That is 0.15, so 0.15 ÷ 0.2 = 75% of the loss is denied: <strong>$582.56 denied</strong>, and $194.19 is a loss you can claim.</p>
+
+  <p><strong>Where the denied loss goes.</strong> It is added to your ACB. After the sale you hold 0.2 BTC at $6,158.75; add the denied $582.56 and the 20 Nov purchase of $4,062 (including its fee) and you hold 0.35 BTC at <strong>$10,803.31</strong>. The loss is deferred until you sell those coins, not lost.</p>
+
+  <h2>Adding it up for 2024</h2>
+  <p>Gains of $3,657.50 less the allowed loss of $194.19 is a net capital gain of $3,463.31. Half is taxable: <strong>$1,731.66</strong>, added to your income at your marginal rate. Had you not bought back, the whole $776.75 loss would have been allowed and the net gain would have been $2,880.75.</p>
+
+  <h2>Where people go wrong</h2>
+  <ul>
+    <li><strong>Treating each sale as first-in first-out.</strong> The CRA's ACB is an average, so an old cheap coin does not sit under a new sale.</li>
+    <li><strong>Selling to harvest a loss and buying back the same week.</strong> That is the case the superficial loss rule exists for. Buying a different coin does not trigger it.</li>
+    <li><strong>Forgetting who else counts.</strong> A purchase by your spouse or common-law partner, or inside your RRSP or TFSA, can also trigger the rule. This calculator only sees the file you give it.</li>
+    <li><strong>Forgetting swaps.</strong> Swapping one coin for another is a sale of the first, at the dollar value of what you received.</li>
+    <li><strong>Missing purchases.</strong> A sale with no matching purchase has no cost, so the gain looks far too large. The calculator warns when that happens.</li>
+  </ul>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide is free and as-is. It is not legal, tax, or financial advice. Rules and rates change; check the CRA's guidance on cryptocurrency or an accountant. Not affiliated with the CRA or any exchange.</p>
+    <p><a href="./index.html">Open the calculator</a> · everything runs in your browser and your transactions are never uploaded.</p>
+  </footer>
+</body>
+</html>

@@ -278,6 +278,8 @@ function solveSym(H, b) {
  */
 // Widening of the growth-change range: at 1 it held the planted bend on ~86% of seeded Poisson series; 1.15 gives ~95% (README, 2026-10-22).
 const RANGE_TEMPER = 1.15;
+// Clumpy counts scored with the NB cost: 1.15 held the planted bend on 145 of 161 found bends (90%), 1.4 on 153 (95%), 1.7 on 157 (README, 2026-10-26).
+const RANGE_TEMPER_NB = 1.4;
 export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0, diag = null } = {}) {
   const n = x.length;
   const nb = nbSize > 0 && Number.isFinite(nbSize);
@@ -409,7 +411,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
     }
     if (!ks.includes(k)) { ks.push(k); cs.push(fit([u, ...phis], cur.g).cost); }
     const m = Math.min(...cs);
-    const w = cs.map((v) => Math.exp(-(v - m) / 2 / (rangeScale * RANGE_TEMPER)));
+    const w = cs.map((v) => Math.exp(-(v - m) / 2 / (rangeScale * (nb ? RANGE_TEMPER_NB : RANGE_TEMPER))));
     const tot = w.reduce((a, v) => a + v, 0);
     let acc = 0, from = Infinity, to = -Infinity;
     for (const i of w.map((_, i) => i).sort((a, b) => w[b] - w[a])) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= 0.95) break; }

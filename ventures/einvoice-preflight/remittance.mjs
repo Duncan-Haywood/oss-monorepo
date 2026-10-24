@@ -102,7 +102,7 @@ export function inspectPaymentRemittance(invoice) {
         "Payment remittance reference is missing on an invoice that already names an IBAN.",
         "Add payment.remittance so the buyer can quote it on the transfer, or omit payment.iban.",
         "/payment/remittance",
-      )];
+      )].map((item) => ({ ...item, severity: "note" }));
     }
     return [];
   }

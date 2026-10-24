@@ -232,6 +232,21 @@ the sales and marketing ventures that already exist comes before adding
 new ones. Spec, guardrails and definition of done:
 [`portfolio/sales-tools/README.md`](../portfolio/sales-tools/README.md).
 
+### AI sales agents, a long-term build
+
+Set by the owner on 2026-10-21: "I want to make ai sales agents this is a
+long term process." The home is
+[`ventures/sales-agent/`](../ventures/sales-agent/README.md), a flagship in
+`portfolio/flagships.yaml`, staged in its
+[`ROADMAP.md`](../ventures/sales-agent/ROADMAP.md): the work of a sales
+development rep done by an agent a small team runs on its own key or a local
+model, composing the existing sales ventures as its tools. The sales-tools
+guardrails hold: the agent may do less on its own (stop, pause, suppress) but
+never more without a person, so every outbound message is a draft someone
+approves. Letting a deployer switch on unattended sending for their own
+mailbox is the owner's call (ROADMAP M5). Accuracy claims come from labelled
+replies written after the code they score.
+
 ## Direction: AI accounting systems
 
 Set by the owner on 2026-10-21: "I want to make ai accounting systems".
@@ -482,12 +497,18 @@ The owner, 2026-10-21: "i want to drop the recommendations that have us
 still working on stupid calculators. whereever those insturctions are lets
 walk them back. working on higher value products seems much better."
 
-So calculator work is off the menu. Build no new calculators, and give the
-existing ones (over 650 on `main`) maintenance only: fix one when it is broken
-(a failing test, a wrong result, a dead link), and add no features, pages,
-comparison pages, consolidation or distribution work to it. The router
+And, the same day, on what that means: "if it's already built there's no
+damage in merging them and adding them. it's the resource allocation that's
+the problem."
+
+So this is about where effort goes, not about what may land. Don't start new
+calculators or spend a run deepening one (features, pages, comparison pages,
+consolidation, distribution); fix one when it is broken (a failing test, a
+wrong result, a dead link). Calculator work that is already built, such as an
+open PR or a stranded branch, is fine to finish and merge: that costs little,
+and leaving it unmerged gains nothing. The router
 (`portfolio/router/allocate.py`) ranks every non-flagship calculator last with
-that task. A run with a free choice picks research, a research-adjacent tool
+a maintain-only task. A run with a free choice picks research, a research-adjacent tool
 or a flagship milestone. A tool built on a published method that fails both
 tests (a chatbot reproduces it in one reply; a maths graduate follows it at a
 glance) is a research tool, not a calculator, and is welcome: a published
@@ -896,8 +917,9 @@ time budgets. Each change should move one of the dashboard's CI numbers.
 - **Ventures:** products on `main` with a public URL, disclaimers and usage
   tracking in place, then measured use (`portfolio/usage/`). Deploying what
   exists beats building another product (`portfolio/DIRECTION.md`).
-  No calculator work: no new calculators, and existing ones get fixes only
-  (owner, 2026-10-21, "Direction: depth over calculators"); new ventures follow the
+  Spend no effort on calculators beyond fixes: none started, none deepened.
+  Already-built calculator work can still be merged (owner, 2026-10-21,
+  "Direction: depth over calculators"); new ventures follow the
   owner's brief in the ventures sub-prompt (ambitious, AI/ML where it helps,
   mobile apps, real business potential). The finish line for a venture is a
   working one-click self-deploy page (the business model under Mission).

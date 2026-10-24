@@ -117,6 +117,7 @@ import {
   KIND_PAGES,
   kindPageGroups,
   SEARCH_INDEX_FILE,
+  renderSearchIndex,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
 import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
@@ -1129,7 +1130,7 @@ test('search ranks the tool a query names above one that merely mentions it', ()
 /** The search index the hub fetches, parsed once. */
 let parsedIndex;
 const searchIndexJson = async () => (parsedIndex ??= JSON.parse(await read(SEARCH_INDEX_FILE)));
-const toolItems = async () => (await searchIndexJson()).items.filter((item) => item.k !== 'research');
+const toolItems = async () => (await searchIndexJson()).items.filter((item) => ['tool', 'app', 'cli'].includes(item.k));
 
 test('the hub carries the ranking function its index is scored with', async () => {
   const html = await read('index.html');
@@ -1166,6 +1167,53 @@ test('the search index lists every tool and every research project, and the hub 
   const linked = new Set([...hub.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
   assert.ok(linked.size > 10 && linked.size < surfaces.length / 4, `the hub links ${linked.size} tools directly`);
   assert.doesNotMatch(hub, /data-search=/);
+});
+
+test("a tool's guide pages and the blog's posts are their own search results", async () => {
+  const { outDir, surfaces } = await site();
+  const index = await searchIndexJson();
+  const slugs = new Set(surfaces.map((s) => s.slug));
+  const guides = index.items.filter((item) => item.k === 'guide');
+  assert.ok(guides.length > 100, `fixture assumption: many guide pages, saw ${guides.length}`);
+  for (const item of guides) {
+    assert.ok(slugs.has(item.s), `${item.u} names no tool`);
+    assert.ok(item.u.startsWith(`${item.s}/`) && item.u !== `${item.s}/`, item.u);
+    assert.ok(await exists(path.join(outDir, item.u)), `${item.u} did not ship`);
+    assert.ok(item.t && item.d, `${item.u} has no title or description`);
+  }
+  // Comparison and collection pages answer "jobber" or "roofers" once, where
+  // 43 identical "This calculator vs. Jobber" rows would not.
+  const pages = index.items.filter((i) => i.k === 'page');
+  assert.ok(pages.some((i) => i.u.startsWith('compare/')) && pages.some((i) => i.u.startsWith('c/')));
+  for (const item of pages) assert.ok(await exists(path.join(outDir, item.u, 'index.html')), `${item.u} did not ship`);
+  const jobber = guides.filter((i) => /\/vs-jobber\.html$/.test(i.u));
+  assert.deepEqual(jobber, [], 'a vs page its compare/ page gathers is not listed again');
+  for (const item of index.items.filter((i) => i.k === 'post')) {
+    assert.equal(index.cats[item.c], 'Blog');
+    assert.ok(await exists(path.join(outDir, item.u, 'index.html')), `${item.u} did not ship`);
+  }
+  // Listed after every tool, so the tie-break never puts a guide above a tool.
+  const lastTool = index.items.findLastIndex((i) => ['tool', 'app', 'cli'].includes(i.k));
+  assert.ok(index.items.findIndex((i) => i.k === 'guide') > lastTool);
+});
+
+test('renderSearchIndex files a guide under its tool and a post under the blog', () => {
+  const data = JSON.parse(renderSearchIndex(
+    [{ slug: 'roofing-bid-calculator', title: 'Roofing Bid Calculator', description: 'Price a roof.' }],
+    [],
+    {
+      guides: [{ slug: 'roofing-bid-calculator', url: 'roofing-bid-calculator/how-to-price-a-tear-off.html', title: 'How to price a tear-off', description: 'Layers, disposal and decking.' }],
+      posts: [{ slug: 'hello', title: 'Hello', description: 'A post.', tags: ['agents'] }],
+      sections: [{ url: 'compare/jobber/', title: 'Jobber alternatives', description: 'Tools with a page against Jobber.', section: 'compare' }],
+    },
+  ));
+  const [tool, page, guide, post] = data.items;
+  assert.equal(tool.k, 'tool');
+  assert.deepEqual([page.k, page.u, data.cats[page.c]], ['page', 'compare/jobber/', 'Comparison']);
+  assert.deepEqual([guide.k, guide.s, guide.u, guide.c], ['guide', 'roofing-bid-calculator', 'roofing-bid-calculator/how-to-price-a-tear-off.html', tool.c]);
+  assert.match(guide.x, /\bdisposal\b/);
+  assert.deepEqual([post.k, post.u, data.cats[post.c]], ['post', 'writing/hello/', 'Blog']);
+  assert.match(post.x, /\bagents\b/);
 });
 
 test('a query that matches every word in nothing is offered the closest tools', async () => {
@@ -3539,19 +3587,37 @@ test('each tool entry page carries breadcrumb structured data', async () => {
       .find((b) => b['@type'] === 'BreadcrumbList');
     assert.ok(crumb, `${surface.slug} has no BreadcrumbList`);
     assert.equal(crumb.itemListElement[0].item, BASE, 'the first crumb is the hub');
+    assert.match(crumb.itemListElement[1].item, new RegExp(`^${BASE}c/[a-z0-9-]+/$`), 'the second crumb is the category shelf');
     assert.equal(crumb.itemListElement.at(-1).item, `${BASE}${surface.slug}/`);
     assert.equal(crumb.itemListElement.at(-1).name, surface.title);
   }
 });
 
-test('breadcrumbs go on entry pages only', async () => {
-  // A deep SEO page inside a tool is not a third level of the site; claiming it
-  // is would describe a hierarchy that does not exist.
-  const deep = (await everyToolPage()).filter(({ rel }) => !/^[^/\\]+[/\\]index\.html$/.test(rel));
+test('every tool page declares the breadcrumb trail it shows', async () => {
+  // Deep guide and comparison pages used to carry no BreadcrumbList on the
+  // grounds that they were not a level of the site. The header has since shown
+  // them as one (Home › category › tool › page); search engines want the markup
+  // to describe the visible trail, so the two are now built from one list.
+  const pages = await everyToolPage();
+  const deep = pages.filter(({ rel }) => !/^[^/\\]+[/\\]index\.html$/.test(rel));
   assert.ok(deep.length > 100, `fixture assumption: many sub-pages, saw ${deep.length}`);
-  for (const { rel, html } of deep) {
-    assert.ok(!html.includes('"BreadcrumbList"'), `${rel} should not claim to be a breadcrumb level`);
+  const mismatched = [];
+  for (const { rel, html } of pages) {
+    const crumb = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map((m) => { try { return JSON.parse(m[1]); } catch { return null; } })
+      .find((b) => b?.['@type'] === 'BreadcrumbList');
+    const visible = /class="pfs-crumbs"[^>]*>([\s\S]*?)<\/span><\/nav>/.exec(html);
+    if (!crumb || !visible) { mismatched.push(`${rel}: ${crumb ? 'no visible trail' : 'no BreadcrumbList'}`); continue; }
+    const labels = [...visible[1].matchAll(/<(?:a|span aria-current="page")[^>]*>([^<]*)</g)].map((m) =>
+      m[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
+    // A venture that wrote its own trail keeps it; only the build's must match.
+    if (crumb.itemListElement[0].name !== 'Open Tools and Research') continue;
+    const names = crumb.itemListElement.map((i) => i.name);
+    if (names.length !== labels.length || names.slice(1).some((n, i) => n !== labels[i + 1])) {
+      mismatched.push(`${rel}: ${JSON.stringify(names)} vs ${JSON.stringify(labels)}`);
+    }
   }
+  assert.deepEqual(mismatched.slice(0, 10), [], `${mismatched.length} page(s) whose markup and visible trail differ`);
 });
 
 test('chrome takes its theme from the host page, not the operating system', async () => {
@@ -4661,7 +4727,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, /compare/, /research/, updates, the changelog and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, /compare/, /research/, Stories, updates, the changelog and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4676,6 +4742,7 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
     `${BASE}ask/`,
     `${BASE}${COMPARE_PATH}`,
     `${BASE}${RESEARCH_PATH}`,
+    `${BASE}stories/`,
     `${BASE}updates/`,
     `${BASE}changelog/`,
     `${BASE}${GUIDES_PATH}`,

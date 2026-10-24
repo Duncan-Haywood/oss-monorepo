@@ -208,6 +208,9 @@ test("form 940 adds the state credit reduction on taxable FUTA wages", () => {
   assert.equal(ca.creditReduction, 8400); // 1.2% of 7,000.00
   assert.equal(form940(books, 2025, { creditReduction: 0.3 }).creditReduction, 2100);
   assert.equal(form940(books, 2025).creditReduction, undefined);
+  const pot = form940(books, 2026, { state: "CA" });
+  assert.match(pot.warnings.join("\n"), /potential credit reduction list for 2026/);
+  assert.equal(pot.creditReduction, undefined);
   assert.match(form940(books, 2025, { state: "NY" }).warnings.join("\n"), /No built-in credit reduction for NY/);
 });
 

@@ -15,28 +15,99 @@ from typing import Any
 from .iban import looks_like_complete_iban
 
 
-# Published UNCL 4461 codes that appear on EN 16931 / PEPPOL examples.
-# This is a typo catch for the codes bookkeepers actually type, not the
-# full code list and not a determination that a network will accept it.
+# The UNCL 4461 list EN 16931 accepts for BT-81 (rule BR-CL-16 in the CEN
+# Schematron). A typo catch, not a determination that a network accepts it.
 KNOWN_MEANS = {
     "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
     "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
     "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
     "30",
     "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40",
+    "41",
     "42",
+    "43",
+    "44",
+    "45",
+    "46",
+    "47",
     "48",
     "49",
     "50",
+    "51",
+    "52",
+    "53",
+    "54",
+    "55",
+    "56",
     "57",
     "58",
     "59",
+    "60",
+    "61",
+    "62",
+    "63",
+    "64",
+    "65",
+    "66",
+    "67",
+    "68",
+    "69",
+    "70",
+    "74",
+    "75",
+    "76",
+    "77",
+    "78",
+    "91",
+    "92",
+    "93",
+    "94",
+    "95",
+    "96",
     "97",
+    "98",
+    "ZZZ",
 }
 
-# Credit transfer, debit transfer, payment to bank account, direct debit,
-# SEPA credit transfer, SEPA direct debit — these name a bank account.
-ACCOUNT_REQUIRED = {"30", "31", "42", "49", "58", "59"}
+# Credit transfer, debit transfer, payment to bank account and SEPA credit
+# transfer name the payee's account. Direct debits (49, 59) name the payer's
+# account (BT-91) instead, so they do not need a payee IBAN.
+ACCOUNT_REQUIRED = {"30", "31", "42", "58"}
 
 # Cash, cheque, and card. An IBAN on the same payment block is a mismatch.
 CASH_LIKE = {"10", "20", "48"}
@@ -86,10 +157,12 @@ def inspect_payment_means(invoice: dict[str, Any]) -> list[dict[str, str]]:
 
     findings: list[dict[str, str]] = []
     has_iban = looks_like_complete_iban(payment.get("iban"))
-    if compact in ACCOUNT_REQUIRED and not has_iban:
+    # A value that is present but malformed is INV-024's finding, not a missing IBAN.
+    iban_present = isinstance(payment.get("iban"), str) and payment.get("iban").strip() != ""
+    if compact in ACCOUNT_REQUIRED and not has_iban and not iban_present:
         findings.append(_finding(
             "INV-045",
-            "Payment means is a credit transfer, SEPA transfer, or direct debit without an IBAN.",
+            "Payment means is a credit transfer or SEPA transfer without an IBAN.",
             "Add payment.iban for that means, switch to a cash or card means, or omit payment.means.",
             "/payment/iban",
         ))

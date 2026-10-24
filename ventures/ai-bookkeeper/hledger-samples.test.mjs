@@ -45,3 +45,25 @@ test("a currency written in letters before the amount is ignored", () => {
   assert.equal(parseCents("(.50)"), -50);
   assert.equal(parseCents("$1,234.00"), 123400);
 });
+
+// csv2ofx's test data (MIT, layout only, rows made up), 2026-10-24: Amazon's
+// order-history report has no amount header, only "total".
+test("Amazon order history: total is the amount, items the memo, pending orders skipped", () => {
+  const r = readStatement([
+    "order id,order url,items,to,date,total,shipping,shipping_refund,gift,tax,refund,payments",
+    "111-0000001-0000001,https://example.com/o,Desk lamp; ,A Person,2022-12-20,19.99,0,0,0,1.20,0,Visa ending in 1234: $19.99;",
+    "D01-0000000-0000000,https://example.com/o,,,pending,,,,,,,",
+  ].join("\n"), { invert: true });
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2022-12-20", -1999, "Desk lamp;"]]);
+});
+
+// Etsy payment-account CSV (layout from memory, rows made up), 2026-10-24: a
+// fee row has "--" in Amount, so the Net column is the cash effect; Title is the memo.
+test("Etsy payment account: Net is the amount, Title the description, fee rows kept", () => {
+  const r = readStatement([
+    "Date,Type,Title,Info,Currency,Amount,Fees & Taxes,Net,Tax Details",
+    '"October 1, 2026",Sale,Mug,Order #1,USD,25.00,--,25.00,--',
+    '"October 2, 2026",Fee,Listing fee,Listing #2,USD,--,$0.20,-$0.20,--',
+  ].join("\n"));
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2026-10-01", 2500, "Mug"], ["2026-10-02", -20, "Listing fee"]]);
+});

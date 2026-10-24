@@ -206,3 +206,14 @@ class MeansInvoiceIntegrationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class XRechnungSuiteMeansTests(unittest.TestCase):
+    """Found by running the KoSIT XRechnung test suite."""
+
+    def test_full_uncl4461_list_and_direct_debit(self):
+        for code in ("2", "9", "23", "54", "68", "98", "ZZZ"):
+            self.assertTrue(looks_like_known_means(code), code)
+        self.assertFalse(looks_like_known_means("71"))
+        for means in ("49", "59"):
+            self.assertEqual(inspect_payment_means(_invoice({"means": means})), [], means)

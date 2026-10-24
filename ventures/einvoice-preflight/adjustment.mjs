@@ -3,6 +3,7 @@
 // the amount, percent, or reason. Line-level AllowanceCharge is ignored.
 
 import { looksLikePlaceholder } from "./reference.mjs";
+import { isNegativeInvoice } from "./linenet.mjs";
 
 const MAX_REASON = 100;
 
@@ -36,11 +37,12 @@ export function normalizeKind(value) {
 
 export function headerAdjustmentNetDelta(invoice) {
   let delta = 0;
+  const negative = isNegativeInvoice(invoice);
   for (const row of rows(invoice)) {
     if (!row || typeof row !== "object" || Array.isArray(row)) continue;
     const kind = normalizeKind(row.kind);
     const amount = money(row.amount);
-    if (kind === null || amount === null || amount < 0) continue;
+    if (kind === null || amount === null || (amount < 0 && !negative)) continue;
     delta = roundHalfUpToCents(delta + (kind === "charge" ? amount : -amount));
   }
   return delta;
@@ -68,7 +70,8 @@ export function inspectHeaderAdjustments(invoice) {
     )];
   }
   const findings = [];
-  raw.forEach((row, index) => findings.push(...inspectRow(row, index)));
+  const negative = isNegativeInvoice(invoice);
+  raw.forEach((row, index) => findings.push(...inspectRow(row, index, negative)));
   return findings;
 }
 
@@ -76,7 +79,7 @@ function rows(invoice) {
   return invoice && Array.isArray(invoice.adjustments) ? invoice.adjustments : [];
 }
 
-function inspectRow(row, index) {
+function inspectRow(row, index, negative = false) {
   const path = `/adjustments/${index}`;
   if (!row || typeof row !== "object" || Array.isArray(row)) {
     return [finding(
@@ -107,7 +110,7 @@ function inspectRow(row, index) {
     ));
   } else {
     amount = money(row.amount);
-    if (amount === null || amount < 0) {
+    if (amount === null || (amount < 0 && !negative)) {
       findings.push(finding(
         "INV-050",
         "Header allowance or charge amount is missing or invalid.",

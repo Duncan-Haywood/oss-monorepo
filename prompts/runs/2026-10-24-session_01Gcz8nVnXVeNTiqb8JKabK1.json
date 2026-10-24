@@ -33,7 +33,8 @@
   "errors": [
     "Portfolio Pages test red on the merge preview: PR #9958 moved readme-live-link.mjs BASE to /oss-monorepo/ but its detection regex still matched only monorepo-projects/, so 5 tests in readme-live-link.test.mjs failed on main. Not this PR's change; ported the fix (accept either base; 1,314 venture READMEs still link the old path) with a regression test. Reproduced 5 fails before, 9/9 pass after; readme-live-link.mjs --check: 0 missing. Main then landed the same regex fix (and test) independently; the merge took main's version, so this PR no longer changes readme-live-link.*.",
     "Portfolio Pages build red after merging main: research/civ-levers/app/index.html (PR #9976) had a 250-char description and 200-char og/twitter description, over check.mjs's 160 budget. Not this PR's change; no fix on main yet, so shortened both here using claims the README backs. Local build.mjs + check.mjs: publishable, 4,271 pages, 0 problems.",
-    "Research CI (homepage job) red, reached only because the civ-levers fix touches research/: programme_check.py (PR #9975) flagged research/codesign-agri-pulloff (PR #9994, merged after the bar). Main had already fixed the other two flagged projects the same way; applied the same convention here (programme none, factual why_standalone). research-ci.yml locally: 3/3 steps pass."
+    "Research CI (homepage job) red, reached only because the civ-levers fix touches research/: programme_check.py (PR #9975) flagged research/codesign-agri-pulloff (PR #9994, merged after the bar). Main had already fixed the other two flagged projects the same way; applied the same convention here (programme none, factual why_standalone). research-ci.yml locally: 3/3 steps pass.",
+    "Main then fixed civ-levers descriptions and codesign-agri-pulloff's programme field independently; the final merge took main's versions of both, so the merged diff carries neither."
   ],
   "integrity_issues": [],
   "doc_friction": [],

@@ -96,8 +96,7 @@ Ticked items are on `main`.
       joists, collar ties, roof sheathing, underlayment and shingle squares.
       Hip roofs landed 2026-10-22 (`shape: "hip"`: commons, hips, jacks, trapezoid and triangle sheathing). Not yet: valleys, the page.
 - [x] Foundation quantities (2026-10-24, `foundation.mjs`, CLI `--foundation`): footing, stem wall and slab (or a monolithic slab with thickened edge) concrete from closed-form geometry, trucks and short-load warning, rebar with lap splices and weight, form area and plywood, gravel base, vapor barrier. Hand-arithmetic tests only. Not yet: the page, corner bars, anchor bolts, piers and columns, walkout/stepped footings, checking against a real foundation plan.
-- [ ] Interior: drywall sheet layout per wall and ceiling, insulation by
-      cavity, trim.
+- [ ] Interior: drywall sheet counts per wall and ceiling landed 2026-10-24 (`drywall.mjs`, CLI `--drywall`, hand-count tests; joints not on studs, no page). Wall-cavity insulation bags landed 2026-10-24 (`insulation.mjs`, CLI `--insulation`, cavity measured from placed members; hand-arithmetic tests, no page). Not yet: joints on studs, ceiling/attic insulation, trim.
 
 ### 4. Time and money
 
@@ -107,9 +106,14 @@ Ticked items are on `main`.
       are the model's counts times typed prices, tax and contingency stack, and a
       quantity with no price is listed as unpriced, never guessed. Materials only.
       Not yet: the page, labor lines, a CSV.
-- [ ] A new-home schedule: critical path over the builder's own activity list
-      and durations, crew levelling, and what a slipped inspection does to the
-      finish date.
+- [x] A new-home schedule (2026-10-24, `schedule.mjs`, CLI `--schedule`, plan key
+      `schedule: {start, crews, activities: [{id, name, days, after, crew, lag}], slips: [{id, days}]}`):
+      critical path over the builder's own activity list and durations (forward and
+      backward pass, slack, cycle and unknown-predecessor errors), weekdays only, `lag`
+      for cure time and inspection waits, serial greedy crew levelling, and what a
+      slipped activity does to the finish date. No durations are shipped. Hand-checked
+      networks in `schedule.test.mjs`. Not yet: the page, holidays and weather, resource
+      calendars, activity templates tied to the takeoff's quantities, a real builder's list.
 - [ ] Bid leveling against the model's quantities (siblings:
       `bid-leveling-worksheet`, `estimate-maker`).
 

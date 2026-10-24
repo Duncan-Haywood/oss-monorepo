@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01SnWwaCrfSTZwb2dbWEpkK6",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-24T11:38:11Z",
+  "ended": "2026-10-24T11:41:03Z",
+  "wall_minutes": 3.01,
+  "tokens_in": 1849966,
+  "tokens_out": 14717,
+  "cost_usd": 0.8306,
+  "tool_calls": 25,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10112",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "pick_track.py drew a track (capture-*) not a programme, while the prompt says advance a programme by default; I chose sim2real-inference by hand after seeing lowcomm-training claimed by PR #10109."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Did not use the pick_track draw; advanced an open programme by default, as the same prompt says.",
+      "did": "sim2real-inference milestone 3f",
+      "result": "landed one step"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-can-a-simulator-shorten-a-robot-safety-certificate.md",
+    "docs/reports/2026-10-24-s2ri-milestone-3f.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 3f: twin-informed failure-rate bound valid, never tighter than Clopper-Pearson (0/21). Pre-registration had an empty rho>=0.98 tier (misread correlations); corrected in LOG.md. Checks run: homepage build ok, programme_check ok, check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e6404177-c4c6-587b-8a9c-f4ec2187737b",
+    "transcripts": 1,
+    "first": "2026-10-24T11:38:11Z",
+    "last": "2026-10-24T11:41:11Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 21,
+        "input": 42,
+        "output": 14717,
+        "thinking": 3219,
+        "cache_read": 1767459,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82465,
+        "api_equivalent_usd": 0.8306,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 21,
+      "input": 42,
+      "output": 14717,
+      "thinking": 3219,
+      "cache_read": 1767459,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82465,
+      "api_equivalent_usd": 0.8306,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.955,
+    "tool_calls": 25,
+    "tools": {
+      "Bash": 19,
+      "Read": 4,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.01,
+      "active_minutes": 3.01,
+      "model_minutes": 2.17,
+      "tool_minutes": 0.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, code, run and write up one programme step",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 722.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

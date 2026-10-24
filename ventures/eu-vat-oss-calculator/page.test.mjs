@@ -122,5 +122,5 @@ test("the venture file keeps an Unverified section and the kill criteria", () =>
   const y = page("VENTURE.yaml");
   assert.match(y, /Unverified/);
   assert.match(y, /kill_criteria:/);
-  assert.match(y, /https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/eu-vat-oss-calculator\//);
+  assert.match(y, /https:\/\/duncan-haywood\.github\.io\/(?:oss-monorepo|monorepo-projects)\/eu-vat-oss-calculator\//);
 });

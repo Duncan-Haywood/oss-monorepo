@@ -1,0 +1,8 @@
+het_r2 per pair: none-0 0.08, friction-0 0.08, friction-1 0.07, friction-2 0.09, friction-3 0.13, delay-0 0.08, delay-1 0.25, delay-2 0.62, delay-3 0.56, sensor-0 0.08, sensor-1 0.11, sensor-2 0.19, sensor-3 0.26, gain-0 0.09, gain-1 0.16, gain-2 0.26, gain-3 0.24, mass-0 0.09, mass-1 0.15, mass-2 0.29, mass-3 0.47
+H4-i: min active coverage at n=120 = 92.4% (need >= 93)
+H4-ii hi-het pairs (n=3): active<uniform on 3; ratios delay-2 0.65, delay-3 0.75, mass-3 0.83
+H4-ii lo-het pairs (het_r2 < 0.15, n=11): median ratio active/uniform = 1.08 (need <= 1.10), max 1.32
+H4-iii hi-het at n=60: active/oracle MSE delay-2 1.63, delay-3 1.74, mass-3 2.57
+n=30: median MSE ratio active/uniform 1.18, uniform_cv/uniform 1.03, oracle/uniform 0.78; active wins on 2/21
+n=60: median MSE ratio active/uniform 1.13, uniform_cv/uniform 1.02, oracle/uniform 0.76; active wins on 3/21
+n=120: median MSE ratio active/uniform 1.01, uniform_cv/uniform 1.01, oracle/uniform 0.82; active wins on 10/21

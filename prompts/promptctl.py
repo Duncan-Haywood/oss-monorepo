@@ -930,7 +930,7 @@ def print_measure(m: dict[str, Any]) -> None:
         print("None reported.\n")
     if m["doc_friction"] and _is_shallow():
         print("(Shallow clone: a file's \"last changed\" date is only as old as the fetched history, so "
-              "[file changed since] tags may be wrong. `git fetch --unshallow origin main` first.)\n")
+              "[file changed since] tags may be wrong. `measure` deepens it for you unless --no-fetch.)\n")
     stamps = [t for f in m["doc_friction"].values() for r in f["recent"] if (t := _when(r))]
     cutoff = max(stamps) - timedelta(days=FRICTION_FRESH_DAYS) if stamps else None
     for path, f in list(m["doc_friction"].items())[:FRICTION_MAX_FILES]:
@@ -1005,6 +1005,22 @@ def _is_shallow() -> bool:
     except (OSError, subprocess.SubprocessError):
         return False
     return out == "true"
+
+
+def _deepen_shallow_history() -> None:
+    """Fetch two weeks of main into a shallow clone so a file's last-change date is real and the
+    friction table can tell a stale complaint from a live one (2026-10-24: it listed fixed entries
+    because every file read 'changed on or before the shallow edge'). Best effort: any failure
+    leaves the clone as it was and the table's own shallow note applies."""
+    if not _is_shallow():
+        return
+    print("(shallow clone: fetching 14 days of main to date the friction reports, about 70 s; "
+          "--no-fetch skips)", file=sys.stderr)
+    try:
+        subprocess.run(["git", "fetch", "-q", "--shallow-since=14 days ago", "origin", "main"],
+                       cwd=ROOT.parent, capture_output=True, timeout=180)
+    except (OSError, subprocess.SubprocessError):
+        pass
 
 
 def _shallow_boundary() -> set[str]:
@@ -1137,6 +1153,8 @@ def main(argv: list[str] | None = None) -> int:
                    "(e.g. the upstream research repo), so a review can look the PR up")
     p = sub.add_parser("measure", help="score prompt versions from the run records")
     p.add_argument("--json", action="store_true")
+    p.add_argument("--no-fetch", action="store_true", help="do not deepen a shallow clone's history "
+                   "(about 70 s) to date the friction reports' files")
     p.add_argument("--section", help="print only the '## ' sections whose title contains this "
                    "text (case-insensitive), e.g. 'friction' or 'candidates'; the full output is 50KB+")
     sub.add_parser("backlog", help="list open process improvements, best first")
@@ -1165,6 +1183,8 @@ def main(argv: list[str] | None = None) -> int:
               "Check with: python3 prompts/promptctl.py validate")
         return 0
     if args.cmd == "measure":
+        if not (args.json or args.no_fetch) and (not args.section or "friction" in args.section.lower()):
+            _deepen_shallow_history()
         m = measure(ROOT)
         if args.json:
             print(json.dumps(m, indent=2))

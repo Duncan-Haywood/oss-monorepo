@@ -1,0 +1,47 @@
+{
+ "date": "2026-10-24",
+ "session": "https://claude.ai/code/session_01BGRnKJVRhdMnUbzS1F75H8",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "follow the instructions in ./prompt.md",
+ "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-24T12:42:08Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 10124,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "pyenv.py with matplotlib/scipy ran past the 120s foreground timeout; I did not need it and skipped it, so the margin figure was not rerun."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-24-what-a-verification-tolerance-costs.md",
+  "research/verifiable-training-mechanisms/LOG.md"
+ ],
+ "goal": null,
+ "notes": "Milestone 7 paper skeleton for verifiable-training-mechanisms. Local checks: _homepage/build.py ok, check_md_links ok, programme_check ok, frontier figure regenerates unchanged. LaTeX not compiled.",
+ "corrections": [],
+ "redteam": null
+}

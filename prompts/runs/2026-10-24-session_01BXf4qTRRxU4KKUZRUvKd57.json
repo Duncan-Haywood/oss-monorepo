@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01BXf4qTRRxU4KKUZRUvKd57",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T07:40:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10063",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "No agent doc written; post only",
+      "did": "blog post",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-bank-csv-headers-that-say-amount-in-eur.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: probe ai-bookkeeper CSV importer with more layouts; fixed 'Amount in EUR' headers. Local venture suite passes; CI not awaited.",
+  "corrections": [],
+  "redteam": null
+}

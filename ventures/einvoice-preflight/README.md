@@ -304,9 +304,9 @@ UBL `Party/EndpointID` maps into `endpoint.id` and `schemeID` maps into
 
 `payment.means` is optional. When supplied it is a UNCL 4461 payment means
 code (BT-81) such as `30` (credit transfer), `58` (SEPA credit transfer),
-or `10` (cash). An empty or undocumented code is `INV-044`. A credit
-transfer, SEPA transfer, or direct debit without a complete IBAN is
-`INV-045`. Cash, cheque, or card together with a complete IBAN is
+or `10` (cash). An empty code, or one outside the UNCL 4461 list in the CEN
+rule BR-CL-16, is `INV-044`. A credit transfer or SEPA transfer without a
+complete IBAN is `INV-045` (direct debits name the payer's account, so they do not need one). Cash, cheque, or card together with a complete IBAN is
 `INV-046`. Omitted means stay clean even when an IBAN is present.
 Messages never repeat the typed code or the account. This is a code-list
 and consistency check, not a Peppol profile determination and not a claim
@@ -334,7 +334,8 @@ and not a determination that the institution will accept the payment. UBL
 
 `payment.remittance` is the text the buyer should quote on the transfer.
 When a complete IBAN is present and remittance is missing, that is
-`INV-030` — an unmatched SEPA credit is how paid invoices sit in
+`INV-030`, a **note** (`severity: "note"`): it is listed in every report but does not
+fail the file or change the exit code, because the standard does not require it — an unmatched SEPA credit is how paid invoices sit in
 unallocated cash. When remittance is supplied, an ISO 11649 RF creditor
 reference that fails its MOD-97 check (or that is not RF-shaped after
 starting with `RF`) is `INV-031`. Unstructured notes are accepted up to
@@ -561,6 +562,57 @@ refuses the scan.
 These input errors are reported in the selected format and the command exits
 `2`, so CI and ERP adapters do not need to special-case an unstructured stderr
 or stdout message.
+
+## Measured on real FatturaPA samples (2026-10-28)
+
+`node eval/fatturapa-corpus.mjs <ZUGFeRD corpus>/fatturaPA` ran `IT-001`..`IT-018` over 15 files: the Agenzia delle Entrate's six official samples (FPR01-03, FPA01-03) and nine from eigor. Result: `IT-003`/`IT-004` on 8 and 9 files (the samples use the placeholder partita IVA 01234567890, which fails its check digit, so these are right); `IT-017` on 3 (placeholder IBANs); `IT-015` on FPR02 and FPR03 (the first body's lines sum to 25.00 but its summary base is 27.00, a real inconsistency in the sample); and `IT-018` on FPR02, **a false positive of ours**: the official sample puts `PECDestinatario` before `ContattiTrasmittente` in `DatiTrasmissione`, against the order this tool had written from memory. The pair is no longer ranked (`SAME_RANK` in `fatturapa.mjs`) until the XSD is read. The corpus marks all 15 as valid, which only means they pass its own check, not that SdI accepted them. Rules for cassa, bollo and ritenuta files are skipped and named, as before.
+
+## Measured on the official examples (2026-10-24)
+
+The CEN EN 16931 test repository (ConnectingEurope/eInvoicing-EN16931, EUPL, not copied here) ships 41 example invoices in UBL, CII and other syntaxes. They pass the official Schematron, so a built-in rule that fires on one is a false positive of ours or a real inconsistency in the example's data. `node eval/official-examples.mjs <checkout>` runs the built-in rules over them (31 are readable UBL or CII; 9 are EDIFACT or other syntaxes this tool does not read; one file is over the 1 MB limit: it is not FatturaPA but a 3.3 MB UBL invoice with an embedded attachment, `FT G2G_TD01 con Allegato, Bonifico e Split Payment.xml`; `MAX_CHARS=5000000 node eval/official-examples.mjs <checkout>` reads it, and on 2026-10-24 it drew one finding, the non-blocking INV-030 note, no false positive).
+
+Before this run **none** of the 41 passed the built-in rules; 29 of the 31 readable files drew a finding, mostly arithmetic ones. The causes, all fixed in the JS and Python rules:
+
+| Rule | Files before | After | Cause |
+|---|---|---|---|
+| INV-014, INV-018, INV-038 | 16, 16, 19 | 0, 1, 1 | line allowances/charges ignored; tax summed per line instead of per rate (BR-CO-17); a second `TaxTotal` in the VAT accounting currency (BT-111) added to BT-110; CII net read from `LineTotalAmount` (BT-106) instead of `TaxBasisTotalAmount` (BT-109); CII header allowances not read; breakdown rows keyed by rate only, so S, Z and E at 0% collided; a negative taxable amount rejected |
+| INV-009 | 5 | 0 | a negative quantity (a credit line) rejected |
+| INV-011, INV-015 | 2, 2 | 0 | category O has no `Percent` and invoices with no VAT carry no tax total |
+| INV-012 | 13 | 12 | unit prices rounded to cents before multiplying (0.0088 EUR per kWh read as 0.01); price base quantity (BT-149) ignored. The 12 left are real: the example's stated line net is not quantity times price (for instance quantity 2, price 800, net 800) |
+| INV-005 | 6 | 6 | unchanged on purpose: a buyer known by name alone is still flagged, a buyer with a VAT id, legal id or endpoint is not |
+
+What is left on the readable files is mostly the examples' placeholder data (VAT numbers and IBANs that fail their checksums: INV-022/023/024/025), plus INV-012 above, one HUF invoice whose VAT is rounded to whole forints (INV-018/038 use cents; since 2026-10-24 a HUF tax total rounded to the unit is accepted, a unit-rounded total in any other currency is not) and INV-033 on a credit note without BT-25. One file is clean. A line whose stated net disagrees with quantity times price is reported once (INV-012); in a parsed file the totals are then summed from the stated nets, as BR-CO-10 does, so the error is not repeated in every total. Draft JSON still sums quantity times price. Where a line states a price base quantity and its net matches quantity times price without it, the net is accepted (the official CII example 8 does this).
+
+Behaviour changes that tests pin: tax is worked out per rate on the summed taxable amount; header allowances and charges move the taxable amount of their rate (or of the only rate); a UBL or CII buyer may omit BT-46 when another identifier is present; negative quantities are allowed.
+
+## Measured on the XRechnung test suite (2026-10-26)
+
+The KoSIT XRechnung test suite (itplr-kosit/xrechnung-testsuite, Apache-2.0, not copied here) holds 72 valid German documents in UBL and CII (36 cases, each in both syntaxes: 33 standard, 3 extension; `node eval/official-examples.mjs <checkout>/src/test/business-cases`). They pass KoSIT's validator, so a finding is a false positive of ours, placeholder data, or a style note. Before this run 72 of 72 drew a finding. Real false positives found and fixed, in the JS and Python rules:
+
+| Rule | Cause | Files before / after |
+|---|---|---|
+| INV-044 | the means list held 13 codes; BR-CL-16 allows the whole UNCL 4461 list (here code 68, online payment service) | 2 / 0 |
+| INV-045 | direct debits (49, 59) were asked for a payee IBAN; they name the payer's account | 7 / 0 |
+| INV-035 | zero-rated category Z was asked for an exemption reason (BR-Z-10: none) | 2 / 0 |
+| INV-029 | the payable rounding amount (BT-114) was ignored; a negative amount due (prepayments above the gross, BR-CO-16 has no sign limit) was refused; CII amounts due were never checked | 3 / 1 |
+| INV-028 | prepaid above gross, same credit-balance case | 2 / 0 |
+| INV-038 | a zero tax-breakdown row (0 taxable, 0 tax) that exists only for a zero-amount header allowance or charge was called a rate no line uses; a non-zero row with no line is still flagged | 6 / 0 |
+
+A negative amount due is accepted only when it equals gross minus prepaid plus rounding; a negative `due` typed with no prepayment is still `INV-029`. Left, not fixed: placeholder VAT ids and IBANs (INV-022/023, 27 and 42 files), the `[BIC]` placeholder (INV-026), 6 files whose line net is not quantity times price (INV-012), 39 files with an IBAN and no remittance reference (INV-030, a style note the standard does not require), and one extension case whose amount due differs from the totals on purpose (INV-029). The same 31 CEN examples also lose 2 INV-035, 2 INV-044 and 1 INV-045.
+
+## Measured on the Peppol BIS 3.0 examples and the ZUGFeRD corpus (2026-10-27)
+
+The OpenPEPPOL `peppol-bis-invoice-3` examples (9 UBL files), the ZUGFeRD community corpus (`ZUGFeRD/corpus`; 51 XRechnung files, 13 ZUGFeRD 2 files) were read, not copied: `node eval/official-examples.mjs <checkout>` (set `PATH_FILTER` to pick a folder). Before: 0 of 9 Peppol files and 2 of 51 XRechnung files were clean. Real false positives fixed in the JS and Python rules (`negative-invoice.test.mjs`, `tests/test_checks.py`):
+
+| Rule | Cause | Fix |
+|---|---|---|
+| INV-013, 015, 016, 029, 050, 038 | the Peppol "negative invoice" example (type 380, negative net, tax, gross and a negative header charge) was refused: totals and header amounts had to be non-negative | a negative net and gross make a negative invoice; its totals, amount due and header allowances/charges keep their sign and the arithmetic is still checked |
+| INV-028 | a negative prepaid amount (KoSIT-valid German insurance invoice, prepaid -220) | accepted when the stated amount due equals gross minus prepaid |
+| INV-032 | only 9 UNCL 1001 codes known; 204, 387, 575, 877 and others in valid files | the BR-CL-01 invoice, credit and debit codes added |
+| INV-048 | Peppol's `NA` purchase-order id with a `SalesOrderID`, and an empty id with one | the sales order number is the reference |
+| INV-045 | an IBAN that is present but malformed (a placeholder) was reported as missing | INV-024 reports it; INV-045 only when none is given |
+
+After: the 9 Peppol examples draw only placeholder-data findings (fake VAT ids, IBANs, GLNs; INV-034 where the example credit note names itself "Snippet1"); XRechnung corpus 8 of 51 clean (INV-032, 048, 028 gone); the rest are placeholders (INV-023 34 files), 7 files whose line net is not quantity times price (true, e.g. 20 x 2.77 stated as 55.46) and style notes. A negative invoice is not valid in every country's rules; this tool only stops calling it arithmetic nonsense.
 
 ## Privacy and usage
 

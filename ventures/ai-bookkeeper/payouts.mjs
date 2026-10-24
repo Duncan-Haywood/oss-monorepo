@@ -73,18 +73,21 @@ export function readPayoutReport(text) {
   if (table.length < 2) throw new Error("The report has no rows.");
   // Seller Central's date-range CSV opens with a few note lines before the header.
   const at0 = table.findIndex((r) => { const h = r.map(key); return h.includes("settlement_id") && h.includes("selling_fees") && h.includes("product_sales"); });
-  if (at0 !== -1) return readAmazonRange(table.slice(at0));
+  if (at0 !== -1) return { ...readAmazonRange(table.slice(at0)), source: "amazon" };
+  // eBay's Seller Hub transaction report opens with note lines before its header.
+  const at1 = table.findIndex((r) => { const h = r.map(key); return h.includes("transaction_creation_date") && h.includes("payout_id") && h.includes("net_amount"); });
+  if (at1 !== -1) return { ...readEbay(table.slice(at1)), source: "ebay" };
   // Some dashboards put the currency in the amount headers ("Gross (USD)", "Net (EUR)").
   const head = table[0].map((h) => { const k = key(h); const m = /^(gross|fee|fees|net|amount)_[a-z]{3}$/.exec(k); return m ? m[1] : k; });
-  if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return readAmazon(table, head);
-  if (head.includes("fees_taxes") && head.includes("title") && head.includes("type") && head.includes("net")) return readEtsy(table, head);
-  if (head.includes("confirmation_code") && head.includes("gross_earnings") && head.includes("host_fee") && head.includes("type")) return readAirbnb(table, head);
+  if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return { ...readAmazon(table, head), source: "amazon" };
+  if (head.includes("fees_taxes") && head.includes("title") && head.includes("type") && head.includes("net")) return { ...readEtsy(table, head), source: "etsy" };
+  if (head.includes("confirmation_code") && head.includes("gross_earnings") && head.includes("host_fee") && head.includes("type")) return { ...readAirbnb(table, head), source: "airbnb" };
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
   // Square's dashboard export has Gross Sales (before tax and tip) and Total Collected; Fees and Net Total are on the latter.
   if (head.includes("total_collected") && head.includes("net_total")) col.gross = head.indexOf("total_collected");
   const squareSplit = head.includes("total_collected") && head.includes("net_total") && (head.includes("tax") || head.includes("tip"));
   for (const need of ["gross", "net", "category"]) if (col[need] === -1) throw new Error(`No "${need}" column: the report needs payout id, payout date, category, gross, fee and net columns.`);
-  if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return readPaypal(table, head);
+  if (col.payout === -1 && head.includes("transaction_id") && head.includes("status") && head.includes("type")) return { ...readPaypal(table, head), source: "paypal" };
   if (col.payout === -1) throw new Error('No payout id column (Stripe: "automatic_payout_id"). Export the payout reconciliation report, not the plain payments list.');
   const problems = [];
   const rows = [];
@@ -241,6 +244,65 @@ function readEtsy(table, head) {
     group = [];
   }
   return { rows: all, payouts, pending: group.map((y) => ({ ...y, payout: "" })), problems };
+}
+
+// eBay's Seller Hub transaction report (Transaction creation date, Type, Order
+// number, Net amount, Payout date, Payout ID, Gross transaction amount, the Final
+// Value Fee columns, Item subtotal, Shipping and handling, Seller collected tax
+// ...). Every row carries the Payout ID it was paid in, so it groups like
+// Stripe's; a row with no Payout ID is still pending. An Order or Refund row's
+// fee is its gross less its net; shipping labels, other fees and charges are
+// fees with no gross; holds and releases move the reserve; a Payout row is
+// skipped but must equal what its rows net to, or the payout is not split.
+// Seller-collected sales tax is split from the gross only when subtotal +
+// shipping + tax equals it exactly (tax the seller owes is not sales).
+// Layout from memory of eBay's help pages and one hand-written fixture; no
+// real export tried.
+function readEbay(table) {
+  const head = table[0].map(key);
+  const ix = (n) => head.indexOf(n);
+  const c = { date: ix("transaction_creation_date"), type: ix("type"), order: ix("order_number"), net: ix("net_amount"), payoutDate: ix("payout_date"), payout: ix("payout_id"), gross: ix("gross_transaction_amount"), cur: ix("payout_currency"), sub: ix("item_subtotal"), ship: ix("shipping_and_handling"), tax: ix("seller_collected_tax"), title: ix("item_title") };
+  if (c.type === -1) throw new Error('The eBay report has no "Type" column.');
+  const cents = (v) => { const t = String(v ?? "").trim(); return t === "" || t === "--" ? 0 : parseCents(t.replace(/^\$?-\$/, "-")); };
+  const problems = [], rows = [], payoutRows = [];
+  const cur = new Set(table.slice(1).map((r) => String(r[c.cur] ?? "").trim().toUpperCase()).filter((v) => v && v !== "--"));
+  if (cur.size > 1) problems.push(`The report mixes payout currencies (${[...cur].sort().join(", ")}); amounts are read as written with no conversion, so export one currency at a time.`);
+  table.slice(1).forEach((r, n) => {
+    const at = (k) => (c[k] === -1 ? "" : String(r[c[k]] ?? "").trim());
+    const net = cents(at("net")), gross = cents(at("gross"));
+    if ([net, gross].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
+    const category = key(at("type"));
+    const pid = at("payout").replace(/^--$/, "");
+    const date = parseDate(at("date"));
+    if (category === "payout") { payoutRows.push({ id: pid, net: Math.abs(net) }); return; }
+    const kind = category === "order" ? "sales" : category === "refund" ? "refunds" : /dispute|chargeback|claim/.test(category) ? "disputes" : /hold|release|reserve/.test(category) ? "reserve" : /fee|charge|shipping|label|ad|promot|subscription/.test(category) ? "fees" : category === "transfer" ? "skip" : "other";
+    const base = { row: n + 2, id: at("order") || `row${n + 2}`, payout: pid, payoutDate: parseDate(at("payoutDate")), created: date, category, kind, desc: at("title") };
+    if (kind === "sales" || kind === "refunds") {
+      const tax = cents(at("tax")), sub = cents(at("sub")), ship = cents(at("ship"));
+      if (kind === "sales" && tax > 0 && sub + ship + tax === gross) {
+        rows.push({ ...base, gross: gross - tax, fee: gross - net, net: net - tax });
+        rows.push({ ...base, id: `${base.id}:tax`, kind: "tax", gross: tax, fee: 0, net: tax });
+      } else rows.push({ ...base, gross, fee: gross - net, net });
+    } else if (kind === "fees") rows.push({ ...base, gross: 0, fee: -net, net });
+    else rows.push({ ...base, gross: net, fee: 0, net });
+  });
+  const by = new Map(), pending = [];
+  for (const x of rows) {
+    if (x.kind === "skip") continue;
+    if (!x.payout) { pending.push(x); continue; }
+    if (!by.has(x.payout)) by.set(x.payout, []);
+    by.get(x.payout).push(x);
+  }
+  const payouts = [];
+  for (const [id, rs] of by) {
+    const sum = rs.reduce((a, x) => a + x.net, 0);
+    const own = payoutRows.find((p) => p.id === id);
+    if (own && own.net !== sum) { problems.push(`eBay payout ${id}: its rows net ${fmt(sum)} but the Payout row says ${fmt(own.net)}. Not split.`); continue; }
+    const dates = rs.map((x) => x.payoutDate).filter(Boolean).sort();
+    payouts.push({ id, date: dates.at(-1) ?? rs.map((x) => x.created).filter(Boolean).sort().at(-1) ?? null, net: sum, gross: rs.reduce((a, x) => a + x.gross, 0), fees: rs.reduce((a, x) => a + x.fee, 0), rows: rs });
+  }
+  payouts.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  return { rows, payouts, pending, problems };
 }
 
 // Airbnb's host transaction history CSV (Date, Type, Confirmation code, Listing,

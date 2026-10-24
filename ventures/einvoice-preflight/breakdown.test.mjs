@@ -75,6 +75,17 @@ test("matching breakdown is ok", () => {
   assert.deepEqual(checkInvoice(mixed()), []);
 });
 
+test("zero row without a line (zero-amount header charge) is ok; a non-zero one is INV-038", () => {
+  const rows = (extra) => [
+    { tax_percent: 19, taxable: 200, tax: 38 },
+    { tax_percent: 7, taxable: 100, tax: 7 },
+    extra,
+  ];
+  assert.deepEqual(inspectTaxBreakdown(mixed({ tax_breakdown: rows({ tax_percent: 0, taxable: 0, tax: 0 }) })), []);
+  const findings = inspectTaxBreakdown(mixed({ tax_breakdown: rows({ tax_percent: 0, taxable: 50, tax: 0 }) }));
+  assert.deepEqual(findings.map((item) => item.rule), ["INV-038"]);
+});
+
 test("wrong taxable is INV-038", () => {
   const findings = inspectTaxBreakdown(mixed({
     tax_breakdown: [

@@ -26,6 +26,10 @@ test("amounts and dates in the shapes banks print", () => {
   assert.equal(parseCents("1.234,56", true), 123456);
   assert.ok(Number.isNaN(parseCents("1e3")), "scientific notation is not silently read as 13.00");
   assert.ok(Number.isNaN(parseCents("99999999999999999999")), "amounts beyond safe integer cents are unreadable");
+  // Separate Debit/Credit columns: an unreadable cell is reported, not read as 0 and silently dropped.
+  const dc = readStatement("Date,Description,Debit,Credit\n2026-03-01,Coffee,1e3,\n2026-03-02,Rent,99999999999999999999,\n2026-03-03,Pay,,50.00\n");
+  assert.deepEqual(dc.rows.map((x) => [x.desc, x.cents]), [["Pay", 5000]]);
+  assert.deepEqual(dc.problems.filter((p) => /unreadable amount/.test(p)).length, 2);
   assert.equal(parseDate("03/04/2026"), "2026-03-04");
   assert.equal(parseDate("03/04/2026", true), "2026-04-03");
   assert.equal(parseDate("12 Mar 2026"), "2026-03-12");

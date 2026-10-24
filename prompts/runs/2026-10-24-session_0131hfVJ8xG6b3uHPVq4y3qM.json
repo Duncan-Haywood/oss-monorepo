@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_0131hfVJ8xG6b3uHPVq4y3qM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T10:40:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10100,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Flagship 1's next: lists real-input work I could not do offline; took a small due-day slice instead, so outcome is partial.",
+      "did": "Added HI, DC, WV, WY due days",
+      "result": "23 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-sales-tax-due-days-four-more-places.md"
+  ],
+  "goal": null,
+  "notes": "Ran salestaxreturn.test.mjs locally (23 pass). Sources are search excerpts only. No agent doc written.",
+  "corrections": [],
+  "redteam": null
+}

@@ -635,6 +635,9 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         invoice["totals"]["prepaid"] = totals_src["prepaid"]
     if totals_src.get("payable") not in (None, ""):
         invoice["totals"]["payable"] = totals_src["payable"]
+        invoice["totals"]["due"] = totals_src["payable"]
+    if totals_src.get("rounding") not in (None, ""):
+        invoice["totals"]["rounding"] = totals_src["rounding"]
 
     rows = []
     for row in breakdown_src:

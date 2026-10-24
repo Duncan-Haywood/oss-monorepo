@@ -1,0 +1,7 @@
+prevalence  coverage(mean over corpora)  min  max
+0.01        0.574 (corpora 40)  0.428  0.778
+0.02        0.725 (corpora 40)  0.658  0.862
+0.03        0.832 (corpora 40)  0.706  0.910
+0.05        0.897 (corpora 40)  0.868  0.932
+0.1         0.923 (corpora 40)  0.898  0.946
+0.2         0.942 (corpora 40)  0.920  0.960

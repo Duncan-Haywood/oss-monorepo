@@ -12,10 +12,8 @@ One review, one pull request, titled `prompts: review YYYY-MM-DD`. Open it as
 a draft within your first few minutes, so other runs see the claim and route
 with `--skip-review`.
 
-**Short on time (a scheduled run)?** A reduced pass is a valid review: do
-steps 1, 3, 7 and 8 and one fix from step 5, skip the audit and the drift
-report when recent outputs are doc-only, and say so in the log. No need to report
-the skip as friction (37 reports said a full pass was too large).
+**Short on time (a scheduled run)?** A reduced pass is valid: steps 1, 3, 7, 8
+and one fix from step 5; skip the audit and drift report, say so in the log.
 
 ## 1. Measure
 
@@ -23,17 +21,17 @@ the skip as friction (37 reports said a full pass was too large).
 python3 prompts/promptctl.py measure
 ```
 
-Read the tables (full output is 50KB+: `--section candidates`, `--section friction`
-print one part). Then make the numbers true before you trust them:
+Full output is 50KB+: `--section candidates` or `--section friction` prints
+one part. Make the numbers true before you trust them:
 
 - **Measure what runs could not know.** Run first:
   `python3 prompts/derive.py fetch && python3 prompts/derive.py build`. It
   measures `merged`, PR size, red-CI commits and 14-day rework for every
-  record that names a PR, upstream ones included, into `prompts/derived/`.
-  `measure` reads that, so these facts need no hand edits to records. Commit
-  the regenerated `prompts/derived/` with the review. `fetch` is incremental and
-  stops at ~100s (30 PRs per call): run it with `run_in_background` once, not
-  in a loop. On a 403 (no GitHub API), skip both and say so in the log.
+  record that names a PR into `prompts/derived/`, which `measure` reads, so
+  records need no hand edits. Commit the regenerated directory with the review.
+  `fetch` is incremental and takes 2 to 5 min: run `fetch && build` once with
+  `run_in_background` and poll its log under `timeout 110` (Monitor and chained
+  `sleep` are blocked). On a 403 (no GitHub API), skip both and say so.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that
   were not on `main` 24 hours later. Set `merged: false` on their records.
   Then land or close each one, per `land-your-work.md`.
@@ -41,12 +39,11 @@ print one part). Then make the numbers true before you trust them:
 ## 2. Audit
 
 Pick about five recent outputs at random, across tracks. Re-run their tests
-and code, and check that the README's numbers match what the code produces.
+and check the README's numbers against the code.
 For research, check citations; for a venture, its disclaimer and usage
-tracking. Skip mirrored upstream records and doc-only runs (most of them
-today): audit what is auditable, say in one line what was not (this is expected,
-not friction; no need to report it). Log each problem as a correction (integrity issue or
-error) on the producing run's record.
+tracking. Skip mirrored upstream records and doc-only runs: say in one line
+what was not auditable (expected, not friction). Log each problem as a
+correction (integrity issue or error) on the producing run's record.
 
 ## 3. Decide the active candidates
 
@@ -83,38 +80,31 @@ departing from with good results should change to match them
 the file with the most of them; what you cannot fix goes into
 `prompts/process/backlog/`, not into prose. Rules for doc changes:
 
-- **Shorter beats longer.** Every run pays to read these files
-  (`measure`, "Instruction lines"). Prefer deleting a stale paragraph, or
-  replacing prose with a command or a check, over adding a new paragraph. A
-  review should not grow a file without saying why.
-- **Fix the cause, not the symptom.** If the same mistake keeps happening, a
-  check that fails beats a sentence asking people to be careful.
+- **Shorter beats longer** (`measure`, "Instruction lines"). Prefer deleting
+  a stale paragraph, or replacing prose with a check, over adding one.
+- **Fix the cause.** A check that fails beats a sentence asking for care.
 - **Keep it measurable.** Log the change (step 7) with the friction count it
-  should reduce. Record the run window to compare: reports per run for that
-  file before the change against the runs after it.
+  should reduce and the run window to compare.
 
 ## 6. Drift audit
 
-Added 2026-10-15 at the owner's request: the owner reviews little, so agents
-should notice and fix drift ("Judgment over rules" in `prompts/goals.md`).
+The owner reviews little, so agents notice and fix drift (2026-10-15;
+"Judgment over rules" in `prompts/goals.md`).
 
 1. **Read the owner's own words.** These are the `input` fields of run records
    that are not a routine trigger ("By starting message"), the owner's brief
    in each track's sub-prompt, and the dated quotes in `goals.md`, before any
    agent-written summary of them.
 2. **Compare the output with them.** What has merged since the last drift
-   report? Name the mix (for ventures, how many are near-copies of one
-   shape) and whether it is what those words ask for. Look for owner intent
-   restated without a quote, and for rules that now steer work somewhere the
-   owner never asked to go.
+   report, and is the mix (for ventures, near-copies of one shape) what those
+   words ask for? Look for owner intent restated without a quote, and rules
+   that steer work somewhere the owner never asked to go.
 3. **Compare the rules with them.** Record the instruction-line count for
    each file a run reads (`measure`, "Instruction lines") against the last
-   report. Cut the file that grew most or costs most: stale history, rules
-   about things that no longer exist, duplicates. Judge the cut by friction
-   after it (step 5). Never drop a `goals.md` guardrail.
-   Cut at least one rule or check that no longer earns its place, and name
-   one lesson from how other organisations run at this throughput
-   (`steering.md`, "Cut the deadweight").
+   report. Cut the file that grew most: stale history, rules about things
+   that no longer exist, duplicates. Never drop a `goals.md` guardrail.
+   Cut at least one rule that no longer earns its place and name one lesson
+   from other organisations (`steering.md`, "Cut the deadweight").
 4. **Fix what is clear, propose what is not.** Correct drifted documents and
    sub-prompts directly (a sub-prompt through a candidate, step 4). If it
    needs the owner (touches `goals.md`, intent unclear), add a short proposal

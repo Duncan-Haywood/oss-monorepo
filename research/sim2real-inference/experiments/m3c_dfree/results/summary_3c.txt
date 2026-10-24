@@ -1,0 +1,47 @@
+reps per cell: 1000
+n=30: coverage min real-EB 100.00, cv-EB 100.00; width ratio cv/real mean 2.986, min 2.274, max 3.136
+n=60: coverage min real-EB 100.00, cv-EB 100.00; width ratio cv/real mean 2.886, min 2.125, max 3.008
+H3b-i (all coverages >= 95.0): supported
+H3b-ii high-rho pairs (n=60, rho>=0.85, 7 pairs) ratio<1 on all: False; low-rho pairs (1 pairs, rho<0.3) ratio>1 on all: True -> refuted
+  delay-3      n=30 rho=0.17 ratio=2.274
+  delay-2      n=30 rho=0.37 ratio=2.565
+  gain-3       n=30 rho=0.53 ratio=2.795
+  sensor-3     n=30 rho=0.61 ratio=2.898
+  gain-2       n=30 rho=0.67 ratio=2.956
+  friction-3   n=30 rho=0.73 ratio=3.007
+  sensor-2     n=30 rho=0.75 ratio=2.983
+  delay-1      n=30 rho=0.76 ratio=3.017
+  gain-1       n=30 rho=0.79 ratio=3.065
+  mass-3       n=30 rho=0.83 ratio=3.108
+  friction-2   n=30 rho=0.83 ratio=3.090
+  sensor-1     n=30 rho=0.83 ratio=3.066
+  gain-0       n=30 rho=0.84 ratio=3.089
+  mass-2       n=30 rho=0.85 ratio=3.136
+  delay-0      n=30 rho=0.85 ratio=3.101
+  mass-1       n=30 rho=0.86 ratio=3.129
+  sensor-0     n=30 rho=0.86 ratio=3.070
+  mass-0       n=30 rho=0.87 ratio=3.102
+  none-0       n=30 rho=0.87 ratio=3.060
+  friction-1   n=30 rho=0.88 ratio=3.100
+  friction-0   n=30 rho=0.88 ratio=3.092
+  delay-3      n=60 rho=0.17 ratio=2.125
+  delay-2      n=60 rho=0.37 ratio=2.556
+  gain-3       n=60 rho=0.53 ratio=2.708
+  sensor-3     n=60 rho=0.61 ratio=2.826
+  gain-2       n=60 rho=0.67 ratio=2.845
+  friction-3   n=60 rho=0.73 ratio=2.947
+  sensor-2     n=60 rho=0.75 ratio=2.917
+  delay-1      n=60 rho=0.76 ratio=2.929
+  gain-1       n=60 rho=0.79 ratio=2.955
+  mass-3       n=60 rho=0.83 ratio=2.937
+  friction-2   n=60 rho=0.83 ratio=2.989
+  sensor-1     n=60 rho=0.83 ratio=2.961
+  gain-0       n=60 rho=0.84 ratio=2.979
+  mass-2       n=60 rho=0.85 ratio=2.997
+  delay-0      n=60 rho=0.85 ratio=3.008
+  mass-1       n=60 rho=0.86 ratio=3.008
+  sensor-0     n=60 rho=0.86 ratio=2.978
+  mass-0       n=60 rho=0.87 ratio=2.997
+  none-0       n=60 rho=0.87 ratio=2.973
+  friction-1   n=60 rho=0.88 ratio=2.990
+  friction-0   n=60 rho=0.88 ratio=2.987

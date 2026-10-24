@@ -303,13 +303,21 @@ const SEQUENCES = {
   DatiPagamento: ["CondizioniPagamento", "DettaglioPagamento"],
 };
 
+// Elements whose relative order is not enforced: the Agenzia delle Entrate's own
+// sample IT01234567890_FPR02.xml (ZUGFeRD corpus, official/valid) puts
+// PECDestinatario before ContattiTrasmittente, against the order above, and the
+// corpus lists it as valid. Until the XSD itself is read, the pair is not ranked.
+const SAME_RANK = { DatiTrasmissione: ["ContattiTrasmittente", "PECDestinatario"] };
+
 function checkOrder(node, path, out) {
-  const seq = SEQUENCES[node.name];
+  let seq = SEQUENCES[node.name];
+  if (seq && SAME_RANK[node.name]) seq = seq.map((n) => (SAME_RANK[node.name].includes(n) ? SAME_RANK[node.name][0] : n));
   if (seq) {
     let high = -1;
     let highName = "";
     for (const c of node.children) {
-      const idx = seq.indexOf(c.name);
+      const same = SAME_RANK[node.name];
+      const idx = seq.indexOf(same && same.includes(c.name) ? same[0] : c.name);
       if (idx < 0) continue;
       if (idx < high) {
         out.push(finding("IT-018", `${c.name} comes after ${highName} in ${node.name}, but the schema puts it before.`,

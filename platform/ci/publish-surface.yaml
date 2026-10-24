@@ -513,6 +513,9 @@ workflows:
 - workflow: distribute-releases.yml
   classification: none
   publishes: []
+- workflow: distribute-shorts.yml
+  classification: none
+  publishes: []
 - workflow: dns-configuration-evidence-ci.yml
   classification: none
   publishes: []

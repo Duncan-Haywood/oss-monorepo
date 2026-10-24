@@ -750,7 +750,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Drift: `prompts/drift/2026-10-18f.md`.
 - Result: (next review)
 
-## E41: review 2026-10-18 (eighth)
+## E41: review 2026-10-18 (seventh)
 
 - Change: `research/CLAUDE.md` now says the first `pyenv.py` call takes ~20s and
   prints install chatter on stderr (3 friction reports). The yosys/apt-get
@@ -834,7 +834,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   7 runs). Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
 
-## E48: review 2026-10-19 (eighth)
+## E48: review 2026-10-19 (seventh)
 
 - Change: `research/CLAUDE.md` pyenv step now tells runs to test-import `pytest`
   along with the project's libraries before skipping the venv (friction: a plain
@@ -845,7 +845,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   Reduced pass: no audit or drift report (hours-old report).
 - Result: (next review)
 
-## E49: review 2026-10-19 (ninth)
+## E49: review 2026-10-19 (eighth)
 
 - Change: `prompt.md` step 2 says to retry `create_pull_request` on HTTP 500
   (`prompt.md` friction: two 500s before success, no doc mentioned retrying).
@@ -1277,4 +1277,52 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   hosting/deploy-first advice, over the next 40 runs (baseline: count at the
   next review; a docs change is judged before/after, not A/B).
 - Decisions: no candidate scoring this run (brief was a docs review).
+- Result: (next review)
+
+## E80: review 2026-10-24 (reduced pass, eighth run)
+
+- Change: retired research candidate 1 (`routing.json`: candidate `null`,
+  share 0): 3 integrity issues in 184 runs against 7 in 877 for the champion,
+  and `measure` suggests retire. Small counts, so the call is soft; success
+  rates are level (97% vs 98%). `prompt.md` trimmed from 103 to the 100-line
+  budget (friction: 2 reports said it was over budget).
+- Metric: `prompt.md` over-budget friction reports, over the next 40 runs
+  (baseline: 2 recent). Research integrity issues per run on champion 0.
+- Decisions: ventures 2, process 2, review 2 keep collecting (intervals
+  overlap). No audit or drift report (reduced pass).
+- Result: (next review)
+
+## E81: review 2026-10-24 (reduced pass, ninth run)
+
+- Change: `prompts/review/prompt-1.md` step 1 now says `derive.py fetch` takes
+  2 to 5 min and how to wait for it (friction: 3 reports on fetch stalls and
+  blocked waits). Regenerated `prompts/derived/`.
+- Metric: `derive.py fetch` friction on review prompts, over the next 40 runs
+  (baseline: 3 recent).
+- Decisions: ventures 2, process 2, review 2 keep collecting (intervals
+  overlap). E78 and E80 results: too few runs since. No audit or drift
+  report (reduced pass).
+- Result: (next review)
+
+## E82: review 2026-10-24 (reduced pass, tenth run)
+
+- Change: `prompts/review/prompt-1.md` trimmed from 136 to 129 lines, under the 130 budget
+  (friction: "File is 139 lines vs 130 budget").
+- Metric: over-budget friction reports on review prompts, over the next 40
+  runs (baseline: 1 recent).
+- Decisions: ventures 2, process 2, review 2 keep collecting (intervals
+  overlap). No audit or drift report (reduced pass). E80 and E81 results: too
+  few runs since.
+- Result: (next review)
+
+## E83: review 2026-10-24 (reduced pass, eleventh run)
+
+- Change: none to prompts or docs. Candidates re-measured: ventures 2,
+  process 2 and review 2 are all "keep collecting" (intervals overlap).
+  Regenerated `prompts/derived/`. Top friction files are unchanged from E81;
+  the live items are owner rows and the already-fixed entries in the process
+  prompt's friction list (107 reports), a `measure` presentation problem.
+- Metric: none new. E79, E80 and E81 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass, recent outputs mostly
+  doc-only or research).
 - Result: (next review)

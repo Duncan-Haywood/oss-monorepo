@@ -36,16 +36,18 @@ function records(text) {
 
 export function readBai2(text) {
   const problems = [], rows = [];
-  let group = { date: null }, account = null, accounts = 0, statement = null;
+  let group = { date: null }, account = null, statement = null;
+  const numbers = new Set();
   for (const { line, body } of records(text)) {
     const f = body.split(",");
     if (f[0] === "02") { group = { date: iso(f[4]) }; continue; }
     if (f[0] === "03") {
-      accounts++;
+      // The same account repeats in each daily group of a multi-day file: count distinct numbers.
+      numbers.add(f[1]);
       account = { number: f[1] };
       // Status entries repeat as (type, amount, items, funds type) from field 3.
       for (let i = 3; i + 1 < f.length; i += 4) {
-        if (f[i] === "015") { const c = minor(f[i + 1]); if (Number.isFinite(c) && group.date) statement = { cents: c, date: group.date }; }
+        if (f[i] === "015") { const c = minor(f[i + 1]); if (Number.isFinite(c) && group.date && (!statement || group.date >= statement.date)) statement = { cents: c, date: group.date }; }
       }
       continue;
     }
@@ -72,6 +74,7 @@ export function readBai2(text) {
     rows.push({ line, date, desc, cents: sign * Math.abs(amt), balance: null });
   }
   if (!rows.length) problems.push("No 16 transaction records were found in the BAI2 file.");
+  const accounts = numbers.size;
   if (accounts > 1) problems.push(`The file holds ${accounts} accounts; all their lines were read into this one. Export one account at a time to keep them apart.`);
   return { rows, problems, columns: null, bank: "bai2", inferred: null, statement: accounts === 1 ? statement : null };
 }

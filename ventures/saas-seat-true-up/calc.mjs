@@ -57,7 +57,9 @@ export function calculateTrueUp({ seatsPurchased, seatsUsed, monthlyPrice, month
 }
 
 export function formatMoney(value, currency = '$') {
-  return `${currency}${value.toFixed(2)}`;
+  // Sign outside the symbol, and none on a figure that rounds to zero.
+  const text = `${currency}${Math.abs(value).toFixed(2)}`;
+  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;

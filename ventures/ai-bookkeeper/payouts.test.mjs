@@ -379,3 +379,24 @@ test("quirk probe: currency in the amount headers is read, a mixed-currency repo
   const one = readPayoutReport(`automatic_payout_id,automatic_payout_effective_at,balance_transaction_id,created,reporting_category,gross,fee,net,currency\n${rows.split("\n")[0]}`);
   assert.deepEqual(one.problems, []);
 });
+
+test("eBay's Seller Hub transaction report splits a payout, takes seller-collected tax out of sales and leaves an unpaid order pending", () => {
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8"));
+  assert.equal(r.source, "ebay");
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  const p = r.payouts[0];
+  assert.equal(p.id, "PO-1001");
+  assert.equal(p.date, "2026-04-08");
+  assert.equal(p.net, 11170);
+  assert.equal(p.rows.find((x) => x.kind === "tax").gross, 500);
+  assert.equal(p.rows.filter((x) => x.kind === "fees").reduce((a, x) => a - x.fee, 0), -820);
+  assert.equal(r.pending.length, 1);
+});
+
+test("an eBay Payout row that disagrees with its rows is not split", () => {
+  const t = readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8").replace("Bank,USD,--,--,--,--,--,--,--", "Bank,USD,--,--,--,--,--,--,--").replace("$111.70,USD", "$111.71,USD");
+  const r = readPayoutReport(t);
+  assert.equal(r.payouts.length, 0);
+  assert.match(r.problems[0], /PO-1001/);
+});

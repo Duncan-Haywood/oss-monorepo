@@ -192,6 +192,7 @@
   <p>Slovakia: domestic B2B and B2G e-invoicing is reported to become mandatory on 1 January 2027 over Peppol; vendor sources only, said plainly. See <a href="slovakia-e-invoice-mandate.html">the Slovak dates and what this checker does not cover</a>.</p>
   <p>Hungary: every domestic B2B invoice is reported to NAV (Online Számla) but there is no general structured e-invoice mandate yet; vendor sources only, said plainly. See <a href="hungary-e-invoice-mandate.html">the Hungarian rules and what this checker does not cover</a>.</p>
   <p>Singapore: GST InvoiceNow phases in from 1 November 2025 for new voluntary GST registrants. See <a href="singapore-invoicenow-e-invoice-mandate.html">the dates and what is unconfirmed</a>.</p>
+  <p>India: GST e-invoices are registered with the government portal above ₹5 crore turnover (secondary guides); this checker does not read India's format, but the page has a GSTIN check and an IRN calculator. See <a href="india-gst-e-invoice-mandate.html">India's rules and what is not covered</a>.</p>
   <p>Australia: federal agencies receive Peppol e-invoices; B2B is voluntary. See <a href="australia-e-invoice-mandate.html">the dates and what is unconfirmed</a>.</p>
   <p>Ireland: structured EN 16931 e-invoicing over Peppol is planned from November 2028 for large corporates, with every VAT-registered business receiving; vendor sources only, said plainly. See <a href="ireland-e-invoice-mandate.html">the Irish phases and what is unconfirmed</a>.</p>
   <p>Belgium: structured Peppol e-invoicing has been mandatory for domestic B2B since 1 January 2026, with fines from the second quarter. See <a href="belgium-e-invoice-mandate.html">the Belgian date, fines and format</a>.</p>
@@ -404,9 +405,9 @@
           return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="pass">PASS — no supported defects found.</p></article>`;
         }
         const findings = report.errors.map((error) => (
-          `<div class="finding"><strong>${escapeHtml(error.rule)}</strong> at <code>${escapeHtml(error.path || "/")}</code><br>${escapeHtml(error.message)}<br><span class="fix">Fix: ${escapeHtml(error.fix)}</span></div>`
+          `<div class="finding">${error.severity === "note" ? "<em>note</em> " : ""}<strong>${escapeHtml(error.rule)}</strong> at <code>${escapeHtml(error.path || "/")}</code><br>${escapeHtml(error.message)}<br><span class="fix">Fix: ${escapeHtml(error.fix)}</span></div>`
         )).join("");
-        return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="fail">FAIL</p>${findings}</article>`;
+        return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}${report.errors.some((error) => error.severity !== "note") ? `<p class="fail">FAIL</p>` : `<p class="pass">PASS — notes only.</p>`}${findings}</article>`;
       });
       const read = result.readErrors.length
         ? `<article><h3>Read errors</h3>${result.readErrors.map((error) => `<p class="error"><code>${escapeHtml(error.file)}</code>: ${escapeHtml(error.error)}</p>`).join("")}</article>`

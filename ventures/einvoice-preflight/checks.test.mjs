@@ -63,13 +63,13 @@ test("prepaid and due are optional and must balance", () => {
   assert.ok(remainingErrors.some((error) => error.message.includes("gross minus prepaid")));
 });
 
-test("tax total rounds each line to cents", () => {
+test("tax total is worked out per rate on the summed taxable amount (BR-CO-17)", () => {
   const invoice = clone(VALID);
   invoice.lines = [
     { description: "A", quantity: 1, unit_price: 0.03, tax_percent: 19, net: 0.03 },
     { description: "B", quantity: 1, unit_price: 0.03, tax_percent: 19, net: 0.03 },
   ];
-  invoice.totals = { net: 0.06, tax: 0.02, gross: 0.08 };
+  invoice.totals = { net: 0.06, tax: 0.01, gross: 0.07 };
   assert.deepEqual(checkInvoice(invoice), []);
 });
 
@@ -155,4 +155,87 @@ test("the same invoice number from different sellers is not a duplicate", () => 
     { name: "c.json", invoice: VALID },
   ]);
   assert.deepEqual([...duplicates].sort(), ["a.json", "c.json"]);
+});
+
+test("a negative quantity is a credit line, not an error", () => {
+  const invoice = clone(VALID);
+  invoice.lines = [
+    { description: "Goods", quantity: 3, unit_price: 10, tax_percent: 19, net: 30 },
+    { description: "Returned", quantity: -1, unit_price: 10, tax_percent: 19, net: -10 },
+  ];
+  invoice.totals = { net: 20, tax: 3.8, gross: 23.8 };
+  assert.deepEqual(checkInvoice(invoice), []);
+});
+
+test("unit price keeps full precision and honours the price base quantity", () => {
+  const invoice = clone(VALID);
+  invoice.lines = [
+    { description: "kWh", quantity: 16000, unit_price: 0.0088, tax_percent: 21, net: 140.8 },
+    { description: "Box of 12", quantity: 2, unit_price: 441, price_base_quantity: 12, tax_percent: 21, net: 73.5 },
+  ];
+  invoice.totals = { net: 214.3, tax: 45.0, gross: 259.3 };
+  assert.deepEqual(checkInvoice(invoice), []);
+});
+
+test("line allowances and charges are part of the line net", () => {
+  const invoice = clone(VALID);
+  invoice.lines = [{ description: "Work", quantity: 2, unit_price: 100, tax_percent: 19, net: 190,
+    adjustments: [{ kind: "allowance", amount: 15 }, { kind: "charge", amount: 5 }] }];
+  invoice.totals = { net: 190, tax: 36.1, gross: 226.1 };
+  assert.deepEqual(checkInvoice(invoice), []);
+});
+
+test("a wrong stated line net is reported once, not again in every total", () => {
+  const invoice = clone(VALID);
+  invoice.lines = [{ description: "Work", quantity: 2, unit_price: 100, tax_percent: 19, net: 150 }];
+  invoice.totals = { net: 150, tax: 28.5, gross: 178.5 };
+  invoice.source_format = "ubl"; // a parsed file: totals are summed from the stated line nets
+  assert.deepEqual(checkInvoice(invoice).map((e) => e.rule), ["INV-012"]);
+});
+
+test("a buyer identifier is optional on a parsed UBL or CII file", () => {
+  const invoice = clone(VALID);
+  delete invoice.customer.id;
+  assert.ok(checkInvoice(invoice).some((e) => e.rule === "INV-005"));
+  invoice.source_format = "ubl";
+  assert.ok(checkInvoice(invoice).some((e) => e.rule === "INV-005"), "name alone is not an identifier");
+  invoice.customer.vat_id = "DE123456789";
+  assert.equal(checkInvoice(invoice).some((e) => e.rule === "INV-005"), false);
+});
+
+test("HUF tax total may be rounded to whole forints", () => {
+  const invoice = clone(VALID);
+  invoice.currency = "HUF";
+  invoice.lines = [{ description: "Work", quantity: 1, unit_price: 1001, tax_percent: 27, net: 1001 }];
+  // 27% of 1001 = 270.27, stated as 270 in forints.
+  invoice.totals = { net: 1001, tax: 270, gross: 1271 };
+  assert.deepEqual(checkInvoice(invoice), []);
+  invoice.totals = { net: 1001, tax: 271, gross: 1272 };
+  assert.ok(checkInvoice(invoice).some((e) => e.rule === "INV-018"));
+});
+
+test("whole-unit tax rounding is not accepted outside HUF", () => {
+  const invoice = clone(VALID);
+  invoice.lines = [{ description: "Work", quantity: 1, unit_price: 1001, tax_percent: 27, net: 1001 }];
+  invoice.totals = { net: 1001, tax: 270, gross: 1271 };
+  assert.ok(checkInvoice(invoice).some((e) => e.rule === "INV-018"));
+});
+
+// Found by running the KoSIT XRechnung test suite.
+const totalsCase = (totals) => checkInvoice({
+  invoice_number: "T-1", issue_date: "2026-08-24", currency: "EUR",
+  supplier: { id: "S1", name: "Supplier GmbH" }, customer: { id: "C1", name: "Customer GmbH" },
+  lines: [{ description: "Work", quantity: 1, unit_price: 100, tax_percent: 19, net: 100 }],
+  totals: { net: 100, tax: 19, gross: 119, ...totals },
+}).map((e) => e.rule);
+
+test("a payable rounding amount (BT-114) is part of the amount due", () => {
+  assert.deepEqual(totalsCase({ due: 119.01, rounding: 0.01 }), []);
+  assert.deepEqual(totalsCase({ due: 119, rounding: 0.01 }), ["INV-029"]);
+});
+
+test("prepayments above the gross give a stated credit balance, not an error", () => {
+  assert.deepEqual(totalsCase({ prepaid: 150, due: -31 }), []);
+  assert.deepEqual(totalsCase({ prepaid: 150, due: -20 }), ["INV-028", "INV-029"]);
+  assert.deepEqual(totalsCase({ due: -5 }), ["INV-029"]);
 });

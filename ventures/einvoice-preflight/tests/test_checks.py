@@ -153,13 +153,13 @@ class ChecksTest(unittest.TestCase):
         errors = check_invoice(parse_ubl_invoice(mismatched))
         self.assertIn("INV-029", {error["rule"] for error in errors})
 
-    def test_tax_total_rounds_each_line_to_cents(self):
+    def test_tax_total_is_worked_out_per_rate_br_co_17(self):
         invoice = json.loads(json.dumps(VALID))
         invoice["lines"] = [
             {"description": "A", "quantity": 1, "unit_price": 0.03, "tax_percent": 19, "net": 0.03},
             {"description": "B", "quantity": 1, "unit_price": 0.03, "tax_percent": 19, "net": 0.03},
         ]
-        invoice["totals"] = {"net": 0.06, "tax": 0.02, "gross": 0.08}
+        invoice["totals"] = {"net": 0.06, "tax": 0.01, "gross": 0.07}
         self.assertEqual(check_invoice(invoice), [])
 
     def test_fractional_quantity_is_not_rounded_before_line_calculation(self):
@@ -1116,3 +1116,57 @@ class ChecksTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class XRechnungSuiteTotalsTests(unittest.TestCase):
+    """Found by running the KoSIT XRechnung test suite."""
+
+    def _rules(self, **totals):
+        invoice = {
+            "invoice_number": "T-1", "issue_date": "2026-08-24", "currency": "EUR",
+            "supplier": {"id": "S1", "name": "Supplier GmbH"}, "customer": {"id": "C1", "name": "Customer GmbH"},
+            "lines": [{"description": "Work", "quantity": 1, "unit_price": 100, "tax_percent": 19, "net": 100}],
+            "totals": {"net": 100, "tax": 19, "gross": 119, **totals},
+        }
+        return [e["rule"] for e in check_invoice(invoice)]
+
+    def test_rounding_amount_is_part_of_due(self):
+        self.assertEqual(self._rules(due=119.01, rounding=0.01), [])
+        self.assertEqual(self._rules(due=119, rounding=0.01), ["INV-029"])
+
+    def test_stated_credit_balance(self):
+        self.assertEqual(self._rules(prepaid=150, due=-31), [])
+        self.assertEqual(self._rules(prepaid=150, due=-20), ["INV-028", "INV-029"])
+        self.assertEqual(self._rules(due=-5), ["INV-029"])
+
+
+class NegativeInvoiceTests(unittest.TestCase):
+    NEG = {
+        "invoice_number": "INV-N1", "issue_date": "2026-08-24", "currency": "EUR",
+        "supplier": {"id": "S1", "name": "Supplier"}, "customer": {"id": "C1", "name": "Customer"},
+        "lines": [{"description": "Work", "quantity": -2, "unit_price": 100, "tax_percent": 25, "net": -200}],
+        "adjustments": [{"kind": "charge", "amount": -25, "reason": "Insurance", "tax_percent": 25}],
+        "totals": {"net": -225, "tax": -56.25, "gross": -281.25, "due": -281.25},
+    }
+
+    def rules(self, invoice):
+        return {e["rule"] if isinstance(e, dict) else e.rule for e in check_invoice(invoice)}
+
+    def test_consistent_negative_invoice_passes(self):
+        self.assertEqual(self.rules(self.NEG), set())
+
+    def test_wrong_gross_still_caught(self):
+        bad = json.loads(json.dumps(self.NEG))
+        bad["totals"]["gross"] = -300
+        self.assertIn("INV-017", self.rules(bad))
+
+    def test_negative_prepaid_needs_matching_due(self):
+        base = {
+            "invoice_number": "INV-P1", "issue_date": "2026-08-24", "currency": "EUR",
+            "supplier": {"id": "S1", "name": "S"}, "customer": {"id": "C1", "name": "C"},
+            "lines": [{"description": "Work", "quantity": 1, "unit_price": 100, "tax_percent": 19, "net": 100}],
+            "totals": {"net": 100, "tax": 19, "gross": 119, "prepaid": -20, "due": 139},
+        }
+        self.assertEqual(self.rules(base), set())
+        base["totals"]["due"] = 119
+        self.assertIn("INV-028", self.rules(base))

@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01WCMgGwarqzFzMCF1XXFQyG",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T15:10:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 10156,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 62,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Scheduled prompt gave no task; explore route was chosen by draw, and bank-file probes were already saturated so finding an unswept kind took time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No agent doc in docs/reports; the README note and post carry the finding.",
+      "did": "post + README only",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-bookkeeper-same-file-different-line-endings.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: metamorphic packaging-invariance test over all text fixtures; found bare-CR files read 0 rows (5 files), fixed in readStatement. Full node suite 752 pass. GitHub API contents endpoint 403 via proxy; raw.githubusercontent works.",
+  "corrections": [],
+  "redteam": null
+}

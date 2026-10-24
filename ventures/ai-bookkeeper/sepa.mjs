@@ -3,7 +3,8 @@
 // money INTO the account positive, plus `statement` { cents, date } from the
 // closing balance. Pure functions, no DOM, no network.
 
-const unesc = (s) => s.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/\s+/g, " ").trim();
+import { decodeEntities } from "./xmlent.mjs";
+const unesc = (s) => decodeEntities(s).replace(/\s+/g, " ").trim();
 const iso = (y, m, d) => {
   const t = new Date(Date.UTC(y, m - 1, d));
   return t.getUTCMonth() === m - 1 ? t.toISOString().slice(0, 10) : null;
@@ -37,6 +38,8 @@ function slashTags(t) {
     if (SLASH_KEYS.has(parts[i])) { key = parts[i]; kv[key] ??= []; }
     else if (key) kv[key].push(parts[i]);
   }
+  // "//" separators and a closing "/" (ING writes both) leave empty values; a value's own "/" is kept.
+  for (const k in kv) while (kv[k].length && kv[k].at(-1).trim() === "") kv[k].pop();
   if (!kv.NAME && !kv.REMI && !kv.CNTP && !kv.BENM && !kv.ORDP) return "";
   const first = (k) => (kv[k] ?? []).join("/").trim();
   // /CNTP/<account>/<bic>/<name>/<city>/ : the name is the third value.
@@ -48,8 +51,14 @@ function slashTags(t) {
 }
 
 // :86: free text, or German-style structured "?20..?29" purpose lines and "?32?33" name.
+// Lines the bank cut at the 65-character SWIFT width continue mid-word, so they join with nothing;
+// a shorter line ended on purpose (ABN AMRO, ING and KNAB free text), so the next one is a new word.
+function joinLines(t) {
+  const lines = t.split("\n");
+  return lines.reduce((acc, l, i) => (i === 0 ? l : acc + (lines[i - 1].length >= 63 || /\?\d\d/.test(t) || /^\/[A-Z]{3,4}\//.test(t) ? "" : " ") + l), "");
+}
 function field86(t) {
-  t = t.replace(/\r?\n/g, "");
+  t = joinLines(t.replace(/\r/g, "")).replace(/\u00ad/g, "-");
   if (/^\/[A-Z]{3,4}\//.test(t)) { const d = slashTags(t); if (d) return d; }
   if (!/\?\d\d/.test(t)) return unesc(t);
   const sub = {};
@@ -81,7 +90,9 @@ export function readMt940(text) {
     if (!date || !Number.isFinite(amt)) { problems.push(`Entry ${i + 1}: unreadable date or amount, skipped.`); return; }
     // C credit and RD reversal of debit add money; D debit and RC reversal of credit remove it.
     const sign = m[5] === "C" || m[5] === "RD" ? 1 : -1;
-    const next = fields[i + 1]?.tag === "86" ? fields[i + 1].body : "";
+    // Rabobank writes one :86: line per fact (reason, reference, ...) after a single :61:.
+    let next = "";
+    for (let j = i + 1; fields[j]?.tag === "86"; j++) next += (next ? "\n" : "") + fields[j].body;
     const supplementary = f.body.split("\n").slice(1).join(" ");
     if (amt === 0) return;
     out.push({ line: i + 1, date, desc: field86(next) || unesc(supplementary) || unesc(first.replace(/^[\dA-Z,]+/, "")), cents: sign * amt, balance: null });
@@ -120,7 +131,7 @@ export function readCamt(xml) {
     // The counterparty is the debtor of money in, the creditor of money out.
     const party = text(inner(dtls, credit ? "Dbtr" : "Cdtr") ?? "", "Nm");
     const remit = [...dtls.matchAll(/<Ustrd>([\s\S]*?)<\/Ustrd>/g)].map((m) => unesc(m[1])).join(" ") || text(dtls, "Ref") || "";
-    const desc = [party, remit || text(head, "AddtlNtryInf") || text(dtls, "AddtlTxInf")].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ");
+    const desc = [party, remit || text(e, "AddtlNtryInf") || text(dtls, "AddtlTxInf")].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ");
     out.push({ line: i + 1, date, desc, cents: credit ? amt : -amt, balance: null });
   });
   if (!entries.length) problems.push("No <Ntry> entries were found in the CAMT file.");

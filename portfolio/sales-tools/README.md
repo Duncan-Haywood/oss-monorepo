@@ -48,6 +48,7 @@ count"):
 | Lead capture and referrals | `waitlist-keeper`, `referral-keeper`, `form-inbox`, `link-keeper`, `freelance-lead-tracker` |
 | Social proof and feedback | `testimonial-keeper`, `feedback-board`, `support-desk` |
 | Attribution and measurement | `visit-keeper`, `mrr-pulse`, `ab-test-significance-calculator`, `lead-response-time-analyzer` |
+| Reply handling and the agent that ties these together | `sales-agent` (the long-term AI sales agent; see its `ROADMAP.md`) |
 | Consumer job search | `ats-resume-checker`, `job-application-tracker` |
 
 The first concrete step for most of these is a BYOK AI feature on top of the
