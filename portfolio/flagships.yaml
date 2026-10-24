@@ -174,8 +174,7 @@ flagships:
       imbalance 5.83 -> 1.29 matches, at +18% venue changes) with a
       fairnessWeight box on the page. Swapping pairs of moved matches was
       measured and dropped. Trading two make-ups' nights (`swapNights`, 2026-10-23;
-      300 -> 280 breaks on 7 seeds with `balance`). Next: choosing the
-      fairness weight from the league's own travel times. Page checkboxes for balance, flip, relocate and swapNights landed 2026-10-23 (share link and CLI too); `node eval/browser-click.mjs` clicks them in Chromium (2026-10-23: 28 checks, ticks survive the share link).
+      300 -> 280 breaks on 7 seeds with `balance`). Choosing the fairness weight from the league's own travel (`suggestFairnessWeight`, CLI `--suggest-weight`, 2026-10-24; simulated leagues). Next: a page button for it (about 20 s of search, so a worker), then a real league's travel times. Page checkboxes for balance, flip, relocate and swapNights landed 2026-10-23 (share link and CLI too); `node eval/browser-click.mjs` clicks them in Chromium (2026-10-23: 28 checks, ticks survive the share link).
 
   - venture: open-tennis-robots
     why: >-
