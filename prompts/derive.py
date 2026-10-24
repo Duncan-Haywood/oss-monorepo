@@ -172,8 +172,14 @@ def is_final(facts: dict[str, Any]) -> bool:
     return facts.get("state") == "closed" and facts.get("ci", {}).get("head") != "pending"
 
 
+def log_flushed(msg: str) -> None:
+    # Flushed: redirected to a file (a background run), plain print is block-buffered
+    # and the progress lines arrive all at once at the end, which reads as a stall.
+    print(msg, flush=True)
+
+
 def fetch(root: Path = ROOT, refresh: bool = False, get: Callable[[str], Any] = http_get,
-          log: Callable[[str], None] = print) -> dict[str, Any]:
+          log: Callable[[str], None] = log_flushed) -> dict[str, Any]:
     cache = load_json(root / "derived" / "github.json", {})
     wanted = sorted({key(*ref): ref for _, rec in promptctl.load_runs(root)
                      if (ref := parse_pr(rec))}.items())
@@ -200,7 +206,7 @@ def fetch(root: Path = ROOT, refresh: bool = False, get: Callable[[str], Any] = 
                 continue
             streak = 0
             cache[k] = facts if facts is not None else {"missing": True, "fetched_at": now_iso()}
-            if i % 10 == 0:
+            if i % 5 == 0:
                 log(f"  {i}/{len(todo)}")
                 write_json(root / "derived" / "github.json", cache)
     write_json(root / "derived" / "github.json", cache)
