@@ -160,6 +160,15 @@ export const BANK_CATEGORY = [
   ["6170", /^(education|training)$/i],
   ["6070", /^(office supplies|office)$/i],
   ["6180", /^(shipping|postage & shipping)$/i],
+  ["6010", /^(fees (&|and) charges|bank fees?|service fees?|atm fees?|late fees?)$/i],
+  ["6080", /^(rent|office rent)$/i],
+  ["6090", /^(repairs|repairs (&|and) maintenance|home improvement)$/i],
+  ["6110", /^(taxes|licenses|taxes (&|and) licenses)$/i],
+];
+// Money in: only labels that name one income account.
+export const BANK_CATEGORY_IN = [
+  ["4200", /^(interest|interest income|dividends?)$/i],
+  ["4000", /^(sales|business income|self[- ]employment income|revenue)$/i],
 ];
 
 export function suggest(txn, model) {
@@ -193,8 +202,8 @@ export function suggest(txn, model) {
     if (account !== "transfer" && model.codes && !model.codes.has(account)) continue;
     if (re.test(bi)) return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(bi.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
   }
-  if (txn.bankCat && !off.has("bank-category") && d === "out") {
-    const hit = BANK_CATEGORY.find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
+  if (txn.bankCat && !off.has("bank-category")) {
+    const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
     if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
   }
   return { account: null, confidence: 0, source: "none", reason: key ? `nothing known about "${key}" yet` : "the description is empty", alternatives: ranked.slice(0, 3) };
