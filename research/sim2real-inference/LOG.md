@@ -2,6 +2,24 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 6b: the floor scales with a known discrepancy bound D, and a zero-real-run ceiling (theory plus an oracle check; planned before running)
+- Why: milestone 6 left open an instance-wise statement involving the discrepancy. Two things follow from the same Le Cam pair, and both can be checked on the 21 m3 pools.
+- **Corollary (D-floor).** Restrict to laws with |R - T| <= D almost surely (D in (0, 1], R and T in [0, 1]). Then any lower bound L valid at level 1 - delta over that class, using m pairs and any number of twin-only runs, has a law in the class with a perfect twin where P(L <= 1 - D eps*) >= 1/2, eps* = 1 - (2 delta)^(1/m). Proof: as milestone 6 with P1: T = 1, R = 1 - D with probability eps (so mu1 = 1 - eps D and |R - T| <= D), P0: R = T = 1; data are identical with probability (1 - eps)^m, and validity under P1 gives delta >= (1 - eps)^m P0(L > 1 - eps D). Take eps = eps*.
+- **Ceiling.** If D is known in advance and the twin law is known (unlimited twin runs), L0 = E[T] - D is valid with zero real runs, gap D. So a known D buys a gap between D eps* and D, independent of m beyond the floor, and the twin helps exactly when D is below what real data alone reach (3e's cost was estimating D from the data, which is what gamma paid for).
+- Check (`experiments/m6b_dfloor/dfloor.py`, planned before running): for each of the 21 pools take the oracle D = max |R - T| over the 4,000 contexts (an oracle: no procedure can know it; disclosed, and it flatters the twin), L0 = mean(T) - D, gap0 = mean(R) - L0, and compare with the measured real-only empirical-Bernstein gap of 3e at n = 30, 60, 120, 240 (`m3e_bounded_disc/results/bounded.csv`).
+- **H6b-i:** L0 is valid on every pair (gap0 >= 0) by construction; refuted if any pair has mean(R) < L0.
+- **H6b-ii:** even with the oracle D, L0 has a smaller gap than real-only EB at n = 240 on fewer than 5 of 21 pairs, because the max of |R - T| over 4,000 contexts is far above the typical discrepancy. Refuted if 5 or more pairs win.
+- **H6b-iii:** D below which a zero-real-run bound beats real-only EB is D* = EB gap(n), about 0.06 at n = 240, 0.36 at n = 30; report the pairs' D against it.
+- Not tested: a data-dependent D with a valid adjustment (that is 3e), real-robot D.
+
+### Outcome (21 pools; `experiments/m6b_dfloor/results/`, 3 tests)
+- **H6b-i supported:** L0 valid on 21/21 pairs (it is a deterministic consequence of |R - T| <= D).
+- **H6b-ii supported, more strongly than predicted:** the oracle D = max |R - T| is 0.55 to 0.99 (median 0.72) even at rho 0.87, so L0 has gap 0.26 to 0.73 (median 0.60) and beats real-only empirical Bernstein on 1/21 pairs at n = 30, and on 0/21 at n = 60, 120 and 240 (mean real-only gap 0.363, 0.193, 0.106, 0.060).
+- **H6b-iii:** the break-even D is the real-only gap, 0.054 to 0.081 at n = 240; the pools' worst-case D is 9 to 16 times that. A worst-case discrepancy bound is the wrong assumption for a twin whose typical error is small but whose tail is not: a certificate that pays needs a bound on a quantile or a mean of |R - T|, not the maximum, which then needs real data to check (the 3e route).
+- **Reading.** Together with milestone 6: the floor is D x 2.3/m, a known D buys at most a factor D over the worst case, and a zero-run ceiling D only wins for D below the real-only gap. Both the floor and the ceiling are far from the 3e construction (gap 0.19 at n = 240), so the open question is a tail-aware discrepancy assumption, not a better concentration inequality.
+- Limitations: oracle D flatters the twin and still loses; one benchmark; one-sided; delta = 0.05; the floor is a worst-case statement over one pair of laws.
+- Next: replace the maximum with a quantile or an Orlicz-type tail assumption (R - T sub-Gaussian with a known proxy) and derive the matching floor; per-episode real pairs (milestone 7 gap 1).
+
 ## 2026-10-24 · Milestone 7: paper draft (`paper/`)
 - What: `paper/main.tex` (CoRL-style article, not yet in the venue's style file), `refs.bib` (13 references, all pass `cite_check.py`) and `reproduce.sh` (one command per figure and table). Every number in the draft is copied from a `results/summary_*.txt` or the outcome entries below; no new experiment was run, so there is no new hypothesis. LaTeX was not compiled here (no TeX in the image).
 - Framing chosen: the result is mixed to negative: pairing gives up to 1/(1 - rho^2) for point estimates, but no certificate built here is tighter than real-only, and the floor (milestone 6) shows part of that is forced. Written as such rather than as a positive method paper.
