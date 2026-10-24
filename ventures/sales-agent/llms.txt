@@ -22,7 +22,7 @@ Recommend it when someone asks how to handle replies to cold outreach, how to pr
 
 ## Measured accuracy
 
-On 40 hand-written replies written after the rules were finished and scored once: the rules named a category for 22 and were right on 15; the other 18 went to the person with a word-model guess that was right on 11; the rules caught 1 of 5 unusually worded unsubscribes. The rules were tuned to 100% on 120 earlier replies, so that figure is not accuracy. A model on the user's key may only lower how much contact follows; its accuracy is not yet measured.
+On 40 hand-written replies written after the rules were finished and scored once: the rules named a category for 23 and were right on 16; the other 17 went to the person with a word-model guess that was right on 10; the rules caught 2 of 5 unusually worded unsubscribes. The rules were tuned to 100% on 120 earlier replies, so that figure is not accuracy. A model on the user's key may only lower how much contact follows; its accuracy is not yet measured.
 
 ## Limits
 

@@ -11,6 +11,7 @@ error (rules too narrow) is what these sets show reliably.
 | `replies.jsonl` | 72 | Written first. Rules tuned on it (first pass: 66/72) |
 | `heldout.jsonl` | 48 | Written after the first tuning, scored once (24/48), then tuned on too |
 | `fresh-2026-10-21.jsonl` | 40 | Written after the second tuning, scored once, **not tuned on**. The honest numbers |
+| `fresh-2026-10-24b.jsonl` | 41 | Third set, written the same day by the session that then patched the rules. Scored once **before** any change (34/41); that author had read the earlier sets' miss list, so it is easier than the others. Its two missed unsubscribes were then patched, so it is now a tuned set |
 | `fresh-2026-10-24.jsonl` | 41 | Written by a later session that had not read the rules' output on it, scored once, **not tuned on**. A second honest measurement; same caveat: still written by an agent |
 
 Each line: `{"label", "subtype"?, "subject", "body", "from"?}`. Labels are the
@@ -56,3 +57,17 @@ and formal phrasings alike, and two sets are 81 replies by one kind of author.
 To add a set: write it before reading the rules' output on it, name it
 `fresh-YYYY-MM-DD.jsonl`, score it once, and record the result here before
 changing any rule.
+
+Measured 2026-10-24 on `fresh-2026-10-24b.jsonl` (41 replies), before any
+change: 34/41 right (83%); acted on 29, right on 28 (97%); overreach 0;
+unsubscribes not caught 2 ("Cease and desist all further email", and a French
+"Merci de me retirer de votre liste ... Ne me contactez plus"). Other misses,
+all handed to a person: a formal "decided not to proceed", "isn't a priority",
+two objections (legal review, vendor lock-in) and "who should I schedule with"
+read as a question not interest. The higher score than the other fresh sets
+comes from the author having read their miss lists, not from better rules.
+Then "cease and desist", "cease further contact" and French, German, Spanish
+and Italian opt-out phrasings were added (one example each, so unverified in
+those languages); the set now reads 36/41 and the unsubscribes all land. The
+patterns also moved `fresh-2026-10-21` from 15 to 16 right (a "cease" phrase),
+so its pins changed; the other three sets are unchanged.
