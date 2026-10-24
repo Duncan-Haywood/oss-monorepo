@@ -2,7 +2,7 @@
 
 **No. On 3,188 real Reddit comments (GoEmotions), "audit the coder on 200 hand-coded items, use its labels if the audit passes, else correct them" gave a 95% interval that covered the true prevalence in only 8% of draws when the coder's prevalence was 2.6 points too high (10% too many positives), and 27% when it was 5.1 points too low. Always applying the prediction-powered (PPI) correction covered 94.7–96.7% at every bias tried.** The gate behaves as designed at zero bias (it corrects in 4% of draws, covering 96%), but a 200-item audit cannot see a bias of a few points, and a bias that small is still several standard errors of the naive estimate. The coders are a naive-Bayes classifier with a moved cut-off and a word list, not LLMs. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-gate/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-gate/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). It takes the first item in [`qual-register`](../qual-register)'s "Next steps" (compare an audit with simply always applying PPI) and asks the question that follows from its finding that audits are low-powered: what does a *decision rule* built on a weak audit do to the coverage of the final interval? This is the pre-test estimator problem from econometrics (a test chooses between a biased and an unbiased estimator, and the chooser is itself noisy), applied to LLM-coded data. Builds on the estimators of [`qual-correction`](../qual-correction) and the corpus and coders of [`qual-real`](../qual-real).
 

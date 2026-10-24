@@ -77,5 +77,5 @@ kill_criteria:
   - A user reports a materially wrong profit figure, or a real export the tool cannot read, at which point the parser needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/poshmark-sales-report-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/poshmark-sales-report-analyzer/
   analytics: null

@@ -7,7 +7,7 @@ Every IBAN gets the mod-97 and country-length check, amounts are read as exact c
 duplicates and weekend or past execution dates are flagged, and no file is written while any payment
 has an error. The list is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/csv-to-sepa-pain001/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/csv-to-sepa-pain001/
 
 ## Run it
 

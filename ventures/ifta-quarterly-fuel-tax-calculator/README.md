@@ -5,7 +5,7 @@ own **IFTA quarterly fuel tax return**. It works the jurisdiction schedule the
 way the return works it, and gets right the one line hand-built spreadsheets
 reliably get wrong.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ifta-quarterly-fuel-tax-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ifta-quarterly-fuel-tax-calculator/
 
 Everything runs in the visitor's browser. No account, no network requests, no
 build step, no dependencies.

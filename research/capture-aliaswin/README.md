@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), the third "next step" of `capture-residgate` (section D). **Headline:** on the four of ten real clips that fail, the lever is how much audio the two cameras *share*, not gamma. With the offset used throughout this track (0.8 s), a window of W s shares only W - 0.8 s. At 0 dB SNR (white noise, gamma 0.25) the share of delay estimates more than 2 ms off on the four failing clips falls from **0.97 at 1 s to 0.38 at 2 s and 0.16 at 3 s** (all ten clips: 0.62, 0.15, 0.07). Choosing gamma at 2 s only moves it between 0.38 and 0.76 (PHAT, gamma 1, is worst). A delay prior removes the failures only if it is tighter than the clip's period: an oracle prior of +-10 ms gives 0.000 wrong at 2 and 3 s, but +-50 ms leaves `space2` at 0.655 wrong (its aliases are at 12.1, 24.4 and 48.6 ms). The early-start failures of `untie` and `soft` are mostly explained by a short shared segment; the shared audio in their wrong windows is only 2 to 5 dB quieter, so the loudness explanation is weak.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-aliaswin/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-aliaswin/
 
 **Builds on.** `capture-residgate` (`alias.py`, section D: the failures and their classification), `capture-realaudio` (clips, partial whitening after Knapp and Carter (1976), *IEEE Trans. ASSP* 24(4)), `capture-audiosync`. Nothing here is claimed as new; the finding that GCC needs a window comfortably longer than the offset is textbook, and this measures it on the clips this track already uses. No CU Boulder group in `prompt.md` covers this.
 

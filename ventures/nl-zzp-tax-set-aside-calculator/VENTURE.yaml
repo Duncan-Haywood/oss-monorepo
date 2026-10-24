@@ -33,5 +33,5 @@ kill_criteria:
   - A report that a Belastingdienst figure differs from the official source.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/nl-zzp-tax-set-aside-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/nl-zzp-tax-set-aside-calculator/
   analytics: null

@@ -41,5 +41,5 @@ kill_criteria:
   - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/apiary-profit-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/apiary-profit-planner/
   analytics: null

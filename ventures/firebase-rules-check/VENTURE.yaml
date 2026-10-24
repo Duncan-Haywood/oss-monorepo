@@ -76,5 +76,5 @@ kill_criteria:
     liability profile.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/firebase-rules-check/
   analytics: null

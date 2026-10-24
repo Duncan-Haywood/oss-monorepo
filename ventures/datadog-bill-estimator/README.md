@@ -3,7 +3,7 @@
 Estimate a monthly Datadog bill from your own usage numbers, and see which
 changes cut it most, each with a dollar figure — before the invoice.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/datadog-bill-estimator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/datadog-bill-estimator/
 
 ```
 node cli.mjs template > usage.csv                 # product,usage CSV to fill in

@@ -15,7 +15,7 @@ Produced with AI assistance (Claude). Third project of research track 18 (`hange
 `PROJECTS.md`, milestone 3). Every number comes from a stylised geometric model with assumed
 fabric and robot constants, not from cloth or from a robot.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-insert/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-insert/
 
 ## Why this question
 

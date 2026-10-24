@@ -11,7 +11,7 @@ A planner who weights urgent waiting more prefers the fleet at larger `rho`: at 
 Track 17 (`society`, `PROJECTS.md`). Every result is about simulated agents following a stated rule, not real people
 or robots.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-peoplecost/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-peoplecost/
 
 ## Builds on
 

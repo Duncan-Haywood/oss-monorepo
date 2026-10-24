@@ -7,7 +7,7 @@ time series anomalies found without labels, training or thresholds). It computes
 the STOMP algorithm, draws the series with motifs and discords marked and the profile below it, and explains the
 result in plain language. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/matrix-profile-explorer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/matrix-profile-explorer/
 
 The same engine runs from the command line and for AI agents:
 

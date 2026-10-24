@@ -2,7 +2,7 @@
 
 Follow-up to [`house-hpsize`](../house-hpsize), whose limitations said "no cooling-side sizing, which can govern in Houston". This project adds a summer design load (envelope conduction, window solar gain by wall, internal gains, a humidity allowance) and sizes the heat pump on the larger of the heating and cooling requirements. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-coolsize/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-coolsize/
 
 **Headline (stylised, assumed inputs).** Cooling governs the size only in Houston: baseline 9.6 kBtu/h of cooling against 7.5 of heating, so the unit is 12 kBtu/h, not the 9 `house-hpsize` found. In Baltimore, Chicago and Minneapolis heating still governs by a wide margin (cooling needs 7.4 to 8.8 kBtu/h against 12.5 to 27.1), so the sizes (18, 24, 30 baseline; 9, 18, 18 tight) and credits ($1,350, $900, $1,800) are unchanged from `house-hpsize`. The tight package cuts the cooling load too (Houston 8,383 to 7,075 Btu/h), so Houston's size goes 12 to 9 and the credit stays **$450**. But Houston's answer sits on a knife edge: with window SHGC 0.2 or 0.3 the baseline already needs only 9 and the credit is $0; at 0.5 or above both packages need 12 and the credit is $0; and a latent allowance of 1.3 gives a $0 credit while 1.5 gives $900.
 

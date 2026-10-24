@@ -9,6 +9,9 @@ export const FILES = { ubl: "ubl.sef.json", cii: "cii.sef.json" };
 export const ADDONS = {
   xrechnung: { source: "xrechnung-schematron", match: /xrechnung/i, files: { ubl: "xrechnung-ubl.sef.json", cii: "xrechnung-cii.sef.json" } },
   peppol: { source: "peppol-schematron", match: /peppol\.eu/i, files: { ubl: "peppol-ubl.sef.json", cii: "peppol-cii.sef.json" } },
+  // Romania's national rules (RO e-Factura, ANAF). UBL only; no Saxon form is built, so
+  // only the plain route (browser and Node fallback) runs them: build-ro-rules.mjs.
+  "cius-ro": { source: "cius-ro-schematron", match: /CIUS-RO/i, files: { ubl: "cius-ro-ubl.sef.json" } },
 };
 
 // Peppol PINT profiles (Singapore InvoiceNow, Australia/New Zealand). Their

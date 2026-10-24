@@ -2,7 +2,7 @@
 
 Follow-up to `simdesign-robustradius` (track 5, `PROJECTS.md`), taking its first listed next step: repeat the sweep on a second mesh to separate the radius in elements from the radius as a share of the beam. Result: it is the grid, not the radius, that sets the smallest member here (negative for radius control). Produced with AI assistance (Claude). Stylised: 2D dimensionless compliance, one problem, one run per row; nothing was made or tested.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-robustmesh/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-robustmesh/
 
 **Builds on.** `simdesign-robustradius` (the 120×40 rows are read from its `results.txt`), `simdesign-robust`, `simdesign-heaviside`, `simdesign-topopt` (imported unchanged). Wang, Lazarov and Sigmund (2011), *Struct. Multidisc. Optim.* 43(6):767–784, <https://doi.org/10.1007/s00158-010-0602-y>; its length-scale claims were not checked or reproduced. It builds on none of the CU Boulder groups in `prompt.md`.
 

@@ -2,7 +2,7 @@
 
 Free, private browser tool for maple sugarmakers: enter taps, sap per tap, sugar content, fuel, labour and where the syrup is sold, and it turns sap into syrup with the rule of 86, costs the season, and shows profit per tap, per hour and per gallon, a poor and a good season, and whether reverse osmosis would pay for itself.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/maple-syrup-sugarbush-profit-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/maple-syrup-sugarbush-profit-calculator/
 
 After using this, you know what your sugarbush earns per hour of work and whether a reverse osmosis unit pays back, which used to take a spreadsheet and a guess about fuel.
 

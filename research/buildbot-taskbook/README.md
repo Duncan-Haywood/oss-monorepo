@@ -2,7 +2,7 @@
 
 Second project of track 20, robots on the residential building site (`PROJECTS.md`, milestone 2). [`buildbot-payload`](../buildbot-payload) asked what a stock humanoid can hold. This writes down what a house asks of a worker: an open, scorable list of the handling tasks of one small wood-frame house, with how many times each is done, what is lifted, where, to what tolerance and for how many crew-hours. Other robot projects can score against it. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-taskbook/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-taskbook/
 
 ![Crew-hours per task](experiments/figure.png)
 

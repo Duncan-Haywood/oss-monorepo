@@ -2,7 +2,7 @@
 
 Follow-up to `capture-followplan` (track 13, `PROJECTS.md`), taking its first "next step". That project gave its planner the pedestrians' exact positions and velocities. Here the planner sees only a constant-velocity Kalman tracker's estimate from detections that carry Gaussian position noise and a latency. **Headline:** the framing is untouched (57 to 61% everywhere, against 58.0% with exact data), but the contact reduction erodes fast. For a drone at 0.1 people/m&sup2; the exact planner has 36 contacts (within 0.5 m) per hour; with 0.1 m noise and no delay 45; with 0.3 m noise and 0.25 s delay 120; with 0.6 m noise 199 to 257; with 1.0 m noise and 1 s delay 373, below the 523 of a camera that ignores pedestrians only by a third. Repulsion (161, given exact positions) is beaten only while noise is about 0.3 m or less *and* latency is under about 0.5 s. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-followtrack/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-followtrack/
 
 **Builds on.** `capture-followplan` (planner, imported; a small `estimator` hook was added so the planner can be fed estimates, and a test checks the default is unchanged) and `capture-follow` (world and metrics). The tracker is a textbook constant-velocity Kalman filter with white-acceleration process noise (Bar-Shalom, Li and Kirubarajan, 2001, *Estimation with Applications to Tracking and Navigation*, ch. 6). It builds on none of the CU Boulder groups in `prompt.md`.
 

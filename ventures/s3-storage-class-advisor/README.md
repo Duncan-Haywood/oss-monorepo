@@ -4,7 +4,7 @@ Is your S3 bucket in the wrong storage class? Paste one row per bucket or prefix
 object count, GB read back, GETs per month) and see the monthly cost in Standard, Standard-IA,
 Intelligent-Tiering and Glacier Instant Retrieval. Browser page or zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/s3-storage-class-advisor/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/s3-storage-class-advisor/
 
 ```
 node cli.mjs analyze rows.csv

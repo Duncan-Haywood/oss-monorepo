@@ -48,5 +48,5 @@ kill_criteria:
   - A user reports a materially wrong cost or margin from this tool's output despite the disclaimers, at which point the formula or its wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tow-truck-rate-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/tow-truck-rate-calculator/
   analytics: null

@@ -2,7 +2,7 @@
 
 Fifth milestone of the agentic co-design track (`research/PROJECTS.md`, track 14, `codesign`; logistics domain). A low-cost suction gripper is described by five numbers (cup diameter, cups in a row, pump vacuum, pump flow, cup compliance) and scored on a fixed population of 600 simulated items (boxes, polybags, bottles). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-logistics/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-logistics/
 
 ![best objective vs evaluations](experiments/curves.png)
 

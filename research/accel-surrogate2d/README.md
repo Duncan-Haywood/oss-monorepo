@@ -2,7 +2,7 @@
 
 Track 8 (task-specific AI accelerators), follow-up to `accel-surrogate`, whose "Next steps" asked for an expensive simulator so the break-even could be met. Here the beam of `accel-surrogate` is meshed as a 2D plane-stress continuum (bilinear quadrilaterals) at two mesh sizes; an 8-32-32-1 MLP imitates each, is quantised to 6 and 8 weight bits, and its error and modelled energy are set against the FE solve. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-surrogate2d/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-surrogate2d/
 
 **Why it seemed worth doing.** `accel-surrogate` found that no surrogate pays for a ~100-flop closed-form beam. This tests the other half: with a real FE solver, does the break-even flip, and what does the surrogate owe the simulator's own discretisation error?
 

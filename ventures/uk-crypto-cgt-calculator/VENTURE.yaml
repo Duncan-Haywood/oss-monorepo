@@ -69,5 +69,5 @@ kill_criteria:
   - A user reports a gain that differs from a hand calculation under HMRC's matching rules on the same rows and the difference is a bug in the matching.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-crypto-cgt-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-crypto-cgt-calculator/
   analytics: null

@@ -2,7 +2,7 @@
 
 Twenty-ninth project of track 12, open-source residential construction (`PROJECTS.md`, milestone 7, the "let `house-schedule` consume the shell step" next step of `house-offsite`). `house-offsite` found that panelising a house's walls costs more than framing them on site; `house-schedule` found that a factory shell shortens a build. Neither priced the other's side. This project joins them: the shell's extra cost in dollars against the interest on the working days it saves. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-shellvalue/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-shellvalue/
 
 **Headline.** In this stylised model **a factory shell saves 15.5 working days when it is compared with a site-built house ordered on the same day, not the 78 days `house-schedule` reports for "shell plus ordering everything at day 0"**: most of that 78 is the ordering, not the shell. At 8% interest that is **0.22% of the sale price**, about $990 on a $450,000 house, against a $1,373 premium for panelising the walls, so **the shell does not pay below a house price of about $629,000** (with the premium from `house-offsite`'s $1,500 crane day; with a $750 crane day it pays at every price tried, from $300,000). If the shell is ordered only when the foundation starts, its 25-day lead time eats the gain (6.4 days, 0.09% of price, break-even $1.5 million) unless the factory's lead time is 10 days or less. The finding that survives my assumptions is the shape: the interest value of a few weeks is a few hundred to a thousand dollars, the same size as the crane day, so the verdict flips on the crane price and the ordering date, not on factory productivity.
 
