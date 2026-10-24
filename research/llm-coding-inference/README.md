@@ -9,3 +9,10 @@ It consolidates the `qual-*` projects (track 19 in [`../PROJECTS.md`](../PROJECT
 Related labs: none claimed; this is methods work for computational social science. Written with AI assistance (Claude Code); no affiliation is implied with any author cited.
 
 **Limitations.** The references in the proposal were not machine-checked (arXiv and Crossref returned 403 in the writing session); milestone 1 does that first.
+
+## Code
+
+`llmci/estimators.py` (stdlib only) holds the estimators the programme compares: human-only, naive,
+PPI, PPI++, design-based IPW audit, stratified PPI and binary label-shift correction.
+Tests: `python3 -m pytest research/llm-coding-inference/test_llmci.py`. Checked against closed
+forms and a 600-study simulation; not yet against a published dataset.

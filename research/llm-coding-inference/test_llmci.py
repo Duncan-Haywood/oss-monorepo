@@ -1,0 +1,99 @@
+import math
+import random
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from llmci import estimators as E  # noqa: E402
+
+
+def corpus(n, prev, sens, spec, rng):
+    y = [1 if rng.random() < prev else 0 for _ in range(n)]
+    f = [(1 if rng.random() < sens else 0) if t else (0 if rng.random() < spec else 1) for t in y]
+    return y, f
+
+
+def test_endpoints_of_lambda():
+    rng = random.Random(1)
+    y, f = corpus(500, 0.3, 0.8, 0.9, rng)
+    ya, fa, fu = y[:100], f[:100], f[100:]
+    assert E.ppi(ya, fa, fu, lam=0).value == E.human_only(ya).value
+    assert math.isclose(E.ppi(ya, fa, fu, lam=0).se, E.human_only(ya).se)
+    # lam=1: mean(y) + mean(f_unl) - mean(f)
+    assert math.isclose(E.ppi(ya, fa, fu).value, sum(ya) / 100 + sum(fu) / 400 - sum(fa) / 100)
+
+
+def test_perfect_coder_ppi_se_is_only_the_unaudited_sampling_term():
+    y = [1, 0, 1, 0, 0, 1, 0, 0]
+    est = E.ppi(y[:4], y[:4], y[4:])
+    assert math.isclose(est.value, sum(y[4:]) / 4 + sum(y[:4]) / 4 - sum(y[:4]) / 4 + 0)
+    assert math.isclose(est.se, math.sqrt(E._var(y[4:]) / 4))
+
+
+def test_ppi_pp_never_much_wider_than_human_only_for_useless_coder():
+    rng = random.Random(2)
+    y = [1 if rng.random() < 0.3 else 0 for _ in range(300)]
+    f = [1 if rng.random() < 0.3 else 0 for _ in range(300)]  # independent of y
+    lam = E.ppi_pp_lambda(y[:100], f[:100], f[100:])
+    assert lam < 0.3
+    assert E.ppi_pp(y[:100], f[:100], f[100:]).se < 1.15 * E.human_only(y[:100]).se
+
+
+def test_ipw_equals_ppi_form_when_pi_constant_and_matches_closed_form():
+    f_all = [1, 0, 1, 1, 0, 0, 1, 0]
+    aud = [0, 2, 4, 6]
+    y = {0: 1, 2: 0, 4: 0, 6: 1}
+    est = E.ipw_audit(f_all, aud, y, [0.5] * 8)
+    assert math.isclose(est.value, sum(f_all) / 8 + sum((y[i] - f_all[i]) / 0.5 for i in aud) / 8)
+    r2 = sum((y[i] - f_all[i]) ** 2 for i in aud)
+    assert math.isclose(est.se, math.sqrt(r2 * (0.5 / 0.25)) / 8)
+    assert E.ipw_audit(f_all, aud, y, [1.0] * 8).se == 0  # census audit: no sampling variance
+
+
+def test_stratified_single_stratum_matches_fpc_closed_form():
+    rng = random.Random(3)
+    y, f = corpus(200, 0.2, 0.7, 0.9, rng)
+    idx = rng.sample(range(200), 40)
+    est = E.stratified_ppi([(200, f, [y[i] for i in idx], [f[i] for i in idx])])
+    r = [y[i] - f[i] for i in idx]
+    assert math.isclose(est.value, sum(f) / 200 + sum(r) / 40)
+    assert math.isclose(est.se, math.sqrt((1 - 40 / 200) * E._var(r) / 40))
+
+
+def test_label_shift_recovers_prevalence_with_exact_rates():
+    # corpus: 30% positive, tpr 0.8, fpr 0.1 -> q = 0.3*0.8 + 0.7*0.1 = 0.31
+    f_all = [1] * 31 + [0] * 69
+    y = [1] * 10 + [0] * 10
+    f = [1] * 8 + [0] * 2 + [1] * 1 + [0] * 9
+    est = E.label_shift(f_all, y, f)
+    assert math.isclose(est.value, (0.31 - 0.1) / 0.7)
+
+
+def _coverage(method, reps, seed):
+    rng = random.Random(seed)
+    hits, widths, truth_n = 0, [], 2000
+    for _ in range(reps):
+        y, f = corpus(truth_n, 0.25, 0.75, 0.9, rng)
+        idx = rng.sample(range(truth_n), 150)
+        s = set(idx)
+        ya, fa = [y[i] for i in idx], [f[i] for i in idx]
+        fu = [f[i] for i in range(truth_n) if i not in s]
+        yu = [y[i] for i in range(truth_n) if i not in s]
+        est = method(y, f, idx, ya, fa, fu)
+        hits += E.covers(est, sum(y) / truth_n)
+        widths.append(2 * E.Z95 * est.se)
+    return hits / reps, sum(widths) / reps
+
+
+def test_monte_carlo_coverage_and_gain():
+    reps = 600
+    cov_h, w_h = _coverage(lambda y, f, idx, ya, fa, fu: E.human_only(ya), reps, 10)
+    cov_p, w_p = _coverage(lambda y, f, idx, ya, fa, fu: E.ppi_pp(ya, fa, fu), reps, 10)
+    cov_s, w_s = _coverage(
+        lambda y, f, idx, ya, fa, fu: E.stratified_ppi([(len(y), f, ya, fa)]), reps, 10)
+    # binomial sd of a coverage near 0.95 over 600 reps is 0.009; allow 3 sd
+    for c in (cov_p, cov_s):
+        assert abs(c - 0.95) < 0.03, c
+    # human-only ignores the finite population: conservative here (n/N = 7.5%)
+    assert cov_h >= 0.94
+    assert w_p < w_h and w_s < w_h
