@@ -37,3 +37,14 @@ test("clean payee names: rideshare, transit, supermarkets, monitoring and DNS ve
 test("a bare name that is also a bank-line prefix is not over-matched", () => {
   assert.equal(acct("UBER EATS 8005928996 CA"), "6130");
 });
+
+// Replay in date order (eval/hackclub-online.mjs): a payee filed once is suggested next time.
+test("replay learns a payee from the line before it", async () => {
+  const { replay } = await import("./eval/hackclub-online.mjs");
+  const { parseLedger } = await import("./eval/hackclub-ledger.mjs");
+  const rows = parseLedger("2015/01/02 Zorblax Cloud\n    Expenses:Operating:Software  $5\n    Assets:Bank\n\n2015/02/02 Zorblax Cloud\n    Expenses:Operating:Software  $5\n    Assets:Bank\n");
+  assert.equal(rows[0].date, "2015/01/02");
+  const o = replay(rows);
+  assert.deepEqual([o.n, o.right, o.blank, o.bySource.memory?.right], [2, 1, 1, 1]);
+  assert.equal(replay(rows, { learn: false }).right, 0);
+});
