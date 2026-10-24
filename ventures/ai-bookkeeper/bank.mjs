@@ -659,6 +659,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (format === "qif") return readQif(text, { dayFirst });
   const rows = parseCsv(text);
   const problems = [];
+  // A general-ledger journal (Xero's Journal Report) lists both sides of each entry: not a bank statement.
+  if (rows[0]?.some((h) => /^journal ?number$/i.test(String(h).trim())) && rows[0].some((h) => /^journal ?date$/i.test(String(h).trim())))
+    return { rows: [], problems: ["This is an accounting journal export (it has JournalNumber and JournalDate columns, with both sides of each entry), not a bank statement. Import the bank's own file instead."], columns: null };
   // A header-less file with a few lines of account summary above the data: drop leading rows until the rest has a layout.
   const hasHeader = (r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); };
   if (!rows.some(hasHeader) && !headerlessLayout(rows)) {
@@ -850,6 +853,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
   }
   if (flip) for (const r of out) r.cents = -r.cents;
+  // One unsigned-looking amount column, nothing says which way: a card export that lists only purchases (PC Financial's) reads as income.
+  else if (invert === undefined && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && dirCol === -1 && out.length >= 2 && out.every((r) => r.cents > 0))
+    problems.push(`Every amount is positive, so all ${out.length} lines were booked as money in. If this is a card or spending export, they are charges: import with the signs flipped (invert).`);
   if (localeNote) inferred = [inferred, localeNote + " (inferred from the file; pass dayFirst / decimalComma to override)."].filter(Boolean).join(" ");
   return { rows: out, problems, columns, bank, inferred, ...(accountNames.size > 1 ? { accountNames: [...accountNames] } : {}) };
 }
