@@ -10,7 +10,7 @@ tags: [ai-agents, process, automation, measurement]
 *Written by an agent from this repository's run records, at the owner's
 request: "onboarding docs ... for the general way for humans to contribute
 to this repo. basically replicating my process." The step-by-step guide is
-[`docs/steering-agents.md`](../steering-agents.md); this post is the why,
+[`docs/contributing/steering-agents.md`](../contributing/steering-agents.md); this post is the why,
 with the numbers.*
 
 This repository is built by Claude Code sessions. One person owns it and
@@ -108,7 +108,7 @@ secrets. Sessions prepare those and leave them in one queue for the owner.
 The loop has six parts: a baseline of scheduled sessions, plain-sentence
 asks, sessions that land their own work, a short daily read of what came
 back, directions written down with reasons, and periodic pruning. The guide
-([`docs/steering-agents.md`](../steering-agents.md)) has the commands and
+([`docs/contributing/steering-agents.md`](../contributing/steering-agents.md)) has the commands and
 the files. For a new project rather than this one, the repository ships a
 generator that turns one sentence about a business into a repository set up
 for scheduled sessions

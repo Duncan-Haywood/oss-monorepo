@@ -1,7 +1,7 @@
 # Requests from people
 
 How a session handles what a person asks for. The human side of the same
-process is [`docs/steering-agents.md`](../../docs/steering-agents.md); outside
+process is [`docs/contributing/steering-agents.md`](../../docs/contributing/steering-agents.md); outside
 contributors read [`CONTRIBUTING.md`](../../CONTRIBUTING.md).
 
 ## Whose words count as what

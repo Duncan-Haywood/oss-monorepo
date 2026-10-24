@@ -53,7 +53,7 @@ test('buildDesktop bundles the page and its imports under dist/, and nothing fro
   const rs = p.files['src-tauri/src/main.rs'];
   assert.match(rs, /WebviewUrl::App\("demo-tool\/index\.html"\.into\(\)\)/);
   assert.match(rs, /const PAGES: &\[&str\] = &\["\/", "\/demo-tool\/"\];/);
-  assert.match(rs, /const SITE: &str = "https:\/\/duncan-haywood\.github\.io\/monorepo-projects\/";/);
+  assert.match(rs, /const SITE: &str = "https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/";/);
   assert.equal(names.filter((n) => n.startsWith('winget/')).length, 3);
 });
 

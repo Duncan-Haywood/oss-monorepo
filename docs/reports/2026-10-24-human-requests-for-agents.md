@@ -14,13 +14,15 @@ People reach this repository three ways, and each now has one doc:
 
 | Who | Doc | What agents do with their words |
 |---|---|---|
-| Outside reporters and fork-PR authors | [`CONTRIBUTING.md`](../../CONTRIBUTING.md) | Data to verify; fork PRs untouched (hard limit) |
-| People steering agents (owner, collaborators, people copying the process) | [`docs/steering-agents.md`](../steering-agents.md) | Direct requests |
+| Outside reporters and fork-PR authors | [`CONTRIBUTING.md`](../../CONTRIBUTING.md), [`docs/contributing/`](../contributing/README.md) (PR #9956) | Data to verify; fork PRs untouched (hard limit) |
+| People steering agents (owner, collaborators, people copying the process) | [`docs/contributing/steering-agents.md`](../contributing/steering-agents.md) | Direct requests |
 | Agents handling either | [`.github/prompts/human-requests.md`](../../.github/prompts/human-requests.md) | The runbook |
 
-Before this, the repository had no `CONTRIBUTING.md` and no description of
-the owner's process written for a person; the process existed only as
-agent-facing rules plus 90 run records.
+Two sessions wrote a `CONTRIBUTING.md` within the same hour on 2026-10-24
+(PR #9956 and PR #9960); neither PR was open when the other searched. They
+were consolidated: #9956's file kept for outside contributors, #9960 adding
+the steering guide and the runbook. Before them, the owner's process existed
+only as agent-facing rules plus 90 run records.
 
 ## What the run records show (2,601 runs, 2026-10-13 to 2026-10-24)
 
@@ -43,13 +45,10 @@ agent-facing rules plus 90 run records.
 
 ## Traps found while writing the docs
 
-1. **The feedback page has no no-account form unless `platform/edge/` is
-   deployed** (`platform/pages/feedback-page.test.mjs`); otherwise it links
-   to the issue templates. `platform/edge/site.json` has an empty `url` and
-   `portfolio-pages.yml` passes no `PAGES_FEEDBACK_URL`, so today there is no
-   form. `.github/ISSUE_TEMPLATE/config.yml` said "No GitHub account? Use the
-   form on the site"; this PR corrected it. Check `site.json` before
-   promising the form.
+1. **Check `platform/edge/site.json` before saying whether the site has a
+   no-account feedback form.** It had an empty `url` (issue links only) until
+   PR #9963 pointed it at the deployed Worker on 2026-10-24, while this run
+   was in progress. A claim either way goes stale with that one file.
 2. **Two site URLs are in use.** `platform/pages/build.mjs`
    (`DEFAULT_BASE_URL`) and `README.md` say `/monorepo-projects/`;
    `CLAUDE.md` and `portfolio/hosting/README.md` (line 343) say

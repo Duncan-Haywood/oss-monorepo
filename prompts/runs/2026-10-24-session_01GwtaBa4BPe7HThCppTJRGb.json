@@ -6,7 +6,8 @@
   "input": "lets do onboarding docs agent instructions blog etc for the general way for humans to contribute to this repo. basically replicating my process.",
   "input_sha256": "4b1e6029c254f7412f239d1c211aafe2795a3a54ee76408c9c454b5ff0cf9429",
   "follow_up_inputs": [
-    "how did this go? keep going on it."
+    "how did this go? keep going on it.",
+    "lets keep working on this."
   ],
   "model": "claude-opus-5-5",
   "models_seen": [
@@ -42,16 +43,16 @@
       "issue": "Site URL is /monorepo-projects/ here and in build.mjs DEFAULT_BASE_URL, but /oss-monorepo/ in CLAUDE.md and portfolio/hosting/README.md:343; portfolio-pages.yml builds /oss-monorepo/ when vars.PAGES_BASE_URL is unset. Could not tell which is live from a session."
     },
     {
-      "file": ".github/ISSUE_TEMPLATE/config.yml",
-      "issue": "Promised a no-account feedback form; platform/edge/site.json url is empty, so the site serves issue links only. Fixed in this PR."
-    },
-    {
       "file": "prompts/runs/*.json",
       "issue": "wall_minutes median is 3.4 for scheduled runs, implausibly low for runs that open and merge a PR; may cover only part of a transcript. Not used in the write-ups."
     },
     {
       "file": "prompt.md",
       "issue": "The first user message was interrupted before any work; the follow-up 'how did this go?' arrived two days later with main ~340 PRs ahead. Nothing in the docs covers resuming an interrupted session; the new human-requests.md runbook now says to check what actually landed first."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs for contributing/onboarding at the start and found none, then PR #9956 (another session, same topic, CONTRIBUTING.md) opened and merged while this one was writing. A search only at the start misses a parallel session; searching again right before opening the PR would have caught it."
     }
   ],
   "deviations": [
@@ -68,7 +69,7 @@
     "docs/posts/2026-10-24-how-one-person-steers-an-agent-fleet.md"
   ],
   "goal": "Let people contribute here, and replicate the owner's process of steering agents, from written docs instead of tacit practice",
-  "notes": "",
+  "notes": "Consolidated with PR #9956 (merged mid-run, also added CONTRIBUTING.md and docs/contributing/): kept its CONTRIBUTING.md, added the steering path to it, moved the guide to docs/contributing/steering-agents.md. Dropped this PR's issue-template fix because PR #9963 turned the feedback form on mid-run. Local checks: promptctl validate ok; writing.test.mjs pass; run_workflow_locally --for-changes: doc-refs, prompts-ci, duplicate-symbols passed; portfolio-pages and permission-harness hit the runner's 300 s budget (inconclusive).",
   "corrections": [],
   "redteam": null,
   "usage": {

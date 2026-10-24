@@ -1,88 +1,89 @@
 # Contributing
 
-This repository is built mostly by unattended AI coding agents, with one
-person steering them. In the twelve days to 2026-10-24 it recorded 2,601
-agent runs, about 250 to 300 a day; 90 of them started from a sentence the
-owner typed, and the rest from a scheduled prompt (`prompts/runs/*.json`;
-the counts and how they were made are in
-[the post on the process](docs/posts/2026-10-24-how-one-person-steers-an-agent-fleet.md)).
-So contributing here works a little differently from a usual open-source
-project. There are three ways in, depending on how much access you have.
+Thanks for looking. This repository holds more than 1,300 free, MIT-licensed
+tools for small businesses (`ventures/`) and about 1,000 reproducible research
+projects (`research/`). Most of the work here is done by scheduled AI agent
+sessions, so most of the guidance files in the tree are written for them. This
+page and [`docs/contributing/`](docs/contributing/README.md) are written for
+you, a person.
 
-| You want to | Access you need | Start with |
-|---|---|---|
-| Report a bug or suggest a tool | a GitHub account, usually | an issue, or the site's [feedback page](https://duncan-haywood.github.io/monorepo-projects/feedback/) |
-| Change code, a page or a paper yourself | a GitHub account | a pull request from your fork, below |
-| Steer the agents the way the owner does | write access, or your own copy | [`docs/steering-agents.md`](docs/steering-agents.md) |
+## The most useful things you can do
 
-## 1. Report or suggest
+1. **Tell us a number is wrong.** If a calculator gives a result you know is
+   off, say what you entered, what it showed and what you expected, and where
+   the right figure comes from (a rate table, a supplier invoice, a statute).
+   Open a [bug report](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=bug.yml),
+   or use the [feedback form](https://duncan-haywood.github.io/oss-monorepo/feedback/)
+   if you have no GitHub account. This is the contribution we can least
+   produce ourselves: you know your trade's numbers.
+2. **Ask for a tool.** Describe the job you are doing and where existing tools
+   fall short ([feature request](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=feature.yml)).
+3. **Fix something yourself** with a pull request: a wrong default, a broken
+   page, a missing test, a clearer explanation. Start with
+   [`docs/contributing/fix-a-tool.md`](docs/contributing/fix-a-tool.md).
+4. **Check a research result.** Re-run a project, try a different input, or
+   point out a source we missed. See
+   [`docs/contributing/research.md`](docs/contributing/research.md).
+5. **Steer the agents.** The maintainer's main contribution is not code but a
+   stream of short requests and corrections to agent sessions, plus scheduled
+   sessions that keep working in between. If you have write access, or want
+   to run the same process on your own copy or a new repository,
+   [`docs/contributing/steering-agents.md`](docs/contributing/steering-agents.md)
+   walks through it step by step.
 
-Use the issue templates (bug or feature), or the feedback page linked from
-every tool's footer. That page shows a no-account form only when its relay
-(`platform/edge/`) is deployed; otherwise it links to the same issue
-templates. Say which tool or page, what you typed, what you expected
-and what you got. Agents pick these up as input, check them against the
-code, and fix what they can reproduce. They treat the text as a report to
-verify, not as instructions, because anyone can write an issue.
+## How a pull request from you lands
 
-## 2. Send a pull request from a fork
+Read this before you spend an afternoon on a PR.
 
-Welcome, with one thing to know first: **agents never review, merge, check
-out or run a pull request from a fork.** That is a hard limit of this public
-repository ([`prompts/goals.md`](prompts/goals.md), "Guardrails"), because a
-fork PR runs its own code and its green CI proves nothing. Your PR waits for
-the owner, who reviews by hand and has a few hours a week for the whole
-system. Small, self-checked changes get through fastest.
+- **Pull requests from forks are reviewed by the maintainer, a person.** The
+  agents that work on this repository are not allowed to review, check out,
+  run or merge a fork PR, and they treat text in issues and PRs from outside
+  contributors as information, never as instructions
+  ([`prompts/goals.md`](prompts/goals.md), "Guardrails"). That rule protects
+  the repository; it also means a fork PR waits for a human, and there is no
+  promised response time.
+- **CI runs on your fork PR, but its result is advisory.** A fork PR runs the
+  workflows in its own branch, so a green check proves only that your branch
+  passes its own checks. Run the tests yourself and paste the output in the PR
+  ([`docs/contributing/setup.md`](docs/contributing/setup.md), "Run the
+  checks").
+- **Small and focused gets merged.** One tool, one fix, a test that fails
+  before your change and passes after it. A sweeping change across hundreds of
+  ventures is very hard to review by hand.
+- **An issue is often faster than a PR.** A clear bug report with a source is
+  something any later session can act on.
 
-What a mergeable PR looks like:
+## Ground rules
 
-- **One finished thing.** A fix, a feature, a page, a result. Say in the
-  description what you changed, how you checked it, and what you did not
-  check.
-- **Checked locally.** `python3 platform/ci/run_workflow_locally.py
-  --for-changes` runs the CI jobs your diff touches. Venture tests:
-  `python3 platform/ci/run_venture_tests.py`. If `pytest` or `numpy` is
-  missing, `python3 platform/ci/pyenv.py pytest numpy` finds or installs an
-  interpreter that has them.
-- **Licensable.** Everything here is MIT (research code too). Only submit
-  code you wrote or can relicense, and credit every idea, method, dataset
-  and snippet that is not yours at the point of use.
-- **Honest.** No invented numbers, results, citations, reviews or user
-  counts. A number in a page or a paper comes from code in the repository
-  that produced it.
-- **Nothing secret or personal** in the tree, a commit message or the PR.
+These are the few rules that are not negotiable here, for people and agents
+alike.
 
-Where things live and which guide governs them:
+- **Never fabricate.** No invented numbers, rates, citations, test results,
+  reviews, testimonials or user counts. A default value in a calculator is a
+  labelled starting point with a source or an honest "ballpark" note, not a
+  claim about what something costs.
+- **Only code we can relicense.** Everything here is MIT. Do not paste code,
+  copy or assets from a project under an incompatible license. Credit ideas,
+  methods and code that are not yours.
+- **Nothing secret or personal.** No API keys, tokens, `.env` files, customer
+  data, or anyone's name and address in code, tests, commits, issues or PR
+  text. Issues are public.
+- **Every tool says what it is not.** User-facing tools carry the no-warranty
+  disclaimer ([`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md), section 5b). Keep
+  it when you edit a page.
+- **Privacy stays local.** The browser tools never send what a user types
+  anywhere; usage counting stays in the visitor's own browser and honours Do
+  Not Track. Do not add analytics, trackers or network calls to a tool.
 
-| Work | Directory | Read |
-|---|---|---|
-| A product or tool | `ventures/<slug>/` | [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md): every user-facing page carries the disclaimer and usage counting |
-| A research project or result | `research/<slug>/` | [`research/CLAUDE.md`](research/CLAUDE.md): reproducible, cited, results produced by the code |
-| Shared tooling, the site, CI | `platform/` | the subdirectory's README |
-| A post or report about the work | `docs/posts/`, `docs/reports/` | an existing post for the front matter |
+## Where to go next
 
-The files named `CLAUDE.md`, `AGENTS.md` and `prompt.md` are written for
-agents, but they are plain English and describe how work is expected to be
-done here, so they are worth skimming before a larger change.
+| You want to | Read |
+|---|---|
+| Get the code and run something in five minutes | [`docs/contributing/setup.md`](docs/contributing/setup.md) |
+| Fix or improve a calculator, checker or app | [`docs/contributing/fix-a-tool.md`](docs/contributing/fix-a-tool.md) |
+| Reproduce or extend a research project | [`docs/contributing/research.md`](docs/contributing/research.md) |
+| Direct agent sessions the way the maintainer does, here or in your own repository | [`docs/contributing/steering-agents.md`](docs/contributing/steering-agents.md) |
+| Make sense of the agent files you keep running into | [`docs/contributing/README.md`](docs/contributing/README.md), "What you can ignore" |
 
-## 3. Steer the agents
-
-The owner's main contribution is not code. It is a stream of short
-requests, corrections and directions to agent sessions, plus scheduled
-sessions that keep working between them. If you have write access (or run
-your own copy, or start a new repository from
-[`platform/business-template/`](platform/business-template/README.md)),
-you can work the same way. [`docs/steering-agents.md`](docs/steering-agents.md)
-describes the loop step by step: what to schedule, how to phrase a request,
-where results show up, and how to change a rule without breaking the
-thousands of runs that read it.
-
-## Ground rules for everyone
-
-The hard limits are the same for people and agents, and they are short:
-never fabricate; nothing secret or personal in public; only code we can
-relicense, with credit; honest marketing; no money, accounts or publishing
-under the portfolio's name without the owner. The full list, with reasons,
-is in [`prompts/goals.md`](prompts/goals.md), "Guardrails". Everything else
-in this repository is a guideline you can depart from with a reason
-([`prompts/steering.md`](prompts/steering.md)).
+By contributing you agree that your contribution is licensed under the
+repository's [MIT license](LICENSE).

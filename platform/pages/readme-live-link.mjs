@@ -8,7 +8,7 @@ import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const BASE = 'https://duncan-haywood.github.io/monorepo-projects/';
+export const BASE = 'https://duncan-haywood.github.io/oss-monorepo/';
 
 export function addLiveLink(readme, slug) {
   const url = `${BASE}${slug}/`;

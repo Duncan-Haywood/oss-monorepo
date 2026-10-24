@@ -2,18 +2,19 @@
 
 **For:** a person who wants to direct work in this repository the way its
 owner does, or run the same process on a repository of their own.
-**Not for:** sending a single pull request by hand; that is in
-[`CONTRIBUTING.md`](../CONTRIBUTING.md). The agents' side of the same
-process is [`.github/prompts/human-requests.md`](../.github/prompts/human-requests.md).
+**Not for:** sending a single fix by hand; that is
+[`CONTRIBUTING.md`](../../CONTRIBUTING.md) and the rest of
+[this folder](README.md). The agents' side of the same
+process is [`.github/prompts/human-requests.md`](../../.github/prompts/human-requests.md).
 
 The owner writes little code here. The work is done by Claude Code sessions,
 about 250 to 300 a day, and the owner spends a few hours a week deciding
 what they should be doing and correcting them when they drift
-([`prompts/steering.md`](../prompts/steering.md), "Amplification"). Of the
+([`prompts/steering.md`](../../prompts/steering.md), "Amplification"). Of the
 2,601 runs recorded from 13 to 24 October 2026, 90 started from a sentence
 the owner typed; the other 2,511 started from a scheduled prompt. The
 numbers and how they were counted are in
-[the post on this process](posts/2026-10-24-how-one-person-steers-an-agent-fleet.md).
+[the post on this process](../posts/2026-10-24-how-one-person-steers-an-agent-fleet.md).
 
 The process is a loop with six parts. None needs a special tool beyond
 Claude Code and GitHub.
@@ -36,11 +37,11 @@ repo aiming to develop, deploy, market, sell and support revenue generating
 software products"; the line every routine needs is
 "Read ./prompt.md and follow it." Schedule it in Claude Code on the web (a
 routine), with cron on your own machine, or from a workflow such as
-[`.github/workflows/claude-routine-trigger.yml`](../.github/workflows/claude-routine-trigger.yml).
+[`.github/workflows/claude-routine-trigger.yml`](../../.github/workflows/claude-routine-trigger.yml).
 
-[`prompt.md`](../prompt.md) does the rest: `python3 prompts/promptctl.py
+[`prompt.md`](../../prompt.md) does the rest: `python3 prompts/promptctl.py
 route` draws a track by the weights in
-[`prompts/routing.json`](../prompts/routing.json) (on 2026-10-24: ventures
+[`prompts/routing.json`](../../prompts/routing.json) (on 2026-10-24: ventures
 0.34, research 0.34, process 0.10, creative 0.10, red team 0.07, explore
 0.05, and a review every 40 merged runs for a share of runs). **Changing
 those weights is the cheapest way to change what the fleet does.** The owner
@@ -85,7 +86,7 @@ What these have in common, and what tends to work:
 - **Ask for the why when something looks wrong.** "Analyze what led to this,
   propose fixes, blog post and agent doc" turned an embarrassing front-page
   tool into a test every tool now has to pass
-  ([post](posts/2026-10-21-a-tool-has-to-beat-asking-a-chatbot.md)).
+  ([post](../posts/2026-10-21-a-tool-has-to-beat-asking-a-chatbot.md)).
 
 The session routes itself to the closest track
 (`route --track process|ventures|research|...`), records your sentence as
@@ -95,11 +96,11 @@ the run's `input`, and lands the work.
 
 Every session, scheduled or direct, opens a pull request, checks it, merges
 it itself and writes a run record
-([`.github/prompts/land-your-work.md`](../.github/prompts/land-your-work.md)).
+([`.github/prompts/land-your-work.md`](../../.github/prompts/land-your-work.md)).
 There is no human review gate. That is deliberate: at 250 runs a day, a
 review queue would be the whole job, and fixing forward on `main` costs
 less than waiting. Cross-review bots exist
-([`platform/ci/agent_review/`](../platform/ci/agent_review/README.md)) and
+([`platform/ci/agent_review/`](../../platform/ci/agent_review/README.md)) and
 assist; they are not a gate.
 
 What you keep is the ability to say "that was wrong" afterwards, which is
@@ -111,15 +112,15 @@ At this volume nobody reads every diff. These are the places the results
 surface, the readable ones first:
 
 - **The posts and reports.** Most runs now write one
-  ([`docs/posts/`](posts/), [`docs/reports/`](reports/)); they are the
+  ([`docs/posts/`](../posts/), [`docs/reports/`](../reports/)); they are the
   readable summary of what was learned, with real numbers.
 - **The daily brief** on the site (`dev/daily/`,
-  [`platform/daily/`](../platform/daily/README.md)): about fifteen minutes,
+  [`platform/daily/`](../../platform/daily/README.md)): about fifteen minutes,
   to read or to listen to.
 - **The development dashboard** (`dev/` on the site,
-  [`platform/devstats/`](../platform/devstats/README.md)): merges, CI and
+  [`platform/devstats/`](../../platform/devstats/README.md)): merges, CI and
   cost.
-- **Run records** in [`prompts/runs/`](../prompts/runs/):
+- **Run records** in [`prompts/runs/`](../../prompts/runs/):
   `python3 prompts/promptctl.py measure --section 'doc friction'` shows
   what slowed runs down; `deviations` shows where they departed from the
   defaults, and why.
@@ -132,15 +133,15 @@ session, which reads the above and reports back in one place.
 
 When you say something you want to hold beyond one run, the session writes
 it down where later runs will read it, with your words and the date. Lasting
-goals go in [`prompts/goals.md`](../prompts/goals.md), which carries 37
+goals go in [`prompts/goals.md`](../../prompts/goals.md), which carries 37
 lines citing the owner by date; procedure goes in the layer that fits
-([`prompts/SYSTEM.md`](../prompts/SYSTEM.md)). `goals.md` is the owner's
+([`prompts/SYSTEM.md`](../../prompts/SYSTEM.md)). `goals.md` is the owner's
 file: agents propose changes to it and do not make them unasked.
 
 The thing to know before you do this: **every sentence you write is read
 thousands of times.** A passing preference here once became a quota (1,236
 ventures by 2026-10-15, mostly calculators), and a single incident became a
-permanent page of rules ([`prompts/steering.md`](../prompts/steering.md)).
+permanent page of rules ([`prompts/steering.md`](../../prompts/steering.md)).
 So:
 
 - **Give a direction of travel and its reason, not a number.** "Depth over
@@ -181,17 +182,17 @@ Your sessions are direct requests like the owner's, and agents treat them
 the same way, with two exceptions that stay the owner's: changing the goals
 and guardrails in `prompts/goals.md`, and the owner-only steps above. To
 change either, write a proposal in
-[`prompts/experiments.md`](../prompts/experiments.md), "Proposals for the
+[`prompts/experiments.md`](../../prompts/experiments.md), "Proposals for the
 owner". Check open pull requests before you ask for something big: about
 sixteen sessions start every hour, and one may already be on it.
 
 ## Running the same process somewhere else
 
 - **A new business from one sentence:**
-  [`platform/business-template/`](../platform/business-template/README.md)
+  [`platform/business-template/`](../../platform/business-template/README.md)
   generates a repository with its own `prompt.md`, router, function briefs,
   owner checklist and guardrails, ready for scheduled sessions.
-- **This repository's prompt system:** [`prompts/README.md`](../prompts/README.md)
+- **This repository's prompt system:** [`prompts/README.md`](../../prompts/README.md)
   explains the routing, run records and review loop, and works as a starting
   point to copy. Everything here is MIT licensed.
 
