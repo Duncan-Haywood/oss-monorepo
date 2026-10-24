@@ -14,7 +14,11 @@ import {
   renderChangelogFeed,
   renderUpdates,
   summarise,
+  buildUpdates,
 } from './updates.mjs';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
 const NOW = Date.parse('2026-10-19T12:00:00Z');
 const BASE = 'https://example.test/site/';
@@ -236,4 +240,27 @@ test('the updates page lists at most six owner decisions and the live PR meta jo
   assert.ok(html.includes('decision-5'));
   assert.ok(!html.includes('decision-6'), 'the seventh decision is cut');
   assert.ok(html.includes("' · #' + Number(pr.number) + (pr.draft"), 'PR number is concatenated, not subtracted');
+});
+
+test('feed entries carry a full RFC 3339 timestamp', () => {
+  const xml = renderChangelogFeed(data(), { baseUrl: BASE });
+  assert.ok(xml.includes('<updated>2026-10-19T00:00:00Z</updated>'));
+});
+
+test('the new-tools list shows 15 and only says "more" past 15', () => {
+  const mk = (n) => {
+    const slugs = Array.from({ length: n }, (_, i) => `t${i}`);
+    const launched = Object.fromEntries(slugs.map((x) => [x, '2026-10-19']));
+    return renderUpdates(data({ launched, published: new Set(slugs) }), { baseUrl: BASE });
+  };
+  assert.ok(!mk(15).includes('And 0 more') && !mk(15).includes('class="note">And'), '15 tools fit');
+  assert.ok(mk(16).includes('And 1 more'), '16 tools overflow by one');
+});
+
+test('buildUpdates creates missing parent directories', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'upd-root-'));
+  const out = path.join(await fs.mkdtemp(path.join(os.tmpdir(), 'upd-out-')), 'nested', 'site');
+  await buildUpdates(out, BASE, { root, published: new Set(), researchSlugs: new Set(), titles: new Map(), now: NOW });
+  await fs.access(path.join(out, CHANGELOG_PATH, 'feed.xml'));
+  await fs.access(path.join(out, UPDATES_PATH, 'index.html'));
 });
