@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateTrueUp, reviewMessage, evaluateNoticeDeadline, noticeMessage } from './calc.mjs';
+import { calculateTrueUp, formatMoney, reviewMessage, evaluateNoticeDeadline, noticeMessage } from './calc.mjs';
 import { loadScenario, saveScenario, clearScenario } from './usage.mjs';
 import { readFileSync } from 'node:fs';
 
@@ -201,4 +201,10 @@ test('the page wires the notice-deadline check without persisting it in the save
   // of the persisted scenario.
   assert.match(html, /querySelector\('#renewalDate'\)\.value = ''/);
   assert.match(html, /querySelector\('#noticeDays'\)\.value = 0/);
+});
+
+test('formatMoney puts the sign outside the symbol and never signs zero', () => {
+  assert.equal(formatMoney(-9.24), '-$9.24');
+  assert.equal(formatMoney(-0.004), '$0.00');
+  assert.equal(formatMoney(1296), '$1296.00');
 });
