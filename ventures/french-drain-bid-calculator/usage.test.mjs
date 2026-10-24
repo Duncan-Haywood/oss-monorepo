@@ -46,3 +46,68 @@ test('missing storage is a no-op rather than a crash', () => {
   assert.doesNotThrow(() => recordUsage(null));
   assert.doesNotThrow(() => recordUsage(undefined, false, 'bid_calculated'));
 });
+
+import { readOptOut, writeOptOut } from './usage.mjs';
+
+function withNavigator(nav, fn) {
+  const had = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  Object.defineProperty(globalThis, 'navigator', { value: nav, configurable: true, writable: true });
+  try { fn(); } finally {
+    if (had) Object.defineProperty(globalThis, 'navigator', had); else delete globalThis.navigator;
+  }
+}
+
+test('a stored opt-out stops recording on its own', () => {
+  const storage = fakeStorage();
+  writeOptOut(storage, true);
+  recordUsage(storage);
+  assert.equal(storage.values.has('french-drain-bid-usage'), false);
+});
+
+test('Do Not Track stops recording', () => {
+  withNavigator({ doNotTrack: '1' }, () => {
+    const storage = fakeStorage();
+    recordUsage(storage);
+    assert.equal(storage.values.has('french-drain-bid-usage'), false);
+  });
+});
+
+test('Global Privacy Control stops recording', () => {
+  withNavigator({ globalPrivacyControl: true }, () => {
+    const storage = fakeStorage();
+    recordUsage(storage);
+    assert.equal(storage.values.has('french-drain-bid-usage'), false);
+  });
+});
+
+test('a navigator that throws is treated as no signal', () => {
+  const nav = { get doNotTrack() { throw new Error('blocked'); } };
+  withNavigator(nav, () => {
+    const storage = fakeStorage();
+    recordUsage(storage);
+    assert.equal(storage.values.has('french-drain-bid-usage'), true);
+  });
+});
+
+test('readOptOut reads the flag and survives a throwing store', () => {
+  const storage = fakeStorage();
+  assert.equal(readOptOut(storage), false);
+  storage.setItem('french-drain-bid-usage-opt-out', '1');
+  assert.equal(readOptOut(storage), true);
+  assert.equal(readOptOut({ getItem() { throw new Error('blocked'); } }), false);
+});
+
+test('opting out removes counters; opting back in clears the flag', () => {
+  const store = new Map([['french-drain-bid-usage', '{}']]);
+  const storage = { getItem: k => store.get(k) ?? null, setItem: (k, v) => store.set(k, v), removeItem: k => store.delete(k) };
+  writeOptOut(storage, true);
+  assert.equal(store.has('french-drain-bid-usage'), false);
+  assert.equal(store.get('french-drain-bid-usage-opt-out'), '1');
+  writeOptOut(storage, false);
+  assert.equal(store.has('french-drain-bid-usage-opt-out'), false);
+});
+
+test('a throwing store never crashes recordUsage', () => {
+  const storage = { getItem() { throw new Error('blocked'); }, setItem() { throw new Error('full'); } };
+  assert.doesNotThrow(() => recordUsage(storage));
+});
