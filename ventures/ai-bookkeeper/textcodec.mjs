@@ -48,6 +48,10 @@ function legacy(b) {
   const has = (...xs) => xs.reduce((n, x) => n + (c.get(x) || 0), 0);
   if (has(0xf0, 0xfe, 0xd0, 0xde) > 0 && has(0xe1, 0xed, 0xfa, 0xfd) === 0) return new TextDecoder("windows-1257").decode(b);
   if (has(0x8a, 0x8d, 0x8e, 0x8f, 0x9a, 0x9d, 0x9e) > 0 || has(0xb9, 0xb3, 0xbf) > 0 || (has(0xec) > 0 && has(0xf8) > 0)) return new TextDecoder("windows-1250").decode(b);
+  // Czech, Slovak and Polish exports with no letter that is certain (č alone is è in 1252,
+  // ě is ì): taken as 1250 only when its column names read as that language.
+  const ce = new TextDecoder("windows-1250").decode(b);
+  if (/částka|účtu|účtování|zaúčtování|poznámka|zpráva|název|měna|data księgowania|tytuł|kwota/i.test(ce) && !/částka|účtu|zaúčtování/i.test(latin)) return ce;
   return latin;
 }
 
