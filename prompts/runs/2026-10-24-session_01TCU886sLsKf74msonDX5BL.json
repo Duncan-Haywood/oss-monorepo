@@ -17,23 +17,30 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
-  "repo": null,
+  "pr": 10153,
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 2,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no agent doc written and next: unchanged; nothing new for next run beyond README entry"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-actual-budget-bank-files-read-clean.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Flagship 1 (ai-bookkeeper). Probed Actual Budget QIF/QFX fixtures: no fault; added 2 regression tests. thirdparty.test.mjs 20 pass. Thin slice; the flagship's open items need real bank exports unreachable here. No agent doc and flagships.yaml next: not rewritten.",
   "corrections": [],
   "redteam": null
 }
