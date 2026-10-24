@@ -11,7 +11,7 @@ import { isCfonb, readCfonb } from "./cfonb.mjs";
 import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
-  date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date",
+  date: ["date", "transaction date", "posted date", "post date", "posting date", "trans date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date", "created utc", "created", "created at",
     // German, French, Spanish, Italian, Dutch headers
     "datum", "buchungstag", "buchungsdatum", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "boekingsdatum", "transactiedatum",
     // Hungarian (OTP workbook): booking date before transaction date
@@ -28,7 +28,7 @@ const ALIASES = {
     "wertstellung", "valuta",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
-  desc: ["description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
+  desc: ["description", "transaction description", "item1", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
     "beschreibung", "avisierungstext", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "közlemény",
     "text", "tekst", "rubrik", "beskrivelse", "forklaring", "meddelande", "meddelelse",
     "opis transakcji", "dane kontrahenta", "tytuł przelewu", "saaja/maksaja", "descrição", "descricao", "histórico", "historico", "opis", "tytuł", "tytul", "nadawca/odbiorca", "selitys", "saaja/maksaja", "açıklama", "aciklama", "popis", "zpráva pro příjemce", "opis operacji", "keterangan", "uraian", "الوصف", "البيان", "التفاصيل",
@@ -90,6 +90,8 @@ export function parseCents(v, decimalComma = false) {
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
   if (/\d\s*e\s*[-+]?\d/i.test(s)) return NaN; // "1e3" is not 13.00
   const neg = /\(\s*[^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−]/.test(s) || /-\s*$/.test(s) || /\d\s*(?:dr|db|debit)\.?\s*$/i.test(s);
+  // A currency written in letters ahead of the number ("د.ا.‏4.750", "Rs. 1,200") would leave stray dots.
+  s = s.replace(/^[^0-9]*\p{L}[^0-9]*/u, "").replace(/[^0-9]+$/, (t) => (/\p{L}/u.test(t) ? "" : t));
   s = s.replace(/[^0-9.,]/g, "");
   // Both separators: the last one is the decimal point, whatever the flag says.
   // One separator with 1-2 digits after it is a decimal point too; only a
@@ -141,7 +143,7 @@ export function parseDate(v, dayFirst = false) {
   return dt.toISOString().slice(0, 10);
 }
 
-const norm = (h) => String(h).trim().toLowerCase().replace(/\s+/g, " ").replace(/^"|"$/g, "").replace(/^#/, "");
+const norm = (h) => String(h).trim().toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").replace(/^"|"$/g, "").replace(/^#/, "");
 
 export function detectColumns(header) {
   const h = header.map(norm);
@@ -704,6 +706,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
   const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
   const accountNames = new Set();
+  const labelCols = ["reporting category", "category", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
+  const idCol = hdr.findIndex((x) => /^(balance transaction id|transaction id|txn id|reference id)$/.test(x));
+  const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
   for (let i = first; i < rows.length; i++) {
     const r = rows[i];
     const acctName = acctCol === -1 ? "" : String(r[acctCol] ?? "").trim();
@@ -757,6 +762,17 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       // The note is free text; name the other party, and fall back to the type for transfers.
       const who = String(r[hdr.indexOf(cents < 0 ? "to" : "from")] ?? "").trim();
       desc = [who, desc || String(r[hdr.indexOf("type")] ?? "").trim()].filter(Boolean).join(" - ");
+    }
+    // No description at all (Stripe balance rows, Monefy without a note): say what the
+    // row is from its category or type column, else its transaction id, so the payee
+    // memory and the categorizer have something to learn from.
+    if (!desc && labelCols.length) desc = labelCols.map((ix) => String(r[ix] ?? "").trim()).find(Boolean) ?? "";
+    if (!desc && idCol !== -1) desc = String(r[idCol] ?? "").trim();
+    // "To/From" beside an unsigned amount (Amazon Payments): To is money out.
+    if (dirCol !== -1) {
+      const m = String(r[dirCol] ?? "").trim().toLowerCase();
+      if (m === "to") cents = -Math.abs(cents);
+      else if (m === "from") cents = Math.abs(cents);
     }
     out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null });
   }
