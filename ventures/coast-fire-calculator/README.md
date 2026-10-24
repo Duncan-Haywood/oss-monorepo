@@ -4,7 +4,7 @@ A free browser tool: **enter your age, savings and the retirement you want, and 
 you have reached it, the age you will if you keep saving, and the part-time income needed while you coast (Barista FIRE).**
 Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/coast-fire-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/coast-fire-calculator/
 
 After using this, you can now **tell whether you can stop contributing and let your savings grow to your retirement number,
 and what a lower-paid job would have to cover**, which used to be a forum spreadsheet.

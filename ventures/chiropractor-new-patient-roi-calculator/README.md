@@ -3,7 +3,7 @@
 A free browser calculator for chiropractic, physical therapy and wellness
 clinics. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/chiropractor-new-patient-roi-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/chiropractor-new-patient-roi-calculator/
 
 After using this, you can now **see what a new patient costs you to win, what
 they are worth, and the most you can pay per lead** — which used to mean an

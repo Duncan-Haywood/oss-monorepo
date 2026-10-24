@@ -8,7 +8,7 @@ price, electricity rate and mileage at which the two tie, a price sensitivity
 grid, and whether the EVs can do your hardest day and charge overnight.
 Entirely client-side.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fleet-ev-vs-diesel-tco-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/fleet-ev-vs-diesel-tco-calculator/
 
 After using this, you can **tell how far your fleet is from the point where
 electric pays, and which number it hinges on**.

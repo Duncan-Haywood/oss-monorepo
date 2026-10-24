@@ -3,7 +3,7 @@
 A free browser calculator for SaaS and subscription founders: **what annual-prepay
 discount is worth offering.** Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/saas-annual-plan-discount-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/saas-annual-plan-discount-calculator/
 
 After using this, you can now **see the largest annual discount that still leaves
 an annual customer worth as much as a monthly one, on your own margin, churn and

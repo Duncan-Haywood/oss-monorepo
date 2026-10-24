@@ -4,7 +4,7 @@ A free browser tool that splits a wedding budget across 14 categories using gues
 count, region, season and up to three priorities. Entirely client-side; nothing is
 uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wedding-budget-allocator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/wedding-budget-allocator/
 
 After using this, you can now **see where a total budget should go, what each extra
 guest costs, and how many guests make a tight budget realistic**, which used to mean
