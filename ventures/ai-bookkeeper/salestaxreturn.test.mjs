@@ -200,3 +200,11 @@ test("AR, OK, KY, MS, NE are due the 20th; MO and IA the last day", () => {
   for (const s of ["AR", "OK", "KY", "MS", "NE"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
   for (const s of ["MO", "IA"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-31");
 });
+
+test("HI, DC, WV file on the 20th and WY at month end", () => {
+  assert.equal(dueDate("2026-Q1", stateDueDay("hi", "quarterly")), "2026-04-20");
+  assert.equal(dueDate("2026-Q1", stateDueDay("DC", "quarterly")), "2026-04-20");
+  assert.equal(dueDate("2026-01", stateDueDay("WV", "monthly")), "2026-02-20");
+  assert.equal(dueDate("2026-Q1", stateDueDay("WY", "quarterly")), "2026-04-30");
+  assert.equal(stateDueDay("RI"), 20);
+});
