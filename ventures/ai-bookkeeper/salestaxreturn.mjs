@@ -39,7 +39,10 @@ const periodEnd = (p) => {
 // Due day of the month after the period, by state, from the states' published
 // monthly/quarterly schedules as the author recalls them: check yours
 // (a state's own calendar can differ by filing frequency). "last" = month end.
-export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20 };
+export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23 };
+// Added 2026-10-24 from search excerpts (NJ: nj.gov Division of Taxation, 20th after the period, quarterly or monthly;
+// GA, NC: third-party guides, monthly and quarterly 20th; OH: 23rd, monthly, quarterly and semiannual Jan-Jun/Jul-Dec).
+// Not modelled: MA (30 days after the period closes since 2021, not a fixed day of the month).
 // Checked 2026-10-24 against the states' own pages (via search excerpts): CA quarterly
 // = last day of the month after the quarter; TX = 20th, monthly and quarterly; FL = due
 // the 1st, late after the 20th; WA monthly = 25th but quarterly = end of the next month.
