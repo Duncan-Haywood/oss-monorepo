@@ -66,7 +66,9 @@ at once and reports completion while the job still runs (two friction reports,
 2026-10-23). Run the command itself in the background call, with output to a
 file you can `tail`. To wait, give `Monitor` an until-loop on that output
 (`until grep -q DONE out.log; do sleep 5; done`; `sleep` is fine inside it) and end the
-background command with `echo DONE`.
+background command with `echo DONE`. A loop that greps the process list for
+the script's own name matches itself and never ends: wait on the output file
+(as above), or bracket the pattern's first letter (`[r]egen.mjs`).
 
 - `node platform/marketing/regen.mjs --verify` and the pages test suites
   (over 10 min in a shallow clone)
@@ -78,6 +80,8 @@ background command with `echo DONE`.
 - `python3 portfolio/router/allocate.py` (35-120 s; its shallow-clone fetch
   can time out and leave counts partial)
 - a full unshallow (above)
+- browser evals such as `ventures/ai-bookkeeper/eval/browser-click.mjs`
+  (a 110 s foreground timeout killed one)
 
 ## Browser and process tools
 
