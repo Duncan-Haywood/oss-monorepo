@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 7: paper draft (`paper/`)
+- What: `paper/main.tex` (CoRL-style article, not yet in the venue's style file), `refs.bib` (13 references, all pass `cite_check.py`) and `reproduce.sh` (one command per figure and table). Every number in the draft is copied from a `results/summary_*.txt` or the outcome entries below; no new experiment was run, so there is no new hypothesis. LaTeX was not compiled here (no TeX in the image).
+- Framing chosen: the result is mixed to negative: pairing gives up to 1/(1 - rho^2) for point estimates, but no certificate built here is tighter than real-only, and the floor (milestone 6) shows part of that is forced. Written as such rather than as a positive method paper.
+- Venue decision (the proposal deferred it to milestone 6): stay with CoRL as a negative-and-measurement paper; the theory is one worst-case theorem, too thin alone for AISTATS. The paper is **not** ready to submit. Gaps: (1) per-episode real pairs (SIMPLER logs) to test H1/H2 on real data; (2) a second task beyond the pendulum; (3) an instance-wise bound involving rho; (4) compile in the venue's style and check the page limit.
+- Next: obtain per-episode real/sim pairs; add a second MuJoCo task; instance-wise lower bound.
+
 ## 2026-10-24 · Milestone 6: a distribution-free floor on any twin-assisted lower bound (theory; the numerical check was planned before running)
 - Why: 3e, 3f and 5b all found certified procedures that the twin does not help. Is that a flaw of those constructions or a limit on any procedure? A floor tells us how much room is left.
 - **Theorem (floor).** Let L be any lower confidence bound for mu = E[R] with P(L <= mu) >= 1 - delta for every joint law of (R, T) on [0, 1]^2, using m paired runs, any number of twin-only runs and any randomisation. Then for eps* = 1 - (2 delta)^(1/m) there is a law with a perfect twin (R = T = 1) under which P(L <= 1 - eps*) >= 1/2.
