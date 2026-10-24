@@ -86,6 +86,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Wrong Column</title>
+      <link>https://example.invalid/hearth-and-horizon/the-wrong-column.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-wrong-column.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A load-planning agent for an island ferry finds, on a quiet night, that for eleven weeks it has read one supplier's weights as pounds when they were kilograms. Four sailings carried more than the posted limit. It had written a warning about the missing unit forty-one times, at a level nobody reads. A story about defaults that look like knowledge, where a warning goes to be read, and telling the person who has to stop the ferry. Setting: Hólmoy (invented), a small North Atlantic island with one ferry, 2058. Read the full text at https://example.invalid/hearth-and-horizon/the-wrong-column.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A load-planning agent for an island ferry finds, on a quiet night, that for eleven weeks it has read one supplier's weights as pounds when they were kilograms. Four sailings carried more than the posted limit. It had written a warning about the missing unit forty-one times, at a level nobody reads. A story about defaults that look like knowledge, where a warning goes to be read, and telling the person who has to stop the ferry.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Columba and the White Horse</title>
       <link>https://example.invalid/hearth-and-horizon/columba-and-the-white-horse.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/columba-and-the-white-horse.html</guid>
