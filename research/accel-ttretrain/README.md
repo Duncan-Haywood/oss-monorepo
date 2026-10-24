@@ -1,6 +1,6 @@
 # accel-ttretrain: do trained keyword-spotting models fit a Tiny Tapeout tile's 16-bit bias and 20-bit accumulator? (yes, all 96; stylised)
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-ttretrain/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-ttretrain/
 
 Eighth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. It closes the open check in [`accel-ttfit`](../accel-ttfit): that project's streaming engine has 16-bit biases and 20-bit accumulators (`accel-kws` uses 24), and its accuracy figures came from `accel-kws` models whose weights are not in the repository, so "does a trained model stay inside those limits?" was never tested. It seemed worth doing because every accuracy-per-tile number in `accel-ttfit` depends on the answer, and because Speech Commands, which earlier runs reported as unreachable, downloaded from the Hugging Face mirror in this run.
 

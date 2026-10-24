@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-fieldreal` (track 9, open-source purpose-built robots), in the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field robots. Produced with AI assistance (Claude). Pure Python standard library. **Why this project:** `osrobot-fieldreal` listed two next steps: let the robot make a second pass over missed weeds, and treat on the move instead of stopping. This does both, on its sourced-constant model (copied so the project stays self-contained). **Inputs still assumed, not from a source:** detector hit rate (0.7, swept 0.5 to 0.9) and motion-blur law, false positives, mud share, energy per metre, beam-steering speed, 4 s turns, independence of detections between passes (relaxed in sweep 4). No robot was built or driven; simulation only.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-weedpass/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-weedpass/
 
 ![Kill share against time for one to three passes at three speeds](experiments/kill_vs_time.svg)
 

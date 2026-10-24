@@ -2,7 +2,7 @@
 
 Milestone 10 of track 21, applied R&D for the industries modern life runs on (`PROJECTS.md`). It asks how belt speed, pick cycle time, detector quality and pick order set purity, recovery and picks per minute for one robot sorting bottles and cans off a moving waste belt, using the item mix and sizes of a real dataset. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-sorting/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-sorting/
 
 **Headline.** With a 1 s pick cycle, 1 m of reach and 3 items per metre, recovery of bottles and cans is **0.66 at 0.1 m/s, 0.65 at 0.5, 0.55 at 0.75, 0.48 at 1.0 m/s and zero from 1.5 m/s**: an item must stay in reach longer than one pick, so reach / pick time is a hard speed limit. The fastest belt keeping 80% of the slow-belt recovery is **1.6, 0.8 and 0.4 m/s** for 0.5, 1 and 2 s picks. Purity is set by the detector's false-call rate and recovery by its size threshold; the pick order (FIFO, LIFO, largest first) makes no difference.
 

@@ -1,6 +1,6 @@
 # house-overhang: does a roof overhang over south windows pay for itself, and in which climates does it cost energy instead of saving it?
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-overhang/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-overhang/
 
 Track 12, open-source residential construction (`PROJECTS.md`, milestone 5), the "add overhang shading" next step of [`house-solar`](../house-solar). `house-solar` gave south glass its winter sun but left it unshaded in summer. A horizontal overhang blocks the high summer sun and, if too deep, also the low winter sun. This project adds the overhang geometry (profile angle, shadow depth on the glass) to `house-solar`'s hourly beam calculation, shades the beam term only, and searches projection (0 to 4 ft) jointly with `house-energy`'s 640 envelope packages. It is a **degree-day model, not EnergyPlus**, and the window height, overhang gap and overhang price are **unsourced assumptions**. Produced with AI assistance (Claude).
 

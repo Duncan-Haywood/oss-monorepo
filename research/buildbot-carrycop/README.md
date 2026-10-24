@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`, milestone 3). It tests the first idea in [`buildbot-carryphase`](../buildbot-carryphase)'s "Next steps" and [`buildbot-carry`](../buildbot-carry)'s ("shift the ZMP within the foot"): the carry gait there plans the centre of pressure (CoP) at the middle of the stance foot, and its speeds were called lower bounds because the CoP leaves the sole before a torque limit binds. If the plan puts the CoP at a better place on the sole, does the Menagerie G1 or H1 carry a load faster? Produced with AI assistance (Claude). Simulated and preliminary; **the answer is mostly no**, which is why it is worth writing down.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-carrycop/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-carrycop/
 
 **Headline.**
 - **A constant CoP offset does not raise the speed ceiling.** Over 1,944 cases (G1 at 0 to 5 kg, H1 at 0 to 18 kg, six CoP offsets from 6 cm behind to 9 cm ahead of the sole point, a 6 x 6 grid of step length and single-support time), the fastest feasible step with the CoP at the foot's middle (offset 0) reproduces `buildbot-carryphase`: G1 0.25 m/s unloaded, 0.20 m/s at 3 kg, 0.10 m/s at 4 kg, none at 5 kg; H1 0.15, 0.10 and 0.07 m/s at 0, 10 and 14 kg, none at 18 kg.

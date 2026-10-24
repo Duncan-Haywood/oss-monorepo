@@ -1,6 +1,6 @@
 # How many words must an imitator change to evade a word n-gram human-vs-machine detector that it can read?
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-whitebox/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-whitebox/
 
 Track 11 (adversarial human imitation), a no-model slice between `mimic-evade` (blind surface edits) and `mimic-loop`. It was chosen because `mimic-evade` showed blind edits barely move the detector; the question left open is how cheap evasion becomes once the imitator knows the weights. **Preliminary, stylised: a scripted white-box attack on a linear detector, one seed, held-out poetry, reviews and wiki only, and the edited text is not checked for fluency or meaning.** Produced with AI assistance (Claude). No LLM was run and no text was written by the session agent.
 

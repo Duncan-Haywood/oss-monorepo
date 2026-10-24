@@ -107,6 +107,10 @@ def insert_link(text, slug):
     """Return text with the live-page line after the first paragraph under the title."""
     if has_link(text, slug):
         return text
+    # A live-page line for an older base URL (e.g. /monorepo-projects/) is moved, not duplicated.
+    old = re.compile(r"^\*\*Live page:\*\* \S*/research/%s/[ \t]*$" % re.escape(slug), re.M)
+    if old.search(text):
+        return old.sub(LINE.format(url=url_for(slug)), text, count=1)
     lines = text.split("\n")
     i = 0
     while i < len(lines) and not lines[i].startswith("# "):

@@ -2,7 +2,7 @@
 
 Follow-up to `simdesign-robustmesh` (track 5, `PROJECTS.md`), taking its third listed next step: diagnose the two poor 60×20 robust runs it reported but could not explain. Result: the cause is the move limit of 0.2 used by every earlier project in this chain. At a move limit of 0.1 or 0.05, none of nine mesh-and-radius cases failed; at 0.2, five of nine did (four of six on 60×20, one of three on 120×40). Produced with AI assistance (Claude). Stylised: 2D dimensionless compliance, one problem, one deterministic run per cell; nothing was made or tested physically.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-robustmove/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-robustmove/
 
 **Builds on.** `simdesign-robust` (`robust_topopt`, which already takes a `move` argument; imported unchanged), `simdesign-robustmesh`, `simdesign-robustradius`, `simdesign-heaviside`, `simdesign-topopt`. Wang, Lazarov and Sigmund (2011), *Struct. Multidisc. Optim.* 43(6):767–784, <https://doi.org/10.1007/s00158-010-0602-y>, for the eroded / blueprint / dilated formulation; its move-limit or convergence advice was not checked. It builds on none of the CU Boulder groups in `prompt.md`.
 

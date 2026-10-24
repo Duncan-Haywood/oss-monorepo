@@ -1,7 +1,7 @@
 # house-diaphragm: does the half-and-half load split understate the demand on a garage-front wall?
 
 A project of track 12, open-source residential construction (`PROJECTS.md`, milestone 6, a next step of [`house-structure`](../house-structure): "a rigid-diaphragm load split so the garage-front line carries its stiffness-based share"). It re-asks one question of `house-structure`, experiment G, whose note said a stiff partner wall would attract more load. Stylised and not a code check. Produced with AI assistance (Claude).
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-diaphragm/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-diaphragm/
 
 
 **Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-diaphragm/

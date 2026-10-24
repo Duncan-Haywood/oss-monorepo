@@ -2,7 +2,7 @@
 
 **Not cheaply, and a plain random audit beats the design. On 3,188 real Reddit comments (GoEmotions), a 200-item audit with 5 coder-negative items gave a short-minus-long gap interval that, as a Wald interval, covered the true gap (−0.059) in only 58% of draws at worst; a Jeffreys-posterior interval per group-by-coder-label cell covered 97% but was 0.82–0.99 wide. Auditing 200 random items gave 0.23 wide at 95% coverage.** Pooling the two groups' coder-negatives to save items looked sharp (width 0.05–0.17) and then covered the truth in 3% of draws for the word-list coder, whose miss rate differs by group.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-gapneg/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-gapneg/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). [`qual-negint`](../qual-negint) found that Wilson or Jeffreys intervals fix the small-k problem for a single prevalence, and listed "the same intervals for a group gap" as a next step; this tests it. Lab tags: none; this builds on no group in `prompt.md`. Not an LLM: the four coders are automated stand-ins.
 

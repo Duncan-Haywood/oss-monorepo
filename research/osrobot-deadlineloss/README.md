@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-deadline` (track 9, open-source purpose-built robots), whose "Next steps" asked to "replace the hard deadline with a loss of yield for each late field". This project does that with one sourced number: **2% of yield lost for each leaf stage that weed control is delayed past the critical time** (Knezevic, Evans & Mainz 2003, *Crop Management* 2(1), doi:10.1094/CM-2003-0219-01-RS; pooled corn and soybean data, moderate to high weed density, valid up to canopy closure in corn and R3 in soybean). The fleet minimises fleet cost plus the yield it loses. **Fleet prices, duty and times are still assumed round numbers as in `osrobot-deadline`; days per leaf stage, working hours per day and crop revenue are not sourced and are swept.** No new simulation (it reuses `osrobot-pairprice`'s fitted per-field minutes). In the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field robots; nothing here is affiliated with or endorsed by them. Produced with AI assistance (Claude). Pure Python standard library. Simulation only; nothing was built or flown.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-deadlineloss/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-deadlineloss/
 
 ![Fleet plus late-yield cost per hectare by window, 1.62 ha fields](experiments/loss.svg)
 
