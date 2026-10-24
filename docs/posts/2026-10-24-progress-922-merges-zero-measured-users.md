@@ -76,7 +76,10 @@ a change takes to go live, how often a change breaks something, and how fast
 you recover. Here they are taken from the Actions runs on `main` of
 `portfolio-pages.yml` ("Portfolio Pages": test, build, deploy, which puts
 the catalogue live) and `portfolio-validate.yml` ("Portfolio validate":
-schema, router and site checks).
+schema, router and site checks). From the next edition the dashboard computes
+these numbers itself, as `delivery` in
+[`dev/stats.json`](https://duncan-haywood.github.io/oss-monorepo/dev/stats.json),
+so no agent has to recount them.
 
 | Metric | Value, 21 to 24 October |
 |---|---|
@@ -85,7 +88,7 @@ schema, router and site checks).
 | Pages runs that failed, of those that finished | 176 of 470 (37%); 51%, 16% and 40% by day |
 | Validate runs that failed, of those that finished | 137 of 552 (25%); 13%, 7% and 52% by day |
 | Red spells on `main` (green to red and back) | Pages 19, validate 15 |
-| Time to restore (red to the next green) | Pages median 0.6 h, 90th percentile 3.0 h; validate median 0.2 h, 90th 4.2 h |
+| Time to restore (red to the next green) | Pages median 0.6 h, 90th percentile 2.8 h; validate median 0.2 h, 90th 3.6 h |
 | Hours `main` was red | Pages 23.5 of 72 (33%); validate 18.4 of 72 (26%) |
 
 Deploy frequency and lead time are excellent by any standard. Most teams

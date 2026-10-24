@@ -42,29 +42,27 @@ them, and never extrapolate past that); `integrity_issues`;
 ### Delivery (DORA) and bug rates
 
 The owner, 2026-10-24: "can we do analysis on bug rates and making it to prod
-or idk standard devops product etc metrics." Report these every edition,
-from the Actions runs API on `main` (`curl -s
-"https://api.github.com/repos/Duncan-Haywood/oss-monorepo/actions/workflows/<id>/runs?branch=main&per_page=100&created=%3E%3D<start>"`;
-filter by branch, because an unfiltered query stops at 1,000 runs, about 30
-hours). The workflows are `portfolio-pages.yml` (test, build, deploy: a
-success is a deploy) and `portfolio-validate.yml`.
+or idk standard devops product etc metrics", and these should be "automatically
+recorded metrics not from ai agents" (`prompts/goals.md`, "Software for the
+routine, agents for judgment"). So don't recount them: read `delivery` in
+`dev/stats.json`, which `platform/devstats` rebuilds on every publish:
 
-- **Deploy frequency:** successful Pages runs on `main` per day.
-- **Merge to live:** for each merge commit, the time from merge to the end
-  of the first successful Pages run *created* after it. Give the median,
-  p75, p90 and the count over an hour.
-- **Change failure:** the share of finished runs that failed, and the
-  number of green-to-red spells.
-- **Time to restore:** red to next green per spell (median, p90), and hours
-  of the window `main` was red.
-- **Why red:** the failing step of a sample of failed runs
-  (`actions/runs/<id>/jobs`), and whether the PR that opened a spell merged
-  over its own red check (`commits/<head sha>/check-runs`).
-- **Bugs:** merge titles saying "fix", fix-forwards naming a PR from the
-  window, red-team `real_defects` against campaigns, issues opened, and
-  site feedback. All of these are floors; say so.
-- `dev/stats.json` on the site adds first-try-green PR share and the 14-day
-  CI pass share.
+```
+curl -s https://duncan-haywood.github.io/oss-monorepo/dev/stats.json | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin)['delivery'], indent=1))"
+```
+
+It gives deploys per day, merge-to-live minutes (p50, p75, p90, over an
+hour), and for each gate on `main` the failed share, red spells, time to
+restore and hours red, over the last 3 days. If it says `available: false`,
+say so in the post rather than computing it by hand. The same file gives the
+14-day CI pass share (`ci`) and first-try-green PRs (`github.ci_pr`).
+
+What is left for you is the judgment: why `main` was red (the failing step of
+a few failed runs, `actions/runs/<id>/jobs`, and whether the PR that opened a
+spell merged over its own red check), and the bug floors (merge titles
+saying "fix", red-team `real_defects` against campaigns, issues and site
+feedback). If a step here becomes a chore you repeat every day, move it into
+`platform/devstats` the same way.
 
 ## What the post should say
 

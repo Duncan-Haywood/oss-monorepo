@@ -70,6 +70,10 @@ One applies to every run: **files first, not the GitHub API** (owner,
 2026-10-20). What a later reader needs (verification output, decisions, why)
 goes in a file in the same PR (run record, README, `docs/history/`); a PR body
 or comment summarises it.
+And a rule of thumb (owner, 2026-10-24): **software for the routine, agents
+for judgment.** A chore runs keep repeating that a script or scheduled build
+could do at 90 to 100% of the quality belongs in that software, so agent
+time goes to what only an agent does well (`goals.md`, same title).
 
 ## Every session lands its own work
 
