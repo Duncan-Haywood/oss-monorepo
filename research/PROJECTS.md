@@ -1,6 +1,6 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 and tracks 20 and 21 on 2026-10-21. Runs
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 tracks 20 and 21 on 2026-10-21 and track 22 on 2026-10-24. Runs
 started from `prompt.md` take their new work from here. The tracks are numbered below. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
@@ -74,7 +74,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 ## Picking work
 
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
-   free-choice run; otherwise it maps the draw onto tracks 1-21, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
+   free-choice run; otherwise it maps the draw onto tracks 1-22, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
 
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
@@ -119,6 +119,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 19. Machine learning on qualitative data with LLMs | `qual` |
 | 20. Robots on the residential building site | `buildbot` |
 | 21. Applied R&D for the industries modern life runs on | `infra` |
+| 22. Autonomous water vehicles of every sort | `marine` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -1581,9 +1582,91 @@ netting; simulators plus learned surrogates for anything slow.
   advice.
 - *Every price, emission factor and device figure is sourced and dated, or swept.*
 
+## 22. Autonomous water vehicles of every sort (`marine`)
+
+Added on 2026-10-24 at the owner's request: "I also want one of the development directions to be
+autonomous water vehicles of multiple sorts very cool system."
+
+**Goal.** Autonomous craft on and under the water, treated as one system: the vehicle, its
+energy, its sense of where it is, the rules of the road it must follow, and the fleet it works
+in. "Multiple sorts" is the point. Surface vessels (small survey boats, catamarans, hydrofoils,
+autonomous ferries), sailing and wing-sail drones, wave- and solar-powered station keepers,
+propeller AUVs, buoyancy-driven gliders, tethered ROVs and amphibious craft each trade speed,
+endurance, payload and cost differently. Which body suits which job (bathymetric survey, water
+quality sampling, harbour inspection, aquaculture net checks, search patterns, small-cargo
+shuttles), and what limits each: drag, energy, navigation without GNSS, acoustic communication,
+or collision rules? Track 9 (`osrobot`) builds purpose-built robots in general and track 14
+(`codesign`) co-designs bodies with RL; this track owns anything whose medium is water. The
+freight-ship energy floor in `infra-propulsion` (track 21) is a starting point, not this track.
+
+**Prior work and open tools.** Check each before citing it. Dynamics and control: Fossen (2011),
+*Handbook of Marine Craft Hydrodynamics and Motion Control* (Wiley) and his open Python and MATLAB
+vehicle toolbox (MSS). Resistance: the ITTC 1957 friction line and Holtrop and Mennen (1982), *An
+approximate power prediction method*, International Shipbuilding Progress. Sea states:
+Pierson and Moskowitz (1964) and the JONSWAP spectrum (Hasselmann et al. 1973). Rules of the road:
+the IMO COLREGs (1972); velocity obstacles (Fiorini and Shiller 1998, *IJRR*) and their COLREGs
+form for USVs (Kuwata et al. 2014, *IEEE J. Oceanic Engineering*). Gliders: Rudnick et al. (2004),
+*Underwater gliders for ocean research*, Marine Technology Society Journal. Simulators and stacks:
+Gazebo's VRX (Virtual RobotX; Bingham et al. 2019, OCEANS), Stonefish (Cie&sacute;lak 2019, OCEANS),
+ArduPilot Rover (boat frames) and ArduSub, ROS 2. Perception data: MaSTr1325 (Bovcon et al. 2019,
+IROS) and its successors for maritime obstacle segmentation. Environment data: NOAA tides and
+currents, Copernicus Marine and public AIS archives (probe each through the proxy first).
+
+**Milestones.** A starting order; follow the results.
+1. `marine-hull`: which small hull carries a survey payload furthest per kWh? Monohull, catamaran,
+   SWATH, planing hull and hydrofoil from ITTC 1957 plus form factors (Holtrop-Mennen where it
+   applies), checked against a published resistance curve, then endurance on a sourced battery
+   and solar figure from track 16's `energy-density` at survey speeds.
+2. `marine-path`: holding a survey line in wind, waves and current. Fossen's 3-DOF surface model,
+   line-of-sight guidance with PID, integral LOS and MPC, scored on cross-track error and energy
+   across sea states from a JONSWAP spectrum.
+3. `marine-colregs`: collision avoidance that obeys the rules. Velocity obstacles, sampling MPC and
+   a rule-based baseline on a scripted library of head-on, crossing and overtaking encounters (and
+   real encounter geometries replayed from public AIS where reachable), scored on closest point of
+   approach, rule compliance and detour length. An LLM or session proposer may tune the cost
+   weights against CMA-ES at the same budget.
+4. `marine-glider`: when does a glider beat a propeller AUV? A buoyancy-engine saw-tooth model:
+   range against glide angle and dive depth, against a propeller AUV of the same mass and battery,
+   reproducing a published glider range figure first.
+5. `marine-sail`: autonomous sailing routes. A polar diagram for a small wing-sail drone,
+   isochrone weather routing on a recorded wind and current field, and how much a tack-aware
+   controller loses to the ideal route.
+6. `marine-dr`: navigating under water without GNSS. DVL plus IMU dead-reckoning drift, then the
+   gain from acoustic range aids (LBL, USBL) and surfacing for a fix, scored on position error
+   against energy spent; builds on track 15's filters and the repo's `gnss-twin` and `doppler-twin`.
+7. `marine-fleet`: one big vehicle or several small ones? Coverage planning for a bathymetric or
+   water-quality survey with heterogeneous craft, acoustic bandwidth and range limits, and battery
+   swaps, against a single larger vehicle at the same cost.
+8. `marine-dock`: autonomous docking and charging. Approach and capture into a dock in current and
+   waves, success rate against approach strategy and sensor noise; the dock is a by-product design.
+9. `marine-detect`: seeing obstacles on the water. Reproduce a published segmentation baseline on
+   MaSTr1325 (or a successor), then measure how glare, fog and small-object size cut recall, and
+   what the detector's miss rate does to `marine-colregs`.
+10. `marine-wave`: station keeping on wave and solar power alone. A Wave Glider-style two-body
+    thrust model and a solar budget by latitude and month, against a battery-only buoy drone.
+
+**Method transfers worth trying.** Twins and domain randomisation from the `*-twin` projects;
+CMA-ES, Bayesian optimisation and LLM proposers for hull and controller parameters; MPC and LP
+from tracks 16 and 21; coverage and routing solvers (OR-Tools) for fleets; track 15's filters
+for navigation.
+
+**Guardrails.**
+- *Simulation first, as every track.* Building, buying or putting a vehicle in the water is an
+  owner step with a sourced bill of materials. Never present a simulated craft as a tested one.
+- *Rules of the water.* Any real operation needs the flag state's and local authority's rules
+  (COLREGs, coast guard or harbour master, permits for protected waters and wildlife). Say so in
+  the README; a COLREGs-compliant planner here is research, not a certified system.
+- *No weapons, no surveillance of people.* No military, mine-countermeasure or targeting work, no
+  tracking or identifying people or particular vessels; public AIS is used only as anonymised
+  encounter geometry. Check export-control limits (EAR, ITAR) before publishing anything about
+  long-range autonomous underwater navigation; track 14's rule applies.
+- *No interference with real systems.* Never transmit, spoof or probe AIS, GNSS or any vessel or
+  port system. Public datasets and simulators only.
+- *Every hull, battery, sensor and price figure is sourced and dated, or swept.*
+
 ## References
 
-Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; tracks 20's and 21's, added on 2026-10-21, are not yet checked. Check them again before
+Tracks 1 to 6 were checked on 2026-10-12, tracks 7 to 11 on 2026-10-14 track 12 on 2026-10-16 and track 13 on 2026-10-19; tracks 14 and 15, added on 2026-10-19, are not yet checked; track 16's were not all re-checked (`energy-density`'s README marks which it checked); track 17's were checked when it was added on 2026-10-19; track 18's, added on 2026-10-19, are not yet checked; tracks 20's and 21's, added on 2026-10-21, and track 22's, added on 2026-10-24, are not yet checked. Check them again before
 citing one, as `prompt.md` requires.
 
 **Track 1.**
@@ -1785,3 +1868,6 @@ citing one, as `prompt.md` requires.
 - Kruse, Pandey, Alami and Kirsch (2013). Human-aware robot navigation: a survey. *Robotics and Autonomous Systems* 61(12):1726–1743. <https://doi.org/10.1016/j.robot.2013.05.007>
 - Mavrogiannis, Baldini, Wang, Zhao, Trautman, Steinfeld and Oh (2023). Core challenges of social robot navigation: a survey. *ACM Trans. Hum.-Robot Interact.* 12. <https://doi.org/10.1145/3583741>
 - Hancock, Billings, Schaefer, Chen, de Visser and Parasuraman (2011). A meta-analysis of factors affecting trust in human-robot interaction. *Human Factors* 53(5):517–527. <https://doi.org/10.1177/0018720811417254>
+
+**Track 22.**
+- Not yet checked; check before citing: Fossen (2011), *Handbook of Marine Craft Hydrodynamics and Motion Control*, Wiley; ITTC (1957) model-ship correlation line; Holtrop and Mennen (1982), An approximate power prediction method, *International Shipbuilding Progress* 29; Pierson and Moskowitz (1964), *J. Geophysical Research* 69(24); Hasselmann et al. (1973), JONSWAP, *Deutsche Hydrographische Zeitschrift* A8(12); IMO (1972), Convention on the International Regulations for Preventing Collisions at Sea; Fiorini and Shiller (1998), Motion planning in dynamic environments using velocity obstacles, *IJRR* 17(7); Kuwata et al. (2014), Safe maritime autonomous navigation with COLREGS, using velocity obstacles, *IEEE J. Oceanic Engineering* 39(1); Rudnick et al. (2004), Underwater gliders for ocean research, *Marine Technology Society Journal* 38(2); Bingham et al. (2019), Toward maritime robotic simulation in Gazebo, OCEANS; Cie&sacute;lak (2019), Stonefish, OCEANS; Bovcon et al. (2019), The MaSTr1325 dataset for training deep USV obstacle detection models, IROS; VRX <https://github.com/osrf/vrx>; ArduPilot <https://ardupilot.org>.
