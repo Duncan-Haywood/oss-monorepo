@@ -69,8 +69,9 @@ def _model(cdamp, fl, mass):
     return _models[key]
 
 
-def episode(ctx, params=None):
-    """One episode; params=None is the twin. Returns R in [0, 1]. Deterministic given (ctx, params)."""
+def episode(ctx, params=None, outcome="score"):
+    """One episode; params=None is the twin. outcome="score" returns R in [0, 1]; outcome="cost" (milestone 7c) returns the
+    unbounded tracking cost, integral of 100 th^2 + (x - xref)^2 over the full horizon with no early stop. Deterministic given (ctx, params)."""
     mass, th0, w0, x0, xref, seed = ctx
     real = params is not None
     q = {**NOMINAL, **(params or {})}
@@ -89,7 +90,7 @@ def episode(ctx, params=None):
             ou[k] = x
         sn = rng.standard_normal((STEPS, 2)) * q["sn"]
     buf = [0.0] * (q["delay"] + 1)
-    err2, alive = 0.0, STEPS
+    err2, alive, cost = 0.0, STEPS, 0.0
     for k in range(STEPS):
         pos, th, v, w = d.qpos[0], d.qpos[1], d.qvel[0], d.qvel[1]
         if real and q["sn"] > 0:
@@ -99,9 +100,14 @@ def episode(ctx, params=None):
         d.ctrl[0] = buf.pop(0) * q["gain"]
         d.qfrc_applied[0] = ou[k]
         mujoco.mj_step(m, d)
+        if outcome == "cost":
+            cost += (100.0 * d.qpos[1] ** 2 + (d.qpos[0] - xref) ** 2) * DT
+            continue
         err2 += d.qpos[1] ** 2
         if abs(d.qpos[1]) > ANG_FALL or abs(d.qpos[0]) > TRACK:
             alive = k + 1
             break
+    if outcome == "cost":
+        return float(cost)
     rms = np.sqrt(err2 / alive)
     return float(alive / STEPS * (1.0 - min(1.0, rms / RMS0)))

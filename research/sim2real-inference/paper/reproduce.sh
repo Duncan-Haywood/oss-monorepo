@@ -17,3 +17,4 @@ python3 experiments/m6b_dfloor/dfloor.py
 python3 experiments/m6c_quantile/quantile.py
 python3 experiments/m4_simpler/analyse.py                        # SIMPLER
 python3 experiments/m7_cartpole/run_pool.py && python3 experiments/m7_cartpole/analyse.py   # second task (cart-pole)
+python3 experiments/m7c_cost/run_pool.py && python3 experiments/m7c_cost/analyse.py   # unbounded cost outcome
