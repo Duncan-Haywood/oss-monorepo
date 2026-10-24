@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 13: the transformer trained 5x longer (H1), planned before running
+- Why: milestones 11 and 12 stop at 600 steps with held-out loss 2.73, far from converged, so the late-training regime (small updates, where skipping should be cheapest) is only partly reached. `experiments/transformer_long/run.py` is the milestone 11 run with `steps=3000` (same model, corpus, 10 seeds, float32 reorder referee), taus 1e-3, 3e-3, 1e-2, 3e-2.
+- Prediction: the median update norm falls (late cosine steps shrink with lr), so at fixed tau a larger share is skipped than at 600 steps (above 16% at 1e-2). The loss given up at tau = 1e-2 stays below one seed std. Refutation of the narrow form of H1 here: a tau at or below 10x the worst reorder drift (about 1.5e-6, outside the grid) with degradation above one seed std and a CI excluding zero; the grid's smallest tau is 1e-3, so the drift-sized test is the skipped share and degradation there.
+- Analysis: as milestone 11 (10 seeds, paired degradation, 95% bootstrap CI, share skipped).
+
 ## 2026-10-24 · Milestone 12: bf16 referee on the transformer (H1), planned before running
 - Why: milestone 11 ran only the float32 reorder referee; the lower-precision referee is the realistic one (a verifier on different hardware). `margin_tf.py` already has the bf16 path (autocast forward, float32 loss); `experiments/transformer_bf16/run.py` uses it with the same 10 seeds, corpus and taus.
 - Prediction: bf16 drift is far larger than float32 reorder drift (around 1e-4 to 1e-2 per step, from the fp16 numbers of milestone 8 scaled by bf16's coarser mantissa), so a referee tolerance must sit above it, and the honest false-dispute rate at tau = 1e-3 is high (above 10%). The skip shortcut at tau = 1e-2 (about the p99 drift) still skips 10 to 20% of steps at a cost below one seed std. Refutation of the narrow form of H1 here: a tau at or below 10x the max bf16 drift with degradation above one seed std and a CI excluding zero.
