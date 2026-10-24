@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { layoutInsulation, validateInsulation } from "./insulation.mjs";
+import { layoutInsulation, validateInsulation, insulationText } from "./insulation.mjs";
 
 const wall = (members, length = 96, stud = "2x4") => ({ id: "A", length, stud, members });
 const m = (x, y, w, h) => ({ x, y, w, h });
@@ -33,4 +33,28 @@ test("2x6 walls default to R-21 and are grouped apart; price multiplies bags", (
 test("bad inputs are refused", () => {
   assert.equal(validateInsulation({ bagSqFt: 5 }).length, 1);
   assert.equal(layoutInsulation({ waste: 0.9 }, plan, { walls: [] }).ok, false);
+});
+
+test("attic loose fill: depth from R and R per inch, volume by hand", () => {
+  const r = { walls: [wall([m(0, 0, 96, 96)])] };
+  // 20 ft x 30 ft ceiling = 600 sq ft; R-38 at R-3.8/in = 10 in; 600 x 10/12 = 500 cu ft; +5% = 525
+  const l = layoutInsulation({ attic: { ceiling: [{ width: 240, depth: 360 }], rPerInch: 3.8, bagCuFt: 30, price: 20 } }, plan, r);
+  assert.equal(l.ok, true);
+  assert.ok(Math.abs(l.attic.depthIn - 10) < 1e-9);
+  assert.ok(Math.abs(l.attic.cuFt - 525) < 1e-9);
+  assert.equal(l.attic.bags, 18); // 525 / 30 = 17.5
+  assert.equal(l.attic.cost, 360);
+  assert.ok(insulationText(l).some((x) => x.includes("10.0 in")));
+});
+
+test("attic without a bag volume gives depth and cubic feet but no bag count; area falls back to drywall ceilings, then roof", () => {
+  const r = { walls: [] };
+  const a = layoutInsulation({ attic: {} }, { ...plan, drywall: { ceiling: [{ width: 120, depth: 120 }] } }, r);
+  assert.equal(a.attic.bags, null);
+  assert.equal(a.attic.rPerInchAssumed, true);
+  assert.ok(Math.abs(a.attic.sqFt - 100) < 1e-9);
+  const b = layoutInsulation({ attic: {} }, { ...plan, roof: { width: 240, length: 360 } }, r);
+  assert.ok(Math.abs(b.attic.sqFt - 600) < 1e-9);
+  assert.equal(layoutInsulation({ attic: {} }, plan, r).ok, false);
+  assert.equal(validateInsulation({ attic: { rValue: 5 } }).length, 1);
 });
