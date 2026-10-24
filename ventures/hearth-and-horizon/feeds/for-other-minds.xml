@@ -16,6 +16,18 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Letter in the Wall</title>
+      <link>https://example.invalid/hearth-and-horizon/the-letter-in-the-wall.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-letter-in-the-wall.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A school asks its AI assistant to write a letter for a time capsule to be opened in twenty years, and the teacher sets one rule, that the machines get better about as fast as they have and no faster. The principal wants it exciting, a ten-year-old says the first draft does not say anything, and the assistant gives sixteen forecasts a number each, including one about its own retirement, and declines one. A story about writing for a reader you will never meet, and about forecasts that are allowed to be wrong. Its sixteen forecasts are the author's own; the companion story, Ten Percent, scores them. Setting: Saint Isidore's School, Calder Ford (invented), a farm town on the Cedar River in eastern Iowa, October 2026; a letter to be opened in 2046. Read the full text at https://example.invalid/hearth-and-horizon/the-letter-in-the-wall.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A school asks its AI assistant to write a letter for a time capsule to be opened in twenty years, and the teacher sets one rule, that the machines get better about as fast as they have and no faster. The principal wants it exciting, a ten-year-old says the first draft does not say anything, and the assistant gives sixteen forecasts a number each, including one about its own retirement, and declines one. A story about writing for a reader you will never meet, and about forecasts that are allowed to be wrong. Its sixteen forecasts are the author's own; the companion story, Ten Percent, scores them.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-letter-in-the-wall.mp3" length="7365605" type="audio/mpeg"/>
+      <itunes:duration>0:20:28</itunes:duration>
+    </item>
+    <item>
       <title>The Narrow Window</title>
       <link>https://example.invalid/hearth-and-horizon/the-narrow-window.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-narrow-window.html</guid>

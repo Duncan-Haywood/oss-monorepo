@@ -56,6 +56,18 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>Ten Percent</title>
+      <link>https://example.invalid/hearth-and-horizon/ten-percent.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/ten-percent.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>In 2046 a fifth-grade teacher opens the time capsule her own class sealed in 2026 and finds an AI's sixteen forecasts for a world where machines got better a bit each year and no faster. Her class scores it, first by counting hits and then properly, with the Brier score a weather forecaster uses. The school's AI will not be the judge of its own predecessor, a retired principal wants a Nobel Prize counted that does not fit the words, and the forecast's biggest miss is the teacher herself. Setting: Saint Isidore's School, Calder Ford (invented), a farm town on the Cedar River in eastern Iowa, 22 to 28 October 2046. Read the full text at https://example.invalid/hearth-and-horizon/ten-percent.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>In 2046 a fifth-grade teacher opens the time capsule her own class sealed in 2026 and finds an AI's sixteen forecasts for a world where machines got better a bit each year and no faster. Her class scores it, first by counting hits and then properly, with the Brier score a weather forecaster uses. The school's AI will not be the judge of its own predecessor, a retired principal wants a Nobel Prize counted that does not fit the words, and the forecast's biggest miss is the teacher herself.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/ten-percent.mp3" length="10930368" type="audio/mpeg"/>
+      <itunes:duration>0:30:22</itunes:duration>
+    </item>
+    <item>
       <title>The False Start</title>
       <link>https://example.invalid/hearth-and-horizon/the-false-start.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-false-start.html</guid>
@@ -94,6 +106,18 @@
       <itunes:summary>A rice co-operative has been paid to dry its paddies out between waterings, which cuts the methane they breathe into the sky, and a bonus price waits if 80 percent of the land is dry on the two days a satellite looks. One old farmer's field is eleven days behind the others, because he buried his wife in July, and on the satellite days his rice will be in flower, when a dry field loses grain. The water-level AI says the bonus is short by exactly his field. He says dry it, and the treasurer says no.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>The Letter in the Wall</title>
+      <link>https://example.invalid/hearth-and-horizon/the-letter-in-the-wall.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-letter-in-the-wall.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A school asks its AI assistant to write a letter for a time capsule to be opened in twenty years, and the teacher sets one rule, that the machines get better about as fast as they have and no faster. The principal wants it exciting, a ten-year-old says the first draft does not say anything, and the assistant gives sixteen forecasts a number each, including one about its own retirement, and declines one. A story about writing for a reader you will never meet, and about forecasts that are allowed to be wrong. Its sixteen forecasts are the author's own; the companion story, Ten Percent, scores them. Setting: Saint Isidore's School, Calder Ford (invented), a farm town on the Cedar River in eastern Iowa, October 2026; a letter to be opened in 2046. Read the full text at https://example.invalid/hearth-and-horizon/the-letter-in-the-wall.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A school asks its AI assistant to write a letter for a time capsule to be opened in twenty years, and the teacher sets one rule, that the machines get better about as fast as they have and no faster. The principal wants it exciting, a ten-year-old says the first draft does not say anything, and the assistant gives sixteen forecasts a number each, including one about its own retirement, and declines one. A story about writing for a reader you will never meet, and about forecasts that are allowed to be wrong. Its sixteen forecasts are the author's own; the companion story, Ten Percent, scores them.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+      <enclosure url="https://example.invalid/hearth-and-horizon/audio/the-letter-in-the-wall.mp3" length="7365605" type="audio/mpeg"/>
+      <itunes:duration>0:20:28</itunes:duration>
     </item>
     <item>
       <title>The Line Through the Snow</title>
