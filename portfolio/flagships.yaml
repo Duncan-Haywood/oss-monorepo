@@ -38,7 +38,7 @@ flagships:
       are about real inputs (the landed log is in the README and git history, not
       here). Open items, most valuable first: (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
-      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers (Excel, BAI2, Norma 43, CFONB120 and many regional CSV headers, CJK code pages; all tested only on hand-built or made-up files, see README; Firefly III's 41 bank layouts probed header-less 2026-10-24, headers still unseen; bank2ynab's 40 sample files imported 2026-10-24, 4 layouts fixed) (CSV, OFX/QFX/QIF, statement PDFs, regional code pages and layouts) on real
+      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers (Excel, BAI2, Norma 43, CFONB120 and many regional CSV headers, CJK code pages; all tested only on hand-built or made-up files, see README; Firefly III's 41 bank layouts probed header-less 2026-10-24, headers still unseen; bank2ynab's 40 sample files imported 2026-10-24, 4 layouts fixed) on real
       exports from Chase, Bank of America, Wells Fargo, Amex, Capital One and
       others; (3) a real Stripe, Square, PayPal, eBay (reader landed 2026-10-24 on a hand-made fixture) or Amazon settlement export for
       the payment-processor import (`form1099k`: try a real 1099-K); (4) a real
@@ -107,7 +107,7 @@ flagships:
       pages, credit-note links, JSON/UBL/CII/Factur-X arithmetic repair, FatturaPA
       IT-001..IT-018) lives in the README and git. The built-in rules ran on the 41
       official EN 16931 examples 2026-10-24 (README, "Measured on the official
-      examples": 0 passed before, arithmetic false positives fixed; HUF whole-unit tax rounding accepted 2026-10-24; XRechnung test suite 2026-10-26: 5 more false positives fixed, README; INV-038 zero-amount header charges and INV-030 as a non-blocking note landed 2026-10-24; Peppol BIS 3.0 examples and ZUGFeRD corpus 2026-10-27: negative invoices, negative prepaid, UNCL 1001 codes, NA order ids fixed, README; the 3.3 MB official UBL invoice with an embedded attachment reads clean of false positives (2026-10-28; the "FatturaPA" file was UBL); open: real FatturaPA official/eigor samples (eigor repo not reachable) and Factur-X PDFs from the same corpus, and the rules on real ERP files).
+      examples": 0 passed before, arithmetic false positives fixed; XRechnung test suite 2026-10-26: 5 more false positives fixed, README; Peppol BIS 3.0 examples and ZUGFeRD corpus 2026-10-27: negative invoices, negative prepaid, UNCL 1001 codes, NA order ids fixed, README; the 3.3 MB official UBL invoice with an embedded attachment reads clean of false positives (2026-10-28; the "FatturaPA" file was UBL); open: real FatturaPA official/eigor samples (eigor repo not reachable) and Factur-X PDFs from the same corpus, and the rules on real ERP files).
       Open: a repair tried on a real
       ERP or Factur-X export (xref-stream PDF repair landed 2026-10-22 on a hand-built
       fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
