@@ -312,7 +312,8 @@ export function sniffBank(rows) {
     if (/^date\|counter party\|reference\|type\|amount \((gbp|eur|usd)\)\|balance/.test(h)) return "starling";
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
     if (/^booking date\|value date\|partner name\|partner iban\|type\|payment reference/.test(h)) return "n26";
-    if (/^id\|datetime\|type\|status\|note\|from\|to\|amount \(total\)/.test(h.replace(/^\|/, ""))) return "venmo";
+    // Newer exports name the first (once blank) column "Username" and put the account's own name on row 2.
+    if (/^(username\|)?id\|datetime\|type\|status\|note\|from\|to\|amount \(total\)/.test(h.replace(/^\|/, ""))) return "venmo";
     if (/^transaction id\|date\|transaction type\|currency\|amount\|fee\|net amount/.test(h)) return "cash-app";
     if (/^date\|description\|original description\|category\|amount\|status/.test(h)) return "usaa";
     if (/^date\|description\|type\|amount\|current balance\|status/.test(h)) return "sofi";
