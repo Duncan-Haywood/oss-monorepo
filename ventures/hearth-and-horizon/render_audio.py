@@ -1,27 +1,34 @@
 #!/usr/bin/env python3
-"""Render a story to MP3 with Piper, offline and at $0, then record it in
+"""Render a story to MP3 with Kokoro, offline and at $0, then record it in
 audio/manifest.json so the pages and podcast feeds pick it up.
 
-    python3 -m pip install piper-tts                        # once (bare `pip` may belong to another Python)
-    python3 -m piper.download_voices en_US-ljspeech-high    # once; public-domain voice
-    python3 render_audio.py the-slowest-bell-on-the-moon --voice path/to/en_US-ljspeech-high.onnx
+    python3 -m pip install kokoro-onnx soundfile    # once (bare `pip` may belong to another Python)
+    python3 render_audio.py the-slowest-bell-on-the-moon
     node generate.mjs
 
-Needs ffmpeg and a network that reaches huggingface.co (the voice download; a sandbox that blocks it
-cannot render, and `pip download` writes wheels into the current directory).
-Output is mono 48 kbps MP3 at -16 LUFS, the usual podcast loudness. The LJSpeech voice is trained on a public-domain dataset, so the
-audio can carry the same CC BY-SA licence as the text.
+Rendering is the shared engine, `platform/audio/narrate.py` (sentence cache, one
+worker per core, fixed-gain loudness; its docstring has the optional better-English
+`misaki` install). Kokoro v1.0's weights are Apache-2.0 and trained on permissively
+licensed and synthetic audio, so the audio can carry the same CC BY-SA licence as
+the text. The model files (~350 MB) download from huggingface.co on first use.
+Needs ffmpeg. Output is mono 32 kHz 48 kbps MP3 at -16 LUFS, the usual podcast
+loudness. The first 24 recordings were made with Piper and the public-domain
+LJSpeech voice; their manifest entries say so.
 """
 import argparse
 import json
 import re
 import subprocess
-import tempfile
+import sys
 import unicodedata
-import wave
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT.parents[1] / "platform" / "audio"))
+import narrate  # noqa: E402
+
+# af_bella: the voice Kokoro's own card grades highest after af_heart, which is the repository podcast's.
+VOICE = "af_bella"
 
 # Words an English voice reads badly, spelled the way they should sound.
 SAY = {
@@ -39,7 +46,8 @@ SAY = {
     "·": ",",
 }
 # Slower, gentler reading for the bedtime shelf.
-PACE = {"little-lamps": 1.15}
+SPEED = {"little-lamps": 0.87}
+SPEED_DEFAULT = 0.95
 
 
 def speakable(text: str) -> str:
@@ -62,48 +70,30 @@ def shelf_of(slug: str) -> str:
     return re.search(r"^shelf:\s*(\S+)", head, re.M).group(1)
 
 
-def render(slug: str, voice_path: str) -> dict:
-    from piper import PiperVoice, SynthesisConfig
+def plan(script: str) -> list:
+    parts = []
+    for block in script.split("\n\n"):
+        block = block.strip()
+        if block == "[pause]":
+            parts.append(narrate.Gap(1.6))
+        elif block:
+            lines = block.split("\n")  # prayers and letters keep their line pauses
+            parts += [narrate.Say(speakable(line), after=0.8 if i == len(lines) - 1 else 0.35) for i, line in enumerate(lines)]
+    return parts
 
+
+def render(slug: str, voice: str) -> dict:
     script = subprocess.run(["node", str(ROOT / "generate.mjs"), "--speech", slug], check=True, capture_output=True, text=True).stdout
-    voice = PiperVoice.load(voice_path)
-    config = SynthesisConfig(length_scale=PACE.get(shelf_of(slug), 1.05))
-    rate = voice.config.sample_rate
-    out_dir = ROOT / "audio"
-    out_dir.mkdir(exist_ok=True)
-    with tempfile.TemporaryDirectory() as tmp:
-        wav_path = Path(tmp) / "story.wav"
-        with wave.open(str(wav_path), "wb") as wav:
-            wav.setnchannels(1)
-            wav.setsampwidth(2)
-            wav.setframerate(rate)
-            for block in script.split("\n\n"):
-                block = block.strip()
-                if block == "[pause]":
-                    wav.writeframes(b"\0\0" * int(rate * 1.6))
-                    continue
-                for line in block.split("\n"):  # prayers and letters keep their line pauses
-                    for chunk in voice.synthesize(speakable(line), syn_config=config):
-                        wav.writeframes(chunk.audio_int16_bytes)
-                    wav.writeframes(b"\0\0" * int(rate * 0.35))
-                wav.writeframes(b"\0\0" * int(rate * 0.45))
-        with wave.open(str(wav_path)) as wav:
-            seconds = wav.getnframes() / wav.getframerate()
-        mp3 = out_dir / f"{slug}.mp3"
-        subprocess.run(
-            ["ffmpeg", "-y", "-loglevel", "error", "-i", str(wav_path), "-ac", "1",
-             "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-ar", "44100", "-codec:a", "libmp3lame", "-b:a", "48k",
-             "-metadata", f"title={slug}", "-metadata", "artist=Claude (AI) for Hearth & Horizon",
-             "-metadata", "copyright=CC BY-SA 4.0", str(mp3)],
-            check=True,
-        )
-    return {"bytes": mp3.stat().st_size, "seconds": round(seconds, 1), "voice": Path(voice_path).stem}
+    narrator = narrate.Narrator(voice=voice, lang="en-us", speed=SPEED.get(shelf_of(slug), SPEED_DEFAULT))
+    entry = narrate.master(narrator.render(plan(script)), ROOT / "audio" / f"{slug}.mp3", bitrate="48k", metadata={
+        "title": slug, "artist": "Claude (AI) for Hearth & Horizon", "copyright": "CC BY-SA 4.0"})
+    return {"bytes": entry["bytes"], "seconds": round(entry["seconds"], 1), "voice": f"kokoro-v1.0 {voice}"}
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("slugs", nargs="+")
-    parser.add_argument("--voice", required=True, help="path to a Piper .onnx voice")
+    parser.add_argument("--voice", default=VOICE, help=f"Kokoro voice name (default {VOICE})")
     args = parser.parse_args()
     manifest_path = ROOT / "audio" / "manifest.json"
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
