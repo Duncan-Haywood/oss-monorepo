@@ -170,6 +170,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Second Door</title>
+      <link>https://example.invalid/hearth-and-horizon/the-second-door.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-second-door.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A county building office in 2046 reads one permit in five by hand, picked by dice, because its agents draft ten thousand a year and three licensed people cannot read them all. A parish's winter shelter lands in the four-fifths nobody reads, with a forecast of minus 27 degrees and a drawing that shows two exits. The agent can check the drawing. It cannot check the gate. Setting: Pine Ferry, an invented town in Marais County, northern Wisconsin, Monday 12 to Wednesday 14 February 2046. Read the full text at https://example.invalid/hearth-and-horizon/the-second-door.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A county building office in 2046 reads one permit in five by hand, picked by dice, because its agents draft ten thousand a year and three licensed people cannot read them all. A parish's winter shelter lands in the four-fifths nobody reads, with a forecast of minus 27 degrees and a drawing that shows two exits. The agent can check the drawing. It cannot check the gate.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Wrong Column</title>
       <link>https://example.invalid/hearth-and-horizon/the-wrong-column.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-wrong-column.html</guid>
