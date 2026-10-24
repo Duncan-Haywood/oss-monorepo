@@ -96,8 +96,8 @@ flagships:
       fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
       FatturaPA code lists, tolerances and IT-018 sequences against the current
       specification and add a full FatturaPA XSD check; Singapore InvoiceNow page landed 2026-10-23 (2028-31 dates from secondary guides, not read on iras.gov.sg); PINT SG and A-NZ rules run in the browser 2026-10-23 (build-pint-rules.mjs, from Maven Central's phive-rules-peppol; not yet on the Saxon/server route; no real PINT file tried; Australia mandate page landed 2026-10-24 (dates from commentators, not read on ato.gov.au)); Ireland page landed 2026-10-23 (Nov 2028 phases from vendor guides, not revenue.ie); refresh the Bulgaria page
-      when its draft passes or changes; RO_CIUS (EN16931-CIUS_RO-UBL-validation.xslt, in
-      phive-rules-cius-ro) and NLCIUS: the same plain-from-xslt.mjs can compile them.
+      when its draft passes or changes; RO_CIUS landed 2026-10-24 (122 national rules in the browser; no
+      real ANAF file tried, not on the Saxon route); NLCIUS: plain-from-xslt.mjs can compile it.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
@@ -174,8 +174,7 @@ flagships:
       imbalance 5.83 -> 1.29 matches, at +18% venue changes) with a
       fairnessWeight box on the page. Swapping pairs of moved matches was
       measured and dropped. Trading two make-ups' nights (`swapNights`, 2026-10-23;
-      300 -> 280 breaks on 7 seeds with `balance`). Next: choosing the
-      fairness weight from the league's own travel times. Page checkboxes for balance, flip, relocate and swapNights landed 2026-10-23 (share link and CLI too); `node eval/browser-click.mjs` clicks them in Chromium (2026-10-23: 28 checks, ticks survive the share link).
+      300 -> 280 breaks on 7 seeds with `balance`). Choosing the fairness weight from the league's own travel (`suggestFairnessWeight`, CLI `--suggest-weight`, 2026-10-24; simulated leagues). Next: a page button for it (about 20 s of search, so a worker), then a real league's travel times. Page checkboxes for balance, flip, relocate and swapNights landed 2026-10-23 (share link and CLI too); `node eval/browser-click.mjs` clicks them in Chromium (2026-10-23: 28 checks, ticks survive the share link).
 
   - venture: open-tennis-robots
     why: >-

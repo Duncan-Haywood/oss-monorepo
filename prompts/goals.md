@@ -245,6 +245,18 @@ The deterministic path stays the product, and a model only suggests
 [`ventures/ai-bookkeeper`](../ventures/ai-bookkeeper/README.md), first in
 `portfolio/flagships.yaml`.
 
+## Direction: autonomous water vehicles
+
+Set by the owner on 2026-10-24: "I also want one of the development directions to be
+autonomous water vehicles of multiple sorts very cool system."
+
+Surface boats, sailing and wave-powered drones, AUVs, gliders and ROVs as one system: hull and
+energy, navigation without GNSS, collision rules (COLREGs), perception and fleets. It starts as
+research track 23 (`marine`) in
+[`research/PROJECTS.md`](../research/PROJECTS.md), simulation first; a product (a survey
+planner, an endurance or COLREGs checker) follows when a result earns one. No weapons or
+surveillance work, and real-water operation is an owner step.
+
 ## Direction: local models as an option beside API keys
 
 Set by the owner on 2026-10-18: "for the majority of applications, I think
@@ -540,7 +552,7 @@ So open designs for excavators, loaders, haul trucks, drills and similar
 machines are a standing direction: hardware, controller firmware (a natural
 fit for the Rust direction above), operator and fleet software, simulation
 and autonomy, judged by what they take off the cost of owning and running a
-machine against the one they would replace. It is research track 22
+machine against the one they would replace. It is research track 24
 (`heavy`) in [`research/PROJECTS.md`](../research/PROJECTS.md), where the
 milestones and its guardrails live: designs are research, not certified
 machines; nothing runs on a real machine or near a person without the owner;
