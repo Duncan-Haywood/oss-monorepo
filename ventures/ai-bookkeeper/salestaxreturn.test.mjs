@@ -160,3 +160,9 @@ test("Massachusetts: quarterly and annual returns are due 30 days after the peri
   const r = salesTaxReturn(books(), { dueDay: stateDueDay("MA", "quarterly") });
   assert.equal(r.periods.find((p) => p.period === "2026-Q1").rows[0].due, "2026-04-30");
 });
+
+test("CO, MI and MN are due the 20th; WI the last day of the month after the period", () => {
+  for (const s of ["CO", "MI", "MN"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
+  assert.equal(dueDate("2026-Q3", stateDueDay("WI", "quarterly")), "2026-10-31");
+  assert.equal(dueDate("2026-01", stateDueDay("wi", "monthly")), "2026-02-28");
+});
