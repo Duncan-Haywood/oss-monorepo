@@ -38,7 +38,7 @@ flagships:
       are about real inputs (landed work is in the README and git history, not
       here). Open items, most valuable first: (0) built-in keywords measured on one real makerspace's bank export (72.7%
       suggested, 96% right, tuned on itself) and on synthetic sets (README Next):
-      a second, Hack Club ledger, held out 2026-10-24 (36.5%, 100% right; replayed in date order with learning 2026-10-30: 90.7% suggested, 96.0% right; makerspace raw bank text replayed too: 98.9% suggested, 97.1% right): a third, hledger's Open Collective books, had no merchant tail (README Next): still wanted; (1) the AI layer in fill-only mode
+      a second, Hack Club ledger, held out 2026-10-24 (36.5%, 100% right; replayed in date order with learning 2026-10-30: 90.7% suggested, 96.0% right; makerspace raw bank text replayed too: 98.9% suggested, 97.1% right): a third, hledger's Open Collective books, had no merchant tail (README Next): still wanted (searched 2026-10-24: hcb.hackclub.com and api.opencollective.com 403 from cloud sessions, web search finds only the sets already used: see docs/reports/2026-10-24-real-ledger-search.md); (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
       rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers
       (CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
