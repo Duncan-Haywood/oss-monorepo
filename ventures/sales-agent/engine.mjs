@@ -136,11 +136,11 @@ export function parseReplies(text) {
     if (!raw) continue;
     const lines = raw.split("\n"), head = {};
     let i = 0;
-    while (i < lines.length && /^(from|subject|date|to|cc):\s*/i.test(lines[i])) { const [, k, v] = lines[i].match(/^(\w+):\s*(.*)$/); head[k.toLowerCase()] = v.trim(); i++; }
+    while (i < lines.length && /^(from|subject|date|to|cc|x-signal|x-failed-recipient):\s*/i.test(lines[i])) { const [, k, v] = lines[i].match(/^([\w-]+):\s*(.*)$/); head[k.toLowerCase()] = v.trim(); i++; }
     const body = stripQuoted(lines.slice(i).join("\n"));
     const from = (head.from || "").match(EMAIL_RE)?.[0]?.toLowerCase() || "";
     const name = (head.from || "").replace(/<[^>]*>/, "").replace(EMAIL_RE, "").replace(/["']/g, "").trim();
-    out.push({ from, name, subject: head.subject || "", date: head.date || "", body, raw });
+    out.push({ from, name, subject: head.subject || "", date: head.date || "", body, raw, ...(head["x-signal"] ? { signal: head["x-signal"] } : {}), ...(head["x-failed-recipient"] ? { failed: head["x-failed-recipient"].toLowerCase() } : {}) });
   }
   return out;
 }
@@ -245,6 +245,11 @@ export function triage(reply, today) {
   const res = (category, ev, extra = {}) => ({ category, subtype: null, confidence: "clear", evidence: ev ? ev.s : "", matched: ev ? ev.m : "", date: null, referral: null, ...extra });
 
   let ev;
+  // Header signals (RFC 3464 / 3834) are standards, not phrasing: they beat the word rules when present.
+  const signal = typeof reply === "string" ? "" : reply.signal || "";
+  if (signal === "dsn-permanent") return res("bounce", { s: "delivery status Status 5.x.x", m: "5.x.x" }, { why: "the receiving server reported a permanent failure" });
+  if (signal === "dsn-temporary") return res("out_of_office", { s: "delivery status Status 4.x.x", m: "4.x.x" }, { subtype: "delivery_delayed", why: "delivery delayed, not failed; no address change" });
+  if (signal === "auto-reply" && !find("bounce")) { const d = (() => { for (const s of all) { const f = findDate(s, today); if (f && /\b(back|return|until|till|away|leave|office)\b/i.test(s)) return f; } return null; })(); return res("out_of_office", { s: "Auto-Submitted header", m: "auto-replied" }, { date: d?.date || null, dateText: d?.text || null, why: "sent by an auto-responder (header), not a person" }); }
   if ((ev = find("bounce")) || /^(mailer-daemon|postmaster)@/i.test(from)) return res("bounce", ev || { s: from, m: from }, { why: "a delivery failure, not a person" });
   if ((ev = find("unsubscribe"))) return res("unsubscribe", ev, { why: "asked not to be contacted" });
 
@@ -385,9 +390,9 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
   const factsBase = Object.values(offer).join(" \n ");
 
   for (const [i, reply] of replies.entries()) {
-    const known = byEmail.get(reply.from);
-    const p = known || { email: reply.from, first_name: reply.name.split(/\s+/)[0] || "", company: "", status: "" };
-    if (!known && reply.from) { table.push(p); byEmail.set(reply.from, p); }
+    const known = byEmail.get(reply.failed || reply.from);
+    const p = known || { email: reply.failed || reply.from, first_name: reply.name.split(/\s+/)[0] || "", company: "", status: "" };
+    if (!known && p.email) { table.push(p); byEmail.set(p.email, p); }
     const t = triageFn(reply, today);
     const applied = [];
     let draft = null;
@@ -401,7 +406,7 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
         break;
       case "bounce":
         set("status", "bounced", "Stopped email to this address");
-        if (reply.from && !/^(mailer-daemon|postmaster)@/i.test(reply.from)) tasks.push({ email: p.email, task: "Address bounced. Find the right one in your own records; do not guess." });
+        if (reply.failed || (reply.from && !/^(mailer-daemon|postmaster)@/i.test(reply.from))) tasks.push({ email: p.email, task: "Address bounced. Find the right one in your own records; do not guess." });
         else tasks.push({ email: "", task: "A delivery failure came back. Match it to the prospect it was sent to and mark that address bounced." });
         break;
       case "not_interested":

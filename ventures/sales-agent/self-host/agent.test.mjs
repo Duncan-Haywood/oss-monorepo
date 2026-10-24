@@ -185,3 +185,24 @@ test("research drafts enter the approval queue as outbound items; suppressed ski
   assert.ok(readFileSync(join(dir, "audit.jsonl"), "utf8").includes("research_queued"));
   await smtp.close();
 });
+
+test("headers beat words: a DSN names the failed prospect, a temporary one does not bounce, Auto-Submitted is an auto-reply", async () => {
+  const { runInbox } = await import("../engine.mjs");
+  const { toReplyBlock } = await import("./imap.mjs");
+  const dsn = (status, action) => `From: MAILER-DAEMON@mx.example\r\nSubject: Notification\r\nDate: Mon, 26 Oct 2026 09:00:00 +0000\r\nContent-Type: multipart/report; report-type=delivery-status; boundary="R"\r\n\r\n--R\r\nContent-Type: text/plain\r\n\r\nSee attached.\r\n--R\r\nContent-Type: message/delivery-status\r\n\r\nReporting-MTA: dns; mx.example\r\n\r\nFinal-Recipient: rfc822; Jo@Acme.test\r\nAction: ${action}\r\nStatus: ${status}\r\n\r\n--R--\r\n`;
+  const prospects = "email,first_name,company,status\njo@acme.test,Jo,Acme,contacted\nmo@acme.test,Mo,Acme,contacted\n";
+  const hard = parseMessage(dsn("5.1.1", "failed"));
+  assert.deepEqual([hard.dsn.recipient, hard.dsn.permanent], ["jo@acme.test", true]);
+  let r = runInbox({ replies: toReplyBlock(hard), prospects, today: "2026-10-26" });
+  assert.equal(r.items[0].triage.category, "bounce");
+  assert.equal(r.prospects.find((p) => p.email === "jo@acme.test").status, "bounced");
+  assert.ok(!r.prospects.some((p) => /mailer-daemon/.test(p.email)));
+  const soft = parseMessage(dsn("4.2.2", "delayed"));
+  r = runInbox({ replies: toReplyBlock(soft), prospects, today: "2026-10-26" });
+  assert.equal(r.items[0].triage.category, "out_of_office");
+  assert.notEqual(r.prospects.find((p) => p.email === "jo@acme.test").status, "bounced");
+  const auto = parseMessage(mail("mo@acme.test", "Re: hello", "Thanks for your note. I am back on 2 November.", "Auto-Submitted: auto-replied\r\n"));
+  r = runInbox({ replies: toReplyBlock(auto), prospects, today: "2026-10-26" });
+  assert.equal(r.items[0].triage.category, "out_of_office");
+  assert.equal(r.items[0].triage.date, "2026-11-02");
+});
