@@ -1,0 +1,13 @@
+== H4: 140 cells (m 1..7 x g x p); max |brute force - max(0, g/p - 1)| = 6.99e-10
+== least cheating coalition that escapes replication (no audit, no stake), by m (g=0.3): m=1:1, m=2:2, m=3:2, m=4:3, m=5:3, m=6:4, m=7:4
+== stake S* by m at g=0.5 (each column a p); flat in m:
+m   p=0.05   p=0.1    p=0.25   p=0.5    p=1.0  
+1   9.000    4.000    1.000    0.000    0.000  
+2   9.000    4.000    1.000    0.000    0.000  
+3   9.000    4.000    1.000    0.000    0.000  
+4   9.000    4.000    1.000    0.000    0.000  
+5   9.000    4.000    1.000    0.000    0.000  
+6   9.000    4.000    1.000    0.000    0.000  
+7   9.000    4.000    1.000    0.000    0.000  
+== the proposal's 1/m form, S*(1)/m, at g=0.5, p=0.1: m=1:4.00, m=2:2.00, m=3:1.33, m=4:1.00, m=5:0.80, m=6:0.67, m=7:0.57  vs brute force 4.00, 4.00, 4.00, 4.00, 4.00, 4.00, 4.00
+== requester pay bill at honest equilibrium (r=1 per worker): m x 1; stake needed does not fall with m.
