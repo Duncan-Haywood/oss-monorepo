@@ -1,0 +1,9 @@
+H5-i real: max anytime miss = 2.5% (limit 6.0), median 0.5%
+H5-i cv1: max anytime miss = 0.8% (limit 6.0), median 0.0%
+H5-i cvlam: max anytime miss = 0.6% (limit 6.0), median 0.0%
+g=0.05: median stop real/cv1/cvlam over pairs = 108/144/245; never-stop % mean = 4/1/5
+g=0.1: median stop real/cv1/cvlam over pairs = 50/74/133; never-stop % mean = 0/0/0
+g=0.2: median stop real/cv1/cvlam over pairs = 22/39/75; never-stop % mean = 0/0/0
+H5-ii high-rho pairs (rho>=0.8, n=12) cv1 faster than real at g=0.10: 0/12; none-0 rho 0.87 75 vs 51, friction-0 rho 0.88 74 vs 51, friction-1 rho 0.88 74 vs 50, friction-2 rho 0.83 74 vs 50, delay-0 rho 0.85 74 vs 50, sensor-0 rho 0.86 72 vs 51, sensor-1 rho 0.83 74 vs 50, gain-0 rho 0.84 73 vs 51, mass-0 rho 0.87 73 vs 51, mass-1 rho 0.86 73 vs 51, mass-2 rho 0.85 76 vs 52, mass-3 rho 0.83 75 vs 51
+H5-ii low-rho pairs (rho<0.5, n=2) worst cv1/real median ratio at g=0.10: 79.00 (limit 1.20)
+H5-iii cvlam faster than cv1 (median over pairs, g=0.10)? cvlam 133 vs cv1 74
