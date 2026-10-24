@@ -824,6 +824,7 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
         "deviations": {f: {"reports": len(v), "recent": v[-3:]}
                        for f, v in sorted(deviations.items(), key=lambda kv: -len(kv[1]))},
         "writeups": writeup_share(runs),
+        "posts_per_day": posts_per_day(root),
         "instruction_lines": sizes,
         "instruction_budget": {rel: budget_for(rel) for rel in sizes},
         "backlog": backlog_summary([item for _, item in load_backlog(root)]),
@@ -844,6 +845,23 @@ def writeup_share(runs: list[dict[str, Any]]) -> dict[str, Any]:
     return {"runs": len(recent),
             "agent_doc": sum(has(r, "docs/reports/") for r in recent),
             "post": sum(has(r, "docs/posts/") for r in recent)}
+
+
+POSTS_DAYS = 14  # days of docs/posts/ shown by "measure" (owner, 2026-10-24: more posts per day)
+
+
+def posts_per_day(root: Path, days: int = POSTS_DAYS) -> list[tuple[str, int]]:
+    """New posts per day in docs/posts/, from the YYYY-MM-DD filename prefix, newest day last."""
+    counts: dict[str, int] = {}
+    for f in (root.parent / "docs" / "posts").glob("*.md"):
+        day = f.name[:10]
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+            counts[day] = counts.get(day, 0) + 1
+    if not counts:
+        return []
+    last = date.fromisoformat(max(counts))
+    span = [(last - timedelta(days=n)).isoformat() for n in range(days - 1, -1, -1)]
+    return [(d, counts.get(d, 0)) for d in span]
 
 
 def filter_sections(text: str, section: str | None) -> str:
@@ -941,6 +959,9 @@ def print_measure(m: dict[str, Any]) -> None:
     print("\n## Write-ups (goals.md, \"Write about the work\")\n")
     print(f"- Last {w['runs']} records since {WRITEUPS_FROM}: {w['agent_doc']} name an agent doc "
           f"(docs/reports/), {w['post']} a post (docs/posts/)")
+    if m["posts_per_day"]:
+        print(f"- New posts per day, last {len(m['posts_per_day'])} days: "
+              + ", ".join(f"{d[5:]} {n}" for d, n in m["posts_per_day"]))
     b = m["backlog"]
     c = b["counts"]
     print("\n## Process backlog (`promptctl.py backlog`)\n")

@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { quantile, dayRange, fromGit, fromRuns, fromGitHub, inventory, collect, ciActivity, outcomeOf, countRunsByDay, fromCI, COUNT_CAP } from './devstats.mjs';
+import { quantile, dayRange, fromGit, fromRuns, fromGitHub, inventory, collect, ciActivity, outcomeOf, countRunsByDay, fromCI, COUNT_CAP, delivery, fromDelivery } from './devstats.mjs';
 import { renderDashboard, barChart, stackedChart } from './render.mjs';
 
 const NOW = Date.parse('2026-10-16T12:00:00Z');
@@ -197,6 +197,53 @@ test('fromCI: no token, or an API error, is reported rather than shown as zero',
 
 const round3 = (v) => Math.round(v * 1000) / 1000;
 
+test('delivery: deploys, merge to live, red spells, time to restore and red share per gate', () => {
+  const at = (h) => new Date(NOW - h * 3_600_000).toISOString();
+  const run = (name, created, done, conclusion) => ({ name, created_at: at(created), updated_at: at(done), conclusion });
+  const pages = [
+    run('Pages', 30, 29.8, 'success'), // deploy
+    run('Pages', 20, 19.9, 'failure'), // red from 20 h ago ...
+    run('Pages', 18, 17.9, 'cancelled'), // superseded: neither deploy nor verdict
+    run('Pages', 16, 15.5, 'success'), // ... to 16 h ago: one 4 h spell; deploy
+    run('Pages', 2, 1.9, 'failure'), // red now, 2 h
+    run('Pages', 100, 99.9, 'success'), // before the 3-day window
+  ];
+  const validate = [run('Validate', 10, 9.9, 'success'), run('Validate', 5, 4.9, 'success')];
+  const merges = [NOW - 31 * 3_600_000, NOW - 17 * 3_600_000, NOW - 3 * 3_600_000, NOW - 200 * 3_600_000];
+  const d = delivery({ merges, workflows: { 'portfolio-pages.yml': pages, 'portfolio-validate.yml': validate } }, { now: NOW });
+  assert.equal(d.deploys, 2);
+  assert.equal(Object.values(d.deploys_per_day).reduce((a, b) => a + b, 0), 2);
+  // 31 h ago -> deploy created 30 h ago, done 29.8 h ago: 72 min. 17 h ago -> done 15.5 h ago: 90 min.
+  assert.deepEqual([d.merge_to_live_minutes.n, d.merge_to_live_minutes.max, d.merge_to_live_minutes.over_60, d.merge_to_live_minutes.waiting], [2, 90, 2, 1]);
+  assert.equal(d.merges, 3);
+  const [p, v] = d.gates;
+  assert.deepEqual([p.decided, p.failed, p.red_spells, p.restore_hours.p50, p.red_hours, p.red_now], [4, 2, 2, 4, 6, true]);
+  assert.equal(p.red_share, round3(6 / 72));
+  assert.deepEqual([v.failed, v.red_spells, v.red_hours, v.red_now, v.failed_share], [0, 0, 0, false, 0]);
+});
+
+test('fromDelivery: no token, or an API error, is reported rather than shown as zero', async () => {
+  assert.match((await fromDelivery({})).reason, /GITHUB_TOKEN/);
+  const d = await fromDelivery({ token: 't', repo: 'o/r', gitRepo: repoFixture(), now: NOW, fetch: async () => ({ ok: false, status: 403 }) });
+  assert.equal(d.available, false);
+  assert.match(d.reason, /403/);
+});
+
+test('fromDelivery: reads each workflow on main and the checkout\'s merges', async () => {
+  const urls = [];
+  const fetch = async (url) => {
+    urls.push(url);
+    const name = url.includes('portfolio-pages') ? 'Pages' : 'Validate';
+    return { ok: true, json: async () => ({ workflow_runs: [{ name, conclusion: 'success', created_at: '2026-10-16T10:30:00Z', updated_at: '2026-10-16T10:45:00Z' }] }) };
+  };
+  const d = await fromDelivery({ token: 't', repo: 'o/r', gitRepo: repoFixture(), now: NOW, fetch });
+  assert.equal(d.available, true);
+  assert.ok(urls.every((u) => /\/actions\/workflows\/portfolio-(pages|validate)\.yml\/runs\?branch=main&status=completed&created=%3E%3D/.test(u)), urls.join(' '));
+  // Fixture commits on main: base (10-15 00:00) and the merge (10-16 10:00) go live with the 10:30 deploy,
+  // done 10:45 (2,085 and 45 minutes); the revert at 11:00 waits for a later deploy.
+  assert.deepEqual([d.merge_to_live_minutes.n, d.merge_to_live_minutes.max, d.merge_to_live_minutes.waiting], [2, 2085, 1]);
+});
+
 test('github: an API error is reported, not shown as zero', async () => {
   const gh = await fromGitHub({ token: 't', repo: 'o/r', fetch: async () => ({ ok: false, status: 403 }) });
   assert.equal(gh.available, false);
@@ -213,6 +260,7 @@ test('the page renders every section, marks missing data, and escapes', async ()
   assert.ok(!/https?:\/\/(?!www\.w3)/.test(html.replace(/<a [^>]*>/g, '')), 'no off-origin requests');
   assert.match(barChart({ '2026-10-16': 3 }), /<title>2026-10-16: 3 merges<\/title>/);
   assert.ok(html.includes('CI runs: passed, failed, cancelled'));
+  assert.ok(html.includes('Delivery: deploys, merge to live, red time on main'));
   // The site's shared header, so this page is not a dead end.
   assert.match(html, /<nav class="pfs-head" aria-label="Site" data-pfs-head>/);
   assert.match(html, /class="pfs-brand" href="\.\.\/" data-pf-to="hub"/);

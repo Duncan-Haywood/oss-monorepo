@@ -20,6 +20,13 @@ well as on MuJoCo model pairs.
 
 - [`PROPOSAL.md`](PROPOSAL.md): question, related work (13 checked references), gap, hypotheses
   H1 to H6, method, evaluation, milestones, target venue.
+- [`src/sim2real_inference/`](src/sim2real_inference): milestone 2, one estimator library (real-only,
+  PPI, PPI++, classical control variate, optimal allocation, exact failure-rate threshold test) and
+  [`tests/`](tests) that reproduce numbers from `twin-evaluation`, `twin-pilot` and
+  `twin-certification` (0.072 and 0.172 cost-ratio thresholds, `rho*(0.05)` = 0.426, context-share
+  equivalents 1.04/1.33/2.78 and 1.25/2.0/5.0, the 299-trial zero-failure test) and check the
+  variance formulas and interval coverage by simulation. Run:
+  `PYTHONPATH=src python3 -m unittest discover -s tests` (11 tests, about 14 s).
 - [`LOG.md`](LOG.md): the research log. Hypotheses are written down before experiments are run.
 - How runs work on a programme: [`../PROGRAMMES.md`](../PROGRAMMES.md).
 
