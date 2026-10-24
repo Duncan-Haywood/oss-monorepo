@@ -740,9 +740,9 @@ test('a 404 page routes visitors back to the index', async () => {
 // the sitemap does: everything still builds, every page still resolves, and the
 // assistant recommending a free calculator simply never sees it.
 
-test('llms.txt lists every published tool at its real URL', async () => {
+test('llms-full.txt lists every published tool at its real URL', async () => {
   const { surfaces } = await site();
-  const llms = await read('llms.txt');
+  const llms = await read('llms-full.txt');
 
   for (const surface of surfaces) {
     assert.ok(
@@ -750,6 +750,15 @@ test('llms.txt lists every published tool at its real URL', async () => {
       `${surface.slug} is served but absent from llms.txt`,
     );
   }
+});
+
+test('llms.txt is a short index (P052): small, one-sentence summary, links llms-full.txt', async () => {
+  const llms = await read('llms.txt');
+  const quote = llms.split('\n').find((line) => line.startsWith('> '));
+  assert.ok(quote.length < 400, `blockquote is ${quote.length} characters`);
+  assert.ok(Buffer.byteLength(llms) < 50_000, `llms.txt is ${Buffer.byteLength(llms)} bytes`);
+  assert.ok(llms.includes(`](${BASE}llms-full.txt)`));
+  assert.ok((await read('llms-full.txt')).length > llms.length);
 });
 
 test('llms.txt opens with the h1 and blockquote summary the format expects', async () => {
@@ -761,9 +770,9 @@ test('llms.txt opens with the h1 and blockquote summary the format expects', asy
   );
 });
 
-test('llms.txt keeps each tool on one line, so no description leaks into prose', async () => {
+test('llms-full.txt keeps each tool on one line, so no description leaks into prose', async () => {
   const { surfaces } = await site();
-  const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
+  const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
   // Nine trailing bullets under "Optional" describe the site's own surfaces
   // rather than a tool — About, Ask, updates and the changelog, the comparison
@@ -783,7 +792,7 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
 // Both machine surfaces exist so an assistant can answer "which of these is a
 // gutter tool" without reading 110 sibling descriptions and guessing.
 test('the machine surfaces carry the sub-group a trade tool belongs to', async () => {
-  const llms = await read('llms.txt');
+  const llms = await read('llms-full.txt');
   const subheads = llms.split('\n').filter((line) => line.startsWith('### '));
   assert.ok(subheads.length > 1, 'the trades section is sub-divided in llms.txt too');
   assert.ok(subheads.some((line) => line.includes('Roofing')));
@@ -799,9 +808,9 @@ test('the machine surfaces carry the sub-group a trade tool belongs to', async (
   assert.ok(!('subcategory' in ebay));
 });
 
-test('llms.txt carries each tool full self-description, not the trimmed card copy', async () => {
+test('llms-full.txt carries each tool full self-description, not the trimmed card copy', async () => {
   const { surfaces } = await site();
-  const llms = await read('llms.txt');
+  const llms = await read('llms-full.txt');
 
   // The card copy is truncated with an ellipsis to fit a fixed-height tile.
   // Publishing that here would drop most of what the longer-described tools

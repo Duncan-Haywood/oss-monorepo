@@ -1,7 +1,7 @@
 {
   "id": "P052",
   "title": "seo: make the site's llms.txt a short index and move the full text to llms-full.txt",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -19,7 +19,7 @@
   "baseline": "539,214 bytes; 1,776 chars; 404 (2026-10-24)",
   "opened": "2026-10-24",
   "source": "Owner asked for SEO and AI-search action items in a Claude Code session, 2026-10-24",
-  "pr": null,
+  "pr": "pending",
   "result": null,
   "history": []
 }

@@ -10474,7 +10474,7 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * silently ends the list item, so a tool whose meta description wrapped would
  * publish its second half as body prose.
  */
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0 } = {}) {
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, index = false } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
   // Same fact the About page states in full; see `disclaimerHtml` for why it
   // is derived rather than hand-typed.
@@ -10487,6 +10487,11 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}${surface.llmsDoc ? ` LLM docs: ${baseUrl}${surface.slug}/llms.txt` : ''}`;
 
   const sections = groupByCategory(surfaces).map(({ category, items }) => {
+    // The short index (`index: true`, the root `llms.txt`): one line per
+    // category with its page, not every tool. The long body is `llms-full.txt`.
+    if (index) {
+      return `- [${oneLine(category.title)}](${baseUrl}${categoryPagePath(category.id)}): ${items.length} tools. ${oneLine(category.blurb)}`;
+    }
     const subgroups = groupBySubcategory(category.id, items);
     // Sub-headings for a sub-grouped category, so a model reading this file can
     // answer "which of these is a roofing tool" from the structure rather than
@@ -10526,7 +10531,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     // page that carries the detail if it needs it. Only the multi-tool
     // products: a product with a single comparison is already reachable
     // through the index and would pad this file without adding an answer.
-    ...compareProductGroups.map(
+    ...(index ? [] : compareProductGroups).map(
       (group) =>
         `  - [${group.subject}](${baseUrl}${comparisonProductPath(group.key)}): ${group.items.length} tools here have a side-by-side page against ${group.subject}, each saying what it does, what the free tool does, and when ${group.subject} is the right answer.`,
     ),
@@ -10588,6 +10593,20 @@ ${research.themes
   .join('\n')}
 `
     : '';
+
+  if (index) {
+    return `# Open Tools and Research
+
+> ${surfaces.length} free, open-source tools and ${researchProjects || 'many'} research projects, with no account and no payment; every browser calculation runs in the visitor's own browser.
+
+This is the short index. Every tool with its full description is in [llms-full.txt](${baseUrl}llms-full.txt); the same list as JSON is [catalog.json](${baseUrl}catalog.json). Tools are estimates and records to act on, not professional advice${exceptions.length ? `; ${listProse(exceptions.map((x) => toolProseName(x.title)))} send the one thing you paste to the public API they check (the About page explains)` : ''}.
+
+${audienceSection ? `${audienceSection}\n` : ''}## Tools by category
+
+${sections.join('\n')}
+
+${researchSection ? `${researchSection}\n` : ''}${optional}`;
+  }
 
   return `# Open Tools and Research
 
@@ -11272,10 +11291,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
-  await fs.writeFile(
-    path.join(outDir, 'llms.txt'),
-    renderLlmsTxt(surfaces, base, compareProducts, guides, { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length }),
-  );
+  const llmsOptions = { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length };
+  // Short index at the well-known path, the long per-tool body beside it (P052).
+  await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, { ...llmsOptions, index: true }));
+  await fs.writeFile(path.join(outDir, 'llms-full.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, llmsOptions));
   // Read from the committed file, not from `git log`: the in-cluster build
   // clones `--depth 1` and has no history. See `launched.mjs`.
   await fs.writeFile(path.join(outDir, FEED_FILE), renderFeed(surfaces, base, launched));

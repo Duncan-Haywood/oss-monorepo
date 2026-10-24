@@ -58,6 +58,7 @@ const REQUIRED_ROOT_FILES = [
   // so a build that drops it drops the site's machine-readable front door
   // without any page 404ing to show it.
   'llms.txt',
+  'llms-full.txt',
   // The "what's new" door. Unlike the pages, nothing 404s when this is
   // missing -- a subscriber's reader just quietly stops seeing new tools, and
   // nothing on the site says so. That silence is why it is a required file
@@ -898,7 +899,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // Same reachability argument as the hub, for the machine-readable door. A
   // tool missing from llms.txt is invisible to an assistant recommending one,
   // and nothing else in the artifact would show it: every page still resolves.
-  const llms = await fs.readFile(path.join(site, 'llms.txt'), 'utf8').catch(() => null);
+  const llms = await fs.readFile(path.join(site, 'llms-full.txt'), 'utf8').catch(() => null);
   if (llms !== null) {
     // The parent segment is captured as well as the leaf, because a leaf alone
     // cannot tell a product from a page filed *under* a site-own directory.
