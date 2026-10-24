@@ -128,7 +128,7 @@ export function runResearch(input) {
     if (lead.missing.length) flags.push(`missing ${lead.missing.join(", ")}: the score is on partial data`);
     if (region) { held.push({ row: lead.row, name: lead.name, company: lead.company, email: lead.email, reason: `${region}; no draft until you have consent`, score: lead.score }); continue; }
     accounts.push({
-      rank: 0, company: lead.company, contact: lead.name, title: lead.title || "", email: lead.email, score: lead.score, why: lead.why, facts, flags,
+      rank: 0, website: lead.website || "", company: lead.company, contact: lead.name, title: lead.title || "", email: lead.email, score: lead.score, why: lead.why, facts, flags,
       alsoAt: others.map((o) => `${o.name || o.email}${o.title ? " (" + o.title + ")" : ""}`), draft, draftOk: check.ok, draftErrors: check.errors, draftWarnings: check.warnings, source: `CRM export row ${lead.row}`,
     });
   }
@@ -139,13 +139,16 @@ export function runResearch(input) {
   return { today, accounts: ranked, dropped, held, summary, brief: brief(today, ranked, dropped, held, summary) };
 }
 
+/** Rebuild the brief text from a result (used after web facts are added). */
+export const briefOf = (d) => brief(d.today, d.accounts, d.dropped, d.held, d.summary);
 function brief(today, accounts, dropped, held, s) {
-  const out = [`# Accounts to contact, ${today}`, "", `${s.rows} rows read. ${s.accounts} accounts ranked, ${s.dropped} dropped, ${s.held} held for consent${s.belowTopN ? `, ${s.belowTopN} more below the top ${s.accounts}` : ""}. Every fact below is a field of your export. Nothing was sent, and nothing was looked up elsewhere.`, ""];
+  const out = [`# Accounts to contact, ${today}`, "", `${s.rows} rows read. ${s.accounts} accounts ranked, ${s.dropped} dropped, ${s.held} held for consent${s.belowTopN ? `, ${s.belowTopN} more below the top ${s.accounts}` : ""}. Every fact below is a field of your export. Nothing was sent. Facts come from your export, plus a home page title where --web was used and robots.txt allowed it.`, ""];
   if (!s.scored) out.push("No ideal customer profile was given and the export has no fit score, so these are in file order. Add `icp` or run ICP Lens first.", "");
   for (const a of accounts) {
     out.push(`## ${a.rank}. ${a.company || a.email}${a.score !== null ? ` (fit ${a.score})` : ""}`, `${a.contact || a.email}${a.title ? ", " + a.title : ""}; ${a.email}; ${a.source}`);
     for (const w of a.why) out.push(`- ${w}`);
     for (const f of a.flags) out.push(`- Check: ${f}`);
+    if (a.web) out.push(a.web.ok ? `- Public page (${a.web.origin}, robots.txt allowed): "${a.web.title}"${a.web.description ? " — " + a.web.description : ""}` : `- Public page not read: ${a.web.note}`);
     if (a.alsoAt.length) out.push(`- Also at this account: ${a.alsoAt.join("; ")}`);
     out.push(a.draftOk ? "- Draft passes the checks; waiting for your approval." : `- Draft needs work: ${a.draftErrors.join("; ")}`, "");
   }
@@ -155,7 +158,7 @@ function brief(today, accounts, dropped, held, s) {
   return out.join("\n");
 }
 
-export const csvAccounts = (d) => toCsv(d.accounts.map((a) => ({ ...a, why: a.why.join(" | "), flags: a.flags.join(" | "), subject: a.draft.subject, body: a.draft.body, draft_ok: a.draftOk ? "yes" : "no", also_at: a.alsoAt.join("; ") })), ["rank", "company", "contact", "title", "email", "score", "why", "flags", "also_at", "subject", "body", "draft_ok", "source"]);
+export const csvAccounts = (d) => toCsv(d.accounts.map((a) => ({ ...a, web_title: a.web?.ok ? a.web.title : "", web_description: a.web?.ok ? a.web.description : "", web_note: a.web?.note || "", why: a.why.join(" | "), flags: a.flags.join(" | "), subject: a.draft.subject, body: a.draft.body, draft_ok: a.draftOk ? "yes" : "no", also_at: a.alsoAt.join("; ") })), ["rank", "company", "contact", "title", "email", "score", "why", "flags", "also_at", "web_title", "web_description", "web_note", "subject", "body", "draft_ok", "source"]);
 export const csvLeftOutResearch = (d) => toCsv([...d.held.map((x) => ({ ...x, outcome: "held" })), ...d.dropped.map((x) => ({ ...x, outcome: "dropped" }))], ["outcome", "row", "name", "company", "email", "reason"]);
 
 // A small made-up export (HubSpot-style headers) for the page's "Load an example".
