@@ -32,6 +32,7 @@ import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
+import { buildStories, STORIES_PATH } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
@@ -10173,6 +10174,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // The writing index and each post, only when the build wrote them.
     .concat(writingSlugs.length ? [`  <url><loc>${baseUrl}${WRITING_PATH}</loc></url>`] : [])
     .concat(writingSlugs.map((slug) => `  <url><loc>${baseUrl}${WRITING_PATH}${slug}/</loc></url>`))
+    // The fiction section, a hub-level page this build always writes.
+    .concat([`  <url><loc>${baseUrl}${STORIES_PATH}</loc></url>`])
     // The open book: updates and the changelog. Both change with every merge,
     // which is what a crawler deciding how often to come back wants to see.
     .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`])
@@ -11024,6 +11027,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // each post is listed in the hub sitemap below.
   // Page slugs under writing/: each post, and `podcast`.
   const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [LEGACY_BASE_URL, DEFAULT_BASE_URL] });
+
+  // The fiction the creative track writes, one page linking into its ventures (see `stories.mjs`).
+  await buildStories(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
 
   // The lab (see `lab.mjs`): contained, `noindex` experiments in what the
   // site can be. Its handoff page reads catalog.json in the browser.
