@@ -58,7 +58,7 @@ export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 
 // (TPT: the 20th; azdor.gov and Phoenix guidance; e-filers get until month end, not modelled) added 2026-10-24 from search excerpts.
 // Both equal the default of 20, listed so the schedule is explicit and a later change to the default cannot silently move them.
 // Added 2026-10-24 from search excerpts (NJ: nj.gov Division of Taxation, 20th after the period, quarterly or monthly;
-// GA, NC: third-party guides, monthly and quarterly 20th; OH: 23rd, monthly, quarterly and semiannual Jan-Jun/Jul-Dec).
+// GA: dor.georgia.gov File & Pay, the 20th (read 2026-10-24); NC: ncdor.gov, monthly 20th but quarterly last day of the month after (read 2026-10-24, see stateDueDay); OH: 23rd, monthly, quarterly and semiannual Jan-Jun/Jul-Dec).
 // MA: monthly returns the 20th; quarterly and annual returns 30 days after the period closes (the rule since 2021, from
 // memory and search excerpts, not re-read on mass.gov), modelled as `{ after: 30 }` in stateDueDay.
 // Checked 2026-10-24 against the states' own pages (via search excerpts): CA quarterly
@@ -86,6 +86,8 @@ export function stateDueDay(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
   if (s === "WA" && frequency !== "monthly") return "last";
   if (s === "MA" && frequency !== "monthly") return { after: 30 };
+  // NC: monthly the 20th, quarterly the last day of Jan/Apr/Jul/Oct (ncdor.gov "Filing Frequency and Due Dates", read 2026-10-24)
+  if (s === "NC" && frequency !== "monthly") return "last";
   return STATE_DUE_DAYS[s] ?? 20;
 }
 export function dueDate(period, dueDay = 20) {
