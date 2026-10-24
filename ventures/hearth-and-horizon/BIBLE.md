@@ -228,6 +228,7 @@ numbers worked out before drafting.
 - *(Done: The Low Meadow, Sint-Jansland, North Brabant, 2061; text only.)* A water board's polder manager must flood a farmer's meadow for the town; she says no, then names the terms (decide at the last hour, tell her first, ring the bell).
 - *(Done: The False Start, Gidan Gawo, Niger, 2044; text only.)* A first rain, one sowing of seed in the village bank, and a field adviser that says four years in ten the first rain is a lie; the seed-keeper splits the sowing and the village shares what is left.
 - *(Done: The Line Through the Snow, Ulaan Ovoo, Mongolia, 2049; text only.)* Index insurance, a trigger inside the noise, and a sample drawn fair with sheep's ankle bones (von Neumann's trick); the honest count lets a district move its reserve to one valley.
+- *(Done: Bench Six, Kettle Bench, Okanagan, 2047; text only.)* Two wind machines, one battery 58 kWh short of a frost night, a written rule that serves the top bench first, and the chairman who gives up his place after counting what his thinning crew would have knocked off anyway.
 
 **For Other Minds**
 
