@@ -28,7 +28,7 @@ def job(a):
 if __name__ == "__main__":
     jobs = [(m, f, n, s, BUDGET) for m in MEDIANS for f in BOUNDS for n in METHODS for s in range(SEEDS)]
     jobs += [(m, f, "Bayesian opt (GP-EI)", 100 + s, LONG) for m in MEDIANS for f in BOUNDS for s in range(LONG_SEEDS)]
-    with Pool() as p:
+    with Pool(4) as p:
         out = p.map(job, jobs)
     L = ["Median best J at 40 evaluations over 20 seeds (random | CMA-ES | Bayes), then reference best J of 5 Bayesian runs of 400 evaluations",
          "median pull-off N, grip bound N | random | CMA-ES | Bayes | reference best J (design w,l,E,Fg,n; clean/bruised/slipped/missed; USD)"]
