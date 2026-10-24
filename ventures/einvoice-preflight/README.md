@@ -591,8 +591,9 @@ The KoSIT XRechnung test suite (itplr-kosit/xrechnung-testsuite, Apache-2.0, not
 | INV-035 | zero-rated category Z was asked for an exemption reason (BR-Z-10: none) | 2 / 0 |
 | INV-029 | the payable rounding amount (BT-114) was ignored; a negative amount due (prepayments above the gross, BR-CO-16 has no sign limit) was refused; CII amounts due were never checked | 3 / 1 |
 | INV-028 | prepaid above gross, same credit-balance case | 2 / 0 |
+| INV-038 | a zero tax-breakdown row (0 taxable, 0 tax) that exists only for a zero-amount header allowance or charge was called a rate no line uses; a non-zero row with no line is still flagged | 6 / 0 |
 
-A negative amount due is accepted only when it equals gross minus prepaid plus rounding; a negative `due` typed with no prepayment is still `INV-029`. Left, not fixed: placeholder VAT ids and IBANs (INV-022/023, 27 and 42 files), the `[BIC]` placeholder (INV-026), 6 files whose line net is not quantity times price (INV-012), 39 files with an IBAN and no remittance reference (INV-030, a style note the standard does not require), a tax-breakdown row that exists only for a zero-amount header charge (INV-038, 6 files, not yet read by the rule), and one extension case whose amount due differs from the totals on purpose (INV-029). The same 31 CEN examples also lose 2 INV-035, 2 INV-044 and 1 INV-045.
+A negative amount due is accepted only when it equals gross minus prepaid plus rounding; a negative `due` typed with no prepayment is still `INV-029`. Left, not fixed: placeholder VAT ids and IBANs (INV-022/023, 27 and 42 files), the `[BIC]` placeholder (INV-026), 6 files whose line net is not quantity times price (INV-012), 39 files with an IBAN and no remittance reference (INV-030, a style note the standard does not require), and one extension case whose amount due differs from the totals on purpose (INV-029). The same 31 CEN examples also lose 2 INV-035, 2 INV-044 and 1 INV-045.
 
 ## Privacy and usage
 
