@@ -125,13 +125,22 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         price = _text(line, "PriceAmount")
         net = _text(line, "LineExtensionAmount")
         category = next(iter(_children(line, "ClassifiedTaxCategory")), line)
+        percent = _text(category, "Percent", required=False)
+        price_node = next(iter(_children(line, "Price")), None)
+        base_quantity = _text(price_node, "BaseQuantity", required=False) if price_node is not None else ""
         mapped_line = {
             "description": _text(line, "Name"),
             "quantity": _number(quantity),
             "unit_price": _number(price),
-            "tax_percent": _number(_text(category, "Percent")),
+            # Category O has no Percent element (EN 16931 BR-O-05); leave it empty.
+            "tax_percent": _number(percent) if percent else "",
             "net": _number(net),
         }
+        if base_quantity:
+            mapped_line["price_base_quantity"] = _number(base_quantity)
+        line_adjustments = _line_adjustments(line)
+        if line_adjustments:
+            mapped_line["adjustments"] = line_adjustments
         mapped_line.update(_tax_category_fields(category))
         lines.append(mapped_line)
 
@@ -141,7 +150,17 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     tax_totals = _children(root, "TaxTotal")
     if not tax_totals:
         raise ValueError("UBL field TaxAmount is missing")
-    tax_total = sum((Decimal(_text(item, "TaxAmount")) for item in tax_totals), Decimal("0"))
+    # BT-110 is in the document currency; a second TaxTotal in the VAT
+    # accounting currency (BT-111) is the same tax again and must not be added.
+    doc_currency = _text(root, "DocumentCurrencyCode", required=False)
+
+    def _same_currency(item: ElementTree.Element) -> bool:
+        node = next(iter(_children(item, "TaxAmount")), None)
+        code = node.attrib.get("currencyID", "") if node is not None else ""
+        return not code or not doc_currency or code == doc_currency
+
+    chosen = [item for item in tax_totals if _same_currency(item)] or tax_totals
+    tax_total = sum((Decimal(_text(item, "TaxAmount")) for item in chosen), Decimal("0"))
     due_date = _text(root, "DueDate", required=False)
     type_code = (
         _text(root, "InvoiceTypeCode", required=False)
@@ -153,6 +172,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         "invoice_number": _text(root, "ID"),
         "issue_date": _text(root, "IssueDate"),
         **({"due_date": due_date} if due_date else {}),
+        "source_format": "ubl",
         "document_type": document_type,
         **({"document_code": type_code} if type_code else {}),
         **({"original_invoice": original} if original else {}),
@@ -190,6 +210,20 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     if adjustments:
         invoice["adjustments"] = adjustments
     return invoice
+
+
+def _line_adjustments(line: ElementTree.Element) -> list[dict[str, Any]]:
+    """BG-27 / BG-28 allowances and charges on one line (not the price discount inside Price)."""
+    rows = []
+    for child in _children(line, "AllowanceCharge"):
+        if child not in list(line):
+            continue
+        indicator = _text(child, "ChargeIndicator", required=False).lower()
+        amount = _text(child, "Amount", required=False)
+        if not indicator or not amount:
+            continue
+        rows.append({"kind": "charge" if indicator in ("true", "1") else "allowance", "amount": _number(amount)})
+    return rows
 
 
 def _tax_category_fields(category: ElementTree.Element) -> dict[str, str]:
@@ -281,6 +315,12 @@ def _header_adjustments(root: ElementTree.Element) -> list[dict[str, Any]]:
             row["reason"] = reason
         if reason_code:
             row["reason_code"] = reason_code
+        vat_percent = _text(child, "Percent", required=False)
+        if vat_percent:
+            row["tax_percent"] = _number(vat_percent)
+        vat_category = next((_text(vat, "ID", required=False) for vat in _children(child, "TaxCategory")), "")
+        if vat_category:
+            row["tax_category"] = vat_category
         if row:
             rows.append(row)
     return rows
