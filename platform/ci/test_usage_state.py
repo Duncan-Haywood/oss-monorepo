@@ -126,6 +126,10 @@ class ClaimScanning(unittest.TestCase):
         body = 'As of 2026-09-02 it recorded zero observed users across ~184 products.\nThat sentence was wrong and has been corrected, it used to say so.\n'
         self.assertEqual(self._scan(body), [])
 
+    def test_a_marker_at_the_very_start_of_the_first_line_exempts_the_claim_below_it(self):
+        body = 'used to say:\n"it recorded zero observed users across ~184 products".\n'
+        self.assertEqual(self._scan(body), [])
+
     def test_a_marker_after_the_claim_on_an_unterminated_last_line_exempts_it(self):
         body = "an earlier line\nit recorded zero observed users, which used to say so"
         self.assertEqual(self._scan(body), [])

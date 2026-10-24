@@ -122,6 +122,19 @@ class Seconds(unittest.TestCase):
     def test_unparseable_timestamp_is_none_not_a_crash(self):
         self.assertIsNone(cs.seconds(job(completed_at="whenever")))
 
+    def test_a_job_finishing_within_its_first_second_lasted_zero_seconds(self):
+        """Zero is a duration; only the backwards stamp of a skipped job is not."""
+        self.assertEqual(
+            cs.seconds(job(started_at="2026-08-31T05:49:16Z", completed_at="2026-08-31T05:49:16Z")),
+            0,
+        )
+
+    def test_a_job_lasting_one_second_is_one_second(self):
+        self.assertEqual(
+            cs.seconds(job(started_at="2026-08-31T05:49:16Z", completed_at="2026-08-31T05:49:17Z")),
+            1,
+        )
+
     def test_a_skipped_jobs_backwards_stamps_are_no_duration(self):
         """The API completes a skipped job a second before it starts."""
         self.assertIsNone(
@@ -483,6 +496,16 @@ class RenderCounts(unittest.TestCase):
         out = cs.render(rows)
         self.assertIn("All 2 job(s) that ran", out)
         self.assertIn("(1 skipped by the workflow.)", out)
+
+
+class StarvedAndPending(unittest.TestCase):
+    def test_pending_note_appears_only_when_starved_and_pending_together(self):
+        starved = job(id=2, runner_id=0, runner_name="")
+        running = job(id=3, status="in_progress", conclusion=None, completed_at=None)
+        both = cs.render(cs.report([starved, running]))
+        self.assertIn("the starvation above is already decided", both)
+        self.assertNotIn("the starvation above is already decided", cs.render(cs.report([running])))
+        self.assertNotIn("the starvation above is already decided", cs.render(cs.report([starved])))
 
 
 class GhApi(unittest.TestCase):
