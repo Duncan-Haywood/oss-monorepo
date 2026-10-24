@@ -79,7 +79,7 @@ flagships:
       (fake IMAP and SMTP only; TLS untested), M6a/M6b research agent, M7a call prep, M7b follow-ups.
       Reply rules read 15 of 40, 27 of 41 and 34 of 41 fresh hand-written replies right; prep field rules 12/20 on
       agent-written notes. Header signals (DSN, Auto-Submitted) checked 2026-10-24 on 117 real bounces (flufl.bounce
-      data: 102 right before, 116 after fixing 3 hard bounces read as out-of-office; README). All reply and
+      data: 102 right before, 116 after fixing 3 hard bounces read as out-of-office; README; mail gem's 5 DSNs 5/5, multi-recipient DSN bug fixed; README). All reply and
       note sets other than that bounce corpus are agent-written. Next: (1) real human replies and a real rep's call
       notes to check the reply rules, prep rules and follow-up sorter; (2) M2: score a hosted and a local model with
       eval/model.mjs on the fresh sets (needs a key), with a set labelled by a person or another model family before

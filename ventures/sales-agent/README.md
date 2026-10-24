@@ -94,6 +94,13 @@ one left is a list-moderation hold worded "could not be delivered". Labels for
 the 10 non-bounces were set by an agent reading each message. Cold-outreach
 replies from people are still measured only on agent-written text.
 
+**Five more real bounces, one bug (2026-10-24).** The mail gem's DSN fixtures (MIT,
+[`eval/bounce-corpus-mail/`](eval/bounce-corpus-mail/NOTICE)) were scored before any change:
+5 of 5 read right as to category. But two of them name five failed recipients each and the
+reader kept only the first `Final-Recipient`, so four dead addresses would have stayed in the
+cadence. `parseMessage` now collects every permanently failed recipient (`dsn.failed`) and
+`toReplyBlock` emits one block per address; a test pins it on the real file.
+
 Measured on hand-written, labelled replies; the method and every file are in
 [`eval/`](eval/README.md). The rules were tuned on two sets until they read all
 120 replies correctly, so those sets are a regression floor, not an accuracy

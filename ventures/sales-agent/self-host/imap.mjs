@@ -96,6 +96,8 @@ export function parseMessage(raw) {
       const g = (k) => (body.match(new RegExp(`^${k}:\\s*(.+)$`, "im")) || [])[1]?.trim() || "";
       const status = (g("Status").match(/^([245])\.\d+\.\d+/) || [])[1];
       dsn = { recipient: (g("Final-Recipient").replace(/^rfc822;\s*/i, "").match(/[\w.+'-]+@[\w.-]+/) || [""])[0].toLowerCase(), action: g("Action").toLowerCase(), permanent: status === "5" && g("Action").toLowerCase() !== "delayed", temporary: status === "4" || g("Action").toLowerCase() === "delayed" };
+      // A DSN may report several recipients, one blank-line group each; every one that failed permanently must be stopped, not only the first.
+      dsn.failed = [...new Set(body.split(/\r?\n\r?\n/).filter((grp) => /^Action:\s*failed/im.test(grp) && /^Status:\s*5\./im.test(grp)).map((grp) => ((grp.match(/^Final-Recipient:\s*(?:rfc822;)?\s*(.+)$/im) || [])[1] || "").match(/[\w.+'-]+@[\w.-]+/)?.[0].toLowerCase()).filter(Boolean))];
       return { h, kind: "other", text: "" };
     }
     if (/^multipart\//i.test(ct)) {
@@ -115,5 +117,7 @@ export function parseMessage(raw) {
 /** Turn a parsed message into the `From:` block the engine's parseReplies reads (and keep the quoted history out). */
 export const toReplyBlock = (m) => {
   const hd = m.headers, signal = m.dsn?.permanent ? "dsn-permanent" : m.dsn?.temporary ? "dsn-temporary" : /^(auto-replied|auto-generated)/i.test(hd.autoSubmitted) || /^auto[_-]?reply\b/i.test(hd.precedence) || hd.xAutoreply ? "auto-reply" : "";
-  return `From: ${hd.from}\nSubject: ${hd.subject}\nDate: ${hd.date}${signal ? `\nX-Signal: ${signal}` : ""}${m.dsn?.recipient ? `\nX-Failed-Recipient: ${m.dsn.recipient}` : ""}\n\n${m.text || (m.dsn ? "Delivery status notification" : "")}`;
+  const one = (rcpt) => `From: ${hd.from}\nSubject: ${hd.subject}\nDate: ${hd.date}${signal ? `\nX-Signal: ${signal}` : ""}${rcpt ? `\nX-Failed-Recipient: ${rcpt}` : ""}\n\n${m.text || (m.dsn ? "Delivery status notification" : "")}`;
+  // One block per permanently failed recipient, so each address is marked bounced.
+  return m.dsn?.failed?.length > 1 ? m.dsn.failed.map(one).join("\n") : one(m.dsn?.recipient);
 };
