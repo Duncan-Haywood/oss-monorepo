@@ -44,5 +44,5 @@ kill_criteria:
   - A user reports a figure that differs from the model in README.md for the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/demand-charge-interval-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/demand-charge-interval-analyzer/
   analytics: null

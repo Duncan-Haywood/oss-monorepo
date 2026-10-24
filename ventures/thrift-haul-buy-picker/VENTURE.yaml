@@ -41,5 +41,5 @@ kill_criteria:
   - No reseller reports changing what they bought or paid because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/thrift-haul-buy-picker/
+  production: https://duncan-haywood.github.io/oss-monorepo/thrift-haul-buy-picker/
   analytics: null

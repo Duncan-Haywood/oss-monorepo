@@ -55,5 +55,5 @@ kill_criteria:
   - A user reports that the result contradicts their own arithmetic on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/section-83b-election-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/section-83b-election-calculator/
   analytics: null

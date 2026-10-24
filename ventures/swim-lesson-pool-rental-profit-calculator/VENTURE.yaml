@@ -41,5 +41,5 @@ kill_criteria:
   - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/swim-lesson-pool-rental-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/swim-lesson-pool-rental-profit-calculator/
   analytics: null

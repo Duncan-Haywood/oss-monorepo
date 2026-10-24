@@ -68,5 +68,5 @@ kill_criteria:
   - A grower reports that the plan violates a limit they entered, or that the profit disagrees with a hand count of the same plan.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/market-garden-bed-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/market-garden-bed-planner/
   analytics: null

@@ -6,7 +6,7 @@ style, who will clash and why. Then play out a **salary negotiation, a freelance
 meeting about a slipping deadline, an offsite plan or a housemates' chore argument** between them. Run it once to read the
 transcript, or hundreds of times to see how often a deal closes or a meeting falls apart with that cast.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/persona-conversation-simulator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/persona-conversation-simulator/
 
 Uses: rehearse a hard conversation against a character like the one you are worried about, think through a team's dynamics,
 teach negotiation or conflict styles, or write characters whose arguments stay consistent.

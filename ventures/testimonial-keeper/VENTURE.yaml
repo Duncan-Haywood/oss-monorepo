@@ -55,5 +55,5 @@ kill_criteria:
   - A user reports an unapproved testimonial or an email address appearing on the public wall, or markup from a testimonial executing; the approval gate and textContent-only rendering come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/testimonial-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/testimonial-keeper/
   analytics: null

@@ -42,5 +42,5 @@ kill_criteria:
   - No cleaning company reports changing a turnover they accept, a fee they quote or a crew count because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/str-turnover-crew-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/str-turnover-crew-planner/
   analytics: null

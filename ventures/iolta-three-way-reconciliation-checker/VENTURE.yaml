@@ -33,5 +33,5 @@ kill_criteria:
   - A report that the tool called an unbalanced account balanced.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/iolta-three-way-reconciliation-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/iolta-three-way-reconciliation-checker/
   analytics: null

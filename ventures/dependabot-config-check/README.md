@@ -3,7 +3,7 @@
 A free tool that lints `.github/dependabot.yml` and compares it with your
 repository's file list to find **manifests Dependabot never updates**.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dependabot-config-check/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/dependabot-config-check/
 
 After using this, you can now **see every folder and ecosystem your
 Dependabot config silently skips in one paste**, which used to take **noticing

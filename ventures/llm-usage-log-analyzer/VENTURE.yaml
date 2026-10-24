@@ -63,7 +63,7 @@ kill_criteria:
   - Users cannot reproduce a hand-computed cost for a small log they supply, using their own rates.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/llm-usage-log-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/llm-usage-log-analyzer/
   analytics: null
 
 channel_notes: >-

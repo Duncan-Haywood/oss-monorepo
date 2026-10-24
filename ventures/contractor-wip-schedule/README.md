@@ -5,7 +5,7 @@ cost, cost to date, billed to date) and get the work-in-progress schedule your b
 complete, earned revenue, over- and underbilling, the whole loss on any job that will lose money, cash still to come
 on each job, a cost-growth stress test, and backlog against working capital. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/contractor-wip-schedule/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/contractor-wip-schedule/
 
 After using this, you can now **hand a lender or surety a WIP schedule and see where your own profit is overstated
 or your cash is borrowed from the end of a job**, which used to take a bookkeeper and a spreadsheet each month.

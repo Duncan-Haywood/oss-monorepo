@@ -53,5 +53,5 @@ kill_criteria:
   - A working sauna installer reports that the bid arithmetic disagrees with their own worked example.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sauna-cold-plunge-install-bid-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/sauna-cold-plunge-install-bid-calculator/
   analytics: null

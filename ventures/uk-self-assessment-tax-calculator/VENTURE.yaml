@@ -33,5 +33,5 @@ kill_criteria:
   - A report that a rate, threshold or the stacking order differs from GOV.UK or HMRC guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-self-assessment-tax-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-self-assessment-tax-calculator/
   analytics: null

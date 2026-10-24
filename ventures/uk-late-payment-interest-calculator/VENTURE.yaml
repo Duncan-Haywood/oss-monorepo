@@ -34,5 +34,5 @@ kill_criteria:
   - A report that a rate, tier or date differs from GOV.UK guidance on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/uk-late-payment-interest-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/uk-late-payment-interest-calculator/
   analytics: null

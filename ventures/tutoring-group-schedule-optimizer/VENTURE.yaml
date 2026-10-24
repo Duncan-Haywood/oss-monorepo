@@ -45,5 +45,5 @@ kill_criteria:
   - A user reports a timetable that is not a valid seating or that a hand check shows to be less profitable than an obvious alternative.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tutoring-group-schedule-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/tutoring-group-schedule-optimizer/
   analytics: null
