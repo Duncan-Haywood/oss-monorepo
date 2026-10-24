@@ -6,7 +6,7 @@
 
 **Live page:** https://marriage-divorce-evidence.duncan1921.chatgpt.site/?view=1
 
-**Try it — will your marriage last? A divorce risk calculator for before you marry:** the [calculator](app/) ([live](https://duncan-haywood.github.io/monorepo-projects/research/marriage-divorce-evidence/app/)) opens on **Before the wedding**: for an engaged couple, or for you and a candidate partner, it estimates the chance of divorce in each year from the wedding day and the chance of a lifelong marriage counting mortality.
+**Try it — will your marriage last? A divorce risk calculator for before you marry:** the [calculator](app/) ([live](https://duncan-haywood.github.io/oss-monorepo/research/marriage-divorce-evidence/app/)) opens on **Before the wedding**: for an engaged couple, or for you and a candidate partner, it estimates the chance of divorce in each year from the wedding day and the chance of a lifelong marriage counting mortality.
 
 - It uses only facts known by the wedding day, and only lenses whose clock starts at the wedding.
   - **Default:** workstream B's harmonized before-the-wedding model. It is fitted on 43,336 NSFG 1995–2023 first marriages, scores both partners as the surveyed spouse and averages them.

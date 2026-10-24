@@ -21,7 +21,7 @@ function repo({ posts = {}, scripts = {}, audio = {} }) {
   const manifest = {};
   for (const [stem, seconds] of Object.entries(audio)) {
     writeFileSync(path.join(root, 'docs/podcast/audio', `${stem}.mp3`), 'ID3fake');
-    manifest[stem] = { bytes: 7, seconds, sha256: 'x', script_sha256: 'y', voice: 'en_US-ljspeech-high' };
+    manifest[stem] = { bytes: 7, seconds, sha256: 'x', script_sha256: 'y', voice: 'kokoro-82m-af_heart' };
   }
   writeFileSync(path.join(root, 'docs/podcast/audio/manifest.json'), JSON.stringify(manifest));
   return root;

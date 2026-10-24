@@ -113,7 +113,8 @@ gitops/       RETIRED as a deploy target: App-of-Apps, prod/staging/agents
 
 The hel1 servers (89.167.29.39, 157.180.80.188) were deleted by the owner on
 2026-10-01; the k3s/Argo route is retired, not down. Do not SSH to those
-addresses or ask for `HETZNERSSHKEY` again. Actions secrets that stack used
+addresses (they may now belong to someone else); asking for `HETZNERSSHKEY`
+again gains nothing, since the servers are gone. Actions secrets that stack used
 (names only): `HETZNERSSHKEY`, `HETZNERREADAPIKEY`. `CLAUDETRIGGERAPIKEY` is the Claude routine
 trigger, not GitOps. Table: [`infra/OWNER_CHECKLIST.md`](infra/OWNER_CHECKLIST.md).
 
@@ -150,7 +151,7 @@ pip install -r portfolio/router/requirements.txt
 python3 portfolio/router/validate.py
 ```
 
-Every directory under `ventures/` must have either a valid `VENTURE.yaml` or
+`validate.py` expects every directory under `ventures/` to have either a valid `VENTURE.yaml` or
 a `NOT-A-VENTURE` file, so a new venture cannot go silently invisible to the
 router. A `NOT-A-VENTURE` marker is authoritative even when a `VENTURE.yaml`
 is still present in the same directory — the router (`allocate.py`), the
@@ -165,7 +166,7 @@ where it is reported as `reclassified` and excluded from the ranking and the
 dispatchable/blocked means. A score is a record about a business, not an input
 to allocation, so removing the row would delete the evidence the
 reclassification was decided on. `score_ventures.py --check` enforces both
-halves: every *allocated* venture must be scored, and a scored slug must name a
+halves: it fails when an *allocated* venture has no score, or a scored slug does not name a
 directory that carries a `VENTURE.yaml` — marker or not.
 
 ### research/

@@ -500,6 +500,20 @@ def redteam_share(tracks: dict[str, Any]) -> float | None:
     return weights[REDTEAM] / total if total else 0.0
 
 
+def redteam_band_warning(root: Path = ROOT) -> str | None:
+    """A default, not a hard limit (goals.md, "Strong defaults"): warn, don't fail."""
+    try:
+        tracks = load_routing(root).get("tracks")
+    except (OSError, ValueError):
+        return None
+    share = redteam_share(tracks) if isinstance(tracks, dict) else None
+    if share is None or REDTEAM_SHARE[0] <= share <= REDTEAM_SHARE[1]:
+        return None
+    low, high = REDTEAM_SHARE
+    return (f"routing.json: redteam is {share:.1%} of non-review weight; "
+            f"prompts/goals.md aims for {low:.0%}-{high:.0%}")
+
+
 def validate(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     for name in ("routing.json", "goals.md", "experiments.md", "README.md"):
@@ -523,11 +537,6 @@ def validate(root: Path = ROOT) -> list[str]:
         return errors + ["routing.json: tracks must be an object that includes 'review'"]
     if not any(float(c.get("weight", 0)) > 0 for t, c in tracks.items() if t != REVIEW):
         errors.append("routing.json: at least one non-review track needs a positive weight")
-    share = redteam_share(tracks)
-    if share is not None and not REDTEAM_SHARE[0] <= share <= REDTEAM_SHARE[1]:
-        low, high = REDTEAM_SHARE
-        errors.append(f"routing.json: redteam is {share:.1%} of non-review weight; "
-                      f"prompts/goals.md holds it between {low:.0%} and {high:.0%}")
 
     for track, cfg in tracks.items():
         label = f"routing.json: {track}"
@@ -815,6 +824,7 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
         "deviations": {f: {"reports": len(v), "recent": v[-3:]}
                        for f, v in sorted(deviations.items(), key=lambda kv: -len(kv[1]))},
         "writeups": writeup_share(runs),
+        "posts_per_day": posts_per_day(root),
         "instruction_lines": sizes,
         "instruction_budget": {rel: budget_for(rel) for rel in sizes},
         "backlog": backlog_summary([item for _, item in load_backlog(root)]),
@@ -835,6 +845,23 @@ def writeup_share(runs: list[dict[str, Any]]) -> dict[str, Any]:
     return {"runs": len(recent),
             "agent_doc": sum(has(r, "docs/reports/") for r in recent),
             "post": sum(has(r, "docs/posts/") for r in recent)}
+
+
+POSTS_DAYS = 14  # days of docs/posts/ shown by "measure" (owner, 2026-10-24: more posts per day)
+
+
+def posts_per_day(root: Path, days: int = POSTS_DAYS) -> list[tuple[str, int]]:
+    """New posts per day in docs/posts/, from the YYYY-MM-DD filename prefix, newest day last."""
+    counts: dict[str, int] = {}
+    for f in (root.parent / "docs" / "posts").glob("*.md"):
+        day = f.name[:10]
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+            counts[day] = counts.get(day, 0) + 1
+    if not counts:
+        return []
+    last = date.fromisoformat(max(counts))
+    span = [(last - timedelta(days=n)).isoformat() for n in range(days - 1, -1, -1)]
+    return [(d, counts.get(d, 0)) for d in span]
 
 
 def filter_sections(text: str, section: str | None) -> str:
@@ -932,6 +959,9 @@ def print_measure(m: dict[str, Any]) -> None:
     print("\n## Write-ups (goals.md, \"Write about the work\")\n")
     print(f"- Last {w['runs']} records since {WRITEUPS_FROM}: {w['agent_doc']} name an agent doc "
           f"(docs/reports/), {w['post']} a post (docs/posts/)")
+    if m["posts_per_day"]:
+        print(f"- New posts per day, last {len(m['posts_per_day'])} days: "
+              + ", ".join(f"{d[5:]} {n}" for d, n in m["posts_per_day"]))
     b = m["backlog"]
     c = b["counts"]
     print("\n## Process backlog (`promptctl.py backlog`)\n")
@@ -1151,6 +1181,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "map":
         print_map(ROOT, args.track)
         return 0
+    warning = redteam_band_warning(ROOT)
+    if warning:
+        print(f"warning: {warning}", file=sys.stderr)
     errors = validate(ROOT)
     for err in errors:
         print(f"error: {err}", file=sys.stderr)

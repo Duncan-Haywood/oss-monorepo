@@ -134,6 +134,29 @@ go badly, its reason was not clear enough, and the fix is a better reason or
 an automated check that explains itself. A capital-letter "MUST" is not the
 fix. If departures go well, the guideline was wrong, and it should change.
 
+## Update, 2026-10-24: the hard list, cut to liability
+
+The owner asked whether any hard rulebook was left, and wanted the hard rules
+"slimmed down to no financial legal or ethical liabilities", with everything
+else turned into suggestions. Three items had stayed in the hard list
+without guarding any liability: "every run ships something useful", "land
+what you push" and the red team's 5-10% share of runs. `prompts/goals.md`
+now splits its Guardrails into **Hard limits** (fabrication, honest
+marketing, the public-repository rules, licensing, the owner's money and
+accounts, user safety, research integrity) and **Strong defaults** (those
+three, with reasons). `promptctl.py validate` used to fail when the red-team
+share left its band; now it prints a warning.
+
+A sweep of the guidance files reworded the remaining process "musts" (which
+host to use, how to chain shell commands, when to re-verify, the calculator
+ban) as advice with a reason. `rule_language.py` went from 184 lines of
+absolute wording outside liability topics to 157. Most of what remains is
+descriptive ("never measured", "a reader who has never seen the
+repository"), which the keyword heuristic cannot tell apart from a command.
+A few lines stayed absolute on purpose because they protect evidence rather
+than a liability: past run records and the red team's mutant tallies are
+never hand-edited, since editing them would fabricate results.
+
 ## Follow-up, 2026-10-24: a chronicle is not a reference
 
 Three days later the owner asked for the same review from another angle:

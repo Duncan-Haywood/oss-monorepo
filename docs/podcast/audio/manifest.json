@@ -1,233 +1,247 @@
 {
   "2026-10-20-ai-coding-agent-cost-per-pull-request": {
-    "bytes": 1611039,
-    "seconds": 322.12,
-    "sha256": "34305a078f4b7aee72cab3e491c817897c6340301ef4776d607580c16fbd6de1",
+    "bytes": 1894075,
+    "seconds": 315.6,
+    "sha256": "579955b52c4326b10c5ca97b71bf5c61bae0f25383a42f7832e99e9f463a3da8",
     "script_sha256": "dc27c47469da53f336e49e82efffe88325d42dba57fa0d8ebbd4ce6ebdb3f82a",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-ambient-ai-assistant-when-to-speak-research": {
-    "bytes": 1646827,
-    "seconds": 329.27,
-    "sha256": "9f0a976d830e03ad7f29b7bf2d59f7eeddd174cc089d8e300648a3253cfb7974",
+    "bytes": 1897675,
+    "seconds": 316.2,
+    "sha256": "276f4182b4108197be83b81cdb54bb9b5d7c75e88dee0f2f495b605a7c711290",
     "script_sha256": "e35cc2c2b8e8e99bda06fe98fea41676daea9c97b59081080f0c5684ddadda88",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-bring-your-own-api-key-ai-tools-ollama-lm-studio-local-models": {
-    "bytes": 1764009,
-    "seconds": 352.71,
-    "sha256": "094315a87991ef079c87a2bbd966331dc42cbc73da3136730ffb884b2f1323bb",
+    "bytes": 2018802,
+    "seconds": 336.38,
+    "sha256": "56a0d6ed9bdf1de5a3e8a0ce3e31454e068a29e583568359f380f50ce67947d6",
     "script_sha256": "875392e649750c8998498e9f0686fe1a78177e59fbecec5b1c31a5d4fc19584a",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
+  },
+  "2026-10-20-can-you-predict-divorce": {
+    "bytes": 1891505,
+    "seconds": 315.17,
+    "sha256": "36a808ce1f433ccb53956267ac6f0f3faded5df30adc222926e0812cf9e92a70",
+    "script_sha256": "7f1c9fe68782413fde20b6aa73a7c39de71ce8f493a78ddb4dfe7226c996d050",
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-count-website-visitors-without-tracking-privacy": {
-    "bytes": 1840259,
-    "seconds": 367.96,
-    "sha256": "54bbf3570a406f3187b3f8aead5ecb4c8804fd53d73a232c5e9517b3071352a4",
+    "bytes": 2190566,
+    "seconds": 365.02,
+    "sha256": "a53621ef83b714394894c7f11ecab018f32d3657a5eec31d61ca14681f50e9dc",
     "script_sha256": "36ac0b2219dc5efe86c21230ac131fb2c13c894c0b8bfe1de898a721d6520196",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-does-an-agent-fleet-need-a-manager-agent": {
-    "bytes": 1638501,
-    "seconds": 327.6,
-    "sha256": "0535a4e93072418e5643da9948f215fd6b43e9108e61facecc32f03f77f3502e",
+    "bytes": 1901020,
+    "seconds": 316.75,
+    "sha256": "ac0459511ebf62f034ad7af6d909730f48895f8c654a0b8c8be9afc66bdb724b",
     "script_sha256": "dc2431cd6c668f159eecaa1f287d1f96de0246c0e9efb913a37ddc7c115e1a7e",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-engineered-clothing-cost-fit-comfort-open-models": {
-    "bytes": 1853581,
-    "seconds": 370.63,
-    "sha256": "b3629e7e8c3bda6084cd824c2a0717691746f95f66015f4cc8c1be484f4d59f6",
+    "bytes": 2116694,
+    "seconds": 352.7,
+    "sha256": "241cfbf9ca8d2bf8054aa3daeac9585a9af192821c27eb5a24d18662a115bf90",
     "script_sha256": "49bc0fa4bae1922fc23c01d1455634c1908855c11411f28ed117e971e573e2c0",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-github-actions-runner-starvation-runner-id-0": {
-    "bytes": 1824704,
-    "seconds": 364.85,
-    "sha256": "07e59c7bb8980b9cce75e1be250f03326e3d599cb94b827777823b00120f96ef",
+    "bytes": 2123594,
+    "seconds": 353.86,
+    "sha256": "d5b08a381a823c850fdcd46b94063661c7211afcdd2091adb9de1cb9b0fca067",
     "script_sha256": "cb1e22fa44d0c805ce94505c92973b39c62f418a345b252a51b1cd45c3994af2",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-github-pages-deploy-on-every-merge": {
-    "bytes": 805694,
-    "seconds": 161.04,
-    "sha256": "fd153bcded74226e692cecf61a4ed4fb5e452d231b727ec4664c7c4a840358b2",
+    "bytes": 1001285,
+    "seconds": 166.8,
+    "sha256": "eb576207f806ed0a8ed2b856476a9870ab128cc1ccdbd4e7a51d42d84b184504",
     "script_sha256": "cc89fc039c93a1d7c1811f4d96d583c82366f188fd99b50d65a44a1540d01cdc",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-mcp-server-free-calculators-for-ai-agents-no-browser": {
-    "bytes": 1757475,
-    "seconds": 351.4,
-    "sha256": "67842259854c04fa4609ec3d00f93a8343b5e43831d85b175ac81101dda22f96",
+    "bytes": 2034782,
+    "seconds": 339.05,
+    "sha256": "09ed2399e153c6cbe280eb9cc041a08409a11b2db490a46b86310d97a8a8b1dc",
     "script_sha256": "d9330645ddb05e3d775894b556beb7eaad51d0c64d546dee4fb339dc292781d9",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-measuring-ai-coding-agent-fleet-cost-duplicates-reproducibility": {
-    "bytes": 1729234,
-    "seconds": 345.76,
-    "sha256": "051385fb2985aa14729cdcff64ee9c4b522481bb97764fde666283218ae54bc6",
+    "bytes": 2008257,
+    "seconds": 334.63,
+    "sha256": "76ce217f4ccde1e71eadabee4c3e9640271fa49771434dd803349c3c2fa485d1",
     "script_sha256": "2ae7f5d6d85bfdb41fad037192751c9520c4d0f2cc7441c28623eecc51fd5ee1",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-moving-from-kubernetes-to-github-pages": {
-    "bytes": 1852936,
-    "seconds": 370.49,
-    "sha256": "cd73e751c5182beb1a4366632ee20db2f3e29da2d0557db1c89aa6f86e2c4fb0",
+    "bytes": 2186398,
+    "seconds": 364.32,
+    "sha256": "cf72d3b9ad115d0dfa992d0139872e3f2ea6e347f5d06972a2238574f6eb192c",
     "script_sha256": "518a16e26f915b3e5560fa354c54463950cf5c04e5f2ccc77f50b59b826d1298",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-mutation-testing-catch-rate-ai-agent-repository": {
-    "bytes": 1774583,
-    "seconds": 354.82,
-    "sha256": "49ce0a2cee19860f00b2e6a017cfedf0cf6c10cfa13a5b827021732acb52d3ca",
+    "bytes": 2012172,
+    "seconds": 335.28,
+    "sha256": "a82896209dab072cf3f34ac70bea7421dcf5de182dcc2036f5b8f813cb633034",
     "script_sha256": "c2ba3d740df6b996c6ca8548f3b6a2885b339439514d7191bd966daab7f0f8e0",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-open-source-chip-design-yosys-openroad-sky130-findings": {
-    "bytes": 1595353,
-    "seconds": 318.98,
-    "sha256": "85fdaa1429b3a903da4e71ea5605f4516dd3238c8daaebac7da6b32b7327770e",
+    "bytes": 1869726,
+    "seconds": 311.54,
+    "sha256": "b89251757492acea5c03900ec38ec39d87f9b15d51691492d1ceddbdf131601f",
     "script_sha256": "d4ee8ab8417313f50f1b8d9dc11d60c9c9a462fb8e24f8814a860a5232928b54",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-parallel-ai-agents-duplicate-pull-requests-stranded-branches": {
-    "bytes": 1867580,
-    "seconds": 373.42,
-    "sha256": "7aee1b2f0927746e9da34c09405a1269cf6d4a571fb5095e2bf8e657d9dbefec",
+    "bytes": 2197789,
+    "seconds": 366.22,
+    "sha256": "6c5d87cb2a2ed9963ddedf872137782917684ce1216bfb0bbf9a24559582a673",
     "script_sha256": "34225bc4120e5ab027e851a4d95cf9555aebbcebd5e028b43c1e95cbc067dedc",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-robot-assembly-simulation-digital-twin-findings": {
-    "bytes": 1677933,
-    "seconds": 335.49,
-    "sha256": "d1e1b8d78f50d79504ef28874886466cdae3aa5ffb22c1fcb81e814351a10f32",
+    "bytes": 1950399,
+    "seconds": 324.98,
+    "sha256": "9d846f2193ab9fedc3d0d2ff1c88b0e719c8dec9a134206871e471b928f83119",
     "script_sha256": "b96627396fca0e70cd0cee51577e1f97d8cb82874133fc7667b57af81e4adbef",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-self-improving-agent-prompts-review-loop": {
-    "bytes": 1844311,
-    "seconds": 368.77,
-    "sha256": "7fa695691a00190e103742a2844964fe2fbf94cb26ecbc63cf0b203d6fb3d686",
+    "bytes": 2147225,
+    "seconds": 357.79,
+    "sha256": "27e98917987eecd56477e43e7ab4a765984ffbe973550d1cdae6d28d162bc36a",
     "script_sha256": "4f4622f7e8c25a75f755ab87f00abee3624325a4365761409f4290fbf0a16149",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-self-replicating-3d-printer-reprap-closure-research": {
-    "bytes": 1611047,
-    "seconds": 322.12,
-    "sha256": "cfb5c2d909d3e21133cdd9d4f1ffe578488c576cf019f37f1537ad4a195ad5dc",
+    "bytes": 1877235,
+    "seconds": 312.79,
+    "sha256": "2f9b10ac9a26a046b4f9e4950f95b058d91b6e26fff02c8f48a219cc8e569078",
     "script_sha256": "31685f4ba5c52e6c992eb8bc470dddac825426370b3357c3151ec2bba0cf2040",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-20-we-almost-rewrote-it-in-rust": {
-    "bytes": 1235437,
-    "seconds": 246.99,
-    "sha256": "7354119e38d9857313a48a324be12828ee8620cf70f9bec573c5740a977ff220",
+    "bytes": 1445697,
+    "seconds": 240.86,
+    "sha256": "08348becd54e20f26da10bf168b9408416929079911f81963115adc5f6309a62",
     "script_sha256": "f8e67d516599bfe8efddcca079b0dd08badb1ae8d6e3e1bfc5ad0a22cd1014cc",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-21-a-wall-is-not-studs-per-foot": {
-    "bytes": 1295464,
-    "seconds": 259.0,
-    "sha256": "00405f60db73408cf315cfafe218a93ba962a6e38eb55ce15afa1e7b23e2ec96",
+    "bytes": 1573227,
+    "seconds": 262.13,
+    "sha256": "06ed5c0d5067d002d59b75a4defe36b149eceecbc68a7fe604da8c4c9a9ae37c",
     "script_sha256": "008617bb49e37918df717354d1dcc832ef540ce63dde556fca631284779b2d5c",
-    "voice": "m"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-21-checking-the-energy-table": {
-    "bytes": 632121,
-    "seconds": 126.33,
-    "sha256": "57fb4479ecae3cc5598706b5101de3fb23ee3a7b63c78efe8eae3ff84e3d2cf1",
+    "bytes": 777375,
+    "seconds": 129.48,
+    "sha256": "d973e2a35bb11530332f291c2601fcbc3c2ead3ae34d82891e34729cc0108793",
     "script_sha256": "de99a76f8f64065c77ea2885fc1f56b07ab95a40c41407ce71e7c40826e2d719",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-21-fooling-an-ai-detector-by-being-short": {
-    "bytes": 786911,
-    "seconds": 157.28,
-    "sha256": "cb619b88aa6a0be14eae0e8187a6c88a6e4b1e08e2c483349a39f24eb13bc956",
+    "bytes": 959694,
+    "seconds": 159.86,
+    "sha256": "0f14156bd0ea1a133670b9ddd484868c65c82d70ef42d22018799c3783ac9697",
     "script_sha256": "5fef2d88c9c0a1fc13b247d9ec49a450bf786793f7325951389e6a4d28c5f18e",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-21-guidelines-not-rules-for-ai-agents": {
-    "bytes": 1261942,
-    "seconds": 252.29,
-    "sha256": "d6b7c862fc7614ef03dcd0ee6ae9bab994dd2bcbf316db2d435b56dfb4343abb",
+    "bytes": 1542024,
+    "seconds": 256.92,
+    "sha256": "093ffe13dd4ffe98122626f152d05f4778c89987ad5766801abec40db40ed664",
     "script_sha256": "f6a6b2b65c2474a5cb29a8e449a56d6c2421c9a75389e8c6f65f85b7a0019b3b",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-21-the-id-that-ate-the-table": {
-    "bytes": 811804,
-    "seconds": 162.27,
-    "sha256": "8471a529c11d1068c06ed9bad35c663a72ab7a5149492f92f0c68524b8d4b51c",
+    "bytes": 969000,
+    "seconds": 161.42,
+    "sha256": "b1f3bf55d209a477e6173adeee32ab245625c4d8aaae50785d31fb930302678c",
     "script_sha256": "7aa64710d727d79620ba98ad447d59b94354707b56343059038a2b5289d6cc01",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-21-thirteen-publishers-zero-posts": {
-    "bytes": 1504577,
-    "seconds": 300.83,
-    "sha256": "7da5c59110ad44a8e421c07635ba3234e32f9ee4ce4c16defe42ef46b1a82eb6",
+    "bytes": 1736526,
+    "seconds": 289.34,
+    "sha256": "41ffcf355a678583c6c5a6e986f291d7459a61b059667250c3088894d0245c41",
     "script_sha256": "8ed2e06fa202063a3656d096b9ba920e7df6c697229e1680dbb870db4cd3b8dd",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-21-typeof-localstorage-throws": {
-    "bytes": 699883,
-    "seconds": 139.89,
-    "sha256": "584b3f6a92f88d0d3058b5b4bc195074f81574313267f8bfaff3f51c2055df18",
+    "bytes": 839990,
+    "seconds": 139.92,
+    "sha256": "e342786b6b3284b8a2113358bb2154cf484e64d87ff887ca5579c5d0eec0a7fc",
     "script_sha256": "bf6305a596ecbf0f39ab95cf58afaafc74976f49dd91ba65fae14b2b95c9ee2f",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-21-why-changepoint-detectors-cry-wolf": {
-    "bytes": 1282148,
-    "seconds": 256.34,
-    "sha256": "90e5087f88c5bd7f8482037e3b7586d9d7ccff55d434aeeb640fd8f0904f87ec",
+    "bytes": 1500369,
+    "seconds": 249.98,
+    "sha256": "ce0367ff021f80b3fe062761e2ff2657a4909119375befd115b2e7275449d8fb",
     "script_sha256": "2f4ac840d2ddee981308fcecfa7427fc1c63382ebef71afa3eaf2c94b7224a30",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-21-work-that-takes-more-than-twenty-hours": {
-    "bytes": 950136,
-    "seconds": 189.94,
-    "sha256": "4ac4f40e88fe75c6ef54836b05afc55d10f2948f599334215f2f6b2ba6a365e0",
+    "bytes": 1111861,
+    "seconds": 185.23,
+    "sha256": "f4d1922939616f21386631ff046930f10b460d3bbd096f1422b3772866bf65dd",
     "script_sha256": "6fb45fa3bc3e2c705a3da6fa942d31819b9f9fff33c6c5b020dc6ee3dcb31ec6",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-22-a-neural-controller-did-not-beat-pid-on-a-coupled-quadrotor": {
-    "bytes": 818369,
-    "seconds": 163.58,
-    "sha256": "371255fbdf51d8fba24086f0ccebe6910549b56d154691b41d155383fb96fec2",
+    "bytes": 1013962,
+    "seconds": 168.91,
+    "sha256": "26f1416acfa5e364de45dfe0b356c4a957e1abbb6cd5f20ab0ec69dd95614380",
     "script_sha256": "977d0dce00b5bbbd06f101239c5bff05b353e297758097907523450d11511ad3",
-    "voice": "v"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-22-a-pip-wheel-puts-openroad-in-reach-of-every-agent-run": {
-    "bytes": 722910,
-    "seconds": 144.48,
-    "sha256": "20c9ddb297005e974db3f8c96012a5fb48db276735f72bb688f1e743cf9c75ec",
+    "bytes": 884093,
+    "seconds": 147.26,
+    "sha256": "30a83f0e879c5d708f96df8e0003d7703f8ccbab046934a613412ea0a016103e",
     "script_sha256": "d514527c97f8b6424561049929ad7217ffb7fa178287f43abc6f007855a64bc7",
-    "voice": "v"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-22-a-waste-sorting-robot-is-limited-by-reach-over-pick-time": {
-    "bytes": 894774,
-    "seconds": 178.86,
-    "sha256": "9b45d77adf64cc09502e6c48006c30c456f2b6a6569ec57bfcb2b046e7dc14bc",
+    "bytes": 1078759,
+    "seconds": 179.71,
+    "sha256": "2bb799cc0aea8c129896e7ba4d200b3a24cafc9752292125c455fcf7e18c14ca",
     "script_sha256": "9baa8e60866daad66d43a13cbeefe9a133d1dcedfc1d60f32dc838c15cca27a9",
-    "voice": "m"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-22-phat-vs-reverb": {
-    "bytes": 715854,
-    "seconds": 143.07,
-    "sha256": "c6a77c527c35e5f6ca8a9d3db39d719016b3cf7f3d0af97f2cad77bdc2de0cfc",
+    "bytes": 885098,
+    "seconds": 147.43,
+    "sha256": "beb68be8daf064feff4acd064d72b6fe4978c4c020ca75fd28a0f3e036febc9b",
     "script_sha256": "e17006c6e6b5627152625498e560cc6a9f76ece20a6ef1e8d2f3ca0c81a043b2",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-23-sync-window-longer-than-offset": {
-    "bytes": 768102,
-    "seconds": 153.52,
-    "sha256": "feae7e78b819f07fed0013b8c26e1e5167cebb2ee7f451952b940ab5cf7897d2",
+    "bytes": 974381,
+    "seconds": 162.31,
+    "sha256": "d970c8fa20cf06b305b991ea250ff284e5cfeb9cad940974ea811d00c13186f0",
     "script_sha256": "8159d961f064d910694b87e79b908dbcb3adbb0cadebb7abd1dcd6df43e49a22",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   },
   "2026-10-23-water-pump-demand-charge-booster-pump": {
-    "bytes": 1024875,
-    "seconds": 204.88,
-    "sha256": "cb914dc08f2eaa835e69bd8364f7d4b33bc1bb5d073f7885a611aacdf90221c1",
+    "bytes": 1223634,
+    "seconds": 203.86,
+    "sha256": "b73e7115ca083dfb3c716865badbad96ab069e7017237eb72aab8e21dc31903a",
     "script_sha256": "80020c423ac8c779ac8b9b6981d4c704184892a3f93d43b881d9f61bbfa07c63",
-    "voice": "v"
+    "voice": "kokoro-82m-af_heart"
+  },
+  "2026-10-24-does-nailer-recoil-slow-a-robot": {
+    "bytes": 692987,
+    "seconds": 138.5,
+    "sha256": "84e1a5c06a8bb2bfeed71f9a4fb990888850b46b6e14b3b8cff621822a223cdf",
+    "script_sha256": "290232cd2a0d76ed066dfcbcbf67790f16d689e4c1ea9556586b79c736aa6d06",
+    "voice": "en_US-ljspeech-high"
   }
 }

@@ -17,7 +17,7 @@ over a plain threshold; a *cooldown* (stay quiet after speaking) costs recall at
 tried, up to 0.07; a *back-off* after a dismissal is within noise or slightly negative. With no
 clustering nothing helps. The boost's gain is real but partly paid for in a slightly higher false rate (below).
 
-Live page: https://duncan-haywood.github.io/monorepo-projects/research/ambient-cluster/
+Live page: https://duncan-haywood.github.io/oss-monorepo/research/ambient-cluster/
 
 ## Builds on (and does not claim affiliation with)
 
