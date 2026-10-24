@@ -4173,6 +4173,12 @@
   "name": "Robots on the building site",
   "blurb": "Which residential construction tasks off-the-shelf and purpose-built robots can do, alone or beside a crew, learned and checked in physics simulation, and what that would take off the cost of a new home.",
   "projects": []
+ },
+ {
+  "id": "humanities",
+  "name": "History & human sciences",
+  "blurb": "Cited syntheses of the historical, archaeological and social-scientific record on big human questions: what the evidence shows, what replicated, and how different scholarly and theological lenses read it.",
+  "projects": []
  }
  ],
  "featured": [
