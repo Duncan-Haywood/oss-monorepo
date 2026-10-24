@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 2d: bootstrap intervals for B_simple (planned before running)
+- Why: 2c's values at single checkpoints came from 64 batches and moved several-fold between neighbours, so its "tens of sequences" claim had no error bars. Question: with n = 256 batches per checkpoint and a bootstrap over batches, how wide is the 95% interval of B_simple, and does the "rises by more than 10x from init" result still hold at the interval's lower end?
+- Design (`experiments/numpy_h_sweep/noise_scale_boot.py`): same model, data, training and checkpoints as 2c (3 seeds), n = 256 gradients at b = 16 per checkpoint; 1,000 bootstrap resamples of the batches; each resample recomputes S, the unbiased |G|^2 and the ratio. Resamples with |G|^2 <= 0 are counted and excluded from the percentile interval (reported).
+- **H2d-i:** at steps 80 to 640 the lower 95% limit of B_simple exceeds 3x its init-step upper limit in every seed and checkpoint (rise is real). Refuted if any cell fails.
+- **H2d-ii:** the interval's upper/lower ratio at n = 256 is below 3 at every step >= 160 (so 2c's "factor 2 to 3" noise was a small-n effect). Refuted otherwise; prior: it will hold at 80 and 160 but not at the late checkpoints, where |G|^2 is small.
+- Limits: the bootstrap is over batches at one parameter vector, so it covers estimator error only, not the variation of the training trajectory (that is the seed spread); the ratio estimator is biased at small |G|^2.
+
+### Outcome of 2d (`experiments/numpy_h_sweep/noise_scale_boot_results.txt`; n = 256 batches, 1,000 resamples, 3 seeds; no resample had |G|^2 <= 0)
+- **H2d-i supported.** Init B_simple is 2.8 to 3.9 (upper limits 2.9 to 3.9, so 3x is at most 11.7). The lowest lower limit at steps 80 to 640 is 16.9 (seed 2, step 160); every other cell is above 25. The rise from init is real in every seed and checkpoint.
+- **H2d-ii supported, and my prior was wrong.** The upper/lower ratio at steps >= 160 is at most 1.37 (seed 1, step 160: 97.9 to 134.2). Estimator error at n = 256 is about +-15%, not a factor of 2 to 3; I had expected the late checkpoints to be wide.
+- **Consequence for 2c.** The non-monotone trajectory is not estimator noise: seed 2 goes 98 (step 80), 19 (160), 99 (320), 41 (640) with intervals of width under 40%, and the n = 64 values in 2c were close to these (seed 2, step 160: 15.6 against 19.2). B_simple on this model moves by factors of 2 to 5 between checkpoints within a run, and differs across seeds at the same step (step 640: 93, 95, 41). So a single B_simple is not a stable constant for the composition rule; it needs a range (roughly 20 to 120 sequences after step 80) or a per-step estimate.
+- Limits: the bootstrap resamples batches at one parameter vector, so it covers estimator error only; the ratio estimator is biased at small |G|^2 (not corrected); three seeds; AdamW-preconditioned, 14k parameters.
+- Next: test whether B_simple at the end of training predicts where the H curve turns, now that its range is known; jointly tune the inner lr (2b's open problem).
+
 ## 2026-10-24 · Milestone 2c: simple gradient noise scale B_simple along training (planned before running)
 - Why: the proposal's composition rule needs a measured noise constant `B_noise`; PR 10109 (another session) widens the outer-lr grid, so this step takes the other open item from 2a's "Next".
 - Design (`experiments/numpy_h_sweep/noise_scale.py`): same 14k-parameter model and data as the sweeps. Train synchronous AdamW (batch 4x16, seed s) and at steps {0, 80, 160, 320, 640} take n=64 independent gradients at batch size b=16 on training text. Estimator (McCandlish et al. 2018 "simple" scale, to be checked against the reference): S = sum over coordinates of the across-batch variance (unbiased), so tr(Sigma) = b*S; |G|^2 = |mean grad|^2 - S/n (unbiased); B_simple = b*S/|G|^2. 3 seeds.

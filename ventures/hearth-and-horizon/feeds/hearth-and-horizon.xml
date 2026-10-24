@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Bench Six</title>
+      <link>https://example.invalid/hearth-and-horizon/bench-six.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/bench-six.html</guid>
+      <pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A co-operative's two wind machines and one battery cannot cover a frost night. Written rules say the top bench is protected first; the co-op's frost agent says that rule will run the battery flat at the coldest hour of the lowest bench, where the Benedictine sisters' cider trees stand. It will not reorder the schedule quietly, so at ten to two in the morning it wakes the chairman, who owns the top bench, and asks him to give his place away. Setting: Kettle Bench, an invented orchard district above a lake in the Okanagan, British Columbia, the night of 19 to 20 April 2047. Read the full text at https://example.invalid/hearth-and-horizon/bench-six.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A co-operative's two wind machines and one battery cannot cover a frost night. Written rules say the top bench is protected first; the co-op's frost agent says that rule will run the battery flat at the coldest hour of the lowest bench, where the Benedictine sisters' cider trees stand. It will not reorder the schedule quietly, so at ten to two in the morning it wakes the chairman, who owns the top bench, and asks him to give his place away.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Fifteen Minutes</title>
       <link>https://example.invalid/hearth-and-horizon/fifteen-minutes.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/fifteen-minutes.html</guid>
