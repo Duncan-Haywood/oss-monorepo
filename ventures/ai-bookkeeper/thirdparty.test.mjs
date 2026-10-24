@@ -176,3 +176,27 @@ test("OFX line with no NAME or MEMO is described by its type and check number (o
 </BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`);
   assert.deepEqual(r.rows.map((x) => x.desc), ["Check #1000", "ATM"]);
 });
+
+test("CAMT.053 card entry whose only text is AddtlNtryInf after NtryDtls is not blank (Actual Budget sample shape)", () => {
+  const ntry = (inf, extra = "") => `<Ntry><Amt Ccy="EUR">89.85</Amt><CdtDbtInd>DBIT</CdtDbtInd><Sts>BOOK</Sts><BookgDt><Dt>2024-03-12</Dt></BookgDt>
+<NtryDtls><TxDtls><Refs><EndToEndId>VSDB 4395 9061</EndToEndId></Refs><Amt Ccy="EUR">89.85</Amt><CdtDbtInd>DBIT</CdtDbtInd>${extra}</TxDtls></NtryDtls><AddtlNtryInf>${inf}</AddtlNtryInf></Ntry>`;
+  const doc = (n) => `<?xml version="1.0"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.04"><BkToCstmrStmt><Stmt>${n}</Stmt></BkToCstmrStmt></Document>`;
+  const r = readStatement(doc(ntry("Supermarkt A")));
+  assert.equal(r.rows[0].desc, "Supermarkt A");
+  assert.equal(r.rows[0].cents, -8985);
+  // the party and the remittance text still win over the entry-level text
+  const r2 = readStatement(doc(ntry("Rega", "<RltdPties><Cdtr><Nm>Rega</Nm></Cdtr></RltdPties><RmtInf><Ustrd>Rechnung 17</Ustrd></RmtInf>")));
+  assert.equal(r2.rows[0].desc, "Rega Rechnung 17");
+});
+
+test("Actual Budget's OFX and QIF samples (MIT; shape rewritten, newest-first, cp1252 QIF) read every line", () => {
+  const ofx = `OFXHEADER:100\nDATA:OFXSGML\nVERSION:102\n\n<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><CURDEF>USD<BANKTRANLIST>
+<STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20190123120000<TRNAMT>-30.00<FITID>1<NAME>PATIENT FIRST TOKEN 01/22 PURCHA</STMTTRN>
+<STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20190122120000<TRNAMT>-3.77<FITID>2<NAME>STARBUCKS STORE 07604 01/21 PURC</STMTTRN>
+</BANKTRANLIST><LEDGERBAL><BALAMT>12798.01<DTASOF>20190124212851</LEDGERBAL></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>`;
+  const r = readStatement(ofx);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-3000, -377]);
+  assert.equal(r.statement.cents, 1279801);
+  const q = readStatement("!Type:Bank\nD12/19/18\nPCOUNTY WASTE 12/18 PURCHASE\nT-25.00\nC*\n^\nD12/20/18\nPLOFT 0845 CHES\nT-31.33\nC*\n^\n");
+  assert.deepEqual(q.rows.map((x) => [x.date, x.cents]), [["2018-12-19", -2500], ["2018-12-20", -3133]]);
+});
