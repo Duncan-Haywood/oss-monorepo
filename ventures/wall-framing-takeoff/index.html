@@ -399,6 +399,7 @@
         wall.openings.push(op);
       }
       const source = plan;
+      { const pr = parsePrices(); if (!pr.bad.length && Object.keys(pr.prices).length) plan.prices = pr.prices; }
       const tableText = $("#hdrTable").value.trim();
       let resolved = plan, hdrRows = [];
       if (tableText) {
@@ -629,6 +630,7 @@
         $("#flUnder").value = (fl.doubleUnder || []).map(formatLength).join(", ");
         $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
       }
+      if (plan.prices && typeof plan.prices === "object") { $("#priceText").value = Object.entries(plan.prices).filter(([, v]) => Number.isFinite(v)).map(([k, v]) => `${k}, ${v}`).join("\n"); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } }
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
       if (fn) {

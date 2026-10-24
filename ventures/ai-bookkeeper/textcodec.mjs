@@ -42,13 +42,29 @@ function legacy(b) {
   if (/^000\t\d{8}\t/.test(latin)) return new TextDecoder("windows-1257").decode(b);
   const highWords = latin.match(/[\u00c0-\u00ff]{4,}/g) || [];
   const mixedWords = latin.match(/[A-Za-z]+[\u00c0-\u00ff]+[A-Za-z]*/g) || [];
-  if (highWords.length >= 3 && highWords.length > mixedWords.length) return new TextDecoder("windows-1251").decode(b);
+  if (highWords.length >= 3 && highWords.length > mixedWords.length) return rightToLeftOrGreek(b) || new TextDecoder("windows-1251").decode(b);
   const c = new Map();
   for (let i = 0; i < b.length; i++) if (b[i] >= 0x80) c.set(b[i], (c.get(b[i]) || 0) + 1);
   const has = (...xs) => xs.reduce((n, x) => n + (c.get(x) || 0), 0);
   if (has(0xf0, 0xfe, 0xd0, 0xde) > 0 && has(0xe1, 0xed, 0xfa, 0xfd) === 0) return new TextDecoder("windows-1257").decode(b);
   if (has(0x8a, 0x8d, 0x8e, 0x8f, 0x9a, 0x9d, 0x9e) > 0 || has(0xb9, 0xb3, 0xbf) > 0 || (has(0xec) > 0 && has(0xf8) > 0)) return new TextDecoder("windows-1250").decode(b);
   return latin;
+}
+
+// Hebrew (1255) and Greek (1253) bytes also read as runs of accented Latin, and
+// decoded as 1251 they come out as Cyrillic nonsense. Like the East Asian
+// files, a codepage is taken only when the text carries that language's
+// statement column names, which the Cyrillic reading never does by accident.
+const OTHER = [
+  ["windows-1255", /תאריך|תיאור|פרטים|חובה|זכות|יתרה|סכום|תנועה|אסמכתא/],
+  ["windows-1253", /Ημερομηνία|Περιγραφή|Αιτιολογία|Χρέωση|Πίστωση|Υπόλοιπο|Ποσό|Κίνηση/i],
+];
+function rightToLeftOrGreek(b) {
+  for (const [enc, words] of OTHER) {
+    const t = new TextDecoder(enc).decode(b);
+    if (words.test(t)) return t;
+  }
+  return null;
 }
 
 // Japanese (Shift_JIS), Simplified Chinese (GBK) and Korean (EUC-KR) bank

@@ -123,7 +123,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("README.md"), /No warranty/);
-  assert.match(page("README.md"), /https:\/\/duncan-haywood\.github\.io\/(?:oss-monorepo|monorepo-projects)\/conformal-prediction-intervals\//);
+  assert.match(page("README.md"), /https:\/\/duncan-haywood\.github\.io\/oss-monorepo\/conformal-prediction-intervals\//);
   assert.match(page("README.md"), /## Verification/);
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: conformal-prediction-intervals$/m);

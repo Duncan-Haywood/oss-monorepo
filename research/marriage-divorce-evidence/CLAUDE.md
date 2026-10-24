@@ -6,7 +6,7 @@ Read README.md, DATA_SOURCES.md, MODEL_CARD.md and this directory’s parent res
 
 1. Open Report.html through a local HTTP server; it is the complete latest snapshot.
 2. Run `python3 -m unittest discover -s . -p 'test_*.py'`.
-3. For authored UI changes: `cd report-app && npm ci && npm run dev -- --host 127.0.0.1`. `npm run build` must pass the protected-runtime check. Preserve the report artifact identity.
+3. For authored UI changes: `cd report-app && npm ci && npm run dev -- --host 127.0.0.1`. `npm run build` runs the protected-runtime check, so a failure there means a protected file changed. Preserve the report artifact identity.
 4. Restore optional analytical inputs using scripts/restore_inputs.py and the full local handoff bundle, or re-extract official sources using source scripts and recorded checksums. Raw data is usually not in Git.
 5. Read source METHODS files before changing a denominator, model or claim. Model checkpoints need the pinned sklearn/Python environment. Prefer transparent coefficient/tree JSON/text for inspection; load only trusted checkpoints.
 
