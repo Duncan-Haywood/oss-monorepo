@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01Fvf5DjxMgEvDQmGYdNpX1e",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T05:29:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Verify/Critique steer toward backlog edits, but the only agent-owned open item was too big for the run budget; the marketing suite alone takes 11 min locally and the tool timeout is 10 min."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Shipped only a backlog split and evidence, not a fix; the suite's runtime and path-filter tests made a safe workflow change not verifiable in the run."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "P043: read 2 failed run logs (mirror step, 1/275 test), main now 275/275 locally (681 s), split into rows (a)/(b); no code shipped. Backlog ids: P043.",
+  "corrections": [],
+  "redteam": null
+}

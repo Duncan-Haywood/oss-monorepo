@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: the lowest peak kW over all feasible one-run pump-10 schedules as every Net3 demand is scaled from 0.9 to 1.2 times; it jumps from about 63 kW to 310 kW, the booster pump, with a few percent more demand">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Lowest feasible pumping peak against the day's demand (Net3, one-run schedules)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="256.0" y2="256.0" stroke="#ddd"/><text x="58" y="260.0" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="188.1" y2="188.1" stroke="#ddd"/><text x="58" y="192.1" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="120.1" y2="120.1" stroke="#ddd"/><text x="58" y="124.1" text-anchor="end" font-family="sans-serif" font-size="11">300</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.9</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="269.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.01</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.02</text>
+<text x="362.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.06</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.1</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">demand multiplier (1 = Net3 as shipped)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">lowest feasible peak, kW</text>
+<polyline points="64.0,281.9 157.3,281.9 250.7,281.2 260.0,281.2 269.3,281.2 278.7,113.3 288.0,113.3 325.3,113.3 362.7,113.3 400.0,112.6 437.3,111.9 530.7,111.9 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="281.9" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="281.9" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="281.2" r="3" fill="#c0392b"/>
+<circle cx="260.0" cy="281.2" r="3" fill="#c0392b"/>
+<circle cx="269.3" cy="281.2" r="3" fill="#c0392b"/>
+<circle cx="278.7" cy="113.3" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="113.3" r="3" fill="#c0392b"/>
+<circle cx="325.3" cy="113.3" r="3" fill="#c0392b"/>
+<circle cx="362.7" cy="113.3" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="112.6" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="111.9" r="3" fill="#c0392b"/>
+<circle cx="530.7" cy="111.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">lowest feasible peak</text>
+</svg>

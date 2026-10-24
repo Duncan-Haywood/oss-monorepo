@@ -1,0 +1,543 @@
+designs with a placed result: 133 of 133; alu=36, fir=36, mac=36, sorter=25
+tools: Yosys 0.33 (git sha1 2584903a060); OpenROAD HDL-HEAD; PDK commit e5cc6e7; ABC target 8000 ps
+30 random draws per cell (same seeds for all three targets); numbers are the median over draws of the median APE on the remaining held-out designs; Spearman is the median over draws.
+
+== target cells, linear, held-out alu (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      64.6%          -      64.6%      0.914
+1      63.7%          -      44.1%      0.913
+2      66.4%      52.1%      32.0%      0.949
+3      64.6%      22.3%      18.6%      0.969
+5      63.7%      11.1%      13.2%      0.973
+8      66.4%       7.8%      10.2%      0.991
+12     65.3%       7.4%       8.8%      0.988
+16     66.9%       7.4%       8.4%      0.985
+break-even (pooled <= 20%): k = 3; scratch alone: k = 5
+
+== target cells, linear, held-out fir (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      37.3%          -      37.3%      0.966
+1      36.9%          -      15.7%      0.918
+2      37.3%      26.2%      13.6%      0.951
+3      37.7%      11.9%       9.9%      0.963
+5      37.7%       2.0%       7.3%      0.975
+8      37.3%       1.1%       5.6%      0.981
+12     37.3%       0.8%       3.4%      0.987
+16     37.3%       0.6%       2.7%      0.990
+break-even (pooled <= 20%): k = 1; scratch alone: k = 3
+
+== target cells, linear, held-out mac (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      18.7%          -      18.7%      0.999
+1      18.9%          -      13.4%      0.998
+2      18.7%       1.7%       9.1%      0.998
+3      18.9%       1.6%       8.0%      0.998
+5      18.4%       1.4%       7.7%      0.998
+8      18.9%       0.8%       6.2%      0.998
+12     17.9%       0.8%       4.9%      0.997
+16     18.5%       0.7%       5.2%      0.998
+break-even (pooled <= 20%): k = 0; scratch alone: k = 2
+
+== target cells, linear, held-out sorter (n=25) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      59.9%          -      59.9%      0.989
+1      59.7%          -      21.1%      0.987
+2      59.9%      10.9%      17.5%      0.988
+3      59.4%       9.8%      16.6%      0.992
+5      59.4%       7.6%      14.9%      0.992
+8      59.9%       7.4%      12.1%      0.992
+12     59.4%       4.9%      12.5%      0.993
+16     60.0%       5.1%      11.6%      0.996
+break-even (pooled <= 20%): k = 2; scratch alone: k = 2
+
+== target cells, ridge, held-out alu (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      71.5%          -      71.5%      0.851
+1      71.4%          -      28.6%      0.914
+2      71.5%      55.7%      22.4%      0.957
+3      71.5%      12.8%      16.4%      0.970
+5      71.5%       8.5%      11.6%      0.980
+8      71.5%       5.8%       7.9%      0.992
+12     72.4%       5.1%       6.4%      0.994
+16     71.5%       4.9%       5.3%      0.995
+break-even (pooled <= 20%): k = 3; scratch alone: k = 3
+
+== target cells, ridge, held-out fir (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0     210.7%          -     210.7%      0.750
+1     199.7%          -      29.6%      0.845
+2     210.7%      39.7%      26.5%      0.877
+3     221.8%      29.0%      17.8%      0.891
+5     221.8%      14.1%      13.8%      0.931
+8     210.7%       5.9%      10.0%      0.941
+12    211.1%       5.5%       7.5%      0.978
+16    197.7%       5.3%       7.0%      0.983
+break-even (pooled <= 20%): k = 3; scratch alone: k = 5
+
+== target cells, ridge, held-out mac (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      21.7%          -      21.7%      0.951
+1      22.3%          -      24.8%      0.952
+2      21.7%      42.3%      21.8%      0.964
+3      22.3%       8.9%      18.3%      0.973
+5      22.3%       4.0%      19.0%      0.974
+8      21.7%       3.4%      13.3%      0.984
+12     23.0%       3.2%      13.5%      0.989
+16     23.8%       2.9%      10.9%      0.987
+break-even (pooled <= 20%): k = 3; scratch alone: k = 3
+
+== target cells, ridge, held-out sorter (n=25) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      10.5%          -      10.5%      0.995
+1      11.4%          -       8.8%      0.994
+2      10.5%      38.4%       7.5%      0.995
+3      11.2%      11.1%       6.9%      0.996
+5      11.5%       7.0%       6.1%      0.996
+8      10.5%       5.5%       5.7%      0.997
+12      9.9%       5.0%       5.7%      0.995
+16     10.2%       4.3%       5.5%      1.000
+break-even (pooled <= 20%): k = 0; scratch alone: k = 3
+
+== target cells, gbr, held-out alu (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      26.8%          -      26.8%      0.880
+1      28.9%          -      31.9%      0.891
+2      29.1%      63.3%      30.7%      0.902
+3      28.6%      47.1%      31.3%      0.907
+5      30.0%      34.0%      27.9%      0.917
+8      28.8%      27.4%      23.3%      0.953
+12     29.9%      21.6%      18.5%      0.957
+16     30.9%      18.3%      17.2%      0.957
+break-even (pooled <= 20%): k = 12; scratch alone: k = 16
+
+== target cells, gbr, held-out fir (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      16.0%          -      16.0%      0.928
+1      15.6%          -      15.4%      0.920
+2      16.0%      46.3%      13.8%      0.932
+3      15.9%      38.4%      12.5%      0.936
+5      15.7%      32.2%      10.6%      0.941
+8      16.0%      19.4%       9.3%      0.965
+12     15.5%      13.0%       8.1%      0.979
+16     15.1%      10.1%       7.4%      0.977
+break-even (pooled <= 20%): k = 0; scratch alone: k = 8
+
+== target cells, gbr, held-out mac (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      62.5%          -      62.5%      0.971
+1      67.3%          -      54.1%      0.967
+2      68.1%      69.8%      51.2%      0.958
+3      67.5%      47.9%      40.2%      0.970
+5      67.6%      35.0%      29.2%      0.975
+8      67.6%      24.9%      24.6%      0.978
+12     67.0%      21.6%      18.7%      0.979
+16     67.7%      16.6%      16.0%      0.980
+break-even (pooled <= 20%): k = 12; scratch alone: k = 16
+
+== target cells, gbr, held-out sorter (n=25) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      53.4%          -      53.4%      0.944
+1      50.9%          -      25.9%      0.965
+2      50.5%      67.5%      22.2%      0.969
+3      49.8%      40.1%      20.3%      0.978
+5      50.3%      32.2%      19.2%      0.980
+8      48.4%      22.2%      17.1%      0.977
+12     50.7%      14.9%      15.8%      0.973
+16     45.5%      13.3%      14.0%      0.983
+break-even (pooled <= 20%): k = 5; scratch alone: k = 12
+
+== target area, linear, held-out alu (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      52.1%          -      52.1%      0.950
+1      50.9%          -      60.9%      0.949
+2      52.9%      46.9%      52.1%      0.952
+3      53.3%      24.6%      27.5%      0.969
+5      50.9%       7.1%      15.7%      0.992
+8      52.1%       4.7%      11.4%      0.992
+12     52.1%       4.5%       8.4%      0.996
+16     49.1%       4.8%       9.3%      0.997
+break-even (pooled <= 20%): k = 5; scratch alone: k = 5
+
+== target area, linear, held-out fir (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0     120.1%          -     120.1%      0.902
+1     117.5%          -      16.2%      0.928
+2     120.1%      25.3%       8.5%      0.968
+3     122.6%      15.4%       8.9%      0.963
+5     117.5%       6.4%       7.3%      0.969
+8     120.1%       3.6%       7.1%      0.976
+12    114.2%       2.9%       6.0%      0.977
+16    120.1%       2.8%       5.1%      0.983
+break-even (pooled <= 20%): k = 1; scratch alone: k = 3
+
+== target area, linear, held-out mac (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      48.0%          -      48.0%      0.996
+1      48.0%          -      26.0%      0.996
+2      48.0%       2.4%      22.3%      0.994
+3      50.0%       2.0%      18.4%      0.995
+5      48.0%       1.9%      17.1%      0.997
+8      48.0%       1.5%      14.3%      0.997
+12     46.7%       1.4%      10.8%      0.996
+16     47.7%       1.4%      10.5%      0.996
+break-even (pooled <= 20%): k = 3; scratch alone: k = 2
+
+== target area, linear, held-out sorter (n=25) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      68.1%          -      68.1%      0.955
+1      68.8%          -      28.5%      0.975
+2      68.1%      33.7%      26.6%      0.983
+3      68.8%      29.6%      26.8%      0.989
+5      68.1%      29.3%      33.5%      0.992
+8      68.1%      23.8%      26.5%      0.990
+12     68.1%      21.0%      27.0%      0.995
+16     68.1%      19.4%      23.4%      1.000
+break-even (pooled <= 20%): k = None; scratch alone: k = 16
+
+== target area, ridge, held-out alu (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      56.0%          -      56.0%      0.941
+1      54.4%          -      28.9%      0.957
+2      56.0%      49.7%      22.2%      0.967
+3      57.6%      15.7%      17.7%      0.986
+5      57.6%       8.2%      10.0%      0.994
+8      56.1%       5.8%       7.3%      0.996
+12     56.1%       5.5%       5.4%      0.996
+16     56.0%       4.6%       4.9%      0.997
+break-even (pooled <= 20%): k = 3; scratch alone: k = 3
+
+== target area, ridge, held-out fir (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0     237.4%          -     237.4%      0.776
+1     238.3%          -      20.7%      0.870
+2     237.4%      39.6%      20.4%      0.889
+3     236.4%      27.4%      17.5%      0.908
+5     237.4%      14.0%      12.1%      0.949
+8     237.4%       5.9%       8.1%      0.958
+12    244.2%       5.2%       6.1%      0.980
+16    237.1%       5.2%       5.6%      0.985
+break-even (pooled <= 20%): k = 3; scratch alone: k = 5
+
+== target area, ridge, held-out mac (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      22.3%          -      22.3%      0.948
+1      21.7%          -      25.2%      0.949
+2      22.3%      39.1%      23.6%      0.961
+3      21.7%       8.0%      16.0%      0.971
+5      21.7%       4.9%      15.4%      0.974
+8      21.2%       3.9%      11.8%      0.986
+12     22.3%       3.2%      10.5%      0.990
+16     22.3%       3.0%       9.0%      0.989
+break-even (pooled <= 20%): k = 3; scratch alone: k = 3
+
+== target area, ridge, held-out sorter (n=25) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      15.0%          -      15.0%      0.995
+1      15.8%          -       7.7%      0.995
+2      13.7%      31.5%       9.6%      0.994
+3      14.7%      14.0%       8.6%      0.994
+5      14.4%       9.1%       7.4%      0.992
+8      15.0%       9.0%       7.2%      0.993
+12     14.4%       8.2%       7.9%      0.995
+16     15.8%       8.1%       6.5%      1.000
+break-even (pooled <= 20%): k = 0; scratch alone: k = 3
+
+== target area, gbr, held-out alu (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      33.6%          -      33.6%      0.923
+1      36.1%          -      35.7%      0.934
+2      36.1%      62.8%      32.8%      0.937
+3      36.1%      40.9%      31.9%      0.940
+5      35.6%      28.4%      27.6%      0.945
+8      35.4%      24.3%      20.4%      0.965
+12     34.7%      19.7%      16.9%      0.966
+16     37.4%      13.4%      13.9%      0.973
+break-even (pooled <= 20%): k = 12; scratch alone: k = 12
+
+== target area, gbr, held-out fir (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      24.1%          -      24.1%      0.852
+1      25.7%          -      23.1%      0.873
+2      25.6%      45.4%      20.6%      0.884
+3      26.1%      37.6%      18.2%      0.901
+5      25.6%      30.2%      17.2%      0.907
+8      25.6%      18.1%      12.4%      0.946
+12     25.2%      13.6%      10.6%      0.969
+16     24.7%       9.6%       8.2%      0.968
+break-even (pooled <= 20%): k = 3; scratch alone: k = 8
+
+== target area, gbr, held-out mac (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      63.0%          -      63.0%      0.977
+1      65.9%          -      53.2%      0.973
+2      66.1%      67.2%      49.1%      0.971
+3      65.9%      44.3%      37.0%      0.976
+5      65.8%      33.2%      29.7%      0.978
+8      65.7%      22.8%      22.6%      0.982
+12     65.9%      20.0%      18.2%      0.985
+16     65.4%      14.8%      13.8%      0.983
+break-even (pooled <= 20%): k = 12; scratch alone: k = 12
+
+== target area, gbr, held-out sorter (n=25) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      58.5%          -      58.5%      0.982
+1      55.6%          -      25.8%      0.983
+2      55.1%      73.0%      19.2%      0.985
+3      55.2%      45.7%      17.1%      0.986
+5      54.8%      33.8%      15.9%      0.985
+8      54.3%      24.8%      15.5%      0.985
+12     54.8%      16.4%      11.6%      0.989
+16     52.9%      13.1%      11.5%      0.983
+break-even (pooled <= 20%): k = 2; scratch alone: k = 12
+
+== target period, linear, held-out alu (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      29.1%          -      29.1%      0.972
+1      28.2%          -      25.9%      0.971
+2      30.3%      33.4%      26.7%      0.972
+3      30.1%      10.2%      26.8%      0.972
+5      28.2%       8.6%      23.0%      0.972
+8      29.1%       7.0%      22.1%      0.976
+12     29.1%       7.3%      19.9%      0.969
+16     26.7%       6.9%      18.7%      0.971
+break-even (pooled <= 20%): k = 12; scratch alone: k = 3
+
+== target period, linear, held-out fir (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      42.7%          -      42.7%      0.805
+1      42.3%          -      10.7%      0.878
+2      42.7%      12.7%      11.0%      0.855
+3      42.7%      14.1%       9.9%      0.866
+5      42.7%      13.7%       8.6%      0.873
+8      42.7%      11.9%       9.7%      0.884
+12     43.4%       9.1%       7.9%      0.897
+16     42.8%       8.1%       8.1%      0.898
+break-even (pooled <= 20%): k = 1; scratch alone: k = 2
+
+== target period, linear, held-out mac (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0       5.4%          -       5.4%      0.965
+1       5.3%          -       7.1%      0.962
+2       5.4%      12.4%       6.4%      0.963
+3       5.3%      11.0%       6.6%      0.962
+5       5.5%       8.0%       6.2%      0.965
+8       5.4%       5.8%       6.0%      0.961
+12      5.4%       5.3%       6.5%      0.951
+16      5.4%       5.3%       6.0%      0.958
+break-even (pooled <= 20%): k = 0; scratch alone: k = 2
+
+== target period, linear, held-out sorter (n=25) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      51.0%          -      51.0%      0.908
+1      54.0%          -      26.6%      0.976
+2      51.0%      16.4%      21.8%      0.975
+3      54.0%      12.5%      20.8%      0.974
+5      50.9%      11.0%      19.7%      0.978
+8      50.9%      10.9%      18.4%      0.973
+12     51.0%      10.8%      16.6%      0.977
+16     50.7%      11.0%      15.5%      0.983
+break-even (pooled <= 20%): k = 5; scratch alone: k = 2
+
+== target period, ridge, held-out alu (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      30.1%          -      30.1%      0.824
+1      30.1%          -      25.8%      0.889
+2      30.1%      33.2%      20.4%      0.908
+3      29.9%      10.5%      13.8%      0.936
+5      30.2%       7.1%       9.0%      0.971
+8      30.0%       6.3%       7.5%      0.972
+12     30.1%       6.3%       6.6%      0.972
+16     30.1%       5.5%       6.0%      0.969
+break-even (pooled <= 20%): k = 3; scratch alone: k = 3
+
+== target period, ridge, held-out fir (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      39.4%          -      39.4%      0.267
+1      35.9%          -      28.6%      0.318
+2      39.4%      15.1%      21.8%      0.512
+3      42.9%      13.4%      12.8%      0.748
+5      35.9%      11.8%      11.4%      0.828
+8      39.4%      11.2%       9.1%      0.869
+12     40.0%       9.3%       8.1%      0.873
+16     38.7%       8.4%       8.2%      0.883
+break-even (pooled <= 20%): k = 3; scratch alone: k = 2
+
+== target period, ridge, held-out mac (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      46.0%          -      46.0%      0.968
+1      46.0%          -       8.3%      0.977
+2      46.0%      18.1%       7.6%      0.979
+3      46.0%       7.7%       7.9%      0.975
+5      46.0%       5.8%       6.3%      0.973
+8      47.0%       5.0%       6.1%      0.975
+12     46.4%       4.7%       5.4%      0.970
+16     45.9%       5.0%       5.1%      0.967
+break-even (pooled <= 20%): k = 1; scratch alone: k = 2
+
+== target period, ridge, held-out sorter (n=25) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      32.8%          -      32.8%      0.973
+1      32.3%          -      17.0%      0.962
+2      32.8%      18.7%      15.5%      0.961
+3      32.6%      12.5%      13.7%      0.964
+5      32.3%      11.2%      11.9%      0.975
+8      32.8%      10.6%      11.9%      0.973
+12     32.3%       9.5%      12.3%      0.973
+16     31.9%      10.8%      13.1%      0.983
+break-even (pooled <= 20%): k = 1; scratch alone: k = 2
+
+== target period, gbr, held-out alu (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      23.0%          -      23.0%      0.967
+1      24.8%          -      19.9%      0.957
+2      25.3%      48.8%      20.2%      0.962
+3      24.2%      28.8%      14.9%      0.959
+5      23.9%      18.4%      12.9%      0.961
+8      23.9%      15.0%      11.0%      0.967
+12     23.6%      11.7%       9.2%      0.967
+16     25.2%       7.7%       7.8%      0.970
+break-even (pooled <= 20%): k = 1; scratch alone: k = 5
+
+== target period, gbr, held-out fir (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      17.7%          -      17.7%      0.840
+1      17.3%          -      12.2%      0.817
+2      17.1%      14.2%      11.5%      0.805
+3      17.3%      13.6%      11.8%      0.826
+5      17.1%      12.3%      11.1%      0.814
+8      17.2%      10.1%      11.1%      0.828
+12     17.2%       8.2%       9.5%      0.839
+16     16.9%       8.2%       8.8%      0.862
+break-even (pooled <= 20%): k = 0; scratch alone: k = 2
+
+== target period, gbr, held-out mac (n=36) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      14.7%          -      14.7%      0.930
+1      16.2%          -      13.2%      0.926
+2      16.1%      24.3%       9.7%      0.929
+3      16.1%      15.3%       8.3%      0.934
+5      15.4%      10.5%       8.4%      0.923
+8      16.2%       6.8%       6.8%      0.935
+12     15.8%       7.2%       6.5%      0.952
+16     16.8%       6.4%       5.6%      0.947
+break-even (pooled <= 20%): k = 0; scratch alone: k = 3
+
+== target period, gbr, held-out sorter (n=25) ==
+k    zero APE   scratch APE   pooled APE   pooled Spearman
+0      60.0%          -      60.0%      0.947
+1      52.3%          -      28.1%      0.944
+2      52.5%      21.8%      17.9%      0.948
+3      52.4%      17.8%      12.4%      0.950
+5      52.5%      13.9%       8.6%      0.954
+8      52.2%       8.5%       5.9%      0.967
+12     51.9%       7.2%       5.5%      0.973
+16     51.7%       6.2%       4.4%      0.973
+break-even (pooled <= 20%): k = 2; scratch alone: k = 3
+
+== S. target cells, linear: median over the four held-out families of the median APE (percent); break-even k per family ==
+k zero scratch pooled
+0 48.6 - 48.6
+1 48.3 - 18.4
+2 48.6 18.6 15.5
+3 48.6 10.8 13.3
+5 48.6 4.8 10.4
+8 48.6 4.3 8.2
+12 48.4 2.9 6.8
+16 48.6 2.9 6.8
+break-even (pooled): alu=3, fir=1, mac=0, sorter=2
+
+== S. target cells, ridge: median over the four held-out families of the median APE (percent); break-even k per family ==
+k zero scratch pooled
+0 46.6 - 46.6
+1 46.9 - 26.7
+2 46.6 41.0 22.1
+3 46.9 11.9 17.1
+5 46.9 7.8 12.7
+8 46.6 5.6 9.0
+12 47.7 5.1 7.0
+16 47.6 4.6 6.2
+break-even (pooled): alu=3, fir=3, mac=3, sorter=0
+
+== S. target cells, gbr: median over the four held-out families of the median APE (percent); break-even k per family ==
+k zero scratch pooled
+0 40.1 - 40.1
+1 39.9 - 28.9
+2 39.8 65.4 26.4
+3 39.2 43.6 25.8
+5 40.1 33.1 23.6
+8 38.6 23.6 20.2
+12 40.3 18.2 17.2
+16 38.2 15.0 15.0
+break-even (pooled): alu=12, fir=0, mac=12, sorter=5
+
+== S. target area, linear: median over the four held-out families of the median APE (percent); break-even k per family ==
+k zero scratch pooled
+0 60.1 - 60.1
+1 59.8 - 27.2
+2 60.5 29.5 24.4
+3 61.0 20.0 22.6
+5 59.5 6.8 16.4
+8 60.1 4.1 12.9
+12 60.1 3.7 9.6
+16 58.6 3.8 9.9
+break-even (pooled): alu=5, fir=1, mac=3, sorter=None
+
+== S. target area, ridge: median over the four held-out families of the median APE (percent); break-even k per family ==
+k zero scratch pooled
+0 39.2 - 39.2
+1 38.0 - 23.0
+2 39.2 39.4 21.3
+3 39.7 14.8 16.8
+5 39.7 8.6 11.1
+8 38.7 5.9 7.7
+12 39.2 5.3 7.0
+16 39.1 4.9 6.1
+break-even (pooled): alu=3, fir=3, mac=3, sorter=0
+
+== S. target area, gbr: median over the four held-out families of the median APE (percent); break-even k per family ==
+k zero scratch pooled
+0 46.1 - 46.1
+1 45.9 - 30.8
+2 45.6 65.0 26.7
+3 45.7 42.6 25.1
+5 45.2 31.7 22.4
+8 44.8 23.6 17.9
+12 44.8 18.1 14.2
+16 45.1 13.2 12.7
+break-even (pooled): alu=12, fir=3, mac=12, sorter=2
+
+== S. target period, linear: median over the four held-out families of the median APE (percent); break-even k per family ==
+k zero scratch pooled
+0 35.9 - 35.9
+1 35.2 - 18.3
+2 36.5 14.6 16.4
+3 36.4 11.7 15.4
+5 35.4 9.8 14.2
+8 35.9 9.0 14.0
+12 36.3 8.2 12.3
+16 34.8 7.5 11.8
+break-even (pooled): alu=12, fir=1, mac=0, sorter=5
+
+== S. target period, ridge: median over the four held-out families of the median APE (percent); break-even k per family ==
+k zero scratch pooled
+0 36.1 - 36.1
+1 34.1 - 21.4
+2 36.1 18.4 18.0
+3 37.7 11.5 13.2
+5 34.1 9.1 10.2
+8 36.1 8.5 8.3
+12 36.2 7.8 7.3
+16 35.3 7.0 7.1
+break-even (pooled): alu=3, fir=3, mac=1, sorter=1
+
+== S. target period, gbr: median over the four held-out families of the median APE (percent); break-even k per family ==
+k zero scratch pooled
+0 20.4 - 20.4
+1 21.0 - 16.6
+2 21.2 23.0 14.7
+3 20.8 16.6 12.1
+5 20.5 13.1 9.9
+8 20.5 9.3 8.9
+12 20.4 7.7 7.9
+16 21.1 7.1 6.7
+break-even (pooled): alu=1, fir=0, mac=0, sorter=2

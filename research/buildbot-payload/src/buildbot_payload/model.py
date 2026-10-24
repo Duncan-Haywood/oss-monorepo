@@ -111,8 +111,13 @@ class Pose:
     residual: float
 
 
-def pose(robot, data0, hand_xz, mass, grip="palm", q_init=None, iters=600):
-    """IK: feet fixed, hands at (x, +-half_width, z) relative to the feet centre, CoM balanced."""
+def pose(robot, data0, hand_xz, mass, grip="palm", q_init=None, iters=600, com_dx=0.0, dy=0.0):
+    """IK: feet fixed, hands at (x, +-half_width, z) relative to the feet centre, CoM balanced.
+
+    `com_dx` shifts the balanced CoM that far forward of the feet centre (m); a robot that
+    pushes on a wall leans into it (buildbot-fasten). `dy` shifts both hand targets sideways
+    (m, +y to the left) without moving the feet (buildbot-stance).
+    """
     m = robot.model
     d = mujoco.MjData(m)
     d.qpos[:] = data0.qpos if q_init is None else q_init
@@ -126,7 +131,7 @@ def pose(robot, data0, hand_xz, mass, grip="palm", q_init=None, iters=600):
         foot_quat.append(q)
     centre = (foot_pos[0] + foot_pos[1]) / 2
     x, z = hand_xz
-    hand_tgt = [centre + np.array([x, robot.half_width, 0]), centre + np.array([x, -robot.half_width, 0])]
+    hand_tgt = [centre + np.array([x, robot.half_width + dy, 0]), centre + np.array([x, -robot.half_width + dy, 0])]
     for t in hand_tgt:
         t[2] = z
     M = float(m.body_subtreemass[1])
@@ -160,7 +165,7 @@ def pose(robot, data0, hand_xz, mass, grip="palm", q_init=None, iters=600):
         com = (M * d.subtree_com[1] + mass / 2 * (hp[0] + hp[1])) / (M + mass)
         jcom = (M * jc + mass / 2 * (jh[0] + jh[1])) / (M + mass)
         rows.append(5 * jcom[:2])
-        errs.append(5 * (centre[:2] - com[:2]))
+        errs.append(5 * (centre[:2] + [com_dx, 0.0] - com[:2]))
         return np.vstack(rows), np.concatenate(errs)
 
     def cost(q, e, w):

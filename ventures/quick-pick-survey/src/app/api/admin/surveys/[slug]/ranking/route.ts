@@ -27,6 +27,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       take: 200000,
     });
     const ranked = groupRanking(survey.items, ratings);
+    const answered = await prisma.trial.groupBy({
+      by: ["participantId"],
+      where: { result: { not: null }, participant: { survey: { slug } } },
+      _count: { _all: true },
+    });
+    const perPerson = answered.map((a) => a._count._all).sort((a, b) => a - b);
+    const mid = perPerson.length >> 1;
+    const medianAnswers = perPerson.length === 0 ? undefined : perPerson.length % 2 ? perPerson[mid] : (perPerson[mid - 1] + perPerson[mid]) / 2;
     if (req.nextUrl.searchParams.get("format") === "csv") {
       return new NextResponse(rankingCsv(ranked), {
         headers: {
@@ -35,7 +43,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
         },
       });
     }
-    return NextResponse.json({ title: survey.title, participants: survey._count.participants, ranking: ranked, coverage: coverage(ranked, survey._count.participants) });
+    return NextResponse.json({ title: survey.title, participants: survey._count.participants, ranking: ranked, coverage: coverage(ranked, survey._count.participants, medianAnswers) });
   } catch (err) {
     console.error("admin/surveys ranking failed", err);
     return NextResponse.json({ error: "Could not compute the ranking" }, { status: 500 });

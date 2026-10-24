@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01CWgKBVdh4QwKexbgguuHgM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "I want to make ai customer service systems.",
+  "input_sha256": "92dc4f8973b2480774ed5a2c05cd32a3aeb056be44931140e8a8c3e798d14d8b",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T03:11:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/support-agent"
+  ],
+  "pr": 9046,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 7,
+  "review_findings": null,
+  "tests_added": 46,
+  "outcome": "success",
+  "errors": [
+    "A bare `cat > file` with no heredoc in a compound Bash command hung on stdin until the 120 s timeout; the recovery `pkill -f cat` killed the shell. Rewrote the file with the Write tool.",
+    "link-contrast CI failed: platform/pages/ink.mjs hoists @media (prefers-color-scheme: dark) rules, so the light link colour was judged on the dark background; removed the dark overrides from the two static pages.",
+    "sibling-links CI failed: support-agent had no inbound link from a sibling page (orphan budget 0); added footer links from support-desk and help-keeper with a page test each.",
+    "pages test suite: &rsaquo; in the guide page is not in platform/pages/entities.mjs NAMED_ENTITIES; replaced with the literal character. Local run of platform/pages tests: 1202 pass, this 1 fail, now fixed.",
+    "portfolio-validate: front-door alias map and portfolio-front.yaml shard list were stale; regen.mjs reported 'current' but `front-door-tools.mjs --write` was still needed (new venture moved the shard count to 51).",
+    "gitops pytest: tree counts (mirrored tools 1310 -> 1311, opt-out switches 1282 -> 1283) not bumped for the new venture; ran platform/ci/sync_tree_counts.py and added the +1 comment lines. Merged main again (generated .gz conflicts taken from main, then regenerated). Local: gitops test_manifests + test_ci_runner 108 passed, front-door-tools.test 102 pass, siblings/ink/entities 44 pass, three venture suites green.",
+    "pages test (faq-visible) red on the merge with main: einvoice-preflight/italy-sdi-e-invoice-mandate.html (from #9059) had FAQ JSON-LD text that differs from the visible answer. Not this PR's change; reproduced on main, no open fix PR, ported a one-line fix (visible answer now matches the JSON-LD) because this session may only push its own branch.",
+    "No CI ran on 77c410c for 30 minutes: the branch conflicted with main (another venture graduated and bumped the same counts and mirror files). Merged main taking its side of every generated/count conflict, re-ran launched/regen/front-door-tools/sync_tree_counts and re-added the support-agent +1 lines.",
+    "pages build red on the merge ref: docs/posts/2026-10-21-solar-hosting-regulators-beat-inverters.md (from #9071 on main) has a 184-character description (limit 160). Ported a trim (dropped 'once regulators responded', 158 chars). venture-preflight clean after merging main."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "The first preflight failed on another session's post (description over 160 characters) that main had already fixed; a stale base makes the 5-minute build fail for reasons outside the venture. Merging main first would have saved a run."
+    },
+    {
+      "file": "platform/pages/ink.mjs",
+      "issue": "Screen media queries are hoisted, so any page with a prefers-color-scheme dark block fails the link audit unless its links pass on both backgrounds; nothing in the venture docs says static pages should not ship a dark mode."
+    },
+    {
+      "file": "platform/marketing/regen.mjs",
+      "issue": "regen.mjs said 'The served surface is current' while front-door-tools.test.mjs failed on a stale 00-mirror-alias.conf and shard mount list; a new venture needs `node platform/marketing/front-door-tools.mjs --write` too, and that command also writes an untracked gitops/prod/front-door-tools/ directory that must not be committed."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight passed while five repo-wide count and mirror checks (sync_tree_counts.py, front-door-tools --write, siblings orphan budget, ink contrast, entities table) were still red for a new venture; a new-venture checklist naming those scripts would have saved four CI rounds."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "On a busy main, a new-venture PR conflicts on every hand-written count and mirror file whenever another venture lands; a conflicted PR silently gets no CI. Taking main's side then re-running the sync scripts is the recipe, and it is not written down."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "instruction": "route the run with promptctl.py route",
+      "did": "picked the ventures track directly",
+      "why": "the owner gave a specific task (AI customer service systems), which the routing docs allow (--track for a specific task)",
+      "result": "record written as ventures/1"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "instruction": "venture work defaults to deepening the top flagship",
+      "did": "built a new venture next to support-desk and help-keeper",
+      "why": "the owner asked for AI customer service systems; the existing support ventures do not answer customers themselves, and the new one integrates with both rather than duplicating them",
+      "result": "new venture with a measured benchmark"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Tuning on BANKING77 dev split only; test split scored three times (frozen design, after an unrelated one-word-clarify change that shifted the fitted models, and after email/number stripping, no change). First run 65/787/1007 right and 0/39/58 wrong; reported 65/786/1007 right, 0/39/66 wrong with 0/10/40 past questions per intent (fixtures/banking77/README.md). Verification: node --test 46 pass; run_venture_tests.py support-agent 1 suite 0 failed; clauses.mjs OK; headless Chromium at 390px for the page and the widget against a live server; venture-preflight.mjs support-agent clean (after merging main).",
+  "corrections": [],
+  "redteam": null
+}

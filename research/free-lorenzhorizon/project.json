@@ -1,0 +1,6 @@
+{
+ "theme": "twins",
+ "title": "How long does a digital twin of a chaotic system stay accurate? Each e-fold of smaller state error buys 1.12 time units on Lorenz-63 (1/lambda = 1.11)",
+ "summary": "Runs a Lorenz-63 truth and a twin together and measures the mean time (40 attractor start points) until they are 1.0 apart. The measured largest Lyapunov exponent is 0.904 (published 0.9056). With exact parameters, the horizon grows 1.124 time units per e-fold of smaller initial-state error (4.1 at 10<sup>&minus;2</sup>, 16.9 at 10<sup>&minus;7</sup>), close to 1/&lambda; but about one unit below ln(tol/d<sub>0</sub>)/&lambda;. A parameter error in &rho; with exact start gains less, 0.85 per e-fold (0.95 at 10<sup>&minus;2</sup>, 7.8 at 10<sup>&minus;5</sup>), since the error starts at zero. One system, one tolerance; only the mean is reported; the explanations of the offset and the slope are not tested. Parameters are Lorenz&rsquo;s; the tolerance is chosen.",
+ "lede": "how long does a digital twin of a chaotic system stay accurate? On Lorenz-63 each e-fold of smaller state error buys 1.12 time units (1/lambda = 1.11); a parameter error buys 0.85. Mean over 40 starts, one tolerance."
+}

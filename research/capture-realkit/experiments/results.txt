@@ -1,0 +1,42 @@
+kits enumerated: 11520; legal: 6912; max variety 18
+A. exact vs greedy on the sourced catalogue, floor of 4 h (variety = distinct band x viewpoint shots)
+budget_g  exact_var exact_h exact_g  greedy_var greedy_h greedy_g  greedy_meets_floor  old_exact_var(assumed catalogue)
+500       4         4.30    371      4          4.30     371       True                4
+1000      8         4.30    571      8          4.30     571       True                8
+1500      8         26.50   1201     8          26.50    1201      True                8
+2000      12        4.30    1771     8          48.70    1831      True                10
+3000      12        44.50   2941     8          48.70    1831      True                12
+4000      18        8.87    3981     12         48.70    3031      True                15
+5000      18        16.33   4958     12         48.70    3031      True                18
+7000      18        16.33   4958     12         48.70    3031      True                18
+B. kits chosen
+500 g exact: iPhone 15 Pro Max, mini tripod | greedy: iPhone 15 Pro Max, mini tripod
+1000 g exact: iPhone 15 Pro Max, selfie pole, mini tripod | greedy: iPhone 15 Pro Max, mini tripod, selfie pole
+1500 g exact: iPhone 15 Pro Max, selfie pole, mini tripod, Anker 737 24K (88.8 Wh) | greedy: iPhone 15 Pro Max, mini tripod, selfie pole, Anker 737 24K (88.8 Wh)
+2000 g exact: iPhone 15 Pro Max, selfie pole, mini tripod, telescoping mast | greedy: iPhone 15 Pro Max, mini tripod, selfie pole, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh)
+3000 g exact: iPhone 15 Pro Max, selfie pole, mini tripod, telescoping mast, Anker Prime 20K (72 Wh), Anker 737 24K (88.8 Wh) | greedy: iPhone 15 Pro Max, mini tripod, selfie pole, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh)
+4000 g exact: iPhone 15 Pro Max, Sony a7C II body, Sony FE 24-70 f/2.8 GM II, Sony FE 85 f/1.8, selfie pole, mini tripod, telescoping mast, Anker 737 24K (88.8 Wh) | greedy: iPhone 15 Pro Max, mini tripod, selfie pole, telescoping mast, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh)
+5000 g exact: DJI Osmo Action 4, Sony a7C II body, Sony FE 24-70 f/2.8 GM II, Sony FE 70-200 f/4 G II, selfie pole, mini tripod, telescoping mast, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh) | greedy: iPhone 15 Pro Max, mini tripod, selfie pole, telescoping mast, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh)
+7000 g exact: DJI Osmo Action 4, Sony a7C II body, Sony FE 24-70 f/2.8 GM II, Sony FE 70-200 f/4 G II, selfie pole, mini tripod, telescoping mast, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh) | greedy: iPhone 15 Pro Max, mini tripod, selfie pole, telescoping mast, Anker 737 24K (88.8 Wh), Anker 737 24K (88.8 Wh)
+C. packs over 100 Wh in catalogue: ['160 Wh pack (illustrative)']; any chosen by exact search: False
+D. sweep: 100 draws of the unsourced figures within +-30% (seed 0); exact variety with the 4 h floor
+budget_g  base  min  max  share_equal_base  greedy_below_exact_share
+500       4     0    4    0.97              0.01
+1000      8     4    8    0.18              0.06
+1500      8     5    8    0.48              0.77
+2000      12    6    8    0.00              0.78
+3000      12    6    12   0.20              0.85
+4000      18    8    18   0.03              0.94
+5000      18    10   18   0.13              0.94
+7000      18    12   18   0.53              0.99
+E. sources
+Insta360 X4 (360): 203 g, 2290 mAh, 135 min at 5.7K30 lab test: Insta360 listings via retailers (Louis.ie, Fotofabrikas). Wh = 2.29 Ah x 3.85 V (voltage assumed, as DJI's). Draw = Wh / 2.25 h (derived). Bands: capture-crop.
+DJI Osmo Action 4: 145 g, 6.8 Wh, operating time 160 min at 1080p24: DJI spec page https://www.dji.com/osmo-action-4/specs. Draw derived. Bands assumed from a wide action lens.
+iPhone 15 Pro Max: 221 g: Apple tech specs; 4441 mAh: Smartprix (Swappa says 4422); Wh = mAh x 3.87 V (voltage assumed). Lens bands 13/24/48/120 mm equivalent (general knowledge, 5x tele per a retailer), snapped to the nearest band. Recording draw ASSUMED 4 W: Apple publishes video playback only (23 h).
+Sony a7C II body: 514 g with battery and card: retailer listings. NP-FZ100 16.4 Wh (2.28 Ah x 7.2 V, general knowledge). Draw from a listed 100 min video life (unverified, not Sony's own page).
+Sony FE 24-70 f/2.8 GM II: 695 g: Wikipedia and several retailers.
+Sony FE 70-200 f/4 G II: 794 g: The Digital Picture (manufacturer 28 oz, measured 794.3 g).
+Sony FE 85 f/1.8: 371 g: Camera Decision only; one source.
+Peak Design carbon travel tripod: 1.27 kg: Leica Store Miami listing, Robert's Camera.
+Anker Prime 20K (72 Wh): 72 Wh, 539 to 540 g: Galaxus listings.
+Anker 737 24K (88.8 Wh): 88.8 Wh, 630 g: Currys, Digitec, Galaxus listings (Alza says 635 g).

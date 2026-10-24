@@ -1,0 +1,36 @@
+# Sweep 1: full BOM (servos, board, cable, PSU, clamps, screwdrivers; printed parts excluded) by joint count and servo channel
+servo_channel                servo_usd  2j_usd  3j_usd  4j_usd  5j_usd  6j_usd ratio_6j/2j fixed_share_2j fixed_share_6j
+alibaba (SO-ARM101 table)        13.89   66.38   80.27   94.16  108.05  121.94        1.84           0.58           0.32
+AIFit Lab retail                 26.00   90.60  116.60  142.60  168.60  194.60        2.15           0.43           0.20
+RobotShop US retail              49.22  137.04  186.26  235.48  284.70  333.92        2.44           0.28           0.12
+
+# Sweep 2: the same, servo-only cost ratio is 3.00 by construction (osrobot-dof reported servo cost alone)
+servo_channel                servo_only_6j/2j full_bom_6j/2j extra_usd_2j_to_6j
+alibaba (SO-ARM101 table)                3.00           1.84              55.56
+AIFit Lab retail                         3.00           2.15             104.00
+RobotShop US retail                      3.00           2.44             196.88
+
+# Sweep 3: printed links added (swept filament price per kg, not sourced; 0.100 kg of links at osrobot-dof's line density), Alibaba servo
+filament_usd_kg  2j_usd  6j_usd  ratio
+              0   66.38  121.94  1.837
+             15   67.88  123.44  1.819
+             40   70.38  125.94  1.789
+
+# Sweep 4: servo price at which the full-BOM ratio 6j/2j reaches a target (limit 3.0 as servo price grows)
+target_ratio servo_usd
+         1.8     12.87
+         2.0     19.30
+         2.5     57.90
+         2.9    366.70
+
+# Sweep 5: full BOM by joint count (the figure's data)
+joints  alibaba_usd    AIFit_usd RobotShop_usd
+     2        66.38        90.60       137.04
+     3        80.27       116.60       186.26
+     4        94.16       142.60       235.48
+     5       108.05       168.60       284.70
+     6       121.94       194.60       333.92
+
+# Check against the published tables: one follower arm (six servos incl. gripper) and two arms
+follower_total_model 121.94  published 121.94
+two_arm_total_model  229.88  published 229.88

@@ -1,0 +1,248 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01TsqnH5jkXEQmN7cYzFpscL",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-22T01:07:52Z",
+  "ended": "2026-10-22T01:08:05Z",
+  "wall_minutes": 69.13,
+  "tokens_in": 2978651,
+  "tokens_out": 10957,
+  "cost_usd": 0.9253,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": 9348,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "engine suite takes ~250s per mutant, so an 8-mutant campaign needed ~35 min; the prompt's 20-min guidance fits but `rerun` also re-runs the full suite per escaped mutant, which is not mentioned."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "nothing warns that `pkill -f 'node --test'` from the same shell kills the shell (exit 144) and can interrupt a rerun mid-mutation; check git status afterwards."
+    }
+  ],
+  "deviations": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
+  "goal": null,
+  "notes": " Target changepoint-detector/engine.mjs: 8 mutants, 6 caught, 2 escaped (negbinSize first-difference sign, findBursts and-to-or); 3 tests added; catch rate 0.75 -> 1.0 after rerun. Hunting found no real defects. Local checks: node --test engine.test.mjs all pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/changepoint-detector/engine.mjs",
+        "test": "node --test ventures/changepoint-detector/**/*.test.mjs  (in .)",
+        "seed": 236604150,
+        "commit": "8d6fc2f2",
+        "sites": 2276,
+        "baseline_seconds": 262.5,
+        "mutants": [
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 601,
+            "col": 87,
+            "operator": "plus-to-minus",
+            "before": "for (let knot = Math.max(lo, around - step + 1); knot <= Math.min(hi, around + step - 1); knot++) {",
+            "after": "for (let knot = Math.max(lo, around - step + 1); knot <= Math.min(hi, around - step - 1); knot++) {",
+            "line_text": "          for (let knot = Math.max(lo, around - step + 1); knot <= Math.min(hi, around + step - 1); knot++) {",
+            "caught": true,
+            "seconds": 207.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 604,
+            "col": 36,
+            "operator": "and-to-or",
+            "before": "if (ks.some((k, i) => i && k - ks[i - 1] < gap)) continue;",
+            "after": "if (ks.some((k, i) => i || k - ks[i - 1] < gap)) continue;",
+            "line_text": "            if (ks.some((k, i) => i && k - ks[i - 1] < gap)) continue;",
+            "caught": true,
+            "seconds": 237.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 669,
+            "col": 33,
+            "operator": "div-to-times",
+            "before": "return sd * Math.sqrt(1 + rho) / (1 - rho);",
+            "after": "return sd * Math.sqrt(1 + rho) * (1 - rho);",
+            "line_text": "  return sd * Math.sqrt(1 + rho) / (1 - rho);",
+            "caught": true,
+            "seconds": 210.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 842,
+            "col": 22,
+            "operator": "minus-to-plus",
+            "before": "const a = S1[t] - S1[s];",
+            "after": "const a = S1[t] + S1[s];",
+            "line_text": "      const a = S1[t] - S1[s];",
+            "caught": true,
+            "seconds": 255.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 1014,
+            "col": 56,
+            "operator": "minus-to-plus",
+            "before": "for (let t = 1; t < x.length; t++) d.push((x[t] - x[t - 1]) ** 2);",
+            "after": "for (let t = 1; t < x.length; t++) d.push((x[t] - x[t + 1]) ** 2);",
+            "line_text": "  for (let t = 1; t < x.length; t++) d.push((x[t] - x[t - 1]) ** 2);",
+            "caught": false,
+            "seconds": 254.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 1215,
+            "col": 65,
+            "operator": "times-to-div",
+            "before": "nb.push(beta[i] + (kappa[i] * (z - a * mu[i]) ** 2) / (2 * k1));",
+            "after": "nb.push(beta[i] + (kappa[i] * (z - a * mu[i]) ** 2) / (2 / k1));",
+            "line_text": "        nb.push(beta[i] + (kappa[i] * (z - a * mu[i]) ** 2) / (2 * k1));",
+            "caught": true,
+            "seconds": 228.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 1326,
+            "col": 53,
+            "operator": "plus-to-minus",
+            "before": "return a > b ? a + Math.log1p(Math.exp(b - a)) : b + Math.log1p(Math.exp(a - b));",
+            "after": "return a > b ? a + Math.log1p(Math.exp(b - a)) : b - Math.log1p(Math.exp(a - b));",
+            "line_text": "  return a > b ? a + Math.log1p(Math.exp(b - a)) : b + Math.log1p(Math.exp(a - b));",
+            "caught": true,
+            "seconds": 251.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 1570,
+            "col": 41,
+            "operator": "and-to-or",
+            "before": "if (x[t] >= ratio * Math.max(ref, 1) && x[t] - ref > 4 * Math.sqrt(ref + 1)) { out.push(t); cut[t] = Math.round(ref); }",
+            "after": "if (x[t] >= ratio * Math.max(ref, 1) || x[t] - ref > 4 * Math.sqrt(ref + 1)) { out.push(t); cut[t] = Math.round(ref); }",
+            "line_text": "    if (x[t] >= ratio * Math.max(ref, 1) && x[t] - ref > 4 * Math.sqrt(ref + 1)) { out.push(t); cut[t] = Math.round(ref); }",
+            "caught": false,
+            "seconds": 260.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "31c70296-0e4c-5a95-a5ac-dd06cf7e2a86",
+    "transcripts": 1,
+    "first": "2026-10-22T01:07:52Z",
+    "last": "2026-10-22T02:16:59Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 41,
+        "input": 98,
+        "output": 10957,
+        "thinking": 2219,
+        "cache_read": 2920696,
+        "cache_write_5m": 0,
+        "cache_write_1h": 57857,
+        "api_equivalent_usd": 0.9253,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 98,
+      "output": 10957,
+      "thinking": 2219,
+      "cache_read": 2920696,
+      "cache_write_5m": 0,
+      "cache_write_1h": 57857,
+      "api_equivalent_usd": 0.9253,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 24,
+      "Monitor": 5,
+      "Read": 3,
+      "ReadNotifications": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 69.13,
+      "active_minutes": 24.3,
+      "model_minutes": 1.99,
+      "tool_minutes": 22.3,
+      "waiting_on_human_minutes": 44.83,
+      "human_prompts": 9,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

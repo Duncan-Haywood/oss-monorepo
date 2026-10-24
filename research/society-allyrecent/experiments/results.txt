@@ -1,0 +1,17 @@
+society-allyrecent results. N=200, 1500 rounds, 12 seeds per cell, eps=0.02, M=9, allies sl=0.2. Cells: crowds tipped of 12 / mean allies left at the end.
+
+== c=0.01
+rule        rho=0.05       rho=0.1        rho=0.15     
+constant     0/12   0.0  10/12   0.0  12/12   0.0  
+watch k=1    0/12   0.0  11/12  25.0  12/12  28.2  
+watch k=3    1/12   2.1  12/12  26.1  12/12  26.7  
+watch k=5    0/12   0.0  12/12  25.7  12/12  26.2  
+watch k=9    2/12   3.8  12/12  25.8  12/12  25.8  
+
+== c=0.03
+rule        rho=0.05       rho=0.1        rho=0.15     
+constant     0/12   0.0   0/12   0.0  10/12   0.0  
+watch k=1    0/12   0.0   2/12   2.2  12/12  14.9  
+watch k=3    0/12   0.0   3/12   3.2  12/12  14.9  
+watch k=5    0/12   0.0   3/12   2.7  12/12  14.0  
+watch k=9    0/12   0.0   4/12   3.2  12/12  13.4  

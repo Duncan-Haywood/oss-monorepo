@@ -1,4 +1,5 @@
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
+import { inspectCreditLinks } from "./creditlink.mjs";
 import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } from "./profile.mjs";
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
@@ -105,6 +106,11 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         path: "/invoice_number",
       });
     }
+  }
+
+  const links = inspectCreditLinks(parsed);
+  for (const report of reports) {
+    if (links.has(report.file)) report.errors.push(...links.get(report.file));
   }
 
   return { reports, readErrors };

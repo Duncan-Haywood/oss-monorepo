@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1099-K Doesn't Match My Books: Reconcile Gross Payments to Income (Worked Example)</title>
+<meta name="description" content="Your 1099-K shows $940.00 and your books show $850.00 of sales and $708.00 of deposits. A worked example bridges the form to the books line by line, with the numbers read by the tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./form-1099-k-reconciliation.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Your 1099-K does not match your books: the bridge">
+<meta property="og:description" content="A worked example: a $940.00 gross 1099-K, $850.00 of sales and $708.00 of deposits, explained line by line.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is the gross on my 1099-K higher than my income?","acceptedAnswer":{"@type":"Answer","text":"Box 1a counts the gross payments the processor handled: before refunds, before its fees, and with any sales tax, tips or shipping the buyer paid. Your books carry income after refunds, and fees are an expense, so the two figures differ by design. The gap is explainable, and the explanation is a bridge from the form to your books."}},{"@type":"Question","name":"Do I report the 1099-K amount as my income?","acceptedAnswer":{"@type":"Answer","text":"Report your actual income. The form is an information return the IRS compares with your return; if your income is lower than box 1a, the difference should be explainable (refunds, fees, sales tax collected, personal transfers marked as sales). Ask a tax professional how it is shown on your return."}},{"@type":"Question","name":"What if the form and the processor's own report disagree?","acceptedAnswer":{"@type":"Answer","text":"Then the gap is between the form and the report, not the books. The usual causes are an export that starts after 1 January or ends before 31 December, a time-zone cut at year end, a second processor profile or currency, and the form counting by the year a payment was made. The tool lists what it finds."}},{"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"Yes. It is open source (MIT), runs in your browser or as a command line tool, and nothing is uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Your 1099-K does not match your books. Here is the bridge.</h1>
+<p class="lede">A 1099-K reports the <em>gross</em> payments a processor handled for you. Your books show income after refunds, and fees as an expense, and the bank shows only what was paid out. Three numbers, all correct. The way to settle a notice or a preparer's question is to walk from one to the next.</p>
+</header>
+<section>
+<h2>Worked example: one month, four numbers</h2>
+<p>Take the <strong>synthetic</strong> Stripe report used on the <a href="./stripe-bookkeeping.html">Stripe bookkeeping</a> page (<code>fixtures/stripe-payouts.csv</code>): four charges ($940.00), a $50.00 refund, a $100.00 dispute with a $15.00 fee, and one $40.00 charge not yet paid out. Suppose the processor's form shows box 1a as $940.00. The command <code>form1099k stripe-payouts.csv --year 2026 --gross 940.00</code>, run after splitting the payouts, reports that the form and the report agree, and that account 4000 holds $850.00 against $890.00 expected: the $40.00 difference is the unpaid-out charge.</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from running <code>form1099k</code>, <code>payouts --apply</code> and <code>report</code> on the fixture and a two-line bank statement. Synthetic data, not a real business.</caption>
+<thead><tr><th scope="col">Walk from the form to the bank</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr class="total"><th scope="row">Box 1a on the 1099-K (gross payments)</th><td>$940.00</td></tr>
+<tr><th scope="row">less the refund (box 1a is not reduced by refunds)</th><td>&minus;$50.00</td></tr>
+<tr><th scope="row">less a charge not paid out yet (still counted by the form)</th><td>&minus;$40.00</td></tr>
+<tr class="total"><th scope="row">Sales in the books after splitting payouts</th><td>$850.00</td></tr>
+<tr><th scope="row">less Stripe fees on the paid-out charges</th><td>&minus;$27.00</td></tr>
+<tr><th scope="row">less the dispute and its fee</th><td>&minus;$115.00</td></tr>
+<tr class="total"><th scope="row">Deposited in the bank</th><td>$708.00</td></tr>
+</tbody>
+</table>
+</div>
+<p>The fees and the dispute go to expenses, so net profit is $708.00 either way. Without the walk, the form looks $232.00 higher than the money that arrived and $90.00 higher than the sales in the books. With it, every dollar has a name. That matters because the fees are deductible only if they are booked as fees, and a notice that compares box 1a with your return is answered with the bridge, not an argument.</p>
+</section>
+
+<section>
+<h2>How to do it</h2>
+<ol>
+<li><strong>Get three things:</strong> the form's box 1a (and, if you have them, the twelve monthly boxes 5a to 5l), the processor's payout report for the same calendar year, and your bank statements.</li>
+<li><strong>Split the payouts</strong> in <a href="./">AI Bookkeeper</a> so sales, refunds and fees are booked apart from the lump deposits (see <a href="./stripe-bookkeeping.html">Stripe</a>, <a href="./etsy-bookkeeping.html">Etsy</a> or <a href="./amazon-seller-bookkeeping.html">Amazon</a>).</li>
+<li><strong>Run <code>form1099k REPORT.csv --year 2026 --gross AMOUNT [--months J,F,...,D]</code>.</strong> It lays out the report's gross, the form, the gap, the refunds and fees the form does not net, and what account 4000 should hold. With the monthly boxes it names the months that differ and catches a typo in their sum.</li>
+<li><strong>Read the notes.</strong> A form higher than the report usually means the export starts late, ends early or leaves out a profile or currency. The report higher than the form can mean non-reportable rows. A gap equal to the year's refunds or fees means the form may be netted, which box 1a is not.</li>
+</ol>
+<p>The reconciliation was tested on hand-written reports only; no real 1099-K has been tried. What counts as a reportable transaction, the filing thresholds and the date a payment falls on are the processor's and the IRS's rules, and they change by year: check the instructions for the year.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Why is the gross on my 1099-K higher than my income?</h3>
+<p>Box 1a counts the gross payments the processor handled: before refunds, before its fees, and with any sales tax, tips or shipping the buyer paid. Your books carry income after refunds, and fees are an expense, so the two figures differ by design. The gap is explainable, and the explanation is a bridge from the form to your books.</p>
+<h3>Do I report the 1099-K amount as my income?</h3>
+<p>Report your actual income. The form is an information return the IRS compares with your return; if your income is lower than box 1a, the difference should be explainable (refunds, fees, sales tax collected, personal transfers marked as sales). Ask a tax professional how it is shown on your return.</p>
+<h3>What if the form and the processor's own report disagree?</h3>
+<p>Then the gap is between the form and the report, not the books. The usual causes are an export that starts after 1 January or ends before 31 December, a time-zone cut at year end, a second processor profile or currency, and the form counting by the year a payment was made. The tool lists what it finds.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser or as a command line tool, and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement and payout report.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Stripe, Amazon, Etsy and IRS Form 1099-K are named only to describe a payee or a report; this project is not affiliated with them.</p>
+</footer>
+</body>
+</html>

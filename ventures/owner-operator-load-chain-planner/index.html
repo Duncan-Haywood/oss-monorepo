@@ -44,6 +44,7 @@
     <p>The best posted rate per mile is often the wrong next load: the empty run to its pickup, the wait for its window and the rest you must take come out of the same week. Paste your shortlist with <strong>your own rates, pickup windows and deadlines</strong> and get <strong>the exact best chain to run</strong>, <strong>the lowest rate each load is worth</strong>, the loads to leave, and what a simple rule would have cost you.</p>
     <p class="note"><strong>Your estimates, not a market rate and not a route plan.</strong> This page reads no load board, knows no rates and predicts nothing: every rate, cost, speed and time is a number you type. For owner-operators, hotshot and box-truck drivers who pick their own loads. Nothing is uploaded: the text boxes are analysed in this browser tab.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your shortlist</h2>
@@ -138,7 +139,8 @@ cat loads.csv | node cli.mjs plan - --start "Dallas TX" --per-day --return-home 
     <p>Straight-line miles between approximate city centres times a road factor (1.2 by default), unless you give a load's own miles. That is good to a few percent on long hauls and rougher on short ones, which is why a load's own miles can be supplied.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, insurance, safety or hours-of-service advice, it is not a market rate, route plan or forecast, and it does not replace a qualified professional or a dispatcher. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the rates, costs, speeds and time windows you type, for the real route, weight, permits, insurance and driving-time rules that apply to each load, and for which loads you accept. Rates and availability change and loads are often gone or paid less when you call. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what will happen on a lane.</p>
     <p>Not affiliated with, endorsed by or sponsored by any load board, broker, carrier or trucking company; no such names are used.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

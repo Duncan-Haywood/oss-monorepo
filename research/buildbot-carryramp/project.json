@@ -1,0 +1,6 @@
+{
+ "theme": "buildbot",
+ "title": "Does sweeping the planned centre of pressure from heel to toe let a stock humanoid carry faster?",
+ "summary": "A follow-up to buildbot-carrycop, which held the planned centre of pressure (CoP) at a constant offset. Here the CoP moves linearly along the sole during single support (the linear inverted pendulum with a ramped CoP has a closed-form orbit) and the Menagerie G1 and H1 are re-scored over 1,680 cases (payload, step length, step time, eight sweeps) with the carryphase inverse kinematics and joint-torque limits. Result: the G1's ceiling does not move except the known one-cell gain at 4&nbsp;kg (0.10 to 0.13&nbsp;m/s, also reached by a constant 6&nbsp;cm-behind CoP); the H1 gains one cell unloaded (0.15 to 0.20&nbsp;m/s) with a &minus;3 to +3&nbsp;cm sweep but loses all cases when the sweep starts 6&nbsp;cm behind the sole point. Torque, not the sole, remains the wall. Prescribed gait, no falls or energy scored, no trunk or arm motion, not a safety case.",
+ "lede": "does a heel-to-toe sweep of the planned centre of pressure raise a humanoid's carry speed? No: one grid cell for the G1 at 4 kg and the unloaded H1, and nothing for heavier loads, because joint torques set the limit."
+}

@@ -1,0 +1,13 @@
+[project]
+name = "infra-transformer"
+version = "0.1.0"
+description = "How much heat-pump and EV load growth doubles a distribution transformer's loss of life, and how much of it smart charging buys back (IEEE C57.91 thermal model)"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

@@ -53,6 +53,11 @@ class T(unittest.TestCase):
         pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]]
         self.assertEqual(pip[0][0], py)
 
+    def test_install_notice_mentions_background(self):
+        logs = []
+        pyenv.find(["pytest"], ["/usr/bin/python3"], FakeRun(pip_ok={"/usr/bin/python3"}), logs.append)
+        self.assertTrue(any("run_in_background" in m for m in logs))
+
     def test_apt_result_found_on_another_interpreter(self):
         # the 2026-10-16 case: pip fails everywhere, apt installs for /usr/bin/python3 only
         run = FakeRun(apt_gives={"/usr/bin/python3"})
@@ -119,6 +124,17 @@ class T(unittest.TestCase):
         pyenv.find(["nope"], ["/p/python3"], Run(), seen.append)
         self.assertTrue(any("no matching distribution" in m for m in seen), seen)
 
+    def test_distro_owned_package_stops_retrying_pip_flags(self):
+        class Run(FakeRun):
+            def __call__(self, cmd, **kw):
+                r = super().__call__(cmd, **kw)
+                if cmd[1:3] == ["-m", "pip"]:
+                    r.stderr = b"ERROR: Cannot uninstall packaging 24.0, RECORD file not found. Hint: The package was installed by debian."
+                return r
+        run = Run()
+        pyenv.pip_install("/p/python3", ["numpy"], run, quiet)
+        self.assertEqual(len([c for c in run.calls if c[1:3] == ["-m", "pip"]]), 1)
+
     def test_candidates_dedupes_and_skips_config(self):
         with tempfile.TemporaryDirectory() as d:
             for name in ("python3", "python3.11", "python3.11-config", "python3-foo"):
@@ -133,6 +149,44 @@ class T(unittest.TestCase):
         self.assertNotIn("python3-foo", names)
         self.assertEqual(len([n for n in names if n in ("python3.11", "python3.99")]), 1)
 
+    def test_candidates_skips_non_executable_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            plain = Path(d) / "python3.9"
+            plain.write_text("")
+            plain.chmod(0o644)
+            good = Path(d) / "python3.8"
+            good.write_text("")
+            good.chmod(0o755)
+            found = pyenv.candidates(path="", extra_globs=(f"{d}/python3*",))
+            self.assertIn(str(good), found)
+            self.assertNotIn(str(plain), found)
+
+    def test_apt_update_output_is_captured(self):
+        seen = []
+
+        def run(cmd, **kw):
+            seen.append((cmd[1], kw.get("capture_output")))
+            return Result(0)
+
+        orig = pyenv.shutil.which
+        pyenv.shutil.which = lambda name, path=None: "/usr/bin/apt-get" if name == "apt-get" else orig(name, path=path)
+        try:
+            self.assertTrue(pyenv.apt_install(["numpy"], run))
+        finally:
+            pyenv.shutil.which = orig
+        self.assertEqual(seen, [("update", True), ("install", True)])
+
+    def test_venv_rejected_when_pip_succeeds_but_import_still_fails(self):
+        with tempfile.TemporaryDirectory() as d:
+            vpy = os.path.join(d, "bin", "python")
+            os.makedirs(os.path.dirname(vpy))
+            Path(vpy).write_text("")
+
+            def run(cmd, **kw):
+                return Result(0 if cmd[1:3] == ["-m", "pip"] else 1)
+
+            self.assertIsNone(pyenv.venv_install("/usr/bin/python3", ["numpy"], d, run, quiet))
+
     def test_real_interpreter_imports_stdlib(self):
         self.assertTrue(pyenv.imports(sys.executable, ["json"]))
         self.assertFalse(pyenv.imports(sys.executable, ["no_such_module_xyz"]))
@@ -143,6 +197,10 @@ class T(unittest.TestCase):
         self.assertEqual(pyenv.import_name("scikit-fem"), "skfem")
         self.assertEqual(pyenv.import_name("numpy"), "numpy")
         self.assertEqual(pyenv.import_name("my-mod"), "my_mod")
+        self.assertEqual(pyenv.import_name("OpenDSSDirect.py"), "opendssdirect")
+        self.assertEqual(pyenv.PIP_NAMES["opendssdirect"], "OpenDSSDirect.py")
+        self.assertEqual(pyenv.import_name("some-pkg:somemod"), "somemod")
+        self.assertEqual(pyenv.PIP_NAMES["somemod"], "some-pkg")
 
 
 if __name__ == "__main__":

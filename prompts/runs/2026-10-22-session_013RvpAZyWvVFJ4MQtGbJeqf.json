@@ -1,0 +1,51 @@
+{
+ "date": "2026-10-22",
+ "session": "https://claude.ai/code/session_013RvpAZyWvVFJ4MQtGbJeqf",
+ "track": "creative",
+ "prompt_version": 0,
+ "input": null,
+ "input_sha256": null,
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-22T00:03:01Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "ai-bookkeeper mileage/home-office page card (superseded)",
+ "projects": [
+  "ai-bookkeeper"
+ ],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9318",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "partial",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "portfolio/flagships.yaml",
+   "issue": "two concurrent sessions picked the same 'no page card yet' item; nothing marks an item as claimed"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/creative/prompt-0.md",
+   "why": "Routed to the creative track, but the scheduled task asked for revenue-generating products, so the run deepened the ai-bookkeeper flagship."
+  }
+ ],
+ "writeups": ["research/osrobot-weedpass/README.md"],
+ "goal": null,
+ "notes": "Built and clicked through the mileage and home-office page card, then found another session had landed the same card on main first; took main's version and kept only this record. Duplicate work: the flagship 'next' text did not yet name the card as in flight. No product change from this run.",
+ "corrections": [],
+ "redteam": null
+}

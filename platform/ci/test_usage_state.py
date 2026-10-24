@@ -126,6 +126,19 @@ class ClaimScanning(unittest.TestCase):
         body = 'As of 2026-09-02 it recorded zero observed users across ~184 products.\nThat sentence was wrong and has been corrected, it used to say so.\n'
         self.assertEqual(self._scan(body), [])
 
+    def test_a_marker_at_the_very_start_of_the_first_line_exempts_the_claim_below_it(self):
+        body = 'used to say:\n"it recorded zero observed users across ~184 products".\n'
+        self.assertEqual(self._scan(body), [])
+
+    def test_a_marker_after_the_claim_on_an_unterminated_last_line_exempts_it(self):
+        body = "an earlier line\nit recorded zero observed users, which used to say so"
+        self.assertEqual(self._scan(body), [])
+
+    def test_a_marker_two_lines_after_the_claim_does_not_exempt_it(self):
+        """The window is one full line either side, not a paragraph."""
+        body = "it recorded zero observed users across 184 products.\n\nThat used to say otherwise.\n"
+        self.assertEqual(len(self._scan(body)), 1)
+
     def test_an_honest_sentence_does_not_trip_it(self):
         body = "No visitor reading has ever been taken; `live_url_visitors` is null throughout.\n"
         self.assertEqual(self._scan(body), [])
@@ -268,6 +281,13 @@ class Cli(unittest.TestCase):
         first = state.__doc__.splitlines()[0]
         self.assertIn(first.split()[0], buf.getvalue())
         self.assertIn(first, " ".join(buf.getvalue().split()))
+
+    def test_main_exits_zero_without_the_gate_flag(self):
+        import contextlib
+        import io
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(state.main([]), 0)
 
 
 if __name__ == "__main__":

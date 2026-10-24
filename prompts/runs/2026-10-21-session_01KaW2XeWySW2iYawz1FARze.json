@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01KaW2XeWySW2iYawz1FARze",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T21:57:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 1): ai-bookkeeper foreign-currency receipts",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 9289,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "The router drew the process track; the scheduled task asked for revenue venture work, so I shipped the top flagship's next slice and recorded it as ventures/1."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Foreign-currency receipts: currency detection, rate-aware matching (given, learned or pair-implied rate, 6% tolerance), tax and split conversion, TVA/MwSt/IVA/BTW as tax words. node --test on ventures/ai-bookkeeper: 187 pass. Hand-written fixtures only; comma-decimal not read.",
+  "corrections": [],
+  "redteam": null
+}

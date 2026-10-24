@@ -1,0 +1,4785 @@
+category,supercategory,rel_size
+Glass bottle,Bottle,0.43317
+Meal carton,Carton,0.83021
+Other carton,Carton,0.46331
+Clear plastic bottle,Bottle,0.24368
+Plastic bottle cap,Bottle cap,0.02669
+Clear plastic bottle,Bottle,0.28463
+Clear plastic bottle,Bottle,0.15922
+Plastic bottle cap,Bottle cap,0.01895
+Drink can,Can,0.20941
+Drink can,Can,0.22864
+Food Can,Can,0.37766
+Food Can,Can,0.38894
+Other plastic bottle,Bottle,0.54993
+Plastic bottle cap,Bottle cap,0.12129
+Pop tab,Pop tab,0.08823
+Pop tab,Pop tab,0.09312
+Aerosol,Can,0.35711
+Clear plastic bottle,Bottle,0.17379
+Plastic bottle cap,Bottle cap,0.02318
+Clear plastic bottle,Bottle,0.08167
+Food Can,Can,0.23060
+Glass cup,Cup,0.10620
+Pop tab,Pop tab,0.03922
+Glass bottle,Bottle,0.20716
+Other plastic wrapper,Plastic bag & wrapper,0.01748
+Styrofoam piece,Styrofoam piece,0.07608
+Styrofoam piece,Styrofoam piece,0.12012
+Drink can,Can,0.10581
+Plastic film,Plastic bag & wrapper,0.15383
+Other carton,Carton,0.14927
+Other plastic,Other plastic,0.07070
+Other plastic bottle,Bottle,0.36895
+Clear plastic bottle,Bottle,0.30687
+Glass bottle,Bottle,0.43316
+Drink carton,Carton,0.32147
+Drink carton,Carton,0.31048
+Plastic bottle cap,Bottle cap,0.08103
+Plastic bottle cap,Bottle cap,0.07523
+Plastic bottle cap,Bottle cap,0.07582
+Plastic bottle cap,Bottle cap,0.07549
+Metal bottle cap,Bottle cap,0.07435
+Clear plastic bottle,Bottle,0.59947
+Plastic bottle cap,Bottle cap,0.11432
+Plastic film,Plastic bag & wrapper,0.26695
+Disposable food container,Plastic container,0.22210
+Other plastic bottle,Bottle,0.64788
+Other plastic bottle,Bottle,0.48496
+Other plastic bottle,Bottle,0.49382
+Plastic bottle cap,Bottle cap,0.13398
+Aerosol,Can,0.43273
+Normal paper,Paper,0.25192
+Paper cup,Cup,0.13270
+Drink can,Can,0.09642
+Drink can,Can,0.22460
+Pop tab,Pop tab,0.03887
+Food Can,Can,0.30581
+Food Can,Can,0.31605
+Pop tab,Pop tab,0.07241
+Pop tab,Pop tab,0.07006
+Food Can,Can,0.53932
+Pop tab,Pop tab,0.14130
+Drink can,Can,0.33711
+Pop tab,Pop tab,0.06052
+Aerosol,Can,0.36600
+Other plastic bottle,Bottle,0.37938
+Other plastic bottle,Bottle,0.40787
+Plastic bottle cap,Bottle cap,0.16180
+Aerosol,Can,0.42202
+Glass bottle,Bottle,0.25195
+Other plastic wrapper,Plastic bag & wrapper,0.29962
+Glass bottle,Bottle,0.31289
+Other plastic wrapper,Plastic bag & wrapper,0.13322
+Clear plastic bottle,Bottle,0.14339
+Drink can,Can,0.11363
+Drink can,Can,0.09410
+Drink can,Can,0.08502
+Drink can,Can,0.08660
+Pop tab,Pop tab,0.01242
+Plastic bottle cap,Bottle cap,0.02196
+Drink can,Can,0.15383
+Drink can,Can,0.12932
+Clear plastic bottle,Bottle,0.08051
+Drink can,Can,0.30762
+Disposable food container,Plastic container,0.44425
+Drink can,Can,0.13784
+Drink can,Can,0.20517
+Food Can,Can,0.14314
+Food Can,Can,0.15513
+Pop tab,Pop tab,0.05391
+Pop tab,Pop tab,0.04497
+Drink can,Can,0.46115
+Single-use carrier bag,Plastic bag & wrapper,0.26165
+Aerosol,Can,0.29187
+Normal paper,Paper,0.44204
+Tissues,Paper,0.24098
+Toilet tube,Carton,0.03603
+Clear plastic bottle,Bottle,0.09808
+Glass bottle,Bottle,0.14871
+Plastic film,Plastic bag & wrapper,0.13308
+Crisp packet,Plastic bag & wrapper,0.10705
+Glass bottle,Bottle,0.18069
+Glass bottle,Bottle,0.15041
+Drink can,Can,0.23331
+Pop tab,Pop tab,0.02613
+Normal paper,Paper,0.09765
+Drink can,Can,0.30493
+Other plastic bottle,Bottle,0.50155
+Other plastic bottle,Bottle,0.60303
+Glass cup,Cup,0.20754
+Food Can,Can,0.24530
+Food Can,Can,0.25092
+Food Can,Can,0.21284
+Pop tab,Pop tab,0.06257
+Pop tab,Pop tab,0.04937
+Food Can,Can,0.19652
+Food Can,Can,0.26445
+Food Can,Can,0.25580
+Food Can,Can,0.23223
+Food Can,Can,0.31946
+Food Can,Can,0.31463
+Food Can,Can,0.24593
+Food Can,Can,0.21240
+Food Can,Can,0.24767
+Pop tab,Pop tab,0.06315
+Pop tab,Pop tab,0.04107
+Pop tab,Pop tab,0.06600
+Plastic lid,Lid,0.36933
+Metal lid,Lid,0.21102
+Egg carton,Carton,0.30751
+Egg carton,Carton,0.36428
+Egg carton,Carton,0.36317
+Egg carton,Carton,0.66954
+Plastic straw,Straw,0.13778
+Drink can,Can,0.13459
+Drink can,Can,0.14258
+Other carton,Carton,0.20296
+Crisp packet,Plastic bag & wrapper,0.22476
+Normal paper,Paper,0.32393
+Drink can,Can,0.20924
+Paper cup,Cup,0.08460
+Plastic straw,Straw,0.13101
+Paper bag,Paper bag,0.57594
+Paper bag,Paper bag,0.61774
+Clear plastic bottle,Bottle,0.12562
+Plastic bottle cap,Bottle cap,0.02548
+Crisp packet,Plastic bag & wrapper,0.17851
+Paper cup,Cup,0.17652
+Plastic lid,Lid,0.14008
+Disposable plastic cup,Cup,0.20573
+Plastic lid,Lid,0.12773
+Drink can,Can,0.05611
+Drink can,Can,0.05253
+Plastic straw,Straw,0.18151
+Broken glass,Broken glass,0.02879
+Broken glass,Broken glass,0.02019
+Plastic utensils,Plastic utensils,0.16934
+Paper bag,Paper bag,0.13337
+Food Can,Can,0.30388
+Glass jar,Glass jar,0.32920
+Metal lid,Lid,0.15397
+Tissues,Paper,0.43548
+Food Can,Can,0.37268
+Food waste,Food waste,0.13549
+Squeezable tube,Squeezable tube,0.66243
+Metal bottle cap,Bottle cap,0.17923
+Other carton,Carton,0.41216
+Spread tub,Plastic container,0.22525
+Other plastic wrapper,Plastic bag & wrapper,0.20086
+Spread tub,Plastic container,0.22198
+Plastic film,Plastic bag & wrapper,0.57270
+Food waste,Food waste,0.36787
+Single-use carrier bag,Plastic bag & wrapper,0.68777
+Shoe,Shoe,0.15448
+Shoe,Shoe,0.21035
+Garbage bag,Plastic bag & wrapper,0.41430
+Drink can,Can,0.17306
+Drink can,Can,0.22335
+Clear plastic bottle,Bottle,0.19423
+Pop tab,Pop tab,0.02450
+Other plastic wrapper,Plastic bag & wrapper,0.20255
+Other plastic wrapper,Plastic bag & wrapper,0.02183
+Plastic film,Plastic bag & wrapper,0.39598
+Plastic film,Plastic bag & wrapper,0.15248
+Plastic film,Plastic bag & wrapper,0.05774
+Aluminium foil,Aluminium foil,0.03569
+Aluminium foil,Aluminium foil,0.02914
+Normal paper,Paper,0.04864
+Plastic bottle cap,Bottle cap,0.04002
+Clear plastic bottle,Bottle,0.21340
+Other plastic wrapper,Plastic bag & wrapper,0.04427
+Metal bottle cap,Bottle cap,0.02670
+Plastic bottle cap,Bottle cap,0.02523
+Pop tab,Pop tab,0.03855
+Six pack rings,Plastic bag & wrapper,0.20087
+Plastic lid,Lid,0.14893
+Foam cup,Cup,0.21171
+Foam cup,Cup,0.25029
+Paper straw,Straw,0.50644
+Glass cup,Cup,0.49830
+Corrugated carton,Carton,0.35258
+Corrugated carton,Carton,0.33805
+Corrugated carton,Carton,0.24990
+Food waste,Food waste,0.01767
+Food waste,Food waste,0.01697
+Unlabeled litter,Unlabeled litter,0.03047
+Aluminium blister pack,Blister pack,0.21989
+Battery,Battery,0.09148
+Aerosol,Can,0.41474
+Plastic bottle cap,Bottle cap,0.09796
+Plastic bottle cap,Bottle cap,0.07738
+Squeezable tube,Squeezable tube,0.32554
+Squeezable tube,Squeezable tube,0.14613
+Plastic film,Plastic bag & wrapper,0.44163
+Toilet tube,Carton,0.16707
+Toilet tube,Carton,0.11298
+Toilet tube,Carton,0.12566
+Other plastic bottle,Bottle,0.15404
+Other plastic bottle,Bottle,0.18204
+Plastic bottle cap,Bottle cap,0.09813
+Drink can,Can,0.15540
+Garbage bag,Plastic bag & wrapper,0.08190
+Garbage bag,Plastic bag & wrapper,0.08225
+Garbage bag,Plastic bag & wrapper,0.08158
+Pop tab,Pop tab,0.03410
+Rope & strings,Rope & strings,0.24894
+Other plastic wrapper,Plastic bag & wrapper,0.08802
+Drink can,Can,0.05903
+Drink can,Can,0.09757
+Drink can,Can,0.08109
+Disposable food container,Plastic container,0.10635
+Meal carton,Carton,0.19505
+Clear plastic bottle,Bottle,0.17004
+Plastic bottle cap,Bottle cap,0.02809
+Drink can,Can,0.11037
+Disposable food container,Plastic container,0.10204
+Normal paper,Paper,0.11637
+Unlabeled litter,Unlabeled litter,0.03711
+Unlabeled litter,Unlabeled litter,0.03798
+Paper cup,Cup,0.15753
+Plastic lid,Lid,0.11922
+Unlabeled litter,Unlabeled litter,0.02441
+Normal paper,Paper,0.06129
+Crisp packet,Plastic bag & wrapper,0.10456
+Food waste,Food waste,0.21845
+Plastic film,Plastic bag & wrapper,0.37476
+Plastic bottle cap,Bottle cap,0.07001
+Metal bottle cap,Bottle cap,0.04987
+Metal bottle cap,Bottle cap,0.04240
+Drink can,Can,0.09371
+Styrofoam piece,Styrofoam piece,0.82990
+Aluminium foil,Aluminium foil,0.23361
+Aluminium foil,Aluminium foil,0.15093
+Food Can,Can,0.35960
+Food Can,Can,0.28507
+Plastic film,Plastic bag & wrapper,0.39214
+Plastic film,Plastic bag & wrapper,0.68401
+Garbage bag,Plastic bag & wrapper,0.57961
+Other carton,Carton,0.52063
+Other carton,Carton,0.29706
+Disposable food container,Plastic container,0.47079
+Spread tub,Plastic container,0.10230
+Tissues,Paper,0.08275
+Other carton,Carton,0.56799
+Drink carton,Carton,0.24908
+Other carton,Carton,0.65228
+Drink can,Can,0.16101
+Food Can,Can,0.19630
+Food Can,Can,0.19935
+Toilet tube,Carton,0.20133
+Pop tab,Pop tab,0.05570
+Other plastic bottle,Bottle,0.49079
+Plastic bottle cap,Bottle cap,0.06759
+Plastic film,Plastic bag & wrapper,0.25889
+Aluminium foil,Aluminium foil,0.22410
+Aluminium foil,Aluminium foil,0.33127
+Corrugated carton,Carton,0.76690
+Food Can,Can,0.08684
+Drink carton,Carton,0.18670
+Other carton,Carton,0.14231
+Egg carton,Carton,0.09513
+Other carton,Carton,0.15642
+Other carton,Carton,0.19912
+Cigarette,Cigarette,0.03415
+Cigarette,Cigarette,0.04071
+Cigarette,Cigarette,0.03093
+Cigarette,Cigarette,0.04665
+Cigarette,Cigarette,0.00690
+Cigarette,Cigarette,0.01840
+Cigarette,Cigarette,0.02016
+Cigarette,Cigarette,0.02758
+Cigarette,Cigarette,0.02158
+Cigarette,Cigarette,0.02546
+Cigarette,Cigarette,0.02476
+Cigarette,Cigarette,0.02773
+Cigarette,Cigarette,0.02064
+Cigarette,Cigarette,0.02174
+Cigarette,Cigarette,0.03653
+Cigarette,Cigarette,0.02083
+Cigarette,Cigarette,0.02282
+Cigarette,Cigarette,0.01695
+Cigarette,Cigarette,0.03077
+Cigarette,Cigarette,0.03653
+Cigarette,Cigarette,0.02325
+Cigarette,Cigarette,0.03492
+Cigarette,Cigarette,0.02226
+Cigarette,Cigarette,0.00925
+Cigarette,Cigarette,0.01498
+Cigarette,Cigarette,0.01571
+Cigarette,Cigarette,0.01368
+Clear plastic bottle,Bottle,0.08839
+Other plastic bottle,Bottle,0.15806
+Plastic bottle cap,Bottle cap,0.02718
+Unlabeled litter,Unlabeled litter,0.05968
+Unlabeled litter,Unlabeled litter,0.12033
+Unlabeled litter,Unlabeled litter,0.06978
+Squeezable tube,Squeezable tube,0.08617
+Unlabeled litter,Unlabeled litter,0.03473
+Clear plastic bottle,Bottle,0.05657
+Unlabeled litter,Unlabeled litter,0.02388
+Unlabeled litter,Unlabeled litter,0.00725
+Unlabeled litter,Unlabeled litter,0.02073
+Unlabeled litter,Unlabeled litter,0.02147
+Unlabeled litter,Unlabeled litter,0.01281
+Unlabeled litter,Unlabeled litter,0.02848
+Other plastic,Other plastic,0.02110
+Clear plastic bottle,Bottle,0.10550
+Plastic bottle cap,Bottle cap,0.01294
+Unlabeled litter,Unlabeled litter,0.03353
+Plastic film,Plastic bag & wrapper,0.03386
+Plastic film,Plastic bag & wrapper,0.03359
+Clear plastic bottle,Bottle,0.07778
+Clear plastic bottle,Bottle,0.08009
+Plastic film,Plastic bag & wrapper,0.04080
+Plastic film,Plastic bag & wrapper,0.02736
+Other plastic wrapper,Plastic bag & wrapper,0.02498
+Disposable plastic cup,Cup,0.03721
+Unlabeled litter,Unlabeled litter,0.03675
+Single-use carrier bag,Plastic bag & wrapper,0.06954
+Plastic film,Plastic bag & wrapper,0.07552
+Plastic film,Plastic bag & wrapper,0.07605
+Unlabeled litter,Unlabeled litter,0.05875
+Unlabeled litter,Unlabeled litter,0.03241
+Unlabeled litter,Unlabeled litter,0.05400
+Single-use carrier bag,Plastic bag & wrapper,0.06130
+Plastic film,Plastic bag & wrapper,0.13400
+Unlabeled litter,Unlabeled litter,0.02991
+Unlabeled litter,Unlabeled litter,0.10155
+Plastic film,Plastic bag & wrapper,0.03842
+Unlabeled litter,Unlabeled litter,0.03638
+Unlabeled litter,Unlabeled litter,0.08737
+Unlabeled litter,Unlabeled litter,0.02919
+Unlabeled litter,Unlabeled litter,0.07064
+Plastic film,Plastic bag & wrapper,0.03008
+Unlabeled litter,Unlabeled litter,0.03196
+Other plastic container,Plastic container,0.04201
+Disposable food container,Plastic container,0.08131
+Plastic film,Plastic bag & wrapper,0.18394
+Clear plastic bottle,Bottle,0.13158
+Plastic film,Plastic bag & wrapper,0.08811
+Plastic film,Plastic bag & wrapper,0.05742
+Other plastic wrapper,Plastic bag & wrapper,0.18579
+Other plastic,Other plastic,0.05814
+Unlabeled litter,Unlabeled litter,0.02436
+Single-use carrier bag,Plastic bag & wrapper,0.18931
+Single-use carrier bag,Plastic bag & wrapper,0.13399
+Other plastic,Other plastic,0.05485
+Unlabeled litter,Unlabeled litter,0.03461
+Other plastic container,Plastic container,0.06960
+Unlabeled litter,Unlabeled litter,0.03884
+Plastic film,Plastic bag & wrapper,0.15098
+Plastic film,Plastic bag & wrapper,0.09218
+Plastic film,Plastic bag & wrapper,0.21056
+Single-use carrier bag,Plastic bag & wrapper,0.04501
+Unlabeled litter,Unlabeled litter,0.10094
+Unlabeled litter,Unlabeled litter,0.01113
+Clear plastic bottle,Bottle,0.02522
+Glass bottle,Bottle,0.09574
+Crisp packet,Plastic bag & wrapper,0.08202
+Metal bottle cap,Bottle cap,0.03992
+Metal bottle cap,Bottle cap,0.04644
+Glass cup,Cup,0.14534
+Glass cup,Cup,0.08969
+Glass bottle,Bottle,0.12603
+Glass cup,Cup,0.08781
+Glass bottle,Bottle,0.14484
+Glass bottle,Bottle,0.14893
+Tissues,Paper,0.10122
+Plastic film,Plastic bag & wrapper,0.15434
+Tissues,Paper,0.05033
+Tissues,Paper,0.05988
+Clear plastic bottle,Bottle,0.06011
+Glass bottle,Bottle,0.03879
+Glass bottle,Bottle,0.05125
+Glass bottle,Bottle,0.04414
+Tissues,Paper,0.02850
+Tissues,Paper,0.02382
+Drink can,Can,0.01494
+Drink can,Can,0.01308
+Glass bottle,Bottle,0.02626
+Clear plastic bottle,Bottle,0.03517
+Unlabeled litter,Unlabeled litter,0.04080
+Plastic film,Plastic bag & wrapper,0.09286
+Unlabeled litter,Unlabeled litter,0.04738
+Aluminium foil,Aluminium foil,0.05157
+Normal paper,Paper,0.08880
+Plastic film,Plastic bag & wrapper,0.04328
+Cigarette,Cigarette,0.01101
+Cigarette,Cigarette,0.01360
+Cigarette,Cigarette,0.01050
+Cigarette,Cigarette,0.02693
+Cigarette,Cigarette,0.01632
+Cigarette,Cigarette,0.01336
+Cigarette,Cigarette,0.01668
+Cigarette,Cigarette,0.01405
+Cigarette,Cigarette,0.01517
+Cigarette,Cigarette,0.01693
+Glass bottle,Bottle,0.05595
+Cigarette,Cigarette,0.01444
+Cigarette,Cigarette,0.01543
+Cigarette,Cigarette,0.01389
+Cigarette,Cigarette,0.01250
+Cigarette,Cigarette,0.01317
+Cigarette,Cigarette,0.01440
+Plastic film,Plastic bag & wrapper,0.14585
+Cigarette,Cigarette,0.02289
+Cigarette,Cigarette,0.01761
+Other plastic wrapper,Plastic bag & wrapper,0.07492
+Clear plastic bottle,Bottle,0.03085
+Shoe,Shoe,0.04283
+Drink can,Can,0.08202
+Egg carton,Carton,0.16380
+Egg carton,Carton,0.16437
+Polypropylene bag,Plastic bag & wrapper,0.49557
+Drink carton,Carton,0.04536
+Plastic straw,Straw,0.00576
+Cigarette,Cigarette,0.01264
+Other plastic,Other plastic,0.02602
+Other plastic,Other plastic,0.01656
+Clear plastic bottle,Bottle,0.21533
+Scrap metal,Scrap metal,0.02864
+Scrap metal,Scrap metal,0.02404
+Scrap metal,Scrap metal,0.02276
+Corrugated carton,Carton,0.09517
+Corrugated carton,Carton,0.32512
+Cigarette,Cigarette,0.01161
+Other plastic wrapper,Plastic bag & wrapper,0.03676
+Plastic straw,Straw,0.02864
+Unlabeled litter,Unlabeled litter,0.02814
+Unlabeled litter,Unlabeled litter,0.03201
+Normal paper,Paper,0.02891
+Drink can,Can,0.05089
+Cigarette,Cigarette,0.00982
+Cigarette,Cigarette,0.01473
+Cigarette,Cigarette,0.01308
+Cigarette,Cigarette,0.01779
+Cigarette,Cigarette,0.01213
+Cigarette,Cigarette,0.02020
+Cigarette,Cigarette,0.01776
+Cigarette,Cigarette,0.02067
+Cigarette,Cigarette,0.02645
+Cigarette,Cigarette,0.02165
+Cigarette,Cigarette,0.01070
+Cigarette,Cigarette,0.01245
+Cigarette,Cigarette,0.00811
+Unlabeled litter,Unlabeled litter,0.00681
+Unlabeled litter,Unlabeled litter,0.03847
+Unlabeled litter,Unlabeled litter,0.03124
+Unlabeled litter,Unlabeled litter,0.03232
+Unlabeled litter,Unlabeled litter,0.03336
+Other plastic wrapper,Plastic bag & wrapper,0.01666
+Drink can,Can,0.04895
+Pop tab,Pop tab,0.01245
+Tissues,Paper,0.03516
+Cigarette,Cigarette,0.01662
+Cigarette,Cigarette,0.01389
+Cigarette,Cigarette,0.01036
+Cigarette,Cigarette,0.00737
+Cigarette,Cigarette,0.01362
+Cigarette,Cigarette,0.01047
+Normal paper,Paper,0.02268
+Normal paper,Paper,0.02175
+Cigarette,Cigarette,0.01252
+Cigarette,Cigarette,0.01459
+Cigarette,Cigarette,0.01544
+Cigarette,Cigarette,0.01214
+Cigarette,Cigarette,0.01592
+Plastic film,Plastic bag & wrapper,0.11184
+Other carton,Carton,0.05721
+Cigarette,Cigarette,0.00679
+Cigarette,Cigarette,0.00746
+Cigarette,Cigarette,0.01294
+Cigarette,Cigarette,0.01860
+Cigarette,Cigarette,0.01367
+Cigarette,Cigarette,0.01504
+Cigarette,Cigarette,0.01414
+Cigarette,Cigarette,0.01592
+Cigarette,Cigarette,0.01004
+Cigarette,Cigarette,0.01337
+Cigarette,Cigarette,0.01481
+Cigarette,Cigarette,0.01217
+Unlabeled litter,Unlabeled litter,0.00755
+Unlabeled litter,Unlabeled litter,0.02856
+Other carton,Carton,0.02385
+Other carton,Carton,0.04262
+Cigarette,Cigarette,0.00640
+Cigarette,Cigarette,0.00597
+Cigarette,Cigarette,0.01701
+Normal paper,Paper,0.08053
+Magazine paper,Paper,0.19535
+Drink carton,Carton,0.11453
+Unlabeled litter,Unlabeled litter,0.05917
+Plastic bottle cap,Bottle cap,0.04513
+Unlabeled litter,Unlabeled litter,0.02491
+Plastic film,Plastic bag & wrapper,0.09839
+Cigarette,Cigarette,0.01345
+Plastic film,Plastic bag & wrapper,0.14715
+Plastic film,Plastic bag & wrapper,0.06011
+Plastic film,Plastic bag & wrapper,0.06035
+Plastic film,Plastic bag & wrapper,0.08735
+Plastic film,Plastic bag & wrapper,0.24787
+Plastic film,Plastic bag & wrapper,0.03388
+Other plastic wrapper,Plastic bag & wrapper,0.03847
+Cigarette,Cigarette,0.01261
+Cigarette,Cigarette,0.01827
+Cigarette,Cigarette,0.01738
+Plastic film,Plastic bag & wrapper,0.01440
+Plastic film,Plastic bag & wrapper,0.04813
+Plastic film,Plastic bag & wrapper,0.09664
+Plastic film,Plastic bag & wrapper,0.05694
+Plastic straw,Straw,0.05500
+Plastic bottle cap,Bottle cap,0.01125
+Other carton,Carton,0.06236
+Clear plastic bottle,Bottle,0.05711
+Unlabeled litter,Unlabeled litter,0.01672
+Unlabeled litter,Unlabeled litter,0.01305
+Unlabeled litter,Unlabeled litter,0.00796
+Unlabeled litter,Unlabeled litter,0.01551
+Unlabeled litter,Unlabeled litter,0.03975
+Broken glass,Broken glass,0.05076
+Broken glass,Broken glass,0.01805
+Plastic film,Plastic bag & wrapper,0.08616
+Plastic film,Plastic bag & wrapper,0.03007
+Other plastic wrapper,Plastic bag & wrapper,0.03073
+Unlabeled litter,Unlabeled litter,0.01286
+Plastic film,Plastic bag & wrapper,0.07465
+Unlabeled litter,Unlabeled litter,0.01959
+Unlabeled litter,Unlabeled litter,0.03813
+Unlabeled litter,Unlabeled litter,0.14806
+Plastic film,Plastic bag & wrapper,0.01502
+Plastic film,Plastic bag & wrapper,0.05772
+Unlabeled litter,Unlabeled litter,0.16629
+Unlabeled litter,Unlabeled litter,0.02282
+Plastic film,Plastic bag & wrapper,0.01979
+Plastic film,Plastic bag & wrapper,0.08773
+Styrofoam piece,Styrofoam piece,0.08974
+Unlabeled litter,Unlabeled litter,0.04662
+Plastic film,Plastic bag & wrapper,0.10646
+Plastic film,Plastic bag & wrapper,0.04474
+Cigarette,Cigarette,0.00763
+Plastic film,Plastic bag & wrapper,0.11323
+Plastic film,Plastic bag & wrapper,0.05617
+Plastic film,Plastic bag & wrapper,0.20133
+Other plastic,Other plastic,0.02565
+Plastic film,Plastic bag & wrapper,0.12042
+Plastic film,Plastic bag & wrapper,0.08704
+Other plastic,Other plastic,0.03336
+Plastic film,Plastic bag & wrapper,0.05053
+Aluminium foil,Aluminium foil,0.07830
+Plastic film,Plastic bag & wrapper,0.08566
+Unlabeled litter,Unlabeled litter,0.03063
+Plastic film,Plastic bag & wrapper,0.08515
+Plastic film,Plastic bag & wrapper,0.09916
+Plastic film,Plastic bag & wrapper,0.12071
+Cigarette,Cigarette,0.03723
+Plastic film,Plastic bag & wrapper,0.09274
+Plastic film,Plastic bag & wrapper,0.14637
+Plastic film,Plastic bag & wrapper,0.05778
+Plastic film,Plastic bag & wrapper,0.08774
+Rope & strings,Rope & strings,0.05001
+Unlabeled litter,Unlabeled litter,0.03495
+Rope & strings,Rope & strings,0.09389
+Other plastic,Other plastic,0.04594
+Unlabeled litter,Unlabeled litter,0.01111
+Other plastic,Other plastic,0.03451
+Rope & strings,Rope & strings,0.04026
+Plastic film,Plastic bag & wrapper,0.06139
+Other plastic,Other plastic,0.08106
+Clear plastic bottle,Bottle,0.02020
+Clear plastic bottle,Bottle,0.01554
+Cigarette,Cigarette,0.01737
+Plastic film,Plastic bag & wrapper,0.04071
+Cigarette,Cigarette,0.01953
+Unlabeled litter,Unlabeled litter,0.01175
+Unlabeled litter,Unlabeled litter,0.00576
+Cigarette,Cigarette,0.02003
+Plastic film,Plastic bag & wrapper,0.06796
+Other plastic,Other plastic,0.05904
+Unlabeled litter,Unlabeled litter,0.07112
+Unlabeled litter,Unlabeled litter,0.05229
+Plastic straw,Straw,0.04266
+Clear plastic bottle,Bottle,0.08728
+Unlabeled litter,Unlabeled litter,0.01741
+Cigarette,Cigarette,0.01276
+Cigarette,Cigarette,0.01024
+Other plastic,Other plastic,0.07297
+Meal carton,Carton,0.05816
+Cigarette,Cigarette,0.01046
+Cigarette,Cigarette,0.01133
+Cigarette,Cigarette,0.01451
+Cigarette,Cigarette,0.00916
+Garbage bag,Plastic bag & wrapper,0.32848
+Other plastic,Other plastic,0.13084
+Unlabeled litter,Unlabeled litter,0.01535
+Garbage bag,Plastic bag & wrapper,0.06461
+Unlabeled litter,Unlabeled litter,0.02093
+Metal lid,Lid,0.03244
+Metal lid,Lid,0.04017
+Plastic film,Plastic bag & wrapper,0.07836
+Other plastic wrapper,Plastic bag & wrapper,0.03994
+Unlabeled litter,Unlabeled litter,0.02088
+Broken glass,Broken glass,0.02078
+Metal lid,Lid,0.04089
+Metal bottle cap,Bottle cap,0.01701
+Corrugated carton,Carton,0.21227
+Plastic lid,Lid,0.06645
+Other plastic wrapper,Plastic bag & wrapper,0.11693
+Glass bottle,Bottle,0.09183
+Cigarette,Cigarette,0.01577
+Cigarette,Cigarette,0.01783
+Unlabeled litter,Unlabeled litter,0.00980
+Cigarette,Cigarette,0.01548
+Clear plastic bottle,Bottle,0.08583
+Cigarette,Cigarette,0.00614
+Cigarette,Cigarette,0.00673
+Tissues,Paper,0.08578
+Other carton,Carton,0.15155
+Disposable plastic cup,Cup,0.05801
+Disposable plastic cup,Cup,0.04707
+Unlabeled litter,Unlabeled litter,0.01774
+Unlabeled litter,Unlabeled litter,0.04177
+Rope & strings,Rope & strings,0.02813
+Plastic film,Plastic bag & wrapper,0.05168
+Unlabeled litter,Unlabeled litter,0.02743
+Unlabeled litter,Unlabeled litter,0.02305
+Unlabeled litter,Unlabeled litter,0.04572
+Unlabeled litter,Unlabeled litter,0.02142
+Glass bottle,Bottle,0.11978
+Tissues,Paper,0.04784
+Unlabeled litter,Unlabeled litter,0.02672
+Plastic film,Plastic bag & wrapper,0.02949
+Plastic film,Plastic bag & wrapper,0.04817
+Unlabeled litter,Unlabeled litter,0.02662
+Glass bottle,Bottle,0.04563
+Other plastic wrapper,Plastic bag & wrapper,0.06604
+Unlabeled litter,Unlabeled litter,0.05488
+Unlabeled litter,Unlabeled litter,0.02554
+Unlabeled litter,Unlabeled litter,0.03782
+Glass bottle,Bottle,0.07395
+Unlabeled litter,Unlabeled litter,0.02684
+Unlabeled litter,Unlabeled litter,0.03302
+Unlabeled litter,Unlabeled litter,0.02773
+Unlabeled litter,Unlabeled litter,0.03815
+Cigarette,Cigarette,0.01350
+Unlabeled litter,Unlabeled litter,0.03287
+Plastic film,Plastic bag & wrapper,0.04750
+Unlabeled litter,Unlabeled litter,0.02720
+Disposable plastic cup,Cup,0.04158
+Metal bottle cap,Bottle cap,0.01142
+Aluminium blister pack,Blister pack,0.08620
+Unlabeled litter,Unlabeled litter,0.03886
+Unlabeled litter,Unlabeled litter,0.04592
+Unlabeled litter,Unlabeled litter,0.03551
+Cigarette,Cigarette,0.02068
+Aluminium foil,Aluminium foil,0.03762
+Disposable plastic cup,Cup,0.06074
+Cigarette,Cigarette,0.01209
+Broken glass,Broken glass,0.01876
+Cigarette,Cigarette,0.01301
+Unlabeled litter,Unlabeled litter,0.03976
+Unlabeled litter,Unlabeled litter,0.02137
+Clear plastic bottle,Bottle,0.09053
+Plastic bottle cap,Bottle cap,0.01293
+Styrofoam piece,Styrofoam piece,0.43069
+Corrugated carton,Carton,0.41843
+Corrugated carton,Carton,0.04039
+Other plastic wrapper,Plastic bag & wrapper,0.15948
+Styrofoam piece,Styrofoam piece,0.46008
+Corrugated carton,Carton,0.26725
+Corrugated carton,Carton,0.04808
+Styrofoam piece,Styrofoam piece,0.15080
+Styrofoam piece,Styrofoam piece,0.55661
+Corrugated carton,Carton,0.07269
+Styrofoam piece,Styrofoam piece,0.37204
+Corrugated carton,Carton,0.28080
+Corrugated carton,Carton,0.56884
+Corrugated carton,Carton,0.50186
+Styrofoam piece,Styrofoam piece,0.04103
+Styrofoam piece,Styrofoam piece,0.05792
+Styrofoam piece,Styrofoam piece,0.74878
+Corrugated carton,Carton,0.33508
+Corrugated carton,Carton,0.60975
+Styrofoam piece,Styrofoam piece,0.36746
+Corrugated carton,Carton,0.25222
+Corrugated carton,Carton,0.27841
+Corrugated carton,Carton,0.23447
+Corrugated carton,Carton,0.09014
+Styrofoam piece,Styrofoam piece,0.23620
+Styrofoam piece,Styrofoam piece,0.66187
+Corrugated carton,Carton,0.35882
+Corrugated carton,Carton,0.97054
+Garbage bag,Plastic bag & wrapper,0.27467
+Corrugated carton,Carton,0.31243
+Corrugated carton,Carton,0.26761
+Corrugated carton,Carton,0.05466
+Corrugated carton,Carton,0.27269
+Corrugated carton,Carton,0.14778
+Corrugated carton,Carton,0.29034
+Pizza box,Carton,0.42622
+Corrugated carton,Carton,0.40817
+Corrugated carton,Carton,0.21487
+Corrugated carton,Carton,0.67496
+Corrugated carton,Carton,0.25854
+Corrugated carton,Carton,0.18757
+Corrugated carton,Carton,0.80968
+Corrugated carton,Carton,0.45963
+Styrofoam piece,Styrofoam piece,0.21559
+Styrofoam piece,Styrofoam piece,0.17396
+Styrofoam piece,Styrofoam piece,0.42606
+Cigarette,Cigarette,0.01151
+Cigarette,Cigarette,0.01654
+Cigarette,Cigarette,0.01374
+Corrugated carton,Carton,0.34928
+Styrofoam piece,Styrofoam piece,0.40016
+Styrofoam piece,Styrofoam piece,0.56151
+Plastic film,Plastic bag & wrapper,0.24458
+Scrap metal,Scrap metal,0.10384
+Scrap metal,Scrap metal,0.11242
+Scrap metal,Scrap metal,0.07951
+Scrap metal,Scrap metal,0.06976
+Scrap metal,Scrap metal,0.07225
+Scrap metal,Scrap metal,0.07958
+Other plastic bottle,Bottle,0.07342
+Plastic bottle cap,Bottle cap,0.01646
+Styrofoam piece,Styrofoam piece,0.03870
+Styrofoam piece,Styrofoam piece,0.04491
+Rope & strings,Rope & strings,0.25310
+Other plastic bottle,Bottle,0.36159
+Spread tub,Plastic container,0.63632
+Plastic bottle cap,Bottle cap,0.08479
+Plastic bottle cap,Bottle cap,0.05997
+Shoe,Shoe,0.43981
+Clear plastic bottle,Bottle,0.20951
+Plastic bottle cap,Bottle cap,0.05711
+Plastic straw,Straw,0.13899
+Plastic glooves,Plastic glooves,0.09344
+Styrofoam piece,Styrofoam piece,0.24084
+Other plastic,Other plastic,0.09382
+Styrofoam piece,Styrofoam piece,0.23142
+Single-use carrier bag,Plastic bag & wrapper,0.26849
+Single-use carrier bag,Plastic bag & wrapper,0.12632
+Single-use carrier bag,Plastic bag & wrapper,0.38258
+Single-use carrier bag,Plastic bag & wrapper,0.15116
+Single-use carrier bag,Plastic bag & wrapper,0.06098
+Single-use carrier bag,Plastic bag & wrapper,0.11570
+Single-use carrier bag,Plastic bag & wrapper,0.11230
+Other plastic bottle,Bottle,0.18968
+Other plastic,Other plastic,0.13557
+Other plastic,Other plastic,0.11513
+Plastic film,Plastic bag & wrapper,0.12134
+Other carton,Carton,0.19771
+Plastic film,Plastic bag & wrapper,0.18731
+Tissues,Paper,0.17644
+Other plastic bottle,Bottle,0.85091
+Styrofoam piece,Styrofoam piece,0.53886
+Other plastic bottle,Bottle,0.81378
+Magazine paper,Paper,0.09575
+Paper cup,Cup,0.08439
+Meal carton,Carton,0.07216
+Meal carton,Carton,0.14565
+Unlabeled litter,Unlabeled litter,0.05475
+Meal carton,Carton,0.14183
+Other plastic wrapper,Plastic bag & wrapper,0.12007
+Meal carton,Carton,0.06262
+Normal paper,Paper,0.10226
+Drink can,Can,0.09196
+Paper cup,Cup,0.11056
+Other plastic wrapper,Plastic bag & wrapper,0.09965
+Garbage bag,Plastic bag & wrapper,0.25562
+Plastic film,Plastic bag & wrapper,0.08168
+Plastic film,Plastic bag & wrapper,0.08901
+Other plastic wrapper,Plastic bag & wrapper,0.10734
+Paper cup,Cup,0.12341
+Other plastic wrapper,Plastic bag & wrapper,0.07176
+Other plastic wrapper,Plastic bag & wrapper,0.17639
+Drink can,Can,0.24449
+Pop tab,Pop tab,0.03746
+Unlabeled litter,Unlabeled litter,0.16023
+Plastic film,Plastic bag & wrapper,0.28402
+Other plastic wrapper,Plastic bag & wrapper,0.19291
+Plastic lid,Lid,0.13752
+Paper cup,Cup,0.23293
+Other carton,Carton,0.39477
+Plastic film,Plastic bag & wrapper,0.25718
+Corrugated carton,Carton,0.14112
+Rope & strings,Rope & strings,0.42556
+Styrofoam piece,Styrofoam piece,0.22518
+Unlabeled litter,Unlabeled litter,0.28920
+Plastic bottle cap,Bottle cap,0.22254
+Unlabeled litter,Unlabeled litter,0.25388
+Aluminium foil,Aluminium foil,0.21913
+Unlabeled litter,Unlabeled litter,0.09190
+Plastic film,Plastic bag & wrapper,0.05446
+Polypropylene bag,Plastic bag & wrapper,0.35702
+Other plastic,Other plastic,0.02506
+Plastic film,Plastic bag & wrapper,0.32575
+Unlabeled litter,Unlabeled litter,0.10810
+Styrofoam piece,Styrofoam piece,0.19248
+Single-use carrier bag,Plastic bag & wrapper,0.17999
+Plastic film,Plastic bag & wrapper,0.05269
+Plastic film,Plastic bag & wrapper,0.04311
+Plastic film,Plastic bag & wrapper,0.02996
+Unlabeled litter,Unlabeled litter,0.02699
+Plastic film,Plastic bag & wrapper,0.47596
+Single-use carrier bag,Plastic bag & wrapper,0.10183
+Plastic film,Plastic bag & wrapper,0.21721
+Drink carton,Carton,0.18264
+Plastic straw,Straw,0.02760
+Styrofoam piece,Styrofoam piece,0.46134
+Plastic film,Plastic bag & wrapper,0.18669
+Styrofoam piece,Styrofoam piece,0.21259
+Clear plastic bottle,Bottle,0.18239
+Plastic bottle cap,Bottle cap,0.02025
+Plastic film,Plastic bag & wrapper,0.24054
+Plastic film,Plastic bag & wrapper,0.02017
+Styrofoam piece,Styrofoam piece,0.06933
+Plastic film,Plastic bag & wrapper,0.14180
+Plastic film,Plastic bag & wrapper,0.13738
+Plastic film,Plastic bag & wrapper,0.02960
+Plastic film,Plastic bag & wrapper,0.02463
+Other plastic wrapper,Plastic bag & wrapper,0.34843
+Plastic film,Plastic bag & wrapper,0.36703
+Unlabeled litter,Unlabeled litter,0.02055
+Styrofoam piece,Styrofoam piece,0.13647
+Plastic film,Plastic bag & wrapper,0.40926
+Plastic film,Plastic bag & wrapper,0.09565
+Styrofoam piece,Styrofoam piece,0.17593
+Plastic film,Plastic bag & wrapper,0.08264
+Plastic film,Plastic bag & wrapper,0.03976
+Plastic film,Plastic bag & wrapper,0.02243
+Plastic film,Plastic bag & wrapper,0.05432
+Other plastic,Other plastic,0.05450
+Styrofoam piece,Styrofoam piece,0.18093
+Clear plastic bottle,Bottle,0.15495
+Plastic bottle cap,Bottle cap,0.02729
+Plastic film,Plastic bag & wrapper,0.12266
+Styrofoam piece,Styrofoam piece,0.01610
+Styrofoam piece,Styrofoam piece,0.40815
+Plastic film,Plastic bag & wrapper,0.08407
+Styrofoam piece,Styrofoam piece,0.31673
+Unlabeled litter,Unlabeled litter,0.07061
+Styrofoam piece,Styrofoam piece,0.36619
+Plastic film,Plastic bag & wrapper,0.14102
+Other plastic,Other plastic,0.51695
+Other plastic,Other plastic,0.30334
+Other plastic,Other plastic,0.08116
+Other plastic,Other plastic,0.04711
+Other plastic,Other plastic,0.10688
+Other plastic,Other plastic,0.15971
+Other plastic,Other plastic,0.05869
+Styrofoam piece,Styrofoam piece,0.02886
+Plastic film,Plastic bag & wrapper,0.13310
+Garbage bag,Plastic bag & wrapper,0.37079
+Styrofoam piece,Styrofoam piece,0.27801
+Other plastic wrapper,Plastic bag & wrapper,0.15763
+Other plastic wrapper,Plastic bag & wrapper,0.26767
+Plastic film,Plastic bag & wrapper,0.15344
+Plastic film,Plastic bag & wrapper,0.61916
+Plastic film,Plastic bag & wrapper,0.40132
+Plastic bottle cap,Bottle cap,0.14734
+Other plastic wrapper,Plastic bag & wrapper,0.21145
+Plastic film,Plastic bag & wrapper,0.30041
+Paper cup,Cup,0.07195
+Unlabeled litter,Unlabeled litter,0.02023
+Unlabeled litter,Unlabeled litter,0.02075
+Other carton,Carton,0.27023
+Clear plastic bottle,Bottle,0.34473
+Cigarette,Cigarette,0.05603
+Cigarette,Cigarette,0.04663
+Other plastic wrapper,Plastic bag & wrapper,0.12985
+Other plastic wrapper,Plastic bag & wrapper,0.05111
+Plastic bottle cap,Bottle cap,0.02971
+Clear plastic bottle,Bottle,0.45723
+Wrapping paper,Paper,0.29427
+Clear plastic bottle,Bottle,0.15004
+Plastic bottle cap,Bottle cap,0.02643
+Other plastic,Other plastic,0.02612
+Plastic film,Plastic bag & wrapper,0.04381
+Unlabeled litter,Unlabeled litter,0.04558
+Unlabeled litter,Unlabeled litter,0.04809
+Unlabeled litter,Unlabeled litter,0.02203
+Unlabeled litter,Unlabeled litter,0.01795
+Drink carton,Carton,0.09257
+Plastic straw,Straw,0.01336
+Cigarette,Cigarette,0.01846
+Cigarette,Cigarette,0.01828
+Drink carton,Carton,0.06210
+Unlabeled litter,Unlabeled litter,0.08618
+Plastic straw,Straw,0.01195
+Other plastic container,Plastic container,0.06913
+Unlabeled litter,Unlabeled litter,0.03458
+Unlabeled litter,Unlabeled litter,0.01383
+Cigarette,Cigarette,0.01532
+Cigarette,Cigarette,0.01603
+Cigarette,Cigarette,0.01296
+Cigarette,Cigarette,0.01388
+Cigarette,Cigarette,0.01247
+Cigarette,Cigarette,0.01401
+Glass bottle,Bottle,0.18649
+Cigarette,Cigarette,0.01932
+Clear plastic bottle,Bottle,0.10247
+Plastic bottle cap,Bottle cap,0.01845
+Clear plastic bottle,Bottle,0.06072
+Plastic bottle cap,Bottle cap,0.01793
+Other plastic wrapper,Plastic bag & wrapper,0.03062
+Cigarette,Cigarette,0.01199
+Unlabeled litter,Unlabeled litter,0.03217
+Other plastic,Other plastic,0.05093
+Paper cup,Cup,0.16071
+Unlabeled litter,Unlabeled litter,0.18506
+Plastic bottle cap,Bottle cap,0.18222
+Cigarette,Cigarette,0.19803
+Other carton,Carton,0.55794
+Plastic film,Plastic bag & wrapper,0.43474
+Plastic film,Plastic bag & wrapper,0.58558
+Plastic bottle cap,Bottle cap,0.18257
+Crisp packet,Plastic bag & wrapper,0.39256
+Other plastic wrapper,Plastic bag & wrapper,0.36601
+Drink can,Can,0.44660
+Other plastic wrapper,Plastic bag & wrapper,0.34090
+Tissues,Paper,0.12876
+Plastic straw,Straw,0.02794
+Plastic film,Plastic bag & wrapper,0.61952
+Plastic film,Plastic bag & wrapper,0.09903
+Plastic film,Plastic bag & wrapper,0.08095
+Other plastic wrapper,Plastic bag & wrapper,0.04860
+Other plastic wrapper,Plastic bag & wrapper,0.06003
+Wrapping paper,Paper,0.58183
+Clear plastic bottle,Bottle,0.40953
+Clear plastic bottle,Bottle,0.41577
+Plastic bottle cap,Bottle cap,0.06626
+Plastic bottle cap,Bottle cap,0.27589
+Cigarette,Cigarette,0.07803
+Plastic bottle cap,Bottle cap,0.07176
+Scrap metal,Scrap metal,0.05938
+Disposable food container,Plastic container,0.30572
+Paper cup,Cup,0.06227
+Crisp packet,Plastic bag & wrapper,0.18272
+Disposable plastic cup,Cup,0.08924
+Drink can,Can,0.15397
+Plastic film,Plastic bag & wrapper,0.06821
+Foam cup,Cup,0.08270
+Plastic utensils,Plastic utensils,0.06887
+Plastic utensils,Plastic utensils,0.05169
+Plastic utensils,Plastic utensils,0.10218
+Clear plastic bottle,Bottle,0.14218
+Plastic bottle cap,Bottle cap,0.02428
+Disposable food container,Plastic container,0.12742
+Cigarette,Cigarette,0.01753
+Paper cup,Cup,0.10211
+Cigarette,Cigarette,0.01913
+Clear plastic bottle,Bottle,0.13812
+Other plastic,Other plastic,0.05572
+Disposable plastic cup,Cup,0.20477
+Drink can,Can,0.18756
+Unlabeled litter,Unlabeled litter,0.09850
+Other plastic,Other plastic,0.02351
+Clear plastic bottle,Bottle,0.08634
+Cigarette,Cigarette,0.01158
+Cigarette,Cigarette,0.01242
+Cigarette,Cigarette,0.01079
+Cigarette,Cigarette,0.00999
+Cigarette,Cigarette,0.01258
+Cigarette,Cigarette,0.01556
+Cigarette,Cigarette,0.00915
+Cigarette,Cigarette,0.00671
+Cigarette,Cigarette,0.00770
+Cigarette,Cigarette,0.00710
+Cigarette,Cigarette,0.00686
+Cigarette,Cigarette,0.00677
+Cigarette,Cigarette,0.00896
+Cigarette,Cigarette,0.00949
+Cigarette,Cigarette,0.00898
+Cigarette,Cigarette,0.00595
+Cigarette,Cigarette,0.00868
+Cigarette,Cigarette,0.01042
+Cigarette,Cigarette,0.00816
+Cigarette,Cigarette,0.01221
+Cigarette,Cigarette,0.01530
+Unlabeled litter,Unlabeled litter,0.00761
+Cigarette,Cigarette,0.01016
+Cigarette,Cigarette,0.00638
+Cigarette,Cigarette,0.10333
+Metal bottle cap,Bottle cap,0.11671
+Unlabeled litter,Unlabeled litter,0.05257
+Other plastic,Other plastic,0.00996
+Other plastic,Other plastic,0.01798
+Other plastic,Other plastic,0.01832
+Other plastic,Other plastic,0.01775
+Other plastic,Other plastic,0.01832
+Other plastic,Other plastic,0.01833
+Other plastic,Other plastic,0.03007
+Other plastic,Other plastic,0.01181
+Other plastic,Other plastic,0.02974
+Other plastic,Other plastic,0.00621
+Other plastic,Other plastic,0.00927
+Other plastic,Other plastic,0.01945
+Other plastic,Other plastic,0.01399
+Other plastic,Other plastic,0.01996
+Other plastic,Other plastic,0.02101
+Other plastic,Other plastic,0.03362
+Other plastic,Other plastic,0.02156
+Other plastic,Other plastic,0.02380
+Other plastic,Other plastic,0.02494
+Other plastic,Other plastic,0.01732
+Other plastic,Other plastic,0.01553
+Other plastic,Other plastic,0.02589
+Other plastic,Other plastic,0.02023
+Other plastic,Other plastic,0.00943
+Cigarette,Cigarette,0.01865
+Cigarette,Cigarette,0.01441
+Cigarette,Cigarette,0.01367
+Cigarette,Cigarette,0.01918
+Cigarette,Cigarette,0.02245
+Paper cup,Cup,0.07223
+Paper cup,Cup,0.03885
+Cigarette,Cigarette,0.01492
+Cigarette,Cigarette,0.02182
+Cigarette,Cigarette,0.03968
+Cigarette,Cigarette,0.03492
+Cigarette,Cigarette,0.01913
+Cigarette,Cigarette,0.01854
+Unlabeled litter,Unlabeled litter,0.02357
+Unlabeled litter,Unlabeled litter,0.02421
+Paper cup,Cup,0.10554
+Cigarette,Cigarette,0.05083
+Wrapping paper,Paper,0.03673
+Unlabeled litter,Unlabeled litter,0.02576
+Cigarette,Cigarette,0.04511
+Unlabeled litter,Unlabeled litter,0.02935
+Unlabeled litter,Unlabeled litter,0.02300
+Unlabeled litter,Unlabeled litter,0.00928
+Unlabeled litter,Unlabeled litter,0.03109
+Paper cup,Cup,0.06901
+Cigarette,Cigarette,0.01344
+Other plastic,Other plastic,0.01669
+Unlabeled litter,Unlabeled litter,0.12912
+Aluminium blister pack,Blister pack,0.10691
+Other plastic wrapper,Plastic bag & wrapper,0.13896
+Other plastic wrapper,Plastic bag & wrapper,0.01978
+Plastic straw,Straw,0.07648
+Unlabeled litter,Unlabeled litter,0.02080
+Tissues,Paper,0.05644
+Unlabeled litter,Unlabeled litter,0.02506
+Unlabeled litter,Unlabeled litter,0.01343
+Plastic straw,Straw,0.09784
+Plastic straw,Straw,0.09285
+Clear plastic bottle,Bottle,0.11816
+Plastic bottle cap,Bottle cap,0.01702
+Normal paper,Paper,0.03869
+Normal paper,Paper,0.08581
+Normal paper,Paper,0.04720
+Normal paper,Paper,0.03914
+Unlabeled litter,Unlabeled litter,0.07212
+Unlabeled litter,Unlabeled litter,0.03766
+Other plastic wrapper,Plastic bag & wrapper,0.09622
+Other plastic wrapper,Plastic bag & wrapper,0.04534
+Other plastic wrapper,Plastic bag & wrapper,0.02465
+Other plastic wrapper,Plastic bag & wrapper,0.01701
+Other plastic wrapper,Plastic bag & wrapper,0.07178
+Other plastic wrapper,Plastic bag & wrapper,0.07894
+Garbage bag,Plastic bag & wrapper,0.26779
+Cigarette,Cigarette,0.02153
+Paper bag,Paper bag,0.14580
+Other plastic wrapper,Plastic bag & wrapper,0.03638
+Cigarette,Cigarette,0.01024
+Other plastic wrapper,Plastic bag & wrapper,0.01527
+Unlabeled litter,Unlabeled litter,0.01768
+Other plastic wrapper,Plastic bag & wrapper,0.01158
+Cigarette,Cigarette,0.03988
+Other plastic wrapper,Plastic bag & wrapper,0.07860
+Other plastic wrapper,Plastic bag & wrapper,0.07357
+Drink carton,Carton,0.12696
+Plastic straw,Straw,0.04806
+Plastic film,Plastic bag & wrapper,0.11485
+Other plastic bottle,Bottle,0.06703
+Plastic bottle cap,Bottle cap,0.04110
+Other plastic,Other plastic,0.05930
+Other plastic wrapper,Plastic bag & wrapper,0.06643
+Other plastic,Other plastic,0.02433
+Drink can,Can,0.04992
+Clear plastic bottle,Bottle,0.13616
+Plastic bottle cap,Bottle cap,0.02326
+Other plastic wrapper,Plastic bag & wrapper,0.14790
+Other plastic wrapper,Plastic bag & wrapper,0.15495
+Other carton,Carton,0.10190
+Paper cup,Cup,0.09885
+Plastic film,Plastic bag & wrapper,0.03386
+Aluminium foil,Aluminium foil,0.02894
+Aluminium blister pack,Blister pack,0.18399
+Unlabeled litter,Unlabeled litter,0.18623
+Unlabeled litter,Unlabeled litter,0.15879
+Unlabeled litter,Unlabeled litter,0.16507
+Unlabeled litter,Unlabeled litter,0.14118
+Unlabeled litter,Unlabeled litter,0.22850
+Plastic film,Plastic bag & wrapper,0.05445
+Plastic film,Plastic bag & wrapper,0.07853
+Plastic film,Plastic bag & wrapper,0.04321
+Clear plastic bottle,Bottle,0.06811
+Unlabeled litter,Unlabeled litter,0.01186
+Unlabeled litter,Unlabeled litter,0.01547
+Normal paper,Paper,0.13350
+Other plastic wrapper,Plastic bag & wrapper,0.07350
+Single-use carrier bag,Plastic bag & wrapper,0.83219
+Plastic film,Plastic bag & wrapper,0.37605
+Plastic bottle cap,Bottle cap,0.14111
+Unlabeled litter,Unlabeled litter,0.04759
+Plastic bottle cap,Bottle cap,0.10639
+Drink can,Can,0.06647
+Drink can,Can,0.04850
+Drink can,Can,0.04102
+Single-use carrier bag,Plastic bag & wrapper,0.04504
+Plastic film,Plastic bag & wrapper,0.07786
+Other carton,Carton,0.02228
+Clear plastic bottle,Bottle,0.07017
+Plastic bottle cap,Bottle cap,0.01130
+Drink can,Can,0.08477
+Clear plastic bottle,Bottle,0.03242
+Disposable plastic cup,Cup,0.07879
+Plastic straw,Straw,0.04572
+Plastic straw,Straw,0.06193
+Plastic lid,Lid,0.07346
+Disposable plastic cup,Cup,0.07895
+Cigarette,Cigarette,0.00995
+Cigarette,Cigarette,0.01337
+Plastic lid,Lid,0.04273
+Cigarette,Cigarette,0.01056
+Corrugated carton,Carton,0.06383
+Corrugated carton,Carton,0.12090
+Clear plastic bottle,Bottle,0.03706
+Plastic bottle cap,Bottle cap,0.00698
+Plastic bottle cap,Bottle cap,0.00706
+Plastic bottle cap,Bottle cap,0.00566
+Clear plastic bottle,Bottle,0.03125
+Disposable plastic cup,Cup,0.02700
+Other plastic wrapper,Plastic bag & wrapper,0.02499
+Plastic film,Plastic bag & wrapper,0.04038
+Cigarette,Cigarette,0.01183
+Other plastic,Other plastic,0.11252
+Rope & strings,Rope & strings,0.04124
+Disposable plastic cup,Cup,0.13167
+Unlabeled litter,Unlabeled litter,0.03161
+Cigarette,Cigarette,0.01562
+Cigarette,Cigarette,0.00851
+Cigarette,Cigarette,0.02139
+Cigarette,Cigarette,0.01357
+Cigarette,Cigarette,0.01458
+Cigarette,Cigarette,0.02429
+Cigarette,Cigarette,0.00865
+Cigarette,Cigarette,0.02300
+Rope & strings,Rope & strings,0.21309
+Plastic bottle cap,Bottle cap,0.02327
+Other plastic,Other plastic,0.01226
+Other plastic,Other plastic,0.01847
+Unlabeled litter,Unlabeled litter,0.00947
+Unlabeled litter,Unlabeled litter,0.02160
+Unlabeled litter,Unlabeled litter,0.01730
+Cigarette,Cigarette,0.02104
+Other plastic,Other plastic,0.02167
+Cigarette,Cigarette,0.03354
+Cigarette,Cigarette,0.03518
+Cigarette,Cigarette,0.03793
+Other plastic,Other plastic,0.03734
+Other plastic,Other plastic,0.00843
+Other plastic,Other plastic,0.00843
+Other plastic,Other plastic,0.02487
+Other plastic,Other plastic,0.00785
+Other plastic,Other plastic,0.01060
+Other plastic,Other plastic,0.03520
+Other plastic,Other plastic,0.01074
+Unlabeled litter,Unlabeled litter,0.06422
+Cigarette,Cigarette,0.02713
+Cigarette,Cigarette,0.03545
+Cigarette,Cigarette,0.02307
+Other plastic,Other plastic,0.00873
+Disposable plastic cup,Cup,0.20149
+Drink can,Can,0.47331
+Disposable plastic cup,Cup,0.22150
+Other plastic wrapper,Plastic bag & wrapper,0.17478
+Crisp packet,Plastic bag & wrapper,0.35748
+Other plastic wrapper,Plastic bag & wrapper,0.17349
+Other plastic wrapper,Plastic bag & wrapper,0.47027
+Crisp packet,Plastic bag & wrapper,0.13078
+Plastic film,Plastic bag & wrapper,0.05761
+Unlabeled litter,Unlabeled litter,0.05999
+Unlabeled litter,Unlabeled litter,0.06337
+Glass bottle,Bottle,0.08211
+Unlabeled litter,Unlabeled litter,0.01791
+Plastic film,Plastic bag & wrapper,0.06020
+Cigarette,Cigarette,0.01128
+Plastic film,Plastic bag & wrapper,0.02880
+Single-use carrier bag,Plastic bag & wrapper,0.20579
+Normal paper,Paper,0.05808
+Other plastic wrapper,Plastic bag & wrapper,0.03856
+Other plastic wrapper,Plastic bag & wrapper,0.03679
+Other carton,Carton,0.02849
+Other carton,Carton,0.03848
+Unlabeled litter,Unlabeled litter,0.02813
+Clear plastic bottle,Bottle,0.12995
+Other plastic wrapper,Plastic bag & wrapper,0.03805
+Other plastic wrapper,Plastic bag & wrapper,0.03132
+Plastic bottle cap,Bottle cap,0.02009
+Other plastic wrapper,Plastic bag & wrapper,0.05903
+Other plastic wrapper,Plastic bag & wrapper,0.03701
+Other plastic wrapper,Plastic bag & wrapper,0.14336
+Other plastic wrapper,Plastic bag & wrapper,0.02109
+Other plastic wrapper,Plastic bag & wrapper,0.03579
+Other plastic wrapper,Plastic bag & wrapper,0.03464
+Plastic film,Plastic bag & wrapper,0.06416
+Other plastic wrapper,Plastic bag & wrapper,0.04108
+Other plastic wrapper,Plastic bag & wrapper,0.06558
+Other plastic wrapper,Plastic bag & wrapper,0.07855
+Other plastic wrapper,Plastic bag & wrapper,0.05064
+Other plastic wrapper,Plastic bag & wrapper,0.08064
+Other plastic wrapper,Plastic bag & wrapper,0.06304
+Plastic film,Plastic bag & wrapper,0.06506
+Plastic film,Plastic bag & wrapper,0.12695
+Plastic film,Plastic bag & wrapper,0.10359
+Plastic film,Plastic bag & wrapper,0.06397
+Plastic film,Plastic bag & wrapper,0.07259
+Plastic film,Plastic bag & wrapper,0.11155
+Plastic film,Plastic bag & wrapper,0.17420
+Plastic film,Plastic bag & wrapper,0.05420
+Plastic film,Plastic bag & wrapper,0.05492
+Unlabeled litter,Unlabeled litter,0.03982
+Crisp packet,Plastic bag & wrapper,0.10449
+Crisp packet,Plastic bag & wrapper,0.07795
+Other plastic wrapper,Plastic bag & wrapper,0.08491
+Other plastic wrapper,Plastic bag & wrapper,0.06994
+Other plastic wrapper,Plastic bag & wrapper,0.07897
+Other plastic wrapper,Plastic bag & wrapper,0.08383
+Other plastic wrapper,Plastic bag & wrapper,0.06114
+Plastic film,Plastic bag & wrapper,0.05036
+Other plastic wrapper,Plastic bag & wrapper,0.06326
+Other plastic wrapper,Plastic bag & wrapper,0.12414
+Other plastic bottle,Bottle,0.06479
+Other plastic wrapper,Plastic bag & wrapper,0.04958
+Other plastic wrapper,Plastic bag & wrapper,0.03279
+Other plastic wrapper,Plastic bag & wrapper,0.03348
+Other plastic wrapper,Plastic bag & wrapper,0.04484
+Other plastic wrapper,Plastic bag & wrapper,0.02584
+Other plastic wrapper,Plastic bag & wrapper,0.02720
+Other plastic wrapper,Plastic bag & wrapper,0.02791
+Plastic film,Plastic bag & wrapper,0.03225
+Normal paper,Paper,0.10216
+Other plastic wrapper,Plastic bag & wrapper,0.03857
+Plastic film,Plastic bag & wrapper,0.08420
+Plastic film,Plastic bag & wrapper,0.14669
+Plastic film,Plastic bag & wrapper,0.11157
+Plastic film,Plastic bag & wrapper,0.17812
+Unlabeled litter,Unlabeled litter,0.06270
+Other plastic wrapper,Plastic bag & wrapper,0.03300
+Other plastic wrapper,Plastic bag & wrapper,0.01473
+Other plastic wrapper,Plastic bag & wrapper,0.01544
+Unlabeled litter,Unlabeled litter,0.01715
+Other plastic wrapper,Plastic bag & wrapper,0.03883
+Plastic straw,Straw,0.01742
+Plastic lid,Lid,0.01452
+Unlabeled litter,Unlabeled litter,0.03052
+Plastic film,Plastic bag & wrapper,0.05445
+Plastic film,Plastic bag & wrapper,0.03672
+Plastic film,Plastic bag & wrapper,0.06995
+Plastic film,Plastic bag & wrapper,0.05437
+Styrofoam piece,Styrofoam piece,0.03955
+Styrofoam piece,Styrofoam piece,0.03320
+Styrofoam piece,Styrofoam piece,0.03094
+Unlabeled litter,Unlabeled litter,0.02092
+Other plastic container,Plastic container,0.03840
+Plastic film,Plastic bag & wrapper,0.05433
+Plastic film,Plastic bag & wrapper,0.03557
+Plastic film,Plastic bag & wrapper,0.03839
+Plastic film,Plastic bag & wrapper,0.02184
+Other plastic wrapper,Plastic bag & wrapper,0.03699
+Styrofoam piece,Styrofoam piece,0.04557
+Styrofoam piece,Styrofoam piece,0.02901
+Unlabeled litter,Unlabeled litter,0.02262
+Other plastic wrapper,Plastic bag & wrapper,0.02343
+Plastic straw,Straw,0.05101
+Unlabeled litter,Unlabeled litter,0.02559
+Unlabeled litter,Unlabeled litter,0.01815
+Drink carton,Carton,0.05511
+Plastic film,Plastic bag & wrapper,0.17129
+Plastic film,Plastic bag & wrapper,0.19172
+Plastic film,Plastic bag & wrapper,0.20219
+Carded blister pack,Blister pack,0.26180
+Other plastic wrapper,Plastic bag & wrapper,0.18058
+Unlabeled litter,Unlabeled litter,0.15478
+Unlabeled litter,Unlabeled litter,0.06380
+Plastic straw,Straw,0.21859
+Disposable plastic cup,Cup,0.28064
+Glass bottle,Bottle,0.41097
+Single-use carrier bag,Plastic bag & wrapper,0.56833
+Plastic film,Plastic bag & wrapper,0.42335
+Single-use carrier bag,Plastic bag & wrapper,0.38723
+Disposable plastic cup,Cup,0.35346
+Plastic film,Plastic bag & wrapper,0.58054
+Disposable plastic cup,Cup,0.07518
+Plastic straw,Straw,0.04802
+Plastic straw,Straw,0.11425
+Unlabeled litter,Unlabeled litter,0.06537
+Other plastic wrapper,Plastic bag & wrapper,0.01414
+Disposable plastic cup,Cup,0.09562
+Unlabeled litter,Unlabeled litter,0.08588
+Unlabeled litter,Unlabeled litter,0.09047
+Disposable plastic cup,Cup,0.06680
+Plastic straw,Straw,0.09935
+Plastic straw,Straw,0.08073
+Drink can,Can,0.29138
+Drink can,Can,0.29468
+Drink can,Can,0.29103
+Other plastic wrapper,Plastic bag & wrapper,0.71761
+Clear plastic bottle,Bottle,0.45215
+Plastic bottle cap,Bottle cap,0.07652
+Normal paper,Paper,0.40719
+Other plastic wrapper,Plastic bag & wrapper,0.65059
+Other plastic wrapper,Plastic bag & wrapper,0.62863
+Plastic film,Plastic bag & wrapper,0.50788
+Plastic lid,Lid,0.04930
+Paper bag,Paper bag,0.10408
+Single-use carrier bag,Plastic bag & wrapper,0.14334
+Clear plastic bottle,Bottle,0.08955
+Single-use carrier bag,Plastic bag & wrapper,0.15211
+Plastic film,Plastic bag & wrapper,0.08056
+Plastic film,Plastic bag & wrapper,0.04449
+Plastic film,Plastic bag & wrapper,0.03247
+Plastic film,Plastic bag & wrapper,0.11013
+Drink can,Can,0.05060
+Plastic film,Plastic bag & wrapper,0.13821
+Plastic film,Plastic bag & wrapper,0.08101
+Plastic film,Plastic bag & wrapper,0.06844
+Plastic film,Plastic bag & wrapper,0.06051
+Plastic film,Plastic bag & wrapper,0.07396
+Plastic film,Plastic bag & wrapper,0.09555
+Plastic film,Plastic bag & wrapper,0.04214
+Plastic film,Plastic bag & wrapper,0.05080
+Plastic lid,Lid,0.02829
+Other plastic,Other plastic,0.01314
+Plastic film,Plastic bag & wrapper,0.04983
+Plastic film,Plastic bag & wrapper,0.03866
+Meal carton,Carton,0.16751
+Plastic film,Plastic bag & wrapper,0.16510
+Plastic film,Plastic bag & wrapper,0.05421
+Single-use carrier bag,Plastic bag & wrapper,0.20821
+Disposable plastic cup,Cup,0.18677
+Plastic film,Plastic bag & wrapper,0.05618
+Plastic film,Plastic bag & wrapper,0.07319
+Meal carton,Carton,0.21270
+Single-use carrier bag,Plastic bag & wrapper,0.26637
+Clear plastic bottle,Bottle,0.05929
+Plastic bottle cap,Bottle cap,0.01304
+Plastic bottle cap,Bottle cap,0.01874
+Plastic lid,Lid,0.07873
+Plastic film,Plastic bag & wrapper,0.10865
+Plastic film,Plastic bag & wrapper,0.06151
+Plastic film,Plastic bag & wrapper,0.12380
+Plastic straw,Straw,0.03943
+Unlabeled litter,Unlabeled litter,0.09260
+Other plastic wrapper,Plastic bag & wrapper,0.13268
+Unlabeled litter,Unlabeled litter,0.03603
+Other plastic wrapper,Plastic bag & wrapper,0.02885
+Foam food container,Plastic container,0.13895
+Plastic film,Plastic bag & wrapper,0.06192
+Plastic film,Plastic bag & wrapper,0.04595
+Plastic straw,Straw,0.30147
+Plastic film,Plastic bag & wrapper,0.27784
+Plastic film,Plastic bag & wrapper,0.49083
+Disposable plastic cup,Cup,0.32775
+Plastic film,Plastic bag & wrapper,0.07262
+Plastic film,Plastic bag & wrapper,0.12675
+Other plastic wrapper,Plastic bag & wrapper,0.17847
+Other plastic wrapper,Plastic bag & wrapper,0.21053
+Plastic bottle cap,Bottle cap,0.03056
+Clear plastic bottle,Bottle,0.16166
+Plastic bottle cap,Bottle cap,0.02249
+Unlabeled litter,Unlabeled litter,0.05023
+Plastic straw,Straw,0.31100
+Plastic lid,Lid,0.33507
+Disposable plastic cup,Cup,0.41602
+Plastic film,Plastic bag & wrapper,0.10215
+Disposable plastic cup,Cup,0.38138
+Plastic lid,Lid,0.31278
+Plastic straw,Straw,0.22027
+Plastic film,Plastic bag & wrapper,0.11354
+Plastic film,Plastic bag & wrapper,0.15770
+Plastic film,Plastic bag & wrapper,0.11288
+Other plastic wrapper,Plastic bag & wrapper,0.26165
+Disposable plastic cup,Cup,0.21207
+Other plastic wrapper,Plastic bag & wrapper,0.08051
+Plastic lid,Lid,0.11047
+Clear plastic bottle,Bottle,0.34025
+Other plastic,Other plastic,0.07017
+Plastic film,Plastic bag & wrapper,0.15938
+Unlabeled litter,Unlabeled litter,0.10906
+Unlabeled litter,Unlabeled litter,0.03548
+Plastic bottle cap,Bottle cap,0.05613
+Clear plastic bottle,Bottle,0.38286
+Unlabeled litter,Unlabeled litter,0.07517
+Unlabeled litter,Unlabeled litter,0.08379
+Unlabeled litter,Unlabeled litter,0.01663
+Foam food container,Plastic container,0.04269
+Foam food container,Plastic container,0.13471
+Single-use carrier bag,Plastic bag & wrapper,0.51360
+Plastic film,Plastic bag & wrapper,0.48159
+Plastic straw,Straw,0.12487
+Cigarette,Cigarette,0.04130
+Normal paper,Paper,0.52688
+Plastic film,Plastic bag & wrapper,0.70209
+Unlabeled litter,Unlabeled litter,0.31952
+Plastic utensils,Plastic utensils,0.21639
+Wrapping paper,Paper,0.55571
+Single-use carrier bag,Plastic bag & wrapper,0.35485
+Unlabeled litter,Unlabeled litter,0.07024
+Meal carton,Carton,0.08714
+Unlabeled litter,Unlabeled litter,0.06629
+Disposable plastic cup,Cup,0.27148
+Plastic straw,Straw,0.13632
+Other plastic wrapper,Plastic bag & wrapper,0.08214
+Other plastic wrapper,Plastic bag & wrapper,0.28902
+Plastic film,Plastic bag & wrapper,0.12778
+Other carton,Carton,0.11507
+Other carton,Carton,0.03325
+Other plastic wrapper,Plastic bag & wrapper,0.23603
+Other plastic wrapper,Plastic bag & wrapper,0.05878
+Plastic straw,Straw,0.32755
+Cigarette,Cigarette,0.05111
+Disposable plastic cup,Cup,0.53238
+Plastic lid,Lid,0.27559
+Plastic straw,Straw,0.23996
+Plastic film,Plastic bag & wrapper,0.41989
+Other plastic wrapper,Plastic bag & wrapper,0.15602
+Plastic film,Plastic bag & wrapper,0.06302
+Other plastic wrapper,Plastic bag & wrapper,0.05668
+Other carton,Carton,0.16261
+Clear plastic bottle,Bottle,0.18109
+Plastic bottle cap,Bottle cap,0.03580
+Disposable plastic cup,Cup,0.55635
+Plastic lid,Lid,0.27233
+Plastic straw,Straw,0.35440
+Cigarette,Cigarette,0.07116
+Single-use carrier bag,Plastic bag & wrapper,0.01750
+Plastic bottle cap,Bottle cap,0.20983
+Other plastic wrapper,Plastic bag & wrapper,0.22536
+Other plastic bottle,Bottle,0.18556
+Plastic straw,Straw,0.02754
+Drink carton,Carton,0.20096
+Unlabeled litter,Unlabeled litter,0.06268
+Unlabeled litter,Unlabeled litter,0.20191
+Unlabeled litter,Unlabeled litter,0.21064
+Disposable plastic cup,Cup,0.18811
+Unlabeled litter,Unlabeled litter,0.12039
+Unlabeled litter,Unlabeled litter,0.03260
+Other plastic wrapper,Plastic bag & wrapper,0.04404
+Unlabeled litter,Unlabeled litter,0.06043
+Other plastic,Other plastic,0.09130
+Unlabeled litter,Unlabeled litter,0.02889
+Plastic straw,Straw,0.29885
+Plastic utensils,Plastic utensils,0.07734
+Disposable plastic cup,Cup,0.39198
+Other plastic wrapper,Plastic bag & wrapper,0.03045
+Other carton,Carton,0.09309
+Drink carton,Carton,0.31029
+Plastic straw,Straw,0.02306
+Plastic straw,Straw,0.35452
+Disposable plastic cup,Cup,0.38528
+Other plastic wrapper,Plastic bag & wrapper,0.44756
+Plastic straw,Straw,0.26535
+Other plastic,Other plastic,0.09895
+Drink carton,Carton,0.26997
+Plastic straw,Straw,0.15759
+Plastic film,Plastic bag & wrapper,0.18628
+Plastic straw,Straw,0.27956
+Plastic film,Plastic bag & wrapper,0.27700
+Plastic film,Plastic bag & wrapper,0.09116
+Plastic straw,Straw,0.16353
+Plastic film,Plastic bag & wrapper,0.05764
+Plastic film,Plastic bag & wrapper,0.02484
+Plastic straw,Straw,0.23306
+Plastic straw,Straw,0.18800
+Plastic straw,Straw,0.15457
+Plastic straw,Straw,0.01874
+Disposable plastic cup,Cup,0.22067
+Plastic film,Plastic bag & wrapper,0.61214
+Plastic lid,Lid,0.12436
+Other plastic,Other plastic,0.10278
+Other plastic,Other plastic,0.14703
+Other plastic wrapper,Plastic bag & wrapper,0.23882
+Plastic film,Plastic bag & wrapper,0.28329
+Plastic straw,Straw,0.06291
+Plastic straw,Straw,0.03247
+Plastic straw,Straw,0.09006
+Plastic straw,Straw,0.08853
+Plastic straw,Straw,0.09198
+Plastic straw,Straw,0.08829
+Plastic straw,Straw,0.06132
+Plastic straw,Straw,0.08501
+Plastic straw,Straw,0.02280
+Plastic straw,Straw,0.05229
+Plastic straw,Straw,0.05638
+Plastic straw,Straw,0.04279
+Plastic straw,Straw,0.02091
+Plastic straw,Straw,0.01145
+Plastic straw,Straw,0.08917
+Plastic straw,Straw,0.04827
+Plastic straw,Straw,0.06730
+Plastic straw,Straw,0.01874
+Plastic straw,Straw,0.03487
+Plastic straw,Straw,0.00932
+Plastic straw,Straw,0.02085
+Plastic straw,Straw,0.01608
+Plastic straw,Straw,0.01659
+Plastic straw,Straw,0.01501
+Plastic film,Plastic bag & wrapper,0.06122
+Plastic film,Plastic bag & wrapper,0.07808
+Drink carton,Carton,0.06046
+Plastic film,Plastic bag & wrapper,0.01830
+Plastic film,Plastic bag & wrapper,0.05426
+Other plastic wrapper,Plastic bag & wrapper,0.03657
+Unlabeled litter,Unlabeled litter,0.01467
+Plastic film,Plastic bag & wrapper,0.04688
+Plastic film,Plastic bag & wrapper,0.06204
+Plastic film,Plastic bag & wrapper,0.02787
+Cigarette,Cigarette,0.01977
+Other plastic,Other plastic,0.01573
+Unlabeled litter,Unlabeled litter,0.07829
+Drink can,Can,0.13135
+Plastic bottle cap,Bottle cap,0.03349
+Other plastic bottle,Bottle,0.16302
+Drink can,Can,0.47508
+Pop tab,Pop tab,0.06869
+Plastic bottle cap,Bottle cap,0.11876
+Clear plastic bottle,Bottle,0.43687
+Styrofoam piece,Styrofoam piece,0.49819
+Rope & strings,Rope & strings,0.46689
+Plastic film,Plastic bag & wrapper,0.21405
+Other plastic,Other plastic,0.34983
+Plastic film,Plastic bag & wrapper,0.13069
+Plastic lid,Lid,0.33602
+Aluminium foil,Aluminium foil,0.48873
+Other plastic bottle,Bottle,0.29070
+Other plastic bottle,Bottle,0.23026
+Other plastic wrapper,Plastic bag & wrapper,0.45772
+Other plastic,Other plastic,0.24683
+Plastic bottle cap,Bottle cap,0.04882
+Clear plastic bottle,Bottle,0.10582
+Plastic bottle cap,Bottle cap,0.04008
+Drink can,Can,0.25820
+Plastic film,Plastic bag & wrapper,0.40684
+Clear plastic bottle,Bottle,0.25565
+Plastic bottle cap,Bottle cap,0.03786
+Other plastic wrapper,Plastic bag & wrapper,0.52399
+Plastic straw,Straw,0.23734
+Plastic film,Plastic bag & wrapper,0.39951
+Clear plastic bottle,Bottle,0.39312
+Clear plastic bottle,Bottle,0.33487
+Plastic bottle cap,Bottle cap,0.11463
+Plastic utensils,Plastic utensils,0.23956
+Other plastic wrapper,Plastic bag & wrapper,0.12144
+Unlabeled litter,Unlabeled litter,0.03225
+Drink can,Can,0.19290
+Pop tab,Pop tab,0.03315
+Drink can,Can,0.20732
+Pop tab,Pop tab,0.03637
+Plastic film,Plastic bag & wrapper,0.67644
+Plastic utensils,Plastic utensils,0.21598
+Plastic straw,Straw,0.30289
+Drink carton,Carton,0.29249
+Styrofoam piece,Styrofoam piece,0.20367
+Styrofoam piece,Styrofoam piece,0.22262
+Rope & strings,Rope & strings,0.05740
+Unlabeled litter,Unlabeled litter,0.27148
+Cigarette,Cigarette,0.13193
+Other plastic wrapper,Plastic bag & wrapper,0.41729
+Other carton,Carton,0.33421
+Other plastic,Other plastic,0.04149
+Styrofoam piece,Styrofoam piece,0.08394
+Other carton,Carton,0.04339
+Styrofoam piece,Styrofoam piece,0.19821
+Corrugated carton,Carton,0.42260
+Drink can,Can,0.05687
+Drink can,Can,0.07049
+Drink can,Can,0.06829
+Drink can,Can,0.07478
+Drink can,Can,0.07317
+Drink can,Can,0.07195
+Drink can,Can,0.08610
+Drink can,Can,0.09255
+Drink can,Can,0.08585
+Drink can,Can,0.08620
+Drink can,Can,0.09710
+Drink can,Can,0.08629
+Drink can,Can,0.09294
+Drink can,Can,0.10416
+Drink can,Can,0.09825
+Pop tab,Pop tab,0.01788
+Pop tab,Pop tab,0.00969
+Pop tab,Pop tab,0.01163
+Pop tab,Pop tab,0.00917
+Battery,Battery,0.24340
+Tissues,Paper,0.10188
+Disposable plastic cup,Cup,0.19771
+Plastic straw,Straw,0.10117
+Plastic lid,Lid,0.08877
+Normal paper,Paper,0.13545
+Cigarette,Cigarette,0.02799
+Other carton,Carton,0.19054
+Paper bag,Paper bag,0.19414
+Other plastic wrapper,Plastic bag & wrapper,0.38409
+Plastic film,Plastic bag & wrapper,0.45284
+Foam cup,Cup,0.22961
+Foam cup,Cup,0.24732
+Glass bottle,Bottle,0.36103
+Plastic lid,Lid,0.18832
+Plastic lid,Lid,0.17066
+Disposable plastic cup,Cup,0.30583
+Paper cup,Cup,0.32393
+Drink can,Can,0.31965
+Disposable food container,Plastic container,0.17353
+Unlabeled litter,Unlabeled litter,0.12744
+Paper straw,Straw,0.13913
+Plastic utensils,Plastic utensils,0.69064
+Other plastic wrapper,Plastic bag & wrapper,0.56774
+Scrap metal,Scrap metal,0.54481
+Styrofoam piece,Styrofoam piece,0.59568
+Tupperware,Plastic container,0.70344
+Plastic film,Plastic bag & wrapper,0.78581
+Metal bottle cap,Bottle cap,0.24912
+Glass bottle,Bottle,0.54927
+Other plastic,Other plastic,0.17719
+Unlabeled litter,Unlabeled litter,0.73601
+Pop tab,Pop tab,0.23098
+Other carton,Carton,0.41381
+Other plastic,Other plastic,0.14589
+Plastic bottle cap,Bottle cap,0.20679
+Plastic film,Plastic bag & wrapper,0.54076
+Other plastic,Other plastic,0.47302
+Plastic film,Plastic bag & wrapper,0.53536
+Metal bottle cap,Bottle cap,0.26340
+Other carton,Carton,0.64257
+Plastic film,Plastic bag & wrapper,0.53884
+Metal bottle cap,Bottle cap,0.28284
+Single-use carrier bag,Plastic bag & wrapper,0.76781
+Normal paper,Paper,0.05607
+Metal bottle cap,Bottle cap,0.29700
+Drink can,Can,0.48115
+Other plastic wrapper,Plastic bag & wrapper,0.48169
+Plastic film,Plastic bag & wrapper,0.22682
+Unlabeled litter,Unlabeled litter,0.04118
+Cigarette,Cigarette,0.05818
+Metal bottle cap,Bottle cap,0.11436
+Metal bottle cap,Bottle cap,0.11672
+Metal bottle cap,Bottle cap,0.11755
+Metal bottle cap,Bottle cap,0.11722
+Metal bottle cap,Bottle cap,0.11574
+Metal bottle cap,Bottle cap,0.11921
+Metal bottle cap,Bottle cap,0.12241
+Metal bottle cap,Bottle cap,0.12129
+Metal bottle cap,Bottle cap,0.12712
+Plastic film,Plastic bag & wrapper,0.39389
+Clear plastic bottle,Bottle,0.50356
+Cigarette,Cigarette,0.10530
+Cigarette,Cigarette,0.14703
+Other plastic,Other plastic,0.12226
+Drink can,Can,0.46705
+Cigarette,Cigarette,0.09551
+Cigarette,Cigarette,0.10288
+Metal bottle cap,Bottle cap,0.29741
+Metal bottle cap,Bottle cap,0.30851
+Plastic lid,Lid,0.84714
+Clear plastic bottle,Bottle,0.54194
+Plastic bottle cap,Bottle cap,0.09602
+Clear plastic bottle,Bottle,0.65242
+Drink can,Can,0.58415
+Pop tab,Pop tab,0.03698
+Clear plastic bottle,Bottle,0.48100
+Clear plastic bottle,Bottle,0.48232
+Plastic bottle cap,Bottle cap,0.08162
+Other plastic,Other plastic,0.60036
+Other plastic,Other plastic,0.28363
+Other plastic,Other plastic,0.26160
+Disposable food container,Plastic container,0.61716
+Plastic film,Plastic bag & wrapper,0.68056
+Other plastic wrapper,Plastic bag & wrapper,0.51484
+Disposable plastic cup,Cup,0.49921
+Paper cup,Cup,0.66550
+Rope & strings,Rope & strings,0.29274
+Plastic film,Plastic bag & wrapper,0.33970
+Cigarette,Cigarette,0.17886
+Other plastic wrapper,Plastic bag & wrapper,0.76367
+Plastic straw,Straw,0.66757
+Other plastic bottle,Bottle,0.79139
+Plastic bottle cap,Bottle cap,0.18744
+Other plastic bottle,Bottle,0.54174
+Plastic bottle cap,Bottle cap,0.11410
+Metal bottle cap,Bottle cap,0.29852
+Other plastic,Other plastic,0.16778
+Unlabeled litter,Unlabeled litter,0.34461
+Plastic film,Plastic bag & wrapper,0.50386
+Cigarette,Cigarette,0.36227
+Plastic film,Plastic bag & wrapper,0.87663
+Clear plastic bottle,Bottle,0.57284
+Plastic bottle cap,Bottle cap,0.12769
+Pop tab,Pop tab,0.19758
+Plastic utensils,Plastic utensils,0.16079
+Clear plastic bottle,Bottle,0.32202
+Unlabeled litter,Unlabeled litter,0.02212
+Tissues,Paper,0.59175
+Other carton,Carton,0.63502
+Plastic film,Plastic bag & wrapper,0.24701
+Clear plastic bottle,Bottle,0.84304
+Plastic bottle cap,Bottle cap,0.12966
+Other carton,Carton,0.73932
+Drink can,Can,0.08335
+Other plastic bottle,Bottle,0.10711
+Other carton,Carton,0.10486
+Pop tab,Pop tab,0.00818
+Paper bag,Paper bag,0.38466
+Plastic lid,Lid,0.08839
+Plastic lid,Lid,0.08121
+Paper cup,Cup,0.12377
+Wrapping paper,Paper,0.22913
+Clear plastic bottle,Bottle,0.51015
+Plastic bottle cap,Bottle cap,0.05492
+Drink can,Can,0.25291
+Clear plastic bottle,Bottle,0.24843
+Plastic bottle cap,Bottle cap,0.04460
+Plastic film,Plastic bag & wrapper,0.11512
+Plastic film,Plastic bag & wrapper,0.20517
+Plastic film,Plastic bag & wrapper,0.25135
+Plastic bottle cap,Bottle cap,0.12242
+Plastic bottle cap,Bottle cap,0.12744
+Disposable plastic cup,Cup,0.47873
+Cigarette,Cigarette,0.03794
+Paper bag,Paper bag,0.12460
+Disposable plastic cup,Cup,0.05952
+Plastic film,Plastic bag & wrapper,0.12503
+Other plastic wrapper,Plastic bag & wrapper,0.21734
+Drink can,Can,0.21667
+Pop tab,Pop tab,0.05055
+Clear plastic bottle,Bottle,0.32344
+Plastic bottle cap,Bottle cap,0.06752
+Aluminium foil,Aluminium foil,0.08684
+Glass bottle,Bottle,0.27155
+Glass bottle,Bottle,0.33328
+Metal bottle cap,Bottle cap,0.08962
+Plastic straw,Straw,0.20511
+Other plastic bottle,Bottle,0.22360
+Plastic bottle cap,Bottle cap,0.05741
+Metal bottle cap,Bottle cap,0.08606
+Unlabeled litter,Unlabeled litter,0.01210
+Unlabeled litter,Unlabeled litter,0.05262
+Metal bottle cap,Bottle cap,0.12028
+Cigarette,Cigarette,0.08097
+Cigarette,Cigarette,0.08659
+Unlabeled litter,Unlabeled litter,0.25721
+Drink can,Can,0.18107
+Pop tab,Pop tab,0.03414
+Drink can,Can,0.14894
+Cigarette,Cigarette,0.02170
+Clear plastic bottle,Bottle,0.73278
+Plastic film,Plastic bag & wrapper,0.41256
+Broken glass,Broken glass,0.18165
+Unlabeled litter,Unlabeled litter,0.38044
+Plastic bottle cap,Bottle cap,0.11102
+Styrofoam piece,Styrofoam piece,0.22770
+Styrofoam piece,Styrofoam piece,0.20734
+Other plastic,Other plastic,0.30376
+Other plastic,Other plastic,0.09227
+Rope & strings,Rope & strings,0.52159
+Plastic bottle cap,Bottle cap,0.32571
+Plastic film,Plastic bag & wrapper,0.31986
+Styrofoam piece,Styrofoam piece,0.37355
+Other carton,Carton,0.14050
+Other plastic,Other plastic,0.30684
+Normal paper,Paper,0.38250
+Plastic film,Plastic bag & wrapper,0.26492
+Other carton,Carton,0.15083
+Unlabeled litter,Unlabeled litter,0.14602
+Plastic film,Plastic bag & wrapper,0.35565
+Other plastic wrapper,Plastic bag & wrapper,0.23438
+Disposable plastic cup,Cup,0.39712
+Other plastic wrapper,Plastic bag & wrapper,0.20374
+Plastic film,Plastic bag & wrapper,0.06968
+Plastic film,Plastic bag & wrapper,0.04272
+Other plastic wrapper,Plastic bag & wrapper,0.18771
+Drink can,Can,0.51076
+Pop tab,Pop tab,0.11871
+Other plastic,Other plastic,0.10202
+Other carton,Carton,0.07517
+Other carton,Carton,0.03752
+Normal paper,Paper,0.27749
+Other plastic,Other plastic,0.16696
+Styrofoam piece,Styrofoam piece,0.25089
+Metal bottle cap,Bottle cap,0.13088
+Unlabeled litter,Unlabeled litter,0.11624
+Other plastic bottle,Bottle,0.29009
+Plastic bottle cap,Bottle cap,0.07322
+Plastic bottle cap,Bottle cap,0.07732
+Clear plastic bottle,Bottle,0.26783
+Drink can,Can,0.15231
+Drink can,Can,0.18177
+Other plastic,Other plastic,0.03792
+Other plastic,Other plastic,0.04991
+Glass bottle,Bottle,0.27053
+Glass bottle,Bottle,0.29835
+Glass bottle,Bottle,0.14075
+Drink can,Can,0.12514
+Scrap metal,Scrap metal,0.10631
+Unlabeled litter,Unlabeled litter,0.20559
+Unlabeled litter,Unlabeled litter,0.25744
+Other plastic wrapper,Plastic bag & wrapper,0.08207
+Unlabeled litter,Unlabeled litter,0.06917
+Other plastic wrapper,Plastic bag & wrapper,0.11691
+Other plastic wrapper,Plastic bag & wrapper,0.06019
+Plastic film,Plastic bag & wrapper,0.12128
+Other plastic wrapper,Plastic bag & wrapper,0.15547
+Plastic straw,Straw,0.14575
+Other plastic,Other plastic,0.09707
+Styrofoam piece,Styrofoam piece,0.02141
+Styrofoam piece,Styrofoam piece,0.01209
+Other plastic wrapper,Plastic bag & wrapper,0.15492
+Other plastic wrapper,Plastic bag & wrapper,0.06087
+Plastic bottle cap,Bottle cap,0.09634
+Meal carton,Carton,0.14842
+Other plastic,Other plastic,0.03179
+Other plastic wrapper,Plastic bag & wrapper,0.02353
+Unlabeled litter,Unlabeled litter,0.05347
+Other plastic bottle,Bottle,0.11409
+Plastic bottle cap,Bottle cap,0.02330
+Food Can,Can,0.05338
+Pop tab,Pop tab,0.01574
+Normal paper,Paper,0.08452
+Glass bottle,Bottle,0.20885
+Broken glass,Broken glass,0.30502
+Broken glass,Broken glass,0.04911
+Broken glass,Broken glass,0.02606
+Broken glass,Broken glass,0.04967
+Broken glass,Broken glass,0.02183
+Broken glass,Broken glass,0.02664
+Broken glass,Broken glass,0.05054
+Broken glass,Broken glass,0.03253
+Broken glass,Broken glass,0.02305
+Broken glass,Broken glass,0.06767
+Broken glass,Broken glass,0.03851
+Broken glass,Broken glass,0.03338
+Broken glass,Broken glass,0.01556
+Broken glass,Broken glass,0.03267
+Broken glass,Broken glass,0.03690
+Broken glass,Broken glass,0.07258
+Broken glass,Broken glass,0.04191
+Broken glass,Broken glass,0.02619
+Broken glass,Broken glass,0.01735
+Broken glass,Broken glass,0.06853
+Broken glass,Broken glass,0.02430
+Broken glass,Broken glass,0.02396
+Broken glass,Broken glass,0.02166
+Broken glass,Broken glass,0.01959
+Broken glass,Broken glass,0.02544
+Broken glass,Broken glass,0.05597
+Foam cup,Cup,0.05684
+Plastic lid,Lid,0.15175
+Unlabeled litter,Unlabeled litter,0.03716
+Foam cup,Cup,0.06726
+Foam cup,Cup,0.06949
+Drink can,Can,0.07670
+Drink can,Can,0.04767
+Pop tab,Pop tab,0.00941
+Drink can,Can,0.03726
+Drink can,Can,0.02960
+Unlabeled litter,Unlabeled litter,0.01987
+Plastic bottle cap,Bottle cap,0.05322
+Paper cup,Cup,0.10016
+Plastic straw,Straw,0.01653
+Unlabeled litter,Unlabeled litter,0.09966
+Other plastic bottle,Bottle,0.11383
+Glass bottle,Bottle,0.12052
+Other plastic,Other plastic,0.04475
+Single-use carrier bag,Plastic bag & wrapper,0.18614
+Unlabeled litter,Unlabeled litter,0.05912
+Disposable plastic cup,Cup,0.07059
+Plastic lid,Lid,0.03780
+Normal paper,Paper,0.09717
+Meal carton,Carton,0.08875
+Plastic film,Plastic bag & wrapper,0.10215
+Tissues,Paper,0.13093
+Other plastic,Other plastic,0.01689
+Unlabeled litter,Unlabeled litter,0.03482
+Wrapping paper,Paper,0.13611
+Other carton,Carton,0.10402
+Unlabeled litter,Unlabeled litter,0.02055
+Other plastic,Other plastic,0.01178
+Unlabeled litter,Unlabeled litter,0.02462
+Unlabeled litter,Unlabeled litter,0.00906
+Unlabeled litter,Unlabeled litter,0.01304
+Other plastic,Other plastic,0.02248
+Other plastic,Other plastic,0.01874
+Other plastic,Other plastic,0.02878
+Other plastic,Other plastic,0.02950
+Other plastic,Other plastic,0.03122
+Paper bag,Paper bag,0.23461
+Other plastic,Other plastic,0.01270
+Unlabeled litter,Unlabeled litter,0.02987
+Plastic film,Plastic bag & wrapper,0.10348
+Cigarette,Cigarette,0.01530
+Plastic lid,Lid,0.06706
+Other plastic wrapper,Plastic bag & wrapper,0.04633
+Drink can,Can,0.15146
+Pop tab,Pop tab,0.01951
+Plastic bottle cap,Bottle cap,0.03521
+Unlabeled litter,Unlabeled litter,0.13394
+Unlabeled litter,Unlabeled litter,0.05312
+Disposable food container,Plastic container,0.04344
+Unlabeled litter,Unlabeled litter,0.03108
+Plastic utensils,Plastic utensils,0.07044
+Glass bottle,Bottle,0.04699
+Unlabeled litter,Unlabeled litter,0.01338
+Clear plastic bottle,Bottle,0.02196
+Disposable plastic cup,Cup,0.02854
+Clear plastic bottle,Bottle,0.02338
+Plastic bottle cap,Bottle cap,0.00637
+Clear plastic bottle,Bottle,0.03452
+Unlabeled litter,Unlabeled litter,0.03423
+Plastic film,Plastic bag & wrapper,0.14849
+Unlabeled litter,Unlabeled litter,0.04609
+Unlabeled litter,Unlabeled litter,0.02635
+Unlabeled litter,Unlabeled litter,0.01367
+Broken glass,Broken glass,0.35289
+Broken glass,Broken glass,0.05148
+Broken glass,Broken glass,0.07586
+Cigarette,Cigarette,0.03183
+Clear plastic bottle,Bottle,0.14123
+Plastic bottle cap,Bottle cap,0.02331
+Plastic straw,Straw,0.09486
+Cigarette,Cigarette,0.01426
+Glass bottle,Bottle,0.15069
+Unlabeled litter,Unlabeled litter,0.03043
+Unlabeled litter,Unlabeled litter,0.03887
+Disposable plastic cup,Cup,0.02875
+Clear plastic bottle,Bottle,0.07111
+Unlabeled litter,Unlabeled litter,0.03006
+Clear plastic bottle,Bottle,0.04621
+Disposable plastic cup,Cup,0.04219
+Unlabeled litter,Unlabeled litter,0.03604
+Clear plastic bottle,Bottle,0.08668
+Plastic utensils,Plastic utensils,0.02748
+Unlabeled litter,Unlabeled litter,0.02605
+Unlabeled litter,Unlabeled litter,0.03747
+Drink can,Can,0.16654
+Pop tab,Pop tab,0.03637
+Unlabeled litter,Unlabeled litter,0.07663
+Styrofoam piece,Styrofoam piece,0.06068
+Styrofoam piece,Styrofoam piece,0.08309
+Other plastic wrapper,Plastic bag & wrapper,0.19873
+Other plastic wrapper,Plastic bag & wrapper,0.24532
+Plastic film,Plastic bag & wrapper,0.65714
+Styrofoam piece,Styrofoam piece,0.08735
+Other plastic wrapper,Plastic bag & wrapper,0.15416
+Other plastic wrapper,Plastic bag & wrapper,0.12431
+Other plastic wrapper,Plastic bag & wrapper,0.06330
+Other plastic wrapper,Plastic bag & wrapper,0.05155
+Broken glass,Broken glass,0.14061
+Unlabeled litter,Unlabeled litter,0.25575
+Styrofoam piece,Styrofoam piece,0.10054
+Wrapping paper,Paper,0.31494
+Wrapping paper,Paper,0.23949
+Plastic straw,Straw,0.27194
+Pop tab,Pop tab,0.01940
+Pop tab,Pop tab,0.01424
+Pop tab,Pop tab,0.01668
+Pop tab,Pop tab,0.01470
+Pop tab,Pop tab,0.01550
+Other plastic,Other plastic,0.04183
+Unlabeled litter,Unlabeled litter,0.02151
+Other plastic,Other plastic,0.04706
+Cigarette,Cigarette,0.01889
+Cigarette,Cigarette,0.01747
+Cigarette,Cigarette,0.01783
+Cigarette,Cigarette,0.01172
+Cigarette,Cigarette,0.01415
+Cigarette,Cigarette,0.02105
+Pop tab,Pop tab,0.01204
+Cigarette,Cigarette,0.01317
+Cigarette,Cigarette,0.01209
+Cigarette,Cigarette,0.01070
+Cigarette,Cigarette,0.01522
+Plastic film,Plastic bag & wrapper,0.28280
+Other plastic,Other plastic,0.11455
+Plastic lid,Lid,0.17844
+Plastic straw,Straw,0.16584
+Plastic bottle cap,Bottle cap,0.03289
+Unlabeled litter,Unlabeled litter,0.08487
+Cigarette,Cigarette,0.02354
+Other plastic,Other plastic,0.05028
+Other plastic wrapper,Plastic bag & wrapper,0.05128
+Wrapping paper,Paper,0.12540
+Unlabeled litter,Unlabeled litter,0.05259
+Cigarette,Cigarette,0.04900
+Other plastic,Other plastic,0.05317
+Unlabeled litter,Unlabeled litter,0.03697
+Cigarette,Cigarette,0.02702
+Unlabeled litter,Unlabeled litter,0.04868
+Unlabeled litter,Unlabeled litter,0.01587
+Plastic film,Plastic bag & wrapper,0.07745
+Plastic bottle cap,Bottle cap,0.05779
+Plastic film,Plastic bag & wrapper,0.06202
+Plastic straw,Straw,0.05924
+Unlabeled litter,Unlabeled litter,0.04515
+Cigarette,Cigarette,0.02549
+Plastic utensils,Plastic utensils,0.12921
+Plastic utensils,Plastic utensils,0.09451
+Plastic utensils,Plastic utensils,0.10527
+Other plastic wrapper,Plastic bag & wrapper,0.09592
+Disposable food container,Plastic container,0.04655
+Plastic straw,Straw,0.17006
+Other plastic wrapper,Plastic bag & wrapper,0.03296
+Plastic film,Plastic bag & wrapper,0.08931
+Other plastic wrapper,Plastic bag & wrapper,0.03740
+Plastic film,Plastic bag & wrapper,0.03047
+Plastic straw,Straw,0.01436
+Plastic straw,Straw,0.04564
+Unlabeled litter,Unlabeled litter,0.04257
+Plastic straw,Straw,0.11018
+Tissues,Paper,0.13333
+Plastic film,Plastic bag & wrapper,0.03654
+Cigarette,Cigarette,0.02045
+Cigarette,Cigarette,0.02349
+Cigarette,Cigarette,0.02784
+Cigarette,Cigarette,0.02405
+Cigarette,Cigarette,0.02742
+Cigarette,Cigarette,0.01710
+Cigarette,Cigarette,0.02589
+Cigarette,Cigarette,0.03912
+Drink can,Can,0.14354
+Cigarette,Cigarette,0.02359
+Plastic film,Plastic bag & wrapper,0.15385
+Unlabeled litter,Unlabeled litter,0.00876
+Unlabeled litter,Unlabeled litter,0.04623
+Foam cup,Cup,0.15170
+Paper cup,Cup,0.14028
+Unlabeled litter,Unlabeled litter,0.07443
+Plastic film,Plastic bag & wrapper,0.04553
+Plastic lid,Lid,0.19536
+Plastic lid,Lid,0.32544
+Drink can,Can,0.17588
+Unlabeled litter,Unlabeled litter,0.04839
+Paper cup,Cup,0.20734
+Plastic lid,Lid,0.13897
+Unlabeled litter,Unlabeled litter,0.03279
+Broken glass,Broken glass,0.01218
+Broken glass,Broken glass,0.00957
+Broken glass,Broken glass,0.00806
+Broken glass,Broken glass,0.01016
+Broken glass,Broken glass,0.01256
+Broken glass,Broken glass,0.01473
+Broken glass,Broken glass,0.01093
+Broken glass,Broken glass,0.01252
+Broken glass,Broken glass,0.01029
+Broken glass,Broken glass,0.01075
+Broken glass,Broken glass,0.00701
+Broken glass,Broken glass,0.00857
+Broken glass,Broken glass,0.00941
+Broken glass,Broken glass,0.00665
+Paper cup,Cup,0.08419
+Plastic utensils,Plastic utensils,0.07056
+Other plastic,Other plastic,0.02296
+Metal bottle cap,Bottle cap,0.02647
+Other plastic wrapper,Plastic bag & wrapper,0.09823
+Disposable plastic cup,Cup,0.10252
+Tissues,Paper,0.10049
+Cigarette,Cigarette,0.01732
+Disposable plastic cup,Cup,0.09231
+Other plastic,Other plastic,0.09810
+Metal bottle cap,Bottle cap,0.08680
+Styrofoam piece,Styrofoam piece,0.11606
+Other plastic,Other plastic,0.19619
+Other plastic wrapper,Plastic bag & wrapper,0.27590
+Metal bottle cap,Bottle cap,0.08631
+Unlabeled litter,Unlabeled litter,0.02530
+Unlabeled litter,Unlabeled litter,0.04509
+Disposable plastic cup,Cup,0.38357
+Unlabeled litter,Unlabeled litter,0.11053
+Clear plastic bottle,Bottle,0.36943
+Plastic bottle cap,Bottle cap,0.06064
+Plastic straw,Straw,0.05168
+Plastic straw,Straw,0.18142
+Glass bottle,Bottle,0.34142
+Plastic utensils,Plastic utensils,0.20123
+Tissues,Paper,0.13403
+Other plastic wrapper,Plastic bag & wrapper,0.08409
+Other plastic wrapper,Plastic bag & wrapper,0.38821
+Cigarette,Cigarette,0.05999
+Cigarette,Cigarette,0.03719
+Cigarette,Cigarette,0.04267
+Other plastic wrapper,Plastic bag & wrapper,0.02084
+Plastic film,Plastic bag & wrapper,0.13984
+Scrap metal,Scrap metal,0.48748
+Plastic bottle cap,Bottle cap,0.05093
+Clear plastic bottle,Bottle,0.31096
+Plastic bottle cap,Bottle cap,0.12656
+Crisp packet,Plastic bag & wrapper,0.37439
+Styrofoam piece,Styrofoam piece,0.04300
+Clear plastic bottle,Bottle,0.30396
+Normal paper,Paper,0.08788
+Plastic film,Plastic bag & wrapper,0.18076
+Other plastic wrapper,Plastic bag & wrapper,0.11757
+Other plastic,Other plastic,0.14590
+Clear plastic bottle,Bottle,0.34583
+Plastic bottle cap,Bottle cap,0.05630
+Other carton,Carton,0.18575
+Plastic film,Plastic bag & wrapper,0.04788
+Plastic straw,Straw,0.37876
+Plastic straw,Straw,0.10546
+Plastic utensils,Plastic utensils,0.19052
+Clear plastic bottle,Bottle,0.09787
+Plastic film,Plastic bag & wrapper,0.32721
+Unlabeled litter,Unlabeled litter,0.02664
+Metal bottle cap,Bottle cap,0.04038
+Other plastic,Other plastic,0.02489
+Foam food container,Plastic container,0.28466
+Other plastic,Other plastic,0.02798
+Cigarette,Cigarette,0.01590
+Unlabeled litter,Unlabeled litter,0.01488
+Unlabeled litter,Unlabeled litter,0.01633
+Other plastic,Other plastic,0.01847
+Unlabeled litter,Unlabeled litter,0.01349
+Other plastic,Other plastic,0.03176
+Drink can,Can,0.17948
+Plastic straw,Straw,0.04852
+Pop tab,Pop tab,0.02533
+Other plastic,Other plastic,0.03810
+Plastic utensils,Plastic utensils,0.24893
+Other plastic,Other plastic,0.02121
+Broken glass,Broken glass,0.02463
+Broken glass,Broken glass,0.00970
+Broken glass,Broken glass,0.01181
+Broken glass,Broken glass,0.00844
+Broken glass,Broken glass,0.01774
+Other plastic,Other plastic,0.02108
+Metal bottle cap,Bottle cap,0.08767
+Metal bottle cap,Bottle cap,0.12512
+Plastic straw,Straw,0.42203
+Plastic straw,Straw,0.14843
+Clear plastic bottle,Bottle,0.11343
+Plastic bottle cap,Bottle cap,0.03095
+Unlabeled litter,Unlabeled litter,0.04059
+Unlabeled litter,Unlabeled litter,0.02383
+Clear plastic bottle,Bottle,0.19949
+Clear plastic bottle,Bottle,0.20240
+Foam cup,Cup,0.17054
+Garbage bag,Plastic bag & wrapper,0.31991
+Garbage bag,Plastic bag & wrapper,0.18352
+Other plastic wrapper,Plastic bag & wrapper,0.11325
+Plastic film,Plastic bag & wrapper,0.13319
+Plastic film,Plastic bag & wrapper,0.24084
+Plastic film,Plastic bag & wrapper,0.20563
+Drink can,Can,0.16260
+Paper bag,Paper bag,0.23369
+Pop tab,Pop tab,0.02091
+Disposable plastic cup,Cup,0.13814
+Normal paper,Paper,0.22306
+Normal paper,Paper,0.17786
+Paper cup,Cup,0.46276
+Plastic lid,Lid,0.33828
+Drink can,Can,0.24022
+Plastic straw,Straw,0.07473
+Other plastic bottle,Bottle,0.15144
+Paper bag,Paper bag,0.27911
+Paper bag,Paper bag,0.20252
+Paper bag,Paper bag,0.14520
+Other plastic wrapper,Plastic bag & wrapper,0.20771
+Plastic straw,Straw,0.24447
+Plastic straw,Straw,0.22474
+Cigarette,Cigarette,0.05259
+Other plastic wrapper,Plastic bag & wrapper,0.09169
+Normal paper,Paper,0.09336
+Paper cup,Cup,0.44716
+Glass bottle,Bottle,0.22673
+Glass bottle,Bottle,0.26072
+Tissues,Paper,0.17554
+Other plastic bottle,Bottle,0.22827
+Plastic bottle cap,Bottle cap,0.03202
+Glass bottle,Bottle,0.10707
+Glass bottle,Bottle,0.09127
+Other plastic wrapper,Plastic bag & wrapper,0.04476
+Disposable food container,Plastic container,0.34553
+Other plastic wrapper,Plastic bag & wrapper,0.22417
+Crisp packet,Plastic bag & wrapper,0.40143
+Other plastic wrapper,Plastic bag & wrapper,0.49611
+Garbage bag,Plastic bag & wrapper,0.42947
+Normal paper,Paper,0.24069
+Other carton,Carton,0.22552
+Meal carton,Carton,0.45187
+Plastic film,Plastic bag & wrapper,0.21662
+Crisp packet,Plastic bag & wrapper,0.19968
+Drink can,Can,0.08150
+Other carton,Carton,0.40286
+Other carton,Carton,0.26030
+Paper cup,Cup,0.31693
+Paper cup,Cup,0.19589
+Plastic lid,Lid,0.24960
+Plastic lid,Lid,0.16784
+Paper straw,Straw,0.18201
+Plastic lid,Lid,0.13906
+Disposable food container,Plastic container,0.17510
+Plastic film,Plastic bag & wrapper,0.16010
+Unlabeled litter,Unlabeled litter,0.15953
+Meal carton,Carton,0.09681
+Other plastic wrapper,Plastic bag & wrapper,0.11505
+Other carton,Carton,0.14235
+Crisp packet,Plastic bag & wrapper,0.16786
+Wrapping paper,Paper,0.13452
+Clear plastic bottle,Bottle,0.02786
+Clear plastic bottle,Bottle,0.02365
+Other plastic wrapper,Plastic bag & wrapper,0.06217
+Disposable plastic cup,Cup,0.33679
+Plastic lid,Lid,0.28134
+Plastic straw,Straw,0.18401
+Plastic bottle cap,Bottle cap,0.01026
+Food waste,Food waste,0.01875
+Unlabeled litter,Unlabeled litter,0.02485
+Normal paper,Paper,0.01163
+Crisp packet,Plastic bag & wrapper,0.11243
+Crisp packet,Plastic bag & wrapper,0.10110
+Garbage bag,Plastic bag & wrapper,0.34289
+Metal bottle cap,Bottle cap,0.08993
+Metal bottle cap,Bottle cap,0.04570
+Glass bottle,Bottle,0.40787
+Glass bottle,Bottle,0.28540
+Glass bottle,Bottle,0.09884
+Unlabeled litter,Unlabeled litter,0.02882
+Drink can,Can,0.04822
+Paper cup,Cup,0.05454
+Unlabeled litter,Unlabeled litter,0.04633
+Unlabeled litter,Unlabeled litter,0.02849
+Unlabeled litter,Unlabeled litter,0.03007
+Crisp packet,Plastic bag & wrapper,0.07914
+Drink can,Can,0.09596
+Drink can,Can,0.10298
+Drink can,Can,0.13319
+Drink can,Can,0.11579
+Drink can,Can,0.11535
+Drink can,Can,0.10666
+Drink can,Can,0.09342
+Foam food container,Plastic container,0.11174
+Foam food container,Plastic container,0.38696
+Tissues,Paper,0.24704
+Drink can,Can,0.06198
+Unlabeled litter,Unlabeled litter,0.01644
+Glass bottle,Bottle,0.09474
+Drink can,Can,0.23898
+Drink can,Can,0.27217
+Other plastic wrapper,Plastic bag & wrapper,0.21788
+Plastic film,Plastic bag & wrapper,0.16153
+Other carton,Carton,0.13633
+Clear plastic bottle,Bottle,0.09238
+Clear plastic bottle,Bottle,0.07802
+Unlabeled litter,Unlabeled litter,0.01038
+Disposable plastic cup,Cup,0.07260
+Other plastic,Other plastic,0.01139
+Drink can,Can,0.07458
+Unlabeled litter,Unlabeled litter,0.02777
+Disposable plastic cup,Cup,0.03518
+Drink can,Can,0.06198
+Pop tab,Pop tab,0.01214
+Drink can,Can,0.11765
+Drink can,Can,0.05785
+Drink can,Can,0.06187
+Clear plastic bottle,Bottle,0.05342
+Plastic bottle cap,Bottle cap,0.00949
+Drink can,Can,0.05029
+Paper cup,Cup,0.12177
+Drink can,Can,0.03058
+Drink can,Can,0.08745
+Pop tab,Pop tab,0.01413
+Unlabeled litter,Unlabeled litter,0.04166
+Disposable plastic cup,Cup,0.09230
+Plastic straw,Straw,0.03739
+Plastic lid,Lid,0.06136
+Clear plastic bottle,Bottle,0.03610
+Plastic bottle cap,Bottle cap,0.00848
+Plastic straw,Straw,0.04865
+Normal paper,Paper,0.05768
+Plastic straw,Straw,0.09737
+Metal bottle cap,Bottle cap,0.02251
+Metal bottle cap,Bottle cap,0.01863
+Six pack rings,Plastic bag & wrapper,0.26708
+Six pack rings,Plastic bag & wrapper,0.18014
+Plastic lid,Lid,0.12559
+Plastic film,Plastic bag & wrapper,0.09581
+Plastic film,Plastic bag & wrapper,0.02325
+Plastic film,Plastic bag & wrapper,0.07239
+Unlabeled litter,Unlabeled litter,0.03649
+Unlabeled litter,Unlabeled litter,0.07813
+Aluminium foil,Aluminium foil,0.03722
+Plastic lid,Lid,0.06962
+Crisp packet,Plastic bag & wrapper,0.12378
+Other plastic wrapper,Plastic bag & wrapper,0.05473
+Other plastic wrapper,Plastic bag & wrapper,0.10920
+Disposable plastic cup,Cup,0.08235
+Disposable plastic cup,Cup,0.08042
+Other plastic,Other plastic,0.04667
+Normal paper,Paper,0.08413
+Unlabeled litter,Unlabeled litter,0.07724
+Other plastic,Other plastic,0.05860
+Metal bottle cap,Bottle cap,0.07798
+Metal bottle cap,Bottle cap,0.04174
+Normal paper,Paper,0.13689
+Plastic film,Plastic bag & wrapper,0.14032
+Other plastic wrapper,Plastic bag & wrapper,0.11943
+Corrugated carton,Carton,0.12121
+Corrugated carton,Carton,0.09637
+Aluminium foil,Aluminium foil,0.07254
+Other carton,Carton,0.23101
+Crisp packet,Plastic bag & wrapper,0.11977
+Plastic straw,Straw,0.10453
+Plastic bottle cap,Bottle cap,0.03696
+Meal carton,Carton,0.15298
+Plastic film,Plastic bag & wrapper,0.06605
+Other plastic wrapper,Plastic bag & wrapper,0.01927
+Glass bottle,Bottle,0.08135
+Plastic straw,Straw,0.04226
+Unlabeled litter,Unlabeled litter,0.02011
+Drink can,Can,0.09109
+Clear plastic bottle,Bottle,0.18499
+Metal bottle cap,Bottle cap,0.03087
+Paper bag,Paper bag,0.55671
+Shoe,Shoe,0.11002
+Other carton,Carton,0.09507
+Other plastic bottle,Bottle,0.07075
+Shoe,Shoe,0.13561
+Drink can,Can,0.07851
+Unlabeled litter,Unlabeled litter,0.02103
+Crisp packet,Plastic bag & wrapper,0.16300
+Glass bottle,Bottle,0.09980
+Glass bottle,Bottle,0.07943
+Glass bottle,Bottle,0.06214
+Unlabeled litter,Unlabeled litter,0.03449
+Unlabeled litter,Unlabeled litter,0.02594
+Unlabeled litter,Unlabeled litter,0.02881
+Plastic film,Plastic bag & wrapper,0.02167
+Other carton,Carton,0.10018
+Plastic straw,Straw,0.12116
+Drink can,Can,0.08553
+Pop tab,Pop tab,0.01477
+Other plastic wrapper,Plastic bag & wrapper,0.23811
+Foam food container,Plastic container,0.14097
+Plastic film,Plastic bag & wrapper,0.07478
+Normal paper,Paper,0.09859
+Drink can,Can,0.02451
+Drink can,Can,0.02071
+Drink can,Can,0.02143
+Clear plastic bottle,Bottle,0.05046
+Clear plastic bottle,Bottle,0.03579
+Glass bottle,Bottle,0.01713
+Disposable plastic cup,Cup,0.02550
+Plastic lid,Lid,0.01628
+Plastic straw,Straw,0.01454
+Clear plastic bottle,Bottle,0.16092
+Plastic bottle cap,Bottle cap,0.03165
+Plastic film,Plastic bag & wrapper,0.11723
+Plastic film,Plastic bag & wrapper,0.10957
+Other plastic wrapper,Plastic bag & wrapper,0.11222
+Other plastic wrapper,Plastic bag & wrapper,0.13473
+Plastic bottle cap,Bottle cap,0.03112
+Crisp packet,Plastic bag & wrapper,0.17743
+Crisp packet,Plastic bag & wrapper,0.19742
+Meal carton,Carton,0.11426
+Plastic film,Plastic bag & wrapper,0.04218
+Meal carton,Carton,0.09908
+Drink can,Can,0.05040
+Single-use carrier bag,Plastic bag & wrapper,0.16102
+Other plastic wrapper,Plastic bag & wrapper,0.10609
+Cigarette,Cigarette,0.01889
+Cigarette,Cigarette,0.01550
+Cigarette,Cigarette,0.01386
+Cigarette,Cigarette,0.01163
+Cigarette,Cigarette,0.02155
+Cigarette,Cigarette,0.00996
+Cigarette,Cigarette,0.01560
+Cigarette,Cigarette,0.00652
+Cigarette,Cigarette,0.01061
+Cigarette,Cigarette,0.02467
+Cigarette,Cigarette,0.01420
+Cigarette,Cigarette,0.01465
+Cigarette,Cigarette,0.02266
+Cigarette,Cigarette,0.01610
+Cigarette,Cigarette,0.01474
+Cigarette,Cigarette,0.01324
+Cigarette,Cigarette,0.00693
+Cigarette,Cigarette,0.01040
+Cigarette,Cigarette,0.00991
+Cigarette,Cigarette,0.01125
+Cigarette,Cigarette,0.00671
+Cigarette,Cigarette,0.01963
+Cigarette,Cigarette,0.01123
+Cigarette,Cigarette,0.01092
+Cigarette,Cigarette,0.00690
+Cigarette,Cigarette,0.00775
+Cigarette,Cigarette,0.00675
+Cigarette,Cigarette,0.00875
+Cigarette,Cigarette,0.01052
+Cigarette,Cigarette,0.01150
+Cigarette,Cigarette,0.01023
+Cigarette,Cigarette,0.00867
+Cigarette,Cigarette,0.00742
+Cigarette,Cigarette,0.00570
+Cigarette,Cigarette,0.00849
+Cigarette,Cigarette,0.00949
+Cigarette,Cigarette,0.00968
+Cigarette,Cigarette,0.00749
+Cigarette,Cigarette,0.01011
+Cigarette,Cigarette,0.00968
+Cigarette,Cigarette,0.00895
+Cigarette,Cigarette,0.00991
+Cigarette,Cigarette,0.01025
+Cigarette,Cigarette,0.01818
+Cigarette,Cigarette,0.01327
+Cigarette,Cigarette,0.01511
+Cigarette,Cigarette,0.01266
+Cigarette,Cigarette,0.00917
+Cigarette,Cigarette,0.00592
+Cigarette,Cigarette,0.00867
+Cigarette,Cigarette,0.00813
+Cigarette,Cigarette,0.00872
+Cigarette,Cigarette,0.01459
+Cigarette,Cigarette,0.00671
+Cigarette,Cigarette,0.00675
+Cigarette,Cigarette,0.01999
+Cigarette,Cigarette,0.01408
+Cigarette,Cigarette,0.02085
+Cigarette,Cigarette,0.00816
+Cigarette,Cigarette,0.02347
+Cigarette,Cigarette,0.02286
+Cigarette,Cigarette,0.02784
+Cigarette,Cigarette,0.02759
+Cigarette,Cigarette,0.03093
+Cigarette,Cigarette,0.02858
+Cigarette,Cigarette,0.01379
+Cigarette,Cigarette,0.01970
+Cigarette,Cigarette,0.00939
+Cigarette,Cigarette,0.01909
+Cigarette,Cigarette,0.01203
+Cigarette,Cigarette,0.00675
+Cigarette,Cigarette,0.01397
+Cigarette,Cigarette,0.00878
+Cigarette,Cigarette,0.01787
+Cigarette,Cigarette,0.02042
+Cigarette,Cigarette,0.02063
+Cigarette,Cigarette,0.00755
+Cigarette,Cigarette,0.00901
+Cigarette,Cigarette,0.01503
+Cigarette,Cigarette,0.00807
+Cigarette,Cigarette,0.00895
+Cigarette,Cigarette,0.00592
+Cigarette,Cigarette,0.00846
+Cigarette,Cigarette,0.01399
+Cigarette,Cigarette,0.00648
+Cigarette,Cigarette,0.01040
+Cigarette,Cigarette,0.00813
+Cigarette,Cigarette,0.03088
+Cigarette,Cigarette,0.03349
+Cigarette,Cigarette,0.02905
+Cigarette,Cigarette,0.03840
+Cigarette,Cigarette,0.01458
+Cigarette,Cigarette,0.01325
+Cigarette,Cigarette,0.03620
+Cigarette,Cigarette,0.01256
+Pop tab,Pop tab,0.02257
+Drink can,Can,0.09304
+Drink can,Can,0.15411
+Pop tab,Pop tab,0.02395
+Other plastic wrapper,Plastic bag & wrapper,0.07457
+Clear plastic bottle,Bottle,0.16684
+Plastic bottle cap,Bottle cap,0.01784
+Disposable plastic cup,Cup,0.13756
+Glass bottle,Bottle,0.07842
+Scrap metal,Scrap metal,0.18446
+Clear plastic bottle,Bottle,0.17373
+Plastic bottle cap,Bottle cap,0.03429
+Drink can,Can,0.17117
+Pop tab,Pop tab,0.02951
+Drink can,Can,0.04109
+Unlabeled litter,Unlabeled litter,0.04165
+Drink can,Can,0.07951
+Plastic utensils,Plastic utensils,0.18822
+Meal carton,Carton,0.74449
+Plastic utensils,Plastic utensils,0.03917
+Unlabeled litter,Unlabeled litter,0.01577
+Tissues,Paper,0.03163
+Clear plastic bottle,Bottle,0.03772
+Unlabeled litter,Unlabeled litter,0.02770
+Plastic lid,Lid,0.04253
+Crisp packet,Plastic bag & wrapper,0.48466
+Crisp packet,Plastic bag & wrapper,0.41782
+Glass bottle,Bottle,0.25196
+Clear plastic bottle,Bottle,0.35208
+Other carton,Carton,0.26680
+Other carton,Carton,0.40541
+Other plastic wrapper,Plastic bag & wrapper,0.16114
+Food Can,Can,0.14898
+Pop tab,Pop tab,0.03053
+Glass jar,Glass jar,0.12897
+Metal lid,Lid,0.09643
+Other plastic wrapper,Plastic bag & wrapper,0.05492
+Plastic film,Plastic bag & wrapper,0.61413
+Aerosol,Can,0.31668
+Plastic lid,Lid,0.17617
+Pop tab,Pop tab,0.01495
+Meal carton,Carton,0.34482
+Other plastic bottle,Bottle,0.13681
+Clear plastic bottle,Bottle,0.08022
+Plastic bottle cap,Bottle cap,0.02879
+Disposable plastic cup,Cup,0.02272
+Paper cup,Cup,0.02138
+Plastic lid,Lid,0.01414
+Drink can,Can,0.01632
+Unlabeled litter,Unlabeled litter,0.01737
+Plastic straw,Straw,0.00482
+Drink can,Can,0.11313
+Drink can,Can,0.12765
+Pop tab,Pop tab,0.02014
+Disposable plastic cup,Cup,0.13779
+Drink can,Can,0.03014
+Drink can,Can,0.09812
+Disposable food container,Plastic container,0.11992
+Plastic lid,Lid,0.09265
+Paper cup,Cup,0.14113
+Other carton,Carton,0.13317
+Plastic film,Plastic bag & wrapper,0.09364
+Plastic film,Plastic bag & wrapper,0.24682
+Plastic film,Plastic bag & wrapper,0.29720
+Plastic film,Plastic bag & wrapper,0.15525
+Crisp packet,Plastic bag & wrapper,0.31025
+Tissues,Paper,0.10275
+Tissues,Paper,0.09761
+Meal carton,Carton,0.15813
+Aluminium foil,Aluminium foil,0.04914
+Plastic bottle cap,Bottle cap,0.02942
+Other carton,Carton,0.30688
+Plastic film,Plastic bag & wrapper,0.37824
+Drink can,Can,0.31518
+Pop tab,Pop tab,0.08171
+Plastic film,Plastic bag & wrapper,0.59737
+Plastic film,Plastic bag & wrapper,0.47228
+Corrugated carton,Carton,0.66676
+Corrugated carton,Carton,0.74731
+Other carton,Carton,0.28265
+Disposable food container,Plastic container,0.58505
+Plastic film,Plastic bag & wrapper,0.54051
+Other carton,Carton,0.54063
+Plastic film,Plastic bag & wrapper,0.72561
+Other carton,Carton,0.39803
+Plastic film,Plastic bag & wrapper,0.48157
+Spread tub,Plastic container,0.55298
+Other plastic,Other plastic,0.02668
+Aluminium foil,Aluminium foil,0.06131
+Drink can,Can,0.05813
+Unlabeled litter,Unlabeled litter,0.02520
+Drink can,Can,0.06376
+Unlabeled litter,Unlabeled litter,0.02266
+Plastic film,Plastic bag & wrapper,0.08029
+Unlabeled litter,Unlabeled litter,0.01892
+Clear plastic bottle,Bottle,0.13130
+Normal paper,Paper,0.04740
+Other plastic wrapper,Plastic bag & wrapper,0.10649
+Plastic film,Plastic bag & wrapper,0.05241
+Plastic film,Plastic bag & wrapper,0.09511
+Plastic film,Plastic bag & wrapper,0.05531
+Plastic film,Plastic bag & wrapper,0.06843
+Single-use carrier bag,Plastic bag & wrapper,0.30720
+Other plastic wrapper,Plastic bag & wrapper,0.11265
+Unlabeled litter,Unlabeled litter,0.06249
+Other carton,Carton,0.02228
+Disposable food container,Plastic container,0.11132
+Plastic film,Plastic bag & wrapper,0.10200
+Plastic film,Plastic bag & wrapper,0.02686
+Unlabeled litter,Unlabeled litter,0.03213
+Aluminium blister pack,Blister pack,0.06694
+Disposable food container,Plastic container,0.09768
+Plastic film,Plastic bag & wrapper,0.06125
+Single-use carrier bag,Plastic bag & wrapper,0.49019
+Metal lid,Lid,0.18062
+Metal lid,Lid,0.15714
+Glass jar,Glass jar,0.28638
+Glass jar,Glass jar,0.33605
+Glass jar,Glass jar,0.34487
+Glass jar,Glass jar,0.30768
+Metal lid,Lid,0.16307
+Metal lid,Lid,0.23247
+Metal bottle cap,Bottle cap,0.07428
+Other plastic bottle,Bottle,0.59037
+Disposable food container,Plastic container,0.48201
+Food waste,Food waste,0.06181
+Metal bottle cap,Bottle cap,0.03581
+Drink can,Can,0.07090
+Pop tab,Pop tab,0.01205
+Unlabeled litter,Unlabeled litter,0.04982
+Foam food container,Plastic container,0.14131
+Foam food container,Plastic container,0.17369
+Unlabeled litter,Unlabeled litter,0.09677
+Paper straw,Straw,0.10925
+Disposable plastic cup,Cup,0.13654
+Disposable food container,Plastic container,0.08841
+Plastic film,Plastic bag & wrapper,0.08786
+Aluminium foil,Aluminium foil,0.49491
+Plastic utensils,Plastic utensils,0.08596
+Unlabeled litter,Unlabeled litter,0.01838
+Clear plastic bottle,Bottle,0.06452
+Normal paper,Paper,0.50357
+Normal paper,Paper,0.68836
+Normal paper,Paper,0.57942
+Plastic straw,Straw,0.08992
+Unlabeled litter,Unlabeled litter,0.03436
+Paper cup,Cup,0.33502
+Plastic lid,Lid,0.27983
+Paper bag,Paper bag,0.78299
+Clear plastic bottle,Bottle,0.05421
+Glass bottle,Bottle,0.03093
+Clear plastic bottle,Bottle,0.03601
+Other plastic,Other plastic,0.02651
+Other plastic,Other plastic,0.02155
+Unlabeled litter,Unlabeled litter,0.00990
+Unlabeled litter,Unlabeled litter,0.01461
+Unlabeled litter,Unlabeled litter,0.01162
+Unlabeled litter,Unlabeled litter,0.00822
+Unlabeled litter,Unlabeled litter,0.00772
+Unlabeled litter,Unlabeled litter,0.02347
+Normal paper,Paper,0.07802
+Normal paper,Paper,0.05912
+Normal paper,Paper,0.03342
+Pop tab,Pop tab,0.00662
+Other plastic wrapper,Plastic bag & wrapper,0.04973
+Paper bag,Paper bag,0.05282
+Plastic straw,Straw,0.04817
+Shoe,Shoe,0.09391
+Plastic utensils,Plastic utensils,0.32067
+Plastic utensils,Plastic utensils,0.13824
+Plastic utensils,Plastic utensils,0.11359
+Clear plastic bottle,Bottle,0.09362
+Plastic film,Plastic bag & wrapper,0.03678
+Single-use carrier bag,Plastic bag & wrapper,0.20903
+Plastic film,Plastic bag & wrapper,0.07551
+Other plastic,Other plastic,0.00733
+Unlabeled litter,Unlabeled litter,0.00592
+Unlabeled litter,Unlabeled litter,0.00324
+Plastic straw,Straw,0.08334
+Other plastic,Other plastic,0.03112
+Disposable plastic cup,Cup,0.05611
+Clear plastic bottle,Bottle,0.04618
+Clear plastic bottle,Bottle,0.03638
+Clear plastic bottle,Bottle,0.01498
+Glass bottle,Bottle,0.02251
+Drink carton,Carton,0.03827
+Unlabeled litter,Unlabeled litter,0.01667
+Unlabeled litter,Unlabeled litter,0.01327
+Unlabeled litter,Unlabeled litter,0.00945
+Unlabeled litter,Unlabeled litter,0.01208
+Unlabeled litter,Unlabeled litter,0.00612
+Paper cup,Cup,0.02276
+Other plastic wrapper,Plastic bag & wrapper,0.01327
+Drink can,Can,0.01004
+Plastic bottle cap,Bottle cap,0.07970
+Plastic film,Plastic bag & wrapper,0.05936
+Unlabeled litter,Unlabeled litter,0.03039
+Plastic film,Plastic bag & wrapper,0.16215
+Tissues,Paper,0.09876
+Tissues,Paper,0.12843
+Plastic film,Plastic bag & wrapper,0.17694
+Paper cup,Cup,0.09020
+Clear plastic bottle,Bottle,0.07959
+Clear plastic bottle,Bottle,0.07216
+Drink can,Can,0.05806
+Metal bottle cap,Bottle cap,0.01077
+Metal bottle cap,Bottle cap,0.01179
+Plastic bottle cap,Bottle cap,0.01382
+Plastic bottle cap,Bottle cap,0.01575
+Metal bottle cap,Bottle cap,0.01077
+Plastic utensils,Plastic utensils,0.01708
+Normal paper,Paper,0.15858
+Other plastic wrapper,Plastic bag & wrapper,0.02602
+Unlabeled litter,Unlabeled litter,0.02349
+Unlabeled litter,Unlabeled litter,0.01318
+Unlabeled litter,Unlabeled litter,0.01418
+Other plastic,Other plastic,0.01179
+Unlabeled litter,Unlabeled litter,0.01138
+Plastic film,Plastic bag & wrapper,0.12680
+Egg carton,Carton,0.02015
+Garbage bag,Plastic bag & wrapper,0.13128
+Plastic lid,Lid,0.21383
+Other carton,Carton,0.52857
+Other carton,Carton,0.38744
+Disposable food container,Plastic container,0.48907
+Other plastic wrapper,Plastic bag & wrapper,0.43075
+Other plastic container,Plastic container,0.18729
+Tupperware,Plastic container,0.45131
+Other plastic wrapper,Plastic bag & wrapper,0.38065
+Other carton,Carton,0.26647
+Aluminium blister pack,Blister pack,0.22431
+Normal paper,Paper,0.20357
+Plastic film,Plastic bag & wrapper,0.48592
+Magazine paper,Paper,0.23055
+Magazine paper,Paper,0.13350
+Magazine paper,Paper,0.13123
+Magazine paper,Paper,0.19172
+Magazine paper,Paper,0.19328
+Magazine paper,Paper,0.18724
+Magazine paper,Paper,0.36770
+Cigarette,Cigarette,0.02253
+Cigarette,Cigarette,0.01350
+Cigarette,Cigarette,0.02237
+Cigarette,Cigarette,0.02370
+Cigarette,Cigarette,0.01653
+Cigarette,Cigarette,0.01772
+Cigarette,Cigarette,0.02563
+Cigarette,Cigarette,0.02051
+Cigarette,Cigarette,0.02393
+Cigarette,Cigarette,0.01991
+Cigarette,Cigarette,0.01981
+Cigarette,Cigarette,0.02318
+Cigarette,Cigarette,0.01324
+Cigarette,Cigarette,0.01059
+Cigarette,Cigarette,0.01301
+Cigarette,Cigarette,0.00878
+Cigarette,Cigarette,0.01141
+Cigarette,Cigarette,0.02152
+Cigarette,Cigarette,0.01350
+Cigarette,Cigarette,0.01096
+Cigarette,Cigarette,0.01891
+Cigarette,Cigarette,0.01653
+Cigarette,Cigarette,0.01750
+Cigarette,Cigarette,0.01935
+Cigarette,Cigarette,0.01370
+Cigarette,Cigarette,0.00800
+Cigarette,Cigarette,0.01276
+Cigarette,Cigarette,0.01692
+Cigarette,Cigarette,0.01701
+Cigarette,Cigarette,0.01443
+Cigarette,Cigarette,0.01426
+Cigarette,Cigarette,0.01266
+Cigarette,Cigarette,0.01588
+Cigarette,Cigarette,0.00813
+Cigarette,Cigarette,0.01310
+Cigarette,Cigarette,0.01173
+Plastic bottle cap,Bottle cap,0.02828
+Clear plastic bottle,Bottle,0.14834
+Wrapping paper,Paper,0.12332
+Plastic straw,Straw,0.17801
+Other plastic,Other plastic,0.08687
+Other plastic,Other plastic,0.06324
+Other plastic,Other plastic,0.01981
+Other plastic,Other plastic,0.01932
+Plastic film,Plastic bag & wrapper,0.05412
+Plastic bottle cap,Bottle cap,0.02386
+Disposable plastic cup,Cup,0.02086
+Disposable plastic cup,Cup,0.02298
+Plastic film,Plastic bag & wrapper,0.09089
+Normal paper,Paper,0.04095
+Plastic bottle cap,Bottle cap,0.05607
+Magazine paper,Paper,0.06094
+Normal paper,Paper,0.07739
+Magazine paper,Paper,0.06466
+Disposable plastic cup,Cup,0.08345
+Other plastic,Other plastic,0.09102
+Plastic film,Plastic bag & wrapper,0.08053
+Plastic straw,Straw,0.16813
+Other plastic,Other plastic,0.07979
+Other plastic,Other plastic,0.11559
+Other plastic,Other plastic,0.01550
+Other plastic,Other plastic,0.07190
+Other plastic,Other plastic,0.06361
+Other plastic,Other plastic,0.12045
+Plastic lid,Lid,0.06133
+Other plastic,Other plastic,0.22395
+Plastic bottle cap,Bottle cap,0.09816
+Other plastic,Other plastic,0.03271
+Plastic bottle cap,Bottle cap,0.03148
+Plastic film,Plastic bag & wrapper,0.09773
+Other plastic,Other plastic,0.11323
+Other plastic,Other plastic,0.19689
+Other plastic,Other plastic,0.06396
+Plastic film,Plastic bag & wrapper,0.10605
+Other plastic,Other plastic,0.07641
+Other plastic,Other plastic,0.03794
+Plastic bottle cap,Bottle cap,0.05585
+Plastic film,Plastic bag & wrapper,0.06252
+Other plastic cup,Cup,0.11869
+Other plastic,Other plastic,0.11593
+Other plastic,Other plastic,0.06514
+Other plastic,Other plastic,0.01924
+Plastic film,Plastic bag & wrapper,0.07886
+Plastic film,Plastic bag & wrapper,0.07246
+Other plastic,Other plastic,0.05082
+Other plastic,Other plastic,0.06403
+Plastic film,Plastic bag & wrapper,0.18863
+Plastic film,Plastic bag & wrapper,0.04463
+Styrofoam piece,Styrofoam piece,0.03327
+Styrofoam piece,Styrofoam piece,0.03142
+Other plastic,Other plastic,0.11459
+Rope & strings,Rope & strings,0.02099
+Disposable plastic cup,Cup,0.18350
+Disposable plastic cup,Cup,0.15093
+Rope & strings,Rope & strings,0.11530
+Normal paper,Paper,0.13822
+Plastic straw,Straw,0.18082
+Plastic straw,Straw,0.10285
+Plastic film,Plastic bag & wrapper,0.26213
+Plastic film,Plastic bag & wrapper,0.06458
+Rope & strings,Rope & strings,0.18729
+Rope & strings,Rope & strings,0.15724
+Rope & strings,Rope & strings,0.46751
+Plastic film,Plastic bag & wrapper,0.10056
+Other plastic,Other plastic,0.11774
+Aluminium foil,Aluminium foil,0.03014
+Aluminium foil,Aluminium foil,0.08206
+Plastic film,Plastic bag & wrapper,0.23089
+Plastic film,Plastic bag & wrapper,0.16164
+Food waste,Food waste,0.15568
+Other plastic,Other plastic,0.07221
+Other plastic,Other plastic,0.08557
+Other plastic,Other plastic,0.21184
+Rope & strings,Rope & strings,0.25807
+Other plastic,Other plastic,0.05002
+Other plastic,Other plastic,0.06103
+Single-use carrier bag,Plastic bag & wrapper,0.20607
+Other carton,Carton,0.06863
+Other plastic,Other plastic,0.12802
+Other plastic,Other plastic,0.11332
+Plastic bottle cap,Bottle cap,0.07210
+Plastic bottle cap,Bottle cap,0.08487
+Plastic film,Plastic bag & wrapper,0.08455
+Rope & strings,Rope & strings,0.12938
+Other plastic,Other plastic,0.05913
+Other plastic,Other plastic,0.30320
+Other plastic,Other plastic,0.09380
+Metal bottle cap,Bottle cap,0.06771
+Metal bottle cap,Bottle cap,0.11815
+Tissues,Paper,0.19073
+Styrofoam piece,Styrofoam piece,0.26255
+Styrofoam piece,Styrofoam piece,0.15334
+Other plastic,Other plastic,0.01649
+Plastic bottle cap,Bottle cap,0.03395
+Plastic film,Plastic bag & wrapper,0.13922
+Plastic film,Plastic bag & wrapper,0.13429
+Plastic film,Plastic bag & wrapper,0.07370
+Plastic bottle cap,Bottle cap,0.02916
+Other plastic,Other plastic,0.05436
+Corrugated carton,Carton,0.05539
+Disposable plastic cup,Cup,0.08063
+Styrofoam piece,Styrofoam piece,0.07812
+Plastic film,Plastic bag & wrapper,0.05262
+Drink can,Can,0.05430
+Disposable food container,Plastic container,0.17139
+Styrofoam piece,Styrofoam piece,0.03979
+Styrofoam piece,Styrofoam piece,0.03495
+Plastic film,Plastic bag & wrapper,0.14928
+Plastic film,Plastic bag & wrapper,0.17428
+Unlabeled litter,Unlabeled litter,0.02262
+Plastic film,Plastic bag & wrapper,0.08140
+Plastic film,Plastic bag & wrapper,0.06940
+Styrofoam piece,Styrofoam piece,0.06319
+Styrofoam piece,Styrofoam piece,0.02553
+Other plastic wrapper,Plastic bag & wrapper,0.08833
+Plastic straw,Straw,0.02981
+Other plastic wrapper,Plastic bag & wrapper,0.02670
+Plastic film,Plastic bag & wrapper,0.11096
+Other plastic,Other plastic,0.23948
+Plastic bottle cap,Bottle cap,0.04472
+Plastic bottle cap,Bottle cap,0.05675
+Pop tab,Pop tab,0.03687
+Other plastic bottle,Bottle,0.06325
+Squeezable tube,Squeezable tube,0.12959
+Other plastic wrapper,Plastic bag & wrapper,0.07043
+Other plastic,Other plastic,0.00963
+Other plastic,Other plastic,0.01146
+Other plastic,Other plastic,0.02189
+Other plastic,Other plastic,0.00923
+Other plastic,Other plastic,0.03122
+Plastic film,Plastic bag & wrapper,0.21203
+Disposable food container,Plastic container,0.25481
+Cigarette,Cigarette,0.01550
+Cigarette,Cigarette,0.01767
+Cigarette,Cigarette,0.01610
+Cigarette,Cigarette,0.01342
+Cigarette,Cigarette,0.00749
+Cigarette,Cigarette,0.00949
+Cigarette,Cigarette,0.01040
+Cigarette,Cigarette,0.00722
+Cigarette,Cigarette,0.01163
+Cigarette,Cigarette,0.01092
+Cigarette,Cigarette,0.01169
+Cigarette,Cigarette,0.01082
+Cigarette,Cigarette,0.00652
+Cigarette,Cigarette,0.00973
+Cigarette,Cigarette,0.00704
+Cigarette,Cigarette,0.01040
+Cigarette,Cigarette,0.01376
+Cigarette,Cigarette,0.01223
+Cigarette,Cigarette,0.01308
+Cigarette,Cigarette,0.01975
+Cigarette,Cigarette,0.01040
+Cigarette,Cigarette,0.02063
+Cigarette,Cigarette,0.00988
+Cigarette,Cigarette,0.01049
+Cigarette,Cigarette,0.01550
+Cigarette,Cigarette,0.01550
+Cigarette,Cigarette,0.00813
+Cigarette,Cigarette,0.01644
+Clear plastic bottle,Bottle,0.15874
+Other plastic,Other plastic,0.09567
+Other plastic,Other plastic,0.03339
+Clear plastic bottle,Bottle,0.17481
+Drink can,Can,0.17373
+Plastic straw,Straw,0.03985
+Metal bottle cap,Bottle cap,0.01713
+Unlabeled litter,Unlabeled litter,0.04335
+Plastic straw,Straw,0.26454
+Rope & strings,Rope & strings,0.06943
+Plastic straw,Straw,0.08206
+Other plastic,Other plastic,0.10705
+Plastic film,Plastic bag & wrapper,0.14148
+Scrap metal,Scrap metal,0.05439
+Plastic film,Plastic bag & wrapper,0.11144
+Clear plastic bottle,Bottle,0.07232
+Plastic bottle cap,Bottle cap,0.01838
+Unlabeled litter,Unlabeled litter,0.03093
+Clear plastic bottle,Bottle,0.14697
+Plastic bottle cap,Bottle cap,0.03016
+Styrofoam piece,Styrofoam piece,0.06837
+Plastic film,Plastic bag & wrapper,0.13943
+Aluminium foil,Aluminium foil,0.15825
+Other plastic,Other plastic,0.11157
+Disposable food container,Plastic container,0.16026
+Plastic bottle cap,Bottle cap,0.03095
+Styrofoam piece,Styrofoam piece,0.10119
+Plastic bottle cap,Bottle cap,0.07046
+Styrofoam piece,Styrofoam piece,0.04823
+Styrofoam piece,Styrofoam piece,0.07382
+Unlabeled litter,Unlabeled litter,0.02808
+Paper bag,Paper bag,0.19828
+Unlabeled litter,Unlabeled litter,0.02377
+Other plastic,Other plastic,0.03827
+Styrofoam piece,Styrofoam piece,0.06870
+Styrofoam piece,Styrofoam piece,0.06020
+Plastic bottle cap,Bottle cap,0.13035
+Styrofoam piece,Styrofoam piece,0.07547
+Disposable plastic cup,Cup,0.15744
+Disposable plastic cup,Cup,0.13907
+Other carton,Carton,0.14874
+Disposable food container,Plastic container,0.11873
+Plastic film,Plastic bag & wrapper,0.15757
+Plastic straw,Straw,0.08600
+Other plastic,Other plastic,0.08154
+Garbage bag,Plastic bag & wrapper,0.34006
+Normal paper,Paper,0.07798
+Disposable plastic cup,Cup,0.05513
+Unlabeled litter,Unlabeled litter,0.02124
+Other plastic bottle,Bottle,0.13232
+Other plastic,Other plastic,0.02180
+Clear plastic bottle,Bottle,0.15457
+Unlabeled litter,Unlabeled litter,0.09097
+Other plastic,Other plastic,0.05990
+Unlabeled litter,Unlabeled litter,0.06415
+Unlabeled litter,Unlabeled litter,0.03452
+Corrugated carton,Carton,0.21725
+Other plastic wrapper,Plastic bag & wrapper,0.11008
+Normal paper,Paper,0.07718
+Clear plastic bottle,Bottle,0.09800
+Glass bottle,Bottle,0.15659
+Plastic straw,Straw,0.01826
+Drink carton,Carton,0.10774
+Drink can,Can,0.07367
+Plastic film,Plastic bag & wrapper,0.02624
+Corrugated carton,Carton,0.32523
+Unlabeled litter,Unlabeled litter,0.01399
+Unlabeled litter,Unlabeled litter,0.00878
+Squeezable tube,Squeezable tube,0.05917
+Plastic straw,Straw,0.02377
+Other plastic,Other plastic,0.16285
+Unlabeled litter,Unlabeled litter,0.01004
+Unlabeled litter,Unlabeled litter,0.00973
+Plastic film,Plastic bag & wrapper,0.12058
+Plastic film,Plastic bag & wrapper,0.04123
+Plastic film,Plastic bag & wrapper,0.04813
+Styrofoam piece,Styrofoam piece,0.12694
+Unlabeled litter,Unlabeled litter,0.00931
+Disposable plastic cup,Cup,0.06490
+Unlabeled litter,Unlabeled litter,0.04211
+Glass bottle,Bottle,0.16319
+Glass bottle,Bottle,0.05656
+Disposable plastic cup,Cup,0.11872
+Unlabeled litter,Unlabeled litter,0.06567
+Plastic film,Plastic bag & wrapper,0.08774
+Glass bottle,Bottle,0.09048
+Plastic bottle cap,Bottle cap,0.01482
+Rope & strings,Rope & strings,0.03378
+Plastic film,Plastic bag & wrapper,0.05498
+Styrofoam piece,Styrofoam piece,0.02388
+Plastic film,Plastic bag & wrapper,0.18434
+Meal carton,Carton,0.20551
+Plastic film,Plastic bag & wrapper,0.14280
+Disposable food container,Plastic container,0.19147
+Disposable food container,Plastic container,0.14681
+Clear plastic bottle,Bottle,0.14692
+Plastic bottle cap,Bottle cap,0.03049
+Normal paper,Paper,0.06968
+Plastic film,Plastic bag & wrapper,0.06438
+Meal carton,Carton,0.13144
+Plastic film,Plastic bag & wrapper,0.03460
+Normal paper,Paper,0.19721
+Foam cup,Cup,0.17264
+Disposable plastic cup,Cup,0.07566
+Normal paper,Paper,0.06042
+Unlabeled litter,Unlabeled litter,0.03522
+Clear plastic bottle,Bottle,0.08817
+Plastic bottle cap,Bottle cap,0.01388
+Drink can,Can,0.08437
+Unlabeled litter,Unlabeled litter,0.02082
+Other plastic wrapper,Plastic bag & wrapper,0.17379
+Drink can,Can,0.20177
+Pop tab,Pop tab,0.02748
+Aluminium foil,Aluminium foil,0.11754
+Aluminium foil,Aluminium foil,0.04120
+Paper cup,Cup,0.24180
+Drink can,Can,0.10296
+Metal bottle cap,Bottle cap,0.02788
+Clear plastic bottle,Bottle,0.16225
+Other plastic wrapper,Plastic bag & wrapper,0.23199
+Other plastic wrapper,Plastic bag & wrapper,0.09539
+Drink can,Can,0.09539
+Clear plastic bottle,Bottle,0.13308
+Plastic straw,Straw,0.10690
+Plastic straw,Straw,0.06638
+Plastic lid,Lid,0.05617
+Six pack rings,Plastic bag & wrapper,0.17816
+Unlabeled litter,Unlabeled litter,0.06666
+Drink can,Can,0.15303
+Pop tab,Pop tab,0.01888
+Other carton,Carton,0.33742
+Other plastic wrapper,Plastic bag & wrapper,0.08439
+Other plastic wrapper,Plastic bag & wrapper,0.05913
+Pop tab,Pop tab,0.02083
+Drink can,Can,0.12829
+Drink can,Can,0.12218
+Drink can,Can,0.14637
+Drink can,Can,0.07919
+Drink can,Can,0.06254
+Styrofoam piece,Styrofoam piece,0.09433
+Disposable plastic cup,Cup,0.05584
+Disposable plastic cup,Cup,0.05295
+Drink can,Can,0.03198
+Drink can,Can,0.04809
+Drink can,Can,0.05253
+Drink can,Can,0.04500
+Pop tab,Pop tab,0.00621
+Other plastic,Other plastic,0.06577
+Other plastic,Other plastic,0.03069
+Unlabeled litter,Unlabeled litter,0.01413
+Unlabeled litter,Unlabeled litter,0.02021
+Unlabeled litter,Unlabeled litter,0.06642
+Other carton,Carton,0.03567
+Aluminium foil,Aluminium foil,0.01413
+Drink can,Can,0.09860
+Pop tab,Pop tab,0.01415
+Pop tab,Pop tab,0.02511
+Drink can,Can,0.13579
+Plastic glooves,Plastic glooves,0.12719
+Plastic straw,Straw,0.09324
+Plastic lid,Lid,0.07529
+Unlabeled litter,Unlabeled litter,0.02399
+Meal carton,Carton,0.14507
+Meal carton,Carton,0.25888
+Plastic film,Plastic bag & wrapper,0.07421
+Crisp packet,Plastic bag & wrapper,0.16903
+Unlabeled litter,Unlabeled litter,0.03671
+Plastic film,Plastic bag & wrapper,0.14698
+Single-use carrier bag,Plastic bag & wrapper,0.41958
+Other plastic wrapper,Plastic bag & wrapper,0.19330
+Plastic film,Plastic bag & wrapper,0.04493
+Paper bag,Paper bag,0.16556
+Paper bag,Paper bag,0.03627
+Plastic film,Plastic bag & wrapper,0.07152
+Paper bag,Paper bag,0.31638
+Disposable plastic cup,Cup,0.04992
+Disposable plastic cup,Cup,0.05477
+Glass bottle,Bottle,0.12257
+Glass bottle,Bottle,0.05718
+Glass bottle,Bottle,0.05543
+Clear plastic bottle,Bottle,0.16796
+Meal carton,Carton,0.09236
+Plastic straw,Straw,0.03708
+Plastic lid,Lid,0.08132
+Paper cup,Cup,0.11142
+Other plastic wrapper,Plastic bag & wrapper,0.02631
+Other plastic,Other plastic,0.01495
+Paper cup,Cup,0.08184
+Unlabeled litter,Unlabeled litter,0.04970
+Plastic straw,Straw,0.06480
+Other plastic wrapper,Plastic bag & wrapper,0.10607
+Meal carton,Carton,0.10960
+Paper cup,Cup,0.08946
+Plastic lid,Lid,0.06680
+Paper cup,Cup,0.08296
+Plastic lid,Lid,0.03308
+Plastic film,Plastic bag & wrapper,0.13849
+Plastic film,Plastic bag & wrapper,0.05849
+Drink can,Can,0.06209
+Drink can,Can,0.05589
+Unlabeled litter,Unlabeled litter,0.04116
+Unlabeled litter,Unlabeled litter,0.06116
+Plastic glooves,Plastic glooves,0.13363
+Normal paper,Paper,0.18520
+Styrofoam piece,Styrofoam piece,0.14483
+Plastic film,Plastic bag & wrapper,0.07371
+Plastic lid,Lid,0.06571
+Drink can,Can,0.14792
+Metal bottle cap,Bottle cap,0.03219
+Plastic straw,Straw,0.08149
+Paper cup,Cup,0.09123
+Paper cup,Cup,0.12934
+Unlabeled litter,Unlabeled litter,0.02260
+Other plastic,Other plastic,0.05124
+Crisp packet,Plastic bag & wrapper,0.16580
+Disposable food container,Plastic container,0.19298
+Other plastic,Other plastic,0.04475
+Other plastic,Other plastic,0.03912
+Plastic film,Plastic bag & wrapper,0.03920
+Plastic film,Plastic bag & wrapper,0.04511
+Food Can,Can,0.12282
+Disposable plastic cup,Cup,0.06997
+Plastic lid,Lid,0.03870
+Other plastic,Other plastic,0.02945
+Unlabeled litter,Unlabeled litter,0.04501
+Clear plastic bottle,Bottle,0.05504
+Disposable plastic cup,Cup,0.10159
+Disposable plastic cup,Cup,0.05802
+Paper cup,Cup,0.10798
+Plastic straw,Straw,0.11142
+Plastic straw,Straw,0.06160
+Plastic lid,Lid,0.08498
+Plastic lid,Lid,0.05279
+Corrugated carton,Carton,0.25184
+Corrugated carton,Carton,0.21405
+Paper bag,Paper bag,0.12290
+Normal paper,Paper,0.04331
+Unlabeled litter,Unlabeled litter,0.05964
+Meal carton,Carton,0.15056
+Plastic film,Plastic bag & wrapper,0.06762
+Pop tab,Pop tab,0.02051
+Drink can,Can,0.10593
+Clear plastic bottle,Bottle,0.05040
+Foam food container,Plastic container,0.19227
+Paper cup,Cup,0.13076
+Plastic lid,Lid,0.08903
+Plastic straw,Straw,0.05022
+Plastic lid,Lid,0.05254
+Paper cup,Cup,0.08632
+Other carton,Carton,0.05816
+Spread tub,Plastic container,0.05810
+Single-use carrier bag,Plastic bag & wrapper,0.13878
+Crisp packet,Plastic bag & wrapper,0.06969
+Crisp packet,Plastic bag & wrapper,0.11441
+Disposable plastic cup,Cup,0.06659
+Disposable plastic cup,Cup,0.07762
+Plastic film,Plastic bag & wrapper,0.19411
+Cigarette,Cigarette,0.01550
+Cigarette,Cigarette,0.00895
+Cigarette,Cigarette,0.00980
+Cigarette,Cigarette,0.01801
+Cigarette,Cigarette,0.03606
+Cigarette,Cigarette,0.01826
+Cigarette,Cigarette,0.00794
+Cigarette,Cigarette,0.00633
+Cigarette,Cigarette,0.01163
+Cigarette,Cigarette,0.01440
+Cigarette,Cigarette,0.02108
+Cigarette,Cigarette,0.02987
+Cigarette,Cigarette,0.02093
+Cigarette,Cigarette,0.01991
+Cigarette,Cigarette,0.01661
+Cigarette,Cigarette,0.02225
+Cigarette,Cigarette,0.01376
+Cigarette,Cigarette,0.01704
+Cigarette,Cigarette,0.01644
+Cigarette,Cigarette,0.01059
+Cigarette,Cigarette,0.01132
+Cigarette,Cigarette,0.01661
+Cigarette,Cigarette,0.01011
+Cigarette,Cigarette,0.01112
+Cigarette,Cigarette,0.01326
+Cigarette,Cigarette,0.01154
+Cigarette,Cigarette,0.01082
+Cigarette,Cigarette,0.01194
+Cigarette,Cigarette,0.00700
+Cigarette,Cigarette,0.00722
+Cigarette,Cigarette,0.00794
+Cigarette,Cigarette,0.01804
+Cigarette,Cigarette,0.02032
+Cigarette,Cigarette,0.01357
+Cigarette,Cigarette,0.01096
+Cigarette,Cigarette,0.01440
+Cigarette,Cigarette,0.01092
+Cigarette,Cigarette,0.01550
+Cigarette,Cigarette,0.01225
+Cigarette,Cigarette,0.01052
+Cigarette,Cigarette,0.01075
+Cigarette,Cigarette,0.00566
+Cigarette,Cigarette,0.00419
+Cigarette,Cigarette,0.00621
+Cigarette,Cigarette,0.00529
+Cigarette,Cigarette,0.00722
+Disposable plastic cup,Cup,0.06240
+Clear plastic bottle,Bottle,0.21403
+Aluminium foil,Aluminium foil,0.16631
+Clear plastic bottle,Bottle,0.03960
+Plastic bottle cap,Bottle cap,0.00690
+Unlabeled litter,Unlabeled litter,0.02139
+Unlabeled litter,Unlabeled litter,0.01348
+Drink carton,Carton,0.03214
+Aerosol,Can,0.03370
+Clear plastic bottle,Bottle,0.05188
+Single-use carrier bag,Plastic bag & wrapper,0.07402
+Normal paper,Paper,0.03840
+Plastic film,Plastic bag & wrapper,0.03339
+Clear plastic bottle,Bottle,0.06081
+Other plastic wrapper,Plastic bag & wrapper,0.04976
+Clear plastic bottle,Bottle,0.15482
+Clear plastic bottle,Bottle,0.10737
+Clear plastic bottle,Bottle,0.13710
+Clear plastic bottle,Bottle,0.06952
+Clear plastic bottle,Bottle,0.05852
+Drink can,Can,0.05894
+Pop tab,Pop tab,0.01517
+Aluminium foil,Aluminium foil,0.12616
+Clear plastic bottle,Bottle,0.09884
+Clear plastic bottle,Bottle,0.10697
+Plastic bottle cap,Bottle cap,0.01874
+Plastic bottle cap,Bottle cap,0.01555
+Crisp packet,Plastic bag & wrapper,0.06963
+Other plastic wrapper,Plastic bag & wrapper,0.03256
+Unlabeled litter,Unlabeled litter,0.02871
+Other carton,Carton,0.09630
+Other plastic wrapper,Plastic bag & wrapper,0.19241
+Plastic film,Plastic bag & wrapper,0.14550
+Clear plastic bottle,Bottle,0.14542
+Plastic bottle cap,Bottle cap,0.04523
+Other plastic,Other plastic,0.01624
+Plastic straw,Straw,0.05645
+Plastic lid,Lid,0.03746
+Aluminium foil,Aluminium foil,0.18557
+Clear plastic bottle,Bottle,0.07033
+Disposable food container,Plastic container,0.10699
+Aluminium foil,Aluminium foil,0.01904
+Clear plastic bottle,Bottle,0.06332
+Clear plastic bottle,Bottle,0.03146
+Other plastic wrapper,Plastic bag & wrapper,0.06177
+Aluminium foil,Aluminium foil,0.11543
+Clear plastic bottle,Bottle,0.19048
+Clear plastic bottle,Bottle,0.06697
+Other plastic,Other plastic,0.02256
+Drink can,Can,0.02696
+Plastic film,Plastic bag & wrapper,0.04293
+Clear plastic bottle,Bottle,0.09834
+Plastic bottle cap,Bottle cap,0.01208
+Rope & strings,Rope & strings,0.09484
+Aerosol,Can,0.11263
+Glass bottle,Bottle,0.10231
+Clear plastic bottle,Bottle,0.06624
+Clear plastic bottle,Bottle,0.05811
+Glass bottle,Bottle,0.08112
+Glass bottle,Bottle,0.04932
+Unlabeled litter,Unlabeled litter,0.00813
+Clear plastic bottle,Bottle,0.14082
+Glass bottle,Bottle,0.14076
+Paper cup,Cup,0.12642
+Corrugated carton,Carton,0.30505
+Other plastic bottle,Bottle,0.18267
+Corrugated carton,Carton,0.24708
+Clear plastic bottle,Bottle,0.15982
+Plastic bottle cap,Bottle cap,0.02076
+Scrap metal,Scrap metal,0.04580
+Clear plastic bottle,Bottle,0.02325
+Clear plastic bottle,Bottle,0.02696
+Clear plastic bottle,Bottle,0.02956
+Clear plastic bottle,Bottle,0.02066
+Clear plastic bottle,Bottle,0.02142
+Clear plastic bottle,Bottle,0.01906
+Clear plastic bottle,Bottle,0.01939
+Other plastic bottle,Bottle,0.03578
+Unlabeled litter,Unlabeled litter,0.01695
+Unlabeled litter,Unlabeled litter,0.02351
+Unlabeled litter,Unlabeled litter,0.02476
+Other plastic,Other plastic,0.01054
+Unlabeled litter,Unlabeled litter,0.01321
+Unlabeled litter,Unlabeled litter,0.01784
+Unlabeled litter,Unlabeled litter,0.01092
+Unlabeled litter,Unlabeled litter,0.01427
+Unlabeled litter,Unlabeled litter,0.01273
+Unlabeled litter,Unlabeled litter,0.00842
+Unlabeled litter,Unlabeled litter,0.00725
+Unlabeled litter,Unlabeled litter,0.01517
+Unlabeled litter,Unlabeled litter,0.00759
+Unlabeled litter,Unlabeled litter,0.02201
+Unlabeled litter,Unlabeled litter,0.01661
+Unlabeled litter,Unlabeled litter,0.01400
+Unlabeled litter,Unlabeled litter,0.00635
+Unlabeled litter,Unlabeled litter,0.02015
+Unlabeled litter,Unlabeled litter,0.01769
+Unlabeled litter,Unlabeled litter,0.01538
+Unlabeled litter,Unlabeled litter,0.01072
+Unlabeled litter,Unlabeled litter,0.02883
+Unlabeled litter,Unlabeled litter,0.00725
+Unlabeled litter,Unlabeled litter,0.02423
+Unlabeled litter,Unlabeled litter,0.03455
+Unlabeled litter,Unlabeled litter,0.01290
+Unlabeled litter,Unlabeled litter,0.01113
+Unlabeled litter,Unlabeled litter,0.00562
+Unlabeled litter,Unlabeled litter,0.01451
+Other plastic,Other plastic,0.01432
+Unlabeled litter,Unlabeled litter,0.02757
+Unlabeled litter,Unlabeled litter,0.01271
+Unlabeled litter,Unlabeled litter,0.00987
+Unlabeled litter,Unlabeled litter,0.02529
+Other plastic,Other plastic,0.01993
+Unlabeled litter,Unlabeled litter,0.01236
+Other plastic,Other plastic,0.01274
+Unlabeled litter,Unlabeled litter,0.01353
+Unlabeled litter,Unlabeled litter,0.01177
+Unlabeled litter,Unlabeled litter,0.01223
+Unlabeled litter,Unlabeled litter,0.02689
+Unlabeled litter,Unlabeled litter,0.00884
+Unlabeled litter,Unlabeled litter,0.00722
+Unlabeled litter,Unlabeled litter,0.00909
+Unlabeled litter,Unlabeled litter,0.02476
+Unlabeled litter,Unlabeled litter,0.01588
+Unlabeled litter,Unlabeled litter,0.00799
+Unlabeled litter,Unlabeled litter,0.00953
+Unlabeled litter,Unlabeled litter,0.02226
+Unlabeled litter,Unlabeled litter,0.00878
+Unlabeled litter,Unlabeled litter,0.01183
+Unlabeled litter,Unlabeled litter,0.01415
+Unlabeled litter,Unlabeled litter,0.01638
+Unlabeled litter,Unlabeled litter,0.01194
+Unlabeled litter,Unlabeled litter,0.01238
+Paper cup,Cup,0.01482
+Other plastic wrapper,Plastic bag & wrapper,0.02455
+Plastic film,Plastic bag & wrapper,0.02573
+Other plastic wrapper,Plastic bag & wrapper,0.02228
+Other plastic wrapper,Plastic bag & wrapper,0.02122
+Other plastic wrapper,Plastic bag & wrapper,0.02565
+Plastic film,Plastic bag & wrapper,0.03039
+Other plastic wrapper,Plastic bag & wrapper,0.02812
+Other plastic wrapper,Plastic bag & wrapper,0.03425
+Plastic film,Plastic bag & wrapper,0.02406
+Drink can,Can,0.01648
+Drink can,Can,0.01379
+Drink can,Can,0.01408
+Drink can,Can,0.02094
+Plastic lid,Lid,0.00725
+Plastic lid,Lid,0.01150
+Plastic straw,Straw,0.01218
+Plastic straw,Straw,0.01370
+Plastic straw,Straw,0.02063
+Plastic straw,Straw,0.01463
+Plastic bottle cap,Bottle cap,0.00760
+Plastic bottle cap,Bottle cap,0.00566
+Plastic bottle cap,Bottle cap,0.00707
+Plastic bottle cap,Bottle cap,0.00648
+Plastic bottle cap,Bottle cap,0.00668
+Plastic bottle cap,Bottle cap,0.00654
+Plastic bottle cap,Bottle cap,0.00556
+Plastic bottle cap,Bottle cap,0.02879
+Tupperware,Plastic container,0.11214
+Clear plastic bottle,Bottle,0.15457
+Clear plastic bottle,Bottle,0.10567
+Plastic utensils,Plastic utensils,0.05562
+Plastic utensils,Plastic utensils,0.05803
+Paper bag,Paper bag,0.07586
+Paper bag,Paper bag,0.05445
+Plastic film,Plastic bag & wrapper,0.04134
+Other plastic wrapper,Plastic bag & wrapper,0.02929
+Other plastic wrapper,Plastic bag & wrapper,0.02945
+Pop tab,Pop tab,0.02103
+Clear plastic bottle,Bottle,0.04667
+Clear plastic bottle,Bottle,0.02645
+Clear plastic bottle,Bottle,0.08745
+Clear plastic bottle,Bottle,0.07554
+Plastic bottle cap,Bottle cap,0.03177
+Single-use carrier bag,Plastic bag & wrapper,0.22480
+Tupperware,Plastic container,0.06072
+Plastic bottle cap,Bottle cap,0.01003
+Unlabeled litter,Unlabeled litter,0.02442
+Unlabeled litter,Unlabeled litter,0.01804
+Unlabeled litter,Unlabeled litter,0.01133
+Foam food container,Plastic container,0.21225
+Plastic film,Plastic bag & wrapper,0.13098
+Pizza box,Carton,0.35795
+Disposable food container,Plastic container,0.10202
+Clear plastic bottle,Bottle,0.15084
+Corrugated carton,Carton,0.11313
+Corrugated carton,Carton,0.28430
+Corrugated carton,Carton,0.22553
+Clear plastic bottle,Bottle,0.19121
+Clear plastic bottle,Bottle,0.24886
+Aluminium foil,Aluminium foil,0.10968
+Aluminium foil,Aluminium foil,0.09784
+Drink carton,Carton,0.27583
+Other carton,Carton,0.25601
+Clear plastic bottle,Bottle,0.22500
+Clear plastic bottle,Bottle,0.12880
+Aluminium foil,Aluminium foil,0.06515
+Aluminium foil,Aluminium foil,0.07366
+Clear plastic bottle,Bottle,0.08119
+Glass bottle,Bottle,0.12669
+Other plastic wrapper,Plastic bag & wrapper,0.05644
+Other plastic wrapper,Plastic bag & wrapper,0.02896
+Unlabeled litter,Unlabeled litter,0.03361
+Drink can,Can,0.14053
+Drink can,Can,0.14212
+Drink can,Can,0.15052
+Drink can,Can,0.10796
+Drink can,Can,0.09707
+Drink can,Can,0.09657
+Drink can,Can,0.08413
+Drink can,Can,0.10440
+Drink can,Can,0.05697
+Drink can,Can,0.09556
+Drink can,Can,0.06987
+Clear plastic bottle,Bottle,0.16559
+Single-use carrier bag,Plastic bag & wrapper,0.28100
+Pop tab,Pop tab,0.03319
+Pop tab,Pop tab,0.02765
+Pop tab,Pop tab,0.02169
+Pop tab,Pop tab,0.01621
+Pop tab,Pop tab,0.01700
+Pop tab,Pop tab,0.02093
+Pop tab,Pop tab,0.01661
+Disposable plastic cup,Cup,0.07476
+Foam food container,Plastic container,0.15071
+Aluminium foil,Aluminium foil,0.11956
+Disposable plastic cup,Cup,0.07044
+Clear plastic bottle,Bottle,0.09109
+Other plastic,Other plastic,0.02137
+Single-use carrier bag,Plastic bag & wrapper,0.26675
+Unlabeled litter,Unlabeled litter,0.03925
+Disposable food container,Plastic container,0.21686
+Clear plastic bottle,Bottle,0.26372
+Plastic bottle cap,Bottle cap,0.03589
+Clear plastic bottle,Bottle,0.12386
+Clear plastic bottle,Bottle,0.12977
+Plastic bottle cap,Bottle cap,0.02716
+Plastic film,Plastic bag & wrapper,0.17600
+Other plastic wrapper,Plastic bag & wrapper,0.09940
+Foam food container,Plastic container,0.15123
+Disposable plastic cup,Cup,0.07604
+Aluminium foil,Aluminium foil,0.13376
+Aluminium foil,Aluminium foil,0.05341
+Paper bag,Paper bag,0.35750
+Drink can,Can,0.00747
+Aluminium foil,Aluminium foil,0.31951
+Aluminium foil,Aluminium foil,0.10838
+Clear plastic bottle,Bottle,0.05828
+Clear plastic bottle,Bottle,0.02596
+Plastic film,Plastic bag & wrapper,0.04715
+Aerosol,Can,0.05803
+Clear plastic bottle,Bottle,0.07893
+Clear plastic bottle,Bottle,0.11196
+Crisp packet,Plastic bag & wrapper,0.04758
+Other plastic wrapper,Plastic bag & wrapper,0.03768
+Crisp packet,Plastic bag & wrapper,0.04024
+Unlabeled litter,Unlabeled litter,0.02948
+Unlabeled litter,Unlabeled litter,0.03980
+Other plastic,Other plastic,0.01136
+Unlabeled litter,Unlabeled litter,0.01258
+Other plastic,Other plastic,0.00615
+Other plastic,Other plastic,0.01289
+Drink can,Can,0.03497
+Drink can,Can,0.02464
+Clear plastic bottle,Bottle,0.04114
+Clear plastic bottle,Bottle,0.03218
+Clear plastic bottle,Bottle,0.06873
+Aluminium foil,Aluminium foil,0.11971
+Aluminium foil,Aluminium foil,0.12736
+Aluminium foil,Aluminium foil,0.06723
+Aluminium foil,Aluminium foil,0.04386
+Aluminium foil,Aluminium foil,0.06315
+Aluminium foil,Aluminium foil,0.07827
+Clear plastic bottle,Bottle,0.13488
+Clear plastic bottle,Bottle,0.11763
+Plastic lid,Lid,0.05149
+Plastic straw,Straw,0.03440
+Clear plastic bottle,Bottle,0.06802
+Clear plastic bottle,Bottle,0.05689
+Unlabeled litter,Unlabeled litter,0.02831
+Unlabeled litter,Unlabeled litter,0.03656
+Other plastic,Other plastic,0.03668
+Unlabeled litter,Unlabeled litter,0.02128
+Unlabeled litter,Unlabeled litter,0.01175
+Unlabeled litter,Unlabeled litter,0.01123
+Unlabeled litter,Unlabeled litter,0.01272
+Unlabeled litter,Unlabeled litter,0.01609
+Unlabeled litter,Unlabeled litter,0.02415
+Clear plastic bottle,Bottle,0.09871
+Clear plastic bottle,Bottle,0.10194
+Plastic bottle cap,Bottle cap,0.01721
+Crisp packet,Plastic bag & wrapper,0.06856
+Unlabeled litter,Unlabeled litter,0.03812
+Unlabeled litter,Unlabeled litter,0.07374
+Drink can,Can,0.16109
+Disposable plastic cup,Cup,0.14806
+Plastic film,Plastic bag & wrapper,0.29235
+Corrugated carton,Carton,0.43429
+Food Can,Can,0.09094
+Pop tab,Pop tab,0.02286
+Aluminium foil,Aluminium foil,0.08903
+Drink carton,Carton,0.14917
+Plastic straw,Straw,0.02477
+Clear plastic bottle,Bottle,0.14107
+Drink carton,Carton,0.16624
+Plastic bottle cap,Bottle cap,0.03553
+Paper bag,Paper bag,0.30410
+Aluminium foil,Aluminium foil,0.14808
+Aluminium foil,Aluminium foil,0.05250
+Aluminium foil,Aluminium foil,0.24461
+Aluminium foil,Aluminium foil,0.08733
+Aluminium foil,Aluminium foil,0.17068
+Aluminium foil,Aluminium foil,0.28769
+Clear plastic bottle,Bottle,0.34668
+Other plastic wrapper,Plastic bag & wrapper,0.07378
+Clear plastic bottle,Bottle,0.26141
+Plastic bottle cap,Bottle cap,0.03925
+Foam food container,Plastic container,0.11459
+Drink carton,Carton,0.20257
+Meal carton,Carton,0.28796
+Clear plastic bottle,Bottle,0.14954
+Clear plastic bottle,Bottle,0.16018
+Aluminium foil,Aluminium foil,0.06079
+Aluminium foil,Aluminium foil,0.07367
+Paper cup,Cup,0.09774
+Clear plastic bottle,Bottle,0.13162
+Glass bottle,Bottle,0.18745
+Clear plastic bottle,Bottle,0.09433
+Drink can,Can,0.08908
+Crisp packet,Plastic bag & wrapper,0.12375
+Crisp packet,Plastic bag & wrapper,0.17645
+Plastic utensils,Plastic utensils,0.06878
+Clear plastic bottle,Bottle,0.23526
+Corrugated carton,Carton,0.44613
+Paper cup,Cup,0.17117
+Plastic film,Plastic bag & wrapper,0.42173
+Plastic bottle cap,Bottle cap,0.02655
+Plastic bottle cap,Bottle cap,0.01500
+Clear plastic bottle,Bottle,0.06434
+Unlabeled litter,Unlabeled litter,0.02173
+Other plastic wrapper,Plastic bag & wrapper,0.09847
+Plastic utensils,Plastic utensils,0.07746
+Corrugated carton,Carton,0.27379
+Corrugated carton,Carton,0.15430
+Other plastic wrapper,Plastic bag & wrapper,0.22335
+Other plastic wrapper,Plastic bag & wrapper,0.22140
+Plastic film,Plastic bag & wrapper,0.27845
+Normal paper,Paper,0.21897
+Plastic utensils,Plastic utensils,0.08289
+Cigarette,Cigarette,0.01772
+Cigarette,Cigarette,0.00529
+Cigarette,Cigarette,0.00648
+Cigarette,Cigarette,0.00510
+Cigarette,Cigarette,0.00529
+Cigarette,Cigarette,0.00570
+Cigarette,Cigarette,0.00475
+Cigarette,Cigarette,0.00510
+Cigarette,Cigarette,0.00469
+Cigarette,Cigarette,0.00490
+Cigarette,Cigarette,0.00690
+Cigarette,Cigarette,0.00510
+Cigarette,Cigarette,0.00419
+Cigarette,Cigarette,0.00447
+Cigarette,Cigarette,0.00490
+Cigarette,Cigarette,0.00621
+Cigarette,Cigarette,0.00490
+Cigarette,Cigarette,0.00600
+Cigarette,Cigarette,0.00316
+Cigarette,Cigarette,0.00592
+Cigarette,Cigarette,0.00895
+Cigarette,Cigarette,0.01059
+Cigarette,Cigarette,0.01169
+Cigarette,Cigarette,0.00909
+Cigarette,Cigarette,0.00800
+Cigarette,Cigarette,0.01011
+Cigarette,Cigarette,0.01305
+Cigarette,Cigarette,0.00490
+Cigarette,Cigarette,0.00388
+Cigarette,Cigarette,0.02087
+Cigarette,Cigarette,0.00939
+Cigarette,Cigarette,0.01501
+Cigarette,Cigarette,0.00825
+Cigarette,Cigarette,0.01001
+Cigarette,Cigarette,0.01685
+Cigarette,Cigarette,0.01184
+Cigarette,Cigarette,0.00917
+Cigarette,Cigarette,0.01096
+Cigarette,Cigarette,0.00671
+Cigarette,Cigarette,0.00775
+Cigarette,Cigarette,0.00884
+Cigarette,Cigarette,0.01219
+Cigarette,Cigarette,0.01023
+Cigarette,Cigarette,0.01875
+Cigarette,Cigarette,0.01150
+Cigarette,Cigarette,0.00725
+Cigarette,Cigarette,0.00878
+Cigarette,Cigarette,0.01327
+Cigarette,Cigarette,0.01859
+Cigarette,Cigarette,0.01471
+Cigarette,Cigarette,0.01653
+Cigarette,Cigarette,0.02112
+Cigarette,Cigarette,0.01571
+Cigarette,Cigarette,0.02546
+Cigarette,Cigarette,0.01763
+Other plastic wrapper,Plastic bag & wrapper,0.04240
+Plastic straw,Straw,0.06029
+Other plastic,Other plastic,0.01433
+Other plastic,Other plastic,0.04517
+Plastic bottle cap,Bottle cap,0.02725
+Plastic straw,Straw,0.10538
+Other plastic,Other plastic,0.01340
+Unlabeled litter,Unlabeled litter,0.01020
+Metal bottle cap,Bottle cap,0.03072
+Other plastic wrapper,Plastic bag & wrapper,0.10129
+Other plastic,Other plastic,0.04431
+Plastic film,Plastic bag & wrapper,0.16105
+Other plastic,Other plastic,0.14832
+Corrugated carton,Carton,0.27832
+Plastic utensils,Plastic utensils,0.01702
+Clear plastic bottle,Bottle,0.04260
+Plastic bottle cap,Bottle cap,0.01137
+Plastic bottle cap,Bottle cap,0.01045
+Drink can,Can,0.04712
+Plastic film,Plastic bag & wrapper,0.17799
+Aluminium foil,Aluminium foil,0.09890
+Magazine paper,Paper,0.21136
+Aluminium foil,Aluminium foil,0.09391
+Unlabeled litter,Unlabeled litter,0.04410
+Unlabeled litter,Unlabeled litter,0.01078
+Clear plastic bottle,Bottle,0.07198
+Clear plastic bottle,Bottle,0.14265
+Styrofoam piece,Styrofoam piece,0.09745
+Styrofoam piece,Styrofoam piece,0.01506
+Styrofoam piece,Styrofoam piece,0.02007
+Styrofoam piece,Styrofoam piece,0.02144
+Styrofoam piece,Styrofoam piece,0.01396
+Disposable food container,Plastic container,0.07750
+Styrofoam piece,Styrofoam piece,0.08614
+Styrofoam piece,Styrofoam piece,0.10402
+Styrofoam piece,Styrofoam piece,0.01036
+Normal paper,Paper,0.20672
+Unlabeled litter,Unlabeled litter,0.01813
+Other plastic,Other plastic,0.09196
+Other plastic,Other plastic,0.10651
+Other plastic,Other plastic,0.06569
+Other plastic,Other plastic,0.06862
+Other plastic,Other plastic,0.05647
+Other plastic,Other plastic,0.05512
+Other plastic,Other plastic,0.03886
+Unlabeled litter,Unlabeled litter,0.05344
+Tissues,Paper,0.12642
+Clear plastic bottle,Bottle,0.25051
+Clear plastic bottle,Bottle,0.21474
+Plastic straw,Straw,0.09324
+Other carton,Carton,0.05399
+Other carton,Carton,0.03539
+Plastic film,Plastic bag & wrapper,0.07382
+Drink can,Can,0.04776
+Unlabeled litter,Unlabeled litter,0.05249
+Drink can,Can,0.08521
+Pop tab,Pop tab,0.01963
+Paper cup,Cup,0.29836
+Plastic lid,Lid,0.20999
+Tissues,Paper,0.21088
+Disposable plastic cup,Cup,0.46142
+Paper cup,Cup,0.50015
+Plastic lid,Lid,0.33039
+Paper cup,Cup,0.16679
+Paper cup,Cup,0.15653
+Disposable plastic cup,Cup,0.11810
+Metal bottle cap,Bottle cap,0.03449
+Crisp packet,Plastic bag & wrapper,0.06441
+Garbage bag,Plastic bag & wrapper,0.22524
+Paper cup,Cup,0.02594
+Other plastic,Other plastic,0.02570
+Drink carton,Carton,0.09922
+Meal carton,Carton,0.10807
+Plastic straw,Straw,0.04122
+Single-use carrier bag,Plastic bag & wrapper,0.14076
+Single-use carrier bag,Plastic bag & wrapper,0.14733
+Plastic film,Plastic bag & wrapper,0.13644
+Food Can,Can,0.12538
+Other plastic,Other plastic,0.02264
+Disposable plastic cup,Cup,0.05415
+Drink carton,Carton,0.07716
+Plastic straw,Straw,0.01777
+Foam food container,Plastic container,0.17329
+Unlabeled litter,Unlabeled litter,0.02048
+Unlabeled litter,Unlabeled litter,0.03882
+Other plastic wrapper,Plastic bag & wrapper,0.02425
+Plastic film,Plastic bag & wrapper,0.06405
+Drink carton,Carton,0.06903
+Paper cup,Cup,0.07418
+Other plastic,Other plastic,0.06557
+Other plastic,Other plastic,0.03273
+Unlabeled litter,Unlabeled litter,0.02299
+Plastic straw,Straw,0.01306
+Drink carton,Carton,0.03124
+Clear plastic bottle,Bottle,0.11216
+Plastic film,Plastic bag & wrapper,0.04227
+Plastic film,Plastic bag & wrapper,0.17399
+Foam cup,Cup,0.03436
+Normal paper,Paper,0.02919
+Drink carton,Carton,0.09687
+Plastic lid,Lid,0.01875
+Glass bottle,Bottle,0.06968
+Glass bottle,Bottle,0.06886
+Normal paper,Paper,0.06781
+Paper cup,Cup,0.06578
+Metal bottle cap,Bottle cap,0.01607
+Normal paper,Paper,0.11068
+Unlabeled litter,Unlabeled litter,0.03202
+Styrofoam piece,Styrofoam piece,0.02025
+Single-use carrier bag,Plastic bag & wrapper,0.13451
+Plastic film,Plastic bag & wrapper,0.05866
+Other plastic wrapper,Plastic bag & wrapper,0.04204
+Other plastic wrapper,Plastic bag & wrapper,0.04054
+Plastic film,Plastic bag & wrapper,0.03292
+Plastic utensils,Plastic utensils,0.05919
+Clear plastic bottle,Bottle,0.11120
+Spread tub,Plastic container,0.04865
+Tissues,Paper,0.02188
+Tissues,Paper,0.02781
+Other carton,Carton,0.02808
+Unlabeled litter,Unlabeled litter,0.01989
+Unlabeled litter,Unlabeled litter,0.02176
+Unlabeled litter,Unlabeled litter,0.04398
+Unlabeled litter,Unlabeled litter,0.02379
+Unlabeled litter,Unlabeled litter,0.03756
+Unlabeled litter,Unlabeled litter,0.00563
+Unlabeled litter,Unlabeled litter,0.01401
+Other plastic,Other plastic,0.04051
+Unlabeled litter,Unlabeled litter,0.02433
+Other plastic,Other plastic,0.05410
+Plastic straw,Straw,0.04615
+Paper cup,Cup,0.02828
+Plastic bottle cap,Bottle cap,0.01407
+Plastic utensils,Plastic utensils,0.06186
+Plastic utensils,Plastic utensils,0.07359
+Plastic straw,Straw,0.12070
+Unlabeled litter,Unlabeled litter,0.06538
+Plastic straw,Straw,0.03714
+Plastic straw,Straw,0.03467
+Single-use carrier bag,Plastic bag & wrapper,0.19641
+Single-use carrier bag,Plastic bag & wrapper,0.24328
+Plastic film,Plastic bag & wrapper,0.05627
+Pizza box,Carton,0.36619
+Drink carton,Carton,0.05457
+Paper cup,Cup,0.04443
+Egg carton,Carton,0.17427
+Other plastic,Other plastic,0.01892
+Paper cup,Cup,0.06273
+Plastic utensils,Plastic utensils,0.02895
+Single-use carrier bag,Plastic bag & wrapper,0.03060
+Other plastic,Other plastic,0.01451
+Plastic film,Plastic bag & wrapper,0.10165
+Spread tub,Plastic container,0.07621
+Disposable plastic cup,Cup,0.02909
+Clear plastic bottle,Bottle,0.08109
+Normal paper,Paper,0.08849
+Other plastic wrapper,Plastic bag & wrapper,0.08636
+Clear plastic bottle,Bottle,0.06438
+Plastic bottle cap,Bottle cap,0.01113
+Plastic film,Plastic bag & wrapper,0.04627
+Other plastic wrapper,Plastic bag & wrapper,0.04563
+Other plastic wrapper,Plastic bag & wrapper,0.10365
+Other plastic wrapper,Plastic bag & wrapper,0.05952
+Plastic film,Plastic bag & wrapper,0.04479
+Unlabeled litter,Unlabeled litter,0.01111
+Unlabeled litter,Unlabeled litter,0.02474
+Unlabeled litter,Unlabeled litter,0.02109
+Unlabeled litter,Unlabeled litter,0.02713
+Plastic film,Plastic bag & wrapper,0.06340
+Plastic straw,Straw,0.08489
+Unlabeled litter,Unlabeled litter,0.04476
+Other plastic wrapper,Plastic bag & wrapper,0.04702
+Plastic film,Plastic bag & wrapper,0.04504
+Plastic film,Plastic bag & wrapper,0.03120
+Single-use carrier bag,Plastic bag & wrapper,0.07760
+Clear plastic bottle,Bottle,0.03242
+Plastic bottle cap,Bottle cap,0.00813
+Unlabeled litter,Unlabeled litter,0.01863
+Foam cup,Cup,0.03328
+Disposable food container,Plastic container,0.05546
+Plastic film,Plastic bag & wrapper,0.03421
+Plastic film,Plastic bag & wrapper,0.09995
+Other plastic,Other plastic,0.03667
+Other plastic wrapper,Plastic bag & wrapper,0.05864
+Plastic film,Plastic bag & wrapper,0.07924
+Plastic utensils,Plastic utensils,0.06575
+Plastic straw,Straw,0.05199
+Other plastic,Other plastic,0.01592
+Single-use carrier bag,Plastic bag & wrapper,0.04943
+Clear plastic bottle,Bottle,0.13257
+Other plastic bottle,Bottle,0.10906
+Unlabeled litter,Unlabeled litter,0.14175
+Drink carton,Carton,0.07560
+Plastic bottle cap,Bottle cap,0.01503
+Glass bottle,Bottle,0.05272
+Unlabeled litter,Unlabeled litter,0.01342
+Drink carton,Carton,0.03563
+Unlabeled litter,Unlabeled litter,0.01040
+Clear plastic bottle,Bottle,0.07608
+Garbage bag,Plastic bag & wrapper,0.28806
+Garbage bag,Plastic bag & wrapper,0.23518
+Garbage bag,Plastic bag & wrapper,0.55540
+Garbage bag,Plastic bag & wrapper,0.21247
+Single-use carrier bag,Plastic bag & wrapper,0.31579
+Plastic film,Plastic bag & wrapper,0.03782
+Crisp packet,Plastic bag & wrapper,0.07887
+Single-use carrier bag,Plastic bag & wrapper,0.15381
+Other carton,Carton,0.36399
+Other carton,Carton,0.08742
+Drink carton,Carton,0.06990
+Other carton,Carton,0.05127
+Drink carton,Carton,0.07033
+Other carton,Carton,0.08725
+Drink carton,Carton,0.04102
+Pop tab,Pop tab,0.00886
+Plastic straw,Straw,0.02000
+Plastic straw,Straw,0.01320
+Clear plastic bottle,Bottle,0.08956
+Plastic bottle cap,Bottle cap,0.02057
+Clear plastic bottle,Bottle,0.08071
+Clear plastic bottle,Bottle,0.08326
+Drink carton,Carton,0.08104
+Paper cup,Cup,0.05111
+Unlabeled litter,Unlabeled litter,0.02967
+Plastic film,Plastic bag & wrapper,0.11242
+Plastic film,Plastic bag & wrapper,0.04094
+Aluminium foil,Aluminium foil,0.07293
+Clear plastic bottle,Bottle,0.06558
+Plastic bottle cap,Bottle cap,0.01459
+Paper bag,Paper bag,0.09283
+Drink carton,Carton,0.02036
+Other carton,Carton,0.02187
+Garbage bag,Plastic bag & wrapper,0.04790
+Clear plastic bottle,Bottle,0.08542
+Plastic film,Plastic bag & wrapper,0.16220
+Broken glass,Broken glass,0.01538
+Disposable plastic cup,Cup,0.06454
+Plastic lid,Lid,0.03454
+Clear plastic bottle,Bottle,0.13376
+Clear plastic bottle,Bottle,0.10216
+Clear plastic bottle,Bottle,0.07076
+Clear plastic bottle,Bottle,0.04497
+Clear plastic bottle,Bottle,0.06330
+Clear plastic bottle,Bottle,0.04457
+Clear plastic bottle,Bottle,0.04789
+Clear plastic bottle,Bottle,0.04873
+Clear plastic bottle,Bottle,0.03971
+Clear plastic bottle,Bottle,0.02405
+Other plastic wrapper,Plastic bag & wrapper,0.02953
+Other plastic wrapper,Plastic bag & wrapper,0.04550
+Plastic bottle cap,Bottle cap,0.00725
+Plastic bottle cap,Bottle cap,0.00949
+Paper cup,Cup,0.06903
+Unlabeled litter,Unlabeled litter,0.13993
+Unlabeled litter,Unlabeled litter,0.02552
+Other carton,Carton,0.02403
+Normal paper,Paper,0.01633
+Paper cup,Cup,0.07861
+Metal bottle cap,Bottle cap,0.01506
+Normal paper,Paper,0.06513
+Plastic bottle cap,Bottle cap,0.01576
+Plastic bottle cap,Bottle cap,0.01766
+Disposable plastic cup,Cup,0.06454
+Disposable plastic cup,Cup,0.07760
+Disposable plastic cup,Cup,0.06921
+Clear plastic bottle,Bottle,0.08092
+Single-use carrier bag,Plastic bag & wrapper,0.10690
+Plastic straw,Straw,0.04280
+Plastic lid,Lid,0.03431
+Clear plastic bottle,Bottle,0.02331
+Clear plastic bottle,Bottle,0.02509
+Clear plastic bottle,Bottle,0.16110
+Plastic bottle cap,Bottle cap,0.02912
+Clear plastic bottle,Bottle,0.13542
+Plastic bottle cap,Bottle cap,0.02806
+Drink carton,Carton,0.44789
+Drink can,Can,0.19715
+Food Can,Can,0.20459
+Pop tab,Pop tab,0.02821
+Pop tab,Pop tab,0.04080
+Disposable plastic cup,Cup,0.11984
+Paper cup,Cup,0.08437
+Drink can,Can,0.08243
+Glass bottle,Bottle,0.11681
+Drink carton,Carton,0.04816
+Plastic film,Plastic bag & wrapper,0.10251
+Rope & strings,Rope & strings,0.01305
+Other plastic,Other plastic,0.23854
+Other plastic,Other plastic,0.08207
+Other plastic,Other plastic,0.13558
+Other plastic,Other plastic,0.12658
+Plastic film,Plastic bag & wrapper,0.05879
+Plastic film,Plastic bag & wrapper,0.08394
+Other plastic,Other plastic,0.07410
+Unlabeled litter,Unlabeled litter,0.06332
+Plastic film,Plastic bag & wrapper,0.09661
+Clear plastic bottle,Bottle,0.08290
+Plastic bottle cap,Bottle cap,0.02188
+Styrofoam piece,Styrofoam piece,0.05916
+Other plastic bottle,Bottle,0.19468
+Plastic bottle cap,Bottle cap,0.06494
+Disposable plastic cup,Cup,0.10100
+Clear plastic bottle,Bottle,0.03647
+Plastic bottle cap,Bottle cap,0.00565
+Clear plastic bottle,Bottle,0.05849
+Plastic bottle cap,Bottle cap,0.01043
+Drink can,Can,0.07699
+Drink can,Can,0.04847
+Pop tab,Pop tab,0.01327
+Pop tab,Pop tab,0.00778
+Styrofoam piece,Styrofoam piece,0.07347
+Styrofoam piece,Styrofoam piece,0.11473
+Drink can,Can,0.08632
+Glass bottle,Bottle,0.12611
+Other plastic,Other plastic,0.08005
+Other plastic,Other plastic,0.03201
+Other plastic,Other plastic,0.03309
+Styrofoam piece,Styrofoam piece,0.15894
+Plastic film,Plastic bag & wrapper,0.12588
+Plastic film,Plastic bag & wrapper,0.11777
+Other plastic,Other plastic,0.05143
+Unlabeled litter,Unlabeled litter,0.03706
+Other plastic,Other plastic,0.05447
+Other plastic,Other plastic,0.01306
+Other plastic,Other plastic,0.08068
+Other plastic,Other plastic,0.02576
+Styrofoam piece,Styrofoam piece,0.09640
+Other plastic wrapper,Plastic bag & wrapper,0.12121
+Clear plastic bottle,Bottle,0.12578
+Styrofoam piece,Styrofoam piece,0.10950
+Styrofoam piece,Styrofoam piece,0.02980
+Styrofoam piece,Styrofoam piece,0.02377
+Styrofoam piece,Styrofoam piece,0.01697
+Plastic bottle cap,Bottle cap,0.03449
+Styrofoam piece,Styrofoam piece,0.04764
+Other plastic,Other plastic,0.03130
+Other plastic,Other plastic,0.05589
+Plastic film,Plastic bag & wrapper,0.10353
+Other plastic wrapper,Plastic bag & wrapper,0.13483
+Styrofoam piece,Styrofoam piece,0.02377
+Plastic bottle cap,Bottle cap,0.02440
+Plastic bottle cap,Bottle cap,0.02246
+Other plastic,Other plastic,0.02186
+Other plastic,Other plastic,0.07800
+Other plastic,Other plastic,0.09341
+Plastic bottle cap,Bottle cap,0.03556
+Single-use carrier bag,Plastic bag & wrapper,0.21004
+Other plastic wrapper,Plastic bag & wrapper,0.04599
+Other plastic,Other plastic,0.01270
+Unlabeled litter,Unlabeled litter,0.02389
+Other plastic,Other plastic,0.02481
+Clear plastic bottle,Bottle,0.08961
+Rope & strings,Rope & strings,0.05958
+Normal paper,Paper,0.06223
+Other plastic,Other plastic,0.01716
+Other plastic,Other plastic,0.10545
+Other plastic,Other plastic,0.01076
+Plastic bottle cap,Bottle cap,0.03325
+Other plastic,Other plastic,0.02420
+Other plastic,Other plastic,0.05500
+Other plastic,Other plastic,0.02551
+Other plastic,Other plastic,0.07602
+Other plastic,Other plastic,0.01276
+Other plastic,Other plastic,0.06114
+Plastic bottle cap,Bottle cap,0.01685
+Other plastic wrapper,Plastic bag & wrapper,0.13329
+Styrofoam piece,Styrofoam piece,0.04874
+Cigarette,Cigarette,0.02409
+Cigarette,Cigarette,0.01447
+Cigarette,Cigarette,0.00775
+Cigarette,Cigarette,0.01049
+Cigarette,Cigarette,0.01624
+Cigarette,Cigarette,0.01521
+Cigarette,Cigarette,0.01920
+Cigarette,Cigarette,0.01676
+Cigarette,Cigarette,0.01834
+Cigarette,Cigarette,0.02189
+Cigarette,Cigarette,0.01910
+Cigarette,Cigarette,0.01471
+Cigarette,Cigarette,0.01143
+Cigarette,Cigarette,0.01314
+Cigarette,Cigarette,0.00693
+Cigarette,Cigarette,0.00816
+Cigarette,Cigarette,0.00775
+Cigarette,Cigarette,0.01667
+Cigarette,Cigarette,0.02466
+Cigarette,Cigarette,0.01173
+Cigarette,Cigarette,0.01001
+Cigarette,Cigarette,0.00846
+Cigarette,Cigarette,0.01498
+Cigarette,Cigarette,0.00816
+Cigarette,Cigarette,0.01301
+Cigarette,Cigarette,0.01256
+Cigarette,Cigarette,0.00975
+Cigarette,Cigarette,0.00822
+Cigarette,Cigarette,0.01092
+Cigarette,Cigarette,0.00953
+Cigarette,Cigarette,0.01011
+Cigarette,Cigarette,0.01033
+Cigarette,Cigarette,0.01065
+Cigarette,Cigarette,0.01963
+Cigarette,Cigarette,0.01685
+Cigarette,Cigarette,0.01459
+Cigarette,Cigarette,0.01459
+Cigarette,Cigarette,0.02293
+Unlabeled litter,Unlabeled litter,0.01643
+Normal paper,Paper,0.02369
+Paper cup,Cup,0.05759
+Squeezable tube,Squeezable tube,0.08655
+Unlabeled litter,Unlabeled litter,0.02144
+Disposable plastic cup,Cup,0.06244
+Other plastic wrapper,Plastic bag & wrapper,0.10275
+Clear plastic bottle,Bottle,0.09212
+Rope & strings,Rope & strings,0.18544
+Other plastic wrapper,Plastic bag & wrapper,0.04216
+Unlabeled litter,Unlabeled litter,0.00901
+Paper cup,Cup,0.15282
+Clear plastic bottle,Bottle,0.15019
+Clear plastic bottle,Bottle,0.39635
+Clear plastic bottle,Bottle,0.34638
+Clear plastic bottle,Bottle,0.21717
+Clear plastic bottle,Bottle,0.17885
+Plastic bottle cap,Bottle cap,0.08171
+Clear plastic bottle,Bottle,0.10258
+Broken glass,Broken glass,0.04808
+Drink can,Can,0.16880
+Cigarette,Cigarette,0.02108
+Broken glass,Broken glass,0.02472
+Broken glass,Broken glass,0.02175
+Unlabeled litter,Unlabeled litter,0.02501
+Unlabeled litter,Unlabeled litter,0.05851
+Drink can,Can,0.09746
+Pop tab,Pop tab,0.01853
+Glass bottle,Bottle,0.10275
+Cigarette,Cigarette,0.01413
+Clear plastic bottle,Bottle,0.10062
+Plastic bottle cap,Bottle cap,0.01971
+Cigarette,Cigarette,0.01312
+Clear plastic bottle,Bottle,0.12716
+Plastic bottle cap,Bottle cap,0.02080
+Unlabeled litter,Unlabeled litter,0.02152
+Plastic bottle cap,Bottle cap,0.02512
+Clear plastic bottle,Bottle,0.09293
+Plastic bottle cap,Bottle cap,0.01596
+Drink can,Can,0.07592
+Drink can,Can,0.08023
+Drink can,Can,0.08393
+Drink can,Can,0.07802
+Drink can,Can,0.08263
+Drink can,Can,0.07515
+Drink can,Can,0.07926
+Drink can,Can,0.08280
+Clear plastic bottle,Bottle,0.09155
+Drink can,Can,0.09120
+Drink can,Can,0.08329
+Drink can,Can,0.07378
+Drink can,Can,0.08301
+Unlabeled litter,Unlabeled litter,0.03183
+Pop tab,Pop tab,0.01749
+Pop tab,Pop tab,0.01025
+Pop tab,Pop tab,0.01037
+Pop tab,Pop tab,0.01036
+Pop tab,Pop tab,0.00837
+Unlabeled litter,Unlabeled litter,0.01963
+Unlabeled litter,Unlabeled litter,0.02883
+Unlabeled litter,Unlabeled litter,0.02994
+Unlabeled litter,Unlabeled litter,0.02822
+Unlabeled litter,Unlabeled litter,0.01224
+Plastic bottle cap,Bottle cap,0.01748
+Drink can,Can,0.01996
+Cigarette,Cigarette,0.01500
+Cigarette,Cigarette,0.01253
+Clear plastic bottle,Bottle,0.05538
+Cigarette,Cigarette,0.02491
+Normal paper,Paper,0.06105
+Plastic bottle cap,Bottle cap,0.01036
+Drink can,Can,0.02149
+Drink can,Can,0.01501
+Drink can,Can,0.06074
+Cigarette,Cigarette,0.03171
+Disposable food container,Plastic container,0.19349
+Cigarette,Cigarette,0.02242
+Glass bottle,Bottle,0.04103
+Drink can,Can,0.03300
+Glass bottle,Bottle,0.06264
+Glass bottle,Bottle,0.08958
+Broken glass,Broken glass,0.01376
+Broken glass,Broken glass,0.02219
+Broken glass,Broken glass,0.04917
+Broken glass,Broken glass,0.03221
+Broken glass,Broken glass,0.01214
+Broken glass,Broken glass,0.00955
+Broken glass,Broken glass,0.02551
+Broken glass,Broken glass,0.01337
+Broken glass,Broken glass,0.01624
+Broken glass,Broken glass,0.01850
+Broken glass,Broken glass,0.01899
+Broken glass,Broken glass,0.03442
+Broken glass,Broken glass,0.01680
+Broken glass,Broken glass,0.03501
+Broken glass,Broken glass,0.05136
+Broken glass,Broken glass,0.01885
+Broken glass,Broken glass,0.03234
+Broken glass,Broken glass,0.01420
+Broken glass,Broken glass,0.03098
+Broken glass,Broken glass,0.01313
+Broken glass,Broken glass,0.01680
+Broken glass,Broken glass,0.01419
+Broken glass,Broken glass,0.01238
+Broken glass,Broken glass,0.01194
+Broken glass,Broken glass,0.01782
+Broken glass,Broken glass,0.01574
+Broken glass,Broken glass,0.01133
+Broken glass,Broken glass,0.00772
+Broken glass,Broken glass,0.01335
+Broken glass,Broken glass,0.01201
+Broken glass,Broken glass,0.00729
+Broken glass,Broken glass,0.00846
+Broken glass,Broken glass,0.01228
+Broken glass,Broken glass,0.01173
+Broken glass,Broken glass,0.01012
+Broken glass,Broken glass,0.00980
+Broken glass,Broken glass,0.00963
+Broken glass,Broken glass,0.00825
+Broken glass,Broken glass,0.01062
+Broken glass,Broken glass,0.00867
+Broken glass,Broken glass,0.01183
+Broken glass,Broken glass,0.00755
+Broken glass,Broken glass,0.02019
+Broken glass,Broken glass,0.01266
+Broken glass,Broken glass,0.01482
+Broken glass,Broken glass,0.00675
+Broken glass,Broken glass,0.01201
+Broken glass,Broken glass,0.01392
+Broken glass,Broken glass,0.02029
+Broken glass,Broken glass,0.00999
+Broken glass,Broken glass,0.01437
+Cigarette,Cigarette,0.01420
+Disposable plastic cup,Cup,0.03278
+Single-use carrier bag,Plastic bag & wrapper,0.29052
+Glass bottle,Bottle,0.03675
+Glass bottle,Bottle,0.03583
+Glass bottle,Bottle,0.03991
+Other plastic wrapper,Plastic bag & wrapper,0.04825
+Scrap metal,Scrap metal,0.08189
+Drink carton,Carton,0.08724
+Normal paper,Paper,0.05040
+Normal paper,Paper,0.01810
+Normal paper,Paper,0.02512
+Metal bottle cap,Bottle cap,0.00985
+Metal bottle cap,Bottle cap,0.00996
+Metal bottle cap,Bottle cap,0.00909
+Metal bottle cap,Bottle cap,0.01119
+Metal bottle cap,Bottle cap,0.01169
+Metal bottle cap,Bottle cap,0.01127
+Unlabeled litter,Unlabeled litter,0.01049
+Plastic straw,Straw,0.06684
+Cigarette,Cigarette,0.00749
+Other carton,Carton,0.17175
+Cigarette,Cigarette,0.06398
+Disposable plastic cup,Cup,0.14558
+Cigarette,Cigarette,0.03378
+Unlabeled litter,Unlabeled litter,0.02626
+Disposable plastic cup,Cup,0.09157
+Cigarette,Cigarette,0.01016
+Clear plastic bottle,Bottle,0.08968
+Other plastic,Other plastic,0.05647
+Cigarette,Cigarette,0.01235
+Cigarette,Cigarette,0.01235
+Cigarette,Cigarette,0.01365
+Clear plastic bottle,Bottle,0.16038
+Plastic bottle cap,Bottle cap,0.03023
+Cigarette,Cigarette,0.02415
+Cigarette,Cigarette,0.01438
+Tissues,Paper,0.06764
+Drink can,Can,0.08826
+Pop tab,Pop tab,0.01463
+Cigarette,Cigarette,0.01387
+Cigarette,Cigarette,0.01507
+Cigarette,Cigarette,0.01790
+Cigarette,Cigarette,0.02133
+Unlabeled litter,Unlabeled litter,0.02239
+Cigarette,Cigarette,0.01935
+Metal bottle cap,Bottle cap,0.01590
+Cigarette,Cigarette,0.01750
+Drink can,Can,0.07200
+Pop tab,Pop tab,0.01506
+Metal bottle cap,Bottle cap,0.01997
+Cigarette,Cigarette,0.02503
+Metal bottle cap,Bottle cap,0.01963
+Other carton,Carton,0.11170
+Clear plastic bottle,Bottle,0.08476
+Plastic bottle cap,Bottle cap,0.01474
+Other plastic bottle,Bottle,0.11603
+Plastic bottle cap,Bottle cap,0.03483
+Cigarette,Cigarette,0.02434
+Cigarette,Cigarette,0.02671
+Cigarette,Cigarette,0.01700
+Cigarette,Cigarette,0.03650
+Cigarette,Cigarette,0.02706
+Cigarette,Cigarette,0.03890
+Cigarette,Cigarette,0.03496
+Cigarette,Cigarette,0.01692
+Egg carton,Carton,0.30458
+Clear plastic bottle,Bottle,0.08274
+Cigarette,Cigarette,0.00968
+Cigarette,Cigarette,0.01169
+Other plastic,Other plastic,0.04192
+Cigarette,Cigarette,0.01621
+Cigarette,Cigarette,0.02487
+Drink can,Can,0.05285
+Cigarette,Cigarette,0.02208
+Cigarette,Cigarette,0.01096
+Cigarette,Cigarette,0.01747
+Cigarette,Cigarette,0.01201
+Cigarette,Cigarette,0.01913
+Other plastic,Other plastic,0.02653
+Unlabeled litter,Unlabeled litter,0.04422
+Cigarette,Cigarette,0.01467
+Glass bottle,Bottle,0.07338
+Glass bottle,Bottle,0.02390
+Glass bottle,Bottle,0.03462
+Glass bottle,Bottle,0.04968
+Glass bottle,Bottle,0.04492
+Glass bottle,Bottle,0.16922
+Metal bottle cap,Bottle cap,0.02642
+Metal bottle cap,Bottle cap,0.01008
+Metal bottle cap,Bottle cap,0.00917
+Unlabeled litter,Unlabeled litter,0.02137
+Glass bottle,Bottle,0.18753
+Metal bottle cap,Bottle cap,0.02226
+Glass bottle,Bottle,0.14896
+Metal bottle cap,Bottle cap,0.01751
+Plastic lid,Lid,0.09284
+Glass bottle,Bottle,0.25355
+Metal bottle cap,Bottle cap,0.02828
+Glass bottle,Bottle,0.14907
+Glass bottle,Bottle,0.14433
+Metal bottle cap,Bottle cap,0.01921
+Glass bottle,Bottle,0.11358
+Clear plastic bottle,Bottle,0.10655
+Plastic bottle cap,Bottle cap,0.02254
+Glass bottle,Bottle,0.08810
+Unlabeled litter,Unlabeled litter,0.05425
+Clear plastic bottle,Bottle,0.11539
+Clear plastic bottle,Bottle,0.01872
+Clear plastic bottle,Bottle,0.03308
+Other plastic wrapper,Plastic bag & wrapper,0.01426
+Unlabeled litter,Unlabeled litter,0.00991
+Clear plastic bottle,Bottle,0.08163
+Paper cup,Cup,0.07076
+Other carton,Carton,0.05974
+Other plastic wrapper,Plastic bag & wrapper,0.09777
+Cigarette,Cigarette,0.01105
+Unlabeled litter,Unlabeled litter,0.05455
+Other plastic bottle,Bottle,0.04161
+Unlabeled litter,Unlabeled litter,0.01020
+Clear plastic bottle,Bottle,0.03881
+Styrofoam piece,Styrofoam piece,0.05371
+Unlabeled litter,Unlabeled litter,0.01692
+Other plastic bottle,Bottle,0.09265
+Egg carton,Carton,0.08345
+Unlabeled litter,Unlabeled litter,0.04937
+Clear plastic bottle,Bottle,0.11716
+Plastic bottle cap,Bottle cap,0.01526
+Plastic film,Plastic bag & wrapper,0.10964
+Drink carton,Carton,0.01971
+Unlabeled litter,Unlabeled litter,0.02750
+Clear plastic bottle,Bottle,0.12413
+Other carton,Carton,0.03996
+Cigarette,Cigarette,0.01885
+Other plastic bottle,Bottle,0.05075
+Unlabeled litter,Unlabeled litter,0.03267
+Unlabeled litter,Unlabeled litter,0.03709
+Cigarette,Cigarette,0.01043
+Cigarette,Cigarette,0.01180
+Unlabeled litter,Unlabeled litter,0.03869
+Styrofoam piece,Styrofoam piece,0.15832
+Garbage bag,Plastic bag & wrapper,0.07388
+Clear plastic bottle,Bottle,0.02991
+Cigarette,Cigarette,0.00725
+Other plastic,Other plastic,0.00917
+Other plastic,Other plastic,0.00671
+Cigarette,Cigarette,0.01086
+Unlabeled litter,Unlabeled litter,0.00830
+Normal paper,Paper,0.01139
+Normal paper,Paper,0.01986
+Unlabeled litter,Unlabeled litter,0.01493
+Cigarette,Cigarette,0.02148
+Cigarette,Cigarette,0.00755
+Other plastic,Other plastic,0.01586
+Cigarette,Cigarette,0.00845
+Unlabeled litter,Unlabeled litter,0.01400
+Other plastic container,Plastic container,0.02490
+Unlabeled litter,Unlabeled litter,0.02480
+Unlabeled litter,Unlabeled litter,0.00951
+Unlabeled litter,Unlabeled litter,0.01613
+Unlabeled litter,Unlabeled litter,0.01051
+Broken glass,Broken glass,0.00735
+Unlabeled litter,Unlabeled litter,0.00888
+Garbage bag,Plastic bag & wrapper,0.33813
+Garbage bag,Plastic bag & wrapper,0.19878
+Garbage bag,Plastic bag & wrapper,0.09989
+Garbage bag,Plastic bag & wrapper,0.33727
+Garbage bag,Plastic bag & wrapper,0.12178
+Single-use carrier bag,Plastic bag & wrapper,0.06563
+Single-use carrier bag,Plastic bag & wrapper,0.14452
+Single-use carrier bag,Plastic bag & wrapper,0.10327
+Garbage bag,Plastic bag & wrapper,0.11995
+Unlabeled litter,Unlabeled litter,0.03380
+Unlabeled litter,Unlabeled litter,0.05276
+Unlabeled litter,Unlabeled litter,0.03006
+Plastic film,Plastic bag & wrapper,0.13307
+Unlabeled litter,Unlabeled litter,0.04631
+Other carton,Carton,0.06489
+Unlabeled litter,Unlabeled litter,0.01909
+Other plastic wrapper,Plastic bag & wrapper,0.11758
+Cigarette,Cigarette,0.01750
+Food Can,Can,0.06896
+Other plastic wrapper,Plastic bag & wrapper,0.03250
+Plastic film,Plastic bag & wrapper,0.07296
+Clear plastic bottle,Bottle,0.09900
+Cigarette,Cigarette,0.01517
+Unlabeled litter,Unlabeled litter,0.02932
+Polypropylene bag,Plastic bag & wrapper,0.18015
+Unlabeled litter,Unlabeled litter,0.01333
+Corrugated carton,Carton,0.08557
+Other plastic,Other plastic,0.01896
+Other plastic,Other plastic,0.01291
+Broken glass,Broken glass,0.04654
+Broken glass,Broken glass,0.01305
+Broken glass,Broken glass,0.01234
+Broken glass,Broken glass,0.01326
+Broken glass,Broken glass,0.01031
+Broken glass,Broken glass,0.01378
+Broken glass,Broken glass,0.02512
+Broken glass,Broken glass,0.00742
+Broken glass,Broken glass,0.01163
+Broken glass,Broken glass,0.01025
+Broken glass,Broken glass,0.00849
+Broken glass,Broken glass,0.01659
+Broken glass,Broken glass,0.01228
+Broken glass,Broken glass,0.02175
+Broken glass,Broken glass,0.09510
+Broken glass,Broken glass,0.09528
+Broken glass,Broken glass,0.02368
+Broken glass,Broken glass,0.02211
+Broken glass,Broken glass,0.01123
+Broken glass,Broken glass,0.01424
+Broken glass,Broken glass,0.01105
+Broken glass,Broken glass,0.02455
+Broken glass,Broken glass,0.00776
+Broken glass,Broken glass,0.01150
+Broken glass,Broken glass,0.01141
+Unlabeled litter,Unlabeled litter,0.02205
+Cigarette,Cigarette,0.01409
+Broken glass,Broken glass,0.01674
+Drink can,Can,0.11913
+Disposable plastic cup,Cup,0.11670
+Plastic film,Plastic bag & wrapper,0.13422
+Pop tab,Pop tab,0.01607
+Plastic film,Plastic bag & wrapper,0.07563
+Crisp packet,Plastic bag & wrapper,0.12617
+Other plastic wrapper,Plastic bag & wrapper,0.03307
+Clear plastic bottle,Bottle,0.13429
+Plastic bottle cap,Bottle cap,0.01365
+Other plastic wrapper,Plastic bag & wrapper,0.01988
+Six pack rings,Plastic bag & wrapper,0.07554
+Aluminium foil,Aluminium foil,0.11809
+Unlabeled litter,Unlabeled litter,0.07301
+Drink can,Can,0.07953
+Pop tab,Pop tab,0.02123
+Disposable plastic cup,Cup,0.10029
+Paper cup,Cup,0.15263
+Plastic lid,Lid,0.13669
+Glass bottle,Bottle,0.14960
+Cigarette,Cigarette,0.02576
+Cigarette,Cigarette,0.01882
+Cigarette,Cigarette,0.02340
+Cigarette,Cigarette,0.02881
+Disposable plastic cup,Cup,0.13677
+Plastic lid,Lid,0.08362
+Plastic straw,Straw,0.13478
+Cigarette,Cigarette,0.01566
+Cigarette,Cigarette,0.01848
+Cigarette,Cigarette,0.02526
+Cigarette,Cigarette,0.01264
+Drink can,Can,0.04634
+Drink can,Can,0.05250
+Drink can,Can,0.04372
+Pop tab,Pop tab,0.00802
+Plastic film,Plastic bag & wrapper,0.20063
+Other carton,Carton,0.17095
+Clear plastic bottle,Bottle,0.07178
+Plastic bottle cap,Bottle cap,0.01316
+Cigarette,Cigarette,0.00915
+Other carton,Carton,0.01897
+Clear plastic bottle,Bottle,0.05420
+Plastic bottle cap,Bottle cap,0.01124
+Other carton,Carton,0.08766
+Unlabeled litter,Unlabeled litter,0.07306
+Cigarette,Cigarette,0.02180
+Cigarette,Cigarette,0.01373
+Other plastic cup,Cup,0.09246
+Normal paper,Paper,0.07168
+Plastic glooves,Plastic glooves,0.14147
+Drink can,Can,0.04360
+Other plastic bottle,Bottle,0.06782
+Normal paper,Paper,0.08681
+Cigarette,Cigarette,0.01370
+Unlabeled litter,Unlabeled litter,0.02815
+Clear plastic bottle,Bottle,0.11347
+Plastic bottle cap,Bottle cap,0.02931
+Plastic film,Plastic bag & wrapper,0.30786
+Drink can,Can,0.11824
+Clear plastic bottle,Bottle,0.08747
+Drink can,Can,0.09517
+Glass bottle,Bottle,0.15577
+Disposable food container,Plastic container,0.09061
+Plastic film,Plastic bag & wrapper,0.09921
+Cigarette,Cigarette,0.01383
+Paper bag,Paper bag,0.18669
+Aluminium foil,Aluminium foil,0.18733
+Other plastic,Other plastic,0.07769
+Plastic lid,Lid,0.10185
+Other plastic wrapper,Plastic bag & wrapper,0.05046
+Other carton,Carton,0.15081
+Unlabeled litter,Unlabeled litter,0.03031
+Normal paper,Paper,0.15388
+Drink can,Can,0.16436
+Cigarette,Cigarette,0.03707
+Other carton,Carton,0.07799
+Drink can,Can,0.09156
+Drink can,Can,0.10992
+Plastic film,Plastic bag & wrapper,0.15424
+Cigarette,Cigarette,0.01266
+Cigarette,Cigarette,0.01963
+Disposable food container,Plastic container,0.18872
+Spread tub,Plastic container,0.05772
+Tissues,Paper,0.03007
+Plastic film,Plastic bag & wrapper,0.03652
+Cigarette,Cigarette,0.01560
+Drink can,Can,0.15009
+Plastic film,Plastic bag & wrapper,0.14879
+Other plastic wrapper,Plastic bag & wrapper,0.02192
+Other plastic wrapper,Plastic bag & wrapper,0.01378
+Plastic film,Plastic bag & wrapper,0.11688
+Unlabeled litter,Unlabeled litter,0.02057
+Plastic film,Plastic bag & wrapper,0.01895
+Cigarette,Cigarette,0.02191
+Clear plastic bottle,Bottle,0.11854
+Cigarette,Cigarette,0.01127
+Clear plastic bottle,Bottle,0.13203
+Plastic film,Plastic bag & wrapper,0.11559
+Unlabeled litter,Unlabeled litter,0.02530
+Unlabeled litter,Unlabeled litter,0.06575
+Disposable food container,Plastic container,0.01801
+Other plastic wrapper,Plastic bag & wrapper,0.17335
+Other plastic bottle,Bottle,0.18638
+Plastic bottle cap,Bottle cap,0.04631
+Garbage bag,Plastic bag & wrapper,0.31316
+Aluminium foil,Aluminium foil,0.02483
+Unlabeled litter,Unlabeled litter,0.02032
+Clear plastic bottle,Bottle,0.14168
+Clear plastic bottle,Bottle,0.04759
+Plastic bottle cap,Bottle cap,0.02191
+Clear plastic bottle,Bottle,0.11557
+Disposable food container,Plastic container,0.09627
+Metal bottle cap,Bottle cap,0.01486
+Plastic lid,Lid,0.06602
+Other plastic,Other plastic,0.06087
+Drink carton,Carton,0.07190
+Plastic straw,Straw,0.02216
+Unlabeled litter,Unlabeled litter,0.04340
+Plastic film,Plastic bag & wrapper,0.08473
+Plastic film,Plastic bag & wrapper,0.09268
+Cigarette,Cigarette,0.02645
+Cigarette,Cigarette,0.01951
+Plastic film,Plastic bag & wrapper,0.03408
+Plastic film,Plastic bag & wrapper,0.09246
+Unlabeled litter,Unlabeled litter,0.03389
+Cigarette,Cigarette,0.01650
+Other plastic wrapper,Plastic bag & wrapper,0.13352
+Other plastic wrapper,Plastic bag & wrapper,0.12222
+Other plastic,Other plastic,0.07085
+Other plastic wrapper,Plastic bag & wrapper,0.04589
+Tissues,Paper,0.12032
+Unlabeled litter,Unlabeled litter,0.02399
+Single-use carrier bag,Plastic bag & wrapper,0.12125
+Plastic film,Plastic bag & wrapper,0.12727
+Plastic film,Plastic bag & wrapper,0.20333
+Scrap metal,Scrap metal,0.15643
+Single-use carrier bag,Plastic bag & wrapper,0.29130
+Plastic film,Plastic bag & wrapper,0.04064
+Plastic film,Plastic bag & wrapper,0.10007
+Plastic film,Plastic bag & wrapper,0.08410
+Cigarette,Cigarette,0.07141
+Other plastic,Other plastic,0.02543
+Styrofoam piece,Styrofoam piece,0.02443
+Other plastic,Other plastic,0.04844
+Other plastic,Other plastic,0.02239
+Plastic film,Plastic bag & wrapper,0.08779
+Other plastic wrapper,Plastic bag & wrapper,0.24239
+Other plastic wrapper,Plastic bag & wrapper,0.12677
+Plastic film,Plastic bag & wrapper,0.06739
+Plastic bottle cap,Bottle cap,0.04227
+Cigarette,Cigarette,0.02481
+Metal bottle cap,Bottle cap,0.08167
+Tissues,Paper,0.13761
+Plastic film,Plastic bag & wrapper,0.05797
+Plastic film,Plastic bag & wrapper,0.07279
+Cigarette,Cigarette,0.01389
+Cigarette,Cigarette,0.02131
+Plastic film,Plastic bag & wrapper,0.08217
+Plastic film,Plastic bag & wrapper,0.07024
+Styrofoam piece,Styrofoam piece,0.00862
+Styrofoam piece,Styrofoam piece,0.01520
+Styrofoam piece,Styrofoam piece,0.01159
+Styrofoam piece,Styrofoam piece,0.01118
+Styrofoam piece,Styrofoam piece,0.02263
+Cigarette,Cigarette,0.04334
+Other plastic,Other plastic,0.08630
+Unlabeled litter,Unlabeled litter,0.02467
+Cigarette,Cigarette,0.02688
+Unlabeled litter,Unlabeled litter,0.03321
+Unlabeled litter,Unlabeled litter,0.09215
+Cigarette,Cigarette,0.01758
+Plastic film,Plastic bag & wrapper,0.09039
+Plastic film,Plastic bag & wrapper,0.03675
+Plastic film,Plastic bag & wrapper,0.08873
+Unlabeled litter,Unlabeled litter,0.08925
+Plastic film,Plastic bag & wrapper,0.32672
+Rope & strings,Rope & strings,0.16958
+Other plastic wrapper,Plastic bag & wrapper,0.20409
+Plastic film,Plastic bag & wrapper,0.05915
+Cigarette,Cigarette,0.00917
+Plastic film,Plastic bag & wrapper,0.05070
+Plastic film,Plastic bag & wrapper,0.05396
+Plastic bottle cap,Bottle cap,0.02989
+Plastic film,Plastic bag & wrapper,0.07351
+Rope & strings,Rope & strings,0.12000
+Other plastic,Other plastic,0.04211
+Cigarette,Cigarette,0.02628
+Cigarette,Cigarette,0.02444
+Cigarette,Cigarette,0.02072
+Plastic straw,Straw,0.08625
+Cigarette,Cigarette,0.03655
+Plastic film,Plastic bag & wrapper,0.09738
+Plastic film,Plastic bag & wrapper,0.07340
+Plastic film,Plastic bag & wrapper,0.10911
+Plastic film,Plastic bag & wrapper,0.12449
+Plastic film,Plastic bag & wrapper,0.13281
+Plastic film,Plastic bag & wrapper,0.13858
+Plastic film,Plastic bag & wrapper,0.07202
+Plastic film,Plastic bag & wrapper,0.06650
+Plastic film,Plastic bag & wrapper,0.11530
+Other plastic,Other plastic,0.03676
+Plastic straw,Straw,0.24866
+Unlabeled litter,Unlabeled litter,0.19531
+Corrugated carton,Carton,0.53573
+Unlabeled litter,Unlabeled litter,0.05148
+Unlabeled litter,Unlabeled litter,0.02901
+Unlabeled litter,Unlabeled litter,0.02314
+Unlabeled litter,Unlabeled litter,0.02015
+Glass bottle,Bottle,0.05821
+Cigarette,Cigarette,0.00693
+Cigarette,Cigarette,0.01450
+Wrapping paper,Paper,0.26368
+Cigarette,Cigarette,0.01587
+Drink carton,Carton,0.06385
+Plastic straw,Straw,0.01133
+Cigarette,Cigarette,0.05284
+Cigarette,Cigarette,0.02007
+Cigarette,Cigarette,0.01831
+Cigarette,Cigarette,0.01235
+Plastic film,Plastic bag & wrapper,0.01611
+Unlabeled litter,Unlabeled litter,0.06746
+Cigarette,Cigarette,0.01982
+Cigarette,Cigarette,0.00923
+Cigarette,Cigarette,0.01562
+Cigarette,Cigarette,0.01363
+Pop tab,Pop tab,0.01981
+Metal bottle cap,Bottle cap,0.01999
+Pop tab,Pop tab,0.01376
+Cigarette,Cigarette,0.01484
+Cigarette,Cigarette,0.01608
+Cigarette,Cigarette,0.01511
+Pop tab,Pop tab,0.01485
+Unlabeled litter,Unlabeled litter,0.01636
+Metal bottle cap,Bottle cap,0.01961
+Disposable plastic cup,Cup,0.03911
+Tissues,Paper,0.01807
+Tissues,Paper,0.04029
+Other plastic wrapper,Plastic bag & wrapper,0.09657
+Other plastic,Other plastic,0.03626
+Unlabeled litter,Unlabeled litter,0.04692
+Plastic film,Plastic bag & wrapper,0.08865
+Unlabeled litter,Unlabeled litter,0.01820
+Plastic film,Plastic bag & wrapper,0.06012
+Unlabeled litter,Unlabeled litter,0.03746
+Plastic film,Plastic bag & wrapper,0.06231
+Unlabeled litter,Unlabeled litter,0.03794
+Other plastic wrapper,Plastic bag & wrapper,0.07606
+Plastic film,Plastic bag & wrapper,0.03037
+Unlabeled litter,Unlabeled litter,0.02459
+Other plastic wrapper,Plastic bag & wrapper,0.06022
+Cigarette,Cigarette,0.01683
+Cigarette,Cigarette,0.01627
+Cigarette,Cigarette,0.01792
+Tissues,Paper,0.07902
+Unlabeled litter,Unlabeled litter,0.03338
+Meal carton,Carton,0.10647
+Plastic film,Plastic bag & wrapper,0.08015
+Plastic film,Plastic bag & wrapper,0.03413
+Other carton,Carton,0.07631
+Plastic film,Plastic bag & wrapper,0.03152
+Drink can,Can,0.06557
+Disposable plastic cup,Cup,0.06932
+Cigarette,Cigarette,0.01731
+Normal paper,Paper,0.05704
+Disposable plastic cup,Cup,0.10275
+Cigarette,Cigarette,0.02845
+Disposable plastic cup,Cup,0.12047
+Clear plastic bottle,Bottle,0.21129
+Plastic bottle cap,Bottle cap,0.03782
+Normal paper,Paper,0.06011
+Rope & strings,Rope & strings,0.07822
+Other plastic wrapper,Plastic bag & wrapper,0.07872
+Plastic lid,Lid,0.02745
+Clear plastic bottle,Bottle,0.08154
+Unlabeled litter,Unlabeled litter,0.02081
+Clear plastic bottle,Bottle,0.07740
+Plastic bottle cap,Bottle cap,0.00929
+Plastic lid,Lid,0.05878
+Plastic film,Plastic bag & wrapper,0.01125
+Unlabeled litter,Unlabeled litter,0.02206
+Single-use carrier bag,Plastic bag & wrapper,0.15906
+Clear plastic bottle,Bottle,0.11188
+Plastic film,Plastic bag & wrapper,0.05554
+Other plastic,Other plastic,0.05130
+Unlabeled litter,Unlabeled litter,0.05982
+Plastic film,Plastic bag & wrapper,0.08617
+Corrugated carton,Carton,0.09084
+Glass bottle,Bottle,0.03772
+Glass bottle,Bottle,0.04667
+Clear plastic bottle,Bottle,0.03104
+Unlabeled litter,Unlabeled litter,0.01424
+Clear plastic bottle,Bottle,0.03237
+Glass bottle,Bottle,0.05514
+Glass bottle,Bottle,0.05306
+Other plastic wrapper,Plastic bag & wrapper,0.03673
+Glass bottle,Bottle,0.08807
+Tissues,Paper,0.06293
+Plastic bottle cap,Bottle cap,0.02384
+Single-use carrier bag,Plastic bag & wrapper,0.08894
+Cigarette,Cigarette,0.02310
+Cigarette,Cigarette,0.03082
+Plastic bottle cap,Bottle cap,0.00848
+Clear plastic bottle,Bottle,0.03547
+Aluminium foil,Aluminium foil,0.06145
+Cigarette,Cigarette,0.01078
+Cigarette,Cigarette,0.01747
+Cigarette,Cigarette,0.01579
+Plastic film,Plastic bag & wrapper,0.08063
+Plastic film,Plastic bag & wrapper,0.00902
+Metal bottle cap,Bottle cap,0.01250
+Cigarette,Cigarette,0.00700
+Cigarette,Cigarette,0.01271
+Cigarette,Cigarette,0.02042
+Cigarette,Cigarette,0.01854
+Cigarette,Cigarette,0.01348
+Unlabeled litter,Unlabeled litter,0.01095
+Cigarette,Cigarette,0.01105
+Unlabeled litter,Unlabeled litter,0.01502
+Other plastic,Other plastic,0.04242
+Other plastic wrapper,Plastic bag & wrapper,0.05523
+Other plastic wrapper,Plastic bag & wrapper,0.06330
+Drink can,Can,0.21910
+Clear plastic bottle,Bottle,0.09378
+Clear plastic bottle,Bottle,0.07040
+Plastic bottle cap,Bottle cap,0.02203
+Other carton,Carton,0.04741
+Unlabeled litter,Unlabeled litter,0.06097
+Unlabeled litter,Unlabeled litter,0.11113
+Scrap metal,Scrap metal,0.02541
+Unlabeled litter,Unlabeled litter,0.02887
+Scrap metal,Scrap metal,0.02375
+Styrofoam piece,Styrofoam piece,0.09522
+Aluminium foil,Aluminium foil,0.01534
+Cigarette,Cigarette,0.01175
+Other carton,Carton,0.06367
+Cigarette,Cigarette,0.01864
+Cigarette,Cigarette,0.01165
+Cigarette,Cigarette,0.01091
+Other carton,Carton,0.04487
+Other carton,Carton,0.04681
+Other plastic wrapper,Plastic bag & wrapper,0.03762
+Cigarette,Cigarette,0.00719
+Cigarette,Cigarette,0.00725
+Cigarette,Cigarette,0.00929
+Cigarette,Cigarette,0.01367
+Cigarette,Cigarette,0.01170
+Cigarette,Cigarette,0.00681
+Other plastic,Other plastic,0.04215
+Aluminium foil,Aluminium foil,0.02842
+Tissues,Paper,0.05794
+Corrugated carton,Carton,0.21583
+Normal paper,Paper,0.03257
+Tissues,Paper,0.03359
+Unlabeled litter,Unlabeled litter,0.04338
+Plastic lid,Lid,0.03567
+Normal paper,Paper,0.09244
+Normal paper,Paper,0.06581
+Cigarette,Cigarette,0.01126
+Unlabeled litter,Unlabeled litter,0.00995
+Metal bottle cap,Bottle cap,0.01270
+Other plastic bottle,Bottle,0.01375
+Unlabeled litter,Unlabeled litter,0.03183
+Drink can,Can,0.05065
+Plastic film,Plastic bag & wrapper,0.10023
+Unlabeled litter,Unlabeled litter,0.02801
+Clear plastic bottle,Bottle,0.17507
+Plastic bottle cap,Bottle cap,0.02531
+Clear plastic bottle,Bottle,0.14821
+Clear plastic bottle,Bottle,0.05508
+Glass bottle,Bottle,0.05299
+Other plastic bottle,Bottle,0.05986
+Plastic bottle cap,Bottle cap,0.01531
+Clear plastic bottle,Bottle,0.10828
+Plastic film,Plastic bag & wrapper,0.04600
+Glass bottle,Bottle,0.09266
+Drink carton,Carton,0.06530
+Drink carton,Carton,0.07469
+Plastic straw,Straw,0.01504
+Unlabeled litter,Unlabeled litter,0.02418
+Unlabeled litter,Unlabeled litter,0.04723
+Other plastic wrapper,Plastic bag & wrapper,0.04138
+Other plastic wrapper,Plastic bag & wrapper,0.04370
+Unlabeled litter,Unlabeled litter,0.04502
+Unlabeled litter,Unlabeled litter,0.03512
+Plastic straw,Straw,0.12616
+Glass bottle,Bottle,0.15819
+Glass bottle,Bottle,0.13679
+Metal bottle cap,Bottle cap,0.04291
+Drink carton,Carton,0.28283
+Plastic bottle cap,Bottle cap,0.05164
+Other plastic wrapper,Plastic bag & wrapper,0.20610
+Other carton,Carton,0.09858
+Glass bottle,Bottle,0.12789

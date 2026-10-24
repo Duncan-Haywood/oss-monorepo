@@ -1,0 +1,6 @@
+{
+ "theme": "society",
+ "title": "Can a robot that yields to people in a hurry survive people faking a hurry?",
+ "summary": "The urgency-reading door of society-urgentdoor, but robots see only a costly signal that can be faked and misread. With 30% robots, 20% urgent people (waiting cost 3x), collision cost 3 and dithering cost 1, no signal cost on a 0 to 1.2 grid lets the signal-reading fleet beat yield-all for the crowd (best case 1.201 against 1.047); the most it saves urgent people is 0.025 per encounter (1.105 against 1.130), about 6% of the 0.45 gained from perfect reading. A free signal is sent by 95% of normal people; a signal dear enough to stop fakers is dearer than the yielding is worth to the urgent, who stop sending it; a 10% misreading rate removes most of what is left. Mean field, checked by simulation within 0.012 with signalling held fixed. Assumed, not sourced: round-figure costs and logit sharpness (swept), a fixed signal cost, no robot learning, random pairing, no geometry.",
+ "lede": "can a robot that yields to people in a hurry survive people faking a hurry? With 30% robots, no signal cost on a 0 to 1.2 grid lets a signal-reading fleet beat yield-all for the crowd, and urgent people keep about 6% of the gain they get from perfect reading."
+}

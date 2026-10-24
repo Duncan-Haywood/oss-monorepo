@@ -124,3 +124,15 @@ test("the counts box offers the negative-binomial cost and passes 'nb' to the en
   assert.match(html, /<select id="overdispersion">[^]*?<option value="1">[^]*?<option value="nb">/);
   assert.match(html, /overdispersion: \$\("#overdispersion"\)\.value === "nb" \? "nb" : \$\("#overdispersion"\)\.value === "1"/);
 });
+
+test("page offers known holidays for counts", () => {
+  const html = page("index.html");
+  assert.match(html, /<input id="holidays" type="text"/);
+  assert.match(html, /holidays: \$\("#holidays"\)\.value\.split\(","\)/);
+});
+
+test("page offers the burst rule for counts", () => {
+  const html = page("index.html");
+  assert.match(html, /<input id="bursts" type="checkbox"/);
+  assert.match(html, /bursts: \$\("#bursts"\)\.checked/);
+});

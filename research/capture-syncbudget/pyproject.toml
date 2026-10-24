@@ -1,0 +1,13 @@
+[project]
+name = "capture-syncbudget"
+version = "0.1.0"
+description = "How long can audio sync of free-running cameras go unrefreshed before viewers notice, and does gating wrong-peak resyncs help?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

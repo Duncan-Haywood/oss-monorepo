@@ -1,0 +1,35 @@
+A. Stoichiometry (computed from molar masses)
+calcination kg CO2 per t CaO: 784.8; per t clinker at CaO 0.65: 510.1
+kaolinite dehydroxylation mass loss (water, no CO2): 13.96 %
+B. Balance per tonne of cement, baseline parameters: blend, clinker, calcination, kiln fuel, clay fuel, electricity, other, total, GJ, change vs OPC %
+OPC (CEM I) | 0.95 | 485 | 306 | 0 | 40 | 0 | 830 | 3.23 | 0
+PLC 80/15 | 0.80 | 408 | 257 | 0 | 40 | 1 | 706 | 2.72 | -15
+slag 50 | 0.45 | 230 | 145 | 0 | 40 | 26 | 441 | 1.53 | -47
+slag 70 | 0.25 | 128 | 80 | 0 | 40 | 37 | 285 | 0.85 | -66
+LC3-65 | 0.65 | 332 | 209 | 22 | 40 | 1 | 604 | 2.61 | -27
+LC3-50 | 0.50 | 255 | 161 | 34 | 40 | 1 | 491 | 2.30 | -41
+LC3-40 | 0.40 | 204 | 129 | 39 | 40 | 1 | 413 | 2.06 | -50
+C. LC3-50 saving vs OPC (%) when one parameter is swept to its ends (others baseline)
+clay_calcination_GJ_per_t | 1: 43.0 | 2: 40.9 | 3: 38.9
+grid_kgCO2_per_kWh | 0: 43.0 | 0.4: 40.9 | 0.8: 39.0
+grinding_kWh_per_t_cement | 70: 41.5 | 100: 40.9 | 130: 40.3
+kiln_heat_GJ_per_t_clinker | 3.2: 40.8 | 3.4: 40.9 | 3.6: 41.1
+fuel_kgCO2_per_GJ | 60: 39.9 | 94.6: 40.9 | 100: 41.1
+slag_kgCO2_per_t sweep, slag-50 saving vs OPC (%): 0: 50.1 | 52: 46.9 | 100: 44.1 | 150: 41.0
+D. Lowest clinker content keeping a strength class, by 28-day OPC reference strength (MPa): class 32.5 | 42.5 (28-day study table)
+40 | 0.500 or less (table ends) | none
+45 | 0.500 or less (table ends) | 0.675
+50 | 0.500 or less (table ends) | 0.540
+55 | 0.500 or less (table ends) | 0.500 or less (table ends)
+60 | 0.500 or less (table ends) | 0.500 or less (table ends)
+65 | 0.500 or less (table ends) | 0.500 or less (table ends)
+E. CO2 of an LC3 cement at the lowest clinker content keeping class 42.5 (kg/t, saving vs OPC %), by OPC reference strength
+45 | 0.675 | 623 | 25
+50 | 0.540 | 521 | 37
+55 | 0.500 | 491 | 41
+60 | 0.500 | 491 | 41
+65 | 0.500 | 491 | 41
+F. Same, with the 91-day table (a 91-day class is not an EN 197-1 class: shown for the strength-gain argument only)
+45 | 0.500 or less (table ends)
+50 | 0.500 or less (table ends)
+55 | 0.500 or less (table ends)

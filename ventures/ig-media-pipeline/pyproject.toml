@@ -12,6 +12,7 @@ dependencies = [
     "pillow>=10",
     "pydantic>=2.7",
     "rawpy>=0.21",
+    "scipy>=1.11",         # astro: star detection and matching (astro_core)
 ]
 
 [project.optional-dependencies]

@@ -1,0 +1,59 @@
+== A. Hand-set gates: sweep on the 40 training configs; mean PSNR dB
+hard tau   psnr
+    0.10   24.14
+    0.20   25.04
+    0.30   25.66
+    0.50   25.96
+    0.80   25.71
+chosen tau = 0.5
+
+soft (t0, t1)   psnr
+  (0.05, 0.3)   25.57
+   (0.1, 0.5)   26.19
+  (0.15, 0.5)   26.23
+   (0.1, 1.0)   26.33
+   (0.2, 1.0)   26.27
+   (0.3, 1.2)   26.12
+chosen (t0, t1) = (0.1, 1.0)
+
+== B. Regressors fitted on 300000 training pixels from 40 configs; validation PSNR dB (10 configs)
+model                  val psnr
+ridge lam=1              26.27
+ridge lam=100            26.27
+mlp hidden=8             26.35
+mlp hidden=24            26.37
+mlp hidden=64            26.39
+chosen: ridge lam=100, mlp hidden=64
+
+
+== C. Test: 40 new configs, new ground textures, same ranges; mean PSNR dB
+   fill     hard     soft    ridge      mlp    lstsq   oracle     near
+  25.53    25.81    26.21    26.59    26.78    28.52    27.96    22.46
+mlp minus soft: mean +0.57 dB, standard error 0.05, ahead in 40 of 40 configs
+mlp minus hard: mean +0.97 dB, standard error 0.04, ahead in 40 of 40 configs
+ridge minus soft: mean +0.38 dB, standard error 0.03, ahead in 40 of 40 configs
+soft minus hard: mean +0.40 dB, standard error 0.02, ahead in 40 of 40 configs
+share of the hard-gate-to-lstsq headroom (2.71 dB) recovered: soft 0.15, ridge 0.29, mlp 0.36
+
+== D. Stress: 25 configs outside the training ranges (gap 36 to 46 deg, 3 bystanders, noise 0.06 to 0.09)
+   fill     hard     soft    ridge      mlp    lstsq   oracle     near
+  18.78    18.17    18.67    18.91    18.91    19.78    19.40    17.30
+mlp minus soft: mean +0.24 dB, standard error 0.02, ahead in 24 of 25 configs
+mlp minus hard: mean +0.74 dB, standard error 0.04, ahead in 25 of 25 configs
+ridge minus soft: mean +0.24 dB, standard error 0.01, ahead in 25 of 25 configs
+soft minus hard: mean +0.50 dB, standard error 0.02, ahead in 25 of 25 configs
+share of the hard-gate-to-lstsq headroom (1.61 dB) recovered: soft 0.31, ridge 0.46, mlp 0.46
+
+== E. Test split by number of bystanders (mean PSNR dB)
+bystanders  n   hard   soft   mlp
+         0  11  27.32  27.58  28.33
+         1  17  25.79  26.22  26.77
+         2  12  24.47  24.93  25.38
+
+== F. Ablation: MLP refitted with a feature group removed (feature zeroed); test PSNR dB
+features                    test psnr
+all features                   26.78
+no matching cost               26.76
+no texture / depth edge        26.65
+no spatial context             26.75
+disagreement only              26.53

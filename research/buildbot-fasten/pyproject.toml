@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-fasten"
+version = "0.1.0"
+description = "Can a stock Unitree G1 or H1 humanoid hold a framing nailer on a 1.5 in stud face? Push-force and placement-accuracy budgets in MuJoCo."
+requires-python = ">=3.9"
+dependencies = ["mujoco>=3.1", "numpy"]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../buildbot-payload/src"]

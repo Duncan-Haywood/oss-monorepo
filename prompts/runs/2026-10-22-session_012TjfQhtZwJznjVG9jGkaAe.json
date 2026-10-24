@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_012TjfQhtZwJznjVG9jGkaAe",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T02:19:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "hanger-sweep next step 2",
+  "projects": [
+    "research/hanger-knit"
+  ],
+  "pr": 9349,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The session checkout was stale vs origin/main; had to checkout -B from origin/main. Also tests importing hanger_fit before the sibling package fail on sys.path order; undocumented."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "goals.md",
+      "why": "No separate docs/reports agent doc or docs/posts post: the project README carries the write-up for this small follow-up."
+    }
+  ],
+  "writeups": ["research/osrobot-weedpass/README.md"],
+  "goal": null,
+  "notes": "Track 18 draw. 5 unit tests pass; build.py ok; check_md_links ok; experiment run twice (deterministic). CMA-ES not converged at 150 scores (stated in README). Local checks only; CI not awaited.",
+  "corrections": [],
+  "redteam": null
+}

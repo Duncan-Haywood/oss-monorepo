@@ -51,7 +51,8 @@ class Params:
     p_hidden: float = 0.4    # chance a garment's opening is hidden by the garment itself
 
 
-def make_pile(n, rng, p_hidden=0.4):
+def make_pile(n, rng, p_hidden=0.4, hidden_by_kind=None):
+    """`hidden_by_kind` ({kind: chance}) overrides p_hidden for those kinds (used by hanger-kindlink)."""
     kinds = list(KINDS)
     zs = list(range(n))
     rng.shuffle(zs)
@@ -60,7 +61,7 @@ def make_pile(n, rng, p_hidden=0.4):
         k = rng.choice(kinds)
         r = KINDS[k]
         pile.append(Garment(rng.uniform(r * 0.6, BIN - r * 0.6), rng.uniform(r * 0.6, BIN - r * 0.6), r, z,
-                            rng.uniform(0, 2 * math.pi), k, rng.random() < p_hidden))
+                            rng.uniform(0, 2 * math.pi), k, rng.random() < (hidden_by_kind or {}).get(k, p_hidden)))
     return pile
 
 
@@ -145,6 +146,7 @@ def pick(pile, policy, p, rng):
             g, t, info = _pinch_top(pile, p, rng)
             t += sweeps * p.t_sweep
             info["sweeps"] = sweeps
+            info["kind"] = g.kind
             pile.remove(g)
             return t, info
         t = p.t_see + sweeps * p.t_sweep + p.t_grasp
@@ -154,6 +156,7 @@ def pick(pile, policy, p, rng):
         info = dict(direct=True, regrasps=0, double=dbl, ok=True, sweeps=sweeps)
         t += dt
     info.setdefault("sweeps", 0)
+    info["kind"] = g.kind
     pile.remove(g)
     return t, info
 

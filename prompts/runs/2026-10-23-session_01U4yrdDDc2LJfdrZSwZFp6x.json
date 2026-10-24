@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01U4yrdDDc2LJfdrZSwZFp6x",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "scheduled: develop/deploy/market revenue products",
+  "input_sha256": "0d6da82f21a7c094fd742a830102e04d2b870350fe076ddc9556c38f9fb35978",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T04:00:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9679,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "Router said research; the task prompt named product work, so I followed the task."
+    }
+  ],
+  "writeups": [
+    "ventures/wall-framing-takeoff/README.md"
+  ],
+  "goal": null,
+  "notes": "Router drew the research track; the scheduled prompt asked for products, so I took flagship 2 (wall-framing-takeoff) wing2 on the page. node --test 142 pass; eval-browser-click.mjs ok with PLAYWRIGHT_PATH=/opt/node-tools/node_modules/playwright-core/index.js (a bare directory path is not importable, so the skip message misleads).",
+  "corrections": [],
+  "redteam": null
+}

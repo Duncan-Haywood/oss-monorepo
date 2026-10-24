@@ -36,7 +36,7 @@ python experiments/figure.py                 # experiments/forecast.svg
 
 ## Limitations
 - **Naive forecasts only.** Persistence and a seven-day mean are the weakest sensible forecasts; a numerical weather model plus a load model would sit between these and the perfect case. The noise rows say what a given multiplicative skill is worth, not which skill a vendor delivers. Published forecast errors were not pulled in; that is the next step.
-- **The synthetic weather has day-to-day clearness drawn independently**, so yesterday carries little information about tomorrow. Real weather has persistence of weather regimes and a known clear-sky envelope, which a clear-sky-plus-cloud-index forecast would exploit; the result here is probably pessimistic for persistence.
+- **The synthetic weather's day-to-day persistence is not real weather's.** `energy-home` draws each day's sky from a three-state Markov chain (daily clear-sky index lag-1 autocorrelation 0.50 over 5 seeds), against 0.29 to 0.36 in PVGIS typical-year data for three US sites; [`energy-tou-lp-tmy`](../energy-tou-lp-tmy) repeats the comparison on that data, with a clear-sky-index forecast, and finds the same conclusion (an earlier version of this line said the days were independent; they are not).
 - **Execution is a simple clip,** with no re-planning inside the day. A controller that re-plans hourly on the observed state would recover some of the loss.
 - **Start-up days** (the first week has less history) are included in the year, so the history-based forecasts are slightly handicapped; it is a small share of the year.
 - **Assumed tariff, synthetic weather and load, crude cycle-count life,** all inherited from `energy-tou-lp`; none of it is measured data or a real utility rate.

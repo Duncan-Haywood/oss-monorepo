@@ -86,7 +86,8 @@ nobody opens a PR for is invisible to every check and every later session.
 In cloud sessions `gh` is usually unauthenticated: use the GitHub MCP tools
 (`create_pull_request`, `merge_pull_request`, loaded with `ToolSearch`). The
 container's other quirks are in
-[`.github/prompts/cloud-session.md`](.github/prompts/cloud-session.md).
+[`.github/prompts/cloud-session.md`](.github/prompts/cloud-session.md)
+(a bare `python3` often lacks `pytest`/`numpy`: `PY=$(python3 platform/ci/pyenv.py pytest numpy)` finds or installs one (the first install can take over 120 s: run it with `run_in_background`); venture test suites and `node --test '*.test.mjs'` (not `node --test .`, which Node 22 rejects) outlast the 120 s tool timeout, so start them with `run_in_background`, see "Long commands"; irs.gov, ssa.gov and data hosts often 403 through the proxy: probe first, see "Outbound hosts").
 Details, including other sessions' stalled PRs:
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md).
 
@@ -124,7 +125,7 @@ is already asked; don't duplicate it.
 ## Hosting
 
 The catalogue is served by GitHub Pages at
-**https://duncan-haywood.github.io/monorepo-projects/**, built and deployed by
+**https://duncan-haywood.github.io/oss-monorepo/**, built and deployed by
 `.github/workflows/portfolio-pages.yml` on every merge that touches a site
 input (and every three hours). Merging is publishing; there is no branch to
 push by hand. The Hetzner/k3s route was retired on 2026-10-01: never connect

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amazon Seller Bookkeeping: Split Settlements Into Sales, Fees and Ads (Worked Example)</title>
+<meta name="description" content="An Amazon settlement deposit hides sales, commissions, FBA fees, ads and reimbursements. A worked example turns a $350.16 deposit into $480.00 of sales and $141.84 of expenses.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./amazon-seller-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Amazon seller bookkeeping: split settlements into sales, fees and ads">
+<meta property="og:description" content="A worked settlement: a $350.16 deposit is $480.00 of sales, $116.84 of fees and $25.00 of ads.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't my Amazon deposit match my sales?","acceptedAnswer":{"@type":"Answer","text":"The deposit is net of commissions, FBA fees, the seller subscription, advertising charges, refunds and promotions. In the worked example, $480.00 of sales and $12.00 of reimbursement became a $350.16 deposit."}},{"@type":"Question","name":"What do I do with marketplace facilitator tax?","acceptedAnswer":{"@type":"Answer","text":"Amazon collects and remits sales tax in most states. The tool books tax collected and tax withheld to a sales tax payable account where they net to zero, so it does not inflate your sales."}},{"@type":"Question","name":"Which Amazon report do I need?","acceptedAnswer":{"@type":"Answer","text":"The settlement report, flat file V2 (tab-delimited), or the Seller Central date-range transaction CSV. Both read through the same payouts command."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Amazon seller bookkeeping: split each settlement into sales, fees and ads</h1>
+<p class="lede">Amazon deposits a settlement net of referral commissions, FBA fees, subscription, advertising, refunds and promotions. Book the deposit and your income is low and your expenses are missing. The settlement report has every line.</p>
+</header>
+<section>
+<h2>Worked example: one settlement</h2>
+<p>The tool ships a <strong>synthetic</strong> settlement in flat file V2 layout (<code>fixtures/amazon-settlement-v2.txt</code>): two orders, one refund, a subscription fee, an ad charge and an FBA reimbursement, deposited as $350.16 on March 5, 2026. The payout command split the bank line into the following.</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from running <code>payouts amazon-settlement-v2.txt --apply</code> and <code>report</code>. Synthetic data, not a real seller.</caption>
+<thead><tr><th scope="col">Settlement 9100001</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Sales (item price and shipping, less promotion and refund)</th><td>$480.00</td></tr>
+<tr><th scope="row">Reimbursement for lost inventory</th><td>$12.00</td></tr>
+<tr><th scope="row">Commissions, FBA fees and subscription</th><td>&minus;$116.84</td></tr>
+<tr><th scope="row">Advertising</th><td>&minus;$25.00</td></tr>
+<tr class="total"><th scope="row">Deposit to the bank</th><td>$350.16</td></tr>
+</tbody>
+</table>
+</div>
+<p>The $8.00 of sales tax Amazon collected and withheld nets to zero in a sales tax payable account. Booked from the deposit alone, the seller shows $350.16 of income and no expenses; booked from the settlement, $492.00 of income and $141.84 of expenses, the same profit. Amazon's fees and ads are deductible costs, and the gross figure is what a 1099-K reports.</p>
+</section>
+
+<section>
+<h2>How to book it</h2>
+<ol>
+<li><strong>Download the settlement report</strong> (flat file V2) from Seller Central, and your bank statement.</li>
+<li><strong>Import the bank statement</strong> in <a href="./">AI Bookkeeper</a>, then run <code>payouts settlement.txt</code>. The settlement's total is matched to the bank deposit and shown as a plan; add <code>--apply</code> to post it.</li>
+<li><strong>Check the problems list.</strong> A settlement is split only when its rows add up to the summary total. A reserve line or a mismatch is listed and left alone rather than guessed.</li>
+<li><strong>Review the account mapping.</strong> Override the defaults with <code>--sales</code>, <code>--fees</code>, <code>--tax</code> and <code>--ads</code> if your chart differs.</li>
+</ol>
+<p>The layout is written from Amazon's published column names and a hand-written fixture. No real settlement has been tried, so check the totals against your own report.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Why doesn't my Amazon deposit match my sales?</h3>
+<p>The deposit is net of commissions, FBA fees, the seller subscription, advertising charges, refunds and promotions. In the worked example, $480.00 of sales and $12.00 of reimbursement became a $350.16 deposit.</p>
+<h3>What do I do with marketplace facilitator tax?</h3>
+<p>Amazon collects and remits sales tax in most states. The tool books tax collected and tax withheld to a sales tax payable account where they net to zero, so it does not inflate your sales.</p>
+<h3>Which Amazon report do I need?</h3>
+<p>The settlement report, flat file V2 (tab-delimited), or the Seller Central date-range transaction CSV. Both read through the same payouts command.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser or as a command line tool, and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement and payout report.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Stripe, Amazon and Shopify are trademarks of their owners, named only to describe a payee or a report; this project is not affiliated with them.</p>
+</footer>
+</body>
+</html>

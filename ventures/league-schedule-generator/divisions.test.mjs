@@ -1,7 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
+import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -297,6 +300,26 @@ test("rainouts with relocate:true move make-ups to earlier nights already on the
   assert.ok(relocated > 0 && moved < plain, `${relocated} moved, ${moved} against ${plain}`); // measured 7 seeds with balance: 300 -> 296 (README)
 });
 
+test("rainouts with swapNights:true trade two make-ups' nights: fewer breaks, same season end, still valid", () => {
+  const { spec } = readDivisionsSpec({ ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School" });
+  let plain = 0, swapped = 0, traded = 0;
+  for (const seed of [1, 2, 3, 4, 5, 6, 8]) {
+    const s = buildDivisions({ ...spec, seed });
+    const text = s.nights.filter((_, i) => i % 4 === 1).map((n) => dayIso(n.day)).join("\n");
+    const a = applyDivisionRainouts(s, text, { balance: true });
+    const r = applyDivisionRainouts(s, text, { balance: true, swapNights: true });
+    assert.deepEqual(r.errors, []);
+    assert.deepEqual(validateDivisions(r.schedule).errors, []);
+    assert.equal(r.schedule.stats.matches, s.stats.matches);
+    assert.equal(r.schedule.stats.lastDay, a.schedule.stats.lastDay);
+    r.moves.forEach((m) => assert.ok(m.to > m.from));
+    assert.ok(r.schedule.stats.homeAwayBreaks <= a.schedule.stats.homeAwayBreaks);
+    plain += a.schedule.stats.homeAwayBreaks; swapped += r.schedule.stats.homeAwayBreaks;
+    traded += r.moves.filter((m) => m.relocated).length;
+  }
+  assert.ok(traded > 0 && swapped < plain, `${traded} traded, ${swapped} against ${plain}`); // measured 7 seeds with balance: 300 -> 280 (README)
+});
+
 test("linked teams in back-to-back slots are not sent to different venues when another slot is free (30 seeds)", () => {
   const slots = ["18:00", "19:00", "20:00"];
   for (const links of ["A/a1, B/b1", "A/a1, B/b1\nA/a2, B/b2"]) for (let seed = 1; seed <= 30; seed++) {
@@ -374,4 +397,139 @@ test("fairnessWeight: 0 matches fairness off, a low weight evens venues for no e
   const bad = readDivisionsSpec({ ...example, fairnessWeight: "lots" });
   assert.ok(bad.errors.some((e) => /fairness weight/.test(e)));
   assert.equal(readDivisionsSpec({ ...example, fairnessWeight: "1.5" }).spec.fairnessWeight, 1.5);
+});
+
+test("the form's venueFairness switch reads true/yes/on/1 as on and false/no/off/empty as off", () => {
+  for (const on of [true, "true", "TRUE", "yes", "on", "1"]) assert.equal(readDivisionsSpec({ ...example, venueFairness: on }).spec.venueFairness, true, String(on));
+  for (const off of [false, "false", "no", "off", "0", "", undefined]) assert.equal(readDivisionsSpec({ ...example, venueFairness: off }).spec.venueFairness, false, String(off));
+});
+
+test("the command line prints next season's venue history as JSON with --history", () => {
+  const dir = mkdtempSync(join(tmpdir(), "divisions-cli-"));
+  const file = join(dir, "spec.json");
+  writeFileSync(file, JSON.stringify({ ...example, venueFairness: "true" }));
+  const run = spawnSync(process.execPath, [new URL("./divisions.mjs", import.meta.url).pathname, file, "--history"], { encoding: "utf8" });
+  assert.equal(run.status, 0, run.stderr);
+  assert.ok(run.stdout.endsWith("}\n"));
+  const { spec } = readDivisionsSpec({ ...example, venueFairness: "true" });
+  assert.deepEqual(JSON.parse(run.stdout), carryVenueHistory(buildDivisions(spec)));
+});
+
+test("after rainouts the nights stay in date order, including the new nights make-ups open", () => {
+  const { spec } = readDivisionsSpec({ ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School" });
+  for (const seed of [1, 2, 3]) {
+    const s = buildDivisions({ ...spec, seed });
+    const text = s.nights.filter((_, i) => i % 3 === 1).map((n) => dayIso(n.day)).join("\n");
+    for (const opts of [{}, { relocate: true, balance: true }]) {
+      const r = applyDivisionRainouts(s, text, opts);
+      const days = r.schedule.nights.map((n) => n.day);
+      assert.deepEqual(days, [...days].sort((a, b) => a - b));
+      assert.ok(new Set(days).size === days.length);
+    }
+  }
+});
+
+test("relocated make-ups always land on a real time slot of the season", () => {
+  const { spec } = readDivisionsSpec({ ...example, courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School" });
+  for (const seed of [1, 2, 3, 4, 5, 6, 8]) {
+    const s = buildDivisions({ ...spec, seed });
+    const text = s.nights.filter((_, i) => i % 4 === 1).map((n) => dayIso(n.day)).join("\n");
+    const r = applyDivisionRainouts(s, text, { balance: true, relocate: true });
+    for (const n of r.schedule.nights) for (const m of n.matches) {
+      assert.ok(r.schedule.config.times.includes(m.time), `${m.time} on ${dayIso(n.day)}`);
+      assert.ok(r.schedule.config.courts.includes(m.court));
+    }
+    for (const m of r.moves) assert.ok(r.schedule.config.times.includes(m.time));
+  }
+});
+
+test("make-ups on named dates past the season keep the nights in date order even when the later date is listed first", () => {
+  const s = build();
+  const [a, b] = [s.nights[0], s.nights[1]];
+  const r = applyDivisionRainouts(s, `${dayIso(a.day)} ${a.matches[0].division}/${a.matches[0].homeName} -> 2027-03-09\n${dayIso(b.day)} ${b.matches[0].division}/${b.matches[0].homeName} -> 2027-03-02`);
+  assert.deepEqual(r.errors, []);
+  const days = r.schedule.nights.map((n) => n.day);
+  assert.ok(days.includes(parseDate("2027-03-02")) && days.includes(parseDate("2027-03-09")));
+  assert.deepEqual(days, [...days].sort((x, y) => x - y));
+});
+
+test("a make-up date whose every slot is taken is refused, not given a blank time", () => {
+  const { spec } = readDivisionsSpec({ divisions: "A: a1, a2, a3", courts: "C1", times: "18:00", start: "2026-10-06", weekdays: "Tue" });
+  const s = buildDivisions(spec);
+  const [first, second] = s.nights;
+  const r = applyDivisionRainouts(s, `${dayIso(first.day)} A -> ${dayIso(second.day)}`);
+  assert.equal(r.moves.length, 0);
+  assert.ok(r.errors.length > 0 && r.errors.every((e) => /no open court slot|already plays/.test(e)));
+  for (const n of r.schedule.nights) for (const m of n.matches) assert.ok(spec.times.includes(m.time), `blank time on ${dayIso(n.day)}`);
+  assert.deepEqual(validateDivisions(r.schedule).errors, []);
+});
+
+test("after a rainout every night lists its matches by time, then by court", () => {
+  const s = build();
+  const r = applyDivisionRainouts(s, dayIso(s.nights[0].day));
+  const { times, courts } = r.schedule.config;
+  for (const n of r.schedule.nights) {
+    const keys = n.matches.map((m) => times.indexOf(m.time) * 1000 + courts.indexOf(m.court));
+    assert.deepEqual(keys, [...keys].sort((a, b) => a - b), `night ${dayIso(n.day)} out of order`);
+  }
+});
+
+test("parseTravel keeps a hyphen inside a venue name", () => {
+  const r = parseTravel("North-Park - School: 25\nSchool - North-Park: 30", ["North-Park", "School"]);
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.travel["North-Park|School"], 30);
+});
+
+test("fairness weight: 100 is accepted, 101 is named as out of range", () => {
+  assert.ok(!readDivisionsSpec({ ...example, fairnessWeight: "100" }).errors.some((e) => /fairness weight/.test(e)));
+  assert.ok(readDivisionsSpec({ ...example, fairnessWeight: "101" }).errors.some((e) => /fairness weight/.test(e)));
+});
+
+test("validateDivisions flags a double round robin where a pair hosts twice", () => {
+  const s = JSON.parse(JSON.stringify(build({ divisions: [{ name: "D", teams: ["A", "B", "C"], double: true }], links: [] })));
+  const ms = s.divisions[0].rounds.flatMap((r) => r.matches).concat(s.nights.flatMap((n) => n.matches));
+  for (const m of ms) if (m.home > m.away) { [m.home, m.away] = [m.away, m.home]; }
+  const v = validateDivisions(s);
+  assert.ok(v.errors.some((e) => /do not each host once/.test(e)), v.errors.join("\n"));
+});
+
+test("readDivisionsSpec reports missing courts and weekdays instead of leaving buildDivisions to throw", () => {
+  const f = { divisions: "A: a, b, c", times: "18:00", start: "2026-10-06" };
+  assert.ok(readDivisionsSpec({ ...f, weekdays: "Tue", courts: "" }).errors.includes("Name the shared courts."));
+  assert.ok(readDivisionsSpec({ ...f, weekdays: "", courts: "C1" }).errors.includes("Pick at least one weekday to play on."));
+  assert.deepEqual(readDivisionsSpec({ ...f, weekdays: "Tue", courts: "C1" }).errors, []);
+});
+
+test("a share fragment holding a JSON scalar or null is refused, not decoded into blank fields", () => {
+  for (const json of ["5", '"x"', "true", "null"]) assert.equal(decodeDivisionFields("#d=" + btoa(json)), null, json);
+});
+
+test("a schedule built without skip days or links records them as empty lists, not undefined", () => {
+  const { skipDays, links } = JSON.parse(JSON.stringify(build({ skipDays: undefined, links: undefined }))).config;
+  assert.deepEqual(skipDays, []);
+  assert.deepEqual(links, []);
+});
+
+test("rainoutOptions reads the page's make-up checkboxes and they ride in the share link", () => {
+  assert.deepEqual(rainoutOptions({}), { balance: false, flip: false, relocate: false, swapNights: false });
+  assert.deepEqual(rainoutOptions({ balance: "1", swapNights: "yes", relocate: true, flip: "0" }), { balance: true, flip: false, relocate: true, swapNights: true });
+  const f = { divisions: "A: x, y", courts: "C1", times: "18:00", start: "2026-10-06", weekdays: "Tue", relocate: "1", swapNights: "1", seed: "1" };
+  const back = decodeDivisionFields("#d=" + encodeDivisionFields(f));
+  assert.equal(back.relocate, "1");
+  assert.equal(back.swapNights, "1");
+  assert.equal(back.balance, "");
+});
+
+test("a blank seed means the default seed 1, so a share link (which reloads blank as 1) rebuilds the same schedule", () => {
+  const base = { divisions: "A: a1, a2, a3, a4", courts: "C1", times: "18:00", start: "2026-10-06", weekdays: "Tue" };
+  assert.equal(readDivisionsSpec({ ...base, seed: "" }).spec.seed, 1);
+  assert.equal(readDivisionsSpec({ ...base, seed: "  " }).spec.seed, 1);
+  assert.equal(readDivisionsSpec({ ...base, seed: "0" }).spec.seed, 0);
+  assert.equal(decodeDivisionFields("#d=" + encodeDivisionFields({ ...base, seed: "" })).seed, "1");
+});
+
+test("a venueHistory object survives a share link as JSON, not [object Object]", () => {
+  const venueHistory = { "A/a1": { Park: 2 } };
+  const back = decodeDivisionFields("#d=" + encodeDivisionFields({ divisions: "A: a1, a2", venueHistory }));
+  assert.deepEqual(JSON.parse(back.venueHistory), venueHistory);
 });

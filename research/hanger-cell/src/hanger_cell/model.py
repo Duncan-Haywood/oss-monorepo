@@ -63,6 +63,7 @@ class Params:
     t_rail: float = 3.0                 # hang the loaded hanger on the rail
     t_to_fold: float = 3.0              # set the item on the fold table
     t_fold: float = 25.0                # the fold mechanism, per item
+    fold_tables: int = 1                # parallel fold stations (hanger-foldsrc sweeps it)
     jitter: float = 0.2                 # every duration is scaled by U(1 - jitter, 1 + jitter)
     insertion_scale: float = 1.0        # for sensitivity: scales the parsed insertion times
     mix: dict = field(default_factory=lambda: dict(MIX))
@@ -75,7 +76,7 @@ def run_once(p, seed, table=None, share=None, picks=None):
     share = share or hang_share()
     rng = random.Random(seed)
     env = Env()
-    arms, feeder, fold = Resource(env, "arms", p.arms), Resource(env, "feeder", 1), Resource(env, "fold", 1)
+    arms, feeder, fold = Resource(env, "arms", p.arms), Resource(env, "feeder", 1), Resource(env, "fold", p.fold_tables)
     kinds = list(p.mix)
     items = rng.choices(kinds, weights=[p.mix[k] for k in kinds], k=p.load)
     s = dict(hung=0, folded=0, aside=0, pick_fail=0, ins_fail=0, refills=0, dispensed=0, done=[], arm_busy_pick=0.0)
@@ -87,7 +88,9 @@ def run_once(p, seed, table=None, share=None, picks=None):
         yield Request(arms)
         ok = False
         if picks is not None:
-            t_p, ok = picks.pop(0)
+            t_p, ok, *rest = picks.pop(0)
+            if rest:                            # a pick may name the cell archetype it took (hanger-kindlink)
+                kind = rest[0]
             yield Timeout(d(t_p))
             if not ok:
                 s["pick_fail"] += 1

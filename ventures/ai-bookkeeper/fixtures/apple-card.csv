@@ -1,0 +1,4 @@
+Transaction Date,Clearing Date,Description,Merchant,Category,Type,Amount (USD),Purchaser
+03/02/2026,03/03/2026,STAPLES 00123 AUSTIN TX,Staples,Shopping,Purchase,42.17,Owner
+03/05/2026,03/06/2026,ADOBE CREATIVE CLOUD,Adobe,Services,Purchase,59.99,Owner
+03/10/2026,03/10/2026,ACH DEPOSIT INTERNET TRANSFER FROM ACCOUNT ENDING IN 1234,,Payment,Payment,-102.16,Owner

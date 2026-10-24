@@ -2639,3 +2639,28 @@ test('compareFreeShipping.breakEvenFreeShipSellThroughPct solves when both buyer
     'free shipping at its reported sell-through ties buyer-pays',
   );
 });
+
+test('redteam: Offsite spend per extra sale divides by a single extra order', () => {
+  const comparison = comparePromotedOffsite({ ...offsiteBase, offsiteSpend: 20, offsiteExtraOrders: 1 });
+  near(comparison.costPerExtraSale, 20, 'one extra order costs the whole spend');
+});
+
+test('redteam: Advanced conversion floor is infinite with no clicks, not NaN', () => {
+  const comparison = comparePromotedAdvanced({ ...offsiteBase, advancedClicks: 0 });
+  assert.equal(comparison.breakEvenConversionPct, Infinity);
+});
+
+test('redteam: coupon redeem-rate floor adds the matched-listed target to the mix gap', () => {
+  const comparison = compareSellerCoupon(agBase);
+  const listedSold = 18.3445;
+  const couponSold = 13.66; // pure 15% coupon price, not the redeem mix
+  const targetPacked = (listedSold * 0.40) / 0.55;
+  const expected = (listedSold - targetPacked) / (listedSold - couponSold) * 100;
+  near(comparison.breakEvenRedeemPct, expected, 'redeem floor');
+});
+
+test('redteam: a custom tier list without Premium reports no Premium gain', () => {
+  const r = compareStoreTiers(STORE_BASE, STORE_TIER_PRESETS.slice(0, 2));
+  assert.equal(r.premium, undefined);
+  assert.equal(r.extraKeptOnPremium, 0);
+});

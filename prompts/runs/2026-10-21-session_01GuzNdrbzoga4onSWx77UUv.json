@@ -1,0 +1,126 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01GuzNdrbzoga4onSWx77UUv",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-21T17:07:07Z",
+  "ended": "2026-10-21T17:15:00Z",
+  "wall_minutes": 8.28,
+  "tokens_in": 2400894,
+  "tokens_out": 23110,
+  "cost_usd": 1.0362,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [
+    "capture-learngate"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9230",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says a project with no lede in project.json gets a hand-edited README bullet, but new projects need a lede; the generated-bullet path via research_live_links --write is the only one that works"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "wrote an agent report but no post; the report carries the result and the run was bounded"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-10-21-learned-blend-weights-capture-learngate.md"
+  ],
+  "goal": null,
+  "notes": "Track 13 had all milestones done; took softgate's first next step as a new generalisation question. 7 tests pass, homepage build ok, md links ok. Run took ~2.5 min for experiments/run.py.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "772ef79d-4146-5ea2-9ffe-a8a98fc4b473",
+    "transcripts": 1,
+    "first": "2026-10-21T17:07:07Z",
+    "last": "2026-10-21T17:15:24Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 27,
+        "input": 54,
+        "output": 23110,
+        "thinking": 3550,
+        "cache_read": 2315360,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85480,
+        "api_equivalent_usd": 1.0362,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 54,
+      "output": 23110,
+      "thinking": 3550,
+      "cache_read": 2315360,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85480,
+      "api_equivalent_usd": 1.0362,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 26,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.28,
+      "active_minutes": 8.28,
+      "model_minutes": 3.27,
+      "tool_minutes": 5.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

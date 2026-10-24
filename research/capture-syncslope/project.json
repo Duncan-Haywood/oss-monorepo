@@ -1,0 +1,6 @@
+{
+ "theme": "capture",
+ "title": "Does holding a fitted clock slope between audio re-syncs let free-running cameras go longer without a refresh?",
+ "summary": "Follow-up to capture-syncbudget on synthetic speech-like audio (capture-audiosync's GCC-PHAT, window cut with the current correction so only the residual is searched). With a steady 40 ppm clock error, holding a fitted line instead of the last offset cuts the share of a 6 h shoot beyond 40 ms (EBU R37 lead limit, a stand-in for a cut threshold) from 44% to 3.7% at one re-sync per 1800 s and from 72% to 12% at 3600 s; the remainder is the first interval. With an assumed 10 to 30 ppm rate wobble a strict line gate locks out true estimates (69&ndash;88% bad at 300 and 900 s); resetting after two rejections fixes 300 s but at 900 s and 30 ppm the plain offset hold wins (13% vs 27%). Also corrects capture-syncbudget, whose raw-window correlation let the delay outgrow the 2 s window. Wobble amplitudes are swept, not measured; no real recording.",
+ "lede": "does holding a fitted clock slope between audio re-syncs help? At 40 ppm it cuts out-of-tolerance time from 44% to 3.7% at 1800 s intervals, but an assumed rate wobble makes a strict line gate lock out. Synthetic audio; also corrects capture-syncbudget."
+}

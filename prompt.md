@@ -43,11 +43,10 @@ the last review, for a share of runs (`review_when_due`) so parallel routines
 do not all start one. If an open pull request titled `prompts: review` already
 exists, another run has claimed that review; route again with `--skip-review`.
 
-About 5% of runs draw the `explore` track: free choice, Google "20% time"
-style. The agent works on whatever it finds most interesting, with its own
-approach, under the same guardrails and landing rules
-([`prompts/explore/prompt-0.md`](prompts/explore/prompt-0.md)). About 10%
-draw `creative`: the owner's stories and podcasts ([`prompts/creative/`](prompts/creative/prompt-0.md)).
+`explore` (free choice, [`prompts/explore/prompt-0.md`](prompts/explore/prompt-0.md))
+and `creative` (the owner's stories and podcasts,
+[`prompts/creative/`](prompts/creative/prompt-0.md)) are drawn for a share of
+runs, under the same guardrails and landing rules.
 
 ## 2. Work, and land it
 
@@ -75,8 +74,10 @@ plus anything else you can observe. Then measure what the run cost, from its own
 `--human-hours` is optional, drop both flags if you cannot estimate). With no
 `--session` it reads the newest transcript in `~/.claude/projects`, yours in a cloud session. Take the model from the session's metadata, not from memory. Write
 `null` for anything you cannot see, and redact secrets and personal data from
-`input`. Commit the record as the last commit on your work branch, so it lands
-in the same pull request as the work. A run with nothing to merge commits no
+`input`. Open the pull request first (step 2), so you know its number, then commit
+the record as a final commit on your work branch and push it, so it lands in
+the same pull request as the work (a second push after the PR exists is
+expected, not a mistake). A run with nothing to merge commits no
 record and says so in its final message.
 
 **`doc_friction` is how the documentation improves.** List every instruction
@@ -93,9 +94,9 @@ add it to `prompts/process/backlog/` in the same PR.
 
 The process track (about 10% of runs) critiques how work gets done and ships
 fixes from [`prompts/process/backlog/`](prompts/process/backlog/README.md)
-(`promptctl.py backlog`). The review track does the rest of the improving. It measures the records
-(`promptctl.py measure`) and decides whether a candidate prompt wins. It
-writes the next candidate and fixes the documentation that the friction
-reports single out. Then it checks whether the last review's changes helped.
+(`promptctl.py backlog`). The review track does the rest: it measures the
+records (`promptctl.py measure`), decides whether a candidate prompt wins,
+writes the next candidate, fixes the documentation the friction reports
+single out, and checks whether the last review's changes helped.
 The goals in `prompts/goals.md` belong to the owner: a review proposes
 changes to them and never makes them.

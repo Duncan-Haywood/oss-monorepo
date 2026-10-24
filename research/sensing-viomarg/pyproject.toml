@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-viomarg"
+version = "0.1.0"
+description = "Does marginalising old keyframes (a Schur-complement prior) instead of pinning them fix long-path drift and make IMU grade matter in a planar VIO smoother (synthetic)"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

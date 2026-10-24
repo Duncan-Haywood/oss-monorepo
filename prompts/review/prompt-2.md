@@ -15,7 +15,7 @@ with `--skip-review`. To find an existing claim, use `search_pull_requests` (`is
 ## 1. Measure
 
 ```
-python3 prompts/promptctl.py measure
+python3 prompts/promptctl.py measure   # 100KB+: add --section <title text> (e.g. "version", "friction") to read one table
 ```
 
 Read the tables. Then make the numbers true before you trust them:

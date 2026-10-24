@@ -1,0 +1,58 @@
+== A. Hand-set gates, swept on the 40 training configs; mean PSNR dB
+hard tau   psnr
+    0.10   24.14
+    0.20   25.04
+    0.30   25.66
+    0.50   25.96
+    0.80   25.71
+soft (t0, t1)   psnr
+  (0.05, 0.3)   25.57
+   (0.1, 0.5)   26.19
+  (0.15, 0.5)   26.23
+   (0.1, 1.0)   26.33
+   (0.2, 1.0)   26.27
+   (0.3, 1.2)   26.12
+chosen tau = 0.5, (t0, t1) = (0.1, 1.0)
+
+== B. Network size picked on the 10 validation configs (mlp_new), validation PSNR dB
+hidden  val psnr
+    24    26.39
+    64    26.40
+chosen hidden = 64
+
+== C. Test: 40 configs, new ground textures; mean PSNR dB
+    hard      soft   mlp_old   mlp_new   mlp_src    s_only     lstsq   lstsq_s      near
+   25.81     26.21     26.78     26.81     27.28     19.41     28.52     29.44     22.46
+mlp_old minus soft: mean +0.57 dB, standard error 0.05, ahead in 40 of 40 configs
+mlp_new minus mlp_old: mean +0.03 dB, standard error 0.00, ahead in 35 of 40 configs
+mlp_src minus mlp_new: mean +0.47 dB, standard error 0.03, ahead in 40 of 40 configs
+mlp_src minus mlp_old: mean +0.50 dB, standard error 0.03, ahead in 40 of 40 configs
+share of the hard-to-lstsq headroom (2.71 dB) recovered: soft 0.15, mlp_old 0.36, mlp_new 0.37, mlp_src 0.54
+
+== D. Stress: 25 configs outside the training ranges; mean PSNR dB
+    hard      soft   mlp_old   mlp_new   mlp_src    s_only     lstsq   lstsq_s      near
+   18.17     18.67     18.91     18.84     18.95     13.30     19.78     20.09     17.30
+mlp_old minus soft: mean +0.24 dB, standard error 0.02, ahead in 24 of 25 configs
+mlp_new minus mlp_old: mean -0.07 dB, standard error 0.01, ahead in 1 of 25 configs
+mlp_src minus mlp_new: mean +0.11 dB, standard error 0.01, ahead in 23 of 25 configs
+mlp_src minus mlp_old: mean +0.04 dB, standard error 0.02, ahead in 18 of 25 configs
+share of the hard-to-lstsq headroom (1.61 dB) recovered: soft 0.31, mlp_old 0.46, mlp_new 0.42, mlp_src 0.48
+
+== E. Test split by number of bystanders (mean PSNR dB)
+bystanders  n   soft  mlp_old  mlp_new  mlp_src
+         0  11   27.58   28.33   28.38   28.79
+         1  17   26.22   26.77   26.79   27.33
+         2  12   24.93   25.38   25.40   25.83
+
+== F. Ablation of the new features (network refitted on the remaining columns; test PSNR dB)
+features                      test psnr
+all 16                             26.81
+no z_order                         26.80
+no cross-check (xerr0/1, xdiff)     26.81
+old 12 only                        26.78
+
+== H. Source weight with only the 12 old features (both networks), test PSNR dB
+mlp_src with old 12 features: 27.24   with all 16: 27.28   (mlp_old, no source weight: 26.78)
+
+== G. Source weight on test pixels where both warps are valid: PSNR of the mixed synthesis (before any raw-camera blend)
+source 0 only (nearest warp first, as before): 19.04   learned s: 19.30   best s (truth): 19.41

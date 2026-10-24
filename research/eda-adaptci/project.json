@@ -1,0 +1,6 @@
+{
+ "theme": "eda",
+ "title": "Is the farthest-point spread's lead over random draws, when adapting a chip-design cost model to a new family, bigger than split noise?",
+ "lede": "`eda-adaptfixed` re-run with 40 splits per family and bootstrap intervals: for the linear model the spread beats random draws at every k (about 1 point of error at 3 to 8 designs, 2.5 at 2), but for ridge it loses at 3 designs and one family (sorter) reverses the sign, so the pooled interval is narrower than the real uncertainty.",
+ "summary": "Same 133 Yosys-synthesised designs in four families, fixed 40% test set per family, new-family weight 5. Over 40 splits &times; 4 families the paired gap APE(spread) &minus; APE(random) has a 95% bootstrap interval excluding zero for the linear model at k = 2, 3, 5, 8 (median &minus;2.45, &minus;0.71, &minus;1.01, &minus;0.73 points) and for ridge except k = 3, where the spread is worse (+1.00, interval +0.19 to +1.90). The extremes chooser is worse than random at k = 2 to 3. The alu family drives the largest gaps and sorter reverses the sign at k = 3 and 5. The intervals reflect split noise on the same designs, not a population of families, and are narrow for that reason. Inputs are the committed dataset (Yosys 0.33 counts); weights and scaling are untuned defaults."
+}

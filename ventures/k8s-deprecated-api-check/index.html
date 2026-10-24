@@ -48,6 +48,7 @@
     <p>Paste or load Kubernetes manifest YAML and get a deterministic report of every <code>apiVersion</code> + <code>kind</code> pair a past or future Kubernetes release has removed -- <code>extensions/v1beta1 Ingress</code>, <code>batch/v1beta1 CronJob</code>, <code>policy/v1beta1 PodSecurityPolicy</code>, and more.</p>
     <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device. No kubeconfig, no API server call.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Load your manifests</h2>
@@ -105,7 +106,8 @@ node cli.mjs check manifests.yaml --target-version 1.25 --strict --json</pre>
     <p>Not directly — it reads plain YAML documents, not Helm template expressions or Kustomize patches. Run <code>helm template</code> or <code>kustomize build</code> first and check the rendered output, the same manifest your cluster would actually receive.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not infrastructure, security, or compliance advice, and it does not replace a qualified professional or Kubernetes' own release notes. It matches a fixed table of documented removals against the manifest you supplied — it cannot prove your manifests will apply cleanly on every future release, only report the matches it found. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for testing any upgrade against a non-production cluster first. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The manifest you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

@@ -1,0 +1,209 @@
+{
+ "condition": "blind",
+ "seed": 0,
+ "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+ "rounds": [
+  {
+   "round": 0,
+   "reference": 1.0
+  },
+  {
+   "round": 1,
+   "detector_cv": 1.0,
+   "loop_test": 1.0,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": false,
+     "score": 1000005.2675588769,
+     "fail_rate": 1.0
+    },
+    {
+     "valid": false,
+     "error": "does not load: SyntaxError"
+    },
+    {
+     "valid": false,
+     "score": 1000007.0149832699,
+     "fail_rate": 0.42083333333333334
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    }
+   ],
+   "src": "def generate(start, end, rng):\n    # straight line at constant speed, 400 ms, one event every 16 ms\n    t = np.append(np.arange(0, 400, 16.0), 400.0)\n    u = t / 400.0\n    pts = start + np.outer(u, end - start)\n    return np.column_stack([t, pts])\n",
+   "seconds": 236.2193739414215
+  },
+  {
+   "round": 2,
+   "detector_cv": 1.0,
+   "loop_test": 0.9988171875,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": false,
+     "error": "does not load: ValueError"
+    },
+    {
+     "valid": false,
+     "score": 1000005.2284507665,
+     "fail_rate": 1.0
+    },
+    {
+     "valid": false,
+     "score": 1000005.2284507665,
+     "fail_rate": 1.0
+    },
+    {
+     "valid": true,
+     "score": 4.161656783509261,
+     "fail_rate": 0.0
+    }
+   ],
+   "src": "import numpy as np\n\ndef generate(start, end, rng):\n    # straight line at constant speed, 400 ms, one event every 16 ms\n    t = np.append(np.arange(0, 400, 16.0), 400.0)\n    u = t / 400.0\n    \n    # random angle between 45 degrees and 135 degrees\n    angle_rad = 0.7853981633974483 + rng.uniform(0, np.pi/2)\n    \n    # generate points around the line\n    r = np.sqrt((end[0] - start[0])**2 + (end[1] - start[1])**2)\n    dx = r * np.cos(angle_rad)\n    dy = r * np.sin(angle_rad)\n    pts = start + np.outer(u, [dx, dy])\n    \n    return np.column_stack([t, pts])",
+   "seconds": 207.50990200042725
+  },
+  {
+   "round": 3,
+   "detector_cv": 1.0,
+   "loop_test": 1.0,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": true,
+     "score": 6.382907667883921,
+     "fail_rate": 0.0
+    }
+   ],
+   "src": "import numpy as np\n\ndef generate(start, end, rng):\n    # straight line at constant speed, 400 ms, one event every 16 ms\n    t = np.append(np.arange(0, 400, 16.0), 400.0)\n    u = t / 400.0\n    \n    # random angle between 45 degrees and 135 degrees\n    angle_rad = 0.7853981633974483 + rng.uniform(0, np.pi/2)\n    \n    # generate points around the line\n    r = np.sqrt((end[0] - start[0])**2 + (end[1] - start[1])**2)\n    dx = r * np.cos(angle_rad)\n    dy = r * np.sin(angle_rad)\n    pts = start + np.outer(u, [dx, dy])\n    \n    return np.column_stack([t, pts])",
+   "seconds": 323.5815386772156
+  },
+  {
+   "round": 4,
+   "detector_cv": 1.0,
+   "loop_test": 1.0,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": true,
+     "score": 5.762760610723107,
+     "fail_rate": 0.0
+    },
+    {
+     "valid": false,
+     "error": "does not load: NameError"
+    }
+   ],
+   "src": "import numpy as np\n\ndef generate(start, end, rng):\n    # straight line at constant speed, 400 ms, one event every 16 ms\n    t = np.append(np.arange(0, 400, 16.0), 400.0)\n    u = t / 400.0\n    \n    # random angle between 45 degrees and 135 degrees\n    angle_rad = 0.7853981633974483 + rng.uniform(0, np.pi/2)\n    \n    # generate points around the line\n    r = np.sqrt((end[0] - start[0])**2 + (end[1] - start[1])**2)\n    dx = r * np.cos(angle_rad)\n    dy = r * np.sin(angle_rad)\n    pts = start + np.outer(u, [dx, dy])\n    \n    return np.column_stack([t, pts])",
+   "seconds": 238.01571941375732
+  },
+  {
+   "round": 5,
+   "detector_cv": 1.0,
+   "loop_test": 0.9995296874999999,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": true,
+     "score": 5.238464917092755,
+     "fail_rate": 0.0
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": true,
+     "score": 6.824219837957382,
+     "fail_rate": 0.0
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    }
+   ],
+   "src": "import numpy as np\n\ndef generate(start, end, rng):\n    # straight line at constant speed, 400 ms, one event every 16 ms\n    t = np.arange(0, 400, 16.0)\n    u = t / 400.0\n    \n    # random angle between 10 degrees and 170 degrees (to make it harder for the detector)\n    angle_rad = 0.17453292519943295 + rng.uniform(-np.pi/18, np.pi/18)\n    \n    # generate points around the line\n    r = np.sqrt((end[0] - start[0])**2 + (end[1] - start[1])**2)\n    dx = r * np.cos(angle_rad)\n    dy = r * np.sin(angle_rad)\n    pts = start + np.outer(u, [dx, dy])\n    \n    return np.column_stack([t, pts])",
+   "seconds": 288.6394634246826
+  },
+  {
+   "round": 6,
+   "detector_cv": 1.0,
+   "loop_test": 0.99971875,
+   "reference": 1.0,
+   "groups": [
+    "straight",
+    "rate",
+    "dt"
+   ],
+   "candidates": [
+    {
+     "valid": true,
+     "score": 5.624548842851889,
+     "fail_rate": 0.0
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    },
+    {
+     "valid": true,
+     "score": 5.347323637392915,
+     "fail_rate": 0.0
+    },
+    {
+     "valid": false,
+     "error": "banned token"
+    }
+   ],
+   "src": "import numpy as np\n\ndef generate(start, end, rng):\n    # straight line at constant speed, 400 ms, one event every 16 ms\n    t = np.arange(0, 400, 16.0)\n    u = t / 400.0\n    \n    # random angle between 10 degrees and 170 degrees (to make it harder for the detector)\n    angle_rad = 0.17453292519943295 + rng.uniform(-np.pi/18, np.pi/18)\n    \n    # generate points around the line\n    r = np.sqrt((end[0] - start[0])**2 + (end[1] - start[1])**2)\n    dx = r * np.cos(angle_rad)\n    dy = r * np.sin(angle_rad)\n    pts = start + np.outer(u, [dx, dy])\n    \n    return np.column_stack([t, pts])",
+   "seconds": 248.2910590171814
+  }
+ ],
+ "note": "Generated cursor strokes are simulated; nothing was sent to any site."
+}

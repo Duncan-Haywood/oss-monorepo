@@ -1,12 +1,92 @@
 {
+  "a-winter-night-at-the-hill-convent": {
+    "bytes": 8202844,
+    "seconds": 1640.5,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "abraham-and-the-three-visitors-at-mamre": {
+    "bytes": 9994457,
+    "seconds": 1998.8,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "brendan-and-the-island-that-moved": {
+    "bytes": 10509063,
+    "seconds": 2101.7,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "columba-and-the-beast-in-the-river-ness": {
+    "bytes": 9660482,
+    "seconds": 1932.0,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "cuthbert-and-the-otters": {
+    "bytes": 13283519,
+    "seconds": 2656.6,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "elijah-and-the-still-small-voice": {
+    "bytes": 13430728,
+    "seconds": 2686.1,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "francis-and-the-wolf-of-gubbio": {
+    "bytes": 9948473,
+    "seconds": 1989.6,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "george-and-the-dragon-of-silene": {
+    "bytes": 9480490,
+    "seconds": 1896.0,
+    "voice": "kokoro-v1.0 bm_george"
+  },
   "gerasimus-and-the-lion": {
     "bytes": 12184154,
     "seconds": 2436.8,
     "voice": "kokoro-v1.0 bm_george"
   },
+  "herman-and-the-garden-on-spruce-island": {
+    "bytes": 9605623,
+    "seconds": 1921.0,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "hilda-of-whitby-and-the-cowherd-who-could-not-sing": {
+    "bytes": 9848574,
+    "seconds": 1969.6,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "joseph-and-the-coat-with-long-sleeves": {
+    "bytes": 13086831,
+    "seconds": 2617.3,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "kevin-and-the-blackbird": {
+    "bytes": 10690082,
+    "seconds": 2137.9,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "nicholas-and-the-grain-ships": {
+    "bytes": 13392454,
+    "seconds": 2678.4,
+    "voice": "kokoro-v1.0 bm_george"
+  },
   "nicholas-and-the-three-bags-of-gold": {
     "bytes": 13545800,
     "seconds": 2709.1,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "patrick-and-the-ship-that-was-ready": {
+    "bytes": 9130975,
+    "seconds": 1826.1,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "seraphim-of-sarov-and-the-bear": {
+    "bytes": 10327379,
+    "seconds": 2065.4,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "spyridon-and-the-snake-that-became-gold": {
+    "bytes": 10686310,
+    "seconds": 2137.2,
     "voice": "kokoro-v1.0 bm_george"
   },
   "the-angel-who-called-himself-azarias": {

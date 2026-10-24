@@ -1,0 +1,54 @@
+GoEmotions (first file): 5313 examples; 2125 train naive-Bayes, 3188 evaluated. 1000 audit draws per cell, audit size 200, seed 20261024. Estimand: human negative-emotion prevalence = 0.2522.
+Intervals are nominal 95%. wald = qual-negaudit; plus_two = +1 success +1 failure per stratum; wilson = per-stratum Wilson centre and variance; jeffreys = Beta(x+.5, n-x+.5) posterior per stratum, 1,000 posterior draws.
+
+1. Coverage by coder and k
+coder k wald plus_two wilson jeffreys
+nb_x0.8 5 0.678 0.981 0.935 0.963
+nb_x0.8 10 0.896 0.970 0.962 0.942
+nb_x0.8 20 0.927 0.953 0.954 0.942
+nb_x0.8 50 0.930 0.953 0.956 0.945
+nb_x1.0 5 0.662 0.956 0.942 0.950
+nb_x1.0 10 0.890 0.966 0.961 0.956
+nb_x1.0 20 0.935 0.959 0.954 0.948
+nb_x1.0 50 0.944 0.956 0.956 0.951
+nb_x1.25 5 0.638 0.950 0.946 0.953
+nb_x1.25 10 0.849 0.972 0.967 0.966
+nb_x1.25 20 0.907 0.968 0.957 0.960
+nb_x1.25 50 0.931 0.952 0.955 0.947
+lexicon 5 0.628 0.953 0.953 0.954
+lexicon 10 0.853 0.979 0.979 0.978
+lexicon 20 0.917 0.967 0.966 0.965
+lexicon 50 0.936 0.952 0.947 0.948
+
+2. Mean width by coder and k
+coder k wald plus_two wilson jeffreys
+nb_x0.8 5 0.427 0.511 0.445 0.450
+nb_x0.8 10 0.359 0.379 0.350 0.351
+nb_x0.8 20 0.275 0.277 0.265 0.266
+nb_x0.8 50 0.180 0.181 0.177 0.177
+nb_x1.0 5 0.391 0.476 0.414 0.417
+nb_x1.0 10 0.337 0.355 0.328 0.328
+nb_x1.0 20 0.255 0.259 0.248 0.248
+nb_x1.0 50 0.168 0.169 0.166 0.166
+nb_x1.25 5 0.350 0.433 0.378 0.381
+nb_x1.25 10 0.297 0.320 0.295 0.295
+nb_x1.25 20 0.229 0.234 0.224 0.223
+nb_x1.25 50 0.154 0.155 0.152 0.152
+lexicon 5 0.421 0.539 0.469 0.469
+lexicon 10 0.362 0.396 0.364 0.362
+lexicon 20 0.282 0.288 0.275 0.274
+lexicon 50 0.185 0.186 0.183 0.182
+
+3. Worst coverage over the four coders, by k
+k wald plus_two wilson jeffreys
+5 0.628 0.950 0.935 0.950
+10 0.849 0.966 0.961 0.942
+20 0.907 0.953 0.954 0.942
+50 0.930 0.952 0.947 0.945
+
+4. Mean width over the four coders, by k
+k wald plus_two wilson jeffreys
+5 0.397 0.490 0.427 0.429
+10 0.339 0.362 0.334 0.334
+20 0.260 0.264 0.253 0.253
+50 0.172 0.172 0.169 0.169

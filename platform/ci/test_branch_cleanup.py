@@ -12,11 +12,15 @@ the same-ref-twice case are covered without touching the network.
 Run: python3 -m unittest test_branch_cleanup   (from platform/ci/)
 """
 import io
+import json
 import unittest
+import urllib.error
+from unittest import mock
 from datetime import datetime, timedelta, timezone
 
 from branch_cleanup import (
     DEFAULT_PROTECTED,
+    GitHub,
     MainContainment,
     decide,
     decide_stray,
@@ -657,6 +661,100 @@ class SweepInputsTest(unittest.TestCase):
                                            scan_cap=10)
         self.assertFalse(complete)
         self.assertEqual(strays, [])
+
+
+class StrayPacingTest(unittest.TestCase):
+    def test_stray_deletions_are_paced_but_the_first_is_not_delayed(self):
+        refs = ["claude/a", "claude/b", "claude/c"]
+        github = FakeGitHub({r: MAIN_TIP for r in refs})
+        naps = []
+        run(github, [], DEFAULT_PROTECTED, 24.0, False, io.StringIO(), now=NOW,
+            containment=containment(), strays=refs, delete_delay=0.8,
+            sleep=naps.append)
+        self.assertEqual(len(github.deleted), 3)
+        self.assertEqual(naps, [0.8, 0.8])
+
+    def test_no_delay_configured_means_no_sleep(self):
+        github = FakeGitHub({"claude/a": MAIN_TIP, "claude/b": MAIN_TIP})
+        naps = []
+        run(github, [], DEFAULT_PROTECTED, 24.0, False, io.StringIO(), now=NOW,
+            containment=containment(), strays=["claude/a", "claude/b"],
+            delete_delay=0, sleep=naps.append)
+        self.assertEqual(naps, [])
+
+
+class CompareBudgetTest(unittest.TestCase):
+    def test_each_compare_spends_exactly_one_unit_of_budget(self):
+        shas = ["1" * 40, "2" * 40, "3" * 40]
+        probe = containment(compares={s: (1, None) for s in shas}, budget=2)
+        self.assertEqual([probe.check(s)[0] for s in shas], [False, False, None])
+        self.assertEqual(probe.calls, shas[:2])
+
+
+class FakeResponse:
+    def __init__(self, body):
+        self._body = body
+
+    def read(self):
+        return self._body
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+
+class GitHubClientTest(unittest.TestCase):
+    """The REST wrapper, with urlopen faked: no network."""
+
+    def setUp(self):
+        self.gh = GitHub("o/r", "tok")
+        self.urls = []
+
+    def fake_open(self, pages):
+        pages = list(pages)
+
+        def opener(request, timeout=None):
+            self.urls.append(request.full_url)
+            answer = pages.pop(0)
+            if isinstance(answer, Exception):
+                raise answer
+            return FakeResponse(json.dumps(answer).encode())
+
+        return mock.patch("branch_cleanup.urllib.request.urlopen", opener)
+
+    def test_params_are_sent_as_a_query_string(self):
+        with self.fake_open([[]]):
+            list(self.gh._paginate("/repos/o/r/pulls", {"state": "open"}, 10))
+        self.assertIn("?", self.urls[0])
+        self.assertIn("state=open", self.urls[0])
+        self.assertIn("per_page=100", self.urls[0])
+
+    def test_pagination_stops_at_the_cap_and_does_not_fetch_another_page(self):
+        full = [{"n": i} for i in range(100)]
+        with self.fake_open([full, full]):
+            got = list(self.gh._paginate("/x", {}, 150))
+        self.assertEqual(len(got), 150)
+        self.assertEqual(len(self.urls), 2)
+
+    def test_pagination_cap_counts_from_zero(self):
+        full = [{"n": i} for i in range(100)]
+        with self.fake_open([full]):
+            got = list(self.gh._paginate("/x", {}, 100))
+        self.assertEqual(len(got), 100)
+        self.assertEqual(len(self.urls), 1)
+
+    def test_a_missing_branch_is_none_not_an_error(self):
+        err = urllib.error.HTTPError("u", 404, "nf", {}, None)
+        with self.fake_open([err]):
+            self.assertIsNone(self.gh.branch_sha("claude/gone"))
+
+    def test_a_404_is_an_error_when_the_caller_did_not_expect_it(self):
+        err = urllib.error.HTTPError("u", 404, "nf", {}, None)
+        with self.fake_open([err]):
+            with self.assertRaises(urllib.error.HTTPError):
+                self.gh._request("GET", "/repos/o/r")
 
 
 if __name__ == "__main__":

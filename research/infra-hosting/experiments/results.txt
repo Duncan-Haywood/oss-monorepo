@@ -1,0 +1,77 @@
+feeder: IEEE 13-node, peak customer load 3466 kW; 300 random placements (1-8 customer nodes, Dirichlet weights, seed 1); limits: 1.05 pu, line ampacity, transformer kVA
+
+A. Hosting capacity, live regulators (kW; median [p10, p90]; % of the load at that level)
+load_level baseline | fixed pf 0.95 | volt-var | regulator -2 V | midday EV charging | volt-var + reg -2 V + EV
+0.2 930 [529,1792] (134%) | 930 [480,2111] | 965 [520,1781] | 1380 [620,2451] | 960 [520,1822] | 1400 [600,2360]
+0.3 1015 [510,1893] (98%) | 960 [449,2210] | 1060 [510,1790] | 1415 [629,2541] | 1025 [489,1980] | 1410 [610,2540]
+0.5 1015 [400,2011] (59%) | 940 [369,2123] | 1010 [390,2020] | 1410 [629,2732] | 945 [338,2050] | 1370 [590,2721]
+0.7 690 [170,2300] (28%) | 870 [190,2081] | 655 [189,2240] | 1290 [530,2741] | 555 [120,2150] | 1275 [490,2713]
+
+B. Hosting capacity, regulator taps frozen at their no-PV values (kW; median [p10, p90])
+load_level baseline | fixed pf 0.95 [taps frozen] | volt-var [taps frozen] | regulator -2 V [taps frozen] | midday EV charging [taps frozen] | volt-var + reg -2 V + EV [taps frozen]
+0.2 760 [419,1261] (110%) | 910 [480,1753] | 805 [509,1323] | 1255 [630,2071] | 790 [439,1331] | 1300 [639,2051]
+0.3 815 [430,1412] (78%) | 930 [449,1983] | 850 [480,1442] | 1280 [620,2022] | 860 [439,1470] | 1330 [630,2141]
+0.5 825 [340,1472] (48%) | 940 [369,2022] | 830 [380,1554] | 1225 [609,2120] | 800 [310,1581] | 1280 [610,2223]
+0.7 610 [179,1302] (25%) | 830 [190,1941] | 585 [190,1361] | 1130 [510,2202] | 555 [120,1521] | 1090 [489,2350]
+
+H. Hosting capacity with regulator line-drop compensation off (R = X = 0; kW; median [p10, p90])
+load_level baseline | fixed pf 0.95 [no LDC] | volt-var [no LDC] | regulator -2 V [no LDC]
+0.2 785 [448,1401] (113%) | 925 [480,1812] | 845 [510,1390] | 1150 [609,1850]
+0.3 980 [569,1670] (94%) | 1065 [510,2190] | 1025 [548,1650] | 1325 [620,2170]
+0.5 1190 [590,2083] (69%) | 1200 [500,2530] | 1190 [570,2142] | 1415 [629,2483]
+0.7 1195 [549,2551] (49%) | 1165 [460,2611] | 1220 [540,2511] | 1425 [560,2770]
+
+C. Paired change vs the baseline of the same regulator regime at load 0.3: median kW change, share of placements better / worse / equal
+fixed pf 0.95: median -60 kW, better 34%, worse 63%, equal 3%
+volt-var: median +0 kW, better 49%, worse 41%, equal 9%
+regulator -2 V: median +310 kW, better 74%, worse 10%, equal 16%
+midday EV charging: median +10 kW, better 55%, worse 37%, equal 8%
+volt-var + reg -2 V + EV: median +290 kW, better 79%, worse 14%, equal 8%
+fixed pf 0.95 [taps frozen]: median +110 kW, better 72%, worse 27%, equal 2%
+volt-var [taps frozen]: median +60 kW, better 65%, worse 32%, equal 3%
+regulator -2 V [taps frozen]: median +380 kW, better 93%, worse 2%, equal 5%
+midday EV charging [taps frozen]: median +30 kW, better 65%, worse 29%, equal 6%
+volt-var + reg -2 V + EV [taps frozen]: median +470 kW, better 93%, worse 6%, equal 1%
+fixed pf 0.95 [no LDC]: median +50 kW, better 57%, worse 43%, equal 0%
+volt-var [no LDC]: median +10 kW, better 54%, worse 38%, equal 8%
+regulator -2 V [no LDC]: median +300 kW, better 78%, worse 7%, equal 15%
+
+D. Which limit binds first at load 0.3 (baseline, live regulators) and at 0.7
+load 0.3: line 29, voltage 224, xfmr 47
+load 0.3 volt-var+reg+EV: base 3, line 97, voltage 90, xfmr 110
+load 0.7: line 38, voltage 199, xfmr 63
+load 0.7 volt-var+reg+EV: base 3, line 77, voltage 96, xfmr 124
+
+E. Single-node hosting capacity at load 0.3 (kW): node baseline volt-var fixed-pf0.95 reg-2V
+671 4910 4840 5390 5670
+634a 460 450 420 460
+634b 390 430 400 430
+634c 430 430 400 430
+645 670 660 610 660
+646 1060 990 980 1040
+692 2400 1680 2400 3460
+675a 680 630 490 770
+675b 360 510 530 640
+675c 410 380 280 710
+611 390 360 280 620
+652 490 520 460 610
+670a 990 950 730 1580
+670b 970 910 740 1280
+670c 580 560 420 1260
+
+F. Median hosting capacity (kW) against load level, live regulators
+load_level baseline fixed_pf_0.95 volt-var regulator_-2_V midday_EV_charging volt-var_+_reg_-2_V_+_EV
+0.2 930 930 965 1380 960 1400
+0.3 1015 960 1060 1415 1025 1410
+0.5 1015 940 1010 1410 945 1370
+0.7 690 870 655 1290 555 1275
+
+I. Lowest service voltage with no PV (pu, ANSI C84.1 Range A lower limit 0.95) by load level and measure, live regulators
+load_level baseline fixed_pf_0.95 volt-var regulator_-2_V midday_EV_charging volt-var_+_reg_-2_V_+_EV
+0.2 1.017 1.017 1.017 0.998 1.016 0.997
+0.3 1.010 1.010 1.010 0.996 1.013 0.993
+0.7 0.996 0.996 0.996 0.975 0.987 0.974
+1.0 0.961 0.961 0.961 0.954 0.955 0.948
+
+G. Path dependence (baseline, load 0.3, 60 placements): a fresh solve (regulators start from nothing, no ramp) at the reported capacity, and 100 kW above it
+fresh solve at the reported capacity is clean: 60 of 60; fresh solve at capacity + 100 kW violates: 56 of 60

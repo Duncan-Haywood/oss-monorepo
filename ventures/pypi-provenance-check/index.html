@@ -47,6 +47,7 @@
     <p>Paste a <code>requirements.txt</code>, a PEP 621 <code>pyproject.toml</code>, or a plain list of package names, and see which ones were published with a PyPI <strong>provenance attestation</strong> -- <a href="https://docs.pypi.org/attestations/" rel="noopener">PEP 740</a>, PyPI's trusted-publishing signature (OIDC, no long-lived API token to steal) -- and which still rely on a classic upload token.</p>
     <p class="note">Your file is parsed in this browser and never uploaded. Checking a package makes two GET requests, from your browser, to the public PyPI API -- pypi.org's package metadata endpoint, then its PEP 740 integrity/provenance endpoint.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste a requirements.txt, pyproject.toml, or a plain list</h2>
@@ -102,7 +103,8 @@ echo "pip\nsix==1.17.0" | node cli.mjs -         # freeform list on stdin</pre>
     <p>Been checking packages one at a time on pypi.org? See <a href="vs-checking-each-package-on-pypi-by-hand.html">this checker vs. checking each package on PyPI by hand</a>.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified security review. It reports one factual field the PyPI integrity API publishes about each release file you asked about -- nothing more. The absence of a provenance attestation is not evidence of compromise, and its presence is not a guarantee of safety. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The file you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Checking a package sends its name and version to the public PyPI API, from your browser, over HTTPS -- nothing about your project beyond what you pasted. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

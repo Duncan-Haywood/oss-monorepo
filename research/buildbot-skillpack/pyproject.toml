@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buildbot-skillpack"
+version = "0.1.0"
+description = "A loadable skill library for the building-site robot skills: versioned JSON skill files, a loader and a re-scorer."
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+figure = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../buildbot-skills/src", "../buildbot-fasten/src", "../buildbot-studfind/src", "../buildbot-mjsheet/src"]

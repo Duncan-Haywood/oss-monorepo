@@ -1,0 +1,6 @@
+{
+ "theme": "capture",
+ "title": "How long a window of sound does it take to sync two drifting cameras, and how often must you redo it?",
+ "summary": "Synthetic speech-like audio (shared source, independent noise, optional reverb), per-window GCC-PHAT delay (100&ndash;4000 Hz) and a Theil&ndash;Sen line over 12 windows in 1 h at 40 ppm clock error. With 2 s windows the fit is below 0.02 ms from &minus;10 dB SNR up and fails completely at &minus;15 dB; 5 s windows hold to &minus;15 dB. A sync made once at the start drifts one 30 fps frame (33.3 ms) in 833 s at 40 ppm (144 ms after an hour; analytic ppm &times; time reproduced exactly). Reverb at &minus;10 dB direct-to-reverberant adds 4adds 4&ndash;8 msndash;5 ms (median). Not from real recordings: the audio and the exact delay are synthetic and the ppm values are swept, none sourced (no datasheet reachable).",
+ "lede": "how long a window of sound syncs two drifting cameras? GCC-PHAT plus a robust line fit syncs to under 0.02 ms over an hour from -10 dB SNR with 2 s windows; a sync made once at the start drifts one frame in 833 s at 40 ppm."
+}

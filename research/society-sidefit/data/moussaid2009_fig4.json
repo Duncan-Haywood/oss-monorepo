@@ -1,0 +1,10 @@
+{
+  "source": "Moussaid, Helbing, Garnier, Johansson, Combe, Theraulaz (2009), Proc. R. Soc. B 276:2755-2762, doi:10.1098/rspb.2009.0405; arXiv:0908.3131, Figure 4c-d (blue bars, experiment)",
+  "how_read": "The paper prints no numbers for these bars. Bar tops were measured in pixels on the arXiv PDF page 16 rendered at 400 dpi (experiments/read_fig4.py logic, values below). In each panel the frame spans 0 to 1 and the dotted line is 0.5 (frame midpoint, checked below); bar height = (frame bottom - bar top) / (2 * (frame bottom - dotted line)). Reading error about 3 px, 0.01.",
+  "panels": {
+    "condition_2_static_obstacle": {"frame_bottom_px": 362.0, "dotted_px": 194.0, "left_top_px": 237.0, "right_top_px": 172.0},
+    "condition_3_two_walkers_head_on": {"frame_bottom_px": 756.5, "dotted_px": 590.0, "left_top_px": 696.0, "right_top_px": 472.0}
+  },
+  "paper_text": "Pedestrians avoiding a static pedestrian have a slight preference for the right-hand side in our experiments, but the asymmetry is significantly more pronounced if both pedestrians are moving.",
+  "n_note": "The paper gives N=148 trajectories for condition 2; no count is printed for condition 3 (about 10 trajectories per direction per 3-minute run)."
+}

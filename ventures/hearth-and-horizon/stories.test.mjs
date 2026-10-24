@@ -66,3 +66,14 @@ test('every page carries the disclaimer, licence, usage switch and structured da
 test('the index links its sibling audio-story venture (platform/pages/siblings.mjs)', () => {
   assert.match(buildAll()['index.html'], /href="\.\.\/listen-and-learn-audio\/"/);
 });
+
+test('llms.txt lists every story once, with honest audio status and no placeholder-only links to .txt', () => {
+  const llms = readFileSync(new URL('./llms.txt', import.meta.url), 'utf8');
+  const audio = loadAudio();
+  for (const s of stories) {
+    assert.equal(llms.split(`stories/${s.slug}.md)`).length - 1, 1, s.slug);
+  }
+  assert.match(llms, /^# Hearth & Horizon/);
+  assert.match(llms, /written by an AI/);
+  assert.equal((llms.match(/audio to follow/g) || []).length, stories.filter((s) => !audio[s.slug]).length);
+});

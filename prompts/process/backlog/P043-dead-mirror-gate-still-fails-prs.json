@@ -1,16 +1,17 @@
 {
   "id": "P043",
   "title": "Retire the dead apex mirror's staleness gate: it still fails PRs for drift they did not cause",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
   "problem": "P039 gated the mirror check to PRs touching gitops/prod/, platform/marketing/ or portfolio-validate.yml, which made it fast but not harmless. Main's committed mirror (catalog.json.gz, sitemap.xml.gz, social-card.png) drifts because pages/venture merges change the generator inputs without running the check, so the first PR that does touch the gated paths goes red for someone else's drift and its author regenerates files for an origin retired on 2026-10-01 (portfolio/hosting/README.md).",
   "evidence": [
     "mcp actions_list portfolio-validate.yml event=pull_request, newest 30 (2026-10-21T02:31Z-03:05Z): 10 conclusion=failure, 6 of them on branches whose commit subjects are mirror regens (e.g. 'Regenerate the apex mirror (stale on main)', 'Regenerate the front-door mirror after merging main', 'Regenerate the mirror alias map for wall-framing-takeoff'); runs 39533528804, 39533572911, 39533709872, 39533831025. The failure reasons were not read from job logs, so the share caused by the mirror check is unconfirmed.",
-    "commit 'Wire ci_profile tests through their own workflow, leave the mirror alone' (branch claude/lucid-cori-3n1pre): an author moved a test to another workflow to avoid touching portfolio-validate.yml and the mirror check."
+    "commit 'Wire ci_profile tests through their own workflow, leave the mirror alone' (branch claude/lucid-cori-3n1pre): an author moved a test to another workflow to avoid touching portfolio-validate.yml and the mirror check.",
+    "Job logs read 2026-10-21 (mcp get_job_logs, runs 39533528804 and 39533572911): both failed in the node --test platform/marketing/*.test.mjs step, '# pass 274 # fail 1' of 275, so the mirror step is confirmed for 2 of 2 logs read; the other 4 mirror-regen failures were not read. On main at fb9baa20 the same suite is 275/275 and regen.mjs --verify exits 0, so the drift was already fixed forward; the suite took 681 s locally (5-7 min in CI), which is the cost of every gated PR."
   ],
-  "change": "Read the job logs of the failed runs above to confirm how many were the mirror step. If most were, stop gating PRs on the mirror: delete the 'Check the apex tool mirror is not stale' step and the marketing/*.test.mjs staleness tests that only guard gitops/prod/front-door*, keep the generator, and update verify-and-merge.md's regen.mjs lines and platform/ci/checklist_coverage.py. Alternatively run regen.mjs --verify on main on a schedule and not on PRs. Part of P036 part 1 (retired-cluster cleanup).",
+  "change": "Split (one PR each): (a) P043a: take 'gitops/prod/' out of the PR gate in the 'mirror' step so only edits to the generator or workflow run the suite on a PR, and add the scheduled/main-push --verify as a read-only report; workflow-coverage.test.mjs asserts the path filters, so change both together. (b) P043b: delete the staleness tests that only guard gitops/prod/front-door* and the matching lines in verify-and-merge.md, land-your-work.md, AGENTS.md and checklist_coverage.py (regen.mjs --verify still guards the apex, see P023, so keep that line). Do (a) first; (b) is P036 part 1.",
   "touches": [
     ".github/workflows/portfolio-validate.yml",
     ".github/prompts/verify-and-merge.md",
@@ -21,7 +22,15 @@
   "baseline": "10 of the newest 30 (2026-10-21), cause unconfirmed",
   "opened": "2026-10-21",
   "source": "Verify of P039, process run 2026-10-21",
-  "pr": null,
-  "result": null,
-  "history": []
+  "pr": "this",
+  "result": "helped: 0 of the newest 100 completed Portfolio validate pull_request runs failed (all success; 2026-10-21T12:18Z-20:02Z, mcp actions_list portfolio-validate.yml event=pull_request status=completed), against 10 of 30 at baseline. Window is one day, so a later recheck could still show drift; the staleness tests are gone, so mirror drift no longer fails PRs.",
+  "history": [
+    "2026-10-21: P043a landed (PR runs gate on platform/marketing/ and the workflow only; push keeps gitops/prod/). P043b remains.",
+    "2026-10-21: P043b first slice: AGENTS.md and verify-and-merge.md stop telling venture edits to run regen.mjs --verify. Test/line deletion remains (P036 part 1).",
+    "2026-10-21: P043b second slice: deleted the front-door embed staleness test (front-door.test.mjs); regen.mjs --verify still guards the files. Remaining staleness tests: P036 part 1.",
+    "2026-10-21: P043b third slice: deleted the eight 'committed X matches the generator' staleness tests in front-door.test.mjs (page, share card, tab mark, robots/sitemap, category pages, feed, llms.txt, catalog.json; 138 lines). Remaining: front-door-tools.test.mjs shard staleness (P036 part 1).",
+    "2026-10-21: P043b fourth slice: deleted the four remaining committed-vs-generator staleness tests in front-door-tools.test.mjs (written mirror, mirror directory, alias map, kustomization; 52 lines); 98/98 pass, suite 495 s locally. regen.mjs --verify still guards the files. Staleness tests are done; P043 left in_progress only to measure the metric.",
+    "2026-10-21: promptctl backlog now prints the latest history line of each in_progress item, so the remaining slice is visible without opening the JSON (doc_friction on prompt-1.md, 3 reports).",
+    "2026-10-21: Verified metric: 0/100 failing PR runs. Closed as done."
+  ]
 }

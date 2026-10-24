@@ -172,23 +172,23 @@ if missing. Narrator voice: `bm_george` at speed 0.9.
 Done episodes are in `episodes/`. Next up, roughly in order (claim one by
 writing it; skip any already in `episodes/`):
 
-- Saint Seraphim of Sarov and the bear (Orthodox; widely loved by Catholics)
-- Saint Columba and the beast in the River Ness (Adomnán, *Life of Columba*)
-- Saint Cuthbert and the otters (Bede, *Life of Cuthbert*)
-- Joseph the dreamer and his brothers (Genesis 37-50)
-- Saint George and the dragon (legend; the historical martyr told gently)
-- Saint Brendan the Navigator and the island that moved (*Navigatio*; skip the birds-as-angels episode)
-- Saint Kevin of Glendalough and the blackbird
-- Saint Patrick, from slave to bishop (his own *Confessio*)
-- Saint Francis and the wolf of Gubbio (Catholic; *Fioretti*)
-- Saint Mary of Egypt (Orthodox and Catholic; told gently for bedtime)
-- Abraham and the three visitors at Mamre (Genesis 18)
-- Saint Herman of Alaska and the animals of Spruce Island (Orthodox)
-- Saint Hilda of Whitby and the cowherd Caedmon who could not sing (Bede)
-- Saint Nicholas, part two: the storm at sea and the grain ships
-- Elijah, the ravens and the still small voice (1 Kings 17-19)
-- Saint Spyridon and the snake that became gold (legend; told with care)
-- An invented episode: a novice and an old abbess on a winter night, with the saints she tells him about (clearly labelled fiction)
+- *(Done: episode 14, Joseph and the Coat with Long Sleeves.)* Joseph the dreamer and his brothers (Genesis 37-50)
+- *(Done: episode 18, George and the Dragon of Silene.)* Saint George and the dragon (legend; the historical martyr told gently)
+- *(Done: episode 10, Brendan and the Island That Moved.)* Saint Brendan the Navigator (*Navigatio*; the birds-as-angels episode skipped)
+- *(Done: episode 17, Kevin and the Blackbird.)* Saint Kevin of Glendalough and the blackbird
+- *(Done: episode 9, Patrick and the Ship That Was Ready.)* Saint Patrick, from slave to bishop (his own *Confessio*)
+- *(Done: episode 5, Francis and the Wolf of Gubbio.)* Saint Francis and the wolf of Gubbio (Catholic; *Fioretti*)
+- *(Done: episode 20, Mary of Egypt and the Three Loaves; text only, no audio yet.)* Saint Mary of Egypt (Orthodox and Catholic; told gently for bedtime)
+- *(Done: episode 13, Abraham and the Three Visitors at Mamre.)* Abraham and the three visitors at Mamre (Genesis 18)
+- *(Done: episode 11, Herman and the Garden on Spruce Island.)* Saint Herman of Alaska (Orthodox)
+- *(Done: episode 15, Nicholas and the Grain Ships.)* Saint Nicholas, part two: the storm at sea and the grain ships
+- *(Done: episode 12, Elijah and the Still Small Voice.)* Elijah, the ravens and the still small voice (1 Kings 17-19)
+- *(Done: episode 16, Spyridon and the Snake That Became Gold.)* Saint Spyridon and the snake that became gold (legend; told with care)
+- *(Done: episode 19, A Winter Night at the Hill Convent.)* An invented episode: a novice and an old abbess on a winter night, with the saints she tells her about (clearly labelled fiction)
+
+## Audio status
+
+Episodes 1 to 19 have audio (episode 20 is text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 

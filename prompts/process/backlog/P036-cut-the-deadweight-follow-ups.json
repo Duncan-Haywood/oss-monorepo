@@ -1,7 +1,7 @@
 {
   "id": "P036",
   "title": "Finish the deadweight cut: dead workflows, DIRECTION.md, the playbook, the red-team gate",
-  "status": "in_progress",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -30,7 +30,7 @@
   "opened": "2026-10-20",
   "source": "owner, in session 2026-10-20",
   "pr": 9023,
-  "result": null,
+  "result": "Parts 1-5 and 7 done or confirmed; part 6 needs an owner yes (see decision queue). Remaining retired-tree CI is test-pinned and guards the live front-door mirror.",
   "history": [
     {
       "date": "2026-10-20",
@@ -51,6 +51,30 @@
     {
       "date": "2026-10-21",
       "note": "Part 2 done (finishes the earlier started cut): portfolio/DIRECTION.md 875 -> 166 lines (53,180 -> 8,898 bytes); full text archived in docs/history/direction-full-text-2026-10-21.md. Section names other files cite (North star, Current priority, Owner direction) kept. Parts 1 remainder (hetzner-gitops-ci.yml), 5, 6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 1 slice: removed the hcloud-scope job (probe of HETZNERREADAPIKEY for the retired cluster) from hetzner-gitops-ci.yml; tests that pinned it updated (infra/tests/test_infra_layout.py, platform/ci/test_run_workflow_locally.py, 118 pass). Still in part 1: the gitops pytest/kustomize/tofu jobs of that workflow and assert_hcloud_read_only.sh. Parts 5,6 remain."
+    },
+    {
+      "date": "2026-10-21",
+      "note": "Part 5 done: verify-and-merge.md now opens with run_workflow_locally.py --for-changes as the one command and calls the block a reference. Part 1 remainder (hetzner-gitops-ci.yml gitops jobs, entangled with ~20 files) and 6 remain."
+    },
+    {
+      "date": "2026-10-22",
+      "note": "Part 7 already holds: all 13 ventures/*/byok.mjs copies are byte-identical (md5sum), and `node --test` passes in ats-resume-checker (66) and persona-conversation-simulator (21). Remaining: part 1 remainder (hetzner-gitops-ci.yml gitops jobs) and part 6 (owner yes needed)."
+    },
+    {
+      "date": "2026-10-22",
+      "note": "Part 1 slice: removed the tofu fmt/validate job from hetzner-gitops-ci.yml (validated only the retired cluster's infra/*.tf; no test pinned it; 140 infra/gitops/ci tests pass). Still in part 1: the gitops pytest/kustomize/kubeconform job (entangled with ~20 files). Part 6 needs an owner yes."
+    },
+    {
+      "date": "2026-10-22",
+      "note": "Part 1 slice: removed the kustomize build and kubeconform steps (rendered the retired cluster's manifests, two network downloads; no test pinned them; 140 infra/gitops/ci tests pass). Part 1 left: gitops pytest job, shellcheck list. Part 6 needs an owner yes."
+    },
+    {
+      "date": "2026-10-22",
+      "note": "Checked the part 1 residue: the gitops pytest job (10 min) also guards the live front-door mirror and platform/marketing generator; the shellcheck list is pinned by gitops/tests/test_shellcheck_coverage.py (every bootstrap/infra/gitops script must be named, no dead path); assert_hcloud_read_only.sh is a documented laptop tool (infra/README.md, Makefile). Cutting any of these means deleting the retired tree wholesale (~40 files, the reason P013 was dropped), not trimming CI. Part 1 is closed as far as CI trimming goes; only part 6 (owner yes) remains."
     }
   ]
 }

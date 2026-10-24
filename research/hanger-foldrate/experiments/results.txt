@@ -1,0 +1,27 @@
+== A. One arm, adjustable hanger, learned rule: fold time per item (fold mechanism = one table)
+fold_time                 t_fold_s  items/h  dryers  hung  folded  bottleneck  u_arms  u_fold
+assumed (hanger-cell)           25    169.3     5.1   7.9    17.1  arms          0.90    0.80
+SpeedFolding fast, 40/h         90     58.5     1.8   7.8    17.1  fold          0.31    0.98
+SpeedFolding, 30/h             120     44.2     1.3   7.8    17.0  fold          0.24    0.98
+prior best, 6/h                600      9.0     0.3   7.9    17.1  fold          0.05    1.00
+prior typical, 3/h            1200      4.5     0.1   7.9    17.1  fold          0.02    1.00
+
+== B. Policy at each fold time (items/h, one arm, adjustable): does hanging beat folding once folding is slow?
+t_fold_s  always_fold  learned  always_hang
+      25        141.2    169.3        145.9
+      90         40.0     58.5        145.9
+     120         30.0     44.2        145.9
+     600          6.0      9.0        144.4
+    1200          3.0      4.5        142.3
+
+== C. Fold tables needed to keep up (t_fold 120 s, learned rule, 1 arm vs 2 arms; items/h)
+tables  1_arm  2_arms
+     1   44.2    44.6
+     2   84.5    84.8
+     3  115.4   121.6
+     4  136.5   152.9
+     6  151.5   203.0
+     8  153.2   231.8
+
+== D. Crossover: fold time above which always_hang beats always_fold (1 arm, adjustable)
+crossover t_fold = 24.1 s

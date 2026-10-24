@@ -24,14 +24,15 @@ python3 prompts/promptctl.py record --track redteam --version 0 --session <url> 
 python3 prompts/redteam.py campaign --mutants 8 --record prompts/runs/<your record>.json
 ```
 
-With no `--target`, the tool picks a random file that some test suite guards
+With no `--target`, the tool picks a random file that some test suite guards,
+redrawing past suites slower than 20 s (`--probe N` changes that, 0 turns it off)
 (`redteam.py targets` lists them; about 95% are under `ventures/`, so
-`--under platform` aims the draw at the CI and tooling code). Pass `--target` to aim at a file that just
+`--under platform` aims the draw at the CI and tooling code; add `--probe 20` to print each listed file's suite time, or ">20s (too slow)", before you commit to one). Pass `--target` to aim at a file that just
 changed on `main` (`git log --since=3.days --name-only origin/main`) or that
 users rely on most. The campaign prints the baseline time and an estimate; run two or
 three campaigns if each takes under a minute, and for a slow suite (anything over ~20 s per mutant, since a campaign runs
 the suite once per mutant and the foreground limit is 10 min) start it with
-`run_in_background` and wait for it. The target file is mutated in place while it
+`run_in_background` and wait for it (use `--timeout` for a suite over 300 s, and pick another target when baseline x mutants exceeds ~20 min). The target file is mutated in place while it
 runs: avoid reading or editing it until the campaign exits (a mutated-looking file
 mid-run is the tool, not a bug), and check `git status` afterwards.
 

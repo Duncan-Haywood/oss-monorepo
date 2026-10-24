@@ -58,6 +58,7 @@
     <p>Paste the JUnit XML your test runner already writes. See how long your slowest shard is now, how long it could be, how many shards are worth paying for, and the exact test files to put on each shard.</p>
     <p class="note">Nothing is uploaded. The report is read in this browser and never leaves your device. It is a heuristic over the timings you give it; real runs vary.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Load your timings</h2>
@@ -151,7 +152,8 @@ node cli.mjs split junit.xml --shards 4 --max-imbalance-pct 20   # exit 1 if unb
     <p class="note">New to this? Read <a href="how-to-split-tests-across-ci-shards.html">how to split tests across CI shards</a>. Weighing it against a paid splitting service? See the <a href="vs-knapsack-pro.html">comparison page</a>. Tests that flip between runs wreck any split, so check for them with the <a href="../flaky-test-finder/">Flaky Test Finder</a>.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is informational only &mdash; it is not engineering, financial or other professional advice, and it does not replace your own review of your CI configuration. It is a heuristic over the timings you give it; test timings vary from run to run, so its predicted shard times, wall-clock and billed-minute figures are not a guarantee. You are responsible for checking the shard commands before relying on them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The reports you load are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>balance_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>matrix_copied</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

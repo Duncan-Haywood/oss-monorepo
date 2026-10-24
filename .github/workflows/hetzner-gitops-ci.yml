@@ -1,7 +1,11 @@
 name: hetzner-gitops CI
 
 # Validate the IaC + GitOps tree. Never tofu apply. Never start a Codex
-# Job. HETZNERREADAPIKEY (Read token) is probed via empty POST /servers.
+# Job. The kustomize build and kubeconform steps were removed 2026-10-22
+# (they rendered the retired cluster's manifests; no test pinned them). The
+# tofu fmt/validate job was removed 2026-10-22 (it validated
+# infra/*.tf, which only describes the retired cluster). The hcloud-scope job (HETZNERREADAPIKEY probe) was removed 2026-10-21:
+# it only guarded a token for the retired cluster.
 # The SSH preflight/restore jobs were removed 2026-10-01: the Hetzner servers
 # they targeted were deleted by the owner, and a released IP can be
 # reassigned to a stranger. Everything below is offline validation.
@@ -56,7 +60,7 @@ jobs:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # ~12 minutes on a GitHub-hosted runner (2026-10-20: `pytest gitops/tests`
     # ~10 of it, plus two network downloads). 20 leaves room for the suite to
-    # grow without the cap cutting off kustomize/kubeconform at the end, which
+    # grow without the cap cutting off the last steps, which
     # 15 did once the front-door tests were also in this job. Without a cap here a hung apt-get, curl, or nginx
     # boot rides the default 360-minute GitHub-hosted ceiling — on a
     # metered-minutes account (see CLAUDE.md's CI-starvation history) that
@@ -64,10 +68,10 @@ jobs:
     # arriving early.
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       # test_site_usage.py runs platform/pages/build.mjs to check the usage
@@ -76,7 +80,7 @@ jobs:
       # has no apt and no sudo, so nothing guarantees it there. Installing it
       # explicitly is what keeps that gate from silently skipping the day
       # CI_RUNNER flips to self-hosted.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
       - name: Install test deps
@@ -133,65 +137,20 @@ jobs:
       # `gitops/prod/**`, `gitops/tests/**`), so they run there only. Here they
       # added ~4.5 minutes to a job whose pytest step alone takes ~10, and on
       # 2026-10-20 that pushed this job past its timeout on `main` (#8591's
-      # push run) and on PRs, cutting off kustomize and kubeconform below.
+      # push run) and on PRs, cutting off the steps below.
       - name: infra layout
         run: |
           python3 infra/tests/test_infra_layout.py
           python3 infra/tests/test_hcloud_scope.py
-      - name: kustomize build
-        run: |
-          mkdir -p "$RUNNER_TEMP/bin"
-          curl -sL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.6.0/kustomize_v5.6.0_linux_amd64.tar.gz | tar -xz -C "$RUNNER_TEMP/bin"
-          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
-          export PATH="$RUNNER_TEMP/bin:$PATH"
-          kustomize build gitops/apps >/tmp/apps.yaml
-          kustomize build gitops/platform >/tmp/platform.yaml
-          kustomize build gitops/prod >/tmp/prod.yaml
-          kustomize build gitops/staging >/tmp/staging.yaml
-          kustomize build gitops/agents >/tmp/agents.yaml
-          kustomize build gitops/ci >/tmp/ci.yaml
-          python3 -c "import yaml; [list(yaml.safe_load_all(open(p))) for p in ['/tmp/apps.yaml','/tmp/platform.yaml','/tmp/prod.yaml','/tmp/staging.yaml','/tmp/agents.yaml','/tmp/ci.yaml']]"
-      # Parsing as YAML only proves it is YAML. This proves the manifests are
-      # things Kubernetes would actually accept: right field names, right
-      # types, no typo'd key silently ignored on apply. -strict rejects
-      # unknown fields, which is the class this catches — a misspelled
-      # `readOnlyRootFilesystem` parses fine and protects nothing.
-      # CRDs (Argo Applications, cert-manager ClusterIssuers) have no schema
-      # here and are skipped rather than failed.
-      - name: kubeconform
-        run: |
-          mkdir -p "$RUNNER_TEMP/bin"
-          curl -sL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar -xz -C "$RUNNER_TEMP/bin"
-          export PATH="$RUNNER_TEMP/bin:$PATH"
-          kubeconform -strict -summary -verbose \
-            -kubernetes-version 1.31.0 -ignore-missing-schemas \
-            /tmp/apps.yaml /tmp/platform.yaml /tmp/prod.yaml /tmp/staging.yaml /tmp/agents.yaml /tmp/ci.yaml
-
-  tofu:
-    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
-        with:
-          tofu_version: 1.10.6
-      - name: fmt and validate
-        working-directory: infra
-        run: |
-          tofu fmt -check -recursive
-          tofu init -backend=false
-          tofu validate
 
   scripts:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       # shellcheck-py ships the real shellcheck binary as a wheel. apt-get
@@ -233,20 +192,3 @@ jobs:
             gitops/ci/host/register-and-run.sh \
             gitops/prod/host/refresh-site.sh \
             platform/pages/publish-branch.sh
-
-  hcloud-scope:
-    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Prove HETZNERREADAPIKEY is Read-only
-        env:
-          HCLOUD_TOKEN: ${{ secrets.HETZNERREADAPIKEY }}
-        run: |
-          if [ -z "${HCLOUD_TOKEN}" ]; then
-            echo "HETZNERREADAPIKEY unset — skip. A Read token belongs here; a Write token does not."
-            exit 0
-          fi
-          infra/scripts/assert_hcloud_read_only.sh

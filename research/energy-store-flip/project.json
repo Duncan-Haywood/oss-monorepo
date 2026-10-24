@@ -1,0 +1,6 @@
+{
+ "theme": "energy",
+ "title": "How far must capital costs move to flip the sand-store versus heat-pump verdict, and is that more than the price year moves it?",
+ "summary": "Scales the PyPSA technology-data capital costs in the cost model of <em>energy-thermal-real</em> and bisects for the multiplier at which a house-sized sand store and an air-source heat pump cost the same, on real German day-ahead prices 2015&ndash;2019. Weekly cycling flips at 1.16, 1.20, 1.20, 0.59 and 1.02 times the store&rsquo;s table capex, so the table&rsquo;s own vintage step (1.257&times;) alone flips four of five years; daily cycling holds to 2.1&ndash;3.5&times;, monthly and seasonal never come close. With capex drawn uniformly within &plusmn;h (assumed, swept 0.10&ndash;0.50), the spread across price years (sd 0.0063 EUR/kWh) exceeds the cost spread at h&nbsp;=&nbsp;0.10 (0.0039) and falls below it at h&nbsp;=&nbsp;0.25 (0.0098). Five years, capex only, wholesale prices; h is an assumption, labelled; all other inputs are sourced.",
+ "lede": "how far must capex move to flip the sand-store vs heat-pump verdict? Weekly cycling flips on a 2 to 40% store-capex change (the cost table's own vintage step is 26%); daily cycling holds to 2 to 3.5 times."
+}

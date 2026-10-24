@@ -61,6 +61,7 @@
     <p>Paste or drop a <strong>SEPA credit transfer (pain.001)</strong> or <strong>direct debit (pain.008)</strong> file and get every problem with its <strong>line, path, cause and fix</strong>: well-formedness, required elements, <strong>NbOfTxs and CtrlSum recomputed</strong> from the amounts, IBAN and BIC checks, EUR, execution dates on a weekend or TARGET2 holiday, field lengths, the SEPA character set and duplicate references. Then <strong>repair the totals and the characters</strong> in one click.</p>
     <p class="note">The file is read in this browser tab and never leaves your device. IBANs are masked in the report. Independent of the EPC and of every bank. Reference data (IBAN lengths, SEPA countries, TARGET2 closing days, the character set) is read from memory of public sources; no bank's own validator was available when this was built.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your SEPA file</h2>
@@ -129,7 +130,8 @@
     <p>Full XSD validation and element order, your bank's own rules and limits, whether an IBAN exists or belongs to the named person, the creditor identifier check digits, mandate status, cut-off times, instant payments (pain.001 with SCT Inst), and message versions other than pain.001.001.03, pain.001.001.09, pain.008.001.02 and pain.008.001.08. A clean result is not a promise of acceptance.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, banking, payments, compliance, or financial advice, and it does not replace a qualified professional or your bank's own validation. Results depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including with your bank before you send a payment file, and a clean result is not a promise that a bank will accept the file.</p>
     <p><strong>Not affiliated with the EPC or any bank.</strong> SEPA, ISO 20022 and the names of banks are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to the European Payments Council, the ECB, ISO, or any bank or payment processor. The reference data is read from memory of public documents and may not match every bank's variant.</p>
     <p><strong>Payment data.</strong> SEPA files contain IBANs and the names of the people or companies you pay. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open a payment file in a browser tool is a question for your own security policies.</p>

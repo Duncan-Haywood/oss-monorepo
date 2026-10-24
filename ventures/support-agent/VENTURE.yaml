@@ -1,0 +1,73 @@
+name: support-agent
+description: >-
+  Self-hosted AI customer support agent: answers customer questions from your
+  own help articles (copied passages with the source), offers articles when
+  unsure, and hands off to a person by rule (refunds, legal threats, injuries,
+  hacked accounts, data requests, anger, card numbers) or by a calibrated
+  confidence bar set from your own test questions. Past tickets steer it.
+  Optional model wording on your own key or a local model, rejected unless the
+  article backs every number, link and promise. Measured on BANKING77. Browser
+  demo and evaluator, CLI, and a zero-dependency server with a chat widget,
+  Support Desk handoff and a gap list.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-21 at the owner's request that day ("I want to make ai
+# customer service systems"). Paid market is real: Intercom, Zendesk, Help
+# Scout and Gorgias sell AI agents billed per resolution or per seat on top of
+# the help desk, and small shops pay for them because answering the same
+# delivery, cancellation and password questions all day is the part of support
+# they would most like gone. The gap for an open-source one is trust: a model
+# that answers from pasted docs sounds sure when wrong. This one decides
+# without a model, says why, and is measured. duplicate_check: grep of
+# ventures/ on 2026-10-21 found support-desk (shared inbox, AI reply drafts a
+# person sends), help-keeper (help center and search), review-reply-desk
+# (review replies) and support-staffing-planner (Erlang C); none answers a
+# customer itself. It completes the set: help-keeper holds the articles,
+# support-agent answers from them, support-desk receives the handoffs.
+#
+# First visitor: small e-commerce and SaaS owners searching "ai customer
+# service for small business", "intercom fin alternative", "self hosted ai
+# support chatbot", "ai chatbot that doesn't hallucinate". Volume not
+# measured with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# done-for-you setup (writing the articles and labelling past tickets is the
+# work that makes it good), a hosted copy under the deployer's own name, or
+# GitHub Sponsors. Hosting under the public name is owner-gated.
+
+hypotheses:
+  - claim: >-
+      Owners will deploy an AI agent that answers less often but explains every
+      decision and never states an unbacked fact, over one that answers more
+      and can't say why.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Labelled past tickets matter more than the model: with 40 per topic the
+      agent answers most answerable questions at a low error rate, without
+      them it mostly offers articles.
+    status: supported
+    checked: 2026-10-21
+    # BANKING77 held-out test split (README "Measured on BANKING77"): answered right 65 / 786 / 1,007 of 2,160
+    # with 0 / 10 / 40 past questions per topic, wrong answers 0 / 39 / 66.
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A report of the agent answering with a fact the cited article does not contain, of a handoff-rule message (refund request, legal threat, card number) being answered instead of handed off, or of a script injection in the widget or admin; grounding and handoff fixes come before any new feature.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/support-agent/
+  analytics: null

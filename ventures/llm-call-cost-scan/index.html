@@ -49,6 +49,7 @@
     <p>Paste source code and get every OpenAI, Anthropic and Gemini call that has <strong>no output cap</strong>, sits <strong>inside a loop</strong>, hard-codes a <strong>premium-tier model</strong> where a small sibling often does the job, or uses a <strong>retired model name</strong> — plus a monthly estimate from your own traffic guess.</p>
     <p class="note">Nothing is uploaded. The text box is scanned in this browser and never leaves your device. This reads source text only: it cannot see your real usage or bill.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your code</h2>
@@ -110,6 +111,7 @@ node cli.mjs scan src --prices my-prices.json              # your negotiated or 
   </section>
 
     <p class="note">Switching models or editing a prompt rather than costing it? <a href="../llm-output-regression-diff/">Diff saved outputs before and after to catch broken JSON, new refusals and truncation</a>.</p>
+</main>
 <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It pattern-matches source text and multiplies numbers you supply by list prices that may be out of date; it is not a guarantee of what any provider will charge, and it can miss or misread calls. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Vendor and model names are trademarks of their owners; this project is not affiliated with or endorsed by them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

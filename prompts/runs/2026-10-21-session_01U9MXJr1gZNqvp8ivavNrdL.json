@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01U9MXJr1gZNqvp8ivavNrdL",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T11:22:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9155",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "piper voice download blocked by proxy (403 on huggingface), so no audio rendered"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/render_audio.py",
+      "issue": "Docs say pip install piper-tts and download voice; in cloud sessions pip/python3 versions differ (python3.13 needed) and huggingface is blocked, so audio cannot be rendered; no fallback documented."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Delivered story without audio because the voice host is unreachable; pages/feeds regenerated text-only."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project hearth-and-horizon; piece the-grader (For Other Minds). Text only, audio pending. Audio dir 109 MB at start.",
+  "corrections": [],
+  "redteam": null
+}

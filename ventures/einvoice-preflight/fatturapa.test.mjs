@@ -41,7 +41,7 @@ test("findings never echo the tax number", () => {
 });
 
 test("a rounding or cassa line skips the totals check instead of guessing", () => {
-  const withBollo = clean.replace("</DatiGeneraliDocumento>", "<DatiBollo><BolloVirtuale>SI</BolloVirtuale><ImportoBollo>2.00</ImportoBollo></DatiBollo></DatiGeneraliDocumento>");
+  const withBollo = clean.replace("<ImportoTotaleDocumento>", "<DatiBollo><BolloVirtuale>SI</BolloVirtuale><ImportoBollo>2.00</ImportoBollo></DatiBollo><ImportoTotaleDocumento>");
   const result = checkFatturaPa(withBollo);
   assert.deepEqual(result.findings, []);
   assert.equal(result.skipped.length, 1);
@@ -58,4 +58,13 @@ test("examples/fatturapa-invoice-with-defects.xml is the planted-defect file, pi
   const bad = readFileSync(new URL("./examples/fatturapa-invoice-with-defects.xml", import.meta.url), "utf8");
   assert.ok(looksLikeFatturaPa(bad));
   assert.deepEqual([...new Set(rules(bad))], ["IT-002", "IT-003", "IT-006", "IT-011", "IT-012", "IT-014", "IT-015", "IT-016"]);
+});
+
+test("IT-018 flags elements out of schema order, once per block", () => {
+  const swapped = clean.replace(/(<Divisa>[^<]*<\/Divisa>)(<Data>[^<]*<\/Data>)/, "$2$1");
+  assert.notEqual(swapped, clean);
+  const f = checkFatturaPa(swapped).findings.filter((x) => x.rule === "IT-018");
+  assert.equal(f.length, 1);
+  assert.match(f[0].path, /DatiGeneraliDocumento\/Divisa$/);
+  assert.deepEqual(rules(clean).filter((r) => r === "IT-018"), []);
 });

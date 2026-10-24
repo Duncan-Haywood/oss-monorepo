@@ -89,6 +89,27 @@ class TestPrRounds(unittest.TestCase):
             make_repo(tmp)  # refs/pull/<n>/head only: the probe layout finds nothing
             self.assertEqual(ct.pr_rounds(tmp, 5, 6), [])
 
+    def test_own_commit_cap_is_inclusive(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            git(tmp, "init", "-q", "-b", "main")
+            base = commit(tmp, "base", "a.txt")
+            git(tmp, "checkout", "-q", "-b", "pr8", base)
+            for i in range(ct.MAX_OWN_COMMITS):
+                commit(tmp, f"work {i}")
+            git(tmp, "update-ref", "refs/pull/8/head", "pr8")
+            git(tmp, "update-ref", "refs/remotes/origin/main", "main")
+            rows = ct.pr_rounds(tmp, 8, 8, local=True)
+        self.assertEqual(rows, [(8, ct.MAX_OWN_COMMITS, 0, 0)])
+
+    def test_pr_with_no_common_history_is_skipped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            make_repo(tmp)
+            git(tmp, "checkout", "-q", "--orphan", "pr9")
+            commit(tmp, "unrelated", "z.txt")
+            git(tmp, "update-ref", "refs/pull/9/head", "pr9")
+            git(tmp, "checkout", "-q", "main")
+            self.assertEqual([r[0] for r in ct.pr_rounds(tmp, 9, 9, local=True)], [])
+
     def test_housekeeping_pattern(self):
         for subject in ("regenerate pages", "sync tree counts", "resolve conflict",
                         "fix after merge", "update count", "mirror research"):
@@ -156,6 +177,14 @@ class TestMain(unittest.TestCase):
             _, out, _ = self.run_main(tmp)
         self.assertIn("PRs #1-#7:", out)  # clamped: no PR numbers below 1
 
+    def test_default_window_starts_exactly_400_back(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            make_repo(tmp)
+            for n in (99, 100):
+                git(tmp, "update-ref", f"refs/pull/{n}/head", "pr6")
+            _, out, _ = self.run_main(tmp, "--last-pr", "500")
+        self.assertIn("PRs #100-#500: 1 sampled", out)
+
     def test_default_since_is_14_days_back(self):
         seen = []
         ct.refresh_local = lambda repo, since: seen.append(since)
@@ -164,6 +193,36 @@ class TestMain(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 ct.main(["--repo", tmp, "--local"])
         self.assertEqual(seen, [(ct.date.today() - ct.timedelta(days=14)).isoformat()])
+
+    def test_default_lists_top_12_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            make_repo(tmp)
+            for i in range(13):
+                commit(tmp, f"f{i}", f"dir{i}/file{i}.txt")
+            git(tmp, "update-ref", "refs/remotes/origin/main", "main")
+            _, out, _ = self.run_main(tmp)
+        listed = out.split("Files the most")[1].split("Top-level areas:")[0]
+        self.assertEqual(len([l for l in listed.splitlines() if "%  " in l]), 12)
+
+    def test_merge_and_housekeeping_totals_are_summed_from_their_own_columns(self):
+        rows = [(1, 5, 3, 1), (2, 4, 2, 0)]
+        saved = (ct.pr_rounds, ct.hotspots)
+        ct.pr_rounds = lambda *a, **k: rows
+        ct.hotspots = lambda *a, **k: (1, ct.Counter(), ct.Counter())
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                make_repo(tmp)
+                code, out, _ = self.run_main(tmp, "--first-pr", "1")
+        finally:
+            ct.pr_rounds, ct.hotspots = saved
+        self.assertEqual(code, 0)
+        self.assertIn("commits: 9 own + 5 merge-main; 1 of the own are housekeeping", out)
+
+    def test_help_describes_the_tool_with_its_first_paragraph(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+            ct.main(["--help"])
+        self.assertIn(ct.__doc__.split("\n\n")[0].split()[0], out.getvalue())
 
     def test_no_pull_refs_is_a_clean_failure(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -267,6 +267,13 @@ class MeasureTest(PromptTestCase):
         self.assertAlmostEqual(low, 0.4902, places=3)
         self.assertAlmostEqual(high, 0.9433, places=3)
 
+    def test_filter_sections_keeps_only_matching_titles(self):
+        text = "# Title\n\n## One\na\n\n## Two friction\nb\n"
+        self.assertEqual(promptctl.filter_sections(text, "FRICTION"), "## Two friction\nb\n".rstrip("\n"))
+        self.assertEqual(promptctl.filter_sections(text, None), text)
+        with self.assertRaises(SystemExit):
+            promptctl.filter_sections(text, "missing")
+
     def test_measure_groups_by_version_model_and_friction(self):
         friction = [{"file": "CLAUDE.md", "issue": "stale command"}]
         self.fx.run("2026-10-12-a.json", _record(day="2026-10-01", model="m1", merged=True,
@@ -291,6 +298,37 @@ class MeasureTest(PromptTestCase):
         self.fx.run("2026-10-12-a.json", _record(day="2026-10-01", doc_friction=friction))
         m = promptctl.measure(self.fx.root)
         self.assertEqual(m["doc_friction"]["CLAUDE.md"]["reports"], 2)
+
+    def test_measure_hides_friction_the_reporting_run_fixed(self):
+        friction = [{"file": "CLAUDE.md", "issue": "stale command; fixed here."},
+                    {"file": "CLAUDE.md", "issue": "flag unmentioned (fixed)"},
+                    {"file": "CLAUDE.md", "issue": "plots nothing; not fixed here"},
+                    {"file": "CLAUDE.md", "issue": "stale command"}]
+        self.fx.run("2026-10-12-a.json", _record(day="2026-10-01", doc_friction=friction))
+        m = promptctl.measure(self.fx.root)
+        self.assertEqual(m["doc_friction"]["CLAUDE.md"]["reports"], 2)
+
+    def test_friction_listing_drops_reports_older_than_the_fresh_window(self):
+        import contextlib, io
+        self.fx.run("2026-10-01-a.json", _record(day="2026-10-01", doc_friction=[{"file": "CLAUDE.md", "issue": "ancient"}]))
+        self.fx.run("2026-10-20-a.json", _record(day="2026-10-20", doc_friction=[{"file": "CLAUDE.md", "issue": "recent"}]))
+        m = promptctl.measure(self.fx.root)
+        self.assertEqual(m["doc_friction"]["CLAUDE.md"]["reports"], 2)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_measure(m)
+        self.assertNotIn("ancient", out.getvalue())
+        self.assertIn("recent", out.getvalue())
+
+    def test_friction_listing_truncates_long_reports(self):
+        import contextlib, io
+        long = "x" * 500
+        self.fx.run("2026-10-20-a.json", _record(day="2026-10-20", doc_friction=[{"file": "CLAUDE.md", "issue": long}]))
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_measure(promptctl.measure(self.fx.root))
+        self.assertNotIn("x" * 300, out.getvalue())
+        self.assertIn("x" * 150, out.getvalue())
 
     def test_verdict_rules(self):
         champ = {"runs": 20, "success_rate": 0.5, "integrity_issues": 0,

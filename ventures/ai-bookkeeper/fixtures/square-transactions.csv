@@ -1,0 +1,5 @@
+Date,Time,Time Zone,Category,Item,Qty,Gross Sales,Discounts,Net Sales,Tax,Tip,Partial Refunds,Total Collected,Source,Card,Fees,Net Total,Transaction ID,Payment ID,Event Type,Deposit ID,Deposit Date
+2026-03-02,10:14:00,Eastern Time (US & Canada),Coffee,Latte,2,$9.00,$0.00,$9.00,$0.63,$1.00,$0.00,$10.63,Square Point of Sale,Visa 1111,-$0.60,$10.03,tx1,pay1,Payment,dep_1,2026-03-04
+2026-03-03,12:30:00,Eastern Time (US & Canada),Food,Sandwich,1,$12.00,$0.00,$12.00,$0.84,$0.00,$0.00,$12.84,Square Point of Sale,Mastercard 2222,-$0.67,$12.17,tx2,pay2,Payment,dep_1,2026-03-04
+2026-03-03,15:00:00,Eastern Time (US & Canada),Food,Sandwich,1,-$12.00,$0.00,-$12.00,-$0.84,$0.00,$0.00,-$12.84,Square Point of Sale,Mastercard 2222,$0.00,-$12.84,tx3,pay2,Refund,dep_1,2026-03-04
+2026-03-05,09:00:00,Eastern Time (US & Canada),Coffee,Latte,1,$4.50,$0.00,$4.50,$0.32,$0.00,$0.00,$4.82,Square Point of Sale,Visa 3333,-$0.44,$4.38,tx4,pay4,Payment,,

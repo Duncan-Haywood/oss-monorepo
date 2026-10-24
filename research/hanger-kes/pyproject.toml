@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-kes"
+version = "0.1.0"
+description = "hanger-fit's width finding re-scored on four fabrics whose bending rigidity and weight are published KES-FB measurements"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy", "hanger-fit"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

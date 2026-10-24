@@ -30,7 +30,7 @@ PREFERRED_NAMES = (
 _NAME_RE = re.compile(rb"/F\s*\(([^)]+)\)")
 _TYPE_EMBEDDED = re.compile(rb"/Type\s*/EmbeddedFile\b")
 _FILTER_FLATE = re.compile(rb"/Filter\s*(?:/FlateDecode|\[\s*/FlateDecode\s*\])")
-_LENGTH_RE = re.compile(rb"/Length\s+(\d+)")
+_LENGTH_RE = re.compile(rb"/Length\s+(\d+)(?:\s+(\d+)\s+R\b)?")
 
 
 def looks_like_pdf(data: bytes) -> bool:
@@ -175,7 +175,7 @@ def _embedded_files(data: bytes) -> Iterable[tuple[str, bytes]]:
         window_start = max(0, start - 512)
         window = data[window_start : match.start() + 800]
         name = _attachment_name(window)
-        stream = _read_stream_after(data, match.start())
+        stream = _read_stream_after(data, match.start(), start)
         if stream is None:
             continue
         yield name, stream
@@ -189,19 +189,33 @@ def _attachment_name(window: bytes) -> str:
     return raw.decode("latin-1", errors="replace").strip()
 
 
-def _read_stream_after(data: bytes, type_at: int) -> bytes | None:
-    stream_at = data.find(b"stream", type_at)
-    if stream_at == -1 or stream_at - type_at > 1024:
+def _declared_length(data: bytes, header: bytes) -> int | None:
+    match = _LENGTH_RE.search(header)
+    if not match:
         return None
-    header = data[type_at:stream_at]
+    if match.group(2) is None:
+        return int(match.group(1))
+    target = re.search(
+        rb"(?:^|[\s>])" + match.group(1) + rb"\s+" + match.group(2) + rb"\s+obj\s*(\d+)\s*endobj",
+        data,
+    )
+    return int(target.group(1)) if target else None
+
+
+def _read_stream_after(data: bytes, type_at: int, obj_at: int) -> bytes | None:
+    # The whole object dictionary is the header: /Filter and /Length may come
+    # before /Type, and /Length is often an indirect "N 0 R".
+    stream_at = data.find(b"stream", type_at)
+    if stream_at == -1 or stream_at - obj_at > 1024:
+        return None
+    header = data[obj_at:stream_at]
     after = stream_at + len(b"stream")
     if after < len(data) and data[after : after + 2] == b"\r\n":
         after += 2
     elif after < len(data) and data[after : after + 1] in (b"\n", b"\r"):
         after += 1
-    length_match = _LENGTH_RE.search(header)
-    if length_match:
-        length = int(length_match.group(1))
+    length = _declared_length(data, header)
+    if length is not None and re.match(rb"\s*endstream", data[after + length : after + length + 16]):
         payload = data[after : after + length]
     else:
         end = data.find(b"endstream", after)

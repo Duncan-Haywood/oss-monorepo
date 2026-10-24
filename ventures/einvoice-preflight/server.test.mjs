@@ -127,3 +127,38 @@ test("serves the ES modules the page imports, but not tests, CLIs or the server"
   }
   await s.close();
 });
+
+test("POST /v1/repair fixes totals and lists what is left", async () => {
+  const s = await start();
+  const inv = JSON.parse(await ex("valid-invoice.json"));
+  inv.totals.gross = 1;
+  inv.issue_date = "bad";
+  const r = await fetch(`${s.base}/v1/repair`, { method: "POST", body: JSON.stringify(inv) });
+  const j = await r.json();
+  assert.equal(r.status, 200);
+  assert.equal(j.repaired, true);
+  assert.equal(j.invoice.totals.gross, 238);
+  assert.deepEqual(j.remaining.map((e) => e.rule), ["INV-003"]);
+  const xml = await fetch(`${s.base}/v1/repair`, { method: "POST", body: await ex("ubl-invoice-with-defects.xml") });
+  const xj = await xml.json();
+  assert.equal(xml.status, 200);
+  assert.equal(xj.changes.length, 3);
+  assert.deepEqual(xj.remaining.map((e) => e.rule).sort(), ["INV-021", "INV-045"]);
+  assert.match(xj.xml, /<cbc:TaxInclusiveAmount currencyID="EUR">398\.50</);
+  const cii = await fetch(`${s.base}/v1/repair`, { method: "POST", body: await ex("xrechnung-cii-credit-note-with-defects.xml") });
+  const cj = await cii.json();
+  assert.equal(cii.status, 200);
+  assert.deepEqual(cj.changes.map((c) => c.path), ["/tax_breakdown/0/tax"]);
+  assert.match(cj.xml, /<ram:CalculatedAmount>190\.00</);
+  const { buildPdfWithAttachment } = await import("./facturx.mjs");
+  const fxXml = (await ex("xrechnung-cii-invoice.xml")).toString().replace("<ram:GrandTotalAmount>1190.00", "<ram:GrandTotalAmount>1100.00");
+  const fx = await fetch(`${s.base}/v1/repair`, { method: "POST", body: buildPdfWithAttachment(new TextEncoder().encode(fxXml)) });
+  const fj = await fx.json();
+  assert.equal(fx.status, 200);
+  assert.equal(fj.pdf_rewritten, true);
+  assert.deepEqual(fj.changes.map((c) => c.path), ["/totals/gross"]);
+  assert.ok(Buffer.from(fj.pdf_base64, "base64").subarray(0, 5).toString() === "%PDF-");
+  const bad = await fetch(`${s.base}/v1/repair`, { method: "POST", body: "nope" });
+  assert.equal(bad.status, 400);
+  await s.close();
+});

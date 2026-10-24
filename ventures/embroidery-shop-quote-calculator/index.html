@@ -43,6 +43,7 @@
     <p>A flat price per 1000 stitches ignores digitizing, setup, color changes and hooping, which is why it loses money on small runs. Enter the job and your machine, and see <strong>the per-piece price that hits your target margin</strong>, the true cost and machine time, <strong>a quantity-break table</strong> (12, 24, 48, 100, 250), how price moves with stitch count, and <strong>whether to take the job</strong> at your lowest acceptable hourly rate.</p>
     <p class="note">For home and micro embroidery shops running one to six heads. Nothing is uploaded: the numbers stay in this browser. They are your inputs, not a forecast.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Enter the job</h2>
@@ -144,7 +145,8 @@ node cli.mjs quote --quantity 24 --garment-cost 4.5 --stitches 7500 --colors 4</
     <p>Effective hourly rate is what is left of the price per clock hour after garments, thread, overhead and digitizing are paid, before you pay yourself. If it is below your floor the page tells you the price that reaches it.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the stitch counts, times, costs and prices you type, and for every quote you give a customer and any order, deposit or contract you accept. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It prices a job using the numbers you supply; it is not a forecast of what a job will really cost or what a customer will pay.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

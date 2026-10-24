@@ -5,6 +5,8 @@ merge-check do not carry it (process backlog P017). The checklist code block
 is below; the notes after it explain each line. Read it when you run that block,
 touch typed-in markup, or have just merged a change to a served surface.
 
+**Start with one command:** `python3 platform/ci/run_workflow_locally.py --for-changes` runs what your diff would trigger in CI. The block below is the reference for the individual suites it does not reach or that you want to run by hand; you need not run every line.
+
 The checklist (moved here from `CLAUDE.md` by process backlog P030; `platform/ci/checklist_coverage.py` reads this file):
 
 ```
@@ -56,11 +58,10 @@ What the lines are for, and the traps in running them:
   parallel branches each bump them. It rewrites the numbers; you write the
   one-line reason.
 - **`regen.mjs --verify`** (about 9 s) says whether the committed front-door
-  mirror is stale. Exit 1 means run bare `regen.mjs` and commit what it
+  mirror (a retired origin's copy) is stale; run it when you edited `platform/marketing/`, not for a venture edit. Exit 1 means run bare `regen.mjs` and commit what it
   rewrites. Exit 2 means it could not answer. Avoid running it from a test or in
   parallel with the marketing suites, because it rewrites `gitops/prod/` for
-  a few seconds. Skipping this step is the most common way a venture fix
-  ships to the venture page but not to the apex copy users see.
+  a few seconds.
 - **Validators no test imports** (`router/validate.py`,
   `validate_doc_consistency.py`, `score_ventures.py --check` and others)
   run through `run_workflow_locally.py`. `--for-changes` covers your diff.
@@ -84,8 +85,9 @@ What the lines are for, and the traps in running them:
   can run past the tool limit (10 min; `git fetch --unshallow` and
   `publish-branch.sh` too). Start each with `run_in_background` and read the
   result when it finishes; avoid chaining them. Foreground `sleep` is blocked in
-  cloud sessions, so wait with Monitor and an `until` loop on the output file,
-  not `pgrep -f` (it matches its own command line and never ends). When
+  cloud sessions, so wait with Monitor and an `until` loop on the output file.
+  **Never `pgrep -f`/`pkill -f` in a wait or cleanup**: it matches its own
+  command line and never ends (18 run-record errors were this trap). When
   your change reaches only a few cases of one file (`build.test.mjs` alone
   took ~17 min), run those with `node --test --test-name-pattern='<words>'
   <file>` and say so in the PR; run the whole file when the change is to
@@ -143,6 +145,10 @@ longer served, so there is no need to run `publish-branch.sh` by hand.
 - **Absent CI is not failed CI, and red is not always real.** Agent PRs
   authenticate with a PAT and do trigger workflows, so a blank check list is
   something to verify, not the default.
+  If a push through the session proxy started no runs (only PR creation did),
+  run the workflow with `actions_run_trigger` (`run_workflow`, ref = your
+  branch) when it has `workflow_dispatch`; otherwise run its checks locally
+  (`run_workflow_locally.py`). An empty commit or a close/reopen is not the fix.
 - **Classify before you debug:** `python3 platform/ci/ci_starvation.py --run
   <run_id>` (or a job id, or `--from-json <file>`; it needs no `gh`). It
   votes only on `runner_id`, because a starved job has `runner_id: 0` and

@@ -7,7 +7,7 @@
 //
 // Dependencies are injected so Node (slimdom) and the page (DOMParser) share
 // this file: createPlainRunner({ fontoxpath, parseXml }).
-import { FILES, ADDONS, detectSyntax, matchingAddons } from "./schematron-core.mjs";
+import { FILES, ADDONS, PROFILES, detectSyntax, matchingAddons, matchingProfile } from "./schematron-core.mjs";
 import { plainFix } from "./schematron-fixes.mjs";
 
 export const PLAIN_DIR = "plain/";
@@ -115,6 +115,25 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
   // load(file) -> compiled rule set (parsed JSON) or null when that set is not shipped.
   async function run(xml, load) {
     const syntax = detectSyntax(xml);
+    const profile = syntax && matchingProfile(xml, syntax);
+    if (profile) {
+      // PINT: its own sets stand in for the EN 16931 base and the BIS add-on. Any set
+      // missing from this copy makes the whole check unavailable, never a partial pass.
+      const sets = await Promise.all(profile[1].files[syntax].map(load));
+      if (sets.some((s) => !s)) return { status: "unavailable", syntax, findings: [], sets: [] };
+      const doc = parseXml(xml);
+      const findings = [];
+      const skipped = [];
+      const seen = new Set();
+      for (const rules of sets) {
+        const raw = runRules(rules, doc);
+        skipped.push(...raw.skipped);
+        for (const f of raw.map((x) => toFinding(x, profile[1].source))) {
+          if (!seen.has(`${f.rule}|${f.path}`)) { seen.add(`${f.rule}|${f.path}`); findings.push(f); }
+        }
+      }
+      return { status: "ok", syntax, findings, sets: [profile[0]], skipped };
+    }
     const base = syntax && (await load(RULE_FILES[syntax]));
     if (!base) return { status: "unavailable", syntax, findings: [], sets: [] };
     const doc = parseXml(xml);
@@ -139,4 +158,4 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
   return { run, runRules };
 }
 
-export { FILES, ADDONS };
+export { FILES, ADDONS, PROFILES };

@@ -1,0 +1,4 @@
+"Booking Date","Value Date","Partner Name","Partner Iban",Type,"Payment Reference","Account Name","Amount (EUR)","Original Amount","Original Currency","Exchange Rate"
+2026-03-05,2026-03-05,"Hetzner Online GmbH",DE89370400440532013000,Direct Debit,"Rechnung 4471","Main Account",-24.90,,,
+2026-03-04,2026-03-04,"Client GmbH",DE02120300000000202051,Income,"INV-7","Main Account",1500.00,,,
+2026-03-03,2026-03-02,"Figma",,MasterCard Payment,"","Main Account",-13.67,-15.00,USD,1.0972

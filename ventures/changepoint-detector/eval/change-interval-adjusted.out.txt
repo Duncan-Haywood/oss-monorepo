@@ -1,0 +1,7 @@
+case                               shift  found  covered  median width
+seasonal period 7, amplitude 1.5   2      200/200  190/200 (95%)  4
+seasonal period 7, amplitude 1.5   3      200/200  194/200 (97%)  2
+common trend, 0.02 per point       2      192/200  176/192 (92%)  4
+common trend, 0.02 per point       3      200/200  188/200 (94%)  2
+--model trend, 0.02 per point      2      199/200  190/199 (95%)  4
+--model trend, 0.02 per point      3      200/200  197/200 (99%)  2

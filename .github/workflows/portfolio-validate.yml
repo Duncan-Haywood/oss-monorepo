@@ -175,17 +175,17 @@ jobs:
     # account (CLAUDE.md's CI-starvation history, 2026-08-26 to 2026-09-01).
     timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false  # read-only job; nothing here pushes
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
 
       # For the liability-clause check below. Everything else in this job is
       # Python; the Pages tooling that knows which pages get published is not.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
 
@@ -223,7 +223,14 @@ jobs:
           fi
           run=true
           if [ -n "$base" ] && changed=$(git diff --name-only "$base" HEAD 2>/dev/null); then
-            if ! printf '%s\n' "$changed" | grep -qE '^(gitops/prod/|platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'; then
+            # A PR is gated on the generator and this workflow only. Main's
+            # committed mirror drifts from merges that never ran this step, and
+            # failing the next PR that touches gitops/prod/ for that drift
+            # (P043) made authors regenerate files for the retired apex. Push
+            # runs still check gitops/prod/, so drift surfaces on main.
+            paths='^(platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'
+            [ "$EVENT" = pull_request ] || paths='^(gitops/prod/|platform/marketing/|\.github/workflows/portfolio-validate\.yml$)'
+            if ! printf '%s\n' "$changed" | grep -qE "$paths"; then
               run=false
             fi
           fi
@@ -456,6 +463,31 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_control_labels
 
+      # Screen-reader users jump past the header with the <main> landmark.
+      - name: Check every venture page has a main landmark
+        run: python3 platform/ci/check_main_landmark.py
+
+      - name: Main-landmark checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_main_landmark
+
+      # A syntax error in a single-file tool's inline script leaves a dead page.
+      - name: Check inline scripts parse
+        run: python3 platform/ci/check_inline_scripts.py
+
+      - name: Inline-script checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_inline_scripts
+
+      # Broken JSON-LD is silently dropped by search engines; Review and
+      # AggregateRating markup without real reviews breaks goals.md "Honest marketing".
+      - name: Check JSON-LD parses and carries no review markup
+        run: python3 platform/ci/check_jsonld.py
+
+      - name: JSON-LD checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_jsonld
+
       # getElementById returns the first match, so two elements sharing an id
       # silently send a script's writes to the wrong one.
       - name: Check no served page repeats an id
@@ -512,6 +544,15 @@ jobs:
       - name: Step-grid checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_step_grid
+
+      # Reading the `localStorage` global throws SecurityError when a visitor
+      # blocks site data, `typeof` included; 990 usage.mjs files did it bare.
+      - name: Check usage.mjs never reads localStorage outside try
+        run: python3 platform/ci/check_storage_guard.py
+
+      - name: Storage-guard checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_storage_guard
 
       # Every venture vendors its own money() -- 322 copies of one function --
       # and it spelled a negative "$-9.24" instead of "-$9.24", and a rounded-off

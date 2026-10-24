@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "How many of the coder's negatives must you hand-code to recover the positives it missed?",
+ "summary": "On 3,188 real GoEmotions comments, four automated coders (three cut-offs of a naive-Bayes classifier and a word list; not LLMs) and a hand-coded audit that puts k items on coder-negatives and the rest on coder-positives, weighted back by stratum share: the positives-only audit (k = 0) is biased by the coder's miss rate (&minus;0.128 to &minus;0.169 on a true 0.252) and covers the truth in 0 of 1,000 draws. Auditing any coder-negatives removes the bias, but the 95% interval is short of nominal until about 50 coder-negative items (worst coverage over coders 0.29&ndash;0.31 at k = 2, 0.85&ndash;0.87 at k = 10, 0.94 at k = 50), and the width at k = 50 is 0.15&ndash;0.19 whether the audit has 100 or 400 items in total. Two negatives is worse than none by RMSE (0.216 against 0.152). One code, one corpus, one split; Wald intervals ignoring the finite-population correction.",
+ "lede": "how many of the coder's negatives must you hand-code to recover the positives it missed? On 3,188 GoEmotions comments, about 50: coverage was 0.29 with 2, 0.87 with 10 and 0.94 with 50, whatever the audit's total size. Not an LLM; one corpus."
+}

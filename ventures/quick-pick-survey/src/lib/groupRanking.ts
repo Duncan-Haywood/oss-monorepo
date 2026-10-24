@@ -130,8 +130,10 @@ export type Coverage = {
  * How well the respondents cover the list. Each respondent answers a limited
  * number of pairs, so a long list spreads them thin: this names the options
  * that too few people rated and says whether to wait, or shorten the list.
+ * `answersPerRespondent` (median answered pairs per participant) sharpens the
+ * suggested length when the caller has it.
  */
-export function coverage(ranked: RankedItem[], participants: number): Coverage {
+export function coverage(ranked: RankedItem[], participants: number, answersPerRespondent?: number): Coverage {
   const n = ranked.length;
   const counts = ranked.map((r) => r.respondents).sort((a, b) => a - b);
   const median = n === 0 ? 0 : n % 2 ? counts[(n - 1) / 2] : (counts[n / 2 - 1] + counts[n / 2]) / 2;
@@ -147,10 +149,16 @@ export function coverage(ranked: RankedItem[], participants: number): Coverage {
   }
   // A respondent sees only part of a long list; the median says how far they reach.
   const reach = participants > 0 ? Math.min(1, median / participants) : 0;
-  const keep = Math.max(2, Math.floor(n * Math.max(reach, 0.1)));
+  // With the measured answers per respondent: each answer shows two options, so
+  // the crowd supplies about participants * 2 * answers appearances, and a
+  // list is only as long as that can give every option THIN_RESPONDENTS raters.
+  const measured = answersPerRespondent && answersPerRespondent > 0 && participants > 0
+    ? Math.floor((participants * 2 * answersPerRespondent) / THIN_RESPONDENTS)
+    : null;
+  const keep = Math.max(2, measured !== null ? Math.min(n - 1, measured) : Math.floor(n * Math.max(reach, 0.1)));
   const advice =
     reach < 0.5 && n > 12
-      ? `${thin.length} of ${n} options were rated by fewer than ${THIN_RESPONDENTS} people, and a typical option reached only ${Math.round(reach * 100)}% of respondents. Wait for more respondents, or shorten the list to about ${keep} options.`
+      ? `${thin.length} of ${n} options were rated by fewer than ${THIN_RESPONDENTS} people, and a typical option reached only ${Math.round(reach * 100)}% of respondents. Wait for more respondents, or shorten the list to about ${keep} options${measured !== null ? ` (people answered a median of ${answersPerRespondent} pairs each)` : ""}.`
       : `${thin.length} of ${n} options were rated by fewer than ${THIN_RESPONDENTS} people, so their places are guesses. Wait for more respondents.`;
   return { options: n, thin, median, status: "thin", advice };
 }

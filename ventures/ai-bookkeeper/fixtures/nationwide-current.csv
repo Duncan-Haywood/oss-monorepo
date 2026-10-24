@@ -1,0 +1,8 @@
+"Account Name:","Flex Account"
+"Account Balance:","£1,200.50"
+"Available Balance:","£1,200.50"
+
+"Date","Transaction type","Description","Paid out","Paid in","Balance"
+"04 Oct 2026","Direct debit","Octopus Energy","£85.00","","£1,200.50"
+"03 Oct 2026","Credit","ACME LTD INV 44","","£1,500.00","£1,285.50"
+"02 Oct 2026","Debit card","TESCO STORES 3214","£22.75","","£-214.50"

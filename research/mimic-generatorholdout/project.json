@@ -1,0 +1,6 @@
+{
+ "theme": "mimic",
+ "title": "Does a human-vs-machine text detector still work on a language model, or a decoding setting, it never saw?",
+ "lede": "does a prompt-free detector transfer to unseen generators? Mostly: char+word n-grams keep AUROC 0.97 to 0.98 on a held-out chat model and 0.94 across a greedy-to-sampling shift; function-word cues alone drop to 0.69 to 0.85.",
+ "summary": "Leave-one-generator-out and leave-one-decoding-out on the <em>mimic-contexts</em> suite (RAID text: 2,400 human texts and mistral-chat, llama-chat and mpt-chat machine texts, eight families), five folds split by prompt so paired texts never straddle train and test. Char+word n-gram logistic regression scores AUROC 0.990 with nothing held out and 0.977, 0.984 and 0.970 with mistral, llama or mpt held out; trained on greedy text and tested on sampled text it scores 0.941. Function-word frequencies alone score 0.878 in-distribution and 0.78&ndash;0.85 on held-out generators (fold sd 0.065 on mpt). The decoding conditions also train on about half the machine text, so shift and size are confounded. Preliminary: three generators, one classifier, no LLM detector or imitator is run."
+}

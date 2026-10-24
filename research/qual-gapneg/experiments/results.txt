@@ -1,0 +1,117 @@
+GoEmotions (first file): 5313 examples; 2125 train naive-Bayes, 3188 evaluated (1207 short, 1981 long). 500 audit draws per cell, audit size 200, seed 20261023. Estimand: human negative-emotion prevalence, short minus long = -0.0586.
+Intervals are nominal 95%. wald: cell p = x/n, an empty cell adds nothing; plus_two: +1 success +1 failure per cell; jeffreys: Beta(x+.5, n-x+.5) per cell, 400 posterior draws; pooled: jeffreys with one shared posterior for the negative stratum of both groups. Designs: k = coder-negatives audited of 200, or 'random' = 200 random items.
+
+0. Positive rate among the coder's negatives, by group (the miss rate the audit must estimate)
+coder short long
+nb_x0.8 0.187 0.209
+nb_x1.0 0.181 0.191
+nb_x1.25 0.163 0.174
+lexicon 0.155 0.200
+
+1. Coverage by coder and design
+coder design wald plus_two jeffreys pooled
+nb_x0.8 5 0.686 0.998 0.984 0.914
+nb_x0.8 10 0.822 0.982 0.964 0.886
+nb_x0.8 20 0.838 0.976 0.936 0.872
+nb_x0.8 50 0.948 0.972 0.966 0.838
+nb_x0.8 random 0.952 0.958 0.960 0.906
+nb_x1.0 5 0.598 0.994 0.978 0.942
+nb_x1.0 10 0.756 0.986 0.968 0.938
+nb_x1.0 20 0.850 0.976 0.944 0.946
+nb_x1.0 50 0.944 0.960 0.942 0.946
+nb_x1.0 random 0.956 0.960 0.958 0.950
+nb_x1.25 5 0.648 0.992 0.980 0.940
+nb_x1.25 10 0.806 0.986 0.976 0.950
+nb_x1.25 20 0.830 0.970 0.936 0.938
+nb_x1.25 50 0.928 0.966 0.942 0.952
+nb_x1.25 random 0.946 0.958 0.948 0.948
+lexicon 5 0.582 1.000 0.972 0.034
+lexicon 10 0.768 0.982 0.962 0.034
+lexicon 20 0.912 0.994 0.958 0.038
+lexicon 50 0.934 0.978 0.958 0.072
+lexicon random 0.952 0.960 0.952 0.664
+
+2. Mean width by coder and design
+coder design wald plus_two jeffreys pooled
+nb_x0.8 5 0.623 1.042 0.954 0.131
+nb_x0.8 10 0.656 0.791 0.737 0.105
+nb_x0.8 20 0.538 0.572 0.545 0.085
+nb_x0.8 50 0.371 0.375 0.367 0.071
+nb_x0.8 random 0.233 0.232 0.230 0.104
+nb_x1.0 5 0.597 0.991 0.908 0.154
+nb_x1.0 10 0.615 0.748 0.693 0.124
+nb_x1.0 20 0.516 0.547 0.522 0.102
+nb_x1.0 50 0.346 0.351 0.345 0.087
+nb_x1.0 random 0.232 0.231 0.229 0.119
+nb_x1.25 5 0.479 0.908 0.823 0.172
+nb_x1.25 10 0.541 0.687 0.636 0.140
+nb_x1.25 20 0.462 0.499 0.475 0.118
+nb_x1.25 50 0.315 0.323 0.316 0.104
+nb_x1.25 random 0.229 0.228 0.226 0.136
+lexicon 5 0.596 1.074 0.986 0.054
+lexicon 10 0.619 0.807 0.747 0.048
+lexicon 20 0.545 0.591 0.564 0.045
+lexicon 50 0.366 0.375 0.367 0.046
+lexicon random 0.222 0.221 0.219 0.092
+
+3. Mean (estimate - truth) by coder and design
+coder design wald plus_two jeffreys pooled
+nb_x0.8 5 -0.015 0.053 0.040 0.028
+nb_x0.8 10 0.004 0.040 0.028 0.023
+nb_x0.8 20 0.008 0.030 0.020 0.020
+nb_x0.8 50 -0.004 0.006 0.001 0.020
+nb_x0.8 random -0.004 -0.002 -0.003 0.018
+nb_x1.0 5 0.005 0.059 0.048 0.021
+nb_x1.0 10 -0.007 0.031 0.018 0.013
+nb_x1.0 20 0.002 0.025 0.015 0.012
+nb_x1.0 50 -0.001 0.008 0.004 0.008
+nb_x1.0 random 0.000 0.002 0.001 0.007
+nb_x1.25 5 -0.010 0.047 0.031 0.020
+nb_x1.25 10 0.006 0.037 0.025 0.014
+nb_x1.25 20 -0.001 0.020 0.011 0.011
+nb_x1.25 50 0.001 0.010 0.006 0.008
+nb_x1.25 random -0.000 0.002 0.001 0.007
+lexicon 5 -0.003 0.065 0.057 0.042
+lexicon 10 -0.019 0.035 0.019 0.041
+lexicon 20 -0.000 0.029 0.017 0.039
+lexicon 50 -0.002 0.010 0.004 0.038
+lexicon random -0.004 -0.002 -0.003 0.037
+
+4. Share of draws with an empty (0 items) / thin (<3 items) negative cell in either group
+coder design empty thin
+nb_x0.8 5 0.074 1.000
+nb_x0.8 10 0.002 0.116
+nb_x0.8 20 0.000 0.002
+nb_x0.8 50 0.000 0.000
+nb_x0.8 random 0.000 0.000
+nb_x1.0 5 0.070 1.000
+nb_x1.0 10 0.002 0.132
+nb_x1.0 20 0.000 0.002
+nb_x1.0 50 0.000 0.000
+nb_x1.0 random 0.000 0.000
+nb_x1.25 5 0.066 1.000
+nb_x1.25 10 0.002 0.116
+nb_x1.25 20 0.000 0.002
+nb_x1.25 50 0.000 0.000
+nb_x1.25 random 0.000 0.000
+lexicon 5 0.090 1.000
+lexicon 10 0.002 0.168
+lexicon 20 0.000 0.006
+lexicon 50 0.000 0.000
+lexicon random 0.000 0.000
+
+5. Worst coverage over the four coders, by design
+design wald plus_two jeffreys pooled
+5 0.582 0.992 0.972 0.034
+10 0.756 0.982 0.962 0.034
+20 0.830 0.970 0.936 0.038
+50 0.928 0.960 0.942 0.072
+random 0.946 0.958 0.948 0.664
+
+6. Mean width over the four coders, by design
+design wald plus_two jeffreys pooled
+5 0.574 1.004 0.917 0.128
+10 0.608 0.758 0.703 0.104
+20 0.515 0.552 0.527 0.088
+50 0.350 0.356 0.349 0.077
+random 0.229 0.228 0.226 0.113

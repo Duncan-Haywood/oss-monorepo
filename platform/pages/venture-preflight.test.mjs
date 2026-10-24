@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, checkProblems, launchedProblems, mirrorProblem } from './venture-preflight.mjs';
+import { buildProblem, checkProblems, COUNT_CHECKS, countProblem, launchedProblems, mirrorProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -56,4 +56,9 @@ test('a slug does not claim a longer slug it prefixes', () => {
 test('unparseable check output is reported whole', () => {
   const r = checkProblems({ stdout: 'crash', stderr: '' }, 'tax');
   assert.match(r.failures[0], /check\.mjs failed:\ncrash/);
+});
+
+test('countProblem is silent on exit 0 and names the fix otherwise', () => {
+  assert.equal(countProblem(COUNT_CHECKS[0], 0), null);
+  assert.match(countProblem(COUNT_CHECKS[2], 1), /sync_readme_counts\.py` and commit/);
 });

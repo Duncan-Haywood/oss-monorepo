@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of garments per hour against fold time in seconds for always fold, the learned rule and always hang: folding falls from 141 to 3 per hour as the fold time rises from 25 s to 1200 s while always hanging stays near 145">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">What does a slow fold do to a laundry-hanging cell?</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="249.3" y2="249.3" stroke="#ddd"/><text x="58" y="253.3" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<line x1="64" x2="624" y1="174.7" y2="174.7" stroke="#ddd"/><text x="58" y="178.7" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="100.0" y2="100.0" stroke="#ddd"/><text x="58" y="104.0" text-anchor="end" font-family="sans-serif" font-size="11">150</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">25</text>
+<text x="95.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">90</text>
+<text x="109.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">120</text>
+<text x="338.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">600</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1200</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">fold time per garment (s; 90-120 s is SpeedFolding)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">garments per hour (one arm)</text>
+<polyline points="64.0,113.1 95.0,264.3 109.3,279.2 338.0,315.0 624.0,319.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="113.1" r="3" fill="#c0392b"/>
+<circle cx="95.0" cy="264.3" r="3" fill="#c0392b"/>
+<circle cx="109.3" cy="279.2" r="3" fill="#c0392b"/>
+<circle cx="338.0" cy="315.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="319.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">always fold</text>
+<polyline points="64.0,71.2 95.0,236.6 109.3,258.0 338.0,310.6 624.0,317.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="95.0" cy="236.6" r="3" fill="#1f6fb2"/>
+<circle cx="109.3" cy="258.0" r="3" fill="#1f6fb2"/>
+<circle cx="338.0" cy="310.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="317.3" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">learned rule</text>
+<polyline points="64.0,106.1 95.0,106.1 109.3,106.1 338.0,108.4 624.0,111.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="106.1" r="3" fill="#2e8b57"/>
+<circle cx="95.0" cy="106.1" r="3" fill="#2e8b57"/>
+<circle cx="109.3" cy="106.1" r="3" fill="#2e8b57"/>
+<circle cx="338.0" cy="108.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="111.5" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">always hang</text>
+</svg>

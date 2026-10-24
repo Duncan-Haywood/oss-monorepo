@@ -7,7 +7,7 @@
 // (Notice 2026-10) and 76c from Jul 1 (Announcement 2026-11), as recorded in
 // ventures/mileage-deduction-method-calculator/calc.mjs, which verified them
 // against irs.gov on 2026-09-29. Charity is a statutory 14c. Medical is
-// 21c (2025) and 20.5c (2026) -- the least certain figures here, which is why
+// 21c (2025), 20.5c (2026 to Jun 30) and 23.5c (from Jul 1 2026, Announcement 2026-11) -- the least certain figures here, which is why
 // the page lets the user override every rate.
 
 export const CATEGORIES = ["business", "medical", "charity", "commute", "personal"];
@@ -16,7 +16,7 @@ export const DEDUCTIBLE = ["business", "medical", "charity"];
 export const RATE_PERIODS = [
   { from: "2025-01-01", business: 0.70, medical: 0.21, charity: 0.14 },
   { from: "2026-01-01", business: 0.725, medical: 0.205, charity: 0.14 },
-  { from: "2026-07-01", business: 0.76, medical: 0.205, charity: 0.14 },
+  { from: "2026-07-01", business: 0.76, medical: 0.235, charity: 0.14 },
 ];
 
 // override: { business?: number, medical?: number, charity?: number } in dollars per mile.

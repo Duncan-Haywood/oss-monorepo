@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_duplicate_ids import duplicates, main, scan
+from check_duplicate_ids import ROOT, duplicates, main, scan
 
 
 class DuplicateIds(unittest.TestCase):
@@ -33,6 +33,15 @@ class DuplicateIds(unittest.TestCase):
             page.write_text('<p id="a"></p><p id="b"></p>')
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(main(["--root", d]), 0)
+
+    def test_default_root_is_the_repo_root(self):
+        self.assertTrue((ROOT / "ventures").is_dir())
+
+    def test_help_describes_the_check(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+            main(["--help"])
+        self.assertIn("Fail if a served page uses the same", out.getvalue())
 
 
 if __name__ == "__main__":

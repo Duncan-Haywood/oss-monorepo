@@ -1,0 +1,6 @@
+{
+ "theme": "osrobot",
+ "title": "Does the feeding arm's tip pressure, not its force, break the ISO/TS 15066 face limits?",
+ "lede": "a 4 mm feeding-arm tip that meets the 65 N face force limit still needs 0.5 to 2.7 cm² of contact to meet a 110 to 20 N/cm² pressure limit at its worst trial (53 N); the answer flips on an unsourced face modulus (MuJoCo, simulation only)",
+ "summary": "<code>osrobot-mjface</code> found every camera-arm trial under the 65&nbsp;N face force limit (worst 53.3&nbsp;N) but did not apply pressure limits. This project divides the same 200-seed peak forces by a swept contact area. The worst trial needs 0.48&nbsp;cm&sup2; to stay within 110&nbsp;N/cm&sup2;, 0.97&nbsp;cm&sup2; within 55 and 2.67&nbsp;cm&sup2; within 20; a Hertz contact of the 4&nbsp;mm tip gives 0.41, 1.93 or 8.9&nbsp;cm&sup2; for a face modulus of 5, 0.5 or 0.05&nbsp;MPa, so the verdict depends on a modulus that is not sourced. Lightly damped contact (b&nbsp;=&nbsp;4 to 100) needs a third of the area of b&nbsp;=&nbsp;1000. Pressure limits (20, 55, 110&nbsp;N/cm&sup2;) are from conflicting secondary excerpts and not confirmed; damping, modulus, tip mass, gains and sway are assumed; lips are kinematic. Simulation only, not a safety case."
+}

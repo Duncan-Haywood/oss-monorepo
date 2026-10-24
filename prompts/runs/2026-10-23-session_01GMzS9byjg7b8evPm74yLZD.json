@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01GMzS9byjg7b8evPm74yLZD",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T23:00:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9921",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/stories/the-late-field.md",
+      "why": "Text only: audio dir at 395 MB of the 400 MB budget, so no MP3 rendered."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Creative track. Project hearth-and-horizon, slug the-late-field (Hearth & Horizon shelf, Philippines 2048, alternate wetting and drying rice credits). BIBLE timeline row and Next up, README and generated pages added; node --test 10/10 pass.",
+  "corrections": [],
+  "redteam": null
+}

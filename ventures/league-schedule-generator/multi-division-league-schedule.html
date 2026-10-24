@@ -98,6 +98,10 @@
     <h2 style="margin-top:18px">4. Rainouts (optional)</h2>
     <label for="rainouts">One per line: a date alone cancels the night; add a division or Division/Team to cancel just those matches; end with <code>-&gt; 2026-12-01</code> to name the make-up night</label>
     <textarea id="rainouts" rows="2" placeholder="2026-10-13 U10/Hawks, U12/Owls"></textarea>
+    <label style="font-weight:normal"><input type="checkbox" id="balance" style="width:auto"> Keep home and away in order: pick the make-up night that breaks a team's home/away pattern least (ends the season a few days later)</label>
+    <label style="font-weight:normal"><input type="checkbox" id="flip" style="width:auto"> Flip home and away on a moved match when that cuts the breaks (no delay; single round robins)</label>
+    <label style="font-weight:normal"><input type="checkbox" id="relocate" style="width:auto"> Move a make-up to an earlier night already on the calendar when that cuts the breaks (no delay)</label>
+    <label style="font-weight:normal"><input type="checkbox" id="swapNights" style="width:auto"> Trade two make-ups' nights when that cuts the breaks (no delay)</label>
     <button type="button" id="build">Build the schedule</button>
     <button type="button" class="secondary" id="reshuffle">Reshuffle</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
@@ -145,11 +149,12 @@
   </footer>
 
   <script type="module">
-    import { encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, validateDivisions, carryVenueHistory, divisionsCsv, divisionsText } from "./divisions.mjs";
+    import { encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsText } from "./divisions.mjs";
     import { dayIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "venueHistory", "fairnessWeight"];
+    const OPTS = ["balance", "flip", "relocate", "swapNights"];
     const EXAMPLE = {
       divisions: "U10: Hawks, Owls, Lynx, Otters, Foxes, Wolves\nU12: Hawks, Owls, Lynx, Otters, Foxes, Wolves, Bears, Eagles\nAdult: Rams, Kings, Stars, Comets, Pilots, Bolts (double)",
       courts: "Field 1 @ Park, Field 2 @ Park, Gym A @ School, Gym B @ School", times: "18:00, 19:30", start: "2026-10-06", weekdays: "Tue, Thu",
@@ -158,8 +163,8 @@
     const STORE = "league-schedule-generator-divisions";
     let last = null;
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const read = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]).concat([["seed", $("#seed").value], ["split", $("#split").checked ? "1" : ""], ["venueFairness", $("#venueFairness").checked ? "1" : ""]]));
-    const fill = (o) => { FIELDS.forEach((f) => { $("#" + f).value = o[f] || ""; }); $("#split").checked = Boolean(o.split); $("#venueFairness").checked = Boolean(o.venueFairness); };
+    const read = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]).concat([["seed", $("#seed").value], ["split", $("#split").checked ? "1" : ""], ["venueFairness", $("#venueFairness").checked ? "1" : ""]].concat(OPTS.map((o) => [o, $("#" + o).checked ? "1" : ""]))));
+    const fill = (o) => { FIELDS.forEach((f) => { $("#" + f).value = o[f] || ""; }); $("#split").checked = Boolean(o.split); $("#venueFairness").checked = Boolean(o.venueFairness); OPTS.forEach((k) => { $("#" + k).checked = Boolean(o[k]); }); };
     function download(name, text, type) {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([text], { type }));
@@ -172,11 +177,10 @@
       const f = read();
       try { localStorage.setItem(STORE, JSON.stringify(f)); } catch { /* storage is optional */ }
       const { spec, errors } = readDivisionsSpec(f);
-      if (!$("#courts").value.trim()) errors.push("Name the shared courts.");
       if (errors.length) { status.textContent = errors.join(" "); $("#report").hidden = true; return false; }
       let s, v;
       let moved = null;
-      try { s = buildDivisions(spec); if (f.rainouts.trim()) { moved = applyDivisionRainouts(s, f.rainouts); s = moved.schedule; } v = validateDivisions(s); } catch (e) { status.textContent = e.message; $("#report").hidden = true; return false; }
+      try { s = buildDivisions(spec); if (f.rainouts.trim()) { moved = applyDivisionRainouts(s, f.rainouts, rainoutOptions(f)); s = moved.schedule; } v = validateDivisions(s); } catch (e) { status.textContent = e.message; $("#report").hidden = true; return false; }
       last = s;
       const st = s.stats;
       status.textContent = "Built.";

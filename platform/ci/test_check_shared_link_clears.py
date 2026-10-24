@@ -49,6 +49,12 @@ class SharedLinkClearsTest(unittest.TestCase):
     def test_accepts_a_wrapped_apply(self):
         self.assertIsNone(check_page(page(DRAFT, DECODE, "writeInputs(formValues(fromLink));")))
 
+    def test_a_wrapped_apply_does_not_hide_a_second_bare_one(self):
+        problem = check_page(
+            page(DRAFT, DECODE, "writeInputs(formValues(fromLink));", "writeInputs(fromLink);")
+        )
+        self.assertIsNotNone(problem)
+
     def test_does_not_pin_the_wrapper_name(self):
         # The rule is that *something* stands between the decode and the form,
         # not that it is spelled `formValues` -- a venture is free to name its

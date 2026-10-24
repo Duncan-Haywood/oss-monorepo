@@ -1,0 +1,18 @@
+# Support Agent
+
+> Open-source, self-hosted AI customer support agent. It answers customer questions from your own help articles (copied sentences, with the source), offers articles when unsure, and hands off to a person when a customer asks for one, money has to move, legal action, injury, a hacked account or a data request comes up, they sound upset, or confidence is under a bar you set from your own test questions. Works with no AI key; an optional model (Anthropic, OpenAI, Gemini, Ollama, LM Studio, llama.cpp) only rewords answers and is checked against the article. MIT.
+
+- [Try it in your browser](index.html): paste articles, ask questions, score a set of test questions and get a recommended confidence bar. Nothing is uploaded.
+- [How to set up an AI support agent that doesn't make things up](how-to-set-up-an-ai-support-agent.html): a step-by-step guide with the measured numbers.
+- [README](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/support-agent): server, chat widget, handoff webhook, deploy.
+
+## Measured
+
+On the BANKING77 test split (PolyAI, CC BY 4.0; 2,160 real online-banking questions, 1,360 answerable from 22 articles), with the confidence model and bar fitted on training questions only:
+- no past questions: 65 answered right, 0 wrong, 1,172 offered articles (851 with a right one);
+- 10 past questions per topic: 786 right, 39 wrong (4.7% of answers);
+- 40 past questions per topic: 1,007 right, 66 wrong (6.2% of answers).
+
+## Not
+
+Not a model you have to trust: without past questions it is cautious and offers articles more than it answers. Not legal or professional advice. Not a live-chat inbox (hand-offs go to your inbox webhook, e.g. Support Desk).

@@ -1,7 +1,7 @@
 # Priority projects
 
 The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 and tracks 20 and 21 on 2026-10-21. Runs
-started from `prompt.md` take their new work from here. There are nineteen tracks. Each one is
+started from `prompt.md` take their new work from here. The tracks are numbered below. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
 README bullet, a `_homepage/projects.json` entry, a home page on the Pages site (milestone 9 below)
@@ -926,6 +926,12 @@ Census Survey of Construction for where a house's price goes.
    dwelling unit) generated from milestones 2 to 8, with drawings, a takeoff, a cost estimate,
    energy and structural reports, all reproducible from code. A licensed review and a permit
    are owner steps.
+10. `open-house-plans` (product, first version done 2026-10-21, in `ventures/open-house-plans/`): the
+   generator milestone 9 pointed at. From a brief or a sentence it searches single-storey layouts
+   (studio to five bedrooms, six styles, garage, porch, accessible option), sizes members with the
+   house-spans and house-framing checks (ported to JS, pinned by tests), runs IRC-paraphrased checks,
+   takes off materials, prices with an NAHB-anchored model and exports SVG, DXF, IFC4, OBJ and CSV
+   under CC0. Two storeys, L-shaped plans, a site plan and a licensed review of one design are next.
 
 Each project that prices a build cites every price and its date. Building anything is an owner
 step.
@@ -1367,10 +1373,10 @@ alpha reliability. Check each before citing it.
 2. `qual-real`: the same pipeline on a public, hand-coded corpus (open-ended survey answers or
    annotated reviews with a licence that allows it), with a model behind `ANTHROPIC_API_KEY` and a
    deterministic stub. Without a key, label any session-agent coding as such.
-3. `qual-dialect`: measure milestone 1's mechanism on real data, whether LLM coding accuracy
+3. `qual-dialect` (done 2026-10-21, no LLM yet): measure milestone 1's mechanism on real data, whether LLM coding accuracy
    differs across dialects, languages or writing fluency, and how much that moves group
    comparisons.
-4. `qual-induce`: inductive coding. Compare LLM-proposed codebooks (TopicGPT/LLooM style) with
+4. `qual-induce` (no-LLM baseline done 2026-10-21; an LLM-proposed codebook still open): inductive coding. Compare LLM-proposed codebooks (TopicGPT/LLooM style) with
    a human codebook on the same corpus: coverage, redundancy, and agreement when each is applied.
 5. `qual-features` (done 2026-10-21): qualitative codes and LLM-scored dimensions as features next to numeric ones
    in a predictive model, against embeddings and bag-of-words at the same labelling budget.
@@ -1428,30 +1434,31 @@ al. (1993), the revised NIOSH lifting equation, for the human side of a shared l
    payload envelopes of the Menagerie G1 and H1 (feet fixed, balance kept, every joint within
    its torque limit) over hand height and reach, and a table of residential handling tasks
    against them, solo and shared with a person.
-2. `buildbot-taskbook`: an open task specification of a wood-frame house. For each task
+2. `buildbot-taskbook` (done 2026-10-21): an open task specification of a wood-frame house. For each task
    (carry, place, hold, fasten, cut, lay out, finish): masses, forces, reach, tolerance,
    cycle count and crew hours, taken from the track-12 takeoffs and schedule. Which tasks hold
    the most labour cost per unit of robot difficulty? The output is a dataset other robot
    projects can score against.
-3. `buildbot-carry`: dynamic carrying. A learned (or model-based) walking policy carries a stud,
+3. `buildbot-carry` (envelope done 2026-10-21; a walking policy, falls and drops still open): dynamic carrying. A learned (or model-based) walking policy carries a stud,
    a sheet or a block across a site floor and over thresholds and ramps from `terrain-twin`.
    Score falls, items dropped, metres per minute and energy per item, on a CPU budget stated
    in the README. Does a stock humanoid's carry rate beat one labourer's?
 4. `buildbot-fasten`: driving nails and screws. Tool reaction forces, the stud-face tolerance
    (a 1.5 in face behind sheathing) against arm placement error, and a policy that drives a
    sheathing nailing schedule. The skill is the output: a policy plus its test scene.
-5. `buildbot-cohold`: a person and a robot holding one sheet. The robot follows a simulated
+   *Stud-finding follow-up (`buildbot-studfind`, done 2026-10-22):* a single stud read must be good to 0.89 mm for 95% clean sheets; averaging and pooling help, re-measuring each nail does not.
+5. `buildbot-cohold` (done 2026-10-21): a person and a robot holding one sheet. The robot follows a simulated
    person's lead under impedance control while the person fastens. Score interaction forces
    against ISO/TS 15066 body-region limits, sheet placement error and the person's lifted load
    against the NIOSH limit.
-6. `buildbot-skills`: a skill library. Train the skills of milestones 3 to 5 with domain
+6. `buildbot-skills` (sim-to-sim check of the cohold follow skill done 2026-10-22; loadable skill files, a loader and a re-scorer done 2026-10-22 as `buildbot-skillpack`; the carry and fasten skills as controllers are still open): a skill library. Train the skills of milestones 3 to 5 with domain
    randomisation, check them across a second simulator or contact model (sim-to-sim as the
    proxy for sim-to-real, `codesign-transfer`), and publish policies, scenes and success rates
    in a form a robot owner could load.
-7. `buildbot-custom`: purpose-built against humanoid. Design a task-specific machine for the
+7. `buildbot-custom` (done 2026-10-21, a modelled sheathing-nailing gantry; no machine built or quoted): purpose-built against humanoid. Design a task-specific machine for the
    costliest task from milestone 2 with the track-9 and track-14 loops, and compare it with the
    best stock robot on cost, cycle time and success.
-8. `buildbot-cost`: what it is worth. Crew hours replaced or shortened, times wages, against the
+8. `buildbot-cost` (done 2026-10-21): what it is worth. Crew hours replaced or shortened, times wages, against the
    robot's purchase, upkeep and supervision per hour, fed through `house-cost` and
    `house-schedule`. What share of a new home's price does a credible robot crew remove?
 9. Owner steps: buy or rent a robot (a G1 is the cheapest humanoid in the Menagerie set) and
@@ -1511,46 +1518,49 @@ Annals*). Payments: gridlock resolution and liquidity-saving mechanisms (Bech an
 *Annual Reviews in Control*).
 
 **Milestones.** Grid and energy first; the rest in any order.
-1. `infra-hosting`: how much rooftop PV and EV charging can a distribution feeder take before
+1. `infra-hosting` (done 2026-10-21; IEEE 13-node only, snapshots): how much rooftop PV and EV charging can a distribution feeder take before
    voltage or thermal limits bind, and how much do cheap measures (inverter volt-var, smart
    charging, a tap change) add? OpenDSS on IEEE test feeders, hosting capacity as a stochastic
    sweep, each measure scored on the same placements.
-2. `infra-transformer`: distribution transformer ageing under heat-pump and EV load growth. The
+2. `infra-transformer` (done 2026-10-21; transformer constants swept, not verified against the standard): distribution transformer ageing under heat-pump and EV load growth. The
    IEEE C57.91 hot-spot and ageing model on an hourly load profile: how much load growth doubles
    loss of life, and how much of it a charging schedule buys back, before a replacement is due.
-3. `infra-waterloss`: finding leaks from pressure data. WNTR on BattLeDIM's L-Town with its
+3. `infra-waterloss` (done 2026-10-21; Net3 with simulated leaks, BattLeDIM unreachable from the proxy, so the L-Town baseline is still open): finding leaks from pressure data. WNTR on BattLeDIM's L-Town with its
    published leak schedule: the competition's best methods as baselines, and the repo's
    `changepoint-detector` (PELT, Bayesian online) applied to residuals, scored by detection
    delay and false alarms.
-4. `infra-propulsion`: energy per tonne-km by mode from first principles (rolling resistance,
+4. `infra-propulsion` (done 2026-10-21; floors only, most inputs assumed and swept): energy per tonne-km by mode from first principles (rolling resistance,
    aerodynamic and hull drag, lift), reproducing published figures, then the range and payload
    each storage technology from `energy-density` and `energy-practical` gives a truck, train,
    ship and aircraft. Which modes can electrify directly, and which need a fuel?
-5. `infra-routing`: electric delivery fleets. EVRPTW on the Schneider et al. instances, OR-Tools
+5. `infra-routing` (done 2026-10-22; Solomon RC208 with assumed battery, Schneider instances unreachable, no tariff): electric delivery fleets. EVRPTW on the Schneider et al. instances, OR-Tools
    and an LLM or session proposer against the published best-known solutions at the same
    budget, with charging cost on a time-of-use tariff (track 16's `energy-tou`).
-6. `infra-cement`: clinker substitution. Mass and energy balance of OPC, LC3 and slag blends
+6. `infra-cement` (done 2026-10-21; strength from one study's table read via search summary, primary papers unreachable): clinker substitution. Mass and energy balance of OPC, LC3 and slag blends
    per tonne of cement, with CO<sub>2</sub> split into calcination and fuel, every factor
    sourced; which substitution levels keep a published strength class?
-7. `infra-grind`: comminution circuits. A population-balance ball-mill and classifier model
+7. `infra-grind` (done 2026-10-21; model parameters typical values, swept, not fitted to a mill; open/closed gap far above the published factors): comminution circuits. A population-balance ball-mill and classifier model
    against Bond's law; the energy saved by circuit choices (cut size, recirculation load) at
    the same product size, set against published plant figures.
-8. `infra-chatter`: stability lobes for milling. The Altintas-Budak zero-order solution against
+8. `infra-chatter` (done 2026-10-21; one benchmark mode, no measured FRF): stability lobes for milling. The Altintas-Budak zero-order solution against
    time-domain simulation, then the spindle speeds that maximise metal removal rate for a
    measured tool tip FRF from a public dataset.
-9. `infra-yield`: cost per good die. Poisson, Murphy and negative-binomial yield models against
+9. `infra-yield` (done 2026-10-21; wafer prices and D0 are 2020 secondary-source snapshots, packaging assumed and swept): cost per good die. Poisson, Murphy and negative-binomial yield models against
    die area and defect density, reproducing published curves, and the chiplet break-even
    (tracks 3, 7 and 8 cover design; this covers the fab and packaging economics).
-10. `infra-sorting`: robotic waste sorting. A detector trained on ZeroWaste or TACO, and a
+10. `infra-sorting` (done 2026-10-22; TACO annotations only, detector assumed not trained): robotic waste sorting. A detector trained on ZeroWaste or TACO, and a
     simulated conveyor pick cell (with track 4's twin) scored on purity, recovery and picks per
     minute against belt speed.
-11. `infra-netting`: liquidity in payment systems. A simulated RTGS day with a published
+11. `infra-netting` (done 2026-10-22; synthetic payments fitted to the paper's published bounds, Finnish delay reduction unexplained): liquidity in payment systems. A simulated RTGS day with a published
     payment-size distribution: how much liquidity bilateral and multilateral offsetting saves,
     and how much delay it costs, against the Bech-Soram&auml;ki algorithm.
-12. `infra-hvacmpc`: heating and cooling control. A grey-box RC building model fitted to an
+12. `infra-hvacmpc` (done 2026-10-22; envelope from recalled ASHRAE 140 values, no measured dataset reachable so nothing fitted): heating and cooling control. A grey-box RC building model fitted to an
     open dataset, MPC against a thermostat rule on a time-of-use tariff and a forecast that
     is not perfect (the lesson of `energy-tou-lp-forecast`).
+13. `infra-pumpsched` (done 2026-10-23; Net3 only, tariff shapes assumed and swept): pump scheduling. A daily lake-pump window on Net3 against time-of-use tariffs, separating the energy saved by changing the source mix from what the tariff adds.
 
+14. `infra-dcopf` (done 2026-10-23; three MATPOWER cases, branch limits never bind on case118, tightened-limit solves often fail): how wrong is the DC approximation of optimal power flow, in cost and in the AC feasibility of its dispatch.
+15. `infra-leakpdd` (done 2026-10-23; Net3 only, noise-free sensor response, required pressure assumed and swept): does demand-driven simulation mislead leak detection. Net3 leak signals under demand-driven and pressure-driven demand across demand levels: identical to 1.25 times base demand, both models fail beyond 1.5 times.
 **Method transfers worth trying.** The point of the track is the transfer, so say in each README
 where the method came from. Changepoint detection and conformal prediction for sensor and meter
 data; Bayesian optimisation and LLM proposers for process settings; LP and MILP (HiGHS) for

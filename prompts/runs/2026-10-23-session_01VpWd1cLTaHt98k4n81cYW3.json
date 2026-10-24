@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01VpWd1cLTaHt98k4n81cYW3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T01:58:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper: Form 1099-K reconciliation (flagship 1)",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 9653,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/routing.json",
+      "why": "The router drew research/process; the scheduled prompt asked for revenue products, so I deepened the top flagship."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "form1099k.mjs + CLI form1099k; node --test form1099k.test.mjs 5 pass; hand-written reports only, no real 1099-K. Page card not added.",
+  "corrections": [],
+  "redteam": null
+}

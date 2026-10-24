@@ -50,6 +50,7 @@ $PY experiments/run.py
 - Every figure inherits the limits of the six sibling projects, including unverified design values, interior walls given no shear credit, degree-day climates from memory, and every price assumed.
 
 ## Next steps
+A generator for many such plan sets now exists as a product: [`ventures/open-house-plans`](../../ventures/open-house-plans/README.md) lays out studios to five-bedroom houses from a brief and exports drawings, IFC, DXF, a takeoff and a cost estimate under CC0 (2026-10-21).
 Price the BOM line by line (`house-cost`'s next step) so the envelope upgrade has a payback; price the truss option against the stick roof; give the plan a kitchen and closets and let the search move them; add a foundation and hold-down sizing; export studs and plates to IFC and open the file in FreeCAD; take it to a licensed engineer.
 
 ## Owner steps

@@ -50,12 +50,18 @@ export function parseTravel(text, venues) {
   for (const raw of String(text || "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const m = line.match(/^(.+?)\s*(?:-|–|<->)\s*(.+?)\s*:\s*(\d+(?:\.\d+)?)\s*(?:min\w*)?$/i);
+    const m = line.match(/^(.+?)\s*:\s*(\d+(?:\.\d+)?)\s*(?:min\w*)?$/i);
     if (!m) { errors.push(`"${line}": write travel as "Park - School: 25" (minutes).`); continue; }
-    const a = known.get(m[1].trim().toLowerCase()), b = known.get(m[2].trim().toLowerCase());
-    if (!a || !b) { errors.push(`"${line}": ${!a ? m[1].trim() : m[2].trim()} is not a venue in the courts box (write a court as "Field 1 @ Park").`); continue; }
+    // a venue name may hold a hyphen ("North-Park"), so try every separator and keep the split where both sides are venues
+    const seps = [...m[1].matchAll(/\s*(?:-|–|<->)\s*/g)];
+    if (!seps.length) { errors.push(`"${line}": write travel as "Park - School: 25" (minutes).`); continue; }
+    const split = seps.map((x) => [m[1].slice(0, x.index).trim(), m[1].slice(x.index + x[0].length).trim()]);
+    const hit = split.find(([l, r]) => known.has(l.toLowerCase()) && known.has(r.toLowerCase()));
+    const [left, right] = hit || split[0];
+    const a = known.get(left.toLowerCase()), b = known.get(right.toLowerCase());
+    if (!a || !b) { errors.push(`"${line}": ${!a ? left : right} is not a venue in the courts box (write a court as "Field 1 @ Park").`); continue; }
     if (a === b) { errors.push(`"${line}": a venue is not away from itself.`); continue; }
-    const mins = Number(m[3]);
+    const mins = Number(m[2]);
     if (!(mins > 0)) { errors.push(`"${line}": minutes must be above zero.`); continue; }
     travel[[a, b].sort().join("|")] = mins;
   }
@@ -266,7 +272,7 @@ const BALANCE_WINDOW = 6; // nights a make-up may be weighed over when keeping h
  * "->") when that lowers the total breaks, so it never adds delay and can shorten it; the move's `to` and a
  * `relocated` flag show it. It runs before `flip`.
  */
-export function applyDivisionRainouts(schedule, text, { balance = false, flip = false, relocate = false } = {}) {
+export function applyDivisionRainouts(schedule, text, { balance = false, flip = false, relocate = false, swapNights = false } = {}) {
   const s = JSON.parse(JSON.stringify(schedule));
   const cfg = s.config;
   const weekdays = new Set(cfg.weekdays || []), skip = new Set(cfg.skipDays || []);
@@ -359,7 +365,7 @@ export function applyDivisionRainouts(schedule, text, { balance = false, flip = 
   for (const dv of s.divisions) { dv.rounds = dv.rounds.filter((r) => r.matches.length); dv.rounds.sort((a, b) => a.day - b.day); }
   s.nights = s.nights.filter((n) => n.matches.length).sort((a, b) => a.day - b.day);
   for (const n of s.nights) n.matches.sort((a, b) => cfg.times.indexOf(a.time) - cfg.times.indexOf(b.time) || cfg.courts.indexOf(a.court) - cfg.courts.indexOf(b.court));
-  if (relocate) relocateMoved(s, moves, linked);
+  if (relocate || swapNights) relocateMoved(s, moves, linked, { move: relocate, swap: swapNights });
   if (flip) flipMoved(s, moves);
   for (const m of moves) { delete m._rec; delete m._rd; delete m._fixed; }
   s.conflicts = linkConflicts(s);
@@ -372,7 +378,7 @@ export function applyDivisionRainouts(schedule, text, { balance = false, flip = 
  * with both teams free, an open court and no new linked-team clash) and keeps the move that most lowers the
  * schedule's home/away breaks, repeating until none helps. A make-up with a date you agreed stays put.
  */
-function relocateMoved(s, moves, linked) {
+function relocateMoved(s, moves, linked, { move = true, swap = false } = {}) {
   const cfg = s.config;
   const nightOf = (day) => s.nights.find((n) => n.day === day);
   const roundOf = (dv, day) => dv.rounds.find((r) => r.day === day);
@@ -390,7 +396,7 @@ function relocateMoved(s, moves, linked) {
     rd.matches.push(mv._rd);
     return cur;
   };
-  for (let improved = true, guard = 0; improved && guard < 20; guard++) {
+  for (let improved = move, guard = 0; improved && guard < 20; guard++) {
     improved = false;
     for (const mv of moves) {
       const rec = mv._rec;
@@ -415,6 +421,34 @@ function relocateMoved(s, moves, linked) {
         put(mv, best.night, best.court, best.time, cfg.venues[best.court] || best.court);
         Object.assign(mv, { to: best.night.day, court: best.court, time: best.time, relocated: true });
         improved = true;
+      }
+    }
+  }
+  if (swap) {
+    // two make-ups trade nights (and slots) when each is free on the other's night, neither lands before its own rainout, no linked team clashes, and the total breaks fall
+    const free = (rec, night, other) => night.matches.every((x) => x === other || (!(x.div === rec.div && [x.home, x.away].some((t) => t === rec.home || t === rec.away))
+      && !(x.time === other.time && [x.home, x.away].some((t) => [rec.home, rec.away].some((u) => linked(rec.div, u, x.div, t))))));
+    const nightHolding = (rec) => s.nights.find((n) => n.matches.includes(rec));
+    for (let improved = true, guard = 0; improved && guard < 20; guard++) {
+      improved = false;
+      for (let i = 0; i < moves.length; i++) for (let j = i + 1; j < moves.length; j++) {
+        const a = moves[i], b = moves[j];
+        if (a._fixed || b._fixed) continue;
+        const na = nightHolding(a._rec), nb = nightHolding(b._rec);
+        if (!na || !nb || na === nb || nb.day <= a.from || na.day <= b.from) continue;
+        if (!free(a._rec, nb, b._rec) || !free(b._rec, na, a._rec)) continue;
+        const before = divisionStats(s).homeAwayBreaks;
+        const sa = { court: a._rec.court, time: a._rec.time, venue: a._rec.venue }, sb = { court: b._rec.court, time: b._rec.time, venue: b._rec.venue };
+        put(a, nb, sb.court, sb.time, sb.venue);
+        put(b, na, sa.court, sa.time, sa.venue);
+        if (divisionStats(s).homeAwayBreaks < before) {
+          Object.assign(a, { to: nb.day, court: sb.court, time: sb.time, relocated: true });
+          Object.assign(b, { to: na.day, court: sa.court, time: sa.time, relocated: true });
+          improved = true;
+        } else {
+          put(a, na, sa.court, sa.time, sa.venue);
+          put(b, nb, sb.court, sb.time, sb.venue);
+        }
       }
     }
   }
@@ -602,11 +636,13 @@ export function readDivisionsSpec(f) {
   if (start === null) errors.push("The season start date must be a real date, like 2026-10-06.");
   const w = parseWeekdays(f.weekdays);
   errors.push(...w.errors);
+  if (!w.weekdays.length) errors.push("Pick at least one weekday to play on.");
   const skip = parseDateList(f.skip);
   errors.push(...skip.errors.map((e) => `Skip dates: ${e}`));
   const t = parseTimes(f.times);
   errors.push(...t.errors);
   const courts = parseNameList(f.courts);
+  if (!courts.length) errors.push("Name the shared courts.");
   const l = parseDivisionLinks(f.links, d.divisions);
   errors.push(...l.errors);
   // "Court 1 @ Park" puts a court at a venue; plain names are their own venue
@@ -625,7 +661,13 @@ export function readDivisionsSpec(f) {
   const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || ""));
   const fw = String(f.fairnessWeight ?? "").trim();
   if (fw !== "" && !(Number.isFinite(Number(fw)) && Number(fw) >= 0 && Number(fw) <= 100)) errors.push("The fairness weight is a number from 0 to 100 (default 3).");
-  return { errors, spec: { venueFairness, venueHistory, ...(fw !== "" && Number.isFinite(Number(fw)) ? { fairnessWeight: Number(fw) } : {}), divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
+  return { errors, spec: { venueFairness, venueHistory, ...(fw !== "" && Number.isFinite(Number(fw)) ? { fairnessWeight: Number(fw) } : {}), divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: String(f.seed ?? "").trim() !== "" && Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
+}
+
+/** Form fields -> the options `applyDivisionRainouts` takes (the page's four make-up checkboxes; the CLI's spec JSON uses the same keys). */
+export function rainoutOptions(f) {
+  const on = (v) => v === true || /^(1|true|yes|on)$/i.test(String(v || ""));
+  return { balance: on(f.balance), flip: on(f.flip), relocate: on(f.relocate), swapNights: on(f.swapNights) };
 }
 
 // node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, or --history for next season's venueHistory). spec.json holds the form fields.
@@ -636,9 +678,10 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   const { spec, errors } = readDivisionsSpec(JSON.parse(readFileSync(file, "utf8")));
   if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
   let s = buildDivisions(spec);
-  const rainouts = JSON.parse(readFileSync(file, "utf8")).rainouts;
+  const raw = JSON.parse(readFileSync(file, "utf8"));
+  const rainouts = raw.rainouts;
   if (rainouts) {
-    const r = applyDivisionRainouts(s, rainouts);
+    const r = applyDivisionRainouts(s, rainouts, rainoutOptions(raw));
     for (const e of r.errors) console.error(`Rainout: ${e}`);
     s = r.schedule;
   }
@@ -650,12 +693,12 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "split", "venueFairness", "venueHistory", "fairnessWeight", "seed"];
+const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "split", "venueFairness", "venueHistory", "fairnessWeight", "balance", "flip", "relocate", "swapNights", "seed"];
 
 /** Form fields -> URL-safe text for the `#` part of a link (`#d=...`). The fragment is never sent to a server. */
 export function encodeDivisionFields(f) {
   const o = {};
-  for (const k of SHARE_FIELDS) if (typeof f[k] === "string" ? f[k].trim() !== "" : f[k] !== undefined && f[k] !== null && f[k] !== "") o[k] = String(f[k]);
+  for (const k of SHARE_FIELDS) if (typeof f[k] === "string" ? f[k].trim() !== "" : f[k] !== undefined && f[k] !== null && f[k] !== "") o[k] = typeof f[k] === "object" ? JSON.stringify(f[k]) : String(f[k]);
   const bytes = new TextEncoder().encode(JSON.stringify(o));
   let bin = "";
   for (const b of bytes) bin += String.fromCharCode(b);

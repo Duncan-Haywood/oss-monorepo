@@ -247,6 +247,19 @@ approves. Letting a deployer switch on unattended sending for their own
 mailbox is the owner's call (ROADMAP M5). Accuracy claims come from labelled
 replies written after the code they score.
 
+## Direction: AI accounting systems
+
+Set by the owner on 2026-10-21: "I want to make ai accounting systems".
+
+The portfolio already had about ninety accounting tools, and each did one step
+(a payout to a journal, a CSV check, a categorizer, a reconciler). The
+direction is the system those steps belong to: books that persist, learn from
+the owner's corrections, and produce what a bookkeeper hands over at month end.
+The deterministic path stays the product, and a model only suggests
+(`PRODUCT_PLAYBOOK.md` §3). The first piece is
+[`ventures/ai-bookkeeper`](../ventures/ai-bookkeeper/README.md), first in
+`portfolio/flagships.yaml`.
+
 ## Direction: local models as an option beside API keys
 
 Set by the owner on 2026-10-18: "for the majority of applications, I think
@@ -382,6 +395,8 @@ existing page or file already covers the change (extend that instead):
   and drops the venture as a dead link). A PR that changes
   what a product does updates its file. Example:
   [`ventures/changepoint-detector/llms.txt`](../ventures/changepoint-detector/llms.txt).
+  `python3 platform/ci/missing_llms_txt.py` lists the ventures without one,
+  flagships first.
 - **A marketing page for every product**, aimed at the people who would use
   it: who it is for, the problem in their words, why the obvious approach
   falls short, a worked example, what it does not do and when to use

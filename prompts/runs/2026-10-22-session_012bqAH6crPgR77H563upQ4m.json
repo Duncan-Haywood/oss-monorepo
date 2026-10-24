@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_012bqAH6crPgR77H563upQ4m",
+  "track": "review",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "null",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T21:12:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9591,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "issue": "Step 2 still gives no audit-sample command; 'node --test' in a venture dir exceeds the 120s foreground limit so the audit needs run_in_background."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure output is 34KB+ and the section flag is not mentioned in the quick tables; I read it via a saved file."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "why": "Reduced pass: no new candidate (none of the tracks without a candidate has enough runs); one steering.md cut plus drift report instead; audit of one PR only (wall-framing-takeoff, 115 tests pass, no corrections)."
+    }
+  ],
+  "writeups": [
+    "prompts/drift/2026-10-22.md",
+    "prompts/experiments.md E71"
+  ],
+  "goal": null,
+  "notes": "steering.md 161->136 lines; validate and prompts unittests pass.",
+  "corrections": [],
+  "redteam": null
+}

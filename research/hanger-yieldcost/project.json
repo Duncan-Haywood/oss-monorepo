@@ -1,0 +1,6 @@
+{
+ "theme": "hanger",
+ "title": "Should a laundry-hanging arm yield to the other arm's next pick only when the clash would be long? Gating lookahead by predicted overlap, paired on 1000 loads",
+ "summary": "hanger-lookahead's first next step: yield to the other arm's predicted next pick only when the overlap it would cause is at least tau seconds. Paired on 1000 seeded loads (two arms, load 25, 54 settings), gating cuts the loss of ungated lookahead (aiming at 0.15 m: &minus;11.3 an hour, &minus;0.2 at 20 s) and finds one gain: pinching with 0.30 m clearance, +0.7 to +1.35 garments an hour over avoiding only the current pick at every threshold from 0 to 20 s (best +1.35, 0.93 to 1.80). Other settings show no gain whose interval excludes zero consistently. Stylised: clearance, station times and the pile are earlier placeholders; one predictor; the threshold is swept, not learned.",
+ "lede": "should an arm yield to the other arm's next pick only when the clash would be long? Gating by predicted overlap removes most of lookahead's loss and gains +0.7 to +1.35 garments an hour for pinching at 0.30 m (paired, 1000 loads). Stylised: inputs are placeholders."
+}

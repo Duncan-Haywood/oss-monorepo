@@ -59,6 +59,7 @@
     </p>
     <p class="note">Nothing is uploaded. The hop list you paste is parsed in this browser and never leaves your device — see "Why can't this page follow the chain itself?" below for what the CLI adds.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Check a redirect chain</h2>
@@ -128,7 +129,8 @@ node check.mjs https://example.com/old-page --recommended-max-hops 2</pre>
     <p>No. It checks specific, mechanically verifiable properties of the redirect chain you provide or the CLI fetches — loop detection, chain length, protocol downgrades, temporary-vs-permanent status codes, and the final destination's own status. It is not a crawl of your whole site and not a ranking guarantee.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not SEO, legal, or marketing advice, and it does not replace a qualified professional. It reports whether the redirect chain you provided satisfies specific, mechanically checkable rules — nothing more. It is not a ranking guarantee and not a full technical-SEO audit. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
     <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonTrend, countDispersion, ar1JointFit, analyze, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, penaltyValue, parseSeries, peaks, pelt, robustSd,
+  PAPERS, DEFAULTS, negbinSize, poissonSeasonal, poissonHolidays, poissonTrend, countDispersion, ar1JointFit, analyze, findBursts, bocpd, defaultPoissonPrior, defaultNbPrior, defaultPrior, gammaPoissonLogMarginal, makeCost, lgamma, nigLogMarginal, optimalPartitioning, ar1Rho, longRunSd, prewhiten, seasonalAdjust, trendAdjust, lsKnots, lineRss, penaltyValue, parseSeries, peaks, pelt, robustSd,
 } from './engine.mjs';
 
 // Seeded PRNG (mulberry32) and Box-Muller normals, so every test is reproducible.
@@ -1067,4 +1067,217 @@ test('negative-binomial cost with a season matches the per-point cost it replace
     assert.ok(Math.abs(fast(s, t) - slow(s, t)) < 1e-6 * Math.max(1, Math.abs(slow(s, t))), `segment ${s}..${t}`);
   }
   assert.deepEqual(pelt(x, { model: 'negbin', size: 3, exposure }).changepoints, pelt(x, { model: 'negbin', size: 3, exposure: drifted }).changepoints);
+});
+
+test('known holidays: one fitted factor keeps the dips from reading as steps, and a planted step still shows', () => {
+  const r = rng(77);
+  const pois = (l) => { const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= r(); } while (p > L); return k - 1; };
+  const n = 200, hol = [];
+  for (let i = 9; i < n; i += 17) hol.push(i);
+  const x = Array.from({ length: n }, (_, t) => pois(40 * (t >= 100 ? 1.5 : 1) * (hol.includes(t) ? 0.3 : 1)));
+  const plain = analyze({ values: x, model: 'poisson' });
+  const withHol = analyze({ values: x, model: 'poisson', holidays: hol.map((h) => h + 1) });
+  assert.ok(plain.pelt.changepoints.length > 2, 'without the calendar the dips are cut into steps');
+  assert.ok(Math.abs(withHol.holidays.factor - 0.3) < 0.08, `factor ${withHol.holidays.factor}`);
+  assert.ok(withHol.pelt.changepoints.some((c) => Math.abs(c.index - 100) <= 5));
+  assert.ok(withHol.pelt.changepoints.length <= 2);
+  assert.equal(withHol.holidays.count, hol.length);
+  assert.ok(poissonHolidays(x, hol).exposure.every((e, t) => e === (hol.includes(t) ? poissonHolidays(x, hol).factor : 1)));
+});
+
+test('known holidays on one weekday are held out of the seasonal factors', () => {
+  const r = rng(5);
+  const week = [1.3, 1.0, 1.0, 0.9, 1.1, 0.8, 0.9], n = 224, hol = [];
+  for (let i = 14; i < n; i += 28) hol.push(i);
+  const x = Array.from({ length: n }, (_, t) => { const l = 40 * week[t % 7] * (hol.includes(t) ? 0.3 : 1); let u = 0; for (let i = 0; i < 12; i++) u += r(); return Math.max(0, Math.round(l + Math.sqrt(l) * (u - 6))); });
+  const held = poissonSeasonal(x, 7, { skip: new Set(hol) });
+  const leaky = poissonSeasonal(x, 7);
+  assert.ok(Math.abs(held.factors[0] - 1.3 / 1.0) < 0.15 * 1.3, `held-out busy-day factor ${held.factors[0]}`);
+  assert.ok(leaky.factors[0] < held.factors[0], 'without holding out, the holidays drag their weekday down');
+  assert.ok(Math.abs(analyze({ values: x, model: 'poisson', period: 7, holidays: hol.map((h) => h + 1) }).holidays.factor - 0.3) < 0.06);
+});
+
+test('known holidays: input errors are plain', () => {
+  const x = Array.from({ length: 40 }, () => 10);
+  assert.throws(() => analyze({ values: x, model: 'poisson', holidays: ['3'] }), /at least 2/);
+  assert.throws(() => analyze({ values: x, model: 'poisson', holidays: ['3', '99'] }), /not a row label/);
+  assert.throws(() => analyze({ values: x, model: 'mean', holidays: ['3', '9'] }), /counts/);
+});
+
+test('known holidays: a factor per kind recovers two different dips', () => {
+  const rng = (() => { let s = 7; return () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; }; })();
+  const pois = (m) => { const L = Math.exp(-m); let k = 0, p = 1; do { k++; p *= rng(); } while (p > L); return k - 1; };
+  const n = 240, a = [], b = [];
+  for (let t = 0; t < n; t++) { if (t % 17 === 5) a.push(t); else if (t % 23 === 11) b.push(t); }
+  const x = Array.from({ length: n }, (_, t) => pois(40 * (a.includes(t) ? 0.3 : b.includes(t) ? 1.8 : 1)));
+  const kinds = [...a.map(() => 'closed'), ...b.map(() => 'sale')];
+  const r = analyze({ values: x, model: 'poisson', holidays: [...a, ...b].map((h, j) => `${h + 1}=${kinds[j]}`) });
+  const f = Object.fromEntries(r.holidays.kinds.map((k) => [k.kind, k.factor]));
+  assert.ok(Math.abs(f.closed - 0.3) < 0.1, `closed ${f.closed}`);
+  assert.ok(Math.abs(f.sale - 1.8) < 0.3, `sale ${f.sale}`);
+  assert.throws(() => analyze({ values: x, model: 'poisson', holidays: ['3=a', '9=a', '12=b'] }), /kind "b"/);
+});
+
+test('known holidays with a season: alternating keeps the planted step, adds no changes, and tracks the weekly shape at least as well', () => {
+  const week = [1.3, 1.0, 1.0, 0.9, 1.1, 0.8, 0.9], n = 224;
+  const rng = (() => { let s = 11; return () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; }; })();
+  const hol = []; for (let i = 14; i < n; i += 28) hol.push(i);
+  const x = Array.from({ length: n }, (_, t) => { let u = 0; for (let i = 0; i < 12; i++) u += rng(); const l = 40 * week[t % 7] * (hol.includes(t) ? 0.3 : 1) * (t >= 120 ? 1.5 : 1); return Math.max(0, Math.round(l + Math.sqrt(l) * (u - 6))); });
+  const run = (extra) => analyze({ values: x, model: 'poisson', period: 7, holidays: hol.map((h) => h + 1), ...extra });
+  const on = run({}), off = run({ noHolidayAlternation: true });
+  assert.equal(on.pelt.changepoints.length, 1);
+  assert.ok(Math.abs(on.pelt.changepoints[0].index - 120) <= 4);
+  assert.ok(Math.abs(on.holidays.factor - 0.3) < 0.08, `factor ${on.holidays.factor}`);
+  const mean = week.reduce((a, b) => a + b) / 7;
+  const err = (r) => Math.max(...week.map((w, i) => Math.abs(r.seasonal.profile[i] - w / mean)));
+  assert.ok(err(on) <= err(off) + 0.01, `alternating ${err(on)} vs ${err(off)}`);
+});
+
+test('lsKnots (prefix sums) picks the same pair as a brute-force pass over lineRss', () => {
+  for (const seed of [1, 2, 3, 4, 5]) {
+    const r = rng(seed), n = 90, z = normals(r, n);
+    const x = Array.from({ length: n }, (_, t) => 5 + 0.02 * t + 0.06 * Math.max(0, t - 35) - 0.1 * Math.max(0, t - 60) + z[t] * 0.5 + 100);
+    let best = null;
+    for (let a = 9; a <= 81; a++) for (let b = a + 13; b <= 81; b++) {
+      const rss = lineRss(x, [a, b]);
+      if (!best || rss < best.rss) best = { rss, knots: [a, b] };
+    }
+    assert.deepEqual(lsKnots(x, 9, 81, 13), best.knots, `seed ${seed}`);
+  }
+});
+
+test('findBursts flags an isolated spike but not a step', () => {
+  const flat = Array.from({ length: 60 }, (_, i) => 20 + (i % 3));
+  flat[30] = 90;
+  const b = findBursts(flat);
+  assert.deepEqual(b.indexes, [30]);
+  assert.ok(b.counts[30] <= 22);
+  const step = flat.map((v, i) => (i >= 30 ? 60 + (i % 3) : 20 + (i % 3)));
+  assert.deepEqual(findBursts(step).indexes, []);
+});
+
+test('--bursts stops a spike being read as two changes', () => {
+  const x = Array.from({ length: 80 }, (_, i) => 30 + ((i * 7) % 5));
+  x[40] = 160;
+  const off = analyze({ values: x, model: 'poisson' });
+  const on = analyze({ values: x, model: 'poisson', bursts: true });
+  assert.ok(off.pelt.changepoints.length >= 2);
+  assert.equal(on.pelt.changepoints.length, 0);
+  assert.equal(on.bursts[0].index, 40);
+  assert.equal(on.values[40], 160);
+  assert.throws(() => analyze({ values: x, bursts: true }), /counts/);
+});
+
+test('negbinSize sizes a clumpy series from its first differences', () => {
+  const x = Array.from({ length: 12 }, (_, i) => (i % 2 ? 20 : 0));
+  const r = negbinSize(x);
+  assert.ok(Number.isFinite(r));
+  assert.ok(Math.abs(r - 100 / (400 / 0.9098 - 10)) < 1e-9);
+});
+
+test('findBursts needs both the ratio and a Poisson-sized excess', () => {
+  const small = Array(12).fill(0); small[6] = 3; // 3 >= 2.5 x 1, but the excess 3 is within Poisson noise
+  assert.deepEqual(findBursts(small).indexes, []);
+  const big = Array(12).fill(100); big[6] = 145; // excess 45 is large, but only 1.45 x the neighbours
+  assert.deepEqual(findBursts(big).indexes, []);
+});
+
+test('negbinSize counts every first difference, the first included', () => {
+  // four calm differences against three jumps: the median is 0, so there is no excess spread to fit
+  assert.equal(negbinSize([5, 5, 5, 5, 5, 25, 5, 25]), Infinity);
+});
+
+test('seasonalAdjust accepts a period of exactly 2, the smallest cycle', () => {
+  const { adjusted, profile } = seasonalAdjust([1, 3, 1, 3, 1, 3, 1, 3], 2);
+  assert.equal(profile.length, 2);
+  assert.equal(adjusted.length, 8);
+});
+
+test('ar1mean cost of a perfectly constant segment is only the stationary-start term', () => {
+  // x = 5 throughout: the fitted mean explains it exactly, so the residual is 0 and the cost is -log(1 - rho^2).
+  const rho = 0.5;
+  const cost = makeCost(Array(10).fill(5), 'ar1mean', 1, rho);
+  assert.ok(Math.abs(cost(0, 10) - -Math.log(1 - rho * rho)) < 1e-9);
+});
+
+test('--burst-runs cuts a 3-day plateau that single-day bursts miss, and leaves a step alone', () => {
+  const base = Array.from({ length: 80 }, (_, i) => 30 + ((i * 7) % 5));
+  const run = base.slice(); for (const i of [40, 41, 42]) run[i] = 75;
+  const one = analyze({ values: run, model: 'poisson', bursts: true });
+  const many = analyze({ values: run, model: 'poisson', bursts: true, burstRuns: 5 });
+  assert.equal(one.bursts.length, 0);
+  assert.deepEqual(many.bursts.map((b) => b.index), [40, 41, 42]);
+  assert.ok(many.pelt.changepoints.length < one.pelt.changepoints.length);
+  const step = base.map((v, i) => (i >= 40 ? Math.round(v * 2.5) : v));
+  assert.equal(analyze({ values: step, model: 'poisson', bursts: true, burstRuns: 5 }).bursts.length, 0);
+});
+
+test('each change carries a 95% range that holds the planted date and narrows with a bigger shift', () => {
+  let seed = 7;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const width = (shift) => {
+    const x = Array.from({ length: 160 }, (_, t) => gauss() + (t >= 80 ? shift : 0));
+    const r = analyze({ values: x }).pelt.changepoints[0].range95;
+    assert.ok(r.fromIndex <= 80 && 80 <= r.toIndex, `range ${r.fromIndex}-${r.toIndex} should hold 80`);
+    return r.toIndex - r.fromIndex;
+  };
+  assert.ok(width(4) <= width(1.5));
+  const nile = analyze({ csv: readFileSync(new URL('./data/nile.csv', import.meta.url), 'utf8') }).pelt.changepoints[0];
+  assert.ok(nile.range95.fromIndex <= nile.index && nile.index <= nile.range95.toIndex);
+  assert.equal(analyze({ csv: readFileSync(new URL('./data/nile.csv', import.meta.url), 'utf8'), intervals: false }).pelt.changepoints[0].range95, undefined);
+});
+
+test('sticky series without --ar1 carry a range warning, white noise and --ar1 do not', () => {
+  let seed = 11;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const make = (rho) => { let e = gauss(); return Array.from({ length: 200 }, (_, t) => { e = rho * e + Math.sqrt(1 - rho * rho) * gauss(); return e + (t >= 100 ? 2 : 0); }); };
+  assert.ok(analyze({ values: make(0.7) }).rangeWarning);
+  assert.equal(analyze({ values: make(0) }).rangeWarning, undefined);
+  assert.equal(analyze({ values: make(0.7), ar1: true }).rangeWarning, undefined);
+});
+
+test('clumpy counts under the plain Poisson cost carry a range warning, the nb cost and clean Poisson counts do not', () => {
+  let seed = 5;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  // a clumpy count: a Poisson draw whose mean is multiplied by a random factor of mean 1 (variance 0.3)
+  const pois = (m) => { const L = Math.exp(-m); let k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; };
+  const clumpy = Array.from({ length: 200 }, (_, t) => pois((t >= 100 ? 20 : 10) * (0.05 + 1.9 * rnd())));
+  const clean = Array.from({ length: 200 }, (_, t) => pois(t >= 100 ? 20 : 10));
+  assert.match(analyze({ values: clumpy, model: 'poisson' }).rangeWarning, /negative-binomial/);
+  assert.equal(analyze({ values: clumpy, model: 'poisson', overdispersion: 'nb' }).rangeWarning, undefined);
+  assert.equal(analyze({ values: clean, model: 'poisson' }).rangeWarning, undefined);
+});
+
+test('a slope change carries a 95% range that holds the planted bend', () => {
+  let seed = 7;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const at = 100;
+  const x = Array.from({ length: 200 }, (_, t) => 0.1 * t + 0.25 * Math.max(0, t - at) + gauss());
+  const r = analyze({ values: x, trend: 'bend' }).trend;
+  assert.equal(r.slopeChangeRange95.length, 1);
+  const c = r.slopeChangeRange95[0];
+  assert.ok(c.fromIndex <= r.slopeChangesAt && r.slopeChangesAt <= c.toIndex);
+  assert.ok(c.fromIndex <= at && at <= c.toIndex, `range ${c.fromIndex}-${c.toIndex}`);
+  assert.ok(c.toIndex - c.fromIndex < 60);
+  assert.equal(analyze({ values: x.map((_, t) => 0.1 * t + gauss()), trend: 'bend' }).trend.slopeChangeRange95, undefined);
+});
+
+test('a change of growth rate in counts carries a 95% range that holds the planted bend', () => {
+  let seed = 7;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed + 0.5) / 4294967296; };
+  const pois = (m) => { const L = Math.exp(-m); let k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; };
+  const at = 100;
+  const x = Array.from({ length: 200 }, (_, t) => pois(Math.exp(2 + 0.004 * t + 0.025 * Math.max(0, t - at))));
+  const r = analyze({ values: x, model: 'poisson', trend: 'bend' }).trend;
+  assert.equal(r.growthChangeRange95.length, 1);
+  const c = r.growthChangeRange95[0];
+  assert.ok(c.fromIndex <= r.growthChangesAt && r.growthChangesAt <= c.toIndex);
+  // coverage of the planted point is measured in eval/growth-change-interval.mjs (about 86%); here the knot must be near it
+  assert.ok(Math.abs(r.growthChangesAt - at) <= 10 && Math.abs(c.fromIndex - at) <= 40 && Math.abs(c.toIndex - at) <= 40, `range ${c.fromIndex}-${c.toIndex}`);
+  assert.ok(c.toIndex - c.fromIndex < 60);
+  const flat = Array.from({ length: 200 }, (_, t) => pois(Math.exp(2 + 0.004 * t)));
+  assert.equal(analyze({ values: flat, model: 'poisson', trend: 'bend' }).trend.growthChangeRange95, undefined);
 });

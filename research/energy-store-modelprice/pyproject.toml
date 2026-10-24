@@ -1,0 +1,13 @@
+[project]
+name = "energy-store-modelprice"
+version = "0.1.0"
+description = "Does the sand-store vs heat-pump verdict survive a modelled (residual-load) price instead of the real one?"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-price-residual/src", "../energy-thermal-real/src", "../energy-thermal-hourly/src", "../energy-thermal-cost/src", "../energy-thermal/src"]

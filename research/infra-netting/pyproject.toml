@@ -1,0 +1,13 @@
+[project]
+name = "infra-netting"
+version = "0.1.0"
+description = "Liquidity in an RTGS payment system: netting bounds and Bech-Soramaki gridlock resolution"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

@@ -54,6 +54,7 @@
     <p>Paste the JUnit XML report from two or more runs of the same suite — reruns you already triggered, or a job that reran on CI. This page groups every test by name and tells you which ones flipped between pass and fail (flaky), which failed every time (broken — a real bug), and which passed every time (stable).</p>
     <p class="note">Nothing is uploaded. The XML you paste is parsed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Get JUnit XML from two or more runs</h2>
@@ -114,7 +115,8 @@ python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
     <p>Related: if tests are stable but line coverage fell on the PR, the <a href="../coverage-drop-check/">coverage drop check</a> compares two Cobertura or JaCoCo reports and names the files that got worse — nothing uploaded.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a substitute for investigating why a test is flaky, and it does not fix your tests for you — it only tells you which ones flipped and how often. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The XML you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>run_added</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

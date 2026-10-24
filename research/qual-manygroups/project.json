@@ -1,0 +1,6 @@
+{
+ "theme": "qual",
+ "title": "With six groups, how many hand-coded items does it take for every group's prevalence to be right?",
+ "summary": "On 3,188 real GoEmotions comments, with group-wise prediction-powered intervals, a 95% interval per group is not a 95% table. With six word-count groups (the smallest 1.5% of the corpus), only 71 to 77% of equal-allocation audits of 120&ndash;240 items covered all six true prevalences at once, against 85&ndash;88% with three groups; a Bonferroni widening (about a third wider) raised that to 89 to 94%. A random audit failed outright for the rare group: 291 of 300 draws of 120 items had under 5 audited items in it. Equal numbers per group gave intervals 24% narrower than random at 480 items for K=6 and the same for K=3. The coders are naive-Bayes and a word list, not LLMs, with no group-dependent error; one corpus, one seed; audits above 960 items are a large share of the corpus and the intervals ignore the finite-population correction, so those rows are conservative.",
+ "lede": "with six groups, how many hand-coded items does it take for every group's prevalence to be right? On 3,188 GoEmotions comments, six 95% intervals covered all six truths in only 71 to 77% of 120 to 240-item equal audits (Bonferroni: 89 to 94%); a random audit could not estimate a 1.5% group at all. Not an LLM; one corpus."
+}

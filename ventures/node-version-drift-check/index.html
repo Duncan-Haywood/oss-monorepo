@@ -48,6 +48,7 @@
     <p>Paste the files that declare a Node.js version and see where they drift apart: a pinned version that <strong>cannot satisfy <code>engines.node</code></strong>, pins that <strong>disagree on the major version</strong> across files, a CI matrix or pin on an <strong>end-of-life</strong> Node.js, and an <code>engines.node</code> range with <strong>no upper bound</strong> and nothing pinned.</p>
     <p class="note">Nothing is uploaded. Everything runs in this browser against the text you paste in. End-of-life dates are a static table copied from nodejs.org on 2026-10-11 and shown as of the date you pick.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Check a repo's Node.js versions</h2>
@@ -136,7 +137,8 @@ node cli.mjs --today 2026-10-11    # judge end-of-life as of a fixed date</pre>
     <p>No. Everything is computed in your browser from the text you paste in, and nothing you type is sent anywhere. The CLI makes no network call either; it only reads files already on your own disk.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace running your tests on the Node.js version you actually deploy. The end-of-life dates come from a static table copied from nodejs.org/en/about/previous-releases on 2026-10-11 and may be out of date; check nodejs.org for the current schedule. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. Nothing you type is ever uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>versions_checked</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

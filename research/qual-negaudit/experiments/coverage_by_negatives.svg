@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: with no coder-negative items audited coverage is 0; it reaches about 0.94 at 50 coder-negative items whatever the total audit size">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Coverage of the 95% interval by coder-negative items audited</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="270.2" y2="270.2" stroke="#ddd"/><text x="58" y="274.2" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="216.4" y2="216.4" stroke="#ddd"/><text x="58" y="220.4" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="162.6" y2="162.6" stroke="#ddd"/><text x="58" y="166.6" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="108.8" y2="108.8" stroke="#ddd"/><text x="58" y="112.8" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="86.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="120.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="288.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">coder-negative items in the audit (k)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">worst coverage over four coders</text>
+<polyline points="64.0,324.0 86.4,245.7 120.0,148.9 176.0,92.1 288.0,81.1 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="86.4" cy="245.7" r="3" fill="#c0392b"/>
+<circle cx="120.0" cy="148.9" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="92.1" r="3" fill="#c0392b"/>
+<circle cx="288.0" cy="81.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">100 audited items</text>
+<polyline points="64.0,324.0 86.4,240.9 120.0,148.1 176.0,90.5 288.0,81.4 624.0,71.7" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="86.4" cy="240.9" r="3" fill="#1f6fb2"/>
+<circle cx="120.0" cy="148.1" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="90.5" r="3" fill="#1f6fb2"/>
+<circle cx="288.0" cy="81.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.7" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">200 audited items</text>
+<polyline points="64.0,324.0 86.4,243.0 120.0,150.0 176.0,96.2 288.0,83.3 624.0,72.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#2e8b57"/>
+<circle cx="86.4" cy="243.0" r="3" fill="#2e8b57"/>
+<circle cx="120.0" cy="150.0" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="96.2" r="3" fill="#2e8b57"/>
+<circle cx="288.0" cy="83.3" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="72.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">400 audited items</text>
+</svg>

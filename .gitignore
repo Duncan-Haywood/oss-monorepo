@@ -26,7 +26,8 @@ tmp/
 
 # Local git-worktree scaffolding created by Claude Code's Agent tool
 # (isolation: "worktree"). Transient per-session tooling state, not content.
-/.claude/
+/.claude/worktrees/
+/.claude/settings.local.json
 
 # OpenTofu (infra/)
 **/.terraform/

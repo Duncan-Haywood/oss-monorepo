@@ -60,3 +60,16 @@ test('lever summary names the cash winner and the travel caveat', () => {
   assert.match(text, /5184\.00/);
   assert.match(text, /does not change cash/);
 });
+
+// Red-team seeding (2026-10-21): both escaped the suite.
+test('a 100% cancellation rate is allowed and prices nothing, rather than throwing', () => {
+  const r = calculateLesson({ lessonPrice: 50, lessonsPerWeek: 5, cancelRate: 100 });
+  assert.equal(r.annualPaid, 0);
+  assert.equal(r.targetPrice, Infinity);
+  assert.equal(r.breakEvenPrice, Infinity);
+});
+
+test('an unset cancellation rate defaults to 8%', () => {
+  const r = calculateLesson({ lessonPrice: 50, lessonsPerWeek: 5 });
+  assert.equal(r.attendanceRate, 0.92);
+});

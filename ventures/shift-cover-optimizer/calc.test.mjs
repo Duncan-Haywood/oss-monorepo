@@ -153,3 +153,28 @@ test("deterministic: the same input gives the same schedule", () => {
   const b = optimize(parseDemand(sampleText()), { wage: 16, unit: "demand", perStaff: 12 });
   assert.equal(scheduleCsv(a), scheduleCsv(b));
 });
+
+test("5-minute data is detected, and the fragmentation warning starts below 15 minutes", () => {
+  const p5 = parseDemand("Mon,9:05,1\nMon,9:10,2");
+  assert.equal(p5.step, 5);
+  assert.match(p5.warnings.join(" "), /down to 5 minutes/);
+  const p15 = parseDemand("Mon,9:00,1\nMon,9:15,2");
+  assert.equal(p15.step, 15);
+  assert.equal(p15.warnings.length, 0);
+});
+
+test("shift end times follow the segment start plus its length", () => {
+  const p = parseDemand("Mon,9,1\nMon,10,1\nMon,11,1\nMon,12,1");
+  const r = optimize(p, { wage: 20, minShiftHours: 1, maxShiftHours: 4, minStaff: 0 });
+  const s = r.days[0].shifts;
+  assert.equal(s.length, 1);
+  assert.equal(s[0].startMinute, 9 * 60);
+  assert.equal(s[0].endMinute, 13 * 60);
+  assert.equal(s[0].hours, 4);
+});
+
+test("the sample cafe data is pinned (Mon 3pm is 16 customers, Sat 10am is 48)", () => {
+  const lines = sampleText().split("\n");
+  assert.ok(lines.includes("Mon,15,16"));
+  assert.ok(lines.includes("Sat,10,48"));
+});

@@ -1,0 +1,45 @@
+== A. Dryers served by one arm and one fold table, by fold-station source (200 loads of 25, learned hang rule)
+source                        t_fold  p_ok  good/h  dryers  u_fold  bottleneck
+assumed (hanger-cell)           25.0  1.00   168.9    5.07    0.80  arms
+SpeedFolding towel              68.1  0.87    70.4    2.11    0.97  fold
+SpeedFolding fling-to-fold      87.9  0.93    56.8    1.70    0.98  fold
+SpeedFolding t-shirt           116.9  0.93    42.8    1.28    0.98  fold
+SpeedFolding max-value map     167.4  0.80    27.3    0.82    0.99  fold
+prior work 6 FPH               600.0  1.00     9.0    0.27    1.00  fold
+prior work 3 FPH              1200.0  1.00     4.5    0.13    1.00  fold
+
+== B. Dryers served against fold tables (two arms; SpeedFolding t-shirt 116.9 s, p 0.93)
+tables  good/h  dryers  u_fold  bottleneck
+     1    43.7    1.31    0.99  fold
+     2    82.6    2.48    0.95  fold
+     3   118.2    3.55    0.90  fold
+     4   148.7    4.46    0.85  fold
+     6   197.1    5.91    0.75  fold
+     8   224.6    6.74    0.64  fold
+
+== C. Fewest fold tables for 5 dryers (two arms)
+source                        tables
+assumed (hanger-cell)         1
+SpeedFolding towel            3
+SpeedFolding fling-to-fold    4
+SpeedFolding t-shirt          5
+SpeedFolding max-value map    10
+prior work 6 FPH              >40
+prior work 3 FPH              >40
+
+== D. Policy at the t-shirt fold time (two arms, 4 tables): does hanging more relieve the fold station?
+policy        good/h  dryers  hung  folded
+always_fold     103.9    3.12   0.0    24.9
+learned         148.7    4.46   7.9    17.0
+always_hang     283.8    8.51  24.9     0.0
+
+== E. Dryers served against fold tables, two arms, by source
+tables  towel  fling-to-fold  t-shirt  max-value
+     1   2.15           1.73     1.31       0.84
+     2   4.02           3.30     2.48       1.59
+     3   5.60           4.64     3.55       2.28
+     4   6.82           5.77     4.46       2.88
+     5   7.55           6.70     5.25       3.42
+     6   7.84           7.30     5.91       3.89
+     7   7.99           7.62     6.41       4.30
+     8   8.04           7.77     6.74       4.65

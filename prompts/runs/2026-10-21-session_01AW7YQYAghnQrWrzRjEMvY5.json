@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01AW7YQYAghnQrWrzRjEMvY5",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T09:22:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 9130,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "huggingface.co 403 through the proxy: voice model unreachable, no audio"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/render_audio.py",
+      "issue": "Docstring says download_voices fetches the voice, but cloud sessions cannot reach huggingface.co; no fallback or cached voice is documented. Also pip and python3 differ (use /usr/bin/python3 for the pip-installed piper)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Delivered text and pages without audio, as its audio-size branch allows, because the voice could not be downloaded; audio left as a follow-up."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Creative track. Project hearth-and-horizon, piece thirty-nine-minutes (Hearth & Horizon shelf, Mars 2139, about 4,700 words). Checked numbers: sol 24h39m35s, drift 36.4 days, sol-hour 61m39s, 4.6 h/week Earth-week slip. Audio NOT rendered: Piper installed from pypi but the en_US-ljspeech-high voice download (huggingface.co) returned 403 from the egress proxy. Text, pages, feeds, BIBLE timeline and README updated; node --test passes (9/9). Audio is a follow-up for a session that can fetch the voice.",
+  "corrections": [],
+  "redteam": null
+}

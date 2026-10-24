@@ -71,15 +71,16 @@
  *
  * ## Usage
  *
- *   node platform/marketing/front-door-tools.mjs --write   # writes gitops/prod/front-door-tools/
  *   node platform/marketing/front-door-tools.mjs --write --out <dir>   # scratch build; touches nothing tracked
  *   node platform/marketing/front-door-tools.mjs           # prints a manifest summary
  *   node --test platform/marketing/front-door-tools.test.mjs
  *
- * The output is committed for the same reason `front-door/index.html` is: Argo
- * CD delivers it, not a CI job, so the files in git *are* the artifact.
- * `front-door-tools.test.mjs` regenerates and compares, and fails a stale
- * commit with the command that fixes it.
+ * RETIRED (process backlog P024): the k3s origin this mirror fed was retired on
+ * 2026-10-01, so the output is no longer committed and `regen.mjs` skips this
+ * module. Do not run `--write` without `--out`: it drops ~6,000 untracked files
+ * under `gitops/prod/front-door-tools/` that must not be committed. The tests
+ * still build the mirror into a temp dir. (Older comments below describing the
+ * mirror as committed describe the retired design.)
  */
 
 import { createHash } from 'node:crypto';

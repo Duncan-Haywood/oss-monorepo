@@ -1,0 +1,24 @@
+{
+  "id": "P046",
+  "title": "Deploy platform/counter on an always-on HTTPS host so site visit counts exist",
+  "status": "open",
+  "owner": "owner",
+  "effect": 3,
+  "cost": 1,
+  "problem": "The counter code, referrer classes and site copy are done (P035) but nothing runs it, so live_url_visitors is still null everywhere and distribution cannot be judged.",
+  "evidence": [
+    "platform/counter/site.json has an empty url",
+    "portfolio/usage/site-visits.json does not exist"
+  ],
+  "touches": [
+    "platform/counter/"
+  ],
+  "metric": "readings in portfolio/usage/site-visits.json with page_loads > 0",
+  "baseline": "0 (2026-10-23)",
+  "opened": "2026-10-23",
+  "source": "split from P035",
+  "pr": null,
+  "result": null,
+  "history": [],
+  "change": "Owner provides or approves one always-on HTTPS host, then deploy platform/counter and put its URL in platform/counter/site.json."
+}

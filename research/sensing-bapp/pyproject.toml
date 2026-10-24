@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-bapp"
+version = "0.1.0"
+description = "Does an unmodelled principal-point offset bias self-calibrating bundle adjustment, and can the wide field of view rescue it?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

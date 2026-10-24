@@ -52,6 +52,13 @@ class FindingsIn(unittest.TestCase):
                 self.write(name, f"KEY={LIVE}\n")
         self.assertEqual(len(self.kinds()), 5)
 
+    def test_checkout_under_a_skip_named_directory_is_still_scanned(self):
+        # SKIP_DIRS applies below the scan root, not to the checkout's own path.
+        root = self.root / "build" / "dist" / "ventures"
+        (root / "app").mkdir(parents=True)
+        (root / "app" / "stripe.ts").write_text(f'k("{LIVE}")\n', encoding="utf-8")
+        self.assertEqual([k for _p, k in guard.findings_in(root)], ["live Stripe key"])
+
     def test_binary_files_are_skipped(self):
         (self.root / "logo.png").write_bytes(b"\x89PNG\x00" + LIVE.encode())
         self.assertEqual(self.kinds(), [])

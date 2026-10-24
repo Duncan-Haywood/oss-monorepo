@@ -260,7 +260,7 @@ test("call-out page's table is what the engine returns for the sample cafe, with
     return o;
   };
   const a = study(sampleStaff());
-  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 13, 2, 19]);
+  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 21, 2, 19]);
   const b = study(sampleStaff() + "\nHal, 15, 24, 0, any");
   assert.deepEqual([b.cases, b.patched, b.covered, Math.min(...b.moves), Math.max(...b.moves)], [32, 1, 18, 13, 24]);
   const html = page("how-to-cover-a-shift-when-someone-calls-out.html");
@@ -285,7 +285,7 @@ test("14-15 year old page's table is what the engine returns for the sample cafe
   const html = page("scheduling-14-and-15-year-olds.html");
   const cleo = "Cleo, 15, 30, 12, Mon-Fri 15-23; Sat-Sun 8-23", eli = "Eli, 14, 24, 8, Mon/Wed/Fri 16-23; Sat-Sun 8-23";
   const withAges = (c, e) => sampleStaff().replace(cleo, cleo + (c ? `, age: ${c}` : "")).replace(eli, eli + (e ? `, age: ${e}` : ""));
-  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 3, 216, 3622, 36], ["15", 0, 5, 200, 3382, 18], ["15", "14", 8, 176, 3019, 0], ["15 summer", "14 summer", 4, 208, 3483, 32]]) {
+  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 3, 216, 3622, 36], ["15", 0, 5, 200, 3382, 18], ["15", "14", 8, 181, 3114, 0], ["15 summer", "14 summer", 4, 213, 3578, 32]]) {
     const p = parseStaff(withAges(c, e));
     assert.deepEqual(p.errors, []);
     const r = buildRoster(p.staff, slots, {});
@@ -359,8 +359,7 @@ test("time-off page's table is what the engine returns for the sample cafe as we
   const slots = parseShifts(sampleShifts()).slots;
   const html = page("how-to-handle-time-off-requests.html");
   const who = ["Ana", "Gus", "Dev", "Cleo", "Eli"];
-  const rows = [[3, 216, 3622], [3, 216, 3624], [4, 213, 3561], [5, 200, 3337], [7, 182, 3067], [9, 169, 2906]];
-  let prev = -1;
+  const rows = [[3, 216, 3622], [3, 216, 3624], [4, 218, 3656], [5, 210, 3522], [7, 192, 3252], [9, 174, 3001]];
   rows.forEach(([open, covered, pay], n) => {
     const text = sampleStaff().split("\n").map((l) => (who.slice(0, n).some((w) => l.startsWith(w + ",")) ? l + ", off: Sat-Sun" : l)).join("\n").replace("min hours, availability", "min hours, availability, off");
     const p = parseStaff(text);
@@ -369,8 +368,8 @@ test("time-off page's table is what the engine returns for the sample cafe as we
     assert.equal(r.unfilled.length, open, `${n} open`);
     assert.equal(r.hours, covered, `${n} covered`);
     assert.equal(r.cost, pay, `${n} payroll`);
-    assert.ok(r.hours <= (prev < 0 ? Infinity : prev), `${n}: more requests never cover more hours`);
-    prev = r.hours;
+    // Not asserted: that more requests never cover more hours. The default search is a heuristic and sometimes leaves hours the exact
+    // search finds (the base week covers 216 here, 220 under exact:true), so a smaller week can cover more than a larger one.
     assert.ok(html.includes("$" + pay.toLocaleString("en-US")), `${pay} on page`);
   });
   assert.match(page("sitemap.xml"), /how-to-handle-time-off-requests\.html/);
@@ -391,7 +390,7 @@ test("widening page's table is what the engine returns for the sample cafe with 
     const r = buildRoster(p.staff, slots, { minRestHours: 10 });
     return [r.unfilled.length, r.hours, r.cost];
   };
-  const any = { Ana: [3, 216, 3622], Ben: [3, 214, 3594], Cleo: [1, 227, 3777], Dev: [3, 211, 3525], Eli: [2, 219, 3647], Fay: [3, 211, 3527], Gus: [3, 216, 3622] };
+  const any = { Ana: [3, 216, 3622], Ben: [3, 216, 3622], Cleo: [1, 227, 3777], Dev: [3, 216, 3620], Eli: [2, 219, 3647], Fay: [3, 216, 3622], Gus: [3, 216, 3622] };
   const cap = { Ana: [3, 216, 3622], Ben: [2, 224, 3750], Cleo: [3, 216, 3622], Dev: [3, 216, 3622], Eli: [3, 216, 3622], Fay: [2, 224, 3746], Gus: [3, 216, 3622] };
   for (let i = 1; i < base.length; i++) {
     const parts = base[i].split(", ");

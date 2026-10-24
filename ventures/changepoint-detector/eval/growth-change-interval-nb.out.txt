@@ -1,0 +1,20 @@
+# NB-cost range (2026-10-23); node eval/growth-change-interval-nb.mjs 100 <seed> 0.35 nb
+## seed 2026
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  19/100  19/19 (100%)  79
+0.025  19/100  17/19 (89%)  70
+0.04  11/100  11/11 (100%)  61
+## seed 7
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  24/100  24/24 (100%)  88
+0.025  12/100  10/12 (83%)  64
+0.04  15/100  10/15 (67%)  79
+## seed 99
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  19/100  19/19 (100%)  82
+0.025  24/100  21/24 (88%)  61
+0.04  18/100  14/18 (78%)  67
+# total covered 145/161 (90%); previous ratio widening 142/161 (88%); median widths 79/70/61 vs 139/100/61 (seed 2026)

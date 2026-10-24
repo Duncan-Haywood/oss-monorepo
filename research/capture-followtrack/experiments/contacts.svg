@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: for a drone using the predictive planner at 0.1 people per square metre, contacts per hour against detection latency in seconds, one curve for each detection noise level">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Pedestrian contacts against detection latency, by detection noise</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="256.2" y2="256.2" stroke="#ddd"/><text x="58" y="260.2" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="188.4" y2="188.4" stroke="#ddd"/><text x="58" y="192.4" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="120.7" y2="120.7" stroke="#ddd"/><text x="58" y="124.7" text-anchor="end" font-family="sans-serif" font-size="11">300</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="204.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">detection latency (s)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">contacts per hour (within 0.5 m)</text>
+<polyline points="64.0,293.5 204.0,284.7 344.0,260.3 624.0,216.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="293.5" r="3" fill="#c0392b"/>
+<circle cx="204.0" cy="284.7" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="260.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="216.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">sigma 0.1 m</text>
+<polyline points="64.0,251.5 204.0,242.7 344.0,232.5 624.0,172.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="251.5" r="3" fill="#1f6fb2"/>
+<circle cx="204.0" cy="242.7" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="232.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="172.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">sigma 0.3 m</text>
+<polyline points="64.0,189.1 204.0,167.4 344.0,155.2 624.0,149.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="189.1" r="3" fill="#2e8b57"/>
+<circle cx="204.0" cy="167.4" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="155.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="149.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">sigma 0.6 m</text>
+<polyline points="64.0,126.1 204.0,113.2 344.0,92.9 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="126.1" r="3" fill="#8e44ad"/>
+<circle cx="204.0" cy="113.2" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="92.9" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">sigma 1.0 m</text>
+</svg>

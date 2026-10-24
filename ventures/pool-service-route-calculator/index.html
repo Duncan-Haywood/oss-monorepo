@@ -45,6 +45,7 @@
     <p>Enter each account's monthly price, visit minutes, drive minutes into the stop, chemical cost and callbacks. See <strong>the true effective hourly of every account</strong>, <strong>which to reprice or drop</strong>, <strong>the price that clears your target</strong>, <strong>what dropping or adding a stop 15 minutes away does to the whole route</strong> and a <strong>CSV audit</strong> of the route.</p>
     <p class="note"><strong>Your numbers, not market rates and not advice.</strong> This page knows no going rates and gives no legal, tax or contract advice: every price, minute and cost is a number you type. Nothing is uploaded: the inputs are used in this browser tab only.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Your accounts</h2>
@@ -136,7 +137,8 @@ node cli.mjs stop accounts.csv --leg 15 --price 140</pre>
     <p>No. The browser page works on the text you enter, in your own browser, and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or investment advice, it is not a market rate or a price survey, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for the accuracy of the numbers you enter, for your service agreements and for any local rules that apply to you. To the maximum extent permitted by law the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Not affiliated with, endorsed by or sponsored by any pool equipment maker, chemical supplier, route-management software company or trade association; no product names are used to imply otherwise.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

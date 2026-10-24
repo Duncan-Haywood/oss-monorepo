@@ -63,7 +63,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 INPUT_RE = re.compile(r"<input\b[^>]*>", re.IGNORECASE)
-ATTR_RE = re.compile(r"([a-zA-Z-]+)\s*=\s*\"([^\"]*)\"")
+ATTR_RE = re.compile(r"""([a-zA-Z-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))""")
 
 # `if (x >= 100) throw` and `if (x < 0 || x >= 100) throw`. The optional
 # leading alternative is what lets one guard carry both bounds, which is the
@@ -92,7 +92,10 @@ def percent_scaled(source: str) -> set[str]:
 
 
 def _attrs(tag: str) -> dict[str, str]:
-    return {name.lower(): value for name, value in ATTR_RE.findall(tag)}
+    return {
+        name.lower(): double or single or bare
+        for name, double, single, bare in ATTR_RE.findall(tag)
+    }
 
 
 def _decimal(raw: str | None) -> Decimal | None:

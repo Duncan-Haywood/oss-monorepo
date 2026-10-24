@@ -1,0 +1,46 @@
+== A. parameters (value, source, status)
+bitrate_action_cam       120.0      sourced  Mbit/s | GoPro HERO13 Black max video bit rate, Wikipedia 'GoPro' spec table; DJI Osmo Action 5 Pro 'Max Video Bitrate 120 Mbps', dji.com/osmo-action-5-pro/specs; both fetched 2026-10-21
+bitrate_360_cam          120.0      assumed  Mbit/s | no spec page was reachable (Insta360 returned 403); set equal to the action cameras it shares a sensor class with
+bitrate_phone            60.0       assumed  Mbit/s | carried over from model.py
+bitrate_mirrorless       200.0      assumed  Mbit/s | carried over from model.py; Sony's help page was not reachable
+card_g_micro             0.25       sourced  g | Wikipedia 'SD card' infobox, microSD weight 0.25 g, fetched 2026-10-21; weight does not depend on capacity
+card_g_full              2.0        sourced  g | Wikipedia 'SD card' infobox, standard SD weight 2 g, fetched 2026-10-21
+reader_mbs_uhs1_ceiling  104.0      sourced  MB/s | UHS-I bus speed, SD Association figure as tabulated on Wikipedia 'SD card' (bus speed table), fetched 2026-10-21
+reader_mbs_uhs2_ceiling  312.0      sourced  MB/s | UHS-II bus speed (half duplex), same table
+reader_mbs_model         90.0       assumed  MB/s | model.py's original figure; 87% of the UHS-I ceiling
+ssd_g                    3 sizes    assumed  g | carried over from model.py; Samsung's and SanDisk's pages are scripted and returned no spec text
+reader_g                 25.0       assumed  g | carried over from model.py
+
+== B. headline rig (4 cameras, 4 h/day, 7 days, 2 SSD copies, 1 h evening limit): assumed vs sourced figures
+figures                          day_GB  cards_only_g  plan_g readers offload_h  1-reader-1-copy_h
+assumed (model.py)                  864          7.50   452.0       6      0.89               2.67
+sourced, reader at 90 MB/s          900          4.00   451.0       6      0.93               2.78
+sourced, UHS-I ceiling 104          900          4.00   426.0       5      0.96               2.40
+sourced, UHS-II ceiling 312         900          4.00   351.0       2      0.80               0.80
+sourced, UHS-I, mirrorless full SD    900         32.00   433.0       5      0.96               2.40
+
+== C. does 'offload time, not card weight, binds' survive the reader speed? (sourced figures, 1 h limit)
+reader_MB/s  min_readers_for_1h_x2copies  plan_g  battery_g/h  card_g/h(action cam)
+         45                none within 8       -         31.8                 0.029
+         90                            6     451         31.8                 0.029
+        104                            5     426         31.8                 0.029
+        156                            4     401         31.8                 0.029
+        312                            2     351         31.8                 0.029
+
+== D. checksum throughput on this container (4 cores, one thread per hash)
+cpu: Intel(R) Xeon(R) Processor @ 2.30GHz; python hashlib (OpenSSL), 256 MiB buffer in 1 MiB chunks, best of 3
+algorithm   MB/s   readers_one_core_can_feed_at_104MB/s   at_312MB/s
+md5           626                                    6.0          2.0
+sha1         1632                                   15.7          5.2
+sha256       1464                                   14.1          4.7
+sha512        650                                    6.3          2.1
+blake2b       633                                    6.1          2.0
+crc32        4498                                   43.3         14.4
+
+== E. checksum cost added to the evening for the sourced 4-camera rig (UHS-I ceiling, 1 reader, 1 copy)
+one day = 900 GB; copy alone 2.40 h
+scheme                                   extra_h  total_h
+hash while copying (sha256, 1 core)         0.00     2.40
+re-read SSD copy afterwards at 400 MB/s*    0.62     3.03
+re-read the cards too (104 MB/s)            2.40     4.81
+* 400 MB/s is an assumed SSD read rate (no spec text was reachable); the result is hash-bound or SSD-bound, whichever is lower.

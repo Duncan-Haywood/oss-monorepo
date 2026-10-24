@@ -75,6 +75,14 @@ at 7,000 rpm.
 a slowly turning agitator over a single-ball outlet. A servo-driven gate
 releases one ball at a time down a 70 mm ID tube into the wheels.
 
+*As drawn in `cad/` (2026-10-21):* the tub sits on a shelf 12 degrees off
+level so balls roll to an outlet, and a smooth-bore hose (72 mm ID) runs to a
+column on the head. The gate is a printed shuttle between the head plates, not
+a servo gate at the hopper: it holds one ball in a pocket, slides it to the
+wheels with a linear actuator, and its solid back shuts the column meanwhile.
+A pusher is needed because the head tilts up to 45 degrees, where gravity alone
+would not deliver a ball uphill to the wheels. The agitator is not drawn.
+
 **Catch net.** A frame of fibreglass or aluminium poles (tent-pole style
 sections for transport) holds knotless polyester netting, 25-35 mm mesh,
 hung with 10-15 cm of slack so it absorbs the ball rather than bouncing it

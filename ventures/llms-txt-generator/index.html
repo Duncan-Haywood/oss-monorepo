@@ -51,6 +51,7 @@
     <p>Paste a short list of your pages, a <code>sitemap.xml</code>, or point the CLI at a local Markdown docs tree — this assembles a correctly structured <a href="https://llmstxt.org/" rel="noopener">llms.txt</a> file (the emerging convention that gives AI assistants a curated map of your site) and checks the result against the spec's own shape before you publish it.</p>
     <p class="note">Nothing is uploaded. Everything below runs in this browser and is never sent anywhere.</p>
   </header>
+<main>
 
   <section class="card">
     <div class="tabs">
@@ -155,7 +156,8 @@ node cli.mjs --check ./llms.txt</code></pre>
     <p>Thinking about just typing the file yourself? <a href="./vs-writing-llms-txt-by-hand.html">This generator vs. writing llms.txt by hand</a> covers what actually goes wrong when you do.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It produces a file matching the structural shape of the llmstxt.org convention — it does not guarantee any AI assistant reads or honors it, and it cannot judge whether the pages you chose to include are the right ones. <strong>You are responsible for reviewing and verifying its output before publishing it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>build_list</code>, <code>build_sitemap</code>, <code>check_run</code>, <code>example_loaded</code>, <code>fetch_attempted</code>, <code>download_clicked</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

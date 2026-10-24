@@ -135,3 +135,16 @@ test("limits are enforced", () => {
   const sites = Array.from({ length: 201 }, (_, i) => `S${i},1,1,1,1,1`).join("\n");
   assert.match(parseSites(sites).errors.join(), /Too many sites/);
 });
+
+test("money shows n/a for Infinity, not a formatted number", () => {
+  assert.equal(money(Infinity), "n/a");
+  assert.equal(money(-Infinity), "n/a");
+  assert.equal(money(NaN), "n/a");
+});
+
+test("storm-time options accept 20 hours and reject anything above, for every band", () => {
+  for (const k of ["lightTime", "mediumTime", "heavyTime"]) {
+    assert.doesNotThrow(() => normalizeOptions({ [k]: 20 }));
+    assert.throws(() => normalizeOptions({ [k]: 20.5 }), new RegExp(`${k} must be between 0 and 20`));
+  }
+});

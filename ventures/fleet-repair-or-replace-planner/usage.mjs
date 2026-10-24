@@ -31,6 +31,16 @@
 const KEY = "fleet-repair-or-replace-planner-usage";
 const OPT_OUT_KEY = "fleet-repair-or-replace-planner-optout";
 
+// Reading the `localStorage` global itself throws SecurityError when the
+// visitor blocks site data, so even `typeof localStorage` needs a guard.
+function noStorage() {
+  try {
+    return typeof localStorage === "undefined";
+  } catch {
+    return true;
+  }
+}
+
 /**
  * Browser-level signals first. Do Not Track and Global Privacy Control are the
  * visitor saying so before they have touched this page at all, and neither
@@ -62,7 +72,7 @@ function usageBlocked() {
 }
 
 export function record(event) {
-  if (typeof localStorage === "undefined" || usageBlocked()) return;
+  if (noStorage() || usageBlocked()) return;
   let current;
   try {
     current = JSON.parse(localStorage.getItem(KEY) || "{}");
@@ -79,7 +89,7 @@ export function record(event) {
 }
 
 export function readUsage() {
-  if (typeof localStorage === "undefined") return {};
+  if (noStorage()) return {};
   try {
     const parsed = JSON.parse(localStorage.getItem(KEY) || "{}");
     return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
@@ -111,7 +121,7 @@ export function readUsage() {
 export function setUsageOptOut(value) {
   const off = Boolean(value);
   globalThis.__usageOptOut = off;
-  if (typeof localStorage === "undefined") return;
+  if (noStorage()) return;
 
   if (off) {
     try {

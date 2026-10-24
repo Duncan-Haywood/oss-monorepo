@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-aero-coupled"
+version = "0.1.0"
+description = "Does a neural residual beat per-axis PID on a three-axis quadrotor attitude task with gyroscopic coupling and a weak yaw axis?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "cma", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

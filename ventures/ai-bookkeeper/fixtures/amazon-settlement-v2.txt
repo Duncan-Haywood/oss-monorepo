@@ -1,0 +1,17 @@
+settlement-id	settlement-start-date	settlement-end-date	deposit-date	total-amount	currency	transaction-type	order-id	merchant-order-id	adjustment-id	shipment-id	marketplace-name	amount-type	amount-description	amount	fulfillment-id	posted-date	posted-date-time	order-item-code	merchant-order-item-id	merchant-adjustment-item-id	sku	quantity-purchased	promotion-id
+9100001	2026-02-18 08:00:00 UTC	2026-03-04 08:00:00 UTC	2026-03-05 06:11:02 UTC	350.16	USD																		
+9100001						Order	111-0000001-0000001				Amazon.com	ItemPrice	Principal	100.00	AFN	2026-02-20					WIDGET-1	1	
+9100001						Order	111-0000001-0000001				Amazon.com	ItemPrice	Tax	8.00	AFN	2026-02-20					WIDGET-1	1	
+9100001						Order	111-0000001-0000001				Amazon.com	ItemWithheldTax	MarketplaceFacilitatorTax-Principal	-8.00	AFN	2026-02-20					WIDGET-1	1	
+9100001						Order	111-0000001-0000001				Amazon.com	ItemPrice	Shipping	5.00	AFN	2026-02-20					WIDGET-1	1	
+9100001						Order	111-0000001-0000001				Amazon.com	ItemFees	Commission	-15.75	AFN	2026-02-20					WIDGET-1	1	
+9100001						Order	111-0000001-0000001				Amazon.com	ItemFees	FBAPerUnitFulfillmentFee	-3.50	AFN	2026-02-20					WIDGET-1	1	
+9100001						Order	111-0000001-0000001				Amazon.com	Promotion	Principal	-5.00	AFN	2026-02-20					WIDGET-1	1	
+9100001						Order	111-0000002-0000002				Amazon.com	ItemPrice	Principal	400.00	AFN	2026-02-27					WIDGET-2	1	
+9100001						Order	111-0000002-0000002				Amazon.com	ItemFees	Commission	-60.00	AFN	2026-02-27					WIDGET-2	1	
+9100001						Refund	111-0000001-0000001				Amazon.com	ItemPrice	Principal	-20.00	AFN	2026-03-01					WIDGET-1	1	
+9100001						Refund	111-0000001-0000001				Amazon.com	ItemFees	Commission	3.00	AFN	2026-03-01					WIDGET-1	1	
+9100001						Refund	111-0000001-0000001				Amazon.com	ItemFees	RefundCommission	-0.60	AFN	2026-03-01					WIDGET-1	1	
+9100001						other-transaction					Amazon.com	other-transaction	Subscription Fee	-39.99	AFN	2026-03-02						1	
+9100001						other-transaction					Amazon.com	other-transaction	Cost of Advertising	-25.00	AFN	2026-03-02						1	
+9100001						other-transaction					Amazon.com	other-transaction	FBA Inventory Reimbursement - Lost:Inbound	12.00	AFN	2026-03-02						1	

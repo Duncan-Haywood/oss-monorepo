@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01SAwH7qX9xLZGK7Z6uDxW7q",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T22:36:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": 9610,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "Publishing section points at duncan-haywood/monorepo-projects URL, not oss-monorepo; Audio status lists episode 8 rendering date oddly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports write-up or post: the episode itself was the deliverable and a post would have been filler."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Creative track, project saints-by-candlelight, piece elijah-and-the-still-small-voice (episode 12, 7,507 words, 44.8 min audio). Audio size before: 255 MB total. node --test 12/12 pass. No agent doc/post written this run (creative piece is the deliverable). CI not waited on; ran generate, check-script and venture tests locally.",
+  "corrections": [],
+  "redteam": null
+}

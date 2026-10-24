@@ -1,0 +1,3 @@
+Transaction ID,Date,Time,Type,Name,Emoji,Category,Amount,Currency,Local amount,Local currency,Notes and #tags,Address,Receipt,Description,Category split,Money Out,Money In
+tx_0001,02/03/2026,09:15:00,Card payment,Notion,,Software,-8.00,GBP,-8.00,GBP,,,,NOTION LABS,,-8.00,
+tx_0002,13/03/2026,11:02:10,Faster payment,Client Ltd,,Income,1500.00,GBP,1500.00,GBP,INV-7,,,INV-7,,,1500.00

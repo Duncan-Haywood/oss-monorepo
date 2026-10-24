@@ -62,6 +62,7 @@
     <p>Pick <strong>Pitman 2-2-3, 4-on-4-off, 3-on-3-off, DuPont or 24/48</strong>, enter your crew and cycle start, and get the dates, the real <strong>hours per week and weekends off</strong>, and an <strong>.ics file</strong> for Google, Apple or Outlook. Not sure which crew you are? List a few dates you remember and the tool finds it.</p>
     <p class="note">Nothing is uploaded. The page makes no network calls.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Your schedule</h2>
@@ -132,7 +133,8 @@ node cli.mjs --compare</code></pre>
     <p>More: <a href="rotating-shift-schedules-compared.html">Pitman vs DuPont vs 4-on-4-off vs 24/48: which rotating shift pattern is best?</a></p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Schedules are generated from standard published patterns; your employer's roster is authoritative. This is not legal, labour or payroll advice, and overtime rules vary by jurisdiction and agreement. <strong>You are responsible for confirming your schedule with your employer before relying on it.</strong></p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The dates you enter are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>schedule_shown</code>, <code>ics_downloaded</code>, <code>crew_fitted</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

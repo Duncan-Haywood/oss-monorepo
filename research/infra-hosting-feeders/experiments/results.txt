@@ -1,0 +1,126 @@
+=== IEEE 34-node (published, source 1.05 pu) [34]: 68 customer loads, peak 1769 kW; 200 random placements (1-8 loads, Dirichlet weights, seed 1); limits 1.05 pu and transformer kVA ===
+
+A. Hosting capacity, live regulators (kW; median [p10, p90]; % of the load at that level)
+load_level baseline | fixed pf 0.95 | volt-var | regulator -2 V | volt-var + reg -2 V
+0.3 0 [0,0] (0%) | 0 [0,0] | 0 [0,0] | 0 [0,0] | 0 [0,0]
+0.6 0 [0,0] (0%) | 0 [0,0] | 0 [0,0] | 0 [0,0] | 0 [0,0]
+
+B. Hosting capacity, regulator taps frozen at their no-PV values
+load_level baseline | fixed pf 0.95 [taps frozen] | volt-var [taps frozen] | regulator -2 V [taps frozen] | volt-var + reg -2 V [taps frozen]
+0.3 0 [0,0] (0%) | 0 [0,0] | 0 [0,0] | 0 [0,0] | 0 [0,0]
+0.6 0 [0,0] (0%) | 0 [0,0] | 0 [0,0] | 0 [0,0] | 0 [0,0]
+
+H. Hosting capacity with regulator line-drop compensation off (R = X = 0)
+load_level baseline | fixed pf 0.95 [no LDC] | volt-var [no LDC] | regulator -2 V [no LDC]
+0.3 0 [0,0] (0%) | 0 [0,0] | 0 [0,0] | 0 [0,0]
+0.6 0 [0,0] (0%) | 0 [0,0] | 0 [0,0] | 0 [0,0]
+
+C. Paired change vs the baseline of the same regulator regime at load 0.3: median kW change, share better / worse / equal
+fixed pf 0.95: median +0 kW, better 0%, worse 0%, equal 100%
+volt-var: median +0 kW, better 0%, worse 0%, equal 100%
+regulator -2 V: median +0 kW, better 0%, worse 0%, equal 100%
+volt-var + reg -2 V: median +0 kW, better 0%, worse 0%, equal 100%
+fixed pf 0.95 [taps frozen]: median +0 kW, better 0%, worse 0%, equal 100%
+volt-var [taps frozen]: median +0 kW, better 0%, worse 0%, equal 100%
+regulator -2 V [taps frozen]: median +0 kW, better 0%, worse 0%, equal 100%
+volt-var + reg -2 V [taps frozen]: median +0 kW, better 0%, worse 0%, equal 100%
+fixed pf 0.95 [no LDC]: median +0 kW, better 0%, worse 0%, equal 100%
+volt-var [no LDC]: median +0 kW, better 0%, worse 0%, equal 100%
+regulator -2 V [no LDC]: median +0 kW, better 0%, worse 0%, equal 100%
+
+D. Which limit binds first, load 0.3
+baseline: base 200
+volt-var + reg -2 V: base 200
+worst line current at the baseline capacity, load 0.3: median 21 A, p90 21 A, max 21 A
+
+I. Regulator set-point sweep at load 0.3 (no PV lowest service pu at load 1.0 / median capacity kW at 0.3 over the same placements)
+-0 V: lowest 0.923 pu at peak | median capacity 0 kW (first 100 placements)
+-1 V: lowest 0.917 pu at peak | median capacity 0 kW (first 100 placements)
+-2 V: lowest 0.905 pu at peak | median capacity 0 kW (first 100 placements)
+-3 V: lowest 0.898 pu at peak | median capacity 0 kW (first 100 placements)
+-4 V: lowest 0.887 pu at peak | median capacity 0 kW (first 100 placements)
+
+=== IEEE 34-node, source set to 1.00 pu [34@1.00]: 68 customer loads, peak 1769 kW; 200 random placements (1-8 loads, Dirichlet weights, seed 1); limits 1.05 pu and transformer kVA ===
+
+A. Hosting capacity, live regulators (kW; median [p10, p90]; % of the load at that level)
+load_level baseline | fixed pf 0.95 | volt-var | regulator -2 V | volt-var + reg -2 V
+0.3 590 [340,1082] (111%) | 780 [498,1340] | 580 [340,1084] | 760 [420,1322] | 740 [420,1282]
+0.6 920 [480,1504] (87%) | 1160 [720,2140] | 940 [520,1592] | 1100 [600,1764] | 1100 [620,1760]
+
+B. Hosting capacity, regulator taps frozen at their no-PV values
+load_level baseline | fixed pf 0.95 [taps frozen] | volt-var [taps frozen] | regulator -2 V [taps frozen] | volt-var + reg -2 V [taps frozen]
+0.3 60 [20,120] (11%) | 60 [40,160] | 60 [20,120] | 220 [140,440] | 220 [140,464]
+0.6 40 [20,100] (4%) | 60 [20,102] | 40 [20,100] | 140 [80,282] | 140 [100,300]
+
+H. Hosting capacity with regulator line-drop compensation off (R = X = 0)
+load_level baseline | fixed pf 0.95 [no LDC] | volt-var [no LDC] | regulator -2 V [no LDC]
+0.3 560 [300,964] (106%) | 740 [440,1340] | 560 [320,980] | 740 [420,1280]
+0.6 890 [480,1500] (84%) | 1120 [680,1960] | 900 [500,1540] | 1080 [598,1742]
+
+C. Paired change vs the baseline of the same regulator regime at load 0.3: median kW change, share better / worse / equal
+fixed pf 0.95: median +180 kW, better 97%, worse 2%, equal 1%
+volt-var: median +20 kW, better 61%, worse 29%, equal 10%
+regulator -2 V: median +140 kW, better 79%, worse 0%, equal 21%
+volt-var + reg -2 V: median +140 kW, better 82%, worse 8%, equal 9%
+fixed pf 0.95 [taps frozen]: median +0 kW, better 46%, worse 7%, equal 48%
+volt-var [taps frozen]: median +0 kW, better 18%, worse 6%, equal 76%
+regulator -2 V [taps frozen]: median +160 kW, better 100%, worse 0%, equal 0%
+volt-var + reg -2 V [taps frozen]: median +180 kW, better 100%, worse 0%, equal 0%
+fixed pf 0.95 [no LDC]: median +180 kW, better 98%, worse 0%, equal 2%
+volt-var [no LDC]: median +20 kW, better 72%, worse 18%, equal 10%
+regulator -2 V [no LDC]: median +200 kW, better 86%, worse 0%, equal 14%
+
+D. Which limit binds first, load 0.3
+baseline: voltage 200
+volt-var + reg -2 V: base 1, voltage 199
+worst line current at the baseline capacity, load 0.3: median 22 A, p90 32 A, max 559 A
+
+I. Regulator set-point sweep at load 0.3 (no PV lowest service pu at load 1.0 / median capacity kW at 0.3 over the same placements)
+-0 V: lowest 0.893 pu at peak | median capacity 580 kW (first 100 placements)
+-1 V: lowest 0.893 pu at peak | median capacity 730 kW (first 100 placements)
+-2 V: lowest 0.893 pu at peak | median capacity 780 kW (first 100 placements)
+-3 V: lowest 0.893 pu at peak | median capacity 790 kW (first 100 placements)
+-4 V: lowest 0.893 pu at peak | median capacity 800 kW (first 100 placements)
+
+=== IEEE 123-node [123]: 91 customer loads, peak 3490 kW; 200 random placements (1-8 loads, Dirichlet weights, seed 1); limits 1.05 pu and transformer kVA ===
+
+A. Hosting capacity, live regulators (kW; median [p10, p90]; % of the load at that level)
+load_level baseline | fixed pf 0.95 | volt-var | regulator -2 V | volt-var + reg -2 V
+0.3 1160 [380,2440] (111%) | 1400 [580,2626] | 1260 [440,2540] | 2120 [998,4392] | 2280 [1096,4376]
+0.6 1120 [470,2580] (53%) | 1320 [520,2588] | 1130 [434,2600] | 2110 [1090,4350] | 2380 [1156,4480]
+
+B. Hosting capacity, regulator taps frozen at their no-PV values
+load_level baseline | fixed pf 0.95 [taps frozen] | volt-var [taps frozen] | regulator -2 V [taps frozen] | volt-var + reg -2 V [taps frozen]
+0.3 480 [280,942] (46%) | 690 [340,1542] | 520 [318,1102] | 1140 [600,1942] | 1220 [700,2306]
+0.6 420 [220,780] (20%) | 620 [278,1302] | 460 [240,902] | 1040 [560,1942] | 1150 [660,2140]
+
+H. Hosting capacity with regulator line-drop compensation off (R = X = 0)
+load_level baseline | fixed pf 0.95 [no LDC] | volt-var [no LDC] | regulator -2 V [no LDC]
+0.3 760 [320,1586] (73%) | 960 [440,2044] | 740 [320,1720] | 1860 [890,3180]
+0.6 990 [380,2530] (47%) | 1540 [580,3186] | 1130 [400,2910] | 2150 [938,3922]
+
+C. Paired change vs the baseline of the same regulator regime at load 0.3: median kW change, share better / worse / equal
+fixed pf 0.95: median +180 kW, better 64%, worse 34%, equal 2%
+volt-var: median +100 kW, better 64%, worse 28%, equal 8%
+regulator -2 V: median +790 kW, better 100%, worse 0%, equal 0%
+volt-var + reg -2 V: median +990 kW, better 98%, worse 2%, equal 0%
+fixed pf 0.95 [taps frozen]: median +200 kW, better 82%, worse 14%, equal 4%
+volt-var [taps frozen]: median +40 kW, better 74%, worse 8%, equal 18%
+regulator -2 V [taps frozen]: median +580 kW, better 100%, worse 0%, equal 0%
+volt-var + reg -2 V [taps frozen]: median +740 kW, better 100%, worse 0%, equal 0%
+fixed pf 0.95 [no LDC]: median +240 kW, better 73%, worse 24%, equal 2%
+volt-var [no LDC]: median +0 kW, better 48%, worse 41%, equal 12%
+regulator -2 V [no LDC]: median +950 kW, better 100%, worse 0%, equal 0%
+
+D. Which limit binds first, load 0.3
+baseline: voltage 198, xfmr 2
+volt-var + reg -2 V: base 2, voltage 185, xfmr 13
+worst line current at the baseline capacity, load 0.3: median 241 A, p90 691 A, max 2057 A
+
+I. Regulator set-point sweep at load 0.3 (no PV lowest service pu at load 1.0 / median capacity kW at 0.3 over the same placements)
+-0 V: lowest 0.979 pu at peak | median capacity 1130 kW (first 100 placements)
+-1 V: lowest 0.966 pu at peak | median capacity 1580 kW (first 100 placements)
+-2 V: lowest 0.960 pu at peak | median capacity 2110 kW (first 100 placements)
+-3 V: lowest 0.953 pu at peak | median capacity 2470 kW (first 100 placements)
+-4 V: lowest 0.940 pu at peak | median capacity 2760 kW (first 100 placements)
+

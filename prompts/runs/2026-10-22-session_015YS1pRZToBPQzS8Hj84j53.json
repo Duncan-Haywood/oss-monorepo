@@ -1,0 +1,238 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_015YS1pRZToBPQzS8Hj84j53",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-22T03:08:12Z",
+  "ended": "2026-10-22T03:08:25Z",
+  "wall_minutes": 49.67,
+  "tokens_in": 2096465,
+  "tokens_out": 6480,
+  "cost_usd": 0.6601,
+  "tool_calls": 26,
+  "task": null,
+  "projects": [],
+  "pr": 9366,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": ["research/osrobot-weedpass/README.md"],
+  "goal": null,
+  "notes": " Campaign on changepoint-detector/engine.mjs: 8 seeded, 6 caught, 2 gaps patched with tests; catch rate 0.75 -> 1.0. Suite ~270s per mutant. No real defects found.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/changepoint-detector/engine.mjs",
+        "test": "node --test ventures/changepoint-detector/**/*.test.mjs  (in .)",
+        "seed": 88564493,
+        "commit": "2a3f635e",
+        "sites": 2276,
+        "baseline_seconds": 266.3,
+        "mutants": [
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 115,
+            "col": 10,
+            "operator": "ge-to-gt",
+            "before": "if (!(m >= 2)) throw new Error('The seasonal period must be a whole number of at least 2.');",
+            "after": "if (!(m > 2)) throw new Error('The seasonal period must be a whole number of at least 2.');",
+            "line_text": "  if (!(m >= 2)) throw new Error('The seasonal period must be a whole number of at least 2.');",
+            "caught": false,
+            "seconds": 265.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Added engine.test.mjs tests: seasonalAdjust period 2 boundary; ar1mean constant-segment cost."
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 347,
+            "col": 22,
+            "operator": "plus-to-minus",
+            "before": "for (let t = a; t + kk < z; t++) sl.push((y[t + kk] - y[t]) / (u[t + kk] - u[t]));",
+            "after": "for (let t = a; t - kk < z; t++) sl.push((y[t + kk] - y[t]) / (u[t + kk] - u[t]));",
+            "line_text": "    for (let t = a; t + kk < z; t++) sl.push((y[t + kk] - y[t]) / (u[t + kk] - u[t]));",
+            "caught": true,
+            "seconds": 239.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 491,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "const row = (t) => [1, t, ...ks.map((k) => Math.max(0, t - k))];",
+            "after": "const row = (t) => [1, t, ...ks.map((k) => Math.max(1, t - k))];",
+            "line_text": "  const row = (t) => [1, t, ...ks.map((k) => Math.max(0, t - k))];",
+            "caught": true,
+            "seconds": 263.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 539,
+            "col": 77,
+            "operator": "minus-to-plus",
+            "before": "for (let t = a; t < e; t++) { sxy += (t - mt) * (x[t] - mx); sxx += (t - mt) ** 2; }",
+            "after": "for (let t = a; t < e; t++) { sxy += (t - mt) * (x[t] - mx); sxx += (t + mt) ** 2; }",
+            "line_text": "      for (let t = a; t < e; t++) { sxy += (t - mt) * (x[t] - mx); sxx += (t - mt) ** 2; }",
+            "caught": true,
+            "seconds": 123.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 602,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "if (knot === around) continue;",
+            "after": "if (knot !== around) continue;",
+            "line_text": "            if (knot === around) continue;",
+            "caught": true,
+            "seconds": 243.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 836,
+            "col": 76,
+            "operator": "plus-to-minus",
+            "before": "for (let i = 0; i < n; i++) { S1[i + 1] = S1[i] + x[i]; S2[i + 1] = S2[i] + x[i] * x[i]; }",
+            "after": "for (let i = 0; i < n; i++) { S1[i + 1] = S1[i] + x[i]; S2[i + 1] = S2[i] - x[i] * x[i]; }",
+            "line_text": "  for (let i = 0; i < n; i++) { S1[i + 1] = S1[i] + x[i]; S2[i + 1] = S2[i] + x[i] * x[i]; }",
+            "caught": true,
+            "seconds": 236.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 863,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "return Math.max(0, C - (B * B) / A) / s2 - Math.log(w0);",
+            "after": "return Math.max(1, C - (B * B) / A) / s2 - Math.log(w0);",
+            "line_text": "      return Math.max(0, C - (B * B) / A) / s2 - Math.log(w0);",
+            "caught": false,
+            "seconds": 274.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Added engine.test.mjs tests: seasonalAdjust period 2 boundary; ar1mean constant-segment cost."
+          },
+          {
+            "file": "ventures/changepoint-detector/engine.mjs",
+            "line": 1298,
+            "col": 83,
+            "operator": "div-to-times",
+            "before": "return lgamma(k + alpha) - lgamma(alpha) - lgamma(k + 1) + alpha * Math.log(beta / (beta + e)) + k * Math.log(e / (beta + e));",
+            "after": "return lgamma(k + alpha) - lgamma(alpha) - lgamma(k + 1) + alpha * Math.log(beta * (beta + e)) + k * Math.log(e / (beta + e));",
+            "line_text": "  return lgamma(k + alpha) - lgamma(alpha) - lgamma(k + 1) + alpha * Math.log(beta / (beta + e)) + k * Math.log(e / (beta + e));",
+            "caught": true,
+            "seconds": 262.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7f20a035-9bf1-53b6-a383-3e16003482c9",
+    "transcripts": 1,
+    "first": "2026-10-22T03:08:12Z",
+    "last": "2026-10-22T03:57:52Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 32,
+        "input": 76,
+        "output": 6480,
+        "thinking": 430,
+        "cache_read": 2050096,
+        "cache_write_5m": 0,
+        "cache_write_1h": 46293,
+        "api_equivalent_usd": 0.6601,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 76,
+      "output": 6480,
+      "thinking": 430,
+      "cache_read": 2050096,
+      "cache_write_5m": 0,
+      "cache_write_1h": 46293,
+      "api_equivalent_usd": 0.6601,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 26,
+    "tools": {
+      "Bash": 19,
+      "Monitor": 3,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 49.67,
+      "active_minutes": 21.5,
+      "model_minutes": 1.23,
+      "tool_minutes": 20.27,
+      "waiting_on_human_minutes": 28.18,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,64 @@
+name: open-house-plans
+description: >-
+  Free, open-source house plan generator: from a sentence or a JSON brief it
+  lays out a single-storey home (studio to five bedrooms, six styles, garage,
+  porch, accessible option), sizes headers, studs and floor framing with NDS
+  checks, runs IRC-paraphrased room, light and egress checks, takes off the
+  materials, estimates cost from NAHB's 2024 survey, and exports a plan set:
+  floor plan, elevations and a 3D view (SVG), CAD (DXF), BIM (IFC4), 3D (OBJ),
+  schedules (CSV) and the design as JSON, all public domain (CC0). Runs in
+  the browser, as a CLI and as an agent-callable engine.
+stage: prototype
+owner: duncan
+
+# Built 2026-10-21 on the owner's request that session: "a tool that can
+# generate home designs from agent instructions and also generate actual
+# residential home designs that are possible to construct. beautiful ones
+# cost effective ones etc. paramaterized ones. they should be artifacts people
+# can download and use freely."
+#
+# duplicate_check.py "parametric house plan generator floor plans elevations
+# downloadable home designs": top match 0.15 (publish-kit), no venture covers
+# house plans. It is the product end of research track 12 (open residential
+# construction): it reuses research/house-spans and research/house-framing's
+# member checks (ported to JS and pinned against them in structure.test.mjs)
+# and goes past research/house-open-design's single fixed ADU plan.
+#
+# First visitor: searches "free house plans", "house plan generator", "free
+# floor plan generator", "free ADU plans", "3 bedroom farmhouse plans free";
+# owner-builders and small builders on r/HomeImprovement, r/OwnerBuilder and
+# r/ADU; people who would otherwise buy a stock plan (price not researched).
+# Volume not measured with an external tool.
+#
+# Liability boundary: design-development drawings marked not for
+# construction; every README, sheet and page says a licensed review, the
+# local code and a permit come first; IRC checks are paraphrased by section
+# and never claimed as compliance; costs are an anchored model, not quotes.
+
+hypotheses:
+  - claim: >-
+      Owner-builders, ADU planners and small builders will use a free
+      generator that hands over editable CAD and BIM files under CC0, and
+      take the files to their own designer or engineer instead of buying a
+      stock plan.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a report of a design they used) engage within 90 days of the page being reachable from the published site.
+  - A licensed architect or engineer reports that a generated plan has a defect the checks claim to catch (egress, room size, a header that fails), and the cause is a bug here.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/open-house-plans/
+  analytics: null

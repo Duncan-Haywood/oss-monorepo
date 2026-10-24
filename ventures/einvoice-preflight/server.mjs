@@ -8,6 +8,7 @@
 //     or ?profile=france for the French SIREN and payment-mention rules (FR-nnn)
 //     add ?schematron=1 to also run the official EN 16931 Schematron (BR-xx) when
 //     build-schematron.mjs has been run; the report says "unavailable" otherwise.
+//   POST /v1/repair          JSON invoice, UBL or CII XML, Factur-X PDF -> arithmetic fixed, change log, findings left
 //   POST /v1/validate/batch  {"documents":[{"name","content","encoding"?}]}
 //                            encoding "base64" is for PDFs; default is text.
 //   POST /v1/generate        {"draft":{...},"format":"ubl"|"cii","profile":"xrechnung"|
@@ -19,6 +20,11 @@
 // Everything runs in the deployer's own process. Nothing is stored and
 // nothing is forwarded; request bodies live in memory for the length of the
 // request. Configuration is by environment variable only (see README).
+import { repairInvoice } from "./repair.mjs";
+import { repairUbl } from "./repair-ubl.mjs";
+import { repairCii } from "./repair-cii.mjs";
+import { repairFacturX } from "./repair-facturx.mjs";
+import { looksLikeCii } from "./cii.mjs";
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -209,6 +215,40 @@ export function createApp(config = loadConfig()) {
       });
       const result = await preflightDocuments(inputs, { maxBytes: config.maxBytes, maxFiles: config.maxBatch, profile: profileFrom(url), schematron: url.searchParams.get("schematron") === "1" });
       send(res, 200, { ...buildJsonReport(result), disclaimer: DISCLAIMER });
+      return;
+    }
+
+    if (path === "/v1/repair") {
+      const body = await readBody(req, config.maxBytes);
+      if (body.subarray(0, 8).toString("latin1").includes("%PDF-")) {
+        let x;
+        try {
+          x = await repairFacturX(new Uint8Array(body));
+        } catch (e) {
+          throw new HttpError(400, `Body must be a Factur-X / ZUGFeRD (CII) PDF: ${e.message}`);
+        }
+        send(res, 200, { repaired: x.repaired, pdf_rewritten: x.pdfRewritten, changes: x.changes, skipped: x.skipped, remaining: x.remaining, xml: x.xml, pdf_base64: Buffer.from(x.pdf).toString("base64"), disclaimer: DISCLAIMER });
+        return;
+      }
+      const bodyText = body.toString("utf8");
+      if (bodyText.trimStart().startsWith("<")) {
+        let x;
+        try {
+          x = looksLikeCii(bodyText) ? repairCii(bodyText) : repairUbl(bodyText);
+        } catch (e) {
+          throw new HttpError(400, `Body must be a UBL or CII invoice or credit note: ${e.message}`);
+        }
+        send(res, 200, { repaired: x.repaired, changes: x.changes, skipped: x.skipped, remaining: x.remaining, xml: x.xml, disclaimer: DISCLAIMER });
+        return;
+      }
+      let invoice;
+      try {
+        invoice = JSON.parse(bodyText);
+      } catch {
+        throw new HttpError(400, "Body must be a JSON invoice or a UBL XML file.");
+      }
+      const r = repairInvoice(invoice);
+      send(res, 200, { repaired: r.repaired, changes: r.changes, remaining: r.remaining, invoice: r.invoice, disclaimer: DISCLAIMER });
       return;
     }
 

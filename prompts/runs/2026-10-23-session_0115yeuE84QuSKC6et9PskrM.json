@@ -1,0 +1,48 @@
+{
+ "date": "2026-10-23",
+ "session": "https://claude.ai/code/session_0115yeuE84QuSKC6et9PskrM",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-23T09:20:53Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9750",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/PROJECTS.md",
+   "issue": "Track 9 next steps for osrobot-assist (anticipation, 2 vs 6 DOF BOM, MuJoCo) are already done by osrobot-lean/dofbom/mjface; the README next-steps lists are stale and cost time."
+  },
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "Data hosts (arxiv, zenodo, ncbi) are blocked by the proxy; only WebSearch snippets were available, so sources could not be opened."
+  }
+ ],
+ "deviations": [],
+ "writeups": [],
+ "goal": null,
+ "notes": "New project osrobot-weedsrc: weedpass model with detector fitted to two published rates; 6 tests pass, build.py ok. Sources read from search snippets only (disclosed). No agent doc/post written.",
+ "corrections": [],
+ "redteam": null
+}

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log plot of iterations per step against boxes in the stack; points with more than 2048 needed are omitted">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Projected Gauss-Seidel: iterations per step needed to hold an n-box stack still</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#ddd"/><text x="58" y="313.6" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="221.3" y2="221.3" stroke="#ddd"/><text x="58" y="225.3" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="133.0" y2="133.0" stroke="#ddd"/><text x="58" y="137.0" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="190.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="280.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="407.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="497.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">boxes in stack n</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">iterations per step</text>
+<polyline points="64.0,309.6 190.7,256.5 280.6,203.3 407.4,123.5 497.3,150.1 624.0,123.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#c0392b"/>
+<circle cx="190.7" cy="256.5" r="3" fill="#c0392b"/>
+<circle cx="280.6" cy="203.3" r="3" fill="#c0392b"/>
+<circle cx="407.4" cy="123.5" r="3" fill="#c0392b"/>
+<circle cx="497.3" cy="150.1" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="123.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">bottom-up, warm start</text>
+<polyline points="64.0,309.6 190.7,256.5 280.6,229.9 407.4,150.1 497.3,176.7 624.0,70.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="309.6" r="3" fill="#1f6fb2"/>
+<circle cx="190.7" cy="256.5" r="3" fill="#1f6fb2"/>
+<circle cx="280.6" cy="229.9" r="3" fill="#1f6fb2"/>
+<circle cx="407.4" cy="150.1" r="3" fill="#1f6fb2"/>
+<circle cx="497.3" cy="176.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">top-down, warm start</text>
+<polyline points="64.0,229.9 190.7,176.7 280.6,176.7 407.4,123.5 497.3,96.9 624.0,70.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="229.9" r="3" fill="#2e8b57"/>
+<circle cx="190.7" cy="176.7" r="3" fill="#2e8b57"/>
+<circle cx="280.6" cy="176.7" r="3" fill="#2e8b57"/>
+<circle cx="407.4" cy="123.5" r="3" fill="#2e8b57"/>
+<circle cx="497.3" cy="96.9" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">bottom-up, cold</text>
+<polyline points="64.0,203.3 190.7,176.7 280.6,150.1 407.4,123.5 497.3,96.9 624.0,70.4" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="203.3" r="3" fill="#8e44ad"/>
+<circle cx="190.7" cy="176.7" r="3" fill="#8e44ad"/>
+<circle cx="280.6" cy="150.1" r="3" fill="#8e44ad"/>
+<circle cx="407.4" cy="123.5" r="3" fill="#8e44ad"/>
+<circle cx="497.3" cy="96.9" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="70.4" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">top-down, cold</text>
+</svg>

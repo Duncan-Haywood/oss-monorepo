@@ -54,6 +54,7 @@
     <p>Paste a CSV and get a <strong>CREATE TABLE</strong> with a real type for every column, plus <strong>batched INSERT statements</strong>. Types come from reading every row: integers, decimals sized to fit, booleans, dates, timestamps and UUIDs are recognised, and leading-zero codes such as ZIPs stay text.</p>
     <p class="note">Nothing is uploaded. Your CSV stays in this tab and the page makes no network calls.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Your CSV</h2>
@@ -119,7 +120,8 @@ node cli.mjs data.csv --dialect bigquery --dmy --no-header</code></pre>
     <p>More: <a href="how-to-import-a-csv-into-a-database.html">how to import a CSV into PostgreSQL, MySQL, SQLite and BigQuery (INSERT vs COPY vs LOAD DATA)</a></p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. Column types are inferred from the rows you paste and may not fit rows you have not seen. <strong>You are responsible for reviewing and verifying its output, and for testing it on a copy of your data, before running it against a database you care about.</strong></p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The CSV you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>sql_generated</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

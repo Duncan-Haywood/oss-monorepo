@@ -1,0 +1,9 @@
+{
+  "payouts": [{ "id": "po_sq1", "arrival_date": "2026-03-06", "created_at": "2026-03-05T18:00:00Z" }],
+  "payout_entries": [
+    { "id": "e1", "payout_id": "po_sq1", "effective_at": "2026-03-04T15:00:00Z", "type": "CHARGE", "gross_amount_money": { "amount": 15000, "currency": "USD" }, "fee_amount_money": { "amount": -465, "currency": "USD" }, "net_amount_money": { "amount": 14535, "currency": "USD" } },
+    { "id": "e2", "payout_id": "po_sq1", "effective_at": "2026-03-04T16:00:00Z", "type": "REFUND", "gross_amount_money": { "amount": -5000, "currency": "USD" }, "fee_amount_money": { "amount": 0, "currency": "USD" }, "net_amount_money": { "amount": -5000, "currency": "USD" } },
+    { "id": "e3", "payout_id": "po_sq1", "effective_at": "2026-03-05T01:00:00Z", "type": "SUBSCRIPTION_FEE", "gross_amount_money": { "amount": -2900, "currency": "USD" }, "net_amount_money": { "amount": -2900, "currency": "USD" } },
+    { "id": "e4", "effective_at": "2026-03-07T10:00:00Z", "type": "CHARGE", "gross_amount_money": { "amount": 2000, "currency": "USD" }, "fee_amount_money": { "amount": 88, "currency": "USD" }, "net_amount_money": { "amount": 1912, "currency": "USD" } }
+  ]
+}

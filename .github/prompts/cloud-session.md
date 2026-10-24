@@ -50,19 +50,59 @@ A bare `python3` often lacks `pytest` and can shadow pip packages with apt
 ones. Use `PY=$(python3 platform/ci/pyenv.py pytest)`, then
 `"$PY" -m pytest`. Some `gitops/tests` failures depend on the image. Before
 blaming your change, run the failing test on `origin/main`.
+`pip` may belong to python3.13 while `python3` is 3.11: install with
+`"$PY" -m pip`, and never run two pip installs at once (one corrupted an install).
+If `pyenv.py` fails (PEP 668, or a package whose import name differs from its
+pip name, e.g. OpenDSSDirect.py), skip it: `python3 -m venv /tmp/v && /tmp/v/bin/pip install <pkgs>`,
+in the background (it can exceed 120 s).
 
 ## Long commands
 
 A foreground command times out (2 min by default, 10 min at most), and
-foreground `sleep` is blocked.
-Start these with `run_in_background` and wait with `Monitor`:
+foreground `sleep` is blocked. Never chain a long command with `git commit`/`push` in one call (it gets auto-backgrounded and delays the commit), and the safety check rejects `rm -rf` on relative globs after a `cd`: use absolute paths.
+Start these with `run_in_background` and wait with `Monitor`. Don't also put
+`&` or a subshell inside the command: the harness then sees the wrapper exit
+at once and reports completion while the job still runs (two friction reports,
+2026-10-23). Run the command itself in the background call, with output to a
+file you can `tail`. To wait, give `Monitor` an until-loop on that output
+(`until grep -q DONE out.log; do sleep 5; done`; `sleep` is fine inside it) and end the
+background command with `echo DONE`.
 
 - `node platform/marketing/regen.mjs --verify` and the pages test suites
   (over 10 min in a shallow clone)
+- `node --test` over a whole venture (changepoint-detector alone: 280-400 s;
+    Node 22 rejects `node --test .` with "Could not find '.'": run
+    `cd ventures/<slug> && node --test '*.test.mjs'`)
+    and `node platform/pages/venture-preflight.mjs <slug>` (over 5 min)
 - `python3 platform/ci/run_workflow_locally.py --for-changes` (over 5 min)
 - `python3 portfolio/router/allocate.py` (35-120 s; its shallow-clone fetch
   can time out and leave counts partial)
 - a full unshallow (above)
+
+## Browser and process tools
+
+- Playwright is global at `/opt/node22/lib/node_modules/playwright` and
+  Chromium at `/opt/pw-browsers/chromium`: set `PLAYWRIGHT_PATH` and
+  `CHROMIUM_PATH` for scripts that read them (`ai-bookkeeper/eval/browser-click.mjs`),
+  or they print "skipped: playwright not installed".
+- `pkill -f <name>` kills the Bash tool's own shell, because its command
+  line contains the pattern (the `pgrep` form matches itself the same way).
+  `.claude/hooks/block_pkill_f.py` refuses both, also inside heredocs that
+  merely mention them; use `'[n]ame'` or `kill <pid>`.
+
+## Outbound hosts
+
+Egress goes through a proxy with a per-environment allow-list, so a host that
+works in one session can 403 in the next (run records name irs.gov, ssa.gov,
+the OPSD/ENTSO-E hosts and, on some days, huggingface.co). Before a plan
+depends on a host, probe it once:
+`curl -sS -o /dev/null -m 15 -w '%{http_code}\n' https://<host>/`. A 403 from
+the proxy is not the site's answer. Then say in the PR, the run record or the
+product's notes that a figure could not be checked against that source, rather
+than skipping the step silently or citing from memory (`goals.md`: never
+fabricate). If a research track's next step needs a host that 403s (e.g. OPSD data
+for `energy-price-residual`), take another next step or a different data
+source; don't spend the run on workarounds. Proxy state and per-tool fixes: `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
 
 ## Scheduled tasks
 

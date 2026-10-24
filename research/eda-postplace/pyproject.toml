@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eda-postplace"
+version = "0.1.0"
+description = "Does ABC's pre-layout delay and area ranking of 40 MAC-engine designs survive placement and timing repair on SKY130?"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_0115s4dj3z5qEW8MdZ1NwBqD",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T16:49:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "buildbot-cohold (track 20, milestone 5)",
+  "projects": [
+    "research/buildbot-cohold"
+  ],
+  "pr": 9223,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "mujoco.mj_fullM signature differs between MuJoCo versions (fixed with a try/except)",
+    "plain python3 lacks mujoco; pyenv.py chose /usr/bin/python3.13 only after pip installed into it"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says plain python3 may lack packages and to use pyenv.py; pip install silently targeted python3.13 while `python3` is 3.11, costing two failed runs before I used /usr/bin/python3.13"
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "track 7 (eda) is 29 projects deep in micro-variants; pick_track redrew to it and I had to switch tracks by hand to find a fresh milestone"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No agent doc or post written for this run (goals.md 'Write about the work'); the README carries the write-up. Landed as a single research project."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Run record committed before merge. ISO/TS 15066 values come from arXiv:2311.13814 Table 1 (secondary). Merge left to CI/PR checks; see PR.",
+  "corrections": [],
+  "redteam": null
+}

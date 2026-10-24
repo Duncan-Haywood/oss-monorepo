@@ -158,7 +158,9 @@ export function countDispersion(x, period = 0) {
   return Math.max(1, median(d) / 0.4549);
 }
 
-export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, passes = 8 } = {}) {
+// skip: point indices (known holidays) held out of the seasonal factors, so a holiday that always lands on one phase does not leak into it
+// extra: a per-point exposure (fitted holiday factors) the PELT pass multiplies in, so the steps are not asked to explain holiday dips
+export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, passes = 8, skip = null, extra = null } = {}) {
   const m = Math.floor(period);
   if (!(m >= 2)) throw new Error('The seasonal period must be a whole number of at least 2.');
   const n = x.length;
@@ -174,11 +176,11 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
     level[t] = sum / m;
   }
   const num = new Array(m).fill(0), den = new Array(m).fill(0);
-  for (let t = 0; t < n; t++) if (level[t] !== null) { num[t % m] += x[t]; den[t % m] += level[t]; }
+  for (let t = 0; t < n; t++) if (level[t] !== null && !(skip && skip.has(t))) { num[t % m] += x[t]; den[t % m] += level[t]; }
   let f = normalise(num.map((v, p) => (den[p] > 0 ? v / den[p] : 1)));
   let done = 0;
   for (; done < passes; done++) {
-    const e = Array.from({ length: n }, (_, t) => f[t % m]);
+    const e = Array.from({ length: n }, (_, t) => f[t % m] * (extra ? extra[t] : 1));
     const { changepoints } = pelt(x, { model: 'poisson', penalty, minSegment, exposure: e });
     const bounds = [0, ...changepoints, n];
     const pnum = new Array(m).fill(0), pden = new Array(m).fill(0);
@@ -186,7 +188,7 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
       let a = 0, E = 0;
       for (let t = bounds[i]; t < bounds[i + 1]; t++) { a += x[t]; E += e[t]; }
       const rate = E > 0 ? a / E : 0;
-      for (let t = bounds[i]; t < bounds[i + 1]; t++) { pnum[t % m] += x[t]; pden[t % m] += rate; }
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) if (!(skip && skip.has(t))) { pnum[t % m] += x[t]; pden[t % m] += rate; }
     }
     const g = normalise(pnum.map((v, p) => (pden[p] > 0 ? v / pden[p] : f[p])));
     const move = Math.max(...g.map((v, p) => Math.abs(v - f[p])));
@@ -194,6 +196,57 @@ export function poissonSeasonal(x, period, { penalty = 'bic', minSegment = 2, pa
     if (move < 1e-4) { done++; break; }
   }
   return { factors: f, exposure: Array.from({ length: n }, (_, t) => f[t % m]), passes: done };
+}
+
+/**
+ * Known holidays for counts: one multiplicative factor on the rate at the given
+ * points (indices into the series), fitted jointly with the steps. Alternates PELT under the
+ * current exposure (base x factor at holidays) with the ratio of the holiday
+ * counts to what the segment rates predict there. `base` carries a seasonal or
+ * other exposure; the result composes with it. Returns { factor, exposure, passes }.
+ */
+export function poissonHolidays(x, holidays, { base = null, penalty = 'bic', minSegment = 2, passes = 10, kinds = null } = {}) {
+  const n = x.length;
+  // kinds: a name per entry of `holidays` (same order); each kind gets its own factor. Without it all share one.
+  const group = new Map();  // index -> kind (the first kind given for an index wins)
+  holidays.forEach((i, j) => { if (Number.isInteger(i) && i >= 0 && i < n && !group.has(i)) group.set(i, kinds ? String(kinds[j]) : ''); });
+  const hol = [...group.keys()].sort((a, b) => a - b);
+  if (hol.length < 2) throw new Error('Holidays need at least 2 points inside the series to fit a factor; got ' + hol.length + '.');
+  if (hol.length > n / 2) throw new Error('More than half the points are holidays: give only the unusual days.');
+  const names = [...new Set(hol.map((i) => group.get(i)))];
+  for (const k of names) {
+    const c = hol.filter((i) => group.get(i) === k).length;
+    if (c < 2) throw new Error(`Holiday kind "${k}" has ${c} point inside the series; each kind needs at least 2 to fit a factor.`);
+  }
+  const gi = new Array(n).fill(-1);
+  for (const i of hol) gi[i] = names.indexOf(group.get(i));
+  const b = (t) => (base ? base[t] : 1);
+  const factors = new Array(names.length).fill(1);
+  let done = 0;
+  const expo = () => Array.from({ length: n }, (_, t) => b(t) * (gi[t] >= 0 ? factors[gi[t]] : 1));
+  for (; done < passes; done++) {
+    const e = expo();
+    const { changepoints } = pelt(x, { model: 'poisson', penalty, minSegment, exposure: e });
+    const bounds = [0, ...changepoints, n];
+    const obs = new Array(names.length).fill(0), exp = new Array(names.length).fill(0);
+    for (let i = 0; i + 1 < bounds.length; i++) {
+      let a = 0, E = 0;
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) { a += x[t]; E += e[t]; }
+      const rate = E > 0 ? a / E : 0;
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) if (gi[t] >= 0) { obs[gi[t]] += x[t]; exp[gi[t]] += rate * b(t); }
+    }
+    let move = 0;
+    for (let k = 0; k < names.length; k++) {
+      const next = exp[k] > 0 ? Math.max(0.01, Math.min(100, obs[k] / exp[k])) : factors[k];
+      move = Math.max(move, Math.abs(Math.log(next / factors[k])));
+      factors[k] = next;
+    }
+    if (move < 1e-4) { done++; break; }
+  }
+  const byKind = kinds ? names.map((name, k) => ({ kind: name, count: hol.filter((i) => gi[i] === k).length, factor: factors[k] })) : null;
+  // factor: the single factor, or the count-weighted geometric mean when kinds differ
+  const factor = names.length === 1 ? factors[0] : Math.exp(factors.reduce((a, f, k) => a + Math.log(f) * hol.filter((i) => gi[i] === k).length, 0) / hol.length);
+  return { factor, exposure: expo(), passes: done, count: hol.length, ...(byKind ? { kinds: byKind } : {}) };
 }
 
 /** Solve H z = b for a small symmetric positive-definite H by Gaussian elimination; null when it is (near) singular. */
@@ -223,7 +276,9 @@ function solveSym(H, b) {
  * on g with each segment's rate profiled out, until g moves less than 1e-5.
  * Returns { g, exposure, passes }.
  */
-export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0 } = {}) {
+// Widening of the growth-change range: at 1 it held the planted bend on ~86% of seeded Poisson series; 1.15 gives ~95% (README, 2026-10-22).
+const RANGE_TEMPER = 1.15;
+export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0, diag = null } = {}) {
   const n = x.length;
   const nb = nbSize > 0 && Number.isFinite(nbSize);
   // nb: PELT and the cost that ranks knots use the negative-binomial likelihood (size nbSize); the growth steps stay Poisson score steps (a quasi-likelihood)
@@ -324,6 +379,8 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
       if (!best) break;
       for (let kt = Math.max(lo, best.knot - step + 1); kt < Math.min(hi, best.knot + step); kt++) if (kt !== best.knot) tryKnot(kt);
     }
+    // diag (an array, optional): the cost drop of each round's best knot in units of log n, for measuring a sharper accept rule
+    if (diag) diag.push({ round: knotsFound.length, knot: best.knot, drop: (cur.cost - best.cost) / Math.log(n) });
     if (!(best.cost + 3 * Math.log(n) * scale < cur.cost)) break;
     knotsFound = [...knotsFound, best.knot];
     cur = best;
@@ -333,7 +390,32 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
   const order = knotsFound.map((k, j) => ({ k, h: cur.g[j + 1] })).sort((p, q) => p.k - q.k);
   const rates = [cur.g[0]];
   for (const o of order) rates.push(rates[rates.length - 1] + o.h);
-  return out(cur, { knot: order[0].k, slopeAfter: rates[1], knots: order.map((o) => o.k), rates });
+  // Where exactly does the growth rate change? As for the Gaussian trend: slide each knot over its allowed span with the others held
+  // fixed, refit, weight each position by exp(-(cost - min cost) / 2 / scale) (the cost is -2 log-likelihood; scale is the
+  // overdispersion factor, so a noisier series gets a wider range), keep the most likely positions holding 95% of the weight.
+  // Stride about n / 80.
+  const rangeGap = Math.max(minSegment, 2 * step), rstride = Math.max(1, Math.round(n / 80));
+  // The range is scored with the negative-binomial cost itself (measured 2026-10-23: 90% coverage with ranges 30-45% narrower than widening a Poisson-scored range by 1 + mean / size).
+  const rangeScale = Math.max(1, scale);
+  const phis = knotsFound.map((k) => hinge(k));
+  const ranges = knotsFound.map((k, j) => {
+    const others = knotsFound.filter((_, i) => i !== j);
+    const rlo = Math.max(2, lo, ...others.filter((v) => v < k).map((v) => v + rangeGap));
+    const rhi = Math.min(n - 3, hi, ...others.filter((v) => v > k).map((v) => v - rangeGap));
+    const ks = [], cs = [];
+    for (let q = rlo; q <= rhi; q += rstride) {
+      const f = fit([u, ...phis.map((ph, i) => (i === j ? hinge(q) : ph))], cur.g);
+      ks.push(q); cs.push(f.cost);
+    }
+    if (!ks.includes(k)) { ks.push(k); cs.push(fit([u, ...phis], cur.g).cost); }
+    const m = Math.min(...cs);
+    const w = cs.map((v) => Math.exp(-(v - m) / 2 / (rangeScale * RANGE_TEMPER)));
+    const tot = w.reduce((a, v) => a + v, 0);
+    let acc = 0, from = Infinity, to = -Infinity;
+    for (const i of w.map((_, i) => i).sort((a, b) => w[b] - w[a])) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= 0.95) break; }
+    return { knot: k, from, to, level: 0.95 };
+  }).sort((p, q) => p.knot - q.knot);
+  return out(cur, { knot: order[0].k, slopeAfter: rates[1], knots: order.map((o) => o.k), rates, knotRanges: ranges });
 }
 
 /**
@@ -376,21 +458,61 @@ function driftAdjust(x, m, trend0, profile) {
   return { adjusted, profile };
 }
 
-/** Two knots of the continuous piecewise-linear least-squares line, searched at every point in [lo, hi] at least gap apart. */
-function lsKnots(x, lo, hi, gap) {
+/**
+ * Two knots of the continuous piecewise-linear least-squares line, searched at every point in [lo, hi] at least gap apart.
+ * Every normal-equation entry for the basis [1, t, (t-a)+, (t-b)+] is a closed form in prefix sums of 1, t, t^2, x and t*x, so a
+ * pair costs a 4x4 solve instead of a pass over the series (n^2 pairs, not n^3 work; 85 s became under a second at 1,200 points).
+ * The values are centred first so the subtraction at the end does not lose the residual to rounding.
+ */
+export function lsKnots(x, lo, hi, gap) {
   const n = x.length;
+  const mx = x.reduce((a, v) => a + v, 0) / n, mt = (n - 1) / 2;
+  // prefix[i] sums over t < i of 1, u, u^2, y, u*y with u = t - mt, y = x - mx
+  const P = Array.from({ length: 5 }, () => new Float64Array(n + 1));
+  for (let t = 0; t < n; t++) {
+    const u = t - mt, y = x[t] - mx;
+    const v = [1, u, u * u, y, u * y];
+    for (let q = 0; q < 5; q++) P[q][t + 1] = P[q][t] + v[q];
+  }
+  const tail = (q, k) => P[q][n] - P[q][k + 1]; // sum over t > k
+  const yy = x.reduce((a, v) => a + (v - mx) ** 2, 0);
   let best = null;
+  const A = Array.from({ length: 4 }, () => new Float64Array(5));
   for (let a = lo; a <= hi; a++) {
+    const ua = a - mt;
     for (let b = a + gap; b <= hi; b++) {
-      const rss = lineRss(x, [a, b]);
+      const ub = b - mt;
+      // hinge (t-k)+ = (u - uk) for t > k
+      const h0a = tail(1, a) - ua * tail(0, a), h0b = tail(1, b) - ub * tail(0, b); // sums of the hinges
+      const m = [
+        [n, P[1][n], h0a, h0b],
+        [0, P[2][n], tail(2, a) - ua * tail(1, a), tail(2, b) - ub * tail(1, b)],
+        [0, 0, tail(2, a) - 2 * ua * tail(1, a) + ua * ua * tail(0, a), tail(2, b) - (ua + ub) * tail(1, b) + ua * ub * tail(0, b)],
+        [0, 0, 0, tail(2, b) - 2 * ub * tail(1, b) + ub * ub * tail(0, b)],
+      ];
+      const rhs = [P[3][n], P[4][n], tail(4, a) - ua * tail(3, a), tail(4, b) - ub * tail(3, b)];
+      for (let i = 0; i < 4; i++) { for (let j = 0; j < 4; j++) A[i][j] = j >= i ? m[i][j] : m[j][i]; A[i][4] = rhs[i]; }
+      // Gauss-Jordan with partial pivoting
+      let ok = true;
+      for (let i = 0; i < 4 && ok; i++) {
+        let piv = i;
+        for (let r = i + 1; r < 4; r++) if (Math.abs(A[r][i]) > Math.abs(A[piv][i])) piv = r;
+        if (!(Math.abs(A[piv][i]) > 1e-12)) { ok = false; break; }
+        if (piv !== i) { const tmp = A[i]; A[i] = A[piv]; A[piv] = tmp; }
+        for (let r = 0; r < 4; r++) if (r !== i) { const q = A[r][i] / A[i][i]; for (let c = i; c < 5; c++) A[r][c] -= q * A[i][c]; }
+      }
+      if (!ok) continue;
+      let fit = 0;
+      for (let i = 0; i < 4; i++) fit += (A[i][4] / A[i][i]) * rhs[i];
+      const rss = yy - fit;
       if (!best || rss < best.rss) best = { rss, knots: [a, b] };
     }
   }
   return best && best.knots;
 }
 
-// residual sum of squares of x on [1, t, (t-k)+ ...] by the normal equations
-function lineRss(x, ks) {
+// residual sum of squares of x on [1, t, (t-k)+ ...] by the normal equations (one pass over the series; the reference lsKnots is tested against)
+export function lineRss(x, ks) {
   const n = x.length, p = 2 + ks.length;
   const A = Array.from({ length: p }, () => new Array(p + 1).fill(0));
   const row = (t) => [1, t, ...ks.map((k) => Math.max(0, t - k))];
@@ -545,7 +667,35 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
     }
   }
   const out = { adjusted: detrend(line(best.s, best.knots)), slope: best.s[0] };
-  if (best.knots.length) Object.assign(out, { slopeAfter: best.s[1], knot: best.knots[0], knots: best.knots, slopes: best.s });
+  if (best.knots.length) {
+    Object.assign(out, { slopeAfter: best.s[1], knot: best.knots[0], knots: best.knots, slopes: best.s });
+    if (n >= 40) {
+      // where exactly does the slope change? The same likelihood range as for steps: slide each knot over its allowed span with the
+      // other knots held fixed, weight each position by exp(-(BIC - min BIC) / 2) (the BIC is -2 log-likelihood with the noise
+      // variance profiled out, plus a penalty that only differs where the number of steps does), and keep the most likely positions
+      // holding 95% of the weight. A long series is scanned on a stride of about n / 200.
+      const gap = Math.ceil(0.15 * n);
+      const margin = Math.min(0.4, Math.max(0.05, Number(knotMargin) || 0.1));
+      const stride = Math.max(1, Math.round(n / 200));
+      out.knotRanges = best.knots.map((k, j) => {
+        const lo = Math.max(Math.ceil(margin * n), j ? best.knots[j - 1] + gap : 0);
+        const hi = Math.min(Math.floor((1 - margin) * n), j + 1 < best.knots.length ? best.knots[j + 1] - gap : n);
+        const ks = [], bs = [];
+        for (let q = lo; q <= hi; q += stride) {
+          const f = q === k ? best : fit(best.knots.map((v, i) => (i === j ? q : v)));
+          ks.push(q); bs.push(f.bic);
+        }
+        if (!ks.includes(k)) { ks.push(k); bs.push(best.bic); }
+        const m = Math.min(...bs);
+        const w = bs.map((v) => Math.exp(-(v - m) / 2));
+        const tot = w.reduce((u, v) => u + v, 0);
+        const order = w.map((_, i) => i).sort((u, v) => w[v] - w[u]);
+        let acc = 0, from = Infinity, to = -Infinity;
+        for (const i of order) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= 0.95) break; }
+        return { knot: k, from, to, level: 0.95 };
+      });
+    }
+  }
   return out;
 }
 
@@ -1291,6 +1441,14 @@ export function analyze(input = {}) {
     if (bad >= 0) throw new Error(`The Poisson model needs counts (whole numbers, 0 or more); row ${bad + 1} is ${values[bad]}.`);
   }
   const period = Math.floor(Number(o.period) || 0);
+  let burstInfo = null;
+  const rawCounts = values;
+  if (o.bursts) {
+    if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
+    const b = findBursts(values, { period, ratio: typeof o.bursts === "number" ? o.bursts : 2.5, runs: o.burstRuns || 0, ...(o.burstRunRatio ? { runRatio: o.burstRunRatio } : {}) });
+    burstInfo = b.indexes.map((i) => ({ index: i, label: labels[i], value: values[i], keptAs: b.counts[i] }));
+    values = b.counts;
+  }
   let phi = null, penalty = o.penalty;
   let nbSize = 0;
   if (o.overdispersion === 'nb') {
@@ -1302,26 +1460,50 @@ export function analyze(input = {}) {
   }
   let profile = null, exposure = null;
   const original = values;
+  let holIdx = null, holKinds = null;
+  if (o.holidays && o.holidays.length) {
+    if (model !== 'poisson') throw new Error('Holidays are for counts: use model "poisson".');
+    // entries are row labels (the date column when there is one, else the 1-based row number)
+    const at = new Map(labels.map((l, i) => [String(l), i]));
+    // an entry may be "label=kind": holidays of one kind share a factor, each kind gets its own
+    const parts = o.holidays.map((h) => { const [lab, ...rest] = String(h).split('='); return { lab: lab.trim(), kind: rest.length ? rest.join('=').trim() : '' }; });
+    holIdx = parts.map(({ lab }) => { const i = at.get(lab); if (i === undefined) throw new Error(`Holiday "${lab}" is not a row label in the series.`); return i; });
+    holKinds = parts.some((p) => p.kind) ? parts.map((p) => p.kind || 'other') : null;
+  }
   if (period) {
     if (model === 'poisson') {
       if (o.drift) throw new Error('A drifting seasonal shape is not available for counts: leave out drift, or use "mean" or "meanvar".');
-      const fit = poissonSeasonal(original, period, { penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)) });
+      const fit = poissonSeasonal(original, period, { penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), skip: holIdx ? new Set(holIdx) : null });
       exposure = fit.exposure;
       profile = fit.factors;
     } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
   }
-  let slope = null, slopeAfter, knot, knots, slopes;
-  let growth = null, countKnot, growthAfter, countKnots, countRates;
+  let holidayFit = null;
+  if (holIdx) {
+    const ms = Math.max(1, Math.floor(Number(o.minSegment) || 2));
+    holidayFit = poissonHolidays(original, holIdx, { base: exposure, penalty, minSegment: ms, kinds: holKinds });
+    exposure = holidayFit.exposure;
+    // alternate: the seasonal PELT pass sees the holiday exposure, then the holidays are refitted on the new seasonal factors
+    for (let round = 0; period && round < 2 && !o.noHolidayAlternation; round++) {
+      const hx = exposure.map((v, t) => v / profile[t % period]);
+      const fit = poissonSeasonal(original, period, { penalty, minSegment: ms, skip: new Set(holIdx), extra: hx });
+      profile = fit.factors;
+      holidayFit = poissonHolidays(original, holIdx, { base: fit.exposure, penalty, minSegment: ms, kinds: holKinds });
+      exposure = holidayFit.exposure;
+    }
+  }
+  let slope = null, slopeAfter, knot, knots, slopes, knotRanges;
+  let growth = null, countKnot, growthAfter, countKnots, countRates, countRanges;
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
   if (o.trend && model === 'poisson') {
     if (o.trend !== true && o.trend !== 'bend' && o.trend !== 'bends') throw new Error('For counts, --trend takes one common growth rate under the steps, "bend" for one change of growth rate or "bends" for up to two.');
-    const fit = poissonTrend(original, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 2 : false, knotMargin: o.knotMargin, scale: phi ?? 1,
+    const fit = poissonTrend(original, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 2 : false, knotMargin: o.knotMargin, scale: phi ?? 1, diag: o.diagBends || null,
       nbSize: o.overdispersion === 'nb' ? negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : original) : 0 });
     exposure = fit.exposure;
     growth = fit.g;
-    if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; }
+    if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; countRanges = fit.knotRanges; }
   } else if (o.trend) {
-    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
+    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   nbAfterExposure();
   let sigma = robustSd(values);
@@ -1364,6 +1546,23 @@ export function analyze(input = {}) {
   }
   const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure, dispersion: phi ?? 1, nbSize: isFinite(nbSize) && nbSize > 0 ? nbSize : 0 });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
+  // joint AR(1) fits use their own likelihood, so no range is offered for them
+  let ranges = null;
+  if (!joint && o.intervals !== false) {
+    const nbOn = isFinite(nbSize) && nbSize > 0;
+    ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, model, sigma, 0, exposure), { minSegment, level: 0.95 });
+  }
+  // the range assumes independent noise: on sticky series without --ar1 it is far too narrow (57% and 30% coverage, README)
+  let rangeWarning = null;
+  if (ranges && model === 'mean' && !o.ar1 && values.length >= 20) {
+    const r0 = ar1Rho(values);
+    if (r0 >= 0.3) rangeWarning = `The series looks autocorrelated (rho about ${round(r0, 2)}), so these ranges are too narrow: use --ar1 (page: allow for autocorrelation).`;
+  }
+  // the same for counts that vary more than Poisson: the plain Poisson range held the date in 6% to 42% of overdispersed series (README)
+  if (ranges && !rangeWarning && model === 'poisson' && !phi && !(isFinite(nbSize) && nbSize > 0) && values.length >= 90) {
+    const d0 = countDispersion(values, period);
+    if (d0 >= 2.5) rangeWarning = `These counts vary about ${round(d0, 1)} times more than Poisson counts would, so these ranges are too narrow: use the negative-binomial cost (--overdispersion nb).`;
+  }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -1387,6 +1586,7 @@ export function analyze(input = {}) {
       sdBefore: before.sd,
       sdAfter: after.sd,
       bocpdProbWithin3: round(near, 3),
+      ...(ranges ? { range95: { from: labels[ranges[k].from], to: labels[ranges[k].to], fromIndex: ranges[k].from, toIndex: ranges[k].to } } : {}),
     };
   });
   const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped });
@@ -1397,10 +1597,13 @@ export function analyze(input = {}) {
     model,
     noiseSd: round(sigma),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
-    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
-    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
+    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
+    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
+    ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
+    ...(rangeWarning ? { rangeWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
+    ...(burstInfo ? { bursts: burstInfo } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -1411,10 +1614,102 @@ export function analyze(input = {}) {
       mapRunLength: b.mapRun,
     },
     labels,
-    values: original,
-    ...(period || o.trend ? { adjusted: values.map((v, t) => round(exposure ? v / exposure[t] : v)) } : {}),
+    values: rawCounts,
+    ...(period || o.trend || holidayFit ? { adjusted: values.map((v, t) => round(exposure ? v / exposure[t] : v)) } : {}),
     summary,
   };
+}
+
+/**
+ * Where exactly did a change happen? A credible range for each PELT change date: with the neighbouring changes held
+ * fixed, every start k of the later segment is weighted exp(-(cost(k) - min cost) / 2) (the profile likelihood, since
+ * the cost is -2 log-likelihood), and the most likely starts that together hold `level` of the weight are returned as
+ * the first and last of them. It is a likelihood range under the fitted model, not an exact frequentist interval;
+ * eval/change-interval.mjs measures how often it holds the planted date.
+ */
+export function changeIntervals(changepoints, n, cost, { minSegment = 2, level = 0.95 } = {}) {
+  const ms = Math.max(1, Math.floor(minSegment));
+  return changepoints.map((c, j) => {
+    const a = j ? changepoints[j - 1] : 0;
+    const b = j + 1 < changepoints.length ? changepoints[j + 1] : n;
+    const lo = a + ms, hi = b - ms;
+    if (hi < lo) return { index: c, from: c, to: c, level };
+    const ks = [], cs = [];
+    for (let k = lo; k <= hi; k++) { ks.push(k); cs.push(cost(a, k) + cost(k, b)); }
+    const m = Math.min(...cs);
+    const w = cs.map((v) => Math.exp(-(v - m) / 2));
+    const tot = w.reduce((u, v) => u + v, 0);
+    const order = w.map((_, i) => i).sort((u, v) => w[v] - w[u]);
+    let acc = 0, from = Infinity, to = -Infinity;
+    for (const i of order) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= level) break; }
+    return { index: c, from, to, level };
+  });
+}
+
+/**
+ * Isolated bursts in a count series: single days (or short runs) far above BOTH sides, e.g. a link going viral.
+ * The reference is the median of up to `side` same-phase neighbours before and after (lag `period`, or the
+ * adjacent points without a period); a point is a burst when it is at least `ratio` times the larger of the two
+ * and clears a Poisson-sized excess. A step is high against one side only, so it is never flagged.
+ * Returns the flagged indexes and a copy of the counts with each burst cut back to its reference.
+ */
+export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, skip = null, runs = 0, runRatio = 2 } = {}) {
+  const n = x.length, lag = period || 1;
+  const med = (a) => { if (!a.length) return null; const s = [...a].sort((p, q) => p - q); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+  const out = [], cut = x.slice();
+  for (let t = 0; t < n; t++) {
+    if (skip && skip.has(t)) continue;
+    const before = [], after = [];
+    for (let k = 1; k <= side; k++) {
+      if (t - k * lag >= 0 && !(skip && skip.has(t - k * lag))) before.push(x[t - k * lag]);
+      if (t + k * lag < n && !(skip && skip.has(t + k * lag))) after.push(x[t + k * lag]);
+    }
+    const mb = med(before), ma = med(after);
+    if (mb === null && ma === null) continue;
+    const ref = Math.max(mb ?? 0, ma ?? 0);
+    if (x[t] >= ratio * Math.max(ref, 1) && x[t] - ref > 4 * Math.sqrt(ref + 1)) { out.push(t); cut[t] = Math.round(ref); }
+  }
+  if (runs) {
+    // Short runs (2 to `runs` points): the whole block sits above the reference of the same-phase points outside it
+    // (on both sides), at `runRatio` times the reference on average, and its summed excess clears a Poisson-sized bar.
+    const flagged = new Set(out), side2 = period ? 3 : 8;
+    const ref = (t) => {
+      const before = [], after = [];
+      for (let k = 1; k <= side2; k++) {
+        if (t - k * lag >= 0) before.push(x[t - k * lag]);
+        if (t + k * lag < n) after.push(x[t + k * lag]);
+      }
+      return [med(before), med(after)];
+    };
+    for (let L = runs; L >= 2; L--) {
+      for (let s = 0; s + L <= n; s++) {
+        let ok = true;
+        for (let i = s; i < s + L; i++) if (flagged.has(i) || (skip && skip.has(i))) { ok = false; break; }
+        if (!ok) continue;
+        const refs = [];
+        if (period) {
+          for (let i = s; i < s + L && ok; i++) {
+            const [mb, ma] = ref(i);
+            if (mb === null || ma === null) ok = false; else refs.push(Math.max(mb, ma));
+          }
+        } else {
+          // no period: the points just outside the run, on both sides
+          const before = [], after = [];
+          for (let k = 1; k <= side2; k++) { if (s - k >= 0) before.push(x[s - k]); if (s + L - 1 + k < n) after.push(x[s + L - 1 + k]); }
+          if (!before.length || !after.length) ok = false;
+          else for (let i = 0; i < L; i++) refs.push(Math.max(med(before), med(after)));
+        }
+        if (!ok) continue;
+        let sum = 0, rsum = 0, allHigh = true;
+        for (let i = 0; i < L; i++) { sum += x[s + i]; rsum += refs[i]; if (x[s + i] < runRatio * Math.max(refs[i], 1) * 0.8) allHigh = false; }
+        if (allHigh && sum >= runRatio * Math.max(rsum, L) && sum - rsum > 4 * Math.sqrt(rsum + L)) {
+          for (let i = 0; i < L; i++) { out.push(s + i); flagged.add(s + i); cut[s + i] = Math.round(refs[i]); }
+        }
+      }
+    }
+    out.sort((a, b) => a - b);
+  }
+  return { indexes: out, counts: cut };
 }
 
 /** Least-squares line through x[s..t): slope per index, residual sd, and the fitted value at any index. */

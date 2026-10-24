@@ -1,0 +1,13 @@
+[project]
+name = "energy-thermal-cost"
+version = "0.1.0"
+description = "Levelised cost of heat from a resistance-charged sand or water store against a heat pump, with every cost read from PyPSA technology-data"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../energy-thermal/src"]

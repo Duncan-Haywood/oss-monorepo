@@ -1,0 +1,1051 @@
+{
+ "audit": [
+  {
+   "project": "accel-dataflow",
+   "file": "cost.py",
+   "name": "E_MULT_8X8_PJ",
+   "value": 0.2,
+   "paper": 0.2,
+   "what": "8-bit integer multiply",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-dataflow",
+   "file": "cost.py",
+   "name": "E_ADD_32_PJ",
+   "value": 0.1,
+   "paper": 0.1,
+   "what": "32-bit integer add",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-dataflow",
+   "file": "cost.py",
+   "name": "E_SRAM_PJ_PER_BIT",
+   "value": 0.16,
+   "paper": 0.1562,
+   "what": "8 KB array, 10 pJ per 64 bits",
+   "ratio": 1.024
+  },
+  {
+   "project": "accel-kws",
+   "file": "cost.py",
+   "name": "E_MULT_8X8_PJ",
+   "value": 0.2,
+   "paper": 0.2,
+   "what": "8-bit integer multiply",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-kws",
+   "file": "cost.py",
+   "name": "E_ADD_32_PJ",
+   "value": 0.1,
+   "paper": 0.1,
+   "what": "32-bit integer add",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-kws",
+   "file": "cost.py",
+   "name": "E_SRAM_PJ_PER_BIT",
+   "value": 0.16,
+   "paper": 0.1562,
+   "what": "8 KB array, 10 pJ per 64 bits",
+   "ratio": 1.024
+  },
+  {
+   "project": "accel-lut",
+   "file": "lut.py",
+   "name": "E_MULT_8X8_PJ",
+   "value": 0.2,
+   "paper": 0.2,
+   "what": "8-bit integer multiply",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-lut",
+   "file": "lut.py",
+   "name": "E_ADD_PJ_24",
+   "value": 0.075,
+   "paper": 0.0779,
+   "what": "24-bit add, log-log interpolation of 8 and 32-bit",
+   "ratio": 0.963
+  },
+  {
+   "project": "accel-lut",
+   "file": "lut.py",
+   "name": "E_READ_PJ_PER_BIT",
+   "value": 0.16,
+   "paper": 0.1562,
+   "what": "8 KB array, 10 pJ per 64 bits",
+   "ratio": 1.024
+  },
+  {
+   "project": "accel-lutft",
+   "file": "lut.py",
+   "name": "E_MULT_8X8_PJ",
+   "value": 0.2,
+   "paper": 0.2,
+   "what": "8-bit integer multiply",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-lutft",
+   "file": "lut.py",
+   "name": "E_ADD_PJ_24",
+   "value": 0.075,
+   "paper": 0.0779,
+   "what": "24-bit add, log-log interpolation of 8 and 32-bit",
+   "ratio": 0.963
+  },
+  {
+   "project": "accel-lutft",
+   "file": "lut.py",
+   "name": "E_READ_PJ_PER_BIT",
+   "value": 0.16,
+   "paper": 0.1562,
+   "what": "8 KB array, 10 pJ per 64 bits",
+   "ratio": 1.024
+  },
+  {
+   "project": "accel-lutwide",
+   "file": "lut.py",
+   "name": "E_MULT_8X8_PJ",
+   "value": 0.2,
+   "paper": 0.2,
+   "what": "8-bit integer multiply",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-lutwide",
+   "file": "lut.py",
+   "name": "E_ADD_PJ_24",
+   "value": 0.075,
+   "paper": 0.0779,
+   "what": "24-bit add, log-log interpolation of 8 and 32-bit",
+   "ratio": 0.963
+  },
+  {
+   "project": "accel-lutwide",
+   "file": "lut.py",
+   "name": "E_READ_PJ_PER_BIT",
+   "value": 0.16,
+   "paper": 0.1562,
+   "what": "8 KB array, 10 pJ per 64 bits",
+   "ratio": 1.024
+  },
+  {
+   "project": "accel-sparse",
+   "file": "cost.py",
+   "name": "E_MULT_8X8_PJ",
+   "value": 0.2,
+   "paper": 0.2,
+   "what": "8-bit integer multiply",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-sparse",
+   "file": "cost.py",
+   "name": "E_ADD_PJ_24",
+   "value": 0.075,
+   "paper": 0.0779,
+   "what": "24-bit add, log-log interpolation of 8 and 32-bit",
+   "ratio": 0.963
+  },
+  {
+   "project": "accel-sparse",
+   "file": "cost.py",
+   "name": "E_READ_PJ_PER_BIT",
+   "value": 0.16,
+   "paper": 0.1562,
+   "what": "8 KB array, 10 pJ per 64 bits",
+   "ratio": 1.024
+  },
+  {
+   "project": "accel-sparse",
+   "file": "cost.py",
+   "name": "E_NEG_PJ",
+   "value": 0.01,
+   "paper": null,
+   "what": "no counterpart in Fig. 1.1.9 (an assumption of the project)",
+   "ratio": null
+  },
+  {
+   "project": "accel-surrogate",
+   "file": "cost.py",
+   "name": "E_MULT_8X8_PJ",
+   "value": 0.2,
+   "paper": 0.2,
+   "what": "8-bit integer multiply",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-surrogate",
+   "file": "cost.py",
+   "name": "E_ADD_PJ_24",
+   "value": 0.075,
+   "paper": 0.0779,
+   "what": "24-bit add, log-log interpolation of 8 and 32-bit",
+   "ratio": 0.963
+  },
+  {
+   "project": "accel-surrogate",
+   "file": "cost.py",
+   "name": "E_READ_PJ_PER_BIT",
+   "value": 0.16,
+   "paper": 0.1562,
+   "what": "8 KB array, 10 pJ per 64 bits",
+   "ratio": 1.024
+  },
+  {
+   "project": "accel-surrogate",
+   "file": "cost.py",
+   "name": "E_FP32_FLOP_PJ",
+   "value": 2.3,
+   "paper": 2.3,
+   "what": "mean of fp32 add 0.9 and fp32 multiply 3.7",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-surrogate2d",
+   "file": "cost.py",
+   "name": "E_MULT_8X8_PJ",
+   "value": 0.2,
+   "paper": 0.2,
+   "what": "8-bit integer multiply",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-surrogate2d",
+   "file": "cost.py",
+   "name": "E_ADD_PJ_24",
+   "value": 0.075,
+   "paper": 0.0779,
+   "what": "24-bit add, log-log interpolation of 8 and 32-bit",
+   "ratio": 0.963
+  },
+  {
+   "project": "accel-surrogate2d",
+   "file": "cost.py",
+   "name": "E_READ_PJ_PER_BIT",
+   "value": 0.16,
+   "paper": 0.1562,
+   "what": "8 KB array, 10 pJ per 64 bits",
+   "ratio": 1.024
+  },
+  {
+   "project": "accel-surrogate2d",
+   "file": "cost.py",
+   "name": "E_FP32_FLOP_PJ",
+   "value": 2.3,
+   "paper": 2.3,
+   "what": "mean of fp32 add 0.9 and fp32 multiply 3.7",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-surrogatelock",
+   "file": "cost.py",
+   "name": "E_MULT_8X8_PJ",
+   "value": 0.2,
+   "paper": 0.2,
+   "what": "8-bit integer multiply",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-surrogatelock",
+   "file": "cost.py",
+   "name": "E_ADD_PJ_24",
+   "value": 0.075,
+   "paper": 0.0779,
+   "what": "24-bit add, log-log interpolation of 8 and 32-bit",
+   "ratio": 0.963
+  },
+  {
+   "project": "accel-surrogatelock",
+   "file": "cost.py",
+   "name": "E_READ_PJ_PER_BIT",
+   "value": 0.16,
+   "paper": 0.1562,
+   "what": "8 KB array, 10 pJ per 64 bits",
+   "ratio": 1.024
+  },
+  {
+   "project": "accel-surrogatelock",
+   "file": "cost.py",
+   "name": "E_FP32_FLOP_PJ",
+   "value": 2.3,
+   "paper": 2.3,
+   "what": "mean of fp32 add 0.9 and fp32 multiply 3.7",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-surrogateloop",
+   "file": "cost.py",
+   "name": "E_MULT_8X8_PJ",
+   "value": 0.2,
+   "paper": 0.2,
+   "what": "8-bit integer multiply",
+   "ratio": 1.0
+  },
+  {
+   "project": "accel-surrogateloop",
+   "file": "cost.py",
+   "name": "E_ADD_PJ_24",
+   "value": 0.075,
+   "paper": 0.0779,
+   "what": "24-bit add, log-log interpolation of 8 and 32-bit",
+   "ratio": 0.963
+  },
+  {
+   "project": "accel-surrogateloop",
+   "file": "cost.py",
+   "name": "E_READ_PJ_PER_BIT",
+   "value": 0.16,
+   "paper": 0.1562,
+   "what": "8 KB array, 10 pJ per 64 bits",
+   "ratio": 1.024
+  },
+  {
+   "project": "accel-surrogateloop",
+   "file": "cost.py",
+   "name": "E_FP32_FLOP_PJ",
+   "value": 2.3,
+   "paper": 2.3,
+   "what": "mean of fp32 add 0.9 and fp32 multiply 3.7",
+   "ratio": 1.0
+  }
+ ],
+ "fits": {
+  "add_int_width_exponent": 0.8684827970831032,
+  "mult_int_width_exponent": 1.9770981551934377,
+  "sram_size_exponent_8k_32k": 0.5,
+  "sram_size_exponent_8k_1m": 0.4745611564124804
+ },
+ "scaling_rules": [
+  {
+   "rule": "16-bit add = 0.1 pJ x 16/32 (accel-frontend)",
+   "used": 0.05,
+   "paper_interp": 0.0548
+  },
+  {
+   "rule": "16x16 multiply = 0.2 pJ x (16*16)/64 (accel-frontend)",
+   "used": 0.8,
+   "paper_interp": 0.7874
+  },
+  {
+   "rule": "24-bit add = 0.1 pJ x 24/32 (accel-kws)",
+   "used": 0.075,
+   "paper_interp": 0.0779
+  }
+ ],
+ "as_built_reproduces_max_abs_nj": 7.105427357601002e-15,
+ "n_designs": 40,
+ "modes": {
+  "as_built": {
+   "ratio_min": 1.0,
+   "ratio_max": 1.0,
+   "read_share_min": 0.9029982363315697,
+   "read_share_max": 0.9275362318840581,
+   "front_size": 18,
+   "front_same_as_built": true,
+   "front_overlap": 18,
+   "spearman_vs_as_built": 1.0,
+   "front": [
+    [
+     7,
+     8,
+     2
+    ],
+    [
+     7,
+     8,
+     3
+    ],
+    [
+     7,
+     8,
+     4
+    ],
+    [
+     7,
+     8,
+     8
+    ],
+    [
+     7,
+     16,
+     3
+    ],
+    [
+     7,
+     16,
+     4
+    ],
+    [
+     7,
+     16,
+     8
+    ],
+    [
+     7,
+     32,
+     3
+    ],
+    [
+     7,
+     32,
+     4
+    ],
+    [
+     7,
+     32,
+     8
+    ],
+    [
+     7,
+     64,
+     3
+    ],
+    [
+     7,
+     64,
+     4
+    ],
+    [
+     7,
+     64,
+     8
+    ],
+    [
+     7,
+     128,
+     3
+    ],
+    [
+     7,
+     128,
+     4
+    ],
+    [
+     12,
+     64,
+     4
+    ],
+    [
+     12,
+     128,
+     3
+    ],
+    [
+     12,
+     128,
+     4
+    ]
+   ]
+  },
+  "floor": {
+   "ratio_min": 0.9782608695652173,
+   "ratio_max": 1.1765303877651685,
+   "read_share_min": 0.9009009009009009,
+   "read_share_max": 0.9259259259259259,
+   "front_size": 18,
+   "front_same_as_built": true,
+   "front_overlap": 18,
+   "spearman_vs_as_built": 1.0,
+   "front": [
+    [
+     7,
+     8,
+     2
+    ],
+    [
+     7,
+     8,
+     3
+    ],
+    [
+     7,
+     8,
+     4
+    ],
+    [
+     7,
+     8,
+     8
+    ],
+    [
+     7,
+     16,
+     3
+    ],
+    [
+     7,
+     16,
+     4
+    ],
+    [
+     7,
+     16,
+     8
+    ],
+    [
+     7,
+     32,
+     3
+    ],
+    [
+     7,
+     32,
+     4
+    ],
+    [
+     7,
+     32,
+     8
+    ],
+    [
+     7,
+     64,
+     3
+    ],
+    [
+     7,
+     64,
+     4
+    ],
+    [
+     7,
+     64,
+     8
+    ],
+    [
+     7,
+     128,
+     3
+    ],
+    [
+     7,
+     128,
+     4
+    ],
+    [
+     12,
+     64,
+     4
+    ],
+    [
+     12,
+     128,
+     3
+    ],
+    [
+     12,
+     128,
+     4
+    ]
+   ]
+  },
+  "paper": {
+   "ratio_min": 0.23018302412864364,
+   "ratio_max": 0.8135571493598056,
+   "read_share_min": 0.6702827057927896,
+   "read_share_max": 0.8807683470733904,
+   "front_size": 17,
+   "front_same_as_built": false,
+   "front_overlap": 17,
+   "spearman_vs_as_built": 0.9909943714821764,
+   "front": [
+    [
+     7,
+     8,
+     2
+    ],
+    [
+     7,
+     8,
+     3
+    ],
+    [
+     7,
+     8,
+     4
+    ],
+    [
+     7,
+     8,
+     8
+    ],
+    [
+     7,
+     16,
+     3
+    ],
+    [
+     7,
+     16,
+     4
+    ],
+    [
+     7,
+     16,
+     8
+    ],
+    [
+     7,
+     32,
+     3
+    ],
+    [
+     7,
+     32,
+     4
+    ],
+    [
+     7,
+     32,
+     8
+    ],
+    [
+     7,
+     64,
+     3
+    ],
+    [
+     7,
+     64,
+     4
+    ],
+    [
+     7,
+     128,
+     3
+    ],
+    [
+     7,
+     128,
+     4
+    ],
+    [
+     12,
+     64,
+     4
+    ],
+    [
+     12,
+     128,
+     3
+    ],
+    [
+     12,
+     128,
+     4
+    ]
+   ]
+  }
+ },
+ "designs": [
+  {
+   "hidden": 8,
+   "wbits": 2,
+   "segments": 7,
+   "acc": 0.2796628964293635,
+   "kbyte": 0.2138671875,
+   "as_built": 1.1178,
+   "floor": 1.0935,
+   "paper": 0.25729858437099784
+  },
+  {
+   "hidden": 8,
+   "wbits": 3,
+   "segments": 7,
+   "acc": 0.4233754712796629,
+   "kbyte": 0.29296875,
+   "as_built": 1.2376800000000001,
+   "floor": 1.21095,
+   "paper": 0.29851666298483764
+  },
+  {
+   "hidden": 8,
+   "wbits": 4,
+   "segments": 7,
+   "acc": 0.48761735787683885,
+   "kbyte": 0.3720703125,
+   "as_built": 1.3575599999999999,
+   "floor": 1.3283999999999998,
+   "paper": 0.34393100390037146
+  },
+  {
+   "hidden": 8,
+   "wbits": 8,
+   "segments": 7,
+   "acc": 0.5049900199600798,
+   "kbyte": 0.6884765625,
+   "as_built": 1.8370799999999998,
+   "floor": 1.7982,
+   "paper": 0.559010006283558
+  },
+  {
+   "hidden": 16,
+   "wbits": 2,
+   "segments": 7,
+   "acc": 0.3602424780069491,
+   "kbyte": 0.3955078125,
+   "as_built": 2.2356,
+   "floor": 2.187,
+   "paper": 0.5384290438126904
+  },
+  {
+   "hidden": 16,
+   "wbits": 3,
+   "segments": 7,
+   "acc": 0.5328602055148961,
+   "kbyte": 0.5537109375,
+   "as_built": 2.4753600000000002,
+   "floor": 2.4219,
+   "paper": 0.640602557022634
+  },
+  {
+   "hidden": 16,
+   "wbits": 4,
+   "segments": 7,
+   "acc": 0.5852738966511422,
+   "kbyte": 0.7119140625,
+   "as_built": 2.7151199999999998,
+   "floor": 2.6567999999999996,
+   "paper": 0.7548098917641424
+  },
+  {
+   "hidden": 16,
+   "wbits": 8,
+   "segments": 7,
+   "acc": 0.6124048199896504,
+   "kbyte": 1.3447265625,
+   "as_built": 3.6741599999999996,
+   "floor": 3.5964,
+   "paper": 1.3069601106527746
+  },
+  {
+   "hidden": 32,
+   "wbits": 2,
+   "segments": 7,
+   "acc": 0.36127744510978044,
+   "kbyte": 0.7587890625,
+   "as_built": 4.4712,
+   "floor": 4.374,
+   "paper": 1.146216285089008
+  },
+  {
+   "hidden": 32,
+   "wbits": 3,
+   "segments": 7,
+   "acc": 0.6456716197235159,
+   "kbyte": 1.0751953125,
+   "as_built": 4.9507200000000005,
+   "floor": 4.8438,
+   "paper": 1.406981879357348
+  },
+  {
+   "hidden": 32,
+   "wbits": 4,
+   "segments": 7,
+   "acc": 0.6847785909662156,
+   "kbyte": 1.3916015625,
+   "as_built": 5.4302399999999995,
+   "floor": 5.313599999999999,
+   "paper": 1.70201535089746
+  },
+  {
+   "hidden": 32,
+   "wbits": 8,
+   "segments": 7,
+   "acc": 0.690544836253419,
+   "kbyte": 2.6572265625,
+   "as_built": 7.348319999999999,
+   "floor": 7.1928,
+   "paper": 3.1528574045887874
+  },
+  {
+   "hidden": 64,
+   "wbits": 2,
+   "segments": 7,
+   "acc": 0.4976713240186294,
+   "kbyte": 1.4853515625,
+   "as_built": 8.9424,
+   "floor": 8.748,
+   "paper": 2.4915599610748016
+  },
+  {
+   "hidden": 64,
+   "wbits": 3,
+   "segments": 7,
+   "acc": 0.7060693427958897,
+   "kbyte": 2.1181640625,
+   "as_built": 9.901440000000001,
+   "floor": 9.6876,
+   "paper": 3.1734902772154108
+  },
+  {
+   "hidden": 64,
+   "wbits": 4,
+   "segments": 7,
+   "acc": 0.7224070377762993,
+   "kbyte": 2.7509765625,
+   "as_built": 10.860479999999999,
+   "floor": 10.627199999999998,
+   "paper": 3.9526686285077215
+  },
+  {
+   "hidden": 64,
+   "wbits": 8,
+   "segments": 7,
+   "acc": 0.7247726768684851,
+   "kbyte": 5.2822265625,
+   "as_built": 14.696639999999999,
+   "floor": 14.3856,
+   "paper": 7.836599741867722
+  },
+  {
+   "hidden": 128,
+   "wbits": 2,
+   "segments": 7,
+   "acc": 0.6796776816736897,
+   "kbyte": 2.9384765625,
+   "as_built": 17.8848,
+   "floor": 17.496,
+   "paper": 5.550662634307886
+  },
+  {
+   "hidden": 128,
+   "wbits": 3,
+   "segments": 7,
+   "acc": 0.7385968803134472,
+   "kbyte": 4.2041015625,
+   "as_built": 19.802880000000002,
+   "floor": 19.3752,
+   "paper": 7.36934953660426
+  },
+  {
+   "hidden": 128,
+   "wbits": 4,
+   "segments": 7,
+   "acc": 0.7487247726768684,
+   "kbyte": 5.4697265625,
+   "as_built": 21.720959999999998,
+   "floor": 21.254399999999997,
+   "paper": 9.463550715882855
+  },
+  {
+   "hidden": 128,
+   "wbits": 8,
+   "segments": 7,
+   "acc": 0.7481333629038219,
+   "kbyte": 10.5322265625,
+   "as_built": 29.393279999999997,
+   "floor": 30.681512811941783,
+   "paper": 20.012538782986198
+  },
+  {
+   "hidden": 8,
+   "wbits": 2,
+   "segments": 12,
+   "acc": 0.245952539365713,
+   "kbyte": 0.3115234375,
+   "as_built": 1.8078,
+   "floor": 1.7685,
+   "paper": 0.42720412525973794
+  },
+  {
+   "hidden": 8,
+   "wbits": 3,
+   "segments": 12,
+   "acc": 0.44725364086641534,
+   "kbyte": 0.439453125,
+   "as_built": 2.00168,
+   "floor": 1.9584499999999998,
+   "paper": 0.5039141895885944
+  },
+  {
+   "hidden": 8,
+   "wbits": 4,
+   "segments": 12,
+   "acc": 0.48843054631477784,
+   "kbyte": 0.5673828125,
+   "as_built": 2.19556,
+   "floor": 2.1483999999999996,
+   "paper": 0.5894127780203732
+  },
+  {
+   "hidden": 8,
+   "wbits": 8,
+   "segments": 12,
+   "acc": 0.5060249870629112,
+   "kbyte": 1.0791015625,
+   "as_built": 2.9710799999999997,
+   "floor": 2.9082,
+   "paper": 1.0009019598492674
+  },
+  {
+   "hidden": 16,
+   "wbits": 2,
+   "segments": 12,
+   "acc": 0.38471205736674796,
+   "kbyte": 0.5908203125,
+   "as_built": 3.6156,
+   "floor": 3.537,
+   "paper": 0.9031565865327603
+  },
+  {
+   "hidden": 16,
+   "wbits": 3,
+   "segments": 12,
+   "acc": 0.5580690470910032,
+   "kbyte": 0.8466796875,
+   "as_built": 4.00336,
+   "floor": 3.9168999999999996,
+   "paper": 1.09718464815247
+  },
+  {
+   "hidden": 16,
+   "wbits": 4,
+   "segments": 12,
+   "acc": 0.6056775338212463,
+   "kbyte": 1.1025390625,
+   "as_built": 4.39112,
+   "floor": 4.296799999999999,
+   "paper": 1.316276245595217
+  },
+  {
+   "hidden": 16,
+   "wbits": 8,
+   "segments": 12,
+   "acc": 0.6161750572928217,
+   "kbyte": 2.1259765625,
+   "as_built": 5.942159999999999,
+   "floor": 5.8164,
+   "paper": 2.390182273494935
+  },
+  {
+   "hidden": 32,
+   "wbits": 2,
+   "segments": 12,
+   "acc": 0.5141568714423007,
+   "kbyte": 1.1494140625,
+   "as_built": 7.2312,
+   "floor": 7.074,
+   "paper": 1.9468616773114946
+  },
+  {
+   "hidden": 32,
+   "wbits": 3,
+   "segments": 12,
+   "acc": 0.6557995120869372,
+   "kbyte": 1.6611328125,
+   "as_built": 8.00672,
+   "floor": 7.833799999999999,
+   "paper": 2.4505153462554943
+  },
+  {
+   "hidden": 32,
+   "wbits": 4,
+   "segments": 12,
+   "acc": 0.6836696976417534,
+   "kbyte": 2.1728515625,
+   "as_built": 8.78224,
+   "floor": 8.593599999999999,
+   "paper": 3.025345814917307
+  },
+  {
+   "hidden": 32,
+   "wbits": 8,
+   "segments": 12,
+   "acc": 0.694536852221483,
+   "kbyte": 4.2197265625,
+   "as_built": 11.884319999999999,
+   "floor": 11.6328,
+   "paper": 5.8847564128960395
+  },
+  {
+   "hidden": 64,
+   "wbits": 2,
+   "segments": 12,
+   "acc": 0.6064907222591853,
+   "kbyte": 2.2666015625,
+   "as_built": 14.4624,
+   "floor": 14.148,
+   "paper": 4.295201234642101
+  },
+  {
+   "hidden": 64,
+   "wbits": 3,
+   "segments": 12,
+   "acc": 0.720115324905744,
+   "kbyte": 3.2900390625,
+   "as_built": 16.01344,
+   "floor": 15.667599999999998,
+   "paper": 5.630495652311516
+  },
+  {
+   "hidden": 64,
+   "wbits": 4,
+   "segments": 12,
+   "acc": 0.7381533229836622,
+   "kbyte": 4.3134765625,
+   "as_built": 17.56448,
+   "floor": 17.187199999999997,
+   "paper": 7.167509236743012
+  },
+  {
+   "hidden": 64,
+   "wbits": 8,
+   "segments": 12,
+   "acc": 0.7368226509943078,
+   "kbyte": 8.4072265625,
+   "as_built": 23.768639999999998,
+   "floor": 23.52902273352631,
+   "paper": 14.901642500235068
+  },
+  {
+   "hidden": 128,
+   "wbits": 2,
+   "segments": 12,
+   "acc": 0.6911362460264656,
+   "kbyte": 4.5009765625,
+   "as_built": 28.9248,
+   "floor": 28.296,
+   "paper": 9.731665942576253
+  },
+  {
+   "hidden": 128,
+   "wbits": 3,
+   "segments": 12,
+   "acc": 0.7487986988984994,
+   "kbyte": 6.5478515625,
+   "as_built": 32.02688,
+   "floor": 31.335199999999997,
+   "paper": 13.331378732906431
+  },
+  {
+   "hidden": 128,
+   "wbits": 4,
+   "segments": 12,
+   "acc": 0.751681821542101,
+   "kbyte": 8.5947265625,
+   "as_built": 35.12896,
+   "floor": 34.75696332691552,
+   "paper": 17.50220286033303
+  },
+  {
+   "hidden": 128,
+   "wbits": 8,
+   "segments": 12,
+   "acc": 0.7503511495527464,
+   "kbyte": 16.7822265625,
+   "as_built": 47.537279999999996,
+   "floor": 55.929054471701384,
+   "paper": 38.674294005118895
+  }
+ ],
+ "max_weight_array_kbyte": 16.7822265625,
+ "designs_over_8kB": 4
+}

@@ -1,0 +1,6 @@
+{
+ "theme": "eda",
+ "title": "If a design search only sees generic-gate numbers, does it find a worse SKY130 Pareto front?",
+ "summary": "<em>eda-noisy</em> injected synthetic Gaussian error into the objectives a proposer sees. Here the error is measured: on the 40 MAC-engine designs, proposers search generic-gate objectives (cells, cycles, optionally cycles &times; depth) and are scored on SKY130-mapped area and latency from <em>eda-sky130rung</em> (Yosys 0.33, ABC <code>dc2; map</code>, pinned ORFS commit). The generic views differ from the mapped truth by RMS 0.036 (area) and 0.123 (latency) of each objective&rsquo;s range, yet searching them costs within &plusmn;0.01 of hypervolume against searching the truth, and TPE&rsquo;s lead over random at budget 20 is unchanged (+0.037, 95% CI +0.032 to +0.042, 200 paired seeds). iid noise at the matched level gives a similar answer; at &sigma; = 0.2 it does cost TPE 0.012. Limits: one toy design family, one ABC script, no place and route (not sign-off), and the error objective is shared by both views.",
+ "lede": "searching generic-gate objectives instead of SKY130-mapped ones (RMS error 0.036 on area, 0.123 on latency) costs within 0.01 of hypervolume on the 40 MAC-engine designs, and TPE's +0.037 lead over random at budget 20 is unchanged."
+}

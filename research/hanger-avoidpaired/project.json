@@ -1,0 +1,6 @@
+{
+ "theme": "hanger",
+ "title": "Is a laundry-hanging arm's gain from picking a free garment real? A paired test on 2000 loads",
+ "summary": "hanger-avoid left aiming's gain from avoiding a clash unproven. Pairing wait and avoid on the same 2000 seeded loads (two arms, load 25) gives, at 0.30 m clearance, +1.25 garments an hour for aiming (95% bootstrap interval 0.60 to 1.92), +4.4 for sweeping and +10.0 for blind pinching; at 0.45 m aiming gains +0.15 (&minus;0.05 to 0.36). Pairing halves the standard error against unpaired intervals, yet avoiding wins on only about half of single loads for aiming (load-to-load SD about 15 an hour). Stylised: clearance, station times and the pile are hanger-avoid's placeholders; only the statistics are tightened.",
+ "lede": "is a laundry-hanging arm's gain from picking a free garment real? Paired on 2000 loads at 0.30 m: aiming +1.25 an hour (0.60 to 1.92), sweeping +4.4, pinching +10.0; at 0.45 m aiming gains nothing. Stylised: inputs are placeholders."
+}

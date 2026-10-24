@@ -1,0 +1,13 @@
+[project]
+name = "infra-hosting"
+version = "0.1.0"
+description = "How much rooftop PV can an IEEE distribution feeder take before voltage or thermal limits bind, and how much do cheap measures add (OpenDSS)"
+requires-python = ">=3.9"
+dependencies = ["numpy", "OpenDSSDirect.py"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

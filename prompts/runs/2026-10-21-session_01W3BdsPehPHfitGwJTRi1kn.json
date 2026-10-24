@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-21",
+  "session": "https://claude.ai/code/session_01W3BdsPehPHfitGwJTRi1kn",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-21T05:44:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "infra-netting (track 21 milestone 11)",
+  "projects": [
+    "research/infra-netting"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9080",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Milestone 3 (infra-waterloss) was claimed by open PR 9078 and 'pick_track.py' sent the run to track 13, whose milestones are all done; had to hand-pick track 21 milestone 11."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "plain python3 lacks pytest; pyenv.py printed /usr/local/bin/python3 yet pytest then worked only after it ran - fine, but the first bare 'python3 -m pytest' failed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No separate docs/reports agent doc or docs/posts post: the project README holds the full write-up and discrepancy; time spent on the result itself."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "why": "pick_track gave track 13 (all milestones done, chain of micro-variants); chose track 21 milestone 11 instead."
+    }
+  ],
+  "writeups": [
+    "research/infra-netting/README.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: pytest 7 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links ok. Finnish delay-cut discrepancy vs paper reported, not explained.",
+  "corrections": [],
+  "redteam": null
+}

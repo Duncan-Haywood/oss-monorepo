@@ -1,0 +1,24 @@
+# Yosys 0.33 (git sha1 2584903a060); SKY130 HD tt_025C_1v80 at ORFS commit e5cc6e799f; ABC script: strash; dc2; map; topo; stime
+# 40 MAC-engine designs (p = 1..8 lanes, wb = 4..8 bits) from eda-harness; generic numbers from its committed log
+
+pair (generic rung vs SKY130 rung)                          spearman  kendall
+cells vs mapped area                                          0.995    0.954
+depth vs mapped delay                                         0.611    0.465
+cells x cycles vs area x latency                              0.926    0.782
+flip-flops vs mapped flip-flops                               0.972    0.884
+top-3 overlap on cells x cycles vs area x latency: 0.67
+top-5 overlap on cells x cycles vs area x latency: 0.60
+top-10 overlap on cells x cycles vs area x latency: 0.90
+mapped area per generic cell (um2): min 6.42, max 8.38
+
+Pareto front, generic (cells, cycles):          p8w4, p4w4, p2w4, p1w4
+Pareto front, SKY130 (area, cycles):            p8w4, p4w4, p2w4, p1w4
+Pareto front, SKY130 (area, latency = cycles x delay): p4w4, p2w4, p2w5, p1w4
+front overlap generic vs SKY130 (area, cycles): 4 of 4 / 4
+front overlap generic vs SKY130 (area, latency): 3 of 4 / 4
+
+best design by objective:
+  generic cells x cycles: p4w4
+  SKY130 area x latency:  p4w4
+
+delay_ps by lanes p (wb = 6): p1=5292, p2=5679, p3=7587, p4=6556, p5=7655, p6=7971, p7=10113, p8=10789

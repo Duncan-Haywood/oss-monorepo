@@ -75,6 +75,32 @@ class CampaignTest(unittest.TestCase):
         self.assertEqual(redteam.list_targets(self.repo), [self.target])
         self.assertIsNone(redteam.suite_for(self.venture / "calc.test.mjs", self.repo))
 
+    def test_targets_probe_times_each_suite_once(self):
+        from unittest import mock
+        import contextlib, io
+        paths = [redteam.REPO / "a.py", redteam.REPO / "b.py"]
+        times = iter([(True, 1.5)])
+        out = io.StringIO()
+        with mock.patch.object(redteam, "list_targets", return_value=paths), \
+                mock.patch.object(redteam, "suite_for", return_value=(["x"], Path("."))), \
+                mock.patch.object(redteam, "run_suite", side_effect=lambda *a: next(times)), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            redteam.main(["targets", "--probe", "9"])
+        self.assertEqual(sorted(out.getvalue().split("\n")[:2]),
+                         ["a.py\t1.5s", "b.py\t1.5s"])
+
+    def test_random_draw_skips_a_slow_suite(self):
+        import contextlib, io
+        pool = [Path("/r/slow.py"), Path("/r/fast.py")]
+        secs = {"slow.py": 99.0, "fast.py": 1.0}
+        with mock.patch.object(redteam, "REPO", Path("/r")), \
+                mock.patch.object(redteam, "suite_for", side_effect=lambda p: ([p.name], Path("."))), \
+                mock.patch.object(redteam, "run_suite", side_effect=lambda c, w, t: (True, secs[c[0]])), \
+                contextlib.redirect_stderr(io.StringIO()):
+            for seed in range(8):
+                self.assertEqual(redteam.draw_fast_target(pool, seed, 20).name, "fast.py")
+            self.assertIn(redteam.draw_fast_target(pool, 0, 0).name, {"slow.py", "fast.py"})
+
     def test_targets_under_a_directory(self):
         self.assertEqual(redteam.list_targets(self.repo, under="ventures/"), [self.target])
         self.assertEqual(redteam.list_targets(self.repo, under="platform"), [])

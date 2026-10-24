@@ -53,6 +53,7 @@
     <p>Supply-chain and CI security tooling is mostly paid, or scattered across a dozen single-purpose scanners with a dozen output formats. <strong>devsec-toolkit</strong> runs your repository through 23 open-source checks (GitHub Actions, Docker, Compose, Kubernetes, dependency manifests, application code and AI coding-agent configs) and gives you <em>one</em> report: one severity scale, one baseline, SARIF for GitHub code scanning.</p>
     <p class="note">Zero dependencies: Python 3.9+ (and Node.js 18+ for six of the checks). Nothing is uploaded and no check makes a network call. The report viewer below reads your file in this browser only.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>Run it</h2>
@@ -164,7 +165,8 @@ python3 devsec-src/ventures/devsec-toolkit/devsec.py scan . --fail-on high      
     <p class="note">Where this is going: <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/devsec-toolkit/ROADMAP.md">ROADMAP.md</a>. Source: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/devsec-toolkit">ventures/devsec-toolkit</a>.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a penetration test, a compliance attestation or security advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for deciding what to change in your own systems. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/devsec-toolkit" rel="noopener">devsec-toolkit from the repo</a> and run it yourself.</p>
     <p>The report you open is read in your browser and never uploaded; there are no accounts, cookies, or analytics vendors, and this page makes no network calls of its own. Anonymous feature events (<code>report_opened</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

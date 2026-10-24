@@ -144,3 +144,11 @@ test('the root README links every audience page, so the repository points search
   const linked = new Set([...readme.matchAll(/\/monorepo-projects\/c\/for-([a-z0-9-]+)\//g)].map((m) => m[1]));
   assert.deepEqual([...linked].sort(), AUDIENCES.map((a) => a.id).sort());
 });
+
+test('slug rules claim the UK section 24 and 1099-K tools for their audiences', () => {
+  assert.ok(audienceMatches(byId.landlords, 'uk-landlord-section-24-calculator'));
+  assert.ok(audienceMatches(byId.landlords, 'section-24-mortgage-interest-check'));
+  assert.ok(!audienceMatches(byId.landlords, 'section-25-notice-check'));
+  assert.ok(audienceMatches(byId.freelancers, '1099-k-threshold-checker'));
+  assert.ok(!audienceMatches(byId.freelancers, '1100-k-threshold-checker'));
+});

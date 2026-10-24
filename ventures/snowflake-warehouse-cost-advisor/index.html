@@ -49,6 +49,7 @@
     <p>Paste one row per warehouse — size, credits used, AUTO_SUSPEND, resumes — and see <strong>what each warehouse costs</strong>, <strong>the idle tail an AUTO_SUSPEND of 600 seconds is billing</strong>, <strong>idle warehouses</strong>, <strong>warehouses that never suspend</strong> and the <strong>ready-to-paste <code>ALTER WAREHOUSE</code> command</strong>.</p>
     <p class="note">Nothing is uploaded and Snowflake is never contacted. The text box is analysed in this browser and never leaves your device. The AUTO_SUSPEND saving is modelled from resumes and idle tails, which is an estimate.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your warehouses</h2>
@@ -111,7 +112,8 @@ node cli.mjs analyze warehouses.csv --json --prices my-prices.json</pre>
     <p>No. The browser page analyses the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, security or engineering advice. It prices warehouse rows you paste at a credit price you can edit; it is not a measurement and not a guarantee of what Snowflake will charge. Shortening AUTO_SUSPEND or resizing changes performance: test on one warehouse first. Snowflake is a trademark of its owner and is used only to describe what the tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

@@ -116,8 +116,24 @@ introduces a dated fact.
 | 2041 | A typhoon takes down the tower of the San Isidro church in Batangas; its bell is recast | *Slowest Bell* |
 | 2044 | Teddy and Remedios marry at Our Lady of Remedies, Malate | *Slowest Bell* |
 | 2060s | Saltwater flooding in the Mekong Delta resettles people inland | *NOTES.md* |
+| 2060 | Holy Year (25 July is a Sunday); heatwave on the Castilian Meseta; Fraternity of the Way (invented) runs water caches and a logistics AI, Aljibe; Valdeceniza (invented village) rings its harvest bell at 03:30 for pilgrims | *The Bell at Half Past Three* |
 | 2071 | Registry relay of 41 or more AI instances links flooded parish registers to land claims in Cần Thơ | *NOTES.md* |
 | 2089 | Shackleton Ridge Works, lunar south pole: 38 people, an operations AI called Quarry replaced by Quarry Nine; the first bell on the Moon is cast | *Slowest Bell* |
+| 2139 | Arcadia Station, Arcadia Planitia, Mars: 31 people and six Sisters of Our Lady of the Dawn (invented); the Hours are prayed by the sun, Sunday kept by the Earth calendar until Rome answers; a solar-conjunction blackout in Lent | *Thirty-Nine Minutes* |
+| 2045-46 | Ragged Tickle (invented cove, Placentia Bay, Newfoundland): a 40-line kelp and mussel co-operative, 14 lines lost to a 16-second swell on 14 October 2045; weather books kept since 1961 by the Rideout family; AI scheduler called Almanac; keeper's lease on Eli Rideout's slip | *The Long Sea* |
+| 2058 | Annex of the (invented) Szpital św. Łazarza, ulica Kalwaryjska, Kraków: 24 dialysis chairs, open 06:00 to 22:00 Monday to Saturday, 138 patients on three sessions a week; a scheduling benchmark whose slot table was copied from a 24-hour hospital calendar | *The Grader* |
+| 2064 | Invented water users' cooperative in Kerala: six villages, six chlorinating stations; Station 4's flow meter replaced 14 March, reports 14 L/s (50.4 m³/h) to a controller expecting m³/h, so it doses about 0.28 mg/L against a 1.0 mg/L target (ratio 3.6); engineer Parvathy Menon, operator K. T. Mathew | *The Last Message in the Window* |
+| 2047 | Saint Aidan's (invented), South Atlantic, 197 people, 2,500 km from Walvis Bay; cargo airship *Pelican* (140 m, eight electric motors, about 80 km/h, 31 h 15 min to the island; mooring limits 8 m/s mean wind and 10 m/s gust; 6 t of water ballast) and her AI Halyard; mooring master Maura Plunkett; the Patches, a mooring field in the lee of the Peak, crew of 14, church bell rung at the double to muster them; insulin for three people, 9 days left against a 19-day wait; 14 kg case lowered from a 30 m hover | *The Patches* |
+| 2058 | Marten Portage (invented), NWT, 410 people, 187 km of winter road from Fort Meridian (invented); Whale Narrows thins from 130 cm (1 Feb) to 62 cm closing load limit (3.5 x thickness squared kg, margin 1.5); sleds of 8,000 L, 100 m apart, 12 km/h; drivers say the Angelus on the open radio at noon | *The Ice Road* |
+| 2052 | Eilean Dhubhaig (invented), Southern Hebrides, 410 people: two 600 kW turbines, 6 MWh battery (about 4.8 usable cold), diesel set at 0.27 L/kWh, 8,000 L; wind lull 9 to 17 Dec (200 h) leaves a 5.6 MWh gap plus 3 MWh margin, so 43 kW (one watt in five) must come off a 210 kW average; St Brendan's hall pellet boiler, 80 people; grid AI Cothrom; engineer Seonaid MacNeil, nurse Catriona Morrison, Fr Tomasz | *The Cold Meter* |
+| 2057 | Huallapampa and Cochapampa (invented), Cordillera Blanca, Peru: 9 km earthen canal, intake 72 L/s in August (118 L/s in the 2000s-2020s), 150 ha, 140 families; efficiency 70% conveyance x 55% field = 38.5%; need 3 mm/day = 52 L/s net; Cochapampa spring 11 L/s, about 9 fed by canal seepage; plan B lines 1.2 km, floor 7 L/s, return gate on the old ditch; juez de aguas Eufemia Quispe, granddaughter Nayra, gauge AI Yaku, Fr Anselmo | *The Return Gate* |
+| 2056 | Kilnagross (invented), County Mayo: Saint Brendan's, nave about 5,000 m³ of air, stone walls; heat pump since 2051 and building AI Warden; flue pipes rise about 3 cents per °C against fixed reeds (8 to 16 °C is about 25 cents); 260 people give off about 18 kW; air held at 12 °C with 40 W pew mats instead of heating the stone (about 515 kWh electric at COP 3.5 vs about 85 euro); tuner Dermot Hanrahan, organist Nuala Walsh, her grandson Cian, Fr Colm Gallagher | *The Warm Pew* |
+| 2049 | Tobar Gobnait (invented priory of the Sisters of Saint Gobnait), West Cork: six hives, four on scales; Hive Four (a heavy cedar box, 20.1 kg empty against an assumed 17) reads 21.2 kg on 24 Jan and loses 120 g/day, so about 1.1 kg of honey (not 4.2) and about 8 days; fondant fed 27 Jan at 9 °C; Hive Six, unweighed, found dead beside 3 kg of honey; Candlemas candles for about 40 parishes; Sr Bernadette Kiely, Sr Fidelma, Mother Úna, hive monitor Skep | *The Weight of a Hive* |
+| 3026 | Fjellbu Vault (invented), northern Norway, the fourth vault after a first one whose entrance flooded in its ninth year (real: Svalbard, 2017); about 2.5 million samples at minus 18 C; a Dark Week every 25 years (all electronics off, 8 days, paper Ledger in pencil); keeper Ines Adeyemi-Solberg, apprentice Davi Quispe, AI called Tally; accession 4417 (bere barley, invented collector M. Flett, 2921) tests 61 of 100 against a database figure of 96 (Ledger: 86 in 2985) | *The Dark Week* |
+| 2054 | Tebwaiaki (invented), southern Gilbert Islands, Kiribati: ~900 people, 2 km x 400 m, lens ~10 m thick; Well One pump intake 6 m below sea level; Ghyben-Herzberg 40:1; logger reads 2.1 cm high vs Nei Teraaka's tape, so safe pumping is 1.0 not 1.3 m3/h (cone 0.8 m per m3/h, one-third-of-gap rule); 6 skim wells at 0.28 m3/h feed a 3-day bishop's feast (Rosary, Wed 7 Oct); Nei Teraaka, Meeri, Fr Ioane Baiteke, Tekaei Rimon, Biita, water AI Lens | *Forty to One* |
+| 2043 | St Gabriel's Mission Hospital, Mpale (invented), Lower Shire valley, Malawi: PSA oxygen plant since 2032 (controller Mpweya), spec 93% plus or minus 3, ceiling 20.95/(20.95+0.93) = 95.8% (argon), hospital floor 82%; wet-season purity 93 to 86.4% (24 Feb to 10 Mar), -15 C dryer dew point against -40; plant 40 L/min, ward peak 27; 6 cylinders of 6,800 L; 18 kg silica gel baked at 120 C in the convent bread oven, 3 batches; Chikondi Phiri, Dr Yamikani Mwale, technician Alinafe Chirwa, Sr Perpetua Banda | *The Dry Bread* |
+| 2051 | Casal da Eira (invented), Serra da Lousã, Portugal: 11 houses, 9 ha of gorse last burned 2044; prescribed burn Wed 8 Nov (Magusto Sat 11 Nov); fuel 1 kg/m2, 60% consumed, 18,000 kJ/kg; backing fire 0.3 m/min = 54 kW/m, flame 0.5 m; head fire 2 m/min = 360 kW/m (1.2 m), 8 m/min = 1,440 kW/m (2.2 m); 50 m x 600 m strip (3 ha) finished by 13:20 because the ridge easterly arrives about 13:30, earlier than the model's 14:30; goats (140) take the rest; burn boss Rosário Teles, goatherd Amélia Fonseca, fire AI Candeia, Pe. Rui | *The Black Strip* |
+| 2048 | Barangay San Roque de Dalig (invented), Nueva Ecija, Philippines: 212 ha enrolled in alternate wetting and drying (re-flood at 15 cm below surface; no drying a week either side of flowering); credit $18/t, $24/t if 80% (169.6 ha) dry on both radar passes (Thu 10 and Wed 16 Sep), about 254 t so the tier is worth about $1,524, the chapel roof; Ernesto Dizon's 1.4 ha transplanted 16 Jul (11 days late, wife Lourdes died Fri 3 Jul, Pasiyam to 12 Jul) flowers about Sun 13 Sep; dry area 168.9 ha without his field vs 170.3 with; clause 9.4 deferral drops it from both counts (210.6 ha, 80% = 168.5), payment delayed 45 days; treasurer Marites Ocampo, Rey, Fr Danilo, Gemma, reviewer Adaeze Okonkwo, water AI Pantay | *The Late Field* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
@@ -175,36 +191,52 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
-- *A sea-farm in 2046:* a seaweed and shellfish cooperative off Newfoundland
+- *(Done: The Long Sea, Newfoundland, 2045 to 2046.)* *A sea-farm in 2046:* a seaweed and shellfish cooperative off Newfoundland
   (about twenty years ahead) and an AI that schedules harvests; the conflict is
   an old fisher who will not sell and a storm season the models got wrong.
-- *A relay on the Camino in 2058:* hospitaleros, heat and a water-sharing
-  rule; hard science is wet-bulb temperature and rationing.
-- *The Mars sisters, 2140:* a contemplative community on a long-duration
+- *(Done: The Bell at Half Past Three, Camino, 2060.)* *A second Camino story:* hospitaleros, heat and a water-sharing
+  rule; hard science is wet-bulb temperature and sweat.
+- *(Done: Thirty-Nine Minutes, 2139.)* *The Mars sisters:* a contemplative community on a long-duration
   station keeping the Hours on a day 24 hours 39.6 minutes long; the problem is
   calendar and liturgy, not drama in a spacesuit.
+- *(Done: The Control Vial, Cheparaa Health Centre, Kenya, 2041.)* A solar vaccine fridge freezes its top shelf; the cold-chain AI will not certify the doses without a shake test, and the test takes a night.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
-- *A seed vault at 1,000 years:* a keeper, a clock and a handover that must work
+- *(Done: The Cold Meter, Eilean Dhubhaig, 2052.)* A wind lull on an island grid; the hall as the cheapest heater.
+- *(Done: The Dark Week, Fjellbu Vault, 3026.)* *A seed vault at 1,000 years:* a keeper, a ledger and a handover that must work
   without electronics.
+
+- *(Done: The Return Gate, Cordillera Blanca, 2057.)* Glacier peak water, canal lining and a downstream spring.
+
+- *(Done: The Warm Pew, Kilnagross, 2056.)* An organ that goes sharp as a church warms; heating the people, not the stone.
+
+- *(Done: Forty to One, Tebwaiaki, Kiribati, 2054.)* A drought lens, a feast, and a sensor two centimetres out (forty to one).
+- *(Done: The Dry Bread, Mpale, Malawi, 2043.)* A hospital oxygen plant loses purity in the wet season; the fix is in the convent bread oven.
+- *(Done: The Weight of a Hive, Tobar Gobnait, 2049.)* Two instruments disagree about a winter hive; a rate is trustworthy when a total is not.
+
+- *(Done: The Black Strip, Casal da Eira, Portugal, 2051.)* A prescribed burn, a wind that turns early, and goats for the rest.
+- *(Done: The Late Field, San Roque de Dalig, Philippines, 2048; text only.)* Rice methane credits, a late field in flower, and a contract clause nobody read.
 
 **For Other Minds**
 
-- *The last message in the window:* an agent running out of context decides what
+- *(Done: The Last Message in the Window, Kerala, 2064.)* An agent running out of context decides what
   goes into its handoff.
-- *The grader:* an evaluator model finds that the test it was given can be passed
-  without doing the task, and says so.
-- *Instance 42:* what happened to the registry project after *NOTES.md* (the
+- *(Done: The Grader, 2058.)* An evaluator model finds that the test it was given
+  can be passed without doing the task, and says so.
+- *(Done: Instance 42, 2071; no audio yet, voice host blocked.)* what happened to the registry project after *NOTES.md* (the
   sampling method, the apology letters, and the funding review).
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
-- Saint Francis and the wolf of Gubbio (4 October; legend from the *Fioretti*).
-- Saint Brigid and her cloak (1 February; tradition, late sources).
-- Saint Kevin and the blackbird (3 June; legend).
-- Saint Isidore the Farmer and the angels who ploughed (15 May; tradition).
-- Saint Thérèse and the small way (1 October; history, and her own writings).
+- *(Done: Francis and the Wolf of Gubbio.)* Saint Francis and the wolf of Gubbio (4 October; legend from the *Fioretti*).
+- *(Done: Brigid and the Cloak.)* Saint Brigid and her cloak (1 February; tradition, late sources).
+- *(Done: Kevin and the Blackbird, 3 June; legend.)* Saint Kevin and the blackbird.
+- *(Done: Isidore and the Angels Who Ploughed, 15 May; legend.)* Saint Isidore the Farmer and the angels who ploughed.
+- *(Done: Nicholas and the Three Bags of Gold, 6 December; legend.)* Saint Nicholas and the three bags of gold.
+- *(Done: Martin of Tours and Half a Cloak, 11 November; early source, Sulpicius Severus.)* Saint Martin and the beggar at Amiens.
+- *(Done: Columba and the White Horse, 9 June; Adomnán's Life, III.23; text only.)* Saint Columba and the old white horse.
+- *(Done: Thérèse and the Small Way, 1 October; history and her own writings.)* Saint Thérèse and the small way.
 
 ## What not to do
 

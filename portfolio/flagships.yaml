@@ -21,7 +21,55 @@
 # retail-pilot-intel, print-atelier and real-estate-agent-photo-app (mostly
 # plans and demo UI), workflow-audit and marketplace-fee-compare (thin).
 flagships:
-  # Added 2026-10-21 first, on the owner's direction that day: "I want to make ai sales agents this is a long term
+  # Added 2026-10-21 first, on the owner's direction that day: "I want to make
+  # ai accounting systems". It joins up what about ninety single-step
+  # accounting tools in ventures/ already did into books that persist and learn.
+  - venture: ai-bookkeeper
+    why: >-
+      A double-entry ledger in integer cents with a four-layer categorizer that
+      learns from each filed line (rules, payee memory, naive Bayes, built-in
+      keywords) and an optional bring-your-own-key or local model for the review
+      queue. It pairs transfers, reconciles to the statement's running balance,
+      and produces a P&L, balance sheet, close checks and QuickBooks, Xero and
+      IIF journals; page, CLI and agent engine. Learning curve measured on
+      synthetic data (README Verification).
+    next: >-
+      Everything built so far is tested on hand-written fixtures; the next slices
+      are about real inputs (the landed log is in the README and git history, not
+      here). Open items, most valuable first: (1) the AI layer in fill-only mode
+      on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
+      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers (Excel, BAI2, Norma 43, CFONB120 and many regional CSV headers, CJK code pages; all tested only on hand-built or made-up files, see README) (CSV, OFX/QFX/QIF, statement PDFs, regional code pages and layouts) on real
+      exports from Chase, Bank of America, Wells Fargo, Amex, Capital One and
+      others; (3) a real Stripe, Square, PayPal or Amazon settlement export for
+      the payment-processor import (`form1099k`: try a real 1099-K); (4) a real
+      supplier's terms letter checked against the fee and discount rules, and one
+      named lender's own schedule against the loan register (`loan check`); (5)
+      receipts and the reconcile-to-statement command on real paper, and reading
+      receipt photos in the page; (6) payroll (941, Schedule B, 940, deposits,
+      `payroll reconcile`): a real Gusto or ADP report, and the deposit rules
+      against a real IRS notice; (7) one named filing service's import layout,
+      from its own spec; (8) `salestax return`: check it against one state's real
+      return layout and holiday calendar; (9) 2027 `estimate`: the indexed QBI minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is in). A run that lands a slice replaces
+      its item here; keep this under 2,000 characters.
+
+  # Added 2026-10-21 second, on the owner's direction that day: "I want to make
+  # tools that can automate part of the new home construction process in the
+  # us. to drop prices and increase efficiency this is a long standing project
+  # to work on continually." The program is ventures/wall-framing-takeoff/ROADMAP.md.
+  - venture: wall-framing-takeoff
+    why: >-
+      Wall layout engine (studs on layout, kings, jacks, headers, cripples,
+      plate splices over studs) with a per-wall self-check, and a Gilmore-Gomory
+      cutting-stock order within 0.02% of its LP bound on whole houses; page,
+      CLI and agent engine. First tool of the new-home construction program.
+    next: >-
+      Open items only; landed work is in ventures/wall-framing-takeoff/README.md
+      and ROADMAP.md. Roof framing, wings, valley backing and their page controls have landed (README and ROADMAP). Foundation quantities (concrete, trucks, rebar, forms, gravel; `--foundation`) landed 2026-10-24 (engine/CLI, hand arithmetic); foundation on the page landed 2026-10-24 (fields, stem/monolithic switch, click check; a real foundation plan still open). Next: a floor drawing (several stairwells on the page landed 2026-10-23, semicolon-separated, overlap refused, click check); gable walls on the page landed 2026-10-24 (pitch and peak columns, click check); gable sheathing in the horizontal layout (vertical-sheet order landed 2026-10-22; offcut-triangle nesting of the sloped top courses landed 2026-10-24, hand heights, not a nested cut on real sheets);
+      code edition, typed by a person who has the book, is open); a 2D reuse of opening cut-outs (sample house: 0 panels fit a hole, `cutout-reuse-bench.mjs`, so only worth rechecking on a real plan);
+      the panel sheathing-weight field and the panel order and pull-list
+      download were clicked through in headless Chromium 2026-10-23 (example plan, `eval-browser-click.mjs`).
+
+  # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
     why: >-
@@ -42,120 +90,106 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      A Poisson cost for counts, a seasonal adjustment (--period n) and an
-      AR(1)-aware noise scale (--ar1) are in, each measured on seeded
-      synthetic series (README Verification), and --ar1 gives the Bayesian pass a conditional AR(1)
-      likelihood (false detections 40/40 -> 0/40, power 40/40 at shift 8, up from 25/40 with prewhitening). The mean and
-      mean-and-variance PELT match the independent ruptures package on 100 of 100
-      seeded cases (fixture in data/). The Poisson model matches ruptures' PELT with a scipy
-      Poisson cost on 90 of 90 seeded cases (fixture in data/). Re-estimating rho for the Bayesian pass from PELT residuals was measured and dropped (27 to 29 of 40 hits, inside noise; README). The PELT side has a joint mean-plus-AR(1) fit (--ar1 joint: 34/40 power at shift 4 against 28/40, same 4/40 false runs). --period --drift --ar1 together is measured (sticky noise: 9.5 -> 1.3 changes per series, README) and choosing the --drift window by leave-one-out error was tried and dropped (worse on all five shapes, README). --model trend (one line per segment, PELT exact) now finds slope breaks and jumps on ramps (README Verification: pure ramp 5.5 -> 0.15 changes per series). Next: a trend inside the seasonal adjustment (--period with a trend currently subtracts the profile, then reads the trend as steps unless --model trend) or a drift window chosen by a rule that rewards clean detection rather than prediction, e.g. minimum PELT segment count on the series itself. --trend (a common slope under steps, composable with --period; 10.1 -> 1.13 changes per series on a ramp with one step, README) sits beside --model trend (a line per segment). --trend with --ar1 is measured on sticky noise over a ramp (the slope loop was cutting the wandering into steps; PELT false runs 28/40 -> 3/40, README). --trend bend now fits one slope change chosen by BIC (knot found at 100.5 for a true 100, 4.58 -> 0.48 changes per series on a ramp whose slope doubles, README). The web page offers it (a "Trend under the steps" menu), and --trend bends adds up to three knots greedily (two-knot ramp, 240 points: 9.55 -> 1.05 changes per series, both knots within 2 points, 0/40 false bends, README). Bends with --ar1 and --period are measured (sticky noise: 9.25 -> 2.0 changes per series with --ar1, but both knots found only 23/40 against 40/40 on white noise; README). Knots are now refined to the point after the greedy search (0.42 against 1.00 changes per series on the 240-point benchmark; README "Knots refined"). An AR(1)-aware BIC for the knot search is in (false bends under sticky noise 11/40 -> 0/40, changes per series 1.98 -> 0.55; README), but both knots are still found in 23/40. --joint-knots scores every pair of grid knots and raises that 23/40 to 36/40 two-knot finds on sticky noise (28/40 within 8 points against 17/40; README), but places knots slightly worse on white noise (24/40 against 30/40). The web page has a switch for --joint-knots. The best pair is now refined to the point before it is compared with the greedy fit (white-noise placement within 8 points 27 -> 33 of 40, level with greedy; README). An exhaustive least-squares knot pair is now offered to the same BIC (white-noise knots within 8 points 32 to 35 of 40, sticky 30 to 33; README). Next: a 10-90% knot range, and the least-squares pair computed after the steps are removed. --knot-margin 0.1 searches knots at 10 to 90% of the series (early knot found within 6 points 0 -> 34 of 40, 0/40 false bends, README "Knot range"). It is measured with --ar1, --period and --joint-knots (early knot found 0 -> 25 to 36 of 40 on each, false bends on ramps 0 to 2 of 40, README) and is on the web page. Late knots with sticky noise are measured too (0 -> 35 of 40) and 0.1 is now the default (README "Knot range"). Seasonal counts are in (--model poisson --period n: multiplicative factors as Poisson exposures, fitted by alternating with PELT; weekly counts, false runs 15/20 -> 0/20 and the planted shift found 20/20, README "Seasonal counts"). Poisson-count trends are in (--model poisson --trend: a common log-linear growth as an exposure, composing with --period; ramp 3.80 -> 0.07 changes per series, step on a ramp found alone 0/40 -> 30/40, README "Count trends"). Bends in the count trend are in (--model poisson --trend bend: changes per series 3.38 -> 0.17 on a growth rate that quadruples at the midpoint, knot within 15 points on 36/40, 0/40 false bends, README "Bends in the count trend"). Count bends with --period are measured (weekly counts: knot within 15 points on 35 of 40, 0 false bends). Overdispersed counts broke the Poisson cost (18 false changes per series on wandering counts) and --overdispersion now scales the penalty by an estimated quasi-Poisson dispersion (0.6 false changes per series; README "Clumpy or sticky counts"), at the price of finding a planted bend on 1 of 40 wandering series. The Bayesian pass is now tempered by the same dispersion (false flags on wandering counts 5.8 -> 0.25 per series, but power at a 1.8x step 22/40 -> 0/40; README). A negative-binomial cost for PELT is in (--overdispersion nb: independent clumpy counts, false changes per series 3.55 Poisson / 0.78 quasi-Poisson -> 0.13, step found 39/40; sticky counts are not helped, 6.75 against 1.20, README "Independent clumpy counts"). The negative binomial now composes with --period and --trend (exposures; weekly clumpy counts, false changes per series 3.92 Poisson / 0.42 quasi-Poisson -> 0.05, and with a trend the step is found 34/40 against 21/40 for quasi-Poisson; README "Clumpy counts with a season or a trend"). The negative binomial is now inside the Bayesian pass (--overdispersion nb: step 3.5x found 38/40 against 16/40 tempered, 0.05 false flags per series against 0.40 for plain Poisson; README), without a season or trend. The negative binomial now also runs in the Bayesian pass with exposures (--period; a grid posterior over the rate, exact predictive; weekly clumpy counts, a 3.5x step found 38/40 against 19/40 quasi-Poisson with 0.05 false flags per series, README "Negative binomial with exposures in the Bayesian pass"). The Bayesian NB pass with --trend is now measured (ramp, step at 105: found 14, 28, 36 of 40 at 1.8x, 2.5x, 3.5x with 0.03 false flags per series, against Poisson's 2.45; README). Two bends for counts are in (--model poisson --trend bends: changes per series 4.08 -> 1.77 on a two-knot growth series, both knots within 15 points on 23/40, 0/40 false bends; README "Two bends in the count trend"). Bends for counts under --period and --overdispersion nb are measured (planted bend kept 15 to 18 of 40, false bends 2 of 40, same as Poisson; a threshold scaled by the NB variance ratio cut false bends to 0 but hits to 9 to 12 of 40 and was dropped; README "Bends on clumpy counts"). The bend search now runs on the NB likelihood itself under --overdispersion nb (planted bend kept 15 to 18 of 40 and knot within 15 points 9 to 13 without a season, 18 to 22 and 13 to 18 weekly, false bends 2 to 0 of 40; README "Bends on clumpy counts"). The NB cost with a season is now O(classes) per segment (per-class prefix sums; 600 points 109 -> 47 ms, 3000 points 2623 -> 172 ms, identical changes; README "Speed"). The continuous --trend exposure cost is leaner (one log per point, about 1.8x on bends, README Speed). The bend search under NB now ranks knots on the Poisson cost and refits the best 8 under NB (240 points: 6.4 s to 1.8 s, same result; weekly power 22 to 21 kept, knot near 18 to 14 of 40, README Speed). The NB trend cost now warm-starts its rate per segment start (README Speed). A converged fit reuses its last PELT cost (about 15%, identical output). The weekly ranking gap was not the Poisson cost but fine neighbours crowding the NB finalists; finalists are now spread-out grid knots (weekly knot near 14 -> 16 of 40, README Speed). Next: bends for counts with two knots under NB.
+      Landed history (Poisson, seasonal, --ar1 and joint AR(1), trend, holidays,
+      bursts, change-date range95 incl. counts, seasonal and trend, each measured
+      on seeded series; slope-change range and growth-change range for counts
+      2026-10-22, the latter calibrated to ~95% on three seeded sets) lives in the README
+      and git. Open: range95 on a real series with a true holiday closure or
+      documented slope break; the growth-change range on clumpy (NB) counts is ~90% not 95% (scored with the NB cost itself 2026-10-23, narrower than the ratio widening; the miss is at large bumps, where a bump-0.04 cell on one seed covers 10 of 15).
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      The official EN 16931 Schematron plus the XRechnung (UBL, CII) and Peppol
-      BIS 3 (UBL and CII) add-ons run in Saxon-JS (opt-in, ?schematron=1, picked by
-      BT-24); the Docker image bakes them in; all 342 rule ids have an English
-      fix; and the web page has an "official Schematron" box that posts XML to
-      the self-hosted API and lists the findings (official.mjs). The Peppol
-      credit-note and XRechnung CII examples now pass the official rules in
-      tests, and the 30 DE-R rules Peppol applies to German invoices have
-      English fixes. An in-browser path is in (node build-browser.mjs writes ./browser/ with Saxon-JS's
-      browser runtime and the SEFs; checked in headless Chromium, no server). The Saxon
-      route is not on the owner's Pages copy (its licence), but the plain-JS port is: the
-      page runs the EN 16931, XRechnung and Peppol rules in the browser with fontoxpath
-      (README, plain/). A 14-country comparison page (e-invoicing-mandates-by-country.html)
-      is in for search. A CII credit note (clean) and a UBL credit note with six defects are in, both pinned against the
-      official rules. A CII credit note with defects is in too (eight official rules, each with an English fix, pinned by tests). A Factur-X credit note (PDF, 381) is in too, clean under the official rules and read by both tools. A Factur-X credit note with defects is in too (PDF envelope around the defective CII credit note; same findings as the bare XML). A Germany mandate page (germany-e-invoice-mandate.html: receive 2025, issue 2027 and 2028, which formats count, linked from the tool page and sitemap) is in for search. A France mandate page (france-e-invoice-mandate.html: receive 1 Sep 2026, issue 1 Sep 2026 for large and mid-size, 1 Sep 2027 for the rest, Factur-X/UBL/CII, linked from the tool page and sitemap) is in for search. A Belgium mandate page (belgium-e-invoice-mandate.html: structured Peppol B2B since 1 Jan 2026, fines EUR 1,500/3,000/5,000 after the Q1 tolerance, linked from the tool page and sitemap) is in for search. A Poland page (poland-ksef-e-invoice-mandate.html: KSeF 1 Feb and 1 Apr 2026, smallest 1 Jan 2027, penalty deferral to 2028 still a draft bill, FA(3) not validated, said plainly; linked from the tool page and sitemap) is in for search. A Croatia page (croatia-e-invoice-mandate.html: Fiskalizacija 2.0 from 1 Jan 2026, EN 16931 UBL/CII, national profile not checked, said plainly) is in for search. A Spain page (spain-verifactu-e-invoice-mandate.html: Verifactu delayed to 1 Jan 2027 and 1 Jul 2027, not an e-invoicing mandate, Verifactu records not checked, said plainly) is in for search. An Italy page (italy-sdi-e-invoice-mandate.html: SdI and FatturaPA since 2019, not EN 16931, FatturaPA not validated, said plainly) is in for search. A Netherlands page (netherlands-e-invoice-mandate.html: B2G since 2017 and 18 Apr 2019, NLCIUS, B2B still voluntary with a 2030-2032 direction not yet law, NLCIUS rules not checked, said plainly) is in for search. A Romania page (romania-e-factura-e-invoice-mandate.html: RO e-Factura B2B since 1 Jan 2024, B2C 2025, UBL 2.1 RO_CIUS via ANAF SPV, penalty amounts left out because sources conflict, RO_CIUS rules not checked, said plainly) is in for search. A Greece page (greece-mydata-e-invoice-mandate.html: myDATA clearance with a MARK number via certified providers, AADE XML not EN 16931, source dates for the phases conflict and are said so (phase 2 now 2 Nov 2026 per secondary reports of AADE A.1197/2026); linked from the tool page, sitemap and sibling pages) is in for search. A Bulgaria page (bulgaria-e-invoice-mandate.html: no mandate in force, a draft VAT Act amendment in consultation to 23 Oct 2026 proposes NISSEF invoices mostly from 1 Jan 2028, said plainly as a proposal) is in for search. A Portugal page (portugal-e-invoice-mandate.html: no confirmed B2B date, B2G phased in with sources split between 1 Jan 2026 and 2027 for smaller suppliers, certified software and monthly reporting, PDF qualified signature from 1 Jan 2027 per most sources, ATCUD/SAF-T not checked, said plainly) is in for search. A UAE page (uae-e-invoice-mandate.html: go-live 1 Jan 2027 for AED 50m+ revenue, 1 Jul 2027 for the rest, PINT AE through an Accredited Service Provider, PINT AE rules not checked, said plainly; linked from every country page, the tool page and sitemap) is in for search. Peppol's nine Dutch NL-R rules are shown running on a Dutch credit note (clean and with defects, English fixes, Netherlands page corrected; the endpoint check now accepts EAS 0106 for KVK). FatturaPA files are now read and checked by their own rules (IT-001..IT-017, fatturapa.mjs; Italy page updated). A worked FatturaPA defect example is in (examples/fatturapa-invoice-with-defects.xml, eight rules pinned). Next: verify the FatturaPA code lists and tolerances against the current technical specification, a FatturaPA XSD structure check; a refresh of the Bulgaria page when the draft passes or changes; the NLCIUS and RO_CIUS rules themselves (needs their official Schematron). A Saudi Arabia page (saudi-arabia-zatca-e-invoice-mandate.html: ZATCA Phase 1 since 4 Dec 2021, Fatoora integration in waves, Wave 24 due 30 Jun 2026, Wave 25 above SAR 187,500 due 1 Feb 2027, penalty range from adviser sites only, ZATCA stamp/QR/clearance not checked, said plainly; linked from every country page, the tool page and sitemap) is in for search. A Malaysia page (malaysia-myinvois-e-invoice-mandate.html: MyInvois phased by turnover from 1 Aug 2024, small-business threshold and relaxation end date (31 Dec 2027 vs 30 Jun 2026) conflict between sources and are said so, RM200-20,000 penalty as reported, MyInvois rules not checked, said plainly) is in for search.
+      Landed history (official Schematron, in-browser path, 20+ country mandate
+      pages, credit-note links, JSON/UBL/CII/Factur-X arithmetic repair, FatturaPA
+      IT-001..IT-018) lives in the README and git. Open: a repair tried on a real
+      ERP or Factur-X export (xref-stream PDF repair landed 2026-10-22 on a hand-built
+      fixture; open the result in veraPDF/a viewer), a page button for PDFs; verify the
+      FatturaPA code lists, tolerances and IT-018 sequences against the current
+      specification and add a full FatturaPA XSD check; Singapore InvoiceNow page landed 2026-10-23 (2028-31 dates from secondary guides, not read on iras.gov.sg); PINT SG and A-NZ rules run in the browser 2026-10-23 (build-pint-rules.mjs, from Maven Central's phive-rules-peppol; not yet on the Saxon/server route; no real PINT file tried; Australia mandate page landed 2026-10-24 (dates from commentators, not read on ato.gov.au)); Ireland page landed 2026-10-23 (Nov 2028 phases from vendor guides, not revenue.ie); refresh the Bulgaria page
+      when its draft passes or changes; RO_CIUS (EN16931-CIUS_RO-UBL-validation.xslt, in
+      phive-rules-cius-ro) and NLCIUS: the same plain-from-xslt.mjs can compile them.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      The exact check now has a coverage bound (min-cost flow over shifts,
-      person-days and weekly hours): on the 32-shift sample week it proves the
-      15 uncoverable hours and sits within ~$70 of the roster found, but the
-      proof of the cheapest roster still times out (the coverage flow now runs on a sparse graph, 1.7x more nodes in the same 8 s, ~11k nodes/s here, ~94k nodes vs 57k). Symmetry cuts between people who differ only by name are in (equal
-      crews of 6-8 on 10 shifts now proven in under 0.5 s, 24x fewer nodes at 4 people; README), but the
-      all-different sample week is still not proven. `node cli.mjs --weeks 4 --week-start <Monday>` now plans a month from the terminal (carry-over, dated time off, fairness totals; tested). The bound now skips its flow graph when total capacity already cuts a branch (1.6x more nodes in the same 8 s; still not proven). Measured: the sample week's last $69 is the hours-balance term, not pay (pay in the best roster equals the root bound's pay), and 3.36M nodes / 150 s still does not prove it (README). The balance bound now couples people through the fixed total of covered hours (Lagrangian; sample-week root gap $68.95 -> $55.81, random weeks proven 26 -> 27 of 30, README). Next: a bound that sees whole shifts (the rest of the gap is granularity: per-person subset-sum of hours against target) so full weeks are proven, then
-      multi-week rostering that carries fairness and time off across weeks
-      (README Limits).
+      Landed work is in the README and eval/*-bench.mjs, not here. State:
+      exact check with a min-cost-flow coverage bound, symmetry cuts, a stated
+      $0.50 tolerance, coverage-first pass, ejection chains, contested-shift
+      pricing, whole-score pricing and reduced-cost fixing. Measured
+      (eval/scale-bench.mjs): proof breaks at larger sizes (6/8 weeks proven at
+      6 people x 14 shifts, 4/8 at 8x18, 2/8 at 8x22, 0/8 at 10 people); every
+      unproven week at 8-12 people failed at coverage. On 8 x 22 the floor is
+      383 h against 387 h open; more subgradient rounds move the bound <0.1%,
+      so the root gap is a relaxation gap, not convergence. Next: a stronger
+      relaxation (column generation on person sets, or pair cuts on contested
+      shifts); then a tighter pay bound once coverage is proven (or branching
+      on the most contested shift; branch order tried, no gain), the 10 x 28
+      and 12 x 30 sizes, then a joint multi-week solve. Multi-week fairness
+      measured (eval/fairness-bench.mjs: tough-shift spread 13.2 -> 3.2 over 8
+      weeks for +0.4% payroll, synthetic crews).
+
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
       Sharpness, exposure, motion and dHash near-duplicate grouping now run
-      on real frames (src/shootflow/frame_analysis.py). Next: face and
-      closed-eye scores and subject framing for the story score (a small
-      on-device model, opt-in, behind the same analysis/NNNNN.json contract),
-      and RAW stills via a RAW developer so they stop falling back to the
-      sha256 stand-in.
+      on real frames (src/shootflow/frame_analysis.py). Subject framing without a
+      model landed 2026-10-21 (detail-energy centroid against thirds points plus
+      detail concentration; `framing`, `subject_x/y`, 15% of story_score; synthetic
+      patches only, not yet checked against human picks). Horizon tilt
+      (tilt_degrees, 2026-10-22; synthetic horizons only) costs a crooked frame up to 8% of story score. Grain (noise_sigma, 2026-10-23; synthetic Gaussian noise only) is taken out of sharpness and costs technical score. Next: face and
+      closed-eye scores for the story score (a small
+      on-device model, opt-in, behind the same analysis/NNNNN.json contract).
+      RAW stills are scored from their embedded JPEG preview (raw_preview.py,
+      2026-10-22; synthetic containers only, so try real CR2/CR3/NEF/ARW/DNG
+      files); developing RAW into proxies and masters (a RAW developer) is
+      still open.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      The survey builder's back end is in: POST /api/admin/surveys creates a
-      survey from an admin's own options (validated in surveyBuilder.ts), and
-      GET /api/admin/surveys/[slug]/ranking[?format=csv] returns the pooled
-      ranking with random-effects 95% intervals and rank ranges (groupRanking.ts,
-      coverage checked on seeded data). The admin form is in (SurveyBuilder on /admin: create a
-      survey, copy its link, read the ranking with intervals and rank ranges,
-      download the CSV). The /s/[slug] respondent page is in (SurveyRespondent:
-      anonymous join via POST /api/surveys/[slug]/join, then the same pair
-      questions and Glicko-2 answers as the main flow, resumable from
-      localStorage, retry in place). An information-gain pair selector
-      (selectNextPairByInformation) is in and measured against the shipped one
-      on seeded respondents (docs/INFORMATION-GAIN-SELECTOR.md: rank accuracy
-      higher in all four cells, 70 vs 34 items under rd 150 at 300 answers on
-      220 items, but 1 vs 5 at 90 answers); not wired in. The dimension-conflict
-      bonus and a coverage term are options on it, measured: neither moves
-      rd<150 at 90 answers (1 and 0 against 5), the gap is structural (180
-      appearances, ~10 each to reach rd 150), so both default off. A staged
-      hybrid (selectNextPairHybrid: shipped selector until 120 answers,
-      information score after) is in and measured: it equals the shipped one at
-      90 answers and keeps 66 of the 70 settled items and the rank gain at 300
-      answers on 220 items (docs/INFORMATION-GAIN-SELECTOR.md); not wired in.
-      A per-survey `pairSelector` (null follows PAIR_SELECTOR, "standard" or
-      "staged"; prisma column, validated in surveyBuilder.ts, a "Question order"
-      menu on the admin form, read by /api/trials/next) is in.
-      The admin ranking now shows raters per option and a coverage note
-      (groupRanking.coverage names options rated by fewer than 3 people and
-      suggests waiting or shortening a long list; unit-tested).
-      Next: a live check that pair requests stay fast at 220 items, then feed
-      measured answers-per-respondent into the shorten-the-list suggestion (it
-      now uses median reach).
+      Done so far (docs/INFORMATION-GAIN-SELECTOR.md and the READMEs hold
+      the numbers): the survey builder (POST /api/admin/surveys, the /admin
+      form, the /s/[slug] respondent page, pooled ranking with random-
+      effects 95% intervals, rank ranges, CSV, coverage note sized from
+      measured answers per respondent); an information-gain pair selector
+      and a staged hybrid (equals the shipped one at 90 answers, keeps 66 of
+      70 settled items at 300 answers on 220 items), chosen per survey by
+      `pairSelector`; an INFO_POOL_CAP of 400 (3000 items 1983 -> 36 ms;
+      capped equals uncapped on 600 and 1000 items at 600 answers,
+      poolCap.simulation.test.ts); and a live-Postgres ranking integration
+      test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy at 3000 items measured 2026-10-22 (selector loop,
+      2 respondents). Next: the same check through the route with Postgres,
+      and budgets well past the list length.
+
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
       assignment under rest constraints, blackouts, play-offs, ladders and
       Swiss formats, with a self-hosted league page.
     next: >-
-      Multi-division scheduling on shared venues is in (divisions.mjs, and now
-      a browser page, multi-division-league-schedule.html, linked from the
-      index and sitemap; venue changes -25% against the naive order on the
-      example, unavoidable clashes listed). Venue-to-venue travel times are in
-      (`travel` field, minutes per venue pair; -10% road minutes against a flat
-      trip count on three venues, README). Rainouts across divisions are in
-      (applyDivisionRainouts: a night, a division or named teams, optional make-up date, linked-team aware, re-validated; page step 4).
-      A share link now carries the division form (#d=, round-trip tested, opened in headless Chromium).
-      Partial nights are filled too (splitRounds, a page box: example league
-      on 3 courts 17 -> 13 nights, README). Home/away breaks after rainouts are
-      now counted (stats.homeAwayBreaks: 176 -> 395 on 8 seeded leagues) and a
-      balance option trims them 12% at +5 days of delay (README), off by default. Home/away flip of moved matches is in
-      (`flip: true`, a final pass, no delay: 345 -> 333 breaks on 7 seeds, README; small because teams sit at
-      +/-1 home games). Swapping pairs of moved matches was measured and dropped (40 seeds: 1996 -> 1934 with
-      single flips, no change from pairs; README). Moving a make-up to an earlier night already on the calendar is in
-      (relocate: true; 345 -> 345 alone, 300 -> 296 breaks with balance, no delay, README). Venue fairness
-      with multi-season carry-over is in (venueFairness, venueHistory, CLI --history; 3-season imbalance
-      5.83 -> 1.29 matches, at +18% venue changes; README). The page has the switch and a box for last season's
-      counts, prints next season's history to paste back, and share links carry both (checked in headless
-      Chromium). The weight between fairness and travel is in (fairnessWeight, a box on the page; weight 1.5 cuts 3-season imbalance 5.83 -> 1.73 at 1,020 venue changes against 1,028 with fairness off, README). Next: letting a relocation swap two make-ups' nights, or choosing the weight from the league's own travel times.
+      Done so far (README holds the measurements): multi-division scheduling
+      on shared venues (divisions.mjs and multi-division-league-
+      schedule.html; venue changes -25% against the naive order), venue-to-
+      venue `travel` times, rainouts across divisions with make-up dates,
+      share links carrying the division form, partial-night filling
+      (splitRounds), home/away break counting with a balance option and a
+      flip pass, make-up relocation (`relocate: true`), and venue fairness
+      with multi-season carry-over (venueFairness, CLI --history; 3-season
+      imbalance 5.83 -> 1.29 matches, at +18% venue changes) with a
+      fairnessWeight box on the page. Swapping pairs of moved matches was
+      measured and dropped. Trading two make-ups' nights (`swapNights`, 2026-10-23;
+      300 -> 280 breaks on 7 seeds with `balance`). Next: choosing the
+      fairness weight from the league's own travel times. Page checkboxes for balance, flip, relocate and swapNights landed 2026-10-23 (share link and CLI too); `node eval/browser-click.mjs` clicks them in Chromium (2026-10-23: 28 checks, ticks survive the share link).
+
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
@@ -165,9 +199,15 @@ flagships:
       The feeder CAD v0.1 package is in (manufacturing/feeder/: launcher head,
       trunnion cheeks, turntable, 2040 base with brackets, mast, 3 m net beam,
       poles and camera bar; the build tilts the head through -15..+45 deg for
-      collisions and sizes wind ballast). Next: the parts it does not model,
-      in this order: the hopper with feed tube and gate, the elevation
-      actuator bracket and azimuth drive, then the netting trough that rolls
-      balls to the hopper inlet; then check the head's wheel-to-wheel gap
-      and plate clearance against the ball path with the flight model's
-      launch speeds.
+      collisions and sizes wind ballast). The hopper and feed landed
+      2026-10-21: a tub on a sloped shelf and four posts, a hose, and a
+      printed floor, roof, column and metering shuttle between the head
+      plates (checks for one-ball metering, column and wheel clearance, tub
+      capacity, hose slope and bend radius, shuttle clear when advanced;
+      cad/README.md "Feed"); a printed front retainer (two flexure arms, strain,
+      hold and pull-through forces checked) landed 2026-10-22. Next: close the feed's
+      remaining gaps (post bracing, the hose end swinging about 450 mm), then the
+      actuator brackets (shuttle and elevation) and azimuth drive, then the netting
+      trough that rolls balls to the hopper inlet; then check the head's
+      wheel-to-wheel gap and plate clearance against the ball path with the
+      flight model's launch speeds.

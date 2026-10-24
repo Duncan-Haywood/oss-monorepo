@@ -553,7 +553,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-4B
+4F
   9
 $SURFTAB1
  70
@@ -1377,7 +1377,7 @@ AcDbSymbolTable
   0
 VPORT
   5
-47
+4B
 330
 8
 100
@@ -1397,7 +1397,7 @@ AcDbViewportTableRecord
  21
 1.0
  12
-0.0
+-70.0
  22
 -17.5
  13
@@ -1725,7 +1725,7 @@ ACAD
   0
 APPID
   5
-48
+4C
 330
 3
 100
@@ -1739,7 +1739,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-49
+4D
 330
 3
 100
@@ -2059,13 +2059,13 @@ AcDbEntity
 100
 AcDbLine
  10
--110.0
+-250.0
  20
 178.0
  30
 0.0
  11
--110.0
+-250.0
  21
 -213.0
  31
@@ -2083,7 +2083,7 @@ AcDbEntity
 100
 AcDbCircle
  10
--98.0
+-238.0
  20
 -213.0
  30
@@ -2093,9 +2093,9 @@ AcDbCircle
 100
 AcDbArc
  50
--180.0
+180.0
  51
--90.0
+270.0
   0
 ARC
   5
@@ -2109,7 +2109,7 @@ AcDbEntity
 100
 AcDbCircle
  10
--98.0
+-238.0
  20
 178.0
  30
@@ -2135,7 +2135,7 @@ AcDbEntity
 100
 AcDbLine
  10
--98.0
+-238.0
  20
 -225.0
  30
@@ -2165,7 +2165,7 @@ AcDbLine
  30
 0.0
  11
--98.0
+-238.0
  21
 190.0
  31
@@ -2193,9 +2193,9 @@ AcDbCircle
 100
 AcDbArc
  50
--90.0
+270.0
  51
-0.0
+360.0
   0
 ARC
   5
@@ -2259,13 +2259,13 @@ AcDbEntity
 100
 AcDbCircle
  10
--100.0
+-215.0
  20
--200.0
+-150.0
  30
 0.0
  40
-4.2
+2.75
   0
 CIRCLE
   5
@@ -2279,13 +2279,13 @@ AcDbEntity
 100
 AcDbCircle
  10
--95.0
+-100.0
  20
--150.0
+-200.0
  30
 0.0
  40
-2.75
+4.2
   0
 CIRCLE
   5
@@ -2299,9 +2299,9 @@ AcDbEntity
 100
 AcDbCircle
  10
--12.5
+-220.0
  20
--114.5
+-37.5
  30
 0.0
  40
@@ -2319,9 +2319,9 @@ AcDbEntity
 100
 AcDbCircle
  10
--12.5
+-110.0
  20
--89.5
+-37.5
  30
 0.0
  40
@@ -2379,13 +2379,13 @@ AcDbEntity
 100
 AcDbCircle
  10
-0.0
+-12.5
  20
--102.0
+-114.5
  30
 0.0
  40
-7.0
+2.2
   0
 CIRCLE
   5
@@ -2419,13 +2419,13 @@ AcDbEntity
 100
 AcDbCircle
  10
-12.5
+0.0
  20
--89.5
+-102.0
  30
 0.0
  40
-2.2
+7.0
   0
 CIRCLE
   5
@@ -2439,7 +2439,87 @@ AcDbEntity
 100
 AcDbCircle
  10
--95.0
+-12.5
+ 20
+-89.5
+ 30
+0.0
+ 40
+2.2
+  0
+CIRCLE
+  5
+41
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbCircle
+ 10
+12.5
+ 20
+-89.5
+ 30
+0.0
+ 40
+2.2
+  0
+CIRCLE
+  5
+42
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbCircle
+ 10
+-220.0
+ 20
+43.5
+ 30
+0.0
+ 40
+2.2
+  0
+CIRCLE
+  5
+43
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbCircle
+ 10
+-90.0
+ 20
+43.5
+ 30
+0.0
+ 40
+2.2
+  0
+CIRCLE
+  5
+44
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbCircle
+ 10
+-215.0
  20
 150.0
  30
@@ -2449,7 +2529,7 @@ AcDbCircle
   0
 CIRCLE
   5
-41
+45
 330
 17
 100
@@ -2469,7 +2549,7 @@ AcDbCircle
   0
 CIRCLE
   5
-42
+46
 330
 17
 100
@@ -2479,9 +2559,9 @@ AcDbEntity
 100
 AcDbCircle
  10
--12.5
+12.5
  20
-114.5
+89.5
  30
 0.0
  40
@@ -2489,7 +2569,7 @@ AcDbCircle
   0
 CIRCLE
   5
-43
+47
 330
 17
 100
@@ -2509,7 +2589,7 @@ AcDbCircle
   0
 CIRCLE
   5
-44
+48
 330
 17
 100
@@ -2519,9 +2599,9 @@ AcDbEntity
 100
 AcDbCircle
  10
-12.5
+-12.5
  20
-89.5
+114.5
  30
 0.0
  40
@@ -2529,7 +2609,7 @@ AcDbCircle
   0
 CIRCLE
   5
-45
+49
 330
 17
 100
@@ -2549,7 +2629,7 @@ AcDbCircle
   0
 CIRCLE
   5
-46
+4A
 330
 17
 100
@@ -3557,7 +3637,7 @@ CREATED_BY_EZDXF
   3
 WRITTEN_BY_EZDXF
 350
-4A
+4E
   0
 DICTIONARYVAR
   5
@@ -3573,7 +3653,7 @@ DictionaryVariables
   0
 DICTIONARYVAR
   5
-4A
+4E
 330
 2D
 100

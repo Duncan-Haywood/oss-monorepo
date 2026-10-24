@@ -127,8 +127,10 @@
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
         <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
+        <button id="repair" class="secondary" type="button">Repair the arithmetic (JSON, UBL, CII or a dropped Factur-X PDF)</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
+      <div id="repairLog" aria-live="polite"></div>
     </section>
     <section>
       <h2>Preflight result</h2>
@@ -187,6 +189,11 @@
   <p>Receiving structured e-invoices has been mandatory since 1 January 2025; issuing is mandatory from 2027 (businesses above 800,000 euro prior-year turnover) and 2028 (everyone) for domestic B2B. See <a href="germany-e-invoice-mandate.html">the dates, the formats that count and a free XRechnung check</a>.</p>
   <p>France: every business must receive e-invoices from 1 September 2026, and large and mid-size companies must issue them; the rest follow on 1 September 2027. See <a href="france-e-invoice-mandate.html">the French dates, formats and mentions</a>.</p>
   <p>All countries side by side: <a href="e-invoicing-mandates-by-country.html">e-invoicing mandates by country, with dates, formats and what this checker covers</a>.</p>
+  <p>Slovakia: domestic B2B and B2G e-invoicing is reported to become mandatory on 1 January 2027 over Peppol; vendor sources only, said plainly. See <a href="slovakia-e-invoice-mandate.html">the Slovak dates and what this checker does not cover</a>.</p>
+  <p>Hungary: every domestic B2B invoice is reported to NAV (Online Számla) but there is no general structured e-invoice mandate yet; vendor sources only, said plainly. See <a href="hungary-e-invoice-mandate.html">the Hungarian rules and what this checker does not cover</a>.</p>
+  <p>Singapore: GST InvoiceNow phases in from 1 November 2025 for new voluntary GST registrants. See <a href="singapore-invoicenow-e-invoice-mandate.html">the dates and what is unconfirmed</a>.</p>
+  <p>Australia: federal agencies receive Peppol e-invoices; B2B is voluntary. See <a href="australia-e-invoice-mandate.html">the dates and what is unconfirmed</a>.</p>
+  <p>Ireland: structured EN 16931 e-invoicing over Peppol is planned from November 2028 for large corporates, with every VAT-registered business receiving; vendor sources only, said plainly. See <a href="ireland-e-invoice-mandate.html">the Irish phases and what is unconfirmed</a>.</p>
   <p>Belgium: structured Peppol e-invoicing has been mandatory for domestic B2B since 1 January 2026, with fines from the second quarter. See <a href="belgium-e-invoice-mandate.html">the Belgian date, fines and format</a>.</p>
   <p>Poland: KSeF became mandatory on 1 February 2026 for the largest taxpayers and on 1 April 2026 for most others; its FA(3) format is not EN 16931. See <a href="poland-ksef-e-invoice-mandate.html">the Polish dates, penalty position and what to check first</a>.</p>
   <p>Croatia: structured EN 16931 e-invoicing with reporting to the Tax Administration has been mandatory for VAT-registered domestic B2B and B2G since 1 January 2026. See <a href="croatia-e-invoice-mandate.html">the Croatian date and format</a>.</p>
@@ -221,6 +228,11 @@
   <script type="module">
     import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, buildRemediationCsv, summarizePreflight } from "./report.mjs";
     import { addOfficialFindings, officialNote } from "./official.mjs";
+    import { repairInvoice } from "./repair.mjs";
+    import { repairUbl } from "./repair-ubl.mjs";
+    import { repairCii } from "./repair-cii.mjs";
+    import { repairFacturX } from "./repair-facturx.mjs";
+    import { looksLikeCii } from "./cii.mjs";
     import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -448,6 +460,53 @@
       for (const report of result.reports) {
         recordUsage(localStorage, optedOut(), "invoice_preflight_checked");
       }
+    });
+
+    document.getElementById("repair").addEventListener("click", async () => {
+      const log = document.getElementById("repairLog");
+      log.innerHTML = "";
+      inputError.textContent = "";
+      const text = paste.value;
+      const pdfFile = !text.trim() && dropped.length === 1 && /\.pdf$/i.test(dropped[0].name) ? dropped[0] : null;
+      if (pdfFile) {
+        let x;
+        try {
+          x = await repairFacturX(new Uint8Array(await pdfFile.arrayBuffer()));
+        } catch (e) {
+          inputError.textContent = `Repair could not read this PDF: ${e.message}`;
+          return;
+        }
+        if (!x.repaired) {
+          const why = (x.skipped || []).length ? " " + x.skipped.map(escapeHtml).join(" ") : "";
+          log.innerHTML = '<p class="note">Nothing to repair in the PDF\'s invoice: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).' + why + '</p>';
+          return;
+        }
+        const url = URL.createObjectURL(new Blob([x.pdf], { type: "application/pdf" }));
+        const name = pdfFile.name.replace(/\.pdf$/i, "") + "-repaired.pdf";
+        const rows = x.changes.map((c) => `<tr><td><code>${escapeHtml(c.path)}</code></td><td>${escapeHtml(String(c.from))}</td><td>${escapeHtml(String(c.to))}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("");
+        log.innerHTML = `<p class="note">Repaired ${x.changes.length} value(s) in the PDF's embedded invoice; ${x.remaining.length} finding(s) still need a person. The printed pages are not redrawn: if they show the wrong totals, re-issue the PDF from your accounting system. <a id="repairedPdf" href="${url}" download="${escapeHtml(name)}">Download ${escapeHtml(name)}</a></p><table><thead><tr><th>Path</th><th>Was</th><th>Now</th><th>Why</th></tr></thead><tbody>${rows}</tbody></table>`;
+        return;
+      }
+      const isXml = text.trimStart().startsWith("<");
+      let out;
+      try {
+        out = isXml ? (looksLikeCii(text) ? repairCii(text) : repairUbl(text)) : repairInvoice(JSON.parse(text));
+      } catch (e) {
+        inputError.textContent = isXml ? `Repair could not read this XML as a UBL or CII invoice: ${e.message}` : "Repair works on a pasted JSON invoice or one UBL or CII XML file. Paste one first.";
+        return;
+      }
+      if (!out.repaired) {
+        const why = (out.skipped || []).length ? " " + out.skipped.map(escapeHtml).join(" ") : "";
+        log.innerHTML = '<p class="note">Nothing to repair: line nets, totals and amount due already follow from the lines (or the lines are not complete enough to recompute).' + why + '</p>';
+        return;
+      }
+      paste.value = isXml ? out.xml : JSON.stringify(out.invoice, null, 2);
+      filesInput.value = "";
+      dropped = [];
+      const rows = out.changes.map((c) => `<tr><td><code>${escapeHtml(c.path)}</code></td><td>${escapeHtml(String(c.from))}</td><td>${escapeHtml(String(c.to))}</td><td>${escapeHtml(c.reason)}</td></tr>`).join("");
+      const left = out.remaining.length;
+      log.innerHTML = `<p class="note">Repaired ${out.changes.length} value(s) in the box above. Rates, dates, identifiers and parties are never touched; ${left} finding(s) still need a person.</p><table><thead><tr><th>Path</th><th>Was</th><th>Now</th><th>Why</th></tr></thead><tbody>${rows}</tbody></table>`;
+      document.getElementById("check").click();
     });
 
     function fallbackCopy(text) {

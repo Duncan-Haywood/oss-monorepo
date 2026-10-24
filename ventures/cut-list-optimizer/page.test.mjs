@@ -226,3 +226,7 @@ test('draft usage events are declared before the page records them', () => {
     assert.match(declared, new RegExp(`'${event}'`), `usage.mjs does not declare '${event}'`);
   }
 });
+
+test('the footer links the wall framing takeoff, its sibling for house framing', () => {
+  assert.match(html, /<a href="\.\.\/wall-framing-takeoff\/">/);
+});

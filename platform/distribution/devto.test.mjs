@@ -54,3 +54,28 @@ test('live: drafts by default, publishes only with DEVTO_PUBLISH, skips existing
   assert.ok(p2.every((p) => p[2].article.published === true));
   assert.ok(p2.every((p) => p[2].article.canonical_url !== first));
 });
+
+test('the per-run cap is two articles (drafts are read by the owner before more go out)', async () => {
+  assert.equal(MAX_PER_RUN, 2);
+  const launched = { a: '2026-10-15', b: '2026-10-15', c: '2026-10-15' };
+  const all = await plan({ launched, today: '2026-10-15', readPage: async () => page });
+  assert.deepEqual(all.map((p) => p.slug), ['a', 'b']);
+});
+
+test('composeArticle keeps a 120-char title whole, cuts a longer one to 120 with an ellipsis, and caps the description at 250', () => {
+  const url = toolUrl('x');
+  const exact = 'T'.repeat(120);
+  assert.equal(composeArticle({ title: exact, description: 'd' }, url).title, exact);
+  const long = composeArticle({ title: 'T'.repeat(121), description: 'd' }, url).title;
+  assert.equal(long, 'T'.repeat(119) + '…');
+  const desc = Array.from({ length: 300 }, (_, i) => String(i % 10)).join('');
+  assert.equal(composeArticle({ title: 't', description: desc }, url).description, desc.slice(0, 250));
+});
+
+test('run as a script it performs the dry run (the entry-point guard fires)', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const out = execFileSync(process.execPath, [new URL('./devto.mjs', import.meta.url).pathname], {
+    env: { PATH: process.env.PATH }, encoding: 'utf8',
+  });
+  assert.match(out, /DRY RUN/);
+});

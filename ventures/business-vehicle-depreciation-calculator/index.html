@@ -50,6 +50,7 @@
     <p>Enter the <strong>price</strong>, the <strong>vehicle class</strong> and the <strong>percentage of use that is for business</strong>. See the first-year deduction and tax saved under <strong>regular MACRS, 100% bonus depreciation and Section 179</strong>, the year-by-year schedule with the <strong>luxury-auto caps</strong> and the <strong>6,000 lb SUV cap</strong> applied, and the standard mileage alternative.</p>
     <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and limits you can see. It is not tax advice.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. The vehicle</h2>
@@ -93,7 +94,8 @@ node cli.mjs compare --price 80000 --business-pct 90 --class heavy_suv --limits 
     <h3>Is this tax advice?</h3><p>No. It applies the published first-year limits to the numbers you type so you can compare write-off methods. Your return depends on facts it cannot see: placed-in-service date, GVWR from the door-jamb sticker, mid-quarter rules, state conformity and your other deductions. Confirm with a tax professional.</p><h3>Where do the limits come from?</h3><p>The defaults are the 2025 placed-in-service figures: the Section 280F passenger-car caps, the Section 179 cap for SUVs over 6,000 lb, and the 70 cent standard mileage rate. The IRS republishes them each year, so every limit is editable in the CLI and the page shows an as-of line.</p><h3>Why can bonus beat Section 179 on a car?</h3><p>For a car or light SUV under 6,000 lb, the Section 179 deduction counts inside the lower no-bonus first-year cap, while claiming bonus raises that cap. On an over-6,000 lb SUV the reverse can matter: Section 179 is capped but bonus is not.</p><h3>Is my data uploaded anywhere?</h3><p>No. The page calculates in your browser and sends nothing. The CLI reads local files and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal or financial advice. It applies published limits as best known to numbers you type and ignores mid-quarter convention, state rules, the alternative minimum tax, lease and trade-in treatment and recapture; it is not a guarantee of what a return will show. Confirm with a tax professional before you buy or file.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

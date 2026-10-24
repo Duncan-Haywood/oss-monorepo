@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01VJTBRw7nzPkmY5Vffhah8E",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T19:40:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9572,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/marketing/front-door-tools.mjs",
+      "issue": "Usage header said --write output is committed; the origin is retired and regen skips it (fixed)."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure doc-friction still lists many already-fixed entries; each check costs calls."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Only agent item was in_progress P035 (no remaining agent-sized step taken). Took Critique path; small comment-only fix tied to P024. No report/post written: change too small.",
+  "corrections": [],
+  "redteam": null
+}

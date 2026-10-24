@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_014uYMCxWbjQXPDSrtP5NFFJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T22:08:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1: BIFF5 .xls reading",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 9909,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No venture-preflight run: only a reader module and its tests changed, no page or site input; ran node --test xls.test.mjs (7/7) instead. No agent doc/post written: small slice."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "BIFF5 tested only on a workbook built in the test from published layouts; LibreOffice 24.2 cannot write BIFF5. Wrote a branch 'x' by mistake and deleted it.",
+  "corrections": [],
+  "redteam": null
+}

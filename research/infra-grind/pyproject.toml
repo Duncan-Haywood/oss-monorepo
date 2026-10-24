@@ -1,0 +1,13 @@
+[project]
+name = "infra-grind"
+version = "0.1.0"
+description = "Ball-mill population balance: open versus closed circuit energy at the same product size, against Bond's law"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

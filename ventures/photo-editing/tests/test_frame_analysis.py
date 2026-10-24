@@ -1,3 +1,5 @@
+import math
+import random
 import shutil
 import subprocess
 import tempfile
@@ -11,8 +13,11 @@ from shootflow.frame_analysis import (
     FRAME_WIDTH,
     analyze_media,
     dhash_hex,
+    framing_from_frame,
     hamming_distance,
     metrics_from_frames,
+    noise_sigma_from_frame,
+    tilt_from_frame,
 )
 from shootflow.story import AssetAnalysis
 
@@ -30,6 +35,109 @@ def _checker(low: int, high: int, cell: int = 8) -> bytes:
 
 def _gradient() -> bytes:
     return bytes(int(x * 255 / (FRAME_WIDTH - 1)) for _ in range(FRAME_HEIGHT) for x in range(FRAME_WIDTH))
+
+
+def _patch(cx: int, cy: int, half: int = 20) -> bytes:
+    """Flat grey frame with one checkered patch centred on (cx, cy) pixels."""
+
+    return bytes(
+        200 if (abs(x - cx) < half and abs(y - cy) < half and ((x // 4) + (y // 4)) % 2) else 100
+        for y in range(FRAME_HEIGHT)
+        for x in range(FRAME_WIDTH)
+    )
+
+
+def _horizon(degrees: float) -> bytes:
+    """Dark ground under a bright sky; the boundary leans ``degrees`` (right side lower)."""
+
+    slope = math.tan(math.radians(degrees))
+    # A soft edge (a 10 px ramp), as a lens renders it; a hard staircase has no angle to read.
+    norm = math.sqrt(1.0 + slope * slope)
+    return bytes(
+        round(125 - 75 * max(-1.0, min(1.0, (y - FRAME_HEIGHT / 2 - (x - FRAME_WIDTH / 2) * slope) / norm / 5.0)))
+        for y in range(FRAME_HEIGHT)
+        for x in range(FRAME_WIDTH)
+    )
+
+
+class TiltTests(unittest.TestCase):
+    def test_level_horizon_has_no_tilt(self) -> None:
+        tilt, confidence = tilt_from_frame(_horizon(0))
+        self.assertAlmostEqual(tilt, 0.0, delta=0.3)
+        self.assertGreater(confidence, 0.8)
+
+    def test_leaning_horizon_is_measured_with_its_sign(self) -> None:
+        for degrees in (-4.0, 3.0, 6.0):
+            tilt, _ = tilt_from_frame(_horizon(degrees))
+            self.assertAlmostEqual(tilt, degrees, delta=1.0, msg=f"{degrees}")
+
+    def test_flat_frame_and_diagonals_are_not_penalised(self) -> None:
+        self.assertEqual(tilt_from_frame(bytes([120]) * SIZE), (0.0, 0.0))
+        diagonal = bytes(200 if (x + y) % 40 < 20 else 50 for y in range(FRAME_HEIGHT) for x in range(FRAME_WIDTH))
+        _, confidence = tilt_from_frame(diagonal)
+        self.assertLess(confidence, 0.1)
+
+    def test_crooked_horizon_loses_story_score(self) -> None:
+        level = metrics_from_frames([_horizon(0)])
+        crooked = metrics_from_frames([_horizon(5)])
+        self.assertEqual(level.level, 1.0)
+        self.assertLess(crooked.level, 0.2)
+        self.assertLess(crooked.story_score, level.story_score)
+
+
+def _noisy(base: bytes, sigma: float, seed: int = 7) -> bytes:
+    rng = random.Random(seed)
+    return bytes(max(0, min(255, round(v + rng.gauss(0.0, sigma)))) for v in base)
+
+
+class NoiseTests(unittest.TestCase):
+    def test_clean_frames_read_zero_and_gradients_are_not_grain(self) -> None:
+        self.assertEqual(noise_sigma_from_frame(bytes([120]) * SIZE), 0.0)
+        self.assertLess(noise_sigma_from_frame(_gradient()), 0.5)
+        self.assertLess(noise_sigma_from_frame(_checker(40, 200)), 0.5)
+
+    def test_added_grain_is_recovered_within_a_fifth(self) -> None:
+        for sigma in (4.0, 8.0, 12.0):
+            measured = noise_sigma_from_frame(_noisy(bytes([128]) * SIZE, sigma))
+            self.assertAlmostEqual(measured, sigma, delta=0.2 * sigma, msg=f"{sigma}")
+
+    def test_grain_does_not_pass_for_sharpness(self) -> None:
+        flat = metrics_from_frames([bytes([128]) * SIZE])
+        grainy = metrics_from_frames([_noisy(bytes([128]) * SIZE, 10.0)])
+        self.assertLess(grainy.sharpness, 0.5)  # raw Laplacian variance would score about 0.97
+        self.assertGreater(grainy.noise, 0.5)
+        self.assertLess(flat.noise, 0.01)
+
+    def test_grain_on_a_sharp_frame_costs_technical_score(self) -> None:
+        clean = metrics_from_frames([_checker(40, 200)])
+        grainy = metrics_from_frames([_noisy(_checker(40, 200), 12.0)])
+        self.assertEqual(clean.noise, 0.0)
+        self.assertGreater(grainy.noise, 0.8)
+        self.assertLess(grainy.technical_score, clean.technical_score)
+
+
+class FramingTests(unittest.TestCase):
+    def test_flat_frame_is_neutral(self) -> None:
+        self.assertEqual(framing_from_frame(bytes([120]) * SIZE), (0.5, 0.5, 0.5))
+
+    def test_subject_on_a_thirds_point_beats_one_in_the_corner(self) -> None:
+        thirds, x, y = framing_from_frame(_patch(FRAME_WIDTH // 3, FRAME_HEIGHT // 3))
+        corner, _, _ = framing_from_frame(_patch(24, 24))
+        self.assertAlmostEqual(x, 1 / 3, delta=0.05)
+        self.assertAlmostEqual(y, 1 / 3, delta=0.05)
+        self.assertGreater(thirds, 0.8)
+        self.assertGreater(thirds, corner + 0.3)
+
+    def test_isolated_subject_beats_even_texture_at_the_centre(self) -> None:
+        isolated, _, _ = framing_from_frame(_patch(FRAME_WIDTH // 2, FRAME_HEIGHT // 2))
+        texture, _, _ = framing_from_frame(_checker(40, 200))
+        self.assertGreater(isolated, texture)
+
+    def test_metrics_carry_framing_into_story_score(self) -> None:
+        good = metrics_from_frames([_patch(FRAME_WIDTH // 3, FRAME_HEIGHT // 3)])
+        bad = metrics_from_frames([_patch(24, 24)])
+        self.assertGreater(good.framing, bad.framing)
+        self.assertGreater(good.story_score, bad.story_score)
 
 
 class MetricsFromFramesTests(unittest.TestCase):

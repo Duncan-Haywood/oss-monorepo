@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of kill share against total minutes for one, two and three inline passes at 1, 2 and 4 km/h; the fast multi-pass lines sit above the slow single pass at equal time">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Weeding robot: kill share against time for one to three passes</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="270.1" y2="270.1" stroke="#ddd"/><text x="58" y="274.1" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="216.2" y2="216.2" stroke="#ddd"/><text x="58" y="220.2" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="162.3" y2="162.3" stroke="#ddd"/><text x="58" y="166.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="108.4" y2="108.4" stroke="#ddd"/><text x="58" y="112.4" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">27.4</text>
+<text x="130.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">52.4</text>
+<text x="211.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">82.8</text>
+<text x="338.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">130.6</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">237.6</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">total time (min)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">kill share</text>
+<polyline points="211.6,160.4 422.3,96.0 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="211.6" cy="160.4" r="3" fill="#c0392b"/>
+<circle cx="422.3" cy="96.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">1 km/h</text>
+<polyline points="117.0,181.1 232.1,114.3 338.9,83.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="117.0" cy="181.1" r="3" fill="#1f6fb2"/>
+<circle cx="232.1" cy="114.3" r="3" fill="#1f6fb2"/>
+<circle cx="338.9" cy="83.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">2 km/h</text>
+<polyline points="64.0,216.7 130.6,152.0 191.1,113.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="216.7" r="3" fill="#2e8b57"/>
+<circle cx="130.6" cy="152.0" r="3" fill="#2e8b57"/>
+<circle cx="191.1" cy="113.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">4 km/h</text>
+</svg>

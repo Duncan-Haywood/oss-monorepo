@@ -1,0 +1,6 @@
+{
+ "theme": "society",
+ "title": "Can robots that take over from fading allies keep a crowd tipped, and is that cheaper than fielding them upfront?",
+ "lede": "is a hand-over cheaper than buying robots first? With 20% allies fading at rate c and 10% robots at the start, replacing half of fading allies with robots tips 10 of 12 crowds at c = 0.03 but ends with 0.19 robots, against 0.15 robots upfront in society-allyfade; below 5% initial robots only full replacement tips anything. Stylised",
+ "summary": "The <code>society-allyfade</code> model (20% allies, memory&nbsp;9, 200 people, 12 seeds, 2000 rounds) where a fading ally becomes a committed robot with probability <em>h</em>. With 10% robots at the start, <em>h</em>&nbsp;=&nbsp;0.5 tips 10 of 12 crowds at fade rate <em>c</em>&nbsp;=&nbsp;0.03 but ends with 0.19 robots, while 0.15 robots bought upfront do the same, so hand-over is dominated by upfront robots; it helps only on the margin (slow fading, <em>h</em>&nbsp;=&nbsp;0.1 lifts 11 to 12 of 12). At 0 to 2% initial robots only <em>h</em>&nbsp;=&nbsp;1 tips, ending near the no-ally threshold 0.2165. Stylised: <em>c</em> and <em>h</em> are swept, not measured; instant replacement; simulated walkers only."
+}

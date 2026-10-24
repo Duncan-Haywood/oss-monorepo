@@ -1,0 +1,49 @@
+# osrobot-fieldreal results: 60 x 30 m field, 20 seeds per row (fields and draws common across rows)
+# SRC constants: swath 2 m, 0.73 s/weed, 99.2% kill. ASSUMED: p_max 0.7, blur 2 m/s, fp 0.01/m2, mud 20%, energies
+# ceiling from the sources: 2 km/h x 2 m = 0.40 ha/h
+
+# Sweep 1: old constants (1 m swath, 3 s, 0.5 m/s gantry, 95%) against sourced, density 0.3/m2, 1 km/h
+                                 kill     min   ha/h      Wh  treats   weeds
+inline old                      0.579   151.1   0.07     266     323     501
+scout old                       0.574   156.6   0.07     300     322     501
+inline sourced                  0.603    71.7   0.15     180     323     501
+scout sourced                   0.603    79.3   0.14     216     322     501
+
+# Sweep 2: speed (km/h, the source range 0.5 to 2) x planner, sourced constants, density 0.3/m2
+                                 kill     min   ha/h      Wh  treats   weeds
+inline 0.5 km/h                 0.649   138.2   0.08     220     346     501
+scout 0.5 km/h                  0.647   146.1   0.07     257     345     501
+inline 1.0 km/h                 0.603    71.7   0.15     180     323     501
+scout 1.0 km/h                  0.603    79.3   0.14     216     322     501
+inline 2.0 km/h                 0.523    38.0   0.28     151     281     501
+scout 2.0 km/h                  0.525    45.3   0.24     185     283     501
+inline 4.0 km/h                 0.384    20.5   0.53     121     212     501
+scout 4.0 km/h                  0.387    27.1   0.40     152     213     501
+
+# Sweep 3: weed density (per m2) x planner, sourced constants, 1 km/h, p_max 0.7
+                                 kill     min   ha/h      Wh  treats   weeds
+inline d=0.3                    0.603    71.7   0.15     180     323     501
+scout d=0.3                     0.603    79.3   0.14     216     322     501
+inline d=1.0                    0.607    82.8   0.13     403    1044    1680
+scout d=1.0                     0.603    96.9   0.11     470    1036    1680
+inline d=3.0                    0.604   110.8   0.10    1031    3090    5043
+scout d=3.0                     0.605   133.4   0.08    1152    3095    5043
+inline d=10.0                   0.604   210.6   0.05    3236   10273   16845
+
+# Sweep 4: beam steering speed (the unsourced input), inline, density 3/m2, 1 km/h
+                                 kill     min   ha/h      Wh  treats   weeds
+inline gantry=0.5 m/s           0.604   157.2   0.07    1054    3090    5043
+inline gantry=1.0 m/s           0.604   131.4   0.08    1041    3090    5043
+inline gantry=5.0 m/s           0.604   110.8   0.10    1031    3090    5043
+inline gantry=50.0 m/s          0.604   106.2   0.10    1029    3090    5043
+
+# Sweep 5: detector hit rate p_max (unsourced), density 1/m2, 1 km/h
+                                 kill     min   ha/h      Wh  treats   weeds
+inline p_max=0.5                0.429    78.7   0.14     311     743    1680
+scout p_max=0.5                 0.426    90.8   0.12     368     738    1680
+inline p_max=0.7                0.607    82.8   0.13     403    1044    1680
+scout p_max=0.7                 0.603    96.9   0.11     470    1036    1680
+inline p_max=0.9                0.781    87.0   0.12     495    1341    1680
+scout p_max=0.9                 0.779   102.9   0.11     572    1336    1680
+inline p_max=1.0                0.865    88.9   0.12     538    1483    1680
+scout p_max=1.0                 0.867   105.5   0.10     621    1484    1680

@@ -1,0 +1,4 @@
+Date (UTC),Description,Amount,Status,Source Account,Bank Description,Reference,Note,Last Four Digits,Name On Card,Category,GL Code,Timestamp,Original Currency,Check Number,Tags,Mercury Category
+03-02-2026,AWS,-120.50,Sent,Mercury Checking ••1234,AMAZON WEB SERVICES,,,,,Software,,,USD,,,Software
+03-04-2026,Acme Inc,5000.00,Sent,Mercury Checking ••1234,ACH CREDIT,,,,,Revenue,,,USD,,,Income
+03-06-2026,Hetzner,-4.90,Pending,Mercury Checking ••1234,,,,,,,,,USD,,,

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
-  sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
+  sampleStaff, openFloorByPricing, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
 const staffOf = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
@@ -212,6 +212,15 @@ test("exact mode proves the optimum against brute force, including the options t
   }
 });
 
+test("the coverage floor never lets a pay bound overstate: a good starting roster still reaches the exact optimum", () => {
+  // Found 2026-10-22: once the heuristic covered everything coverable, the exact search was seeded with 11 open hours, the coverage pass
+  // proved that floor, and the cost bound still charged the pay of the most hours the flow could cover, which are more than 11 open
+  // hours leave. The search cut the optimum (1100260.75) and called 1100267.75 optimal.
+  const staff = staffOf("P0,14,12,0,Mon-Wed 6-20\nP1,14,12,0,Mon-Wed 6-21"), slots = slotsOf("Mon,6,13,1\nMon,6,9,1\nMon,6,11,1\nMon,6,11,1\nWed,6,11,1\nMon,6,9,1");
+  const r = buildRoster(staff, slots, { exact: true });
+  assert.equal(r.score, bruteForceBest(staff, slots, {}));
+});
+
 test("exact mode on a deliberately weak anneal finds the improvement and reports the gap", () => {
   const staff = staffOf("A,10,40,0,any\nB,11,40,0,any\nC,12,40,0,any\nD,13,40,0,any"), slots = slotsOf("Mon,8,16,2\nTue,8,16,2\nWed,8,16,2\nThu,8,16,1\nFri,8,16,1");
   const weak = buildRoster(staff, slots, { restarts: 1, iterations: 1 });
@@ -239,6 +248,11 @@ test("the exact bound sees that hours, overlaps and rest force shifts open, and 
   assert.ok((r.score - r.optimality.lowerBound) / r.score < 0.01, `bound ${r.optimality.lowerBound} vs ${r.score}`);
   // The balance terms are coupled through the fixed covered hours (Lagrangian bound): the gap was $68.95 with each person alone.
   assert.ok(r.score - r.optimality.lowerBound < 60, `gap ${r.score - r.optimality.lowerBound}`);
+  // Hours terms inside the coverage flow (tangent lines under each person's convex hours curve): who can work when is priced with the
+  // balance targets, and the gap falls to cents. The same flow without them (flowBalance: false) leaves the older Lagrangian gap.
+  assert.ok(r.score - r.optimality.lowerBound < 1, `flow gap ${r.score - r.optimality.lowerBound}`);
+  const old = buildRoster(staff, slots, { exact: true, exactNodes: 20, flowBalance: false });
+  assert.ok(old.score - old.optimality.lowerBound > 50);
   // Random tight weeks (caps, overlaps, rest rules all biting): the exact answer still equals brute force.
   let seed = 7;
   const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed % n; };
@@ -1036,6 +1050,15 @@ test("absencePlan: a shift nobody can take stays open with the reasons", () => {
   assert.equal(plan.owner[0], -1);
 });
 
+test("absencePlan: equally hard shifts are handed over in calendar order, so the cheaper cover takes the earlier one", () => {
+  // Ben (cheapest) can only take one 8-hour shift; Cy takes the other. Mon and Tue each have two possible covers.
+  const staff = staffOf("Ana, 10, 40, 0, Mon-Tue 8-16\nBen, 12, 8, 0, Mon-Tue 8-16\nCy, 20, 40, 0, Mon-Tue 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open\nTue, 8, 16, 1, open");
+  const r = { owner: [0, 0] };
+  const plan = absencePlan(staff, slots, r, "Ana");
+  assert.deepEqual(plan.moves.map((m) => [m.slot.day, m.to]), [[0, "Ben"], [1, "Cy"]]);
+});
+
 test("pay differential adds a premium for hours inside its windows, per hour and as a percent of wage", () => {
   const ana = staffOf("Ana, 20, 40");
   const shifts = slotsOf("Fri,22,6,1,close\nMon,9,17,1,day");
@@ -1410,4 +1433,110 @@ test("exact search treats people who differ only by name as interchangeable: sam
   // six interchangeable people, ten shifts: used to hit the 8 s limit, now finishes
   const big = buildRoster(staffOf(twins(6)), slotsOf(week(10)), { exact: true });
   assert.ok(["optimal", "improved"].includes(big.optimality.status), big.optimality.status);
+});
+
+test("the 7-person sample week is proven inside the default limits, to within the stated tolerance", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const r = buildRoster(staff, slots, { exact: true });
+  assert.ok(["optimal", "improved"].includes(r.optimality.status), r.optimality.status);
+  assert.equal(r.optimality.tolerance, 0.5);
+  assert.equal(r.optimality.forcedOpenHours, 15);
+  assert.match(optimalityText(r.optimality), /within \$0\.50|more than \$0\.50/);
+  // with no tolerance the same week is still proven now that the coverage pass always runs (it stayed "bounded" before 2026-10-22)
+  const strict = buildRoster(staff, slots, { exact: true, exactTolerance: 0, exactNodes: 20000 });
+  assert.equal(strict.optimality.tolerance, 0);
+  assert.ok(["optimal", "improved"].includes(strict.optimality.status), strict.optimality.status);
+});
+
+test("the coverage pass runs even when the flow bound says nothing must stay open, and its better roster is kept", () => {
+  // seeded random week (eval/scale-bench.mjs, 8 people x 22 shifts, case 1): the annealer leaves 5 h open, the flow bound at the
+  // root says 0, and the coverage pass finds a roster with 4 h open and proves 4 is the least. It used to be skipped here.
+  const staff = staffOf("P0,15,12,0,Mon-Fri 6-20\nP1,14,36,0,Mon-Fri 6-20\nP2,18,18,0,Tue-Fri 6-20\nP3,10,24,0,Mon-Fri 9-17\nP4,10,24,0,Mon-Fri 6-23\nP5,17,24,0,Mon-Fri 8-22\nP6,11,30,0,Tue-Fri 7-20\nP7,18,18,0,Tue-Fri 6-20");
+  const slots = slotsOf("Fri,8,15,2\nMon,14,19,1\nMon,8,13,1\nWed,11,17,1\nTue,9,14,2\nTue,14,19,2\nThu,7,15,1\nFri,6,14,2\nMon,9,17,1\nMon,7,11,1\nWed,9,13,1\nMon,10,16,1\nThu,14,18,1\nWed,7,15,1\nTue,9,18,1\nTue,11,15,1\nFri,7,16,2\nWed,13,17,1\nMon,9,17,1\nThu,7,11,1\nTue,9,15,2\nThu,7,14,2");
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 30000, exactMs: 20000 });
+  assert.equal(r.optimality.coverOpen, 4);
+  assert.equal(r.optimality.forcedOpenHours, 4);
+  assert.equal(r.optimality.coverageProven, true);
+  assert.equal(r.unfilledHours, 4);
+});
+
+test("coverage-first pass proves how few hours must stay open, and the cost search is told", () => {
+  // seeded random week (eval/bound-bench.mjs, case 10): 5 people, 14 shifts, 22 hours cannot all be covered
+  const staff = staffOf("P0,20,30,0,Tue-Fri 8-22\nP1,16,18,0,Mon-Fri 7-21\nP2,11,18,0,Tue-Fri 6-20\nP3,18,30,0,Mon-Fri 6-20\nP4,10,18,0,Tue-Fri 9-18");
+  const slots = slotsOf("Thu,7,13,1\nWed,14,18,2\nFri,8,17,1\nMon,14,23,2\nFri,9,14,1\nTue,11,18,2\nThu,12,20,1\nThu,13,19,1\nWed,6,15,2\nFri,11,17,1\nFri,11,16,2\nTue,11,17,1\nThu,11,17,1\nTue,12,18,1");
+  const r = buildRoster(staff, slots, { exact: true, balance: 60, exactNodes: 100000, exactMs: 20000, restarts: 2, iterations: 2000 });
+  assert.equal(r.optimality.coverOpen, 22);
+  assert.notEqual(r.optimality.status, "bounded");
+  assert.equal(r.unfilledHours, 22);
+});
+
+test("redteam: a meal break on an unwatched stretch sits nearest the middle, not at the latest start", () => {
+  const r = { assignments: [{ slot: { day: 2, startMin: 480, endMin: 960 }, person: "Sam" }] };
+  const b = placeBreaks(r);
+  assert.equal(b.length, 1);
+  assert.equal(b[0].startMin, 705);
+});
+
+test("redteam: the unpaid meal cut applies from just over mealAfter hours, not a few minutes later", () => {
+  const staff = staffOf("Ana, $20, 40");
+  const slots = slotsOf("Mon, 9:00am, 3:05pm, 1, Open");
+  const plain = buildRoster(staff, slots, {});
+  const meal = buildRoster(staff, slots, { mealAfter: 6, mealMin: 30 });
+  assert.ok(Math.abs(plain.cost - meal.cost - 10) < 1e-6);
+});
+
+test("the shift-pricing floor never exceeds the fewest open hours brute force finds, and equals it somewhere", () => {
+  let seed = 11;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const days = ["Mon", "Tue", "Wed"];
+  let tight = 0;
+  for (let c = 0; c < 40; c++) {
+    const stf = staffOf(Array.from({ length: 2 + rnd(2) }, (_, p) => `P${p},${10 + rnd(10)},${8 + rnd(3) * 4},0,${days[rnd(3)]}-Wed ${6 + rnd(3)}-${18 + rnd(5)}`).join("\n"));
+    const sl = slotsOf(Array.from({ length: 5 + rnd(3) }, () => { const a = 6 + rnd(8); return `${days[rnd(3)]},${a},${a + 3 + rnd(6)},${1 + rnd(2)}`; }).join("\n"));
+    if (sl.length > 9) continue;
+    const ctx = _internals.buildContext(stf, sl, {});
+    let least = Infinity;
+    const owner = new Array(sl.length).fill(-1);
+    (function rec(i) {
+      if (i === sl.length) { if (_internals.ownerValid(ctx, owner)) least = Math.min(least, sl.reduce((t, s, j) => t + (owner[j] < 0 ? (s.end - s.start) / 60 : 0), 0)); return; }
+      for (let p = -1; p < stf.length; p++) { owner[i] = p; if (p < 0 || ctx.elig[p][i]) rec(i + 1); }
+      owner[i] = -1;
+    })(0);
+    const f = openFloorByPricing(stf, sl);
+    assert.ok(f.floor <= least + 1e-6, `case ${c}: floor ${f.floor} above true ${least}`);
+    if (f.floor > least - 1e-6) tight++;
+  }
+  assert.ok(tight > 0);
+});
+
+test("the whole-score shift-pricing bound never exceeds the brute-force optimum, with balance and overtime terms on", () => {
+  let seed = 23;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const days = ["Mon", "Tue", "Wed"];
+  const opts = { balance: 60, burdenPct: 10 };
+  let checked = 0, gapShare = 0;
+  for (let c = 0; c < 40; c++) {
+    const stf = staffOf(Array.from({ length: 2 + rnd(2) }, (_, p) => `P${p},${10 + rnd(10)},${8 + rnd(3) * 4},0,${days[rnd(3)]}-Wed ${6 + rnd(3)}-${18 + rnd(5)}`).join("\n"));
+    const sl = slotsOf(Array.from({ length: 5 + rnd(3) }, () => { const a = 6 + rnd(8); return `${days[rnd(3)]},${a},${a + 3 + rnd(6)},${1 + rnd(2)}`; }).join("\n"));
+    if (sl.length > 9) continue;
+    const brute = bruteForceBest(stf, sl, opts);
+    const f = openFloorByPricing(stf, sl, opts, { incumbentOpen: 0, incumbentScore: brute + 1 });
+    assert.ok(f.scoreBound <= brute + 1e-6, `case ${c}: bound ${f.scoreBound} above true ${brute}`);
+    checked++; gapShare += (brute - f.scoreBound) / Math.max(brute, 1);
+  }
+  assert.ok(checked > 10 && gapShare / checked < 0.5, `mean relative gap ${gapShare / checked}`);
+});
+
+test("reduced-cost fixing keeps the proven optimum and never costs nodes", () => {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  let seed = 4242;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  for (let c = 0; c < 6; c++) {
+    const st = Array.from({ length: 5 }, (_, p) => `P${p},${10 + rnd(12)},${12 + rnd(5) * 6},0,${days[rnd(3)]}-Fri ${6 + rnd(4)}-${16 + rnd(8)}`).join("\n");
+    const sh = Array.from({ length: 10 }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
+    const run = (fix) => buildRoster(parseStaff(st).staff, parseShifts(sh).slots, { exact: true, flowBalance: true, balance: 60, exactNodes: 100000, restarts: 2, iterations: 1000, reducedCostFixing: fix });
+    const a = run(true), b = run(false);
+    if (a.optimality.status !== "bounded" && b.optimality.status !== "bounded") assert.ok(Math.abs(a.score - b.score) < 1e-6, `case ${c}: ${a.score} vs ${b.score}`);
+    else assert.ok(a.score <= b.score + 1e-6 || b.optimality.status === "bounded", `case ${c}`);
+  }
 });

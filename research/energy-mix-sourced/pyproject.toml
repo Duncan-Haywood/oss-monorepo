@@ -1,0 +1,8 @@
+[project]
+name = "energy-mix-sourced"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = ["pypsa>=1.0", "highspy", "pandas", "numpy"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

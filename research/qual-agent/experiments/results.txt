@@ -1,0 +1,97 @@
+300 comments sampled at random (seed 20261023) from the 3,188-item qual-real corpus; human prevalence of negative emotion 0.2333
+short (<=10 words) n=118 prevalence 0.1780; long n=182 prevalence 0.2692; true gap short-long -0.0913
+
+E1. Each coder against the human code (95% Wilson intervals for sens/spec/acc)
+coder  coded_pos  sens  sens_ci  spec  spec_ci  acc  acc_ci  kappa  sens_short  sens_long  spec_short  spec_long
+agent 132 0.814 [0.71,0.89] 0.674 [0.61,0.73] 0.707 [0.65,0.76] 0.373 0.952 0.755 0.784 0.594
+naive-bayes 40 0.229 [0.15,0.34] 0.896 [0.85,0.93] 0.740 [0.69,0.79] 0.146 0.000 0.327 0.979 0.835
+lexicon 39 0.443 [0.33,0.56] 0.965 [0.93,0.98] 0.843 [0.80,0.88] 0.482 0.429 0.449 0.969 0.962
+
+E2. Is the agent more accurate than each stand-in? (exact McNemar on the same items)
+agent right & naive-bayes wrong: 51; reverse: 61; p = 0.4
+agent right & lexicon wrong: 35; reverse: 76; p = 0.00012
+
+E3. Where the agent and the human disagree (counts)
+agent=1 human=0: 75; agent=0 human=1: 13
+
+E4. agent, 30 hand-coded of 300, 2000 draws
+target  estimator  true  mean_est  bias  coverage  width  draws
+prevalence naive 0.2333 0.4400 +0.2067 0.000 0.1125 2000
+prevalence human 0.2333 0.2345 +0.0012 0.953 0.3018 2000
+prevalence ppi 0.2333 0.2342 +0.0009 0.969 0.3737 2000
+gap(short-long) naive -0.0913 -0.1525 -0.0613 1.000 0.2258 2000
+gap(short-long) human -0.0913 -0.0884 +0.0029 0.930 0.6027 1995
+gap(short-long) ppi -0.0913 -0.0941 -0.0029 0.956 0.7268 1995
+
+E4. agent, 60 hand-coded of 300, 2000 draws
+target  estimator  true  mean_est  bias  coverage  width  draws
+prevalence naive 0.2333 0.4400 +0.2067 0.000 0.1125 2000
+prevalence human 0.2333 0.2339 +0.0006 0.961 0.2139 2000
+prevalence ppi 0.2333 0.2343 +0.0009 0.979 0.2764 2000
+gap(short-long) naive -0.0913 -0.1525 -0.0613 1.000 0.2258 2000
+gap(short-long) human -0.0913 -0.0908 +0.0005 0.967 0.4252 2000
+gap(short-long) ppi -0.0913 -0.0902 +0.0011 0.972 0.5348 2000
+
+E4. agent, 100 hand-coded of 300, 2000 draws
+target  estimator  true  mean_est  bias  coverage  width  draws
+prevalence naive 0.2333 0.4400 +0.2067 0.000 0.1125 2000
+prevalence human 0.2333 0.2340 +0.0006 0.976 0.1660 2000
+prevalence ppi 0.2333 0.2335 +0.0002 0.996 0.2264 2000
+gap(short-long) naive -0.0913 -0.1525 -0.0613 1.000 0.2258 2000
+gap(short-long) human -0.0913 -0.0902 +0.0011 0.982 0.3293 2000
+gap(short-long) ppi -0.0913 -0.0916 -0.0003 0.992 0.4388 2000
+
+E4. naive-bayes, 30 hand-coded of 300, 2000 draws
+target  estimator  true  mean_est  bias  coverage  width  draws
+prevalence naive 0.2333 0.1333 -0.1000 0.000 0.0771 2000
+prevalence human 0.2333 0.2357 +0.0024 0.944 0.3021 2000
+prevalence ppi 0.2333 0.2370 +0.0037 0.946 0.3642 2000
+gap(short-long) naive -0.0913 -0.1918 -0.1006 0.000 0.1273 2000
+gap(short-long) human -0.0913 -0.0923 -0.0010 0.933 0.6001 1996
+gap(short-long) ppi -0.0913 -0.0929 -0.0017 0.938 0.7025 1996
+
+E4. naive-bayes, 60 hand-coded of 300, 2000 draws
+target  estimator  true  mean_est  bias  coverage  width  draws
+prevalence naive 0.2333 0.1333 -0.1000 0.000 0.0771 2000
+prevalence human 0.2333 0.2344 +0.0011 0.972 0.2142 2000
+prevalence ppi 0.2333 0.2343 +0.0009 0.982 0.2647 2000
+gap(short-long) naive -0.0913 -0.1918 -0.1006 0.000 0.1273 2000
+gap(short-long) human -0.0913 -0.0931 -0.0019 0.966 0.4256 2000
+gap(short-long) ppi -0.0913 -0.0929 -0.0017 0.971 0.5061 2000
+
+E4. naive-bayes, 100 hand-coded of 300, 2000 draws
+target  estimator  true  mean_est  bias  coverage  width  draws
+prevalence naive 0.2333 0.1333 -0.1000 0.000 0.0771 2000
+prevalence human 0.2333 0.2318 -0.0015 0.973 0.1655 2000
+prevalence ppi 0.2333 0.2323 -0.0010 0.984 0.2105 2000
+gap(short-long) naive -0.0913 -0.1918 -0.1006 0.000 0.1273 2000
+gap(short-long) human -0.0913 -0.0912 +0.0000 0.984 0.3280 2000
+gap(short-long) ppi -0.0913 -0.0931 -0.0018 0.988 0.3989 2000
+
+E4. lexicon, 30 hand-coded of 300, 2000 draws
+target  estimator  true  mean_est  bias  coverage  width  draws
+prevalence naive 0.2333 0.1300 -0.1033 0.000 0.0762 2000
+prevalence human 0.2333 0.2331 -0.0002 0.943 0.3010 2000
+prevalence ppi 0.2333 0.2339 +0.0005 0.947 0.2800 2000
+gap(short-long) naive -0.0913 -0.0467 +0.0446 1.000 0.1507 2000
+gap(short-long) human -0.0913 -0.0926 -0.0013 0.938 0.5997 1999
+gap(short-long) ppi -0.0913 -0.0971 -0.0058 0.962 0.5596 1999
+
+E4. lexicon, 60 hand-coded of 300, 2000 draws
+target  estimator  true  mean_est  bias  coverage  width  draws
+prevalence naive 0.2333 0.1300 -0.1033 0.000 0.0762 2000
+prevalence human 0.2333 0.2349 +0.0016 0.971 0.2144 2000
+prevalence ppi 0.2333 0.2337 +0.0003 0.973 0.2073 2000
+gap(short-long) naive -0.0913 -0.0467 +0.0446 1.000 0.1507 2000
+gap(short-long) human -0.0913 -0.0907 +0.0005 0.966 0.4262 2000
+gap(short-long) ppi -0.0913 -0.0916 -0.0003 0.984 0.4127 2000
+
+E4. lexicon, 100 hand-coded of 300, 2000 draws
+target  estimator  true  mean_est  bias  coverage  width  draws
+prevalence naive 0.2333 0.1300 -0.1033 0.000 0.0762 2000
+prevalence human 0.2333 0.2340 +0.0006 0.980 0.1660 2000
+prevalence ppi 0.2333 0.2343 +0.0010 0.992 0.1681 2000
+gap(short-long) naive -0.0913 -0.0467 +0.0446 1.000 0.1507 2000
+gap(short-long) human -0.0913 -0.0939 -0.0026 0.987 0.3289 2000
+gap(short-long) ppi -0.0913 -0.0938 -0.0026 0.995 0.3345 2000
+

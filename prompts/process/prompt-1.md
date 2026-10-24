@@ -21,7 +21,8 @@ multiple. Aim for the first, and avoid the second.
 ## What to do
 
 Start with `python3 prompts/promptctl.py backlog` and
-`python3 prompts/promptctl.py measure`. Then pick the mode that is most useful
+`python3 prompts/promptctl.py measure --section <title>` (the full output is
+50KB+; `--section 'doc friction'` prints one table). Then pick the mode that is most useful
 right now. This is your call, and these are only defaults:
 
 - **Solve** (the usual choice while agent-owned items are open). Take a

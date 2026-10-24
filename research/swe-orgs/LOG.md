@@ -2,6 +2,20 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-21 · Batch 22: reminding the owner of a pull request that has gone overdue
+
+- Added 1 source and 1 practice (61 practices, 60 sources): Maddila et al., "Nudge: Accelerating Overdue Pull Requests Towards Completion" (Microsoft; arXiv 2011.12468, TOSEM 2022; P61). It is the catalogue's fifth measured source: a randomised trial on 147 repositories and about 8,500 pull requests reported 60% shorter resolution for nudged overdue pull requests than for un-nudged ones, with about 73% of notifications acknowledged positively (preprint figures).
+- **Transfers `yes` and is `partly adopted`.** Sessions are told to look at other sessions' stalled PRs and `unlanded_work.py` lists them, but nothing reminds anyone or wakes a session on one, and nothing measures how long a PR sits open. It ranks 1.3% (unlanded).
+- **Still no proposal.** The ledger has 1942 rows (it had 1900); every class share is at or below 1.3%, far below the 5% bar. A reminder's gain here depends on PR dwell time, which `swe-prlifetime` measures; the join is the next step.
+- Verification was by web search only. The TOSEM article was not found, so its final figures are not confirmed; only the preprint's two headline figures are used.
+
+## 2026-10-21 · Batch 21: a merge queue that keeps main green
+
+- Added 1 source and 1 practice (60 practices, 59 sources): Ananthanarayanan et al., "Keeping Master Green at Scale" (EuroSys 2019; P60), Uber's SubmitQueue, which tests each change on top of the changes queued ahead of it so the main branch builds at every commit. It is the catalogue's first merge-queue source. An earlier draft of this batch took Shopify's "Deconstructing the Monolith" and was dropped before it landed: it duplicated P24 (Packwerk).
+- **Transfers `yes` and is `not adopted`.** A session merges its own green pull request and fixes forward, so two pull requests that are each green can break main together and nothing tests a merge against the other open ones. It ranks 0.9% (coordination), because Uber's volume (thousands of commits a day) is far above a handful of merges a day here.
+- **Still no proposal.** The ledger has 1900 rows (it had 1526); every class share is at or below 1.3% (tooling, unlanded), far below the 5% bar. The 2019 paper's own evaluation is not reported: the figures read (4,500 engineers; 53% less CI resource use, 37% shorter waits) come from Uber's later blog post about the newer system.
+- Verification was by web search only. The paper was not found in full and its DOI was not verified; the url is a summary index page, not the paper.
+
 ## 2026-10-20 · Batch 20: stopping a migration that does not fit the cycle
 
 - Added 1 source and 1 practice (59 practices, 58 sources): Bellroy's technology team's 2024 review (P59; an Australian direct-to-consumer company, the catalogue's third non-US source). It reports a migration from a legacy Rails system that could not be finished inside one six-week Shape Up cycle, so the team stopped instead of extending and plans a simpler second attempt in 2025.

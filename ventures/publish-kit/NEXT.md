@@ -59,14 +59,8 @@ publish it.
   the shared client" fails on `main`. Its own message names the fix:
   `cp platform/llm/byok.mjs ventures/ats-resume-checker/byok.mjs`. Diff the
   two first, check other ventures that vendor `byok.mjs`, and run their tests.
-- Landing a new venture needs more than `node platform/marketing/regen.mjs`.
-  After any merge of `main`, also run
-  `node platform/marketing/front-door-tools.mjs --write` (then delete the
-  untracked `gitops/prod/front-door-tools/` scratch directory),
-  `python3 platform/ci/sync_tree_counts.py`, `python3 gitops/ci/sync_readme_counts.py`
-  (when adding a workflow), `node platform/pages/launched.mjs --write`,
-  `python3 platform/ci/publish_surface.py --write`, and adjust
-  `SWITCHES_IN_THE_CATALOGUE` in `platform/privacy/optout-persistence.test.mjs`
-  for a new `usage.mjs`. A fix that adds these steps to `regen.mjs`, or a
-  `land-venture` script that runs them all, would save the next venture
-  session the three red CI rounds this one had.
+- Landing a new venture: `node platform/pages/venture-preflight.mjs <slug>` now
+  runs the launch-date, mirror and hand-written-count checks and prints the fix
+  for each (the mirror is `regen.mjs` only: `front-door-tools.mjs` output is no
+  longer committed, P024). A new `usage.mjs` still needs
+  `SWITCHES_IN_THE_CATALOGUE` adjusted in `platform/privacy/optout-persistence.test.mjs`.

@@ -11,6 +11,22 @@ export const ADDONS = {
   peppol: { source: "peppol-schematron", match: /peppol\.eu/i, files: { ubl: "peppol-ubl.sef.json", cii: "peppol-cii.sef.json" } },
 };
 
+// Peppol PINT profiles (Singapore InvoiceNow, Australia/New Zealand). Their
+// rules replace the EN 16931 base and the Peppol BIS add-on rather than
+// following them: PINT uses its own tax category codes (GST: SR, ZR, NG...),
+// which the EU base rules reject. UBL only; OpenPeppol publishes no CII form.
+// Compiled by build-pint-rules.mjs from the phive-rules-peppol artefact.
+export const PROFILES = {
+  "pint-sg": { source: "pint-sg-schematron", match: /poacc:billing:international:sg:/i, files: { ubl: ["pint-sg-en16931-ubl.json", "pint-sg-peppol-ubl.json", "pint-sg-billing3-ubl.json"] } },
+  "pint-aunz": { source: "pint-aunz-schematron", match: /poacc:billing:international:aunz:/i, files: { ubl: ["pint-aunz-en16931-ubl.json", "pint-aunz-peppol-ubl.json"] } },
+  "pint-aunz-sb": { source: "pint-aunz-schematron", match: /poacc:selfbilling:international:aunz:/i, files: { ubl: ["pint-aunz-en16931-ubl.json", "pint-aunz-sb-peppol-ubl.json"] } },
+};
+
+export function matchingProfile(xml, syntax) {
+  const id = customizationId(xml);
+  return Object.entries(PROFILES).find(([, p]) => p.match.test(id) && p.files[syntax]) || null;
+}
+
 // BT-24 is cbc:CustomizationID in UBL and the ID inside
 // GuidelineSpecifiedDocumentContextParameter in CII.
 export function customizationId(xml) {

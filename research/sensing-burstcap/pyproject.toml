@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-burstcap"
+version = "0.1.0"
+description = "Largest sensor-area ratio a K-frame burst can match: closed form, sweep over light and read noise, Monte Carlo check"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

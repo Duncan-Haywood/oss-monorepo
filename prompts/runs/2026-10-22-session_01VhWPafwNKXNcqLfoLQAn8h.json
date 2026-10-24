@@ -1,0 +1,50 @@
+{
+ "date": "2026-10-22",
+ "session": "https://claude.ai/code/session_01VhWPafwNKXNcqLfoLQAn8h",
+ "track": "research",
+ "prompt_version": 1,
+ "input": "read ./prompt.md and follow the instructions there (scheduled routine)",
+ "input_sha256": "a6a4cbde3a8ae3e1ab5d2e28da941c9c5bc4a128b1f75087cee1b6d8d8eb85d8",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-22T02:42:09Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 9352,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/accel-kws/experiments/download.sh",
+   "issue": "Hugging Face mirror still returns 403 from the container; the original TF tarball downloads in ~20 s and is a working source, but no doc says so."
+  },
+  {
+   "file": "research/PROJECTS.md",
+   "issue": "Track 8 already has 38 projects, mostly micro-variants; the 'next steps' chain gave no fresh question, so I chose a new one (cascade)."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "research/accel-cascade/README.md"
+ ],
+ "goal": null,
+ "notes": "New project accel-cascade: retrained 200 models on original Speech Commands, 5 seeds, cascades vs singles. Checks run locally: unit tests (6), research/_homepage/build.py ok, check_md_links ok. Limited result: classifier-only saving up to 28% at 0.3-1.4 pt test accuracy cost, negligible system-wide given MFCC front end. No separate docs/posts write-up this run.",
+ "corrections": [],
+ "redteam": null
+}

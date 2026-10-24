@@ -49,6 +49,7 @@
     <p>Paste <code>git log</code>, set your hourly rate, and get <strong>estimated hours per day</strong>, a <strong>plain-language summary of what shipped</strong> and the <strong>amount to invoice</strong> — as Markdown, CSV or JSON.</p>
     <p class="note">Nothing is uploaded. Hours are estimated from commit timestamps (work sessions), so treat them as a starting point you check, not a time record.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Get your log</h2>
@@ -103,7 +104,8 @@ node cli.mjs --repo . --since 2026-09-01 --max-hours 40   # exit 1 over the cap<
     <p>git log --pretty=format:'%H|%an|%aI|%s'. The copy button gives you the exact command.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax or accounting advice. Hours are estimated from commit timestamps and are not a record of time worked; check them before you bill anyone. It is not a quote and not a guarantee of any figure.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>report_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

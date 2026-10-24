@@ -113,6 +113,52 @@ hand-coded study.
 - **Check that the correction helps.** If its interval is wider than the hand-coded one, the
   coder is too weak: fix the prompt or the codebook first.
 
+## Update (2026-10-21): a codebook induced from the text alone, without a model
+
+Inductive coding means letting the codes come from the data instead of a human codebook. As a
+no-model baseline, [`qual-induce`](/research/qual-induce/README.md) fitted NMF topics and k-means
+clusters (5 to 60 codes) on half of 5,313 real Reddit comments from GoEmotions and applied them to
+the other half. Against the 27-emotion human codebook the agreement was above a size-matched
+random assignment but small (normalised mutual information 0.26 for 27 topics against 0.12 at
+chance), and the best single induced code per emotion ranked that emotion's comments correctly
+about 60% of the time. Chance agreement rises with the number of codes, so a raw agreement score
+always favours a bigger codebook; compare against a shuffled baseline. These are topic models,
+not an LLM's codebook, so this sets the bar an LLM-proposed codebook has to clear rather than
+saying anything about LLMs.
+
+## Update: auditing a group gap
+
+Later projects ran the same idea on 3,188 real GoEmotions comments (still with classical coders, not
+LLMs). A hand-coded audit that passes an "overall count is fine" test did not protect a short-versus-long
+gap: a coder with zero overall bias still distorted the gap by 0.20
+([`qual-gapaudit`](/research/qual-gapaudit/README.md)). And when one group is rare, how the audit is
+drawn matters: for the longest 11% of comments, a random audit of 100 items gave intervals 1.7 times as
+wide as an audit split evenly between the groups, while for a 36% group the design made no difference
+([`qual-stratified`](/research/qual-stratified/README.md)).
+
+## Update (2026-10-23): a table of six groups is not a 95% table
+
+A report rarely shows one group. [`qual-manygroups`](/research/qual-manygroups/README.md) audits
+six comment-length groups of 3,188 real GoEmotions comments at once (the smallest is 1.5% of the
+corpus). Each row has a 95% prediction-powered interval, but only 71 to 77% of 120 to 240-item
+audits with equal numbers per group covered all six true prevalences together (three groups:
+85 to 88%). A Bonferroni widening, about a third wider, lifted that to 89 to 94%. A random audit
+of 120 items left under five items in the rare group in 291 of 300 draws, so it could not fill
+the table at all. The coders are still naive-Bayes models and a word list, not LLMs.
+
+## Update (2026-10-23): a language model as the coder, for the first time
+
+Every coder above was a naive-Bayes model or a word list. [`qual-agent`](/research/qual-agent/README.md)
+puts a language model in the seat: the Claude session agent that wrote the project coded 300 real
+GoEmotions comments in one pass, never seeing the human labels (not an API-called model, and
+labelled that way). It over-coded, flagging 132 comments as negative-emotion where the raters
+marked 70, so the naive prevalence was 0.44 against a true 0.23, the opposite error from the
+classical coders, which undercounted. Its accuracy (0.71) was no better than naive Bayes
+(exact McNemar p = 0.4) and worse than a 38-word list (0.84). Its sensitivity differed by comment
+length (0.95 short, 0.76 long), and prediction-powered inference stayed valid but was 29% wider
+than hand-coding alone at 60 hand-coded items. A language model is not automatically a better
+measuring instrument; it is a different one, and you only find that out against a hand-coded sample.
+
 ## What comes next
 
 Track 19 lists the next steps. The first is to run the same pipeline on a public, hand-coded

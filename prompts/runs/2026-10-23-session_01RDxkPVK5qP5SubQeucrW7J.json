@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_01RDxkPVK5qP5SubQeucrW7J",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T18:02:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "creative: new Hearth & Horizon story",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 9857,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/stories/forty-to-one.md",
+      "why": "No audio: huggingface.co returns 403 through the proxy. Text, pages, feeds only. The scheduled prompt asked for revenue products; the router drew the creative track and I followed it."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, slug forty-to-one (Tebwaiaki, Kiribati, 2054; freshwater lens, Ghyben-Herzberg 40:1, upconing, sensor drift). ~4,300 words. Numbers re-derived: 0.23->9.2 m, gap 3.2, third 1.07, /0.8 = 1.3 m3/h; tape 0.21->8.4, gap 2.4, 0.8, 1.0 m3/h; 6x0.28x8=13.4 m3/d; 7 Oct 2054 is Wednesday. generate.mjs ran; node --test 10 pass. BIBLE row and README line added.",
+  "corrections": [],
+  "redteam": null
+}

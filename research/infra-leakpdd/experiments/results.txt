@@ -1,0 +1,22 @@
+# Net3, WNTR, one leak per run (opens hour 24, read at hour 48); demand-driven (DD) vs pressure-driven (PDD)
+# mean total demand at multiplier 1: 691 L/s. Leak area fixed at the 2% size at multiplier 1; 30 seeded locations; sensors (5, greedy at multiplier 1, DD): 253 15 10 143 225
+
+== A. No leak: how far from physical is DD, and what does PDD (required pressure 15 m) change? (means over the 72 h)
+mult | DD: share of junction-hours below 0 m, below 15 m, min pressure m, total demand L/s | PDD: share below 15 m, min pressure m, served demand share of requested
+1 | 0.001 0.037 -0.7 691 | 0.037 -0.7 1.000
+1.25 | 0.002 0.037 -2.5 863 | 0.037 -2.5 1.000
+1.5 | 0.017 0.041 -17.2 1036 | 0.041 -17.1 1.000
+2 | 0.603 0.682 -185.9 1381 | 0.519 -34.9 0.864
+3 | 0.912 0.944 -457.5 2072 | 0.837 -37.9 0.615
+
+== B. Leak response at the 5 sensors, 24 h after onset, DD vs PDD (15 m). Columns: mean leak flow DD, PDD (% of m=1 mean demand) | median sensor drop m: DD, PDD | median |DD-PDD| at sensors m | locations 'covered' (>0.5 m at some sensor) DD, PDD, disagree
+1 | 1.96 1.96 | 0.005 0.005 | 0.000 | 8 8 0
+1.25 | 1.88 1.88 | 0.341 0.341 | 0.000 | 11 11 0
+1.5 | 1.61 1.61 | 0.798 0.792 | 0.293 | 29 29 0
+2 | -0.00 0.89 | -0.000 0.115 | 0.115 | 0 1 1
+3 | -0.00 0.60 | -0.000 0.051 | 0.051 | 0 0 0
+
+== C. PDD required pressure sweep at multiplier 2: served share of demand, share of junction-hours below the required pressure
+req 10 m: served 0.873, share below req 0.425
+req 15 m: served 0.864, share below req 0.519
+req 25 m: served 0.846, share below req 0.692

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "society-lineup"
+version = "0.1.0"
+description = "How many line-cutting robots erode a crowd's queueing norm when objections fade as cutting gets common"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

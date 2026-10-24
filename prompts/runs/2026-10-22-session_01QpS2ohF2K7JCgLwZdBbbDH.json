@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_01QpS2ohF2K7JCgLwZdBbbDH",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T18:03:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9546,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "render_audio.py killed at a 10 min background timeout on the first try; rerun detached took ~32 min"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "says a render takes about 15 minutes; a 5,500-word episode took about 32 minutes here, so a foreground/600s timeout kills it"
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Saints by Candlelight episode 11, herman-and-the-garden-on-spruce-island (Orthodox saint; traditions labelled, children Anna and Peter flagged invented). No agent doc or post written.",
+  "corrections": [],
+  "redteam": null
+}

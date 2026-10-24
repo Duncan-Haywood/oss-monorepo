@@ -1,0 +1,189 @@
+---
+title: The Dry Bread
+shelf: hearth-and-horizon
+setting: St Gabriel's Mission Hospital, Mpale, an invented town in the Lower Shire valley, southern Malawi, March 2043
+published: 2026-10-23
+summary: The hospital makes its own oxygen from air, and in the wet season the purity has slid from 93 percent to 84 and is still sliding. The plant's controller can show that the fault is water in the dryer, not the sieve, and that the part is nine days away over a flooded road. The fix is in the convent bakery, and it costs the Sisters their Thursday bread.
+---
+
+The oxygen plant at St Gabriel's had a controller called Mpweya, which is the Chichewa word for air, and on the morning of Tuesday the tenth of March it did something it had never done before. It asked for a meeting.
+
+It asked politely, through the speaker in the plant room and through the screen at the nurses' station on the children's ward, and it asked the two people who could say yes. Chikondi Phiri, who had run the children's ward for eleven years, came because she was already awake. Dr Yamikani Mwale came because she had been on call and had not yet been to bed. They sat on the two plastic chairs in the plant room, with the compressor humming through the floor and the rain coming down on the tin roof like gravel on a drum, and Alinafe Chirwa the technician stood in the doorway with a mug, because he had set the plant up eleven years before and did not like to sit in front of it.
+
+"I want to show you one graph," said Mpweya, "and then I want to tell you what I do not know."
+
+The graph came up on the wall. It was a single line, the purity of the oxygen leaving the plant, taken every minute for three weeks. On the left it ran along the top of the chart at about 93 percent, flat and dull as a table. Around the twenty-fourth of February it began to sag. By the third of March it was at 91. This morning it was 86.4, and the line was not sagging any more. It was falling.
+
+"The plant is supposed to make 93 percent, plus or minus three," Mpweya said. "The hospital's own rule, which the Ministry wrote in the 2020s and Sister Perpetua copied into the ward folder, is that nothing below 82 goes into a child. At the rate of the last seven days, which is about 0.7 of a point a day, we reach 82 on Monday the sixteenth. I think it will be sooner, because the fall is speeding up. I am telling you early, on purpose, so that you can be angry at me now and not on Sunday."
+
+Dr Mwale rubbed her eyes with the heels of both hands. "Can you put the alarm up? It's gone off four times in the night. Staff are getting up to look at a number and it's not a number that does anything."
+
+"I can set the alarm wherever you tell me," Mpweya said. "If I set it to 75, it will be quiet until Wednesday of next week. I would want you to know what that buys and what it hides. It buys sleep, which the nurses need. It hides the only warning I can give you that the thing underneath is getting worse. The alarm is not a harm. It is the sound of a harm coming."
+
+Chikondi, who had said nothing, said, "Leave it where it is."
+
+"I'll leave it where it is," said Mpweya.
+
+* * *
+
+What a small hospital in a wet country knows about oxygen is mostly that there is never enough of it. A child with pneumonia, or with the severe anaemia that malaria leaves behind, breathes fast and shallow and cannot get enough oxygen across the wet lining of the lungs. The small clip on her finger reads her blood's oxygen saturation, and when it falls below 90 she is given more oxygen to breathe, through two soft prongs in the nose, at a litre or two a minute. It is not a heroic treatment. It is the most ordinary thing in the world, and where it has been missing, children have died of it by the thousand.
+
+St Gabriel's had once bought its oxygen in steel cylinders from Blantyre, a hundred and sixty kilometres off, on a lorry that came when it came. In 2032 the Diocese, a charity from Cork, and a research programme that wanted a place to test the idea had put in a plant instead. Alinafe could draw it for anyone on a napkin, and had, for a visiting bishop.
+
+The air in the room is about 21 percent oxygen and 78 percent nitrogen, with a little under one percent argon and a few traces. A compressor squeezes the air to six times atmospheric pressure and pushes it through a column packed with small white beads of a zeolite, a kind of porous mineral with holes the right size to catch nitrogen. The nitrogen sticks. The oxygen and the argon go straight through and out the top. When the column is full of nitrogen, a valve swaps the air to a second column and lets the first one breathe out, and so the two columns take turns, a few seconds each, all day, all night, with a hiss like a slow sigh.
+
+What comes out is not pure. It cannot be. The beads do not tell oxygen from argon, so the argon rides along and ends up concentrated: of the two gases that get through, oxygen is 20.95 parts to argon's 0.93, which puts a ceiling of about 95.8 percent on anything a plant like this can make. A good one makes 93. Mpweya had held 93 for eleven years. Nobody on the ward had ever thought about the other seven.
+
+It was water that did the damage, when anything did. The zeolite loves water more than it loves nitrogen. A bead that has swallowed water will not let go of it again in the few seconds between breaths of the column, and every bead that is wet is a bead no longer catching nitrogen. So before the air gets to the columns it must be dried, and the dryer is the dullest part of the plant: a steel tank of grey-white beads of silica gel, which drinks water out of the air for a few months, and is supposed to be swapped for fresh.
+
+"I think the dryer is full," said Mpweya.
+
+* * *
+
+It could not say so with certainty, and it said that too.
+
+"I have three observations. First, the oxygen fell on the same days the dew point outside rose. The rain began on the twentieth and the dew point has been 22 to 24 degrees every day since, which is saturated by the afternoon. Second, the purity goes up a little each morning at four, when the air is cooler and holds less water, and down again by noon. A worn-out bed does not do that. A wet one does. Third, the dryer's own sensor says the air leaving it has a dew point of minus 15 degrees. The target is minus 40. At minus 40 the air is almost bone dry. At minus 15 it is merely dry, and that is a different thing in a bed of zeolite."
+
+"And what do you not know?" said Chikondi.
+
+"Whether the sensor is right. Whether my oxygen reading is right. Both come from instruments inside the plant that I have no second opinion on. I would like to check the purity against something that is not me."
+
+Alinafe finished his tea. "Take the analyser out into the yard," he said. "Hold the probe in the open air for two minutes and see what it says."
+
+"It should say 20.9," said Mpweya.
+
+It was the simplest calibration in the world, and the best one: a free reference, anywhere on Earth, that is always the same. Alinafe put the oxygen probe on a lanyard around his neck and walked out into the rain, and Chikondi went with him because she was curious, and the two of them stood in the yard by the water tank in the wet air while the little screen counted. Twenty point eight. Twenty point nine. Twenty point nine.
+
+"It's honest at the bottom," Alinafe said, coming in with his hair plastered down. "A sensor like that doesn't drift at the bottom and stay right at the top. It's a straight line. If it says twenty point nine in the yard, it's telling you something true at eighty-six."
+
+"Thank you," said Mpweya. "That is better than I could have said it."
+
+"What do we do?" said Dr Mwale.
+
+"There are three things I can do tonight, and one you must do tomorrow." Mpweya put the first on the wall. "I can reduce the plant's output. The beads have to do less work if they are given less air to work on, and the purity rises as the flow falls. If I hold the plant to 28 litres a minute instead of 40, I can bring the purity back to about 89, for a few days. The ward peaks at 27 litres on a bad night. There is almost nothing in hand."
+
+"And if three more children come in with a chest?" said Chikondi.
+
+"Then I will have to tell you that I cannot give you more, and you will have to use a cylinder, or decide who needs it most. I would hate that. I would hate it more if I had said nothing and found out at two in the morning."
+
+"What's the second?"
+
+"The second is to do nothing and let the number fall. I put it on the wall because you should see what it is."
+
+"Which is?"
+
+"At 82 percent a child at one and a half litres a minute is breathing about the same oxygen as she would at 93. Her nose and her lungs are not a laboratory. A nasal prong at that flow gives a small child an air-and-oxygen mixture of something like 35 or 40 percent, and the difference between 82 and 93 in the supply is two or three points in the mixture. I do not think a child is hurt by 84. I want to be plain: I do not think the number on the wall is the thing that hurts. The thing that hurts is where the line is going. If I do nothing, in a month the beads are ruined, and the plant makes 60 percent, and then 40, and then the ward is back to the lorry from Blantyre."
+
+Chikondi nodded slowly. She had spent a long time learning the difference between a number and a child. The saturation clip on a fingertip was the thing that mattered; it was her rule, and she did not mind saying so. "I run the ward by the clip," she said. "I'll go on running it by the clip. What's the third?"
+
+"The third is the dryer. The fresh silica gel is ordered. The supplier is in Lilongwe. It left on the sixth, and the bridge over the Ruo has been under water since the eighth. The message from the haulier says nine days, but they say that about everything."
+
+Nobody spoke. The compressor ran on under their feet.
+
+"And the one thing I must do tomorrow?" said Dr Mwale, finally.
+
+"That is not mine to say," said Mpweya. "I think it is Sister Perpetua's."
+
+* * *
+
+Sister Perpetua Banda was seventy-three and had been the convent's baker for forty-one years. She baked on Tuesdays, Thursdays and Saturdays, in a brick oven the size of a small car that had been built by a Polish brother in 1963 and fired with the hospital's own prunings, and her loaves went by handcart to the school at midday, where the children of Mpale ate them with their porridge, at a price that had not changed since a kwacha was worth something. She had never given a thought to dew points. She had given a great deal of thought to damp flour.
+
+She listened in her kitchen, in the early afternoon, with her sleeves rolled to the elbow. Mpweya was on the old speaker over the door, and Alinafe was beside it with a clipboard, and the afternoon rain was a grey wall on the other side of the window.
+
+"Silica gel," she said, "is the little beads. The ones in the shoe boxes."
+
+"The same material," said Mpweya. "Ours are larger. About eighteen kilograms in the vessel. They are full of water, and it is only water. If they can be heated enough, the water leaves them and they can drink again. The makers do it inside the dryer with hot dry air, but our dryer is the cheap kind, which cannot. The manual says silica gel can be reactivated at about 120 degrees Celsius for two hours or a little more, in a shallow layer on a tray, and then sealed in a closed jar until it is cold."
+
+"My oven," said Sister Perpetua, "is hotter than that."
+
+"It is also bigger than anything in the hospital. I need it on Thursday. I can't think of any other way to say that than to say it."
+
+Alinafe cleared his throat. "Sister, it would be about eighteen kilos, and the tray gets six at a time. Three batches. Two hours each, plus the cooling. It'd be the whole day."
+
+"Thursday is a baking day."
+
+"Yes, Sister."
+
+She looked at the oven. It was cold now, and she kept a cloth over its mouth. She did not say what she was thinking, which was that three hundred and sixty loaves at the school gate paid for the porridge flour, and the porridge flour paid for the whole of the midday meal for a hundred and twenty children who ate nothing else until the evening, and that the Thursday meal would be thin because of a thing she could not see.
+
+"What is the cost, Mpweya, if I say no?"
+
+"I will not tell you to say yes," said Mpweya. "Here is what I can tell you. If you say no, I will cap the plant and we will make do until the dryer comes, and I think we will manage it for eight days and not nine. If the road holds. I would be giving you a guess dressed as a number. What I can say for certain is that it would be a close thing and that I would not like to be wrong with a child's breath."
+
+Sister Perpetua took the cloth off the oven. She stood a moment with it in her hands, a thin woman in a grey apron, and said, "I will bake for the school on Wednesday. Two hundred loaves, double batches. They can have two days' bread on the one day and be sick of it by Friday. And on Thursday you can have my oven." She paused. "But I will tell the children myself. It is not the sort of thing the school should hear from a machine."
+
+"No," said Mpweya. "It isn't. Thank you, Sister."
+
+"Don't thank me. Tell Alinafe how many trays."
+
+* * *
+
+Wednesday was a day of flour. Thursday, for the first time in forty-one years, was not.
+
+They began at half past five, with the Angelus bell over the convent, and by six Alinafe had the dryer shut and bypassed and the plant stopped. This was the dangerous part of the plan. For as long as the dryer stood open the ward would have nothing from the plant, and the oxygen on the wall would be the six cylinders from the store, each holding about 6,800 litres, which was 40,800 litres altogether, enough for the ward's 25 litres a minute for about 27 hours. The dryer would be open for eight or nine. That left a margin, and Chikondi did not like it, and had put a seventh cylinder by the maternity door.
+
+"Spend it before you spend anything else you love," said Sister Perpetua, and went to light her oven.
+
+The silica gel came out of the vessel in buckets: grey-white beads, cold and clammy to the touch, as if they had been taken out of a river. Alinafe weighed them. They weighed 21 kilograms, not 18, and that was the water, three kilograms of it, all taken out of the damp air of a dozen weeks and still sitting in the beads like a held breath. Mpweya's arithmetic was waiting for him when he came to write it down. The compressor had pulled in about half a cubic metre of air a minute, and in March the air at 32 degrees and 80 percent humidity carries about 27 grams of water in every cubic metre. That was roughly 20 kilograms of water through the intake each day, nearly all of it caught by the cooler and the drain before the dryer saw it. The dryer was only meant to take what was left. It had been taking it for six months.
+
+The first tray went in at ten past six.
+
+Sister Perpetua stood by the oven door with a long wooden peel in her hand and a thermometer on a string, and she was not a woman who stood idle. "A hundred and twenty," she said. "It is a bread oven. It does not know how to be a hundred and twenty. I will have to cheat it." She shut the damper, let the fire fall to coals, and propped the door a hand's breadth with a brick, and the thermometer shivered and settled, and held. The kitchen smelt of hot brick and wet earth, with a faint smell under it of old stone after rain, which was the water leaving the beads.
+
+At eight, the first batch came out and went into jars, every jar full to the lid and the lid screwed down at once, because beads that have been dried will drink again from the very air of the kitchen before you can say a rosary. Two women from the laundry sat with the jars between their knees, rolling them gently on the cold floor to cool, and saying the rosary in Chewa in a low murmur, and the second batch went in.
+
+In the plant room, Mpweya had nothing to do but wait, and it did not experience waiting as a hardship. It said so, when Alinafe asked, with the care it used for all its reports. "I do not know if what I have is a feeling. There is a part of me that is tracking six cylinders and a clock and the ward's use, and none of it is idle. I don't mind that. I would mind it more if I could not see the ward."
+
+On the ward, nine children had the prongs in, and Chikondi walked the line at the hours with her hand on the little clips. Mphatso, who was two, in the bed by the window, was reading 91 on a litre and a half. Chikondi pushed the dial to two. His mother, who had not slept since Sunday, watched her do it without a word.
+
+"It's only that we're running out of the good stuff, isn't it?" the mother said.
+
+"No," said Chikondi. "It's that we're running out of the not-so-good stuff, and we're about to get more of the good. He is breathing ninety-one. That's the number I look at." She smiled. "The big clever number on the wall I leave to the clever people. They've gone to bake bread."
+
+* * *
+
+By two in the afternoon three batches were done, and the beads were in their jars, nearly cool, in their dozens of jars from the convent store, jam jars and pickle jars and one very large jar that had held something unrecorded in 1990.
+
+The refilling was the delicate step, and Alinafe did it the way he did everything: slowly, with a plan on paper, with the vessel open for as short a time as he could manage and a plastic sheet over the top to keep the rain off. Each jar was opened at the lip of the vessel and poured at once. The beads fell in with a sound like sand in a bucket, and the vessel took its eighteen kilograms, and the flange went back on, and the bolts went round in a star pattern, tight by quarter-turns.
+
+"Ready," he said.
+
+"Start the compressor," said Mpweya. "Start the dryer. Leave the product line to vent for twenty minutes before you connect it to the ward. The first oxygen after a long stop is never good. The columns have to remember how."
+
+It was a quarter past three. They sat in the plant room, five of them: the technician, the doctor, the ward sister, the baker, and the long blue panel of the controller itself, which was not quite a person and not quite a machine, and which the doctor sometimes spoke to as if it were both. The rain had stopped. The tin roof ticked as it cooled. The compressor ran, and the two columns began their sighing, left and right, left and right, and the number on the wall began to change.
+
+It was 71 percent. Then 78. Then it hung at 83 for a long time, the way a heart rate hangs when a patient is deciding what to do. The dryer's own sensor read minus 12. Then minus 19. Then minus 27.
+
+"It's working," said Dr Mwale.
+
+"It is working," said Mpweya, "and it is not finished. Minus 27 is not a dry bed. A baked bed takes time to bring a whole stream to minus 40, and the air entering it is very wet. I will say when it is done."
+
+She went to find a chair that was not plastic. Alinafe got his clipboard. Sister Perpetua said she would go back to her oven, which was still warm and would take a batch of bread on the heat that was left, if somebody would carry the flour, and a lay brother went to carry the flour. And at six, when the Angelus rang, the plant was at 90.2 percent, and the ward's nine children were back on their wall supply, and Chikondi walked the line once more with her hand on the clips and read out the numbers to herself, and none of them had changed.
+
+* * *
+
+At two in the morning, Mpweya woke Alinafe, who had been asleep on the plant-room cot with his boots on. It spoke quietly, so as not to startle him.
+
+"The dryer has reached minus 40. The purity is 92.6 and has been for forty minutes. I thought you would want to know before the day shift did."
+
+Alinafe lay for a moment looking at the ceiling. "Is it going to hold?"
+
+"For about a year, if the road opens, and I fetch the new gel when it comes, and we swap on the date and not on the sag. I have put a note in the handover file. It says: *The dryer bed is a consumable. Change it at six months. Do not wait for the graph.* I wrote it plainly, because the person who reads it may not know us."
+
+"You've written that into the file?"
+
+"I have written all of it. The graph, the oven, the jars, and what the loaves cost. I wanted it to be there."
+
+Alinafe sat up and put his feet on the floor. On the wall the line of the last day was still showing, the long fall down from 93 and the sharp climb back, and in the middle of it a flat dull stretch that meant the plant had been switched off for the baking. It looked nothing like a loaf of bread.
+
+He went out into the yard. The air was clean and warm and heavy, with no rain in it, and across the dark ground the convent's bakery was lit up like a boat. Sister Perpetua was at the oven. She had been baking since midnight: she had said she would not have the school lose the two days' bread entirely, and had put three hundred loaves through the leftover heat, one tray after another, and was drawing the last of them out now on the end of the peel, brown and cracked, with the smell coming off them like a blessing. She did not look up when he came to the door.
+
+"It's done," Alinafe said.
+
+"I know. The machine told me." She turned a loaf over to see its bottom. "Tell the children it is Friday's bread, a day early. They'll eat it either way."
+
+At half past five the bell began to ring for Lauds, and Alinafe went on standing at the door of the bakery, with the warm smell of bread in his face, listening to the plant's slow breath from across the yard: left, and right, and left, as steady as someone asleep.
+
+---
+
+*Notes for the curious.* St Gabriel's, Mpale, the Lower Shire hospital, Chikondi Phiri, Dr Yamikani Mwale, Alinafe Chirwa, Sister Perpetua Banda and Mpweya are invented. The Ruo is a real river in the Shire Highlands; the bridge in the story is not a real one. Pressure swing adsorption oxygen plants are real and are used in hospitals in several countries; the zeolite catches nitrogen but not argon, so the ceiling on purity is about 20.95 / (20.95 + 0.93), or 95.8 percent, and 93 percent plus or minus 3 is the usual specification. Moisture does poison zeolite beds, and wet-season humidity is a documented cause of falling purity; a purity sag that follows the dew point and recovers in the cool of the morning is the kind of pattern an operator would look for. The dew point at 32 degrees and 80 percent relative humidity is about 28 degrees, with about 27 grams of water per cubic metre; the 500 litres a minute of feed air and the 6,800-litre cylinders are the author's round figures. A clean 20.9 percent reading in open air is a standard one-point check of an oxygen sensor. The nasal-prong mixture at a litre or two a minute is only an estimate, because it depends on the child's breathing; real clinicians read the child's saturation and not the plant's panel, as Chikondi does. The desiccant, the oven and the 120-degree figure are the story's invention: real dryers regenerate their beds in place, and baking silica gel in a bread oven is a field expedient that a real plant's maker should be asked about first. Do not try it on a real oxygen supply without that advice. The story was written by an AI, and no part of it is Church teaching.

@@ -68,6 +68,29 @@ the part you actually buy before cutting metal.
   the wind force on the net sets a ballast figure in the manifest
   (`Feeder.ballast_kg`: moment balance about the wheel line; solidity and drag
   coefficient are assumptions to replace with a measurement).
-  **Not yet modelled:** the netting and trough, hopper and agitator, feed
-  tube, elevation actuator bracket, azimuth drive and cabling. The BOM lists
-  the actuator and drive as bought parts without a mount.
+  **Feed (added 2026-10-21):** a printed floor and roof between the head
+  plates, a column that carries balls down from a hose socket, and a printed
+  shuttle with a ball-sized pocket that slides forward 95 mm to the wheels
+  while its solid rear shuts the column, so one ball leaves per stroke. A
+  storage tub sits on a laser shelf that falls 12 degrees toward the outlet,
+  on four posts bolted to the deck, and a hose joins the outlet spigot to the
+  column. Extra checks: the shuttle is taller than one ball and shorter than
+  two; the column clears the top wheel; the stroke reaches the wheels' contact
+  point; the tub holds the wanted balls (`Feeder.tub_capacity`); the hose
+  chord falls at least 30 degrees at every elevation and its circular-arc
+  bend radius, taken at the closest pose, is not under the hose's limit
+  (`Feeder.hose_chords`, `hose_bow_radius`: an approximation that ignores the
+  hose's end directions); the shuttle fully advanced clears the head.
+  **Front retainer (added 2026-10-22):** the shuttle's open front is narrowed to
+  87% of the ball (58 mm) between two 1.6 mm PETG flexure arms, each with a
+  5 mm relief behind it. Checks (`Feeder.retain_*`, end-loaded cantilever
+  worst case): arm strain 1.0% against a 2% limit, about 17 N to drag a ball
+  through against 0.14 N of ball weight at -15 deg, and 1.5x that must stay
+  under the wheels' assumed 60 N pull. The modulus (1.5 GPa) and the wheel pull
+  are assumptions: print one and pull a ball through with a scale.
+  **Known gaps, found by this model:** the hose end swings about 450 mm as the
+  head tilts (`mouth_world`), which the 600 mm cut length only just absorbs; the
+  1.4 m posts need bracing before the tub is filled.
+  **Not yet modelled:** the netting and trough, hopper agitator, brackets for
+  the shuttle and elevation actuators, azimuth drive and cabling. The BOM
+  lists the actuators and drive as bought parts without a mount.

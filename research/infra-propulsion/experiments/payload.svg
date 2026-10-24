@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot: payload as a percent of the diesel payload at the same gross mass and range, against battery pack specific energy in Wh/kg, for a long-haul truck (800 km), a unit train (1,500 km) and a Panamax bulk carrier (20,000 km)">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Payload kept when diesel is swapped for a battery pack</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="272.9" y2="272.9" stroke="#ddd"/><text x="58" y="276.9" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="221.8" y2="221.8" stroke="#ddd"/><text x="58" y="225.8" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="170.8" y2="170.8" stroke="#ddd"/><text x="58" y="174.8" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<line x1="64" x2="624" y1="119.7" y2="119.7" stroke="#ddd"/><text x="58" y="123.7" text-anchor="end" font-family="sans-serif" font-size="11">80</text>
+<line x1="64" x2="624" y1="68.6" y2="68.6" stroke="#ddd"/><text x="58" y="72.6" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">150</text>
+<text x="94.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">250</text>
+<text x="139.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="245.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">750</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2000</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">pack specific energy, Wh/kg</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">payload kept, % of diesel</text>
+<polyline points="64.0,160.6 79.1,137.6 94.3,122.2 109.4,114.6 139.7,101.8 169.9,94.2 245.6,86.5 321.3,81.4 624.0,73.7" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="160.6" r="3" fill="#c0392b"/>
+<circle cx="79.1" cy="137.6" r="3" fill="#c0392b"/>
+<circle cx="94.3" cy="122.2" r="3" fill="#c0392b"/>
+<circle cx="109.4" cy="114.6" r="3" fill="#c0392b"/>
+<circle cx="139.7" cy="101.8" r="3" fill="#c0392b"/>
+<circle cx="169.9" cy="94.2" r="3" fill="#c0392b"/>
+<circle cx="245.6" cy="86.5" r="3" fill="#c0392b"/>
+<circle cx="321.3" cy="81.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="73.7" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">truck</text>
+<polyline points="64.0,99.3 79.1,91.6 94.3,86.5 109.4,83.9 139.7,78.8 169.9,76.3 245.6,73.7 321.3,73.7 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="99.3" r="3" fill="#1f6fb2"/>
+<circle cx="79.1" cy="91.6" r="3" fill="#1f6fb2"/>
+<circle cx="94.3" cy="86.5" r="3" fill="#1f6fb2"/>
+<circle cx="109.4" cy="83.9" r="3" fill="#1f6fb2"/>
+<circle cx="139.7" cy="78.8" r="3" fill="#1f6fb2"/>
+<circle cx="169.9" cy="76.3" r="3" fill="#1f6fb2"/>
+<circle cx="245.6" cy="73.7" r="3" fill="#1f6fb2"/>
+<circle cx="321.3" cy="73.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">unit train</text>
+<polyline points="64.0,262.7 79.1,211.6 94.3,183.5 109.4,163.1 139.7,137.6 169.9,124.8 245.6,104.4 321.3,94.2 624.0,78.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="262.7" r="3" fill="#2e8b57"/>
+<circle cx="79.1" cy="211.6" r="3" fill="#2e8b57"/>
+<circle cx="94.3" cy="183.5" r="3" fill="#2e8b57"/>
+<circle cx="109.4" cy="163.1" r="3" fill="#2e8b57"/>
+<circle cx="139.7" cy="137.6" r="3" fill="#2e8b57"/>
+<circle cx="169.9" cy="124.8" r="3" fill="#2e8b57"/>
+<circle cx="245.6" cy="104.4" r="3" fill="#2e8b57"/>
+<circle cx="321.3" cy="94.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="78.8" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">bulk carrier</text>
+</svg>

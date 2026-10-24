@@ -1,0 +1,12 @@
+society-ringnoise. N=200, M=9, eps=0.02, 20 seeds per cell; rho grid 0.02..0.40.
+Threshold = smallest rho where the mean share on L is >= 0.9 (mean-field) or >= 0.5 of crowds have >= 0.9 on L (others).
+resampled: 300 synchronous sweeps, each person = majority of 9 fresh partner plays (noise, no memory persistence).
+simulation: society-allies, 500 rounds (noise and persistent memory).
+
+block  k   mean-field  resampled  simulation
+    1  2        0.18       0.06        0.10
+    4  2        0.26       0.16        0.24
+    8  2        0.38       0.26        0.38
+    1  3        0.18       0.10        0.14
+    4  3        0.20       0.14        0.20
+    8  3        0.34       0.22        0.30

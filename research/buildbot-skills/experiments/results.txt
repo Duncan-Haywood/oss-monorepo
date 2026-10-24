@@ -1,0 +1,43 @@
+# buildbot-skills: success on 1000 fresh episodes per plant (peak tilt <= 3.0 deg, end tilt <= 0.5 deg, person <= NIOSH 23.1 kg)
+policy | seed | K B Ki | train success | test A | test B | B diverged
+cohold nominal | - | 1000 150 0 | - | 0.612 | 0.261 | 0.489
+A_nominal | 1 | 495 21 1686 | 1.000 | 0.642 | 0.046 | 0.808
+A_random | 1 | 23514 20 126 | 0.817 | 0.822 | 0.000 | 1.000
+B_random | 1 | 241 21 81 | 0.617 | 0.666 | 0.619 | 0.001
+A_nominal | 2 | 25936 11 383 | 1.000 | 0.823 | 0.000 | 1.000
+A_random | 2 | 22778 25 4774 | 0.825 | 0.823 | 0.000 | 1.000
+B_random | 2 | 330 28 215 | 0.742 | 0.716 | 0.664 | 0.008
+A_nominal | 3 | 494 13 917 | 1.000 | 0.730 | 0.032 | 0.820
+A_random | 3 | 891 44 4744 | 0.767 | 0.810 | 0.114 | 0.724
+B_random | 3 | 386 34 80 | 0.592 | 0.675 | 0.638 | 0.015
+A_nominal | 4 | 1554 11 2654 | 1.000 | 0.766 | 0.006 | 0.982
+A_random | 4 | 28927 32 1201 | 0.850 | 0.823 | 0.000 | 1.000
+B_random | 4 | 548 58 369 | 0.617 | 0.717 | 0.606 | 0.112
+
+# Diagnostics on plant-B test episodes: A_random = best seed by A-test (no peeking at B); B_random = best seed by B-test
+A_random {'K': 22777.747885621553, 'B': 25.487532270282834, 'Ki': 4773.7352843714325, 'seed': 2} {'1.0': 0.0, '2.0': 0.0, '3.0': 0.0, '5.0': 0.0} {'peak tilt > limit': 0.813, 'end tilt > limit': 0.813, 'person > NIOSH': 0.813, 'diverged': 1.0}
+  sheet kg 6-8: n=124 success 0.000
+  sheet kg 8-15: n=407 success 0.000
+  sheet kg 15-23: n=469 success 0.000
+  feedback delay s 0-0.01: n=338 success 0.000
+  feedback delay s 0.01-0.02: n=330 success 0.000
+  feedback delay s 0.02-0.03: n=332 success 0.000
+  flex stiffness N m/rad 150-600: n=365 success 0.000
+  flex stiffness N m/rad 600-2000: n=330 success 0.000
+  flex stiffness N m/rad 2000-6000: n=305 success 0.000
+  lag s 0-0.15: n=282 success 0.000
+  lag s 0.15-0.3: n=304 success 0.000
+  lag s 0.3-0.5: n=414 success 0.000
+B_random {'K': 329.5082357307852, 'B': 28.368028720022206, 'Ki': 214.692111244791, 'seed': 2} {'1.0': 0.135, '2.0': 0.446, '3.0': 0.664, '5.0': 0.889} {'peak tilt > limit': 0.29, 'end tilt > limit': 0.079, 'person > NIOSH': 0.009, 'diverged': 0.008}
+  sheet kg 6-8: n=124 success 0.661
+  sheet kg 8-15: n=407 success 0.683
+  sheet kg 15-23: n=469 success 0.648
+  feedback delay s 0-0.01: n=338 success 0.680
+  feedback delay s 0.01-0.02: n=330 success 0.682
+  feedback delay s 0.02-0.03: n=332 success 0.630
+  flex stiffness N m/rad 150-600: n=365 success 0.608
+  flex stiffness N m/rad 600-2000: n=330 success 0.700
+  flex stiffness N m/rad 2000-6000: n=305 success 0.692
+  lag s 0-0.15: n=282 success 0.894
+  lag s 0.15-0.3: n=304 success 0.711
+  lag s 0.3-0.5: n=414 success 0.473

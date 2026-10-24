@@ -150,6 +150,15 @@ test("a quarter due within 30 days is marked due-soon, otherwise upcoming", () =
   assert.equal(q2.status, "upcoming");
 });
 
+test("due-soon boundary: exactly 30 days out is due-soon, 31 days out is upcoming", () => {
+  const base = { taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000 };
+  const at = (asOfDate) => computeSchedule({ ...base, asOfDate }).rows.find((r) => r.quarter === "q1");
+  assert.equal(at("2026-03-16").daysUntilDue, 30);
+  assert.equal(at("2026-03-16").status, "due-soon");
+  assert.equal(at("2026-03-15").daysUntilDue, 31);
+  assert.equal(at("2026-03-15").status, "upcoming");
+});
+
 test("no basis entered produces a no-basis finding and every row's suggested amount is null", () => {
   const schedule = computeSchedule({ taxYear: 2026 });
   assert.ok(schedule.findings.some((f) => f.id === "no-basis"));
@@ -353,6 +362,24 @@ test("icsCalendar uses the plain flat share when nothing is behind pace", () => 
   const unfolded = ics.replace(/\r\n /g, "");
   assert.match(unfolded, /Suggested payment: \$2\\,000\\n/);
   assert.doesNotMatch(unfolded, /adjusted to catch up/);
+});
+
+test("icsCalendar does not call a quarter pace-adjusted when its catch-up equals its flat share", () => {
+  const schedule = computeSchedule({
+    taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000,
+    asOfDate: "2026-05-01", paidByQuarter: { q1: 2000 }, // on pace: Q2 is next, catch-up == flat share
+  });
+  const unfolded = icsCalendar(schedule, new Date("2026-05-01T00:00:00Z")).replace(/\r\n /g, "");
+  assert.match(unfolded, /Suggested payment: \$2\\,000\\n/);
+  assert.doesNotMatch(unfolded, /adjusted to catch up/);
+});
+
+test("each icsCalendar alarm names its own quarter", () => {
+  const schedule = computeSchedule({ taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000, asOfDate: "2026-01-01" });
+  const unfolded = icsCalendar(schedule, new Date("2026-01-01T00:00:00Z")).replace(/\r\n /g, "");
+  for (const q of ["Q1", "Q2", "Q3", "Q4"]) {
+    assert.match(unfolded, new RegExp(`DESCRIPTION:Estimated tax due in 7 days \\(${q}\\)`));
+  }
 });
 
 test("a comma or semicolon in generated text does not break the ICS structure", () => {

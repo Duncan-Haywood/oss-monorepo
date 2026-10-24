@@ -48,6 +48,7 @@
     <p>Pinning a reusable workflow or composite action to a commit SHA proves <em>that reference</em> cannot be silently repointed. It proves nothing about what the file at that commit itself calls — if it references a third-party action by a mutable tag, your SHA pin never sees it. Paste a workflow below and this checks the one hop underneath every pinned reference.</p>
     <p class="note">For the transitive step, this page fetches the exact public file each pinned reference points to, straight from <code>raw.githubusercontent.com</code> — no server of ours sees the request. See "Privacy" below before using it on a workflow you'd rather not do that for.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste a workflow file</h2>
@@ -99,7 +100,8 @@ node check.mjs --no-network       # top-level classification only, no fetch (off
     <p>No. This checks one specific, narrow thing: whether a reference you have already pinned to a commit SHA loads something else by a mutable tag one hop underneath it. It is not a security audit and makes no claim about your repository's overall security posture.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe from supply-chain attacks, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
     <p><strong>Privacy.</strong> The workflow YAML you paste is read in this browser and never uploaded anywhere. If the fetch option above is checked, this page makes a direct browser request to <code>raw.githubusercontent.com</code> for each pinned reference's own definition file — a public GitHub CDN, unauthenticated, no cookies attached and no token of yours involved — and reads nothing else. Uncheck it to skip that step entirely and see only the top-level classification. There are no accounts, tracking cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

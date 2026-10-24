@@ -27,3 +27,11 @@ def test_launched_requires_bookkeeping():
 def test_prototype_present_blocks_are_still_checked():
     errs = problems({**BASE, "stage": "prototype", "budget": {"monthly_cap": -1}})
     assert any("monthly_cap" in e for e in errs)
+
+
+def test_flagship_next_over_cap_is_reported(tmp_path):
+    p = tmp_path / "flagships.yaml"
+    p.write_text("flagships:\n  - venture: x\n    next: " + "a" * 2100 + "\n  - venture: y\n    next: ok\n")
+    errors = []
+    validate.check_flagships(errors, p)
+    assert len(errors) == 1 and "x `next:`" in errors[0]

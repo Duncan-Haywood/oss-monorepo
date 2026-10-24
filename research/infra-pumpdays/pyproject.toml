@@ -1,0 +1,13 @@
+[project]
+name = "infra-pumpdays"
+version = "0.1.0"
+description = "Pump scheduling on EPANET Net3 against PG&E B-19 when the demand charge is set by the highest day of the month, not one repeated day"
+requires-python = ">=3.9"
+dependencies = ["numpy", "wntr"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

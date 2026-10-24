@@ -13,12 +13,11 @@ tracks above all.
 About sixteen runs start every hour, all day and all week, which comes to
 roughly 2,700 a week. The owner spends a few hours a week on the system. So
 each sentence the owner writes is read and acted on thousands of times, and
-each paragraph a run adds to an always-read file is too. History here shows
-what that does. A passing preference turns into a quota (1,236 ventures on
-`main` by 2026-10-15, mostly calculators). A single incident turns into a
-permanent page of `CLAUDE.md`. A run's mistaken claim ("nothing is served",
-"zero users") gets restated until someone measures it. Two failure modes
-follow, and both are over-correction:
+each paragraph a run adds to an always-read file is too. History here shows what that does: a passing preference became a quota
+(1,236 ventures by 2026-10-15, mostly calculators), a single incident became
+a permanent page of `CLAUDE.md`, and a run's mistaken claim ("nothing is
+served") was restated until someone measured it. Two failure modes follow,
+both over-correction:
 
 - **Over-following instructions.** Treating a direction as a literal rule,
   a remark as a mandate, or a guardrail as wider than it is. Read the owner's
@@ -68,46 +67,22 @@ platform terms, research integrity, and anything that could hurt a user.
 There the reader needs no context to act, and a wrong judgment call is
 expensive or cannot be undone.
 
-**Everyone else gets a recommendation with its reason.** The reason is what
-lets a later run tell whether the advice fits its case.
+**Everyone else gets a recommendation with its reason**, which is what lets a
+later run tell whether the advice fits ("`run_venture_tests.py` runs them all
+in minutes, so it usually beats a serial loop", not "do not loop
+`node --test`"). Say what the advice is for, then what usually works; leave
+out a procedure a competent engineer would work out. Keep facts as facts
+("this file is regenerated; hand edits are lost" beats "never edit this
+file"). A strong default is fine where a mistake costs other runs (unlanded
+branches, a red `main`): say how strong and why. A check that enforces a
+default should warn and explain rather than block, unless it guards a hard
+limit.
 
-| Rule-shaped | Guideline-shaped |
-|---|---|
-| Do not loop `node --test` serially. | `run_venture_tests.py` runs them all in minutes, so it usually beats a serial loop. |
-| You must run the full checklist. | Run the checks your diff reaches; the full list is there when you are unsure. |
-| Always open a draft PR. | Open the PR as a draft by default, so CI and other sessions see the work early. |
-| Do not hand-edit a sitemap. | There is no need to hand-edit a sitemap: the build rewrites it. |
-
-**A few habits.**
-
-- Say what the advice is for, then what usually works. Leave out the
-  procedure if a competent engineer would work it out.
-- Say it once per section, not on every line: "use your judgment" pasted
-  everywhere becomes noise, like "must" did.
-- Keep facts as facts. "This file is regenerated; hand edits are lost" is a
-  consequence, not a rule, and it does more work than "never edit this file".
-- A strong default is fine where a mistake costs other runs (unlanded
-  branches, a red `main`). Say how strong it is ("almost always") and why.
-- When a check enforces a default, prefer one that warns and explains over
-  one that blocks, unless it guards a hard limit.
-
-**Measuring it.** `python3 prompts/rule_language.py` counts lines with
-absolute wording in every mapped guidance file and splits them into those on
-a liability topic and the rest; `--lines FILE` lists the rest, the
-candidates for rewording. It is a keyword heuristic, so read each line before
-changing it. Departing from a guideline is expected; record it as a deviation
-(below) so the guideline can improve.
+**Measuring it.** `python3 prompts/rule_language.py` counts absolute wording per guidance file (`--lines FILE` lists candidates for rewording; a keyword heuristic, so read each line).
 
 ## Deviations: how judgment improves the defaults
 
-When you depart from an instruction, add an entry to `deviations`:
-
-```json
-{"file": "CLAUDE.md", "instruction": "run the full starvation checklist",
- "did": "ran only the suites my diff reaches", "why": "docs-only change; the full list takes 40 min",
- "result": "CI green after merge"}
-```
-
+When you depart from an instruction, add a `deviations` entry (`file`, `instruction`, `did`, `why`, `result`).
 `promptctl.py measure` groups deviations by file. A deviation that recurs and
 works becomes the new default; one that goes badly gets the default a clearer
 reason.
@@ -155,17 +130,7 @@ at a time and almost never removed, so they pile up. The counterweight:
 
 ## The improvement loop
 
-Runs record friction and deviations; `measure` aggregates them; the process
-and review tracks turn them into backlog items and better defaults.
-
-- **Critique**: process studies and reviews find problems in how work gets
-  done. Each problem worth fixing becomes an item in
-  [`process/backlog/`](process/backlog/README.md), not a paragraph in a
-  report that nobody rereads.
-- **Solve**: process runs take the top open item and ship it. Any other run
-  with spare scope may do the same.
-- **Verify**: a closed item names its metric and baseline, and a later run
-  checks whether the metric moved. A fix that did not help gets reverted or
-  rethought, not defended.
-
-`python3 prompts/promptctl.py backlog` ranks the open items.
+Friction and deviations feed `promptctl.py measure`; process and review runs
+turn them into [`process/backlog/`](process/backlog/README.md) items and better
+defaults (`promptctl.py backlog` ranks them). A closed item names its metric
+and baseline, and a fix that did not help gets reverted, not defended.

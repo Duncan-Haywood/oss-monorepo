@@ -43,6 +43,7 @@
     <p>Paste or load a Terraform structured plan (<code>terraform show -json</code>) and get a deterministic report of every attribute value that looks like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark <code>sensitive</code>.</p>
     <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Load your plan</h2>
@@ -101,7 +102,8 @@ node cli.mjs check plan.json --json</pre>
     <p>Because the report itself is meant to be pasted into an issue, a Slack message, or a CI log — doing that with the real value would recreate the exact leak this tool exists to catch. It shows the first and last four characters and which pattern matched, enough to find and rotate the value without re-exposing it.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security, legal, or compliance advice, and it does not replace a qualified professional or your own provider's documentation. It matches a fixed set of known secret shapes against unmarked attribute values in the plan you supplied — it cannot prove the absence of a leak, only report the patterns it found. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for rotating any credential it flags. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The plan you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

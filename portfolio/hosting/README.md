@@ -340,7 +340,7 @@ that name.
 ## What is served now (moved from CLAUDE.md, 2026-10-20)
 
 - **The catalogue is served by GitHub Pages** at
-  **https://duncan-haywood.github.io/monorepo-projects/**. Since 2026-10-20
+  **https://duncan-haywood.github.io/oss-monorepo/**. Since 2026-10-20
   the Pages source is "GitHub Actions": `.github/workflows/portfolio-pages.yml`
   builds and deploys it on every merge to `main` and every three hours.
   Deploying is on by default; `vars.PAGES_ENABLED=false` pauses it. (Until

@@ -3086,10 +3086,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
     # +1: `s-corp-basis-tracker` graduated (browser S corporation stock and debt basis roll-forward in Form 7203 order, suspended losses and excess distributions).
     # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
-    total = 1311  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1311 tools" wording.
+    # +1: `open-house-plans` graduated (browser, CLI and agent house plan generator: a brief or a sentence to a CC0 plan set of SVG drawings, DXF, IFC4, OBJ, schedules and an NAHB-anchored cost).
+    total = 1315  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1315 tools" wording.
+    # +1: `sales-agent` graduated (browser, CLI and MCP AI sales inbox agent: reply triage, automatic stop/pause/suppress with a consent record, drafts queued for approval, never sends; flagship for the owner's 2026-10-21 AI sales agents direction).
     # +1: `interview-content-studio` graduated (browser and CLI: interviews about a brand or topic become a per-platform plan, a 4-week calendar and drafts for 14 platforms, optional own-key AI with a no-invented-numbers check).
     # +1: `open-tennis-robots` graduated (open-source tennis ball machine with a moving catch net and a ball-collecting rover: shot planner, catch simulation, route planner, ESP32 firmware, seller listing tool, collector manufacturing package).
-    # +1: `sales-agent` graduated (browser, CLI and MCP AI sales inbox agent: reply triage, automatic stop/pause/suppress with a consent record, drafts queued for approval, never sends; flagship for the owner's 2026-10-21 AI sales agents direction).
     # +1: `sales-call-notes-desk` graduated (browser sales call notes reader: CRM fields, BANT/MEDDIC gaps, dated next steps, a follow-up email checked against the notes, optional own-key AI).
     # +1: `sales-cadence-builder` graduated (browser and CLI multi-channel prospecting cadence: email, call with voicemail, LinkedIn note and letter on business days, calls in the prospect's local 9-5, suppression and CASL/EU consent gating, CSV and .ics export, optional own-key AI).
     # +1: `publish-kit` graduated (podcast RSS feed generator, Markdown to EPUB, ACX audiobook checks, KDP spine/cover size; browser page plus an agent-drivable CLI).
@@ -3131,6 +3132,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `discogs-fee-calculator` graduated (browser Discogs seller fee calculator: 9% on item plus shipping with the $0.10/$150 limits, editable processing, target-profit price, fee ladder).
     # +1: `tutoring-group-schedule-optimizer` graduated (browser exact timetable for weekly small-group sessions: min-cost-flow seating inside a search over which slots to run).
     # +1: `hearth-and-horizon` graduated (free CC BY-SA AI-written stories: sci-fi, stories for AI agents, Catholic saints bedtime stories; pages, podcast RSS feeds and Piper audio).
+    # +1: `ai-bookkeeper` graduated (browser + CLI double-entry books from bank CSVs that learn payees, pair transfers, reconcile and export QuickBooks/Xero journals; optional own-key or local-model AI).
+    # +1: `wall-framing-takeoff` graduated (browser + CLI wall framing takeoff: stud layout, cut list and a cutting-stock lumber order with an LP bound).
+    # +1: `support-agent` graduated (self-hosted AI support agent: answers from your help articles with citations, hands off by rule or calibrated confidence; measured on BANKING77).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
@@ -3612,7 +3616,7 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
     # hole while closing one.
     #
     # The count is pinned so a *new* location cannot be added without someone
-    # reading this: 9 today (.mjs, .webmanifest, .csv, .py, .gz, /feed.xml, /sw.js,
+    # reading this: 12 today (.mjs, .webmanifest, .csv, .ofx, .qif, .mt940, .py, .gz, /feed.xml, /sw.js,
     # /buildinfo.txt, /). Bumping the number is the reminder to restate the
     # headers in the block being added, which is the whole point of the loop
     # below — and it has worked twice now: /buildinfo.txt and /feed.xml were
@@ -3621,7 +3625,7 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
     # offering a same-origin CLI download) is the third, and `.gz` (gzipped
     # data a research app unpacks itself in the browser) the fourth.
     blocks = [b for b in _location_blocks(_portfolio_site()["ConfigMap"]["data"]["default.conf"]) if "add_header" in b]
-    assert len(blocks) == 9, [b.splitlines()[0] for b in blocks]
+    assert len(blocks) == 12, [b.splitlines()[0] for b in blocks]
     for block in blocks:
         assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
 

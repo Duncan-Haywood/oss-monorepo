@@ -135,6 +135,18 @@ series, 40 each, in `engine.test.mjs`):
   exactly one change within 1 point of the truth in 33 of 40 with `--period 12`
   (centred moving average, per-phase median, profile centred at zero). It needs
   two full cycles. For counts, see the next item.
+- **Known holidays for counts (`--model poisson --holidays a,b,...`, added 2026-10-21).** A bank holiday
+  or a closure is a dip a calendar already explains. The listed rows (labels from the date column, else
+  1-based row numbers) share one multiplicative factor on their rate, an exposure like the seasonal ones, so it
+  composes with `--period` and `--trend`. The factor alternates with PELT: segment under the current exposure,
+  then set the factor to the holiday counts over what the segment rates predict there (at most 10 passes, until it
+  moves less than 1e-4 in log). Measured on 200 daily counts at rate 40 with a holiday every 17th day at 0.3 of the
+  rate, 40 seeded series: with no step, changes per series 3.73 -> 0.07 and the fitted factor 0.297 on average; with
+  a 1.5x step at point 100, changes per series 8.40 -> 1.07, step found within 5 points 40 of 40 both ways; with no
+  holiday effect (factor 1) the output is unchanged (0.00 and 1.02 changes per series, factor 1.001 and 0.993). Limits:
+  one common factor, not one per holiday; a holiday on a seasonal phase was absorbed in that phase's factor
+  (fixed 2026-10-21: see "Holidays held out" below); the calendar is yours to supply, none is built in. The
+  test in `engine.test.mjs` reproduces the step case on one seed.
 - **Seasonal counts (`--model poisson --period n`, added 2026-10-20).** Subtracting a profile
   would break counts, so the cycle is multiplicative: a count in phase p has rate (segment rate) x f[p],
   the factors average 1 and enter the Poisson likelihood as exposures (cost 2(a - a log(a / sum e)), the
@@ -181,6 +193,8 @@ series, 40 each, in `engine.test.mjs`):
   per series stayed 0.10. Output: `trend.growthChangesAtAll` and `trend.logGrowthAcrossSeriesRates`. Not yet measured with
   `--period` or `--overdispersion`.
 - **Bends on clumpy counts (measured 2026-10-21, no code change).** `--trend bend` with `--overdispersion nb` was not measured before. 210 counts, rate about 10, each drawn at an independent lognormal rate (sd 0.35), log growth flat to point 105 and 4.0 per series length after, seeds 5000..5039 (`data/measure_nb_bend.mjs`), 40 series per row, plus 40 straight log-linear series. Bend kept / knot within 15 points of 105 / changes per series, Poisson cost then NB: no season 15 and 9 of 40 at 4.40, then 15 and 9 at 2.70; weekly (`--period 7`) 18 and 13 at 4.08, then 18 and 13 at 2.63. Straight series (a bend kept at all): Poisson 2 of 40 in both settings, NB 2 of 40 in both. So NB already removes the false step changes (5.03 -> 0.90 per straight series) but the bend search itself still runs on the Poisson cost and keeps the same bends. Tried and dropped: multiplying the bend's `3 log n` threshold by the NB variance-to-mean ratio at the mean rate (1 + mu / r). False bends fell 2 -> 0 of 40 (both settings) but the planted bend was kept on only 9 and 12 of 40 instead of 15 and 18, and the knot within 15 points on 6 and 9 instead of 9 and 13: fewer false alarms bought with more lost power, so it is not shipped. **Then shipped (2026-10-21):** with `--overdispersion nb` the bend search now runs PELT and ranks knots on the negative-binomial cost itself (`poissonTrend`'s `nbSize`; the growth steps stay Poisson score steps, a quasi-likelihood), with the plain `3 log n` threshold. Same 40 series per row, bend kept / knot within 15 points / changes per series, Poisson cost then NB cost: no season 15, 9, 4.40 then 18, 13, 2.30 (the earlier NB-penalty-only row was 15, 9, 2.70); weekly 18, 13, 4.08 then 22, 18, 2.15 (was 18, 13, 2.63). Straight series with a bend kept: Poisson 2 of 40 in both settings, NB 0 of 40 in both, with 0.40 and 0.55 changes per straight series (5.03 and 5.70 for the Poisson cost). So the likelihood does what the rescaled threshold only traded: fewer false bends and more planted bends found. It costs time: the NB cost with exposures is O(segment length), about 3 to 6 s per 210-point series against 0.25 s. An earlier, milder bend (log growth 1.6 then 3.2 per series length, total rise the same as a straight line) was kept on 2 to 3 of 40 series under every setting, i.e. not detectable at this noise level.
+- **Two bends on clumpy counts (measured 2026-10-21, no code change).** `--trend bends` with `--overdispersion nb` was not measured. 240 counts, log growth 0.01 per point to 80, 0.03 to 160, -0.02 after (the "Two bends" series), each count at an independent lognormal rate (sd 0.35), 40 series per row, seeds 6000..6039 (`data/measure_nb_bends.mjs [N] [rate]`), plus 40 straight log-linear series. At rate 10, Poisson cost then NB: a bend of any kind kept 17 then 16 of 40 (weekly 17 then 20), both knots within 15 points of 80 and 160 on 3 then 1 of 40 (weekly 0 and 0), changes per series 20.3 then 6.0 (weekly 19.2 then 5.3); straight series with any bend kept 5 then 0 of 40 (weekly 4 then 1), changes per series 9.5 then 0.42. At rate 40 the NB path keeps a bend on only 12 of 40 (weekly 14), both knots on 0, changes per series 10.0 (7.3 weekly), against 36 of 40 bends and 49.5 changes per series for Poisson, whose bends are mostly noise (15 of 40 straight series get two). So under NB the second knot is, honestly, not found: two bends of this size are below what clumpy counts at this rate can show, and what NB buys is the removal of false bends and steps. Tried and dropped: lowering the `3 log n` threshold (rate 40, NB): 2 log n kept a bend on 26 of 40 and two on 5, 1.5 log n on 31 and 7, but both knots near the truth stayed at 2 of 40 and false bends on straight series rose from 0-1 to 6 of 40 at 1.5. More bends found, not more correct ones. Runs 0.3 to 0.6 s per series.
+- **A sharper second-bend test? Measured, and no (2026-10-21).** The idea was to replace the `3 log n` cost-drop rule for the second hinge on clumpy counts with a score or profile-likelihood test. Before building one, `data/measure_second_hinge.mjs` asks whether the second knot's cost drop (in units of log n, from `diagBends`, a debugging array that `poissonTrend` fills) ranks the series at all. 240 counts at rate 40, independent lognormal clumping (sd 0.35), `--model poisson --trend bends --overdispersion nb`, 40 series per shape, seeds 6000..6039: the two-bend series (growth 0.01, 0.03, -0.02), a one-bend series (0.01 then 0.03 from 120) and a straight one. A second round happens only when the first knot was accepted. Median drop of the second knot, 90th percentile, maximum: two bends 0.00, 0.93, 3.57; one bend 1.46, 9.80, 21.60; straight 0.00, 0.00, 0.09. The area under the curve for telling two bends from one is 0.22 (chance is 0.50), and from a straight series 0.64. The best second knot on a one-bend series is usually a better fit than the best second knot on the real two-bend series, because the clumping is bigger than the second kink, so no threshold on that statistic, and no test built on the same likelihood gain, can pick out the real second bend. This agrees with the threshold sweep above (more bends, not more correct ones). Dropped: no test was built. The two-bend path stays as it was; the diagnostic array costs nothing when unused. Left open: a different kind of evidence (a hold-out or a second series) rather than a sharper test on this one.
 - **Clumpy or sticky counts (`--overdispersion`, added 2026-10-20).** The Poisson cost assumes the variance equals the mean.
   Counts whose rate wanders (a lognormal rate with lag-1 memory 0.6, sd 0.35, on the same weekly series, seeds 1700..1739)
   break it: 24 changes per series with `--period 7` alone and 23 with `--trend bend`, 18 on series with no change at all.
@@ -316,7 +330,7 @@ series, 40 each, in `engine.test.mjs`):
   sticky noise 30 of 38 before and 31 of 38 after (two knots found 38 of 40 joint, 25 of 40 greedy). Use `--joint-knots` when a bend is being
   missed; on clean data it now places knots as well as the default. Cost: about 2 s per 240-point
   series against 0.4 s. An exhaustive pair search on the grid is the exact optimum for two knots (the continuous-slope constraint
-  couples neighbouring knots, so a plain segment DP does not apply); a third knot comes only from the greedy search (a winning pair is not extended). The web page has the switch ("Score every pair of slope changes"). **Least-squares pair added.** An exhaustive unpenalised least-squares line with two knots, searched at every point, puts both knots within 8 points on 40 of 40 of the 240-point white-noise series (30 of 40 within 3), because the BIC lets its steps soak up a kink and goes flat near the knots. `--joint-knots` now offers that pair (`lsKnots`) as one more candidate to the same BIC, refined like the rest. Against the version just before it (seeds 1001..1040 from a standalone script, `--ar1` on the sticky ones): white noise both knots within 8 points 32 to **35** of 40 (within 3: 19 to 23), two knots found 40 of 40 both; AR(1) rho 0.5 within 8 points 30 to **33**, two knots found 38 of 40 both (within 3: 12 to 9, noise). False bends on straight ramps 0 of 40 (white), 1 of 40 (rho 0.5). Time about 1.7 s per series against 1.2 s. Caveat: the least-squares search ignores steps, so a large level shift can pull a knot; it is only a candidate and the BIC judges it. Next: a 10 to 90% knot range, and the least-squares pair computed after the steps are removed.
+  couples neighbouring knots, so a plain segment DP does not apply); a third knot comes only from the greedy search (a winning pair is not extended). The web page has the switch ("Score every pair of slope changes"). **Least-squares pair added.** An exhaustive unpenalised least-squares line with two knots, searched at every point, puts both knots within 8 points on 40 of 40 of the 240-point white-noise series (30 of 40 within 3), because the BIC lets its steps soak up a kink and goes flat near the knots. `--joint-knots` now offers that pair (`lsKnots`) as one more candidate to the same BIC, refined like the rest. Against the version just before it (seeds 1001..1040 from a standalone script, `--ar1` on the sticky ones): white noise both knots within 8 points 32 to **35** of 40 (within 3: 19 to 23), two knots found 40 of 40 both; AR(1) rho 0.5 within 8 points 30 to **33**, two knots found 38 of 40 both (within 3: 12 to 9, noise). False bends on straight ramps 0 of 40 (white), 1 of 40 (rho 0.5). Time about 1.7 s per series against 1.2 s. Caveat: the least-squares search ignores steps, so a large level shift can pull a knot; it is only a candidate and the BIC judges it. Next: a 10 to 90% knot range, and the least-squares pair computed after the steps are removed. **Speed (2026-10-21).** The least-squares pair search now builds each 4x4 normal system from prefix sums instead of a pass over the series, picking the same knots as the brute force (tested on five seeded series). On a seeded 1,200-point noisy ramp with two bends, `trendAdjust` with `--joint-knots` fell from 85 s to 31 s; at 240 points from 2.3 s to 1.5 s. The remaining time is PELT inside the grid-pair BIC fits (27 of the 31 s), the next place to cut.
 - **Knot range (`--knot-margin`, `knotMargin`).** Knots were searched only between 20% and 80% of the series, so a slope change near either end was invisible and read as steps. `--knot-margin 0.1` searches 10 to 90% (accepted 0.05 to 0.4; default now 0.1, see below). 200 points, `--trend bend`, noise sd 1, seeds 1201..1240, with a throwaway generator (not the test file's): slope 0.05 then 0.35 from point 24 (12%): a bend kept on 13 of 40 and a knot within 6 points on 0 of 40 at the default, kept on 35 and within 6 on 34 at 0.1; changes per series 2.05 -> 0.33. Mirror case (slope 0.3 then 0 from point 176): within 6 points 0 -> 36 of 40, changes 1.88 -> 0.25. On 40 straight ramps (seeds 1301..1340, `--trend bends`) a bend was kept 0 of 40 at both margins. Measured with the same early bend (seeds 1201..1240; 12 for `--joint-knots`, which is slower), knot within 6 points of 24, default margin 0.2 -> 0.1: white noise with `--ar1`, 0 -> 36 of 40 (changes per series 1.88 -> 0.28); sticky noise (AR(1) rho 0.5) with `--ar1`, 0 -> 25 of 40 (1.10 -> 0.35); sticky noise plus a period-12 cycle with `--ar1 --period 12`, 0 -> 31 of 40 (1.13 -> 0.23); `--joint-knots` on white noise, 0 -> 11 of 12 (1.92 -> 0.17), with `--ar1` on sticky noise, 0 -> 9 of 12 (1.08 -> 0.25). False bends on straight ramps with `--trend bends`: 0 of 40 at both margins for `--ar1`, 1 -> 2 of 40 with `--period 12 --ar1` (noise-level), 0 of 12 for both joint cases. The web page has a "Where slope changes may sit" menu for it. Late knots with sticky noise (slope 0.3 then 0 from point 176 of 200, AR(1) rho 0.5, `--trend bend --ar1`, seeds 1401..1440): knot within 6 points 0 -> 35 of 40 (changes per series 1.02 -> 0.10); with `--period 12` as well, 0 -> 35 of 40 (1.27 -> 0.25). Two knots (point 24 up, 140 down) with `--trend bends --ar1`: both within 6 points 0 -> 34 of 40 greedy, 37 of 40 with `--joint-knots`. Straight ramps with sticky noise and a period-12 cycle (`--trend bends --ar1 --period 12`): no bend kept at either margin, 40 of 40 seeds. **So the default is now 0.1** (2026-10-20); pass `--knot-margin 0.2` or pick "Middle 60%" on the page for the old range.
 - **`--trend` with `--ar1`.** Sticky noise wanders, and the slope loop inside `--trend` cut that wandering into
   steps whose segments then bent the slope. With `--ar1` the loop now widens its noise scale by the same
@@ -345,6 +359,7 @@ series, 40 each, in `engine.test.mjs`):
   bend the slope), so it does not flag pure slope changes, which only PELT reports. Not combined with
   `--ar1` and not offered for counts (a line subtracted from counts is not a count; a Poisson trend is the open item); with `--period` the profile is removed first.
 
+- **Growth-change range scored with the NB cost (2026-10-23).** The 2026-10-22 fix widened a Poisson-scored range by `1 + mean / size`. The range now refits each candidate knot with the negative-binomial cost itself (`eval/growth-change-interval-nb.mjs 100 <seed> 0.35 nb`, seeds 2026, 7, 99, three bump sizes): the planted bend sits inside the range on 145 of 161 found bends (90%) against 142 of 161 (88%) for the ratio widening, with narrower ranges (seed 2026, median width 79, 70 and 61 points against 139, 100 and 61). The weakest cell is still bump 0.04 on seed 7 (10 of 15). Runs a few seconds per series.
 - **Speed: the bend search ranks knots on the Poisson cost (added 2026-10-21).** Profiling a 240-point `--model poisson --trend bend --overdispersion nb` run put 96% of the time in the NB cost, whose continuous-exposure form is O(segment length) and is called O(n^2) times per PELT, for about 35 knots. With 80 or more points under NB the grid and the neighbours of its best knot are now ranked with the Poisson cost (about 25x cheaper), and only the 8 best are refitted with the NB likelihood, which still picks the winner and decides the `3 log n` test. A 240-point series, one bend: 6.4 s to 1.8 s, two bends 12.9 s to 3.4 s, same knot (109) and slope. Cost, said plainly: on `data/measure_nb_bend.mjs` (40 series per row) the no-season row is unchanged (bend kept 18, knot within 15 points 13, 2.30 changes per series; false bends 0/40), but weekly goes from 22 kept / 18 near / 2.15 to 21 / 14 / 2.02 with 8 finalists (3 finalists: 19 / 14 / 1.95 in 1.5 min; 14: 21 / 15 / 2.08 in 3.1 min, no better). So the Poisson ranking misplaces some knots under a season; the whole measurement script runs in 2.4 min instead of about 10. Not done: ranking with a season-aware Poisson cost, which is what the weekly gap suggests.
 - **Speed: NB finalists are spread-out grid knots (2026-10-21).** The README entry above blamed the weekly gap on a Poisson ranking that is not season-aware. It is: `poissonTrend` already passes the seasonal factors as exposures to the Poisson cost. What crowded the finalist list was the winner's fine neighbours, which filled most of the 8 NB slots with near-copies of one knot. Finalists are now the 8 best grid knots and the neighbour scan is gone (also cheaper). Same 40 series per row (`data/measure_nb_bend.mjs`), bend kept / knot within 15 points / changes per series: no season 18 / 13 / 2.30 -> 18 / 14 / 2.30; weekly 21 / 14 / 2.02 -> 21 / 16 / 2.05; false bends 0 of 40 in both. A mix of 5 grid and 3 fine finalists was tried and dropped (12 and 15 near, no better). Gains of 1 and 2 series out of 40 are inside noise: the change is kept because it is simpler and no slower, not because it is shown to be better.
 - **Tried and dropped: refitting the seasonal factors under the trend (2026-10-21).** The Speed note above ended with "ranking with a season-aware Poisson cost" as not done, but the ranking already runs under the seasonal exposure; what the factors lack is the trend (they are fitted by `poissonSeasonal` with none). Refitting them under the trend found, then the trend under them, was measured on `data/measure_nb_bend.mjs` weekly rows (40 series): Poisson bend kept 18 and knot within 15 points 13, both unchanged (changes per series 4.08 -> 4.00); NB bend kept 21 -> 19, knot within 15 points 14 -> 13, changes per series 2.02 -> 2.30. No gain, so the code was removed. The weekly gap against the no-season row (22 -> 21 kept) is inside the noise of 40 series (about 3 either way), so more finalists or a better ranking is not clearly the cause.
@@ -402,3 +417,148 @@ Free and open source (MIT, see `LICENSE`). Optional support:
   need a programming environment. This runs the same class of method in a browser tab, from a CSV.
 - **Eyeballing a chart:** fast, but cannot say whether a dip is noise or a shift, or how sure to be.
 - **Anomaly alerts in a monitoring product:** flag single odd points, not a lasting change in level.
+
+
+**Page (2026-10-21).** The web page now has a "Known holidays" box (comma-separated dates or row numbers, counts model) that passes `holidays` to the engine. Checked on 200 seeded daily counts with every 17th day at 0.3x: 6 changes without the list, 0 with it (factor 0.304).
+
+## Holidays of different kinds
+
+`--holidays` entries may be written `label=kind` (`2026-12-25=closed,2026-11-27=sale`). Each kind gets its own fitted factor, reported under `holidays.kinds`; each kind needs at least 2 rows. Checked on 240 seeded daily counts (rate 40) with a 0.3x closed day every 17th row and a 1.8x sale day every 23rd: engine test `a factor per kind recovers two different dips` (closed within 0.1 of 0.3, sale within 0.3 of 1.8). Not measured against real holiday data.
+
+## Holidays held out of the seasonal fit
+
+With `--period`, the holidays are now left out of the seasonal factors (they no longer count toward their phase), so a holiday that always falls on one weekday does not drag that weekday's factor down and bias the holiday factor toward 1. `node eval/holiday-heldout.mjs` runs the check: 40 seeded 224-day series, weekly pattern, a 0.3x holiday every 28th day (always the busiest weekday). Mean fitted holiday factor 0.355 before, 0.311 after (true 0.300); mean absolute error 0.055 -> 0.020; changes per series 0.03 both ways. Synthetic data only; the seasonal PELT pass still sees the holiday dips as unexplained (only the factors skip them).
+
+## Holidays and the seasonal PELT pass
+
+The seasonal PELT pass now sees the fitted holiday exposure: with `--period` and `--holidays`, the engine alternates (seasonal factors with the holidays as an exposure, then the holidays refitted on the new factors) for two extra rounds. `node eval/holiday-alternate.mjs` runs the check on 40 seeded 224-day weekly series (every 28th day a 0.3x holiday on the busiest weekday; half the series carry a 1.5x step at 120): planted step found 20/20 both ways, no extra changes either way, holiday factor error 0.022 -> 0.021, largest seasonal-factor error 0.052 -> 0.045. A small gain on synthetic data, not measured on real holiday series; the previous behaviour is behind the engine option `noHolidayAlternation`.
+
+## Holidays on a real daily series
+
+Everything above about holidays is on seeded synthetic counts. As a first
+reading on real data, `eval/holiday-real.mjs` runs `--model poisson --period 7
+--overdispersion nb` on 731 daily English Wikipedia pageview counts of the
+article "Payroll" (2023-2024, `data/payroll-views.csv`, source in
+`data/SOURCE.md`), with the 18 US federal holidays that fall on a weekday
+listed.
+
+| | changes | holiday factor |
+|---|---|---|
+| no holidays | 47 | |
+| 18 holidays | 45 | 0.957 |
+
+This is a negative result for the feature on this series. Holiday views are
+only 8% under a normal weekday (median 366 against 397), so there is little dip
+for the factor to absorb, and the 45 changes that remain are bursts (single
+days at 2 to 6 times the usual level, likely automated traffic that the "user"
+agent filter lets through), not holidays. What this series needs is an outlier
+or burst rule, not a holiday list. One series only; a second article was
+refused by the Wikimedia API's rate limit (429) and not retried. A series with
+a real holiday closure (a shop's or office's daily counts) is still the test
+that would show the factor earning its place.
+
+## Bursts
+
+`--bursts [ratio]` (counts only) cuts isolated spikes back before fitting. A
+point is a burst when it is at least `ratio` times (default 2.5) the larger of
+the medians of its same-phase neighbours before and after it (3 each side with
+`--period`, 5 adjacent points without) and clears a Poisson-sized excess. A
+step is high against one side only, so it is never flagged. Flagged days are
+listed in the result as `bursts`; the raw counts stay in `values`.
+
+`eval/bursts.mjs`, 40 seeded series per row (negative-binomial counts, weekly
+season, 200 points, bursts of 2.5 to 6 times the level), `--model poisson
+--period 7 --overdispersion nb`:
+
+| series | changes per series, off -> on | step at 100 found | bursts found | other days flagged |
+|---|---|---|---|---|
+| no step, 4 bursts | 3.85 -> 0.23 | | 119/160 | 1.13 per series |
+| 1.8x step, 4 bursts | 4.28 -> 1.30 | 35 -> 36 of 40 | 116/160 | 1.20 per series |
+| 1.8x step, no bursts | 1.23 -> 1.15 | 39 -> 39 of 40 | | 1.30 per series |
+
+At ratio 2 the rule finds 134/160 but flags 4.4 ordinary days per series; at 3
+it flags 0.4 but finds 90/160. 2.5 is a compromise, not an optimum. On the real
+"Payroll" pageviews the default cuts 1 day and takes 47 changes to 43; at 3x
+none are cut. The bursts there are mostly runs and wide, so this rule is a
+partial answer on that series (2023-24, one series). Synthetic bursts are
+planted with the rule's own shape in mind, so the recall figures flatter it.
+
+### Short runs (`--burst-runs n`)
+
+A plateau of 2 to `n` days is not a single-day burst: each of its days may be
+under 2.5x the level. `--bursts --burst-runs 5` also cuts a block of 2 to 5
+consecutive days when each day is high against the same-phase points outside
+it on both sides, the block averages at least 2x that level, and its summed
+excess clears a Poisson-sized bar. Off by default; engine and CLI only.
+
+`eval/burst-runs.mjs` (40 seeded series per row, runs of 2 to 5 days at 1.8 to
+3x, same generator as above), `--burst-runs 5` against `--bursts` alone:
+
+| series | changes per series | step at 100 found | run days cut | other days flagged |
+|---|---|---|---|---|
+| no step, 4 runs | 1.27 -> 0.55 | | 192 -> 249 of 567 | 1.00 -> 1.57 per series |
+| 1.8x step, 4 runs | 2.15 -> 1.80 | 35 -> 36 of 40 | 182 -> 229 of 526 | 1.05 -> 1.52 per series |
+| 1.8x step, no runs | 1.18 -> 1.15 | 40 -> 40 of 40 | | 1.38 -> 1.63 per series |
+| no step, no runs | 0.07 -> 0.07 | | | 1.43 -> 1.57 per series |
+
+A gain, but a small one: under a quarter of planted run days are caught. At a
+1.6x bar it caught 344 of 567 but flagged 4.8 ordinary days per series and
+lifted false changes on clean series from 0.07 to 0.23, so 2x is the default;
+at 2.4x it does nothing. On the real Payroll pageviews 2x cuts nothing (47
+changes stay 47); at 1.6x it cut two 3-day runs and took 47 to 41. That
+series' short rises are mostly 1.3 to 1.8x, below any bar that is safe on
+clean data, so they are probably not separable from level changes by size
+alone.
+
+On the web page the same rule is the checkbox "Cut back isolated spikes before fitting" (counts model). It lists the days it cut back under the summary. Clicked through in headless Chromium on a hand-made 60-day series with one spike: two false changes without it, none with it (2026-10-22).
+
+## A range on each change date (2026-10-22)
+
+Every PELT change now carries `range95`: with the neighbouring changes held fixed, each possible start of the later segment is weighted by `exp(-(cost - min cost) / 2)` (the cost is -2 log-likelihood, so this is the profile likelihood), and the most likely starts holding 95% of the weight are returned as the first and last. The CLI prints it ("Likely range for each change"); `intervals: false` turns it off. It is not offered for `--ar1 joint`, which has its own likelihood. On the Nile series the 1899 change comes back as 1897 to 1899.
+
+Measured with `node eval/change-interval.mjs` (200 seeded white-noise series of 200 points, one planted shift at a random date from 60 to 139, a change counted only if PELT put one within 15 points):
+
+| shift (noise sd) | found | range holds planted date | median width (points) |
+|---|---|---|---|
+| 1 | 197/200 | 193/197 (98%) | 16 |
+| 1.5 | 200/200 | 189/200 (95%) | 7 |
+| 2 | 200/200 | 189/200 (95%) | 4 |
+| 3 | 200/200 | 191/200 (96%) | 2 |
+
+Coverage is about the nominal 95% on independent Gaussian noise; the shift-1 row is conservative. Sticky noise (2026-10-22, `node eval/change-interval-sticky.mjs`, output in `eval/change-interval-sticky.out.txt`; marginal sd 1, one shift of 2 or 3 sd, 200 series each): without `--ar1` the range is far too narrow, holding the planted date in 57% to 60% of series at rho 0.5 and 30% to 31% at rho 0.7 (median width 2 to 3 points). With `--ar1` it holds it in 97% to 99%, conservatively wide (5 to 22 points), though PELT finds the change less often at rho 0.7 (149 to 177 of 200 within 15 points). So the result now carries a `rangeWarning` (CLI: a note above the ranges) when the mean model runs without `--ar1` on a series whose lag-1 autocorrelation estimate is 0.3 or more; it fired on 99 to 100 of 100 series at rho 0.5 and 0.7 and 0 of 100 on white noise.
+
+Counts (2026-10-22, `node eval/change-interval-counts.mjs`, output in `eval/change-interval-counts.out.txt`; 200 series of 200 days each, one rate step, simulated data): on true Poisson counts the range holds the planted date in 97% to 98% of series at 10 to 15, 10 to 20 and 30 to 45 (median width 2 to 7 days). On clumpy counts (negative binomial, size 5) the plain Poisson cost gives ranges that are far too narrow, holding it in 35%, 42% and 6% of series; with `--overdispersion nb` they hold it in 92% to 93%, wider (median 6 to 24 days) and honest. So the result now carries a `rangeWarning` when a Poisson fit without `--overdispersion` sees block dispersion of 2.5 or more. On the same simulation it fired on 165 of 200 clumpy series and 27 of 200 clean Poisson ones (13%, a step spoils the dispersion estimate; the threshold is a trade, 2.0 fired on 22% of clean series).
+
+Seasonal and trend models (2026-10-22, `node eval/change-interval-adjusted.mjs`, output in `eval/change-interval-adjusted.out.txt`; 200 white-noise series of 200 points, one level shift of 2 or 3 sd, simulated data): with `--period 7` under a sine of amplitude 1.5 the range holds the planted date in 95% and 97% of series; with `--trend` (one common slope of 0.02 per point) in 92% (192 found) and 94%; with `--model trend` in 95% and 99%. Median widths are 4 and 2 points, like the plain mean model. The 92% is the nearest to a miss: the shift-2 trend row, where 8 of 200 series gave no change within 15 points and 16 of 192 ranges missed.
+
+Not measured: slope changes and bends under `--model trend`, the seasonal counts model, and any real series (all simulated here).
+
+### A range on a slope change (2026-10-22)
+
+With `--trend bend` or `bends`, each slope change also carries `trend.slopeChangeRange95`. Each knot is slid over its allowed span with the other knots held fixed; every position is weighted by `exp(-(BIC - min BIC) / 2)` (the BIC is -2 log-likelihood with the noise variance profiled out, the same profile-likelihood idea as `range95`), and the most likely positions holding 95% of the weight give the first and last. The CLI prints it ("Likely range for each slope change"). Series over 200 points are scanned on a stride of about n / 200.
+
+Measured with `node eval/slope-change-interval.mjs` (100 seeded white-noise series of 200 points per row, slope 0.1 per point growing by the bump at a random point from 70 to 129; counted only if the fitted knot landed within 20 points):
+
+| bump in slope (per point) | found | range holds planted bend | median width (points) |
+|---|---|---|---|
+| 0.1 | 96/100 | 93/96 (97%) | 31 |
+| 0.2 | 100/100 | 95/100 (95%) | 19 |
+| 0.3 | 100/100 | 95/100 (95%) | 14 |
+
+It is a likelihood range under the fitted model, checked on synthetic series only; no real series with a documented slope break has been tried.
+
+### A range on a change of growth rate, for counts (2026-10-22)
+
+`--model poisson --trend bend` (or `bends`) now also returns `trend.growthChangeRange95`, the same idea as the slope-change range: each knot is slid over its allowed span with the other knots held fixed, the growth rates are refitted at every position, each position is weighted by `exp(-(cost - min cost) / 2 / scale)` (the Poisson cost is -2 log-likelihood; `scale` is the overdispersion factor, so a noisier series gets a wider range), and the most likely positions holding 95% of the weight give the first and last. Under `--overdispersion nb` a series of 80 or more points is scored with the Poisson cost, as in the knot search. The scan uses a stride of about n / 80. The CLI prints it ("Likely range for each change of growth rate").
+
+Measured with `node eval/growth-change-interval.mjs` (100 seeded Poisson series of 200 points per row, log rate 2 + 0.004 t plus `bump` per point after a random point from 70 to 129; counted only if the fitted knot landed within 20 points; output in `eval/growth-change-interval.out.txt`):
+
+| bump in log growth (per point) | found | range holds planted bend | median width (points) |
+|---|---|---|---|
+| 0.015 | 90/100 | 85/90 (94%) | 46 |
+| 0.025 | 97/100 | 93/97 (96%) | 34 |
+| 0.04 | 81/100 | 77/81 (95%) | 22 |
+
+**Calibrated 2026-10-22.** The first version weighted positions by `exp(-(cost - min cost) / 2 / scale)` and held only about 86% (88, 88, 84%) at a nominal 95%; the knots had no bias, the misses were tails. The weights are now tempered by 1.15 (`RANGE_TEMPER` in `engine.mjs`). Sweep on seed 2026, pooled over the three bumps (268 found series): 1.0 gave 86%, 1.1 gave 91%, 1.2 gave 97%, 1.3 gave 99%, 1.5 gave 100% (median width 64 against 37 at bump 0.015). The table is 1.15. Checked on two other seeds (`node eval/growth-change-interval.mjs 100 7`, `... 99`): 246/257 (96%) and 256/269 (95%), widths 22 to 52. 1.15 was picked from the seed 2026 sweep, so that seed is in-sample; the two other seeds are not. Output in `eval/growth-change-interval.out.txt`. Still open: a count series with a documented growth break. Simulated data only, Poisson counts (not clumpy ones).
+
+**Clumpy counts (2026-10-23).** The range above was only measured on Poisson counts. `node eval/growth-change-interval-nb.mjs [runs] [seed] [sd] [nb|poisson]` draws each count at an independent lognormal rate (sd 0.35) and runs `--overdispersion nb --trend bend` on the same series (200 points, 100 per row, seeds 2026 and 7; counted only if the knot landed within 20 points, which on clumpy counts is 11 to 24 of 100). Before: the range held the planted bend on 77 of 100 found series (79, 53, 100% and 92, 75, 67% for bumps 0.015, 0.025, 0.04), against a nominal 95%. Cause: a series of 80 or more points is ranked with the Poisson cost, which on clumpy counts is too sure of itself. Now the weights are also divided by the negative-binomial variance-to-mean ratio `1 + mean / size`: 89 of 100 on those two seeds (100, 79, 100 and 96, 92, 67%), and 53 of 61 (87%) on seed 99, which the change was not tuned on. Still under 95%, and the ranges are wide (median 61 to 142 points of 200). Not claimed calibrated. Output: `eval/growth-change-interval-nb.out.txt`. Still open: a real series with a documented growth break.

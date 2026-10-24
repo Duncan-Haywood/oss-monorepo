@@ -519,8 +519,16 @@ export const SERVED_EXTENSIONS = new Map([
   ['.mjs', 'conf'],
   ['.webmanifest', 'conf'],
   ['.csv', 'conf'],
+  ['.ofx', 'conf'],
+  ['.qif', 'conf'],
+  ['.mt940', 'conf'],
+  // ai-bookkeeper's spreadsheet fixtures; mime.types lists xls and xlsx (1.27.0) but not tsv.
+  ['.xls', 'stock'],
+  ['.xlsx', 'stock'],
+  ['.tsv', 'conf'],
   ['.py', 'conf'],
   ['.gz', 'conf'],
+  ['.whl', 'conf'],
 ]);
 
 // Where the served config lives, relative to the repo root. The build pod

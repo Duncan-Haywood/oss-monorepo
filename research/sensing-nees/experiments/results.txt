@@ -1,0 +1,37 @@
+white accel density N = 6.865e-04 m/s^2/sqrt(Hz) (70 ug/sqrt(Hz)), GNSS 2 m at 1 Hz, IMU 10 Hz, warm-up 600 s with GNSS, R = 400 paths
+columns: filter, then NEES/dof at outage 10 30 60 120 300 s, then RMS pos error (m) and claimed sigma_pos (m) at 300 s
+
+== bias instability B = 10 ug  (flicker scale 3.027e-04 m/s^2; read-off Allan at 1/10/100 s = 71 24 13 ug)
+oracle(5 GM)          0.90      0.88      0.92      0.95      1.00   rms     8.86  claim     8.87
+white only            5.95      7.05      8.81     11.96     20.77   rms    15.31  claim     2.89
+RW tuned @1s          0.55      0.43      0.32      0.20      0.10   rms    28.60  claim    82.78
+RW tuned @10s         0.64      0.54      0.46      0.34      0.20   rms    14.66  claim    31.29
+RW tuned @100s        0.91      0.88      0.89      0.83      0.68   rms    10.58  claim    13.32
+
+== bias instability B = 30 ug  (flicker scale 9.127e-04 m/s^2; read-off Allan at 1/10/100 s = 75 39 33 ug)
+oracle(5 GM)          0.94      0.91      0.96      0.97      1.02   rms    22.07  claim    21.98
+white only           47.19     57.09     73.27    102.08    181.51   rms    45.51  claim     2.89
+RW tuned @1s          0.53      0.38      0.26      0.16      0.08   rms    62.52  claim   205.72
+RW tuned @10s         0.64      0.53      0.43      0.29      0.17   rms    36.16  claim    84.24
+RW tuned @100s        1.13      1.10      1.13      1.02      0.76   rms    26.36  claim    31.60
+
+== bias instability B = 100 ug  (flicker scale 3.034e-03 m/s^2; read-off Allan at 1/10/100 s = 113 108 107 ug)
+oracle(5 GM)          0.96      0.96      1.00      1.00      1.04   rms    66.24  claim    65.00
+white only          514.27    624.08    802.66   1122.90   1999.04   rms   151.10  claim     2.89
+RW tuned @1s          0.51      0.33      0.22      0.13      0.06   rms   168.50  claim   621.86
+RW tuned @10s         0.65      0.53      0.41      0.28      0.16   rms   102.67  claim   250.12
+RW tuned @100s        1.51      1.56      1.56      1.30      0.90   rms    81.08  claim    89.05
+
+== bias instability B = 300 ug  (flicker scale 9.990e-03 m/s^2; read-off Allan at 1/10/100 s = 299 347 351 ug)
+oracle(5 GM)          0.97      0.98      1.00      1.04      1.05   rms   203.81  claim   199.37
+white only         5572.24   6764.59   8699.10  12178.16  21671.28   rms   497.49  claim     2.89
+RW tuned @1s          0.50      0.29      0.18      0.11      0.05   rms   455.89  claim  1931.78
+RW tuned @10s         0.73      0.58      0.43      0.30      0.16   rms   310.00  claim   761.24
+RW tuned @100s        2.04      2.26      2.09      1.64      1.04   rms   259.82  claim   262.53
+
+== Z. NEES per dof at B = 100 ug: outage_s, oracle, RW@100, RW@10, RW@1
+   10      0.96      1.51      0.65      0.51
+   30      0.96      1.56      0.53      0.33
+   60      1.00      1.56      0.41      0.22
+  120      1.00      1.30      0.28      0.13
+  300      1.04      0.90      0.16      0.06

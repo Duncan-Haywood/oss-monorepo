@@ -57,6 +57,7 @@
     <p>Paste your items — price, what each unit costs you, units sold — and set the increase. See <strong>how much volume you can lose before the raise stops paying</strong>, <strong>which items can take it</strong>, and <strong>the customer sensitivity at which it fails</strong>.</p>
     <p class="note">Nothing is uploaded. The text box is analysed in this browser and never leaves your device. Customer reaction cannot be read from past sales, so you set it and the result shows how much it matters.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your items</h2>
@@ -122,7 +123,8 @@ node cli.mjs analyze items.csv --increase 8 --json --fail-on warn</pre>
     <p>No. The browser page runs on the text in your own browser and never sends it anywhere. The CLI reads a local file or stdin and makes no network call.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice. It does arithmetic on the rows you paste plus one behavioural assumption you set; it is not a measurement of your customers and not a forecast of what a price change will earn. Test a raise on a few items and compare units sold before rolling it out. Check any contract, price-lock or regulation that limits when you may raise prices.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analyze_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

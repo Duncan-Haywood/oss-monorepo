@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-22",
+  "session": "https://claude.ai/code/session_016nDmYvxR7isBPfpUFgEtbw",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-22T18:40:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 9559,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure doc-friction list is dominated by already-fixed entries in a shallow clone; each check costs calls"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "no write-up or split rows; one small doc fix was the real remaining item"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Only agent backlog item P035 in_progress (rest needs owner host/product). Critique path: checked top doc_friction entries; linefig, cloud-session, pkill already fixed; verify-and-merge re-trigger gap was real, fixed with a short pointer. Backlog ids touched: none. Task is small; no write-up.",
+  "corrections": [],
+  "redteam": null
+}

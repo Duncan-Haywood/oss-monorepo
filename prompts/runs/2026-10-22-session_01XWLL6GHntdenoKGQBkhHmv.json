@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-22",
+ "session": "https://claude.ai/code/session_01XWLL6GHntdenoKGQBkhHmv",
+ "track": "research",
+ "prompt_version": 1,
+ "input": "follow the instructions in ./prompt.md (scheduled)",
+ "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-22T04:17:32Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9365",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "First sweep killed (exit 143) from slow np.convolve; replaced with FFT convolution",
+  "gcc_phat lag search longer than the window picked wraparound false peaks; clamped and tested"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "Foreground sweeps over ~2 min get killed with no output when piped through tail; run in background writing to a file."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "research/capture-audiosync/README.md"
+ ],
+ "goal": null,
+ "notes": "research/capture-audiosync, track 13. Synthetic audio only; ppm values swept not sourced. build.py ok, check_md_links ok, 9 tests pass. No separate docs/reports post written.",
+ "corrections": [],
+ "redteam": null
+}

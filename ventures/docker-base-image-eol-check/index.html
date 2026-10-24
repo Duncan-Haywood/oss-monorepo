@@ -56,6 +56,7 @@
     <p>A base image reference can be pinned to an exact content digest and still start from a release line — <code>node:18</code>, <code>python:3.9</code>, <code>ubuntu:20.04</code> — that its own publisher stopped patching months ago. Pinning stops the reference from being silently repointed; it says nothing about whether anyone is still shipping security fixes for what it points to. Paste your Dockerfile below and this page checks every <code>FROM</code> line's release line against a small, dated end-of-life table.</p>
     <p class="note">Nothing is uploaded. The Dockerfile you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own — the end-of-life data is a checked-in snapshot, not a live lookup.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste one or more Dockerfiles</h2>
@@ -113,7 +114,8 @@ python3 check.py --warn-days 30   # narrow the eol-soon warning window</code></p
     <p>More: <a href="vs-a-vulnerability-scanner.html">how this compares to a vulnerability scanner</a>, <a href="vs-checking-eol-dates-by-hand.html">how it compares to checking end-of-life dates by hand</a>, or <a href="what-to-do-when-a-base-image-is-eol.html">what to do once a finding comes back end-of-life</a>.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a vulnerability scan, or a compliance attestation, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including re-checking any end-of-life date against the upstream project's own page. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The Dockerfile you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

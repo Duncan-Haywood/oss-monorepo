@@ -43,6 +43,7 @@
     <p>Three clients want you this month and you can only deliver two. Paste your <strong>weekly billable hours</strong> and the <strong>offers on the table</strong> (fee, hours, deadline week) and see <strong>the exact set to accept for the most income</strong>, why each other offer loses, and the <strong>fee a declined project would need</strong> to earn its place — your counter-offer number.</p>
     <p class="note">For freelancers, consultants and small studios. Nothing is uploaded: the text box is analysed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your hours and offers</h2>
@@ -112,7 +113,8 @@ cat projects.csv | node cli.mjs plan - --json</pre>
     <p>It is the exact best answer for the numbers you typed, checked against trying every combination in the tests. Hours estimates are usually optimistic, so use the scope-creep buffer; the result is a decision aid, not a forecast.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, for the accuracy of the fees, hours and deadlines you type, and for honouring any commitment you make to a client. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It chooses between options using the numbers you supply; it is not a forecast of what you will earn.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

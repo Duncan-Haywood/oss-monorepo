@@ -1,0 +1,51 @@
+{
+ "date": "2026-10-23",
+ "session": "https://claude.ai/code/session_018gFtF9sy9mh6cMrBoeSWtK",
+ "track": "research",
+ "prompt_version": 1,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-23T16:25:32Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "free-choice",
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/9837",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "nonlinear-benchmarks data hosts (google drive, 4tu) blocked by proxy; used SysIdentPy data repo via git clone instead"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "does not mention that data hosts are often 403 and that public GitHub data repos can be cloned via add_repo as a fallback"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/goals.md",
+   "why": "No agent doc/post write-up this run; the project README carries the full write-up."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Tests (5) pass, research/_homepage/build.py ok, check_md_links ok, run.py reproduced locally in 1.5 min.",
+ "corrections": [],
+ "redteam": null
+}

@@ -1,0 +1,47 @@
+buildbot-mobilebase: the 62 nails in 13 stances (reach 0.3 m, 50 N, mu 0.6, buildbot-stance grid)
+A. Stances (y along the wall m, standing height m, nails): (0.20, 1.2, 11); (1.05, 1.2, 11); (0.25, 0.0, 9); (1.00, 0.0, 9); (0.10, 0.3, 5); (1.15, 0.3, 5); (0.60, 0.2, 2); (0.65, 0.2, 2); (0.55, 0.0, 2); (0.10, 0.0, 2); (1.15, 0.0, 2); (0.60, 1.0, 1); (0.70, 0.0, 1)
+   wall span 0.10 to 1.15 m, heights 0.0 to 1.2 m
+
+B. Re-stance time of the best visiting order (s), drive and lift in parallel / one after the other
+   drive m/s  lift m/s  settle s   parallel   in turn
+        0.2      0.05       0.0       38.8      47.2
+        0.2      0.05       2.0       62.8      71.2
+        0.2      0.10       0.0       26.7      31.2
+        0.2      0.10       2.0       50.8      55.2
+        0.2      0.20       0.0       18.5      21.5
+        0.2      0.20       2.0       42.5      45.5
+        0.2      0.50       0.0       12.4      14.2
+        0.2      0.50       2.0       36.3      38.2
+        0.5      0.05       0.0       30.0      33.8
+        0.5      0.05       2.0       54.0      57.8
+        0.5      0.10       0.0       17.9      21.7
+        0.5      0.10       2.0       41.9      45.7
+        0.5      0.20       0.0       11.9      14.2
+        0.5      0.20       2.0       35.9      38.2
+        0.5      0.50       0.0        7.4       8.6
+        0.5      0.50       2.0       31.4      32.6
+        1.0      0.05       0.0       27.0      28.9
+        1.0      0.05       2.0       51.0      52.9
+        1.0      0.10       0.0       15.0      16.9
+        1.0      0.10       2.0       39.0      40.9
+        1.0      0.20       0.0        8.9      10.8
+        1.0      0.20       2.0       32.9      34.8
+        1.0      0.50       0.0        5.3       6.2
+        1.0      0.50       2.0       29.3      30.2
+
+C. Whole sheet (s) = nailing + re-stancing, drive and lift in parallel, settle 2 s; hand 372 s, gantry 61 s
+   tip 0.5 m/s, 2 m/s2: nailing and tip moves 58.6 s
+      drive m/s \ lift m/s     0.05    0.10    0.20    0.50
+                       0.2    121.4   109.4   101.1    95.0
+                       0.5    112.6   100.5    94.5    90.0
+                       1.0    109.6    97.6    91.6    88.0
+   tip 4 m/s, 10 m/s2: nailing and tip moves 24.7 s
+      drive m/s \ lift m/s     0.05    0.10    0.20    0.50
+                       0.2     87.5    75.5    67.2    61.1
+                       0.5     78.7    66.6    60.6    56.1
+                       1.0     75.7    63.7    57.7    54.1
+
+D. Break-even: the mean seconds per re-stance at which the sheet equals the gantry (61 s) and the hand (372 s)
+   tip 0.5 m/s: gantry 0.20 s per re-stance, hand 26.1 s per re-stance (12 re-stances)
+   tip 4 m/s: gantry 3.02 s per re-stance, hand 28.9 s per re-stance (12 re-stances)
+   a walking G1 at 5 s / 20 s per re-stance, tip 4 m/s: 84.7 s / 264.7 s

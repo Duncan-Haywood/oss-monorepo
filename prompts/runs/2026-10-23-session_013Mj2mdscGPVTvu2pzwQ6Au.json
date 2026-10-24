@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-23",
+  "session": "https://claude.ai/code/session_013Mj2mdscGPVTvu2pzwQ6Au",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-23T14:06:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship einvoice-preflight: PINT SG and A-NZ rules",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 9807,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice next said NLCIUS/RO_CIUS need official Schematron; Maven Central phive-rules artefacts carry them compiled, reachable when GitHub is not"
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "PINT rules from Maven Central phive-rules-peppol compiled XSLT (GitHub blocked). Venture suite 533 pass 0 fail locally. Saxon/server route not updated; no real PINT invoice tried. Maven returned 429 on repeat downloads; build script accepts EINVOICE_PINT_JAR.",
+  "corrections": [],
+  "redteam": null
+}

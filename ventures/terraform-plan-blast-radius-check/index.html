@@ -49,6 +49,7 @@
     <p>Paste or load a Terraform structured plan (<code>terraform show -json</code>) and get a deterministic blast-radius report: every destroy and replace called out individually with the attribute that forced it, grouped counts by resource type and by module, and a loud flag when a replace lands on something that holds data.</p>
     <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device — which matters here, because a structured plan describes your whole infrastructure.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Load your plan</h2>
@@ -144,7 +145,8 @@ node cli.mjs check plan.json --json</pre>
     <p>No. It means nothing in this plan matched the patterns this tool checks. It cannot know that a resource you consider disposable is actually load-bearing, it does not read your state file or your provider's source, and it makes no judgement about the change itself. Read the plan before you apply it — this is one gate, not a guarantee.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is informational only — it is not legal, financial, security, compliance, or other professional advice, and it does not replace a qualified professional, your provider's documentation, or your own review of the plan. It reports a deterministic reading of the plan file you supplied and a name-based heuristic for which resource types hold data; it cannot prove an apply is safe, only report what it matched. <strong>You are responsible for reviewing and verifying its output, and for reading the real plan, before you apply anything.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Not affiliated with HashiCorp, Terraform, OpenTofu, or any cloud provider.</strong> Terraform is a trademark of HashiCorp. This is an independent, unofficial tool that reads a file those programs produce; it is not endorsed by or connected with any of them.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>

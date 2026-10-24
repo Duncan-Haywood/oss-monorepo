@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of total cost per hectare, fleet plus a 2 percent per leaf stage late-yield loss, for the best scout-and-treater fleet and the best inline fleet as the pest window closes between 2 and 32 hours after the start">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Fleet plus late-yield cost per hectare by window, 1.62 ha fields (assumed prices)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="257.8" y2="257.8" stroke="#ddd"/><text x="58" y="261.8" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="191.6" y2="191.6" stroke="#ddd"/><text x="58" y="195.6" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="125.3" y2="125.3" stroke="#ddd"/><text x="58" y="129.3" text-anchor="end" font-family="sans-serif" font-size="11">15</text>
+<line x1="64" x2="624" y1="59.1" y2="59.1" stroke="#ddd"/><text x="58" y="63.1" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="101.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="138.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="325.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="474.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">24</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">32</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">window closes after, hours</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">USD per hectare</text>
+<polyline points="64.0,71.2 101.3,104.3 138.7,130.8 176.0,150.9 250.7,172.6 325.3,172.6 474.7,179.5 624.0,179.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="101.3" cy="104.3" r="3" fill="#c0392b"/>
+<circle cx="138.7" cy="130.8" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="150.9" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="172.6" r="3" fill="#c0392b"/>
+<circle cx="325.3" cy="172.6" r="3" fill="#c0392b"/>
+<circle cx="474.7" cy="179.5" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="179.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">scout + treaters (up to 4 scouts)</text>
+<polyline points="64.0,91.8 101.3,124.9 138.7,158.1 176.0,161.5 250.7,161.5 325.3,161.5 474.7,161.5 624.0,161.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="91.8" r="3" fill="#1f6fb2"/>
+<circle cx="101.3" cy="124.9" r="3" fill="#1f6fb2"/>
+<circle cx="138.7" cy="158.1" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="161.5" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="161.5" r="3" fill="#1f6fb2"/>
+<circle cx="325.3" cy="161.5" r="3" fill="#1f6fb2"/>
+<circle cx="474.7" cy="161.5" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="161.5" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">inline robots</text>
+</svg>

@@ -27,6 +27,13 @@
     "script_sha256": "36ac0b2219dc5efe86c21230ac131fb2c13c894c0b8bfe1de898a721d6520196",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-20-does-an-agent-fleet-need-a-manager-agent": {
+    "bytes": 1638501,
+    "seconds": 327.6,
+    "sha256": "0535a4e93072418e5643da9948f215fd6b43e9108e61facecc32f03f77f3502e",
+    "script_sha256": "dc2431cd6c668f159eecaa1f287d1f96de0246c0e9efb913a37ddc7c115e1a7e",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-20-engineered-clothing-cost-fit-comfort-open-models": {
     "bytes": 1853581,
     "seconds": 370.63,
@@ -39,6 +46,13 @@
     "seconds": 364.85,
     "sha256": "07e59c7bb8980b9cce75e1be250f03326e3d599cb94b827777823b00120f96ef",
     "script_sha256": "cb1e22fa44d0c805ce94505c92973b39c62f418a345b252a51b1cd45c3994af2",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-20-github-pages-deploy-on-every-merge": {
+    "bytes": 805694,
+    "seconds": 161.04,
+    "sha256": "fd153bcded74226e692cecf61a4ed4fb5e452d231b727ec4664c7c4a840358b2",
+    "script_sha256": "cc89fc039c93a1d7c1811f4d96d583c82366f188fd99b50d65a44a1540d01cdc",
     "voice": "en_US-ljspeech-high"
   },
   "2026-10-20-mcp-server-free-calculators-for-ai-agents-no-browser": {
@@ -104,11 +118,116 @@
     "script_sha256": "31685f4ba5c52e6c992eb8bc470dddac825426370b3357c3151ec2bba0cf2040",
     "voice": "en_US-ljspeech-high"
   },
+  "2026-10-20-we-almost-rewrote-it-in-rust": {
+    "bytes": 1235437,
+    "seconds": 246.99,
+    "sha256": "7354119e38d9857313a48a324be12828ee8620cf70f9bec573c5740a977ff220",
+    "script_sha256": "f8e67d516599bfe8efddcca079b0dd08badb1ae8d6e3e1bfc5ad0a22cd1014cc",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-21-a-wall-is-not-studs-per-foot": {
+    "bytes": 1295464,
+    "seconds": 259.0,
+    "sha256": "00405f60db73408cf315cfafe218a93ba962a6e38eb55ce15afa1e7b23e2ec96",
+    "script_sha256": "008617bb49e37918df717354d1dcc832ef540ce63dde556fca631284779b2d5c",
+    "voice": "m"
+  },
+  "2026-10-21-checking-the-energy-table": {
+    "bytes": 632121,
+    "seconds": 126.33,
+    "sha256": "57fb4479ecae3cc5598706b5101de3fb23ee3a7b63c78efe8eae3ff84e3d2cf1",
+    "script_sha256": "de99a76f8f64065c77ea2885fc1f56b07ab95a40c41407ce71e7c40826e2d719",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-21-fooling-an-ai-detector-by-being-short": {
+    "bytes": 786911,
+    "seconds": 157.28,
+    "sha256": "cb619b88aa6a0be14eae0e8187a6c88a6e4b1e08e2c483349a39f24eb13bc956",
+    "script_sha256": "5fef2d88c9c0a1fc13b247d9ec49a450bf786793f7325951389e6a4d28c5f18e",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-21-guidelines-not-rules-for-ai-agents": {
+    "bytes": 1261942,
+    "seconds": 252.29,
+    "sha256": "d6b7c862fc7614ef03dcd0ee6ae9bab994dd2bcbf316db2d435b56dfb4343abb",
+    "script_sha256": "f6a6b2b65c2474a5cb29a8e449a56d6c2421c9a75389e8c6f65f85b7a0019b3b",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-21-the-id-that-ate-the-table": {
+    "bytes": 811804,
+    "seconds": 162.27,
+    "sha256": "8471a529c11d1068c06ed9bad35c663a72ab7a5149492f92f0c68524b8d4b51c",
+    "script_sha256": "7aa64710d727d79620ba98ad447d59b94354707b56343059038a2b5289d6cc01",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-21-thirteen-publishers-zero-posts": {
+    "bytes": 1504577,
+    "seconds": 300.83,
+    "sha256": "7da5c59110ad44a8e421c07635ba3234e32f9ee4ce4c16defe42ef46b1a82eb6",
+    "script_sha256": "8ed2e06fa202063a3656d096b9ba920e7df6c697229e1680dbb870db4cd3b8dd",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-21-typeof-localstorage-throws": {
+    "bytes": 699883,
+    "seconds": 139.89,
+    "sha256": "584b3f6a92f88d0d3058b5b4bc195074f81574313267f8bfaff3f51c2055df18",
+    "script_sha256": "bf6305a596ecbf0f39ab95cf58afaafc74976f49dd91ba65fae14b2b95c9ee2f",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-21-why-changepoint-detectors-cry-wolf": {
+    "bytes": 1282148,
+    "seconds": 256.34,
+    "sha256": "90e5087f88c5bd7f8482037e3b7586d9d7ccff55d434aeeb640fd8f0904f87ec",
+    "script_sha256": "2f4ac840d2ddee981308fcecfa7427fc1c63382ebef71afa3eaf2c94b7224a30",
+    "voice": "en_US-ljspeech-high"
+  },
   "2026-10-21-work-that-takes-more-than-twenty-hours": {
     "bytes": 950136,
     "seconds": 189.94,
     "sha256": "4ac4f40e88fe75c6ef54836b05afc55d10f2948f599334215f2f6b2ba6a365e0",
     "script_sha256": "6fb45fa3bc3e2c705a3da6fa942d31819b9f9fff33c6c5b020dc6ee3dcb31ec6",
     "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-22-a-neural-controller-did-not-beat-pid-on-a-coupled-quadrotor": {
+    "bytes": 818369,
+    "seconds": 163.58,
+    "sha256": "371255fbdf51d8fba24086f0ccebe6910549b56d154691b41d155383fb96fec2",
+    "script_sha256": "977d0dce00b5bbbd06f101239c5bff05b353e297758097907523450d11511ad3",
+    "voice": "v"
+  },
+  "2026-10-22-a-pip-wheel-puts-openroad-in-reach-of-every-agent-run": {
+    "bytes": 722910,
+    "seconds": 144.48,
+    "sha256": "20c9ddb297005e974db3f8c96012a5fb48db276735f72bb688f1e743cf9c75ec",
+    "script_sha256": "d514527c97f8b6424561049929ad7217ffb7fa178287f43abc6f007855a64bc7",
+    "voice": "v"
+  },
+  "2026-10-22-a-waste-sorting-robot-is-limited-by-reach-over-pick-time": {
+    "bytes": 894774,
+    "seconds": 178.86,
+    "sha256": "9b45d77adf64cc09502e6c48006c30c456f2b6a6569ec57bfcb2b046e7dc14bc",
+    "script_sha256": "9baa8e60866daad66d43a13cbeefe9a133d1dcedfc1d60f32dc838c15cca27a9",
+    "voice": "m"
+  },
+  "2026-10-22-phat-vs-reverb": {
+    "bytes": 715854,
+    "seconds": 143.07,
+    "sha256": "c6a77c527c35e5f6ca8a9d3db39d719016b3cf7f3d0af97f2cad77bdc2de0cfc",
+    "script_sha256": "e17006c6e6b5627152625498e560cc6a9f76ece20a6ef1e8d2f3ca0c81a043b2",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-23-sync-window-longer-than-offset": {
+    "bytes": 768102,
+    "seconds": 153.52,
+    "sha256": "feae7e78b819f07fed0013b8c26e1e5167cebb2ee7f451952b940ab5cf7897d2",
+    "script_sha256": "8159d961f064d910694b87e79b908dbcb3adbb0cadebb7abd1dcd6df43e49a22",
+    "voice": "en_US-ljspeech-high"
+  },
+  "2026-10-23-water-pump-demand-charge-booster-pump": {
+    "bytes": 1024875,
+    "seconds": 204.88,
+    "sha256": "cb914dc08f2eaa835e69bd8364f7d4b33bc1bb5d073f7885a611aacdf90221c1",
+    "script_sha256": "80020c423ac8c779ac8b9b6981d4c704184892a3f93d43b881d9f61bbfa07c63",
+    "voice": "v"
   }
 }

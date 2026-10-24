@@ -1,0 +1,15 @@
+# infra-routing on Solomon RC208 (100 customers, capacity 1000, 10 per service)
+
+A. Battery ignored (PyVRP, 60 s): 4 routes, distance 778.93
+
+B. Per config (best of 3 seeds of iterated local search). range Q | recharge g | stations | route-first: routes / distance | after search: routes / distance / charge time | distance penalty vs battery-ignored | perturbations | route evaluations
+Q | Q=400 | g=0.3 | k=5 | 4 / 778.9 | 4 / 778.9 / 0.0 | 0.0% -> 0.0% | 14 kicks | 41537 | seeds [778.9, 778.9, 778.9]
+Q | Q=300 | g=0.3 | k=5 | 4 / 778.9 | 4 / 778.9 / 0.0 | 0.0% -> 0.0% | 14 kicks | 41267 | seeds [778.9, 778.9, 778.9]
+Q | Q=200 | g=0.3 | k=5 | 4 / 782.4 | 4 / 782.4 / 66.5 | 0.4% -> 0.4% | 17 kicks | 44762 | seeds [782.4, 782.4, 782.4]
+Q | Q=150 | g=0.3 | k=5 | 6 / 999.3 | 4 / 817.1 / 128.6 | 28.3% -> 4.9% | 2 kicks | 48648 | seeds [823.6, 817.1, 830.8]
+Q | Q=100 | g=0.3 | k=5 | 8 / 1060.3 | 5 / 858.1 / 152.3 | 36.1% -> 10.2% | 2 kicks | 77760 | seeds [869.7, 866.4, 858.1]
+Q | Q=75 | g=0.3 | k=5 | 8 / 1140.5 | 5 / 922.4 / 194.3 | 46.4% -> 18.4% | 23 kicks | 141018 | seeds [925.2, 922.4, 931.1]
+g | Q=150 | g=0.1 | k=5 | 4 / 820.9 | 4 / 789.9 / 40.9 | 5.4% -> 1.4% | 2 kicks | 43805 | seeds [789.9, 809.1, 789.9]
+g | Q=150 | g=1.0 | k=5 | 6 / 1049.9 | 5 / 864.8 / 369.8 | 34.8% -> 11.0% | 0 kicks | 83841 | seeds [886.6, 864.8, 882.7]
+k | Q=150 | g=0.3 | k=2 | 7 / 1061.6 | 4 / 869.7 / 177.1 | 36.3% -> 11.7% | 3 kicks | 58204 | seeds [872.4, 878.0, 869.7]
+k | Q=150 | g=0.3 | k=10 | 5 / 863.6 | 4 / 805.1 / 71.2 | 10.9% -> 3.4% | 0 kicks | 32381 | seeds [824.4, 819.3, 805.1]

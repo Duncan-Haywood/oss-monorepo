@@ -1,0 +1,6 @@
+Date,Arriving by date,Type,Confirmation code,Booking date,Start date,End date,Nights,Guest,Listing,Details,Reference,Currency,Amount,Paid out,Host fee,Cleaning fee,Gross earnings,Occupancy taxes,Earnings year
+06/04/2026,06/05/2026,Reservation,HMAAAA1111,05/20/2026,06/01/2026,06/04/2026,3,Sample Guest A,Lake cabin,,,USD,"$582.00",,"$18.00","$80.00","$600.00",,2026
+06/12/2026,06/13/2026,Reservation,HMBBBB2222,05/28/2026,06/09/2026,06/12/2026,3,Sample Guest B,Lake cabin,,,USD,"$436.50",,"$13.50","$80.00","$450.00",,2026
+06/21/2026,06/22/2026,Reservation,HMCCCC3333,06/01/2026,06/16/2026,06/21/2026,5,Sample Guest C,Lake cabin,,,USD,"$873.00",,"$27.00","$80.00","$900.00",,2026
+06/25/2026,,Resolution Adjustment,,,,,,Sample Guest C,Lake cabin,Damage reimbursement,,USD,"$60.00",,,,,,2026
+06/27/2026,,Payout,,,,,,,,To account ending 0000,,USD,,"$1,951.50",,,,,2026

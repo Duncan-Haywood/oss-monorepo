@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-yieldcost"
+version = "0.1.0"
+description = "Should a laundry-hanging arm yield to the other arm's predicted next pick only when the predicted wait is long?"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

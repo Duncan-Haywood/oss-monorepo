@@ -30,6 +30,36 @@
       "source": "peppol-bis-invoice-3 (MPL-2.0)",
       "commit": "261c458474e27d58a25be629cccac28883171c92",
       "checks": 86
+    },
+    "pint-sg-en16931-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-sg/2026.6/xslt/SG-Subset-CEN-EN16931-UBL.xslt",
+      "checks": 825
+    },
+    "pint-sg-peppol-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-sg/2026.6/xslt/SG-Subset-PEPPOL-EN16931-UBL.xslt",
+      "checks": 45
+    },
+    "pint-sg-billing3-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-sg/2026.6/xslt/SG-Billing3-UBL.xslt",
+      "checks": 61
+    },
+    "pint-aunz-en16931-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-aunz/1.0.12/xslt/AUNZ-UBL-validation.xslt",
+      "checks": 908
+    },
+    "pint-aunz-peppol-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-aunz/1.0.12/xslt/AUNZ-PEPPOL-validation.xslt",
+      "checks": 50
+    },
+    "pint-aunz-sb-peppol-ubl": {
+      "source": "OpenPeppol PINT via phive-rules-peppol 4.6.3 on Maven Central (MPL-2.0)",
+      "from": "peppol-aunz/1.0.12/xslt/AUNZ-PEPPOL-SB-validation.xslt",
+      "checks": 50
     }
   },
   "fontoxpath": "3.34.0"

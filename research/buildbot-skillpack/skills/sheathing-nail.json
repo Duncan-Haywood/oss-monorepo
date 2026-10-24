@@ -1,0 +1,35 @@
+{
+ "schema": "buildbot-skillpack/1",
+ "name": "sheathing-nail",
+ "kind": "sheathing-nail",
+ "version": "1.0.0",
+ "licence": "MIT",
+ "interface": {
+  "observes": [
+   "stud positions along the sheet (mm), one read per stud"
+  ],
+  "commands": [
+   "62-nail sheathing schedule of buildbot-fasten: nail targets at the stud-face centre line, tool tip placed to the commanded point"
+  ]
+ },
+ "params": {
+  "s_read_mm": 0.89,
+  "s_tool_mm": 0.9
+ },
+ "scene": {
+  "sheet": "4x8 on end, studs 16 in o.c., 1.5 in stud face, 0.131 in nails, 3/8 in edge distance",
+  "nails": 62
+ },
+ "criteria": {
+  "all_nails_in_window": true
+ },
+ "claimed": {
+  "sheet_success": 0.9513474372996926
+ },
+ "note": "A tolerance budget, not a controller: the reading scatter and tool-tip scatter a nailing robot must meet for 95% of sheets to have all 62 nails inside their windows (buildbot-studfind).",
+ "caveats": [
+  "Simulated Gaussian error budget; not a rated accuracy.",
+  "No Unitree repeatability figure was found; the 0.9 mm tool scatter is buildbot-studfind's assumed robot term.",
+  "Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066)."
+ ]
+}

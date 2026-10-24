@@ -47,6 +47,7 @@
     <p>Paste a page's HTML and see every <code>FAQPage</code>, <code>HowTo</code>, <code>Article</code>/<code>BlogPosting</code>/<code>NewsArticle</code>, <code>Product</code>, <code>LocalBusiness</code>/<code>Organization</code>, or <code>Review</code> claim in its JSON-LD, checked word for word against the page's own visible text — with the exact character where it drifted when it doesn't match. Google's structured-data guidelines require <code>FAQPage</code> and <code>HowTo</code> content to be visible on the page; AI answer engines go further and read JSON-LD as ground truth when they summarize a page. Either way, a mismatch means the markup is describing a page that no longer exists.</p>
     <p class="note">Nothing is uploaded. The HTML you paste is parsed in this browser and never leaves your device.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste the page's HTML</h2>
@@ -103,7 +104,8 @@ node cli.mjs check dist/index.html --strict                # also fail on malfor
     <p>No. The browser page parses the HTML you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not SEO, legal, or marketing advice, and it does not replace a qualified professional. It reports whether a JSON-LD claim's exact text is present in the page's own visible copy — nothing more. It is not a Search Console substitute, not a ranking guarantee, and not a determination that your structured data is eligible for any rich result. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The HTML you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

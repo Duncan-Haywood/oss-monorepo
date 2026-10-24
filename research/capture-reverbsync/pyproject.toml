@@ -1,0 +1,13 @@
+[project]
+name = "capture-reverbsync"
+version = "0.1.0"
+description = "Does partial-whitening GCC still beat PHAT in a reverberant room, and can gamma be chosen per window without ground truth?"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../capture-realaudio/src", "../capture-audiosync/src"]

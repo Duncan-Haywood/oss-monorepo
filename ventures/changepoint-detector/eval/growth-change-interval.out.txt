@@ -1,0 +1,15 @@
+seed 2026
+growth bump (per point)  found  covered  median width
+0.015  90/100  85/90 (94%)  46
+0.025  97/100  93/97 (96%)  34
+0.04  81/100  77/81 (95%)  22
+seed 7
+growth bump (per point)  found  covered  median width
+0.015  88/100  86/88 (98%)  52
+0.025  97/100  90/97 (93%)  31
+0.04  72/100  70/72 (97%)  22
+seed 99
+growth bump (per point)  found  covered  median width
+0.015  93/100  89/93 (96%)  49
+0.025  98/100  91/98 (93%)  34
+0.04  78/100  76/78 (97%)  22

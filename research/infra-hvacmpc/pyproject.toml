@@ -1,0 +1,13 @@
+[project]
+name = "infra-hvacmpc"
+version = "0.1.0"
+description = "Heating and cooling MPC against a thermostat on a time-of-use tariff, on real TMY3 weather, with a wrong model and a wrong forecast"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

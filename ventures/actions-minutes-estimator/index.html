@@ -59,6 +59,7 @@
     <p>GitHub's billing page shows you minutes you have <em>already</em> spent, added up across the whole account. It will not tell you which workflow spent them, and it cannot tell you what the workflow in your open pull request is about to cost. Paste your workflow YAML below and this does the arithmetic forward — per workflow, per job, with the expensive patterns named.</p>
     <p class="note">Nothing is uploaded. Parsing and costing happen in this browser and are never sent anywhere.</p>
   </header>
+<main>
 
   <section class="card">
     <h2>1. Paste your workflow files</h2>
@@ -165,7 +166,8 @@ node cli.mjs --max-allowance-percent 80 .github/workflows   <span class="note">#
     <p>No, and they are not meant to be. They are an estimate built from your workflow files plus assumptions you set — how long a job takes, how often you push. Every assumption is shown on screen and is editable, and the published list rates being quoted are dated. Check the result against your own billing page before making a decision on it.</p>
   </section>
 
-  <footer>
+  </main>
+<footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It produces an <em>estimate</em> from the workflow files you paste plus assumptions you set — it is not a billing statement, not a quote, and not financial, accounting, or tax advice. Published list rates are quoted as of a stated date and change without notice. <strong>You are responsible for checking any figure here against your own GitHub billing page before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_run</code>, <code>example_loaded</code>, <code>parse_error</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>

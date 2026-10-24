@@ -1,0 +1,31 @@
+cepstral spread 9.83, 40 frames per point
+ops fixed {'mul': 7532, 'add': 11009, 'mem': 15620, 'lut': 80}
+ops bfp   {'mul': 7532, 'add': 15617, 'mem': 15620, 'lut': 80}
+fixed, 1 shift per stage (8)    -60 dBFS  err/spread 0.715  peak  9 bits
+fixed, 4 shifts                 -60 dBFS  err/spread 0.456  peak  9 bits
+fixed, 2 shifts                 -60 dBFS  err/spread 0.236  peak 11 bits
+block floating point            -60 dBFS  err/spread 0.081  peak 17 bits  mean net shift -2.92  largest stored word 25964
+fixed, 1 shift per stage (8)    -50 dBFS  err/spread 0.662  peak 10 bits
+fixed, 4 shifts                 -50 dBFS  err/spread 0.405  peak 11 bits
+fixed, 2 shifts                 -50 dBFS  err/spread 0.198  peak 13 bits
+block floating point            -50 dBFS  err/spread 0.060  peak 17 bits  mean net shift -1.45  largest stored word 27770
+fixed, 1 shift per stage (8)    -40 dBFS  err/spread 0.533  peak 11 bits
+fixed, 4 shifts                 -40 dBFS  err/spread 0.292  peak 12 bits
+fixed, 2 shifts                 -40 dBFS  err/spread 0.120  peak 14 bits
+block floating point            -40 dBFS  err/spread 0.032  peak 17 bits  mean net shift 0.07  largest stored word 26878
+fixed, 1 shift per stage (8)    -30 dBFS  err/spread 0.351  peak 13 bits
+fixed, 4 shifts                 -30 dBFS  err/spread 0.147  peak 14 bits
+fixed, 2 shifts                 -30 dBFS  err/spread 0.051  peak 16 bits
+block floating point            -30 dBFS  err/spread 0.016  peak 17 bits  mean net shift 1.88  largest stored word 27057
+fixed, 1 shift per stage (8)    -20 dBFS  err/spread 0.173  peak 14 bits
+fixed, 4 shifts                 -20 dBFS  err/spread 0.063  peak 16 bits
+fixed, 2 shifts                 -20 dBFS  err/spread 0.014  peak 18 bits
+block floating point            -20 dBFS  err/spread 0.013  peak 17 bits  mean net shift 3.42  largest stored word 27017
+fixed, 1 shift per stage (8)    -10 dBFS  err/spread 0.096  peak 16 bits
+fixed, 4 shifts                 -10 dBFS  err/spread 0.023  peak 17 bits
+fixed, 2 shifts                 -10 dBFS  err/spread 0.004  peak 19 bits
+block floating point            -10 dBFS  err/spread 0.017  peak 17 bits  mean net shift 5.08  largest stored word 27025
+fixed, 1 shift per stage (8)     -3 dBFS  err/spread 0.046  peak 17 bits
+fixed, 4 shifts                  -3 dBFS  err/spread 0.009  peak 18 bits
+fixed, 2 shifts                  -3 dBFS  err/spread 0.002  peak 20 bits
+block floating point             -3 dBFS  err/spread 0.012  peak 17 bits  mean net shift 6.08  largest stored word 25749

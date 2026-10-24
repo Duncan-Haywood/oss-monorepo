@@ -1,0 +1,58 @@
+A. Physical floor: energy per net tonne-km at design range, loaded one way, fuel-fed (cruise only: no grades, stops, idling or empty return)
+mode      range km  gross t payload t    F kN work MJ/tkm fuel MJ/tkm fuel Wh/tkm
+truck          800       37      22.0     4.4       0.200       0.499       138.7
+rail          1500     9100    6236.5   217.2       0.035       0.102        28.4
+ship         20000    91000   75689.5  1284.7       0.017       0.035         9.8
+aircraft      8250      397     118.0   229.0       1.681       4.424      1228.9
+
+B. Checks against published figures
+B1. Battery truck at 82,000 lb, 65 mph, Crr 0.0045, CdA 3.6, battery-to-wheel 0.88: 1.76 kWh/mile; Tesla Semi rated 1.7 kWh/mile (electrive, Feb 2026; Musk 2022): +4%
+B2. Diesel truck at 90 km/h, Crr 0.0065, CdA 5.4, engine-to-wheel 0.40: 7.6 mpg steady-state floor; fleet reports 5.5-6.5 mpg (Cummins/Peterbilt 2014), SuperTruck demonstrators 10.7-12.2 mpg
+B3. Unit train, Davis resistance, engine-to-wheel 0.34: 0.102 MJ/tkm loaded one way, 0.135 with an empty return; FHWA Class I rail 2009, 305 Btu per short ton-mile = 0.220 MJ/tkm: model/FHWA 0.46 one way, 0.61 with empty return
+B4. 747-400F: MTOW 396.9 t, OEW 160.4 t, 118 t payload leaves 118 t fuel (capacity 173.5 t); Breguet cruise range 9401 km; published 8,250 km (one listing) or 5,760 km (another): model/8,250 = 1.14
+
+C. Swapping the store: payload kept at the design range, against diesel/jet at the same gross mass (payload t, % of diesel; '-' = cannot reach the range even with a full store)
+carrier                         truck t     %     rail t     %     ship t     % aircraft t     %
+diesel/jet                         22.0   100     6236.5   100    75689.5   100      118.0   100
+Li-ion pack 150 Wh/kg              14.0    64     5471.5    88    18258.4    24          -     -
+Li-ion pack 250 Wh/kg              17.3    79     5786.9    93    41755.1    55          -     -
+Li-ion pack 400 Wh/kg              19.1    87     5964.3    96    54971.9    73          -     -
+H2 700 bar, 5% system              20.9    95     6137.4    98    67810.9    90          -     -
+LH2, 25% system                    21.9   100     6235.4   100    75110.0    99      106.5    90
+ammonia                            21.7    99     6202.9    99    73839.6    98       27.3    23
+Zero-payload range with every spare kilogram as store (km):
+  Li-ion pack 250 Wh/kg       truck      3599  rail     19847  ship     43694  aircraft       669  
+  H2 700 bar, 5% system       truck     16808  rail    128355  ship    265821  aircraft      3765  
+  LH2, 25% system             truck     84038  rail    641776  ship   1329104  aircraft     18824  
+
+D. Battery pack specific energy (Wh/kg) at which payload reaches 90% / 50% of the diesel payload
+mode            90%       50%
+truck           511       110
+rail            183        50
+ship            992       225
+aircraft       5593      4106
+
+E. Does the break-even survive the uncertain inputs? Wh/kg for 90% of the diesel payload (low / default / high input)
+truck Crr 0.0040/0.0065/0.0080            412      511      569
+truck CdA 3.6/5.4/6.5                     438      511      555
+truck range km 500/800/1200               329      511      737
+rail speed mph 30/50/60                   146      183      202
+rail range km 800/1500/3000                99      183      354
+ship Admiralty C 700/600/500              867      992     1160
+ship speed kn 10/14/16                    541      992     1246
+ship range km 5000/20000/30000            275      992     1396
+aircraft L/D 19/17/15                    5004     5593     6338
+aircraft range km 2000/8250/12000        1356     5593     6881
+
+F. Battery pack sweep: payload as % of diesel payload at the design range
+  Wh/kg     truck      rail      ship  aircraft
+    100        45        81         -         -
+    150        64        88        24         -
+    200        73        91        44         -
+    250        79        93        55         -
+    300        82        94        63         -
+    400        87        96        73         -
+    500        90        97        78         -
+    750        93        98        86         -
+   1000        95        98        90         -
+   2000        98        99        96         -

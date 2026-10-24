@@ -1,0 +1,37 @@
+# robot scatter per nail 0.9 mm; sheet = 62 nails; 95% target
+
+## A. whole-sheet success / share of nails missed vs reading scatter (layout scatter 1 mm)
+policy                         0.25 mm      0.5 mm        1 mm      1.5 mm        2 mm        3 mm        4 mm        6 mm
+single, 1 read               1.00/0.0%   0.99/0.0%   0.92/0.2%   0.73/1.4%   0.55/4.0%  0.31/11.5%  0.19/18.5%  0.09/28.3%
+single, 4 reads              1.00/0.0%   1.00/0.0%   0.99/0.0%   0.98/0.0%   0.92/0.2%   0.73/1.4%   0.55/4.0%  0.31/11.5%
+single, 16 reads             1.00/0.0%   1.00/0.0%   1.00/0.0%   1.00/0.0%   0.99/0.0%   0.98/0.0%   0.92/0.2%   0.73/1.4%
+pooled, 1 read, 10 studs     1.00/0.0%   1.00/0.0%   0.98/0.0%   0.95/0.1%   0.91/0.2%   0.82/0.7%   0.74/1.6%   0.59/4.7%
+re-measure each nail         1.00/0.0%   1.00/0.0%   0.89/0.2%   0.43/1.3%   0.08/4.0%  0.00/11.5%  0.00/18.5%  0.00/28.4%
+
+## B. largest reading scatter (mm, 1 sigma per read) for 95% whole-sheet success, by layout scatter
+policy                          0 mm      1 mm      2 mm      4 mm      8 mm
+single, 1 read                  0.89      0.89      0.89      0.89      0.89
+single, 4 reads                 1.78      1.78      1.78      1.78      1.78
+single, 16 reads                3.56      3.56      3.56      3.56      3.56
+pooled, 1 read, 10 studs        2.95      1.43      1.00      0.93      0.91
+re-measure each nail            0.86      0.86      0.86      0.86      0.86
+
+## C. a vendor-claim stud finder (centre accuracy 'typically within 1/8 in = 3.2 mm'): two readings of the claim
+claim read as 1 sigma = 3.2 mm, or as a 95% bound (1 sigma = 1.6 mm); layout scatter 1 mm
+sigma 3.2 mm   single, 1 read             success 0.279, nails missed 13.0% (8.1 of 62)
+sigma 3.2 mm   single, 4 reads            success 0.694, nails missed 1.8% (1.1 of 62)
+sigma 3.2 mm   single, 16 reads           success 0.968, nails missed 0.1% (0.0 of 62)
+sigma 3.2 mm   pooled, 1 read, 10 studs   success 0.808, nails missed 0.9% (0.5 of 62)
+sigma 3.2 mm   re-measure each nail       success 0.000, nails missed 13.0% (8.0 of 62)
+sigma 1.6 mm   single, 1 read             success 0.694, nails missed 1.8% (1.1 of 62)
+sigma 1.6 mm   single, 4 reads            success 0.968, nails missed 0.1% (0.0 of 62)
+sigma 1.6 mm   single, 16 reads           success 0.998, nails missed 0.0% (0.0 of 62)
+sigma 1.6 mm   pooled, 1 read, 10 studs   success 0.939, nails missed 0.1% (0.1 of 62)
+sigma 1.6 mm   re-measure each nail       success 0.327, nails missed 1.8% (1.1 of 62)
+
+## D. what the 17-nail joint wants: stud error alone, no robot scatter
+stud error 0.5 mm: sheet success 1.000
+stud error 1.0 mm: sheet success 1.000
+stud error 1.5 mm: sheet success 0.982
+stud error 2.0 mm: sheet success 0.905
+stud error 3.0 mm: sheet success 0.657

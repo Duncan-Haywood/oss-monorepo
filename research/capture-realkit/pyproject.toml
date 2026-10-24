@@ -1,0 +1,13 @@
+[project]
+name = "capture-realkit"
+version = "0.1.0"
+description = "Capture-kit re-run on a catalogue of real, sourced devices: does the exact-vs-greedy packing result survive datasheet weights, energies and runtimes?"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

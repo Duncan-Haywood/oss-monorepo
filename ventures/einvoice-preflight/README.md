@@ -16,7 +16,11 @@ searching for an e-invoice preflight check. CII is the XML an ERP actually
 emits when it is not UBL; a Factur-X PDF is only the envelope around that XML.
 When a PDF unwraps, the result names the standard attachment
 (`factur-x.xml`, `zugferd-invoice.xml`, or `xrechnung.xml`) and the syntax
-(CII or UBL). Custom attachment names are not echoed.
+(CII or UBL). Custom attachment names are not echoed. The attachment stream is
+found whatever order the generator wrote its dictionary in (`/Filter` or `/Length`
+before `/Type`) and with an indirect `/Length 5 0 R`; before 2026-10-22 those
+PDFs were refused as having no invoice XML (found by building such files; tested
+on hand-made PDFs, not yet on a real Mustang, Ghostscript or Acrobat export).
 
 **XRechnung profile (Germany).** Tick "Also apply the German XRechnung rules"
 on the page, or call the API with `POST /v1/validate?profile=xrechnung`, to add
@@ -52,7 +56,7 @@ capture the party legal identifier and the invoice and payment-terms notes.
 Off by default, JS only, and an offline observation, not a certified
 platform's validator or legal advice. Findings never echo the number.
 
-**Italy: FatturaPA (new).** An XML file whose root is `FatturaElettronica` (FPR12 business, FPA12 public body) is not EN 16931, so it is read by `fatturapa.mjs` with its own rules `IT-001`..`IT-017`: partita IVA (Luhn) and codice fiscale check digits, SdI destination code length, TipoDocumento, RegimeFiscale and Natura codes, 0% lines needing a Natura, line / VAT-summary / document-total arithmetic to the cent, payment IBAN. Rule ids are this tool's own, not SdI error codes; the one-cent tolerance and the code lists are assumptions to check against the current Agenzia delle Entrate technical specification (the official site was not reachable when this was written). When a cassa, bollo, withholding, rounding or document discount is present the totals checks are skipped and named in `skipped`, never reported as a pass. Not checked: the full XSD, the signature, duplicate numbers, SdI acceptance. `examples/fatturapa-invoice.xml` is clean; `examples/fatturapa-invoice-with-defects.xml` is the same invoice with six planted faults that raise eight rules (IT-002, 003, 006, 011, 012, 014, 015, 016), pinned in `fatturapa.test.mjs`.
+**Italy: FatturaPA (new).** An XML file whose root is `FatturaElettronica` (FPR12 business, FPA12 public body) is not EN 16931, so it is read by `fatturapa.mjs` with its own rules `IT-001`..`IT-018`: partita IVA (Luhn) and codice fiscale check digits, SdI destination code length, TipoDocumento, RegimeFiscale and Natura codes, 0% lines needing a Natura, line / VAT-summary / document-total arithmetic to the cent, payment IBAN, and element order inside the main blocks (`IT-018`, the sequence SdI's schema demands; written from memory of the XSD, unchecked against the file). Rule ids are this tool's own, not SdI error codes; the one-cent tolerance and the code lists are assumptions to check against the current Agenzia delle Entrate technical specification (the official site was not reachable when this was written). When a cassa, bollo, withholding, rounding or document discount is present the totals checks are skipped and named in `skipped`, never reported as a pass. Not checked: the full XSD, the signature, duplicate numbers, SdI acceptance. `examples/fatturapa-invoice.xml` is clean; `examples/fatturapa-invoice-with-defects.xml` is the same invoice with six planted faults that raise eight rules (IT-002, 003, 006, 011, 012, 014, 015, 016), pinned in `fatturapa.test.mjs`.
 
 **Official Schematron (optional).** Beside the built-in rules you can
 run the CEN EN 16931 validation artefacts (ConnectingEurope/eInvoicing-EN16931,
@@ -165,6 +169,8 @@ The tool never submits an invoice, chooses a tax rate, contacts a tax
 authority, or claims that an invoice is legally valid. It only checks the
 document facts represented in the input schema. The user remains responsible
 for selecting the correct format, tax treatment, and submission process.
+
+**Peppol PINT: Singapore InvoiceNow and Australia/New Zealand (shipped 2026-10-23).** A UBL file whose BT-24 names `...billing:international:sg:3.0`, `...billing:international:aunz:3.0` or the A-NZ self-billing id is checked by that profile's own rules *instead of* the EU base and the Peppol BIS add-on, because PINT uses GST category codes (SR, ZR, NG...) that the EU base rejects (before this, an SG invoice drew a false `PEPPOL-EN16931-R004`/category finding). Singapore runs three sets (the CEN subset with GST amounts, the Peppol subset, the SG GST rules, 931 checks), A-NZ two (958 checks, including the ABN rules AUNZ-R-004 and PEPPOL-COMMON-R050). OpenPeppol publishes these only as Schematron already compiled to XSLT, and GitHub is not reachable from every build host, so `build-pint-rules.mjs` takes the XSLT from the `phive-rules-peppol` artefact on Maven Central (set `EINVOICE_PINT_JAR` to use a jar on disk) and `plain-from-xslt.mjs` reads the generator's fixed XSLT shape back into the same plain JSON (rules, rule order, lets, `xsl:param` roots, XQuery functions). It throws on any template shape it does not know rather than dropping a rule. Fidelity check: the same reader on OpenPeppol's own BIS XSLT yields 55 checks, every id also in the `.sch`-compiled Peppol set, and on the EN 16931 XSLT 979 checks against 982 (the XSLT is a newer release: it adds BR-CO-25, BR-66, BR-67, UBL-CR-631 and drops UBL-SR-53..59). Verification (`pint.test.mjs`, 6 tests, made-up invoices in `examples/pint-sg-invoice.xml`, `pint-sg-invoice-with-defects.xml`, `pint-aunz-invoice.xml`): both clean files pass with no skipped rule; the SG defect file raises BR-109-GST-SG, BR-NG-08/09/12-GST-SG and BR-CO-17-GST-SG; a missing buyer ABN raises AUNZ-R-004 and a wrong check digit PEPPOL-COMMON-R050; ordinary Peppol BIS files still get the EU base. Not done: the Saxon route and the server API still run the EU base on a PINT file (the browser/plain route is the one fixed); CII has no PINT form; no real InvoiceNow or Peppol A-NZ invoice or an access point's verdict has been tried, only the rule sets as published (versions: SG 2026.6, A-NZ 1.0.12); the Japan and Malaysia PINT sets are not in that artefact. The same Maven artefacts also hold RO_CIUS (`phive-rules-cius-ro`) and the Dutch NLCIUS XSDs (`phive-rules-energieefactuur`), the open items below, readable with this same tool next.
 
 ## Run it as your own API (self-hosted, one click)
 
@@ -464,6 +470,12 @@ SARIF uses paths relative to the input directory. An empty directory is an
 input error and exits `2`. Batch scans also flag a supplier (matched by id, VAT id or
 name) who reuses an `invoice_number` as `INV-019`; the number itself is never
 emitted. Two different suppliers that both issue `1001` are not flagged.
+Credit notes are tied to their originals when both are in the batch (same seller,
+reference matched ignoring case): `INV-056` for a currency mismatch, `INV-057` when
+the credit notes against one invoice add up to more than its gross total, `INV-058`
+when the named invoice in the batch belongs to a different seller. A credit note whose
+original is not in the batch is left alone. Tested on hand-written invoices (JS and
+Python CLI); not tried on real ERP exports.
 JSON output uses the same versioned summary fields for single files and
 directories: `schema_version` (currently `1`), `status`, `exit_code`,
 `files_checked`, `files_failed`, `observations`, `rules`, `fixes`, and `read_errors`.
@@ -619,3 +631,72 @@ contacts a bank, never stores the account number, BIC, or remittance,
 and never claims funds can be received or allocated there.
 
 `examples/factur-x-credit-note-with-defects.pdf` wraps the defective CII credit note in a Factur-X envelope: the built-in rules report INV-032 (unknown type code) and INV-038 (tax amount), identical to the bare XML (`facturx.test.mjs`); the official-rule findings for the same XML are pinned in `schematron.test.mjs`.
+
+## Repair a JSON invoice's arithmetic
+
+UBL files (Invoice, CreditNote) are repaired too, in place: see "Repair a UBL file" below.
+
+`node repair-cli.mjs invoice.json -o fixed.json` (or `POST /v1/repair`)
+recomputes line nets, the net, tax, gross and amount-due totals from the
+invoice's own quantities, unit prices, tax percents and header adjustments,
+and upper-cases a lower-case currency code. It logs each change (path, old
+value, new value, reason), re-runs the checks on the result and lists what is
+left. It never chooses a tax rate, date, identifier, bank detail or party:
+those findings stay for a person (exit 1 while any remain). If a line's
+quantity, price or tax percent is invalid, no totals are touched. Tests in
+`repair.test.mjs` and `server.test.mjs`. The web page has a "Repair the arithmetic (JSON, UBL or CII)" button (paste JSON, click, read the change table; clicked through with `eval/browser-repair.mjs`).
+
+## Repair a UBL file
+
+`node repair-cli.mjs invoice.xml -o fixed.xml` (or `POST /v1/repair` with the
+XML as the body) edits only the amount elements of a UBL Invoice or
+CreditNote and leaves every other byte alone (comments, namespaces, order).
+It recomputes each line's net (quantity x price / base quantity), the taxable
+amount and VAT of each `TaxSubtotal` (taxable x rate, rounded half up, the
+EN 16931 way), the document `TaxAmount`, the line-extension, tax-exclusive,
+tax-inclusive and payable totals. It skips, and says so in `skipped`, any
+line with its own allowance, charge or sub-line, any document with header
+allowances or charges, more than one `TaxTotal`, and any tax group that does
+not match the subtotals one to one: it never adds a subtotal or picks a rate
+or category. The result is re-parsed and re-checked. On
+`examples/ubl-invoice-with-defects.xml` it fixes 3 amounts and clears
+INV-017, INV-018, INV-029 and INV-038; INV-021 (due date) and INV-045 (no
+IBAN) stay for a person. Tested on the repo's hand-written UBL examples only
+(`repair-ubl.test.mjs`, `server.test.mjs`); not tried on a real ERP export.
+
+## Repair a CII file (XRechnung CII, ZUGFeRD, Factur-X XML)
+
+The same command and endpoint take a `CrossIndustryInvoice` file
+(`repair-cii.mjs`; the CLI and `POST /v1/repair` pick CII or UBL by content).
+**Factur-X PDFs** (CII inside) are repaired too (`repair-facturx.mjs`; CLI
+`node repair-cli.mjs in.pdf -o out.pdf`; `POST /v1/repair` with the PDF returns
+`pdf_base64`): the embedded XML goes through the CII repair and the PDF is
+extended by an incremental update (all original bytes kept, a newer copy of the
+attachment appended). The printed pages are not re-rendered, so if they show
+wrong amounts, re-issue the PDF from the source system. A PDF 1.5 file whose
+newest cross-reference is a stream (most modern generators) gets an appended
+uncompressed xref stream (`/W [1 4 2]`, `/Prev` chained) instead of a table
+(2026-10-22). Encrypted PDFs, or ones whose xref dictionary cannot be read, come
+back with only the corrected XML. Tested on PDFs built by this repo's own writer
+(plain and Flate streams, classic table and a hand-built xref-stream file); no
+real ERP or Factur-X export tried, so a PDF viewer or veraPDF opening the
+result is the open check.
+Same contract as UBL: only amounts are edited, in place: each line's
+`LineTotalAmount` (quantity x net price / basis quantity), each header
+`ApplicableTradeTax` block's `BasisAmount` and `CalculatedAmount`, and the
+header monetary summation (line total, tax basis, tax, grand total, amount due
+= grand - prepaid + rounding). Skipped, and said so: lines with their own
+allowance, charge or sub-line, header allowances or charges, more than one
+`TaxTotalAmount`, and tax groups that do not match the header blocks one to
+one. On `examples/xrechnung-cii-credit-note-with-defects.xml` it fixes the
+wrong VAT amount (150.00 to 190.00) and leaves the type code and missing
+fields for a person. Hand-written examples only (`repair-cii.test.mjs`,
+`server.test.mjs`), no real ERP or Factur-X export tried. The web page's
+repair button takes pasted JSON, UBL or CII (clicked through in headless
+Chromium with `eval/browser-repair.mjs`, which pastes the defective CII
+credit note).
+
+The web page's repair button also takes one dropped Factur-X PDF (empty paste
+box): it lists the changes and offers `<name>-repaired.pdf` to download. The
+printed pages are not redrawn. Clicked through in headless Chromium with
+`eval/browser-repair.mjs` on a PDF built by this repo.

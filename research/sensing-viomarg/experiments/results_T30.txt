@@ -1,0 +1,8 @@
+# sensing-viomarg: planar VIO drift, 8 seeds, 30 s paths, synthetic
+# columns: IMU grade | prior | rms drift % of path (mean, sem) | median rms | worst seed rms | final drift % mean | rms vs pinned at same grade (paired geometric-mean ratio)
+IMU x0.25 | pinned | 23.573 7.436 | 23.228 | 63.225 | 73.84 | 1.00
+IMU x0.25 | marginalised | 2.083 1.191 | 0.808 | 10.387 | 3.01 | 0.10
+IMU x1 | pinned | 12.342 5.328 | 5.840 | 47.089 | 35.01 | 1.00
+IMU x1 | marginalised | 2.497 0.216 | 2.473 | 3.374 | 3.21 | 0.32
+IMU x4 | pinned | 12.315 5.450 | 6.381 | 46.041 | 31.73 | 1.00
+IMU x4 | marginalised | 6.546 0.896 | 7.046 | 10.033 | 19.06 | 1.10

@@ -1,26 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1311 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1315 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-10-21T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>AI Bookkeeper: free double-entry books from your bank CSV, that learn</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ai-bookkeeper/"/>
+    <id>tag:marisstella.dev,2026:tool/ai-bookkeeper</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free AI bookkeeping in your browser. Import bank and card CSVs, get an account suggested for every line with a reason, file the review queue once and it learns your payees. Transfers paired, trial balance, P&amp;L, balance sheet, close checks, QuickBooks and Xero journals. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Open Floor Robots — build your own robot vacuum, robot mop or vacuum-mop combo (open source)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-floor-robots/"/>
     <id>tag:marisstella.dev,2026:tool/open-floor-robots</id>
     <updated>2026-10-21T00:00:00Z</updated>
-    <category term="Open hardware &amp; robots"/>
+    <category term="Open hardware, robots &amp; house plans"/>
     <summary type="text">DIY robot vacuum, robot mop and robot vacuum-mop combo: open-source hardware (MIT) with laser-cut and 3D-printed parts, ESP32 firmware, a coverage path planner, and a cleaning simulator you can try in your browser on your own room.</summary>
+  </entry>
+  <entry>
+    <title>Free House Plan Generator: Parametric Home Designs to Download (CC0)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-house-plans/"/>
+    <id>tag:marisstella.dev,2026:tool/open-house-plans</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Open hardware, robots &amp; house plans"/>
+    <summary type="text">Generate a free house plan from a sentence: floor plan, elevations, 3D model (IFC, OBJ), CAD (DXF), bill of materials and a cost estimate. 1 to 5 bedrooms, farmhouse, craftsman, modern, ranch and cottage styles. Public domain, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Open Robot Mower — DIY robot lawn mower: open-source, wire-free RTK, full CAD</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-robot-mower/"/>
     <id>tag:marisstella.dev,2026:tool/open-robot-mower</id>
     <updated>2026-10-21T00:00:00Z</updated>
-    <category term="Open hardware &amp; robots"/>
+    <category term="Open hardware, robots &amp; house plans"/>
     <summary type="text">Build your own robot lawn mower. An open-source robotic mower with wire-free RTK GNSS navigation, a guarded pivoting-blade disc, a floating bump shell, ESP32 safety firmware and a complete CAD manufacturing package (MIT). Plan your own lawn&#39;s mowing pattern in the browser.</summary>
   </entry>
   <entry>
@@ -30,6 +46,22 @@
     <updated>2026-10-21T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free AI sales agent for the replies to your outreach. Paste them in: it spots unsubscribes, bounces, out-of-office and not-now replies, updates your list, and drafts answers to the interested ones for you to approve. Never sends anything.</summary>
+  </entry>
+  <entry>
+    <title>Support Agent — Self-Hosted AI Customer Service That Answers From Your Help Articles</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/support-agent/"/>
+    <id>tag:marisstella.dev,2026:tool/support-agent</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">An open-source AI support agent you host yourself: it answers customers from your own help articles, cites them, offers articles when unsure and hands off to a person on refunds, legal threats or anything it can&#39;t answer. Measured on BANKING77. Try it in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Wall Framing Takeoff — stud layout, cut list and lumber order for a house</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wall-framing-takeoff/"/>
+    <id>tag:marisstella.dev,2026:tool/wall-framing-takeoff</id>
+    <updated>2026-10-21T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free wall framing calculator for builders and framers. Enter walls, doors and windows; get the stud layout 16 or 24 on center, kings, jacks, headers and cripples, a cut list, plate splices over studs and the cheapest mix of board lengths to buy. Runs in your browser.</summary>
   </entry>
   <entry>
     <title>Changepoint Detector — find when a time series changed (PELT + Bayesian)</title>
@@ -134,37 +166,5 @@
     <updated>2026-10-19T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Discogs seller fee calculator: the 9% selling fee on item price plus shipping ($0.10 minimum, $150 maximum), editable payment processing, your payout and profit after postage and cost, the price that hits a target profit, and a fee ladder from $3 singles to $2,500 grails. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Hands-Free Language Coach — voice-only language practice while you drive or walk</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hands-free-language-coach/"/>
-    <id>tag:marisstella.dev,2026:tool/hands-free-language-coach</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Learning &amp; practice"/>
-    <summary type="text">Learn a language by voice alone: the coach says a phrase, you say it back, it listens and scores you, and moves on. No tapping, no screen. Streaks, XP and spaced review like a language game, free in your browser, plus a skill for Claude and ChatGPT voice mode.</summary>
-  </entry>
-  <entry>
-    <title>Listen &amp; Learn Audio — bilingual audio stories for language learners, hands-free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/listen-and-learn-audio/"/>
-    <id>tag:marisstella.dev,2026:tool/listen-and-learn-audio</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Learning &amp; practice"/>
-    <summary type="text">Short graded stories read aloud in Spanish, French, German and Italian, each line followed by English. Press play and listen while you walk or commute. Free in your browser, plus an AI skill for Claude and ChatGPT voice mode that tells new stories and podcast-style episodes on any topic, at your level.</summary>
-  </entry>
-  <entry>
-    <title>Open Tennis Robots — open-source tennis ball machine with a catch net, and a ball pickup robot</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/open-tennis-robots/"/>
-    <id>tag:marisstella.dev,2026:tool/open-tennis-robots</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Open hardware &amp; robots"/>
-    <summary type="text">Build your own tennis ball machine that catches your returns with a moving net, and a robot that picks up tennis balls while you practise. Open-source hardware designs, firmware and software (MIT), plus a shot simulator you can try in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Tutoring Group Schedule Optimizer — which group sessions to run and who sits where</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tutoring-group-schedule-optimizer/"/>
-    <id>tag:marisstella.dev,2026:tool/tutoring-group-schedule-optimizer</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free group schedule optimizer for tutoring centres, music, swim and language schools. Paste your possible weekly sessions and student availability to get the most profitable timetable. Exact for up to 10 slots. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

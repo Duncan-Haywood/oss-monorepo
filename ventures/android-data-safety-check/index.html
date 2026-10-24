@@ -83,6 +83,7 @@
 </style>
 </head>
 <body>
+<main>
 <h1>Android Data Safety Checker</h1>
 <p>
   Scans your <code>AndroidManifest.xml</code> permissions and Gradle dependencies
@@ -297,6 +298,7 @@ Checking a release deadline instead? <a href="target-api-level.html">Play Store 
   <p>No. This is pattern-matching against known permission names and SDK dependency coordinates -- it cannot see what a permission is actually used for, dynamically loaded code, or a compiled third-party library's real behaviour, and Google can change its Data safety categories or a given SDK's practices at any time. Always confirm against Play Console's current Data safety form and each SDK's own privacy documentation before you submit.</p>
 </section>
 
+</main>
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This tool reports what pattern-matching found in the

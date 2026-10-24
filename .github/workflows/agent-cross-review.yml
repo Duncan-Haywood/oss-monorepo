@@ -82,12 +82,12 @@ jobs:
             echo "AGENT_REVIEWER_GH App secrets are not configured; skipping."
           fi
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - if: steps.app.outputs.configured == 'true'
@@ -125,12 +125,12 @@ jobs:
             echo "AGENT_REVIEWER_KILO App secrets are not configured; skipping."
           fi
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - if: steps.app.outputs.configured == 'true'
@@ -168,12 +168,12 @@ jobs:
             echo "AGENT_REVIEWER_CURSOR App secrets are not configured; skipping."
           fi
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - if: steps.app.outputs.configured == 'true'
@@ -211,12 +211,12 @@ jobs:
             echo "AGENT_REVIEWER_CLAUDE App secrets are not configured; skipping."
           fi
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
       - if: steps.app.outputs.configured == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - if: steps.app.outputs.configured == 'true'
