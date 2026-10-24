@@ -1,6 +1,7 @@
 ---
 title: "Two fixes for confidence intervals on rare LLM-coded categories, and why neither worked"
 date: 2026-10-24
+description: "Two attempts at better confidence intervals for rare LLM-coded categories under a weighted audit, and why neither worked."
 ---
 
 When an LLM codes text and a person hand-checks a sample, the audit sample gives a confidence interval for how common a category is. For rare categories (under 2% of comments) that interval often lies. In our GoEmotions test (38,234 comments, audit of 200, 1,000 repeats), the interval for an audit that samples by coder uncertainty covered the truth 85.6% of the time for disgust and 89.0% for sadness, against a nominal 95%.
