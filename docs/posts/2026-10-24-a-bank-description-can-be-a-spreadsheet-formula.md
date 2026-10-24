@@ -1,7 +1,7 @@
 ---
 title: "A bank description can be a spreadsheet formula"
 date: 2026-10-24
-description: "ai-bookkeeper's CSV exports copied bank text verbatim, so a description beginning with = + - or @ would run as a formula when opened in Excel or Sheets. Now it doesn't."
+description: "ai-bookkeeper's CSV exports copied bank text verbatim, so a description starting with = + - or @ could run as a formula in Excel or Sheets. Now it doesn't."
 tags: [ai-bookkeeper, security, csv, bookkeeping]
 ---
 

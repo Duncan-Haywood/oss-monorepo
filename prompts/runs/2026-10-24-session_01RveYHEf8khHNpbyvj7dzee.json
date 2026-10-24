@@ -42,7 +42,7 @@
     },
     {
       "file": "docs/posts/",
-      "issue": "Two posts on main (2026-10-24 chip-estimate, 2026-10-29 skipping-training-steps) had descriptions over 160 characters, which breaks the Pages build; shortened here."
+      "issue": "Five posts from other PRs reached main with descriptions over 160 characters or none at all (chip-estimate, skipping-training-steps, freight-line, bank-description-formula, label-free-audit), each breaking the Pages build for every open PR; fixed here in three rounds. Other sessions are merging while build is red: a pre-commit or merge-time check on post front matter would stop it."
     }
   ],
   "deviations": [],
