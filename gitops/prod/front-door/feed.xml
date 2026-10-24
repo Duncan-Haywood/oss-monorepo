@@ -12,7 +12,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-workroom/"/>
     <id>tag:marisstella.dev,2026:tool/agent-workroom</id>
     <updated>2026-10-24T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Walk around a 3D room where each AI coding agent has a desk and every task sits on the wall. Add and move tasks by voice or text, and pull progress from a GitHub repo&#39;s pull requests. Free, runs in your browser.</summary>
   </entry>
   <entry>

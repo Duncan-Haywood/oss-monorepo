@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-confest` (its "Next steps": a noisy-audit variant). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, both the label and the auditor are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-noisyaudit/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-noisyaudit/
 
 ## Motivation
 

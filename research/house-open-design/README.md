@@ -2,7 +2,7 @@
 
 Ninth milestone of track 12, open-source residential construction (`PROJECTS.md`). One command generates a plan set for a small accessory dwelling unit (a 24 x 20 ft, one-bedroom, 480 sq ft cottage): a floor plan and south elevation as SVG, a framing bill of materials as CSV, an IFC4 model, and a report with the lateral (wind and seismic) check, envelope energy and a cost index. It adds no new engineering. It composes the track's earlier models ([`house-plan`](../house-plan), [`house-spans`](../house-spans), [`house-framing`](../house-framing), [`house-structure`](../house-structure), [`house-energy`](../house-energy), [`house-cost`](../house-cost)) on one concrete design, to see whether they fit together and where they break. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-open-design/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-open-design/
 
 **Headline.** The 24 x 20 ft plan passes every layout rule and member check in the track's models and needs 2,614 board feet of framing (5.45 bf/sq ft). Its two south and north walls, with 6.5 ft of solid wall each between openings, carry 1,164 lb of wind per line at 6 in nailing under house-structure's assumed coefficients; a tighter envelope (advanced 2x6 wall with R-5 foam, R-49 attic, U-0.27 windows, 3 ACH50, R-30 floor) cuts modelled heating and cooling cost by 36% to 37% against a 2x4 / R-30 / U-0.35 / 5 ACH50 baseline in every climate tested ($72 to $158 a year, assumed prices). Everything rests on the sibling models' assumptions; this is a worked example, not a buildable design.
 

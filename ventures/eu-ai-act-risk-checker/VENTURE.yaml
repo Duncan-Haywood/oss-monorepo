@@ -42,5 +42,5 @@ kill_criteria:
   - A report that a tier, Article reference or date differs from the Regulation's text on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/eu-ai-act-risk-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/eu-ai-act-risk-checker/
   analytics: null

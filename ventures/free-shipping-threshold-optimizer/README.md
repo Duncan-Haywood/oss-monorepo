@@ -5,7 +5,7 @@ what every round threshold would earn against what you do today, the checkout dr
 one breaks even, and the threshold that loses least if your guesses are wrong. Browser page or
 zero-dependency CLI.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/free-shipping-threshold-optimizer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/free-shipping-threshold-optimizer/
 
 ```
 node cli.mjs analyze orders.csv

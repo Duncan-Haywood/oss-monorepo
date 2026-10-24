@@ -54,5 +54,5 @@ kill_criteria:
   - A user reports a credit that differs from their Form 8962 by more than rounding, at which point the table or interpolation needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/aca-subsidy-cliff-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/aca-subsidy-cliff-calculator/
   analytics: null

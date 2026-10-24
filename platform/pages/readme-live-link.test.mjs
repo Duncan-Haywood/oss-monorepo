@@ -18,6 +18,10 @@ test('leaves a README that already links alone', () => {
   const s = `# T\n\nSee ${BASE}foo/ now\n`;
   assert.equal(addLiveLink(s, 'foo'), s);
 });
+test('a link to the old /monorepo-projects/ path counts', () => {
+  const s = '# T\n\nSee https://duncan-haywood.github.io/monorepo-projects/foo/ now\n';
+  assert.equal(addLiveLink(s, 'foo'), s);
+});
 test('heading-only README', () => {
   assert.match(addLiveLink('# T\n', 'foo'), /\*\*Live tool:\*\* /);
 });

@@ -63,5 +63,5 @@ kill_criteria:
   - A user reports relying on the tool's figure instead of their carrier's quote or audit, despite the disclaimer -- at that point the wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/workers-comp-premium-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/workers-comp-premium-calculator/
   analytics: null

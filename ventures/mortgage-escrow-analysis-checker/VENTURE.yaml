@@ -80,5 +80,5 @@ kill_criteria:
   - A user reports a real statement whose figures the tool contradicts on a point of arithmetic, at which point the model (ordering, cushion handling) needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mortgage-escrow-analysis-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/mortgage-escrow-analysis-checker/
   analytics: null

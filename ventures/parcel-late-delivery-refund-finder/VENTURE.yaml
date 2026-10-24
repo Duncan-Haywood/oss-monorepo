@@ -83,5 +83,5 @@ kill_criteria:
   - A user reports a real carrier export the tool cannot read, or a materially wrong late call, at which point the column aliases and promise table need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/parcel-late-delivery-refund-finder/
+  production: https://duncan-haywood.github.io/oss-monorepo/parcel-late-delivery-refund-finder/
   analytics: null

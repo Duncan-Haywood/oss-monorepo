@@ -27,5 +27,5 @@ kill_criteria:
   - Fewer than three qualified small-importer users use the calculator twice within 90 days.
   - Users do not find the tariff-burden or per-unit figures materially different from what they would have priced off item cost alone.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/import-landed-cost-calculator/
   analytics: null

@@ -70,5 +70,5 @@ kill_criteria:
   - A user reports a materially wrong waste figure or a negative keyword suggestion that would have blocked a converting query from a real export, at which point the model needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/google-ads-wasted-spend-analyzer/
+  production: https://duncan-haywood.github.io/oss-monorepo/google-ads-wasted-spend-analyzer/
   analytics: null

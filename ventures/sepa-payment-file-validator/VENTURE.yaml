@@ -69,5 +69,5 @@ kill_criteria:
   - A user reports a bank rejecting a file this tool passed, or this tool failing a file a bank accepted, at which point the rules need revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/sepa-payment-file-validator/
+  production: https://duncan-haywood.github.io/oss-monorepo/sepa-payment-file-validator/
   analytics: null

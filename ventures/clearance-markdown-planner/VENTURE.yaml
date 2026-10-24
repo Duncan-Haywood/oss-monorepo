@@ -58,5 +58,5 @@ kill_criteria:
   - A user reports a plan that a brute-force search over the same inputs and assumptions beats.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/clearance-markdown-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/clearance-markdown-planner/
   analytics: null

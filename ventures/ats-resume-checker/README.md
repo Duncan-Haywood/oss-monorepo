@@ -8,7 +8,7 @@ corrupted text, missing standard section headings, buried or missing
 contact info, missing dates, and signs of a collapsed multi-column layout.
 Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ats-resume-checker/
 
 After using this, you can now **see exactly which formatting artifacts
 would break an ATS parser reading your resume, in one paste**, which used

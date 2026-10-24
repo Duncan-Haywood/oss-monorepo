@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-screen` listed one gap in its own limitations, that a fair "cheap-aware" random baseline (random among designs not dominated on the free objectives) was not run, so its +0.130 lead over random was only split by an ablation. Here that baseline is run on the same 80-design accelerator table and the same 100 seeds. Produced with AI assistance (Claude). **Stylised and preliminary:** one 80-design space from one toy accelerator, generic-gate cell counts, no place and route, and a screen that interpolates inside one family.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-cheapaware/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-cheapaware/
 
 ## Result
 A random search that gets the same free objectives (cycles, held-out error) as the screen but has no cell-count model reaches 0.901 of the true front's hypervolume at 12 syntheses (95% bootstrap interval 0.901 to 0.901; 100 seeds), against 0.860 for plain random, 0.878 for TPE and 0.990 for the screen with 4 fitting syntheses. So of the screen's +0.130 over random at 12, using the free objectives alone is worth +0.041 (cheap-aware random better than random on 74% of paired seeds), and the cell-count surrogate is worth the other +0.089.

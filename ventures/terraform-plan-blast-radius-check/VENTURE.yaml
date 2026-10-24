@@ -164,5 +164,5 @@ kill_criteria:
   - The stateful-type heuristic is reported wrong (a missed data-holding type, or a false positive nobody can dismiss) by two separate users without a fix landing -- a blast-radius report people do not trust is worse than none, because it displaces the careful read it was supposed to replace.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/terraform-plan-blast-radius-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/terraform-plan-blast-radius-check/
   analytics: null

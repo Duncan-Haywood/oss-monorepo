@@ -961,11 +961,17 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // Open hours are sums of shift lengths, so when those share a grid (hours, halves, quarters) the floor rounds up to it.
   const incHours = Math.floor(incumbent / BIG + 1e-9);
   let banned = null, bannedCount = 0; // (person, shift) pairs ruled out by reduced-cost fixing
+  let dualBranchStats = null;
   let scoreDual = -Infinity; // whole-score floor from pricing shifts (see priceScoreBound)
   if (incHours > 0 && o.pricingFloor !== false) {
     const pf = priceOpenFloor(ctx, { incumbentOpen: incHours, incumbentScore: o.scoreDual === false ? null : incumbent, cutoff: o.reducedCostFixing === false ? null : incumbent - tolerance - 1e-9 });
     if (pf) {
       if (pf.scoreBound != null) scoreDual = pf.scoreBound;
+      if (pf.dual && o.dualBranch !== false && scoreDual < incumbent - tolerance - 1e-9) {
+        const db = branchDual(ctx, pf.dual, scoreDual, incumbent, incumbent - tolerance - 1e-9, { maxNodes: o.dualBranchNodes, ms: o.dualBranchMs });
+        dualBranchStats = db.stats;
+        if (db.bound > scoreDual) scoreDual = db.bound;
+      }
       if (pf.banned) { banned = pf.banned; bannedCount = pf.banCount; }
       const unit = [1, 0.5, 0.25].find((u) => len.every((h) => Math.abs(h / u - Math.round(h / u)) < 1e-9)); // open hours come in whole shifts
       minOpenH = unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6);
@@ -1035,6 +1041,13 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
 export function openFloorByPricing(staff, slots, options = {}, cfg = {}) {
   return priceOpenFloor(buildContext(staff, slots, options), cfg);
 }
+// Test and bench hook: the priced bound after branch and bound on contested shifts (see branchDual). cutoff defaults to never reached.
+export function branchedScoreBound(staff, slots, options = {}, { incumbentScore, cutoff = Infinity, maxNodes = 40, ms = 8000 } = {}) {
+  const ctx = buildContext(staff, slots, options);
+  const pf = priceOpenFloor(ctx, { incumbentOpen: 0, incumbentScore, cutoff: incumbentScore });
+  if (!pf?.dual) return null;
+  return { root: pf.scoreBound, ...branchDual(ctx, pf.dual, pf.scoreBound, incumbentScore, cutoff, { maxNodes, ms }) };
+}
 function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = null, incumbentScore = null, scoreRounds = 300, cutoff = null } = {}) {
   const { P, S, elig, slots } = ctx;
   const len = slots.map((s) => (s.end - s.start) / 60);
@@ -1090,9 +1103,44 @@ function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = nu
   if (incumbentScore != null) {
     const sb = priceScoreBound(ctx, sets, len, bestLam, incumbentScore, scoreRounds, cutoff);
     if (cutoff == null) out.scoreBound = sb;
-    else { out.scoreBound = sb.bound; out.banned = sb.banned; out.banCount = sb.count; }
+    else { out.scoreBound = sb.bound; out.banned = sb.banned; out.banCount = sb.count; out.dual = { sets, vals: sb.vals, len, lam: sb.lam }; }
   }
   return out;
+}
+// Subgradient loop behind priceScoreBound. `fixed[i]` (when given) marks shifts a branch has already decided (held by a named person
+// or left open); their price is pinned at 0 and `constant` carries any open cost already paid, so the bound is for the sub-problem.
+function scoreDualCore(P, S, sets, vals, cap, fixed, constant, lam0, incumbent, rounds) {
+  const lam = lam0.slice();
+  let best = -Infinity, theta = 1, stale = 0, bestLam = lam.slice();
+  for (let r = 0; r < rounds; r++) {
+    let L = constant;
+    const gr = new Float64Array(S);
+    for (let i = 0; i < S; i++) {
+      if (fixed && fixed[i] !== -2) { lam[i] = 0; continue; }
+      L += lam[i];
+      gr[i] = 1;
+      if (lam[i] >= cap[i] - 1e-9) { L += cap[i] - lam[i]; gr[i] = 0; } // priced at its open cost: staying open is the cheaper side
+    }
+    for (let p = 0; p < P; p++) {
+      let bestV = Infinity, bestK = -1;
+      const fs = sets[p], vp = vals[p];
+      for (let k = 0; k < fs.length; k++) {
+        let v = vp[k];
+        for (const i of fs[k]) v -= lam[i];
+        if (v < bestV) { bestV = v; bestK = k; }
+      }
+      if (bestK < 0) return { best: Infinity, bestLam: lam.slice(), gr }; // a person with no valid set: this branch is infeasible
+      L += bestV;
+      for (const i of fs[bestK]) if (!fixed || fixed[i] === -2) gr[i]--;
+    }
+    if (L > best + 1e-9) { best = L; stale = 0; bestLam = lam.slice(); } else if (++stale >= 8) { theta *= 0.6; stale = 0; }
+    let norm = 0;
+    for (let i = 0; i < S; i++) norm += gr[i] * gr[i];
+    if (norm === 0) break;
+    const step = (theta * Math.max(incumbent - L, 1)) / norm;
+    for (let i = 0; i < S; i++) if (!fixed || fixed[i] === -2) lam[i] = Math.min(cap[i], lam[i] + step * gr[i]);
+  }
+  return { best, bestLam };
 }
 // Lagrangian lower bound on the whole score (pay, penalties and BIG per open hour), not only the open hours. Each shift is held by
 // one person or stays open at BIG x its hours; pricing shift i at lam[i] splits that into independent pieces: each person's best set
@@ -1102,34 +1150,7 @@ function priceScoreBound(ctx, sets, len, lam0, incumbent, rounds, cutoff = null)
   const { P, S } = ctx;
   const vals = sets.map((fs, p) => Float64Array.from(fs, (f) => personScore(ctx, p, f)));
   const cap = len.map((h) => BIG * h);
-  const lam = Float64Array.from(lam0, (x, i) => Math.min(cap[i], x * BIG));
-  let best = -Infinity, theta = 1, stale = 0, bestLam = lam.slice();
-  for (let r = 0; r < rounds; r++) {
-    let L = 0;
-    const gr = new Float64Array(S);
-    for (let i = 0; i < S; i++) {
-      L += lam[i];
-      gr[i] = 1;
-      if (lam[i] >= cap[i] - 1e-9) { L += cap[i] - lam[i]; gr[i] = 0; } // priced at its open cost: staying open is the cheaper side
-    }
-    for (let p = 0; p < P; p++) {
-      let bestV = Infinity, bestK = 0;
-      const fs = sets[p], vp = vals[p];
-      for (let k = 0; k < fs.length; k++) {
-        let v = vp[k];
-        for (const i of fs[k]) v -= lam[i];
-        if (v < bestV) { bestV = v; bestK = k; }
-      }
-      L += bestV;
-      for (const i of fs[bestK]) gr[i]--;
-    }
-    if (L > best + 1e-9) { best = L; stale = 0; bestLam = lam.slice(); } else if (++stale >= 8) { theta *= 0.6; stale = 0; }
-    let norm = 0;
-    for (let i = 0; i < S; i++) norm += gr[i] * gr[i];
-    if (norm === 0) break;
-    const step = (theta * Math.max(incumbent - L, 1)) / norm;
-    for (let i = 0; i < S; i++) lam[i] = Math.min(cap[i], lam[i] + step * gr[i]);
-  }
+  const { best, bestLam } = scoreDualCore(P, S, sets, vals, cap, null, 0, Float64Array.from(lam0, (x, i) => Math.min(cap[i], x * BIG)), incumbent, rounds);
   if (cutoff == null) return best;
   // Reduced-cost fixing: at the best prices, a roster that makes person p hold shift i scores at least best - bestV_p + (p's best set
   // holding i). When that already reaches the cutoff, nobody can beat the incumbent that way, so (p, i) is banned from the search.
@@ -1149,7 +1170,73 @@ function priceScoreBound(ctx, sets, len, lam0, incumbent, rounds, cutoff = null)
     for (let k = 0; k < fs.length; k++) for (const i of fs[k]) if (w[k] < inV[i]) inV[i] = w[k];
     for (let i = 0; i < S; i++) if (best - bestV + inV[i] >= cutoff) { banned[p][i] = 1; count++; }
   }
-  return { bound: best, banned, count };
+  return { bound: best, banned, count, lam: bestLam, vals };
+}
+
+// Branch and bound on the priced bound itself. The root price leaves a gap because shifts several people want are split in the
+// relaxation; fixing one such shift (to each person who could hold it, or to staying open) and re-pricing the pieces closes part of it,
+// and when every piece reaches the cutoff no roster can beat the incumbent. Returns a valid whole-score lower bound (never above the
+// optimum) and how much work it did. Stops at the node or time limit with the lowest bound still open.
+function branchDual(ctx, dual, rootBound, incumbent, cutoff, { maxNodes = 40, ms = 8000, rounds = 120 } = {}) {
+  const { P, S } = ctx;
+  const cap = dual.len.map((h) => BIG * h);
+  const t0 = Date.now();
+  const stats = { evaluated: 0, expanded: 0, ms: 0 };
+  const holders = (nd) => {
+    const cnt = new Int32Array(S);
+    for (let p = 0; p < P; p++) {
+      let bestV = Infinity, bestK = -1;
+      const fs = nd.sets[p], vp = nd.vals[p];
+      for (let k = 0; k < fs.length; k++) {
+        let v = vp[k];
+        for (const i of fs[k]) v -= nd.lam[i];
+        if (v < bestV) { bestV = v; bestK = k; }
+      }
+      if (bestK >= 0) for (const i of fs[bestK]) cnt[i]++;
+    }
+    return cnt;
+  };
+  const evaluate = (nd) => {
+    stats.evaluated++;
+    const r = scoreDualCore(P, S, nd.sets, nd.vals, cap, nd.fixed, nd.constant, nd.lam, incumbent, rounds);
+    nd.bound = r.best; nd.lam = r.bestLam;
+    return nd;
+  };
+  const child = (nd, i, q) => {
+    const sets = [], vals = [];
+    for (let p = 0; p < P; p++) {
+      const keep = [];
+      nd.sets[p].forEach((f, k) => { if (f.includes(i) === (p === q)) keep.push(k); });
+      sets.push(keep.map((k) => nd.sets[p][k]));
+      vals.push(Float64Array.from(keep, (k) => nd.vals[p][k]));
+    }
+    const fixed = nd.fixed.slice(); fixed[i] = q;
+    return evaluate({ sets, vals, fixed, constant: nd.constant + (q < 0 ? cap[i] : 0), lam: nd.lam, bound: -Infinity });
+  };
+  const root = { sets: dual.sets, vals: dual.vals, fixed: new Array(S).fill(-2), constant: 0, lam: Float64Array.from(dual.lam), bound: rootBound };
+  const open = [root];
+  let floor = Infinity; // lowest bound among pieces already cut off at the cutoff
+  const finish = () => { stats.ms = Date.now() - t0; return { bound: Math.min(floor, ...open.map((n) => n.bound), incumbent), stats }; };
+  while (open.length && stats.expanded < maxNodes && Date.now() - t0 < ms) {
+    open.sort((a, b) => a.bound - b.bound);
+    const nd = open[0];
+    if (nd.bound >= cutoff) break;
+    const cnt = holders(nd);
+    let pick = -1;
+    for (let i = 0; i < S; i++) if (cnt[i] > 1 && (pick < 0 || cnt[i] > cnt[pick] || (cnt[i] === cnt[pick] && cap[i] > cap[pick]))) pick = i;
+    if (pick < 0) break; // the priced solution is a roster: this piece's bound is its optimum and cannot be raised
+    open.shift();
+    stats.expanded++;
+    const holdersOf = [];
+    for (let p = 0; p < P; p++) if (nd.sets[p].some((f) => f.includes(pick))) holdersOf.push(p);
+    for (const q of [-1, ...holdersOf]) {
+      const c = child(nd, pick, q);
+      if (c.bound >= cutoff) floor = Math.min(floor, c.bound);
+      else if (c.bound < Infinity) open.push(c);
+    }
+  }
+  if (!open.length) return { bound: Math.max(Math.min(floor, incumbent), 0), stats: { ...stats, ms: Date.now() - t0 } };
+  return finish();
 }
 
 // What a manager gets filling shifts in time order with the first valid person in the list.

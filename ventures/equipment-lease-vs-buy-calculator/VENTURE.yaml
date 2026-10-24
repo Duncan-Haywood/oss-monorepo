@@ -53,5 +53,5 @@ kill_criteria:
   - A user reports relying on the result instead of their accountant's advice, despite the disclaimer -- at that point the wording needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/equipment-lease-vs-buy-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/equipment-lease-vs-buy-calculator/
   analytics: null

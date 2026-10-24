@@ -473,7 +473,7 @@ def next_task(v: Venture) -> str:
         return "Review: monthly_cost exceeds mrr -- check against kill_criteria."
     return (
         "Continue: if this venture has no public URL, deploy the built surface "
-        "(see portfolio/DIRECTION.md Current priority); otherwise advance the "
+        "(see portfolio/hosting/README.md); otherwise advance the "
         "next documented roadmap task."
     )
 

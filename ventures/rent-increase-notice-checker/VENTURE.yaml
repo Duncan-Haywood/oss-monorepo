@@ -61,5 +61,5 @@ kill_criteria:
   - A user reports a cap or notice period that is wrong for a normal unit, at which point the rules table needs revisiting before the next round.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/rent-increase-notice-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/rent-increase-notice-checker/
   analytics: null

@@ -2,7 +2,7 @@
 
 Second project of track 16, energy supply and dense energy storage (`PROJECTS.md`, milestone 2). `energy-density` computed what each storage technology could hold at the very most. This project sets published practical figures beside those ceilings, so the gap is a number with a source and a date. It is a small, honest dataset, not a survey: **only figures read during this run are included**, each marked *primary* (read in the data sheet or agency record) or *secondary* (read on a page that cites a source this run did not open). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-practical/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-practical/
 
 **Headline.** Practical products hold **a fifth to two thirds of the reactant-mass ceiling** for batteries, and a hydrogen tank system is far further from its ceiling. A Panasonic NCR18650B cell (data sheet) stores 243 Wh/kg, 0.64 of the 380 Wh/kg that graphite/LiCoO<sub>2</sub> reactants could release. Commercial LiFePO<sub>4</sub> cells (95 to 172 Wh/kg) reach 0.25 to 0.45 of 385, and lead-acid batteries (35 to 40 Wh/kg) 0.21 to 0.24 of 170. For hydrogen at 700 bar, the US DOE's 2023 projected status for a 5.6 kg system, 1.71 kWh/kg, means **hydrogen is 5.1% of the system's mass (109 kg total)**, against 23.8% to 41.3% for an ideal carbon-fibre sphere: 0.12 to 0.22 of the ceiling. The mass gap comes mostly from what a ceiling leaves out (inactive mass, packaging, safety margin). Round-trip efficiency, a separate cost of real storage, runs from 50% (compressed air) to 85% (advanced lead-acid) in the PNNL table used here.
 

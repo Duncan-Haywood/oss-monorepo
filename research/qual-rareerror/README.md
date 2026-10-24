@@ -2,7 +2,7 @@
 
 **Yes, in this test. On 3,188 real Reddit comments (GoEmotions), injecting extra coder errors into the rare group (the longest 10.8% of comments) barely moved the best audit split: the oracle share of the audit for the rare group stayed at 0.53 to 0.56, and an audit with equal numbers per group gave a 95% interval for the group gap within 0.7% of the optimal split at every injected error rate (200 items: 0.333 against 0.331 with no injection; 0.346 against 0.344 at the highest). A random audit stayed 1.66 to 1.69 times as wide as equal numbers.** The coders are naive-Bayes classifiers with a moved cut-off, not LLMs. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-rareerror/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-rareerror/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). It takes the first "Next steps" item of [`qual-stratified`](../qual-stratified): a coder that errs more in the rare group. No lab tag: this builds on none of the listed groups.
 

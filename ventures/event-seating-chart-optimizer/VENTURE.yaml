@@ -57,5 +57,5 @@ kill_criteria:
   - A user reports a plan that seats a guest twice, exceeds a table's capacity or ignores a pinned table.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/event-seating-chart-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/event-seating-chart-optimizer/
   analytics: null

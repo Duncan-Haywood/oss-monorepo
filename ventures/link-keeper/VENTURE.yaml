@@ -60,5 +60,5 @@ kill_criteria:
   - A user reports a redirect to the wrong destination, a link that counted clicks past its limit, or a stored address; the redirect and privacy paths come before any new feature.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/link-keeper/
+  production: https://duncan-haywood.github.io/oss-monorepo/link-keeper/
   analytics: null

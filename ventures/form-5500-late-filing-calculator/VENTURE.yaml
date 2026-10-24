@@ -66,5 +66,5 @@ kill_criteria:
   - A plan adviser reports a penalty figure or the due-date rule on the page is wrong and it is not corrected within 14 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/form-5500-late-filing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/form-5500-late-filing-calculator/
   analytics: null

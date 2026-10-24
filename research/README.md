@@ -6,37 +6,38 @@ Moved here from the former `oss-research-monorepo` repository with its history. 
 <!-- topics:start -->
 ## Browse by topic
 
-**Read it all at [https://duncan-haywood.github.io/monorepo-projects/research/](https://duncan-haywood.github.io/monorepo-projects/research/).** Each topic page lists its projects with a summary:
+**Read it all at [https://duncan-haywood.github.io/oss-monorepo/research/](https://duncan-haywood.github.io/oss-monorepo/research/).** Each topic page lists its projects with a summary:
 
-- [Proper scoring & elicitation](https://duncan-haywood.github.io/monorepo-projects/research/topics/scoring/)
-- [Effort & peer prediction](https://duncan-haywood.github.io/monorepo-projects/research/topics/effort/)
-- [Verification games & slashing](https://duncan-haywood.github.io/monorepo-projects/research/topics/games/)
-- [Detection & tolerances](https://duncan-haywood.github.io/monorepo-projects/research/topics/detection/)
-- [Markets as routers](https://duncan-haywood.github.io/monorepo-projects/research/topics/routing/)
-- [Prediction-market design](https://duncan-haywood.github.io/monorepo-projects/research/topics/markets/)
-- [Paying contributors](https://duncan-haywood.github.io/monorepo-projects/research/topics/contributions/)
-- [Decentralised training systems](https://duncan-haywood.github.io/monorepo-projects/research/topics/systems/)
-- [Digital twins & sim-to-real](https://duncan-haywood.github.io/monorepo-projects/research/topics/twins/)
-- [LLM chip design loops](https://duncan-haywood.github.io/monorepo-projects/research/topics/chip/)
-- [Robot manufacturing loops](https://duncan-haywood.github.io/monorepo-projects/research/topics/robofab/)
-- [Ambient AI assistant](https://duncan-haywood.github.io/monorepo-projects/research/topics/ambient/)
-- [Self-replicating manufacturing](https://duncan-haywood.github.io/monorepo-projects/research/topics/selfrep/)
-- [Simulation-first design](https://duncan-haywood.github.io/monorepo-projects/research/topics/simdesign/)
-- [Engineered clothing](https://duncan-haywood.github.io/monorepo-projects/research/topics/garment/)
-- [Task-specific AI accelerators](https://duncan-haywood.github.io/monorepo-projects/research/topics/accel/)
-- [Algorithmic chip-design loops](https://duncan-haywood.github.io/monorepo-projects/research/topics/eda/)
-- [Open-source purpose-built robots](https://duncan-haywood.github.io/monorepo-projects/research/topics/osrobot/)
-- [The software-engineering loop](https://duncan-haywood.github.io/monorepo-projects/research/topics/swe/)
-- [Adversarial human imitation](https://duncan-haywood.github.io/monorepo-projects/research/topics/mimic/)
-- [Open-source residential construction](https://duncan-haywood.github.io/monorepo-projects/research/topics/house/)
-- [Autonomous multi-angle capture](https://duncan-haywood.github.io/monorepo-projects/research/topics/capture/)
-- [Sensing, imaging and 3D](https://duncan-haywood.github.io/monorepo-projects/research/topics/sensing/)
-- [Energy supply and dense energy storage](https://duncan-haywood.github.io/monorepo-projects/research/topics/energy/)
-- [Robot societies among people](https://duncan-haywood.github.io/monorepo-projects/research/topics/society/)
-- [Agentic co-design of low-cost robots](https://duncan-haywood.github.io/monorepo-projects/research/topics/codesign/)
-- [Laundry-hanging robots](https://duncan-haywood.github.io/monorepo-projects/research/topics/hanger/)
-- [Machine learning on qualitative data](https://duncan-haywood.github.io/monorepo-projects/research/topics/qual/)
-- [Robots on the building site](https://duncan-haywood.github.io/monorepo-projects/research/topics/buildbot/)
+- [Proper scoring & elicitation](https://duncan-haywood.github.io/oss-monorepo/research/topics/scoring/)
+- [Effort & peer prediction](https://duncan-haywood.github.io/oss-monorepo/research/topics/effort/)
+- [Verification games & slashing](https://duncan-haywood.github.io/oss-monorepo/research/topics/games/)
+- [Detection & tolerances](https://duncan-haywood.github.io/oss-monorepo/research/topics/detection/)
+- [Markets as routers](https://duncan-haywood.github.io/oss-monorepo/research/topics/routing/)
+- [Prediction-market design](https://duncan-haywood.github.io/oss-monorepo/research/topics/markets/)
+- [Paying contributors](https://duncan-haywood.github.io/oss-monorepo/research/topics/contributions/)
+- [Decentralised training systems](https://duncan-haywood.github.io/oss-monorepo/research/topics/systems/)
+- [Digital twins & sim-to-real](https://duncan-haywood.github.io/oss-monorepo/research/topics/twins/)
+- [LLM chip design loops](https://duncan-haywood.github.io/oss-monorepo/research/topics/chip/)
+- [Robot manufacturing loops](https://duncan-haywood.github.io/oss-monorepo/research/topics/robofab/)
+- [Ambient AI assistant](https://duncan-haywood.github.io/oss-monorepo/research/topics/ambient/)
+- [Self-replicating manufacturing](https://duncan-haywood.github.io/oss-monorepo/research/topics/selfrep/)
+- [Simulation-first design](https://duncan-haywood.github.io/oss-monorepo/research/topics/simdesign/)
+- [Engineered clothing](https://duncan-haywood.github.io/oss-monorepo/research/topics/garment/)
+- [Task-specific AI accelerators](https://duncan-haywood.github.io/oss-monorepo/research/topics/accel/)
+- [Algorithmic chip-design loops](https://duncan-haywood.github.io/oss-monorepo/research/topics/eda/)
+- [Open-source purpose-built robots](https://duncan-haywood.github.io/oss-monorepo/research/topics/osrobot/)
+- [The software-engineering loop](https://duncan-haywood.github.io/oss-monorepo/research/topics/swe/)
+- [Adversarial human imitation](https://duncan-haywood.github.io/oss-monorepo/research/topics/mimic/)
+- [Open-source residential construction](https://duncan-haywood.github.io/oss-monorepo/research/topics/house/)
+- [Autonomous multi-angle capture](https://duncan-haywood.github.io/oss-monorepo/research/topics/capture/)
+- [Sensing, imaging and 3D](https://duncan-haywood.github.io/oss-monorepo/research/topics/sensing/)
+- [Energy supply and dense energy storage](https://duncan-haywood.github.io/oss-monorepo/research/topics/energy/)
+- [Robot societies among people](https://duncan-haywood.github.io/oss-monorepo/research/topics/society/)
+- [Agentic co-design of low-cost robots](https://duncan-haywood.github.io/oss-monorepo/research/topics/codesign/)
+- [Laundry-hanging robots](https://duncan-haywood.github.io/oss-monorepo/research/topics/hanger/)
+- [Machine learning on qualitative data](https://duncan-haywood.github.io/oss-monorepo/research/topics/qual/)
+- [Robots on the building site](https://duncan-haywood.github.io/oss-monorepo/research/topics/buildbot/)
+- [Civilizations & group psychology](https://duncan-haywood.github.io/oss-monorepo/research/topics/civ/)
 
 <!-- Generated by platform/ci/research_live_links.py --write from _homepage/projects.json. -->
 <!-- topics:end -->
@@ -883,6 +884,7 @@ Moved here from the former `oss-research-monorepo` repository with its history. 
 - [`research/buildbot-holdpose`](buildbot-holdpose) — does a searched arm and waist posture let a G1 hold a stud longer? In MuJoCo the stud's peak joint fraction falls from 0.91 (default) to 0.76 with the centre of pressure on the sole point and to 0.49 (best of three noisy seeds) 3 cm inside the toe edge, enough to make a stud sustainable at a continuous rating of 0.5 of peak; a 2x6 goes 0.93 to 0.68 and sheets stay above peak.
 - [`research/buildbot-mjsheet`](buildbot-mjsheet) — does the hand-written flexing-sheet plant of buildbot-skills agree with MuJoCo? Pass/fail labels agree on 99.8% of 2600 episodes across 13 policies, so the sim-to-sim transfer failure (0-11% vs 81% where tuned) is not an artefact of my equations.
 - [`research/buildbot-mobilebase`](buildbot-mobilebase) — does a G1 on a drive-and-lift base nail a 4x8 sheet faster than a walking G1? Yes in 22 of 24 speed settings: 54-121 s a sheet (13 stances, 12 moves of 5-63 s) against 85-119 s walking and 372 s by hand, and it matches a 61 s gantry only with a fast tip, 0.5 m/s drive and 0.2 m/s lift (speeds swept, not a chosen machine; reach unchanged from static statics).
+- [`research/buildbot-nailpay`](buildbot-nailpay) — how slow must a person be at nailing a sheet of sheathing for a Unitree G1 nailing it to pay? A walking G1 (85 s a sheet) pays above 35 s of person time at 0.3 supervision, a base-mounted one above 26 to 76 s; about $110 a house, and the person's time per sheet is the unsourced unknown.
 - [`research/buildbot-nailseq`](buildbot-nailseq) — does a nailer's recoil slow a G1 down when it fires a whole 62-nail sheet in sequence? Not by much: the arm is settled and back on the wall within 0.31 s at 4 N s of recoil, shorter than the 0.16 s moves only for a fast tip, so a sheet loses 0 s (2.3-2.5 s at 10 m/s2 and 4 N s) and the clean-sheet probability does not move; the stud finder still sets the budget (recoil, loop, tip speed and wall are swept, not sourced).
 - [`research/buildbot-payload`](buildbot-payload) — can a stock humanoid carry building materials? MuJoCo static payload envelopes of the Unitree G1 (median 4.5 kg, waist-limited; matches Unitree's 2–3 kg rating) and H1 (median 14.2 kg, elbow-limited): the G1 can carry a 2x4 but not a 2x6, the H1 can take one end of an OSB or drywall sheet with a person and set a lightweight block, but not a whole sheet, a normal-weight block or a 60 lb bag, and neither reaches an 8 ft ceiling.
 - [`research/buildbot-recoil`](buildbot-recoil) — does a framing nailer's recoil knock a stock Unitree G1 arm off the stud window? In a closed-loop MuJoCo hold, up to 4 N s of recoil moves the tip 1-4 mm (window +-3.9 mm) but 1 N s or more lifts the nosepiece off the wall for 25-140 ms; stiff loops go unstable with 10-20 ms delay (recoil, delay and wall are swept, not sourced).
@@ -893,6 +895,7 @@ Moved here from the former `oss-research-monorepo` repository with its history. 
 - [`research/buildbot-stance`](buildbot-stance) — how many times must a G1 humanoid re-stand to nail one 4x8 sheet? About 13 stances at 5 platform heights: with its feet planted it holds a 3.4 kg nailer at 50 N only 0.7-1.5 m high and 0.3 m sideways, so one stance covers at best 6 of 62 nails, and the sheet matches hand nailing (372 s) only if each re-stance takes under 26-29 s (push to seat and re-stance time are swept, not sourced; no walking simulated).
 - [`research/buildbot-studfind`](buildbot-studfind) — how well must a nailing robot find the studs? A 4x8 sheet needs a single stud reading good to 0.89 mm (1 sigma) for 95% clean sheets; a stud finder's 'within 1/8 in' claim gives 28% (8 of 62 nails missed) or 69%; averaging reads and pooling a straight wall help, re-measuring each nail is worst.
 - [`research/buildbot-taskbook`](buildbot-taskbook) — which house-building tasks hold the crew hours, and which can a stock humanoid hold the load for? An open task book of a 28x40 ft wood-frame house: 20 tasks with cycles, masses, tolerances and crew-hours, scored against the simulated Unitree G1 and H1 payload envelopes; fastening is 31% of the hours, and the H1 passes the payload test for 53-81% of them (minutes per unit are assumptions, swept).
+- [`research/buildbot-torquewall`](buildbot-torquewall) — which joint's torque limit caps a stock humanoid's carrying? For the G1 it is the waist pitch: doubling it alone takes the heaviest feasible payload from 4 to 6 kg; the H1 has no single bottleneck.
 - [`research/capture-aliaswin`](capture-aliaswin) — does a longer window or a delay prior fix GCC sync's aliasing on real clips? Window length (shared audio) is the lever: 97% wrong at 1 s, 38% at 2 s, 16% at 3 s on the failing clips; a tone clip needs a prior tighter than its period.
 - [`research/capture-audiosync`](capture-audiosync) — how long a window of sound syncs two drifting cameras? GCC-PHAT plus a robust line fit syncs to under 0.02 ms over an hour from -10 dB SNR with 2 s windows; a sync made once at the start drifts one frame in 833 s at 40 ppm.
 - [`research/capture-detectors`](capture-detectors) — how small can a face be before a real detector misses it? YuNet found every face of 16 px or wider and half at 10 px (assumed: 20), cutting the modelled blur leak on an 8K 360 camera from 4.8% to 0.01%; YOLOX finds half of people at 23 px tall. A pilot on 22 easy faces in 128 COCO photos: an optimistic bound.
@@ -916,6 +919,7 @@ Moved here from the former `oss-research-monorepo` repository with its history. 
 - [`research/chip-digits`](chip-digits) — weight and activation bit-width sweep of a 64-16-10 quantised MLP on the scikit-learn digits data (5 splits), with the MAC lane's gate count from Yosys and its RTL checked against NumPy: 4-bit weights and activations lose about 2 points of accuracy, 5 and 5 about 0.5, below 3 bits it collapses.
 - [`research/chip-digits-pot`](chip-digits-pot) — Giving each neuron of the digits MLP its own power-of-two weight scale turns the per-channel rescale into one or two shift stages and keeps the lane integer-exact: at W2A4 the MSE-chosen exponents reach 70.5% (against 62% for per-tensor clipping), but at W3A4 they give 87.9%, below clipping's 90.8%.
 - [`research/chip-digits-qat`](chip-digits-qat) — MSE-optimal weight clipping lifts the 3-bit-weight digits MLP from 81% to 91% test accuracy at the same MAC-lane hardware and integer-exact; per-channel scales and QAT help at 4 bits (95.7% at W4A4, within 1.1 points of float) but QAT fails at 2 bits.
+- [`research/civ-levers`](civ-levers) — which interventions bring a polarized society back together? In an opinion-dynamics model with backfire swept from none to strong, bridging ties across camps never merges them and at a rejection threshold of 0.7 rewiring 10% of ties drives everyone to the extremes, while a ladder of committed voices within reach merges them in 24 of 25 settings (moderate broadcast 19, nudge 14, tolerance 8, bridging 2); interactive simulator included (tolerance and backfire are swept, not measured).
 - [`research/codesign-aero-cant`](codesign-aero-cant) — does a rotor cant angle, co-designed with arm length and propeller size, beat the yaw limit that control-law changes could not move? In simulation yes: joint co-design with free cant (chosen at the 35° bound in 5 of 5 seeds) cuts held-out attitude error from 15.22° to 12.32°, at equal evaluations.
 - [`research/codesign-aero-cant-bound`](codesign-aero-cant-bound) — does more rotor tilt keep helping once the 35° cap of codesign-aero-cant is lifted? In simulation no: with the bound at 35°, 50°, 65° and 80° the joint co-design reaches 12.3° held-out attitude error and picks 34–40° each time, so the optimum is interior and flat; an assumed tilt efficiency loss changes it by 0.1°.
 - [`research/codesign-aero-cant-kappa`](codesign-aero-cant-kappa) — does the interior cant optimum survive a reaction torque that grows with propeller diameter (κ = c·D) instead of a fixed 0.016 m? In simulation yes: for c = 0.06, 0.126 and 0.25 the joint co-design reaches 12.5°, 12.3° and 11.8° held-out attitude error with the bound at 80°, picks 33–41° each time, and cant still beats no cant in 5 of 5 seeds; the gain is largest (−4.8°) for the weakest reaction torque.
@@ -1064,6 +1068,7 @@ Moved here from the former `oss-research-monorepo` repository with its history. 
 - [`research/sensing-mixgate`](sensing-mixgate) — feeding sensing-matchreal's measured SIFT mismatch mixes into the sensing-epigate trial, gate plus Cauchy beats a RANSAC start at ratio tests of 0.8 and tighter (0.0078 against 0.0207 object radii at 0.8) and loses only at a loose 0.9 ratio test, where all methods exceed 0.08; synthetic geometry, 6 seeds
 - [`research/sensing-nees`](sensing-nees) — with a 1/f accelerometer bias, a filter with no bias state claims 2.9 m after a 300 s GNSS outage when the RMS is 151 m (NEES/dof 514 to 2,000 at 100 ug); a random walk read off the Allan curve at 1 s or 10 s claims 2.4 to 3.7 times the true error, and at 100 s close to honest (0.9 to 1.6). Synthetic bias, swept instability
 - [`research/sensing-viomarg`](sensing-viomarg) — a Schur-complement prior in the sensing-vio planar smoother cuts rms drift on 30 s paths from 12.3 % to 2.5 % of path (8 seeds, baseline IMU), and IMU grade then orders the results (0.25x noise 2.1 %, 1x 2.5 %, 4x 6.5 %), unlike with the pinned prior; planar and synthetic, not EuRoC
+- [`research/sim2real-inference`](sim2real-inference) — research programme (proposal stage): valid, bias-agnostic sim-to-real evaluation of robot policies, consolidating about 130 twin projects into one question, with 13 checked references, hypotheses H1 to H6 and CoRL as the target venue
 - [`research/society-allies`](society-allies) — On a ring where people meet partners within 2 sites (memory 9), evenly spread robots at 12% tip every crowd but blocks of 3 or more tip none; at 20% blocks up to 3 still tip, and the largest tipping block grows with the neighbourhood (2 at k = 1 or 2, 4 at k = 3 or 5, 8 at k = 10).
 - [`research/society-allyfade`](society-allyfade) — how fast can a bloc on the robots' side dissolve? With 20% allies converting at rate c per round, the least grid robot share that tips half of 12 crowds rises from 0.02 (no fading) to 0.05, 0.10, 0.10, 0.15 and 0.20 at c = 0.001 to 0.1; tips form in about 50 rounds and persist once allies are gone. Stylised
 - [`research/society-allyrecent`](society-allyrecent) — allies who fade by the share of R among only their last k partners (k = 1, 3, 5, 9) tip about as many crowds as the whole-memory rule: at c = 0.01 and robots 0.10, 11 to 12 of 12 against 10 for constant fading; at c = 0.03, robots 0.15, 12 of 12 against 10. Differences between k are one crowd of 12. Stylised

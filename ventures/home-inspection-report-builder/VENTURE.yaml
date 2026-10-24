@@ -48,5 +48,5 @@ kill_criteria:
   - An inspector reports that library wording misstates a condition in a way that could mislead a client.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/home-inspection-report-builder/
+  production: https://duncan-haywood.github.io/oss-monorepo/home-inspection-report-builder/
   analytics: null

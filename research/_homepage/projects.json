@@ -4173,6 +4173,12 @@
   "name": "Robots on the building site",
   "blurb": "Which residential construction tasks off-the-shelf and purpose-built robots can do, alone or beside a crew, learned and checked in physics simulation, and what that would take off the cost of a new home.",
   "projects": []
+ },
+ {
+  "id": "civ",
+  "name": "Civilizations & group psychology",
+  "blurb": "Simulated societies at scale: how opinions, norms and cultures form, split and spread, and which interventions change the path of a large group of people, tested across the modelling assumptions nobody has measured.",
+  "projects": []
  }
  ],
  "featured": [
