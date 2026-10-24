@@ -39,10 +39,11 @@ const periodEnd = (p) => {
 // Due day of the month after the period, by state, from the states' published
 // monthly/quarterly schedules as the author recalls them: check yours
 // (a state's own calendar can differ by filing frequency). "last" = month end.
-export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23 };
+export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20 };
 // Added 2026-10-24 from search excerpts (NJ: nj.gov Division of Taxation, 20th after the period, quarterly or monthly;
 // GA, NC: third-party guides, monthly and quarterly 20th; OH: 23rd, monthly, quarterly and semiannual Jan-Jun/Jul-Dec).
-// Not modelled: MA (30 days after the period closes since 2021, not a fixed day of the month).
+// MA: monthly returns the 20th; quarterly and annual returns 30 days after the period closes (the rule since 2021, from
+// memory and search excerpts, not re-read on mass.gov), modelled as `{ after: 30 }` in stateDueDay.
 // Checked 2026-10-24 against the states' own pages (via search excerpts): CA quarterly
 // = last day of the month after the quarter; TX = 20th, monthly and quarterly; FL = due
 // the 1st, late after the 20th; WA monthly = 25th but quarterly = end of the next month.
@@ -67,10 +68,13 @@ export function stateEndMonth(state, frequency = "quarterly") {
 export function stateDueDay(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
   if (s === "WA" && frequency !== "monthly") return "last";
+  if (s === "MA" && frequency !== "monthly") return { after: 30 };
   return STATE_DUE_DAYS[s] ?? 20;
 }
 export function dueDate(period, dueDay = 20) {
   let [y, m] = periodEnd(period);
+  // { after: N } = N calendar days after the period's last day (Massachusetts quarterly and annual)
+  if (dueDay && typeof dueDay === "object") return iso(new Date(Date.UTC(y, m, dueDay.after)));
   m += 1; if (m > 12) { m = 1; y += 1; }
   const day = dueDay === "last" ? new Date(Date.UTC(y, m, 0)).getUTCDate() : dueDay;
   return `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
