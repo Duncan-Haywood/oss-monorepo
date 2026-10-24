@@ -109,7 +109,7 @@ test('every committed post parses', () => {
 
 test('links to the published catalogue become root-relative on the site', async () => {
   const { relinkSite } = await import('./writing.mjs');
-  const html = '<a href="https://duncan-haywood.github.io/monorepo-projects/changepoint-detector/">x</a> <a href="https://example.com/">y</a>';
+  const html = '<a href="https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/">x</a> <a href="https://example.com/">y</a>';
   assert.equal(relinkSite(html, '../../'), '<a href="../../changepoint-detector/">x</a> <a href="https://example.com/">y</a>');
 });
 

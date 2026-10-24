@@ -19,7 +19,7 @@
  * on :443 since 2026-09-04 (`Outage triage` run 33889983086 -- the k3s API
  * server itself is not listening), and the catalogue has been served since
  * 2026-09-06 by GitHub Pages off the `gh-pages` branch, whose artifact
- * carries `https://duncan-haywood.github.io/monorepo-projects/` in every
+ * carries `https://duncan-haywood.github.io/oss-monorepo/` in every
  * canonical tag and every `<loc>`.
  *
  * So the nightly built, and verified, an artifact nobody publishes. Its
