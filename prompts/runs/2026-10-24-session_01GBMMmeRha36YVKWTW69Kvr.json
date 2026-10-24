@@ -15,9 +15,9 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
+  "task": "Deepen (flagship 1): eBay payout reader",
   "projects": [],
-  "pr": null,
+  "pr": 10090,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +25,17 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 2,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-24-ebay-payout-bookkeeping-from-the-transaction-report.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "node --test payouts.test.mjs form1099k.test.mjs: 42 pass. Layout from memory plus a hand-made fixture; no real eBay export. Full CI not run locally (venture-preflight skipped: no new page).",
   "corrections": [],
   "redteam": null
 }
