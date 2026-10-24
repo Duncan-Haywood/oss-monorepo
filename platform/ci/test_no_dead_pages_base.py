@@ -5,7 +5,7 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 DEAD = "github.io/monorepo-projects"
 # Deliberate mentions: the legacy constant that rewrites old content, and tests of it.
-ALLOWED = {"platform/pages/build.mjs", "platform/ci/test_no_dead_pages_base.py"}
+ALLOWED = {"platform/pages/build.mjs", "platform/ci/test_no_dead_pages_base.py", "platform/ci/test_research_live_links.py"}
 
 
 class NoDeadPagesBase(unittest.TestCase):
