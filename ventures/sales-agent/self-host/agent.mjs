@@ -17,6 +17,7 @@ import { parseReplies, csv, iso, toCsv } from "../engine.mjs";
 import { runInboxWithModel } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
 import { buildMessage, sendMail } from "./smtp.mjs";
+import { runResearch } from "../research.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
@@ -48,6 +49,21 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
     state.seen = state.seen.slice(-5000);
     save();
     return fresh.length;
+  }
+
+  /** Put first-touch drafts from a CRM export into the approval queue (outbound items: nothing is sent until a person approves and clicks Send). */
+  function queueResearch({ crm, icp = {}, top } = {}) {
+    const d = runResearch({ crm, icp, offer, top, today: iso(now()), suppression: state.suppression.map((s) => s.email).join("\n"), existing: state.prospects });
+    let added = 0, skipped = 0;
+    for (const a of d.accounts) {
+      const id = `research:${a.email}`;
+      if (state.seen.includes(id)) { skipped++; continue; }
+      state.items.push({ id, outbound: true, receivedAt: new Date(now()).toISOString(), from: a.email, name: a.contact, subject: a.draft.subject, body: `Cold first touch to ${a.contact || a.email}${a.company ? " at " + a.company : ""}. Fit ${a.score ?? "unscored"}: ${a.why.join("; ")}`, triage: { category: "first_touch", evidence: a.source }, applied: a.facts, draft: a.draft, lint: { ok: a.draftOk, errors: a.draftErrors }, decision: "pending" });
+      state.seen.push(id); added++;
+      audit("research_queued", { id, to: a.email, score: a.score, source: a.source });
+    }
+    save();
+    return { added, skipped, held: d.held.length, dropped: d.dropped.length };
   }
 
   async function poll() {
@@ -101,7 +117,7 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
     const day = new Date(now()).toISOString().slice(0, 10), cap = Number(env.SEND_MAX_PER_DAY || 20);
     if (state.items.filter((x) => (x.sentAt || "").startsWith(day)).length >= cap) { audit("send_blocked", { id, to, why: "daily cap" }); return { error: `daily cap of ${cap} sends reached` }; }
     const from = env.SEND_FROM || env.IMAP_USER || env.SMTP_USER;
-    const msg = buildMessage({ from, to, subject: /^re:/i.test(it.subject) ? it.subject : "Re: " + it.subject, body: it.draft.body, inReplyTo: /^<.+>$/.test(it.id) ? it.id : undefined, date: new Date(now()) });
+    const msg = buildMessage({ from, to, subject: it.outbound || /^re:/i.test(it.subject) ? it.subject : "Re: " + it.subject, body: it.draft.body, inReplyTo: /^<.+>$/.test(it.id) ? it.id : undefined, date: new Date(now()) });
     it.sendingAt = new Date(now()).toISOString(); save();
     try {
       const reply = await sendMail({ host: env.SMTP_HOST, port: Number(env.SMTP_PORT || 587), secure: env.SMTP_SECURE === "true", starttls: env.SMTP_STARTTLS !== "false", user: env.SMTP_USER, pass: env.SMTP_PASS }, msg);
@@ -134,6 +150,12 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
       const r = decide(b.id, b.decision, b.body);
       return r ? json(res, r.error ? 422 : 200, r.error ? r : { ok: true, item: r }) : json(res, 404, { error: "no such draft" });
     }
+    if (req.method === "POST" && url.pathname === "/api/research") {
+      let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 2e6) return json(res, 413, { error: "too large" }); }
+      let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
+      if (!b.crm) return json(res, 422, { error: "send { crm: <CSV text>, icp?, top? }" });
+      return json(res, 200, queueResearch(b));
+    }
     if (req.method === "POST" && url.pathname === "/api/send") {
       let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 10000) return json(res, 413, { error: "too large" }); }
       let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
@@ -142,14 +164,14 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
     }
     json(res, 404, { error: "not found" });
   });
-  return { server, state, poll, ingest, decide, send, audit };
+  return { server, state, poll, ingest, queueResearch, decide, send, audit };
 }
 
 function page(state, token, canSend) {
   const t = encodeURIComponent(token);
   const rows = state.items.slice().reverse().map((it) => {
     const d = it.draft;
-    const mailto = d ? `mailto:${encodeURIComponent(it.from)}?subject=${encodeURIComponent(/^re:/i.test(it.subject) ? it.subject : "Re: " + it.subject)}&body=${encodeURIComponent(d.body)}` : "";
+    const mailto = d ? `mailto:${encodeURIComponent(it.from)}?subject=${encodeURIComponent(it.outbound || /^re:/i.test(it.subject) ? it.subject : "Re: " + it.subject)}&body=${encodeURIComponent(d.body)}` : "";
     return `<article data-id="${esc(it.id)}"><h3>${esc(it.name || it.from)} <small>&lt;${esc(it.from)}&gt;</small> <span class="tag">${esc(it.triage.category)}</span></h3>
 <p class="re">${esc(it.subject)}</p><blockquote>${esc(it.body).replace(/\n/g, "<br>")}</blockquote>
 <ul>${it.applied.map((a) => `<li>${esc(a)}</li>`).join("")}</ul>
