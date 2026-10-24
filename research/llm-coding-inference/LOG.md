@@ -2,6 +2,18 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-24 · Milestone 4e outcome: the floor rule stays valid on 18 unseen categories but is wider than Wilson in 16 (width prediction refuted)
+- Ran `experiments/floor_rule_heldout.py` (500 draws per cell, ±1.9 points; `experiments/floor_rule_heldout.txt`). Prevalences 0.99% (desire) to 7.69% (admiration); the rule picked floor 0.054 (desire) to 0.100 (twelve categories).
+- Coverage of the normal IPW interval: 93.2 to 97.0% in all 18 (several sit at 93.2%, close to the bar). Prediction (15 of 18 at 93% or more) supported; the refutation bar (4 or more under) not approached.
+- Width against uniform Wilson: 0.89 (desire), 1.00 (surprise), then 1.02 to 1.49 for the other 16 (admiration 1.46, approval 1.49, gratitude 1.44). Prediction (at most 1.00 in 12 of 18) refuted: only 2 of 18. Above ~1.5% prevalence the audit design is valid but costs 2 to 49% more width than just sampling uniformly and using Wilson, as 4d warned for the top of the range.
+- So the rule is a safe default, not a gain, except below ~1%: the 4d gain (0.48 to 0.56 of Wilson) is confined to the five rarest categories, and at 1 to 2% it breaks even. A rule that falls back to uniform Wilson above a prevalence threshold (qbar of about 1.5%) would dominate it on this corpus; that is a post-hoc idea and would again need its own held-out test.
+- Limits: same corpus, split, coder (weak, non-LLM) and calibration as 4c/4d; held-out categories, not a held-out corpus; no category below 0.99% was available as held-out, so the sub-1% regime that carries the claimed gain is still tested only in-sample. 500 draws.
+- Next: a second corpus with rare codes for the sub-1% regime; milestone 5 (real LLM coder, needs the owner's key or a local model).
+
+## 2026-10-24 · Milestone 4e: the floor rule on the 18 GoEmotions categories it was not designed on (planned before running)
+- Why: 4d was in-sample (rule chosen after reading 4c on the nine rare categories). No second rare-code corpus is fetched, so the cheapest honest out-of-sample test is the same rule, frozen, on the other 18 non-neutral emotions (admiration ... surprise), none of which were looked at. Same corpus, split, coder, calibration, n = 200, normal IPW interval, floor = clip(5 qbar, 0.02, 0.10); 500 draws per cell. These are mostly 2 to 15% prevalence, so this tests the rule's upper regime, not the sub-1% regime that drove it. `experiments/floor_rule_heldout.py`.
+- Prediction: coverage of 93% or more in at least 15 of 18 categories, and width at most 1.00 of uniform Wilson in at least 12 of 18 (the rule should not cost width where it cannot gain). Refuted if coverage is under 93% in 4 or more categories.
+
 ## 2026-10-24 · Milestone 4d outcome: a label-free floor rule is valid in 8 of 9 categories and narrower than Wilson in 6 (prediction supported, in-sample)
 - Ran `experiments/floor_rule.py` (500 draws per cell, ±1.9 points; results in `experiments/floor_rule.txt`; 22 s). Floor = clip(5 qbar, 0.02, 0.10) came out 0.020 for the five rarest categories, 0.047 to 0.059 for remorse, fear and disgust, 0.100 for sadness.
 - Normal-IPW coverage: 94.8 to 96.0% for the five rarest, 92.4% remorse, 93.0% disgust, 94.4% fear, 95.0% sadness. So 8 of 9 reach 93% (remorse 92.4% is 0.6 under, inside one binomial sd of 1.0), against the refutation bar of three or more under.
