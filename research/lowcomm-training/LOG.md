@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 2g: is there any small outer momentum that helps? (planned before running)
+- Why: 2f's "Next". Momentum 0.5 and 0.9 both hurt, but the grid skipped the small values where a gain would sit, and 2f's one hint of a gain was (1, 0.5) at `H = 64` (-0.011, about 1 sd).
+- Design (`experiments/numpy_h_sweep/fine_momentum_sweep.py`; same model, data, budget, seeds, split as 2e/2f). `H` in {16, 64, 160} with the inner lr 2e picked for each (0.03, 0.01, 0.01), outer lr 1, outer Nesterov momentum beta in {0.1, 0.2, 0.3}. Report half B (seeds 0 to 4) for every cell, no tuning on B; beta = 0 and 0.5 rows are 2e's and 2f's numbers (deterministic runs). Half A (seeds 100, 101) is run too and reported, as a check that a half-B gain is not a seed accident.
+- **H2g-i:** no beta in {0.1, 0.2, 0.3} beats plain averaging (beta = 0) by more than 1 pooled sd on half B at any `H`. Refuted if one does at two or more of the three `H` (a lone cell at about 1 sd is what noise gives).
+- **H2g-ii:** at `H = 160` half-B loss is non-decreasing in beta over {0, 0.1, 0.2, 0.3, 0.5}. Refuted if any of 0.1 to 0.3 is below beta = 0.
+- Limits: as 2e (14k parameters, 640 steps), inner lr not re-tuned per beta, outer lr fixed at 1.
+
 ## 2026-10-25 · Milestone 2f: inner-lr grid extended to 0.1, then outer momentum on top (planned before running)
 - Why: 2e's "Next". Its picks for `H <= 16` sat at the top of the grid (0.03), and outer momentum was off, so it cannot say whether a tuned outer step recovers the loss lost at large `H`.
 - Design (`experiments/numpy_h_sweep/outer_momentum_sweep.py`; same model, data, budget, seeds and tune/report split as 2e). Part 1: add inner lr 0.1 to 2e's grid for every `H` in {sync, 1, 4, 16, 64, 160} (tuning half A, seeds 100, 101; the 2e half-A numbers for 1e-3 to 3e-2 are reused, the runs being deterministic); re-report half B (seeds 0 to 4) for any `H` whose pick changes. Part 2: for `H` in {16, 64, 160}, outer step (lr, momentum) in {(1, 0) plain, (0.7, 0.9) the DiLoCo paper's Nesterov setting, (1, 0.5)} crossed with inner lr in {0.01, 0.03, 0.1}, tuned on half A, reported on half B.
