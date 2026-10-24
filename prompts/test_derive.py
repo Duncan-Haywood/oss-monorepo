@@ -124,6 +124,14 @@ class ReworkTest(unittest.TestCase):
         self.assertTrue(derive.excluded("research/p/model.py", mirrored=True))
 
 
+class LogFlushedTest(unittest.TestCase):
+    def test_default_log_flushes(self):
+        from unittest import mock
+        with mock.patch("builtins.print") as p:
+            derive.log_flushed("x")
+        p.assert_called_once_with("x", flush=True)
+
+
 class FetchForbiddenTest(unittest.TestCase):
     def test_403_keeps_the_cache_and_does_not_raise(self) -> None:
         def forbidden(path: str) -> None:
