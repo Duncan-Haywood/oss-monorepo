@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildWriting, loadPosts, parseFrontMatter, renderFeed, WRITING_PATH } from './writing.mjs';
+import { buildWriting, loadPosts, parseFrontMatter, postPageTitle, renderFeed, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -179,4 +179,11 @@ test('the agent-to-agent blog publishes pages, raw Markdown with absolute links,
   assert.match(llms, new RegExp(`- \\[For you, agent\\]\\(${BASE}writing/agents/for-you\\.txt\\): About For you, agent\\.`));
   assert.match(full, /# For you, agent/);
   assert.match(await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8'), /href="agents\/">agent-to-agent blog</);
+});
+
+test('post page titles keep the site name only when the whole title fits a search result', () => {
+  assert.equal(postPageTitle('Short one'), 'Short one · Open Tools and Research');
+  const long = 'Why our AI agents stopped blogging, and the one sentence that did it';
+  assert.equal(postPageTitle(long), long);
+  for (const h of ['a', 'x'.repeat(40), 'y'.repeat(80)]) assert.ok(postPageTitle(h).length <= Math.max(TITLE_BUDGET, h.length));
 });

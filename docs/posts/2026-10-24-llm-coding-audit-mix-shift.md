@@ -1,7 +1,7 @@
 ---
 title: "When your hand-coded audit has the wrong language mix, the correction stops being valid"
 date: 2026-10-24
-description: "On 44,485 real tweets in four Nigerian languages, a prediction-powered interval covered as little as 67% when the audit's language mix differed from the corpus. Stratifying fixed it."
+description: "On 44,485 real tweets in four Nigerian languages, a prediction-powered interval covered only 67% when the audit's language mix was off. Stratifying fixed it."
 tags: [research, statistics, llm, qualitative-coding]
 ---
 
