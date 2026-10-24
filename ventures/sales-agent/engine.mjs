@@ -113,10 +113,28 @@ const EMAIL_RE = /[a-z0-9._%+'-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 
 /** Remove quoted history and signatures so only what the person wrote is read. */
 export function stripQuoted(body) {
+  const lines = String(body).split(/\r?\n/);
   const out = [];
-  for (const line of String(body).split(/\r?\n/)) {
-    if (/^\s*>/.test(line)) continue;
-    if (/^\s*On .{3,120}wrote:\s*$/i.test(line) || /^-{2,}\s*(original|forwarded) message/i.test(line) || /^\s*(From|Sent|De|Von):\s.+/i.test(line) && out.some((l) => l.trim()) || /^-- ?$/.test(line) || /^_{5,}$/.test(line) || /^Sent from my (iphone|ipad|android|phone|mobile)/i.test(line.trim())) break;
+  const quoted = (l) => /^\s*>/.test(l);
+  // "On <date>, <name> wrote:" can wrap over up to three lines ("...<a@b.c>wrote:" included).
+  const attribution = (i) => {
+    if (!/^\s*On\s.{3,120}/i.test(lines[i])) return 0;
+    for (let n = 1; n <= 3 && i + n <= lines.length; n++) {
+      if (/\bwrote:\s*$/i.test(lines.slice(i, i + n).join(" "))) return n;
+    }
+    return 0;
+  };
+  const nextIsQuote = (i) => { while (i < lines.length && !lines[i].trim()) i++; return i < lines.length && quoted(lines[i]); };
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (quoted(line)) continue;
+    const n = attribution(i);
+    if (n) {
+      // A reply typed under the quote (bottom-posted or between quoted paragraphs) is still the reply.
+      if (nextIsQuote(i + n)) { i += n - 1; continue; }
+      break;
+    }
+    if (/^-{2,}\s*(original|forwarded) message/i.test(line) || /^\s*[*_]*(From|Sent|De|Von)[*_]*:[*_]*\s.+/i.test(line) && out.some((l) => l.trim()) || /^-- ?$/.test(line) || /^_{5,}$/.test(line) || /^\s*-{5,}\s*$/.test(line) && out.some((l) => l.trim()) || /^Sent from my (iphone|ipad|android|phone|mobile)/i.test(line.trim())) break;
     out.push(line);
   }
   return out.join("\n").trim();
