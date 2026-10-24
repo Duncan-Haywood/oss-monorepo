@@ -47,7 +47,7 @@ flagships:
       receipts and the reconcile-to-statement command on real paper, and reading
       receipt photos in the page; (6) payroll (941, Schedule B, 940, deposits,
       `payroll reconcile`): a real Gusto or ADP report (deposit rules checked against Pub. 15 (2026) 2026-10-24); (7) one named filing service's import layout,
-      from its own spec; (8) `salestax return`: CA, TX, FL, WA, NY, IL, PA due dates checked 2026-10-24; NY's Dec-Feb quarters and PA's Feb-Jul/Aug-Jan semiannual periods landed 2026-10-24 (`--state`, `--end-month`; from search excerpts, not the forms); NJ, GA, NC (20th) and OH (23rd) added 2026-10-24 from search excerpts; MA (quarterly/annual 30 days after the period, monthly the 20th) landed 2026-10-24 from memory; MI, CT, WI, UT, IN, KS, TN, AL, SC, NM landed 2026-10-24 from search excerpts; AR, OK, KY, MS, NE (20th) landed 2026-10-24, MO and IA left out (sources conflict); open: a real return layout; (9) 2027 `estimate`: the indexed QBI minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is in). A run that lands a slice replaces
+      from its own spec; (8) `salestax return`: due dates for ~35 states landed from search excerpts or memory, not the forms (README lists which); MO and IA left out (sources conflict); open: a real return layout; (9) 2027 `estimate`: the indexed QBI minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is in). A run that lands a slice replaces
       its item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
@@ -61,15 +61,12 @@ flagships:
       cutting-stock order within 0.02% of its LP bound on whole houses; page,
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
-      Open items only; landed work is in ventures/wall-framing-takeoff/README.md
-      and ROADMAP.md. Roof framing, wings, valley backing and their page controls have landed (README and ROADMAP). Foundation quantities (concrete, trucks, rebar, forms, gravel; `--foundation`) landed 2026-10-24 (engine/CLI, hand arithmetic); foundation on the page landed 2026-10-24 (fields, stem/monolithic switch, click check; a real foundation plan still open). Next: a floor drawing (several stairwells on the page landed 2026-10-23, semicolon-separated, overlap refused, click check); gable walls on the page landed 2026-10-24 (pitch and peak columns, click check); gable sheathing in the horizontal layout (vertical-sheet order landed 2026-10-22; offcut-triangle nesting of the sloped top courses landed 2026-10-24, hand heights, not a nested cut on real sheets);
-      drywall sheet counts per wall and ceiling landed 2026-10-24 (`--drywall`, hand counts; page landed 2026-10-24; joints not on studs; tape and compound landed 2026-10-24, compound rate unverified against a product label; corner bead around openings landed 2026-10-24, free wall ends landed 2026-10-24 as a `freeEnds` plan key, page columns for it and for unsheathed partitions landed 2026-10-24; ceiling steps open);
-      budget from typed unit prices landed 2026-10-24 (`--budget`; page, labor lines and CSV landed 2026-10-24; prices saved in the plan file landed 2026-10-24; foundation labor rates landed 2026-10-24 (`laborFoundationSqFt`, `laborConcreteYd`); next: a real sub's rates);
-      code edition, typed by a person who has the book, is open);
-      schedule (critical path, crew levelling, slip table; `--schedule`) landed 2026-10-24 on hand-checked networks; page landed 2026-10-24 (JSON box, wiring test only); next: a real builder's activity list; a 2D reuse of opening cut-outs (sample house: 0 panels fit a hole, `cutout-reuse-bench.mjs`, so only worth rechecking on a real plan);
-      the panel sheathing-weight field and the panel order and pull-list
-      download were clicked through in headless Chromium 2026-10-23 (example plan, `eval-browser-click.mjs`).
-
+      Open items only; landed work is in ventures/wall-framing-takeoff/README.md and ROADMAP.md (roof, foundation,
+      gables, sheathing, drywall, budget, schedule and their page controls have all landed on hand-checked fixtures).
+      Open: a real foundation plan; ceiling drywall steps; a real sub's labor rates; a real builder's activity list for
+      `--schedule`; gable sheathing nested on real sheets (offcut-triangle heights are hand-made); the drywall compound
+      rate checked against a product label; the code edition, typed by a person who has the book; a 2D reuse of
+      opening cut-outs, only worth rechecking on a real plan (sample house: 0 panels fit a hole).
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent

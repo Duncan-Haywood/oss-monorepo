@@ -1,7 +1,7 @@
 ---
 title: "A drift tolerance in verified ML training is a price list, not a leak"
 date: 2026-10-24
-description: "Pricing contracts for outsourced training as a linear programme: once a referee tolerates floating-point drift, audits alone cannot force full effort, but a requester can buy the quality the tolerance sanctions for the effort cost plus one audited step."
+description: "Pricing outsourced ML training as a linear programme: once a referee tolerates floating-point drift, audits alone cannot force full effort, but quality can be bought."
 tags: [research, verifiable-training, mechanism-design, ml]
 ---
 
