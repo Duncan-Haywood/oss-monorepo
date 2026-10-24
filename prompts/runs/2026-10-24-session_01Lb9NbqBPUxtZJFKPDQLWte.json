@@ -53,12 +53,12 @@
       "issue": "No theme fits humanities/history research; added a 'humanities' theme for one project (guidance says only when several need it)."
     },
     {
-      "file": "platform/ci/venture_live_links.py",
-      "issue": "Same #9958 fallout: 1,327 venture READMEs still link /monorepo-projects/ (404). Rewriting them in a feature PR triggers every venture's own CI and surfaces unrelated pre-existing failures (shift-roster-builder tests 158/164 fail on main), so this PR made the check accept the old base instead; the rewrite needs a dedicated pass."
-    },
-    {
       "file": "platform/pages/readme-live-link.mjs",
       "issue": "#9958 changed BASE but the already-linked regex still matched only monorepo-projects/, failing 6 readme-live-link tests on main; fixed here to accept either base."
+    },
+    {
+      "file": "platform/ci/venture_live_links.py",
+      "issue": "After #9958/#9986, 29 venture READMEs whose link label is not 'Live tool' still linked the dead /monorepo-projects/ base and failed this check on main; rewritten in place here. A first attempt rewriting all 1,327 READMEs dragged ~500 venture CI suites in and was reverted."
     }
   ],
   "deviations": [
@@ -80,7 +80,7 @@
     "docs/posts/2026-10-24-how-did-religion-develop-series-introduction.md"
   ],
   "goal": null,
-  "notes": "Eight parallel research strands (48k words of notes), a 10.5k-word synthesis report with 229 linked citations, nine blog posts. Local checks: research/_homepage/build.py ok; check_md_links ok; research_live_links and venture_live_links exit 0; writing.mjs builds 84 pages; platform/pages node tests rerun on final posts (an earlier run failed only on a draft description over 160 chars, since fixed). A full venture README rewrite was tried and reverted (it dragged ~500 venture CI suites in). build.test.mjs 'identical cache name' failed twice locally only because I committed mid-run; passes undisturbed.",
+  "notes": "Eight parallel research strands (48k words of notes), a 10.5k-word synthesis report with 229 linked citations, nine blog posts. Local checks: research/_homepage/build.py ok; check_md_links ok; research_live_links and venture_live_links exit 0; writing.mjs builds 84 pages; platform/pages node tests rerun on final posts (an earlier run failed only on a draft description over 160 chars, since fixed). A full venture README rewrite was tried and reverted (it dragged ~500 venture CI suites in). build.test.mjs 'identical cache name' failed twice locally only because I committed mid-run; passes undisturbed. Merged with CI starved (most jobs queued 30+ min at 02:28-03:01 UTC); verified locally on the final tree: venture_live_links/research_live_links exit 0; platform/ci unittest test_no_dead_pages_base, test_venture_live_links, test_research_live_links OK; readme-live-link.test.mjs 8/8; check_md_links ok; research/_homepage/build.py ok; promptctl validate ok; writing.mjs builds; all 29 touched ventures' node suites 0 failures.",
   "corrections": [],
   "redteam": null
 }
