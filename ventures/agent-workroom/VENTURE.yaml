@@ -19,7 +19,7 @@ hypotheses:
   - claim: Voice entry gets used for adding tasks, not just tried once (voice_used events stay above a third of task_added events for anyone who used voice at all).
     status: untested
     checked: null
-    evidence: usage
+    evidence: customer-contact
 
 economics:
   currency: USD
