@@ -116,3 +116,13 @@ test("IT-022 flags a cut-off file", () => {
   assert.deepEqual(rules(cut).filter((r) => r === "IT-022"), ["IT-022"]);
   assert.deepEqual(rules(clean).filter((r) => r === "IT-022"), []);
 });
+
+test("spec 1.9 codes TD29 and RF20 are known; TD29 needs an Italian seller (IT-023)", () => {
+  const td29 = clean.replace(/<TipoDocumento>TD\d+/, "<TipoDocumento>TD29");
+  assert.ok(!rules(td29).includes("IT-008"));
+  assert.ok(!rules(td29).includes("IT-023"));
+  assert.ok(!rules(clean.replace("<RegimeFiscale>RF01", "<RegimeFiscale>RF20")).includes("IT-006"));
+  const foreign = td29.replace(/(<CedentePrestatore>[\s\S]*?<IdPaese>)IT/, "$1DE");
+  assert.ok(rules(foreign).includes("IT-023"));
+  assert.ok(!rules(clean.replace(/<TipoDocumento>TD\d+/, "<TipoDocumento>TD30")).includes("IT-023"));
+});

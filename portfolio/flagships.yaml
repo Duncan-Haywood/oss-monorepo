@@ -125,7 +125,7 @@ flagships:
       their false positives fixed, Singapore, Australia, Ireland, India and
       RO_CIUS pages and rules, EXTENDED logistics charges read as header
       charges) lives in the README and git. FatturaPA XSD 1.2.1 read 2026-10-30 (IT-018..022, matches xmllint on 1,638 mutations). Open: FatturaPA
-      code lists and tolerances against the current spec (1.2.1 predates TD16+, RF17+, N2.x) and any 1.2.2+ structure change; Poland's FA(3) (fa3.mjs, PL-001..011, 2026-10-24) on a real KSeF test-environment file and the XSD itself in the browser;
+      code lists (TD29, RF20 added 2026-10-24 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Poland's FA(3) (fa3.mjs, PL-001..011, 2026-10-24) on a real KSeF test-environment file and the XSD itself in the browser;
       the rules and a repair on a real ERP or
       Factur-X export (open the repaired PDF in veraPDF or a viewer); a page
       button for PDFs; PINT SG and A-NZ rules on the Saxon/server route and on a
