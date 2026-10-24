@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sensing-calibviews"
+version = "0.1.0"
+description = "How many checkerboard views does OpenCV camera calibration need before the focal length stops moving? A subset study on real images."
+requires-python = ">=3.9"
+dependencies = ["numpy", "opencv-python-headless"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
