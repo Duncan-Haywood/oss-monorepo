@@ -1,7 +1,7 @@
 ---
 title: "Making the 'when did growth change?' range honest on clumpy counts"
 date: 2026-10-26
-description: "The Changepoint Detector's 95% range for a change in growth rate held the true bend only 90% of the time on clumpy counts. A wider weighting fixes it, checked on fresh seeds."
+description: "The Changepoint Detector's 95% range for a growth-rate change held the true bend only 90% of the time on clumpy counts. A wider weighting fixes it."
 tags: [changepoint-detector, calibration, evaluation]
 ---
 

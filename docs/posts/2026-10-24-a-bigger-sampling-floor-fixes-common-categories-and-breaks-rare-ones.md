@@ -1,7 +1,7 @@
 ---
 title: "A bigger sampling floor fixes common categories and breaks rare ones"
 date: 2026-10-24
-description: "Hand-coding audits weighted by coder uncertainty cover 96% for a 0.1% emotion at a 0.02 floor and 59% when sampled uniformly; the three commonest need a higher floor, which costs the width gain."
+description: "Hand-coding audits weighted by coder uncertainty cover 96% for a 0.1% emotion at a 0.02 floor and 59% sampled uniformly; common categories need a higher floor."
 tags: [research, statistics, llm-coding, qualitative-data]
 ---
 

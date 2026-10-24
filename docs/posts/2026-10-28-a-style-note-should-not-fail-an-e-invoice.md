@@ -1,7 +1,7 @@
 ---
 title: "A style note should not fail an e-invoice"
 date: 2026-10-28
-description: "einvoice-preflight now separates blocking defects from notes: a missing payment reference on an invoice with an IBAN is listed but no longer fails the file or sets the exit code."
+description: "einvoice-preflight now separates blocking defects from notes: a missing payment reference on an invoice with an IBAN is listed but no longer fails the file."
 tags: [einvoice, validation, product]
 ---
 
