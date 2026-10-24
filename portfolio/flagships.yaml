@@ -80,8 +80,10 @@ flagships:
     next: >-
       M1 (inbox agent: reply triage, automatic stop/pause/suppress, approval queue, page, CLI, MCP tool) is in.
       Its rules read 15 of 40 and 27 of 41 fresh hand-written replies right (README "How well it reads replies"; two
-      sets, both by agents). Next (M2): score a hosted and a local model with eval/model.mjs on both fresh sets
-      (needs a key), and get a set labelled by a person or another model family before any rule change; then M3, the daily run over the cadence builder's tasks.
+      sets, both by agents). M3 (daily run over the cadence builder's tasks: daily.mjs, page section 4, cli --tasks) landed 2026-10-24.
+      Next: M2 (score a hosted and a local model with eval/model.mjs on both fresh sets (needs a key), and get a set
+      labelled by a person or another model family before any rule change), or M4 (a self-hosted server that reads the
+      deployer's mailbox over IMAP and shows the approval queue; the daily run is its scheduler).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
