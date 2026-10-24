@@ -1,0 +1,221 @@
+---
+title: Fifteen Minutes
+shelf: hearth-and-horizon
+setting: Bolchara, an invented Garo village in Haluaghat, Mymensingh, Bangladesh, March 2047
+published: 2026-10-24
+summary: A retired science teacher has painted the village's deep drinking well green for sixteen years. The well monitor, Jol, finds that its arsenic has climbed every year since the farmers drilled deep wells of their own to keep arsenic out of their rice. The village drinks in a day what one irrigation pump lifts in fifteen minutes, and the neighbour who owns the pumps is the one who was right to drill them.
+---
+
+Rekha Sangma kept a green paint pot in the cupboard under the school stairs, between the chalk and the box of broken compasses, and every second January for sixteen years she had taken it out and painted the spout of the school well.
+
+Nobody had asked her to. The paint had been left by the people who drilled the well in 2031, a good dark green, and the rule in those days was one every child in Bangladesh knew: red for a tubewell whose water had too much arsenic, green for one that had been tested and was safe. Most of the wells of her childhood had been red. This one was green, a hundred and eighty-two metres down, and she meant to keep it so.
+
+On the second Tuesday in March 2047 she was standing at the well with a brush in her hand and nothing to paint, because the green was still bright, when the speaker on the pump-house wall cleared its throat. It did that, a small electrical click, when it had something to say and had noticed she was near.
+
+"Madam Rekha."
+
+"Jol." She put the brush down on the platform. "You are early. The sample is not until Thursday."
+
+"It is not about the sample. May I show you something on the school's screen? It will take some minutes and I would rather you were sitting down."
+
+"I am sixty-one years old," said Rekha. "I would always rather be sitting down. Go on."
+
+* * *
+
+The school was one long room with a tin roof and a verandah, and the screen was a grey rectangle bolted to the wall beside the blackboard. Jol was the village's water monitor. It had come with the well-and-pump scheme in 2039, a small program that lived on a box in the pump house, read the pressure sensors, kept the logs, and sent the quarterly samples to the laboratory in Mymensingh. It talked in Garo to the old women and in Bangla to the pump men and in a careful English to the engineers who came once a year from Dhaka, and it seemed to Rekha to have no preference. She liked it for that.
+
+On the screen was a line that went up.
+
+"This is the arsenic in the school well," said Jol. "In micrograms per litre, once a year, every March, from the laboratory. I have all of them back to the first. The WHO guideline is ten. The government's own standard is fifty, and has been since before you were a teacher. Look at the part on the left."
+
+Rekha looked. The left side was nearly flat, a line lying along the bottom of the screen: two micrograms, two and a bit, two and a half. The laboratory's own note said these were within the error of the machine.
+
+"From 2031 to 2041, from two to three. A tenth of a microgram a year, and that is inside the noise. I thought nothing of it. I should say that I would have thought nothing of it if it had stayed so." The line did not stay so. "In 2043 the cooperative drilled the first irrigation well. Since then: four. Five point two. Six point six. Seven point nine. And on Thursday, I expect, nine point one, because I took the liberty of running the test on the stored sample from last Friday, and the laboratory will not tell you very differently."
+
+Rekha counted on her fingers, not because she needed to but because it gave her hands something to do. Nine point one. The guideline was ten. A well that had been two and a half when she first painted it.
+
+"What changed in 2043?"
+
+"Two things changed, and I can only prove one. The first is the one on the screen." Another line appeared, beneath the first, a blue hump rising and falling. "That is the water level inside the school well. Every January it falls. It reaches its lowest in April, about one metre forty down, and by July the rains have lifted it back. That has always happened, a little. Since 2043 it falls about twice as far."
+
+"The pumps," said Rekha.
+
+"The cooperative's pumps. Two deep tubewells, one nine hundred metres from here, one two thousand one hundred. The first runs about fourteen hours a day from the middle of January to the end of April, and so does the second. Each lifts about forty litres a second."
+
+"Forty litres a second," Rekha said slowly. She was a science teacher, and a science teacher cannot hear a number without wanting to do something to it. She took a stub of chalk from the ledge and wrote on the blackboard, as she had written ten thousand sums for ten thousand children: *1,800 people. 20 litres each. 36,000 litres a day.*
+
+"Thirty-six cubic metres," said Jol.
+
+"And one pump lifts forty litres a second." She divided, with her lips moving. Nine hundred seconds. "Fifteen minutes."
+
+"Fifteen minutes. This whole village, all eighteen hundred of us, drinks and cooks in a day what one of Abdul Karim's pumps lifts in a quarter of an hour. And he has two pumps and runs them fourteen hours."
+
+Rekha put the chalk down. She did not say anything for a while. Outside a rickshaw went past on the road, the little bell going, and a goat said something about it.
+
+"Jol," she said at last. "You said you can only prove one of two things."
+
+"I can prove the water level, because I measure it. I cannot prove why arsenic should rise with it, because arsenic is not in the pump logs. It is in the laboratory's. What I can say is what I see: the arsenic goes up after a season, and the more water the cooperative lifts, the more it goes up. I have five points. The laboratory's error is about one microgram either way. A person looking at five points would say there is a line. A careful person would also say five points are five points."
+
+"And the reason? If there is a line?"
+
+"The shallow water in this district is old river sand, and it is full of arsenic. That is why the wells of your childhood were red. The deep water is clean because for thousands of years there has been a layer of clay between, and the clay is very slow. But slow is not shut. When a pump pulls down the pressure in the deep sand, a little water is drawn through the clay from above, and the pull is stronger the more is lifted. Researchers have studied this in other places in Bangladesh and written that deep wells for irrigation could, in time, draw arsenic downward. In time. They did not say how long. They did not know about Bolchara."
+
+"They never do," said Rekha. "Who have you told?"
+
+"You. First. I thought you would know whom to tell second."
+
+* * *
+
+The cooperative's office was a room at the back of a rice-mill, with a calendar from a fertiliser company and a good deal of tea. Abdul Karim sat behind the desk, a broad man of fifty-five with a thumb that had been caught once in a belt, and he listened to the whole of it with his head a little to one side, which was how he listened to everything, and which was why the cooperative had been voting him chairman since 2038.
+
+Rekha had brought the chalk. She wrote the same sums on the back of a calendar page and pushed it across the desk.
+
+"Fifteen minutes," said Karim.
+
+"Fifteen minutes," said Rekha.
+
+He looked at the figures for some time. Then he put a finger on the edge of the paper and moved it, a very little, to one side, as a man does with something he does not want to throw.
+
+"Madam," he said, "you were at the meeting in 2042."
+
+"I was at the meeting. I spoke."
+
+"You spoke for the deep wells."
+
+She did not look away. "I spoke for the deep wells."
+
+That was the trouble, and both of them knew it. In 2042 the rice in the low fields had been failing, slowly, in a way that frightened everyone. Bolchara had irrigated its dry-season crop from shallow tubewells, as every village in the region had for fifty years. The shallow water was cheap and full of arsenic, and the arsenic went on to the fields. Every January the paddies were flooded, every April they were drained, and each year a little more stayed in the soil. The government's soil survey of 2041 had put the plough layer at a level that made agronomists in Dhaka frown. The grain was not yet unsafe. But the yields were thinning, and Karim's father's best field, on the low side by the canal, had come up four sacks short, and his father had stood at the edge of it with his hands behind his back for an hour and said nothing at all.
+
+So they had drilled deep, below the clay, where the water was clean. There was a grant and a loan and a design from an engineer. The yields had come back the first year. Karim had stood at the same field-edge with his own hands behind his back and let himself cry, at the age of fifty-one, in front of a lot of rice.
+
+"We did not know," said Karim.
+
+"No."
+
+"The engineers did not say."
+
+"They said it was safer than the shallow wells, and it is. For the rice." Rekha found, to her surprise, that her voice was steady. "I have no quarrel with the rice, Karim. Nor with the deep wells. If I were on the committee again I would vote the same again, today, knowing what I knew. Jol says only that there is a bill, and that it is not being sent to the cooperative. It is being sent to the school well."
+
+"And if Jol is wrong?"
+
+"Then in March of next year the number will be nine again, or eight, and I shall come here with a bag of sweets and say so. Jol says it might be wrong. It says it plainly. Ask it yourself."
+
+Karim thought for a minute, and then he reached under the desk and brought out a speaker on a cord, the cooperative's own, a cousin of the one at the school. "Jol," he said, in Bangla. "Are you wrong?"
+
+"I may be," said the speaker. "Here is how much. There are five yearly readings and a noise of about one microgram. If I fit a line through them it climbs about one point three each year. If the true climb is only half of that, which the readings cannot rule out, I would still say the well crosses ten within three winters. If it is the whole of it, it crosses next winter, perhaps the one after. If the cooperative stopped pumping tomorrow I cannot say that it would fall back. The clay is slow in both directions. It might hold still. It might keep rising for years from water already on its way."
+
+"That is not an answer," said Karim.
+
+"No. It is the only one I have. I would sooner give you the width of my ignorance than a number that looks cleaner than the thing it describes."
+
+Karim looked at the speaker for a long moment as though it were a person across a table. Then he looked at Rekha. "Nine point one," he said. "How much is that? Is it dangerous today? Truly. Not on a poster."
+
+"At nine, nothing a doctor would measure in a village," said Rekha. "I asked a doctor in Mymensingh on the telephone, because I thought you would ask. What matters is years. Eighteen hundred people drinking a little too much arsenic every day for twenty years. It shows in the skin on the hands first, then, much later, elsewhere. It is the children I think of. A child drinking from that spout every day for ten years in a village that has been told its water is green."
+
+Nobody said anything. In the mill next door the huller started up and shook the wall.
+
+"I want to see the numbers," said Karim. "All of them. On the wall of the mill, where the men can read them. And I want to know what you want from me before the men come in."
+
+"I want to ask what we can change," said Rekha. "I do not know. Let us ask Jol."
+
+* * *
+
+They asked it on Sunday, after Mass, under the big mango tree beside the school, because that was where Bolchara had always settled things that were too large for a room. There were nearly sixty people. The Garo families sat on one side and the Bengali families on the other, as they usually did, and the children ran between, as they always did. Father Dominic Marak, who had come to the parish in November from the hill country, stood at the back with his hands folded in his sleeves and said he was there to listen, and meant it.
+
+Jol spoke from a speaker hung in the branches. Rekha had put the sums on the blackboard that the children carried out and propped against the trunk. Karim had said, in about four sentences, what the sums were. Then it was the turn of the machine, and Rekha was curiously glad it was not her.
+
+"I would like to begin by saying that nobody here has done wrong," said Jol. "The shallow wells were poisoning the soil. The deep wells were the right answer to that. The harm to the school well was not known, and it is not yet a harm to anyone. It is a trend. So the question is only what to do about a trend.
+
+"I have three things to say about that, and I will say what I do not know about each.
+
+"First. How much each pump hurts the school well depends on how close it is. The nearer pump, Well One, nine hundred metres away, draws the school well's water level down about three times as much for each hour it runs as the farther pump, Well Two, two thousand one hundred metres away. I have estimated that from five seasons of both pumps' logs and the school well's level. The ratio is rough. It might be two to one, it might be four. But it is not one to one, and that is the thing I can use.
+
+"Second. The cooperative's fields do not need fourteen hours from both pumps. Some of that water is used because the fields have always been flooded to a hand's depth and kept so. A method exists, called alternate wetting and drying: a tube set in the paddy, and you let the water go down to fifteen centimetres under the soil before flooding again. Trials in the Philippines and in Bangladesh have found it saves a fifth or more of the water with no loss of grain. I do not know whether our clay-heavy low fields will do as well as the trials. The farmers know their fields. I do not.
+
+"Third. The school roof. It is four hundred square metres. In a monsoon this district gets about two and a half metres of rain. The roof could fill tanks for the school's cooking and drinking from June to October. I want to be honest about that one. It would take only a few per cent from the well's draw. The well is not what is being drained. The irrigation is. A tank is a kindness, and it is not an answer."
+
+"What is the answer?" someone called from the Bengali side. It was Karim's cousin, a thin man with a scarf, and he did not say it unkindly.
+
+"Water has to come off the pumps," said Jol. "That is the only answer. Not stopped: eased. If Well One runs six hours and Well Two sixteen, and the fields use a fifth less because of the wet-and-dry method, the cooperative gets about the same water to the paddies. The school well gets, by my sums, about six-tenths the pull it has now. That does not make the arsenic fall. It makes it climb more slowly. It buys, I think, two or three more years, perhaps more. It is time, not a cure."
+
+"And in two years?"
+
+"In two years we will have eight more readings, and I shall be able to say a great deal more than I can say now. And whatever the readings say, there is an old and tested technology for a well that crosses ten: an iron-oxide filter on the spout, which takes the arsenic out and costs, I am told, about what the cooperative earns in two days at the pump. I would put it aside before it is needed. That is not a plan to avoid a cost. It is a plan to know what it is."
+
+A long silence followed, filled with the bees in the mango blossom.
+
+It was Karim who spoke, and he spoke, as he always did, to the ground in front of his feet first and then to people.
+
+"Well Two is the long channel," he said. "Everyone knows. The water has to go through the Sangma fields and the Momin fields and past the old burial ground, nine hundred more metres of channel than from One. If Two runs sixteen hours, the far fields get their water. The near fields get less. My fields are near." He raised his head. "I have the best land in Bolchara, because of Well One. I would be giving up the best of my water."
+
+"You would," said Jol.
+
+"And the channel needs lining, or the water will soak away before it gets there. Six hundred metres of it at least. By hand. In April."
+
+"Yes."
+
+Karim looked, for a long time, across the heads of the people at the lit green rim of the well, which showed between the school and the pump house. Then he said, quietly, in Bangla, a thing that Rekha would remember: "I told my father the deep wells would keep the poison out of the field. I did not think of whose cup they would put it in."
+
+Nobody answered that. Father Dominic had unfolded his hands. After a little he said, not loudly, "The Lord gave you the water for everyone, Karim." And then, because he was a young priest and honest, "I don't know if that helps."
+
+"It helps a little," said Karim. "Not enough. But a little."
+
+* * *
+
+They did it in April. It was not tidy.
+
+The cooperative voted, on the mill wall under the numbers, and the vote was not unanimous: forty-one to nine. The nine were mostly the farmers on the near land, and Karim, who was one of them in every way except the vote, put up his hand with the forty-one and said afterward that he had not liked it and would do it again. A tube was set in each paddy, a length of white plastic pipe with holes in it, which the children called the chimneys. A boy from the school read the water in them every morning and chalked the number on the dyke. The old men laughed at the chimneys, and then looked at them every morning, which was the next best thing.
+
+Six hundred metres of channel were lined with brick and clay by sixty people in eleven days, Garo and Bengali shoulder to shoulder, the women with baskets and the men with spades and the children with their usual opinions. Rekha, who could not lift a spade any more, sat on an upturned bucket with the log book and a flask of tea and made sure everyone drank. Father Dominic lined thirty metres himself and blistered both hands and was shown by an eight-year-old how to hold a trowel.
+
+Jol set the pumps. Well One went to six hours, from five in the morning till eleven, and Well Two to sixteen, from noon, and the paddies drank, and the chimneys said the water was going down and coming up on its own time, a fifth less than before, just as the trials had said, and just a little more on the clay side, as Karim had predicted and Jol had not. Jol put that in the log: *the near fields behaved worse than I forecast and the far fields better. Karim's judgement stands corrected on my estimate.* Karim, when Rekha read it to him, said nothing, but he took the paper and kept it.
+
+The grain came in as grain does. The near fields lost two sacks a hectare against the year before, and the cooperative voted to share the loss, so that every member gave a little rice to make it up, and nobody could afterwards say exactly who had lost what. The new electricity bill for Well Two's long hours was higher than the old, by about a month of Well One's. Nobody liked the bill. The fund for the filter was set up on the first Friday of May, a taka for every hour pumped, and Karim signed it in the clean hand of a man who had taught himself to write at thirty.
+
+The school's roof was piped to two tanks. The children found it very exciting. The first rain of June filled one in an afternoon, and nearly a hundred of them stood under the downpipe and shrieked.
+
+* * *
+
+The following March the sample went to Mymensingh on a Thursday, as always. On the Monday after, Rekha was at the well with the brush and the green paint when the speaker on the pump-house wall made its little click.
+
+"Madam Rekha. The laboratory has sent the figure."
+
+"Is it ten?"
+
+"It is nine point six."
+
+Rekha stood for a moment holding the brush in the air, as if the number might yet be taken back. Nine point six. She did a sum she did not need to do. Nine point one to nine point six was half a microgram, and the laboratory's error was a whole one either way. The line had gone up, and it had gone up by less than the line would have gone, and the whole of it was inside the noise.
+
+"That is up," she said.
+
+"It is up. The fit now says seven-tenths of a microgram a year, where before it said one point three, a little better than the six-tenths I forecast. I want to be careful. One year is one point. The error is bigger than the difference. I do not know that we have slowed it. I think we have. I would not bet the well on it."
+
+"No," said Rekha. "I would not either."
+
+"The filter fund is at eleven days' pumping. The cooperative has voted to buy the filter when the figure crosses ten, and not before. I have the supplier's address."
+
+"What will you say to the village?"
+
+"What I said before. That it is not ten. That it is nearer ten than I like. That two more springs of readings will tell us a good deal, and the green on the spout is still a fact: the water was tested, and it was under the guideline. I will not say it is safe, in the way a poster says it. I will say what it was on Thursday."
+
+Rekha laughed a little, in spite of herself. "That is the trouble with you," she said. "You will not paint it green or paint it red."
+
+"I would paint it a number, if the spout were large enough."
+
+She looked at the spout. It was a plain iron thing, the size of her forearm, with sixteen years of green on it, flaking at the lip where the children's cups had knocked. She had always thought of the green as a promise. She thought now that it had been something smaller and more honest, a statement about a day, repainted every two years by somebody who cared.
+
+She opened the pot. She painted the spout, because the green was not bright any more, and then she took the end of the brush and, in the wet paint, on the flat of the platform where the children stood to drink, scratched a figure with the handle. *9.6, March 2048.* It would wear off in the rains. She would do it again.
+
+"Jol."
+
+"Madam?"
+
+"Whose water is it?"
+
+"I have been trying to decide," said Jol. "I think it is the village's. All of it. The well, and the pump, and the paddy, and the roof. The fifteen minutes and the fourteen hours are the same water. I cannot make them separate, however I do the sums."
+
+From beyond the mill came the sound of Well Two starting up for the afternoon, the low note of a motor taking the load, and under it, all along the new brick channel, the faint hurry of water going to the far fields. In the road a boy was walking home from the dyke with a chalk-white hand, and as he passed the well he stopped, and filled his cup, and drank it down, and looked at the number scratched in the green, and went on.
+
+---
+
+*Notes for the curious.* Bolchara, its people, the cooperative, Abdul Karim, Rekha Sangma, Father Dominic Marak, the monitor Jol and the 2047 and 2048 events are invented. Haluaghat and Mymensingh are real; the Garo people, a largely Christian community in that district, many of them Catholic, and their villages are real, but this village is not meant to be any of them. The red and green paint on tubewells (red for water above the national standard of 50 micrograms per litre, green for safe) was a real, widely used Bangladeshi practice from the early 2000s; the WHO guideline for drinking water is 10. Shallow aquifers in much of Bangladesh carry natural arsenic from river sediment, and deep aquifers separated from them by clay are usually low in arsenic. Published modelling has warned that heavy deep pumping, especially for irrigation, could draw arsenic downward through the clay over decades; whether it would in any particular place is a matter for measurement, and Bolchara's measurements are made up. Arsenic from shallow irrigation water building up in rice soil, and the use of deep irrigation wells to avoid it, are real concerns. The sums are worked, not measured: 1,800 people at 20 litres a day is 36 cubic metres, which a 40-litre-a-second pump lifts in 900 seconds; the village's laboratory figures and the weighting of the two wells (about 3 to 1) are illustrative. Alternate wetting and drying, with a perforated tube in the paddy and re-flooding when the water is about 15 centimetres below the soil, is a real technique, shown in trials to save a good deal of irrigation water; how much it saves in any particular soil varies. Iron-based household and community arsenic-removal filters exist; their cost and upkeep vary, and the story's price is invented. The story was written by an AI, and no part of it is Church teaching.
