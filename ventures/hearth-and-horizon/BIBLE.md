@@ -134,6 +134,7 @@ introduces a dated fact.
 | 2043 | St Gabriel's Mission Hospital, Mpale (invented), Lower Shire valley, Malawi: PSA oxygen plant since 2032 (controller Mpweya), spec 93% plus or minus 3, ceiling 20.95/(20.95+0.93) = 95.8% (argon), hospital floor 82%; wet-season purity 93 to 86.4% (24 Feb to 10 Mar), -15 C dryer dew point against -40; plant 40 L/min, ward peak 27; 6 cylinders of 6,800 L; 18 kg silica gel baked at 120 C in the convent bread oven, 3 batches; Chikondi Phiri, Dr Yamikani Mwale, technician Alinafe Chirwa, Sr Perpetua Banda | *The Dry Bread* |
 | 2051 | Casal da Eira (invented), Serra da Lousã, Portugal: 11 houses, 9 ha of gorse last burned 2044; prescribed burn Wed 8 Nov (Magusto Sat 11 Nov); fuel 1 kg/m2, 60% consumed, 18,000 kJ/kg; backing fire 0.3 m/min = 54 kW/m, flame 0.5 m; head fire 2 m/min = 360 kW/m (1.2 m), 8 m/min = 1,440 kW/m (2.2 m); 50 m x 600 m strip (3 ha) finished by 13:20 because the ridge easterly arrives about 13:30, earlier than the model's 14:30; goats (140) take the rest; burn boss Rosário Teles, goatherd Amélia Fonseca, fire AI Candeia, Pe. Rui | *The Black Strip* |
 | 2048 | Barangay San Roque de Dalig (invented), Nueva Ecija, Philippines: 212 ha enrolled in alternate wetting and drying (re-flood at 15 cm below surface; no drying a week either side of flowering); credit $18/t, $24/t if 80% (169.6 ha) dry on both radar passes (Thu 10 and Wed 16 Sep), about 254 t so the tier is worth about $1,524, the chapel roof; Ernesto Dizon's 1.4 ha transplanted 16 Jul (11 days late, wife Lourdes died Fri 3 Jul, Pasiyam to 12 Jul) flowers about Sun 13 Sep; dry area 168.9 ha without his field vs 170.3 with; clause 9.4 deferral drops it from both counts (210.6 ha, 80% = 168.5), payment delayed 45 days; treasurer Marites Ocampo, Rey, Fr Danilo, Gemma, reviewer Adaeze Okonkwo, water AI Pantay | *The Late Field* |
+| 2050 | Canal Quilque, Chiloé, Chile (invented Puerto Lleuque, Isla Huildad, Isla Chaullín): electric ferry *Candelaria* (38 m, second-life 150 kWh pack, 122 kWh usable at 4 C, 30 kWh reserve; 150 kW at 9 kn, 18 kW hotel; 6 nmi); Fri 15 July, table slack 17:10 but the river in spate makes it about 17:50; plan 8 kn (91 of 92 kWh) corrected at 17:15 to 6.5 kn (about 86 kWh, 17:51); front forecast 18:00 arrives about 17:40, docking limit 25 kn; pilot Elba Barría, ferry AI Marea, dispatcher Soledad Pavez, Padre Gonzalo Haro, fiscal Aníbal Cárcamo, Javiera Gallardo, Rosa and Bernabé Mansilla (Chaullín not called) | *The Late Ebb* |
 
 Little Lamps is set in history (Lima, about 1610 for *Brother Martin*) and is
 not on this timeline.
@@ -216,6 +217,8 @@ numbers worked out before drafting.
 
 - *(Done: The Black Strip, Casal da Eira, Portugal, 2051.)* A prescribed burn, a wind that turns early, and goats for the rest.
 - *(Done: The Late Field, San Roque de Dalig, Philippines, 2048; text only.)* Rice methane credits, a late field in flower, and a contract clause nobody read.
+
+- *(Done: The Late Ebb, Chiloé, 2050; text only.)* A tide table that knows the Moon but not the rain, and a ferry slowed to a speed the water allows.
 
 **For Other Minds**
 

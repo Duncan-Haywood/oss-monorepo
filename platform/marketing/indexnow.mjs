@@ -9,7 +9,7 @@
  * `platform/ci/pages_state.py`'s `indexing` row (added 2026-09-09, PR #4362)
  * found that this site's `robots.txt` — and the `Sitemap:` line inside it —
  * is unreachable to a crawler. The site is served from a project-Pages
- * *subpath* (`https://duncan-haywood.github.io/monorepo-projects/`), but
+ * *subpath* (`https://duncan-haywood.github.io/oss-monorepo/`), but
  * `robots.txt` is fetched at the *host* root
  * (`https://duncan-haywood.github.io/robots.txt`), which belongs to the
  * owner's separate user-level Pages site. So sitemap auto-discovery has

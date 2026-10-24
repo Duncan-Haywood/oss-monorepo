@@ -5,9 +5,9 @@ starting one**: more than 1,200 browser calculators, quoting and pricing tools,
 self-hostable business apps and command-line checks, all MIT licensed. They run
 in your browser with no account, and you can deploy your own copy to run for
 yourself, inside your own product, or as a business of your own.
-**Use them at [https://duncan-haywood.github.io/monorepo-projects/](https://duncan-haywood.github.io/monorepo-projects/).**
+**Use them at [https://duncan-haywood.github.io/oss-monorepo/](https://duncan-haywood.github.io/oss-monorepo/).**
 
-**Free tools by trade or business:** [Roofers](https://duncan-haywood.github.io/monorepo-projects/c/for-roofers/) · [HVAC contractors](https://duncan-haywood.github.io/monorepo-projects/c/for-hvac/) · [Plumbers](https://duncan-haywood.github.io/monorepo-projects/c/for-plumbers/) · [Electricians](https://duncan-haywood.github.io/monorepo-projects/c/for-electricians/) · [Painters](https://duncan-haywood.github.io/monorepo-projects/c/for-painters/) · [Cleaning businesses](https://duncan-haywood.github.io/monorepo-projects/c/for-cleaning-businesses/) · [Landscapers](https://duncan-haywood.github.io/monorepo-projects/c/for-landscapers/) · [Pool & hot tub pros](https://duncan-haywood.github.io/monorepo-projects/c/for-pool-hot-tub/) · [Auto detailing & repair](https://duncan-haywood.github.io/monorepo-projects/c/for-auto-detailing-repair/) · [Etsy sellers](https://duncan-haywood.github.io/monorepo-projects/c/for-etsy-sellers/) · [eBay sellers](https://duncan-haywood.github.io/monorepo-projects/c/for-ebay-sellers/) · [Amazon sellers & KDP authors](https://duncan-haywood.github.io/monorepo-projects/c/for-amazon-sellers/) · [Shopify stores](https://duncan-haywood.github.io/monorepo-projects/c/for-shopify-stores/) · [Resellers](https://duncan-haywood.github.io/monorepo-projects/c/for-resellers/) · [Landlords & hosts](https://duncan-haywood.github.io/monorepo-projects/c/for-landlords/) · [Freelancers](https://duncan-haywood.github.io/monorepo-projects/c/for-freelancers/) · [Photographers & videographers](https://duncan-haywood.github.io/monorepo-projects/c/for-photographers/) · [Wedding & event pros](https://duncan-haywood.github.io/monorepo-projects/c/for-wedding-event-pros/) · [Restaurants, cafes & bars](https://duncan-haywood.github.io/monorepo-projects/c/for-restaurants-bars/) · [Pet businesses](https://duncan-haywood.github.io/monorepo-projects/c/for-pet-businesses/) · [Creators](https://duncan-haywood.github.io/monorepo-projects/c/for-creators/) · [Childcare providers](https://duncan-haywood.github.io/monorepo-projects/c/for-childcare/) · [Tutors & teachers](https://duncan-haywood.github.io/monorepo-projects/c/for-tutors-teachers/) · [Truckers & owner-operators](https://duncan-haywood.github.io/monorepo-projects/c/for-truckers/) · [Farms & homesteads](https://duncan-haywood.github.io/monorepo-projects/c/for-farms/) · [Therapists & clinics](https://duncan-haywood.github.io/monorepo-projects/c/for-health-practices/) · [Salons & beauty pros](https://duncan-haywood.github.io/monorepo-projects/c/for-salons-beauty/).
+**Free tools by trade or business:** [Roofers](https://duncan-haywood.github.io/oss-monorepo/c/for-roofers/) · [HVAC contractors](https://duncan-haywood.github.io/oss-monorepo/c/for-hvac/) · [Plumbers](https://duncan-haywood.github.io/oss-monorepo/c/for-plumbers/) · [Electricians](https://duncan-haywood.github.io/oss-monorepo/c/for-electricians/) · [Painters](https://duncan-haywood.github.io/oss-monorepo/c/for-painters/) · [Cleaning businesses](https://duncan-haywood.github.io/oss-monorepo/c/for-cleaning-businesses/) · [Landscapers](https://duncan-haywood.github.io/oss-monorepo/c/for-landscapers/) · [Pool & hot tub pros](https://duncan-haywood.github.io/oss-monorepo/c/for-pool-hot-tub/) · [Auto detailing & repair](https://duncan-haywood.github.io/oss-monorepo/c/for-auto-detailing-repair/) · [Etsy sellers](https://duncan-haywood.github.io/oss-monorepo/c/for-etsy-sellers/) · [eBay sellers](https://duncan-haywood.github.io/oss-monorepo/c/for-ebay-sellers/) · [Amazon sellers & KDP authors](https://duncan-haywood.github.io/oss-monorepo/c/for-amazon-sellers/) · [Shopify stores](https://duncan-haywood.github.io/oss-monorepo/c/for-shopify-stores/) · [Resellers](https://duncan-haywood.github.io/oss-monorepo/c/for-resellers/) · [Landlords & hosts](https://duncan-haywood.github.io/oss-monorepo/c/for-landlords/) · [Freelancers](https://duncan-haywood.github.io/oss-monorepo/c/for-freelancers/) · [Photographers & videographers](https://duncan-haywood.github.io/oss-monorepo/c/for-photographers/) · [Wedding & event pros](https://duncan-haywood.github.io/oss-monorepo/c/for-wedding-event-pros/) · [Restaurants, cafes & bars](https://duncan-haywood.github.io/oss-monorepo/c/for-restaurants-bars/) · [Pet businesses](https://duncan-haywood.github.io/oss-monorepo/c/for-pet-businesses/) · [Creators](https://duncan-haywood.github.io/oss-monorepo/c/for-creators/) · [Childcare providers](https://duncan-haywood.github.io/oss-monorepo/c/for-childcare/) · [Tutors & teachers](https://duncan-haywood.github.io/oss-monorepo/c/for-tutors-teachers/) · [Truckers & owner-operators](https://duncan-haywood.github.io/oss-monorepo/c/for-truckers/) · [Farms & homesteads](https://duncan-haywood.github.io/oss-monorepo/c/for-farms/) · [Therapists & clinics](https://duncan-haywood.github.io/oss-monorepo/c/for-health-practices/) · [Salons & beauty pros](https://duncan-haywood.github.io/oss-monorepo/c/for-salons-beauty/).
 
 ## Browse
 
@@ -26,17 +26,17 @@ yourself, inside your own product, or as a business of your own.
 - **Self-hosted business apps**: open-source alternatives to paid SaaS you run
   on your own server, such as Stripe failed-payment recovery, cancellation
   flows, status pages, cookie-free analytics and license keys
-  ([section](https://duncan-haywood.github.io/monorepo-projects/c/self-hosted/)).
+  ([section](https://duncan-haywood.github.io/oss-monorepo/c/self-hosted/)).
 - **Open research**: over 700 reproducible papers with code, on verification
   markets, chip design, robotics, digital twins and more, at
-  [duncan-haywood.github.io/monorepo-projects/research/](https://duncan-haywood.github.io/monorepo-projects/research/)
+  [duncan-haywood.github.io/oss-monorepo/research/](https://duncan-haywood.github.io/oss-monorepo/research/)
   (source in [`research/`](research/README.md)).
 - **Developer tools**: [`uitest`](platform/uitest/README.md), AI-agent
   end-to-end UI testing for any web app (CLI and GitHub Action), a
   [bring-your-own-key LLM client](platform/llm/README.md), and the rest of the
   shared tooling in [`platform/`](platform/README.md).
 - **How it is built**: a public
-  [development dashboard](https://duncan-haywood.github.io/monorepo-projects/dev/)
+  [development dashboard](https://duncan-haywood.github.io/oss-monorepo/dev/)
   of merges, CI results and agent run cost.
 
 ## What else is here
@@ -171,7 +171,7 @@ directory that carries a `VENTURE.yaml` — marker or not.
 The open research portfolio: one self-contained project per directory, each
 with a README, tests and a card on the research homepage
 (`research/_homepage/build.py`, published at
-[`/research/`](https://duncan-haywood.github.io/monorepo-projects/research/)). It was its own
+[`/research/`](https://duncan-haywood.github.io/oss-monorepo/research/)). It was its own
 repository, `oss-research-monorepo`, until 2026-10-16. Its history was merged
 in (`git log -- research/<slug>` shows each project's original commits), and
 that repository is now archived, read-only history. Research work lands here

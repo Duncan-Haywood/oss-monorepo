@@ -2,13 +2,13 @@
 
 Two daily write-ups of what merged to `main`, each to read or to listen to:
 
-- **[Engineering brief](https://duncan-haywood.github.io/monorepo-projects/dev/daily/)**:
+- **[Engineering brief](https://duncan-haywood.github.io/oss-monorepo/dev/daily/)**:
   about fifteen minutes for an engineering manager in charge of the whole
   repository. The bottom line; CI, main and the PR queue; the owner decisions
   still waiting; every product, research project, blog post and platform area
   that moved, with each PR linked; the agent fleet (runs, outcomes, cost,
   documentation friction, what runs wrote in their records); a watch list.
-- **[The Merge Report](https://duncan-haywood.github.io/monorepo-projects/dev/daily/show/)**:
+- **[The Merge Report](https://duncan-haywood.github.io/oss-monorepo/dev/daily/show/)**:
   a few light minutes on the same day for the general technical public. The
   headline change, new products and research, the plot twist (reverts and
   fix-forwards), the numbers, word of the day, the co-author leaderboard.
