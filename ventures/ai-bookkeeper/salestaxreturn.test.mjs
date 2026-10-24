@@ -83,3 +83,11 @@ test("state presets: California is due at month end, Washington on the 25th", as
   assert.equal(dueDate("2027-Q4", STATE_DUE_DAYS.CA), "2028-01-31");
   assert.equal(dueDate("2026-Q1", STATE_DUE_DAYS.WA), "2026-04-25");
 });
+
+test("Washington quarterly returns are due at the end of the next month, monthly on the 25th", async () => {
+  const { stateDueDay } = await import("./salestaxreturn.mjs");
+  assert.equal(dueDate("2026-Q3", stateDueDay("wa", "quarterly")), "2026-10-31");
+  assert.equal(dueDate("2026-10", stateDueDay("WA", "monthly")), "2026-11-25");
+  assert.equal(dueDate("2026-Q1", stateDueDay("TX", "quarterly")), "2026-04-20");
+  assert.equal(stateDueDay(undefined), 20);
+});
