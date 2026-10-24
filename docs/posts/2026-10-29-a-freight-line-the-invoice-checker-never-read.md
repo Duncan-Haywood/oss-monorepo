@@ -1,8 +1,8 @@
 ---
 title: A freight line our e-invoice checker never read
 date: 2026-10-29
-description: "einvoice-preflight flagged valid EXTENDED-profile ZUGFeRD invoices because it ignored a freight charge line; it now reads it as a header charge."
-tags: [einvoice-preflight, e-invoicing, testing]
+description: "Two valid ZUGFeRD EXTENDED sample invoices drew false arithmetic errors: our checker never read their freight charge, a CII element only EXTENDED uses."
+tags: [einvoice-preflight, e-invoicing, testing, real-data]
 ---
 
 Running einvoice-preflight over the public ZUGFeRD corpus, two EXTENDED-profile

@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01RveYHEf8khHNpbyvj7dzee",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "i think one interesting direction for products is for traditional business functions or job roles for which data sources exist from which one could build and test an agentic or ml or other type of system and test it on the data or train a very specialized ml and distribute it for useful tasks.",
+  "input_sha256": "ef8e61e1f576efb2c8d4ae49775cba448ad0993c28b1e742fce382dfd291f4d1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T17:52:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10199,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First push: my post description was 165 characters (cap 160) and my flagships edit kept ai-bookkeeper next over 2,000; both caught by CI, fixed in the second push."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/fuzz.test.mjs",
+      "issue": "fuzz.test.mjs and metamorphic.test.mjs read every entry of fixtures/ as a file, so a fixtures subdirectory fails with EISDIR; the CORD set went to eval/cord/ instead."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper (2,119) and einvoice-preflight (2,293) next: were over the 2,000-character cap on main, so validate was red for every PR; this PR trimmed both, then main landed its own trim and this PR took main's text plus the one receipts clause."
+    },
+    {
+      "file": "docs/posts/",
+      "issue": "Five posts from other PRs reached main with descriptions over 160 characters or none at all (chip-estimate, skipping-training-steps, freight-line, bank-description-formula, label-free-audit), each breaking the Pages build for every open PR; fixed here in three rounds. Other sessions are merging while build is red: a pre-commit or merge-time check on post front matter would stop it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Owner gave a new direction (business functions with public data). Recorded it in goals.md and portfolio/data-backed/README.md (licences read from HF/UCI APIs 2026-10-24). First instance: ai-bookkeeper parseReceipt scored on CORD-v2 (CC BY 4.0). Held-out test totals 4/95 -> 89/95, tax 0/41 -> 37/41; test scored twice (before, after). Tuned on train+validation only. node --test in ventures/ai-bookkeeper: 1108/1108 pass.",
+  "corrections": [],
+  "redteam": null
+}

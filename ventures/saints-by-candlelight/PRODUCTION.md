@@ -157,7 +157,7 @@ list.
 cd ventures/saints-by-candlelight
 # 1. write episodes/<NNN>-<slug>.md following this file
 node generate.mjs --check-script <slug>     # length, banned characters, welcome/sign-off present
-python3 render_audio.py <slug>              # Kokoro TTS, offline, ~1/3 real time on a laptop CPU
+python3 render_audio.py <slug>              # Kokoro TTS, offline, ~1/4 real time on 4 CPU cores; re-renders reuse unchanged sentences
 node generate.mjs                           # pages, feed.xml, sitemap
 node --test
 ```
@@ -165,7 +165,10 @@ node --test
 `render_audio.py` needs `pip install kokoro-onnx soundfile` and the two
 Kokoro v1.0 model files (`kokoro-v1.0.onnx`, `voices-v1.0.bin`, Apache 2.0)
 in `~/.cache/kokoro` or `--models <dir>`; it downloads them from Hugging Face
-if missing. Narrator voice: `bm_george` at speed 0.9.
+if missing. Narrator voice: `bm_george` at speed 0.9. The rendering itself is the
+shared engine, [`platform/audio/narrate.py`](../../platform/audio/narrate.py)
+(sentence cache, one worker per core, fixed-gain loudness, optional `misaki`
+pronunciation); its docstring has the setup.
 
 ## The episode list
 

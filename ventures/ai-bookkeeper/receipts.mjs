@@ -18,7 +18,6 @@ import { modelFor, confirm } from "./engine.mjs";
 
 const day = (d) => Math.floor(Date.parse(`${d}T00:00:00Z`) / 86400000);
 const MONEY = /(?:[$£€]\s*)?(\d{1,3}(?:,\d{3})+\.\d{2}|\d+\.\d{2})(?!\d)/g;
-const MONEY1 = new RegExp(MONEY.source);
 // Decimal-comma receipts (12,50 / 1.234,56), common across continental Europe.
 const MONEY_C = /(?:[$£€]\s*)?(\d{1,3}(?:\.\d{3})+,\d{2}|\d+,\d{2})(?!\d)/g;
 const DOTDATE = /\b\d{1,2}\.\d{1,2}\.(?:\d{4}|\d{2})\b/g;
@@ -28,6 +27,23 @@ export function commaStyle(text) {
   const t = String(text).replace(DOTDATE, " ");
   return (t.match(MONEY_C) ?? []).length > (t.match(MONEY) ?? []).length;
 }
+// Whole-unit receipts (Indonesian rupiah, yen, won): 45,500 or 60.000 with no
+// decimals, or plain 91000. Grouped amounts use one separator throughout; a
+// number glued to letters ("PB1", "xx7730"), a percentage or part of a date,
+// time or phone number is not an amount.
+const RP = /\bRp\.?\s*/gi;
+const GROUPED = /(?<![\p{L}\d.,\/-])\d{1,3}([.,])\d{3}(?:\1\d{3})*(?![.,]?\d|[%\/-]\d|:\d)/gu;
+const WHOLE = /(?:[¥₩]\s*)?(?<![\p{L}\d.,\/:-])(\d{1,3}(?:([.,])\d{3}(?:\2\d{3})*)?|\d+)(?![.,]?\d|%|[\/:-]\d)/gu;
+// Used when grouped whole amounts outnumber amounts with decimals, or when
+// there are no decimals at all and some number of three or more digits.
+export function wholeStyle(text) {
+  const t = String(text).replace(DOTDATE, " ").replace(RP, " ");
+  const decimals = (t.match(MONEY) ?? []).length + (t.match(MONEY_C) ?? []).length;
+  const grouped = (t.match(GROUPED) ?? []).length;
+  return grouped > decimals || (decimals === 0 && /(?<![\p{L}\d.,\/:-])\d{3,}(?![.,]?\d|%|[\/:-]\d)/u.test(t));
+}
+// style: false (12.50), true (12,50) or "whole" (12,500 / 12.500 / 12500)
+const moneyRe = (style) => (style === "whole" ? WHOLE : style ? MONEY_C : MONEY);
 const DATE_RES = [
   /\b(\d{4}-\d{1,2}-\d{1,2})\b/,
   /\b(\d{1,2}\/\d{1,2}\/(?:\d{4}|\d{2}))\b/,
@@ -35,9 +51,12 @@ const DATE_RES = [
   /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
   /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? \d{4})\b/i,
 ];
-const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|gesamt(?:betrag)?|summe|totale|totaal|total)\b/i;
-const NOT_TOTAL_RE = /sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|discount|items|tax|points)|tax\s+total|before\s+tax|tip\b|change\b|cash\b/i;
-const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw)\b/i;
+const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|tl)\b/i;
+const NOT_TOTAL_RE = /sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|discount|items?|qty|quantity|pcs|tax|points)|tax\s+total|before\s+tax|tip\b|change\b|cash\b/i;
+const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?)\b/i;
+// "Tax Total" is the tax, not the total; "Dasar Pengenaan Pajak" (DPP) is the taxable base
+const TAX_TOTAL_RE = /tax\s+total|total\s+tax/i;
+const NOT_TAX_RE = /dasar\s+pengenaan|\bdpp\b/i;
 
 // Currency printed on a receipt: an unambiguous symbol or a three-letter code
 // beside an amount. A bare "$" says nothing (USD, CAD, AUD all use it), so it
@@ -56,7 +75,9 @@ export function detectCurrency(lines) {
 // books.currency is a code ("USD") or a symbol ("$"); compare as codes
 const bookCode = (books) => { const c = String(books.currency ?? "USD").trim(); return SYMBOL_CUR[c] ?? (c === "$" ? "USD" : c.toUpperCase()); };
 
-const amountsIn = (line, comma = false) => [...line.matchAll(comma ? MONEY_C : MONEY)].map((m) => parseCents(m[1], comma)).filter((c) => Number.isInteger(c));
+const amountsIn = (line, style = false) => (style === "whole"
+  ? [...line.replace(RP, " ").matchAll(WHOLE)].map((m) => Number(m[1].replace(/[.,]/g, "")) * 100).filter((c) => Number.isSafeInteger(c))
+  : [...line.matchAll(moneyRe(style))].map((m) => parseCents(m[1], style)).filter((c) => Number.isInteger(c)));
 
 // Receipts are separated by a line of three or more dashes, equals signs or
 // underscores, or by a form feed. One receipt with no separator is fine.
@@ -65,19 +86,19 @@ export function splitReceipts(text) {
 }
 
 // Lines that carry an amount but are not things bought.
-const NOT_ITEM_RE = /sub\s*-?total|zwischensumme|\bgesamt|\bsumme\b|\btotale?\b|\btotaal\b|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
+const NOT_ITEM_RE = /\b(?:tunai|kembali(?:an)?|kartu|ppn|pb\s*1|pajak)\b|sub\s*-?total|zwischensumme|\bgesamt|\bsumme\b|\btotale?\b|\btotaal\b|\btotal\b|\btax\b|\bvat\b|\bgst\b|\bhst\b|\bpst\b|\btva\b|\bmwst\b|\biva\b|\bbtw\b|\btip\b|gratuity|change|cash|tender|visa|mastercard|mc\s|amex|debit|credit|card|payment|paid|balance|amount|discount|coupon|savings|points|rounding|\bauth\b|\bref\b|\bacct\b|\bthank/i;
 const TIP_RE = /\b(tip|gratuity)\b/i;
 
 // Item lines: words, then a price (the last amount on the line; "2 x 3.00  6.00"
 // is 6.00). Discount lines are not read, so a receipt with one fails the
 // check below and says so rather than splitting on a guess.
-export function parseItems(lines, comma = false) {
+export function parseItems(lines, comma = false) { // comma: a style, as moneyRe
   const items = [];
   for (const l of lines) {
     if (NOT_ITEM_RE.test(l) || DATE_RES.some((re) => re.test(l))) continue;
     const a = amountsIn(l, comma);
     if (!a.length) continue;
-    const desc = l.replace(comma ? MONEY_C : MONEY, " ").replace(/^\s*\d+\s*(?:x\s*)?(?=[a-z])/i, "").replace(/[\s$£€@x*]+$/gi, "").replace(/\s{2,}/g, " ").trim();
+    const desc = (comma === "whole" ? l.replace(RP, " ") : l).replace(moneyRe(comma), " ").replace(/^\s*\d+\s*(?:x\s*)?(?=[a-z])/i, "").replace(/[\s$£€@x*]+$/gi, "").replace(/\s{2,}/g, " ").trim();
     if (!/[a-z]{2}/i.test(desc)) continue;
     items.push({ desc: desc.slice(0, 60), cents: a[a.length - 1] });
   }
@@ -87,26 +108,31 @@ export function parseItems(lines, comma = false) {
 export function parseReceipt(block) {
   const lines = cleanOcr(String(block)).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const notes = [];
-  const comma = commaStyle(lines.join("\n"));
+  const comma = wholeStyle(lines.join("\n")) ? "whole" : commaStyle(lines.join("\n"));
   let date = null;
   for (const l of lines) {
     // dotted dates and dates beside decimal commas are day-first
-    for (const re of DATE_RES) { const m = l.match(re); if (m && (date = parseDate(m[1], comma || m[1].includes(".")))) break; }
+    for (const re of DATE_RES) { const m = l.match(re); if (m && (date = parseDate(m[1], comma === true || (comma === "whole" && !m[1].includes("-")) || m[1].includes(".")))) break; }
     if (date) break;
   }
   if (!date) notes.push("no date found");
 
   // merchant: the first line that is words, not an address, phone, date or amount
   const merchantLine = lines.find((l) => /[a-z]{3}/i.test(l) && !/^(receipt|invoice|order|thank|tax invoice)/i.test(l)
-    && !/\d{3}[-. ]\d{3,4}/.test(l) && !DATE_RES.some((re) => re.test(l)) && !(comma ? new RegExp(MONEY_C.source) : MONEY1).test(l) && !/^\d+\s+\w+\s+(st|street|ave|avenue|rd|road|blvd|dr|drive|ln|way)\b/i.test(l));
+    && !/\d{3}[-. ]\d{3,4}/.test(l) && !DATE_RES.some((re) => re.test(l)) && !new RegExp(moneyRe(comma).source, "u").test(l) && !/^\d+\s+\w+\s+(st|street|ave|avenue|rd|road|blvd|dr|drive|ln|way)\b/i.test(l));
   const merchant = merchantLine ? merchantLine.replace(/\s{2,}.*$/, "").slice(0, 60) : null;
   if (!merchant) notes.push("no merchant found");
 
   // total: the last total-looking line with an amount; else the largest amount on the page
   let cents = null, from = null;
-  for (const l of lines) {
-    if (TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) { const a = amountsIn(l, comma); if (a.length) { cents = a[a.length - 1]; from = l; } }
-  }
+  // a total line with no amount takes the next line when that line is only an amount
+  const bare = (l) => l && !/\p{L}{2}/u.test(l.replace(RP, " ")) ? amountsIn(l, comma) : [];
+  lines.forEach((l, i) => {
+    if (TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) {
+      const a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(lines[i + 1]);
+      if (a.length) { cents = a[a.length - 1]; from = l; }
+    }
+  });
   if (cents === null) {
     const all = lines.flatMap((l) => amountsIn(l, comma));
     if (all.length) { cents = Math.max(...all); notes.push("no total line; took the largest amount"); }
@@ -114,7 +140,7 @@ export function parseReceipt(block) {
   if (cents === null) notes.push("no amount found");
 
   let taxCents = null;
-  for (const l of lines) if (TAX_RE.test(l) && !TOTAL_RE.test(l) && !/subtotal/i.test(l)) { const a = amountsIn(l, comma); if (a.length) taxCents = a[a.length - 1]; }
+  for (const l of lines) if (TAX_RE.test(l) && (!TOTAL_RE.test(l) || TAX_TOTAL_RE.test(l)) && !/subtotal/i.test(l) && !NOT_TAX_RE.test(l)) { const a = amountsIn(l, comma); if (a.length) taxCents = a[a.length - 1]; }
   if (taxCents !== null && cents !== null && taxCents >= cents) taxCents = null;
   // line items, kept only if they add up to the printed total (with the tax and
   // any tip, or already including tax); the merchant line is not an item

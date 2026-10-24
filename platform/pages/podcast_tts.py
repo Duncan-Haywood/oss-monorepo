@@ -6,7 +6,7 @@
     python3 platform/pages/podcast_tts.py --check                        # which scripts lack current audio
 
 Reads `docs/podcast/<date>-<slug>.md`, writes `docs/podcast/audio/<date>-<slug>.mp3`
-(mono MP3 at -16 LUFS, ID3-tagged) and records bytes, seconds, the audio's sha256,
+(mono 48 kbps MP3 at -16 LUFS, ID3-tagged) and records bytes, seconds, the audio's sha256,
 the script's sha256 and the voice in `docs/podcast/audio/manifest.json`. A script
 whose sha256 and voice already match the manifest is skipped, so editing a script,
 or changing `VOICE`, is what re-voices it. Voicing happens once, on the machine
@@ -15,15 +15,15 @@ the site build and the listener never run a model.
 
 The voice is Kokoro-82M (huggingface.co/hexgrad/Kokoro-82M, Apache-2.0 weights,
 trained on permissively licensed and synthetic audio, so the output can be
-redistributed). It is a modern neural model with natural prosody, in place of the
-flat Piper LJ Speech voice the first episodes used. It runs on a CPU at several
-times real time; a GPU is used when torch finds one.
+redistributed), rendered by the shared engine in `platform/audio/narrate.py`:
+sentence-level cache (an edited script re-voices only the sentences that changed),
+one worker per core, designed pauses and fixed-gain loudness. It runs on a CPU at
+about four times real time.
 
 Setup (once, outside the repository): `python3 -m venv tts && tts/bin/pip install
-kokoro soundfile` (add `--index-url https://download.pytorch.org/whl/cpu` to a
-first `tts/bin/pip install torch` to skip the CUDA wheels). The weights download
-from huggingface.co on first use. Needs `ffmpeg` and `ffprobe` on PATH, and
-`espeak-ng` for words outside Kokoro's dictionary.
+kokoro-onnx soundfile`, plus the optional misaki install in `narrate.py`'s
+docstring for Kokoro's own English pronunciation. The model files download
+from huggingface.co on first use. Needs `ffmpeg` and `ffprobe` on PATH.
 """
 from __future__ import annotations
 
@@ -31,22 +31,19 @@ import argparse
 import hashlib
 import json
 import re
-import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "platform" / "audio"))
 PODCAST = ROOT / "docs" / "podcast"
 AUDIO = PODCAST / "audio"
 MANIFEST = AUDIO / "manifest.json"
 SHOW = "Open Tools and Research podcast"
 
-MODEL = "hexgrad/Kokoro-82M"
 # af_heart is the voice Kokoro's own card grades highest; a warm, conversational read.
 VOICE = "af_heart"
 VOICE_ID = f"kokoro-82m-{VOICE}"
-RATE = 24000
 # Breaths between paragraphs: a short beat between thoughts, a longer one after the
 # opening line and before the sign-off, where a person reading aloud would pause.
 PARAGRAPH_PAUSE = 0.55
@@ -117,43 +114,24 @@ def stale(manifest: dict) -> list[Path]:
     return out
 
 
-def synthesise(pipeline, lines: list[str], speed: float):
-    """The episode as one float waveform at RATE, paragraph by paragraph with pauses between."""
-    import numpy as np
+def plan(lines: list[str]) -> list:
+    """The episode as a narration script: paragraphs, with a longer breath after the
+    opening line and before the sign-off, where a person reading aloud would pause."""
+    from narrate import Say
 
-    beat = np.zeros(int(PARAGRAPH_PAUSE * RATE), dtype=np.float32)
-    section = np.zeros(int(SECTION_PAUSE * RATE), dtype=np.float32)
-    parts = []
-    for i, line in enumerate(lines):
-        for result in pipeline(line, voice=VOICE, speed=speed, split_pattern=None):
-            if result.audio is not None:
-                parts.append(result.audio.cpu().numpy() if hasattr(result.audio, "cpu") else np.asarray(result.audio))
-        if i < len(lines) - 1:
-            parts.append(section if i == 0 or i == len(lines) - 2 else beat)
-    return np.concatenate(parts)
+    last = len(lines) - 1
+    return [Say(line, after=0.0 if i == last else SECTION_PAUSE if i in (0, last - 1) else PARAGRAPH_PAUSE)
+            for i, line in enumerate(lines)]
 
 
-def voice(script: Path, pipeline, speed: float) -> dict:
-    import soundfile as sf
+def voice(script: Path, narrator) -> dict:
+    from narrate import master
 
     meta, body = split_script(script.read_text())
-    mp3 = AUDIO / f"{script.stem}.mp3"
-    with tempfile.TemporaryDirectory() as tmp:
-        wav = Path(tmp) / "episode.wav"
-        sf.write(wav, synthesise(pipeline, spoken_lines(body), speed), RATE)
-        # One-pass loudness to the podcast norm, a gentle high-pass to take out rumble, mono 48 kbps.
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(wav),
-                        "-af", "highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=11", "-ac", "1", "-ar", str(RATE),
-                        "-codec:a", "libmp3lame", "-b:a", "48k",
-                        "-metadata", f"title={meta.get('title', script.stem)}", "-metadata", f"artist={SHOW}",
-                        "-metadata", f"album={SHOW}", "-metadata", f"date={meta.get('date', '')[:4]}",
-                        "-metadata", "comment=Synthetic voice (Kokoro-82M); script written by an AI agent.",
-                        str(mp3)], check=True)
-    seconds = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(mp3)],
-                                   check=True, capture_output=True, text=True).stdout.strip())
-    data = mp3.read_bytes()
-    return {"bytes": len(data), "seconds": round(seconds, 2), "sha256": sha256(data),
-            "script_sha256": sha256(script.read_bytes()), "voice": VOICE_ID}
+    entry = master(narrator.render(plan(spoken_lines(body))), AUDIO / f"{script.stem}.mp3", bitrate="48k", metadata={
+        "title": meta.get("title", script.stem), "artist": SHOW, "album": SHOW, "date": meta.get("date", "")[:4],
+        "comment": "Synthetic voice (Kokoro-82M); script written by an AI agent."})
+    return {**entry, "script_sha256": sha256(script.read_bytes()), "voice": VOICE_ID}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -174,11 +152,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if todo else 0
     AUDIO.mkdir(parents=True, exist_ok=True)
     if todo:
-        from kokoro import KPipeline
+        from narrate import Narrator
 
-        pipeline = KPipeline(lang_code="a", repo_id=MODEL)
+        narrator = Narrator(voice=VOICE, lang="en-us", speed=args.speed)
     for script in todo:
-        manifest[script.stem] = voice(script, pipeline, args.speed)
+        manifest[script.stem] = voice(script, narrator)
         e = manifest[script.stem]
         print(f"voiced {script.stem}: {e['seconds']:.0f} s, {e['bytes'] / 1e6:.1f} MB", flush=True)
         MANIFEST.write_text(json.dumps(dict(sorted(manifest.items())), indent=2) + "\n")

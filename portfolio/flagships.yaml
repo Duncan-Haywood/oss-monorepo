@@ -34,19 +34,30 @@ flagships:
       IIF journals; page, CLI and agent engine. Learning curve measured on
       synthetic data (README Verification).
     next: >-
-      Everything built so far is tested on hand-written or synthetic fixtures; the next slices are about
-      real inputs (landed log: README "Next" and git). Open, most valuable first: (0) built-in keywords on
-      a real-merchant set (Beancount example ledger 35.8% to 85.3% suggested, 0 wrong, still synthetic);
-      (1) the AI layer in fill-only mode on real bank descriptions, more seeds, a bigger model (7B rescued
-      7 of 9 uncovered lines, broke 0, synthetic); (2) bank readers on real exports from Chase, Bank of
-      America, Wells Fargo, Amex, Capital One and others (third-party fixtures probed so far, README;
-      Maybe's trades CSV flipped 2026-10-29, its Account/Category columns unused); (3) a real Stripe,
-      Square, PayPal, eBay or Amazon settlement export, a real 1099-K; (4) a real supplier terms letter
-      and one lender's schedule (`loan check`); (5) receipts and reconcile on real paper, receipt photos
-      in the page; (6) payroll: a real Gusto or ADP report; (7) one filing service's import layout from
-      its spec; (8) `salestax return`: due dates for ~35 states from search excerpts or memory (README
-      lists which), open: a real return layout; (9) 2027 `estimate`: indexed QBI minimum and 2027 brackets
-      once the IRS publishes them. A run that lands a slice replaces its item here; keep this under 2,000
+      Everything built so far is tested on hand-written fixtures; the next slices
+      are about real inputs (landed work is in the README and git history, not
+      here). Open items, most valuable first: (0) built-in keywords measured on
+      the MIT us-bank-transaction-categories set and Beancount's example ledger
+      2026-10-24 (35.8% to 85.3% suggested, 0 wrong; README Next): still
+      synthetic, try a real-merchant set; (1) the AI layer in fill-only mode
+      on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
+      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers
+      (CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
+      code pages; public sample corpora probed, README; Maybe's Account/Category columns unused) on real exports
+      from Chase, Bank of America, Wells Fargo, Amex, Capital One and others;
+      (3) a real Stripe, Square, PayPal, eBay or Amazon settlement export for the
+      payment-processor import (`form1099k`: try a real 1099-K); (4) a real
+      supplier's terms letter checked against the fee and discount rules, and one
+      named lender's own schedule against the loan register (`loan check`);
+      (5) receipts through real OCR (layouts measured on CORD-v2 2026-10-24: 89/95 held-out totals; merchant and date unmeasured) and the reconcile-to-statement command on real paper, and
+      reading receipt photos in the page; (6) payroll (941, Schedule B, 940,
+      deposits, `payroll reconcile`): a real Gusto or ADP report; (7) one named
+      filing service's import layout, from its own spec; (8) `salestax return`:
+      due dates still from search excerpts or memory for the states the README
+      lists; open: a real return layout; (9) 2027 `estimate`: the indexed QBI
+      minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes
+      the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is
+      in). A run that lands a slice replaces its item here; keep this under 2,000
       characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
@@ -78,7 +89,7 @@ flagships:
       (fake IMAP and SMTP only; TLS untested), M6a/M6b research agent, M7a call prep, M7b follow-ups.
       Reply rules read 15 of 40, 27 of 41 and 34 of 41 fresh hand-written replies right; prep field rules 12/20 on
       agent-written notes. Header signals (DSN, Auto-Submitted) checked 2026-10-24 on 117 real bounces (flufl.bounce
-      data: 102 right before, 116 after fixing 3 hard bounces read as out-of-office; README). All reply and
+      data: 102 right before, 116 after fixing 3 hard bounces read as out-of-office; README; mail gem's 5 DSNs 5/5, multi-recipient DSN bug fixed; README). All reply and
       note sets other than that bounce corpus are agent-written. Next: (1) real human replies and a real rep's call
       notes to check the reply rules, prep rules and follow-up sorter; (2) M2: score a hosted and a local model with
       eval/model.mjs on the fresh sets (needs a key), with a set labelled by a person or another model family before
@@ -105,17 +116,21 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      Landed history (official Schematron, in-browser path, 20+ country mandate pages, arithmetic repair,
-      FatturaPA IT-001..IT-018, EN 16931 official examples, XRechnung suite, Peppol BIS 3.0, ZUGFeRD
-      corpus, FatturaPA samples, Factur-X PDF unwrap, PINT SG and A-NZ, RO_CIUS) lives in the README and
-      git. Open: the FatturaPA XSD and its code lists, tolerances and IT-018 sequences against the current
-      spec; the rules on real ERP files; a repair tried on a real ERP or Factur-X export (xref-stream PDF
-      repair is on a hand-built fixture; open the result in veraPDF), a page button for PDFs; PINT SG and
-      RO_CIUS rules not yet on the Saxon/server route and no real PINT or ANAF file tried; NLCIUS (plain-
-      from-xslt.mjs can compile it); mandate pages whose dates came from guides, not the authority:
-      Singapore (iras.gov.sg), Australia (ato.gov.au), Ireland (revenue.ie), India (CBIC; INV-01 schema
-      check not built); refresh the Bulgaria page when its draft passes or changes. A run that lands a
-      slice replaces its item here; keep this under 2,000 characters.
+      Landed history (official Schematron, in-browser path, 20+ country mandate
+      pages, arithmetic repair, FatturaPA IT-001..IT-018, runs against the
+      official EN 16931, XRechnung, Peppol BIS, ZUGFeRD and Factur-X corpora with
+      their false positives fixed, Singapore, Australia, Ireland, India and
+      RO_CIUS pages and rules, EXTENDED logistics charges read as header
+      charges) lives in the README and git. Open: the FatturaPA XSD and verifying its code lists, tolerances and IT-018 sequences
+      against the current specification; the rules and a repair on a real ERP or
+      Factur-X export (open the repaired PDF in veraPDF or a viewer); a page
+      button for PDFs; PINT SG and A-NZ rules on the Saxon/server route and on a
+      real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
+      (plain-from-xslt.mjs can compile it); India's INV-01 schema check; mandate
+      dates read from primary sources where pages cite guides (iras.gov.sg,
+      ato.gov.au, revenue.ie, CBIC); refresh the Bulgaria page when its draft
+      passes or changes. A run that lands a slice replaces its item here; keep
+      this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
