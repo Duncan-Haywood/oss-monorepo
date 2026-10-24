@@ -125,6 +125,7 @@ buildbot-skills
 buildbot-stance
 buildbot-studfind
 buildbot-taskbook
+buildbot-torquewall
 calibration-hedging
 capture-aliaswin
 capture-audiosync
@@ -222,6 +223,7 @@ codesign-aero-robust
 codesign-aero-seeds
 codesign-aero-skip
 codesign-agri
+codesign-agri-pulloff
 codesign-agri-sweep
 codesign-ceiling
 codesign-diagnose
@@ -704,6 +706,7 @@ rank-elicitation
 ransac-twin
 ratelimit-burst
 reject-surrogates
+religion-origins
 rendezvous-twin
 replay-law
 replay-memory
