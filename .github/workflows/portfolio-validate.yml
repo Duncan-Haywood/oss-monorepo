@@ -505,6 +505,14 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_duplicate_ids
 
+      # Posts without `tags` shipped unnoticed; this reads their front matter.
+      - name: Check blog post front matter
+        run: python3 platform/ci/check_post_frontmatter.py
+
+      - name: Post front matter checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_post_frontmatter
+
       # A calculator with both a saved draft and a shareable link restores the
       # draft first and lets the link win. That only works if the link REPLACES
       # the form: encode omits a blank, decode omits the missing key, and a

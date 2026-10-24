@@ -2,6 +2,7 @@
 title: "Choosing real robot trials by where the simulator is wrong: a gain at 120 trials, a loss below"
 date: 2026-10-26
 description: "Spending real robot trials where the simulator is wrong: a gain at 120 trials and a loss below that, measured against uniform sampling."
+tags: [research, robotics, sim2real, statistics]
 ---
 
 A simulator ("digital twin") of a robot is biased, but it is free. Real trials
