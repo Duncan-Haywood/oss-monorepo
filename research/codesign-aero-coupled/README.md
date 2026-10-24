@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-skip` (track 14, `codesign`), whose "Next steps" asked for pitch and yaw coupling "so a nonlinear policy has structure a linear law cannot represent". This project adds it: three-axis attitude with Euler's rigid-body equations (gyroscopic term ω×Iω), a yaw axis that has reaction-torque authority only, and a residual network that sees all six states. It also adds an arm that needs no search: the analytic gyroscopic compensation, which is the part of the coupling a network could in principle learn. Produced with AI assistance (Claude). **Simulated; the plant, gust and randomisation ranges are the assumed round numbers of the earlier projects, not measurements; the yaw reaction-torque ratio and the Iz/Ix ratio are assumed and swept.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-coupled/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-coupled/
 
 ![Left: held-out error per airframe for PID, PID plus residual and PID plus gyroscopic compensation. Right: the 12-condition sweep](experiments/coupled.png)
 

@@ -2,7 +2,7 @@
 
 Sixth project of track 13, autonomous multi-angle capture for travel creators (`PROJECTS.md`, milestone 6). A creator filming in public catches strangers on camera; the safe default is to blur their faces automatically. This project asks how often that blur fails, by camera, distance and detector, on an **assumed size-to-recall model** (no real footage, no real detector was run). **Headline:** a face detector that is 50% reliable at 20 px leaves an identifiable face (face-on, at least 32 px across) unblurred 5% of the time per frame for people spread evenly around a camera, and 8% of the time at 5 m on an 8K 360 camera; blurring the head region of any detected *body* instead drops that to under 0.1% because a body is 11 times taller than a face. The per-frame figure hides the worse number: with independent misses a person filmed for 5 s at the edge of the range is unblurred in at least one frame 100% of the time, and only if misses come in runs of 150 frames (the whole shot) does that fall to 25%. An offline edit that blurs a whole track after one detection is left with the share never detected at all (0 to 5%). **Not done:** no real faces, plates or detector; no measured conspicuousness. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-bystander/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-bystander/
 
 **Guardrail.** This is a design input for filming in public with bystanders protected by default. It is not a way to hide that filming is happening, and nothing here says blurring satisfies the GDPR or any other law where you film.
 

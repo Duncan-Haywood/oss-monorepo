@@ -2,7 +2,7 @@
 
 Pure Python standard library. This follows up the "Next steps" of `swe-callcost`, which found that cost rises with a log-log slope of 1.22 against tool calls, not 1. It asks whether the per-token-kind usage the run records keep explains that. Why it seemed worth doing: the answer says where a cheaper run would have to save tokens. Produced with AI assistance (Claude). Builds on none of the labs in `prompt.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-cachecost/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-cachecost/
 
 All numbers are from `experiments/results.txt`: 893 of 1,659 records in `prompts/runs/` carry `usage.totals` (per-kind tokens, complete), a positive cost and tool calls, dated 2026-10-16 to 2026-10-20. Costs are API-equivalent dollars recomputed here from `prompts/pricing.json`.
 

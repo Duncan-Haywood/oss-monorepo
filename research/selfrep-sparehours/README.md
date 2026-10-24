@@ -2,7 +2,7 @@
 
 Follow-up to `selfrep-spares` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking the first of that project's listed next steps: charge printed spares their print hours. Produced with AI assistance (Claude). **Stylised, assumed inputs**: nothing here measures a real printer.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-sparehours/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-sparehours/
 
 **Headline.** At the `selfrep-spares` inputs the working fleet does not notice a print wait of up to about 500 h per printed-bushing repair (about 234 h mean downtime per breakdown against 5 h before): the fleet stays at 62.7 against 64.2 with no wait. But the printed bushing never had a clear gain to lose. Even at no wait it is +1.8 machines over stock bearings, inside the run-to-run spread (5–95 percentile of about ±7). The wait starts to cost visibly at 1000 h (58.5) and hurts at 2000 h (52.3) and 5000 h (36.0).
 

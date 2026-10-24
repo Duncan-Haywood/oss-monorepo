@@ -5,7 +5,7 @@ A free tool that lists every package in a `package-lock.json` that runs a
 and, given an older lockfile, tells you exactly which packages **gained**
 one since then.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/npm-lifecycle-script-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/
 
 **What it is not:** a malware scanner, a security audit, or a verdict on any
 specific package. It answers two narrow, deterministic questions — does this

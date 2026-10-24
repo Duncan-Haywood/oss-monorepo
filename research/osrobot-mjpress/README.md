@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-mjface` (track 9, open-source purpose-built robots), taking the first item of its "Next steps": **convert peak force to contact pressure and compare with pressure limits.** `osrobot-mjface` found every camera-arm trial under the 65 N and 130 N face force limits (worst 53 N) but said a 4 mm tip concentrates force, so pressure limits "may bind before the force limits do". In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Needs `pip install mujoco` (3.16.0 used). Simulation only; **not a safety case** (ISO 13482 and an owner risk assessment come first).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-mjpress/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-mjpress/
 
 ![Contact area needed against approach speed](experiments/area_needed.svg)
 

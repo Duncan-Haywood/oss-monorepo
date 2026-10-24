@@ -1,6 +1,6 @@
 # What do agent runs record going wrong, and does it relate to partial outcomes or cost?
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-errors/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-errors/
 
 Pure Python standard library. Track 10 (the software-engineering loop), a new question rather than a listed milestone: the run records' `errors` field (222 entries across 1,027 records) had not been read as a dataset. Produced with AI assistance (Claude). **Preliminary: keyword classification, self-reported errors, and the cost comparison rests on 30 priced runs with an error.**
 

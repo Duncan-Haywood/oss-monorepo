@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-labelmatch` and the chain of estimator fixes after it (`ambient-dr`, `ambient-drclip`, `ambient-crossfit`, `ambient-capcv`, `ambient-drvalid`, `ambient-drablate`, `ambient-drrepeat`). Every one of those tried to repair a biased fit by reweighting or by adding an outcome model. This project asks a simpler question: what if the learner just ignores every window where it spoke for a reason other than the &epsilon; coin? Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Positive result in the uninformed-prior regime, mixed with an informed prior.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-exploreonly/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-exploreonly/
 
 ## Motivation
 

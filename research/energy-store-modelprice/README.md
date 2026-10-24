@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 2 of [`energy-price-residual`](../energy-price-residual) ("feed the fitted price into the sand-store and heat-pump comparison of `energy-thermal-real` to see whether its winners survive a modelled rather than real price"). [`energy-thermal-real`](../energy-thermal-real) found a house-sized sand heat store beats an air-source heat pump on real German day-ahead prices for daily cycling (all 5 years) and mostly for weekly cycling; [`energy-price-residual`](../energy-price-residual) fitted a residual-load price curve. Here the same cost model is fed the curve's prices, each year fitted on the other four. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-store-modelprice/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-store-modelprice/
 
 ![Weekly store minus heat pump on real and modelled prices](experiments/weekly.svg)
 

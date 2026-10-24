@@ -7,7 +7,7 @@ summaries, and retention policies that enforce a byte limit. Produced with AI as
 facts, nothing is fitted to real speech, and nothing is a claim about a real user, device or
 product.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-memory/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-memory/
 
 ## Motivation
 

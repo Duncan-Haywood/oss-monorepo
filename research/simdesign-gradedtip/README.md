@@ -2,7 +2,7 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the open step that `simdesign-gaugepatch` and `simdesign-gaugefine` both list: "add a graded refinement at the fillet tangent point to decide whether the centroid peak has a finite limit". `simdesign-gaugemesh` and `simdesign-meshconverge` found the element-centroid peak stress of the 2 mm laser-cut bracket still rising on uniform meshes down to h = 0.5 mm. Here the elements shrink only near the tangent point, to 0.025 mm. Answer for these four designs: the peak flattens at about 1.09 to 1.14 times its 1.5 mm value, so it does have a finite limit that uniform meshes could not reach. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed material, load and limits. Preliminary, simulated only.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-gradedtip/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-gradedtip/
 
 **Builds on.** `research/simdesign-gaugemesh` (the model, mesher and uniform-mesh peak drift; its source is copied into `src/simdesign_gradedtip/` so the project stays self-contained; the new code is `graded.py`), and `simdesign-meshconverge`, `simdesign-gaugepatch`, `simdesign-gaugefine` (the question). scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

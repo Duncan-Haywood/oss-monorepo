@@ -14,7 +14,7 @@ setting tried (final mean trust 0.974–0.984).** Produced with AI assistance (C
 research track 17 (`society`, `PROJECTS.md`, milestone 3). Every result is about simulated
 people following a stated rule, not about real trust in real robots.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-trust/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-trust/
 
 ## Why this question
 

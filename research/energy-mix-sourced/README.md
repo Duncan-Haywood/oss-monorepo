@@ -2,7 +2,7 @@
 
 Re-run of `energy-mix` (track 16, milestone 5) with every cost, lifetime, fixed O&M, efficiency, fuel price and CO<sub>2</sub> intensity read from the PyPSA technology-data tables instead of round numbers I chose, as the owner asked on 2026-10-21 ("run the numbers"; `research/CLAUDE.md`). Same one-node PyPSA model of Germany's 2019 hourly load, solar, onshore wind, gas turbine, Li-ion and hydrogen storage under an emissions cap. Produced with AI assistance (Claude). **Modelled, one weather year, no grid; the only input not from the cost table is the 7% discount rate.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-mix-sourced/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-mix-sourced/
 
 ![System cost against emissions cut for four sourced cost sets](experiments/cost.svg)
 

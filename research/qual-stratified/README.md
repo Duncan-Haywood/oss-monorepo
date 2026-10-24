@@ -2,7 +2,7 @@
 
 **It depends on how rare the smaller group is. On 3,188 real Reddit comments (GoEmotions), splitting the hand-coded audit evenly between the two groups made no measurable difference when the smaller group was 36% of the corpus (interval widths within 1–2% of a random audit), and made a large one when it was 11%: a random audit of 100 items gave a 95% interval for the gap 1.7 times as wide as an even split (0.75 against 0.44), 1.2 times as wide at 1,600 items, and worst-case coverage of 0.91 against 0.96.** The variance-minimising split (about 55% of the audit to the 11% group, computed from the full data as an oracle) was indistinguishable from an even split, so a simple "half each" rule gets all of the gain. The coders are naive-Bayes classifiers with a moved cut-off and a word list, not LLMs. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-stratified/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-stratified/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). It takes the "audit stratified by group" item in [`qual-gapaudit`](../qual-gapaudit)'s "Next steps". Same corpus, split, seed and coders as that project (three of its eight: `nb x0.8`, `x1.0`, `x1.25`, and the word list), the same group-wise prediction-powered gap and the same gap-bias z test.
 

@@ -2,7 +2,7 @@
 
 Follow-up to [`house-breakeven`](../house-breakeven), whose limitations named the missing term: a tighter envelope lowers the peak heating load, which can allow a smaller heat pump. This project computes that **equipment downsizing credit** and adds it to the energy break-even. Because equipment comes in discrete sizes, the credit is a step function of the load, so the interesting question is how robust the step is. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-hpsize/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-hpsize/
 
 **Headline (stylised, assumed inputs).** The tight package lowers the ADU's design heating load by about 36.5% in every climate (Chicago: 10,899 to 6,918 Btu/h). With an assumed catalogue (6, 9, 12, 18, 24, 30, 36 kBtu/h), a 15% sizing margin and a capacity loss in the cold, the selected heat pump drops one to two steps: 9 to 6 kBtu/h (Houston), 18 to 9 (Baltimore), 24 to 18 (Chicago), 30 to 18 (Minneapolis). At assumed prices ($1,500 plus $150 per kBtu/h) that is a credit of **$450, $1,350, $900 and $1,800**. The three upgrades `house-breakeven` could cost (attic, windows, air sealing; assumed $2,211 extra) were $998 to $1,607 short of paying back on energy alone; with the credit the gap falls to **$98 (Minneapolis), $287 (Chicago), $463 (Baltimore)** and stays $1,607 in Houston, where the size does not move. Taken one upgrade at a time, only the wall switch moves the size in Chicago and Minneapolis. The credit is not a stable number: moving Chicago's assumed design temperature by 5 F, or the sizing margin from 1.3 to 1.5, doubles or halves it.
 

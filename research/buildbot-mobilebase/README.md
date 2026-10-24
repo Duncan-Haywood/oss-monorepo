@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`). [`buildbot-stance`](../buildbot-stance) found a standing Unitree G1 needs about 13 stances (at 5 platform heights) to nail one sheet, and left the cost of the 12 moves as a swept 5 to 40 s; its next steps asked for a comparison with a mobile base that re-stances in 2 s. This replaces the assumed re-stance time with one computed from a drive speed and a lift speed, and orders the stances to shorten the trip. Produced with AI assistance (Claude). Simulated and preliminary. **The drive and lift speeds are swept, not sourced from a chosen machine**, and the G1's reach is `buildbot-stance`'s static result (feet fixed on the platform, no base motion, no vibration).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-mobilebase/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-mobilebase/
 
 **Headline.**
 - **On a base the 13 stances cost 5 to 63 s of re-stancing, so a sheet takes 54 to 121 s** (nailing and tip moves 25 s at a 4 m/s tip, 59 s at 0.5 m/s, plus the moves), against **85 to 119 s for a walking G1 at 5 s a step** and 265 s at 20 s a step. The base averages 2.4 to 5.2 s per move, so it beats a 5 s walker in 22 of the 24 settings (with a 2 s settle) and loses to it only at the slowest setting (0.2 m/s drive, 0.05 m/s lift).

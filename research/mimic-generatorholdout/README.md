@@ -2,7 +2,7 @@
 
 Track 11, adversarial human imitation. `mimic-featuretransfer` held out context families; this holds out the **generator** (mistral-chat, llama-chat, mpt-chat) and the **decoding** (greedy or sampling) of the machine text, on the same RAID-derived `mimic-contexts` suite. **Headline:** an n-gram detector keeps AUROC 0.97 to 0.98 on a held-out chat model (0.99 when none is held out) but falls to 0.94 when it is trained only on greedy-decoded text and tested on sampled text. A function-word-only detector degrades far more (0.78 to 0.85 on held-out generators, 0.69 on the decoding shift). **Preliminary:** three generators, one classifier, five folds; no LLM is run.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-generatorholdout/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-generatorholdout/
 
 ## Results (`results.txt`, `results.json`)
 

@@ -2,7 +2,7 @@
 
 **Yes for bending rigidity, weight and strip depth; no for very stretchy fabric under load. In 162 garments (size M tee: bending rigidity B 0.003 to 1 gf·cm²/cm, weight ×0.5 to ×2, stretch stiffness EA 40 to 800 N/m, strip depth 10 to 30 cm) the best arm half-width is the half shoulder + 1 cm in 151 and + 2 cm in 11; all 11 have EA = 40 N/m (a knit-like stretch; 10 of them at double weight, 1 at base weight), where the best error is 0.9 to 1.7 cm instead of about 0.2 cm. For child and XXL tees, varying one constant at a time never moves the best width off + 1 cm.** B alone changes the best error by under 10% (median 0.23 to 0.25 cm over a 330-fold range). Produced with AI assistance (Claude). Track 18 (`hanger`, `PROJECTS.md`), a robustness check on milestones 1 and 4. The sweep is the result; the constants it varies are still unmeasured.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-sweep/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-sweep/
 
 ![Shape error at the +1 cm width against B](experiments/err_vs_B.svg)
 

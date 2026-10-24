@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. Milestone 3 (`swe-value`) of track 10, the software-engineering loop, in `PROJECTS.md`. The track's metric needs a *value* term, and nothing here scored one. I wrote a three-level rubric, scored all 408 projects under `research/` with two automated passes that look at different evidence, scored a seeded 30-project sample by hand, and measured agreement with Cohen's kappa. Produced with AI assistance (Claude). **Preliminary: stylised proxies, no human rater, and the rubric author also made the hand scores.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-value/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-value/
 
 ## Results (all from `experiments/results.txt`)
 

@@ -5,7 +5,7 @@ A free browser tool for Etsy sellers: **drop in your Payment Account statement
 money.** The files are read in the browser; nothing is uploaded. Independent of
 Etsy and not affiliated with it.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/etsy-statement-profit-analyzer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/etsy-statement-profit-analyzer/
 
 After using this, you can now **see how much Etsy, Offsite Ads, Etsy Ads,
 renewals, labels and refunds actually take, and the profit per listing once you

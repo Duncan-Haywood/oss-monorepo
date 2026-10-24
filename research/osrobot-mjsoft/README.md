@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-mjlayer` (track 9, open-source purpose-built robots), taking its "Next steps" item: **run the compliant-face simulation so the arm's force comes out of the same model, and re-run the feeding trials with a force cap near the budget.** `osrobot-mjlayer` showed the force that indents a lip 30 % of its thickness is only 0.05 to 9 N, far below the 12.6 to 53 N peaks that `osrobot-mjpress` got from a 75,000 N/m kinematic spring. Here the spring is replaced by that tissue law, and the arm, controller and 30 mm mouth sway are those of `osrobot-mjfeed`. In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Needs `pip install mujoco` (3.16.0 used). Simulation only; **not a safety case** (ISO 13482 and an owner risk assessment come first).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-mjsoft/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-mjsoft/
 
 ![Share of trials within the depth limit by approach speed](experiments/within_budget.svg)
 

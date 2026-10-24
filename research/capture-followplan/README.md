@@ -2,7 +2,7 @@
 
 Follow-up to `capture-follow` (track 13, `PROJECTS.md`), taking its first "next step": a planner that goes round a pedestrian and rejoins the shot, instead of a repulsion field. **Headline:** at equal settings it does *not* recover the framing (a drone at 0.1 people/m&sup2; frames 58.0% of the time with the planner at a 1.5 m radius, against 67.8% for `capture-follow`'s repulsion), but it makes far fewer close passes (36 contacts within 0.5 m per hour against 161), and on ground platforms it cuts contacts from 326 to 21 per hour with the same ~40% framing. The honest comparison is the framing-against-contacts curve, where the planner sits to the left of repulsion. Neither controller keeps the frame at 0.3 people/m&sup2;. Platform figures are assumed round numbers (`capture-follow`'s), pedestrians ignore the platform, and the planner is given exact pedestrian velocities. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-followplan/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-followplan/
 
 **Builds on.** `capture-follow` (world, crowd, platforms and metrics are imported from it; with `mode="repulsion"` this project reproduces its numbers exactly, which a test checks). The sampler is a sampling-based local planner with constant-velocity prediction, in the family of velocity-obstacle and model-predictive collision avoidance (e.g. van den Berg et al., 2011, "Reciprocal n-body collision avoidance", *Robotics Research*; Bonatti et al., 2020, *Journal of Field Robotics*, for aerial cinematography). It is a plain implementation of the idea, not those papers' algorithms. It builds on none of the CU Boulder groups in `prompt.md`.
 

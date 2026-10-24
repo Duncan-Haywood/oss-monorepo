@@ -2,7 +2,7 @@
 
 `sensing-baoutlier` and `sensing-epigate` injected mismatches of three invented kinds (uniform random pixel, a 10 to 40 px "near miss", a shift along the epipolar line) and said so: "mismatch models are mine, not measured from a real matcher". This project measures them. It runs OpenCV SIFT on a real rectified stereo pair with ground-truth disparity, and on ten real photographs warped by known homographies, and sorts every wrong match by where it landed. **Headline: the mix depends on the ratio test.** With no ratio test 56% of SIFT matches on the stereo pair are wrong and 84% of those are far (hundreds of pixels, close to the uniform model). With Lowe's ratio test at 0.7 only 6% are wrong, but 62% of those lie within 2 px of the true epipolar line, which is the case a single-pair epipolar test cannot reject. A random right keypoint would land there 1% of the time.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-matchreal/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-matchreal/
 
 Lab tag: none fits (ARPG does perception, but this builds on none of its work). Builds on `sensing-epigate` (its "mismatch models are mine" limitation).
 

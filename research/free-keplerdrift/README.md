@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.036). Why it seemed worth doing: `free-integperiod` measured integrator error on the pendulum, whose potential is smooth and whose speed barely changes. Orbits, flybys and any twin with a close approach (a UAV passing an obstacle, a satellite at periapsis) are the opposite case: the speed and force change by a large factor within one orbit, and the common advice "use a symplectic integrator, it conserves energy" is checked here against an exact solution instead of being assumed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-keplerdrift/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-keplerdrift/
 
 ## Question
 

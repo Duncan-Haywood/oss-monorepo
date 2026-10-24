@@ -3,7 +3,7 @@
 A free tool that turns meeting notes or a transcript into **action items with an owner and a due date, the decisions made,
 the questions still open, and a follow-up email grouped by person**. It runs in your browser; nothing is uploaded unless you turn on the optional AI pass.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/meeting-action-items/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/meeting-action-items/
 
 After using this, you can **leave a meeting with a list of who does what by when, and send it the same day**, without a
 recording bot joining the call or sending your audio to a vendor's servers.

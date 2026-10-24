@@ -4,7 +4,7 @@
 
 Track 14 (agentic robot co-design, `codesign`). `../codesign-ceiling` found that the 0.85 plateau of `../codesign-diagnose` came from 10 of 140 scenes (spheres with the hand more than about 2 mm above their centre) that no design can hold, and its "Next steps" asked for the generator to be fixed and the ablation re-run. This does that and nothing else. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-headroom/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-headroom/
 
 ![Median best test success against designs evaluated, fixed scenes](experiments/best_so_far.svg)
 

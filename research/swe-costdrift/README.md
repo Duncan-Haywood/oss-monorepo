@@ -2,7 +2,7 @@
 
 Pure Python standard library. A new question for track 10 (the software-engineering loop): `swe-runcost` and `swe-callcost` describe what a run costs at one moment, and this asks whether that is stable. Produced with AI assistance (Claude). **Preliminary: six calendar days, observational, cost is an API-equivalent estimate.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-costdrift/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-costdrift/
 
 All numbers are from `experiments/results.txt` (1,053 records in `prompts/runs/` with positive `cost_usd` and `tool_calls` and a `started` time, 2026-10-16 to 2026-10-22).
 

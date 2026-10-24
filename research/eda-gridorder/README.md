@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-proposers` found the grid the weakest method at small budgets (0.098 of the true-front hypervolume at 8 evaluations against 0.815 for random) and said "a stride or space-filling grid would do better; this is the order the harness ships." That is a one-line change to the harness default, so this project measures it. Produced with AI assistance (Claude). Stylised and preliminary: one 80-design table of one toy accelerator family, nothing new simulated (the table is `eda-proposers`' committed log; this runs on stdlib Python alone).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-gridorder/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-gridorder/
 
 **Builds on.** `research/eda-proposers` (the 80-design table, the exact hypervolume code and the metric), `research/eda-harness` (whose lexicographic `GridProposer` is the baseline), `research/chip-accel`. No CU Boulder lab's work is built on and no affiliation is implied.
 

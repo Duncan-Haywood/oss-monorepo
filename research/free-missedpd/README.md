@@ -2,7 +2,7 @@
 
 **Why this was worth doing.** `free-jittertwin` studied a scalar unstable plant where a miss just doubled the period. A robot joint is second-order, and a real link loses *runs* of samples, so the interval becomes 2, 3, 4 &times; the nominal period. Does the earlier picture (a mean-square test far stricter than what simulated runs do) carry over to a PD loop on a double integrator, and how does the answer depend on how aggressively the twin was tuned? **Result (exact second-moment calculation plus simulation):** with each sample lost independently with probability *q* and the last command held, a loop whose twin has both poles at z = 0.5 is mean-square stable only up to **q = 0.293** but almost surely stable up to **q = 0.611** (at q = 0.55, 999 of 1000 simulated runs converge; at q = 0.65, 1 in 1000). A deadbeat-tuned twin (poles at 0) tolerates only q = 0.070 in mean square; a slow twin (poles at 0.9) tolerates 0.780. Stylised: ideal plant, no noise or delay, known model; the plant and loop are chosen, not taken from a robot (see Limitations). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-missedpd/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-missedpd/
 
 **Builds on.** Standard random-sampling / Markov-jump stability ideas (almost-sure Lyapunov exponent versus mean-square moment), as in `free-jittertwin`; no specific paper is relied on or re-verified here. Related in this repository: `free-jittertwin`, `latency-twin`, `deadtime-twin`. No CU Boulder group's work is built on or implied; the link to the digital-twin theme is that a twin's fixed step hides runs of lost samples.
 

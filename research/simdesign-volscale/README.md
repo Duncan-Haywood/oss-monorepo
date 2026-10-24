@@ -2,7 +2,7 @@
 
 Free of the micro-variant chain in track 5 (`PROJECTS.md`, simulation-first design): earlier `simdesign-*` projects tune one bracket; this one asks a design rule of thumb instead, "what does the next 10% of material buy?". Produced with AI assistance (Claude). A stylised, preliminary study of two 2D plane-stress problems on coarse grids; nothing was made or tested. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-volscale/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-volscale/
 
 **Headline (two problems, one run each).** Once the 0/1 design is connected (volume fraction 0.3 and up for the cantilever, 0.15 and up for the half-MBB), its compliance is 26 to 31% below that of a plate thinned uniformly to the same volume at v = 0.3 to 0.5, and the advantage shrinks to about 14% at v = 0.8. Below that, on these grids, the design is no longer one connected body and its compliance is orders of magnitude worse.
 

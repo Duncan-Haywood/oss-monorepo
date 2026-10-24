@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 2 of [`energy-store-flip`](../energy-store-flip) ("a measured heat-pump COP by temperature"; the heat exchanger is not added here). The earlier comparisons ([`energy-thermal-real`](../energy-thermal-real), [`energy-store-flip`](../energy-store-flip)) charge the air-source heat pump the November to March mean price divided by one table COP of 3.6. This project replaces that with hourly prices divided by an hourly COP that follows the weather. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-store-cop/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-store-cop/
 
 ## Headline (German day-ahead prices and weather 2015 to 2019, house scale, EUR/kWh of heat)
 All numbers are in `experiments/results.txt` (deterministic, stdlib only, about 40 s).

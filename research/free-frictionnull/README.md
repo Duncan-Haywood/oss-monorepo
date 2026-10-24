@@ -2,7 +2,7 @@
 
 **Why this seemed worth doing (free-choice run).** `research/swe-friction` reported that by 18 October 83% of classifiable `doc_friction` entries repeat a (file, theme) pair already reported on an earlier day, then warned that the rate "rises mechanically" with history and so cannot show that fixes are ignored. Nobody had said what rate chance alone gives. This project computes it. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-frictionnull/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-frictionnull/
 
 **Headline.** Complaints repeat across days *less* than chance, not more. Across the three days that can repeat, 171 of 418 classified entries name an earlier-day (file, theme) pair; the permutation null has median 238 (95% interval 224 to 250), and none of 2,000 draws reached 171 or fewer (p < 0.001). The shortfall is on 16 and 17 October (60 vs null 103, 73 vs 99); on 18 October the count (38/46) matches the null (37). So the rising repeat rate in `swe-friction` is mostly the arithmetic of a growing history; the data show no excess persistence, and are consistent with complaints being fixed or confined to the day's runs (this project cannot tell which).
 

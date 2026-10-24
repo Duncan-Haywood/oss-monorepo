@@ -2,7 +2,7 @@
 
 Sixth project of track 13, autonomous multi-angle capture for travel creators (`PROJECTS.md`; a new question beyond milestones 1 to 6, on the energy side of `capture-kit` and `capture-rig`). Several cameras filming all day need several 100 Wh batteries; a camera that records only around interesting moments needs far fewer. This project simulates that trade on a **synthetic day with assumed device figures** (not measured). **Headline:** with 6 interesting 30 s moments an hour, a trigger that misses 10% and raises 2 false alarms an hour, a camera on a standby-with-10 s-pre-roll mode uses 19.4 Wh over a 16 h day against 80 Wh recording continuously (76% less) and captures 90% of the interesting seconds; a deep-sleep camera uses 7.7 Wh but captures 69%, because it wakes too slowly to catch the start. The share captured is set by the trigger's miss rate and the wake latency, not by the battery. Energy only becomes the deciding limit with a rig: four cameras need 320 Wh continuous (four 99 Wh packs) but 78 Wh triggered (one pack). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-trigger/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-trigger/
 
 **Builds on.** `capture-kit` (the 100 Wh carry-on battery rule and recording hours against carried weight), `capture-rig` (several cameras at once) and `capture-edit` (what the edit does with the footage). Pre-roll buffering is the ordinary "pre-record" feature of action cameras and security cameras; no paper is reproduced. No lab in `prompt.md` covers this, and none is claimed.
 

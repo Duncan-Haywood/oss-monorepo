@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.014). Why it seemed worth doing: `free-keplerdrift` and `free-integperiod` isolate the integrator's share of the sim-to-real gap. The other knob every rigid-body twin (Bullet, Box2D, ODE, and iterative solvers in MuJoCo-style engines) exposes is the *solver iteration count*, usually left at a default (10 is common) with the belief that it is plenty. A resting stack has an exact answer (contact `i` carries the weight above it), so this can be tested instead of assumed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-pgsstack/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-pgsstack/
 
 ## Question
 

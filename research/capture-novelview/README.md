@@ -2,7 +2,7 @@
 
 Fourth-in-chain follow-up to `capture-rig` (track 13, milestone 3), which counted cameras and depth error but left "the quality of novel views reconstructed between them" undone (its "Next steps"). This project does that half with a real renderer rather than a proxy: a ray-traced scene, two ring cameras, a depth-based warp to the midpoint, and a score against the ray-traced truth. **Headline:** with exact depth, synthesising the view between two neighbours beats just cutting to the nearest camera only up to a gap of about 30 degrees (24.8 dB against 23.6 dB); at 45 degrees it is worse (19.3 against 23.1 dB) because 8% of the target is a hole neither camera saw. A bystander walking into the shot makes it worse sooner: by 15 degrees synthesis is no better than the nearest camera (20.5 against 21.3 dB). Depth error on the sources costs about 1.4 dB per percent at the start (27.5 dB exact, 22.0 dB at 10%). A toy scene, so read the ordering, not the decibels. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-novelview/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-novelview/
 
 **Builds on.** `capture-rig` (ring layout, 3 m radius, 60 degree lens) and `capture-crop`. Prior work for the idea: Kanade, Rander and Narayanan (1997), Virtualized Reality, *IEEE MultiMedia*, which synthesises views between cameras with depth, and Mildenhall et al. (2020), NeRF, ECCV, and Kerbl et al. (2023), 3D Gaussian splatting, *ACM TOG*, the learned successors. This project implements neither; it uses the simplest depth warp so the *limit* of two-view synthesis is visible. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

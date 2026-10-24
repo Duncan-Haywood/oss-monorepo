@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero` (track 14, `codesign`; its "Next steps" asked for "a small neural policy" in place of the linear law) on the wide randomised plant of `codesign-aero-robust`. Instead of PPO, the 31-parameter network is trained by CMA-ES, the same optimiser as the PID gains, so only the controller class differs. Produced with AI assistance (Claude). **Simulated; the plant, gust and randomisation ranges are the assumed round numbers of the earlier projects, not measurements.** Six airframes only, three CMA-ES seeds each.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-mlp/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-mlp/
 
 ![Held-out error per airframe, PID and neural controllers](experiments/mlp.png)
 

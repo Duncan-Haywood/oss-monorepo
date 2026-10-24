@@ -6,7 +6,7 @@ overtime compensation deduction, both enacted by the One Big Beautiful Bill
 Act for tax years 2025 through 2028. Entirely client-side; nothing is
 uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/no-tax-on-tips-overtime-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/no-tax-on-tips-overtime-calculator/
 
 After using this, you can now **turn qualified tips and overtime pay into an
 estimated federal deduction and rough tax savings in seconds, including the

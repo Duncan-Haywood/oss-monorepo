@@ -2,7 +2,7 @@
 
 Second project of track 13, autonomous multi-angle capture (`PROJECTS.md`, milestone 2). It searches every kit from a small catalogue of cameras, lenses, mounts and battery packs, scoring **variety** (distinct focal-band x viewpoint shots, 18 at most) and **recording hours** against carried weight, with every battery at or under 100 Wh. **Headline:** a greedy "best gain per gram" packer stalls at 12 shots from 3 kg up, because a lens is worth nothing until its camera body is in the bag. Exact search reaches 15 shots at 4 kg and all 18 at 5 kg (with at least 4 h of recording). With no recording floor, maximising variety alone picks kits that last only about 2.2 h at 4 kg. Every device figure is assumed (see Limitations). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-kit/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-kit/
 
 **Builds on.** `capture-crop` (milestone 1): a 360 camera on a pole is a 14 to 24 mm-equivalent camera at one viewpoint, so longer bands and stand-back viewpoints need other devices. Battery rule: 100 Wh per battery in carry-on without airline approval (FAA PackSafe, checked 2026-10-19). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

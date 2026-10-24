@@ -2,7 +2,7 @@
 
 Stdlib-only Python. A provider serves a cheaper model on a fraction `p` of queries; a verifier re-scores a fraction `f` and runs an anytime-valid mixture e-process. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/inference-substitution/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/inference-substitution/
 
 ```bash
 cd research/inference-substitution

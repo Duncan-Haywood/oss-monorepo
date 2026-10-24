@@ -7,7 +7,7 @@ work from Frongillo/Waggoner and coauthors
 to Gensyn's setting of modular models contributed by many untrusted parties
 on heterogeneous hardware.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/wagering-modular-experts/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/wagering-modular-experts/
 
 ## Idea
 

@@ -2,7 +2,7 @@
 
 Pure Python standard library plus `git` 2.38 or later. A follow-up to `swe-sharedfiles` and `swe-cleanbroken`, whose next steps both asked for real pull-request lifetimes to replace the assumed 5 to 240 minute windows. Part of milestone 5 of track 10 (the software-engineering loop). Produced with AI assistance (Claude). **Preliminary: about 1.5 days, one repository, and "lifetime" is pull-request lifetime, not branch lifetime.** All numbers are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-prlifetime/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-prlifetime/
 
 - **Pull requests are open for minutes, not hours.** Of 122 merged pull requests that touched `research/` (merged 2026-10-16 11:20 UTC to 2026-10-17 14:07 UTC), the median time from creation to merge was 0.9 min (p75 3.7, p90 16.0, max 206). 80% merged within 5 min of being opened and 95% within 30.
 - **So the assumed windows were far too long.** `swe-sharedfiles` asked "what if a PR stays open 30 or 60 min?" For this repository only 5% and 2% of PRs did.

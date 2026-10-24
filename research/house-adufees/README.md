@@ -2,7 +2,7 @@
 
 Track 12 project, open-source residential construction (`PROJECTS.md`). It follows up [`house-market`](../house-market)'s next step, "price [`house-open-design`](../house-open-design)'s ADU under Colorado's fee schedules", for one fee that could be read from its source: Denver Water's system development charge (SDC, the "tap fee"). A 40-line stdlib model reads the schedule in [`data/sdc.csv`](data/sdc.csv) and reports what a house and an ADU pay. Produced with AI assistance (Claude). The schedule was read on 2026-10-20 from Denver Water's own page ([`data/sources.csv`](data/sources.csv)).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-adufees/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-adufees/
 
 **Headline.**
 - **An ADU pays a flat $2,170 inside Denver Water's Denver service area from 1 July 2026** ($2,055 before; $3,030 outside Denver). A house pays $3,380 plus $1.01 per sq ft of charged area, so a house charged on 2,000 sq ft pays $5,400. The ADU pays 60% less than that house.

@@ -2,7 +2,7 @@
 
 Track 3 (LLM chip-design loops, `PROJECTS.md`). Why it seemed worth doing: `chip-exact4` showed that Yosys/ABC lands about 1.2 gates above the proven minimum on *isolated* 4-input functions, which suggests a proposer that rewrites small cones with exact optima should find easy wins in real netlists. This asks how many wins there are in the netlists the flow actually produces. Produced with AI assistance (Claude). Preliminary and small: six stylised blocks.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-cutheadroom/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-cutheadroom/
 
 ![Gates after the fast flow and the default flow, and the headroom for exact 4-cut rewriting](experiments/headroom.svg)
 

@@ -2,7 +2,7 @@
 
 **Why this was worth doing.** `free-jittertwin` found, for a scalar unstable plant, that a gain tuned on a fixed-period twin is fragile to *missed* samples and listed two next steps: an interval-aware gain and a second-order plant. This does both on a linearised inverted pendulum (x&Prime; = (g/L) x + u, L = 0.5 m, g = 9.80665 m/s&sup2;). **Result (exact discretisation, exact second-moment test, Monte Carlo exponent):** with slow closed-loop poles (0.8 per sample) the fixed gain survives every miss probability as long as the plant is not too unstable per sample (&omega;h<sub>0</sub> &le; 0.8); at &omega;h<sub>0</sub> = 1.4 its mean-square margin falls to q = 0.21. With fast poles it is much worse: a deadbeat-tuned gain is mean-square stable only up to q = 0.03 to 0.10 (a.s. up to 0.80). A gain recomputed from the actual elapsed interval (poles at the same place for h and 2h) was stable for **every** q in all 15 cases tested, in both senses. Simulated, linear, noise-free. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-pendmiss/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-pendmiss/
 
 **Builds on.** `free-jittertwin` (scalar plant, same miss law) and standard random-sampling / Markov-jump linear system ideas (almost-sure exponent vs second-moment stability). No external paper is relied on or re-verified; no CU Boulder group's work is built on or implied. Digital-twin link: a twin that steps at a fixed period hides the controller's real timing.
 

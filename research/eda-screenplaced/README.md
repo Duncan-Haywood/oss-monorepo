@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-screenxfer` screened a Yosys cell-count front using cycles as a free second objective. `eda-adaptplaced` then showed placed area is predictable from word-level features but placed period is not (Spearman 0.26 on `fir`). The open step both listed was to feed the cross-family model into a screen with the placements charged to the budget. Here both objectives are placed numbers and each placement pays for both. Produced with AI assistance (Claude). **Preliminary, and the test turns out to be easy** (see Result). No new tool runs: the placed data is `eda-adaptplaced`'s committed `placed.jsonl`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-screenplaced/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-screenplaced/
 
 ## Result
 Pooled over the four families (60 random 75% subsets each), mean fraction of the true front's hypervolume after b placements, from `experiments/results.txt`:

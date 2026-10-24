@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-leannoise` (track 9, open-source purpose-built robots), taking the first "Next steps" item there: **a misjudgement that shrinks with distance to the mouth**. In the direction of the CAIRO Lab interest in human-robot collaboration; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Pure Python standard library. **Every constant is an assumed round number (ASSUMED in `model.py`), including the lean speed, misjudgement size and the linear shrink law, all swept or assumed rather than measured from any person. No robot was built and nobody was tested.** All numbers are from `experiments/results.txt`. Simulation only; a stylised, preliminary study.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-leanshrink/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-leanshrink/
 
 ![Share of feeds with peak lip force at most 2 N against the user's misjudgement of the spoon, constant or shrinking](experiments/shrink_safe.svg)
 

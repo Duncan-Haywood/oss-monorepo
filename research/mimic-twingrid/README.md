@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), side project: the "Next steps" of `mimic-twinswing` named two confounds, a best pump gain sitting at the edge of its grid and a controller whose gravity constant was fixed. This removes both. **No LLM is used and no text is generated.** Stylised and simulated only. **Preliminary: one toy system, 14 twins, 8 tuning seeds.** Produced with AI assistance.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-twingrid/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twingrid/
 
 Numbers come from `experiments/results.txt`, `results_fixed.json` and `results_aware.json`; the figure is `experiments/regret_fixed_vs_aware.svg`.
 

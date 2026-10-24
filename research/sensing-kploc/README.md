@@ -2,7 +2,7 @@
 
 `sensing-recon` and `sensing-ba` fed their reconstructions 0.5 to 1 px of Gaussian pixel noise on every observation, and `sensing-ba` found that this noise is what sets the error floor. Where does that number come from for a real detector? **Headline: on ten real photographs warped by 30 known homographies, SIFT keypoints localise to 0.13 px per axis with no added noise, 0.32 px at Gaussian noise of 10 grey levels (of 255) and 0.59 px at 40; large keypoints are worse than small ones, and blur of 3 px costs only about 1.5x. The 0.5 px assumed by `sensing-ba` is therefore pessimistic for a well-exposed image and about right for a very noisy one (sigma near 28 grey levels).** Through `sensing-recon`'s 0.0028 object radii per pixel, the measured sigmas give a surface error of 0.0004 to 0.0017 radii.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-kploc/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-kploc/
 
 Lab tag: none fits. Builds on `sensing-ba` and `sensing-recon` (their assumed pixel noise) and `sensing-matchreal` (same images, same matcher).
 

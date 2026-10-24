@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), following the first and third "next steps" of `ambient-gatem4`: that project found the energy sum dominates the gate's cost and the 64-bit divide is its only library call. Produced with AI assistance. **Stylised, synthetic audio only, instruction counts from an emulator, and no hardware.** The audio is `ambient-gateroc`'s synthetic speech-in-noise.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-gatesimd/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-gatesimd/
 
 ## Question
 

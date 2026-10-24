@@ -2,7 +2,7 @@
 
 Follow-up to `research/garment-assistpower` (track 6, `PROJECTS.md`), taking the "locate the mass (shank versus waist)" item from its next steps. That model charged every kg of suit the same fraction of whole-body power. Here a kg carried at the shank costs a multiple of a kg carried at the waist, and a waist layout pays for that with a Bowden-cable transmission loss and a cable mass kept at the ankle. Everything is a CPU model with assumed constants; no suit or person was measured. Produced with AI assistance (Claude). Asked as a new question rather than another sweep of the same parameters, because the assist chain had become variations on one result.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/garment-assistloc/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-assistloc/
 
 **Builds on.** `research/garment-assist` (ankle model) and `research/garment-assistpower` (motor and battery mass), both imported unchanged from sibling directories. The qualitative idea that distal mass costs more than proximal mass is a common finding in the exoskeleton literature; I did not read a source in this run and take no number from one. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. **Citation check.** Entries copied from `PROJECTS.md` (checked 2026-10-12); not re-checked here (no access to doi.org).
 

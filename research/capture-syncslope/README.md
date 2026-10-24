@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), the first "next step" of `capture-syncbudget`. **Headline:** with a steady 40 ppm clock error, holding a straight line fitted through the accepted audio estimates, instead of the last offset, takes the share of a 6 h shoot outside a 40 ms tolerance from 44% to 3.7% at one re-sync per 1800 s and from 72% to 12% at one per 3600 s, at every SNR from -12 dB up. All of the remainder is the first interval, before a second estimate exists to fit a slope to. The advantage disappears once the clock rate wobbles: a gate that insists on the fitted line's prediction (5 ms) locks out true estimates and leaves 69 to 88% of the shoot out of tolerance when re-syncing every 300 or 900 s with a 10 to 30 ppm temperature wobble. Dropping the fit after two rejections in a row repairs that at 300 s (0 to 1% bad) but at 900 s with a 30 ppm wobble the plain offset hold (13%) beats it (27%). Also a correction to `capture-syncbudget` (below). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-syncslope/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-syncslope/
 
 **Builds on.** `capture-syncbudget` (the question, the 40 ms stand-in tolerance from EBU R37 (2007), the offset-only hold and the drift gate) and `capture-audiosync` (GCC-PHAT estimator and the synthetic speech-like audio, imported from its `src/`). No CU Boulder group in `prompt.md` covers this and none is claimed.
 

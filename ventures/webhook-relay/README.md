@@ -5,7 +5,7 @@ mid-deploy or crashing**: every event is verified, saved to disk, delivered
 with retries and backoff, and replayable by hand, on your own server, which
 used to mean paying a webhook gateway per event or writing a queue yourself.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/webhook-relay/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/webhook-relay/
 
 Two parts, both free and MIT:
 

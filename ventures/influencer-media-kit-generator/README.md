@@ -4,7 +4,7 @@ A free, no-signup tool that builds a creator sponsorship media kit — the
 one-page summary content creators send to brands considering a partnership —
 from a short form. Runs entirely in your browser.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/influencer-media-kit-generator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/influencer-media-kit-generator/
 
 After using this, you can now **have a send-ready sponsorship media kit in a
 few minutes**, which used to take assembling one by hand in a slide deck or

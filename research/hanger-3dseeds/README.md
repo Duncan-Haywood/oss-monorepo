@@ -2,7 +2,7 @@
 
 **Yes. At a 3 cm half-depth arm, 8 CMA-ES seeds per route, the 3D-designed hangers have a whole-sheet error 0.26 cm lower than the 2D-designed ones with `hanger-fit`'s bounds (1.54 against 1.80 cm, exact permutation p = 0.033) and 0.68 cm lower once the end-radius and bow limits are widened (1.12 cm, p < 0.001).** The gain is real but comes with a cost: the 3D designs have a worse centre-line error (0.77 against 0.40 cm), so the two scores disagree about which hanger is best. Produced with AI assistance (Claude). Track 18 (`hanger`, `PROJECTS.md`); follows `hanger-3d`'s next step 2. Stylised: see Limitations.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-3dseeds/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-3dseeds/
 
 ![Whole-sheet error per seed](experiments/err_by_route.svg)
 

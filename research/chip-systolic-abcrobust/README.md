@@ -2,7 +2,7 @@
 
 Follow-up to `chip-systolic-p32` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). That project reported the best MAC-lane engine beating the best output-stationary systolic array by 1.30x (F = 16) and 1.28x (F = 32) in cells times cycles per vector, under one Yosys/ABC script, and warned that the P = 32 versus P = 16 gap "is within what a different abc script could change". This project re-scores the same 20 designs under five ABC scripts to see which parts of the conclusion depend on the script. Produced with AI assistance (Claude). Preliminary and small: one toy network family, one seed, Yosys 0.33, generic-gate counts, no LLM in the loop.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-systolic-abcrobust/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-systolic-abcrobust/
 
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection is claimed. The dataflow is the textbook systolic idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (as cited in `chip-systolic-batch`; not read in full here). The generators, model and cycle formulas are copied unchanged (MIT, same author) from `research/chip-systolic-p32`; `flow.py` gains a script argument, using the five ABC scripts of `research/chip-abc-sweep` (the `resyn2` sequence there is written from memory of the usual alias, so it is one plausible resyn2-style script, not a verified copy). ABC: Brayton and Mishchenko, CAV 2010, LNCS 6174:24-40.
 

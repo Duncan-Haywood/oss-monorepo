@@ -2,7 +2,7 @@
 
 Milestone 9 (`mimic-cursor`) of track 11, adversarial human imitation: the first subject beyond writing, browser use. **Preliminary, stylised: 8 seeds, 30 rounds, 46 people filling in one web form, a fixed library of code components (no model writes code).** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-cursor/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-cursor/
 
 **Result.** People's cursor strokes stay easy to tell from every generator here. A boosted-tree reference detector the loop never saw separates each condition's final imitator from held-out people at AUROC 0.99 to 1.00. Shared feedback did not make a better imitator: final reference AUROC 0.996 blind, 1.000 when the detector explains itself, 0.988 when the imitator shares its code, 0.989 both ways (paired differences against blind −0.009 to +0.003, all intervals including 0). It may make a better detector. In cross-play against other runs' imitators, detectors from the both-ways condition average AUROC 0.81 against 0.70 for blind, in the order both > imitator shares code > detector explains > blind, but the paired interval (+0.112, −0.007 to +0.255) includes 0. A search eight times larger, aimed straight at a detector on every feature, ends at 0.88 to 0.99. That is no better than replaying a real person's stroke onto the new start and end point (0.88), so the component library, not the budget, is the limit. Numbers: `results.txt`; per-run data: `results/`.
 

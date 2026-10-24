@@ -6,7 +6,7 @@ line number before the bank rejects it, then rebuild the control records after a
 edit.** The file is read in the browser; nothing is uploaded and no login, bank account or
 API key is needed.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/nacha-file-validator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/nacha-file-validator/
 
 After using this, you can now **find the record that is 93 characters long, the routing
 number with a bad check digit, the amount that no longer matches the batch total and the

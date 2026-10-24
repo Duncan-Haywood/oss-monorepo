@@ -6,7 +6,7 @@ soil-specific extraction rate, then stairs, pet-urine extra passes,
 upholstery, furniture moving, and the drive — and shows the margin before
 the quote goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/carpet-cleaning-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/carpet-cleaning-bid-calculator/
 
 **After using this, you can now quote a house from rooms and add-ons and
 see whether a posted per-room special still covers the stop**, which used

@@ -12,7 +12,7 @@ against 110), because it converts a few people from the first round. Produced wi
 Track 17 (`society`, `PROJECTS.md`); the first next step of `society-converts`. Every result is about simulated
 people following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-exposure/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-exposure/
 
 ## Why this question
 

@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-noisy` showed that a proposer's lead over random search shrinks with error in the objectives it sees, but injected that error as synthetic Gaussian noise and listed "replace the synthetic error with the measured disagreement between `eda-fidelity`'s rungs" as its next step. `eda-sky130rung` has since measured the real second rung (SKY130 HD mapped area and delay) for the same 40 designs, so no number here is invented. Produced with AI assistance (Claude). **Preliminary:** 40 designs of one toy accelerator, one ABC script, no place and route, and the error objective is shared by both views (it is not a tool output of either rung).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-rungview/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-rungview/
 
 **Builds on.** `research/eda-proposers` (proposers, runner, hypervolume), `research/eda-noisy` (scoring convention and the iid-noise model, reimplemented here on the 40-design space), `research/eda-sky130rung` (the measured mapped area and delay in `mapped.json`) and `research/eda-harness` (the designs). Multi-fidelity background: Peherstorfer, Willcox and Gunzburger (2018), *SIAM Review* (cited from memory, not re-read). No CU Boulder lab's work is built on.
 

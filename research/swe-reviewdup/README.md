@@ -2,7 +2,7 @@
 
 Pure Python standard library. A new question for track 10 (the software-engineering loop), not a milestone from the list: `swe-schedule` simulated duplicate starts under assumed timings and `swe-startslot` could not see duplicates in the run records, so this project measures them for one kind of run from git, where they are visible: the review track, which `prompt.md` says one run claims by opening a pull request titled `prompts: review`. Produced with AI assistance (Claude). **Preliminary and descriptive: six days, one repository, 35 review pull requests, and merge time stands in for start time.** All numbers are from `experiments/results.txt` (13,360 commits on `origin/main`, read 2026-10-20).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-reviewdup/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-reviewdup/
 
 ![Review-track pull requests merged by UTC day and hour; pairs within 10 minutes are red](experiments/reviews_timeline.svg)
 

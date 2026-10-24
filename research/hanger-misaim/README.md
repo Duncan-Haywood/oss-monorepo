@@ -2,7 +2,7 @@
 
 **In the stylised `hanger-pick` model, every 10 points of detector error cost about 1 second of the look-time budget: a perfect detector may take 9.2 s per pick before blind pinching wins, one that aims wrong 30% of the time 6.3 s, 50% 4.5 s, and one that is always wrong none (T\* = −0.07 s, interval −0.32 to 0.17).** At the assumed 1 s look, aiming still beats blind pinching until the detector is wrong about 88% of the time; at a 5 s look the limit drops to 43%, at 9 s to 3%, and an 11 s look loses even with a perfect detector. `hanger-pickbreak` priced the detector's speed only; this prices its accuracy as well. A wrong aim costs one wasted grasp and then the same regrasp hunt a blind pinch does. Produced with AI assistance (Claude). **Stylised: every time and probability is an assumed placeholder from `hanger-pick`; nothing here is a measurement of a robot, a detector or a garment.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-misaim/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-misaim/
 
 Track 18 (`hanger`, [`PROJECTS.md`](../PROJECTS.md)). Takes the first "Next steps" item of [`hanger-pickbreak`](../hanger-pickbreak). Built on none of the CU Boulder groups in `prompt.md`; no connection to them is claimed.
 

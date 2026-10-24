@@ -2,7 +2,7 @@
 
 Follow-up to `accel-codesign` (track 8, task-specific AI accelerators), taking the next step its README listed: run a real NSGA-II against random search at equal evaluation budgets. The question: on a co-design space of model, lane count, weight-memory banks and supply level, how much of the exact accuracy/area/energy Pareto front does each method find for the same number of evaluated designs? Produced with AI assistance (Claude). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-nsga/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-nsga/
 
 **Builds on.** `research/accel-kws` (40 trained, RTL-checked models: validation accuracy, P=1 cells, modelled energy) and `research/accel-codesign` (Yosys datapath areas for 1 to 32 lanes). NSGA-II is Deb et al. (2002), "A fast and elitist multiobjective genetic algorithm: NSGA-II", *IEEE Trans. Evol. Comput.* 6(2); constrained domination follows the same paper. Hypervolume is the usual quality indicator (Zitzler and Thiele, 1999). The framing of hardware-model co-design as search is NAAS (Lin, Yang and Han, 2021, DAC); nothing is reproduced from it.
 

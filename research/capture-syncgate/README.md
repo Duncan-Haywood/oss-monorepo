@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), taking the first two "Next steps" of `capture-realedit`: choose gamma on some clips and test on others, and add a peak-to-sidelobe confidence gate. **Headline:** at 0 dB SNR a gate that drops windows whose correlation peak is under 8 sidelobe standard deviations, with gamma 0.25, leaves **0.019** of cuts jumping over a 30 fps frame when the threshold is picked on the other nine clips (PHAT ungated: 0.342). At -10 dB the gate helps but does not rescue the edit: 0.391 held-out against 0.476 ungated (0.637 for PHAT). Choosing gamma on other clips *without* a gate does not hold up: 0.099 at 0 dB, because one clip (`wallewal`) is the one clip where gamma 0.5 collapses and the other nine cannot tell.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-syncgate/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-syncgate/
 
 **Builds on.** `capture-realedit` (real-clip cut damage, imported), `capture-realaudio` (`pair_from_clip`, partial whitening after Knapp and Carter (1976), *IEEE Trans. ASSP* 24(4)), `capture-audiosync` (Theil-Sen fit), `capture-syncedit` (clocks, edit, cut damage) and `capture-edit`. The peak-to-sidelobe ratio is the standard peak-quality measure from correlation tracking; here it is computed over the GCC output outside +-12 samples of the peak. No CU Boulder group in `prompt.md` covers this and none is claimed.
 

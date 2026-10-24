@@ -2,7 +2,7 @@
 
 A project of track 12, open-source residential construction (`PROJECTS.md`, the truss option listed under `house-open-design`'s next steps). It solves a W-type wood roof truss as a pin-jointed frame (a small direct-stiffness solver, no dependencies), checks every chord and web against NDS allowable-stress rules, searches for the lightest passing 2x4 to 2x8 truss, and compares its lumber with stick-built rafters plus ceiling joists sized by [`house-spans`](../house-spans). Headline, stylised: across 12 to 30 ft spans at 30 psf snow the lightest passing truss at 24 in o.c. uses 40% to 55% less nominal lumber per sq ft of plan than 16 in rafters plus ceiling joists. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-truss/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-truss/
 
 **Builds on.** NDS allowable-stress design (tension, compression with the column stability factor, combined bending and axial load), and the SPF No. 2 values, column stability code and rafter/joist sizing of [`house-framing`](../house-framing) and [`house-spans`](../house-spans). Roof trusses are designed in practice to ANSI/TPI 1 with plate manufacturers' software; none of that was read or reproduced here. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

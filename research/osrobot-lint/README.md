@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-labreal` (track 9, open-source purpose-built robots), taking the last item of its "Next steps": feed the twin's stricter checks back as an optional linter for Opentrons Python API scripts. In the direction of the HIRO Group's interest in robots in chemistry labs; nothing here is affiliated with or endorsed by it or by Opentrons. Produced with AI assistance (Claude). Pure Python standard library; it never imports `opentrons` and never runs the script. **Stylised: the seeded faults were written by the same author as the checks, and every volume, capacity and pipette limit in `lint.py` is an assumed value from memory of the published specifications, not checked against a datasheet.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-lint/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-lint/
 
 ![Share of seeded faults flagged per fault kind: twin, linter, real simulator](experiments/detection.svg)
 

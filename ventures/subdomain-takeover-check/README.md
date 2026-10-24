@@ -6,7 +6,7 @@ Heroku, GitHub Pages, Azure, Fastly, Shopify, and more), and — for a match —
 request checked against that specific provider's own "nothing is claimed at this name" fingerprint
 page.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/subdomain-takeover-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/subdomain-takeover-check/
 
 **A finding is only "confirmed" when both the DNS target AND the live response match** — a CNAME
 pointing at a takeover-prone provider is not proof of anything on its own; most CNAMEs to Heroku or

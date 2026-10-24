@@ -4,7 +4,7 @@ After using this, you know the price that pays you the margin you need on a
 job, the walk-away price below which the job loses money, and how far labor can
 run over before it stops paying. One calculator covers every trade.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/bid-price-engine/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/bid-price-engine/
 
 Free, no account, runs in your browser. Nothing is uploaded; a share link keeps the inputs in the address after `#`.
 

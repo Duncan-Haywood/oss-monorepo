@@ -3,7 +3,7 @@
 A free tool that checks a URL's real HTTP redirect chain for the
 misconfigurations that quietly cost ranking signal and page-load latency:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/redirect-chain-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/
 
 - **Redirect loop** — an earlier URL in the chain reappears later in it, so
   the chain never terminates.

@@ -2,7 +2,7 @@
 
 Free of the toy data of `chip-accel`: the same question (quantised-MLP accelerator, bit width against gate count) asked of a real dataset, the scikit-learn digits images, with accuracy measured on held-out images rather than agreement with a float model on synthetic clusters. Track 3 (`PROJECTS.md`), a new question rather than another variant of the `chip-abc-*` ordering chain. Produced with AI assistance (Claude). No LLM is in this loop.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-digits/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-digits/
 
 **Headline.** On a 64-16-10 ReLU MLP, 5-bit weights and 5-bit activations lose 0.5 points of test accuracy against float (96.3% vs 96.8%, mean of 5 splits) in a lane of 268 generic gates; 4 and 4 bits lose 2.0 points (94.8%) in 189 gates; at 3-bit weights accuracy drops to 79 to 82% and at 2 bits to about a third. Wider than 6 bits buys nothing: W8A8 is 96.7% in 543 gates.
 

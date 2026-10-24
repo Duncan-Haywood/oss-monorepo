@@ -2,7 +2,7 @@
 
 Fifth project of track 20, robots on the residential building site (`PROJECTS.md`, milestone 5). [`buildbot-payload`](../buildbot-payload) found which sheets a standing G1 or H1 can hold with a person; this asks what happens when the person moves. A person lifts their end of a 4x8 sheet 0.3 m, as when raising it to a wall. The robot's hand follows under impedance control. The run scores the sheet's tilt, the load on the person against the NIOSH limit, the robot's joint torques along the lift, and ISO/TS 15066 speed limits for the robot's end of the sheet. Produced with AI assistance (Claude). Simulated and preliminary: a planar rigid-sheet model and static whole-body torque checks, not a closed-loop whole-body simulation.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-cohold/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-cohold/
 
 **Headline.**
 - **The person's load barely changes in a slow lift.** For a 22 kg sheet, the person's pin reaction peaks at 11.1 to 11.5 kg-equivalent when the lift takes 2 to 4 s, against the static half share of 11.0 kg. A 0.5 s snatch raises it to 15.5 to 20.4 kg across the control settings tried, still under the NIOSH constant of 23.1 kg.

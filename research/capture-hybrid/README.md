@@ -2,7 +2,7 @@
 
 Follow-up to `capture-stereodepth` (track 13), whose "Next steps" asked for a hole filler and for the left-right mask used as a confidence map with a fall back to the nearest camera. **Headline:** with block-matching stereo depth at a 15 degree gap, plain synthesis scores 22.3 dB against 24.8 dB for cutting to the nearest camera. Filling holes from the farther row neighbour lifts it to 27.4 dB, and a gate that needs no ground truth (fall back to the raw nearest camera where the two warped sources disagree, or where no source has a pixel) reaches 29.2 dB, 4.4 dB above cutting; three fresh noise seeds with the threshold fixed beforehand give 29.2 dB again. The gate's edge is fragile: at 6% sensor noise it is level with filling, and with a bystander in the scene plain filling is better (26.3 against 26.1 dB). A per-pixel oracle reaches 32.0 dB. A toy scene: read the ordering, not the decibels. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-hybrid/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-hybrid/
 
 **Builds on.** `capture-stereodepth` (scene, stereo matcher, warp and score, copied here so the project is self-contained; the only change is that `warp` can also return the target-frame depth map). Depth-image-based rendering with hole filling is standard; the farther-neighbour rule follows the usual advice to fill disocclusions from the background. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

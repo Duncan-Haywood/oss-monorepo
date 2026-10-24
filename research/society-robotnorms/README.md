@@ -13,7 +13,7 @@ crowd, while the same robots in one block convert under 10% of people even at ha
 First project of research track 17 (`society`, `PROJECTS.md`, milestone 1). Every result is
 about simulated people following a stated rule, not about real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-robotnorms/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-robotnorms/
 
 ## Why this question
 

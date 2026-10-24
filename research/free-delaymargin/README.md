@@ -2,7 +2,7 @@
 
 Needs `numpy` (eigenvalues). **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.022). Why it seemed worth doing: sim-to-real transfer for control often fails on latency the twin did not model, and the twin itself quantises delay to whole steps. For the simplest loop, a PD-controlled double integrator, both the true margin and the simulator's margin have exact answers, so the gap between them can be computed rather than assumed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-delaymargin/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-delaymargin/
 
 ## Question
 

@@ -2,7 +2,7 @@
 
 Track 8 (task-specific AI accelerators), follow-up to `accel-surrogatelock`, whose "Next steps" asked for a surrogate-assisted loop in place of a random-pool screen. Same locking-free Q6 2D cantilever, 64x8 mesh as the expensive simulator. Eight section heights are chosen to minimise mass under a tip-deflection limit. Four searches get the same budget of FE evaluations: random search, a (1+10) evolution strategy on the FE solve alone, and a surrogate-assisted loop whose MLP is float or 6-bit quantisation-aware. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-surrogateloop/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-surrogateloop/
 
 **Why it seemed worth doing.** `accel-surrogatelock` showed a surrogate screen needs a safety margin, but its pool was random, so it could not say whether a surrogate beats just searching with the simulator. This asks that at equal simulator cost.
 

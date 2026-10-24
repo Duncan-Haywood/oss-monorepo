@@ -4,7 +4,7 @@ A free browser calculator for the Section 174A domestic research and
 experimental (R&E) catch-up deduction created by the One Big Beautiful Bill
 Act (OBBBA). Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/section-174a-catchup-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/section-174a-catchup-calculator/
 
 After using this, you can now **compare the actual cash tax savings and
 present value of the two catch-up elections available on your 2025 return —

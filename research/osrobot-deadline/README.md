@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-pipeline` (track 9, open-source purpose-built robots), which listed "a pest window would favour more machines" as an unmodelled limit. This project adds the deadline: for 16 equal fields, find the cheapest fleet that finishes by D hours, with one scout or up to four, against inline robots. **Every price is an assumed round number, not a quote; no new simulation was run** (it reuses `osrobot-pairprice`'s fitted per-field minutes). In the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field robots; nothing here is affiliated with or endorsed by them. Produced with AI assistance (Claude). Pure Python standard library. Simulation only; nothing was built or flown.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-deadline/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-deadline/
 
 ![Cheapest cost per hectare by deadline, 1.62 ha fields](experiments/deadline.svg)
 

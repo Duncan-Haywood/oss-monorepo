@@ -6,7 +6,7 @@ wildcard, privilege-escalation action, Allow+NotAction grant and public
 principal, each with a fix to review.** It never calls AWS and the pasted text
 is not uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/aws-iam-policy-risk-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/aws-iam-policy-risk-check/
 
 After using this, you can now **catch the policy that is one `iam:PassRole` away
 from administrator before it ships**, without an AWS account, an agent, or a

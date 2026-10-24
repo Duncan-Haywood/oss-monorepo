@@ -18,7 +18,7 @@ results; every other time and rate is an assumed placeholder, because `hanger-pi
 (milestone 5) and the fold mechanism have not been built. Nothing here is a measurement of a
 robot.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-cell/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-cell/
 
 ## Why this question
 

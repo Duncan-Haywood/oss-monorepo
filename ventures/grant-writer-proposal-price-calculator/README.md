@@ -3,7 +3,7 @@
 A free browser calculator for freelance grant writers and nonprofit
 consultants. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/grant-writer-proposal-price-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/grant-writer-proposal-price-calculator/
 
 After using this, you can now **quote a flat fee per proposal that actually
 pays the hourly rate you want** — after unbillable time, tax load, software

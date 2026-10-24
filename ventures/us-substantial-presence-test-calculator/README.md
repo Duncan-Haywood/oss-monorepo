@@ -2,7 +2,7 @@
 
 **List your days in the United States and see the 183-day weighted count (this year, plus a third of last year, plus a sixth of the year before), how many more days you can spend this year and stay under the test, the date you crossed it, and what a planned trip would do.** Browser page, no install.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/us-substantial-presence-test-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/us-substantial-presence-test-calculator/
 
 After using this, you know whether your own dates make you a US tax resident under the substantial presence test and how much slack a trip leaves, which used to be an IRS Publication 519 worksheet and a spreadsheet of date arithmetic.
 

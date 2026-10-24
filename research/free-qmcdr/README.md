@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.04). Why it seemed worth doing: sim-to-real work evaluates a policy by averaging its return over scenarios drawn from a domain-randomisation distribution, almost always iid. Randomised quasi-Monte Carlo (RQMC) and Latin hypercubes are cheap drop-in replacements, but the textbook gains assume a smooth integrand, and a robot's headline metric is a success *rate*, which is a jump. I wanted to know how much of the gain survives that, and in how many randomised parameters.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-qmcdr/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-qmcdr/
 
 ## Question
 

@@ -5,7 +5,7 @@ recurring janitorial contract the way the trade actually bids one — each space
 divided by the production rate the crew really hits — and shows the margin
 before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/janitorial-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/janitorial-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

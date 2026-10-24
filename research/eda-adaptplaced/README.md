@@ -2,7 +2,7 @@
 
 Every `eda-adapt*` project scored a cell-count target from Yosys and listed "repeat with a post-route target once OpenROAD is available" as a next step. `eda-postplace` found that `pip install openroad` gives a working OpenROAD in seconds, so this does it: all 133 designs of `eda-surrogate` are mapped to SKY130 HD and placed, and the same few-shot curves are fitted to the placed numbers. **Headline:** with word-level features alone, an unseen family's placed area is predicted to about 39% median error by a ridge model (60% by the non-negative linear model), one placed design from the new family cuts that to 23% (linear 27%), and about 3 designs reach the 20% bar for most families, the same order as for cell counts (1 to 3). Produced with AI assistance (Claude). **Preliminary:** 133 small designs, one ABC target, placement only (no routing, no clock tree).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-adaptplaced/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-adaptplaced/
 
 **Builds on.** `eda-adapt` (curves, models and the 30 draw seeds, copied; the `cells` rows here reproduce its published table exactly, a check on the port), `eda-surrogate` (designs, features), `eda-postplace` (OpenROAD wheel flow, `or_driver.py`) and `eda-clocksweep` (ABC script). Tools: Yosys 0.33, ABC, OpenROAD 0.0.1 PyPI wheel, SKY130 HD platform files from OpenROAD-flow-scripts at commit `e5cc6e7` (Apache-2.0, fetched). Models: scikit-learn (Pedregosa et al., 2011, *JMLR* 12:2825-2830). No CU Boulder lab's work is built on and no affiliation is implied.
 

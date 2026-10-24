@@ -2,7 +2,7 @@
 
 Track 8 (task-specific AI accelerators) in `PROJECTS.md`, follow-up to `accel-frontend`, whose "Next steps" asked for block floating point. `accel-frontend` showed that a fixed per-stage FFT shift schedule in a 16-bit word either floors quiet speech (one shift per stage: cepstral error 0.68 of the cepstral spread at -50 dBFS) or overflows loud speech (fewer shifts need 17 to 19 bits). **Headline:** one data-chosen exponent shared by the whole 256-point FFT, kept in 16-bit stored words, gives a cepstral error of 0.016 to 0.081 of the spread from -60 to -30 dBFS, against 0.35 to 0.72 for one shift per stage, at +4,608 adds per frame (+42%) on the front end's adds and about +0.5% of its modelled energy. From -20 dBFS up it is no better than fixed schedules that spend 18 to 20 bits (0.012 to 0.017 against 0.002 to 0.014): a 16-bit word costs about 0.01 of the spread in rounding error. Synthetic frames only; no keyword accuracy is measured.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-frontendbfp/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-frontendbfp/
 
 **Builds on.** `research/accel-frontend` (the Q15 front end, its counters and its float reference, imported, not copied, apart from the post-FFT code in `bfp.py`, which is copied with one change), and through it `research/accel-kws` and `research/ambient-wearable`. Block floating point in FFTs is textbook fixed-point DSP (Oppenheim and Schafer, *Discrete-Time Signal Processing*, the chapter on finite word-length effects); I did not look up an exact edition or page and cite it only as the idea. No group in `prompt.md` works on this; I do not claim a lab connection.
 

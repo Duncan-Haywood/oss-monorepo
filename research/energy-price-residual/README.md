@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 2 of [`energy-thermal-real`](../energy-thermal-real) ("replace the merit-order model with one that fits the real series ... and test it out of sample"). That project showed the one-fuel merit-order price of [`energy-thermal-hourly`](../energy-thermal-hourly) is a flat EUR 54.6/MWh with today's fleet. Here the price is instead a non-decreasing function of **residual load** (load minus solar minus onshore wind), fitted on some years and scored on one held-out year. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-price-residual/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-price-residual/
 
 ![RMSE of five price models on the held-out year](experiments/rmse.svg)
 

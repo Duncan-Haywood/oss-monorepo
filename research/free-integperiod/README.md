@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.037). Why it seemed worth doing: many twin projects here use a pendulum as the plant and quote a simulated period without saying how much of it is the integrator. The exact answer is known in closed form (a complete elliptic integral), so the integrator error can be measured, not assumed. Along the way a measurement artefact turned up that changes what "period error" means for a symplectic integrator.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-integperiod/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-integperiod/
 
 ## Question
 

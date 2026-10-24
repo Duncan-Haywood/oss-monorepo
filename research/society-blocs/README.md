@@ -15,7 +15,7 @@ cost the people something even with no robots: 0.195 conflicts per human meeting
 Produced with AI assistance (Claude). Next step from `society-stubborn` in research track 17
 (`society`, `PROJECTS.md`). Every result is about simulated people following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-blocs/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-blocs/
 
 ## Why this question
 

@@ -4,7 +4,7 @@
 your code imports the vulnerable package. This tool takes `npm audit --json`
 plus your source and ranks the findings by reachability:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/npm-audit-triage/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/npm-audit-triage/
 
 | bucket | meaning |
 | --- | --- |

@@ -2,7 +2,7 @@
 
 Next step listed by `eda-clocksweep`, `eda-fidelity` and `eda-delayproxy`: add a placed rung to the eda loops, which only ever scored designs with Yosys and ABC. The obstacle was OpenROAD, which `chip-pnr` built from source with Nix (about 1.5 h). **Headline finding for the tooling:** `pip install openroad` gives a working OpenROAD (floorplan through placement, parasitic estimation and `repair_timing`) in seconds, and one 2000-cell design takes about 5 s. Headline result: ABC's **area** ranking survives placement almost exactly (Spearman 0.997 to 0.999), its **delay** ranking only partly (0.61 to 0.80 before repair), and a design ABC says meets 5 ns never does after placement. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-postplace/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-postplace/
 
 **Builds on.** `eda-clocksweep` (the same 40 designs and ABC script), `eda-harness` and `chip-accel` (generators), `chip-pnr` (the stage layout of the OpenROAD flow and the finding that wires cost 3 to 19% of delay there), Yosys/ABC and OpenROAD with the OpenROAD-flow-scripts SKY130 HD platform files (Apache-2.0, fetched at a pinned commit). It builds on none of the CU Boulder groups in `prompt.md`.
 

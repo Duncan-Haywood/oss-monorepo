@@ -4,7 +4,7 @@ A free browser tool for eBay sellers: **drop in the Promoted Listings report
 from Seller Hub and see which listings lose money after the ad fee.** The file
 is read in the browser; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ebay-promoted-listings-roi-analyzer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ebay-promoted-listings-roi-analyzer/
 
 After using this, you can now **see per listing what profit is left after ad
 fees, and what share of the sales eBay credits to the ad the ad must really have

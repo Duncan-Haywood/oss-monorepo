@@ -8,7 +8,7 @@ the neighbourhood buys back the loss: at 0.20, blocks of 8 tip no crowd at k = 3
 Roughly, allies stop helping when a block is wider than the neighbourhood people meet within. Results are about simulated people
 following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-allies/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-allies/
 
 ## Why this question
 

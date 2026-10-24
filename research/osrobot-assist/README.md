@@ -2,7 +2,7 @@
 
 Sixth milestone (`osrobot-assist`) of track 9, open-source purpose-built robots, in the direction of the CAIRO Lab interest in human-robot collaboration and assistive robotics. Produced with AI assistance (Claude). Pure Python standard library. **Except the lip stiffness sweep (sweep 5 and 6, sourced from IFA Report 2/2022), every constant (tip mass, loop gains, default lip stiffness, mouth opening, sway shape, comfort limit) is an assumed round number marked ASSUMED in `model.py`, not a measurement of a person or a product, and no robot was built or tested with anyone.** All numbers below are from `experiments/results.txt`. Simulation only; **a stylised, preliminary study, and the Assistive Gym / MuJoCo human model the milestone mentions was not used** (neither is installed here; this is a planar point-mass stand-in).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-assist/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-assist/
 
 ![Peak lip force and contact share against approach speed and sensing delay](experiments/force_sweeps.svg)
 

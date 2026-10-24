@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-drclip`, whose first next step was "cross-fitted outcome models combined with a cap". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Negative result**: cross-fitting changed little where capping already worked and did not rescue the uninformed-prior case.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-crossfit/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-crossfit/
 
 ## Motivation
 

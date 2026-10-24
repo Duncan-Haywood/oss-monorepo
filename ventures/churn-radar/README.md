@@ -5,7 +5,7 @@ Churn Radar learns from your own past cancellations which usage patterns come
 before one, scores every active account, and says which look like the accounts
 you lost and why. MIT, one Node process, no dependencies, state in a JSON file.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/churn-radar/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/churn-radar/
 
 Try it on an export first: open `index.html` (nothing is uploaded; the page
 makes no network requests).

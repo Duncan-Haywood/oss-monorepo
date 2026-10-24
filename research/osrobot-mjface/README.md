@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-mjfeed` (track 9, open-source purpose-built robots), run under the "run the numbers" rule: `osrobot-mjfeed` used an assumed lip stiffness (800 N/m) and an assumed 2 N "comfort" limit. This project replaces both with a cited figure where one exists and sweeps the rest. In the direction of the CAIRO Lab interest in assistive robotics; nothing here is affiliated with or endorsed by it. Produced with AI assistance (Claude). Needs `pip install mujoco` (3.16.0 used). Simulation only; no robot was built or tested with anyone, and **this is not a safety case** (ISO 13482 and an owner risk assessment come first).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-mjface/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-mjface/
 
 ![Peak contact force of a blocked arm against approach speed](experiments/peak_force.svg)
 

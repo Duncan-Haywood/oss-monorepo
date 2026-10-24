@@ -2,7 +2,7 @@
 
 **With 5 coder-negative items audited, the Wald interval of `qual-negaudit` covers the truth 63% of the time at worst (nominal 95%); a Wilson, Jeffreys or add-one ("plus-two") interval covers 94–95%, so the "about 50 negatives" rule of that project was largely an artefact of the interval.** On 3,188 real Reddit comments (GoEmotions), audit size 200, four automated coders, 1,000 draws per cell, worst coverage over the coders was, for Wald / plus-two / Wilson / Jeffreys: k = 5: 0.628 / 0.950 / 0.935 / 0.950; k = 10: 0.849 / 0.966 / 0.961 / 0.942; k = 20: 0.907 / 0.953 / 0.954 / 0.942; k = 50: 0.930 / 0.952 / 0.947 / 0.945. The price is width: at k = 5 the Wilson interval is 0.43 wide (Wald's 0.40 was too narrow, not efficient), converging to 0.17 at k = 50. **The coders are not LLMs** (no API key in the session). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-negint/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-negint/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). It takes the first "Next steps" item of [`qual-negaudit`](../qual-negaudit): a Wilson or Bayesian stratum interval that holds nominal coverage at k = 10–20. Lab tags: none; this builds on no group in `prompt.md`.
 

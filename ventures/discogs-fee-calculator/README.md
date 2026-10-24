@@ -8,7 +8,7 @@ paid for the record and packaging. It also solves for the item price that hits
 a target profit, and prints a fee ladder from a $3 single to a $2,500 grail.
 Nothing is uploaded; the arithmetic runs on the visitor's own device.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/discogs-fee-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/discogs-fee-calculator/
 
 ```
 cd ventures/discogs-fee-calculator && node --test

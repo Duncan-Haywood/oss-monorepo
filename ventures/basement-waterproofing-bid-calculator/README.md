@@ -6,7 +6,7 @@ trade actually loses money — wall membrane from height, window wells, crack
 injection, a new sump versus an existing pit, backup pump, and freeze-protected
 discharge — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/basement-waterproofing-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/basement-waterproofing-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

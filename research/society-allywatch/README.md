@@ -11,7 +11,7 @@ at `c` = 0.03, and 12/12 against 10/12 at 0.15. At 0.05 robots it is 2/12 agains
 Produced with AI assistance (Claude). Next step 1 of `society-allyfade`, research track 17 (`society`). Every result is
 about simulated people following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-allywatch/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-allywatch/
 
 ## Why this question
 

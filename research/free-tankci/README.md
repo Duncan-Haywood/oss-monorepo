@@ -1,6 +1,6 @@
 # Is the overflow twin really better than the black boxes on the real two-tank rig? Yes: the 0.13 V gap over ARX 4/4 has a 95% block-bootstrap interval of 0.06 to 0.20 V at every block length tried
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-tankci/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-tankci/
 
 A free-choice follow-up to [`free-tanktwin`](../free-tanktwin), whose README lists "a bootstrap over blocks of the test trace for an interval on the twin-vs-ARX gap" as its first limitation. That project reported 0.53 V (overflow twin) against 0.66 V (best black box) on the real Cascaded Tanks rig with no uncertainty. The test errors are strongly autocorrelated, so an ordinary bootstrap would be over-confident; this project puts an interval on the gap with a moving-block bootstrap and sweeps the block length instead of choosing one. Relates to the sim-to-real and system-identification themes of ARPG and CAIRO; no lab code is reused. Produced with AI assistance (Claude).
 

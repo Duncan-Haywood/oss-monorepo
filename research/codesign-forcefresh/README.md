@@ -2,7 +2,7 @@
 
 A companion to `../codesign-gripper` (track 14, milestone 1, landed by a parallel run in the same hours as this one; the two were built independently and I did not see its code until after mine was done). That project minimises plastic over eight objects with a force chosen from four fractions. This one asks a different question of the same milestone: with a force *searched* per design (8 + 4 log-spaced forces), a print-time cap, 900 g objects and a 100-scene held-out set used once at the end, how much of each method's best score is selection noise? Part of the agentic robot co-design track (`PROJECTS.md`, track 14). Five parameters of a 3D-printable two-finger gripper are searched; for every design a grasp-force policy is tuned in MuJoCo, and the design is scored on 40 held-out grasp scenes. Four ways of choosing designs get the same 40 designs. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-forcefresh/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-forcefresh/
 
 **Headline (simulation only, preliminary, mostly negative).** The task is close to saturated: the best of 40 designs scores 0.95 test success for all four methods' best seeds, and the medians at n = 40 are 0.875 (random search), 0.887 (CMA-ES), 0.900 (Bayesian optimisation). The session agent (one trajectory, n = 1) reached 0.95 after 20 designs, earlier than any median. But on 100 fresh scenes the agent's best design scores 0.81, the same as the baselines' median (0.81 to 0.85). With 40 test scenes the standard error of a success rate near 0.9 is about 0.05, so the ranking of the methods is not resolved by this experiment.
 

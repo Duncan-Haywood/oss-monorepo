@@ -3,7 +3,7 @@
 A free browser calculator for the federal Earned Income Tax Credit (EITC).
 Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/eitc-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/eitc-calculator/
 
 After using this, you can now **turn "how much did I earn, how many kids"
 into an estimated EITC in seconds, including the two things people get

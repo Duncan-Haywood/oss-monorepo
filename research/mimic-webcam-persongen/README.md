@@ -2,7 +2,7 @@
 
 Follow-up to `mimic-webcam-stitch` (track 11, adversarial human imitation), which found that copying real frames is caught mostly because it mixes people, and to `mimic-webcam`, where fitted parametric generators were caught at AUROC 1.000. It left open what happens when a generator is built from one person's own windows only and judged on that person's later windows. **Preliminary, stylised: 46 people filling in one web form, one context, 6 seeds; the copying generators are ceilings that reuse real frames.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-webcam-persongen/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-webcam-persongen/
 
 **Result.** Personalising removes most of the giveaway for copies, and does nothing for a fitted generator. Against each person's later windows, 50-frame blocks drawn from that person's own earlier windows are caught at AUROC 0.654 (join-matched 0.565, whole-window replay 0.593). The same copies drawn from other people are caught at 0.913 (0.833, 0.582), and at 0.971 (0.959, 0.926) once the detector is also told the person's mean level and spread. A parametric generator (window levels, AR(1) memory, channel correlation, holds) fitted on one person or on everyone is caught at 1.000 in both detectors.
 

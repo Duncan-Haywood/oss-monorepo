@@ -10,7 +10,7 @@ is.
 Open [`index.html`](index.html) in a browser. There is nothing to install, no
 account, no key, and no build step. Everything runs on your machine.
 
-**Live:** <https://duncan-haywood.github.io/oss-monorepo/cnc-machining-quote-calculator/>
+**Live:** <https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/>
 
 ## What it tells you
 

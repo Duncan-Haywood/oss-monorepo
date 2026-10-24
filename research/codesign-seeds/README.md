@@ -2,7 +2,7 @@
 
 Track 14 (agentic robot co-design, `codesign`). `../codesign-power` found that with 8 runs per method the interval on a method mean is about ±0.03 whatever the scene count, and asked for 30+ runs. This adds 16 new runs per method (seeds 8-23, protocol unchanged from `../codesign-headroom`: 40 designs, same task, simulator, readers and baselines), giving 24 per method, and scores each run's final design on the same 600 scenes `codesign-power` used. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-seeds/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-seeds/
 
 ![Final designs: 600-scene success of each run, by method](experiments/final_designs_24_runs.svg)
 

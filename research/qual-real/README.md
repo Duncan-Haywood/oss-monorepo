@@ -2,7 +2,7 @@
 
 **On 3,188 real Reddit comments with human emotion labels, counting an automated coder's codes gives a confidently wrong answer, and the correction repairs it only as far as the coder is any good.** A naive-Bayes coder (accuracy 0.73, kappa 0.14) reports 13.3% of comments as negative-emotion against a human 25.3% (interval coverage 0 of 500 draws), and reports a short-versus-long comment gap of −0.170 where the human gap is −0.028, a six-fold overstatement caused by the coder missing 94% of negative emotion in short comments but only 70% in long ones. Prediction-powered inference (PPI) with 200 hand-coded items recovers both (coverage 0.94–0.97), but its interval is wider than simply using the 200 hand-coded items alone (0.143 against 0.120 for prevalence), because the coders are weak. **These coders are not LLMs**: the session had no API key, so a trained classifier and a word list stand in. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-real/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-real/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 2. Takes the estimators of [`qual-correction`](../qual-correction), validated there only against simulated coders, to real labels.
 

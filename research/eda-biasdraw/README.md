@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-deepdraw` ended with 21,280 clean uniform vectors per survivor but warned that a bug needing a rare input pattern is invisible to uniform draws, and listed "run a biased generator (extreme values, sparse inputs)" and "inspect the `del@122` output rows" as next steps. This project does both. Produced with AI assistance (Claude). Stylised and negative: one design (the `chip-accel` MAC engine, p = 8, 4-bit), one mutant set, no bug found.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-biasdraw/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-biasdraw/
 
 **Builds on.** `research/eda-deepdraw` (its 26 targets, loaded through its `targets()`), `research/eda-verify` (mutants and the Icarus checker) and `research/eda-detectprob`. No CU Boulder lab's work is built on and no affiliation is implied.
 

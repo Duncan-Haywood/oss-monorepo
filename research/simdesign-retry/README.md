@@ -2,7 +2,7 @@
 
 Follow-up to `simdesign-robustadapt` (track 5, `PROJECTS.md`), taking the first of its listed next steps. Result: mostly, but not fully. On the same nine robust half-MBB cases, a fixed move of 0.2 failed in 5, the adaptive rule of `simdesign-robustadapt` in 2, reject-and-retry in 1, and fixed 0.1 and 0.05 in none. Retry fixed 60×20 r = 4 (adaptive did not) but only part-rescued r = 3.5 (364 against 737, still failing), and it still lost to a plain small fixed move on eroded-design quality. Produced with AI assistance (Claude). Stylised: 2D dimensionless compliance, one problem, one deterministic run per cell; nothing was made or tested physically.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-retry/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-retry/
 
 **Builds on.** `simdesign-robustadapt` (adaptive rule, imported for comparison; `MoveRule`, `run_rule`), `simdesign-robustmove` (spike counter and failure criterion), `simdesign-robust`, `simdesign-heaviside`, `simdesign-topopt`. Wang, Lazarov and Sigmund (2011), *Struct. Multidisc. Optim.* 43(6):767–784, <https://doi.org/10.1007/s00158-010-0602-y>, for the eroded / blueprint / dilated formulation. It builds on none of the CU Boulder groups in `prompt.md`.
 

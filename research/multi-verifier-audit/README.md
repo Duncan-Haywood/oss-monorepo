@@ -3,7 +3,7 @@
 Stdlib-only Python. Extends [`verification-game`](../verification-game) and [`audit-dynamics`](../audit-dynamics)
 from one verifier to m. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/multi-verifier-audit/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/multi-verifier-audit/
 
 ```bash
 cd research/multi-verifier-audit

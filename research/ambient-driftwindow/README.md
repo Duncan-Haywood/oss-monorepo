@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), a follow-up to [`ambient-wakeburst`](../ambient-wakeburst), whose "Next steps" asked for persistent drift and the Fano factor against window length. Produced with AI assistance. **Stylised**: scores are Gaussian AR(1), the drift is an assumed log-scale AR(1) process, and no audio was used.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-driftwindow/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-driftwindow/
 
 ## Question
 

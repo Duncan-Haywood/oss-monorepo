@@ -2,7 +2,7 @@
 
 Stdlib-only Python. Exact calibration functions (worst-case decision regret for a given excess proper score) for a three-action verification decision. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/decision-regret-transfer/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/decision-regret-transfer/
 
 ```bash
 cd research/decision-regret-transfer

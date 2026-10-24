@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), a no-model slice before milestone 2 (`mimic-loop`), built on `mimic-contexts`. It was chosen because any imitator prompt will first try cheap surface moves, and nobody had measured how far those alone move the reference n-gram detector. **Preliminary, stylised: the edits are scripted rules applied to RAID's plain-prompt text, not edits an LLM chose; one seed; held-out poetry, reviews and wiki only.** Produced with AI assistance (Claude). No LLM was run and no text was written by the session agent.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-evade/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-evade/
 
 **Result.** The detector's held-out AUROC is 0.927. Editing only the machine texts (humans untouched) barely moves it for most edits: lowercasing and whitespace flattening change nothing (0.927; the vectoriser lowercases and tokenises on whitespace, so this is invariance by construction, not a finding), stripping markdown, dropping the "Sure, here is" preamble and contractions move it by at most 0.005 (contractions go *up*, to 0.931). 2% character typos cost about 0.012 (0.915; paired 95% bootstrap interval of the difference −0.014 to −0.010). Keeping only the first half of each text costs the most, −0.051 (0.876; −0.061 to −0.044), and all edits combined except truncation cost −0.008 (0.919). No edit gets near chance. When the detector is refit with the same edit applied to its training machine texts, AUROC rises above the baseline for typos (0.956), truncation (0.969) and the combination (0.961): the edit becomes a feature the detector learns. Numbers are in `results.txt` and `results.json`; `experiments/figure.svg` plots them.
 

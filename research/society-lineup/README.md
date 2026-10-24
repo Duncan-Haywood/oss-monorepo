@@ -17,7 +17,7 @@ k = 4. Produced with AI assistance (Claude). Free milestone of research track 17
 walking-side chain. Every result is about simulated agents following a stated rule, not real
 people or robots.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-lineup/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-lineup/
 
 ## Why this question
 

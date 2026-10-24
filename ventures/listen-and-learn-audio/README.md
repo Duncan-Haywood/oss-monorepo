@@ -5,7 +5,7 @@ language you're learning, and podcast-style episodes on any topic, built for
 when your hands and eyes are busy. Unlike a normal voice assistant, it does
 the talking. It doesn't keep asking you questions.
 
-**Listen in your browser:** https://duncan-haywood.github.io/oss-monorepo/listen-and-learn-audio/
+**Listen in your browser:** https://duncan-haywood.github.io/monorepo-projects/listen-and-learn-audio/
 
 Two forms today:
 

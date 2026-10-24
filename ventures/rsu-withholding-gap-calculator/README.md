@@ -8,7 +8,7 @@ an optional flat state rate, the underpayment-penalty safe harbor, and the
 extra W-4 withholding per remaining paycheck that closes the gap. Entirely
 client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/rsu-withholding-gap-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/rsu-withholding-gap-calculator/
 
 ## Rules applied (verified 2026-09-29)
 

@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), a follow-up to `capture-audiosync`, whose headline ("2 s windows sync two cameras from -10 dB SNR") was measured on synthetic speech-like noise. This project reruns the same GCC-PHAT estimator on 10 real recordings and sound effects. **Headline:** the synthetic threshold does not carry over. With 2 s windows and white noise, the share of windows more than one 30 fps frame (33 ms) off is 0.00 on synthetic audio at -10 dB SNR, but 0.53 on average over the real clips (0.00 for applause, 0.95 for `falling`); at 0 dB it is 0.00 vs 0.26. Wind-like (brown) noise at the same total SNR is easier (0.20 at -10 dB), since PHAT's 100 to 4000 Hz band sees less of it. Clips with narrow spectra fail first, and **partial whitening** (dividing the cross-spectrum by |C|^gamma, gamma = 0.25 instead of PHAT's 1) cut the failure share from 0.52 to 0.28 at -10 dB and from 0.24 to 0.01 at 0 dB. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-realaudio/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-realaudio/
 
 **Builds on.** `capture-audiosync` (its estimator is imported unchanged) and Knapp and Carter (1976), "The generalized correlation method for estimation of time delay", *IEEE Trans. ASSP* 24(4), which introduces the family of weightings that PHAT and plain correlation belong to. The partial-whitening exponent is a one-line variant of that family, not a method from a paper I could cite. No CU Boulder group in `prompt.md` covers this and none is claimed.
 

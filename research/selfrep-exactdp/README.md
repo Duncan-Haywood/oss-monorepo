@@ -2,7 +2,7 @@
 
 Follow-up to `selfrep-dpgrid` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking its "diagnose the bias" next step by removing the interpolation that caused it. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-exactdp/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-exactdp/
 
 **Headline (stylised, assumed inputs).** On a control set where every step lands exactly on a grid point, the DP table equals the value of its own policy to 1e-14. When the goods market saturates and the fleet has no resale value (`s = 0`), a policy that copies, then splits time between copying and goods, then makes goods only beats the best single switch by **4.7%** (market capacity c = 1e4) and **7.1%** (c = 1e3). With a resale value `s` of 12.5 per machine and c = 1e4, the gain is 6.5%. With `s` = 50 the best switch (copy to the horizon) is optimal.
 

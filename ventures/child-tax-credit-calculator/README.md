@@ -4,7 +4,7 @@ A free browser calculator for the federal Child Tax Credit and Credit for
 Other Dependents, made permanent by the One Big Beautiful Bill Act starting
 tax year 2025. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/child-tax-credit-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/child-tax-credit-calculator/
 
 After using this, you can now **turn "how many kids, how much do I make" into
 an estimated Child Tax Credit, Credit for Other Dependents, and a refundable

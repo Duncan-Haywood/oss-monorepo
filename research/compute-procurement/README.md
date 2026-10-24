@@ -2,7 +2,7 @@
 
 Stdlib-only Python. Reverse auctions for buying k identical compute units from n devices with private costs: exact VCG payments, the Myerson reserve, and the first-price equilibrium. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/compute-procurement/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/compute-procurement/
 
 ```bash
 cd research/compute-procurement

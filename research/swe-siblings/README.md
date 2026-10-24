@@ -2,7 +2,7 @@
 
 Pure Python standard library. A free-form follow-up in track 10 (the software-engineering loop), prompted by the rule in `PROJECTS.md` that a track whose chain has "gone to micro-variants of one result" should be skipped. Nothing measured whether that has happened. Produced with AI assistance (Claude). No lab's work is built on. **Preliminary:** word overlap is a crude proxy for novelty, and it says nothing about whether the results differ.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-siblings/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-siblings/
 
 ## Question
 

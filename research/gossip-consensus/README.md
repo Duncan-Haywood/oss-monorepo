@@ -2,7 +2,7 @@
 
 Stdlib-only Python. How fast does pairwise gossip contract disagreement, what does local noise leave, and what can one stubborn node do? See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/gossip-consensus/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/gossip-consensus/
 
 ```bash
 cd research/gossip-consensus

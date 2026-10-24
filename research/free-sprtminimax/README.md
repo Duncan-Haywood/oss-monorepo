@@ -2,7 +2,7 @@
 
 Python with numpy and scipy (HiGHS); imports the sibling projects `free-sprtcert` and `free-sprtopt`. **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.009). Why it seemed worth doing: `research/free-sprtopt` computed the best capped test for the *average* of the mean rollouts at the two design failure rates, and noted that such a test "may be slow at intermediate rates" and that a minimax design is a different problem. Nobody here had asked how much the intermediate rates cost, or whether a test that controls them is much worse at the ends.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-sprtminimax/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-sprtminimax/
 
 ## Question
 

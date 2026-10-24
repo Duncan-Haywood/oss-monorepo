@@ -4,7 +4,7 @@ Does joint refinement of camera poses and 3-D points (bundle adjustment) remove 
 
 This follows the first "Next step" of `sensing-recon`, which found a 1° pose error does the damage of about 2 px of image noise. It is not another micro-variant: it adds the missing stage that fixes that error.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-ba/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-ba/
 
 **Builds on.** Triggs, McLauchlan, Hartley and Fitzgibbon (2000), "Bundle adjustment: a modern synthesis", *Vision Algorithms: Theory and Practice*, LNCS 1883, for the reprojection-error objective and its sparse structure; Schönberger and Frahm (2016), CVPR, whose pipeline ends in this step; Umeyama (1991), *IEEE TPAMI* 13(4), for the similarity alignment. Solver: SciPy `least_squares` (trust-region reflective, sparse Jacobian pattern). Track 15 (`sensing`), a follow-up of milestone 5. No lab in `prompt.md` is built on; none fits.
 

@@ -16,7 +16,7 @@ coder accuracy, the PPI interval is *wider* than the human-only one. Produced wi
 (Claude). Every result is from simulated coders with known error rates, not from a real LLM or a
 real corpus.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-correction/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-correction/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 1. Blog post:
 [`docs/posts/2026-10-20-machine-learning-on-qualitative-data-with-llms.md`](../../docs/posts/2026-10-20-machine-learning-on-qualitative-data-with-llms.md).

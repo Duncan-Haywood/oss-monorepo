@@ -5,7 +5,7 @@ A free browser tool (and small Node CLI) for oyster growers and people about to 
 net per 1,000 oysters sold, the break-even price and survival, and the cash you need before the
 first sale.** Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/oyster-farm-growout-planner/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/oyster-farm-growout-planner/
 
 After using this, you can now **tell whether a planting will pay and how much cash it ties up for
 18 months**, which used to be a spreadsheet rebuilt for every lease and every seed order.

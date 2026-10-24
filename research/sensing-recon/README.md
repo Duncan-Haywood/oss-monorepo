@@ -2,7 +2,7 @@
 
 How do accuracy and completeness of a multi-view 3-D reconstruction change with the number of photos, the baseline, the image noise and the error in camera poses? On a **synthetic** bumpy-ellipsoid object, with cameras on an orbit and known intrinsics, **12 views on a full orbit reconstruct all 800 surface features, 8 views reconstruct 89%, 6 views 59%, and 4 or fewer views at most 13%; once a point is triangulated its error is set by pixel noise (about 0.0028 object radii per pixel of noise) and pose error, and barely by view count** (numpy only; 11 tests).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-recon/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-recon/
 
 **Builds on.** Hartley and Zisserman (2004), *Multiple View Geometry in Computer Vision*, 2nd ed., Cambridge University Press, for linear (DLT) triangulation; Schönberger and Frahm (2016), "Structure-from-motion revisited", CVPR, for the structure-from-motion pipeline whose triangulation stage this isolates. This is track 15 milestone 5 (`sensing-recon`) in a reduced form: it studies the triangulation stage only, with poses and feature matches supplied, not full structure from motion, multi-view stereo or Gaussian splats. No lab in `prompt.md` is built on; none fits.
 

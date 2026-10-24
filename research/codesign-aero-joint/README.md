@@ -4,7 +4,7 @@
 
 Follow-up to `codesign-aero-robust` (track 14, `codesign`; its "Next steps" asked for joint CMA-ES with randomised training plants). `codesign-aero` already compared joint and sequential search on the nominal plant; this asks it on the wide randomised plant, with 8 seeds and a random-search baseline at equal budget. Produced with AI assistance (Claude). **Stylised simulation: every constant and randomisation range is an assumed round number; roll axis only; no hardware, no PX4/ArduPilot software-in-the-loop; a three-gain linear policy.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-joint/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-joint/
 
 ![Held-out error of each seed's winner](experiments/seeds.png)
 

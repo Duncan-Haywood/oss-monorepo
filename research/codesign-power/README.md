@@ -2,7 +2,7 @@
 
 Track 14 (agentic robot co-design, `codesign`). `../codesign-headroom` could not rank its six methods because 40 test scenes give a standard error of about 0.05, and its "Next steps" asked for a larger test set. This project does that without re-running any optimisation: it takes the 144 final designs those runs handed over (6 methods × 8 seeds × checkpoints at 10, 20 and 40 designs; 77 are distinct) and scores each on 600 new scenes from the same generator. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-power/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-power/
 
 ![Final designs: 40-scene test score against 600-scene success, by method](experiments/best_designs_600_scenes.svg)
 

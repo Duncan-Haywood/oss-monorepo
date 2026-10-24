@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 2 of [`energy-thermal`](../energy-thermal) ("add costs for sand, insulation, heater and exchanger, every price sourced and dated, and a cost per kWh delivered"). That project sized a resistance-charged sand store and found it returns only a fraction of the electricity as heat, so it needs cheaper electricity than a heat pump. It left the capital cost out, so the answer to "is it worth building?" was open. Here every capital cost, lifetime, fixed O&M and efficiency is read from PyPSA technology-data (Danish Energy Agency; Viswanathan et al. 2022, PNNL-33283), as the owner asked on 2026-10-21 ("run the numbers"; `research/CLAUDE.md`), and the store is sized by the `energy-thermal` transient model, imported unchanged. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-thermal-cost/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-thermal-cost/
 
 ![Electricity price ratio at which a heat pump costs as much as a sand store, against standby days](experiments/ratio.svg)
 

@@ -9,7 +9,7 @@ none; at k = 3 and 5 patches up to 6 × 6 still tip every crowd, but one 8 × 8 
 any k.** The ring's rule was "block ≲ k" in sites each way, which is "block ≲ neighbourhood width"; the grid agrees in
 width, not in radius. Results are about simulated people following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-grid/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-grid/
 
 ## Why this question
 

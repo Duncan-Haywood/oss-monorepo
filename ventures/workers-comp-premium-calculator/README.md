@@ -5,7 +5,7 @@ compensation premium from the class-code rates on their own quote, and shows
 what a final audit will add or return. Entirely client-side; nothing is
 uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/workers-comp-premium-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/workers-comp-premium-calculator/
 
 After using this, you can now **see exactly which line of your quote (mod,
 schedule debit, expense constant, a dominant class) is driving the premium,

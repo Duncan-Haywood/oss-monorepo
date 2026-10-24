@@ -4,7 +4,7 @@ After using this, you can now see which supplier invoices to pay early when seve
 there is not enough cash to take them all, with every combination checked exactly, which used to mean paying whoever called
 first or ranking by gut feel.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/early-pay-discount-picker/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/early-pay-discount-picker/
 
 Free, runs in the browser, nothing is uploaded. Open `index.html`.
 

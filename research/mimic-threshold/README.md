@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), a by-product of `mimic-contexts` and `mimic-surface`. **Preliminary, stylised: RAID plain-prompt text only, one detector type (the `mimic-contexts` n-gram logistic regression), 8 families, 300 human texts each, one seed.** Produced with AI assistance (Claude). No LLM was run. Free-choice reason: every earlier project here reports AUROC, which ignores the threshold, but anyone *using* a detector must pick one, and accusing a person of being a machine is the costly error (Liang et al., 2023, on detectors' bias against some writers).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-threshold/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-threshold/
 
 Numbers come from `results.txt` and `results.json`; the figure is `experiments/figure.svg`.
 

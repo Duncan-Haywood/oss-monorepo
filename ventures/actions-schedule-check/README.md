@@ -3,7 +3,7 @@
 A free tool that scans GitHub Actions workflow files for `schedule:` cron
 entries that will not run when you expect:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/actions-schedule-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/actions-schedule-check/
 
 1. **`cron-invalid`** — not five fields (a six-field "seconds" cron from
    Quartz or Spring is the usual cause) or a number outside its field's range.

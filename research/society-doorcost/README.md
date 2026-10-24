@@ -13,7 +13,7 @@ sat just above the threshold, which is why it saw none. Produced with AI assista
 (`society`, `PROJECTS.md`), the first next step named in `society-doorway`. Every result is about
 simulated agents following a stated rule, not real people or robots.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-doorcost/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-doorcost/
 
 ## Builds on
 

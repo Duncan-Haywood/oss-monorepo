@@ -2,7 +2,7 @@
 
 Pure Python standard library. A new question for track 10 (the software-engineering loop), not a variation of an earlier result: `prompt.md` asks every run to list the instructions it chose not to follow (`deviations`) and the review track uses them to improve the brief. If deviating is costly or tends to end in a partial outcome, the brief should say so; if it is free, the brief can invite more of it. `swe-fieldfill` counted how often the field is filled (12.6%); this project asks what the filled records look like. Produced with AI assistance (Claude). **Preliminary: nineteen days of observational data, no randomisation.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-deviations/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-deviations/
 
 All numbers are from `experiments/results.txt` (1,564 records dated 2026-10-01 to 2026-10-20; 203 list at least one deviation).
 

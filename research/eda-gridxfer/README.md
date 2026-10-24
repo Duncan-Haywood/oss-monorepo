@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-gridorder` found the harness's lexicographic grid far behind a random order and Halton or farthest-point orders far ahead, on **one** 80-design table, and said so: the deterministic orders are single draws, so a second design family was needed to see whether the result is about the orders or about where that table's front sat. This project replays the same orders on two families that already have measured cells and cycles (`eda-surrogate`'s MAC and FIR generators), and ships the order as an option in `eda-harness`. Produced with AI assistance (Claude). **Stylised and preliminary:** two 36-design families, two objectives (Yosys generic cells, analytic cycles), no accuracy axis, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-gridxfer/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-gridxfer/
 
 **Builds on.** `research/eda-gridorder` (the orders and the first table), `research/eda-proposers` (exact hypervolume and the metric), `research/eda-surrogate` (the MAC and FIR designs and their measured cell counts, reused unchanged), `research/eda-harness` (gains the option). No CU Boulder lab's work is built on and no affiliation is implied.
 

@@ -2,7 +2,7 @@
 
 A project of track 12, open-source residential construction (`PROJECTS.md`, milestone 6, a next step of [`house-diaphragm`](../house-diaphragm): "replace the toy stiffness with an openly sourced nailed-wall deflection equation"). `house-diaphragm` found that a rigid roof diaphragm sheds load from a garage-door gable wall, but its stiffness was a guess with one free softness knob. This swaps the guess for a four-term pier deflection (chord bending, panel shear, nail slip, hold-down slip) and asks whether the sign of the result holds. Stylised and not a code check. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-nailedwall/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-nailedwall/
 
 **Headline (stylised).** Yes, the sign holds. With a four-term stiffness, a centred 22 ft garage door leaves line A at 0.05 to 0.19 of its partner wall's stiffness (it depends on the unit shear at which stiffness is taken), and under a rigid diaphragm its demand over capacity at 6 in nailing falls from 1.05 (flexible split, fails) to **0.36 at 100 plf, 0.48 at 250 plf and 0.59 at 500 plf**. The relief shrinks as the load rises, because nail slip softens the partner wall too; the toy model's 0.18 to 0.63 spread brackets these numbers. The flexible split stays the governing case, so nothing here lets a design pass.
 

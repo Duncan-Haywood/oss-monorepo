@@ -2,7 +2,7 @@
 
 Milestone 6 of track 21, applied R&D for the industries modern life runs on (`PROJECTS.md`). Cement is about two thirds of its CO2 chemistry, not fuel, so the way to cut it is to make less clinker. This project writes the mass, energy and CO2 balance of a tonne of ordinary Portland cement (OPC), a limestone cement, two slag cements and three limestone calcined clay (LC3) blends, with the calcination CO2 computed from molar masses, then asks how far the clinker content can fall before a strength class is lost. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-cement/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-cement/
 
 **Headline.** At baseline parameters OPC (95% clinker) comes to **830 kg CO2 per tonne**, of which 485 is calcination and 306 kiln fuel. LC3-50 (50% clinker, 30% calcined clay, 15% limestone, 5% gypsum) comes to **491, 41% lower**; a 50% slag cement 441 (47% lower). The LC3 saving stays between **39% and 43%** when the clay calcination energy, grid carbon, grinding energy, kiln heat and fuel carbon are each swept over their plausible ranges. Whether the clinker can fall that far depends on how much strength headroom the OPC reference has: with the only 28-day strength data this run could reach (one study, read through a search summary), an OPC reference of 55 MPa or more lets LC3 go to 50% clinker and keep class 42.5, 50 MPa limits it to 54% clinker (37% saving) and 45 MPa to 68% (25% saving).
 

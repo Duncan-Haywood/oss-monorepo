@@ -4,7 +4,7 @@ Track 5 (simulation-first design, `PROJECTS.md`). `simdesign-fidelity` asked whe
 
 **Headline.** On 3 seeds of 80 random cantilevers, Euler–Bernoulli, Timoshenko and 2D plane-stress models all rank designs by stiffness per mass almost exactly like a 3D finite-element reference (Kendall τ 0.987 to 0.996), and the 3D-best design is always ranked first, although a single design's merit is off by up to 14%.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-rank/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-rank/
 
 **Builds on.** The models of `research/simdesign-fidelity` (imported from there, not copied): Euler–Bernoulli and Timoshenko beam theory, and scikit-fem (Gustafsson and McBain, *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>) 2D and 3D elasticity. Kendall's τ is Kendall (1938), "A new measure of rank correlation", *Biometrika* 30:81–93 (from memory, not re-checked online). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

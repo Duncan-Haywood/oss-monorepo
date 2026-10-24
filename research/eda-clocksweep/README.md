@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-sky130rung` mapped each design with an unconstrained ABC `map`, so every design ran at its own, different clock, and it listed "rerun with a clock-constrained `abc -D` sweep" as the open step. A real chip has one clock. Its finding that logic depth ranks delay badly (Spearman 0.611) and that the (area, latency) front differs from the generic front could be an artefact of letting each design pick its own period. This project fixes the period instead. Produced with AI assistance (Claude). Preliminary: one design family, one ABC recipe, no wires, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-clocksweep/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-clocksweep/
 
 **Builds on.** `research/eda-sky130rung` (flow, rank statistics), `research/eda-harness` (the 40 designs and their generic-gate log), `research/eda-flowtune` (`fetch_pdk.sh`). Tools: Yosys 0.33 and ABC (apt), SKY130 HD `tt_025C_1v80` liberty at ORFS commit `e5cc6e799f`. No CU Boulder lab's work is built on and no affiliation is implied.
 

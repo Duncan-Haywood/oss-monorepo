@@ -5,7 +5,7 @@ report and see where every sale went, and which items make money.** The file is
 read in the browser; nothing is uploaded. Independent of eBay and not
 affiliated with it.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ebay-transaction-report-analyzer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ebay-transaction-report-analyzer/
 
 After using this, you can now **see what final value fees, Promoted Listings,
 international and performance fees, refunds and under-charged shipping actually

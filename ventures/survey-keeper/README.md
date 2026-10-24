@@ -2,7 +2,7 @@
 
 After using this, you can now **run a survey or an NPS check on a server you own**, read the score with a 95% range instead of a bare number, see which words detractors use more than promoters, compare channels, and get a message the moment someone scores you 0 to 6, instead of paying a survey service per response.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/survey-keeper/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/survey-keeper/
 
 Two parts, both free and MIT:
 

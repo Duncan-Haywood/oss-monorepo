@@ -2,7 +2,7 @@
 
 A new question for track 1 (`PROJECTS.md`), taking the "Next steps" of `selfrep-capability` (a time dimension) one step further. That project picked the best *set* of capabilities for a budget; a shop learns them one at a time, so here the choice is a *sequence*, scored by how much closure the shop holds, and for how long, while it is still learning. Produced with AI assistance (Claude). Computed only; nothing was built or tested.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-capsequence/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-capsequence/
 
 **Headline (stylised, preliminary).** With the assumed efforts of `selfrep-capability`, the best order by cost closure is stamping, winding, lathe, heat treatment, grinding, ball-forming; by mass closure it is lathe, stamping, winding, heat treatment, grinding. Walking up the budget frontier of `selfrep-capability` (cheapest set first) is a poor order: over a 24-week horizon it scores only 54% (mass) and 73% (cost) of the optimum. A greedy rule that takes the best gain-per-week *bundle* of capabilities comes within 0% (mass) to 6% (cost) of the optimum. A rule that ranks one capability at a time reaches 69 to 80%. The optimal order is moderately fragile: with efforts scaled 0.5x to 2x, it stays within 1% of that draw's optimum in 39 to 88% of draws.
 

@@ -4,7 +4,7 @@ Follow-up to `chip-ppa-logic` in the LLM chip-design-loop track (`PROJECTS.md`, 
 
 **Headline.** On clz16 the verdict flips with the script. Under the default script the sweep wins (344, `tree_8`). Under `strash_map`, `dch_map` and `resyn2_map` a session-written file (`c2_nibble_combine`) wins, at 222, 216 and 336 against the sweep's 462, 344 and 360. The default-script winner is the overall winner under only 2 of 5 scripts for clz16 and 3 of 5 for |a-b|; popcount's winner holds under all 5.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-logic-script/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-logic-script/
 
 **Builds on.** `research/chip-ppa-logic` (designs, proposer files and sweep generators copied, MIT, same author) and `research/chip-ppa-script` (script set and flow, copied, MIT). The generate-check-score loop idea is from VerilogEval (Liu et al., ICCAD 2023), RTLLM (Lu et al., ASP-DAC 2024) and Chip-Chat (Blocklove et al., MLCAD 2023), as cited and checked in `chip-ppa-loop`; the papers were not read here and nothing from them is reproduced. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

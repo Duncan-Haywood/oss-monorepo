@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), side project: the first "Next step" of `mimic-twinswing` was to widen its 60-point gain grid, because several twins picked gains on the grid's edge and a coarse grid could hide or create regret. This is a robustness check of that result, not a new question: **if the answer is unchanged, the earlier finding stands on a firmer base.** A parallel run, `mimic-twingrid`, also widened the grid (to ke 32) but on a different twin set (14 twins, four of them gravity errors), where AUROC vs regret reached ρ = 0.63 (p = 0.021). This run holds the original 15-twin set fixed, so it separates a grid effect from a twin-set effect. **No LLM is used and no text is generated.** Stylised and simulated only. **Preliminary: one toy pendulum, one task, a 144-point grid, 12 tuning seeds.** Produced with AI assistance.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-twinswinggrid/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twinswinggrid/
 
 Numbers come from `experiments/results.txt` and `results.json`; the figure is `experiments/auroc_vs_regret_fine.svg`.
 

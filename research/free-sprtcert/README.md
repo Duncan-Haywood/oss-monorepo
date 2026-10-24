@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.001). Why it seemed worth doing: a twin is used to decide "is this policy's failure rate below p1 or above p0?", and the usual answer is a fixed batch of rollouts. Wald's sequential probability ratio test (SPRT) stops as soon as the evidence is clear. I wanted exact numbers, not a simulation, for how much it saves, and for what it costs when the true rate falls between the two hypotheses.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-sprtcert/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-sprtcert/
 
 ## Question
 

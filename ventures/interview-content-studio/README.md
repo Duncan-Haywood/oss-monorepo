@@ -6,7 +6,7 @@ Bluesky, LinkedIn, Instagram (feed, Reels, carousels), Facebook, TikTok, YouTube
 Substack, blog/SEO articles, Medium, Reddit, Pinterest and podcast clips. For a business building a brand or a person
 building a personal brand who wants to repurpose one set of real stories into a month of social media content.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/interview-content-studio/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/interview-content-studio/
 
 Runs in your browser, works with no AI key, and never posts anything for you. Optional AI rewriting uses your own key
 (Anthropic, OpenAI, Gemini, any OpenAI-compatible endpoint) or a model on your own computer (Ollama, LM Studio, llama.cpp).

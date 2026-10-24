@@ -11,7 +11,7 @@ the price falls on the robots themselves, whose cost rises from 1.00 to 1.29.** 
 urgent people are 40% or more of the people. Produced with AI assistance (Claude). Track 17 (`society`,
 `PROJECTS.md`). Every result is about simulated agents following a stated rule, not real people or robots.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-urgentdoor/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-urgentdoor/
 
 ## Builds on
 

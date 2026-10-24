@@ -2,7 +2,7 @@
 
 A follow-up to `research/robofab-grasp` (track `robofab`; its "lift and acceleration loads" and "tipping for off-centre centres of mass" next steps). That project found that friction needs only milli- to centinewtons to hold the parts of a toy gripper at rest, and that the textbook bound `N >= m g / (2 mu)` matches MuJoCo. Here I add two things a moving gripper meets: a lift or sideways acceleration, and a centre of mass that is not under the pads. All numbers are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-liftload/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-liftload/
 
 - **Acceleration is just a bigger weight, and MuJoCo agrees.** With the load as an effective gravity `sqrt((g + a_z)^2 + a_t^2)` in the pad frame, the bound scales as expected. Over 66 cases (the six free parts, every grasp axis that fits a 30 mm opening, six loads up to `a_z` = `a_t` = 20 m/s², mu = 0.5), the simulated minimum force is 1.00 to 1.06 times the bound (median 1.01). The largest bound is 0.21 N (cover, 20 m/s² up and sideways). Still tiny; the jaw opening remains the binding constraint.
 - **These parts cannot show the torque effect.** Every part is symmetric, so its centre of mass sits at the centre of its bounding box (offset 0.00 mm in all 66 cases). Case A therefore says nothing about tipping.

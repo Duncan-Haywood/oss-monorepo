@@ -2,7 +2,7 @@
 
 A fixed camera-to-gyro time offset is easy to calibrate once, but two real clocks also drift apart. On a stylised single-axis simulation (30 Hz camera, 200 Hz gyro, 40 s windows): **the alignment fit needs motion of roughly 16 deg/s rms or more to recover a 20 ms offset reliably (8 of 8 runs within 5 ms; 2 of 8 at 1 deg/s and 0 of 8 at 0.3 deg/s), and a camera clock that runs 1000 ppm fast makes a fixed-offset calibration leave 0.254 deg of attitude error against 0.152 deg with perfect sync, while fitting the offset and the skew together returns 0.155 deg at every skew tried up to 2000 ppm.** Produced with AI assistance (Claude). Fourth project of track 15 (`PROJECTS.md`, milestone 3 follow-up), picked because `sensing-timesync` listed clock skew and the excitation needed as next steps. It builds on none of the CU Boulder groups in `prompt.md`. Everything here is synthetic; nothing is measured on a real camera or IMU.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-syncskew/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-syncskew/
 
 **Builds on.** [`sensing-timesync`](../sensing-timesync) (same world, constant offset only), and the temporal calibration literature: Furgale, Rehder and Siegwart, "Unified temporal and spatial calibration for multi-sensor systems", IROS 2013 (Kalibr), and Qin and Shen, "Online temporal calibration for monocular visual-inertial systems", IROS 2018. This project reproduces neither; it is a small independent simulation.
 

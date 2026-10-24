@@ -11,7 +11,7 @@ the settling point well for blunt robots (`beta_r = 4`, within 0.09) but oversta
 0.74 at `k = 1.5`, the simulation gives 0.51). Produced with AI assistance (Claude). Track 17 (`society`, `PROJECTS.md`), the first
 next step named in `society-doorcost`. Every result is about simulated agents following stated rules, not real people or robots.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-learnrobots/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-learnrobots/
 
 ## Builds on
 

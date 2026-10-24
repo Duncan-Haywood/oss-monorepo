@@ -2,7 +2,7 @@
 
 Pure Python standard library. A new question for track 10 (the software-engineering loop), not a variation of an earlier result: the track's "guard the metric" rule needs to know which ledger fields can be trusted to exist before any project computes throughput from them. `swe-ledger` counted cost fields on 189 runs, and `swe-costpermerge` found the red-team recording gap by accident; this project measures every field on every record in `prompts/runs/`. Produced with AI assistance (Claude). **Preliminary: nineteen days, and "filled" means present, not correct.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-fieldfill/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-fieldfill/
 
 All numbers are from `experiments/results.txt` (1,362 readable records dated 2026-10-01 to 2026-10-19; Wilson 95% intervals).
 

@@ -8,7 +8,7 @@ threats, injury or theft claims, possible fakes, requests for a refund) are
 sorted to the top with a plain-English warning. A second card writes the
 requests that *get* reviews, within Google's rules.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/review-reply-desk/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/review-reply-desk/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

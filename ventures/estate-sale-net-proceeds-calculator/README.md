@@ -8,7 +8,7 @@ minimum guarantee, and compare two companies' quotes side by side against the
 same sale estimate. Nothing is uploaded; the arithmetic runs on the visitor's
 own device.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/estate-sale-net-proceeds-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/estate-sale-net-proceeds-calculator/
 
 See [`vs-headline-commission-rate.html`](vs-headline-commission-rate.html)
 for why the lower headline rate can retain more, or

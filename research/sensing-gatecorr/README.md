@@ -2,7 +2,7 @@
 
 `sensing-gatemix` drew every wrong observation independently and listed that as a limitation: "a bad feature is bad in several views. Independence flatters the gate's voting." This project removes the flattery. A bad feature is made wrong, by the same 10 to 40 px offset, in `span` consecutive views of a 12-view orbit, at the overall wrong-match rate SIFT gives after a ratio test (`sensing-matchreal`). **Headline: correlation costs the gate its recall (0.81 at span 1 to 0.59 at span 12 at a 10% rate) but little accuracy. At ratio 0.8, gate + Cauchy adjustment goes from 0.0031 to 0.0048 object radii (clean floor 0.0014) over spans 1 to 8, and its lead over the RANSAC-start adjustment shrinks from 1.7x at span 1 (0.0031 vs 0.0052) to 1.06x at span 8 (0.0048 vs 0.0051), which 12 seeds cannot tell from a tie.** One seed in twelve failed outright (0.64) for gate + Cauchy at span 12; a different one failed (0.24) for plain Cauchy at span 1.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-gatecorr/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-gatecorr/
 
 **Builds on.** `sensing-gatemix` (its "Limitations" first bullets), `sensing-epigate` (trial, gate), `sensing-baoutlier`, `sensing-matchreal` (the rates, parsed from its committed `results.txt`). Hartley and Zisserman (2004), *Multiple View Geometry*, ch. 11, for the fundamental-matrix gate; Lowe (2004), *IJCV* 60(2), for the ratio test. Track 15 (`sensing`). No lab in `prompt.md` is built on; none fits.
 

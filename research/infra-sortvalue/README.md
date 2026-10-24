@@ -2,7 +2,7 @@
 
 Follow-up to `infra-sorting` (milestone 10 of track 21, applied R&D for the industries modern life runs on; `PROJECTS.md`), taking its "per-class value so pick order matters" and "robot travel time by item position" next steps. That project found FIFO, LIFO and largest-first tie, and explained why: all items were worth the same and took the same time. This asks whether the tie breaks once they are not. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-sortvalue/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-sortvalue/
 
 **Headline.** Mostly it does not, and it is worth knowing how little. With aluminium cans worth 4 plastic bottles, arm travel of 0 to 1 s and 0.5 m/s belt, picking the highest-value item first beats FIFO by **0.1% at 1 item/m, 2.0% at 6/m and 4.8% at 10/m** (paired, 95% intervals about +-0.5 points). Picking by value per second of pick gives the same gain within noise. The gain grows with can value (+1.1% at equal value, +2.6% at 16x), is largest for a mid-speed arm (+2.0% at 0.6 m/s, +0.1% at 5 m/s, +0.3% at 0.2 m/s) and grows when contaminants cost value (+4.2% at a cost of 2 bottles each). The belt-speed and pick-time limits found in `infra-sorting` matter far more than the order.
 

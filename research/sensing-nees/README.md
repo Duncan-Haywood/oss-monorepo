@@ -2,7 +2,7 @@
 
 A consumer IMU's accelerometer bias wanders like 1/f noise, but the usual filter models it as a random walk whose strength is read off the Allan-deviation plot. **Run through a 1-D INS/GNSS filter with a 300 s GNSS outage, a filter with no bias state claims a position error of 2.9 m when the true RMS is 151 m (NEES/dof 514 to 2,000 at 100 µg bias instability); a random walk tuned from the Allan curve at 1 s or 10 s claims a position error 2.4 to 3.7 times the true RMS at 100 µg (NEES/dof 0.06 to 0.16 at 300 s); tuned at 100 s it is close to honest (0.9 to 1.6) at 100 µg and optimistic at 300 µg (up to 2.3); a filter given the true 1/f model stays at 0.88 to 1.05 everywhere.** The cost of the wrong model also shows in accuracy: at 100 µg the 300 s RMS error is 66 m for the matched model, 81 m tuned at 100 s and 103 m tuned at 10 s (numpy and scipy; 6 tests).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-nees/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-nees/
 
 **Why this was worth doing.** Track 15's `sensing-imuarray` and `sensing-imutemp` ask how many cheap IMUs match a better one, using Allan-variance grades and a white-plus-random-walk error model, and `sensing-vio` asks about drift. None checks whether a *filter* fed such a model reports its own error correctly. NEES (normalised estimation error squared; Bar-Shalom, Li and Kirubarajan 2001, *Estimation with Applications to Tracking and Navigation*, Wiley, ch. 5) is the standard test. The `sensing` chain had also gone to micro-variants of bundle adjustment (`sensing-bak2wide`'s own next steps are further camera-parameter tweaks), so this asks a new question of the same theme.
 

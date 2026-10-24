@@ -2,7 +2,7 @@
 
 Track 11, adversarial human imitation, milestone 4 (`mimic-anycontext`), detector side with a language model. `mimic-anycontext-detect` ran the prompt-free half because model downloads were blocked; Hugging Face is reachable now, so this runs the prompted half. **Negative and preliminary: one 0.5B model, 16 hand-banked prompts, 8 families, plain-prompt (non-adaptive) machine text, no imitator side and no prompt-writing LLM.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-anycontext-prompt/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-anycontext-prompt/
 
 ## Question
 

@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies beyond the sibling project `free-sprtcert` (imported for the fixed-size test). **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.042). Why it seemed worth doing: `research/free-sprtcut` re-tuned a capped SPRT on a coarse grid and said a backward-induction design "would lower the means". Nobody knew by how much, or whether the grid result was already near the floor. This project computes the floor and certifies it, which turns "the tuned test is good" into a number.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-sprtopt/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-sprtopt/
 
 ## Question
 

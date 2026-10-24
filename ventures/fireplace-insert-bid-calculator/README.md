@@ -6,7 +6,7 @@ liner footage, a new hearth, a gas run, a dedicated circuit, a
 surround, and a two-story stack as their own hours — and shows the
 margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/fireplace-insert-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/fireplace-insert-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

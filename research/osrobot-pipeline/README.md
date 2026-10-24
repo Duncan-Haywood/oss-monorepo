@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-pairprice` (track 9, open-source purpose-built robots). That project found a scout plus treater beats one inline robot per hectare only if each machine is charged just for the minutes it works, and loses by 1.1 to 1.3 times if both are held for the whole job; it listed "pipeline the stages" as the next step. This one does, as a deterministic scheduling model over `osrobot-pairprice`'s fitted per-field minutes. **Every price is an assumed round number, not a quote; no new simulation was run.** In the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field robots; nothing here is affiliated with or endorsed by them. Produced with AI assistance (Claude). Pure Python standard library. Simulation only; nothing was built or flown.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-pipeline/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-pipeline/
 
 ![Pipelined fleet cost over inline fleet cost against number of fields](experiments/ratio.svg)
 

@@ -2,7 +2,7 @@
 
 New question for the LLM chip-design-loop track (`PROJECTS.md`, track 3), asked because the recent `chip-*` chain had narrowed to variants of one result. Quantised accelerators (`chip-accel`, `accel-*`) multiply by weights known at synthesis time, so a multiplier by a constant is the commonest arithmetic block in them. This measures how much a hand-structured form saves over the plain operator, for every 8-bit constant. No LLM is used. Produced with AI assistance (Claude). Preliminary: one tool version, generic gates, one input width.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-constmul/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-constmul/
 
 **Builds on.** `chip-abc-sweep` in this repository (same author, MIT): its `score` and `equivalent` wrappers are imported unchanged. Prior art on the technique: canonical signed digit (CSD) recoding is classical (Reitwiesner 1960, "Binary arithmetic", *Advances in Computers*); the open question here is only how much a current open synthesis flow already recovers on its own. Tools: Yosys and its integrated ABC (<https://yosyshq.net/yosys/>). Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed.
 

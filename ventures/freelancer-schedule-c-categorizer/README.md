@@ -4,7 +4,7 @@ A free browser tool for freelancers and sole proprietors: **drop in your bank or
 every transaction sorted into an IRS Schedule C line.** The file is read in the browser; nothing is
 uploaded and no bank login is needed.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/freelancer-schedule-c-categorizer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/freelancer-schedule-c-categorizer/
 
 After using this, you can now **see gross receipts and each expense line, which transactions could
 not be categorised, which deposits are net of payment-platform fees, which purchases may be

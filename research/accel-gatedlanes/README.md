@@ -2,7 +2,7 @@
 
 > Update: `accel-gatedmux` found the cause of the P = 32 memory failure (a variable-index read of the accumulator bus), fixed it, and re-measured P up to 64. The WS-over-OS area ratios below are overstated; gated WS is about 1.5x OS at B = 4 and 2.2x at B = 8.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-gatedlanes/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-gatedlanes/
 
 Tenth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. `accel-gatedrtl` built and synthesised the clock-gated weight-stationary (WS) engine at one lane count (P = 8) and listed "sweep P" as a next step. This does that. It seemed worth doing because its headline numbers (gated WS 1.8x the output-stationary (OS) area at B = 4, clock-pin energy 1.0 to 1.07x OS with a gate per set) were measured at a single P, and a result that moves with P would not transfer to other engine sizes.
 

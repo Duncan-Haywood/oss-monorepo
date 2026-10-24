@@ -7,7 +7,7 @@ the tip threshold is ρ = 0.06 (resampled), 0.10 (simulation) and 0.18 (mean-fie
 persistence of real memory pushes it back up; for blocks of 4 to 8 the simulation sits at or near the mean-field.**
 Results are about simulated people following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-ringnoise/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-ringnoise/
 
 ## Why this question
 

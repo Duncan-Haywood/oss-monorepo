@@ -2,7 +2,7 @@
 
 Stdlib-only Python. When contributors of data or gradients are paid by Shapley or leave-one-out value, what does submitting copies earn? See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/data-valuation-replication/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/data-valuation-replication/
 
 ```bash
 cd research/data-valuation-replication

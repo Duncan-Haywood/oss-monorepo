@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), closing the third "Next steps" item of `capture-audiosync` ("feed synced clips to `capture-edit` and measure whether a 5 ms residual changes cut quality"). **Headline:** it cannot change *quality*, by construction, and the question worth asking is continuity at each cut. With sync errors from the real `capture-audiosync` estimator, a Theil-Sen fit over 12 windows leaves **0%** of cuts with a visible jump from 0 dB down to -10 dB SNR (2 s windows; down to -15 dB with 5 s windows), while a sync made once at the start and never redone leaves **50%** of cuts jumping over one 30 fps frame (mean jump 40 ms). Below the fit's threshold it flips: at -15 dB (2 s windows) 69% of cuts jump a median 0.28 s and 11% of cuts repeat or drop a loud event; at -20 dB, 94% and 22%. A threshold, not a slope. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-syncedit/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-syncedit/
 
 **Builds on.** `capture-audiosync` (GCC-PHAT, Theil-Sen, synthetic audio) and `capture-edit` (noisy scores, Viterbi edit, Poisson loud events). No CU Boulder group in `prompt.md` covers this and none is claimed.
 

@@ -13,7 +13,7 @@ seed 1.** Produced with AI assistance (Claude). Milestone 7 of research track 17
 `PROJECTS.md`). Every episode is fiction and one seeded run, not a statistic: the rates behind
 them are `society-trust`'s (20 crowds per cell), not these five runs.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-show/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-show/
 
 **Watch it:** open `experiments/robot_town_show.html` (one self-contained file, no network).
 

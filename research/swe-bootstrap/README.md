@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. A follow-up to `swe-decay` (track 10, the software-engineering loop, in `PROJECTS.md`), taking its "Next steps" item to resample the history order. `swe-decay`'s intervals covered only the policies' own randomness, and greedy's was zero-width. Here each track's ordered project sequence is resampled in circular blocks, the replay is repeated on 200 resampled histories, and the spread of *policy minus uniform* across histories is the interval. All numbers come from `experiments/results.txt`. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-bootstrap/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-bootstrap/
 
 ## Question
 

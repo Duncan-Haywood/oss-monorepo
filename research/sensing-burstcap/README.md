@@ -2,7 +2,7 @@
 
 Given a fixed number of burst frames `K`, what is the largest sensor-area ratio `A` whose single frame the merged burst can match, and how does it depend on light and read noise? **Inverting the `sensing-burst` break-even formula `N* = A²(e + r²)/(A·e + r²)` gives `A_max` as the positive root of `(e + r²)A² − K·e·A − K·r² = 0`, which runs from `√K` in the dark to `K` in bright light: with 8 frames and 3 e⁻ read noise a burst matches a 4×-area frame from 4.5 e⁻ per pixel per frame, a 6× frame from 21 e⁻, and never an 8× frame at any light level; 15 frames reach 12× from 14 e⁻ at 2 e⁻ read noise to 358 e⁻ at 10 e⁻.** Monte Carlo of the Poisson-Gaussian model agrees with the closed form to within 1.0% in variance at 18 settings. Produced with AI assistance (Claude). Track 15 (`PROJECTS.md`), a follow-up to `sensing-burst`. It builds on none of the CU Boulder groups in `prompt.md`. Everything here is a model: no real sensor or raw file.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-burstcap/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-burstcap/
 
 **Builds on.** `research/sensing-burst` (the model and the break-even formula, itself using the standard Poisson-Gaussian noise model of Foi et al. 2008, *IEEE T-IP* 17:1737–1754, and the premise of Hasinoff et al. 2016, *ACM TOG* 35(6)). The only new content is solving that formula for `A` instead of `N` and tabulating it.
 

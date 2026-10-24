@@ -2,7 +2,7 @@
 
 A stylised, simulation-only study in track `robofab` (the first next step of `research/robofab-cell-monitor`: replace its fixed detection delay with a detector that has its own hit and false-alarm rates). I give the camera a score that is N(0, 1) on a healthy print and N(d', 1) once the print has failed, a look every few minutes, and an alarm threshold z. Then I ask which z maximises good parts per hour, and how much a camera of a given quality is worth, using an exact analytic bound and a discrete-event simulation of the cell. I did not choose these parameters from a real farm; every number is illustrative.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-cell-detector/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-cell-detector/
 
 ![Good parts per hour against alarm threshold, four detector qualities, with the blind-printing level](experiments/rate_vs_threshold.svg)
 

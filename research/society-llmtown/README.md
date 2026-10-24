@@ -12,7 +12,7 @@ agent with `state_norm` and `act` plugs in, an optional `LLMAgent` calls a model
 assistance (Claude). Milestone 5 of research track 17 (`society`, `PROJECTS.md`). Every result is
 about simulated people and robots following stated rules.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-llmtown/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-llmtown/
 
 ## Why this question
 

@@ -2,7 +2,7 @@
 
 Sixth project of track 12, open-source residential construction (`PROJECTS.md`, milestone 4 follow-up). [`house-costsens`](../house-costsens) tested only the driver splits and named the next step itself: vary the lever ranges and the 45% framing share jointly with the splits, with a global sensitivity analysis such as Sobol indices. This does that. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-sobol/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-sobol/
 
 **Headline.** Treat every uncertain input of [`house-cost`](../house-cost) as random at once (ten lever ranges, the framing materials share, and the assumed driver splits) and ask what share of the price index's variance each one explains. **Floor area alone explains 53% (total 55%) and storeys 19%**; finish level, lot price and foundation type add about 6 to 9% each; everything else is under 2%. **The framing inputs together (labour, materials, and the materials share) explain under 1% of the variance**, so the lumber that [`house-plan`](../house-plan) and [`house-framing`](../house-framing) optimise barely registers in the price of a whole house. The assumed driver splits explain none of the variance alone (first-order about 0) and 1.7% through interactions (5% if I make them far vaguer), so the ranking in `house-cost` survives them, consistent with `house-costsens`.
 

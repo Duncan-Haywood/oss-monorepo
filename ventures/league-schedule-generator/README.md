@@ -9,7 +9,7 @@ for holidays, and an optional single-elimination play-off bracket seeded from th
 standings you type. Also runs a challenge ladder (paste "Cy beat Ana" results; it moves players up, shows who may challenge whom and flags challenges beyond your reach limit). Exports a CSV, calendar (.ics) files for the league or one
 team, a plain-text version to paste into a group chat, and a share link that carries the whole setup in the URL fragment (never sent to any server) so a co-organiser opens the same league in one click. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/league-schedule-generator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/
 
 ## What you use today, and what this does differently
 

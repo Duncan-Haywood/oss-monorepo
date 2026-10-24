@@ -2,7 +2,7 @@
 
 A follow-up to `research/mimic-twinc2st` and `research/free-c2stpower` (track 11, adversarial human imitation, via the idea that a detector's score is a fidelity score for a simulator). Their "next steps" asked for a different kind of detector. A kernel two-sample test has no classifier to tune, so it is a natural comparison. **Stylised and simulated only; no real data, no LLM.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-mmd/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-mmd/
 
 Every number below is copied from `experiments/results.txt` or `experiments/bandwidth.txt`.
 

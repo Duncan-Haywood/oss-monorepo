@@ -10,7 +10,7 @@ duplicate addresses across store codes and label limits, each with its line numb
 fixes pass that converts the delimiter and restores a ZIP's zero only when the state confirms it.
 The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/gbp-bulk-location-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gbp-bulk-location-check/
 
 ## Run it
 

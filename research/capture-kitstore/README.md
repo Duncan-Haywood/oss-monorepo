@@ -2,7 +2,7 @@
 
 Follow-up to `capture-realkit` and `capture-storage` (track 13, autonomous multi-angle capture), taking the "couple the two" next step both name. Milestones 1 to 6 of the track are done and `capture-kit` chose cameras without counting the footage, while `capture-storage` sized the backup for a fixed camera list; nobody had chosen the two together. **Headline:** counting storage in the weight budget costs the kit 3 of 18 shots at a 4 kg budget (18 shots become 15), and the lightest kit that reaches all 18 goes from 3,900 g to 4,125 g (+225 g, the backup plan's own weight). Across bitrates from 0.25x to 1.5x the extra weight moves only from 125 g to 400 g, and card-reader speed (90, 104 or 312 MB/s) changes no variety figure at any budget tested. So the backup is a small tax, but it falls at the budget where the whole shot list was just reachable. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-kitstore/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-kitstore/
 
 **Builds on.** `capture-realkit` (the sourced catalogue and kit search; its model is copied here as `catalogue.py` so this project is self-contained) and `capture-storage` (cards reused daily, SSD copies holding the trip, parallel readers). It builds on none of the CU Boulder groups in `prompt.md`.
 

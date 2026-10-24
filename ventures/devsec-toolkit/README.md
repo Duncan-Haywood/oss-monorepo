@@ -16,7 +16,7 @@ permissions, with findings in GitHub's Security tab. **That used to take**
 installing and wiring up a separate tool per area (or a paid platform), then
 reconciling their output by hand.
 
-Page: <https://duncan-haywood.github.io/oss-monorepo/devsec-toolkit/>.
+Page: <https://duncan-haywood.github.io/monorepo-projects/devsec-toolkit/>.
 It includes a local report viewer for the JSON or SARIF this writes.
 
 ## Quick start

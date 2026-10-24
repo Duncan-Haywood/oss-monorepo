@@ -4,7 +4,7 @@ Production pipelines run geometric verification before bundle adjustment. `sensi
 
 This takes the "geometric verification before adjustment" next step of `sensing-baoutlier`, and asks the harder question that its limitations raised: real mismatches are near-misses, not uniform random pixels.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-epigate/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-epigate/
 
 **Builds on.** `sensing-baoutlier`, `sensing-ba` and `sensing-recon` (this repository) for the rig, pose perturbation, RANSAC pair start, robust adjustment and scoring, imported unchanged. Hartley and Zisserman (2004), *Multiple View Geometry in Computer Vision*, 2nd ed., Cambridge University Press, ch. 11 (normalised 8-point algorithm, Sampson distance); Fischler and Bolles (1981), *Communications of the ACM* 24(6), for RANSAC. Track 15 (`sensing`). No lab in `prompt.md` is built on; none fits.
 

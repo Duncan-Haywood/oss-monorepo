@@ -8,7 +8,7 @@ fiberglass, then well, drain, cover, ladder, dirt haul, and whether
 Saturday / after-hours still covers — and shows the margin before the
 price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/egress-window-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/egress-window-bid-calculator/
 
 **After using this, you can now** send a walk-away egress-window
 price that sees the opening and the cut, **which used to take**

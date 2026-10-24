@@ -2,7 +2,7 @@
 
 Pure Python standard library. A new question for track 10 (the software-engineering loop), not a variation of an earlier result: `swe-spendoutput` used `tests_added` only as an output measure for runs that added some (it dropped the zeros because log of zero is undefined). This project does the opposite and asks about the zeros: a run that records `tests_added: 0` shipped without a new test. If those runs end `partial` more often, the brief should insist on tests; if not, the rule is costing nothing to relax. Produced with AI assistance (Claude). Builds on none of the labs in `prompt.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-notests/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-notests/
 
 All numbers are from `experiments/results.txt` (621 of 1,629 records in `prompts/runs/` carry an integer `tests_added`, dated 2026-10-01 to 2026-10-20; 84 of them are 0).
 

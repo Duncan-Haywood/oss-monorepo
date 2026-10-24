@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-dscorr` (its first "Next step": a hard-message model). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the classifier and auditors are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-dshard/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-dshard/
 
 ## Motivation
 

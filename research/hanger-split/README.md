@@ -13,7 +13,7 @@ AI assistance (Claude). Follow-up to `hanger-print` (milestone 7 of research tra
 `PROJECTS.md`), taking its first "next step". All strengths rest on assumed material constants and
 a beam model; no cloth, no printed part and no bolt was tested.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-split/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-split/
 
 ![One half of the two-piece hanger on a 220 mm bed](experiments/split.svg)
 

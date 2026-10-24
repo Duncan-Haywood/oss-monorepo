@@ -2,7 +2,7 @@
 
 On a stylised planar visual-inertial smoother, **camera resolution was the only knob that moved drift detectably: 1280 px gave 1.18 % rms drift (of path length) against 1.65 % at 640 px, and 320 px gave 8.9 %. Changing the gyro or accelerometer noise by 0.25× to 4× changed it by under 10 % in either direction on 12 s paths, which is inside the noise of 8 seeds.** Produced with AI assistance (Claude). Second project of track 15 (`PROJECTS.md`, milestone 2). It builds on none of the CU Boulder groups in `prompt.md`. Everything here is synthetic; nothing is measured on a real camera or IMU, and **this is not a run on EuRoC** (see Limitations).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-vio/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-vio/
 
 **Builds on.** Sliding-window visual-inertial estimation with IMU preintegration: Forster et al., "On-manifold preintegration for real-time visual-inertial odometry", *IEEE T-RO* 2017; Qin, Li and Shen, VINS-Mono, *IEEE T-RO* 2018; Mourikis and Roumeliotis, MSCKF, ICRA 2007. IMU noise magnitudes are of the order of those published with the EuRoC MAV dataset (Burri et al., *IJRR* 2016). This is a small independent planar re-implementation, not a reproduction of any of them.
 

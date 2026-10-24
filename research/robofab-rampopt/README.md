@@ -2,7 +2,7 @@
 
 A follow-up to `research/robofab-edgeconv` (track `robofab`), taking the first item of its "Next steps": refine the trapezoid's ramp-fraction search so both sides of the comparison are tuned. Same toy arm, parts, limits, 14-value ramp grid and ramp-resolved sampling as `robofab-edgeconv`. All numbers below are from `experiments/results.txt` (and `results.json`).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-rampopt/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-rampopt/
 
 - **Golden-section refinement of the ramp fraction (between the grid optimum's two neighbours) lowers the six-part trapezoid total by 0.00 to 0.60%** across the 12 rows (3 arm sizes x jaw cap 5x hold force or none x speed limit 2 or 1 rad/s); the gain is above 0.005% in 10 of 12 rows and is largest (0.60%) for the 0.2 m arm at 2 rad/s with the jaw cap.
 - **With the solver at n = 6400, the time-optimal edge over the refined trapezoid is still positive in all 12 rows, but smaller: +0.05% to +0.28%**, against +0.11% to +0.88% over the grid-tuned trapezoid (the grid figures reproduce `robofab-edgeconv`).

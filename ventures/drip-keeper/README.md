@@ -5,7 +5,7 @@ sequences triggered by what your customers do, and stop them the moment they
 convert**, from one small server you run, instead of paying a lifecycle-email
 tool a fee that grows with your contact list.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/drip-keeper/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/drip-keeper/
 
 Two parts, both free and MIT:
 

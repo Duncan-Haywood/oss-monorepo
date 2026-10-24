@@ -3,7 +3,7 @@
 Stdlib-only Python (emulated float32). Grounds the drift assumptions of `../verification-game` and
 `../property-elicitation-verification` in measurements. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/reproducible-refereed-training/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/reproducible-refereed-training/
 
 ```bash
 cd research/reproducible-refereed-training

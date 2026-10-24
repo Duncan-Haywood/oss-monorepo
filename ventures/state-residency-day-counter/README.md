@@ -9,7 +9,7 @@ Oregon; more than seven months (taken as 210 days) with a permanent place of abo
 date you would cross a limit, splits remote-work wages by workdays, draws a
 year calendar coloured by state, imports stays from a calendar (.ics) export, the Timeline.json your phone exports from Google Maps (coordinates matched to states in the browser), or older Google Takeout history, and exports a day-range CSV. Nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/state-residency-day-counter/
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 

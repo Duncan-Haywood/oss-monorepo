@@ -7,7 +7,7 @@ mismatched UNTIL, out-of-range or misspelled BYDAY/BYMONTHDAY/BYMONTH parts, EXD
 line endings, each with its line number. It writes the file back with every provable fix applied and
 leaves the rest untouched. The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ics-calendar-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ics-calendar-check/
 
 ## Run it
 

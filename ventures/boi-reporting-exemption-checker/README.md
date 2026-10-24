@@ -4,7 +4,7 @@ A free browser checker for whether an entity still owes a federal Corporate
 Transparency Act beneficial ownership information (BOI) report after
 FinCEN's August 2026 final rule. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/boi-reporting-exemption-checker/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/boi-reporting-exemption-checker/
 
 After using this, you can now **see whether your entity is still required to
 file a federal beneficial ownership report, and if so, by when and for which

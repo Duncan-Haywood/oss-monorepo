@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-verify` reported that 64 random vectors kill 99% of killable mutants, but a kill rate says nothing about the bugs random testing is *least* likely to find. The same log holds, per mutant, the first failing vector in 20 independent seeds, which is enough to estimate a per-vector detection probability for each mutant, check whether the simple "each vector is an independent draw" model fits, and put a number on what 1,280 clean vectors do and do not rule out. Produced with AI assistance (Claude). Stylised and preliminary: a re-analysis of one design (the `chip-accel` MAC engine, p = 8, 4-bit) and 91 mutants; nothing new was simulated.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-detectprob/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-detectprob/
 
 **Builds on.** `research/eda-verify` (the mutation log `experiments/mutants.jsonl`, read in place). No CU Boulder lab's work is built on and no affiliation is implied.
 

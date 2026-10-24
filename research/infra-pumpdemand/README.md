@@ -2,7 +2,7 @@
 
 Track 21 (`infra`), the first next step of [`infra-pumpsched`](../infra-pumpsched/): that project priced pump schedules on invented tariff shapes with no demand charge. This one bills the same Net3 schedules on a published tariff, PG&E Schedule B-19, which charges for the highest 15-minute kW as well as for energy, and re-runs the hydraulics at a 15-minute step with a stricter periodic constraint. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-pumpdemand/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-pumpdemand/
 
 **Headline (simulated Net3, B-19 list prices; not a field result).** Net3's shipped schedule peaks at **373 kW**, because booster pump 335 (about 310 kW) runs whenever tank 1 is low, and **60 to 64 % of its B-19 bill is demand charges**. Running the lake pump (pump 10) for most of the day keeps tank 1 full, idles the booster and cuts the peak to **63 kW**, so the monthly bill falls **56 % in summer, 66 % in winter and 67 % in spring (62.5 % over a year)** with the tanks back to within 0.1 % of daily demand (65.1 % with a 1 % tolerance). **The demand charge does not change which schedule is best**: the energy-only and full-bill optima are the same schedule in all three seasons, and still are with the demand rates scaled from 0 to 20 times (section E; at 0 times the saving is 39 %, at 20 times 65 %, so demand charges add to the *size* of the saving, not to the choice). Time-of-use energy prices add under 1.5 points beyond the flat-energy optimum.
 

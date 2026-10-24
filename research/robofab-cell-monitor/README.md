@@ -2,7 +2,7 @@
 
 A stylised, simulation-only study in track `robofab` (milestone 4's next step, "add printer failures", from `research/robofab-cell`). The earlier cell projects model rejects found at inspection but not prints that fail partway (spaghetti, a part that lifts off the bed), where a blind printer keeps printing a bad part to the end. I add a failure hazard to the arm, printers and inspection cell and compare blind printing with a camera that aborts a failing print some minutes after the failure, including false stops, against an analytic printer-time bound and a discrete-event simulation. I did not choose these parameters from a real farm; every number is illustrative.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-cell-monitor/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-cell-monitor/
 
 ![Good parts per hour against printer count, blind and camera](experiments/gain_vs_printers.svg)
 

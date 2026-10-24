@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-verify` named "properties that need no golden copy" as its next step, because a design loop that generates new RTL has no trusted reference for a design it has never seen. This project writes five such properties (latency, done pulse, output hold, start-glitch and reset-abort invariance) and scores them on the same 91 mutants of the `chip-accel` MAC engine. Produced with AI assistance (Claude). Preliminary: one design, one mutant set, one fixed property list, simulation only.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-goldenfree/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-goldenfree/
 
 **Builds on.** `research/eda-verify` (the mutants, their ground truth and the golden-based checks), `research/chip-accel` (generator and spec latency), `research/eda-harness`. No CU Boulder lab's work is built on and no affiliation is implied.
 

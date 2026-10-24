@@ -2,7 +2,7 @@
 
 Twelfth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. `accel-gatedmux` found that a variable-index read of the accumulator bus (`slot*P + j`) made every weight-stationary (WS) engine in `accel-gatedrtl` 17 to 28 % too large, and listed "look for the same indexing pattern in the other `accel-*` and `chip-*` engines" as a next step. `accel-planebatch/rtl/batch_engine.v` has the same `acc[slot*P + j]` read and write, and its headline ("WS costs up to 4x the generic gates") feeds `accel-fetchprice`. This is the audit: rewrite the read as an AND-OR over constant indices and the write as decoded enables, and re-run the whole 40-point sweep. It seemed worth doing because a corrected number upstream would have changed a chain of later projects; the answer turns out to be that it does not.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-planemux/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-planemux/
 
 **Headline (negative).** The rewritten engine is bit-exact with identical cycles and operand-fetch counts, and **its area is within -3 % to +12 % of the original at every WS point, with no trend** (WS/OS at B = 4 on 64x70: 1.66 before, 1.62 after; at B = 16: 4.09 and 3.92). `accel-planebatch`'s WS-over-OS area ratios and everything built on them stand. The variable index mattered in `accel-gatedrtl` because the accumulators were a flat bus; here they are a Verilog array, which Yosys already maps to a per-entry mux.
 

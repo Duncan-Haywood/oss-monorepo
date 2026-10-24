@@ -11,7 +11,7 @@ driver, no network call of any kind. That is what makes it safe to run against
 the migration you are about to apply to production: there is no connection to
 point at the wrong database.
 
-- **Browser tool:** <https://duncan-haywood.github.io/oss-monorepo/sql-migration-lock-check/>
+- **Browser tool:** <https://duncan-haywood.github.io/monorepo-projects/sql-migration-lock-check/>
 - **Guide:** [why your migration locked the table](./why-your-migration-locked-the-table.html)
 - **Comparison:** [vs. squawk](./vs-squawk.html)
 

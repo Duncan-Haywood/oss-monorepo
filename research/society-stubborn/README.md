@@ -12,7 +12,7 @@ robots at 20% of the crowd still give 0.23–0.27 conflicts per human meeting, a
 Produced with AI assistance (Claude). Next step from `society-twinfidelity` in research track 17
 (`society`, `PROJECTS.md`). Every result is about simulated people following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-stubborn/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-stubborn/
 
 ## Why this question
 

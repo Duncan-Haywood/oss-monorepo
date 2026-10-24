@@ -7,7 +7,7 @@ Python dependencies were published with a PyPI **provenance attestation** —
 Connect from a supported CI, no long-lived API token to steal) — and which
 still depend on a classic upload token.
 
-Live: `https://duncan-haywood.github.io/oss-monorepo/pypi-provenance-check/`
+Live: `https://duncan-haywood.github.io/monorepo-projects/pypi-provenance-check/`
 
 ## What it does
 

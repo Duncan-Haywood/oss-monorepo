@@ -6,7 +6,7 @@ every structural error with its line number before Business Services Online reje
 then rebuild the RT and RF totals after a hand edit.** The file is read in the browser;
 nothing is uploaded and no login or API key is needed.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/w2-efw2-file-validator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/w2-efw2-file-validator/
 
 After using this, you can now **find the record that lost its trailing spaces, the SSN that
 SSA does not issue, the wage line whose edit left the employer total stale, and the RF count

@@ -2,7 +2,7 @@
 
 A follow-up to `research/robofab-graspfast` (track `robofab`; its "systematic study of the settings needed as a function of acceleration" and "remaining parts" next steps). `robofab-graspfast` found that the settings of `robofab-graspmove` (contact time constant `solref` 0.5 ms, timestep 0.2 ms) fail above 200 m/s^2 but passed fine settings on three parts. Here the same jaw test is run on all seven parts of the toy gripper at four settings pairs, and the `solref` at which the test starts to fail is scanned against acceleration on one part. I do not simulate an arm, only a prescribed constant acceleration of the jaws (upward). All numbers are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-solrefmap/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-solrefmap/
 
 - **Setting pairs (0.2 ms, 0.1 ms), (0.1, 0.05) and (0.05, 0.025) reproduce the bound at 100, 400 and 800 m/s^2 for all seven parts.** The ratio of the simulated minimum force to `m sqrt((g + a_up)^2)/(2 mu)` is 0.98 to 1.04 in all 63 cases (7 parts x 3 accelerations x 3 settings; the 1.04 is the link at 800 m/s^2 at the finest setting, a 0.29 N force; I did not investigate it).
 - **The coarse pair (0.5 ms, 0.2 ms) matches the bound at 100 m/s^2 (ratio 0.99 to 1.01, all seven parts) but at 400 and 800 m/s^2 no force up to 60 N holds any of the seven parts** (14 of 14 cases). The failure does not depend on the part in this set.

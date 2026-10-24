@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-assist` (track 9, open-source purpose-built robots), in the direction of the CAIRO Lab interest in assistive robotics. It tests the limitation that project named: its peak-force result "is nearly an identity of the chosen controller" and lip stiffness was never varied. Produced with AI assistance (Claude). Pure Python standard library. **Every constant is an assumed round number, not a measurement of any person or product, and the 2 N comfort limit is not a standard.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-lipsweep/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-lipsweep/
 
 ![Peak lip force against lip stiffness](experiments/lip_stiffness.svg)
 

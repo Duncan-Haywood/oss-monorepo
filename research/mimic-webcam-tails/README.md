@@ -2,7 +2,7 @@
 
 Follow-up to `mimic-webcam` (track 11, adversarial human imitation), the "heavy-tailed, zero-inflated component" next step. **Preliminary, stylised: 46 people filling in one web form, one context, six hand-built generators plus one baseline, 8 seeds.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-webcam-tails/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-webcam-tails/
 
 **Result.** A generator that takes each channel's marginal from the training people (a Gaussian copula through the pooled empirical quantiles, or a quiet/burst two-state sampler) does not fool a boosted-tree reference detector on 14 held-out people: all-groups AUROC is 1.000 for every variant (lowest single seed 0.999). Single feature groups tell more: the plain empirical-marginal generators are *easier* to catch on level and spread (0.99 to 1.00) than the Gaussian baseline (0.91, 0.94), because the baseline drew each window's level and spread from a real window and the new ones do not. Adding that back (G5) drives level to 0.54 and spread to 0.57, near chance, but extremes (0.995), holds (0.995) and autocorrelation (0.94) still give it away. G6 then matches each window's whole value distribution to a real window (ranks from the copula, values from a training window), which puts level, spread, extremes and floor at chance (0.44 to 0.46) yet all-groups AUROC is still 0.998: holds (0.999), autocorrelation (0.89), roughness (0.75) and cross-channel structure (0.83) carry the detection.
 

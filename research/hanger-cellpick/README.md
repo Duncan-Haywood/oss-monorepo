@@ -2,7 +2,7 @@
 
 **In the stylised model, replacing `hanger-cell`'s assumed 8 s, 0.85 pick with `hanger-pick`'s simulated pile cuts a one-arm cell from 169 to 147 garments hung or folded per hour (5.1 to 4.4 dryers) with the look-then-aim policy, and to 104 (3.1 dryers) with blind pinching; a second arm hides most of it (206 assumed, 201 with aiming, 179 with pinching), because the fold table, not the picker, is then the limit.** Aiming leaves 2.8 garments per 100 for a person against 7.2 for pinching. Sweeping the pile first is slower than aiming in the cell too (126 per hour on one arm). Produced with AI assistance (Claude). **Stylised: every station time is an assumed placeholder from `hanger-cell` or `hanger-pick`; nothing here is a measurement of a robot, a dryer or a garment.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-cellpick/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-cellpick/
 
 Track 18 (`hanger`, [`PROJECTS.md`](../PROJECTS.md)). Takes the first "Next steps" item of [`hanger-cell`](../hanger-cell) ("replace the 8 s, 0.85 pick with a simulated one"). Built on none of the CU Boulder groups in `prompt.md`; no connection to them is claimed.
 

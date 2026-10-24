@@ -2,7 +2,7 @@
 
 Follow-up to `selfrep-alufreq` (track 1, `PROJECTS.md`), taking its "tie the target to an acceleration and ringing model" next step: instead of sweeping a bare frequency target, the rod diameter is derived from an acceleration and a ringing tolerance. Produced with AI assistance (Claude). Computed only; no rod was built or tested.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-alufring/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-alufring/
 
 **Builds on.** `selfrep-rodmodes` (one-mode stiffness and frequency), `selfrep-alufreq`, `selfrep-alurod`. It builds on none of the labs in `prompt.md`.
 

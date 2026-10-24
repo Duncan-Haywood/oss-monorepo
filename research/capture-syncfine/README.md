@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), the first "next step" of `capture-audiosync`: its windows were cut at the same time on both cameras, so a 0.8 s start offset left a 1 s window only 0.2 s of overlap and a 0.5 s window none. **Headline (synthetic audio):** estimating the offset once from a 10 s window and cutting every later window on camera B that much earlier lets 0.5 s windows sync a 40 ppm drift over an hour to within one 30 fps frame (in fact 0.01 ms) at -12 dB SNR, where plain 0.5 s windows never work and plain 1 s windows fail at every SNR up to -5 dB. At 0 dB with 1 s windows it moves the success rate from 0.95 to 1.00, and with reverb (RT60 0.4 s, direct-to-reverberant 0 to -10 dB) from 0.00 to 1.00. It does not buy range at the bottom: at -20 dB the coarse step itself fails in 20% of seeds, and everything fails. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-syncfine/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-syncfine/
 
 **Builds on.** `capture-audiosync` (imported, not copied: GCC-PHAT, Theil-Sen fit, synthetic audio), Knapp and Carter (1976), *IEEE Trans. ASSP* 24(4), and Sen (1968), *J. Amer. Statist. Assoc.* 63. No CU Boulder group covers this.
 

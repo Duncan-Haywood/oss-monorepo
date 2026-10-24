@@ -11,7 +11,7 @@ and the plant bid, whether hanging the boiler they bought at the
 supply house still covers the set, and whether a Saturday / after-hours
 no-heat call still pays after overtime.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/boiler-replacement-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/boiler-replacement-bid-calculator/
 
 **After using this, you can now** send a walk-away boiler-replacement
 price that sees the plant and the extras, **which used to take**

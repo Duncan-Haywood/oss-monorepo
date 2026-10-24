@@ -9,7 +9,7 @@ puts the threshold at ρ = 0.20 against 0.12 simulated; the gap shrinks to 0 for
 small crowds, not the average, carries the tip at low density. Results are about simulated people following a stated
 rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-ringmf/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-ringmf/
 
 ## Why this question
 

@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-equivpredict`, `eda-equivinterval` and `eda-conefeat` all stop at one design (the `chip-accel` MAC engine), and each lists "repeat on `chip-systolic`" as the open step: a source-line predictor cannot transfer, and the netlist features of `eda-conefeat` were scored only on the design that produced them. This project mutates a second design, runs the same simulation and formal checks on it, and scores the one design-independent netlist rule on both. Produced with AI assistance (Claude). **Stylised and preliminary:** two designs, 27 and 32 simulation survivors, and on the new design 20 of 32 formal runs hit their timeouts.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-equivxfer/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-equivxfer/
 
 **Builds on.** `research/eda-verify` (mutation operators, `checks.formal`, and the committed MAC log), `research/chip-systolic` (the second design family: a 2 × 4 output-stationary systolic array, 4-bit), `research/eda-conefeat` (netlist-feature idea on the MAC survivors). No CU Boulder lab's work is built on and no affiliation is implied.
 

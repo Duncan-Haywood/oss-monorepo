@@ -5,7 +5,7 @@ edit as JSONL, and get a per-case list of what broke: invalid JSON, lost keys, c
 refusals, unclosed code fences, truncation, lost numbers, lost lists/headings/code blocks, large length
 changes and low word overlap. Gate CI on the result.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/llm-output-regression-diff/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/llm-output-regression-diff/
 
 ```
 node cli.mjs diff baseline.jsonl candidate.jsonl

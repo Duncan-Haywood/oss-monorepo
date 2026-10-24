@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-ips`, whose second "next step" was to test the selection bias directly. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-fullinfo/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-fullinfo/
 
 ## Motivation
 

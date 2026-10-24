@@ -6,7 +6,7 @@ a sealed encapsulate, hatch versus belly-crawl versus standing water,
 then a dehumidifier, a dedicated circuit, and a clean-out — and shows
 the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/crawl-space-encapsulation-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/crawl-space-encapsulation-bid-calculator/
 
 **After using this, you can now** send a walk-away encapsulation price
 that sees the liner and the access, **which used to take** matching a

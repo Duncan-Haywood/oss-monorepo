@@ -2,7 +2,7 @@
 
 A project of track 12, open-source residential construction (`PROJECTS.md`, milestone 8; the seasonal calendar is a next step named by `house-schedule`). It replaces `house-schedule`'s flat 15% weather loss with a monthly calendar and a cold-weather concrete cure, and starts the same Monte Carlo build in each of the twelve months. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-season/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-season/
 
 **Headline (stylised, the weather numbers are my assumptions).** With cold winters, **a December start takes 231 working days against 211 for July: a swing of about 20 days, or 0.3 percentage points of the price in interest (3.27% against 2.99%)**. With a mild climate the swing is 4 days. **Ordering materials at day 0 saves about 63 days in every month, so the start month and the ordering lever add instead of interacting**: the seasonal penalty is the same size with or without it (22 days against 20). Starting in April or September in the cold climate costs about what the flat 15% model predicts (+0.7 d); the flat model hides the winter penalty and slightly overstates summer.
 

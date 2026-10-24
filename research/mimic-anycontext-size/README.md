@@ -2,7 +2,7 @@
 
 Track 11, adversarial human imitation, follow-up to `mimic-anycontext-prompt`, whose "Next steps" asked for a larger detector to see whether the 0.5B model's inverted AUROC (below 0.5) is a size effect. **Preliminary: two model sizes, four prompts, 30+30 test texts per family, one seed.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-anycontext-size/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-anycontext-size/
 
 ## Question
 

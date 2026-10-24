@@ -2,7 +2,7 @@
 
 Follow-up to `chip-ppa-loop` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). That project found ABC erased most of the written structure of an adder and a multiplier, and listed "designs with room to improve" as a next step. This one tries three small combinational blocks where the written structure does matter: a 16-bit population count, a 16-bit count-leading-zeros and an 8-bit absolute difference. Same loop: each rewrite is *proved* equivalent to a reference with Yosys before it is scored, and a no-model parameter sweep gets the same evaluation budget. Produced with AI assistance (Claude). Preliminary and small: three designs, one tool version, one generic-gate synthesis script.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-ppa-logic/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-ppa-logic/
 
 **Builds on.** `research/chip-ppa-loop` (flow, sweep and experiment code copied, MIT, same author, then changed as below) and the generate-check-score loop idea of VerilogEval (Liu et al., ICCAD 2023, <https://doi.org/10.1109/ICCAD57390.2023.10323812>), RTLLM (Lu et al., ASP-DAC 2024, <https://doi.org/10.1109/ASP-DAC58780.2024.10473904>) and Chip-Chat (Blocklove et al., MLCAD 2023); citations as checked in `chip-ppa-loop`, the papers were not read here. **Not a reproduction of any of them**; no published benchmark data is used. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

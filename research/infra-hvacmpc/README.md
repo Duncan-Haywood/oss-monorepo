@@ -2,7 +2,7 @@
 
 Track 21 (`infra`), milestone 12. Produced with AI assistance (Claude). Searchers' version: *does MPC beat a thermostat for a heat pump on a time-of-use electricity tariff, and does it survive a wrong building model and a poor forecast?*
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-hvacmpc/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-hvacmpc/
 
 **Headline (simulated house on real TMY3 weather; assumed tariff; envelope numbers recalled, not checked).** For a 48 m&sup2; ASHRAE 140 Case 600 style house with a heat pump on Greensboro NC weather and the assumed three-band tariff of `energy-tou`, a receding-horizon LP controller whose model is deliberately wrong (the true house leaks 15&ndash;30% more, is lighter, sunnier and has a worse cooling COP) and whose forecast is *yesterday's weather* pays **$783 a year**, against **$877** for a PI thermostat at 20/24 &deg;C: **10.7% less**, with 2,383 K&nbsp;h outside the 20&ndash;24 &deg;C band against the thermostat's 7,621. With the exact model and a perfect forecast it pays $791 and is never outside the band. A thermostat tuned for similar discomfort (21.5/22.5 &deg;C: 2,839 K&nbsp;h) pays $1,300. On a flat tariff the saving is 4.8%; at Sand Point AK (cold, 8,900 &deg;F-days) it is 4.1% on the tariff and 2.4% flat. The saving rises with the peak/off-peak ratio (4.9% at 1 to 14.7% at 6), rises steeply with thermal mass (6.5% at half the mass to 25% at four times), and is gone when the forecast of outdoor temperature has a standard deviation of 8 K (&minus;0.1%); it is 8.3% at 4 K.
 

@@ -2,7 +2,7 @@
 
 `sensing-epigate` tested a fundamental-matrix gate before bundle adjustment against invented mismatches, and said "mismatch models are mine". `sensing-matchreal` then measured a real matcher. This project joins them (the "Next steps" of `sensing-matchreal`): the measured mismatch rate and along-epipolar / near / far mix, for each ratio-test threshold, drive the `sensing-epigate` trial. **Headline: at the rates a ratio test of 0.8 to 0.6 gives (10% to 5% wrong), gate + Cauchy adjustment reaches 0.0082, 0.0032 and 0.0027 object radii (clean floor 0.0014), better than the RANSAC pair start without a gate (0.0132, 0.0049, 0.0036); at a ratio of 0.9 (23% wrong) they tie, and with no ratio test (56% wrong) every method fails (above 0.6).** The old all-random-pixel assumption overstated the error of plain Cauchy adjustment from the all-view start by 1.3 to 59 times at ratios 0.9 to 0.6.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-gatemix/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-gatemix/
 
 **Builds on.** `sensing-epigate` (trial, gate), `sensing-baoutlier`, `sensing-ba`, `sensing-recon` (rig, adjustment), and `sensing-matchreal` (the measurements, parsed from its committed `results.txt`, not retyped). Hartley and Zisserman (2004), ch. 11; Lowe (2004), *IJCV* 60(2), for the ratio test; Scharstein et al. (2014), GCPR, for the Middlebury pair behind the measured mixes. Track 15 (`sensing`). No lab in `prompt.md` is built on; none fits.
 

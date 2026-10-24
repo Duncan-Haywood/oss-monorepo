@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-mlp` (track 14, `codesign`), whose "Next steps" asked to start the network at the tuned PID with a linear skip path. Here the controller is u = PID + a 31-parameter residual network that is exactly zero at the start, so the search begins at the PID and can only add to it. Produced with AI assistance (Claude). **Simulated; the plant, gust and randomisation ranges are the assumed round numbers of the earlier projects, not measurements.** Six airframes, three CMA-ES seeds each.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-skip/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-skip/
 
 ![Held-out error per airframe: PID at 96 and 576 evaluations, PID plus residual](experiments/skip.png)
 

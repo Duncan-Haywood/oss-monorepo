@@ -2,7 +2,7 @@
 
 On synthetic scenes (64×64 grey RGB plus a 16×16 thermal camera, people among cold clutter and warm non-person decoys): **RGB alone finds 36% of people in bright, clear conditions and none in the dark or in dense smoke; the thermal camera alone finds 65% in every condition, capped by warm decoys it cannot tell from people; fusing the two reaches 94% in bright clear light and falls back to the thermal-only level (65–66%) in darkness or dense smoke. A thermal camera displaced by 2 px (half a thermal pixel, under half a person's width) costs the fused detector about 7 points of recall, 4 px (one thermal pixel) about 19, and 6 px or more destroys the benefit; training with displacement jitter widens the tolerance at the price of 9 points when the cameras are aligned.** Produced with AI assistance (Claude). Track 15 (`PROJECTS.md`, milestone 7). It builds on none of the CU Boulder groups in `prompt.md` (ARPG is perception and mapping, but this project uses no ARPG data or method). Everything here is synthetic; nothing is measured on a real camera, and no open dataset was used.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-thermalfuse/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-thermalfuse/
 
 **Why this was done on synthetic data.** The brief asks for "open data". A real RGB–thermal person dataset needs a licence check, a download that the cloud container could not make, and a detector far heavier than a CPU run allows. This project instead builds a scene model in which every effect is a knob (light, smoke, thermal noise, decoys, displacement) and measures how the *fusion* behaves. It does not claim any number transfers to real cameras; the owner step below is the real test.
 

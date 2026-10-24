@@ -2,7 +2,7 @@
 
 Follow-up to `simdesign-heaviside` (track 5, `PROJECTS.md`), taking the next step listed in that README: implement the robust eroded / blueprint / dilated formulation and ask whether it enforces a minimum length scale across meshes. It does not (negative result below); what it buys is robustness to over- and under-etch. Produced with AI assistance (Claude). Stylised: 2D dimensionless compliance, one problem, one run per setting; nothing was made or tested.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-robust/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-robust/
 
 **Builds on.** `simdesign-heaviside` (density filter, tanh projection and measures, imported unchanged) and `simdesign-topopt` (this repository). Wang, Lazarov and Sigmund (2011), "On projection methods, convergence and robust formulations in topology optimization", *Struct. Multidisc. Optim.* 43(6):767–784, <https://doi.org/10.1007/s00158-010-0602-y> (a correction notice exists, DOI 10.1007/s00158-022-03326-6; not consulted). Independent re-implementation of the idea from that paper's description; no code copied, no published numbers reproduced, and the thresholds and the worst-case rule below are my choices. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

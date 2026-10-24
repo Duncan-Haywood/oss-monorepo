@@ -2,7 +2,7 @@
 
 Track 21 (`infra`), milestone 3 of [`PROJECTS.md`](../PROJECTS.md), done on a **different network than the milestone names**: the BattLeDIM L-Town network and leak schedule are on Zenodo and GitHub, which this environment's proxy refused (HTTP 403), so this uses EPANET's Net3 with leaks simulated in WNTR. Water utilities lose a large share of treated water to leaks, and the practical question is how small a leak a few pressure sensors can see before the false alarms drown the crew. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-waterloss/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-waterloss/
 
 **Headline (simulated leaks on Net3; assumed demand error; not a field result).** At a budget of at most 5 % of leak-free weeks raising any alarm, with 5 pressure sensors and base demand error (10 % per node, 3 % system-wide), the best detector (CUSUM on a pressure residual regressed on a noisy inflow meter, "flow-adjusted") finds **100 % of the leaks the sensors can see at 4 % of mean demand (28 L/s) but only 8 % at 1 % (7 L/s) and 85 % at 2 %**; counting every leak location, including the 72 % no sensor feels above 0.5 m, it finds **3 % of 1 % leaks and 38 % of 4 % leaks**. **Demand error and sensor coverage set the limit, not the detector or sensor noise**: with low demand error (5 % / 1 %) covered 2 % leaks are found 92 % of the time, with high (20 % / 5 %) 8 %; moving sensor noise from 0.05 to 1 m leaves covered 4 % leaks at 92-100 % (CUSUM). **PELT did not beat CUSUM on 2 % leaks** at the same false-alarm budget in any condition (base error, 0.25 m, flow-adjusted: 0.08 vs 0.85); at 4 % they tie within noise; the moving average was mixed.
 

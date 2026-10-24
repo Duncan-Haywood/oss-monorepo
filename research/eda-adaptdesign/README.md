@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-adaptci` put intervals on the spread-against-random gap by resampling (family, split) cells, but the 40 splits of a family reuse the same ~33 designs, and its own limitation said the interval measured split noise, not design-to-design variation. This resamples the designs. Produced with AI assistance (Claude). **Preliminary:** the same 133 small designs in four author-written generator families (Yosys 0.33 generic-cell-count target, no place and route).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-adaptdesign/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-adaptdesign/
 
 **Builds on.** `research/eda-adaptci` (dataset, models, choosers and split protocol copied unchanged), `research/eda-adaptfixed`. Models use scikit-learn (Pedregosa et al., 2011, *JMLR* 12:2825-2830); the spread rule is greedy k-centre (Gonzalez, 1985, *Theoretical Computer Science* 38:293-306); the resampling is the ordinary nonparametric bootstrap (Efron, 1979, *Annals of Statistics* 7(1):1-26) applied to designs as the cluster unit. No CU Boulder lab's work is built on and no affiliation is implied.
 

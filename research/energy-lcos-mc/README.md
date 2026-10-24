@@ -2,7 +2,7 @@
 
 Fifth project of track 16 (`PROJECTS.md`), a follow-up to `energy-lcos`, whose winner map used one point value per input. Real costs are ranges, so this project draws the inputs from assumed ranges 4,000 times and counts how often each technology is cheapest at each duration, from 1 hour to 500 hours. It ranks the uncertain inputs by how much they move cost, and says where a point estimate hides a coin toss. It asks a new question of the model rather than a micro-variant of the last result. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-lcos-mc/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-lcos-mc/
 
 **Headline (modelled; every range assumed, none sourced).** With all technology inputs, the discount rate (3 to 10%) and the charging price ($10 to $100/MWh) varied, lithium-ion is cheapest in **96%** of scenarios at 2 hours but only **64%** at 4 hours and **18%** at 8 hours. Between 6 and 12 hours **no technology wins more than 48%** of scenarios, so the base case's single winner (cavern compressed air) is not a robust call there. Above 24 hours a cavern store is cheapest in most scenarios (compressed air 61% at 24 h and 81% at 100 h), and at 500 hours hydrogen wins 69%. Charging price is the largest swing in cost for every technology tested at its home duration.
 

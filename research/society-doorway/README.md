@@ -13,7 +13,7 @@ that yields (1.399 against 1.000 in a fleet of goers), and the best fixed go pro
 Track 17 (`society`, `PROJECTS.md`), a new question after the milestones. Every result is about simulated
 agents following a stated rule, not real people or robots.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-doorway/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-doorway/
 
 ## Why this question
 

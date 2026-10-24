@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. A follow-up to `swe-bootstrap` and `swe-decay` (track 10, the software-engineering loop, in `PROJECTS.md`), taking the "cheap-prior start" item both list under "Next steps". `swe-decay` found greedy and Thompson allocation scoring 24 against uniform's 30 at a 5,000-line budget, because their two forced pulls of each of 7 tracks ate the budget; `swe-bootstrap` could not reproduce that loss on resampled histories. Here the start is changed and both settings are rerun. All numbers come from `experiments/results.txt`. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-warmstart/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-warmstart/
 
 ## Question
 

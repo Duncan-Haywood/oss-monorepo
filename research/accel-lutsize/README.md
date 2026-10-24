@@ -2,7 +2,7 @@
 
 Follow-up to `accel-lut` (negative result) and to the next steps of `accel-horowitzcheck`, in track 8 (task-specific AI accelerators) of `PROJECTS.md`. **Headline:** `accel-lut` found that a product-table engine loses to an int8 MAC engine (about 2.7 times the energy for the cheapest design within a 2-point accuracy drop) because it charged every array a flat 0.16 pJ/bit. Pricing each array by its own size flips that verdict once the read energy grows faster than about size<sup>0.26</sup> (dense) to size<sup>0.28</sup> (75% pruned). Horowitz's figure gives a slope of 0.5 between 8 and 32 KB, but has no point below 8 KB, where every array here sits, so the sign of the answer depends on an extrapolation the source does not make. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-lutsize/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-lutsize/
 
 **Why this was worth doing.** `accel-lut`'s verdict rested on its table-read energy, which it swept over two assumed values (0.04 and 0.16 pJ/bit). `accel-horowitzcheck` then showed the repository's flat per-bit read ignores array size and listed re-costing the LUT projects as a next step. A 16-entry table is 32 bytes, so it is exactly the case where that matters.
 

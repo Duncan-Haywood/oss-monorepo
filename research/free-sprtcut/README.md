@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies beyond the sibling project `free-sprtcert` (imported for its exact SPRT pieces). **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.044). Why it seemed worth doing: `research/free-sprtcap` showed that adding a rollout cap to Wald's SPRT inflates the error by 34 to 38% at a cap equal to the fixed test's size, and listed "re-tune the boundaries (or the final cut) so the capped test holds 5% exactly" as its next step. A certification run has both a compute budget and an error guarantee; this project prices holding both.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-sprtcut/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-sprtcut/
 
 ## Question
 

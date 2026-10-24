@@ -2,7 +2,7 @@
 
 **On 44,485 real tweets in four Nigerian languages with native-speaker sentiment labels, an English word-list coder and an English-trained classifier read almost none of the negative sentiment in Hausa, Igbo and Yoruba (sensitivity 0.4–2.4% for the word list, 0.4–10.8% for the English classifier), and so report language gaps that are wrong in size and, for some pairs, in sign.** The Hausa–Yoruba gap in negative share is +10.6 points by human labels; the English classifier reports −6.5. A classifier trained on a slice of the same corpus reports +29.3 for Hausa–Igbo against a true +7.1. Naive 95% intervals cover the true gap 0 times in 500 draws for every pair and coder. Prediction-powered inference (PPI) with 400 hand-coded tweets per study covers 93–96% for every pair and coder, but its interval is 0.4–26% wider than hand-coding alone and never narrower, because these coders are close to uninformative. **None of these coders is an LLM**: the session had no API key. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-dialect/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-dialect/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 3. [`qual-correction`](../qual-correction) found, in simulation, that a coder that reads one group less accurately flips a naive group gap's sign; [`qual-real`](../qual-real) found differential error by comment length in English. This project asks the same about *language*, with real labels.
 

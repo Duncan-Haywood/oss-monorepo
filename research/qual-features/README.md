@@ -2,7 +2,7 @@
 
 **On GoEmotions comments, a logistic model on 12 interpretable codebook codes plus log length reached 0.65 AUC for "negative emotion" with 100 labelled comments, against 0.56 for bag-of-words, and still led at 1,600 labels (0.75 against 0.67).** Putting the codes next to the bag of words (0.61 and 0.69 at those sizes) did better than words alone but worse than the codes alone, and a 64-dimension random projection of the words stayed near chance (0.55 at 1,600). **The codes here are word lists, not an LLM**, and the vector is a random projection, not a learned sentence embedding, so this is a test of the shape of the idea (a small set of human-readable measurements as features) and not a result about LLM-scored dimensions. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-features/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-features/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 5. Why this was worth doing: if qualitative codes become cheap to produce, the practical question is whether they are better *features* than raw text when hand labels are the scarce resource. The earlier `qual-*` projects asked how far to trust a code as a *measurement*; this one asks whether to use it as an *input*. Chosen over a variant of the correction studies because milestone 5 was open.
 

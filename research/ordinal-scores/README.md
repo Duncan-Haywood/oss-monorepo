@@ -2,7 +2,7 @@
 
 Stdlib-only Python. Verifiers often report a distribution over *ordered* fault severities, where Brier ignores the order. The ranked probability score (RPS, Brier on the cumulative distribution) is strictly proper with exact regret `Σ_k (R_k−P_k)²`; moving mass `ε` a distance `d` costs exactly `dε²` (Brier `2ε²` for any `d`), pooling two adjacent classes costs half of Brier's, and per unit of payment range RPS never gives more incentive than Brier. See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ordinal-scores/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ordinal-scores/
 
 ```bash
 cd research/ordinal-scores

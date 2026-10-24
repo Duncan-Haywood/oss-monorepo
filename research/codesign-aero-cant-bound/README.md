@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-cant` (track 14, `codesign`), whose joint optimum sat on its 35° cap, so it could not say whether more tilt would help. This project raises the cap to 50°, 65° and 80° and adds a tilt efficiency loss. Produced with AI assistance (Claude). **Simulated; the model, reaction-torque ratio, plant ranges and cost model are the earlier projects' assumed fits, and the tilt-loss factor k is assumed and swept (no source gives a figure for rotors of this size).**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-cant-bound/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-cant-bound/
 
 ![Left: held-out error against the allowed cant bound for tilt loss 0 and 0.2. Right: the cant angle the optimiser chose](experiments/bound.png)
 

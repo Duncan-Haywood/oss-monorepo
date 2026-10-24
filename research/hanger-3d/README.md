@@ -2,7 +2,7 @@
 
 In a 3D cloth-sheet drape, **the 2D `hanger-fit` result holds where the two can be compared: with an arm as deep as the garment the 3D shape error matches the 2D chain to within 0.05 cm for the round-ended and wooden hangers (0.6 cm for thin wire), and the best arm width is again 1 cm wider than the half shoulder for child, M and XXL tees. What 2D cannot show is arm depth: a wooden hanger's whole-sheet error rises from 0.4 cm on a deep arm to 2.0 cm on a 3 cm half-depth arm and 3.8 cm on a rod, because the front and back panels fall 5–8 cm below the arm.** Produced with AI assistance (Claude). Track 18 (`hanger`, `PROJECTS.md`, milestone 4). Every number is from a stylised simulation with assumed fabric constants, not a measurement of real garments.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-3d/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-3d/
 
 ![Whole-sheet shape error against arm half-depth](experiments/err_vs_depth.svg)
 

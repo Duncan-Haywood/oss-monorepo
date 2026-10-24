@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-uavwind` (track 9, open-source purpose-built robots), taking its "wind uncertainty" next step, in the direction of the RECUV and Autonomous Systems IRT interest in UAV simulation and targeted observation. Worth doing because `osrobot-uavwind` sized every airframe for one known wind, while a real mission meets a forecast with an error. Produced with AI assistance (Claude). Pure Python standard library; it imports the sizing models of `osrobot-uav` and `osrobot-uavwind`. **Every technology constant is an assumed round number from those projects, and the wind distributions are scenario inputs, not measurements of any site; no UAV was designed for flight or flown.** All numbers below are from `experiments/results.txt`. Simulation only; a stylised, preliminary study.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-uavgust/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uavgust/
 
 ![Mass premium against design-wind quantile](experiments/premium_vs_quantile.svg)
 

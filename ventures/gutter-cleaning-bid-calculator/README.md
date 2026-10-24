@@ -5,7 +5,7 @@ prices a visit the way the job actually takes time — each run of trough,
 the story it sits on, the pitch, the guards, the debris, and every
 downspout — and shows the margin before the quote goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/gutter-cleaning-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gutter-cleaning-bid-calculator/
 
 **After using this, you can now send a visit price (and an optional
 spring-and-fall contract) that already includes two-story access, gutter

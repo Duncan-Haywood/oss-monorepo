@@ -4,7 +4,7 @@ Track 8 (task-specific AI accelerators) in `PROJECTS.md`, a new question rather 
 
 **Headline.** Over 5 seeds, cascades cut the *classifier's* modelled energy by 0 to 28% against the cheapest single model at the same validation-accuracy target, but they give up 0.3 to 1.4 points of test accuracy, and the saving is below 1% of a whole always-on system because the MFCC front end costs about 50 times the classifier (`accel-frontend`). A small, real, mostly cosmetic effect.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-cascade/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-cascade/
 
 **Builds on.** `research/accel-kws` (model, quantisation-aware trainer, MFCC front end and cost model, imported unchanged), `research/accel-horowitzcheck` (the energy constants match Horowitz 2014 within 4%), `research/accel-frontend` (front-end cost). Speech Commands v0.02: Warden (2018), arXiv:1804.03209. Cascades of cheap and expensive classifiers: Viola and Jones (2001), CVPR, for the idea only; nothing is reproduced. No CU Boulder group is built on.
 

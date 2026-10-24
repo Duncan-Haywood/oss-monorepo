@@ -2,7 +2,7 @@
 
 A new question for track 1 (`PROJECTS.md`), not a variant of the rod chain: `selfrep-alufreq` and its neighbours ask how to redesign parts; this asks which of the 29 parts the printer + router + laser shop still imports is worth learning to make, and whether the answer depends on the assumed masses and costs. Produced with AI assistance (Claude). Computed only; nothing was built or tested.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-learnfirst/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-learnfirst/
 
 **Headline (stylised, preliminary).** The answer depends on what "closure" counts. By mass or cost, the first thing to learn is the NEMA17 stepper motor (+22 points of mass closure, +26 of cost closure), and the ranking is fairly robust: it stays first in 90% (mass) and 76% (cost) of draws with every assumed mass and cost scaled 0.5x to 2x. By unit count the first is the M8 nut (+21 points), and by distinct part lines every vitamin ties at +2 points. Learning 3 lines gets +52 points of cost closure but only +39 of mass.
 

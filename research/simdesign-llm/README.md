@@ -2,7 +2,7 @@
 
 Fourth milestone of the simulation-first design track (`PROJECTS.md`, track 5). A bracket sizing problem is scored by a finite-element simulator; four ways of choosing designs get the same 40 simulator calls. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-llm/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-llm/
 
 **What "LLM" means here.** The run environment has no model API key. The proposer is the **session agent itself** (the Claude session that wrote this project), writing 4 rounds of 10 proposals by hand as committed files (`proposals/round1.json` to `round4.json`), reading the simulator's scores between rounds. This is one trajectory by one agent (n = 1), **not a reproducible LLM benchmark**, and the agent had advantages the baselines lack (below). Scoring is fully scripted.
 

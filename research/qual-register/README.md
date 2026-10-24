@@ -2,7 +2,7 @@
 
 **On 3,188 real Reddit comments (GoEmotions), splitting by writing register (formal: capitalised and ends in . ! ?; informal: otherwise) barely changed two automated coders' error, and a random hand-coded sample of up to 800 items could not detect the small difference that was there.** The naive-Bayes coder's error rate was 0.282 on formal and 0.263 on informal comments (difference −0.019); the lexicon coder's was 0.212 and 0.212. A z test for "error differs by register" flagged 4.5–6.5% of random hand-coded samples from 50 to 800 items for naive-Bayes, which is the 5% false-positive rate, not power. The register comparison itself is still wrong when counted naively (naive-Bayes: −0.043 against a true −0.0145, coverage 0 of 500 draws), and the prediction-powered estimate repairs it (coverage 0.956). **The coders are not LLMs** (no API key in the session), and register is a proxy for writing fluency, not a dialect label: this is a null result on a weak proxy, not evidence that LLMs are register-neutral. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-register/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-register/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)), milestone 3 in spirit (`qual-dialect`): milestone 3 needs a corpus with a real dialect or language label, and none is available offline here, so this takes the nearest real axis in the data already used by [`qual-real`](../qual-real), and adds a question that project did not ask: how many hand-coded items does it take to *notice* differential error? Builds on the estimators of [`qual-correction`](../qual-correction).
 

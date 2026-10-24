@@ -4,7 +4,7 @@
 
 Track 14 (agentic co-design of low-cost robots, `codesign`). `../codesign-agri` chose its constants (fruit size, bruise threshold, stem force, prices, collision length scale) as round numbers and found Bayesian optimisation ahead of the session agent, CMA-ES and random search at 40 evaluations. The owner's rule of 2026-10-21 (`../CLAUDE.md`, "Run the numbers") says that when nothing sourced exists, sweep the plausible range and report whether the conclusion survives. This does that. It is not the same as `../codesign-transfer`, which draws per-fruit and per-print variation *inside* one world; here the world's constants themselves move. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-agri-sweep/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-agri-sweep/
 
 ![Regret per method across 100 worlds; optimum finger count against stem strength](experiments/sweep.png)
 

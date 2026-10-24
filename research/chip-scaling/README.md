@@ -2,7 +2,7 @@
 
 New question for the LLM chip-design-loop track (`PROJECTS.md`, track 3), asked because the recent chain of `chip-*` follow-ups had narrowed to variants of one result. This one measures something the earlier projects assumed: how cell count and logic depth scale with width W, so a result at 16 bits can be extrapolated, or not. No LLM is used. Produced with AI assistance (Claude). Preliminary and small: seven behavioural blocks, one tool version, one generic-gate script, no technology library.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-scaling/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-scaling/
 
 **Builds on.** `chip-toolchain` and `chip-abc-sweep` in this repository (same author, MIT): the scoring wrapper `chip_abc_sweep.flow.score` is imported unchanged. Tools: Yosys and its integrated ABC (<https://yosyshq.net/yosys/>). Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed.
 

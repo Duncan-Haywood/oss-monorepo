@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 2 of `energy-density`. **Headline.** With oxygen taken from air, the active-material ceilings are zinc-air 9,659 Wh/L, lithium-oxygen 6,104, aluminium-air 5,887, lithium-sulfur 2,843, graphite/LiCoO<sub>2</sub> 1,382, graphite/LiFePO<sub>4</sub> 1,040 and lead-acid 724. The ranking by weight does not carry over: lithium-sulfur beats graphite/LiCoO<sub>2</sub> by 6.8 times per kg but only 2.1 times per litre, because lithium is light and bulky (0.534 kg/L); zinc-air beats lead-acid by 6.4 times per kg and 13 times per litre. Hydrogen holds 1,314 Wh/L at 700 bar and 2,314 Wh/L as a 20 K liquid (hydrogen alone, oxygen from air). Sand heated to 500 &deg;C holds 171 Wh/L as heat and 70 Wh/L as electricity at best. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-volumetric/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-volumetric/
 
 **Builds on.** `energy-density` (couples, voltages, atomic weights, thermal and flywheel models). No CU Boulder group's work; no connection is claimed.
 

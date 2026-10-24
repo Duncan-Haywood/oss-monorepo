@@ -2,7 +2,7 @@
 
 Fourth project of track 20, robots on the residential building site (`PROJECTS.md`, milestone 7). [`buildbot-taskbook`](../buildbot-taskbook) found fastening the largest verb of the house's hours, [`buildbot-fasten`](../buildbot-fasten) found the stud-face windows tight, and [`buildbot-cost`](../buildbot-cost) found a stock humanoid unlikely to pay. This asks what a machine designed for that one task does instead: a two-axis bridge with a nailer over a panel table, the layout of the nailing bridges used in prefab plants. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-custom/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-custom/
 
 ![Sheet time and break-even volume](experiments/figure.png)
 

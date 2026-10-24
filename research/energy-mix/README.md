@@ -2,7 +2,7 @@
 
 Fifth project of track 16 (`PROJECTS.md`, milestone 5, first version). A single-node PyPSA model of Germany's 2019 hourly electricity demand, with solar, onshore wind, a gas turbine (the firm supply), a lithium-ion battery and hydrogen storage, all sized together at least annual cost under an emissions cap. Sweeping the cap from none to zero shows how the cost, the mix and the storage change, and sensitivity runs show which storage matters at which cap. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-mix/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-mix/
 
 **Headline (modelled; every cost assumed, one weather year, no grid).** With the assumed costs, serving 2019 demand from gas alone costs **$79/MWh**. A 50% emissions cut adds $5.6/MWh (an implied $30/t CO<sub>2</sub>) using wind alone; 80% costs $113/MWh, 90% $131, 95% $144 and 100% **$177/MWh**, built from 155 GW solar, 284 GW wind, 106 GWh battery and **10.6 TWh of hydrogen storage**. The implied cost of abatement climbs from $30/t (to 50%) to $250, $489, $740 and **$1,765/t** for the last 5%. At zero emissions the hydrogen tank's price matters most: $152, $177 and $254/MWh at a quarter, 1&times; and 4&times; the assumed tank cost. Without hydrogen, batteries alone reach zero emissions at $287/MWh with 2.2 TWh of battery; with neither, the model needs 7.6 TW of wind ($2,432/MWh), i.e. it is not a real option. These are properties of the assumed inputs, not a forecast for any grid.
 

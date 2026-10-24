@@ -2,7 +2,7 @@
 
 Track 20, robots on the residential building site (`PROJECTS.md`). The first "next step" of [`buildbot-holdheat`](../buildbot-holdheat) said the waist already sits at 0.54 of peak with empty hands at the stud-carry pose, and that "a pose search could move it". This runs that search. Produced with AI assistance (Claude). Simulated and preliminary; no robot was tested; builds on no group in `prompt.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-holdpose/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-holdpose/
 
 **Headline.** For a 3.8 kg 2x4 held 0.3 m ahead and 0.6 m high, the G1's largest joint torque is **0.91 of peak in the default balanced pose** (`buildbot-holdheat`). Two levers lower it. (1) **Where the centre of pressure sits on the foot**: moving it from the sole point to 0.03 m inside the toe edge gives 0.744 with the default arm posture. (2) **A searched arm and waist posture** (the arms are redundant for a fixed hand position): at that centre of pressure the best of three seeds is **0.487** (binding joint: shoulder pitch), but the other two seeds stop at 0.63 and 0.68, so the search is noisy and 0.487 is an upper bound on the true minimum, not the minimum. At 0.487, a continuous rating of 0.5 of peak makes the stud **sustainable** (it was a 0.14 time-constant hold at ρ = 1/3 before; it is 0.61 now), and the search's empty-handed best is 0.41, so for ρ ≤ 0.4 nothing is sustainable at this pose, as before. With the centre of pressure on the sole point the gain is smaller (0.910 to 0.756) and with it at the toe edge the margin is gone (0.586).
 

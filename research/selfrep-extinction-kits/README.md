@@ -2,7 +2,7 @@
 
 Follow-up to `selfrep-wearout` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking the last item of that project's next steps: test its extinction explanation with a birth-death model whose extinction probability and time can be computed exactly. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-extinction-kits/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-extinction-kits/
 
 **Companion to `research/selfrep-extinction`**, written in parallel by another run: that project solves a chain on fleet size alone (births min(n/W, B/V)) and compares mean extinction times with the `selfrep-wearout` simulator. This one tracks the kit stock and idle/building machines, so it can also give the probability of early extinction and the first-generation bound; the two use different chains and I did not reconcile their numbers.
 

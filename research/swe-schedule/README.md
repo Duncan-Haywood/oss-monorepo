@@ -2,7 +2,7 @@
 
 Pure Python standard library. First, partial step of milestone 5 (`swe-schedule`) of track 10, the software-engineering loop: only the **duplicate-work** part of the milestone, a start-time collision model. Usage-limit queueing, merge conflicts on `README.md` and `site/projects.json`, and run-log races are not modelled. Produced with AI assistance (Claude). **Stylised and preliminary: every timing constant (read time, claim-visibility latency, start jitter) is an assumption, not a measurement of this repository, and the pool of 11 is the track count, not a measured list of free milestones.** All numbers below are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-schedule/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-schedule/
 
 ![Redundant runs against the gap between starts](experiments/stagger.svg)
 

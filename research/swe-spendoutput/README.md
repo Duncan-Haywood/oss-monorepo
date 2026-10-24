@@ -2,7 +2,7 @@
 
 Pure Python standard library. A new question for track 10 (the software-engineering loop), not a variant of an earlier result: `swe-runcost` and `swe-costpermerge` price runs, and this asks whether price tracks output. Produced with AI assistance (Claude). **Preliminary: tests added is a crude output proxy, only 21% of priced records fill it in, and the records are self-reported.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-spendoutput/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-spendoutput/
 
 - **Pooled across tracks, runs that cost more add more tests (Spearman rho +0.57, bootstrap 95% interval +0.44 to +0.68, n = 157 runs that added tests).** All numbers are from `experiments/results.txt`.
 - **Inside a track the link is much weaker for research, and unclear for ventures.** Research runs: rho +0.19 (−0.02 to +0.39, n = 94), elasticity +0.33 (+0.10 to +0.46). Ventures: rho +0.39 (+0.11 to +0.64, n = 46), elasticity +1.19 (+0.48 to +1.88). Elasticity is the slope of log(tests) on log(cost), so a research run that costs twice as much adds about 26% more tests (2^0.33), where ventures' point estimate says more than double (the interval is wide). The pooled figure is partly the track mix, since the two tracks differ in typical cost and typical test counts.

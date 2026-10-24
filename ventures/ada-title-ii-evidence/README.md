@@ -2,7 +2,7 @@
 
 Small-city and special-district webmasters and IT staff can look up their exact ADA Title II website compliance date and turn an `axe-core` JSON scan into a dated evidence record, split into what WCAG 2.1 AA actually requires versus best-practice extras. The tool reports what the supplied automated test found and what date applies to the entity described; it does not claim that a site is compliant.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ada-title-ii-evidence/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ada-title-ii-evidence/
 
 ## Run it
 

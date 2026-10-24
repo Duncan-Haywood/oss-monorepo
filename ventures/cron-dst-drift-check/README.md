@@ -8,7 +8,7 @@ check computes how a scheduler that only understands UTC — GitHub Actions'
 own `schedule:` cron among them, by its own documentation — drifts against a
 target local wall-clock time across the year's daylight-saving segments.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/cron-dst-drift-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cron-dst-drift-check/
 
 **What it is not:** a general cron expression parser, a claim about what any
 specific scheduler does with a skipped or ambiguous occurrence, or advice

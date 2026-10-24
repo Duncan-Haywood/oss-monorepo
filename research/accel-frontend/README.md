@@ -2,7 +2,7 @@
 
 Track 8 (task-specific AI accelerators) in `PROJECTS.md`, milestone 7 ("accelerators for the rest of track 2's pipeline"). `accel-kws` said that for an always-on wake word "the microphone and the MFCC front end, not the MAC array, would set the budget" and never counted the front end. This project counts it. **Headline:** one 20 ms frame of a 16-bit integer MFCC front end costs 7,532 multiplies, against 5,184 MACs for the whole 70-64-11 classifier per inference; at 50 frames per second against 4 inferences per second, the front end draws about 54 times the classifier's modelled power (7.8 to 146 times over the energy constants I varied). Under the same assumed constants as `accel-kws`; nothing here is a measurement.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-frontend/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-frontend/
 
 **Builds on.** `research/accel-kws` (the MFCC recipe in `src/accel_kws/mfcc.py`, the 70-64-11 4-bit classifier and the cost constants in `cost.py`, all imported or mirrored here); `research/ambient-wearable` (the 61 dB-SNR MEMS microphone used for the noise floor). Ideas: Zhang et al. (2017), "Hello Edge", arXiv:1711.07128, on the front end being a real share of keyword-spotting cost; Horowitz (2014), "Computing's energy problem", ISSCC, for energy per operation. No group in `prompt.md` works on this; I do not claim a lab connection.
 

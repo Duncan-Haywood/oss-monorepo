@@ -2,7 +2,7 @@
 
 **Why this was worth doing.** `accel-lut` found no win at 64-32-10 and predicted, analytically, a break-even near 128 outputs. This project tests that prediction on trained wide networks (64-32-10, 64-128-10, 64-512-10) instead of an analytic layer. **Result: mostly negative.** The best case is a 12-14% energy saving over int8 at width 128-512, and only if a table read costs a quarter of the weight-array read per bit (0.04 against 0.16 pJ/bit, an assumption). At the array-cost read the table engine is 2-3 times worse at every width.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-lutwide/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-lutwide/
 
 **Builds on.** `research/accel-lut` (task, training recipe and energy model; `model.py` and `lut.py` are copied unchanged so the project is self-contained; a test checks the 3.56 nJ int8 baseline still matches). Idea used, not reproduced: weight sharing with a codebook, Han, Mao and Dally (2016), "Deep Compression", ICLR (citation from memory, **not re-verified in this run**). Energy constants are in the spirit of Horowitz (2014), ISSCC (not re-checked). No CU Boulder group's work is built on or implied.
 

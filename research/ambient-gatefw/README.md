@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), the first "next step" of `ambient-gateroc`: port its adaptive energy gate to C. Produced with AI assistance. **Stylised, synthetic results only**: the audio is `ambient-gateroc`'s generated audio, the battery model is `ambient-wearable`'s, and nothing was run on a microcontroller or on real speech. Sizes are host `gcc` struct sizes; cost is a count of comparisons, not measured cycles.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-gatefw/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-gatefw/
 
 ## Question
 

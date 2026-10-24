@@ -4,7 +4,7 @@ A free browser tool for patients: **drop in your itemized medical bill and see t
 questioning**, then copy a draft request to the billing office. The file is read in the browser.
 Nothing is uploaded, and no portal login is needed.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/medical-bill-error-checker/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/medical-bill-error-checker/
 
 After using this, you can now **see possible duplicate charges, codes normally billed once a day
 that appear twice, lab-panel components billed alongside the panel that includes them, two levels

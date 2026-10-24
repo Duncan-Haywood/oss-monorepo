@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. Milestone 6 (`swe-prompt`) of track 10, the software-engineering loop, in `PROJECTS.md`. **Partial: this builds and calibrates the stopping rule `prompt.md`'s experiment process needs. No candidate brief has been run, so no brief's effect is measured.** All numbers below come from `experiments/results.txt`. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-prompt/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-prompt/
 
 ## Question
 

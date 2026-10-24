@@ -2,7 +2,7 @@
 
 Seventh project of track 12, open-source residential construction (`PROJECTS.md`, milestone 8). It is a Monte Carlo discrete-event model of one house build: a crew per trade, inspections that can fail, weather that stops exterior work, and material lead times. It compares schedule levers against a baseline with the same random numbers. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-schedule/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-schedule/
 
 **Headline.** In this stylised model the biggest schedule lever is **ordering long-lead materials (windows, cabinets, HVAC equipment) at day 0 instead of when the preceding task starts: 214 to 151 working days (-63 d, saves 0.9% of the price in interest)**. Cutting crew handoff gaps from 2.0 to 0.5 days saves 21 d, parallel rough-in 12.5 d, and faster inspections 11 d. **A factory-built wall and roof shell saves only 6 d if it is ordered when the foundation starts, because its 25-day lead time is longer than the foundation takes; ordered at day 0 it saves 78 d.** All levers together: 96 working days, 1.7% of the price in interest at 8%. The finding that survives my assumptions is the shape: the schedule is driven by waiting, not by work (the zero-noise critical path is 100 days; the baseline mean is 214).
 

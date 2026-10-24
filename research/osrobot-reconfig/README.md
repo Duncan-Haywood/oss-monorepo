@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-specialise` (track 9, open-source purpose-built robots), taking the "value of reconfigurability that the single scalar leaves out" next step. That project priced one job at a time; a real shop has several, and the general robot's selling point is that one of it can serve them all. This asks when that is true. Produced with AI assistance (Claude). Pure Python standard library; it imports `osrobot-specialise` unchanged. **Every cost, speed, accuracy, demand and changeover figure is an assumption from `osrobot-specialise` or written into the experiment; none is a price or a measurement of a real product.** All numbers below are from `experiments/results.txt`. Simulation only; a stylised, preliminary study. It builds on none of the CU Boulder groups in `prompt.md` beyond the general interest of HIRO and CAIRO in manipulation workcells.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-reconfig/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-reconfig/
 
 ![Share of job mixes in which a robot per job is cheapest, against tray scatter](experiments/dedicated_share.svg)
 

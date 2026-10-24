@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), the first "next step" of `capture-syncgate`, which gated GCC windows on peak-to-sidelobe ratio (PSR) and needed a threshold that depends on the clip. A camera clock is a straight line over an hour, so a window whose delay is far off the fitted line is wrong whatever its peak looks like, and the threshold can be in milliseconds. **Headline:** with gamma 0.25 at 0 dB SNR, trimming windows more than 2 to 20 ms off a Theil-Sen line (3 rounds) cuts the share of cuts jumping over a 30 fps frame from **0.014 to 0.009** (10 real clips, 12 seeds), and the three tolerances give the same result, so no clip-specific tuning is needed. At -10 dB it helps much less than the PSR gate: **0.461** against 0.378 for PSR 6.5 (ungated 0.476, PHAT 0.637); both together 0.374. Trimming does not fix the failure `capture-syncgate` found in choosing gamma on other clips (0.099 held-out at 0 dB, unchanged), because that failure is in gamma, not in the fit.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-residgate/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-residgate/
 
 **Builds on.** `capture-syncgate` (`gcc_psr`, `loco_pick`, the experiment design, imported), `capture-realedit`, `capture-realaudio` (partial whitening after Knapp and Carter (1976), *IEEE Trans. ASSP* 24(4)), `capture-audiosync` (Theil-Sen fit), `capture-syncedit` (edit and cut damage). Iterative trimming of a robust line is a standard device; nothing here is claimed as new. No CU Boulder group in `prompt.md` covers this.
 

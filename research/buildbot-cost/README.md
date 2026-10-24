@@ -2,7 +2,7 @@
 
 Third project of track 20, robots on the residential building site (`PROJECTS.md`, milestone 8, taken before 3 to 7 because it needs no robot skill: it prices the hours of [`buildbot-taskbook`](../buildbot-taskbook) against a robot's ownership cost and asks how slow the robot may be before it loses money). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-cost/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-cost/
 
 ![Net saving per replaced crew-hour](experiments/figure.png)
 

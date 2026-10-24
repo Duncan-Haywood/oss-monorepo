@@ -1,6 +1,6 @@
 # accel-ttbig: how big a keyword-spotting model fits a real Tiny Tapeout tile once the hidden layer goes past 64 units? (area grows about 250 µm² per unit; H = 128 needs a 2x2 tile)
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-ttbig/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-ttbig/
 
 Tenth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. The "Next steps" of [`accel-ttsizes`](../accel-ttsizes) asked to extend the model grid above H = 64, because from a 1x2 tile up its answer was just "the largest model swept". This project synthesises [`accel-ttfit`](../accel-ttfit)'s streaming keyword-spotting (KWS) engine at H = 96, 128, 192 and 256 and finds which of Tiny Tapeout's real tile sizes holds each.
 

@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. Milestone 4 (`swe-allocate`) of track 10, the software-engineering loop, in `PROJECTS.md`. **Partial: the offline comparison is done; the live trial the milestone requires before adopting a policy is not, so no policy is adopted.** All numbers below come from `experiments/results.txt`. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-allocate/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-allocate/
 
 ## Question
 

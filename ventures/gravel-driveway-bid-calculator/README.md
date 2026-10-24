@@ -5,7 +5,7 @@ gravel drive the way the trade actually loses money — compacted depth to
 tons, then whole truckloads, soil prep, fabric, and a street apron — and
 shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/gravel-driveway-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/gravel-driveway-bid-calculator/
 
 **After using this, you can now** send a walk-away gravel-driveway price
 that sees trucks and dirt work, **which used to take** matching a published

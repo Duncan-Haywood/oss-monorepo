@@ -2,7 +2,7 @@
 
 `chip-digits-qat` found that giving each neuron its own weight scale helps at 3 to 4 bits (91.5% at W3A4) but rescaled accumulators in float, so it was not a lane, and listed "per-channel power-of-two scales (a shift per neuron)" as the next step. This builds that integer lane and measures it. Track 3 (`PROJECTS.md`). Produced with AI assistance (Claude). No LLM is in this loop.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-digits-pot/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-digits-pot/
 
 **Headline.** The per-channel rescale becomes shifts: at most 4 distinct net shifts in layer 1 and 2 in layer 2 (two and one mux2 stages per channel). The lane stays integer-exact, but rounding scales to powers of two costs accuracy where float per-channel scales were best: at W3A4 the MSE-chosen exponents give 87.9% against 91.5% for float scales and 90.8% for per-tensor clipping. At W2A4 they are the best of all methods tried of the methods in the table (70.5%, against 61.9% for clipping). At W4A4 they reach 94.4% (float 96.8%).
 

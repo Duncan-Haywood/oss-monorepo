@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-screen` found that a cell-count surrogate used as a screen reaches the Pareto front far sooner than random search, but its surrogate was fitted inside the family it screened, and its own next step asked for a surrogate trained on *other* families. `eda-adapt` showed such transfer models mis-predict absolute cell counts by tens of percent. A screen only needs the *ranking* right, so this project asks whether that is enough. Produced with AI assistance (Claude). **Stylised and preliminary:** two small families (MAC engine and FIR filter, 27 designs per sampled space), Yosys generic-cell counts, one free objective, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-screenxfer/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-screenxfer/
 
 ## Result
 A screen whose cost model never saw the new family (a non-negative linear model of Yosys's per-type bit-width features, trained on the other three families) finds 0.936 (MAC) and 0.983 (FIR) of the true front's hypervolume with 3 syntheses, and 0.986 / 0.994 with 4, on 100 sampled spaces per family. Random search needs about 20 syntheses to reach 0.96 (mean 0.968 MAC, 0.959 FIR). At 8 syntheses the transfer screen's 95% bootstrap interval is 0.996 to 1.000 or better in both families, against 0.828 to 0.861 (MAC) and 0.809 to 0.848 (FIR) for random.

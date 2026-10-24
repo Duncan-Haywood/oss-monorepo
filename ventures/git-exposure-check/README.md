@@ -8,7 +8,7 @@ response **bodies**, not just the status code, to tell a genuinely exposed
 source history — including files and secrets removed in a later commit —
 using a free public tool such as `git-dumper` or GitTools.
 
-Production: https://duncan-haywood.github.io/oss-monorepo/git-exposure-check/
+Production: https://duncan-haywood.github.io/monorepo-projects/git-exposure-check/
 
 ## Why the body, not just the status code
 

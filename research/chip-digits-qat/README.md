@@ -2,7 +2,7 @@
 
 `chip-digits` found that a 64-16-10 MLP on scikit-learn digits holds 96.3% at 5-bit weights but falls to 81% at 3 bits with max-scaled post-training quantisation, and listed "quantisation-aware training or per-channel scales" as the next step. This runs it. Track 3 (`PROJECTS.md`). Produced with AI assistance (Claude). No LLM is in this loop.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-digits-qat/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-digits-qat/
 
 **Headline.** At 3-bit weights and 4-bit activations, accuracy is 80.7% with the baseline, **90.8% with MSE-optimal clipping** (same lane hardware, integer-exact), 91.5% with per-channel scales and 90.9% with QAT (float 96.8%). At W4A4, per-channel and QAT reach 95.7%, within 1.1 points of float. At 2-bit weights only clipping gets past 60%; QAT is worse than the baseline at A=3 (28.5%) here.
 

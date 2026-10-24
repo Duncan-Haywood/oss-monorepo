@@ -5,7 +5,7 @@ running — loaded miles, deadhead, fuel, the truck note, insurance, and
 per-mile reserves — and shows the all-in cost per mile plus the **loaded rate
 that actually covers the empty ones**.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/owner-operator-cpm-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

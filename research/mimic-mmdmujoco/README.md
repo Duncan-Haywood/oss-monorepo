@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation), side project: `mimic-mmd`'s next step, running the MMD on the MuJoCo twin of `mimic-mujocotwin`. **No LLM is used and no text is generated.** Stylised and simulated only. No lab's work is built on, and no lab endorses this project.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-mmdmujoco/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-mmdmujoco/
 
 Numbers come from `experiments/results.txt`.
 

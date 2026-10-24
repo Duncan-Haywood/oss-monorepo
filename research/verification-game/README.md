@@ -3,7 +3,7 @@
 Stdlib-only Python on the economics of optimistic/refereed verification for decentralised ML training.
 See `paper/whitepaper.md`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/verification-game/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/verification-game/
 
 ```bash
 cd research/verification-game

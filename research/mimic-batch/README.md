@@ -2,7 +2,7 @@
 
 Track 11 (adversarial human imitation). **Preliminary: RAID plain-prompt text only, one detector (the `mimic-contexts` n-gram logistic regression), 8 families, batches of independent texts, no LLM run.** Produced with AI assistance (Claude). Why it seemed worth doing: the prompt-loop milestones need local model weights that this container cannot download (Hugging Face returned 307/403), and every project so far scores one text at a time. A moderator, an exam marker or a bot hunter usually sees many texts from one account. If one account posts k texts, how fast does the verdict sharpen, and what if only some of them are machine?
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-batch/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-batch/
 
 Numbers come from `results.txt` and `results.json`; the figure is `experiments/figure.svg`.
 

@@ -2,7 +2,7 @@
 
 Follow-up to `mimic-webcam-persongen` (track 11, adversarial human imitation), whose next step asked whether a learned, non-parametric per-person model reaches the own-stitch rows (AUROC 0.57 to 0.65) where a fitted parametric generator was caught at 1.000. **Preliminary, stylised: 46 people filling in one web form, one context, 3 seeds; a negative result.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-webcam-markov/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-webcam-markov/
 
 **Result.** A first-order Markov chain over k-means states of a person's frames (k = 8, 32, 128), fitted on their earlier windows or on everyone else's, emitting state centres or real frames of the state, is caught at AUROC 1.000 by the boosted-tree detector on that person's later windows in 22 of 24 cells (12 generators, population or profile-aware detector); the exception is pooled 128-state member emission at 0.999 under both. Stitching 50-frame blocks of the same real frames scored 0.565 to 0.654 in `mimic-webcam-persongen`, so what the chain loses is longer-range structure, not frame content.
 

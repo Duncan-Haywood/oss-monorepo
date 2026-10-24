@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-uav` (track 9, open-source purpose-built robots), taking its "add wind" next step, in the direction of the RECUV and Autonomous Systems IRT interest in UAV simulation and targeted observation. Worth doing because `osrobot-uav` ordered the airframes with no wind at all, and the multirotor's only win (very short stays) is exactly the case a wind could flip. Produced with AI assistance (Claude). Pure Python standard library; it imports the sizing model of `osrobot-uav`. **Every technology constant is an assumed round number (marked ASSUMED in `osrobot-uav/src/osrobot_uav/model.py` and in `src/osrobot_uavwind/wind.py`), not a measurement of any product; no UAV was designed for flight or flown.** All numbers below are from `experiments/results.txt`. Simulation only; a stylised, preliminary study. PX4 or ArduPilot software-in-the-loop flight was not attempted.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-uavwind/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uavwind/
 
 ![All-up mass against steady wind](experiments/mass_vs_wind.svg)
 

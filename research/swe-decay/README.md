@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. A follow-up to `swe-allocate` (track 10, the software-engineering loop, in `PROJECTS.md`), taking its first "Next steps" item: its replay drew projects with replacement, so a track never ran dry and never got worse, yet value per line falls with order in most tracks. Here each pull yields the track's **next project in commit order**, and an empty track leaves the choice set. All numbers come from `experiments/results.txt`. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-decay/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-decay/
 
 ## Question
 

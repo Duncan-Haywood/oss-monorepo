@@ -2,7 +2,7 @@
 
 Pure Python standard library plus `git` 2.38 or later. A follow-up to `swe-prlifetime`, whose next steps asked for branch lifetime (first commit to merge) instead of pull-request lifetime. Part of milestone 5 of track 10 (the software-engineering loop). Produced with AI assistance (Claude). **Preliminary: about 1.5 days, one repository, and "branch lifetime" is measured from commit timestamps, which agents write at the end of their work.** All numbers are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-branchlife/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-branchlife/
 
 - **Branch lifetime is almost the same as pull-request lifetime.** For the same 122 merged pull requests that touched `research/` (merged 2026-10-16 11:20 UTC to 2026-10-17 14:07 UTC), the median time from first commit to merge was 1.1 min (p90 16.1, max 298), against 0.9 min (p90 16.0, max 206) from creation. The median pull request was opened 0.2 min after its first commit. Median 2 commits per PR; one single-commit PR in 122.
 - **This does not mean the work takes a minute.** Commits are written when a session finishes, so the first commit's date marks the end of the work, not the start of the session. Real working time is invisible here; only the exposure *after* a commit exists is measured.

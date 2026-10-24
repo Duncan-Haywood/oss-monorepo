@@ -9,7 +9,7 @@ the cap plate's joints kept away from the top plate's, a **cut list**, and the
 close the order is to the cheapest possible. Nothing is uploaded. Also a
 command-line tool and an engine AI agents can call.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/wall-framing-takeoff/
 
 After using this, you can hand a lumberyard an order and a framing crew a cut
 list and layout marks for every wall, instead of an allowance of "one stud per

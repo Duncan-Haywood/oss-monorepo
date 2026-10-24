@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-biasdraw` ended with "give the 9 timeouts a stronger formal check (SymbiYosys with Boolector, or a bounded-depth unrolled proof)". SymbiYosys, Boolector and Yices were not installable here, but `yosys-smtbmc` ships with Yosys and drives z3 from apt. This project asks whether that route decides anything the built-in `sat -seq` could not. Produced with AI assistance (Claude). **Negative result:** z3 decides none of the 10 targets at the depth a full inference needs (24 cycles), and the sweep shows why. One design (the `chip-accel` MAC engine, p = 8, 4-bit), one solver.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-smtbmc/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-smtbmc/
 
 **Builds on.** `research/eda-biasdraw` and `research/eda-deepdraw` (the targets), `research/eda-verify` (mutants, miter setup, the Yosys SAT/induction baseline). The 10 targets are the `eda-deepdraw` survivors with formal verdict "undecided": `del@122:delete` (known truncation, killable) and 9 others (six `lit@123:0+1` mutants of identical text id, `op@135:<-><=`, `op@137:<-><=`, `lit@137:4+1`). No lab's work is built on and no affiliation is implied.
 

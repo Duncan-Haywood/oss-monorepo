@@ -2,7 +2,7 @@
 
 Fourth project of track 16 (`PROJECTS.md`, milestone 3). A PyBaMM single-particle model with electrolyte (SPMe) of a 5 Ah NMC811 / graphite-SiOx cell is scored on the energy it still delivers after 100 charge-discharge cycles at a fixed current, per kilogram of electrode stack. Four numbers are designed (positive electrode thickness, positive and negative porosity, negative-to-positive capacity ratio) and three proposers search with the same 30 evaluations: random search, Gaussian-process Bayesian optimisation, and the session agent (Claude) proposing by hand in three rounds. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-cell/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-cell/
 
 **Headline (modelled, stack level, one parameter set; not a tested cell).** The model's reference cell scores **109 Wh/kg at cycle 100**. All three proposers find designs near **141-143 Wh/kg (+30%)**: a thicker positive electrode (about 110-130 &micro;m against 76), a more porous electrode (0.38-0.40 against 0.34) and a negative electrode with about 30% more capacity than the reference (the top of the allowed range). After 30 evaluations the means are random 138.8, Bayesian 141.8 (5 seeds each), and the session agent 143.4 (one run). The seed ranges overlap (random 137.6-140.8, Bayesian 140.3-143.0), so this run shows **no clear difference between proposers**: the search space is four numbers with a broad plateau, so random search is already near the top. The design gain comes from the parameters, not from the proposer.
 

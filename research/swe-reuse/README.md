@@ -1,6 +1,6 @@
 # Do later projects build on earlier ones? A reference graph of 723 research READMEs
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-reuse/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-reuse/
 
 Pure Python standard library plus `git` history. Track 10 (the software-engineering loop), a new question rather than a listed milestone. Why it seemed worth asking: the track's metric counts a project as *useful* if it ships something usable or "a later project builds on it", and no project here had measured the second half. Produced with AI assistance (Claude). Builds on none of the labs in `prompt.md`.
 

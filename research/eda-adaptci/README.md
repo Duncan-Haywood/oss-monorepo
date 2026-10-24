@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-adaptfixed` reported the spread chooser beating random draws on a fixed test set, but from 5 splits with no interval, and its next step asked for a bootstrap. This repeats the protocol with 40 splits per family and puts a 95% interval on the paired gap. Produced with AI assistance (Claude). **Preliminary:** the same 133 small designs in four author-written generator families (Yosys 0.33 generic-cell-count target, no place and route).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-adaptci/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-adaptci/
 
 **Builds on.** `research/eda-adaptfixed` (dataset, models, choosers and split protocol copied unchanged), `research/eda-adaptpick`, `research/eda-adapt`. Models use scikit-learn (Pedregosa et al., 2011, *JMLR* 12:2825-2830); the spread rule is greedy k-centre (Gonzalez, 1985, *Theoretical Computer Science* 38:293-306). No CU Boulder lab's work is built on and no affiliation is implied.
 

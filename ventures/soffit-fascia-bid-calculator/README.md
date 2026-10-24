@@ -6,7 +6,7 @@ over existing versus a vinyl tear-off versus new wood, 1-story versus
 2-story pump jacks versus 3-story scaffolding, then rot, gutter detach,
 and porch beams — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/soffit-fascia-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/soffit-fascia-bid-calculator/
 
 **After using this, you can now** send a walk-away soffit-and-fascia
 price that sees the wrap and the replace, **which used to take** matching

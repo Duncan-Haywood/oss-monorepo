@@ -4,7 +4,7 @@ A free browser tool for Ghost publishers: **drop in your members export CSV and 
 pays, who never opens your email and what a cleaner list saves.** The file is read in the
 browser; nothing is uploaded and no Ghost login or API key is needed.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ghost-members-export-analyzer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ghost-members-export-analyzer/
 
 After using this, you can now **see paid, free and complimentary counts, free-to-paid
 conversion, engagement bands from open counts, the free members who look safe to remove

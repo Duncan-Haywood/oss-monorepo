@@ -5,7 +5,7 @@ ladder with its after-tax yield per rung, when cash comes due, and how it compar
 short terms if rates rise or fall by up to two points.** Treasuries skip state income tax; CDs do not. Nothing
 is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/cd-treasury-ladder-planner/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/cd-treasury-ladder-planner/
 
 ## Model
 

@@ -12,7 +12,7 @@ tips 0 of 12 crowds 0.04 below the mean-field share and 12 of 12 at 0.04 above, 
 Produced with AI assistance (Claude). Track 17 (`society`, `PROJECTS.md`). Results are about simulated people
 following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-sidefit/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-sidefit/
 
 ## Why this question
 

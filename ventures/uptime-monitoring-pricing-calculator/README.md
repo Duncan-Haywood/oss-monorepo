@@ -4,7 +4,7 @@ Price UptimeRobot, Better Stack, Hyperping, Pingdom and self-hosted Uptime Kuma 
 number of monitors you need, the check interval and an optional public status page, see the 12-month
 spend as your monitor count grows, and find the monitor count where the cheapest option changes.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/uptime-monitoring-pricing-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/uptime-monitoring-pricing-calculator/
 
 ```
 node cli.mjs compare --monitors 60 --interval-sec 60 --status-page --growth 5

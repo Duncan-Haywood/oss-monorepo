@@ -2,7 +2,7 @@
 
 Track 1 (`PROJECTS.md`). The last dozen `selfrep-*` projects re-ran one printer model with new assumed inputs; this one asks a different question of the search itself. `selfrep-redesign` found greedy gain-per-penalty within 2.5 points of exhaustive on seven substitutions, but 2^7 subsets is too small to say anything about larger lists, and its substitutions never competed for the same vitamin line. Produced with AI assistance (Claude). Computed only, on **synthetic** instances; no real bill of materials is used.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/selfrep-coverscale/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-coverscale/
 
 **Builds on.** The search in `selfrep-redesign` and the greedy-vs-exact method of `selfrep-nextmachine`. It builds on none of the labs in `prompt.md`.
 

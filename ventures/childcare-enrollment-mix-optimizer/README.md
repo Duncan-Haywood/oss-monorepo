@@ -4,7 +4,7 @@ After using this, you can now see how many infants, toddlers, twos, preschoolers
 most weekly profit from your floor space, with the staffing staircase and licensing ratios built in, which used to take trial
 and error on a spreadsheet and a guess that the highest-tuition room should fill first.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/childcare-enrollment-mix-optimizer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/childcare-enrollment-mix-optimizer/
 
 Free, runs in the browser, nothing is uploaded. Open `index.html`.
 

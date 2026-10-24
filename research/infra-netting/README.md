@@ -2,7 +2,7 @@
 
 Milestone 11 of track 21, applied R&D for the industries modern life runs on (`PROJECTS.md`). It simulates a day of a real-time gross settlement (RTGS) system, fits the simulator to the liquidity bounds Bech and Soram&auml;ki (2001) published for the Danish and Finnish systems, and then asks what their gridlock resolution algorithm buys at each liquidity level. Produced with AI assistance (Claude). Simulated payments only; no real accounts, funds or customer data, and not financial advice.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-netting/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-netting/
 
 **Headline.** Payments drawn independently need far more liquidity than real ones, because real flows are reciprocal. Once about 80&ndash;90% of payments are followed by a return payment, a Danish-shaped system (146 banks, 925 payments a day) needs **34.7% of gross value to settle on arrival and 10.1% to settle by close**, against the published 37.2% and 10.7%; a Finnish-shaped one (13 banks, 1,428 payments) needs 23.3% and 4.2% against 27.4% and 4.3%. At those settings bilateral netting leaves 15.6% (DK) and 7.2% (FI) to fund and multilateral netting 10.1% and 4.2%. Gridlock resolution cuts mean settlement delay by **24&ndash;46% in the Danish-shaped system, in line with the paper's "up to 50%"**, but also by 34&ndash;62% in the Finnish-shaped one, where the paper found only about 10%: **a discrepancy this model does not explain** (below).
 

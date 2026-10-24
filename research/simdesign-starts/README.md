@@ -2,7 +2,7 @@
 
 Does the design a SIMP compliance minimiser returns depend on the starting density field, and does penalty continuation remove that dependence? I chose this because the track's recent `simdesign-robust*` chain had narrowed to micro-variants of one result, and none of the 54 earlier `simdesign-*` projects start the standard topology optimiser from anything but a uniform field. Answer on this problem: **with the penalty fixed at 3, the start matters a little (1.4–2.8% in compliance, but 2–23% of elements change state); with continuation 1 → 3 it hardly matters (0.0–0.4%).** Produced with AI assistance (Claude). Stylised: 2D, dimensionless compliance, 150 iterations, one problem, two meshes; nothing was made or tested physically.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/simdesign-starts/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-starts/
 
 **Builds on.** `simdesign-topopt` (FE assembly, filter matrix, half-MBB problem, imported unchanged) and Sigmund (2001), "A 99 line topology optimization code written in Matlab", *Struct. Multidisc. Optim.* 21:120–127, <https://doi.org/10.1007/s001580050176>, whose uniform start and fixed penalty this varies. Penalty continuation is the standard remedy for local optima in SIMP (Sigmund and Petersson 1998, *Struct. Optim.* 16:68–75). It builds on none of the CU Boulder groups in `prompt.md`.
 

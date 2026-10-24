@@ -2,7 +2,7 @@
 
 Pure Python standard library. A follow-up to `swe-ledger`, which found cost fields in at most 1% of the run log and so reported none. Since then `prompts/runcost.py attach` has filled them in, and 355 of the 968 run records in `prompts/runs/` now carry `cost_usd`. Part of track 10 (the software-engineering loop). Produced with AI assistance (Claude). **Preliminary: five days of data, and the cost is an API-equivalent estimate, not a bill.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-runcost/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-runcost/
 
 - **A typical run costs about 68 cents; the 355 together cost $337.** Median $0.68 (95% bootstrap interval $0.64 to $0.72), mean $0.95. All but 12 used one model (`claude-sonnet-5-5`), so no model comparison is possible.
 - **Spend is only mildly concentrated.** The top 10% of runs hold 36% of the money and the top four runs 14%. Trimming the tail would not by itself change the bill much.

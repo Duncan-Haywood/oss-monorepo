@@ -2,7 +2,7 @@
 
 New question for the LLM chip-design-loop track (`PROJECTS.md`, track 3), the "Next steps" item of `chip-constmul`. A quantised neuron layer multiplies one activation by many weights known at synthesis time, so one input fans out to a bank of constant multipliers, and the digit patterns of those constants overlap. This measures how many generic-gate cells a greedy shared-sub-sum (multiple-constant multiplication, MCM) form saves over writing each product alone. No LLM is used. Produced with AI assistance (Claude). Preliminary: random constants (not trained weights), one tool version, generic gates, one input width.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/chip-mcm/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-mcm/
 
 **Builds on.** `chip-constmul` and `chip-abc-sweep` in this repository (same author, MIT): the CSD recoding is the one validated there, and the `score` and `equivalent` wrappers are imported unchanged. Prior art on the technique: Hartley (1996), "Subexpression sharing in filters using canonic signed digit multipliers", *IEEE Trans. Circuits and Systems II* 43(10); Voronenko and Püschel (2007), "Multiplierless multiple constant multiplication", *ACM Trans. Algorithms* 3(2). The open question here is only how much the simplest greedy version saves in a current open flow. Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed.
 

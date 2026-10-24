@@ -5,7 +5,7 @@ Produced with AI assistance. **Stylised, simulated results only**: every paramet
 chose, nothing is fitted to people or measured on a device, and nothing is a claim about a real user or
 product.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-rechime/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-rechime/
 
 **Headline.** Allowing up to four tones, instead of one, raises mean utility per message from 0.387 to
 0.409 (best of plain glance or one tone, against best of 0 to 4 tones). The gain is nil for low urgency

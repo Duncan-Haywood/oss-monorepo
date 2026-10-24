@@ -2,7 +2,7 @@
 
 **Why this was worth doing.** Twins of chaotic systems are scored by how long they track the real system. A free-choice question: each factor of 10 of error costs how much horizon, and is a wrong *parameter* the same as a wrong *state*? **Result (simulation, no invented input):** on the Lorenz-63 attractor (&sigma;=10, &rho;=28, &beta;=8/3) the largest Lyapunov exponent measured here is &lambda;=0.904, against the published 0.9056. Mean time for a twin with the exact parameters to drift 1.0 away from truth (40 start points) grows by 1.124 time units per e-fold of smaller initial-state error (1/&lambda; = 1.106): 4.1 at 10<sup>&minus;2</sup>, 16.9 at 10<sup>&minus;7</sup>. A parameter error of &epsilon; in &rho; with an exact initial state buys less per e-fold (0.85), since the error starts at zero and grows first linearly: horizon 0.95 at &epsilon;=10<sup>&minus;2</sup>, 7.8 at 10<sup>&minus;5</sup>. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-lorenzhorizon/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-lorenzhorizon/
 
 **Builds on.** Lorenz (1963) for the system; the exponent 0.9056 is the value reported by Sprott (*Chaos and Time-Series Analysis*, 2003) and Viswanath (2003), used only as a check. No CU Boulder group's work is built on; the link to the digital-twin theme is that a twin's useful lifetime is set by &lambda;.
 

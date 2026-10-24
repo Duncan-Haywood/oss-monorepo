@@ -5,7 +5,7 @@ into Pipedrive from a spreadsheet or another CRM: **paste or drop the CSV and se
 its line number before the import skips rows or doubles your pipeline, then download a cleaned
 copy.** The file is read in the browser; nothing is uploaded and no login or API key is needed.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/pipedrive-import-csv-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pipedrive-import-csv-check/
 
 After using this, you can now **find the deal whose status is `Closed Won`, the value written
 `$12,000`, the probability of `0.6` that Pipedrive reads as 0.6 percent, the same deal on two rows,

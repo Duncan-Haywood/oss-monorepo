@@ -6,7 +6,7 @@ result against **Chrome's documented installability criteria** — the same
 checks behind Lighthouse's `installable-manifest` audit, with no Chrome or
 Puppeteer required:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/pwa-installability-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/pwa-installability-check/
 
 - **Manifest present and reachable** — a `<link rel="manifest">` tag exists
   and points at a URL that returns valid JSON.

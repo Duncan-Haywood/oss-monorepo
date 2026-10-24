@@ -4,7 +4,7 @@ A free browser tool for Substack writers: **drop in your subscribers export CSV 
 how many readers pay, how long they stay and what is coming due.** The file is read in
 the browser; nothing is uploaded and no Substack login is needed.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/substack-subscriber-export-analyzer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/substack-subscriber-export-analyzer/
 
 After using this, you can now **see paid, free, comp and former subscriber counts,
 free-to-paid conversion, paid churn and retention at 1, 3, 6 and 12 months, monthly

@@ -2,7 +2,7 @@
 
 Follow-up to `capture-kit` (track 13, autonomous multi-angle capture, `PROJECTS.md` milestone 2), taking its first "Next step" (replace assumed figures with sourced ones) and the owner's 2026-10-21 direction to run and source numbers instead of stylising them. **Headline:** on a catalogue of real devices, exact search with a 4 h recording floor reaches all 18 focal-band x viewpoint shots at 4 kg (the assumed catalogue needed 5 kg), and a greedy best-gain-per-gram packer stalls at 12, so the lens-needs-a-body result survives. The exact figure does not survive the inputs no source gave: sweeping them by +-30% moves the 4 kg result anywhere from 8 to 18 shots.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-realkit/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-realkit/
 
 **Builds on.** `capture-kit` (model copied so the project is self-contained) and `capture-crop` (a 360 camera covers 14 to 24 mm-equivalent). Battery rule: 100 Wh per battery in carry-on (FAA PackSafe, checked 2026-10-19). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. Produced with AI assistance (Claude).
 

@@ -10,7 +10,7 @@ and sell, instead of a rule of thumb like "3x the filament cost" that quietly
 skips electricity, machine wear, failed attempts, and the marketplace's own
 cut.**
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/
 
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The deterministic calculation works with no

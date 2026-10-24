@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies. **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.03). Why it seemed worth doing: a Kalman filter is the simplest estimator inside a digital twin, and its process-noise setting `Q` is the knob practitioners tune by hand because they do not know the twin's true error. Folklore says "err high, not low". I wanted the exact size of that asymmetry rather than a rule of thumb. Produced with AI assistance (Claude). **Stylised: a scalar random-walk state with Gaussian noise; nothing here says anything about a real sensor or vehicle. This is a textbook-level calculation, not a new result.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-kfmismatch/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-kfmismatch/
 
 ## Question
 

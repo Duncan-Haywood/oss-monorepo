@@ -8,7 +8,7 @@ and reserves, splits a settlement that straddles a month end into one journal pe
 balances each to an Amazon clearing account. Rows no rule recognises are journalled to an
 uncategorised account rather than dropped. The report is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/amazon-settlement-to-journal/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/amazon-settlement-to-journal/
 
 ## Run it
 

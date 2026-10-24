@@ -2,7 +2,7 @@
 
 Why it seemed worth doing: `eda-clocksweep` listed "repeat on `chip-systolic` arrays, where a fixed clock may remove more designs" as its next step. `chip-systolic` ranked an R x C systolic array against chip-accel's P-lane MAC engine by Yosys generic-gate cells x cycles and found the lane engine ahead. Generic cells carry no clock, and the arrays have long unconstrained critical paths (14 to 33 ns for 4-bit designs below), so the verdict could change once every design must meet one clock. Produced with AI assistance (Claude). Preliminary: one model, one ABC recipe, no wires, no place and route.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/eda-systolicclock/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-systolicclock/
 
 **Builds on.** `research/chip-systolic` (the 24 designs: 4xC arrays and P-lane engines, C and P in 1, 2, 4, 8, word length 4, 6, 8, batch of 4 vectors, cycle counts from its generators), `research/eda-clocksweep` (ABC target-period script, `feasible_front`), `research/eda-sky130rung` (flow), `research/eda-flowtune` (`fetch_pdk.sh`). Tools: Yosys 0.33 and ABC (apt), SKY130 HD `tt_025C_1v80` liberty at ORFS commit `e5cc6e799f`. No CU Boulder lab's work is built on and no affiliation is implied.
 

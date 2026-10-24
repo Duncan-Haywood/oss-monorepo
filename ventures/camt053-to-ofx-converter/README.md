@@ -8,7 +8,7 @@ importing the same statement does not double-post, and writes one file per state
 The file is read locally and never uploaded; account numbers are masked in the output unless you
 choose otherwise.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/camt053-to-ofx-converter/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/camt053-to-ofx-converter/
 
 ## Run it
 

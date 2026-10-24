@@ -2,7 +2,7 @@
 
 The `energy-lcos` family assumes every store discharges 2,000 hours a year and buys power at $10 to 100/MWh. This project replaces that assumption with what the optimiser in [`energy-mix-sourced`](../energy-mix-sourced) (one-node PyPSA, Germany 2019, sourced 2030 costs) actually does, then re-prices storage at that use. Produced with AI assistance (Claude). **Modelled; one weather year, no grid; cycle life and fade are still the unsourced `energy-lcos` values.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-lcos-realised/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-lcos-realised/
 
 **Headline (all from `experiments/results.txt`).**
 - **Batteries are used about as the assumption says; long-duration hydrogen is not.** In the cut-80%, cut-90% and zero-emission systems the Li-ion store is 10 to 14 h long, cycles 122 to 180 times a year and discharges 1,717 to 1,865 h a year (assumed: 2,000), at a volume-weighted charging price of EUR 31 to 38/MWh. That raises its LCOS only 9 to 19% (zero-emission, 14 h: $197 assumed, $231 realised/MWh).

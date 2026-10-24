@@ -2,7 +2,7 @@
 
 Track 12 project, open-source residential construction. [`house-hvacnpc`](../house-hvacnpc) found the break-even heat-pump premium with a constant seasonal heating COP of 2.5 and said so: "no cold derating, which flatters it in Chicago to Duluth". Its first next step was a cold-climate COP curve. This project adds one. It fits an hourly outdoor-temperature distribution to each climate's degree days, lets heating COP fall linearly with temperature (floored at 1, resistance backup), takes the heating-load-weighted seasonal COP, and reruns the break-even premium. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-coldcop/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-coldcop/
 
 **Headline (stylised model, assumed COP curve).** The constant 2.5 was not simply too kind to the cold. With a central curve (COP 3.5 at 47 F, falling 0.045 per F) the seasonal heating COP is **4.01, 3.54, 3.27, 2.73, 2.45, 2.30** in Miami, Houston, Atlanta, Chicago, Minneapolis and Duluth, so 2.5 *understated* the heat pump in the South and Chicago and overstated it only in Minneapolis and Duluth. The break-even premium rises to **$156, $952, $1,979** in Miami, Houston and Atlanta (from $84, $132, $735), is **&minus;$5,175** in Chicago (from &minus;$6,206), and falls to **&minus;$5,640** and **&minus;$8,050** in Minneapolis and Duluth (from &minus;$5,399 and &minus;$6,698). The sign of the answer does not change anywhere; its size depends strongly on the curve: Duluth ranges from &minus;$1,961 to &minus;$16,661 across nine curves.
 

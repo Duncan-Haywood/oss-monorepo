@@ -2,7 +2,7 @@
 
 Fourth project of track 16 (`PROJECTS.md`, milestone 7, first version: synthetic weather and an invented load, no measured data). A home with rooftop solar sells the surplus at midday and buys back at night. A battery moves midday surplus to the evening, but costs money and loses 10% each trip. This project simulates one year hour by hour for 20 seeded weather years and asks the sizing question a homeowner has: how much of the home's electricity do solar and a battery cover, which size is cheapest, and below what installed battery price does storage beat simply exporting. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-home/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-home/
 
 **Headline (modelled, assumed inputs and synthetic weather).** On an 8,000 kWh/yr home at 40&deg;N, a 6 kW array alone meets **35%** of the load and exports 58% of its output. Adding battery lifts that to **49%, 59% and 62% at 5, 10 and 15 kWh**, then barely moves: the 30th to 40th kWh avoid under 10 kWh of imports a year each. At an export price of $0.05/kWh against $0.30 import, a 10 kWh battery pays only if it costs under **$451/kWh installed** (assumed price $800); at $0.20 export the break-even falls to $143, and with export paid at the import price (net metering) the battery loses money, because of its round-trip loss. The cheapest sizing at low export prices is a small array (2 kW) with no battery. This says where the battery's value comes from (the gap between import and export prices), not that any particular home should buy or skip one.
 

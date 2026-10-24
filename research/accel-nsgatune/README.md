@@ -2,7 +2,7 @@
 
 Follow-up to `accel-nsga` (track 8, task-specific AI accelerators), taking the first step its README listed: sweep NSGA-II's population size and mutation rate, which that project fixed at 20 and 0.25 without tuning. The question: at a budget of 400 designs (10.4% of the 3,840-design keyword-spotting co-design space), how much of the exact accuracy/area/energy Pareto front does NSGA-II find as its hyperparameters change, and does crossover matter? Produced with AI assistance (Claude). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-nsgatune/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-nsgatune/
 
 **Builds on.** `research/accel-nsga` imported unchanged (space, constrained domination, ranking, hypervolume, random search, exact front), itself built on `research/accel-kws` and `research/accel-codesign`. NSGA-II is Deb et al. (2002), *IEEE Trans. Evol. Comput.* 6(2). Only `nsga2_x` is new: the same loop with a switch that removes crossover.
 

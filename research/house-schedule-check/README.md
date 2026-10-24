@@ -2,7 +2,7 @@
 
 (Question as first asked: how much do early ordering, prefabricated panels and fewer handoffs shorten a house build?)
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-schedule-check/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-schedule-check/
 
 Cross-check for [`house-schedule`](../house-schedule) (track 12, milestone 8), which landed while this was being built, so this is a deliberately separate model (13 tasks, different baseline for ordering, list scheduling) rather than a duplicate. Produced with AI assistance (Claude). Built for the owner's question: how much do sequencing, prefabrication and fewer handoffs cut the build time and the interest paid while it runs?
 

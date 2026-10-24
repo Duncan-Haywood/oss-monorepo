@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-coupled` (track 14, `codesign`). That project found yaw, which has only weak reaction-torque authority, sets the attitude error (about 29° RMS on 30° steps) and that changing the control-law class (residual network, gyroscopic compensation) changed nothing, while tripling yaw authority helped. This project asks the co-design question that follows: if authority is the limit, can the airframe supply it? The new design variable is the rotor cant angle α. Produced with AI assistance (Claude). **Simulated; the reaction-torque ratio, plant ranges, gust model and cost model are assumed round numbers inherited from the earlier projects and swept where stated; they are not measurements.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-cant/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-cant/
 
 ![Left: held-out error against cant angle, with the reaction-torque ratio swept. Right: joint co-design with cant fixed at 0 or free](experiments/cant.png)
 

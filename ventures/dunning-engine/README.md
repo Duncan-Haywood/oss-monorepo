@@ -5,7 +5,7 @@ with a plan per decline reason, on your own server and with your own
 emails**, which used to mean paying a recovery service a cut of what it
 recovers, or living with Stripe's one-size-fits-all retries.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/dunning-engine/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/dunning-engine/
 
 Two parts, both free and MIT:
 
@@ -41,7 +41,7 @@ notice asks the customer instead). It does not claim a recovery uplift over
 Stripe's own retries; measure that on your own data (`/v1/summary` reports what
 it recovered). If Smart Retries already works for you, keep it.
 
-Reference pages: [which Stripe decline codes to retry and which never to](https://duncan-haywood.github.io/oss-monorepo/dunning-engine/stripe-decline-codes.html) and [Dunning Engine vs paid recovery services](https://duncan-haywood.github.io/oss-monorepo/dunning-engine/vs-paid-recovery-services.html).
+Reference pages: [which Stripe decline codes to retry and which never to](https://duncan-haywood.github.io/monorepo-projects/dunning-engine/stripe-decline-codes.html) and [Dunning Engine vs paid recovery services](https://duncan-haywood.github.io/monorepo-projects/dunning-engine/vs-paid-recovery-services.html).
 
 ## What it does
 

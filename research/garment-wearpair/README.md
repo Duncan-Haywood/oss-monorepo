@@ -2,7 +2,7 @@
 
 **Question.** If you can add a fixed amount of fabric-lever cost to your wardrobe, is it better to spend it on one garment or to split it across two (say a shell and a layer) and wear whichever suits the day? **Headline (modelled, assumed premiums).** At a $50 added-retail budget on the replica trench, the best pair beats the best single garment in 58 of 66 wearing mixes (mean +0.67 C), but at $20 the whole gain (65 of 66 mixes, mean +1.17 C) comes from a modelling artefact: thin cloth has a negative added cost here, so owning it "pays for" a second garment. With thin cloth removed the gain at $20 is exactly 0, at $50 it is +0.49 C (54 of 66 mixes) and at $100 it is +1.02 C. Everything is a model on a CPU; no textile was measured, no price is quoted. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/garment-wearpair/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-wearpair/
 
 **Builds on.** `garment-wearmix` (wearing-time weighting; its "Next steps" asked for a two-garment wearer), `garment-comfortcost` (levers, assumed premiums, cost chain), `garment-thermal` and `garment-teardown`, whose caveats apply in full. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. No new external source is used, so there are no new citations.
 

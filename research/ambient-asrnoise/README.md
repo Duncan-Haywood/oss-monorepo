@@ -7,7 +7,7 @@ from an ASR with a word error rate (WER), and I ask which policies degrade first
 assistance. **Stylised, simulated results only:** the way WER enters each signal is my assumption,
 nothing is fitted to real speech recognition, and nothing is a claim about a real product.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-asrnoise/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-asrnoise/
 
 ## Headline (all from `experiments/results.txt`)
 

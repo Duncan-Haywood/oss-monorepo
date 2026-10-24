@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), the first two "Next steps" of `capture-realaudio`. That project found that partial whitening (GCC weight 1/|C|^gamma, gamma 0.25) beat PHAT on real clips, but it had no reverb, the one case where PHAT is expected to win. **Headline:** it does not win here either. Over 10 real clips in 10 simulated rooms (RT60 0 to 1.0 s, direct-to-reverberant ratio +5 to -5 dB) and two SNRs (-5, +5 dB), PHAT (gamma 1) is the worst fixed weighting in 19 of 20 cells. Example, RT60 0.6 s, DRR 0 dB, SNR +5 dB: PHAT fails 0.26 of 2 s windows (more than one 30 fps frame off), gamma 0.5 fails 0.09, plain correlation 0.20. Picking gamma per window by peak-to-sidelobe ratio (PSR, no ground truth) beats PHAT in all 20 cells but is never better than the best fixed gamma (0.25 to 0.5), and an oracle that picks the best gamma per window would roughly halve the failures again. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-reverbsync/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-reverbsync/
 
 ![failure share vs DRR](experiments/failure_vs_drr.png)
 

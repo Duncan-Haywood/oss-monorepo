@@ -2,7 +2,7 @@
 
 Second project of track 12, open-source residential construction (`PROJECTS.md`, milestone 2). Span tables for floor joists, ceiling joists, rafters and headers are how a builder picks lumber, and the common ones sit in copyrighted code books. This is an open sizing tool for simple-span sawn-lumber members, derived from beam formulas and National Design Specification (NDS) base design values, with no table copied. It checks bending, shear, deflection and bearing, says which check governs, and runs from a command line. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-spans/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-spans/
 
 **Builds on.** NDS allowable-stress design (bending, shear, bearing, size and repetitive-member factors, load duration), ASCE 7 minimum live loads, and the stud and header checks of [`house-framing`](../house-framing). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

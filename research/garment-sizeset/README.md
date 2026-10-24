@@ -2,7 +2,7 @@
 
 Free of any survey data: this is a **stylised** study on a synthetic bust/hip population (preliminary). It asks, in a searcher's words, "how many clothing sizes do you need to fit 80% of people?" and "is a regular size grid the best size run?" Choosing k sizes so the most people fit is a maximum-coverage problem, so I solve it exactly (integer program), greedily, and as a regular grid, and check the answer on fresh people. Track 6 (`PROJECTS.md`), a new question after the long run of cost and wear-pair follow-ups, not a variant of one. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/garment-sizeset/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-sizeset/
 
 **Builds on.** Maximum coverage and the greedy rule's 1 - 1/e guarantee: Nemhauser, Wolsey and Fisher (1978), "An analysis of approximations for maximizing submodular set functions - I", *Mathematical Programming* 14, 265-294. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. It links to `garment-pattern-fit` only in spirit (fit is scored there on a body; here a size "fits" if both measurements are within a tolerance).
 

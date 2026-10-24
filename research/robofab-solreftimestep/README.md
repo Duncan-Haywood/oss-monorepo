@@ -2,7 +2,7 @@
 
 A follow-up to `research/robofab-solrefmap` (track `robofab`; its "separate timestep from `solref` in a full grid" next step). `robofab-solrefmap` tied the timestep to `solref` in its main grid and fixed it in its scan. Here the same jaw test (one part, the cover) is run over a full grid of `solref` and timestep at 400 and 800 m/s^2, then over a finer timestep ladder at three (acceleration, `solref`) pairs. I do not simulate an arm, only a prescribed constant upward acceleration of the jaws. All numbers are from `experiments/results.txt`.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-solreftimestep/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-solreftimestep/
 
 - **Neither a small `solref` nor a small timestep is enough alone; a coarse timestep always fails.** In the grid (solref 0.5, 0.3, 0.2 ms x timestep 0.4, 0.2, 0.1, 0.05 ms, two accelerations: 24 cells) the test reproduces the bound (ratio 1.01 to 1.02) in 6 cells; the other 18 return "none" (no force up to 60 N holds). No cell with timestep 0.4 ms holds, and no cell with `solref` 0.5 ms holds.
 - **Timestep above `solref`/2 is clamped by MuJoCo.** With the default `refsafe` option, the effective time constant is max(`solref`, 2 x timestep) (my reading of the MuJoCo documentation; the effective values are printed in `results.txt`, but I did not test the option off). Every ladder cell whose effective constant is above 0.2 ms fails at 800 m/s^2 (6 of 6 cells in the two 800 m/s^2 ladder rows with a timestep of at least 0.15 ms), consistent with `robofab-solrefmap`'s finding that only `solref` of 0.2 ms or below holds there.

@@ -2,7 +2,7 @@
 
 Track 12 project, open-source residential construction. [`house-energyprices`](../house-energyprices) ended with two admissions: equipment cost was "not charged to either system", and its next step was to compare gas with heat pump on net present cost (NPC). Equipment prices are the one input this repository has no dated source for, so rather than invent one, this project reports the **break-even premium**: the extra installed cost of a heat pump over a gas furnace + AC at which the two tie on 30-year NPC, each with its own cost-optimal envelope, at EIA state prices. A reader can compare it with any real quote. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/house-hvacnpc/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-hvacnpc/
 
 **Headline (stylised model).** In Miami, Houston and Atlanta the heat pump ties if it costs no more than **$84, $132 and $735** above furnace + AC, so it wins only when the two systems cost nearly the same to install. In Chicago, Minneapolis and Duluth the heat pump would have to cost **$6,206, $5,399 and $6,698 less** to buy, because it is $260 to $326 a year dearer to run. The cold-climate result holds across 1% to 6% real discount rates (premium −$3,962 to −$8,569). The southern result is fragile: with gas 25% cheaper the premium in Houston and Atlanta goes negative (−$601, −$706).
 

@@ -2,7 +2,7 @@
 
 Track 13 (autonomous multi-angle capture), closing the second "Next steps" item of `capture-syncedit` ("run the edit with sync errors from `capture-realaudio`'s real clips"). `capture-syncedit` found that, on synthetic speech-like audio, a robust fit leaves no cut damaged down to -10 dB SNR. **Headline:** on 10 real recorded clips that does not hold. With the same edit, the same clocks and a 12-window Theil-Sen fit of 2 s GCC-PHAT windows, the mean share of cuts that jump over one 30 fps frame is **0.34 at 0 dB SNR and 0.64 at -10 dB** (synthetic: 0.00 at both), and 4 of 10 clips lose 62 to 97% of their cuts at 0 dB. The failure is per clip, not per SNR: `applause`, `roll` and `romans` stay at 0.00 down to -10 dB. **Partial whitening** (dividing the cross-spectrum by |C|^0.25 instead of PHAT's |C|) cuts the 0 dB mean to **0.014**, and the worst clip to 0.105. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-realedit/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-realedit/
 
 **Builds on.** `capture-syncedit` (edit, clock model and cut-damage counts, imported unchanged), `capture-realaudio` (real-clip windows and the partial-whitening estimator), `capture-audiosync` (Theil-Sen fit) and `capture-edit` (Viterbi edit). Partial whitening is the one-line variant of the generalized correlation family of Knapp and Carter (1976), *IEEE Trans. ASSP* 24(4), as in `capture-realaudio`. No CU Boulder group in `prompt.md` covers this and none is claimed.
 

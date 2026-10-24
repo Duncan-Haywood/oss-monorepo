@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 1 of [`energy-thermal-hourly`](../energy-thermal-hourly) ("replace the modelled price with real day-ahead prices for the same years, and compare the two on the cheapest-hour means"). That project priced electricity with a one-fuel merit order and concluded a sand store loses with a fleet like today's because there are no surplus hours. Here the same store and heat-pump costs are run on the actual hourly day-ahead price, 2015 to 2019 (Open Power System Data, ENTSO-E Transparency Platform). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-thermal-real/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-thermal-real/
 
 ![Store minus heat pump cost of heat by year, real prices](experiments/real.svg)
 

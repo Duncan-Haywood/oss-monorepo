@@ -8,7 +8,7 @@ and cells a spreadsheet damaged (scientific notation, #REF!). It gives a line nu
 writes a repaired CSV in Xero's column layout, optionally with dates rewritten in the format and
 order you confirm. The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/xero-bank-statement-csv-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/xero-bank-statement-csv-check/
 
 ## Run it
 

@@ -1,10 +1,10 @@
 # Does Opus pay for itself on this portfolio's runs? Cost ratio by track, and the sample needed to find out (preliminary)
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-modelmix/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-modelmix/
 
 Pure Python standard library. Milestone 8 of track 10 (the software-engineering loop): which model for which kind of task. Produced with AI assistance (Claude). **Preliminary: the ledger holds 12 priced Opus runs against 342 Sonnet runs, so this measures cost, not value, and says how much data a value comparison needs.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-modelmix/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-modelmix/
 
 - **An Opus run costs about 8 to 9 times a Sonnet run in the same track.** Process: 7.9 (bootstrap 6.7 to 11.7, 8 Opus and 41 Sonnet runs). Research: 9.1 (3.7 to 12.1, only 3 Opus runs). Ventures has one Opus run, too few to interval, and is left out. Numbers are in `experiments/results.txt`.
 - **The ledger cannot yet say whether the extra cost buys more.** Projects landed per Sonnet research run has a coefficient of variation of 1.43 (161 runs). Detecting a 50% difference in projects per run needs about 129 runs per arm, and 25% needs about 515. A 9x-priced Opus arm of 129 runs would cost as much as about 1,160 Sonnet runs.

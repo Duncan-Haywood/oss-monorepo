@@ -2,7 +2,7 @@
 
 A free browser calculator for daycare and childcare center owners: classrooms, licensing ratios, tuition, wages and rent become monthly profit, break-even enrollment, the ratio cliffs where one more child forces another teacher, and the tuition increase that would close a gap. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/childcare-center-break-even-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/childcare-center-break-even-calculator/
 
 After using this, you can now **see how many children you actually need and which enrollment steps lose money**, which used to mean a spreadsheet that averaged staffing as if teachers were hired by the child.
 

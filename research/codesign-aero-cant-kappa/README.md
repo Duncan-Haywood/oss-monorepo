@@ -2,7 +2,7 @@
 
 Follow-up to `codesign-aero-cant-bound` (track 14, `codesign`). There the reaction torque per newton of thrust, κ, was a fixed 0.016 m, so the optimiser could enlarge the propeller to save energy without losing yaw authority. For a real propeller Q/T = (C_P/C_T)·D/(2π), so κ grows with D. This project makes κ = c·D and sweeps c. Produced with AI assistance (Claude). **Simulated; c is swept, not sourced: the UIUC propeller database host was unreachable from the run sandbox, so no measured C_P/C_T is cited. Cost, mass, motor and plant models are inherited assumed fits.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-aero-cant-kappa/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-aero-cant-kappa/
 
 ![Left: held-out error against the cant bound for fixed κ and κ = c D with c = 0.06, 0.126, 0.25. Right: the cant angle chosen](experiments/kappa.png)
 

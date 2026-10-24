@@ -2,7 +2,7 @@
 
 Do N cheap MEMS gyroscopes, averaged, beat one better unit that costs N times as much? On a stylised single-axis model with Allan-variance noise (angle random walk plus rate random walk) and errors shared between units: **with independent errors, only if the price ratio exceeds the square of the noise ratio (a unit 10× quieter needs 100+ cheap units); a shared error fraction `ρ` above `1/k²` makes the array lose at any size; and when the better unit improves white noise more than bias walk, the answer flips with the integration time.** Produced with AI assistance (Claude). First project of track 15 (`PROJECTS.md`, milestone 1). It builds on none of the CU Boulder groups in `prompt.md`. Nothing here uses real IMU data; the grades are illustrative, not datasheets, and no prices are claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-imuarray/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-imuarray/
 
 **Builds on.** Allan (1966), "Statistics of atomic frequency standards", *Proc. IEEE* 54:221–230, and IEEE Std 952 for gyro noise terms; the equicorrelated-average variance `σ²(1+(n−1)ρ)/n` is the algebra of `fusion-twin` in this repository, which found shared errors in a sensor fleet; here it is applied to a two-term time-domain gyro model and a cost-matched comparison. Gyro arrays are an old idea; no specific array paper is reproduced here.
 

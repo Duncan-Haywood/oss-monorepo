@@ -2,7 +2,7 @@
 
 A free browser tool for Buy Me a Coffee creators and their bookkeepers: **drop in the Transactions CSV and get a balanced Xero, QuickBooks Online, QuickBooks Desktop (IIF) or plain CSV journal.** The file is read in the browser; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/buymeacoffee-payout-to-journal/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/buymeacoffee-payout-to-journal/
 
 After using this, you can now **book tips, memberships, shop orders and commissions to separate income accounts with the Buy Me a Coffee and PayPal/Stripe fee on its own line, split at month end and proven against your deposit**, which used to mean booking the net PayPal deposit as income.
 

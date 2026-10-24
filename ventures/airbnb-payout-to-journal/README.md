@@ -9,7 +9,7 @@ not hidden), writes one journal per calendar month on a cash (paid) or stay (che
 balanced to an Airbnb clearing account, and journals anything no rule explains to an uncategorised
 account rather than dropping it. The file is read locally and never uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/airbnb-payout-to-journal/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/airbnb-payout-to-journal/
 
 ## Run it
 

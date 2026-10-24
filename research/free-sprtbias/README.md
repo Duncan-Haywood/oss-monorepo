@@ -2,7 +2,7 @@
 
 Pure Python, no dependencies beyond the sibling project `free-sprtcert` (imported for its exact SPRT and fixed-test pieces). **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.007). Why it seemed worth doing: `free-sprtcert` and `free-sprtcap` both end with "assumes the twin's failure rate equals the real one, so it says nothing about the sim-to-real gap". That is the central theme of this portfolio, and the question has an exact answer: a twin that fails less often than reality by a fixed ratio moves the certificate's error in a computable way.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-sprtbias/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-sprtbias/
 
 ## Question
 

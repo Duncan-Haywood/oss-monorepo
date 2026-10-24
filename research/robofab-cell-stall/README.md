@@ -2,7 +2,7 @@
 
 A stylised, simulation-only follow-up to `research/robofab-cell-held` (track `robofab`, milestone 4's next steps, "a blocking-aware approximation"). That project found that adding load and unload time to the printer's demand in mean value analysis (MVA) helps only when the cell is saturated. Here I add the missing piece the held-printer model ignores: a printer also sits finished while it waits for the arm to unload it. I estimate that wait from the arm's own queue (a fixed point) and add it to the printer's demand. All numbers are from `experiments/results.txt` (20 seeds, 24 h horizon after a 4 h warm-up, mean rates in good parts per hour; 32 settings; job types and times as in `robofab-cell-held`, illustrative and not measured).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/robofab-cell-stall/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-cell-stall/
 
 - **The repair makes MVA worse, not better.** Mean absolute error against the simulation over all 32 rows: plain MVA 4.7%, held-demand MVA 6.2%, stall-aware MVA 7.9%. A sensitivity variant that adds all of the arm's waiting rather than half ("stall_full") reaches 10.6%.
 - **It does not even keep the saturated-row gain.** On the 8 rows with work in process 2P, stall-aware MVA errs by 3.1% against 2.9% for held and 8.2% for plain. On the other 24 rows it is worse than held: 9.5% against 7.3% (plain: 3.6%). Its error is negative in all 32 rows: it systematically underpredicts.

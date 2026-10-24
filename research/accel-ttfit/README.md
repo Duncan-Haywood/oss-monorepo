@@ -2,7 +2,7 @@
 
 Seventh milestone of track 8 (task-specific AI accelerators) in `PROJECTS.md` ("a design sized for Tiny Tapeout"). It seemed worth doing because every earlier `accel-*` area figure assumed weight memories next to the engine, and a Tiny Tapeout tile has no memory macro and only 24 pins. The question: if the weights are streamed in by the host instead, what is the smallest area of a keyword-spotting (KWS) engine that is exact against its integer reference, how does it scale with hidden width and weight bits, and which `accel-kws` model is the most accurate one that fits a tile? Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/accel-ttfit/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-ttfit/
 
 ## Headline result
 - The streaming engine (`rtl/kws_tt.v`) matches an integer NumPy reference on every one of 32 geometries (hidden width 8, 16, 32, 64; weight bits 2, 3, 4, 8; 70 or 120 inputs), classes and cycle counts both, in Icarus Verilog.

@@ -7,7 +7,7 @@ after-hours/weekend/holiday differential, and a flag for when the setting
 and length suggest a two-interpreter team — plus a separate late-cancellation
 fee calculator. Entirely client-side; nothing is uploaded.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/sign-language-interpreter-rate-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/sign-language-interpreter-rate-calculator/
 
 After using this, you can now **turn an assignment request into a defensible
 fee, including travel and any after-hours differential, in seconds**, which

@@ -5,7 +5,7 @@ residential install the way the job actually costs — purchased material after
 waste, tear-out hours that are not the same as install hours, and stairs by
 the tread — and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/flooring-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/flooring-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

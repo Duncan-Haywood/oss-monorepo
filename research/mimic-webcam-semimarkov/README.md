@@ -2,7 +2,7 @@
 
 Follow-up to `mimic-webcam-markov` (track 11, adversarial human imitation), whose next step named semi-Markov (explicit dwell times) and second-order chains as the obvious fixes for a first-order chain that jumps state every 0.1 s. **Preliminary, stylised: 46 people filling in one web form, one context, 3 seeds; a negative result.** Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/mimic-webcam-semimarkov/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-webcam-semimarkov/
 
 **Result.** Chains with 8 or 32 k-means states over a person's webcam-signal frames, either semi-Markov (state held for a dwell time drawn from the empirical run lengths of that state) or second-order (next state depends on the last two), fitted on that person's earlier windows or on the other 45 people's, emitting state centres or real frames of the state, are scored at AUROC 0.999 to 1.000 by the boosted-tree detector on that person's later windows. All 16 generator cells sit in that range, for the population and the profile-aware detector alike. Stitching 50-frame real blocks scored 0.565 to 0.654 in `mimic-webcam-persongen`, so neither fix closes the gap.
 

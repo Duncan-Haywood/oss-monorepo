@@ -2,7 +2,7 @@
 
 **Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-avoidpaired/
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-avoidpaired/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-avoidpaired/
 
 [`hanger-avoid`](../hanger-avoid) left one result unsettled: aiming's gain from avoiding a clash (0.8 to 1.7 garments an hour) was smaller than its two separate 200-load intervals. Pairing the runs on the same 2000 loads settles it. **Yes, it is real but small.** At 0.30 m aiming gains +1.25 an hour (95% interval 0.60 to 1.92); sweeping gains +4.4 (3.7 to 5.1) and blind pinching +10.0 (9.6 to 10.4). At 0.45 m aiming gains nothing distinguishable from zero (+0.15, −0.05 to 0.36).
 

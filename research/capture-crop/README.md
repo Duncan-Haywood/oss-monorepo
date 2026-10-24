@@ -2,7 +2,7 @@
 
 First project of track 13, autonomous multi-angle capture for travel creators (`PROJECTS.md`, milestone 1). The simplest "film me from every angle" rig is one 360-degree camera on a pole, reframed in software afterwards. Two limits decide how far that goes. **Pixels:** an 8K 360 camera reframed into a 1080x1920 Instagram reel is native only up to about a **24 mm full-frame-equivalent** view; a 50 mm crop is upscaled 2.1x and an 85 mm crop 3.5x, and cropping 85 mm natively would need a ~27,000 px wide equirect. **Perspective:** where the camera stands, not the lens, sets perspective. From a selfie stick at 0.8 m a feature 10 cm nearer the camera (a nose against the ears) images 14% larger; from the 1.4 m an 85 mm head-and-shoulders shot is taken at, 7.6%, with the background behind rendered 1.7x larger. No resolution fixes that: a portrait or "compressed" look needs a camera standing back from the creator. That is the case for the rest of the track (follow robots, rigs of several cameras, longer lenses). Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-crop/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-crop/
 
 **Builds on.** Equirectangular projection and pinhole (rectilinear) reprojection, as used by every 360 reframing tool, and the full-frame equivalent-focal-length convention. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

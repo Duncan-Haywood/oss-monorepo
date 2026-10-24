@@ -2,7 +2,7 @@
 
 **With six groups, a 95% interval per group is not 95% for the set: on 3,188 real Reddit comments (GoEmotions), only 71–77% of equal-allocation audits of 120–240 items covered all six true group prevalences at once, against 85–88% with three groups. Equal numbers per group, and a Bonferroni widening, bring the set back to 89–94% at 120–240 items; a random audit cannot even produce six estimates when one group is 1.5% of the corpus (97% of 120-item random draws had fewer than 5 audited items in it).** The coders are naive-Bayes classifiers with a moved cut-off and a word list, not LLMs. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-manygroups/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-manygroups/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). It takes the "more than two groups" item in [`qual-stratified`](../qual-stratified)'s "Next steps", which stratified a two-group gap. The new question is the one a report with a table of groups has: every row is an interval, and the reader trusts the whole table. Same corpus, split and coders as that project.
 

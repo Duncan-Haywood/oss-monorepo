@@ -16,7 +16,7 @@ The strength numbers rest on assumed material constants, and the OpenSCAD files 
 rendered in this run (no OpenSCAD in the image); the STL files come from the same outlines and
 are checked as closed meshes in the tests.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-print/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-print/
 
 ## Why this question
 

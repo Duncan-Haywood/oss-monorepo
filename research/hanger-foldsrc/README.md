@@ -2,7 +2,7 @@
 
 **Timed from a published robot instead of a guess, the fold station, not the arm, limits the cell: with SpeedFolding's measured cycle times (68 to 167 s per garment, 80 to 93% fold success) one arm and one fold table serve 0.8 to 2.1 dryers, not the 5.1 that `hanger-cell` found with an assumed 25 s fold. With two arms, five dryers need 3 to 10 fold tables depending on the row (5 at the t-shirt time of 117 s); prior-art folders at 3 to 6 folds an hour would need more than 40.** Produced with AI assistance (Claude). The fold times and success rates come from one paper (one ABB YuMi, 15 trials per row); every other station time (pick, sense, rail, feeder) is still an assumed placeholder from `hanger-cell`, and nothing here is a measurement of our own robot.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-foldsrc/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-foldsrc/
 
 Track 18 (`hanger`, [`PROJECTS.md`](../PROJECTS.md)). `hanger-cell` and `hanger-cellpick` both found that pick and fold set the pace, and the fold time (25 s) was their largest unsourced input. This project replaces it with a figure from the literature, following the owner's 2026-10-21 rule to source parameters that drive a result (`research/CLAUDE.md`, "Run the numbers"). Built on none of the CU Boulder groups in `prompt.md`; no connection to them is claimed.
 

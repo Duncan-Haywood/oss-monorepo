@@ -4,7 +4,7 @@ A free browser tool for Amazon sellers: **drop in the Seller Central
 Transaction report CSV and see profit per SKU.** The file is read in the
 browser; nothing is uploaded. Independent of Amazon and not affiliated with it.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/amazon-seller-profit-analyzer/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/amazon-seller-profit-analyzer/
 
 After using this, you can now **see which SKUs make money after referral fees,
 FBA fees, refunds, ads and storage, and how much of each sale Amazon keeps**,

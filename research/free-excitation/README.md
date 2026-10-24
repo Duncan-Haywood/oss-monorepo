@@ -2,7 +2,7 @@
 
 **Why this seemed worth doing (free-choice run).** Digital-twin work here has studied what a twin gets wrong (`timestep-twin`, `workcell-twin`, `roundtrip-twin`), but not how the experiment that *calibrates* the twin is chosen. The textbook proxy for "is this input informative" is the conditioning of the Fisher matrix. This project checks whether it predicts how well the calibrated twin predicts something it was not fitted on. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-excitation/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-excitation/
 
 **Headline (stylised, one plant).** Fitting mass, damping and stiffness of a lightly damped oscillator (ζ = 0.1) from one 10 s noisy position trace, a unit-RMS input at the natural frequency gives the lowest held-out prediction error (mean RMSE 3.1×10⁻⁴ against 4.4×10⁻⁴ for a chirp, 1.1×10⁻³ for a step and 2.8×10⁻³ for an off-resonance sine) even though it has the **worst** Fisher condition number (527, against 63 for the step and 56 for the off-resonance sine). Condition number ranks the inputs backwards here. The step is fine for mass and stiffness but its damping estimate is 4.5× noisier than the resonant sine's (0.76% vs 0.17% relative std), and a sine three times off resonance is 4.7 to 7.7× worse than the resonant sine on every parameter. Fitted spreads are within 0.83 to 1.09 of the Cramér-Rao bounds.
 

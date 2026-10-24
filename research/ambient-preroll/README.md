@@ -2,7 +2,7 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-gateroc`. It asks a new question about the gate rather than extending the Dawid-Skene chain, which had gone to micro-variants. Produced with AI assistance. **Stylised, synthetic results only**: the audio is generated, the power model is `ambient-wearable`'s (via `ambient-gateroc`), and nothing was measured on hardware or on real speech.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/ambient-preroll/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-preroll/
 
 ## Question
 

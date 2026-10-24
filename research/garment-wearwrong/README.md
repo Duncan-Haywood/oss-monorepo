@@ -2,7 +2,7 @@
 
 **Question.** `garment-wearpair` found that owning two garments (a shell and a layer) beats one garment at the same budget, but it assumed the wearer always wears the right one. What happens to that edge when the wearer sometimes wears the wrong garment for the weather? **Headline (modelled, assumed premiums, assumed error rates).** It depends on what a mistake looks like. If a wrong pick is a random wrong option, the pair's edge does not shrink (at $100, thin cloth removed: +0.55 C at no error, +0.57 C at 30% error), because errors punish a single garment's all-or-nothing choice more than a hedged pair. If every mistake is the worst owned option (the cold-weather coat in a heat wave), the $100 edge falls from +0.55 C to +0.09 C at a 30% error rate, and in 54 of 66 wearing mixes there is an error rate (median 0.72, as low as 0.04) at which one garment does as well. At $50 the pair's edge is negligible (+0.009 C) either way. Everything is a model on a CPU; no wearer was observed, no textile measured, no price quoted. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/garment-wearwrong/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-wearwrong/
 
 **Builds on.** `garment-wearpair` (the wardrobe search; its "Next steps" asked for a wrong-garment penalty), `garment-wearmix`, `garment-comfortcost`, `garment-thermal` and `garment-teardown`, whose caveats apply in full. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. No new external source is used, so there are no new citations.
 

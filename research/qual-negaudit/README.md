@@ -2,7 +2,7 @@
 
 **Auditing only the coder's positives gives a prevalence estimate that is wrong by the coder's miss rate (−0.13 to −0.17 on a true 0.252) and never covers the truth; weighting a few hand-coded coder-negatives back in removes the bias at once, but the interval only reaches its nominal 95% at about 50 coder-negative items, and that count, not the total audit size, sets the width.** On 3,188 real Reddit comments (GoEmotions), with the audit's total size at 100, 200 or 400 items, 2 coder-negatives gave worst-of-four-coders coverage 0.29–0.31, 10 gave 0.85–0.87, 50 gave 0.94, and mean interval width at 50 negatives was 0.15–0.19 whether the audit had 100 or 400 items. Spending the rest of a bigger audit on coder-positives bought nothing. **The coders are not LLMs** (no API key in the session): three cut-offs of a naive-Bayes classifier and a word list. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/qual-negaudit/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/qual-negaudit/
 
 Track 19 (`qual`, [`PROJECTS.md`](../PROJECTS.md)). It takes the last "Next steps" item of [`qual-labelaudit`](../qual-labelaudit): audit coder-negatives at a lower rate and weight them back in. That project showed the positives-only audit fails (coverage 0.000); this one asks how much negative auditing repairs it. Estimators from [`qual-correction`](../qual-correction) and `qual-labelaudit`.
 

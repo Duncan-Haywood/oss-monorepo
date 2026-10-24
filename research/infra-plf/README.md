@@ -2,7 +2,7 @@
 
 Track 21 (`infra`), grid first. Follow-up to [`infra-dcopf`](../infra-dcopf) (its next step 2): a lossless DC OPF orders generators by raw marginal cost, and a uniform loss share fixed the price level but only 13 to 32 % of the excess cost of the dispatch. The classical fix is a nodal penalty factor per generator, PF_i = 1/(1 &minus; &part;Loss/&part;P_i) (Wood and Wollenberg, *Power Generation, Operation and Control*, ch. 13). This project takes the sensitivities from the AC power flow by finite difference, re-solves the DC OPF with each generator's cost scaled by its penalty factor, and scores the dispatch by an AC power flow at the original costs against the AC OPF. Produced with AI assistance (Claude). No CU Boulder group's work is reproduced and no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/infra-plf/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/infra-plf/
 
 **Headline (pandapower MATPOWER cases, modelled not measured; `experiments/results.txt`; cost of each dispatch under AC minus the AC optimum, % of AC optimum).**
 - **IEEE 118-bus:** penalty factors cut the excess of plain DC at 0.6, 0.8 and 1.0 of load (0.73 to 0.56 %, 0.75 to 0.46 %, 1.48 to 0.97 %), recovering 23 to 38 %, against 13 to 32 % for the uniform share. At 1.1 of load they are **worse** than both (2.45 % against 1.68 % plain and 1.15 % uniform).

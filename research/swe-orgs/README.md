@@ -2,7 +2,7 @@
 
 Pure Python standard library. Milestone 7 (`swe-orgs`) of track 10, the software-engineering loop, in `PROJECTS.md`, a standing milestone: **this is twenty-one batches of sources, not the finished catalogue;** each batch is summarised in [`LOG.md`](LOG.md), which the project page shows as its research log. Produced with AI assistance (Claude). All numbers below come from `experiments/results.txt`, and the sources and practices are the two CSV files in `data/`. No lab's work is built on and no company or author is affiliated with or endorses this project.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/swe-orgs/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-orgs/
 
 ## Question
 

@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 2 of [`energy-store-cop`](../energy-store-cop) ("add the heat exchanger cost to the store and see whether 2015 to 2017 survive"). The earlier comparisons cost the sand store without any equipment to take heat out of the sand. No sourced price for a sand-to-water exchanger exists in the cost table, so rather than invent one this project sweeps the price and reports the **break-even exchanger price** per price year. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-store-hx/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-store-hx/
 
 ## Headline (German day-ahead prices and weather 2015 to 2019, house scale, 10,000 kWh of heat a year, 45 °C sink)
 All numbers are in `experiments/results.txt` (deterministic, stdlib only, under a second).

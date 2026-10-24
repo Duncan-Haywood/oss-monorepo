@@ -12,7 +12,7 @@ holdouts on the status-quo side who never fade make the marginal cells worse (3 
 Produced with AI assistance (Claude). Next step from `society-converts` and `society-blocs` in research track 17
 (`society`, `PROJECTS.md`). Every result is about simulated people following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-allyfade/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-allyfade/
 
 ## Why this question
 

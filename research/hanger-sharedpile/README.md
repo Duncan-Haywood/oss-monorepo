@@ -2,7 +2,7 @@
 
 **In the stylised model, two arms working one pile and waiting for each other whenever their grasps are closer than a clearance `sep` lose little with look-then-aim picking (201 garments hung or folded per hour with no blocking, 191 at 0.30 m clearance, 5.7 dryers) but a lot with blind pinching (179 falling to 148, 5.4 to 4.5 dryers), because pinching keeps the arms busy so they meet more (about 18 blocked picks per 25-garment load against 10).** With three arms and aiming, a third arm adds only 3 to 5 garments an hour at any clearance: the fold table is the limit. `hanger-cellpick` flattered multi-arm cells by never letting arms meet; this puts the meeting in. Produced with AI assistance (Claude). **Stylised: the clearance, the downstream time that spaces the arms and every station time are assumed; nothing here is a measurement of a robot.**
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-sharedpile/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/hanger-sharedpile/
 
 Track 18 (`hanger`, [`PROJECTS.md`](../PROJECTS.md)). Takes the first "Next steps" item of [`hanger-cellpick`](../hanger-cellpick) ("let two arms share one pile so they block each other"). Built on none of the CU Boulder groups in `prompt.md`; no connection to them is claimed.
 

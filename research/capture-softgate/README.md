@@ -2,7 +2,7 @@
 
 Follow-up to `capture-hybrid` (track 13), whose "Next steps" asked to soften the gate and to try the matcher's cost as a second confidence signal. **Headline:** replacing the hard "use the nearest camera where the two warps disagree" switch with a weight that ramps from 0 to 1 gains 0.1 to 0.5 dB in every one of the 11 conditions tried (29.3 to 29.5 dB at a 15 degree gap on held-out seeds, 26.5 to 26.7 with a bystander) and cuts false edges (seams) by about a quarter, 0.0087 to 0.0067 grey levels per pixel. It closes about 0.25 dB of the 2.6 dB gap to a per-pixel oracle, so most of the headroom stays. The stereo matching cost is a worse confidence signal than the disagreement of the two warps: gating on it scores 27.6 dB, no better than hole filling (27.3), and it hurts under a bystander (24.5 dB against 26.2 for filling). A toy scene: read the ordering, not the decibels. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/capture-softgate/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/capture-softgate/
 
 **Builds on.** `capture-hybrid` (scene, matcher, warp, hole fill and hard gate, copied here so the project is self-contained). The matcher now also returns its window cost. Soft blending of view-synthesis sources by a confidence weight is standard in image-based rendering; this tests it on one toy scene. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 

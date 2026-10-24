@@ -5,7 +5,7 @@ for Apple's **Required Reason API** usage and cross-checks it against your
 `PrivacyInfo.xcprivacy` manifest. It names the exact category, file, and line
 behind the two most common App Store Connect rejections for this:
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/ios-privacy-manifest-check/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/ios-privacy-manifest-check/
 
 - **ITMS-91061** ("Missing privacy manifest") -- your code uses a Required
   Reason API and no manifest entry declares it.

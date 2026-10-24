@@ -5,7 +5,7 @@ prices an install the way the trade actually loses money — pad, delivery
 miles, crane versus forklift, then ramp, windows, loft, and haul-away —
 and shows the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/shed-install-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/shed-install-bid-calculator/
 
 **After using this, you can now** send a walk-away shed-install price that
 sees the pad and the delivery, **which used to take** matching a published

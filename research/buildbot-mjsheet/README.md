@@ -2,7 +2,7 @@
 
 Seventh project of track 20, robots on the residential building site (`PROJECTS.md`, milestone 6, the sim-to-sim check, the "MuJoCo as plant B" item in [`buildbot-skills`](../buildbot-skills)'s next steps). `buildbot-skills` found that sheet-following skills tuned on a rigid-sheet model pass 0 to 11% of episodes on a held-out plant with a flexing board, sensing delay and actuator lag. That held-out plant was my own numpy Lagrangian, so a derivation slip could have produced the failure. This rebuilds it in MuJoCo and runs the same policies. Produced with AI assistance (Claude). Simulated and preliminary. It builds on no group in `prompt.md`; none is claimed.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/buildbot-mjsheet/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/buildbot-mjsheet/
 
 **Headline.** 13 policies from `buildbot-skills` x 200 shared random worlds = 2600 episodes, each run in the numpy plant B and in MuJoCo with the same controller code.
 - **The pass/fail label agrees on 99.8% of episodes** (99% to 100% per policy). No policy's pass rate differs between engines by more than 1 point (for example 0.600 vs 0.600, 0.145 vs 0.135, 0.310 vs 0.315).

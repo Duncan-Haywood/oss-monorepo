@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 1 of [`energy-thermal-cost`](../energy-thermal-cost) ("read the store's electricity price from an hourly price or surplus series and let the store charge only in cheap hours"). That project found a sand store needs the heat pump's electricity to be about 2 times dearer (daily cycling) to 120 times (seasonal) than its own, against an assumed flat EUR 0.05/kWh. Here the prices come from real hourly German load, solar and wind (2015 to 2019), run through a one-fuel merit order with gas costs from PyPSA technology-data, and the store buys only the cheapest quarter of the hours in each cycle. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-thermal-hourly/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-thermal-hourly/
 
 ![Store minus heat pump cost of heat against the price paid in surplus hours](experiments/floor.svg)
 

@@ -10,7 +10,7 @@ crowd is already near the edge (10% robots, slow fade) and, below about 5% initi
 Produced with AI assistance (Claude). Next step 2 of `society-allyfade` in research track 17 (`society`,
 `PROJECTS.md`). Every result is about simulated people following a stated rule, not real crowds.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/society-handover/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/society-handover/
 
 ## Why this question
 

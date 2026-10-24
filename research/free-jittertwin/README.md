@@ -2,7 +2,7 @@
 
 **Why this was worth doing.** A digital twin usually steps at a fixed period, but a real controller's samples arrive late or not at all. A free-choice hunch: is *jitter* (a spread of intervals) the danger, or *missed samples* (rare long gaps)? **Result (exact calculation plus simulation, stylised):** for an unstable scalar plant x&prime; = 3x sampled at h<sub>0</sub> = 0.5 with a gain that makes the fixed-period twin contract by 0.5 per sample, uniform jitter of up to &plusmn;100% of the period never destabilises it (a short and a long interval average out; both stability tests stay satisfied). Missed samples do: if a sample is missed (period doubled) with probability q, the loop is **almost-surely stable up to q = 0.556 but mean-square stable only up to q = 0.270**. Between those, the mean-square test a twin audit would naturally use says "unstable" while simulated runs converge (q = 0.4: 0 of 2000 blow up); above 0.556 they blow up (70% at q = 0.6). A deadbeat-tuned loop (twin contraction 0) is much more fragile: mean-square limit q = 0.05. Produced with AI assistance (Claude).
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/free-jittertwin/
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-jittertwin/
 
 **Builds on.** Standard sampled-data and Markov-jump / random-sampling stability ideas (almost-sure Lyapunov exponent versus mean-square moment); no specific paper is relied on or re-verified here. Related in this repository: `latency-twin` (fixed delay) and `twin-audit`. No CU Boulder group's work is built on or implied; the link to the digital-twin theme is that the twin's fixed period hides timing variation.
 

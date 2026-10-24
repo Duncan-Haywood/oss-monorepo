@@ -11,7 +11,7 @@ actually costs to cover and know before you send the quote whether your
 extension fee protects your margin or quietly erodes it, which used to take
 a guess at the next slow listing.**
 
-**Live tool:** https://duncan-haywood.github.io/oss-monorepo/home-staging-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/home-staging-bid-calculator/
 
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The deterministic calculation works with no
