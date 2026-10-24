@@ -31,6 +31,14 @@ export function roundHalfUpToCents(value) {
   return (sign * Math.round(Math.abs(value) * 100 + Number.EPSILON)) / 100;
 }
 
+// Hungarian VAT is stated in whole forints, so a HUF invoice may round its tax
+// total to the unit instead of the cent. Accepted only when the stated total is
+// a whole number equal to the computed tax rounded half up to the unit.
+function wholeUnitTaxAgrees(currency, stated, expected) {
+  if (currency !== "HUF" || stated === null || expected === null) return false;
+  return Number.isInteger(stated) && stated === Math.round(expected);
+}
+
 function money(value) {
   const parsed = parseNumber(value);
   return parsed === null ? null : roundHalfUpToCents(parsed);
@@ -239,7 +247,7 @@ export function checkInvoice(invoice) {
     // nothing to compare
   } else if (taxTotal === null || taxTotal < 0) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
-  } else if (!perRate.unattributed && taxTotal !== expectedTax) {
+  } else if (!perRate.unattributed && taxTotal !== expectedTax && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
     fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
   }
   if (gross === null || gross < 0) {

@@ -202,3 +202,21 @@ test("a buyer identifier is optional on a parsed UBL or CII file", () => {
   invoice.customer.vat_id = "DE123456789";
   assert.equal(checkInvoice(invoice).some((e) => e.rule === "INV-005"), false);
 });
+
+test("HUF tax total may be rounded to whole forints", () => {
+  const invoice = clone(VALID);
+  invoice.currency = "HUF";
+  invoice.lines = [{ description: "Work", quantity: 1, unit_price: 1001, tax_percent: 27, net: 1001 }];
+  // 27% of 1001 = 270.27, stated as 270 in forints.
+  invoice.totals = { net: 1001, tax: 270, gross: 1271 };
+  assert.deepEqual(checkInvoice(invoice), []);
+  invoice.totals = { net: 1001, tax: 271, gross: 1272 };
+  assert.ok(checkInvoice(invoice).some((e) => e.rule === "INV-018"));
+});
+
+test("whole-unit tax rounding is not accepted outside HUF", () => {
+  const invoice = clone(VALID);
+  invoice.lines = [{ description: "Work", quantity: 1, unit_price: 1001, tax_percent: 27, net: 1001 }];
+  invoice.totals = { net: 1001, tax: 270, gross: 1271 };
+  assert.ok(checkInvoice(invoice).some((e) => e.rule === "INV-018"));
+});
