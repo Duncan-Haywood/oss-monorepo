@@ -1326,3 +1326,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: no audit or drift report (reduced pass, recent outputs mostly
   doc-only or research).
 - Result: (next review)
+
+## E84: review 2026-10-24 (reduced pass, twelfth run)
+
+- Change: none to prompts or docs. Candidates re-measured after regenerating
+  `prompts/derived/`: ventures 2, process 2 and review 2 are all "keep
+  collecting" (intervals overlap). The friction table already hides
+  since-changed reports (`promptctl.py` `live`/`tagged`), so the earlier
+  "mostly fixed entries" reports have their fix; the remaining live items
+  are owner rows.
+- Metric: none new. E79 to E83 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
