@@ -32,12 +32,28 @@ programme, with a proved one-sided bound $\max(C,g/p-S)$ (Section~\ref{sec:contr
 coalition on one cheap trajectory the deterring stake does not fall with the number of workers
 (Section~\ref{sec:coll}); (iv) two refuted conjectures (Section~\ref{sec:neg}).
 \section{Related work}
-Refereed delegation for ML (Verde \cite{arun2025verde}) and proof-of-learning with its attacks
-\cite{jia2021pol,zhang2021advpol,fang2022pol} fix the verification primitive; they do not price the slack a tolerance
-leaves. Hidden-action contracts \cite{townsend1979,duetting2019simple} give the linear-programme form we use. Proper
-scoring rules \cite{gneiting2007} and peer prediction \cite{miller2005,gao2016peer} supply the score and agreement
-signals; Gao et al.\ show peer prediction can make things worse when ground truth is available, which our H3 result
-refines (an agreement term helps only until cheats can copy). [TODO: the remaining proposal references, checked.]
+\paragraph{Verifying that training happened.}
+Verde \cite{arun2025verde} resolves a dispute by bisection over the training trace with reproducible operators, so a referee
+re-executes one step; it does not say what makes anyone dispute, or how much stake a tolerance requires.
+Proof-of-learning \cite{jia2021pol} replays logged checkpoints and accepts statistically; spoofing attacks
+\cite{zhang2021advpol,fang2022pol} forge cheaper traces that pass. These are the empirical form of our hidden margin, measured as
+a break, not priced as an incentive. Zero-knowledge proofs of training \cite{abbaszadeh2024zkpot} remove the tolerance at a
+large prover cost and mark the other end of the cost frontier; TOPLOC \cite{ong2025toploc} faces the same tolerance-versus-forgery
+trade-off for inference. Refereed delegation to several servers \cite{canetti2011} is secure if one is honest, has no payments,
+and is defeated by a unanimous wrong answer, which is the case our collusion section prices.
+
+\paragraph{Eliciting effort and truth with scores.}
+Proper scoring rules \cite{gneiting2007} elicit beliefs about a held-out outcome; whether the score of a model identifies the work
+behind it is not their question. Peer prediction \cite{miller2005,prelec2004} pays for agreement with peers and needs a common prior;
+multi-task and effort-aware variants \cite{dasgupta2013,shnayder2016,kong2019} make informed reporting beat uninformative play, but
+their report is a label and a training run has no label per task. The closest prior art is \citet{gao2016peer}: mixing a few
+ground-truth checks with peer prediction can hurt. Our agreement result is the training analogue, in a narrower form.
+
+\paragraph{Hidden action and costly verification.}
+Costly state verification \cite{townsend1979} is the skeleton of an audit-plus-stake design, with exact verification; ours has a
+tolerance. Payments for effort in estimation \cite{cai2015} concern data quality for a statistic, not compute for a trajectory.
+Linear contracts are near optimal under hidden action \cite{duetting2019simple}; we compare our frontier with the best linear
+contract on the final-model score and find it dearer by orders of magnitude where the score barely moves.
 \section{Model}\label{sec:model}
 A worker runs $T$ steps; honest cost is $C$. An action $a$ skips the steps whose honest update has norm at most
 $\tau'$, so its effort is one minus the skipped share and its cost is effort${}\times C$. An audit re-executes $m$
@@ -48,6 +64,12 @@ pays $w(\text{signal})\ge -S$ (limited liability). The cheapest contract impleme
 $\min E_{\text{target}}[w]$ subject to incentive compatibility against each other action and individual rationality,
 a linear programme in $w$ (\texttt{src/vtm/contract.py}); it equals the closed form $\max(C,C/p-S)$ on a grid and a
 $2500\times2500$ brute-force search within 1\%.
+\paragraph{A one-sided resolution bound.}
+Let $r=\min_{s:P_h(s)>0}P_a(s)/P_h(s)$ and $p=1-r$. \emph{Proposition.} Any contract implementing honest against $a$ with $w\ge -S$ costs
+$\mathbb{E}_h[w]\ge\max(C,\,g/p-S)$.
+\emph{Proof.} Incentive compatibility gives $\mathbb{E}_h[w]-\mathbb{E}_a[w]\ge g$. With $f=w+S\ge0$ we have $\mathbb{E}_a[f]\ge r\,\mathbb{E}_h[f]$
+(mass of $P_a$ off the support of $P_h$ only adds), so $g\le\mathbb{E}_h[f]-\mathbb{E}_a[f]\le p\,\mathbb{E}_h[f]$, i.e.\ $\mathbb{E}_h[w]\ge g/p-S$.
+Individual rationality gives $\mathbb{E}_h[w]\ge C$. $\square$ (Over several deviations take the largest bound.)
 \section{The hidden margin on real training (H1)}\label{sec:margin}
 Setting: minibatch SGD with a cosine schedule, 1,500 steps, float32, 20 seeds; the referee recomputes one step with
 the batch rows reordered (a float16 referee is reported separately). Benign drift is small: float32 reorder drift is at
@@ -82,7 +104,7 @@ sanctioned margin sets the target to the skip-below-$\tau'$ action and the refer
 caught with probability equal to its gain per audited step, and one audited step at $S=C$ already deters (total cost
 $0.698\,C$ at $\tau'=10^{-2}$, $0.468\,C$ at $3\times10^{-2}$). \emph{Bound.} Any contract implementing honest effort
 against a deviation of gain $g$, with pay floor $-S$ and one-sided resolution $p=1-\min_s P_a(s)/P_h(s)$, costs at least
-$\max(C,g/p-S)$ [TODO: move the proof from the \texttt{peer.py} docstring]. The LP never violates it on 2,755 random feasible
+$\max(C,g/p-S)$ (proof in Section~\ref{sec:model}). The LP never violates it on 2,755 random feasible
 instances and equals it on 2,410; it is exact for two actions with a binary audit, but H5 as first worded (a function of
 $g,\tau,S$ met within a constant factor) is false: the largest LP/bound ratio is 2,093. For a Gaussian score the bound is
 vacuous (1.0 against an LP cost of 5.76).
