@@ -109,3 +109,22 @@ python3 platform/ci/check_md_links.py                         # ok
 node platform/pages/clauses.mjs dns-configuration-evidence    # 4 pages carry their clauses
 (cd ventures/dns-configuration-evidence && node --test '*.test.mjs')  # 47 pass
 ```
+
+## Fixes to main that this PR carries
+
+CI on this PR was red for reasons that were already red on `main`. Both are
+fixed here:
+
+- **Seven blog post descriptions over the 160-character cap**
+  (`platform/pages/writing.mjs` throws, which fails Portfolio Pages build and
+  test on every PR). They kept arriving while this PR was open: four on the
+  first merge of `main`, three more over the next hour, plus this PR's own
+  post. Each was trimmed without changing its claim.
+- **`distribute-shorts.yml`** (PR 9977) runs `python3` without an
+  `actions/setup-python` step, which fails
+  `gitops/tests/test_ci_runner.py::test_every_job_that_runs_python_or_node_sets_it_up`.
+  The pinned `setup-python` step that other workflows use is added.
+
+The over-cap posts point to a gap: the cap is checked only by a slow build
+that posts merge ahead of. A quick check on `docs/posts/**` would catch them
+at the PR.

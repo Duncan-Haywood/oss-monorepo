@@ -27,7 +27,7 @@
  "lines_added": null,
  "lines_removed": null,
  "merged": null,
- "ci_failures_before_green": null,
+ "ci_failures_before_green": 4,
  "review_findings": null,
  "tests_added": 10,
  "outcome": "success",
@@ -65,7 +65,7 @@
   "docs/posts/2026-10-24-38-abandoned-drafts-two-worth-keeping.md"
  ],
  "goal": null,
- "notes": "38 adopted drafts: landed research/homebot (from 7296; 69 tests pass, 2 skip without GL) and the DNS comparison page (from 7546); closed 36 with one-line reasons (per-PR table in docs/history/2026-10-24-adopted-drafts-triage.md). Source: adopt-stranded-branches.yml, not a fan-out; nothing ever closed an adopted draft. adopt_stranded.py now opens one draft per venture/research area and --reap closes adopted drafts with no unlanded file left (would close 4 of today's 38; the rest needed reading). Also trimmed two over-cap post descriptions on main that broke Portfolio Pages for every PR. Owner note: PR 7298 branch holds prompt text marked private in a now-public repo. Local checks: test_adopt_stranded 37 OK; validate_workflows 548 valid; publish_surface --check matches; research build ok, programme_check ok; check_md_links ok; clauses + 47 DNS venture tests pass; loadPosts ok.",
+ "notes": "38 adopted drafts: landed research/homebot (from 7296; 69 tests pass, 2 skip without GL) and the DNS comparison page (from 7546); closed 36 with one-line reasons (per-PR table in docs/history/2026-10-24-adopted-drafts-triage.md). Source: adopt-stranded-branches.yml, not a fan-out; nothing ever closed an adopted draft. adopt_stranded.py now opens one draft per venture/research area and --reap closes adopted drafts with no unlanded file left (would close 4 of today's 38; the rest needed reading). Also trimmed two over-cap post descriptions on main that broke Portfolio Pages for every PR. Owner note: PR 7298 branch holds prompt text marked private in a now-public repo. Local checks: test_adopt_stranded 37 OK; validate_workflows 548 valid; publish_surface --check matches; research build ok, programme_check ok; check_md_links ok; clauses + 47 DNS venture tests pass; loadPosts ok. Also carried fixes for main-red CI: 7 over-cap post descriptions (Portfolio Pages) and a missing setup-python in distribute-shorts.yml (gitops test_ci_runner).",
  "corrections": [],
  "redteam": null
 }
