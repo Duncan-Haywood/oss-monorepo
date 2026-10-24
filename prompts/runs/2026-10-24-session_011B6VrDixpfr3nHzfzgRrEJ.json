@@ -1,0 +1,143 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_011B6VrDixpfr3nHzfzgRrEJ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T19:18:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10219,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target check_duplicate_ids.py: 6 mutants seeded, 6 caught (100%). Hunt found scan coverage hole; fixed with rglob + test. No nested page currently has duplicates. No blog post: small guard-only run.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_duplicate_ids.py",
+        "test": "/usr/local/bin/python3 -m pytest -q -x -p no:cacheprovider test_check_duplicate_ids.py  (in platform/ci)",
+        "seed": 134073218,
+        "commit": "901bad87",
+        "sites": 6,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 20,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "ROOT = Path(__file__).resolve().parents[2]",
+            "after": "ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 33,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "line = self.getpos()[0]",
+            "after": "line = self.getpos()[1]",
+            "line_text": "        line = self.getpos()[0]",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 49,
+            "col": 26,
+            "operator": "div-to-times",
+            "before": "for f in sorted((root / \"ventures\").glob(\"*/*.html\")):",
+            "after": "for f in sorted((root * \"ventures\").glob(\"*/*.html\")):",
+            "line_text": "    for f in sorted((root / \"ventures\").glob(\"*/*.html\")):",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 56,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 61,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 2 if bad else 0",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_duplicate_ids.py",
+            "line": 61,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 1 if bad else 1",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/ci/check_duplicate_ids.py",
+        "issue": "scan globbed ventures/*/*.html only, so nested served pages (site/, tools/; ~14 files) were never checked for duplicate ids",
+        "patched": true
+      }
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 ---
 title: "Auditing rare LLM-coded categories: a floor rule that needs no labels"
 date: 2026-10-24
-description: "In the llm-coding-inference programme, one rule for how much to audit uncertain items keeps 95% intervals valid from 0.1% to 2% prevalence on GoEmotions, and halves the width for the rarest."
+description: "One rule for how much to audit uncertain LLM codes keeps 95% intervals valid from 0.1% to 2% prevalence on GoEmotions, and halves the width for the rarest."
 tags: [research, llm-annotation, survey-sampling, statistics]
 ---
 
