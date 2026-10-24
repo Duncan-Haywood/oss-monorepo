@@ -40,3 +40,7 @@ its numbers and quoted titles are copied from the facts. A source missing from
 a build is said to be missing, never shown as zero. The brief trims detail
 (per-group items, first-item summaries, notes) until it fits ~2,400 words; a
 light day is simply shorter.
+
+The judgment these templates leave out (is the work going where the
+flagships and goals say, what is stuck) is a daily blog post written by a
+session: [`.github/prompts/daily-progress-post.md`](../../.github/prompts/daily-progress-post.md).
