@@ -434,6 +434,35 @@ With `--period`, the holidays are now left out of the seasonal factors (they no 
 
 The seasonal PELT pass now sees the fitted holiday exposure: with `--period` and `--holidays`, the engine alternates (seasonal factors with the holidays as an exposure, then the holidays refitted on the new factors) for two extra rounds. `node eval/holiday-alternate.mjs` runs the check on 40 seeded 224-day weekly series (every 28th day a 0.3x holiday on the busiest weekday; half the series carry a 1.5x step at 120): planted step found 20/20 both ways, no extra changes either way, holiday factor error 0.022 -> 0.021, largest seasonal-factor error 0.052 -> 0.045. A small gain on synthetic data, not measured on real holiday series; the previous behaviour is behind the engine option `noHolidayAlternation`.
 
+## A real volatility break: the Great Moderation (2026-10-24)
+
+Every volatility result above is on seeded synthetic series. `eval/great-moderation.mjs`
+(output in `eval/great-moderation.out.txt`, test in `great-moderation.test.mjs`) runs
+`--model meanvar` on 202 quarters of US real GDP growth, 1959Q2 to 2009Q3
+(`data/us-gdp-growth.csv`, public domain, source in `data/SOURCE.md`). The documented
+break is the fall in the volatility of growth at 1984Q1 (McConnell and Perez-Quiros 2000);
+the sample standard deviation is 4.34 before it and 2.04 from it to 2007Q4.
+
+| setting | changes | the one near 1984 | range95 holds 1984Q1? |
+|---|---|---|---|
+| default (`--min-segment 5`) | 3 | 1983Q2 (sd 4.32 to 0.75) and 1984Q3 (0.75 to 1.97) | no: 1984Q3 "that point only" |
+| `--min-segment 12` | 2 | 1984Q3 (sd 4.33 to 2.00) | yes, 1984Q1 to 1985Q4 |
+| `--min-segment 20` | 2 | 1984Q3 (sd 4.33 to 2.02) | yes, 1983Q3 to 1985Q4 |
+
+So the break is found, dated one to two quarters late, but the default setting finds it
+the wrong way: a five-quarter calm patch in 1983Q2 to 1984Q2 (sd 0.75) beats one clean
+drop, and the reported range around the second change is a single quarter that excludes the
+documented date. Quarterly macro data has too few points per regime for a 5-point minimum
+segment on a variance model, since a short run of similar numbers has a tiny variance and
+looks like its own regime. With a minimum segment of 12 to 20 the range is honest. One
+series, one documented break; the default is not changed on this evidence. `--model mean` on
+the same series reports 12 level changes (recessions read as mean shifts), and `--ar1`
+refuses `meanvar`. A slope break (log real GDP with `--trend bend`) was tried too: the engine
+reports 30 steps under the default and, with `--ar1`, none; a plain least-squares hinge puts the best knot at
+1967Q3 (4.8% a year to 3.0%) with residual autocorrelation 0.96, which is the
+unit-root problem Perron (1989) and Nelson and Plosser (1982) argued over, so no slope
+claim is made from it.
+
 ## Holidays on a real daily series
 
 Everything above about holidays is on seeded synthetic counts. As a first

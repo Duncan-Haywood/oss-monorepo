@@ -25,3 +25,19 @@ Cobb (1978), who found the level dropped after 1898.
 - **Licence:** Wikimedia pageview data is released under CC0 (Wikimedia
   Foundation Terms of Use for the Analytics datasets).
 - **Used by:** `eval/holiday-real.mjs`.
+
+# Example data: US real GDP growth, 1959Q2-2009Q3
+
+`us-gdp-growth.csv`: quarterly growth of US real GDP, annualised
+(`400 * ln(GDP_t / GDP_t-1)`, % points), 202 quarters, computed from the
+`realgdp` column of statsmodels' `macrodata` dataset.
+
+- **Retrieved:** 2026-10-24 from the statsmodels 0.14+ source distribution on
+  PyPI (`statsmodels/datasets/macrodata/macrodata.csv`).
+- **Licence:** public domain. statsmodels' dataset module states "This is
+  public domain." (`data.py`, `COPYRIGHT`); the underlying figures are US
+  Bureau of Economic Analysis data via FRED.
+- **Cite (the documented break):** McConnell, M. M. and Perez-Quiros, G.
+  (2000). Output fluctuations in the United States: what has changed since
+  the early 1980s? *American Economic Review* 90(5), 1464-1476.
+- **Used by:** `eval/great-moderation.mjs`, `great-moderation.test.mjs`.
