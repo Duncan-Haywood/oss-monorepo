@@ -280,12 +280,38 @@ export function completeShareTags(html, { card = '', siteName = 'Open Tools and 
 
 // -- Rendering in parallel ------------------------------------------------------
 
+// A card is a pure function of its options (and of the drawing code, which
+// cannot change inside one process). A build draws ~2,500 of them, and the
+// test suite builds the site several times in one process with the same
+// inputs, so each repeat build used to redraw every card: about 30 of the
+// ~45 seconds a build takes (docs/history/pages-test-perf-2026-10-24.md).
+// Keyed by the options, a card drawn once in this process is written from
+// memory after that. A single build (the deploy) never hits it.
+const drawnCards = new Map();
+const cardKey = (options) => JSON.stringify(options);
+
 /**
- * Render `jobs` ([{ file, options }], options as for `renderCard`) to disk on
- * a pool of worker threads. Falls back to this thread for a handful of cards,
- * where starting workers costs more than it saves.
+ * Render `jobs` ([{ file, options }], options as for `renderCard`) to disk,
+ * from this process's cache where the same card was drawn before, else on a
+ * pool of worker threads.
  */
-export async function renderCards(jobs, { threads = Math.max(1, Math.min(8, availableParallelism())) } = {}) {
+export async function renderCards(jobs, { threads } = {}) {
+  const fresh = [];
+  for (const job of jobs) {
+    const png = drawnCards.get(cardKey(job.options));
+    if (!png) { fresh.push(job); continue; }
+    await fs.mkdir(path.dirname(job.file), { recursive: true });
+    await fs.writeFile(job.file, png);
+  }
+  await drawCards(fresh, { threads });
+  for (const job of fresh) drawnCards.set(cardKey(job.options), await fs.readFile(job.file));
+}
+
+/**
+ * Draw `jobs` on a pool of worker threads. Falls back to this thread for a
+ * handful of cards, where starting workers costs more than it saves.
+ */
+async function drawCards(jobs, { threads = Math.max(1, Math.min(8, availableParallelism())) } = {}) {
   if (!jobs.length) return;
   if (jobs.length < 16 || threads === 1) {
     for (const job of jobs) {

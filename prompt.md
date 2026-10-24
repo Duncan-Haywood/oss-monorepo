@@ -12,7 +12,7 @@ measurements to improve the sub-prompts and the documentation.
 ## 1. Route
 
 If the message that started the session names a specific task, pass its track:
-`route --track ventures|research|process|explore|redteam|creative|review` (otherwise
+`route --track ventures|research|process|explore|redteam|creative|perf|review` (otherwise
 the draw can send you elsewhere).
 A direct request ([`human-requests.md`](.github/prompts/human-requests.md))
 that fits no track takes the closest one by the work's nature (`process` for repo or
@@ -42,8 +42,8 @@ The router picks the review track itself once enough runs have merged since
 the last review (`review_when_due`). If an open pull request titled `prompts: review` already
 exists, another run has claimed that review; route again with `--skip-review`.
 
-`explore` (free choice) and `creative` (the owner's stories and podcasts) are
-drawn for a share of runs, under the same guardrails and landing rules.
+`explore` (free choice), `creative` (stories, podcasts) and `perf` (performance
+engineering) get a share of runs, under the same guardrails and landing rules.
 
 ## 2. Work, and land it
 

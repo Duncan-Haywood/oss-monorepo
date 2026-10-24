@@ -2,9 +2,12 @@
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
 import { fillText, fitText, font, measureText, wrapText } from './fontraster.mjs';
-import { cardTitle, completeShareTags, crumbsOf, pageCardPlan, researchTopicColour, siteAddress } from './share.mjs';
+import { cardTitle, completeShareTags, crumbsOf, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
 import { CARD_HEIGHT, CARD_WIDTH, quantize, renderCard, renderMarkIcon, renderSiteCard } from './sharecard.mjs';
 
 const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -198,4 +201,29 @@ test('the CLI reads --base= and --only= values whole', async () => {
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test('a card is the same bytes every time it is drawn', () => {
+  // renderCards reuses a card drawn earlier in the process, so a repeat build
+  // no longer redraws anything. This is what makes that safe, and what the
+  // "identical build" test in build.test.mjs used to prove for cards.
+  const options = { headline: 'Roofing bid calculator', kicker: 'Trades', subtitle: 'Price a reroof', address: 'example.test/roof/' };
+  assert.ok(renderCard(options).equals(renderCard(options)));
+});
+
+test('renderCards writes a reused card byte for byte as a fresh draw', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'cards-'));
+  const options = { headline: 'Gutter guard bid calculator', kicker: 'Trades', address: 'example.test/gutter/' };
+  const other = { headline: 'A different card', kicker: 'Research' };
+  await renderCards([{ file: path.join(dir, 'a', 'card.png'), options }]);
+  // The second call takes the first card from the cache and draws the other.
+  await renderCards([
+    { file: path.join(dir, 'b', 'card.png'), options },
+    { file: path.join(dir, 'c', 'card.png'), options: other },
+  ]);
+  const fresh = renderCard(options);
+  assert.ok((await fs.readFile(path.join(dir, 'a', 'card.png'))).equals(fresh));
+  assert.ok((await fs.readFile(path.join(dir, 'b', 'card.png'))).equals(fresh));
+  assert.ok((await fs.readFile(path.join(dir, 'c', 'card.png'))).equals(renderCard(other)));
+  await fs.rm(dir, { recursive: true, force: true });
 });
