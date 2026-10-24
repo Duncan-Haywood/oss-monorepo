@@ -64,8 +64,8 @@ the tests call `_write_ample_destination_metadata()` and pass
 `test_plan_import_route_command_uses_native_volume_metadata_json` already
 exercised. No production code and no threshold changed.
 
-**The rule this leaves for new tests:** a test that needs a volume classified as
-a `destination` must supply volume metadata explicitly. Avoid letting an assertion
+**The lesson this leaves for new tests:** a test that needs a volume classified as
+a `destination` should supply volume metadata explicitly, so it stays hermetic. Avoid letting an assertion
 depend on the host's real free space, and never lower the 64 GiB gate to make a
 test pass — it exists to prevent an import onto too small a destination.
 

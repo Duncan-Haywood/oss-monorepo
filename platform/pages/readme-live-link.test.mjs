@@ -18,16 +18,16 @@ test('leaves a README that already links alone', () => {
   const s = `# T\n\nSee ${BASE}foo/ now\n`;
   assert.equal(addLiveLink(s, 'foo'), s);
 });
+test('a link to the old /monorepo-projects/ path counts', () => {
+  const s = '# T\n\nSee https://duncan-haywood.github.io/monorepo-projects/foo/ now\n';
+  assert.equal(addLiveLink(s, 'foo'), s);
+});
 test('heading-only README', () => {
   assert.match(addLiveLink('# T\n', 'foo'), /\*\*Live tool:\*\* /);
 });
 test('a link to a longer slug is not a link to this one', () => {
   const s = `# T\n\nSee ${BASE}foo-bar/ now\n`;
   assert.match(addLiveLink(s, 'foo'), new RegExp(`\\*\\*Live tool:\\*\\* ${BASE}foo/`));
-});
-test('a link on the old /monorepo-projects/ base still counts', () => {
-  const s = '# T\n\nSee https://duncan-haywood.github.io/monorepo-projects/foo/ now\n';
-  assert.equal(addLiveLink(s, 'foo'), s);
 });
 test('a link without a trailing slash counts', () => {
   const s = `# T\n\nSee ${BASE}foo now\n`;

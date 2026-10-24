@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-weedpass` (track 9, open-source purpose-built robots), in the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field robots. Produced with AI assistance (Claude). Pure Python standard library. **Why this project:** `osrobot-weedpass` assumed a detector hit rate of 0.7 that falls as `exp(-v / 2 m/s)`, and its README listed "a sourced detector-miss distribution" as the next step. Two published laser-weeding field trials report detection rates, so the assumed detector is replaced by one fitted to them and the sweeps are re-run. **Headline: the ranking survives and gets stronger (two passes at 4 km/h kill 0.952 in 39.8 min against 0.875 in 68.4 min for one pass at 1 km/h), but the absolute numbers move a lot, and the finding that matters is the share of weeds the detector never sees: at 10% hidden, three passes cap at 0.897.** No robot was built or driven; simulation only.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-weedsrc/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-weedsrc/
 
 ![Kill share against time under the assumed and fitted detector](experiments/kill_vs_time.svg)
 

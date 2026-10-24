@@ -39,5 +39,5 @@ kill_criteria:
   - A report that scope, an Article reference or the responsible-person rule differs from the Regulation's text on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/gpsr-product-safety-checker/
+  production: https://duncan-haywood.github.io/oss-monorepo/gpsr-product-safety-checker/
   analytics: null

@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Surveyors report the corner locate/set distinction is not news -- the trade already prices it that way -- and the per-acre framing this tool argues against is not what real bids look like.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/land-survey-bid-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/land-survey-bid-calculator/
   analytics: null

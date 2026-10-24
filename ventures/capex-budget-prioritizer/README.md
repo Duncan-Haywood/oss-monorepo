@@ -4,7 +4,7 @@ After using this, you can now see which equipment, vehicle, software or building
 with the combination worth the most in net present value checked exactly, which used to take a spreadsheet and a guess at
 which projects to leave out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/capex-budget-prioritizer/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/capex-budget-prioritizer/
 
 Free, runs in the browser, nothing is uploaded. Open `index.html`.
 

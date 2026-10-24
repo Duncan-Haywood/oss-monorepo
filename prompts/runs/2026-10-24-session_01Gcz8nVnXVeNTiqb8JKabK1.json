@@ -31,7 +31,7 @@
   "tests_added": 1,
   "outcome": "success",
   "errors": [
-    "Portfolio Pages test red on the merge preview: PR #9958 moved readme-live-link.mjs BASE to /oss-monorepo/ but its detection regex still matched only monorepo-projects/, so 5 tests in readme-live-link.test.mjs failed on main. Not this PR's change; ported the fix (accept either base; 1,314 venture READMEs still link the old path) with a regression test. Reproduced 5 fails before, 9/9 pass after; readme-live-link.mjs --check: 0 missing."
+    "Portfolio Pages test red on the merge preview: PR #9958 moved readme-live-link.mjs BASE to /oss-monorepo/ but its detection regex still matched only monorepo-projects/, so 5 tests in readme-live-link.test.mjs failed on main. Not this PR's change; ported the fix (accept either base; 1,314 venture READMEs still link the old path) with a regression test. Reproduced 5 fails before, 9/9 pass after; readme-live-link.mjs --check: 0 missing. Main then landed the same regex fix (and test) independently; the merge took main's version, so this PR no longer changes readme-live-link.*."
   ],
   "integrity_issues": [],
   "doc_friction": [],

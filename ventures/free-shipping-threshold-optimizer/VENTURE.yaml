@@ -50,5 +50,5 @@ kill_criteria:
   - No external repository, store-ops script or newsletter is found linking or reusing cli.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/free-shipping-threshold-optimizer/
+  production: https://duncan-haywood.github.io/oss-monorepo/free-shipping-threshold-optimizer/
   analytics: null

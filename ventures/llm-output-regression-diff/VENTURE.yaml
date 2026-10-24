@@ -38,5 +38,5 @@ kill_criteria:
   - No external repository or write-up links to or forks cli.mjs within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/llm-output-regression-diff/
+  production: https://duncan-haywood.github.io/oss-monorepo/llm-output-regression-diff/
   analytics: null

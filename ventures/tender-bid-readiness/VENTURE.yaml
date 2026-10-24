@@ -40,5 +40,5 @@ kill_criteria:
   - No repeat use or organic repository traffic after 60 days of public availability.
   - Users report that the extracted checklist misses more time than it saves.
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/tender-bid-readiness/
+  production: https://duncan-haywood.github.io/oss-monorepo/tender-bid-readiness/
   analytics: null

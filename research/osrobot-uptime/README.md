@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-reconfig` (track 9, open-source purpose-built robots), taking its "cost of one machine failing and stopping every job" next step. That project priced a shared robot against a robot per job on capital cost with every machine working. A shared robot is one point of failure for every job; a dedicated fleet fails one job at a time. This asks what buying the spares to hold a service target does to the comparison. Produced with AI assistance (Claude). Pure Python standard library; it imports `osrobot-reconfig` and `osrobot-specialise` unchanged. **Every cost, speed, accuracy, demand, changeover and availability figure is an assumption from those projects or written into the experiment; none is a price or a measurement of a real product.** All numbers below are from `experiments/results.txt`. Simulation only; a stylised, preliminary study. It builds on none of the CU Boulder groups in `prompt.md` beyond the general interest of HIRO and CAIRO in manipulation workcells.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uptime/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-uptime/
 
 ![Median cost of the cheapest shared fleet relative to a robot per job, against unit availability](experiments/spare_ratio.svg)
 

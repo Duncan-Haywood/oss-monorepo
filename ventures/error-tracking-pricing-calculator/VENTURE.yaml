@@ -42,5 +42,5 @@ kill_criteria:
   - No external repository is found wiring cli.mjs into its own CI within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/error-tracking-pricing-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/error-tracking-pricing-calculator/
   analytics: null

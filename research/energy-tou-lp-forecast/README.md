@@ -2,7 +2,7 @@
 
 Track 16 (energy), next step 1 of [`energy-tou-lp`](../energy-tou-lp) ("add forecast error (persistence or a seasonal forecast) to the rolling controller, to see how much of the $200 a year survives"). That project showed a rolling LP with a *perfect* 36 h forecast beats the best fixed rule by about $200 a year. A real controller does not know tomorrow's cloud or load. This project feeds the same LP forecasts built from past hours only and charges it the bill it actually earns.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/energy-tou-lp-forecast/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/energy-tou-lp-forecast/
 
 **Headline (modelled; assumed tariff, synthetic weather).** For 10 kWh behind 6 kW of PV on the assumed three-band tariff, the best fixed rule saves **$694 a year** and the perfect-forecast rolling LP **$892**. With *yesterday's weather* as the forecast the LP saves **$726**; with the *mean of the last seven days* it saves **$691**. So 84% to 101% of the optimiser's $198 advantage disappears: the break-even price is **$667** and **$663/kWh** (life-limited) against the rule's **$674** and the perfect forecast's **$733**. On life-limited break-even the naive-forecast optimiser is *below* the fixed rule at every size from 2.5 to 20 kWh (it cycles 20% to 30% more for a similar saving). Forecasts that are the truth plus multiplicative noise keep 75% of the gain at 10% noise and 39% at 25%, and at 100% noise the optimiser loses to the rule. What this says: the value of optimal dispatch in `energy-tou-lp` is the value of a good forecast, not of a clever LP. It does not say how good a commercial weather forecast is.
 

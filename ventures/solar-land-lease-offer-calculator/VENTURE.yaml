@@ -51,5 +51,5 @@ kill_criteria:
   - Users report that the lease structures they are offered (revenue share, tiered rent, per-MW payments) do not fit a per-acre escalating rent, at which point the tool should model those.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/solar-land-lease-offer-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/solar-land-lease-offer-calculator/
   analytics: null

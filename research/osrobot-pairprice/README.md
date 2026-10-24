@@ -2,7 +2,7 @@
 
 Follow-up to `osrobot-scoutpair` (track 9, open-source purpose-built robots). That project showed the pair is faster at matched kill but priced nothing, and named "price both machines and ask for the break-even field size" as a next step. This one does, and says up front that **every price is an assumed round number, not a quote**, so the headline is a break-even structure, not a dollar figure. In the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field robots; nothing here is affiliated with or endorsed by them. Produced with AI assistance (Claude). Pure Python standard library. Simulation only; nothing was built or flown.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-pairprice/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/osrobot-pairprice/
 
 ![Cost per hectare against field size for one inline robot and for a scout plus treater](experiments/usd_per_ha.svg)
 

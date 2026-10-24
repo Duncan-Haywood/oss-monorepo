@@ -6,7 +6,7 @@ sidelights, a transom, an out-of-square rough opening, jamb and sill
 rot, brickmold, a storm door, and paint as their own hours — and shows
 the margin before the price goes out.
 
-**Live tool:** https://duncan-haywood.github.io/monorepo-projects/entry-door-bid-calculator/
+**Live tool:** https://duncan-haywood.github.io/oss-monorepo/entry-door-bid-calculator/
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build

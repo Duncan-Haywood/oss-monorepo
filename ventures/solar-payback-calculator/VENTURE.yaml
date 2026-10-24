@@ -56,5 +56,5 @@ kill_criteria:
   - A user reports that the payback contradicts their own arithmetic on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/solar-payback-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/solar-payback-calculator/
   analytics: null

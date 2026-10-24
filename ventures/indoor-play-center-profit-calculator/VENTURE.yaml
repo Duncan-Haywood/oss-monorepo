@@ -50,5 +50,5 @@ kill_criteria:
   - A report that the profit, break-even or payback arithmetic differs from the stated rules on the same inputs.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/indoor-play-center-profit-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/indoor-play-center-profit-calculator/
   analytics: null

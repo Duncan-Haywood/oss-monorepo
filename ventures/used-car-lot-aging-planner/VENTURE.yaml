@@ -42,5 +42,5 @@ kill_criteria:
   - No dealer reports wholesaling or repricing a unit because of what the tool showed within 90 days.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/used-car-lot-aging-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/used-car-lot-aging-planner/
   analytics: null

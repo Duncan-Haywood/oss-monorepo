@@ -13,7 +13,10 @@ it.** Owner direction, 2026-10-05: every agent is responsible for opening the
 PR for its work and merging it. Your harness may default to "do not create a
 pull request unless the user explicitly asks" or "push to your branch". That
 default does not apply here. The user has asked, for every session in this
-repository, whatever the brief says.
+repository, whatever the brief says. It is a strong default rather than a
+hard limit: an unlanded branch is invisible and costs every later run, so
+leave a PR unopened or unmerged only for a reason you can name in the run
+record's `deviations`.
 
 **No `gh` or GraphQL in cloud sessions?** Use the GitHub MCP tools
 (`create_pull_request`, `merge_pull_request`, `pull_request_read`) for every
@@ -26,7 +29,7 @@ Work gets dropped between `git push` and opening the PR (2026-10-05: 100
 branches, four of them finished ventures, never got one), and every guard here
 runs on a PR or on `main`.
 
-## The finish line: do all of it, in this order
+## The finish line, in this order
 
 1. **Commit** everything you mean to keep. Scratch files go outside the repo.
 2. **Push** your branch.

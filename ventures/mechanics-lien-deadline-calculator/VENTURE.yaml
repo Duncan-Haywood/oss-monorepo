@@ -70,5 +70,5 @@ kill_criteria:
   - A user reports relying on a date from the tool to skip a notice or filing without confirming the statute, despite the disclaimer -- at that point the wording, or whether to keep a legal-deadline tool at all, needs revisiting.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/mechanics-lien-deadline-calculator/
+  production: https://duncan-haywood.github.io/oss-monorepo/mechanics-lien-deadline-calculator/
   analytics: null

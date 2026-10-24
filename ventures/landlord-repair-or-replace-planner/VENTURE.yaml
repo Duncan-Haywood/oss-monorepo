@@ -62,5 +62,5 @@ kill_criteria:
   - A user reports that a verdict or break-even quote disagrees with the arithmetic documented in the README.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/landlord-repair-or-replace-planner/
+  production: https://duncan-haywood.github.io/oss-monorepo/landlord-repair-or-replace-planner/
   analytics: null

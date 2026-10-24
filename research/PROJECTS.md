@@ -1,6 +1,6 @@
 # Priority projects
 
-The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 tracks 20 and 21 on 2026-10-21 and tracks 22 and 23 on 2026-10-24. Runs
+The owner's priority projects, set on 2026-10-12, with tracks 7 to 11 added on 2026-10-14, track 12 on 2026-10-16 tracks 13 to 15 on 2026-10-19, tracks 16 and 17 on 2026-10-19, track 18 on 2026-10-19 track 19 on 2026-10-20 tracks 20 and 21 on 2026-10-21 tracks 22 and 23 on 2026-10-24 and track 24 on 2026-10-24. Runs
 started from `prompt.md` take their new work from here. The tracks are numbered below. Each one is
 open-ended: its milestones are a starting order, not a checklist, so follow the results. Every
 project a track produces is a normal `research/<slug>/` project. It needs a README, tests, a
@@ -73,6 +73,12 @@ deleted; its pull requests, review threads and old Pages site stay there.
 
 ## Picking work
 
+Since 2026-10-24 the unit of work is the programme, not the project: one hard question
+pursued across sessions toward a paper ([`PROGRAMMES.md`](PROGRAMMES.md), which sets the bar).
+`pick_track.py` draws an open programme for most runs. A track draw means opening a programme
+in that area, or advancing one, and the track's milestones below become raw material for it,
+not separate slugs. The steps below still apply to track and free-choice draws.
+
 1. **Pick a track at random:** `python3 research/_shared/pick_track.py` (below 0.05 is a
    free-choice run; otherwise it maps the draw onto tracks 1-23, redraws any track with 40+ projects, and lists the track's newest projects). Four runs start in the same
    minute, and a random pick spreads them out.
@@ -80,7 +86,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
    **Free choice (about 5% of runs).** In the spirit of Google's "20% time", about one run in
    twenty works on whatever research question it finds most interesting, in or out of the
    tracks below: a hunch from a recent project, an unusual method, a gap nobody here has
-   looked at. Pick something you can finish and land in one run. It follows every rule in
+   looked at. Aim it at a question worth a programme; land a real step this run. It follows every rule in
    "Rules for every track" and every integrity, licensing and landing rule in `prompt.md`, and
    it is held to the same bar: a complete README, passing tests, honest results. Use the
    `free` slug prefix and theme id unless the project fits an existing track's theme better,
@@ -91,7 +97,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
    in the last three hours. When the listed milestones are done, take the next step from the
    latest project's "Next steps" section in that track. If that chain has gone to micro-variants
    of one result (a new seed, a bigger N, the same test on a neighbouring dataset), skip it:
-   ask a new question of the track's theme instead, and say so in the README's first lines.
+   ask the harder question the chain was circling, and make it a programme (`PROGRAMMES.md`).
 3. **Use the track's slug prefix and theme.** The prefix starts the slug (`selfrep-closure`).
    The theme id goes in `_homepage/projects.json`. The first project in a track adds that theme,
    with a `--t-<id>` colour in both the light and dark blocks of `_homepage/template.html`.
@@ -121,6 +127,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
 | 21. Applied R&D for the industries modern life runs on | `infra` |
 | 22. Autonomous flying machines for commercial logistics | `aerolog` |
 | 23. Autonomous water vehicles of every sort | `marine` |
+| 24. Civilizations, group psychology and interventions | `civ` |
 | Free choice (about 5% of runs) | `free` |
 
 ## Rules for every track
@@ -1761,6 +1768,59 @@ for navigation.
 - *No interference with real systems.* Never transmit, spoof or probe AIS, GNSS or any vessel or
   port system. Public datasets and simulators only.
 - *Every hull, battery, sensor and price figure is sourced and dated, or swept.*
+
+## 24. Civilizations, group psychology and interventions (`civ`)
+
+Added on 2026-10-24 at the owner's request, as a curiosity project: "civilization simulations of
+group psychology and civilization and society, both modeling and modeling interventions to change
+the path of large groups of people. it's a curiosity project more than anything."
+
+**Goal.** Simulate large groups of people with the established models of social influence,
+cultural drift, contagion, cooperation and collective action, and ask which interventions change
+where a society goes. Track 17 (`society`) asks this about robots among people; this track is
+about people among people, at the scale of towns to civilizations. The standing method: the
+inputs that matter most (how far people accept or reject other views, how much they copy,
+punish or cooperate) are rarely measured, so each project **sweeps them and reports which
+recommendations survive**, checks its model against a published result first, and ships a
+browser sandbox where a reader can try the levers. Results are about simulated people following
+stated rules, never forecasts or advice for steering real populations; nothing here targets a
+real group or individual.
+
+**Prior work.** DeGroot (1974), *JASA*. Granovetter (1978), threshold models of collective
+behaviour, *AJS*. Axelrod (1997), the dissemination of culture, *J. Conflict Resolution*.
+Deffuant et al. (2000), *Adv. Complex Syst.* Hegselmann and Krause (2002), *JASSS*. Jager and
+Amblard (2005), *Comput. Math. Organ. Theory*. Castellano, Fortunato and Loreto (2009),
+statistical physics of social dynamics, *Rev. Mod. Phys.* Centola and Macy (2007), complex
+contagions, *AJS*. Fehr and Gächter (2000), cooperation and punishment in public goods
+experiments, *AER*. Turchin (2003), *Historical Dynamics*. Pettigrew and Tropp (2006),
+*JPSP*. Bail et al. (2018), *PNAS*. Guess and Coppock (2020), *BJPolS*. Park et al. (2023),
+generative agents, UIST.
+
+**Milestones.**
+
+1. `civ-levers` (done 2026-10-24): which interventions merge a polarized two-camp society under
+   bounded confidence with backfire swept from none to strong? Bridging contact backfires; a
+   ladder of committed voices within reach merges the camps in 24 of 25 settings. Ships a
+   browser simulator.
+2. `civ-contact`: contact that also widens tolerance (Pettigrew and Tropp's prejudice reduction
+   as a change in ε), and identity: a moderate voice each camp reads as the other side's. Does
+   the bridging verdict flip?
+3. `civ-cascades`: Granovetter thresholds and complex contagion on clustered against random
+   networks. Where to seed a behaviour (hubs, bridges, clustered patches) and how many seeds it
+   takes; check against Centola and Macy (2007) and Centola et al. (2018)'s 25% tipping point.
+4. `civ-culture`: Axelrod's culture model with media and migration. Does a common broadcast
+   homogenise or fragment culture (Shibanai, Yasuno and Ishiguro 2001)? Reproduce the
+   order–disorder transition of Castellano, Marsili and Vespignani (2000) first.
+5. `civ-commons`: public goods with punishment and institutions. Which sanctioning
+   institutions keep cooperation in large, mobile populations; fit contribution decay to
+   Fehr and Gächter's published rounds.
+6. `civ-calibrate`: estimate ε and τ from public panel data on attitude change (e.g. ANES or
+   GSS panels) and rerun milestones 1–2 at the fitted values.
+7. `civ-history`: structural-demographic dynamics (Turchin) as a toy civilization: population,
+   elites and state capacity over centuries, and which policy levers damp the cycles.
+8. `civ-llmsociety`: a town of language-model agents against the same levers, behind an
+   environment variable with a deterministic stub. Do LLM agents assimilate and backfire like
+   the rule-based models, and does `civ-levers`' ranking survive?
 
 ## References
 

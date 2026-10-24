@@ -2,7 +2,7 @@
 
 Track 14 (agentic co-design of low-cost robots), milestone 2. It follows `../codesign-forcefresh`, whose "Next steps" asked for a harder task before this ablation. Here three **scripted readers** of a MuJoCo gripper co-design loop differ only in what they may read about each evaluated design, and are compared with random search, CMA-ES and Bayesian optimisation at 40 designs and 8 seeds each. Produced with AI assistance (Claude). No CU Boulder group's work is built on; no connection is claimed.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/codesign-diagnose/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/codesign-diagnose/
 
 **Headline (simulation only, negative).** Diagnostic feedback did not help. After 40 designs the median best held-out grasp success is 0.863 for the score-only reader, 0.850 for the failure-summary reader and 0.837 for the full-rollout-log reader, against 0.850 for random search, CMA-ES and Bayesian optimisation. With 40 test scenes the standard error is about 0.05, so none of these differences is resolved. The richest feedback was the worst: its mean test success over feasible proposals was 0.467, against 0.693 for the score-only reader, because its rule-based moves overshoot. On 100 fresh scenes the best designs score 0.76 to 0.80 for every method.
 

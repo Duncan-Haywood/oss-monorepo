@@ -4,7 +4,7 @@ Zhang-style calibration with a printed checkerboard is the first thing anyone do
 
 This is a new question for track 15 (`sensing`), not a seed or dataset variant of the bundle-adjustment chain: `sensing-bafocal` asked what a wrong *told* focal length costs on synthetic scenes; this asks how well a *measured* one is pinned down by real photos, and whether the noise-only picture predicts it.
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sensing-calibviews/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/sensing-calibviews/
 
 **Builds on.** Zhang (2000), "A flexible new technique for camera calibration", *IEEE TPAMI* 22(11), 1330–1334, whose method `cv2.calibrateCamera` implements; Brown (1966) for the radial and decentring distortion terms; Triggs et al. (2000) for the claim that calibration is one least-squares problem (as in `sensing-bafocal`, this repository). Images: `left01.jpg` … `left14.jpg` (`left10` is not in the set) from OpenCV's `samples/data`, Apache-2.0, fetched from github.com/opencv/opencv (4.x branch) and committed under `data/`. No lab in `prompt.md` is built on; none fits.
 

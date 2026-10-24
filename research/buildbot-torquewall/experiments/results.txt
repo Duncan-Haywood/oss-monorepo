@@ -1,0 +1,29 @@
+Menagerie commit cda5236f98383f6fbaa4820c6b18dba892cd087f; hands at (0.3, 0.6) m (reach, height); step grid L=[0.1, 0.2, 0.3] T=[0.6, 1.0, 1.5]
+
+G1: fastest feasible step (m/s; - = none) by payload and scaled joint group
+  payload       allx1     waistx2     waistx4      armsx2      armsx4      legsx2      legsx4    anklesx2    anklesx4       allx2       allx4
+     0 kg        0.20        0.20        0.20        0.20        0.20        0.20        0.20        0.20        0.20        0.20        0.20
+     4 kg        0.10        0.20        0.20        0.10        0.10        0.10        0.10        0.10        0.10        0.20        0.20
+     6 kg           -        0.17        0.17           -           -           -           -           -           -        0.17        0.17
+     8 kg           -           -           -           -           -           -           -           -           -        0.20        0.20
+    10 kg           -           -           -           -           -           -           -           -           -           -        0.17
+
+H1: fastest feasible step (m/s; - = none) by payload and scaled joint group
+  payload       allx1     waistx2     waistx4      armsx2      armsx4      legsx2      legsx4    anklesx2    anklesx4       allx2       allx4
+     0 kg        0.10        0.10        0.10        0.10        0.10        0.10        0.10        0.10        0.10        0.10        0.10
+    14 kg        0.07        0.07        0.07        0.07        0.07        0.07        0.07        0.07        0.07        0.07        0.07
+    18 kg           -           -           -           -           -           -           -           -           -        0.07        0.07
+    23 kg           -           -           -           -           -           -           -           -           -        0.07        0.07
+    30 kg           -           -           -           -           -           -           -           -           -           -           -
+
+Joint that exceeds its limit first (worst) in the cases that fail only on torque, unscaled, by payload:
+  g1    0 kg: left_ankle_pitch_joint 1
+  g1    4 kg: waist_pitch_joint 4, left_ankle_pitch_joint 2, waist_roll_joint 1
+  g1    6 kg: waist_pitch_joint 6, left_ankle_pitch_joint 3
+  g1    8 kg: waist_pitch_joint 7, left_ankle_pitch_joint 1, left_shoulder_roll_joint 1
+  g1   10 kg: waist_pitch_joint 5, left_ankle_pitch_joint 2, left_ankle_roll_joint 1
+  h1    0 kg: none
+  h1   14 kg: left_hip_pitch 1
+  h1   18 kg: left_hip_pitch 3
+  h1   23 kg: left_elbow 3
+  h1   30 kg: left_elbow 3

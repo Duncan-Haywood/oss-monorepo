@@ -57,5 +57,5 @@ kill_criteria:
     rejection cause.
 
 links:
-  production: https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/
+  production: https://duncan-haywood.github.io/oss-monorepo/chrome-extension-permission-check/
   analytics: null

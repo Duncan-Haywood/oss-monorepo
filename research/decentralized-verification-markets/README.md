@@ -3,7 +3,7 @@
 A small, dependency-free research implementation connecting two bodies of
 work:
 
-**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/decentralized-verification-markets/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/decentralized-verification-markets/
 
 - **Algorithmic economics / information elicitation**: proper scoring
   rules, prediction markets, and peer prediction, as studied by the
