@@ -1,0 +1,37 @@
+robot,task,policy,n_real,real,sim,cal_loo
+google,pick_coke_can,RT-1 (Converged),75,0.853,0.857,0.9553
+google,pick_coke_can,RT-1 (15%),75,0.92,0.71,0.7942
+google,pick_coke_can,RT-1-X,75,0.76,0.567,0.6665
+google,pick_coke_can,RT-2-X,75,0.907,0.787,0.8726
+google,pick_coke_can,Octo-Base,75,0.293,0.17,0.3022
+google,pick_coke_can,RT-1 (Begin),75,0.133,0.027,0.1731
+google,move_near,RT-1 (Converged),60,0.633,0.442,0.5515
+google,move_near,RT-1 (15%),60,0.583,0.354,0.4679
+google,move_near,RT-1-X,60,0.45,0.317,0.4379
+google,move_near,RT-2-X,60,0.733,0.779,0.8847
+google,move_near,Octo-Base,60,0.35,0.042,0.1611
+google,move_near,RT-1 (Begin),60,0.017,0.05,0.211
+google,open_drawer,RT-1 (Converged),27,0.815,0.601,0.6962
+google,open_drawer,RT-1 (15%),27,0.704,0.463,0.5687
+google,open_drawer,RT-1-X,27,0.519,0.296,0.4137
+google,open_drawer,RT-2-X,27,0.333,0.157,0.2859
+google,open_drawer,Octo-Base,27,0.148,0.009,0.1521
+google,open_drawer,RT-1 (Begin),27,0.0,0.0,0.1643
+google,close_drawer,RT-1 (Converged),27,0.926,0.861,0.9483
+google,close_drawer,RT-1 (15%),27,0.889,0.667,0.755
+google,close_drawer,RT-1-X,27,0.741,0.891,1.0
+google,close_drawer,RT-2-X,27,0.63,0.343,0.4549
+google,close_drawer,Octo-Base,27,0.519,0.444,0.5584
+google,close_drawer,RT-1 (Begin),27,0.0,0.278,0.4241
+widowx,spoon_on_towel,RT-1-X,24,0.0,0.0,0.0575
+widowx,spoon_on_towel,Octo-Base,24,0.333,0.125,0.1171
+widowx,spoon_on_towel,Octo-Small,24,0.417,0.472,0.3556
+widowx,carrot_on_plate,RT-1-X,24,0.0,0.042,0.0883
+widowx,carrot_on_plate,Octo-Base,24,0.25,0.083,0.0918
+widowx,carrot_on_plate,Octo-Small,24,0.083,0.097,0.1196
+widowx,stack_blocks,RT-1-X,24,0.0,0.0,0.0575
+widowx,stack_blocks,Octo-Base,24,0.0,0.0,0.0575
+widowx,stack_blocks,Octo-Small,24,0.125,0.042,0.0729
+widowx,eggplant_basket,RT-1-X,30,0.0,0.0,0.0575
+widowx,eggplant_basket,Octo-Base,30,0.233,0.431,0.3814
+widowx,eggplant_basket,Octo-Small,30,0.433,0.569,0.4457
