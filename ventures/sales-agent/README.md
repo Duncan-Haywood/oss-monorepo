@@ -61,6 +61,13 @@ figure. A third set of 40 was written afterwards and scored once
 | Unsubscribes caught by the rules | 1 of 5 (the other 4 went to you as unclear, paused) |
 | Guesses that would draft where the truth contacts less | 5 of 18 (guesses never act) |
 
+A second fresh set of 41 (`eval/fresh-2026-10-24.jsonl`, written later, scored
+once, also not tuned on) read 27 right (66%): the rules named a category for
+31, right on 24 (77%); 5 of 7 unsubscribes caught (the misses were "pls remove
+from ur list" and a spam threat); no guess would draft where the truth
+contacts less; the word model guessed 4 of the 10 handed over. Same author
+type as the first set, so read both as ranges, not as accuracy on real inboxes.
+
 The tuning history is the finding: the first rules scored 66/72 on their own
 set and 24/48 (50%) on the second; after a round of broader patterns, the
 fresh set still scored 15/40. Keyword rules do not generalise to the ways

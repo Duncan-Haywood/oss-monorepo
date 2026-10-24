@@ -91,3 +91,13 @@ test("Washington quarterly returns are due at the end of the next month, monthly
   assert.equal(dueDate("2026-Q1", stateDueDay("TX", "quarterly")), "2026-04-20");
   assert.equal(stateDueDay(undefined), 20);
 });
+
+test("NY, IL and PA monthly returns are due the 20th; NY calendar quarters and PA annual get a note", async () => {
+  const { stateDueDay, stateFilingNote } = await import("./salestaxreturn.mjs");
+  for (const s of ["NY", "IL", "PA"]) assert.equal(dueDate("2026-10", stateDueDay(s, "monthly")), "2026-11-20");
+  assert.match(stateFilingNote("ny", "quarterly"), /March-May/);
+  assert.equal(stateFilingNote("NY", "monthly"), null);
+  assert.match(stateFilingNote("PA", "annual"), /semiannual/);
+  assert.equal(stateFilingNote("IL", "quarterly"), null);
+  assert.equal(stateFilingNote(undefined), null);
+});
