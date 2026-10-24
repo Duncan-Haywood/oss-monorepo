@@ -45,3 +45,14 @@ test("a currency written in letters before the amount is ignored", () => {
   assert.equal(parseCents("(.50)"), -50);
   assert.equal(parseCents("$1,234.00"), 123400);
 });
+
+// csv2ofx's test data (MIT, layout only, rows made up), 2026-10-24: Amazon's
+// order-history report has no amount header, only "total".
+test("Amazon order history: total is the amount, items the memo, pending orders skipped", () => {
+  const r = readStatement([
+    "order id,order url,items,to,date,total,shipping,shipping_refund,gift,tax,refund,payments",
+    "111-0000001-0000001,https://example.com/o,Desk lamp; ,A Person,2022-12-20,19.99,0,0,0,1.20,0,Visa ending in 1234: $19.99;",
+    "D01-0000000-0000000,https://example.com/o,,,pending,,,,,,,",
+  ].join("\n"), { invert: true });
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2022-12-20", -1999, "Desk lamp;"]]);
+});
