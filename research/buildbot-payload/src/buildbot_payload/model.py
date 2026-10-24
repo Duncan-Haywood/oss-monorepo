@@ -111,11 +111,12 @@ class Pose:
     residual: float
 
 
-def pose(robot, data0, hand_xz, mass, grip="palm", q_init=None, iters=600, com_dx=0.0):
+def pose(robot, data0, hand_xz, mass, grip="palm", q_init=None, iters=600, com_dx=0.0, dy=0.0):
     """IK: feet fixed, hands at (x, +-half_width, z) relative to the feet centre, CoM balanced.
 
     `com_dx` shifts the balanced CoM that far forward of the feet centre (m); a robot that
-    pushes on a wall leans into it (buildbot-fasten).
+    pushes on a wall leans into it (buildbot-fasten). `dy` shifts both hand targets sideways
+    (m, +y to the left) without moving the feet (buildbot-stance).
     """
     m = robot.model
     d = mujoco.MjData(m)
@@ -130,7 +131,7 @@ def pose(robot, data0, hand_xz, mass, grip="palm", q_init=None, iters=600, com_d
         foot_quat.append(q)
     centre = (foot_pos[0] + foot_pos[1]) / 2
     x, z = hand_xz
-    hand_tgt = [centre + np.array([x, robot.half_width, 0]), centre + np.array([x, -robot.half_width, 0])]
+    hand_tgt = [centre + np.array([x, robot.half_width + dy, 0]), centre + np.array([x, -robot.half_width + dy, 0])]
     for t in hand_tgt:
         t[2] = z
     M = float(m.body_subtreemass[1])

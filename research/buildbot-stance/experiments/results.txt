@@ -1,0 +1,93 @@
+buildbot-stance: G1 with a 3.4 kg nailer, Menagerie cda5236f9838; the sheet's 62 nails, 4x8 ft standing on end (lower edge at the floor unless stated)
+A. Left/right mirror check at x 0.4 m, 50 N, mu 0.6: 135/136 cells agree
+
+B. reachable tool points (#) at reach 0.4 m, push 50 N, mu 0.6: 32 of 153 cells
+   z \ dy   0.0  0.1  0.2  0.3  0.4  0.5  0.6  0.7  0.8
+     1.6      .    .    .    .    .    .    .    .    .
+     1.5      #    .    .    .    .    .    .    .    .
+     1.4      #    #    #    .    .    .    .    .    .
+     1.3      #    #    #    .    .    .    .    .    .
+     1.2      #    #    #    #    .    .    .    .    .
+     1.1      #    #    #    #    .    .    .    .    .
+     1.0      #    #    #    #    .    .    .    .    .
+     0.9      #    #    #    #    .    .    .    .    .
+     0.8      #    #    #    #    .    .    .    .    .
+     0.7      #    #    #    #    .    .    .    .    .
+     0.6      .    .    .    #    .    .    .    .    .
+     0.5      .    .    .    .    .    .    .    .    .
+     0.4      .    .    .    .    .    .    .    .    .
+     0.3      .    .    .    .    .    .    .    .    .
+     0.2      .    .    .    .    .    .    .    .    .
+     0.1      .    .    .    .    .    .    .    .    .
+     0.0      .    .    .    .    .    .    .    .    .
+
+B. reachable tool points (#) at reach 0.4 m, push 100 N, mu 0.6: 6 of 153 cells
+   z \ dy   0.0  0.1  0.2  0.3  0.4  0.5  0.6  0.7  0.8
+     1.6      .    .    .    .    .    .    .    .    .
+     1.5      .    .    .    .    .    .    .    .    .
+     1.4      .    .    .    .    .    .    .    .    .
+     1.3      .    .    .    .    .    .    .    .    .
+     1.2      .    .    .    .    .    .    .    .    .
+     1.1      .    #    .    .    .    .    .    .    .
+     1.0      .    #    .    #    .    .    .    .    .
+     0.9      .    #    .    .    .    .    .    .    .
+     0.8      #    #    .    .    .    .    .    .    .
+     0.7      .    .    .    .    .    .    .    .    .
+     0.6      .    .    .    .    .    .    .    .    .
+     0.5      .    .    .    .    .    .    .    .    .
+     0.4      .    .    .    .    .    .    .    .    .
+     0.3      .    .    .    .    .    .    .    .    .
+     0.2      .    .    .    .    .    .    .    .    .
+     0.1      .    .    .    .    .    .    .    .    .
+     0.0      .    .    .    .    .    .    .    .    .
+
+C. Floor only (platform height 0): nails one stance covers at best, stances to cover all that can be covered, nails no floor stance reaches
+   reach x  push N   mu   cells   best stance   stances   covered   never reached
+      0.3       0   0.3     51           11         7        35             27
+      0.4       0   0.3     14            2         4         6             56
+      0.5       0   0.3      0            0         0         0             62
+      0.3      50   0.3     44           10         7        29             33
+      0.4      50   0.3     32            6         4        14             48
+      0.5      50   0.3     24            4         6        12             50
+      0.3      50   0.6     44           10         7        29             33
+      0.4      50   0.6     32            6         4        14             48
+      0.5      50   0.6     24            4         6        12             50
+      0.3     100   0.3      7            0         0         0             62
+      0.4     100   0.3      6            0         0         0             62
+      0.5     100   0.3      6            0         0         0             62
+      0.3     100   0.6      7            0         0         0             62
+      0.4     100   0.6      6            0         0         0             62
+      0.5     100   0.6      6            0         0         0             62
+
+D. With a platform of any height 0 to 1.4 m in 0.1 m steps: stances to cover all 62 nails (greedy), and the heights it uses
+   reach x  push N   mu   covered   stances   heights (m)
+      0.3       0   0.3       62        11   [0.0, 1.1, 1.4]
+      0.4       0   0.3       39        16   [0.1, 0.5, 0.7, 0.9, 1.1, 1.3, 1.4]
+      0.5       0   0.3        0         0   []
+      0.3      50   0.3       62        13   [0.0, 0.2, 0.3, 1.0, 1.2]
+      0.4      50   0.3       41        11   [0.0, 0.2, 0.5, 1.0, 1.1, 1.3]
+      0.5      50   0.3       39        10   [0.1, 0.3, 0.7, 1.0, 1.2, 1.3]
+      0.3      50   0.6       62        13   [0.0, 0.2, 0.3, 1.0, 1.2]
+      0.4      50   0.6       41        11   [0.0, 0.2, 0.5, 1.0, 1.1, 1.3]
+      0.5      50   0.6       39        10   [0.1, 0.3, 0.7, 1.0, 1.2, 1.3]
+      0.3     100   0.3       30        30   [0.1, 0.2, 0.4, 0.5, 0.7, 0.8, 1.0, 1.1, 1.3, 1.4]
+      0.4     100   0.3        0         0   []
+      0.5     100   0.3        0         0   []
+      0.3     100   0.6       30        30   [0.1, 0.2, 0.4, 0.5, 0.7, 0.8, 1.0, 1.1, 1.3, 1.4]
+      0.4     100   0.6        0         0   []
+      0.5     100   0.6        0         0   []
+
+D2. The same at 50 N, mu 0.6 with the generous grid rule (only the nearest grid point must be reachable) instead of all four corners
+   reach x   floor: best stance / stances / covered     platform: covered / stances
+      0.3                     12 /  5 / 31                      62 /  9
+      0.4                      8 /  8 / 22                      45 /  9
+      0.5                      6 /  4 / 14                      41 /  9
+
+F. Whole sheet at reach 0.3 m, 50 N, mu 0.6: 62 nails in 13 stances at 5 platform heights; the nails alone take:
+    0.5,  2.0 m/s, m/s2:    5 s:  118.6    10 s:  178.6    20 s:  298.6    40 s:  538.6   hand 372 s, gantry 61 s; equal to hand at 26.1 s per re-stance
+    4.0, 10.0 m/s, m/s2:    5 s:   84.7    10 s:  144.7    20 s:  264.7    40 s:  504.7   hand 372 s, gantry 61 s; equal to hand at 28.9 s per re-stance
+
+E. Time per sheet for the 14 nails a G1 can reach from the floor at 0.4 m, 50 N, mu 0.6, in 4 stance(s)
+   speed (m/s, m/s2)   gantry-like single stance   then + re-stance time:     5 s    10 s    20 s    40 s
+    0.5,  2.0                10.7 s              24.2    39.2    69.2   129.2
+    4.0, 10.0                 5.3 s              19.6    34.6    64.6   124.6
