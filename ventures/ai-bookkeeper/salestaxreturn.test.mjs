@@ -137,8 +137,8 @@ test("endMonth outside the first period is refused", () => {
   assert.throws(() => salesTaxReturn(books(), { frequency: "monthly", endMonth: 2 }));
 });
 
-test("NJ, GA and NC are due the 20th and OH the 23rd of the month after the period", () => {
-  for (const s of ["NJ", "GA", "NC"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
+test("NJ and GA are due the 20th and OH the 23rd of the month after the period", () => {
+  for (const s of ["NJ", "GA"]) assert.equal(dueDate("2026-Q3", stateDueDay(s, "quarterly")), "2026-10-20");
   assert.equal(dueDate("2026-Q1", stateDueDay("oh", "quarterly")), "2026-04-23");
   assert.equal(dueDate("2026-H2", stateDueDay("OH", "semiannual")), "2027-01-23");
 });
@@ -214,4 +214,10 @@ test("RI and SD return due the 20th, listed explicitly", async () => {
   assert.equal(STATE_DUE_DAYS.RI, 20);
   assert.equal(STATE_DUE_DAYS.SD, 20);
   assert.equal(dueDate("2026-01", stateDueDay("sd", "monthly")), "2026-02-20");
+});
+
+test("North Carolina quarterly returns are due the last day of the month after the quarter, monthly the 20th", () => {
+  assert.equal(dueDate("2026-Q1", stateDueDay("NC", "quarterly")), "2026-04-30");
+  assert.equal(dueDate("2026-Q4", stateDueDay("NC", "quarterly")), "2027-01-31");
+  assert.equal(dueDate("2026-10", stateDueDay("NC", "monthly")), "2026-11-20");
 });
