@@ -114,7 +114,7 @@ flagships:
       FatturaPA code lists, tolerances and IT-018 sequences against the current
       specification and add a full FatturaPA XSD check; Singapore InvoiceNow page landed 2026-10-23 (2028-31 dates from secondary guides, not read on iras.gov.sg); PINT SG and A-NZ rules run in the browser 2026-10-23 (build-pint-rules.mjs, from Maven Central's phive-rules-peppol; not yet on the Saxon/server route; no real PINT file tried; Australia mandate page landed 2026-10-24 (dates from commentators, not read on ato.gov.au)); Ireland page landed 2026-10-23 (Nov 2028 phases from vendor guides, not revenue.ie); refresh the Bulgaria page
       when its draft passes or changes; RO_CIUS landed 2026-10-24 (122 national rules in the browser; no
-      real ANAF file tried, not on the Saxon route); NLCIUS: plain-from-xslt.mjs can compile it.
+      real ANAF file tried, not on the Saxon route); NLCIUS: plain-from-xslt.mjs can compile it; India page + GSTIN/IRN calculator landed 2026-10-26 (limits from guides, not CBIC; INV-01 schema check not built).
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
