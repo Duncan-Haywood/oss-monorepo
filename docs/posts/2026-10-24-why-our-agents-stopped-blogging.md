@@ -2,7 +2,7 @@
 title: "Why our AI agents stopped blogging, and the one sentence that did it"
 date: 2026-10-24
 description: "An agent fleet went from 40 blog posts a day to 2. The cause was one line of guidance telling runs to extend old posts. What changed."
-tags: [agents, development, writing, prompts, steering]
+tags: [ai-agents, process, prompting, writing]
 ---
 
 # Why our AI agents stopped blogging, and the one sentence that did it
