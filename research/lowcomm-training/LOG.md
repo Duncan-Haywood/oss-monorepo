@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3b: does the 3a gap to synchronous AdamW shrink with a 4x longer budget? (planned before running)
+- Why: 3a's "Next". At 960 steps sync may still be improving; the 0.14 nat gap at `H = 16` could be a short-budget artefact.
+- Design (`experiments/gpt_long_budget/long_budget.py`): 3a's model, data, `M = 4`, batch 16, plain averaging; 3,840 inner steps per worker; `H` in {sync, 4, 16, 64}; inner lr fixed at 3a's picks (1e-3, 1e-3, 3e-3, 1e-3), no re-tuning (a longer run may prefer a different lr, so gaps are if anything biased against the picks of whichever method it suits least); seeds 0 to 2; same 16 validation batches.
+- **H3b-i:** the gap to sync at `H = 16` shrinks in nats relative to 3a (0.139): the 3b gap is below 0.139 minus 1 paired sd of 3a (0.050), i.e. under 0.089. Refuted otherwise.
+- **H3b-ii:** the ordering sync < 4 < 16 <= 64 holds in the means.
+- Limits: 3 seeds, no re-tuned lr, one size and corpus; a 4x budget is still tiny against real pretraining.
+
 ## 2026-10-25 · Milestone 3a: does the H curve of 2e survive on the 413k-parameter GPT? (planned before running)
 - Why: 2g's "Next". Everything since 2a is on a 14k-parameter numpy model; the claims (cost of local steps appears at large `H` only; tuned inner lr non-increasing in `H`) need the real transformer of Milestone 1 before they are cited.
 - Design (`experiments/gpt_h_sweep/h_sweep.py`): 2-layer, 128-wide char GPT on Tiny Shakespeare, `M = 4` workers, batch 16 per worker, 960 inner steps per worker (3,840 batches for every method), plain-averaging outer step (lr 1, no momentum), `H` in {sync, 1, 4, 16, 64, 240}; sync is one worker with batch 64. Inner lr in {1e-3, 3e-3, 1e-2} picked on tuning seeds 100, 101 (mean validation loss), then reported on seeds 0, 1, 2 (16 fixed validation batches of 32). Same selection split as 2e.
