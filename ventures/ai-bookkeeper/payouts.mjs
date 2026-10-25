@@ -409,7 +409,7 @@ function readAmazon(table, head) {
     else if (/reserve/.test(what) || /reserve/.test(amt)) kind = "reserve";
     else if (amt === "itemprice") kind = /tax/.test(what) ? "tax" : type === "refund" ? "refunds" : "sales";
     else if (/withheld|tax/.test(amt)) kind = "tax";
-    else if (/promotion/.test(amt)) kind = "refunds";
+    else if (/promotion/.test(amt)) kind = /tax/.test(what) ? "tax" : "refunds";
     else if (/reimburs|goodwill|compensat/.test(what)) kind = "other";
     else if (/advertis/.test(what + amt)) kind = "ads";
     else if (/fee|commission|chargeback|subscription|storage|label|disposal|removal|inbound|fba/.test(what + amt)) kind = "fees";

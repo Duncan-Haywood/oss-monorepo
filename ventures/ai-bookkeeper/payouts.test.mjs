@@ -458,3 +458,10 @@ txn_4,,,po_9,,,2026-01-31 00:00:00,2026-01-31 00:00:00,2026-01-31 00:00:00,USD,-
   assert.equal(r.payouts[0].net, 1355);
   assert.equal(r.problems.length, 0);
 });
+
+test("an Amazon promotion's tax line (Promotion/TaxDiscount) is tax, not a refund", () => {
+  const head = "settlement-id\tsettlement-start-date\tsettlement-end-date\tdeposit-date\ttotal-amount\tcurrency\ttransaction-type\torder-id\tamount-type\tamount-description\tamount";
+  const r = readPayoutReport(`${head}\nS3\t\t\t2026-03-05\t94.60\tUSD\t\t\t\t\t\nS3\t\t\t\t\t\tOrder\tA\tItemPrice\tPrincipal\t100.00\nS3\t\t\t\t\t\tOrder\tA\tPromotion\tPrincipal\t-5.00\nS3\t\t\t\t\t\tOrder\tA\tPromotion\tTaxDiscount\t-0.40\n`);
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.payouts[0].rows.map((x) => x.kind), ["sales", "refunds", "tax"]);
+});
