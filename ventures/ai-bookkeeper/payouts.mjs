@@ -137,6 +137,7 @@ export function readPayoutReport(text) {
   if (col.payout === -1) throw new Error('No payout id column (Stripe: "automatic_payout_id"). Export the payout reconciliation report, not the plain payments list.');
   const problems = [];
   const rows = [];
+  const offPlatform = [];
   // Amounts are booked as written, with no conversion: say so when the report mixes currencies.
   const ci = head.indexOf("currency");
   if (ci !== -1) {
@@ -153,6 +154,12 @@ export function readPayoutReport(text) {
     if ([gross, net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
     if (net !== gross - fee) { problems.push(`Row ${n + 2}: net ${fmt(net)} is not gross ${fmt(gross)} less fee ${fmt(fee)}.`); return; }
     const category = key(at("category"));
+    // Square's export lists cash, gift-card and other-tender sales beside card ones; only card money passes through a payout.
+    const tender = (name) => { const i = head.indexOf(name); return i === -1 ? 0 : parseCents(String(r[i] ?? "")) || 0; };
+    if (squareSplit && head.includes("card") && !at("payout") && tender("card") === 0 && (tender("cash") || tender("square_gift_card") || tender("other_tender"))) {
+      offPlatform.push({ row: n + 2, id: at("id") || `row${n + 2}`, created: parseDate(at("created")), net });
+      return;
+    }
     const base = { row: n + 2, id: at("id") || `row${n + 2}`, payout: at("payout"), payoutDate: parseDate(at("payoutDate")), created: parseDate(at("created")), category, kind: CATEGORY[category] ?? "other", gross, fee, net, desc: at("desc") };
     // Square's Total Collected is net sales + tax + tip: tax is owed to the state and a tip to staff, neither is sales.
     const part = (name) => { const i = head.indexOf(name); return squareSplit && i !== -1 ? parseCents(String(r[i] ?? "")) || 0 : 0; };
@@ -182,7 +189,7 @@ export function readPayoutReport(text) {
     const sum = (f) => rs.reduce((a, x) => a + f(x), 0);
     return { id, date: dates.at(-1) ?? rs.map((x) => x.created).filter(Boolean).sort().at(-1) ?? null, net: sum((x) => x.net), gross: sum((x) => x.gross), fees: sum((x) => x.fee), rows: rs };
   }).sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  return { rows, payouts, pending, problems };
+  return { rows, payouts, pending, problems, offPlatform };
 }
 
 // Square's ActivityType list (square-python-sdk, activity_type.py, checked 2026-10-25), where a name alone would
@@ -645,7 +652,7 @@ export function planPayouts(books, report, { sales = "4000", refunds = "4000", f
     taken.add(line.id);
     matched.push({ ...row, line: line.id, lineDate: line.date, desc: line.desc, ambiguous: bank.length > 1 && gap(bank[1].date, p.date) === gap(line.date, p.date), single: parts.length < 2 });
   }
-  return { matched, unmatched, done, pending: report.pending, problems: report.problems, roles };
+  return { matched, unmatched, done, pending: report.pending, offPlatform: report.offPlatform ?? [], problems: report.problems, roles };
 }
 
 const sameParts = (a, b) => a?.length === b.length && [...a].sort(cmp).every((p, i) => p.account === [...b].sort(cmp)[i].account && p.cents === [...b].sort(cmp)[i].cents);
