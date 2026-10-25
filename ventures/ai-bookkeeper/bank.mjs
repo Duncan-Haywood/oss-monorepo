@@ -354,6 +354,8 @@ export function sniffBank(rows) {
     if (/^date\|description\|withdrawals\|deposits\|balance/.test(h)) return "pnc";
     if (/^date\|status\|type\|checknumber\|description\|withdrawal\|deposit\|runningbalance/.test(h)) return "schwab";
     if (/^run date\|account\|account number\|action\|symbol\|description/.test(h)) return "fidelity";
+    // Schwab's brokerage "Transactions" export: a title line above the header, a "Transactions Total" row below.
+    if (/^date\|action\|symbol\|description\|quantity\|price\|fees (&|and) comm\|amount/.test(h)) return "schwab-brokerage";
     if (/^date\|time\|/.test(h) && /\|gross\|/.test(h) && /\|status\|/.test(h) && /\|net(\||$)/.test(h)) return "paypal";
     if (/^date\|description\|amount\|balance\|account name/.test(h)) return "relay";
     if (/^transaction date\|posted date\|description\|amount\|status\|memo\|card last four/.test(h)) return "brex";
@@ -832,12 +834,19 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const catCol = hdr.indexOf("category") !== -1 && hdr.indexOf("category") !== columns.desc ? hdr.indexOf("category") : -1;
   const idCol = hdr.findIndex((x) => /^(balance transaction id|transaction id|txn id|reference id)$/.test(x));
   const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
+  const actionCol = bank === "schwab-brokerage" ? hdr.indexOf("action") : -1;
+  let tradesSkipped = 0;
   for (let i = first; i < rows.length; i++) {
     const r = rows[i];
     const acctName = acctCol === -1 ? "" : String(r[acctCol] ?? "").trim();
     if (acctName && String(r[columns.date] ?? "").trim()) accountNames.add(acctName);
     if (onlyAccount !== undefined && acctName !== onlyAccount) continue;
     if (bank === "venmo" && !String(r[columns.date] ?? "").trim()) continue;
+    if (bank === "schwab-brokerage") {
+      if (/^transactions total$/i.test(String(r[columns.date] ?? "").trim())) continue;
+      // Buys and sells move value between cash and securities, as in the OFX reader: not spending or income.
+      if (/^(buy|sell|reinvest shares|cash in lieu|exchange or exercise)/i.test(String(r[actionCol] ?? "").trim())) { tradesSkipped++; continue; }
+    }
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
     if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
     // German and Italian "Valuta" is often the value date; only a three-letter code counts as a currency.
@@ -922,6 +931,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     const bankCat = catCol === -1 ? "" : String(r[catCol] ?? "").trim().slice(0, 60);
     out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null, ...(bankCat ? { bankCat } : {}) });
   }
+  if (tradesSkipped) problems.push(`${tradesSkipped} brokerage buy/sell line${tradesSkipped === 1 ? " was" : "s were"} not booked: they move value between cash and securities. Dividends, interest, fees and transfers in the file are booked.`);
+  else if (bank === "schwab-brokerage" && !out.length) problems.push("The file has the Schwab transactions header but no transaction rows (an empty period).");
   if (currencies.size > 1) problems.push(`The file mixes currencies (${[...currencies].join(", ")}). Amounts are booked as written, with no conversion: import each currency on its own account.`);
   let inferred = null;
   let flip = !!invert;
@@ -939,7 +950,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   }
   if (flip) for (const r of out) r.cents = -r.cents;
   // One unsigned-looking amount column, nothing says which way: a card export that lists only purchases (PC Financial's) reads as income.
-  else if (invert === undefined && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && dirCol === -1 && out.length >= 2 && out.every((r) => r.cents > 0))
+  else if (invert === undefined && bank !== "schwab-brokerage" && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && dirCol === -1 && out.length >= 2 && out.every((r) => r.cents > 0))
     problems.push(`Every amount is positive, so all ${out.length} lines were booked as money in. If this is a card or spending export, they are charges: import with the signs flipped (invert).`);
   if (localeNote) inferred = [inferred, localeNote + " (inferred from the file; pass dayFirst / decimalComma to override)."].filter(Boolean).join(" ");
   return { rows: out, problems, columns, bank, inferred, ...(accountNames.size > 1 ? { accountNames: [...accountNames] } : {}) };
