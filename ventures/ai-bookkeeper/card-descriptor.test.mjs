@@ -33,3 +33,11 @@ test("ambiguous payees stay open: IRS payments, bare checks, Zelle to a person",
   assert.equal(out("CHECK #1042"), null);
   assert.equal(out("ZELLE TO LANDLORD"), null);
 });
+
+test("plain-word payees from another app's fixture: groceries and phone are filed, pharmacy and cinema (personal) are not", () => {
+  const out = (d) => suggest({ desc: d, cents: -5000 }, ctx).account;
+  assert.equal(out("Grocery Store"), "6130");
+  assert.equal(out("Mobile Phone Provider"), "6140");
+  assert.equal(out("Pharmacy"), null);
+  assert.equal(out("Movie Theater"), null);
+});
