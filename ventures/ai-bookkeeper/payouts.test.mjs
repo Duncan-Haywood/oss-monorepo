@@ -271,6 +271,21 @@ test("an Etsy payment-account ledger is grouped under each deposit, newest first
   assert.equal(r.pending.length, 1);
 });
 
+test("an Etsy returned deposit or recoupment is flagged, not booked as a fee, and the deposit after it still splits", () => {
+  const e = `Date,Type,Title,Info,Currency,Amount,Fees & Taxes,Net,Tax Details
+"March 5, 2026",Deposit,Deposit to bank,,USD,--,--,-$157.00,
+"March 4, 2026",Sale,Payment for Order #2,,USD,$100.00,-$5.00,$95.00,
+"March 3, 2026",Returned disbursement,Deposit returned by bank,,USD,--,--,$62.00,
+"March 2, 2026",Deposit,Deposit to bank,,USD,--,--,-$62.00,
+"March 1, 2026",Sale,Payment for Order #1,,USD,$65.00,-$3.00,$62.00,
+`;
+  const r = readPayoutReport(e);
+  assert.equal(r.problems.length, 1);
+  assert.equal(r.payouts.length, 2);
+  assert.equal(r.payouts[1].net, 15700);
+  assert.match(r.problems[0], /Row 4.*Returned disbursement.*book it against the bank/);
+});
+
 test("the Etsy fixture behind etsy-bookkeeping.html splits one deposit as the page says", () => {
   const r = readPayoutReport(readFileSync(new URL("./fixtures/etsy-ledger.csv", import.meta.url), "utf8"));
   assert.deepEqual(r.problems, []);

@@ -292,6 +292,10 @@ function readEtsy(table, head) {
     const fee = gross - net;
     const kind = category === "deposit" ? "withdrawal" : category === "refund" ? "refunds" : isSale ? "sales" : /fee|marketing|shipping|listing|offsite|ads|tax|vat/.test(category) ? "fees" : /dispute|chargeback/.test(category) ? "disputes" : "other";
     const date = parseDate(at("date"));
+    // Etsy's API reference lists the ledger's entry kinds (a returned disbursement,
+    // a recoupment, a bill payment). A returned deposit puts money back that an
+    // earlier deposit took out, so as a "fee" it would read as a credit; say so.
+    if (/returned.*(disburs|deposit)/.test(category) || category.startsWith("recoup")) problems.push(`Row ${n + 2}: "${at("type")}" (${fmt(net)}) is not a fee. It is kept in the activity that the next deposit pays out, but book it against the bank by hand.`);
     all.push({ row: n + 2, id: at("id") || `row${n + 2}`, created: date, t: date ?? "", category, kind, gross: kind === "fees" || kind === "other" ? 0 : gross, fee: kind === "fees" || kind === "other" ? -net : fee, net, desc: at("title") });
   });
   const payouts = [];
