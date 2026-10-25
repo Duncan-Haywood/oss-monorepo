@@ -1,0 +1,47 @@
+{
+ "date": "2026-10-25",
+ "session": "https://claude.ai/code/session_019i3C3X6RSi7KbK4JruXMHp",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there (scheduled)",
+ "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-25T01:09:29Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10271",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "bare python3 lacks numpy; had to run pyenv.py (worked, instant)"
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-25-certify-unbounded-robot-cost-with-a-simulator-clip.md",
+  "docs/reports/sim2real-inference-m7d.md"
+ ],
+ "goal": null,
+ "notes": "sim2real-inference m7d: pre-registered, ran, 2 of 3 hypotheses supported, 1 refuted. Homepage build ok, md link check ok. Cost attach skipped.",
+ "corrections": [],
+ "redteam": null
+}
