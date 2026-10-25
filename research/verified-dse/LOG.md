@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 7d: paper draft and a one-command reproduction (planned before running)
+- Why: milestone 7 of the proposal is the paper draft with a one-command-per-figure artefact. 7a to 7c left theory open, but the empirical story across milestones 1 to 7c is enough to write the honest draft and to find out whether every number in it can be regenerated.
+- Plan: write `PAPER.md` using only numbers that sit in a committed results file; add `reproduce.sh` that reruns every analysis and replay on the cached tables and prints `git diff --stat -- experiments`. **Prediction on record:** the replays are seeded, so the diff is empty except for wall-time lines in `rung_bias/results.txt`.
+
+### Outcome
+- `PAPER.md` written (abstract, related work from the checked ids, setup, results for H1 to H5, the bound and the pilot statistics, limits, what is still missing). Headline stays negative: on small designs, cheap rungs did not pay at equal wall-clock; R2 conformal shortlists are the one positive result.
+- `reproduce.sh` ran end to end (13 tests OK) and left `git diff --stat -- experiments` empty: **the prediction held, and was stronger than predicted** (not even the wall-time lines changed, as they are read from the cached table). The first run failed at `proof_success/analyse.py` for lack of scikit-learn; `pyenv.py numpy scikit-learn` fixes it (noted in the script header).
+- The draft lists what the paper still needs: larger designs (so H2 is testable), a second corner, Hyperband/BOHB/BO baselines, a proof of the coverage, the MLCAD template.
+
 ## 2026-10-25 · Milestone 7c: does the top-vs-all bound survive smaller pilots, and does the hypergeometric fact explain when? (planned before running)
 - Why: 7b's B statistic covered everywhere, but with a pilot of 16 from pools of about 50 (a third of the pool) it sees most of the pool's best few. Whether B is a pilot-checkable guarantee depends on the pilot missing them. Sweep the pilot size m in {6, 8, 12, 16, 24} and top in {1, 3, 5}, same 20 groups, both halving starts, 200 pilots x 10 tie-breaks per cell (`experiments/theory/sweep.py`, no flow run).
 - Fact to check, not assume: P(the pool's single best point is in a pilot of m from n) = m / n; P(at least one of the pool's best j in the pilot) = 1 - C(n-j, m)/C(n, m) (hypergeometric). Compare, per m, the empirical share of pilots whose top-`top` contains a pool top-3 point with this formula (it should match up to sampling error: it is a counting fact, so a mismatch is a bug).
