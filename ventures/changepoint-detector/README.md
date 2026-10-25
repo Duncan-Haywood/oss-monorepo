@@ -654,7 +654,7 @@ generators as `meanvar-robustness.mjs`, default minimum segment of 10):
 On heavy tails it removes most false alarms and, at n = 200, finds the break 89% of the time instead of 55%. It is not a
 free upgrade: on Gaussian noise at n = 100 it finds the single break in only 57% of series (94% with the Gaussian cost),
 so it stays opt-in. Clustered volatility is only half fixed (21% to 29% false alarms). Not changed: the Bayesian
-probability view still uses the Gaussian model, and the kurtosis part of the noise warning is skipped when `--robust` is
+probability view still used the Gaussian model (changed 2026-10-27, below), and the kurtosis part of the noise warning is skipped when `--robust` is
 on (autocorrelation and clustered-volatility parts stay). Simulated noise only; no real heavy-tailed series tried. Test:
 `meanvar-robust.test.mjs`. Cost: each segment is sorted on demand, so long series (several thousand points) run slower.
 
@@ -682,3 +682,22 @@ feeding it. Simulated noise only; 100 series per cell, so differences under abou
 
 The page has the option too (2026-10-25): a "Heavy-tailed noise: Laplace cost" checkbox, sent as `robust: true` only when the model is
 "Level and volatility". `page.test.mjs` checks the wiring; the Bayesian view is unchanged.
+
+## `--robust` in the Bayesian view (2026-10-27)
+
+The probability view's Normal-Inverse-Gamma model has no Laplace version that stays exact, so with `robust` on, the Bayesian pass
+reads the series clipped at its median plus or minus 2 robust noise sds (`robustSd`, successive differences, so a level shift does
+not inflate it). One outlier then counts as a bounded surprise, not as evidence for a new segment. PELT is unchanged.
+`eval/meanvar-bayes-tails.mjs` (output `eval/meanvar-bayes-tails.out.txt`, seeded, 100 series per cell, threshold 0.5):
+
+| noise, n | null false alarm, plain to robust | mean +1.5 sd found within 3 points | sd 1 to 2 found within 3 points |
+|---|---|---|---|
+| t3, 100 | 18% to 1% | 45% to 56% | 8% to 0% |
+| t3, 200 | 47% to 1% | 48% to 62% | 3% to 1% |
+| Gaussian, 100 | 0% to 1% | 23% to 27% | 5% to 1% |
+| Gaussian, 200 | 1% to 2% | 19% to 26% | 4% to 1% |
+
+Cost: the Bayesian view, which already caught few variance breaks (3 to 8%), now catches almost none with `--robust`; PELT is the
+volatility detector. Mean shifts are found at least as often. The clip width (2) was tried against 1.5 and 3 on t3 only
+(3: 2% false alarms, 50% found; 1.5: 1%, 67%); it was not tuned on Gaussian data, and 100 series per cell means differences under
+about 10 points are noise. Simulated noise only. Test: `meanvar-robust.test.mjs`.

@@ -1592,6 +1592,9 @@ export function analyze(input = {}) {
     const slope = median(values.slice(1).map((v, i) => v - values[i]));
     bvals = values.map((v, i) => v - slope * i);
   }
+  // robust: the Bayesian pass reads the series clipped at the median +- 2 robust sds, so a heavy-tailed outlier is one
+  // bounded surprise, not evidence of a new segment (eval/meanvar-bayes-tails.mjs, README)
+  if (robust) { const m = median(bvals), c = 2 * robustSd(bvals); bvals = bvals.map((v) => Math.max(m - c, Math.min(m + c, v))); }
   const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure, dispersion: phi ?? 1, nbSize: isFinite(nbSize) && nbSize > 0 ? nbSize : 0 });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   // joint AR(1) fits use their own likelihood, so no range is offered for them
