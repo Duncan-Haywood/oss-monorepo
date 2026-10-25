@@ -15,11 +15,11 @@ garch | 51% | 57%, 5, 76%
 ar1   | 54% | 37%, 3, 96%
 
 noise warning rate (rangeWarning from meanvarNoiseCheck): null series | sd1->2 series
-n=100 gauss | 2% | 2%
+n=100 gauss | 7% | 6%
 n=100 t3    | 66% | 55%
-n=100 garch | 20% | 11%
+n=100 garch | 34% | 19%
 n=100 ar1   | 90% | 88%
-n=200 gauss | 1% | 0%
-n=200 t3    | 80% | 76%
-n=200 garch | 16% | 18%
+n=200 gauss | 4% | 2%
+n=200 t3    | 81% | 77%
+n=200 garch | 49% | 39%
 n=200 ar1   | 100% | 98%
