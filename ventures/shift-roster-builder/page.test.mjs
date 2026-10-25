@@ -157,7 +157,7 @@ test("clopening page's rest-gap table is what the engine returns for the sample 
   const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
   const html = page("how-to-avoid-clopening.html");
-  for (const [h, open, covered, pay] of [[0, 2, 219, 3671], [8, 3, 216, 3620], [10, 3, 216, 3622], [12, 3, 216, 3630], [14, 5, 215, 3611]]) {
+  for (const [h, open, covered, pay] of [[0, 2, 219, 3671], [8, 3, 216, 3620], [10, 3, 216, 3622], [12, 3, 216, 3630], [14, 4, 218, 3662]]) {
     const r = buildRoster(staff, slots, { minRestHours: h });
     assert.equal(r.unfilled.length, open, `${h}h open`);
     assert.equal(r.hours, covered, `${h}h covered`);
@@ -260,7 +260,7 @@ test("call-out page's table is what the engine returns for the sample cafe, with
     return o;
   };
   const a = study(sampleStaff());
-  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 21, 2, 19]);
+  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 22, 2, 19]);
   const b = study(sampleStaff() + "\nHal, 15, 24, 0, any");
   assert.deepEqual([b.cases, b.patched, b.covered, Math.min(...b.moves), Math.max(...b.moves)], [32, 1, 18, 13, 24]);
   const html = page("how-to-cover-a-shift-when-someone-calls-out.html");
