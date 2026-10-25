@@ -182,7 +182,7 @@ The root price leaves a duality gap because the relaxation lets a contested shif
 | 2 | 28 | 15 | 15 |
 | 3 | 100,326 | 100,117 | 100,112 |
 
-Case 0 went from two-thirds of an open hour to $2.53 of pay. Still 0 of 4 proven: cases 2 and 3 barely move (case 3's gap is about one open hour that neither the roster nor the bound resolves), and case 1 is still a coverage gap of two hours. Costs 2 to 8 s per week at the default limits. A test checks the branched bound never passes the brute-force optimum on 40 tight random weeks and rises on at least one. One generator, one run each. The `page.test.mjs` tables for the clopening and call-out guides (tests 15 and 21) already fail on `main` before this change, so they are untouched here.
+Case 0 went from two-thirds of an open hour to $2.53 of pay. Still 0 of 4 proven: cases 2 and 3 barely move (case 3's gap is about one open hour that neither the roster nor the bound resolves), and case 1 is still a coverage gap of two hours. Costs 2 to 8 s per week at the default limits. A test checks the branched bound never passes the brute-force optimum on 40 tight random weeks and rises on at least one. One generator, one run each. (The clopening and call-out guide tables that failed on `main` here were re-derived from the engine on 2026-10-25.)
 
 ## Limits
 
