@@ -245,6 +245,27 @@ export function matchReceipts(books, { before = 3, after = 7, tipPct = 0.25, rat
     if (p.r.currency) { p.r.fxRate = Math.round(p.fxRate * 1e6) / 1e6; p.r.rateSource = p.rated ? "given or learned" : "implied by this pair only"; }
     p.r.payeeAgrees = p.words >= 0.5;
   }
+  // Second pass: one bank line that is the sum of two to four unmatched receipts
+  // (one card charge for several slips, or a vendor billing a day's receipts at
+  // once). Only for same-currency receipts, an exact sum, and a payee word shared
+  // with every receipt, so a coincidental total of unrelated slips is not offered.
+  for (const t of pool) {
+    if (usedT.has(t.id)) continue;
+    const paid = -t.cents;
+    const cands = receipts.filter((r) => !r.matched && !r.currency && r.cents < paid && day(t.date) - day(r.date) >= -before && day(t.date) - day(r.date) <= after && overlap(r.merchant, t.desc) >= 0.5);
+    if (cands.length < 2 || cands.length > 12) continue;
+    const found = [];
+    const walk = (from, chosen, sum) => {
+      if (found.length > 1) return;
+      if (sum === paid && chosen.length >= 2) { found.push(chosen.slice()); return; }
+      if (sum >= paid || chosen.length === 4) return;
+      for (let i = from; i < cands.length; i++) walk(i + 1, [...chosen, cands[i]], sum + cands[i].cents);
+    };
+    walk(0, [], 0);
+    if (found.length !== 1) continue; // none, or more than one way to reach the total: ask, don't guess
+    usedT.add(t.id);
+    for (const r of found[0]) { r.matched = t.id; r.group = found[0].length; r.payeeAgrees = true; }
+  }
   return { ...books, receipts };
 }
 
@@ -255,9 +276,9 @@ export function attachReceipt(books, receiptId, txnId) {
   if (txnId === null || txnId === "") { r.matched = null; return { ...books, receipts }; }
   const t = books.transactions.find((x) => x.id === txnId);
   if (!t) throw new Error(`no line ${txnId}`);
-  const other = receipts.find((x) => x.matched === txnId && x.id !== receiptId);
+  const other = receipts.find((x) => x.matched === txnId && x.id !== receiptId && !x.group);
   if (other) other.matched = null;
-  r.matched = txnId; delete r.tipCents;
+  r.matched = txnId; delete r.tipCents; delete r.group;
   if (r.currency) r.fxRate = Math.round((-t.cents / r.cents) * 1e6) / 1e6;
   return { ...books, receipts };
 }
