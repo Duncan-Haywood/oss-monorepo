@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 10359,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -282,6 +282,17 @@
         ]
       }
     ],
-    "real_defects": []
+    "real_defects": [
+      {
+        "file": "docs/posts/2026-10-25-verified-dse-conformal-larger-designs.md",
+        "issue": "description 202 chars, over the 160 limit",
+        "patched": true
+      },
+      {
+        "file": "docs/posts/2026-11-14-bookkeeper-held-out-hcb-page5.md",
+        "issue": "description 167 chars, over the 160 limit",
+        "patched": true
+      }
+    ]
   }
 }
