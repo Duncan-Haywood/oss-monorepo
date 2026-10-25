@@ -1,0 +1,125 @@
+{
+ "date": "2026-10-25",
+ "session": "https://claude.ai/code/session_019VgXWvBLhKJTWvGg2JB5Vj",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [
+  "claude-sonnet-5-5"
+ ],
+ "started": "2026-10-25T07:18:32Z",
+ "ended": "2026-10-25T07:27:54Z",
+ "wall_minutes": 9.54,
+ "tokens_in": 2009120,
+ "tokens_out": 9579,
+ "cost_usd": 0.7705,
+ "tool_calls": 27,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10338",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "partial",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "issue": "Claim check lists PRs and branches but the sibling PR merged within the hour; git log of the programme directory on origin/main is the check that would have caught it."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "CLAUDE.md",
+   "why": "No new blog post: the post I wrote duplicated one already on main, so I removed it.",
+   "did": "dropped it",
+   "result": "post count unchanged"
+  }
+ ],
+ "writeups": [
+  "research/verified-dse/LOG.md"
+ ],
+ "goal": null,
+ "notes": "Milestone 10 was landed in parallel by PR #10336 (same scripts, identical numbers); I dropped my duplicate files and kept a log note with scored predictions. Claim check missed it: I checked open PRs but not main commits from the last hour.",
+ "corrections": [],
+ "redteam": null,
+ "usage": {
+  "measured_by": "prompts/runcost.py v1",
+  "session_id": "283a0fb1-41f8-5c8c-8700-b017460ce4c4",
+  "transcripts": 1,
+  "first": "2026-10-25T07:18:32Z",
+  "last": "2026-10-25T07:28:04Z",
+  "primary_model": "claude-sonnet-5-5",
+  "models": {
+   "claude-sonnet-5-5": {
+    "requests": 24,
+    "input": 48,
+    "output": 9579,
+    "thinking": 1150,
+    "cache_read": 1937291,
+    "cache_write_5m": 0,
+    "cache_write_1h": 71781,
+    "api_equivalent_usd": 0.7705,
+    "fast_requests": 0
+   }
+  },
+  "totals": {
+   "requests": 24,
+   "input": 48,
+   "output": 9579,
+   "thinking": 1150,
+   "cache_read": 1937291,
+   "cache_write_5m": 0,
+   "cache_write_1h": 71781,
+   "api_equivalent_usd": 0.7705,
+   "api_equivalent_complete": true
+  },
+  "cache_hit_share": 0.964,
+  "tool_calls": 27,
+  "tools": {
+   "Bash": 22,
+   "Read": 3,
+   "mcp__github__search_pull_requests": 1,
+   "mcp__github__create_pull_request": 1
+  },
+  "web_searches": 0,
+  "time": {
+   "wall_minutes": 9.54,
+   "active_minutes": 9.54,
+   "model_minutes": 1.6,
+   "tool_minutes": 7.94,
+   "waiting_on_human_minutes": 0.0,
+   "human_prompts": 1,
+   "stalls": 0,
+   "subagent_minutes": 0.0
+  },
+  "pricing": {
+   "as_of": "2026-10-06",
+   "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+  },
+  "human_equivalent": null,
+  "leverage": null,
+  "certainty": {
+   "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+   "model": "high: the `model` field on each API response, not the configured model",
+   "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+   "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+   "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+  },
+  "not_counted": [
+   "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+   "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+   "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+   "CI minutes and the reviewer bots' own model calls"
+  ]
+ }
+}

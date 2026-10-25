@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 10b: an independent rerun with predictions on record (conformal shortlist and pilot bound, larger designs)
+- A second run built the same step in parallel and found it already on `main` (PR #10336). Its numbers reproduce exactly: protocol B R2 m = 16 alpha = 0.2 coverage 0.747 (eps 0) and 0.869 (eps 0.02), 0.49 of the pool routed; protocol A shortlist 0.60 of the pool at coverage 0.90; top-vs-all bound B covers at least 0.81 in all 20 cells, median bound 0.13 to 0.51 except the ripple adder. That is a replication on a different code path (separate edit of the same scripts).
+- Predictions written before the output was read, scored against it: (1) B within 0.05 of nominal at alpha 0.2 and above 0.5 of the pool routed: missed narrowly (0.053 under; 0.49 routed). (2) Protocol A under nominal for R2: wrong (0.90 above 0.80; the cost is a 0.60 shortlist). (3) Bound B covers at least 0.8 in every cell and is uninformative above 0.1: held. The tight-clock-only split of protocol A was not run (five groups per clock).
+
 ## 2026-10-25 · Milestone 10: does the conformal shortlist (H4) survive the larger designs?
 - Why: milestone 9's "next". **Honesty note: I ran the replay first and wrote this entry after, so there are no predictions on record for this step.** The script is milestone 4's `conformal/replay.py` unchanged except that it takes a table path and an output prefix (`python3 conformal/replay.py large/results.jsonl ../large/conformal_`, 20 s, no flow run); the default call still reproduces the old files.
 - Outcome (`experiments/large/conformal_results.txt`, `conformal_summary.json`; 10 groups = 5 designs x 2 clocks, pools of 50 to 52; milestone 4 had 20 groups):

@@ -1,0 +1,182 @@
+[
+ {
+  "cell": "tight:adder_op64:r1",
+  "cov_a": 0.66,
+  "cov_b": 0.9966666666666667,
+  "bound_a": 0.20944373001891314,
+  "bound_b": 0.4486218677870477,
+  "realised": 0.11978102965152893,
+  "max_realised": 0.11978102965152893
+ },
+ {
+  "cell": "tight:adder_op64:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.10340534516365985,
+  "bound_b": 0.3862845761647158,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:adder_ripple64:r1",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.5623439270596471,
+  "bound_b": 0.5623439270596471,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:adder_ripple64:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.0,
+  "bound_b": 0.0,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:mult16:r1",
+  "cov_a": 0.9683333333333334,
+  "cov_b": 1.0,
+  "bound_a": 0.2109995477367761,
+  "bound_b": 0.42800716159503693,
+  "realised": 0.061817334848036865,
+  "max_realised": 0.08772363963703
+ },
+ {
+  "cell": "tight:mult16:r2",
+  "cov_a": 0.9633333333333334,
+  "cov_b": 1.0,
+  "bound_a": 0.10950079873532204,
+  "bound_b": 0.2526753990648558,
+  "realised": 0.007413617069875755,
+  "max_realised": 0.007413617069875755
+ },
+ {
+  "cell": "tight:mult24:r1",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.17946818448089452,
+  "bound_b": 0.3256734082358763,
+  "realised": 0.0069697897712188706,
+  "max_realised": 0.0069697897712188706
+ },
+ {
+  "cell": "tight:mult24:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.07383778111895545,
+  "bound_b": 0.157099521892893,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "tight:mult32:r1",
+  "cov_a": 0.99,
+  "cov_b": 1.0,
+  "bound_a": 0.1550914146507445,
+  "bound_b": 0.29448905228722744,
+  "realised": 0.007710183458335962,
+  "max_realised": 0.007710183458335962
+ },
+ {
+  "cell": "tight:mult32:r2",
+  "cov_a": 0.87,
+  "cov_b": 0.9866666666666667,
+  "bound_a": 0.05897290191090043,
+  "bound_b": 0.13253791112488855,
+  "realised": 0.007710183458335962,
+  "max_realised": 0.007710183458335962
+ },
+ {
+  "cell": "relaxed:adder_op64:r1",
+  "cov_a": 0.7966666666666666,
+  "cov_b": 1.0,
+  "bound_a": 0.13134176568258216,
+  "bound_b": 0.3046631689690029,
+  "realised": 0.03955291993851162,
+  "max_realised": 0.03955291993851162
+ },
+ {
+  "cell": "relaxed:adder_op64:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.03605522573098785,
+  "bound_b": 0.17134553577647083,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:adder_ripple64:r1",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.4433470434218396,
+  "bound_b": 0.4433470434218396,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:adder_ripple64:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.0,
+  "bound_b": 0.0,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:mult16:r1",
+  "cov_a": 0.8966666666666666,
+  "cov_b": 1.0,
+  "bound_a": 0.31063294261643914,
+  "bound_b": 0.5104821895333398,
+  "realised": 0.20415201530167443,
+  "max_realised": 0.21213809634500258
+ },
+ {
+  "cell": "relaxed:mult16:r2",
+  "cov_a": 1.0,
+  "cov_b": 1.0,
+  "bound_a": 0.14118305762689332,
+  "bound_b": 0.2359604888773763,
+  "realised": 0.0,
+  "max_realised": 0.0
+ },
+ {
+  "cell": "relaxed:mult24:r1",
+  "cov_a": 0.7933333333333333,
+  "cov_b": 0.9733333333333334,
+  "bound_a": 0.28699048545273964,
+  "bound_b": 0.5024839722349812,
+  "realised": 0.1558497624568549,
+  "max_realised": 0.1558497624568549
+ },
+ {
+  "cell": "relaxed:mult24:r2",
+  "cov_a": 0.6133333333333333,
+  "cov_b": 0.8533333333333334,
+  "bound_a": 0.14268927753533056,
+  "bound_b": 0.2468809590395713,
+  "realised": 0.1074980061898465,
+  "max_realised": 0.1074980061898465
+ },
+ {
+  "cell": "relaxed:mult32:r1",
+  "cov_a": 0.7466666666666667,
+  "cov_b": 0.9733333333333334,
+  "bound_a": 0.24770283672716253,
+  "bound_b": 0.5034444434732395,
+  "realised": 0.1313637079161296,
+  "max_realised": 0.1313637079161296
+ },
+ {
+  "cell": "relaxed:mult32:r2",
+  "cov_a": 0.48333333333333334,
+  "cov_b": 0.81,
+  "bound_a": 0.12335106740037372,
+  "bound_b": 0.2840439071452696,
+  "realised": 0.12910256978091006,
+  "max_realised": 0.12910256978091006
+ }
+]
