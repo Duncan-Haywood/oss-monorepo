@@ -82,6 +82,28 @@ class FindingsIn(unittest.TestCase):
         self.write("index.html", '<a href="https://www.paypal.com/donate?hosted_button_id=ABCD1234EF">x</a>\n')
         self.assertEqual(self.kinds(), ["PayPal hosted button"])
 
+    def test_paypal_button_id_in_form_markup_and_json_fails(self):
+        # The standard PayPal embed is a hidden form input, not a query string.
+        for name, text in (
+            ("form.html", '<input type="hidden" name="hosted_button_id" value="ABCD1234EF">\n'),
+            ("cfg.json", '{"hosted_button_id": "ABCD1234EF"}\n'),
+            ("cfg.ts", "const o = { hosted_button_id: 'ABCD1234EF' };\n"),
+            ("cfg.sh", 'URL="x?hosted_button_id=\'ABCD1234EF\'"\n'),
+        ):
+            with self.subTest(name=name):
+                self.write(name, text)
+        self.assertEqual(len(self.kinds()), 4)
+
+    def test_paypal_env_lookups_pass(self):
+        self.write("a.ts", "const o = { hosted_button_id: process.env.PAYPAL_BUTTON };\n")
+        self.write("b.html", '<input name="hosted_button_id" value="">\n')
+        self.assertEqual(self.kinds(), [])
+
+    def test_live_key_glued_to_a_name_prefix_fails(self):
+        # An underscore is a word character, so a bare \\b missed STRIPE_sk_live_...
+        self.write("a.env", f"STRIPE_KEY_{LIVE}\n")
+        self.assertEqual(self.kinds(), ["live Stripe key"])
+
     def test_lockfiles_and_node_modules_skipped(self):
         self.write("package-lock.json", '"funding": "https://buy.stripe.com/aBcDeF123456"\n')
         self.write("node_modules/x/index.js", f'"{LIVE}"\n')

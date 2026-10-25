@@ -14,7 +14,8 @@ account gets hardcoded:
 - a live Stripe secret or restricted key (`sk_live_`, `rk_live_`);
 - a Stripe Payment Link or donation link with a real link id
   (`buy.stripe.com/...`, `donate.stripe.com/...`);
-- a PayPal hosted-button id (`hosted_button_id=...`).
+- a PayPal hosted-button id (`hosted_button_id=...`, or the same in a form
+  input, JSON or object literal).
 
 Test-mode placeholders (`sk_test_checkout`) and env lookups pass. Lockfiles
 are skipped: they carry package authors' funding links, not ours.
@@ -32,9 +33,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 VENTURES = REPO_ROOT / "ventures"
 
 PATTERNS = (
-    ("live Stripe key", re.compile(r"\b[sr]k_live_[A-Za-z0-9]{16,}")),
+    ("live Stripe key", re.compile(r"(?<![A-Za-z0-9])[sr]k_live_[A-Za-z0-9]{16,}")),
     ("Stripe payment link", re.compile(r"\b(?:buy|donate)\.stripe\.com/(?:test_)?[A-Za-z0-9]{10,}")),
-    ("PayPal hosted button", re.compile(r"hosted_button_id=[A-Z0-9]{8,}")),
+    ("PayPal hosted button", re.compile(r"""hosted_button_id(?:["']?\s*[:=]\s*["']?|["']\s+value=["'])[A-Z0-9]{8,}""")),
 )
 
 # Anything text is scanned (a key in a .sh, .vue or .txt file is as public as
