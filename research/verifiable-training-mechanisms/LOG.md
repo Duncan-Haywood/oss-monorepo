@@ -2,9 +2,9 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-25 · Milestone 14: transformer results moved into the paper (no new experiment)
-- Added a "small transformer" paragraph and table to `paper/main.tex` (section on the margin) from `experiments/transformer*/results.txt`: 600 and 3000 steps, float32 and bf16 referees; updated Limitations (the old text still described 600 steps only). Every number is copied from the results files or milestones 11 to 13 above.
-- Still open: compile check (no LaTeX here), registry-check of the 17 references (403 from here), H5 proof placement is done, a model of recovery for H6, larger model or different optimizer (Adam) for the margin.
+## 2026-10-25 · Milestone 14: transformer results move into the paper (no new experiment)
+- Added a "A small transformer" paragraph and Table `tab:tf` to the margin section of `paper/main.tex`, and shortened the Limitations sentence to point at it. Every number is copied from `experiments/transformer*/results.txt` (milestones 11 to 13); none was rerun.
+- Still open: the draft is uncompiled (no LaTeX here), the 17 references are not machine-checked (registries 403 through the proxy), and the transformer is 30k parameters on one fixed split.
 
 ## 2026-10-24 · Milestone 13: the transformer trained 5x longer (H1), planned before running
 - Why: milestones 11 and 12 stop at 600 steps with held-out loss 2.73, far from converged, so the late-training regime (small updates, where skipping should be cheapest) is only partly reached. `experiments/transformer_long/run.py` is the milestone 11 run with `steps=3000` (same model, corpus, 10 seeds, float32 reorder referee), taus 1e-3, 3e-3, 1e-2, 3e-2.

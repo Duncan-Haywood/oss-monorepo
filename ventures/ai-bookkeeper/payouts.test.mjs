@@ -346,6 +346,18 @@ po_9,2026-04-05,txn_4,2026-04-03,anticipation_repayment,-30.00,0.00,-30.00,Advan
   assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 9000 }, { account: "1200", cents: 17000 }]);
 });
 
+test("Stripe reporting categories added from the reference: holds and releases are clearing, Climate is a fee", () => {
+  const rep = `${HEAD}
+po_8,2026-04-05,txn_1,2026-04-01,charge,100.00,3.20,96.80,Sale
+po_8,2026-04-05,txn_2,2026-04-02,payout_minimum_balance_hold,-20.00,0.00,-20.00,Hold
+po_8,2026-04-05,txn_3,2026-04-02,payment_network_reserve_release,5.00,0.00,5.00,Release
+po_8,2026-04-05,txn_4,2026-04-03,climate_order_purchase,-1.00,0.00,-1.00,Climate
+po_8,2026-04-05,txn_5,2026-04-03,charge_failure,-10.00,0.00,-10.00,Failed
+`;
+  const r = readPayoutReport(rep);
+  assert.deepEqual(r.rows.map((x) => x.kind), ["sales", "reserve", "reserve", "fees", "refunds"]);
+});
+
 test("Square dashboard transactions CSV: deposit id groups payments and refunds, fees are negatives", () => {
   const r = readPayoutReport(readFileSync(new URL("./fixtures/square-transactions.csv", import.meta.url), "utf8"));
   assert.deepEqual(r.problems, []);

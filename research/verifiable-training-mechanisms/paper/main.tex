@@ -93,28 +93,28 @@ measurable. The margin is therefore real (a worker passes the check while doing 
 at drift-sized tolerances, costs the requester saved work, not a worse model; quality is lost only above a
 task-dependent threshold that follows the late update-norm distribution, which suggests stating $\tau$ as a quantile of
 honest update norms.
-\paragraph{A small transformer.} To test whether the pattern is specific to MLPs, we train a 2-layer, $d=32$, 2-head character-level
-causal transformer (about 30k parameters) on an 87\,kB text corpus (80/20 split by position), plain cosine SGD, 10 seeds, at 600 and
-3000 steps. Float32 reorder drift is at most $1.5\times10^{-7}$ (p99 $9\times10^{-8}$), four to six orders below honest update norms
-(10/50/90\% quantiles $0.0038/0.081/0.22$ at 600 steps). A bfloat16 referee (CPU autocast forward) has drift p50 $8.5\times10^{-4}$, p99
-$2.4\times10^{-3}$, max $4.0\times10^{-3}$, so a tolerance of $10^{-3}$ falsely disputes $41\%$ of honest steps while $10^{-2}$ disputes none.
-Table~\ref{tab:tf} gives the skip shortcut. The loss given up is measurable (every paired CI excludes zero) but under one seed standard
-deviation up to $\tau=10^{-2}$ at 600 steps and up to $3\times10^{-2}$ at 3000 steps; the skipped share is lower at 3000 steps
-($11\%$ against $16\%$ at $10^{-2}$) because the median update norm rose ($0.139$ against $0.081$), so more training did not make skipping cheaper.
-The bfloat16 referee leaves the cheater's saving unchanged to the third digit (the skip decision depends on the gradient norm), so
-an honest-safe tolerance on bfloat16 hardware ($\ge10^{-2}$) already lets a cheater skip $16\%$ of steps at $0.2$ seed standard deviations.
-\begin{table}[t]\caption{Transformer, skip shortcut, float32 reorder referee: share skipped / paired loss given up (95\% bootstrap CI, 10 seeds).
-Source: \texttt{experiments/\{transformer,transformer\_long\}/results.txt}.}\label{tab:tf}\small
+
+\paragraph{A small transformer.} To check that the pattern is not specific to MLPs we repeat the test on a 2-layer,
+$d=32$, 2-head character-level causal transformer (about 30k parameters) trained with plain cosine SGD on an 87~kB
+text corpus (80/20 split by position, fixed; 10 seeds for init and batch order). Float32 reorder drift is at most
+$1.5\times10^{-7}$ at 600 steps and $1.3\times10^{-7}$ at 3,000 steps, against median update norms of $0.081$ and $0.139$;
+a bfloat16 forward-pass referee drifts by a median $8.5\times10^{-4}$ (p99 $2.4\times10^{-3}$, max $4.0\times10^{-3}$), so a
+tolerance of $10^{-3}$ falsely disputes $41\%$ of honest steps and $10^{-2}$ disputes none. Table~\ref{tab:tf} shows the
+skip shortcut. At $\tau=10^{-2}$, about $2.5\times$ the worst bf16 drift, the cheater skips $16\%$ of steps at 600 steps
+($11\%$ at 3,000) and gives up $0.2$ ($0.11$) seed standard deviations of held-out loss; the paired intervals exclude zero
+at every $\tau$, so the cost is measurable but small. The skip decision depends on the gradient norm, which bf16 barely
+changes, so the bf16 and float32 columns coincide to three digits: the referee sets the false-dispute rate, not what the
+cheater saves. Skipping never helped on average here, unlike on breast cancer. At 3,000 steps the loss ($2.28$) is still
+not converged.
+\begin{table}[t]\caption{Transformer, skip shortcut: share of steps skipped / paired loss given up (95\% bootstrap CI).
+Source: \texttt{experiments/transformer*/results.txt}.}\label{tab:tf}\small
 \begin{tabular}{lcc}
-$\tau$ & 600 steps (loss 2.725) & 3000 steps (loss 2.279)\\\hline
-$10^{-3}$ & 5.1\% / $+0.00009$ (0.00005 to 0.00013) & 3.5\% / $+0.00014$ (0.00008 to 0.00020)\\
-$3\times10^{-3}$ & -- & 6.2\% / $+0.00040$ (0.00018 to 0.00061)\\
+$\tau$ & 600 steps (held-out loss 2.725) & 3,000 steps (2.279)\\\hline
+$10^{-3}$ & 5.1\% / $+0.00009$ & 3.5\% / $+0.00014$\\
 $10^{-2}$ & 16\% / $+0.0017$ (0.0011 to 0.0022) & 11\% / $+0.0030$ (0.0026 to 0.0036)\\
-$3\times10^{-2}$ & 29\% / $+0.0085$ (0.0077 to 0.0092) & 20\% / $+0.0126$ (0.0111 to 0.0142)\\
-$10^{-1}$ & 59\% / $+0.062$ (0.057 to 0.068) & --\\
+$3\times10^{-2}$ & 29\% / $+0.0085$ & 20\% / $+0.0126$ (0.0111 to 0.0142)\\
+$10^{-1}$ & 59\% / $+0.063$ & --\\
 \end{tabular}\end{table}
-Unlike breast cancer, skipping never helps here, so the saved work is paid for in loss; the pattern (a margin that is invisible at
-drift-sized tolerances and costly above a threshold set by the update-norm distribution) carries over to attention models at this scale only.
 \section{Single-check and joint contracts (H2, H5)}\label{sec:contracts}
 For the honest target, audit-only costs $1.001\,C$ at $\tau=0$ (one audited step) and is infeasible at every
 $\tau\ge10^{-4}$ at any stake: skipping the steps below $\tau$ passes every audit and pay cannot tell it from honest work.
@@ -148,7 +148,7 @@ standard deviation, A is out by $123\times$ and $12\times$ there, B by $3.0\time
 and the ratio is in $[0.5,2]$ in 1 of 9 settings. Both overshoot because skipped steps are exactly the small-update steps,
 whose loss the remaining training recovers. A model of recovery is the open constructive claim.
 \section{Limitations}
-Three small scikit-learn tasks and plain SGD, plus one 30k-parameter character-level transformer (10 seeds, 600 and 3000 steps, loss 2.73 and 2.28, not converged; fixed split, so seed variance excludes split variance), no realistic scale; the skip shortcut only for the dense results; one reorder
+Three small scikit-learn tasks and plain SGD, plus one 30k-parameter character-level transformer (10 seeds, 600 and 3,000 steps, loss not converged, fixed split; see Table~\ref{tab:tf}), no realistic scale; the skip shortcut only for the dense results; one reorder
 referee; two workers for agreement and pure strategies for collusion; contract parameters ($\delta,\alpha,\kappa$, stakes)
 are swept rather than measured on real trajectories; the paper is uncompiled (no LaTeX here) and the related-work
 section is incomplete.
