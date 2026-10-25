@@ -528,3 +528,14 @@ test("a PayPal payment the account holder sent is not booked as a sale", () => {
   assert.equal(r.problems.length, 1);
   assert.match(r.problems[0], /payment sent/);
 });
+
+test("Amazon charge and adjustment names from the SP-API Finances model book to the right kind", () => {
+  const head = "settlement-id\tsettlement-start-date\tsettlement-end-date\tdeposit-date\ttotal-amount\tcurrency\ttransaction-type\torder-id\tamount-type\tamount-description\tamount";
+  const names = [["Order", "ItemPrice", "TCS-CGST", "tax"], ["Order", "ItemPrice", "PaymentMethodFee", "fees"], ["Order", "ItemPrice", "Goodwill", "refunds"],
+    ["Order", "ItemPrice", "GenericDeduction", "other"], ["other-transaction", "other-transaction", "PostageBilling", "fees"],
+    ["other-transaction", "other-transaction", "PrivateLabelCreditCardRevenue", "other"], ["other-transaction", "other-transaction", "StoredValueCardRefund", "other"]];
+  const rows = names.map(([t, a, w], i) => `S\t\t\t\t\t\t${t}\tA${i}\t${a}\t${w}\t1.00`).join("\n");
+  const r = readPayoutReport(`${head}\nS\t\t\t2026-03-05\t${names.length}.00\tUSD\t\t\t\t\t\n${rows}\n`);
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.payouts[0].rows.map((x) => x.kind), names.map((n) => n[3]));
+});
