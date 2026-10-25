@@ -68,3 +68,15 @@ test("memos read on HCB page 6 (home-improvement site, fab shops, parking app, m
   assert.equal(c.suggested, 6);
   assert.equal(c.hits.get("spothero 844-356-8054 => 6160"), 1);
 });
+
+test("memos read on HCB page 7 (robotics suppliers, regional restaurants) get an account; Walmart and Amazon stay open", () => {
+  const c = coverage([
+    { memo: "SP THE THRIFTY BOT", cents: -4000 }, { memo: "VEX ROBOTICS", cents: -9000 },
+    { memo: "STUDICA LIMITED", cents: -7000 }, { memo: "MCALISTERS 1007", cents: -3000 },
+    { memo: "DAIRY QUEEN #43841", cents: -1500 }, { memo: "WAL-MART #0935", cents: -5000 },
+    { memo: "Amazon", cents: -3000 },
+  ]);
+  assert.equal(c.suggested, 5);
+  assert.equal(c.hits.get("vex robotics => 6100"), 1);
+  assert.equal(c.hits.get("mcalisters 1007 => 6130"), 1);
+});

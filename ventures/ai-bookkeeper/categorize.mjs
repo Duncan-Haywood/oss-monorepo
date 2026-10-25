@@ -124,6 +124,9 @@ export const BUILT_IN = [
   ["6120", "out", /frontier reservations/],
   ["6000", "out", /customink|bonfire\.com/],
   ["6130", "out", /famous dave|chili's/],
+  // HCB page 7 (eval/hcb-memos.mjs --orgpage 7), written after the held-out reading.
+  ["6100", "out", /sp the thrifty bot|\bsp wcproducts|\bvex robotics|studica|ctr electronics|swerve drive spec|swyft robotics|metal supermarkets|automationdirect|plummer industries|general rubber|fuller & son hardware|robo promo|\bnte 5680|schneider'?s wholesale|american button m/],
+  ["6130", "out", /mcalister|papa john|dairy queen|firehouse subs|ribcrib|super duper burgers|pot & paddle|jambalaya|totum/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
