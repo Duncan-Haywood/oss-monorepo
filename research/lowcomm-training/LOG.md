@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3h: is the DiLoCo-paper outer setting bad only because the inner lr is wrong for it? (planned before running)
+- Why: 3g's "Next". At inner lr 2e-3 (tuned for plain averaging) outer (0.7, 0.9) cost +0.127 nats at `H = 16`. With Nesterov momentum 0.9 the effective outer step is up to 10x larger, so a lower inner lr, or a smaller outer lr, may recover it.
+- Design (`experiments/gpt_outer_retune/retune.py`): 3d's model, data, budget (3,840 steps), `M = 4`, `H = 16`, seeds 0 to 2 (12 runs). Inner lr in {5e-4, 1e-3} x outer (lr, momentum) in {(0.7, 0.9), (0.3, 0.9)}. The comparison is plain averaging at its tuned 2e-3 (3d, 1.5758 mean). Cells are scored directly on the report seeds with no separate tuning seeds, which favours the momentum arms (best of 4 cells), so a null is conservative and a win would need re-confirming on fresh seeds.
+- **H3h-i:** the best of the 4 cells is within 0.01 nats of plain@2e-3 (the paper's setting can be rescued by joint tuning). Refuted if every cell is worse by more than 0.01.
+- **H3h-ii:** the best cell beats plain@2e-3 on all 3 seeds. Prior: unlikely (3g found no outer momentum gain).
+- Limits: 4 cells, 3 seeds, `H = 16` only, one size and corpus.
+
+### Outcome of 3h (`experiments/gpt_outer_retune/retune_results.txt`; 12 runs, seeds 0 to 2, `H = 16`)
+- Mean loss (nats) vs plain@2e-3 1.5758: inner 5e-4 / outer (0.7, 0.9) 1.6253 (+0.050); 5e-4 / (0.3, 0.9) 1.6102 (+0.034); 1e-3 / (0.7, 0.9) 1.6356 (+0.060); 1e-3 / (0.3, 0.9) 1.6078 (+0.032). 3g's 2e-3 / (0.7, 0.9) was 1.7028 (+0.127). Every cell is worse than plain on all 3 seeds (paired diffs +0.025 to +0.077).
+- **H3h-i refuted** (best cell +0.032, beyond the 0.01 tolerance). **H3h-ii refuted** (0 of 4 cells beat plain on any seed), as the prior said.
+- Reading: joint tuning recovers about three quarters of the paper setting's gap (+0.127 to +0.032) mainly via a smaller outer lr and a lower inner lr, but momentum 0.9 still does not beat plain averaging on this 3,840-step, 413k-parameter run. The scored cells were chosen on the report seeds, which favours momentum, so the negative result is conservative. It closes the outer-momentum branch at this scale; whether it reopens at longer budgets (the paper's regime) is untested.
+- Limits: 4 cells, 3 seeds, `H = 16` only, one size and corpus.
+- Next: lengthen the budget (3,840 to about 15k steps) for plain vs (0.3, 0.9) at `H = 16`, to test the budget-dependence explanation.
+
 ## 2026-10-25 · Milestone 4a: does the excess loss from unbiased rand-k compression of the worker deltas grow linearly in 1+omega on the real GPT? (H3, planned before running)
 - Why: milestone 4 (compression axis) has no GPT result yet; 3d to 3g covered H, lr and outer momentum. PR #10377 (joint inner-lr re-tune) is a different axis.
 - Design (`experiments/gpt_compression/compression.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3, `H = 16`, plain outer step (lr 1, no momentum). Each worker's per-tensor delta is passed through an unbiased rand-k sparsifier (keep fraction p in {0.5, 0.25, 0.125, 0.0625}; omega = 1/p - 1 = 1, 3, 7, 15) before averaging over the 4 workers. Seeds 0 to 2 (12 runs). The uncompressed row is 3d's `H = 16` at 2e-3. Error feedback is not used (unbiased compressors, as H3 is stated).
