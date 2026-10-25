@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3f: is synchronous AdamW under-tuned against H=16? A finer lr grid for both (planned before running)
+- Why: 3e's "Next". `H=16` beats sync by 0.012 nats over 11 seeds at a shared lr of 2e-3 from a 3-point grid {1e-3, 2e-3, 4e-3}. 3d's tuning means for sync were 1.5893 (2e-3) and 1.5919 (1e-3) against 1.6e+ at 4e-3, so the optimum may lie between grid points, and the two methods may peak at different lrs.
+- Design (`experiments/gpt_fine_lr/fine.py`): 3d's model, data, budget (3,840 steps), `M = 4`. Add lr 1.4e-3 and 2.8e-3 for sync and `H=16` (16 tuning runs on seeds 100, 101 pooled with 3d's, then the same lrs on seeds 0 to 2: 20 new runs in all). Each method's pick is the lowest mean tuning loss over {1e-3, 1.4e-3, 2e-3, 2.8e-3, 4e-3} on seeds 100, 101 only; the report is the paired gap at each method's own pick on seeds 0 to 2.
+- **H3f-i:** sync's tuned lr changes from 2e-3 and sync improves by more than 0.003 nats on seeds 0 to 2 (under-tuning confirmed). Refuted otherwise.
+- **H3f-ii:** `H=16` still beats sync at own picks (mean paired gap < 0 on seeds 0 to 2). Refuted if the gap is >= 0.
+- Prior: sync's optimum is flat between 1e-3 and 2e-3, so H3f-i is unlikely; H3f-ii likely holds but with a smaller gap.
+- Limits: 2 tuning seeds, 3 report seeds (the 11-seed result of 3e stands for the 2e-3 shared pick), one size and corpus.
+
 ## 2026-10-25 · Milestone 3e: is 3d's "H=16 beats synchronous AdamW" sign real with 11 seeds? (planned before running)
 - Why: 3d's "Next". At 3,840 steps and a shared lr 2e-3, `H=16` was 0.014 nats below synchronous on 3 seeds, which could be seed noise. If it is real, local steps help on this model; if not, the honest reading is "no measurable cost up to `H=16`".
 - Design (`experiments/gpt_seeds/seeds.py`): identical model, data, budget and lr (2e-3) as 3d; sync and `H=16` on seeds 3 to 10 (16 new runs), pooled with 3d's seeds 0 to 2 for 11 paired seeds. Paired difference `H=16` minus sync, t interval, paired t and Wilcoxon tests. Nothing else varied.
