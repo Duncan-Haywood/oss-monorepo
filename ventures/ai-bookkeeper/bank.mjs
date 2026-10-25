@@ -412,7 +412,7 @@ function ofxDate(v) {
 }
 
 function ofxTag(block, tag) {
-  const m = new RegExp(`<${tag}>(?:\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>|([^<\\r\\n]*))`, "i").exec(block);
+  const m = new RegExp(`<${tag}>(?:\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>|\\s*([^<\\r\\n]*))`, "i").exec(block);
   return m ? (m[1] !== undefined ? m[1].trim() : unescapeOfx(m[2].trim())) : "";
 }
 
