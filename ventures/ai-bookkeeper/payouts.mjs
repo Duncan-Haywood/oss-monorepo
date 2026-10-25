@@ -77,6 +77,34 @@ const CATEGORY = {
   // Older balance-transaction types some exports still carry in the category column.
   reserve_transaction: "reserve", recipient_transfer: "skip", recipient_transfer_cancel: "reserve", recipient_transfer_failure: "reserve",
   transfer_cancel: "reserve", transfer_failure: "reserve",
+  // Shopify Payments balance-transaction types (ShopifyPaymentsTransactionType in the Admin GraphQL reference, checked
+  // 2026-10-25; the reference gives names only, so the meaning of each is read from its name). Shipping labels, referral
+  // and protection charges, billing and duties are costs; loans, balance and merchant-to-merchant transfers and risk or
+  // reserve holds are balance movements, not income. Anomaly, collections, ads-publisher, Markets Pro and Shopify
+  // Collective or Source entries stay "other income": nothing in the name says what they are.
+  ach_bank_failure_debit_fee: "fees", ach_bank_failure_debit_reversal_fee: "fees", referral_fee: "fees", referral_fee_tax: "fees",
+  shipping_label: "fees", shipping_label_adjustment: "fees", shipping_label_adjustment_base: "fees", shipping_label_adjustment_surcharge: "fees",
+  shipping_other_carrier_charge_adjustment: "fees", shipping_return_to_origin_adjustment: "fees",
+  billing_debit: "fees", billing_debit_reversal: "fees", shop_cash_billing_debit: "fees", shop_cash_billing_debit_reversal: "fees",
+  shop_cash_campaign_billing_debit: "fees", shop_cash_campaign_billing_debit_reversal: "fees",
+  shop_cash_campaign_billing_credit: "fees", shop_cash_campaign_billing_credit_reversal: "fees",
+  chargeback_fee_refund: "fees", chargeback_protection_debit: "fees", chargeback_protection_debit_reversal: "fees",
+  marketplace_fee_credit: "fees", marketplace_fee_credit_reversal: "fees", promotion_credit: "fees", promotion_credit_reversal: "fees",
+  customs_duty: "fees", customs_duty_adjustment: "fees", import_tax: "fees", import_tax_adjustment: "fees", import_tax_refund: "fees",
+  tax_adjustment_credit: "tax", tax_adjustment_credit_reversal: "tax", tax_adjustment_debit: "tax", tax_adjustment_debit_reversal: "tax",
+  vat_refund_credit: "tax", vat_refund_credit_reversal: "tax",
+  charge_adjustment: "sales", channel_credit: "sales", channel_credit_reversal: "sales", channel_promotion_credit: "sales", channel_promotion_credit_reversal: "sales",
+  channel_transfer_credit: "sales", channel_transfer_credit_reversal: "sales", channel_transfer_debit: "sales", channel_transfer_debit_reversal: "sales",
+  shop_cash_credit: "sales", shop_cash_credit_reversal: "sales",
+  refund_adjustment: "refunds", shop_cash_refund_debit: "refunds", shop_cash_refund_debit_reversal: "refunds",
+  chargeback_hold_release: "disputes", chargeback_protection_credit: "disputes", chargeback_protection_credit_reversal: "disputes",
+  seller_protection_credit: "disputes", seller_protection_credit_reversal: "disputes",
+  balance_transfer_inbound: "reserve", balance_transfer_outbound: "reserve", reserved_funds_reversal: "reserve", reserved_funds_withdrawal: "reserve",
+  risk_reversal: "reserve", risk_withdrawal: "reserve",
+  lending_capital_refund: "reserve", lending_capital_refund_reversal: "reserve", lending_capital_remittance: "reserve", lending_capital_remittance_reversal: "reserve",
+  lending_credit: "reserve", lending_credit_refund: "reserve", lending_credit_refund_reversal: "reserve", lending_credit_remittance: "reserve",
+  lending_credit_remittance_reversal: "reserve", lending_credit_reversal: "reserve", lending_debit: "reserve", lending_debit_reversal: "reserve",
+  merchant_to_merchant_credit: "reserve", merchant_to_merchant_credit_reversal: "reserve", merchant_to_merchant_debit: "reserve", merchant_to_merchant_debit_reversal: "reserve",
 };
 
 // Read the report. -> { rows, payouts: [{ id, date, net, parts, rows }], pending, problems }
