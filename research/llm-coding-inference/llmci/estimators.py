@@ -194,3 +194,15 @@ def label_shift(f_all, y, f):
     # dp/dq = 1/d ; dp/dfpr = (q - tpr)/d^2 ; dp/dtpr = -(q - fpr)/d^2
     se = math.sqrt(v_q / d**2 + v_f * ((q - tpr) / d**2) ** 2 + v_t * ((q - fpr) / d**2) ** 2)
     return Est(p, se)
+
+
+def neyman_total(sizes, s2, half, z=Z95):
+    """Smallest real-valued total audit size n so that the stratified-PPI half-width is `half` under Neyman
+    allocation n_h proportional to N_h S_h, with the finite-population correction. sizes: stratum sizes N_h;
+    s2: variances S_h^2 of r = y - f in each stratum. Solves z^2 [ (sum W S)^2 / n - sum W_h^2 S_h^2 / N_h ] = half^2,
+    so n = (sum W S)^2 / (half^2 / z^2 + sum W_h^2 S_h^2 / N_h)."""
+    big = sum(sizes)
+    w = [N / big for N in sizes]
+    s = [math.sqrt(v) for v in s2]
+    num = sum(a * b for a, b in zip(w, s)) ** 2
+    return num / (half ** 2 / z ** 2 + sum(a * a * v / N for a, v, N in zip(w, s2, sizes)))
