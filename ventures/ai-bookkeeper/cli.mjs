@@ -585,6 +585,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const m of plan.done) console.log(`${m.id.padEnd(14)} ${m.date}  already split on line ${m.line}`);
   for (const m of plan.unmatched) console.log(`${m.id.padEnd(14)} ${m.date}  net ${fmt(m.net).padStart(11)}  NOT MATCHED: ${m.why}`);
   if (plan.pending.length) console.log(`${plan.pending.length} row${plan.pending.length > 1 ? "s" : ""} not paid out yet (${fmt(plan.pending.reduce((a, x) => a + x.net, 0))}); they match once the payout lands.`);
+  if (plan.offPlatform?.length) console.log(`${plan.offPlatform.length} cash or other-tender row${plan.offPlatform.length > 1 ? "s" : ""} (${fmt(plan.offPlatform.reduce((a, x) => a + x.net, 0))}) never pass through a payout; book them from the till, not the bank.`);
   console.log(doApply ? `${result.posted} payout${result.posted === 1 ? "" : "s"} split in the books${result.skipped.length ? `, ${result.skipped.length} skipped as ambiguous` : ""}.` : plan.matched.length ? "Add --apply to post these splits." : "Nothing to post.");
 } else if (cmd === "form1099k") {
   const year = Number(flag("--year")), gross = parseCents(String(flag("--gross") ?? ""));
