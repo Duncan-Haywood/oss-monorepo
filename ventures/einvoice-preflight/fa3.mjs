@@ -7,11 +7,12 @@
 // validates against it with xmllint. Sums are only checked on a plain VAT invoice
 // (RodzajFaktury VAT or UPR): advance, settlement and correcting invoices carry
 // differences and part-amounts this reader does not model, so those checks are
-// skipped and named in `skipped`, never counted as a pass. The XSD itself
-// (element order, patterns) is not run here. This is an offline observation, not
+// skipped and named in `skipped`, never counted as a pass. The XSD itself is run
+// first from fa3-xsd.mjs (PL-012..PL-017). This is an offline observation, not
 // KSeF's acceptance and not tax advice. Findings never repeat a tax number.
 
 import { parseXmlTree } from "./ubl.mjs";
+import { checkAgainstFa3Schema } from "./fa3-xsd.mjs";
 
 const TOLERANCE = 0.01;
 const RATES = new Set(["23", "22", "8", "7", "5", "4", "3", "0 KR", "0 WDT", "0 EX", "zw", "oo", "np I", "np II"]);
@@ -67,7 +68,10 @@ export function checkFa3(source) {
   const tree = parseXmlTree(text);
   const root = tree.children.find((c) => c.name === "Faktura");
   if (!root) throw new Error("Not a FA(3) Faktura document");
-  const out = [];
+  // The schema is the first gate: structure, order, code lists, lengths and patterns (PL-012..PL-017).
+  // A bad tax rate keeps its own, more specific PL-004 below rather than the schema's generic PL-015.
+  const out = checkAgainstFa3Schema(root, text).filter((f) => !(f.rule === "PL-015" && /\/P_12$/.test(f.path)));
+  if (out.some((f) => f.rule === "PL-017")) return { findings: out, skipped: ["every other check (the XML is cut off)"] };
   const skipped = [];
   const head = child(root, "Naglowek");
   const variant = txt(head, "WariantFormularza");
