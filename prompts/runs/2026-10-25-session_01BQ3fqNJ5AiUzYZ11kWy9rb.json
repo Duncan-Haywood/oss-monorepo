@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01BQ3fqNJ5AiUzYZ11kWy9rb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (revenue products brief)",
+  "model": "claude-sonnet-5-5",
+  "ended": null,
+  "task": "Deepen (flagship 5): einvoice-preflight Norway page",
+  "projects": ["einvoice-preflight"],
+  "outcome": "success",
+  "pr": 10423,
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {"file": "prompt.md", "why": "promptctl routed to the review track (42 merged runs); the brief asks for venture work, so did a flagship slice instead and left the review to a run that can do the full pass."}
+  ],
+  "writeups": ["docs/posts/2026-10-25-norway-e-invoice-mandate-page.md"],
+  "notes": "Norway page from search excerpts only (Lovdata, skatteetaten.no not read). node --test on the Norway, hub, Croatia and UK pages passes."
+}
