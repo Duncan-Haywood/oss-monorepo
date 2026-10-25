@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 16: the draft compiles; figures and full-width tables added (no experiment)
+- Installed TeX Live (`texlive-latex-extra`, `-publishers` for `acmart`, `-fonts-recommended`, `cm-super`) and built `paper/main.tex` with pdflatex and bibtex: 4 pages in the `sigconf,anonymous` format, no undefined references or citations. Two problems the uncompiled draft hid: neither figure was in the paper, and both result tables overflowed the column (one by 258 pt). Fixed: both tables are now `table*`, the margin figure and the frontier figure are included (`\graphicspath` to `../experiments/`), and `make_figures.sh` renders `frontier.svg` to a PNG (LaTeX cannot read the SVG).
+- Still open: one 17 pt overfull line in the H5 proof; bibtex warns of missing page numbers or publisher on six entries; the paper is 4 pages of a longer-form EC submission, so it still needs the page-limit check against the current call. Submitting is an owner step.
+
 ## 2026-10-25 · Milestone 15: all 17 references checked against the registries (no experiment)
 - Crossref and the arXiv API were reachable this session (they 403ed in milestones 10 and 14). Six DOIs resolve to the cited titles and years (Townsend's by hand, since `cite_check.py` cuts a DOI at its parenthesis and does not read `eprint=` fields from a `.bib`); eleven arXiv ids return the cited titles and years (the arXiv API returned empty bodies for some ids on the first try and succeeded on retry). One discrepancy: `kong2019` carries the 2019 venue year while arXiv v1 is 2016; left as is.
 - Still open for the paper: the draft is uncompiled (no LaTeX here), and the transformer is 30k parameters on one fixed split.
