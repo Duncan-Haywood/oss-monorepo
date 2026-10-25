@@ -201,7 +201,7 @@ function headerlessShape(rows) {
   return sample.length > 0 && sample.every((r) => r.length === 5 && parseDate(r[0]) && /^[-+]?\$?[\d,]*\.?\d+$/.test(r[1].trim()) && r[2].trim() === "*");
 }
 
-const AMT = /^[-+]?\$?\(?[\d,]*\.?\d+\)?$/;
+const AMT = /^[-+]?\$?\(?[\d,]*\.?\d+\)?-?$/;
 // Australian (CBA, ANZ style) and Canadian (TD style) CSVs also come with no
 // header row. CBA: date, signed amount, description, balance (balance may be
 // missing, as ANZ does). TD: date, description, withdrawal, deposit, balance.

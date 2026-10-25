@@ -62,3 +62,26 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
     assert.fail(`${f}: no header position read the reversed file`);
   });
 }
+
+// Amount spelling: the same cents written as $1,234.56, 1,234.56, (59.99) for
+// money out, or 59.99- must read the same rows. (2026-10-25: a header-less CBA
+// file with trailing-minus amounts failed the header-less test and had its
+// dates read month first; found by this loop, fixed in `AMT`.)
+const comma = (s) => { const [i, d] = s.split("."); return i.replace(/\B(?=(\d{3})+$)/g, ",") + "." + d; };
+const FORMS = {
+  dollar: (neg, a) => (neg ? "-$" : "$") + comma(a),
+  commas: (neg, a) => (neg ? "-" : "") + comma(a),
+  parens: (neg, a) => (neg ? "(" + a + ")" : a),
+  "trailing minus": (neg, a) => a + (neg ? "-" : ""),
+};
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8");
+  const rows = parseCsv(t).filter((r) => r.some((c) => c.trim()));
+  test(`${f}: same rows under every amount spelling`, () => {
+    const base = sig(readStatement(t));
+    for (const [name, fn] of Object.entries(FORMS)) {
+      const out = rows.map((r) => r.map((v) => { const m = /^(-?)(\d+\.\d\d)$/.exec(v.trim()); return quote(m ? fn(!!m[1], m[2]) : v, ","); }).join(",")).join("\n") + "\n";
+      assert.equal(sig(readStatement(out)), base, `${f} changed with amounts as ${name}`);
+    }
+  });
+}
