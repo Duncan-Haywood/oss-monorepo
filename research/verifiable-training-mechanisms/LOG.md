@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 18: the transformer margin with the held-out block moved per seed (H1), planned before running
+- Why: the paper's Limitations say the transformer uses one fixed split (last 20% held out), so the seed std excludes split variance. `experiments/transformer_splits/run.py` is the milestone 11 run (600 steps, 10 seeds, float32 reorder referee, taus 1e-3 to 1e-1) where seed s holds out the contiguous 20% block starting at s/9 of the corpus (10 evenly spaced positions, train on the rest; honest and skip share the split, so the paired difference is unaffected by it).
+- Prediction: the skip shortcut's cost at tau = 1e-2 stays below one (now larger) seed std, with the 95% CI of the paired degradation still above zero and within about 0.003 of the milestone 11 value (+0.0017); the skipped shares match milestone 11 (5%, 16%, 29%, 59%) within 2 points since they depend on gradient norms, not the split. Refutation of the narrow form of H1 here: degradation at tau = 1e-2 above one seed std with a CI excluding zero, or a CI that includes a benefit larger than the cost at milestone 11.
+- Analysis: as milestone 11 (paired degradation, 95% bootstrap CI, share skipped, share of seeds where skipping is better).
+
 ## 2026-10-25 · Milestone 17: venue-format check and proof layout (no experiment)
 - The EC'26 call (found by search; `ec26.sigecom.org` is not reachable through the proxy, so the page was not read) says submissions must use the EC'26 LaTeX style files, single column at 10 pt, and may be rejected without review for using another style or exceeding the page limit. The draft uses `acmart` `sigconf` (two columns), so it is not in the venue's format, and the page limit was not found (past calls: 18 pages, 2014 and 2016 only). Both must be checked against the call before submission: an owner step, with the style files.
 - Fixed the 17 pt overfull line in the H5 proof by displaying the definition of `r` and `p`; the draft now compiles to 4 pages with one 1.25 pt vbox warning and no undefined references.
