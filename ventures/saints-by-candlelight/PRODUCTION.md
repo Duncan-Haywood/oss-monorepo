@@ -196,10 +196,11 @@ writing it; skip any already in `episodes/`):
 - *(Done: episode 26, Noah and the Boat with One Door; text only.)* Noah and the ark (Genesis 6 to 9; Scripture told straight; Noah's vineyard left for another night)
 - *(Done: episode 27, Brigid and the Cloak That Would Not Stop; text only.)* Saint Brigid of Kildare and the cloak (Cogitosus, Vita Prima; legend labelled)
 - *(Done: episode 28, Jonah and the City That Listened; text only.)* The book of Jonah (Scripture told straight; Catholic and Orthodox)
+- *(Done: episode 29, Daniel and the Night with the Lions; text only.)* Daniel chapter six (Scripture told straight; Catholic and Orthodox)
 
 ## Audio status
 
-Episodes 1 to 19 have audio (episodes 20 to 28 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 19 have audio (episodes 20 to 29 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 
