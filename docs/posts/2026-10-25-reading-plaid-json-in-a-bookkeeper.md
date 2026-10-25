@@ -1,6 +1,8 @@
 ---
 title: "Reading Plaid transaction JSON in a local bookkeeper"
 date: 2026-10-25
+description: "ai-bookkeeper now reads Plaid transaction JSON (transactions/get and sync added/modified lists) into a local ledger, with signs and pending rows handled."
+tags: [ai-bookkeeper, plaid, bank-import]
 ---
 
 Most bank-feed apps get their data from Plaid, so a developer or small
