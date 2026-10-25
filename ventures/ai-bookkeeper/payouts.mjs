@@ -71,6 +71,8 @@ const CATEGORY = {
   payment_network_reserve_hold: "reserve", payment_network_reserve_release: "reserve",
   payout_minimum_balance_hold: "reserve", payout_minimum_balance_release: "reserve",
   transfer_refund: "reserve", unreconciled_customer_funds: "reserve",
+  // A conversion between two currency balances moves money, it is not income (the two legs net to zero).
+  currency_conversion: "reserve",
   issuing_authorization_hold: "reserve", issuing_authorization_release: "reserve", issuing_disbursement: "reserve",
   // Older balance-transaction types some exports still carry in the category column.
   reserve_transaction: "reserve", recipient_transfer: "skip", recipient_transfer_cancel: "reserve", recipient_transfer_failure: "reserve",
