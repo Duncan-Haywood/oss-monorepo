@@ -782,3 +782,4 @@ single-rate invoice is accepted by design (`breakdown.mjs`, INV-037 needs two
 or more rates). Synthetic invoices only; it says nothing about real ERP
 exports, which stay the open item.
 - UK mandate page, 2026-10-25 (`uk-e-invoice-mandate.html`, 8 tests, hub test now counts 28 pages): VAT invoices B2B and B2G from April 2029 over Peppol, roadmap due with Budget 2026; sources are search excerpts from law-firm, accountancy and vendor pages (gov.uk and HMRC unreachable), so no penalty or phasing is stated. To refresh after Budget 2026.
+- Norway mandate page, 2026-10-25 (`norway-e-invoice-mandate.html`, 8 tests, hub counts 29 pages): send duty 1 Jan 2027, receive and digital bookkeeping 1 Jan 2030, EHF / Peppol BIS 3.0; from search excerpts only (Lovdata and skatteetaten.no unread), so no penalty stated and exemptions flagged as reported. No ELMA lookup.
