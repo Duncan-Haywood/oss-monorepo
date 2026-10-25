@@ -40,12 +40,9 @@ def predicted_half(sizes, s2, alloc):
 
 
 def neyman_total(sizes, s2, half):
-    """Smallest total n (real-valued) so the plug-in half-width is `half` under Neyman allocation n_h ~ N_h S_h
-    (finite-population correction included): n = (sum W S)^2 / (half^2/z^2 + sum W^2 S^2 / N)."""
-    big = sum(sizes)
-    w = [N / big for N in sizes]
-    s = [math.sqrt(v) for v in s2]
-    return sum(a * b for a, b in zip(w, s)) ** 2 / (half ** 2 / Z ** 2 + sum(a * a * b * b / N for a, b, N in zip(w, s2, sizes)))
+    """The audit-size rule now lives in the library (`llmci.estimators.neyman_total`). Milestone 6a to 6e used a
+    version that squared the variance twice in the finite-population term (S^4 for S^2); see LOG.md, 6f."""
+    return E.neyman_total(sizes, s2, half)
 
 
 def main():
