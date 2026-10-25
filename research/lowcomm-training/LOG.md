@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3h: is the DiLoCo-paper outer setting bad only because the inner lr is wrong for it? (planned before running)
+- Why: 3g's "Next". At inner lr 2e-3 (tuned for plain averaging) outer (0.7, 0.9) cost +0.127 nats at `H = 16`. With Nesterov momentum 0.9 the effective outer step is up to 10x larger, so a lower inner lr, or a smaller outer lr, may recover it.
+- Design (`experiments/gpt_outer_retune/retune.py`): 3d's model, data, budget (3,840 steps), `M = 4`, `H = 16`, seeds 0 to 2 (12 runs). Inner lr in {5e-4, 1e-3} x outer (lr, momentum) in {(0.7, 0.9), (0.3, 0.9)}. The comparison is plain averaging at its tuned 2e-3 (3d, 1.5758 mean). Cells are scored directly on the report seeds with no separate tuning seeds, which favours the momentum arms (best of 4 cells), so a null is conservative and a win would need re-confirming on fresh seeds.
+- **H3h-i:** the best of the 4 cells is within 0.01 nats of plain@2e-3 (the paper's setting can be rescued by joint tuning). Refuted if every cell is worse by more than 0.01.
+- **H3h-ii:** the best cell beats plain@2e-3 on all 3 seeds. Prior: unlikely (3g found no outer momentum gain).
+- Limits: 4 cells, 3 seeds, `H = 16` only, one size and corpus.
+
 ## 2026-10-25 · Milestone 3g: does outer Nesterov momentum help on the real GPT, as 2g found on the 14k numpy model? (planned before running)
 - Why: the "Next" of 3d, 3e and 3f. 2g (14k-parameter numpy model) found small outer momentum (0.1 to 0.3) lowered loss by 0.014 to 0.020 at `H = 64` and raised it at `H = 16`; 2g's own "Next" asked for a check on the transformer before any momentum claim.
 - Design (`experiments/gpt_outer_momentum/momentum.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3 (the shared pick). `H` in {16, 64}; outer (lr, Nesterov momentum) in {(1, 0.1), (1, 0.3), (0.7, 0.9) the DiLoCo paper's setting}; seeds 0 to 2 (18 runs). Plain rows are 3d's runs at 2e-3. Inner lr is not re-tuned per outer setting. Paired differences vs plain per seed; no multiplicity correction (6 cells).
