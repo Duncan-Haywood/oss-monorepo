@@ -109,7 +109,7 @@ flagships:
       and git. Landed 2026-10-24: a real volatility break (US GDP growth, Great
       Moderation 1984Q1; `meanvar` finds it, but default min segment 5 reports a
       5-quarter calm patch whose range misses the date; README). Landed 2026-11-03: `meanvar` warns when a segment is under 10 points. Landed 2026-11-09: `meanvar`
-      defaults to minimum segment 10 (seeded simulation, README). Landed 2026-11-15: `meanvar` on non-Gaussian noise measured (35-68% false alarms) and a noise warning added (README). Open: a robust meanvar cost for heavy tails, and a GARCH-aware check (the warning catches only ~18% of it); range95 on a real series with a true holiday closure or
+      defaults to minimum segment 10 (seeded simulation, README). Landed 2026-11-15: `meanvar` on non-Gaussian noise measured (35-68% false alarms) and a noise warning added (README). Landed 2026-10-25: `--robust` Laplace cost for meanvar (t3 false alarms 37-63% to 5-8%, but 57% vs 94% detection on Gaussian n=100; README). Open: a GARCH-aware cost (Laplace leaves 21-29% false alarms), the robust option on the page and in the Bayesian view; range95 on a real series with a true holiday closure or
       documented slope break (log GDP is a near-unit-root, no clean answer); the growth-change range on clumpy (NB) counts reached ~95% 2026-10-26 by tempering 1.4 (held-out 161/170; the large-bump cell is still ~86%).
   - venture: einvoice-preflight
     why: >-
