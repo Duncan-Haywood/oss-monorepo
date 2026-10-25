@@ -32,6 +32,7 @@ export function commaStyle(text) {
 // number glued to letters ("PB1", "xx7730"), a percentage or part of a date,
 // time or phone number is not an amount.
 const RP = /\bRp\.?\s*/gi;
+const CUR_WORD = /\b(?:rm|myr|sgd|usd|aud|gbp|eur|inr)(?![a-z])\.?/gi;
 const GROUPED = /(?<![\p{L}\d.,\/-])\d{1,3}([.,])\d{3}(?:\1\d{3})*(?![.,]?\d|[%\/-]\d|:\d)/gu;
 const WHOLE = /(?:[¥₩]\s*)?(?<![\p{L}\d.,\/:-])(\d{1,3}(?:([.,])\d{3}(?:\2\d{3})*)?|\d+)(?![.,]?\d|%|[\/:-]\d)/gu;
 // Used when grouped whole amounts outnumber amounts with decimals, or when
@@ -46,13 +47,15 @@ export function wholeStyle(text) {
 const moneyRe = (style) => (style === "whole" ? WHOLE : style ? MONEY_C : MONEY);
 const DATE_RES = [
   /\b(\d{4}-\d{1,2}-\d{1,2})\b/,
-  /\b(\d{1,2}\/\d{1,2}\/(?:\d{4}|\d{2}))\b/,
+  /(?<![\d/])(\d{4}\/\d{1,2}\/\d{1,2})(?!\d)/,
+  /(?<![\d/])(\d{1,2}\/\d{1,2}\/(?:\d{4}|\d{2}))(?!\d)/,
   /\b(\d{1,2}\.\d{1,2}\.(?:\d{4}|\d{2}))\b/,
+  /(?<![\d-])(\d{1,2}-\d{1,2}-(?:\d{4}|\d{2}))(?![\d-])/,
   /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
-  /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? \d{4})\b/i,
+  /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
 ];
 const TOTAL_RE = /\b(grand\s+total|total\s+(?:due|paid|charged|amount)|amount\s+(?:due|paid|charged)|balance\s+due|order\s+total|grandtotal|gesamt(?:betrag)?|summe|totale|totaal|total|netto|jumlah|due|tl)\b/i;
-const NOT_TOTAL_RE = /sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|discount|items?|qty|quantity|pcs|tax|points)|tax\s+total|before\s+tax|tip\b|change\b|cash\b/i;
+const NOT_TOTAL_RE = /accepted\s+total|total\s+tender|total\s+includ\w*\s+(?:gst|tax|vat)\s*@|total[^a-z]*(?:sales\s*)?\(?[^a-z]*(?:excl|before\s+(?:gst|tax))|total\s+(?:gst|tax|vat)\b|total\s+includ(?:es|ed|ing)\b[^a-z]*\d*\s*%|(?:gst|tax|vat)\b[^a-z]*\d*\s*%?\s*includ(?:es|ed)?\s+in\s+(?:the\s+)?total|sub\s*-?total|zwischensumme|sous-total|total\s+(?:savings|discount|items?|qty|quantity|pcs|tax|points)|tax\s+total|before\s+tax|tip\b|change\b|cash\b/i;
 const TAX_RE = /\b(sales\s+tax|tax|vat|gst|hst|pst|tva|mwst|iva|btw|ppn|pb\s*1|pajak|p\.\s*rest(?:o|oran)?)\b/i;
 // "Tax Total" is the tax, not the total; "Dasar Pengenaan Pajak" (DPP) is the taxable base
 const TAX_TOTAL_RE = /tax\s+total|total\s+tax/i;
@@ -105,34 +108,85 @@ export function parseItems(lines, comma = false) { // comma: a style, as moneyRe
   return items;
 }
 
-export function parseReceipt(block) {
+// Slash and dash dates are month-first unless the page says otherwise: a
+// first field above 12 (25/12/2018) proves day-first, a second field above 12
+// month-first, and a locale marker (RM, SDN BHD, GBP, PTY LTD, Rs) day-first.
+const DAY_FIRST_LOCALE = /\b(?:rm|myr|sdn\.?\s*bhd|pty\.?\s*ltd|gbp|inr|rs)\b|[£₹]/i;
+function dayFirstOf(lines) {
+  let dayFirst = 0, monthFirst = 0;
+  for (const l of lines) for (const m of l.matchAll(/(?<![\d-])(\d{1,2})[-/](\d{1,2})[-/](?:\d{4}|\d{2})(?![\d-])/g)) {
+    if (+m[1] > 12 && +m[2] <= 12) dayFirst++;
+    else if (+m[2] > 12 && +m[1] <= 12) monthFirst++;
+  }
+  if (dayFirst || monthFirst) return dayFirst > monthFirst;
+  return DAY_FIRST_LOCALE.test(lines.join("\n")) || null;
+}
+
+export function parseReceipt(block, { dayFirst = null } = {}) {
   const lines = cleanOcr(String(block)).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const notes = [];
   const comma = wholeStyle(lines.join("\n")) ? "whole" : commaStyle(lines.join("\n"));
-  let date = null;
-  for (const l of lines) {
-    // dotted dates and dates beside decimal commas are day-first
-    for (const re of DATE_RES) { const m = l.match(re); if (m && (date = parseDate(m[1], comma === true || (comma === "whole" && !m[1].includes("-")) || m[1].includes(".")))) break; }
-    if (date) break;
-  }
+  const guess = dayFirst ?? dayFirstOf(lines);
+  const dmy = !!guess;
+  // every dated line; the one labelled "date" wins, then a four-digit year (a
+  // serial like "18/06/04" or a time-stamped code reads as a date too), then the first
+  const cands = [];
+  lines.forEach((l, i) => {
+    for (const re of DATE_RES) {
+      const m = l.match(re);
+      const d = m && parseDate(m[1], dmy || comma === true || (comma === "whole" && !m[1].includes("-")) || m[1].includes("."));
+      if (d) { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\bdate\b/i.test(l) ? 0 : 2) + (/\d{4}/.test(m[1].replace(/^\d{4}(?=[-/])/, "")) || /^\d{4}[-/]/.test(m[1]) ? 0 : 1), i }); break; }
+    }
+  });
+  cands.sort((a, b) => a.rank - b.rank || a.i - b.i);
+  const date = cands[0]?.d ?? null;
+  if (date && guess === null && cands[0].amb) notes.push("day and month order guessed (month first); check the date");
   if (!date) notes.push("no date found");
 
   // merchant: the first line that is words, not an address, phone, date or amount
-  const merchantLine = lines.find((l) => /[a-z]{3}/i.test(l) && !/^(receipt|invoice|order|thank|tax invoice)/i.test(l)
+  const BOILER = /^(receipt|invoice|order|thank|tax invoice|cash\s*(?:sale|bill)|goods sold|ref(?:erence)?\.?\s*no|your order|welcome|tq\b|please|customer|official|duplicate|copy|simplified|for feedback|cashier|company\s*no|[*\s]+thank|jln\b|jalan\b|lorong\b|taman\b|lot\s|level\s|no[.:]?\s*\d)/i;
+  const ENTITY = /\b(?:sdn\.?\s*bhd\.?|s\/b|enterprise|trading|holdings?|ltd|llc|inc|corp|gmbh|pte|pty|co\.|company)\b/i;
+  const eligible = lines.filter((l) => /[a-z]{3}/i.test(l) && !BOILER.test(l)
     && !/\d{3}[-. ]\d{3,4}/.test(l) && !DATE_RES.some((re) => re.test(l)) && !new RegExp(moneyRe(comma).source, "u").test(l) && !/^\d+\s+\w+\s+(st|street|ave|avenue|rd|road|blvd|dr|drive|ln|way)\b/i.test(l));
+  // a short line of a person's name above the registered company name: the company is the merchant
+  let merchantLine = eligible[0];
+  const [first, second] = eligible;
+  if (first && second && !ENTITY.test(first) && ENTITY.test(second) && first.trim().split(/\s+/).length <= 3 && first.trim().split(/\s+/)[0].toLowerCase() !== second.trim().split(/\s+/)[0].toLowerCase()
+    && !/(?:restaurant|cafe|mart|market|shop|store|pharmacy|bakery|kitchen)/i.test(first)) merchantLine = second;
   const merchant = merchantLine ? merchantLine.replace(/\s{2,}.*$/, "").slice(0, 60) : null;
   if (!merchant) notes.push("no merchant found");
 
   // total: the last total-looking line with an amount; else the largest amount on the page
   let cents = null, from = null;
   // a total line with no amount takes the next line when that line is only an amount
-  const bare = (l) => l && !/\p{L}{2}/u.test(l.replace(RP, " ")) ? amountsIn(l, comma) : [];
+  const bare = (l) => l && !/\p{L}{2}/u.test(l.replace(RP, " ").replace(CUR_WORD, " ")) ? amountsIn(l, comma) : [];
+  // a tax summary table repeats "TOTAL" (taxable base, tax) after the real one
+  const summaryAt = lines.findIndex((l) => /\b(?:gst|tax|vat)\s+(?:summary|analysis)\b/i.test(l));
+  let at = -1;
   lines.forEach((l, i) => {
     if (TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) {
+      if (cents !== null && summaryAt >= 0 && i >= summaryAt) return;
       const a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(lines[i + 1]);
-      if (a.length) { cents = a[a.length - 1]; from = l; }
+      if (a.length && a[a.length - 1] > 0) { cents = a[a.length - 1]; from = l; at = i; }
     }
   });
+  // "ROUNDING ADJ -0.01" after the total: the amount due is the total plus it
+  // (a later "TOTAL ROUNDED" line has already replaced the total)
+  if (cents !== null && at >= 0 && !/round|adj/i.test(from)) {
+    for (let i = at + 1; i < Math.min(lines.length, at + 6); i++) {
+      if (!/\bround(?:ing)?\b/i.test(lines[i]) || TOTAL_RE.test(lines[i])) continue;
+      const m = [lines[i], lines[i + 1] ?? ""].map((x) => x.replace(CUR_WORD, " ").match(/^[^\d]*?(-|\()?\s*(?:rm\s*)?(\d*[.,]\d{2})\)?\s*$/i)).find(Boolean);
+      const r = m ? Math.round(parseFloat(m[2].replace(",", ".")) * 100) * (m[1] ? -1 : 1) : null;
+      if (r !== null && r !== 0 && Math.abs(r) <= 10) { cents += r; notes.push("total adjusted by the printed rounding"); }
+      break;
+    }
+  }
+  if (cents === null) {
+    // no total line: what was paid is the cash handed over less the change
+    const pick = (re) => { const i = lines.findIndex((l) => re.test(l)); if (i < 0) return null; const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]); return a.length ? a[a.length - 1] : null; };
+    const tender = pick(/\b(?:cash|tendered|payment|paid)\b/i), change = pick(/\bchange\b/i);
+    if (tender !== null && change !== null && tender > change) { cents = tender - change; notes.push("no total line; cash handed over less change"); }
+  }
   if (cents === null) {
     const all = lines.flatMap((l) => amountsIn(l, comma));
     if (all.length) { cents = Math.max(...all); notes.push("no total line; took the largest amount"); }
