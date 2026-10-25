@@ -1355,3 +1355,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Metric: none new. E79 to E84 results stay open: too few runs since.
 - Decisions: no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E86: review 2026-10-25 (reduced pass, fourteenth run)
+
+- Change: none to prompts or docs. Regenerated `prompts/derived/`. Candidates
+  re-measured: ventures 2, process 2 and review 2 are all "keep collecting"
+  (intervals overlap). Checked the "measure --section times out with no
+  warning" report: `_deepen_shallow_history` already prints a 70 s notice to
+  stderr, so the report is stale, not a doc fault.
+- Metric: none new. E79 to E85 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
