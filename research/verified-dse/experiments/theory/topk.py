@@ -1,5 +1,5 @@
 """Pilot-by-pilot coverage of two halving bounds: random-pair quantile (7a) vs the pilot's best few against all (7b).
-Runs no flow. Writes topk_results.txt and topk_summary.json. Usage: python3 topk.py [table_dir]  (default rung_bias; e.g. large writes topk_results_large.txt)"""
+Runs no flow. Writes topk_results.txt and topk_summary.json. Usage: python3 topk.py"""
 import json
 import math
 import random
@@ -13,9 +13,7 @@ sys.path.insert(0, str(HERE.parents[1] / "src"))
 from verified_dse import bound, flow  # noqa: E402
 
 PILOTS, TIEBREAKS, ETA, M, TOP, NOMINAL = 300, 20, 3, 16, 3, 0.8
-TABLE = sys.argv[1] if len(sys.argv) > 1 else "rung_bias"
-SUF = "" if TABLE == "rung_bias" else "_" + TABLE
-rows = [json.loads(l) for l in (HERE.parent / TABLE / "results.jsonl").read_text().splitlines()]
+rows = [json.loads(l) for l in (HERE.parent / "rung_bias" / "results.jsonl").read_text().splitlines()]
 by = defaultdict(list)
 for r in rows:
     if r["status"] == "ok":
@@ -25,7 +23,7 @@ out = [f"pilot m = {M}, {PILOTS} pilots x {TIEBREAKS} tie-breaks per cell; A = m
        "clock | design | start | coverage A | coverage B | median bound A | median bound B | realised regret (mean)"]
 cells = []
 for tag in ("tight", "relaxed"):
-    for d in sorted({k[1] for k in by}) if SUF else flow.DESIGNS:
+    for d in flow.DESIGNS:
         sc = by[(tag, d)]
         n = len(sc)
         y = [s["r4"] for s in sc]
@@ -62,6 +60,6 @@ for name in ("r1", "r2"):
         out.append(f"{tag} from {name}: median bound A {statistics.median(c['bound_a'] for c in sel):.3f}, B {statistics.median(c['bound_b'] for c in sel):.3f}; "
                    f"B covers >= {NOMINAL} on {len(ok)} of {len(sel)} (of those, bound under 0.1 on {sum(c['bound_b'] < 0.1 for c in ok)}); "
                    f"A covers >= {NOMINAL} on {sum(c['cov_a'] >= NOMINAL for c in sel)}; realised regret above 0 in {sum(c['realised'] > 0 for c in sel)}")
-(HERE / f"topk_results{SUF}.txt").write_text("\n".join(out) + "\n")
-(HERE / f"topk_summary{SUF}.json").write_text(json.dumps(cells, indent=1))
+(HERE / "topk_results.txt").write_text("\n".join(out) + "\n")
+(HERE / "topk_summary.json").write_text(json.dumps(cells, indent=1))
 print("\n".join(out[-8:]))

@@ -127,3 +127,17 @@ def test_ipw_audit_wilson_inside_unit_interval_and_matches_normal_when_large():
     assert 0 <= lo <= hi <= 1
     blo, bhi = E.ipw_audit_bootstrap(f, aud, ys, pi, random.Random(1), reps=200)
     assert blo < est.value < bhi
+
+
+def test_neyman_total_hits_target_half_width_with_fpc():
+    # Neyman allocation at the returned n must give exactly the target half-width from the closed-form variance
+    # sum_h W_h^2 (1 - n_h/N_h) S_h^2 / n_h (regression: milestones 6a-6e squared S_h^2 in the fpc term).
+    import math
+    sizes, s2 = [15000, 11000, 7000, 10000], [0.22, 0.19, 0.29, 0.17]
+    big = sum(sizes)
+    for half in (0.03, 0.01, 0.005):
+        n = E.neyman_total(sizes, s2, half)
+        ws = [N / big * math.sqrt(v) for N, v in zip(sizes, s2)]
+        nh = [n * x / sum(ws) for x in ws]
+        var = sum((N / big) ** 2 * (1 - k / N) * v / k for N, k, v in zip(sizes, nh, s2))
+        assert abs(E.Z95 * math.sqrt(var) - half) < 1e-9
