@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 6d: the sequential audit at a 1-point target (planned before running)
+- Why: 6c's open item. At a 3-point target the audit is about 900 items and the p = 20 start (80 items) is a tenth of it; at 1 point the audit is about 9x larger, the sampling fraction reaches 20% in some strata (finite-population effects), and the stopping rule is exercised over ~70 rounds. Same corpus, split, coders, floor (0.02) and start (p = 20) as 6c; target 1.0 point; batches B in {100, 300}; cap 20,000; 300 draws per cell (+/- 2.5 points on coverage). Oracle n from the 6a Neyman rule at 1 point. `experiments/h6d_tight_target.py`.
+- **H6d-i (coverage):** coverage at the stopping time is at least 92% in all 6 cells (300 draws, so the bar allows for binomial noise of about 1.3 points). Refuted if any cell is below 92%.
+- **H6d-ii (price):** mean stopped n at B = 100 is within 10% of the oracle n for every coder. Refuted otherwise.
+- **H6d-iii (target hit):** 100% of audits stop under the cap at half-width at most 1.0 points.
+- **H6d-iv (relative spread shrinks):** the sd of stopped n divided by its mean at B = 100 is below that of 6c at B = 30 (0.038, 0.040, 0.052) for every coder.
+- Not tested: a real LLM coder, a second corpus, a rarer category.
+
 ## 2026-10-25 · Milestone 6c: a sequential audit that stops when the estimated width meets the target (planned before running)
 - Why: 6b's open item. Planning from a pilot hits the +/-3 point target about half the time. The alternative is to audit in batches and stop the first time the estimated half-width (Z times the stratified-PPI standard error on the items audited so far) is at most 3.0 points. The width then meets the target by construction; what is unknown is the price in audit size and in coverage, because stopping on a noisy estimate of the width is optional stopping and tends to stop when the sample happens to look precise. Code: `experiments/h6c_sequential.py`; same corpus, split, three stand-in coders, seed scheme and floor (0.02) as `h6b_pilot.py`. Start with p = 20 per stratum (the 6b pilot), then add batches of B items split across strata by the Neyman shares from the current variance estimates (largest w_h / (n_h + 1) first, without replacement); B in {30, 90}; hard cap 2,500 items; 1,000 draws per cell.
 - **H6c-i (coverage survives optional stopping):** coverage of the 95% interval at the stopping time is at least 93% in every one of the 6 cells (3 coders, 2 batch sizes). Refuted if any cell is below 93%.
