@@ -459,7 +459,7 @@ export function readOfx(text) {
   const blocks = text.split(/<STMTTRN>/i).slice(1);
   blocks.forEach((raw, i) => {
     const b = raw.split(/<\/STMTTRN>/i)[0];
-    const date = ofxDate(ofxTag(b, "DTPOSTED"));
+    const date = ofxDate(ofxTag(b, "DTPOSTED") || ofxTag(b, "DTUSER") || ofxTag(b, "DTAVAIL"));
     const cents = parseCents(ofxTag(b, "TRNAMT"));
     if (!date) { problems.push(`Transaction ${i + 1}: unreadable date, skipped.`); return; }
     if (!Number.isFinite(cents) || !/\d/.test(ofxTag(b, "TRNAMT"))) { problems.push(`Transaction ${i + 1}: unreadable amount, skipped.`); return; }
