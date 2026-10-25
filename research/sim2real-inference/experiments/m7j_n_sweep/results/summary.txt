@@ -1,0 +1,10 @@
+reps per cell: 200; twin-interval bank 40 per (N, f); pendulum, 21 pairs; f = share of alpha for the twin mean
+min coverage over all cells: 98.5
+  n=240 N=4000 f=0.1: combined/real-only median 1.034, min 0.762, narrower on 9/21
+  n=240 N=4000 f=0.5: combined/real-only median 1.087, min 0.798, narrower on 7/21
+  n=240 N=20000 f=0.1: combined/real-only median 0.917, min 0.693, narrower on 18/21
+  n=240 N=20000 f=0.5: combined/real-only median 0.986, min 0.740, narrower on 11/21
+  n=960 N=4000 f=0.1: combined/real-only median 1.076, min 0.768, narrower on 7/21
+  n=960 N=4000 f=0.5: combined/real-only median 1.064, min 0.793, narrower on 7/21
+  n=960 N=20000 f=0.1: combined/real-only median 0.835, min 0.655, narrower on 20/21
+  n=960 N=20000 f=0.5: combined/real-only median 0.861, min 0.674, narrower on 20/21
