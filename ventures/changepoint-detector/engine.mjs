@@ -1424,6 +1424,29 @@ const fmt = (v) => (Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toF
  * Run both methods on a series. Input: DEFAULTS overlaid with the caller's
  * fields; `values` (array of numbers) may replace `csv`.
  */
+// Segment-standardise a series by the fitted changepoints, then look for what a Gaussian variance model cannot hold:
+// fourth moment above 4.5 (Gaussian runs top out near 3.9), lag-1 autocorrelation of the residuals from 0.25, and of their
+// squares from 0.2 (Gaussian 90th percentiles 0.08 and 0.11). Returns a warning string or null.
+export function meanvarNoiseCheck(x, cps) {
+  const b = [0, ...cps, x.length]; const z = [];
+  for (let s = 0; s < b.length - 1; s++) {
+    const seg = x.slice(b[s], b[s + 1]); if (!seg.length) continue;
+    const m = seg.reduce((a, c) => a + c, 0) / seg.length;
+    const sd = Math.sqrt(seg.reduce((a, c) => a + (c - m) ** 2, 0) / seg.length) || 1;
+    for (const c of seg) z.push((c - m) / sd);
+  }
+  const n = z.length;
+  const acf = (a) => { const m = a.reduce((p, c) => p + c, 0) / n; let num = 0, den = 0; for (let i = 0; i < n; i++) { den += (a[i] - m) ** 2; if (i) num += (a[i] - m) * (a[i - 1] - m); } return den ? num / den : 0; };
+  const kurt = z.reduce((a, c) => a + c ** 4, 0) / n;
+  const r1 = acf(z), r2 = acf(z.map((c) => c * c));
+  const why = [];
+  if (kurt > 4.5) why.push(`heavy tails (kurtosis ${kurt.toFixed(1)}, 3 for Gaussian noise)`);
+  if (r1 >= 0.25) why.push(`autocorrelation (lag 1: ${r1.toFixed(2)})`);
+  if (r2 >= 0.2) why.push(`clustered volatility (lag 1 of the squares: ${r2.toFixed(2)})`);
+  if (!why.length) return null;
+  return `The values left after removing the segments show ${why.join(' and ')}. The variance model assumes independent Gaussian noise, so on such noise it reports changes that are not there: treat the dates as candidates, not findings.`;
+}
+
 export function analyze(input = {}) {
   const o = { ...DEFAULTS, ...input };
   let labels, values, column, skipped = 0;
@@ -1570,6 +1593,12 @@ export function analyze(input = {}) {
   if (!rangeWarning && model === 'meanvar' && p.changepoints.length) {
     const short = segments.filter((s) => s.n < 10);
     if (short.length) rangeWarning = `${short.length === 1 ? 'One segment has' : `${short.length} segments have`} fewer than 10 points (${short.map((s) => `${s.from} to ${s.to}`).join(', ')}), and a variance model can read a short quiet run as its own regime: check the dates, or try --min-segment 12 or more.`;
+  }
+  // a variance model assumes Gaussian noise: on heavy-tailed, autocorrelated or volatility-clustered noise with no change at all it
+  // reported one 35% to 68% of the time (eval/meanvar-robustness.mjs, README). Warn from the segment-standardised residuals.
+  if (!rangeWarning && model === 'meanvar' && values.length >= 40) {
+    const nd = meanvarNoiseCheck(values, p.changepoints);
+    if (nd) rangeWarning = nd;
   }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
