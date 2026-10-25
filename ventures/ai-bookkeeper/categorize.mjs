@@ -90,6 +90,9 @@ export const BUILT_IN = [
   ["6100", "out", /revrobotics|andymark|seeed ?studio|digilent|tindie|micro ?center|town & country hardware|hardware (store|supply)/],
   ["6120", "out", /\bmta\b|metrocard|u-haul/],
   ["6130", "out", /\b(breakfast|lunch|dinner|takeout|snacks)\b|\bbagels?\b/],
+  // Seen on a real Bank of America card export (Actual Budget's MIT sample files, 28 lines; rules written looking at them, not held out).
+  ["6160", "out", /\bcitgo\b|\bcumberland farms\b|\bracetrac\b|\bwawa fuel/],
+  ["6140", "out", /county waste|waste management|republic services|\bwaste connections\b/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
