@@ -150,6 +150,11 @@ export function parseDate(v, dayFirst = false) {
   } else if ((x = s.match(/^(\p{L}{3}\p{L}*)\.? (\d{1,2}),? (\d{4})/u))) {
     [m, d, y] = [monthOf(x[1]), +x[2], +x[3]];
   }
+  // Unix epoch seconds (10 digits) or milliseconds (13), as crypto and API exports write them (rotki's Timestamp).
+  if (!y && (x = s.match(/^(\d{10}|\d{13})$/))) {
+    const t = x[1].length === 13 ? +x[1] : +x[1] * 1000;
+    if (t >= 9.46e11 && t < 4.1e12) return new Date(t).toISOString().slice(0, 10);
+  }
   if (!y && (x = s.match(/^(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日?/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   if (!y || !m || !d || m > 12 || d > 31) return null;
   const dt = new Date(Date.UTC(y, m - 1, d));
