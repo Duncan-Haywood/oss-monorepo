@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 6 done.
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 9 done (9: five larger designs, first sign of H2).
 The cheap rungs are measurably biased against routed area x delay; H2 to H4 are run on a
 cached table; H5 (proof prediction) is not testable on this benchmark as built.** Produced with AI assistance (Claude Code).
 It builds on none of the CU Boulder groups and claims no affiliation.
@@ -29,6 +29,12 @@ routed design, with a coverage guarantee that holds whatever the rung bias?
 - **Mapping is not enough when timing is tight.** Liberty-mapped scores mis-rank at the tight target (median regret 10.5%) and are nearly exact at the relaxed one, because timing repair, which only the later rungs see, reorders designs.
 - **Cost:** on these small designs the routed rung costs only about 8x the generic one (1.3 s against 0.15 s), so there is little to save yet; larger designs are needed before H2 is testable.
 - Full per-design tables with intervals: [`experiments/rung_bias/results.txt`](experiments/rung_bias/results.txt). Log: [`LOG.md`](LOG.md).
+
+## Milestone 9 result: on larger designs, does a cheap rung finally pay? (H2)
+5 larger designs (16, 24 and 32-bit multipliers, 64-bit adders), the same 60 pass sequences, two clocks, 600 runs. The routed rung now costs 19.4 s against 0.77 s for the generic one (25x, against 8x on the small designs).
+- **Successive halving from the mapped rung (R2) beats random routed search at small budgets on the tight clock:** mean regret 1.34% against 4.44% at 100 s and 0.33% against 1.85% at 200 s, then random search overtakes it from about 600 s because halving stops at a 0.30% bias floor. At the relaxed clock it wins only at 100 s and floors at 5.0%. Halving from the generic rung (R1) loses everywhere.
+- Rung bias is not the same story as on the small designs: R1 is weakly informative on multipliers (tau-b 0.31 tight), and mapped rungs mis-rank the 24 and 32-bit multipliers at the relaxed clock (regret 11 to 18%).
+- Five designs, pools of 50, one corner; see [`LOG.md`](LOG.md) and [`experiments/large/`](experiments/large/results.txt), [`halving_results.txt`](experiments/large/halving_results.txt).
 
 ### Reproduce
 ```bash

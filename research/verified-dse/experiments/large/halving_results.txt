@@ -1,0 +1,20 @@
+cost model (mean s): r1 0.772; r2 from scratch 1.634; r3 increment 2.200; r4 increment 16.814; routed from scratch 20.648. eta 3, pilot 6, rho_min 0.5, seeds 400. regret = routed best found / pool minimum - 1, %
+
+## clock tight: mean regret % over designs | designs where the strategy beats / loses to random_r4 (paired 95% CI excludes 0) | worst-design mean regret %
+budget s | random_r4 | sh_r1 | sh_r2 | sh_cal
+100 | 4.44 (worst 9.2) | 4.12 (2/2; worst 12.7) | 1.34 (4/0; worst 2.5) | 4.44 (0/0; worst 9.2)
+200 | 1.85 (worst 4.2) | 4.12 (2/2; worst 12.7) | 0.33 (4/0; worst 0.9) | 1.47 (2/1; worst 4.0)
+400 | 0.68 (worst 1.8) | 4.12 (0/3; worst 12.7) | 0.30 (2/1; worst 0.8) | 1.28 (1/2; worst 4.4)
+600 | 0.26 (worst 0.6) | 4.12 (0/4; worst 12.7) | 0.30 (2/2; worst 0.8) | 1.24 (0/4; worst 4.3)
+900 | 0.04 (worst 0.1) | 4.12 (0/4; worst 12.7) | 0.30 (2/2; worst 0.8) | 1.24 (0/4; worst 4.3)
+1200 | 0.00 (worst 0.0) | 4.12 (0/4; worst 12.7) | 0.30 (0/2; worst 0.8) | 1.24 (0/4; worst 4.3)
+
+## clock relaxed: mean regret % over designs | designs where the strategy beats / loses to random_r4 (paired 95% CI excludes 0) | worst-design mean regret %
+budget s | random_r4 | sh_r1 | sh_r2 | sh_cal
+100 | 8.47 (worst 12.1) | 11.47 (1/3; worst 22.4) | 6.17 (2/2; worst 14.1) | 8.47 (0/0; worst 12.1)
+200 | 4.85 (worst 7.3) | 11.47 (0/4; worst 22.4) | 5.06 (2/2; worst 13.8) | 4.94 (2/2; worst 8.8)
+400 | 2.03 (worst 3.0) | 11.47 (0/4; worst 22.4) | 5.03 (2/2; worst 13.8) | 3.98 (1/3; worst 8.2)
+600 | 0.83 (worst 1.5) | 11.47 (0/4; worst 22.4) | 5.03 (2/2; worst 13.8) | 3.71 (1/3; worst 8.1)
+900 | 0.18 (worst 0.5) | 11.47 (0/4; worst 22.4) | 5.03 (2/2; worst 13.8) | 3.61 (0/3; worst 8.1)
+1200 | 0.00 (worst 0.0) | 11.47 (0/4; worst 22.4) | 5.03 (0/2; worst 13.8) | 3.57 (0/4; worst 8.0)
+
