@@ -330,7 +330,7 @@ export function sniffBank(rows) {
     if (/^transaction id\|date\|time\|type\|name\|emoji\|category\|amount\|currency/.test(h)) return "monzo";
     if (/^date\|counter party\|reference\|type\|amount \((gbp|eur|usd)\)\|balance/.test(h)) return "starling";
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
-    if (/^timestamp\|transaction type\|asset\|quantity transacted\|/.test(h)) return "coinbase";
+    if (/^(id\|)?timestamp\|transaction type\|asset\|quantity transacted\|/.test(h)) return "coinbase";
     if (/^booking date\|value date\|partner name\|partner iban\|type\|payment reference/.test(h)) return "n26";
     // Newer exports name the first (once blank) column "Username" and put the account's own name on row 2.
     if (/^(username\|)?id\|datetime\|type\|status\|note\|from\|to\|amount \(total\)/.test(h.replace(/^\|/, ""))) return "venmo";
