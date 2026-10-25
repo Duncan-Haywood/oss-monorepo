@@ -90,6 +90,11 @@ export const BUILT_IN = [
   ["6100", "out", /revrobotics|andymark|seeed ?studio|digilent|tindie|micro ?center|town & country hardware|hardware (store|supply)/],
   ["6120", "out", /\bmta\b|metrocard|u-haul/],
   ["6130", "out", /\b(breakfast|lunch|dinner|takeout|snacks)\b|\bbagels?\b/],
+  // Written after reading page 4 of the HCB feed (organisations 300-399, 168 card charges, 40.5% suggested before; tuned on that data; README Next).
+  ["6060", "out", /postmarkapp|elevenlabs|\bqr\.io\b|skool\.com/],
+  ["6100", "out", /misumi|cannonkeys|zyltech|pitsco|nexmetal|v-belt guys/],
+  ["6000", "out", /standout stickers|4over4|zazzle|wristbandbros/],
+  ["6130", "out", /ezcater|sodalicious|venchi/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
