@@ -346,6 +346,7 @@
     <h2 id="h-receipts">Optional: match receipts to bank lines</h2>
     <p class="note">Paste the text of receipts (typed, copied from an email, or read off a photo by any OCR tool), with a line of <code>---</code> between them. Each is read into a merchant, date, total and tax, then paired with the bank or card line that paid it (the same amount, within a few days; a tip up to 25% on top counts when the name agrees). Below: receipts with no bank line, and spending over the amount you choose that has no receipt. The text stays in this browser. A reading aid, not a statement of what any tax authority requires you to keep.</p>
     <p><textarea id="receipts-text" aria-label="Receipt text, one receipt per block" rows="6" placeholder="Blue Bottle Coffee&#10;03/14/2026&#10;Subtotal 9.75&#10;Sales Tax 0.87&#10;Total 10.62&#10;---&#10;Hardware Hank&#10;2026-03-16&#10;Total 43.20" style="width:100%;font-family:monospace"></textarea></p>
+    <p><label class="secondary" style="cursor:pointer"><input type="file" id="receipts-photos" accept="image/*" multiple> Receipt photos</label> <span class="note">read on this computer; the first photo downloads a ~20&nbsp;MB reader from jsDelivr. Check the text before you press Read receipts.</span></p>
     <p><button type="button" id="receipts-read" class="secondary">Read receipts</button> <label>Ask for a receipt at or over <input id="receipts-min" inputmode="decimal" value="75" size="6"></label> <button type="button" id="receipts-clear" class="secondary">Remove all receipts</button> <span id="receipts-status" class="note" role="status"></span></p>
     <div class="scroll" id="receipts"></div>
   </section>
@@ -1152,6 +1153,18 @@
       books = r.books; record("receipts_read"); render();
       $("#receipts-status").textContent = `Read ${r.added.length}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read${r.skipped.length ? ` (${r.skipped.map((x) => `"${x.text.slice(0, 24)}": ${x.notes.join(", ")}`).join("; ")})` : ""}.`;
       if (r.added.length) $("#receipts-text").value = "";
+    });
+    $("#receipts-photos").addEventListener("change", async (ev) => {
+      const files = [...ev.target.files]; ev.target.value = "";
+      if (!files.length) return;
+      const st = $("#receipts-status");
+      try {
+        const { readPhotos } = await import("./photoocr.mjs");
+        st.textContent = "Loading the photo reader…";
+        const r = await readPhotos(files, { onProgress: (m) => { st.textContent = m.status === "reading" ? `Reading photo ${m.index + 1} of ${m.total}…` : m.status === "recognizing text" ? `Reading… ${Math.round((m.progress || 0) * 100)}%` : st.textContent; } });
+        if (r.text) { const box = $("#receipts-text"); box.value = (box.value.trim() ? box.value.trim() + "\n---\n" : "") + r.text; record("receipt_photos_read"); }
+        st.textContent = `Read ${r.read} photo${r.read === 1 ? "" : "s"} into the box above${r.skipped.length ? `; skipped ${r.skipped.map((x) => `${x.name} (${x.why})`).join(", ")}` : ""}. Fix any misread amount, then press Read receipts.`;
+      } catch (e) { st.textContent = e.message; }
     });
     $("#receipts-min").addEventListener("change", renderReceipts);
     $("#receipts-clear").addEventListener("click", () => { books = { ...books, receipts: [] }; render(); $("#receipts-status").textContent = "Receipts removed."; });
