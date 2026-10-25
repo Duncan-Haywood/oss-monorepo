@@ -116,6 +116,9 @@ export function readPayoutReport(text) {
   if (/^\s*[\[{]/.test(text)) return readSquareJson(text);
   let table = parseCsv(text).filter((r) => r.some((c) => String(c).trim() !== ""));
   if (table.length < 2) throw new Error("The report has no rows.");
+  // PayPal's Balance Reconciliation report: RH header rows, an RD column row, RD detail rows, RF footer.
+  const rd = table.findIndex((r) => r[0] === "RD" && r.map(key).includes("record_type") && r.map(key).includes("net_transaction_amount"));
+  if (rd !== -1) return { ...readPaypalBalance(table.slice(rd).filter((r) => r[0] === "RD").map((r) => r.slice(1))), source: "paypal" };
   // Seller Central's date-range CSV opens with a few note lines before the header.
   const at0 = table.findIndex((r) => { const h = r.map(key); return h.includes("settlement_id") && h.includes("selling_fees") && h.includes("product_sales"); });
   if (at0 !== -1) return { ...readAmazonRange(table.slice(at0)), source: "amazon" };
@@ -297,6 +300,42 @@ function readPaypal(table, head) {
 // Adyen's settlement details report (Company Account, Merchant Account, Psp
 // Reference, Type, Creation Date, Gross Debit/Credit (GC), Net Debit/Credit
 // (NC), Commission, Markup, Scheme Fees, Interchange (all NC), Batch Number).
+// PayPal's Balance Reconciliation report (developer.paypal.com, "Balance Reconciliation
+// report", sample file checked 2026-10-25). Net Transaction Amount is gross less the
+// partner commission and the net-billed fees. Records of type Fees are gross-settled
+// (invoiced later, never in a deposit), so they are left out of the rows. Transfer ID
+// is the id on the merchant's bank statement: rows sharing one are one deposit. The
+// report has no deposit row of its own, so a deposit cannot be cross-checked.
+function readPaypalBalance(table) {
+  const head = table[0].map(key), ix = (n) => head.indexOf(n);
+  const c = { id: ix("record_id"), type: ix("record_type"), sub: ix("record_subtype"), date: ix("created_at"), gross: ix("gross_transaction_amount"), net: ix("net_transaction_amount"), transfer: ix("transfer_id"), cur: ix("transaction_currency"), name: ix("customer_name"), inv: ix("invoice_id") };
+  const problems = [], rows = [], cur = new Set();
+  let grossFees = 0;
+  table.slice(1).forEach((r, n) => {
+    const at = (i) => (i === -1 ? "" : String(r[i] ?? "").trim());
+    const category = key(at(c.type));
+    if (category === "fees") { grossFees += parseCents(at(ix("total_gross_fees"))) || 0; return; }
+    const gross = parseCents(at(c.gross)), net = parseCents(at(c.net));
+    if ([gross, net].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
+    if (at(c.cur)) cur.add(at(c.cur).toUpperCase());
+    const kind = category === "sale" ? "sales" : category === "refund" ? "refunds" : "other";
+    rows.push({ row: n + 2, id: at(c.id) || `row${n + 2}`, payout: at(c.transfer), payoutDate: null, created: parseDate(at(c.date)), category, kind, gross, fee: gross - net, net, desc: at(c.name) || at(c.inv) });
+  });
+  if (cur.size > 1) problems.push(`The report mixes currencies (${[...cur].sort().join(", ")}); amounts are read as written with no conversion.`);
+  if (grossFees) problems.push(`Gross-settled fees of ${fmt(Math.abs(grossFees))} are invoiced separately and are not in any deposit; book them from the invoice.`);
+  const by = new Map(), pending = [];
+  for (const x of rows) {
+    if (!x.payout) { pending.push(x); continue; }
+    if (!by.has(x.payout)) by.set(x.payout, []);
+    by.get(x.payout).push(x);
+  }
+  const payouts = [...by].map(([id, rs]) => {
+    const sm = (f) => rs.reduce((a, x) => a + f(x), 0);
+    return { id, date: rs.map((x) => x.created).filter(Boolean).sort().at(-1) ?? null, net: sm((x) => x.net), gross: sm((x) => x.gross), fees: sm((x) => x.fee), rows: rs };
+  }).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  return { rows, payouts, pending, problems, offPlatform: [] };
+}
+
 // A batch is one payout: its Settled/Refunded/Chargeback/Fee rows net to the
 // MerchantPayout row of that batch. Gross is taken as net plus the four cost
 // columns, so a sale in another currency than the payout still balances. Rows
