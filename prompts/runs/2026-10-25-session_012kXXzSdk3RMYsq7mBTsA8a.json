@@ -38,7 +38,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-10-25-twin-pool-size-certificate.md; docs/reports/sim2real-inference-m7i.md",
+  "writeups": [
+    "docs/posts/2026-10-25-twin-pool-size-certificate.md",
+    "docs/reports/sim2real-inference-m7i.md"
+  ],
   "goal": null,
   "notes": "m7i: H7i-i refuted narrowly (8/21 vs 10), H7i-ii and H7i-iii supported. A process-grep wait loop with an unbracketed pattern matched itself; bracketing fixes it.",
   "corrections": [],
