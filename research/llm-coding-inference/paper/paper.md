@@ -112,6 +112,17 @@ specificity small in Nigerian Pidgin). The mechanism is the assumption in
 PPI that audit and corpus share a distribution; the stratified estimator
 restores it by reweighting, at the price of needing group sizes.
 
+*Second corpus (milestone 3b).* The same design on 6,683 GoEmotions comments
+in four hand-made subreddit groups (negative-emotion target, three logistic
+regression coders, n = 400, 1,000 draws; `group_shift_reddit.py`) gives a milder
+picture. Coder agreement differs by at most 5 points across groups, and pooled
+PPI covers 91.4 to 95.6% in all 18 cells; the one clear miss is a sports-only
+coder under a 70%-sports audit (91.4%, bias +1.74 points). Group-stratified PPI
+covers 93.5 to 95.0% but is wider than stratified hand-coding in every cell. We
+therefore state the finding as: undercoverage grows with between-group
+differences in coder error; stratification is the safe choice and costs width
+when the coder is weak.
+
 ## 5 Rare categories (H2, H4; both refuted as stated; a validity finding)
 
 Data: GoEmotions (Demszky et al. 2020), 38,234 comments after the `qual-real`
@@ -175,8 +186,8 @@ stopped size is within 1% of the oracle (+0.6 to +0.8%) and coverage is 95 to
    can only be larger, but how much is the paper's main empirical question.
    Blocked in the sessions so far: Hugging Face and the Anthropic API were not
    reachable, so no model could be run.
-2. One corpus per claim (NaijaSenti for groups and sizing, GoEmotions for rare
-   categories); the proposal asked for three.
+2. Two corpora for group shift (NaijaSenti, GoEmotions by subreddit type), one
+   for rare categories and sizing; the proposal asked for three.
 3. Truth is a corpus-wide hand code, not an independent gold standard.
 4. The floor multiplier (5) is fitted on the corpus it was first reported on.
 5. The sequential coverage uses the nominal normal interval; an always-valid
