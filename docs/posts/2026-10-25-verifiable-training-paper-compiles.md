@@ -1,7 +1,7 @@
 ---
 title: "A verifiable-training paper draft, compiled for the first time"
 date: 2026-10-25
-description: "The verifiable-training-mechanisms programme's EC paper draft now builds to PDF; compiling it showed two figures missing and both result tables spilling out of the column."
+description: "The verifiable-training programme's EC paper draft now builds to PDF; compiling it showed two missing figures and both result tables spilling out of the column."
 tags: [research, verifiable-training-mechanisms, paper]
 ---
 
