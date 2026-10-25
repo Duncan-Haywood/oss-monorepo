@@ -15,7 +15,7 @@ export const ADDONS = {
   // The Netherlands' NLCIUS (SI-UBL 2.0) and its G-account variant. UBL only, plain route
   // only, like Romania: build-nl-rules.mjs. A Peppol BIS file does not match; its NL-R
   // rules already run in the Peppol add-on.
-  nlcius: { source: "nlcius-schematron", match: /nen\.nl:(nlcius|gaccount)/i, files: { ubl: "nlcius-ubl.sef.json" } },
+  nlcius: { source: "nlcius-schematron", match: /nen\.nl:(nlcius|gaccount)/i, files: { ubl: "nlcius-ubl.sef.json", cii: "nlcius-cii.sef.json" } },
   // Portugal's CIUS-PT (AMA / FEAP), the checks the EU base does not carry. Plain route only: build-pt-rules.mjs.
   "cius-pt": { source: "cius-pt-schematron", match: /CIUS-PT/i, files: { ubl: "cius-pt-ubl.sef.json" } },
 };

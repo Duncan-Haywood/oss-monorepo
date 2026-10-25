@@ -40,3 +40,33 @@ test("every NLCIUS rule has an English fix, the errors a specific one", () => {
   assert.match(plainFix("BR-NL-27-1"), /NLCIUS/);
   assert.match(plainFix("SI-UBL-2"), /empty elements/);
 });
+
+const readyCii = ready && existsSync(new URL("./plain/nlcius-cii.json", import.meta.url));
+const skipCii = !readyCii && "npm i --no-save slimdom fontoxpath (rules are in ./plain/)";
+
+test("a CII file naming NLCIUS gets the Dutch add-on too", () => {
+  assert.deepEqual(matchingAddons(read("nlcius-cii-invoice.xml"), "cii").map(([n]) => n), ["nlcius"]);
+  assert.deepEqual(matchingAddons(read("xrechnung-cii-invoice.xml"), "cii").map(([n]) => n), ["xrechnung"]);
+});
+
+test("a clean Dutch NLCIUS CII invoice passes the EU base and the 34 national checks, none skipped", { skip: skipCii }, async () => {
+  const r = await runPlain(read("nlcius-cii-invoice.xml"));
+  assert.equal(r.status, "ok");
+  assert.deepEqual(r.sets, ["en16931", "nlcius"]);
+  assert.deepEqual(r.findings, []);
+  assert.deepEqual(r.skipped, []);
+});
+
+test("NLCIUS CII rules fire: no buyer or order reference, no seller street, a payment code outside the list, a country subdivision", { skip: skipCii }, async () => {
+  const r = await runPlain(read("nlcius-cii-invoice-with-defects.xml"));
+  assert.deepEqual(nl(r), ["BR-NL-12", "BR-NL-2", "BR-NL-28-2", "BR-NL-3"]);
+  assert.equal(r.findings.find((f) => f.rule === "BR-NL-28-2").severity, "warning");
+  assert.match(r.findings.find((f) => f.rule === "BR-NL-12").fix, /30, 48, 49, 57, 58 or 59/);
+});
+
+test("the CII empty-element warning has the NLCIUS fix", { skip: skipCii }, async () => {
+  const xml = read("nlcius-cii-invoice.xml").replace("<ram:ApplicableHeaderTradeDelivery>", "<ram:ApplicableHeaderTradeDelivery><ram:ShipToTradeParty/>");
+  const f = (await runPlain(xml)).findings.find((x) => x.rule === "empty-element-check");
+  assert.ok(f && f.severity === "warning");
+  assert.match(f.fix, /empty elements/);
+});
