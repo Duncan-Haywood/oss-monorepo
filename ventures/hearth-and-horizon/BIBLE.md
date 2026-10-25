@@ -320,6 +320,7 @@ the sources, and mark legend as legend)
 - *(Done: Cuthbert and the Otters, 20 March; anonymous Life and Bede, told as the Lives' tale; text only.)* The night prayer in the sea and the otters that warm his feet.
 - *(Done: John Bosco and the Boy Who Juggled, 31 January; his own Memoirs of the Oratory; text only.)* The farm boy who juggled to gather children for a prayer.
 - *(Done: Thérèse and the Small Way, 1 October; history and her own writings.)* Saint Thérèse and the small way.
+- *(Done: Elizabeth and the Bread That Became Roses, 17 November; legend over a documented life; text only.)* Saint Elizabeth of Hungary carries bread down the hill.
 
 ## What not to do
 
