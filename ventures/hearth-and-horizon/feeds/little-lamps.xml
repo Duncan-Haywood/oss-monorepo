@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Cuthbert and the Otters</title>
+      <link>https://example.invalid/hearth-and-horizon/cuthbert-and-the-otters.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/cuthbert-and-the-otters.html</guid>
+      <pubDate>Sun, 25 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Cuthbert, a young monk who prays in the cold sea all night, and the two small sea creatures that come up the beach at dawn to dry his feet. Told from the old Lives of Cuthbert, with a note for grown-ups on what is history and what is told in the Lives. For ages 3 to 8, about ten minutes read aloud. His feast day is the 20th of March. Setting: The north-east coast of Britain, in the kingdom of Northumbria, about thirteen hundred and fifty years ago. Read the full text at https://example.invalid/hearth-and-horizon/cuthbert-and-the-otters.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Cuthbert, a young monk who prays in the cold sea all night, and the two small sea creatures that come up the beach at dawn to dry his feet. Told from the old Lives of Cuthbert, with a note for grown-ups on what is history and what is told in the Lives. For ages 3 to 8, about ten minutes read aloud. His feast day is the 20th of March.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Ambrose and the Bees</title>
       <link>https://example.invalid/hearth-and-horizon/ambrose-and-the-bees.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/ambrose-and-the-bees.html</guid>
