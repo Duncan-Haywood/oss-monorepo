@@ -304,6 +304,9 @@ function readEbay(table) {
     const category = key(at("type"));
     const pid = at("payout").replace(/^--$/, "");
     const date = parseDate(at("date"));
+    // A multi-item order carries its extra items on following rows that have no
+    // Type or amounts of their own (eBay's help page); they are not money.
+    if (category === "" && net === 0 && gross === 0) return;
     if (category === "payout") { payoutRows.push({ id: pid, net: Math.abs(net) }); return; }
     const kind = category === "order" ? "sales" : category === "refund" ? "refunds" : /dispute|chargeback|claim/.test(category) ? "disputes" : /hold|release|reserve/.test(category) ? "reserve" : /fee|charge|shipping|label|ad|promot|subscription/.test(category) ? "fees" : category === "transfer" ? "skip" : "other";
     const base = { row: n + 2, id: at("order") || `row${n + 2}`, payout: pid, payoutDate: parseDate(at("payoutDate")), created: date, category, kind, desc: at("title") };
