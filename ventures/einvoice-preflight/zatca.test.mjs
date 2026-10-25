@@ -6,9 +6,10 @@ import { matchingProfile } from "./schematron-core.mjs";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { schematronFromXslt } from "./plain-from-xslt.mjs";
 
 const ready = plainAvailable() && existsSync(new URL("./plain/zatca-ksa-ubl.json", import.meta.url));
+const hasSlimdom = await import("slimdom").then(() => true, () => false);
+const skipXslt = !hasSlimdom && "npm i --no-save slimdom";
 const skip = !ready && "npm i --no-save slimdom fontoxpath (rules are in ./plain/)";
 const read = (name) => readFileSync(new URL(`./examples/${name}`, import.meta.url), "utf8");
 const rules = (r) => r.findings.map((f) => f.rule).sort();
@@ -55,7 +56,8 @@ test("a standard (B2B) invoice needs a buyer with a name and an address", { skip
   assert.ok(r.findings.length > ALWAYS.length);
 });
 
-test("the SchXslt reader turns an if, a for-each and a choose into violation XPaths", () => {
+test("the SchXslt reader turns an if, a for-each and a choose into violation XPaths", { skip: skipXslt }, async () => {
+  const { schematronFromXslt } = await import("./plain-from-xslt.mjs");
   const xsl = `<xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:svrl="http://purl.oclc.org/dsdl/svrl" xmlns:schxslt="https://doi.org/10.5281/zenodo.1495494" version="2.0">
   <svrl:ns-prefix-in-attribute-values prefix="cbc" uri="urn:cbc"/>
   <xsl:template match="item" priority="5" mode="d1"><xsl:choose><xsl:when test="false()"/><xsl:otherwise>
