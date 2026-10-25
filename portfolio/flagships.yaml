@@ -117,8 +117,8 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      Landed history (official Schematron, in-browser path, 28 country mandate
-      pages incl. UK 2026-10-25 (refresh after Budget 2026), arithmetic repair, FatturaPA IT-001..IT-018, runs against the
+      Landed history (official Schematron, in-browser path, 29 country mandate
+      pages incl. Lithuania and UK 2026-10-25 (refresh after Budget 2026), arithmetic repair, FatturaPA IT-001..IT-018, runs against the
       official EN 16931, XRechnung, Peppol BIS, ZUGFeRD and Factur-X corpora with
       their false positives fixed, Singapore, Australia, Ireland, India and
       RO_CIUS pages and rules, EXTENDED logistics charges read as header

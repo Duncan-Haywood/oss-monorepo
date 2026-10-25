@@ -117,3 +117,30 @@ def test_rand_k_unbiased_and_keep1_matches_plain():
         a.round(); b.round()
     for p, q in zip(m.parameters(), m2.parameters()):
         assert torch.allclose(p, q, atol=1e-5)
+
+
+def test_top_k_and_error_feedback():
+    import torch
+    from lowcomm import DiLoCo, top_k
+    c = top_k(0.25)
+    x = torch.tensor([1.0, -5.0, 2.0, 0.5, 3.0, -0.1, 0.2, 4.0])
+    y = c(x, None)
+    assert y.count_nonzero() == 2 and y[1] == -5.0 and y[7] == 4.0
+    # keep = 1 is the identity, with or without error feedback, so DiLoCo matches the uncompressed round
+    def mk():
+        torch.manual_seed(0)
+        return torch.nn.Linear(3, 1)
+    f = lambda m, rng: ((m(torch.randn(4, 3, generator=rng)) - 1) ** 2).mean()
+    outs = []
+    for kw in ({}, {"compress": top_k(1.0), "error_feedback": True}):
+        m = mk()
+        d = DiLoCo(m, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1, **kw)
+        for _ in range(3):
+            d.round()
+        outs.append([p.detach().clone() for p in m.parameters()])
+    assert all(torch.allclose(a, b, atol=1e-6) for a, b in zip(*outs))
+    # with a lossy compressor the residual is stored: delta + old residual = compressed + new residual
+    m = mk()
+    d = DiLoCo(m, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1, compress=top_k(0.5), error_feedback=True)
+    d.round()
+    assert any(float(e.abs().sum()) > 0 for e in d.ef[0])
