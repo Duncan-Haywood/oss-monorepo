@@ -14,3 +14,22 @@ test("padded Uber trip descriptors are travel", () => {
 test("Meta's FACEBK descriptor is advertising", () => {
   assert.equal(acct("FACEBK *ADS 12345"), "6000");
 });
+
+test("small-business descriptors in bank-feed formats (Toast prefix, tolls, ad networks, trades) get an account", () => {
+  const out = (d) => suggest({ desc: d, cents: -5000 }, ctx).account;
+  assert.equal(out("TST* THE LOCAL PUB"), "6130");
+  assert.equal(out("COSTCO GAS #123"), "6160");
+  assert.equal(out("EZPASS NY"), "6120");
+  assert.equal(out("UNITED 0162345678"), "6120");
+  assert.equal(out("GOOGLE *ADS123"), "6000");
+  assert.equal(out("SERVPRO OF DALLAS"), "6090");
+  assert.equal(out("DELAWARE DIV OF CORP"), "6110");
+  assert.equal(suggest({ desc: "AMAZON PAYMENTS SETTLEMENT", cents: 90000 }, ctx).account, "4000");
+});
+
+test("ambiguous payees stay open: IRS payments, bare checks, Zelle to a person", () => {
+  const out = (d) => suggest({ desc: d, cents: -5000 }, ctx).account;
+  assert.equal(out("IRS USATAXPYMT"), null);
+  assert.equal(out("CHECK #1042"), null);
+  assert.equal(out("ZELLE TO LANDLORD"), null);
+});

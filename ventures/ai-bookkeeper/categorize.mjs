@@ -127,6 +127,16 @@ export const BUILT_IN = [
   // HCB page 7 (eval/hcb-memos.mjs --orgpage 7), written after the held-out reading.
   ["6100", "out", /sp the thrifty bot|\bsp wcproducts|\bvex robotics|studica|ctr electronics|swerve drive spec|swyft robotics|metal supermarkets|automationdirect|plummer industries|general rubber|fuller & son hardware|robo promo|\bnte 5680|schneider'?s wholesale|american button m/],
   ["6130", "out", /mcalister|papa john|dairy queen|firehouse subs|ribcrib|super duper burgers|pot & paddle|jambalaya|totum/],
+  // Small-business spend probe (2026-10-25, 114 descriptors in the formats banks print; agent-written, not from a real export):
+  // the Toast restaurant prefix, tolls, ad networks written with the processor's asterisk, trades, and airline/payroll names the earlier rules missed.
+  ["6130", "out", /^tst\s?\*/],
+  ["6160", "out", /costco gas|\bgas #?\d/],
+  ["6120", "out", /e-?z ?pass|\bsunpass\b|\bfastrak\b|\bi-?pass\b|^united\s+0\d{6,}/],
+  ["6000", "out", /google\s?\*\s?ads|linkedin\s+(job|ads|marketing|recruiter)|reddit\s+ads|\bx corp\.? ads|twitter\s?\*?\s?ads|pinterest\s?\*?\s?ads|snap\s?\*?\s?ads/],
+  ["6090", "out", /roto-?rooter|\bhvac\b|servpro|\bplumb(er|ing)\b|\belectrician\b|\bpest control\b|\bterminix\b|\borkin\b|\bjanitorial\b/],
+  ["6150", "out", /^paychex\b|\bpaychex (payroll|inc)/],
+  ["4000", "in", /amazon (payments )?(settlement|payout|disburse)/],
+  ["6110", "out", /\bdiv(ision)? of corp|secretary of state|business license/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
