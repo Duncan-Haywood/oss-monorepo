@@ -52,6 +52,10 @@ function substitute(text, lets) {
 // IBAN mod-97 checks (DE-R-019/020) cast a 24-digit string to xs:integer, which
 // fontoxpath keeps in a double. Run them as a digit-by-digit remainder instead.
 const BIGMOD = 'declare function u:bigmod($digits as xs:string, $m as xs:integer) as xs:integer { fold-left(string-to-codepoints($digits), 0, function($acc, $c) { ($acc * 10 + $c - 48) mod $m }) };';
+// fn:format-number is not in fontoxpath. The only pictures the rule sets use ('0.00', '#.00') mean
+// two decimals, half-to-even, and the rules compare two such strings; '#.00' drops a zero integer part.
+const FMT = 'declare function u:fmt($n as item()*, $pic as xs:string) as xs:string { if (empty($n)) then "NaN" else let $x := xs:double($n) return if ($x != $x) then "NaN" else let $c := xs:integer(round-half-to-even(abs($x) * 100)) return concat(if ($x < 0 and $c > 0) then "-" else "", if ($c idiv 100 > 0 or starts-with($pic, "0")) then string($c idiv 100) else "", ".", format-integer($c mod 100, "00")) };';
+const rewriteFormatNumber = (test) => test.replace(/(?<![\w:.-])format-number\(/g, "u:fmt(");
 function rewriteBigMod(test) {
   let out = "";
   let rest = test;
@@ -159,7 +163,7 @@ export function compileSchematron(file) {
           kind: a.localName,
           id: a.getAttribute("id") || "",
           flag: a.getAttribute("flag") || r.getAttribute("flag") || "fatal",
-          test: rewriteBigMod(substitute(a.getAttribute("test"), inRule)),
+          test: rewriteFormatNumber(rewriteBigMod(substitute(a.getAttribute("test"), inRule))),
           text: clean(a.textContent),
         }));
         for (const e of elements(r)) {
@@ -173,8 +177,10 @@ export function compileSchematron(file) {
   // Function bodies may read global lets ($XR-IBAN-REGEX) and do the same big-integer mod 97.
   const declared = functions.map((f) => rewriteBigMod(substitute(xqueryFunction(f), resolvedGlobals)));
   const usesBigMod = [...declared, ...out.flatMap((p) => p.rules.flatMap((r) => r.checks.map((c) => c.test)))].some((t) => t.includes("u:bigmod("));
-  const prolog = [...declared, ...(usesBigMod ? [BIGMOD] : [])].join("\n");
-  const prefixes = new Set([...functions.map((f) => f.getAttribute("name").split(":")[0]), ...(usesBigMod ? ["u"] : [])]);
+  const usesFmt = out.some((p) => p.rules.some((r) => r.checks.some((c) => c.test.includes("u:fmt("))));
+  const prolog = [...declared, ...(usesBigMod ? [BIGMOD] : []), ...(usesFmt ? [FMT] : [])].join("\n");
+  const prefixes = new Set([...functions.map((f) => f.getAttribute("name").split(":")[0]), ...(usesBigMod || usesFmt ? ["u"] : [])]);
+  if (usesFmt && !ns.u) ns.u = "urn:einvoice-preflight:util"; // prolog namespace for the helper above
   const usesFunction = new RegExp(`(?<![\\w.-])(?:${[...prefixes].join("|")}):[A-Za-z]`);
   for (const p of out) for (const r of p.rules) for (const c of r.checks) if (prolog && usesFunction.test(c.test)) c.xq = true;
   const declarations = [...prefixes].map((p) => `declare namespace ${p} = "${ns[p]}";`).join("\n");

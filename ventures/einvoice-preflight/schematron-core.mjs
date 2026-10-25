@@ -22,12 +22,17 @@ export const ADDONS = {
 export const PROFILES = {
   "pint-sg": { source: "pint-sg-schematron", match: /poacc:billing:international:sg:/i, files: { ubl: ["pint-sg-en16931-ubl.json", "pint-sg-peppol-ubl.json", "pint-sg-billing3-ubl.json"] } },
   "pint-aunz": { source: "pint-aunz-schematron", match: /poacc:billing:international:aunz:/i, files: { ubl: ["pint-aunz-en16931-ubl.json", "pint-aunz-peppol-ubl.json"] } },
+  // Saudi Arabia (ZATCA / Fatoora). The KSA invoice names no CustomizationID profile: its marker is
+  // the UBL ProfileID "reporting:1.0" (simplified) or "clearance:1.0" (standard). ZATCA ships its
+  // own cut of the EN 16931 rules beside the KSA ones, so the EU base steps aside. build-zatca-rules.mjs.
+  zatca: { source: "zatca-schematron", match: /(?!)/, profileId: /^\s*(?:reporting|clearance):1\.0\s*$/i, files: { ubl: ["zatca-en16931-ubl.json", "zatca-ksa-ubl.json"] } },
   "pint-aunz-sb": { source: "pint-aunz-schematron", match: /poacc:selfbilling:international:aunz:/i, files: { ubl: ["pint-aunz-en16931-ubl.json", "pint-aunz-sb-peppol-ubl.json"] } },
 };
 
 export function matchingProfile(xml, syntax) {
   const id = customizationId(xml);
-  return Object.entries(PROFILES).find(([, p]) => p.match.test(id) && p.files[syntax]) || null;
+  const profileId = xml.match(/<(?:\w+:)?ProfileID\b[^>]*>([^<]*)</)?.[1] ?? "";
+  return Object.entries(PROFILES).find(([, p]) => (p.match.test(id) || p.profileId?.test(profileId)) && p.files[syntax]) || null;
 }
 
 // BT-24 is cbc:CustomizationID in UBL and the ID inside
