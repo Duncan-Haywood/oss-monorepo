@@ -255,7 +255,10 @@ export function pairTransfers(books, days = DEFAULTS.transferDays) {
     // realized exchange gain or loss, see journal()).
     const diff = Math.abs(a.cents + b.cents);
     if (diff !== 0) {
-      if (!!a.foreign === !!b.foreign) continue;
+      if (!a.foreign && !b.foreign) continue;
+      // Two foreign accounts: the same currency must move the same foreign amount
+      // (only the typed rates differ); different currencies are judged in base units.
+      if (a.foreign && b.foreign && a.foreign.currency === b.foreign.currency && a.foreign.cents + b.foreign.cents !== 0) continue;
       if (diff > Math.max(a.cents, -b.cents) * FX_TRANSFER_TOLERANCE) continue;
     }
     const gap = Math.abs(dayNum(a.date) - dayNum(b.date));
