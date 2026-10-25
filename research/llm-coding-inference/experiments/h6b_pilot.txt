@@ -1,0 +1,13 @@
+NaijaSenti corpus 44485 tweets, true negative share 0.3285; strata hau 15538, ibo 11068, pcm 7353, yor 10526
+1000 draws per cell, seed 20261026. Pilot p per stratum -> S_h^2 hat (floor 0.02) -> Neyman total n for +/-3 pts -> top up -> stratified PPI.
+
+coder | p | mean total n (oracle n) | sd n | mean half pts | p95 half pts | share half<=3.0 | share half<=3.3 | coverage
+lexicon-en | 10 | 874 (902) | 174 | 3.14 | 3.99 | 0.437 | 0.744 | 0.949
+lexicon-en | 20 | 893 (902) | 113 | 3.03 | 3.44 | 0.523 | 0.896 | 0.951
+lexicon-en | 40 | 892 (902) | 79 | 3.00 | 3.22 | 0.547 | 0.980 | 0.946
+nb-english | 10 | 1052 (1083) | 240 | 3.16 | 4.02 | 0.429 | 0.724 | 0.945
+nb-english | 20 | 1064 (1083) | 159 | 3.04 | 3.50 | 0.493 | 0.858 | 0.946
+nb-english | 40 | 1076 (1083) | 109 | 3.00 | 3.26 | 0.529 | 0.971 | 0.941
+nb-in-language | 10 | 892 (927) | 258 | 3.26 | 4.51 | 0.427 | 0.633 | 0.943
+nb-in-language | 20 | 891 (927) | 175 | 3.10 | 3.73 | 0.438 | 0.761 | 0.957
+nb-in-language | 40 | 917 (927) | 119 | 3.01 | 3.36 | 0.501 | 0.914 | 0.949
