@@ -1,7 +1,7 @@
 ---
 title: "N26 exports in German and French now import as N26"
 date: 2026-10-25
-description: "ai-bookkeeper recognised only N26's current English CSV. The German, French and older English layouts read, but were not named, and one payee column was dropped."
+description: "ai-bookkeeper recognised only N26's current English CSV. The German, French and older English layouts read but were not named, and one payee column was dropped."
 tags: [ai-bookkeeper, n26, bank-import]
 ---
 

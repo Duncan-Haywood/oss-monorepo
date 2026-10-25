@@ -1,7 +1,7 @@
 ---
 title: "A real Starling export reads clean"
 date: 2026-10-25
-description: "ai-bookkeeper's Starling reader was only tested on a made-up file. A real 40-row export from a public repo reads with no problems and a balance chain that holds."
+description: "ai-bookkeeper Starling reader was only tested on a made-up file. A real 40-row export from a public repo reads with no problems and a balance chain that holds"
 tags: [ai-bookkeeper, bank-import, testing]
 ---
 

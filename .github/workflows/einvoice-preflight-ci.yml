@@ -107,6 +107,8 @@ jobs:
           found=0
           for example in examples/*-with-defects.*; do
             [ -e "$example" ] || continue
+            # NLCIUS CII rules run in the browser engine (nlcius.test.mjs); the Python CLI checks EN 16931 only.
+            case "$example" in */nlcius-cii-*) continue;; esac
             echo "--- $example"
             if python3 -m einvoice_preflight "$example"; then
               echo "::error::$example passed preflight but must fail it"
