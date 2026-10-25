@@ -1,7 +1,7 @@
 ---
 title: "Stop hand-checking AI-coded data when the interval is narrow enough"
 date: 2026-10-25
-description: "Auditing in batches and stopping at a 3-point half-width met the target in every simulated audit at the same average size as knowing the true error rates, with coverage intact."
+description: "Auditing in batches and stopping at a 3-point half-width met the target in every simulated audit, at the average size of knowing the true error rates."
 tags: [research, llm-coding-inference, statistics]
 ---
 

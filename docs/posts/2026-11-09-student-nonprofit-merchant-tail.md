@@ -1,7 +1,7 @@
 ---
 title: "What a keyword categorizer misses on 3,400 real nonprofit card charges"
 date: 2026-11-09
-description: "Hack Club's public HCB feed gave ai-bookkeeper its first real merchant tail: 35% suggested at first, 33% on organisations it had not seen after a round of rules."
+description: "Hack Club HCB feed gave ai-bookkeeper its first real merchant tail: 35% suggested at first, 33% on organisations it had not seen, after a round of rules."
 tags: [ai-bookkeeper, accounting, evaluation]
 ---
 
