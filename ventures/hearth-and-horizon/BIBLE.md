@@ -280,6 +280,7 @@ numbers worked out before drafting.
 - *Twenty-year strand, next:* a 2046 school or hospital chaplaincy where the assistant's notes about a person outlast the person's wishes. Work out the numbers first.
 - *(Done: Not Asked Since, Balmuir Community Hospital, Angus, 2046; text only.)* A ward assistant's three-year-old "no priests" banner, a stroke, and a dying man asked with control questions; the refusal was about one dead priest.
 - *(Done: While I Live, Carrowbeg, Co. Mayo, 2046; text only.)* A credit union's assistant holds a member's 2041 letter whose sum has turned false (savings for two years; now thirty-nine weeks at €1,045 short a week). It will not write the letter she would have written; it asks her, on her best morning, and records the answer as one morning's answer.
+- *(Done: Till She Is Through, Tràigh Ghil, Barra, 2046; text only.)* A bank assistant holds a 2043 standing order (£300 a month "till Seonaidh is through with her schooling") the writer can no longer revise; it will not decide what "schooling" meant, sets out the words, the dates and the sums (£4,184 a year care gap), and leaves the choice to the guardian.
 - *Twenty-year strand, next:* a 2046 court or bank piece where a stored preference binds a person who can no longer revise it, with no dementia in it (for example a trust or a will's condition).
 
 **For Other Minds**
