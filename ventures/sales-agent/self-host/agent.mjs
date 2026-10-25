@@ -5,7 +5,7 @@
 // to the address that wrote in, with a List-Unsubscribe header, never to a suppressed address, and at most
 // SEND_MAX_PER_DAY a day. Anything automatic is M5 and waits on the owner.
 //
-// Env: IMAP_HOST IMAP_USER IMAP_PASS [IMAP_PORT=993] [IMAP_SECURE=true] [IMAP_BOX=INBOX] ADMIN_TOKEN (required)
+// Env: IMAP_HOST IMAP_USER IMAP_PASS [IMAP_PORT=993] [IMAP_SECURE=true] [IMAP_BOX=INBOX] [TLS_CA_FILE=ca.pem] ADMIN_TOKEN (required)
 //      [SMTP_HOST SMTP_PORT=587 SMTP_SECURE=false SMTP_USER SMTP_PASS SEND_FROM SEND_MAX_PER_DAY=20] [DATA_DIR=./data] [PORT=8787] [HOST=127.0.0.1] [POLL_MINUTES=10] [SINCE_DAYS=7] [OFFER_JSON=path]
 //      plus LLM_PROVIDER/LLM_MODEL/LLM_API_KEY (or ANTHROPIC_API_KEY ...) for the optional model, same limits.
 import http from "node:http";
@@ -24,6 +24,7 @@ const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(Str
 
 export function createAgent(env = process.env, { now = () => Date.now() } = {}) {
   if (!env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < 12) throw new Error("ADMIN_TOKEN is required (12+ characters): it protects the approval queue");
+  const ca = env.TLS_CA_FILE ? readFileSync(env.TLS_CA_FILE) : undefined; // extra trusted CA (PEM) for a mail server with a private certificate
   const dir = env.DATA_DIR || "./data";
   mkdirSync(dir, { recursive: true });
   const stateFile = join(dir, "state.json"), auditFile = join(dir, "audit.jsonl");
@@ -69,7 +70,7 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
   async function poll() {
     const need = ["IMAP_HOST", "IMAP_USER", "IMAP_PASS"].filter((k) => !env[k]);
     if (need.length) { state.lastError = `missing ${need.join(", ")}`; save(); return 0; }
-    const c = new Imap({ host: env.IMAP_HOST, port: Number(env.IMAP_PORT || 993), secure: env.IMAP_SECURE !== "false" });
+    const c = new Imap({ host: env.IMAP_HOST, port: Number(env.IMAP_PORT || 993), secure: env.IMAP_SECURE !== "false", ca });
     try {
       await c.connect(); await c.login(env.IMAP_USER, env.IMAP_PASS); await c.examine(env.IMAP_BOX || "INBOX");
       const since = state.lastUid ? `UID ${state.lastUid + 1}:*` : `SINCE ${new Date(now() - Number(env.SINCE_DAYS || 7) * 864e5).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).replace(/ /g, "-")}`;
@@ -120,7 +121,7 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
     const msg = buildMessage({ from, to, subject: it.outbound || /^re:/i.test(it.subject) ? it.subject : "Re: " + it.subject, body: it.draft.body, inReplyTo: /^<.+>$/.test(it.id) ? it.id : undefined, date: new Date(now()) });
     it.sendingAt = new Date(now()).toISOString(); save();
     try {
-      const reply = await sendMail({ host: env.SMTP_HOST, port: Number(env.SMTP_PORT || 587), secure: env.SMTP_SECURE === "true", starttls: env.SMTP_STARTTLS !== "false", user: env.SMTP_USER, pass: env.SMTP_PASS }, msg);
+      const reply = await sendMail({ host: env.SMTP_HOST, port: Number(env.SMTP_PORT || 587), secure: env.SMTP_SECURE === "true", starttls: env.SMTP_STARTTLS !== "false", ca, user: env.SMTP_USER, pass: env.SMTP_PASS }, msg);
       it.sentAt = new Date(now()).toISOString(); it.sentMessageId = msg.id; delete it.sendingAt;
       audit("sent", { id, to, messageId: msg.id, server: reply }); save();
       return it;

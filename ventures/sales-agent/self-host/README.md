@@ -34,7 +34,7 @@ travels in the URL and header.
 
 | Variable | Default | |
 |---|---|---|
-| `IMAP_HOST`, `IMAP_USER`, `IMAP_PASS` | required | `IMAP_PORT` 993, `IMAP_SECURE=false` for a plain test server, `IMAP_BOX` INBOX |
+| `IMAP_HOST`, `IMAP_USER`, `IMAP_PASS` | required | `IMAP_PORT` 993, `IMAP_SECURE=false` for a plain test server, `IMAP_BOX` INBOX, `TLS_CA_FILE` a PEM file of an extra trusted CA for a mail server with a private certificate (certificates are always verified; there is no switch to skip it) |
 | `ADMIN_TOKEN` | required, 12+ chars | protects every page except `/healthz` |
 | `DATA_DIR` | `./data` | `state.json` (prospects, queue, cursor), `audit.jsonl` |
 | `POLL_MINUTES`, `SINCE_DAYS` | 10, 7 | first poll reads the last `SINCE_DAYS` days, then only new UIDs |

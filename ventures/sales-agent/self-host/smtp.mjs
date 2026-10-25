@@ -5,6 +5,7 @@
 import net from "node:net";
 import tls from "node:tls";
 import { randomUUID } from "node:crypto";
+import { servername } from "./imap.mjs";
 
 const addr = (s) => (String(s).match(/[^\s<>",;]+@[^\s<>",;]+/) || [""])[0];
 const noCtl = (s) => String(s ?? "").replace(/[\r\n]+/g, " ").trim();
@@ -29,9 +30,11 @@ export function buildMessage({ from, to, subject, body, inReplyTo, references, u
 }
 
 /** Send one message. Resolves with the server's final reply line; rejects with the server's words (password redacted). */
-export async function sendMail({ host, port = 587, secure = false, starttls = true, user, pass, timeoutMs = 20000 }, msg) {
-  let sock = secure ? tls.connect({ host, port, servername: host }) : net.connect({ host, port });
+export async function sendMail({ host, port = 587, secure = false, starttls = true, user, pass, timeoutMs = 20000, ca }, msg) {
+  const tlsOpts = { servername: servername(host), ca };
+  let sock = secure ? tls.connect({ host, port, ...tlsOpts }) : net.connect({ host, port });
   let buf = "", waiter = null;
+  const failer = {};
   const feed = (d) => { buf += d; pump(); };
   const pump = () => {
     if (!waiter) return;
@@ -44,7 +47,7 @@ export async function sendMail({ host, port = 587, secure = false, starttls = tr
   const attach = () => { sock.setEncoding("utf8"); sock.on("data", feed); };
   attach();
   const timer = setTimeout(() => sock.destroy(new Error("SMTP timeout")), timeoutMs);
-  const fail = new Promise((_, rej) => sock.on("error", rej));
+  const fail = new Promise((_, rej) => { failer.reject = rej; sock.on("error", rej); });
   const read = () => Promise.race([new Promise((r) => { waiter = r; pump(); }), fail]);
   const expect = async (ok, label) => { const r = await read(); const last = r[r.length - 1]; if (!ok.some((c) => last.startsWith(c))) throw new Error(`SMTP ${label}: ${last}`.replace(pass || "\0", "***")); return r; };
   const say = (l) => sock.write(l + "\r\n");
@@ -53,7 +56,7 @@ export async function sendMail({ host, port = 587, secure = false, starttls = tr
     say("EHLO sales-agent.local"); let caps = (await expect(["250"], "EHLO")).join(" ");
     if (!secure && starttls && /STARTTLS/i.test(caps)) {
       say("STARTTLS"); await expect(["220"], "STARTTLS");
-      sock.removeAllListeners("data"); sock = tls.connect({ socket: sock, servername: host }); attach(); sock.on("error", () => {});
+      sock.removeAllListeners("data"); sock = tls.connect({ socket: sock, ...tlsOpts }); attach(); sock.on("error", (e) => failer.reject(e));
       say("EHLO sales-agent.local"); caps = (await expect(["250"], "EHLO")).join(" ");
     } else if (!secure && user && !/^(127\.|localhost$)/.test(host)) throw new Error("refusing to send a password without TLS (server offers no STARTTLS)");
     if (user) {

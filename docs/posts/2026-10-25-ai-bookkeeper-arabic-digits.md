@@ -1,7 +1,7 @@
 ---
 title: "Bank exports in Arabic-Indic digits used to read as NaN"
 date: 2026-10-25
-description: "ai-bookkeeper now reads amounts and dates written in Arabic-Indic, Persian and fullwidth digits, which statements from Gulf, Iranian and some East Asian banks use."
+description: "ai-bookkeeper now reads amounts and dates in Arabic-Indic, Persian and fullwidth digits, which Gulf, Iranian and some East Asian bank statements use."
 tags: [ai-bookkeeper, bank-import, i18n]
 ---
 
