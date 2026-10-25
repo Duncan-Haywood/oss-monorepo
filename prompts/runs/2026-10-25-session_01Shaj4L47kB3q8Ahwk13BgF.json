@@ -38,7 +38,9 @@
    "result": "landed as exploratory"
   }
  ],
- "writeups": "research/verified-dse/LOG.md milestone 13",
+ "writeups": [
+  "research/verified-dse/LOG.md"
+ ],
  "goal": null,
  "notes": "Ran experiments/eta_floor/sweep.py (about 30 s), build.py ok, check_md_links ok. Fixed a string-precedence bug in the output table before the reported run.",
  "corrections": [],
