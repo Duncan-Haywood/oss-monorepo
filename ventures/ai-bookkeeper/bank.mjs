@@ -92,7 +92,7 @@ export function parseCents(v, decimalComma = false) {
   if (s === "" || /^[-–—−‐‑‒﹣－\s]+$/.test(s)) return 0;
   if (/\d\s*e\s*[-+]?\d/i.test(s)) return NaN; // "1e3" is not 13.00
   // Exports and copy-paste bring the minus in as U+2212, an en or em dash, or a Unicode hyphen.
-  const neg = /\(\s*[^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−–—‐‑‒﹣－]/.test(s) || /[-−–—‐‑‒﹣－]\s*$/.test(s) || /\d\s*(?:dr|db|debit)\.?\s*$/i.test(s) || /^\s*(?:dr|db|debit)\.?\s*[^a-z0-9]{0,3}\d/i.test(s);
+  const neg = /\(\s*[^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−–—‐‑‒﹣－]/.test(s) || /[-−–—‐‑‒﹣－]\s*(?:\p{L}{2,3}\.?\s*)?$/u.test(s) || /\d\s*(?:[a-z]{3}\s*)?(?:dr|db|debit)\.?\s*$/i.test(s) || /^\s*(?:dr|db|debit)\.?\s*[^a-z0-9]{0,3}\d/i.test(s);
   // A currency written in letters ahead of the number ("د.ا.‏4.750", "Rs. 1,200") would leave stray dots.
   s = s.replace(/^[^0-9]*\p{L}[^0-9]*/u, "").replace(/[^0-9]+$/, (t) => (/\p{L}/u.test(t) ? "" : t));
   s = s.replace(/[^0-9.,]/g, "");
