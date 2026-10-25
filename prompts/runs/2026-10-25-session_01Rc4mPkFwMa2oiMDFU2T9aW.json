@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01Rc4mPkFwMa2oiMDFU2T9aW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-25T03:09:14Z",
+  "ended": "2026-10-25T04:44:53Z",
+  "wall_minutes": 95.88,
+  "tokens_in": 4041261,
+  "tokens_out": 13981,
+  "cost_usd": 1.2199,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": 10308,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py torch install took over 15 minutes and a second concurrent call started a duplicate pip install; the 'about 2 minutes' guidance undercounts torch"
+    },
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "Claim check found no open PR, but another run landed the same milestone (3c, #10293) during my 2-hour training; merged main and relabelled my work 3d (it re-tunes sync and H=4, which #10293 left open)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "No blog post or docs/reports agent doc written: the step is one log milestone and the run spent its time on 2 hours of training; the LOG entry carries the result",
+      "did": "LOG, README and results file only",
+      "result": "landed without a post"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Milestone 3c of lowcomm-training; 36 GPT training runs, hypotheses logged before running. build.py ok, check_md_links ok. Parallel run landed 3c as #10293; this PR became 3d.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "90917a80-7e43-5b87-bc16-815f2393bb3c",
+    "transcripts": 1,
+    "first": "2026-10-25T03:09:14Z",
+    "last": "2026-10-25T04:45:06Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 48,
+        "input": 110,
+        "output": 13981,
+        "thinking": 1803,
+        "cache_read": 3969665,
+        "cache_write_5m": 0,
+        "cache_write_1h": 71486,
+        "api_equivalent_usd": 1.2199,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 110,
+      "output": 13981,
+      "thinking": 1803,
+      "cache_read": 3969665,
+      "cache_write_5m": 0,
+      "cache_write_1h": 71486,
+      "api_equivalent_usd": 1.2199,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 28,
+      "Monitor": 10,
+      "ReadNotifications": 4,
+      "mcp__github__search_pull_requests": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 95.88,
+      "active_minutes": 5.35,
+      "model_minutes": 2.42,
+      "tool_minutes": 2.93,
+      "waiting_on_human_minutes": 90.53,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
