@@ -163,3 +163,28 @@ test("a EUR bill revalued up is a loss, paid after one month end", () => {
   assert.equal(net(j, "6190"), 500); // booked 220.00, paid 225.00
   assert.ok(trialBalance(j, b.accounts).balanced);
 });
+
+// A transfer between two different foreign accounts (EUR to GBP) is judged in base units.
+function twoForeign(eurOut, gbpIn) {
+  let b = books();
+  b.accounts.push({ code: "1030", name: "GBP account", type: "asset", bank: true });
+  b = addFxAccount(b, { code: "1030", currency: "GBP" });
+  b = setRates(b, parseRates("2026-01-01,GBP,1.30").rates);
+  b = importStatement(b, `Date,Description,Amount,Balance\n2026-01-20,TRANSFER TO GBP,-${eurOut},1000.00\n`, "1020").books;
+  b = importStatement(b, `Date,Description,Amount,Balance\n2026-01-21,TRANSFER FROM EUR,${gbpIn},${gbpIn}\n`, "1030").books;
+  return b;
+}
+
+test("a transfer between a EUR and a GBP account is paired, the rate difference is realized", () => {
+  const b = twoForeign("1000.00", "850.00"); // 1,100.00 base out, 1,105.00 base in
+  const [e, g] = b.transactions;
+  assert.equal(e.status, "transfer"); assert.equal(g.status, "transfer"); assert.equal(e.pair, g.id);
+  const tb = trialBalance(journal(b), b.accounts);
+  assert.ok(tb.balanced);
+  assert.equal(tb.rows.find((x) => x.code === "6190").credit, 500); // 5.00 gain
+});
+
+test("a EUR and a GBP line far apart in value are not paired", () => {
+  const b = twoForeign("1000.00", "1200.00");
+  assert.notEqual(b.transactions[0].status, "transfer");
+});
