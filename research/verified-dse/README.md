@@ -54,6 +54,9 @@ sequences within a design; there is no multiple-comparison correction. Sequences
 tau-b handles but which limits the ripple adder (4 distinct routed scores). Cumulative rung times are the Yosys mapping time plus the OpenROAD stage time, as in
 `LOG.md`.
 
+## Milestone 11 result: does a random hedge, or a gentler cut, fix halving's bias floor?
+Replayed on both cached tables (no flow run), 400 paired seeds. A random-search hedge (75% or 50% of the budget to halving, the rest to random routed points) lowers the floor at 600 s and over on the larger designs but gives up the head start and still trails random search at 900 s. **Halving from R2 with eta = 2 instead of 3 is the stronger change at the tight clock:** on the small designs it beats random search on 4 to 7 of 10 designs at 20 to 45 s (mean regret 0.57% against 0.94% at 45 s), and on the larger designs its floor is 0.11% against 0.30%. At the relaxed clock nothing helps: worst-design regret stays 10 to 14%. Descriptive only (many comparisons, eta not tuned); see [`LOG.md`](LOG.md), [`experiments/hedge/results.txt`](experiments/hedge/results.txt).
+
 ## Contents
 - [`PROPOSAL.md`](PROPOSAL.md): related work (12 checked ids), gap, hypotheses H1 to H5, evaluation, milestones, target venue (MLCAD).
 - [`PAPER.md`](PAPER.md): the paper draft (MLCAD target, not submitted); `reproduce.sh` regenerates every number in it from the cached tables.
