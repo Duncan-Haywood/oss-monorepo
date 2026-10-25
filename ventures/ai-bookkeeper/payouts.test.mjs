@@ -381,6 +381,21 @@ po_8,2026-04-05,txn_5,2026-04-03,charge_failure,-10.00,0.00,-10.00,Failed
   assert.deepEqual(r.rows.map((x) => x.kind), ["sales", "reserve", "reserve", "fees", "refunds"]);
 });
 
+test("Shopify Payments transaction types from the Admin reference: costs are fees, loans and transfers are clearing", () => {
+  const rep = `Transaction Date,Type,Order,Amount,Fee,Net,Payout Date,Payout ID
+2026-04-01,charge,#1,100.00,3.20,96.80,2026-04-03,5
+2026-04-01,shipping_label,#1,-8.00,0.00,-8.00,2026-04-03,5
+2026-04-02,referral_fee,#2,-2.00,0.00,-2.00,2026-04-03,5
+2026-04-02,lending_credit_remittance,,-15.00,0.00,-15.00,2026-04-03,5
+2026-04-02,merchant_to_merchant_credit,,10.00,0.00,10.00,2026-04-03,5
+2026-04-02,seller_protection_credit,#3,12.00,0.00,12.00,2026-04-03,5
+2026-04-02,anomaly_credit,,1.00,0.00,1.00,2026-04-03,5
+`;
+  const r = readPayoutReport(rep);
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.kind), ["sales", "fees", "fees", "reserve", "reserve", "disputes", "other"]);
+});
+
 test("Stripe currency_conversion is a balance movement, not other income", () => {
   const rep = `${HEAD}
 po_7,2026-04-05,txn_1,2026-04-01,charge,100.00,3.20,96.80,Sale
