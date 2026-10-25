@@ -358,6 +358,8 @@ export function sniffBank(rows) {
     if (/^number\|date\|account\|amount\|subcategory\|memo/.test(h)) return "barclays";
     if (/^date\|description\|withdrawals\|deposits\|balance/.test(h)) return "pnc";
     if (/^date\|status\|type\|checknumber\|description\|withdrawal\|deposit\|runningbalance/.test(h)) return "schwab";
+    // Schwab's newer checking export: no Status column, and note lines under the header.
+    if (/^date\|type\|check #\|description\|withdrawal \(-\)\|deposit \(\+\)\|runningbalance/.test(h)) return "schwab";
     if (/^run date\|account\|account number\|action\|symbol\|description/.test(h)) return "fidelity";
     // Schwab's brokerage "Transactions" export: a title line above the header, a "Transactions Total" row below.
     if (/^date\|action\|symbol\|description\|quantity\|price\|fees (&|and) comm\|amount/.test(h)) return "schwab-brokerage";
@@ -873,6 +875,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     // German and Italian "Valuta" is often the value date; only a three-letter code counts as a currency.
     if (curCol !== -1 && /^[a-z]{3}$/i.test(String(r[curCol] ?? "").trim())) currencies.add(r[curCol].trim().toUpperCase());
     if (/^(likutis (pradžiai|pabaigai)|apyvarta|opening balance|closing balance)$/i.test(String(r[columns.desc] ?? "").trim())) { problems.push(`Line ${i + 1}: a balance row, not a transaction, skipped.`); continue; }
+    // A one-cell line under the header that is not a date is a note ("Posted Transactions"), not a short row.
+    if (headerAt !== -1 && r.length === 1 && !parseDate(r[columns.date], dayFirst)) continue;
     if (headerAt !== -1 && r.length <= Math.max(columns.amount, columns.debit, columns.credit) && String(r[columns.date] ?? "").trim()) { problems.push(`Line ${i + 1}: the row has ${r.length} columns, fewer than the header, so the amount column is missing; skipped. Check the quoting in the file.`); continue; }
     const date = parseDate(r[columns.date], dayFirst);
     // A row with no date and no amount is the second line of the row above (OCBC's
