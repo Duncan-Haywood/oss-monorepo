@@ -122,7 +122,7 @@ flagships:
       official EN 16931, XRechnung, Peppol BIS, ZUGFeRD and Factur-X corpora with
       their false positives fixed, Singapore, Australia, Ireland, India and
       RO_CIUS pages and rules, EXTENDED logistics charges read as header
-      charges) lives in the README and git. FatturaPA XSD 1.2.1 read 2026-10-30 (IT-018..022, matches xmllint on 1,638 mutations). Saudi ZATCA BR-KSA rules (152 checks, SchXslt reader) 2026-10-25. Open: ZATCA rules on a real sandbox invoice (BR-KSA-29 namespace question, README), debit notes (credit notes landed 2026-10-26), the Saxon route; FatturaPA
+      charges) lives in the README and git. FatturaPA XSD 1.2.1 read 2026-10-30 (IT-018..022, matches xmllint on 1,638 mutations). Saudi ZATCA BR-KSA rules (152 checks, SchXslt reader) 2026-10-25. Open: ZATCA rules on a real sandbox invoice (BR-KSA-29 namespace question, README), a real ZATCA credit or debit note (both made-up examples landed 2026-10-25/26), the Saxon route; FatturaPA
       code lists (TD29, RF20 added 2026-10-24 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Poland's FA(3) (fa3.mjs, PL-001..011, 2026-10-24) on a real KSeF test-environment file and the XSD itself in the browser;
       the rules and a repair on a real ERP or
       Factur-X export (open the repaired PDF in veraPDF or a viewer); a page
