@@ -6,7 +6,7 @@ set -e
 cd "$(dirname "$0")"
 PY=${PY:-python3}
 $PY experiments/rung_bias/analyse.py
-for d in search_baselines halving conformal; do $PY experiments/$d/replay.py; done
+for d in search_baselines halving hyperband conformal; do $PY experiments/$d/replay.py; done
 $PY experiments/proof_success/analyse.py
 for s in bound quantile topk sweep; do $PY experiments/theory/$s.py; done
 $PY -m unittest discover -s tests

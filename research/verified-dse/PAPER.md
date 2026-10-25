@@ -83,11 +83,11 @@ hypergeometric formula), so that event is not the mechanism. The coverage is emp
 ## 5 Limitations and threats
 Ten small designs, one FIFO, one corner, one tool version, pools of about 50 so every strategy converges to 0 regret,
 global-route estimates, one proof solver and timeout. Pilots are one third of the pool at m = 16. Coverage is over pilots
-and tie-breaks within a fixed group, not over designs. No Hyperband, BOHB or BO baseline yet; NSGA-II likewise. Several
+and tie-breaks within a fixed group, not over designs. Hyperband was run in its simplest form (one bracket per start rung, equal budget split; `experiments/hyperband/`): it does not beat random search at equal wall-clock on these pools but halves the worst-design regret of SH from R2 at the relaxed clock (4.6% vs 11.8% at 45 s). No BOHB or BO baseline yet (a pool of 50 gives a model nothing to fit); NSGA-II likewise. Several
 effects rest on a handful of designs; there is no multiple-comparison correction.
 
 ## 6 What the paper still needs
 (1) Larger designs, where routed cost separates from R1 by orders of magnitude, so H2 is testable. (2) A second corner and
-detail routing. (3) Hyperband/BOHB/BO baselines at equal wall-clock. (4) A proof or counterexample for the top-vs-all
+detail routing. (3) BOHB/BO baselines at equal wall-clock on larger pools. (4) A proof or counterexample for the top-vs-all
 coverage, or a conformal pilot statistic with a theorem. (5) Typesetting to the MLCAD template. Until (1) and (3) land the
 honest headline is the negative one: on small designs, cheap rungs did not pay.
