@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3c: does re-tuning the inner lr at 3,840 steps close 3b's `H=16` non-monotonicity? (planned before running)
+- Why: 3b's "Next". `H=64` beat `H=16` by 0.017 nats, probably because `H=16` kept 3a's 960-step pick (3e-3) while 3,840 steps may prefer a lower lr.
+- Design (`experiments/gpt_retune/retune.py`): 3b's model, data, `M = 4`, batch 16, 3,840 inner steps, plain averaging. Inner lr in {1e-3, 2e-3, 4e-3} for `H` in {sync, 4, 16, 64}, picked on tuning seeds 100, 101 (mean validation loss), then reported on seeds 0 to 2 at the picks (3b's runs reused where the pick equals 3b's lr). Sync is re-tuned too, so no method keeps a stale pick.
+- **H3c-i:** after re-tuning, `H=16` is no worse than `H=64` in the means (the 3b ordering reversal disappears). Refuted if `H=64` is still better by more than 0.01.
+- **H3c-ii:** the re-tuned gap to sync at `H=16` is under 0.034 (3b's). Refuted otherwise.
+- **H3c-iii:** picked lr is non-increasing in `H` (3a's suggestive finding). Edge picks reported.
+- Limits: 3-point grid, 2 tuning seeds, one size and corpus.
+
 ## 2026-10-25 · Milestone 3b: does the 3a gap to synchronous AdamW shrink with a 4x longer budget? (planned before running)
 - Why: 3a's "Next". At 960 steps sync may still be improving; the 0.14 nat gap at `H = 16` could be a short-budget artefact.
 - Design (`experiments/gpt_long_budget/long_budget.py`): 3a's model, data, `M = 4`, batch 16, plain averaging; 3,840 inner steps per worker; `H` in {sync, 4, 16, 64}; inner lr fixed at 3a's picks (1e-3, 1e-3, 3e-3, 1e-3), no re-tuning (a longer run may prefer a different lr, so gaps are if anything biased against the picks of whichever method it suits least); seeds 0 to 2; same 16 validation batches.
