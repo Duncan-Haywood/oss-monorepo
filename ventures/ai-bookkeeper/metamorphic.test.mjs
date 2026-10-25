@@ -105,3 +105,31 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
     }
   });
 }
+
+// Sign: with the sign convention stated (`invert` false, then true), a headered
+// CSV must read as exact negations. Date spelling: ISO dates re-written as
+// DD/MM/YYYY and read day-first must give the same rows. Import twice: ids of a
+// file read once and the same text read again are identical, so a re-import adds
+// nothing. (Checked 2026-10-25: no fixture changed; these pin behaviour.)
+import { rowIds } from "./bank.mjs";
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8");
+  let base;
+  try { base = readStatement(t); } catch { continue; }
+  if (!base.rows.length) continue;
+  test(`${f}: invert true and false are exact negations`, () => {
+    const neg = (r) => JSON.stringify(r.rows.map((x) => [x.date, -x.cents, x.desc]));
+    assert.equal(sig(readStatement(t, { invert: true })), neg(readStatement(t, { invert: false })));
+  });
+  test(`${f}: row ids are stable across a second read`, () => {
+    const a = rowIds(base.rows, "x"), b = rowIds(readStatement(t).rows, "x");
+    assert.deepEqual(a, b);
+    assert.equal(new Set(a).size, a.length);
+  });
+  const iso = /\b(\d{4})-(\d{2})-(\d{2})\b/g;
+  if (iso.test(t)) {
+    test(`${f}: ISO dates re-written DD/MM/YYYY read the same day-first`, () => {
+      assert.equal(sig(readStatement(t.replace(iso, "$3/$2/$1"), { dayFirst: true })), sig(base));
+    });
+  }
+}
