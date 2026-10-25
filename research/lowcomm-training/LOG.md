@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3h: does a joint inner-lr re-tune rescue the DiLoCo paper's outer setting (0.7, Nesterov 0.9)? (planned before running)
+- Why: 3g's "Next". The paper setting was +0.127 (`H = 16`) and +0.062 (`H = 64`) nats worse than plain at inner lr 2e-3, which was tuned for plain averaging. Momentum 0.9 with outer lr 0.7 amplifies the averaged update (effective step about 7x), so the right inner lr is probably lower.
+- Design (`experiments/gpt_outer_retune/retune_outer.py`): 3d's model, data, budget (3,840 steps), `M = 4`. Inner lr in {5e-4, 1e-3, 2e-3}, `H` in {16, 64}, paper outer setting; pick per `H` on tuning seeds 100, 101 (mean validation loss), report seeds 0 to 2 at the pick (3g's 2e-3 runs reused), paired against plain averaging at 2e-3 (3d). 12 tuning runs plus up to 6 report runs.
+- **H3h-i:** the picked inner lr is below 2e-3 for both `H`. Refuted if either picks 2e-3.
+- **H3h-ii:** at its own pick the paper setting is still no better than plain (mean paired diff >= 0) at both `H`. Refuted if either mean diff is negative.
+- Prior: H3h-i likely holds (the 3-point grid's lower edge may bind); H3h-ii likely holds, with a much smaller gap than 3g's.
+- Limits: 3-point grid (edge picks reported as unresolved), 2 tuning seeds, one outer lr, one size and corpus; plain is not given a matching outer-lr re-tune.
+
 ## 2026-10-25 · Milestone 3g: does outer Nesterov momentum help on the real GPT, as 2g found on the 14k numpy model? (planned before running)
 - Why: the "Next" of 3d, 3e and 3f. 2g (14k-parameter numpy model) found small outer momentum (0.1 to 0.3) lowered loss by 0.014 to 0.020 at `H = 64` and raised it at `H = 16`; 2g's own "Next" asked for a check on the transformer before any momentum claim.
 - Design (`experiments/gpt_outer_momentum/momentum.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3 (the shared pick). `H` in {16, 64}; outer (lr, Nesterov momentum) in {(1, 0.1), (1, 0.3), (0.7, 0.9) the DiLoCo paper's setting}; seeds 0 to 2 (18 runs). Plain rows are 3d's runs at 2e-3. Inner lr is not re-tuned per outer setting. Paired differences vs plain per seed; no multiplicity correction (6 cells).
