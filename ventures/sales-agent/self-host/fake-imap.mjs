@@ -1,8 +1,10 @@
-// A tiny in-memory IMAP server for tests: LOGIN, EXAMINE, UID SEARCH, UID FETCH (BODY.PEEK[]), LOGOUT. Records every command.
+// A tiny in-memory IMAP server for tests (plain, or implicit TLS with tlsOpts): LOGIN, EXAMINE, UID SEARCH, UID FETCH (BODY.PEEK[]), LOGOUT. Records every command.
 import net from "node:net";
-export function fakeImap({ user = "me@example.com", pass = "pw", messages = {} } = {}) {
+import tls from "node:tls";
+export function fakeImap({ user = "me@example.com", pass = "pw", messages = {}, tlsOpts = null } = {}) {
   const log = [];
-  const server = net.createServer((s) => {
+  const onConn = (s) => {
+    s.on("error", () => {});
     s.write("* OK fake ready\r\n");
     let buf = "";
     s.on("data", (d) => {
@@ -19,6 +21,7 @@ export function fakeImap({ user = "me@example.com", pass = "pw", messages = {} }
         else s.write(`${tag} BAD unknown\r\n`);
       }
     });
-  });
+  };
+  const server = tlsOpts ? tls.createServer(tlsOpts, onConn) : net.createServer(onConn); // tlsOpts = { key, cert }: implicit TLS, like port 993
   return { server, log, listen: () => new Promise((r) => server.listen(0, "127.0.0.1", () => r(server.address().port))), close: () => new Promise((r) => server.close(r)) };
 }

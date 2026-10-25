@@ -3,15 +3,18 @@
 import net from "node:net";
 import tls from "node:tls";
 
+// SNI must be a hostname: Node warns on an IP literal and some servers then refuse the handshake.
+export const servername = (h) => (/^[\d.]+$|:/.test(h) ? undefined : h);
+
 const q = (s) => `"${String(s).replace(/[\\"]/g, "\\$&").replace(/[\r\n]/g, "")}"`;
 
 /** One connection, one command at a time. Resolves { lines, literals } per tagged response. */
 export class Imap {
-  constructor({ host, port = 993, secure = true, timeoutMs = 20000 }) { Object.assign(this, { host, port, secure, timeoutMs }); this.buf = Buffer.alloc(0); this.n = 0; }
+  constructor({ host, port = 993, secure = true, timeoutMs = 20000, ca }) { Object.assign(this, { host, port, secure, timeoutMs, ca }); this.buf = Buffer.alloc(0); this.n = 0; }
   connect() {
     return new Promise((resolve, reject) => {
       const onErr = (e) => reject(e);
-      const s = (this.secure ? tls : net).connect({ host: this.host, port: this.port, servername: this.host }, () => { s.off("error", onErr); });
+      const s = (this.secure ? tls : net).connect({ host: this.host, port: this.port, ...(this.secure ? { servername: servername(this.host), ca: this.ca } : {}) }, () => { s.off("error", onErr); });
       s.once("error", onErr); s.setTimeout(this.timeoutMs, () => s.destroy(new Error("IMAP timeout")));
       s.on("data", (d) => { this.buf = Buffer.concat([this.buf, d]); this.pump?.(); });
       s.on("error", (e) => this.fail?.(e)); s.on("close", () => this.fail?.(new Error("connection closed")));
