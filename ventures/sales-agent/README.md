@@ -137,6 +137,8 @@ dangerous direction too (it took "we'd prefer not to receive further emails"
 for an objection), so it only suggests. Whether a model on the user's key
 closes the gap is the next measurement (`eval/model.mjs`, ROADMAP M2).
 
+**Fourth set, opt-outs (2026-10-25, `eval/fresh-2026-10-25.jsonl`, 42 replies).** Written by an agent that had read the rules' pattern list, aimed at unsubscribe wording (18 of 42), scored once before any change: 25 right (60%), rules acted on 25 and were right on all 25, and only 9 of 18 opt-outs were caught. Missed: "please stop", "Leave me alone", "Strike me from your lists", "I never gave you permission... Don't write again", "unsub", "take it off whatever list you bought", and French, German and Spanish "no longer send" phrasings. An unsubscribe that is not caught is paused for a person but not added to the suppression file, so this is the legal-risk direction. Patterns were added for each; the set then reads 34 of 42 with 18 of 18 opt-outs caught and still no wrong action, so that is a tuned figure. The rest are the old gap: "Pass.", "We tried something like this before", "try Priya Rao there" and a CFO-decides objection go to a person as unclear. The patch moved the 10-21 set from 16 to 17 right (3 to 2 opt-outs missed) and changed no other set. Author-written, not real inboxes.
+
 ### Real mail clients, quote stripping (2026-10-24)
 
 On 11 real emails from GitHub's `email_reply_parser` fixtures (MIT;
