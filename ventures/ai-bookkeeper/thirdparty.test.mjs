@@ -94,6 +94,20 @@ test("Swedbank LT layout: Lithuanian headers, D/K flag, balance rows skipped; co
   assert.ok(s.problems.some((p) => /fewer than the header/.test(p)));
 });
 
+// Found sweeping the ofxstatement-lithuanian sample: Swedbank's record type 82 "Apyvarta" (turnover)
+// rows are the day's debit and credit totals, and were booked as two extra transactions.
+test("Swedbank LT turnover (Apyvarta) summary rows are not booked as transactions", () => {
+  const sw = [
+    '"Sąskaitos Nr.","","Data","Gavėjas","Paaiškinimai","Suma","Valiuta","D/K"',
+    '"LT00","20","2012-01-02","Cafe","PIRKINYS Cafe Vilnius","14.34","EUR","D"',
+    '"LT00","20","2012-01-03","Acme","Pavedimas Acme","50.00","EUR","K"',
+    '"LT00","82","2012-01-31","","Apyvarta","14.34","EUR","D"',
+    '"LT00","82","2012-01-31","","Apyvarta","50.00","EUR","K"',
+  ].join("\n");
+  const r = readStatement(sw);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1434, 5000]);
+});
+
 test("a currency column with more than one currency is named, in any bank's file", () => {
   const f = [
     "Data,Suma,Valiuta,Paaiškinimai",

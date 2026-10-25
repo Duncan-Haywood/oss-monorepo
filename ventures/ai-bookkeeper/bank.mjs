@@ -851,7 +851,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
     // German and Italian "Valuta" is often the value date; only a three-letter code counts as a currency.
     if (curCol !== -1 && /^[a-z]{3}$/i.test(String(r[curCol] ?? "").trim())) currencies.add(r[curCol].trim().toUpperCase());
-    if (/^(likutis (pradžiai|pabaigai)|opening balance|closing balance)$/i.test(String(r[columns.desc] ?? "").trim())) { problems.push(`Line ${i + 1}: a balance row, not a transaction, skipped.`); continue; }
+    if (/^(likutis (pradžiai|pabaigai)|apyvarta|opening balance|closing balance)$/i.test(String(r[columns.desc] ?? "").trim())) { problems.push(`Line ${i + 1}: a balance row, not a transaction, skipped.`); continue; }
     if (headerAt !== -1 && r.length <= Math.max(columns.amount, columns.debit, columns.credit) && String(r[columns.date] ?? "").trim()) { problems.push(`Line ${i + 1}: the row has ${r.length} columns, fewer than the header, so the amount column is missing; skipped. Check the quoting in the file.`); continue; }
     const date = parseDate(r[columns.date], dayFirst);
     // A row with no date and no amount is the second line of the row above (OCBC's
