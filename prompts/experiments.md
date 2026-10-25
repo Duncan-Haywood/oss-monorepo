@@ -1393,3 +1393,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Metric: none new. E79 to E87 results stay open: too few runs since.
 - Decisions: no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E89: review 2026-10-25 (reduced pass, seventeenth run)
+
+- Change: none to prompts or docs. Regenerated `prompts/derived/`. Candidates
+  re-measured: ventures 2, process 2 and review 2 all "keep collecting"
+  (intervals overlap). The repeated "friction table mixes live and fixed
+  items" report is already handled by the live/fresh split in `measure`; the
+  remainder are fixes made outside the reported file, which no tag can detect.
+- Metric: none new. E79 to E88 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
