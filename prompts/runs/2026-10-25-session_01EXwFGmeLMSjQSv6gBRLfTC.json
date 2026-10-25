@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01EXwFGmeLMSjQSv6gBRLfTC",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T07:14:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10335",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: lists many real-data items but no pointer to where real samples can be found; searching Sourcegraph for real Gusto/Stripe/Square exports found none and cost most of the run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Did not land a flagship milestone slice of real data (none found); shipped a small known gap from the README instead.",
+      "did": "Vehicle-insurance warning on Schedule C beside standard mileage.",
+      "result": "1 test, 22 related tests pass; small, not 20-hour work."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-driver-mileage-car-insurance.md"
+  ],
+  "goal": null,
+  "notes": "Real payroll/Stripe/Square exports not found via Sourcegraph; VisiGrid fixtures are its own schema. Did not run venture-preflight; change is warning-only in taxforms.mjs. runcost not attached.",
+  "corrections": [],
+  "redteam": null
+}
