@@ -539,3 +539,15 @@ test("Amazon charge and adjustment names from the SP-API Finances model book to 
   assert.deepEqual(r.problems, []);
   assert.deepEqual(r.payouts[0].rows.map((x) => x.kind), names.map((n) => n[3]));
 });
+
+test("the report's own payout row is checked against the rows that make it up", () => {
+  const rows = (paid) => `${HEAD}
+po_1,2026-03-05,txn_a,2026-03-02,charge,100.00,3.20,96.80,Order
+po_1,2026-03-05,txn_b,2026-03-03,charge,50.00,1.75,48.25,Order
+po_1,2026-03-05,txn_p,2026-03-05,payout,${paid},0.00,${paid},STRIPE PAYOUT
+`;
+  assert.deepEqual(readPayoutReport(rows("-145.05")).problems, []);
+  const bad = readPayoutReport(rows("-195.05")).problems;
+  assert.equal(bad.length, 1);
+  assert.match(bad[0], /po_1.*195\.05.*145\.05/);
+});

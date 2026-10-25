@@ -164,11 +164,17 @@ export function readPayoutReport(text) {
   });
   const by = new Map();
   const pending = [];
+  // Stripe's balance report lists the payout itself as a "payout" row: its amount is what the bank received.
+  const own = new Map(rows.filter((x) => x.category === "payout" && x.payout && x.net).map((x) => [x.payout, Math.abs(x.net)]));
   for (const x of rows) {
     if (x.kind === "skip") continue;
     if (!x.payout) { pending.push(x); continue; }
     if (!by.has(x.payout)) by.set(x.payout, []);
     by.get(x.payout).push(x);
+  }
+  for (const [id, rs] of by) {
+    const sum = rs.reduce((a, x) => a + x.net, 0);
+    if (own.has(id) && own.get(id) !== sum) problems.push(`Payout ${id}: the report's own payout row is ${fmt(own.get(id))} but its other rows net ${fmt(sum)}. Rows are missing from the export (or a hold was left out); the bank will show the payout row's amount.`);
   }
   const payouts = [...by].map(([id, rs]) => {
     const dates = rs.map((x) => x.payoutDate).filter(Boolean).sort();
