@@ -358,6 +358,14 @@ po_8,2026-04-05,txn_5,2026-04-03,charge_failure,-10.00,0.00,-10.00,Failed
   assert.deepEqual(r.rows.map((x) => x.kind), ["sales", "reserve", "reserve", "fees", "refunds"]);
 });
 
+test("Stripe currency_conversion is a balance movement, not other income", () => {
+  const rep = `${HEAD}
+po_7,2026-04-05,txn_1,2026-04-01,charge,100.00,3.20,96.80,Sale
+po_7,2026-04-05,txn_2,2026-04-02,currency_conversion,-50.00,0.00,-50.00,Converted out
+`;
+  assert.deepEqual(readPayoutReport(rep).rows.map((x) => x.kind), ["sales", "reserve"]);
+});
+
 test("Square dashboard transactions CSV: deposit id groups payments and refunds, fees are negatives", () => {
   const r = readPayoutReport(readFileSync(new URL("./fixtures/square-transactions.csv", import.meta.url), "utf8"));
   assert.deepEqual(r.problems, []);
