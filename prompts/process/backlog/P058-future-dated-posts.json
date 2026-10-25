@@ -20,6 +20,6 @@
   "opened": "2026-10-25",
   "source": "process run, measure friction (platform/pages/writing.mjs reports)",
   "pr": 10384,
-  "result": null,
+  "result": "helped: 0 posts in docs/posts dated after 2026-10-25 (baseline 77), checked 2026-10-25 by listing file-name dates",
   "history": []
 }
