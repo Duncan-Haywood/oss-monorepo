@@ -1,5 +1,6 @@
 ---
 title: "Bank amounts with a currency code after the sign"
+description: "The ai-bookkeeper amount reader now treats 12.50-USD and 12.50 USD DR as debits instead of income."
 date: 2026-10-25
 ---
 

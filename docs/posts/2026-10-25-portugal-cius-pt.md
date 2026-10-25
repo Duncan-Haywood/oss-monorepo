@@ -1,7 +1,7 @@
 ---
 title: "Portugal's e-invoice profile, checked in the browser"
 date: 2026-10-25
-description: "einvoice-preflight now applies Portugal's CIUS-PT national rules to UBL invoices, and the way it reads them found a Schematron shape the tool could not yet parse."
+description: "einvoice-preflight now applies Portugal's CIUS-PT national rules to UBL invoices, and reading them exposed a Schematron shape the tool could not yet parse."
 tags: [einvoice-preflight, portugal, e-invoicing]
 ---
 
