@@ -342,7 +342,7 @@ export function sniffBank(rows) {
     if (/^transaction id\|date\|transaction type\|currency\|amount\|fee\|net amount/.test(h)) return "cash-app";
     if (/^date\|description\|original description\|category\|amount\|status/.test(h)) return "usaa";
     if (/^date\|description\|type\|amount\|current balance\|status/.test(h)) return "sofi";
-    if (/^transferwise id\|date\|amount\|currency\|description/.test(h)) return "wise";
+    if (/^transferwise id\|date\|(date time\|)?amount\|currency\|description/.test(h)) return "wise";
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
     if (/^trans\. date\|post date\|description\|amount\|category/.test(h)) return "discover";
     if (/^status\|date\|description\|debit\|credit/.test(h)) return "citi";
