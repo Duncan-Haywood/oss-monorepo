@@ -35,6 +35,10 @@
     {
       "file": "research/CLAUDE.md",
       "issue": "pyenv.py torch install took over 15 minutes and a second concurrent call started a duplicate pip install; the 'about 2 minutes' guidance undercounts torch"
+    },
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "Claim check found no open PR, but another run landed the same milestone (3c, #10293) during my 2-hour training; merged main and relabelled my work 3d (it re-tunes sync and H=4, which #10293 left open)"
     }
   ],
   "deviations": [
@@ -47,7 +51,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Milestone 3c of lowcomm-training; 36 GPT training runs, hypotheses logged before running. build.py ok, check_md_links ok.",
+  "notes": "Milestone 3c of lowcomm-training; 36 GPT training runs, hypotheses logged before running. build.py ok, check_md_links ok. Parallel run landed 3c as #10293; this PR became 3d.",
   "corrections": [],
   "redteam": null,
   "usage": {
