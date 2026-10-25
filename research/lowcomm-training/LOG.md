@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 4c: where does error feedback break at lower keep fractions? (planned before running)
+- Why: 4b's "Next". EF top-k at keep 1/16 matched uncompressed (-0.005); find the keep fraction where it stops.
+- Design (`experiments/gpt_topk_ef_low/topk_ef_low.py`): 4b's setup exactly; arm top-k + EF only (plain top-k is already worse at 1/16); keep in {1/64, 1/256}; seeds 0 to 2 (6 runs). Comparators: uncompressed (3d) and 4b's EF at 1/16.
+- **H4c-i:** EF top-k at 1/64 is within 0.02 nats of uncompressed on all 3 seeds. Refuted if any seed exceeds +0.02.
+- **H4c-ii:** at 1/256 the mean excess is above +0.02 (EF breaks there). Refuted if it stays under +0.02.
+- Prior: residuals accumulate over the 16 inner steps' deltas, so 1/64 survives; 1/256 (about 1,600 coordinates of 413k per worker per round) likely degrades.
+- Limits: 3 seeds, per-tensor top-k, one `H`, bytes not modelled.
+
+### Outcome of 4c (`experiments/gpt_topk_ef_low/topk_ef_low_results.txt`; 6 runs, seeds 0 to 2)
+- Mean excess loss over uncompressed (1.5758), nats, EF top-k: keep 1/64 +0.0433 (per seed +0.041, +0.037, +0.051); keep 1/256 +0.1211 (+0.123, +0.119, +0.122). 4b's keep 1/16 was -0.005.
+- **H4c-i refuted:** every seed at 1/64 exceeds +0.02. **H4c-ii supported:** 1/256 is far above +0.02. My prior that 1/64 would survive was wrong; EF's free ride ends between 1/16 and 1/64 on this model.
+- Reading: with EF the cost is about 0 down to 1/16, +0.043 at 1/64 and +0.121 at 1/256, i.e. it turns on sharply rather than growing smoothly. Only 2 points below the knee, so its location (between 1/16 and 1/64) and shape are not resolved; 1/32 would bracket it. For reference, unbiased rand-k at 1/16 costs +0.083 (4a), so EF top-k at 1/64 (4x sparser) is still cheaper than rand-k at 1/16.
+- Limits: 3 seeds, one `H`, per-tensor top-k, plain outer step, bytes not modelled.
+- Next: keep 1/32 to locate the knee, quantisation, then H5 (median aggregation under an attack).
+
 ## 2026-10-25 · Milestone 4b: does error feedback rescue biased top-k compression of the worker deltas on the real GPT? (planned before running)
 - Why: 4a's "Next". 4a covered the unbiased rand-k family; the common practical compressor is biased top-k, usually paired with error feedback (Seide et al. 2014; Stich et al. 2018). This also adds the engine feature `DiLoCo(error_feedback=True)` (per-worker, per-tensor residual) and `top_k`, with a test that keep = 1 reproduces the uncompressed round.
 - Design (`experiments/gpt_topk_ef/topk_ef.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3, `H = 16`, plain outer step. Keep fraction p in {0.25, 0.0625}; arm in {top-k, top-k + error feedback}; seeds 0 to 2 (12 runs). Comparators: uncompressed (3d) and 4a's rand-k at the same p and seeds.
