@@ -1,0 +1,183 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_015sGmxQdzGb4Arc1Ahbbc9r",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T17:10:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Mutants on duplicated lines (runEvaluation/runFunded share a line's text) need a test per copy; rerun reported false until the right copy was covered. Worth a sentence."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-25-redteam-prop-firm-red-baselines.md"
+  ],
+  "goal": null,
+  "notes": "Target prop-firm calc.mjs: 3/8 caught (42.9%) -> 7/7 non-equivalent after 4 guard tests (100%). research/mimic-webcam-semimarkov red baseline is a missing sklearn in the container, not a defect.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/prop-firm-challenge-calculator/calc.mjs",
+        "test": "node --test ventures/prop-firm-challenge-calculator/**/*.test.mjs  (in .)",
+        "seed": 41038833,
+        "commit": "d2dfe780",
+        "sites": 286,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "ventures/prop-firm-challenge-calculator/calc.mjs",
+            "line": 34,
+            "col": 77,
+            "operator": "const-plus-one",
+            "before": "profitTargetPct: num(r.profitTargetPct, 'Profit target %', { gt: 0, max: 100 }),",
+            "after": "profitTargetPct: num(r.profitTargetPct, 'Profit target %', { gt: 0, max: 101 }),",
+            "line_text": "    profitTargetPct: num(r.profitTargetPct, 'Profit target %', { gt: 0, max: 100 }),",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/prop-firm-challenge-calculator/calc.mjs",
+            "line": 41,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "winRatePct: num(r.winRatePct, 'Win rate %', { min: 0, max: 100 }),",
+            "after": "winRatePct: num(r.winRatePct, 'Win rate %', { min: 0, max: 101 }),",
+            "line_text": "    winRatePct: num(r.winRatePct, 'Win rate %', { min: 0, max: 100 }),",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/prop-firm-challenge-calculator/calc.mjs",
+            "line": 44,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "tradesPerDay: num(r.tradesPerDay, 'Trades per day', { min: 1, max: 50, int: true }),",
+            "after": "tradesPerDay: num(r.tradesPerDay, 'Trades per day', { min: 1, max: 51, int: true }),",
+            "line_text": "    tradesPerDay: num(r.tradesPerDay, 'Trades per day', { min: 1, max: 50, int: true }),",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/prop-firm-challenge-calculator/calc.mjs",
+            "line": 74,
+            "col": 67,
+            "operator": "const-plus-one",
+            "before": "const target = p.profitTargetPct / 100, maxLoss = p.maxLossPct / 100, daily = p.dailyLossPct / 100;",
+            "after": "const target = p.profitTargetPct / 100, maxLoss = p.maxLossPct / 101, daily = p.dailyLossPct / 100;",
+            "line_text": "  const target = p.profitTargetPct / 100, maxLoss = p.maxLossPct / 100, daily = p.dailyLossPct / 100;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/prop-firm-challenge-calculator/calc.mjs",
+            "line": 100,
+            "col": 27,
+            "operator": "div-to-times",
+            "before": "const win = p.winRatePct / 100, risk = p.riskPerTradePct / 100, gain = risk * p.rewardRisk;",
+            "after": "const win = p.winRatePct * 100, risk = p.riskPerTradePct / 100, gain = risk * p.rewardRisk;",
+            "line_text": "  const win = p.winRatePct / 100, risk = p.riskPerTradePct / 100, gain = risk * p.rewardRisk;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/prop-firm-challenge-calculator/calc.mjs",
+            "line": 148,
+            "col": 45,
+            "operator": "div-to-times",
+            "before": "expectedAttempts: passRate > 0 ? round(1 / passRate, 2) : null,",
+            "after": "expectedAttempts: passRate > 0 ? round(1 * passRate, 2) : null,",
+            "line_text": "    expectedAttempts: passRate > 0 ? round(1 / passRate, 2) : null,",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/prop-firm-challenge-calculator/calc.mjs",
+            "line": 165,
+            "col": 9,
+            "operator": "const-plus-one",
+            "before": "if (ev(100) < 0) return null; // even a perfect record does not pay for the fee under these rules",
+            "after": "if (ev(101) < 0) return null; // even a perfect record does not pay for the fee under these rules",
+            "line_text": "  if (ev(100) < 0) return null; // even a perfect record does not pay for the fee under these rules",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "ev(101) vs ev(100): rand() < 1.01 and rand() < 1 are both always true, so the simulation is identical."
+          },
+          {
+            "file": "ventures/prop-firm-challenge-calculator/calc.mjs",
+            "line": 181,
+            "col": 39,
+            "operator": "true-to-false",
+            "before": "export function analyse(raw, { sweep = true, breakEven = true } = {}) {",
+            "after": "export function analyse(raw, { sweep = false, breakEven = true } = {}) {",
+            "line_text": "export function analyse(raw, { sweep = true, breakEven = true } = {}) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/{3pl-invoice-audit-checker,equipment-lease-vs-buy-calculator,patent-maintenance-fee-planner,prop-firm-challenge-calculator,sales-quota-capacity-planner}/page.test.mjs",
+        "issue": "Internal-link check treated the data: favicon URI as a file path, so each suite was red at baseline (prop-firm reproduced and fixed; the other four share the regex and were fixed by the same one-token change).",
+        "patched": true
+      },
+      {
+        "file": "ventures/portable-restroom-event-quote/vs-servicecore.test.mjs",
+        "issue": "External-reference check rejected the SVG xmlns inside the data: favicon, red baseline; allowed that namespace string.",
+        "patched": true
+      }
+    ]
+  }
+}

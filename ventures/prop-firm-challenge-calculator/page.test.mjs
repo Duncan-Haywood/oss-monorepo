@@ -56,7 +56,7 @@ test('robots and sitemap let crawlers find the page and the guide; links resolve
   assert.match(page('robots.txt'), /Allow: \//);
   assert.match(page('sitemap.xml'), /prop-firm-challenge-calculator\/<\/loc>/);
   assert.match(page('sitemap.xml'), /vs-a-trading-spreadsheet\.html/);
-  const hrefs = [...html.matchAll(/href="((?!https?:|#)[^"]+)"/g)].map((m) => m[1]);
+  const hrefs = [...html.matchAll(/href="((?!https?:|data:|#)[^"]+)"/g)].map((m) => m[1]);
   assert.ok(hrefs.length >= 1);
   for (const href of hrefs) assert.ok(existsSync(new URL(href, import.meta.url)), `broken internal link: ${href}`);
 });
