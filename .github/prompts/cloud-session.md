@@ -10,6 +10,9 @@ nowhere else.
 `pull_request_read`). They start **deferred**, so load them first:
 `ToolSearch` with `select:mcp__github__create_pull_request,mcp__github__merge_pull_request`.
 
+- Each request re-reads the whole context: batch independent tool calls, cap
+  output (`| tail -20`), read long docs by section
+  ([token flow](../../docs/reports/2026-10-20-token-flow-for-agents.md)).
 - `create_pull_request` can return HTTP 500 and still create the PR. Search
   for your branch before you retry.
 - To check CI, read check runs, not statuses (`verify-and-merge.md`,
@@ -17,23 +20,15 @@ nowhere else.
 - `github.io` is unreachable from a session: the egress proxy returns 403.
   Nothing here can observe the live site.
 
-## Tokens
-
-Each request re-reads the whole context, so batch independent tool calls, cap
-output (`| tail -20`) and read long docs by section
-([`docs/reports/2026-10-20-token-flow-for-agents.md`](../../docs/reports/2026-10-20-token-flow-for-agents.md)).
-
 ## Shallow clones
 
 `git merge` reports unrelated histories and branches seem to carry thousands
-of commits. Content reads (`git show origin/main:<path>`) are unaffected and
-usually enough; trust them over history. Fetch history only for a step that
-needs it. To merge `main`, repeat `git fetch --deepen=500 origin main` until
+of commits. Content reads (`git show origin/main:<path>`) are unaffected: trust
+them over history. To merge `main`, repeat `git fetch --deepen=500 origin main` until
 `git merge-base HEAD origin/main` answers. To date changes,
 `git fetch --shallow-since=<7 days ago> origin main && git merge --ff-only origin/main`
 takes about 16 s. A full `git fetch --unshallow origin main` takes 2-15 min
-and up to ~5 GB: use `run_in_background`, only if you need all of it, and name
-the ref. Check `git rev-list --count origin/main` is in the thousands, not 1.
+and up to ~5 GB: background it, name the ref, only if you need it all.
 
 ## Python and tests
 
@@ -57,20 +52,15 @@ file, and `echo DONE` at the end. Wait with `Monitor` on an until-loop over
 that file (`until grep -q DONE out.log; do sleep 5; done`). Don't grep the
 process list for the script's own name: it matches itself and never ends.
 
-- `node platform/marketing/regen.mjs --verify` and the pages test suites
-  (over 10 min in a shallow clone)
-- `node --test` over a whole venture (changepoint-detector alone: 280-400 s;
-    Node 22 rejects `node --test .` with "Could not find '.'": run
-    `cd ventures/<slug> && node --test '*.test.mjs'`; add `--test-force-exit`:
-    a failing test that leaks a fake SMTP/HTTP server otherwise hangs until the
-    tool timeout, and with the flag it exits 1 in under a second)
-    and `node platform/pages/venture-preflight.mjs <slug>` (over 5 min)
-- browser evals such as `ventures/ai-bookkeeper/eval/browser-click.mjs`
-  (a foreground 110 s timeout killed one)
-- `python3 platform/ci/run_workflow_locally.py --for-changes` (over 5 min)
-- `python3 portfolio/router/allocate.py` (35-120 s; its shallow-clone fetch
-  can time out and leave counts partial)
-- a full unshallow (above)
+- `platform/marketing/regen.mjs --verify` and the pages test suites (over 10 min)
+- `node --test` over a venture (280-400 s for changepoint-detector). Node 22
+  rejects `node --test .`: run `cd ventures/<slug> && node --test '*.test.mjs'`
+  with `--test-force-exit` (a failing test that leaks a fake server otherwise
+  hangs to the tool timeout); `venture-preflight.mjs <slug>` takes over 5 min
+- browser evals such as `ai-bookkeeper/eval/browser-click.mjs`
+- `run_workflow_locally.py --for-changes` (over 5 min)
+- `portfolio/router/allocate.py` (35-120 s; its fetch can time out and leave
+  counts partial)
 
 ## Browser and process tools
 
@@ -82,28 +72,22 @@ process list for the script's own name: it matches itself and never ends.
   line contains the pattern (the `pgrep` form matches itself the same way).
   `.claude/hooks/block_pkill_f.py` refuses both, also inside heredocs that
   merely mention them; use `'[n]ame'` or `kill <pid>`.
-- Fresh model samples (for an experiment that must not see this repo's
-  instructions): run `claude -p "<prompt>" --tools "" --setting-sources ""
-  --model <id> --output-format json < /dev/null` from an empty folder in the
-  scratchpad. `--bare` fails with an authentication error here. Startup can
-  take over a minute, so run batches with `run_in_background`;
-  `docs/reports/assets/agent-fiction/generate.sh` is a worked example.
+- Fresh model samples (an experiment that must not see this repo's
+  instructions): `claude -p "<prompt>" --tools "" --setting-sources ""
+  --model <id> --output-format json < /dev/null` from an empty scratchpad
+  folder (`--bare` fails to authenticate; startup can take a minute, so batch
+  in the background; `docs/reports/assets/agent-fiction/generate.sh` is an example).
 
 ## Outbound hosts
 
-Egress uses a per-environment allow-list, so a host that works in one session
-can 403 in the next (irs.gov, ssa.gov, OPSD/ENTSO-E, sometimes huggingface.co).
-Before a plan depends on a host, probe it once:
+Egress is a per-environment allow-list: a host can 403 in the next session
+(irs.gov, ssa.gov, OPSD/ENTSO-E, arxiv.org, sometimes huggingface.co). Probe once:
 `curl -sS -o /dev/null -m 15 -w '%{http_code}\n' https://<host>/`. A proxy 403
-is not the site's answer. If a figure could not be checked, say so in the PR,
-run record or product notes rather than skipping silently or citing from
-memory (`goals.md`: never fabricate). If a research next step needs a blocked
-host, take another step or source. Proxy state:
+is not the site's answer. If a figure could not be checked, say so in the PR or
+run record, never cite from memory (`goals.md`: never fabricate). Proxy state:
 `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
 
 ## Scheduled tasks
 
-A scheduled task created from a cloud session (`create_trigger`) may store
-no repository source and no connectors. Its sessions can then lack the
-GitHub MCP tools they need to land their PR. Read the tool's result, and tell
-the owner if it warns about this.
+A task made with `create_trigger` may store no repository or connectors, so
+its sessions lack the GitHub MCP tools to land a PR. If the result warns, tell the owner.
