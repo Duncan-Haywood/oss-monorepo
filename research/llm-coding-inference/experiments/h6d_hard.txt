@@ -1,0 +1,10 @@
+NaijaSenti corpus 44485 tweets, true negative share 0.3285; strata hau 15538, ibo 11068, pcm 7353, yor 10526
+200 draws per cell, seed 20261028. Starts p in (5, 20) per stratum, add batches of B by Neyman shares until stratified-PPI half-width <= 1 pts; cap 15000.
+
+coder | p | B | mean n | sd n | p5 n | p95 n | mean half pts | share stopped under cap | coverage
+lexicon-en | 5 | 300 | 6989 | 514 | 6920 | 7220 | 0.98 | 1.000 | 0.950
+lexicon-en | 20 | 300 | 7008 | 88 | 6980 | 7280 | 0.99 | 1.000 | 0.955
+nb-english | 5 | 300 | 8159 | 101 | 8120 | 8420 | 0.99 | 1.000 | 0.965
+nb-english | 20 | 300 | 8172 | 101 | 7880 | 8180 | 0.99 | 1.000 | 0.970
+nb-in-language | 5 | 300 | 7199 | 114 | 6920 | 7220 | 0.99 | 1.000 | 0.960
+nb-in-language | 20 | 300 | 7210 | 134 | 6980 | 7280 | 0.99 | 1.000 | 0.960

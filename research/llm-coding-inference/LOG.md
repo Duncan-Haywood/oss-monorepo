@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 6d: does the sequential rule survive a 1-point target and a tiny start? (planned before running)
+- Why: 6c's open item. At a 3-point target and p = 20 per stratum the early variance estimates are decent; the stopping rule's weak spot is optional stopping when estimates are poor. Two harder cells, same corpus, split, three stand-in coders and floor (0.02) as 6c: target 1.0 point (about 9x the audit of 6c, since n scales with 1/target^2), start p in {5, 20} per stratum, batch B = 300, cap 15,000, 200 draws per cell (fewer than 6c because each audit is about 10x larger; coverage standard error is therefore about 1.5 points). Code: `experiments/h6d_hard.py`.
+- **H6d-i (coverage):** coverage is at least 92% in every one of the 6 cells (3 coders x 2 starts); with 200 draws a 95% interval has a binomial sd of 1.5 points, so this bar tolerates noise but not a real optional-stopping loss. Refuted if any cell is below 92%.
+- **H6d-ii (a tiny start costs coverage):** the p = 5 cell is at least 1 point below the p = 20 cell for the same coder in at least 2 of 3 coders. Prior: weak, noise may hide it. Refuted otherwise.
+- **H6d-iii (target hit):** at least 99% of audits stop under the cap at half-width <= 1.0 point. Refuted otherwise (would show the cap binds).
+- **H6d-iv (no free lunch):** mean stopped n is within 10% of 9x the 6a oracle n (8,118, 9,747, 8,343) for every coder and start. Refuted otherwise.
+- Not tested: a real LLM coder, a second corpus, an alpha-spending correction.
+
+### Outcome (`experiments/h6d_hard.py`, about 2 min; `experiments/h6d_hard.txt`; 200 draws per cell)
+- **H6d-i supported.** Coverage is 95.0 to 97.0% in all 6 cells (lowest: `lexicon-en`, p = 5, 95.0%); no optional-stopping loss at a 1-point target.
+- **H6d-ii refuted.** The p = 5 cell is 0.5, 0.5 and 0.0 points below p = 20 (bar: 1 point on at least 2 coders). A start of 5 per stratum costs nothing in coverage here; the only visible price is spread in stopped n for `lexicon-en` (sd 514 against 88, because one early variance estimate from 5 clean items hits the floor).
+- **H6d-iii supported.** 100% of audits stop under the cap at mean half-width 0.98 to 0.99 points.
+- **H6d-iv refuted, and the reason is the finite-population correction, not the rule.** Mean stopped n is 6,989 to 8,172 against 9x the 6a oracle of 8,118 to 9,747: 13.9, 16.2 and 13.7% below (p = 20). At 1 point the audit is 16 to 18% of the 44,485-tweet corpus, and the estimator's variance carries the (1 - n_h/N_h) factor (`llmci/estimators.py`, `stratified_ppi`), so n does not scale as 1/target^2. My 9x prediction ignored this. Not a rule defect.
+- Reading: the sequential rule of 6c holds on the harder cell, with the audit about 8,000 tweets and coverage 95 to 97%. Limits: 200 draws (coverage sd about 1.5 points, so it cannot rule out a 2-point loss), one corpus, three stand-in coders, no real LLM coder, no alpha-spending comparison.
+- Next: milestone 5 with a real coder; a second corpus.
+
 ## 2026-10-25 · Milestone 6c: a sequential audit that stops when the estimated width meets the target (planned before running)
 - Why: 6b's open item. Planning from a pilot hits the +/-3 point target about half the time. The alternative is to audit in batches and stop the first time the estimated half-width (Z times the stratified-PPI standard error on the items audited so far) is at most 3.0 points. The width then meets the target by construction; what is unknown is the price in audit size and in coverage, because stopping on a noisy estimate of the width is optional stopping and tends to stop when the sample happens to look precise. Code: `experiments/h6c_sequential.py`; same corpus, split, three stand-in coders, seed scheme and floor (0.02) as `h6b_pilot.py`. Start with p = 20 per stratum (the 6b pilot), then add batches of B items split across strata by the Neyman shares from the current variance estimates (largest w_h / (n_h + 1) first, without replacement); B in {30, 90}; hard cap 2,500 items; 1,000 draws per cell.
 - **H6c-i (coverage survives optional stopping):** coverage of the 95% interval at the stopping time is at least 93% in every one of the 6 cells (3 coders, 2 batch sizes). Refuted if any cell is below 93%.
