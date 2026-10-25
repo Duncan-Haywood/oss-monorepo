@@ -45,9 +45,11 @@
       "result": "landed a refuted pre-registered hypothesis"
     }
   ],
-  "writeups": "LOG.md entry 7m with outcome; README bullet. No blog post this run (short run; result logged in the programme log).",
+  "writeups": [
+    "research/sim2real-inference/LOG.md"
+  ],
   "goal": null,
-  "notes": "Ran threshold.py (about 4 min); homepage build ok; md links ok.",
+  "notes": "Ran threshold.py (about 4 min); homepage build ok; md links ok. No blog post: short run, result in the programme log.",
   "corrections": [],
   "redteam": null,
   "usage": {
