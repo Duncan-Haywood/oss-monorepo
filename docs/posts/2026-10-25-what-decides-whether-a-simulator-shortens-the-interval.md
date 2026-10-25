@@ -1,7 +1,7 @@
 ---
 title: "What decides whether a simulator shortens a robot-policy confidence interval"
 date: 2026-10-25
-description: "Measuring the residual interval directly shows that the win is decided by the residual against the real-only interval, and that a variance-only model of it misses by a third."
+description: "The residual interval, measured directly, decides whether the simulator wins; a variance-only model of it misses by a third."
 tags: [sim2real-inference, research, confidence-intervals]
 ---
 

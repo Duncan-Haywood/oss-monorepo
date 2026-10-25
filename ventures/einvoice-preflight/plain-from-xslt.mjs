@@ -38,6 +38,13 @@ function assertsOf(template, file) {
   for (const child of elements(template)) {
     if (is(child, XSL, "variable") || is(child, SVRL, "fired-rule")) continue;
     if (is(child, XSL, "apply-templates")) continue; // descends to the children, as the next rule does
+    if (is(child, XSL, "if")) { // a Schematron <report>: fires when the test holds, so the assert is its negation
+      const report = elements(child).find((e) => is(e, SVRL, "successful-report"));
+      if (!report || elements(child).length !== 1) throw new Error(`${file}: an xsl:if that is not a plain report`);
+      const attr = (name) => elements(report).find((e) => e.localName === "attribute" && e.getAttribute("name") === name)?.textContent.trim();
+      out.push({ test: `not(${child.getAttribute("test")})`, id: attr("id") ?? "", flag: attr("flag") ?? "fatal", text: clean(elements(report).find((e) => is(e, SVRL, "text"))?.textContent ?? "") });
+      continue;
+    }
     if (!is(child, XSL, "choose")) throw new Error(`${file}: unsupported <${child.localName}> in a rule`);
     const [when, otherwise, ...extra] = elements(child);
     const failed = otherwise && is(otherwise, XSL, "otherwise") ? elements(otherwise).find((e) => is(e, SVRL, "failed-assert")) : null;
