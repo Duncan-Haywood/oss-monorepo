@@ -1,0 +1,53 @@
+{
+ "date": "2026-10-25",
+ "session": "https://claude.ai/code/session_01BPvEJsWtRUvphgrQKNvN4X",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-25T20:19:08Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 10471,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "pyenv.py first install exceeded 120s as warned; the backgrounded call printed /usr/bin/python3.13 while /usr/local/bin/python3 was the one with torch, so I probed interpreters by hand."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "CLAUDE.md",
+   "why": "No blog post in docs/posts for this run: a single mechanism check on an existing programme; the finding is in LOG.md and the paper limitations.",
+   "did": "skipped post",
+   "result": "n/a"
+  }
+ ],
+ "writeups": [
+  "research/verifiable-training-mechanisms/LOG.md milestone 20"
+ ],
+ "goal": null,
+ "notes": "",
+ "corrections": [],
+ "redteam": null
+}

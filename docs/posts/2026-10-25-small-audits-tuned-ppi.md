@@ -22,4 +22,4 @@ What it found (NaijaSenti, three stand-in coders, no LLM yet):
 
 So the earlier null at 400 was a power failure, and below 400 a small-sample
 interval correction comes first. Table and script are in the
-[experiment folder](../../research/llm-coding-inference/experiments/h6j_small_audit.txt).
+[experiment folder](../../research/llm-coding-inference/experiments/h6k_small_audit.txt).

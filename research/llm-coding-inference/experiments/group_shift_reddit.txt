@@ -1,0 +1,50 @@
+GoEmotions subreddit-group corpus 6683 comments, true negative share 0.2352; group size and negative share sports 1650 (0.226), tv-dating 1390 (0.211), personal 2078 (0.262), video-cringe 1565 (0.231)
+coder agreement with the human label by group lr-pooled: sports 0.769, tv-dating 0.768, personal 0.755, video-cringe 0.766; lr-sports-only: sports 0.721, tv-dating 0.689, personal 0.675, video-cringe 0.701; lr-personal-only: sports 0.726, tv-dating 0.745, personal 0.721, video-cringe 0.720
+audit n=400, 1000 draws per cell, seed 20261025; coverage of the 95% interval (binomial sd about 0.007), mean width, mean bias (estimate - truth), points
+
+design coder estimator coverage width bias
+A random | lr-pooled | human pooled | 0.948 | 8.29 | -0.14
+A random | lr-pooled | PPI pooled | 0.943 | 9.69 | -0.12
+A random | lr-pooled | PPI++ pooled | 0.942 | 7.90 | -0.18
+A random | lr-pooled | human strat | 0.943 | 8.06 | -0.15
+A random | lr-pooled | PPI strat | 0.936 | 9.24 | -0.12
+A random | lr-sports-only | human pooled | 0.948 | 8.29 | -0.14
+A random | lr-sports-only | PPI pooled | 0.943 | 11.02 | -0.03
+A random | lr-sports-only | PPI++ pooled | 0.948 | 8.19 | -0.14
+A random | lr-sports-only | human strat | 0.943 | 8.06 | -0.15
+A random | lr-sports-only | PPI strat | 0.939 | 10.52 | -0.04
+A random | lr-personal-only | human pooled | 0.948 | 8.29 | -0.14
+A random | lr-personal-only | PPI pooled | 0.952 | 10.31 | -0.17
+A random | lr-personal-only | PPI++ pooled | 0.947 | 8.17 | -0.18
+A random | lr-personal-only | human strat | 0.943 | 8.06 | -0.15
+A random | lr-personal-only | PPI strat | 0.950 | 9.86 | -0.17
+B equal quota | lr-pooled | human pooled | 0.943 | 8.27 | -0.30
+B equal quota | lr-pooled | PPI pooled | 0.952 | 9.68 | -0.03
+B equal quota | lr-pooled | PPI++ pooled | 0.945 | 7.89 | -0.27
+B equal quota | lr-pooled | human strat | 0.941 | 8.18 | -0.05
+B equal quota | lr-pooled | PPI strat | 0.943 | 9.33 | -0.03
+B equal quota | lr-sports-only | human pooled | 0.943 | 8.27 | -0.30
+B equal quota | lr-sports-only | PPI pooled | 0.952 | 10.99 | -0.08
+B equal quota | lr-sports-only | PPI++ pooled | 0.943 | 8.17 | -0.30
+B equal quota | lr-sports-only | human strat | 0.941 | 8.18 | -0.05
+B equal quota | lr-sports-only | PPI strat | 0.941 | 10.63 | -0.04
+B equal quota | lr-personal-only | human pooled | 0.943 | 8.27 | -0.30
+B equal quota | lr-personal-only | PPI pooled | 0.947 | 10.30 | -0.22
+B equal quota | lr-personal-only | PPI++ pooled | 0.938 | 8.15 | -0.31
+B equal quota | lr-personal-only | human strat | 0.941 | 8.18 | -0.05
+B equal quota | lr-personal-only | PPI strat | 0.939 | 9.96 | -0.03
+C 70% sports | lr-pooled | human pooled | 0.937 | 8.22 | -0.72
+C 70% sports | lr-pooled | PPI pooled | 0.952 | 9.64 | -0.56
+C 70% sports | lr-pooled | PPI++ pooled | 0.936 | 7.83 | -0.71
+C 70% sports | lr-pooled | human strat | 0.937 | 11.76 | -0.02
+C 70% sports | lr-pooled | PPI strat | 0.937 | 13.38 | +0.09
+C 70% sports | lr-sports-only | human pooled | 0.937 | 8.22 | -0.72
+C 70% sports | lr-sports-only | PPI pooled | 0.914 | 10.72 | +1.74
+C 70% sports | lr-sports-only | PPI++ pooled | 0.956 | 8.11 | -0.38
+C 70% sports | lr-sports-only | human strat | 0.937 | 11.76 | -0.02
+C 70% sports | lr-sports-only | PPI strat | 0.935 | 15.39 | +0.04
+C 70% sports | lr-personal-only | human pooled | 0.937 | 8.22 | -0.72
+C 70% sports | lr-personal-only | PPI pooled | 0.956 | 10.32 | +0.59
+C 70% sports | lr-personal-only | PPI++ pooled | 0.950 | 8.14 | -0.56
+C 70% sports | lr-personal-only | human strat | 0.937 | 11.76 | -0.02
+C 70% sports | lr-personal-only | PPI strat | 0.945 | 14.25 | -0.06

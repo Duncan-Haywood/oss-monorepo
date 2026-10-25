@@ -1,9 +1,9 @@
-"""Milestone 6j: do selection effects appear at small audits? Paired comparison of in-sample-tuned PPI++ (6h), two-fold
+"""Milestone 6k: do selection effects appear at small audits? Paired comparison of in-sample-tuned PPI++ (6h), two-fold
 cross-fitted PPI++ (6i) and human-only OLS on the SAME audits, at n = 60, 100 and 200, 3,000 draws per cell. Reports coverage of
 each and the paired coverage difference (in-sample minus cross-fit; human minus in-sample) with a McNemar-type interval
-(discordant pairs). Writes h6j_small_audit.txt.
+(discordant pairs). Writes h6k_small_audit.txt.
 
-    python3.13 experiments/h6j_small_audit.py     # needs numpy and the tsv cache that qual-dialect/experiments/run.py fills
+    python3.13 experiments/h6k_small_audit.py     # needs numpy and the tsv cache that qual-dialect/experiments/run.py fills
 """
 import math
 import random
@@ -78,7 +78,7 @@ def main():
                 out.append(f"{cname} {na} {nm} {h['human']:.3f} {h['ins']:.3f} {h['cf']:.3f} {r['ins']:.3f} {r['cf']:.3f} "
                            f"{paired(hit['ins'][j], hit['cf'][j])} {paired(hit['human'][j], hit['ins'][j])}")
         print("\n".join(out[-(len(NAMES) + 1) * len(SIZES):]), flush=True)
-    (HERE / "h6j_small_audit.txt").write_text("\n".join(out) + "\n")
+    (HERE / "h6k_small_audit.txt").write_text("\n".join(out) + "\n")
 
 
 if __name__ == "__main__":

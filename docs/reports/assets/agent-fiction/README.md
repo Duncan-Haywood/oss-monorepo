@@ -48,3 +48,10 @@ extracted text of every story is in `stories/`, named
 - The harness is Claude Code, whose system prompt describes a software agent.
   That probably pushes the "agent" stories toward repositories and tests. A
   bare API call with no system prompt is the obvious next run.
+
+## Fresh model samples from a cloud session
+
+For an experiment whose model must not see this repo's instructions:
+`claude -p "<prompt>" --tools "" --setting-sources "" --model <id> --output-format json < /dev/null`
+from an empty scratchpad folder. `--bare` fails to authenticate; startup can
+take a minute, so batch runs in the background. `generate.sh` is the worked example.

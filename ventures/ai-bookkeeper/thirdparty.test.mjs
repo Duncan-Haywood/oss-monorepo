@@ -323,3 +323,21 @@ test("a brokerage cash-activity file with the trade-list headers is not flipped 
   assert.deepEqual(r.rows.map((x) => x.cents), [3104, -3104]);
   assert.equal(r.inferred ?? null, null);
 });
+
+// Schwab's brokerage "Transactions" export, in the shape of beancount-import's
+// (GPL, read only, nothing copied) test file: a title line above the header, a
+// trailing comma on every row, a "Transactions Total" row. Its sample has no rows
+// (an empty period) and was read as zero rows with no explanation. Rows are made up.
+test("Schwab brokerage transactions: totals row skipped, trades not booked as spending, empty period explained", () => {
+  const head = '"Transactions  for account Brokerage XXXX-1234 as of 11/30/2020 18:00:00 ET From 11/16/2020 to 11/29/2020"\n"Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount",\n';
+  const empty = readStatement(head + '""\n');
+  assert.equal(empty.bank, "schwab-brokerage");
+  assert.equal(empty.rows.length, 0);
+  assert.ok(empty.problems.some((p) => /no transaction rows/.test(p)));
+  const full = readStatement(head +
+    '"11/25/2020","Bank Interest","","BANK INT","","","","$1.23",\n"11/20/2020","MoneyLink Deposit","","TFR FROM CHECKING","","","","$500.00",\n' +
+    '"11/18/2020","Buy","SCHA","SCHWAB SMALL CAP ETF","10","$80.00","","-$800.00",\n"11/19/2020","Service Fee","","ADVISORY FEE","","","","-$2.00",\n"Transactions Total","","","","","","","-$298.77",\n');
+  assert.deepEqual(full.rows.map((r) => r.cents), [123, 50000, -200]);
+  assert.ok(full.problems.some((p) => /1 brokerage buy\/sell line was not booked/.test(p)));
+  assert.ok(!full.problems.some((p) => /unreadable date|Every amount is positive/.test(p)));
+});
