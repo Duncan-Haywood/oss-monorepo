@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 15: all 17 references checked against the registries (no experiment)
+- Crossref and the arXiv API were reachable this session (they 403ed in milestones 10 and 14). Six DOIs resolve to the cited titles and years (Townsend's by hand, since `cite_check.py` cuts a DOI at its parenthesis and does not read `eprint=` fields from a `.bib`); eleven arXiv ids return the cited titles and years (the arXiv API returned empty bodies for some ids on the first try and succeeded on retry). One discrepancy: `kong2019` carries the 2019 venue year while arXiv v1 is 2016; left as is.
+- Still open for the paper: the draft is uncompiled (no LaTeX here), and the transformer is 30k parameters on one fixed split.
+
 ## 2026-10-25 · Milestone 14: transformer results move into the paper (no new experiment)
 - Added a "A small transformer" paragraph and Table `tab:tf` to the margin section of `paper/main.tex`, and shortened the Limitations sentence to point at it. Every number is copied from `experiments/transformer*/results.txt` (milestones 11 to 13); none was rerun.
 - Still open: the draft is uncompiled (no LaTeX here), the 17 references are not machine-checked (registries 403 through the proxy), and the transformer is 30k parameters on one fixed split.
