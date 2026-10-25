@@ -97,6 +97,9 @@ export function parseCents(v, decimalComma = false) {
   if (s === "" || /^[-–—−‐‑‒﹣－\s]+$/.test(s)) return 0;
   if (/\d\s*e\s*[-+]?\d/i.test(s)) return NaN; // "1e3" is not 13.00
   if (/\d\s*[kmb]\.?\s*$/i.test(s) || /\d[kmb]\d/i.test(s)) return NaN; // "12.5k" is not 12.50, and not guessable either
+  // Bahraini, Kuwaiti, Omani, Jordanian and Tunisian amounts have three decimals; cents
+  // cannot hold a nonzero third digit, so report the row rather than drop it.
+  if (/\b(?:BHD|KWD|OMR|JOD|TND)\b/i.test(s) && /[.,]\d\d[1-9]$/.test((s.match(/\d[\d.,]*/) || [""])[0])) return NaN;
   // Exports and copy-paste bring the minus in as U+2212, an en or em dash, or a Unicode hyphen.
   const neg = /\(\s*[^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−–—‐‑‒﹣－]/.test(s) || /[-−–—‐‑‒﹣－]\s*(?:\p{L}{2,3}\.?\s*)?$/u.test(s) || /\d\s*(?:[a-z]{3}\s*)?(?:dr|db|debit)\.?\s*$/i.test(s) || /^\s*(?:dr|db|debit)\.?\s*[^a-z0-9]{0,3}\d/i.test(s);
   // A currency written in letters ahead of the number ("د.ا.‏4.750", "Rs. 1,200") would leave stray dots.
