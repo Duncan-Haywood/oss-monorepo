@@ -19,3 +19,12 @@ test("currency words starting with db/dr do not flip the sign", () => {
   assert.equal(parseCents("12.50"), 1250);
   assert.equal(parseCents("د.ا.‏4.750"), 475);
 });
+
+test("a trailing minus or DR marker still counts when a currency code follows or sits between", () => {
+  assert.equal(parseCents("12.50-USD"), -1250);
+  assert.equal(parseCents("12.50- EUR"), -1250);
+  assert.equal(parseCents("12.50 USD DR"), -1250);
+  assert.equal(parseCents("12.50 USD"), 1250);
+  assert.equal(parseCents("12.50 USD CR"), 1250);
+  assert.equal(parseCents("-12.50 USD"), -1250);
+});
