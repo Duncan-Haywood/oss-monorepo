@@ -31,3 +31,11 @@ test("standard mileage next to booked fuel is flagged on line 9", () => {
   const sc = scheduleC(b, { year: 2026 });
   assert.ok(sc.warnings.some((w) => /Line 9 holds .* 297\.25/.test(w)), sc.warnings.join("\n"));
 });
+
+test("standard mileage next to booked insurance is flagged on line 15", () => {
+  let b = acceptSuggestions(load(), 0.7);
+  assert.ok(!scheduleC(b, { year: 2026 }).warnings.some((w) => /Line 15 holds/.test(w)));
+  b = addTrip(b, { miles: 410, date: "2026-06-30", purpose: "driving" }).books;
+  const sc = scheduleC(b, { year: 2026 });
+  assert.ok(sc.warnings.some((w) => /Line 15 holds .*182\.00 of insurance/.test(w)), sc.warnings.join("\n"));
+});

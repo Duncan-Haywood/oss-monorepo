@@ -73,6 +73,8 @@ export function scheduleC(books, { from = null, to = null, mealsPct = 50, map = 
     warnings.push(...mileage.warnings);
     const actualCar = (byLine.get("9") ?? []).reduce((n, r) => n + r.cents, 0);
     if (mileage.cents && actualCar) warnings.push(`Line 9 holds ${fmt(actualCar)} of car and truck costs booked from the bank and ${fmt(mileage.cents)} of standard-mileage deduction for the same year. The standard mileage rate is used instead of actual costs such as fuel, oil, repairs, insurance and depreciation, so only parking and tolls can be added to it; pick one method for the vehicle (the IRS also bars switching in some cases), then take the other amount off.`);
+    const insured = (byLine.get("15") ?? []).reduce((n, r) => n + r.cents, 0);
+    if (mileage.cents && insured) warnings.push(`Line 15 holds ${fmt(insured)} of insurance next to ${fmt(mileage.cents)} of standard-mileage deduction. The standard mileage rate already covers vehicle insurance, so take any auto insurance premium out of line 15; business liability or other insurance stays.`);
     if (mileage.cents) put("9", "miles", mileage.cents), byLine.get("9").at(-1).name = `Business miles (${mileage.label})`;
   }
   const sum = (line) => (byLine.get(line) ?? []).reduce((a, r) => a + r.cents, 0);
