@@ -91,3 +91,13 @@ test("a UBL CreditNote root is not how ZATCA sends credit notes: the EU base rul
   const r = await runPlain(xml);
   assert.ok(rules(r).includes("BR-22"), "hard-coded InvoicedQuantity path: the rules assume the Invoice root");
 });
+
+test("a simplified debit note (an Invoice document with type code 383) passes, and loses its reason and reference when they are removed", { skip }, async () => {
+  const ok = await runPlain(read("zatca-simplified-debit-note.xml"));
+  assert.deepEqual(rules(ok), ALWAYS);
+  assert.deepEqual(ok.skipped, []);
+  const xml = read("zatca-simplified-debit-note.xml")
+    .replace(/  <cac:BillingReference>[\s\S]*?<\/cac:BillingReference>\n/, "")
+    .replace(/\n\s*<cbc:InstructionNote>[^<]*<\/cbc:InstructionNote>/, "");
+  assert.deepEqual(rules(await runPlain(xml)), [...ALWAYS, "BR-KSA-17", "BR-KSA-56"].sort());
+});
