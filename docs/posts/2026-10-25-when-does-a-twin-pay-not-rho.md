@@ -1,7 +1,7 @@
 ---
 title: "When does a simulator twin shorten a certificate? Not by correlation"
 date: 2026-10-25
-description: "In the sim2real-inference programme, neither the twin's correlation with reality nor its residual spread predicted when a twin-assisted confidence interval beats real-only trials."
+description: "In the sim2real-inference programme, neither the twin's correlation with reality nor its residual spread predicted when a twin-assisted confidence interval."
 tags: [sim2real-inference, research, digital-twins]
 ---
 

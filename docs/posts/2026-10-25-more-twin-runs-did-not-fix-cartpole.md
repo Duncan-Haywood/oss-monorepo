@@ -1,6 +1,7 @@
 ---
 title: "More simulator runs did not help on cart-pole, and a grid bug nearly said they hurt"
 date: 2026-10-25
+description: "More simulator runs did not narrow a cart-pole confidence interval: the limit is how well the simulator tracks real scores, not how many runs we make."
 ---
 
 On the pendulum, a simulator-assisted confidence interval for a robot policy's score beats real-only testing once we
