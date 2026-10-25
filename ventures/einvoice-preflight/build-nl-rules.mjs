@@ -22,18 +22,21 @@ const base = `https://repo1.maven.org/maven2/com/helger/phive/rules/phive-rules-
 const work = mkdtempSync(join(tmpdir(), "einvoice-nl-"));
 const jar = process.env.EINVOICE_NL_JAR || join(work, "rules.jar"); // a jar already on disk skips the download
 if (!process.env.EINVOICE_NL_JAR) execFileSync("curl", ["-sSfL", "--retry", "4", "--retry-delay", "5", "-o", jar, base], { stdio: "inherit" });
-execFileSync("unzip", ["-oq", jar, `external/schematron/simplerinvoicing/si-ubl-${rulesVersion}.xslt`, "-d", work]);
+const sets = [["ubl", `external/schematron/simplerinvoicing/si-ubl-${rulesVersion}.xslt`], ["cii", `external/schematron/nlcius/nlcius-cii-1.0.${rulesVersion.replace(/^2\.0\./, "")}.xslt`]];
+execFileSync("unzip", ["-oq", jar, ...sets.map(([, f]) => f), "-d", work]);
 
-const xslt = join(work, `external/schematron/simplerinvoicing/si-ubl-${rulesVersion}.xslt`);
-if (!existsSync(xslt)) throw new Error(`Missing ${xslt}`);
-const all = compileXslt(xslt);
-const national = (c) => /^(BR-NL|SI-UBL)/.test(c.id);
-const rules = { ...all, patterns: all.patterns.filter((p) => p.rules.some((r) => r.checks.some(national))) };
-for (const p of rules.patterns) for (const r of p.rules) if (r.checks.some((c) => !national(c))) throw new Error(`pattern ${p.id} mixes national and base checks`);
-const checks = rules.patterns.reduce((n, p) => n + p.rules.reduce((m, r) => m + r.checks.length, 0), 0);
-writeFileSync(join(out, "nlcius-ubl.json"), JSON.stringify(rules) + "\n");
+const national = (c) => /^(BR-NL|SI-UBL|empty-element-check)/.test(c.id);
 const manifestFile = join(out, "manifest.json");
 const manifest = JSON.parse(readFileSync(manifestFile, "utf8"));
-manifest.sets["nlcius-ubl"] = { source: `NLCIUS / SI-UBL ${rulesVersion} via phive-rules-simplerinvoicing ${version} on Maven Central`, from: `si-ubl-${rulesVersion}.xslt`, checks };
+for (const [syntax, file] of sets) {
+  const xslt = join(work, file);
+  if (!existsSync(xslt)) throw new Error(`Missing ${xslt}`);
+  const all = compileXslt(xslt);
+  const rules = { ...all, patterns: all.patterns.filter((p) => p.rules.some((r) => r.checks.some(national))) };
+  for (const p of rules.patterns) for (const r of p.rules) if (r.checks.some((c) => !national(c))) throw new Error(`pattern ${p.id} mixes national and base checks`);
+  const checks = rules.patterns.reduce((n, p) => n + p.rules.reduce((m, r) => m + r.checks.length, 0), 0);
+  writeFileSync(join(out, `nlcius-${syntax}.json`), JSON.stringify(rules) + "\n");
+  manifest.sets[`nlcius-${syntax}`] = { source: `NLCIUS ${syntax.toUpperCase()} ${rulesVersion} via phive-rules-simplerinvoicing ${version} on Maven Central`, from: file.split("/").pop(), checks };
+  console.log(`nlcius-${syntax}: ${checks} checks`);
+}
 writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + "\n");
-console.log(`nlcius-ubl: ${checks} checks`);

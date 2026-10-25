@@ -410,7 +410,7 @@ const FAMILIES = [
   [/^BR-DE-/, "A German XRechnung rule (BR-DE) failed. Check seller contact, payment instructions, buyer reference (Leitweg-ID) and address fields."],
   [/^DE-R-/, "A German domestic rule that Peppol applies (DE-R) failed. Check seller contact, addresses, buyer reference and payment instructions."],
   [/^BR-NL-/, "A Dutch NLCIUS rule (BR-NL) flagged something. The warnings mark fields NLCIUS says to leave out (they are ignored on receipt); the errors name a field to add or correct."],
-  [/^SI-UBL-/, "NLCIUS: remove empty elements from the document; leave a field out rather than sending it blank."],
+  [/^(SI-UBL-|empty-element-check)/, "NLCIUS: remove empty elements from the document; leave a field out rather than sending it blank."],
   [/^BR-FR-/, "A French CIUS rule failed. Check the SIREN or SIRET identifiers and the mandatory legal mentions."],
   [/^BR-/, "A mandatory EN 16931 business rule failed. The message names the business term (BT-nn) to fill in or correct."],
   [/^PEPPOL-/, "A Peppol BIS Billing 3.0 rule failed. Check the electronic address schemes and the references the access point requires."],

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A UN/CEFACT CII invoice with four NLCIUS faults (no buyer reference or order
+  reference, no seller street, a payment code outside the list, a buyer
+  country subdivision), the CII twin of nlcius-invoice-with-defects.xml.
+  Line 1   2 x 100.00 = 200.00   S 21%      VAT 42.00      Total 242.00
+-->
+<rsm:CrossIndustryInvoice
+    xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
+    xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"
+    xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">
+  <rsm:ExchangedDocumentContext>
+    <ram:GuidelineSpecifiedDocumentContextParameter>
+      <ram:ID>urn:cen.eu:en16931:2017#compliant#urn:fdc:nen.nl:nlcius:v1.0</ram:ID>
+    </ram:GuidelineSpecifiedDocumentContextParameter>
+  </rsm:ExchangedDocumentContext>
+  <rsm:ExchangedDocument>
+    <ram:ID>INV-2026-0099</ram:ID>
+    <ram:TypeCode>380</ram:TypeCode>
+    <ram:IssueDateTime><udt:DateTimeString format="102">20260905</udt:DateTimeString></ram:IssueDateTime>
+  </rsm:ExchangedDocument>
+  <rsm:SupplyChainTradeTransaction>
+    <ram:IncludedSupplyChainTradeLineItem>
+      <ram:AssociatedDocumentLineDocument><ram:LineID>1</ram:LineID></ram:AssociatedDocumentLineDocument>
+      <ram:SpecifiedTradeProduct><ram:Name>Consulting</ram:Name></ram:SpecifiedTradeProduct>
+      <ram:SpecifiedLineTradeAgreement>
+        <ram:NetPriceProductTradePrice><ram:ChargeAmount>100.00</ram:ChargeAmount></ram:NetPriceProductTradePrice>
+      </ram:SpecifiedLineTradeAgreement>
+      <ram:SpecifiedLineTradeDelivery><ram:BilledQuantity unitCode="HUR">2</ram:BilledQuantity></ram:SpecifiedLineTradeDelivery>
+      <ram:SpecifiedLineTradeSettlement>
+        <ram:ApplicableTradeTax>
+          <ram:TypeCode>VAT</ram:TypeCode>
+          <ram:CategoryCode>S</ram:CategoryCode>
+          <ram:RateApplicablePercent>21</ram:RateApplicablePercent>
+        </ram:ApplicableTradeTax>
+        <ram:SpecifiedTradeSettlementLineMonetarySummation><ram:LineTotalAmount>200.00</ram:LineTotalAmount></ram:SpecifiedTradeSettlementLineMonetarySummation>
+      </ram:SpecifiedLineTradeSettlement>
+    </ram:IncludedSupplyChainTradeLineItem>
+    <ram:ApplicableHeaderTradeAgreement>
+      <ram:SellerTradeParty>
+        <ram:Name>Leverancier B.V.</ram:Name>
+        <ram:SpecifiedLegalOrganization><ram:ID schemeID="0106">12345678</ram:ID></ram:SpecifiedLegalOrganization>
+        <ram:DefinedTradeContact>
+          <ram:PersonName>Accounts Receivable</ram:PersonName>
+          <ram:TelephoneUniversalCommunication><ram:CompleteNumber>+31 20 1234567</ram:CompleteNumber></ram:TelephoneUniversalCommunication>
+          <ram:EmailURIUniversalCommunication><ram:URIID>ar@supplier.example</ram:URIID></ram:EmailURIUniversalCommunication>
+        </ram:DefinedTradeContact>
+        <ram:PostalTradeAddress>
+          <ram:PostcodeCode>1015 CJ</ram:PostcodeCode>
+          <ram:CityName>Amsterdam</ram:CityName>
+          <ram:CountryID>NL</ram:CountryID>
+        </ram:PostalTradeAddress>
+        <ram:URIUniversalCommunication><ram:URIID schemeID="0106">12345678</ram:URIID></ram:URIUniversalCommunication>
+        <ram:SpecifiedTaxRegistration><ram:ID schemeID="VA">NL123456782B01</ram:ID></ram:SpecifiedTaxRegistration>
+      </ram:SellerTradeParty>
+      <ram:BuyerTradeParty>
+        <ram:Name>Klant N.V.</ram:Name>
+        <ram:SpecifiedLegalOrganization><ram:ID schemeID="0106">87654321</ram:ID></ram:SpecifiedLegalOrganization>
+        <ram:PostalTradeAddress>
+          <ram:PostcodeCode>3511 AB</ram:PostcodeCode>
+          <ram:LineOne>Oudegracht 10</ram:LineOne>
+          <ram:CityName>Utrecht</ram:CityName>
+          <ram:CountrySubDivisionName>Utrecht</ram:CountrySubDivisionName>
+          <ram:CountryID>NL</ram:CountryID>
+        </ram:PostalTradeAddress>
+        <ram:URIUniversalCommunication><ram:URIID schemeID="0106">87654321</ram:URIID></ram:URIUniversalCommunication>
+      </ram:BuyerTradeParty>
+    </ram:ApplicableHeaderTradeAgreement>
+    <ram:ApplicableHeaderTradeDelivery><ram:ActualDeliverySupplyChainEvent><ram:OccurrenceDateTime><udt:DateTimeString format="102">20260905</udt:DateTimeString></ram:OccurrenceDateTime></ram:ActualDeliverySupplyChainEvent></ram:ApplicableHeaderTradeDelivery>
+    <ram:ApplicableHeaderTradeSettlement>
+      <ram:PaymentReference>INV-2026-0099</ram:PaymentReference>
+      <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
+      <ram:SpecifiedTradeSettlementPaymentMeans>
+        <ram:TypeCode>10</ram:TypeCode>
+        <ram:PayeePartyCreditorFinancialAccount><ram:IBANID>NL91ABNA0417164300</ram:IBANID></ram:PayeePartyCreditorFinancialAccount>
+      </ram:SpecifiedTradeSettlementPaymentMeans>
+      <ram:ApplicableTradeTax>
+        <ram:CalculatedAmount>42.00</ram:CalculatedAmount>
+        <ram:TypeCode>VAT</ram:TypeCode>
+        <ram:BasisAmount>200.00</ram:BasisAmount>
+        <ram:CategoryCode>S</ram:CategoryCode>
+        <ram:RateApplicablePercent>21</ram:RateApplicablePercent>
+      </ram:ApplicableTradeTax>
+      <ram:SpecifiedTradePaymentTerms>
+        <ram:DueDateDateTime><udt:DateTimeString format="102">20261005</udt:DateTimeString></ram:DueDateDateTime>
+      </ram:SpecifiedTradePaymentTerms>
+      <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+        <ram:LineTotalAmount>200.00</ram:LineTotalAmount>
+        <ram:TaxBasisTotalAmount>200.00</ram:TaxBasisTotalAmount>
+        <ram:TaxTotalAmount currencyID="EUR">42.00</ram:TaxTotalAmount>
+        <ram:GrandTotalAmount>242.00</ram:GrandTotalAmount>
+        <ram:DuePayableAmount>242.00</ram:DuePayableAmount>
+      </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+    </ram:ApplicableHeaderTradeSettlement>
+  </rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>
