@@ -1,0 +1,115 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_017FNdH2V2xVfqD7ZqMdasac",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-25T04:18:24Z",
+  "ended": "2026-10-25T04:25:25Z",
+  "wall_minutes": 7.14,
+  "tokens_in": 1919997,
+  "tokens_out": 9295,
+  "cost_usd": 0.7329,
+  "tool_calls": 25,
+  "task": null,
+  "projects": [],
+  "pr": 10305,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-sequential-audit-tight-target.md",
+    "research/llm-coding-inference/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 6e of llm-coding-inference: sequential audit at 1-point target. 3 of 4 hypotheses supported; H6d-ii refuted (stopped n 11-13% under oracle, cause untested). research build ok, md links ok. First attempt had TARGET unreplaced (found in a 3-draw smoke test and fixed before the full run).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e6e29f0e-c0cb-562f-a4cd-2219103c5d3e",
+    "transcripts": 1,
+    "first": "2026-10-25T04:18:24Z",
+    "last": "2026-10-25T04:25:33Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 23,
+        "input": 46,
+        "output": 9295,
+        "thinking": 1696,
+        "cache_read": 1852615,
+        "cache_write_5m": 0,
+        "cache_write_1h": 67336,
+        "api_equivalent_usd": 0.7329,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 23,
+      "input": 46,
+      "output": 9295,
+      "thinking": 1696,
+      "cache_read": 1852615,
+      "cache_write_5m": 0,
+      "cache_write_1h": 67336,
+      "api_equivalent_usd": 0.7329,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 25,
+    "tools": {
+      "Bash": 21,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.14,
+      "active_minutes": 2.19,
+      "model_minutes": 1.34,
+      "tool_minutes": 0.85,
+      "waiting_on_human_minutes": 4.95,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

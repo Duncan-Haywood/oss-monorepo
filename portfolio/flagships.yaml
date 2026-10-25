@@ -38,7 +38,7 @@ flagships:
       are about real inputs (landed work is in the README and git history, not
       here). Open items, most valuable first: (0) built-in keywords measured on one real makerspace's bank export (72.7%
       suggested, 96% right, tuned on itself) and on synthetic sets (README Next):
-      a second, Hack Club ledger, held out 2026-10-24 (36.5%, 100% right): a third, hledger's Open Collective books, had no merchant tail (README Next): still wanted (hcb.hackclub.com and api.opencollective.com 403 from cloud sessions; docs/reports/2026-10-24-real-ledger-search.md); (1) the AI layer in fill-only mode
+      a second, Hack Club ledger, held out 2026-10-24 (36.5%, 100% right): a third, hledger's Open Collective books, had no merchant tail: HCB's card feed has one (35% then 50% suggested, 23.8% to 33.2% held out, no labels; README Next): still wanted, labelled books; (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far; README Next); (2) the bank readers
       (CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
       code pages) on real exports
@@ -108,8 +108,8 @@ flagships:
       2026-10-22, the latter calibrated to ~95% on three seeded sets) lives in the README
       and git. Landed 2026-10-24: a real volatility break (US GDP growth, Great
       Moderation 1984Q1; `meanvar` finds it, but default min segment 5 reports a
-      5-quarter calm patch whose range misses the date; README). Landed 2026-11-03: `meanvar` warns when a segment is under 10 points. Open: should
-      `meanvar` default to a longer minimum segment (one series only so far); range95 on a real series with a true holiday closure or
+      5-quarter calm patch whose range misses the date; README). Landed 2026-11-03: `meanvar` warns when a segment is under 10 points. Landed 2026-11-09: `meanvar`
+      defaults to minimum segment 10 (seeded simulation, README). Open: `meanvar` on heavy-tailed or autocorrelated variance; range95 on a real series with a true holiday closure or
       documented slope break (log GDP is a near-unit-root, no clean answer); the growth-change range on clumpy (NB) counts reached ~95% 2026-10-26 by tempering 1.4 (held-out 161/170; the large-bump cell is still ~86%).
   - venture: einvoice-preflight
     why: >-

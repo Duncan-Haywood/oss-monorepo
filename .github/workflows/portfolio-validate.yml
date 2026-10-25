@@ -496,6 +496,16 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_jsonld
 
+      # A page with no rel=icon makes the browser request /favicon.ico from the
+      # origin root (404 on GitHub Pages) and shows a blank tab.
+      # `python3 platform/ci/favicons.py --fix` inserts the missing icons.
+      - name: Check every venture page has a tab icon
+        run: python3 platform/ci/favicons.py
+
+      - name: Favicon checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_favicons
+
       # getElementById returns the first match, so two elements sharing an id
       # silently send a script's writes to the wrong one.
       - name: Check no served page repeats an id

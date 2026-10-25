@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { pluginSource, readmeTxt, buildPlugin, embedUrl, NAME } from './wordpress.mjs';
 
 async function fixture() {
@@ -66,6 +67,7 @@ function esc_html__($s) { return htmlspecialchars($s); }
 function current_user_can($c) { return false; }
 require ${JSON.stringify(file)};
 echo $GLOBALS['sc']['free_tool'](array('slug' => 'a', 'height' => '99999')), "\\n";
+echo $GLOBALS['sc']['free_tool'](array('slug' => 'a', 'height' => '5')), "\\n";
 echo '[unknown:', $GLOBALS['sc']['free_tool'](array('slug' => 'evil"><script>')), "]\\n";
 echo $GLOBALS['sc']['free_tools_list'](array());
 `);
@@ -73,8 +75,36 @@ echo $GLOBALS['sc']['free_tools_list'](array());
   assert.equal(run.status, 0, run.stdout + run.stderr);
   assert.match(run.stdout, /<iframe src="https:\/\/[^"]+\/a\/\?[^"]*pfEmbed=1/);
   assert.match(run.stdout, /height="2000"/);
+  assert.match(run.stdout, /height="300"/);
+  assert.doesNotMatch(run.stdout, /height="30[1-9]"/);
   assert.match(run.stdout, /Alpha &quot;Quote&quot; Tool/);
   assert.match(run.stdout, /\[unknown:\]/);
   assert.doesNotMatch(run.stdout, /<script>/);
   assert.match(run.stdout, /<li><a href="[^"]+\/b\/">Beta<\/a><\/li>/);
+});
+
+const script = fileURLToPath(new URL('./wordpress.mjs', import.meta.url));
+
+test('CLI without --build only reports what it would package', () => {
+  const r = spawnSync('node', [script], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /^would package \d+ tools as free-tools-embed-.*\.zip; --build <dir> writes it/);
+});
+
+test('CLI --build needs a directory and exits 2 with usage without one', () => {
+  const r = spawnSync('node', [script, '--build'], { encoding: 'utf8' });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /usage: wordpress\.mjs --build <outDir>/);
+});
+
+test('CLI --build writes a zip named after the plugin into the given directory', async () => {
+  const dir = path.join(await fs.mkdtemp(path.join(os.tmpdir(), 'wp-out-')), 'nested', 'out');
+  const r = spawnSync('node', [script, '--build', dir], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  const names = await fs.readdir(dir);
+  assert.equal(names.length, 1);
+  assert.match(names[0], /^free-tools-embed-.*\.zip$/);
+  assert.match(r.stdout, new RegExp(`^wrote ${path.join(dir, names[0]).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\(\\d+ tools\\)`));
+  const head = await fs.readFile(path.join(dir, names[0]));
+  assert.equal(head.subarray(0, 2).toString(), 'PK');
 });

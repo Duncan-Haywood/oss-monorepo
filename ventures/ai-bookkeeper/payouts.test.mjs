@@ -215,8 +215,8 @@ test("Square Payouts API entries split a payout; fees may be signed either way",
 
 test("Square ActivityType names classify by meaning: fee refunds are fees, holds and loans are not income", () => {
   const e = (type, amount) => ({ payout_id: "p", type, effective_at: "2026-03-04T15:00:00Z", gross_amount_money: { amount }, fee_amount_money: { amount: 0 }, net_amount_money: { amount } });
-  const kinds = Object.fromEntries(["CHARGE", "REFUND", "PROCESSING_FEE_REFUND", "APP_FEE_REVENUE", "RESERVE_HOLD", "SQUARE_CAPITAL_PAYMENT", "OPEN_DISPUTE", "PAYOUT", "TAX_ON_FEE", "SOMETHING_NEW"].map((t) => [t, readPayoutReport(JSON.stringify({ payout_entries: [e(t, 100)] })).rows[0].kind]));
-  assert.deepEqual(kinds, { CHARGE: "sales", REFUND: "refunds", PROCESSING_FEE_REFUND: "fees", APP_FEE_REVENUE: "sales", RESERVE_HOLD: "reserve", SQUARE_CAPITAL_PAYMENT: "reserve", OPEN_DISPUTE: "disputes", PAYOUT: "skip", TAX_ON_FEE: "fees", SOMETHING_NEW: "other" });
+  const kinds = Object.fromEntries(["CHARGE", "REFUND", "PROCESSING_FEE_REFUND", "APP_FEE_REVENUE", "RESERVE_HOLD", "SQUARE_CAPITAL_PAYMENT", "OPEN_DISPUTE", "PAYOUT", "TAX_ON_FEE", "ESCHEATMENT", "PERCENTAGE_PROCESSING_ENROLLMENT", "PERCENTAGE_PROCESSING_DEACTIVATION", "LOCAL_OFFERS_FEE", "SOMETHING_NEW"].map((t) => [t, readPayoutReport(JSON.stringify({ payout_entries: [e(t, 100)] })).rows[0].kind]));
+  assert.deepEqual(kinds, { CHARGE: "sales", REFUND: "refunds", PROCESSING_FEE_REFUND: "fees", APP_FEE_REVENUE: "sales", RESERVE_HOLD: "reserve", SQUARE_CAPITAL_PAYMENT: "reserve", OPEN_DISPUTE: "disputes", PAYOUT: "skip", TAX_ON_FEE: "fees", ESCHEATMENT: "reserve", PERCENTAGE_PROCESSING_ENROLLMENT: "reserve", PERCENTAGE_PROCESSING_DEACTIVATION: "reserve", LOCAL_OFFERS_FEE: "fees", SOMETHING_NEW: "other" });
 });
 
 test("a Square entry whose net fits neither fee sign is refused", () => {
@@ -269,6 +269,21 @@ test("an Etsy payment-account ledger is grouped under each deposit, newest first
   assert.equal(r.payouts[0].gross, 10500);
   assert.equal(r.payouts[0].fees, 570);
   assert.equal(r.pending.length, 1);
+});
+
+test("an Etsy returned deposit or recoupment is flagged, not booked as a fee, and the deposit after it still splits", () => {
+  const e = `Date,Type,Title,Info,Currency,Amount,Fees & Taxes,Net,Tax Details
+"March 5, 2026",Deposit,Deposit to bank,,USD,--,--,-$157.00,
+"March 4, 2026",Sale,Payment for Order #2,,USD,$100.00,-$5.00,$95.00,
+"March 3, 2026",Returned disbursement,Deposit returned by bank,,USD,--,--,$62.00,
+"March 2, 2026",Deposit,Deposit to bank,,USD,--,--,-$62.00,
+"March 1, 2026",Sale,Payment for Order #1,,USD,$65.00,-$3.00,$62.00,
+`;
+  const r = readPayoutReport(e);
+  assert.equal(r.problems.length, 1);
+  assert.equal(r.payouts.length, 2);
+  assert.equal(r.payouts[1].net, 15700);
+  assert.match(r.problems[0], /Row 4.*Returned disbursement.*book it against the bank/);
 });
 
 test("the Etsy fixture behind etsy-bookkeeping.html splits one deposit as the page says", () => {
@@ -499,4 +514,17 @@ test("an Amazon promotion's tax line (Promotion/TaxDiscount) is tax, not a refun
   const r = readPayoutReport(`${head}\nS3\t\t\t2026-03-05\t94.60\tUSD\t\t\t\t\t\nS3\t\t\t\t\t\tOrder\tA\tItemPrice\tPrincipal\t100.00\nS3\t\t\t\t\t\tOrder\tA\tPromotion\tPrincipal\t-5.00\nS3\t\t\t\t\t\tOrder\tA\tPromotion\tTaxDiscount\t-0.40\n`);
   assert.deepEqual(r.problems, []);
   assert.deepEqual(r.payouts[0].rows.map((x) => x.kind), ["sales", "refunds", "tax"]);
+});
+
+test("a PayPal payment the account holder sent is not booked as a sale", () => {
+  const pp = `Date,Time,Name,Type,Status,Currency,Gross,Fee,Net,Transaction ID
+03/01/2026,10:00:00,Ann,Website Payment,Completed,USD,100.00,-3.20,96.80,T1
+03/02/2026,11:00:00,Supplier,Express Checkout Payment,Completed,USD,-20.00,0.00,-20.00,T2
+03/04/2026,09:00:00,Bank,General Withdrawal,Completed,USD,-76.80,0.00,-76.80,W1
+`;
+  const r = readPayoutReport(pp);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].rows.find((x) => x.id === "T2").kind, "other");
+  assert.equal(r.problems.length, 1);
+  assert.match(r.problems[0], /payment sent/);
 });

@@ -2,23 +2,40 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-25 · Milestone 3c: does re-tuning the inner lr at 3,840 steps close 3b's `H=16` non-monotonicity? (planned before running)
+## 2026-10-25 · Milestone 3d: does a fair re-tune of every method, sync and `H=4` included, keep 3c's picture? (planned before running)
 - Why: 3b's "Next". `H=64` beat `H=16` by 0.017 nats, probably because `H=16` kept 3a's 960-step pick (3e-3) while 3,840 steps may prefer a lower lr.
-- Design (`experiments/gpt_retune/retune.py`): 3b's model, data, `M = 4`, batch 16, 3,840 inner steps, plain averaging. Inner lr in {1e-3, 2e-3, 4e-3} for `H` in {sync, 4, 16, 64}, picked on tuning seeds 100, 101 (mean validation loss), then reported on seeds 0 to 2 at the picks (3b's runs reused where the pick equals 3b's lr). Sync is re-tuned too, so no method keeps a stale pick.
-- **H3c-i:** after re-tuning, `H=16` is no worse than `H=64` in the means (the 3b ordering reversal disappears). Refuted if `H=64` is still better by more than 0.01.
-- **H3c-ii:** the re-tuned gap to sync at `H=16` is under 0.034 (3b's). Refuted otherwise.
-- **H3c-iii:** picked lr is non-increasing in `H` (3a's suggestive finding). Edge picks reported.
+- Design (`experiments/gpt_retune_all/retune.py`; 3c, landed in parallel as PR #10293, tuned only `H=16` and `H=64` on {3e-4, 1e-3, 3e-3}): 3b's model, data, `M = 4`, batch 16, 3,840 inner steps, plain averaging. Inner lr in {1e-3, 2e-3, 4e-3} for `H` in {sync, 4, 16, 64}, picked on tuning seeds 100, 101 (mean validation loss), then reported on seeds 0 to 2 at the picks (3b's runs reused where the pick equals 3b's lr). Sync is re-tuned too, so no method keeps a stale pick.
+- **H3d-i:** after re-tuning, `H=16` is no worse than `H=64` in the means (the 3b ordering reversal disappears). Refuted if `H=64` is still better by more than 0.01.
+- **H3d-ii:** the re-tuned gap to sync at `H=16` is under 0.034 (3b's). Refuted otherwise.
+- **H3d-iii:** picked lr is non-increasing in `H` (3a's suggestive finding). Edge picks reported.
 - Limits: 3-point grid, 2 tuning seeds, one size and corpus.
 
-### Outcome of 3c (`experiments/gpt_retune/retune_results.txt`; tuning seeds 100, 101, lr grid {1e-3, 2e-3, 4e-3}, 24 runs; then seeds 0 to 2)
+### Outcome of 3d (`experiments/gpt_retune_all/retune_results.txt`; tuning seeds 100, 101, lr grid {1e-3, 2e-3, 4e-3}, 24 runs; then seeds 0 to 2)
 - Every `H` picked 2e-3 (tuning means: sync 1.5893, `H=4` 1.5813, `H=16` 1.5784, `H=64` 1.5955), so the pick is the grid middle, not an edge, but the same for all.
 - Reported means (sd), nats: sync 1.5897 (0.0097); `H=4` 1.5825 (0.0038); `H=16` 1.5758 (0.0064); `H=64` 1.5947 (0.0094). Paired gaps to sync: `H=4` -0.007 (sd 0.013), `H=16` -0.014 (sd 0.005), `H=64` +0.005 (sd 0.003). `H=64` minus `H=16`: +0.019 (sd 0.003).
-- **H3c-i supported.** `H=16` is better than `H=64` by 0.019 (every seed), so 3b's reversal was a learning-rate artefact, not a real non-monotonicity.
-- **H3c-ii supported, more strongly than predicted.** The re-tuned `H=16` gap is -0.014: slightly *better* than synchronous AdamW at the same sample count, consistent in sign across the 3 seeds. With 3 seeds this is suggestive, not established; `H=4` is indistinguishable from sync.
-- **H3c-iii uninformative.** All picks equal (2e-3); the grid cannot show a trend in `H`, so 3a's "non-increasing" reading is neither confirmed nor refuted here.
+- **H3d-i supported.** `H=16` is better than `H=64` by 0.019 (every seed), so 3b's reversal was a learning-rate artefact, not a real non-monotonicity.
+- **H3d-ii supported, more strongly than predicted.** The re-tuned `H=16` gap is -0.014: slightly *better* than synchronous AdamW at the same sample count, consistent in sign across the 3 seeds. With 3 seeds this is suggestive, not established; `H=4` is indistinguishable from sync.
+- **H3d-iii uninformative.** All picks equal (2e-3); the grid cannot show a trend in `H`, so 3a's "non-increasing" reading is neither confirmed nor refuted here.
 - Reading: most of 3b's remaining gap came from stale learning rates (sync at 1e-3 scored 1.5994, at 2e-3 1.5897). With a lr tuned at the real budget, local steps up to `H=16` cost nothing measurable on this model and `H=64` costs about 0.005 nats.
 - Limits: 3 seeds, 3-point grid with one shared pick (a finer or per-H grid could move the ranking; `H=16` beating sync may be a tuning-noise effect), one size and corpus, plain averaging only.
 - Next: outer momentum on this model (2g's grid), more seeds for the `H=16` versus sync sign, and a per-`H` finer lr grid.
+
+
+## 2026-10-25 · Milestone 3c: is 3b's H = 16 vs H = 64 inversion an lr artefact? (planned before running)
+- Why: 3b's "Next". 3b reused 3a's inner lrs, tuned at 960 steps (H=16: 3e-3, H=64: 1e-3). The inversion (H=64 beat H=16 by 0.017) probably comes from the H=16 lr being too high at 3,840 steps.
+- Design (`experiments/gpt_retune/retune.py`): 3b's model, data, M = 4, batch 16, 3,840 inner steps, plain averaging. Tune lr in {3e-4, 1e-3, 3e-3} for H in {16, 64} on seeds 100, 101 (mean validation loss), then report the picks on seeds 0 to 2 (3b's seeds), paired with 3b's synchronous runs.
+- **H3c-i:** the tuned H=16 lr is below 3e-3 (the 3a pick) and the H=16 gap to sync shrinks below 3b's 0.034. Refuted otherwise.
+- **H3c-ii:** after re-tuning, H=16 is no worse than H=64 in the means (the 3b ordering inversion goes away). Refuted if H=64 is still better.
+- Limits: 3 lr points only, 2 tuning seeds, sync/H=4 not re-tuned (sync stays at 3a's pick), one size and corpus.
+
+### Outcome of 3c (`experiments/gpt_retune/retune.jsonl`, `report.out`; seeds 100, 101 to tune, 0 to 2 to report; about 11 minutes per run)
+- Tuning (mean validation loss, nats): H=16: 3e-4 1.7837, 1e-3 1.6054, 3e-3 1.6109. H=64: 3e-4 1.7826, 1e-3 1.6219, 3e-3 1.6514. Picks: 1e-3 for both (3e-4 is far worse; 3e-3 is the grid's upper edge and, for H=16, within 0.006 of the pick).
+- Report, seeds 0 to 2: H=16 at 1e-3 gives 1.5974, 1.5998, 1.5948 (mean 1.5973); 3b's sync gives 1.6002, 1.6012, 1.5970 (mean 1.5994). Paired gap to sync: -0.003, -0.001, -0.002 (mean -0.002). H=64 at 1e-3 reproduces 3b exactly (1.6071, 1.6230, 1.6191; runs are deterministic per seed), gap +0.017.
+- **H3c-i supported.** The tuned H=16 lr is 1e-3, below 3e-3, and the gap to sync falls from +0.034 to -0.002, within noise of zero.
+- **H3c-ii supported.** H=16 (1.5973) is better than H=64 (1.6164) by 0.019; the ordering inversion in 3b was a stale learning rate.
+- Reading: at 3,840 steps with a tuned inner lr, H=16 matches synchronous AdamW on this 413k-parameter GPT (4 workers, plain averaging), and the cost of local steps appears at H=64 (about 0.02 nats). Part of 3a's 0.14 gap was budget, the rest of 3b's was lr.
+- Limits: sync and H=4 were not re-tuned (sync could also gain from a tuned lr, which would reopen a small gap); 3 lr points, 2 tuning seeds, 3 report seeds; one size and corpus. H=16 at 3e-3 scored within 0.005 of 1e-3 on the tuning seeds, so the lr surface is flat there and the pick is not sharp.
+- Next: tune sync and H=4 on the same grid for a fair comparison, then the outer-momentum grid of 2g on this model.
 
 ## 2026-10-25 · Milestone 3b: does the 3a gap to synchronous AdamW shrink with a 4x longer budget? (planned before running)
 - Why: 3a's "Next". At 960 steps sync may still be improving; the 0.14 nat gap at `H = 16` could be a short-budget artefact.
