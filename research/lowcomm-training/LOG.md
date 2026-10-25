@@ -9,6 +9,14 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H3b-ii:** the ordering sync < 4 < 16 <= 64 holds in the means.
 - Limits: 3 seeds, no re-tuned lr, one size and corpus; a 4x budget is still tiny against real pretraining.
 
+### Outcome of 3b (`experiments/gpt_long_budget/long_budget_results.txt`; about 13 minutes per run, seeds 0 to 2, validation loss in nats, 3a's inner lr picks, no re-tuning)
+- Mean (sd): sync 1.5994 (0.0022); `H=4` 1.6033 (0.0061); `H=16` 1.6338 (0.0109); `H=64` 1.6164 (0.0083). Gaps to sync, paired by seed: +0.004 (sd 0.004), +0.034 (sd 0.012), +0.017 (sd 0.009).
+- **H3b-i supported.** The `H=16` gap is 0.034, against 0.139 at 960 steps and the 0.089 threshold. A 4x longer budget cut it about 4x, so most of 3a's gap was a short-budget effect.
+- **H3b-ii refuted.** `H=64` (1.616) is below `H=16` (1.634) by 0.017, about 1.5 of the larger sd. Probably 3a's flat-optimum problem (the `H=16` pick of 3e-3 may be too high at 3,840 steps, while 1e-3 was picked for `H=64`), not a real non-monotonicity. Not tested.
+- Reading: at 3,840 steps `H=4` is indistinguishable from synchronous AdamW and local steps cost under 0.04 nats up to `H=64`. This agrees with the numpy 2e finding (cost appears only at large `H`) and revises 3a's reading that it shows at small `H` on the transformer.
+- Limits: 3 seeds, lr not re-tuned for the longer budget (the `H=16` cell is the likely casualty), one size, one corpus, 4x is still tiny; `H=1` and `H=240` not rerun.
+- Next: re-tune the inner lr at 3,840 steps for `H=16` and 64 (tuning seeds 100, 101), then the outer-momentum grid of 2g on this model.
+
 ## 2026-10-25 · Milestone 3a: does the H curve of 2e survive on the 413k-parameter GPT? (planned before running)
 - Why: 2g's "Next". Everything since 2a is on a 14k-parameter numpy model; the claims (cost of local steps appears at large `H` only; tuned inner lr non-increasing in `H`) need the real transformer of Milestone 1 before they are cited.
 - Design (`experiments/gpt_h_sweep/h_sweep.py`): 2-layer, 128-wide char GPT on Tiny Shakespeare, `M = 4` workers, batch 16 per worker, 960 inner steps per worker (3,840 batches for every method), plain-averaging outer step (lr 1, no momentum), `H` in {sync, 1, 4, 16, 64, 240}; sync is one worker with batch 64. Inner lr in {1e-3, 3e-3, 1e-2} picked on tuning seeds 100, 101 (mean validation loss), then reported on seeds 0, 1, 2 (16 fixed validation batches of 32). Same selection split as 2e.
