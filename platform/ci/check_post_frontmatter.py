@@ -30,6 +30,9 @@ def problems(name, text):
     prefix = re.match(r"\d{4}-\d{2}-\d{2}", name)
     if prefix and fields.get("date") and fields["date"].strip("\"'") != prefix.group(0):
         out.append(f"date {fields['date']} != filename date {prefix.group(0)}")
+    desc = fields.get("description", "").strip("\"'")
+    if len(desc) > 160:  # writing.mjs throws on this; PR builds fail, so say so early
+        out.append(f"description is {len(desc)} characters; keep it to 160")
     tags = fields.get("tags")
     if tags and not re.fullmatch(r"\[\s*[^\]\s][^\]]*\]", tags):
         out.append("`tags` is not a non-empty [list]")

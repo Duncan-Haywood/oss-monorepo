@@ -1,7 +1,7 @@
 ---
 title: "Does a cheap chip-flow rung pay once routing is expensive? Five larger designs, 600 runs"
 date: 2026-10-25
-description: "On ten small designs the cheap rungs of an open chip flow did not beat random search. On five larger ones, successive halving from the mapped rung wins at small budgets, then hits a bias floor."
+description: "On ten small designs an open chip flow's cheap rungs did not beat random search. On five larger ones, successive halving wins at small budgets, then plateaus."
 tags: [research, verified-dse, openroad, multi-fidelity, sky130]
 ---
 
