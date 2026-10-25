@@ -1,7 +1,7 @@
 {
   "id": "P057",
   "title": "ai-bookkeeper's flagship `next:` leans on data hosts the cloud proxy blocks",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
@@ -20,7 +20,7 @@
   "baseline": "1 (this run)",
   "opened": "2026-10-25",
   "source": "prompts/runs/ (this run's record)",
-  "pr": null,
+  "pr": "this PR (see run record)",
   "result": null,
   "history": []
 }
