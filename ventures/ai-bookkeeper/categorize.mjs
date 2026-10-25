@@ -101,6 +101,10 @@ export const BUILT_IN = [
   // Gig and platform work (2026-10-25): what the driver or freelancer is paid is sales, whatever the app calls it; written from the platforms' names, not from a real export.
   ["4000", "in", /\b(uber|lyft)\b.*\b(driver|payout|payment|earnings)|\bdasher\b|doordash.*\b(pay|payment|payout)|instacart.*\b(shopper|payment|payout)|spark driver|amazon flex|shipt.*\b(payment|payout)|\bupwork\b|\bfiverr\b|taskrabbit/],
   ["6160", "out", /\bqt \d{2,}|\bcircle k\b|kwik trip|buc-?ee|flying j\b|pilot travel/],
+  // Creators (2026-10-25): ad, membership, newsletter and affiliate payouts are sales; the editing, hosting and email tools are software. Written from the platforms' names, not from a real export.
+  ["4000", "in", /google ?adsense|youtube.*(partner|payment|payout)|\btwitch\b.*(payout|payment)|substack|beehiiv|buy ?me ?a ?coffee|medium partner|amazon associates|rakuten (advertising|affiliate)|\bimpact\b.*payout|shareasale|cj affiliate|lemon ?squeezy|teachable|podia\b|spotify.*podcast|sponsorship|affiliate (payout|commission)/],
+  ["6060", "out", /riverside\.fm|buzzsprout|captivate\.fm|transistor\.fm|libsyn|convertkit|kit\.com|beehiiv|substack|midjourney|capcut|canva|epidemic ?sound|artlist|podia\b|teachable|lemon ?squeezy|vidiq|tubebuddy|frame\.io|final cut|davinci|squarespace/],
+  ["6070", "out", /b ?& ?h photo|adorama|sweetwater|rode microphones?|shure|elgato|blue yeti/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
