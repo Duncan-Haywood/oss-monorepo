@@ -125,6 +125,7 @@ export function readPayoutReport(text) {
   // Some dashboards put the currency in the amount headers ("Gross (USD)", "Net (EUR)").
   const head = table[0].map((h) => { const k = key(h); const m = /^(gross|fee|fees|net|amount)_[a-z]{3}$/.exec(k); return m ? m[1] : k; });
   if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return { ...readAmazon(table, head), source: "amazon" };
+  if (head.includes("psp_reference") && head.includes("batch_number") && head.some((h) => h.startsWith("net_credit"))) return { ...readAdyen(table, head), source: "adyen" };
   if (head.includes("fees_taxes") && head.includes("title") && head.includes("type") && head.includes("net")) return { ...readEtsy(table, head), source: "etsy" };
   if (head.includes("confirmation_code") && head.includes("gross_earnings") && head.includes("host_fee") && head.includes("type")) return { ...readAirbnb(table, head), source: "airbnb" };
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
@@ -284,6 +285,61 @@ function readPaypal(table, head) {
   }
   const pending = group.map((y) => ({ ...y, payout: "" }));
   return { rows: all, payouts, pending, problems };
+}
+
+// Adyen's settlement details report (Company Account, Merchant Account, Psp
+// Reference, Type, Creation Date, Gross Debit/Credit (GC), Net Debit/Credit
+// (NC), Commission, Markup, Scheme Fees, Interchange (all NC), Batch Number).
+// A batch is one payout: its Settled/Refunded/Chargeback/Fee rows net to the
+// MerchantPayout row of that batch. Gross is taken as net plus the four cost
+// columns, so a sale in another currency than the payout still balances. Rows
+// that move no money (Received, Authorised, SentForSettle ...) are skipped; a
+// type not listed is "other income", never guessed. Written from Adyen's
+// published column list and a hand-made fixture; no real export has been tried.
+const ADYEN_KIND = {
+  settled: "sales", settledbulk: "sales", refunded: "refunds", refundedbulk: "refunds", refundedreversed: "refunds", refundreversed: "refunds",
+  chargeback: "disputes", chargebackreversed: "disputes", secondchargeback: "disputes", chargebackbulk: "disputes", chargebackreversedbulk: "disputes",
+  fee: "fees", misccosts: "fees", invoicededuction: "fees", paymentcost: "fees", depositcorrection: "other",
+  merchantpayout: "payout",
+};
+function readAdyen(table, head) {
+  const ix = (re) => head.findIndex((h) => re.test(h));
+  const c = {
+    type: head.indexOf("type"), id: head.indexOf("psp_reference"), batch: head.indexOf("batch_number"), date: ix(/^creation_date$/), desc: ix(/^merchant_reference$/),
+    ncred: ix(/^net_credit/), ndeb: ix(/^net_debit/), costs: [/^commission/, /^markup/, /^scheme_fees/, /^interchange/].map(ix).filter((i) => i !== -1),
+  };
+  for (const need of ["type", "date", "ncred", "ndeb"]) if (c[need] === -1) throw new Error(`The Adyen report has no "${need}" column.`);
+  const problems = [], rows = [], own = new Map();
+  table.slice(1).forEach((r, n) => {
+    const at = (i) => (i === -1 ? "" : String(r[i] ?? "").trim());
+    const category = at(c.type).toLowerCase().replace(/[^a-z]/g, "");
+    const kind = ADYEN_KIND[category] ?? (/^(received|authori[sz]ed|authorisedpending|sentforsettle|sentforrefund|sentforauth|cancel|capture|error|expired|refused|retry|pending)/.test(category) ? "skip" : "other");
+    if (kind === "skip") return;
+    const amt = (i) => (at(i) === "" ? 0 : parseCents(at(i)));
+    const net = amt(c.ncred) - amt(c.ndeb), fee = c.costs.reduce((a, i) => a + amt(i), 0);
+    if ([net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
+    const batch = at(c.batch);
+    if (kind === "payout") { if (batch) own.set(batch, [...(own.get(batch) ?? []), { net: -net, date: parseDate(at(c.date)) }]); return; }
+    rows.push({ row: n + 2, id: at(c.id) || `row${n + 2}`, payout: batch, payoutDate: null, created: parseDate(at(c.date)), category, kind, gross: net + fee, fee, net, desc: at(c.desc) });
+  });
+  const by = new Map(), pending = [];
+  for (const x of rows) {
+    if (!x.payout) { pending.push(x); continue; }
+    if (!by.has(x.payout)) by.set(x.payout, []);
+    by.get(x.payout).push(x);
+  }
+  const payouts = [];
+  for (const [id, rs] of by) {
+    const sum = rs.reduce((a, x) => a + x.net, 0), o = own.get(id);
+    if (o && o.reduce((a, x) => a + x.net, 0) !== sum) problems.push(`Batch ${id}: the MerchantPayout row is ${fmt(o.reduce((a, x) => a + x.net, 0))} but the batch's other rows net ${fmt(sum)}. Rows are missing from the export, or the payout was in another currency; not split.`);
+    else if (!o) problems.push(`Batch ${id}: no MerchantPayout row, so no bank line to match yet; listed as pending.`);
+    if (!o || o.reduce((a, x) => a + x.net, 0) !== sum) { pending.push(...rs); continue; }
+    const date = o.map((x) => x.date).filter(Boolean).sort().at(-1) ?? null;
+    const sm = (f) => rs.reduce((a, x) => a + f(x), 0);
+    payouts.push({ id, date, net: sum, gross: sm((x) => x.gross), fees: sm((x) => x.fee), rows: rs.map((x) => ({ ...x, payoutDate: date })) });
+  }
+  payouts.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  return { rows, payouts, pending, problems };
 }
 
 // Etsy's payment account ledger CSV (Date, Type, Title, Info, Currency, Amount,
