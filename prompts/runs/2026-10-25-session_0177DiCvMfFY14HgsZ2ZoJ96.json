@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_0177DiCvMfFY14HgsZ2ZoJ96",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T12:12:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10384,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Only P056 (blocked) was agent-owned; had to pick a live fault from the friction table by hand."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-25-posts-dated-in-the-future.md"
+  ],
+  "goal": null,
+  "notes": "Backlog P058 (new, done). Redated 77 future-dated posts; check_post_frontmatter fails future dates. A date filter `$0>\"2026-10-25\"` wrongly matched same-day names (miscounted 138 first).",
+  "corrections": [],
+  "redteam": null
+}
