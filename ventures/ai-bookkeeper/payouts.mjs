@@ -146,6 +146,23 @@ export function readPayoutReport(text) {
   return { rows, payouts, pending, problems };
 }
 
+// Square's ActivityType list (square-python-sdk, activity_type.py, checked 2026-10-25), where a name alone would
+// mislead: a refunded fee is a fee credit, not a customer refund; app fees are a platform's earnings; holds,
+// savings, loans and money moved between Square products are balance movements, never income.
+const SQUARE_KIND = {
+  charge: "sales", refund: "refunds", app_fee_revenue: "sales", app_fee_refund: "refunds",
+  processing_fee_refund: "fees", paid_service_fee_refund: "fees", subscription_fee_refund: "fees", subscription_fee_paid_refund: "fees",
+  third_party_fee_refund: "fees", gift_card_load_fee_refund: "fees", undo_processing_fee_refund: "fees", undo_gift_card_load_fee_refund: "fees",
+  deposit_fee_reversed: "fees", tax_on_fee: "fees", free_processing: "fees", local_offers_cashback: "fees",
+  dispute: "disputes", open_dispute: "disputes", release_adjustment: "reserve",
+  reserve_hold: "reserve", reserve_release: "reserve", hold_adjustment: "reserve", returned_payout: "reserve",
+  automatic_savings: "reserve", automatic_savings_reversed: "reserve", square_capital_payment: "reserve", square_capital_reversed_payment: "reserve",
+  credit_card_repayment: "reserve", credit_card_repayment_reversed: "reserve", percentage_processing_repayment: "reserve", percentage_processing_repayment_reversed: "reserve",
+  balance_folders_transfer: "reserve", balance_folders_transfer_reversed: "reserve", gift_card_pool_transfer: "reserve", gift_card_pool_transfer_reversed: "reserve",
+  money_transfer_reversal: "reserve", square_payroll_transfer: "reserve", square_payroll_transfer_reversed: "reserve",
+  initial_balance_change: "reserve", automatic_bitcoin_conversions: "reserve", automatic_bitcoin_conversions_reversed: "reserve",
+  payout: "skip", money_transfer: "skip",
+};
 // Square Payouts API: ListPayoutEntries JSON ({ payout_entries: [...] }), or
 // { payouts: [...], payout_entries: [...] } / an array of those entries. Each
 // entry has payout_id, type, effective_at and gross/fee/net_amount_money.amount
@@ -169,7 +186,7 @@ function readSquareJson(text) {
     if (net !== gross - fee && net === gross + fee) fee = -fee;
     if (net !== gross - fee) { problems.push(`Entry ${n + 1}: net ${fmt(net)} is not gross ${fmt(gross)} less fee ${fmt(fee)}.`); return; }
     const category = key(e.type ?? "");
-    const kind = /payout|transfer/.test(category) ? "skip" : category === "charge" ? "sales" : /refund/.test(category) ? "refunds" : /dispute|chargeback/.test(category) ? "disputes" : /fee/.test(category) ? "fees" : "other";
+    const kind = SQUARE_KIND[category] ?? (/payout|transfer/.test(category) ? "skip" : category === "charge" ? "sales" : /fee/.test(category) ? "fees" : /refund/.test(category) ? "refunds" : /dispute|chargeback/.test(category) ? "disputes" : "other");
     const created = parseDate(String(e.effective_at ?? "").slice(0, 10));
     rows.push({ row: n + 1, id: e.id ?? `entry${n + 1}`, payout: e.payout_id ?? "", payoutDate: dateOf.get(e.payout_id) ?? null, created, category, kind, gross, fee, net, desc: "" });
   });
