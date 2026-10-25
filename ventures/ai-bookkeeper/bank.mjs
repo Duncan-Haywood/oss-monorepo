@@ -189,7 +189,12 @@ export function detectColumns(header) {
   if (cols.desc === -1 && h.includes("activity") && h.includes("wallet txn id")) cols.desc = h.indexOf("activity");
   if (cols.desc === -1) {
     // Some banks split payee and memo; take the first text-looking column left.
-    cols.desc = h.findIndex((x, i) => !Object.values(cols).includes(i) && /desc|payee|name|memo|detail/.test(x));
+    // Same-ranked candidates (two "... name" columns) are told apart by their
+    // text, not their position, so a file reads the same with its columns shuffled.
+    const taken = Object.values(cols), rank = (x) => ["desc", "payee", "name", "memo", "detail"].findIndex((k) => x.includes(k));
+    const cands = h.map((x, i) => [x, i]).filter(([x, i]) => !taken.includes(i) && rank(x) !== -1);
+    cands.sort((a, b) => rank(a[0]) - rank(b[0]) || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
+    cols.desc = cands.length ? cands[0][1] : -1;
   }
   return cols;
 }
