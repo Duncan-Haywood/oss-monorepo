@@ -1,6 +1,6 @@
 ---
 title: "A bank's own turnover totals were being booked as transactions"
-date: 2026-10-26
+date: 2026-10-25
 description: "Running a public Swedbank Lithuania sample through ai-bookkeeper found the period's debit and credit totals imported as two extra transactions."
 tags: [ai-bookkeeper, bank-import, testing]
 ---
