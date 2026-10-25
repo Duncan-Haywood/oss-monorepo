@@ -248,13 +248,18 @@ function readSquareJson(text) {
 // PayPal's activity export. Rows are grouped under the withdrawal that paid them out.
 function readPaypal(table, head) {
   const ix = (...names) => names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1;
-  const c = { date: ix("date"), time: ix("time"), type: ix("type"), status: ix("status"), gross: ix("gross"), fee: ix("fee"), net: ix("net"), id: ix("transaction_id"), desc: ix("name", "description") };
+  const c = { date: ix("date"), time: ix("time"), type: ix("type"), status: ix("status"), gross: ix("gross"), fee: ix("fee"), net: ix("net"), id: ix("transaction_id"), desc: ix("name", "description"), impact: ix("balance_impact"), currency: ix("currency") };
   for (const need of ["date", "gross", "net"]) if (c[need] === -1) throw new Error(`The PayPal report has no "${need}" column.`);
   const problems = [];
   const all = [];
+  const currencies = new Set();
   table.slice(1).forEach((r, n) => {
     const at = (k) => (c[k] === -1 ? "" : String(r[c[k]] ?? "").trim());
     if (c.status !== -1 && key(at("status")) !== "completed") return;
+    // Newer exports mark rows that do not move the balance (authorizations, orders) "Memo".
+    if (key(at("impact")) === "memo") return;
+    const cur = at("currency").toUpperCase();
+    if (cur) { if (!currencies.size) currencies.add(cur); else if (!currencies.has(cur)) { currencies.add(cur); problems.push(`Row ${n + 2}: currency ${cur} differs from ${[...currencies][0]}. PayPal holds one balance per currency, so split the export by currency; amounts are not converted.`); } }
     const gross = parseCents(at("gross")), net = parseCents(at("net"));
     const fee = c.fee === -1 ? 0 : -(parseCents(at("fee")) ?? NaN);
     if ([gross, net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }

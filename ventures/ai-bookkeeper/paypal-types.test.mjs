@@ -32,3 +32,21 @@ test("the plain bank wording is untouched", () => {
   assert.equal(acct("PAYMENT THANK YOU", 12000), "transfer");
   assert.equal(acct("CREDIT CARD PAYMENT", -12000), "transfer");
 });
+
+import { readPayoutReport } from "./payouts.mjs";
+const PP = "Date,Time,Time Zone,Name,Type,Status,Currency,Gross,Fee,Net,Transaction ID,Balance Impact\n";
+test("PayPal Memo rows (authorizations) do not move the balance and are skipped", () => {
+  const r = readPayoutReport(PP +
+    "03/02/2026,10:00:00,PST,Jane,Express Checkout Payment,Completed,USD,100.00,-3.20,96.80,T1,Credit\n" +
+    "03/02/2026,10:05:00,PST,Jane,Order,Completed,USD,500.00,0.00,500.00,T2,Memo\n" +
+    "03/03/2026,09:00:00,PST,Bank,General Withdrawal,Completed,USD,-96.80,0.00,-96.80,T3,Debit\n");
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].net, 9680);
+  assert.deepEqual(r.problems, []);
+});
+test("a second currency in one PayPal export is flagged, not mixed in silently", () => {
+  const r = readPayoutReport(PP +
+    "03/02/2026,10:00:00,PST,Jane,Express Checkout Payment,Completed,USD,100.00,-3.20,96.80,T1,Credit\n" +
+    "03/02/2026,11:00:00,PST,Hans,Express Checkout Payment,Completed,EUR,50.00,-1.00,49.00,T2,Credit\n");
+  assert.ok(r.problems.some((p) => /currency EUR/.test(p)));
+});
