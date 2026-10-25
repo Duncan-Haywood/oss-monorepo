@@ -73,6 +73,10 @@ const CATEGORY = {
   transfer_refund: "reserve", unreconciled_customer_funds: "reserve",
   // A conversion between two currency balances moves money, it is not income (the two legs net to zero).
   currency_conversion: "reserve",
+  // Stripe's balance_transaction `type` list (stripe/openapi spec3.json, fetched 2026-10-25; names only). Money moved in from
+  // a bank, set aside for Stripe Tax or left unreconciled is a balance movement; a reversed payment is a refund. Issuing,
+  // obligation and balance-payment types stay other: the name does not say whether they are cost or clearing.
+  inbound_transfer: "reserve", inbound_transfer_reversal: "reserve", tax_fund: "reserve", payment_unreconciled: "reserve", payment_reversal: "refunds",
   issuing_authorization_hold: "reserve", issuing_authorization_release: "reserve", issuing_disbursement: "reserve",
   // Older balance-transaction types some exports still carry in the category column.
   reserve_transaction: "reserve", recipient_transfer: "skip", recipient_transfer_cancel: "reserve", recipient_transfer_failure: "reserve",
