@@ -193,10 +193,11 @@ writing it; skip any already in `episodes/`):
 - *(Done: episode 23, Ruth and the Barley Harvest at Bethlehem; text only.)* The book of Ruth (Scripture told straight; Catholic and Orthodox)
 - *(Done: episode 24, Kentigern and the Four Signs of Glasgow; text only.)* Saint Kentigern (Mungo) and the robin, tree, bell and fish of Glasgow (Jocelyn of Furness; legend labelled)
 - *(Done: episode 25, Anthony and the Sermon to the Fishes; text only.)* Saint Anthony of Padua and the sermon at Rimini (Assidua; Fioretti legend labelled)
+- *(Done: episode 26, Noah and the Boat with One Door; text only.)* Noah and the ark (Genesis 6 to 9; Scripture told straight; Noah's vineyard left for another night)
 
 ## Audio status
 
-Episodes 1 to 19 have audio (episodes 20 to 25 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 19 have audio (episodes 20 to 26 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 
