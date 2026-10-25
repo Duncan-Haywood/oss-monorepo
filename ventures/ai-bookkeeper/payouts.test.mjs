@@ -452,3 +452,14 @@ txn_4,,,po_9,,,2026-01-31 00:00:00,2026-01-31 00:00:00,2026-01-31 00:00:00,USD,-
   assert.equal(r.payouts[0].net, 1355);
   assert.equal(r.problems.length, 0);
 });
+
+test("Square entry types follow Square's ActivityType list: fee refunds are fees, holds and repayments are clearing", () => {
+  const ent = (id, type, gross, fee = 0) => ({ id, payout_id: "p", effective_at: "2026-03-04T15:00:00Z", type, gross_amount_money: { amount: gross }, fee_amount_money: { amount: fee }, net_amount_money: { amount: gross - fee } });
+  const r = readPayoutReport(JSON.stringify({ payout_entries: [
+    ent("a", "CHARGE", 10000), ent("b", "PROCESSING_FEE_REFUND", 30), ent("c", "RESERVE_HOLD", -500), ent("d", "SQUARE_CAPITAL_PAYMENT", -200),
+    ent("e", "APP_FEE_REVENUE", 100), ent("f", "THIRD_PARTY_FEE_REFUND", 10), ent("g", "MONEY_TRANSFER", -50), ent("h", "PAYOUT", -9000),
+  ] }));
+  assert.deepEqual(r.problems, []);
+  const kinds = Object.fromEntries(r.rows.map((x) => [x.id, x.kind]));
+  assert.deepEqual(kinds, { a: "sales", b: "fees", c: "reserve", d: "reserve", e: "sales", f: "fees", g: "reserve", h: "skip" });
+});
