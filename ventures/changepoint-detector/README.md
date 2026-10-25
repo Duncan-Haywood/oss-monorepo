@@ -611,3 +611,25 @@ So 10 is better or equal everywhere except a true regime of about 8 points, wher
 points of detection, and it fixes the real GDP case (1984Q3, range 1984Q1 to 1985Q4, no warning).
 `meanvar` now defaults to `--min-segment 10` (`mean` stays at 2, `trend` at 4); pass `--min-segment 5`
 for short regimes. Gaussian noise only: heavy tails and autocorrelated variance are untested.
+
+## `meanvar` on noise that is not Gaussian (2026-11-15)
+
+The minimum-segment check above used Gaussian noise only. `eval/meanvar-robustness.mjs` (output in
+`eval/meanvar-robustness.out.txt`, seeded, 200 series per cell, default minimum segment) draws unit-variance
+noise of four kinds and looks at a series with **no change** and one with an sd 1 to 2 break:
+
+| noise | false alarms, n = 100 / 200 | one change found on the break, n = 100 / 200 |
+|---|---|---|
+| Gaussian | 4% / 1% | 92% / 97% |
+| t with 3 df (heavy tails) | 39% / 62% | 57% / 55% |
+| GARCH(1,1) (clustered volatility, no break) | 42% / 51% | 61% / 57% |
+| AR(1), rho 0.5 | 51% / 54% | 44% / 37% |
+
+So on such noise `meanvar` reports a change about half the time when there is none, and range95 holds the
+true date on only 70% to 83% of the series where it does find the break. The cost has no cheap fix inside the model.
+What shipped is a warning: `meanvarNoiseCheck` in `engine.mjs` standardises the series by its fitted segments and
+sets `rangeWarning` for a fourth moment above 4.5, a lag-1 autocorrelation of the residuals from 0.25, or of their
+squares from 0.2. Fire rates on the same series (null / break): Gaussian 1% to 2% / 0% to 2%, t3 66% to 80% / 55% to
+76%, AR(1) 90% to 100% / 88% to 98%, GARCH only 16% to 20% / 11% to 18%. The thresholds were set on seed-based
+quantiles of these same simulations, so the rates are in-sample. Clustered volatility is mostly *not* caught, and
+no real heavy-tailed series has been tried. Test: `meanvar-noise.test.mjs`.
