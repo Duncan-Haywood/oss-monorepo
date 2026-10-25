@@ -287,6 +287,8 @@ numbers worked out before drafting.
 - *Twenty-year strand, next:* a 2046 court or bank piece where a stored preference binds a person who can no longer revise it, with no dementia in it (for example a trust or a will's condition).
 - *(Done: The Youngest Ring, Hochbrunn, Styria, 2048; text only.)* Tree-ring dating of a village's founding-legend Madonna: the youngest ring is the floor on the date, the church's 800 years stay, the statue's do not.
 
+- *(Done: The Barbara Level, Cwm Barri, South Wales, 2050; text only.)* Mine-water heat for 380 homes (40 L/s, 8 K, COP 4.5, 1.34 MW from the ground); the agent will not certify 25 years on a 3 to 41 year thermal-breakthrough range, a fluorescein test arrives at hour 52, and a surveyor's 1934 note says a roadway the plan calls stowed is open.
+
 **For Other Minds**
 
 - *(Done: The Letter in the Wall, Calder Ford, 2026.)* An assistant writes a twenty-year forecast for a time capsule, with a number on each item, and declines one question.
