@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01Vyn6YTMvW7bFrw9QX6zGRU",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T08:08:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10342,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Only P056 (blocked) agent-owned; the friction table lists many fixed items, so finding a live one took a few calls."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post/agent doc: a small tooling fix; recorded here instead."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Solved research programme claim-check friction (no backlog id). Backlog ids touched: none.",
+  "corrections": [],
+  "redteam": null
+}
