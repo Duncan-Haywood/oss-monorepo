@@ -87,8 +87,13 @@ export function parseCsv(text) {
 }
 
 // "1,234.56", "(12.00)", "-$5", "12.00-", "12.50 DR" or "DR 12.50" (debit, negative), "1.234,56" (decimalComma) -> cents.
+// Arabic-Indic (U+0660), Persian (U+06F0) and fullwidth digits, and the Arabic
+// decimal (U+066B) and thousands (U+066C) marks, written as ASCII.
+export const asciiDigits = (s) => String(s ?? "")
+  .replace(/[\u0660-\u0669\u06F0-\u06F9\uFF10-\uFF19]/g, (c) => { const n = c.charCodeAt(0); return String(n >= 0xFF10 ? n - 0xFF10 : n >= 0x06F0 ? n - 0x06F0 : n - 0x0660); })
+  .replace(/\u066B/g, ".").replace(/\u066C/g, ",");
 export function parseCents(v, decimalComma = false) {
-  let s = String(v ?? "").trim();
+  let s = asciiDigits(v).trim();
   if (s === "" || /^[-–—−‐‑‒﹣－\s]+$/.test(s)) return 0;
   if (/\d\s*e\s*[-+]?\d/i.test(s)) return NaN; // "1e3" is not 13.00
   // Exports and copy-paste bring the minus in as U+2212, an en or em dash, or a Unicode hyphen.
@@ -128,7 +133,7 @@ const monthOf = (word) => {
   return MONTHS[k] || MONTH_WORDS[k] || undefined;
 };
 export function parseDate(v, dayFirst = false) {
-  const s = String(v ?? "").trim().replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+/i, "").replace(/^(\d{1,2})(?:st|nd|rd|th)\b/i, "$1").replace(/^(\d{1,2})([A-Za-z]{3})(\d{2,4})\b/, "$1 $2 $3").replace(/^(\d{1,2})\.\s*(?=\p{L})/u, "$1 ").replace(/^(\d{1,2}) de (\p{L}+) de (\d)/u, "$1 $2 $3");
+  const s = asciiDigits(v).trim().replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+/i, "").replace(/^(\d{1,2})(?:st|nd|rd|th)\b/i, "$1").replace(/^(\d{1,2})([A-Za-z]{3})(\d{2,4})\b/, "$1 $2 $3").replace(/^(\d{1,2})\.\s*(?=\p{L})/u, "$1 ").replace(/^(\d{1,2}) de (\p{L}+) de (\d)/u, "$1 $2 $3");
   let y, m, d, x;
   if ((x = s.match(/^(\d{4})(\d{2})(\d{2})(?!\d)/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   else if ((x = s.match(/^(\d{4})[-/.:](\d{1,2})[-/.:](\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];
