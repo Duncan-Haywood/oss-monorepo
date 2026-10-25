@@ -1,7 +1,7 @@
 ---
 title: "Three bookkeeping import bugs found by reading other projects' sample files"
 date: 2026-10-27
-description: "Running GnuCash's QIF/QFX examples and an ICICI card CSV through ai-bookkeeper's bank readers turned up charges booked as income, lost 2000-era dates and noisy category lists."
+description: "GnuCash's QIF/QFX examples and an ICICI card CSV through ai-bookkeeper's readers turned up charges booked as income, lost 2000-era dates and noisy categories."
 tags: [ai-bookkeeper, bank-import, testing]
 ---
 

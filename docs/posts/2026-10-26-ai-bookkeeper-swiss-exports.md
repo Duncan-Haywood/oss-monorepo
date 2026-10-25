@@ -1,7 +1,7 @@
 ---
 title: "Three Swiss bank exports that booked the wrong numbers"
 date: 2026-10-26
-description: "Checking ai-bookkeeper's CSV reader against the column lists in an open-source importer found a PostFinance layout that lost its descriptions, one that booked the balance as the amount, and a card export that booked spending as income."
+description: "Checking ai-bookkeeper's CSV reader against an importer's columns found PostFinance files losing descriptions and a card export booking spending as income."
 tags: [ai-bookkeeper, bookkeeping, bank-import]
 ---
 

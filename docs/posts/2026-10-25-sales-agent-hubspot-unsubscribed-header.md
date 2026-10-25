@@ -1,7 +1,7 @@
 ---
 title: "A HubSpot unsubscribe our sales agent could not see"
 date: 2026-10-25
-description: "Testing the sales-agent research step on HubSpot's own column names found an unsubscribed contact getting a draft, and an Unqualified lead status hidden behind the lifecycle stage."
+description: "Testing sales-agent on HubSpot's column names found an unsubscribed contact getting a draft, and an Unqualified status hidden behind lifecycle stage."
 tags: [sales-agent, compliance, crm]
 ---
 

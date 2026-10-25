@@ -1,7 +1,7 @@
 ---
 title: "Audit-mix shift bites less when the coder's error is flat across groups"
 date: 2026-10-25
-description: "A second real corpus for the llm-coding-inference programme: GoEmotions by subreddit type shows pooled prediction-powered intervals mostly hold, with one 91% cell."
+description: "A second real corpus for the llm-coding-inference programme: on GoEmotions by subreddit, pooled prediction-powered intervals mostly hold, with one 91% cell."
 tags: [llm-coding-inference, research, prediction-powered-inference]
 ---
 
