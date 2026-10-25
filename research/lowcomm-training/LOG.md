@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3e: is 3d's "H=16 beats synchronous AdamW" sign real with 11 seeds? (planned before running)
+- Why: 3d's "Next". At 3,840 steps and a shared lr 2e-3, `H=16` was 0.014 nats below synchronous on 3 seeds, which could be seed noise. If it is real, local steps help on this model; if not, the honest reading is "no measurable cost up to `H=16`".
+- Design (`experiments/gpt_seeds/seeds.py`): identical model, data, budget and lr (2e-3) as 3d; sync and `H=16` on seeds 3 to 10 (16 new runs), pooled with 3d's seeds 0 to 2 for 11 paired seeds. Paired difference `H=16` minus sync, t interval, paired t and Wilcoxon tests. Nothing else varied.
+- **H3e-i:** the pooled mean gap is negative with a 95% interval excluding 0. Refuted if the interval includes 0.
+- **H3e-ii:** `H=16` is better than sync on at least 8 of 11 seeds.
+- Prior: I expect the gap to shrink toward 0 (regression to the mean on a 3-seed estimate); H3e-i is less likely than not.
+- Limits: one lr (shared pick, not re-tuned per `H`), one size and corpus, plain averaging.
+
 ## 2026-10-25 · Milestone 3d: does a fair re-tune of every method, sync and `H=4` included, keep 3c's picture? (planned before running)
 - Why: 3b's "Next". `H=64` beat `H=16` by 0.017 nats, probably because `H=16` kept 3a's 960-step pick (3e-3) while 3,840 steps may prefer a lower lr.
 - Design (`experiments/gpt_retune_all/retune.py`; 3c, landed in parallel as PR #10293, tuned only `H=16` and `H=64` on {3e-4, 1e-3, 3e-3}): 3b's model, data, `M = 4`, batch 16, 3,840 inner steps, plain averaging. Inner lr in {1e-3, 2e-3, 4e-3} for `H` in {sync, 4, 16, 64}, picked on tuning seeds 100, 101 (mean validation loss), then reported on seeds 0 to 2 at the picks (3b's runs reused where the pick equals 3b's lr). Sync is re-tuned too, so no method keeps a stale pick.
