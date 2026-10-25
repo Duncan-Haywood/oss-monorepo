@@ -302,6 +302,23 @@ test("the Shopify fixture behind shopify-bookkeeping.html splits two payouts as 
   assert.equal(sales - costs, 41855);
 });
 
+test("the Square and PayPal fixtures behind square-bookkeeping.html and paypal-bookkeeping.html split as the pages say", () => {
+  const sq = readPayoutReport(readFileSync(new URL("./fixtures/square-transactions.csv", import.meta.url), "utf8"));
+  const sp = planPayouts(books([["2026-03-05", "SQUARE INC", "9.36"]]), sq, {}).matched[0].parts;
+  const by = (a) => sp.find((x) => x.account === a).cents;
+  assert.deepEqual([by("4000"), by("2100"), by("6010")], [1000, 63, -127]);
+  assert.equal(by("4000") + by("2100") + by("6010"), 936);
+  const pp = readPayoutReport(readFileSync(new URL("./fixtures/paypal-activity.csv", import.meta.url), "utf8"));
+  assert.deepEqual(pp.problems, []);
+  const pm = planPayouts(books([["2026-03-04", "PAYPAL TRANSFER", "145.05"]]), pp, {}).matched[0].parts;
+  assert.deepEqual(pm, [{ account: "4000", cents: 15000 }, { account: "6010", cents: -495 }]);
+  for (const [f, figs] of [["square-bookkeeping.html", ["$9.36", "$10.00", "$0.63", "$1.27"]], ["paypal-bookkeeping.html", ["$145.05", "$150.00", "$4.95"]]]) {
+    const html = readFileSync(new URL("./" + f, import.meta.url), "utf8");
+    for (const x of figs) assert.ok(html.includes(x), f + " lacks " + x);
+    assert.ok(html.includes("No warranty"));
+  }
+});
+
 test("creator-platform column and category names (Gumroad, Paddle, Lemon Squeezy style) read through the aliases", () => {
   const r = readPayoutReport("payout_reference,payout_date,transaction_id,date,type,sale_price,platform_fee,payout_amount\nPR-7,2026-04-01,t1,2026-03-28,purchase,29.00,3.15,25.85\nPR-7,2026-04-01,t2,2026-03-29,subscription_payment,49.00,4.90,44.10\nPR-7,2026-04-01,t3,2026-03-30,refund,-29.00,0.00,-29.00\n");
   assert.deepEqual(r.problems, []);
