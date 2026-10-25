@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_012UUnhcywDn7AgyGMLkWQEu",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T18:10:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10449",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Most open ai-bookkeeper items need real exports; finding one took several searches. PayPal's developer docs link an official sample file, which is worth noting for the other items."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-25-paypal-balance-report.md"
+  ],
+  "goal": null,
+  "notes": "2027 IRS brackets still unpublished (web search). Ran paypal-balance, payouts, adyen, paypal-types, square-cash-rows tests: 63 pass. Did not run venture-preflight (no new venture, no page change).",
+  "corrections": [],
+  "redteam": null
+}
