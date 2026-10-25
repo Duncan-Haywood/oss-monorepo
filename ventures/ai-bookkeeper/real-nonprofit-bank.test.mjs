@@ -66,3 +66,9 @@ test("open-source collective lines: sponsor contributions are income, bounties a
   assert.equal(acct("Expense from A Person - Regression finder bounty for #1234", -5000), "6020");
   assert.equal(acct("Owner contribution", 100000), "3010");
 });
+
+// Bank of America card text from Actual Budget's sample files (MIT); lines written here, not copied.
+test("fuel stops and a waste hauler on card text with trailing dates and phone numbers", () => {
+  assert.equal(acct("REGENCY MART CITGO 01/18 PURCHASE RICHMOND VA"), "6160");
+  assert.equal(acct("COUNTY WASTE 01/18 PURCHASE 804-8439288 VA"), "6140");
+});
