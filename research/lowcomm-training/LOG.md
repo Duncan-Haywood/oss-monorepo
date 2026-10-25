@@ -10,6 +10,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Prior: sync's optimum is flat between 1e-3 and 2e-3, so H3f-i is unlikely; H3f-ii likely holds but with a smaller gap.
 - Limits: 2 tuning seeds, 3 report seeds (the 11-seed result of 3e stands for the 2e-3 shared pick), one size and corpus.
 
+### Outcome of 3f (`experiments/gpt_fine_lr/fine_results.txt`; 20 new runs, tuning seeds 100, 101, report seeds 0 to 2)
+- Tuning means (nats). Sync: 1e-3 1.5919, 1.4e-3 1.5951, 2e-3 1.5893, 2.8e-3 1.5941, 4e-3 1.6395. `H=16`: 1e-3 1.6054, 1.4e-3 1.5883, 2e-3 1.5784, 2.8e-3 1.6160, 4e-3 1.6646. Both pick 2e-3, the same as 3d, and the finer points on either side are worse for both.
+- **H3f-i refuted.** Sync's lr does not move, so it does not improve (my prior, flat between 1e-3 and 2e-3, was right in that no finer point beat 2e-3). **H3f-ii supported.** At own picks the paired gap `H=16` minus sync on seeds 0 to 2 is -0.0139 (per seed -0.008, -0.015, -0.018), identical to 3d because the picks are unchanged.
+- Reading: the 3e result (`H=16` about 0.012 nats better than sync) is not an artefact of sync's coarse lr grid. Sync's optimum is a narrow-ish basin at 2e-3 (+0.005 at either neighbour) and `H=16` is sharper (+0.010 at 1.4e-3, +0.038 at 2.8e-3).
+- Limits: 2 tuning seeds, one size and corpus, plain averaging, no outer momentum, no weight-decay or warmup tuning for sync.
+- Next: outer momentum on this model (2g's grid).
+
 ## 2026-10-25 · Milestone 3e: is 3d's "H=16 beats synchronous AdamW" sign real with 11 seeds? (planned before running)
 - Why: 3d's "Next". At 3,840 steps and a shared lr 2e-3, `H=16` was 0.014 nats below synchronous on 3 seeds, which could be seed noise. If it is real, local steps help on this model; if not, the honest reading is "no measurable cost up to `H=16`".
 - Design (`experiments/gpt_seeds/seeds.py`): identical model, data, budget and lr (2e-3) as 3d; sync and `H=16` on seeds 3 to 10 (16 new runs), pooled with 3d's seeds 0 to 2 for 11 paired seeds. Paired difference `H=16` minus sync, t interval, paired t and Wilcoxon tests. Nothing else varied.
