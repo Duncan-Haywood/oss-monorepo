@@ -86,6 +86,10 @@ export const BUILT_IN = [
   ["6180", "out", /federal express|usps|shiprocket|\bgo ?shippo|easypost|pitney bowes/],
   ["6070", "out", /wb mason|pitney bowes|postage|\bstaples\b/],
   ["6100", "out", /gobilda|sendcutsend|adafruit|sparkfun|digi-?key|mouser|pololu|robotshop|jlcpcb|pcbway|oshpark|mcmaster|lowe's|harbor freight|tractor supply|dick'?s sporting/],
+  // Written after reading Hack Club HCB card memos from organisations on pages 2 and 3 (tuned on that data; README Next).
+  ["6100", "out", /revrobotics|andymark|seeed ?studio|digilent|tindie|micro ?center|town & country hardware|hardware (store|supply)/],
+  ["6120", "out", /\bmta\b|metrocard|u-haul/],
+  ["6130", "out", /\b(breakfast|lunch|dinner|takeout|snacks)\b|\bbagels?\b/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,

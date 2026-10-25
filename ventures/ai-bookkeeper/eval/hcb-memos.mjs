@@ -4,7 +4,7 @@
 // the unmatched tail and the hits for a person to judge; it cannot score "right".
 // Fetched at run time, never copied into the tree.
 //
-//   node eval/hcb-memos.mjs [--from 40 --to 100] [--hits 40] [--misses 60]
+//   node eval/hcb-memos.mjs [--page 1 --from 40 --to 100] [--hits 40] [--misses 60]
 import { suggest } from "../categorize.mjs";
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i < 0 ? d : Number(process.argv[i + 1]); };
@@ -23,7 +23,7 @@ export function coverage(rows) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const orgs = (await get("https://hcb.hackclub.com/api/v3/organizations?per_page=100")).filter((o) => o.transparent).slice(arg("from", 0), arg("to", 40));
+  const orgs = (await get(`https://hcb.hackclub.com/api/v3/organizations?per_page=100&page=${arg("page", 1)}`)).filter((o) => o.transparent).slice(arg("from", 0), arg("to", 40));
   const rows = [];
   for (const o of orgs) {
     try {
