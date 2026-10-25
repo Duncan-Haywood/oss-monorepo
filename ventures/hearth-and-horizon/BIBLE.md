@@ -279,7 +279,8 @@ numbers worked out before drafting.
 - *(Done: The Salt Jar, Mtendere Granary, Zambia, 2049; text only.)* A leaking ridge cap, a probe that sees one cubic foot, a jam jar of salt, the rule of three on bags nobody opened, and a widow's twelve bags that fail a toxin strip; the co-operative's bad-year fund, not the widow, pays.
 - *Twenty-year strand, next:* a 2046 school or hospital chaplaincy where the assistant's notes about a person outlast the person's wishes. Work out the numbers first.
 - *(Done: Not Asked Since, Balmuir Community Hospital, Angus, 2046; text only.)* A ward assistant's three-year-old "no priests" banner, a stroke, and a dying man asked with control questions; the refusal was about one dead priest.
-- *Twenty-year strand, next:* a 2046 court, bank or care-home piece where a stored preference is applied to a person who can no longer revise it. Work out the numbers first.
+- *(Done: While I Live, Carrowbeg, Co. Mayo, 2046; text only.)* A credit union's assistant holds a member's 2041 letter whose sum has turned false (savings for two years; now thirty-nine weeks at €1,045 short a week). It will not write the letter she would have written; it asks her, on her best morning, and records the answer as one morning's answer.
+- *Twenty-year strand, next:* a 2046 court or bank piece where a stored preference binds a person who can no longer revise it, with no dementia in it (for example a trust or a will's condition).
 
 **For Other Minds**
 
