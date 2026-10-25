@@ -67,3 +67,12 @@ test("Etsy payment account: Net is the amount, Title the description, fee rows k
   ].join("\n"));
   assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2026-10-01", 2500, "Mug"], ["2026-10-02", -20, "Listing fee"]]);
 });
+
+test("rotki events: a Unix millisecond Timestamp is the date", () => {
+  const r = readStatement([
+    "Type,Location,Currency,Amount,Fee,Fee Currency,Description,Timestamp",
+    "Deposit,kucoin,EUR,1000.00,,,Deposit EUR to Kucoin,1658912400000",
+    "Withdrawal,kraken,EUR,-25.00,,,Withdraw EUR,1659085200",
+  ].join("\n"));
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2022-07-27", 100000], ["2022-07-29", -2500]]);
+});
