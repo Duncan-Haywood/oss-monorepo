@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01ALKddzUq8HsyQ1JDSKeFcU",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T05:21:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10317",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "cite_check.py cannot reach arxiv.org through the proxy (403), so new arXiv ids cannot be verified in cloud sessions; I confirmed the id from search results instead."
+    },
+    {
+      "file": "research/sim2real-inference/PROPOSAL.md",
+      "issue": "Related work did not include SureSim (arXiv:2510.04354), the closest prior work; the Gap needs rechecking against it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-25-twin-certificate-larger-n.md",
+    "docs/reports/sim2real-inference-m7g.md"
+  ],
+  "goal": null,
+  "notes": "m7g negative result; SureSim read from abstract/snippets only; exact-twin-mean variant and analytic crossover added after a smoke run, disclosed in LOG.",
+  "corrections": [],
+  "redteam": null
+}

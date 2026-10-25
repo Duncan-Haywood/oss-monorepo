@@ -21,3 +21,4 @@ python3 experiments/m7c_cost/run_pool.py && python3 experiments/m7c_cost/analyse
 python3 experiments/m7d_clip/clip.py   # twin-quantile clip level for the unbounded cost
 python3 experiments/m7e_clip_cv/clipcv.py   # twin-assisted clipped-cost bound (negative)
 python3 experiments/m7f_tailratio/tailratio.py   # tail-ratio k* an upper bound would need (negative)
+python3 experiments/m7g_large_n/largen.py   # PPI-EB vs real-only at n up to 1920, analytic crossover (negative)
