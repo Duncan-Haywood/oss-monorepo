@@ -20,6 +20,10 @@ class T(unittest.TestCase):
     def test_date_mismatch(self):
         self.assertEqual(len(problems("2026-10-25-x.md", GOOD)), 1)
 
+    def test_long_description(self):
+        t = GOOD.replace('"d"', '"' + "x" * 161 + '"')
+        self.assertEqual(problems("2026-10-24-x.md", t), ["description is 161 characters; keep it to 160"])
+
     def test_no_front_matter(self):
         self.assertEqual(problems("x.md", "# hi\n"), ["no front matter"])
 

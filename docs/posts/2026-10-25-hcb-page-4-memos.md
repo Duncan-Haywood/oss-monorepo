@@ -1,7 +1,7 @@
 ---
 title: "A fourth slice of real card memos: 40.5% before any rule saw them"
 date: 2026-10-25
-description: "ai-bookkeeper's built-in keywords on 168 card charges from Hack Club HCB organisations on page 4 of the feed: 40.5% suggested held out, 56.0% after four tuned rules."
+description: "ai-bookkeeper's keywords on 168 held-out Hack Club HCB card charges from page 4: 40.5% suggested, 56.0% after four tuned rules."
 tags: [ai-bookkeeper, accounting, evaluation]
 ---
 

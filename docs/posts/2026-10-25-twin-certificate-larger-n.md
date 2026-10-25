@@ -1,7 +1,7 @@
 ---
 title: "How many real robot trials before a simulator shortens a guarantee? Thousands, in our pairs"
 date: 2026-10-25
-description: "A prediction-powered interval with a free simulator is still wider than real-only at 1,920 real trials on 42 simulator pairs; the crossover is at roughly 2,600 to 53,000."
+description: "A prediction-powered interval with a free simulator is still wider than real-only at 1,920 real trials on 42 pairs; the crossover is roughly 2,600 to 53,000."
 tags: [research, sim2real-inference, evaluation]
 ---
 
