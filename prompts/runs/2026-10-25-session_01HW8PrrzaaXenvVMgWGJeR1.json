@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01HW8PrrzaaXenvVMgWGJeR1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T11:59:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight: Latvia and Slovenia mandate pages",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 10381,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 18,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Scheduled task asked for revenue products; router drew research. Followed the task text.",
+      "did": "Product work on flagship einvoice-preflight",
+      "result": "218 mandate and hub tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Latvia and Slovenia pages from web-search summaries of vendor guides only (no primary law or tax-authority text read); pages say so. Wired into 23 other country pages, index, sitemap, hub; 218 node mandate tests pass.",
+  "corrections": [],
+  "redteam": null
+}
