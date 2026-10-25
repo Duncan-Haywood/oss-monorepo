@@ -310,6 +310,7 @@ the sources, and mark legend as legend)
 - *(Done: Martin of Tours and Half a Cloak, 11 November; early source, Sulpicius Severus.)* Saint Martin and the beggar at Amiens.
 - *(Done: Columba and the White Horse, 9 June; Adomnán's Life, III.23; text only.)* Saint Columba and the old white horse.
 - *(Done: Ambrose and the Bees, 7 December; Paulinus's Life, told as the Life's tale; text only.)* The baby in the garden and the bees; kind words as bees.
+- *(Done: Cuthbert and the Otters, 20 March; anonymous Life and Bede, told as the Lives' tale; text only.)* The night prayer in the sea and the otters that warm his feet.
 - *(Done: Thérèse and the Small Way, 1 October; history and her own writings.)* Saint Thérèse and the small way.
 
 ## What not to do
