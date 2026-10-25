@@ -19,7 +19,7 @@
   "opened": "2026-10-17",
   "source": "process run 2026-10-17, Critique mode",
   "pr": "this",
-  "result": "Helped by construction (reports older than the file's last change are tagged); re-sample five untagged entries in a later run to confirm they reproduce.",
+  "result": "Partly helped (2026-10-25 re-sample of the six untagged 'latest' entries on CLAUDE.md, promptctl.py and prompt-1.md): 3 still real or informational, 2 stale because the fix landed in another file (platform/ci/check_post_frontmatter.py, wired in portfolio-validate.yml, answers the CLAUDE.md 'no CI guard' report; promptctl.py already prints a stderr notice for the slow measure), 1 a non-issue. The date tag cannot see fixes made elsewhere than the named file; a reader must grep before building on a report, as the section footer already says.",
   "history": [
     {
       "date": "2026-10-17",
@@ -28,6 +28,10 @@
     {
       "date": "2026-10-17",
       "note": "measure now tags each 'latest' report dated before its file's last change with [file changed since]; the file-level date alone was useless because every file changes daily. 61 of the current reports are tagged."
+    },
+    {
+      "date": "2026-10-25",
+      "note": "Verify pass: result written; no further tool change, since matching reports to fixes in other files would need guesses."
     }
   ]
 }
