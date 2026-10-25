@@ -6,6 +6,7 @@
   "task": null,
   "projects": ["ai-bookkeeper"],
   "outcome": "success",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10341",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],

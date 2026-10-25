@@ -1,7 +1,7 @@
 ---
 title: "Creator bookkeeping: AdSense, Substack, Twitch, Teachable and Patreon in one bank statement"
 date: 2026-11-13
-description: "A made-up July of creator payouts and tool subscriptions had no suggested accounts in ai-bookkeeper. It now books $3,366.92 of sales and $153.00 of software to a $3,213.92 profit."
+description: "A made-up July of creator payouts and tools got no suggested accounts in ai-bookkeeper. It now books $3,366.92 of sales and $153.00 of software."
 tags: [ventures, ai-bookkeeper, creators]
 ---
 
