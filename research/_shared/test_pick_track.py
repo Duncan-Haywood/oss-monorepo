@@ -51,5 +51,18 @@ class RecentProgrammeCommitsTest(unittest.TestCase):
         self.assertIsInstance(pick_track.recent_programme_commits("no-such-programme"), list)
 
 
+class OpenPrsTest(unittest.TestCase):
+    def test_matches_title_and_survives_errors(self):
+        import io, json
+        from unittest import mock
+        body = json.dumps([{"number": 7, "title": "research/lowcomm-training: 3d"},
+                           {"number": 8, "title": "other"}]).encode()
+        with mock.patch("urllib.request.urlopen", return_value=io.BytesIO(body)):
+            self.assertEqual(pick_track.open_prs_for("lowcomm-training"),
+                             ["#7 research/lowcomm-training: 3d"])
+        with mock.patch("urllib.request.urlopen", side_effect=OSError):
+            self.assertEqual(pick_track.open_prs_for("x"), [])
+
+
 if __name__ == "__main__":
     unittest.main()

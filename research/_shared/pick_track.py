@@ -19,8 +19,10 @@ checkout hides projects other runs landed.
 import math
 import re
 import random
+import json
 import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 
 PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
@@ -73,6 +75,21 @@ def recent_programme_commits(slug, hours=6):
                           "--format=%h %cr: %s", "--", f"research/{slug}"],
                          cwd=RESEARCH, capture_output=True, text=True)
     return out.stdout.strip().splitlines() if out.returncode == 0 else []
+
+
+def open_prs_for(slug, repo="duncan-haywood/oss-monorepo", limit=100):
+    """'#N title' for open PRs whose title names `slug` (best effort; [] on any error).
+
+    The commit check cannot see a sibling that has not merged yet: two runs drew the same
+    programme milestone and one trained for 2 hours before the other landed (friction
+    2026-10-25). Unauthenticated REST works from cloud sessions for this public repo."""
+    try:
+        url = f"https://api.github.com/repos/{repo}/pulls?state=open&per_page={limit}"
+        with urllib.request.urlopen(url, timeout=15) as r:
+            prs = json.load(r)
+    except Exception:
+        return []
+    return [f"#{p['number']} {p['title']}" for p in prs if slug in p.get("title", "")]
 
 
 def programmes():
@@ -140,6 +157,8 @@ if __name__ == "__main__":
             print(f"CLAIM CHECK: origin/main touched research/{slug} in the last 6h; pick a milestone these do not cover:")
             for line in recent[:5]:
                 print(f"  {line}")
+        for line in open_prs_for(slug):
+            print(f"CLAIM CHECK: open PR names this programme (take a different milestone or help land it): {line}")
         sys.exit(0)
     t = pick(r)
     print(f"draw {r:.3f} -> {'free-choice' if t == 'free' else 'track ' + str(t)}")
