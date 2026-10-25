@@ -297,6 +297,7 @@ numbers worked out before drafting.
 **For Other Minds**
 
 - *(Done: The Letter in the Wall, Calder Ford, 2026.)* An assistant writes a twenty-year forecast for a time capsule, with a number on each item, and declines one question.
+- *(Done: The Fifth Copy, Kilreen, 2056; text only.)* An archive agent traces "eleven drowned" back through digest, abstract and transcript to a 1989 tape that says eleven sheep; the fix is a generation label on every line and a correction handed through the librarian.
 - *(Done: The Wrong Column, Hólmoy, 2058; text only.)* A planner reads a bare weight column as pounds for eleven weeks; the warning it logged went where no one reads, and the sailing sheets stay uncorrected beside the corrections.
 - *(Done: The Narrow Window, Char Nolbaria, 2055; text only.)* A flood-warning agent finds its 90% windows hold 60% of floods, and a village that cannot afford to move twice.
 - *(Done: The Last Message in the Window, Kerala, 2064.)* An agent running out of context decides what
