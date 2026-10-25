@@ -38,7 +38,7 @@ flagships:
       are about real inputs (landed work is in the README and git history, not
       here). Open items, most valuable first: (0) built-in keywords measured on one real makerspace's bank export (72.7%
       suggested, 96% right, tuned on itself) and on synthetic sets (README Next):
-      a second, Hack Club ledger, held out 2026-10-24 (36.5%, 100% right): Actual Budget's BofA sample files 2026-10-25 (28 lines, 25% suggested, no labels, README): HCB page 5 held out 2026-10-25 (44.8%, no labels; README Next): page 6 held out 2026-10-25 (46.0%, no labels): page 7 held out 2026-10-25 (41.3%, no labels): a third, hledger's Open Collective books, had no merchant tail: HCB's card feed has one (35% then 50% suggested, 23.8% to 33.2% held out, no labels; README Next): still wanted, labelled books; (1) the AI layer in fill-only mode
+      a second, Hack Club ledger, held out 2026-10-24 (36.5%, 100% right): Actual Budget's BofA sample files 2026-10-25 (28 lines, 25% suggested, no labels, README): HCB page 5 held out 2026-10-25 (44.8%, no labels; README Next): page 6 held out 2026-10-25 (46.0%, no labels): page 7 held out 2026-10-25 (41.3%, no labels): page 8 held out 2026-10-25 (48.2%, no labels): a third, hledger's Open Collective books, had no merchant tail: HCB's card feed has one (35% then 50% suggested, 23.8% to 33.2% held out, no labels; README Next): still wanted, labelled books; (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far; README Next); (2) the bank readers
       (CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
       code pages) on real exports
