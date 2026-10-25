@@ -82,12 +82,18 @@ def train(data, seed, steps=600, batch=32, ctx=32, lr0=0.5, strategy=None, tau=0
     order = np.random.default_rng(10_000 + seed)
     perm = np.random.default_rng(20_000 + seed)
     cheated, norms, drifts = 0, [], []
+    prev = None
     for t in range(steps):
         idx = order.integers(0, len(tr) - ctx - 1, batch)
         x, y = batch_at(tr, idx, ctx)
         lr = lr_at(t, steps, lr0)
         g = grad_vec(model, x, y)
         step_norm = lr * float(g.norm())
+        cheap = None
+        if strategy == "subsample":  # a quarter of the batch: 4x cheaper gradient
+            cheap = grad_vec(model, x[:batch // 4], y[:batch // 4])
+        elif strategy == "stale":  # reuse last step's submitted gradient: no backward pass
+            cheap = prev
         if strategy is not None or record:
             p = torch.tensor(perm.permutation(batch))
             gr = grad_vec(model, x[p], y[p]) if referee == "reorder" else grad_vec(model, x, y, bf16=True)
@@ -97,6 +103,10 @@ def train(data, seed, steps=600, batch=32, ctx=32, lr0=0.5, strategy=None, tau=0
             if strategy == "skip" and lr * float(gr.norm()) <= tau:
                 cheated += 1
                 continue
+            if cheap is not None and lr * float((cheap - gr).norm()) <= tau:
+                cheated += 1
+                g = cheap
+        prev = g
         with torch.no_grad():
             off = 0
             for q in params:
