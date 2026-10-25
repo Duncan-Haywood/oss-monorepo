@@ -304,6 +304,9 @@ function readEbay(table) {
     const category = key(at("type"));
     const pid = at("payout").replace(/^--$/, "");
     const date = parseDate(at("date"));
+    // A multi-item order carries its extra items on following rows that have no
+    // Type or amounts of their own (eBay's help page); they are not money.
+    if (category === "" && net === 0 && gross === 0) return;
     if (category === "payout") { payoutRows.push({ id: pid, net: Math.abs(net) }); return; }
     const kind = category === "order" ? "sales" : category === "refund" ? "refunds" : /dispute|chargeback|claim/.test(category) ? "disputes" : /hold|release|reserve/.test(category) ? "reserve" : /fee|charge|shipping|label|ad|promot|subscription/.test(category) ? "fees" : category === "transfer" ? "skip" : "other";
     const base = { row: n + 2, id: at("order") || `row${n + 2}`, payout: pid, payoutDate: parseDate(at("payoutDate")), created: date, category, kind, desc: at("title") };
@@ -409,7 +412,7 @@ function readAmazon(table, head) {
     else if (/reserve/.test(what) || /reserve/.test(amt)) kind = "reserve";
     else if (amt === "itemprice") kind = /tax/.test(what) ? "tax" : type === "refund" ? "refunds" : "sales";
     else if (/withheld|tax/.test(amt)) kind = "tax";
-    else if (/promotion/.test(amt)) kind = "refunds";
+    else if (/promotion/.test(amt)) kind = /tax/.test(what) ? "tax" : "refunds";
     else if (/reimburs|goodwill|compensat/.test(what)) kind = "other";
     else if (/advertis/.test(what + amt)) kind = "ads";
     else if (/fee|commission|chargeback|subscription|storage|label|disposal|removal|inbound|fba/.test(what + amt)) kind = "fees";

@@ -437,6 +437,15 @@ test("eBay's Seller Hub transaction report splits a payout, takes seller-collect
   assert.equal(r.pending.length, 1);
 });
 
+test("an eBay multi-item order's item-detail rows (no Type, no amounts) are not read as money", () => {
+  const t = readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8").replace("Vintage lens\n", "Vintage lens\n,,12-00001-11111,,,--,,,PO-1001,,,--,--,--,$40.00,--,--,Second item\n");
+  const r = readPayoutReport(t);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts[0].net, 11170);
+  assert.equal(r.payouts[0].rows.length, 5);
+  assert.equal(r.pending.length, 1);
+});
+
 test("an eBay Payout row that disagrees with its rows is not split", () => {
   const t = readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8").replace("Bank,USD,--,--,--,--,--,--,--", "Bank,USD,--,--,--,--,--,--,--").replace("$111.70,USD", "$111.71,USD");
   const r = readPayoutReport(t);
@@ -457,4 +466,11 @@ txn_4,,,po_9,,,2026-01-31 00:00:00,2026-01-31 00:00:00,2026-01-31 00:00:00,USD,-
   assert.equal(r.payouts[0].id, "po_1");
   assert.equal(r.payouts[0].net, 1355);
   assert.equal(r.problems.length, 0);
+});
+
+test("an Amazon promotion's tax line (Promotion/TaxDiscount) is tax, not a refund", () => {
+  const head = "settlement-id\tsettlement-start-date\tsettlement-end-date\tdeposit-date\ttotal-amount\tcurrency\ttransaction-type\torder-id\tamount-type\tamount-description\tamount";
+  const r = readPayoutReport(`${head}\nS3\t\t\t2026-03-05\t94.60\tUSD\t\t\t\t\t\nS3\t\t\t\t\t\tOrder\tA\tItemPrice\tPrincipal\t100.00\nS3\t\t\t\t\t\tOrder\tA\tPromotion\tPrincipal\t-5.00\nS3\t\t\t\t\t\tOrder\tA\tPromotion\tTaxDiscount\t-0.40\n`);
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.payouts[0].rows.map((x) => x.kind), ["sales", "refunds", "tax"]);
 });
