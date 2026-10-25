@@ -831,6 +831,7 @@ is often fine.
 
 ## Next
 
+- Several receipts, one charge, 2026-10-25 (`matchReceipts` in `receipts.mjs`, 1 test in `receipts.test.mjs`): after the one-to-one pass, a bank line that equals the exact sum of two to four unmatched same-currency receipts, each sharing a payee word with the line and dated within the window, matches them as a group (`group` on each receipt). If two different sets reach the total it matches none. Hand-made slips only; no real card statement with batched charges tried, and foreign-currency groups are not attempted.
 - Creators, 2026-10-25 (`creator.test.mjs`, 1 test, `fixtures/creator-checking.csv` made up; page `creator-bookkeeping.html`): AdSense, YouTube, Twitch, Substack, Beehiiv, affiliate-network and course-platform payouts suggest Sales; podcast, email, editing and stock-audio tools suggest software; camera and audio gear suggests supplies. Written from platform names; no real creator's statement tried.
 - Amount spelling invariance, 2026-10-25 (`metamorphic.test.mjs`, 60+ generated tests): every CSV fixture with its decimal amounts rewritten as `$1,234.56`, `1,234.56`, `(59.99)` and `59.99-` must read the same rows. One fault, fixed (`AMT` in `bank.mjs`): a header-less CBA-style file with trailing-minus amounts was not recognised as header-less, and its dates were read month first. Own fixtures only; no real bank download.
 
