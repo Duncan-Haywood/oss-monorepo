@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 4a: does the excess loss from unbiased rand-k compression of the worker deltas grow linearly in 1+omega on the real GPT? (H3, planned before running)
+- Why: milestone 4 (compression axis) has no GPT result yet; 3d to 3g covered H, lr and outer momentum. PR #10377 (joint inner-lr re-tune) is a different axis.
+- Design (`experiments/gpt_compression/compression.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3, `H = 16`, plain outer step (lr 1, no momentum). Each worker's per-tensor delta is passed through an unbiased rand-k sparsifier (keep fraction p in {0.5, 0.25, 0.125, 0.0625}; omega = 1/p - 1 = 1, 3, 7, 15) before averaging over the 4 workers. Seeds 0 to 2 (12 runs). The uncompressed row is 3d's `H = 16` at 2e-3. Error feedback is not used (unbiased compressors, as H3 is stated).
+- **H3-GPT:** excess loss over uncompressed rises with 1+omega; linear fit R^2 >= 0.5 and log-log slope in [0.6, 1.4] (the H3 refutation rule, applied to 4 compressors; the slope needs positive excesses).
+- Prior: averaging 4 workers divides the compression variance by 4 and the outer lr is 1 (not "small"), so I expect a clearly visible excess only at p = 0.0625; the curve may be convex rather than linear, so H3 may be refuted on the slope.
+- Limits: 3 seeds, one compressor family, one `H`, one size and corpus, outer lr 1 (H3 is stated at small outer step), no quantisation or error-feedback compressors yet.
+
+
 ## 2026-10-25 · Milestone 3g: does outer Nesterov momentum help on the real GPT, as 2g found on the 14k numpy model? (planned before running)
 - Why: the "Next" of 3d, 3e and 3f. 2g (14k-parameter numpy model) found small outer momentum (0.1 to 0.3) lowered loss by 0.014 to 0.020 at `H = 64` and raised it at `H = 16`; 2g's own "Next" asked for a check on the transformer before any momentum claim.
 - Design (`experiments/gpt_outer_momentum/momentum.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3 (the shared pick). `H` in {16, 64}; outer (lr, Nesterov momentum) in {(1, 0.1), (1, 0.3), (0.7, 0.9) the DiLoCo paper's setting}; seeds 0 to 2 (18 runs). Plain rows are 3d's runs at 2e-3. Inner lr is not re-tuned per outer setting. Paired differences vs plain per seed; no multiplicity correction (6 cells).
