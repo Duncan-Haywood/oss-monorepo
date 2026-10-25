@@ -154,3 +154,64 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
     }
   });
 }
+
+// Header spelling and date spelling: header names in UPPER case or padded with
+// spaces must read the same rows, and ISO dates re-written as US MM/DD/YYYY,
+// YYYY/MM/DD, DD.MM.YYYY (day-first), DD-Mon-YYYY (day-first) must too.
+// Row order inside the file halves: reading the top half and the bottom half
+// separately (header repeated) must give together the rows of the whole file.
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const DATES = {
+  "MM/DD/YYYY": [(y, m, d) => `${m}/${d}/${y}`, {}],
+  "YYYY/MM/DD": [(y, m, d) => `${y}/${m}/${d}`, {}],
+  "DD.MM.YYYY": [(y, m, d) => `${d}.${m}.${y}`, { dayFirst: true }],
+  "DD-Mon-YYYY": [(y, m, d) => `${d}-${MON[+m - 1]}-${y}`, { dayFirst: true }],
+};
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8");
+  let base;
+  try { base = readStatement(t); } catch { continue; }
+  if (!base.rows?.length) continue;
+  const rows = parseCsv(t).filter((r) => r.some((c) => c.trim()));
+  if (rows.every((r) => r.length === rows[0].length) && rows[0].length >= 3 && !sniffBank(rows)) {
+    test(`${f}: same rows with upper-case or padded header names`, () => {
+      for (const [name, fn] of Object.entries({ upper: (h) => h.toUpperCase(), padded: (h) => `  ${h}  ` })) {
+        const out = [rows[0].map((h) => quote(fn(h), ",")), ...rows.slice(1).map((r) => r.map((v) => quote(v, ",")))].map((r) => r.join(",")).join("\n") + "\n";
+        assert.equal(sig(readStatement(out)), sig(base), `${f} changed with ${name} headers`);
+      }
+    });
+  }
+  const iso = /\b(\d{4})-(\d{2})-(\d{2})\b/g;
+  if (iso.test(t)) {
+    test(`${f}: ISO dates in other spellings read the same`, () => {
+      for (const [name, [fn, opts]] of Object.entries(DATES)) {
+        const out = t.replace(iso, (_, y, m, d) => fn(y, m, d));
+        assert.equal(sig(readStatement(out, opts)), sig(base), `${f} changed with dates as ${name}`);
+      }
+    });
+  }
+}
+
+// European number style and Unicode form: amounts written 1.234,56 in a
+// semicolon file, two-digit years (DD/MM/YY, day-first), and descriptions in
+// decomposed Unicode (NFD) must read the same rows (NFC text, same cents).
+const eu = (neg, a) => { const [i, d] = a.split("."); return (neg ? "-" : "") + i.replace(/\B(?=(\d{3})+$)/g, ".") + "," + d; };
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8");
+  let base;
+  try { base = readStatement(t); } catch { continue; }
+  if (!base.rows?.length) continue;
+  const rows = parseCsv(t).filter((r) => r.some((c) => c.trim()));
+  if (!rows.every((r) => r.length === rows[0].length) || sniffBank(rows)) continue;
+  test(`${f}: European amounts, two-digit years, NFD text read the same`, () => {
+    const out = rows.map((r) => r.map((v) => { const m = /^(-?)(\d+\.\d\d)$/.exec(v.trim()); return quote(m ? eu(!!m[1], m[2]) : v, ";"); }).join(";")).join("\n") + "\n";
+    assert.equal(sig(readStatement(out)), sig(base), `${f} changed with European amounts`);
+    const nfd = t.normalize("NFD");
+    assert.equal(sig(readStatement(nfd)).normalize("NFC"), sig(base).normalize("NFC"), `${f} changed in NFD`);
+    const iso = /\b\d{2}(\d{2})-(\d{2})-(\d{2})\b/g;
+    if (iso.test(t)) {
+      const two = readStatement(t.replace(iso, "$3/$2/$1"), { dayFirst: true }).rows ?? [];
+      assert.deepEqual(two.map((x) => [x.date, x.cents]), base.rows.map((x) => [x.date, x.cents]), `${f} changed with two-digit years`);
+    }
+  });
+}
