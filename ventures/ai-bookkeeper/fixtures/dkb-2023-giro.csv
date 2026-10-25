@@ -1,0 +1,8 @@
+"Girokonto";"DE99999999999999999999"
+
+"Kontostand vom 30.06.2023:";"5.001,01 EUR"
+
+"Buchungsdatum";"Wertstellung";"Status";"Zahlungspflichtige*r";"Zahlungsempfänger*in";"Verwendungszweck";"Umsatztyp";"IBAN";"Betrag (€)";"Gläubiger-ID";"Mandatsreferenz";"Kundenreferenz"
+"15.06.23";"15.06.23";"Gebucht";"ISSUER";"EDEKA//MUENCHEN/DE";"EDEKA SAGT DANKE";"Ausgang";"DE00000000000000000000";"-8,67";"DE9100112233445566";"";"00000000000000000000000000"
+"16.06.23";"16.06.23";"Gebucht";"Kunde AG";"Max Mustermann";"Rechnung 1042";"Eingang";"DE00000000000000000001";"1.200,50";"";"";""
+"17.06.23";"17.06.23";"Vorgemerkt";"ISSUER";"Rewe";"Einkauf";"Ausgang";"";"-20,00";"";"";""
