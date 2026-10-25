@@ -66,3 +66,23 @@ test('a load-time kit fills blanks but leaves a field with a value alone', () =>
   assert.equal(input.hours, '5');
   assert.equal(input.rate, '40');
 });
+
+// The CLI entry guard and exit codes: a caller tells "grounded everything" from
+// "needs the browser oracle" by the exit status alone.
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const CLI = fileURLToPath(new URL('./venture-defaults.mjs', import.meta.url));
+const run = (...args) => spawnSync(process.execPath, [CLI, ...args], { encoding: 'utf8' });
+
+test('cli with no slug prints usage and exits 2', () => {
+  const r = run();
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /usage:/);
+});
+
+test('cli with an unknown slug reports it and exits 1', () => {
+  const r = run('no-such-venture-slug');
+  assert.equal(r.status, 1);
+  assert.match(r.stdout, /no-such-venture-slug/);
+});
