@@ -48,7 +48,7 @@ flagships:
       supplier's terms letter checked against the fee and discount rules, and one
       named lender's own schedule against the loan register (`loan check`);
       (5) receipts through real OCR (CORD-v2: 89/95 totals; merchant, date unmeasured) and the reconcile-to-statement command on real paper, and
-      reading receipt photos in the page; (6) payroll (941, Schedule B, 940,
+      OCR on real phone photos (the page reads photos since 2026-10-25); (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) one named
       filing service's import layout, from its own spec; (8) `salestax return`:
       due dates still from search excerpts or memory for the states the README

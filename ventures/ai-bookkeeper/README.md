@@ -694,6 +694,10 @@ Many bookkeeping products (Dext, Hubdoc, Expensify) do this with image OCR and
 a subscription; this does the matching and the missing-receipt list on your
 own machine from text you already have.
 
+### Receipt photos in the page
+
+The receipts card has a **Receipt photos** control (2026-10-25, `photoocr.mjs`). Pick one or more PNG, JPEG, WebP, BMP or GIF files and tesseract.js (WebAssembly) reads them in the browser; the image is never uploaded. Each photo becomes one block in the receipts box, separated by `---`, after the same digit look-alike repair as the CLI, so a misread amount can be fixed by hand before **Read receipts**. Nothing is requested from the network until a photo is chosen; then the reader (about 20 MB with the English model, cached by the browser) comes from jsDelivr, pinned to tesseract.js 5.1.1. Offline, the status line says so and pasting text still works. Measured: `node eval/photo-ocr-browser.mjs` draws a receipt on a canvas, sends the PNG through the control in headless Chromium with the reader served from the npm tarballs, and checks merchant, tax and total come back and parse (6/6 checks; one clean, rendered receipt, so it proves the wiring, not accuracy on crumpled thermal paper). `photoocr.test.mjs` pins the block, skip and cleanup rules with a stub engine. Real phone photos are still untried.
+
 ### Measured on 1,000 real receipts (CORD-v2)
 
 Until 2026-10-24 the receipt reader had only met receipts an agent wrote. CORD-v2

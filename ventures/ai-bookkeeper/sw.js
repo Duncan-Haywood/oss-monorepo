@@ -1,11 +1,11 @@
 // Offline shell for the installed app. Caches this directory's own files only;
 // there are no third-party requests and nothing is sent anywhere. The list is the
 // import closure of index.html; page.test.mjs fails if it falls out of date.
-const CACHE = "ai-bookkeeper-v2";
+const CACHE = "ai-bookkeeper-v3";
 const SHELL = [
   "./", "./accruals.mjs", "./ai.mjs", "./assets.mjs", "./bai2.mjs",
   "./bank.mjs", "./billpay.mjs", "./budget.mjs", "./byok.mjs", "./categorize.mjs",
-  "./cfonb.mjs", "./cleanocr.mjs", "./collections.mjs", "./deductions.mjs", "./engine.mjs",
+  "./cfonb.mjs", "./cleanocr.mjs", "./photoocr.mjs", "./collections.mjs", "./deductions.mjs", "./engine.mjs",
   "./estimatedtax.mjs", "./example-data.mjs", "./fx.mjs", "./index.html", "./inventory.mjs",
   "./invoice.mjs", "./ledger.mjs", "./livefile.mjs", "./loans.mjs", "./n43.mjs", "./opening.mjs",
   "./payouts.mjs", "./payroll.mjs", "./pdftext.mjs", "./prepaid.mjs", "./receipts.mjs",
