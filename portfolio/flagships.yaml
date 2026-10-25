@@ -44,7 +44,7 @@ flagships:
       (CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
       code pages; public sample corpora probed, README; Maybe's Category column now a weak last-layer hint, 2026-10-29; its Account column unused) on real exports
       from Chase, Bank of America, Wells Fargo, Amex, Capital One and others;
-      (3) a real Stripe (category table now checked against Stripe's reference 2026-10-25), Square, PayPal (type names checked against PayPal's event-code reference 2026-10-25), eBay or Amazon settlement export for the
+      (3) a real Stripe (category table now checked against Stripe's reference 2026-10-25), Square (payout entry types checked against its ActivityType list 2026-10-25), PayPal (type names checked against PayPal's event-code reference 2026-10-25), eBay or Amazon settlement export for the
       payment-processor import (`form1099k`: try a real 1099-K); (4) a real
       supplier's terms letter checked against the fee and discount rules, and one
       named lender's own schedule against the loan register (`loan check`);
