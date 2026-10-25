@@ -16,8 +16,10 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
-  "pr": null,
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10382",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +28,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Scheduled brief asked for revenue product work, so shipped a flagship venture slice instead of process work.",
+      "did": "Deepened changepoint-detector",
+      "result": "landed with measured benchmark"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Routed to process track but task brief asked for product work; shipped a flagship slice (changepoint-detector --robust). Network blocked (eur-lex, gov.pl etc.), so einvoice primary-source items skipped. Venture suite 129/129 pass.",
   "corrections": [],
   "redteam": null
 }
