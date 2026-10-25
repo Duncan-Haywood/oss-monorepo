@@ -1,7 +1,7 @@
 ---
 title: "Certifying a robot's tracking cost when the cost has no upper bound: let the simulator pick the clip level"
 date: 2026-10-25
-description: "A free simulator quantile fixes the range of a bounded confidence bound for an unbounded cost. It works unless the simulator misses the tail, and then the bias shows."
+description: "A free simulator quantile fixes the range of a confidence bound for an unbounded cost. It works unless the simulator misses the tail, and then bias shows."
 tags: [research, robotics, sim2real, statistics]
 ---
 
