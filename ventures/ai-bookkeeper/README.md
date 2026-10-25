@@ -831,6 +831,7 @@ is often fine.
 
 ## Next
 
+- Creators, 2026-10-25 (`creator.test.mjs`, 1 test, `fixtures/creator-checking.csv` made up; page `creator-bookkeeping.html`): AdSense, YouTube, Twitch, Substack, Beehiiv, affiliate-network and course-platform payouts suggest Sales; podcast, email, editing and stock-audio tools suggest software; camera and audio gear suggests supplies. Written from platform names; no real creator's statement tried.
 - Amount spelling invariance, 2026-10-25 (`metamorphic.test.mjs`, 60+ generated tests): every CSV fixture with its decimal amounts rewritten as `$1,234.56`, `1,234.56`, `(59.99)` and `59.99-` must read the same rows. One fault, fixed (`AMT` in `bank.mjs`): a header-less CBA-style file with trailing-minus amounts was not recognised as header-less, and its dates were read month first. Own fixtures only; no real bank download.
 
 - Insurance next to standard mileage, 2026-10-25 (`taxforms.mjs`, 1 test in `gig-driver.test.mjs`): the worksheet now warns when line 15 holds insurance and the year has a mileage log, since the standard rate already covers vehicle insurance. It cannot tell auto from liability cover in one account, so it asks rather than subtracts. Fixture only (a made-up GEICO line); no real driver's books tried.
