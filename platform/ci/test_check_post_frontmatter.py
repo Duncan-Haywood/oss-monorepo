@@ -1,6 +1,7 @@
 import contextlib
 import io
 import tempfile
+import datetime
 import unittest
 from pathlib import Path
 
@@ -31,6 +32,12 @@ class T(unittest.TestCase):
     def test_description_of_exactly_160_is_fine(self):
         t = GOOD.replace('"d"', '"' + "x" * 160 + '"')
         self.assertEqual(problems("2026-10-24-x.md", t), [])
+
+    def test_future_date(self):
+        t = GOOD.replace("2026-10-24", "2026-10-27")
+        today = datetime.date(2026, 10, 25)
+        self.assertEqual(len(problems("2026-10-27-x.md", t, today)), 1)
+        self.assertEqual(problems("2026-10-26-x.md", GOOD.replace("2026-10-24", "2026-10-26"), today), [])
 
     def _run(self, posts):
         with tempfile.TemporaryDirectory() as d:

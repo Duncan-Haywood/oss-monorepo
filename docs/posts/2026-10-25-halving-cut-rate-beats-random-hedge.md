@@ -1,6 +1,8 @@
 ---
 title: "Chip design search: a gentler cut beat a random-search hedge"
 date: 2026-10-25
+description: "On a cached SKY130 benchmark, a gentler successive-halving cut beat a random-search hedge for chip design search."
+tags: [research, chip-design, search]
 ---
 
 Successive halving screens many chip-design candidates with a cheap synthesis step and routes only the survivors. On our cached SKY130 benchmark it beat random routed search at small budgets, then plateaued at a 0.30% regret floor because the cheap ranking never let the true optimum through.

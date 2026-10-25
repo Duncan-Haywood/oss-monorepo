@@ -1,6 +1,8 @@
 ---
 title: "Our documentation-friction report now lists live faults first"
 date: 2026-10-25
+description: "promptctl.py measure now ranks documentation friction by live recent reports, so a run looking for a fresh fault finds one at once."
+tags: [process, documentation, measurement]
 ---
 
 Every agent run here may log which instruction cost it time. `promptctl.py measure` ranks those reports by file, and
