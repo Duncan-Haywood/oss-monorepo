@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 7a: first draft of the paper (`paper/paper.md`, `paper/references.bib`); no new experiment
+- Why: the programme had six milestones of results and no `paper/`. A draft written against the results exposes what a reviewer would ask for. Every number in it is copied from a `LOG.md` entry or an `experiments/*.txt` file, and the draft states that no real LLM has coded anything.
+- What the draft showed is missing (the useful output): (1) the headline needs H3, the real coder, and the abstract currently ends on "not yet tested"; (2) the proposal asked for three corpora and there are two, each carrying a different claim (NaijaSenti for group shift and sizing, GoEmotions for rare categories), so no single corpus shows group shift, rare category and sizing together; (3) Gligorić et al. and Fisch et al. are cited from their abstracts and still need reading in full before the gap is claimed; (4) the floor multiplier 5 is in-sample.
+- Citations: `cite_check.py` on `references.bib` reached no host (Crossref 403 through the proxy; the script does not parse `eprint=` lines, so it checked 0 arXiv ids). The arXiv ids are the ones machine-checked in milestone 1a; the three DOIs are unchecked this session.
+- Next: milestone 5 as soon as a model is reachable (HF and the Anthropic API were not); otherwise a second corpus with a rare category and group structure.
+
 ## 2026-10-25 · Milestone 6f: the oracle audit size of 6a to 6e had a bug; the "unexplained" 6e gap was it (found while diagnosing; correction, not a new hypothesis)
 - Why: 6e's open item, why the sequential rule stops 11 to 13% under the plug-in oracle. Prediction before looking: the oracle's finite-population term or the allocation (the cap n_h <= N_h) differs from what the stopping rule realises. Instead, computing the analytic half-width of the oracle's own Neyman allocation from the population S_h^2 gave 0.925 points at the "1.0-point" oracle n = 7,833 (lexicon-en), not 1.0.
 - Cause: `neyman_total` (`experiments/h5_plugin.py`) paired `s2` (variances) with `a * a * b * b / N`, squaring a variance a second time (S^4 for S^2) in the finite-population term sum W_h^2 S_h^2 / N_h. The term is small at a 3-point target and large at 1 point, so 6a to 6c were nearly unaffected and 6d and 6e were not.
