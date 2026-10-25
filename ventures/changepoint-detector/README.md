@@ -679,3 +679,6 @@ false segments soak up the very inflation it tries to measure. B removes most fa
 half the real breaks on Gaussian noise (89% to 41%), because a break left inside one segment looks like heavy-tailed noise. Neither
 beats `--robust` on t3 and neither is wired into `analyze`. The open problem is estimating the inflation without the break itself
 feeding it. Simulated noise only; 100 series per cell, so differences under about 10 points are within noise.
+
+The page has the option too (2026-10-25): a "Heavy-tailed noise: Laplace cost" checkbox, sent as `robust: true` only when the model is
+"Level and volatility". `page.test.mjs` checks the wiring; the Bayesian view is unchanged.
