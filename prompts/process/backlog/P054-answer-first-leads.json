@@ -1,7 +1,7 @@
 {
   "id": "P054",
   "title": "seo: open the most-searched tool pages with a short, sourced, dated direct answer",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -18,8 +18,8 @@
   "baseline": "0 pages (2026-10-24)",
   "opened": "2026-10-24",
   "source": "Owner asked for SEO and AI-search action items in a Claude Code session, 2026-10-24",
-  "pr": null,
-  "result": null,
+  "pr": "this",
+  "result": "10 pilot pages carry a sourced, dated lead (baseline 0), each figure test-checked against its calc module. AI-referrer effect not measurable until P046.",
   "history": [
     {
       "date": "2026-10-24",
@@ -32,6 +32,10 @@
     {
       "date": "2026-10-25",
       "note": "Pilot slice 3: depop, mercari and poshmark fee calculators carry a sourced, dated lead, checked by answer-lead.test.mjs. 9 of 10 pilot pages done; 1 remains (reverb is skipped: its calc has no single headline fee). Sources are the fee pages named in each calc.mjs header, not live fetches."
+    },
+    {
+      "date": "2026-10-25",
+      "note": "Pilot slice 4: kickstarter-fee-calculator carries a sourced, dated lead, checked by answer-lead.test.mjs. 10 of 10 pilot pages done (reverb skipped, no single headline fee). AI-referrer follow-up waits on P046."
     }
   ]
 }
