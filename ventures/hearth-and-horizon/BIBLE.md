@@ -327,6 +327,7 @@ the sources, and mark legend as legend)
 - *(Done: John Bosco and the Boy Who Juggled, 31 January; his own Memoirs of the Oratory; text only.)* The farm boy who juggled to gather children for a prayer.
 - *(Done: Thérèse and the Small Way, 1 October; history and her own writings.)* Saint Thérèse and the small way.
 - *(Done: Elizabeth and the Bread That Became Roses, 17 November; legend over a documented life; text only.)* Saint Elizabeth of Hungary carries bread down the hill.
+- *(Done: Cecilia and the Song in Her Heart, 22 November; the Acts' antiphon line, legend; death left out; text only.)* Saint Cecilia and the song nobody hears.
 
 ## What not to do
 
