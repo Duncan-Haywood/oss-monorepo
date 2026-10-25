@@ -30,7 +30,7 @@ const ALIASES = {
     "wertstellung", "valuta", "date de valeur", "date valeur",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
-  desc: ["transaktionsbeschreibung", "zpráva", "název protiúčtu", "item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "note",
+  desc: ["transaktionsbeschreibung", "zpráva", "název protiúčtu", "item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "partnername", "note",
     "beschreibung", "avisierungstext", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "dettagli", "beneficiario", "bénéficiaire", "beneficiaire", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "közlemény",
     "text", "tekst", "rubrik", "referens", "skýring", "skyring", "รายการ", "รายละเอียด", "beskrivelse", "forklaring", "meddelande", "meddelelse",
     "opis transakcji", "dane kontrahenta", "tytuł przelewu", "saaja/maksaja", "descrição", "descricao", "histórico", "historico", "opis", "tytuł", "tytul", "nadawca/odbiorca", "selitys", "saaja/maksaja", "açıklama", "aciklama", "popis", "zpráva pro příjemce", "opis operacji", "keterangan", "uraian", "الوصف", "البيان", "التفاصيل",
@@ -332,6 +332,8 @@ export function sniffBank(rows) {
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
     if (/^(id\|)?timestamp\|transaction type\|asset\|quantity transacted\|/.test(h)) return "coinbase";
     if (/^booking date\|value date\|partner name\|partner iban\|type\|payment reference/.test(h)) return "n26";
+    // N26's older English export and its German and French ones (column lists from the beancount-n26 importer's tables)
+    if (/^(date\|payee\|account number\|transaction type\|payment reference|datum\|empf(ä|ae?)nger\|kontonummer\|transaktionstyp\|verwendungszweck|date\|b(é|e)n(é|e)ficiaire\|num(é|e)ro de compte\|type de transaction\|r(é|e)f(é|e)rence de paiement)/.test(h)) return "n26";
     // Newer exports name the first (once blank) column "Username" and put the account's own name on row 2.
     if (/^(username\|)?id\|datetime\|type\|status\|note\|from\|to\|amount \(total\)/.test(h.replace(/^\|/, ""))) return "venmo";
     if (/^transaction id\|date\|transaction type\|currency\|amount\|fee\|net amount/.test(h)) return "cash-app";
