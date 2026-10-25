@@ -768,3 +768,16 @@ The web page's repair button also takes one dropped Factur-X PDF (empty paste
 box): it lists the changes and offers `<name>-repaired.pdf` to download. The
 printed pages are not redrawn. Clicked through in headless Chromium with
 `eval/browser-repair.mjs` on a PDF built by this repo.
+
+## Metamorphic fuzz (2026-10-25)
+
+`node eval/metamorphic-fuzz.mjs [N] [seed]` builds seeded random valid JSON
+invoices (1 to 5 lines, five tax rates, fractional quantities, per-rate
+breakdowns rounded to cents) and perturbs each one in a way with a known
+answer. On 3,000 invoices per seed (seeds 7, 99, 12345): 0 valid invoices
+flagged, and every one-cent change to a line net, a breakdown tax, the net
+total or the gross, a changed quantity, a swapped line rate and a negated
+quantity was caught (3,000 of 3,000 each). An empty `tax_breakdown` on a
+single-rate invoice is accepted by design (`breakdown.mjs`, INV-037 needs two
+or more rates). Synthetic invoices only; it says nothing about real ERP
+exports, which stay the open item.
