@@ -551,3 +551,28 @@ po_1,2026-03-05,txn_p,2026-03-05,payout,${paid},0.00,${paid},STRIPE PAYOUT
   assert.equal(bad.length, 1);
   assert.match(bad[0], /po_1.*195\.05.*145\.05/);
 });
+
+// Stripe's older "All transactions" export (Id, Type, Source, Amount, Fee, Net, Currency, Created (UTC),
+// Available On (UTC), Description, Transfer, Transfer Date (UTC)) carries no reporting category: the payout id
+// is in "Transfer", and amounts may use a decimal comma. Layout seen in a public accounting-import test suite
+// (BananaAccounting/Universal, read at run time, not copied); the rows below are made up.
+test("the older Stripe all-transactions export reads by its Transfer column", () => {
+  const csv = [
+    "id,Type,Source,Amount,Fee,Net,Currency,Created (UTC),Available On (UTC),Description,Transfer,Transfer Date (UTC)",
+    'txn_p1,payout,po_1,"-90,00","0,00","-90,00",eur,2026-03-04 02:00,2026-03-09 00:00,PAYOUT,po_1,2026-03-09 00:00',
+    'txn_c1,charge,ch_1,"100,00","3,50","96,50",eur,2026-03-02 07:48,2026-03-09 00:00,Order 1,po_1,2026-03-09 00:00',
+    'txn_r1,reserved_funds,,"-6,50","0,00","-6,50",eur,2026-03-02 07:48,2026-03-09 00:00,Reserve,po_1,2026-03-09 00:00',
+    'txn_r2,reserved_funds,,"6,50","0,00","6,50",eur,2026-03-02 07:48,2026-04-02 00:00,Reserve,,',
+    'txn_c2,payment,py_2,"20,00","0,80","19,20",eur,2026-03-05 09:00,2026-03-12 00:00,Order 2,,',
+  ].join("\n");
+  const r = readPayoutReport(csv);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].id, "po_1");
+  assert.equal(r.payouts[0].net, 9000);
+  assert.equal(r.payouts[0].fees, 350);
+  assert.equal(r.pending.length, 2);
+  // a missing row makes the payout's own row disagree and is reported
+  const short = csv.split("\n").filter((l) => !l.startsWith("txn_c1")).join("\n");
+  assert.equal(readPayoutReport(short).problems.length, 1);
+});
