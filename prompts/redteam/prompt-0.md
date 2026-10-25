@@ -59,7 +59,10 @@ For every mutant with `"caught": false` (in the record at `redteam.campaigns[N].
 - `"equivalent"`: the mutant cannot change behaviour a user can see, such as
   dead code, an unreachable branch or a log line. Say why in `note`. Be strict.
   A mutant you cannot make a test fail for is not equivalent for that reason
-  alone.
+  alone. When the same line text appears twice in a file (two similar
+  functions), a test that covers one copy leaves the other escaping; cover
+  each copy. `rerun` re-applies only the copy nearest the recorded line, so
+  mutate the other copy by hand to check it.
 - `"gap"`: a real hole. Write the smallest test that fails with the mutant
   and passes without it, in the target's existing suite.
 
