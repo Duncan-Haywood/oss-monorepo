@@ -78,6 +78,14 @@ export const BUILT_IN = [
   ["6060", "out", /^google$|papertrail|pingdom|fastmail|dnsimple|iwantmyname|cloud9|crunchbase/],
   ["6000", "out", /sticker ?mule/],
   ["6020", "out", /mechanical turk|\bmturk\b/],
+  // From Hack Club's public HCB card feed (eval/hcb-memos.mjs): merchants a student-run nonprofit pays, rules written looking at the first 40 organisations only.
+  ["6060", "out", /\bzoom\b|porkbun|name-?cheap|neon\.tech|gmass|help ?scout|descript\b|typeform|streamyard|restream|assemblyai|fillout|\bshopify\b|spotify|domain\.com|tryhackme|sentry|supabase|render\.com|planetscale|mongodb|replit|posthog|loom\b|calendly|airtable|webflow|framer|1password|bitwarden|tailscale/],
+  ["6000", "out", /\bluma\b|eventbrite|meetup\.com|hootsuite|buffer\.com|printful|sticker ?app/],
+  ["6120", "out", /\bhotel\b|\binn\b|\bmotel\b|\bresort\b|airport|clipper|\bubers?\b|\bcab ride|taxi|greyhound|flixbus|megabus|frontier air|spirit air|alaska air|\bhostel/],
+  ["6130", "out", /h-e-b|\bheb\b|kroger|publix|aldi\b|taqueria|tacos|in-n-out|99 ranch|\bhmart\b|food ?4 ?less|wawa|7-eleven|sheetz|boba|vending|doughnut|donut|subway\b|jimmy john|five guys|shake shack|raising cane|whataburger|culver|jersey mike|pho\b|thai\b|catering/],
+  ["6180", "out", /federal express|usps|shiprocket|\bgo ?shippo|easypost|pitney bowes/],
+  ["6070", "out", /wb mason|pitney bowes|postage|\bstaples\b/],
+  ["6100", "out", /gobilda|sendcutsend|adafruit|sparkfun|digi-?key|mouser|pololu|robotshop|jlcpcb|pcbway|oshpark|mcmaster|lowe's|harbor freight|tractor supply|dick'?s sporting/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
