@@ -445,7 +445,7 @@ the sample standard deviation is 4.34 before it and 2.04 from it to 2007Q4.
 
 | setting | changes | the one near 1984 | range95 holds 1984Q1? |
 |---|---|---|---|
-| default (`--min-segment 5`) | 3 | 1983Q2 (sd 4.32 to 0.75) and 1984Q3 (0.75 to 1.97) | no: 1984Q3 "that point only" |
+| `--min-segment 5` (the default until 2026-11-09) | 3 | 1983Q2 (sd 4.32 to 0.75) and 1984Q3 (0.75 to 1.97) | no: 1984Q3 "that point only" |
 | `--min-segment 12` | 2 | 1984Q3 (sd 4.33 to 2.00) | yes, 1984Q1 to 1985Q4 |
 | `--min-segment 20` | 2 | 1984Q3 (sd 4.33 to 2.02) | yes, 1983Q3 to 1985Q4 |
 
@@ -592,3 +592,22 @@ Measured with `node eval/growth-change-interval.mjs` (100 seeded Poisson series 
 **Calibrated 2026-10-22.** The first version weighted positions by `exp(-(cost - min cost) / 2 / scale)` and held only about 86% (88, 88, 84%) at a nominal 95%; the knots had no bias, the misses were tails. The weights are now tempered by 1.15 (`RANGE_TEMPER` in `engine.mjs`). Sweep on seed 2026, pooled over the three bumps (268 found series): 1.0 gave 86%, 1.1 gave 91%, 1.2 gave 97%, 1.3 gave 99%, 1.5 gave 100% (median width 64 against 37 at bump 0.015). The table is 1.15. Checked on two other seeds (`node eval/growth-change-interval.mjs 100 7`, `... 99`): 246/257 (96%) and 256/269 (95%), widths 22 to 52. 1.15 was picked from the seed 2026 sweep, so that seed is in-sample; the two other seeds are not. Output in `eval/growth-change-interval.out.txt`. Still open: a count series with a documented growth break. Simulated data only, Poisson counts (not clumpy ones).
 
 **Clumpy counts (2026-10-23).** The range above was only measured on Poisson counts. `node eval/growth-change-interval-nb.mjs [runs] [seed] [sd] [nb|poisson]` draws each count at an independent lognormal rate (sd 0.35) and runs `--overdispersion nb --trend bend` on the same series (200 points, 100 per row, seeds 2026 and 7; counted only if the knot landed within 20 points, which on clumpy counts is 11 to 24 of 100). Before: the range held the planted bend on 77 of 100 found series (79, 53, 100% and 92, 75, 67% for bumps 0.015, 0.025, 0.04), against a nominal 95%. Cause: a series of 80 or more points is ranked with the Poisson cost, which on clumpy counts is too sure of itself. Now the weights are also divided by the negative-binomial variance-to-mean ratio `1 + mean / size`: 89 of 100 on those two seeds (100, 79, 100 and 96, 92, 67%), and 53 of 61 (87%) on seed 99, which the change was not tuned on. Still under 95%, and the ranges are wide (median 61 to 142 points of 200). Not claimed calibrated. Output: `eval/growth-change-interval-nb.out.txt`. Still open: a real series with a documented growth break.
+
+## The `meanvar` default minimum segment is now 10 (2026-11-09)
+
+The GDP series above was one real case. `eval/meanvar-min-segment.mjs` (output in
+`eval/meanvar-min-segment.out.txt`, seeded, 100 series per cell) checks the minimum segment on
+simulated Gaussian series with a known truth:
+
+- **No change (sd 1 throughout):** false alarms 3% / 2% / 1% at n = 60 / 100 / 200 with a minimum of 5,
+  2% / 1% / 1% with 10.
+- **One sd break at the midpoint (2 to 1, or 1 to 2):** the share of series with exactly one change
+  rises from 62-67% (min 5) to 69-72% (min 10) at n = 60, 85-87% to 90% at n = 100 and 95-96% to 97%
+  at n = 200. The median dating error and the range95 hit rate (94-98%) do not move.
+- **The price:** an 8-point patch of sd 4 inside sd 1 (n = 100) is found by 77% of runs at a minimum
+  of 5, 73% at 10, 30% at 12 and none at 20.
+
+So 10 is better or equal everywhere except a true regime of about 8 points, where it loses four
+points of detection, and it fixes the real GDP case (1984Q3, range 1984Q1 to 1985Q4, no warning).
+`meanvar` now defaults to `--min-segment 10` (`mean` stays at 2, `trend` at 4); pass `--min-segment 5`
+for short regimes. Gaussian noise only: heavy tails and autocorrelated variance are untested.

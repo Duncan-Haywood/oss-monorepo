@@ -1505,7 +1505,7 @@ export function analyze(input = {}) {
     growth = fit.g;
     if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; countRanges = fit.knotRanges; }
   } else if (o.trend) {
-    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
+    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   nbAfterExposure();
   let sigma = robustSd(values);
@@ -1516,7 +1516,7 @@ export function analyze(input = {}) {
     rho = ar1Rho(values);
     if (!joint) sigma = longRunSd(sigma, rho);
   }
-  const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : model === 'trend' ? 4 : 2)));
+  const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : model === 'trend' ? 4 : 2)));
   let p;
   if (joint) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
