@@ -440,7 +440,9 @@ export function readOfx(text) {
     if (cents === 0) return;
     // A memo that starts with the name (many banks repeat it, then add detail) is the fuller text on its own.
     const name = (ofxTag(b, "NAME") || ofxTag(b, "PAYEE")).replace(/\s+/g, " ");
-    const memo = ofxTag(b, "MEMO").replace(/\s+/g, " ");
+    let memo = ofxTag(b, "MEMO").replace(/\s+/g, " ");
+    // Some banks write the memo as "TYPE;NAME" (ofxparse's bank_medium.ofx): the name is already there.
+    if (name && memo.toLowerCase().endsWith(";" + name.toLowerCase())) memo = memo.slice(0, -name.length - 1).trim();
     let desc = (memo.toLowerCase().startsWith(name.toLowerCase()) ? memo : [name, memo].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" "));
     // Some lines carry neither NAME nor MEMO (a check, an ATM withdrawal): say what kind of line it is.
     if (!desc) {

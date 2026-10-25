@@ -10,6 +10,24 @@ class ProgrammesTest(unittest.TestCase):
         self.assertIn("lowcomm-training", progs)
 
 
+class DrawProgrammeTest(unittest.TestCase):
+    progs = [("a-prog", True), ("b-prog", False), ("c-prog", True)]
+
+    def test_skips_claimed_programmes(self):
+        claimed = lambda s: ["#1 x"] if s != "b-prog" else []
+        slug, has, skipped = pick_track.draw_programme(0.3, self.progs, claimed)
+        self.assertEqual((slug, has), ("b-prog", False))
+        self.assertTrue(all(x.startswith(("a-prog", "c-prog")) for x in skipped))
+
+    def test_all_claimed_keeps_first_draw(self):
+        slug, _, skipped = pick_track.draw_programme(0.3, self.progs, lambda s: ["#1 x"])
+        self.assertIn(slug, {p[0] for p in self.progs})
+        self.assertEqual(len(skipped), 3)
+
+    def test_none_claimed_skips_nothing(self):
+        self.assertEqual(pick_track.draw_programme(0.3, self.progs, lambda s: [])[2], [])
+
+
 class MilestonesTest(unittest.TestCase):
     def test_capture_lists_milestones(self):
         listed, free = pick_track.milestones("capture")

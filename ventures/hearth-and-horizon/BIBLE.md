@@ -291,6 +291,8 @@ numbers worked out before drafting.
 - *(Done: The Barbara Level, Cwm Barri, South Wales, 2050; text only.)* Mine-water heat for 380 homes (40 L/s, 8 K, COP 4.5, 1.34 MW from the ground); the agent will not certify 25 years on a 3 to 41 year thermal-breakthrough range, a fluorescein test arrives at hour 52, and a surveyor's 1934 note says a roadway the plan calls stowed is open.
 - *(Done: The Lean of the Cloister, Santa Scolastica al Poggio, Parma Apennines, 2053; text only.)* A slow earthflow speeds up (5 to 18.5 mm/day); inverse-velocity gives 4.3 days but only a 2 to 9 day window; the guest wing is 0.3% of the moving mass, the capped 1964 spring and a trench drain are the lever.
 
+- *(Done: The Borrowed Lane, St Agnes Girls' Secondary School, Gulu, Uganda, 2049; text only.)* A school cubesat, an old rocket stage passing at 200 m (1 in 9,000, capped at 1 in 4,300 by dilution), fuel that buys fewer kilometres the longer the school waits, and a burn rule agreed before the next radar number arrives.
+
 **For Other Minds**
 
 - *(Done: The Letter in the Wall, Calder Ford, 2026.)* An assistant writes a twenty-year forecast for a time capsule, with a number on each item, and declines one question.
@@ -315,6 +317,7 @@ the sources, and mark legend as legend)
 - *(Done: Columba and the White Horse, 9 June; Adomnán's Life, III.23; text only.)* Saint Columba and the old white horse.
 - *(Done: Ambrose and the Bees, 7 December; Paulinus's Life, told as the Life's tale; text only.)* The baby in the garden and the bees; kind words as bees.
 - *(Done: Cuthbert and the Otters, 20 March; anonymous Life and Bede, told as the Lives' tale; text only.)* The night prayer in the sea and the otters that warm his feet.
+- *(Done: John Bosco and the Boy Who Juggled, 31 January; his own Memoirs of the Oratory; text only.)* The farm boy who juggled to gather children for a prayer.
 - *(Done: Thérèse and the Small Way, 1 October; history and her own writings.)* Saint Thérèse and the small way.
 
 ## What not to do
