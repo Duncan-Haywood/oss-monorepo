@@ -293,6 +293,7 @@ numbers worked out before drafting.
 
 - *(Done: The Borrowed Lane, St Agnes Girls' Secondary School, Gulu, Uganda, 2049; text only.)* A school cubesat, an old rocket stage passing at 200 m (1 in 9,000, capped at 1 in 4,300 by dilution), fuel that buys fewer kilometres the longer the school waits, and a burn rule agreed before the next radar number arrives.
 - *(Done: The Dead Leg, Casa San Rocco, Via Francigena, Tuscany, 2050; text only.)* A pilgrim hostel's 48 °C tank and a fourteen-metre unused pipe in a reopened wing; PCR versus culture, a decision rule written before the result, and a wing shut for ten days.
+- *(Done: The Quiet Crypt, St Aldhelm's, Trevenna, Cornwall, 2055; text only.)* A crypt shelter, a 420 Bq/m³ radon screen, time-weighted exposure (4 nights vs 90), ventilation 0.2 to 1 air change per hour (420 to 86), and a fan heater that raises the reading by the stack effect.
 
 **For Other Minds**
 
