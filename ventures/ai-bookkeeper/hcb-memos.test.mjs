@@ -80,3 +80,14 @@ test("memos read on HCB page 7 (robotics suppliers, regional restaurants) get an
   assert.equal(c.hits.get("vex robotics => 6100"), 1);
   assert.equal(c.hits.get("mcalisters 1007 => 6130"), 1);
 });
+
+test("memos read on HCB page 8 (robotics and metal suppliers, pizza and ice cream) get an account; Amazon and Walmart stay open", () => {
+  const c = coverage([
+    { memo: "ANDY MARK INC", cents: -4000 }, { memo: "SP MAXBOTIX", cents: -9000 },
+    { memo: "HABOR FREIGHT TOOLS314", cents: -2000 }, { memo: "STAR PIZZERIA", cents: -3000 },
+    { memo: "MARBLE SLAB CREAMERY", cents: -1500 }, { memo: "WM SUPERCENTER #2548", cents: -5000 },
+    { memo: "Amazon", cents: -3000 },
+  ]);
+  assert.equal(c.suggested, 5);
+  assert.equal(c.hits.get("star pizzeria => 6130"), 1);
+});

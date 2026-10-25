@@ -127,6 +127,9 @@ export const BUILT_IN = [
   // HCB page 7 (eval/hcb-memos.mjs --orgpage 7), written after the held-out reading.
   ["6100", "out", /sp the thrifty bot|\bsp wcproducts|\bvex robotics|studica|ctr electronics|swerve drive spec|swyft robotics|metal supermarkets|automationdirect|plummer industries|general rubber|fuller & son hardware|robo promo|\bnte 5680|schneider'?s wholesale|american button m/],
   ["6130", "out", /mcalister|papa john|dairy queen|firehouse subs|ribcrib|super duper burgers|pot & paddle|jambalaya|totum/],
+  // HCB page 8 (eval/hcb-memos.mjs --orgpage 8), written after the held-out reading.
+  ["6100", "out", /andy ?mark|habor freight|\bctrelec|maxbotix|fastmetals|littlemachineshop|bolt depot|prusa research|stratasys|spark ?fun electronics|mk battery|pishop|true value|eplastics/],
+  ["6130", "out", /star pizzeria|marble slab|hardee'?s|hardees|killens barbecue/],
   // Small-business spend probe (2026-10-25, 114 descriptors in the formats banks print; agent-written, not from a real export):
   // the Toast restaurant prefix, tolls, ad networks written with the processor's asterisk, trades, and airline/payroll names the earlier rules missed.
   ["6130", "out", /^tst\s?\*/],
