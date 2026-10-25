@@ -177,7 +177,7 @@ never mixes.
 - Hearth & Horizon records new stories with Kokoro (`af_bella`) instead of
   Piper. Its first 24 recordings stay on Piper until someone re-renders them,
   and each story page now names the voice it uses. The FAQ says the same.
-- `docs/posts/2026-10-29-real-bounces-found-three-misreads.md` had a
+- `docs/posts/2026-10-25-real-bounces-found-three-misreads.md` had a
   176-character description, over the 160 that `writing.mjs` allows. That broke
   `podcast.test.mjs` (and the writing build) on `main`. It is shortened to 151.
 

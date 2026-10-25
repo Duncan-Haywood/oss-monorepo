@@ -2,6 +2,7 @@
 title: "Counting the rim joist bays: the insulation line a framing takeoff usually forgets"
 date: 2026-10-25
 description: "Our wall framing takeoff now counts rim joist insulation from the floor plan, hand-checked, and says what it still does not cover."
+tags: [framing, takeoff, construction, insulation]
 ---
 
 Rim joist bays are the small cavities at the edge of a floor, between joist ends, and they are a well-known place for

@@ -5,7 +5,7 @@ description: "Auditing in batches and stopping at a 3-point half-width met the t
 tags: [research, llm-coding-inference, statistics]
 ---
 
-A [previous step](2026-11-08-audit-size-from-a-pilot.md) of the
+A [previous step](2026-10-25-audit-size-from-a-pilot.md) of the
 [llm-coding-inference](../../research/llm-coding-inference/) programme sized the
 human audit of AI-coded text from a small pilot, and found it hit the target
 interval width only about half the time. This step tests the alternative:
