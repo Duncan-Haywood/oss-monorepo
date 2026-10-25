@@ -49,3 +49,37 @@ def ppi_ols(X, f_all, idx, y_audit, lam=1.0):
     n = len(idx)
     cov = Minv @ np.cov(psi.T, ddof=1) @ Minv * (1 - n / N) / n
     return Minv @ mu, np.sqrt(np.diag(cov))
+
+
+def ppi_ols_lam(X, f_all, idx, y_audit, lam):
+    """General PPI++ estimating equation for OLS at one scalar lam (Angelopoulos et al. 2023, PPI++, M-estimation
+    form): solve lam mean_all x (f - x'th) + mean_audit x [(y - x'th) - lam (f - x'th)] = 0, which is linear:
+    th = M_lam^-1 [lam mean_all x f + mean_audit x (y - lam f)], M_lam = lam M_all + (1 - lam) M_audit.
+    lam = 0 is human-only OLS on the audit, lam = 1 is `ppi_ols`. Returns (coefficients, per-row influence
+    matrix Psi of shape (n, k) with sqrt-variance sd(Psi)/sqrt(n) * sqrt(1 - n/N) per coordinate)."""
+    N, k = X.shape
+    n = len(idx)
+    Xa, fa = X[idx], f_all[idx]
+    Mlam = lam * (X.T @ X / N) + (1 - lam) * (Xa.T @ Xa / n)
+    Minv = np.linalg.inv(Mlam)
+    rhs = lam * (X * f_all[:, None]).mean(axis=0) + (Xa * (y_audit - lam * fa)[:, None]).mean(axis=0)
+    th = Minv @ rhs
+    e = (y_audit - lam * fa) - (1 - lam) * (Xa @ th)  # audit residual of the blended equation
+    return th, (Xa * e[:, None]) @ Minv.T
+
+
+def ppi_ols_tuned(X, f_all, idx, y_audit, grid=None):
+    """Power-tuned PPI++ for OLS: per coefficient, the lam on a grid in [0, 1] with the smallest estimated se
+    (in-sample on the audit). Because lam = 0 is on the grid and equals human-only OLS, the tuned se is at most
+    human-only's by construction; the price of choosing lam on the same audit is paid in coverage and is what the
+    experiment measures. Returns (coefficients, se, lams)."""
+    N, k = X.shape
+    n = len(idx)
+    grid = np.linspace(0, 1, 21) if grid is None else grid
+    best_b, best_se, best_lam = np.zeros(k), np.full(k, np.inf), np.zeros(k)
+    for lam in grid:
+        th, psi = ppi_ols_lam(X, f_all, idx, y_audit, lam)
+        se = np.sqrt(psi.var(axis=0, ddof=1) * (1 - n / N) / n)
+        better = se < best_se
+        best_b[better], best_se[better], best_lam[better] = th[better], se[better], lam
+    return best_b, best_se, best_lam

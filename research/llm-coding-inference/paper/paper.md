@@ -181,7 +181,7 @@ stopped size is within 1% of the oracle (+0.6 to +0.8%) and coverage is 95 to
 4. The floor multiplier (5) is fitted on the corpus it was first reported on.
 5. The sequential coverage uses the nominal normal interval; an always-valid
    interval was not compared.
-6. Regression-coefficient extension (H5 second half): coverage tested for OLS on the corpus's own coefficients with stand-in coders (milestone 6g; PPI valid, wider than hand-coding); no power-tuned weight, no real LLM, no logistic regression.
+6. Regression-coefficient extension (H5 second half): coverage tested for OLS on the corpus's own coefficients with stand-in coders (milestone 6g; PPI valid, wider than hand-coding; milestone 6h: a power-tuned weight per coefficient keeps coverage at 93.3 to 95.6% and is never wider than hand-coding, and 1 to 7% narrower for the 74%-agreement coder); no real LLM, no logistic regression.
 
 ## 8 Reproducibility
 

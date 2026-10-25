@@ -156,3 +156,24 @@ def test_ppi_ols_matches_closed_form_and_perfect_coder():
     f = 1 - y  # all wrong: PPI still recovers the truth from the audit's rectifier
     b2, _ = R.ppi_ols(X, f, np.arange(N), y)  # audit = whole corpus
     assert np.allclose(b2, R.ols(X, y))
+
+
+def test_ppi_ols_lam_endpoints_and_tuned_never_wider_than_human_only():
+    import numpy as np
+    from llmci import regression as R
+    rng = np.random.default_rng(5)
+    N = 3000
+    X = np.column_stack([np.ones(N), rng.integers(0, 2, N)])
+    y = (rng.random(N) < 0.3 + 0.2 * X[:, 1]).astype(float)
+    f = np.where(rng.random(N) < 0.8, y, 1 - y)
+    idx = rng.choice(N, 300, replace=False)
+    b0, psi0 = R.ppi_ols_lam(X, f, idx, y[idx], 0.0)
+    bh, seh = R.human_ols(X[idx], y[idx], N)
+    assert np.allclose(b0, bh)
+    assert np.allclose(np.sqrt(psi0.var(axis=0, ddof=1) * (1 - 300 / N) / 300), seh, rtol=0.02)
+    b1, _ = R.ppi_ols_lam(X, f, idx, y[idx], 1.0)
+    assert np.allclose(b1, R.ppi_ols(X, f, idx, y[idx])[0])
+    bt, st, lams = R.ppi_ols_tuned(X, f, idx, y[idx])
+    assert np.all(st <= seh * 1.02) and np.all((0 <= lams) & (lams <= 1))
+    bp, _, _ = R.ppi_ols_tuned(X, y.copy(), np.arange(N), y)  # audit = corpus, perfect coder
+    assert np.allclose(bp, R.ols(X, y))
