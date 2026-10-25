@@ -455,7 +455,7 @@ drop, and the reported range around the second change is a single quarter that e
 documented date. Quarterly macro data has too few points per regime for a 5-point minimum
 segment on a variance model, since a short run of similar numbers has a tiny variance and
 looks like its own regime. With a minimum segment of 12 to 20 the range is honest. One
-series, one documented break; the default is not changed on this evidence. `--model mean` on
+series, one documented break; the default is not changed on this evidence. Since 2026-11-03 a `meanvar` run with any segment under 10 points returns a `rangeWarning` naming it (the CLI prints it), and the default GDP run shows it; `--min-segment 12` does not. `--model mean` on
 the same series reports 12 level changes (recessions read as mean shifts), and `--ar1`
 refuses `meanvar`. A slope break (log real GDP with `--trend bend`) was tried too: the engine
 reports 30 steps under the default and, with `--ar1`, none; a plain least-squares hinge puts the best knot at

@@ -26,3 +26,9 @@ test('real GDP growth: the default minimum segment of 5 reports a calm patch who
   assert.ok(c.sdBefore < 1, 'the segment before it is the 5-quarter calm patch');
   assert.ok(!(c.range95.fromIndex <= TRUTH && TRUTH <= c.range95.toIndex));
 });
+
+test('real GDP growth: the default run warns about the short segment; a longer minimum does not', () => {
+  const warn = analyze({ values, labels, model: 'meanvar' }).rangeWarning;
+  assert.match(warn, /fewer than 10 points/);
+  assert.equal(analyze({ values, labels, model: 'meanvar', minSegment: 12 }).rangeWarning, undefined);
+});

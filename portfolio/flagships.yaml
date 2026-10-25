@@ -38,17 +38,16 @@ flagships:
       are about real inputs (landed work is in the README and git history, not
       here). Open items, most valuable first: (0) built-in keywords measured on one real makerspace's bank export (72.7%
       suggested, 96% right, tuned on itself) and on synthetic sets (README Next):
-      a second, Hack Club ledger, held out 2026-10-24 (36.5%, 100% right; replayed in date order with learning 2026-10-30: 90.7% suggested, 96.0% right; makerspace raw bank text replayed too: 98.9% suggested, 97.1% right): a third, hledger's Open Collective books, had no merchant tail (README Next): still wanted (searched 2026-10-24: hcb.hackclub.com and api.opencollective.com 403 from cloud sessions, web search finds only the sets already used: see docs/reports/2026-10-24-real-ledger-search.md); (1) the AI layer in fill-only mode
-      on real bank descriptions, more seeds, a bigger model (synthetic so far: 7B
-      rescued 7 of 9 uncovered lines, broke 0; README Next); (2) the bank readers
+      a second, Hack Club ledger, held out 2026-10-24 (36.5%, 100% right): a third, hledger's Open Collective books, had no merchant tail (README Next): still wanted (hcb.hackclub.com and api.opencollective.com 403 from cloud sessions; docs/reports/2026-10-24-real-ledger-search.md); (1) the AI layer in fill-only mode
+      on real bank descriptions, more seeds, a bigger model (synthetic so far; README Next); (2) the bank readers
       (CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
-      code pages; public sample corpora probed, README; Maybe's Category column now a weak last-layer hint, 2026-10-29; its Account column unused) on real exports
+      code pages) on real exports
       from Chase, Bank of America, Wells Fargo, Amex, Capital One and others;
-      (3) a real Stripe (category table now checked against Stripe's reference 2026-10-25), Square (payout entry types checked against its ActivityType list 2026-10-25), PayPal (type names checked against PayPal's event-code reference 2026-10-25), Shopify Payments (all 116 transaction types checked against its Admin API reference 2026-10-25; 97 were other income before), eBay or Amazon settlement export for the
+      (3) a real Stripe, Square, PayPal, eBay or Amazon settlement export for the
       payment-processor import (`form1099k`: try a real 1099-K); (4) a real
       supplier's terms letter checked against the fee and discount rules, and one
       named lender's own schedule against the loan register (`loan check`);
-      (5) receipts through real OCR (layouts measured on CORD-v2 2026-10-24: 89/95 held-out totals; merchant and date unmeasured) and the reconcile-to-statement command on real paper, and
+      (5) receipts through real OCR (CORD-v2: 89/95 totals; merchant, date unmeasured) and the reconcile-to-statement command on real paper, and
       reading receipt photos in the page; (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) one named
       filing service's import layout, from its own spec; (8) `salestax return`:
@@ -109,9 +108,8 @@ flagships:
       2026-10-22, the latter calibrated to ~95% on three seeded sets) lives in the README
       and git. Landed 2026-10-24: a real volatility break (US GDP growth, Great
       Moderation 1984Q1; `meanvar` finds it, but default min segment 5 reports a
-      5-quarter calm patch whose range misses the date; README). Open: should
-      `meanvar` default to a longer minimum segment or warn when a segment is
-      under ~10 points; range95 on a real series with a true holiday closure or
+      5-quarter calm patch whose range misses the date; README). Landed 2026-11-03: `meanvar` warns when a segment is under 10 points. Open: should
+      `meanvar` default to a longer minimum segment (one series only so far); range95 on a real series with a true holiday closure or
       documented slope break (log GDP is a near-unit-root, no clean answer); the growth-change range on clumpy (NB) counts reached ~95% 2026-10-26 by tempering 1.4 (held-out 161/170; the large-bump cell is still ~86%).
   - venture: einvoice-preflight
     why: >-
