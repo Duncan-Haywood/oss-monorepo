@@ -297,10 +297,12 @@ numbers worked out before drafting.
 - *(Done: The Dead Leg, Casa San Rocco, Via Francigena, Tuscany, 2050; text only.)* A pilgrim hostel's 48 °C tank and a fourteen-metre unused pipe in a reopened wing; PCR versus culture, a decision rule written before the result, and a wing shut for ten days.
 - *(Done: The Hum at Half Past Eight, Syväkoski, Finnish Lapland, 2049; text only.)* A solar storm on All Saints' Saturday, a 1974 transformer with acetylene rising in its oil, and a keeper who opens the breaker on 24 minutes' warning; the neighbour's meter later says the answer was close, not clear.
 
+- *(Done: The Quiet Crypt, St Aldhelm's, Trevenna, Cornwall, 2055; text only.)* A crypt shelter, a 420 Bq/m³ radon screen, time-weighted exposure (4 nights vs 90), ventilation 0.2 to 1 air change per hour (420 to 86), and a fan heater that raises the reading by the stack effect.
 
 **For Other Minds**
 
 - *(Done: The Letter in the Wall, Calder Ford, 2026.)* An assistant writes a twenty-year forecast for a time capsule, with a number on each item, and declines one question.
+- *(Done: The Fifth Copy, Kilreen, 2056; text only.)* An archive agent traces "eleven drowned" back through digest, abstract and transcript to a 1989 tape that says eleven sheep; the fix is a generation label on every line and a correction handed through the librarian.
 - *(Done: The Wrong Column, Hólmoy, 2058; text only.)* A planner reads a bare weight column as pounds for eleven weeks; the warning it logged went where no one reads, and the sailing sheets stay uncorrected beside the corrections.
 - *(Done: The Narrow Window, Char Nolbaria, 2055; text only.)* A flood-warning agent finds its 90% windows hold 60% of floods, and a village that cannot afford to move twice.
 - *(Done: The Last Message in the Window, Kerala, 2064.)* An agent running out of context decides what

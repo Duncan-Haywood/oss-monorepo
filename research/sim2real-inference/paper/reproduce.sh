@@ -24,4 +24,9 @@ python3 experiments/m7f_tailratio/tailratio.py   # tail-ratio k* an upper bound 
 python3 experiments/m7g_large_n/largen.py   # PPI-EB vs real-only at n up to 1920, analytic crossover (negative)
 python3 experiments/m7h_uncapped_betting/uncapped.py   # uncapped betting interval, twin-assisted vs real-only (exact twin mean)
 python3 experiments/m7j_n_sweep/n_sweep.py   # finite-twin betting interval over twin pool size and alpha split
+python3 experiments/m7i_finite_twin/finite_twin.py   # finite twin pool, union-bound interval
+python3 experiments/m7k_cartpole_large_n/large_n.py   # cart-pole, N up to 100,000
+python3 experiments/m7l_predictor/predictor.py   # rho and sd ratio vs win (analysis of 7j/7k CSVs)
+python3 experiments/m7m_threshold/threshold.py   # threshold on w_real / W_T (negative)
 python3 experiments/m7n_residual_width/residual_width.py && python3 experiments/m7n_residual_width/decomposition.py   # residual-interval width vs real-only (needs m7m threshold.csv)
+python3 experiments/m7o_ceiling/ceiling.py   # flip and power-scale check of the near-ceiling explanation
