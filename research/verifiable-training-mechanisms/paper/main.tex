@@ -66,8 +66,10 @@ $\min E_{\text{target}}[w]$ subject to incentive compatibility against each othe
 a linear programme in $w$ (\texttt{src/vtm/contract.py}); it equals the closed form $\max(C,C/p-S)$ on a grid and a
 $2500\times2500$ brute-force search within 1\%.
 \paragraph{A one-sided resolution bound.}
-Let $r=\min_{s:P_h(s)>0}P_a(s)/P_h(s)$ and $p=1-r$. \emph{Proposition.} Any contract implementing honest against $a$ with $w\ge -S$ costs
-$\mathbb{E}_h[w]\ge\max(C,\,g/p-S)$.
+Let
+\[ r=\min_{s:P_h(s)>0}\frac{P_a(s)}{P_h(s)},\qquad p=1-r. \]
+
+\emph{Proposition.} Any contract implementing honest against $a$ with $w\ge -S$ costs $\mathbb{E}_h[w]\ge\max(C,\,g/p-S)$.
 \emph{Proof.} Incentive compatibility gives $\mathbb{E}_h[w]-\mathbb{E}_a[w]\ge g$. With $f=w+S\ge0$ we have $\mathbb{E}_a[f]\ge r\,\mathbb{E}_h[f]$
 (mass of $P_a$ off the support of $P_h$ only adds), so $g\le\mathbb{E}_h[f]-\mathbb{E}_a[f]\le p\,\mathbb{E}_h[f]$, i.e.\ $\mathbb{E}_h[w]\ge g/p-S$.
 Individual rationality gives $\mathbb{E}_h[w]\ge C$. $\square$ (Over several deviations take the largest bound.)
