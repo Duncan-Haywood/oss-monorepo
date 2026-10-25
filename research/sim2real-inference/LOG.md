@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 7k: does cart-pole ever win with a large twin pool? (planned before running)
+- Why: 7j showed the finite-twin win becomes typical on the pendulum (20 of 21 at n = 960) once N = 20,000; cart-pole won on 0 of 21 at N = 4,000 (7i) and only 4 of 21 even with an exact twin mean (7h). Is that a pool-size effect or a property of the pairs (lower rho)? Code: `experiments/m7k_cartpole_large_n/large_n.py` (7j's construction, cart-pole score pairs from m7, N in {20,000, 100,000}, f in {0.1, 0.5}, n in {240, 960}, 200 replications, bank of 20 twin intervals per (N, f); the interval is accumulated in row chunks to fit N = 100,000). Draws are iid with replacement from the 4,000-context pool, so the target is the pool mean and this is about interval width only.
+- **H7k-i:** at N = 100,000, f = 0.1, n = 960 the combined interval is narrower than real-only on at least 3 of 21 cart-pole pairs. Refuted otherwise (the cart-pole limit is the pairs, not the pool).
+- **H7k-ii:** the number of winning pairs at N = 100,000 is at least that at N = 20,000 in every (n, f) cell (monotone in N).
+- **H7k-iii:** coverage at least 95% in every cell.
+- Prior: 7h's exact-mean ceiling (4 of 21 at n = 960, min ratio 0.86) bounds the finite-pool result, so I expect H7k-i to fail or barely pass.
+
+### Outcome (21 cart-pole pairs, 200 replications per cell; `experiments/m7k_cartpole_large_n/results/`)
+- **Bug caught first.** My first full run (coarse 1/600 grid, as in m7h) gave combined intervals 2 to 15 times wider than real-only at N = 100,000, growing with N. Cause: at N >= 20,000 the cart-pole twin-mean interval is narrower than the grid step (width 0.0018 against a step of 0.0017), and at N = 100,000 the grid missed the interval entirely in 1 of 20 (f = 0.1) and 4 of 20 (f = 0.5) bank draws, triggering the (0.5, 1.0) fallback. The reported run uses a fine grid centred on the twin sample mean (`interval_chunked`; half-width 0.01, widened until the edges are rejected). Twin-bank widths are now 0.0019 and 0.0017 (N = 20,000) and 0.0010 and 0.0008 (N = 100,000). Check on 7j: its pendulum twin intervals are 0.006 to 0.013 wide, 4 to 8 grid steps, and the grid rounds outward, so 7i and 7j are at worst slightly conservative; their conclusions stand.
+- **H7k-i refuted (narrowly).** At N = 100,000, f = 0.1, n = 960 the combined interval is narrower than real-only on 2 of 21 pairs (threshold 3); median ratio 1.222, best 0.917. Cart-pole does not become typical with a larger pool.
+- **H7k-ii supported.** Winning pairs never fall as N rises from 20,000 to 100,000: 0 to 1 (n = 240, f = 0.1), 2 to 2 (n = 960, f = 0.1), 0 to 2 (n = 960, f = 0.5), 0 to 0 (n = 240, f = 0.5). Median ratios fall slightly (1.361 to 1.222 at n = 960, f = 0.1).
+- **H7k-iii supported.** Minimum coverage 98.0%.
+- Reading: the twin-mean interval is already negligible at N = 20,000 (about 0.002 wide), so the cart-pole limit is the residual interval of the pairs (lower rho), not the twin pool. More twin runs cannot fix it; a better twin (higher rho) can. Pendulum and cart-pole now differ by pair quality, not pool size.
+- Caveats: the 20,000 or 100,000 draws are iid from a 4,000-context pool (target: the pool mean); bank of 20 twin intervals; model-versus-model pairs; no real data.
+- Next: milestone 7l, relate the win to rho and to the residual variance across both pools (a fitted threshold for when a twin pays), and a fresh twin pool of distinct contexts.
+
 ## 2026-10-25 · Milestone 7j: does a larger twin pool or an uneven alpha split make the finite-twin win typical? (planned before running)
 - Why: 7i's win (8 of 21 pendulum pairs at n = 960, N = 4,000, even 0.025/0.025 split) is limited by the twin-mean interval, whose width does not shrink with n. Twin runs are cheap, so test N = 20,000, and give the twin-mean interval a different share f of alpha (f = 0.1 or 0.5 of 0.05). Code: `experiments/m7j_n_sweep/n_sweep.py`; pendulum pairs only (cart-pole won on 0 of 21 at N = 4,000), n in {240, 960}, 200 replications, bank of 40 twin intervals per (N, f). N = 20,000 exceeds the 4,000-context pool so draws are iid with replacement from its empirical distribution (target the pool mean); this is a statement about the interval's width, not about 20,000 distinct twin contexts.
 - **H7j-i:** at N = 20,000, f = 0.5, n = 960 the combined interval is narrower than real-only on at least 12 of 21 pairs. Refuted otherwise.
@@ -15,13 +31,6 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H7j-iii supported.** Minimum coverage 98.5% (conservative).
 - Reading: on the pendulum pairs a valid twin-assisted certificate shorter than real-only is typical (20 of 21 at n = 960) with about 20,000 twin runs, and absent at 500. Caveats: the 20,000 draws are iid from a 4,000-context empirical pool (interval width, not 20,000 distinct contexts; target is the pool mean); pendulum only; model-versus-model pairs; no real data.
 - Next: milestone 7k, cart-pole at N = 20,000 and 100,000, and a fresh twin pool of more than 4,000 distinct contexts so the target is not the pool mean.
-
-### Outcome (21 pendulum pairs, 200 replications per cell; `experiments/m7j_n_sweep/results/`)
-- **H7j-i supported.** With N = 20,000 twin draws and n = 960 the valid combined interval is narrower than real-only betting on 20 of 21 pairs for both f = 0.5 (median ratio 0.861, best 0.674) and f = 0.1 (0.835, best 0.655); at n = 240, 11 of 21 (f = 0.5) and 18 of 21 (f = 0.1). So the 7h win largely returns once the twin pool is about 5 times larger than the 7i one: the finite-pool cost was the twin-mean interval, as 7i argued.
-- **H7j-ii refuted at n = 960, supported at n = 240.** At N = 4,000, n = 960 the median ratio is 1.076 (f = 0.1) against 1.064 (f = 0.5), no gain; at n = 240 it is 1.034 against 1.087 and wins rise from 7 to 9 of 21. At N = 20,000 the smaller twin share helps at n = 240 (18 against 11 of 21) and is about equal at n = 960. The split matters when n is small and the twin interval is already narrow.
-- **H7j-iii supported.** Minimum coverage 98.5% (conservative).
-- Reading: on the pendulum pairs a valid twin-assisted certificate shorter than real-only is typical (20 of 21 at n = 960) with a twin pool of about 20,000 runs, and absent at 500. Twin runs are cheap, so this is the practical regime. Caveats: the 20,000 draws are iid from a 4,000-context empirical pool (a statement about interval width, not 20,000 distinct contexts, and the pool mean is the target); pendulum only; model-versus-model pairs; no real data.
-- Next: milestone 7k, cart-pole at N = 20,000 and 100,000 (does it ever win?), and a fresh twin pool of more than 4,000 distinct contexts so the target is not the pool mean.
 
 ## 2026-10-25 · Milestone 7i: does the twin-assisted betting win survive a finite twin pool? (planned before running)
 - Why: 7h's pendulum win (20 of 21 pairs at n = 240 and 960) treated the twin mean as exact. A user has a finite number N of twin runs, so the twin mean needs its own interval, and the two intervals must be combined with a valid error budget.

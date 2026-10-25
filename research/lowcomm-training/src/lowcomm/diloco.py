@@ -14,14 +14,17 @@ import torch
 
 
 class DiLoCo:
-    def __init__(self, model, loss_fn, workers=4, H=16, inner=None, outer=None, seed=0):
-        """inner(params) and outer(params) build torch optimisers; defaults are DiLoCo's AdamW and Nesterov SGD."""
+    def __init__(self, model, loss_fn, workers=4, H=16, inner=None, outer=None, seed=0, compress=None):
+        """inner(params) and outer(params) build torch optimisers; defaults are DiLoCo's AdamW and Nesterov SGD.
+        compress(delta, gen) -> tensor, optional: applied to each worker's per-tensor delta (global minus its end point)
+        before averaging, with `gen` a torch.Generator owned by the engine. None leaves the round unchanged."""
         inner = inner or (lambda p: torch.optim.AdamW(p, lr=1e-3, betas=(0.9, 0.95), weight_decay=0.0))
         outer = outer or (lambda p: torch.optim.SGD(p, lr=0.7, momentum=0.9, nesterov=True))
         self.model, self.loss_fn, self.H, self.rounds = model, loss_fn, H, 0
         self.workers = [copy.deepcopy(model) for _ in range(workers)]
         self.inner = [inner(w.parameters()) for w in self.workers]
         self.outer = outer(model.parameters())
+        self.compress, self.cgen = compress, torch.Generator().manual_seed(seed * 1000 + 777)
         self.rngs = [torch.Generator().manual_seed(seed * 1000 + 1 + i) for i in range(workers)]
 
     def round(self):
@@ -39,8 +42,12 @@ class DiLoCo:
                 total += loss.item()
         with torch.no_grad():
             for i, p in enumerate(g):
-                avg = torch.stack([list(w.parameters())[i] for w in self.workers]).mean(0)
-                p.grad = p.data - avg
+                if self.compress is None:
+                    avg = torch.stack([list(w.parameters())[i] for w in self.workers]).mean(0)
+                    p.grad = p.data - avg
+                else:
+                    p.grad = torch.stack([self.compress(p.data - list(w.parameters())[i].data, self.cgen)
+                                          for w in self.workers]).mean(0)
         self.outer.step()
         self.outer.zero_grad(set_to_none=True)
         self.rounds += 1
@@ -59,3 +66,12 @@ def train_sync(model, loss_fn, steps, inner=None, seed=0):
         opt.step()
         losses.append(loss.item())
     return losses
+
+
+def rand_k(keep):
+    """Unbiased random sparsifier: keep each coordinate with probability `keep`, scale survivors by 1/keep.
+    E[C(x)] = x and E||C(x) - x||^2 = omega ||x||^2 with omega = 1/keep - 1 (Stich 2018; Beznosikov et al. 2020)."""
+    def c(x, gen):
+        mask = (torch.rand(x.shape, generator=gen) < keep).to(x.dtype)
+        return x * mask / keep
+    return c

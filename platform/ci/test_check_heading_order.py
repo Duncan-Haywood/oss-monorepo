@@ -56,6 +56,11 @@ class HeadingOrder(unittest.TestCase):
             self.assertIn("<h2>b</h2>", bad.read_text())
 
 
+    def test_default_scan_root_is_the_repo_checkout(self):
+        self.assertTrue((c.ROOT / "ventures").is_dir())
+        self.assertTrue((c.ROOT / "platform" / "ci" / "check_heading_order.py").is_file())
+
+
     def test_repo_pages_have_no_skips(self):
         self.assertEqual(c.main([]), 0)
 

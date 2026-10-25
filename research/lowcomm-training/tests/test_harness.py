@@ -98,3 +98,22 @@ def test_quadratic_stationary_loss_matches_closed_form():
     want = sum(_floor(float(ai), eta, sigma, M, H, alpha, beta) for ai in a)
     # heavy ball in torch is v <- beta v + g, x <- x - lr v, the same as the closed form's outer step
     assert abs(acc / n - want) / want < 0.12, (acc / n, want)
+
+
+def test_rand_k_unbiased_and_keep1_matches_plain():
+    from lowcomm import rand_k
+    g = torch.Generator().manual_seed(0)
+    x = torch.randn(2000)
+    c = rand_k(0.25)
+    est = torch.stack([c(x, g) for _ in range(400)]).mean(0)
+    assert abs((est - x).mean().item()) < 0.05
+    err = ((c(x, g) - x) ** 2).sum() / (x ** 2).sum()
+    assert 2.0 < err.item() < 4.0  # omega = 1/0.25 - 1 = 3
+    data, m, f = make(4)
+    m2 = copy.deepcopy(m)
+    a = DiLoCo(m, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1)
+    b = DiLoCo(m2, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1, compress=rand_k(1.0))
+    for _ in range(3):
+        a.round(); b.round()
+    for p, q in zip(m.parameters(), m2.parameters()):
+        assert torch.allclose(p, q, atol=1e-5)
