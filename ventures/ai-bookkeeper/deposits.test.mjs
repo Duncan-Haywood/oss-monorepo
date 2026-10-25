@@ -112,3 +112,39 @@ test("Pub. 15: $95,000 Tuesday and $10,000 Wednesday are different periods, so n
   assert.equal(r.nextDay, false);
   assert.deepEqual(r.deposits.map((d) => d.due), ["2026-06-05", "2026-06-10"]);
 });
+
+test("exactly $100,000 in a semiweekly period triggers the next-day rule (Wed due date), $1 less does not", () => {
+  // deposits of 48,135.01 + 51,864.99 dollars = exactly 10,000,000 cents
+  const r = depositSchedule(reg([["2026-06-01", 190256.90], ["2026-06-02", 204999.94]]), 2026, { schedule: "semiweekly" });
+  assert.equal(r.deposits.reduce((a, d) => a + d.amount, 0), 10000000);
+  assert.equal(r.nextDay, true);
+  assert.deepEqual(r.deposits.map((d) => d.due), ["2026-06-03"]);
+  const s = depositSchedule(reg([["2026-06-01", 190256.90], ["2026-06-02", 204999.90]]), 2026, { schedule: "semiweekly" });
+  assert.equal(s.nextDay, false);
+  assert.deepEqual(s.deposits.map((d) => d.due), ["2026-06-05"]);
+});
+
+test("a Saturday pay date falls in the Sat-Tue period: ends Tuesday, due the Friday after", () => {
+  const r = depositSchedule(reg([["2026-06-06", 2000]]), 2026, { schedule: "semiweekly" });   // Sat
+  assert.equal(r.deposits[0].due, "2026-06-12");
+});
+
+test("late-deposit penalty tiers change at 5/6 and 15/16 days late", () => {
+  const tier = (paid) => {
+    const bank = `Date,Description,Amount\n${paid},IRS USATAXPYMT,-506.00\n`;
+    const books = importStatement(reg([["2026-02-27", 2000]]), bank, "1000").books;
+    const d = depositSchedule(books, 2026).deposits[0];   // due 2026-03-16
+    return [d.daysLate, d.penaltyPct];
+  };
+  assert.deepEqual(tier("2026-03-21"), [5, 2]);
+  assert.deepEqual(tier("2026-03-22"), [6, 5]);
+  assert.deepEqual(tier("2026-03-31"), [15, 5]);
+  assert.deepEqual(tier("2026-04-01"), [16, 10]);
+});
+
+test("Wednesday, Thursday and Friday pay dates all end the period on that Friday (due the Wednesday after)", () => {
+  for (const d of ["2026-06-03", "2026-06-04", "2026-06-05"]) {
+    const r = depositSchedule(reg([[d, 2000]]), 2026, { schedule: "semiweekly" });
+    assert.equal(r.deposits[0].due, "2026-06-10", d);
+  }
+});
