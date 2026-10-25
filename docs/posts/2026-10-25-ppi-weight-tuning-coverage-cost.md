@@ -1,7 +1,7 @@
 ---
 title: "Tuning the PPI++ weight on the audit costs under a point of coverage"
-date: 2026-10-26
-description: "A paired 4,000-draw test on NaijaSenti shows that choosing the prediction weight on the same audit loses up to 0.9 points of coverage in some cells, and that an earlier null was a power failure."
+date: 2026-10-25
+description: "A paired 4,000-draw NaijaSenti test: tuning the prediction weight on the same audit loses up to 0.9 points of coverage in cells; an earlier null lacked power."
 tags: [llm-coding-inference, research, statistics]
 ---
 

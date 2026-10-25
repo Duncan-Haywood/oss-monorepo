@@ -1,6 +1,6 @@
 ---
 title: "Moving money between two foreign accounts no longer needs a manual fix"
-date: 2026-10-26
+date: 2026-10-25
 description: "AI Bookkeeper now pairs a transfer from a EUR account to a GBP account and books the rate difference as realized exchange gain or loss."
 tags: [ai-bookkeeper, accounting, foreign-currency]
 ---

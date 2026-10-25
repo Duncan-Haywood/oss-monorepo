@@ -1,6 +1,6 @@
 ---
 title: "A brokerage export that read as nothing, and then as spending"
-date: 2026-10-26
+date: 2026-10-25
 description: "Sweeping three open-source projects' test files through ai-bookkeeper's statement reader found one silent failure: Schwab's brokerage Transactions CSV."
 tags: [ai-bookkeeper, bookkeeping, testing]
 ---
