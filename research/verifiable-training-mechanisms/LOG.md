@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 14: transformer results move into the paper (no new experiment)
+- Added a "A small transformer" paragraph and Table `tab:tf` to the margin section of `paper/main.tex`, and shortened the Limitations sentence to point at it. Every number is copied from `experiments/transformer*/results.txt` (milestones 11 to 13); none was rerun.
+- Still open: the draft is uncompiled (no LaTeX here), the 17 references are not machine-checked (registries 403 through the proxy), and the transformer is 30k parameters on one fixed split.
+
 ## 2026-10-24 · Milestone 13: the transformer trained 5x longer (H1), planned before running
 - Why: milestones 11 and 12 stop at 600 steps with held-out loss 2.73, far from converged, so the late-training regime (small updates, where skipping should be cheapest) is only partly reached. `experiments/transformer_long/run.py` is the milestone 11 run with `steps=3000` (same model, corpus, 10 seeds, float32 reorder referee), taus 1e-3, 3e-3, 1e-2, 3e-2.
 - Prediction: the median update norm falls (late cosine steps shrink with lr), so at fixed tau a larger share is skipped than at 600 steps (above 16% at 1e-2). The loss given up at tau = 1e-2 stays below one seed std. Refutation of the narrow form of H1 here: a tau at or below 10x the worst reorder drift (about 1.5e-6, outside the grid) with degradation above one seed std and a CI excluding zero; the grid's smallest tau is 1e-3, so the drift-sized test is the skipped share and degradation there.
