@@ -35,8 +35,8 @@ import { fmt } from "./ledger.mjs";
 
 const key = (h) => String(h).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 const ALIASES = {
-  payout: ["automatic_payout_id", "payout_id", "payout", "transfer_id", "payout_reference", "payout_reference_id", "deposit_id"],
-  payoutDate: ["automatic_payout_effective_at", "automatic_payout_effective_at_utc", "payout_date", "payout_effective_at", "arrival_date", "transfer_date", "deposit_date"],
+  payout: ["automatic_payout_id", "payout_id", "payout", "transfer_id", "transfer", "payout_reference", "payout_reference_id", "deposit_id"],
+  payoutDate: ["automatic_payout_effective_at", "automatic_payout_effective_at_utc", "payout_date", "payout_effective_at", "arrival_date", "transfer_date", "transfer_date_utc", "deposit_date"],
   category: ["reporting_category", "event_type", "category", "type", "transaction_type"],
   gross: ["gross", "amount", "gross_amount", "gross_sales", "total_collected", "sale_price", "total", "customer_total"],
   fee: ["fee", "fees", "fee_amount", "processing_fees", "total_fee", "platform_fee", "gumroad_fee", "paddle_fee"],
