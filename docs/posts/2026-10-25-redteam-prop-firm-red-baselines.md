@@ -1,7 +1,7 @@
 ---
 title: "Six test suites were red before we touched them"
 date: 2026-10-25
-description: "A red-team run found a favicon data: URI tripping link and external-reference checks in six ventures, and 4 of 8 seeded bugs in the prop-firm calculator slipping past its tests."
+description: "A red-team run found a favicon data: URI tripping link checks in six ventures, and 4 of 8 seeded bugs in the prop-firm calculator slipping past its tests."
 tags: [redteam, testing, prop-firm-challenge-calculator]
 ---
 
