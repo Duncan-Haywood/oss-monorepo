@@ -657,3 +657,25 @@ so it stays opt-in. Clustered volatility is only half fixed (21% to 29% false al
 probability view still uses the Gaussian model, and the kurtosis part of the noise warning is skipped when `--robust` is
 on (autocorrelation and clustered-volatility parts stay). Simulated noise only; no real heavy-tailed series tried. Test:
 `meanvar-robust.test.mjs`. Cost: each segment is sorted on demand, so long series (several thousand points) run slower.
+
+## A calibrated penalty for `meanvar`: a mostly negative result (2026-10-25)
+
+The Laplace cost above leaves clustered volatility at 21% to 29% false alarms. A different idea is to keep the Gaussian cost and
+scale its BIC penalty by how much the noise inflates the variance-change statistic. For standardised Gaussian residuals the squares
+have variance 2; the long-run variance of the squares (Bartlett kernel) divided by 2 is a factor c, and the penalty becomes
+max(1, c) times BIC. `eval/meanvar-calibrated-penalty.mjs` (output in `eval/meanvar-calibrated-penalty.out.txt`, seeded, 100 series
+per cell, generators and seeds as in `meanvar-laplace.mjs`, plus AR(1) with rho 0.5) tries two ways to get the residuals:
+**A** standardise by the first-pass segments, **B** by segments from a 3x BIC pass.
+
+| noise | false alarms n = 100 / 200: plain, A, B | exactly one change near the sd 1 to 2 break n = 100 / 200: plain, A, B |
+|---|---|---|
+| Gaussian | 4 / 0, 3 / 0, 2 / 0 | 89 / 94, 89 / 96, 41 / 94 |
+| t3 | 37 / 63, 17 / 27, 4 / 5 | 46 / 38, 47 / 48, 22 / 42 |
+| GARCH(1,1) | 41 / 50, 37 / 35, 8 / 8 | 46 / 42, 45 / 44, 26 / 48 |
+| AR(1) 0.5 | 49 / 46, 42 / 34, 31 / 19 | 36 / 35, 40 / 41, 34 / 52 |
+
+A is free (Gaussian rows unchanged) but only halves the false alarms on t3 and barely moves GARCH, because the first pass's
+false segments soak up the very inflation it tries to measure. B removes most false alarms on t3 and GARCH but, at n = 100, loses
+half the real breaks on Gaussian noise (89% to 41%), because a break left inside one segment looks like heavy-tailed noise. Neither
+beats `--robust` on t3 and neither is wired into `analyze`. The open problem is estimating the inflation without the break itself
+feeding it. Simulated noise only; 100 series per cell, so differences under about 10 points are within noise.
