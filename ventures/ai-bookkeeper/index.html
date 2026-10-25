@@ -3,6 +3,12 @@
 <head>
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#23613f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Bookkeeper">
   <title>AI Bookkeeper: free double-entry books from your bank CSV, that learn</title>
   <meta name="description" content="Free AI bookkeeping in your browser. Import bank and card CSVs, get an account suggested for every line with a reason, file the review queue once and it learns your payees. Transfers paired, trial balance, P&amp;L, balance sheet, close checks, QuickBooks and Xero journals. Nothing uploaded.">
   <meta property="og:title" content="AI Bookkeeper: double-entry books that learn from your corrections">
@@ -419,6 +425,7 @@
     <p>Related: <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a>, <a href="../sales-export-to-journal/">sales export to journal</a>, <a href="../freelancer-schedule-c-categorizer/">Schedule C categorizer</a>, <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
   </footer>
+  <script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
   <script type="module">
     import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";

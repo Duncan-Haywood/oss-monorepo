@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const script = () => page("index.html").match(/<script type="module">([\s\S]*?)<\/script>/)[1];
@@ -145,4 +145,27 @@ test("the tax estimate card exists, its ids are labelled, and estimatedTax is im
   for (const id of ["est-filing", "est-months", "est-wages", "est-other", "est-withheld", "est-paid", "est-prior", "est-prior-agi"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<(input|select) id="${id}"`), id);
   assert.match(script(), /import \{ estimatedTax \} from "\.\/estimatedtax\.mjs"/);
   assert.match(html, /A worksheet, not tax advice/);
+});
+
+test("installable app: manifest, icons and an offline shell covering every module the page imports", () => {
+  const html = page("index.html");
+  assert.match(html, /<link rel="manifest" href="manifest\.webmanifest">/);
+  assert.match(html, /serviceWorker\.register\("sw\.js"\)/);
+  const man = JSON.parse(page("manifest.webmanifest"));
+  assert.equal(man.display, "standalone");
+  for (const i of man.icons) assert.ok(existsSync(new URL(`./${i.src}`, import.meta.url)), i.src);
+  assert.ok(man.icons.some((i) => i.purpose === "maskable"));
+  const sw = page("sw.js");
+  const shell = new Set([...sw.match(/const SHELL = \[([\s\S]*?)\];/)[1].matchAll(/"\.\/([^"]*)"/g)].map((m) => m[1]));
+  const seen = new Set();
+  const walk = (f) => {
+    if (seen.has(f)) return;
+    seen.add(f);
+    const t = page(f), src = f.endsWith(".html") ? script() : t;
+    for (const m of src.matchAll(/(?:from|import)\s*\(?\s*["']\.\/([^"']+)["']/g)) walk(m[1]);
+  };
+  walk("index.html");
+  for (const f of seen) assert.ok(shell.has(f), `${f} missing from the service worker shell`);
+  for (const f of shell) if (f) assert.ok(existsSync(new URL(`./${f}`, import.meta.url)), `${f} does not exist`);
+  assert.doesNotMatch(sw, /fetch\(["'`]https?:|importScripts/);
 });
