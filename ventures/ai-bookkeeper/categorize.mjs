@@ -105,6 +105,12 @@ export const BUILT_IN = [
   ["4000", "in", /google ?adsense|youtube.*(partner|payment|payout)|\btwitch\b.*(payout|payment)|substack|beehiiv|buy ?me ?a ?coffee|medium partner|amazon associates|rakuten (advertising|affiliate)|\bimpact\b.*payout|shareasale|cj affiliate|lemon ?squeezy|teachable|podia\b|spotify.*podcast|sponsorship|affiliate (payout|commission)/],
   ["6060", "out", /riverside\.fm|buzzsprout|captivate\.fm|transistor\.fm|libsyn|convertkit|kit\.com|beehiiv|substack|midjourney|capcut|canva|epidemic ?sound|artlist|podia\b|teachable|lemon ?squeezy|vidiq|tubebuddy|frame\.io|final cut|davinci|squarespace/],
   ["6070", "out", /b ?& ?h photo|adorama|sweetwater|rode microphones?|shure|elgato|blue yeti/],
+  // Home-service trades (2026-10-25): payments through field-service apps are sales; supply houses and tool brands are supplies and materials; lead sites are marketing. Written from the companies' names, not from a real contractor's export.
+  ["4000", "in", /jobber.*(payment|payout|deposit)|housecall ?pro.*(payment|payout|deposit)|servicetitan.*(payment|payout|deposit)|fieldedge.*(payment|payout)|workiz.*(payment|payout)|\bangi\b.*(payment|payout)|homeadvisor.*(payment|payout)|thumbtack.*(payment|payout)/],
+  ["6100", "out", /ferguson|johnstone supply|gemaire|\bwesco\b|graybar|fastenal|hajoca|winsupply|city electric supply|\brexel\b|sherwin[- ]williams|supply ?house|milwaukee tool|snap[- ]?on|ridgid|\bdewalt\b|northern tool/],
+  ["6060", "out", /jobber(?! .*(payment|payout))|housecall ?pro|servicetitan|fieldedge|workiz|\bsimpro\b/],
+  ["6000", "out", /\bangi\b|homeadvisor|thumbtack|networx|yelp/],
+  ["6110", "out", /contractors? (state )?licen[cs]e|licensing board|\bcslb\b|permit/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
