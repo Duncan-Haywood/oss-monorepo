@@ -437,6 +437,15 @@ test("eBay's Seller Hub transaction report splits a payout, takes seller-collect
   assert.equal(r.pending.length, 1);
 });
 
+test("an eBay multi-item order's item-detail rows (no Type, no amounts) are not read as money", () => {
+  const t = readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8").replace("Vintage lens\n", "Vintage lens\n,,12-00001-11111,,,--,,,PO-1001,,,--,--,--,$40.00,--,--,Second item\n");
+  const r = readPayoutReport(t);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts[0].net, 11170);
+  assert.equal(r.payouts[0].rows.length, 5);
+  assert.equal(r.pending.length, 1);
+});
+
 test("an eBay Payout row that disagrees with its rows is not split", () => {
   const t = readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8").replace("Bank,USD,--,--,--,--,--,--,--", "Bank,USD,--,--,--,--,--,--,--").replace("$111.70,USD", "$111.71,USD");
   const r = readPayoutReport(t);
