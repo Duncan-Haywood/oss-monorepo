@@ -102,3 +102,20 @@ test("reads Pipedrive/Excel-style files: BOM, semicolons, one name column, many 
   assert.match(reasons["ann@gone.example"], /hard bounce/);
   assert.match(reasons["bo@unsub.example"], /marketing status/);
 });
+
+// HubSpot's own header wording ("Unsubscribed from all email", a separate "Lead Status" beside "Lifecycle Stage").
+// Headers from HubSpot's export view as remembered; rows made up. No real export tried.
+test("HubSpot export: unsubscribed-from-all-email and Unqualified lead status are dropped", () => {
+  const crm = [
+    "Record ID,First Name,Last Name,Email,Lifecycle Stage,Lead Status,Company Name,Job Title,Industry,Number of Employees,Unsubscribed from all email",
+    "1,Ana,Lopez,ana@acmeplumbing.com,Lead,New,Acme Plumbing,Owner,Construction,12,false",
+    "2,Bo,Chen,bo@zeta.io,Subscriber,Open,Zeta,CTO,Software,45,true",
+    "3,Di,Roe,di@openco.com,Marketing Qualified Lead,Unqualified,OpenCo,Founder,Software,8,false",
+  ].join("\n");
+  const r = runResearch({ crm, icp: { industries: ["construction"] }, offer: { product: "x", pitch: "y", sender: "S", address: "1 Main" }, today: "2026-10-25" });
+  const text = JSON.stringify(r);
+  assert.ok(/ana@acmeplumbing/.test(text));
+  assert.equal(r.dropped.length, 2);
+  assert.ok(r.dropped.some((d) => d.email === "bo@zeta.io"));
+  assert.ok(r.dropped.some((d) => d.email === "di@openco.com" && /lead status/.test(d.reason)));
+});
