@@ -701,3 +701,22 @@ Cost: the Bayesian view, which already caught few variance breaks (3 to 8%), now
 volatility detector. Mean shifts are found at least as often. The clip width (2) was tried against 1.5 and 3 on t3 only
 (3: 2% false alarms, 50% found; 1.5: 1%, 67%); it was not tuned on Gaussian data, and 100 series per cell means differences under
 about 10 points are noise. Simulated noise only. Test: `meanvar-robust.test.mjs`.
+
+## A Ljung-Box line for clustered volatility in the `meanvar` warning (2026-10-25)
+
+The noise warning above caught GARCH noise only 16% to 20% of the time, because it read lag 1 of the squared residuals
+and GARCH(1,1) with these settings keeps lag 1 under 0.2 while lags 2 to 5 stay up. `meanvarNoiseCheck` now also
+adds a Ljung-Box statistic over lags 1 to 5 of the squared segment residuals (needs 50 points) and warns at 11.07,
+the 95th percentile of chi-square with 5 df. Same simulation, same seeds (`eval/meanvar-robustness.mjs`, 200 per
+cell), null series / sd 1 to 2 break series:
+
+| noise | before, n = 100 / 200 | now, n = 100 / 200 |
+|---|---|---|
+| Gaussian (false warning) | 2% / 1% | 7% / 4% (null), 6% / 2% (break) |
+| GARCH, null | 20% / 16% | 34% / 49% |
+| GARCH, break | 11% / 18% | 19% / 39% |
+
+So the cost of the line is about 3 to 5 points of extra false warnings on clean Gaussian series, and the gain is
+real but partial: about half of GARCH series at n = 200 are flagged, still about a third at n = 100. The 11.07 cut
+is the textbook value, not tuned on these runs; a stricter 15 would hold Gaussian false warnings near 2% to 3%
+and flag 11% / 35% of GARCH nulls. Only simulated GARCH was tried, no real volatility-clustering series.

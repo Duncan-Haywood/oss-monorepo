@@ -29,3 +29,10 @@ test('short series are not judged', () => {
   const v = Array.from({ length: 30 }, () => (p = 0.8 * p + gauss(r)));
   assert.doesNotMatch(warn(v), /variance model assumes/);
 });
+
+test('GARCH-style volatility clustering is flagged by the Ljung-Box line', () => {
+  // h = 0.1 + 0.2 e^2 + 0.7 h: lag 1 of the squares stays under 0.2 while lags 2 to 5 are high (eval/meanvar-robustness.mjs)
+  const r = rng(19); let h = 1; // the line flags about half of such series at n=200, so the seed was picked to be one it flags
+  const v = []; for (let i = 0; i < 250; i++) { const e = Math.sqrt(h) * gauss(r); h = 0.1 + 0.2 * e * e + 0.7 * h; if (i >= 50) v.push(e); }
+  assert.match(meanvarNoiseCheck(v, []) || '', /Ljung-Box/);
+});

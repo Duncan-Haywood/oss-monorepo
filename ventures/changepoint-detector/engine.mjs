@@ -1458,11 +1458,18 @@ export function meanvarNoiseCheck(x, cps, robust = false) {
   const n = z.length;
   const acf = (a) => { const m = a.reduce((p, c) => p + c, 0) / n; let num = 0, den = 0; for (let i = 0; i < n; i++) { den += (a[i] - m) ** 2; if (i) num += (a[i] - m) * (a[i - 1] - m); } return den ? num / den : 0; };
   const kurt = z.reduce((a, c) => a + c ** 4, 0) / n;
-  const r1 = acf(z), r2 = acf(z.map((c) => c * c));
+  const sq = z.map((c) => c * c);
+  const r1 = acf(z), r2 = acf(sq);
+  // Ljung-Box over lags 1..5 of the squares: volatility clustering that decays slowly (GARCH) shows at lags 2 to 5 while lag 1 stays
+  // under 0.2. 11.07 is the 95th percentile of chi-square(5), and Gaussian runs exceed it 5% of the time (eval/meanvar-robustness.mjs).
+  let q = 0;
+  if (n >= 50) for (let k = 1; k <= 5; k++) { const m = sq.reduce((p, c) => p + c, 0) / n; let num = 0, den = 0; for (let i = 0; i < n; i++) { den += (sq[i] - m) ** 2; if (i >= k) num += (sq[i] - m) * (sq[i - k] - m); } const rk = den ? num / den : 0; q += rk * rk / (n - k); }
+  q *= n * (n + 2);
   const why = [];
   if (kurt > 4.5 && !robust) why.push(`heavy tails (kurtosis ${kurt.toFixed(1)}, 3 for Gaussian noise)`);
   if (r1 >= 0.25) why.push(`autocorrelation (lag 1: ${r1.toFixed(2)})`);
   if (r2 >= 0.2) why.push(`clustered volatility (lag 1 of the squares: ${r2.toFixed(2)})`);
+  else if (q >= 11.07) why.push(`clustered volatility (Ljung-Box over lags 1 to 5 of the squares: ${q.toFixed(1)}, 11.1 is the 5% line)`);
   if (!why.length) return null;
   return `The values left after removing the segments show ${why.join(' and ')}. The variance model assumes independent Gaussian noise, so on such noise it reports changes that are not there: treat the dates as candidates, not findings.`;
 }
