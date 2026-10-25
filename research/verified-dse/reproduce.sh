@@ -11,6 +11,7 @@ $PY experiments/conformal/replay.py experiments/large/results.jsonl ../large/con
 $PY experiments/hedge/replay.py   # milestone 11
 $PY experiments/eta_sweep/sweep.py   # milestone 12
 $PY experiments/eta_floor/sweep.py   # milestone 13
+$PY experiments/signif/test.py       # milestone 14
 $PY experiments/proof_success/analyse.py
 for s in bound quantile topk sweep; do $PY experiments/theory/$s.py; done
 $PY -m unittest discover -s tests
