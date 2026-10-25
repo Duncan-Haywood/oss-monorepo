@@ -156,3 +156,20 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Opened from the table row in `research/PROGRAMMES.md` that had no proposal. Consolidates the `qual-*` directories (22) into one question: valid intervals from LLM-coded text under group shift and rare categories.
 - Not machine-checked: arXiv and Crossref returned 403 through the egress proxy this session, so the proposal's ids were written from memory and the proposal says so. Milestone 1 starts by running `research/_shared/cite_check.py` on them and reading the two closest competitors (Gligorić et al. 2024; Fisch et al. 2024) in full. If either already covers the combination in the Gap section, the programme narrows.
 - No experiment run. Next: milestone 1.
+
+## 2026-10-25 · Milestone 6e: the 1-point target against the finite-population-aware oracle (planned before running; run alongside 6d, PR 10307)
+- Why: 6c's open item. At a 3-point target the audit is about 900 items and the p = 20 start (80 items) is a tenth of it; at 1 point the audit is about 9x larger, the sampling fraction reaches 20% in some strata (finite-population effects), and the stopping rule is exercised over ~70 rounds. Same corpus, split, coders, floor (0.02) and start (p = 20) as 6c; target 1.0 point; batches B in {100, 300}; cap 20,000; 300 draws per cell (+/- 2.5 points on coverage). Oracle n from the 6a Neyman rule at 1 point. `experiments/h6e_tight_target.py`.
+- **H6e-i (coverage):** coverage at the stopping time is at least 92% in all 6 cells (300 draws, so the bar allows for binomial noise of about 1.3 points). Refuted if any cell is below 92%.
+- **H6e-ii (price):** mean stopped n at B = 100 is within 10% of the oracle n for every coder. Refuted otherwise.
+- **H6e-iii (target hit):** 100% of audits stop under the cap at half-width at most 1.0 points.
+- **H6e-iv (relative spread shrinks):** the sd of stopped n divided by its mean at B = 100 is below that of 6c at B = 30 (0.038, 0.040, 0.052) for every coder.
+- Not tested: a real LLM coder, a second corpus, a rarer category.
+- Note: 6d (another run, same day) explained a similar gap by the finite-population correction. My oracle already includes it (`neyman_total` has the `sum W^2 S^2 / N` term), so this run asks whether a gap remains once it is included.
+
+### Outcome (`experiments/h6e_tight_target.py`, about 17 min; `experiments/h6e_tight_target.txt`; 300 draws per cell)
+- **H6e-i supported.** Coverage at the stopping time is 93.0 to 96.0% in all 6 cells (lowest: `lexicon-en`, B = 100, 93.0%; bar 92%).
+- **H6e-ii refuted.** Mean stopped n at B = 100 is 6,937, 8,069 and 7,098 against the oracle 7,833, 9,240 and 8,039: 11.4%, 12.7% and 11.7% under, outside the 10% bar. At a 3-point target the gap was under 1%. The rule stops earlier than the plug-in Neyman size, yet coverage holds, so the oracle size is not what the stopped audit needs here. I did not test why; candidate causes are the sampling fraction (up to about a quarter of a stratum is audited, so the plug-in's constant variances and the realised without-replacement variances can differ) and stopping when the estimate happens to look narrow. Neither is checked.
+- **H6e-iii supported.** 100% of audits stopped under the cap at half-width at most 1.0 points (mean 0.99 to 1.00).
+- **H6e-iv supported.** sd/mean of stopped n at B = 100 is 0.011, 0.012, 0.015, against 0.038, 0.040, 0.052 for 6c at B = 30. B = 300 costs 75 to 144 more tweets than B = 100.
+- Limits: one corpus, three stand-in coders, 300 draws (coverage +/- 2.5 points), no optional-stopping correction, no real LLM coder; the oracle-gap cause is open. Because this oracle already includes the finite-population correction, 6d's explanation (a 9x oracle that ignores it) does not account for the 11 to 13% gap here; the gap is not explained.
+- Next: find why the stopped n sits under the oracle (compare realised half-width at fixed n against the plug-in); a rarer category; milestone 5 with a real coder.
