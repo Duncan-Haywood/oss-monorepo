@@ -75,6 +75,11 @@
       "source": "ZATCA e-invoice validation rules 3.4.6 via phive-rules-zatca 4.6.3 on Maven Central",
       "from": "20210819_ZATCA_E-invoice_Validation_Rules.xsl",
       "checks": 152
+    },
+    "nlcius-ubl": {
+      "source": "NLCIUS / SI-UBL 2.0.3.13 via phive-rules-simplerinvoicing 4.6.3 on Maven Central",
+      "from": "si-ubl-2.0.3.13.xslt",
+      "checks": 39
     }
   },
   "fontoxpath": "3.34.0"

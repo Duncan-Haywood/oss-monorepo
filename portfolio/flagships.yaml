@@ -128,7 +128,7 @@ flagships:
       Factur-X export (open the repaired PDF in veraPDF or a viewer); a page
       button for PDFs; PINT SG and A-NZ rules on the Saxon/server route and on a
       real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
-      (plain-from-xslt.mjs can compile it); India's INV-01 schema check; mandate
+      CII (UBL landed 2026-10-25, BR-NL) and a real Dutch file; India's INV-01 schema check; mandate
       dates read from primary sources where pages cite guides (Denmark BEK 811 of 2026-09-22 unconfirmed; Czech vendor-only, read mfcr.cz; Estonia, Latvia, Slovenia vendor-only; iras.gov.sg,
       ato.gov.au, revenue.ie, CBIC); refresh the Bulgaria page when its draft
       passes or changes (consultation closed 2026-10-23, no outcome found 2026-10-25). A run that lands a slice replaces its item here; keep
