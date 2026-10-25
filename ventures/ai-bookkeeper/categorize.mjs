@@ -98,6 +98,9 @@ export const BUILT_IN = [
   // Seen on a real Bank of America card export (Actual Budget's MIT sample files, 28 lines; rules written looking at them, not held out).
   ["6160", "out", /\bcitgo\b|\bcumberland farms\b|\bracetrac\b|\bwawa fuel/],
   ["6140", "out", /county waste|waste management|republic services|\bwaste connections\b/],
+  // Gig and platform work (2026-10-25): what the driver or freelancer is paid is sales, whatever the app calls it; written from the platforms' names, not from a real export.
+  ["4000", "in", /\b(uber|lyft)\b.*\b(driver|payout|payment|earnings)|\bdasher\b|doordash.*\b(pay|payment|payout)|instacart.*\b(shopper|payment|payout)|spark driver|amazon flex|shipt.*\b(payment|payout)|\bupwork\b|\bfiverr\b|taskrabbit/],
+  ["6160", "out", /\bqt \d{2,}|\bcircle k\b|kwik trip|buc-?ee|flying j\b|pilot travel/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
