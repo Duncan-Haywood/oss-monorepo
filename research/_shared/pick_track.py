@@ -16,6 +16,7 @@ first), so the "Next steps" of the latest one is one `cat` away when the
 milestones in PROJECTS.md are all done. Fetch origin/main first: a stale
 checkout hides projects other runs landed.
 """
+import functools
 import math
 import re
 import random
@@ -77,19 +78,24 @@ def recent_programme_commits(slug, hours=6):
     return out.stdout.strip().splitlines() if out.returncode == 0 else []
 
 
+@functools.lru_cache(maxsize=None)
+def _open_pr_titles(repo, limit):
+    """[(number, title)] of open PRs; fetched once per process (best effort; [] on any error)."""
+    try:
+        url = f"https://api.github.com/repos/{repo}/pulls?state=open&per_page={limit}"
+        with urllib.request.urlopen(url, timeout=15) as r:
+            return [(p["number"], p.get("title", "")) for p in json.load(r)]
+    except Exception:
+        return []
+
+
 def open_prs_for(slug, repo="duncan-haywood/oss-monorepo", limit=100):
     """'#N title' for open PRs whose title names `slug` (best effort; [] on any error).
 
     The commit check cannot see a sibling that has not merged yet: two runs drew the same
     programme milestone and one trained for 2 hours before the other landed (friction
     2026-10-25). Unauthenticated REST works from cloud sessions for this public repo."""
-    try:
-        url = f"https://api.github.com/repos/{repo}/pulls?state=open&per_page={limit}"
-        with urllib.request.urlopen(url, timeout=15) as r:
-            prs = json.load(r)
-    except Exception:
-        return []
-    return [f"#{p['number']} {p['title']}" for p in prs if slug in p.get("title", "")]
+    return [f"#{n} {t}" for n, t in _open_pr_titles(repo, limit) if slug in t]
 
 
 def programmes():
@@ -137,11 +143,33 @@ def next_steps(name, width=400):
     return text if len(text) <= width else text[:width].rstrip() + "..."
 
 
+def draw_programme(r, progs, claimed=open_prs_for):
+    """(slug, has_proposal, skipped): the drawn programme, redrawn among those no open PR names.
+
+    Runs drew a programme two draft PRs already held and picked another by hand (friction
+    2026-10-25). `skipped` lists '#N title' lines of the claimed draws; if every programme is
+    claimed the first draw stands."""
+    rng = random.Random(r + 1)
+    order = rng.sample(progs, len(progs))
+    skipped = []
+    for slug, has in order:
+        prs = claimed(slug)
+        if not prs:
+            return slug, has, skipped
+        skipped += [f"{slug}: {x}" for x in prs]
+    return order[0][0], order[0][1], skipped
+
+
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
+        print(__doc__)
+        sys.exit(0)
     r = float(sys.argv[1]) if len(sys.argv) > 1 else random.random()
     progs = programmes()
     if progs and random.Random(r).random() < PROGRAMME_SHARE:
-        slug, has = random.Random(r + 1).choice(progs)
+        slug, has, skipped = draw_programme(r, progs)
+        for line in skipped:
+            print(f"redrawn past a claimed programme (open PR): {line}")
         print(f"draw {r:.3f} -> programme {slug} (research/PROGRAMMES.md)")
         landed = recent_landed(slug)
         if landed:
