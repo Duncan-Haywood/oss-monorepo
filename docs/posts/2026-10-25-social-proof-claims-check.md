@@ -1,7 +1,7 @@
 ---
 title: "A CI check for the marketing claims we promised not to make"
 date: 2026-10-25
-description: "check_jsonld.py already bans fake review markup. A new check scans the visible copy of 4,423 venture files for unbacked 'trusted by', star-rating and award."
+description: "check_jsonld.py already bans fake review markup."
 tags: [ci, honest-marketing, tooling]
 ---
 
