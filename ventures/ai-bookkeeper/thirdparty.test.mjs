@@ -315,3 +315,11 @@ test("a MEMO written as TYPE;NAME does not repeat the name", () => {
   const r = readOfx(wrap(`<STMTTRN><TRNTYPE>POS<DTPOSTED>20090401122017.000[-5:EST]<TRNAMT>-6.60<FITID>1<NAME>MCDONALD'S #112<MEMO>POS MERCHANDISE;MCDONALD'S #112</STMTTRN>`));
   assert.equal(r.rows[0].desc, "MCDONALD'S #112 POS MERCHANDISE");
 });
+
+test("a brokerage cash-activity file with the trade-list headers is not flipped (beangulp's example.csv)", () => {
+  // Headers of a Schwab-style activity export (beangulp, GPL, read only); rows made up here.
+  const csv = "DATE,TRANSACTION ID,DESCRIPTION,QUANTITY,SYMBOL,PRICE,COMMISSION,AMOUNT,NET CASH BALANCE\n07/02/2013,1,ORDINARY DIVIDEND (HDV),,HDV,,,31.04,31.04\n07/02/2013,2,MONEY MARKET PURCHASE,,,,,-31.04,0.00\n07/02/2013,3,MONEY MARKET PURCHASE (MMDA10),31.04,MMDA10,,,0.00,0.00\n";
+  const r = readStatement(csv);
+  assert.deepEqual(r.rows.map((x) => x.cents), [3104, -3104]);
+  assert.equal(r.inferred ?? null, null);
+});
