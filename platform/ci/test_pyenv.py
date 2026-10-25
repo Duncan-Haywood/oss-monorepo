@@ -212,6 +212,14 @@ class T(unittest.TestCase):
         self.assertEqual(pyenv.import_name("some-pkg:somemod"), "somemod")
         self.assertEqual(pyenv.PIP_NAMES["somemod"], "some-pkg")
 
+    def test_heartbeat_logs_until_stopped(self):
+        logs = []
+        stop = pyenv.heartbeat(logs.append, every=0.01)
+        import time
+        time.sleep(0.1)
+        stop.set()
+        self.assertTrue(any("still installing" in m for m in logs))
+
 
 if __name__ == "__main__":
     unittest.main()
