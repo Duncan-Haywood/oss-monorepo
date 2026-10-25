@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01HxxwwFbn1sEXT7XaK9utxU",
+  "track": "review",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T16:22:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10431,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Friction table mixes live and fixed items; measure --section friction exceeds the 120s tool timeout in a shallow clone, so run it in the background."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "why": "Reduced pass: skipped audit and drift report (doc-only recent outputs); no step-5 doc fix found live.",
+      "did": "Logged E88 only",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "prompts/experiments.md E88"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
