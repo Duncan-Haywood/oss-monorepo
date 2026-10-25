@@ -7,7 +7,7 @@ tags: [research, llm-coding-inference, statistics]
 
 The [previous test](2026-11-08-audit-size-from-a-pilot.md) found that auditing
 in rounds until the estimated interval is 3 points wide hits the target every
-time at about the planned size. This run made the target 1 point, which means
+time at about the planned size. Another run tested the same 1-point target in parallel; this one compares against the closed-form size that already allows for the finite corpus. The target was 1 point, which means
 about 7,000 to 8,000 hand-coded tweets out of 44,485 (NaijaSenti, four languages,
 three stand-in coders, 300 simulated audits per cell).
 

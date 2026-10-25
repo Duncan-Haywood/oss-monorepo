@@ -38,7 +38,7 @@
     "research/llm-coding-inference/LOG.md"
   ],
   "goal": null,
-  "notes": "Milestone 6d of llm-coding-inference: sequential audit at 1-point target. 3 of 4 hypotheses supported; H6d-ii refuted (stopped n 11-13% under oracle, cause untested). research build ok, md links ok. First attempt had TARGET unreplaced (found in a 3-draw smoke test and fixed before the full run).",
+  "notes": "Milestone 6e of llm-coding-inference: sequential audit at 1-point target. 3 of 4 hypotheses supported; H6d-ii refuted (stopped n 11-13% under oracle, cause untested). research build ok, md links ok. First attempt had TARGET unreplaced (found in a 3-draw smoke test and fixed before the full run).",
   "corrections": [],
   "redteam": null,
   "usage": {
