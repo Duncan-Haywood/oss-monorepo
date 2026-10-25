@@ -75,6 +75,11 @@
       "source": "ZATCA e-invoice validation rules 3.4.6 via phive-rules-zatca 4.6.3 on Maven Central",
       "from": "20210819_ZATCA_E-invoice_Validation_Rules.xsl",
       "checks": 152
+    },
+    "cius-pt-ubl": {
+      "source": "PT CIUS-PT v2.1.1 via phive-rules-cius-pt 4.6.3 on Maven Central",
+      "from": "urn_feap.gov.pt_CIUS-PT_2.1.1.xslt",
+      "checks": 368
     }
   },
   "fontoxpath": "3.34.0"

@@ -12,6 +12,8 @@ export const ADDONS = {
   // Romania's national rules (RO e-Factura, ANAF). UBL only; no Saxon form is built, so
   // only the plain route (browser and Node fallback) runs them: build-ro-rules.mjs.
   "cius-ro": { source: "cius-ro-schematron", match: /CIUS-RO/i, files: { ubl: "cius-ro-ubl.sef.json" } },
+  // Portugal's CIUS-PT (AMA / FEAP), the checks the EU base does not carry. Plain route only: build-pt-rules.mjs.
+  "cius-pt": { source: "cius-pt-schematron", match: /CIUS-PT/i, files: { ubl: "cius-pt-ubl.sef.json" } },
 };
 
 // Peppol PINT profiles (Singapore InvoiceNow, Australia/New Zealand). Their
