@@ -666,6 +666,22 @@ export function readQif(text, { dayFirst = false } = {}) {
 // flipped when its payments are negative (`inferred` says so).
 // Without dayFirst or decimalComma the CSV branch infers them from the cells
 // (inferLocale); passing either one, true or false, is never overridden.
+// A trade list's quantity and amount share a sign (buy: both positive; sell: both negative).
+// A brokerage cash-activity file (dividend +31.04, purchase -31.04, blank or unrelated
+// quantity) has the same headers but is already signed as cash, so it must not flip.
+function tradeSignsAgree(out, rows, hdr) {
+  const q = hdr.findIndex((h) => ["qty", "quantity", "shares"].includes(h));
+  if (q === -1) return false;
+  let agree = 0;
+  for (const r of out) {
+    const qty = parseCents(rows[r.line - 1]?.[q]);
+    if (!Number.isFinite(qty) || qty === 0 || r.cents === 0) continue;
+    if (Math.sign(qty) !== Math.sign(r.cents)) return false;
+    agree++;
+  }
+  return agree > 0;
+}
+
 export function readStatement(text, { dayFirst, decimalComma, invert, year, onlyAccount } = {}) {
   // Classic-Mac files end lines with a bare CR; the line-based readers split on \n.
   text = String(text ?? "").replace(/\r(?!\n)/g, "\n");
@@ -889,7 +905,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   }
   // A trade list (ticker, qty, price, amount; Maybe's import shape) states the value bought as
   // positive and sold as negative: the cash moved the other way.
-  if (invert === undefined && !flip && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && ["ticker", "symbol"].some((k) => hdr.includes(k)) && ["qty", "quantity", "shares"].some((k) => hdr.includes(k)) && hdr.includes("price")) {
+  if (invert === undefined && !flip && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && ["ticker", "symbol"].some((k) => hdr.includes(k)) && ["qty", "quantity", "shares"].some((k) => hdr.includes(k)) && hdr.includes("price") && tradeSignsAgree(out, rows, hdr)) {
     flip = true;
     inferred = "A trade list states the value bought as positive, so signs were flipped (a buy is cash out).";
   }
