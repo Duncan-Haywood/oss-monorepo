@@ -451,6 +451,12 @@ function readAmazon(table, head) {
     let kind;
     if (/transfer/.test(type)) kind = "skip";
     else if (/reserve/.test(what) || /reserve/.test(amt)) kind = "reserve";
+    else if (/^(privatelabelcreditcard|storedvaluecard|collectondelivery)(revenue|refund)$/.test(what)) kind = "other"; // direct payments: money the buyer paid some other way
+    else if (/^(postagebilling|postagerefund)$/.test(what)) kind = "fees"; // shipping labels bought through Amazon
+    else if (/^tcs_/.test(what)) kind = "tax"; // India: tax collected at source
+    else if (what === "paymentmethodfee") kind = "fees";
+    else if (/^(goodwill|discount|returnshipping|freereplacementreturnshipping)$/.test(what)) kind = amt === "itemprice" ? "refunds" : "other";
+    else if (what === "genericdeduction") kind = "other"; // a bad-debt deduction, not a sale
     else if (amt === "itemprice") kind = /tax/.test(what) ? "tax" : type === "refund" ? "refunds" : "sales";
     else if (/withheld|tax/.test(amt)) kind = "tax";
     else if (/promotion/.test(amt)) kind = /tax/.test(what) ? "tax" : "refunds";
