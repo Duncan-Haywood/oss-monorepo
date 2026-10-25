@@ -54,24 +54,30 @@ def main():
         f = np.array(f, float)
         for na in SIZES:
             rr = random.Random(SEED + na)
+            skipped = 0
             hit = {m: [[] for _ in NAMES] for m in ("human", "ins", "cf")}
             sez = {m: [[] for _ in NAMES] for m in ("human", "ins", "cf")}
             for _ in range(REPS):
                 idx = np.array(rr.sample(range(n), na))
                 perm = np.array(rr.sample(range(na), na))
-                res = {"human": R.human_ols(X[idx], human[idx], n)[:2],
-                       "ins": R.ppi_ols_tuned(X, f, idx, human[idx])[:2],
-                       "cf": R.ppi_ols_crossfit(X, f, idx, human[idx], perm)[:2]}
+                try:
+                    res = {"human": R.human_ols(X[idx], human[idx], n)[:2],
+                           "ins": R.ppi_ols_tuned(X, f, idx, human[idx])[:2],
+                           "cf": R.ppi_ols_crossfit(X, f, idx, human[idx], perm)[:2]}
+                except np.linalg.LinAlgError:  # a half-audit lacks a language: its audit design matrix is singular
+                    skipped += 1
+                    continue
                 for m, (b, se) in res.items():
                     for j in range(len(NAMES)):
                         hit[m][j].append(abs(b[j] - truth[j]) <= 1.959964 * se[j])
                         sez[m][j].append(se[j])
+            out.append(f"# {cname} n={na}: {skipped} of {REPS} draws dropped for all three estimators (singular audit design matrix)")
             for j, nm in enumerate(NAMES):
                 h = {m: np.mean(hit[m][j]) for m in hit}
                 r = {m: np.mean(sez[m][j]) / np.mean(sez["human"][j]) for m in hit}
                 out.append(f"{cname} {na} {nm} {h['human']:.3f} {h['ins']:.3f} {h['cf']:.3f} {r['ins']:.3f} {r['cf']:.3f} "
                            f"{paired(hit['ins'][j], hit['cf'][j])} {paired(hit['human'][j], hit['ins'][j])}")
-        print("\n".join(out[-(len(NAMES) * len(SIZES)):]), flush=True)
+        print("\n".join(out[-(len(NAMES) + 1) * len(SIZES):]), flush=True)
     (HERE / "h6j_small_audit.txt").write_text("\n".join(out) + "\n")
 
 
