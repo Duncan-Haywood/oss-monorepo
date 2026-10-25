@@ -131,7 +131,7 @@ flagships:
       (plain-from-xslt.mjs can compile it); India's INV-01 schema check; mandate
       dates read from primary sources where pages cite guides (Denmark page 2026-10-25 now notes the final order BEK 811 of 2026-09-22 but its dates are unconfirmed, erhvervsstyrelsen.dk and retsinformation.dk are blocked here; Estonia secondary only: emta.ee; iras.gov.sg,
       ato.gov.au, revenue.ie, CBIC); refresh the Bulgaria page when its draft
-      passes or changes. A run that lands a slice replaces its item here; keep
+      passes or changes (consultation closed 2026-10-23, no outcome found 2026-10-25). A run that lands a slice replaces its item here; keep
       this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
