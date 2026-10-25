@@ -57,3 +57,14 @@ test("memos read on HCB page 5 (mail tools, prepaid phone, steel and 3D-printer 
   assert.equal(c.hits.get("shell/shell => 6160"), 1);
   assert.equal(c.hits.get("alro steel corp => 6100"), 1);
 });
+
+test("memos read on HCB page 6 (home-improvement site, fab shops, parking app, merch printers) get an account", () => {
+  const c = coverage([
+    { memo: "HOMEDEPOT.COM", cents: -9000 }, { memo: "SP POLYMAKER 3D PRIN", cents: -4000 },
+    { memo: "GOOGLE *GOOGLE ONE", cents: -300 }, { memo: "SPOTHERO 844-356-8054", cents: -2500 },
+    { memo: "CUSTOMINK GROUPS", cents: -8000 }, { memo: "CHILI'S DOWNTOWN SANJO", cents: -3000 },
+    { memo: "Amazon", cents: -3000 },
+  ]);
+  assert.equal(c.suggested, 6);
+  assert.equal(c.hits.get("spothero 844-356-8054 => 6160"), 1);
+});

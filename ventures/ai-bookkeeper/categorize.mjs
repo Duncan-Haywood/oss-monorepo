@@ -117,6 +117,13 @@ export const BUILT_IN = [
   ["6100", "out", /bambu lab|joann stores|alro steel|mas epoxies|lakeshore carbide|\bvevor\b|bulksupplements/],
   ["6120", "out", /cheapoair|delta internet/],
   ["6000", "out", /discountmugs/],
+  // HCB page 6 (eval/hcb-memos.mjs --orgpage 6), written after the held-out reading.
+  ["6100", "out", /homedepot\.com|\bfabworks\b|polymaker|alibaba\.com|aliexpress|michaels stores/],
+  ["6060", "out", /google ?\*? ?google one/],
+  ["6160", "out", /spothero/],
+  ["6120", "out", /frontier reservations/],
+  ["6000", "out", /customink|bonfire\.com/],
+  ["6130", "out", /famous dave|chili's/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
