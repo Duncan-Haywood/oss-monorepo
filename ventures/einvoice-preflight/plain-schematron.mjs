@@ -149,6 +149,7 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
       const rules = await load(PLAIN_ADDON_FILES[name][syntax]);
       if (!rules) continue;
       sets.push(name);
+      if (name === "cius-pt") for (const f of findings) if (f.rule === "BR-CL-17" || f.rule === "BR-CL-18") f.fix += PT_CODE_NOTE;
       const raw = runRules(rules, doc);
       skipped.push(...raw.skipped);
       for (const f of raw.map((x) => toFinding(x, addon.source))) {
@@ -160,5 +161,8 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
 
   return { run, runRules };
 }
+
+// AMA's CIUS-PT 2.1.1 stylesheet carries no BR-CL-* rule, and its own format rules (DT-CIUS-PT-091, -105, -131) and BR-AA-* rules admit AA, RED, INT, NOR, ISE, OUT and NA. EN 16931's list does not, so the EU base rejects them: say so instead of leaving a Portuguese issuer to guess.
+const PT_CODE_NOTE = " This invoice names CIUS-PT, whose own rules accept AA, RED, INT, NOR, ISE, OUT and NA; if the code is one of those, the EN 16931 base and the Portuguese profile disagree, and S with the actual rate is what the EU base accepts. Ask your software vendor or AT which one the receiver validates against.";
 
 export { FILES, ADDONS, PROFILES };

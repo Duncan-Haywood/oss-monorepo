@@ -40,3 +40,14 @@ test("every Portuguese rule gets an English fix", () => {
   assert.match(plainFix("BR-CIUS-PT-01"), /NIF/);
   assert.match(plainFix("DT-CIUS-PT-106.1"), /Portugal/);
 });
+
+test("a Portuguese-only VAT category code fails the EU list, and the finding says the profile accepts it", { skip }, async () => {
+  for (const code of ["AA", "RED", "INT", "NOR"]) {
+    const r = await runPlain(sample.replaceAll("<cbc:ID>S</cbc:ID>", `<cbc:ID>${code}</cbc:ID>`));
+    const cl = r.findings.filter((f) => f.rule === "BR-CL-17" || f.rule === "BR-CL-18");
+    assert.ok(cl.length >= 2, code);
+    for (const f of cl) assert.match(f.fix, /CIUS-PT, whose own rules accept AA, RED, INT/);
+  }
+  const eu = await runPlain(sample.replace("CIUS-PT:2.1.1", "xx").replaceAll("<cbc:ID>S</cbc:ID>", "<cbc:ID>AA</cbc:ID>"));
+  for (const f of eu.findings.filter((f) => f.rule === "BR-CL-18")) assert.doesNotMatch(f.fix, /CIUS-PT/);
+});
