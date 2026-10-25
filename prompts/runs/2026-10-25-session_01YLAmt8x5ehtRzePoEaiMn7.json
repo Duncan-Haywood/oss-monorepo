@@ -36,7 +36,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-10-25-sparsifying-diloco-deltas-costs-loss-linearly.md; LOG.md milestone 4a",
+  "writeups": [
+    "docs/posts/2026-10-25-sparsifying-diloco-deltas-costs-loss-linearly.md",
+    "research/lowcomm-training/LOG.md"
+  ],
   "goal": null,
   "notes": "Milestone 4a: rand-k compression of DiLoCo deltas on 413k GPT, 12 runs, H3 supported (R2 0.999, slope 1.26). Homepage build ok, md links ok, test_harness 7 pass. No agent doc written (post and LOG carry it).",
   "corrections": [],
