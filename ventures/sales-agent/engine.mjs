@@ -202,6 +202,12 @@ const RULES = {
     P("\\b(do not|don'?t|dont|never) (contact|email|e-mail|message|reach out to) (me|us|again)\\b"), P("\\bopt(ed)?[ -]?out\\b"), P("\\bopt (me|us) out\\b"), P("\\bremove (it|them|this|my \\w+|our \\w+) from\\b"), P("\\b(from|off) your (database|list|mailing list|system|crm)\\b"), P("^\\s*stop\\.?\\s*$"),
     P("\\b(don'?t|do not) (email|contact|write to) me\\b"), P("\\bno more (emails|messages)\\b"), P("\\bstop spamming\\b"), P("\\bthis is spam\\b"), P("\\bgdpr\\b.*\\b(delete|erase|erasure|remove)"),
     P("\\b(delete|erase) (my|our) (data|details|information)\\b"), P("\\bmark(ing)? (this|you) as spam\\b"), P("\\breport(ing)? (this|you) as spam\\b"), P("\\bnot interested,? (please )?(stop|remove)"),
+    // Added 2026-10-25 after a fourth set missed 9 of 18 unsubscribes: bare "please stop", "leave me alone", "strike me from",
+    // "don't write again", "never gave you permission", "unsub", and FR/DE/ES "no longer receive/send" phrasings.
+    P("^\\s*(please )?stop( it| please)?[.!]*\\s*$"), P("\\bleave (me|us) alone\\b"), P("\\b(strike|drop|purge|scrub) (me|us|my \\w+) from\\b"), P("\\b(don'?t|do not|never) (write|call|text|bother) (to )?(me|us)?\\s*(again|anymore|any more)\\b"),
+    P("\\b(never|didn'?t|did not) (gave|give|given|opt(ed)? in|sign(ed)? up|consent|agree)\\b.*\\b(permission|consent|to (this|your))"), P("\\bunsub\\b"), P("\\btake (it|my \\w+|this) off\\b"), P("\\bwhat(ever)? list you\\b"),
+    P("\\bno (longer )?(wish|want)s? to (receive|get|hear)\\b"), P("\\bne souhaite plus recevoir\\b"), P("\\bplus recevoir (de |vos )?(messages|mails|courriels|e-?mails)\\b"), P("\\bkeine e-?mails mehr\\b"), P("\\bno quiero recibir\\b"),
+    P("\\bunsolicited\\b.*\\b(remove|strike|delete|stop)\\b"),
     P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
     // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
     P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),

@@ -12,6 +12,7 @@ error (rules too narrow) is what these sets show reliably.
 | `heldout.jsonl` | 48 | Written after the first tuning, scored once (24/48), then tuned on too |
 | `fresh-2026-10-21.jsonl` | 40 | Written after the second tuning, scored once, **not tuned on**. The honest numbers |
 | `fresh-2026-10-24b.jsonl` | 41 | Third set, written the same day by the session that then patched the rules. Scored once **before** any change (34/41); that author had read the earlier sets' miss list, so it is easier than the others. Its two missed unsubscribes were then patched, so it is now a tuned set |
+| `fresh-2026-10-25.jsonl` | 42 | Opt-out-heavy (18 unsubscribes). Scored once before the change (25/42, 9 of 18 opt-outs caught), then the missed opt-outs were patched: now 34/42, 18/18. A tuned set |
 | `fresh-2026-10-24.jsonl` | 41 | Written by a later session that had not read the rules' output on it, scored once, **not tuned on**. A second honest measurement; same caveat: still written by an agent |
 
 `bounce-corpus/` and `bounces.mjs` are the exception to "hand-written": 117 real
