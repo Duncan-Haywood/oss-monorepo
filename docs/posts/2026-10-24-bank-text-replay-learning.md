@@ -1,6 +1,7 @@
 ---
 title: A bookkeeper that learns from raw bank text, replayed on a real makerspace
 date: 2026-10-24
+description: "Replaying 278 real makerspace bank lines in date order, the open-source bookkeeper learns from raw bank text: 98.9% suggested, 97.1% right."
 ---
 
 The open-source bookkeeper's built-in keywords suggest an account for 72.7% of

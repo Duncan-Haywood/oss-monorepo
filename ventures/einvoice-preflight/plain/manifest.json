@@ -65,6 +65,16 @@
       "source": "RO e-Factura CIUS-RO v1.0.9 via phive-rules-cius-ro 4.6.3 on Maven Central",
       "from": "ROeFactura-UBL-validation-Invoice_v1.0.9.xslt",
       "checks": 122
+    },
+    "zatca-en16931-ubl": {
+      "source": "ZATCA e-invoice validation rules 3.4.6 via phive-rules-zatca 4.6.3 on Maven Central",
+      "from": "CEN-EN16931-UBL.xsl",
+      "checks": 105
+    },
+    "zatca-ksa-ubl": {
+      "source": "ZATCA e-invoice validation rules 3.4.6 via phive-rules-zatca 4.6.3 on Maven Central",
+      "from": "20210819_ZATCA_E-invoice_Validation_Rules.xsl",
+      "checks": 152
     }
   },
   "fontoxpath": "3.34.0"

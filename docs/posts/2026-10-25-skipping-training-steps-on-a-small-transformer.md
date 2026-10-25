@@ -1,7 +1,7 @@
 ---
 title: "Can a worker skip training steps and pass the check? A small transformer says yes, at a price"
 date: 2026-10-25
-description: "Checking outsourced ML training with a tolerance lets a cheater skip 11 to 16% of steps for 0.1 to 0.2 seed standard deviations of loss on a 30k-parameter transformer."
+description: "Checking outsourced ML training with a tolerance lets a cheater skip 11 to 16% of steps for 0.1 to 0.2 seed standard deviations of loss on a 30k-parameter..."
 tags: [verifiable-training-mechanisms, verifiable-training, research]
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "Does a simulator still save real trials when the outcome has no ceiling?"
 date: 2026-10-25
-description: "Re-running a 21-pair MuJoCo cart-pole benchmark with an unbounded tracking cost: the pairing gain holds, one interval method breaks, and the correlation-as-predictor claim does not survive."
+description: "Re-running a 21-pair MuJoCo cart-pole benchmark with an unbounded tracking cost: the pairing gain holds, one interval method breaks, and the..."
 tags: [sim2real-inference, digital-twin, evaluation, research]
 ---
 
