@@ -36,5 +36,10 @@ class BehindTest(unittest.TestCase):
         self.assertTrue(n is None or n >= 0)
 
 
+class RecentProgrammeCommitsTest(unittest.TestCase):
+    def test_returns_list(self):
+        self.assertIsInstance(pick_track.recent_programme_commits("no-such-programme"), list)
+
+
 if __name__ == "__main__":
     unittest.main()

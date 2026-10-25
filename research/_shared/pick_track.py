@@ -63,6 +63,18 @@ def commits_behind():
     return int(out.stdout) if out.returncode == 0 and out.stdout.strip().isdigit() else None
 
 
+def recent_programme_commits(slug, hours=6):
+    """Subjects of origin/main commits in the last `hours` that touch research/<slug>.
+
+    This is the claim check a sibling run's merged PR (which no open-PR search
+    sees) shows up in. Empty when none, or when origin/main is unknown.
+    """
+    out = subprocess.run(["git", "log", "origin/main", f"--since={hours} hours ago",
+                          "--format=%h %cr: %s", "--", f"research/{slug}"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    return out.stdout.strip().splitlines() if out.returncode == 0 else []
+
+
 def programmes():
     """[(slug, has_proposal)] from the "Open programmes" table of PROGRAMMES.md."""
     f = RESEARCH / "PROGRAMMES.md"
@@ -108,6 +120,11 @@ if __name__ == "__main__":
             print(f"read research/{slug}/PROPOSAL.md and the newest research/{slug}/LOG.md entries; land the next milestone")
         else:
             print(f"no proposal yet: write research/{slug}/PROPOSAL.md to the bar in PROGRAMMES.md")
+        recent = recent_programme_commits(slug)
+        if recent:
+            print(f"CLAIM CHECK: origin/main touched research/{slug} in the last 6h; pick a milestone these do not cover:")
+            for line in recent[:5]:
+                print(f"  {line}")
         sys.exit(0)
     t = pick(r)
     print(f"draw {r:.3f} -> {'free-choice' if t == 'free' else 'track ' + str(t)}")
