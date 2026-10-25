@@ -215,8 +215,8 @@ test("Square Payouts API entries split a payout; fees may be signed either way",
 
 test("Square ActivityType names classify by meaning: fee refunds are fees, holds and loans are not income", () => {
   const e = (type, amount) => ({ payout_id: "p", type, effective_at: "2026-03-04T15:00:00Z", gross_amount_money: { amount }, fee_amount_money: { amount: 0 }, net_amount_money: { amount } });
-  const kinds = Object.fromEntries(["CHARGE", "REFUND", "PROCESSING_FEE_REFUND", "APP_FEE_REVENUE", "RESERVE_HOLD", "SQUARE_CAPITAL_PAYMENT", "OPEN_DISPUTE", "PAYOUT", "TAX_ON_FEE", "SOMETHING_NEW"].map((t) => [t, readPayoutReport(JSON.stringify({ payout_entries: [e(t, 100)] })).rows[0].kind]));
-  assert.deepEqual(kinds, { CHARGE: "sales", REFUND: "refunds", PROCESSING_FEE_REFUND: "fees", APP_FEE_REVENUE: "sales", RESERVE_HOLD: "reserve", SQUARE_CAPITAL_PAYMENT: "reserve", OPEN_DISPUTE: "disputes", PAYOUT: "skip", TAX_ON_FEE: "fees", SOMETHING_NEW: "other" });
+  const kinds = Object.fromEntries(["CHARGE", "REFUND", "PROCESSING_FEE_REFUND", "APP_FEE_REVENUE", "RESERVE_HOLD", "SQUARE_CAPITAL_PAYMENT", "OPEN_DISPUTE", "PAYOUT", "TAX_ON_FEE", "ESCHEATMENT", "PERCENTAGE_PROCESSING_ENROLLMENT", "PERCENTAGE_PROCESSING_DEACTIVATION", "LOCAL_OFFERS_FEE", "SOMETHING_NEW"].map((t) => [t, readPayoutReport(JSON.stringify({ payout_entries: [e(t, 100)] })).rows[0].kind]));
+  assert.deepEqual(kinds, { CHARGE: "sales", REFUND: "refunds", PROCESSING_FEE_REFUND: "fees", APP_FEE_REVENUE: "sales", RESERVE_HOLD: "reserve", SQUARE_CAPITAL_PAYMENT: "reserve", OPEN_DISPUTE: "disputes", PAYOUT: "skip", TAX_ON_FEE: "fees", ESCHEATMENT: "reserve", PERCENTAGE_PROCESSING_ENROLLMENT: "reserve", PERCENTAGE_PROCESSING_DEACTIVATION: "reserve", LOCAL_OFFERS_FEE: "fees", SOMETHING_NEW: "other" });
 });
 
 test("a Square entry whose net fits neither fee sign is refused", () => {
