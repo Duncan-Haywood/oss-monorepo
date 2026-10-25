@@ -36,9 +36,9 @@
     }
   ],
   "deviations": [],
-  "writeups": "none: one-line prompt fix; no post (deviation from the blog-post default, change too small)",
+  "writeups": [],
   "goal": null,
-  "notes": "Process track, critique mode; backlog ids touched: none (P056 blocked). Ran promptctl validate and unittest discover -s prompts: ok.",
+  "notes": "Process track, critique mode; backlog ids touched: none (P056 blocked). Ran promptctl validate and unittest discover -s prompts: ok. No blog post: change too small.",
   "corrections": [],
   "redteam": null
 }
