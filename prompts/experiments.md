@@ -1382,3 +1382,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   process 2 and review 2 all "keep collecting" (intervals overlap).
 - Decisions: no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E88: review 2026-10-25 (reduced pass, sixteenth run)
+
+- Change: none to prompts or docs. Regenerated `prompts/derived/`. Candidates
+  re-measured: ventures 2, process 2 and review 2 all "keep collecting"
+  (intervals overlap). Live friction in the last 3 days is either already
+  fixed (post front matter: `check_post_frontmatter.py`) or an environment
+  hook report (`block_pkill_f.py`) with no clear doc fix.
+- Metric: none new. E79 to E87 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
