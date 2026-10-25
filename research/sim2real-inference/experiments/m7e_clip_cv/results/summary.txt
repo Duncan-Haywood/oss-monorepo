@@ -1,0 +1,5 @@
+q=0.999, c=2.009
+n=30: twin-assisted smaller gap on 0/21 pairs (rho of winners: []); median rel gap real 1.507, twin 2.464; min coverage real 100.0%, twin 100.0%
+n=60: twin-assisted smaller gap on 0/21 pairs (rho of winners: []); median rel gap real 0.822, twin 1.240; min coverage real 100.0%, twin 100.0%
+n=120: twin-assisted smaller gap on 0/21 pairs (rho of winners: []); median rel gap real 0.468, twin 0.642; min coverage real 100.0%, twin 100.0%
+n=240: twin-assisted smaller gap on 0/21 pairs (rho of winners: []); median rel gap real 0.271, twin 0.333; min coverage real 100.0%, twin 100.0%

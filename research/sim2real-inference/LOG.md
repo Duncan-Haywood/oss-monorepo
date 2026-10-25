@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 7e: does a twin-assisted lower bound on the clipped cost beat real-only? (planned before running)
+- Why: 7d's open item. With c fixed by the twin quantile, outcomes are y = min(R, c)/c in [0, 1], so the bounded-outcome constructions apply. Real data for the programme's main gap (per-episode pairs) was probed first and is not reachable here: the SimplerEnv repository (cloned, 11 MB) holds code only, no episode logs, and the PolaRiS paper (arXiv:2512.16881) reports its real-versus-sim scores in figures, not tables, so nothing could be transcribed without guessing. Logged as a negative probe.
+- Construction (`experiments/m7e_clip_cv/clipcv.py`): on the 21 m7c pools, q = 0.999, c as in 7d. L = EB lower bound on E[y_R - y_T] over n real pairs (residual rescaled from [-1, 1] to [0, 1]; Maurer-Pontil, delta 0.05) plus E[y_T], the exact mean of the clipped twin over the 4,000-context twin pool (treated as known, as c is). Compared with the 7d real-only bound at the same n (30, 60, 120, 240), 1,000 replications, same seeds scheme.
+- **H7e-i (3c to 3e repeat):** at n = 240 the twin-assisted bound has a smaller mean gap than real-only on fewer than 5 of 21 pairs. Refuted if 5 or more.
+- **H7e-ii (validity):** coverage of E[min(R, c)] at least 95% on every cell. Refuted otherwise (would point to a bug).
+- **H7e-iii (where it wins):** every pair where it wins at n = 240 has rho >= 0.9. Refuted if a winner has rho below 0.9.
+- Not tested: a twin mean estimated from finitely many twin runs, per-episode real pairs, an upper bound on cost.
+
+### Outcome (21 cost pools, q = 0.999, c = 2.009, 1,000 replications per cell; `experiments/m7e_clip_cv/results/`)
+- **H7e-i supported.** The twin-assisted bound has a smaller mean gap than real-only on 0 of 21 pairs at every n (30, 60, 120, 240). Median relative gap at n = 240: 0.333 twin-assisted against 0.271 real-only (n = 30: 2.46 against 1.51). Even the pairs with clipped rho near 0.94 lose: doubling the residual range from [0, 1] to [-1, 1] costs more than the smaller residual variance saves, the same range-term effect as 3c to 3e.
+- **H7e-ii supported, trivially.** Coverage is 100% on every cell for both bounds (conservative).
+- **H7e-iii vacuous.** There are no winners, so the rho >= 0.9 condition has nothing to test.
+- Reading: the twin-chosen clip level makes an unbounded cost certifiable (7d), but the twin adds nothing to the certificate even with its mean treated as exactly known, the most favourable case. The certification result (H3 refuted) now holds on bounded scores, binary failures and a clipped unbounded cost.
+- Limitations: the twin mean is taken from the 4,000-context twin pool as known; one EB construction, one plant; no real data.
+- Negative probe (real data): SimplerEnv holds code and no episode logs; PolaRiS reports real versus sim scores in figures only. Per-episode real pairs stay the main gap.
+
 ## 2026-10-25 · Milestone 7d: what does a twin-chosen clip level buy a certificate on an unbounded cost? (planned before running)
 - Why: 7c left "certificates for unbounded outcomes" open. No distribution-free lower bound on E[R] exists without a tail assumption, but the twin is free to run, so its quantile can fix a clip level c, and a bounded bound applies to min(R, c) (valid for E[min(R, c)] <= E[R]). Question: is that bound informative, and does the twin's quantile transfer to the real outcome? On the 21 m7c cost pools (4,000 contexts), c = the q-quantile of the twin cost over all 4,000 contexts (taken as known: the twin costs nothing), q in {0.99, 0.999}; real-only Maurer-Pontil empirical-Bernstein lower bound on min(R, c)/c (delta 0.05), pool draws without replacement, 1,000 replications, n in {30, 60, 120, 240}. Code: `experiments/m7d_clip/clip.py`. Nothing tuned, no pool inspected beyond the m7c summary.
 - **H7d-i (the twin quantile does not transfer):** with q = 0.99, the share of real outcomes above c exceeds 3% on at least 5 of 21 pairs. Refuted otherwise.
