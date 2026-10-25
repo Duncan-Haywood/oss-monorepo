@@ -1,8 +1,8 @@
-"""Milestone 6d: the 6c sequential audit at a 1-point target (about 9x the audit size), where the early variance
-estimates (p = 20 per stratum) are a smaller share of the final audit. Batches B in (100, 300), cap 20,000, oracle n
-from the 6a Neyman rule. Writes h6d_tight_target.txt.
+"""Milestone 6d: the sequential audit of 6c at a harder setting (1-point target, starts of 5 and 20 per stratum). Start with p items per stratum, then add batches of B (split by the Neyman
+shares from the current variance estimates) until the stratified-PPI half-width is at most 3 points. Same
+corpus, split, coders, floor and seed scheme as h6b_pilot.py. Writes h6d_hard.txt.
 
-    python3 experiments/h6c_sequential.py     # needs the tsv cache that qual-dialect/experiments/run.py fills
+    python3 experiments/h6d_hard.py     # needs the tsv cache that qual-dialect/experiments/run.py fills
 """
 import random
 import statistics
@@ -13,12 +13,12 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[0]))
 import group_shift as G  # noqa: E402
-import h5_plugin as H5  # noqa: E402
 from llmci import estimators as E  # noqa: E402
 
 qd, d = G.qd, G.d
-REPS, SEED, Z, TARGET = 300, 20261028, E.Z95, 0.01
-P, FLOOR, CAP, BATCHES = 20, 0.02, 20000, (100, 300)
+REPS, SEED, Z, TARGET = 200, 20261028, E.Z95, 0.01
+FLOOR, CAP, BATCHES, STARTS = 0.02, 15000, (300,), (5, 20)
+
 
 
 def main():
@@ -39,12 +39,11 @@ def main():
     sizes = [len(sets[k]) for k in langs]
     truth = sum(human) / len(test)
     out = [f"NaijaSenti corpus {len(test)} tweets, true negative share {truth:.4f}; strata " + ", ".join(f"{k} {len(sets[k])}" for k in langs),
-           f"{REPS} draws per cell, seed {SEED}. Start p = {P} per stratum, add batches of B by Neyman shares until stratified-PPI half-width <= {100 * TARGET:.0f} pts; cap {CAP}.", "",
-           "coder | B | mean n (oracle n) | sd n | p5 n | p95 n | mean half pts | share stopped under cap | coverage"]
+           f"{REPS} draws per cell, seed {SEED}. Starts p in {STARTS} per stratum, add batches of B by Neyman shares until stratified-PPI half-width <= {100 * TARGET:.0f} pts; cap {CAP}.", "",
+           "coder | p | B | mean n | sd n | p5 n | p95 n | mean half pts | share stopped under cap | coverage"]
     for coder, f in coders.items():
         fs = [[f[i] for i in sets[k]] for k in langs]
-        oracle = round(H5.neyman_total(sizes, [H5.stratum_stats([human[i] for i in sets[k]], [f[i] for i in sets[k]])[3] for k in langs], TARGET))
-        for B in BATCHES:
+        for P, B in [(p, b) for p in STARTS for b in BATCHES]:
             rr = random.Random(SEED)
             tot, hw, hit, ok = [], [], 0, 0
             for _ in range(REPS):
@@ -69,11 +68,11 @@ def main():
                 hit += E.covers(e, truth)
                 ok += Z * e.se <= TARGET
             ts = sorted(tot)
-            line = (f"{coder} | {B} | {statistics.fmean(tot):.0f} ({oracle}) | {statistics.pstdev(tot):.0f} | {ts[int(0.05 * REPS)]} | "
+            line = (f"{coder} | {P} | {B} | {statistics.fmean(tot):.0f} | {statistics.pstdev(tot):.0f} | {ts[int(0.05 * REPS)]} | "
                     f"{ts[int(0.95 * REPS)]} | {100 * statistics.fmean(hw):.2f} | {ok / REPS:.3f} | {hit / REPS:.3f}")
             out.append(line)
             print(line, flush=True)
-    (HERE / "h6d_tight_target.txt").write_text("\n".join(out) + "\n")
+    (HERE / "h6d_hard.txt").write_text("\n".join(out) + "\n")
 
 
 if __name__ == "__main__":

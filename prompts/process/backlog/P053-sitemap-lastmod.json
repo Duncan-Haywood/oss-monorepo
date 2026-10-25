@@ -21,6 +21,6 @@
   "opened": "2026-10-24",
   "source": "Owner asked for SEO and AI-search action items in a Claude Code session, 2026-10-24",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10206",
-  "result": null,
+  "result": "helped (build tests only): lastmod tests pass; live sitemap lastmod share unreachable from cloud (proxy 403).",
   "history": []
 }
