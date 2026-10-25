@@ -34,6 +34,13 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // PayPal's own transaction types, from its transaction event codes reference (eval/paypal-event-codes.mjs).
+  // The importer writes "Name - Type", so these anchor on the type at the end. Written ahead of the
+  // transfer rules: "Credit card payment" is a customer paying you, "Bank deposit" is your own money.
+  ["4000", "in", /(^| - )(general|website|express checkout|standard web checkout|mobile|virtual terminal|pos|credit card|subscription|donation|business|ebay auction|preapproved) payment$/],
+  ["6010", "any", /(^| - )(chargeback|dispute|payment|partner|custody|campaign|bank return) fee$|(^| - )(fee reversal|fee refund)$/],
+  ["transfer", "any", /(^| - )((general|manual|user initiated) withdrawal( - bank account)?|auto-?sweep|bank deposit to (pp|paypal) account|(general|user[- ]initiated) currency conversion|conversion to cover negative balance|withdrawal to hyperwallet)$/],
+  ["6020", "out", /(^| - )mass payment$/],
   ["4000", "in", /stripe (transfer|payout)|shopify payout|square (payout|transfer)|paypal transfer|etsy (deposit|payout)/],
   ["3100", "out", /owner draw|transfer to personal|to personal|atm withdrawal|cash withdrawal/],
   ["6010", "out", /annual fee|late (payment )?fee|foreign transaction fee|cash advance fee|returned item fee|\batm fee|wire transfer fee|balance transfer fee/],
