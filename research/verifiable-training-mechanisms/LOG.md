@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 17: venue-format check and proof layout (no experiment)
+- The EC'26 call (found by search; `ec26.sigecom.org` is not reachable through the proxy, so the page was not read) says submissions must use the EC'26 LaTeX style files, single column at 10 pt, and may be rejected without review for using another style or exceeding the page limit. The draft uses `acmart` `sigconf` (two columns), so it is not in the venue's format, and the page limit was not found (past calls: 18 pages, 2014 and 2016 only). Both must be checked against the call before submission: an owner step, with the style files.
+- Fixed the 17 pt overfull line in the H5 proof by displaying the definition of `r` and `p`; the draft now compiles to 4 pages with one 1.25 pt vbox warning and no undefined references.
+- Not done: the bibtex missing-volume, page and publisher fields on six entries (Crossref returned 403 again, so they were not filled from memory).
+
 ## 2026-10-25 · Milestone 16: the draft compiles; figures and full-width tables added (no experiment)
 - Installed TeX Live (`texlive-latex-extra`, `-publishers` for `acmart`, `-fonts-recommended`, `cm-super`) and built `paper/main.tex` with pdflatex and bibtex: 4 pages in the `sigconf,anonymous` format, no undefined references or citations. Two problems the uncompiled draft hid: neither figure was in the paper, and both result tables overflowed the column (one by 258 pt). Fixed: both tables are now `table*`, the margin figure and the frontier figure are included (`\graphicspath` to `../experiments/`), and `make_figures.sh` renders `frontier.svg` to a PNG (LaTeX cannot read the SVG).
 - Still open: one 17 pt overfull line in the H5 proof; bibtex warns of missing page numbers or publisher on six entries; the paper is 4 pages of a longer-form EC submission, so it still needs the page-limit check against the current call. Submitting is an owner step.
