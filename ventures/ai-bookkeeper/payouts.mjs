@@ -64,6 +64,17 @@ const CATEGORY = {
   platform_earning: "sales", application_fee: "sales", platform_earning_refund: "refunds", application_fee_refund: "refunds",
   topup: "reserve", topup_reversal: "reserve", payout_reversal: "reserve", transfer_reversal: "reserve",
   advance: "reserve", advance_funding: "reserve", anticipation_repayment: "reserve", connect_collection_transfer: "reserve", connect_reserved_funds: "reserve",
+  // More categories from Stripe's reporting-categories reference (checked 2026-10-25): holds and releases, transfers refunded,
+  // and funds moved to or from other Stripe products are balance movements, not income; Climate contributions are a fee.
+  charge_failure: "refunds", climate_order_purchase: "fees", climate_reservation_purchase: "fees",
+  climate_order_refund: "fees", climate_reservation_refund: "fees", fee_credit_funding: "fees",
+  payment_network_reserve_hold: "reserve", payment_network_reserve_release: "reserve",
+  payout_minimum_balance_hold: "reserve", payout_minimum_balance_release: "reserve",
+  transfer_refund: "reserve", unreconciled_customer_funds: "reserve",
+  issuing_authorization_hold: "reserve", issuing_authorization_release: "reserve", issuing_disbursement: "reserve",
+  // Older balance-transaction types some exports still carry in the category column.
+  reserve_transaction: "reserve", recipient_transfer: "skip", recipient_transfer_cancel: "reserve", recipient_transfer_failure: "reserve",
+  transfer_cancel: "reserve", transfer_failure: "reserve",
 };
 
 // Read the report. -> { rows, payouts: [{ id, date, net, parts, rows }], pending, problems }
