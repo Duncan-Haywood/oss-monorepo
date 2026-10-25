@@ -1,7 +1,7 @@
 ---
 title: "A free simulator quantile makes an unbounded cost certifiable, but the simulator adds nothing else"
 date: 2026-10-25
-description: "Clipping a robot's tracking cost at the digital twin's 99.9th percentile gives a usable lower bound on mean cost. Using the twin as a control variate on top of that makes the bound worse."
+description: "Clipping a robot's tracking cost at the digital twin's 99.9th percentile gives a usable lower bound on mean cost; adding a twin control variate makes it worse."
 tags: [research, sim2real-inference, digital-twins, statistics]
 ---
 

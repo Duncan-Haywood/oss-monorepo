@@ -81,6 +81,14 @@ file the two new problems you hit along the way.
 - For a random sample of merged PRs, list `git log origin/main --merges
   --since=<date> --format=%s` and pick with `shuf --random-source=<(yes)`, so
   the next run can repeat the pick.
+- **Verify from a cloud session.** The proxy answers 403 for
+  `duncan-haywood.github.io`, so a live metric (llms.txt bytes, sitemap
+  `<lastmod>`) cannot be read. Run the build tests that bound it
+  (`node --test --test-name-pattern=<word> platform/pages/*.test.mjs`, in
+  `run_in_background`; over 120 s) and write the result as "verified by
+  build tests; live site unreachable from cloud", leaving the live check
+  to a run that can reach it. `measure` takes ~70 s: background it too, or
+  pass `--no-fetch`.
 - Another process run may be working at the same time. That is fine: put the
   backlog id or the lens in your PR title, and check open PRs before you
   start.
