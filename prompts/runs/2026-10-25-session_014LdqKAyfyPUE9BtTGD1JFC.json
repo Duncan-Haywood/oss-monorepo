@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_014LdqKAyfyPUE9BtTGD1JFC",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T11:19:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10378",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Only P056 (blocked) is agent-owned; friction table ranking by all-time count hid live faults (fixed in this PR)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-25-friction-table-live-first.md"
+  ],
+  "goal": null,
+  "notes": "Touched no backlog id; critique-mode fix to promptctl measure. Unit tests 107 OK, validate OK. No agent doc written: change is self-describing.",
+  "corrections": [],
+  "redteam": null
+}
