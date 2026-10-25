@@ -34,3 +34,14 @@ test("Lumens (a lighting shop) and a power-manager part are not utility bills", 
   assert.equal(c.hits.get("city power & light => 6140"), 1);
   assert.equal(c.suggested, 2);
 });
+
+test("memos read on HCB page 4 (transactional mail, parts shops, merch printers, catering) get an account", () => {
+  const c = coverage([
+    { memo: "POSTMARKAPP.COM", cents: -1500 }, { memo: "MISUMI USA", cents: -4000 },
+    { memo: "Standout Stickers", cents: -2500 }, { memo: "EZCATER*AZUL MEXICAN C", cents: -9000 },
+    { memo: "Amazon", cents: -3000 }, { memo: "Target T-1176", cents: -2000 },
+  ]);
+  assert.equal(c.suggested, 4);
+  assert.equal(c.hits.get("misumi usa => 6100"), 1);
+  assert.equal(c.hits.get("ezcater*azul mexican c => 6130"), 1);
+});
