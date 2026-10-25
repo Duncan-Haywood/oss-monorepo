@@ -15,7 +15,7 @@
   <meta property="og:description" content="Bank and card CSVs in, balanced books out. Learns your payees, pairs transfers, reconciles to the statement, exports QuickBooks Online, Xero and IIF journals. Optional AI on your own key or a local model.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "AI Bookkeeper", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Double-entry bookkeeping from bank and card CSV exports. Suggests an account for every line with a confidence and a reason, learns from each line you confirm, pairs transfers between your own accounts, reconciles to the statement's running balance, and produces a trial balance, profit and loss, balance sheet, close checks and journals for QuickBooks Online, Xero and QuickBooks Desktop. Optional AI suggestions on your own API key or a model on your own computer. Runs in the browser.", "featureList": "bank CSV import, transaction categorization, learns payees, review queue, transfer matching, double-entry journal, trial balance, profit and loss, balance sheet, bank reconciliation, close checklist, QuickBooks Online journal import, Xero manual journal, IIF, bring-your-own-key AI, local model (Ollama, LM Studio)"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does AI Bookkeeper actually do with my bank file?", "acceptedAnswer": {"@type": "Answer", "text": "It reads each line, suggests the account it belongs to with a confidence and the reason, and turns every line you accept into a balanced double-entry journal entry. From those entries it builds a trial balance, a profit and loss by month and a balance sheet. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "How does it learn?", "acceptedAnswer": {"@type": "Answer", "text": "Every line you file is remembered by its payee, cleaned of store numbers and reference codes. Next time the same payee posts itself once you have filed it the same way three times, and a small naive Bayes classifier trained on everything you filed suggests accounts for payees it has not seen exactly. On a synthetic year of a small studio's lines, 60% of each month posted by itself from the fourth month on, and 1 of those 1,300 lines went to the wrong account."}}, {"@type": "Question", "name": "Is the AI required, and where does my data go?", "acceptedAnswer": {"@type": "Answer", "text": "No. The rules, memory and classifier run in your browser with no key. If you add your own Anthropic, OpenAI or Gemini key, or point it at a model on your own computer such as Ollama or LM Studio, the dates, descriptions and amounts of the lines still in review, your chart of accounts and up to 40 lines you already filed are sent from your browser straight to that provider, never to us. The model only suggests; nothing is posted until you accept it."}}, {"@type": "Question", "name": "Why doesn't a credit card payment show up as an expense?", "acceptedAnswer": {"@type": "Answer", "text": "Because it is not one. Paying the card from checking moves money between two of your own accounts. When you import both statements, the payment out of checking and the payment received on the card are paired into one transfer entry, so the expense is counted once, when you bought the thing."}}, {"@type": "Question", "name": "Can I take the books to QuickBooks or Xero, or to my accountant?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Export a QuickBooks Online journal entry import, a Xero manual journal CSV, a QuickBooks Desktop IIF file, a plain journal CSV, or a CSV of every line with its account, suggestion and reason. Check the account names match your company file before you import."}}, {"@type": "Question", "name": "Where are my books saved?", "acceptedAnswer": {"@type": "Answer", "text": "In this browser's local storage and in the books file you download. Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser."}}, {"@type": "Question", "name": "Is this a replacement for an accountant?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does the sorting and the arithmetic of bookkeeping and tells you what to check. It does not know your tax position, accrual adjustments, depreciation, payroll filings or sales tax rules. Have a qualified accountant review the books before you file anything."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does AI Bookkeeper actually do with my bank file?", "acceptedAnswer": {"@type": "Answer", "text": "It reads each line, suggests the account it belongs to with a confidence and the reason, and turns every line you accept into a balanced double-entry journal entry. From those entries it builds a trial balance, a profit and loss by month and a balance sheet. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "How does it learn?", "acceptedAnswer": {"@type": "Answer", "text": "Every line you file is remembered by its payee, cleaned of store numbers and reference codes. Next time the same payee posts itself once you have filed it the same way three times, and a small naive Bayes classifier trained on everything you filed suggests accounts for payees it has not seen exactly. On a synthetic year of a small studio's lines, 60% of each month posted by itself from the fourth month on, and 1 of those 1,300 lines went to the wrong account."}}, {"@type": "Question", "name": "Is the AI required, and where does my data go?", "acceptedAnswer": {"@type": "Answer", "text": "No. The rules, memory and classifier run in your browser with no key. If you add your own Anthropic, OpenAI or Gemini key, or point it at a model on your own computer such as Ollama or LM Studio, the dates, descriptions and amounts of the lines still in review, your chart of accounts and up to 40 lines you already filed are sent from your browser straight to that provider, never to us. The model only suggests; nothing is posted until you accept it."}}, {"@type": "Question", "name": "Why doesn't a credit card payment show up as an expense?", "acceptedAnswer": {"@type": "Answer", "text": "Because it is not one. Paying the card from checking moves money between two of your own accounts. When you import both statements, the payment out of checking and the payment received on the card are paired into one transfer entry, so the expense is counted once, when you bought the thing."}}, {"@type": "Question", "name": "Can I take the books to QuickBooks or Xero, or to my accountant?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Export a QuickBooks Online journal entry import, a Xero manual journal CSV, a QuickBooks Desktop IIF file, a plain journal CSV, or a CSV of every line with its account, suggestion and reason. Check the account names match your company file before you import."}}, {"@type": "Question", "name": "Where are my books saved?", "acceptedAnswer": {"@type": "Answer", "text": "In this browser's local storage and in the books file you download. In Chrome, Edge or Opera you can also keep a live copy in a file you pick (a synced folder works). Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser."}}, {"@type": "Question", "name": "Is this a replacement for an accountant?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does the sorting and the arithmetic of bookkeeping and tells you what to check. It does not know your tax position, accrual adjustments, depreciation, payroll filings or sales tax rules. Have a qualified accountant review the books before you file anything."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1c2430; background: #f3f5f2; }
     body { max-width: 1120px; margin: auto; padding: 28px; }
@@ -375,6 +375,13 @@
     <button type="button" class="secondary" id="save">Download the books file</button>
     <label for="open">Open a books file</label><input id="open" type="file" accept=".json,application/json">
     <button type="button" class="secondary" id="clear">Start empty books</button>
+    <div id="live-box" hidden>
+      <button type="button" class="secondary" id="live-new">Keep a live copy in a new file</button>
+      <button type="button" class="secondary" id="live-open">Open a books file and keep it saved</button>
+      <button type="button" class="secondary" id="live-resume" hidden></button>
+      <button type="button" class="secondary" id="live-stop" hidden>Stop saving to the file</button>
+      <p class="note" id="live-status" role="status" aria-live="polite">Pick a file, for example in a synced folder (iCloud Drive, Dropbox, OneDrive, Google Drive), and every change is saved to it as you work. The file stays on your device; this page never uploads it. Needs Chrome, Edge or Opera.</p>
+    </div>
     <p id="save-status" class="note" role="status" aria-live="polite"></p>
   </section>
 
@@ -455,13 +462,15 @@
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { liveFileSupported, pickNewFile, pickExistingFile, readBooksFromHandle, ensureWritable, createLiveWriter, serializeBooks, rememberHandle, recallHandle, forgetHandle } from "./livefile.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const STORE = "ai-bookkeeper-books", AI_STORE = "ai-bookkeeper-ai";
     const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v); } for (const k of kids) e.append(k); return e; };
     const load = () => { try { const s = localStorage.getItem(STORE); return s ? JSON.parse(s) : null; } catch { return null; } };
     let books = load() ?? newBooks();
-    const persist = () => { try { localStorage.setItem(STORE, JSON.stringify(books)); } catch { $("#save-status").textContent = "This browser would not save the books (private window or storage full). Download the books file to keep them."; } };
+    let live = null;
+    const persist = () => { live?.schedule(); try { localStorage.setItem(STORE, JSON.stringify(books)); } catch { $("#save-status").textContent = "This browser would not save the books (private window or storage full). Download the books file to keep them."; } };
     const opts = () => ({ autoPost: Math.min(1, Math.max(0.5, parseFloat($("#auto").value) || 0.85)), invert: $("#invert").checked || undefined, dayFirst: $("#dayfirst").checked || undefined });
     const name = (c) => books.accounts.find((a) => a.code === c)?.name ?? c;
 
@@ -1156,7 +1165,7 @@
       else download(exportJournal(books, f), `bookkeeper-journal-${f}.${f === "iif" ? "iif" : f === "ledger" ? "journal" : f === "beancount" ? "beancount" : "csv"}`, ["iif", "ledger", "beancount"].includes(f) ? "text/plain" : "text/csv");
       record("exported");
     });
-    $("#save").addEventListener("click", () => { download(JSON.stringify(books, null, 1), `books-${new Date().toISOString().slice(0, 10)}.json`, "application/json"); $("#save-status").textContent = "Books file downloaded. Open it here on any computer to carry on."; });
+    $("#save").addEventListener("click", () => { download(serializeBooks(books), `books-${new Date().toISOString().slice(0, 10)}.json`, "application/json"); $("#save-status").textContent = "Books file downloaded. Open it here on any computer to carry on."; });
     $("#open").addEventListener("change", async () => {
       const f = $("#open").files[0];
       if (!f) return;
@@ -1164,6 +1173,41 @@
       catch (e) { $("#save-status").textContent = `Could not open that file: ${e.message}.`; }
     });
     $("#clear").addEventListener("click", () => { if (!confirm_("Start empty books? Download the books file first if you want to keep these.")) return; books = newBooks(); render(); });
+    // Live copy in a file the user picked (File System Access API, Chromium only).
+    if (liveFileSupported()) {
+      $("#live-box").hidden = false;
+      const say = (t) => { $("#live-status").textContent = t; };
+      const show = () => { $("#live-stop").hidden = !live; $("#live-new").hidden = $("#live-open").hidden = !!live; };
+      const start = async (handle) => {
+        live?.stop();
+        live = createLiveWriter({ handle, getBooks: () => books, onStatus: (st) => say(st.ok ? `Saved to ${st.name} at ${new Date(st.at).toLocaleTimeString()}.` : `Could not write ${st.name}: ${st.error}. The copy in this browser is still saved.`) });
+        await rememberHandle(handle); $("#live-resume").hidden = true; show(); await live.flush();
+      };
+      $("#live-new").addEventListener("click", async () => { try { const h = await pickNewFile(); if (!(await ensureWritable(h, true))) return say("Write permission was not given."); record("live_file_new"); await start(h); } catch (e) { if (e.name !== "AbortError") say(`Could not use that file: ${e.message}`); } });
+      $("#live-open").addEventListener("click", async () => {
+        try {
+          const h = await pickExistingFile();
+          if (!(await ensureWritable(h, true))) return say("Write permission was not given.");
+          const b = await readBooksFromHandle(h);
+          if (books.transactions.length && !confirm_(`Replace the books in this browser (${books.transactions.length} lines) with ${h.name} (${b.transactions.length} lines)? Download the books file first if you want to keep these.`)) return;
+          books = b; record("live_file_open"); render(); await start(h);
+        } catch (e) { if (e.name !== "AbortError") say(`Could not open that file: ${e.message}.`); }
+      });
+      $("#live-stop").addEventListener("click", async () => { live?.stop(); live = null; await forgetHandle(); show(); say("Stopped. Changes stay in this browser; the file keeps its last saved copy."); });
+      // A returning visitor: offer to reconnect, because a browser asks again for permission after a restart.
+      recallHandle().then((h) => {
+        if (!h) return;
+        const b = $("#live-resume"); b.hidden = false; b.textContent = `Reconnect to ${h.name}`;
+        b.addEventListener("click", async () => {
+          try {
+            if (!(await ensureWritable(h, true))) return say("Write permission was not given.");
+            const fromFile = await readBooksFromHandle(h);
+            if (JSON.stringify(fromFile) !== JSON.stringify(books) && confirm_(`${h.name} differs from the books in this browser (${fromFile.transactions.length} lines in the file, ${books.transactions.length} here). OK loads the file; Cancel keeps this browser's books and overwrites the file.`)) { books = fromFile; render(); }
+            await start(h);
+          } catch (e) { say(`Could not reconnect: ${e.message}.`); }
+        });
+      });
+    }
     function confirm_(msg) { return typeof window.confirm === "function" ? window.confirm(msg) : true; }
 
     $("#save-setup").addEventListener("click", () => {
