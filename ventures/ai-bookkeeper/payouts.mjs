@@ -254,7 +254,9 @@ function readPaypal(table, head) {
     if ([gross, net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
     if (net !== gross - fee) { problems.push(`Row ${n + 2}: net ${fmt(net)} is not gross ${fmt(gross)} less fee ${fmt(fee)}.`); return; }
     const category = key(at("type"));
-    const kind = category.includes("withdrawal") ? "withdrawal" : /refund/.test(category) ? "refunds" : /reversal|dispute|chargeback|hold|reserve/.test(category) ? "disputes" : /conversion|bank_deposit|transfer|add_funds/.test(category) ? "skip" : /payment|sale|checkout|invoice|subscription/.test(category) ? "sales" : "other";
+    let kind = category.includes("withdrawal") ? "withdrawal" : /refund/.test(category) ? "refunds" : /reversal|dispute|chargeback|hold|reserve/.test(category) ? "disputes" : /conversion|bank_deposit|transfer|add_funds/.test(category) ? "skip" : /payment|sale|checkout|invoice|subscription/.test(category) ? "sales" : "other";
+    // A payment the account holder sent (negative gross) is a purchase, not a sale.
+    if (kind === "sales" && gross < 0) { kind = "other"; problems.push(`Row ${n + 2}: "${at("type")}" is a payment sent (${fmt(gross)}), not a sale. It is booked against other income; recategorise it as the expense it is.`); }
     all.push({ row: n + 2, id: at("id") || `row${n + 2}`, created: parseDate(at("date")), t: `${parseDate(at("date"))} ${at("time")}`, category, kind, gross, fee, net, desc: at("desc") });
   });
   all.sort((a, b) => a.t.localeCompare(b.t) || a.row - b.row);
