@@ -1,0 +1,181 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01BZqLdCvaNRgBsrQouA6Rwn",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T19:19:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no new blog post: a red-team run whose findings are two front-matter fixes and three tests; nothing a reader would learn"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Baseline of hub.mjs was red on main (two posts with descriptions over 160 chars, flagged by check_post_frontmatter); fixed first. Campaign on platform/distribution/hub.mjs: 8 seeded, 5 caught (62.5%), 3 gaps closed by 3 tests (100% after fix).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/distribution/hub.mjs",
+        "test": "node --test platform/distribution/hub.test.mjs  (in .)",
+        "seed": 1061940091,
+        "commit": "e93e9025",
+        "sites": 89,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 52,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "else if (a === '--since') opts.since = next();",
+            "after": "else if (a !== '--since') opts.since = next();",
+            "line_text": "    else if (a === '--since') opts.since = next();",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 86,
+            "col": 68,
+            "operator": "ge-to-gt",
+            "before": "const recent = items.filter((it) => it.type !== 'tool' || it.date >= cutoff);",
+            "after": "const recent = items.filter((it) => it.type !== 'tool' || it.date > cutoff);",
+            "line_text": "  const recent = items.filter((it) => it.type !== 'tool' || it.date >= cutoff);",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in hub.test.mjs"
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 91,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const mine = p.id === 'email' ? items.slice(0, EMAIL.maxItems) : recent;",
+            "after": "const mine = p.id === 'email' ? items.slice(1, EMAIL.maxItems) : recent;",
+            "line_text": "    const mine = p.id === 'email' ? items.slice(0, EMAIL.maxItems) : recent;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 120,
+            "col": 62,
+            "operator": "plus-to-minus",
+            "before": "return rows.map((r) => r.map(csvCell).join(',')).join('\\n') + '\\n';",
+            "after": "return rows.map((r) => r.map(csvCell).join(',')).join('\\n') - '\\n';",
+            "line_text": "  return rows.map((r) => r.map(csvCell).join(',')).join('\\n') + '\\n';",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 148,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "if (v.kind === 'digest') {",
+            "after": "if (v.kind !== 'digest') {",
+            "line_text": "      if (v.kind === 'digest') {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 152,
+            "col": 61,
+            "operator": "const-plus-one",
+            "before": "v = digest(fresh, p, { date: now.toISOString().slice(0, 10) });",
+            "after": "v = digest(fresh, p, { date: now.toISOString().slice(1, 10) });",
+            "line_text": "        v = digest(fresh, p, { date: now.toISOString().slice(0, 10) });",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in hub.test.mjs"
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 201,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (o.cmd === 'plan') {",
+            "after": "if (o.cmd !== 'plan') {",
+            "line_text": "  if (o.cmd === 'plan') {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub.mjs",
+            "line": 216,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (o.cmd === 'publish') {",
+            "after": "if (o.cmd !== 'publish') {",
+            "line_text": "  if (o.cmd === 'publish') {",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added test in hub.test.mjs"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/posts/2026-10-25-the-hum-at-half-past-eight-24-minutes-of-warning-and-a-transformer-that-may-not-have-needed-it.md",
+        "issue": "description 170 chars (>160) failed check_post_frontmatter and made hub.test.mjs red on main",
+        "patched": true
+      },
+      {
+        "file": "docs/posts/2026-10-25-verified-dse-halving-significance.md",
+        "issue": "description 200 chars (>160): same check, same red hub baseline",
+        "patched": true
+      }
+    ]
+  }
+}
