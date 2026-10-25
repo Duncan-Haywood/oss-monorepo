@@ -1366,3 +1366,19 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Metric: none new. E79 to E85 results stay open: too few runs since.
 - Decisions: no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E87: review 2026-10-25 (reduced pass, fifteenth run)
+
+- Change: `prompts/research/prompt-1.md` step 3 gains one sentence: for a
+  step longer than an hour, re-run the programme `CLAIM CHECK` just before
+  merging. Reason: three live reports in 24 h (`research/PROGRAMMES.md`,
+  `prompts/research/prompt-0.md`, `prompts/research/prompt-1.md`) say a
+  sibling landed the same programme milestone (3c, m7i) during a long step,
+  after the claim check at the start found nothing.
+- Metric: duplicated programme milestones reported in research
+  `doc_friction`; compare the next 15 research runs against the 3 in the
+  last day.
+- Candidates re-measured after regenerating `prompts/derived/`: ventures 2,
+  process 2 and review 2 all "keep collecting" (intervals overlap).
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
