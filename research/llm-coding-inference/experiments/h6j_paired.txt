@@ -1,0 +1,28 @@
+NaijaSenti test corpus 44485 tweets; audit n=400, 20 paired draws per coder, seed 20261026
+coverage difference in points (mean, 95% half-width of the paired difference); se ratio = mean se / mean human-only se
+
+coder coefficient cov_insample cov_crossfit cov_human insample-crossfit(+-) insample-human(+-) crossfit-human(+-) se_ratio_insample se_ratio_crossfit
+lexicon-en intercept(yor) 0.8500 0.8500 0.9500 +0.00(0.00) -10.00(13.49) -10.00(13.49) 0.993 1.013
+lexicon-en hau 0.9000 0.9000 0.9000 +0.00(0.00) +0.00(0.00) +0.00(0.00) 1.000 1.002
+lexicon-en ibo 0.9500 0.9500 0.9500 +0.00(0.00) +0.00(0.00) +0.00(0.00) 0.988 0.994
+lexicon-en pcm 0.8000 0.8000 0.8000 +0.00(0.00) +0.00(0.00) +0.00(0.00) 0.999 1.000
+lexicon-en loglen_z 1.0000 1.0000 1.0000 +0.00(0.00) +0.00(0.00) +0.00(0.00) 0.997 1.005
+# lexicon-en pooled over coefficients insample-crossfit: +0.00 points (95% +-0.00)
+# lexicon-en pooled over coefficients insample-human: -2.00 points (95% +-2.70)
+# lexicon-en pooled over coefficients crossfit-human: -2.00 points (95% +-2.70)
+nb-english intercept(yor) 0.9000 0.9000 0.9500 +0.00(0.00) -5.00(9.80) -5.00(9.80) 0.992 1.008
+nb-english hau 0.9000 0.9000 0.9000 +0.00(0.00) +0.00(0.00) +0.00(0.00) 0.999 1.004
+nb-english ibo 0.9500 0.9500 0.9500 +0.00(0.00) +0.00(0.00) +0.00(0.00) 0.994 1.003
+nb-english pcm 0.8000 0.8000 0.8000 +0.00(0.00) +0.00(0.00) +0.00(0.00) 0.994 1.003
+nb-english loglen_z 1.0000 1.0000 1.0000 +0.00(0.00) +0.00(0.00) +0.00(0.00) 0.998 1.011
+# nb-english pooled over coefficients insample-crossfit: +0.00 points (95% +-0.00)
+# nb-english pooled over coefficients insample-human: -1.00 points (95% +-1.96)
+# nb-english pooled over coefficients crossfit-human: -1.00 points (95% +-1.96)
+nb-in-language intercept(yor) 0.9000 0.9000 0.9500 +0.00(0.00) -5.00(9.80) -5.00(9.80) 0.968 0.989
+nb-in-language hau 0.9000 0.9000 0.9000 +0.00(0.00) +0.00(0.00) +0.00(0.00) 0.928 0.931
+nb-in-language ibo 0.9500 0.9500 0.9500 +0.00(0.00) +0.00(0.00) +0.00(0.00) 0.958 0.964
+nb-in-language pcm 0.7500 0.8000 0.8000 -5.00(9.80) -5.00(9.80) +0.00(0.00) 0.993 1.004
+nb-in-language loglen_z 1.0000 1.0000 1.0000 +0.00(0.00) +0.00(0.00) +0.00(0.00) 0.945 0.955
+# nb-in-language pooled over coefficients insample-crossfit: -1.00 points (95% +-1.96)
+# nb-in-language pooled over coefficients insample-human: -2.00 points (95% +-2.70)
+# nb-in-language pooled over coefficients crossfit-human: -1.00 points (95% +-1.96)
