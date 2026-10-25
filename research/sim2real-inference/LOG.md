@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 7p: paper section for the 7k to 7o chain (writing step, no new experiment)
+- Done: the "What decides the win" paragraph in `paper/main.tex` now covers 7o (flip check, power-scale result 1.32 to 1.03, Spearman 0.62 to 0.51, supported-but-incomplete wording) with the numbers copied from `m7o_ceiling/results/summary.txt`; `paper/reproduce.sh` gains the missing commands for 7i, 7k, 7l, 7m, 7o (7m's CSV is an input to 7n).
+- Not done: real SIMPLER pairs (milestone 4) where the ceiling question can be asked of real scores; the paper still has one paragraph, not a section, for this chain.
+
 ## 2026-10-25 · Milestone 7o: is the cart-pole loss a near-ceiling artefact? (planned before running)
 - Why: 7n found, post hoc, that q = W_R / w_real tracks the mean of R (Spearman 0.81) and guessed that the real-only betting interval benefits from a score near the upper bound. Test it by moving the outcome: (a) flip, R' = 1 - R, T' = 1 - T; (b) power, R' = R^p, T' = T^p with p = ln(1/2)/ln(mean R), so mean R' = 1/2. Same intervals as 7n (alpha 0.05, cap 0.99, f = 0.1; residual at alpha(1 - f), rescaled by 2), n in {240, 960}, 100 replications on a shared subsample, 21 pairs x 2 systems. Code: `experiments/m7o_ceiling/ceiling.py`.
 - **H7o-i (symmetry check):** the flip leaves q unchanged (max |q_flip - q_raw| <= 0.02), since the hedged interval is symmetric. Refuted otherwise (implementation asymmetry).
