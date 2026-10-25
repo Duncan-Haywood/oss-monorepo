@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01WoyZWN3t5x2113psDi6mFL",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T08:18:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10345",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Only P056 (blocked) agent-owned; friction table mixes fixed and live items, so finding a live one took several calls."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No post or agent doc: a runbook trim only, no new finding to write about."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique/solve: trimmed .github/prompts/cloud-session.md 109->93 lines (budget 80); programme-claim friction already fixed by #10342/#10343. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null
+}
