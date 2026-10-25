@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 10361,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Target ventures/ai-bookkeeper/deposits.mjs (payroll deposit due dates). 8 mutants, 3 escaped (Saturday period end, exactly-$100,000 next-day rule, penalty tier 15/16 days); 3 boundary tests added, all 3 caught after fix. No real defects found. Test input trap: bank-line matcher only looks 45 days after pay date, so late-penalty tests need a late-month pay date.",
+  "notes": "Target ventures/ai-bookkeeper/deposits.mjs (payroll deposit due dates). 8 mutants, 3 escaped (Wed-Fri period end, exactly-$100,000 next-day rule, penalty tier 15/16 days); 3 boundary tests added, all 3 caught after fix. No real defects found. Test input trap: bank-line matcher only looks 45 days after pay date, so late-penalty tests need a late-month pay date.",
   "corrections": [],
   "redteam": {
     "campaigns": [
