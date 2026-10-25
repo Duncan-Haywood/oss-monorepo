@@ -933,19 +933,26 @@ def print_measure(m: dict[str, Any]) -> None:
               "[file changed since] tags may be wrong. `measure` deepens it for you unless --no-fetch.)\n")
     stamps = [t for f in m["doc_friction"].values() for r in f["recent"] if (t := _when(r))]
     cutoff = max(stamps) - timedelta(days=FRICTION_FRESH_DAYS) if stamps else None
-    for path, f in list(m["doc_friction"].items())[:FRICTION_MAX_FILES]:
+    rows = []
+    for path, f in m["doc_friction"].items():
         note, changed = _changed_note(path)
         # Older reports are mostly fixed by now and each costs a run several calls to check.
         fresh = [r for r in f["recent"] if not (t := _when(r)) or t >= cutoff] or f["recent"][-1:]
         tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in fresh]
         live = [r for r in tagged if not r.startswith("[file changed since]")]
+        rows.append((path, f, note, tagged, live))
+    # Files with live recent reports come first, most live reports first; the all-time
+    # count only breaks ties, so a file with 300 old reports no longer crowds out a new fault.
+    rows.sort(key=lambda x: -len(x[4]))
+    for path, f, note, tagged, live in rows[:FRICTION_MAX_FILES]:
         shown = [r if len(r) <= FRICTION_MAX_CHARS else r[:FRICTION_MAX_CHARS - 1] + "…"
                  for r in (live or tagged)[-3:]]
         hidden = f["reports"] - len(shown)
         tail = f" (+{hidden} older or since-changed, not shown)" if hidden > 0 else ""
-        print(f"- `{path}`{note}: {f['reports']} report(s); latest: " + " | ".join(shown) + tail)
-    if len(m["doc_friction"]) > FRICTION_MAX_FILES:
-        print(f"\n(+{len(m['doc_friction']) - FRICTION_MAX_FILES} more files with fewer reports, not shown)")
+        print(f"- `{path}`{note}: {f['reports']} report(s), {len(live)} live in the last "
+              f"{FRICTION_FRESH_DAYS} days; latest: " + " | ".join(shown) + tail)
+    if len(rows) > FRICTION_MAX_FILES:
+        print(f"\n(+{len(rows) - FRICTION_MAX_FILES} more files with fewer reports, not shown)")
     if m["doc_friction"]:
         print("\nA report can predate its fix without the file changing (a new tool, a doc elsewhere). "
               "Before building on one, grep `git log origin/main --since=<report time> -i --grep=<keyword>` "
