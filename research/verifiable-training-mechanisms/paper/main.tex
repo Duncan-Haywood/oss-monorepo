@@ -120,6 +120,24 @@ $10^{-2}$ & 16\% / $+0.0017$ (0.0011 to 0.0022) & 11\% / $+0.0030$ (0.0026 to 0.
 $3\times10^{-2}$ & 29\% / $+0.0085$ & 20\% / $+0.0126$ (0.0111 to 0.0142)\\
 $10^{-1}$ & 59\% / $+0.063$ & --\\
 \end{tabular}\end{table*}
+\paragraph{Cheaper cheats.} Skipping is not the only shortcut. Two others save real compute and submit a non-zero update:
+\emph{subsample} (the gradient of a quarter of the batch) and \emph{stale} (resubmit the previous step's gradient, no backward pass).
+The same referee accepts each on $12$ to $14\%$ of steps at $\tau=10^{-2}$, close to skip's $16\%$, so the referee mostly accepts
+small-update steps whatever the cheat. The cost differs (Table~\ref{tab:cheats}). Subsample costs at most $0.3$ seed std up to
+$\tau=3\times10^{-2}$. Stale costs $+0.0177$ at $\tau=10^{-2}$ ($2.1$ seed std, CI excluding zero), ten times skip, and $+1.55$ at
+$10^{-1}$. A tolerance harmless against skipping therefore already admits a harmful stale cheat, which refutes the narrow form of H1
+for that cheat. The cause is chaining: an accepted stale gradient becomes the next step's reference, so reuse runs on for $43$ steps on
+average (longest $83$) at $10^{-2}$. Allowing reuse only after an honest step (\emph{stale1}) cuts the cost to $+0.00016$, $1\%$ of
+stale's. This shows the chain is what costs, not that a no-chain rule can be enforced; the cheater here obeys it by construction.
+\begin{table}[t]\caption{Transformer cheats at $\tau=10^{-2}$, 10 seeds, 600 steps: share of steps accepted / paired loss given up
+(95\% CI). Source: \texttt{experiments/transformer\_cheats, transformer\_stale\_chain}.}\label{tab:cheats}\small
+\begin{tabular}{lcc}
+cheat & accepted & loss given up\\\hline
+skip & 16\% & $+0.0017$ (0.0011 to 0.0022)\\
+subsample & 12.3\% & $+0.0002$ ($-0.0002$ to $+0.0006$)\\
+stale & 13.6\% & $+0.0177$ (0.0132 to 0.0220)\\
+stale1 & 6.9\% & $+0.0002$ (0.0000 to 0.0003)\\
+\end{tabular}\end{table}
 \section{Single-check and joint contracts (H2, H5)}\label{sec:contracts}
 \begin{figure}[t]\centering\includegraphics[width=\linewidth]{frontier.png}
 \caption{Requester cost per unit of honest compute against $\tau$ for the joint contract and the two single-check alternatives (\texttt{experiments/frontier}).}\label{fig:frontier}\end{figure}
@@ -157,8 +175,8 @@ whose loss the remaining training recovers. A model of recovery is the open cons
 \section{Limitations}
 Three small scikit-learn tasks and plain SGD, plus one 30k-parameter character-level transformer (10 seeds, 600 and 3,000 steps, loss not converged; the cost at $\tau=10^{-2}$ is unchanged when the held-out block moves per seed, $+0.0016$ against $+0.0017$; see Table~\ref{tab:tf}), no realistic scale; the skip shortcut only for the dense results (on the transformer a reused-gradient cheat costs 2.1 seed std at $\tau=10^{-2}$, so the margin depends on the cheat; the cost comes from chains of consecutive reuses, 43 steps on average, and disappears, $+0.00016$, when reuse after a reused step is disallowed); one reorder
 referee; two workers for agreement and pure strategies for collusion; contract parameters ($\delta,\alpha,\kappa$, stakes)
-are swept rather than measured on real trajectories; the paper is uncompiled (no LaTeX here) and the related-work
-section is incomplete.
+are swept rather than measured on real trajectories; the related-work section is incomplete, and the draft is in the
+two-column \texttt{sigconf} style rather than the single-column EC'26 style files, whose page limit is not yet checked.
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{refs}
 \end{document}

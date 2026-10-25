@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 21: cheaper-cheat results move into the paper (no new experiment)
+- Added a "Cheaper cheats" paragraph and Table `tab:cheats` (skip, subsample, stale, stale1 at tau = 1e-2) to the margin section of `paper/main.tex`; every number is copied from `experiments/transformer_cheats/results.txt` and `experiments/transformer_stale_chain/results.txt` (milestones 19 and 20), none rerun. Rewrote the Limitations tail: it still said the draft was uncompiled (it compiled in milestone 16) and now names the real gaps (incomplete related work, `sigconf` instead of the EC'26 single-column style, page limit unchecked).
+- Still open: related-work section, the EC'26 style files and page limit (owner step), whether a no-chain rule is enforceable.
+
 ## 2026-10-25 · Milestone 20: is the stale cheat expensive because reuse chains across steps? (H1), planned before running
 - Why: milestone 19 found stale costs +0.0177 (2.1 seed std) at tau = 1e-2 and the mechanism was a guess. One candidate: an accepted stale gradient becomes the next step's "previous gradient", so reuse can chain over consecutive steps and drift further from the true gradient. `stale1` (margin_tf.py) allows reuse only of an honestly computed gradient, so a chain has length 1. Code: `experiments/transformer_stale_chain/run.py`; same setup as milestone 19 (600 steps, 10 seeds, fixed split, reorder referee, same taus).
 - Prediction: stale chains are long at 1e-2 (mean chain above 1.5, max above 5) and `stale1` is accepted on fewer steps (under 8% at 1e-2, vs 13.6%) and costs under a third of stale: degradation at 1e-2 below +0.006 (stale: +0.0177) with `stale1` CI overlapping one seed std (0.0083) or less. Refutation of the chaining explanation: `stale1` degradation at 1e-2 above +0.012, or within 30% of stale's.
