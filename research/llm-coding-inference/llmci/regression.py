@@ -83,3 +83,29 @@ def ppi_ols_tuned(X, f_all, idx, y_audit, grid=None):
         better = se < best_se
         best_b[better], best_se[better], best_lam[better] = th[better], se[better], lam
     return best_b, best_se, best_lam
+
+
+def ppi_ols_crossfit(X, f_all, idx, y_audit, rng_perm, grid=None):
+    """Two-fold cross-fitted PPI++ for OLS. The audit is split in two halves by the permutation `rng_perm`
+    (an array of positions 0..n-1); for each half, per-coefficient lam is chosen on the *other* half (smallest
+    estimated se over the grid, as `ppi_ols_tuned`) and the estimate is computed on this half with that lam. The
+    two half estimates are averaged with weight 1/2 and the se is 1/2 sqrt(se_A^2 + se_B^2) (disjoint audit rows,
+    so the halves are treated as independent; the finite-population correction uses each half's own size).
+    The half-sample se is sqrt(2) times the full-audit se, so the average has about the full-audit width.
+    Returns (coefficients, se, mean of the two chosen lams)."""
+    N, k = X.shape
+    grid = np.linspace(0, 1, 21) if grid is None else grid
+    halves = [rng_perm[: len(rng_perm) // 2], rng_perm[len(rng_perm) // 2:]]
+    ths, ses, lams = [], [], []
+    for a, b in ((0, 1), (1, 0)):
+        ia, ib = np.asarray(idx)[halves[a]], np.asarray(idx)[halves[b]]
+        _, _, lam = ppi_ols_tuned(X, f_all, ib, y_audit[halves[b]], grid)  # lam from the other half
+        th = np.zeros(k)
+        se = np.zeros(k)
+        for lv in np.unique(lam):
+            t, psi = ppi_ols_lam(X, f_all, ia, y_audit[halves[a]], lv)
+            m = lam == lv
+            th[m] = t[m]
+            se[m] = np.sqrt(psi.var(axis=0, ddof=1) * (1 - len(ia) / N) / len(ia))[m]
+        ths.append(th); ses.append(se); lams.append(lam)
+    return (ths[0] + ths[1]) / 2, np.sqrt(ses[0] ** 2 + ses[1] ** 2) / 2, (lams[0] + lams[1]) / 2
