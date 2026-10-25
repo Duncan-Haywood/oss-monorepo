@@ -1,7 +1,7 @@
 ---
 title: "Nine fee pages now open with a sourced, dated answer"
 date: 2026-10-25
-description: "Depop, Mercari and Poshmark join six tool pages that state their headline fee with a source and an as-of date; a test ties every dollar figure to the calculator."
+description: "Depop, Mercari and Poshmark join six tool pages that state their headline fee with a source and date; a test ties every dollar figure to the calculator."
 tags: [seo, fees, marketplaces]
 ---
 
