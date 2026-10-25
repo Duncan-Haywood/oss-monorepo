@@ -1,7 +1,7 @@
 ---
 title: "Does a conformal shortlist still work on bigger chip designs? Coverage drops below nominal"
 date: 2026-10-25
-description: "A conformal shortlist over a cheap placement rung covered 90% on small designs. On five larger ones, replayed on the cached table, it covers 75% at a nominal 80% and its lead over random search shrinks."
+description: "On five larger designs, a conformal shortlist covers 75% at a nominal 80% on the cached table, and its lead over random search shrinks."
 tags: [research, verified-dse, conformal-prediction, openroad, sky130]
 ---
 
