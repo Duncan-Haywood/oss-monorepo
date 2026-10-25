@@ -73,3 +73,21 @@ test("the SchXslt reader turns an if, a for-each and a choose into violation XPa
   assert.match(sch, /id="T-1" flag="fatal" test="not\(\(@a\) and \(exists\(\(line\)\[\(@k='x'\) and \(not\(@v\)\)\]\)\)\)"/, "error becomes fatal; the when guard and the loop wrap the violation");
   assert.match(sch, /id="T-2" flag="warning" test="not\(\(@a\) and \(exists\(\(line\)\[not\(@k='x'\) and \(true\(\)\)\]\)\)\)"/, "otherwise carries the negated guard");
 });
+
+test("a simplified credit note (an Invoice document with type code 381) passes, and loses its reason and reference when they are removed", { skip }, async () => {
+  const ok = await runPlain(read("zatca-simplified-credit-note.xml"));
+  assert.deepEqual(rules(ok), ALWAYS);
+  assert.deepEqual(ok.skipped, []);
+  const xml = read("zatca-simplified-credit-note.xml")
+    .replace(/  <cac:BillingReference>[\s\S]*?<\/cac:BillingReference>\n/, "")
+    .replace(/\n\s*<cbc:InstructionNote>[^<]*<\/cbc:InstructionNote>/, "");
+  assert.deepEqual(rules(await runPlain(xml)), [...ALWAYS, "BR-KSA-17", "BR-KSA-56"].sort());
+});
+
+test("a UBL CreditNote root is not how ZATCA sends credit notes: the EU base rules misfire on it", { skip }, async () => {
+  const xml = read("zatca-simplified-credit-note.xml")
+    .replace('<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"', '<CreditNote xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2"')
+    .replace("</Invoice>", "</CreditNote>").replace(/InvoiceLine/g, "CreditNoteLine").replace(/InvoicedQuantity/g, "CreditedQuantity");
+  const r = await runPlain(xml);
+  assert.ok(rules(r).includes("BR-22"), "hard-coded InvoicedQuantity path: the rules assume the Invoice root");
+});
