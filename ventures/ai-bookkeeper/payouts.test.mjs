@@ -412,3 +412,18 @@ test("an eBay Payout row that disagrees with its rows is not split", () => {
   assert.equal(r.payouts.length, 0);
   assert.match(r.problems[0], /PO-1001/);
 });
+
+test("Stripe's wide settlement layout (bracketed metadata columns, customer columns) reads and balances", () => {
+  const head = "balance_transaction_id,payment_metadata[external_identifier],payment_metadata[orchestrator_tx_ref],source_id,payment_intent_id,charge_id,created,available_on,automatic_payout_effective_at,currency,gross,fee,net,reporting_category,payment_method_type,card_brand,card_country,card_funding,description,trace_id_status,gateway_account,automatic_payout_id,customer_facing_amount,customer_facing_currency,customer_name,customer_email";
+  const t = `${head}
+txn_1,100.1,,ch_1,pi_1,ch_1,2026-01-30 10:11:12,2026-01-30 00:00:00,2026-01-31 00:00:00,USD,25,0.95,24.05,charge,card,visa,US,credit,,pending,acct_live,po_1,25,usd,A Donor,a@example.org
+txn_2,,,re_1,pi_1,ch_1,2026-01-30 12:30:00,2026-01-30 00:00:00,2026-01-31 00:00:00,USD,-10,0,-10,refund,card,visa,US,credit,,pending,acct_live,po_1,-10,usd,,
+txn_3,,,,,,2026-01-30 12:30:00,2026-01-30 00:00:00,2026-01-31 00:00:00,USD,-0.5,0,-0.5,fee,,,,,Radar (2026-03-25): Standard,,,po_1,,,,
+txn_4,,,po_9,,,2026-01-31 00:00:00,2026-01-31 00:00:00,2026-01-31 00:00:00,USD,-13.55,0,-13.55,payout,,,,,Payout,available,acct_live,po_1,,,,
+`;
+  const r = readPayoutReport(t);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].id, "po_1");
+  assert.equal(r.payouts[0].net, 1355);
+  assert.equal(r.problems.length, 0);
+});
