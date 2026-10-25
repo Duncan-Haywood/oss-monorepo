@@ -40,3 +40,18 @@ test("bad rows are reported, mixed currencies and accounts are noted", () => {
   const p = r.problems.join(" ");
   assert.match(p, /Transaction 1/); assert.match(p, /EUR, USD/); assert.match(p, /2 accounts/);
 });
+
+test("Plaid's personal_finance_category is kept as a weak hint, and only for codes that name one account", async () => {
+  const { newBooks, importStatement } = await import("./engine.mjs");
+  const f = JSON.stringify([
+    tx({ transaction_id: "a", date: "2026-03-02", amount: 40, name: "ZQX 99", personal_finance_category: { primary: "TRANSPORTATION", detailed: "TRANSPORTATION_GAS" } }),
+    tx({ transaction_id: "b", date: "2026-03-03", amount: 40, name: "ZQY 98", personal_finance_category: { primary: "GENERAL_MERCHANDISE", detailed: "GENERAL_MERCHANDISE_SUPERSTORES" } }),
+    tx({ transaction_id: "c", date: "2026-03-04", amount: -3, name: "ZQZ 97", personal_finance_category: { detailed: "INCOME_INTEREST_EARNED" } }),
+  ]);
+  const books = importStatement(newBooks(), f, "1010").books;
+  const by = (d) => books.transactions.find((t) => t.desc.startsWith(d));
+  assert.equal(by("ZQX").suggestion.account, "6160");
+  assert.equal(by("ZQX").suggestion.source, "bank-category");
+  assert.equal(by("ZQY").suggestion.account, null);
+  assert.equal(by("ZQZ").suggestion.account, "4200");
+});
