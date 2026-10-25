@@ -1,0 +1,11 @@
+uncompressed: mean 1.5758 [1.5707, 1.583, 1.5738]
+keep 0.25 randk: mean 1.5933 excess vs uncompressed [0.0235, 0.0039, 0.0249] mean +0.0174
+keep 0.25 topk: mean 1.5737 excess vs uncompressed [-0.0036, -0.0091, 0.0063] mean -0.0022
+keep 0.25 topk_ef: mean 1.5712 excess vs uncompressed [-0.0045, -0.0114, 0.002] mean -0.0046
+keep 0.25 EF gain (topk - topk_ef) [0.0009, 0.0023, 0.0042]
+keep 0.25 topk_ef beats randk by [0.028, 0.0153, 0.0228]
+keep 0.0625 randk: mean 1.6584 excess vs uncompressed [0.0926, 0.0841, 0.071] mean +0.0826
+keep 0.0625 topk: mean 1.6397 excess vs uncompressed [0.0674, 0.0558, 0.0685] mean +0.0639
+keep 0.0625 topk_ef: mean 1.5711 excess vs uncompressed [-0.0054, -0.0055, -0.0032] mean -0.0047
+keep 0.0625 EF gain (topk - topk_ef) [0.0728, 0.0614, 0.0716]
+keep 0.0625 topk_ef beats randk by [0.098, 0.0897, 0.0742]

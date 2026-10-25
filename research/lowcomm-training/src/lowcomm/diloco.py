@@ -9,21 +9,25 @@ is the worker's own. This keeps the engine independent of the model: the same co
 quadratic of the closed-form check.
 """
 import copy
+import math
 
 import torch
 
 
 class DiLoCo:
-    def __init__(self, model, loss_fn, workers=4, H=16, inner=None, outer=None, seed=0, compress=None):
+    def __init__(self, model, loss_fn, workers=4, H=16, inner=None, outer=None, seed=0, compress=None, error_feedback=False):
         """inner(params) and outer(params) build torch optimisers; defaults are DiLoCo's AdamW and Nesterov SGD.
         compress(delta, gen) -> tensor, optional: applied to each worker's per-tensor delta (global minus its end point)
-        before averaging, with `gen` a torch.Generator owned by the engine. None leaves the round unchanged."""
+        before averaging, with `gen` a torch.Generator owned by the engine. None leaves the round unchanged.
+        error_feedback: each worker keeps the residual (input minus compressed) per tensor and adds it to the next round's
+        delta before compressing (Seide et al. 2014; Stich et al. 2018), so a biased compressor such as top_k loses nothing for good."""
         inner = inner or (lambda p: torch.optim.AdamW(p, lr=1e-3, betas=(0.9, 0.95), weight_decay=0.0))
         outer = outer or (lambda p: torch.optim.SGD(p, lr=0.7, momentum=0.9, nesterov=True))
         self.model, self.loss_fn, self.H, self.rounds = model, loss_fn, H, 0
         self.workers = [copy.deepcopy(model) for _ in range(workers)]
         self.inner = [inner(w.parameters()) for w in self.workers]
         self.outer = outer(model.parameters())
+        self.ef = [[torch.zeros_like(p.data) for p in w.parameters()] for w in self.workers] if error_feedback else None
         self.compress, self.cgen = compress, torch.Generator().manual_seed(seed * 1000 + 777)
         self.rngs = [torch.Generator().manual_seed(seed * 1000 + 1 + i) for i in range(workers)]
 
@@ -46,8 +50,16 @@ class DiLoCo:
                     avg = torch.stack([list(w.parameters())[i] for w in self.workers]).mean(0)
                     p.grad = p.data - avg
                 else:
-                    p.grad = torch.stack([self.compress(p.data - list(w.parameters())[i].data, self.cgen)
-                                          for w in self.workers]).mean(0)
+                    outs = []
+                    for j, w in enumerate(self.workers):
+                        d = p.data - list(w.parameters())[i].data
+                        if self.ef is not None:
+                            d = d + self.ef[j][i]
+                        c = self.compress(d, self.cgen)
+                        if self.ef is not None:
+                            self.ef[j][i] = d - c
+                        outs.append(c)
+                    p.grad = torch.stack(outs).mean(0)
         self.outer.step()
         self.outer.zero_grad(set_to_none=True)
         self.rounds += 1
@@ -74,4 +86,16 @@ def rand_k(keep):
     def c(x, gen):
         mask = (torch.rand(x.shape, generator=gen) < keep).to(x.dtype)
         return x * mask / keep
+    return c
+
+
+def top_k(keep):
+    """Biased top-k sparsifier per tensor: keep the ceil(keep * n) largest-magnitude coordinates, zero the rest (no
+    rescaling). Contractive: ||C(x) - x||^2 <= (1 - keep) ||x||^2 (Stich et al. 2018)."""
+    def c(x, gen):
+        k = max(1, math.ceil(keep * x.numel()))
+        idx = x.abs().flatten().topk(k).indices
+        out = torch.zeros_like(x).flatten()
+        out[idx] = x.flatten()[idx]
+        return out.view_as(x)
     return c
