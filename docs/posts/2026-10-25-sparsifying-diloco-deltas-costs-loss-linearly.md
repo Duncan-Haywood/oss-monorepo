@@ -1,6 +1,8 @@
 ---
 title: "Throwing away most of a DiLoCo update costs loss in a straight line"
 date: 2026-10-25
+description: "Sending a random fraction of each DiLoCo update costs validation loss almost exactly linearly in the compressor's variance factor (R² 0.999)."
+tags: [research, diloco, training]
 ---
 
 We trained a 413k-parameter character-level GPT on Tiny Shakespeare with four simulated DiLoCo workers syncing every 16
