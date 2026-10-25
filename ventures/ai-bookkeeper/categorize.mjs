@@ -237,7 +237,7 @@ export const BANK_CATEGORY_IN = [
 
 export function suggest(txn, model) {
   const off = model.skip ?? new Set();
-  const text = String(txn.desc ?? "").toLowerCase();
+  const text = String(txn.desc ?? "").toLowerCase().replace(/\s+/g, " ");
   const d = dir(txn.cents);
   if (!off.has("rule")) for (const r of model.rules ?? []) if (r.re.test(text)) return { account: r.account, confidence: 1, source: "rule", reason: `your rule "${r.text}"`, alternatives: [] };
 

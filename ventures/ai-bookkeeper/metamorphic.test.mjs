@@ -133,3 +133,24 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
     });
   }
 }
+
+// Quoting and descriptor case: wrapping every field in quotes must give the same
+// rows, and a description in UPPER or lower case, or with doubled spaces, must get
+// the same built-in suggestion (card descriptors arrive in any case).
+import { suggest } from "./categorize.mjs";
+const OPTS = { rules: [], codes: null, classifier: { n: 0 }, skip: new Set(["learned"]) };
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8");
+  const rows = parseCsv(t).filter((r) => r.some((c) => c.trim()));
+  if (!rows.every((r) => r.length === rows[0].length)) continue;
+  test(`${f}: same rows with every field quoted; same suggestion in any case`, () => {
+    const base = readStatement(t);
+    const out = rows.map((r) => r.map((v) => '"' + v.replace(/"/g, '""') + '"').join(",")).join("\n") + "\n";
+    assert.equal(sig(readStatement(out)), sig(base), `${f} changed with every field quoted`);
+    for (const x of base.rows ?? []) {
+      const acct = (d) => suggest({ desc: d, cents: x.cents }, OPTS).account ?? null;
+      const want = acct(x.desc);
+      for (const d of [x.desc.toUpperCase(), x.desc.toLowerCase(), x.desc.replace(/ /g, "  ")]) assert.equal(acct(d), want, `${f}: "${x.desc}" vs "${d}"`);
+    }
+  });
+}
