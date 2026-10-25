@@ -73,6 +73,16 @@ def programmes():
     return [(slug, (RESEARCH / slug / "PROPOSAL.md").is_file()) for slug in rows]
 
 
+def recent_landed(slug, n=3):
+    """Newest commits on origin/main that touch research/<slug>, as 'age: subject' lines.
+
+    Two runs drew the same programme in the same hours and both did the same milestone
+    (run friction 2026-10-25): the PR list shows a sibling only until it merges, this does not."""
+    out = subprocess.run(["git", "log", "origin/main", f"-n{n}", "--format=%cr: %s", "--", f"research/{slug}"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    return out.stdout.strip().splitlines() if out.returncode == 0 else []
+
+
 def milestones(prefix):
     """(listed, free) milestone slugs from the track's section in PROJECTS.md.
 
@@ -104,6 +114,11 @@ if __name__ == "__main__":
     if progs and random.Random(r).random() < PROGRAMME_SHARE:
         slug, has = random.Random(r + 1).choice(progs)
         print(f"draw {r:.3f} -> programme {slug} (research/PROGRAMMES.md)")
+        landed = recent_landed(slug)
+        if landed:
+            print("newest commits on origin/main for this programme (fetch origin main first; skip a milestone already here):")
+            for line in landed:
+                print(f"  {line}")
         if has:
             print(f"read research/{slug}/PROPOSAL.md and the newest research/{slug}/LOG.md entries; land the next milestone")
         else:

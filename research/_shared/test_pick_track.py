@@ -30,6 +30,16 @@ class NextStepsTest(unittest.TestCase):
         self.assertEqual(pick_track.next_steps("nosuch-project"), "")
 
 
+class RecentLandedTest(unittest.TestCase):
+    def test_returns_list_of_lines(self):
+        out = pick_track.recent_landed("sim2real-inference")
+        self.assertIsInstance(out, list)
+        self.assertLessEqual(len(out), 3)
+
+    def test_unknown_programme_is_empty(self):
+        self.assertEqual(pick_track.recent_landed("nosuch-programme"), [])
+
+
 class BehindTest(unittest.TestCase):
     def test_returns_count_or_none(self):
         n = pick_track.commits_behind()
