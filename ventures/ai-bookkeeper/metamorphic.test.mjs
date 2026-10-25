@@ -85,3 +85,23 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
     }
   });
 }
+
+// Column order: a rectangular CSV with its columns reversed, or rotated by one,
+// must read the same rows when the file is read from its header names. Files
+// whose layout is a known bank's (matched by exact column sequence, and whose
+// day-first reading follows the bank) are skipped.
+import { sniffBank } from "./bank.mjs";
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8");
+  const rows = parseCsv(t).filter((r) => r.some((c) => c.trim()));
+  if (!rows.length || !rows.every((r) => r.length === rows[0].length) || rows[0].length < 3 || sniffBank(rows)) continue;
+  test(`${f}: same rows under every column order`, () => {
+    const base = sig(readStatement(t));
+    const n = rows[0].length;
+    const orders = { reversed: [...Array(n).keys()].reverse(), rotated: [...Array(n).keys()].map((i) => (i + 1) % n) };
+    for (const [name, ord] of Object.entries(orders)) {
+      const out = rows.map((r) => ord.map((i) => quote(r[i], ",")).join(",")).join("\n") + "\n";
+      assert.equal(sig(readStatement(out)), base, `${f} changed with columns ${name}`);
+    }
+  });
+}
