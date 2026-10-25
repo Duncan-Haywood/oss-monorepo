@@ -107,9 +107,10 @@ export function parseCents(v, decimalComma = false) {
   if (!s) return NaN;
   const n = Number(s);
   if (!Number.isFinite(n)) return NaN;
-  const c = Math.round(n * 100);
+  // Round on the decimal string, not n * 100: 1.005 * 100 is 100.49999999999999.
+  const c = Math.round(Number(`${n.toFixed(6)}e2`));
   if (!Number.isSafeInteger(c)) return NaN;
-  return neg ? -c : c;
+  return neg && c ? -c : c; // never -0
 }
 
 // ISO, M/D/Y or D/M/Y (dayFirst), with 2- or 4-digit years, or "12 Mar 2026".
