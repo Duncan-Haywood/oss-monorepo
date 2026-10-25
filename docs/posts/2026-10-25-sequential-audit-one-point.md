@@ -1,7 +1,7 @@
 ---
 title: "A sequential audit still covers at a 1-point target, and my size prediction was wrong"
 date: 2026-10-25
-description: "Auditing LLM-style codes until the interval is 1 point wide covered 95 to 97% on 44,485 NaijaSenti tweets, and needed 14 to 16% fewer items than scaling the 3-point audit by 9."
+description: "Auditing coded tweets until the interval is 1 point wide covered 95 to 97% on 44,485 NaijaSenti tweets, with 14 to 16% fewer items than scaling the 3-point audit."
 tags: [research, llm-coding-inference, statistics]
 ---
 
