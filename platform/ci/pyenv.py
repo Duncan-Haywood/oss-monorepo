@@ -28,6 +28,8 @@ import os
 import shutil
 import subprocess
 import sys
+import threading
+import time
 
 # import name -> package name, where they differ
 PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow",
@@ -145,10 +147,35 @@ def venv_install(py, modules, venv_dir, run=subprocess.run, log=lambda m: print(
     return None
 
 
+HEARTBEAT_SECONDS = 30
+
+
+def heartbeat(log, every=HEARTBEAT_SECONDS):
+    """Log "still installing" every `every` s until the returned Event is set.
+    Installs capture pip's output, so a backgrounded call's output file stayed empty
+    for 15+ minutes and runs could not tell a live install from a hung one
+    (doc_friction, 2026-10-24 and 2026-10-25)."""
+    stop, start = threading.Event(), time.monotonic()
+
+    def beat():
+        while not stop.wait(every):
+            log(f"pyenv: still installing ({int(time.monotonic() - start)} s)")
+    threading.Thread(target=beat, daemon=True).start()
+    return stop
+
+
 def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.stderr), venv_dir=None):
     for py in cands:
         if imports(py, modules, run):
             return py
+    stop = heartbeat(log)
+    try:
+        return install(modules, cands, run, log, venv_dir)
+    finally:
+        stop.set()
+
+
+def install(modules, cands, run, log, venv_dir):
     log(f"pyenv: none of {cands} imports {', '.join(modules)}; installing "
         "(can take over 120 s, torch-class wheels 15 min or more: if your shell tool times out, rerun with run_in_background "
         "and read the path from its output)")
