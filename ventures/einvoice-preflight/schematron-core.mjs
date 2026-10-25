@@ -12,6 +12,10 @@ export const ADDONS = {
   // Romania's national rules (RO e-Factura, ANAF). UBL only; no Saxon form is built, so
   // only the plain route (browser and Node fallback) runs them: build-ro-rules.mjs.
   "cius-ro": { source: "cius-ro-schematron", match: /CIUS-RO/i, files: { ubl: "cius-ro-ubl.sef.json" } },
+  // The Netherlands' NLCIUS (SI-UBL 2.0) and its G-account variant. UBL only, plain route
+  // only, like Romania: build-nl-rules.mjs. A Peppol BIS file does not match; its NL-R
+  // rules already run in the Peppol add-on.
+  nlcius: { source: "nlcius-schematron", match: /nen\.nl:(nlcius|gaccount)/i, files: { ubl: "nlcius-ubl.sef.json" } },
   // Portugal's CIUS-PT (AMA / FEAP), the checks the EU base does not carry. Plain route only: build-pt-rules.mjs.
   "cius-pt": { source: "cius-pt-schematron", match: /CIUS-PT/i, files: { ubl: "cius-pt-ubl.sef.json" } },
 };
