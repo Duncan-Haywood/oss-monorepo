@@ -481,6 +481,10 @@ layouts, so check them against a real download.
 
 `bank.mjs` also recognises Monzo (`Transaction ID, Date, Time, Type, Name, ...`; day-first dates, the `Name` column is the payee), Starling (`Counter Party`, `Amount (GBP)`, `Balance (GBP)`; day-first, balance chain checked) and Mercury (`Date (UTC)`, `Status`; only `Sent` rows are imported, pending, failed and cancelled are listed in problems). Fixtures `monzo-business.csv`, `starling-business.csv`, `mercury-checking.csv` are hand-written from the published column headings with made-up rows; no real export has been tried, so check them against a real download.
 
+### Coinbase transaction-history CSV (2026-10-25)
+
+Total (inclusive of fees) is the amount and the transaction type gives the sign; Convert rows move no cash and are listed in problems. The newer layout with a `Transactions / User` preamble and a leading `ID` column is recognised too (2026-10-25, `coinbase.test.mjs`). Layout from memory, rows made up; no real export tried.
+
 ### Etsy payment-account CSV (2026-10-24)
 
 Amount is `--` on fee rows, so a file with `Fees & Taxes` and `Net` columns uses `Net` as the amount and `Title` as the memo (test in `hledger-samples.test.mjs`; layout from memory, rows made up).
