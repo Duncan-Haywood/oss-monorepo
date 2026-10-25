@@ -496,6 +496,16 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_jsonld
 
+      # The visible side of "Honest marketing": no "trusted by N", star
+      # ratings or award claims the repo cannot back (competitor claims that
+      # are attributed to the competitor are allowed).
+      - name: Check page copy for unbacked social-proof claims
+        run: python3 platform/ci/check_social_proof.py
+
+      - name: Social-proof checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_social_proof
+
       # A page with no rel=icon makes the browser request /favicon.ico from the
       # origin root (404 on GitHub Pages) and shows a blank tab.
       # `python3 platform/ci/favicons.py --fix` inserts the missing icons.
