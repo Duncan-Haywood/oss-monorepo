@@ -404,6 +404,17 @@ po_7,2026-04-05,txn_2,2026-04-02,currency_conversion,-50.00,0.00,-50.00,Converte
   assert.deepEqual(readPayoutReport(rep).rows.map((x) => x.kind), ["sales", "reserve"]);
 });
 
+test("Stripe types from the OpenAPI list: bank inflows and tax funds are clearing, a reversed payment is a refund", () => {
+  const rep = `${HEAD}
+po_8,2026-04-05,txn_1,2026-04-01,charge,100.00,3.20,96.80,Sale
+po_8,2026-04-05,txn_2,2026-04-02,inbound_transfer,50.00,0.00,50.00,ACH in
+po_8,2026-04-05,txn_3,2026-04-02,tax_fund,-5.00,0.00,-5.00,Tax set aside
+po_8,2026-04-05,txn_4,2026-04-03,payment_reversal,-20.00,0.00,-20.00,Reversed
+po_8,2026-04-05,txn_5,2026-04-03,obligation_outbound,-1.00,0.00,-1.00,Unknown
+`;
+  assert.deepEqual(readPayoutReport(rep).rows.map((x) => x.kind), ["sales", "reserve", "reserve", "refunds", "other"]);
+});
+
 test("Square dashboard transactions CSV: deposit id groups payments and refunds, fees are negatives", () => {
   const r = readPayoutReport(readFileSync(new URL("./fixtures/square-transactions.csv", import.meta.url), "utf8"));
   assert.deepEqual(r.problems, []);
