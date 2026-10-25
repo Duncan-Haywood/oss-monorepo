@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3b: does the gap to synchronous shrink with a 4x longer budget? (planned before running)
+- Why: 3a's "Next" and its main confound. At 960 steps synchronous AdamW is probably still improving, so the +0.08 to +0.15 nat cost of local steps may be an under-training artefact. Same model, data, workers (`M = 4`, batch 16), plain-averaging outer step and report seeds 0 to 2 as 3a, but 3,840 inner steps per worker (15,360 batches per method). `H` in {sync, 4, 16, 64}; inner lr fixed at 3a's picks (1e-3, 1e-3, 3e-3, 1e-3), **not re-tuned** at the longer budget (disclosed: a different optimum is possible). Code: `experiments/gpt_h_sweep/long_budget.py`, results `long_budget_results.txt`.
+- **H3b-i (gap shrinks):** the paired gap (H minus sync, same seed) at 3,840 steps is smaller than at 960 steps for `H` = 4, 16 and 64. Refuted if any of the three is equal or larger.
+- **H3b-ii (gap persists):** the `H = 16` gap is still above 2 paired sd of its seed differences (so local steps keep a measurable cost). Refuted otherwise.
+- **H3b-iii (ordering):** loss is non-decreasing in `H` over {sync, 4, 16, 64} on the seed mean. Recorded as suggestive.
+- Limits: three seeds, no per-budget lr tuning, one model size and corpus; the 960-step numbers are 3a's (same seeds, deterministic).
+
 ## 2026-10-25 · Milestone 3a: does the H curve of 2e survive on the 413k-parameter GPT? (planned before running)
 - Why: 2g's "Next". Everything since 2a is on a 14k-parameter numpy model; the claims (cost of local steps appears at large `H` only; tuned inner lr non-increasing in `H`) need the real transformer of Milestone 1 before they are cited.
 - Design (`experiments/gpt_h_sweep/h_sweep.py`): 2-layer, 128-wide char GPT on Tiny Shakespeare, `M = 4` workers, batch 16 per worker, 960 inner steps per worker (3,840 batches for every method), plain-averaging outer step (lr 1, no momentum), `H` in {sync, 1, 4, 16, 64, 240}; sync is one worker with batch 64. Inner lr in {1e-3, 3e-3, 1e-2} picked on tuning seeds 100, 101 (mean validation loss), then reported on seeds 0, 1, 2 (16 fixed validation batches of 32). Same selection split as 2e.
