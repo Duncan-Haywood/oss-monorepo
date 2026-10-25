@@ -633,3 +633,49 @@ squares from 0.2. Fire rates on the same series (null / break): Gaussian 1% to 2
 76%, AR(1) 90% to 100% / 88% to 98%, GARCH only 16% to 20% / 11% to 18%. The thresholds were set on seed-based
 quantiles of these same simulations, so the rates are in-sample. Clustered volatility is mostly *not* caught, and
 no real heavy-tailed series has been tried. Test: `meanvar-noise.test.mjs`.
+
+## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
+
+The section above ended with a warning because the Gaussian variance cost has no cheap fix. A different noise model does
+help on heavy tails. `--model meanvar --robust` (`robust: true` in `analyze`) fits each segment's median and mean absolute
+deviation (double-exponential noise) instead of its mean and variance, so one extreme point no longer inflates a segment's
+variance. `eval/meanvar-laplace.mjs` (output in `eval/meanvar-laplace.out.txt`, seeded, 100 series per cell, same
+generators as `meanvar-robustness.mjs`, default minimum segment of 10):
+
+| noise, cost | false alarms, n = 100 / 200 | one change found on an sd 1 to 2 break, n = 100 / 200 | range95 holds the date |
+|---|---|---|---|
+| Gaussian, Gaussian cost | 4% / 0% | 94% / 97% | 98% / 98% |
+| Gaussian, Laplace cost | 5% / 4% | **57%** / 92% | 95% / 99% |
+| t3, Gaussian cost | 37% / 63% | 58% / 55% | 78% / 69% |
+| t3, Laplace cost | **5% / 8%** | 59% / **89%** | 88% / 97% |
+| GARCH, Gaussian cost | 41% / 50% | 63% / 58% | 70% / 72% |
+| GARCH, Laplace cost | 21% / 29% | 62% / 69% | 85% / 83% |
+
+On heavy tails it removes most false alarms and, at n = 200, finds the break 89% of the time instead of 55%. It is not a
+free upgrade: on Gaussian noise at n = 100 it finds the single break in only 57% of series (94% with the Gaussian cost),
+so it stays opt-in. Clustered volatility is only half fixed (21% to 29% false alarms). Not changed: the Bayesian
+probability view still uses the Gaussian model, and the kurtosis part of the noise warning is skipped when `--robust` is
+on (autocorrelation and clustered-volatility parts stay). Simulated noise only; no real heavy-tailed series tried. Test:
+`meanvar-robust.test.mjs`. Cost: each segment is sorted on demand, so long series (several thousand points) run slower.
+
+## A calibrated penalty for `meanvar`: a mostly negative result (2026-10-25)
+
+The Laplace cost above leaves clustered volatility at 21% to 29% false alarms. A different idea is to keep the Gaussian cost and
+scale its BIC penalty by how much the noise inflates the variance-change statistic. For standardised Gaussian residuals the squares
+have variance 2; the long-run variance of the squares (Bartlett kernel) divided by 2 is a factor c, and the penalty becomes
+max(1, c) times BIC. `eval/meanvar-calibrated-penalty.mjs` (output in `eval/meanvar-calibrated-penalty.out.txt`, seeded, 100 series
+per cell, generators and seeds as in `meanvar-laplace.mjs`, plus AR(1) with rho 0.5) tries two ways to get the residuals:
+**A** standardise by the first-pass segments, **B** by segments from a 3x BIC pass.
+
+| noise | false alarms n = 100 / 200: plain, A, B | exactly one change near the sd 1 to 2 break n = 100 / 200: plain, A, B |
+|---|---|---|
+| Gaussian | 4 / 0, 3 / 0, 2 / 0 | 89 / 94, 89 / 96, 41 / 94 |
+| t3 | 37 / 63, 17 / 27, 4 / 5 | 46 / 38, 47 / 48, 22 / 42 |
+| GARCH(1,1) | 41 / 50, 37 / 35, 8 / 8 | 46 / 42, 45 / 44, 26 / 48 |
+| AR(1) 0.5 | 49 / 46, 42 / 34, 31 / 19 | 36 / 35, 40 / 41, 34 / 52 |
+
+A is free (Gaussian rows unchanged) but only halves the false alarms on t3 and barely moves GARCH, because the first pass's
+false segments soak up the very inflation it tries to measure. B removes most false alarms on t3 and GARCH but, at n = 100, loses
+half the real breaks on Gaussian noise (89% to 41%), because a break left inside one segment looks like heavy-tailed noise. Neither
+beats `--robust` on t3 and neither is wired into `analyze`. The open problem is estimating the inflation without the break itself
+feeding it. Simulated noise only; 100 series per cell, so differences under about 10 points are within noise.

@@ -1,7 +1,7 @@
 ---
 title: "Regressing on an LLM's labels: a tuned audit weight stops the interval getting wider"
 date: 2026-10-25
-description: "Regression coefficients from machine-coded text covered the truth 0 of 15 times; prediction-powered OLS was valid but wider than hand-coding. Choosing the weight per coefficient fixes the width."
+description: "Regression on LLM-coded text covered the truth 0 of 15 times; prediction-powered OLS was valid but wide. A per-coefficient weight fixes the width."
 tags: [research, llm, statistics, prediction-powered-inference, qualitative-coding]
 ---
 

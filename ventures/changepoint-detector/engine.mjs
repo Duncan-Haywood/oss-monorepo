@@ -930,6 +930,26 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
       return m * (Math.log(2 * Math.PI * v) + 1);
     };
   }
+  if (model === 'meanvarlaplace') {
+    // Level and volatility with double-exponential (Laplace) noise: the fit is the segment median and the mean absolute
+    // deviation b about it, -2 log-likelihood 2 m (log 2b + 1). Heavy tails pull b far less than they pull a variance.
+    // No prefix sums for a median, so each segment is sorted on demand (cached by its ends: PELT asks again).
+    const floor = Math.max(1e-9, sigma * 1e-3);
+    const memo = new Map();
+    return (s, t) => {
+      const key = s * (n + 1) + t;
+      const hit = memo.get(key);
+      if (hit !== undefined) return hit;
+      const m = t - s;
+      const seg = Array.from(x.subarray ? x.subarray(s, t) : x.slice(s, t)).sort((a, b) => a - b);
+      const med = m % 2 ? seg[(m - 1) / 2] : (seg[m / 2 - 1] + seg[m / 2]) / 2;
+      let ad = 0;
+      for (let i = 0; i < m; i++) ad += Math.abs(seg[i] - med);
+      const c = 2 * m * (Math.log(2 * Math.max(floor, ad / m)) + 1);
+      memo.set(key, c);
+      return c;
+    };
+  }
   if (model === 'trend') {
     // One straight line per segment, noise sd sigma: the cost is the segment's residual sum of squares
     // about its least-squares line over sigma^2, from prefix sums of x, t, t^2, t x. t is scaled to [0, 1]
@@ -1078,7 +1098,7 @@ export function negbinSize(x) {
 export function penaltyValue(penalty, n, model) {
   if (typeof penalty === 'number' && Number.isFinite(penalty) && penalty >= 0) return penalty;
   if (typeof penalty === 'string' && /^\d+(\.\d+)?$/.test(penalty.trim())) return Number(penalty);
-  const k = model === 'meanvar' || model === 'trend' ? 3 : 2;  // trend: location plus a level and a slope; poisson, like mean: location plus one rate
+  const k = model === 'meanvar' || model === 'meanvarlaplace' || model === 'trend' ? 3 : 2;  // trend: location plus a level and a slope; poisson, like mean: location plus one rate
   switch (String(penalty).toLowerCase()) {
     case 'bic': return k * Math.log(n);
     case 'aic': return 2 * k;
@@ -1427,7 +1447,7 @@ const fmt = (v) => (Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toF
 // Segment-standardise a series by the fitted changepoints, then look for what a Gaussian variance model cannot hold:
 // fourth moment above 4.5 (Gaussian runs top out near 3.9), lag-1 autocorrelation of the residuals from 0.25, and of their
 // squares from 0.2 (Gaussian 90th percentiles 0.08 and 0.11). Returns a warning string or null.
-export function meanvarNoiseCheck(x, cps) {
+export function meanvarNoiseCheck(x, cps, robust = false) {
   const b = [0, ...cps, x.length]; const z = [];
   for (let s = 0; s < b.length - 1; s++) {
     const seg = x.slice(b[s], b[s + 1]); if (!seg.length) continue;
@@ -1440,7 +1460,7 @@ export function meanvarNoiseCheck(x, cps) {
   const kurt = z.reduce((a, c) => a + c ** 4, 0) / n;
   const r1 = acf(z), r2 = acf(z.map((c) => c * c));
   const why = [];
-  if (kurt > 4.5) why.push(`heavy tails (kurtosis ${kurt.toFixed(1)}, 3 for Gaussian noise)`);
+  if (kurt > 4.5 && !robust) why.push(`heavy tails (kurtosis ${kurt.toFixed(1)}, 3 for Gaussian noise)`);
   if (r1 >= 0.25) why.push(`autocorrelation (lag 1: ${r1.toFixed(2)})`);
   if (r2 >= 0.2) why.push(`clustered volatility (lag 1 of the squares: ${r2.toFixed(2)})`);
   if (!why.length) return null;
@@ -1540,11 +1560,14 @@ export function analyze(input = {}) {
     if (!joint) sigma = longRunSd(sigma, rho);
   }
   const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : model === 'trend' ? 4 : 2)));
+  // robust: the variance model with Laplace noise, for heavy tails (eval/meanvar-laplace.mjs, README)
+  const robust = !!o.robust && model === 'meanvar';
+  if (o.robust && model !== 'meanvar') throw new Error('The robust cost is for the "meanvar" model only.');
   let p;
   if (joint) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
     ({ rho, sigma } = p);
-  } else p = isFinite(nbSize) && nbSize > 0 ? pelt(values, { model: 'negbin', penalty, minSegment, size: nbSize, exposure }) : pelt(values, { model, penalty, minSegment, sigma, exposure });
+  } else p = isFinite(nbSize) && nbSize > 0 ? pelt(values, { model: 'negbin', penalty, minSegment, size: nbSize, exposure }) : pelt(values, { model: robust ? 'meanvarlaplace' : model, penalty, minSegment, sigma, exposure });
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   const lines = [];
@@ -1575,7 +1598,7 @@ export function analyze(input = {}) {
   let ranges = null;
   if (!joint && o.intervals !== false) {
     const nbOn = isFinite(nbSize) && nbSize > 0;
-    ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, model, sigma, 0, exposure), { minSegment, level: 0.95 });
+    ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, robust ? 'meanvarlaplace' : model, sigma, 0, exposure), { minSegment, level: 0.95 });
   }
   // the range assumes independent noise: on sticky series without --ar1 it is far too narrow (57% and 30% coverage, README)
   let rangeWarning = null;
@@ -1597,7 +1620,7 @@ export function analyze(input = {}) {
   // a variance model assumes Gaussian noise: on heavy-tailed, autocorrelated or volatility-clustered noise with no change at all it
   // reported one 35% to 68% of the time (eval/meanvar-robustness.mjs, README). Warn from the segment-standardised residuals.
   if (!rangeWarning && model === 'meanvar' && values.length >= 40) {
-    const nd = meanvarNoiseCheck(values, p.changepoints);
+    const nd = meanvarNoiseCheck(values, p.changepoints, robust);
     if (nd) rangeWarning = nd;
   }
   const changes = p.changepoints.map((i, k) => {

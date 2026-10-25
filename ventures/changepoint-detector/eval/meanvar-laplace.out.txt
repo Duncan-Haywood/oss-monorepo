@@ -1,0 +1,19 @@
+reps 100 per cell, seeded, default minimum segment
+
+n = 100
+noise, cost | null: any change | sd1->2: one change, median error, range holds
+gauss gauss   | 4% | 94%, 2, 98%
+gauss laplace | 5% | 57%, 2, 95%
+t3    gauss   | 37% | 58%, 5, 78%
+t3    laplace | 5% | 59%, 5, 88%
+garch gauss   | 41% | 63%, 6, 70%
+garch laplace | 21% | 62%, 9, 85%
+
+n = 200
+noise, cost | null: any change | sd1->2: one change, median error, range holds
+gauss gauss   | 0% | 97%, 2, 98%
+gauss laplace | 4% | 92%, 2, 99%
+t3    gauss   | 63% | 55%, 7, 69%
+t3    laplace | 8% | 89%, 3, 97%
+garch gauss   | 50% | 58%, 6, 72%
+garch laplace | 29% | 69%, 8, 83%

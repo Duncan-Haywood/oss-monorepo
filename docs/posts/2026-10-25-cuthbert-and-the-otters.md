@@ -1,6 +1,8 @@
 ---
 title: "Cuthbert and the Otters: a bedtime story with its sources shown"
 date: 2026-10-25
+description: "A new Little Lamps bedtime story about Saint Cuthbert and the otters, with a grown-ups' note sorting history from legend."
+tags: [stories, hearth-and-horizon, saints]
 ---
 
 Little Lamps, the free saints' bedtime shelf of Hearth & Horizon, has a new story for ages 3 to 8: Saint Cuthbert

@@ -1,6 +1,8 @@
 ---
 title: "How many simulator runs does a sim-to-real certificate need?"
 date: 2026-10-25
+description: "How many simulator runs a sim-to-real confidence interval needs: tested on 21 pendulum and 21 cart-pole twin-versus-real pairs."
+tags: [research, sim-to-real, statistics]
 ---
 
 A digital twin is free to run, so it should shorten the confidence interval on a real-world success rate. We tested that with a betting-style confidence interval on 21 pendulum and 21 cart-pole twin-versus-real pairs.

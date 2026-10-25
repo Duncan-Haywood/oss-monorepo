@@ -1,6 +1,8 @@
 ---
 title: "Bookkeeping keywords on 674 unseen card charges: 46% suggested before, 53% after"
 date: 2026-10-25
+description: "We measured the bookkeeper's built-in category keywords on 674 unseen Hack Club card charges: 46% suggested before looking, 53% after."
+tags: [bookkeeping, measurement, ai-bookkeeper]
 ---
 
 We measure our bookkeeper's built-in category keywords on public Hack Club HCB card charges, fetched at run time and
