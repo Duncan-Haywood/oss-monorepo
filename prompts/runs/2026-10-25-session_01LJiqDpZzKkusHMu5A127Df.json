@@ -26,17 +26,27 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "Two runs drew the same programme and did the same milestone; no claim step for programme steps."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "Paper step duplicated PR #10261 landed concurrently; kept only the blog post."
+    }
+  ],
   "writeups": [
     "docs/posts/2026-10-25-skipping-training-steps-on-a-small-transformer.md",
     "research/verifiable-training-mechanisms/LOG.md"
   ],
   "goal": null,
-  "notes": "Paper-only step: transformer results into main.tex. Homepage build ok, md links ok. LaTeX not compiled.",
+  "notes": "Paper edits dropped in favour of #10261 at merge; only post + record ship.",
   "corrections": [],
   "redteam": null
 }
