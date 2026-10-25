@@ -80,7 +80,7 @@ test('no competitor is named on the entry page', () => {
 });
 
 test('every internal link on the index page resolves', () => {
-  const hrefs = [...html.matchAll(/href="((?!https?:|#)[^"]+)"/g)].map((m) => m[1]);
+  const hrefs = [...html.matchAll(/href="((?!https?:|data:|#)[^"]+)"/g)].map((m) => m[1]);
   assert.ok(hrefs.length >= 3);
   for (const href of hrefs) {
     assert.ok(existsSync(new URL(href, import.meta.url)), `broken internal link: ${href}`);

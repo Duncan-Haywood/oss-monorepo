@@ -136,3 +136,9 @@ test("page offers the burst rule for counts", () => {
   assert.match(html, /<input id="bursts" type="checkbox"/);
   assert.match(html, /bursts: \$\("#bursts"\)\.checked/);
 });
+
+test("the page offers the Laplace cost for the volatility model and passes it to analyze", () => {
+  const html = page("index.html");
+  assert.match(html, /<input id="robust" type="checkbox">/);
+  assert.match(html, /robust: \$\("#model"\)\.value === "meanvar" && \$\("#robust"\)\.checked/);
+});
