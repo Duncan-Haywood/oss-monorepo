@@ -14,3 +14,13 @@ test("coverage counts suggested and unmatched memos and keeps the account", () =
   assert.equal(c.hits.get("2300 sahara hotel => 6120"), 1);
   assert.equal(c.misses.get("zorblax qux"), 1);
 });
+
+test("Lumens (a lighting shop) and a power-manager part are not utility bills", () => {
+  const c = coverage([
+    { memo: "PayPal *LUMENS FTY.", cents: -2000 }, { memo: "Solar power manager module", cents: -1500 },
+    { memo: "Lumen Technologies", cents: -8000 }, { memo: "City Power & Light", cents: -9000 },
+  ]);
+  assert.equal(c.hits.get("lumen technologies => 6140"), 1);
+  assert.equal(c.hits.get("city power & light => 6140"), 1);
+  assert.equal(c.suggested, 2);
+});
