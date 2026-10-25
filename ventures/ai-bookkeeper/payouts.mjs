@@ -193,6 +193,9 @@ const SQUARE_KIND = {
   balance_folders_transfer: "reserve", balance_folders_transfer_reversed: "reserve", gift_card_pool_transfer: "reserve", gift_card_pool_transfer_reversed: "reserve",
   money_transfer_reversal: "reserve", square_payroll_transfer: "reserve", square_payroll_transfer_reversed: "reserve",
   initial_balance_change: "reserve", automatic_bitcoin_conversions: "reserve", automatic_bitcoin_conversions_reversed: "reserve",
+  // From Square's OpenAPI ActivityType (square/connect-api-specification, fetched 2026-10-25): an escheatment is money
+  // remitted to a state as unclaimed property; percentage processing enrollment and deactivation move the repayment balance.
+  escheatment: "reserve", percentage_processing_enrollment: "reserve", percentage_processing_deactivation: "reserve",
   payout: "skip", money_transfer: "skip",
 };
 // Square Payouts API: ListPayoutEntries JSON ({ payout_entries: [...] }), or
