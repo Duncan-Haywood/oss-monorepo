@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3c: is 3b's H = 16 vs H = 64 inversion an lr artefact? (planned before running)
+- Why: 3b's "Next". 3b reused 3a's inner lrs, tuned at 960 steps (H=16: 3e-3, H=64: 1e-3). The inversion (H=64 beat H=16 by 0.017) probably comes from the H=16 lr being too high at 3,840 steps.
+- Design (`experiments/gpt_retune/retune.py`): 3b's model, data, M = 4, batch 16, 3,840 inner steps, plain averaging. Tune lr in {3e-4, 1e-3, 3e-3} for H in {16, 64} on seeds 100, 101 (mean validation loss), then report the picks on seeds 0 to 2 (3b's seeds), paired with 3b's synchronous runs.
+- **H3c-i:** the tuned H=16 lr is below 3e-3 (the 3a pick) and the H=16 gap to sync shrinks below 3b's 0.034. Refuted otherwise.
+- **H3c-ii:** after re-tuning, H=16 is no worse than H=64 in the means (the 3b ordering inversion goes away). Refuted if H=64 is still better.
+- Limits: 3 lr points only, 2 tuning seeds, sync/H=4 not re-tuned (sync stays at 3a's pick), one size and corpus.
+
 ## 2026-10-25 · Milestone 3b: does the 3a gap to synchronous AdamW shrink with a 4x longer budget? (planned before running)
 - Why: 3a's "Next". At 960 steps sync may still be improving; the 0.14 nat gap at `H = 16` could be a short-budget artefact.
 - Design (`experiments/gpt_long_budget/long_budget.py`): 3a's model, data, `M = 4`, batch 16, plain averaging; 3,840 inner steps per worker; `H` in {sync, 4, 16, 64}; inner lr fixed at 3a's picks (1e-3, 1e-3, 3e-3, 1e-3), no re-tuning (a longer run may prefer a different lr, so gaps are if anything biased against the picks of whichever method it suits least); seeds 0 to 2; same 16 validation batches.
