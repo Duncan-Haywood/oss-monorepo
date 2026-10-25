@@ -13,19 +13,24 @@ T = LOADED["cartpole"]["twin"]
 _rng = np.random.default_rng(SEED)
 
 
-def interval_chunked(x, alpha, cap, chunk=5000):
-    """Same interval as m7h.interval, accumulating the log capital over row chunks so N = 100,000 stays in memory."""
-    lam = bets(x, alpha)
-    m = GRID[None, :]
-    kp = np.zeros(len(GRID)); km = np.zeros(len(GRID))
-    for s in range(0, len(x), chunk):
-        l = lam[s:s + chunk, None]; d = x[s:s + chunk, None] - m
-        kp += np.log1p(np.minimum(l, cap / m) * d).sum(0); km += np.log1p(-np.minimum(l, cap / (1 - m)) * d).sum(0)
-    ok = (np.logaddexp(kp, km) - np.log(2)) < np.log(1 / alpha)
+def interval_chunked(x, alpha, cap, chunk=5000, half=0.01, G=600):
+    """Betting interval as in m7h.interval, on a fine grid centred on the sample mean (half-width doubled until the edges are rejected), accumulating the log capital over row chunks. The m7h grid (step 1/600) is wider than the interval at N >= 20,000."""
+    lam = bets(x, alpha); mu = float(x.mean())
+    while True:
+        grid = np.clip(np.linspace(mu - half, mu + half, G), 0.0005, 0.9995)
+        m = grid[None, :]
+        kp = np.zeros(G); km = np.zeros(G)
+        for s in range(0, len(x), chunk):
+            l = lam[s:s + chunk, None]; d = x[s:s + chunk, None] - m
+            kp += np.log1p(np.minimum(l, cap / m) * d).sum(0); km += np.log1p(-np.minimum(l, cap / (1 - m)) * d).sum(0)
+        ok = (np.logaddexp(kp, km) - np.log(2)) < np.log(1 / alpha)
+        if ok.any() and not (ok[0] or ok[-1]) or half >= 0.5:
+            break
+        half *= 2
     if not ok.any():
-        return 0.5, 1.0
-    idx = np.flatnonzero(ok); step = GRID[1] - GRID[0]
-    return GRID[idx[0]] - step / 2, GRID[idx[-1]] + step / 2
+        return 0.0, 1.0
+    idx = np.flatnonzero(ok); step = grid[1] - grid[0]
+    return grid[idx[0]] - step / 2, grid[idx[-1]] + step / 2
 
 
 # twin-mean intervals drawn once per (N, f); draws are iid with replacement from the 4,000-context pool (target: the pool mean)
