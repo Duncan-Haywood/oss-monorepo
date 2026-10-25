@@ -1,0 +1,3 @@
+"Datum","Empfänger","Kontonummer","Transaktionstyp","Verwendungszweck","Kategorie","Betrag (EUR)","Betrag (Fremdwährung)","Fremdwährung","Wechselkurs"
+2026-03-05,"Hetzner Online GmbH",DE89370400440532013000,Lastschrift,"Rechnung 4471","Software",-24.90,,,
+2026-03-04,"Kunde GmbH",DE02120300000000202051,Gutschrift,"RE-7","Einkommen",1500.00,,,
