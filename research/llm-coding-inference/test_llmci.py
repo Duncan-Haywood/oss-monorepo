@@ -177,3 +177,22 @@ def test_ppi_ols_lam_endpoints_and_tuned_never_wider_than_human_only():
     assert np.all(st <= seh * 1.02) and np.all((0 <= lams) & (lams <= 1))
     bp, _, _ = R.ppi_ols_tuned(X, y.copy(), np.arange(N), y)  # audit = corpus, perfect coder
     assert np.allclose(bp, R.ols(X, y))
+
+
+def test_ppi_ols_crossfit_is_unbiased_and_covers_on_synthetic_data():
+    import numpy as np
+    from llmci import regression as R
+    rng = np.random.default_rng(11)
+    N = 4000
+    X = np.column_stack([np.ones(N), rng.integers(0, 2, N)])
+    y = (rng.random(N) < 0.3 + 0.2 * X[:, 1]).astype(float)
+    f = np.where(rng.random(N) < 0.85, y, 1 - y)
+    truth = R.ols(X, y)
+    cover, errs = 0, []
+    for _ in range(200):
+        idx = rng.choice(N, 300, replace=False)
+        b, se, lam = R.ppi_ols_crossfit(X, f, idx, y[idx], rng.permutation(300))
+        assert np.all((0 <= lam) & (lam <= 1))
+        cover += abs(b[1] - truth[1]) <= 1.96 * se[1]
+        errs.append(b[1] - truth[1])
+    assert 0.90 <= cover / 200 <= 0.99 and abs(np.mean(errs)) < 0.01
