@@ -355,3 +355,43 @@ test("Schwab brokerage transactions: totals row skipped, trades not booked as sp
   assert.ok(full.problems.some((p) => /1 brokerage buy\/sell line was not booked/.test(p)));
   assert.ok(!full.problems.some((p) => /unreadable date|Every amount is positive/.test(p)));
 });
+
+// Ally-style QFX pretty-printed with each value on the line after its tag
+// (found sweeping beancount_reds_importers' test files, GPL, read only; the file below is made up).
+test("OFX with every value on the line after its tag still reads", () => {
+  const qfx = `OFXHEADER:100
+DATA:OFXSGML
+VERSION:102
+
+<OFX>
+<BANKMSGSRSV1>
+<STMTTRNRS>
+<STMTRS>
+<CURDEF>
+USD</CURDEF>
+<BANKTRANLIST>
+<STMTTRN>
+<TRNTYPE>
+DEBIT</TRNTYPE>
+<DTPOSTED>
+20240109121112</DTPOSTED>
+<TRNAMT>
+-55.00</TRNAMT>
+<FITID>
+1</FITID>
+<NAME>
+Corner Cafe</NAME>
+</STMTTRN>
+</BANKTRANLIST>
+</STMTRS>
+</STMTTRNRS>
+</BANKMSGSRSV1>
+</OFX>
+`;
+  const r = readStatement(qfx);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.rows.length, 1);
+  assert.equal(r.rows[0].date, "2024-01-09");
+  assert.equal(r.rows[0].cents, -5500);
+  assert.equal(r.rows[0].desc, "Corner Cafe");
+});
