@@ -59,7 +59,7 @@
       <div><label for="column">Value column (name or number; blank = last numeric)</label><input id="column" type="text" placeholder="e.g. volume"></div>
       <div><label for="model">Look for a change in</label>
         <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option></select></div>
-      <div><label for="robust"><input id="robust" type="checkbox"> Heavy-tailed noise: Laplace cost (level and volatility only; fewer false alarms from outliers, less power on clean Gaussian data)</label></div>
+      <div><label for="robust"><input id="robust" type="checkbox"> Heavy-tailed noise: Laplace cost, and outliers clipped in the Bayesian view (level and volatility only; fewer false alarms from outliers, less power on clean Gaussian data)</label></div>
       <div><label for="penalty">Penalty per change (PELT)</label>
         <select id="penalty"><option value="bic">BIC (default)</option><option value="aic">AIC (finds more)</option><option value="hannan-quinn">Hannan-Quinn</option><option value="custom">Custom number…</option></select></div>
       <div><label for="penaltyValue">Custom penalty</label><input id="penaltyValue" type="number" min="0" step="any" value="10" disabled></div>

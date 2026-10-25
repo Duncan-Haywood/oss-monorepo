@@ -1,0 +1,9 @@
+reps 100 per cell, seeded
+robust=false n=100 gauss | null false alarm 0% | sd1->2 found 5% | mean +1.5 found 23%
+robust=false n=100 t3    | null false alarm 18% | sd1->2 found 8% | mean +1.5 found 45%
+robust=false n=200 gauss | null false alarm 1% | sd1->2 found 4% | mean +1.5 found 19%
+robust=false n=200 t3    | null false alarm 47% | sd1->2 found 3% | mean +1.5 found 48%
+robust=true n=100 gauss | null false alarm 1% | sd1->2 found 1% | mean +1.5 found 27%
+robust=true n=100 t3    | null false alarm 1% | sd1->2 found 0% | mean +1.5 found 56%
+robust=true n=200 gauss | null false alarm 2% | sd1->2 found 1% | mean +1.5 found 26%
+robust=true n=200 t3    | null false alarm 1% | sd1->2 found 1% | mean +1.5 found 62%

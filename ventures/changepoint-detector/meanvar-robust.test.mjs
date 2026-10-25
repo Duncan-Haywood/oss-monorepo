@@ -29,3 +29,15 @@ test('robust cost still finds a clear sd break', () => {
 test('robust is for meanvar only', () => {
   assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], model: 'mean', robust: true }), /meanvar/);
 });
+
+test('robust clips the Bayesian pass: far fewer Bayesian false alarms on t3 noise', () => {
+  let plain = 0, robust = 0;
+  for (let k = 0; k < 20; k++) {
+    const r = rng(2000 + k);
+    const values = Array.from({ length: 200 }, () => t3(r));
+    if (analyze({ values, model: 'meanvar' }).bocpd.detections.length) plain++;
+    if (analyze({ values, model: 'meanvar', robust: true }).bocpd.detections.length) robust++;
+  }
+  assert.ok(robust <= 2, `robust Bayesian false alarms ${robust}`);
+  assert.ok(plain >= robust + 4, `plain ${plain} vs robust ${robust}`);
+});
