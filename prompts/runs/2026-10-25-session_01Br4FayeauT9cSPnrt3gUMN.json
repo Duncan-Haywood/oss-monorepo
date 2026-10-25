@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01Br4FayeauT9cSPnrt3gUMN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-25T19:09:53Z",
+  "ended": "2026-10-25T19:13:42Z",
+  "wall_minutes": 4.0,
+  "tokens_in": 2580861,
+  "tokens_out": 11822,
+  "cost_usd": 0.9091,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10462",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: asks for real exports, but PyPI sdists tried (bankstatementparser, fints2ledger) ship no fixtures and api.github.com trees 403; finding real samples cost most of the run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-25-coinbase-csv-bookkeeper.md"
+  ],
+  "goal": null,
+  "notes": "Found no new real export; fixed Coinbase CSV misread using a made-up fixture in the remembered layout (labelled so). 1270 ai-bookkeeper tests pass. Did not run venture-preflight or update flagships next:.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f2ec8138-4fcc-5404-9f1b-5f88b2117747",
+    "transcripts": 1,
+    "first": "2026-10-25T19:09:53Z",
+    "last": "2026-10-25T19:13:53Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 32,
+        "input": 64,
+        "output": 11822,
+        "thinking": 2773,
+        "cache_read": 2508536,
+        "cache_write_5m": 0,
+        "cache_write_1h": 72261,
+        "api_equivalent_usd": 0.9091,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 64,
+      "output": 11822,
+      "thinking": 2773,
+      "cache_read": 2508536,
+      "cache_write_5m": 0,
+      "cache_write_1h": 72261,
+      "api_equivalent_usd": 0.9091,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 30,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.0,
+      "active_minutes": 4.0,
+      "model_minutes": 1.98,
+      "tool_minutes": 2.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -26,7 +26,7 @@ const ALIASES = {
     // Korean, Chinese
     "거래일자", "거래일시", "거래일", "기준일자", "交易日期", "记账日期", "記帳日期", "交易时间", "交易時間",
     // value dates last: German Valuta/Wertstellung are not the booking date
-    "created (utc)", "created", "created date (utc)", "created at",
+    "created (utc)", "created", "created date (utc)", "created at", "timestamp",
     "wertstellung", "valuta", "date de valeur", "date valeur",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
@@ -35,7 +35,7 @@ const ALIASES = {
     "text", "tekst", "rubrik", "referens", "skýring", "skyring", "รายการ", "รายละเอียด", "beskrivelse", "forklaring", "meddelande", "meddelelse",
     "opis transakcji", "dane kontrahenta", "tytuł przelewu", "saaja/maksaja", "descrição", "descricao", "histórico", "historico", "opis", "tytuł", "tytul", "nadawca/odbiorca", "selitys", "saaja/maksaja", "açıklama", "aciklama", "popis", "zpráva pro příjemce", "opis operacji", "keterangan", "uraian", "الوصف", "البيان", "التفاصيل",
     "摘要", "お取引内容", "取引内容", "内容", "備考", "お取り扱い内容", "적요", "거래내용", "내용", "기재내용", "보낸분/받는분", "摘要", "交易摘要", "交易备注", "交易備註", "对方户名", "對方戶名", "附言", "用途"],
-  amount: ["buchungsbetrag", "zaúčtovaná částka", "сумма", "insättning/uttag", "insattning/uttag", "upphæð", "uphaed", "จำนวนเงิน", "סכום", "ποσό", "số tiền", "amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "bedrag (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma", "összeg", "belopp", "beløb", "belop", "beløp", "valor", "kwota", "määrä", "määrä euroa", "montante", "maara", "tutar", "částka", "castka", "金額", "取引金額", "거래금액", "交易金额", "交易金額", "发生额", "發生額"],
+  amount: ["total (inclusive of fees and/or spread)", "buchungsbetrag", "zaúčtovaná částka", "сумма", "insättning/uttag", "insattning/uttag", "upphæð", "uphaed", "จำนวนเงิน", "סכום", "ποσό", "số tiền", "amount", "amount (total)", "transaction amount", "amt", "value", "amount (usd)", "amount ($)", "amount (gbp)", "amount (eur)", "bedrag (eur)", "cad$", "betrag", "betrag (eur)", "montant", "importe", "importo", "bedrag", "net", "suma", "összeg", "belopp", "beløb", "belop", "beløp", "valor", "kwota", "määrä", "määrä euroa", "montante", "maara", "tutar", "částka", "castka", "金額", "取引金額", "거래금액", "交易金额", "交易金額", "发生额", "發生額"],
   debit: ["расход", "uttag", "ถอน", "เงินออก", "ถอนเงิน", "списание", "сумма списания", "חובה", "χρέωση", "ghi nợ", "số tiền ghi nợ", "debit", "debits", "withdrawal", "withdrawals", "withdrawal amt.", "withdrawal amt", "withdrawal amount", "withdrawal (-)", "withdrawals (-)", "debit (-)", "money out", "paid out", "amount debit", "debit amount", "debit amount (positive)", "outflow", "debet", "soll", "lastschrift", "lastschrift in chf", "lastschrift in eur", "débit", "debit (eur)", "cargo", "dare", "uscite", "addebiti", "addebito", "ut fra konto", "ut fra", "débito", "debito", "borç", "مدين", "出金金額", "出金", "お支払金額", "お引出し", "支払金額", "引出金額", "출금금액", "출금액", "출금", "찾으신금액", "지급금액", "支出", "支出金额", "支出金額", "借方发生额", "借方發生額", "借方金额", "借方金額", "付款金额"],
   credit: ["приход", "insättning", "insattning", "ฝาก", "เงินเข้า", "ฝากเงิน", "зачисление", "сумма зачисления", "זכות", "πίστωση", "ghi có", "số tiền ghi có", "credit", "credits", "deposit", "deposits", "deposit amt.", "deposit amt", "deposit amount", "deposit (+)", "deposits (+)", "credit (+)", "money in", "paid in", "amount credit", "credit amount", "credit amount (positive)", "inflow", "haben", "gutschrift", "gutschrift in chf", "gutschrift in eur", "crédit", "credito", "crédito", "abono", "avere", "entrate", "accrediti", "accredito", "inn på konto", "inn pa konto", "inn på", "alacak", "kredit", "دائن", "入金金額", "入金", "お預入れ", "預入金額", "お預り金額", "입금금액", "입금액", "입금", "맡기신금액", "수입금액", "收入", "收入金额", "收入金額", "贷方发生额", "貸方發生額", "贷方金额", "貸方金額", "存入金额"],
   balance: ["остаток", "คงเหลือ", "ยอดคงเหลือ", "staða", "остаток по счёту", "יתרה", "υπόλοιπο", "số dư", "balance", "running balance", "runningbalance", "running bal.", "ledger balance", "closing balance", "balance (gbp)", "balance (eur)", "balance (usd)", "saldo", "kontostand", "solde", "saldo (eur)", "saldo in chf", "saldo in eur", "saldo na trn", "saldo po operacji", "saldo po transakcji", "saldo após", "saldo apos", "saldo contabilístico", "saldo contabilistico", "bakiye", "الرصيد", "zůstatek", "残高", "差引残高", "現在残高", "잔액", "거래후잔액", "거래 후 잔액", "余额", "餘額", "账户余额", "賬戶餘額", "当前余额"],
@@ -330,6 +330,7 @@ export function sniffBank(rows) {
     if (/^transaction id\|date\|time\|type\|name\|emoji\|category\|amount\|currency/.test(h)) return "monzo";
     if (/^date\|counter party\|reference\|type\|amount \((gbp|eur|usd)\)\|balance/.test(h)) return "starling";
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
+    if (/^timestamp\|transaction type\|asset\|quantity transacted\|/.test(h)) return "coinbase";
     if (/^booking date\|value date\|partner name\|partner iban\|type\|payment reference/.test(h)) return "n26";
     // Newer exports name the first (once blank) column "Username" and put the account's own name on row 2.
     if (/^(username\|)?id\|datetime\|type\|status\|note\|from\|to\|amount \(total\)/.test(h.replace(/^\|/, ""))) return "venmo";
@@ -782,6 +783,13 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     else if (hdr.indexOf("gross") !== -1) columns.amount = hdr.indexOf("gross");
     if (hdr.indexOf("balance") !== -1) columns.balance = hdr.indexOf("balance");
   }
+  // Coinbase: the amount is the Total (spot price would be picked otherwise) and is unsigned; the type says which way it went.
+  if (bank === "coinbase") {
+    const tot = hdr.findIndex((x) => x.startsWith("total (inclusive"));
+    const sub = hdr.indexOf("subtotal");
+    if (tot !== -1 || sub !== -1) columns.amount = tot !== -1 ? tot : sub;
+    columns.desc = hdr.indexOf("notes");
+  }
   if (bank === "cash-app") { columns.amount = hdr.indexOf("net amount"); columns.desc = hdr.indexOf("notes"); }
   // Mercury lists Pending, Failed and Cancelled rows beside Sent ones.
   // Venmo lists Pending and Cancelled payments, and its balance rows have no date.
@@ -850,6 +858,13 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       if (/^(dr|d|debit|debet|af|soll|s|withdrawal)$/.test(m)) cents = -Math.abs(cents);
       else if (/^(cr|c|k|credit|bij|haben|h|deposit)$/.test(m)) cents = Math.abs(cents);
     }
+    if (bank === "coinbase") {
+      const ty = String(r[hdr.indexOf("transaction type")] ?? "").trim().toLowerCase();
+      if (/\b(buy|send|withdrawal|pro withdrawal|payment)\b/.test(ty) && !/sell/.test(ty)) cents = -Math.abs(cents);
+      else if (/\b(sell|receive|deposit|reward|earn|income|staking|interest|airdrop)\b/.test(ty)) cents = Math.abs(cents);
+      else if (/convert/.test(ty)) { problems.push(`Line ${i + 1}: a Convert between two assets moves no cash, skipped.`); continue; }
+      else { problems.push(`Line ${i + 1}: unknown Coinbase transaction type "${ty}", skipped.`); continue; }
+    }
     if (feeCol !== -1) { const fee = parseCents(r[feeCol], decimalComma); if (Number.isFinite(fee)) cents -= Math.abs(fee); }
     if (cents === 0) {
       // A zero is harmless, but a row with a description and every amount cell blank may be a lost transaction.
@@ -877,6 +892,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       const nameI = hdr.indexOf("name");
       desc = [nameI !== -1 ? String(r[nameI] ?? "").trim() : "", String(r[hdr.indexOf("type")] ?? "").trim() || desc].filter(Boolean).join(" - ").replace(/\s+/g, " ");
     }
+    if (bank === "coinbase") desc = [String(r[hdr.indexOf("transaction type")] ?? "").trim(), String(r[hdr.indexOf("asset")] ?? "").trim(), desc].filter(Boolean).join(" ").replace(/\s+/g, " ");
     if (bank === "venmo") {
       // The note is free text; name the other party, and fall back to the type for transfers.
       const who = String(r[hdr.indexOf(cents < 0 ? "to" : "from")] ?? "").trim();
