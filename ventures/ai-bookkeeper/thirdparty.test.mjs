@@ -395,3 +395,19 @@ Corner Cafe</NAME>
   assert.equal(r.rows[0].cents, -5500);
   assert.equal(r.rows[0].desc, "Corner Cafe");
 });
+
+test("Schwab checking export without a Status column, with note lines under the header", () => {
+  // Layout seen in beancount-import's Schwab test data (GPL, read only); rows here are made up.
+  const csv = [
+    'Transactions  for Checking account EAC as of 12/23/2020 16:00:10 ET',
+    '"Date","Type","Check #","Description","Withdrawal (-)","Deposit (+)","RunningBalance"',
+    '"Pending Transactions are not reflected within this sort criterion."',
+    '"Posted Transactions"',
+    '"11/13/2020","ACH","","Example Ext Trnsfr","","$10,500.00","$10,550.01"',
+    '"10/27/2020","ACH","","Example Auth Debit","$1.10","","$50.01"',
+  ].join("\n");
+  const r = readStatement(csv);
+  assert.equal(r.bank, "schwab");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.cents), [1050000, -110]);
+});
