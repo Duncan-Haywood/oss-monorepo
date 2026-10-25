@@ -119,6 +119,8 @@ export function parseCents(v, decimalComma = false) {
   return neg && c ? -c : c; // never -0
 }
 
+const THREE_DECIMAL = /^(bhd|kwd|omr|jod|tnd|iqd|lyd)$/i;
+
 // ISO, M/D/Y or D/M/Y (dayFirst), with 2- or 4-digit years, or "12 Mar 2026".
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
 // German, French, Spanish, Italian, Dutch and Portuguese month words (accents
@@ -834,6 +836,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (!date && /^pending$/i.test(String(r[columns.date] ?? "").trim())) { problems.push(`Line ${i + 1}: pending, not a booked transaction, skipped.`); continue; }
     if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
     let cents;
+    // Dinar and rial accounts (BHD, KWD, OMR, JOD, TND, IQD, LYD) have 1/1000 units; the ledger holds hundredths.
+    if (curCol !== -1 && columns.amount !== -1 && THREE_DECIMAL.test(String(r[curCol] ?? "").trim())) {
+      const m = asciiDigits(r[columns.amount]).match(/[.,](\d{3})\s*$/);
+      if (m && m[1][2] !== "0") problems.push(`Line ${i + 1}: ${String(r[curCol]).trim().toUpperCase()} amounts have three decimals (${String(r[columns.amount]).trim()}); the ledger keeps two, so the last digit is rounded away.`);
+    }
     if (columns.amount !== -1 && String(r[columns.amount] ?? "").trim() !== "") { cents = parseCents(r[columns.amount], decimalComma); if (rbcUsd !== -1) currencies.add("CAD"); }
     else if (rbcUsd !== -1 && String(r[rbcUsd] ?? "").trim() !== "") { cents = parseCents(r[rbcUsd], decimalComma); currencies.add("USD"); }
     else {
