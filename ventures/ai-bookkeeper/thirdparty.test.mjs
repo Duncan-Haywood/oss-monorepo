@@ -310,3 +310,8 @@ test("a trade list (ticker, qty, price, amount) books a buy as cash out", () => 
   assert.match(r.inferred, /trade list/);
   assert.equal(readStatement(csv, { invert: false }).rows[0].cents, 150250);
 });
+
+test("a MEMO written as TYPE;NAME does not repeat the name", () => {
+  const r = readOfx(wrap(`<STMTTRN><TRNTYPE>POS<DTPOSTED>20090401122017.000[-5:EST]<TRNAMT>-6.60<FITID>1<NAME>MCDONALD'S #112<MEMO>POS MERCHANDISE;MCDONALD'S #112</STMTTRN>`));
+  assert.equal(r.rows[0].desc, "MCDONALD'S #112 POS MERCHANDISE");
+});
