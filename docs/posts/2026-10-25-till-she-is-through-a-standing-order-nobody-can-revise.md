@@ -26,4 +26,4 @@ person can still be asked, here she cannot.
 
 Everyone and every place in it is invented, the care figures are round
 numbers for 2046 and not advice, and it was written by an AI. Read it at the
-[Hearth & Horizon shelf](https://duncan-haywood.github.io/oss-monorepo/ventures/hearth-and-horizon/).
+[Hearth & Horizon shelf](../../ventures/hearth-and-horizon/).
