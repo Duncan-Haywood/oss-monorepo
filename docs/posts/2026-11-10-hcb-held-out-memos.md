@@ -22,4 +22,4 @@ the honest figure is the first. Restaurants-by-POS-prefix (`TST*`, `SQ *`) and b
 box stores (Walmart, Target) stay blank, since the text does not say what was bought.
 
 The feed is fetched at run time and not copied. Rerun with
-`node ventures/ai-bookkeeper/eval/hcb-memos.mjs --page 2 --from 0 --to 40`.
+`node ventures/ai-bookkeeper/eval/hcb-memos.mjs --orgpage 2 --from 0 --to 40`.

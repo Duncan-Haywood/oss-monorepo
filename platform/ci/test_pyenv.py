@@ -101,6 +101,16 @@ class T(unittest.TestCase):
         finally:
             pyenv.shutil.which = orig
 
+    def test_heavy_packages_get_a_longer_pip_timeout(self):
+        os.environ.pop("PYENV_PIP_TIMEOUT", None)
+        self.assertEqual(pyenv.pip_timeout(["numpy"]), 300)
+        self.assertEqual(pyenv.pip_timeout(["torch", "numpy"]), 1800)
+        os.environ["PYENV_PIP_TIMEOUT"] = "42"
+        try:
+            self.assertEqual(pyenv.pip_timeout(["torch"]), 42)
+        finally:
+            del os.environ["PYENV_PIP_TIMEOUT"]
+
     def test_package_names(self):
         run = FakeRun(pip_ok={"/p/python3"})
         pyenv.find(["sklearn", "yaml"], ["/p/python3"], run, quiet)

@@ -24,3 +24,13 @@ test("memos read on HCB pages 2 and 3 (hardware vendors, transit, meals) get an 
   assert.equal(c.hits.get("revrobotics => 6100"), 1);
   assert.equal(c.hits.get("new york city mta => 6120"), 1);
 });
+
+test("Lumens (a lighting shop) and a power-manager part are not utility bills", () => {
+  const c = coverage([
+    { memo: "PayPal *LUMENS FTY.", cents: -2000 }, { memo: "Solar power manager module", cents: -1500 },
+    { memo: "Lumen Technologies", cents: -8000 }, { memo: "City Power & Light", cents: -9000 },
+  ]);
+  assert.equal(c.hits.get("lumen technologies => 6140"), 1);
+  assert.equal(c.hits.get("city power & light => 6140"), 1);
+  assert.equal(c.suggested, 2);
+});

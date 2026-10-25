@@ -2,6 +2,18 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 7f: how wrong may the twin's tail be before an upper bound on the cost fails? (planned before running)
+- Why: 7d/7e certify only a lower bound on E[R] (clipped mean). An upper bound needs a tail assumption; the checkable one is "real excess over c is at most k times the twin's": E[(R-c)+] <= k E_T[(T-c)+], giving U = (upper bound on E[min(R,c)]) + k E_T[(T-c)+]. Rather than pick k, report the smallest valid k* per pair on the 21 m7c pools (`experiments/m7f_tailratio/tailratio.py`, c the twin q-quantile, q = 0.99 and 0.999; the full 4,000-context pools, so this is the population value, no sampling).
+- **H7f-i:** at q = 0.999, k* <= 3 on at least 15 of 21 pairs (a modest tail inflation suffices where the omitted effect is small).
+- **H7f-ii:** the pairs with k* > 10 at q = 0.999 are exactly the three friction pairs that failed in 7d (friction-1, -2, -3). Refuted if the set differs.
+- Not tested: the finite-sample upper bound itself, a twin tail estimated from finitely many twin runs, real pairs.
+
+### Outcome (21 cost pools, population values; `experiments/m7f_tailratio/results/`)
+- **H7f-i refuted.** At q = 0.999, k* <= 3 on 0 of 21 pairs (median k* 7.8; k* <= 10 on 13). The twin's tail mass beyond c is tiny (E_T[(T-c)+] = 0.00015 by construction, about 4 of 4,000 contexts), so any real excess is a large multiple of it. At q = 0.99, k* <= 3 on 11 of 21 (median 2.97), but still 0 of 21 at k* <= 1: even the no-effect pair needs k* above 1 because its real contexts are independent draws, not the twin's.
+- **H7f-ii refuted.** At q = 0.999 eight pairs have k* > 10, not three: friction-0 (35), friction-1 (1,840), friction-2 (22,175), friction-3 (72,645), sensor-3 (13), gain-1 (14), gain-2 (47), gain-3 (307). The friction-1..3 pairs are in it, with k* in the thousands; the rest are moderate-effect pairs.
+- Reading: a tail-ratio assumption of the "real is at most k times the twin" kind is only usable with k of order 10 to 100 for most pairs and is hopeless (k* in the thousands) exactly where the twin is badly wrong, so the user would have to choose k blind. The twin's tail quantile is a poor basis for an upper bound on an unbounded cost; an upper certificate needs real tail data or a different assumption. This closes the "upper bound on cost" item from 7d/7e as negative for the twin-tail-ratio route.
+- Limitations: population values on one plant; the sampling error of k* is not part of this, so these are lower bounds on the k a real user would need.
+
 ## 2026-10-25 · Milestone 7e: does a twin-assisted lower bound on the clipped cost beat real-only? (planned before running)
 - Why: 7d's open item. With c fixed by the twin quantile, outcomes are y = min(R, c)/c in [0, 1], so the bounded-outcome constructions apply. Real data for the programme's main gap (per-episode pairs) was probed first and is not reachable here: the SimplerEnv repository (cloned, 11 MB) holds code only, no episode logs, and the PolaRiS paper (arXiv:2512.16881) reports its real-versus-sim scores in figures, not tables, so nothing could be transcribed without guessing. Logged as a negative probe.
 - Construction (`experiments/m7e_clip_cv/clipcv.py`): on the 21 m7c pools, q = 0.999, c as in 7d. L = EB lower bound on E[y_R - y_T] over n real pairs (residual rescaled from [-1, 1] to [0, 1]; Maurer-Pontil, delta 0.05) plus E[y_T], the exact mean of the clipped twin over the 4,000-context twin pool (treated as known, as c is). Compared with the 7d real-only bound at the same n (30, 60, 120, 240), 1,000 replications, same seeds scheme.
