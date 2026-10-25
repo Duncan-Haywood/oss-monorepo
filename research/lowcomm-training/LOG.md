@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3h: is the DiLoCo-paper outer setting (0.7, 0.9) bad only because the inner lr was tuned for plain averaging? (planned before running)
+- Why: the "Next" of 3g. (0.7, 0.9) was +0.127 (`H = 16`) and +0.062 (`H = 64`) worse than plain at inner lr 2e-3.
+- Design (`experiments/gpt_outer_retune/retune_outer.py`): 3d's model, data, budget, `M = 4`. Outer (0.7, 0.9) Nesterov; inner lr in {1e-3, 4e-3}; `H` in {16, 64}; seeds 100, 101 (8 runs). Plain comparators are 3d's runs at the same lr, `H` and seed (`gpt_retune_all/retune.jsonl`). Only two seeds, because the plain runs at off-centre lrs exist only for seeds 100, 101.
+- **H3h-i:** at inner lr 1e-3 or 4e-3, (0.7, 0.9) still loses to plain at the same lr on both seeds, at both `H`. Refuted if it wins on both seeds in any cell.
+- **H3h-ii:** (0.7, 0.9) at its best inner lr is still worse than the best plain run at 2e-3 (3g's plain means: 1.5758 at `H = 16`, 1.5947 at `H = 64`; seeds differ, so descriptive only).
+- Limits: 2 seeds, a 2-point lr grid, one size and corpus; descriptive.
+
 ## 2026-10-25 · Milestone 3g: does outer Nesterov momentum help on the real GPT, as 2g found on the 14k numpy model? (planned before running)
 - Why: the "Next" of 3d, 3e and 3f. 2g (14k-parameter numpy model) found small outer momentum (0.1 to 0.3) lowered loss by 0.014 to 0.020 at `H = 64` and raised it at `H = 16`; 2g's own "Next" asked for a check on the transformer before any momentum claim.
 - Design (`experiments/gpt_outer_momentum/momentum.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3 (the shared pick). `H` in {16, 64}; outer (lr, Nesterov momentum) in {(1, 0.1), (1, 0.3), (0.7, 0.9) the DiLoCo paper's setting}; seeds 0 to 2 (18 runs). Plain rows are 3d's runs at 2e-3. Inner lr is not re-tuned per outer setting. Paired differences vs plain per seed; no multiplicity correction (6 cells).
