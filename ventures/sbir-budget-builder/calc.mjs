@@ -107,6 +107,8 @@ export function analyze(input) {
   const n = (k) => (Number.isFinite(num(o[k])) ? num(o[k]) : 0);
   const warnings = [];
   const months = n("months");
+  const negatives = ["fringeRate", "salaryCap", "equipment", "materials", "travel", "otherDirect", "indirectRate", "feeRate", "feeCeiling", "awardMax", "minSmallBusiness", "minResearchInstitution"].filter((k) => n(k) < 0);
+  if (negatives.length) return { opts: o, warnings: negatives.map((k) => `${k} cannot be negative.`), result: null };
   if (!(months > 0)) {
     return { opts: o, warnings: ["Project length in months must be above zero."], result: null };
   }

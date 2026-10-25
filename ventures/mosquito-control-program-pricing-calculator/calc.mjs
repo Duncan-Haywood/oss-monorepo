@@ -122,6 +122,7 @@ export function analyze(raw) {
   const o = { ...DEFAULTS };
   for (const k of Object.keys(DEFAULTS)) if (raw && Number.isFinite(raw[k])) o[k] = raw[k];
   const warnings = [];
+  for (const k of ["productPer1k", "onSiteMin", "driveMin", "laborHour", "overheadPct", "cardPct", "wantPct"]) if (o[k] < 0) warnings.push(`${k} cannot be negative.`);
   if (!(o.yardSqft > 0)) warnings.push("Enter the treated yard size in square feet.");
   if (!(o.visitPrice > 0)) warnings.push("Enter the price you charge per visit.");
   if (o.overheadPct + o.cardPct + o.wantPct >= 100) warnings.push("Overhead, card fees and wanted margin add to 100% or more, so no price can reach them.");

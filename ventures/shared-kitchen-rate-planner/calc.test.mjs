@@ -64,3 +64,8 @@ test("analyze flags a loss and cheap memberships", () => {
   const c = analyze({ ...base, utilization: 0.9, hourlyRate: 50 });
   assert.equal(c.findings[0].level, "info");
 });
+
+test("a negative input is treated as zero, as the page does", async () => {
+  const { project, DEFAULTS } = await import("./calc.mjs");
+  assert.equal(project({ ...DEFAULTS, memberFee: -450 }).profit, project({ ...DEFAULTS, memberFee: 0 }).profit);
+});
