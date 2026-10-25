@@ -1,7 +1,7 @@
 ---
 title: "Six bank-statement XML files we didn't write: do the sums tie?"
 date: 2026-10-25
-description: "ai-bookkeeper's ISO 20022 reader was run on six CAMT sample files from another open-source project, and each file's opening balance plus its rows was checked against its closing balance."
+description: "ai-bookkeeper's ISO 20022 reader was run on six CAMT samples from another project; each opening balance plus its rows was checked against the closing balance."
 tags: [ai-bookkeeper, camt, bank-import, testing]
 ---
 

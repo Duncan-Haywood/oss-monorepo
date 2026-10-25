@@ -1,0 +1,94 @@
+{
+ "rows": [
+  {
+   "strategy": "stale",
+   "tau": 0.001,
+   "cheated": 0.04216666666666667,
+   "mean_chain": 25.3,
+   "max_chain": 26,
+   "deg_mean": 6.937980651855469e-06,
+   "deg_lo": -6.900131702423095e-05,
+   "deg_hi": 7.582187652587887e-05,
+   "share_better": 0.5
+  },
+  {
+   "strategy": "stale",
+   "tau": 0.01,
+   "cheated": 0.13566666666666666,
+   "mean_chain": 43.525,
+   "max_chain": 83,
+   "deg_mean": 0.01764981746673584,
+   "deg_lo": 0.013242504000663758,
+   "deg_hi": 0.021969609260559072,
+   "share_better": 0.0
+  },
+  {
+   "strategy": "stale",
+   "tau": 0.03,
+   "cheated": 0.22566666666666663,
+   "mean_chain": 13.008041958041957,
+   "max_chain": 108,
+   "deg_mean": 0.3067718267440796,
+   "deg_lo": 0.251941619515419,
+   "deg_hi": 0.3612567102909088,
+   "share_better": 0.0
+  },
+  {
+   "strategy": "stale",
+   "tau": 0.1,
+   "cheated": 0.3856666666666667,
+   "mean_chain": 5.385545145911,
+   "max_chain": 137,
+   "deg_mean": 1.5500046730041503,
+   "deg_lo": 1.2530486750602723,
+   "deg_hi": 1.892895948290825,
+   "share_better": 0.0
+  },
+  {
+   "strategy": "stale1",
+   "tau": 0.001,
+   "cheated": 0.021500000000000002,
+   "mean_chain": 1.0,
+   "max_chain": 1,
+   "deg_mean": 5.674362182617188e-06,
+   "deg_lo": -7.039308547973622e-06,
+   "deg_hi": 2.2677183151245096e-05,
+   "share_better": 0.4
+  },
+  {
+   "strategy": "stale1",
+   "tau": 0.01,
+   "cheated": 0.069,
+   "mean_chain": 1.0,
+   "max_chain": 1,
+   "deg_mean": 0.00016100406646728515,
+   "deg_lo": 3.629267215728763e-05,
+   "deg_hi": 0.0002620941400527954,
+   "share_better": 0.1
+  },
+  {
+   "strategy": "stale1",
+   "tau": 0.03,
+   "cheated": 0.121,
+   "mean_chain": 1.0,
+   "max_chain": 1,
+   "deg_mean": 0.00014235973358154297,
+   "deg_lo": -0.00013958513736724845,
+   "deg_hi": 0.0004319345951080321,
+   "share_better": 0.5
+  },
+  {
+   "strategy": "stale1",
+   "tau": 0.1,
+   "cheated": 0.22916666666666666,
+   "mean_chain": 1.0,
+   "max_chain": 1,
+   "deg_mean": 0.0012480258941650391,
+   "deg_lo": 0.0007063549757003787,
+   "deg_hi": 0.001728625893592834,
+   "share_better": 0.1
+  }
+ ],
+ "loss_mean": 2.7251923084259033,
+ "loss_std": 0.008335050223441375
+}
