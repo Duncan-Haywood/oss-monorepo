@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 9 done (9: five larger designs, first sign of H2).
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 10 done (9: five larger designs, first sign of H2).
 The cheap rungs are measurably biased against routed area x delay; H2 to H4 are run on a
 cached table; H5 (proof prediction) is not testable on this benchmark as built.** Produced with AI assistance (Claude Code).
 It builds on none of the CU Boulder groups and claims no affiliation.
@@ -29,6 +29,12 @@ routed design, with a coverage guarantee that holds whatever the rung bias?
 - **Mapping is not enough when timing is tight.** Liberty-mapped scores mis-rank at the tight target (median regret 10.5%) and are nearly exact at the relaxed one, because timing repair, which only the later rungs see, reorders designs.
 - **Cost:** on these small designs the routed rung costs only about 8x the generic one (1.3 s against 0.15 s), so there is little to save yet; larger designs are needed before H2 is testable.
 - Full per-design tables with intervals: [`experiments/rung_bias/results.txt`](experiments/rung_bias/results.txt). Log: [`LOG.md`](LOG.md).
+
+## Milestone 10 result: do the conformal shortlist and the pilot bound survive the larger designs?
+Same analyses as milestones 4 and 7b, rerun on the five-design table (`conformal/replay.py large`, `theory/topk.py large`).
+- **The shortlist stays roughly valid and gets expensive.** R2 per-design conformal shortlist, 16-point pilot, alpha = 0.1: coverage 0.905 (nominal 0.9) at 0.68 of the pool routed (0.45 at alpha 0.2 on the small designs). At alpha = 0.2, eps = 0: 0.747 (nominal 0.8), 0.87 with a 2% tolerance.
+- **The top-vs-all pilot bound still covers (all 20 cells at or above 0.81) and is not informative:** median bound 0.13 to 0.51 log units; only the near-constant ripple adder gives a bound under 0.1.
+- Five designs, ten groups, wide intervals; see [`LOG.md`](LOG.md), [`conformal/results_large.txt`](experiments/conformal/results_large.txt), [`topk_results_large.txt`](experiments/theory/topk_results_large.txt).
 
 ## Milestone 9 result: on larger designs, does a cheap rung finally pay? (H2)
 5 larger designs (16, 24 and 32-bit multipliers, 64-bit adders), the same 60 pass sequences, two clocks, 600 runs. The routed rung now costs 19.4 s against 0.77 s for the generic one (25x, against 8x on the small designs).
