@@ -1,7 +1,7 @@
 ---
 title: "What an open-source project's books taught a bookkeeper"
 date: 2026-10-24
-description: "ai-bookkeeper's built-in keywords suggested nothing for 1,052 sponsor contributions in the hledger project's public books. Two rules fixed that, and the test is honest about being tuned on the data."
+description: "ai-bookkeeper's built-in keywords suggested nothing for 1,052 sponsor contributions in the hledger project's public books. Two rules fixed that, and the..."
 tags: [ai-bookkeeper, bookkeeping, evaluation]
 ---
 

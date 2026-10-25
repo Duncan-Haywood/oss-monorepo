@@ -1,7 +1,7 @@
 ---
 title: "A first draft: when is a cheap chip estimate safe to trust?"
 date: 2026-10-25
-description: "verified-dse now has a paper draft and a one-command reproduction. The headline is negative: on small designs, cheap rungs did not beat random search at equal wall-clock."
+description: "verified-dse now has a paper draft and a one-command reproduction. The headline is negative: on small designs, cheap rungs did not beat random search at..."
 tags: [verified-dse, chip-design, multi-fidelity, research]
 ---
 
