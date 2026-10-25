@@ -9,6 +9,7 @@
   "task": "Deepen (flagship 5): einvoice-preflight Norway page",
   "projects": ["einvoice-preflight"],
   "outcome": "success",
+  "pr": 10423,
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
