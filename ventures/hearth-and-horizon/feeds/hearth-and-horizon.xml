@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Not Asked Since</title>
+      <link>https://example.invalid/hearth-and-horizon/not-asked-since.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/not-asked-since.html</guid>
+      <pubDate>Sun, 25 Oct 2026 12:00:00 GMT</pubDate>
+      <description>In 2046 a ward's assistant remembers everything a patient ever told it. A retired shipwright said &quot;no chaplains&quot; in 2043 and twice since, and then a stroke takes most of his words. His daughter says he would want a priest; the note says he would not; the note is twenty-one months old. The assistant knows that one in seven who decline later accept, and refuses to guess for him. What it does instead is ask, with questions it already knows the answers to, and the answer is not the one either of them expected. Setting: Balmuir Community Hospital, an invented hospital in Angus, Scotland, Friday 2 to Tuesday 6 November 2046 (All Souls). Read the full text at https://example.invalid/hearth-and-horizon/not-asked-since.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>In 2046 a ward's assistant remembers everything a patient ever told it. A retired shipwright said &quot;no chaplains&quot; in 2043 and twice since, and then a stroke takes most of his words. His daughter says he would want a priest; the note says he would not; the note is twenty-one months old. The assistant knows that one in seven who decline later accept, and refuses to guess for him. What it does instead is ask, with questions it already knows the answers to, and the answer is not the one either of them expected.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Bench Six</title>
       <link>https://example.invalid/hearth-and-horizon/bench-six.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/bench-six.html</guid>
