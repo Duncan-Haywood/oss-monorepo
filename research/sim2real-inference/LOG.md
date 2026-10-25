@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 4b: does the SIMPLER transcription match the authors' own tables? (analysis written after the first run, not pre-registered)
+- Why: m4's 36 cells were typed in from the PDF, and the log flagged the eggplant n as inferred. The SIMPLER repository ships `REAL_PERF` and `SIMPLER_PERF` (simpler_env/utils/metrics.py, MIT), an independent source. I looked at the values before writing the plan, so the outcome below is a check, not a test of a prior.
+- Method (`experiments/m4b_crosscheck/`): `crosscheck.py` compares all 72 values with a verbatim copy of the two dicts; `sensitivity.py` re-runs the m4 point estimates (leave-one-cell-out calibrated twin, break-even n*) on the transcription, on the authors' values with eggplant n in {24, 30}, and with the sixth Google task added (place apple in closed top drawer; n_real = 27 because .074, .185, .407 are k/27).
+- Outcome: 70 of 72 agree. The two that differ are real eggplant, Octo-Base (ours 0.233, authors' 0.250) and Octo-Small (ours 0.433, authors' 0.400); I cannot tell from here which matches the PDF table (0.250 and 0.400 are both k/20, 0.233 and 0.433 are both k/30), so the n=30 inference in m4 is unconfirmed. Headline numbers do not depend on it: n* 10.1 (m4), 10.2 (authors' values, n=30 or 24); adding the sixth task (42 cells) gives n* 11.2 to 11.3, Pearson r 0.907, raw debiased MSE 0.019 (from 0.021).
+- Reading: the real-data result survives an independent source and a larger cell set. Still policy-level only; per-episode pairs are not published in the repository README or code (not checked in the video dataset).
+- Next: the paper "What decides the win" section; if per-episode logs from the SIMPLER video dataset can be reached, test the paired control variate on real episodes.
+
 ## 2026-10-25 · Milestone 7p: paper section for the 7k to 7o chain (writing step, no new experiment)
 - Done: the "What decides the win" paragraph in `paper/main.tex` now covers 7o (flip check, power-scale result 1.32 to 1.03, Spearman 0.62 to 0.51, supported-but-incomplete wording) with the numbers copied from `m7o_ceiling/results/summary.txt`; `paper/reproduce.sh` gains the missing commands for 7i, 7k, 7l, 7m, 7o (7m's CSV is an input to 7n).
 - Not done: real SIMPLER pairs (milestone 4) where the ceiling question can be asked of real scores; the paper still has one paragraph, not a section, for this chain.
