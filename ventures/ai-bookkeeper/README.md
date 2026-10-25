@@ -708,9 +708,9 @@ whether `parseReceipt` reads the labelled total and tax exactly.
 
 | Split | Receipts with a labelled total | Total right, before | Total right, after | Tax right, before | Tax right, after |
 |---|---|---|---|---|---|
-| train (rules changed looking at these) | 779 | 42 (5.4%) | 741 (95.1%) | 9 of 352 | 316 of 352 (89.8%) |
+| train (rules changed looking at these) | 779 | 42 (5.4%) | 742 (95.3%) | 9 of 352 | 316 of 352 (89.8%) |
 | validation (also looked at) | 98 | 2 (2.0%) | 96 (98.0%) | 0 of 47 | 45 of 47 |
-| **test (held out, scored once before and once after)** | **95** | **4 (4.2%)** | **89 (93.7%)** | **0 of 41** | **37 of 41 (90.2%)** |
+| **test (held out, scored once before and once after)** | **95** | **4 (4.2%)** | **90 (94.7%)** (89 before the SROIE fixes) | **0 of 41** | **37 of 41 (90.2%)** |
 
 What was wrong, and what changed in `receipts.mjs`:
 
@@ -729,8 +729,8 @@ What was wrong, and what changed in `receipts.mjs`:
   is not tax.
 
 What it does not show: OCR. The text is hand-corrected, so a phone photo read by
-tesseract will do worse; merchant names and dates are masked in CORD, so the
-merchant and date readers are still unmeasured on real receipts. The six test
+tesseract will do worse; merchant names and dates are masked in CORD; the
+merchant and date readers are measured on SROIE below. The six test
 misses: a `Total Kembalian 0` (change) line read as the total, `SUB, TOTAL` with
 a stray comma, and four receipts with no total word where the largest amount (the
 cash handed over) was taken. Score it: `node eval/cord-receipts.mjs
@@ -835,6 +835,7 @@ is often fine.
 
 ## Next
 
+- Merchant, date and total on 626 real receipts (SROIE 2019), 2026-10-25 (`eval/sroie-receipts.mjs`, `sroie-receipts.test.mjs`, 10 tests): CORD masks merchants and dates, so the receipt reader's date and merchant had never met a real receipt. SROIE is 626 Malaysian shop receipts with hand-labelled company, date and total (the zzzDavid/ICDAR-2019-SROIE clone, MIT; cloned at run time over git, never copied here). The script joins the dataset's word boxes into printed rows by vertical position, as an OCR engine reports lines, then scores `parseReceipt`. Before and after: **date 11.1% to 96.7%** (68 of 611 to 591), **total 59.2% to 96.2%** (370 of 625 to 601), merchant exact 60.4% to 63.7%, and 93% of merchants are right or contain the label. The faults: dates in `12-01-19` and `2018/02/22` form were not found, and the day-month order was always month-first, which read `09/01/2019` as 1 September on every Malaysian receipt (now day-first when another date on the page has a first field above 12, or the page says RM, SDN BHD, GBP, PTY LTD or Rs; otherwise month-first with a note "day and month order guessed", and `parseReceipt(text, { dayFirst })` for a caller that knows). A tax-summary table's `TOTAL` replaced the real total; `TOTAL GST`, `TOTAL INCLUDES 6% GST`, `TOTAL SALES (EXCLUDING GST)` and `ACCEPTED TOTAL` were read as the total; a printed `ROUNDING ADJ -0.01` is now applied (the amount paid is what matches the bank line); a zero total is skipped; a currency word glued to an amount (`RM39.00`) on the line under `GRAND TOTAL` now counts as a bare amount; with no total line, cash handed over less change is used before the largest amount; a person's name above the company name no longer wins, and lines like `GOODS SOLD ARE NOT RETURNABLE` or `SIMPLIFIED TAX INVOICE` are never the merchant. CORD stays at 96 of 98 totals. Limits: the word boxes are the dataset's hand-corrected text, not tesseract's output; the labels disagree among themselves on rounding (some are the printed total, some the rounded amount: 6 receipts differ by under 6 cents and the script counts them apart) and on brand against registered company (`MYDIN` against `MYDIN MOHAMED HOLDINGS SDN BHD`; the reader keeps the brand, which is what a card descriptor shows, so some of the 42 "wrong" merchants are fair); 20 dates remain with no evidence of the order. Score it: `git clone --depth 1 --filter=blob:none --sparse https://github.com/zzzDavid/ICDAR-2019-SROIE.git r && git -C r sparse-checkout set data/box data/key && node eval/sroie-receipts.mjs r/data [--misses merchant|date|total]`.
 - Adyen settlement details, 2026-10-25 (`readAdyen` in `payouts.mjs`, `adyen.test.mjs`, 4 tests): `payouts` now reads Adyen's settlement details report (Psp Reference, Type, Net Debit/Credit, Commission, Markup, Scheme Fees, Interchange, Batch Number). A batch is one payout; Settled, Refunded, Chargeback and Fee rows are split into sales, refunds and costs and must net to the batch's MerchantPayout row, else the batch is reported and left pending (never split to fit). Gross is net plus the four cost columns, so a sale in another currency than the payout still balances. Written from Adyen's published column list and a hand-made fixture; no real Adyen export seen, so the type list and the batch-equals-payout rule are unchecked against real files.
 - More metamorphic relations, 2026-10-25 (`metamorphic.test.mjs`, +20 tests): upper-case or padded header names, ISO dates re-written MM/DD/YYYY, YYYY/MM/DD, DD.MM.YYYY, DD-Mon-YYYY and DD/MM/YY, European `1.234,56` amounts in a semicolon file, and NFD text give the same rows on every CSV fixture. No fault found; these pin behaviour. Own fixtures only (HCB and irs.gov refused by the proxy).
 - Quoting and descriptor case, 2026-10-25 (`metamorphic.test.mjs`, ~60 generated tests): every CSV fixture with all fields quoted must read the same rows, and a description in upper case, lower case or with doubled spaces must get the same built-in suggestion. One fault, fixed (`suggest` in `categorize.mjs`): doubled spaces defeated every keyword rule (7 fixtures). Own fixtures only; HCB was refused by the proxy this session, so the page 8 held-out reading remains open.

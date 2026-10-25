@@ -18,11 +18,11 @@ test("labels in rupiah style read as whole units", () => {
 // rules changed; a drop here is a regression on real receipts.
 test("CORD-v2 receipts: totals and tax read as in the README", () => {
   const t = score(load("test"));
-  assert.deepEqual([t.total.right, t.total.labelled, t.tax.right, t.tax.labelled], [89, 95, 37, 41]);
+  assert.deepEqual([t.total.right, t.total.labelled, t.tax.right, t.tax.labelled], [90, 95, 37, 41]);
   const v = score(load("validation"));
   assert.deepEqual([v.total.right, v.total.labelled, v.tax.right, v.tax.labelled], [96, 98, 45, 47]);
   const tr = score(load("train"));
-  assert.deepEqual([tr.total.right, tr.total.labelled, tr.tax.right, tr.tax.labelled], [741, 779, 316, 352]);
+  assert.deepEqual([tr.total.right, tr.total.labelled, tr.tax.right, tr.tax.labelled], [742, 779, 316, 352]);
 });
 
 test("whole-unit receipts: yen with a symbol, and decimal receipts unchanged", () => {
