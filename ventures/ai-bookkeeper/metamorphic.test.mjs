@@ -42,3 +42,23 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
     }
   });
 }
+
+// Row order: banks export newest-first or oldest-first. Reversing the data
+// lines under the header must give the same set of rows. (Checked 2026-10-25:
+// no fixture changed, so this pins the behaviour rather than fixing a fault.)
+const setSig = (r) => JSON.stringify((r.rows ?? []).map((x) => [x.date, x.cents, x.desc]).sort());
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8").replace(/\r\n/g, "\n");
+  const lines = t.split("\n").filter(Boolean);
+  const base = readStatement(t);
+  if (!base.rows.length || lines.some((l) => (l.match(/"/g) ?? []).length % 2)) continue;
+  test(`${f}: same rows when the data lines are reversed`, () => {
+    for (let h = 0; h < Math.min(8, lines.length - 2); h++) {
+      const out = [...lines.slice(0, h + 1), ...lines.slice(h + 1).reverse()].join("\n") + "\n";
+      let r;
+      try { r = readStatement(out); } catch { continue; }
+      if (r.rows.length === base.rows.length) return assert.equal(setSig(r), setSig(base), `${f} changed when reversed under header line ${h}`);
+    }
+    assert.fail(`${f}: no header position read the reversed file`);
+  });
+}
