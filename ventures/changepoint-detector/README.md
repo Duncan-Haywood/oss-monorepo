@@ -633,3 +633,27 @@ squares from 0.2. Fire rates on the same series (null / break): Gaussian 1% to 2
 76%, AR(1) 90% to 100% / 88% to 98%, GARCH only 16% to 20% / 11% to 18%. The thresholds were set on seed-based
 quantiles of these same simulations, so the rates are in-sample. Clustered volatility is mostly *not* caught, and
 no real heavy-tailed series has been tried. Test: `meanvar-noise.test.mjs`.
+
+## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
+
+The section above ended with a warning because the Gaussian variance cost has no cheap fix. A different noise model does
+help on heavy tails. `--model meanvar --robust` (`robust: true` in `analyze`) fits each segment's median and mean absolute
+deviation (double-exponential noise) instead of its mean and variance, so one extreme point no longer inflates a segment's
+variance. `eval/meanvar-laplace.mjs` (output in `eval/meanvar-laplace.out.txt`, seeded, 100 series per cell, same
+generators as `meanvar-robustness.mjs`, default minimum segment of 10):
+
+| noise, cost | false alarms, n = 100 / 200 | one change found on an sd 1 to 2 break, n = 100 / 200 | range95 holds the date |
+|---|---|---|---|
+| Gaussian, Gaussian cost | 4% / 0% | 94% / 97% | 98% / 98% |
+| Gaussian, Laplace cost | 5% / 4% | **57%** / 92% | 95% / 99% |
+| t3, Gaussian cost | 37% / 63% | 58% / 55% | 78% / 69% |
+| t3, Laplace cost | **5% / 8%** | 59% / **89%** | 88% / 97% |
+| GARCH, Gaussian cost | 41% / 50% | 63% / 58% | 70% / 72% |
+| GARCH, Laplace cost | 21% / 29% | 62% / 69% | 85% / 83% |
+
+On heavy tails it removes most false alarms and, at n = 200, finds the break 89% of the time instead of 55%. It is not a
+free upgrade: on Gaussian noise at n = 100 it finds the single break in only 57% of series (94% with the Gaussian cost),
+so it stays opt-in. Clustered volatility is only half fixed (21% to 29% false alarms). Not changed: the Bayesian
+probability view still uses the Gaussian model, and the kurtosis part of the noise warning is skipped when `--robust` is
+on (autocorrelation and clustered-volatility parts stay). Simulated noise only; no real heavy-tailed series tried. Test:
+`meanvar-robust.test.mjs`. Cost: each segment is sorted on demand, so long series (several thousand points) run slower.

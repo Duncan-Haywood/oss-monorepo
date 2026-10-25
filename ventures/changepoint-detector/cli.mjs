@@ -22,6 +22,7 @@ Options:
   --label-column <name|i>   label/date column (default: first column)
   --model mean|meanvar|trend|poisson  change in level, in level and volatility, in level or slope of a trending series, or in the rate of counts (default: mean)
   --penalty bic|aic|hannan-quinn|<number>   PELT penalty per change (default: bic)
+  --robust                  with --model meanvar: Laplace noise instead of Gaussian, so heavy tails are not read as volatility changes
   --min-segment <n>         shortest segment (default: 2 for mean, 10 for meanvar)
   --period <n>              remove a seasonal cycle of n points first (12 monthly, 7 daily-weekly); mean/meanvar subtract it, poisson fits multiplicative factors
   --holidays <a,b,...>      with --model poisson: row labels (dates, or 1-based row numbers) of known holidays; one fitted factor on their rate, so a holiday dip is not read as a step; write label=kind (e.g. 2026-12-25=closed) to fit one factor per kind
@@ -59,6 +60,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--json') json = true;
     else if (a === '--example') example = true;
     else if (a === '--drift') opt.drift = true;
+    else if (a === '--robust') opt.robust = true;
     else if (a === '--overdispersion') opt.overdispersion = argv[i + 1] === 'nb' ? (i++, 'nb') : argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--bursts') opt.bursts = argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--burst-runs') opt.burstRuns = Number(argv[++i]);
