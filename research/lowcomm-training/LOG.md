@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 3g: does outer Nesterov momentum help on the real GPT, as 2g found on the 14k numpy model? (planned before running)
+- Why: the "Next" of 3d, 3e and 3f. 2g (14k-parameter numpy model) found small outer momentum (0.1 to 0.3) lowered loss by 0.014 to 0.020 at `H = 64` and raised it at `H = 16`; 2g's own "Next" asked for a check on the transformer before any momentum claim.
+- Design (`experiments/gpt_outer_momentum/momentum.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3 (the shared pick). `H` in {16, 64}; outer (lr, Nesterov momentum) in {(1, 0.1), (1, 0.3), (0.7, 0.9) the DiLoCo paper's setting}; seeds 0 to 2 (18 runs). Plain rows are 3d's runs at 2e-3. Inner lr is not re-tuned per outer setting. Paired differences vs plain per seed; no multiplicity correction (6 cells).
+- **H3g-i:** at `H = 64` momentum 0.1 or 0.3 lowers loss vs plain on all 3 seeds (2g's sign). Refuted if any seed rises.
+- **H3g-ii:** at `H = 16` momentum 0.1 or 0.3 raises loss on all 3 seeds (2g's sign). Refuted otherwise.
+- **H3g-iii:** the paper's (0.7, 0.9) is worse than plain at both `H` at this inner lr (prior from 2f, where 0.9 hurt).
+- Limits: 3 seeds, one inner lr, one size and corpus, 6 cells reported unfiltered.
+
 ## 2026-10-25 · Milestone 3f: is synchronous AdamW under-tuned against H=16? A finer lr grid for both (planned before running)
 - Why: 3e's "Next". `H=16` beats sync by 0.012 nats over 11 seeds at a shared lr of 2e-3 from a 3-point grid {1e-3, 2e-3, 4e-3}. 3d's tuning means for sync were 1.5893 (2e-3) and 1.5919 (1e-3) against 1.6e+ at 4e-3, so the optimum may lie between grid points, and the two methods may peak at different lrs.
 - Design (`experiments/gpt_fine_lr/fine.py`): 3d's model, data, budget (3,840 steps), `M = 4`. Add lr 1.4e-3 and 2.8e-3 for sync and `H=16` (16 tuning runs on seeds 100, 101 pooled with 3d's, then the same lrs on seeds 0 to 2: 20 new runs in all). Each method's pick is the lowest mean tuning loss over {1e-3, 1.4e-3, 2e-3, 2.8e-3, 4e-3} on seeds 100, 101 only; the report is the paired gap at each method's own pick on seeds 0 to 2.
