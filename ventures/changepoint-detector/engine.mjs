@@ -1565,6 +1565,12 @@ export function analyze(input = {}) {
     const d0 = countDispersion(values, period);
     if (d0 >= 2.5) rangeWarning = `These counts vary about ${round(d0, 1)} times more than Poisson counts would, so these ranges are too narrow: use the negative-binomial cost (--overdispersion nb).`;
   }
+  // a variance model reads a short run of similar values as its own calm regime: on 202 quarters of US GDP growth the
+  // default 5-point minimum made a 5-quarter patch a segment and its range missed the documented date (README, Great Moderation)
+  if (!rangeWarning && model === 'meanvar' && p.changepoints.length) {
+    const short = segments.filter((s) => s.n < 10);
+    if (short.length) rangeWarning = `${short.length === 1 ? 'One segment has' : `${short.length} segments have`} fewer than 10 points (${short.map((s) => `${s.from} to ${s.to}`).join(', ')}), and a variance model can read a short quiet run as its own regime: check the dates, or try --min-segment 12 or more.`;
+  }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
