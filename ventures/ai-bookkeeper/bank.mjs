@@ -31,7 +31,7 @@ const ALIASES = {
     "wertstellung", "valuta", "date de valeur", "date valeur",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
-  desc: ["transaktionsbeschreibung", "zpráva", "název protiúčtu", "item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "partnername", "note",
+  desc: ["transaktionsbeschreibung", "zpráva", "název protiúčtu", "item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "transactions", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "partnername", "note",
     "beschreibung", "avisierungstext",  "notification text", "texte de notification", "testo di avviso", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "dettagli", "beneficiario", "bénéficiaire", "beneficiaire", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "partner név", "közlemény", "remarque", "remarques", "bemerkung", "opmerking",
     "text", "tekst", "rubrik", "referens", "skýring", "skyring", "รายการ", "รายละเอียด", "beskrivelse", "forklaring", "meddelande", "meddelelse",
     "opis transakcji", "dane kontrahenta", "tytuł przelewu", "saaja/maksaja", "descrição", "descricao", "histórico", "historico", "opis", "tytuł", "tytul", "nadawca/odbiorca", "selitys", "saaja/maksaja", "açıklama", "aciklama", "popis", "zpráva pro příjemce", "opis operacji", "keterangan", "uraian", "الوصف", "البيان", "التفاصيل",
@@ -645,7 +645,19 @@ export function splitQif(text) {
   return named.map((p) => ({ id: p.id, type: p.type, text: head + p.body.join("\n") + "\n" }));
 }
 
-export function readQif(text, { dayFirst = false } = {}) {
+// Without dayFirst given, a QIF whose dates have a first number over 12 and none a second is day first.
+function qifDayFirst(text) {
+  let day = 0, mon = 0;
+  for (const l of text.split(/\r?\n/)) {
+    if (l[0] !== "D") continue;
+    const m = l.slice(1).trim().match(/^(\d{1,2})[-/.](\d{1,2})[-/.']/);
+    if (m) { if (+m[1] > 12) day++; if (+m[2] > 12) mon++; }
+  }
+  return day > 0 && mon === 0;
+}
+
+export function readQif(text, { dayFirst } = {}) {
+  if (dayFirst === undefined) dayFirst = qifDayFirst(text);
   const problems = [];
   const out = [];
   let cur = {};
@@ -722,7 +734,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (format === "esis") return readEsis(text);
   if (format === "gpc") return readGpc(text);
   if (format === "cz-text") return readCzBlocks(text);
-  if (format === "qif") return readQif(text, { dayFirst });
+  if (format === "qif") return readQif(text, dfGiven ? { dayFirst } : {});
   const rows = parseCsv(text);
   const problems = [];
   // A general-ledger journal (Xero's Journal Report) lists both sides of each entry: not a bank statement.
