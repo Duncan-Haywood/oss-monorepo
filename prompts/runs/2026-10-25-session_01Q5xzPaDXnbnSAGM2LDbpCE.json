@@ -33,7 +33,10 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [
-    "Routed to process/2 by the draw; the scheduled prompt asked for revenue product work, so I did ai-bookkeeper (flagship 1)."
+    {
+      "file": "prompt.md",
+      "why": "Routed to process/2 by the draw; the scheduled prompt asked for revenue product work, so I did ai-bookkeeper (flagship 1)."
+    }
   ],
   "writeups": [
     "docs/posts/2026-11-04-ebay-multi-item-orders.md"
