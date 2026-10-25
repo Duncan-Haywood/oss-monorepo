@@ -90,7 +90,9 @@ jobs:
             # covered by its node tests); the Python CLI reads EN 16931 formats.
             # PINT (Singapore, Australia/New Zealand) samples pay by local bank account,
             # not IBAN; their rules run in the browser engine (pint.test.mjs).
-            case "$example" in *-with-defects.*|*/draft-*|*/fatturapa-*|*/pint-*) continue;; esac
+            # FA(3) (Poland) and ZATCA (Saudi Arabia) are national formats read by the
+            # browser engine (fa3.mjs, zatca.test.mjs), not by the Python CLI.
+            case "$example" in *-with-defects.*|*/draft-*|*/fatturapa-*|*/pint-*|*/fa3-*|*/zatca-*) continue;; esac
             echo "--- $example"
             python3 -m einvoice_preflight "$example"
             found=$((found + 1))
