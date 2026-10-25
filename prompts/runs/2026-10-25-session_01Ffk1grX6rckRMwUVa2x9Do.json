@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01Ffk1grX6rckRMwUVa2x9Do",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T10:21:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "sim2real-inference"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10367",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py printed /usr/local/bin/python3 but bare python3 lacked numpy; had to call the printed path."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Claim-before-build check found no open PR for m7i, yet another run landed it within the hour; the claim window is too short for milestone-level steps."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "Built m7i independently while a parallel run landed the same step (#10365); discarded my duplicate and did m7j (the next milestone it named) instead.",
+      "did": "reset to origin/main, ran m7j",
+      "result": "no duplicate landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-25-twin-certificate-pool-size.md",
+    "docs/reports/sim2real-inference-m7j.md"
+  ],
+  "goal": null,
+  "notes": "m7j pre-registered in LOG.md before running; 200 reps.",
+  "corrections": [],
+  "redteam": null
+}

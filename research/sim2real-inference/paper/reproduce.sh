@@ -23,3 +23,4 @@ python3 experiments/m7e_clip_cv/clipcv.py   # twin-assisted clipped-cost bound (
 python3 experiments/m7f_tailratio/tailratio.py   # tail-ratio k* an upper bound would need (negative)
 python3 experiments/m7g_large_n/largen.py   # PPI-EB vs real-only at n up to 1920, analytic crossover (negative)
 python3 experiments/m7h_uncapped_betting/uncapped.py   # uncapped betting interval, twin-assisted vs real-only (exact twin mean)
+python3 experiments/m7j_n_sweep/n_sweep.py   # finite-twin betting interval over twin pool size and alpha split
