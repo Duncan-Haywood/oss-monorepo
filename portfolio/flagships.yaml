@@ -55,8 +55,7 @@ flagships:
       lists; open: a real return layout; (9) 2027 `estimate`: the indexed QBI
       minimum (199A(i)(3), warns today) and 2027 brackets once the IRS publishes
       the revenue procedure (not out 2026-10-23; the 2027 SS wage base $192,300 is
-      in). (10) needs no outside data, for a run whose data hosts are blocked: a
-      round-trip or fault-injection test of a reader against its own writer. A run that lands a slice replaces its item here; keep this under 2,000
+      in). A run that lands a slice replaces its item here; keep this under 2,000
       characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
