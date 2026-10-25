@@ -32,7 +32,7 @@ const ALIASES = {
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
   desc: ["transaktionsbeschreibung", "zpráva", "název protiúčtu", "item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "transactions", "payee", "merchant", "name", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "partnername", "note",
-    "beschreibung", "avisierungstext",  "notification text", "texte de notification", "testo di avviso", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "dettagli", "beneficiario", "bénéficiaire", "beneficiaire", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "partner név", "közlemény",
+    "beschreibung", "avisierungstext",  "notification text", "texte de notification", "testo di avviso", "verwendungszweck", "buchungstext", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "libellé", "libelle", "descripción", "descripcion", "concepto", "descrizione", "dettagli", "beneficiario", "bénéficiaire", "beneficiaire", "causale", "omschrijving", "naam / omschrijving", "naam tegenpartij", "naam tegenpartij bevat", "tegenpartij", "mededeling", "mededelingen", "vrije mededeling", "paaiškinimai", "partner neve", "partner név", "közlemény", "remarque", "remarques", "bemerkung", "opmerking",
     "text", "tekst", "rubrik", "referens", "skýring", "skyring", "รายการ", "รายละเอียด", "beskrivelse", "forklaring", "meddelande", "meddelelse",
     "opis transakcji", "dane kontrahenta", "tytuł przelewu", "saaja/maksaja", "descrição", "descricao", "histórico", "historico", "opis", "tytuł", "tytul", "nadawca/odbiorca", "selitys", "saaja/maksaja", "açıklama", "aciklama", "popis", "zpráva pro příjemce", "opis operacji", "keterangan", "uraian", "الوصف", "البيان", "التفاصيل",
     "摘要", "お取引内容", "取引内容", "内容", "備考", "お取り扱い内容", "적요", "거래내용", "내용", "기재내용", "보낸분/받는분", "摘要", "交易摘要", "交易备注", "交易備註", "对方户名", "對方戶名", "附言", "用途"],
@@ -149,6 +149,11 @@ export function parseDate(v, dayFirst = false) {
     [d, m, y] = [+x[1], monthOf(x[2]), +x[3] < 100 ? 2000 + +x[3] : +x[3]];
   } else if ((x = s.match(/^(\p{L}{3}\p{L}*)\.? (\d{1,2}),? (\d{4})/u))) {
     [m, d, y] = [monthOf(x[1]), +x[2], +x[3]];
+  }
+  // Unix epoch seconds (10 digits) or milliseconds (13), as crypto and API exports write them (rotki's Timestamp).
+  if (!y && (x = s.match(/^(\d{10}|\d{13})$/))) {
+    const t = x[1].length === 13 ? +x[1] : +x[1] * 1000;
+    if (t >= 9.46e11 && t < 4.1e12) return new Date(t).toISOString().slice(0, 10);
   }
   if (!y && (x = s.match(/^(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日?/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   if (!y || !m || !d || m > 12 || d > 31) return null;
