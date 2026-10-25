@@ -23,6 +23,9 @@ const PILOTS = {
     m.FEDERAL_WEEKLY_THRESHOLD, m.weeklyToAnnual(m.FEDERAL_WEEKLY_THRESHOLD),
     ...Object.values(m.STATE_THRESHOLDS).filter((s) => s.weekly).map((s) => s.weekly),
   ],
+  'discogs-fee-calculator': async (m) => [m.SELLING_FEE_MIN, m.SELLING_FEE_MAX],
+  'grailed-fee-calculator': async (m) => [m.TIER_THRESHOLD, m.MIN_COMMISSION],
+  'facebook-marketplace-fee-calculator': async (m) => [m.MIN_FEE, 0] // 0: local pickup carries no fee,
 };
 
 for (const [slug, figures] of Object.entries(PILOTS)) {
