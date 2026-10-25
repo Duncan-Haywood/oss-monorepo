@@ -40,7 +40,7 @@ flagships:
       suggested, 96% right, tuned on itself) and on synthetic sets (README Next):
       HCB card feed and Actual Budget samples held out (README Next, rates 25-48%, no labels); still wanted, labelled books; (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far; README Next); (2) the bank readers
-      (CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
+      (Plaid JSON landed 2026-10-25 on hand-made data; CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
       code pages; six CAMT samples tie 2026-10-25; one real Starling file reads clean 2026-10-25) on real exports
       from Chase, Bank of America, Wells Fargo, Amex, Capital One and others;
       (3) a real Stripe (payout-row cross-check landed 2026-10-25 on test data), PayPal (Balance Reconciliation sample read 2026-10-25, wanted: a real one with Transfer IDs; Square: two real exports read 2026-10-25, cash rows fixed), eBay or Amazon settlement export for the
