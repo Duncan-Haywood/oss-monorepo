@@ -1,7 +1,7 @@
 ---
 title: "26 statement files from Actual Budget, one missing header"
 date: 2026-10-25
-description: "Actual Budget's test statements (UTF-16, Latin-1, CAMT, QIF, OFX) through ai-bookkeeper's readers: text and signs fine, one Hungarian header unrecognised."
+description: "Actual Budget's test statements (UTF-16, Latin-1, CAMT, QIF, OFX) through ai-bookkeeper's readers: text and signs fine; one Hungarian header unrecognised."
 tags: [ai-bookkeeper, bank-import, testing]
 ---
 

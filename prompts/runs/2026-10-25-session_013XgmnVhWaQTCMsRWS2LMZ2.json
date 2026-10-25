@@ -42,7 +42,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Baseline red in hub/writing suites from 9 over-long post descriptions; shortened. Campaign on venture-defaults.mjs 6/8 caught, 8/8 after CLI tests. Class guard: writing.test.mjs already checks descriptions but only in its own suite; posts were merged without running it.",
+  "notes": "Baseline red in hub/writing suites from 9 over-long post descriptions; shortened. Campaign on venture-defaults.mjs 6/8 caught, 8/8 after CLI tests. Class guard: writing.test.mjs already checks descriptions but only in its own suite; posts were merged without running it. Another run landed the same description fixes first; merged main and kept theirs, so only the guard tests and record remain.",
   "corrections": [],
   "redteam": {
     "campaigns": [

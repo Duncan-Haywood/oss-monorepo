@@ -1,7 +1,7 @@
 ---
 title: "Small audits break tuned prediction-powered regression, and cross-fitting does not fix it"
 date: 2026-10-25
-description: "At 60 to 200 hand-coded tweets, tuned PPI++ loses up to 2.6 points of coverage against hand-coding alone, whose normal interval is already too narrow."
+description: "At 60 to 200 hand-coded tweets, tuned PPI++ loses up to 2.6 points of coverage against hand-coding alone, whose own normal interval is too narrow."
 tags: [llm-coding-inference, ppi, measurement]
 ---
 
