@@ -193,6 +193,9 @@ const SQUARE_KIND = {
   balance_folders_transfer: "reserve", balance_folders_transfer_reversed: "reserve", gift_card_pool_transfer: "reserve", gift_card_pool_transfer_reversed: "reserve",
   money_transfer_reversal: "reserve", square_payroll_transfer: "reserve", square_payroll_transfer_reversed: "reserve",
   initial_balance_change: "reserve", automatic_bitcoin_conversions: "reserve", automatic_bitcoin_conversions_reversed: "reserve",
+  // From Square's OpenAPI ActivityType (square/connect-api-specification, fetched 2026-10-25): an escheatment is money
+  // remitted to a state as unclaimed property; percentage processing enrollment and deactivation move the repayment balance.
+  escheatment: "reserve", percentage_processing_enrollment: "reserve", percentage_processing_deactivation: "reserve",
   payout: "skip", money_transfer: "skip",
 };
 // Square Payouts API: ListPayoutEntries JSON ({ payout_entries: [...] }), or
@@ -292,6 +295,10 @@ function readEtsy(table, head) {
     const fee = gross - net;
     const kind = category === "deposit" ? "withdrawal" : category === "refund" ? "refunds" : isSale ? "sales" : /fee|marketing|shipping|listing|offsite|ads|tax|vat/.test(category) ? "fees" : /dispute|chargeback/.test(category) ? "disputes" : "other";
     const date = parseDate(at("date"));
+    // Etsy's API reference lists the ledger's entry kinds (a returned disbursement,
+    // a recoupment, a bill payment). A returned deposit puts money back that an
+    // earlier deposit took out, so as a "fee" it would read as a credit; say so.
+    if (/returned.*(disburs|deposit)/.test(category) || category.startsWith("recoup")) problems.push(`Row ${n + 2}: "${at("type")}" (${fmt(net)}) is not a fee. It is kept in the activity that the next deposit pays out, but book it against the bank by hand.`);
     all.push({ row: n + 2, id: at("id") || `row${n + 2}`, created: date, t: date ?? "", category, kind, gross: kind === "fees" || kind === "other" ? 0 : gross, fee: kind === "fees" || kind === "other" ? -net : fee, net, desc: at("title") });
   });
   const payouts = [];

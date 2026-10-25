@@ -2,6 +2,25 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 6b: plan the audit size from a small pilot, not from oracle variances (planned before running)
+- Why: 6a's size rule used the true per-stratum variances of r = y - f, which nobody has before auditing. The real use is two stage: audit p items per stratum as a pilot, estimate S_h^2 by the sample variance of r (floor 0.02 so a clean pilot cannot give zero), run the Neyman rule for a +/-3 point target to get the total n, top up each stratum to its Neyman share (never below p), and estimate with stratified PPI on all audited items (pilot included: within a stratum the pilot plus top-up is one simple random sample of size n_h). Code: `experiments/h6b_pilot.py`; same corpus, split, three stand-in coders, target and seed scheme as `h5_plugin.py`; p in {10, 20, 40} per stratum (pilot 40, 80, 160 items); 1,000 draws per cell.
+- **H6b-i (mean width near target):** at p = 20 the mean simulated half-width is within 10% of 3 points (2.7 to 3.3) for all three coders. Refuted otherwise.
+- **H6b-ii (a coin flip, not a guarantee):** at p = 20 the share of audits whose half-width is at most 3.0 points lies between 30% and 70% for every coder. The estimated variance is noisy and n is a function of it, so I expect no better than even odds of meeting the target; outside the range would mean the pilot estimate is biased.
+- **H6b-iii (coverage):** coverage of the 95% interval is at least 93% in every one of the 9 cells (the plan depends on the pilot, which could hurt it). Refuted if any cell is below 93%.
+- **H6b-iv (pilot size buys stability, not the mean):** the sd of the realised total n across draws at p = 10 is at least 1.5 times that at p = 40, for every coder.
+- Reported without a bar: mean total n against the oracle n of 6a (902, 1,083, 927), the 95th percentile of the half-width, and the share of audits within 3.3 points.
+- Not tested: a real LLM coder, a second corpus, a sequential rule that keeps auditing until the width is met.
+
+### Outcome (`experiments/h6b_pilot.py`, about 30 s; `experiments/h6b_pilot.txt`; 1,000 draws per cell)
+- **H6b-i supported.** At p = 20 the mean half-width is 3.03, 3.04 and 3.10 points (lexicon-en, nb-english, nb-in-language), inside 2.7 to 3.3.
+- **H6b-ii supported.** Share of audits at or under 3.0 points at p = 20: 52.3%, 49.3%, 43.8%, as expected a coin flip. At p = 10 it is 42.7 to 43.7% and the 95th percentile of the half-width is 4.0 to 4.5 points; at p = 40 it is 50.1 to 54.7% with the 95th percentile at 3.2 to 3.4. Meeting a 10% looser bar (3.3 points) takes p = 40 (91.4 to 98.0%), not p = 20 (76.1 to 89.6%).
+- **H6b-iii supported.** Coverage is 94.1 to 95.7% in all nine cells; the planning step does not hurt it.
+- **H6b-iv supported.** The sd of the total n falls from 174, 240, 258 (p = 10) to 79, 109, 119 (p = 40), a ratio of 2.17 to 2.20 (bar 1.5).
+- Mean total n at p = 40 (pilot 160 items included) is 892, 1,076, 917 against the oracle 902, 1,083, 927: the pilot costs nothing in expectation because the pilot items are reused in the final estimate, and the mean n is within 1.1% of the oracle at p = 40 and within 4% at p = 10. What the pilot changes is the spread: at p = 10 the audit size ranges widely (sd about 20% to 30% of n).
+- Reading: planning from a pilot works on this corpus as a default (valid, unbiased in mean n), but it hits the target about half the time, so a user who needs "at most 3 points" should plan for a tighter target (about 10%, 3.3 vs 3.0) or use a pilot of 40 per stratum; a sequential rule that audits until the width is met is the clean alternative and is not tested here.
+- Limits: same corpus, three stand-in coders, one target, one floor (0.02, not tuned: no other value tried); the pilot is a simple random sample per stratum, oracle strata sizes are known; no real LLM coder.
+- Next: a sequential stopping rule (audit in batches until the estimated width is met) and its coverage; milestone 5 with a real coder; a second corpus.
+
 ## 2026-10-24 · Milestone 6a outcome: H5 supported for the width of the interval; the audit-size rule works but weak coders need a bigger audit than none
 - Ran `experiments/h5_plugin.py` (1,000 draws per cell; `experiments/h5_plugin.txt`). Simulated mean half-width over plug-in: 0.996 to 1.000 in all 9 design-by-coder cells (bar 0.90 to 1.10), so H5 holds with room. As predicted this is near-identity (the plug-in is the expectation of the variance estimator); coverage in those cells is 93.6 to 95.8% (lowest: design C with `nb-english`, 93.6%, about 2 binomial sd under 95%).
 - Audit-size rule (Neyman allocation, oracle S_h^2, +/-3 point target): total n = 902 (`lexicon-en`), 1,083 (`nb-english`), 927 (`nb-in-language`). Simulated mean half-width 2.97 points in all three (target met), but the 95th percentile is 3.06 to 3.10 and coverage 94.1, 94.1 and 95.2%, so the rule hits the target on average, not in every audit.

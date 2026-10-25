@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b7e24'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Coverage Drop Check vs. a flat coverage floor</title>
   <meta name="description" content="--cov-fail-under=80 only asks whether you are above 80% -- it cannot see a PR that walks coverage from 92% to 81%, both comfortably above the floor, while one file's tests get gutted and a second file's improvement covers for it in the overall number. Coverage Drop Check reads both reports and names the file.">
