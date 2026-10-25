@@ -515,3 +515,16 @@ test("an Amazon promotion's tax line (Promotion/TaxDiscount) is tax, not a refun
   assert.deepEqual(r.problems, []);
   assert.deepEqual(r.payouts[0].rows.map((x) => x.kind), ["sales", "refunds", "tax"]);
 });
+
+test("a PayPal payment the account holder sent is not booked as a sale", () => {
+  const pp = `Date,Time,Name,Type,Status,Currency,Gross,Fee,Net,Transaction ID
+03/01/2026,10:00:00,Ann,Website Payment,Completed,USD,100.00,-3.20,96.80,T1
+03/02/2026,11:00:00,Supplier,Express Checkout Payment,Completed,USD,-20.00,0.00,-20.00,T2
+03/04/2026,09:00:00,Bank,General Withdrawal,Completed,USD,-76.80,0.00,-76.80,W1
+`;
+  const r = readPayoutReport(pp);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].rows.find((x) => x.id === "T2").kind, "other");
+  assert.equal(r.problems.length, 1);
+  assert.match(r.problems[0], /payment sent/);
+});
