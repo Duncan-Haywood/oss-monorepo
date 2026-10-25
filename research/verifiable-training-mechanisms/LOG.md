@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 22: related work gains federated-learning incentives (no experiment)
+- Added a paragraph to `paper/main.tex` and two entries to `paper/refs.bib`: Kang et al. 2019, contract-theory incentives for federated learning (arXiv:1905.07479), and Lin, Du & Liu 2019, free-riders in federated learning (arXiv:1911.12560). Both ids returned the cited titles, years and author lists from the arXiv API this session. The Limitations sentence now names what related work still lacks: trusted-hardware attestation and Byzantine-robust aggregation.
+- Not compiled: this session had no LaTeX (milestone 16's TeX Live install was not repeated), so the two new `\cite` keys are unchecked by bibtex. Searched Crossref for Truebit and SafetyNets; no usable hit, so they are not cited.
+- Still open: the compile check above, EC'26 style files and page limit (owner step), whether a no-chain rule is enforceable.
+
 ## 2026-10-25 · Milestone 21: cheaper-cheat results move into the paper (no new experiment)
 - Added a "Cheaper cheats" paragraph and Table `tab:cheats` (skip, subsample, stale, stale1 at tau = 1e-2) to the margin section of `paper/main.tex`; every number is copied from `experiments/transformer_cheats/results.txt` and `experiments/transformer_stale_chain/results.txt` (milestones 19 and 20), none rerun. Rewrote the Limitations tail: it still said the draft was uncompiled (it compiled in milestone 16) and now names the real gaps (incomplete related work, `sigconf` instead of the EC'26 single-column style, page limit unchecked).
 - Still open: related-work section, the EC'26 style files and page limit (owner step), whether a no-chain rule is enforceable.

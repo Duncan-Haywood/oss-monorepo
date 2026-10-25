@@ -55,6 +55,11 @@ Costly state verification \cite{townsend1979} is the skeleton of an audit-plus-s
 tolerance. Payments for effort in estimation \cite{cai2015} concern data quality for a statistic, not compute for a trajectory.
 Linear contracts are near optimal under hidden action \cite{duetting2019simple}; we compare our frontier with the best linear
 contract on the final-model score and find it dearer by orders of magnitude where the score barely moves.
+\paragraph{Incentives in federated learning.}
+Contract-theoretic incentive design for federated learning \cite{kang2019contract} prices a participant's contributed data and
+compute under hidden type, and free-rider attacks and defences \cite{lin2019freeriders} show that a worker can submit updates
+that pass aggregation without doing the work. Both treat the submitted update as the object checked; we ask what a referee's
+numerical tolerance leaves a cheater, and price the stake that tolerance needs.
 \section{Model}\label{sec:model}
 A worker runs $T$ steps; honest cost is $C$. An action $a$ skips the steps whose honest update has norm at most
 $\tau'$, so its effort is one minus the skipped share and its cost is effort${}\times C$. An audit re-executes $m$
@@ -175,7 +180,7 @@ whose loss the remaining training recovers. A model of recovery is the open cons
 \section{Limitations}
 Three small scikit-learn tasks and plain SGD, plus one 30k-parameter character-level transformer (10 seeds, 600 and 3,000 steps, loss not converged; the cost at $\tau=10^{-2}$ is unchanged when the held-out block moves per seed, $+0.0016$ against $+0.0017$; see Table~\ref{tab:tf}), no realistic scale; the skip shortcut only for the dense results (on the transformer a reused-gradient cheat costs 2.1 seed std at $\tau=10^{-2}$, so the margin depends on the cheat; the cost comes from chains of consecutive reuses, 43 steps on average, and disappears, $+0.00016$, when reuse after a reused step is disallowed); one reorder
 referee; two workers for agreement and pure strategies for collusion; contract parameters ($\delta,\alpha,\kappa$, stakes)
-are swept rather than measured on real trajectories; the related-work section is incomplete, and the draft is in the
+are swept rather than measured on real trajectories; the related-work section covers verification, scoring rules, hidden-action contracts and federated-learning incentives but not trusted-hardware attestation or Byzantine-robust aggregation, and the draft is in the
 two-column \texttt{sigconf} style rather than the single-column EC'26 style files, whose page limit is not yet checked.
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{refs}
