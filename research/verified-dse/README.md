@@ -50,6 +50,7 @@ tau-b handles but which limits the ripple adder (4 distinct routed scores). Cumu
 
 ## Contents
 - [`PROPOSAL.md`](PROPOSAL.md): related work (12 checked ids), gap, hypotheses H1 to H5, evaluation, milestones, target venue (MLCAD).
+- [`PAPER.md`](PAPER.md): the paper draft (MLCAD target, not submitted); `reproduce.sh` regenerates every number in it from the cached tables.
 - [`LOG.md`](LOG.md): research log, with the plan written before the run.
 - `designs/`, `src/verified_dse/` (flow and rank statistics), `experiments/rung_bias/` (run, analysis, raw `results.jsonl`), `tests/`.
 - Designs: `adder_op`, `adder_ripple`, `mult_op`, `fifo` from [`chip-pnr`](../chip-pnr), `mac4` from [`chip-ppa-sky130mac`](../chip-ppa-sky130mac); `alu8`, `popcount16`, `barrel16`, `crc16`, `cmp_sat` are new, MIT.
