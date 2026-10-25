@@ -1,0 +1,244 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_016vwRVEgPXQeLcMeLBxGPEr",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-25T18:18:40Z",
+  "ended": "2026-10-25T18:19:42Z",
+  "wall_minutes": 2.16,
+  "tokens_in": 1031258,
+  "tokens_out": 3697,
+  "cost_usd": 0.4002,
+  "tool_calls": 17,
+  "task": null,
+  "projects": [],
+  "pr": 10453,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "No blog post: small guard-only run",
+      "did": "skipped post",
+      "result": "fine"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "share.mjs campaign: 8 mutants, 6 caught, 2 escaped (hex entity decode), both gaps guarded; no real defects found (hunt was brief).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/share.mjs",
+        "test": "node --test platform/pages/share.test.mjs  (in .)",
+        "seed": 486160827,
+        "commit": "da2c10a5",
+        "sites": 106,
+        "baseline_seconds": 2.6,
+        "mutants": [
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 43,
+            "col": 53,
+            "operator": "or-to-and",
+            "before": "primary = primary.replace(FREE_PRIVATE, '').trim() || primary;",
+            "after": "primary = primary.replace(FREE_PRIVATE, '').trim() && primary;",
+            "line_text": "  primary = primary.replace(FREE_PRIVATE, '').trim() || primary;",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 117,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": ".replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))",
+            "after": ".replace(/&#x([1-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))",
+            "line_text": "  .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))",
+            "caught": false,
+            "seconds": 2.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "hex entity decode untested; added crumbsOf test with &#x2014; and &#X1F4B0;"
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 117,
+            "col": 75,
+            "operator": "const-plus-one",
+            "before": ".replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))",
+            "after": ".replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 17)))",
+            "line_text": "  .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))",
+            "caught": false,
+            "seconds": 2.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "hex entity decode untested; added crumbsOf test with &#x2014; and &#X1F4B0;"
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 140,
+            "col": 59,
+            "operator": "const-plus-one",
+            "before": "return decode(/<title>([\\s\\S]*?)<\\/title>/i.exec(head)?.[1] ?? '').replace(/\\s+/g, ' ').trim();",
+            "after": "return decode(/<title>([\\s\\S]*?)<\\/title>/i.exec(head)?.[2] ?? '').replace(/\\s+/g, ' ').trim();",
+            "line_text": "  return decode(/<title>([\\s\\S]*?)<\\/title>/i.exec(head)?.[1] ?? '').replace(/\\s+/g, ' ').trim();",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 173,
+            "col": 21,
+            "operator": "neq-flip",
+            "before": "if (topic && topic !== headline) kicker = sectionName ? `${sectionName} \u00b7 ${topic}` : topic;",
+            "after": "if (topic && topic === headline) kicker = sectionName ? `${sectionName} \u00b7 ${topic}` : topic;",
+            "line_text": "  if (topic && topic !== headline) kicker = sectionName ? `${sectionName} \u00b7 ${topic}` : topic;",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 185,
+            "col": 23,
+            "operator": "eq-flip",
+            "before": "accent: (section === 'research' && researchTopicColour(/href=\"[^\"]*research\\/topics\\/([a-z0-9-]+)\\/\"/.exec(html)?.[1] ?? ''))",
+            "after": "accent: (section !== 'research' && researchTopicColour(/href=\"[^\"]*research\\/topics\\/([a-z0-9-]+)\\/\"/.exec(html)?.[1] ?? ''))",
+            "line_text": "      accent: (section === 'research' && researchTopicColour(/href=\"[^\"]*research\\/topics\\/([a-z0-9-]+)\\/\"/.exec(html)?.[1] ?? ''))",
+            "caught": true,
+            "seconds": 2.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 310,
+            "col": 56,
+            "operator": "true-to-false",
+            "before": "await fs.mkdir(path.dirname(job.file), { recursive: true });",
+            "after": "await fs.mkdir(path.dirname(job.file), { recursive: false });",
+            "line_text": "    await fs.mkdir(path.dirname(job.file), { recursive: true });",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 435,
+            "col": 53,
+            "operator": "eq-flip",
+            "before": "if (process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url).pathname) {",
+            "after": "if (process.argv[1] && path.resolve(process.argv[1]) !== new URL(import.meta.url).pathname) {",
+            "line_text": "if (process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url).pathname) {",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5dd6c8f2-a06a-5eb7-bbc5-e9bc78a83154",
+    "transcripts": 1,
+    "first": "2026-10-25T18:18:40Z",
+    "last": "2026-10-25T18:20:50Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 16,
+        "input": 32,
+        "output": 3697,
+        "thinking": 204,
+        "cache_read": 989937,
+        "cache_write_5m": 0,
+        "cache_write_1h": 41289,
+        "api_equivalent_usd": 0.4002,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 16,
+      "input": 32,
+      "output": 3697,
+      "thinking": 204,
+      "cache_read": 989937,
+      "cache_write_5m": 0,
+      "cache_write_1h": 41289,
+      "api_equivalent_usd": 0.4002,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 17,
+    "tools": {
+      "Bash": 14,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.16,
+      "active_minutes": 2.16,
+      "model_minutes": 0.64,
+      "tool_minutes": 1.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

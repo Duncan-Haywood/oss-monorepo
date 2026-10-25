@@ -236,3 +236,8 @@ test('mapLimit keeps input order', async () => {
   const out = await mapLimit([30, 10, 20], 2, (ms, i) => new Promise((r) => setTimeout(() => r(i), ms)));
   assert.deepEqual(out, [0, 1, 2]);
 });
+
+test('crumbsOf decodes hex character references, zeros and upper case included', () => {
+  const html = '<nav class="crumbs"><a href="/">Home</a><a href="/a/">Tax &#x2014; VAT</a><a href="/b/">Cost &#X1F4B0; &#x20AC;10</a></nav>';
+  assert.deepEqual(crumbsOf(html), ['Tax — VAT', 'Cost 💰 €10']);
+});
