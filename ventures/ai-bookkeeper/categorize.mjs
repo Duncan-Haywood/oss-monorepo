@@ -110,7 +110,13 @@ export const BUILT_IN = [
   ["6100", "out", /ferguson|johnstone supply|gemaire|\bwesco\b|graybar|fastenal|hajoca|winsupply|city electric supply|\brexel\b|sherwin[- ]williams|supply ?house|milwaukee tool|snap[- ]?on|ridgid|\bdewalt\b|northern tool/],
   ["6060", "out", /jobber(?! .*(payment|payout))|housecall ?pro|servicetitan|fieldedge|workiz|\bsimpro\b/],
   ["6000", "out", /\bangi\b|homeadvisor|thumbtack|networx|yelp/],
-  ["6110", "out", /contractors? (state )?licen[cs]e|licensing board|\bcslb\b|permit/],
+  ["6110", "out", /contractors? (state )?licen[cs]e|licensing board|\bcslb\b|permit/],  // HCB page 5 (eval/hcb-memos.mjs --orgpage 5), written after the held-out reading.
+  ["6060", "out", /mailerlite|\*discord\b|weebly/],
+  ["6140", "out", /tello mobile/],
+  ["6160", "out", /shell\/shell/],
+  ["6100", "out", /bambu lab|joann stores|alro steel|mas epoxies|lakeshore carbide|\bvevor\b|bulksupplements/],
+  ["6120", "out", /cheapoair|delta internet/],
+  ["6000", "out", /discountmugs/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,

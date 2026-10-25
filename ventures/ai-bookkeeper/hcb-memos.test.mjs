@@ -45,3 +45,15 @@ test("memos read on HCB page 4 (transactional mail, parts shops, merch printers,
   assert.equal(c.hits.get("misumi usa => 6100"), 1);
   assert.equal(c.hits.get("ezcater*azul mexican c => 6130"), 1);
 });
+
+test("memos read on HCB page 5 (mail tools, prepaid phone, steel and 3D-printer suppliers, fare sites) get an account", () => {
+  const c = coverage([
+    { memo: "www.mailerlite.com", cents: -3000 }, { memo: "Tello Mobile", cents: -1000 },
+    { memo: "SHELL/SHELL", cents: -4000 }, { memo: "ALRO STEEL CORP", cents: -9000 },
+    { memo: "COA CHEAPOAIR.COM AIR", cents: -30000 }, { memo: "DISCOUNTMUGS.COM", cents: -7000 },
+    { memo: "Amazon", cents: -3000 },
+  ]);
+  assert.equal(c.suggested, 6);
+  assert.equal(c.hits.get("shell/shell => 6160"), 1);
+  assert.equal(c.hits.get("alro steel corp => 6100"), 1);
+});
