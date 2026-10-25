@@ -10,6 +10,16 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H3c-iii:** picked lr is non-increasing in `H` (3a's suggestive finding). Edge picks reported.
 - Limits: 3-point grid, 2 tuning seeds, one size and corpus.
 
+### Outcome of 3c (`experiments/gpt_retune/retune_results.txt`; tuning seeds 100, 101, lr grid {1e-3, 2e-3, 4e-3}, 24 runs; then seeds 0 to 2)
+- Every `H` picked 2e-3 (tuning means: sync 1.5893, `H=4` 1.5813, `H=16` 1.5784, `H=64` 1.5955), so the pick is the grid middle, not an edge, but the same for all.
+- Reported means (sd), nats: sync 1.5897 (0.0097); `H=4` 1.5825 (0.0038); `H=16` 1.5758 (0.0064); `H=64` 1.5947 (0.0094). Paired gaps to sync: `H=4` -0.007 (sd 0.013), `H=16` -0.014 (sd 0.005), `H=64` +0.005 (sd 0.003). `H=64` minus `H=16`: +0.019 (sd 0.003).
+- **H3c-i supported.** `H=16` is better than `H=64` by 0.019 (every seed), so 3b's reversal was a learning-rate artefact, not a real non-monotonicity.
+- **H3c-ii supported, more strongly than predicted.** The re-tuned `H=16` gap is -0.014: slightly *better* than synchronous AdamW at the same sample count, consistent in sign across the 3 seeds. With 3 seeds this is suggestive, not established; `H=4` is indistinguishable from sync.
+- **H3c-iii uninformative.** All picks equal (2e-3); the grid cannot show a trend in `H`, so 3a's "non-increasing" reading is neither confirmed nor refuted here.
+- Reading: most of 3b's remaining gap came from stale learning rates (sync at 1e-3 scored 1.5994, at 2e-3 1.5897). With a lr tuned at the real budget, local steps up to `H=16` cost nothing measurable on this model and `H=64` costs about 0.005 nats.
+- Limits: 3 seeds, 3-point grid with one shared pick (a finer or per-H grid could move the ranking; `H=16` beating sync may be a tuning-noise effect), one size and corpus, plain averaging only.
+- Next: outer momentum on this model (2g's grid), more seeds for the `H=16` versus sync sign, and a per-`H` finer lr grid.
+
 ## 2026-10-25 · Milestone 3b: does the 3a gap to synchronous AdamW shrink with a 4x longer budget? (planned before running)
 - Why: 3a's "Next". At 960 steps sync may still be improving; the 0.14 nat gap at `H = 16` could be a short-budget artefact.
 - Design (`experiments/gpt_long_budget/long_budget.py`): 3a's model, data, `M = 4`, batch 16, plain averaging; 3,840 inner steps per worker; `H` in {sync, 4, 16, 64}; inner lr fixed at 3a's picks (1e-3, 1e-3, 3e-3, 1e-3), no re-tuning (a longer run may prefer a different lr, so gaps are if anything biased against the picks of whichever method it suits least); seeds 0 to 2; same 16 validation batches.
