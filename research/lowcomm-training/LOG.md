@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-25 · Milestone 4b: does error feedback rescue biased top-k compression of the worker deltas on the real GPT? (planned before running)
+- Why: 4a's "Next". 4a covered the unbiased rand-k family; the common practical compressor is biased top-k, usually paired with error feedback (Seide et al. 2014; Stich et al. 2018). This also adds the engine feature `DiLoCo(error_feedback=True)` (per-worker, per-tensor residual) and `top_k`, with a test that keep = 1 reproduces the uncompressed round.
+- Design (`experiments/gpt_topk_ef/topk_ef.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3, `H = 16`, plain outer step. Keep fraction p in {0.25, 0.0625}; arm in {top-k, top-k + error feedback}; seeds 0 to 2 (12 runs). Comparators: uncompressed (3d) and 4a's rand-k at the same p and seeds.
+- **H4b-i:** top-k with error feedback is no worse than unbiased rand-k at the same p on all 3 seeds, at both p. Refuted if rand-k wins any seed in either cell.
+- **H4b-ii:** error feedback lowers top-k's loss on all 3 seeds at p = 0.0625. Refuted if any seed rises.
+- Prior: top-k with EF beats rand-k clearly (rand-k pays +0.017 and +0.083 in 4a); plain top-k without EF may be competitive at p = 0.25 because deltas are heavy-tailed, so H4b-ii is uncertain there.
+- Limits: 3 seeds, per-tensor top-k, one `H`, one size and corpus, bytes not modelled (index overhead of sparse formats ignored).
+
 ## 2026-10-25 · Milestone 3h: is the DiLoCo-paper outer setting bad only because the inner lr is wrong for it? (planned before running)
 - Why: 3g's "Next". At inner lr 2e-3 (tuned for plain averaging) outer (0.7, 0.9) cost +0.127 nats at `H = 16`. With Nesterov momentum 0.9 the effective outer step is up to 10x larger, so a lower inner lr, or a smaller outer lr, may recover it.
 - Design (`experiments/gpt_outer_retune/retune.py`): 3d's model, data, budget (3,840 steps), `M = 4`, `H = 16`, seeds 0 to 2 (12 runs). Inner lr in {5e-4, 1e-3} x outer (lr, momentum) in {(0.7, 0.9), (0.3, 0.9)}. The comparison is plain averaging at its tuned 2e-3 (3d, 1.5758 mean). Cells are scored directly on the report seeds with no separate tuning seeds, which favours the momentum arms (best of 4 cells), so a null is conservative and a win would need re-confirming on fresh seeds.
