@@ -9,6 +9,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H3h-ii:** the best cell beats plain@2e-3 on all 3 seeds. Prior: unlikely (3g found no outer momentum gain).
 - Limits: 4 cells, 3 seeds, `H = 16` only, one size and corpus.
 
+### Outcome of 3h (`experiments/gpt_outer_retune/retune_results.txt`; 12 runs, seeds 0 to 2, `H = 16`)
+- Mean loss (nats) vs plain@2e-3 1.5758: inner 5e-4 / outer (0.7, 0.9) 1.6253 (+0.050); 5e-4 / (0.3, 0.9) 1.6102 (+0.034); 1e-3 / (0.7, 0.9) 1.6356 (+0.060); 1e-3 / (0.3, 0.9) 1.6078 (+0.032). 3g's 2e-3 / (0.7, 0.9) was 1.7028 (+0.127). Every cell is worse than plain on all 3 seeds (paired diffs +0.025 to +0.077).
+- **H3h-i refuted** (best cell +0.032, beyond the 0.01 tolerance). **H3h-ii refuted** (0 of 4 cells beat plain on any seed), as the prior said.
+- Reading: joint tuning recovers about three quarters of the paper setting's gap (+0.127 to +0.032) mainly via a smaller outer lr and a lower inner lr, but momentum 0.9 still does not beat plain averaging on this 3,840-step, 413k-parameter run. The scored cells were chosen on the report seeds, which favours momentum, so the negative result is conservative. It closes the outer-momentum branch at this scale; whether it reopens at longer budgets (the paper's regime) is untested.
+- Limits: 4 cells, 3 seeds, `H = 16` only, one size and corpus.
+- Next: lengthen the budget (3,840 to about 15k steps) for plain vs (0.3, 0.9) at `H = 16`, to test the budget-dependence explanation.
+
 ## 2026-10-25 · Milestone 3g: does outer Nesterov momentum help on the real GPT, as 2g found on the 14k numpy model? (planned before running)
 - Why: the "Next" of 3d, 3e and 3f. 2g (14k-parameter numpy model) found small outer momentum (0.1 to 0.3) lowered loss by 0.014 to 0.020 at `H = 64` and raised it at `H = 16`; 2g's own "Next" asked for a check on the transformer before any momentum claim.
 - Design (`experiments/gpt_outer_momentum/momentum.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3 (the shared pick). `H` in {16, 64}; outer (lr, Nesterov momentum) in {(1, 0.1), (1, 0.3), (0.7, 0.9) the DiLoCo paper's setting}; seeds 0 to 2 (18 runs). Plain rows are 3d's runs at 2e-3. Inner lr is not re-tuned per outer setting. Paired differences vs plain per seed; no multiplicity correction (6 cells).

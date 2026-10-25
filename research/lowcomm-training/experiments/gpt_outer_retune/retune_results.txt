@@ -1,0 +1,6 @@
+H=16 plain at 2e-3: mean 1.5758 [1.5707, 1.583, 1.5738]
+H=16 (0.7, 0.9) at 2e-3 (3g): mean 1.7028 [1.6809, 1.6772, 1.7504]
+H=16 inner 0.0005 outer (0.7, 0.9): mean 1.6253  paired diff vs plain@2e-3 [0.0627, 0.0378, 0.0478] mean +0.0495
+H=16 inner 0.0005 outer (0.3, 0.9): mean 1.6102  paired diff vs plain@2e-3 [0.0397, 0.032, 0.0317] mean +0.0344
+H=16 inner 0.001 outer (0.7, 0.9): mean 1.6356  paired diff vs plain@2e-3 [0.0771, 0.0426, 0.0597] mean +0.0598
+H=16 inner 0.001 outer (0.3, 0.9): mean 1.6078  paired diff vs plain@2e-3 [0.0445, 0.025, 0.0265] mean +0.0320
