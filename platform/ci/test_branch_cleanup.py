@@ -11,6 +11,7 @@ the same-ref-twice case are covered without touching the network.
 
 Run: python3 -m unittest test_branch_cleanup   (from platform/ci/)
 """
+import contextlib
 import io
 import json
 import unittest
@@ -26,6 +27,7 @@ from branch_cleanup import (
     decide_stray,
     expand_grace_prs,
     iter_closed_for_sweep,
+    main,
     refs_in_grace,
     run,
     summarise_pr,
@@ -755,6 +757,53 @@ class GitHubClientTest(unittest.TestCase):
         with self.fake_open([err]):
             with self.assertRaises(urllib.error.HTTPError):
                 self.gh._request("GET", "/repos/o/r")
+
+    def test_transient_errors_are_retried_with_backoff(self):
+        naps = []
+        flaky = urllib.error.HTTPError("u", 503, "busy", {}, None)
+        with mock.patch("branch_cleanup.time.sleep", naps.append), \
+                self.fake_open([flaky, flaky, {"ok": 1}]):
+            self.assertEqual(self.gh._request("GET", "/x"), {"ok": 1})
+        self.assertEqual(naps, [1, 2])
+
+    def test_rate_limit_and_server_errors_are_retried(self):
+        for code in (403, 429, 500, 502, 503, 504):
+            limited = urllib.error.HTTPError("u", code, "slow down", {}, None)
+            with mock.patch("branch_cleanup.time.sleep", lambda _: None), \
+                    self.fake_open([limited, {"ok": 1}]):
+                self.assertEqual(self.gh._request("GET", "/x"), {"ok": 1}, code)
+
+    def test_a_client_error_is_not_retried(self):
+        for code in (401, 404, 422):
+            self.urls.clear()
+            bad = urllib.error.HTTPError("u", code, "no", {}, None)
+            with mock.patch("branch_cleanup.time.sleep", lambda _: None), \
+                    self.fake_open([bad, {"ok": 1}]):
+                with self.assertRaises(urllib.error.HTTPError):
+                    self.gh._request("GET", "/x")
+            self.assertEqual(len(self.urls), 1, code)
+
+    def test_retries_stop_after_four_attempts(self):
+        busy = urllib.error.HTTPError("u", 502, "busy", {}, None)
+        naps = []
+        with mock.patch("branch_cleanup.time.sleep", naps.append), \
+                self.fake_open([busy] * 5):
+            with self.assertRaises(urllib.error.HTTPError):
+                self.gh._request("GET", "/x")
+        self.assertEqual(len(self.urls), 4)
+        self.assertEqual(naps, [1, 2, 4])  # no pointless nap before giving up
+
+    def test_compare_reads_the_merge_base_date_and_tolerates_its_absence(self):
+        compare = self.gh.compare_to("main")
+        with self.fake_open([{"ahead_by": 3, "merge_base_commit": {
+                "commit": {"committer": {"date": "2026-08-01T00:00:00Z"}}}}]):
+            self.assertEqual(compare("abc"), (3, "2026-08-01T00:00:00Z"))
+        with self.fake_open([{"ahead_by": 2}]):
+            self.assertEqual(compare("abc"), (2, None))
+
+    def test_main_needs_either_pr_or_sweep(self):
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            main(["--repo", "o/r"])
 
 
 if __name__ == "__main__":
