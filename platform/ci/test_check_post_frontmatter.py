@@ -1,6 +1,10 @@
+import contextlib
+import io
+import tempfile
 import unittest
+from pathlib import Path
 
-from check_post_frontmatter import problems
+from check_post_frontmatter import main, problems
 
 GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "d"\ntags: [a, b]\n---\nbody\n'
 
@@ -23,6 +27,29 @@ class T(unittest.TestCase):
     def test_long_description(self):
         t = GOOD.replace('"d"', '"' + "x" * 161 + '"')
         self.assertEqual(problems("2026-10-24-x.md", t), ["description is 161 characters; keep it to 160"])
+
+    def test_description_of_exactly_160_is_fine(self):
+        t = GOOD.replace('"d"', '"' + "x" * 160 + '"')
+        self.assertEqual(problems("2026-10-24-x.md", t), [])
+
+    def _run(self, posts):
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "docs" / "posts").mkdir(parents=True)
+            for name, text in posts.items():
+                (Path(d) / "docs" / "posts" / name).write_text(text, encoding="utf-8")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                code = main(["--root", d])
+        return code, out.getvalue()
+
+    def test_main_exit_zero_when_clean(self):
+        self.assertEqual(self._run({"2026-10-24-x.md": GOOD}), (0, ""))
+
+    def test_main_exit_one_and_names_each_problem(self):
+        bad = GOOD.replace("tags: [a, b]\n", "")
+        code, out = self._run({"2026-10-24-x.md": GOOD, "2026-10-24-y.md": bad, "z.md": "# hi\n"})
+        self.assertEqual(code, 1)  # exit 1 whatever the count: CI treats only 1 as "check failed"
+        self.assertEqual(out.splitlines(), ["2026-10-24-y.md: missing `tags`", "z.md: no front matter"])
 
     def test_no_front_matter(self):
         self.assertEqual(problems("x.md", "# hi\n"), ["no front matter"])

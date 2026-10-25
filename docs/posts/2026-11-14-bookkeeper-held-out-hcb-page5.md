@@ -1,7 +1,7 @@
 ---
 title: "Testing a bookkeeping categorizer on 631 charges it had never seen"
 date: 2026-11-14
-description: "ai-bookkeeper's keywords suggested an account for 44.8% of 631 real card charges from Hack Club's public feed, then 50.2% after rules written from the misses."
+description: "ai-bookkeeper's keywords suggested an account for 44.8% of 631 real Hack Club card charges, then 50.2% after rules written from the misses."
 tags: [ventures, ai-bookkeeper, evaluation, bookkeeping]
 ---
 
