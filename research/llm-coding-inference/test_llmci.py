@@ -141,3 +141,18 @@ def test_neyman_total_hits_target_half_width_with_fpc():
         nh = [n * x / sum(ws) for x in ws]
         var = sum((N / big) ** 2 * (1 - k / N) * v / k for N, k, v in zip(sizes, nh, s2))
         assert abs(E.Z95 * math.sqrt(var) - half) < 1e-9
+
+
+def test_ppi_ols_matches_closed_form_and_perfect_coder():
+    import numpy as np
+    from llmci import regression as R
+    rng = np.random.default_rng(3)
+    N = 2000
+    X = np.column_stack([np.ones(N), rng.integers(0, 2, N)])
+    y = (rng.random(N) < 0.3 + 0.2 * X[:, 1]).astype(float)
+    idx = rng.choice(N, 200, replace=False)
+    b, se = R.ppi_ols(X, y.copy(), idx, y[idx])  # perfect coder: no rectifier, zero variance
+    assert np.allclose(b, R.ols(X, y)) and np.allclose(se, 0)
+    f = 1 - y  # all wrong: PPI still recovers the truth from the audit's rectifier
+    b2, _ = R.ppi_ols(X, f, np.arange(N), y)  # audit = whole corpus
+    assert np.allclose(b2, R.ols(X, y))
