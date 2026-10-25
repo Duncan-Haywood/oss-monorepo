@@ -25,7 +25,10 @@ const PILOTS = {
   ],
   'discogs-fee-calculator': async (m) => [m.SELLING_FEE_MIN, m.SELLING_FEE_MAX],
   'grailed-fee-calculator': async (m) => [m.TIER_THRESHOLD, m.MIN_COMMISSION],
-  'facebook-marketplace-fee-calculator': async (m) => [m.MIN_FEE, 0] // 0: local pickup carries no fee,
+  'facebook-marketplace-fee-calculator': async (m) => [m.MIN_FEE, 0], // 0: local pickup carries no fee
+  'depop-fee-calculator': async (m) => [m.REGIONS.us.processingFixed],
+  'mercari-fee-calculator': async (m) => [m.LEGACY_PROCESSING_FIXED],
+  'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
 };
 
 for (const [slug, figures] of Object.entries(PILOTS)) {

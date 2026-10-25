@@ -28,6 +28,10 @@
     {
       "date": "2026-10-25",
       "note": "Pilot slice 2: discogs-fee-calculator, grailed-fee-calculator and facebook-marketplace-fee-calculator carry a sourced, dated lead, checked by answer-lead.test.mjs. 6 of 10 pilot pages done; 4 remain. Grailed's lead says its source is third-party guides, as calc.mjs does."
+    },
+    {
+      "date": "2026-10-25",
+      "note": "Pilot slice 3: depop, mercari and poshmark fee calculators carry a sourced, dated lead, checked by answer-lead.test.mjs. 9 of 10 pilot pages done; 1 remains (reverb is skipped: its calc has no single headline fee). Sources are the fee pages named in each calc.mjs header, not live fetches."
     }
   ]
 }
