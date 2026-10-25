@@ -1,6 +1,7 @@
 ---
 title: "More simulator runs did not help on cart-pole, and a grid bug nearly said they hurt"
 date: 2026-10-25
+description: "Adding more digital-twin training runs did not close the cartpole sim-to-real gap."
 ---
 
 On the pendulum, a simulator-assisted confidence interval for a robot policy's score beats real-only testing once we

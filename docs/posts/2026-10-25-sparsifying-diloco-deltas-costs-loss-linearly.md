@@ -1,6 +1,7 @@
 ---
 title: "Throwing away most of a DiLoCo update costs loss in a straight line"
 date: 2026-10-25
+description: "Random sparsification of DiLoCo worker updates costs validation loss roughly linearly in its variance on a small GPT."
 ---
 
 We trained a 413k-parameter character-level GPT on Tiny Shakespeare with four simulated DiLoCo workers syncing every 16

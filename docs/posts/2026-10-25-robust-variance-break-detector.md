@@ -1,6 +1,7 @@
 ---
 title: "A Laplace cost cuts the variance-break detector's false alarms on heavy-tailed data from 63% to 8%"
 date: 2026-10-25
+description: "A robust variance-break detector and what it flagged in the test data."
 ---
 
 Our changepoint detector's mean-and-variance mode raised a false alarm on 37% to 63% of constant-variance series with
