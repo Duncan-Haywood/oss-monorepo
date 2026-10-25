@@ -21,12 +21,15 @@ export const DEFAULTS = {
   feePct: 0.03, targetProfit: 1500,
 };
 
+// A negative or non-numeric input has no meaning here (the page already clamps it); treat it as 0 so callers that skip the page, such as agents, get the same answer.
+export const nonNegative = (o) => { const r = { ...o }; for (const k of Object.keys(DEFAULTS)) if (!(r[k] >= 0)) r[k] = 0; return r; };
+
 export const monthlyCost = (o) => ["rent", "utilities", "insurance", "cleaning", "equipment", "staff", "other"].reduce((a, k) => a + (o[k] || 0), 0);
 export const stationHours = (o) => o.stations * o.hoursPerDay * o.daysPerWeek * 52 / 12;
 
 // Revenue and profit at a given hourly rate and utilization.
 export function project(input, over = {}) {
-  const o = { ...DEFAULTS, ...input, ...over };
+  const o = nonNegative({ ...DEFAULTS, ...input, ...over });
   const capacity = stationHours(o);
   const used = capacity * Math.min(1, Math.max(0, o.utilization));
   const memberHoursUsed = Math.min(used, o.members * o.memberHours);
@@ -73,7 +76,7 @@ export function sensitivity(input, utils = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8], 
 }
 
 export function analyze(input) {
-  const o = { ...DEFAULTS, ...input };
+  const o = nonNegative({ ...DEFAULTS, ...input });
   const now = project(o);
   const be = utilizationForProfit(o, 0);
   const goal = utilizationForProfit(o, o.targetProfit);

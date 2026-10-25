@@ -24,6 +24,9 @@ export const DEFAULTS = {
   wetChance: 0.2, wetLossPct: 0.45, // chance the whole season runs wet, and the share of open days lost when it does
 };
 
+// A negative or non-numeric input has no meaning here (the page already clamps it); treat it as 0 so callers that skip the page, such as agents, get the same answer.
+export const nonNegative = (o) => { const r = { ...o }; for (const k of Object.keys(DEFAULTS)) if (!(r[k] >= 0)) r[k] = 0; return r; };
+
 export const seasonFixed = (o) => ["rent", "insurance", "marketing", "setup"].reduce((a, k) => a + (o[k] || 0), 0);
 export const effectiveDays = (o) => o.openDays * (1 - Math.min(1, Math.max(0, o.rainoutPct)));
 
@@ -35,7 +38,7 @@ export function perVisitor(o) {
 }
 
 export function project(input, over = {}) {
-  const o = { ...DEFAULTS, ...input, ...over };
+  const o = nonNegative({ ...DEFAULTS, ...input, ...over });
   const days = effectiveDays(o);
   const pv = perVisitor(o);
   const visits = days * o.visitors;
@@ -111,7 +114,7 @@ export function sensitivity(input, visitors, admissions) {
 }
 
 export function analyze(input) {
-  const o = { ...DEFAULTS, ...input };
+  const o = nonNegative({ ...DEFAULTS, ...input });
   const now = project(o);
   const pv = now.pv;
   const be = visitorsForProfit(o, 0);
