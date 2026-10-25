@@ -9,6 +9,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H3h-ii:** (0.7, 0.9) at its best inner lr is still worse than the best plain run at 2e-3 (3g's plain means: 1.5758 at `H = 16`, 1.5947 at `H = 64`; seeds differ, so descriptive only).
 - Limits: 2 seeds, a 2-point lr grid, one size and corpus; descriptive.
 
+### Outcome of 3h (`experiments/gpt_outer_retune/retune_outer_results.txt`; 8 runs, seeds 100, 101)
+- Mean loss, plain vs (0.7, 0.9) at the same inner lr: `H = 16`, lr 1e-3: 1.6054 vs 1.6345 (paired diffs +0.017, +0.042); lr 4e-3: 1.6646 vs 2.2637 (+0.616, +0.582). `H = 64`, lr 1e-3: 1.6219 vs 1.6405 (+0.013, +0.024); lr 4e-3: 1.6854 vs 1.9866 (+0.268, +0.335).
+- **H3h-i supported:** (0.7, 0.9) is worse than plain on both seeds in all four cells. **H3h-ii supported:** its best cell (1.6345 at `H = 16`, 1.6405 at `H = 64`, lr 1e-3) is worse than plain at the same lr; seeds differ from 3g, so the comparison to 3g's 2e-3 plain means is descriptive only.
+- Reading: lowering the inner lr shrinks the gap (+0.127 at 2e-3 in 3g, about +0.03 at 1e-3) but does not close it, and raising it makes it far worse. Within this grid, the paper's outer setting does not beat plain averaging at any inner lr, so the 3g result was not only a mis-tuned inner lr. The grid stops at 1e-3, so a still lower lr, which would move the gap further, is untested.
+- Limits: 2 seeds, 2 lr points, one size and corpus, 3,840 steps (the DiLoCo paper trains far longer).
+- Next: an inner lr of 5e-4 for (0.7, 0.9) and plain, to see whether the gap keeps shrinking or plain also degrades.
+
 ## 2026-10-25 · Milestone 3g: does outer Nesterov momentum help on the real GPT, as 2g found on the 14k numpy model? (planned before running)
 - Why: the "Next" of 3d, 3e and 3f. 2g (14k-parameter numpy model) found small outer momentum (0.1 to 0.3) lowered loss by 0.014 to 0.020 at `H = 64` and raised it at `H = 16`; 2g's own "Next" asked for a check on the transformer before any momentum claim.
 - Design (`experiments/gpt_outer_momentum/momentum.py`): 3d's model, data, budget (3,840 steps), `M = 4`, inner lr 2e-3 (the shared pick). `H` in {16, 64}; outer (lr, Nesterov momentum) in {(1, 0.1), (1, 0.3), (0.7, 0.9) the DiLoCo paper's setting}; seeds 0 to 2 (18 runs). Plain rows are 3d's runs at 2e-3. Inner lr is not re-tuned per outer setting. Paired differences vs plain per seed; no multiplicity correction (6 cells).
