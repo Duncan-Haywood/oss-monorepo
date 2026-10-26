@@ -1,7 +1,7 @@
 ---
 title: "E-invoice Preflight adds Brazil: NF-e, and a CNPJ check that now has to handle letters"
 date: 2026-10-26
-description: "A new Brazil page explains the state-authorised NF-e and tests CNPJ and CPF check digits in the browser, including the alphanumeric CNPJ, with the check's measured blind spot."
+description: "A Brazil page explains the state-authorised NF-e and tests CNPJ and CPF check digits in the browser, letters included, with the check's measured blind spot."
 tags: [einvoice-preflight, e-invoicing, brazil]
 ---
 
