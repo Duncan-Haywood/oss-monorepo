@@ -145,7 +145,7 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   if (!date) notes.push("no date found");
 
   // merchant: the first line that is words, not an address, phone, date or amount
-  const BOILER = /^(receipt|invoice|order|thank|tax invoice|cash\s*(?:sale|bill)|goods sold|ref(?:erence)?\.?\s*no|your order|welcome|tq\b|please|customer|official|duplicate|copy|simplified|for feedback|cashier|company\s*no|[*\s]+thank|jln\b|jalan\b|lorong\b|taman\b|lot\s|level\s|no[.:]?\s*\d)/i;
+  const BOILER = /^(receipt|invoice|order|thank|tax invoice|cash\s*(?:sale|bill)|goods sold|ref(?:erence)?\.?\s*no|your order|welcome|tq\b|please|customer|official|duplicate|copy|simplified|for feedback|cashier|company\s*no|[*\s]+thank|redeem|pcl xl|warning|error\b|jln\b|jalan\b|lorong\b|taman\b|lot\s|level\s|no[.:]?\s*\d)/i;
   const ENTITY = /\b(?:sdn\.?\s*bhd\.?|s\/b|enterprise|trading|holdings?|ltd|llc|inc|corp|gmbh|pte|pty|co\.|company)\b/i;
   // OCR noise lines (mostly symbols), GST registration lines and state names are not a shop name
   const NOTNAME = /^[^a-z]*(?:gst|sst|reg(?:istration)?\b|tax\s*id)|^(?:\W*\w{1,2}\W+)?(?:selangor|johor|kuala lumpur|penang|pulau pinang|perak|kedah|melaka|negeri sembilan|pahang|sabah|sarawak|terengganu|kelantan|wilayah)\b/i;
@@ -159,8 +159,19 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   // a stamped or handwritten name above a printed (capitalised) shop name, e.g.
   // "tan woon yann" over "YONGFATT ENTERPRISE": all lower case is not the shop
   if (eligible.length > 1 && /^[a-z]+(?:\s+[a-z]+){0,3}$/.test(eligible[0].trim()) && /[A-Z]{3}/.test(eligible[1])) merchantLine = eligible[1];
+  // a printed "(317041-W)" registration number sits right under the registered company name:
+  // the nearest name line above it (up to two lines) is the merchant, whatever heads the slip
+  let regNamed = false;
+  const regAt = lines.findIndex((l) => /^\W*\(?\s*(?:co\.?\s*)?(?:reg(?:istration)?\.?\s*)?(?:no\.?\s*)?[:#]?\s*\d{5,}\s*-\s*[a-z]\s*\)?\W*$/i.test(l));
+  if (regAt > 0) {
+    for (let k = regAt - 1; k >= Math.max(0, regAt - 3); k--) {
+      const l = lines[k].replace(REGNO, "");
+      const hit = eligible.find((e) => e === l);
+      if (hit && ENTITY.test(hit)) { merchantLine = hit; regNamed = true; break; }
+    }
+  }
   const [first, second] = eligible;
-  if (first && second && !ENTITY.test(first) && ENTITY.test(second) && first.trim().split(/\s+/).length <= 3 && first.trim().split(/\s+/)[0].toLowerCase() !== second.trim().split(/\s+/)[0].toLowerCase()
+  if (!regNamed && first && second && !ENTITY.test(first) && ENTITY.test(second) && first.trim().split(/\s+/).length <= 3 && first.trim().split(/\s+/)[0].toLowerCase() !== second.trim().split(/\s+/)[0].toLowerCase()
     && !/(?:restaurant|cafe|mart|market|shop|store|pharmacy|bakery|kitchen)/i.test(first)) merchantLine = second;
   // a stray mark before the name ("- UAN HING ...") and the engine's SON/SDN BHO for SDN BHD
   const merchant = merchantLine ? merchantLine.replace(/\s{2,}.*$/, "").replace(/^(?:[^A-Za-z0-9(]+|[a-z]{1,2}\s+(?=[A-Z]{3}))/, "").replace(/\bS[OD]N\.?\s+B(?:HD|HO|H0)\b/g, "SDN BHD").slice(0, 60) : null;

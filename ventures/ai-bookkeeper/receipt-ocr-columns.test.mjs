@@ -37,3 +37,10 @@ test("a bracketed company registration number does not hide the company name", (
   const r = parseReceipt("AEON CO. (M) BHD (126926-H)\n3RD FLR, AEON TAMAN MALURI SC\nJLN JEJAKA, TAMAN MALURI\nGST ID : 002017394688\nDate: 05/01/2019\nTotal 10.60");
   assert.equal(r.merchant, "AEON CO. (M) BHD");
 });
+
+test("the name printed above a registration number is the merchant, not a promo line above it", () => {
+  const r = parseReceipt("THANK YOU. PLEASE COME AGAIN.\n*REDEEM VOUCHER BEFORE POINTS EXPIRY!*\nSEGI CASH & CARRY SDN.BHD\n(317041-W)\nPT17920, SEKSYEN U9,\nDate: 05/01/2019\nTotal 10.00");
+  assert.equal(r.merchant, "SEGI CASH & CARRY SDN.BHD");
+  // no registration line: the first name line still wins
+  assert.equal(parseReceipt("KEDAI RUNCIT\nSOME ROAD\nTotal 10.00").merchant, "KEDAI RUNCIT");
+});
