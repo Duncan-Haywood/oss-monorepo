@@ -27,7 +27,7 @@ const ALIASES = {
     // Korean, Chinese
     "거래일자", "거래일시", "거래일", "기준일자", "交易日期", "记账日期", "記帳日期", "交易时间", "交易時間",
     // value dates last: German Valuta/Wertstellung are not the booking date
-    "created (utc)", "created", "created date (utc)", "created at", "timestamp",
+    "created (utc)", "created", "created date (utc)", "created at", "timestamp", "paid at", "transferred at",
     "wertstellung", "valuta", "date de valeur", "date valeur",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
@@ -59,6 +59,8 @@ function pickDelimiter(s) {
   }
   return best;
 }
+
+const FOOTER = /^(total|totals|grand total|sub-?total|generated|printed|page \d|end of|number of|count|records?)\b/i;
 
 // RFC 4180 CSV: quoted fields, doubled quotes, CRLF, a BOM, and a ; or tab
 // delimiter when the header has more of those than commas.
@@ -671,7 +673,7 @@ export function readQif(text, { dayFirst } = {}) {
   let cur = {};
   let n = 0;
   let inAccount = false; // an !Account block lists account names (N) and types (T), not transactions; so do the !Type:Cat, Class, Tag and Prices lists
-  let accounts = 0;
+  let accounts = 0, acctBlocks = 0; // KMyMoney writes a !Type:Bank header before its single !Account block, so named blocks outrank type headers
   const flush = (line) => {
     if (inAccount || (cur.D === undefined && cur.T === undefined)) { cur = {}; return; }
     n++;
@@ -689,6 +691,7 @@ export function readQif(text, { dayFirst } = {}) {
     if (c === "!") {
       const isList = /^!type:\s*(cat|class|tag|prices?|payee|memorized)\b/i.test(l.trim());
       inAccount = /^!account\b/i.test(l.trim()) || isList;
+      if (/^!account\b/i.test(l.trim())) acctBlocks++;
       if (/^!type:/i.test(l.trim()) && !isList) accounts++;
       return;
     }
@@ -697,6 +700,7 @@ export function readQif(text, { dayFirst } = {}) {
   });
   if (Object.keys(cur).length) flush(text.split(/\r?\n/).length);
   if (!n) problems.push("No transactions were found in the QIF file.");
+  if (acctBlocks) accounts = acctBlocks;
   if (accounts > 1 && n) problems.push(`The QIF file has ${accounts} account sections; all rows were read into one account. Split the file per account to keep transfers apart.`);
   return { rows: out, problems, columns: null, bank: "qif", inferred: null };
 }
@@ -744,6 +748,9 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (format === "cz-text") return readCzBlocks(text);
   if (format === "qif") return readQif(text, dfGiven ? { dayFirst } : {});
   const rows = parseCsv(text);
+  // Footer lines the bank prints after the last row ("Total transactions,,", "Page 1 of 2") would
+  // break the all-rows layout tests of a header-less file, so they are cut before any of them run.
+  while (rows.length > 2 && FOOTER.test(rows[rows.length - 1].map((c) => String(c).trim()).filter(Boolean).join(" ")) && rows[rows.length - 1].filter((c) => String(c).trim()).length === 1) rows.pop();
   const problems = [];
   // A general-ledger journal (Xero's Journal Report) lists both sides of each entry: not a bank statement.
   if (rows[0]?.some((h) => /^journal ?number$/i.test(String(h).trim())) && rows[0].some((h) => /^journal ?date$/i.test(String(h).trim())))
@@ -806,13 +813,13 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // unsigned amount. Only when every value is in that vocabulary and no amount is
   // negative, so a card export's Sale/Return/Payment column is left alone.
   if (drcrCol === -1 && columns.amount !== -1 && headerAt !== -1) {
-    const DRCR = /^(debit|credit|withdrawal|deposit)$/i;
+    const DRCR = /^(debit|credit|withdrawal|deposit|income|expense)(-recurring)?$/i;
     const body = rows.slice(first).filter((r) => String(r[columns.date] ?? "").trim());
     const t = hdr0.findIndex((x) => /^(transaction type|trans type|type|debit or credit|credit or debit|dr or cr)$/.test(x));
     // A signed amount is fine when the sign follows the marker one way throughout (debits
     // negative, or debits positive as in Maybe's export); a mix is left to the amount's own sign.
     const neg = (r) => /^\s*[-(]|-\s*$/.test(String(r[columns.amount] ?? ""));
-    const out = (r) => /^(debit|withdrawal)$/i.test(String(r[t] ?? "").trim());
+    const out = (r) => /^(debit|withdrawal|expense)(-recurring)?$/i.test(String(r[t] ?? "").trim());
     const consistent = !body.some(neg) || body.every((r) => out(r) === neg(r)) || body.every((r) => out(r) === !neg(r));
     if (t !== -1 && body.length && consistent && body.every((r) => DRCR.test(String(r[t] ?? "").trim()))) drcrCol = t;
   }
@@ -871,7 +878,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
   const accountNames = new Set();
   const memoCols = hdr.map((x, ix) => (/^(memo|notes?|comments?|remarks)$/.test(x) && ix !== columns.desc ? ix : -1)).filter((ix) => ix !== -1);
-  const labelCols = ["reporting category", "category", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
+  const labelCols = ["reporting category", "category", "category name", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
   const catCol = hdr.indexOf("category") !== -1 && hdr.indexOf("category") !== columns.desc ? hdr.indexOf("category") : -1;
   const idCol = hdr.findIndex((x) => /^(balance transaction id|transaction id|txn id|reference id)$/.test(x));
   const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
@@ -903,7 +910,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     // transaction history puts the card number and merchant on one): add it to that description.
     if (!date && out.length && !String(r[columns.date] ?? "").trim() && [columns.amount, columns.debit, columns.credit].filter((k) => k !== -1).every((k) => String(r[k] ?? "").trim() === "")) {
       const more = r.map((c) => String(c ?? "").trim()).filter(Boolean).join(" ").replace(/\s+/g, " ");
-      if (more) { out[out.length - 1].desc = `${out[out.length - 1].desc} ${more}`.trim(); continue; }
+      // A footer ("Total transactions,,", "Page 1 of 2", "Generated by ...") is not a wrapped description.
+      if (more && !FOOTER.test(more)) { out[out.length - 1].desc = `${out[out.length - 1].desc} ${more}`.trim(); continue; }
     }
     if (!date && /^pending$/i.test(String(r[columns.date] ?? "").trim())) { problems.push(`Line ${i + 1}: pending, not a booked transaction, skipped.`); continue; }
     if (!date) { problems.push(`Line ${i + 1}: unreadable date "${r[columns.date] ?? ""}", skipped.`); continue; }
@@ -918,8 +926,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();
-      if (/^(dr|d|debit|debet|af|soll|s|withdrawal)$/.test(m)) cents = -Math.abs(cents);
-      else if (/^(cr|c|k|credit|bij|haben|h|deposit)$/.test(m)) cents = Math.abs(cents);
+      if (/^(dr|d|debit|debet|af|soll|s|withdrawal|expense(-recurring)?)$/.test(m)) cents = -Math.abs(cents);
+      else if (/^(cr|c|k|credit|bij|haben|h|deposit|income(-recurring)?)$/.test(m)) cents = Math.abs(cents);
     }
     if (billSignCol !== -1) cents = /^cr$/i.test(String(r[billSignCol] ?? "").trim()) ? Math.abs(cents) : -Math.abs(cents);
     if (bank === "coinbase") {

@@ -306,6 +306,8 @@ numbers worked out before drafting.
 - *(Done: The Four Minutes, Inis Ghainimh, Connemara, 2047; text only.)* A defibrillator drone against three cabinets and a first-aid course on an island of 118; the honest numbers are small (about a fifth of a life in 20 years), a drill in a 16 m/s gale shows what the island does when the drone says no, and the island buys what the numbers and the sexton's notebook point to.
 - *(Done: The Thirty-Minute Cycle, Rakchen, Humla, 2050; text only.)* A health-post steriliser run at the sea-level dial setting for 22 months; a first spore test comes back alive, the fix is minutes not pressure (the safety valve stays sealed), and a caesarean is released on the probe log before the strip can be read.
 
+- *(Done: The Last Barge, Nelkuk, Alaska, 2047 to 2048; text only.)* A cemetery bluff retreating 1.1 to 6 m a year; a widow's 64 years of pace counts (71 cm a pace) extend ten years of drone data, a bootstrap gives the front row a median 7 years (3 to 10) and the honest caveat is that ten years is too short; the village books the one annual barge and adopts a trigger rule, a 12 m edge distance.
+
 **For Other Minds**
 
 - *(Done: The Book Says Twenty-One, St Joseph's Hospice, Carrickbeg, 2049; text only.)* A stock agent is asked to change a controlled-drug count to match the shelf; it can, declines, and finds a rounding rule that fits eleven nights, with a physical count of empty ampoules as the check.

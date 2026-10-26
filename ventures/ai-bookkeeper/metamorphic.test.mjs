@@ -1,5 +1,6 @@
 // Metamorphic check: a file's rows must not change when only its packaging does
-// (line endings, byte-order mark, blank lines around it, trailing spaces).
+// (line endings, byte-order mark, blank lines around it, trailing spaces, a footer
+// line; the footer found 8 files whose rows changed on 2026-10-26).
 // Every text fixture is read as it is and in each wrapping; the rows must match.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -14,6 +15,7 @@ const WRAPS = {
   "trailing blank lines": (t) => t.replace(/\s+$/, "") + "\n\n\n",
   "leading blank lines": (t) => "\n\n" + t,
   "trailing spaces": (t) => t.replace(/\n/g, "  \n"),
+  "a footer line": (t) => t.replace(/\s+$/, "") + "\n\nTotal transactions,,\n",
 };
 const sig = (r) => JSON.stringify((r.rows ?? []).map((x) => [x.date, x.cents, x.desc]));
 

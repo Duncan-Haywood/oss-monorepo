@@ -171,3 +171,14 @@ test("fourth set (2026-10-25): scored once at 25/42 with 9 of 18 unsubscribes mi
   assert.equal(s.actedRight, 34);
   assert.equal(s.unsubMissed, 0);
 });
+
+test("non-English auto-replies and opt-outs are named, not left as unclear (agent-written phrasings)", () => {
+  const t = (subject, body) => triage({ from: "p@example.com", name: "", subject, body }, "2026-10-26").category;
+  const oof = [["Abwesenheitsnotiz: Frage", "Ich bin bis zum 3. November nicht im Büro."], ["Réponse automatique : Question", "Je suis absent du bureau jusqu'au 3 novembre."],
+    ["Respuesta automática: Pregunta", "Estaré fuera de la oficina hasta el 3 de noviembre."], ["Risposta automatica", "Sono fuori ufficio fino al 3 novembre."],
+    ["Resposta automática", "Estou ausente até 3 de novembro."], ["Automatisch antwoord", "Ik ben afwezig tot 3 november."]];
+  for (const [s, b] of oof) assert.equal(t(s, b), "out_of_office", s);
+  const out = ["Bitte entfernen Sie mich aus Ihrem Verteiler.", "Ne m'envoyez plus d'emails s'il vous plaît.", "Por favor, quiero darme de baja de su lista.",
+    "Cancellatemi dalla vostra lista.", "Não me envie mais emails.", "Graag uitschrijven, ik wil dit niet meer."];
+  for (const b of out) assert.equal(t("Re: hello", b), "unsubscribe", b);
+});
