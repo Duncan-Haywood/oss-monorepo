@@ -119,3 +119,20 @@ test("jointsOnStuds: 8 ft sheets on 16 in studs already land on framing from a w
   assert.equal(r.joints.naiveOffFraming, 0);
   assert.equal(r.sheets.count, layoutDrywall({}, p).sheets.count);
 });
+
+test("ceilingJoistSpacing: a 20 x 8 ft ceiling, 10 ft sheets, joists at 16 in: the naive joint at 120 in is off a joist, snapping cuts at 112 and 224 (hand count)", () => {
+  const p = plan([]);
+  const c = [{ width: 240, depth: 96 }];
+  const naive = layoutDrywall({ sheetLength: 120, ceiling: c, ceilingJoistSpacing: 16, jointsOnStuds: false }, p);
+  assert.deepEqual(naive.ceilingJoints, { total: 2, offFraming: 2, naiveOffFraming: 2 });
+  assert.equal(naive.sheets.count, 4);
+  // snapped: each of 2 courses cuts 112 + 112 + 16; the two 16 in pieces share a sheet, so 4 + 1
+  const on = layoutDrywall({ sheetLength: 120, ceiling: c, ceilingJoistSpacing: 16, jointsOnStuds: true }, p);
+  assert.deepEqual(on.ceilingJoints, { total: 4, offFraming: 0, naiveOffFraming: 2 });
+  assert.equal(on.sheets.count, 5);
+  // unset: no ceiling report, same sheets as before
+  const base = layoutDrywall({ sheetLength: 120, ceiling: c }, p);
+  assert.equal(base.ceilingJoints, null);
+  assert.equal(base.sheets.count, 4);
+  assert.ok(validateDrywall({ ceilingJoistSpacing: 20 }).length);
+});
