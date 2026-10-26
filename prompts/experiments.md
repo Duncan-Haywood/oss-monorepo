@@ -1446,3 +1446,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E93: review 2026-10-26 (reduced pass, twenty-first run)
+
+- Change: deleted `research/lowcomm-training/tests/test_lowcomm.py`, the
+  superseded numpy-model suite whose 7 tests failed on main
+  (`lowcomm.model.Config` no longer exists; three live friction reports);
+  `tests/test_harness.py` covers the torch harness. `prompts/review/prompt-1.md`
+  now says to run `derive.py fetch && build` as its own background command
+  (live friction: chaining it blew the 120 s tool timeout).
+- Metric: friction reports naming `prompts/review/prompt-1.md` about derive
+  timeouts, and `lowcomm-training/tests` reports; compare the next 3 days.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
