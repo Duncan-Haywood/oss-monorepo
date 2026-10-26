@@ -65,6 +65,9 @@ def main():
             except np.linalg.LinAlgError:
                 skipped += 1
                 continue
+            if not (np.isfinite(s3).all() and np.isfinite(sj).all() and np.isfinite(sd).all()):
+                skipped += 1  # a half-audit row with leverage 1 (degenerate group), like the singular-design drops
+                continue
             for j in range(len(NAMES)):
                 ratio["ins"][j].append(sj[j] / s3[j])
                 ratio["cf"][j].append(sd[j] / s3[j])
