@@ -215,6 +215,26 @@ export function cashFlowByMonth(entries, accounts, { from = null, to = null } = 
   return { months, recentBurn, recentRunwayMonths: recentBurn > 0 && cash > 0 ? Math.round((cash / recentBurn) * 10) / 10 : null };
 }
 
+// The ratios a lender or investor reads off the statements. Current assets are
+// the asset accounts below 1500 (cash, receivables, clearing, prepaid,
+// inventory); the quick ratio leaves out prepaid and inventory. Current
+// liabilities are every liability except the loan (2200), which is treated as
+// long term: a loan with a payment due this year is understated here. Each ratio
+// is null when its denominator is zero or negative, never a made-up number.
+export function ratios(pnl, bs) {
+  const sum = (list, pred) => list.filter(pred).reduce((a, r) => a + r.amount, 0);
+  const cur = sum(bs.assets, (r) => r.code < "1500"), quick = cur - sum(bs.assets, (r) => r.code === "1400" || r.code === "1450");
+  const curLiab = sum(bs.liabilities, (r) => r.code !== "2200");
+  const cogs = pnl.expense.filter((l) => l.code === "5000").reduce((a, l) => a + l.total, 0);
+  const rate = (n, d, k) => (d > 0 ? Math.round((n / d) * k) / k : null);
+  return {
+    grossMargin: rate(pnl.totalIncome - cogs, pnl.totalIncome, 1000), netMargin: rate(pnl.net, pnl.totalIncome, 1000),
+    currentAssets: cur, currentLiabilities: curLiab, workingCapital: cur - curLiab,
+    currentRatio: rate(cur, curLiab, 100), quickRatio: rate(quick, curLiab, 100),
+    debtToEquity: rate(bs.totalLiabilities, bs.totalEquity, 100),
+  };
+}
+
 // The ledger for one account: every line, with a running natural balance.
 export function accountLedger(entries, accounts, code) {
   const a = accountMap(accounts).get(code);

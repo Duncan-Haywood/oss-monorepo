@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { vatReturn, addAsset, taxableBusinessIncome, s179Carryforward, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
-import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts, cashFlow, cashFlowByMonth } from "./ledger.mjs";
+import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts, cashFlow, cashFlowByMonth, ratios, profitAndLoss, balanceSheet } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
 import { generateYear, toCsv } from "./eval/synth.mjs";
 import { runSeed } from "./eval/benchmark.mjs";
@@ -866,4 +866,23 @@ test("cashFlowByMonth gives each month's statement and a recent-burn runway that
   assert.equal(cashFlowByMonth([], acc, {}).recentRunwayMonths, null);
   const clipped = cashFlowByMonth(books, acc, { from: "2026-02-10", to: "2026-03-31" });
   assert.deepEqual(clipped.months.map((m) => m.operating), [-100000, -200000]);
+});
+
+test("ratios: margins, current and quick ratio, working capital, debt to equity", () => {
+  const acc = DEFAULT_ACCOUNTS;
+  const e = (id, debit, credit, amt) => ({ id, date: "2026-03-01", memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const entries = [e("a", "1000", "3010", 1000000), e("b", "1450", "2000", 200000), e("c", "1100", "4000", 500000), e("d", "5000", "1000", 100000), e("f", "1000", "2200", 300000)];
+  const r = ratios(profitAndLoss(entries, acc, {}), balanceSheet(entries, acc, {}));
+  assert.equal(r.grossMargin, 0.8);
+  assert.equal(r.netMargin, 0.8);
+  assert.equal(r.currentAssets, 1900000);
+  assert.equal(r.currentLiabilities, 200000, "the loan is long term");
+  assert.equal(r.currentRatio, 9.5);
+  assert.equal(r.quickRatio, 8.5, "inventory is left out");
+  assert.equal(r.workingCapital, 1700000);
+  assert.equal(r.debtToEquity, 0.36);
+  const none = ratios({ expense: [], totalIncome: 0, net: 0 }, { assets: [], liabilities: [], totalLiabilities: 0, totalEquity: 0 });
+  assert.equal(none.grossMargin, null);
+  assert.equal(none.currentRatio, null);
+  assert.equal(none.debtToEquity, null);
 });
