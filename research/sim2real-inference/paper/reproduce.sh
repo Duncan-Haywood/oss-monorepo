@@ -35,3 +35,4 @@ python3 experiments/m7l_predictor/predictor.py   # rho and sd ratio vs win (anal
 python3 experiments/m7m_threshold/threshold.py   # threshold on w_real / W_T (negative)
 python3 experiments/m7n_residual_width/residual_width.py && python3 experiments/m7n_residual_width/decomposition.py   # residual-interval width vs real-only (needs m7m threshold.csv)
 python3 experiments/m7o_ceiling/ceiling.py   # flip and power-scale check of the near-ceiling explanation
+python3 experiments/m7q_suresim_setting/suresim_setting.py   # SureSim's stated setting (alpha 0.1, n 60, N 700)
