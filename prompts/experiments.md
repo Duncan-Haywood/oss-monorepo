@@ -1404,3 +1404,19 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Metric: none new. E79 to E88 results stay open: too few runs since.
 - Decisions: no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E90: review 2026-10-26 (reduced pass, eighteenth run)
+
+- Change: none to prompts or docs. Regenerated `prompts/derived/`. Candidates
+  re-measured: ventures 2, process 2 and review 2 all "keep collecting"
+  (intervals overlap).
+- Finding, not fixed: `platform/pages/writing.mjs` `loadPosts` checks that a
+  post's date matches its file name but not that it is on or before today, so
+  the 30 posts in `docs/posts/` dated 2026-10-27 to 2026-10-29 are already in
+  the feed, Atom `<updated>` and `llms.txt`. Hiding them would drop 30 posts
+  from the site, which the owner's "more posts per day" direction argues
+  against, so this needs a decision: filter future dates, or keep and accept
+  that dates run ahead. Left as a one-line question for the next process run.
+- Metric: none new. E79 to E89 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
