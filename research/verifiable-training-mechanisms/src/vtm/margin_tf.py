@@ -81,7 +81,7 @@ def train(data, seed, steps=600, batch=32, ctx=32, lr0=0.5, strategy=None, tau=0
     params = list(model.parameters())
     order = np.random.default_rng(10_000 + seed)
     perm = np.random.default_rng(20_000 + seed)
-    cheated, norms, drifts = 0, [], []
+    cheated, norms, drifts, d_sub, d_stale = 0, [], [], [], []
     prev, prev_honest, chain, chains = None, False, 0, []
     for t in range(steps):
         idx = order.integers(0, len(tr) - ctx - 1, batch)
@@ -102,6 +102,8 @@ def train(data, seed, steps=600, batch=32, ctx=32, lr0=0.5, strategy=None, tau=0
             if record:
                 norms.append(step_norm)
                 drifts.append(lr * float((g - gr).norm()))
+                d_sub.append(lr * float((grad_vec(model, x[:batch // 4], y[:batch // 4]) - gr).norm()))
+                d_stale.append(lr * float((prev - gr).norm()) if prev is not None else float("inf"))
             if strategy == "skip" and lr * float(gr.norm()) <= tau:
                 cheated += 1
                 continue
@@ -121,4 +123,4 @@ def train(data, seed, steps=600, batch=32, ctx=32, lr0=0.5, strategy=None, tau=0
                 n = q.numel()
                 q -= lr * g[off:off + n].view_as(q)
                 off += n
-    return model, {"cheated": cheated / steps, "norms": norms, "drifts": drifts, "chains": chains + ([chain] if chain else [])}
+    return model, {"cheated": cheated / steps, "norms": norms, "drifts": drifts, "dist_subsample": d_sub, "dist_stale": d_stale, "chains": chains + ([chain] if chain else [])}
