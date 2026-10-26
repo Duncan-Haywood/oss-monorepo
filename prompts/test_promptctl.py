@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import random
 import tempfile
@@ -495,6 +497,16 @@ class BacklogTest(PromptTestCase):
         summary = promptctl.measure(self.fx.root)["backlog"]
         self.assertEqual(summary["counts"]["done"], 1)
         self.assertEqual(summary["done_unverified"], ["P004"])
+
+    def test_backlog_flags_blocked_items_and_points_to_critique(self):
+        self.put("P001-a.json", dict(_item("P001"), change="Blocked on P018 step 2. Then do x."))
+        self.assertTrue(promptctl.backlog_blocked(_item("P001", change="blocked on y")))
+        self.assertFalse(promptctl.backlog_blocked(_item("P002")))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            promptctl.print_backlog(self.fx.root)
+        self.assertIn("(blocked)", buf.getvalue())
+        self.assertIn("Critique mode", buf.getvalue())
 
     def test_bad_items_are_refused(self):
         cases = [
