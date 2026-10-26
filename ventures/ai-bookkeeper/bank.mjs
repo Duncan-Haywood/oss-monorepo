@@ -27,7 +27,7 @@ const ALIASES = {
     // Korean, Chinese
     "거래일자", "거래일시", "거래일", "기준일자", "交易日期", "记账日期", "記帳日期", "交易时间", "交易時間",
     // value dates last: German Valuta/Wertstellung are not the booking date
-    "created (utc)", "created", "created date (utc)", "created at", "timestamp",
+    "created (utc)", "created", "created date (utc)", "created at", "timestamp", "paid at", "transferred at",
     "wertstellung", "valuta", "date de valeur", "date valeur",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
@@ -813,13 +813,13 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // unsigned amount. Only when every value is in that vocabulary and no amount is
   // negative, so a card export's Sale/Return/Payment column is left alone.
   if (drcrCol === -1 && columns.amount !== -1 && headerAt !== -1) {
-    const DRCR = /^(debit|credit|withdrawal|deposit)$/i;
+    const DRCR = /^(debit|credit|withdrawal|deposit|income|expense)(-recurring)?$/i;
     const body = rows.slice(first).filter((r) => String(r[columns.date] ?? "").trim());
     const t = hdr0.findIndex((x) => /^(transaction type|trans type|type|debit or credit|credit or debit|dr or cr)$/.test(x));
     // A signed amount is fine when the sign follows the marker one way throughout (debits
     // negative, or debits positive as in Maybe's export); a mix is left to the amount's own sign.
     const neg = (r) => /^\s*[-(]|-\s*$/.test(String(r[columns.amount] ?? ""));
-    const out = (r) => /^(debit|withdrawal)$/i.test(String(r[t] ?? "").trim());
+    const out = (r) => /^(debit|withdrawal|expense)(-recurring)?$/i.test(String(r[t] ?? "").trim());
     const consistent = !body.some(neg) || body.every((r) => out(r) === neg(r)) || body.every((r) => out(r) === !neg(r));
     if (t !== -1 && body.length && consistent && body.every((r) => DRCR.test(String(r[t] ?? "").trim()))) drcrCol = t;
   }
@@ -878,7 +878,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
   const accountNames = new Set();
   const memoCols = hdr.map((x, ix) => (/^(memo|notes?|comments?|remarks)$/.test(x) && ix !== columns.desc ? ix : -1)).filter((ix) => ix !== -1);
-  const labelCols = ["reporting category", "category", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
+  const labelCols = ["reporting category", "category", "category name", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
   const catCol = hdr.indexOf("category") !== -1 && hdr.indexOf("category") !== columns.desc ? hdr.indexOf("category") : -1;
   const idCol = hdr.findIndex((x) => /^(balance transaction id|transaction id|txn id|reference id)$/.test(x));
   const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
@@ -926,8 +926,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();
-      if (/^(dr|d|debit|debet|af|soll|s|withdrawal)$/.test(m)) cents = -Math.abs(cents);
-      else if (/^(cr|c|k|credit|bij|haben|h|deposit)$/.test(m)) cents = Math.abs(cents);
+      if (/^(dr|d|debit|debet|af|soll|s|withdrawal|expense(-recurring)?)$/.test(m)) cents = -Math.abs(cents);
+      else if (/^(cr|c|k|credit|bij|haben|h|deposit|income(-recurring)?)$/.test(m)) cents = Math.abs(cents);
     }
     if (billSignCol !== -1) cents = /^cr$/i.test(String(r[billSignCol] ?? "").trim()) ? Math.abs(cents) : -Math.abs(cents);
     if (bank === "coinbase") {
