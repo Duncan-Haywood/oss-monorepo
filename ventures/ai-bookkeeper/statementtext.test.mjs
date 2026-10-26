@@ -58,3 +58,9 @@ test("imports through the engine and importing the same paste twice adds nothing
   assert.equal(a.added, 6);
   assert.equal(importStatement(a.books, fx("pasted-checking.txt"), "1000").added, 0);
 });
+
+test("pasted text with a stray 'Amount' heading but no date column still reads as a statement", () => {
+  const r = readStatement("Account activity,Amount\n15 Jan 2024 Coffee Shop 4.50 CR\n16 Jan 2024 Grocery 20.00 DR\n");
+  assert.equal(r.bank, "text");
+  assert.deepEqual(r.rows.map((x) => x.cents), [450, -2000]);
+});
