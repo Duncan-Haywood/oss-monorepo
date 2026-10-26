@@ -238,8 +238,9 @@ export function settle(booksIn) {
   const sign = (d) => (d.kind === "invoice" ? 1 : -1);
   const within = (d, t) => dayNum(t.date) >= dayNum(d.date) && dayNum(t.date) - dayNum(d.date) <= MATCH_DAYS;
   // A foreign document is paid in base currency at the bank's rate: close to the booked
-  // amount (within 3%) counts, but only with the number or party name in the description.
-  const near = (d, t) => d.currency && Math.sign(t.cents) === sign(d) && Math.abs(Math.abs(t.cents) - balance(d)) <= Math.max(100, Math.round(balance(d) * 0.03)) && within(d, t) && (hasNumber(t.desc, d.number) || partyHit(t.desc, d.party));
+  // amount (within 3%, or 10% once an earlier instalment was paid, since the rate may have
+  // moved between payments) counts, but only with the number or party name in the description.
+  const near = (d, t) => d.currency && Math.sign(t.cents) === sign(d) && Math.abs(Math.abs(t.cents) - balance(d)) <= Math.max(100, Math.round(balance(d) * (d.payments?.length ? 0.1 : 0.03))) && within(d, t) && (hasNumber(t.desc, d.number) || partyHit(t.desc, d.party));
   const fits = (d, t) => (t.cents === sign(d) * balance(d) && within(d, t)) || near(d, t);
   const control = (d) => (d.kind === "invoice" ? AR : AP);
   const pay = (d, t, cents) => {

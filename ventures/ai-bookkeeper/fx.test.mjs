@@ -215,3 +215,15 @@ test("a EUR vendor credit at another rate clears the bill exactly", () => {
   assert.equal(net(j, "2050"), 0); // payable cleared, nothing left to pay
   assert.equal(net(j, "6190"), 5000); // bill 550.00, credit 600.00: 50.00 loss
 });
+
+test("a EUR invoice paid in two USD instalments closes on the last, the rate gap is realized", () => {
+  const b = setRates(newBooks(), parseRates("2026-01-01,EUR,1.10").rates);
+  const r = addDocuments(b, "type,number,date,party,amount,account,currency\ninvoice,E1,2026-01-05,Client GmbH,1000.00,4000,EUR\n");
+  // 500.00 then 575.00: the second is 4.2% under the 600.00 still carried, outside the 3% a first payment gets
+  const b2 = addDocuments(importStatement(r.books, "Date,Description,Amount\n2026-02-03,WIRE CLIENT GMBH E1,500.00\n2026-02-20,WIRE CLIENT GMBH E1,575.00\n", "1000").books, "").books;
+  const j = journal(b2);
+  const net = (c) => j.flatMap((x) => x.lines).filter((l) => l.account === c).reduce((n, l) => n + l.debit - l.credit, 0);
+  assert.equal(net("1100"), 0);
+  assert.equal(net("6190"), 2500); // 1100.00 booked, 1075.00 received
+  assert.equal(aging(b2).receivable?.cents ?? 0, 0);
+});
