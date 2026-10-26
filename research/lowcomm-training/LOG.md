@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 4e: what does unbiased stochastic quantisation of the deltas cost, with and without error feedback? (planned before running)
+- Why: 4d's "Next". Sparsification is mapped (4a to 4d); the proposal's compression axis also lists quantisation. New compressor `quantise(levels)` (per-tensor max-abs scale, stochastic rounding, unbiased; `levels` 7 is a signed 4-bit code, 1 is ternary).
+- Design (`experiments/gpt_quantise/quantise.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, lr 2e-3, `H = 16`, plain outer step); arms q7, q1, q1 + error feedback; seeds 0 to 2 (9 runs). Comparator: uncompressed (3d).
+- **H4e-i:** q7 is within 0.02 nats of uncompressed on all 3 seeds. Refuted if any seed exceeds +0.02.
+- **H4e-ii:** q1 (no EF) has mean excess above +0.02. Refuted otherwise.
+- **H4e-iii:** error feedback does not reduce q1's mean excess (the quantiser is unbiased, so residuals add variance rather than fix bias). Refuted if EF lowers the mean by more than 0.01.
+- Prior: i yes (variance of 4-bit rounding is tiny); ii a coin flip; iii likely holds.
+- Limits: 3 seeds, one `H`, per-tensor scale, bytes not modelled.
+
 ## 2026-10-26 · Milestone 4d: where is the knee of error-feedback top-k between keep 1/16 and 1/256? (planned before running)
 - Why: 4c's "Next". EF top-k cost -0.005 at 1/16, +0.043 at 1/64, +0.121 at 1/256; two points below the knee leave its location and shape unresolved.
 - Design (`experiments/gpt_topk_ef_knee/topk_ef_knee.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); EF top-k at keep 1/32 and 1/128; seeds 0 to 2 (6 runs). Comparators: uncompressed (3d), 4b at 1/16, 4c at 1/64 and 1/256.
