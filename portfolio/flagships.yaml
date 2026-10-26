@@ -46,7 +46,7 @@ flagships:
       payment-processor import (`form1099k`: try a real 1099-K; Adyen: wanted a real settlement file); (4) a real
       supplier's terms letter checked against the fee and discount rules, and one
       named lender's own schedule against the loan register (`loan check`);
-      (5) receipts through real OCR (SROIE tesseract: totals 75%, dates 78%, merchants 37% (boxes 83% after bracketed registration numbers stripped, tesseract not re-measured), noise/GST/state lines now skipped; preprocessing all worse on flat scans; wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
+      (5) receipts through real OCR (SROIE tesseract: totals 75%, dates 78%, merchants 43% (boxes 83%, bracketed registration numbers stripped, re-measured on tesseract 2026-10-26), noise/GST/state lines now skipped; preprocessing all worse on flat scans; wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) one named
       filing service's import layout, from its own spec; (8) `salestax return`:
       due dates still from search excerpts or memory for the states the README
