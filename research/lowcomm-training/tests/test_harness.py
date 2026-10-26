@@ -144,3 +144,34 @@ def test_top_k_and_error_feedback():
     d = DiLoCo(m, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1, compress=top_k(0.5), error_feedback=True)
     d.round()
     assert any(float(e.abs().sum()) > 0 for e in d.ef[0])
+
+
+def test_median_aggregate_and_attack():
+    import torch
+    from lowcomm import DiLoCo
+    def mk():
+        torch.manual_seed(0)
+        return torch.nn.Linear(3, 1)
+    f = lambda m, rng: ((m(torch.randn(4, 3, generator=rng)) - 1) ** 2).mean()
+    sgd = lambda p: torch.optim.SGD(p, lr=1.0)
+    # one worker: the median is the delta itself, so it matches the mean
+    outs = []
+    for agg in ("mean", "median"):
+        m = mk()
+        d = DiLoCo(m, f, workers=1, H=3, outer=sgd, seed=1, aggregate=agg)
+        d.round()
+        outs.append([p.detach().clone() for p in m.parameters()])
+    assert all(torch.allclose(a, b, atol=1e-6) for a, b in zip(*outs))
+    # three workers, one attacker adding a huge offset: the mean moves with it, the median stays near the honest value
+    res = {}
+    for agg in ("mean", "median"):
+        for atk in (None, lambda d, j: d + 1e3 if j == 0 else d):
+            m = mk()
+            d = DiLoCo(m, f, workers=3, H=3, outer=sgd, seed=1, aggregate=agg, attack=atk)
+            d.round()
+            res[(agg, atk is not None)] = torch.cat([p.detach().flatten() for p in m.parameters()])
+    assert (res[("mean", True)] - res[("mean", False)]).abs().max() > 100
+    assert (res[("median", True)] - res[("median", False)]).abs().max() < 5
+    # even M: median is the mean of the two middle values
+    ds = torch.tensor([[1.0], [2.0], [10.0], [100.0]])
+    assert float(ds.sort(0).values[1:3].mean(0)) == 6.0

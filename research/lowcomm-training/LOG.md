@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 5a: does median aggregation of worker deltas pay on the real GPT, with and without one attacker? (planned before running)
+- Why: H5 in the proposal (robust aggregation) has only had the closed-form `robust-outer` result (median costs about pi/2 in variance). Nothing yet on the real transformer. 4e (quantisation, PR 10664) is another run's; this step is independent of it.
+- Engine change: `DiLoCo(aggregate="median", attack=fn)`; coordinate-wise median of the workers' deltas (mean of the two middle values at M = 4), and an attack hook replacing worker j's delta. Test: `test_median_aggregate_and_attack`.
+- Design (`experiments/gpt_median_attack/median_attack.py`): 3d setup (M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps); aggregation in {mean, median} x offset a in {0, 3}; attacker is worker 0, adding a x rms(its own per-tensor delta) to every coordinate; seeds 0 to 2 (12 runs). Comparator: 3d uncompressed on the same seeds.
+- **H5a-i:** with no attacker, median aggregation has a higher final loss than mean on all 3 seeds. Refuted if any seed has median at or below mean.
+- **H5a-ii:** with a = 3, median beats mean on all 3 seeds. Refuted if mean wins any seed.
+- Prior: i yes (small, under 0.03 nats); ii yes (the offset adds 3 x rms / 4 to every coordinate of the averaged delta, a large drift, while the median moves by about half that at most... so ii is likely but the margin is unknown).
+- Limits: 3 seeds, one attack shape and size, one `H`, M = 4 with one attacker (25%), attacker does not adapt, bytes not modelled; the loss cost is not the variance factor of the proposal's H5, so this does not test pi/2 directly.
+
 ## 2026-10-26 · Milestone 4d: where is the knee of error-feedback top-k between keep 1/16 and 1/256? (planned before running)
 - Why: 4c's "Next". EF top-k cost -0.005 at 1/16, +0.043 at 1/64, +0.121 at 1/256; two points below the knee leave its location and shape unresolved.
 - Design (`experiments/gpt_topk_ef_knee/topk_ef_knee.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); EF top-k at keep 1/32 and 1/128; seeds 0 to 2 (6 runs). Comparators: uncompressed (3d), 4b at 1/16, 4c at 1/64 and 1/256.
