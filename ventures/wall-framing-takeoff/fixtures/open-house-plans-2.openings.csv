@@ -1,0 +1,16 @@
+Type,Width (ft),Height (ft),Sill (ft),Quantity
+Bifold door,6,6.67,0,2
+Bifold door,2.5,6.67,0,1
+Cased opening,3.5,6.67,0,1
+"Entry door, insulated",3,6.67,0,1
+Exterior door,3,6.67,0,2
+"Garage door, sectional",16,7,0,1
+"Interior door, passage",3,6.67,0,1
+"Interior door, passage",2.67,6.67,0,3
+"Interior door, passage",2.5,6.67,0,3
+Window,4,3.5,4.166666666666667,1
+Window,3,3,4.666666666666667,2
+Window,3,6,1.666666666666667,3
+"Window, casement (egress)",3,5.5,2.166666666666667,7
+"Window, obscure glass",3,3,4.666666666666667,1
+"Window, obscure glass",2.5,3,4.666666666666667,1

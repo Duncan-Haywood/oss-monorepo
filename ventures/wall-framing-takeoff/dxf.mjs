@@ -16,16 +16,16 @@
 // applied and listed in `notes`. INSERT blocks (symbols) are counted, not read.
 
 /** @typedef {{ x: number, y: number }} Pt */
-/** @typedef {{ layer: string, a: Pt, b: Pt }} Seg */
+/** @typedef {{ layer: string, a: Pt, b: Pt, poly?: number }} Seg */
 
 /**
  * Parse an ASCII DXF into straight segments (inches are applied by the caller)
  * and the $INSUNITS header value.
  * @param {string} text
- * @returns {{ segs: Seg[], insunits: number, inserts: number, arcs: number, binary: boolean }}
+ * @returns {{ segs: Seg[], polys: { id: number, layer: string, pts: Pt[] }[], insunits: number, inserts: number, arcs: number, binary: boolean }}
  */
 export function parseDxf(text) {
-  if (text.startsWith("AutoCAD Binary DXF")) return { segs: [], insunits: 0, inserts: 0, arcs: 0, binary: true };
+  if (text.startsWith("AutoCAD Binary DXF")) return { segs: [], polys: [], insunits: 0, inserts: 0, arcs: 0, binary: true };
   const lines = text.split(/\r?\n/);
   /** @type {[number, string][]} */
   const pairs = [];
@@ -34,6 +34,8 @@ export function parseDxf(text) {
   for (let i = 0; i < pairs.length - 1; i++) if (pairs[i][0] === 9 && pairs[i][1] === "$INSUNITS") insunits = parseInt(pairs[i + 1][1], 10) || 0;
   /** @type {Seg[]} */
   const segs = [];
+  /** closed four-point polylines, kept whole so a wall drawn as a rectangle can be read as one */
+  const polys = [];
   let inserts = 0, arcs = 0, inEntities = false;
   let i = 0;
   while (i < pairs.length) {
@@ -54,7 +56,7 @@ export function parseDxf(text) {
     } else if (v === "LWPOLYLINE") {
       const pts = [];
       for (let k = 0; k < body.length; k++) if (body[k][0] === 10) pts.push({ x: parseFloat(body[k][1]), y: parseFloat(body.slice(k + 1).find((p) => p[0] === 20)?.[1] ?? "NaN") });
-      polySegs(segs, layer, pts, (parseInt(get(70) ?? "0", 10) & 1) === 1);
+      polySegs(segs, polys, layer, pts, (parseInt(get(70) ?? "0", 10) & 1) === 1);
     } else if (v === "POLYLINE") {
       const closed = (parseInt(get(70) ?? "0", 10) & 1) === 1;
       const pts = [];
@@ -67,19 +69,167 @@ export function parseDxf(text) {
         }
         k++;
       }
-      polySegs(segs, layer, pts, closed);
+      polySegs(segs, polys, layer, pts, closed);
       j = k;
     } else if (v === "INSERT") inserts++;
     else if (v === "ARC" || v === "CIRCLE") arcs++;
     i = j;
   }
-  return { segs, insunits, inserts, arcs, binary: false };
+  return { segs, polys, insunits, inserts, arcs, binary: false };
 }
 
-function polySegs(out, layer, pts, closed) {
+function polySegs(out, polys, layer, pts, closed) {
   const ok = pts.filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
-  for (let k = 0; k + 1 < ok.length; k++) out.push({ layer, a: ok[k], b: ok[k + 1] });
-  if (closed && ok.length > 2) out.push({ layer, a: ok[ok.length - 1], b: ok[0] });
+  let poly;
+  if (closed && ok.length === 4) { poly = polys.length; polys.push({ id: poly, layer, pts: ok }); }
+  for (let k = 0; k + 1 < ok.length; k++) out.push({ layer, a: ok[k], b: ok[k + 1], poly });
+  if (closed && ok.length > 2) out.push({ layer, a: ok[ok.length - 1], b: ok[0], poly });
+}
+
+/**
+ * Some generators (Open House Plans among them) draw each wall piece between
+ * openings as a closed rectangle. Read each rectangle 2.5 to 14 in thick and at
+ * as a centre line along its long axis. Where
+ * two rectangles overlap at a corner (each one's end-cap midpoint lies inside the
+ * other), both centre lines stop on the other's centre line, so a corner is
+ * centre to centre rather than overhanging by half a wall.
+ * @param {{ id: number, layer: string, pts: Pt[] }[]} polys inches
+ * @returns {{ rects: Seg[], ids: Set<number>, thickness: number }}
+ */
+export function rectWalls(polys) {
+  const items = [];
+  const sized = [];
+  for (const p of polys) {
+    const [a, b, c, d] = p.pts;
+    const e1 = { x: b.x - a.x, y: b.y - a.y }, e2 = { x: c.x - b.x, y: c.y - b.y };
+    const l1 = Math.hypot(e1.x, e1.y), l2 = Math.hypot(e2.x, e2.y);
+    if (!l1 || !l2 || Math.abs(e1.x * e2.x + e1.y * e2.y) / (l1 * l2) > 0.01) continue;
+    if (Math.hypot(d.x - (a.x + c.x - b.x), d.y - (a.y + c.y - b.y)) > 0.05) continue;
+    sized.push({ p, l1, l2 });
+  }
+  // A short piece (a stub beside a door, a mullion between windows) has no
+  // clear long axis: it runs along whichever side leaves a thickness the long
+  // pieces use.
+  const thick = sized.filter(({ l1, l2 }) => Math.max(l1, l2) >= 2.5 * Math.min(l1, l2) && Math.min(l1, l2) >= 2.5 && Math.min(l1, l2) <= 14).map(({ l1, l2 }) => Math.min(l1, l2));
+  const isThick = (x) => thick.some((q) => Math.abs(q - x) < 0.05);
+  const mid = (m, n) => ({ x: (m.x + n.x) / 2, y: (m.y + n.y) / 2 });
+  const build = (p, alongFirst, l1, l2) => {
+    const [a, b, c, d] = p.pts;
+    const t = alongFirst ? l2 : l1, L = alongFirst ? l1 : l2;
+    if (t < 2.5 || t > 14 || L < 1) return null;
+    const [u, v, w, z] = alongFirst ? [a, b, c, d] : [b, c, d, a]; // u->v and z->w run along the long axis
+    return { id: p.id, layer: p.layer, t, a: mid(u, z), b: mid(v, w), corners: p.pts };
+  };
+  const pending = [];
+  for (const { p, l1, l2 } of sized) {
+    // l1 runs along the first edge, so l2 is the thickness when the piece runs along it
+    const m1 = isThick(l2), m2 = isThick(l1);
+    if (m1 !== m2) { const it = build(p, m1, l1, l2); if (it) items.push(it); }
+    else if (Math.max(l1, l2) >= 1.5 * Math.min(l1, l2)) { const it = build(p, l1 >= l2, l1, l2); if (it) items.push(it); }
+    else pending.push([build(p, true, l1, l2), build(p, false, l1, l2)]);
+  }
+  // A post that fits both ways (4.5 by 6.5 between two windows) takes the axis of
+  // the piece it continues: one on the same line within 20 ft (a door or window gap).
+  const continues = (c) => items.some((o) => {
+    const ox = o.b.x - o.a.x, oy = o.b.y - o.a.y, oL = Math.hypot(ox, oy);
+    if (Math.abs((c.b.x - c.a.x) * oy - (c.b.y - c.a.y) * ox) > 0.01 * oL * Math.hypot(c.b.x - c.a.x, c.b.y - c.a.y)) return false;
+    if (Math.abs(((c.a.x - o.a.x) * -oy + (c.a.y - o.a.y) * ox) / oL) > 0.75) return false;
+    return [c.a, c.b].some((q) => [o.a, o.b].some((r) => Math.hypot(q.x - r.x, q.y - r.y) <= 240));
+  });
+  for (const [x, y] of pending) {
+    const cx = x && continues(x), cy = y && continues(y);
+    if (cx !== cy) items.push(cx ? x : y);
+  }
+  const inside = (pt, it, margin) => {
+    const dx = it.b.x - it.a.x, dy = it.b.y - it.a.y, L = Math.hypot(dx, dy);
+    const along = ((pt.x - it.a.x) * dx + (pt.y - it.a.y) * dy) / L;
+    const across = Math.abs(((pt.x - it.a.x) * -dy + (pt.y - it.a.y) * dx) / L);
+    return along > margin && along < L - margin && across < it.t / 2 - margin;
+  };
+  const cross = (p, q, r, s) => {
+    const d1 = { x: q.x - p.x, y: q.y - p.y }, d2 = { x: s.x - r.x, y: s.y - r.y };
+    const den = d1.x * d2.y - d1.y * d2.x;
+    if (Math.abs(den) < 1e-9) return null;
+    const t = ((r.x - p.x) * d2.y - (r.y - p.y) * d2.x) / den;
+    return { x: p.x + t * d1.x, y: p.y + t * d1.y };
+  };
+  const out = items.map((it) => ({ ...it, na: it.a, nb: it.b }));
+  for (const it of out) for (const o of out) {
+    if (it === o) continue;
+    for (const end of ["a", "b"]) for (const oend of ["a", "b"]) {
+      if (inside(it[end], o, 0.1) && inside(o[oend], it, 0.1)) {
+        const P = cross(it.a, it.b, o.a, o.b);
+        if (P) it[end === "a" ? "na" : "nb"] = P;
+      }
+    }
+  }
+  return {
+    rects: out.map((it) => ({ layer: it.layer, a: it.na, b: it.nb })),
+    ids: new Set(out.map((it) => it.id)),
+    thickness: out.length ? out.reduce((t, it) => t + it.t, 0) / out.length : 0,
+  };
+}
+
+/**
+ * Walls drawn as separate pieces with a gap between them have an opening there:
+ * a door when a door-layer line touches the gap, a window for a window-layer one.
+ * Collinear centre lines on the same axis are walked in order; a gap wider than
+ * `minGap` and no wider than `maxGap` with such a line inside becomes a bridging
+ * centre line plus the opening. Door and window lines it explains are returned
+ * so the line-based opening pass does not count them twice.
+ * @param {Seg[]} centres
+ * @param {Seg[]} bar door and window layer lines
+ * @param {RegExp} doorLayer
+ * @param {{ minGap: number, maxGap: number, thickness: number }} o
+ */
+export function bridgeGaps(centres, bar, doorLayer, o) {
+  const groups = [];
+  for (const s of centres) {
+    const L = dist(s.a, s.b);
+    if (L < 1e-6) continue;
+    let dx = (s.b.x - s.a.x) / L, dy = (s.b.y - s.a.y) / L;
+    if (dx < -1e-9 || (Math.abs(dx) <= 1e-9 && dy < 0)) { dx = -dx; dy = -dy; }
+    const off = s.a.x * -dy + s.a.y * dx;
+    let g = groups.find((q) => Math.abs(q.dx * dy - q.dy * dx) < 0.01 && Math.abs(q.off - off) < 0.75);
+    if (!g) groups.push(g = { dx, dy, off, spans: [] });
+    const t0 = s.a.x * dx + s.a.y * dy, t1 = s.b.x * dx + s.b.y * dy;
+    g.spans.push([Math.min(t0, t1), Math.max(t0, t1)]);
+  }
+  /** @type {Seg[]} */
+  const bridges = [];
+  /** @type {{ a: Pt, b: Pt, kind: string }[]} */
+  const openings = [];
+  const used = new Set();
+  const half = o.thickness / 2 + 1;
+  for (const g of groups) {
+    g.spans.sort((p, q) => p[0] - q[0]);
+    let end = g.spans[0][1];
+    for (const sp of g.spans.slice(1)) {
+      const gap = sp[0] - end;
+      if (gap > 1 && gap >= o.minGap && gap <= o.maxGap) {
+        const hits = bar.filter((s) => {
+          const onAxis = [s.a, s.b, { x: (s.a.x + s.b.x) / 2, y: (s.a.y + s.b.y) / 2 }].some((pt) => {
+            const along = pt.x * g.dx + pt.y * g.dy, across = pt.x * -g.dy + pt.y * g.dx - g.off;
+            return along >= end - 1 && along <= sp[0] + 1 && Math.abs(across) <= half;
+          });
+          if (onAxis) return true;
+          // a garage door is one line inside the wall line, running most of the gap
+          const t0 = s.a.x * g.dx + s.a.y * g.dy, t1 = s.b.x * g.dx + s.b.y * g.dy;
+          const a0 = s.a.x * -g.dy + s.a.y * g.dx - g.off, a1 = s.b.x * -g.dy + s.b.y * g.dx - g.off;
+          return Math.abs(a0 - a1) < 0.1 && Math.abs(a0) <= o.thickness + 2 &&
+            Math.min(Math.max(t0, t1), sp[0]) - Math.max(Math.min(t0, t1), end) >= 0.8 * gap;
+        });
+        if (hits.length) {
+          const at = (t) => ({ x: t * g.dx + g.off * -g.dy, y: t * g.dy + g.off * g.dx });
+          bridges.push({ layer: "bridge", a: at(end), b: at(sp[0]) });
+          openings.push({ a: at(end), b: at(sp[0]), kind: hits.some((s) => doorLayer.test(s.layer)) ? "door" : "window" });
+          for (const s of hits) used.add(s);
+        }
+      }
+      end = Math.max(end, sp[1]);
+    }
+  }
+  return { bridges, openings, used };
 }
 
 const UNIT_IN = { 1: 1, 2: 12, 4: 1 / 25.4, 5: 1 / 2.54, 6: 100 / 2.54 };
@@ -201,9 +351,25 @@ export function planFromDxf(text, opt = {}) {
   else if (UNIT_IN[parsed.insunits]) { scale = UNIT_IN[parsed.insunits]; notes.push(`Drawing units read from the file: ${UNIT_NAME[parsed.insunits]}.`); }
   else { scale = 1; notes.push("The file does not say its units ($INSUNITS is 0 or absent); read as inches. Pass units to override and check one wall length."); }
   if (!scale) return { ok: false, errors: [`Unknown units "${opt.units}" (in, ft, mm, cm, m).`], notes };
-  const sc = (s) => ({ layer: s.layer, a: { x: s.a.x * scale, y: s.a.y * scale }, b: { x: s.b.x * scale, y: s.b.y * scale } });
+  const sc = (s) => ({ layer: s.layer, poly: s.poly, a: { x: s.a.x * scale, y: s.a.y * scale }, b: { x: s.b.x * scale, y: s.b.y * scale } });
   const all = parsed.segs.map(sc);
-  const wallSegs = all.filter((s) => wallLayer.test(s.layer));
+  let wallSegs = all.filter((s) => wallLayer.test(s.layer));
+  const polysIn = parsed.polys.filter((p) => wallLayer.test(p.layer)).map((p) => ({ ...p, pts: p.pts.map((q) => ({ x: q.x * scale, y: q.y * scale })) }));
+  const rw = rectWalls(polysIn);
+  /** @type {{ a: Pt, b: Pt, kind: string }[]} */
+  let bridgeOps = [];
+  let usedBar = new Set();
+  const barLines = all.filter((s) => doorLayer.test(s.layer) || windowLayer.test(s.layer));
+  let rectMode = false;
+  if (rw.rects.length >= 3 && rw.rects.length >= 0.6 * new Set(wallSegs.map((s) => s.poly ?? `l${s.a.x},${s.a.y}`)).size) {
+    rectMode = true;
+    wallSegs = [...wallSegs.filter((s) => s.poly === undefined || !rw.ids.has(s.poly)), ...rw.rects];
+    const br = bridgeGaps(rw.rects, barLines, doorLayer, { minGap: 12, maxGap: 240, thickness: rw.thickness });
+    wallSegs.push(...br.bridges);
+    bridgeOps = br.openings;
+    usedBar = br.used;
+    notes.push(`Rectangle walls: ${rw.rects.length} wall piece${rw.rects.length === 1 ? "" : "s"} drawn as closed rectangles (mean thickness ${Math.round(rw.thickness * 10) / 10} in) read as centre lines, ${bridgeOps.length} gap${bridgeOps.length === 1 ? "" : "s"} between pieces bridged and read as openings (${bridgeOps.filter((b) => b.kind === "door").length} door, ${bridgeOps.filter((b) => b.kind === "window").length} window), widths from the gap. Corners are centre to centre.`);
+  }
   if (!wallSegs.length) {
     const layers = [...new Set(all.map((s) => s.layer))];
     return { ok: false, errors: [`No lines on a layer matching ${wallLayer}. Layers with lines: ${layers.join(", ") || "none"}.`], notes };
@@ -213,7 +379,8 @@ export function planFromDxf(text, opt = {}) {
 
   let centreSegs = wallSegs, snapW = snap;
   const dl = opt.doubleLine ?? "auto";
-  if (dl !== false) {
+  if (rectMode) snapW = Math.max(snap, rw.thickness / 2 + 0.75);
+  else if (dl !== false) {
     const r = pairDoubleLines(wallSegs, { minT: 2.5, maxT: 14, angTol: 0.5 * Math.PI / 180 });
     const total = r.pairs + r.single;
     if (dl === true ? r.pairs > 0 : r.pairs >= 3 && r.pairs >= 0.6 * total) {
@@ -338,8 +505,8 @@ export function planFromDxf(text, opt = {}) {
   // Openings: lines on door/window layers lying along a wall.
   let placed = 0;
   const unplaced = [];
-  const bar = [...all.filter((s) => doorLayer.test(s.layer) || windowLayer.test(s.layer))];
-  const op = mergeCollinear(bar.map((s) => ({ ...s })), 0.5 * Math.PI / 180, snap, 0.5);
+  const bar = barLines.filter((s) => !usedBar.has(s));
+  const op = [...mergeCollinear(bar.map((s) => ({ ...s })), 0.5 * Math.PI / 180, snap, 0.5), ...bridgeOps];
   for (const s of bar) s.layer; // layers kept per original segment below
   const kindOf = (mid) => {
     let best = null;
@@ -361,12 +528,12 @@ export function planFromDxf(text, opt = {}) {
       if (h < hd) { hd = h; host = k; }
     }
     const width = r16(dist(o.a, o.b));
-    if (host < 0) { unplaced.push(`${width} in ${kindOf(mid)}`); continue; }
+    if (host < 0) { unplaced.push(`${width} in ${o.kind ?? kindOf(mid)}`); continue; }
     const n = idx.get(host), W = walls[host], L = dist(W.a, W.b);
     const p0 = param(W, o.a), p1 = param(W, o.b);
     const lo = Math.min(p0, p1), hi = Math.max(p0, p1);
     const off = r16(order[n].flip ? L - hi : lo);
-    const kind = kindOf(mid);
+    const kind = o.kind ?? kindOf(mid);
     counts[kind]++;
     const height = kind === "door" ? (opt.doorHeight ?? 82.5) : (opt.windowHeight ?? 48);
     (out[n].openings ||= []).push({ kind, label: `${kind === "door" ? "Door" : "Window"} ${counts[kind]}`, offset: Math.max(0, off), width, height, header: opt.header ?? "2x10" });
