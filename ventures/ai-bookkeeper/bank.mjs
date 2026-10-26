@@ -748,6 +748,13 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // A general-ledger journal (Xero's Journal Report) lists both sides of each entry: not a bank statement.
   if (rows[0]?.some((h) => /^journal ?number$/i.test(String(h).trim())) && rows[0].some((h) => /^journal ?date$/i.test(String(h).trim())))
     return { rows: [], problems: ["This is an accounting journal export (it has JournalNumber and JournalDate columns, with both sides of each entry), not a bank statement. Import the bank's own file instead."], columns: null };
+  // Coinbase's older account history (Timestamp, Balance, Amount, Currency) counts coins, not dollars: 0.5 BTC would book as 50 cents.
+  {
+    const h = rows[0]?.map((x) => String(x).trim().toLowerCase()) || [];
+    const ci = h.indexOf("currency");
+    if (ci !== -1 && h.includes("timestamp") && h.includes("amount") && h.includes("balance") && rows.slice(1, 50).some((r) => /^(BTC|ETH|LTC|BCH|USDC|XRP|DOGE|SOL|ADA|DOT)$/i.test(String(r[ci] || "").trim())))
+      return { rows: [], problems: ["This is a crypto account history (Timestamp, Balance, Amount and Currency columns holding coins such as BTC), not a cash statement: the amounts are coin units, not dollars. Export the transaction report with USD totals or the bank's own file instead."], columns: null };
+  }
   // A header-less file with a few lines of account summary above the data: drop leading rows until the rest has a layout.
   const hasHeader = (r) => { if (r.length < 2) return false; const c = detectColumns(r); return c.date !== -1 && (c.amount !== -1 || c.debit !== -1 || c.credit !== -1); };
   if (!rows.some(hasHeader) && !headerlessLayout(rows)) {
