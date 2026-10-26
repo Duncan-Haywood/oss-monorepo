@@ -131,3 +131,19 @@ test("insulation with no price anywhere is listed as unpriced; the plan's price 
   const w = priced.lines.find((l) => l.item === "Wall cavity insulation bags");
   assert.equal(w.unitPrice, 12);
 });
+
+test("labor lines for drywall sheets and insulation bags use the typed rates, and need a labor rate to appear", () => {
+  const plan = { ...full({ drywallSheet: 10, insulationBag: 20, laborDrywallSheet: 15, laborInsulationBag: 4 }), drywall: { ceiling: [{ width: 480, depth: 336 }] }, insulation: { rim: true, attic: { bagCuFt: 40, price: 30 } } };
+  const b = bud(plan);
+  const dw = b.lines.find((l) => l.item === "Drywall sheets");
+  const ldw = b.lines.find((l) => l.item === "Drywall hanging and finishing");
+  assert.equal(ldw.qty, dw.qty);
+  assert.equal(ldw.amount, +(dw.qty * 15).toFixed(2));
+  const bags = b.lines.filter((l) => l.section === "Insulation").reduce((s, l) => s + l.qty, 0);
+  const lin = b.lines.find((l) => l.item === "Insulation installation");
+  assert.equal(lin.qty, bags);
+  assert.equal(lin.amount, +(bags * 4).toFixed(2));
+  assert.equal(b.labor, +(b.sections.find((s) => s.name === "Labor").subtotal).toFixed(2));
+  const none = bud({ ...plan, prices: { drywallSheet: 10 } });
+  assert.ok(!none.lines.some((l) => l.section === "Labor"));
+});
