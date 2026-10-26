@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01GEC8mQqaPSw18JEnGtYqBN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "model": "claude-sonnet-5-5",
+  "pr": 10739,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {"file": "prompts/routing.json", "issue": "Router drew research while the scheduled prompt asked for revenue ventures; followed the prompt and the flagship list."}
+  ],
+  "deviations": [
+    {"file": "prompts/promptctl.py", "why": "Ran the venture track although promptctl route drew research."}
+  ],
+  "writeups": ["docs/posts/2026-10-26-einvoice-preflight-brazil.md"],
+  "notes": "Brazil NF-e page + brazil.mjs CNPJ/CPF check (alphanumeric CNPJ). WebFetch could not reach the notice sites, so facts are from web-search excerpts and stated so on the page. Blind spot measured: digit-for-digit never missed; 24/420 and 27/420 with letters. Checks: node --test brazil*.test.mjs e-invoicing-mandates-by-country.test.mjs (20 pass); widget in headless Chromium over http, no page errors.",
+  "corrections": []
+}
