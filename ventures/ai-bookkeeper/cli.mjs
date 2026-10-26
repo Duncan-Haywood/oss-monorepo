@@ -23,6 +23,7 @@ import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, import
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax } from "./estimatedtax.mjs";
+import { addProject, tagProject as tagProjectLines, projectReport, projectCsv, projectMoney } from "./projects.mjs";
 import { addRentalAccounts, addProperty, tagProperty, scheduleE, scheduleECsv } from "./rental.mjs";
 import { bNoticeDates, seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
@@ -79,6 +80,8 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   trip add MILES --date D --purpose TEXT [--from A --to B] | trip list [--year Y] | trip remove ID   the business mileage log (goes to Schedule C line 9 with --year)
   homeoffice SQFT [--from D --to D]     simplified home office ($5 a sq ft, 300 max; 0 removes it); line 30 with schedulec --year
   rental accounts | add ID [NAME...] | tag ID (--match TEXT|--account CODE|--ids A,B) | untag (same) | list   rental properties; tag bank lines to a property
+  project add ID [NAME...] | tag ID (--match TEXT|--account CODE|--ids A,B|--docs INV-1,BILL-2) | untag (same) | list   projects (jobs, classes): tag bank lines and invoices to one
+  projects [--from D --to D] [--csv|--json]  profit and loss per project: revenue, cost, net and margin, with what is untagged
   schedulee [--from D --to D] [--csv|--json]  the books on US Schedule E Part I lines, one column per property (a worksheet, not a filing)
   schedulec [--year Y] [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   estimate [--year Y] [--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $] [--paid $] [--prior-tax $ --prior-agi $] [--as-of D] [--no-qbi] [--json]  federal income tax plus SE tax and a safe-harbour 1040-ES payment plan (worksheet)
@@ -693,6 +696,27 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       if (!(books.properties ?? []).length) console.log("  No properties. rental add oak 12 Oak St");
     } else throw new Error("rental accounts | add ID [NAME] | tag ID --match TEXT | untag --match TEXT | list");
   } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "project") {
+  try {
+    const sub = rest[0];
+    if (sub === "add") { books = addProject(books, { id: rest[1], name: rest.slice(2).join(" ") }); save(); console.log(`Project ${rest[1]} saved.`); }
+    else if (sub === "tag" || sub === "untag") {
+      const ids = flag("--ids"), match = flag("--match"), account = flag("--account"), docs = flag("--docs");
+      const r = tagProjectLines(books, sub === "tag" ? rest[1] : null, { ids: ids ? ids.split(",") : null, match, account, docs: docs ? docs.split(",") : null });
+      books = r.books; save(); console.log(`${r.tagged} item${r.tagged === 1 ? "" : "s"} ${sub === "tag" ? `tagged ${rest[1]}` : "untagged"}.`);
+    } else if (sub === "list" || !sub) {
+      for (const p of books.projects ?? []) console.log(`  ${p.id.padEnd(14)} ${p.name}  (${books.transactions.filter((t) => t.project === p.id).length} tagged lines, ${(books.documents ?? []).filter((d) => d.project === p.id).length} documents)`);
+      if (!(books.projects ?? []).length) console.log("  No projects. project add kitchen Kitchen reno");
+    } else throw new Error("project add ID [NAME] | tag ID --match TEXT | untag --match TEXT | list");
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "projects") {
+  const r = projectReport(books, { from, to });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  if (has("--csv")) { process.stdout.write(projectCsv(r)); process.exit(0); }
+  console.log(`PROFIT AND LOSS BY PROJECT${from || to ? ` ${from ?? ""}..${to ?? ""}` : ""}`);
+  for (const p of r.projects) console.log(`  ${p.name.padEnd(24)} revenue ${projectMoney(p.revenue).padStart(12)}  cost ${projectMoney(p.cost).padStart(12)}  net ${projectMoney(p.net).padStart(12)}  ${p.margin === null ? "" : `${(p.margin * 100).toFixed(1)}%`}`);
+  console.log(`  ${"Total".padEnd(24)} revenue ${projectMoney(r.total.revenue).padStart(12)}  cost ${projectMoney(r.total.cost).padStart(12)}  net ${projectMoney(r.total.net).padStart(12)}`);
+  for (const w of r.warnings) console.log(`  ! ${w}`);
 } else if (cmd === "schedulee") {
   const se = scheduleE(books, { from, to });
   if (json) { console.log(JSON.stringify(se, null, 2)); process.exit(0); }
