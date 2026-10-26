@@ -1,6 +1,8 @@
 ---
 title: "An off-the-shelf solver says our shift scheduler leaves hours on the table"
 date: 2026-10-26
+description: "An open-source ILP solver proved optimal rosters on 12 seeded weeks in under a second; our shift scheduler missed the best by 1-2 hours on five."
+tags: [shift-roster-builder, ilp, testing]
 ---
 
 shift-roster-builder claims to prove how close its rosters are to the best possible. On bigger weeks it often could not: for one seeded 8-person, 22-shift week it said "35 hours open at the very least" while its own roster left 36, and twenty times more search changed nothing.
