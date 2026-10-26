@@ -1,7 +1,7 @@
 ---
 title: "A euro credit note that left the receivable 10 dollars short"
 date: 2026-10-26
-description: "ai-bookkeeper applied a EUR credit note to a EUR invoice in dollars, so the books never cleared. It now applies the credit in euros and books the rate gap as a realized exchange entry."
+description: "ai-bookkeeper applied a EUR credit note to a EUR invoice in dollars, so the books never cleared. It now credits in euros and books the rate gap to 6190."
 tags: [accounting, ai-bookkeeper, fx]
 ---
 
