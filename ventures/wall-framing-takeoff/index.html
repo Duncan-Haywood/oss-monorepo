@@ -140,6 +140,17 @@
       <div><label for="dwJoist">Ceiling joist spacing (with snapping, cuts ceiling sheet ends back to a joist)</label><select id="dwJoist"><option value="">Not set</option><option value="12">12 in</option><option value="16">16 in</option><option value="19.2">19.2 in</option><option value="24">24 in</option></select></div>
       <div><label for="dwPrice">Price per sheet (blank: none)</label><input id="dwPrice" type="number" min="0" step="0.01" placeholder="e.g. 16"></div>
     </div>
+    <p><input type="checkbox" id="inOn" style="width:auto"> <label for="inOn" style="display:inline">Also count insulation (open wall cavities from the framing placed, less openings; optional rim joist bays and attic loose fill; figures from the bag label)</label></p>
+    <div class="grid" id="inFields" hidden>
+      <div><label for="inBag">Wall bag coverage (sq ft per bag; blank: 88)</label><input id="inBag" type="number" min="10" max="500" step="1" placeholder="88"></div>
+      <div><label for="inWaste">Waste (fraction; blank: 0.05)</label><input id="inWaste" type="number" min="0" max="0.3" step="0.01" placeholder="0.05"></div>
+      <div><label for="inR">Wall R-value (blank: R-15 for 2x4, R-21 for 2x6)</label><input id="inR" type="number" min="1" max="60" step="1" placeholder="15"></div>
+      <div><label for="inPrice">Price per bag (blank: none)</label><input id="inPrice" type="number" min="0" step="0.01" placeholder="e.g. 60"></div>
+      <div><label for="inRim">Rim joist bays (needs the floor option)</label><select id="inRim"><option value="">Not counted</option><option value="true">Count front and back rim bays</option></select></div>
+      <div><label for="inAtticR">Attic loose fill target R-value (blank: no attic)</label><input id="inAtticR" type="number" min="10" max="80" step="1" placeholder="e.g. 38"></div>
+      <div><label for="inAtticPer">Attic R per inch (read it from the bag chart; blank: 2.5, assumed)</label><input id="inAtticPer" type="number" min="1" max="8" step="0.1" placeholder="2.5"></div>
+      <div><label for="inAtticBag">Attic bag volume (cu ft; blank: no bag count)</label><input id="inAtticBag" type="number" min="0" step="0.1" placeholder="e.g. 40"></div>
+    </div>
     <div class="grid" id="fnFields" hidden>
       <div><label for="fnType">Type</label><select id="fnType"><option value="stem" selected>footing + stem wall + slab</option><option value="monolithic">monolithic slab, thickened edge</option></select></div>
       <div><label for="fnW">Footing outside width</label><input id="fnW" value="40 ft"></div>
@@ -210,6 +221,11 @@
     <div id="drywallOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-insulation" id="insulationCard" hidden>
+    <h2 id="h-insulation">Insulation</h2>
+    <div id="insulationOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-schedule" id="scheduleCard">
     <h2 id="h-schedule">Build schedule (critical path)</h2>
     <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather are not modelled.</p>
@@ -271,7 +287,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -286,6 +302,7 @@
     import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
     import { layoutFoundation, foundationText } from "./foundation.mjs";
     import { layoutDrywall, drywallText } from "./drywall.mjs";
+    import { layoutInsulation, insulationText } from "./insulation.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
     import { schedule, scheduleText, sampleSchedule } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
@@ -419,6 +436,20 @@
         if ($("#dwJoist").value) dw.ceilingJoistSpacing = Number($("#dwJoist").value);
         if ($("#dwPrice").value.trim()) dw.price = Number($("#dwPrice").value);
         plan.drywall = dw;
+      }
+      if ($("#inOn").checked) {
+        const ins = {};
+        if ($("#inBag").value.trim()) ins.bagSqFt = Number($("#inBag").value);
+        if ($("#inWaste").value.trim()) ins.waste = Number($("#inWaste").value);
+        if ($("#inR").value.trim()) ins.rValue = Number($("#inR").value);
+        if ($("#inPrice").value.trim()) ins.price = Number($("#inPrice").value);
+        if ($("#inRim").value) ins.rim = true;
+        if ($("#inAtticR").value.trim()) {
+          ins.attic = { rValue: Number($("#inAtticR").value) };
+          if ($("#inAtticPer").value.trim()) ins.attic.rPerInch = Number($("#inAtticPer").value);
+          if ($("#inAtticBag").value.trim()) ins.attic.bagCuFt = Number($("#inAtticBag").value);
+        }
+        plan.insulation = ins;
       }
       if ($("#fnOn").checked) {
         const fn = { id: "Foundation", type: $("#fnType").value, width: L($("#fnW").value, "foundation width"), depth: L($("#fnD").value, "foundation depth"), footing: { width: Number($("#fnFootW").value), depth: Number($("#fnFootD").value) }, slab: { thickness: Number($("#fnSlab").value) } };
@@ -568,6 +599,11 @@
       if (!dw) return;
       $("#drywallOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(drywallText(dw).join("\n"))}</pre><p class="note">Sheets only, counted from the wall faces in the wall list. A wall marked unsheathed is treated as a partition with drywall on both sides. Screws and compound are rates, not schedules; tape is measured from the seams and the wall-to-ceiling angle. Corner bead is counted around openings (both jambs and the head); free wall ends count only where you set Free ends on a wall; ceiling steps and trim are not counted.</p>`;
     }
+    function renderInsulation(ins) {
+      $("#insulationCard").hidden = !ins;
+      if (!ins) return;
+      $("#insulationOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(insulationText(ins).join("\n"))}</pre><p class="note">Open cavity is the wall panel area less every framing member placed and each opening's rough area. Bag coverage and R-values are the figures you type from the label; they are not checked against a real insulation order. Not in the budget table above.</p>`;
+    }
     function renderFoundation(fn) {
       $("#foundationCard").hidden = !fn;
       if (!fn) return;
@@ -635,7 +671,12 @@
         last = null; showWall();
         return false;
       }
-      last = { plan, result, nailers, floor, roof, foundation, drywall };
+      let insulation = null;
+      if (plan.insulation) {
+        try { insulation = layoutInsulation(plan.insulation, plan, result); } catch (e) { insulation = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        if (!insulation.ok) { $("#errors").innerHTML = `<ul>${insulation.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#insulationCard").hidden = true; return false; }
+      }
+      last = { plan, result, nailers, floor, roof, foundation, drywall, insulation };
       const s = result.summary;
       const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
@@ -654,6 +695,7 @@
       renderRoof(roof);
       renderFoundation(foundation);
       renderDrywall(drywall);
+      renderInsulation(insulation);
       renderSheathing(plan, result);
       renderBudget();
       const prev = $("#wallPick").value;
@@ -688,6 +730,15 @@
         $("#dwJoints").value = typeof dw.jointsOnStuds === "boolean" ? String(dw.jointsOnStuds) : "";
         $("#dwJoist").value = dw.ceilingJoistSpacing != null ? String(dw.ceilingJoistSpacing) : "";
         $("#dwPrice").value = dw.price != null ? String(dw.price) : "";
+      }
+      const ins = plan.insulation;
+      $("#inOn").checked = Boolean(ins); $("#inFields").hidden = !ins;
+      if (ins) {
+        $("#inBag").value = ins.bagSqFt != null ? String(ins.bagSqFt) : ""; $("#inWaste").value = ins.waste != null ? String(ins.waste) : "";
+        $("#inR").value = ins.rValue != null ? String(ins.rValue) : ""; $("#inPrice").value = ins.price != null ? String(ins.price) : "";
+        $("#inRim").value = ins.rim ? "true" : "";
+        $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
+        $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
       }
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
@@ -799,6 +850,7 @@
     $("#rfShape").addEventListener("change", () => { $("#rfHipBox").hidden = $("#rfShape").value !== "hip"; syncWing(); });
     $("#rfWing").addEventListener("change", syncWing);
     $("#rfWing2").addEventListener("change", syncWing);
+    $("#inOn").addEventListener("change", () => { $("#inFields").hidden = !$("#inOn").checked; if ($("#inOn").checked) record("insulation_on"); });
     $("#dwOn").addEventListener("change", () => { $("#dwFields").hidden = !$("#dwOn").checked; if ($("#dwOn").checked) record("drywall_on"); });
     $("#fnOn").addEventListener("change", () => { $("#fnFields").hidden = !$("#fnOn").checked; if ($("#fnOn").checked) record("foundation_on"); });
     $("#schedEx").addEventListener("click", () => { $("#schedIn").value = JSON.stringify(sampleSchedule(), null, 2); $("#schedOut").innerHTML = ""; record("schedule_example_loaded"); });
