@@ -20,3 +20,10 @@ test("flatex 'Buchungsinformationen' is the description", () => {
   assert.match(r.rows[0].desc, /Gebühren/);
   assert.equal(r.rows[1].cents, 167250);
 });
+
+test("LBB Amazon-card CSV (no header, card number first, semicolons) reads every row", () => {
+  const csv = "1111222233330000;28.12.2012;28.12.2012;ABGELTUNGSSTEUER;;;-0,17\n1111222233330000;21.01.2013;18.01.2013;HANDYTANKSTELLE;;;-15,00\n1111222233330000;25.01.2013;25.01.2013;GUTHABENZINSEN;;;0,67\n1111222233334444;07.01.2013;06.01.2013;AMAZON.ES COMPRA / amazon.es/ay;;;-30,00\n";
+  const r = readStatement(csv);
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents]), [["2012-12-28", -17], ["2013-01-21", -1500], ["2013-01-25", 67], ["2013-01-07", -3000]]);
+  assert.equal(r.rows[3].desc, "AMAZON.ES COMPRA / amazon.es/ay");
+});
