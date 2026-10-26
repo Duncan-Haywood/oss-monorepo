@@ -10,6 +10,14 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Prior: i 60% (a stretch could also hurt, via larger steps), ii 65%.
 - Limits: 3 seeds; no direct measure of the order-statistic shift; 5b's loss excess is the only readout.
 
+### Outcome of 5c (`experiments/gpt_median_mechanism/`: `median_mechanism.py`, `.jsonl`, `_results.txt`, `run.out`; 6 runs, seeds 0 to 2, about 7.5 minutes each)
+- Median aggregation, excess over the 3d uncompressed mean 1.5758: attacker sends 10x its delta 1.5905 (excess +0.0148, +0.0101, +0.0192; mean +0.0147); attacker sends zeros 1.5989 (+0.0234, +0.0188, +0.0270; mean +0.0231). For comparison 5b's sign-flip x10 cost +0.095 on every seed and 5a's no-attack median +0.003.
+- **H5c-i supported.** The +10x attacker costs +0.015 against the sign-flip's +0.095, a difference of 0.080 (bar 0.05). The cost is tied to the attacker's sign relative to the honest workers, not to its size.
+- **H5c-ii supported.** Zeros cost +0.023 (bar 0.05), though that is above the no-attack +0.003 on all three seeds, so a zero attacker is not free.
+- Reading: consistent with the order-statistic account (a flipped attacker pulls the 4-worker median toward the honest low side, an amplified one toward the high side, with a smaller cost, perhaps because larger steps partly help), but the shift itself was not measured, so the mechanism stays a hypothesis that fits, not a proven one. 5b's +0.095 is a sign-flip effect.
+- Limits: as planned; also the ordering "stretch costs less than shrink" is not explained.
+- Next: unchanged from 5b (M = 8 with one attacker; a trimmed-mean aggregator), plus measuring the aggregated-delta norm directly to test the shrink account.
+
 ## 2026-10-26 · Milestone 5b: where does the mean break under a strong attacker, and does the median hold? (planned before running)
 - Why: 5a's "Next". A 3-rms offset did nothing measurable, so neither the mean's breaking point nor the median's protection was tested. `experiments/gpt_median_attack_strong/median_attack_strong.py`: 5a's setup exactly (3d model, M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, worker 0 attacks), aggregation in {mean, median} x attack in {offset 30 rms, offset 300 rms, sign-flip x10 (sends -10 x its delta)}; seeds 0 to 2 (18 runs). Comparator: 3d uncompressed on the same seeds. No engine change.
 - **H5b-i:** with offset 300 rms, mean aggregation is worse than uncompressed by more than 0.3 nats on all 3 seeds (or diverges). Refuted if any seed is within 0.3.
