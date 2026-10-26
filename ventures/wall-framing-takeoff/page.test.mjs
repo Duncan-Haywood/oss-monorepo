@@ -179,3 +179,10 @@ test("the schedule card is wired to schedule.mjs and its events are declared", (
   for (const id of ["schedIn", "schedEx", "schedRun", "schedOut"]) assert.match(html, new RegExp(`id="${id}"`));
   for (const ev of ["schedule_run", "schedule_example_loaded"]) assert.match(html, new RegExp(`<code>${ev}</code>`));
 });
+
+test("the drywall joint control is read into the plan and restored from a saved plan", () => {
+  const html = page("index.html");
+  assert.match(html, /id="dwJoints"/);
+  assert.match(html, /dw\.jointsOnStuds = \$\("#dwJoints"\)\.value === "true"/);
+  assert.match(html, /\$\("#dwJoints"\)\.value = typeof dw\.jointsOnStuds === "boolean"/);
+});
