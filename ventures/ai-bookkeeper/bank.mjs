@@ -1052,7 +1052,44 @@ export function checkRunningBalance(rows) {
     return breaks;
   };
   const fwd = tryOrder(rows), back = tryOrder([...rows].reverse());
-  const breaks = fwd.length <= back.length ? fwd : back;
-  const ordered = fwd.length <= back.length ? rows : [...rows].reverse();
-  return { checked: true, breaks, opening: ordered[0].balance - ordered[0].cents, closing: ordered[ordered.length - 1].balance, closingDate: ordered[ordered.length - 1].date };
+  let breaks = fwd.length <= back.length ? fwd : back;
+  let ordered = fwd.length <= back.length ? rows : [...rows].reverse();
+  let reordered = false;
+  if (breaks.length) {
+    const chain = chainByBalance(rows);
+    if (chain) { ordered = chain; breaks = []; reordered = true; }
+  }
+  return { checked: true, breaks, ...(reordered ? { reordered } : {}), opening: ordered[0].balance - ordered[0].cents, closing: ordered[ordered.length - 1].balance, closingDate: ordered[ordered.length - 1].date };
+}
+
+// Some exports list the rows in neither order (a date-sorted file whose rows
+// within one day run the other way). Each row's opening balance (balance minus
+// amount) must be the balance of the row before it, so look for one order that
+// uses every row once and chains end to end. Bounded: a file where many rows
+// share a balance can chain several ways, and the search gives up rather than
+// guess. Returns the rows in chain order, or null.
+function chainByBalance(rows) {
+  const n = rows.length;
+  if (n > 2000) return null;
+  const byOpen = new Map();
+  rows.forEach((r, i) => { const k = r.balance - r.cents; if (!byOpen.has(k)) byOpen.set(k, []); byOpen.get(k).push(i); });
+  const closes = new Set(rows.map((r) => r.balance));
+  const used = new Array(n).fill(false), path = [];
+  let steps = 0;
+  const walk = () => {
+    if (path.length === n) return true;
+    if (++steps > 50000) return false;
+    const last = path.length ? rows[path[path.length - 1]].balance : null;
+    const all = rows.map((r, i) => i), starts = all.filter((i) => !closes.has(rows[i].balance - rows[i].cents));
+    const next = last === null ? (starts.length ? starts : all) : (byOpen.get(last) || []);
+    for (const i of next) {
+      if (used[i]) continue;
+      used[i] = true; path.push(i);
+      if (walk()) return true;
+      used[i] = false; path.pop();
+    }
+    return false;
+  };
+  if (!walk()) return null;
+  return path.map((i) => rows[i]);
 }
