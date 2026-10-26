@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./engine.mjs", "./floor.mjs", "./foundation.mjs", "./headers.mjs", "./panels.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./engine.mjs", "./floor.mjs", "./foundation.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -188,4 +188,14 @@ test("the drywall joint control is read into the plan and restored from a saved 
   assert.match(html, /id="dwJoist"/);
   assert.match(html, /dw\.ceilingJoistSpacing = Number\(\$\("#dwJoist"\)\.value\)/);
   assert.match(html, /\$\("#dwJoist"\)\.value = dw\.ceilingJoistSpacing != null/);
+});
+
+test("the insulation controls are read into plan.insulation and restored from a saved plan", () => {
+  const html = page("index.html");
+  for (const id of ["inOn", "inBag", "inWaste", "inR", "inPrice", "inRim", "inAtticR", "inAtticPer", "inAtticBag", "insulationOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /ins\.bagSqFt = Number\(\$\("#inBag"\)\.value\)/);
+  assert.match(html, /plan\.insulation = ins/);
+  assert.match(html, /layoutInsulation\(plan\.insulation, plan, result\)/);
+  assert.match(html, /\$\("#inAtticBag"\)\.value = ins\.attic\?\.bagCuFt/);
+  assert.match(html, /<code>insulation_on<\/code>/);
 });

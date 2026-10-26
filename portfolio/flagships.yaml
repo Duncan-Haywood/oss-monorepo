@@ -70,7 +70,7 @@ flagships:
       gables, sheathing, drywall, budget, schedule and their page controls have all landed on hand-checked fixtures).
       Open: a real foundation plan; ceiling drywall steps; drywall `jointsOnStuds` (walls 2026-10-26, page control 2026-10-27; ceilings via `ceilingJoistSpacing` 2026-10-26, page control 2026-10-26) checked against a real hang, ceiling joists taken from the roof's `ceilingJoist` layout instead of a typed spacing; a real sub's labor rates; a real builder's activity list for
       `--schedule`; gable sheathing nested on real sheets (offcut-triangle heights are hand-made); the drywall compound
-      rate checked against a product label; the code edition, typed by a person who has the book; insulation on the page (`--insulation` landed on walls and attic loose fill 2026-10-24; attic bag chart unchecked); a 2D reuse of
+      rate checked against a product label; the code edition, typed by a person who has the book; insulation (page landed 2026-10-26; attic bag chart and a real order unchecked; not yet in `--budget` or the budget table); a 2D reuse of
       opening cut-outs, only worth rechecking on a real plan (sample house: 0 panels fit a hole).
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
