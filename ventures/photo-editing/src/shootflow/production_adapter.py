@@ -22,6 +22,7 @@ from shootflow.ffmpeg_media import (
     proxy_command,
     require_workspace_file,
 )
+from shootflow.faces import FaceReport, detect_faces
 from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.production import ProductionJob, ProductionPlan
 from shootflow.production_status import (
@@ -1032,6 +1033,10 @@ def _materialize_analysis_production_outputs(
     )
     media_type = _analysis_media_type_from_plan(action, trusted_plan=trusted_plan)
     metrics = _measure_analysis_input(root, action.inputs[0], media_type=media_type)
+    faces = None
+    if metrics is not None and media_type == "photo":
+        # Opt-in (SHOOTFLOW_FACE_DETECTOR); None when unset or the detector fails.
+        faces = detect_faces(_workspace_input_path(root, action.inputs[0], label="analysis production input"))
     materialized: list[str] = []
     for output in action.outputs:
         _write_analysis_output(
@@ -1041,6 +1046,7 @@ def _materialize_analysis_production_outputs(
             input_metadata=input_metadata,
             media_type=media_type,
             metrics=metrics,
+            faces=faces,
         )
         materialized.append(output)
     return tuple(materialized)
@@ -1943,6 +1949,7 @@ def _write_analysis_output(
     input_metadata: dict[str, object],
     media_type: str,
     metrics: FrameMetrics | None = None,
+    faces: FaceReport | None = None,
 ) -> None:
     content = _analysis_output_bytes(
         action,
@@ -1950,6 +1957,7 @@ def _write_analysis_output(
         input_metadata=input_metadata,
         media_type=media_type,
         metrics=metrics,
+        faces=faces,
     )
     _write_production_output_bytes(root, output=output, content=content, label="analysis production")
 
@@ -2217,6 +2225,7 @@ def _analysis_output_bytes(
     input_metadata: dict[str, object],
     media_type: str,
     metrics: FrameMetrics | None = None,
+    faces: FaceReport | None = None,
 ) -> bytes:
     sha256 = input_metadata["sha256"]
     if not isinstance(sha256, str):
@@ -2250,7 +2259,7 @@ def _analysis_output_bytes(
                 "analysis_method": "frame_metrics",
                 "scene_label": f"frame_{metrics.dhash}",
                 "aesthetic_score": metrics.aesthetic_score,
-                "story_score": metrics.story_score,
+                "story_score": _clamp_unit(metrics.story_score + (faces.story_adjustment if faces else 0.0)),
                 "technical_score": metrics.technical_score,
                 "motion_score": metrics.motion,
                 "perceptual_hash": metrics.dhash,
@@ -2274,6 +2283,13 @@ def _analysis_output_bytes(
                 },
             }
         )
+        if faces is not None:
+            payload["faces"] = {
+                "count": faces.face_count,
+                "prominent": faces.prominent_faces,
+                "worst_eyes_open": faces.worst_eyes_open,
+                "story_adjustment": faces.story_adjustment,
+            }
         if media_type == "video":
             payload["duration_seconds"] = metrics.duration_seconds or 0.0
     else:
@@ -2682,6 +2698,10 @@ def _average_score(scores) -> float:
     if not values:
         return 0.0
     return round(sum(values) / len(values), 6)
+
+
+def _clamp_unit(value: float) -> float:
+    return max(0.0, min(1.0, value))
 
 
 def _analysis_score(sha256: str, *, offset: int) -> float:
