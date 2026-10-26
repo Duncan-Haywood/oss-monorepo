@@ -250,6 +250,47 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
   });
 }
 
+// Extra column: an exporter adds a column the reader has no use for (a running
+// "Reference", an empty "Notes"). Inserted at the front and in the middle of a
+// rectangular, headered CSV, it must not change the rows. Known bank layouts
+// (matched by exact column sequence) are skipped.
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8");
+  const rows = parseCsv(t).filter((r) => r.some((c) => c.trim()));
+  if (!rows.length || !rows.every((r) => r.length === rows[0].length) || rows[0].length < 3 || sniffBank(rows)) continue;
+  test(`${f}: an extra column changes nothing`, () => {
+    const base = sig(readStatement(t));
+    for (const [name, at] of [["first", 0], ["middle", Math.floor(rows[0].length / 2)]]) {
+      const out = rows.map((r, i) => { const c = [...r]; c.splice(at, 0, i ? "" : "Notes"); return c.map((x) => quote(x, ",")).join(","); }).join("\n") + "\n";
+      assert.equal(sig(readStatement(out)), base, `${f} changed with an extra column in the ${name}`);
+    }
+  });
+}
+
+// Split amount: a single signed "Amount" column re-written as "Debit" (money
+// out, positive) and "Credit" (money in) columns must read the same rows. Only
+// headered files with exactly one column named Amount, whose cells are all
+// plain numbers and with no type column (it carries the sign), are checked.
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8");
+  const rows = parseCsv(t).filter((r) => r.some((c) => c.trim()));
+  if (!rows.length || !rows.every((r) => r.length === rows[0].length) || sniffBank(rows)) continue;
+  const ai = rows[0].map((h) => h.trim().toLowerCase()).indexOf("amount");
+  if (ai < 0 || rows[0].filter((h) => /amount/i.test(h)).length !== 1) continue;
+  if (rows[0].some((h) => /type/i.test(h))) continue; // sign comes from a debit/credit type column
+  if (!rows.slice(1).every((r) => /^-?\d+(\.\d+)?$/.test(r[ai].trim()))) continue;
+  test(`${f}: a split debit and credit column reads the same`, () => {
+    const base = sig(readStatement(t));
+    const out = rows.map((r, i) => {
+      const c = [...r];
+      const v = i ? Number(r[ai]) : 0;
+      c.splice(ai, 1, ...(i ? [v < 0 ? String(-v) : "", v > 0 ? String(v) : ""] : ["Debit", "Credit"]));
+      return c.map((x) => quote(x, ",")).join(",");
+    }).join("\n") + "\n";
+    assert.equal(sig(readStatement(out)), base, `${f} changed with split debit/credit`);
+  });
+}
+
 // Excel and export packaging, 2026-10-26 (no outside data; no fixture changed, so
 // this pins behaviour): a `sep=,` first line, a blank line after every row,
 // spaces padded around every cell, a title block above the header, time-of-day
