@@ -38,7 +38,9 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-10-26-thirteen-front-matter-faults-on-main.md",
+  "writeups": [
+    "docs/posts/2026-10-26-thirteen-front-matter-faults-on-main.md"
+  ],
   "goal": null,
   "notes": "No backlog ids touched. Fixed 13 front-matter faults on 6 posts; checker exits 0; validate ok.",
   "corrections": [],
