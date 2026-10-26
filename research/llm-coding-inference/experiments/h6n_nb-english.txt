@@ -1,0 +1,30 @@
+coder nb-english (agreement with human label 0.680); corpus 44485; sizes (60, 100, 200, 400), 600 draws, seed 20261029
+columns: coverage of hum-hc3t, ins-hc3t, cf-hc3t2 (t(n/2-5)); then mean half-width ratio ins-hc3t/hum-hc3t and cf-hc3t2/hum-hc3t (same audit)
+# nb-english n=60: 3 of 600 draws dropped
+nb-english 60 intercept(yor) 0.911 0.901 0.913 0.941 nan
+nb-english 60 hau 0.953 0.951 0.955 0.974 nan
+nb-english 60 ibo 0.956 0.960 0.973 0.957 nan
+nb-english 60 pcm 0.935 0.925 0.953 0.950 nan
+nb-english 60 loglen_z 0.946 0.956 0.961 0.957 nan
+nb-english 60 MEAN 0.940 0.939 0.951 0.956 nan
+# nb-english n=100: 0 of 600 draws dropped
+nb-english 100 intercept(yor) 0.933 0.932 0.947 0.970 1.121
+nb-english 100 hau 0.950 0.953 0.968 0.989 1.089
+nb-english 100 ibo 0.957 0.960 0.968 0.978 1.096
+nb-english 100 pcm 0.940 0.923 0.945 0.972 1.112
+nb-english 100 loglen_z 0.958 0.960 0.952 0.978 1.109
+nb-english 100 MEAN 0.948 0.946 0.956 0.977 1.106
+# nb-english n=200: 0 of 600 draws dropped
+nb-english 200 intercept(yor) 0.945 0.942 0.948 0.985 1.060
+nb-english 200 hau 0.952 0.953 0.947 0.996 1.044
+nb-english 200 ibo 0.955 0.955 0.962 0.989 1.046
+nb-english 200 pcm 0.960 0.948 0.958 0.985 1.051
+nb-english 200 loglen_z 0.962 0.960 0.968 0.988 1.053
+nb-english 200 MEAN 0.955 0.952 0.957 0.989 1.051
+# nb-english n=400: 0 of 600 draws dropped
+nb-english 400 intercept(yor) 0.962 0.960 0.963 0.991 1.032
+nb-english 400 hau 0.967 0.968 0.970 0.998 1.024
+nb-english 400 ibo 0.945 0.945 0.953 0.994 1.024
+nb-english 400 pcm 0.942 0.937 0.945 0.992 1.028
+nb-english 400 loglen_z 0.967 0.962 0.963 0.994 1.030
+nb-english 400 MEAN 0.956 0.954 0.959 0.994 1.028
