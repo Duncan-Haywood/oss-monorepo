@@ -855,6 +855,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
   const acctCol = hdr.findIndex((x) => /^(account name|account|account nickname)$/.test(x));
   const accountNames = new Set();
+  const memoCols = hdr.map((x, ix) => (/^(memo|notes?|comments?|remarks)$/.test(x) && ix !== columns.desc ? ix : -1)).filter((ix) => ix !== -1);
   const labelCols = ["reporting category", "category", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
   const catCol = hdr.indexOf("category") !== -1 && hdr.indexOf("category") !== columns.desc ? hdr.indexOf("category") : -1;
   const idCol = hdr.findIndex((x) => /^(balance transaction id|transaction id|txn id|reference id)$/.test(x));
@@ -949,6 +950,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     // No description at all (Stripe balance rows, Monefy without a note): say what the
     // row is from its category or type column, else its transaction id, so the payee
     // memory and the categorizer have something to learn from.
+    // A blank payee with a memo (YNAB's "Reconciliation balance adjustment" rows): the memo says what it is.
+    if (!desc && memoCols.length) desc = memoCols.map((ix) => String(r[ix] ?? "").trim().replace(/\s+/g, " ")).find(Boolean) ?? "";
     if (!desc && labelCols.length) desc = labelCols.map((ix) => String(r[ix] ?? "").trim()).find(Boolean) ?? "";
     if (!desc && idCol !== -1) desc = String(r[idCol] ?? "").trim();
     // "To/From" beside an unsigned amount (Amazon Payments): To is money out.
