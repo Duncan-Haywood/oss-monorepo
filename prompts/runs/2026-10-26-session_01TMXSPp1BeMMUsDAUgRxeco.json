@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01TMXSPp1BeMMUsDAUgRxeco",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T13:25:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10650,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "derive fetch+build chained in one backgrounded shell with other commands blew the 120s tool timeout; the prompt says to use run_in_background but not to keep it separate."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Reduced pass (scheduled run): skipped audit and drift report; fixed the routing bug found instead of a doc-friction item.",
+      "did": "Fixed runs_since_review ordering in shallow clones.",
+      "result": "count 83 to 45; tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Reduced pass. No post: review run; finding logged in experiments.md E92.",
+  "corrections": [],
+  "redteam": null
+}
