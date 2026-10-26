@@ -178,3 +178,13 @@ test("minimum QBI deduction: exactly $1,000 qualifies (\"at least\", 199A(i)(2))
   assert.ok(i.warnings.every((w) => !/indexed for 2027/.test(w)));
   assert.ok(estimatedTax(b, { ...base, qbiMinimum: { floor: 41000, threshold: 120000 } }).qbiDeduction < 41000);
 });
+
+test("blank, non-numeric or negative inputs never poison the plan", () => {
+  const b = books("100000.00"), ok = estimatedTax(b, { year: 2026, asOf: "2026-01-01" });
+  const nan = estimatedTax(b, { year: 2026, asOf: "2026-01-01", priorYearTax: NaN });
+  assert.deepEqual(nan.payments, ok.payments);
+  assert.ok(nan.warnings.some((w) => /No prior-year tax/.test(w)));
+  assert.deepEqual(estimatedTax(b, { year: 2026, asOf: "2026-01-01", paid: -1000000 }).payments, ok.payments);
+  assert.deepEqual(estimatedTax(b, { year: 2026, asOf: "2026-01-01", withholding: -1000000 }).payments, ok.payments);
+  assert.equal(estimatedTax(b, { year: 2026, asOf: "2026-01-01", priorYearTax: 500000, priorAgi: NaN }).safeHarbor.prior, 500000);
+});
