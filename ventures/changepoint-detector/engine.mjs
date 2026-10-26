@@ -1473,7 +1473,8 @@ export function squaredDispersion(x, cps) {
  * over the resamples. Returns max(BIC, that), so it only ever raises the penalty. Seeded, so the same series gives the
  * same answer. eval/meanvar-block-bootstrap.mjs, README "--bootstrap".
  */
-export function bootstrapPenalty(x, { minSegment = 10, resamples = 100, seed = 12345, model = 'meanvar', sigma = robustSd(x) } = {}) {
+export function bootstrapPenalty(x, { minSegment = 10, resamples = 100, seed = 12345, model = 'meanvar', sigma = robustSd(x), exposure = null } = {}) {
+  if (model === 'poisson') return poissonBootstrapPenalty(x, { minSegment, resamples, seed, exposure });
   // model 'mean': residuals about the segment means are kept in units of the noise scale `sigma` the mean cost uses, so
   // autocorrelated or clustered noise (residual sd above sigma) raises the penalty; meanvar standardises each segment.
   const n = x.length, bic = penaltyValue('bic', n, model);
@@ -1493,6 +1494,39 @@ export function bootstrapPenalty(x, { minSegment = 10, resamples = 100, seed = 1
     y.length = n;
     const c = makeCost(y, model, 1), whole = c(0, n); let g = 0;
     for (let s = minSegment; s <= n - minSegment; s++) g = Math.max(g, whole - c(0, s) - c(s, n));
+    gains.push(g);
+  }
+  gains.sort((a, c) => a - c);
+  return Math.max(bic, gains[Math.floor(0.95 * (resamples - 1))]);
+}
+
+/**
+ * Block-bootstrap penalty for the Poisson model. A 3x BIC fit gives Pearson residuals (count minus segment rate times
+ * exposure, over its root); resampled in blocks they keep clustering (overdispersion that comes in runs) and are turned
+ * back into counts about the overall rate, max(0, round(rate*e + r*sqrt(rate*e))). The 95th percentile of the best
+ * single-split drop over the resamples is the penalty, never below BIC. eval/poisson-block-bootstrap.mjs.
+ */
+export function poissonBootstrapPenalty(x, { minSegment = 2, resamples = 100, seed = 12345, exposure = null } = {}) {
+  const n = x.length, bic = penaltyValue('bic', n, 'poisson');
+  if (n < 4 * minSegment) return bic;
+  const e = (t) => (exposure ? exposure[t] : 1);
+  const cps = pelt(x, { model: 'poisson', penalty: 3 * bic, minSegment, exposure }).changepoints;
+  const b = [0, ...cps, n], z = [];
+  for (let s = 0; s < b.length - 1; s++) {
+    let a = 0, m = 0; for (let t = b[s]; t < b[s + 1]; t++) { a += x[t]; m += e(t); }
+    const lam = m > 0 ? a / m : 0;
+    for (let t = b[s]; t < b[s + 1]; t++) { const mu = lam * e(t); z.push(mu > 0 ? (x[t] - mu) / Math.sqrt(mu) : 0); }
+  }
+  const tot = x.reduce((a, c) => a + c, 0), den = Array.from({ length: n }, (_, t) => e(t)).reduce((a, c) => a + c, 0), lam0 = tot / den;
+  if (!(lam0 > 0)) return bic;
+  let st = seed >>> 0;
+  const rnd = () => { st = (st + 0x6D2B79F5) >>> 0; let t = st; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const L = Math.ceil(2 * Math.cbrt(n)), gains = [];
+  for (let r = 0; r < resamples; r++) {
+    const zr = []; while (zr.length < n) { const s = Math.floor(rnd() * (n - L + 1)); for (let i = 0; i < L; i++) zr.push(z[s + i]); }
+    const y = Array.from({ length: n }, (_, t) => { const mu = lam0 * e(t); return Math.max(0, Math.round(mu + zr[t] * Math.sqrt(mu))); });
+    const c = makeCost(y, 'poisson', 1, 0, exposure), whole = c(0, n); let g = 0;
+    for (let q = minSegment; q <= n - minSegment; q++) g = Math.max(g, whole - c(0, q) - c(q, n));
     gains.push(g);
   }
   gains.sort((a, c) => a - c);
@@ -1637,8 +1671,8 @@ export function analyze(input = {}) {
   // bootstrap: refit with a penalty read off block-resampled residuals (clustered volatility, heavy tails, short memory)
   let bootstrap = null;
   if (o.bootstrap) {
-    if ((model !== 'meanvar' && model !== 'mean') || robust || o.dispersion || o.ar1) throw new Error('The bootstrap penalty is for the "meanvar" or "mean" model without --robust, --dispersion or --ar1.');
-    const bp = bootstrapPenalty(values, { minSegment, model, sigma });
+    if ((model !== 'meanvar' && model !== 'mean' && model !== 'poisson') || robust || o.dispersion || o.ar1) throw new Error('The bootstrap penalty is for the "meanvar", "mean" or "poisson" model without --robust, --dispersion or --ar1.');
+    const bp = bootstrapPenalty(values, { minSegment, model, sigma, exposure });
     const bic = penaltyValue(penalty ?? 'bic', values.length, model);
     if (bp > bic * 1.0001) { bootstrap = round(bp, 2); p = pelt(values, { model, penalty: bp, minSegment, sigma, exposure }); }
   }

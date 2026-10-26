@@ -726,6 +726,22 @@ cost uses, so autocorrelated noise (residual sd above that scale) raises the pen
 
 Synthetic noise only; a real autocorrelated series is still wanted.
 
+### Counts too (2026-10-26)
+
+`--model poisson --bootstrap` takes Pearson residuals from a 3x BIC fit (using any seasonal or holiday exposure), resamples
+them in blocks and turns them back into counts about the overall rate, so runs of busy and quiet days (overdispersion that
+clusters) raise the penalty. `eval/poisson-block-bootstrap.mjs` (seeded, 100 series per cell, n = 200, mean 10, log rate AR(1)
+0.8 with the sd shown, detection is a x1.5 step at 100 found within 10):
+
+| clustering (sd of log rate) | false alarms plain | false alarms `--bootstrap` | detection plain / `--bootstrap` |
+|---|---|---|---|
+| 0 (pure Poisson) | 5% | 4% | 98% / 98% |
+| 0.2 | 89% | 11% | 83% / 73% |
+| 0.4 | 100% | 74% | 86% / 63% |
+
+Synthetic only, and at sd 0.4 it still raises 74% false alarms; a real clumpy count series is still wanted. Not tested with
+`--trend` or holidays. Test: `meanvar-bootstrap.test.mjs`.
+
 ## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
 
 The section above ended with a warning because the Gaussian variance cost has no cheap fix. A different noise model does
