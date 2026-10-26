@@ -19,6 +19,7 @@ $PY experiments/r2_components/components.py   # milestone 18
 $PY experiments/learned_score/learned.py   # milestone 19
 $PY experiments/mf_surrogate/surrogate.py  # milestone 20 (about 150 s)
 $PY experiments/mf_explore/explore.py      # milestone 21 (about 350 s)
+$PY experiments/mf_gp/gp.py                # milestone 22 (about 940 s)
 $PY experiments/proof_success/analyse.py
 for s in bound quantile topk sweep; do $PY experiments/theory/$s.py; done
 $PY -m unittest discover -s tests
