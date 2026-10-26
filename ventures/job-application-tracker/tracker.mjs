@@ -227,7 +227,7 @@ export function fromCsv(text) {
 
 // ---- Calendar -----------------------------------------------------------
 
-const icsText = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const icsText = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 const icsDate = (s) => s.replace(/-/g, "");
 
 // All-day reminder events for every pending follow-up, importable into any
