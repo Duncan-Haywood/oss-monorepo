@@ -1045,7 +1045,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // Open hours are sums of shift lengths, so when those share a grid (hours, halves, quarters) the floor rounds up to it.
   const incHours = Math.floor(incumbent / BIG + 1e-9);
   let banned = null, bannedCount = 0; // (person, shift) pairs ruled out by reduced-cost fixing
-  let dualBranchStats = null;
+  let dualBranchStats = null, coverBranchStats = null;
   let scoreDual = -Infinity; // whole-score floor from pricing shifts (see priceScoreBound)
   if (incHours > 0 && o.pricingFloor !== false) {
     const pf = priceOpenFloor(ctx, { incumbentOpen: incHours, incumbentScore: o.scoreDual === false ? null : incumbent, cutoff: o.reducedCostFixing === false ? null : incumbent - tolerance - 1e-9 });
@@ -1059,6 +1059,16 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
       if (pf.banned) { banned = pf.banned; bannedCount = pf.banCount; }
       const unit = [1, 0.5, 0.25].find((u) => len.every((h) => Math.abs(h / u - Math.round(h / u)) < 1e-9)); // open hours come in whole shifts
       minOpenH = unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6);
+      // Branch on the open-hours price itself: every held set is worth 0 and an open shift costs BIG x its hours, so the same
+      // branch-and-bound as above bounds the least open hours and closes part of the integrality gap the root price leaves.
+      if (o.coverBranch !== false && minOpenH < incHours - 1e-9) {
+        const zero = pf.cov.sets.map((fs) => new Float64Array(fs.length));
+        const lam0 = Float64Array.from(pf.cov.lam, (x, i) => Math.min(BIG * pf.cov.len[i], x * BIG));
+        const cb = branchDual(ctx, { sets: pf.cov.sets, vals: zero, len: pf.cov.len, lam: lam0 }, BIG * pf.floor, BIG * incHours, BIG * (incHours - (unit || 1) / 2), { maxNodes: o.coverBranchNodes ?? 60, ms: o.coverBranchMs ?? 4000 });
+        coverBranchStats = cb.stats;
+        const fl = cb.bound / BIG;
+        minOpenH = Math.max(minOpenH, unit ? Math.ceil(fl / unit - 1e-6) * unit : Math.max(0, fl - 1e-6));
+      }
     }
   }
   const rootBound = Math.max(lowerBound(0, 0), scoreDual);
@@ -1114,7 +1124,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     }
   }
   rec(0, 0);
-  return { proven: !aborted, banned: bannedCount, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, owner: bestOwner, score: bestOwner ? best : null };
+  return { proven: !aborted, banned: bannedCount, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, coverBranchStats, owner: bestOwner, score: bestOwner ? best : null };
 }
 
 // Fewest hours that must stay open, by pricing shifts (Lagrangian dual of "each shift is covered by at most one person").
@@ -1183,7 +1193,7 @@ function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = nu
     const step = (theta * Math.max(L - target, 0.5)) / norm;
     for (let i = 0; i < S; i++) lam[i] = Math.max(0, lam[i] - step * gr[i]);
   }
-  const out = { floor: Math.max(0, demand - bestBound), coverable: bestBound, demand, sets: total };
+  const out = { floor: Math.max(0, demand - bestBound), coverable: bestBound, demand, sets: total, cov: { sets, len, lam: bestLam } };
   if (incumbentScore != null) {
     const sb = priceScoreBound(ctx, sets, len, bestLam, incumbentScore, scoreRounds, cutoff);
     if (cutoff == null) out.scoreBound = sb;

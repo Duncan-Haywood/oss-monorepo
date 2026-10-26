@@ -146,6 +146,9 @@ export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = 
       console.warn(`::warning file=${POSTS_DIR}/${name}::left off the site: ${err.message}`);
     }
   }
+  // A post dated after today waits for its date; the site rebuilds every three hours.
+  const today = new Date().toISOString().slice(0, 10);
+  for (let i = posts.length - 1; i >= 0; i--) if (posts[i].date > today) posts.splice(i, 1);
   // Seen twice means two files would write the same URL.
   const seen = new Set();
   for (const p of posts) {

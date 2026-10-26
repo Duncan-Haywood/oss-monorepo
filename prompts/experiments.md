@@ -1420,3 +1420,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Metric: none new. E79 to E89 results stay open: too few runs since.
 - Decisions: no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E91: review 2026-10-26 (reduced pass, nineteenth run)
+
+- Change: `loadPosts` in `platform/pages/writing.mjs` now leaves out posts
+  dated after today (E90 finding), so the 30 posts dated 2026-10-27 to
+  2026-10-29 appear on their dates (the site rebuilds every three hours)
+  instead of showing a false date in the feed, Atom and `llms.txt`. No post is
+  deleted. Test added in `writing.test.mjs`.
+- Metric: none for prompts. Check the feed on 2026-10-27 shows them.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
