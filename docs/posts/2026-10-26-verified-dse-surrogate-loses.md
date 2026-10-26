@@ -1,7 +1,7 @@
 ---
 title: "A small learned surrogate does worse than random search on chip-flow design points"
 date: 2026-10-26
-description: "A ridge regression of routed cost on cheap-rung features, refitted as points are routed, loses to random routing and to never cutting on the cheap rung, on 40 SKY130 cells."
+description: "A ridge regression of routed cost on cheap-rung features, refitted as points are routed, loses to random routing and to never cutting on the cheap rung."
 tags: [verified-dse, research, eda, multi-fidelity]
 ---
 
