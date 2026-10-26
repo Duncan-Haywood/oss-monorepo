@@ -116,7 +116,7 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      Landed history lives in the README and git (UK page: refresh after Budget 2026). FatturaPA XSD 1.2.1 read 2026-10-30 (IT-018..022, matches xmllint on 1,638 mutations). Saudi ZATCA BR-KSA rules (152 checks, SchXslt reader) 2026-10-25. Switzerland page 2026-10-26 (vendor sources only). Turkey page 2026-10-26 (no UBL-TR rules: from GİB's schematron if published). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made-up examples landed 2026-10-25/26), the Saxon route; FatturaPA
+      Landed history lives in the README and git (UK page: refresh after Budget 2026). FatturaPA XSD 1.2.1 read 2026-10-30 (IT-018..022, matches xmllint on 1,638 mutations). Saudi ZATCA BR-KSA rules (152 checks, SchXslt reader) 2026-10-25. Switzerland page 2026-10-26 (vendor sources only). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made-up examples landed 2026-10-25/26), the Saxon route; FatturaPA
       code lists (TD29, RF20 added 2026-10-24 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Portugal's CIUS-PT add-on (2026-10-25, made-up invoice; AA/RED/INT/NOR fail the EU base BR-CL-17/18 while AMA's own rules admit them, noted in the finding: which validator does AT/eFatura run? try a real sample); Poland's FA(3) (PL-001..017, XSD gate matches xmllint on 4,860 mutations) on a real KSeF test-environment file, more seeds covering the correction, advance and attachment branches;
       the rules and a repair on a real ERP or
       Factur-X export (open the repaired PDF in veraPDF or a viewer); a page
@@ -124,7 +124,7 @@ flagships:
       real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
       on a real Dutch file (UBL and CII both landed 2026-10-25, made-up examples); India's INV-01 schema check; mandate
       dates read from primary sources where pages cite guides (Denmark, Czech, Estonia, Latvia, Slovenia vendor-only; Luxembourg bill 8815 via law-firm excerpts 2026-10-26, bill text unread; iras.gov.sg,
-      ato.gov.au, revenue.ie, CBIC); refresh the Bulgaria page when its draft
+      ato.gov.au, revenue.ie, CBIC); Mexico CFDI page 2026-10-27 (open: XSD reader, Brazil NF-e); refresh the Bulgaria page when its draft
       passes or changes (consultation closed 2026-10-23, no outcome found 2026-10-26; penalties from 1 Jul 2028 and scope added from adviser reports). A run that lands a slice replaces its item here; keep
       this under 2,000 characters.
   - venture: shift-roster-builder
