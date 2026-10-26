@@ -1,0 +1,6 @@
+{'arm': 'topk_ef', 'keep': 0.03125, 'seed': 1, 'loss': 1.58948715031147, 'secs': 532}
+{'arm': 'topk_ef', 'keep': 0.0078125, 'seed': 1, 'loss': 1.6591045558452606, 'secs': 533}
+{'arm': 'topk_ef', 'keep': 0.0078125, 'seed': 0, 'loss': 1.650121882557869, 'secs': 545}
+{'arm': 'topk_ef', 'keep': 0.03125, 'seed': 0, 'loss': 1.593080885708332, 'secs': 558}
+{'arm': 'topk_ef', 'keep': 0.0078125, 'seed': 2, 'loss': 1.647570639848709, 'secs': 511}
+{'arm': 'topk_ef', 'keep': 0.03125, 'seed': 2, 'loss': 1.578104391694069, 'secs': 520}
