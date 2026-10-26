@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { newBooks, importStatement, confirm, analyze, acceptSuggestions } from "./engine.mjs";
-import { compareProfit } from "./compare.mjs";
+import { compareProfit, precedingPeriod } from "./compare.mjs";
 
 // 4000 sales, 6010 fees, 6130 software (default chart codes), filed by hand
 const filed = (rows) => {
@@ -53,4 +54,18 @@ test("the built-in example compares without error and nets add up", () => {
   const c = compareProfit(acceptSuggestions(analyze({ example: true }).books, 0));
   assert.ok(c.accounts.length > 0);
   assert.equal(c.net.now, c.income.now - c.expense.now);
+});
+
+test("precedingPeriod is the same length, ending the day before", () => {
+  assert.deepEqual(precedingPeriod({ from: "2026-02-01", to: "2026-02-28" }), { from: "2026-01-04", to: "2026-01-31" });
+  assert.deepEqual(precedingPeriod({ from: "2026-01-01", to: "2026-12-31" }), { from: "2025-01-01", to: "2025-12-31" });
+  assert.equal(precedingPeriod({ from: "2026-03-01", to: "2026-02-01" }), null);
+  assert.equal(precedingPeriod({ from: "nope", to: "2026-02-01" }), null);
+});
+
+test("the page wires the comparison to the From and To dates", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /id="compare"/);
+  assert.match(html, /renderCompare\(\); renderReconcile/);
+  assert.equal((html.match(/renderBudget\(\); renderCompare\(\)/g) ?? []).length, 3);
 });

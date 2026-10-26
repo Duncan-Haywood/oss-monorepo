@@ -823,7 +823,7 @@ percentage, whether it is new or gone, and whether the move lowers profit
 still in review are in neither period, and the output says how many. It reports
 the difference and does not explain it: a 78% rise in sales is a question for
 the owner, not a finding. Node tests on hand-built books and the built-in example
-pass. Not on the page yet.
+pass. On the page too (2026-10-26, "This period against the last"): the From and To dates are the period and the one of equal length just before is the comparison (`precedingPeriod`); with both empty it is the latest month against the month before.
 
 ## Anomalies
 
