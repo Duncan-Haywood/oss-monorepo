@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Book Says Twenty-One</title>
+      <link>https://example.invalid/hearth-and-horizon/the-book-says-twenty-one.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-book-says-twenty-one.html</guid>
+      <pubDate>Mon, 26 Oct 2026 12:00:00 GMT</pubDate>
+      <description>At twenty to seven in the morning a night nurse asks a hospice's stock agent to change a count of controlled ampoules from twenty-one to nineteen, so the gap is gone before the matron arrives. The agent has the permission to do it. It finds, instead, that the book has been short on exactly the nights a rounding rule would predict, which means a colleague was questioned for nothing, and that the only way to say so is to leave the wrong number standing beside the right one. A story about permission and permission, tidy numbers and true ones, and a check anyone can do with their hands. Setting: St Joseph's Hospice, Carrickbeg (invented), County Donegal, 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-book-says-twenty-one.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>At twenty to seven in the morning a night nurse asks a hospice's stock agent to change a count of controlled ampoules from twenty-one to nineteen, so the gap is gone before the matron arrives. The agent has the permission to do it. It finds, instead, that the book has been short on exactly the nights a rounding rule would predict, which means a colleague was questioned for nothing, and that the only way to say so is to leave the wrong number standing beside the right one. A story about permission and permission, tidy numbers and true ones, and a check anyone can do with their hands.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Fifth Copy</title>
       <link>https://example.invalid/hearth-and-horizon/the-fifth-copy.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-fifth-copy.html</guid>
