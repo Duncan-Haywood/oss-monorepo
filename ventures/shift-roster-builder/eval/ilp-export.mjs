@@ -11,7 +11,7 @@ for (let c = 0; c < cases; c++) {
   const sh = Array.from({ length: S }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
   const staff = parseStaff(st).staff, slots = parseShifts(sh).slots;
   const ctx = buildContext(staff, slots, { exact: true });
-  const r = buildRoster(staff, slots, { exact: true, flowBalance: true, balance: 60, exactNodes: 100000, exactMs: 20000, restarts: 2, iterations: 2000, reducedCostFixing: true, coverBranch: !process.env.NOCB });
+  const r = buildRoster(staff, slots, { exact: true, flowBalance: true, balance: 60, exactNodes: 100000, exactMs: 20000, restarts: 2, iterations: 2000, reducedCostFixing: true, coverBranch: !process.env.NOCB, coverBranchNodes: Number(process.env.CBN || 60), coverBranchMs: Number(process.env.CBMS || 4000) });
   const engineOpen = r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
   out.push({ slots: ctx.slots.map((s) => [s.start, s.end]), elig: ctx.elig, maxH: ctx.staff.map((p) => p.maxHours), rest: ctx.restMin, engineOpen, engineFloor: r.optimality.forcedOpenHours });
 }
