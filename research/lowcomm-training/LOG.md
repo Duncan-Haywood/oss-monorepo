@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 5c: is the median's +0.095 under sign-flip due to the flipped sign, or to any extreme attacker? (planned before running)
+- Why: 5b's "Next" items (M = 8, trimmed mean) are bigger; first a cheap test of 5b's untested mechanism. At M = 4 the median is the mean of the two middle values. A flipped (negative) attacker sits below the honest values on most coordinates, so the median is the mean of the honest 1st and 2nd order statistics, below the honest median: a systematic shrink. An attacker sending +10x its delta sits above, so the median is the mean of the honest 2nd and 3rd: a systematic stretch. A zero-sending attacker sits near the middle of the honest values.
+- Design (`experiments/gpt_median_mechanism/median_mechanism.py`): 5b exactly (3d model, M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, seeds 0 to 2), median aggregation, worker 0 sends 10x or 0x its delta. 6 runs, about 12 minutes each.
+- **H5c-i:** the +10x attacker costs less than the sign-flip's +0.095, by more than 0.05 nats on average (so the cost is sign-related, not size-related). Refuted if the +10x excess is within 0.05 of +0.095.
+- **H5c-ii:** the 0x attacker costs less than +0.05 nats on average over 3d uncompressed (zeros sit inside the honest spread).
+- Prior: i 60% (a stretch could also hurt, via larger steps), ii 65%.
+- Limits: 3 seeds; no direct measure of the order-statistic shift; 5b's loss excess is the only readout.
+
 ## 2026-10-26 · Milestone 5b: where does the mean break under a strong attacker, and does the median hold? (planned before running)
 - Why: 5a's "Next". A 3-rms offset did nothing measurable, so neither the mean's breaking point nor the median's protection was tested. `experiments/gpt_median_attack_strong/median_attack_strong.py`: 5a's setup exactly (3d model, M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, worker 0 attacks), aggregation in {mean, median} x attack in {offset 30 rms, offset 300 rms, sign-flip x10 (sends -10 x its delta)}; seeds 0 to 2 (18 runs). Comparator: 3d uncompressed on the same seeds. No engine change.
 - **H5b-i:** with offset 300 rms, mean aggregation is worse than uncompressed by more than 0.3 nats on all 3 seeds (or diverges). Refuted if any seed is within 0.3.
