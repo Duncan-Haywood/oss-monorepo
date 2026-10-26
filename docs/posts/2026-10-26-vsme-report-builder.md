@@ -1,6 +1,8 @@
 ---
 title: "A free VSME report builder for small suppliers"
 date: 2026-10-26
+description: "A free browser tool that turns a small supplier's energy, emissions and workforce figures into a draft VSME Basic Module report, with gaps flagged."
+tags: [vsme-report-builder, ventures, sustainability-reporting]
 ---
 
 Large customers and banks that report under the EU's CSRD increasingly ask their small suppliers for sustainability data, and EFRAG's voluntary VSME standard (December 2024) is the format many point to. Its Basic Module has eleven disclosures, B1 to B11.
