@@ -3,8 +3,12 @@
 // dates, so this is where those two are measured. The text is the dataset's
 // own word boxes (box/*.csv, one per line of the receipt). Nothing is copied
 // into this repository: clone zzzDavid/ICDAR-2019-SROIE (MIT) and point at it.
-//   node eval/sroie-receipts.mjs <clone>/data [--misses merchant|date|total]
-import { readFileSync, readdirSync } from "node:fs";
+//   node eval/sroie-receipts.mjs <clone>/data [--misses merchant|date|total] [--ocr <dir>]
+// --ocr <dir> reads <dir>/<id>.txt (tesseract output on <clone>/data/img/<id>.jpg,
+// e.g. `tesseract img/000.jpg <dir>/000 --psm 6`) instead of the dataset's boxes,
+// so the reader meets what an OCR engine prints from a photo, as the CLI does.
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { cleanOcr } from "../cleanocr.mjs";
 import { parseReceipt } from "../receipts.mjs";
 import { labelCents } from "./cord-receipts.mjs";
 
@@ -49,12 +53,14 @@ export function rowsOf(csv) {
   return rows.map((r) => r.items.sort((a, b) => a.x - b.x).map((x) => x.t).join("  ")).join("\n");
 }
 
-export function load(dir) {
+export function load(dir, ocrDir = null) {
   const rows = [];
   for (const f of readdirSync(`${dir}/key`).filter((x) => x.endsWith(".json")).sort()) {
     let key;
     try { key = JSON.parse(readFileSync(`${dir}/key/${f}`, "utf8")); } catch { continue; }
-    const text = rowsOf(readFileSync(`${dir}/box/${f.replace(/\.json$/, ".csv")}`, "utf8"));
+    const id = f.replace(/\.json$/, "");
+    if (ocrDir && !existsSync(`${ocrDir}/${id}.txt`)) continue;
+    const text = ocrDir ? cleanOcr(readFileSync(`${ocrDir}/${id}.txt`, "utf8")) : rowsOf(readFileSync(`${dir}/box/${id}.csv`, "utf8"));
     rows.push({ id: f.replace(/\.json$/, ""), key, text });
   }
   return rows;
@@ -87,7 +93,8 @@ export function score(rows) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const rows = load(process.argv[2]);
+  const oi = process.argv.indexOf("--ocr");
+  const rows = load(process.argv[2], oi > 0 ? process.argv[oi + 1] : null);
   const r = score(rows);
   const pct = (a, b) => `${a}/${b} (${b ? ((100 * a) / b).toFixed(1) : "0"}%)`;
   console.log(`${process.argv[2]}: ${r.receipts} receipts`);

@@ -114,7 +114,8 @@ export function parseItems(lines, comma = false) { // comma: a style, as moneyRe
 const DAY_FIRST_LOCALE = /\b(?:rm|myr|sdn\.?\s*bhd|pty\.?\s*ltd|gbp|inr|rs)\b|[£₹]/i;
 function dayFirstOf(lines) {
   let dayFirst = 0, monthFirst = 0;
-  for (const l of lines) for (const m of l.matchAll(/(?<![\d-])(\d{1,2})[-/](\d{1,2})[-/](?:\d{4}|\d{2})(?![\d-])/g)) {
+  // "Time: 12-49-00" (OCR turns the colons to dashes) is a clock, not a month-first date
+  for (const l of lines) for (const m of l.replace(/\btime\W*\d{1,2}-\d{1,2}-\d{2}(?![\d/-])/gi, " ").matchAll(/(?<![\d-])(\d{1,2})[-/](\d{1,2})[-/](?:\d{4}|\d{2})(?![\d-])/g)) {
     if (+m[1] > 12 && +m[2] <= 12) dayFirst++;
     else if (+m[2] > 12 && +m[1] <= 12) monthFirst++;
   }
@@ -150,6 +151,9 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     && !/\d{3}[-. ]\d{3,4}/.test(l) && !DATE_RES.some((re) => re.test(l)) && !new RegExp(moneyRe(comma).source, "u").test(l) && !/^\d+\s+\w+\s+(st|street|ave|avenue|rd|road|blvd|dr|drive|ln|way)\b/i.test(l));
   // a short line of a person's name above the registered company name: the company is the merchant
   let merchantLine = eligible[0];
+  // a stamped or handwritten name above a printed (capitalised) shop name, e.g.
+  // "tan woon yann" over "YONGFATT ENTERPRISE": all lower case is not the shop
+  if (eligible.length > 1 && /^[a-z]+(?:\s+[a-z]+){0,3}$/.test(eligible[0].trim()) && /[A-Z]{3}/.test(eligible[1])) merchantLine = eligible[1];
   const [first, second] = eligible;
   if (first && second && !ENTITY.test(first) && ENTITY.test(second) && first.trim().split(/\s+/).length <= 3 && first.trim().split(/\s+/)[0].toLowerCase() !== second.trim().split(/\s+/)[0].toLowerCase()
     && !/(?:restaurant|cafe|mart|market|shop|store|pharmacy|bakery|kitchen)/i.test(first)) merchantLine = second;
@@ -167,7 +171,16 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     if (TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) {
       if (cents !== null && summaryAt >= 0 && i >= summaryAt) return;
       const a = amountsIn(l, comma).length ? amountsIn(l, comma) : bare(lines[i + 1]);
-      if (a.length && a[a.length - 1] > 0) { cents = a[a.length - 1]; from = l; at = i; }
+      if (a.length && a[a.length - 1] > 0) {
+        cents = a[a.length - 1]; from = l; at = i;
+        // "Total : 140.00 8.40": a before-tax column and a tax column, the total
+        // of the last column cut off or missing. When the last amount is exactly
+        // 6% or 8% (Malaysian GST and SST) of the one before it to within a cent,
+        // it is the tax and the total is the two added; tax already inside the
+        // first amount would be 5.66% or 7.41%, which does not match.
+        const n = a.length >= 2 ? a[a.length - 2] : 0;
+        if (n > 0 && [0.06, 0.08].some((r) => Math.abs(cents - Math.round(n * r)) <= 1) && cents > 1) { cents = n + cents; notes.push("total line shows an amount and its tax: added"); }
+      }
     }
   });
   // "ROUNDING ADJ -0.01" after the total: the amount due is the total plus it
