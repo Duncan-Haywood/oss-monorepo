@@ -1,0 +1,30 @@
+coder lexicon-en: corpus 6000 items, human negative share 0.327; coder positive share 0.018; agreement 0.680, sensitivity 0.038, specificity 0.992; sizes (60, 100, 200, 400), 600 draws, seed 20261031
+columns: coverage hum-hc3t, ins-hc3t; mean half-width ratio ins-hc3t/hum-hc3t (same audit)
+# lexicon-en n=60: 0 of 600 draws dropped
+lexicon-en 60 intercept(yor) 0.910 0.900 0.946
+lexicon-en 60 hau 0.942 0.942 0.977
+lexicon-en 60 ibo 0.970 0.967 0.954
+lexicon-en 60 pcm 0.930 0.918 0.970
+lexicon-en 60 loglen_z 0.952 0.953 0.958
+lexicon-en 60 MEAN 0.941 0.936 0.961
+# lexicon-en n=100: 0 of 600 draws dropped
+lexicon-en 100 intercept(yor) 0.933 0.913 0.969
+lexicon-en 100 hau 0.917 0.920 0.990
+lexicon-en 100 ibo 0.940 0.948 0.975
+lexicon-en 100 pcm 0.943 0.938 0.988
+lexicon-en 100 loglen_z 0.945 0.942 0.980
+lexicon-en 100 MEAN 0.936 0.932 0.980
+# lexicon-en n=200: 0 of 600 draws dropped
+lexicon-en 200 intercept(yor) 0.933 0.922 0.982
+lexicon-en 200 hau 0.960 0.960 0.997
+lexicon-en 200 ibo 0.937 0.937 0.985
+lexicon-en 200 pcm 0.942 0.940 0.994
+lexicon-en 200 loglen_z 0.947 0.948 0.991
+lexicon-en 200 MEAN 0.944 0.941 0.990
+# lexicon-en n=400: 0 of 600 draws dropped
+lexicon-en 400 intercept(yor) 0.947 0.948 0.994
+lexicon-en 400 hau 0.942 0.943 1.000
+lexicon-en 400 ibo 0.950 0.950 0.992
+lexicon-en 400 pcm 0.937 0.940 0.996
+lexicon-en 400 loglen_z 0.955 0.952 0.996
+lexicon-en 400 MEAN 0.946 0.947 0.996
