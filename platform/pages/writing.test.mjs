@@ -161,6 +161,8 @@ test('the index can be searched and filtered: finder, card data, full-text index
   assert.match(index, /data-topic-chip="research"/);
   assert.match(index, /<option value="agents">agents \(2\)<\/option>/);
   assert.match(index, /<li data-slug="older" data-topic="research" data-tags="agents notes" data-date="2026-10-01"/);
+  // The pressed state of a topic chip follows the active topic, not its opposite.
+  assert.match(index, /setAttribute\('aria-pressed', String\(c\.dataset\.topicChip === topic\)\)/);
   const search = JSON.parse(await fs.readFile(path.join(w, 'search.json'), 'utf8'));
   assert.match(search.older, /zlib level nine/);
   const older = await fs.readFile(path.join(w, 'older/index.html'), 'utf8');
@@ -209,4 +211,9 @@ test('a post dated after today waits for its date', () => {
     '2999-01-01-later.md': post('Later', '2999-01-01'),
   });
   assert.deepEqual(loadPosts(root).map((p) => p.slug), ['now']);
+});
+
+test('a lone post dated after today is left off too', () => {
+  const root = repoWith({ '2999-01-01-later.md': post('Later', '2999-01-01') });
+  assert.deepEqual(loadPosts(root), []);
 });
