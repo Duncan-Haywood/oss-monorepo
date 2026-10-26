@@ -276,14 +276,15 @@ export function nec1099FilingCsv(r) {
 // 2.9% on all of them. Nothing is owed under $400 of net earnings. Half the tax is
 // an income-tax deduction (Schedule 1, line 15). Left out: the 0.9% additional
 // Medicare tax (Form 8959), farm income, church income and more than one business.
-// Wage bases are from memory (2024 168,600; 2025 176,100; 2026 184,500; 2027 192,300, announced Oct 2026 and seen in trade-press reports only) and
-// unchecked against the SSA page, so the result carries a warning; pass `wageBase`
+// Wage bases: 2024 168,600 and 2025 176,100 match the IRS Schedule SE instructions for
+// those years (read 2026-10-26); 2026 184,500 and 2027 192,300 (announced Oct 2026) are
+// seen in trade-press reports only, unchecked against SSA or IRS text, so those results carry a warning; pass `wageBase`
 // in cents to override. A worksheet, not a filing.
 export const SS_WAGE_BASE = { 2024: 16860000, 2025: 17610000, 2026: 18450000, 2027: 19230000 };
 export function selfEmployment(profitCents, { year = new Date().getFullYear(), wageBase, wages = 0 } = {}) {
   const warnings = [];
   const base = wageBase ?? SS_WAGE_BASE[year];
-  if (wageBase === undefined) warnings.push(base === undefined ? `No wage base on file for ${year}; pass wageBase.` : (year >= 2025 && year <= 2027) ? `The ${year} social security wage base ($${(base / 100).toLocaleString("en-US")}) matches published reports of the SSA announcement (compared 2026-10-23), not the SSA page itself; unchecked there, so confirm it on ssa.gov or pass wageBase.` : `The ${year} social security wage base is from memory and unchecked; confirm it on ssa.gov or pass wageBase.`);
+  if (wageBase === undefined && year !== 2024 && year !== 2025) warnings.push(base === undefined ? `No wage base on file for ${year}; pass wageBase.` : (year >= 2026 && year <= 2027) ? `The ${year} social security wage base ($${(base / 100).toLocaleString("en-US")}) matches published reports of the SSA announcement (compared 2026-10-23), not the SSA page itself; unchecked there, so confirm it on ssa.gov or pass wageBase.` : `The ${year} social security wage base is from memory and unchecked; confirm it on ssa.gov or pass wageBase.`);
   const limit = base ?? Infinity;
   if (profitCents <= 0) return { year, profit: profitCents, netEarnings: 0, socialSecurity: 0, medicare: 0, tax: 0, deduction: 0, warnings: [...warnings, "No profit, so no self-employment tax."] };
   const netEarnings = Math.round(profitCents * 0.9235);
