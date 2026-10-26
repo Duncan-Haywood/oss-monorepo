@@ -11,6 +11,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Prior: i yes; ii yes; iii yes (biased, no residual).
 - Limits: 3 seeds, one `H`, per-tensor scale, bytes not modelled (no entropy coding, scale overhead ignored).
 
+### Outcome of 4e (`experiments/gpt_quant/quant_results.txt`; 15 runs, seeds 0 to 2)
+- Mean excess loss over uncompressed (1.5758), nats: QSGD 4-bit -0.0052 (per seed -0.008, -0.010, +0.002); 3-bit +0.0022 (+0.002, -0.001, +0.005); 2-bit (ternary) +0.0191 (+0.012, +0.023, +0.022); scaled sign, 1 bit, no error feedback +0.0221 (+0.022, +0.011, +0.033); scaled sign with error feedback -0.0067 (-0.001, -0.014, -0.005).
+- **H4e-i holds:** 4-bit QSGD is at most +0.002 on every seed. **H4e-ii holds:** the means rise with fewer bits (-0.005, +0.002, +0.019), though the 4-bit and 3-bit gap is inside the seed spread. **H4e-iii refuted:** error feedback helps scaled sign by 0.029 nats, under the 0.05 line I set; my prior that the biased 1-bit arm would degrade badly was wrong.
+- Reading: quantising the deltas is far cheaper than sparsifying them. 1 bit per coordinate with error feedback matches uncompressed (about 32x less volume than float32, before the per-tensor scale), where top-k needed keep 1/16 for the same, about 16x with indices unaccounted. Seed spread (up to 0.02) is as large as the 4-bit and 3-bit effects, so only the 2-bit and un-fed-back 1-bit costs are distinguishable from zero.
+- Limits: 3 seeds, one `H`, per-tensor scale, bytes not modelled (index cost of top-k ignored, which flatters it), sign-with-EF is within noise of uncompressed rather than shown to beat it.
+- Next: H5, median aggregation under an attack; and combine quantisation with a longer `H`.
+
 ## 2026-10-26 · Milestone 4d: where is the knee of error-feedback top-k between keep 1/16 and 1/256? (planned before running)
 - Why: 4c's "Next". EF top-k cost -0.005 at 1/16, +0.043 at 1/64, +0.121 at 1/256; two points below the knee leave its location and shape unresolved.
 - Design (`experiments/gpt_topk_ef_knee/topk_ef_knee.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); EF top-k at keep 1/32 and 1/128; seeds 0 to 2 (6 runs). Comparators: uncompressed (3d), 4b at 1/16, 4c at 1/64 and 1/256.

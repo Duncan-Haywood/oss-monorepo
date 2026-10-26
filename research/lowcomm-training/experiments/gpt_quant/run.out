@@ -6,3 +6,10 @@
 {'arm': 'q4', 'keep': 0, 'seed': 1, 'loss': 1.5731059312820435, 'secs': 622}
 {'arm': 'q3', 'keep': 0, 'seed': 1, 'loss': 1.5822919309139252, 'secs': 627}
 {'arm': 'q2', 'keep': 0, 'seed': 1, 'loss': 1.605941005051136, 'secs': 641}
+{'arm': 'sign', 'keep': 0, 'seed': 1, 'loss': 1.5942699760198593, 'secs': 600}
+{'arm': 'sign_ef', 'keep': 0, 'seed': 1, 'loss': 1.569038212299347, 'secs': 617}
+{'arm': 'q4', 'keep': 0, 'seed': 2, 'loss': 1.5756529495120049, 'secs': 614}
+{'arm': 'q3', 'keep': 0, 'seed': 2, 'loss': 1.5791606456041336, 'secs': 618}
+{'arm': 'q2', 'keep': 0, 'seed': 2, 'loss': 1.5957902744412422, 'secs': 632}
+{'arm': 'sign', 'keep': 0, 'seed': 2, 'loss': 1.6064538359642029, 'secs': 625}
+{'arm': 'sign_ef', 'keep': 0, 'seed': 2, 'loss': 1.5689862370491028, 'secs': 621}

@@ -1,0 +1,6 @@
+uncompressed: mean 1.5758 [1.5707, 1.583, 1.5738]
+keep 0 q4: mean 1.5706 excess vs uncompressed [-0.0077, -0.0099, 0.0018] mean -0.0052
+keep 0 q3: mean 1.5780 excess vs uncompressed [0.002, -0.0007, 0.0054] mean +0.0022
+keep 0 q2: mean 1.5949 excess vs uncompressed [0.0124, 0.023, 0.022] mean +0.0191
+keep 0 sign: mean 1.5979 excess vs uncompressed [0.0223, 0.0113, 0.0327] mean +0.0221
+keep 0 sign_ef: mean 1.5692 excess vs uncompressed [-0.0012, -0.0139, -0.0048] mean -0.0067

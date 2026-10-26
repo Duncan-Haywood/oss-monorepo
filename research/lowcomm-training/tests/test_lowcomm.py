@@ -101,3 +101,14 @@ class TestDiLoCo(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_qsgd_unbiased_and_sign_scaled_contractive():
+    import torch
+    from lowcomm import qsgd, sign_scaled
+    g = torch.Generator().manual_seed(0)
+    x = torch.randn(50)
+    m = sum(qsgd(3)(x, g) for _ in range(4000)) / 4000
+    assert (m - x).abs().max() < 0.1
+    c = sign_scaled()(x, g)
+    assert ((c - x) ** 2).sum() < (x ** 2).sum()
