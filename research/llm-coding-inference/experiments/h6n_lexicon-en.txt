@@ -1,0 +1,32 @@
+coder lexicon-en; NaijaSenti test corpus 44485; audit sizes (60, 100, 200, 400), 3 draws, seed 20261029
+ratio = half-width of method / half-width of human-only HC3 + t(n-5) on the same audit (mean of per-draw ratios; <1 means narrower); % narrower = share of draws with ratio < 1
+methods: ins-hc3t tuned PPI++ HC3 + t(n-5); cf-hc3t cross-fit HC3 + t(n-5); cf-hc3t2 cross-fit HC3 + t(n/2-5)
+coder n coefficient | ins-hc3t ratio %narrower | cf-hc3t ratio %narrower | cf-hc3t2 ratio %narrower
+# lexicon-en n=60: 0 of 3 draws dropped
+lexicon-en 60 intercept(yor) | 0.933 67% | 1.107 0% | 1.138 0%
+lexicon-en 60 hau | 0.941 67% | 0.993 67% | 1.020 67%
+lexicon-en 60 ibo | 0.934 67% | 1.053 67% | 1.082 67%
+lexicon-en 60 pcm | 1.004 33% | 1.671 0% | 1.718 0%
+lexicon-en 60 loglen_z | 0.966 67% | 0.979 67% | 1.006 67%
+lexicon-en 60 MEAN | 0.956 60% | 1.161 40% | 1.193 40%
+# lexicon-en n=100: 0 of 3 draws dropped
+lexicon-en 100 intercept(yor) | 1.002 33% | 1.178 0% | 1.195 0%
+lexicon-en 100 hau | 1.001 33% | 1.121 0% | 1.137 0%
+lexicon-en 100 ibo | 0.994 33% | 1.105 0% | 1.122 0%
+lexicon-en 100 pcm | 1.000 67% | 1.154 0% | 1.171 0%
+lexicon-en 100 loglen_z | 1.003 0% | 1.198 0% | 1.215 0%
+lexicon-en 100 MEAN | 1.000 33% | 1.151 0% | 1.168 0%
+# lexicon-en n=200: 0 of 3 draws dropped
+lexicon-en 200 intercept(yor) | 0.994 67% | 1.017 0% | 1.023 0%
+lexicon-en 200 hau | 1.000 67% | 1.037 0% | 1.044 0%
+lexicon-en 200 ibo | 0.997 67% | 1.046 0% | 1.053 0%
+lexicon-en 200 pcm | 1.002 0% | 1.033 0% | 1.040 0%
+lexicon-en 200 loglen_z | 0.980 100% | 1.010 33% | 1.017 0%
+lexicon-en 200 MEAN | 0.995 60% | 1.029 7% | 1.035 0%
+# lexicon-en n=400: 0 of 3 draws dropped
+lexicon-en 400 intercept(yor) | 0.999 67% | 1.023 0% | 1.026 0%
+lexicon-en 400 hau | 1.001 0% | 1.023 0% | 1.026 0%
+lexicon-en 400 ibo | 0.989 100% | 1.005 33% | 1.008 33%
+lexicon-en 400 pcm | 0.998 33% | 1.042 0% | 1.045 0%
+lexicon-en 400 loglen_z | 0.991 33% | 1.014 33% | 1.018 33%
+lexicon-en 400 MEAN | 0.996 47% | 1.021 13% | 1.025 13%
