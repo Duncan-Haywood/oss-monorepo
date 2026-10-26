@@ -177,6 +177,10 @@ honest worker trained for the shortened number of steps. Both miss: only 2 of 9 
 standard deviation, A is out by $123\times$ and $12\times$ there, B by $3.0\times$ and $1.00\times$ (trivial: every step skipped),
 and the ratio is in $[0.5,2]$ in 1 of 9 settings. Both overshoot because skipped steps are exactly the small-update steps,
 whose loss the remaining training recovers. A model of recovery is the open constructive claim.
+A third predictor (C) trains the honest worker for the share of \emph{path length} that skipping leaves, with no fitted parameter.
+On the four non-trivial rows above one seed standard deviation (digits $\tau=0.1$; transformer $\tau=0.03$ and $0.1$) it lies at $0.62\times$,
+$0.61\times$ and $0.69\times$ the measured degradation (B: $2.4\times$ to $6.7\times$), but at the small tolerances where the cost is
+detectable yet below one standard deviation it undershoots ($0.00\times$ to $0.49\times$), so it is inside $[0.5,2]$ on half of the detectable rows only.
 \section{Limitations}
 Three small scikit-learn tasks and plain SGD, plus one 30k-parameter character-level transformer (10 seeds, 600 and 3,000 steps, loss not converged; the cost at $\tau=10^{-2}$ is unchanged when the held-out block moves per seed, $+0.0016$ against $+0.0017$; see Table~\ref{tab:tf}), no realistic scale; the skip shortcut only for the dense results (on the transformer a reused-gradient cheat costs 2.1 seed std at $\tau=10^{-2}$, so the margin depends on the cheat; the cost comes from chains of consecutive reuses, 43 steps on average, and disappears, $+0.00016$, when reuse after a reused step is disallowed); one reorder
 referee; two workers for agreement and pure strategies for collusion; contract parameters ($\delta,\alpha,\kappa$, stakes)
