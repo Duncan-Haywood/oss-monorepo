@@ -232,7 +232,7 @@ test("exact mode on a deliberately weak anneal finds the improvement and reports
 
 test("exact mode gives up honestly: a tiny node limit reports a bound, not a proof", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
-  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50 });
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false });
   assert.equal(r.optimality.status, "bounded");
   assert.ok(r.optimality.lowerBound <= r.score + 1e-6);
   assert.ok(r.optimality.gap >= 0);
@@ -1560,4 +1560,14 @@ test("reduced-cost fixing keeps the proven optimum and never costs nodes", () =>
     if (a.optimality.status !== "bounded" && b.optimality.status !== "bounded") assert.ok(Math.abs(a.score - b.score) < 1e-6, `case ${c}: ${a.score} vs ${b.score}`);
     else assert.ok(a.score <= b.score + 1e-6 || b.optimality.status === "bounded", `case ${c}`);
   }
+});
+
+test("coverRepair: exact repair of the open hours covers the sample week's 15-hour optimum that the walk leaves at 16", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const open = (r) => r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
+  const off = buildRoster(staff, slots, { minRestHours: 0 });
+  const on = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true });
+  assert.equal(open(off), 16);
+  assert.equal(open(on), 15);
+  assert.equal(buildRoster(staff, slots, { minRestHours: 0, exact: true }).unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0), 15);
 });

@@ -724,6 +724,53 @@ function coverPass(ctx, owner0, seed, iterations) {
   return { owner: bestOwner, open: bestOpen };
 }
 
+// Exact repair of the open hours (large-neighbourhood search). Pick k people, release every shift they hold, and solve the
+// released shifts plus the open ones exactly for fewest open hours with everyone else fixed (depth-first, longest shift first,
+// pruned on the open hours so far). A walk of single moves cannot reach a gain that needs three people to change at once; this
+// can, inside the neighbourhood. Time-limited; returns the owner array and the open hours (never worse than the input).
+function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000, timeLimitMs = 4000 } = {}) {
+  const { P, S, slots, elig } = ctx;
+  const rng = mulberry32(seed);
+  const hrs = (i) => (slots[i].end - slots[i].start) / 60;
+  const owner = owner0.slice();
+  const openOf = (o) => o.reduce((t, p, i) => t + (p < 0 ? hrs(i) : 0), 0);
+  let open = openOf(owner);
+  const t0 = Date.now();
+  for (let r = 0; r < rounds && open > 0 && Date.now() - t0 < timeLimitMs; r++) {
+    const pick = new Set();
+    while (pick.size < Math.min(k, P)) pick.add(Math.floor(rng() * P));
+    const people = [...pick];
+    const free = [];
+    owner.forEach((p, i) => { if (p < 0 || pick.has(p)) free.push(i); });
+    free.sort((a, b) => hrs(b) - hrs(a));
+    const lists = Array.from({ length: P }, () => []);
+    owner.forEach((p, i) => { if (p >= 0 && !pick.has(p)) lists[p] = insertSorted(ctx, lists[p], i); });
+    let best = Infinity, bestAssign = null, nodes = 0;
+    const cur = new Array(free.length).fill(-1);
+    const dfs = (d, o) => {
+      if (o >= best - 1e-9 || nodes++ > nodeLimit) return;
+      if (d === free.length) { best = o; bestAssign = cur.slice(); return; }
+      const i = free[d];
+      for (const q of people) {
+        if (!elig[q][i]) continue;
+        const nl = insertSorted(ctx, lists[q], i);
+        if (!validList(ctx, q, nl)) continue;
+        const old = lists[q]; lists[q] = nl; cur[d] = q;
+        dfs(d + 1, o);
+        lists[q] = old;
+      }
+      cur[d] = -1;
+      dfs(d + 1, o + hrs(i));
+    };
+    dfs(0, 0);
+    if (bestAssign && best < open - 1e-9) {
+      free.forEach((i, d) => { owner[i] = bestAssign[d]; });
+      open = best;
+    }
+  }
+  return { owner, open };
+}
+
 // Single moves and swaps that lower the score and never leave a shift open that was covered.
 function polishPay(ctx, owner0, seed, iterations) {
   const { P, S, elig } = ctx;
@@ -1456,6 +1503,14 @@ export function buildRoster(staff, slots, options = {}) {
       const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
       const ps = scoreOwner(ctx, po).total;
       if (ps < best.score - 1e-9) best = { owner: po, score: ps };
+    }
+    if ((o.coverRepair ?? o.exact === true) && scoreOwner(ctx, best.owner).unfilled > 0) {
+      const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, timeLimitMs: o.coverRepairMs ?? 6000 });
+      if (rp.open < scoreOwner(ctx, best.owner).unfilled - 1e-9) {
+        const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000));
+        const ps = scoreOwner(ctx, po).total;
+        if (ps < best.score - 1e-9) best = { owner: po, score: ps };
+      }
     }
   }
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
