@@ -43,7 +43,7 @@
       "result": "left for a later run"
     }
   ],
-  "writeups": "docs/posts/2026-10-26-counting-blog-posts-per-day.md",
+  "writeups": ["docs/posts/2026-10-26-counting-blog-posts-per-day.md"],
   "goal": null,
   "notes": "Explore idea: post_rate.py, posts per day and tag mix from docs/posts. 543 posts, 9 days.",
   "corrections": [],
