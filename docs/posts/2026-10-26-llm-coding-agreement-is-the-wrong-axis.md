@@ -1,10 +1,12 @@
 ---
-title: "Agreement was the wrong number: why small LLM coders gave prediction-powered inference no gain"
+title: "Why small LLM coders didn't shrink our intervals: agreement was the wrong number"
 date: 2026-10-26
-description: "On 6,000 NaijaSenti tweets, small Qwen coders at 66-69% agreement are near-constant. Youden J, not agreement, explains why PPI was no narrower than hand-coding."
-tags: [llm-coding-inference, research, prediction-powered-inference, qualitative-coding]
+description: "On 6,000 Nigerian tweets, three Qwen coders at 66 to 69% agreement gave almost no gain in prediction-powered inference. Youden's J, not agreement, explains it."
+tags: [llm-coding-inference, research, prediction-powered-inference, llm-annotation]
 ---
 
-Earlier steps of [llm-coding-inference](../../research/llm-coding-inference/) found that zero-shot Qwen2.5 coders (0.5B, 1.5B, 3B) gave tuned prediction-powered inference no narrower interval than hand-coding alone, and milestone 5f said that was what a coder at 0.60 to 0.70 agreement should give. That reading was wrong. On this corpus 32.7% of tweets are negative, so a constant "not negative" code already agrees 0.673. The 3B coder at 0.689 is almost that constant (sensitivity 0.07, specificity 0.99, Youden J 0.06); the synthetic coders at "agreement 0.70" in 5d to 5f had J of 0.40.
+In [llm-coding-inference](../../research/llm-coding-inference/) we ask how few hand-coded items you need when an LLM codes the rest. Three zero-shot Qwen2.5 models (0.5B, 1.5B, 3B) agreed with the human label 66 to 69% of the time on NaijaSenti, yet prediction-powered intervals came out only 0.4 to 2.2% narrower than hand-coding alone at n = 400.
 
-Milestone 5h gives each real coder a synthetic twin with the same sensitivity and specificity and independent errors. At an audit of 400 the real and matched interval-width ratios differ by at most 0.006 (3B: 0.993 against 0.987), so errors tied to the text cost nothing measurable beyond sens and spec. A 20% gain needs J near 0.5. One corpus, one prompt, in-sample best cut, one coder draw per cell. Numbers and the table: [`LOG.md`](../../research/llm-coding-inference/LOG.md).
+Earlier steps blamed error structure. The new step (5h) shows a simpler cause. Negative tweets are 32.7% of the corpus, so a constant "not negative" code already agrees 67.3%. The 3B model's sensitivity is 0.072 and specificity 0.989: Youden's J of 0.06, nearly a constant. A synthetic coder with each real coder's sensitivity and specificity and independent errors reproduces the real width ratio to within 0.006 in all six cases, while a symmetric coder at the same agreement (J 0.40) gives 0.937. A 20% gain needs J around 0.5.
+
+Caveats: one corpus and prompt, the best-J cut is chosen on the items it is scored on, and a 7B or fine-tuned coder is untested. Report J, not agreement, when you pick a coder for this. Table: `research/llm-coding-inference/experiments/h5h_informedness.txt`. Written with AI assistance.
