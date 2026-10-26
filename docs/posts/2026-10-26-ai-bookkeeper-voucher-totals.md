@@ -1,7 +1,7 @@
 ---
 title: "A loyalty-voucher line no longer passes for the receipt total"
 date: 2026-10-26
-description: "ai-bookkeeper's receipt reader took 'TOTAL SV' voucher counts for the total on some Malaysian receipts; fixing it moved SROIE total accuracy from 96.6% to 97.0%."
+description: "ai-bookkeeper's receipt reader took 'TOTAL SV' voucher counts for the total on some Malaysian receipts; fixing it lifted SROIE accuracy from 96.6% to 97.0%."
 tags: [ai-bookkeeper, receipts, ocr, measurement]
 ---
 
