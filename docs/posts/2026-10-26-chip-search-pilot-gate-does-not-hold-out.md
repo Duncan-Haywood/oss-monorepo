@@ -1,6 +1,7 @@
 ---
 title: "A five-point pilot to decide when a cheap chip-flow stage can be trusted: the gain vanished when tested on unseen designs"
 date: 2026-10-26
+tags: [research, chip-design, verified-dse]
 description: "A five-point pilot meant to say when a cheap chip-flow stage can be trusted stopped helping once tested on unseen designs."
 ---
 
