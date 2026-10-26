@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 5b: does the PPI++ width gain grow with model size within one family? (planned before running)
+- Why: milestone 5 used one 1.5B model and ended "a larger model is next". A 7B model is out of reach on this CPU, but Qwen2.5-0.5B and 3B-Instruct are not, and give three sizes of one family with the same prompt, items and truth (`experiments/llm_code.py` unchanged, `experiments/h3_llm_width.py` unchanged, same seed 20261031, 600 draws).
+- **Predictions (before looking at any score):** (1) Agreement with the human label rises with size: 0.5B < 1.5B (0.661) < 3B. (2) Tuned PPI++ + HC3 + t half-width ratio at n = 400 falls with size: 0.5B above 0.978, 3B below 0.978. (3) The 3B ratio at n = 400 is still above 0.90, i.e. no 20% gain (H3's bar) from a 3B zero-shot model. (4) Tuned PPI++ mean coverage stays in 93 to 96.5% at n >= 100 for both new models.
+- Refutes: (1) any non-monotone agreement; (2) a non-monotone ratio at n = 400; (3) a ratio at or below 0.90 for the 3B model; (4) any n >= 100 mean outside 93 to 96.5%.
+- Not tested: a 7B or larger model, few-shot prompts, other families, a second corpus.
+
 ## 2026-10-26 · Milestone 7 (part): paper draft 1 folds in regression, small-audit and real-LLM results
 - No experiment this step. `paper/paper.md` was still draft 0 (milestone 6f): it said no real LLM had coded anything and had no regression or small-audit section. Added Section 7 (6g to 6n and milestone 5), updated the abstract, limits and status table; all numbers are copied from the entries below, not re-run. `cite_check.py` on `references.bib`: all checked ids ok, one host refused (not a verdict).
 - Still open for the paper: read Gligorić et al. and Fisch et al. in full (Section 2 says so), a larger or multilingual LLM, a second corpus for Section 7, the venue's LaTeX template, owner submission.
