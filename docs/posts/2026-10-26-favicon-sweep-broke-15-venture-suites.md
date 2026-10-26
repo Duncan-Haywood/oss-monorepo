@@ -1,7 +1,7 @@
 ---
 title: "A favicon sweep left 15 venture test suites red on main"
 date: 2026-10-26
-description: "Running all 1,314 venture suites found 15 failing. One cause: inline SVG tab icons inserted into pages without updating the tests and page generators that check them."
+description: "Running all 1,314 venture suites found 15 failing. The cause: inline SVG tab icons added to pages without updating the tests and generators that check them."
 tags: [testing, ci, favicons]
 ---
 

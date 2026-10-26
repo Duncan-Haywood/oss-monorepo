@@ -1,6 +1,8 @@
 ---
 title: "Two German bank exports that read with blank descriptions"
-date: 2026-10-28
+date: 2026-10-26
+description: "Two German bank exports read with blank descriptions because ai-bookkeeper did not know their column names; both now read, found with real sample files."
+tags: [ai-bookkeeper, bank-import, testing]
 ---
 
 Reading sample files from the ofxstatement-bubbas project (cloned at run time,

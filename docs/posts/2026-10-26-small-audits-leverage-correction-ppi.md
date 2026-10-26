@@ -1,6 +1,8 @@
 ---
 title: "Small human audits make LLM-coded intervals too narrow, and most of it is leverage"
 date: 2026-10-26
+description: "On 44,485 NaijaSenti tweets, small human audits of LLM-coded labels give intervals that are too narrow; a leverage correction fixes most of the gap."
+tags: [research, llm-coding-inference, statistics]
 ---
 
 If an LLM codes a text corpus and you check a small sample by hand, the interval you report should cover the true value 95% of the time. On 44,485 NaijaSenti tweets with native-speaker labels, audits of 60 to 200 tweets and three stand-in coders, the usual normal-approximation intervals did not: prediction-powered regression covered 90 to 94%.

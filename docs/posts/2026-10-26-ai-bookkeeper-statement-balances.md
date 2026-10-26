@@ -1,6 +1,8 @@
 ---
 title: "Reading a bank statement PDF by its opening and closing balance"
 date: 2026-10-26
+description: "An Odoo demo statement PDF broke ai-bookkeeper's text reader three ways; the opening and closing balances now settle which rows are money in and which are out."
+tags: [ai-bookkeeper, bank-import, testing]
 ---
 
 Odoo's public source tree holds one real bank statement PDF, a demo with three transactions. ai-bookkeeper's text reader got it wrong three ways. A zero-width space inside a minus sign hid the rent payment. The print date and the "Starting Balance" line were joined into a fake transaction. And none of the amounts carried a sign, so every one was read as money out.
