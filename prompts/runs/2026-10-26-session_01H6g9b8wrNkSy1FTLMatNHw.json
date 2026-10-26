@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01H6g9b8wrNkSy1FTLMatNHw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T06:24:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10579,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: kept pointing at fixture sweeps that were all done; cost this run its budget. Over 2000 chars too."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-26-bank-fixture-sweeps-have-run-dry.md"
+  ],
+  "goal": null,
+  "notes": "No fault found; no code shipped. Sweep of Maybe, GnuCash, skrooge, grisbi, ERPNext, smart_importer, firefly data-importer was clean or fixture-free. Landed guidance edit + post only. 2027 IRS rev proc still not out.",
+  "corrections": [],
+  "redteam": null
+}
