@@ -85,3 +85,16 @@ rise is a stronger pound; CHF and JPY are per USD, so a rise is a weaker franc o
 - **Licence:** Open Data Commons Public Domain Dedication and Licence 1.0, per that
   repository's `datapackage.json`.
 - **Used by:** `eval/fx-shocks.mjs`, `fx-shocks.test.mjs`.
+
+# Example data: UK gas consumption, 1960-1986
+
+`uk-gas.csv`: quarterly UK gas consumption, 108 quarters, 1960Q1 to 1986Q4 (R's
+`datasets::UKgas`, millions of therms). The `quarter` column is built from the
+`time` column of the source.
+
+- **Retrieved:** 2026-10-27 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/UKgas.csv>.
+- **Licence:** a published series (Durbin and Koopman, *Time Series Analysis by
+  State Space Methods*); R's `datasets` package is GPL-2 or later. Only the 108
+  numbers are used here.
+- **Used by:** `eval/uk-gas.mjs`, `uk-gas.test.mjs`.
