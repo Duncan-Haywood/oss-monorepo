@@ -187,6 +187,15 @@ oracle), coverage 94.2 to 95.2% with no optional-stopping correction. At a
 stopped size is within 1% of the oracle (+0.6 to +0.8%) and coverage is 95 to
 97% (200 to 300 draws per cell, so it cannot exclude a 2-point loss).
 
+The pilot-based plan does not carry over to rare categories (milestone 6r,
+GoEmotions groups, 500 draws per cell). With fear at 1.15% and a 400-item pilot,
+planned audits are 25 to 30% below the oracle size (291 against 398; 953
+against 1,347), the mean half-width is 1.40 and 0.89 points against targets of
+1.0 and 0.5, and coverage is 73% at the 0.5-point target. A 1,500-item
+pilot restores sadness (2.3%; coverage 93%) but not fear (22% of audits end
+wider than 1.25 times the target). The oracle plan itself is sound. The
+evidence is two categories on one corpus; no pilot-size rule is derived.
+
 ## 7 Regression coefficients and small audits (H5 second half; the real LLM, H3 first look)
 
 Data: the NaijaSenti test part; outcome = the human negative-sentiment label,
