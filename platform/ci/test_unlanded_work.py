@@ -282,6 +282,28 @@ class TestSweep(Fixture):
         self.squash_merge("ventures/q/index.html", "q\n", "q: new venture (#1)")
         self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
 
+    def test_modified_file_counts_as_landed_only_when_main_has_the_same_bytes(self):
+        self.branch("claude/same")
+        self.commit("README.md", "edited\n", "edit readme", day="2026-10-01")
+        self.push("claude/same")
+        self.branch("claude/differs")
+        self.commit("README.md", "mine\n", "edit readme differently", day="2026-10-01")
+        self.push("claude/differs")
+        self.squash_merge("README.md", "edited\n", "readme (#3)")
+        found = uw.sweep(str(self.clone), since=None, probe=self.probe)
+        self.assertEqual([r[1] for r in found], ["claude/differs"])
+
+    def test_long_stranded_list_is_cut_at_the_limit_with_a_count(self):
+        limit = uw.LIST_LIMIT
+        self.branch("claude/exact")
+        for i in range(limit):
+            self.commit(f"e{i}.txt", "e\n", f"e{i}")
+        self.push("claude/exact")
+        self.assertNotIn("more", self.check().problems[0])
+        self.commit("extra.txt", "x\n", "extra")
+        self.push("claude/exact")
+        self.assertIn("... and 1 more", self.check().problems[0])
+
     def test_work_main_has_not_got_is_still_reported(self):
         self.branch("claude/missing")
         self.commit("ventures/r/index.html", "mine\n", "r: new venture", day="2026-10-01")
