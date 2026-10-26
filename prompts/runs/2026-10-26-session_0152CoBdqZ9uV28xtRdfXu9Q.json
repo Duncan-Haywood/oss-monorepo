@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_0152CoBdqZ9uV28xtRdfXu9Q",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T07:58:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 2: wall-framing-takeoff page control for drywall jointsOnStuds",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 10592,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "router drew the process track; the scheduled prompt asked for product work"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Router drew process/1; the scheduled prompt asked for revenue ventures, so ran the top open flagship slice instead (deviation). Page select Wall end joints; page.test and drywall.test pass; full wall-framing suite run in background.",
+  "corrections": [],
+  "redteam": null
+}
