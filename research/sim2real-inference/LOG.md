@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 7t: does the paper draft build? (a check, not an experiment)
+- Why: `paper/main.tex` had grown through a dozen log steps and was never compiled; the venue bar says "drafted in the venue's format" and a draft that does not build is not one.
+- Outcome: installed `texlive-latex-base`, `-recommended` and `-science` (Ubuntu 24.04 packages), ran `pdflatex`, `bibtex`, `pdflatex` twice on the unmodified source. It builds: 8 pages including references, no LaTeX errors, no undefined citations or references (the only warning is `h` float changed to `ht`). The figure `e_vs_rho.png` resolves from `paper/`. The build command is now the last line of `reproduce.sh`.
+- Reading: the draft is buildable but still in a generic `article` class, not CoRL's style file, and the page count of 8 includes references; the CoRL page limit and the style file must be checked against the call for papers before submission (not fetched; owner step to submit).
+- Next: swap in the venue style file once the CoRL 2026 or 2027 call is reachable; otherwise the programme's remaining open item is real per-episode pairs (blocked on the SIMPLER video dataset host).
+
 ## 2026-10-26 · Milestone 7s: does SureSim ship data or code we can replicate against? (a check, not an experiment)
 - Why: 7q's next step was "a faithful replication would need their released data". arXiv.org and the project site are blocked by the egress proxy (403 CONNECT), so I looked for a code repository instead.
 - Outcome: GitHub search finds one candidate, `abadithela/suresim` (first author's account, "Reliable and Scalable Robot Policy Evaluation with Imperfect Simulators", created 2026-02-04, no stars). Shallow clone at commit `463bb2f09d39` (2026-02-04): 352 KB, and it is the unmodified "Research Project Template" README. `data/original`, `data/processed`, `figures` and `outputs` hold only `.placeholder` files; `src/` (executor, experiment.py, experiment.jl, utils.py, 486 lines) is a generic experiment scaffold and `utils.py` is plotting helpers only. No betting, WSR or PPI code, no hardware scores, no simulated scores.
