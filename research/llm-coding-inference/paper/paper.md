@@ -1,13 +1,14 @@
 # How small can the hand-coded audit be? Valid intervals for LLM-coded qualitative data under group shift and rare categories
 
-**Draft 0 (2026-10-25), not ready to submit.** Section status is marked in
+**Draft 1 (2026-10-26), not ready to submit.** Section status is marked in
 [Status of each section](#status-of-each-section). Every number below is copied
 from a file in [`../experiments/`](../experiments/) that the named script wrote;
 the log with the plans made before each run is [`../LOG.md`](../LOG.md). This
 text was drafted with AI assistance, and implies no affiliation with any lab or
-venue it cites. **No real LLM has coded any text in this draft**: the coders are
-a word list, naive Bayes and a class-weighted logistic regression (the
-"stand-in coders"). Section 6 says what that does to each claim.
+venue it cites. **One small real LLM (Qwen2.5-1.5B-Instruct, zero-shot) has coded text in
+this draft, on one corpus (Section 7)**; every other experiment uses a word
+list, naive Bayes or a class-weighted logistic regression (the "stand-in
+coders"). Section 9 says what that does to each claim.
 
 ## Abstract
 
@@ -30,8 +31,12 @@ Wilson width for the six categories under 1%. We give a closed-form audit-size
 rule (Neyman allocation with a finite-population term) and a sequential audit
 that stops when the estimated half-width reaches the target: on NaijaSenti it
 meets a 3-point target in 100% of 1,000 audits per cell at 1% above the
-oracle size, with coverage 94.2 to 95.2%. Whether a real LLM changes these
-conclusions (the programme's H3) is not yet tested.
+oracle size, with coverage 94.2 to 95.2%. For regression coefficients at small audits (60 to 400
+hand-coded tweets), an HC3-type leverage correction with a t quantile brings
+tuned PPI++ to 93.2 to 94.9% coverage at n >= 100, and a zero-shot 1.5B LLM
+coder (agreement 66.1% with the human label) makes it 2.2% narrower than
+hand-coding alone at n = 400. The programme's H3 (a 20% gain) is not reached by
+any coder tried.
 
 ## 1 Introduction
 
@@ -178,23 +183,67 @@ oracle), coverage 94.2 to 95.2% with no optional-stopping correction. At a
 stopped size is within 1% of the oracle (+0.6 to +0.8%) and coverage is 95 to
 97% (200 to 300 draws per cell, so it cannot exclude a 2-point loss).
 
-## 7 Limits and what remains
+## 7 Regression coefficients and small audits (H5 second half; the real LLM, H3 first look)
 
-1. **No real LLM.** H3 (a real instruction-following model changes the
-   break-even audit size by 3x or more) is untested. Every width comparison
-   against hand-coding is for weak coders; with a good coder the gain from PPI
-   can only be larger, but how much is the paper's main empirical question.
-   Blocked in the sessions so far: Hugging Face and the Anthropic API were not
-   reachable, so no model could be run.
+Data: the NaijaSenti test part; outcome = the human negative-sentiment label,
+regressed on language dummies and log tweet length (five coefficients); truth is
+the same OLS on all items (for the LLM comparison, on a seeded 6,000-tweet
+subsample). Scripts `h6g_regression.py` to `h6n_width.py`, `llm_code.py`,
+`h3_llm_width.py`; numbers from `LOG.md` entries 6g to 6n and milestone 5.
+
+*Validity at n = 400.* The regression run on a stand-in coder's own codes covers
+the corpus coefficients in 0 of 15 cells (biases up to +0.52, sign flips between
+coders). Prediction-powered OLS covers 93.6 to 95.7% but is 1.08 to 1.41 times
+wider than hand-coding; choosing the weight per coefficient (PPI++) keeps
+coverage at 93.3 to 95.6% and the standard error at 0.99 to 1.00 times
+hand-coding for the two weak coders (0.935 to 0.988 for the 74%-agreement one).
+
+*Small audits.* At n = 60, 100, 200 (3,000 paired draws) human-only OLS with a
+normal interval already covers only 91.6, 92.9, 94.0% on average, and tuned
+PPI++ loses a further 0.7, 0.5, 0.35 points. Dividing each audit row's
+influence by 1 - h_i (HC3 type, h_i from the blended design matrix; heuristic,
+not derived) and using t quantiles lifts tuned PPI++ to 93.1 / 94.0 / 93.8% and
+two-fold cross-fit PPI++ to 94.3 / 95.2 / 94.9% (n = 60 / 100 / 200, lexicon
+coder; 1,500 draws). The shortfall was mostly the missing leverage term, not
+the choice of weight.
+
+*Is it narrower, once valid?* Against human-only HC3 + t, tuned PPI++'s mean
+half-width ratio at n = 400 is 0.995 and 0.994 for the two 0.68-agreement
+stand-ins and 0.961 for the 0.743-agreement one. At n = 60 the ratios are lower
+(0.957, 0.956, 0.908) but coverage there is 0.5 to 1.3 points under
+human-only's, so part of that is selection of the weight on the audit, not free
+efficiency. Cross-fit costs width: 1.03 at n = 400 and 1.09 to 1.18 at n = 60.
+
+*A real LLM coder.* Qwen2.5-1.5B-Instruct, zero-shot, one fixed prompt
+(score = logit(Yes) - logit(No), code = score > 0, no threshold tuned on human
+labels), coded 6,000 NaijaSenti tweets on 4 CPU cores in about 21 minutes. It
+agrees with the human label 66.1% of the time (sensitivity 0.439, specificity
+0.769), below the in-language naive Bayes (73.5%). Tuned PPI++ + HC3 + t
+half-width ratio to human-only, n = 60 / 100 / 200 / 400: LLM 0.942 / 0.960 /
+0.971 / 0.978; in-language naive Bayes 0.918 / 0.941 / 0.956 / 0.966; the two
+weakest stand-ins 0.958 to 0.996. Coverage is 93.2 to 94.9% for every coder at
+n >= 100 (600 draws, about 0.9 points of noise per cell). The LLM beats the two
+stand-ins with the same agreement because its errors are less one-sided. No
+coder reaches the 20% gain that H3's break-even claim needs, so H3 as stated
+is **untested, not refuted**: the model is small and handles Hausa, Igbo and
+Yoruba badly.
+
+## 8 Limits and what remains
+
+1. **One small real LLM.** H3 (a real instruction-following model changes
+   the break-even audit size by 3x or more) is untested at the scale it
+   needs: the only model run is a zero-shot 1.5B model on one corpus and
+   outcome (Section 7). A larger or multilingual model, few-shot prompts and a
+   second corpus are open, and need a GPU or a paid API key (an owner step).
 2. Two corpora for group shift (NaijaSenti, GoEmotions by subreddit type), one
    for rare categories and sizing; the proposal asked for three.
 3. Truth is a corpus-wide hand code, not an independent gold standard.
 4. The floor multiplier (5) is fitted on the corpus it was first reported on.
 5. The sequential coverage uses the nominal normal interval; an always-valid
    interval was not compared.
-6. Regression-coefficient extension (H5 second half): coverage tested for OLS on the corpus's own coefficients with stand-in coders (milestone 6g; PPI valid, wider than hand-coding; milestone 6h: a power-tuned weight per coefficient keeps coverage at 93.3 to 95.6% and is never wider than hand-coding, and 1 to 7% narrower for the 74%-agreement coder); no real LLM, no logistic regression.
+6. Regression coefficients (Section 7): OLS only, no logistic regression; the HC3 leverage term for the blended equation and the t degrees of freedom are heuristics, not derived; the tuned interval's width is a minimum over a weight grid, so its small-n narrowness is partly selection.
 
-## 8 Reproducibility
+## 9 Reproducibility
 
 Each table is written by one script in `experiments/` (about 30 s to 3 min
 each); data come from the public NaijaSenti and GoEmotions releases through the
@@ -208,7 +257,8 @@ loaders of `qual-dialect` and `qual-real`; seeds are fixed in the scripts. Tests
 | 1 Introduction | drafted, needs the real-LLM result to state the headline |
 | 2 Related work | drafted; Gligorić et al. and Fisch et al. still to be read in full |
 | 3 to 6 | numbers current as of milestone 6f |
-| 7 | will shrink when milestone 5 runs |
+| 7 | added in draft 1 from LOG.md 6g to 6n and milestone 5; numbers copied from the log, not yet re-derived from the result files line by line |
+| 8 | updated for the 1.5B LLM; still lists the open model and corpus work |
 | LaTeX in the venue's format | not started; needs the venue's current template |
 | Owner step | submission (publishes under a name) |
 
