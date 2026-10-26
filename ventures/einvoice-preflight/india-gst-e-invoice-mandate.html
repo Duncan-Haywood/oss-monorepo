@@ -74,9 +74,10 @@
 <script type="module">
 import{checkGstin,checkDocumentNumber,financialYear,irn}from"./india.mjs";
 const $=i=>document.getElementById(i);
-function g(){const r=checkGstin($("gstin").value);$("gstin-out").innerHTML=!$("gstin").value?"":r.ok?'<span class="good">Shape and check character are consistent.</span>':r.problems.map(p=>`<span class="bad">${p}</span>`).join("<br>")}
-async function i(){const gs=checkGstin($("i-gstin").value),dn=checkDocumentNumber($("i-num").value),fy=financialYear($("i-date").value),p=[...gs.problems,...dn.problems];if(!fy)p.push("Enter a date.");if(p.length){$("irn-out").innerHTML=p.map(x=>`<span class="bad">${x}</span>`).join("<br>");return}
-$("irn-out").innerHTML=`Financial year ${fy}<br><code>${await irn({gstin:gs.gstin,financialYear:fy,docType:$("i-type").value,docNumber:$("i-num").value})}</code>`}
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function g(){const r=checkGstin($("gstin").value);$("gstin-out").innerHTML=!$("gstin").value?"":r.ok?'<span class="good">Shape and check character are consistent.</span>':r.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+async function i(){const gs=checkGstin($("i-gstin").value),dn=checkDocumentNumber($("i-num").value),fy=financialYear($("i-date").value),p=[...gs.problems,...dn.problems];if(!fy)p.push("Enter a date.");if(p.length){$("irn-out").innerHTML=p.map(x=>`<span class="bad">${esc(x)}</span>`).join("<br>");return}
+$("irn-out").innerHTML=`Financial year ${esc(fy)}<br><code>${esc(await irn({gstin:gs.gstin,financialYear:fy,docType:$("i-type").value,docNumber:$("i-num").value}))}</code>`}
 for(const e of["gstin"])$(e).addEventListener("input",g);for(const e of["i-gstin","i-date","i-type","i-num"])$(e).addEventListener("input",i);i();
 </script>
 </main>
