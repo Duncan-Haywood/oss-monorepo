@@ -188,3 +188,30 @@ test("a EUR and a GBP line far apart in value are not paired", () => {
   const b = twoForeign("1000.00", "1200.00");
   assert.notEqual(b.transactions[0].status, "transfer");
 });
+
+const net = (j, c) => j.flatMap((x) => x.lines).filter((l) => l.account === c).reduce((n, l) => n + l.debit - l.credit, 0);
+const CN_CSV = "type,number,date,due,party,amount,account,currency,against\ninvoice,E1,2026-01-05,,Client GmbH,1000.00,4000,EUR,\ncredit note,C1,2026-02-05,,Client GmbH,100.00,4000,EUR,E1\n";
+const CN_RATES = "2026-01-01,EUR,1.10\n2026-02-01,EUR,1.20";
+
+test("a EUR credit note at another rate lowers the EUR invoice by the units it carried; the rate gap is realized", () => {
+  const r = addDocuments(setRates(newBooks(), parseRates(CN_RATES).rates), CN_CSV);
+  assert.deepEqual(r.problems, []);
+  const inv = r.books.documents.find((d) => d.id === "INV-E1");
+  assert.equal(inv.credited, 11000); // 100 EUR x 1.10, what the invoice carried
+  const j = journal(r.books);
+  assert.equal(net(j, "1100"), 99000); // 900 EUR x 1.10 still owed
+  assert.equal(net(j, "6190"), -1000); // credit note booked at 1.20: 10.00 gain
+  const b2 = importStatement(r.books, "Date,Description,Amount\n2026-02-10,WIRE CLIENT GMBH E1,999.00\n", "1000").books;
+  const j2 = journal(addDocuments(b2, "").books);
+  assert.equal(net(j2, "1100"), 0);
+  assert.equal(net(j2, "6190"), -1900);
+});
+
+test("a EUR vendor credit at another rate clears the bill exactly", () => {
+  const csv = "type,number,date,due,party,amount,account,currency,against\nbill,B1,2026-01-05,,Host AG,500.00,6000,EUR,\nvendor credit,V1,2026-02-05,,Host AG,500.00,6000,EUR,B1\n";
+  const r = addDocuments(setRates(newBooks(), parseRates(CN_RATES).rates), csv);
+  assert.deepEqual(r.problems, []);
+  const j = journal(r.books);
+  assert.equal(net(j, "2050"), 0); // payable cleared, nothing left to pay
+  assert.equal(net(j, "6190"), 5000); // bill 550.00, credit 600.00: 50.00 loss
+});
