@@ -217,3 +217,20 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
     }
   });
 }
+
+// Halves: a statement cut in two (header repeated on the second half) must read,
+// together, the rows of the whole file. A header-less or preamble layout cannot be
+// cut by line, so only files whose header line reads on its own are checked.
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8").replace(/\r\n/g, "\n");
+  const lines = t.split("\n").filter(Boolean);
+  let base;
+  try { base = readStatement(t); } catch { continue; }
+  if (base.rows.length < 4 || lines.some((l) => (l.match(/"/g) ?? []).length % 2) || lines.length !== base.rows.length + 1) continue;
+  test(`${f}: the two halves read as the whole file`, () => {
+    const mid = 1 + Math.floor((lines.length - 1) / 2);
+    const a = readStatement([lines[0], ...lines.slice(1, mid)].join("\n") + "\n");
+    const b = readStatement([lines[0], ...lines.slice(mid)].join("\n") + "\n");
+    assert.equal(JSON.stringify([...a.rows, ...b.rows].map((x) => [x.date, x.cents, x.desc])), sig(base), `${f}: halves differ from the whole`);
+  });
+}
