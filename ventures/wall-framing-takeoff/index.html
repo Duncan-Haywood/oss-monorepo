@@ -135,7 +135,7 @@
     <p><input type="checkbox" id="dwOn" style="width:auto"> <label for="dwOn" style="display:inline">Also count interior drywall (inside faces of the exterior walls, both faces of partitions you mark unsheathed, optional flat ceilings; sheets hung in 4 ft courses)</label></p>
     <div class="grid" id="dwFields" hidden>
       <div><label for="dwLen">Sheet length</label><select id="dwLen"><option value="96" selected>8 ft</option><option value="108">9 ft</option><option value="120">10 ft</option><option value="144">12 ft</option><option value="192">16 ft</option></select></div>
-      <div><label for="dwCeil">Flat ceilings: width, depth; separate several with a semicolon (blank: none)</label><input id="dwCeil" placeholder="e.g. 40 ft, 28 ft"></div>
+      <div><label for="dwCeil">Flat ceilings: width, depth, then any dropped soffits as "length x drop"; separate several ceilings with a semicolon (blank: none)</label><input id="dwCeil" placeholder="e.g. 40 ft, 28 ft, 12 ft x 12 in"></div>
       <div><label for="dwJoints">Wall end joints</label><select id="dwJoints"><option value="">Not placed (sheet count only)</option><option value="true">Snap to studs (sheets may be cut short)</option><option value="false">Placed, not snapped (report where joints land)</option></select></div>
       <div><label for="dwJoist">Ceiling joist spacing (with snapping, cuts ceiling sheet ends back to a joist)</label><select id="dwJoist"><option value="">Not set</option><option value="roof">From the roof's ceiling joists (needs the roof on, with a ceiling joist size)</option><option value="12">12 in</option><option value="16">16 in</option><option value="19.2">19.2 in</option><option value="24">24 in</option></select></div>
       <div><label for="dwPrice">Price per sheet (blank: none)</label><input id="dwPrice" type="number" min="0" step="0.01" placeholder="e.g. 16"></div>
@@ -429,8 +429,17 @@
         const dw = { sheetLength: Number($("#dwLen").value) };
         for (const part of $("#dwCeil").value.split(";").map((t) => t.trim()).filter(Boolean)) {
           const q = part.split(",").map((t) => t.trim());
-          if (q.length !== 2) bad.push(`Ceiling "${part}": write two lengths, width then depth.`);
-          else { const [width, depth] = q.map((t) => L(t, "ceiling size")); (dw.ceiling = dw.ceiling || []).push({ width, depth }); }
+          if (q.length < 2) bad.push(`Ceiling "${part}": write two lengths, width then depth, then any steps as "length x drop".`);
+          else {
+            const [width, depth] = q.slice(0, 2).map((t) => L(t, "ceiling size"));
+            const c = { width, depth };
+            for (const st of q.slice(2)) {
+              const m = st.split(/\s+x\s+/i);
+              if (m.length !== 2) bad.push(`Ceiling step "${st}": write length x drop, such as 10 ft x 12 in.`);
+              else (c.steps = c.steps || []).push({ length: L(m[0], "ceiling step length"), drop: L(m[1], "ceiling step drop") });
+            }
+            (dw.ceiling = dw.ceiling || []).push(c);
+          }
         }
         if ($("#dwJoints").value) dw.jointsOnStuds = $("#dwJoints").value === "true";
         if ($("#dwJoist").value === "roof") dw.ceilingJoistsFromRoof = true;
@@ -598,7 +607,7 @@
     function renderDrywall(dw) {
       $("#drywallCard").hidden = !dw;
       if (!dw) return;
-      $("#drywallOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(drywallText(dw).join("\n"))}</pre><p class="note">Sheets only, counted from the wall faces in the wall list. A wall marked unsheathed is treated as a partition with drywall on both sides. Screws and compound are rates, not schedules; tape is measured from the seams and the wall-to-ceiling angle. Corner bead is counted around openings (both jambs and the head); free wall ends count only where you set Free ends on a wall; ceiling steps and trim are not counted.</p>`;
+      $("#drywallOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(drywallText(dw).join("\n"))}</pre><p class="note">Sheets only, counted from the wall faces in the wall list. A wall marked unsheathed is treated as a partition with drywall on both sides. Screws and compound are rates, not schedules; tape is measured from the seams and the wall-to-ceiling angle. Corner bead is counted around openings (both jambs and the head); free wall ends count only where you set Free ends on a wall; a dropped soffit on a ceiling (length x drop) is counted as one course of board, bead along its lower edge and taped angle; trim and where a partition meets a step are not.</p>`;
     }
     function renderInsulation(ins) {
       $("#insulationCard").hidden = !ins;
@@ -727,7 +736,7 @@
       $("#dwOn").checked = Boolean(dw); $("#dwFields").hidden = !dw;
       if (dw) {
         $("#dwLen").value = String(dw.sheetLength || 96);
-        $("#dwCeil").value = (dw.ceiling || []).map((c) => [c.width, c.depth].map(formatLength).join(", ")).join("; ");
+        $("#dwCeil").value = (dw.ceiling || []).map((c) => [...[c.width, c.depth].map(formatLength), ...(c.steps || []).map((st) => `${formatLength(st.length)} x ${formatLength(st.drop)}`)].join(", ")).join("; ");
         $("#dwJoints").value = typeof dw.jointsOnStuds === "boolean" ? String(dw.jointsOnStuds) : "";
         $("#dwJoist").value = dw.ceilingJoistsFromRoof ? "roof" : dw.ceilingJoistSpacing != null ? String(dw.ceilingJoistSpacing) : "";
         $("#dwPrice").value = dw.price != null ? String(dw.price) : "";
