@@ -840,7 +840,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const curCol = hdr.findIndex((x) => curRe.test(x) && x !== "valuta") !== -1 ? hdr.findIndex((x) => curRe.test(x) && x !== "valuta") : hdr.findIndex((x) => x === "valuta");
   const currencies = new Set();
   // Belgian and Dutch exports keep the free-text message apart from the counterparty's name; Intesa Sanpaolo's Descrizione estesa and Operazione sit beside Descrizione and Dettagli.
-  const msgCol = hdr.findIndex((x) => /^((vrije )?mededeling(en)?|descrizione estesa|operazione|riferimento di pagamento|r[eé]f[eé]rence de paiement|referencia de pago)$/.test(x));
+  const msgCol = hdr.findIndex((x) => /^((vrije )?mededeling(en)?|descrizione estesa|operazione|narration|umsatztext|riferimento di pagamento|r[eé]f[eé]rence de paiement|referencia de pago)$/.test(x));
   // Rabobank splits its description over Omschrijving-1..3.
   const omsCols = hdr.map((x, ix) => (/^omschrijving-[123]$/.test(x) ? ix : -1)).filter((ix) => ix !== -1);
   // UBS and others number their description columns (Description 1..3); join them in header order, not just the last.
