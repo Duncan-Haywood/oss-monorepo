@@ -149,5 +149,20 @@ At 3000 items (2026-10-22, 2 seeded respondents, 600 answers, selector loop
 only, no uncapped arm because it is minutes per run): items rd<150 73 shipped /
 131 capped, rank accuracy 0.051 / 0.057. The cap still beats the shipped
 selector; the margin is small and the sample is two respondents. Not measured:
-the same check through the HTTP route with Postgres, and budgets well past the
-list length, where the cap could start to hide items.
+the same check through the HTTP route with Postgres.
+
+### Budgets well past the list length (measured 2026-10-26)
+
+`poolCap.simulation.test.ts`, "budgets well past the list length": 500 items
+(above the 400 cap), 2 seeded respondents per cell (medians; small), so 4 and 8
+answers per item.
+
+| answers | items rd<150 shipped / capped / uncapped | rank accuracy |
+|---|---|---|
+| 2000 | 226 / 410 / 410 | 0.727 / 0.763 / 0.758 |
+| 4000 | 494 / 500 / 500 | 0.887 / 0.899 / 0.895 |
+
+The cap does not hide items at these budgets: capped matches uncapped (within
+0.005) and both beat the shipped selector. Only 500 items and 2 respondents
+were run, so this rules out a large loss, not a small one; 1000+ items at deep
+budgets (minutes per uncapped run) are not measured.
