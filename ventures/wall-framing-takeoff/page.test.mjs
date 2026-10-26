@@ -191,6 +191,12 @@ test("the drywall joint control is read into the plan and restored from a saved 
   assert.match(html, /\$\("#dwJoist"\)\.value = dw\.ceilingJoistsFromRoof \? "roof" : dw\.ceilingJoistSpacing != null/);
 });
 
+test("the drywall ceiling field reads and restores ceiling steps (length x drop)", () => {
+  const html = page("index.html");
+  assert.match(html, /\(c\.steps = c\.steps \|\| \[\]\)\.push\(\{ length: L\(m\[0\]/);
+  assert.match(html, /\(c\.steps \|\| \[\]\)\.map\(\(st\) => `\$\{formatLength\(st\.length\)\} x \$\{formatLength\(st\.drop\)\}`\)/);
+});
+
 test("the insulation controls are read into plan.insulation and restored from a saved plan", () => {
   const html = page("index.html");
   for (const id of ["inOn", "inBag", "inWaste", "inR", "inPrice", "inRim", "inAtticR", "inAtticPer", "inAtticBag", "insulationOut"]) assert.match(html, new RegExp(`id="${id}"`));
