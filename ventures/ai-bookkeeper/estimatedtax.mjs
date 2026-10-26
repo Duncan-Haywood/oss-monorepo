@@ -62,7 +62,9 @@ export function estimatedTax(books, o = {}) {
   const sc = scheduleC(books, { from: `${year}-01-01`, to: `${year}-12-31` });
   const profit = Math.round((sc.netProfit * 12) / months);
   const num = (v) => (Number.isFinite(v) ? v : 0); // a blank form field arrives as NaN
-  const wages = num(o.wages), other = num(o.otherIncome), withholding = num(o.withholding), paid = num(o.paid);
+  const nonNeg = (v) => Math.max(0, num(v)); // withholding and payments already sent cannot be negative
+  const wages = nonNeg(o.wages), other = num(o.otherIncome), withholding = nonNeg(o.withholding), paid = nonNeg(o.paid);
+  const priorTax = Number.isFinite(o.priorYearTax) ? Math.max(0, o.priorYearTax) : null; // blank or non-numeric means not given
   const se = selfEmployment(profit, { year, wages, wageBase: o.wageBase });
   const table = o.brackets ? { std: o.standardDeduction ?? 0, b: o.brackets } : BRACKETS[year]?.[filing];
   if (!table) throw new Error(`No ${filing} brackets on file for ${year}; pass brackets (and standardDeduction).`);
@@ -97,7 +99,7 @@ export function estimatedTax(books, o = {}) {
   // Safe harbour: smaller of 90% of this year and 100%/110% of last year.
   const current90 = Math.round(total * 0.9);
   let prior = null;
-  if (o.priorYearTax != null) prior = Math.round(o.priorYearTax * ((o.priorAgi ?? 0) > D(150000) ? 1.1 : 1.0));
+  if (priorTax != null) prior = Math.round(priorTax * (num(o.priorAgi) > D(150000) ? 1.1 : 1.0));
   else warnings.push("No prior-year tax given: the plan uses 90% of this year's estimate. Pass priorYearTax (and priorAgi) from last year's 1040 for the 100%/110% safe harbour, which is often far smaller.");
   const required = Math.max(0, (prior == null ? current90 : Math.min(current90, prior)) - withholding);
   const owedAfterWithholding = total - withholding;
