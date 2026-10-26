@@ -16,7 +16,7 @@ import { THICK, DEPTH, formatLength, layoutWall } from "./engine.mjs";
 const BAND = 48;
 const EPS = 1e-9;
 
-/** @typedef {{ ceilingJoistSpacing?: number, jointsOnStuds?: boolean, compoundGalPerSqFt?: number, tapeRollFt?: number, openingBead?: boolean, beadStickFt?: number, sheetLength?: number, height?: number, ceiling?: { width: number, depth: number }[], faces?: "inside"|"both", screwsPerSqFt?: number, waste?: number, price?: number }} Drywall */
+/** @typedef {{ ceilingJoistsFromRoof?: boolean, ceilingJoistSpacing?: number, jointsOnStuds?: boolean, compoundGalPerSqFt?: number, tapeRollFt?: number, openingBead?: boolean, beadStickFt?: number, sheetLength?: number, height?: number, ceiling?: { width: number, depth: number }[], faces?: "inside"|"both", screwsPerSqFt?: number, waste?: number, price?: number }} Drywall */
 
 export function sampleDrywall() {
   return { sheetLength: 96, ceiling: [{ width: 480, depth: 336 }] };
@@ -115,9 +115,18 @@ function joistCentres(/** @type {number} */ width, /** @type {number} */ spacing
 /**
  * @param {Drywall} d
  * @param {{ studLength: number, defaultHeaderHeight: number, walls: any[] }} plan
+ * @param {any} [roof] a laid-out roof (`layoutRoof`); with `ceilingJoistsFromRoof` its ceiling joists set where ceiling end joints fall
  */
-export function layoutDrywall(d, plan) {
+export function layoutDrywall(d, plan, roof = null) {
   const errors = validateDrywall(d);
+  let roofCentres = null;
+  if (d.ceilingJoistsFromRoof) {
+    const xs = [...new Set((roof?.ceilingJoists || []).map((j) => Math.round((j.x + THICK / 2) * 16) / 16))].sort((a, b) => a - b);
+    if (!xs.length) errors.push("ceilingJoistsFromRoof needs a roof with a ceilingJoist size (trusses and rafter-only roofs list no ceiling joists); set roof.ceilingJoist or type ceilingJoistSpacing.");
+    else if (d.ceilingJoistSpacing != null) errors.push("Set ceilingJoistsFromRoof or ceilingJoistSpacing, not both.");
+    else if ((d.ceiling || []).some((c) => Math.abs(c.width - roof.length) > 1)) errors.push(`With ceilingJoistsFromRoof each ceiling width must equal the roof length (${formatLength(roof.length)}): the roof's joists are spaced along it.`);
+    else roofCentres = xs;
+  }
   if (errors.length) return { ok: false, errors };
   const len = d.sheetLength ?? 96;
   const height = d.height ?? Math.round((plan.studLength + 3 * THICK) / 12) * 12;
@@ -167,9 +176,10 @@ export function layoutDrywall(d, plan) {
   }
   const ceilings = [];
   const jSpacing = d.ceilingJoistSpacing ?? null;
-  const ceilingJoints = jSpacing ? { total: 0, offFraming: 0, naiveOffFraming: 0 } : null;
+  const useJoists = !!(jSpacing || roofCentres);
+  const ceilingJoints = useJoists ? { total: 0, offFraming: 0, naiveOffFraming: 0 } : null;
   for (const c of d.ceiling || []) {
-    const jc = jSpacing ? joistCentres(c.width, jSpacing) : null;
+    const jc = roofCentres ?? (jSpacing ? joistCentres(c.width, jSpacing) : null);
     for (let y = 0; y < c.depth - EPS; y += BAND) {
       const band = Math.min(BAND, c.depth - y);
       if (jc) {
@@ -207,7 +217,7 @@ export function layoutDrywall(d, plan) {
     finishing: { seamFt: Math.ceil(seamIn / 12), cornerFt: Math.ceil(cornerIn / 12), insideCornerFt: Math.ceil(insideIn / 12), tapeFt, tapeRolls: Math.ceil(tapeFt / rollFt), rollFt, compoundGal, compoundGalPerSqFt: galRate, beadFt, beadSticks: Math.ceil((beadFt * (1 + waste)) / beadStick - EPS), beadStickFt: beadStick }, hangHeight: height, walls, ceilings, bandSheets,
     sheets: { count: sheets, perSheetSqFt: sheetSqFt, price: d.price ?? null, cost: d.price != null ? sheets * d.price : null },
     netSqFt, boughtSqFt: sheets * sheetSqFt, screws, waste,
-    assumptions: { screwsPerSqFt: d.screwsPerSqFt ?? 1, rule: snap ? "horizontal 48 in courses, wall end joints snapped to studs, kings and jacks, ripped strips not reused" : "horizontal 48 in courses, end joints not placed on studs, ripped strips not reused" },
+    assumptions: { joistSource: roofCentres ? "the roof's ceilingJoist layout" : "ceilingJoistSpacing", screwsPerSqFt: d.screwsPerSqFt ?? 1, rule: snap ? "horizontal 48 in courses, wall end joints snapped to studs, kings and jacks, ripped strips not reused" : "horizontal 48 in courses, end joints not placed on studs, ripped strips not reused" },
   };
 }
 
@@ -223,7 +233,7 @@ export function drywallText(d) {
   l.push(`  compound: ${f.compoundGal} gal at ${f.compoundGalPerSqFt} gal per sq ft plus waste (a rule of thumb you can change, not a product label)`);
   if (f.beadFt) l.push(`  corner bead: ${f.beadFt} ft around door and window openings (both jambs and the head) and free wall ends (freeEnds), each drywalled face = ${f.beadSticks} sticks of ${f.beadStickFt} ft with waste`);
   if (d.joints) l.push(`  end joints on walls: ${d.joints.total} (${d.joints.offFraming} off framing; hung from each run's start with no snapping, ${d.joints.naiveOffFraming} would be)${d.ceilingJoints ? "" : "; ceiling joists are not known, so ceiling joints are not checked"}`);
-  if (d.ceilingJoints) l.push(`  end joints on ceilings: ${d.ceilingJoints.total} (${d.ceilingJoints.offFraming} off a joist; hung from the first wall with no snapping, ${d.ceilingJoints.naiveOffFraming} would be); joists run across the depth, spaced along the width (ceilingJoistSpacing)`);
+  if (d.ceilingJoints) l.push(`  end joints on ceilings: ${d.ceilingJoints.total} (${d.ceilingJoints.offFraming} off a joist; hung from the first wall with no snapping, ${d.ceilingJoints.naiveOffFraming} would be); joists run across the depth, spaced along the width (${d.assumptions.joistSource})`);
   l.push(`  ${d.joints && d.assumptions.rule.includes("snapped") ? "Wall end joints are snapped to framing (jointsOnStuds);" : "Wall end joints are not placed on studs (set drywall.jointsOnStuds: true);"} ${d.ceilingJoints && d.assumptions.rule.includes("snapped") ? "ceiling end joints are snapped to joists;" : "ceiling joints are not placed on joists (set ceilingJoistSpacing and jointsOnStuds);"}`+"  bead on ceiling steps, trim and angles where a partition meets a ceiling step are not counted.");
   return l;
 }

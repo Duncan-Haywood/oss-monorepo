@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { layoutDrywall, validateDrywall } from "./drywall.mjs";
 import { main } from "./cli.mjs";
 import { samplePlan } from "./engine.mjs";
+import { layoutRoof, sampleRoof } from "./roof.mjs";
 
 
 const plan = (walls) => ({ studLength: 92.625, defaultHeaderHeight: 82.5, walls });
@@ -135,4 +136,22 @@ test("ceilingJoistSpacing: a 20 x 8 ft ceiling, 10 ft sheets, joists at 16 in: t
   assert.equal(base.ceilingJoints, null);
   assert.equal(base.sheets.count, 4);
   assert.ok(validateDrywall({ ceilingJoistSpacing: 20 }).length);
+});
+
+test("ceilingJoistsFromRoof: joist centres come from the roof layout, not a typed spacing (hand count at 24 in)", () => {
+  const p = { ...samplePlan(), walls: [] };
+  const roof = layoutRoof({ ...sampleRoof(), length: 240, spacing: 24 }, p);
+  assert.ok(roof.ok && roof.ceilingJoists.length);
+  const c = [{ width: 240, depth: 96 }];
+  // joists at 2, 24, 48 ... 216, 238 in; 10 ft sheets: the naive joint at 120 is on a joist (120 = 5 x 24)
+  const naive = layoutDrywall({ sheetLength: 120, ceiling: c, ceilingJoistsFromRoof: true }, p, roof);
+  assert.ok(naive.ok, naive.errors?.join());
+  assert.deepEqual(naive.ceilingJoints, { total: 2, offFraming: 0, naiveOffFraming: 0 });
+  // the same ceiling on a typed 16 in spacing has the joint off a joist
+  const typed = layoutDrywall({ sheetLength: 120, ceiling: c, ceilingJoistSpacing: 16 }, p);
+  assert.equal(typed.ceilingJoints.naiveOffFraming, 2);
+  // errors: no roof, both settings, width mismatch
+  assert.equal(layoutDrywall({ ceiling: c, ceilingJoistsFromRoof: true }, p).ok, false);
+  assert.equal(layoutDrywall({ ceiling: c, ceilingJoistsFromRoof: true, ceilingJoistSpacing: 16 }, p, roof).ok, false);
+  assert.equal(layoutDrywall({ ceiling: [{ width: 300, depth: 96 }], ceilingJoistsFromRoof: true }, p, roof).ok, false);
 });
