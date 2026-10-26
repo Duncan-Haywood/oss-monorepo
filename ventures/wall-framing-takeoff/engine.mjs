@@ -218,14 +218,14 @@ export function validatePlan(plan) {
     const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
     let prevEnd = -Infinity;
     let prevName = "";
-    const vzones = framingZones(ops);
+    const vzones = framingZones(ops, wall.length);
     for (const [oi, op] of ops.entries()) {
       const on = `${name}, ${op.label || op.kind} at ${formatLength(op.offset)}`;
       if (!(op.width > 0)) { errors.push(`${on}: rough opening width must be more than zero.`); continue; }
       if (!(op.height > 0)) { errors.push(`${on}: rough opening height must be more than zero.`); continue; }
       const z = vzones[oi];
       if (z.start < THICK - EPS || z.end > wall.length - THICK + EPS) {
-        errors.push(`${on}: the king studs run past the end studs. Move the opening at least ${formatInches(z.reach + THICK)} from the wall end, or frame this end by hand.`);
+        errors.push(`${on}: the king studs run past the end studs. Move the opening at least ${formatInches(THICK * (z.jacks + 1))} from the wall end (its jacks must clear the end stud), or frame this end by hand.`);
       }
       if (z.start < prevEnd - EPS) errors.push(`${on}: its king studs overlap the ${prevName}, and the ${formatInches(op.offset - (ops[oi - 1].offset + ops[oi - 1].width))} between them is too narrow to share kings. Make them one wider opening, or move them at least ${formatInches(THICK * ((ops[oi - 1].jacks ?? 1) + (op.jacks ?? 1) + Math.max(ops[oi - 1].kings ?? 1, op.kings ?? 1)))} apart.`);
       prevEnd = z.end;
@@ -277,8 +277,24 @@ function framingZone(op) {
  * sit against the left opening's jacks, and the right opening has none on that
  * side. Closer than that, the zones stay overlapped and validatePlan says so.
  */
-function framingZones(ops) {
+function framingZones(ops, length) {
   const zones = ops.map((op) => framingZone(op));
+  // Near a wall end the end stud (or the corner's) does a king's work: drop the kings that do not fit, down to none,
+  // as long as the jacks still clear the end stud.
+  for (const [i, z] of zones.entries()) {
+    const op = ops[i];
+    const fit = (room) => Math.max(0, Math.floor((room - THICK * z.jacks + EPS) / THICK));
+    if (z.start < THICK - EPS && op.offset - THICK >= THICK * z.jacks - EPS) {
+      z.leftKings = Math.min(z.kings, fit(op.offset - THICK));
+      z.start = op.offset - THICK * (z.jacks + z.leftKings);
+      z.endStudKing = "start";
+    }
+    if (length !== undefined && z.end > length - THICK + EPS && length - THICK - (op.offset + op.width) >= THICK * z.jacks - EPS) {
+      z.rightKings = Math.min(z.kings, fit(length - THICK - (op.offset + op.width)));
+      z.end = op.offset + op.width + THICK * (z.jacks + z.rightKings);
+      z.endStudKing = z.endStudKing ? "both" : "end";
+    }
+  }
   for (let i = 0; i + 1 < zones.length; i++) {
     const a = zones[i];
     const b = zones[i + 1];
@@ -346,8 +362,9 @@ export function layoutWall(plan, wall) {
   if (L - THICK > layout[layout.length - 1] + EPS) layout.push(L - THICK);
 
   const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
-  const zones = framingZones(ops).map((z, i) => ({ op: ops[i], ...z, g: openingGeometry(plan, wall, ops[i]) }));
+  const zones = framingZones(ops, wall.length).map((z, i) => ({ op: ops[i], ...z, g: openingGeometry(plan, wall, ops[i]) }));
   for (const z of zones) if (z.sharedWith && z.sharedWith.offset > z.op.offset) notes.push(`${z.op.label || z.op.kind} and ${z.sharedWith.label || z.sharedWith.kind} are ${formatInches(z.sharedWith.offset - (z.op.offset + z.op.width))} apart: they share ${z.rightKings} king stud${z.rightKings > 1 ? "s" : ""}${z.sharedGap > EPS ? ` (${formatInches(z.sharedGap)} left open beside the second opening's jack: block it)` : ""}.`);
+  for (const z of zones) if (z.endStudKing) notes.push(`${z.op.label || z.op.kind} is close to the wall end: the end stud serves as its king${z.endStudKing === "both" ? " on both sides" : ""}${z.leftKings < z.kings && z.endStudKing !== "end" ? `, ${z.leftKings} of ${z.kings} extra king${z.kings > 1 ? "s" : ""} on the left` : ""}.`);
   const overlaps = (x, a, b) => x < b - EPS && x + THICK > a + EPS;
   const inside = (x, a, b) => x >= a - EPS && x + THICK <= b + EPS;
 
@@ -577,7 +594,7 @@ function layoutGable(plan, wall) {
   const overlaps = (x, a, b) => x < b - EPS && x + THICK > a + EPS;
   const inside = (x, a, b) => x >= a - EPS && x + THICK <= b + EPS;
   const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
-  const zones = framingZones(ops).map((z, i) => ({ op: ops[i], ...z, g: openingGeometry(plan, wall, ops[i]) }));
+  const zones = framingZones(ops, wall.length).map((z, i) => ({ op: ops[i], ...z, g: openingGeometry(plan, wall, ops[i]) }));
   for (const z of zones) if (z.sharedWith && z.sharedWith.offset > z.op.offset) notes.push(`${z.op.label || z.op.kind} and ${z.sharedWith.label || z.sharedWith.kind} are ${formatInches(z.sharedWith.offset - (z.op.offset + z.op.width))} apart: they share ${z.rightKings} king stud${z.rightKings > 1 ? "s" : ""}${z.sharedGap > EPS ? ` (${formatInches(z.sharedGap)} left open beside the second opening's jack: block it)` : ""}.`);
   const fullStudX = [];
   for (const x of layout) {
