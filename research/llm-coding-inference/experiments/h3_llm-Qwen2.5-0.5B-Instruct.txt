@@ -1,0 +1,30 @@
+coder llm-Qwen2.5-0.5B-Instruct: corpus 6000 items, human negative share 0.327; coder positive share 0.025; agreement 0.668, sensitivity 0.031, specificity 0.977; sizes (60, 100, 200, 400), 600 draws, seed 20261031
+columns: coverage hum-hc3t, ins-hc3t; mean half-width ratio ins-hc3t/hum-hc3t (same audit)
+# llm-Qwen2.5-0.5B-Instruct n=60: 0 of 600 draws dropped
+llm-Qwen2.5-0.5B-Instruct 60 intercept(yor) 0.910 0.900 0.945
+llm-Qwen2.5-0.5B-Instruct 60 hau 0.942 0.938 0.975
+llm-Qwen2.5-0.5B-Instruct 60 ibo 0.970 0.967 0.955
+llm-Qwen2.5-0.5B-Instruct 60 pcm 0.930 0.928 0.980
+llm-Qwen2.5-0.5B-Instruct 60 loglen_z 0.952 0.955 0.961
+llm-Qwen2.5-0.5B-Instruct 60 MEAN 0.941 0.938 0.963
+# llm-Qwen2.5-0.5B-Instruct n=100: 0 of 600 draws dropped
+llm-Qwen2.5-0.5B-Instruct 100 intercept(yor) 0.933 0.913 0.969
+llm-Qwen2.5-0.5B-Instruct 100 hau 0.917 0.922 0.988
+llm-Qwen2.5-0.5B-Instruct 100 ibo 0.940 0.950 0.976
+llm-Qwen2.5-0.5B-Instruct 100 pcm 0.943 0.938 0.993
+llm-Qwen2.5-0.5B-Instruct 100 loglen_z 0.945 0.942 0.982
+llm-Qwen2.5-0.5B-Instruct 100 MEAN 0.936 0.933 0.982
+# llm-Qwen2.5-0.5B-Instruct n=200: 0 of 600 draws dropped
+llm-Qwen2.5-0.5B-Instruct 200 intercept(yor) 0.933 0.922 0.982
+llm-Qwen2.5-0.5B-Instruct 200 hau 0.960 0.963 0.996
+llm-Qwen2.5-0.5B-Instruct 200 ibo 0.937 0.935 0.986
+llm-Qwen2.5-0.5B-Instruct 200 pcm 0.942 0.935 0.997
+llm-Qwen2.5-0.5B-Instruct 200 loglen_z 0.947 0.942 0.992
+llm-Qwen2.5-0.5B-Instruct 200 MEAN 0.944 0.939 0.991
+# llm-Qwen2.5-0.5B-Instruct n=400: 0 of 600 draws dropped
+llm-Qwen2.5-0.5B-Instruct 400 intercept(yor) 0.947 0.948 0.993
+llm-Qwen2.5-0.5B-Instruct 400 hau 0.942 0.945 0.999
+llm-Qwen2.5-0.5B-Instruct 400 ibo 0.950 0.950 0.992
+llm-Qwen2.5-0.5B-Instruct 400 pcm 0.937 0.938 0.999
+llm-Qwen2.5-0.5B-Instruct 400 loglen_z 0.955 0.952 0.997
+llm-Qwen2.5-0.5B-Instruct 400 MEAN 0.946 0.947 0.996
