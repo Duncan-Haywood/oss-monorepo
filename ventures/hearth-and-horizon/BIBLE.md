@@ -308,6 +308,7 @@ numbers worked out before drafting.
 
 - *(Done: The Last Barge, Nelkuk, Alaska, 2047 to 2048; text only.)* A cemetery bluff retreating 1.1 to 6 m a year; a widow's 64 years of pace counts (71 cm a pace) extend ten years of drone data, a bootstrap gives the front row a median 7 years (3 to 10) and the honest caveat is that ten years is too short; the village books the one annual barge and adopts a trigger rule, a 12 m edge distance.
 - *(Done: The Eighteenth Place, Marlow Falls, Pennsylvania, 2048; text only.)* A lead-in-water test passes on the 90th percentile (8.6 µg/L, the 18th of 20) with two samples at 31 and 44; an exact binomial interval says 23 to 600 of 1,900 lead-line homes, profile sampling finds the 44 is a 1991 brass faucet, and the council adopts a three-highest reporting rule, a 60-home retest and children-first pipe order.
+- *(Done: The Clear Reading, Pazhayakadu, Idukki, Kerala, 2047; text only.)* A parish eye camp's reading assistant (sensitivity 90, specificity 85, made on a 30%-prevalence set) flags 135 of 600 where the nuns expected 60; at 10% prevalence a positive is right 40 times in 100, not 72. A dilated second look confirms 55, 36 laser places go to 56 people, and a nurse's one question finds a cobweb the machine cleared.
 
 **For Other Minds**
 
