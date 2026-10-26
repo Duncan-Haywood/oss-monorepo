@@ -1,6 +1,8 @@
 ---
 title: "Making a volatility-break detector less jumpy on messy noise"
 date: 2026-10-26
+description: "changepoint-detector's `meanvar` model looks for changes in a series' level or volatility. It assumes independent Gaussian noise, and on heavy-tailed or..."
+tags: [changepoint-detector, ventures]
 ---
 
 changepoint-detector's `meanvar` model looks for changes in a series' level or volatility. It assumes independent Gaussian noise, and on heavy-tailed or volatility-clustered noise it reports breaks that are not there: on 200-point series with no break at all it fired 62% of the time on heavy-tailed noise and 51% on GARCH noise.

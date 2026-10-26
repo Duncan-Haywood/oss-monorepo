@@ -1,0 +1,37 @@
+name: vsme-report-builder
+description: >-
+  Free browser tool for small EU suppliers asked for ESG data by customers or banks: builds a draft VSME Basic Module report (EFRAG disclosures B1 to B11) from energy, emissions, workforce, safety and pay figures, with a completeness check and consistency flags. Nothing is uploaded. A drafting aid, not assurance or advice.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-26: no vsme tool in ventures/ or the screened-out list; nearest siblings are eu-csrd-scope-checker (scope only) and cbam-cost-estimator.
+# First visitor: an owner or office manager at a 10-250 person EU manufacturer or service firm whose large customer or bank sent a sustainability
+# questionnaire; searches "VSME report template", "VSME Basic Module example", "supplier ESG questionnaire small business".
+# Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. A paid version, not built, would be a questionnaire-to-VSME mapper and a
+# Comprehensive Module, behind an env-var switch.
+# Liability: drafting aid; unverified against the standard's primary text (stated on page and README); supplies no emission factors on purpose.
+
+hypotheses:
+  - claim: >-
+      Small suppliers who have received a customer or bank ESG questionnaire will use a free VSME draft builder to see which figures they are missing, rather than paying a consultant for a first pass.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+  - A report that a datapoint, unit or required field differs from the EFRAG VSME standard on the same inputs.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/vsme-report-builder/
+  analytics: null

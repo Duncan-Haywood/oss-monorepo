@@ -1,6 +1,8 @@
 ---
 title: "Six real Dutch MT940 layouts, one bank's markers leaking into descriptions"
 date: 2026-10-26
+description: "We ran six MT940 statements from a public test folder (ABN AMRO, ING, KNAB, Rabobank, SNS, Triodos; real layouts, made-up rows) through ai-bookkeeper's..."
+tags: [ai, ventures]
 ---
 
 We ran six MT940 statements from a public test folder (ABN AMRO, ING, KNAB, Rabobank, SNS, Triodos; real layouts, made-up rows) through ai-bookkeeper's reader. Five came out right, including ABN AMRO's 65-column wrapped references and ING's invisible soft hyphens inside dates.
