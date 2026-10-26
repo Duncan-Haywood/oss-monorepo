@@ -38,7 +38,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-10-26-llm-coding-inference-audit-size-second-corpus.md; LOG.md 6o entry and paper section 9",
+  "writeups": [
+    "docs/posts/2026-10-26-llm-coding-inference-audit-size-second-corpus.md",
+    "research/llm-coding-inference/LOG.md"
+  ],
   "goal": null,
   "notes": "Milestone 6o: audit-size rule checked on GoEmotions subreddit groups; 3 of 4 predictions held, the 4th refuted. Local checks: research build.py ok, check_md_links ok, programme_check ok.",
   "corrections": [],
