@@ -55,3 +55,14 @@ test("Plaid's personal_finance_category is kept as a weak hint, and only for cod
   assert.equal(by("ZQY").suggestion.account, null);
   assert.equal(by("ZQZ").suggestion.account, "4200");
 });
+
+test("a /transactions/sync file reads its added and modified lists; an object with neither reads as empty, not a crash", async () => {
+  const { readPlaid } = await import("./plaid.mjs");
+  const sync = JSON.stringify({ added: [tx({ transaction_id: "s1", date: "2026-04-01", amount: 3, name: "A" })], modified: [tx({ transaction_id: "s2", date: "2026-04-02", amount: 4, name: "B" })], removed: [] });
+  assert.deepEqual(readPlaid(sync).rows.map((x) => x.cents), [-300, -400]);
+  const added = JSON.stringify({ added: [tx({ transaction_id: "s3", date: "2026-04-03", amount: 5, name: "C" })] });
+  assert.deepEqual(readPlaid(added).rows.map((x) => x.cents), [-500]);
+  const r = readPlaid('{"next_cursor":"x"}');
+  assert.equal(r.rows.length, 0);
+  assert.match(r.problems.join(" "), /No transactions were found/);
+});
