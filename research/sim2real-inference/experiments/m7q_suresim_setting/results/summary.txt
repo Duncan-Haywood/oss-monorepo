@@ -1,0 +1,9 @@
+reps per cell 100; n=60, N=700, alpha=0.1; ratio = width / real-only betting width
+[pendulum] k=1 all pairs (21 pairs): rho median 0.83; min coverage 96.0; uniform ratio median 1.343 (narrower on 0); 2-stage ratio median 1.467, min 0.932 (narrower on 1)
+[pendulum] k=1 rho in [0.6,0.85] (9 pairs): rho median 0.77; min coverage 97.0; uniform ratio median 1.510 (narrower on 0); 2-stage ratio median 1.316, min 1.027 (narrower on 0)
+[pendulum] k=5 all pairs (21 pairs): rho median 0.83; min coverage 99.0; uniform ratio median 2.013 (narrower on 0); 2-stage ratio median 1.860, min 1.647 (narrower on 0)
+[pendulum] k=5 rho in [0.6,0.85] (11 pairs): rho median 0.79; min coverage 100.0; uniform ratio median 2.140 (narrower on 0); 2-stage ratio median 1.871, min 1.724 (narrower on 0)
+[cartpole] k=1 all pairs (21 pairs): rho median 0.86; min coverage 100.0; uniform ratio median 1.341 (narrower on 0); 2-stage ratio median 1.715, min 1.360 (narrower on 0)
+[cartpole] k=1 rho in [0.6,0.85] (5 pairs): rho median 0.78; min coverage 100.0; uniform ratio median 1.347 (narrower on 0); 2-stage ratio median 1.733, min 1.715 (narrower on 0)
+[cartpole] k=5 all pairs (21 pairs): rho median 0.85; min coverage 99.0; uniform ratio median 1.340 (narrower on 0); 2-stage ratio median 1.718, min 1.693 (narrower on 0)
+[cartpole] k=5 rho in [0.6,0.85] (7 pairs): rho median 0.79; min coverage 100.0; uniform ratio median 1.351 (narrower on 0); 2-stage ratio median 1.732, min 1.713 (narrower on 0)
