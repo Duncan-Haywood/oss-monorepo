@@ -1,4 +1,4 @@
-"""Milestone 4f: why does 2-bit stochastic quantisation + error feedback fail (4e)? Same setup as 4e (3d model, 3,840 steps,
+"""Milestone 4g: why does 2-bit stochastic quantisation + error feedback fail (4e)? Same setup as 4e (3d model, 3,840 steps,
 M = 4, lr 2e-3, H = 16, plain outer step), seed 0; logs the relative residual norm ||e|| / ||delta + e|| every round for
 2-bit stochastic + EF and scaled-sign + EF. Usage: python3 ef_norm.py run   then   python3 ef_norm.py report."""
 import json, os, sys

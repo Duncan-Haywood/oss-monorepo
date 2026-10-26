@@ -35,6 +35,7 @@ Options:
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period)
   --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.1 = knots at 10 to 90%; 0.2 = the old 20 to 80%)
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
+  --bootstrap               with --model meanvar: set the penalty from block-resampled residuals (much fewer false alarms on heavy tails, clustered volatility or autocorrelated noise; a little less power at n = 100)
   --overdispersion [phi|nb] counts (nb: a negative-binomial cost for independent clumpy counts, also with --period and --trend; in the Bayesian pass without them): scale the penalty by the counts' dispersion (variance over mean, estimated from block totals, or the number given), so sticky or clumped counts are not cut into many steps
   --ar1 [joint]             allow for lag-1 autocorrelation (mean model): widen the noise scale, or
                             'joint' to fit the means and rho together (more power on small shifts)
@@ -63,6 +64,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--drift') opt.drift = true;
     else if (a === '--robust') opt.robust = true;
     else if (a === '--dispersion') opt.dispersion = true;
+    else if (a === '--bootstrap') opt.bootstrap = true;
     else if (a === '--overdispersion') opt.overdispersion = argv[i + 1] === 'nb' ? (i++, 'nb') : argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--bursts') opt.bursts = argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--burst-runs') opt.burstRuns = Number(argv[++i]);
