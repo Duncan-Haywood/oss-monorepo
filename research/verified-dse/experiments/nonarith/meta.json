@@ -1,0 +1,10 @@
+{
+ "base_period_ns": {
+  "barrel64": 3.66,
+  "barrel128": 6.29,
+  "popcount64": 4.09,
+  "popcount128": 5.09,
+  "alu32": 4.99
+ },
+ "n_sequences": 60
+}

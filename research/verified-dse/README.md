@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 9 done (9: five larger designs, first sign of H2).
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 15 done (9: five larger designs, first sign of H2; 15: five larger non-arithmetic designs, where an R2 cut again floors on one design, barrel64, and skipping the R2 cut removes it: [`experiments/nonarith/`](experiments/nonarith/results.txt)).
 The cheap rungs are measurably biased against routed area x delay; H2 to H4 are run on a
 cached table; H5 (proof prediction) is not testable on this benchmark as built.** Produced with AI assistance (Claude Code).
 It builds on none of the CU Boulder groups and claims no affiliation.
