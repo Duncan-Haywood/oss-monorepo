@@ -70,3 +70,18 @@ men. The textbook Poisson changepoint example (rate about 3 a year, then about 1
   (a list of dated events, no creative expression); only the yearly counts are kept here.
 - **Cite:** Jarrett, R. G. (1979). A note on the intervals between coal-mining disasters. *Biometrika* 66(1), 191-193.
 - **Used by:** `coal-disasters.test.mjs`.
+
+# Example data: daily foreign exchange returns, 2012-2018 (CHF, GBP, JPY)
+
+`fx-daily-returns.csv`: daily log returns in percent of the Swiss franc, pound sterling and
+yen against the US dollar (Federal Reserve H.10 rates), 1,750 trading days from 2012-01-04
+to 2018-12-31, on the days all three are published. A currency's return is the log change
+of its rate from the previous published day (the dataset gives GBP as USD per pound, so a
+rise is a stronger pound; CHF and JPY are per USD, so a rise is a weaker franc or yen).
+
+- **Retrieved:** 2026-10-26 from
+  <https://raw.githubusercontent.com/datasets/exchange-rates/main/data/daily.csv>
+  (originally FRED, series DEXSZUS, DEXUSUK, DEXJPUS).
+- **Licence:** Open Data Commons Public Domain Dedication and Licence 1.0, per that
+  repository's `datapackage.json`.
+- **Used by:** `eval/fx-shocks.mjs`, `fx-shocks.test.mjs`.
