@@ -57,6 +57,23 @@ class SitesTest(unittest.TestCase):
                          {"eq-flip", "and-to-or", "max-to-min", "const-plus-one"})
 
 
+class SuiteForTest(unittest.TestCase):
+    def test_pytest_style_suite_is_not_run_by_unittest_without_pytest(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            repo = Path(d)
+            (repo / "m.py").write_text("x = 1\n")
+            (repo / "test_m.py").write_text("def test_x():\n    assert True\n")
+            with mock.patch.object(redteam, "_has_pytest", return_value=False):
+                self.assertIsNone(redteam.suite_for(repo / "m.py", repo))
+            with mock.patch.object(redteam, "_has_pytest", return_value=True):
+                self.assertIsNotNone(redteam.suite_for(repo / "m.py", repo))
+            (repo / "test_m.py").write_text("import unittest\nclass T(unittest.TestCase):\n    pass\n")
+            with mock.patch.object(redteam, "_has_pytest", return_value=False):
+                self.assertIsNotNone(redteam.suite_for(repo / "m.py", repo))
+
+
 class CampaignTest(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()

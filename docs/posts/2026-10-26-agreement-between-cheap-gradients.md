@@ -1,7 +1,7 @@
 ---
 title: "When two redundant trainers agree, does the requester save anything?"
 date: 2026-10-26
-description: "Measured on a small transformer: honest gradients always agree, quarter-batch cheats agree with them 4 to 43% of the time, and paying for agreement saves 12 to 14% in one corner only."
+description: "On a small transformer, honest gradients always agree, quarter-batch cheats agree 4 to 43% of the time, and paying for agreement saves 12 to 14% in one corner."
 tags: [verifiable-training-mechanisms, research, mechanism-design, verification]
 ---
 
