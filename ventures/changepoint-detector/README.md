@@ -742,3 +742,5 @@ So the cost of the line is about 3 to 5 points of extra false warnings on clean 
 real but partial: about half of GARCH series at n = 200 are flagged, still about a third at n = 100. The 11.07 cut
 is the textbook value, not tuned on these runs; a stricter 15 would hold Gaussian false warnings near 2% to 3%
 and flag 11% / 35% of GARCH nulls. Only simulated GARCH was tried, no real volatility-clustering series.
+
+Nile variants (2026-10-26, `nile-variants.test.mjs`): on the real Nile series the documented 1898 dam break comes back as one change at 1899 under `mean`, `--ar1`, `meanvar` and `meanvar --robust`, and every 95% range holds 1899. `--ar1` widens the range from 1897-1899 to 1897-1901 and cuts the Bayesian probability from 79% to 50%: the autocorrelation allowance costs certainty about the date, not the date itself.
