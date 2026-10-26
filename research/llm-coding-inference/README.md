@@ -34,6 +34,8 @@ Related labs: none claimed; this is methods work for computational social scienc
 
 **The floor rule on 18 unseen categories (milestone 4e).** Applied unchanged to the 18 other GoEmotions emotions (0.99 to 7.69% prevalence), the rule keeps normal-IPW coverage at 93.2 to 97.0% in all 18, but the interval is 1.02 to 1.49 times the uniform-Wilson width in 16 of them (0.89 for desire at 0.99% and 1.00 for surprise). So the rule is a safe default, and its width gain is confined to prevalence below about 1%, which no held-out category reaches; same corpus, same weak non-LLM coder, 500 draws ([`experiments/floor_rule_heldout.txt`](experiments/floor_rule_heldout.txt), [`LOG.md`](LOG.md)).
 
+**Small audits (milestones 6k to 6m).** At audits of 60 to 200 hand-coded tweets (NaijaSenti regression, stand-in coders, 1,500 draws per cell) the normal-interval PPI++ estimators cover 90 to 94%, and the shortfall is mostly a missing leverage correction, not the choice of the tuning weight: dividing each audit row's influence by 1 - h (HC3 type) with a t quantile lifts tuned PPI++ by about 2 points and a two-fold cross-fit estimator to 94.1 to 95.8% at n = 60 to 200. Interval width against human-only was not compared in this step, so it does not yet show PPI++ is worth using below n = 400 ([`LOG.md`](LOG.md), 6m).
+
 **Limitations.** The references in the proposal were not machine-checked (arXiv and Crossref returned 403 in the writing session); milestone 1 does that first.
 
 ## Code
