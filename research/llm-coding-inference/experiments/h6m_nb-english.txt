@@ -1,0 +1,24 @@
+coder nb-english; NaijaSenti test corpus 44485; audit sizes (60, 100, 200), 1500 draws, seed 20261028; coverage of nominal 95% intervals
+methods: hum-hc3t human-only HC3 + t(n-5); ins-t tuned PPI++ (6l, no leverage) + t; ins-hc3t tuned PPI++ with HC3-type influence + t(n-5); cf-t cross-fit (6l) + t; cf-hc3t cross-fit with HC3 + t(n-5); cf-hc3t2 same with t(n/2-5)
+coder n coefficient hum-hc3t ins-t ins-hc3t cf-t cf-hc3t cf-hc3t2  (mean over coefficients on the last line of each n)
+# nb-english n=60: 16 of 1500 draws dropped (singular audit design); t quantile 2.0040 vs 1.9600
+nb-english 60 intercept(yor) 0.912 0.892 0.910 0.873 0.904 0.911
+nb-english 60 hau 0.948 0.931 0.945 0.918 0.956 0.960
+nb-english 60 ibo 0.949 0.927 0.952 0.913 0.964 0.967
+nb-english 60 pcm 0.935 0.898 0.923 0.880 0.936 0.940
+nb-english 60 loglen_z 0.946 0.923 0.943 0.920 0.961 0.969
+nb-english 60 MEAN 0.938 0.914 0.935 0.901 0.944 0.949
+# nb-english n=100: 1 of 1500 draws dropped (singular audit design); t quantile 1.9853 vs 1.9600
+nb-english 100 intercept(yor) 0.917 0.901 0.913 0.905 0.929 0.933
+nb-english 100 hau 0.948 0.932 0.945 0.929 0.957 0.961
+nb-english 100 ibo 0.957 0.941 0.955 0.937 0.965 0.967
+nb-english 100 pcm 0.946 0.930 0.943 0.932 0.963 0.965
+nb-english 100 loglen_z 0.947 0.935 0.949 0.924 0.961 0.963
+nb-english 100 MEAN 0.943 0.928 0.941 0.925 0.955 0.958
+# nb-english n=200: 0 of 1500 draws dropped (singular audit design); t quantile 1.9722 vs 1.9600
+nb-english 200 intercept(yor) 0.918 0.915 0.917 0.911 0.929 0.931
+nb-english 200 hau 0.944 0.935 0.940 0.935 0.948 0.950
+nb-english 200 ibo 0.948 0.941 0.947 0.942 0.954 0.957
+nb-english 200 pcm 0.941 0.935 0.942 0.937 0.948 0.949
+nb-english 200 loglen_z 0.962 0.951 0.959 0.955 0.966 0.969
+nb-english 200 MEAN 0.943 0.935 0.941 0.936 0.949 0.951
