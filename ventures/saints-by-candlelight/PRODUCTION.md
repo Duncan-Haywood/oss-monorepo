@@ -198,10 +198,11 @@ writing it; skip any already in `episodes/`):
 - *(Done: episode 28, Jonah and the City That Listened; text only.)* The book of Jonah (Scripture told straight; Catholic and Orthodox)
 - *(Done: episode 29, Daniel and the Night with the Lions; text only.)* Daniel chapter six (Scripture told straight; Catholic and Orthodox)
 - *(Done: episode 30, Martin of Tours and the Half a Cloak; text only.)* Saint Martin of Tours and the cloak at Amiens (Sulpicius Severus, Life of Martin; geese and Saint Martin's summer labelled as later tradition and folk custom)
+- *(Done: episode 31, Seraphim of Sarov and the Bear in the Clearing; text only.)* Saint Seraphim of Sarov (Orthodox; Zander, Motovilov; bear and rock labelled as the tradition of his life; the Motovilov conversation and the Diveyevo ditch left for later nights)
 
 ## Audio status
 
-Episodes 1 to 19 have audio (episodes 20 to 30 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 19 have audio (episodes 20 to 31 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 
