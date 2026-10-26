@@ -52,6 +52,9 @@ on Verify or backlog edits alone usually falls short: 17 of the 61 process/1 run
 fix to a tool, check or file that the recent `doc_friction` entries
 (`promptctl.py measure`, "Doc friction by file") name. A result written to a
 backlog item is bookkeeping, not the deliverable.
+`python3 platform/ci/main_health.py` (about 40 s) runs every argument-free CI check on main
+and lists the red ones: the quickest way to find a live fault (five recent runs
+reported not knowing it).
 
 A good run often mixes modes. You might verify one item, solve another, and
 file the two new problems you hit along the way.
