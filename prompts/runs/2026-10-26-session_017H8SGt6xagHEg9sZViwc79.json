@@ -1,0 +1,243 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_017H8SGt6xagHEg9sZViwc79",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-26T12:27:07Z",
+  "ended": "2026-10-26T12:27:21Z",
+  "wall_minutes": 3.4,
+  "tokens_in": 1035605,
+  "tokens_out": 4991,
+  "cost_usd": 0.4234,
+  "tool_calls": 17,
+  "task": null,
+  "projects": [],
+  "pr": 10642,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post or agent doc: guard-only redteam run with nothing new to tell a reader",
+      "did": "skipped writeups",
+      "result": "fine"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target platform/pages/share.mjs; 8 mutants, 4 escaped (3 gaps guarded, 1 equivalent); no real defects found in a short hunt. No blog post: small guard-only run.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/share.mjs",
+        "test": "node --test platform/pages/share.test.mjs  (in .)",
+        "seed": 941893675,
+        "commit": "2c52ecde",
+        "sites": 106,
+        "baseline_seconds": 3.0,
+        "mutants": [
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 43,
+            "col": 53,
+            "operator": "or-to-and",
+            "before": "primary = primary.replace(FREE_PRIVATE, '').trim() || primary;",
+            "after": "primary = primary.replace(FREE_PRIVATE, '').trim() && primary;",
+            "line_text": "  primary = primary.replace(FREE_PRIVATE, '').trim() || primary;",
+            "caught": true,
+            "seconds": 3.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 92,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "for (const ch of `${section}/${topic}`) h = (h * 31 + ch.codePointAt(0)) >>> 0;",
+            "after": "for (const ch of `${section}/${topic}`) h = (h * 32 + ch.codePointAt(0)) >>> 0;",
+            "line_text": "  for (const ch of `${section}/${topic}`) h = (h * 31 + ch.codePointAt(0)) >>> 0;",
+            "caught": false,
+            "seconds": 3.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "pinned accentFor outputs"
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 148,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "const slice = html.slice(start, close > -1 ? Math.min(close, start + 4000) : start + 4000);",
+            "after": "const slice = html.slice(start, close > -2 ? Math.min(close, start + 4000) : start + 4000);",
+            "line_text": "  const slice = html.slice(start, close > -1 ? Math.min(close, start + 4000) : start + 4000);",
+            "caught": true,
+            "seconds": 3.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 180,
+            "col": 62,
+            "operator": "eq-flip",
+            "before": "const isSectionRoot = dir.split('/').filter(Boolean).length === 1;",
+            "after": "const isSectionRoot = dir.split('/').filter(Boolean).length !== 1;",
+            "line_text": "  const isSectionRoot = dir.split('/').filter(Boolean).length === 1;",
+            "caught": false,
+            "seconds": 2.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "section-root vs nested subtitle test"
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 213,
+            "col": 16,
+            "operator": "false-to-true",
+            "before": "let found = false;",
+            "after": "let found = true;",
+            "line_text": "    let found = false;",
+            "caught": true,
+            "seconds": 3.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 301,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "threads = Math.max(1, Math.min(8, availableParallelism())),",
+            "after": "threads = Math.max(1, Math.min(9, availableParallelism())),",
+            "line_text": "  threads = Math.max(1, Math.min(8, availableParallelism())),",
+            "caught": false,
+            "seconds": 3.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "thread cap 8 vs 9 only differs on hosts with >=9 cores and only changes pool size, not output"
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 302,
+            "col": 42,
+            "operator": "or-to-and",
+            "before": "cacheDir = process.env.PAGES_CARD_CACHE || '',",
+            "after": "cacheDir = process.env.PAGES_CARD_CACHE && '',",
+            "line_text": "  cacheDir = process.env.PAGES_CARD_CACHE || '',",
+            "caught": false,
+            "seconds": 3.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "env-var default cache dir test"
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 437,
+            "col": 96,
+            "operator": "plus-to-minus",
+            "before": "const opt = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);",
+            "after": "const opt = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length - 3);",
+            "line_text": "  const opt = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);",
+            "caught": true,
+            "seconds": 2.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "97aab72d-b13e-556c-94fe-2f14464187b4",
+    "transcripts": 1,
+    "first": "2026-10-26T12:27:07Z",
+    "last": "2026-10-26T12:30:31Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 16,
+        "input": 32,
+        "output": 4991,
+        "thinking": 467,
+        "cache_read": 991818,
+        "cache_write_5m": 0,
+        "cache_write_1h": 43755,
+        "api_equivalent_usd": 0.4234,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 16,
+      "input": 32,
+      "output": 4991,
+      "thinking": 467,
+      "cache_read": 991818,
+      "cache_write_5m": 0,
+      "cache_write_1h": 43755,
+      "api_equivalent_usd": 0.4234,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.958,
+    "tool_calls": 17,
+    "tools": {
+      "Bash": 15,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.4,
+      "active_minutes": 3.4,
+      "model_minutes": 0.77,
+      "tool_minutes": 2.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
