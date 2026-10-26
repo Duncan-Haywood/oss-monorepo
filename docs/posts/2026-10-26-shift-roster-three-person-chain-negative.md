@@ -1,6 +1,8 @@
 ---
 title: "A longer ejection chain did not close the last hour of a staff roster"
 date: 2026-10-26
+description: "Adding a three-person ejection chain to the roster engine left 62, 64 and 63 open hours on the hard week, so the move was removed and the benchmark kept."
+tags: [shift-roster-builder, scheduling, negative-result]
 ---
 
 The shift-roster-builder engine already matches an exact solver (HiGHS) on 11 of 12 seeded weeks. On the twelfth, a 10-person, 28-shift week, it leaves 62 hours of shifts open where 61 is possible. The obvious next idea was a longer chain: give the open shift to someone, who hands one of theirs to a second person, who hands one to a third.
