@@ -15,12 +15,16 @@ import torch
 
 
 class DiLoCo:
-    def __init__(self, model, loss_fn, workers=4, H=16, inner=None, outer=None, seed=0, compress=None, error_feedback=False):
+    def __init__(self, model, loss_fn, workers=4, H=16, inner=None, outer=None, seed=0, compress=None, error_feedback=False, aggregate="mean", attack=None):
         """inner(params) and outer(params) build torch optimisers; defaults are DiLoCo's AdamW and Nesterov SGD.
         compress(delta, gen) -> tensor, optional: applied to each worker's per-tensor delta (global minus its end point)
         before averaging, with `gen` a torch.Generator owned by the engine. None leaves the round unchanged.
         error_feedback: each worker keeps the residual (input minus compressed) per tensor and adds it to the next round's
-        delta before compressing (Seide et al. 2014; Stich et al. 2018), so a biased compressor such as top_k loses nothing for good."""
+        delta before compressing (Seide et al. 2014; Stich et al. 2018), so a biased compressor such as top_k loses nothing for good.
+        aggregate: "mean" (default) or "median", the coordinate-wise median of the workers' deltas (Yin et al. 2018).
+        attack(delta, worker_index) -> tensor, optional: replaces worker j's delta before aggregation (a Byzantine worker).
+        Both apply on the uncompressed path only."""
+        self.aggregate, self.attack = aggregate, attack
         inner = inner or (lambda p: torch.optim.AdamW(p, lr=1e-3, betas=(0.9, 0.95), weight_decay=0.0))
         outer = outer or (lambda p: torch.optim.SGD(p, lr=0.7, momentum=0.9, nesterov=True))
         self.model, self.loss_fn, self.H, self.rounds = model, loss_fn, H, 0
@@ -48,7 +52,12 @@ class DiLoCo:
         num = den = 0.0
         with torch.no_grad():
             for i, p in enumerate(g):
-                if self.compress is None:
+                if self.aggregate != "mean" or self.attack is not None:
+                    ds = torch.stack([p.data - list(w.parameters())[i].data for w in self.workers])
+                    if self.attack is not None:
+                        ds = torch.stack([self.attack(d, j) for j, d in enumerate(ds)])
+                    p.grad = ds.sort(0).values[(len(ds) - 1) // 2: len(ds) // 2 + 1].mean(0) if self.aggregate == "median" else ds.mean(0)
+                elif self.compress is None:
                     avg = torch.stack([list(w.parameters())[i] for w in self.workers]).mean(0)
                     p.grad = p.data - avg
                 else:

@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 5a: does median aggregation of worker deltas pay on the real GPT, with and without one attacker? (planned before running)
+- Why: H5 in the proposal (robust aggregation) has only had the closed-form `robust-outer` result (median costs about pi/2 in variance). Nothing yet on the real transformer. 4e (quantisation, PR 10664) is another run's; this step is independent of it.
+- Engine change: `DiLoCo(aggregate="median", attack=fn)`; coordinate-wise median of the workers' deltas (mean of the two middle values at M = 4), and an attack hook replacing worker j's delta. Test: `test_median_aggregate_and_attack`.
+- Design (`experiments/gpt_median_attack/median_attack.py`): 3d setup (M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps); aggregation in {mean, median} x offset a in {0, 3}; attacker is worker 0, adding a x rms(its own per-tensor delta) to every coordinate; seeds 0 to 2 (12 runs). Comparator: 3d uncompressed on the same seeds.
+- **H5a-i:** with no attacker, median aggregation has a higher final loss than mean on all 3 seeds. Refuted if any seed has median at or below mean.
+- **H5a-ii:** with a = 3, median beats mean on all 3 seeds. Refuted if mean wins any seed.
+- Prior: i yes (small, under 0.03 nats); ii yes (the offset adds 3 x rms / 4 to every coordinate of the averaged delta, a large drift, while the median moves by about half that at most... so ii is likely but the margin is unknown).
+- Limits: 3 seeds, one attack shape and size, one `H`, M = 4 with one attacker (25%), attacker does not adapt, bytes not modelled; the loss cost is not the variance factor of the proposal's H5, so this does not test pi/2 directly.
+
+### Outcome of 5a (`experiments/gpt_median_attack/median_attack_results.txt`; 12 runs, seeds 0 to 2)
+- Final validation loss, mean over seeds (3d uncompressed 1.5758). Offset 0: mean-agg 1.5758 (bit-identical to 3d, a determinism check), median 1.5785 (excess +0.0027; per seed +0.0165, -0.0089, +0.0003). Offset 3 rms: mean-agg 1.5730 (excess -0.0028; +0.0095, -0.0104, -0.0075), median 1.5787 (+0.0029; +0.0041, -0.0002, +0.0048).
+- **H5a-i refuted:** median is better than mean on seed 1 with no attacker (-0.0089), and the seed-2 difference (0.0003) is far below seed noise. **H5a-ii refuted:** with the attack, median beats mean on seed 0 only (by 0.0055); mean wins seeds 1 and 2 (by 0.010 and 0.012).
+- Reading: this attack does nothing measurable to DiLoCo on this model. One of four workers adding 3 x rms(delta) to every coordinate shifts the averaged delta by 0.75 rms per coordinate, a constant shift that the inner AdamW steps in the next round absorb; losses stay within seed noise (seed spread is about 0.01) of the clean run, and the 0.003 differences between arms are not distinguishable from it. So no crossover appears at this attack size, and the median's cost on the real GPT is under the seed noise too. The proposal's H5 (cost near pi/2 in variance, a crossover past a threshold) is not tested here: the attack is too weak to reach a threshold, and loss is not variance.
+- Limits: 3 seeds, one weak non-adaptive attack, one `H`, M = 4.
+- Next: a stronger attack (offset 30 or 300 rms, and a sign-flip with scaling) to find where the mean breaks and whether the median then holds, before any claim about the crossover.
+
 ## 2026-10-26 · Milestone 4f: what do 3-bit and un-fed-back scaled sign cost? (planned before running)
 - Why: 4e (#10664) measured 4-bit, 2-bit, 2-bit + EF and scaled sign + EF. It left two cells out: 3 bits, and scaled sign without EF (so EF's contribution at 1 bit is unmeasured). A parallel run of mine duplicated 4e's cells; its 4-bit, 2-bit and sign + EF numbers agree with 4e's within seed noise (4-bit -0.005, 2-bit +0.019 against +0.015, sign + EF -0.0067 identical per seed), which is a free replication.
 - Design (`experiments/gpt_quant_extra/quant_extra.py`): 4e's setup and `quantize` exactly; cells `quantize(3)` and `quantize(1)`, both without EF; seeds 0 to 2 (6 runs).
