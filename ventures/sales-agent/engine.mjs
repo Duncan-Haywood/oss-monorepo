@@ -124,11 +124,23 @@ export function stripQuoted(body) {
     }
     return 0;
   };
+  // Other languages ("schrieb:", "a écrit :", "написал:") have no fixed first word, so they count only when a quote follows.
+  const WROTE = /(?:schrieb|a écrit|ha scritto|escribió|escreveu|schreef|skrev|kirjoitti|napisał|написал[аи]?|пишет|écrit)(?:\s[^:]{0,80})?\s*:\s*$/i;
+  const foreignAttribution = (i) => {
+    if (quoted(lines[i]) || !/[\d@]/.test(lines[i])) return 0; // an attribution names a date or an address
+    for (let n = 1; n <= 3 && i + n <= lines.length; n++) {
+      const joined = lines.slice(i, i + n).join(" ");
+      if (joined.length > 200) break;
+      if (WROTE.test(joined)) return n;
+    }
+    return 0;
+  };
   const nextIsQuote = (i) => { while (i < lines.length && !lines[i].trim()) i++; return i < lines.length && quoted(lines[i]); };
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (quoted(line)) continue;
-    const n = attribution(i);
+    let n = attribution(i);
+    if (!n) { n = foreignAttribution(i); if (n && !nextIsQuote(i + n)) n = 0; }
     if (n) {
       // A reply typed under the quote (bottom-posted or between quoted paragraphs) is still the reply.
       if (nextIsQuote(i + n)) { i += n - 1; continue; }

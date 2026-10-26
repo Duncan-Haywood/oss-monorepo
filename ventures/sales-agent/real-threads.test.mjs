@@ -34,3 +34,22 @@ test("a reply typed under the quote still reaches the opt-out rule", () => {
   assert.equal(stripQuoted(msg), "Please remove me from your list.");
   assert.equal(triage({ body: stripQuoted(msg), subject: "", from: "a@b.example" }, "2026-10-24").category, "unsubscribe");
 });
+
+// A real Android reply from mailgun/talon (Apache-2.0): the quote header is Russian ("написал:").
+test("stripQuoted drops a non-English attribution line (talon android.eml)", () => {
+  const eml = read("talon-android.eml");
+  const b64 = eml.split(/Content-Transfer-Encoding: base64\r?\n\r?\n/)[1].split(/\r?\n\r?\n/)[0].replace(/\s+/g, "");
+  assert.equal(stripQuoted(Buffer.from(b64, "base64").toString("utf8")), "Hello");
+});
+
+test("German, French and Spanish attribution lines go; a reply under them is kept", () => {
+  const q = "\n> Want a demo?\n";
+  assert.equal(stripQuoted("Bitte entfernen Sie mich.\n\nAm 05.10.2026 um 10:12 schrieb Sam Ortiz <sam@example.test>:" + q), "Bitte entfernen Sie mich.");
+  assert.equal(stripQuoted("Non merci.\n\nLe 5 oct. 2026 à 10:12, Sam <sam@example.test> a écrit :" + q), "Non merci.");
+  assert.equal(stripQuoted("No gracias.\n\nEl 5 oct 2026, Sam <sam@example.test> escribió:" + q), "No gracias.");
+  assert.equal(stripQuoted("Am 05.10.2026 schrieb Sam <sam@example.test>:" + q + "\nBitte abmelden."), "Bitte abmelden.");
+});
+
+test("a sentence ending in 'schrieb:' with no quote after it is not an attribution", () => {
+  assert.equal(stripQuoted("Wie Sam 2026 schrieb:\nwir melden uns."), "Wie Sam 2026 schrieb:\nwir melden uns.");
+});
