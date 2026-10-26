@@ -185,4 +185,7 @@ test("the drywall joint control is read into the plan and restored from a saved 
   assert.match(html, /id="dwJoints"/);
   assert.match(html, /dw\.jointsOnStuds = \$\("#dwJoints"\)\.value === "true"/);
   assert.match(html, /\$\("#dwJoints"\)\.value = typeof dw\.jointsOnStuds === "boolean"/);
+  assert.match(html, /id="dwJoist"/);
+  assert.match(html, /dw\.ceilingJoistSpacing = Number\(\$\("#dwJoist"\)\.value\)/);
+  assert.match(html, /\$\("#dwJoist"\)\.value = dw\.ceilingJoistSpacing != null/);
 });
