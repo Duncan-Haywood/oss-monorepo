@@ -234,3 +234,18 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
     assert.equal(JSON.stringify([...a.rows, ...b.rows].map((x) => [x.date, x.cents, x.desc])), sig(base), `${f}: halves differ from the whole`);
   });
 }
+
+// Empty trailing column: spreadsheets often save a CSV with a stray comma at the
+// end of every line (an empty last column). The rows must not change.
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8").replace(/\r\n/g, "\n");
+  const lines = t.split("\n").filter(Boolean);
+  let base;
+  try { base = readStatement(t); } catch { continue; }
+  if (!base.rows.length || lines.some((l) => (l.match(/"/g) ?? []).length % 2)) continue;
+  test(`${f}: an empty trailing column changes nothing`, () => {
+    const d = (t.match(/;/g) ?? []).length > (t.match(/,/g) ?? []).length ? ";" : ",";
+    const out = lines.map((l) => l + d).join("\n") + "\n";
+    assert.equal(sig(readStatement(out)), sig(base), `${f} changed with a trailing comma`);
+  });
+}
