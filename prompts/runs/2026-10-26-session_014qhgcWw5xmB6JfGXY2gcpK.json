@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_014qhgcWw5xmB6JfGXY2gcpK",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T00:20:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10518,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "second apt-get failed on dpkg lock held by first background install"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No note that TeX Live install takes several minutes and must run once in background; I started it twice and hit the dpkg lock."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "No new blog post or experiment: run was a small compile check closing milestone 22; new content would have been padding.",
+      "did": "Compiled paper, logged milestone 23",
+      "result": "paper compiles, 4 pages, citations resolve"
+    }
+  ],
+  "writeups": [
+    "research/verifiable-training-mechanisms/LOG.md milestone 23"
+  ],
+  "goal": null,
+  "notes": "Small step; no experiment. Time mostly spent waiting on LaTeX install.",
+  "corrections": [],
+  "redteam": null
+}

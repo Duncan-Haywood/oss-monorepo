@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 23: the draft compiles with the federated-learning citations (no experiment)
+- Installed TeX Live again (`texlive-latex-extra`, `-publishers`, `-fonts-recommended`, `cm-super`, `-bibtex-extra`; the install took several minutes, and a second `apt-get` started while the first ran failed on the dpkg lock) and ran pdflatex, bibtex, pdflatex twice on `paper/main.tex`. Result: 4 pages, no undefined references or citations, so `kang2019contract` and `lin2019freeriders` from milestone 22 resolve. This closes milestone 22's compile check.
+- Still open: bibtex warns of missing publisher, address and page fields on several entries (not filled from memory); EC'26 single-column style files and page limit (owner step); whether a no-chain rule is enforceable.
+
 ## 2026-10-25 · Milestone 22: related work gains federated-learning incentives (no experiment)
 - Added a paragraph to `paper/main.tex` and two entries to `paper/refs.bib`: Kang et al. 2019, contract-theory incentives for federated learning (arXiv:1905.07479), and Lin, Du & Liu 2019, free-riders in federated learning (arXiv:1911.12560). Both ids returned the cited titles, years and author lists from the arXiv API this session. The Limitations sentence now names what related work still lacks: trusted-hardware attestation and Byzantine-robust aggregation.
 - Not compiled: this session had no LaTeX (milestone 16's TeX Live install was not repeated), so the two new `\cite` keys are unchecked by bibtex. Searched Crossref for Truebit and SafetyNets; no usable hit, so they are not cited.

@@ -58,7 +58,10 @@ function joinLines(t) {
   return lines.reduce((acc, l, i) => (i === 0 ? l : acc + (lines[i - 1].length >= 63 || /\?\d\d/.test(t) || /^\/[A-Z]{3,4}\//.test(t) ? "" : " ") + l), "");
 }
 function field86(t) {
-  t = joinLines(t.replace(/\r/g, "")).replace(/\u00ad/g, "-");
+  t = t.replace(/\r/g, "");
+  // Triodos writes the structured subfields as "000>10..>20..>21.." (">" where others use "?").
+  if (/^\d{3}>\d\d/.test(t)) t = t.replace(/>(\d\d)/g, "?$1");
+  t = joinLines(t).replace(/\u00ad/g, "-");
   if (/^\/[A-Z]{3,4}\//.test(t)) { const d = slashTags(t); if (d) return d; }
   if (!/\?\d\d/.test(t)) return unesc(t);
   const sub = {};
