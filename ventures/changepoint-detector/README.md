@@ -656,6 +656,16 @@ It roughly halves the false alarms at n = 200 and leaves Gaussian behaviour and 
 t3 is still not safe: the noise warning stays on and the dates remain candidates. At n = 100 the gain on GARCH is small
 (42% to 34%). A GARCH likelihood cost is still open.
 
+### A second dispersion round does not help (2026-10-26, negative result)
+
+The factor is estimated from a fit that already holds the false breaks, so one idea is to re-estimate it on the refit's
+residuals and refit again. `eval/meanvar-dispersion-iter.mjs` (output `eval/meanvar-dispersion-iter.out.txt`, same seeds
+and cells, 200 series each) runs one, two and three rounds. False alarms on a null series at n = 200: GARCH 30% / 27% / 27%,
+t3 29% / 23% / 22%, AR(1) 40% / 40% / 39%; at n = 100 GARCH stays 34%. Detection of the sd 1 to 2 break moves by at most
+4 points either way and Gaussian is unchanged. The gain stops after round two and the residual false alarms are the
+noise's memory, which a scale factor cannot remove, so the single pass stays the default and a GARCH likelihood cost is the
+remaining route.
+
 ## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
 
 The section above ended with a warning because the Gaussian variance cost has no cheap fix. A different noise model does
