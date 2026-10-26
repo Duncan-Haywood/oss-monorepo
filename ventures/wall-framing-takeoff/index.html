@@ -137,7 +137,7 @@
       <div><label for="dwLen">Sheet length</label><select id="dwLen"><option value="96" selected>8 ft</option><option value="108">9 ft</option><option value="120">10 ft</option><option value="144">12 ft</option><option value="192">16 ft</option></select></div>
       <div><label for="dwCeil">Flat ceilings: width, depth; separate several with a semicolon (blank: none)</label><input id="dwCeil" placeholder="e.g. 40 ft, 28 ft"></div>
       <div><label for="dwJoints">Wall end joints</label><select id="dwJoints"><option value="">Not placed (sheet count only)</option><option value="true">Snap to studs (sheets may be cut short)</option><option value="false">Placed, not snapped (report where joints land)</option></select></div>
-      <div><label for="dwJoist">Ceiling joist spacing (with snapping, cuts ceiling sheet ends back to a joist)</label><select id="dwJoist"><option value="">Not set</option><option value="12">12 in</option><option value="16">16 in</option><option value="19.2">19.2 in</option><option value="24">24 in</option></select></div>
+      <div><label for="dwJoist">Ceiling joist spacing (with snapping, cuts ceiling sheet ends back to a joist)</label><select id="dwJoist"><option value="">Not set</option><option value="roof">From the roof's ceiling joists (needs the roof on, with a ceiling joist size)</option><option value="12">12 in</option><option value="16">16 in</option><option value="19.2">19.2 in</option><option value="24">24 in</option></select></div>
       <div><label for="dwPrice">Price per sheet (blank: none)</label><input id="dwPrice" type="number" min="0" step="0.01" placeholder="e.g. 16"></div>
     </div>
     <p><input type="checkbox" id="inOn" style="width:auto"> <label for="inOn" style="display:inline">Also count insulation (open wall cavities from the framing placed, less openings; optional rim joist bays and attic loose fill; figures from the bag label)</label></p>
@@ -433,7 +433,8 @@
           else { const [width, depth] = q.map((t) => L(t, "ceiling size")); (dw.ceiling = dw.ceiling || []).push({ width, depth }); }
         }
         if ($("#dwJoints").value) dw.jointsOnStuds = $("#dwJoints").value === "true";
-        if ($("#dwJoist").value) dw.ceilingJoistSpacing = Number($("#dwJoist").value);
+        if ($("#dwJoist").value === "roof") dw.ceilingJoistsFromRoof = true;
+        else if ($("#dwJoist").value) dw.ceilingJoistSpacing = Number($("#dwJoist").value);
         if ($("#dwPrice").value.trim()) dw.price = Number($("#dwPrice").value);
         plan.drywall = dw;
       }
@@ -728,7 +729,7 @@
         $("#dwLen").value = String(dw.sheetLength || 96);
         $("#dwCeil").value = (dw.ceiling || []).map((c) => [c.width, c.depth].map(formatLength).join(", ")).join("; ");
         $("#dwJoints").value = typeof dw.jointsOnStuds === "boolean" ? String(dw.jointsOnStuds) : "";
-        $("#dwJoist").value = dw.ceilingJoistSpacing != null ? String(dw.ceilingJoistSpacing) : "";
+        $("#dwJoist").value = dw.ceilingJoistsFromRoof ? "roof" : dw.ceilingJoistSpacing != null ? String(dw.ceilingJoistSpacing) : "";
         $("#dwPrice").value = dw.price != null ? String(dw.price) : "";
       }
       const ins = plan.insulation;
