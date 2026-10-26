@@ -46,7 +46,7 @@ flagships:
       payment-processor import (`form1099k`: try a real 1099-K; Adyen: wanted a real settlement file); (4) a real
       supplier's terms letter checked against the fee and discount rules, and one
       named lender's own schedule against the loan register (`loan check`);
-      (5) receipts through real OCR (SROIE tesseract: totals 75%, dates 78%, merchants 33%; preprocessing all worse on flat scans; wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
+      (5) receipts through real OCR (SROIE tesseract: totals 75%, dates 78%, merchants 37%, noise/GST/state lines now skipped; preprocessing all worse on flat scans; wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) one named
       filing service's import layout, from its own spec; (8) `salestax return`:
       due dates still from search excerpts or memory for the states the README
@@ -68,7 +68,7 @@ flagships:
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md and ROADMAP.md (roof, foundation,
       gables, sheathing, drywall, budget, schedule and their page controls have all landed on hand-checked fixtures).
-      Open: a real foundation plan; ceiling drywall steps; drywall `jointsOnStuds` (landed 2026-10-26, walls only; page control 2026-10-27) checked against a real hang, ceiling joints on joists; a real sub's labor rates; a real builder's activity list for
+      Open: a real foundation plan; ceiling drywall steps; drywall `jointsOnStuds` (walls 2026-10-26, page control 2026-10-27; ceilings via `ceilingJoistSpacing` 2026-10-26, no page control) checked against a real hang, ceiling joists taken from the roof's `ceilingJoist` layout instead of a typed spacing; a real sub's labor rates; a real builder's activity list for
       `--schedule`; gable sheathing nested on real sheets (offcut-triangle heights are hand-made); the drywall compound
       rate checked against a product label; the code edition, typed by a person who has the book; insulation on the page (`--insulation` landed on walls and attic loose fill 2026-10-24; attic bag chart unchecked); a 2D reuse of
       opening cut-outs, only worth rechecking on a real plan (sample house: 0 panels fit a hole).
@@ -142,7 +142,7 @@ flagships:
       so the root gap is a relaxation gap, not convergence. Branching on the
       priced bound (2026-10-24) cut one 8 x 22 week's gap from 0.66 open hours
       to $2.53; 3 of 4 still unproven. Case 3 stays 36 h open vs floor 35 h at 20x the nodes
-      (eval/case-bench.mjs), so more search will not settle it. All six sizes re-measured 2026-10-24 (README: 6x14 8/8 proven, 8x22 3/8, 10x28 and 12x30 still leave up to 26-27 h of coverage unresolved). ILP cross-check 2026-10-26 (eval/ilp-check.py, HiGHS, <1 s a week): true least open hours for the 12 weeks at 8x22, 10x28, 12x30; the engine's roster is 1-2 h above it on 6 of 12 and its floor is below it on 7, so the gap is closable. 8x22 week 3 is 35 h, not 36. Landed 2026-10-31: a coverage plateau pass (open hours only, then pay polish) makes the roster equal the ILP optimum on all 12 weeks. Landed 2026-10-26: branching on the open-hours price (coverBranch) lifts the floor to the optimum on 10 of 12 weeks (README). Landed 2026-10-26: `coverPassRuns`/`coverPassScale` (12 x 4) close 10x28 week 5 (94 h -> optimum 89); 10x28 week 7 is 1 h above the optimum (62 vs 61) and more of the same walk does not help (README). Next: that hour (a longer swap chain), the last two floors (10x28 week 3, 12x30 week 1: person-day clique cut or LP cuts); then a tighter pay bound once coverage is proven (or branching
+      (eval/case-bench.mjs), so more search will not settle it. All six sizes re-measured 2026-10-24 (README: 6x14 8/8 proven, 8x22 3/8, 10x28 and 12x30 still leave up to 26-27 h of coverage unresolved). ILP cross-check 2026-10-26 (eval/ilp-check.py, HiGHS, <1 s a week): true least open hours for the 12 weeks at 8x22, 10x28, 12x30; the engine's roster is 1-2 h above it on 6 of 12 and its floor is below it on 7, so the gap is closable. 8x22 week 3 is 35 h, not 36. Landed 2026-10-31: a coverage plateau pass (open hours only, then pay polish) makes the roster equal the ILP optimum on all 12 weeks. Landed 2026-10-26: branching on the open-hours price (coverBranch) lifts the floor to the optimum on 10 of 12 weeks (README). Measured 2026-10-26: 10x the branching nodes and time leaves the floors unchanged, so the open gaps are 12x30 week 1 (72 vs 75) and 10x28 week 4 (77 vs 78), and only a stronger relaxation (person-day clique or LP cuts) will close them. Landed 2026-10-26: `coverPassRuns`/`coverPassScale` (12 x 4) close 10x28 week 5 (94 h -> optimum 89); 10x28 week 7 stays 1 h above its optimum (62 vs 61) and more of the same walk does not help (README). Next: that hour (a longer swap chain) and that cut; then a tighter pay bound once coverage is proven (or branching
       on the most contested shift; branch order tried, no gain), the 10 x 28
       and 12 x 30 sizes, then a joint multi-week solve. Multi-week fairness
       measured (eval/fairness-bench.mjs: tough-shift spread 13.2 -> 3.2 over 8
