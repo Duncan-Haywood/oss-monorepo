@@ -16,6 +16,7 @@ python3 platform/ci/sync_tree_counts.py  # AFTER merging main: fixes the counts 
 node platform/marketing/regen.mjs --verify  # 9s, read-only: is the committed apex stale?
 node platform/marketing/regen.mjs           # if that exited 1: commit whatever this rewrites (>2 min: background)
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs  # ~22 min in a cloud session (measured 2026-10-18): run_in_background
+python3 platform/ci/check_post_frontmatter.py  # 1s: new/edited post? description over 160 chars or missing tags turns main red (twice 2026-10-26)
 node --test platform/agents/*.test.mjs        # imports every venture engine; ~10 s
 node --test platform/proposal/*.test.mjs
 node --test platform/devlog/*.test.mjs
