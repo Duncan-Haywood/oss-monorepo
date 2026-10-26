@@ -24,3 +24,19 @@ test("Label is the description when a Detail column sits beside it", () => {
   const r = readStatement(csv);
   assert.deepEqual(r.rows.map((x) => x.desc), ["LABEL 1", "LABEL 2"]);
 });
+
+// The OCA xlsx/xls fixtures (swept 2026-10-26 through xlsx.mjs/xls.mjs; no fault) come out
+// as these text shapes. Rows are made up in the same layouts.
+test("Excel text-marker apostrophes, currency words and symbols, and a TOTAL row", () => {
+  const csv = `REF,DESCRIPTION,DEBIT,CREDIT,BALANCE,DATE\n84 1,TRANS A,"'579,68 USD", ,"'USD 9.126,07",2024-03-07\n84 2,TRANS B,"'544,00 $", ,"'8.582,07 $",2024-03-07\n84 3,TRANS C,1084, ,"7.498,07",2024-03-07\n,TOTAL,2207.68,0,,\n`;
+  const r = readStatement(csv);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-57968, -54400, -108400]);
+  assert.equal(r.problems.length, 1);
+  assert.match(r.problems[0], /unreadable date/);
+});
+
+test("an Amount Currency column beside Currency does not hide the mixed-currency warning", () => {
+  const r = readStatement(`Date,Label,Currency,Amount,Amount Currency,Partner Name,Bank Account\n2018-12-15,Supplier,USD,-33.5,0,John Doe,123\n2018-12-15,Payment,EUR,1525,1000,Azure,\n`);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-3350, 152500]);
+  assert.ok(r.problems.some((p) => /mixes currencies/.test(p)));
+});
