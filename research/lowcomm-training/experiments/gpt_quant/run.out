@@ -1,0 +1,19 @@
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/lib/python3.11/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "/home/user/oss-monorepo/research/lowcomm-training/experiments/gpt_quant/quant.py", line 17, in run
+    import torch
+ModuleNotFoundError: No module named 'torch'
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/oss-monorepo/research/lowcomm-training/experiments/gpt_quant/quant.py", line 55, in <module>
+    for r in p.imap_unordered(run, jobs):
+  File "/usr/lib/python3.11/multiprocessing/pool.py", line 873, in next
+    raise value
+ModuleNotFoundError: No module named 'torch'
