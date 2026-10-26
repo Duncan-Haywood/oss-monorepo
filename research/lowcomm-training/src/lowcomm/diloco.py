@@ -99,3 +99,21 @@ def top_k(keep):
         out[idx] = x.flatten()[idx]
         return out.view_as(x)
     return c
+
+
+def quantize(bits, stochastic=True):
+    """Per-tensor uniform quantiser with 2^bits - 1 levels on [-max|x|, max|x|] (QSGD-style, Alistarh et al. 2017).
+    Stochastic rounding makes it unbiased: E[C(x)] = x. bits = 1 is the scaled sign, C(x) = mean|x| sign(x) (Seide et
+    al. 2014; Karimireddy et al. 2019), which is biased and meant for error feedback."""
+    def c(x, gen):
+        if bits == 1:
+            return x.abs().mean() * torch.sign(x)
+        s = x.abs().max()
+        if s == 0:
+            return x
+        L = 2 ** (bits - 1) - 1
+        y = x / s * L
+        lo = y.floor()
+        up = (torch.rand(x.shape, generator=gen) < (y - lo)) if stochastic else ((y - lo) >= 0.5)
+        return (lo + up.to(x.dtype)) * s / L
+    return c

@@ -1,7 +1,7 @@
 ---
 title: "Why a 0.7-accuracy LLM coder barely helps survey inference, tested with synthetic coders"
 date: 2026-10-26
-description: "Synthetic coders with five error shapes show that at 0.60 to 0.70 agreement, prediction-powered inference narrows intervals by only 0 to 14%, matching the real Qwen results."
+description: "Synthetic coders with five error shapes show that at 0.60 to 0.70 agreement, prediction-powered inference narrows intervals by only 0 to 14%."
 tags: [research, llm-coding-inference, ppi, annotation]
 ---
 
