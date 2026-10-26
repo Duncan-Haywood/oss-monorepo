@@ -136,3 +136,16 @@ test("--insulation counts bags from the framing placed in the example plan", () 
   assert.match(out, /2x4 cavities: \d+ sq ft, R-15/);
   assert.equal(run(["plan.json", "--insulation"], { ...JSON.parse(ex.out), insulation: { waste: 0.9 } }).code, 1);
 });
+
+test("a DXF floor plan goes straight to a takeoff, or to plan JSON with --plan-only", () => {
+  const g = (c, v) => `${c}\n${v}\n`;
+  const L = (l, a, b, c, d) => g(0, "LINE") + g(8, l) + g(10, a) + g(20, b) + g(11, c) + g(21, d);
+  const dxf = g(0, "SECTION") + g(2, "ENTITIES") + L("WALL", 0, 0, 480, 0) + L("WALL", 480, 0, 480, 336) + L("WALL", 480, 336, 0, 336) + L("WALL", 0, 336, 0, 0) + g(0, "ENDSEC");
+  const t = run(["house.dxf"], dxf);
+  assert.equal(t.code, 0);
+  assert.match(t.out, /Read 4 walls \(4 exterior, 0 interior\)/);
+  assert.match(t.out, /ORDER/);
+  const j = run(["house.dxf", "--plan-only"], dxf);
+  assert.equal(JSON.parse(j.out.split("\n\nNotes")[0]).walls.length, 4);
+  assert.equal(run(["house.dxf"], g(0, "EOF")).code, 2);
+});

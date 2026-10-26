@@ -157,3 +157,44 @@ def test_quantise_is_unbiased_and_on_grid():
         grid = outs.abs() / 1.0 * levels
         assert torch.allclose(grid, grid.round(), atol=1e-5)
     assert torch.equal(quantise(3)(torch.zeros(4), torch.Generator()), torch.zeros(4))
+
+def test_median_aggregate_and_attack():
+    import torch
+    from lowcomm import DiLoCo
+    def mk():
+        torch.manual_seed(0)
+        return torch.nn.Linear(3, 1)
+    f = lambda m, rng: ((m(torch.randn(4, 3, generator=rng)) - 1) ** 2).mean()
+    sgd = lambda p: torch.optim.SGD(p, lr=1.0)
+    # one worker: the median is the delta itself, so it matches the mean
+    outs = []
+    for agg in ("mean", "median"):
+        m = mk()
+        d = DiLoCo(m, f, workers=1, H=3, outer=sgd, seed=1, aggregate=agg)
+        d.round()
+        outs.append([p.detach().clone() for p in m.parameters()])
+    assert all(torch.allclose(a, b, atol=1e-6) for a, b in zip(*outs))
+    # three workers, one attacker adding a huge offset: the mean moves with it, the median stays near the honest value
+    res = {}
+    for agg in ("mean", "median"):
+        for atk in (None, lambda d, j: d + 1e3 if j == 0 else d):
+            m = mk()
+            d = DiLoCo(m, f, workers=3, H=3, outer=sgd, seed=1, aggregate=agg, attack=atk)
+            d.round()
+            res[(agg, atk is not None)] = torch.cat([p.detach().flatten() for p in m.parameters()])
+    assert (res[("mean", True)] - res[("mean", False)]).abs().max() > 100
+    assert (res[("median", True)] - res[("median", False)]).abs().max() < 5
+    # even M: median is the mean of the two middle values
+    ds = torch.tensor([[1.0], [2.0], [10.0], [100.0]])
+    assert float(ds.sort(0).values[1:3].mean(0)) == 6.0
+
+def test_quantize_unbiased_and_sign():
+    import torch
+    from lowcomm import quantize
+    g = torch.Generator().manual_seed(0)
+    x = torch.randn(50)
+    m = torch.stack([quantize(4)(x, g) for _ in range(4000)]).mean(0)
+    assert (m - x).abs().max() < 0.03
+    assert len(set(quantize(2)(x, g).tolist())) <= 3  # levels -s, 0, s
+    s = quantize(1)(x, g)
+    assert torch.equal(torch.sign(s), torch.sign(x)) and torch.allclose(s.abs(), x.abs().mean().expand(50))

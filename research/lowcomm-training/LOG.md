@@ -2,7 +2,7 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-26 · Milestone 4e: what does unbiased stochastic quantisation of the deltas cost, with and without error feedback? (planned before running)
+## 2026-10-26 · Milestone 4e (independent replication, levels-based quantiser; a parallel run landed `gpt_quant` first): what does unbiased stochastic quantisation of the deltas cost, with and without error feedback? (planned before running)
 - Why: 4d's "Next". Sparsification is mapped (4a to 4d); the proposal's compression axis also lists quantisation. New compressor `quantise(levels)` (per-tensor max-abs scale, stochastic rounding, unbiased; `levels` 7 is a signed 4-bit code, 1 is ternary).
 - Design (`experiments/gpt_quantise/quantise.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, lr 2e-3, `H = 16`, plain outer step); arms q7, q1, q1 + error feedback; seeds 0 to 2 (9 runs). Comparator: uncompressed (3d).
 - **H4e-i:** q7 is within 0.02 nats of uncompressed on all 3 seeds. Refuted if any seed exceeds +0.02.
@@ -18,6 +18,71 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Limits: 3 seeds, one `H`, per-tensor max-abs scale, a single EF-ternary configuration, bytes not modelled. 7 tests in `tests/test_lowcomm.py` fail on this checkout because they reference `lowcomm.model.Config`, which no longer exists (not touched here).
 - Next: H5 (median aggregation under an attack), and whether EF with a damped residual rescues ternary.
 
+
+## 2026-10-26 · Milestone 5a: does median aggregation of worker deltas pay on the real GPT, with and without one attacker? (planned before running)
+- Why: H5 in the proposal (robust aggregation) has only had the closed-form `robust-outer` result (median costs about pi/2 in variance). Nothing yet on the real transformer. 4e (quantisation, PR 10664) is another run's; this step is independent of it.
+- Engine change: `DiLoCo(aggregate="median", attack=fn)`; coordinate-wise median of the workers' deltas (mean of the two middle values at M = 4), and an attack hook replacing worker j's delta. Test: `test_median_aggregate_and_attack`.
+- Design (`experiments/gpt_median_attack/median_attack.py`): 3d setup (M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps); aggregation in {mean, median} x offset a in {0, 3}; attacker is worker 0, adding a x rms(its own per-tensor delta) to every coordinate; seeds 0 to 2 (12 runs). Comparator: 3d uncompressed on the same seeds.
+- **H5a-i:** with no attacker, median aggregation has a higher final loss than mean on all 3 seeds. Refuted if any seed has median at or below mean.
+- **H5a-ii:** with a = 3, median beats mean on all 3 seeds. Refuted if mean wins any seed.
+- Prior: i yes (small, under 0.03 nats); ii yes (the offset adds 3 x rms / 4 to every coordinate of the averaged delta, a large drift, while the median moves by about half that at most... so ii is likely but the margin is unknown).
+- Limits: 3 seeds, one attack shape and size, one `H`, M = 4 with one attacker (25%), attacker does not adapt, bytes not modelled; the loss cost is not the variance factor of the proposal's H5, so this does not test pi/2 directly.
+
+### Outcome of 5a (`experiments/gpt_median_attack/median_attack_results.txt`; 12 runs, seeds 0 to 2)
+- Final validation loss, mean over seeds (3d uncompressed 1.5758). Offset 0: mean-agg 1.5758 (bit-identical to 3d, a determinism check), median 1.5785 (excess +0.0027; per seed +0.0165, -0.0089, +0.0003). Offset 3 rms: mean-agg 1.5730 (excess -0.0028; +0.0095, -0.0104, -0.0075), median 1.5787 (+0.0029; +0.0041, -0.0002, +0.0048).
+- **H5a-i refuted:** median is better than mean on seed 1 with no attacker (-0.0089), and the seed-2 difference (0.0003) is far below seed noise. **H5a-ii refuted:** with the attack, median beats mean on seed 0 only (by 0.0055); mean wins seeds 1 and 2 (by 0.010 and 0.012).
+- Reading: this attack does nothing measurable to DiLoCo on this model. One of four workers adding 3 x rms(delta) to every coordinate shifts the averaged delta by 0.75 rms per coordinate, a constant shift that the inner AdamW steps in the next round absorb; losses stay within seed noise (seed spread is about 0.01) of the clean run, and the 0.003 differences between arms are not distinguishable from it. So no crossover appears at this attack size, and the median's cost on the real GPT is under the seed noise too. The proposal's H5 (cost near pi/2 in variance, a crossover past a threshold) is not tested here: the attack is too weak to reach a threshold, and loss is not variance.
+- Limits: 3 seeds, one weak non-adaptive attack, one `H`, M = 4.
+- Next: a stronger attack (offset 30 or 300 rms, and a sign-flip with scaling) to find where the mean breaks and whether the median then holds, before any claim about the crossover.
+
+## 2026-10-26 · Milestone 4f: what do 3-bit and un-fed-back scaled sign cost? (planned before running)
+- Why: 4e (#10664) measured 4-bit, 2-bit, 2-bit + EF and scaled sign + EF. It left two cells out: 3 bits, and scaled sign without EF (so EF's contribution at 1 bit is unmeasured). A parallel run of mine duplicated 4e's cells; its 4-bit, 2-bit and sign + EF numbers agree with 4e's within seed noise (4-bit -0.005, 2-bit +0.019 against +0.015, sign + EF -0.0067 identical per seed), which is a free replication.
+- Design (`experiments/gpt_quant_extra/quant_extra.py`): 4e's setup and `quantize` exactly; cells `quantize(3)` and `quantize(1)`, both without EF; seeds 0 to 2 (6 runs).
+- **H4f-i:** 3-bit is between 4-bit and 2-bit in mean excess. Refuted otherwise.
+- **H4f-ii:** scaled sign without EF is worse than with EF by more than 0.02 nats in the mean. Refuted otherwise.
+- Prior: i yes; ii yes (earlier replication run gave about 0.03).
+- Limits: as 4e.
+
+### Outcome of 4f (`experiments/gpt_quant_extra/quant_extra_results.txt`; 6 runs, seeds 0 to 2)
+- Mean excess over uncompressed (1.5758), nats: 3-bit stochastic -0.0052 (per seed +0.004, -0.011, -0.008); scaled sign without EF +0.0221 (+0.022, +0.011, +0.033). With 4e: 4-bit -0.0044, 2-bit +0.0153, scaled sign with EF -0.0067.
+- **H4f-i refuted, by noise:** 3-bit (-0.0052) is lower than 4-bit (-0.0044), so it is not between 4-bit and 2-bit; the gap is 0.001 against seed spread of about 0.01. Read it as 3-bit and 4-bit being indistinguishable from uncompressed. **H4f-ii holds:** EF buys 0.029 nats at 1 bit (+0.022 without, -0.007 with).
+- Reading: for unbiased stochastic quantisation the loss is flat down to 3 bits (about 10x fewer bytes than float32 before the scale) and first shows at 2 bits (+0.015); 1 bit needs EF to be free, and 2 bits with EF is catastrophic in 4e (+0.87), so EF is not a free add-on for an unbiased quantiser. These are 3 seeds with effects at the seed-noise level for 3 and 4 bits.
+- Limits: as 4e. The 4e runs and these use the same seeds but not the same quantiser random stream per cell, so cells differ by sampling noise.
+- Next: H5, median aggregation under an attack.
+
+## 2026-10-26 · Milestone 4g: does the 2-bit error-feedback residual grow, as the 4e guess says? (planned before running)
+- Why: 4e found 2-bit stochastic + EF far worse (+0.87 nats) than 2-bit without EF (+0.015), and guessed that the coarse grid (levels -s, 0, s on the tensor max) makes the rounding error added to the residual outgrow what the next round can absorb. The residual norm was not logged. The engine now records, per round, sqrt(sum ||e||^2 / sum ||delta + e||^2) over workers and tensors (`DiLoCo.ef_norms`; no change to training).
+- Design (`experiments/gpt_quant_ef_norm/ef_norm.py`): 4e's setup exactly, seed 0, two runs: 2-bit stochastic + EF and scaled sign + EF. Report the mean relative residual by quarter of training. The 2-bit run repeats a 4e run, so its final loss should be near 4e's seed 0 (2.453) up to the changed code path (none expected); that is a check on the logging.
+- **H4g-i:** in the 2-bit EF run the relative residual exceeds 1 in the last quarter (the residual is larger than the update it rides on). Refuted otherwise.
+- **H4g-ii:** in the 2-bit EF run the last-quarter mean is at least 2x the first-quarter mean (it grows). Refuted otherwise.
+- **H4g-iii:** scaled sign + EF stays below 1 in every quarter (contractive). Refuted otherwise.
+- Prior: i about 55%; ii about 50%; iii yes, about 90%.
+- Limits: one seed, one H; the norm is aggregated over all tensors, so a single bad tensor could hide; correlation of norm and loss, not a causal test.
+
+### Outcome of 4g (`experiments/gpt_quant_ef_norm/`: `ef_norm.py`, `ef_norm.jsonl`, `ef_norm_results.txt`; 2 runs, seed 0, 240 rounds)
+- Relative residual norm ||e|| / ||delta + e|| by quarter of training: 2-bit stochastic + EF 1.049, 1.008, 1.004, 1.002 (max 1.357, round 1 1.162); scaled sign + EF 0.737, 0.665, 0.628, 0.629 (max 0.772). Final-round training loss 2.356 (2-bit EF) against 1.409 (sign EF); the validation loss is not logged here.
+- **H4g-i holds, barely:** the last-quarter mean is 1.002, i.e. the residual is the size of the update, not clearly above it. **H4g-ii refuted:** it does not grow; it starts above 1 and settles at about 1.00. **H4g-iii holds:** sign + EF stays at 0.63 to 0.74 (contractive, as the theory for a biased contractive compressor says).
+- Reading: the 4e guess ("the residual grows over rounds") is wrong as stated. The 2-bit stochastic quantiser here has only the levels -s, 0, s (L = 1), so its error is about as large as the input (relative error near 1, not below it), which is not contractive; EF then carries a residual as large as the update every round and the transmitted delta is mostly rounding noise. That the residual sits at 1.00 for the whole run is consistent with this but I did not test the cause (for example by logging the per-tensor error or a 3-bit EF run, where L = 3 should give a ratio below 1).
+- Limits: one seed; the norm is pooled over tensors; a loss gap is shown only through the 4e runs, not re-measured here.
+- Next: 3-bit and 4-bit + EF to see where the ratio crosses below 1 and whether EF then helps; then H5 (median aggregation under an attack).
+
+## 2026-10-26 · Milestone 4e: what does quantising the worker deltas cost, and does error feedback rescue 2-bit and 1-bit? (planned before running)
+- Why: 4a to 4d priced sparsification; the other standard compressor family is quantisation, the "Next" of every entry since 4a. Adds `quantize(bits)` to the engine (per-tensor uniform grid on [-max|x|, max|x|], stochastic rounding so it is unbiased; bits = 1 is the scaled sign mean|x| sign(x), biased), with a unit test of unbiasedness and the sign form.
+- Design (`experiments/gpt_quant/quant.py`): 4d's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); cells: 4-bit stochastic, 2-bit stochastic, 2-bit stochastic + EF, scaled sign + EF; seeds 0 to 2 (12 runs). Comparator: uncompressed (3d). Bytes per delta coordinate are bits (plus one scale per tensor), against 32 uncompressed.
+- **H4e-i:** 4-bit stochastic is within 0.02 nats of uncompressed on all 3 seeds (8x fewer bytes for free). Refuted if any seed exceeds +0.02.
+- **H4e-ii:** scaled sign + EF (about 32x fewer bytes) is within 0.05 nats of uncompressed on mean. Refuted otherwise.
+- **H4e-iii:** at 2 bits, EF lowers the loss on all 3 seeds relative to plain stochastic. Refuted if any seed rises (unbiased noise averages over M = 4 workers, so EF may not help).
+- Prior: i yes; ii about 60% yes; iii uncertain, 50/50.
+- Limits: 3 seeds, one `H`, per-tensor scale, bytes not modelled beyond bits per coordinate, one model size and corpus.
+
+### Outcome of 4e (`experiments/gpt_quant/quant_results.txt`; 12 runs, seeds 0 to 2)
+- Mean excess loss over uncompressed (1.5758), nats: 4-bit stochastic -0.0044 (per seed +0.003, -0.011, -0.005); 2-bit stochastic +0.0153 (+0.018, +0.010, +0.018); 2-bit stochastic + EF +0.865 (+0.88, +0.80, +0.92); scaled sign + EF -0.0067 (-0.001, -0.014, -0.005).
+- **H4e-i held:** 4-bit is within 0.02 on every seed (8x fewer bytes per coordinate). **H4e-ii held, by a wide margin:** 1-bit scaled sign with EF matches uncompressed (32x fewer bits per coordinate, scales aside). **H4e-iii refuted, and not narrowly:** EF at 2 bits makes every seed far worse (+0.87 against +0.015 without it), so my 50/50 prior was too kind.
+- Reading: the unbiased 2-bit quantiser is already cheap, so EF has little to repair, and adding it hurt a lot. Why is a guess I did not test: the stochastic grid is coarse (levels -s, 0, s on the tensor max), so the rounding error added to the residual is large and the residual may grow over rounds rather than cancel. Scaled sign + EF, whose error is contractive, does fine. The result is a single configuration of one compressor pair, not a general statement about EF with unbiased quantisers.
+- Limits: 3 seeds, one `H`, per-tensor scale, one size and corpus; bits per coordinate only, no byte model; the 2-bit EF failure mechanism untested (residual norm was not logged); differences under about 0.01 are inside the seed spread.
+- Next: log the residual norm in the 2-bit EF run to test the growth explanation, then H5 (median aggregation under an attack).
+
+Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 ## 2026-10-26 · Milestone 4d: where is the knee of error-feedback top-k between keep 1/16 and 1/256? (planned before running)
 - Why: 4c's "Next". EF top-k cost -0.005 at 1/16, +0.043 at 1/64, +0.121 at 1/256; two points below the knee leave its location and shape unresolved.

@@ -124,6 +124,31 @@ A one-off nudge needs 40% of people, since the moderates it creates are pulled b
 
 Under-estimating tolerance costs nothing here; over-estimating it breaks the chain.
 
+## Follow-up: contact that widens tolerance (`experiments/contact/`, `src/civ_levers/contact.py`)
+
+Each agent gets its own tolerance that cross-camp contact edits (a stand-in for Pettigrew and
+Tropp 2006; the gain and loss rates are not measured and are swept, 0.005 to 0.05 per meeting).
+Plan and hypotheses were logged first (`LOG.md`); 10 societies per cell, full table in
+`experiments/contact/results.txt`.
+
+- **Widening only after an accepted meeting does nothing.** Camps start 0.6 apart, so no
+  cross-camp meeting is ever within reach and tolerance never grows: 0 of 10 merged in all 135
+  cells, mean tolerance unchanged. The rule is circular.
+- **Widening on any meeting that is not repelled does merge the camps, with no backfire.** At
+  gain 0.05 per meeting, bridging 25% of ties merges 10 of 10 societies at starting tolerance
+  0.2, 0.25 and 0.3; at 10% of ties it merges 3, 5 and 7 of 10. At gain 0.01 only 50% bridging
+  at tolerance 0.3 merges (10 of 10); at 0.2 and 0.25 it merges 3 and 7.
+- **Backfire still wins.** With rejection threshold 0.7 and a loss of 0.02 per repelled
+  meeting, no cell merges at any gain (0 of 36 exposure cells with tau 0.7); at tau 0.8 mostly gain 0.05
+  merges, with a few cells at gain 0.02.
+- **Identity.** 20% committed moderates dismissed with probability q (read as the other camp's):
+  at tolerance 0.3, 10 of 10 merge at every q up to 0.75; at 0.2 the 0.5 voice is out of reach
+  at any q (0 of 10). The identity filter matters less than reach.
+
+So the bridging verdict flips only if contact itself widens tolerance fast (about 0.05 per
+meeting here) and nobody rejects; with backfire at 0.7 it does not flip. The gain rates and the
+mere-exposure rule are assumptions, not measured.
+
 ## What this does and does not say
 
 - It is a model of opinion *positions*, not of prejudice or affect. Contact in Pettigrew and

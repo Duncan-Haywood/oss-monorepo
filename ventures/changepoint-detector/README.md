@@ -656,6 +656,29 @@ It roughly halves the false alarms at n = 200 and leaves Gaussian behaviour and 
 t3 is still not safe: the noise warning stays on and the dates remain candidates. At n = 100 the gain on GARCH is small
 (42% to 34%). A GARCH likelihood cost is still open.
 
+### A GARCH filter removes the false alarms and the real variance break with them (2026-10-27, negative result)
+
+The remaining route named above was a GARCH likelihood cost. A cheaper first test of the idea: fit GARCH(1,1) by Gaussian
+quasi-ML to the series less its median (`garchSigma` in `engine.mjs`, variance targeting plus a grid and local search), divide
+the series by the fitted conditional sd, then run plain `meanvar`. `eval/meanvar-garch-filter.mjs` (output
+`eval/meanvar-garch-filter.out.txt`, 200 series per cell, same seeds and noise kinds as the dispersion runs) reports, plain
+then filtered: null series with any change / sd 1 to 2 break found exactly once / mean +1.5 sd shift found exactly once.
+
+| n, noise | plain | GARCH-filtered |
+|---|---|---|
+| 200, Gaussian | 1% / 97% / 98% | 1% / 6% / 99% |
+| 200, GARCH | 51% / 57% / 50% | 1% / 9% / 78% |
+| 200, t3 | 62% / 55% / 38% | 54% / 41% / 43% |
+| 200, AR(1) | 54% / 37% / 47% | 42% / 23% / 63% |
+| 100, GARCH | 42% / 61% / 65% | 3% / 13% / 83% |
+
+False alarms on GARCH noise fall from about 50% to 1% to 3%, far below the 30% of `--dispersion`, and mean shifts are
+found more often. But a GARCH model reads a lasting jump in variance as high persistence, so the filter also absorbs the real
+sd 1 to 2 break (97% down to 6% on Gaussian noise at n = 200). It cannot be a default, and a filter does nothing for t3. What is
+left is a joint likelihood where the variance path may break at a changepoint while GARCH holds within segments, which PELT's
+segment-independent cost cannot express (the recursion depends on the previous segment's state). Not shipped as an option;
+the function and the script stay so the next attempt starts from this baseline. Simulated noise only.
+
 ### A second dispersion round does not help (2026-10-26, negative result)
 
 The factor is estimated from a fit that already holds the false breaks, so one idea is to re-estimate it on the refit's
@@ -665,6 +688,29 @@ t3 29% / 23% / 22%, AR(1) 40% / 40% / 39%; at n = 100 GARCH stays 34%. Detection
 4 points either way and Gaussian is unchanged. The gain stops after round two and the residual false alarms are the
 noise's memory, which a scale factor cannot remove, so the single pass stays the default and a GARCH likelihood cost is the
 remaining route.
+
+## `--bootstrap`: a penalty read off block-resampled residuals (2026-10-27)
+
+`--model meanvar --bootstrap` (`bootstrap: true`) fits once with 3x the BIC penalty, standardises each segment, resamples
+the residuals in blocks of 2 n^(1/3) points (so volatility clustering and short memory survive), and takes the 95th
+percentile, over 100 seeded resamples, of the best single-split cost drop. The penalty is the larger of that and BIC and is
+returned as `bootstrapPenalty`. Unlike `--dispersion` it asks the data how big a spurious drop gets under the noise it
+actually has, not for one scale factor. Not for use with `--robust` or `--dispersion`. `eval/meanvar-block-bootstrap.mjs`
+(output `eval/meanvar-block-bootstrap.out.txt`, seeded, 200 series per cell, same generators and seeds as
+`meanvar-dispersion.mjs`; A = standardised by a BIC pass, B = by a 3x BIC pass, B shipped). False alarms on a null series /
+exactly one change on an sd 1 to 2 break:
+
+| noise, n = 100 / 200 | plain | A | B (`--bootstrap`) |
+|---|---|---|---|
+| Gaussian | 4% / 92%, 1% / 97% | 4% / 92%, 1% / 97% | 2% / 80%, 1% / 100% |
+| t3 | 39% / 57%, 62% / 55% | 35% / 59%, 54% / 61% | 8% / 44%, 15% / 69% |
+| GARCH | 42% / 61%, 51% / 57% | 39% / 60%, 47% / 60% | 14% / 57%, 16% / 74% |
+| AR(1) 0.5 | 51% / 44%, 54% / 37% | 39% / 50%, 36% / 48% | 8% / 49%, 7% / 80% |
+
+At n = 200 it takes GARCH from 51% to 16% false alarms (`--dispersion`: 30%) and detection rises. The price is at n = 100:
+Gaussian detection falls from 92% to 80% and t3 from 57% to 44%. Variant A, which standardises by the BIC pass that already holds the false breaks, barely
+helps. In-sample on the generators above, simulated data only, no real series tried; the noise warning stays on. About
+0.2 s per 200-point series. Test: `meanvar-bootstrap.test.mjs`.
 
 ## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
 

@@ -15,12 +15,16 @@ import torch
 
 
 class DiLoCo:
-    def __init__(self, model, loss_fn, workers=4, H=16, inner=None, outer=None, seed=0, compress=None, error_feedback=False):
+    def __init__(self, model, loss_fn, workers=4, H=16, inner=None, outer=None, seed=0, compress=None, error_feedback=False, aggregate="mean", attack=None):
         """inner(params) and outer(params) build torch optimisers; defaults are DiLoCo's AdamW and Nesterov SGD.
         compress(delta, gen) -> tensor, optional: applied to each worker's per-tensor delta (global minus its end point)
         before averaging, with `gen` a torch.Generator owned by the engine. None leaves the round unchanged.
         error_feedback: each worker keeps the residual (input minus compressed) per tensor and adds it to the next round's
-        delta before compressing (Seide et al. 2014; Stich et al. 2018), so a biased compressor such as top_k loses nothing for good."""
+        delta before compressing (Seide et al. 2014; Stich et al. 2018), so a biased compressor such as top_k loses nothing for good.
+        aggregate: "mean" (default) or "median", the coordinate-wise median of the workers' deltas (Yin et al. 2018).
+        attack(delta, worker_index) -> tensor, optional: replaces worker j's delta before aggregation (a Byzantine worker).
+        Both apply on the uncompressed path only."""
+        self.aggregate, self.attack = aggregate, attack
         inner = inner or (lambda p: torch.optim.AdamW(p, lr=1e-3, betas=(0.9, 0.95), weight_decay=0.0))
         outer = outer or (lambda p: torch.optim.SGD(p, lr=0.7, momentum=0.9, nesterov=True))
         self.model, self.loss_fn, self.H, self.rounds = model, loss_fn, H, 0
@@ -28,6 +32,7 @@ class DiLoCo:
         self.inner = [inner(w.parameters()) for w in self.workers]
         self.outer = outer(model.parameters())
         self.ef = [[torch.zeros_like(p.data) for p in w.parameters()] for w in self.workers] if error_feedback else None
+        self.ef_norms = []  # per round: sqrt(sum ||residual||^2 / sum ||delta + residual||^2) over workers and tensors (EF only)
         self.compress, self.cgen = compress, torch.Generator().manual_seed(seed * 1000 + 777)
         self.rngs = [torch.Generator().manual_seed(seed * 1000 + 1 + i) for i in range(workers)]
 
@@ -44,9 +49,15 @@ class DiLoCo:
                 loss.backward()
                 opt.step()
                 total += loss.item()
+        num = den = 0.0
         with torch.no_grad():
             for i, p in enumerate(g):
-                if self.compress is None:
+                if self.aggregate != "mean" or self.attack is not None:
+                    ds = torch.stack([p.data - list(w.parameters())[i].data for w in self.workers])
+                    if self.attack is not None:
+                        ds = torch.stack([self.attack(d, j) for j, d in enumerate(ds)])
+                    p.grad = ds.sort(0).values[(len(ds) - 1) // 2: len(ds) // 2 + 1].mean(0) if self.aggregate == "median" else ds.mean(0)
+                elif self.compress is None:
                     avg = torch.stack([list(w.parameters())[i] for w in self.workers]).mean(0)
                     p.grad = p.data - avg
                 else:
@@ -58,8 +69,12 @@ class DiLoCo:
                         c = self.compress(d, self.cgen)
                         if self.ef is not None:
                             self.ef[j][i] = d - c
+                            num += self.ef[j][i].pow(2).sum().item()
+                            den += d.pow(2).sum().item()
                         outs.append(c)
                     p.grad = torch.stack(outs).mean(0)
+        if self.ef is not None and self.compress is not None:
+            self.ef_norms.append((num / den) ** 0.5 if den > 0 else 0.0)
         self.outer.step()
         self.outer.zero_grad(set_to_none=True)
         self.rounds += 1
@@ -113,4 +128,22 @@ def quantise(levels):
         low = y.floor()
         up = (torch.rand(x.shape, generator=gen) < (y - low)).to(x.dtype)
         return torch.sign(x) * (low + up) * s / levels
+    return c
+
+
+def quantize(bits, stochastic=True):
+    """Per-tensor uniform quantiser with 2^bits - 1 levels on [-max|x|, max|x|] (QSGD-style, Alistarh et al. 2017).
+    Stochastic rounding makes it unbiased: E[C(x)] = x. bits = 1 is the scaled sign, C(x) = mean|x| sign(x) (Seide et
+    al. 2014; Karimireddy et al. 2019), which is biased and meant for error feedback."""
+    def c(x, gen):
+        if bits == 1:
+            return x.abs().mean() * torch.sign(x)
+        s = x.abs().max()
+        if s == 0:
+            return x
+        L = 2 ** (bits - 1) - 1
+        y = x / s * L
+        lo = y.floor()
+        up = (torch.rand(x.shape, generator=gen) < (y - lo)) if stochastic else ((y - lo) >= 0.5)
+        return (lo + up.to(x.dtype)) * s / L
     return c

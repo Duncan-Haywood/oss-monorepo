@@ -1,0 +1,16 @@
+Qwen2.5-1.5B-Instruct: 6000 items, real agreement 0.661; logistic error fit: const -0.72, hau -0.46, ibo -0.22, pcm -1.28, length_z +0.11, human_neg +1.70, mention -0.35
+  fitted-synthetic realised agreement 0.658; mean fitted flip prob 0.339
+  real n=100 coverage 0.933 ratio 0.959 dropped 0
+  real n=200 coverage 0.944 ratio 0.971 dropped 0
+  real n=400 coverage 0.948 ratio 0.978 dropped 0
+  fitted n=100 coverage 0.941 ratio 0.966 dropped 0
+  fitted n=200 coverage 0.943 ratio 0.978 dropped 0
+  fitted n=400 coverage 0.953 ratio 0.985 dropped 0
+Qwen2.5-3B-Instruct: 6000 items, real agreement 0.689; logistic error fit: const -4.36, hau -0.02, ibo +0.17, pcm -0.86, length_z -0.14, human_neg +7.38, mention -0.32
+  fitted-synthetic realised agreement 0.686; mean fitted flip prob 0.311
+  real n=100 coverage 0.942 ratio 0.974 dropped 0
+  real n=200 coverage 0.943 ratio 0.983 dropped 0
+  real n=400 coverage 0.952 ratio 0.993 dropped 0
+  fitted n=100 coverage 0.939 ratio 0.973 dropped 0
+  fitted n=200 coverage 0.944 ratio 0.983 dropped 0
+  fitted n=400 coverage 0.953 ratio 0.993 dropped 0
