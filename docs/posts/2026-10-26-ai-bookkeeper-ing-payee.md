@@ -1,6 +1,8 @@
 ---
 title: "ING Germany exports lost the payee name"
-date: 2026-10-29
+date: 2026-10-26
+description: "ai-bookkeeper's reader did not recognise ING Germany's payee column, so categorizer suggestions lost the best signal."
+tags: [ai-bookkeeper, ing, csv-import, bookkeeping]
 ---
 
 ING's German account export has a column called `Auftraggeber/Empfänger`, the person or shop on the other side of each payment. ai-bookkeeper's CSV reader did not recognise that name, so a line from "REWE Filialen Voll" reached the categorizer as just the reference text "REWE SAGT DANKE". The payee is the best signal for learning which account a line belongs to, so dropping it made suggestions worse for every ING customer.

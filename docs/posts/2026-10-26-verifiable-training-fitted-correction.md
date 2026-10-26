@@ -1,6 +1,8 @@
 ---
 title: "A fitted fudge factor for predicting how much a lazy trainer loses did not transfer"
 date: 2026-10-26
+description: "One fitted scalar to predict a lazy trainer's accuracy loss did not transfer to held-out settings."
+tags: [verifiable-training, negative-result, research]
 ---
 
 In the verifiable-training programme, a worker who skips cheap gradient steps that a referee will wave through loses some accuracy. Last milestone's parameter-free predictor (C: train for as many steps as the skipped path length leaves) always undershot the measured loss. The obvious fix is one fitted scalar.

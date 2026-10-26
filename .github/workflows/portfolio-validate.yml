@@ -109,6 +109,9 @@ on:
       - "portfolio/ledger/test_supersede_check.py"
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
+      # Post-only PRs ran no front-matter check, so posts without a description
+      # or tags, and posts dated ahead, reached main (five on 2026-10-26).
+      - "docs/posts/**"
       - "platform/ci/**"
       - ".github/workflows/**"
   pull_request:
@@ -154,6 +157,9 @@ on:
       - "portfolio/ledger/test_supersede_check.py"
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
+      # Post-only PRs ran no front-matter check, so posts without a description
+      # or tags, and posts dated ahead, reached main (five on 2026-10-26).
+      - "docs/posts/**"
       - "platform/ci/**"
       - ".github/workflows/**"
   workflow_dispatch:
