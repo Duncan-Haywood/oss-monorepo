@@ -86,6 +86,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Latest Easter</title>
+      <link>https://example.invalid/hearth-and-horizon/the-latest-easter.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-latest-easter.html</guid>
+      <pubDate>Mon, 26 Oct 2026 12:00:00 GMT</pubDate>
+      <description>Easter 2038 falls on 25 April, the latest it can. At 59 degrees north the sun sets at 20:42 and the sky is still bright at ten. A sacristan who has lit the Easter fire for forty-one years, a trust assistant with a sun table, a candle that gives one lux at a metre and a ferry nobody can hold decide when &quot;after dark&quot; begins, and what it costs the people who cannot stay. Setting: Vaarsay, a small invented island in the north isles of Orkney, Holy Saturday, 24 April 2038. Read the full text at https://example.invalid/hearth-and-horizon/the-latest-easter.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>Easter 2038 falls on 25 April, the latest it can. At 59 degrees north the sun sets at 20:42 and the sky is still bright at ten. A sacristan who has lit the Easter fire for forty-one years, a trust assistant with a sun table, a candle that gives one lux at a metre and a ferry nobody can hold decide when &quot;after dark&quot; begins, and what it costs the people who cannot stay.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Third List</title>
       <link>https://example.invalid/hearth-and-horizon/the-third-list.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-third-list.html</guid>
