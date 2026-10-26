@@ -818,3 +818,30 @@ Nile variants (2026-10-26, `nile-variants.test.mjs`): on the real Nile series th
 ## A real count series: British coal-mining disasters (2026-10-26)
 
 Until now the Poisson path was checked on real counts only through the seasonal and trend variants (UK driver casualties, Wikipedia pageviews). `data/coal-mining-disasters.csv` is the plain annual case: 191 disasters of ten or more deaths in 112 years (1851-1962, Jarrett 1979). Plain `poisson` PELT returns two changes: **1892** (3.10 to 1.07 a year, `range95` 1886 to 1897, which holds the literature's 1890) and a second at 1948 (1.07 to 0.27, `range95` 1897 to 1961). The 1948 change is real in the data (a handful of disasters after nationalisation) but the range is 64 years wide: eleven or so events cannot date it, and the tool says so instead of giving a point. `--overdispersion nb` returns the same two changes. One real series, one run: it shows the interval is honest here, not that its coverage is 95%. Test: `coal-disasters.test.mjs`.
+
+## Real heavy tails: daily exchange-rate returns (2026-10-26)
+
+The robust, dispersion and bootstrap options above were tuned on seeded synthetic noise.
+`eval/fx-shocks.mjs` (output `eval/fx-shocks.out.txt`, test `fx-shocks.test.mjs`) runs
+`--model meanvar` on 1,750 real daily log returns of the Swiss franc, pound and yen against
+the dollar, 2012-2018 (`data/fx-daily-returns.csv`, Fed H.10 via a public-domain mirror,
+source in `data/SOURCE.md`). Two dated shocks: the Swiss National Bank dropped its euro
+floor on 2015-01-15 (kurtosis of the franc series 111) and the UK voted for Brexit on
+2016-06-23 (pound kurtosis 32). Yen (kurtosis 6.6) has no single documented break.
+
+| series | default | `--robust` | `--dispersion` | `--bootstrap` |
+|---|---|---|---|---|
+| CHF changes (event found; not near the event) | 6 (yes; 4) | 3 (yes; 1) | 3 (yes; 1) | 6 (yes; 4) |
+| GBP | 5 (yes; 3) | 4 (yes; 3) | 3 (yes; 1) | 4 (yes; 2) |
+| JPY (no event) | 7 | 4 | 4 | 4 |
+
+What this says, on three series and with no labels beyond two dates:
+
+- Every mode finds both events, on the day (CHF 2015-01-15) or the week before (GBP 2016-06-17,
+  inside the run-up to the vote; "near" is within 10 trading days of 2016-06-24).
+- All four also report the end of the shock as a second change (CHF 2015-01-30, GBP 2016-07-06 or 07-20), which is true: the volatility burst has ended.
+- The extra changes are quiet-versus-busy-year splits that default `meanvar` reads from heavy tails. `--dispersion` removes the most on GBP (3 of 5 changes left), `--robust` and `--dispersion` tie on CHF and JPY.
+- **`--bootstrap` did not help on the franc**: it returned the same six dates as the default, though on synthetic GARCH noise it cut false alarms from 51% to 16%. One series is not a rebuttal, but the synthetic result does not carry over to a series with one gigantic outlier day; why is untested (a guess: the one giant day sits in few resampled blocks).
+- Residual clustering is still there after the fit (the Ljung-Box line prints for CHF, JPY and the robust runs), so the dates stay candidates.
+
+Not claimed: that these dates are all the true regimes (the year-to-year splits may be real volatility changes), nor a false-alarm rate; that needs labelled series.
