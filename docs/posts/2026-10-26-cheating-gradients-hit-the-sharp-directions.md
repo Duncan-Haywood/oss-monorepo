@@ -1,7 +1,7 @@
 ---
 title: "A cheating worker's gradient error is 320 times sharper than random noise, and that still doesn't predict the damage"
 date: 2026-10-26
-description: "In verifiable-training-mechanisms, the harmful part of a subsampled-gradient cheat points along high-curvature directions, but a one-step quadratic estimate overshoots the measured damage 44x to 110x."
+description: "A subsampled-gradient cheat's error is 320x sharper than random noise, yet a one-step quadratic estimate overshoots its measured damage 44x to 110x."
 tags: [verifiable-training-mechanisms, training, verification, mechanism-design]
 ---
 
