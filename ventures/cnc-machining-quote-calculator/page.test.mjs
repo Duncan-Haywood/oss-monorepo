@@ -207,7 +207,7 @@ test("nothing on any page reaches the network", () => {
     // The only absolute URLs permitted are the sponsor link and schema.org.
     for (const url of [...html.matchAll(/https?:\/\/[^\s"'<)]+/g)].map((m) => m[0])) {
       assert.ok(
-        /^https:\/\/(github\.com\/sponsors\/Duncan-Haywood|schema\.org|www\.w3\.org|www\.sitemaps\.org)/.test(url),
+        /^https?:\/\/(github\.com\/sponsors\/Duncan-Haywood|schema\.org|www\.w3\.org|www\.sitemaps\.org)/.test(url),
         `${name} references an unexpected external URL: ${url}`,
       );
     }

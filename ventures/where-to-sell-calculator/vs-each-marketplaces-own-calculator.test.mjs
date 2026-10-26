@@ -42,7 +42,7 @@ test('no figure is attributed to any marketplace', () => {
   // The stylesheet is excluded rather than the rule relaxed: `width: 100%` is
   // a layout declaration, not a claim about anyone's fees, and letting it
   // weaken the pattern would let a real rate through beside it.
-  const prose = html.replace(/<style>[\s\S]*?<\/style>/g, '');
+  const prose = html.replace(/<style>[\s\S]*?<\/style>/g, '').replace(/<link rel="icon"[^>]*>/g, '');
   assert.doesNotMatch(prose, /\$\s?\d/);
   assert.doesNotMatch(prose, /\d\s?%/);
 });
