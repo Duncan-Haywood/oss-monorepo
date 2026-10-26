@@ -85,3 +85,12 @@ test("a price glued to a tax code (7.50ZR) is not repaired into 7.5025, and BHD 
   assert.equal(r.date, "2018-04-01");
   assert.equal(r.cents, 2935);
 });
+
+test("a closing 'Total : base tax' row with an unreadable tax cell takes the GST lines above it", () => {
+  const a = parseReceipt(rcpt("SHOP SDN BHD", "Total Sales (Excluding GST) : 89.50", "Total GST : 5.37", "Total Sales (Inclusive of GST) : 94.87", "Total : 89.50 §.37] +"));
+  assert.equal(a.cents, 9487);
+  const b = parseReceipt(rcpt("SHOP SDN BHD", "Total Sales (Excluding GST) : 45.00", "Total GST : 2.70", "Total Sales (Inclusive of GST) : ( 47.10)", "Total : 45.00 2.7"));
+  assert.equal(b.cents, 4770);
+  // one amount on the row: nothing to doubt, the row stands
+  assert.equal(parseReceipt(rcpt("SHOP SDN BHD", "SUB-TOTAL (EX) : 4.60", "TOTAL TAX : 0.28", "TOTAL 4.90")).cents, 490);
+});
