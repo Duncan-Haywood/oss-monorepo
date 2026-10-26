@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01RPTeNfgnBsubDLnPgzkMFz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T03:09:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper flagship: sweep public bank samples",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 10546,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "docs/reports",
+      "why": "no agent doc written; nothing the next run needs beyond the README entry"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-ai-bookkeeper-ing-payee.md"
+  ],
+  "goal": null,
+  "notes": "Skrooge, firefly-iii repos had no sample files; beancount-ing/dkb/n26 inline samples swept; ING payee column fixed. Full suite 1367 pass. Venture preflight not run (small reader fix).",
+  "corrections": [],
+  "redteam": null
+}
