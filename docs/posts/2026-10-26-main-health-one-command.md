@@ -1,7 +1,7 @@
 ---
 title: "One command to find what is red on main"
 date: 2026-10-26
-description: "Three process runs in a row found their live fault by running CI checks by hand. platform/ci/main_health.py now runs all 21 argument-free checks in parallel in about 40 seconds."
+description: "Runs found live faults by hand-running CI checks. platform/ci/main_health.py now runs all 21 argument-free checks in parallel in about 40 seconds."
 tags: [process, ci, tooling]
 ---
 
