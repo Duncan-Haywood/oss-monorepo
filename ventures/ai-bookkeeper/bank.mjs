@@ -671,7 +671,7 @@ export function readQif(text, { dayFirst } = {}) {
   let cur = {};
   let n = 0;
   let inAccount = false; // an !Account block lists account names (N) and types (T), not transactions; so do the !Type:Cat, Class, Tag and Prices lists
-  let accounts = 0;
+  let accounts = 0, acctBlocks = 0; // KMyMoney writes a !Type:Bank header before its single !Account block, so named blocks outrank type headers
   const flush = (line) => {
     if (inAccount || (cur.D === undefined && cur.T === undefined)) { cur = {}; return; }
     n++;
@@ -689,6 +689,7 @@ export function readQif(text, { dayFirst } = {}) {
     if (c === "!") {
       const isList = /^!type:\s*(cat|class|tag|prices?|payee|memorized)\b/i.test(l.trim());
       inAccount = /^!account\b/i.test(l.trim()) || isList;
+      if (/^!account\b/i.test(l.trim())) acctBlocks++;
       if (/^!type:/i.test(l.trim()) && !isList) accounts++;
       return;
     }
@@ -697,6 +698,7 @@ export function readQif(text, { dayFirst } = {}) {
   });
   if (Object.keys(cur).length) flush(text.split(/\r?\n/).length);
   if (!n) problems.push("No transactions were found in the QIF file.");
+  if (acctBlocks) accounts = acctBlocks;
   if (accounts > 1 && n) problems.push(`The QIF file has ${accounts} account sections; all rows were read into one account. Split the file per account to keep transfers apart.`);
   return { rows: out, problems, columns: null, bank: "qif", inferred: null };
 }
