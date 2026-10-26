@@ -1,0 +1,8 @@
+{"agg": "median", "offset": 30.0, "seed": 0, "loss": 1.581076130270958, "secs": 750}
+{"agg": "mean", "offset": 300.0, "seed": 0, "loss": Infinity, "secs": 754}
+{"agg": "median", "offset": 300.0, "seed": 0, "loss": 1.581076130270958, "secs": 755}
+{"agg": "mean", "offset": 30.0, "seed": 0, "loss": 6.509753882884979, "secs": 834}
+{"agg": "median", "offset": -10.0, "seed": 0, "loss": 1.6627181842923164, "secs": 737}
+{"agg": "mean", "offset": -10.0, "seed": 0, "loss": 91119.47607421875, "secs": 772}
+{"agg": "median", "offset": 30.0, "seed": 1, "loss": 1.5894464328885078, "secs": 727}
+{"agg": "mean", "offset": 30.0, "seed": 1, "loss": 5.145082533359528, "secs": 839}
