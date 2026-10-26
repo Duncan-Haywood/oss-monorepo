@@ -142,9 +142,10 @@ flagships:
       Floors reach the optimum on 10 of 12 weeks; 10x the branching nodes leaves
       them unchanged, so the open gaps are 12x30 week 1 (72 vs 75) and 10x28 week 4
       (77 vs 78): only a stronger relaxation (person-day clique or LP cuts) closes
-      them. 10x28 week 7 stays 1 h above optimum (62 vs 61); a three-person chain in
-      the walk did not help. Next: an exact repair of the open hours with the rest
-      fixed, or that cut; then a tighter pay bound once coverage is proven, then a
+      them. Landed 2026-10-26: coverRepair (exact
+      large-neighbourhood repair, on with the exact check) reaches the optimum on
+      10x28 week 7 and all four 12x30 weeks. Next: make it the default and re-derive
+      the guide pages, or the clique cut; then a tighter pay bound once coverage is proven, then a
       joint multi-week solve. Multi-week fairness is measured (eval/fairness-
       bench.mjs: tough-shift spread 13.2 -> 3.2 over 8 weeks for +0.4% payroll,
       synthetic crews).
