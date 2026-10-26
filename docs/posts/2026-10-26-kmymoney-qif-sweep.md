@@ -1,6 +1,6 @@
 ---
 title: "A QIF file with one account that we counted as two"
-date: 2026-10-31
+date: 2026-10-26
 description: "Sweeping KMyMoney's import samples through the AI Bookkeeper readers found one false warning, now fixed."
 tags: [ai-bookkeeper, qif, bank-import]
 ---

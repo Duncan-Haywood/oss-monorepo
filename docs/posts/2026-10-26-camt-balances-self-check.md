@@ -1,6 +1,8 @@
 ---
 title: "A bank statement that doesn't add up to its own balances should say so"
-date: 2026-10-31
+date: 2026-10-26
+description: "CAMT.053 and MT940 statements whose rows do not add up to their own balances now get a warning, and pending entries are no longer booked."
+tags: [ai-bookkeeper, camt, mt940, bank-import]
 ---
 
 CAMT.053 and MT940 statements print an opening and a closing balance. The ai-bookkeeper reader used the closing one to check the books, but never asked the simpler question: do the rows in this file add up from the opening balance to the closing one? Running the fixtures of MugenLab's ledgerbridge (MIT, cloned at run time, nothing copied) through the reader turned up three faults:
