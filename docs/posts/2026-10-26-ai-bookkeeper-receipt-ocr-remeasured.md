@@ -1,7 +1,7 @@
 ---
 title: "Receipt shop names from real OCR: 37% to 43% after one small fix"
 date: 2026-10-26
-description: "Re-running tesseract on 626 real shop receipts shows the AI bookkeeper's merchant reader gaining 6.7 points from a bracket fix, and a failed attempt to gain more."
+description: "Tesseract on 626 real shop receipts: the AI bookkeeper's merchant reader gains 6.7 points from a bracket fix, plus a failed attempt to gain more."
 tags: [ai-bookkeeper, ocr, receipts, measurement]
 ---
 
