@@ -17,6 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "src"))
 import torch  # noqa: E402
 import torch.nn.functional as F  # noqa: E402
+from torch.nn.attention import SDPBackend, sdpa_kernel  # noqa: E402
 from vtm import margin_tf as tf  # noqa: E402
 
 torch.set_num_threads(1)
@@ -39,6 +40,11 @@ def hvp_fn(model, x, y):
 
 
 def run(a):
+    with sdpa_kernel(SDPBackend.MATH):  # the fused CPU attention kernel has no double backward
+        return run_inner(a)
+
+
+def run_inner(a):
     seed, tau = a
     tr, te, vocab = TXT
     torch.manual_seed(seed)
