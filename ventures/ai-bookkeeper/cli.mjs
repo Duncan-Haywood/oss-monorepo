@@ -865,6 +865,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     for (const m of bm.months) console.log(`  ${m.month} ${fmt(m.operating).padStart(12)} ${fmt(m.investing).padStart(11)} ${fmt(m.financing).padStart(11)} ${fmt(m.closingCash).padStart(13)}`);
     if (bm.recentBurn) console.log(`  Last three months burn ${fmt(bm.recentBurn)} a month${bm.recentRunwayMonths == null ? "; no cash left" : `; ${bm.recentRunwayMonths} months of runway at that pace`}`);
   }
+  const k = r.ratios, pct = (v) => (v == null ? "n/a" : `${(v * 100).toFixed(1)}%`), x = (v) => (v == null ? "n/a" : v.toFixed(2));
+  console.log(`\n  Ratios: gross margin ${pct(k.grossMargin)}, net margin ${pct(k.netMargin)}, working capital ${fmt(k.workingCapital)}`);
+  console.log(`  Current ratio ${x(k.currentRatio)}, quick ratio ${x(k.quickRatio)}, debt to equity ${x(k.debtToEquity)} (the loan counts as long term)`);
   const s = status(books);
   if (s.review) console.log(`\n${s.review} lines are still in review and not in these figures.`);
 } else if (cmd === "checks") {

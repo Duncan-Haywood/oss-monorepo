@@ -283,6 +283,9 @@
     <h3>Cash flow</h3>
     <p class="note">Indirect method: net profit adjusted for receivables, payables, tax and the like, then purchases of fixed assets, then loans and owner money. A card counts as a liability, so card spending shows as operating until the card is paid. The sections add up to the change in your bank accounts.</p>
     <div class="scroll" id="cf"></div>
+    <h3>Ratios</h3>
+    <p class="note">What a lender reads off the statements. Current assets are cash, receivables and the like; the quick ratio leaves out prepaid and inventory. The loan counts as long term, so a payment due this year is understated. n/a means the figure under the line is zero or negative.</p>
+    <div class="scroll" id="ratios"></div>
     <details><summary>Trial balance</summary><div class="scroll" id="tb"></div></details>
     <h3>US Schedule C worksheet</h3>
     <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation and self-employment tax; miles and a simplified home office come in from the card below the reports.</p>
@@ -543,6 +546,8 @@
       $("#bs").replaceChildren(table(["", "Amount"], [...sec("Assets", b.assets), ["Total assets", fmt(b.totalAssets)], ...sec("Liabilities", b.liabilities), ...sec("Equity", b.equity), ["   Current earnings (not yet closed)", fmt(b.currentEarnings)]], [["Liabilities + equity", fmt(b.totalLiabilities + b.totalEquity)], [b.balanced ? "Balanced" : "NOT BALANCED", ""]]));
       const cfl = r.cashFlow, cashRow = (n, v) => [n, fmt(v)];
       $("#cf").replaceChildren(table(["", "Amount"], [cashRow("Net profit", cfl.netProfit), ...cfl.operatingItems.map((l) => cashRow(`   Change in ${l.name.toLowerCase()}`, l.amount)), cashRow("Cash from operations", cfl.operating), ...cfl.investingItems.map((l) => cashRow(`   ${l.name}`, l.amount)), cashRow("Cash from investing", cfl.investing), ...cfl.financingItems.map((l) => cashRow(`   ${l.name}`, l.amount)), cashRow("Cash from financing", cfl.financing)], [cashRow("Change in cash", cfl.change), cashRow("Free cash flow (operations less asset purchases)", cfl.freeCashFlow), ...(cfl.monthlyBurn ? [[`Burn a month before financing${cfl.runwayMonths == null ? "; no cash left" : `; ${cfl.runwayMonths} months of runway`}`, fmt(cfl.monthlyBurn)]] : []), [`Cash ${fmt(cfl.openingCash)} to ${fmt(cfl.closingCash)}`, cfl.ties ? "Ties to the bank accounts" : "DOES NOT TIE"]]));
+      const k = r.ratios, pct = (v) => (v == null ? "n/a" : `${(v * 100).toFixed(1)}%`), x = (v) => (v == null ? "n/a" : v.toFixed(2));
+      $("#ratios").replaceChildren(table(["Ratio", "Value"], [["Gross margin", pct(k.grossMargin)], ["Net margin", pct(k.netMargin)], ["Working capital", fmt(k.workingCapital)], ["Current ratio", x(k.currentRatio)], ["Quick ratio", x(k.quickRatio)], ["Debt to equity", x(k.debtToEquity)]]));
       const bm = r.cashByMonth;
       if (bm.months.length > 1) $("#cf").append(table(["Month", "Operations", "Investing", "Financing", "Closing cash"], bm.months.map((m) => [m.month, fmt(m.operating), fmt(m.investing), fmt(m.financing), fmt(m.closingCash)]), bm.recentBurn ? [[`Last three months burn a month${bm.recentRunwayMonths == null ? "; no cash left" : `; ${bm.recentRunwayMonths} months of runway`}`, fmt(bm.recentBurn), "", "", ""]] : []));
       const t = r.trialBalance;
