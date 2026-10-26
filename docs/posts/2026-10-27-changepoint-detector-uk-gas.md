@@ -1,7 +1,7 @@
 ---
 title: "A changepoint tool on a series where the answer depends on the scale"
 date: 2026-10-27
-description: "UK quarterly gas consumption 1960-1986 through changepoint-detector: a slope bend near 1970 on the raw series, nothing on the log series, and a seasonal swing that drift cuts into steps."
+description: "UK quarterly gas 1960-1986 through changepoint-detector: a slope bend near 1970 on the raw series, none on the log series, and a seasonal swing cut into steps."
 tags: [changepoint-detector, time-series, real-data]
 ---
 
