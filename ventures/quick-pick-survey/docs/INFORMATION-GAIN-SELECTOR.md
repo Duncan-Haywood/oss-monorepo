@@ -149,5 +149,27 @@ At 3000 items (2026-10-22, 2 seeded respondents, 600 answers, selector loop
 only, no uncapped arm because it is minutes per run): items rd<150 73 shipped /
 131 capped, rank accuracy 0.051 / 0.057. The cap still beats the shipped
 selector; the margin is small and the sample is two respondents. Not measured:
-the same check through the HTTP route with Postgres, and budgets well past the
-list length, where the cap could start to hide items.
+the same check through the HTTP route with Postgres.
+
+## Budgets well past the list length (2026-10-26)
+
+`longBudget.simulation.test.ts`: 30 items, medians of 5 seeded respondents,
+rank accuracy (Spearman against the true order) by number of answers. With 30
+items the cap never binds, so this tests whether the selectors keep improving
+once most of the 435 pairs have been seen, not the cap itself.
+
+| answers | shipped | information | hybrid |
+|---|---|---|---|
+| 30 | 0.556 | 0.527 | 0.556 |
+| 120 | 0.832 | 0.873 | 0.832 |
+| 300 | 0.928 | 0.934 | 0.897 |
+| 600 | 0.950 | 0.965 | 0.963 |
+| 1200 | 0.960 | 0.976 | 0.980 |
+
+No stall: every selector keeps rising, and from 600 answers (20 per item) the
+information selector and the hybrid both lead the shipped one by 1.5 to 2
+points. Two things to read carefully: at 300 answers the hybrid (0.897) is
+below the shipped selector (0.928), the one cell where it loses, probably the
+hand-over just after the switch point, and with 5 seeds a 0.03 gap is within
+noise, so it is a flag, not a finding; and the respondent is the synthetic
+Bradley-Terry one, so the lead on real, inconsistent people is unmeasured.
