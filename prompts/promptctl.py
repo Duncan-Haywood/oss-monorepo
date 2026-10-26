@@ -460,6 +460,11 @@ def backlog_rank(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
                                              -i["effect"] / i["cost"], i["opened"], i["id"]))
 
 
+def backlog_blocked(item: dict[str, Any]) -> bool:
+    """An item whose `change` opens with "Blocked on" waits on something an agent cannot supply."""
+    return str(item.get("change") or "").lstrip().lower().startswith("blocked on")
+
+
 def backlog_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
     counts = {s: sum(1 for i in items if i.get("status") == s) for s in BACKLOG_STATUSES}
     done = [i for i in items if i.get("status") == "done"]
@@ -479,7 +484,11 @@ def print_backlog(root: Path = ROOT) -> None:
     print("| id | owner | effect/cost | status | title |")
     print("|---|---|---|---|---|")
     for i in ranked:
-        print(f"| {i['id']} | {i['owner']} | {i['effect']}/{i['cost']} | {i['status']} | {i['title']} |")
+        tag = " (blocked)" if backlog_blocked(i) else ""
+        print(f"| {i['id']} | {i['owner']} | {i['effect']}/{i['cost']} | {i['status']} | {i['title']}{tag} |")
+    if ranked and not [i for i in ranked if i["owner"] == "agent" and not backlog_blocked(i)]:
+        print("\nNo agent-owned item can be worked now (owner rows or blocked ones only): "
+              "use Critique mode (process prompt, \"What to do\"); a Verify-only run usually ends partial.")
     started = [i for i in ranked if i["status"] == "in_progress" and i.get("history")]
     if started:
         print("\nIn progress, latest history line (what is left):")
