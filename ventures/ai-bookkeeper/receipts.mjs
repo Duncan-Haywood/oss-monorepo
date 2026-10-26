@@ -175,7 +175,7 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   }
   const [first, second] = eligible;
   if (!regNamed && first && second && !ENTITY.test(first) && ENTITY.test(second) && first.trim().split(/\s+/).length <= 3 && first.trim().split(/\s+/)[0].toLowerCase() !== second.trim().split(/\s+/)[0].toLowerCase()
-    && !/(?:restaurant|cafe|mart|market|shop|store|pharmacy|bakery|kitchen)/i.test(first)) merchantLine = second;
+    && !/(?:restaurant|cafe|mart|market|shop|store|pharmacy|bakery|kitchen)/i.test(first)) merchantLine = /^[A-Z]{1,3}\.\s*\(M\)/.test(second.trim()) && /^[A-Z][A-Z .&']+$/.test(first.trim()) ? `${first.trim()} ${second.trim()}` : second; // "POPULAR BOOK" over "CO. (M) SDN BHD": one name wrapped over two lines
   // a stray mark before the name ("- UAN HING ...") and the engine's SON/SDN BHO for SDN BHD
   const merchant = merchantLine ? merchantLine.replace(/\s{2,}.*$/, "").replace(/^(?:[^A-Za-z0-9(]+|[a-z]{1,2}\s+(?=[A-Z]{3}))/, "").replace(/\bS[OD]N\.?\s+B(?:HD|HO|H0)\b/g, "SDN BHD").slice(0, 60) : null;
   if (!merchant) notes.push("no merchant found");

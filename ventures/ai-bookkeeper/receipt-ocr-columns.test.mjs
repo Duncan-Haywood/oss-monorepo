@@ -50,3 +50,8 @@ test("a date stamped with a clock time beats code-like numbers for the day-month
   assert.equal(r.date, "2017-09-19");
   assert.equal(parseReceipt("SHOP SDN BHD\nRC11-23-42 - 12/144\n15-03-18 15:41 SH01\nTOTAL 5.00").date, "2018-03-15");
 });
+
+test("a company name wrapped over two lines is read as one name", () => {
+  const r = parseReceipt("POPULAR BOOK\nCO. (M) SDN BHD\n(COMPANY NO. 113825-W)\nDate: 05/01/2019\nTotal 10.00");
+  assert.equal(r.merchant, "POPULAR BOOK CO. (M) SDN BHD");
+});
