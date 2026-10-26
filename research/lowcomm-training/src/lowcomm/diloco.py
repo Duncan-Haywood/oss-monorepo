@@ -99,3 +99,25 @@ def top_k(keep):
         out[idx] = x.flatten()[idx]
         return out.view_as(x)
     return c
+
+
+def qsgd(levels):
+    """Unbiased stochastic uniform quantiser per tensor (Alistarh et al. 2017, QSGD): scale by max|x|, round each
+    |x|/max|x| * levels up or down at random so E[C(x)] = x. levels = 2^(b-1) - 1 magnitude levels plus a sign."""
+    def c(x, gen):
+        s = x.abs().max()
+        if s == 0:
+            return x
+        y = x.abs() / s * levels
+        lo = y.floor()
+        q = lo + (torch.rand(x.shape, generator=gen) < (y - lo)).to(x.dtype)
+        return torch.sign(x) * q * s / levels
+    return c
+
+
+def sign_scaled():
+    """Biased 1-bit compressor per tensor: sign(x) * mean|x| (Bernstein et al. 2018; Karimireddy et al. 2019 pair it
+    with error feedback). Contractive: ||C(x) - x||^2 <= (1 - ||x||_1^2 / (n ||x||_2^2)) ||x||^2."""
+    def c(x, gen):
+        return torch.sign(x) * x.abs().mean()
+    return c

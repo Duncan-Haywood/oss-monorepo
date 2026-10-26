@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 4e: how many bits per delta coordinate can DiLoCo drop, unbiased or with error feedback? (planned before running)
+- Why: 4d's "Next: quantisation". Sparsifiers cost about +0.03 nats per halving of the keep fraction below 1/16; quantisers shrink every coordinate instead of dropping most, so the cost curve may differ.
+- Design (`experiments/gpt_quant/quant.py`): 4b to 4d's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); per-tensor compressors `qsgd` (Alistarh et al. 2017, unbiased stochastic rounding, sign plus 3, 2 or 1 magnitude bits-equivalents: levels 7, 3, 1, i.e. 4, 3 and 2 bits per coordinate before entropy coding) with no error feedback, and `sign_scaled` (sign times mean magnitude, 1 bit, biased) with and without error feedback; seeds 0 to 2 (15 runs). Comparator: uncompressed (3d).
+- **H4e-i:** 4-bit QSGD (levels 7) is within 0.02 nats of uncompressed on all 3 seeds. Refuted if any seed exceeds +0.02.
+- **H4e-ii:** excess loss is monotone in bits for QSGD (4 < 3 < 2 bits) in the mean. Refuted if any adjacent pair reverses.
+- **H4e-iii:** 1-bit scaled sign with error feedback beats the same without it by more than 0.05 nats in the mean. Refuted otherwise.
+- Prior: i yes; ii yes; iii yes (biased, no residual).
+- Limits: 3 seeds, one `H`, per-tensor scale, bytes not modelled (no entropy coding, scale overhead ignored).
+
 ## 2026-10-26 · Milestone 4d: where is the knee of error-feedback top-k between keep 1/16 and 1/256? (planned before running)
 - Why: 4c's "Next". EF top-k cost -0.005 at 1/16, +0.043 at 1/64, +0.121 at 1/256; two points below the knee leave its location and shape unresolved.
 - Design (`experiments/gpt_topk_ef_knee/topk_ef_knee.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); EF top-k at keep 1/32 and 1/128; seeds 0 to 2 (6 runs). Comparators: uncompressed (3d), 4b at 1/16, 4c at 1/64 and 1/256.
