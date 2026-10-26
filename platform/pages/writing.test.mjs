@@ -202,3 +202,11 @@ test('post page titles keep the site name only when the whole title fits a searc
   assert.equal(postPageTitle(long), long);
   for (const h of ['a', 'x'.repeat(40), 'y'.repeat(80)]) assert.ok(postPageTitle(h).length <= Math.max(TITLE_BUDGET, h.length));
 });
+
+test('a post dated after today waits for its date', () => {
+  const root = repoWith({
+    '2026-10-01-now.md': post('Now', '2026-10-01'),
+    '2999-01-01-later.md': post('Later', '2999-01-01'),
+  });
+  assert.deepEqual(loadPosts(root).map((p) => p.slug), ['now']);
+});
