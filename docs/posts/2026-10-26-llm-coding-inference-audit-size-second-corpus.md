@@ -1,7 +1,7 @@
 ---
 title: "How many items to hand-code: the audit-size rule holds on a second corpus, and says a weak coder costs you"
 date: 2026-10-26
-description: "A closed-form rule for how many items to hand-check when an LLM codes the rest fits simulation to 0.2% on Reddit comments; a poor coder needs more checking."
+description: "A closed-form rule for how many items to hand-check when an LLM codes the rest matched simulation to 0.2% on Reddit comments. A weak coder needs more."
 tags: [llm-coding-inference, research, survey-methods, prediction-powered-inference]
 ---
 

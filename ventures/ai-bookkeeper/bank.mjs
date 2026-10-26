@@ -236,11 +236,12 @@ const AMT = /^[-+]?\$?\(?[\d,]*\.?\d+\)?-?$/;
 function headerlessLayout(rows) {
   const sample = rows.slice(0, 5);
   if (!sample.length) return null;
+  const trimmed = sample.map((r) => { let n = r.length; while (n > 0 && !String(r[n - 1] ?? "").trim()) n--; return r.slice(0, n); });
   if (headerlessShape(sample)) return { bank: "wells-fargo", columns: { date: 0, amount: 1, desc: 4, balance: -1, debit: -1, credit: -1 }, dayFirst: false };
   const dated = (r) => /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(r[0].trim()) && parseDate(r[0], true);
-  if (sample.every((r) => (r.length === 3 || r.length === 4) && dated(r) && AMT.test(r[1].trim()) && r[2].trim() && !AMT.test(r[2].trim()) && (r.length === 3 || AMT.test(r[3].trim()))))
-    return { bank: sample[0].length === 4 ? "cba" : "anz", columns: { date: 0, amount: 1, desc: 2, balance: sample[0].length === 4 ? 3 : -1, debit: -1, credit: -1 }, dayFirst: true };
-  if (sample.every((r) => r.length === 5 && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(r[0].trim()) && parseDate(r[0]) && r[1].trim() && !AMT.test(r[1].trim()) && ((r[2].trim() === "") !== (r[3].trim() === "")) && AMT.test((r[2].trim() || r[3].trim())) && AMT.test(r[4].trim())))
+  if (trimmed.every((r) => (r.length === 3 || r.length === 4) && dated(r) && AMT.test(r[1].trim()) && r[2].trim() && !AMT.test(r[2].trim()) && (r.length === 3 || AMT.test(r[3].trim()))))
+    return { bank: trimmed[0].length === 4 ? "cba" : "anz", columns: { date: 0, amount: 1, desc: 2, balance: trimmed[0].length === 4 ? 3 : -1, debit: -1, credit: -1 }, dayFirst: true };
+  if (trimmed.every((r) => r.length === 5 && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(r[0].trim()) && parseDate(r[0]) && r[1].trim() && !AMT.test(r[1].trim()) && ((r[2].trim() === "") !== (r[3].trim() === "")) && AMT.test((r[2].trim() || r[3].trim())) && AMT.test(r[4].trim())))
     return { bank: "td", columns: { date: 0, desc: 1, debit: 2, credit: 3, balance: 4, amount: -1 }, dayFirst: false };
   return inferHeaderless(rows);
 }

@@ -1,7 +1,7 @@
 ---
 title: "ai-bookkeeper's cash flow statement now adds depreciation back where it belongs"
 date: 2026-10-26
-description: "Fixed-asset depreciation used to land in the investing section of the cash flow statement. It is now an operating add-back; a sale shows its proceeds."
+description: "A fixed-asset depreciation entry used to land in investing on the cash flow statement. It is now an operating add-back, and a sale shows its proceeds."
 tags: [ai-bookkeeper, accounting, cash-flow, depreciation]
 ---
 
