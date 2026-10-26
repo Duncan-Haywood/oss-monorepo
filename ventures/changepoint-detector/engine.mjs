@@ -1884,3 +1884,24 @@ function summarize({ n, column, model, changes, det, labels, skipped }) {
   if (skipped) lines.push(`${skipped} row${skipped > 1 ? 's were' : ' was'} skipped as blank or not numeric.`);
   return lines.join(' ');
 }
+
+/**
+ * Conditional sd of a GARCH(1,1) fitted by Gaussian quasi-maximum likelihood to the series less its median
+ * (h[t] = omega + alpha e[t-1]^2 + beta h[t-1], h[0] the sample variance). Grid search over (alpha, beta) with the
+ * unconditional variance matched to the sample variance (variance targeting), then a local refinement. For
+ * eval/meanvar-garch-filter.mjs; falls back to a constant sd when nothing beats it.
+ */
+export function garchSigma(x) {
+  const n = x.length, ord = [...x].sort((a, b) => a - b), med = ord[Math.floor(n / 2)];
+  const e2 = x.map((c) => (c - med) ** 2), v = e2.reduce((a, c) => a + c, 0) / n || 1;
+  const h = (a, b) => { const w = v * (1 - a - b), o = new Array(n); o[0] = v; for (let t = 1; t < n; t++) o[t] = w + a * e2[t - 1] + b * o[t - 1]; return o; };
+  const nll = (a, b) => { if (a < 0 || b < 0 || a + b >= 0.999) return Infinity; let s = 0; const o = h(a, b); for (let t = 0; t < n; t++) s += Math.log(o[t]) + e2[t] / o[t]; return s; };
+  let best = [0, 0], bl = nll(0, 0);
+  for (let a = 0.02; a <= 0.5; a += 0.04) for (let b = 0; b <= 0.97 - a; b += 0.05) { const l = nll(a, b); if (l < bl) { bl = l; best = [a, b]; } }
+  for (let step = 0.02; step > 0.002; step /= 2) for (let k = 0; k < 20; k++) {
+    let moved = false;
+    for (const [da, db] of [[step, 0], [-step, 0], [0, step], [0, -step]]) { const l = nll(best[0] + da, best[1] + db); if (l < bl - 1e-9) { bl = l; best = [best[0] + da, best[1] + db]; moved = true; } }
+    if (!moved) break;
+  }
+  return h(best[0], best[1]).map(Math.sqrt);
+}
