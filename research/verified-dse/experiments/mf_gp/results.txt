@@ -1,0 +1,22 @@
+# milestone 22: GP BO, 40 cells, 100 paired seeds, m=5, screen share 0.4, RBF ls 1.0, noise 0.05, lcb k 2.0
+
+## mean regret % over cells (n/a: some seed could not afford the arm)
+budget | rand | fixed1.5 | fixedf3 | gp1ei | gp1lcb | gp2ei | gp2lcb
+15 | 3.56 | 3.40 | 3.03 | 4.11 | 4.40 | 3.77 | 3.77
+25 | 1.77 | 2.12 | 1.49 | 2.24 | 2.52 | 1.87 | 1.89
+40 | 0.36 | 1.37 | 0.45 | 0.80 | 0.78 | 0.75 | 0.74
+
+## worst-cell mean regret % (cell)
+15 | 15.1 (barrel64 relaxed) | 26.9 (barrel64 tight) | 11.6 (adder_op16 tight) | 16.8 (adder_op16 tight) | 16.8 (adder_op16 tight) | 16.8 (adder_op16 tight) | 16.8 (adder_op16 tight)
+25 | 9.4 (adder_op16 tight) | 26.9 (barrel64 tight) | 10.8 (barrel16 relaxed) | 12.5 (adder_op16 tight) | 12.5 (adder_op16 tight) | 12.5 (adder_op16 tight) | 12.5 (adder_op16 tight)
+40 | 2.5 (adder_op16 tight) | 26.9 (barrel64 tight) | 11.9 (barrel16 relaxed) | 8.3 (adder_op16 tight) | 8.3 (adder_op16 tight) | 8.3 (adder_op16 tight) | 8.3 (adder_op16 tight)
+
+## barrel64 (mean over its two clocks)
+15 | 14.60 | 26.90 | 10.63 | 11.79 | 16.46 | 10.72 | 10.73
+25 | 6.14 | 26.89 | 4.44 | 4.66 | 8.78 | 4.27 | 4.27
+40 | 0.80 | 26.89 | 0.00 | 0.13 | 0.79 | 0.13 | 0.13
+
+## paired per-cell wins of gp1ei over f3 (cells where gp1ei mean regret is lower / higher), and sign-test p (two-sided, ties dropped)
+15: wins 12, losses 24, p 0.065
+25: wins 8, losses 23, p 0.011
+40: wins 3, losses 23, p 0.000
