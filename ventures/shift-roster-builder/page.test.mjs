@@ -285,7 +285,7 @@ test("14-15 year old page's table is what the engine returns for the sample cafe
   const html = page("scheduling-14-and-15-year-olds.html");
   const cleo = "Cleo, 15, 30, 12, Mon-Fri 15-23; Sat-Sun 8-23", eli = "Eli, 14, 24, 8, Mon/Wed/Fri 16-23; Sat-Sun 8-23";
   const withAges = (c, e) => sampleStaff().replace(cleo, cleo + (c ? `, age: ${c}` : "")).replace(eli, eli + (e ? `, age: ${e}` : ""));
-  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 3, 216, 3622, 36], ["15", 0, 5, 200, 3382, 18], ["15", "14", 8, 181, 3114, 0], ["15 summer", "14 summer", 4, 213, 3578, 32]]) {
+  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 3, 216, 3622, 36], ["15", 0, 5, 200, 3382, 18], ["15", "14", 7, 184, 3168, 0], ["15 summer", "14 summer", 3, 216, 3632, 32]]) {
     const p = parseStaff(withAges(c, e));
     assert.deepEqual(p.errors, []);
     const r = buildRoster(p.staff, slots, {});
@@ -390,7 +390,7 @@ test("widening page's table is what the engine returns for the sample cafe with 
     const r = buildRoster(p.staff, slots, { minRestHours: 10 });
     return [r.unfilled.length, r.hours, r.cost];
   };
-  const any = { Ana: [3, 216, 3622], Ben: [3, 216, 3622], Cleo: [1, 227, 3777], Dev: [3, 216, 3620], Eli: [2, 219, 3647], Fay: [3, 216, 3622], Gus: [3, 216, 3622] };
+  const any = { Ana: [3, 216, 3622], Ben: [3, 216, 3622], Cleo: [1, 232, 3870], Dev: [3, 216, 3620], Eli: [2, 224, 3736], Fay: [3, 216, 3622], Gus: [3, 216, 3622] };
   const cap = { Ana: [3, 216, 3622], Ben: [2, 224, 3750], Cleo: [3, 216, 3622], Dev: [3, 216, 3622], Eli: [3, 216, 3622], Fay: [2, 224, 3746], Gus: [3, 216, 3622] };
   for (let i = 1; i < base.length; i++) {
     const parts = base[i].split(", ");

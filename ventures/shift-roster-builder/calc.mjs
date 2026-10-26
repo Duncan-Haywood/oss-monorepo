@@ -671,6 +671,90 @@ function ejectPass(ctx, owner0, seed, iterations) {
   return bestOwner;
 }
 
+// Coverage plateau search. Pay only breaks ties in the passes above, so a roster one hour short of the proven floor can sit in a
+// region where no single chain frees the hour without first undoing a cheap assignment. Here only open hours count: shifts move
+// between people freely when that costs no coverage (a walk across the plateau), open shifts are pulled in by ejection chains, and
+// a worse step is taken at a falling temperature. The result is then polished for pay with moves that never lose coverage.
+function coverPass(ctx, owner0, seed, iterations) {
+  const { P, S, slots, elig } = ctx;
+  const rng = mulberry32(seed);
+  const owner = owner0.slice();
+  const lists = Array.from({ length: P }, () => []);
+  owner.forEach((p, i) => { if (p >= 0) lists[p] = insertSorted(ctx, lists[p], i); });
+  const hrs = (i) => (slots[i].end - slots[i].start) / 60;
+  const removeFrom = (list, i) => list.filter((x) => x !== i);
+  let open = owner.reduce((t, p, i) => t + (p < 0 ? hrs(i) : 0), 0);
+  let bestOpen = open, bestOwner = owner.slice();
+  for (let it = 0; it < iterations && bestOpen > 0; it++) {
+    const T = 0.6 * (0.05 / 0.6) ** (it / iterations);
+    if (rng() < 0.5) {
+      const openIdx = [];
+      owner.forEach((p, i) => { if (p < 0) openIdx.push(i); });
+      if (!openIdx.length) break;
+      const i = openIdx[Math.floor(rng() * openIdx.length)];
+      const q = Math.floor(rng() * P);
+      if (!elig[q][i]) continue;
+      let nq = insertSorted(ctx, lists[q], i);
+      let j = -1, nr = null, r = -1;
+      if (!validList(ctx, q, nq)) {
+        if (!lists[q].length) continue;
+        j = lists[q][Math.floor(rng() * lists[q].length)];
+        nq = insertSorted(ctx, removeFrom(lists[q], j), i);
+        if (!validList(ctx, q, nq)) continue;
+        r = Math.floor(rng() * P);
+        if (r !== q && elig[r][j]) { nr = insertSorted(ctx, lists[r], j); if (!validList(ctx, r, nr)) nr = null; }
+      }
+      const d = -hrs(i) + (j >= 0 && !nr ? hrs(j) : 0);
+      if (d <= 0 || rng() < Math.exp(-d / T)) {
+        lists[q] = nq; owner[i] = q;
+        if (j >= 0) { if (nr) { lists[r] = nr; owner[j] = r; } else owner[j] = -1; }
+        open += d;
+      }
+    } else {
+      const i = Math.floor(rng() * S), o = owner[i];
+      if (o < 0) continue;
+      const q = Math.floor(rng() * P);
+      if (q === o || !elig[q][i]) continue;
+      const nq = insertSorted(ctx, lists[q], i);
+      if (!validList(ctx, q, nq)) continue;
+      lists[q] = nq; lists[o] = removeFrom(lists[o], i); owner[i] = q;
+    }
+    if (open < bestOpen - 1e-9) { bestOpen = open; bestOwner = owner.slice(); }
+  }
+  return { owner: bestOwner, open: bestOpen };
+}
+
+// Single moves and swaps that lower the score and never leave a shift open that was covered.
+function polishPay(ctx, owner0, seed, iterations) {
+  const { P, S, elig } = ctx;
+  const rng = mulberry32(seed);
+  const owner = owner0.slice();
+  const lists = Array.from({ length: P }, () => []);
+  owner.forEach((p, i) => { if (p >= 0) lists[p] = insertSorted(ctx, lists[p], i); });
+  const pScore = lists.map((l, p) => personScore(ctx, p, l));
+  const removeFrom = (list, i) => list.filter((x) => x !== i);
+  for (let it = 0; it < iterations; it++) {
+    const i = Math.floor(rng() * S), o = owner[i];
+    if (o < 0) continue;
+    if (rng() < 0.5) {
+      const q = Math.floor(rng() * P);
+      if (q === o || !elig[q][i]) continue;
+      const nq = insertSorted(ctx, lists[q], i);
+      if (!validList(ctx, q, nq)) continue;
+      const no = removeFrom(lists[o], i), sq = personScore(ctx, q, nq), so = personScore(ctx, o, no);
+      if (sq + so < pScore[q] + pScore[o] - 1e-9) { lists[q] = nq; lists[o] = no; pScore[q] = sq; pScore[o] = so; owner[i] = q; }
+    } else {
+      const j = Math.floor(rng() * S), b = owner[j];
+      if (b < 0 || b === o || !elig[o][j] || !elig[b][i]) continue;
+      const na = insertSorted(ctx, removeFrom(lists[o], i), j), nb = insertSorted(ctx, removeFrom(lists[b], j), i);
+      if (!validList(ctx, o, na) || !validList(ctx, b, nb)) continue;
+      const sa = personScore(ctx, o, na), sb = personScore(ctx, b, nb);
+      if (sa + sb < pScore[o] + pScore[b] - 1e-9) { lists[o] = na; lists[b] = nb; pScore[o] = sa; pScore[b] = sb; owner[i] = b; owner[j] = o; }
+    }
+  }
+  return owner;
+}
+
 function search(ctx, restarts, iterations, first = 0) {
   let best = null;
   for (let r = first; r < first + restarts; r++) {
@@ -1352,6 +1436,16 @@ export function buildRoster(staff, slots, options = {}) {
       const eo = ejectPass(ctx, best.owner, o.seed + 104729 * (k + 1), Math.max(20000, ctx.S * 1500));
       const es = scoreOwner(ctx, eo).total;
       if (es < best.score - 1e-9) best = { owner: eo, score: es };
+    }
+  }
+  // Still open: walk the coverage plateau (open hours only), then polish pay. Kept only if it covers more.
+  if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0) {
+    for (let k = 0; k < 3; k++) {
+      const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000));
+      if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
+      const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
+      const ps = scoreOwner(ctx, po).total;
+      if (ps < best.score - 1e-9) best = { owner: po, score: ps };
     }
   }
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.

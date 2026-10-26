@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_017sbPQfdqfPz7NrKy89j7m6",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T06:29:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10580,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: lists many fixture sweeps that found little; four fixture sources tried this run (Firefly importer, ofxstatement sdists) had no sample files, so I switched flagship."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Top flagship (ai-bookkeeper) had no fresh real inputs reachable; took flagship 6 instead.",
+      "did": "Deepened shift-roster-builder",
+      "result": "engine now matches ILP optimum on 12 of 12 weeks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-roster-builder-finds-the-last-hour.md",
+    "ventures/shift-roster-builder/README.md"
+  ],
+  "goal": null,
+  "notes": "184 venture tests pass locally; ILP check on 12 seeded weeks. A mistaken git checkout of the working tree was blocked by the classifier before any loss.",
+  "corrections": [],
+  "redteam": null
+}
