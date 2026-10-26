@@ -1,0 +1,30 @@
+coder lexicon-en (agreement with human label 0.678); corpus 44485; sizes (60, 100, 200, 400), 5 draws, seed 20261029
+columns: coverage of hum-hc3t, ins-hc3t, cf-hc3t2 (t(n/2-5)); then mean half-width ratio ins-hc3t/hum-hc3t and cf-hc3t2/hum-hc3t (same audit)
+# lexicon-en n=60: 0 of 5 draws dropped
+lexicon-en 60 intercept(yor) 1.000 1.000 1.000 0.915 1.099
+lexicon-en 60 hau 1.000 1.000 1.000 0.961 1.102
+lexicon-en 60 ibo 1.000 1.000 0.800 0.946 1.130
+lexicon-en 60 pcm 1.000 1.000 1.000 1.004 1.542
+lexicon-en 60 loglen_z 1.000 1.000 1.000 0.959 1.082
+lexicon-en 60 MEAN 1.000 1.000 0.960 0.957 1.191
+# lexicon-en n=100: 0 of 5 draws dropped
+lexicon-en 100 intercept(yor) 1.000 1.000 1.000 0.998 1.160
+lexicon-en 100 hau 1.000 1.000 1.000 1.002 1.110
+lexicon-en 100 ibo 1.000 1.000 1.000 0.977 1.076
+lexicon-en 100 pcm 1.000 1.000 1.000 0.995 1.139
+lexicon-en 100 loglen_z 1.000 1.000 1.000 0.990 1.155
+lexicon-en 100 MEAN 1.000 1.000 1.000 0.992 1.128
+# lexicon-en n=200: 0 of 5 draws dropped
+lexicon-en 200 intercept(yor) 1.000 1.000 1.000 0.998 1.028
+lexicon-en 200 hau 1.000 1.000 1.000 1.001 1.040
+lexicon-en 200 ibo 1.000 1.000 1.000 0.999 1.059
+lexicon-en 200 pcm 1.000 1.000 1.000 1.002 1.067
+lexicon-en 200 loglen_z 1.000 1.000 1.000 0.989 1.045
+lexicon-en 200 MEAN 1.000 1.000 1.000 0.998 1.048
+# lexicon-en n=400: 0 of 5 draws dropped
+lexicon-en 400 intercept(yor) 1.000 1.000 1.000 0.990 1.028
+lexicon-en 400 hau 1.000 1.000 1.000 1.000 1.026
+lexicon-en 400 ibo 1.000 1.000 1.000 0.988 1.013
+lexicon-en 400 pcm 1.000 1.000 1.000 0.998 1.042
+lexicon-en 400 loglen_z 1.000 1.000 1.000 0.994 1.026
+lexicon-en 400 MEAN 1.000 1.000 1.000 0.994 1.027
