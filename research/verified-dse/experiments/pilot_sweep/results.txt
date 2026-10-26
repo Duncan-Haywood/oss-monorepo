@@ -1,0 +1,28 @@
+# milestone 17: pilot size and threshold sweep, R2-to-R3 gate, 40 cells, 400 paired seeds
+
+## mean regret % over all cells, in-sample
+budget | rand | fixed1.5 | fixedf3 | m3_t0.3 | m3_t0.5 | m3_t0.7 | m3_t0.9 | m5_t0.3 | m5_t0.5 | m5_t0.7 | m5_t0.9 | m8_t0.3 | m8_t0.5 | m8_t0.7 | m8_t0.9 | m10_t0.3 | m10_t0.5 | m10_t0.7 | m10_t0.9
+15 | 3.40 | 3.40 | 3.05 | 3.26 | 3.08 | 3.06 | 3.04 | 3.17 | 3.01 | 2.95 | 3.06 | 3.20 | 3.16 | 3.18 | 3.13 | 3.28 | 3.21 | 3.27 | 3.27
+25 | 1.68 | 2.10 | 1.35 | 1.73 | 1.43 | 1.43 | 1.43 | 1.56 | 1.39 | 1.28 | 1.28 | 1.52 | 1.32 | 1.28 | 1.29 | 1.46 | 1.32 | 1.29 | 1.35
+40 | 0.38 | 1.38 | 0.44 | 0.90 | 0.53 | 0.53 | 0.54 | 0.64 | 0.44 | 0.32 | 0.29 | 0.54 | 0.30 | 0.24 | 0.24 | 0.49 | 0.25 | 0.22 | 0.23
+
+## held-out threshold (leave one design out; theta chosen per budget and m on the other designs, both clocks), mean regret %
+budget | m | held-out | best fixed theta in-sample | f3 | eta1.5 | rand
+15 | 3 | 3.29 | 3.04 | 3.05 | 3.40 | 3.40
+15 | 5 | 3.06 | 2.95 | 3.05 | 3.40 | 3.40
+15 | 8 | 3.31 | 3.13 | 3.05 | 3.40 | 3.40
+15 | 10 | 3.29 | 3.21 | 3.05 | 3.40 | 3.40
+25 | 3 | 1.85 | 1.43 | 1.35 | 2.10 | 1.68
+25 | 5 | 1.74 | 1.28 | 1.35 | 2.10 | 1.68
+25 | 8 | 1.62 | 1.28 | 1.35 | 2.10 | 1.68
+25 | 10 | 1.54 | 1.29 | 1.35 | 2.10 | 1.68
+40 | 3 | 1.01 | 0.53 | 0.44 | 1.38 | 0.38
+40 | 5 | 0.82 | 0.29 | 0.44 | 1.38 | 0.38
+40 | 8 | 0.70 | 0.24 | 0.44 | 1.38 | 0.38
+40 | 10 | 0.60 | 0.22 | 0.44 | 1.38 | 0.38
+
+## pilot tau(R2,R3) by pilot size: mean within-cell sd, and AUC of cell-mean tau for 'R2 pick regret > 10%'
+m=3: sd 0.40, AUC 0.74 (12 bad / 28 other cells)
+m=5: sd 0.24, AUC 0.72 (12 bad / 28 other cells)
+m=8: sd 0.16, AUC 0.74 (12 bad / 28 other cells)
+m=10: sd 0.14, AUC 0.73 (12 bad / 28 other cells)
