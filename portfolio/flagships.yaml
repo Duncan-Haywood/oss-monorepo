@@ -68,7 +68,7 @@ flagships:
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md and ROADMAP.md (roof, foundation,
       gables, sheathing, drywall, budget, schedule and their page controls have all landed on hand-checked fixtures).
-      Open: a real foundation plan; ceiling drywall steps; drywall `jointsOnStuds` (walls 2026-10-26, page control 2026-10-27; ceilings via `ceilingJoistSpacing` 2026-10-26, no page control) checked against a real hang, ceiling joists taken from the roof's `ceilingJoist` layout instead of a typed spacing; a real sub's labor rates; a real builder's activity list for
+      Open: a real foundation plan; ceiling drywall steps; drywall `jointsOnStuds` (walls 2026-10-26, page control 2026-10-27; ceilings via `ceilingJoistSpacing` 2026-10-26, page control 2026-10-26) checked against a real hang, ceiling joists taken from the roof's `ceilingJoist` layout instead of a typed spacing; a real sub's labor rates; a real builder's activity list for
       `--schedule`; gable sheathing nested on real sheets (offcut-triangle heights are hand-made); the drywall compound
       rate checked against a product label; the code edition, typed by a person who has the book; insulation on the page (`--insulation` landed on walls and attic loose fill 2026-10-24; attic bag chart unchecked); a 2D reuse of
       opening cut-outs, only worth rechecking on a real plan (sample house: 0 panels fit a hole).
