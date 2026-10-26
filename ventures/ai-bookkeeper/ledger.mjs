@@ -182,7 +182,9 @@ export function cashFlow(entries, accounts, { from = null, to = null } = {}) {
   const total = (l) => l.reduce((a, r) => a + r.amount, 0);
   const operating = net + total(items.operating), investing = total(items.investing), financing = total(items.financing);
   const openingCash = sum(opening, cash), change = sum(period, cash);
-  return { from, to, netProfit: net, operatingItems: items.operating, investingItems: items.investing, financingItems: items.financing, operating, investing, financing, change: operating + investing + financing, openingCash, closingCash: openingCash + change, ties: operating + investing + financing === change };
+  // Free cash flow: operating cash less purchases of fixed assets (investing outflows). Disposal proceeds are not netted.
+  const capex = -items.investing.filter((i) => i.amount < 0).reduce((a, r) => a + r.amount, 0);
+  return { from, to, netProfit: net, capex, freeCashFlow: operating - capex, operatingItems: items.operating, investingItems: items.investing, financingItems: items.financing, operating, investing, financing, change: operating + investing + financing, openingCash, closingCash: openingCash + change, ties: operating + investing + financing === change };
 }
 
 // The ledger for one account: every line, with a running natural balance.

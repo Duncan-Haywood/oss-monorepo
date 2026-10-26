@@ -856,6 +856,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const l of c.financingItems) row(l.name, l.amount);
   row("Cash from financing", c.financing);
   row("Change in cash", c.change);
+  row("Free cash flow (operations less purchases)", c.freeCashFlow);
   console.log(`  Cash ${fmt(c.openingCash)} -> ${fmt(c.closingCash)}: ${c.ties ? "ties to the bank accounts" : "DOES NOT TIE"}`);
   const s = status(books);
   if (s.review) console.log(`\n${s.review} lines are still in review and not in these figures.`);

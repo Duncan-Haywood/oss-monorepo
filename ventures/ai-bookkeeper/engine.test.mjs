@@ -830,6 +830,8 @@ test("cash flow adds depreciation back in operating and shows disposal proceeds 
   assert.ok(c.ties);
   assert.ok(c.operatingItems.some((i) => i.code === "6950" && i.amount > 0), "depreciation added back");
   assert.ok(c.investingItems.every((i) => i.code !== "1590"), "accumulated depreciation is not an investing line");
+  assert.equal(c.freeCashFlow, c.operating - c.capex);
+  assert.ok(c.capex >= 0);
   b = disposeAsset(b, "FA-1", { date: "2026-09-30", proceeds: "5000" }).books;
   c = reports(b).cashFlow;
   assert.ok(c.ties);
