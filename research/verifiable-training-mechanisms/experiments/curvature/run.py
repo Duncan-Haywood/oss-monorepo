@@ -16,9 +16,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "src"))
 import torch  # noqa: E402
 import torch.nn.functional as F  # noqa: E402
+from torch.nn.attention import SDPBackend, sdpa_kernel  # noqa: E402
 from vtm import margin_tf as tf  # noqa: E402
 
 torch.set_num_threads(1)
+MATH = lambda: sdpa_kernel(SDPBackend.MATH)  # the flash CPU kernel has no double backward; used for Hessian products only
 SEEDS, T, BATCH, CTX = 10, 600, 32, 32
 TAUS = [3e-2, 1e-1]
 TXT = tf.load_text(os.path.join(HERE, "..", "transformer", "corpus.txt"))
@@ -26,13 +28,15 @@ TXT = tf.load_text(os.path.join(HERE, "..", "transformer", "corpus.txt"))
 
 def hvp_fn(model, x, y):
     params = list(model.parameters())
-    out = model(x)
-    loss = F.cross_entropy(out.reshape(-1, out.shape[-1]), y.reshape(-1))
-    gs = torch.autograd.grad(loss, params, create_graph=True)
+    with MATH():
+        out = model(x)
+        loss = F.cross_entropy(out.reshape(-1, out.shape[-1]), y.reshape(-1))
+        gs = torch.autograd.grad(loss, params, create_graph=True)
     flat = torch.cat([q.reshape(-1) for q in gs])
 
     def hv(v):
-        h = torch.autograd.grad(flat, params, grad_outputs=v, retain_graph=True)
+        with MATH():
+            h = torch.autograd.grad(flat, params, grad_outputs=v, retain_graph=True)
         return torch.cat([q.reshape(-1) for q in h])
     return hv
 
@@ -83,7 +87,7 @@ def run(a):
                 n = q.numel()
                 q -= lr * g[off:off + n].view_as(q)
                 off += n
-    return {k: [float(np.mean(v)) if v else None] [0] for k, v in rec.items()} | {"n": len(rec["eps"])}
+    return {k: (float(np.mean(v)) if v else None) for k, v in rec.items()} | {"n": len(rec["eps"])}
 
 
 def main():
