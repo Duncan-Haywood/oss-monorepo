@@ -25,3 +25,12 @@ def test_transcription_matches_authors_dicts_except_eggplant():
     n, diffs = crosscheck.compare()
     assert n == 72
     assert {(d[0], d[1], d[2]) for d in diffs} == {("eggplant_basket", "Octo-Base", "real"), ("eggplant_basket", "Octo-Small", "real")}
+
+
+def test_ranking_accuracy_analytic_cases():
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "experiments", "m4f_ranking"))
+    import ranking
+    assert abs(ranking.acc_real(1.0, 0.0, 1) - 1.0) < 1e-12
+    assert abs(ranking.acc_real(0.5, 0.5, 3) - 0.5) < 1e-12            # equal rates: a coin flip
+    # p=(.5,0), m=1: correct when the first policy succeeds (prob .5), a tie otherwise
+    assert abs(ranking.acc_real(0.5, 0.0, 1) - 0.75) < 1e-12
