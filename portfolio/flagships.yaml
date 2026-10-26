@@ -35,7 +35,7 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Everything built so far is tested on hand-written fixtures; the next slices
-      are about real inputs (landed work: README, git). Open items, most valuable first: (0) built-in keywords measured on one real makerspace's bank export (72.7%
+      are about real inputs (landed work: README, git). Open items, most valuable first: (2a) statement PDFs: Odoo's demo PDF read 2026-10-26 (balances now fix unsigned directions); more real PDFs wanted; (0) built-in keywords measured on one real makerspace's bank export (72.7%
       suggested, 96% right, tuned on itself) and on synthetic sets (README Next):
       HCB card feed and Actual Budget samples held out (README Next, no labels); still wanted, labelled books; (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far; README Next); (2) the bank readers (OCA bank-statement-import CSV/QIF/xlsx/xls swept 2026-10-26, no fault in the spreadsheets)
