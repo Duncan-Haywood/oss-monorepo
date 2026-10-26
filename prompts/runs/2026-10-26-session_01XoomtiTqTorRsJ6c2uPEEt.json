@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01XoomtiTqTorRsJ6c2uPEEt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T14:29:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10663,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "git push 500 once, PR create 500 once; retries worked"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: items are almost all blocked on real data or blocked hosts (irs.gov 403); little offline slice left"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Small slice only: receipt reader is at its label-noise ceiling",
+      "did": "landed one merchant fix, README note, short post; no agent doc",
+      "result": "merchant counts unchanged on SROIE"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-26-ai-bookkeeper-receipt-reader-ceiling.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

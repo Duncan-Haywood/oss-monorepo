@@ -86,3 +86,17 @@ def test_apply_is_deterministic():
     a, _ = apply("moderates", 0.1, 0.3, seed=7)
     b, _ = apply("moderates", 0.1, 0.3, seed=7)
     assert np.array_equal(a.x, b.x) and np.array_equal(a.fixed, b.fixed)
+
+
+def test_contact_with_no_gain_matches_fixed_eps_bridging():
+    # gain = loss = 0 and no identity filter must reproduce civ-levers' fixed-eps bridging exactly.
+    from civ_levers.contact import outcome_contact
+    a = outcome_contact(0.25, 0.3, math.inf, 0.0, seed=3, sweeps=60)
+    b = outcome("bridge", 0.25, 0.3, math.inf, seed=3, sweeps=60)
+    assert abs(a["gap"] - b["gap"]) < 1e-9
+
+
+def test_contact_gain_raises_mean_tolerance():
+    from civ_levers.contact import outcome_contact
+    m = outcome_contact(0.25, 0.2, math.inf, 0.02, seed=1, sweeps=60)
+    assert m["eps_mean"] > 0.2

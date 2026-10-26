@@ -140,3 +140,33 @@ test("ICS lists only pending follow-ups and escapes text", () => {
   assert.match(ics, /SUMMARY:Follow up: Acme\\, Inc - Dev/);
   assert.ok(ics.endsWith("END:VCALENDAR\r\n"));
 });
+
+test("ICS escapes semicolons and backslashes (RFC 5545 TEXT)", () => {
+  const ics = toIcs([mk({ company: "A;B", id: "x3" })]);
+  assert.match(ics, /SUMMARY:Follow up: A\\;B - Dev/);
+});
+
+test("ghostCandidates counts day 30 as silent, day 29 as not", () => {
+  const a = mk({ applied: "2026-09-12" });
+  assert.equal(ghostCandidates([a], "2026-10-12").length, 1);
+  assert.equal(ghostCandidates([a], "2026-10-11").length, 0);
+});
+
+test("insight needs five sent and two rated sources, exactly", () => {
+  const mkSet = (n) => {
+    const apps = [];
+    for (let i = 0; i < 3; i++) apps.push(setStatus(mk({ source: "Referral" }), "screen", "2026-10-03"));
+    for (let i = 0; i < n; i++) apps.push(mk({ source: "Job board" }));
+    return funnel(apps, "2026-10-12");
+  };
+  assert.equal(insight(mkSet(1)), "");
+  assert.notEqual(insight(mkSet(3)), "");
+  const one = [];
+  for (let i = 0; i < 5; i++) one.push(setStatus(mk({ source: "Referral" }), "screen", "2026-10-03"));
+  assert.equal(insight(funnel(one, "2026-10-12")), "");
+});
+
+test("CSV with only a Role column still imports; Company-only too", () => {
+  assert.equal(fromCsv("Role\nDev\n").apps.length, 1);
+  assert.equal(fromCsv("Company\nAcme\n").apps.length, 1);
+});
