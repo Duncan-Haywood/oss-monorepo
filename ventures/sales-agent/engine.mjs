@@ -208,6 +208,14 @@ const RULES = {
     P("\\b(never|didn'?t|did not) (gave|give|given|opt(ed)? in|sign(ed)? up|consent|agree)\\b.*\\b(permission|consent|to (this|your))"), P("\\bunsub\\b"), P("\\btake (it|my \\w+|this) off\\b"), P("\\bwhat(ever)? list you\\b"),
     P("\\bno (longer )?(wish|want)s? to (receive|get|hear)\\b"), P("\\bne souhaite plus recevoir\\b"), P("\\bplus recevoir (de |vos )?(messages|mails|courriels|e-?mails)\\b"), P("\\bkeine e-?mails mehr\\b"), P("\\bno quiero recibir\\b"),
     P("\\bunsolicited\\b.*\\b(remove|strike|delete|stop)\\b"),
+    // Added 2026-10-26: non-English opt-outs and auto-replies fell to "unclear" in a probe (DE, FR, ES, IT, PT, NL). Written by the
+    // agent from common phrasings, not scored on real mail. No \\b around accented letters: JS \\b is ASCII-only.
+    P("entfernen sie mich"), P("aus (ihrem|dem|ihrer) (e-?mail-?)?(verteiler|liste|datenbank)"), P("\\b(abmelden|austragen|abbestellen)\\b"), P("\\bnicht mehr (per )?(e-?mail )?(zu)?(kontaktier|anschreib|belästig|beläst)"), P("l[öo]schen sie (meine|unsere) (daten|e-?mail|adresse)"),
+    P("ne m'?envoyez plus"), P("d[ée]sabonn"), P("d[ée]sinscri"), P("ne plus recevoir"), P("retirez[- ]moi"), P("supprimez (mon|mes|notre|nos)\\b"),
+    P("darme de baja"), P("no me (env[ií]en?|manden?|escriban?|contacten?) m[aá]s"), P("elimin(e|en|ar) (mi|mis|nuestro)\\b.*(correo|datos|lista|direcci)"), P("cancelar (la |mi )?suscripci"), P("\\bdarse de baja\\b"),
+    P("\\b(cancellatemi|rimuovetemi|toglietemi|disiscriv)"), P("non (voglio|vogliamo) pi[uù] ricevere"),
+    P("n[ãa]o (me )?(envie|mande|escreva|contate)n? mais"), P("remov(a|am|er) (meu|minha|o meu)\\b"), P("cancelar (a )?inscri"),
+    P("\\b(schrijf|schrijven) (mij|me|ons) uit\\b"), P("\\buitschrijven\\b"), P("verwijder (mij|me|mijn|ons)\\b"), P("mail (mij|ons) (niet|nooit) meer"),
     P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
     // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
     P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),
@@ -220,6 +228,14 @@ const RULES = {
   out_of_office: [
     P("\\bout of (the )?office\\b"), P("\\booo\\b"), P("\\bautomatic reply\\b"), P("\\bauto(matic)?[- ]?reply\\b"), P("\\bon (annual |parental |maternity |paternity |medical |sick )?leave\\b"), P("\\b(i am|i'?m) (currently )?(away|travell?ing|on vacation|on holiday|out)\\b"),
     P("\\b(limited|no) access to (my )?e-?mail\\b"), P("\\bwill (be back|return)\\b"), P("\\bback in the office\\b"), P("\\breturning (on|to the office)\\b"), P("\\baway from (the office|my desk)\\b"),
+
+    // Added 2026-10-26, same caveat as the opt-outs above: DE, FR, ES, IT, PT, NL auto-reply phrasings.
+    P("abwesenheit"), P("\\bnicht (im|in meinem|im meinem) b[üu]ro\\b"), P("\\bau(ß|ss)er haus\\b"), P("\\bbin (bis|vom|ab) .{0,40}(abwesend|im urlaub|nicht erreichbar)"), P("automatische antwort"), P("\\bim urlaub\\b"),
+    P("r[ée]ponse automatique"), P("message d'?absence"), P("\\b(absent|absente) (du bureau|jusqu)"), P("\\ben cong[ée]s?\\b"), P("\\bde retour (le|lundi|mardi|mercredi|jeudi|vendredi|d[èe]s)\\b"), P("hors du bureau"),
+    P("respuesta autom[áa]tica"), P("fuera de (la )?oficina"), P("\\bestar[ée] (ausente|de vacaciones|fuera)\\b"), P("\\bde vacaciones\\b"), P("mensaje autom[áa]tico"),
+    P("risposta automatica"), P("fuori (dall')?ufficio"), P("\\bsono (in ferie|assente)\\b"),
+    P("resposta autom[áa]tica"), P("fora do escrit[óo]rio"), P("\\best(ou|arei) (ausente|de f[ée]rias)\\b"),
+    P("automatisch antwoord"), P("automatisch bericht"), P("\\bafwezig\\b"), P("niet (aanwezig|op kantoor)"), P("buiten kantoor"),
   ],
   left_company: [
     P("\\b(doesn'?t|does not|don'?t|do not|no longer) work(s|ing)? (here|there|for|at)\\b"), P("\\bno longer at\\b"), P("\\b(i|we) (don'?t|do not) (handle|deal with|look after|manage) (this|that|these|purchasing|software)\\b"), P("\\b(would be|is) the (one|person|right one) to (talk|speak) to\\b"), P("\\breplacement is\\b"), P("\\bmoved (on|to a new role|to another company)\\b"),
