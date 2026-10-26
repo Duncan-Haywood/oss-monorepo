@@ -115,6 +115,9 @@ export const BUILT_IN = [
   ["6110", "out", /contractors? (state )?licen[cs]e|licensing board|\bcslb\b|permit/],  // HCB page 5 (eval/hcb-memos.mjs --orgpage 5), written after the held-out reading.
   ["6060", "out", /mailerlite|\*discord\b|weebly/],
   ["6140", "out", /tello mobile/],
+  // Bigcapital demo bank file (2026-10-27): grocers and quick-service names seen on a US bank feed, as the feed prints them.
+  ["6130", "out", /albertsons|food lion|stop & shop|smart and final|royal farms|bojangles|denny's|krispy kreme|topgolf/],
+  ["6120", "out", /paybyphone/],
   ["6130", "out", /\bgrocer(y|ies|s)\b|\bsupermarket\b/],  // plain-word payees (Maybe fixture, 2026-10-25): "Grocery Store".
   ["6140", "out", /\b(mobile|cell(ular)?) phone\b|\bphone (provider|company|bill)\b|\b(internet|broadband) (provider|service)\b/],
   ["6160", "out", /shell\/shell/],
