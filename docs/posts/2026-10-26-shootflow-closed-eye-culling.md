@@ -1,6 +1,8 @@
 ---
 title: "ShootFlow can now cull blinks, if you bring the face detector"
 date: 2026-10-26
+description: "ShootFlow can now cull shots with closed eyes through SHOOTFLOW_FACE_DETECTOR, any command that returns faces; it stays stdlib-only and ships no face model."
+tags: [shootflow, photography, culling]
 ---
 
 ShootFlow, the photo-culling and delivery pipeline, scored shots on sharpness, exposure, framing, tilt and grain. It had no idea whether anyone in the frame had their eyes shut. That is the first thing a wedding or event photographer deletes.

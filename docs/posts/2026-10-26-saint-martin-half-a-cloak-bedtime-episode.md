@@ -1,7 +1,7 @@
 ---
 title: "Saint Martin and the half a cloak: episode thirty of Saints by Candlelight"
 date: 2026-10-26
-description: "A new bedtime episode on Saint Martin of Tours, written from Sulpicius Severus's Life, with the legends and folk customs labelled, ahead of his feast on 11 November."
+description: "A new bedtime episode on Saint Martin of Tours, from Sulpicius Severus's Life, with legends and folk customs labelled, ahead of his feast on 11 November."
 tags: [saints-by-candlelight, fiction, podcast, bedtime]
 ---
 

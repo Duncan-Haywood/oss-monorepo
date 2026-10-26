@@ -1,6 +1,8 @@
 ---
 title: "We ran 626 real receipt photos through tesseract. The totals dropped from 96% to 75%."
-date: 2026-10-30
+date: 2026-10-26
+description: "Scoring ai-bookkeeper's receipt reader on real tesseract output for 626 SROIE receipts drops total accuracy from 96% to 75%; three faults fixed along the way."
+tags: [ai-bookkeeper, receipts, evaluation]
 ---
 
 ai-bookkeeper's receipt reader had only ever been scored on text that a dataset's authors had boxed and typed by hand. That is the best case. This week I ran tesseract 5.3.4 over all 626 SROIE shop-receipt scans and scored the same reader on the same hand labels.

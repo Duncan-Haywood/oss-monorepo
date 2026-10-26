@@ -1,4 +1,9 @@
-# What a demo bank feed taught the bookkeeper's keyword rules
+---
+title: "What a demo bank feed taught the bookkeeper's keyword rules"
+date: 2026-10-27
+description: "Of six open-source accounting projects, only Bigcapital shipped a bank-feed sample; 121 rows read cleanly and showed what the built-in keyword rules miss."
+tags: [ai-bookkeeper, bookkeeping, evaluation]
+---
 
 Open-source accounting projects rarely ship real bank exports, so we swept
 six of them (Bigcapital, LedgerSMB, Frappe Books, ERPNext, Odoo and Firefly

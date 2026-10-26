@@ -1,7 +1,7 @@
 ---
 title: "A bank file that reads two ways: ai-bookkeeper now says when it guessed the date order"
 date: 2026-10-27
-description: "Swept 10 real spreadsheet statements from OCA's bank-statement-import. All read, but one file's dates (01/04, 02/04) were silently booked to January and February."
+description: "Ten real spreadsheet statements from OCA's bank-statement-import all read, but one file's dates (01/04, 02/04) were silently booked to January and February."
 tags: [ai-bookkeeper, bookkeeping, bank-statements]
 ---
 

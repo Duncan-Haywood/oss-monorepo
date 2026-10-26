@@ -1,7 +1,7 @@
 ---
 title: "Predicting what a cheating trainer loses: count the distance skipped, not the steps"
 date: 2026-10-26
-description: "A referee that tolerates small gradient errors lets a worker skip steps. A predictor with no fitted parameter, based on the path length skipped, gets within 0.6x to 1.0x of the measured loss cost where it matters."
+description: "A referee tolerating small gradient errors lets a worker skip steps. A parameter-free predictor from skipped path length lands within 0.6x to 1.0x of the loss."
 tags: [verifiable-training-mechanisms, machine-learning, mechanism-design]
 ---
 
