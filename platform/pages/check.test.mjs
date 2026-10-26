@@ -1123,3 +1123,25 @@ test('a guides index with no disclaimer must not ship', async () => {
   });
   assert.equal(mentioning(problems, 'guides/index.html: carries no disclaimer').length, 1);
 });
+
+// The command line is what CI runs; a mutation of its entry guard or its exit
+// code must not leave the suite green.
+test('the CLI exits 1 and names the problems on an empty artifact', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'check-cli-'));
+  const res = spawnSync(process.execPath, [new URL('./check.mjs', import.meta.url).pathname, dir], {
+    encoding: 'utf8',
+  });
+  assert.equal(res.status, 1);
+  assert.match(res.stderr, /problem\(s\) in/);
+});
+
+test('the CLI still runs with no arguments (it checks ./dist beside the script)', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const res = spawnSync(process.execPath, [new URL('./check.mjs', import.meta.url).pathname], {
+    encoding: 'utf8',
+  });
+  // Either dist exists and is checked (0 or 1) or it is absent (1); what must
+  // never happen is a silent exit that printed nothing at all.
+  assert.ok(res.stdout.length + res.stderr.length > 0);
+});

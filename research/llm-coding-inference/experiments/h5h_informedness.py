@@ -1,8 +1,8 @@
-"""Milestone 5g: is the real coders' null explained by their informedness (sens + spec - 1), not their agreement?
+"""Milestone 5h: is the real coders' null explained by their informedness (sens + spec - 1), not their agreement?
 For each real coder (fixed cut score > 0, and the cut maximising Youden's J over the whole corpus, an in-sample
 diagnostic with no label cost charged) a synthetic coder with the same sensitivity and specificity but independent
 errors is run through the same tuned PPI++ + HC3 + t estimator as 5b to 5f.
-    python3 experiments/h5g_informedness.py       # writes h5g_informedness.txt
+    python3 experiments/h5h_informedness.py       # writes h5h_informedness.txt
 """
 import math
 import os
@@ -102,7 +102,7 @@ def main():
             m, sk = run(f, X, human, truth, na, n)
             out.append(f"{name} [{kind}] n={na} dropped {sk} MEAN {m[0]:.3f} {m[1]:.3f} {m[2]:.3f}")
             print(out[-1], flush=True)
-    (HERE / "h5g_informedness.txt").write_text("\n".join(out) + "\n")
+    (HERE / "h5h_informedness.txt").write_text("\n".join(out) + "\n")
 
 
 if __name__ == "__main__":

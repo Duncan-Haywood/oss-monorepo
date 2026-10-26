@@ -105,7 +105,7 @@ flagships:
       `meanvar` has min segment 10, a noise warning with Ljung-Box on squares,
       `--robust` (Laplace cost; t3 false alarms 37-63% to 5-8%, but detection 57% vs
       94% on Gaussian n=100) and `--dispersion` (GARCH/t3 false alarms at n=200
-      51%/62% to 30%/29%). `--bootstrap` (block-resampled penalty, 2026-10-27) takes GARCH false alarms at n=200 from 51% to 16% (n=100 Gaussian detection 92% to 80%). Open: it on a real heavy-tailed or clustered-volatility series, a bootstrap penalty for the count and mean models; a GARCH-filtered series has 1% false alarms but loses the real sd break (detection 97% to 6%, 2026-10-27), so a GARCH likelihood needs a segment-wise joint fit;
+      51%/62% to 30%/29%). `--bootstrap` (block-resampled penalty, 2026-10-27) takes GARCH false alarms at n=200 from 51% to 16% (n=100 Gaussian detection 92% to 80%). Open: it on a real heavy-tailed or clustered-volatility series, a bootstrap penalty for the count models (the mean model landed 2026-10-26: AR(1) 0.3 false alarms 80% to 13%, README; synthetic only); a GARCH-filtered series has 1% false alarms but loses the real sd break (detection 97% to 6%, 2026-10-27), so a GARCH likelihood needs a segment-wise joint fit;
       range95 on a real count series with a true holiday closure or documented slope
       break (log GDP is a near-unit-root; coal disasters hold 1890, 2026-10-26); the growth-change range
       on clumpy (NB) counts reaches ~95% by tempering 1.4, but the large-bump cell
@@ -116,7 +116,7 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      Landed history lives in the README and git (UK page: refresh after Budget 2026). FatturaPA XSD 1.2.1 read 2026-10-30 (IT-018..022, matches xmllint on 1,638 mutations). Saudi ZATCA BR-KSA rules (152 checks, SchXslt reader) 2026-10-25. Turkey page 2026-10-26 (no UBL-TR rules: from GİB's schematron if published). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made-up examples landed 2026-10-25/26), the Saxon route; FatturaPA
+      Landed history lives in the README and git (UK page: refresh after Budget 2026). FatturaPA XSD 1.2.1 read 2026-10-30 (IT-018..022, matches xmllint on 1,638 mutations). Saudi ZATCA BR-KSA rules (152 checks, SchXslt reader) 2026-10-25. Switzerland page 2026-10-26 (vendor sources only). Turkey page 2026-10-26 (no UBL-TR rules: from GİB's schematron if published). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made-up examples landed 2026-10-25/26), the Saxon route; FatturaPA
       code lists (TD29, RF20 added 2026-10-24 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Portugal's CIUS-PT add-on (2026-10-25, made-up invoice; AA/RED/INT/NOR fail the EU base BR-CL-17/18 while AMA's own rules admit them, noted in the finding: which validator does AT/eFatura run? try a real sample); Poland's FA(3) (PL-001..017, XSD gate matches xmllint on 4,860 mutations) on a real KSeF test-environment file, more seeds covering the correction, advance and attachment branches;
       the rules and a repair on a real ERP or
       Factur-X export (open the repaired PDF in veraPDF or a viewer); a page
