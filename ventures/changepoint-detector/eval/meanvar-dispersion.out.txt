@@ -1,0 +1,10 @@
+reps 200 per cell, seeded, default minimum segment
+n | noise | plain: null any change, sd1->2 exactly one | --dispersion: same two
+100 | gauss | 4% / 92% | 3% / 91%
+100 | t3    | 39% / 57% | 21% / 56%
+100 | garch | 42% / 61% | 34% / 58%
+100 | ar1   | 51% / 44% | 44% / 48%
+200 | gauss | 1% / 97% | 1% / 98%
+200 | t3    | 62% / 55% | 29% / 64%
+200 | garch | 51% / 57% | 30% / 64%
+200 | ar1   | 54% / 37% | 40% / 43%

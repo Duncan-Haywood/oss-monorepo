@@ -1447,6 +1447,26 @@ const fmt = (v) => (Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toF
 // Segment-standardise a series by the fitted changepoints, then look for what a Gaussian variance model cannot hold:
 // fourth moment above 4.5 (Gaussian runs top out near 3.9), lag-1 autocorrelation of the residuals from 0.25, and of their
 // squares from 0.2 (Gaussian 90th percentiles 0.08 and 0.11). Returns a warning string or null.
+/**
+ * Dispersion of the squared segment-standardised residuals relative to Gaussian noise (1 for Gaussian, larger for heavy
+ * tails or clustered volatility): their long-run variance (Bartlett window) over 2. `--dispersion` multiplies the meanvar
+ * penalty by it, as `overdispersion` does for counts (eval/meanvar-dispersion.mjs, README).
+ */
+export function squaredDispersion(x, cps) {
+  const b = [0, ...cps, x.length]; const z = [];
+  for (let s = 0; s < b.length - 1; s++) {
+    const seg = x.slice(b[s], b[s + 1]); if (!seg.length) continue;
+    const m = seg.reduce((a, c) => a + c, 0) / seg.length;
+    const sd = Math.sqrt(seg.reduce((a, c) => a + (c - m) ** 2, 0) / seg.length) || 1;
+    for (const c of seg) z.push((c - m) / sd);
+  }
+  const n = z.length, q = z.map((c) => c * c), m = q.reduce((a, c) => a + c, 0) / n;
+  const g = (k) => { let t = 0; for (let i = k; i < n; i++) t += (q[i] - m) * (q[i - k] - m); return t / n; };
+  const L = Math.floor(Math.sqrt(n) / 1.5) || 1; let lrv = g(0);
+  for (let k = 1; k <= L; k++) lrv += 2 * (1 - k / (L + 1)) * g(k);
+  return Math.max(1, lrv / 2);
+}
+
 export function meanvarNoiseCheck(x, cps, robust = false) {
   const b = [0, ...cps, x.length]; const z = [];
   for (let s = 0; s < b.length - 1; s++) {
@@ -1575,6 +1595,13 @@ export function analyze(input = {}) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
     ({ rho, sigma } = p);
   } else p = isFinite(nbSize) && nbSize > 0 ? pelt(values, { model: 'negbin', penalty, minSegment, size: nbSize, exposure }) : pelt(values, { model: robust ? 'meanvarlaplace' : model, penalty, minSegment, sigma, exposure });
+  // dispersion: refit with the penalty scaled by the squared residuals' dispersion (heavy tails, clustered volatility)
+  let dispersion = null;
+  if (o.dispersion) {
+    if (model !== 'meanvar' || robust) throw new Error('The dispersion penalty is for the "meanvar" model without --robust.');
+    const f = squaredDispersion(values, p.changepoints);
+    if (f > 1.0001) { dispersion = round(f, 2); p = pelt(values, { model, penalty: f * penaltyValue(penalty ?? 'bic', values.length, model), minSegment, sigma, exposure }); }
+  }
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   const lines = [];
@@ -1670,6 +1697,7 @@ export function analyze(input = {}) {
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
+    ...(dispersion ? { dispersion } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
