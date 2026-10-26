@@ -105,7 +105,7 @@ flagships:
       `meanvar` has min segment 10, a noise warning with Ljung-Box on squares,
       `--robust` (Laplace cost; t3 false alarms 37-63% to 5-8%, but detection 57% vs
       94% on Gaussian n=100) and `--dispersion` (GARCH/t3 false alarms at n=200
-      51%/62% to 30%/29%). Open: a GARCH likelihood cost (still 30% false alarms);
+      51%/62% to 30%/29%). Open: a GARCH likelihood cost (still 30% false alarms; re-estimating the dispersion factor for a second or third round only reaches 27%, 2026-10-26);
       range95 on a real count series with a true holiday closure or documented slope
       break (log GDP is a near-unit-root; coal disasters hold 1890, 2026-10-26); the growth-change range
       on clumpy (NB) counts reaches ~95% by tempering 1.4, but the large-bump cell

@@ -1431,3 +1431,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Metric: none for prompts. Check the feed on 2026-10-27 shows them.
 - Decisions: no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E92: review 2026-10-26 (reduced pass, twentieth run)
+
+- Change: `_landing_order` in `prompts/promptctl.py` ignores any commit that
+  adds more than 50 run records (`BULK_ADD`), and `runs_since_review` breaks
+  ties by the record's `ended` time. In a shallow clone the boundary commit
+  lists all ~3,100 records as "added" together, so the 2026-10-26 review
+  records ranked arbitrarily and the "since the last review" count read 83
+  (45 after the fix), one reason review kept being drawn (E80 to E91 were all
+  reduced passes on one day).
+- Metric: fewer than one review per ~40 merged runs; compare review count per
+  day over the next 3 days.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)

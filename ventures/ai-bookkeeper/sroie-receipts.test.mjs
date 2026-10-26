@@ -94,3 +94,8 @@ test("a closing 'Total : base tax' row with an unreadable tax cell takes the GST
   // one amount on the row: nothing to doubt, the row stands
   assert.equal(parseReceipt(rcpt("SHOP SDN BHD", "SUB-TOTAL (EX) : 4.60", "TOTAL TAX : 0.28", "TOTAL 4.90")).cents, 490);
 });
+
+test("ACCEPTED TOTAL is the cash fed to a parking machine: with no total line, it less the change is the amount", () => {
+  const p = parseReceipt(rcpt("CAR PARK SDN BHD", "AMOUNT INCL. GST", "5.00 RM", "ACCEPTED TOTAL", "10.00 RM", "CHANGE", "5.00 RM"));
+  assert.equal(p.cents, 500);
+});
