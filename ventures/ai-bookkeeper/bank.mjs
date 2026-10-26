@@ -772,11 +772,12 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   else if (headerAt === -1) return { rows: [], problems: ["No date and amount columns were found. Name them Date and Amount (or Debit and Credit)."], columns: null };
   else { columns = detectColumns(rows[headerAt]); first = headerAt + 1; }
   const out = [];
-  let localeNote = null;
+  let localeNote = null, ambiguousNote = null;
   if (!dfGiven || !dcGiven) {
     const loc = inferLocale(rows.slice(first), columns);
     if (!dfGiven && !hl && loc.dayFirst) { dayFirst = true; localeNote = "Dates read day first"; }
     if (!dfGiven && !hl && !dayFirst && loc.compactDayFirst) { dayFirst = true; localeNote = "Dates read day first (every date is ambiguous; month first would stretch the statement over months)"; }
+    if (!dfGiven && !hl && !bank && !dayFirst && loc.allAmbiguous) ambiguousNote = "Every date could be read day first or month first; they were read month first (US). If this is a day-first bank, pass dayFirst, or the transactions land in the wrong months";
     if (!dcGiven && loc.decimalComma) { decimalComma = true; localeNote = (localeNote ? localeNote + " and " : "Amounts read") + (localeNote ? "amounts with decimal commas" : " with decimal commas"); }
   }
   // Italian, Portuguese, Brazilian, Polish, Finnish, Turkish and Czech headers:
@@ -978,6 +979,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // One unsigned-looking amount column, nothing says which way: a card export that lists only purchases (PC Financial's) reads as income.
   else if (invert === undefined && bank !== "schwab-brokerage" && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && dirCol === -1 && out.length >= 2 && out.every((r) => r.cents > 0))
     problems.push(`Every amount is positive, so all ${out.length} lines were booked as money in. If this is a card or spending export, they are charges: import with the signs flipped (invert).`);
+  if (ambiguousNote) inferred = [inferred, ambiguousNote + "."].filter(Boolean).join(" ");
   if (localeNote) inferred = [inferred, localeNote + " (inferred from the file; pass dayFirst / decimalComma to override)."].filter(Boolean).join(" ");
   return { rows: out, problems, columns, bank, inferred, ...(accountNames.size > 1 ? { accountNames: [...accountNames] } : {}) };
 }
@@ -1005,7 +1007,8 @@ function inferLocale(dataRows, columns) {
   const span = (a) => (a.length > 1 ? Math.max(...a) - Math.min(...a) : 0);
   const decided = dayHi > 0 || monHi > 0;
   const compactDayFirst = !decided && asDay.length >= 4 && span(asDay) <= 45 && span(asMon) >= 90;
-  return { dayFirst: (dayHi > 0 && monHi === 0) || (dayHi === 0 && monHi === 0 && dots > 0), compactDayFirst, decimalComma: comma > 0 && point === 0 };
+  const allAmbiguous = !decided && dots === 0 && asDay.length >= 3 && new Set(asDay).size >= 2 && asDay.some((v, i) => v !== asMon[i]);
+  return { dayFirst: (dayHi > 0 && monHi === 0) || (dayHi === 0 && monHi === 0 && dots > 0), compactDayFirst, allAmbiguous, decimalComma: comma > 0 && point === 0 };
 }
 
 // A stable id per row so importing the same statement twice adds nothing: the
