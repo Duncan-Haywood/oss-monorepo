@@ -1,0 +1,32 @@
+coder nb-english; NaijaSenti test corpus 44485; audit sizes (60, 100, 200, 400), 600 draws, seed 20261029
+ratio = half-width of method / half-width of human-only HC3 + t(n-5) on the same audit (mean of per-draw ratios; <1 means narrower); % narrower = share of draws with ratio < 1
+methods: ins-hc3t tuned PPI++ HC3 + t(n-5); cf-hc3t cross-fit HC3 + t(n-5); cf-hc3t2 cross-fit HC3 + t(n/2-5)
+coder n coefficient | ins-hc3t ratio %narrower | cf-hc3t ratio %narrower | cf-hc3t2 ratio %narrower
+# nb-english n=60: 12 of 600 draws dropped
+nb-english 60 intercept(yor) | 0.941 51% | 1.163 24% | 1.196 22%
+nb-english 60 hau | 0.974 51% | 1.117 22% | 1.147 16%
+nb-english 60 ibo | 0.957 59% | 1.116 23% | 1.147 18%
+nb-english 60 pcm | 0.952 54% | 1.222 23% | 1.255 19%
+nb-english 60 loglen_z | 0.957 56% | 1.146 21% | 1.177 18%
+nb-english 60 MEAN | 0.956 54% | 1.153 23% | 1.184 18%
+# nb-english n=100: 0 of 600 draws dropped
+nb-english 100 intercept(yor) | 0.970 48% | 1.105 20% | 1.121 17%
+nb-english 100 hau | 0.989 44% | 1.074 13% | 1.089 8%
+nb-english 100 ibo | 0.978 55% | 1.080 20% | 1.096 14%
+nb-english 100 pcm | 0.972 54% | 1.096 18% | 1.112 14%
+nb-english 100 loglen_z | 0.978 54% | 1.093 16% | 1.109 13%
+nb-english 100 MEAN | 0.977 51% | 1.090 18% | 1.106 14%
+# nb-english n=200: 0 of 600 draws dropped
+nb-english 200 intercept(yor) | 0.985 43% | 1.053 16% | 1.060 14%
+nb-english 200 hau | 0.996 35% | 1.037 10% | 1.044 6%
+nb-english 200 ibo | 0.989 56% | 1.039 14% | 1.046 11%
+nb-english 200 pcm | 0.985 56% | 1.045 16% | 1.051 14%
+nb-english 200 loglen_z | 0.988 52% | 1.046 15% | 1.053 13%
+nb-english 200 MEAN | 0.989 48% | 1.044 14% | 1.051 12%
+# nb-english n=400: 0 of 600 draws dropped
+nb-english 400 intercept(yor) | 0.991 46% | 1.028 16% | 1.032 14%
+nb-english 400 hau | 0.998 32% | 1.021 8% | 1.024 6%
+nb-english 400 ibo | 0.994 56% | 1.021 14% | 1.024 12%
+nb-english 400 pcm | 0.992 64% | 1.025 13% | 1.028 11%
+nb-english 400 loglen_z | 0.994 49% | 1.027 11% | 1.030 9%
+nb-english 400 MEAN | 0.994 49% | 1.024 13% | 1.028 10%
