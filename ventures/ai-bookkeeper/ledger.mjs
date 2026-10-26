@@ -193,6 +193,28 @@ export function cashFlow(entries, accounts, { from = null, to = null } = {}) {
   return { from, to, netProfit: net, capex, freeCashFlow: operating - capex, monthlyBurn: burn, runwayMonths, operatingItems: items.operating, investingItems: items.investing, financingItems: items.financing, operating, investing, financing, change: operating + investing + financing, openingCash, closingCash: openingCash + change, ties: operating + investing + financing === change };
 }
 
+// Cash flow one month at a time, so a business that is burning faster (or slower) than its whole-period average shows it. Each row is that month's statement; `recentBurn` and `recentRunwayMonths` use the last three months, which is what a lender or investor asks about.
+export function cashFlowByMonth(entries, accounts, { from = null, to = null } = {}) {
+  const dates = entries.map((e) => e.date).filter((d) => (!from || d >= from) && (!to || d <= to)).sort();
+  if (!dates.length) return { months: [], recentBurn: 0, recentRunwayMonths: null };
+  let [y, m] = (from ?? dates[0]).slice(0, 7).split("-").map(Number);
+  const last = (to ?? dates.at(-1)).slice(0, 7);
+  const months = [];
+  for (;;) {
+    const key = `${y}-${String(m).padStart(2, "0")}`;
+    if (key > last) break;
+    const start = `${key}-01`, end = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
+    const c = cashFlow(entries, accounts, { from: from && from > start ? from : start, to: to && to < end ? to : end });
+    months.push({ month: key, operating: c.operating, investing: c.investing, financing: c.financing, change: c.change, freeCashFlow: c.freeCashFlow, closingCash: c.closingCash });
+    if (++m > 12) { m = 1; y++; }
+  }
+  const tail = months.slice(-3);
+  const used = -tail.reduce((a, r) => a + r.operating + r.investing, 0);
+  const recentBurn = used > 0 ? Math.round(used / tail.length) : 0;
+  const cash = months.at(-1).closingCash;
+  return { months, recentBurn, recentRunwayMonths: recentBurn > 0 && cash > 0 ? Math.round((cash / recentBurn) * 10) / 10 : null };
+}
+
 // The ledger for one account: every line, with a running natural balance.
 export function accountLedger(entries, accounts, code) {
   const a = accountMap(accounts).get(code);
