@@ -1,7 +1,7 @@
 ---
 title: "The roster builder now finds the last uncovered hour"
-date: 2026-10-31
-description: "An independent integer-programming check showed the shift roster builder leaving 1 to 2 hours open on half of 12 test weeks. A coverage-only search closes all of them."
+date: 2026-10-26
+description: "A solver check showed the shift roster builder leaving 1 to 2 hours open on half of 12 test weeks. A coverage-only search pass now closes all of them."
 tags: [shift-roster-builder, scheduling, optimization]
 ---
 
