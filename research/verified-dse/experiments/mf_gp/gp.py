@@ -14,7 +14,7 @@ sys.path.insert(0, str(HERE.parents[1] / "src"))
 from verified_dse import flow  # noqa: E402
 
 M = statistics.mean
-SEEDS = 400
+SEEDS = 100
 BUDGETS = (15, 25, 40)
 M_PILOT, SCREEN_SHARE, RIDGE = 5, 0.4, 1.0
 TABLES = {n: HERE.parent / n / "results.jsonl" for n in ("rung_bias", "large", "nonarith")}
