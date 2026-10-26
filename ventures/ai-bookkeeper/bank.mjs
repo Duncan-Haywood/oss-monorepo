@@ -99,6 +99,8 @@ export function parseCents(v, decimalComma = false) {
   let s = asciiDigits(v).trim();
   if (s === "" || /^[-–—−‐‑‒﹣－\s]+$/.test(s)) return 0;
   if (/\d\s*e\s*[-+]?\d/i.test(s)) return NaN; // "1e3" is not 13.00
+  // "10 AAPL" is ten shares, not ten dollars: a four- or five-letter ticker after the number (3-letter codes read as currencies).
+  { const t = s.match(/\d\s*([A-Z]{4,5})\s*$/); if (t && !/^(?:DEBIT|CREDIT)$/.test(t[1])) return NaN; }
   if (/\d\s*[kmb]\.?\s*$/i.test(s) || /\d[kmb]\d/i.test(s)) return NaN; // "12.5k" is not 12.50, and not guessable either
   // Bahraini, Kuwaiti, Omani, Jordanian and Tunisian amounts have three decimals; cents
   // cannot hold a nonzero third digit, so report the row rather than drop it.
