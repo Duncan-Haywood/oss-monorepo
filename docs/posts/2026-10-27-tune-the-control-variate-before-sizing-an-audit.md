@@ -1,7 +1,7 @@
 ---
 title: "Tune the control variate before you size the audit"
 date: 2026-10-27
-description: "On 6,683 Reddit comments, giving each group its own control-variate weight stops an LLM coder from inflating the audit you need, but with a mediocre coder it saves only 2 to 9%."
+description: "On 6,683 Reddit comments, a control-variate weight per group stops an LLM coder from inflating the audit you need, but with a mediocre coder saves only 2 to 9%."
 tags: [llm-coding-inference, prediction-powered-inference, audit-design, research]
 ---
 

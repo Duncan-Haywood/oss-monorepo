@@ -534,6 +534,21 @@ def redteam_band_warning(root: Path = ROOT) -> str | None:
             f"prompts/goals.md aims for {low:.0%}-{high:.0%}")
 
 
+def validate_posts(root: Path) -> list[str]:
+    """Blog posts that CI's front-matter check would reject (over-long description,
+    missing tags). Posts reached main red four times in three days because the
+    only gate was a CI job runs merged past; this puts it where every run looks."""
+    checker = root.parent / "platform" / "ci" / "check_post_frontmatter.py"
+    posts = root.parent / "docs" / "posts"
+    if not (checker.is_file() and posts.is_dir()):
+        return []
+    done = subprocess.run([sys.executable, str(checker), "--root", str(root.parent)],
+                          capture_output=True, text=True)
+    if done.returncode == 0:
+        return []
+    return [f"docs/posts/{line}" for line in done.stdout.splitlines() if line.strip()]
+
+
 def validate(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     for name in ("routing.json", "goals.md", "experiments.md", "README.md"):
@@ -612,6 +627,7 @@ def validate(root: Path = ROOT) -> list[str]:
                               f"used by {seen[item['id']]}; take the next free number")
             seen[item["id"]] = path.name
     errors.extend(validate_system(root))
+    errors.extend(validate_posts(root))
     return errors
 
 

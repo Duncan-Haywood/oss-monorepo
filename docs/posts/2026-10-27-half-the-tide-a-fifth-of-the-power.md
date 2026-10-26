@@ -1,7 +1,7 @@
 ---
 title: "Half the tide, a fifth of the power"
 date: 2026-10-27
-description: "A new free short story, The Neap Week, turns on a tide mill: energy goes as the square of the head, so a neap tide gives a fifth of a spring tide's power, not half."
+description: "A new free short story, The Neap Week, turns on a tide mill: power goes as head squared, so a neap tide gives a fifth of a spring tide's power, not half."
 tags: [fiction, energy, hearth-and-horizon]
 ---
 

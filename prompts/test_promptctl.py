@@ -219,6 +219,17 @@ class ValidateTest(PromptTestCase):
     def test_minimal_system_is_valid(self):
         self.assertEqual(promptctl.validate(self.fx.root), [])
 
+    def test_overlong_post_description_is_reported(self):
+        ci = self.fx.repo / "platform" / "ci"
+        ci.mkdir(parents=True)
+        real = Path(__file__).resolve().parents[1] / "platform" / "ci" / "check_post_frontmatter.py"
+        (ci / real.name).write_text(real.read_text())
+        posts = self.fx.repo / "docs" / "posts"
+        posts.mkdir(parents=True)
+        (posts / "2020-01-01-a.md").write_text(
+            f'---\ntitle: T\ndate: 2020-01-01\ndescription: "{"x" * 161}"\ntags: [a]\n---\n')
+        self.assertError("docs/posts/2020-01-01-a.md: description is 161")
+
     def test_master_prompt_must_route(self):
         (self.fx.repo / "prompt.md").write_text("do whatever\n")
         self.assertError("prompt.md must exist")
