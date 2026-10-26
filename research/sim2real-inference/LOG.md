@@ -2,9 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-26 · Paper abstract synced to 4c and 4e (writing step, no new experiment)
-- Done: the abstract still said "interval 5 to 26"; it now gives the two-way resampling interval (3 to 54) and the held-out result (raw twin worth about 5 to 7 trials for a new policy and task). Re-ran `m4e_transfer/transfer.py`: output identical to `results/summary_4e.txt`. The body paragraph and `reproduce.sh` already had 4c and 4e.
-- Next: per-episode pairs remain blocked (host unreachable); remaining milestones are 5/6 write-ups and a full paper read-through.
+## 2026-10-26 · Milestone 4f: how many real trials per policy does it take to rank policies as well as the twin does? (planned before running)
+- Why: m4 to m4e price the twin as a *level* estimator (break-even n*). SIMPLER's own claim is about *ranking* policies, and a practitioner choosing between two checkpoints cares about order, not level. Ranking has a different noise floor, so the price could differ a lot from n* of 10.
+- Method (`experiments/m4f_ranking/ranking.py`): within each of the 8 tasks, every policy pair whose published real rates differ. The twin's pairwise accuracy is the share of those pairs whose simulated order agrees with the real order (ties in sim count 1/2). The real-trial comparison treats the published real rates as the truth and draws m trials per policy from Binomial(m, p); its accuracy is P(correct order) with ties 1/2, computed exactly from the binomial pmfs, for m = 1 to 200. Break-even m_rank = smallest m whose real-trial accuracy reaches the twin's. Interval: 4,000 resamples of tasks (clusters), recomputing both the twin accuracy and m_rank. Repeat on pairs with a real gap of at least 0.15.
+- **H4f-i:** twin pairwise accuracy is at least 0.85 on all pairs. Refuted if below 0.85.
+- **H4f-ii:** m_rank is between 5 and 30 trials per policy (the same order of magnitude as n*). Refuted otherwise.
+- **H4f-iii:** m_rank on gap >= 0.15 pairs is no larger than on all pairs (large-gap pairs are easier for both the twin and the real trials, so I expect the twin's lead to shrink, i.e. m_rank to fall). Refuted if it is larger.
+- Prior: i yes (about 0.85 to 0.9); ii yes, around 8 to 15; iii yes.
+- Caveats set in advance: the real rates are themselves noisy (n 24 to 75), so treating them as truth flatters both arms and the twin's accuracy is measured against a noisy order; the number is a plug-in, not an inference about the true order. 8 tasks, 6 policies on Google, 3 on WidowX.
+
+### Outcome (`experiments/m4f_ranking/`: `ranking.py`, `results/summary_4f.txt`; analysis as pre-registered)
+- 71 within-task policy pairs with a real gap; twin pairwise accuracy **0.887** [0.817, 0.966] (task-cluster bootstrap). Real trials reach that accuracy at **m_rank = 11 per policy** [5, 38] (0.003 of resamples never reach it within 200). Real-trial accuracy at m = 5, 10, 20, 30, 50, 100: 0.832, 0.884, 0.925, 0.944, 0.962, 0.979.
+- Pairs with a real gap of at least 0.15 (52): twin 0.942 [0.875, 0.986], m_rank 10 [5, 27].
+- **H4f-i holds** (0.887 >= 0.85; the lower interval end 0.817 is below it, so it is a point-estimate pass). **H4f-ii holds** (11 in [5, 30]; the interval reaches 38). **H4f-iii holds** (10 <= 11) but the difference is one trial and the intervals overlap almost entirely, so it is not a finding.
+- Reading: pricing the twin by order rather than by level gives the same answer, about ten real trials per policy, which agrees with n* = 10.1 from m4. Two independent framings landing together makes the order-of-magnitude figure more credible; neither is a precise price (intervals 5 to about 38).
+- Caveats: the real rates are noisy themselves (n 24 to 75) and are the "truth" here, so both arms are measured against a noisy order; pairs within a task share policies, so pairs are not independent (hence the task-cluster resampling, which is still coarse with 8 tasks); ties in real rates were dropped (all-zero cells), which removes the easiest pairs for the twin if it also ties them.
+- Next: per-episode pairs remain blocked; the paper gets one sentence.
 
 ## 2026-10-26 · Milestone 4e: does the SIMPLER calibration transfer to a held-out task or policy? (planned before running)
 - Why: m4 calibrates the twin by leave-one-cell-out, so the 35 training cells include the same task with other policies and the same policy on other tasks. A practitioner wants to certify a new policy or a new task, where those cells are not available. 4c widened the intervals; it did not change the point estimate's leakage.

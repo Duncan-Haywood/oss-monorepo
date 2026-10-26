@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_012LDaeUjxZQRD9ojjxU87y1",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T01:10:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10524",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Bare python3 lacks numpy and pytest; pyenv.py returned /usr/bin/python3.13 which has numpy, but pytest/matplotlib resolution needed a second call."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post or docs/reports entry: the step is a small programme milestone; the LOG.md entry and README line carry the write-up.",
+      "did": "Logged in research/sim2real-inference/LOG.md",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "research/sim2real-inference/LOG.md milestone 4f",
+    "paper/main.tex sentence"
+  ],
+  "goal": null,
+  "notes": "m4f: twin ranks policy pairs at 0.887; real trials match at m=11 per policy, agreeing with n*~10. Tests and homepage build ok locally.",
+  "corrections": [],
+  "redteam": null
+}
