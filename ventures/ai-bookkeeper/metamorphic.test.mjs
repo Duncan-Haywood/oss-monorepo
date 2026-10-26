@@ -249,3 +249,74 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
     assert.equal(sig(readStatement(out)), sig(base), `${f} changed with a trailing comma`);
   });
 }
+
+// Extra column: an exporter adds a column the reader has no use for (a running
+// "Reference", an empty "Notes"). Inserted at the front and in the middle of a
+// rectangular, headered CSV, it must not change the rows. Known bank layouts
+// (matched by exact column sequence) are skipped.
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8");
+  const rows = parseCsv(t).filter((r) => r.some((c) => c.trim()));
+  if (!rows.length || !rows.every((r) => r.length === rows[0].length) || rows[0].length < 3 || sniffBank(rows)) continue;
+  test(`${f}: an extra column changes nothing`, () => {
+    const base = sig(readStatement(t));
+    for (const [name, at] of [["first", 0], ["middle", Math.floor(rows[0].length / 2)]]) {
+      const out = rows.map((r, i) => { const c = [...r]; c.splice(at, 0, i ? "" : "Notes"); return c.map((x) => quote(x, ",")).join(","); }).join("\n") + "\n";
+      assert.equal(sig(readStatement(out)), base, `${f} changed with an extra column in the ${name}`);
+    }
+  });
+}
+
+// Split amount: a single signed "Amount" column re-written as "Debit" (money
+// out, positive) and "Credit" (money in) columns must read the same rows. Only
+// headered files with exactly one column named Amount, whose cells are all
+// plain numbers and with no type column (it carries the sign), are checked.
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8");
+  const rows = parseCsv(t).filter((r) => r.some((c) => c.trim()));
+  if (!rows.length || !rows.every((r) => r.length === rows[0].length) || sniffBank(rows)) continue;
+  const ai = rows[0].map((h) => h.trim().toLowerCase()).indexOf("amount");
+  if (ai < 0 || rows[0].filter((h) => /amount/i.test(h)).length !== 1) continue;
+  if (rows[0].some((h) => /type/i.test(h))) continue; // sign comes from a debit/credit type column
+  if (!rows.slice(1).every((r) => /^-?\d+(\.\d+)?$/.test(r[ai].trim()))) continue;
+  test(`${f}: a split debit and credit column reads the same`, () => {
+    const base = sig(readStatement(t));
+    const out = rows.map((r, i) => {
+      const c = [...r];
+      const v = i ? Number(r[ai]) : 0;
+      c.splice(ai, 1, ...(i ? [v < 0 ? String(-v) : "", v > 0 ? String(v) : ""] : ["Debit", "Credit"]));
+      return c.map((x) => quote(x, ",")).join(",");
+    }).join("\n") + "\n";
+    assert.equal(sig(readStatement(out)), base, `${f} changed with split debit/credit`);
+  });
+}
+
+// Excel and export packaging, 2026-10-26 (no outside data; no fixture changed, so
+// this pins behaviour): a `sep=,` first line, a blank line after every row,
+// spaces padded around every cell, a title block above the header, time-of-day
+// or timezone after ISO dates, and long-month or weekday date spellings
+// (quoted, they hold a comma) must all read the same rows.
+const ISO = /\b(\d{4}-\d\d-\d\d)\b/g;
+const fmt = (m, o) => `"${new Date(m + "T00:00:00Z").toLocaleDateString(o.l, { ...o.f, timeZone: "UTC" })}"`;
+const PACK = {
+  "sep line": (t) => "sep=,\n" + t,
+  "blank line after every row": (t) => t.replace(/\r?\n/g, "\n\n"),
+  "title block above": (t) => "Account activity export\nGenerated 2026-01-05\n\n" + t,
+  "time after date": (t) => t.replace(ISO, "$1 14:05:00"),
+  "ISO timestamp, Z": (t) => t.replace(ISO, "$1T14:05:00Z"),
+  "ISO timestamp, offset": (t) => t.replace(ISO, "$1T14:05:00+01:00"),
+  "long month": (t) => t.replace(ISO, (m) => fmt(m, { l: "en-US", f: { month: "long", day: "numeric", year: "numeric" } })),
+  "weekday and short month": (t) => t.replace(ISO, (m) => fmt(m, { l: "en-GB", f: { weekday: "short", day: "2-digit", month: "short", year: "numeric" } })),
+};
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8").replace(/\r\n/g, "\n");
+  let base;
+  try { base = readStatement(t); } catch { continue; }
+  if (!base.rows.length) continue;
+  test(`${f}: export packaging changes nothing`, () => {
+    for (const [name, wrap] of Object.entries(PACK)) {
+      if (/time|ISO|month|weekday/.test(name) && !t.match(ISO)) continue;
+      assert.equal(sig(readStatement(wrap(t))), sig(base), `${f} changed under: ${name}`);
+    }
+  });
+}
