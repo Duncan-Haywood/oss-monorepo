@@ -58,6 +58,11 @@ class T(unittest.TestCase):
         self.assertEqual(code, 1)  # exit 1 whatever the count: CI treats only 1 as "check failed"
         self.assertEqual(out.splitlines(), ["2026-10-24-y.md: missing `tags`", "z.md: no front matter"])
 
+    def test_indented_line_is_not_a_field(self):
+        # a nested/continued value must not satisfy a required key
+        t = GOOD.replace("tags: [a, b]\n", "extra:\n  tags: [a, b]\n")
+        self.assertEqual(problems("2026-10-24-x.md", t), ["missing `tags`"])
+
     def test_no_front_matter(self):
         self.assertEqual(problems("x.md", "# hi\n"), ["no front matter"])
 
