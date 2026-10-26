@@ -28,6 +28,7 @@ class DiLoCo:
         self.inner = [inner(w.parameters()) for w in self.workers]
         self.outer = outer(model.parameters())
         self.ef = [[torch.zeros_like(p.data) for p in w.parameters()] for w in self.workers] if error_feedback else None
+        self.ef_norms = []  # per round: sqrt(sum ||residual||^2 / sum ||delta + residual||^2) over workers and tensors (EF only)
         self.compress, self.cgen = compress, torch.Generator().manual_seed(seed * 1000 + 777)
         self.rngs = [torch.Generator().manual_seed(seed * 1000 + 1 + i) for i in range(workers)]
 
@@ -44,6 +45,7 @@ class DiLoCo:
                 loss.backward()
                 opt.step()
                 total += loss.item()
+        num = den = 0.0
         with torch.no_grad():
             for i, p in enumerate(g):
                 if self.compress is None:
@@ -58,8 +60,12 @@ class DiLoCo:
                         c = self.compress(d, self.cgen)
                         if self.ef is not None:
                             self.ef[j][i] = d - c
+                            num += self.ef[j][i].pow(2).sum().item()
+                            den += d.pow(2).sum().item()
                         outs.append(c)
                     p.grad = torch.stack(outs).mean(0)
+        if self.ef is not None and self.compress is not None:
+            self.ef_norms.append((num / den) ** 0.5 if den > 0 else 0.0)
         self.outer.step()
         self.outer.zero_grad(set_to_none=True)
         self.rounds += 1
