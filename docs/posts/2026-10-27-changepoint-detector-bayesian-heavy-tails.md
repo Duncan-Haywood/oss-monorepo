@@ -1,7 +1,7 @@
 ---
 title: "Heavy-tailed noise fooled the Bayesian changepoint view too: clipping fixed it"
 date: 2026-10-27
-description: "On t3 noise with no change at all, changepoint-detector's probability view flagged a change in 47% of 200-point series. Clipping its input at 2 robust sds under --robust cut that to 1%."
+description: "On t3 noise with no change, changepoint-detector's probability view flagged a change in 47% of 200-point series. Clipping at 2 robust sds cut that to 1%."
 tags: [changepoint-detector, statistics, robustness]
 ---
 
