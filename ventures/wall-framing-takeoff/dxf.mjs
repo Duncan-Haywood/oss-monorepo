@@ -134,9 +134,58 @@ function mergeCollinear(segs, angTol, offTol, gap) {
 }
 
 /**
+ * Architects draw a wall as two parallel lines (its faces), not one centre line.
+ * Pair parallel runs `minT`..`maxT` inches apart that overlap along most of the
+ * shorter one, and return the centre line of each pair: start and end are the
+ * averages of the two lines' ends, which puts a mitred corner's inner and outer
+ * faces back on the corner's centre. Runs on one face are first merged across
+ * gaps up to `maxT` (a partition butting the face, or a door gap) so a face
+ * broken by a tee still pairs with the unbroken one.
+ * @param {Seg[]} segs
+ * @param {{ minT: number, maxT: number, angTol: number }} o
+ * @returns {{ segs: Seg[], pairs: number, single: number, thickness: number }}
+ */
+export function pairDoubleLines(segs, o) {
+  const runs = mergeCollinear(segs, o.angTol, 0.25, o.maxT + 1).map((w) => {
+    const L = dist(w.a, w.b), dx = (w.b.x - w.a.x) / L, dy = (w.b.y - w.a.y) / L;
+    return { ...w, L, dx, dy, off: w.a.x * -dy + w.a.y * dx };
+  });
+  /** @type {{ i: number, j: number, ov: number, d: number }[]} */
+  const cand = [];
+  for (let i = 0; i < runs.length; i++) for (let j = i + 1; j < runs.length; j++) {
+    const A = runs[i], B = runs[j];
+    const cross = Math.abs(A.dx * B.dy - A.dy * B.dx);
+    if (cross > Math.sin(o.angTol)) continue;
+    const d = Math.abs(B.off - A.off);
+    if (d < o.minT || d > o.maxT) continue;
+    const pa = [0, A.L], t = (p) => (p.x - A.a.x) * A.dx + (p.y - A.a.y) * A.dy;
+    const pb = [t(B.a), t(B.b)].sort((p, q) => p - q);
+    const ov = Math.min(pa[1], pb[1]) - Math.max(pa[0], pb[0]);
+    if (ov < 0.5 * Math.min(A.L, B.L)) continue;
+    cand.push({ i, j, ov, d });
+  }
+  cand.sort((p, q) => q.ov - p.ov);
+  const used = new Set();
+  /** @type {Seg[]} */
+  const out = [];
+  let pairs = 0, thick = 0;
+  for (const c of cand) {
+    if (used.has(c.i) || used.has(c.j)) continue;
+    used.add(c.i); used.add(c.j);
+    const A = runs[c.i], B = runs[c.j];
+    const sameDir = A.dx * B.dx + A.dy * B.dy > 0;
+    const b0 = sameDir ? B.a : B.b, b1 = sameDir ? B.b : B.a;
+    out.push({ layer: "centre", a: { x: (A.a.x + b0.x) / 2, y: (A.a.y + b0.y) / 2 }, b: { x: (A.b.x + b1.x) / 2, y: (A.b.y + b1.y) / 2 } });
+    pairs++; thick += c.d;
+  }
+  runs.forEach((r, k) => { if (!used.has(k)) out.push({ layer: "centre", a: r.a, b: r.b }); });
+  return { segs: out, pairs, single: runs.length - 2 * pairs, thickness: pairs ? thick / pairs : 0 };
+}
+
+/**
  * @param {string} text ASCII DXF
  * @param {{ units?: "in"|"ft"|"mm"|"cm"|"m", wallLayer?: RegExp, doorLayer?: RegExp, windowLayer?: RegExp,
- *   snap?: number, mergeGap?: number, doorHeight?: number, windowHeight?: number, header?: string,
+ *   snap?: number, mergeGap?: number, doubleLine?: boolean | "auto", doorHeight?: number, windowHeight?: number, header?: string,
  *   exteriorStud?: "2x4"|"2x6", interiorStud?: "2x4"|"2x6" }} [opt]
  * @returns {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }}
  */
@@ -162,7 +211,18 @@ export function planFromDxf(text, opt = {}) {
   if (parsed.inserts) notes.push(`${parsed.inserts} block INSERT${parsed.inserts === 1 ? "" : "s"} (door or window symbols) skipped: mark openings as lines on a door or window layer.`);
   if (parsed.arcs) notes.push(`${parsed.arcs} arc or circle entit${parsed.arcs === 1 ? "y" : "ies"} skipped (door swings and curved walls are not read).`);
 
-  const walls = mergeCollinear(wallSegs, 0.5 * Math.PI / 180, snap, mergeGap).filter((w) => dist(w.a, w.b) >= 12);
+  let centreSegs = wallSegs, snapW = snap;
+  const dl = opt.doubleLine ?? "auto";
+  if (dl !== false) {
+    const r = pairDoubleLines(wallSegs, { minT: 2.5, maxT: 14, angTol: 0.5 * Math.PI / 180 });
+    const total = r.pairs + r.single;
+    if (dl === true ? r.pairs > 0 : r.pairs >= 3 && r.pairs >= 0.6 * total) {
+      centreSegs = r.segs;
+      snapW = Math.max(snap, r.thickness / 2 + 0.75);
+      notes.push(`Double-line walls: ${r.pairs} wall${r.pairs === 1 ? "" : "s"} drawn as two face lines (mean thickness ${Math.round(r.thickness * 10) / 10} in) read as centre lines${r.single ? `; ${r.single} single line${r.single === 1 ? "" : "s"} kept as drawn` : ""}. Partition lengths run face to face of the walls they meet. Turn off with doubleLine: false (CLI --single-line).`);
+    } else if (dl === true) notes.push("doubleLine was asked for but no parallel pair of wall lines 2.5 to 14 in apart was found; lines read as centre lines.");
+  }
+  const walls = mergeCollinear(centreSegs, 0.5 * Math.PI / 180, snapW, mergeGap).filter((w) => dist(w.a, w.b) >= 12);
   if (!walls.length) return { ok: false, errors: ["No wall is longer than 12 inches after merging."], notes };
 
   // Joints. For each pair of non-parallel walls, where do their lines cross and what does each wall do there?
@@ -180,11 +240,11 @@ export function planFromDxf(text, opt = {}) {
     const t = ((B.a.x - A.a.x) * d2.y - (B.a.y - A.a.y) * d2.x) / den;
     const P = { x: A.a.x + t * d1.x, y: A.a.y + t * d1.y };
     const la = dist(A.a, A.b), lb = dist(B.a, B.b), pa = param(A, P), pb = param(B, P);
-    const endA = pa <= snap ? 0 : pa >= la - snap ? 1 : -1, endB = pb <= snap ? 0 : pb >= lb - snap ? 1 : -1;
-    const insideA = pa > snap && pa < la - snap, insideB = pb > snap && pb < lb - snap;
-    if (endA >= 0 && endB >= 0 && pa >= -snap && pa <= la + snap && pb >= -snap && pb <= lb + snap) corners.push({ i, ei: /** @type {0|1} */ (endA), j, ej: /** @type {0|1} */ (endB) });
-    else if (endA >= 0 && insideB && pa >= -snap && pa <= la + snap) tees.push({ stem: i, end: /** @type {0|1} */ (endA), through: j, at: pb });
-    else if (endB >= 0 && insideA && pb >= -snap && pb <= lb + snap) tees.push({ stem: j, end: /** @type {0|1} */ (endB), through: i, at: pa });
+    const endA = pa <= snapW ? 0 : pa >= la - snapW ? 1 : -1, endB = pb <= snapW ? 0 : pb >= lb - snapW ? 1 : -1;
+    const insideA = pa > snapW && pa < la - snapW, insideB = pb > snapW && pb < lb - snapW;
+    if (endA >= 0 && endB >= 0 && pa >= -snapW && pa <= la + snapW && pb >= -snapW && pb <= lb + snapW) corners.push({ i, ei: /** @type {0|1} */ (endA), j, ej: /** @type {0|1} */ (endB) });
+    else if (endA >= 0 && insideB && pa >= -snapW && pa <= la + snapW) tees.push({ stem: i, end: /** @type {0|1} */ (endA), through: j, at: pb });
+    else if (endB >= 0 && insideA && pb >= -snapW && pb <= lb + snapW) tees.push({ stem: j, end: /** @type {0|1} */ (endB), through: i, at: pa });
     else if (insideA && insideB) crossings.push([i, j]);
   }
   if (crossings.length) notes.push(`${crossings.length} pair${crossings.length === 1 ? "" : "s"} of walls cross mid-wall (an X junction); the engine has no cross joint, so split one of them at the crossing in the drawing.`);

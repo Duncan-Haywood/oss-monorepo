@@ -79,3 +79,43 @@ test("closed LWPOLYLINE and POLYLINE outlines are read", () => {
   assert.equal(planFromDxf(dxf([], 1, pl)).stats.exterior, 4);
   assert.equal(parseDxf(dxf([], 1, pl)).segs.length, 4);
 });
+
+// Double-line walls: every wall is two face lines `t` inches apart, as an architect draws it.
+// Outer rectangle 40 ft x 28 ft to the centres, 4.5 in walls; the partition at x = 14 ft butts the inner faces.
+function doubleHouse(t = 4.5) {
+  const h = t / 2, W = ft(40), D = ft(28), px = ft(14);
+  return [
+    ["A-WALL", -h, -h, W + h, -h], ["A-WALL", W + h, -h, W + h, D + h], ["A-WALL", W + h, D + h, -h, D + h], ["A-WALL", -h, D + h, -h, -h],
+    // inner faces, front and back broken where the partition butts them
+    ["A-WALL", h, h, px - h, h], ["A-WALL", px + h, h, W - h, h],
+    ["A-WALL", W - h, h, W - h, D - h],
+    ["A-WALL", W - h, D - h, px + h, D - h], ["A-WALL", px - h, D - h, h, D - h],
+    ["A-WALL", h, D - h, h, h],
+    // partition faces
+    ["A-WALL", px - h, h, px - h, D - h], ["A-WALL", px + h, h, px + h, D - h],
+    ["A-DOOR", ft(17), 0, ft(17) + 38, 0],
+  ];
+}
+
+test("double-line walls read as centre lines: same exterior lengths, one tee, a face-to-face partition", () => {
+  const r = planFromDxf(dxf(doubleHouse()));
+  assert.ok(r.ok, r.errors.join());
+  assert.equal(r.stats.exterior, 4);
+  assert.equal(r.stats.interior, 1);
+  const [a, b, c, d, p] = r.plan.walls;
+  assert.deepEqual([a.length, b.length, c.length, d.length], [480, 336, 480, 336]);
+  assert.equal(p.length, 336 - 4.5);
+  assert.ok(r.notes.some((n) => /Double-line walls: 5 walls/.test(n)));
+  assert.deepEqual(a.tees, [168]);
+  assert.equal(a.openings.length, 1);
+  assert.equal(a.openings[0].width, 38);
+});
+
+test("double-line detection can be switched off and does not touch single-line plans", () => {
+  const single = planFromDxf(dxf(house()));
+  assert.ok(!single.notes.some((n) => /Double-line/.test(n)));
+  const off = planFromDxf(dxf(doubleHouse()), { doubleLine: false });
+  assert.ok(!off.notes.some((n) => /Double-line/.test(n)));
+  const mm = planFromDxf(dxf(doubleHouse(6).map(([l, ...n]) => [l, ...n.map((v) => v * 25.4)]), 4));
+  assert.equal(mm.plan.walls[0].length, 480);
+});
