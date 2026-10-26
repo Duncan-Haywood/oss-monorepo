@@ -862,3 +862,15 @@ What this says, on three series and with no labels beyond two dates:
 - Residual clustering is still there after the fit (the Ljung-Box line prints for CHF, JPY and the robust runs), so the dates stay candidates.
 
 Not claimed: that these dates are all the true regimes (the year-to-year splits may be real volatility changes), nor a false-alarm rate; that needs labelled series.
+
+## A real slope change that is not a count: UK gas consumption (2026-10-27)
+
+Every real series so far was a level step (Nile, seat belts), a volatility break or counts. `data/uk-gas.csv` is quarterly UK gas consumption, 1960Q1 to 1986Q4 (108 points, R's `UKgas`, source in `data/SOURCE.md`): a strong seasonal swing that grows with the level, and growth that picks up around 1970 (the North Sea gas era; recalled, not checked against a paper, so this is a plausibility check and not a labelled test). `eval/uk-gas.mjs` (output `eval/uk-gas.out.txt`, test `uk-gas.test.mjs`) runs it with `--period 4`.
+
+- **Raw series, `--trend bend`:** one slope change at **1969Q4**, `slopeChangeRange95` **1966Q1 to 1971Q4** (slope 1.69 to 7.79 per quarter), and no level steps. Same bend under `meanvar`. It holds 1970 inside its range.
+- **Log series, `--trend bend`:** no slope change at all, and two level steps (1963Q4, 1982Q2) instead. A log-linear series with a changing growth rate is the case the Gaussian trend should read as a bend, and it does not. Not diagnosed: the log scale shrinks the seasonal swing, so the cost drop from one bend may fall under the 3 log n bar; nobody has checked that.
+- **`--drift` (drifting seasonal shape):** the seasonal amplitude grows, a fixed additive profile cannot hold it, and drift cuts the 1969 to 1972 stretch into 4 to 6 steps (raw: 1970Q2, 1970Q4, 1971Q2; log: 1969Q4, 1970Q2, 1970Q4, 1971Q3). They mark a changing seasonal shape, not four separate regime changes; the warning text does not say that yet.
+
+What it says: the slope-bend range is useful here, but the answer depends on the scale, and a multiplicative season is not modelled on the Gaussian path (counts have it). Not claimed: a coverage rate; one series cannot give one.
+
+Next on this thread: a multiplicative seasonal option for the Gaussian path, and a warning when steps cluster inside one seasonal cycle count under `--drift`.
