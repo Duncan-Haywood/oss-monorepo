@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codesign-aero-cant-poshold"
+version = "0.1.0"
+description = "Does co-designing the rotor cant angle buy the yaw authority no attitude controller could?"
+requires-python = ">=3.9"
+dependencies = ["numpy", "cma", "matplotlib"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
