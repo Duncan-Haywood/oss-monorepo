@@ -96,3 +96,26 @@ test("corner bead on free wall ends: a 16 ft stub partition with one free end, 8
   assert.equal(layoutDrywall({}, plan([{ id: "A", length: 192, freeEnds: 1 }])).finishing.beadFt, 8);
   assert.equal(layoutDrywall({ openingBead: false }, plan([{ id: "A", length: 192, freeEnds: 1 }])).finishing.beadFt, 0);
 });
+
+test("jointsOnStuds: a 20 ft wall with 10 ft sheets lands its joint between studs unless snapped (hand count)", () => {
+  const p = { ...plan([{ id: "A", length: 240 }]), studSpacing: 16 };
+  // studs centred on 16 in multiples: 120 is not one (7.5 x 16), so a naive joint at 120 is off framing
+  const off = layoutDrywall({ sheetLength: 120, jointsOnStuds: false }, p);
+  assert.equal(off.sheets.count, 4);
+  assert.deepEqual(off.joints, { total: 2, offFraming: 2, naiveOffFraming: 2 });
+  // snapped: each course cuts at 112 and 224 (studs), pieces 112, 112, 16; a 16 in piece cannot join a 112 on one sheet (128 > 120) but the two courses' 16 in pieces share one: 4 + 1
+  const on = layoutDrywall({ sheetLength: 120, jointsOnStuds: true }, p);
+  assert.equal(on.sheets.count, 5);
+  assert.deepEqual(on.joints, { total: 4, offFraming: 0, naiveOffFraming: 2 });
+  // option unset: unchanged behaviour and no joint report
+  const base = layoutDrywall({ sheetLength: 120 }, p);
+  assert.equal(base.sheets.count, 4);
+  assert.equal(base.joints, null);
+});
+
+test("jointsOnStuds: 8 ft sheets on 16 in studs already land on framing from a wall start", () => {
+  const p = { ...plan([{ id: "A", length: 288 }]), studSpacing: 16 };
+  const r = layoutDrywall({ jointsOnStuds: true }, p);
+  assert.equal(r.joints.naiveOffFraming, 0);
+  assert.equal(r.sheets.count, layoutDrywall({}, p).sheets.count);
+});
