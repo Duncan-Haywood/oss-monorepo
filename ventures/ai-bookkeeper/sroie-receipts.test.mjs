@@ -85,3 +85,8 @@ test("a price glued to a tax code (7.50ZR) is not repaired into 7.5025, and BHD 
   assert.equal(r.date, "2018-04-01");
   assert.equal(r.cents, 2935);
 });
+
+test("ACCEPTED TOTAL is the cash fed to a parking machine: with no total line, it less the change is the amount", () => {
+  const p = parseReceipt(rcpt("CAR PARK SDN BHD", "AMOUNT INCL. GST", "5.00 RM", "ACCEPTED TOTAL", "10.00 RM", "CHANGE", "5.00 RM"));
+  assert.equal(p.cents, 500);
+});

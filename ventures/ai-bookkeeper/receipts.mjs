@@ -232,7 +232,7 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   if (cents === null) {
     // no total line: what was paid is the cash handed over less the change
     const pick = (re) => { const i = lines.findIndex((l) => re.test(l)); if (i < 0) return null; const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]); return a.length ? a[a.length - 1] : null; };
-    const tender = pick(/\b(?:cash|tendered|payment|paid)\b/i), change = pick(/\bchange\b/i);
+    const tender = pick(/\b(?:cash|tendered|payment|paid|accepted\s+total)\b/i), change = pick(/\bchange\b/i);
     if (tender !== null && change !== null && tender > change) { cents = tender - change; notes.push("no total line; cash handed over less change"); }
   }
   if (cents === null) {
