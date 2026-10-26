@@ -1,7 +1,7 @@
 ---
 title: "We ran out of other people's bank files to test on"
 date: 2026-10-26
-description: "Sweeping six open-source projects' bank files through ai-bookkeeper's reader found no new fault: earlier sweeps took everything open source ships."
+description: "Sweeping six more open-source projects' bank fixtures through ai-bookkeeper's reader found no new fault: earlier sweeps took everything open source ships."
 tags: [ai-bookkeeper, bank-import, testing]
 ---
 

@@ -54,3 +54,15 @@ describe("pool cap on long lists", () => {
     }, 1_800_000);
   }
 });
+
+describe("pool cap with budgets well past the list length", () => {
+  // 500 items is above the cap of 400; 2000 answers is 4 per item, 4000 is 8 per item.
+  for (const [items, budget] of [[500, 2000], [500, 4000]] as const) {
+    it(`${items} items, ${budget} answers`, () => {
+      const r = cell(items, budget, 2);
+      appendFileSync(process.env.MEASURE_OUT ?? "/dev/null", `MEASURE ${items} items ${budget} answers ${JSON.stringify(r)}\n`);
+      // Question, not a claim: does the cap hide items once the budget is deep? Allow 0.02 as in the cells above.
+      expect(r.capped.rank).toBeGreaterThanOrEqual(r.uncapped.rank - 0.02);
+    }, 3_600_000);
+  }
+});

@@ -1,7 +1,7 @@
 ---
 title: "We tried cleaning up receipt scans before OCR. It made the books worse."
 date: 2026-10-26
-description: "Grayscale, enlarging and thresholding receipt scans before Tesseract lowered the share of merchants, dates and totals read right on 626 SROIE receipts."
+description: "Grayscale, upscaling and thresholding before Tesseract cut receipt totals from 74.9% to as low as 56% right on 626 SROIE scans."
 tags: [ai-bookkeeper, ocr, receipts]
 ---
 

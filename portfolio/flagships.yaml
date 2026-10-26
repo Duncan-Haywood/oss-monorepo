@@ -68,7 +68,7 @@ flagships:
     next: >-
       Open items only; landed work is in ventures/wall-framing-takeoff/README.md and ROADMAP.md (roof, foundation,
       gables, sheathing, drywall, budget, schedule and their page controls have all landed on hand-checked fixtures).
-      Open: a real foundation plan; ceiling drywall steps; a real sub's labor rates; a real builder's activity list for
+      Open: a real foundation plan; ceiling drywall steps; drywall `jointsOnStuds` (landed 2026-10-26, walls only) checked against a real hang, ceiling joints on joists, and the page control; a real sub's labor rates; a real builder's activity list for
       `--schedule`; gable sheathing nested on real sheets (offcut-triangle heights are hand-made); the drywall compound
       rate checked against a product label; the code edition, typed by a person who has the book; insulation on the page (`--insulation` landed on walls and attic loose fill 2026-10-24; attic bag chart unchecked); a 2D reuse of
       opening cut-outs, only worth rechecking on a real plan (sample house: 0 panels fit a hole).
@@ -107,7 +107,7 @@ flagships:
       Moderation 1984Q1; `meanvar` finds it, but default min segment 5 reports a
       5-quarter calm patch whose range misses the date; README). Landed 2026-11-03: `meanvar` warns when a segment is under 10 points. Landed 2026-11-09: `meanvar`
       defaults to minimum segment 10 (seeded simulation, README). Landed 2026-11-15: `meanvar` on non-Gaussian noise measured (35-68% false alarms) and a noise warning added (README). Landed 2026-10-25: `--robust` Laplace cost for meanvar (t3 false alarms 37-63% to 5-8%, but 57% vs 94% detection on Gaussian n=100; README). Landed 2026-10-25: the robust option on the page. Landed 2026-10-27: `--robust` clips the Bayesian view's input at 2 robust sds (t3 false alarms 18-47% to 1%; it now misses sd breaks, PELT finds those; README). Landed 2026-10-25: the `meanvar` noise warning adds a Ljung-Box line on squares (GARCH flagged 34%/49% of nulls at n=100/200, was 20%/16%; Gaussian false warnings 7%/4%; README). Landed 2026-10-26: `--dispersion` scales the meanvar penalty by the squared residuals' dispersion (GARCH/t3 false alarms at n=200 51%/62% to 30%/29%, Gaussian unchanged; README). Open: a GARCH likelihood cost (still 30% false alarms); range95 on a real series with a true holiday closure or
-      documented slope break (log GDP is a near-unit-root, no clean answer); the growth-change range on clumpy (NB) counts reached ~95% 2026-10-26 by tempering 1.4 (held-out 161/170; the large-bump cell is still ~86%).
+      documented slope break (log GDP is a near-unit-root, no clean answer); the growth-change range on clumpy (NB) counts reached ~95% 2026-10-26 by tempering 1.4 (held-out 161/170; the large-bump cell is still ~86%, re-checked 2026-10-26 on fresh seeds 41/77: 101/107 overall, bump 0.04 18/21).
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -184,8 +184,9 @@ flagships:
       poolCap.simulation.test.ts); and a live-Postgres ranking integration
       test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy at 3000 items measured 2026-10-22 (selector loop,
       2 respondents). Budgets past the list length measured 2026-10-26 (30 items to 1,200
-      answers: no stall; hybrid dips below shipped at 300 answers, 5 seeds). Next: the same
-      check through the route with Postgres, more seeds on that dip, an inconsistent respondent.
+      answers: no stall; hybrid dips below shipped at 300 answers, 5 seeds; 500 items at 2,000
+      and 4,000 answers: the cap hides nothing). Next: the same check through the route with
+      Postgres, more seeds on that dip, an inconsistent respondent, 1000+ items at deep budgets.
 
   - venture: league-schedule-generator
     why: >-
