@@ -1,7 +1,7 @@
 ---
 title: "Closing the last open hour in a staff roster by solving a small piece exactly"
 date: 2026-10-26
-description: "The shift roster builder's search now repairs open hours by freeing three people's shifts and solving them exactly, reaching the integer-programming optimum on the hard seeded weeks."
+description: "The shift roster builder's search now repairs open hours by freeing three people's shifts and solving them exactly, matching the integer-programming optimum."
 tags: [shift-roster-builder, optimization, scheduling]
 ---
 
