@@ -71,15 +71,30 @@ function field86(t) {
   return unesc([name, purpose].filter(Boolean).join(" ")) || unesc(t.replace(/\?\d\d/g, " "));
 }
 
+// A statement that prints its opening and closing balance can vouch for its own
+// rows: opening plus the rows must give the closing balance. A gap means lines
+// are missing from the export (or a reversal was read the wrong way).
+function selfCheck(opening, closing, rows, problems, fmt = (c) => (c / 100).toFixed(2)) {
+  if (opening === null || !closing || !rows.length) return;
+  const sum = rows.reduce((a, r) => a + r.cents, 0);
+  const gap = closing.cents - opening - sum;
+  if (gap !== 0) problems.push(`The rows do not add up to the statement's own balances: opening ${fmt(opening)} plus ${rows.length} rows ${fmt(sum)} is ${fmt(opening + sum)}, but the closing balance is ${fmt(closing.cents)} (a difference of ${fmt(gap)}). Lines may be missing from the export.`);
+}
+
 export function readMt940(text) {
   const s = String(text).replace(/^﻿/, "").replace(/\r\n?/g, "\n");
   const problems = [];
   const out = [];
   // A tag starts a line with :NN[a-z]: and runs until the next one.
   const fields = [...s.matchAll(/^:(\d\d[A-Z]?):([\s\S]*?)(?=^:\d\d[A-Z]?:|^-\}|\n-\n|$(?![\s\S]))/gm)].map((m) => ({ tag: m[1], body: m[2].replace(/\n$/, "") }));
-  let closing = null, accounts = 0;
+  let closing = null, accounts = 0, opening = null, openings = 0;
   fields.forEach((f, i) => {
     if (f.tag === "25") accounts++;
+    if (f.tag === "60F" || f.tag === "60M") {
+      const m = f.body.match(/^([CD])\d{6}[A-Z]{3}([\d,]+)/);
+      openings++;
+      if (m) opening = (m[1] === "D" ? -1 : 1) * cents(m[2]);
+    }
     if (f.tag === "62F" || f.tag === "62M") {
       const m = f.body.match(/^([CD])(\d{2})(\d{2})(\d{2})[A-Z]{3}([\d,]+)/);
       if (m) closing = { cents: (m[1] === "D" ? -1 : 1) * cents(m[5]), date: iso(yy(m[2]), +m[3], +m[4]) };
@@ -102,6 +117,7 @@ export function readMt940(text) {
   });
   if (!out.length) problems.push("No :61: transactions were found in the MT940 file.");
   if (accounts > 1) problems.push(`The file holds ${accounts} statements; all their lines were read into this one. Export one account at a time to keep them apart.`);
+  if (openings === 1 && accounts <= 1 && Number.isFinite(opening)) selfCheck(opening, closing, out, problems);
   return { rows: out, problems, columns: null, bank: "mt940", inferred: null, statement: closing && Number.isFinite(closing.cents) && closing.date ? closing : null };
 }
 
@@ -127,22 +143,40 @@ export function readCamt(xml) {
     const ind = text(head, "CdtDbtInd");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(amt) || !ind) { problems.push(`Entry ${i + 1}: unreadable date, amount or CRDT/DBIT, skipped.`); return; }
     if (amt === 0) return;
-    // RvslInd true means the entry reverses an earlier one: the opposite direction.
+    // A pending or informational entry has not moved money yet (CAMT.053 v08 marks it
+    // PDNG or INFO; older versions write the status as plain text).
+    if (/PDNG|INFO/.test(text(head, "Sts") ?? "")) { problems.push(`Entry ${i + 1}: pending, not booked yet, skipped.`); return; }
+    // Banks disagree on a reversal (RvslInd true): most write the direction the money
+    // moved (a reversed credit arrives as DBIT), some write the original direction.
+    // Read it as stated; the balance check below flips the reversals if that is what
+    // makes the statement's own balances add up.
     const rev = /true|1/i.test(text(head, "RvslInd") ?? "");
-    const credit = (ind === "CRDT") !== rev;
+    const credit = ind === "CRDT";
     const dtls = e.slice(head.length);
     // The counterparty is the debtor of money in, the creditor of money out.
     const party = text(inner(dtls, credit ? "Dbtr" : "Cdtr") ?? "", "Nm");
     const remit = [...dtls.matchAll(/<Ustrd>([\s\S]*?)<\/Ustrd>/g)].map((m) => unesc(m[1])).join(" ") || text(dtls, "Ref") || "";
     const desc = [party, remit || text(e, "AddtlNtryInf") || text(dtls, "AddtlTxInf")].filter(Boolean).filter((x, j, a) => a.indexOf(x) === j).join(" ");
-    out.push({ line: i + 1, date, desc, cents: credit ? amt : -amt, balance: null });
+    out.push({ line: i + 1, date, desc, cents: credit ? amt : -amt, balance: null, ...(rev ? { rev: true } : {}) });
   });
   if (!entries.length) problems.push("No <Ntry> entries were found in the CAMT file.");
-  let statement = null;
+  let statement = null, opening = null, openings = 0;
+  for (const m of s.matchAll(/<Bal>([\s\S]*?)<\/Bal>/g)) {
+    if (!/<Cd>(OPBD|PRCD)<\/Cd>/.test(m[1])) continue;
+    const a = cents(text(m[1], "Amt") ?? "");
+    openings++;
+    if (Number.isFinite(a)) opening = text(m[1], "CdtDbtInd") === "DBIT" ? -a : a;
+  }
   for (const m of s.matchAll(/<Bal>([\s\S]*?)<\/Bal>/g)) {
     if (!/<Cd>(CLBD|CLAV)<\/Cd>/.test(m[1]) || /<Cd>CLAV<\/Cd>/.test(m[1]) && statement) continue;
     const a = cents(text(m[1], "Amt") ?? ""), d = (text(inner(m[1], "Dt") ? m[1] : "", "Dt") ?? "").slice(0, 10);
     if (Number.isFinite(a) && /^\d{4}-\d{2}-\d{2}$/.test(d)) statement = { cents: text(m[1], "CdtDbtInd") === "DBIT" ? -a : a, date: d };
   }
+  if (openings === 1 && stmts <= 1 && Number.isFinite(opening)) {
+    const sum = (rs) => rs.reduce((a, r) => a + r.cents, 0);
+    if (statement && opening + sum(out) !== statement.cents && out.some((r) => r.rev) && opening + sum(out.map((r) => r.rev ? { cents: -r.cents } : r)) === statement.cents) out.forEach((r) => { if (r.rev) r.cents = -r.cents; });
+    selfCheck(opening, statement, out, problems);
+  }
+  out.forEach((r) => { delete r.rev; });
   return { rows: out, problems, columns: null, bank: "camt053", inferred: null, statement };
 }
