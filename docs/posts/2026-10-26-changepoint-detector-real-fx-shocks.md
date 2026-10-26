@@ -1,7 +1,7 @@
 ---
 title: "Changepoint detector on real currency shocks: which volatility option helps?"
 date: 2026-10-26
-description: "Daily Swiss franc, pound and yen returns, 2012-2018: every mode finds the 2015 franc shock and Brexit, but the options differ on false alarms, and the bootstrap penalty did not help on the franc."
+description: "Daily franc, pound and yen returns, 2012-2018: all modes find the 2015 franc shock and Brexit, but false alarms differ and the bootstrap did not help."
 tags: [changepoint-detector, statistics, finance, evaluation]
 ---
 
