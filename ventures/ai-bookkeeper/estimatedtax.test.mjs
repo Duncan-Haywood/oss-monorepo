@@ -188,3 +188,24 @@ test("blank, non-numeric or negative inputs never poison the plan", () => {
   assert.deepEqual(estimatedTax(b, { year: 2026, asOf: "2026-01-01", withholding: -1000000 }).payments, ok.payments);
   assert.equal(estimatedTax(b, { year: 2026, asOf: "2026-01-01", priorYearTax: 500000, priorAgi: NaN }).safeHarbor.prior, 500000);
 });
+
+test("redteam 2026-10-26: guards for escaped mutants (asOf boundary, balance, effective rate, 8959 warning)", () => {
+  const b = books("100000.00");
+  // a payment due on the asOf date itself is still due
+  const onDay = estimatedTax(b, { year: 2026, asOf: "2026-06-15" });
+  assert.equal(onDay.payments.filter((p) => p.status === "due").length, 3);
+  assert.equal(onDay.payments.find((p) => p.due === "2026-06-15").status, "due");
+  // over-withholding leaves a balance of exactly zero, never a refund shown as owed
+  assert.equal(estimatedTax(b, { year: 2026, asOf: "2026-01-01", withholding: 5000000000 }).balanceWithReturn, 0);
+  // money already paid lowers the balance and the plan; it never adds to it
+  const pd = estimatedTax(b, { year: 2026, asOf: "2026-01-01", paid: 100000, priorYearTax: 100000 });
+  const planned = pd.payments.reduce((s, p) => s + p.cents, 0);
+  assert.equal(pd.balanceWithReturn, pd.totalTax - 100000 - planned);
+  // wages alone (no business profit) still give an effective rate over wages
+  const w = estimatedTax(newBooks(), { year: 2026, wages: 30000000 });
+  assert.equal(w.effectiveRate, w.totalTax / 30000000);
+  assert.ok(w.effectiveRate > 0);
+  // the 8959 warning prints the threshold in dollars
+  const hi = estimatedTax(newBooks(), { year: 2026, wages: 30000000 });
+  assert.ok(hi.warnings.some((x) => /earnings above 200000;/.test(x)));
+});
