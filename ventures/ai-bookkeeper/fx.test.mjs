@@ -227,3 +227,38 @@ test("a EUR invoice paid in two USD instalments closes on the last, the rate gap
   assert.equal(net("6190"), 2500); // 1100.00 booked, 1075.00 received
   assert.equal(aging(b2).receivable?.cents ?? 0, 0);
 });
+
+function eurBooks() {
+  let b = addFxAccount({ ...newBooks(), accounts: newBooks().accounts.concat([{ code: "1020", name: "EUR account", type: "asset", bank: true }]) }, { code: "1020", currency: "eur" });
+  return setRates(b, parseRates("2026-01-01,EUR,1.10\n2026-02-01,EUR,1.20").rates);
+}
+
+test("a EUR invoice paid by two EUR deposits is matched in euros and closes, the rate gap is realized per payment", () => {
+  const r = addDocuments(eurBooks(), "type,number,date,party,amount,account,currency\ninvoice,E1,2026-01-05,Client GmbH,1000.00,4000,EUR\n");
+  const s = importStatement(r.books, "Date,Description,Amount\n2026-02-03,WIRE CLIENT GMBH E1,400.00\n2026-02-20,WIRE CLIENT GMBH E1,600.00\n", "1020");
+  const b = addDocuments(s.books, "").books;
+  const j = journal(b);
+  const d = b.documents[0];
+  assert.deepEqual(d.payments.map((p) => p.cents), [44000, 66000]); // 400 and 600 EUR at the booking rate 1.10
+  assert.equal(d.settledBy, d.payments[1].line);
+  assert.equal(net(j, "1100"), 0);
+  assert.equal(net(j, "6190"), -10000); // 1,100.00 booked, 1,200.00 received: 100.00 gain
+  assert.equal(aging(b).receivable?.cents ?? aging(b).receivable.total, 0);
+});
+
+test("a EUR deposit of the whole balance in a EUR account settles in euros whatever the rate", () => {
+  const r = addDocuments(eurBooks(), "type,number,date,party,amount,account,currency\ninvoice,E1,2026-01-05,Client GmbH,1000.00,4000,EUR\n");
+  const b = addDocuments(importStatement(r.books, "Date,Description,Amount\n2026-02-03,WIRE CLIENT GMBH E1,1000.00\n", "1020").books, "").books;
+  const j = journal(b);
+  assert.equal(net(j, "1100"), 0);
+  assert.equal(net(j, "6190"), -10000);
+});
+
+test("a part-payment leaves the euro balance open and its exchange gap booked", () => {
+  const r = addDocuments(eurBooks(), "type,number,date,party,amount,account,currency\ninvoice,E1,2026-01-05,Client GmbH,1000.00,4000,EUR\n");
+  const b = addDocuments(importStatement(r.books, "Date,Description,Amount\n2026-02-03,WIRE CLIENT GMBH E1,400.00\n", "1020").books, "").books;
+  const j = journal(b);
+  assert.equal(net(j, "1100"), 66000); // 600 EUR still owed at 1.10
+  assert.equal(net(j, "6190"), -4000);
+  assert.equal(aging(b).receivable.total, 66000);
+});
