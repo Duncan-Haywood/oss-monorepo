@@ -33,17 +33,9 @@ def hvp_fn(model, x, y):
     flat = torch.cat([q.reshape(-1) for q in gs])
 
     def hvp(v):
-        hs = torch.autograd.grad(flat, params, grad_outputs=v_split(v, params), retain_graph=True)
+        hs = torch.autograd.grad(flat, params, grad_outputs=v, retain_graph=True)
         return torch.cat([h.reshape(-1) for h in hs])
     return hvp
-
-
-def v_split(v, params):
-    out, off = [], 0
-    for q in params:
-        out.append(v[off:off + q.numel()].view_as(q))
-        off += q.numel()
-    return out
 
 
 def run(a):
