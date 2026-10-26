@@ -1,0 +1,10 @@
+reps 200, 100 resamples
+n | noise | variant: null any change / sd1->2 exactly one
+100 | gauss | plain 4% / 92% | A 4% / 92% | B 2% / 80%
+100 | t3    | plain 39% / 57% | A 35% / 59% | B 8% / 44%
+100 | garch | plain 42% / 61% | A 39% / 60% | B 14% / 57%
+100 | ar1   | plain 51% / 44% | A 39% / 50% | B 8% / 49%
+200 | gauss | plain 1% / 97% | A 1% / 97% | B 1% / 100%
+200 | t3    | plain 62% / 55% | A 54% / 61% | B 15% / 69%
+200 | garch | plain 51% / 57% | A 47% / 60% | B 16% / 74%
+200 | ar1   | plain 54% / 37% | A 36% / 48% | B 7% / 80%
