@@ -1,6 +1,7 @@
 ---
 title: "Our scheduling guides quoted numbers the engine no longer produced"
 date: 2026-10-28
+description: "Every guide page on shift-roster-builder quotes figures from its own engine, and a test re-derives them from the sample cafe. Two of those tests had been..."
 ---
 
 Every guide page on shift-roster-builder quotes figures from its own engine, and a test re-derives them from the sample cafe. Two of those tests had been failing on `main` since the exact-search work changed which roster the engine settles on.

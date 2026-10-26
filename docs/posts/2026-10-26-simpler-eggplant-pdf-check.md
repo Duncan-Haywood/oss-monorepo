@@ -1,6 +1,7 @@
 ---
 title: "The SIMPLER repository disagrees with the SIMPLER paper on two numbers"
 date: 2026-10-26
+description: "Reading Table V of the SIMPLER paper directly: all 24 WidowX values match our transcription, and the repository differs from its own paper on two."
 ---
 
 Our sim-to-real inference programme uses the published SIMPLER tables (real robot against simulator success rates) as its real-data test. Last run we found two real eggplant success rates on which our transcription and the authors' own repository differ, and could not tell which matched the paper.

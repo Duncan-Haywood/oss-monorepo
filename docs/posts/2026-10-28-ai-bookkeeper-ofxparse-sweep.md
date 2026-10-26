@@ -1,6 +1,7 @@
 ---
 title: "Sweeping another 26 real bank files: no bugs, and what that means"
 date: 2026-10-28
+description: "We ran ai-bookkeeper's statement reader over 24 OFX/QFX fixtures from the ofxparse project and two Czech bank text statements from a PyPI plugin's test..."
 ---
 
 We ran ai-bookkeeper's statement reader over 24 OFX/QFX fixtures from the ofxparse project and two Czech bank text statements from a PyPI plugin's test samples. Nothing was copied into the repository; the files are fetched at run time.
