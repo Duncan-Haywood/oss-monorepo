@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 5b: where does the mean break under a strong attacker, and does the median hold? (planned before running)
+- Why: 5a's "Next". A 3-rms offset did nothing measurable, so neither the mean's breaking point nor the median's protection was tested. `experiments/gpt_median_attack_strong/median_attack_strong.py`: 5a's setup exactly (3d model, M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, worker 0 attacks), aggregation in {mean, median} x attack in {offset 30 rms, offset 300 rms, sign-flip x10 (sends -10 x its delta)}; seeds 0 to 2 (18 runs). Comparator: 3d uncompressed on the same seeds. No engine change.
+- **H5b-i:** with offset 300 rms, mean aggregation is worse than uncompressed by more than 0.3 nats on all 3 seeds (or diverges). Refuted if any seed is within 0.3.
+- **H5b-ii:** with the sign-flip x10, mean aggregation is worse by more than 0.3 nats on all 3 seeds (the averaged delta is -1.75 x an honest delta, so it climbs). Refuted otherwise.
+- **H5b-iii:** median aggregation stays within 0.05 nats of uncompressed (mean over seeds, no seed above 0.1) under all three attacks. The attacker is an extreme order statistic at M = 4, so the median is the mean of the honest 2nd and 3rd values and cannot leave the honest range. Refuted otherwise.
+- **H5b-iv:** with offset 30 rms, mean aggregation is worse by more than 0.1 nats on all 3 seeds (the breaking point sits between 3 and 30 rms). Refuted otherwise.
+- Prior: i 75% (adaptive inner AdamW may absorb a constant shift again, as in 5a, which is why I am unsure); ii 85%; iii 80%; iv 55%.
+- Limits known in advance: 3 seeds; non-adaptive attacker; one attacker of four; one H; loss is not the variance factor of the proposal's H5, so the pi/2 cost is still untested.
+
+### Outcome of 5b (`experiments/gpt_median_attack_strong/`: `median_attack_strong.py`, `.jsonl`, `_results.txt`, `run.out`; 18 runs, seeds 0 to 2)
+- Final validation loss, mean over seeds (3d uncompressed 1.5758). Offset 30 rms: mean-agg 5.006 (per seed 6.51, 5.15, 3.36), median 1.5837 (+0.0079). Offset 300 rms: mean-agg diverges to inf on all 3 seeds, median 1.5837 (bit-identical to offset 30 on every seed). Sign-flip x10: mean-agg 90,415 (all seeds near 9e4), median 1.6708 (+0.095; per seed +0.092, +0.097, +0.096).
+- **H5b-i holds** (inf on 3/3). **H5b-ii holds** (loss above 8e4). **H5b-iv holds** (+1.8 to +4.9 at 30 rms; the mean's breaking point lies between 3 rms, harmless in 5a, and 30 rms). **H5b-iii refuted:** the median is unmoved by the offsets (+0.008) but costs +0.095 nats, every seed, under the sign-flip, against my bar of 0.05.
+- Reading: the median is invariant to how large an extreme outlier is (offsets 30 and 300 give identical runs), so it protects against any magnitude, which the mean cannot. But an attacker that flips sign is not harmless to it: at M = 4 the median is the mean of the two middle values, and a flipped coordinate sits on one side of the honest ones, so the median moves from the honest middle pair toward the honest values on the attacker's far side. This is the likely cause of the steady +0.095, not tested (a check would compare against a median over the three honest workers). The cost is small next to the mean's failure, but it is not zero and it is not the 5a noise level.
+- Limits: 3 seeds; non-adaptive attacker; one attacker of four; one H; loss is not the variance factor, so the proposal's pi/2 cost is still untested; the mechanism for +0.095 is a hypothesis.
+- Next: the same attacks with M = 8 and one attacker (does the median's cost shrink as the attacker's share falls?), and a trimmed-mean aggregator for comparison.
+
 ## 2026-10-26 · Milestone 4e (independent replication, levels-based quantiser; a parallel run landed `gpt_quant` first): what does unbiased stochastic quantisation of the deltas cost, with and without error feedback? (planned before running)
 - Why: 4d's "Next". Sparsification is mapped (4a to 4d); the proposal's compression axis also lists quantisation. New compressor `quantise(levels)` (per-tensor max-abs scale, stochastic rounding, unbiased; `levels` 7 is a signed 4-bit code, 1 is ternary).
 - Design (`experiments/gpt_quantise/quantise.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, lr 2e-3, `H = 16`, plain outer step); arms q7, q1, q1 + error feedback; seeds 0 to 2 (9 runs). Comparator: uncompressed (3d).
