@@ -2,7 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-26 · Milestone 4c: which eggplant value is the PDF's? (resolves the open item in 4b; analysis written after the run)
+## 2026-10-26 · Milestone 4c: do the SIMPLER intervals survive resampling tasks and policies, not cells? (analysis written after the first run, not pre-registered)
+- Why: m4 and m4b flag their bootstrap as "optimistic (cells cluster)": the 36 cells share 8 tasks and 7 policies, so resampling cells treats correlated rates as independent. The question was how much wider the honest interval is. The expectation I held before running: n* upper end moves from about 27 to somewhere near 40 under two-way resampling, and the conclusion (twin worth about 10 real trials, order of magnitude) holds.
+- Method (`experiments/m4c_cluster/cluster.py`): m4's leave-one-cell-out calibrated predictions kept fixed; resample cells, whole tasks, whole policies, or tasks and policies together (cell kept with multiplicity), 4,000 resamples each, 95% percentile intervals.
+- Outcome (`results/summary_4c.txt`): n* point 10.1. Cell [4.9, 27.6]; task [5.3, 24.5]; policy [3.8, 34.1]; two-way [2.7, 53.9], with 8.9% of two-way resamples above n* = 30 and 0.4% undefined (zero calibrated MSE). Pearson r 0.90: cell [0.83, 0.95], two-way [0.74, 0.97]. My upper-end guess (about 40) was low; the two-way upper end is 54.
+- Reading: clustering widens the n* interval about 2x on the upper side, so the headline should read "about 10 real trials, plausibly 3 to 54", not [5, 27]. The twin still saves real trials in every resampling scheme (lower end above 2). Rank agreement stays high. Caveat: resampling 7 policies or 8 tasks is a coarse approximation of the cluster distribution; degenerate resamples (constant sim or real column) emit numpy warnings and give NaN r, dropped from percentiles.
+- Next: per-episode pairs from the SIMPLER video dataset if reachable (paired control variate on real episodes); otherwise the paper's remaining sections.
+
+## 2026-10-26 · Milestone 4d: which eggplant value is the PDF's? (resolves the open item in 4b; analysis written after the run)
 - Why: 4b left two real eggplant rates in dispute (Octo-Base 0.233 vs 0.250, Octo-Small 0.433 vs 0.400) and the m4 `n = 30` inference unconfirmed.
 - Method (`experiments/m4b_crosscheck/pdf_check.py`): download the SIMPLER PDF (arXiv:2405.05941), read it with `pdftotext -layout`, parse Table V, compare the 24 WidowX success values with our transcription and with the authors' `REAL_PERF`/`SIMPLER_PERF`.
 - Outcome: our transcription matches the PDF on all 24 WidowX values. The authors' repository differs from their own paper on exactly the two disputed values (PDF 0.233 and 0.433; repo 0.250 and 0.400). Appendix B states 24 eggplant trials, but 0.233 = 7/30 and 0.433 = 13/30 are not multiples of 1/24, so the paper's table and its appendix disagree; `n = 30` stays an inference (24 and 30 both give n* 10.2 in 4b). The 48 Google Robot values were not re-read against the PDF; they agree with the repository, an independent source.
