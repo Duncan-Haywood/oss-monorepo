@@ -11,6 +11,14 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Prior: i yes (variance of 4-bit rounding is tiny); ii a coin flip; iii likely holds.
 - Limits: 3 seeds, one `H`, per-tensor scale, bytes not modelled.
 
+### Outcome of 4e (`experiments/gpt_quantise/quantise_results.txt`; 9 runs, seeds 0 to 2)
+- Mean final validation loss, excess over uncompressed (1.5758), nats: q7 (4-bit code) -0.0052 (per seed -0.008, -0.010, +0.002); q1 (ternary) +0.0191 (+0.012, +0.023, +0.022); q1 with error feedback +0.881 (+0.85, +0.91, +0.89).
+- **H4e-i supported:** q7 is within 0.02 of uncompressed on every seed (largest +0.0018). **H4e-ii refuted, narrowly:** q1's mean excess is +0.0191, under the +0.02 line, though two of three seeds are above it. **H4e-iii supported, strongly:** error feedback did not help the unbiased quantiser, it made it far worse.
+- Reading: unbiased stochastic quantisation is nearly free at 4 bits and costs about 0.02 nats at ternary, a much gentler price than top-k at the same nominal compression. Error feedback on top of an unbiased quantiser is harmful here. I did not test why; one candidate is that the residual keeps absorbing rounding noise that is then fed back at full scale, but that is a guess, not a result. Do not read this as a statement about error feedback for biased compressors (4b to 4d, where it helped).
+- Limits: 3 seeds, one `H`, per-tensor max-abs scale, a single EF-ternary configuration, bytes not modelled. 7 tests in `tests/test_lowcomm.py` fail on this checkout because they reference `lowcomm.model.Config`, which no longer exists (not touched here).
+- Next: H5 (median aggregation under an attack), and whether EF with a damped residual rescues ternary.
+
+
 ## 2026-10-26 · Milestone 4d: where is the knee of error-feedback top-k between keep 1/16 and 1/256? (planned before running)
 - Why: 4c's "Next". EF top-k cost -0.005 at 1/16, +0.043 at 1/64, +0.121 at 1/256; two points below the knee leave its location and shape unresolved.
 - Design (`experiments/gpt_topk_ef_knee/topk_ef_knee.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); EF top-k at keep 1/32 and 1/128; seeds 0 to 2 (6 runs). Comparators: uncompressed (3d), 4b at 1/16, 4c at 1/64 and 1/256.
