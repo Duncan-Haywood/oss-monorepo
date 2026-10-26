@@ -1,0 +1,8 @@
+Milestone 4c: m4 point estimates (36 cells, 8 tasks, 7 policies) with intervals from four resampling units, 4000 resamples, 95% percentile
+point: MSE_cal 0.0138  n* 10.1  r 0.900
+
+unit     MSE_cal                      n*                       r                        share n*>30
+cell     [0.0053, 0.0254]            [4.9, 27.6]            [0.834, 0.947]       0.018 (infinite n*: 0.000)
+task     [0.0051, 0.0254]            [5.3, 24.5]            [0.833, 0.955]       0.001 (infinite n*: 0.000)
+policy   [0.0046, 0.0278]            [3.8, 34.1]            [0.817, 0.931]       0.036 (infinite n*: 0.000)
+twoway   [0.0023, 0.0399]            [2.7, 53.9]            [0.741, 0.970]       0.089 (infinite n*: 0.004)
