@@ -186,8 +186,9 @@ test("the drywall joint control is read into the plan and restored from a saved 
   assert.match(html, /dw\.jointsOnStuds = \$\("#dwJoints"\)\.value === "true"/);
   assert.match(html, /\$\("#dwJoints"\)\.value = typeof dw\.jointsOnStuds === "boolean"/);
   assert.match(html, /id="dwJoist"/);
+  assert.match(html, /dw\.ceilingJoistsFromRoof = true/);
   assert.match(html, /dw\.ceilingJoistSpacing = Number\(\$\("#dwJoist"\)\.value\)/);
-  assert.match(html, /\$\("#dwJoist"\)\.value = dw\.ceilingJoistSpacing != null/);
+  assert.match(html, /\$\("#dwJoist"\)\.value = dw\.ceilingJoistsFromRoof \? "roof" : dw\.ceilingJoistSpacing != null/);
 });
 
 test("the insulation controls are read into plan.insulation and restored from a saved plan", () => {
