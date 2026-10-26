@@ -1,7 +1,7 @@
 ---
 title: "Proving the fewest open shifts: branching on the price closes 5 of 7 gaps"
 date: 2026-10-26
-description: "The shift roster builder can now show that its roster leaves the fewest possible hours open on 10 of 12 seeded weeks, up from 5, checked against an independent integer program."
+description: "The shift roster builder now proves its roster leaves the fewest possible hours open on 10 of 12 seeded weeks, up from 5, against an independent solver."
 tags: [shift-roster-builder, optimization, scheduling]
 ---
 
