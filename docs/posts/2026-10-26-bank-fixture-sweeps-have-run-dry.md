@@ -1,7 +1,7 @@
 ---
 title: "We ran out of other people's bank files to test on"
 date: 2026-10-26
-description: "A sweep of Maybe, GnuCash, skrooge, grisbi, ERPNext and smart_importer through ai-bookkeeper's reader found no new fault, because the earlier sweeps already took everything open source ships."
+description: "Sweeping six open-source projects' bank files through ai-bookkeeper's reader found no new fault: earlier sweeps took everything open source ships."
 tags: [ai-bookkeeper, bank-import, testing]
 ---
 

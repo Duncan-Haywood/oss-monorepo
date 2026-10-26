@@ -1,6 +1,8 @@
 ---
 title: "We tried cleaning up receipt scans before OCR. It made the books worse."
 date: 2026-10-26
+description: "Grayscale, enlarging and thresholding receipt scans before Tesseract lowered the share of merchants, dates and totals read right on 626 SROIE receipts."
+tags: [ai-bookkeeper, ocr, receipts]
 ---
 
 The usual advice for reading receipts with Tesseract is to clean the image first: grayscale, enlarge, threshold. We tested that on the 626 labelled receipts in the public SROIE set, scoring what our bookkeeping tool actually needs: the merchant, the date and the total.

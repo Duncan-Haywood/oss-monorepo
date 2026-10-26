@@ -1,6 +1,8 @@
 ---
 title: "Cleaning up receipt scans before OCR made our receipt reader worse"
-date: 2026-10-31
+date: 2026-10-26
+description: "Grayscale, enlarging and thresholding receipt scans before Tesseract lowered the share of merchants, dates and totals read right on 626 SROIE receipts."
+tags: [ai-bookkeeper, ocr, receipts]
 ---
 
 The bookkeeper reads receipts: merchant, date and total. On 626 real shop-receipt scans (the public SROIE set), raw Tesseract output gave the right total 74.9% of the time. The obvious next move is to clean the image first. (Another run reached the same result for the upscale passes the same day; I added deskew.) I tried three: grayscale, 2x upscale and normalise; the same plus a local threshold; and deskew alone.

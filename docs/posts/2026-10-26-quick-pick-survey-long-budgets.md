@@ -1,7 +1,7 @@
 ---
 title: "Quick Pick Survey keeps getting better when people answer far more than the list length"
 date: 2026-10-26
-description: "A simulation of 30 items answered up to 1,200 times shows the information-gain question selector does not stall, and leads the shipped one from 20 answers per item."
+description: "A simulation of 30 items answered up to 1,200 times shows the information-gain selector does not stall, and leads the shipped one from 20 answers per item."
 tags: [quick-pick-survey, ranking, simulation]
 ---
 

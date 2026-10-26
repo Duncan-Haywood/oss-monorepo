@@ -1,7 +1,7 @@
 ---
 title: "Tilted rotors help a quadrotor yaw, but the sideways force they make can wreck position hold"
 date: 2026-10-26
-description: "A simulated co-design study: canted rotors cut yaw error by about 6 degrees, but designs tuned without the lateral force they create drift 1 m instead of 0.25 m."
+description: "A simulated study: canted rotors cut yaw error by about 6 degrees, but designs tuned without the lateral force they create drift 1 m instead of 0.25 m."
 tags: [research, quadrotor, co-design, simulation]
 ---
 
