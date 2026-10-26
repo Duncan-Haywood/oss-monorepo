@@ -9,6 +9,7 @@
 - Analysis: 10 societies per cell, same society as civ-levers (n 1000, 400 sweeps); merged = gap < 0.1; Wilson intervals on merged counts.
 - Outcome of the first run (accepted-contact rule): gain had **no effect in any of 135 bridging cells** (merged 0 of 10 everywhere, mean eps unchanged to two decimals). Reason: camps start 0.6 apart, so a cross-camp meeting is never within eps 0.2 to 0.3 and tolerance never gets a chance to grow; contact that only counts when already accepted is circular. H1 refuted for this rule. Under backfire eps collapses (floor reached) and extremes reach 0.6 to 1.0 as in civ-levers. Identity (H3): refuted for eps 0.3 (10 of 10 merge at every q to 0.75, the committed voices are heard a quarter of the time and that suffices); at eps 0.2 the 0.5 voice is out of reach anyway (0 of 10 at all q).
 - Follow-up logged before running: **exposure rule** (widen on any cross-camp meeting not repelled). H1b: this merges at least some no-backfire settings at gain >= 0.02. H2b: under tau 0.7 still no merge.
+- Outcome of the exposure run (`experiments/contact/results.txt`): H1b held, merged 10 of 10 in the no-backfire cells at gain 0.05 and bridging dose 0.25 for eps 0.2, 0.25, 0.3 (3 to 7 of 10 at dose 0.1). H2b held: 0 of 36 exposure cells merge at tau 0.7, though at tau 0.8 gain 0.05 merges 2 to 10 of 10. Caveat: gain rates and the mere-exposure rule are assumptions; next, calibrating them (milestone 6) and 2-D opinions.
 
 ## 2026-10-24 · First sweep: bridging backfires, a ladder within reach works
 
