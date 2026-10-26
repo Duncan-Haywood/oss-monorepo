@@ -44,7 +44,7 @@
 <h2>How to do it</h2>
 <ol>
 <li><strong>Get three things:</strong> the form's box 1a (and, if you have them, the twelve monthly boxes 5a to 5l), the processor's payout report for the same calendar year, and your bank statements.</li>
-<li><strong>Split the payouts</strong> in <a href="./">AI Bookkeeper</a> so sales, refunds and fees are booked apart from the lump deposits (see <a href="./stripe-bookkeeping.html">Stripe</a>, <a href="./etsy-bookkeeping.html">Etsy</a> or <a href="./amazon-seller-bookkeeping.html">Amazon</a>).</li>
+<li><strong>Split the payouts</strong> in <a href="./">AI Bookkeeper</a> so sales, refunds and fees are booked apart from the lump deposits (see <a href="./stripe-bookkeeping.html">Stripe</a>, <a href="./etsy-bookkeeping.html">Etsy</a>, <a href="./ebay-bookkeeping.html">eBay</a> or <a href="./amazon-seller-bookkeeping.html">Amazon</a>).</li>
 <li><strong>Run <code>form1099k REPORT.csv --year 2026 --gross AMOUNT [--months J,F,...,D]</code>.</strong> It lays out the report's gross, the form, the gap, the refunds and fees the form does not net, and what account 4000 should hold. With the monthly boxes it names the months that differ and catches a typo in their sum.</li>
 <li><strong>Read the notes.</strong> A form higher than the report usually means the export starts late, ends early or leaves out a profile or currency. The report higher than the form can mean non-reportable rows. A gap equal to the year's refunds or fees means the form may be netted, which box 1a is not.</li>
 </ol>
