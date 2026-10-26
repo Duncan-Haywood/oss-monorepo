@@ -14,3 +14,5 @@
 {'agg': 'mean', 'offset': 300.0, 'seed': 2, 'loss': inf, 'secs': 715}
 {'agg': 'mean', 'offset': 30.0, 'seed': 2, 'loss': 3.3628343492746353, 'secs': 865}
 {'agg': 'median', 'offset': 300.0, 'seed': 2, 'loss': 1.5805803760886192, 'secs': 712}
+{'agg': 'mean', 'offset': -10.0, 'seed': 2, 'loss': 90417.04248046875, 'secs': 769}
+{'agg': 'median', 'offset': -10.0, 'seed': 2, 'loss': 1.6697103157639503, 'secs': 731}
