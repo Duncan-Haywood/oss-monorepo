@@ -756,3 +756,21 @@ test("windows a mullion apart share their kings; closer than that is refused in 
   plan.walls = [mull];
   assert.ok(validatePlan(plan).some((e) => /too narrow to share kings.*4-1\/2/.test(e)));
 });
+
+test("an opening near a wall end uses the end stud as its king", () => {
+  const plan = base();
+  // jack (1.5) + end stud (1.5) = 3 in minimum; a 5 in offset leaves a 3.5 in strip, one king short
+  plan.walls = [{ id: "N", length: 120, openings: [{ kind: "door", offset: 3, width: 30, height: 82.5, header: "2x10" }] }];
+  assert.deepEqual(validatePlan(plan), []);
+  const r = takeoff(plan);
+  const w = r.walls[0];
+  assert.equal(w.members.filter((m) => m.kind === "king").length, 1);
+  assert.ok(w.notes.some((n) => /end stud serves as its king/.test(n)));
+  assert.deepEqual(verifyWall(w, plan.walls[0]), []);
+  // right end too, and a 2-king opening keeping the king that fits
+  const e = layoutWall(plan, { id: "E", length: 120, openings: [{ kind: "window", label: "R", offset: 120 - 3 - 36, width: 36, height: 40, header: "2x10", kings: 2 }, { kind: "window", label: "M", offset: 20, width: 36, height: 40, header: "2x10", kings: 2 }] });
+  assert.equal(e.members.filter((m) => m.kind === "king").length, 6);
+  assert.deepEqual(verifyWall(e, { id: "E", length: 120, openings: [{ kind: "window", label: "R", offset: 81, width: 36, height: 40, header: "2x10", kings: 2 }, { kind: "window", label: "M", offset: 20, width: 36, height: 40, header: "2x10", kings: 2 }] }), []);
+  plan.walls[0].openings[0].offset = 2.9;
+  assert.ok(validatePlan(plan).some((e) => /jacks must clear the end stud/.test(e)));
+});
