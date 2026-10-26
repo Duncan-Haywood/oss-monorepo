@@ -200,6 +200,21 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
       }
     }
   });
+  // "TOTAL PAID RM50.00" under "GRAND TOTAL RM21.85" and "CHANGE RM28.15" is the cash
+  // handed over, not the total: an earlier total line equal to paid less change wins
+  if (cents !== null && at > 0 && /\b(?:total|amount)\s+paid\b/i.test(from)) {
+    const ci = lines.findIndex((l, i) => i > at && /\bchange\b/i.test(l));
+    const ch = ci < 0 ? [] : (amountsIn(lines[ci], comma).length ? amountsIn(lines[ci], comma) : bare(lines[ci + 1]));
+    const chg = ch.length ? ch[ch.length - 1] : null;
+    if (chg !== null && chg > 0 && chg < cents) {
+      for (let i = at - 1; i >= 0; i--) {
+        if (!TOTAL_RE.test(lines[i]) || NOT_TOTAL_RE.test(lines[i])) continue;
+        const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]);
+        const v = a.length ? a[a.length - 1] : null;
+        if (v !== null && Math.abs(cents - chg - v) <= 5) { cents = v; from = lines[i]; at = i; notes.push("total paid was cash handed over; used the total line"); break; }
+      }
+    }
+  }
   // "ROUNDING ADJ -0.01" after the total: the amount due is the total plus it
   // (a later "TOTAL ROUNDED" line has already replaced the total)
   if (cents !== null && at >= 0 && !/round|adj/i.test(from)) {
