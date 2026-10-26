@@ -1,7 +1,7 @@
 ---
 title: "A tax code stuck to a price made a receipt read as 50,063.00"
 date: 2026-10-26
-description: "Scoring the ai-bookkeeper receipt reader on 626 real SROIE receipts found an OCR repair that turned 7.50ZR into 7.5025. Fixing it moved dates from 96.7% to 98.0%."
+description: "Scoring ai-bookkeeper on 626 real SROIE receipts found an OCR repair that turned 7.50ZR into 7.5025. The fix moved date accuracy from 96.7% to 98.0%."
 tags: [ai-bookkeeper, receipts, ocr, measurement]
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "Receipt dates: why product codes made a Malaysian receipt read as 2031"
 date: 2026-10-26
-description: "ai-bookkeeper's receipt reader now trusts a date followed by a clock time over code-like numbers when deciding day-first or month-first. SROIE date accuracy 96.7% to 97.1%."
+description: "ai-bookkeeper's receipt reader now trusts a date plus clock time over code-like numbers to pick day-first or month-first. SROIE date accuracy: 96.7% to 97.1%."
 tags: [ai-bookkeeper, receipts, ocr, bookkeeping]
 ---
 
