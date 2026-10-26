@@ -204,6 +204,11 @@ def suite_for(path: Path, repo: Path = REPO) -> tuple[list[str], Path] | None:
                 if _has_pytest():
                     return [sys.executable, "-m", "pytest", "-q", "-x", "-p",
                             "no:cacheprovider", test.name], test.parent
+                # Without pytest only unittest-style suites can run: a pytest-style
+                # file (plain test_ functions) would run zero tests, pass, and make
+                # every mutant read as escaped.
+                if "unittest.TestCase" not in test.read_text(encoding="utf-8", errors="replace"):
+                    return None
                 return [sys.executable, "-m", "unittest", test.stem], test.parent
         return None
     return None
