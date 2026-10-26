@@ -740,3 +740,13 @@ So the cost of the line is about 3 to 5 points of extra false warnings on clean 
 real but partial: about half of GARCH series at n = 200 are flagged, still about a third at n = 100. The 11.07 cut
 is the textbook value, not tuned on these runs; a stricter 15 would hold Gaussian false warnings near 2% to 3%
 and flag 11% / 35% of GARCH nulls. Only simulated GARCH was tried, no real volatility-clustering series.
+
+## `meanvar` on the Nile, a real series with a known level break (2026-10-26)
+
+Every `meanvar` variant so far was measured on simulated noise. The Nile series (Cobb 1978, `data/nile.csv`) is real, has a documented
+level drop after 1898 and, in the literature, no variance break. Run with `--model meanvar`, plain, `--dispersion` and `--robust`
+(`node cli.mjs --model meanvar [flag] data/nile.csv`), all three give the same segmentation: 1871 to 1898 (n=28, mean 1098, sd 135)
+and 1899 to 1970 (n=72, mean 850, sd 125), so no spurious volatility change. Range for the 1899 change: 1897 to 1900 (the plain
+`mean` model gives 1897 to 1899, the one extra year being the price of fitting a free variance per segment). The Bayesian view puts
+79% on the change (plain and `--dispersion`) and 89% with `--robust`. One series, so this shows the variants agree with the
+literature here, not that their false-alarm rates hold on real data.
