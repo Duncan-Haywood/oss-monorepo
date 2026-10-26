@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 7 (part): paper draft 1.1 adds Section 8, what a coder must be to pay
+- No experiment this step. `paper/paper.md` stopped at milestone 6 plus the first real-LLM run; 5b to 5g (model size, charged calibration, break-even accuracy, correlated error, fitted error) were only in this log. Added Section 8, updated the abstract, limits numbering and status table. Numbers for 5b, 5d and 5g were checked against `experiments/*.txt`; the rest are copied from the entries below.
+- Correction found while writing: the 5d outcome says a 20% gain needs a = 0.75, but its own table gives a width ratio of 0.898 there (a 10% cut); 0.811 at a = 0.80 is the 19% cut. The paper says roughly 0.80.
+- Still open: read Gligorić et al. and Fisch et al. in full, a 7B or multilingual model, a second corpus, the LaTeX template, owner submission.
+
 ## 2026-10-26 · Milestone 5g: does a synthetic coder with error fitted to the real 1.5B and 3B errors reproduce their width ratios?
 - **Process deviation, disclosed:** I ran the experiment before writing this entry, so the hypotheses below are stated after seeing the numbers and are not pre-registered. Read the outcome as descriptive.
 - Question (5f's "Next"): `experiments/h5g_fitted.py`. Per model, logistic regression of the real coder's error (code != human label, score > 0 rule, 6,000 items) on group dummies, standardised log length, human label and "@" presence; synthetic coder flips the human label with the fitted per-item probability (one draw, seed 20261105). Then tuned PPI++ + HC3 + t against human-only for the real and the fitted coder, n = 100, 200, 400, 600 draws, same corpus, truth and estimators as 5b to 5f.
