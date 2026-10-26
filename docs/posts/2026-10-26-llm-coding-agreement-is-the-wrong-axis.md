@@ -1,7 +1,7 @@
 ---
 title: "Agreement was the wrong number: why small LLM coders gave prediction-powered inference no gain"
 date: 2026-10-26
-description: "On 6,000 NaijaSenti tweets, small Qwen coders at 66 to 69% agreement are near-constant codes. Their Youden J, not agreement, explains why prediction-powered inference was no narrower than hand-coding."
+description: "On 6,000 NaijaSenti tweets, small Qwen coders at 66-69% agreement are near-constant. Youden J, not agreement, explains why PPI was no narrower than hand-coding."
 tags: [llm-coding-inference, research, prediction-powered-inference, qualitative-coding]
 ---
 

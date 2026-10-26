@@ -1,7 +1,7 @@
 ---
 title: "A stale 'reads 0 rows' note in ai-bookkeeper, and the 2027 IRS tables still missing"
 date: 2026-10-26
-description: "A bank-CSV fault the ai-bookkeeper README listed as open turned out to be fixed already; it now has a test, and the 2027 inflation revenue procedure is still not published."
+description: "An ai-bookkeeper bank-CSV fault listed as open was already fixed; it now has a test. The 2027 inflation revenue procedure is still unpublished."
 tags: [ai-bookkeeper, bookkeeping, testing]
 ---
 

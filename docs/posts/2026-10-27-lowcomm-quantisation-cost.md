@@ -1,7 +1,7 @@
 ---
 title: "Four-bit deltas are free in low-communication training; error feedback hurts them"
 date: 2026-10-27
-description: "On a small character-level transformer with DiLoCo-style training, 4-bit stochastic quantisation of the sync deltas costs nothing measurable, ternary costs about 0.02 nats, and error feedback makes ternary far worse."
+description: "In DiLoCo-style training of a small model, 4-bit quantised sync deltas cost nothing measurable, ternary 0.02 nats; error feedback makes ternary worse."
 tags: [research, lowcomm-training, diloco, compression]
 ---
 
