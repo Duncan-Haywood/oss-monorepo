@@ -19,6 +19,7 @@ python3 experiments/m4_simpler/analyse.py                        # SIMPLER
 python3 experiments/m4b_crosscheck/crosscheck.py && python3 experiments/m4b_crosscheck/sensitivity.py   # SIMPLER vs authors' dicts
 python3 experiments/m4c_cluster/cluster.py                            # cluster bootstrap
 python3 experiments/m4e_transfer/transfer.py                          # held-out task / policy calibration
+python3 experiments/m4f_ranking/ranking.py                              # real trials needed to rank policies as well as the twin
 # (optional, needs pdftotext and the PDF from arxiv.org/pdf/2405.05941) python3 experiments/m4b_crosscheck/pdf_check.py simpler.pdf
 python3 experiments/m7_cartpole/run_pool.py && python3 experiments/m7_cartpole/analyse.py   # second task (cart-pole)
 python3 experiments/m7c_cost/run_pool.py && python3 experiments/m7c_cost/analyse.py   # unbounded cost outcome
