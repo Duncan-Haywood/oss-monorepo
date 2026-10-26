@@ -1,0 +1,21 @@
+GoEmotions subreddit-group corpus 6683 comments, true negative share 0.2352; groups sports 1650, tv-dating 1390, personal 2078, video-cringe 1565
+1000 audit draws per cell, seed 20261026. Part 1: plug-in half-width vs mean simulated half-width of stratified PPI, points. Part 2: audit-size rule (Neyman, library neyman_total) at 3- and 2-point targets.
+
+PART 1 design | coder | per-stratum S2 | predicted half | simulated half | ratio sim/pred | coverage
+B equal quota [100, 100, 100, 100] | lr-pooled | 0.230, 0.232, 0.244, 0.232 | 4.67 | 4.67 | 0.999 | 0.962
+C 70% sports [280, 40, 40, 40] | lr-pooled | 0.230, 0.232, 0.244, 0.232 | 6.71 | 6.72 | 1.001 | 0.948
+N Neyman n=400 [98, 83, 127, 93] | lr-pooled | 0.230, 0.232, 0.244, 0.232 | 4.60 | 4.60 | 1.000 | 0.938
+B equal quota [100, 100, 100, 100] | lr-sports-only | 0.279, 0.310, 0.325, 0.299 | 5.32 | 5.32 | 1.000 | 0.953
+C 70% sports [280, 40, 40, 40] | lr-sports-only | 0.279, 0.310, 0.325, 0.299 | 7.71 | 7.70 | 0.999 | 0.935
+N Neyman n=400 [95, 84, 129, 93] | lr-sports-only | 0.279, 0.310, 0.325, 0.299 | 5.23 | 5.24 | 1.001 | 0.967
+B equal quota [100, 100, 100, 100] | lr-personal-only | 0.269, 0.253, 0.273, 0.278 | 4.99 | 5.00 | 1.000 | 0.956
+C 70% sports [280, 40, 40, 40] | lr-personal-only | 0.269, 0.253, 0.273, 0.278 | 7.15 | 7.17 | 1.002 | 0.944
+N Neyman n=400 [99, 81, 125, 95] | lr-personal-only | 0.269, 0.253, 0.273, 0.278 | 4.93 | 4.93 | 1.001 | 0.947
+
+PART 2 coder | target pts | rule n | allocation | simulated mean half | 95th pct half | coverage | human-only strat n, same target | PPI n / human n
+lr-pooled | 3 | 873 | [213, 180, 276, 203] | 3.00 | 3.14 | 0.952 | 688 | 1.269
+lr-pooled | 2 | 1689 | [413, 349, 535, 393] | 2.00 | 2.06 | 0.954 | 1371 | 1.232
+lr-sports-only | 3 | 1088 | [257, 228, 350, 253] | 3.00 | 3.10 | 0.963 | 688 | 1.581
+lr-sports-only | 2 | 2033 | [480, 427, 654, 472] | 2.00 | 2.05 | 0.944 | 1371 | 1.483
+lr-personal-only | 3 | 980 | [242, 198, 307, 233] | 3.00 | 3.12 | 0.953 | 688 | 1.424
+lr-personal-only | 2 | 1862 | [460, 376, 583, 443] | 2.00 | 2.05 | 0.955 | 1371 | 1.358

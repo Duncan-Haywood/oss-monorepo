@@ -295,7 +295,13 @@ prompt. Whether a 7B or fine-tuned coder reaches J above 0.5 is untested.
    outcome (Section 7). A larger or multilingual model, few-shot prompts and a
    second corpus are open, and need a GPU or a paid API key (an owner step).
 2. Two corpora for group shift (NaijaSenti, GoEmotions by subreddit type), one
-   for rare categories and sizing; the proposal asked for three.
+   for rare categories, and two for sizing: the size rule's plug-in half-width
+   matches the simulated one to 0.2% on the subreddit corpus too (ratio 0.999
+   to 1.002; the rule hits 3.00 and 2.00 points; `h6o_reddit_sizing.txt`), and
+   there the stand-in coders' plans need 1.23 to 1.58 times the human-only plan's
+   audit size, because their residual variance exceeds that of the label
+   (lambda = 1; the rule does not yet cover tuned PPI++). The proposal asked for
+   three corpora.
 3. Truth is a corpus-wide hand code, not an independent gold standard.
 4. The floor multiplier (5) is fitted on the corpus it was first reported on.
 5. The sequential coverage uses the nominal normal interval; an always-valid
