@@ -42,3 +42,13 @@ def test_pairs_sorted_most_similar_first():
     out = ps.similar_pairs({"a.md": base, "b.md": base, "c.md": mid}, 0.1)
     scores = [c for c, _, _ in out]
     assert len(scores) == 3 and scores == sorted(scores, reverse=True) and scores[0] > scores[-1]
+
+
+def test_threshold_is_inclusive():
+    # 4 shared of 8 shingles in the smaller post = containment exactly 0.5.
+    a = " ".join(f"w{i}" for i in range(12))
+    b = " ".join(f"w{i}" for i in range(8)) + " " + " ".join(f"q{i}" for i in range(8))
+    c = ps.containment(ps.shingles(a), ps.shingles(b))
+    assert c == 0.5
+    assert len(ps.similar_pairs({"a.md": a, "b.md": b}, 0.5)) == 1
+    assert ps.similar_pairs({"a.md": a, "b.md": b}, 0.51) == []
