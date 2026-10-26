@@ -88,8 +88,14 @@ on synthetic soft-edged horizons only, not yet on real photos. `noise_sigma` rea
 counted) and the grain's share is taken out of `sharpness`, which grain would
 otherwise inflate; heavy grain costs up to 15% of `technical_score`. Tested on
 Gaussian grain added to synthetic frames (recovered within 20%), not yet on real
-high-ISO files. It cannot see faces or closed eyes, and
-`story_score` is only a blend of the measured scores, so
+high-ISO files. It ships no face model, but photos can be scored for closed eyes
+through a detector you supply: set `SHOOTFLOW_FACE_DETECTOR` to a command that
+takes an image path and prints `{"faces": [{"size": 0.1, "eyes_open": 0.9}]}`
+(`src/shootflow/faces.py`). A prominent face (1% of the frame or more) with eyes
+open adds 0.03 to `story_score`; the least-open eye costs up to 0.25; off by
+default, run without a shell, and any failure keeps the measured score. Tested
+against made-up detector output and a fake command only, not yet a real model
+or human picks. `story_score` is otherwise only a blend of the measured scores, so
 *which* shot wins is technical, not taste-based. The scene and look stages are
 still deterministic stand-ins. The grade is your LUT, or no color change if you have
 none. Every asset is graded before selection; grading only the selected
