@@ -1,0 +1,56 @@
+{
+ "date": "2026-10-26",
+ "session": "https://claude.ai/code/session_012BKZQUSNU51deSRQuCJDsh",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-26T09:19:50Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 10611,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "HVP call passed per-parameter grad_outputs for a flat output (RuntimeError); fused CPU attention has no double backward (fixed with the math SDPA backend)"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "pyenv.py torch install took several minutes and printed nothing until done; the stop hook nagged about uncommitted run.out during the 20+ minute experiment"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "no docs/reports agent doc: the programme LOG.md carries the next-run notes",
+   "did": "LOG outcome plus a blog post",
+   "result": "fine"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-26-cheating-gradients-hit-the-sharp-directions.md",
+  "research/verifiable-training-mechanisms/LOG.md milestone 29"
+ ],
+ "goal": null,
+ "notes": "",
+ "corrections": [],
+ "redteam": null
+}
