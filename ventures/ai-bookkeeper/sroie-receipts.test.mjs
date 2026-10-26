@@ -79,3 +79,9 @@ test("TOTAL SV / TOTAL GV voucher counts are not the total; the GST summary row 
   const p = parseReceipt(rcpt("BEAUTY SHOP SDN BHD", "AMT PAID INCL GST : RM111.90", "TOTAL SV : 10.56  TOTAL GV : 10.55", "GST SUMMARY  AMT(RM)  TAX(RM)", "SR(6%)  105.57  6.33", "TOTAL  105.57  6.33"));
   assert.equal(p.cents, 11190);
 });
+
+test("a price glued to a tax code (7.50ZR) is not repaired into 7.5025, and BHD marks a day-first locale", () => {
+  const r = parseReceipt(rcpt("AEON CO. (M) BHD", "1X 000008541987  7.00ZR", "1X 000001058621  9.85SR", "1X 000007570247  12.50ZR", "01/04/2018", "TOTAL AFTER ADJ INCL GST  29.35", "GST SUMMARY", "TOTAL  27.00  1.65"));
+  assert.equal(r.date, "2018-04-01");
+  assert.equal(r.cents, 2935);
+});

@@ -111,7 +111,7 @@ export function parseItems(lines, comma = false) { // comma: a style, as moneyRe
 // Slash and dash dates are month-first unless the page says otherwise: a
 // first field above 12 (25/12/2018) proves day-first, a second field above 12
 // month-first, and a locale marker (RM, SDN BHD, GBP, PTY LTD, Rs) day-first.
-const DAY_FIRST_LOCALE = /\b(?:rm|myr|sdn\.?\s*bhd|pty\.?\s*ltd|gbp|inr|rs)\b|[£₹]/i;
+const DAY_FIRST_LOCALE = /\b(?:rm|myr|sdn\.?\s*bhd|bhd|pty\.?\s*ltd|gbp|inr|rs)\b|[£₹]/i;
 function dayFirstOf(lines) {
   let dayFirst = 0, monthFirst = 0;
   // "Time: 12-49-00" (OCR turns the colons to dashes) is a clock, not a month-first date
