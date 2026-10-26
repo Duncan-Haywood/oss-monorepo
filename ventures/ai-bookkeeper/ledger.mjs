@@ -184,7 +184,13 @@ export function cashFlow(entries, accounts, { from = null, to = null } = {}) {
   const openingCash = sum(opening, cash), change = sum(period, cash);
   // Free cash flow: operating cash less purchases of fixed assets (investing outflows). Disposal proceeds are not netted.
   const capex = -items.investing.filter((i) => i.amount < 0).reduce((a, r) => a + r.amount, 0);
-  return { from, to, netProfit: net, capex, freeCashFlow: operating - capex, operatingItems: items.operating, investingItems: items.investing, financingItems: items.financing, operating, investing, financing, change: operating + investing + financing, openingCash, closingCash: openingCash + change, ties: operating + investing + financing === change };
+  // Burn and runway: the monthly cash used by operations and investing (financing is the lifeline, not the business), over the months the period spans (at least one); runway is closing cash over that burn, null when the business is not burning cash or has none left.
+  const dates = entries.map((e) => e.date).filter((d) => (!from || d >= from) && (!to || d <= to)).sort();
+  const start = from ?? dates[0], end = to ?? dates.at(-1);
+  const months = start && end ? Math.max(1, (Date.parse(end) - Date.parse(start) + 864e5) / (864e5 * 30.4375)) : 1;
+  const burn = operating + investing < 0 ? Math.round(-(operating + investing) / months) : 0;
+  const runwayMonths = burn > 0 && openingCash + change > 0 ? Math.round(((openingCash + change) / burn) * 10) / 10 : null;
+  return { from, to, netProfit: net, capex, freeCashFlow: operating - capex, monthlyBurn: burn, runwayMonths, operatingItems: items.operating, investingItems: items.investing, financingItems: items.financing, operating, investing, financing, change: operating + investing + financing, openingCash, closingCash: openingCash + change, ties: operating + investing + financing === change };
 }
 
 // The ledger for one account: every line, with a running natural balance.

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { vatReturn, addAsset, taxableBusinessIncome, s179Carryforward, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
-import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
+import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts, cashFlow } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
 import { generateYear, toCsv } from "./eval/synth.mjs";
 import { runSeed } from "./eval/benchmark.mjs";
@@ -711,6 +711,20 @@ test("the cash flow statement ties to the change in the bank accounts", () => {
   assert.equal(c.closingCash - c.openingCash, c.change);
   const ex = reports(analyze({ example: true }).books, { from: "2026-02-01", to: "2026-03-31" }).cashFlow;
   assert.ok(ex.ties, "ties for a sub-period, with an opening cash balance");
+});
+
+test("cash flow reports monthly burn and runway only when operations and investing use cash", () => {
+  const acc = DEFAULT_ACCOUNTS, bank = acc.find((a) => a.bank).code;
+  const e = (id, date, debit, credit, amt) => ({ id, date, memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const burning = [e("a", "2026-01-01", bank, "3000", 1000000), e("b", "2026-01-31", "6060", bank, 300000), e("c", "2026-03-31", "6060", bank, 300000)];
+  const c = cashFlow(burning, acc, { from: "2026-01-01", to: "2026-03-31" });
+  assert.equal(c.monthlyBurn, Math.round(-(c.operating + c.investing) / (90 / 30.4375)));
+  assert.equal(c.financing, 1000000, "equity in is financing and is not netted against burn");
+  assert.equal(c.monthlyBurn, 202917, "600,000 over 90 days");
+  assert.equal(c.runwayMonths, 2, "400,000 left at that pace");
+  const earning = cashFlow([e("d", "2026-01-05", bank, "4000", 500000)], acc, {});
+  assert.equal(earning.monthlyBurn, 0);
+  assert.equal(earning.runwayMonths, null);
 });
 
 test("taxableBusinessIncome swaps book depreciation for MACRS and bonus, and the 179 limit follows", async () => {
