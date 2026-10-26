@@ -849,7 +849,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // UBS and others number their description columns (Description 1..3); join them in header order, not just the last.
   const numDescCols = bank === "rbc" || omsCols.length ? [] : hdr.map((x, ix) => (/^(description|beschreibung|libell[eé]|descrizione|descripci[oó]n|omschrijving)[ _-]?[1-4]$/.test(x) ? ix : -1)).filter((ix) => ix !== -1);
   // German exports keep the other party in its own column, apart from the purpose text.
-  const payeeCol = columns.desc === -1 ? -1 : hdr.findIndex((x, ix) => ix !== columns.desc && /^(beguenstigter\/zahlungspflichtiger|begünstigter\/zahlungspflichtiger|auftraggeber ?\/ ?begünstigter|auftraggeber ?\/ ?beguenstigter|name zahlungsbeteiligter|zahlungsempfänger|zahlungsempfaenger|empfänger|empfaenger)$/.test(x));
+  const payeeCol = columns.desc === -1 ? -1 : hdr.findIndex((x, ix) => ix !== columns.desc && /^(beguenstigter\/zahlungspflichtiger|begünstigter\/zahlungspflichtiger|auftraggeber ?\/ ?begünstigter|auftraggeber ?\/ ?beguenstigter|auftraggeber ?\/ ?empf(ä|ae)nger|name zahlungsbeteiligter|zahlungsempfänger|zahlungsempfaenger|empfänger|empfaenger)$/.test(x));
   // Deutsche Bank style: one column for each side; the other party is the payee on money out, the payer on money in.
   const payeeOut = hdr.findIndex((x) => /^(beg(ue|ü)nstigter|zahlungsempf(ä|ae)nger\*in)$/.test(x)), payerIn = hdr.findIndex((x) => /^zahlungspflichtige(r|\*r)$/.test(x));
   // Mint, Monarch, Tiller and YNAB write every account into one file and name the account on each row.
