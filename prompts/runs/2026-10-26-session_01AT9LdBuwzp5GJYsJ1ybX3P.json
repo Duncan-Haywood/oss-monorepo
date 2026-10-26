@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01AT9LdBuwzp5GJYsJ1ybX3P",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T04:08:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10554,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper README / flagships.yaml",
+      "issue": "next: lists many sweep items already done; hard to tell what is open"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Landed a small reader fix rather than a hard-problem slice; no agent doc written.",
+      "did": "fix plus post",
+      "result": "merged small"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-31-ai-bookkeeper-coin-units.md"
+  ],
+  "goal": null,
+  "notes": "Small fix: coin-unit Coinbase history refused instead of booked as cents. ai-bookkeeper suite 1376/1376 local. Sample-repo sweeps are saturated; did not do a bigger flagship slice.",
+  "corrections": [],
+  "redteam": null
+}
