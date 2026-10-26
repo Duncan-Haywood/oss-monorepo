@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 10760,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Campaign on ventures/ai-bookkeeper/bank.mjs: 8 seeded, 5 caught, 3 escaped (2 equivalent, 1 gap now guarded). Catch rate 62.5% -> 87.5% counting the gap. No real defects found in the hunt.",
+  "notes": "Campaign on ventures/ai-bookkeeper/bank.mjs: 8 seeded, 5 caught, 3 escaped (2 equivalent, 1 gap now guarded). Catch rate 62.5% -> 75% of all seeded (100% of non-equivalent). No real defects found in the hunt.",
   "corrections": [],
   "redteam": {
     "campaigns": [
