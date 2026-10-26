@@ -36,9 +36,11 @@ hand-coded tweets), an HC3-type leverage correction with a t quantile brings
 tuned PPI++ to 93.2 to 94.9% coverage at n >= 100, and a zero-shot 1.5B LLM
 coder (agreement 66.1% with the human label) makes it 2.2% narrower than
 hand-coding alone at n = 400. The programme's H3 (a 20% gain) is not reached by
-any coder tried. Synthetic coders say it needs agreement near 0.80 with
-errors not tied to length or the label, and a coder with errors fitted to the
-real 1.5B and 3B reproduces their null gain (width ratio 0.98 to 0.99).
+any coder tried. Agreement is the wrong axis: on this corpus a constant code
+agrees 0.673, so the real coders at 0.66 to 0.69 have Youden J of only 0.01 to
+0.21, and a synthetic coder with each one's sensitivity and specificity and
+independent errors reproduces its width ratio to within 0.006 (0.98 to 0.996 at
+n = 400). A 20% gain needs J of about 0.5.
 
 ## 1 Introduction
 
@@ -263,11 +265,27 @@ independent flips; length- or label-dependent errors are the least favourable
 (0.965 to 0.992). A synthetic coder whose flip probability is a logistic
 regression fitted to the real 1.5B and 3B errors reproduces their n = 400
 ratios (1.5B: real 0.978, fitted 0.985; 3B: 0.993 and 0.993) with coverage
-93.3 to 95.3%. Hence the null result for small zero-shot models is what a
-0.66 to 0.69 coder with this error structure should give, and a real gain needs
-agreement near 0.80 with errors not tied to length or the label. This is a
-descriptive fit on one corpus, one prompt and one error draw per cell; it does
-not show that a 7B or larger model would reach 0.80, which is untested.
+93.3 to 95.3%. This is a descriptive fit on one corpus, one prompt and one error draw per
+cell.
+
+*Informedness, not agreement, sets the gain (milestone 5h; this corrects the
+reading in the previous paragraph).* On this corpus (32.7% negative) a constant
+"not negative" code agrees 0.673, so agreement 0.66 to 0.69 says little. The
+real coders' Youden J (sensitivity + specificity - 1) is 0.008 (0.5B, fixed
+cut), 0.208 (1.5B) and 0.061 (3B; sensitivity 0.072, specificity 0.989), and at
+best 0.033, 0.212 and 0.194 with a cut chosen in-sample; the synthetic
+"agreement 0.70" coders above have J of about 0.40. A synthetic coder with each
+real coder's sensitivity and specificity and independent errors gives the real
+n = 400 width ratio to within 0.006 in all six cases (for example 3B fixed:
+real 0.993, matched 0.987; 1.5B fixed: 0.978 and 0.980), against 0.937 for a
+symmetric coder at agreement 0.69. So error correlation with the text, beyond
+sensitivity and specificity, costs nothing measurable here, and the earlier
+errors-tied-to-text explanation is not needed. Matched PPI++ coverage is 94.3
+to 95.5% at n >= 200. From the independent-flip sweep, a 20% gain needs J of
+roughly 0.5 to 0.6 (ratio 0.898 at a = 0.75, J 0.5; 0.811 at a = 0.80).
+Limits: the best-J cut is scored on the items that chose it, one coder draw per
+cell (realised J differs from the target by up to 0.02), one corpus and one
+prompt. Whether a 7B or fine-tuned coder reaches J above 0.5 is untested.
 
 ## 9 Limits and what remains
 
@@ -299,7 +317,7 @@ loaders of `qual-dialect` and `qual-real`; seeds are fixed in the scripts. Tests
 | 2 Related work | drafted; Gligorić et al. and Fisch et al. still to be read in full |
 | 3 to 6 | numbers current as of milestone 6f |
 | 7 | added in draft 1 from LOG.md 6g to 6n and milestone 5; numbers copied from the log, not yet re-derived from the result files line by line |
-| 8 | added in draft 1.1 from LOG.md 5b to 5g; numbers checked against `experiments/*.txt` for 5b, 5d, 5g, the rest copied from the log |
+| 8 | added in draft 1.1 from LOG.md 5b to 5g, 5h added in 1.2 (checked against `h5h_informedness.txt`); numbers checked against `experiments/*.txt` for 5b, 5d, 5g, the rest copied from the log |
 | 9 | limits; still lists the open model and corpus work (7B untested) |
 | LaTeX in the venue's format | not started; needs the venue's current template |
 | Owner step | submission (publishes under a name) |
