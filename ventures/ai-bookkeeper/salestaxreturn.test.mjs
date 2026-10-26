@@ -233,3 +233,9 @@ test("Minnesota annual returns are due February 5; Colorado annual January 20", 
   assert.equal(dueDate("2026-Q4", stateDueDay("MN", "quarterly")), "2027-01-20");
   assert.equal(dueDate("2026", stateDueDay("CO", "annual")), "2027-01-20");
 });
+
+test("MI annual returns are due February 28; monthly and quarterly the 20th", () => {
+  assert.equal(dueDate("2026", stateDueDay("MI", "annual")), "2027-02-28");
+  assert.equal(dueDate("2026-Q3", stateDueDay("MI", "quarterly")), "2026-10-20");
+  assert.equal(dueDate("2026-09", stateDueDay("MI", "monthly")), "2026-10-20");
+});

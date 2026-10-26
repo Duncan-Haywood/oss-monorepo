@@ -93,6 +93,8 @@ export function stateDueDay(state, frequency = "quarterly") {
   if (s === "RI" && frequency !== "monthly") return "last";
   // MN: annual filers (under $100 a month) pay and file by February 5 (revenue.state.mn.us "Sales Tax Return Filing Due Dates", via search 2026-10-24)
   if (s === "MN" && frequency === "annual") return { months: 2, day: 5 };
+  // MI: annual filers file by February 28 (michigan.gov Treasury "Filing and Payment Due Dates" and Sales and Use Tax pages, via search 2026-10-26; monthly and quarterly are the 20th)
+  if (s === "MI" && frequency === "annual") return { months: 2, day: 28 };
   return STATE_DUE_DAYS[s] ?? 20;
 }
 export function dueDate(period, dueDay = 20) {
