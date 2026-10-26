@@ -1,0 +1,48 @@
+NaijaSenti subsample 6000 tweets, true negative share 0.3272; languages hau 2141, ibo 1425, pcm 1010, yor 1424
+1000 audit draws per cell, seed 20261028; coder = Qwen score > 0 (zero-shot). Plans sized by neyman_total on S2 of y, y - f, y - lam* f.
+
+coder | per-language oracle lam | S2 human | S2 ppi1 | S2 oracle | coder agreement
+Qwen2.5-0.5B-Instruct | 0.071, 0.092, 0.000, 0.789 | 0.220, 0.192, 0.242, 0.168 | 0.267, 0.203, 0.247, 0.166 | 0.219, 0.192, 0.242, 0.166 | 0.668
+Qwen2.5-1.5B-Instruct | 0.273, 0.010, 0.384, 0.092 | 0.220, 0.192, 0.242, 0.168 | 0.298, 0.334, 0.301, 0.365 | 0.207, 0.192, 0.206, 0.166 | 0.661
+Qwen2.5-3B-Instruct | 0.344, 0.277, 0.349, 0.790 | 0.220, 0.192, 0.242, 0.168 | 0.232, 0.197, 0.264, 0.166 | 0.215, 0.191, 0.234, 0.165 | 0.689
+
+coder | target pts | plan | estimator | n | allocation | mean half | 95th pct half | coverage
+Qwen2.5-0.5B-Instruct | 3 | human | human | 760 | [282, 175, 140, 164] | 3.00 | 3.08 | 0.949
+Qwen2.5-0.5B-Instruct | 3 | ppi1 | ppi1 | 820 | [320, 186, 145, 168] | 3.00 | 3.09 | 0.947
+Qwen2.5-0.5B-Instruct | 3 | oracle | tuned | 758 | [281, 175, 139, 163] | 3.00 | 3.08 | 0.946
+Qwen2.5-0.5B-Instruct | 3 | oracle | tuned-est | 758 | [281, 175, 139, 163] | 3.00 | 3.07 | 0.949
+Qwen2.5-0.5B-Instruct | 3 | n ratio oracle/human 0.997, oracle/ppi1 0.924
+Qwen2.5-0.5B-Instruct | 2 | human | human | 1474 | [546, 340, 271, 317] | 2.00 | 2.04 | 0.952
+Qwen2.5-0.5B-Instruct | 2 | ppi1 | ppi1 | 1574 | [615, 357, 279, 323] | 2.00 | 2.04 | 0.953
+Qwen2.5-0.5B-Instruct | 2 | oracle | tuned | 1472 | [546, 340, 271, 316] | 2.00 | 2.03 | 0.947
+Qwen2.5-0.5B-Instruct | 2 | oracle | tuned-est | 1472 | [546, 340, 271, 316] | 2.00 | 2.03 | 0.949
+Qwen2.5-0.5B-Instruct | 2 | n ratio oracle/human 0.999, oracle/ppi1 0.935
+Qwen2.5-1.5B-Instruct | 3 | human | human | 760 | [282, 175, 140, 164] | 3.00 | 3.08 | 0.949
+Qwen2.5-1.5B-Instruct | 3 | ppi1 | ppi1 | 1120 | [384, 271, 182, 283] | 3.00 | 3.09 | 0.955
+Qwen2.5-1.5B-Instruct | 3 | oracle | tuned | 724 | [267, 172, 126, 159] | 3.00 | 3.09 | 0.955
+Qwen2.5-1.5B-Instruct | 3 | oracle | tuned-est | 724 | [267, 172, 126, 159] | 2.99 | 3.08 | 0.951
+Qwen2.5-1.5B-Instruct | 3 | n ratio oracle/human 0.953, oracle/ppi1 0.646
+Qwen2.5-1.5B-Instruct | 2 | human | human | 1474 | [546, 340, 271, 317] | 2.00 | 2.04 | 0.952
+Qwen2.5-1.5B-Instruct | 2 | ppi1 | ppi1 | 2042 | [701, 494, 332, 515] | 2.00 | 2.04 | 0.952
+Qwen2.5-1.5B-Instruct | 2 | oracle | tuned | 1415 | [523, 335, 246, 311] | 2.00 | 2.04 | 0.941
+Qwen2.5-1.5B-Instruct | 2 | oracle | tuned-est | 1415 | [523, 335, 246, 311] | 2.00 | 2.04 | 0.937
+Qwen2.5-1.5B-Instruct | 2 | n ratio oracle/human 0.960, oracle/ppi1 0.693
+Qwen2.5-3B-Instruct | 3 | human | human | 760 | [282, 175, 140, 164] | 3.00 | 3.08 | 0.949
+Qwen2.5-3B-Instruct | 3 | ppi1 | ppi1 | 785 | [293, 180, 148, 165] | 3.00 | 3.09 | 0.961
+Qwen2.5-3B-Instruct | 3 | oracle | tuned | 748 | [277, 174, 136, 161] | 3.00 | 3.08 | 0.959
+Qwen2.5-3B-Instruct | 3 | oracle | tuned-est | 748 | [277, 174, 136, 161] | 3.00 | 3.08 | 0.953
+Qwen2.5-3B-Instruct | 3 | n ratio oracle/human 0.984, oracle/ppi1 0.953
+Qwen2.5-3B-Instruct | 2 | human | human | 1474 | [546, 340, 271, 317] | 2.00 | 2.04 | 0.952
+Qwen2.5-3B-Instruct | 2 | ppi1 | ppi1 | 1517 | [566, 347, 285, 318] | 2.00 | 2.04 | 0.947
+Qwen2.5-3B-Instruct | 2 | oracle | tuned | 1454 | [538, 338, 265, 314] | 2.00 | 2.03 | 0.955
+Qwen2.5-3B-Instruct | 2 | oracle | tuned-est | 1454 | [538, 338, 265, 314] | 2.00 | 2.03 | 0.954
+Qwen2.5-3B-Instruct | 2 | n ratio oracle/human 0.986, oracle/ppi1 0.958
+
+pilot version: pilot of 400 random tweets -> per-language lam, S2 estimated -> n by the rule -> fresh audit from the other tweets
+coder | target pts | mean planned n | sd planned n | oracle n | mean half | 95th pct half | share of audits with half <= 1.05 target | coverage
+Qwen2.5-0.5B-Instruct | 3 | 754 | 31 | 758 | 3.01 | 3.16 | 0.928 | 0.954
+Qwen2.5-0.5B-Instruct | 2 | 1465 | 55 | 1472 | 2.01 | 2.12 | 0.924 | 0.960
+Qwen2.5-1.5B-Instruct | 3 | 718 | 34 | 724 | 3.01 | 3.19 | 0.892 | 0.946
+Qwen2.5-1.5B-Instruct | 2 | 1403 | 62 | 1415 | 2.02 | 2.13 | 0.884 | 0.966
+Qwen2.5-3B-Instruct | 3 | 742 | 33 | 748 | 3.02 | 3.19 | 0.916 | 0.968
+Qwen2.5-3B-Instruct | 2 | 1449 | 55 | 1454 | 2.01 | 2.12 | 0.924 | 0.948
