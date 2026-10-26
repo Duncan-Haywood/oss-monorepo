@@ -189,3 +189,28 @@ below the shipped selector (0.928), the one cell where it loses, probably the
 hand-over just after the switch point, and with 5 seeds a 0.03 gap is within
 noise, so it is a flag, not a finding; and the respondent is the synthetic
 Bradley-Terry one, so the lead on real, inconsistent people is unmeasured.
+
+## The 300-answer dip and an inconsistent respondent (2026-10-27)
+
+`hybridDip.simulation.test.ts`: 30 items, 20 seeded respondents per cell (the
+earlier table used 5), mean rank accuracy. `lapse` is the share of answers
+given at random, so 0.2 is a respondent who contradicts their own taste one
+time in five.
+
+| answers | lapse | shipped | information | hybrid |
+|---|---|---|---|---|
+| 120 | 0 | 0.752 | 0.778 | 0.752 |
+| 300 | 0 | 0.886 | 0.896 | 0.891 |
+| 600 | 0 | 0.940 | 0.945 | 0.945 |
+| 120 | 0.2 | 0.714 | 0.646 | 0.714 |
+| 300 | 0.2 | 0.855 | 0.797 | 0.870 |
+| 600 | 0.2 | 0.907 | 0.886 | 0.929 |
+
+- The hybrid's dip at 300 answers (0.897 against 0.928 on 5 seeds) was seed
+  noise: on 20 seeds the hybrid is 0.891 against 0.886.
+- With random answers the information selector alone is worse than the shipped
+  one at 120 and 300 answers (0.646 and 0.797 against 0.714 and 0.855), because
+  it keeps probing pairs whose answers contradict each other. The hybrid
+  never falls below shipped here and leads by 1.5 to 2 points at 300 and 600.
+  That supports shipping the hybrid, not the information selector alone.
+- Still synthetic: a random-lapse respondent, one lapse rate, 30 items.
