@@ -144,3 +144,16 @@ def test_top_k_and_error_feedback():
     d = DiLoCo(m, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1, compress=top_k(0.5), error_feedback=True)
     d.round()
     assert any(float(e.abs().sum()) > 0 for e in d.ef[0])
+
+
+def test_quantise_is_unbiased_and_on_grid():
+    import torch
+    from lowcomm import quantise
+    x = torch.tensor([0.9, -0.3, 0.05, 0.0, -1.0])
+    for levels in (1, 7):
+        c, gen = quantise(levels), torch.Generator().manual_seed(0)
+        outs = torch.stack([c(x, gen) for _ in range(20000)])
+        assert torch.allclose(outs.mean(0), x, atol=0.02)
+        grid = outs.abs() / 1.0 * levels
+        assert torch.allclose(grid, grid.round(), atol=1e-5)
+    assert torch.equal(quantise(3)(torch.zeros(4), torch.Generator()), torch.zeros(4))
