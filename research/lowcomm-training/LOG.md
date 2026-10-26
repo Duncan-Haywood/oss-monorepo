@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 4d: where is the knee of error-feedback top-k between keep 1/16 and 1/256? (planned before running)
+- Why: 4c's "Next". EF top-k cost -0.005 at 1/16, +0.043 at 1/64, +0.121 at 1/256; two points below the knee leave its location and shape unresolved.
+- Design (`experiments/gpt_topk_ef_knee/topk_ef_knee.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); EF top-k at keep 1/32 and 1/128; seeds 0 to 2 (6 runs). Comparators: uncompressed (3d), 4b at 1/16, 4c at 1/64 and 1/256.
+- **H4d-i:** 1/32 is within 0.02 nats of uncompressed on all 3 seeds (knee lies between 1/32 and 1/64). Refuted if any seed exceeds +0.02.
+- **H4d-ii:** mean excess is monotone non-decreasing in sparsity across 1/16, 1/32, 1/64, 1/128, 1/256. Refuted if any adjacent pair of means reverses.
+- Prior: 1/32 sits at +0.01 to +0.03, so H4d-i is a coin flip; monotonicity should hold.
+- Limits: 3 seeds, per-tensor top-k, one `H`, bytes not modelled.
+
+### Outcome of 4d (`experiments/gpt_topk_ef_knee/topk_ef_knee_results.txt`; 6 runs, seeds 0 to 2)
+- Mean excess loss over uncompressed (1.5758), nats, EF top-k: keep 1/32 +0.0111 (per seed +0.022, +0.007, +0.004); keep 1/128 +0.0764 (+0.079, +0.076, +0.074). With 4b and 4c the curve is 1/16 -0.005, 1/32 +0.011, 1/64 +0.043, 1/128 +0.076, 1/256 +0.121.
+- **H4d-i refuted, narrowly:** seed 0 at 1/32 is +0.0224, over the +0.02 line (the other two seeds are well under). **H4d-ii supported:** the five means rise monotonically with sparsity.
+- Reading: there is no sharp knee. The cost grows smoothly from about 1/16, roughly +0.03 per halving of the keep fraction between 1/32 and 1/128, then +0.045 from 1/128 to 1/256. 4c's "turns on sharply" was an artefact of having only two points. Seed spread at 1/32 (0.004 to 0.022) is as large as the effect, so the 1/32 mean is uncertain.
+- Limits: 3 seeds, one `H`, per-tensor top-k, plain outer step, bytes not modelled.
+- Next: quantisation, then H5 (median aggregation under an attack).
+
 ## 2026-10-25 · Milestone 4c: where does error feedback break at lower keep fractions? (planned before running)
 - Why: 4b's "Next". EF top-k at keep 1/16 matched uncompressed (-0.005); find the keep fraction where it stops.
 - Design (`experiments/gpt_topk_ef_low/topk_ef_low.py`): 4b's setup exactly; arm top-k + EF only (plain top-k is already worse at 1/16); keep in {1/64, 1/256}; seeds 0 to 2 (6 runs). Comparators: uncompressed (3d) and 4b's EF at 1/16.
