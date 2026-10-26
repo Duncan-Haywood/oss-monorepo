@@ -41,3 +41,19 @@ Cobb (1978), who found the level dropped after 1898.
   (2000). Output fluctuations in the United States: what has changed since
   the early 1980s? *American Economic Review* 90(5), 1464-1476.
 - **Used by:** `eval/great-moderation.mjs`, `great-moderation.test.mjs`.
+
+# Example data: UK driver casualties, 1969-1984
+
+`uk-driver-deaths.csv`: monthly totals of car drivers in Great Britain killed or seriously
+injured (R's `datasets::UKDriverDeaths`), 192 months, January 1969 to December 1984.
+The `month` column is built from the row order of the source.
+
+- **Retrieved:** 2026-10-26 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/UKDriverDeaths.csv>.
+- **Licence:** a published count series (Harvey and Durbin 1986); R's
+  `datasets` package is GPL-2 or later. Only the 192 numbers are used here.
+- **Cite (the documented break):** Harvey, A. C. and Durbin, J. (1986). The
+  effects of seat belt legislation on British road casualties: a case study
+  in structural time series modelling. *Journal of the Royal Statistical
+  Society A* 149(3), 187-227. The front-seat belt law took effect on 31 January 1983.
+- **Used by:** `eval/seatbelt-law.mjs`, `seatbelt-law.test.mjs`.
