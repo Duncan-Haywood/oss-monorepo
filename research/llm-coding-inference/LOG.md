@@ -8,6 +8,16 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Refutes: (1) any non-monotone agreement; (2) a non-monotone ratio at n = 400; (3) a ratio at or below 0.90 for the 3B model; (4) any n >= 100 mean outside 93 to 96.5%.
 - Not tested: a 7B or larger model, few-shot prompts, other families, a second corpus.
 
+### Outcome (`experiments/llm_code.py` for 0.5B in 9 min and 3B in 45 min on 4 CPU cores; `experiments/h3_llm_width.py`; `experiments/h3_llm-Qwen2.5-{0.5B,3B}-Instruct.txt`; 600 draws per cell)
+- Agreement / sensitivity / specificity / share coded negative (human share 0.327): **0.5B 0.668 / 0.031 / 0.977 / 0.025; 1.5B 0.661 / 0.439 / 0.769 / 0.299; 3B 0.689 / 0.072 / 0.989 / 0.031.**
+- Tuned PPI++ + HC3 + t half-width ratio to human-only, mean over coefficients, n = 60 / 100 / 200 / 400: **0.5B 0.963 / 0.982 / 0.991 / 0.996; 1.5B 0.942 / 0.960 / 0.971 / 0.978; 3B 0.955 / 0.974 / 0.986 / 0.993.** Tuned PPI++ coverage (mean): 0.5B 93.8 / 93.3 / 93.9 / 94.7; 3B 93.4 / 93.1 / 93.9 / 94.7.
+- **(1) refuted.** Agreement is not monotone in size (0.668, 0.661, 0.689).
+- **(2) refuted.** The n = 400 ratio is 0.996, 0.978, 0.993: the 1.5B model is the narrowest, not the 3B.
+- **(3) held.** The 3B ratio at n = 400 is 0.993, nowhere near 0.90.
+- **(4) held.** Mean tuned PPI++ coverage at n >= 100 is at least 93.1% for both models (the lowest cell, 3B at n = 100).
+- Reading: size within this family did not drive the gain; the threshold did. At the fixed rule score > 0 the 0.5B and 3B models say "negative" for only 2.5% and 3.1% of tweets (truth 32.7%), so the binary code carries almost no information (sensitivity 0.03 to 0.07) and agreement is just the base rate plus a little. The 1.5B model happened to be near-calibrated at 0, which is what bought its 2.2% gain. So in the zero-shot, no-tuning design the efficiency gain is set by where the Yes/No score is cut, not by parameters. This was not tested: a threshold or a continuous score (e.g. the cached scores binned, with the cut chosen on a held-out human-labelled split) would very likely help the 0.5B and 3B models; that is the next step and it spends human labels, so it needs its own audit-budget accounting.
+- Limits: one family, one prompt, one corpus; threshold fixed at 0 by design; a 7B model not run.
+
 ## 2026-10-26 · Milestone 7 (part): paper draft 1 folds in regression, small-audit and real-LLM results
 - No experiment this step. `paper/paper.md` was still draft 0 (milestone 6f): it said no real LLM had coded anything and had no regression or small-audit section. Added Section 7 (6g to 6n and milestone 5), updated the abstract, limits and status table; all numbers are copied from the entries below, not re-run. `cite_check.py` on `references.bib`: all checked ids ok, one host refused (not a verdict).
 - Still open for the paper: read Gligorić et al. and Fisch et al. in full (Section 2 says so), a larger or multilingual LLM, a second corpus for Section 7, the venue's LaTeX template, owner submission.
