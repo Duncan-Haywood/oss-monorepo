@@ -315,6 +315,7 @@ numbers worked out before drafting.
 - *(Done: The Clear Reading, Pazhayakadu, Idukki, Kerala, 2047; text only.)* A parish eye camp's reading assistant (sensitivity 90, specificity 85, made on a 30%-prevalence set) flags 135 of 600 where the nuns expected 60; at 10% prevalence a positive is right 40 times in 100, not 72. A dilated second look confirms 55, 36 laser places go to 56 people, and a nurse's one question finds a cobweb the machine cleared.
 - *(Done: Three Plain and a Bob, Thurlby Staithe, Norfolk, 2052; text only.)* Plain Bob Doubles on five bells: a tower captain's card reads "bob every third lead" and comes round at row 69 with 80 distinct rows of 120; the true touch is three plain leads and a bob (4 of 4,096 call patterns). The assistant gives the band a map of lead heads, is told not to call, and an eleven-year-old rings the treble at the funeral, late for three rows and true in all 120.
 - *(Done: The Latest Easter, Vaarsay, Orkney, 2038; text only.)* Easter on 25 April, the latest it can be; at 59° N the sun is 6° down only at 21:38. A sacristan's 41-year notebook, a candle that gives one lux at a metre and a written five-lux rule decide when "after nightfall" begins; the cost is the nine from Holm who cannot stay, and a fire carried across by boat at dawn.
+- *(Done: The Neap Week, Enez Glas, Brittany, 2049; text only.)* A tide mill's energy goes as head squared: 245 kWh on a spring day, 49 on a neap day; bread or the cold store, and the answer is a walled-up wood oven.
 
 **For Other Minds**
 

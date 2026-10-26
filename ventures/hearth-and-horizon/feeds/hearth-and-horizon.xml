@@ -26,6 +26,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Neap Week</title>
+      <link>https://example.invalid/hearth-and-horizon/the-neap-week.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-neap-week.html</guid>
+      <pubDate>Tue, 27 Oct 2026 12:00:00 GMT</pubDate>
+      <description>An island's tide mill makes 245 kWh on a spring day and 49 on a neap day, and the Friday after the first quarter Moon asks for 110. The grid agent will not choose between the bakery's electric oven and the fishermen's cold store; it shows the arithmetic and says the oldest oven on the island needs no electricity at all. The cost is a bricked-up wall, a week of smoke, and a baker's pride. Setting: Enez Glas, an invented island off Finistère, Brittany, 8 to 20 March 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-neap-week.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>An island's tide mill makes 245 kWh on a spring day and 49 on a neap day, and the Friday after the first quarter Moon asks for 110. The grid agent will not choose between the bakery's electric oven and the fishermen's cold store; it shows the arithmetic and says the oldest oven on the island needs no electricity at all. The cost is a bricked-up wall, a week of smoke, and a baker's pride.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Three Plain and a Bob</title>
       <link>https://example.invalid/hearth-and-horizon/three-plain-and-a-bob.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/three-plain-and-a-bob.html</guid>
