@@ -1,0 +1,34 @@
+6000 items, human negative share 0.327; synthetic symmetric-flip coder, 600 draws, seed 20261103
+columns per row: coverage human-only, coverage ppi++, mean half-width ratio ppi++/human-only
+a=0.80 indep: realised agreement 0.791
+a=0.80 indep n=100 dropped 0 MEAN 0.945 0.940 0.822
+a=0.80 indep n=200 dropped 0 MEAN 0.945 0.943 0.847
+a=0.80 indep n=400 dropped 0 MEAN 0.949 0.949 0.849
+a=0.80 group: realised agreement 0.794
+a=0.80 group n=100 dropped 0 MEAN 0.945 0.943 0.770
+a=0.80 group n=200 dropped 0 MEAN 0.945 0.949 0.792
+a=0.80 group n=400 dropped 0 MEAN 0.949 0.958 0.801
+a=0.80 length: realised agreement 0.802
+a=0.80 length n=100 dropped 0 MEAN 0.945 0.944 0.868
+a=0.80 length n=200 dropped 0 MEAN 0.945 0.942 0.884
+a=0.80 length n=400 dropped 0 MEAN 0.949 0.953 0.891
+a=0.80 class: realised agreement 0.796
+a=0.80 class n=100 dropped 0 MEAN 0.945 0.946 0.819
+a=0.80 class n=200 dropped 0 MEAN 0.945 0.949 0.846
+a=0.80 class n=400 dropped 0 MEAN 0.949 0.950 0.853
+a=0.90 indep: realised agreement 0.903
+a=0.90 indep n=100 dropped 0 MEAN 0.945 0.927 0.619
+a=0.90 indep n=200 dropped 0 MEAN 0.945 0.940 0.640
+a=0.90 indep n=400 dropped 0 MEAN 0.949 0.954 0.649
+a=0.90 group: realised agreement 0.898
+a=0.90 group n=100 dropped 0 MEAN 0.945 0.935 0.570
+a=0.90 group n=200 dropped 0 MEAN 0.945 0.938 0.600
+a=0.90 group n=400 dropped 0 MEAN 0.949 0.949 0.605
+a=0.90 length: realised agreement 0.900
+a=0.90 length n=100 dropped 0 MEAN 0.945 0.931 0.683
+a=0.90 length n=200 dropped 0 MEAN 0.945 0.943 0.711
+a=0.90 length n=400 dropped 0 MEAN 0.949 0.946 0.713
+a=0.90 class: realised agreement 0.908
+a=0.90 class n=100 dropped 0 MEAN 0.945 0.950 0.606
+a=0.90 class n=200 dropped 0 MEAN 0.945 0.946 0.623
+a=0.90 class n=400 dropped 0 MEAN 0.949 0.950 0.636
