@@ -733,7 +733,8 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
   const rng = mulberry32(seed);
   const hrs = (i) => (slots[i].end - slots[i].start) / 60;
   const owner = owner0.slice();
-  const openOf = (o) => o.reduce((t, p, i) => t + (p < 0 ? hrs(i) : 0), 0);
+  const TIE = 1e-6; // fewest open shifts at equal open hours: a count term far below one minute
+  const openOf = (o) => o.reduce((t, p, i) => t + (p < 0 ? hrs(i) + TIE : 0), 0);
   let open = openOf(owner);
   const t0 = Date.now();
   let spent = 0; // a node budget, not the clock, ends the search, so the same input gives the same roster on any machine
@@ -761,7 +762,7 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
         lists[q] = old;
       }
       cur[d] = -1;
-      dfs(d + 1, o + hrs(i));
+      dfs(d + 1, o + hrs(i) + TIE);
     };
     dfs(0, 0);
     spent += nodes;
@@ -770,7 +771,8 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
       open = best;
     }
   }
-  return { owner, open };
+  const shifts = owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
+  return { owner, open: open - TIE * shifts, openShifts: shifts };
 }
 
 // Single moves and swaps that lower the score and never leave a shift open that was covered.
@@ -1508,7 +1510,8 @@ export function buildRoster(staff, slots, options = {}) {
     }
     if ((o.coverRepair ?? o.exact === true) && scoreOwner(ctx, best.owner).unfilled > 0) {
       const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000 });
-      if (rp.open < scoreOwner(ctx, best.owner).unfilled - 1e-9) {
+      const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
+      if (rp.open < scoreOwner(ctx, best.owner).unfilled - 1e-9 || (rp.open < scoreOwner(ctx, best.owner).unfilled + 1e-9 && rp.openShifts < cur)) {
         const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000));
         const ps = scoreOwner(ctx, po).total;
         if (ps < best.score - 1e-9) best = { owner: po, score: ps };

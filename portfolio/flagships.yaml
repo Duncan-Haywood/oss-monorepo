@@ -147,7 +147,7 @@ flagships:
       10x28 week 7 and all four 12x30 weeks. Landed 2026-10-27: node
       budget, so it is deterministic; default-on measured: open hours 19 -> 15 but
       open shifts 3 -> 5 on the sample cafe, 547 s suite, so it stays off. Next: an
-      open-shift tiebreak in coverRepair, or the clique cut; then a tighter pay bound once coverage is proven, then a
+      a weighted hours-versus-shifts objective (open-shift tiebreak landed 2026-10-28: sample cafe still 15 h / 5 shifts, a real trade-off), or the clique cut; then a tighter pay bound once coverage is proven, then a
       joint multi-week solve. Multi-week fairness is measured (eval/fairness-
       bench.mjs: tough-shift spread 13.2 -> 3.2 over 8 weeks for +0.4% payroll,
       synthetic crews).

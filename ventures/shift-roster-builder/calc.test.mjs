@@ -1572,6 +1572,16 @@ test("coverRepair: exact repair of the open hours covers the sample week's 15-ho
   assert.equal(buildRoster(staff, slots, { minRestHours: 0, exact: true }).unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0), 15);
 });
 
+test("coverRepair: at equal open hours it keeps the fewest open shifts, and never more than the repair-off roster's hours", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const r = buildRoster(staff, slots, { coverRepair: true });
+  const off = buildRoster(staff, slots, { coverRepair: false });
+  const hrs = (x) => x.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
+  assert.ok(hrs(r) <= hrs(off));
+  assert.equal(hrs(r), 15);
+  assert.equal(r.unfilled.length, 5); // measured 2026-10-28: the tiebreak finds no 15 h roster with fewer than 5 open shifts here
+});
+
 test("coverRepair: a node budget ends the search, so the roster does not depend on the clock", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
   const open = (r) => r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
