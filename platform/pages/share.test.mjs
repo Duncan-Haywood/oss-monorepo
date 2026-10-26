@@ -7,7 +7,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 import { fillText, fitText, font, measureText, wrapText } from './fontraster.mjs';
-import { cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
+import { accentFor, cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
 import { CARD_HEIGHT, CARD_WIDTH, quantize, renderCard, renderMarkIcon, renderSiteCard } from './sharecard.mjs';
 
 const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -253,4 +253,28 @@ test('the card kicker: a section the site names, an unnamed one, a long crumb an
   assert.equal(kickerOf('research/x/index.html', page({ crumbs: crumbs('t'.repeat(69)) })), `Research · ${'t'.repeat(69)}`);
   // With no topic the kicker is the section alone, with no dangling separator.
   assert.equal(kickerOf('research/x/index.html', page()), 'Research');
+});
+
+test('accentFor hashes section and topic to a stable palette colour', () => {
+  assert.deepEqual(['a', 'Energy', 'Housing', 'Tax and pay', 'Long topic name here'].map((t) => accentFor('research', t)), ['#1d4ed8', '#c2410c', '#9333ea', '#b91c1c', '#0f766e']);
+});
+
+test('only a section front page carries a subtitle on its card', () => {
+  const html = page();
+  const plan = (relative) => pageCardPlan(html, relative, { baseUrl: BASE });
+  assert.equal(plan('writing/index.html').options.subtitle, "Adds a price to energy-home's model (ten years).");
+  assert.equal(plan('writing/post/index.html').options.subtitle, '');
+});
+
+test('renderCards takes its cache directory from PAGES_CARD_CACHE', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-env-'));
+  const cacheDir = path.join(dir, 'cache');
+  const saved = process.env.PAGES_CARD_CACHE;
+  process.env.PAGES_CARD_CACHE = cacheDir;
+  try {
+    await renderCards([{ file: path.join(dir, 'out', 'e.png'), options: { headline: 'Env cache' } }]);
+    assert.deepEqual(readdirSync(cacheDir), [`${cardKey({ headline: 'Env cache' })}.png`]);
+  } finally {
+    if (saved === undefined) delete process.env.PAGES_CARD_CACHE; else process.env.PAGES_CARD_CACHE = saved;
+  }
 });

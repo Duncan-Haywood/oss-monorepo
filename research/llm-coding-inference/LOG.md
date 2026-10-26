@@ -2,6 +2,38 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 5c: does a threshold chosen on c = 100 human labels, charged to PPI++, give a width gain over human-only with n + 100 labels? (planned before running)
+- Why: 5b found the zero-shot cut score > 0 decides the gain (0.5B and 3B call almost nothing negative). The cached continuous scores let us pick the cut on human labels, but those labels cost audit budget. `experiments/h5c_calibrated.py`: per draw, sample n + c rows; the first c (c = 100) pick the cut maximising balanced accuracy (sens + spec) over the observed scores; PPI++ (tuned, HC3 + t, as 5b) uses the other n rows; the **human-only comparator gets all n + c labels** (so the cut's cost is charged). n = 100, 200, 400; 600 draws; seed 20261101; the three cached models.
+- **Predictions (before looking):** (1) Calibrated agreement/balanced accuracy rises above the fixed-cut one for 0.5B and 3B (sens + spec > 0.5 + 0.2). (2) PPI++(n) width / human-only(n + 100) is above 1.00 for all three models at n = 100 (the 100 spent labels beat a 3 to 6% gain). (3) At n = 400 the ratio is below 1.00 for no model by more than 3%. (4) Tuned PPI++ coverage mean stays 93 to 96.5% at n >= 100 (selection of the cut on separate rows should not break it).
+- Refutes: (1) sens + spec under 0.7 for 0.5B or 3B; (2) a ratio of 1.00 or below at n = 100 for any model; (3) a ratio below 0.97 at n = 400 for any model; (4) any cell mean outside.
+- Not tested: other cut rules, a bigger c, a 7B model, few-shot.
+
+### Outcome (`experiments/h5c_calibrated.py`, 600 draws per cell, 3 processes; `experiments/h5c_<model>.txt`)
+- Mean calibrated sens + spec (a coder with no information scores 1.00; I wrote the prediction against 0.5 by mistake, so I judge it against the intended "clearly informative", above 1.2): **0.5B 0.998, 1.5B 1.19, 3B 1.18.** The 0.5B cut collapses to a constant code: its score carries no usable signal on this task. 3B's score is informative (1.18) once the cut is moved, though its fixed-cut code (1.01) was not.
+- PPI++(n) half-width / human-only(n + 100) half-width, mean over coefficients, n = 100 / 200 / 400: **0.5B 1.443 / 1.238 / 1.128; 1.5B 1.419 / 1.220 / 1.113; 3B 1.425 / 1.222 / 1.115.** Tuned PPI++ coverage (mean): 93.9 / 94.8 / 94.4 (0.5B), 94.0 / 94.8 / 94.2 (1.5B), 93.9 / 95.0 / 94.1 (3B); human-only 95.6 / 95.3 / 94.9.
+- **(1) refuted** as intended (3B 1.18, 0.5B 1.00, both under 1.2), and the stated bar was ill-posed.
+- **(2) held.** All ratios at n = 100 are 1.42 to 1.44.
+- **(3) held.** The best n = 400 ratio is 1.113, no cell under 1.
+- **(4) held.** Every cell mean is 93.9 to 95.0.
+- Reading: charging 100 human labels for the cut loses. 100 extra labels buy the human-only interval roughly 10% (n = 400) to 30% (n = 100) in width, far more than a calibrated 1.5B or 3B coder adds. With these three small models there is no regime in n = 100 to 400 where picking the cut on labels beats just labelling more. The honest route to a gain is a better coder, not a better cut.
+- Limits: one cut rule (balanced accuracy), c fixed at 100, one corpus, one prompt; the comparator assumes the calibration labels could instead have been audit labels (they could).
+
+## 2026-10-26 · Milestone 5b: does the PPI++ width gain grow with model size within one family? (planned before running)
+- Why: milestone 5 used one 1.5B model and ended "a larger model is next". A 7B model is out of reach on this CPU, but Qwen2.5-0.5B and 3B-Instruct are not, and give three sizes of one family with the same prompt, items and truth (`experiments/llm_code.py` unchanged, `experiments/h3_llm_width.py` unchanged, same seed 20261031, 600 draws).
+- **Predictions (before looking at any score):** (1) Agreement with the human label rises with size: 0.5B < 1.5B (0.661) < 3B. (2) Tuned PPI++ + HC3 + t half-width ratio at n = 400 falls with size: 0.5B above 0.978, 3B below 0.978. (3) The 3B ratio at n = 400 is still above 0.90, i.e. no 20% gain (H3's bar) from a 3B zero-shot model. (4) Tuned PPI++ mean coverage stays in 93 to 96.5% at n >= 100 for both new models.
+- Refutes: (1) any non-monotone agreement; (2) a non-monotone ratio at n = 400; (3) a ratio at or below 0.90 for the 3B model; (4) any n >= 100 mean outside 93 to 96.5%.
+- Not tested: a 7B or larger model, few-shot prompts, other families, a second corpus.
+
+### Outcome (`experiments/llm_code.py` for 0.5B in 9 min and 3B in 45 min on 4 CPU cores; `experiments/h3_llm_width.py`; `experiments/h3_llm-Qwen2.5-{0.5B,3B}-Instruct.txt`; 600 draws per cell)
+- Agreement / sensitivity / specificity / share coded negative (human share 0.327): **0.5B 0.668 / 0.031 / 0.977 / 0.025; 1.5B 0.661 / 0.439 / 0.769 / 0.299; 3B 0.689 / 0.072 / 0.989 / 0.031.**
+- Tuned PPI++ + HC3 + t half-width ratio to human-only, mean over coefficients, n = 60 / 100 / 200 / 400: **0.5B 0.963 / 0.982 / 0.991 / 0.996; 1.5B 0.942 / 0.960 / 0.971 / 0.978; 3B 0.955 / 0.974 / 0.986 / 0.993.** Tuned PPI++ coverage (mean): 0.5B 93.8 / 93.3 / 93.9 / 94.7; 3B 93.4 / 93.1 / 93.9 / 94.7.
+- **(1) refuted.** Agreement is not monotone in size (0.668, 0.661, 0.689).
+- **(2) refuted.** The n = 400 ratio is 0.996, 0.978, 0.993: the 1.5B model is the narrowest, not the 3B.
+- **(3) held.** The 3B ratio at n = 400 is 0.993, nowhere near 0.90.
+- **(4) held.** Mean tuned PPI++ coverage at n >= 100 is at least 93.1% for both models (the lowest cell, 3B at n = 100).
+- Reading: size within this family did not drive the gain; the threshold did. At the fixed rule score > 0 the 0.5B and 3B models say "negative" for only 2.5% and 3.1% of tweets (truth 32.7%), so the binary code carries almost no information (sensitivity 0.03 to 0.07) and agreement is just the base rate plus a little. The 1.5B model happened to be near-calibrated at 0, which is what bought its 2.2% gain. So in the zero-shot, no-tuning design the efficiency gain is set by where the Yes/No score is cut, not by parameters. This was not tested: a threshold or a continuous score (e.g. the cached scores binned, with the cut chosen on a held-out human-labelled split) would very likely help the 0.5B and 3B models; that is the next step and it spends human labels, so it needs its own audit-budget accounting.
+- Limits: one family, one prompt, one corpus; threshold fixed at 0 by design; a 7B model not run.
+
 ## 2026-10-26 · Milestone 7 (part): paper draft 1 folds in regression, small-audit and real-LLM results
 - No experiment this step. `paper/paper.md` was still draft 0 (milestone 6f): it said no real LLM had coded anything and had no regression or small-audit section. Added Section 7 (6g to 6n and milestone 5), updated the abstract, limits and status table; all numbers are copied from the entries below, not re-run. `cite_check.py` on `references.bib`: all checked ids ok, one host refused (not a verdict).
 - Still open for the paper: read Gligorić et al. and Fisch et al. in full (Section 2 says so), a larger or multilingual LLM, a second corpus for Section 7, the venue's LaTeX template, owner submission.
