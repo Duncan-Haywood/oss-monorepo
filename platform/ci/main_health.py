@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+"""Run every argument-free platform/ci/check_*.py in parallel and list failures.
+
+A live fault on main (a check CI runs that is already red) is the best target
+for a run with no open backlog item; `promptctl.py measure` friction text mixes
+fixed and live items, this does not. Checks that need a built site
+(check_pages_links.py) are skipped. About 40 s; exit 1 if any check fails.
+"""
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
+NEEDS_SITE = {"check_pages_links.py"}
+
+
+def run(path):
+    try:
+        r = subprocess.run([sys.executable, str(path)], cwd=ROOT, capture_output=True,
+                           text=True, timeout=300)
+        return path.name, r.returncode, (r.stdout + r.stderr).strip()
+    except subprocess.TimeoutExpired:
+        return path.name, 124, "timed out after 300 s"
+
+
+def main():
+    checks = [p for p in sorted(HERE.glob("check_*.py")) if p.name not in NEEDS_SITE]
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        results = list(pool.map(run, checks))
+    bad = [r for r in results if r[1] != 0]
+    for name, rc, out in bad:
+        print(f"FAIL {name} (exit {rc})\n" + "\n".join(out.splitlines()[-8:]) + "\n")
+    print(f"{len(results) - len(bad)}/{len(results)} checks pass")
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
