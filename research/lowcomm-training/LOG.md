@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 4f: what do 3-bit and un-fed-back scaled sign cost? (planned before running)
+- Why: 4e (#10664) measured 4-bit, 2-bit, 2-bit + EF and scaled sign + EF. It left two cells out: 3 bits, and scaled sign without EF (so EF's contribution at 1 bit is unmeasured). A parallel run of mine duplicated 4e's cells; its 4-bit, 2-bit and sign + EF numbers agree with 4e's within seed noise (4-bit -0.005, 2-bit +0.019 against +0.015, sign + EF -0.0067 identical per seed), which is a free replication.
+- Design (`experiments/gpt_quant_extra/quant_extra.py`): 4e's setup and `quantize` exactly; cells `quantize(3)` and `quantize(1)`, both without EF; seeds 0 to 2 (6 runs).
+- **H4f-i:** 3-bit is between 4-bit and 2-bit in mean excess. Refuted otherwise.
+- **H4f-ii:** scaled sign without EF is worse than with EF by more than 0.02 nats in the mean. Refuted otherwise.
+- Prior: i yes; ii yes (earlier replication run gave about 0.03).
+- Limits: as 4e.
+
+### Outcome of 4f (`experiments/gpt_quant_extra/quant_extra_results.txt`; 6 runs, seeds 0 to 2)
+- Mean excess over uncompressed (1.5758), nats: 3-bit stochastic -0.0052 (per seed +0.004, -0.011, -0.008); scaled sign without EF +0.0221 (+0.022, +0.011, +0.033). With 4e: 4-bit -0.0044, 2-bit +0.0153, scaled sign with EF -0.0067.
+- **H4f-i refuted, by noise:** 3-bit (-0.0052) is lower than 4-bit (-0.0044), so it is not between 4-bit and 2-bit; the gap is 0.001 against seed spread of about 0.01. Read it as 3-bit and 4-bit being indistinguishable from uncompressed. **H4f-ii holds:** EF buys 0.029 nats at 1 bit (+0.022 without, -0.007 with).
+- Reading: for unbiased stochastic quantisation the loss is flat down to 3 bits (about 10x fewer bytes than float32 before the scale) and first shows at 2 bits (+0.015); 1 bit needs EF to be free, and 2 bits with EF is catastrophic in 4e (+0.87), so EF is not a free add-on for an unbiased quantiser. These are 3 seeds with effects at the seed-noise level for 3 and 4 bits.
+- Limits: as 4e. The 4e runs and these use the same seeds but not the same quantiser random stream per cell, so cells differ by sampling noise.
+- Next: H5, median aggregation under an attack.
+
 ## 2026-10-26 · Milestone 4e: what does quantising the worker deltas cost, and does error feedback rescue 2-bit and 1-bit? (planned before running)
 - Why: 4a to 4d priced sparsification; the other standard compressor family is quantisation, the "Next" of every entry since 4a. Adds `quantize(bits)` to the engine (per-tensor uniform grid on [-max|x|, max|x|], stochastic rounding so it is unbiased; bits = 1 is the scaled sign mean|x| sign(x), biased), with a unit test of unbiasedness and the sign form.
 - Design (`experiments/gpt_quant/quant.py`): 4d's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); cells: 4-bit stochastic, 2-bit stochastic, 2-bit stochastic + EF, scaled sign + EF; seeds 0 to 2 (12 runs). Comparator: uncompressed (3d). Bytes per delta coordinate are bits (plus one scale per tensor), against 32 uncompressed.
