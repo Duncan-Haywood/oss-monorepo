@@ -296,6 +296,22 @@ test("the Etsy fixture behind etsy-bookkeeping.html splits one deposit as the pa
   assert.equal(p.fees, 4641);
 });
 
+test("the eBay fixture behind ebay-bookkeeping.html splits one payout as the page says", () => {
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8"));
+  const p = r.payouts[0];
+  assert.equal(p.net, 11170);
+  assert.equal(p.gross, 14000);
+  assert.equal(p.fees, 2830);
+  const sum = (k) => p.rows.filter((x) => x.kind === k).reduce((a, x) => a + x.gross, 0);
+  assert.equal(sum("sales"), 14500);
+  assert.equal(sum("refunds"), -1000);
+  assert.equal(sum("tax"), 500);
+  assert.equal(p.rows.filter((x) => x.kind === "sales").reduce((a, x) => a + x.fee, 0), 2010);
+  assert.equal(r.pending[0].net, 2610);
+  const page = readFileSync(new URL("./ebay-bookkeeping.html", import.meta.url), "utf8");
+  for (const t of ["$145.00", "$135.00", "$20.10", "$8.20", "$5.00", "$111.70", "$106.70", "$28.30"]) assert.ok(page.includes(t), t);
+});
+
 test("Stripe's balance-transactions export (Type, Amount, Created (UTC), Automatic Payout ID) splits a payout", () => {
   const r = readPayoutReport(readFileSync(new URL("./fixtures/stripe-balance-transactions.csv", import.meta.url), "utf8"));
   assert.equal(r.payouts.length, 1);
