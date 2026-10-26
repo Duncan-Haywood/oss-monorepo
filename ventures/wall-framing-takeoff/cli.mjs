@@ -14,6 +14,7 @@ import { drawingSetHtml } from "./drawings.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
 import { budget, budgetText } from "./budget.mjs";
 import { schedule, scheduleText } from "./schedule.mjs";
+import { planFromDxf } from "./dxf.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
 
 const HELP = `wall-framing-takeoff: stud layout, cut list and the cheapest lumber order for a set of walls
@@ -39,6 +40,7 @@ Usage:
   node cli.mjs plan.json --schedule  critical path, crew levelling and slip effects from the plan's own schedule object (activities, durations, predecessors, crews)
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
+  node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say) and print the plan JSON; without --plan-only it goes straight on to the takeoff
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
 
@@ -77,8 +79,17 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--example")) return { code: 0, out: JSON.stringify(samplePlan(), null, 2) };
   if (!args.length) return { code: 2, out: HELP };
   let plan;
+  let dxfNotes = "";
   try {
-    plan = normalise(JSON.parse(readInput(args[0])));
+    if (/\.dxf$/i.test(args[0])) {
+      const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
+      const r = planFromDxf(readInput(args[0]), { units: /** @type {any} */ (units) });
+      if (!r.ok) return { code: 2, out: `Could not read the DXF: ${r.errors.join(" ")}` };
+      const note = r.notes.map((n) => `  - ${n}`).join("\n");
+      if (flags.has("--plan-only")) return { code: 0, out: JSON.stringify(r.plan, null, 2) + `\n\nNotes (not part of the JSON):\n${note}` };
+      plan = normalise({ ...samplePlan(), ...r.plan });
+      dxfNotes = `Read ${r.stats.walls} walls (${r.stats.exterior} exterior, ${r.stats.interior} interior), ${r.stats.tees} tees, ${r.stats.openings} openings from ${args[0]}:\n${note}\n\n`;
+    } else plan = normalise(JSON.parse(readInput(args[0])));
   } catch (e) {
     return { code: 2, out: `Could not read the plan: ${e instanceof Error ? e.message : e}` };
   }
@@ -180,7 +191,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
   lines.push("", "Header sizes and jack counts are your inputs and are not checked against a span table or code.");
-  return { code: 0, out: lines.join("\n") };
+  return { code: 0, out: dxfNotes + lines.join("\n") };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
