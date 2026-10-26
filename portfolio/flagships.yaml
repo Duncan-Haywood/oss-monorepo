@@ -183,8 +183,9 @@ flagships:
       capped equals uncapped on 600 and 1000 items at 600 answers,
       poolCap.simulation.test.ts); and a live-Postgres ranking integration
       test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy at 3000 items measured 2026-10-22 (selector loop,
-      2 respondents). Next: the same check through the route with Postgres,
-      and budgets well past the list length.
+      2 respondents). Deep budgets (500 items, 2000 and 4000
+      answers) measured 2026-10-26: the cap hides nothing. Next: the same check
+      through the route with Postgres, and 1000+ items at deep budgets.
 
   - venture: league-schedule-generator
     why: >-
