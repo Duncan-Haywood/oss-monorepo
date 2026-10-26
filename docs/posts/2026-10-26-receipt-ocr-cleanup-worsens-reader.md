@@ -1,11 +1,7 @@
 ---
 title: "Cleaning up receipt scans before OCR made our receipt reader worse"
 date: 2026-10-26
-<<<<<<<< HEAD:docs/posts/2026-10-26-receipt-ocr-preprocessing-second-run.md
-description: "Grayscale, enlarging and thresholding receipt scans before Tesseract lowered the share of merchants, dates and totals read right on 626 SROIE receipts."
-========
 description: "Deskew, grayscale and upscaling before OCR lowered receipt-total accuracy on real SROIE scans; nothing ships, and phone photos remain untested."
->>>>>>>> origin/main:docs/posts/2026-10-26-receipt-ocr-cleanup-worsens-reader.md
 tags: [ai-bookkeeper, ocr, receipts]
 ---
 
