@@ -30,6 +30,19 @@ test('a clear variance break survives the bootstrap penalty', () => {
   assert.ok(Math.abs(cps[0].index - 100) <= 10);
 });
 
-test('the bootstrap option is meanvar-only', () => {
-  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'mean', bootstrap: true }), /meanvar/);
+test('the bootstrap option is for meanvar and mean only', () => {
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', bootstrap: true }), /meanvar/);
+});
+
+test('mean model: AR(1) noise gets fewer false alarms, a clear step survives', () => {
+  let plain = 0, boot = 0;
+  for (let k = 0; k < 10; k++) {
+    const x = ar1(300 + k, 200);
+    if (analyze({ values: x, model: 'mean' }).pelt.changepoints.length) plain++;
+    if (analyze({ values: x, model: 'mean', bootstrap: true }).pelt.changepoints.length) boot++;
+  }
+  assert.ok(boot < plain, `plain ${plain}, bootstrap ${boot}`);
+  const r = rng(8); const y = Array.from({ length: 200 }, (_, i) => gauss(r) + (i < 100 ? 0 : 3));
+  const cps = analyze({ values: y, model: 'mean', bootstrap: true }).pelt.changepoints;
+  assert.equal(cps.length, 1);
 });

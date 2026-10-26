@@ -105,7 +105,7 @@ flagships:
       `meanvar` has min segment 10, a noise warning with Ljung-Box on squares,
       `--robust` (Laplace cost; t3 false alarms 37-63% to 5-8%, but detection 57% vs
       94% on Gaussian n=100) and `--dispersion` (GARCH/t3 false alarms at n=200
-      51%/62% to 30%/29%). `--bootstrap` (block-resampled penalty, 2026-10-27) takes GARCH false alarms at n=200 from 51% to 16% (n=100 Gaussian detection 92% to 80%). Open: it on a real heavy-tailed or clustered-volatility series, a bootstrap penalty for the count and mean models; a GARCH-filtered series has 1% false alarms but loses the real sd break (detection 97% to 6%, 2026-10-27), so a GARCH likelihood needs a segment-wise joint fit;
+      51%/62% to 30%/29%). `--bootstrap` (block-resampled penalty, 2026-10-27) takes GARCH false alarms at n=200 from 51% to 16% (n=100 Gaussian detection 92% to 80%). Open: it on a real heavy-tailed or clustered-volatility series, a bootstrap penalty for the count models (the mean model landed 2026-10-26: AR(1) 0.3 false alarms 80% to 13%, README; synthetic only); a GARCH-filtered series has 1% false alarms but loses the real sd break (detection 97% to 6%, 2026-10-27), so a GARCH likelihood needs a segment-wise joint fit;
       range95 on a real count series with a true holiday closure or documented slope
       break (log GDP is a near-unit-root; coal disasters hold 1890, 2026-10-26); the growth-change range
       on clumpy (NB) counts reaches ~95% by tempering 1.4, but the large-bump cell
