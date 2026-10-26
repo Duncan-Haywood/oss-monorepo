@@ -1,7 +1,7 @@
 ---
 title: "One sign bit per coordinate matches full precision in low-communication training, 2 bits with error feedback does not"
 date: 2026-10-26
-description: "On a small GPT trained DiLoCo-style with 4 workers, 4-bit and scaled 1-bit sign deltas with error feedback match uncompressed training, while adding error feedback to 2-bit stochastic quantisation costs 0.87 nats."
+description: "On a small GPT trained with 4 workers, 4-bit and 1-bit sign deltas match full precision; error feedback on 2-bit costs 0.87 nats."
 tags: [lowcomm-training, research, diloco, compression]
 ---
 
