@@ -1,7 +1,7 @@
 ---
 title: "Do the volatility options still find the Nile's 1898 drop? Yes, and nothing else"
 date: 2026-10-26
-description: "changepoint-detector's meanvar model, plain, with --dispersion and with --robust, run on the real Nile series: one level break at 1899, no invented variance change."
+description: "changepoint-detector's meanvar model, plain, --dispersion and --robust, on the real Nile series: one level break at 1899 and no invented variance change."
 tags: [changepoint-detector, statistics, real-data]
 ---
 
