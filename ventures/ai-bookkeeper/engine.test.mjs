@@ -822,3 +822,16 @@ test("ledger export declares its accounts and commodity so strict checkers accep
   assert.match(txt, /-12\.50 Fr$/m);
   assert.ok(!/^account /m.test(exportJournal(b, "beancount")));
 });
+
+test("cash flow adds depreciation back in operating and shows disposal proceeds in investing", async () => {
+  const { disposeAsset } = await import("./assets.mjs");
+  let b = addAsset(newBooks(), { name: "Press", date: "2026-03-01", cost: "6000", lifeMonths: 60 }).books;
+  let c = reports(b).cashFlow;
+  assert.ok(c.ties);
+  assert.ok(c.operatingItems.some((i) => i.code === "6950" && i.amount > 0), "depreciation added back");
+  assert.ok(c.investingItems.every((i) => i.code !== "1590"), "accumulated depreciation is not an investing line");
+  b = disposeAsset(b, "FA-1", { date: "2026-09-30", proceeds: "5000" }).books;
+  c = reports(b).cashFlow;
+  assert.ok(c.ties);
+  assert.equal(c.investing, 500000, "investing shows the proceeds, not the net book value (the purchase is not in these books)");
+});

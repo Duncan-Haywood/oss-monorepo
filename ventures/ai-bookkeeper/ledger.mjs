@@ -166,11 +166,18 @@ export function cashFlow(entries, accounts, { from = null, to = null } = {}) {
   const net = -sum(period, (a) => a.type === "income" || a.type === "expense");
   const sectionOf = (a) => (a.type === "equity" || /^22/.test(a.code) ? "financing" : a.type === "asset" && a.code >= "1500" ? "investing" : "operating");
   const items = { operating: [], investing: [], financing: [] };
+  // Indirect method: book depreciation is added back and a disposal's gain (loss)
+  // taken out of operating; the proceeds, not the net book value, are investing.
+  const dep = period.get("6950") ?? 0, gl = period.get("4150") ?? 0;
   for (const [code, v] of period) {
     const a = map.get(code);
     if (!a || !v || cash(a) || a.type === "income" || a.type === "expense") continue;
-    items[sectionOf(a)].push({ code, name: a.name, amount: -v }); // an asset growing uses cash; a liability growing supplies it
+    // an asset growing uses cash; a liability growing supplies it
+    items[sectionOf(a)].push({ code, name: a.name, amount: code === "1590" ? -v - dep - gl : -v });
   }
+  if (dep) items.operating.push({ code: "6950", name: "Depreciation (added back)", amount: dep });
+  if (gl) items.operating.push({ code: "4150", name: "Loss (gain) on asset disposals", amount: gl });
+  items.investing = items.investing.filter((i) => i.amount);
   for (const k in items) items[k].sort((x, y) => x.code.localeCompare(y.code));
   const total = (l) => l.reduce((a, r) => a + r.amount, 0);
   const operating = net + total(items.operating), investing = total(items.investing), financing = total(items.financing);
