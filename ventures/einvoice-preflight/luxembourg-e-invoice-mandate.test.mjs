@@ -21,6 +21,14 @@ test("states the draft dates, flags the vendor sources and names the format", ()
   assert.match(html, /advisory and vendor sources/);
 });
 
+test("names the bill number, its filing date and the transitional windows", () => {
+  assert.match(html, /No\. 8815/);
+  assert.match(html, /30 Jul 2026/);
+  assert.match(html, /30 Jun 2028/);
+  assert.match(html, /31 Dec 2028/);
+  assert.match(html, /two of the draft's thresholds/);
+});
+
 test("makes no price or fine claim", () => {
   assert.doesNotMatch(html, /\$\d/);
   assert.doesNotMatch(html, /EUR \d/);
