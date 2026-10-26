@@ -2,6 +2,7 @@
 title: "A simulator worth about ten real robot trials, with an honest error bar"
 date: 2026-10-26
 description: "On SIMPLER's published real-versus-simulated success rates, a calibrated simulator is worth about 10 real trials per cell. The earlier interval for that..."
+tags: [sim2real-inference, research]
 ---
 
 On SIMPLER's published real-versus-simulated success rates, a calibrated simulator is worth about 10 real trials per cell. The earlier interval for that figure, 5 to 28, resampled the 36 cells as if they were independent. They are not: they share 8 tasks and 7 policies.
