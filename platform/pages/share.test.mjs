@@ -241,3 +241,16 @@ test('crumbsOf decodes hex character references, zeros and upper case included',
   const html = '<nav class="crumbs"><a href="/">Home</a><a href="/a/">Tax &#x2014; VAT</a><a href="/b/">Cost &#X1F4B0; &#x20AC;10</a></nav>';
   assert.deepEqual(crumbsOf(html), ['Tax — VAT', 'Cost 💰 €10']);
 });
+
+test('the card kicker: a section the site names, an unnamed one, a long crumb and no topic', () => {
+  const crumbs = (...labels) => labels.map((l) => `<a href="../">${l}</a>`).join('');
+  const kickerOf = (relative, html) => pageCardPlan(html, relative, { baseUrl: BASE }).options.kicker;
+  // An unnamed section takes its first crumb as the name and the next as the topic.
+  const unnamed = page({ crumbs: crumbs('Alpha', 'Beta') }).replace('<a href="../">Research</a>', '');
+  assert.equal(kickerOf('zzz/x/index.html', unnamed), 'Alpha · Beta');
+  // A crumb of 70 characters is too long to be a topic; 69 is not.
+  assert.equal(kickerOf('research/x/index.html', page({ crumbs: crumbs('t'.repeat(70)) })), 'Research');
+  assert.equal(kickerOf('research/x/index.html', page({ crumbs: crumbs('t'.repeat(69)) })), `Research · ${'t'.repeat(69)}`);
+  // With no topic the kicker is the section alone, with no dangling separator.
+  assert.equal(kickerOf('research/x/index.html', page()), 'Research');
+});
