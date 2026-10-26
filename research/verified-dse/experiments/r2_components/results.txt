@@ -1,0 +1,57 @@
+# milestone 18: area and period factors of the R2 score, 40 cells (20 designs x 2 clocks), full pools, no flow run
+
+## mean over cells of tau-b against the routed factor
+tau_area2: tight 0.72  relaxed 0.91
+tau_per2: tight 0.38  relaxed 0.49
+tau_per3: tight 0.46  relaxed 0.67
+routed spread (max/min - 1) of area 42.9%  of period 52.4%
+
+## mean / median / max pick regret % over the 40 cells (pick = argmin of the cheap score; regret against routed area x period)
+adp2 (baseline)            mean   7.69  median   2.48  max  82.74  cells>10%: 12
+area2 only                 mean  30.49  median   7.84  max 349.83  cells>10%: 19
+area2 x period3            mean   4.79  median   1.00  max  18.15  cells>10%: 10
+adp3                       mean   4.77  median   1.90  max  18.15  cells>10%: 10
+area3 only                 mean  29.60  median   7.84  max 349.83  cells>10%: 19
+oracle period4 x area2     mean   1.15  median   0.00  max  16.71  cells>10%: 2
+
+## per cell (tag design: tau_area2 tau_per2 tau_per3 | regret adp2, area2, area2xp3, adp3)
+relaxed adder_op16  : 0.50 0.77 0.75 |   4.97  58.26   4.97   4.97
+relaxed adder_op64  : 0.72 0.82 0.84 |   2.93 285.37   0.00   4.03
+relaxed adder_ripple16: 1.00 -0.30 1.00 |   0.00   0.00   0.00   0.00
+relaxed adder_ripple64: 1.00 0.02 0.02 |   0.00   0.00   0.00   0.00
+relaxed alu32       : 0.90 0.67 0.89 |   0.00  22.11   0.00   0.00
+relaxed alu8        : 1.00 0.55 0.71 |   0.00   0.00   0.00   0.00
+relaxed barrel128   : 0.99 0.03 0.55 |   0.00   0.00   0.00   0.00
+relaxed barrel16    : 0.99 -0.09 -0.07 |  15.12   0.00  12.87  12.87
+relaxed barrel64    : 0.98 0.08 0.90 |  82.74  82.74   0.00   0.00
+relaxed cmp_sat12   : 0.90 0.70 0.68 |   1.83  13.62   1.83   1.83
+relaxed crc16       : 1.00 0.77 0.76 |   0.00   0.10   0.00   0.00
+relaxed fifo8x4     : 0.78 0.73 0.87 |   4.28   6.97   4.28   0.00
+relaxed mac4        : 1.00 0.66 0.80 |   0.00   1.23   0.00   6.08
+relaxed mult16      : 0.74 0.52 0.46 |   0.00  12.06   0.00   0.00
+relaxed mult24      : 0.82 0.50 0.47 |  11.35  21.90  17.59  17.59
+relaxed mult32      : 0.88 0.62 0.74 |  14.12  37.17  14.04  14.04
+relaxed mult8       : 0.99 0.78 0.84 |   0.00   0.00   0.00   0.00
+relaxed popcount128 : 1.00 0.73 0.76 |   0.57   7.82   0.57   0.57
+relaxed popcount16  : 1.00 0.59 0.61 |   0.00   7.86   0.00   0.00
+relaxed popcount64  : 1.00 0.71 0.75 |   2.75   0.00   2.75   2.75
+tight   adder_op16  : 0.70 0.70 0.67 |  18.15  81.67  18.15  18.15
+tight   adder_op64  : 0.74 0.61 0.64 |   7.42 349.83   0.00  12.72
+tight   adder_ripple16: 0.97 0.04 0.60 |  -0.00  -0.00  -0.00  -0.00
+tight   adder_ripple64: 1.00 0.07 0.07 |   0.00   0.00   0.00   0.00
+tight   alu32       : 0.86 0.58 0.59 |  15.70  34.40  15.70  15.70
+tight   alu8        : 0.66 0.34 0.26 |  10.57  10.57  10.57  10.57
+tight   barrel128   : 0.99 0.07 0.62 |   0.00   0.00   0.00   0.00
+tight   barrel16    : 0.73 0.05 0.37 |  10.38   0.00  12.03  12.03
+tight   barrel64    : 0.98 0.12 0.72 |  32.68  32.68   0.00   0.00
+tight   cmp_sat12   : 0.50 0.64 0.59 |   2.63  22.15   6.49   2.63
+tight   crc16       : 0.15 0.38 0.39 |   8.29   0.00   8.29   8.29
+tight   fifo8x4     : 0.69 0.26 0.19 |  17.34  13.28  17.34  16.95
+tight   mac4        : 0.59 0.13 0.02 |  16.71   0.00  16.71   1.97
+tight   mult16      : 0.70 0.58 0.48 |   2.12  18.66   2.12   2.12
+tight   mult24      : 0.76 0.69 0.69 |   0.39  30.94   0.44   0.44
+tight   mult32      : 0.82 0.73 0.71 |   0.77  49.64   0.77   0.77
+tight   mult8       : 0.43 0.68 0.67 |  12.43  12.43  12.43  12.43
+tight   popcount128 : 0.77 0.28 0.29 |   2.33   4.33   2.33   2.33
+tight   popcount16  : 0.70 0.36 0.33 |   1.23   2.00   1.23   1.23
+tight   popcount64  : 0.72 0.34 0.34 |   7.91   0.00   7.91   7.91
