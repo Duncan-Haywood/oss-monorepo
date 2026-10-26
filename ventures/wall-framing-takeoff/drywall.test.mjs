@@ -136,3 +136,25 @@ test("ceilingJoistSpacing: a 20 x 8 ft ceiling, 10 ft sheets, joists at 16 in: t
   assert.equal(base.sheets.count, 4);
   assert.ok(validateDrywall({ ceilingJoistSpacing: 20 }).length);
 });
+
+test("ceilingJoistsFromRoof: joists the roof placed at 24 in (not a typed 16) decide the cuts; joistOrigin shifts a smaller ceiling", async () => {
+  const { layoutRoof } = await import("./roof.mjs");
+  const p = { ...plan([]), stock: samplePlan().stock };
+  const roof = layoutRoof({ id: "R", width: 192, length: 240, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 24, ridge: "2x10", ceilingJoist: "2x6", collarTies: false }, samplePlan());
+  assert.ok(roof.ok, roof.errors?.join());
+  const xs = [...new Set(roof.ceilingJoists.map((j) => j.x + 0.75))];
+  assert.ok(xs.includes(24) && xs.includes(48) && !xs.includes(16));
+  const c = [{ width: 240, depth: 96 }];
+  const d = layoutDrywall({ sheetLength: 120, ceiling: c, ceilingJoistsFromRoof: true, jointsOnStuds: true }, p, roof);
+  assert.ok(d.ok, d.errors?.join());
+  assert.equal(d.ceilingJoints.offFraming, 0);
+  // 24 in joists: the 120 in joint is on a joist, so unlike 16 in no extra cut-back pieces are needed
+  const typed = layoutDrywall({ sheetLength: 120, ceiling: c, ceilingJoistSpacing: 24, jointsOnStuds: true }, p);
+  assert.equal(d.ceilingJoints.total, typed.ceilingJoints.total);
+  // a ceiling starting 48 in in from the roof's first wall sees the same joists shifted
+  const shifted = layoutDrywall({ sheetLength: 120, ceiling: [{ width: 192, depth: 96, joistOrigin: 48 }], ceilingJoistsFromRoof: true, jointsOnStuds: true }, p, roof);
+  assert.equal(shifted.ceilingJoints.offFraming, 0);
+  // needs a roof with ceiling joists, and not both sources
+  assert.ok(!layoutDrywall({ ceiling: c, ceilingJoistsFromRoof: true }, p, null).ok);
+  assert.ok(validateDrywall({ ceilingJoistsFromRoof: true, ceilingJoistSpacing: 16 }).length);
+});

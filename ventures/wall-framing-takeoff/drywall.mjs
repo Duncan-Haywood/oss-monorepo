@@ -16,7 +16,7 @@ import { THICK, DEPTH, formatLength, layoutWall } from "./engine.mjs";
 const BAND = 48;
 const EPS = 1e-9;
 
-/** @typedef {{ ceilingJoistSpacing?: number, jointsOnStuds?: boolean, compoundGalPerSqFt?: number, tapeRollFt?: number, openingBead?: boolean, beadStickFt?: number, sheetLength?: number, height?: number, ceiling?: { width: number, depth: number }[], faces?: "inside"|"both", screwsPerSqFt?: number, waste?: number, price?: number }} Drywall */
+/** @typedef {{ ceilingJoistSpacing?: number, ceilingJoistsFromRoof?: boolean, jointsOnStuds?: boolean, compoundGalPerSqFt?: number, tapeRollFt?: number, openingBead?: boolean, beadStickFt?: number, sheetLength?: number, height?: number, ceiling?: { width: number, depth: number, joistOrigin?: number }[], faces?: "inside"|"both", screwsPerSqFt?: number, waste?: number, price?: number }} Drywall */
 
 export function sampleDrywall() {
   return { sheetLength: 96, ceiling: [{ width: 480, depth: 336 }] };
@@ -29,6 +29,9 @@ export function validateDrywall(d) {
   if (d.height != null && !(d.height >= 72 && d.height <= 192)) e.push("Drywall hang height must be between 6 and 16 ft.");
   for (const [i, c] of (d.ceiling || []).entries()) if (!(c.width >= 24 && c.depth >= 24)) e.push(`Ceiling ${i + 1} must be at least 2 ft each way.`);
   if (d.ceilingJoistSpacing != null && ![12, 16, 19.2, 24].includes(d.ceilingJoistSpacing)) e.push("Ceiling joist spacing must be 12, 16, 19.2 or 24 in.");
+  if (d.ceilingJoistsFromRoof != null && typeof d.ceilingJoistsFromRoof !== "boolean") e.push("ceilingJoistsFromRoof must be true or false.");
+  if (d.ceilingJoistsFromRoof && d.ceilingJoistSpacing != null) e.push("Set ceilingJoistSpacing or ceilingJoistsFromRoof, not both.");
+  for (const [i, c] of (d.ceiling || []).entries()) if (c.joistOrigin != null && !(c.joistOrigin >= 0)) e.push(`Ceiling ${i + 1} joistOrigin must be 0 or more inches.`);
   if (d.jointsOnStuds != null && typeof d.jointsOnStuds !== "boolean") e.push("jointsOnStuds must be true or false.");
   if (d.compoundGalPerSqFt != null && !(d.compoundGalPerSqFt > 0 && d.compoundGalPerSqFt <= 0.1)) e.push("Compound gallons per sq ft must be between 0 and 0.1.");
   if (d.tapeRollFt != null && !(d.tapeRollFt >= 50 && d.tapeRollFt <= 1000)) e.push("Tape roll length must be between 50 and 1000 ft.");
@@ -116,9 +119,12 @@ function joistCentres(/** @type {number} */ width, /** @type {number} */ spacing
  * @param {Drywall} d
  * @param {{ studLength: number, defaultHeaderHeight: number, walls: any[] }} plan
  */
-export function layoutDrywall(d, plan) {
+export function layoutDrywall(d, plan, roof = null) {
   const errors = validateDrywall(d);
+  if (d.ceilingJoistsFromRoof && !roof?.ceilingJoists?.length) errors.push("ceilingJoistsFromRoof needs a roof with a ceilingJoist size (plan roof.ceilingJoist); the joists are read from its layout.");
   if (errors.length) return { ok: false, errors };
+  // joist centres the roof placed (inches along its length from the first gable wall's outside face), one per distinct joist position
+  const roofCentres = d.ceilingJoistsFromRoof ? [...new Set(roof.ceilingJoists.map((j) => Math.round((j.x + THICK / 2) * 16) / 16))].sort((a, b) => a - b) : null;
   const len = d.sheetLength ?? 96;
   const height = d.height ?? Math.round((plan.studLength + 3 * THICK) / 12) * 12;
   const waste = d.waste ?? 0.1;
@@ -167,9 +173,10 @@ export function layoutDrywall(d, plan) {
   }
   const ceilings = [];
   const jSpacing = d.ceilingJoistSpacing ?? null;
-  const ceilingJoints = jSpacing ? { total: 0, offFraming: 0, naiveOffFraming: 0 } : null;
+  const ceilingJoints = jSpacing || roofCentres ? { total: 0, offFraming: 0, naiveOffFraming: 0 } : null;
   for (const c of d.ceiling || []) {
-    const jc = jSpacing ? joistCentres(c.width, jSpacing) : null;
+    const o = c.joistOrigin ?? 0;
+    const jc = roofCentres ? roofCentres.map((x) => x - o).filter((x) => x > EPS && x < c.width - EPS) : jSpacing ? joistCentres(c.width, jSpacing) : null;
     for (let y = 0; y < c.depth - EPS; y += BAND) {
       const band = Math.min(BAND, c.depth - y);
       if (jc) {
@@ -223,7 +230,7 @@ export function drywallText(d) {
   l.push(`  compound: ${f.compoundGal} gal at ${f.compoundGalPerSqFt} gal per sq ft plus waste (a rule of thumb you can change, not a product label)`);
   if (f.beadFt) l.push(`  corner bead: ${f.beadFt} ft around door and window openings (both jambs and the head) and free wall ends (freeEnds), each drywalled face = ${f.beadSticks} sticks of ${f.beadStickFt} ft with waste`);
   if (d.joints) l.push(`  end joints on walls: ${d.joints.total} (${d.joints.offFraming} off framing; hung from each run's start with no snapping, ${d.joints.naiveOffFraming} would be)${d.ceilingJoints ? "" : "; ceiling joists are not known, so ceiling joints are not checked"}`);
-  if (d.ceilingJoints) l.push(`  end joints on ceilings: ${d.ceilingJoints.total} (${d.ceilingJoints.offFraming} off a joist; hung from the first wall with no snapping, ${d.ceilingJoints.naiveOffFraming} would be); joists run across the depth, spaced along the width (ceilingJoistSpacing)`);
-  l.push(`  ${d.joints && d.assumptions.rule.includes("snapped") ? "Wall end joints are snapped to framing (jointsOnStuds);" : "Wall end joints are not placed on studs (set drywall.jointsOnStuds: true);"} ${d.ceilingJoints && d.assumptions.rule.includes("snapped") ? "ceiling end joints are snapped to joists;" : "ceiling joints are not placed on joists (set ceilingJoistSpacing and jointsOnStuds);"}`+"  bead on ceiling steps, trim and angles where a partition meets a ceiling step are not counted.");
+  if (d.ceilingJoints) l.push(`  end joints on ceilings: ${d.ceilingJoints.total} (${d.ceilingJoints.offFraming} off a joist; hung from the first wall with no snapping, ${d.ceilingJoints.naiveOffFraming} would be); joists run across the depth, spaced along the width (ceilingJoistSpacing or the roof's own ceiling joists)`);
+  l.push(`  ${d.joints && d.assumptions.rule.includes("snapped") ? "Wall end joints are snapped to framing (jointsOnStuds);" : "Wall end joints are not placed on studs (set drywall.jointsOnStuds: true);"} ${d.ceilingJoints && d.assumptions.rule.includes("snapped") ? "ceiling end joints are snapped to joists;" : "ceiling joints are not placed on joists (set ceilingJoistSpacing or ceilingJoistsFromRoof, and jointsOnStuds);"}`+"  bead on ceiling steps, trim and angles where a partition meets a ceiling step are not counted.");
   return l;
 }
