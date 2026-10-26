@@ -12,6 +12,7 @@ $PY experiments/hedge/replay.py   # milestone 11
 $PY experiments/eta_sweep/sweep.py   # milestone 12
 $PY experiments/eta_floor/sweep.py   # milestone 13
 $PY experiments/signif/test.py       # milestone 14
+$PY experiments/nonarith/analyse.py; $PY experiments/nonarith/sweep.py; $PY experiments/nonarith/perdesign.py   # milestone 15
 $PY experiments/proof_success/analyse.py
 for s in bound quantile topk sweep; do $PY experiments/theory/$s.py; done
 $PY -m unittest discover -s tests
