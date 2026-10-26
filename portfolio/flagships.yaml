@@ -144,8 +144,10 @@ flagships:
       (77 vs 78): only a stronger relaxation (person-day clique or LP cuts) closes
       them. Landed 2026-10-26: coverRepair (exact
       large-neighbourhood repair, on with the exact check) reaches the optimum on
-      10x28 week 7 and all four 12x30 weeks. Next: make it the default and re-derive
-      the guide pages, or the clique cut; then a tighter pay bound once coverage is proven, then a
+      10x28 week 7 and all four 12x30 weeks. Landed 2026-10-27: node
+      budget, so it is deterministic; default-on tried: 9 of 156 tests fail (the guide
+      pages' tables), 427 s, so it stays off. Next: re-derive the guide pages with it
+      on and cut its cost, or the clique cut; then a tighter pay bound once coverage is proven, then a
       joint multi-week solve. Multi-week fairness is measured (eval/fairness-
       bench.mjs: tough-shift spread 13.2 -> 3.2 over 8 weeks for +0.4% payroll,
       synthetic crews).

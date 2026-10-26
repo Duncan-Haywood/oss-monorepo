@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_019Yd8ELhjXeuGoqQy3LVz3c",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T14:09:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6): shift-roster-builder coverRepair",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 10657,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-27-shift-roster-builder-repair-search-same-roster-every-machine.md"
+  ],
+  "goal": null,
+  "notes": "coverRepair now ends on a node budget (deterministic). Default-on was tried: calc.test.mjs + page.test.mjs 156 tests, 147 pass, 9 fail (7 guide-page tables, repair-off baseline test), 427 s; kept off. New determinism test passes; coverRepair test passes. After reverting the default: calc, page and cli tests 172, 171 pass, 1 fails: the call-out page table (24 changed shifts, expected 22). It fails identically on unmodified main (724d542a, run alone, 192 s), so it predates this PR and is left for a later run. venture-preflight not run. Other flagships' items needed real data or blocked hosts (irs.gov unreachable).",
+  "corrections": [],
+  "redteam": null
+}
