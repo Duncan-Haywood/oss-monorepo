@@ -11,6 +11,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Prior: i yes (small, under 0.03 nats); ii yes (the offset adds 3 x rms / 4 to every coordinate of the averaged delta, a large drift, while the median moves by about half that at most... so ii is likely but the margin is unknown).
 - Limits: 3 seeds, one attack shape and size, one `H`, M = 4 with one attacker (25%), attacker does not adapt, bytes not modelled; the loss cost is not the variance factor of the proposal's H5, so this does not test pi/2 directly.
 
+### Outcome of 5a (`experiments/gpt_median_attack/median_attack_results.txt`; 12 runs, seeds 0 to 2)
+- Final validation loss, mean over seeds (3d uncompressed 1.5758). Offset 0: mean-agg 1.5758 (bit-identical to 3d, a determinism check), median 1.5785 (excess +0.0027; per seed +0.0165, -0.0089, +0.0003). Offset 3 rms: mean-agg 1.5730 (excess -0.0028; +0.0095, -0.0104, -0.0075), median 1.5787 (+0.0029; +0.0041, -0.0002, +0.0048).
+- **H5a-i refuted:** median is better than mean on seed 1 with no attacker (-0.0089), and the seed-2 difference (0.0003) is far below seed noise. **H5a-ii refuted:** with the attack, median beats mean on seed 0 only (by 0.0055); mean wins seeds 1 and 2 (by 0.010 and 0.012).
+- Reading: this attack does nothing measurable to DiLoCo on this model. One of four workers adding 3 x rms(delta) to every coordinate shifts the averaged delta by 0.75 rms per coordinate, a constant shift that the inner AdamW steps in the next round absorb; losses stay within seed noise (seed spread is about 0.01) of the clean run, and the 0.003 differences between arms are not distinguishable from it. So no crossover appears at this attack size, and the median's cost on the real GPT is under the seed noise too. The proposal's H5 (cost near pi/2 in variance, a crossover past a threshold) is not tested here: the attack is too weak to reach a threshold, and loss is not variance.
+- Limits: 3 seeds, one weak non-adaptive attack, one `H`, M = 4.
+- Next: a stronger attack (offset 30 or 300 rms, and a sign-flip with scaling) to find where the mean breaks and whether the median then holds, before any claim about the crossover.
+
 ## 2026-10-26 · Milestone 4d: where is the knee of error-feedback top-k between keep 1/16 and 1/256? (planned before running)
 - Why: 4c's "Next". EF top-k cost -0.005 at 1/16, +0.043 at 1/64, +0.121 at 1/256; two points below the knee leave its location and shape unresolved.
 - Design (`experiments/gpt_topk_ef_knee/topk_ef_knee.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); EF top-k at keep 1/32 and 1/128; seeds 0 to 2 (6 runs). Comparators: uncompressed (3d), 4b at 1/16, 4c at 1/64 and 1/256.
