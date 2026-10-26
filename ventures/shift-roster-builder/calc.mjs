@@ -1506,7 +1506,7 @@ export function buildRoster(staff, slots, options = {}) {
       const ps = scoreOwner(ctx, po).total;
       if (ps < best.score - 1e-9) best = { owner: po, score: ps };
     }
-    if (o.coverRepair !== false && scoreOwner(ctx, best.owner).unfilled > 0) {
+    if ((o.coverRepair ?? o.exact === true) && scoreOwner(ctx, best.owner).unfilled > 0) {
       const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000 });
       if (rp.open < scoreOwner(ctx, best.owner).unfilled - 1e-9) {
         const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000));

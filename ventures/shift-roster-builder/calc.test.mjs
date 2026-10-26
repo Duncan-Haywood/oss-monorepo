@@ -1571,3 +1571,13 @@ test("coverRepair: exact repair of the open hours covers the sample week's 15-ho
   assert.equal(open(on), 15);
   assert.equal(buildRoster(staff, slots, { minRestHours: 0, exact: true }).unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0), 15);
 });
+
+test("coverRepair: a node budget ends the search, so the roster does not depend on the clock", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const open = (r) => r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
+  const a = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairMs: 60000 });
+  const b = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairMs: 600000 });
+  assert.equal(JSON.stringify(a.assignments ?? a.unfilled), JSON.stringify(b.assignments ?? b.unfilled));
+  assert.equal(open(a), 15);
+  assert.equal(open(buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairNodes: 0 })), 16);
+});
