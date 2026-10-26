@@ -1,0 +1,7 @@
+3d uncompressed mean-aggregation: mean 1.5758 [1.5707, 1.583, 1.5738]
+offset 0.0 mean: mean 1.5758 excess vs 3d [0.0, 0.0, 0.0] mean +0.0000
+offset 0.0 median: mean 1.5785 excess vs 3d [0.0165, -0.0089, 0.0003] mean +0.0027
+offset 0.0: mean-agg minus median-agg loss [-0.0165, 0.0089, -0.0003] (positive = median better)
+offset 3.0 mean: mean 1.5730 excess vs 3d [0.0095, -0.0104, -0.0075] mean -0.0028
+offset 3.0 median: mean 1.5787 excess vs 3d [0.0041, -0.0002, 0.0048] mean +0.0029
+offset 3.0: mean-agg minus median-agg loss [0.0055, -0.0102, -0.0123] (positive = median better)

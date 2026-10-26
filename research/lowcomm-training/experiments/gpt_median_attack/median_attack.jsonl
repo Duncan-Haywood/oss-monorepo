@@ -1,0 +1,12 @@
+{"agg": "mean", "offset": 0.0, "seed": 0, "loss": 1.5706822052598, "secs": 774}
+{"agg": "mean", "offset": 3.0, "seed": 0, "loss": 1.580229714512825, "secs": 783}
+{"agg": "median", "offset": 3.0, "seed": 0, "loss": 1.5747377499938011, "secs": 785}
+{"agg": "median", "offset": 0.0, "seed": 0, "loss": 1.5872121378779411, "secs": 792}
+{"agg": "mean", "offset": 0.0, "seed": 1, "loss": 1.5829866006970406, "secs": 796}
+{"agg": "mean", "offset": 3.0, "seed": 1, "loss": 1.5725861862301826, "secs": 792}
+{"agg": "median", "offset": 0.0, "seed": 1, "loss": 1.574097104370594, "secs": 797}
+{"agg": "median", "offset": 3.0, "seed": 1, "loss": 1.5827443525195122, "secs": 807}
+{"agg": "mean", "offset": 0.0, "seed": 2, "loss": 1.573803834617138, "secs": 777}
+{"agg": "mean", "offset": 3.0, "seed": 2, "loss": 1.5662620887160301, "secs": 772}
+{"agg": "median", "offset": 0.0, "seed": 2, "loss": 1.5741528198122978, "secs": 778}
+{"agg": "median", "offset": 3.0, "seed": 2, "loss": 1.5786076486110687, "secs": 779}
