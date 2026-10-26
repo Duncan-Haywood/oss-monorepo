@@ -1,4 +1,4 @@
-"""Milestone 19: a two-feature multi-fidelity regression surrogate against f3, eta = 1.5 and random (same tables, cost model, seeds and regret as
+"""Milestone 20: a two-feature multi-fidelity regression surrogate against f3, eta = 1.5 and random (same tables, cost model, seeds and regret as
 milestones 16 and 17). Runs no flow. Writes results.txt and summary.json. Usage: python3 surrogate.py"""
 import json
 import math
@@ -149,7 +149,7 @@ for k, v in list(reg.items()):
 
 cells = sorted({k[0] for k in reg})
 arms = ["rand", "fixed1.5", "fixedf3", "mf1", "mf2"]
-out = [f"# milestone 19: multi-fidelity regression surrogate, {len(cells)} cells, {SEEDS} paired seeds, m={M_PILOT}, screen share {SCREEN_SHARE}, ridge {RIDGE}\n"]
+out = [f"# milestone 20: multi-fidelity regression surrogate, {len(cells)} cells, {SEEDS} paired seeds, m={M_PILOT}, screen share {SCREEN_SHARE}, ridge {RIDGE}\n"]
 summary = {}
 out.append("## mean regret % over cells (n/a: some seed could not afford the arm)\nbudget | " + " | ".join(arms))
 for B in BUDGETS:

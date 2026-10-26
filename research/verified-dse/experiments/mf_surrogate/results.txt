@@ -1,4 +1,4 @@
-# milestone 19: multi-fidelity regression surrogate, 40 cells, 400 paired seeds, m=5, screen share 0.4, ridge 1.0
+# milestone 20: multi-fidelity regression surrogate, 40 cells, 400 paired seeds, m=5, screen share 0.4, ridge 1.0
 
 ## mean regret % over cells (n/a: some seed could not afford the arm)
 budget | rand | fixed1.5 | fixedf3 | mf1 | mf2
