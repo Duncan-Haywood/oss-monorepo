@@ -857,6 +857,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   row("Cash from financing", c.financing);
   row("Change in cash", c.change);
   row("Free cash flow (operations less purchases)", c.freeCashFlow);
+  if (c.monthlyBurn) console.log(`  Burn ${fmt(c.monthlyBurn)} a month before financing${c.runwayMonths == null ? "; no cash left" : `; ${c.runwayMonths} months of runway at this pace`}`);
   console.log(`  Cash ${fmt(c.openingCash)} -> ${fmt(c.closingCash)}: ${c.ties ? "ties to the bank accounts" : "DOES NOT TIE"}`);
   const s = status(books);
   if (s.review) console.log(`\n${s.review} lines are still in review and not in these figures.`);
