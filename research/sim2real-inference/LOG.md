@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Paper abstract synced to 4c and 4e (writing step, no new experiment)
+- Done: the abstract still said "interval 5 to 26"; it now gives the two-way resampling interval (3 to 54) and the held-out result (raw twin worth about 5 to 7 trials for a new policy and task). Re-ran `m4e_transfer/transfer.py`: output identical to `results/summary_4e.txt`. The body paragraph and `reproduce.sh` already had 4c and 4e.
+- Next: per-episode pairs remain blocked (host unreachable); remaining milestones are 5/6 write-ups and a full paper read-through.
+
 ## 2026-10-26 · Milestone 4e: does the SIMPLER calibration transfer to a held-out task or policy? (planned before running)
 - Why: m4 calibrates the twin by leave-one-cell-out, so the 35 training cells include the same task with other policies and the same policy on other tasks. A practitioner wants to certify a new policy or a new task, where those cells are not available. 4c widened the intervals; it did not change the point estimate's leakage.
 - Method (`experiments/m4e_transfer/transfer.py`): same 36 cells and OLS-within-robot calibration as m4; predictions for each cell come from a fit that drops (a) the whole task, (b) the whole policy, (c) both its task and its policy. Report debiased MSE, break-even n* = mean p(1-p)/MSE, and Pearson r of prediction with real, against m4's leave-one-cell-out (n* 10.1). Policy-level bootstrap intervals (4,000 resamples of policies, as 4c) for each.
