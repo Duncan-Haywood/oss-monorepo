@@ -109,3 +109,25 @@ test("anchor bolts are budgeted from the foundation count at the typed price", (
   assert.equal(a.qty, 30);
   assert.equal(a.amount, 75);
 });
+
+test("insulation bags are budgeted: wall, rim and attic lines, typed price over the plan's own", () => {
+  const plan = { ...full({ insulationBag: 20 }), insulation: { price: 99, rim: true, attic: { bagCuFt: 40, price: 30 } } };
+  const b = bud(plan);
+  const ins = JSON.parse(run(plan, "--insulation", "--json").out).insulation;
+  const wall = b.lines.find((l) => l.item === "Wall cavity insulation bags");
+  assert.equal(wall.qty, ins.bags);
+  assert.equal(wall.amount, ins.bags * 20);
+  const rim = b.lines.find((l) => l.item === "Rim joist insulation bags");
+  assert.equal(rim.amount, ins.rim.bags * 20);
+  const attic = b.lines.find((l) => l.item === "Attic loose-fill bags");
+  assert.equal(attic.unitPrice, 30);
+  assert.equal(b.sections.find((s) => s.name === "Insulation").subtotal, +(wall.amount + rim.amount + attic.amount).toFixed(2));
+});
+
+test("insulation with no price anywhere is listed as unpriced; the plan's price is used when none is typed", () => {
+  const plain = bud({ ...full(), insulation: {} });
+  assert.ok(plain.unpriced.some((u) => u.startsWith("Wall cavity insulation bags")));
+  const priced = bud({ ...full(), insulation: { price: 12 } });
+  const w = priced.lines.find((l) => l.item === "Wall cavity insulation bags");
+  assert.equal(w.unitPrice, 12);
+});
