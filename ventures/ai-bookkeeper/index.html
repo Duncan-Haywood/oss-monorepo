@@ -328,6 +328,12 @@
     <div class="scroll" id="budget"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-compare">
+    <h2 id="h-compare">This period against the last</h2>
+    <p class="note">Profit and loss for the From and To dates above beside the period of the same length just before it (the latest month against the month before, if the dates are empty): income, expenses, net, then every account that moved, largest change first. It reports the difference and does not explain it. Lines still waiting in the queue are in neither period.</p>
+    <div class="scroll" id="compare"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-recon">
     <h2 id="h-recon">Optional: reconcile to a paper statement</h2>
     <p class="note">Type the closing balance printed on a bank or card statement (a card statement's amount owed goes in as printed, positive). If the books differ, this names the likeliest lines behind the gap: lines still waiting for an account, one line equal to the gap, a sign slip, a pair of lines, swapped digits. It only points at lines; it never changes your books. Hints are a search, not proof.</p>
@@ -451,6 +457,7 @@
     import { planBills } from "./billpay.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
     import { reconcile } from "./reconcile.mjs";
+    import { compareProfit, precedingPeriod } from "./compare.mjs";
     import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
     import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, employerCost } from "./payroll.mjs";
     import { addTrip, removeTrip, setHomeOffice, mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
@@ -584,6 +591,19 @@
       $("#budget").replaceChildren(
         el("p", { class: "note", text: `${b.from} to ${b.to}, ${b.months} month${b.months === 1 ? "" : "s"}.${b.empty ? ` ${b.empty.replace("use `budget CODE AMOUNT`", "pick an account above")}.` : ""}${b.partial ? ` ${b.partial}.` : ""}` }),
         table(["Account", "Budget", "Actual", "Variance", "Status"], rows, [["Net profit", fmt(b.net.budget), fmt(b.net.actual), fmt(b.net.variance), ""]]));
+    }
+
+    function renderCompare() {
+      const from = $("#from").value, to = $("#to").value;
+      const period = from && to ? { from, to } : null;
+      const c = compareProfit(books, period ? { period, against: precedingPeriod(period) } : {});
+      if (!c) { $("#compare").replaceChildren(el("p", { class: "note", text: from && to ? "Import a statement first, and check the From date is not after the To date." : "Import a statement first, or set both From and To dates." })); return; }
+      const pct = (x) => x.pct === null ? "" : ` ${x.pct > 0 ? "+" : ""}${(x.pct * 100).toFixed(0)}%`;
+      const rows = c.accounts.map((x) => [`${x.code} ${x.name}`, fmt(x.now), fmt(x.then), fmt(x.change) + pct(x), x.status === "changed" ? (x.hurtsProfit ? "lowers profit" : "raises profit") : x.status]);
+      const notes = [c.empty, c.partial].filter(Boolean).join("; ");
+      $("#compare").replaceChildren(
+        el("p", { class: "note", text: `${c.period.from} to ${c.period.to} against ${c.against.from} to ${c.against.to}.${notes ? ` ${notes}.` : ""}` }),
+        table(["Account", "This period", "Before", "Change", "Effect"], rows, [["Income", fmt(c.income.now), fmt(c.income.then), fmt(c.income.now - c.income.then), ""], ["Expenses", fmt(c.expense.now), fmt(c.expense.then), fmt(c.expense.now - c.expense.then), ""], ["Net profit", fmt(c.net.now), fmt(c.net.then), fmt(c.net.change), ""]]));
     }
 
     function renderYearEnd() {
@@ -965,7 +985,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderInventory(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderCompare(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderInventory(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
 
     function renderOpening() {
       const tb = books.openingTB;
@@ -1168,8 +1188,8 @@
     });
     $("#receipts-min").addEventListener("change", renderReceipts);
     $("#receipts-clear").addEventListener("click", () => { books = { ...books, receipts: [] }; render(); $("#receipts-status").textContent = "Receipts removed."; });
-    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderReceipts(); renderVat(); });
-    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderReceipts(); renderVat(); });
+    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderCompare(); renderReceipts(); renderVat(); });
+    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderCompare(); renderReceipts(); renderVat(); });
 
     const download = (text, file, type) => { const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: file }); document.body.append(a); a.click(); a.remove(); };
     for (const b of document.querySelectorAll("[data-export]")) b.addEventListener("click", () => {
