@@ -47,6 +47,17 @@ class Tree(unittest.TestCase):
             (v / "usage.mjs").write_text("try { localStorage.getItem('k'); } catch {}\n")
             self.assertEqual(main(["x", d]), 0)
 
+    def test_default_root_is_the_ventures_dir_and_not_empty(self):
+        import check_storage_guard as g
+        seen = []
+        orig = g.check_tree
+        g.check_tree = lambda root: seen.append(Path(root)) or []
+        try:
+            main(["x"])
+        finally:
+            g.check_tree = orig
+        self.assertTrue(list(seen[0].glob("*/usage.mjs")), seen[0])
+
     def test_repo_is_clean(self):
         self.assertEqual(main(["x"]), 0)
 

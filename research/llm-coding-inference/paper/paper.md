@@ -6,9 +6,9 @@ from a file in [`../experiments/`](../experiments/) that the named script wrote;
 the log with the plans made before each run is [`../LOG.md`](../LOG.md). This
 text was drafted with AI assistance, and implies no affiliation with any lab or
 venue it cites. **One small real LLM (Qwen2.5-1.5B-Instruct, zero-shot) has coded text in
-this draft, on one corpus (Section 7)**; every other experiment uses a word
+this draft, on one corpus (Sections 7 and 8)**; every other experiment uses a word
 list, naive Bayes or a class-weighted logistic regression (the "stand-in
-coders"). Section 9 says what that does to each claim.
+coders"). Section 9 says what that does to each claim, and Section 8 what a coder must be to pay.
 
 ## Abstract
 
@@ -36,7 +36,9 @@ hand-coded tweets), an HC3-type leverage correction with a t quantile brings
 tuned PPI++ to 93.2 to 94.9% coverage at n >= 100, and a zero-shot 1.5B LLM
 coder (agreement 66.1% with the human label) makes it 2.2% narrower than
 hand-coding alone at n = 400. The programme's H3 (a 20% gain) is not reached by
-any coder tried.
+any coder tried. Synthetic coders say it needs agreement near 0.80 with
+errors not tied to length or the label, and a coder with errors fitted to the
+real 1.5B and 3B reproduces their null gain (width ratio 0.98 to 0.99).
 
 ## 1 Introduction
 
@@ -228,7 +230,46 @@ coder reaches the 20% gain that H3's break-even claim needs, so H3 as stated
 is **untested, not refuted**: the model is small and handles Hausa, Igbo and
 Yoruba badly.
 
-## 8 Limits and what remains
+## 8 What a coder must be to pay (H3 follow-up; negative for small zero-shot models)
+
+Same corpus, outcome, regression and estimator as Section 7 (tuned PPI++ + HC3
++ t against human-only HC3 + t; 600 draws per cell). Scripts `h5b` (via
+`h3_llm_width.py`), `h5c_calibrated.py`, `h5d_breakeven.py`, `h5e_correlated.py`,
+`h5f_text_error.py`, `h5g_fitted.py`; the plans written before each run are in
+`LOG.md` milestones 5b to 5g. Milestone 5g was run before its hypotheses
+were written down (disclosed there), so read it as descriptive.
+
+*Size is not the driver; the cut is.* Qwen2.5 0.5B, 1.5B and 3B (zero-shot, cut
+at score > 0) agree with the human label 0.668, 0.661, 0.689, and the width
+ratio at n = 400 is 0.996, 0.978, 0.993. The 0.5B and 3B models call only 2.5%
+and 3.1% of tweets negative (truth 32.7%), so their codes carry almost no
+signal; the 1.5B model happened to be near-calibrated at 0. Choosing the cut on
+100 human labels and charging them to PPI++ (comparator: human-only with n + 100
+labels) loses for all three models: ratio 1.42 to 1.44 at n = 100 and 1.11 to
+1.13 at n = 400. With models this small there is no regime at n = 100 to 400
+where spending labels on a cut beats labelling more.
+
+*How good must a coder be?* With a synthetic coder that flips the human label
+independently with probability 1 - a, the ratio at n = 400 is 0.984 (a = 0.60),
+0.934 (0.70), 0.898 (0.75), 0.811 (0.80), 0.656 (0.90): H3's 20% gain needs
+roughly a = 0.80 here, and almost any informative independent coder helps a
+little. Coverage of tuned PPI++ falls below 93% at n = 100 for a >= 0.90
+(91.8, 89.0), the in-sample weight selection over-shrinking the interval.
+
+*Real errors are not independent.* At matched agreement, errors tied to the
+group or to a text feature ("@" present) leave the ratio at 0.88 to 0.97 for
+a = 0.70 and 0.95 to 0.99 for a = 0.60 (n = 400), against 0.936 and 0.979 for
+independent flips; length- or label-dependent errors are the least favourable
+(0.965 to 0.992). A synthetic coder whose flip probability is a logistic
+regression fitted to the real 1.5B and 3B errors reproduces their n = 400
+ratios (1.5B: real 0.978, fitted 0.985; 3B: 0.993 and 0.993) with coverage
+93.3 to 95.3%. Hence the null result for small zero-shot models is what a
+0.66 to 0.69 coder with this error structure should give, and a real gain needs
+agreement near 0.80 with errors not tied to length or the label. This is a
+descriptive fit on one corpus, one prompt and one error draw per cell; it does
+not show that a 7B or larger model would reach 0.80, which is untested.
+
+## 9 Limits and what remains
 
 1. **One small real LLM.** H3 (a real instruction-following model changes
    the break-even audit size by 3x or more) is untested at the scale it
@@ -243,7 +284,7 @@ Yoruba badly.
    interval was not compared.
 6. Regression coefficients (Section 7): OLS only, no logistic regression; the HC3 leverage term for the blended equation and the t degrees of freedom are heuristics, not derived; the tuned interval's width is a minimum over a weight grid, so its small-n narrowness is partly selection.
 
-## 9 Reproducibility
+## 10 Reproducibility
 
 Each table is written by one script in `experiments/` (about 30 s to 3 min
 each); data come from the public NaijaSenti and GoEmotions releases through the
@@ -258,7 +299,8 @@ loaders of `qual-dialect` and `qual-real`; seeds are fixed in the scripts. Tests
 | 2 Related work | drafted; Gligorić et al. and Fisch et al. still to be read in full |
 | 3 to 6 | numbers current as of milestone 6f |
 | 7 | added in draft 1 from LOG.md 6g to 6n and milestone 5; numbers copied from the log, not yet re-derived from the result files line by line |
-| 8 | updated for the 1.5B LLM; still lists the open model and corpus work |
+| 8 | added in draft 1.1 from LOG.md 5b to 5g; numbers checked against `experiments/*.txt` for 5b, 5d, 5g, the rest copied from the log |
+| 9 | limits; still lists the open model and corpus work (7B untested) |
 | LaTeX in the venue's format | not started; needs the venue's current template |
 | Owner step | submission (publishes under a name) |
 

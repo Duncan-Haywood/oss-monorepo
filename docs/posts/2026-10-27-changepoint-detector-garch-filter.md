@@ -1,7 +1,7 @@
 ---
 title: "A GARCH filter fixes false alarms in changepoint detection, then breaks real ones"
 date: 2026-10-27
-description: "Dividing a series by a fitted GARCH volatility cut false change alarms from about 50% to 1%, but hid a real variance break 94 times in 100. A measured negative result."
+description: "Dividing a series by a fitted GARCH volatility cut false change alarms from about 50% to 1% but hid a real variance break 94 times in 100. A negative result."
 tags: [changepoint-detector, statistics, negative-result]
 ---
 

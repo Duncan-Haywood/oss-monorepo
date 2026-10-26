@@ -712,6 +712,36 @@ Gaussian detection falls from 92% to 80% and t3 from 57% to 44%. Variant A, whic
 helps. In-sample on the generators above, simulated data only, no real series tried; the noise warning stays on. About
 0.2 s per 200-point series. Test: `meanvar-bootstrap.test.mjs`.
 
+### The mean model too (2026-10-26)
+
+`--model mean --bootstrap` does the same with residuals about the segment means kept in units of the noise scale the mean
+cost uses, so autocorrelated noise (residual sd above that scale) raises the penalty. Not with `--ar1`. Measured by
+`eval/mean-block-bootstrap.mjs` (seeded, 100 series per cell, n = 200, unit-variance AR(1) noise, detection is a 2 sd step at 100 found within 10):
+
+| noise | false alarms plain | false alarms `--bootstrap` | detection plain / `--bootstrap` |
+|---|---|---|---|
+| iid | 5% | 1% | 100% / 100% |
+| AR(1) 0.3 | 80% | 13% | 98% / 98% |
+| AR(1) 0.5 | 100% | 53% | 98% / 94% |
+
+Synthetic noise only; a real autocorrelated series is still wanted.
+
+### Counts too (2026-10-26)
+
+`--model poisson --bootstrap` takes Pearson residuals from a 3x BIC fit (using any seasonal or holiday exposure), resamples
+them in blocks and turns them back into counts about the overall rate, so runs of busy and quiet days (overdispersion that
+clusters) raise the penalty. `eval/poisson-block-bootstrap.mjs` (seeded, 100 series per cell, n = 200, mean 10, log rate AR(1)
+0.8 with the sd shown, detection is a x1.5 step at 100 found within 10):
+
+| clustering (sd of log rate) | false alarms plain | false alarms `--bootstrap` | detection plain / `--bootstrap` |
+|---|---|---|---|
+| 0 (pure Poisson) | 5% | 4% | 98% / 98% |
+| 0.2 | 89% | 11% | 83% / 73% |
+| 0.4 | 100% | 74% | 86% / 63% |
+
+Synthetic only, and at sd 0.4 it still raises 74% false alarms; a real clumpy count series is still wanted. Not tested with
+`--trend` or holidays. Test: `meanvar-bootstrap.test.mjs`.
+
 ## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
 
 The section above ended with a warning because the Gaussian variance cost has no cheap fix. A different noise model does
@@ -804,3 +834,31 @@ Nile variants (2026-10-26, `nile-variants.test.mjs`): on the real Nile series th
 ## A real count series: British coal-mining disasters (2026-10-26)
 
 Until now the Poisson path was checked on real counts only through the seasonal and trend variants (UK driver casualties, Wikipedia pageviews). `data/coal-mining-disasters.csv` is the plain annual case: 191 disasters of ten or more deaths in 112 years (1851-1962, Jarrett 1979). Plain `poisson` PELT returns two changes: **1892** (3.10 to 1.07 a year, `range95` 1886 to 1897, which holds the literature's 1890) and a second at 1948 (1.07 to 0.27, `range95` 1897 to 1961). The 1948 change is real in the data (a handful of disasters after nationalisation) but the range is 64 years wide: eleven or so events cannot date it, and the tool says so instead of giving a point. `--overdispersion nb` returns the same two changes. One real series, one run: it shows the interval is honest here, not that its coverage is 95%. Test: `coal-disasters.test.mjs`.
+
+## Real heavy tails: daily exchange-rate returns (2026-10-26)
+
+The robust, dispersion and bootstrap options above were tuned on seeded synthetic noise.
+`eval/fx-shocks.mjs` (output `eval/fx-shocks.out.txt`, test `fx-shocks.test.mjs`) runs
+`--model meanvar` on 1,750 real daily log returns of the Swiss franc, pound and yen against
+the dollar, 2012-2018 (`data/fx-daily-returns.csv`, Fed H.10 via a public-domain mirror,
+source in `data/SOURCE.md`). Two dated shocks: the Swiss National Bank dropped its euro
+floor on 2015-01-15 (kurtosis of the franc series 111) and the UK voted for Brexit on
+2016-06-23 (pound kurtosis 32). Yen (kurtosis 6.6) has no single documented break.
+
+| series | default | `--robust` | `--dispersion` | `--bootstrap` |
+|---|---|---|---|---|
+| CHF changes (event found; not near the event) | 6 (yes; 4) | 3 (yes; 1) | 3 (yes; 1) | 6 (yes; 4) |
+| GBP | 5 (yes; 3) | 4 (yes; 3) | 3 (yes; 1) | 4 (yes; 2) |
+| JPY (no event) | 7 | 4 | 4 | 4 |
+
+What this says, on three series and with no labels beyond two dates:
+
+- Every mode finds both events, on the day (CHF 2015-01-15) or the week before (GBP 2016-06-17,
+  inside the run-up to the vote; "near" is within 10 trading days of 2016-06-24).
+- All four also report the end of the shock as a second change (CHF 2015-01-30, GBP 2016-07-06 or 07-20), which is true: the volatility burst has ended.
+- The extra changes are quiet-versus-busy-year splits that default `meanvar` reads from heavy tails. `--dispersion` removes the most on GBP (3 of 5 changes left), `--robust` and `--dispersion` tie on CHF and JPY.
+- **`--bootstrap` did not help on the franc, and the reason is measured** (2026-10-26, `eval/fx-bootstrap-why.mjs`, test `fx-bootstrap-why.test.mjs`). The bootstrap standardises the series by a 3x-BIC pilot fit. On the franc that fit cuts the shock into a 10-day segment, and standardising each segment by its own sd removes the tail: kurtosis 111.5 falls to 4.3 (pound 32.0 to 4.6; yen 6.6 to 5.6, no shock to hide). The resampled noise is so much lighter than the data that the penalty rises only from 22.4 to 36.4, and the extra changes drop out at about 45 (a fixed penalty of 45 returns the three-change answer; 100 drops to two). A longer minimum segment for the pilot does not recover the tail (penalty 36 to 38 at 10, 30, 60 and 90 days). So the option suits clustered noise that stays inside the series, and under-corrects when one giant day dominates. Untested fix: standardise by a robust scale fitted across the shock, not segment by segment.
+- **The untested fix does not work either** (2026-10-27, `eval/fx-bootstrap-tail.mjs`, test `fx-bootstrap-tail.test.mjs`). Two ways to keep the tail in the bootstrap's pilot residuals, same 3x-BIC pilot, same seeds. Each segment by 1.4826 x its MAD instead of its sd: the franc penalty goes 36.4 to 35.2 and the same six dates come back (a 10-day shock still sets its own scale, because most of its days are big); pound 31.9 to 34.1, yen 45.6 to 47.8, no change in what is found. One global MAD scale after removing segment means: the tail is kept, and the penalty is 589 for the franc and 211 for the pound, so **zero changes**, the real 2015 shock included (yen 61.2, two changes, neither of them the 2013 to 2014 ones). On synthetic n=200 noise (60 reps) the three standardisations match: Gaussian 0% false alarms and 88% detection of an sd doubling, t3 12% / 12% / 8% false alarms, GARCH 17% for all. So the shipped per-segment sd stays. What is left is a pilot that knows which large days are one shock and which are the noise's tail, which needs the shock's date from outside the pilot (a joint fit), not a different scale.
+- Residual clustering is still there after the fit (the Ljung-Box line prints for CHF, JPY and the robust runs), so the dates stay candidates.
+
+Not claimed: that these dates are all the true regimes (the year-to-year splits may be real volatility changes), nor a false-alarm rate; that needs labelled series.
