@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { vatReturn, addAsset, taxableBusinessIncome, s179Carryforward, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
-import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts, cashFlow } from "./ledger.mjs";
+import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts, cashFlow, cashFlowByMonth } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
 import { generateYear, toCsv } from "./eval/synth.mjs";
 import { runSeed } from "./eval/benchmark.mjs";
@@ -850,4 +850,20 @@ test("cash flow adds depreciation back in operating and shows disposal proceeds 
   c = reports(b).cashFlow;
   assert.ok(c.ties);
   assert.equal(c.investing, 500000, "investing shows the proceeds, not the net book value (the purchase is not in these books)");
+});
+
+test("cashFlowByMonth gives each month's statement and a recent-burn runway that moves with the trend", () => {
+  const acc = DEFAULT_ACCOUNTS, bank = acc.find((a) => a.bank).code;
+  const e = (id, date, debit, credit, amt) => ({ id, date, memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const books = [e("a", "2026-01-01", bank, "3000", 1000000), e("b", "2026-01-31", "6060", bank, 100000), e("c", "2026-02-15", "6060", bank, 100000), e("d", "2026-03-10", "6060", bank, 200000), e("f", "2026-04-20", "6060", bank, 300000)];
+  const r = cashFlowByMonth(books, acc, {});
+  assert.deepEqual(r.months.map((m) => m.month), ["2026-01", "2026-02", "2026-03", "2026-04"]);
+  assert.deepEqual(r.months.map((m) => m.operating), [-100000, -100000, -200000, -300000]);
+  assert.equal(r.months[0].financing, 1000000);
+  assert.deepEqual(r.months.map((m) => m.closingCash), [900000, 800000, 600000, 300000]);
+  assert.equal(r.recentBurn, 200000, "mean of Feb-Apr");
+  assert.equal(r.recentRunwayMonths, 1.5);
+  assert.equal(cashFlowByMonth([], acc, {}).recentRunwayMonths, null);
+  const clipped = cashFlowByMonth(books, acc, { from: "2026-02-10", to: "2026-03-31" });
+  assert.deepEqual(clipped.months.map((m) => m.operating), [-100000, -200000]);
 });

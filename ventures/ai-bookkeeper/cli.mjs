@@ -859,6 +859,12 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   row("Free cash flow (operations less purchases)", c.freeCashFlow);
   if (c.monthlyBurn) console.log(`  Burn ${fmt(c.monthlyBurn)} a month before financing${c.runwayMonths == null ? "; no cash left" : `; ${c.runwayMonths} months of runway at this pace`}`);
   console.log(`  Cash ${fmt(c.openingCash)} -> ${fmt(c.closingCash)}: ${c.ties ? "ties to the bank accounts" : "DOES NOT TIE"}`);
+  const bm = r.cashByMonth;
+  if (bm.months.length > 1) {
+    console.log("\n  Month      Operations   Investing   Financing  Closing cash");
+    for (const m of bm.months) console.log(`  ${m.month} ${fmt(m.operating).padStart(12)} ${fmt(m.investing).padStart(11)} ${fmt(m.financing).padStart(11)} ${fmt(m.closingCash).padStart(13)}`);
+    if (bm.recentBurn) console.log(`  Last three months burn ${fmt(bm.recentBurn)} a month${bm.recentRunwayMonths == null ? "; no cash left" : `; ${bm.recentRunwayMonths} months of runway at that pace`}`);
+  }
   const s = status(books);
   if (s.review) console.log(`\n${s.review} lines are still in review and not in these figures.`);
 } else if (cmd === "checks") {
