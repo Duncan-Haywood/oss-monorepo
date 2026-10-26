@@ -1,7 +1,7 @@
 ---
 title: "How good must an LLM coder be before it shrinks your audit? The paper draft's answer"
 date: 2026-10-26
-description: "Draft 1.1 of the llm-coding-inference paper adds the answer: about 0.80 agreement with errors unrelated to text length or the label, and small Qwen coders fall short."
+description: "Draft 1.1 of the llm-coding-inference paper: about 0.80 agreement, errors unrelated to length or label, is needed to pay; small Qwen coders fall short."
 tags: [research, llm-coding-inference, ppi, annotation]
 ---
 

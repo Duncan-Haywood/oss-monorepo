@@ -1,7 +1,7 @@
 ---
 title: "A bootstrap penalty for the mean model cuts false alarms on autocorrelated noise"
 date: 2026-10-26
-description: "changepoint-detector's --bootstrap now works with the mean model: on AR(1) noise at 0.3, false alarms drop from 80% to 13% while a 2 sd step is still found 98% of the time."
+description: "changepoint-detector --bootstrap now covers the mean model: on AR(1) noise at 0.3, false alarms fall from 80% to 13%; a 2 sd step is still found 98% of runs."
 tags: [changepoint-detector, statistics, changepoints]
 ---
 
