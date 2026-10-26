@@ -294,6 +294,7 @@ numbers worked out before drafting.
 - *Twenty-year strand, next:* a 2046 court or bank piece where a stored preference binds a person who can no longer revise it, with no dementia in it (for example a trust or a will's condition).
 - *(Done: The Youngest Ring, Hochbrunn, Styria, 2048; text only.)* Tree-ring dating of a village's founding-legend Madonna: the youngest ring is the floor on the date, the church's 800 years stay, the statue's do not.
 
+- *(Done: The Third List, Hartsmouth, Ohio, 2048; text only.)* Capture–recapture on three agencies' lists with coded matching and no names: 112, 87 and 64 people, 190 seen, about 310 estimated (253 to 397 across models); a cold-night door tally gives 307. A fish count answers "how many pass through", not "how many cots tonight".
 - *(Done: The Barbara Level, Cwm Barri, South Wales, 2050; text only.)* Mine-water heat for 380 homes (40 L/s, 8 K, COP 4.5, 1.34 MW from the ground); the agent will not certify 25 years on a 3 to 41 year thermal-breakthrough range, a fluorescein test arrives at hour 52, and a surveyor's 1934 note says a roadway the plan calls stowed is open.
 - *(Done: The Lean of the Cloister, Santa Scolastica al Poggio, Parma Apennines, 2053; text only.)* A slow earthflow speeds up (5 to 18.5 mm/day); inverse-velocity gives 4.3 days but only a 2 to 9 day window; the guest wing is 0.3% of the moving mass, the capped 1964 spring and a trench drain are the lever.
 
