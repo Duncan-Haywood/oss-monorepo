@@ -50,6 +50,7 @@ export function seal(message, recipientPk, ephemeralSecret) {
 
 /** Inverse of seal(); returns null when the box does not open. */
 export function open(sealed, recipientPk, recipientSk) {
+  if (sealed.length < KEY_BYTES) return null;
   const epk = sealed.slice(0, KEY_BYTES);
   return nacl.box.open(sealed.slice(KEY_BYTES), nonceFor(epk, recipientPk), epk, recipientSk);
 }
