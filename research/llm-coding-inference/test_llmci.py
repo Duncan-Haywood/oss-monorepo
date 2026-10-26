@@ -196,3 +196,33 @@ def test_ppi_ols_crossfit_is_unbiased_and_covers_on_synthetic_data():
         cover += abs(b[1] - truth[1]) <= 1.96 * se[1]
         errs.append(b[1] - truth[1])
     assert 0.90 <= cover / 200 <= 0.99 and abs(np.mean(errs)) < 0.01
+
+
+def test_stratified_ppi_tuned_endpoints_and_oracle_variance():
+    rng = random.Random(7)
+    y, f = corpus(400, 0.3, 0.8, 0.9, rng)
+    idx = rng.sample(range(400), 80)
+    s = [(400, f, [y[i] for i in idx], [f[i] for i in idx])]
+    a, b = E.stratified_ppi_tuned(s, lam=1.0), E.stratified_ppi(s)
+    assert math.isclose(a.value, b.value) and math.isclose(a.se, b.se)
+    h = E.stratified_ppi_tuned(s, lam=0.0)
+    assert math.isclose(h.se, E.stratified_human([(400, [y[i] for i in idx])]).se)
+    lam, s2 = E.stratum_lambda_s2(y, f)
+    assert 0 <= lam <= 1
+    # the oracle weight never has more residual variance than either endpoint
+    assert s2 <= E._var(y) + 1e-12 and s2 <= E._var([a_ - b_ for a_, b_ in zip(y, f)]) + 1e-12
+    assert E.stratum_lambda_s2(y, [1] * 400) == (0.0, E._var(y))
+
+
+def test_stratified_ppi_tuned_unbiased_and_covers():
+    rng = random.Random(11)
+    y, f = corpus(600, 0.25, 0.7, 0.85, rng)
+    truth = sum(y) / 600
+    vals, cov = [], 0
+    for _ in range(1500):
+        idx = rng.sample(range(600), 100)
+        e = E.stratified_ppi_tuned([(600, f, [y[i] for i in idx], [f[i] for i in idx])])
+        vals.append(e.value)
+        cov += E.covers(e, truth)
+    assert abs(sum(vals) / len(vals) - truth) < 0.004
+    assert 0.92 < cov / 1500 < 0.975

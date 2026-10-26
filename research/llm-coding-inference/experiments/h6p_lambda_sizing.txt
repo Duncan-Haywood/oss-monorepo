@@ -1,0 +1,45 @@
+GoEmotions subreddit-group corpus 6683 comments, true negative share 0.2352; groups sports 1650, tv-dating 1390, personal 2078, video-cringe 1565
+1000 audit draws per cell, seed 20261027. Plans sized by neyman_total on S2 of y (human), y - f (ppi1), y - lam* f (oracle lam).
+
+coder | per-group oracle lam | S2 human | S2 ppi1 | S2 oracle
+lr-pooled | 0.327, 0.282, 0.354, 0.321 | 0.175, 0.166, 0.193, 0.178 | 0.230, 0.232, 0.244, 0.232 | 0.158, 0.155, 0.172, 0.162
+lr-sports-only | 0.173, 0.106, 0.162, 0.155 | 0.175, 0.166, 0.193, 0.178 | 0.279, 0.310, 0.325, 0.299 | 0.170, 0.164, 0.188, 0.174
+lr-personal-only | 0.137, 0.190, 0.232, 0.170 | 0.175, 0.166, 0.193, 0.178 | 0.269, 0.253, 0.273, 0.278 | 0.173, 0.161, 0.185, 0.174
+
+coder | target pts | plan | estimator | n | allocation | mean half | 95th pct half | coverage
+lr-pooled | 3 | human | human | 688 | [168, 138, 222, 160] | 3.00 | 3.11 | 0.950
+lr-pooled | 3 | ppi1 | ppi1 | 873 | [213, 180, 276, 203] | 3.00 | 3.14 | 0.952
+lr-pooled | 3 | oracle | tuned-oracle-lam | 629 | [153, 128, 201, 147] | 3.00 | 3.12 | 0.961
+lr-pooled | 3 | oracle | tuned-estimated-lam | 629 | [153, 128, 201, 147] | 2.98 | 3.11 | 0.954
+lr-pooled | 3 | oracle | human-estimator-on-oracle-plan | 629 | [153, 128, 201, 147] | 3.15 | 3.27 | 0.954
+lr-pooled | 3 | n ratio oracle/human 0.914, oracle/ppi1 0.721
+lr-pooled | 2 | human | human | 1371 | [334, 275, 442, 320] | 2.00 | 2.05 | 0.957
+lr-pooled | 2 | ppi1 | ppi1 | 1689 | [413, 349, 535, 393] | 2.00 | 2.06 | 0.954
+lr-pooled | 2 | oracle | tuned-oracle-lam | 1265 | [308, 257, 404, 296] | 2.00 | 2.06 | 0.960
+lr-pooled | 2 | oracle | tuned-estimated-lam | 1265 | [308, 257, 404, 296] | 2.00 | 2.06 | 0.956
+lr-pooled | 2 | oracle | human-estimator-on-oracle-plan | 1265 | [308, 257, 404, 296] | 2.10 | 2.16 | 0.955
+lr-pooled | 2 | n ratio oracle/human 0.923, oracle/ppi1 0.749
+lr-sports-only | 3 | human | human | 688 | [168, 138, 222, 160] | 3.00 | 3.11 | 0.950
+lr-sports-only | 3 | ppi1 | ppi1 | 1088 | [257, 228, 350, 253] | 3.00 | 3.10 | 0.963
+lr-sports-only | 3 | oracle | tuned-oracle-lam | 673 | [164, 136, 217, 157] | 3.00 | 3.11 | 0.954
+lr-sports-only | 3 | oracle | tuned-estimated-lam | 673 | [164, 136, 217, 157] | 2.99 | 3.10 | 0.951
+lr-sports-only | 3 | oracle | human-estimator-on-oracle-plan | 673 | [164, 136, 217, 157] | 3.03 | 3.14 | 0.951
+lr-sports-only | 3 | n ratio oracle/human 0.978, oracle/ppi1 0.619
+lr-sports-only | 2 | human | human | 1371 | [334, 275, 442, 320] | 2.00 | 2.05 | 0.957
+lr-sports-only | 2 | ppi1 | ppi1 | 2033 | [480, 427, 654, 472] | 2.00 | 2.05 | 0.944
+lr-sports-only | 2 | oracle | tuned-oracle-lam | 1345 | [327, 271, 433, 313] | 2.00 | 2.05 | 0.957
+lr-sports-only | 2 | oracle | tuned-estimated-lam | 1345 | [327, 271, 433, 313] | 2.00 | 2.05 | 0.957
+lr-sports-only | 2 | oracle | human-estimator-on-oracle-plan | 1345 | [327, 271, 433, 313] | 2.02 | 2.07 | 0.958
+lr-sports-only | 2 | n ratio oracle/human 0.981, oracle/ppi1 0.662
+lr-personal-only | 3 | human | human | 688 | [168, 138, 222, 160] | 3.00 | 3.11 | 0.950
+lr-personal-only | 3 | ppi1 | ppi1 | 980 | [242, 198, 307, 233] | 3.00 | 3.12 | 0.953
+lr-personal-only | 3 | oracle | tuned-oracle-lam | 670 | [165, 134, 215, 157] | 3.00 | 3.11 | 0.949
+lr-personal-only | 3 | oracle | tuned-estimated-lam | 670 | [165, 134, 215, 157] | 2.99 | 3.10 | 0.948
+lr-personal-only | 3 | oracle | human-estimator-on-oracle-plan | 670 | [165, 134, 215, 157] | 3.04 | 3.16 | 0.949
+lr-personal-only | 3 | n ratio oracle/human 0.974, oracle/ppi1 0.684
+lr-personal-only | 2 | human | human | 1371 | [334, 275, 442, 320] | 2.00 | 2.05 | 0.957
+lr-personal-only | 2 | ppi1 | ppi1 | 1862 | [460, 376, 583, 443] | 2.00 | 2.05 | 0.955
+lr-personal-only | 2 | oracle | tuned-oracle-lam | 1339 | [329, 268, 429, 313] | 2.00 | 2.05 | 0.960
+lr-personal-only | 2 | oracle | tuned-estimated-lam | 1339 | [329, 268, 429, 313] | 2.00 | 2.05 | 0.960
+lr-personal-only | 2 | oracle | human-estimator-on-oracle-plan | 1339 | [329, 268, 429, 313] | 2.03 | 2.08 | 0.961
+lr-personal-only | 2 | n ratio oracle/human 0.977, oracle/ppi1 0.719
