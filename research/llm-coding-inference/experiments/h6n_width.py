@@ -1,6 +1,7 @@
-"""Milestone 6n: once the intervals are valid (HC3 + t, 6m), is PPI++ still narrower than human-only HC3? Paired on the
-same audits as h6m_ppi_hc3.py (same corpus, coders, truth, estimators), records the per-coefficient ratio of interval
-half-widths (method / human-only HC3) and the share of draws where the method is narrower; seed fresh. Writes h6n_<coder>.txt.
+"""Milestone 6n: once the intervals are valid (HC3-type influence + t, 6m), is PPI++ narrower than human-only HC3 + t?
+Same corpus, coders, truth and estimators as h6m_ppi_hc3.py; records the mean over draws of the ratio of each PPI++
+interval's half-width (t quantile x se) to human-only HC3 + t's, on the same audit, per coefficient, plus coverage.
+Fresh seed. Audit sizes 60 to 400. Writes h6n_<coder>.txt.
 
     python3 experiments/h6n_width.py nb-in-language     # lexicon-en | nb-english | nb-in-language
 """
@@ -14,14 +15,12 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(HERE.parents[0]))
-import group_shift as G  # noqa: E402
-import h6m_ppi_hc3 as H  # noqa: E402
+import h6m_ppi_hc3 as M6  # noqa: E402
 from llmci import regression as R  # noqa: E402
 
-qd, d = G.qd, G.d
+qd, d, G = M6.qd, M6.d, M6.G
 SIZES, REPS, SEED = (60, 100, 200, 400), int(os.environ.get("REPS", 600)), 20261029
-NAMES = H.NAMES
+NAMES = M6.NAMES
 
 
 def main():
@@ -46,39 +45,37 @@ def main():
     n = len(test)
     ll = np.array([math.log(1 + len(t[1].split())) for t in test])
     X = np.column_stack([np.ones(n)] + [[float(t[0] == k) for t in test] for k in ("hau", "ibo", "pcm")] + [(ll - ll.mean()) / ll.std()])
-    out = [f"coder {cname}; NaijaSenti test corpus {n}; audit sizes {SIZES}, {REPS} draws, seed {SEED}",
-           "ratio = half-width of method / half-width of human-only HC3 + t(n-5) on the same audit (mean of per-draw ratios; <1 means narrower); % narrower = share of draws with ratio < 1",
-           "methods: ins-hc3t tuned PPI++ HC3 + t(n-5); cf-hc3t cross-fit HC3 + t(n-5); cf-hc3t2 cross-fit HC3 + t(n/2-5)",
-           "coder n coefficient | ins-hc3t ratio %narrower | cf-hc3t ratio %narrower | cf-hc3t2 ratio %narrower"]
+    truth = R.ols(X, human)
+    agree = float(np.mean(f == human))
+    out = [f"coder {cname} (agreement with human label {agree:.3f}); corpus {n}; sizes {SIZES}, {REPS} draws, seed {SEED}",
+           "columns: coverage of hum-hc3t, ins-hc3t, cf-hc3t2 (t(n/2-5)); then mean half-width ratio ins-hc3t/hum-hc3t and cf-hc3t2/hum-hc3t (same audit)"]
     for na in SIZES:
         rr = random.Random(SEED + na)
-        q, qh, skipped = H.tq(na - 5), H.tq(na // 2 - 5), 0
-        M = ["ins", "cf", "cf2"]
-        ratio = {m: [[] for _ in NAMES] for m in M}
+        q, qh, skipped = M6.tq(na - 5), M6.tq(na // 2 - 5), 0
+        hit = {m: [[] for _ in NAMES] for m in ("h", "i", "c")}
+        rat = {m: [[] for _ in NAMES] for m in ("i", "c")}
         for _ in range(REPS):
             idx = np.array(rr.sample(range(n), na))
             perm = np.array(rr.sample(range(na), na))
             try:
-                _, s3 = H.human_hc3(X[idx], human[idx], n)
-                sj = H.tuned_hc3(X, f, idx, human[idx])[1]
-                sd = H.crossfit_hc3(X, f, idx, human[idx], perm)[1]
+                b3, s3 = M6.human_hc3(X[idx], human[idx], n)
+                bj, sj = M6.tuned_hc3(X, f, idx, human[idx])[:2]
+                bd, sd = M6.crossfit_hc3(X, f, idx, human[idx], perm)
             except np.linalg.LinAlgError:
                 skipped += 1
                 continue
-            if not (np.isfinite(s3).all() and np.isfinite(sj).all() and np.isfinite(sd).all()):
-                skipped += 1  # a half-audit row with leverage 1 (degenerate group), like the singular-design drops
-                continue
             for j in range(len(NAMES)):
-                ratio["ins"][j].append(sj[j] / s3[j])
-                ratio["cf"][j].append(sd[j] / s3[j])
-                ratio["cf2"][j].append(sd[j] * qh / q / s3[j])
+                hit["h"][j].append(abs(b3[j] - truth[j]) <= q * s3[j])
+                hit["i"][j].append(abs(bj[j] - truth[j]) <= q * sj[j])
+                hit["c"][j].append(abs(bd[j] - truth[j]) <= qh * sd[j])
+                rat["i"][j].append(q * sj[j] / (q * s3[j]))
+                rat["c"][j].append(qh * sd[j] / (q * s3[j]))
         out.append(f"# {cname} n={na}: {skipped} of {REPS} draws dropped")
-        for j, nm in enumerate(NAMES + ["MEAN"]):
-            cells = []
-            for m in M:
-                v = np.array(ratio[m]) if j == len(NAMES) else np.array(ratio[m][j])
-                cells.append(f"{v.mean():.3f} {100 * (v < 1).mean():.0f}%")
-            out.append(f"{cname} {na} {nm} | " + " | ".join(cells))
+        rows_ = []
+        for j, nm in enumerate(NAMES):
+            rows_.append([np.mean(hit[m][j]) for m in "hic"] + [np.mean(rat[m][j]) for m in "ic"])
+            out.append(f"{cname} {na} {nm} " + " ".join(f"{v:.3f}" for v in rows_[-1]))
+        out.append(f"{cname} {na} MEAN " + " ".join(f"{v:.3f}" for v in np.mean(rows_, axis=0)))
         print("\n".join(out[-7:]), flush=True)
     (HERE / f"h6n_{cname}.txt").write_text("\n".join(out) + "\n")
 

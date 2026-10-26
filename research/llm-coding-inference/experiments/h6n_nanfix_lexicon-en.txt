@@ -1,0 +1,32 @@
+coder lexicon-en; NaijaSenti test corpus 44485; audit sizes (60, 100, 200, 400), 600 draws, seed 20261029
+ratio = half-width of method / half-width of human-only HC3 + t(n-5) on the same audit (mean of per-draw ratios; <1 means narrower); % narrower = share of draws with ratio < 1
+methods: ins-hc3t tuned PPI++ HC3 + t(n-5); cf-hc3t cross-fit HC3 + t(n-5); cf-hc3t2 cross-fit HC3 + t(n/2-5)
+coder n coefficient | ins-hc3t ratio %narrower | cf-hc3t ratio %narrower | cf-hc3t2 ratio %narrower
+# lexicon-en n=60: 11 of 600 draws dropped
+lexicon-en 60 intercept(yor) | 0.936 51% | 1.136 26% | 1.167 23%
+lexicon-en 60 hau | 0.974 51% | 1.119 20% | 1.150 15%
+lexicon-en 60 ibo | 0.949 67% | 1.096 27% | 1.126 22%
+lexicon-en 60 pcm | 0.971 48% | 1.242 20% | 1.276 17%
+lexicon-en 60 loglen_z | 0.955 59% | 1.141 21% | 1.172 16%
+lexicon-en 60 MEAN | 0.957 55% | 1.147 23% | 1.178 19%
+# lexicon-en n=100: 0 of 600 draws dropped
+lexicon-en 100 intercept(yor) | 0.967 46% | 1.092 21% | 1.108 18%
+lexicon-en 100 hau | 0.990 42% | 1.075 13% | 1.091 8%
+lexicon-en 100 ibo | 0.974 64% | 1.072 19% | 1.087 15%
+lexicon-en 100 pcm | 0.987 43% | 1.115 11% | 1.131 9%
+lexicon-en 100 loglen_z | 0.978 54% | 1.092 17% | 1.108 12%
+lexicon-en 100 MEAN | 0.979 50% | 1.089 16% | 1.105 13%
+# lexicon-en n=200: 0 of 600 draws dropped
+lexicon-en 200 intercept(yor) | 0.985 46% | 1.052 14% | 1.059 12%
+lexicon-en 200 hau | 0.997 30% | 1.039 8% | 1.046 5%
+lexicon-en 200 ibo | 0.985 67% | 1.033 19% | 1.040 15%
+lexicon-en 200 pcm | 0.995 42% | 1.054 9% | 1.061 6%
+lexicon-en 200 loglen_z | 0.989 51% | 1.047 16% | 1.054 12%
+lexicon-en 200 MEAN | 0.990 47% | 1.045 13% | 1.052 10%
+# lexicon-en n=400: 0 of 600 draws dropped
+lexicon-en 400 intercept(yor) | 0.992 44% | 1.031 14% | 1.035 11%
+lexicon-en 400 hau | 0.999 26% | 1.021 5% | 1.024 4%
+lexicon-en 400 ibo | 0.991 72% | 1.017 18% | 1.020 14%
+lexicon-en 400 pcm | 0.998 42% | 1.025 6% | 1.029 5%
+lexicon-en 400 loglen_z | 0.994 50% | 1.025 10% | 1.028 8%
+lexicon-en 400 MEAN | 0.995 47% | 1.024 11% | 1.027 9%
