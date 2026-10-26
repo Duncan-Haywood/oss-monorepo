@@ -1,0 +1,22 @@
+# milestone 20: multi-fidelity regression surrogate, 40 cells, 400 paired seeds, m=5, screen share 0.4, ridge 1.0
+
+## mean regret % over cells (n/a: some seed could not afford the arm)
+budget | rand | fixed1.5 | fixedf3 | mf1 | mf2
+15 | 3.40 | 3.40 | 3.05 | 4.58 | 4.80
+25 | 1.68 | 2.10 | 1.35 | 2.95 | 3.08
+40 | 0.38 | 1.38 | 0.44 | 1.43 | 1.71
+
+## worst-cell mean regret % (cell)
+15 | 13.3 (adder_op16 tight) | 26.9 (barrel64 tight) | 11.5 (adder_op16 tight) | 21.5 (barrel64 tight) | 21.9 (barrel64 tight)
+25 | 8.6 (adder_op16 tight) | 26.9 (barrel64 tight) | 10.7 (barrel16 relaxed) | 20.3 (barrel64 tight) | 21.5 (barrel64 tight)
+40 | 3.0 (adder_op16 tight) | 26.9 (barrel64 tight) | 11.9 (barrel16 relaxed) | 19.6 (barrel64 tight) | 21.5 (barrel64 tight)
+
+## barrel64 (mean over its two clocks)
+15 | 12.88 | 26.89 | 10.43 | 20.19 | 21.09
+25 | 6.43 | 26.89 | 3.33 | 17.14 | 20.33
+40 | 1.06 | 26.89 | 0.00 | 13.58 | 19.24
+
+## paired per-cell wins of mf2 over f3 (cells where mf2 mean regret is lower / higher), and sign-test p (two-sided, ties dropped)
+15: wins 8, losses 28, p 0.001
+25: wins 4, losses 28, p 0.000
+40: wins 3, losses 27, p 0.000
