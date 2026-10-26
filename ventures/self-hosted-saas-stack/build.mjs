@@ -33,7 +33,7 @@ ${g.items.map((t) => `      <tr><td><a href="../${t.slug}/">${esc(t.name)}</a></
   return `<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e5f1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${esc(TITLE)}</title>
   <meta name="description" content="${esc(DESC)}">
