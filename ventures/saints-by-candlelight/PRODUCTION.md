@@ -204,10 +204,11 @@ writing it; skip any already in `episodes/`):
 - *(Done: episode 34, Jacob and the Ladder at Bethel; text only.)* Genesis 28 (Scripture told straight; Catholic and Orthodox; Jacob's years with Laban, the wrestling at the Jabbok and the meeting with Esau left for other nights)
 - *(Done: episode 35, Tobias and the Angel on the Road to Media; text only.)* The book of Tobit (Scripture told straight; Catholic and Orthodox, not in Protestant Bibles; the archangel Raphael; the song of Tobit kept short)
 - *(Done: episode 36, Naaman and the Seven Dips in the Jordan; text only.)* 2 Kings 5 (Scripture told straight; Catholic and Orthodox; Gehazi's part of the chapter left for another night)
+- *(Done: episode 37, Moses and the Bush That Was Not Consumed; text only.)* Exodus 3 and 4 (Scripture told straight; Catholic and Orthodox; the inn at the end of chapter four, the plagues and the sea left for other nights)
 
 ## Audio status
 
-Episodes 1 to 19 have audio (episodes 20 to 36 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 19 have audio (episodes 20 to 37 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 
