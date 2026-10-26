@@ -38,6 +38,10 @@ the job finds none. Before blaming your change for a failing test (some
 `gitops/tests` depend on the image), run it on `origin/main`. If `pyenv.py`
 fails (PEP 668, import name differing from pip name), use
 `python3 -m venv /tmp/v && /tmp/v/bin/pip install <pkgs>` in the background.
+Name every module you need in the one call (`pyenv.py pytest numpy torch`) and run
+with `"$PY"`: a torch-free `python3` passes for pytest/numpy alone, and a later bare
+`pip install torch` lands in another interpreter (30 min lost, 2026-10-26). Torch-class
+installs take 7+ min: `run_in_background`, and the path is the last stdout line.
 
 ## Long commands
 
