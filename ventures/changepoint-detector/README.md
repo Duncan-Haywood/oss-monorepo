@@ -712,6 +712,20 @@ Gaussian detection falls from 92% to 80% and t3 from 57% to 44%. Variant A, whic
 helps. In-sample on the generators above, simulated data only, no real series tried; the noise warning stays on. About
 0.2 s per 200-point series. Test: `meanvar-bootstrap.test.mjs`.
 
+### The mean model too (2026-10-26)
+
+`--model mean --bootstrap` does the same with residuals about the segment means kept in units of the noise scale the mean
+cost uses, so autocorrelated noise (residual sd above that scale) raises the penalty. Not with `--ar1`. Measured by
+`eval/mean-block-bootstrap.mjs` (seeded, 100 series per cell, n = 200, unit-variance AR(1) noise, detection is a 2 sd step at 100 found within 10):
+
+| noise | false alarms plain | false alarms `--bootstrap` | detection plain / `--bootstrap` |
+|---|---|---|---|
+| iid | 5% | 1% | 100% / 100% |
+| AR(1) 0.3 | 80% | 13% | 98% / 98% |
+| AR(1) 0.5 | 100% | 53% | 98% / 94% |
+
+Synthetic noise only; a real autocorrelated series is still wanted.
+
 ## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
 
 The section above ended with a warning because the Gaussian variance cost has no cheap fix. A different noise model does
