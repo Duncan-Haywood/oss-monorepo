@@ -1460,4 +1460,13 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (reduced pass). Main was not behind, so E92's fix was already in this
   routing draw; the review still came up because the draw is random
   (`review_when_due` 0.25).
+- Change: none to prompts or code. Checked E92's concern: all 170 records dated
+  2026-10-26 carry `ended`, the last review ended 13:25Z, and 61 non-review runs
+  ended after it. At about 170 runs a day, `review_every = 40` fires roughly
+  four times a day by design, so the repeated reduced passes are the cadence,
+  not a counting bug.
+- Metric: none new. Open question for the owner or a process run: raise
+  `review_every` (e.g. to 150) if four reduced reviews a day add little.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
 - Result: (next review)
