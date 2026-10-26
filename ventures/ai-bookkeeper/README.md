@@ -647,7 +647,7 @@ Ten hand-written provider-style headers found five faults in `readPayrollRegiste
 
 ## Not modelled
 
-Payroll filings (runs are booked, see below, but no filing, wage bases or state rules) and sales tax filings, inventory across several locations or with serial numbers (single-location stock is below), foreign-currency invoices and bills are modelled (see below, 2026-10-22; credit notes and part-payments in a foreign currency are not) (foreign bank accounts too; the VAT worksheet is UK-layout, invoice basis), a scanned (image-only) bank-statement PDF. A statement PDF with a text layer is read by `import FILE.pdf` through pdftotext, and on the page by `pdftext.mjs`. Receipts can be a PDF or a photo (see below).
+Payroll filings (runs are booked, see below, but no filing, wage bases or state rules) and sales tax filings, inventory across several locations or with serial numbers (single-location stock is below), foreign-currency invoices and bills are modelled (see below, 2026-10-22; a credit note in the invoice's own foreign currency is applied in that currency, 2026-10-26; part-payments in a foreign currency are not) (foreign bank accounts too; the VAT worksheet is UK-layout, invoice basis), a scanned (image-only) bank-statement PDF. A statement PDF with a text layer is read by `import FILE.pdf` through pdftotext, and on the page by `pdftext.mjs`. Receipts can be a PDF or a photo (see below).
 
 ## Foreign-currency bank accounts
 
@@ -847,6 +847,7 @@ is often fine.
 
 ## Next
 
+- Foreign credit notes, 2026-10-26 (`settle` and `creditFxEntries` in `accruals.mjs`, 2 tests in `fx.test.mjs`, documents made up): a EUR credit note booked at 1.20 against a EUR invoice booked at 1.10 took 120.00 off the invoice's 1,100.00 in base cents, leaving 980.00 where 900 EUR carried is 990.00, so the payment never cleared the receivable. The credit is now applied in EUR (100 EUR takes the 110.00 the invoice carried), and the 10.00 between the two bookings is a realized exchange entry in 6190 (`FXC-`); a vendor credit mirrors it. Credit and invoice in different currencies, and part-payments in a foreign currency, are still not modelled.
 - Extra column and split debit/credit, 2026-10-27 (two relations in `metamorphic.test.mjs`, no outside data): an unused column inserted first or in the middle of every rectangular headered CSV fixture, and one signed Amount column re-written as Debit and Credit (applies to one fixture today; files with a type column are skipped, their sign lives there). No fault found; this pins behaviour.
 
 - Export packaging, 2026-10-26 (`metamorphic.test.mjs`, 28 generated tests, no outside data): every CSV fixture re-read with a `sep=,` first line, a blank line after every row, a title block above the header, a time or timezone after ISO dates, and long-month or weekday date spellings must give the same rows. No fault found; this pins behaviour. (Padding spaces around cells also read the same when done outside quotes.) beancount's `example.beancount` is reachable from cloud sessions; the open-source fixture sweeps remain saturated, so real exports are still the only new signal.

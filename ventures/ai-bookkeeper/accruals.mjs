@@ -120,7 +120,7 @@ export function documentEntries(books) {
     const lines = [{ account: d.kind === "invoice" ? AR : AP, debit: dr ? d.total : 0, credit: dr ? 0 : d.total }, ...d.lines.map((l) => ({ account: l.account, debit: dr ? 0 : l.cents, credit: dr ? l.cents : 0 }))];
     const name = d.credit ? (d.kind === "invoice" ? "Credit note" : "Vendor credit") : d.kind === "invoice" ? "Invoice" : "Bill";
     return { id: d.id, date: d.date, memo: `${name} ${d.number}, ${d.party}${d.against ? ` (against ${d.against})` : ""}`, source: d.credit ? "credit" : d.kind, lines };
-  }).concat(writeOffEntries(books), fxSettleEntries(books));
+  }).concat(writeOffEntries(books), fxSettleEntries(books), creditFxEntries(books));
 }
 
 // Write off what a customer will not pay: debits bad debts, credits receivable,
@@ -162,6 +162,16 @@ const fxSettleEntries = (books) => (books.documents ?? []).map((d) => {
     { account: bill ? AP : AR, debit: toControl ? n : 0, credit: toControl ? 0 : n },
     { account: FX_ACCOUNT, debit: toControl ? 0 : n, credit: toControl ? n : 0 }] };
 });
+// A foreign credit note applied to a foreign invoice at another rate than the invoice
+// was booked at: the control account is cleared of exactly what the invoice carried,
+// the rest goes to 6190.
+const creditFxEntries = (books) => (books.documents ?? []).filter((c) => c.credit && c.creditFx).map((c) => {
+  const bill = c.kind !== "invoice", n = Math.abs(c.creditFx);
+  const toControl = bill ? c.creditFx < 0 : c.creditFx > 0; // control account debited
+  return { id: `FXC-${c.id}`, date: c.date, memo: `Realized exchange ${(c.creditFx > 0) === !bill ? "gain" : "loss"} on ${bill ? "vendor credit" : "credit note"} ${c.number}, ${c.party} (${c.currency})`, source: "fx", lines: [
+    { account: bill ? AP : AR, debit: toControl ? n : 0, credit: toControl ? 0 : n },
+    { account: FX_ACCOUNT, debit: toControl ? 0 : n, credit: toControl ? n : 0 }] };
+});
 const writeOffEntries = (books) => (books.documents ?? []).filter((d) => d.writtenOff).map((d) => {
   const bill = d.kind !== "invoice", w = d.writtenOff;
   return { id: `WO-${d.id}`, date: w.date, memo: `${bill ? "Bill forgiven" : "Write-off of invoice"} ${d.number}, ${d.party}`, source: "writeoff", lines: bill
@@ -199,13 +209,28 @@ export function settle(booksIn) {
   const books = JSON.parse(JSON.stringify(booksIn));
   const docs = books.documents ?? [];
   for (const t of books.transactions) if (t.status === "settled") { t.status = "new"; delete t.posted; delete t.doc; delete t.docs; delete t.suggestion; delete t.partial; delete t.refund; }
-  for (const d of docs) { delete d.settledBy; delete d.payments; delete d.credited; delete d.applied; delete d.refund; delete d.fxDiff; }
+  for (const d of docs) { delete d.settledBy; delete d.payments; delete d.credited; delete d.applied; delete d.refund; delete d.fxDiff; delete d.creditedForeign; delete d.creditFx; }
   // Credit notes reduce the document they name, in date order, never below zero.
   for (const c of docs.filter((x) => x.credit).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))) {
     const target = c.against && docs.find((x) => !x.credit && x.kind === c.kind && x.number === c.against);
     if (!target || target.date > c.date) continue;
-    const take = Math.min(c.total, balance(target));
+    let take = Math.min(c.total, balance(target));
     if (take <= 0) continue;
+    // Same foreign currency on both: the credit is applied in that currency, so the
+    // invoice loses what it carried for those units, and the rate difference to the
+    // credit note's own booking is a realized exchange gain or loss (creditFx).
+    if (target.currency && target.currency === c.currency && c.foreignTotal != null && target.foreignTotal != null) {
+      const left = target.foreignTotal - (target.creditedForeign ?? 0);
+      const takeF = Math.min(c.foreignTotal, left);
+      if (takeF <= 0) continue;
+      const carried = takeF === left ? target.total - (target.credited ?? 0) : convertCents(takeF, target.rate);
+      take = Math.min(carried, balance(target));
+      target.creditedForeign = (target.creditedForeign ?? 0) + takeF;
+      target.credited = (target.credited ?? 0) + take;
+      c.applied = takeF === c.foreignTotal ? c.total : convertCents(takeF, c.rate);
+      if (c.applied !== take) c.creditFx = c.applied - take;
+      continue;
+    }
     target.credited = (target.credited ?? 0) + take;
     c.applied = take;
   }
