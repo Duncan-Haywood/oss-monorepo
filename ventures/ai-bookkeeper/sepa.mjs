@@ -86,13 +86,13 @@ export function readMt940(text) {
     }
     if (f.tag !== "61") return;
     const first = f.body.split("\n")[0];
-    const m = first.match(/^(\d{2})(\d{2})(\d{2})(\d{4})?(R?[CD])[A-Z]?([\d,]+)/);
+    const m = first.match(/^(\d{2})(\d{2})(\d{2})(?:\d{4}| {4})?(R?[CD])[A-Z]?([\d,]+)/);
     if (!m) { problems.push(`Entry ${i + 1}: unreadable :61: line "${first.slice(0, 40)}", skipped.`); return; }
     const date = iso(yy(m[1]), +m[2], +m[3]);
-    const amt = cents(m[6]);
+    const amt = cents(m[5]);
     if (!date || !Number.isFinite(amt)) { problems.push(`Entry ${i + 1}: unreadable date or amount, skipped.`); return; }
     // C credit and RD reversal of debit add money; D debit and RC reversal of credit remove it.
-    const sign = m[5] === "C" || m[5] === "RD" ? 1 : -1;
+    const sign = m[4] === "C" || m[4] === "RD" ? 1 : -1;
     // Rabobank writes one :86: line per fact (reason, reference, ...) after a single :61:.
     let next = "";
     for (let j = i + 1; fields[j]?.tag === "86"; j++) next += (next ? "\n" : "") + fields[j].body;
