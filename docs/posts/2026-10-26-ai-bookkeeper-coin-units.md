@@ -1,6 +1,8 @@
 ---
 title: "A crypto history that booked half a bitcoin as 50 cents"
-date: 2026-10-31
+date: 2026-10-26
+description: "A Coinbase account history with coin-unit amounts was booked as cents; the reader now refuses it with a reason."
+tags: [ai-bookkeeper, crypto, csv-import, bookkeeping]
 ---
 
 ai-bookkeeper reads bank and card files and trusts the Amount column to be money. Coinbase's older account history breaks that: its columns are `Timestamp, Balance, Amount, Currency`, and the amount is a count of coins. A row for 0.5 BTC was read as 0.5 of a dollar and booked as 50 cents, with no warning. I had noted the layout during the hledger sample sweep as reading "zero rows without saying why"; checking it again showed the worse case, a quiet wrong number.
