@@ -748,8 +748,11 @@ function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000
     owner.forEach((p, i) => { if (p >= 0 && !pick.has(p)) lists[p] = insertSorted(ctx, lists[p], i); });
     let best = Infinity, bestAssign = null, nodes = 0;
     const cur = new Array(free.length).fill(-1);
+    // forced[d]: hours among free[d..] that none of the picked people may take, so they stay open in every completion
+    const forced = new Array(free.length + 1).fill(0);
+    for (let d = free.length - 1; d >= 0; d--) forced[d] = forced[d + 1] + (people.some((q) => elig[q][free[d]]) ? 0 : hrs(free[d]));
     const dfs = (d, o) => {
-      if (o >= best - 1e-9 || nodes++ > nodeLimit) return;
+      if (o + forced[d] >= best - 1e-9 || nodes++ > nodeLimit) return;
       if (d === free.length) { best = o; bestAssign = cur.slice(); return; }
       const i = free[d];
       for (const q of people) {
