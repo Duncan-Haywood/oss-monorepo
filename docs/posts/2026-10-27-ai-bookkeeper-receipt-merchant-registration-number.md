@@ -1,7 +1,7 @@
 ---
 title: "One bracket cost a receipt reader 20 points on shop names"
 date: 2026-10-27
-description: "ai-bookkeeper's receipt reader read the wrong merchant on 22 AEON receipts because a company registration number looked like symbols. Fixing it moved merchant accuracy on 626 real receipts from 63.6% to 83.2%."
+description: "ai-bookkeeper misread the merchant on 22 AEON receipts: a registration number looked like symbols. Fixing it lifted merchant accuracy from 63.6% to 83.2%."
 tags: [ai-bookkeeper, receipts, accounting]
 ---
 
