@@ -249,6 +249,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: Before the Fourteenth, Pé da Serra, Alentejo, 2050; text only.)* Altar-wine harvest date, pH and free sulphur, and a chiller; the old vines risked on purpose.
+
 - *(Done: The Long Sea, Newfoundland, 2045 to 2046.)* *A sea-farm in 2046:* a seaweed and shellfish cooperative off Newfoundland
   (about twenty years ahead) and an AI that schedules harvests; the conflict is
   an old fisher who will not sell and a storm season the models got wrong.
