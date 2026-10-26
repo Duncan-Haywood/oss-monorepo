@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 7x: abstract leads with the real data (a writing step, no experiment)
+- Why: 7w moved SIMPLER to the first results section but left the abstract opening on the MuJoCo result; 7v found the CoRL call wants real-robot or transfer evidence first.
+- Done: `paper/main.tex` abstract now states the SIMPLER result right after the question, then the MuJoCo benchmark, certificates and floor. Wording moved, no number or claim changed. Also fixed an unmatched parenthesis in that sentence. Rebuilt (`pdflatex`, `bibtex`, `pdflatex` x2): 8 pages, no undefined references.
+- Next: rebuild in the CoRL 2027 style when the call is out; decide whether the finite-pool result belongs in the main text.
+
 ## 2026-10-26 · Milestone 7w: restructure the paper for CoRL's framing (a writing step, no experiment)
 - Why: 7v found the call wants robotics relevance and real-robot or transfer evidence, and that Limitations counts toward the 8 pages. The draft led with MuJoCo toy pairs and carried a dozen robustness paragraphs in the main text.
 - Done: `paper/main.tex` now has Real data (SIMPLER) as the first results section, the MuJoCo benchmark, certificates table and floor theorem after it, and the second task, unbounded outcome, betting-interval, finite-pool, larger-n/SureSim and active-selection paragraphs in an appendix. Contributions list reordered so SIMPLER is (1). No number or claim was changed. It builds (`pdflatex`, `bibtex`, `pdflatex` x2, no undefined references): 8 pages in the generic `article` class, of which the main text including Limitations ends on page 4 and the appendix starts on page 5, so the 8-page budget has room for moving some appendix material back once the real style file is used.
