@@ -158,3 +158,16 @@ test("ceilingJoistsFromRoof: joists the roof placed at 24 in (not a typed 16) de
   assert.ok(!layoutDrywall({ ceiling: c, ceilingJoistsFromRoof: true }, p, null).ok);
   assert.ok(validateDrywall({ ceilingJoistsFromRoof: true, ceilingJoistSpacing: 16 }).length);
 });
+
+test("ceiling step: a 10 ft soffit face 12 in deep on an 8 ft-sheet job: 2 runs (96 + 24), 10 sq ft net, 10 ft bead, 10 ft inside angle, 1 butt joint of 12 in (hand count)", () => {
+  const c = [{ width: 192, depth: 96 }];
+  const base = layoutDrywall({ ceiling: c }, plan([]));
+  const l = layoutDrywall({ ceiling: [{ ...c[0], steps: [{ length: 120, drop: 12 }] }] }, plan([]));
+  assert.ok(l.ok);
+  assert.equal(l.ceilings[0].stepSqFt, 10);
+  assert.equal(l.netSqFt - base.netSqFt, 10);
+  assert.equal(l.finishing.beadFt, 10);
+  assert.equal(l.finishing.insideCornerFt, 10);
+  assert.equal(l.finishing.seamFt - base.finishing.seamFt, 1);
+  assert.ok(validateDrywall({ ceiling: [{ width: 192, depth: 96, steps: [{ length: 120, drop: 80 }] }] }).length);
+});
