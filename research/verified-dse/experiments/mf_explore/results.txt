@@ -1,0 +1,22 @@
+# milestone 21: surrogate with exploration, 40 cells, 400 paired seeds, m=5, screen share 0.4, ridge 1.0, lcb k 2.0, eps 0.3
+
+## mean regret % over cells (n/a: some seed could not afford the arm)
+budget | rand | fixed1.5 | fixedf3 | mf1 | mf1lcb | mf1eps | mf2lcb | mf2eps
+15 | 3.40 | 3.40 | 3.05 | 4.58 | 4.47 | 4.41 | 4.61 | 4.61
+25 | 1.68 | 2.10 | 1.35 | 2.95 | 2.80 | 2.62 | 2.65 | 2.73
+40 | 0.38 | 1.38 | 0.44 | 1.43 | 1.27 | 1.12 | 1.12 | 1.26
+
+## worst-cell mean regret % (cell)
+15 | 13.3 (adder_op16 tight) | 26.9 (barrel64 tight) | 11.5 (adder_op16 tight) | 21.5 (barrel64 tight) | 20.3 (barrel64 tight) | 18.7 (barrel64 tight) | 17.4 (adder_op16 tight) | 18.8 (barrel64 tight)
+25 | 8.6 (adder_op16 tight) | 26.9 (barrel64 tight) | 10.7 (barrel16 relaxed) | 20.3 (barrel64 tight) | 18.7 (barrel64 tight) | 15.2 (barrel64 tight) | 14.6 (barrel64 tight) | 15.4 (barrel64 tight)
+40 | 3.0 (adder_op16 tight) | 26.9 (barrel64 tight) | 11.9 (barrel16 relaxed) | 19.6 (barrel64 tight) | 17.8 (barrel64 tight) | 9.7 (barrel64 tight) | 13.5 (barrel64 tight) | 10.8 (barrel64 tight)
+
+## barrel64 (mean over its two clocks)
+15 | 12.88 | 26.89 | 10.43 | 20.19 | 18.11 | 17.89 | 15.27 | 18.29
+25 | 6.43 | 26.89 | 3.33 | 17.14 | 14.13 | 13.70 | 10.44 | 15.04
+40 | 1.06 | 26.89 | 0.00 | 13.58 | 10.41 | 7.21 | 7.33 | 9.55
+
+## paired per-cell wins of mf1lcb over f3 (cells where mf1lcb mean regret is lower / higher), and sign-test p (two-sided, ties dropped)
+15: wins 11, losses 25, p 0.029
+25: wins 5, losses 26, p 0.000
+40: wins 3, losses 26, p 0.000
