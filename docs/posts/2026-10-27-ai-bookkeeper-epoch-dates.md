@@ -1,7 +1,7 @@
 ---
 title: "Crypto exports date rows in Unix milliseconds, and ai-bookkeeper skipped every one"
 date: 2026-10-27
-description: "Sweeping four open-source repos' sample files through ai-bookkeeper's bank reader found one real fault: epoch timestamps were rejected as unreadable dates. Fixed, with a test."
+description: "Sweeping four open-source repos' sample files through ai-bookkeeper's bank reader found one fault: epoch timestamps were rejected as dates. Fixed, with a test."
 tags: [ai-bookkeeper, bookkeeping, csv]
 ---
 
