@@ -1,0 +1,20 @@
+fear: corpus 6683, prevalence 0.0115, positives by group sports 12, tv-dating 20, personal 27, video-cringe 18; coder positive rate 0.0332, agreement 0.9609
+fear: oracle lambda 0.07, 0.07, 0.13, 0.05; S2 0.00706, 0.01403, 0.01243, 0.01128
+category | target pts | plan | planned n mean | sd/oracle n | mean half | share half > 1.25 target | coverage
+fear | 1.0 | oracle (lam fixed) | 398 | 0 | 0.965 | 0.106 | 0.908
+fear | 1.0 | pilot 400 | 291 (oracle 398) | 0.407 | 1.404 | 0.148 | 0.734
+fear | 1.0 | pilot 1500 | 374 (oracle 398) | 0.212 | 1.028 | 0.222 | 0.858
+fear | 0.5 | oracle (lam fixed) | 1347 | 0 | 0.500 | 0.010 | 0.938
+fear | 0.5 | pilot 400 | 953 (oracle 1347) | 0.358 | 0.889 | 0.258 | 0.730
+fear | 0.5 | pilot 1500 | 1269 (oracle 1347) | 0.194 | 0.568 | 0.216 | 0.936
+
+sadness: corpus 6683, prevalence 0.0230, positives by group sports 35, tv-dating 19, personal 61, video-cringe 39; coder positive rate 0.0848, agreement 0.9104
+sadness: oracle lambda 0.11, 0.06, 0.10, 0.10; S2 0.01996, 0.01323, 0.02765, 0.02362
+category | target pts | plan | planned n mean | sd/oracle n | mean half | share half > 1.25 target | coverage
+sadness | 1.0 | oracle (lam fixed) | 733 | 0 | 0.985 | 0.012 | 0.936
+sadness | 1.0 | pilot 400 | 625 (oracle 733) | 0.289 | 1.292 | 0.190 | 0.868
+sadness | 1.0 | pilot 1500 | 710 (oracle 733) | 0.137 | 1.030 | 0.098 | 0.934
+sadness | 0.5 | oracle (lam fixed) | 2197 | 0 | 0.498 | 0.000 | 0.942
+sadness | 0.5 | pilot 400 | 1835 (oracle 2197) | 0.261 | 0.792 | 0.274 | 0.850
+sadness | 0.5 | pilot 1500 | 2133 (oracle 2197) | 0.107 | 0.527 | 0.090 | 0.930
+
