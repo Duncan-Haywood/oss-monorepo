@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 5b: where does the mean break under a strong attacker, and does the median hold? (planned before running)
+- Why: 5a's "Next". A 3-rms offset did nothing measurable, so neither the mean's breaking point nor the median's protection was tested. `experiments/gpt_median_attack_strong/median_attack_strong.py`: 5a's setup exactly (3d model, M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, worker 0 attacks), aggregation in {mean, median} x attack in {offset 30 rms, offset 300 rms, sign-flip x10 (sends -10 x its delta)}; seeds 0 to 2 (18 runs). Comparator: 3d uncompressed on the same seeds. No engine change.
+- **H5b-i:** with offset 300 rms, mean aggregation is worse than uncompressed by more than 0.3 nats on all 3 seeds (or diverges). Refuted if any seed is within 0.3.
+- **H5b-ii:** with the sign-flip x10, mean aggregation is worse by more than 0.3 nats on all 3 seeds (the averaged delta is -1.75 x an honest delta, so it climbs). Refuted otherwise.
+- **H5b-iii:** median aggregation stays within 0.05 nats of uncompressed (mean over seeds, no seed above 0.1) under all three attacks. The attacker is an extreme order statistic at M = 4, so the median is the mean of the honest 2nd and 3rd values and cannot leave the honest range. Refuted otherwise.
+- **H5b-iv:** with offset 30 rms, mean aggregation is worse by more than 0.1 nats on all 3 seeds (the breaking point sits between 3 and 30 rms). Refuted otherwise.
+- Prior: i 75% (adaptive inner AdamW may absorb a constant shift again, as in 5a, which is why I am unsure); ii 85%; iii 80%; iv 55%.
+- Limits known in advance: 3 seeds; non-adaptive attacker; one attacker of four; one H; loss is not the variance factor of the proposal's H5, so the pi/2 cost is still untested.
+
 ## 2026-10-26 · Milestone 5a: does median aggregation of worker deltas pay on the real GPT, with and without one attacker? (planned before running)
 - Why: H5 in the proposal (robust aggregation) has only had the closed-form `robust-outer` result (median costs about pi/2 in variance). Nothing yet on the real transformer. 4e (quantisation, PR 10664) is another run's; this step is independent of it.
 - Engine change: `DiLoCo(aggregate="median", attack=fn)`; coordinate-wise median of the workers' deltas (mean of the two middle values at M = 4), and an attack hook replacing worker j's delta. Test: `test_median_aggregate_and_attack`.
