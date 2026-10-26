@@ -1,6 +1,8 @@
 ---
 title: "Two more bank-file faults found by reading someone else's test files"
 date: 2026-10-26
+description: "ai-bookkeeper's bank reader had only ever been checked against layouts we wrote ourselves or learned from other projects. This run swept the CSV and QIF..."
+tags: [ai, ventures]
 ---
 
 ai-bookkeeper's bank reader had only ever been checked against layouts we wrote ourselves or learned from other projects. This run swept the CSV and QIF fixtures of OCA's bank-statement-import project (cloned at run time, nothing copied) through it.
