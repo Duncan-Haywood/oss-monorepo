@@ -733,3 +733,26 @@ test("gable wall sheathing: sloped top courses nest on one sheet when the full o
   assert.equal(steep.summary.cost, steep.summary.unnestedCost);
   assert.equal(steep.summary.nestedPairs, 0);
 });
+
+test("windows a mullion apart share their kings; closer than that is refused in words", () => {
+  const plan = base();
+  const win = (offset, extra = {}) => ({ kind: "window", offset, width: 36, height: 48, header: "2x10", ...extra });
+  // 5 in between: jack + king + jack = 4.5 in fits, 0.5 in is left beside the second window's jack
+  const wall = { id: "A", length: 144, openings: [win(30, { label: "w1" }), win(71, { label: "w2" })] };
+  plan.walls = [wall];
+  assert.deepEqual(validatePlan(plan), []);
+  const w = layoutWall(plan, wall);
+  assert.deepEqual(w.members.filter((m) => m.kind === "king").map((m) => m.x).sort((a, b) => a - b), [27, 67.5, 108.5]);
+  assert.equal(w.members.filter((m) => /shared king/.test(m.label)).length, 1);
+  assert.ok(w.notes.some((n) => /share 1 king/.test(n)));
+  assert.deepEqual(verifyWall(w, wall), []);
+  // exactly 4.5 in: no sliver
+  const tight = { id: "B", length: 144, openings: [win(30, { label: "a" }), win(70.5, { label: "b" })] };
+  plan.walls = [tight];
+  assert.deepEqual(validatePlan(plan), []);
+  assert.deepEqual(verifyWall(layoutWall(plan, tight), tight), []);
+  // 3 in: no room for a king between the jacks
+  const mull = { id: "C", length: 144, openings: [win(30), win(69)] };
+  plan.walls = [mull];
+  assert.ok(validatePlan(plan).some((e) => /too narrow to share kings.*4-1\/2/.test(e)));
+});
