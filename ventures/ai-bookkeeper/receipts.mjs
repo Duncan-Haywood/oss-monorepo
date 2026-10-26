@@ -203,6 +203,26 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
       }
     }
   });
+  // A bare "Total : 89.50 5.37" row closing a GST summary, its tax cell garbled or cut
+  // off by the OCR ("§.37]", "2.7"): the printed "Total Sales (Inclusive of GST)" or
+  // "Total GST" line above it already holds the answer. The row's first amount is the
+  // before-tax base; an earlier total line within two cents of base plus 6% or 8%, or a
+  // GST line within a cent of 6% or 8% of the base, gives the total.
+  if (cents !== null && at > 0 && (from.match(/\d+(?:[.,]\d+)*/g) ?? []).length >= 2 && /^[a-z]?total$/.test(from.replace(/rm/gi, "").replace(/[^a-z]/gi, "").toLowerCase())) {
+    const base = amountsIn(from, comma)[0];
+    const near = (v, w) => [0.06, 0.08].some((r) => Math.abs(v - Math.round(w * (1 + r))) <= 2);
+    if (base > 0) {
+      let found = null;
+      for (let i = 0; i < at && found === null; i++) {
+        const l = lines[i], a = amountsIn(l, comma);
+        if (!a.length) continue;
+        const v = a[a.length - 1];
+        if (TOTAL_RE.test(l) && /incl/i.test(l) && v > base && near(v, base)) found = v;
+        else if (/\b(?:total\s+)?(?:gst|sst|tax)\b/i.test(l) && /total/i.test(l) && !/incl|excl|sales|amount|summary/i.test(l) && [0.06, 0.08].some((r) => Math.abs(v - Math.round(base * r)) <= 1) && v > 1) found = base + v;
+      }
+      if (found !== null && found !== cents) { cents = found; notes.push("total row's tax cell unreadable; used the GST lines above it"); }
+    }
+  }
   // "TOTAL PAID RM50.00" under "GRAND TOTAL RM21.85" and "CHANGE RM28.15" is the cash
   // handed over, not the total: an earlier total line equal to paid less change wins
   if (cents !== null && at > 0 && /\b(?:total|amount)\s+paid\b/i.test(from)) {
