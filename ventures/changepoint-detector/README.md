@@ -634,6 +634,26 @@ squares from 0.2. Fire rates on the same series (null / break): Gaussian 1% to 2
 quantiles of these same simulations, so the rates are in-sample. Clustered volatility is mostly *not* caught, and
 no real heavy-tailed series has been tried. Test: `meanvar-noise.test.mjs`.
 
+## `--dispersion`: a heavier penalty when the squared residuals are over-dispersed (2026-10-26)
+
+`--robust` helps on heavy tails but not on clustered volatility (GARCH leaves 21-29% false alarms). `--model meanvar
+--dispersion` (`dispersion: true`) fits once, standardises each segment, takes the long-run variance of the squared
+residuals (Bartlett window) over 2 (the Gaussian value) as a factor of at least 1, and refits with the BIC penalty times
+that factor, the same idea as `overdispersion` for counts. The factor is returned as `dispersion`. Not for use with
+`--robust`. `eval/meanvar-dispersion.mjs` (output `eval/meanvar-dispersion.out.txt`, seeded, 200 series per cell, same
+generators as `meanvar-robustness.mjs`): false alarms on a null series / exactly one change on an sd 1 to 2 break.
+
+| noise, n = 100 / 200 | plain | `--dispersion` |
+|---|---|---|
+| Gaussian | 4% / 1%, 92% / 97% | 3% / 1%, 91% / 98% |
+| t3 | 39% / 62%, 57% / 55% | 21% / 29%, 56% / 64% |
+| GARCH | 42% / 51%, 61% / 57% | 34% / 30%, 58% / 64% |
+| AR(1) 0.5 | 51% / 54%, 44% / 37% | 44% / 40%, 48% / 43% |
+
+It roughly halves the false alarms at n = 200 and leaves Gaussian behaviour and detection alone, but 30% on GARCH and
+t3 is still not safe: the noise warning stays on and the dates remain candidates. At n = 100 the gain on GARCH is small
+(42% to 34%). A GARCH likelihood cost is still open.
+
 ## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
 
 The section above ended with a warning because the Gaussian variance cost has no cheap fix. A different noise model does

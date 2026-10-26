@@ -41,3 +41,19 @@ test('robust clips the Bayesian pass: far fewer Bayesian false alarms on t3 nois
   assert.ok(robust <= 2, `robust Bayesian false alarms ${robust}`);
   assert.ok(plain >= robust + 4, `plain ${plain} vs robust ${robust}`);
 });
+
+test('dispersion penalty: fewer false alarms than plain meanvar on t3 noise, no change to Gaussian noise', () => {
+  let plain = 0, disp = 0, gp = 0, gd = 0;
+  for (let k = 0; k < 20; k++) {
+    const r = rng(2000 + k);
+    const values = Array.from({ length: 200 }, () => t3(r));
+    if (analyze({ values, model: 'meanvar' }).pelt.changepoints.length) plain++;
+    if (analyze({ values, model: 'meanvar', dispersion: true }).pelt.changepoints.length) disp++;
+    const g = Array.from({ length: 200 }, () => gauss(r));
+    if (analyze({ values: g, model: 'meanvar' }).pelt.changepoints.length) gp++;
+    if (analyze({ values: g, model: 'meanvar', dispersion: true }).pelt.changepoints.length) gd++;
+  }
+  assert.ok(disp <= plain - 3, `dispersion ${disp} vs plain ${plain}`);
+  assert.ok(gd <= gp + 1, `gaussian ${gd} vs ${gp}`);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4], model: 'mean', dispersion: true }));
+});
