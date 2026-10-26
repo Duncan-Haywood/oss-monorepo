@@ -809,7 +809,12 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     const DRCR = /^(debit|credit|withdrawal|deposit)$/i;
     const body = rows.slice(first).filter((r) => String(r[columns.date] ?? "").trim());
     const t = hdr0.findIndex((x) => /^(transaction type|trans type|type|debit or credit|credit or debit|dr or cr)$/.test(x));
-    if (t !== -1 && body.length && body.every((r) => DRCR.test(String(r[t] ?? "").trim()) && !/^\s*[-(]|-\s*$/.test(String(r[columns.amount] ?? "")))) drcrCol = t;
+    // A signed amount is fine when the sign follows the marker one way throughout (debits
+    // negative, or debits positive as in Maybe's export); a mix is left to the amount's own sign.
+    const neg = (r) => /^\s*[-(]|-\s*$/.test(String(r[columns.amount] ?? ""));
+    const out = (r) => /^(debit|withdrawal)$/i.test(String(r[t] ?? "").trim());
+    const consistent = !body.some(neg) || body.every((r) => out(r) === neg(r)) || body.every((r) => out(r) === !neg(r));
+    if (t !== -1 && body.length && consistent && body.every((r) => DRCR.test(String(r[t] ?? "").trim()))) drcrCol = t;
   }
   // Wise writes DD-MM-YYYY. Revolut lists pending, declined and reverted rows
   // beside completed ones and keeps the fee in its own column.
