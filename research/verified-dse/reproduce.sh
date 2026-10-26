@@ -14,6 +14,11 @@ $PY experiments/eta_floor/sweep.py   # milestone 13
 $PY experiments/signif/test.py       # milestone 14
 $PY experiments/nonarith/analyse.py; $PY experiments/nonarith/sweep.py; $PY experiments/nonarith/perdesign.py   # milestone 15
 $PY experiments/pilot_gate/gate.py   # milestone 16
+$PY experiments/pilot_sweep/sweep.py       # milestone 17
+$PY experiments/r2_components/components.py   # milestone 18
+$PY experiments/learned_score/learned.py   # milestone 19
+$PY experiments/mf_surrogate/surrogate.py  # milestone 20 (about 150 s)
+$PY experiments/mf_explore/explore.py      # milestone 21 (about 350 s)
 $PY experiments/proof_success/analyse.py
 for s in bound quantile topk sweep; do $PY experiments/theory/$s.py; done
 $PY -m unittest discover -s tests

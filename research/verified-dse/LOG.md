@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Paper and artefact sync after milestones 17 to 21
+- No experiment run. `PAPER.md` section 5 now reports milestone 21 (exploration does not rescue the learned surrogate), and `reproduce.sh` lists the five scripts of milestones 17 to 21 that it had left out, so one command re-derives every cited table. Did not re-run the 150 s and 350 s scripts here; they are the ones that produced the committed tables.
+- Open and unchanged: larger designs and a second corner need OpenROAD and Yosys, which this container lacks; BOHB with a real GP needs a package the stdlib harness avoids.
+
 ## 2026-10-26 · Milestone 21: does an exploration term rescue the learned surrogate of milestone 20? (post hoc: script run once before this entry was written)
 - Why: milestone 20's "Next". Same harness (pools, cost model, 400 paired seeds, m = 5, screening share 0.4, ridge 1.0), with the greedy pick replaced by a lower confidence bound (predicted log ADP minus k times a predictive sd, k = 2, sd = residual sd floored at 0.02 times sqrt(1 + 1/n + ridge leverage)) or by epsilon-greedy (random point with probability 0.3). k and epsilon were fixed in advance and not tuned. Features: R2 ADP (`mf1*`) or log R2 area and period (`mf2*`). R3 features were not tried: only points already routed through R3 have them, so they cannot rank unrouted candidates. Runs no flow (`experiments/mf_explore/explore.py`, about 350 s).
 - **Disclosure:** the script ran once before I wrote this entry, so what follows reports the outcome, not pre-registered predictions. The hypothesis it tests is the one milestone 20 left open: exploration lets the surrogate escape barrel64's mis-ranked region and beat f3.
