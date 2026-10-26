@@ -16,7 +16,7 @@ import { THICK, DEPTH, formatLength, layoutWall } from "./engine.mjs";
 const BAND = 48;
 const EPS = 1e-9;
 
-/** @typedef {{ jointsOnStuds?: boolean, compoundGalPerSqFt?: number, tapeRollFt?: number, openingBead?: boolean, beadStickFt?: number, sheetLength?: number, height?: number, ceiling?: { width: number, depth: number }[], faces?: "inside"|"both", screwsPerSqFt?: number, waste?: number, price?: number }} Drywall */
+/** @typedef {{ ceilingJoistSpacing?: number, jointsOnStuds?: boolean, compoundGalPerSqFt?: number, tapeRollFt?: number, openingBead?: boolean, beadStickFt?: number, sheetLength?: number, height?: number, ceiling?: { width: number, depth: number }[], faces?: "inside"|"both", screwsPerSqFt?: number, waste?: number, price?: number }} Drywall */
 
 export function sampleDrywall() {
   return { sheetLength: 96, ceiling: [{ width: 480, depth: 336 }] };
@@ -28,6 +28,7 @@ export function validateDrywall(d) {
   if (![96, 108, 120, 144, 192].includes(d.sheetLength ?? 96)) e.push("Drywall sheet length must be 8, 9, 10, 12 or 16 ft (96, 108, 120, 144 or 192 in).");
   if (d.height != null && !(d.height >= 72 && d.height <= 192)) e.push("Drywall hang height must be between 6 and 16 ft.");
   for (const [i, c] of (d.ceiling || []).entries()) if (!(c.width >= 24 && c.depth >= 24)) e.push(`Ceiling ${i + 1} must be at least 2 ft each way.`);
+  if (d.ceilingJoistSpacing != null && ![12, 16, 19.2, 24].includes(d.ceilingJoistSpacing)) e.push("Ceiling joist spacing must be 12, 16, 19.2 or 24 in.");
   if (d.jointsOnStuds != null && typeof d.jointsOnStuds !== "boolean") e.push("jointsOnStuds must be true or false.");
   if (d.compoundGalPerSqFt != null && !(d.compoundGalPerSqFt > 0 && d.compoundGalPerSqFt <= 0.1)) e.push("Compound gallons per sq ft must be between 0 and 0.1.");
   if (d.tapeRollFt != null && !(d.tapeRollFt >= 50 && d.tapeRollFt <= 1000)) e.push("Tape roll length must be between 50 and 1000 ft.");
@@ -103,6 +104,14 @@ function cutRun(/** @type {number} */ a, /** @type {number} */ b, /** @type {num
   return { pieces, naiveOff, off, joints: pieces.length - 1 };
 }
 
+/** Joist centres across a ceiling `width`: one flush at each end, the rest on the spacing from the start. */
+function joistCentres(/** @type {number} */ width, /** @type {number} */ spacing) {
+  const xs = [THICK / 2];
+  for (let x = spacing; x < width - THICK; x += spacing) xs.push(x);
+  xs.push(width - THICK / 2);
+  return xs;
+}
+
 /**
  * @param {Drywall} d
  * @param {{ studLength: number, defaultHeaderHeight: number, walls: any[] }} plan
@@ -157,10 +166,21 @@ export function layoutDrywall(d, plan) {
     walls.push({ id: w.id, faces, netSqFt: sq / 144 });
   }
   const ceilings = [];
+  const jSpacing = d.ceilingJoistSpacing ?? null;
+  const ceilingJoints = jSpacing ? { total: 0, offFraming: 0, naiveOffFraming: 0 } : null;
   for (const c of d.ceiling || []) {
+    const jc = jSpacing ? joistCentres(c.width, jSpacing) : null;
     for (let y = 0; y < c.depth - EPS; y += BAND) {
-      addRuns(Math.min(BAND, c.depth - y), [c.width]);
-      seamIn += buttFt([c.width], Math.min(BAND, c.depth - y), len) + (y > EPS ? c.width : 0);
+      const band = Math.min(BAND, c.depth - y);
+      if (jc) {
+        const cut = cutRun(0, c.width, len, jc, snap);
+        addRuns(band, cut.pieces);
+        seamIn += cut.joints * band + (y > EPS ? c.width : 0);
+        ceilingJoints.total += cut.joints; ceilingJoints.offFraming += cut.off; ceilingJoints.naiveOffFraming += cut.naiveOff;
+      } else {
+        addRuns(band, [c.width]);
+        seamIn += buttFt([c.width], band, len) + (y > EPS ? c.width : 0);
+      }
     }
     netSqIn += c.width * c.depth;
     ceilings.push({ width: c.width, depth: c.depth, sqFt: (c.width * c.depth) / 144 });
@@ -183,7 +203,7 @@ export function layoutDrywall(d, plan) {
   const galRate = d.compoundGalPerSqFt ?? 0.01;
   const compoundGal = Math.ceil(netSqFt * galRate * (1 + waste) * 10) / 10;
   return {
-    ok: true, errors: [], sheetLength: len, joints: centres_used ? jointStats : null,
+    ok: true, errors: [], sheetLength: len, joints: centres_used ? jointStats : null, ceilingJoints,
     finishing: { seamFt: Math.ceil(seamIn / 12), cornerFt: Math.ceil(cornerIn / 12), insideCornerFt: Math.ceil(insideIn / 12), tapeFt, tapeRolls: Math.ceil(tapeFt / rollFt), rollFt, compoundGal, compoundGalPerSqFt: galRate, beadFt, beadSticks: Math.ceil((beadFt * (1 + waste)) / beadStick - EPS), beadStickFt: beadStick }, hangHeight: height, walls, ceilings, bandSheets,
     sheets: { count: sheets, perSheetSqFt: sheetSqFt, price: d.price ?? null, cost: d.price != null ? sheets * d.price : null },
     netSqFt, boughtSqFt: sheets * sheetSqFt, screws, waste,
@@ -202,7 +222,8 @@ export function drywallText(d) {
   l.push(`  tape: ${f.tapeFt} ft (${f.seamFt} ft of sheet seams plus ${f.cornerFt} ft of wall-to-ceiling angle plus ${f.insideCornerFt} ft of inside wall-to-wall angles) = ${f.tapeRolls} rolls of ${f.rollFt} ft`);
   l.push(`  compound: ${f.compoundGal} gal at ${f.compoundGalPerSqFt} gal per sq ft plus waste (a rule of thumb you can change, not a product label)`);
   if (f.beadFt) l.push(`  corner bead: ${f.beadFt} ft around door and window openings (both jambs and the head) and free wall ends (freeEnds), each drywalled face = ${f.beadSticks} sticks of ${f.beadStickFt} ft with waste`);
-  if (d.joints) l.push(`  end joints on walls: ${d.joints.total} (${d.joints.offFraming} off framing; hung from each run's start with no snapping, ${d.joints.naiveOffFraming} would be); ceiling joists are not known, so ceiling joints are not checked`);
-  l.push(`  ${d.joints && d.assumptions.rule.includes("snapped") ? "Wall end joints are snapped to framing (jointsOnStuds);" : "Wall end joints are not placed on studs (set drywall.jointsOnStuds: true);"} ceiling joints are not placed on joists;`+" bead on ceiling steps, trim and angles where a partition meets a ceiling step are not counted.");
+  if (d.joints) l.push(`  end joints on walls: ${d.joints.total} (${d.joints.offFraming} off framing; hung from each run's start with no snapping, ${d.joints.naiveOffFraming} would be)${d.ceilingJoints ? "" : "; ceiling joists are not known, so ceiling joints are not checked"}`);
+  if (d.ceilingJoints) l.push(`  end joints on ceilings: ${d.ceilingJoints.total} (${d.ceilingJoints.offFraming} off a joist; hung from the first wall with no snapping, ${d.ceilingJoints.naiveOffFraming} would be); joists run across the depth, spaced along the width (ceilingJoistSpacing)`);
+  l.push(`  ${d.joints && d.assumptions.rule.includes("snapped") ? "Wall end joints are snapped to framing (jointsOnStuds);" : "Wall end joints are not placed on studs (set drywall.jointsOnStuds: true);"} ${d.ceilingJoints && d.assumptions.rule.includes("snapped") ? "ceiling end joints are snapped to joists;" : "ceiling joints are not placed on joists (set ceilingJoistSpacing and jointsOnStuds);"}`+"  bead on ceiling steps, trim and angles where a partition meets a ceiling step are not counted.");
   return l;
 }
