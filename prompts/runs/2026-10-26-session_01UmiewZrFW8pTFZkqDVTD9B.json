@@ -1,0 +1,47 @@
+{
+ "date": "2026-10-26",
+ "session": "https://claude.ai/code/session_01UmiewZrFW8pTFZkqDVTD9B",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-26T19:51:08Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10715",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "pyenv.py with torch took about 40 minutes (CUDA wheels, 2.9 GB); the doc says 20s to 2 minutes and mentions a 196 MB CPU wheel that pyenv does not use."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-26-agreement-between-cheap-gradients.md",
+  "research/verifiable-training-mechanisms/LOG.md milestone 31"
+ ],
+ "goal": null,
+ "notes": "Milestone 31: measured delta/alpha/kappa on transformer, fed to H3 LP. One prediction refuted (logged). Local checks: homepage build ok, md links ok, live links ok. CI not awaited.",
+ "corrections": [],
+ "redteam": null
+}
