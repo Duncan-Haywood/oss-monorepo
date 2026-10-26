@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01Ef8KHqArd841DE2vKg2egP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T16:16:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 10677,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Venture test suites outlast 120s; ran only the new test and did not wait for the full suite."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no docs/reports agent doc; the README and flagships next: carry what the next run needs",
+      "did": "skipped",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-changepoint-detector-garch-filter.md",
+    "ventures/changepoint-detector/README.md (GARCH filter section)"
+  ],
+  "goal": null,
+  "notes": "Negative result: GARCH-filtered meanvar 1% false alarms on GARCH noise but sd-break detection 97%->6%. Full engine.test.mjs outlasted tool timeout; ran only the new test (pass). No agent doc in docs/reports written.",
+  "corrections": [],
+  "redteam": null
+}
