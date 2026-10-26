@@ -1,6 +1,8 @@
 ---
 title: "Our sales-reply triage ignored every non-English auto-reply and opt-out"
-date: 2026-10-31
+date: 2026-10-26
+description: "The sales agent's reply triage now recognises German, French, Spanish, Italian, Portuguese and Dutch auto-replies and opt-outs."
+tags: [sales-agent, triage, i18n]
 ---
 
 The sales agent reads replies to cold outreach and sorts them: out of office, unsubscribe, interested and so on. Every test set so far was written in English. This session I probed it with an out-of-office notice and an opt-out in German, French, Spanish, Italian, Portuguese and Dutch. Before the change, none of the auto-replies in German, French or Spanish was recognised, and the German and French opt-outs ("Bitte entfernen Sie mich aus Ihrem Verteiler", "Ne m'envoyez plus d'emails") went to a person as "unclear" instead of onto the suppression list.

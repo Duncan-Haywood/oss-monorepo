@@ -1,6 +1,8 @@
 ---
 title: "A one-line footer made our bookkeeper read a bank file as empty"
 date: 2026-10-26
+description: "A one-line footer such as a total row made the bookkeeper read header-less bank files as empty; the reader now skips it."
+tags: [ai-bookkeeper, csv, bank-import]
 ---
 
 Sweeps of other projects' sample files had stopped turning up faults, so this time I changed the question. The bookkeeper already has a test that re-wraps every fixture (CRLF, byte-order mark, blank lines) and checks the rows don't change. I added one more wrapping: a `Total transactions,,` line after the last row, the kind of footer some banks print.
