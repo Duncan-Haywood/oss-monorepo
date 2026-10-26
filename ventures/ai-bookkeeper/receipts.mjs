@@ -113,12 +113,15 @@ export function parseItems(lines, comma = false) { // comma: a style, as moneyRe
 // month-first, and a locale marker (RM, SDN BHD, GBP, PTY LTD, Rs) day-first.
 const DAY_FIRST_LOCALE = /\b(?:rm|myr|sdn\.?\s*bhd|pty\.?\s*ltd|gbp|inr|rs)\b|[£₹]/i;
 function dayFirstOf(lines) {
-  let dayFirst = 0, monthFirst = 0;
+  let dayFirst = 0, monthFirst = 0, tDay = 0, tMonth = 0;
   // "Time: 12-49-00" (OCR turns the colons to dashes) is a clock, not a month-first date
   for (const l of lines) for (const m of l.replace(/\btime\W*\d{1,2}-\d{1,2}-\d{2}(?![\d/-])/gi, " ").matchAll(/(?<![\d-])(\d{1,2})[-/](\d{1,2})[-/](?:\d{4}|\d{2})(?![\d-])/g)) {
-    if (+m[1] > 12 && +m[2] <= 12) dayFirst++;
-    else if (+m[2] > 12 && +m[1] <= 12) monthFirst++;
+    // a stamp followed by a clock time is the receipt's date; "CK 11-22-31 - 10/400" is a code
+    const timed = /^\s*\d{1,2}:\d{2}/.test(l.slice(m.index + m[0].length));
+    if (+m[1] > 12 && +m[2] <= 12) { dayFirst++; if (timed) tDay++; }
+    else if (+m[2] > 12 && +m[1] <= 12) { monthFirst++; if (timed) tMonth++; }
   }
+  if (tDay || tMonth) return tDay > tMonth;
   if (dayFirst || monthFirst) return dayFirst > monthFirst;
   return DAY_FIRST_LOCALE.test(lines.join("\n")) || null;
 }
@@ -136,7 +139,7 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     for (const re of DATE_RES) {
       const m = l.match(re);
       const d = m && parseDate(m[1], dmy || comma === true || (comma === "whole" && !m[1].includes("-")) || m[1].includes("."));
-      if (d) { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\bdate\b/i.test(l) ? 0 : 2) + (/\d{4}/.test(m[1].replace(/^\d{4}(?=[-/])/, "")) || /^\d{4}[-/]/.test(m[1]) ? 0 : 1), i }); break; }
+      if (d) { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\bdate\b/i.test(l) ? 0 : 2) + (/\d{4}/.test(m[1].replace(/^\d{4}(?=[-/])/, "")) || /^\d{4}[-/]/.test(m[1]) ? 0 : 1) - (new RegExp(m[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\d{1,2}:\\d{2}").test(l) ? 0.5 : 0), i }); break; }
     }
   });
   cands.sort((a, b) => a.rank - b.rank || a.i - b.i);

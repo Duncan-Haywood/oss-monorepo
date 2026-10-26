@@ -44,3 +44,9 @@ test("the name printed above a registration number is the merchant, not a promo 
   // no registration line: the first name line still wins
   assert.equal(parseReceipt("KEDAI RUNCIT\nSOME ROAD\nTotal 10.00").merchant, "KEDAI RUNCIT");
 });
+
+test("a date stamped with a clock time beats code-like numbers for the day-month order", () => {
+  const r = parseReceipt("SHOP SDN BHD\nCK 11-22-31 - 10/400\nRC11-23-42 - 12/144\n19-09-17 15:39 SH01 ZJ03\nTOTAL 5.00");
+  assert.equal(r.date, "2017-09-19");
+  assert.equal(parseReceipt("SHOP SDN BHD\nRC11-23-42 - 12/144\n15-03-18 15:41 SH01\nTOTAL 5.00").date, "2018-03-15");
+});
