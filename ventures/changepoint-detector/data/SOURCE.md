@@ -57,3 +57,16 @@ The `month` column is built from the row order of the source.
   in structural time series modelling. *Journal of the Royal Statistical
   Society A* 149(3), 187-227. The front-seat belt law took effect on 31 January 1983.
 - **Used by:** `eval/seatbelt-law.mjs`, `seatbelt-law.test.mjs`.
+
+# Example data: British coal-mining disasters, 1851-1962
+
+`coal-mining-disasters.csv`: yearly counts (112 years, 191 events) of British coal-mining disasters killing ten or more
+men. The textbook Poisson changepoint example (rate about 3 a year, then about 1 from roughly 1890).
+
+- **Retrieved:** 2026-10-26 from the R `boot::coal` event dates via
+  <https://vincentarelbundock.github.io/Rdatasets/csv/boot/coal.csv> (191 fractional-year dates), binned by
+  `floor(date)`; years with no event are 0.
+- **Licence:** the `boot` package is GPL-2 | GPL-3 and the series is a published historical record
+  (a list of dated events, no creative expression); only the yearly counts are kept here.
+- **Cite:** Jarrett, R. G. (1979). A note on the intervals between coal-mining disasters. *Biometrika* 66(1), 191-193.
+- **Used by:** `coal-disasters.test.mjs`.
