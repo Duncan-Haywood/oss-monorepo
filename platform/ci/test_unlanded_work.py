@@ -256,6 +256,14 @@ class TestSweep(Fixture):
         found = uw.sweep(str(self.clone), since=None, probe=deep)
         self.assertEqual([row[1] for row in found], ["claude/stranded"])
 
+    def test_probe_directory_that_exists_but_is_not_a_repository_is_initialised(self):
+        self.probe.mkdir()
+        self.branch("claude/stranded")
+        self.commit("a.txt", "a\n", "a", day="2026-10-01")
+        self.push("claude/stranded")
+        found = uw.sweep(str(self.clone), since=None, probe=self.probe)
+        self.assertEqual([row[1] for row in found], ["claude/stranded"])
+
     def test_sweep_finds_its_own_probe_when_none_is_given(self):
         self.branch("claude/stranded")
         self.commit("a.txt", "a\n", "a", day="2026-10-01")
@@ -316,6 +324,14 @@ class TestSweep(Fixture):
         run(self.clone, "checkout", "-q", "--orphan", "gh-pages")
         run(self.clone, "rm", "-rq", "--cached", ".")
         self.commit("index.html", "site\n", "publish")
+        self.push("gh-pages")
+        self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
+
+    def test_gh_pages_with_history_shared_with_main_is_never_reported(self):
+        # The orphan case above is vacuous: with no merge base the content
+        # check reads the branch as landed whatever the name filter does.
+        self.branch("gh-pages")
+        self.commit("index.html", "site\n", "publish", day="2026-10-01")
         self.push("gh-pages")
         self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
 
