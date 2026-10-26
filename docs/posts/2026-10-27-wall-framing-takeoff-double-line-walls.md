@@ -1,7 +1,7 @@
 ---
 title: "The wall framing takeoff now reads walls drawn as two lines"
 date: 2026-10-27
-description: "The DXF import in wall-framing-takeoff pairs the two face lines of an architect's wall into one centre line, so a drawing no longer has to be redrawn as centre lines first."
+description: "The wall-framing-takeoff DXF import pairs the two face lines of an architect wall into one centre line, so drawings need no redrawing as centre lines first."
 tags: [wall-framing-takeoff, construction, dxf, takeoff]
 ---
 

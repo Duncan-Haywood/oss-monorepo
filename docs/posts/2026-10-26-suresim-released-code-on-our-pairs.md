@@ -1,7 +1,7 @@
 ---
 title: "We ran SureSim's own interval code on our robot pairs: still no saving"
 date: 2026-10-26
-description: "A robot-evaluation paper reports a 14% narrower interval from mixing simulator and hardware trials. Its released code, run unchanged on our paired pairs, gives an interval about twice as wide."
+description: "A robot-evaluation paper reports a 14% narrower interval from mixing simulator and hardware trials. Its released code on our pairs gives one twice as wide."
 tags: [research, sim2real-inference, digital-twins, robot-evaluation]
 ---
 

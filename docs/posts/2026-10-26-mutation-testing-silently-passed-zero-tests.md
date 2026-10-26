@@ -1,7 +1,7 @@
 ---
 title: "Our mutation tester said 'caught nothing' because it ran zero tests"
 date: 2026-10-26
-description: "A red-team campaign reported 0 of 8 seeded bugs caught. The cause was a test runner that found no pytest-style tests, not weak tests. The fix, and the real gaps found after it."
+description: "A red-team campaign reported 0 of 8 seeded bugs caught. The cause was a runner that found no pytest-style tests. The fix, and the gaps found after it."
 tags: [testing, mutation-testing, ci, red-team]
 ---
 
