@@ -1,0 +1,6 @@
+Milestone 4e: SIMPLER calibration transfer, 36 cells, OLS within robot; interval = 4,000 resamples of policies (as 4c), 95% percentile
+held out       MSE_cal   MSE_raw       n*       r   n* interval
+cell (m4)       0.0138    0.0212     10.1   0.908   [3.8, 32.6] (undefined/infinite 0.000)
+task            0.0136    0.0212     10.3   0.910   [4.1, 27.6] (undefined/infinite 0.000)
+policy          0.0195    0.0212      7.1   0.878   [2.4, 27.9] (undefined/infinite 0.000)
+task+policy     0.0290    0.0212      4.8   0.834   [1.9, 15.2] (undefined/infinite 0.000)
