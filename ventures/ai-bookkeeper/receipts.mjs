@@ -147,7 +147,12 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   // merchant: the first line that is words, not an address, phone, date or amount
   const BOILER = /^(receipt|invoice|order|thank|tax invoice|cash\s*(?:sale|bill)|goods sold|ref(?:erence)?\.?\s*no|your order|welcome|tq\b|please|customer|official|duplicate|copy|simplified|for feedback|cashier|company\s*no|[*\s]+thank|jln\b|jalan\b|lorong\b|taman\b|lot\s|level\s|no[.:]?\s*\d)/i;
   const ENTITY = /\b(?:sdn\.?\s*bhd\.?|s\/b|enterprise|trading|holdings?|ltd|llc|inc|corp|gmbh|pte|pty|co\.|company)\b/i;
-  const eligible = lines.filter((l) => /[a-z]{3}/i.test(l) && !BOILER.test(l)
+  // OCR noise lines (mostly symbols), GST registration lines and state names are not a shop name
+  const NOTNAME = /^[^a-z]*(?:gst|sst|reg(?:istration)?\b|tax\s*id)|^(?:\W*\w{1,2}\W+)?(?:selangor|johor|kuala lumpur|penang|pulau pinang|perak|kedah|melaka|negeri sembilan|pahang|sabah|sarawak|terengganu|kelantan|wilayah)\b/i;
+  const wordy = (l) => { const t = l.replace(/\s/g, ""); return t.length > 0 && (t.match(/[^a-z0-9.&()'\/,:-]/gi) ?? []).length / t.length < 0.15 && (t.match(/[a-z]/gi) ?? []).length / t.length >= 0.5; };
+  // a company registration number in brackets, "AEON CO. (M) BHD (126926-H)", is not part of the name
+  const REGNO = /\s*\(\s*(?:no\.?\s*)?\d{4,}\s*-?\s*[a-z]?\s*\)\s*$/i;
+  const eligible = lines.map((l) => l.replace(REGNO, "")).filter((l) => /[a-z]{3}/i.test(l) && !BOILER.test(l) && !NOTNAME.test(l) && wordy(l)
     && !/\d{3}[-. ]\d{3,4}/.test(l) && !DATE_RES.some((re) => re.test(l)) && !new RegExp(moneyRe(comma).source, "u").test(l) && !/^\d+\s+\w+\s+(st|street|ave|avenue|rd|road|blvd|dr|drive|ln|way)\b/i.test(l));
   // a short line of a person's name above the registered company name: the company is the merchant
   let merchantLine = eligible[0];
@@ -157,7 +162,8 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   const [first, second] = eligible;
   if (first && second && !ENTITY.test(first) && ENTITY.test(second) && first.trim().split(/\s+/).length <= 3 && first.trim().split(/\s+/)[0].toLowerCase() !== second.trim().split(/\s+/)[0].toLowerCase()
     && !/(?:restaurant|cafe|mart|market|shop|store|pharmacy|bakery|kitchen)/i.test(first)) merchantLine = second;
-  const merchant = merchantLine ? merchantLine.replace(/\s{2,}.*$/, "").slice(0, 60) : null;
+  // a stray mark before the name ("- UAN HING ...") and the engine's SON/SDN BHO for SDN BHD
+  const merchant = merchantLine ? merchantLine.replace(/\s{2,}.*$/, "").replace(/^(?:[^A-Za-z0-9(]+|[a-z]{1,2}\s+(?=[A-Z]{3}))/, "").replace(/\bS[OD]N\.?\s+B(?:HD|HO|H0)\b/g, "SDN BHD").slice(0, 60) : null;
   if (!merchant) notes.push("no merchant found");
 
   // total: the last total-looking line with an amount; else the largest amount on the page

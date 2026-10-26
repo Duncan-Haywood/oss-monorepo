@@ -1450,8 +1450,8 @@ export function buildRoster(staff, slots, options = {}) {
   }
   // Still open: walk the coverage plateau (open hours only), then polish pay. Kept only if it covers more.
   if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0) {
-    for (let k = 0; k < 3; k++) {
-      const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000));
+    for (let k = 0; k < (o.coverPassRuns ?? 12); k++) {
+      const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4));
       if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
       const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
       const ps = scoreOwner(ctx, po).total;

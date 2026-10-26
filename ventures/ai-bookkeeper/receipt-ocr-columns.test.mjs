@@ -26,3 +26,14 @@ test("a lower-case stamped name above a printed shop name is not the merchant", 
   assert.equal(parseReceipt("tan woon yann\nYONGFATT ENTERPRISE\nTotal 5.00").merchant, "YONGFATT ENTERPRISE");
   assert.equal(parseReceipt("amazon\nTotal 5.00").merchant, "amazon");
 });
+
+test("OCR noise, GST and state lines are not the merchant; SON BHD reads as SDN BHD", () => {
+  const r = parseReceipt("| ~~ a%# ¢¢ wii oa «\n- UAN HING STATIONERY SON BHD\nGST Reg No. 001492992000\nSELANGOR DARUL EHSAN\nDate: 05/01/2019\nTotal 10.00");
+  assert.equal(r.merchant, "UAN HING STATIONERY SDN BHD");
+  assert.equal(parseReceipt("99 SPEED MART S/B\nDate: 05/01/2019\nTotal 10.00").merchant, "99 SPEED MART S/B");
+});
+
+test("a bracketed company registration number does not hide the company name", () => {
+  const r = parseReceipt("AEON CO. (M) BHD (126926-H)\n3RD FLR, AEON TAMAN MALURI SC\nJLN JEJAKA, TAMAN MALURI\nGST ID : 002017394688\nDate: 05/01/2019\nTotal 10.60");
+  assert.equal(r.merchant, "AEON CO. (M) BHD");
+});
