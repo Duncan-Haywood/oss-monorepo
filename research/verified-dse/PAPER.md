@@ -80,6 +80,8 @@ cells covered is 0.855 / 0.915 / 0.969 / 0.988 / 0.995 at m = 6 / 8 / 12 / 16 / 
 Coverage far exceeds the probability that the pilot holds one of the pool's best three (0.32 at m = 6, matching the
 hypergeometric formula), so that event is not the mechanism. The coverage is empirical, not proved.
 
+**A pilot gate** (milestone 16, `experiments/pilot_gate/results.txt`; all 20 designs, both clocks, budgets of 10 to 40 routed-point equivalents, 400 paired seeds). A five-point pilot's tau(R2,R4) separates the 12 of 40 cells where cutting on R2 rank misses by over 10% from the rest with AUC 0.85 (0.74 using R2 against R3), but a gate that picks halving with eta = 1.5 or the no-R2-cut arm from that statistic is within 0.1 points of the simple no-R2-cut arm at 25 and 40 equivalents (1.31 and 0.34 against 1.40 and 0.44; random 1.74 and 0.39) and worse at some budgets. On 20 designs eta = 1.5 loses to random at 25 and 40 equivalents (2.12, 1.38) because of barrel64; an oracle gate would reach 0.98 and 0.04. Six gates were compared without correction.
+
 ## 5 Limitations and threats
 Ten small designs, one FIFO, one corner, one tool version, pools of about 50 so every strategy converges to 0 regret,
 global-route estimates, one proof solver and timeout. Pilots are one third of the pool at m = 16. Coverage is over pilots
