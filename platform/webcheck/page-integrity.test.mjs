@@ -1078,3 +1078,14 @@ test('an escaped character in a regex is skipped alone, so the closing slash sti
   assert.equal(stripComments(src), src, 'the regex literal was mangled');
   assert.deepEqual([...queriedIds(src)], ['real']);
 });
+
+test('a regex quote closed by a later same-style quote does not hide the lookup between them (review finding 15)', () => {
+  const html = `<div id="a"></div><script>if (ok) {} /'/.test(x); document.getElementById('missing');</script>`;
+  const findings = checkPageIntegrity(html);
+  assert.ok(findings.some((f) => f.includes('missing')), findings.join('\n'));
+});
+
+test('a line comment that ends the source without a newline blanks to the same length', () => {
+  const source = 'a // c';
+  assert.equal(stripComments(source), 'a     ');
+});
