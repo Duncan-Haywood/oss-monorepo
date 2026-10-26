@@ -74,3 +74,8 @@ test("TOTAL PAID that is cash handed over, with a change line, yields to the tot
   assert.equal(parseReceipt(rcpt("SHOP", "TOTAL  RM 30.00", "TOTAL PAID  RM 30.00", "CHANGE  RM 0.00")).cents, 3000);
   assert.equal(parseReceipt(rcpt("SHOP", "TOTAL PAID  RM 12.00")).cents, 1200);
 });
+
+test("TOTAL SV / TOTAL GV voucher counts are not the total; the GST summary row adds to the amount paid", () => {
+  const p = parseReceipt(rcpt("BEAUTY SHOP SDN BHD", "AMT PAID INCL GST : RM111.90", "TOTAL SV : 10.56  TOTAL GV : 10.55", "GST SUMMARY  AMT(RM)  TAX(RM)", "SR(6%)  105.57  6.33", "TOTAL  105.57  6.33"));
+  assert.equal(p.cents, 11190);
+});
