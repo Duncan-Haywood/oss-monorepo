@@ -38,7 +38,7 @@ flagships:
       are about real inputs (landed work: README, git). Open items, most valuable first: (0) built-in keywords measured on one real makerspace's bank export (72.7%
       suggested, 96% right, tuned on itself) and on synthetic sets (README Next):
       HCB card feed and Actual Budget samples held out (README Next, no labels); still wanted, labelled books; (1) the AI layer in fill-only mode
-      on real bank descriptions, more seeds, a bigger model (synthetic so far; README Next); (2) the bank readers (open-source fixture sweeps are saturated: OCA, Sure/Maybe, csv2ofx, beancount-*, GnuCash, KMyMoney, ledgerbridge, hledger, ofx* all done; skrooge, grisbi, erpnext, smart_importer, firefly data-importer ship none, re-checked 2026-10-26: don't repeat; only a real bank export adds signal)
+      on real bank descriptions, more seeds, a bigger model (synthetic so far; README Next); (2) the bank readers (open-source fixture sweeps are saturated, don't repeat: only a real bank export adds signal)
       (Plaid JSON on hand-made data; CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
       code pages; one real Starling file reads clean) on real exports
       from Chase, Bank of America, Wells Fargo, Amex, Capital One and others;
