@@ -249,3 +249,33 @@ for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
     assert.equal(sig(readStatement(out)), sig(base), `${f} changed with a trailing comma`);
   });
 }
+
+// Excel and export packaging, 2026-10-26 (no outside data; no fixture changed, so
+// this pins behaviour): a `sep=,` first line, a blank line after every row,
+// spaces padded around every cell, a title block above the header, time-of-day
+// or timezone after ISO dates, and long-month or weekday date spellings
+// (quoted, they hold a comma) must all read the same rows.
+const ISO = /\b(\d{4}-\d\d-\d\d)\b/g;
+const fmt = (m, o) => `"${new Date(m + "T00:00:00Z").toLocaleDateString(o.l, { ...o.f, timeZone: "UTC" })}"`;
+const PACK = {
+  "sep line": (t) => "sep=,\n" + t,
+  "blank line after every row": (t) => t.replace(/\r?\n/g, "\n\n"),
+  "title block above": (t) => "Account activity export\nGenerated 2026-01-05\n\n" + t,
+  "time after date": (t) => t.replace(ISO, "$1 14:05:00"),
+  "ISO timestamp, Z": (t) => t.replace(ISO, "$1T14:05:00Z"),
+  "ISO timestamp, offset": (t) => t.replace(ISO, "$1T14:05:00+01:00"),
+  "long month": (t) => t.replace(ISO, (m) => fmt(m, { l: "en-US", f: { month: "long", day: "numeric", year: "numeric" } })),
+  "weekday and short month": (t) => t.replace(ISO, (m) => fmt(m, { l: "en-GB", f: { weekday: "short", day: "2-digit", month: "short", year: "numeric" } })),
+};
+for (const f of readdirSync(dir).filter((f) => /\.csv$/.test(f))) {
+  const t = readFileSync(new URL(f, dir), "utf8").replace(/\r\n/g, "\n");
+  let base;
+  try { base = readStatement(t); } catch { continue; }
+  if (!base.rows.length) continue;
+  test(`${f}: export packaging changes nothing`, () => {
+    for (const [name, wrap] of Object.entries(PACK)) {
+      if (/time|ISO|month|weekday/.test(name) && !t.match(ISO)) continue;
+      assert.equal(sig(readStatement(wrap(t))), sig(base), `${f} changed under: ${name}`);
+    }
+  });
+}
