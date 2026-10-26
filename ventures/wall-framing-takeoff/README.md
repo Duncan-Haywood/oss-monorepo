@@ -185,6 +185,10 @@ backing). This counts lumber only. Whether a given wall may use either detail
 is a code and engineer's call (clip stiffness, nailing for the partition), not
 something this tool checks; the options are off by default.
 
+## DXF floor plan import (2026-10-27)
+
+`dxf.mjs`, CLI `node cli.mjs house.dxf [--plan-only] [--units=ft]`, and the page's "Open plan file" button (now accepts `.dxf`; counted as `dxf_opened`). Reads an ASCII DXF (LINE, LWPOLYLINE, POLYLINE) and builds the plan walls instead of typing them: wall centre lines on a layer whose name contains "wall" are merged when collinear (gaps up to 1 in), the longest loop of walls meeting end to end becomes the exterior (`corner: true`, walked so the first meets the last), a wall ending on another wall's side becomes a partition with `tee` and the through wall's `tees`, an unconnected partition end sets `freeEnds`, and lines on "door" or "window" layers lying along a wall become openings (offset and width from the line). Units come from `$INSUNITS` (in, ft, mm, cm, m) or `--units`. Not read, and said in the output notes: block INSERT symbols, arcs, wall thickness, opening heights (defaults 82.5 in door, 48 in window), header sizes (placeholder 2x10 everywhere: set yours), crossing walls (reported), curved walls, binary DXF. Lengths are the drawn centre-line lengths. Tested in `dxf.test.mjs` on hand-built DXF text (a 40 x 28 ft house in feet, inches and millimetres, split lines, open outline, polylines) and through the takeoff engine; **not yet tried on a real architect's DXF**, which will have layer names, blocks and double-line walls this does not handle.
+
 ## Corner plate laps
 
 Set `"plateLaps": true` in the plan (or pick it on the page). A wall with
@@ -246,7 +250,7 @@ yourself.
 **Privacy.** Everything runs in your browser. Your plan is never uploaded, and
 there are no accounts, tracking cookies, or analytics vendor. The page counts
 anonymous events (`takeoff_run`, `example_loaded`, `csv_downloaded`, `drawings_downloaded`, `panel_order_downloaded`,
-`plan_saved`, `plan_opened`) in your browser's local storage only, and keeps
+`plan_saved`, `plan_opened`, `dxf_opened`) in your browser's local storage only, and keeps
 your last plan there so it is back when you return; the footer has a switch to
 turn counting off.
 

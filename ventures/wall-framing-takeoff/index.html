@@ -115,7 +115,7 @@
     <button type="button" class="secondary" id="drawings">Download wall drawings (printable)</button>
     <button type="button" class="secondary" id="panelOrderBtn">Download shop-panel lumber order (needs a panel length above)</button>
     <button type="button" class="secondary" id="savePlan">Save plan file</button>
-    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json" style="width:auto">
+    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json,.dxf" style="width:auto">
     <p><input type="checkbox" id="sheath" style="width:auto"> <label for="sheath" style="display:inline">Also lay out wall sheathing (4 x 8 to 4 x 12 sheets, 1 per square foot)</label>
       <input type="checkbox" id="sheathH" style="width:auto;margin-left:1rem"> <label for="sheathH" style="display:inline">sheets long side along the wall</label>
       <input type="checkbox" id="sheathO" style="width:auto;margin-left:1rem"> <label for="sheathO" style="display:inline">run sheathing past corners</label>
@@ -287,7 +287,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -295,6 +295,7 @@
 
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
+    import { planFromDxf } from "./dxf.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
@@ -844,12 +845,18 @@
       const file = input.files && input.files[0];
       if (!file) return;
       try {
-        const plan = JSON.parse(await file.text());
         const base = samplePlan();
+        let plan, dxfNote = "";
+        if (/\.dxf$/i.test(file.name)) {
+          const r = planFromDxf(await file.text());
+          if (!r.ok) { $("#status").textContent = `Could not read ${file.name}: ${r.errors.join(" ")}`; return; }
+          plan = r.plan;
+          dxfNote = ` ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
+        } else plan = JSON.parse(await file.text());
         for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
         load(plan);
-        record("plan_opened");
-        $("#status").textContent = `Opened ${file.name}.`;
+        if (dxfNote) record("dxf_opened"); else record("plan_opened");
+        $("#status").textContent = `Opened ${file.name}.${dxfNote}`;
       } catch (err) {
         $("#status").textContent = `Could not read ${file.name} as a plan file.`;
       }
