@@ -1,0 +1,5 @@
+uncompressed: mean 1.5758 [1.5707, 1.583, 1.5738]
+bits 4 q: mean 1.5714 excess vs uncompressed [0.0025, -0.0106, -0.0051] mean -0.0044
+bits 2 q: mean 1.5911 excess vs uncompressed [0.0182, 0.0096, 0.0181] mean +0.0153
+bits 2 q_ef: mean 2.4409 excess vs uncompressed [0.8823, 0.7957, 0.9173] mean +0.8651
+bits 1 q_ef: mean 1.5692 excess vs uncompressed [-0.0012, -0.0139, -0.0048] mean -0.0067

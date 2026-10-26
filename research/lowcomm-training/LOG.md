@@ -11,6 +11,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Prior: i yes; ii about 60% yes; iii uncertain, 50/50.
 - Limits: 3 seeds, one `H`, per-tensor scale, bytes not modelled beyond bits per coordinate, one model size and corpus.
 
+### Outcome of 4e (`experiments/gpt_quant/quant_results.txt`; 12 runs, seeds 0 to 2)
+- Mean excess loss over uncompressed (1.5758), nats: 4-bit stochastic -0.0044 (per seed +0.003, -0.011, -0.005); 2-bit stochastic +0.0153 (+0.018, +0.010, +0.018); 2-bit stochastic + EF +0.865 (+0.88, +0.80, +0.92); scaled sign + EF -0.0067 (-0.001, -0.014, -0.005).
+- **H4e-i held:** 4-bit is within 0.02 on every seed (8x fewer bytes per coordinate). **H4e-ii held, by a wide margin:** 1-bit scaled sign with EF matches uncompressed (32x fewer bits per coordinate, scales aside). **H4e-iii refuted, and not narrowly:** EF at 2 bits makes every seed far worse (+0.87 against +0.015 without it), so my 50/50 prior was too kind.
+- Reading: the unbiased 2-bit quantiser is already cheap, so EF has little to repair, and adding it hurt a lot. Why is a guess I did not test: the stochastic grid is coarse (levels -s, 0, s on the tensor max), so the rounding error added to the residual is large and the residual may grow over rounds rather than cancel. Scaled sign + EF, whose error is contractive, does fine. The result is a single configuration of one compressor pair, not a general statement about EF with unbiased quantisers.
+- Limits: 3 seeds, one `H`, per-tensor scale, one size and corpus; bits per coordinate only, no byte model; the 2-bit EF failure mechanism untested (residual norm was not logged); differences under about 0.01 are inside the seed spread.
+- Next: log the residual norm in the 2-bit EF run to test the growth explanation, then H5 (median aggregation under an attack).
+
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 ## 2026-10-26 · Milestone 4d: where is the knee of error-feedback top-k between keep 1/16 and 1/256? (planned before running)
