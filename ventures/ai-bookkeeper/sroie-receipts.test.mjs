@@ -67,3 +67,10 @@ test("a person's name above the company name gives way to the company; boilerpla
   assert.equal(parseReceipt(rcpt("GOODS SOLD ARE NOT RETURNABLE", "SEGI CASH & CARRY", "TOTAL 4.00")).merchant, "SEGI CASH & CARRY");
   assert.equal(parseReceipt(rcpt("KIKU JAPANESE RESTAURANT", "TAMAN ABC SDN BHD", "TOTAL 4.00")).merchant, "KIKU JAPANESE RESTAURANT");
 });
+
+test("TOTAL PAID that is cash handed over, with a change line, yields to the total above it", () => {
+  const p = parseReceipt(rcpt("SHOP", "TOTAL (INCL GST)  RM21.83", "ROUNDING  RM0.02", "GRAND TOTAL  RM21.85", "TOTAL PAID  RM50.00", "CHANGE  RM28.15"));
+  assert.equal(p.cents, 2185);
+  assert.equal(parseReceipt(rcpt("SHOP", "TOTAL  RM 30.00", "TOTAL PAID  RM 30.00", "CHANGE  RM 0.00")).cents, 3000);
+  assert.equal(parseReceipt(rcpt("SHOP", "TOTAL PAID  RM 12.00")).cents, 1200);
+});
