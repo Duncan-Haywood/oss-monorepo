@@ -1,7 +1,7 @@
 ---
 title: "A five-point pilot can flag a bad cheap rung, but never cutting on it still wins"
 date: 2026-10-26
-description: "Replaying 20 chip designs, a pilot of five routed points detects when the mapped rung mis-ranks (AUC 0.85), yet a gate built on it only ties the policy of not cutting on that rung."
+description: "A pilot of five routed points flags a mis-ranking cheap rung (AUC 0.85), but a gate built on it only ties never cutting on that rung."
 tags: [verified-dse, chip-design, multi-fidelity-search, negative-result]
 ---
 
