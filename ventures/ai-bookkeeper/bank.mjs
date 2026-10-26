@@ -137,6 +137,9 @@ const monthOf = (word) => {
   const k = w.slice(0, 3);
   return MONTHS[k] || MONTH_WORDS[k] || undefined;
 };
+// Two-digit years: 20yy unless that lies more than five years ahead, then 19yy
+// ("12/03/95" in a Money 95 export is 1995, not 2095).
+const fullYear = (yy) => (yy >= 100 ? yy : 2000 + yy > new Date().getUTCFullYear() + 5 ? 1900 + yy : 2000 + yy);
 export function parseDate(v, dayFirst = false) {
   const s = asciiDigits(v).trim().replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+/i, "").replace(/^(\d{1,2})(?:st|nd|rd|th)\b/i, "$1").replace(/^(\d{1,2})([A-Za-z]{3})(\d{2,4})\b/, "$1 $2 $3").replace(/^(\d{1,2})\.\s*(?=\p{L})/u, "$1 ").replace(/^(\d{1,2}) de (\p{L}+) de (\d)/u, "$1 $2 $3");
   let y, m, d, x;
@@ -144,9 +147,9 @@ export function parseDate(v, dayFirst = false) {
   else if ((x = s.match(/^(\d{4})[-/.:](\d{1,2})[-/.:](\d{1,2})/))) [y, m, d] = [+x[1], +x[2], +x[3]];
   else if ((x = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/))) {
     [m, d] = dayFirst ? [+x[2], +x[1]] : [+x[1], +x[2]];
-    y = +x[3] < 100 ? 2000 + +x[3] : +x[3];
+    y = fullYear(+x[3]);
   } else if ((x = s.match(/^(\d{1,2})[ -](\p{L}{3}\p{L}*)\.?[ ,-]+(\d{2,4})/u))) {
-    [d, m, y] = [+x[1], monthOf(x[2]), +x[3] < 100 ? 2000 + +x[3] : +x[3]];
+    [d, m, y] = [+x[1], monthOf(x[2]), fullYear(+x[3])];
   } else if ((x = s.match(/^(\p{L}{3}\p{L}*)\.? (\d{1,2}),? (\d{4})/u))) {
     [m, d, y] = [monthOf(x[1]), +x[2], +x[3]];
   }
@@ -999,7 +1002,7 @@ function inferLocale(dataRows, columns) {
   for (const r of dataRows) {
     const d = columns.date === -1 ? null : String(r[columns.date] ?? "").trim().match(/^(\d{1,2})([-/.])(\d{1,2})\2\d{2,4}/);
     if (d) { if (+d[1] > 12) dayHi++; if (+d[3] > 12) monHi++; if (d[2] === ".") dots++;
-      if (+d[1] <= 12 && +d[3] <= 12) { const y = d[0].match(/(\d{2,4})$/)[1]; const yy = +y < 100 ? 2000 + +y : +y; asDay.push(Date.UTC(yy, +d[3] - 1, +d[1]) / 864e5); asMon.push(Date.UTC(yy, +d[1] - 1, +d[3]) / 864e5); } }
+      if (+d[1] <= 12 && +d[3] <= 12) { const y = d[0].match(/(\d{2,4})$/)[1]; const yy = fullYear(+y); asDay.push(Date.UTC(yy, +d[3] - 1, +d[1]) / 864e5); asMon.push(Date.UTC(yy, +d[1] - 1, +d[3]) / 864e5); } }
     for (const k of ["amount", "debit", "credit", "balance"]) {
       if (columns[k] === -1) continue;
       const a = String(r[columns[k]] ?? "").trim().replace(/[^0-9.,]/g, "");
