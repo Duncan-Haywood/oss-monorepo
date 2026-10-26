@@ -825,6 +825,10 @@ the difference and does not explain it: a 78% rise in sales is a question for
 the owner, not a finding. Node tests on hand-built books and the built-in example
 pass. On the page too (2026-10-26, "This period against the last"): the From and To dates are the period and the one of equal length just before is the comparison (`precedingPeriod`); with both empty it is the latest month against the month before.
 
+## Customers and suppliers
+
+`node cli.mjs --books books.json payees [--from D] [--to D] [--json]` (engine: `payeeReport`, `payees.mjs`, 4 tests in `payees.test.mjs`, lines made up) ranks who the money comes from and goes to, with each payee's share, line count and first and last date, the top-three share, and a Herfindahl index in `--json`. It warns when one payer is 25% or more of money in (customer concentration: the commonest way a small business is surprised) and when one supplier is half of money out. Payment processors (Stripe, PayPal, Square, Gusto and similar) and your own transfers are shown but marked and never warned about, since a payout is many customers in one line. Payees group by the categorizer's two-word key, so two shops sharing a first word merge; transfers between your own accounts are skipped. Not checked on a real book yet.
+
 ## Anomalies
 
 `node cli.mjs --books books.json anomalies` (engine: `findAnomalies`, `anomalies.mjs`)

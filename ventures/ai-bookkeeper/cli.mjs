@@ -30,6 +30,7 @@ import { importChart, importTrialBalance } from "./migrate.mjs";
 import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
+import { payeeReport } from "./payees.mjs";
 import { receiptTextFromFile, statementTextFromFile } from "./ocr.mjs";
 import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
@@ -637,6 +638,15 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (json) { console.log(JSON.stringify(a, null, 2)); process.exit(0); }
   for (const x of a) console.log(`${x.date}  ${fmt(x.cents).padStart(11)}  ${x.kind.padEnd(9)} ${x.desc.slice(0, 30).padEnd(30)} ${x.reason}`);
   console.log(`${a.length} line${a.length === 1 ? "" : "s"} to look at.`);
+} else if (cmd === "payees") {
+  const r = payeeReport(books, { from, to });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  for (const [h, side] of [["CUSTOMERS (money in)", r.customers], ["SUPPLIERS (money out)", r.suppliers]]) {
+    console.log(`${h}: ${fmt(side.total)} from ${side.payees} payee${side.payees === 1 ? "" : "s"}; top 3 are ${(side.top3 * 100).toFixed(0)}%`);
+    for (const x of side.rows) console.log(`  ${x.example.slice(0, 32).padEnd(32)} ${fmt(x.cents).padStart(12)} ${(x.share * 100).toFixed(1).padStart(5)}%  ${String(x.count).padStart(3)} line${x.count === 1 ? " " : "s"}  ${x.first} to ${x.last}${x.conduit ? "  (processor or own money)" : ""}`);
+  }
+  for (const w of r.warnings) console.log(`Warning: ${w}`);
+  if (r.unreviewed) console.log(`${r.unreviewed} lines are still in review; they are counted here.`);
 } else if (cmd === "forecast") {
   const f = forecastCash(books, { asOf, days: +(flag("--days") ?? 90) });
   if (json) { console.log(JSON.stringify(f, null, 2)); process.exit(0); }
