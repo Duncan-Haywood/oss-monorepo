@@ -30,8 +30,8 @@ test('a clear variance break survives the bootstrap penalty', () => {
   assert.ok(Math.abs(cps[0].index - 100) <= 10);
 });
 
-test('the bootstrap option is for meanvar and mean only', () => {
-  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'poisson', bootstrap: true }), /meanvar/);
+test('the bootstrap option is for meanvar, mean and poisson only', () => {
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6, 7, 8], model: 'trend', bootstrap: true }), /meanvar/);
 });
 
 test('mean model: AR(1) noise gets fewer false alarms, a clear step survives', () => {
@@ -45,4 +45,21 @@ test('mean model: AR(1) noise gets fewer false alarms, a clear step survives', (
   const r = rng(8); const y = Array.from({ length: 200 }, (_, i) => gauss(r) + (i < 100 ? 0 : 3));
   const cps = analyze({ values: y, model: 'mean', bootstrap: true }).pelt.changepoints;
   assert.equal(cps.length, 1);
+});
+
+test('poisson model: clustered counts get fewer false alarms, a clear step survives, exposure is accepted', () => {
+  const pois = (r, m) => { const L = Math.exp(-m); let k = 0, p = 1; do { k++; p *= r(); } while (p > L); return k - 1; };
+  const gen = (seed, step) => { const r = rng(seed); let a = 0; return Array.from({ length: 200 }, (_, i) => { a = 0.8 * a + 0.6 * gauss(r) * 0.3; return pois(r, 10 * Math.exp(a) * (i >= 100 ? step : 1)); }); };
+  let plain = 0, boot = 0;
+  for (let k = 0; k < 10; k++) {
+    const x = gen(40 + k, 1);
+    if (analyze({ values: x, model: 'poisson' }).pelt.changepoints.length) plain++;
+    if (analyze({ values: x, model: 'poisson', bootstrap: true }).pelt.changepoints.length) boot++;
+  }
+  assert.ok(boot < plain, `plain ${plain}, bootstrap ${boot}`);
+  const cps = analyze({ values: gen(7, 3), model: 'poisson', bootstrap: true }).pelt.changepoints;
+  assert.ok(cps.some((q) => Math.abs(q.index - 100) <= 10));
+  const a = bootstrapPenalty(gen(5, 1), { model: 'poisson' });
+  assert.equal(a, bootstrapPenalty(gen(5, 1), { model: 'poisson' }));
+  assert.ok(a >= penaltyValue('bic', 200, 'poisson'));
 });
