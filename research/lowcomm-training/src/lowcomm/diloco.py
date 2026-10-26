@@ -116,6 +116,21 @@ def top_k(keep):
     return c
 
 
+def quantise(levels):
+    """Unbiased stochastic uniform quantiser per tensor (QSGD-style, Alistarh et al. 2017): scale by the tensor's max
+    magnitude s, map |x|/s onto `levels` equal steps and round up with probability equal to the fractional part, so
+    E[C(x)] = x. `levels` = 1 gives ternary values {-s, 0, s}; 7 fits a signed 4-bit code (15 values)."""
+    def c(x, gen):
+        s = x.abs().max()
+        if s == 0:
+            return x.clone()
+        y = x.abs() / s * levels
+        low = y.floor()
+        up = (torch.rand(x.shape, generator=gen) < (y - low)).to(x.dtype)
+        return torch.sign(x) * (low + up) * s / levels
+    return c
+
+
 def quantize(bits, stochastic=True):
     """Per-tensor uniform quantiser with 2^bits - 1 levels on [-max|x|, max|x|] (QSGD-style, Alistarh et al. 2017).
     Stochastic rounding makes it unbiased: E[C(x)] = x. bits = 1 is the scaled sign, C(x) = mean|x| sign(x) (Seide et

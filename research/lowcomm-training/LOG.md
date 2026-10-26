@@ -2,6 +2,23 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 4e (independent replication, levels-based quantiser; a parallel run landed `gpt_quant` first): what does unbiased stochastic quantisation of the deltas cost, with and without error feedback? (planned before running)
+- Why: 4d's "Next". Sparsification is mapped (4a to 4d); the proposal's compression axis also lists quantisation. New compressor `quantise(levels)` (per-tensor max-abs scale, stochastic rounding, unbiased; `levels` 7 is a signed 4-bit code, 1 is ternary).
+- Design (`experiments/gpt_quantise/quantise.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, lr 2e-3, `H = 16`, plain outer step); arms q7, q1, q1 + error feedback; seeds 0 to 2 (9 runs). Comparator: uncompressed (3d).
+- **H4e-i:** q7 is within 0.02 nats of uncompressed on all 3 seeds. Refuted if any seed exceeds +0.02.
+- **H4e-ii:** q1 (no EF) has mean excess above +0.02. Refuted otherwise.
+- **H4e-iii:** error feedback does not reduce q1's mean excess (the quantiser is unbiased, so residuals add variance rather than fix bias). Refuted if EF lowers the mean by more than 0.01.
+- Prior: i yes (variance of 4-bit rounding is tiny); ii a coin flip; iii likely holds.
+- Limits: 3 seeds, one `H`, per-tensor scale, bytes not modelled.
+
+### Outcome of 4e (`experiments/gpt_quantise/quantise_results.txt`; 9 runs, seeds 0 to 2)
+- Mean final validation loss, excess over uncompressed (1.5758), nats: q7 (4-bit code) -0.0052 (per seed -0.008, -0.010, +0.002); q1 (ternary) +0.0191 (+0.012, +0.023, +0.022); q1 with error feedback +0.881 (+0.85, +0.91, +0.89).
+- **H4e-i supported:** q7 is within 0.02 of uncompressed on every seed (largest +0.0018). **H4e-ii refuted, narrowly:** q1's mean excess is +0.0191, under the +0.02 line, though two of three seeds are above it. **H4e-iii supported, strongly:** error feedback did not help the unbiased quantiser, it made it far worse.
+- Reading: unbiased stochastic quantisation is nearly free at 4 bits and costs about 0.02 nats at ternary, a much gentler price than top-k at the same nominal compression. Error feedback on top of an unbiased quantiser is harmful here. I did not test why; one candidate is that the residual keeps absorbing rounding noise that is then fed back at full scale, but that is a guess, not a result. Do not read this as a statement about error feedback for biased compressors (4b to 4d, where it helped).
+- Limits: 3 seeds, one `H`, per-tensor max-abs scale, a single EF-ternary configuration, bytes not modelled. 7 tests in `tests/test_lowcomm.py` fail on this checkout because they reference `lowcomm.model.Config`, which no longer exists (not touched here).
+- Next: H5 (median aggregation under an attack), and whether EF with a damped residual rescues ternary.
+
+
 ## 2026-10-26 · Milestone 5a: does median aggregation of worker deltas pay on the real GPT, with and without one attacker? (planned before running)
 - Why: H5 in the proposal (robust aggregation) has only had the closed-form `robust-outer` result (median costs about pi/2 in variance). Nothing yet on the real transformer. 4e (quantisation, PR 10664) is another run's; this step is independent of it.
 - Engine change: `DiLoCo(aggregate="median", attack=fn)`; coordinate-wise median of the workers' deltas (mean of the two middle values at M = 4), and an attack hook replacing worker j's delta. Test: `test_median_aggregate_and_attack`.

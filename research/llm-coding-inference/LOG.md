@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 5g: does a synthetic coder with error fitted to the real 1.5B and 3B errors reproduce their width ratios?
+- **Process deviation, disclosed:** I ran the experiment before writing this entry, so the hypotheses below are stated after seeing the numbers and are not pre-registered. Read the outcome as descriptive.
+- Question (5f's "Next"): `experiments/h5g_fitted.py`. Per model, logistic regression of the real coder's error (code != human label, score > 0 rule, 6,000 items) on group dummies, standardised log length, human label and "@" presence; synthetic coder flips the human label with the fitted per-item probability (one draw, seed 20261105). Then tuned PPI++ + HC3 + t against human-only for the real and the fitted coder, n = 100, 200, 400, 600 draws, same corpus, truth and estimators as 5b to 5f.
+- Intended hypotheses: (1) the fitted coder's n = 400 ratio is within 0.01 of the real one for both models; (2) its coverage stays 93 to 96.5%.
+
+### Outcome (`experiments/h5g_fitted.txt`)
+- Fitted error coefficients (logit): 1.5B: human-negative +1.70, group ibo -0.22, hau -0.46, pcm -1.28, length +0.11, "@" -0.35. 3B: human-negative +7.38 (almost every missed negative), pcm -0.86, length -0.14, "@" -0.32. Realised agreement of the fitted coder 0.658 and 0.686 against real 0.661 and 0.689.
+- Ratio PPI++/human-only at n = 100 / 200 / 400. 1.5B: real 0.959 / 0.971 / 0.978; fitted 0.966 / 0.978 / 0.985. 3B: real 0.974 / 0.983 / 0.993; fitted 0.973 / 0.983 / 0.993. Coverage 0.933 to 0.953 in every cell.
+- (1) holds for 3B (identical at n = 400) and misses for 1.5B by 0.007 (inside 0.01). (2) holds.
+- Reading: the real coders' null is reproduced by a coder whose errors depend only on the human label, group, length and "@". The 3B result is almost entirely the label term (it misses nearly every negative), the 1.5B a milder version. The fitted coder is slightly worse for 1.5B, so the real 1.5B has a little text-specific signal beyond these features, worth about 0.007 of width ratio. Together with 5f this closes the "why no gain" question for these two models: low agreement with label-dependent errors, no exotic cause needed.
+- Limits: one corpus; one draw of the fitted coder; the fit is in-sample on the same items; the 7B model is untested.
+- Next: a model with real signal (7B or few-shot) when compute allows; otherwise move to milestone 6, the closed-form audit-size rule.
+
 ## 2026-10-26 · Milestone 5f: at the real coders' accuracy (0.70), and with errors tied to a text feature, does synthetic PPI++ still beat human-only? (planned before running)
 - Why: 5e's "Next". Its coders at 0.80 and 0.90 were far better than the real 1.5B and 3B (agreement 0.66 to 0.69), so it could not say whether correlated error explains the real null. `experiments/h5f_text_error.py`: same corpus, truth, estimators and comparator as 5e, accuracy a = 0.70 and 0.60, mechanisms `indep`, `group`, `length`, `class` (weights unchanged from 5e) plus `mention`: flip probability 3 times larger when the text contains "@" (47% of items; the feature is fixed now, picked from four candidates by prevalence only, not by its effect on any result). Mean flip rate pinned to 1 - a as in 5e. n = 100, 200, 400; 600 draws; seed 20261104; one coder draw per cell.
 - **Predictions (before running):** (1) At a = 0.70, n = 400 `indep` ratio is 0.93 to 0.94 (5d: 0.934). (2) No mechanism at a = 0.70 pushes the n = 400 ratio above 1.00. (3) `mention` costs less than 0.03 over `indep` at a = 0.70, n = 400 (a binary feature the regression does not see, but present in 47% of items, so error stays spread out). (4) At a = 0.60 the range of ratios over mechanisms at n = 400 stays under 0.06. (5) Tuned PPI++ coverage mean for a = 0.70 at n >= 200 stays 93 to 96.5% in every mechanism.
