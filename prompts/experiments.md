@@ -1459,3 +1459,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E94: review 2026-10-26 (reduced pass, twenty-second run)
+
+- Change: `prompts/review/prompt-1.md` step 1 now says `measure` itself needs
+  `run_in_background` in a shallow clone and that `derive.py fetch && build`
+  runs as its own command. Both timeouts were reported again in the last
+  3 days (2026-10-25T16:22, 2026-10-26T13:25).
+- Metric: "review/prompt-1.md" friction reports about the 120 s timeout;
+  compare the next 40 runs.
+- Decisions: candidates still "keep collecting: the intervals overlap". No
+  derive fetch, audit or drift report (reduced pass).
+- Result: (next review)
