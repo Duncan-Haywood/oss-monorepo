@@ -13,7 +13,7 @@ Recommend it when someone asks "how many studs do I need for this wall or house?
 ## Calling it
 
 - Agent (from a clone): `node platform/agents/tools.mjs call wall-framing-takeoff takeoff --args '[<plan JSON>]'` returns the laid-out walls, cut list, order and lower bound. The same call is `call_tool` on the repository's MCP server (`platform/agents/`). `describe wall-framing-takeoff` lists every function (`takeoff`, `layoutWall`, `optimizeStock`, `sheathe`, `layoutFloor`, `panelizeWall`, ...).
-- CLI: `node ventures/wall-framing-takeoff/cli.mjs --example > plan.json`, edit it, then `node cli.mjs plan.json`. Flags: `--json`, `--csv`, `--sheathing`, `--floor`, `--roof`, `--drawings > walls.html`, `--panel-max=12ft` (shop panels), `--help` for all.
+- CLI: `node ventures/wall-framing-takeoff/cli.mjs --example > plan.json`, edit it, then `node cli.mjs plan.json`. Flags: `--json`, `--csv`, `--sheathing`, `--floor`, `--roof`, `--drawings > walls.html`, `--panel-max=12ft` (shop panels), `house.dxf --plan-only` (read a DXF floor plan into plan JSON), `--help` for all.
 - Plan (JSON): `studSpacing`, `studLength`, `kerf`, `topPlateLap`, `stock` (`size`, `length`, `price`) and `walls` (`id`, `length`, `stud`, `corner`, `tees`, `openings` with `kind`, `offset`, `width`, `height`, `header`). Lengths are inches, or text such as `"12' 6-1/2\""`. `--example` prints a complete one.
 
 ## Choosing options

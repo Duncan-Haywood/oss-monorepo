@@ -1,0 +1,2 @@
+bits 1: rounds 240; relative residual norm by quarter [0.737, 0.665, 0.628, 0.629]; max 0.772; round 1 0.527, round 10 0.719, last 0.629; train loss first/last 3.525/1.409
+bits 2: rounds 240; relative residual norm by quarter [1.049, 1.008, 1.004, 1.002]; max 1.357; round 1 1.162, round 10 1.068, last 1.003; train loss first/last 3.525/2.356

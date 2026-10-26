@@ -81,7 +81,7 @@ Ticked items are on `main`.
 
 - [ ] A browser plan editor: draw walls on a grid, drop doors and windows,
       emit the plan JSON (corners and tees detected from geometry).
-- [ ] Import from DXF floor plans (wall centre lines on a layer) and from IFC
+- [x] DXF floor plans landed 2026-10-27 (`dxf.mjs`, CLI and page; centre lines, tees, openings from lines; hand-built files only, no real plan yet). Still open: IFC
       `IfcWall` / `IfcOpeningElement`, both parsed in the browser.
 
 ### 3. The rest of the shell

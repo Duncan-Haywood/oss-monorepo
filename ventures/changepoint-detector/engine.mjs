@@ -1467,6 +1467,36 @@ export function squaredDispersion(x, cps) {
   return Math.max(1, lrv / 2);
 }
 
+/**
+ * Block-bootstrap penalty for the meanvar model: standardise the series by a 3x BIC fit, resample the residuals in blocks
+ * (which keeps volatility clustering and short memory), and take the 95th percentile of the best single-split cost drop
+ * over the resamples. Returns max(BIC, that), so it only ever raises the penalty. Seeded, so the same series gives the
+ * same answer. eval/meanvar-block-bootstrap.mjs, README "--bootstrap".
+ */
+export function bootstrapPenalty(x, { minSegment = 10, resamples = 100, seed = 12345 } = {}) {
+  const n = x.length, bic = penaltyValue('bic', n, 'meanvar');
+  if (n < 4 * minSegment) return bic;
+  const cps = pelt(x, { model: 'meanvar', penalty: 3 * bic, minSegment }).changepoints;
+  const b = [0, ...cps, n], z = [];
+  for (let s = 0; s < b.length - 1; s++) {
+    const seg = x.slice(b[s], b[s + 1]); const m = seg.reduce((a, c) => a + c, 0) / seg.length;
+    const sd = Math.sqrt(seg.reduce((a, c) => a + (c - m) ** 2, 0) / seg.length) || 1;
+    for (const c of seg) z.push((c - m) / sd);
+  }
+  let st = seed >>> 0;
+  const rnd = () => { st = (st + 0x6D2B79F5) >>> 0; let t = st; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const L = Math.ceil(2 * Math.cbrt(n)), gains = [];
+  for (let r = 0; r < resamples; r++) {
+    const y = []; while (y.length < n) { const s = Math.floor(rnd() * (n - L + 1)); for (let i = 0; i < L; i++) y.push(z[s + i]); }
+    y.length = n;
+    const c = makeCost(y, 'meanvar'), whole = c(0, n); let g = 0;
+    for (let s = minSegment; s <= n - minSegment; s++) g = Math.max(g, whole - c(0, s) - c(s, n));
+    gains.push(g);
+  }
+  gains.sort((a, c) => a - c);
+  return Math.max(bic, gains[Math.floor(0.95 * (resamples - 1))]);
+}
+
 export function meanvarNoiseCheck(x, cps, robust = false) {
   const b = [0, ...cps, x.length]; const z = [];
   for (let s = 0; s < b.length - 1; s++) {
@@ -1602,6 +1632,14 @@ export function analyze(input = {}) {
     const f = squaredDispersion(values, p.changepoints);
     if (f > 1.0001) { dispersion = round(f, 2); p = pelt(values, { model, penalty: f * penaltyValue(penalty ?? 'bic', values.length, model), minSegment, sigma, exposure }); }
   }
+  // bootstrap: refit with a penalty read off block-resampled residuals (clustered volatility, heavy tails, short memory)
+  let bootstrap = null;
+  if (o.bootstrap) {
+    if (model !== 'meanvar' || robust || o.dispersion) throw new Error('The bootstrap penalty is for the "meanvar" model without --robust or --dispersion.');
+    const bp = bootstrapPenalty(values, { minSegment });
+    const bic = penaltyValue(penalty ?? 'bic', values.length, model);
+    if (bp > bic * 1.0001) { bootstrap = round(bp, 2); p = pelt(values, { model, penalty: bp, minSegment, sigma, exposure }); }
+  }
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   const lines = [];
@@ -1698,6 +1736,7 @@ export function analyze(input = {}) {
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
     ...(dispersion ? { dispersion } : {}),
+    ...(bootstrap ? { bootstrapPenalty: bootstrap } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
@@ -1844,4 +1883,25 @@ function summarize({ n, column, model, changes, det, labels, skipped }) {
   if (extra.length) lines.push(`The Bayesian method also flags ${extra.map((i) => labels[i]).join(', ')}, which PELT's penalty did not keep: worth a look, weaker evidence.`);
   if (skipped) lines.push(`${skipped} row${skipped > 1 ? 's were' : ' was'} skipped as blank or not numeric.`);
   return lines.join(' ');
+}
+
+/**
+ * Conditional sd of a GARCH(1,1) fitted by Gaussian quasi-maximum likelihood to the series less its median
+ * (h[t] = omega + alpha e[t-1]^2 + beta h[t-1], h[0] the sample variance). Grid search over (alpha, beta) with the
+ * unconditional variance matched to the sample variance (variance targeting), then a local refinement. For
+ * eval/meanvar-garch-filter.mjs; falls back to a constant sd when nothing beats it.
+ */
+export function garchSigma(x) {
+  const n = x.length, ord = [...x].sort((a, b) => a - b), med = ord[Math.floor(n / 2)];
+  const e2 = x.map((c) => (c - med) ** 2), v = e2.reduce((a, c) => a + c, 0) / n || 1;
+  const h = (a, b) => { const w = v * (1 - a - b), o = new Array(n); o[0] = v; for (let t = 1; t < n; t++) o[t] = w + a * e2[t - 1] + b * o[t - 1]; return o; };
+  const nll = (a, b) => { if (a < 0 || b < 0 || a + b >= 0.999) return Infinity; let s = 0; const o = h(a, b); for (let t = 0; t < n; t++) s += Math.log(o[t]) + e2[t] / o[t]; return s; };
+  let best = [0, 0], bl = nll(0, 0);
+  for (let a = 0.02; a <= 0.5; a += 0.04) for (let b = 0; b <= 0.97 - a; b += 0.05) { const l = nll(a, b); if (l < bl) { bl = l; best = [a, b]; } }
+  for (let step = 0.02; step > 0.002; step /= 2) for (let k = 0; k < 20; k++) {
+    let moved = false;
+    for (const [da, db] of [[step, 0], [-step, 0], [0, step], [0, -step]]) { const l = nll(best[0] + da, best[1] + db); if (l < bl - 1e-9) { bl = l; best = [best[0] + da, best[1] + db]; moved = true; } }
+    if (!moved) break;
+  }
+  return h(best[0], best[1]).map(Math.sqrt);
 }

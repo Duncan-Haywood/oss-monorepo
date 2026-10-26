@@ -175,3 +175,14 @@ def test_median_aggregate_and_attack():
     # even M: median is the mean of the two middle values
     ds = torch.tensor([[1.0], [2.0], [10.0], [100.0]])
     assert float(ds.sort(0).values[1:3].mean(0)) == 6.0
+
+def test_quantize_unbiased_and_sign():
+    import torch
+    from lowcomm import quantize
+    g = torch.Generator().manual_seed(0)
+    x = torch.randn(50)
+    m = torch.stack([quantize(4)(x, g) for _ in range(4000)]).mean(0)
+    assert (m - x).abs().max() < 0.03
+    assert len(set(quantize(2)(x, g).tolist())) <= 3  # levels -s, 0, s
+    s = quantize(1)(x, g)
+    assert torch.equal(torch.sign(s), torch.sign(x)) and torch.allclose(s.abs(), x.abs().mean().expand(50))

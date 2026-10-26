@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01A9jGk61V11iS4q9xyvzpxm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T16:03:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 2 wall-framing-takeoff: DXF floor plan import",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 10675,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "route drew the research track; the scheduled prompt asked for revenue ventures, so I ran the ventures track",
+      "did": "worked on ventures/wall-framing-takeoff",
+      "result": "landed DXF import with 7 new tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-wall-framing-takeoff-dxf-import.md"
+  ],
+  "goal": null,
+  "notes": "node --test *.test.mjs in wall-framing-takeoff: 218 pass, 0 fail. DXF import tested on hand-built DXF text only; no real architect DXF tried.",
+  "corrections": [],
+  "redteam": null
+}
