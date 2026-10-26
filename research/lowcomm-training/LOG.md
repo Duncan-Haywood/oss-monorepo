@@ -2,6 +2,24 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-26 · Milestone 4e: what does quantising the worker deltas cost, and does error feedback rescue 2-bit and 1-bit? (planned before running)
+- Why: 4a to 4d priced sparsification; the other standard compressor family is quantisation, the "Next" of every entry since 4a. Adds `quantize(bits)` to the engine (per-tensor uniform grid on [-max|x|, max|x|], stochastic rounding so it is unbiased; bits = 1 is the scaled sign mean|x| sign(x), biased), with a unit test of unbiasedness and the sign form.
+- Design (`experiments/gpt_quant/quant.py`): 4d's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); cells: 4-bit stochastic, 2-bit stochastic, 2-bit stochastic + EF, scaled sign + EF; seeds 0 to 2 (12 runs). Comparator: uncompressed (3d). Bytes per delta coordinate are bits (plus one scale per tensor), against 32 uncompressed.
+- **H4e-i:** 4-bit stochastic is within 0.02 nats of uncompressed on all 3 seeds (8x fewer bytes for free). Refuted if any seed exceeds +0.02.
+- **H4e-ii:** scaled sign + EF (about 32x fewer bytes) is within 0.05 nats of uncompressed on mean. Refuted otherwise.
+- **H4e-iii:** at 2 bits, EF lowers the loss on all 3 seeds relative to plain stochastic. Refuted if any seed rises (unbiased noise averages over M = 4 workers, so EF may not help).
+- Prior: i yes; ii about 60% yes; iii uncertain, 50/50.
+- Limits: 3 seeds, one `H`, per-tensor scale, bytes not modelled beyond bits per coordinate, one model size and corpus.
+
+### Outcome of 4e (`experiments/gpt_quant/quant_results.txt`; 12 runs, seeds 0 to 2)
+- Mean excess loss over uncompressed (1.5758), nats: 4-bit stochastic -0.0044 (per seed +0.003, -0.011, -0.005); 2-bit stochastic +0.0153 (+0.018, +0.010, +0.018); 2-bit stochastic + EF +0.865 (+0.88, +0.80, +0.92); scaled sign + EF -0.0067 (-0.001, -0.014, -0.005).
+- **H4e-i held:** 4-bit is within 0.02 on every seed (8x fewer bytes per coordinate). **H4e-ii held, by a wide margin:** 1-bit scaled sign with EF matches uncompressed (32x fewer bits per coordinate, scales aside). **H4e-iii refuted, and not narrowly:** EF at 2 bits makes every seed far worse (+0.87 against +0.015 without it), so my 50/50 prior was too kind.
+- Reading: the unbiased 2-bit quantiser is already cheap, so EF has little to repair, and adding it hurt a lot. Why is a guess I did not test: the stochastic grid is coarse (levels -s, 0, s on the tensor max), so the rounding error added to the residual is large and the residual may grow over rounds rather than cancel. Scaled sign + EF, whose error is contractive, does fine. The result is a single configuration of one compressor pair, not a general statement about EF with unbiased quantisers.
+- Limits: 3 seeds, one `H`, per-tensor scale, one size and corpus; bits per coordinate only, no byte model; the 2-bit EF failure mechanism untested (residual norm was not logged); differences under about 0.01 are inside the seed spread.
+- Next: log the residual norm in the 2-bit EF run to test the growth explanation, then H5 (median aggregation under an attack).
+
+Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
+
 ## 2026-10-26 · Milestone 4d: where is the knee of error-feedback top-k between keep 1/16 and 1/256? (planned before running)
 - Why: 4c's "Next". EF top-k cost -0.005 at 1/16, +0.043 at 1/64, +0.121 at 1/256; two points below the knee leave its location and shape unresolved.
 - Design (`experiments/gpt_topk_ef_knee/topk_ef_knee.py`): 4c's setup exactly (3d model, 3,840 steps, `M = 4`, inner lr 2e-3, `H = 16`, plain outer step); EF top-k at keep 1/32 and 1/128; seeds 0 to 2 (6 runs). Comparators: uncompressed (3d), 4b at 1/16, 4c at 1/64 and 1/256.

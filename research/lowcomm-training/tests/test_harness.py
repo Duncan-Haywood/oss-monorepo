@@ -144,3 +144,15 @@ def test_top_k_and_error_feedback():
     d = DiLoCo(m, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1, compress=top_k(0.5), error_feedback=True)
     d.round()
     assert any(float(e.abs().sum()) > 0 for e in d.ef[0])
+
+
+def test_quantize_unbiased_and_sign():
+    import torch
+    from lowcomm import quantize
+    g = torch.Generator().manual_seed(0)
+    x = torch.randn(50)
+    m = torch.stack([quantize(4)(x, g) for _ in range(4000)]).mean(0)
+    assert (m - x).abs().max() < 0.03
+    assert len(set(quantize(2)(x, g).tolist())) <= 3  # levels -s, 0, s
+    s = quantize(1)(x, g)
+    assert torch.equal(torch.sign(s), torch.sign(x)) and torch.allclose(s.abs(), x.abs().mean().expand(50))

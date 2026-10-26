@@ -1,0 +1,12 @@
+{"arm": "q", "bits": 2, "seed": 0, "loss": 1.5888414606451988, "secs": 696}
+{"arm": "q", "bits": 4, "seed": 0, "loss": 1.5731325075030327, "secs": 707}
+{"arm": "q_ef", "bits": 2, "seed": 0, "loss": 2.4530015885829926, "secs": 708}
+{"arm": "q_ef", "bits": 1, "seed": 0, "loss": 1.5694575160741806, "secs": 718}
+{"arm": "q", "bits": 4, "seed": 1, "loss": 1.5723388865590096, "secs": 687}
+{"arm": "q_ef", "bits": 2, "seed": 1, "loss": 2.37863752245903, "secs": 689}
+{"arm": "q", "bits": 2, "seed": 1, "loss": 1.5926106721162796, "secs": 690}
+{"arm": "q_ef", "bits": 1, "seed": 1, "loss": 1.569038212299347, "secs": 683}
+{"arm": "q", "bits": 4, "seed": 2, "loss": 1.568682700395584, "secs": 681}
+{"arm": "q", "bits": 2, "seed": 2, "loss": 1.5918672978878021, "secs": 681}
+{"arm": "q_ef", "bits": 1, "seed": 2, "loss": 1.5689862370491028, "secs": 678}
+{"arm": "q_ef", "bits": 2, "seed": 2, "loss": 2.491125762462616, "secs": 701}
