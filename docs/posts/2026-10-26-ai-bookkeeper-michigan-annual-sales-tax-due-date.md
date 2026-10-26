@@ -1,7 +1,7 @@
 ---
 title: "AI Bookkeeper: Michigan annual sales tax returns are due February 28"
 date: 2026-10-26
-description: "The sales tax worksheet in AI Bookkeeper gave Michigan annual filers a January 20 due date. Michigan Treasury says February 28. Fixed, with the states that checked out."
+description: "The AI Bookkeeper sales tax worksheet gave Michigan annual filers a January 20 due date. Michigan Treasury says February 28. Fixed, other states checked."
 tags: [ai-bookkeeper, sales-tax, accounting]
 ---
 

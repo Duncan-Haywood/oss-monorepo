@@ -1,7 +1,7 @@
 ---
 title: "One bad worker breaks mean aggregation in DiLoCo training; the median holds at a small cost"
 date: 2026-10-26
-description: "On a real 2-layer character GPT with 4 workers, one attacker sending a large offset makes mean aggregation diverge while the coordinate-wise median stays within 0.01 nats; a sign-flip costs the median about 0.095 nats."
+description: "On a 2-layer character GPT with 4 workers, a large-offset attacker makes mean aggregation diverge; the coordinate-wise median stays within 0.01 nats."
 tags: [research, lowcomm-training, diloco, robust-aggregation]
 ---
 

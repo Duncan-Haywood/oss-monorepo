@@ -27,3 +27,18 @@ def test_main_exit_codes(tmp_path):
     (d / "b.md").write_text(B)
     assert ps.main(["--root", str(tmp_path)]) == 0
     assert ps.main(["--root", str(tmp_path), "--fail"]) == 1
+
+
+def test_shingles_are_exact_five_word_windows():
+    s = ps.shingles("a b c d e f g")
+    assert s == {("a", "b", "c", "d", "e"), ("b", "c", "d", "e", "f"), ("c", "d", "e", "f", "g")}
+    assert ps.shingles("a b c d") == set()
+    assert ps.shingles("a b c d e") == {("a", "b", "c", "d", "e")}
+
+
+def test_pairs_sorted_most_similar_first():
+    base = " ".join(f"w{i}" for i in range(40))
+    mid = " ".join(f"w{i}" for i in range(20)) + " " + " ".join(f"q{i}" for i in range(20))
+    out = ps.similar_pairs({"a.md": base, "b.md": base, "c.md": mid}, 0.1)
+    scores = [c for c, _, _ in out]
+    assert len(scores) == 3 and scores == sorted(scores, reverse=True) and scores[0] > scores[-1]

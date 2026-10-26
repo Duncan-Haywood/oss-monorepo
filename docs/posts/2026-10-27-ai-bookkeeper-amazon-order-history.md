@@ -1,7 +1,7 @@
 ---
 title: "ai-bookkeeper now reads Amazon's order-history report"
 date: 2026-10-27
-description: "ai-bookkeeper imported zero rows from Amazon Business's Order History CSV. Order Date, Title and Item Total are now recognised, so a year of purchases can go straight into the books."
+description: "ai-bookkeeper imported zero rows from Amazon Business Order History CSVs. Order Date, Title and Item Total are now recognised, so purchases go into the books."
 tags: [ai-bookkeeper, bookkeeping, import, amazon]
 ---
 

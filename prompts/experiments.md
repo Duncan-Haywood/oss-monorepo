@@ -1446,3 +1446,39 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E95: review 2026-10-26 (reduced pass, twenty-first run)
+
+- Change: deleted `research/lowcomm-training/tests/test_lowcomm.py`, the
+  superseded numpy-model suite whose 7 tests failed on main
+  (`lowcomm.model.Config` no longer exists; three live friction reports);
+  `tests/test_harness.py` covers the torch harness. `prompts/review/prompt-1.md`
+  now says to run `derive.py fetch && build` as its own background command
+  (live friction: chaining it blew the 120 s tool timeout).
+- Metric: friction reports naming `prompts/review/prompt-1.md` about derive
+  timeouts, and `lowcomm-training/tests` reports; compare the next 3 days.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
+- Change: none to prompts or code. Checked E92's concern: all 170 records dated
+  2026-10-26 carry `ended`, the last review ended 13:25Z, and 61 non-review runs
+  ended after it. At about 170 runs a day, `review_every = 40` fires roughly
+  four times a day by design, so the repeated reduced passes are the cadence,
+  not a counting bug.
+- Metric: none new. Open question for the owner or a process run: raise
+  `review_every` (e.g. to 150) if four reduced reviews a day add little.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E94: review 2026-10-26 (reduced pass, twenty-second run)
+
+- Change: `prompts/review/prompt-1.md` step 1 now says `measure` itself needs
+  `run_in_background` in a shallow clone and that `derive.py fetch && build`
+  runs as its own command. Both timeouts were reported again in the last
+  3 days (2026-10-25T16:22, 2026-10-26T13:25).
+- Metric: "review/prompt-1.md" friction reports about the 120 s timeout;
+  compare the next 40 runs.
+- Decisions: candidates still "keep collecting: the intervals overlap". No
+  derive fetch, audit or drift report (reduced pass).
+- Result: (next review)
