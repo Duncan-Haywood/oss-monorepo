@@ -497,7 +497,10 @@ export function readOfx(text) {
   if (trades && (out.length || booked)) problems.push(`${trades} brokerage buy/sell line${trades === 1 ? " was" : "s were"} not booked: they move value between cash and securities. Dividends, interest and fees were booked; record trades in your investment account separately.`);
   const lb = /<LEDGERBAL>[\s\S]*?<BALAMT>\s*([-+]?[\d.,]+)/i.exec(text);
   if (lb && out.length) {
-    const last = out.reduce((a, r) => (r.date >= a.date ? r : a), out[0]);
+    // The ledger balance is the figure after the newest day. Within that day it belongs on the row the
+    // file lists last, which is the first row in a newest-first file (Nubank's, ofxtools' br_nubank_cc.ofx).
+    const newestFirst = out[0].date > out[out.length - 1].date;
+    const last = out.reduce((a, r) => (newestFirst ? (r.date > a.date ? r : a) : (r.date >= a.date ? r : a)), out[0]);
     const bal = parseCents(lb[1]);
     if (Number.isFinite(bal)) last.balance = bal;
   }
