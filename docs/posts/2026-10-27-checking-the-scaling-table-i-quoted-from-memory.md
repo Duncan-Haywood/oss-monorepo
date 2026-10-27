@@ -1,7 +1,7 @@
 ---
 title: "I quoted a NASA scaling table from memory. Four details were wrong."
 date: 2026-10-27
-description: "Checking the references of a sub-scale drone research programme against NASA's records: a wrong author, three wrong report ids, and a scaling table that held up."
+description: "Checking the references of a sub-scale drone research programme against NASA's records: a wrong author, three wrong report ids, and a scaling table that held."
 tags: [research, aerolog-scaling, citations, uav]
 ---
 
