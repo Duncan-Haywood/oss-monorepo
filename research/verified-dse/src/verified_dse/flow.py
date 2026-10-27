@@ -23,7 +23,7 @@ from chip_pnr.synth import filtered_liberty  # noqa: E402
 DESIGNS_DIR = HERE / "designs"
 GATES = "AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT,MUX"
 PASSES = ["balance", "rewrite", "rewrite -z", "refactor", "refactor -z", "dc2", "dch"]
-UTIL = 40
+UTIL = int(os.environ.get("VDSE_UTIL", 40))  # placement utilisation %; 40 is the default corner of every earlier milestone
 # name: (file stem, top, parameters, clock port)
 DESIGNS = {
     "adder_op16": ("adder_op", "adder_op", {"W": 16}, ""),

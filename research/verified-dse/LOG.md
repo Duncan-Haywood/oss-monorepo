@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 24: does the rung-bias picture of the five larger designs survive a second operating point (65% placement utilisation)? (planned before running)
+- Why: paper section 6 item 1 still lists "a second corner" as a gap, and every milestone so far uses 40% utilisation. Only the tt_025C_1v80 liberty is in the pinned ORFS platform, so the second point is placement density, which changes wire length, congestion and what `repair_timing` must fix, i.e. exactly what the later rungs see and R1 and R2 do not. Same harness as milestone 9 (`experiments/large/run.py`): mult16, mult24, mult32, adder_op64, adder_ripple64, the same 60 pass sequences, clocks at 1.0x and 1.5x each design's no-wire baseline period, only `VDSE_UTIL=65` differs (OpenROAD 26Q2 from the nixpkgs cache, Yosys 0.33 from apt, as in milestone 9). Script `experiments/util65/run.py`, analysis `analyse.py` (unchanged).
+- **Predictions (fixed now):** (1) The R2 cut still floors on at least one design at the relaxed clock (median R2 regret over designs stays above 1%), as at 40%. (2) Median R2 regret at 65% differs from the 40% value (2.9% relaxed, 0.8% tight) by under 3 points: the ranking mistakes come from timing repair, not density. (3) R4 wall time per point at 65% is not lower than at 40% (denser placement is not cheaper to route). (4) The number of rejected runs does not fall. Each is refuted by the opposite.
+- Limits known in advance: placement utilisation is one axis of a corner, not a PVT corner; same designs and sequences; one tool version.
+
 ## 2026-10-26 · README sync after milestones 20 to 23 (no experiment)
 - `README.md` still said "NSGA-II, BOHB and BO are not yet run" under milestone 1; milestones 20 to 23 ran ridge, GP-EI and TPE baselines (PAPER.md section 5 already reports them). The line now says so and keeps NSGA-II and the full BOHB bracket schedule as not run.
 - Open and unchanged: BOHB bracket schedule, larger designs and a second corner (needs OpenROAD, Yosys).
