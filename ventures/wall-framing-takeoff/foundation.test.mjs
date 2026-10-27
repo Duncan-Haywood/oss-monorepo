@@ -85,3 +85,19 @@ test("a short plate piece still gets two bolts; no anchorBolts key means no coun
 test("anchor bolt inputs are validated", () => {
   assert.ok(validateFoundation({ ...sampleFoundation(), anchorBolts: { spacing: 200 } }).some((x) => /spacing/.test(x)));
 });
+
+test("cornerBars: straight side runs plus an L-bar per layer per corner, legs one lap long", () => {
+  const base = layoutFoundation(sampleFoundation());
+  const l = layoutFoundation({ ...sampleFoundation(), cornerBars: true });
+  assert.ok(l.ok);
+  const footL = l.rebar.find((r) => /footing corner L-bars/.test(r.what));
+  assert.equal(footL.qty, 8); // 2 layers x 4 corners
+  near(footL.length, 40 / 12, 0.01); // #4 lap = 40 x 0.5 in = 20 in a leg
+  assert.equal(l.rebar.find((r) => /stem horizontal corner L-bars/.test(r.what)).qty, 8);
+  assert.ok(!l.rebar.some((r) => /continuous/.test(r.what)));
+  // sides: 2 layers x (474 + 474 + 330 + 330) in of straight bar, plus splices, plus the corner bars
+  const side = l.rebar.filter((r) => /footing bars, (long|short) sides/.test(r.what)).reduce((s, r) => s + r.feet, 0);
+  assert.ok(side >= 2 * 2 * (474 + 330) / 12 - 0.5);
+  assert.ok(l.rebarLb > base.rebarLb); // corner bars add steel to the bent-loop count
+  assert.ok(base.notes.some((n) => /continuous loop/.test(n)) && l.notes.some((n) => /L-bar at every corner/.test(n)));
+});

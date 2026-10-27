@@ -14,7 +14,7 @@ import { formatLength } from "./engine.mjs";
 const BAR_LB_FT = { 3: 0.376, 4: 0.668, 5: 1.043, 6: 1.502 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], anchorBolts?: { spacing?: number, endDistance?: number, plateStock?: number, diameter?: number, embed?: number }, cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
+/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], anchorBolts?: { spacing?: number, endDistance?: number, plateStock?: number, diameter?: number, embed?: number }, cornerBars?: boolean, cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
 
 export function sampleFoundation() {
   return { id: "Foundation", type: "stem", width: 480, depth: 336, footing: { width: 20, depth: 10, bars: 2, bar: 4 }, stem: { height: 32, thickness: 8, bar: 4, spacing: 32 }, slab: { thickness: 4, bar: 3, spacing: 18, baseThickness: 4 }, interior: [{ length: 336, width: 24, depth: 12 }] };
@@ -125,13 +125,23 @@ export function layoutFoundation(f) {
     rebar.push({ what, bar, qty: runs * sp.bars, length: Math.min(stock, runLen) / 12, feet });
   };
   const loop = 2 * ((f.width - 2 * cover) + (f.depth - 2 * cover));
-  addBars("footing continuous bars", ft.bar, ft.bars, loop);
+  const sideW = f.width - 2 * cover, sideD = f.depth - 2 * cover;
+  // With `cornerBars` the horizontal layers run straight along each side and an L-bar (a lap-length
+  // leg each way) ties every layer at every corner; otherwise a layer is one loop bent on site.
+  const horizontal = (/** @type {string} */ what, /** @type {number} */ bar, /** @type {number} */ layers) => {
+    if (!f.cornerBars) return addBars(`${what} continuous bars`, bar, layers, loop);
+    addBars(`${what} bars, long sides`, bar, 2 * layers, sideW);
+    addBars(`${what} bars, short sides`, bar, 2 * layers, sideD);
+    const leg = Math.ceil(lapOf(bar)), len = 2 * leg;
+    if (layers) rebar.push({ what: `${what} corner L-bars (${leg} in legs)`, bar, qty: 4 * layers, length: len / 12, feet: 4 * layers * len / 12 });
+  };
+  horizontal("footing", ft.bar, ft.bars);
   for (const [i, s] of interior.entries()) addBars(`interior footing ${i + 1} bars`, ft.bar, Math.max(ft.bars, 2), s.length - 2 * cover);
   if (type === "stem") {
     const dowels = Math.ceil(centreline / st.spacing);
     const len = ft.depth - cover + st.height + 6 + lapOf(st.bar); // up from the footing, hook back at the slab, lapped to the sill
     rebar.push({ what: "stem verticals", bar: st.bar, qty: dowels, length: len / 12, feet: dowels * len / 12 });
-    addBars("stem horizontal bars", st.bar, 2, loop);
+    horizontal("stem horizontal", st.bar, 2);
   }
   const nx = Math.floor((slabW - 2 * cover) / sl.spacing) + 1, ny = Math.floor((slabD - 2 * cover) / sl.spacing) + 1;
   addBars("slab bars along the width", sl.bar, ny, slabW - 2 * cover);
@@ -159,7 +169,7 @@ export function layoutFoundation(f) {
     anchors = { bolts, pieces, diameter: a.diameter, embed: a.embed, spacing: a.spacing, endDistance: a.endDistance, plateStock: a.plateStock };
   }
   const notes = [
-    "Footing bars are one continuous loop (bent at the corners on site); corner L-bars and chairs are not counted.",
+    f.cornerBars ? "Horizontal bars run straight along each side with an L-bar at every corner and layer; chairs are not counted." : "Footing bars are one continuous loop (bent at the corners on site); corner L-bars and chairs are not counted.",
     `Rebar is lapped 40 bar diameters at each joint in ${formatLength(stock)} stock; ${waste * 100}% waste is added to concrete only.`,
     "Sizes, bar schedules, frost depth and soil bearing are your inputs; nothing here checks them against a code or an engineer's design.",
   ];
