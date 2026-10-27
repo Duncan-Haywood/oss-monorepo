@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { vatReturn, addAsset, taxableBusinessIncome, s179Carryforward, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
-import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts, cashFlow, cashFlowByMonth, ratios, profitAndLoss, balanceSheet } from "./ledger.mjs";
+import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts, cashFlow, cashFlowByMonth, ratios, breakEven, profitAndLoss, balanceSheet } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
 import { generateYear, toCsv } from "./eval/synth.mjs";
 import { runSeed } from "./eval/benchmark.mjs";
@@ -885,4 +885,22 @@ test("ratios: margins, current and quick ratio, working capital, debt to equity"
   assert.equal(none.grossMargin, null);
   assert.equal(none.currentRatio, null);
   assert.equal(none.debtToEquity, null);
+});
+
+test("breakEven: fixed costs over the contribution margin, null when nothing is left per sale", () => {
+  const acc = DEFAULT_ACCOUNTS;
+  const e = (id, date, debit, credit, amt) => ({ id, date, memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const entries = [e("a", "2026-01-10", "1000", "4000", 1000000), e("b", "2026-02-10", "1000", "4000", 1000000), e("c", "2026-01-12", "5000", "1000", 400000), e("d", "2026-01-15", "6080", "1000", 300000), e("f", "2026-02-15", "6080", "1000", 300000)];
+  const b = breakEven(profitAndLoss(entries, acc, {}));
+  assert.equal(b.months, 2);
+  assert.equal(b.contributionMargin, 0.8);
+  assert.equal(b.monthlyIncome, 1000000);
+  assert.equal(b.monthlyFixed, 300000);
+  assert.equal(b.breakEvenMonthly, 375000);
+  assert.equal(b.marginOfSafety, 0.625);
+  const rent = breakEven(profitAndLoss(entries, acc, {}), { variable: ["5000", "6080"] });
+  assert.equal(rent.monthlyFixed, 0);
+  const dead = [e("a", "2026-01-10", "1000", "4000", 100000), e("c", "2026-01-12", "5000", "1000", 120000)];
+  assert.equal(breakEven(profitAndLoss(dead, acc, {})).breakEvenMonthly, null);
+  assert.equal(breakEven(profitAndLoss([], acc, {})), null);
 });
