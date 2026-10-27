@@ -46,9 +46,12 @@ function totals(report, year) {
 // every payment with no minimum. Third-party settlement organizations
 // (marketplaces, PayPal, Venmo, Etsy) report only above $20,000 AND more than
 // 200 transactions: P.L. 119-21 (2025) restored those figures as if the
-// $5,000/$2,500/$600 phase-down had never happened (read from memory of the Act
-// and IRS announcements, not re-fetched; check the year's instructions). Backup
-// withholding can force a form regardless.
+// $5,000/$2,500/$600 phase-down had never happened (read on Publication 1099
+// (2026), irs.gov/pub/irs-pdf/p1099.pdf, 2026-10-27: payment card transactions
+// "All amounts", third party network transactions "More than $20,000 ... and more
+// than 200"; the same text says a TPSO backs up only over those figures or if the
+// payee had a reportable payment the year before). Backup withholding can force a
+// form regardless.
 export const TPSO_1099K = { gross: 2000000, count: 200 };
 // Which rule a report's own format implies: PayPal, Etsy, eBay, Airbnb and Amazon are third-party
 // settlement organizations (the $20,000 and 200 threshold); Stripe, Square and the rest are read as
