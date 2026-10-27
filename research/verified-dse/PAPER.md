@@ -89,7 +89,6 @@ and tie-breaks within a fixed group, not over designs. Hyperband was run in its 
 effects rest on a handful of designs; there is no multiple-comparison correction.
 
 ## 6 What the paper still needs
-(1) [Partly done in milestones 9 and 15: ten larger designs in two families; the R2-cut floor appears in both, on one design each.] Larger designs, where routed cost separates from R1 by orders of magnitude, so H2 is testable. (2) A second corner and
-detail routing. (3) [Partly done in milestones 20 to 23: ridge, GP-EI and TPE baselines on pools of about 50, none beats never cutting on R2.] BOHB/BO baselines at equal wall-clock on larger pools. (4) A proof or counterexample for the top-vs-all
+(1) [Partly done in milestones 9 and 15: ten larger designs in two families; the R2-cut floor appears in both, on one design each.] Larger designs, where routed cost separates from R1 by orders of magnitude, so H2 is testable. (2) [Corner half done in milestone 24: at ss_100C_1v60 the rung ranks carry over only partly, median Spearman 0.69 for routed ADP and the tt-optimal sequence loses a median 3.4% (max 27%); liberty only, `experiments/corner_ss/`.] Detail routing, and a replay of the strategies on the ss table. (3) [Partly done in milestones 20 to 23: ridge, GP-EI and TPE baselines on pools of about 50, none beats never cutting on R2.] BOHB/BO baselines at equal wall-clock on larger pools. (4) A proof or counterexample for the top-vs-all
 coverage, or a conformal pilot statistic with a theorem. (5) Typesetting to the MLCAD template. Until (1) and (3) land the
 honest headline is the negative one: on small designs, cheap rungs did not pay.
