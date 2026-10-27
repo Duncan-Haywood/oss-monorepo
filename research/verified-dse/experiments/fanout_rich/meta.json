@@ -1,0 +1,7 @@
+{
+ "base_period_ns": {
+  "bcastadd64": 3.6,
+  "fanao96": 2.07
+ },
+ "n_sequences": 60
+}
