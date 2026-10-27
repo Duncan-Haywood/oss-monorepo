@@ -418,11 +418,16 @@ export const HYBRID_SWITCH_ANSWERS = 120;
  */
 export const FIRST_OPTION_FALLBACK_SHARE = 0.7;
 
+/** True when the first-option share is far from half in either direction (first or second option favoured). */
+function positionBiased(share: number | undefined): boolean {
+  return share !== undefined && (share >= FIRST_OPTION_FALLBACK_SHARE || share <= 1 - FIRST_OPTION_FALLBACK_SHARE);
+}
+
 export function selectNextPairHybrid(
   input: PairingInput,
   { switchAt = HYBRID_SWITCH_ANSWERS, ...options }: InformationOptions & { switchAt?: number } = {}
 ): [string, string] {
-  return (input.answeredCount ?? 0) < switchAt || (input.firstOptionShare ?? 0) >= FIRST_OPTION_FALLBACK_SHARE
+  return (input.answeredCount ?? 0) < switchAt || positionBiased(input.firstOptionShare)
     ? selectNextPair(input)
     : selectNextPairByInformation(input, options);
 }

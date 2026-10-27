@@ -120,6 +120,13 @@ describe("selectNextPairHybrid first-option fallback", () => {
     }
   });
 
+  it("uses the shipped selector when the share is as far below half as the threshold is above", () => {
+    for (let s = 1; s <= 5; s++) {
+      expect(run(1 - FIRST_OPTION_FALLBACK_SHARE, s)).toEqual(run(FIRST_OPTION_FALLBACK_SHARE, s));
+    }
+    expect(run(0.4, 3)).toEqual(run(undefined, 3));
+  });
+
   it("keeps the information selector below the threshold or with no share", () => {
     expect(run(0.55, 3)).toEqual(run(undefined, 3));
   });
