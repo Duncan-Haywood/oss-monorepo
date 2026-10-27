@@ -2,8 +2,8 @@
 
 Stdlib only. A dynamically (Froude) scaled model at length ratio n = L_model / L_full keeps
 the Froude number V^2 / (g L) and the relative density mu = m / (rho L^3) equal. Everything
-below follows from those two; the exponents are the standard table (Wolowicz, Bowman and
-Gilbert 1979, NASA TP-1435; quoted from memory, not yet opened: see README).
+below follows from those two; the exponents are the standard table (Wolowicz, Brown and
+Gilbert 1979, NASA TP-1435, Table 4; rows checked against the paper, see tests).
 """
 import math
 

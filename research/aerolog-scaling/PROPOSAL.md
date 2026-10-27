@@ -3,8 +3,7 @@
 Programme `aerolog-scaling`, opened 2026-10-27 as the first programme of track 22 (`aerolog`,
 `research/PROJECTS.md`). Written with AI assistance (Claude Code). This is a plan plus one
 first-order calculation: no wind-tunnel, flight or high-fidelity result exists yet. Every claim
-about outside work is a reading from memory of the paper, and the reference must be opened before
-it goes into a paper (see "Citation status").
+about outside work was first written from memory; "Citation status" says which references have since been checked.
 
 ## Question
 
@@ -30,9 +29,9 @@ around the quantities that do.
 ## Related work
 
 Similitude and dynamically scaled flight testing:
-- Wolowicz, Bowman and Gilbert, "Similitude requirements and scaling relationships as applied to model testing", NASA TP-1435, 1979, https://ntrs.nasa.gov/citations/19790015227. The scaling table this programme starts from; pre-electric, no battery or motor scaling, no low-Re drag estimate for small models.
-- Chambers, "Modeling flight: the role of dynamically scaled free-flight models in support of NASA's aerospace programs", NASA SP-2009-575, 2009, https://ntrs.nasa.gov/citations/20100005350. History of the practice and its failures; qualitative, not a per-quantity error budget.
-- Jordan et al., AirSTAR dynamically scaled transport model papers (AIAA, 2005 to 2006, NASA Langley), https://www.nasa.gov/. A 5.5%-scale transport flown for upset research; one airframe, jet-powered, and no energy-storage question.
+- Wolowicz, Brown and Gilbert, "Similitude requirements and scaling relationships as applied to model testing", NASA TP-1435, 1979, https://ntrs.nasa.gov/citations/19790022005. The scaling table this programme starts from; pre-electric, no battery or motor scaling, no low-Re drag estimate for small models.
+- Chambers, "Modeling flight: the role of dynamically scaled free-flight models in support of NASA's aerospace programs", NASA SP-2009-575, 2009, https://ntrs.nasa.gov/citations/20110012492. History of the practice and its failures; qualitative, not a per-quantity error budget.
+- Jordan, Langford, Belcastro and Foster, "Development of a dynamically scaled generic transport model testbed for flight research experiments", AUVSI Unmanned Unlimited, 2004, https://ntrs.nasa.gov/citations/20040085988 (the AirSTAR testbed; a companion report is NTRS 20050232785). A 5.5%-scale transport flown for upset research; one airframe, jet-powered, and no energy-storage question.
 
 Low-Reynolds-number aerodynamics:
 - Mueller and DeLaurier, "Aerodynamics of small vehicles", *Annual Review of Fluid Mechanics* 35, 2003, doi:10.1146/annurev.fluid.35.101101.161102. Why drag rises and lift falls below Re of about 2e5; survey, not a scaling rule for a given airframe.
@@ -48,7 +47,7 @@ Delivery-drone energy, cost and operations:
 
 Design tools and full-size concepts:
 - Sharpe, AeroSandbox (MIT thesis, 2021), https://github.com/peterdsharpe/AeroSandbox. Differentiable aircraft design tool (MIT licence); the intended engine for full-size and model sizing.
-- Johnson, Silva and Solis, "Concept vehicles for VTOL air taxi operations", AHS Technical Conference, 2018, https://ntrs.nasa.gov/citations/20180002029. Open full-size VTOL sizing method that transfers to cargo.
+- Johnson, Silva and Solis, "Concept vehicles for VTOL air taxi operations", AHS Technical Conference, 2018, https://ntrs.nasa.gov/citations/20180003381. Open full-size VTOL sizing method that transfers to cargo.
 - Raymer, *Aircraft Design: A Conceptual Approach*, AIAA, 6th ed. 2018. Weight and drag build-up relations for the full-size side.
 - Hoekstra and Ellerbroek, "BlueSky ATC simulator project", ICRAT 2016, https://github.com/TUDelft-CNS-ATM/bluesky. For the later airspace milestone.
 
@@ -106,7 +105,13 @@ of acceptance.
 
 ## Citation status
 
-The registries (Crossref, arXiv, NTRS) returned 403 from the cloud session on 2026-10-27, so
-`research/_shared/cite_check.py` could not confirm the DOIs above, and author lists, titles and
-URLs are from memory. They are unverified until opened by hand; the NTRS ids and the Jordan et al.
-entry in particular may be wrong.
+Checked on 2026-10-27 (second session, registries reachable): `research/_shared/cite_check.py` confirmed
+four of the five DOIs (Mueller and DeLaurier, Stolaroff et al., D'Andrea, Murray and Chu); Crossref
+confirmed Rodrigues et al. (*Patterns*, Aug 2022, six authors) and Brandt and Selig
+(doi:10.2514/6.2011-1255). The NTRS API confirmed TP-1435 (authors **Wolowicz, Brown and Gilbert**,
+id 19790022005), Chambers (NASA/SP-2009-575, id 20110012492), Johnson, Silva and Solis (id
+20180003381) and Jordan et al. (id 20040085988). The first draft of this file had the wrong middle
+author for TP-1435 and wrong NTRS ids for three entries; they are corrected above. The UIUC pages
+(propeller database, low-speed airfoil data) answered HTTP 200. Not re-opened: the venue and
+publisher of Jordan et al. (the NTRS record gives the title and authors; check the proceedings
+before it goes in a paper), Drela's 1989 chapter, Raymer 6th edition, and the BlueSky paper.
