@@ -124,6 +124,7 @@ The clone is shallow (about 50 commits). If you need history (claim checks, "wha
 Two more traps from run friction: multiprocess GP/BLAS experiments need `OMP_NUM_THREADS=1` (one run lost 30 min to oversubscription), and when `pyenv.py` returns an interpreter without `torch`, `pip download torch` from PyPI through the proxy works (196 MB CPU wheel; pytorch.org is not needed).
 EDA/chip projects also need `yosys` and `iverilog`, which the image lacks:
 `apt-get update -qq && apt-get install -y yosys iverilog` (about a minute; checked 2026-10-18).
+Papers need `pdflatex`, also absent: `apt-get update -qq && apt-get install -y texlive-latex-recommended texlive-fonts-recommended` (about 10 min, so start it with `run_in_background` at the beginning; install fails without the `update` first; 2 reports 2026-10-26).
 
 A new `experiments/figure.py` that draws a line plot from `results.txt` should import
 `research/_shared/linefig.py` (`table`, `write_lines`; stdlib only, example:
