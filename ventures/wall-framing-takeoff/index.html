@@ -162,6 +162,9 @@
       <div><label for="faWaste">Waste (fraction; blank: 0.1)</label><input id="faWaste" type="number" min="0" max="0.5" step="0.01" placeholder="0.1"></div>
       <div><label for="faBox">Nails per box (from the label; blank: no box count)</label><input id="faBox" type="number" min="50" max="20000" step="1" placeholder="e.g. 2500"></div>
       <div><label for="faPrice">Price per box (blank: none)</label><input id="faPrice" type="number" min="0" step="0.01" placeholder="e.g. 45"></div>
+      <div><label for="faHdEnds">Hold-downs at wall ends</label><select id="faHdEnds"><option value="" selected>none</option><option value="true">one at each end of every wall</option></select></div>
+      <div><label for="faHdOpen">Hold-downs beside openings at least this wide, in (blank: none)</label><input id="faHdOpen" type="number" min="6" max="600" step="1" placeholder="e.g. 96"></div>
+      <div><label for="faHdPrice">Price per hold-down (blank: none)</label><input id="faHdPrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
     </div>
     <div class="grid" id="fnFields" hidden>
       <div><label for="fnType">Type</label><select id="fnType"><option value="stem" selected>footing + stem wall + slab</option><option value="monolithic">monolithic slab, thickened edge</option></select></div>
@@ -487,6 +490,11 @@
       if ($("#faOn").checked) {
         const fa = {};
         for (const [id, key] of [["faStudEnd", "studEndNails"], ["faPlate", "plateSpacing"], ["faEdge", "edgeSpacing"], ["faField", "fieldSpacing"], ["faWaste", "waste"], ["faBox", "nailsPerBox"], ["faPrice", "price"]]) if ($("#" + id).value.trim()) fa[key] = Number($("#" + id).value);
+        const hd = {};
+        if ($("#faHdEnds").value) hd.wallEnds = true;
+        if ($("#faHdOpen").value.trim()) hd.openingMinWidth = Number($("#faHdOpen").value);
+        if ($("#faHdPrice").value.trim()) hd.price = Number($("#faHdPrice").value);
+        if (hd.wallEnds || hd.openingMinWidth != null) fa.holdDowns = hd;
         plan.fasteners = fa;
       }
       if ($("#fnOn").checked) {
@@ -647,7 +655,7 @@
     function renderFasteners(fa) {
       $("#fastenersCard").hidden = !fa;
       if (!fa) return;
-      $("#fastenersOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(fastenerText(fa).join("\n"))}</pre><p class="note">Connections are counted from the members placed. Spacings and nails per end are your inputs (defaults are common practice, not a code table): check them against your code edition and your engineer's nailing schedule. Nail size and type, hardware and hold-downs are not counted. Sheathing nails use the sheathing option above and over-count panels with openings cut out slightly.</p>`;
+      $("#fastenersOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(fastenerText(fa).join("\n"))}</pre><p class="note">Connections are counted from the members placed. Spacings and nails per end are your inputs (defaults are common practice, not a code table): check them against your code edition and your engineer's nailing schedule. Nail size and type and hardware other than the hold-downs you typed are not counted. Sheathing nails use the sheathing option above and over-count panels with openings cut out slightly.</p>`;
     }
     function renderFoundation(fn) {
       $("#foundationCard").hidden = !fn;
@@ -795,6 +803,7 @@
       const fa = plan.fasteners;
       $("#faOn").checked = Boolean(fa); $("#faFields").hidden = !fa;
       for (const [id, key] of [["faStudEnd", "studEndNails"], ["faPlate", "plateSpacing"], ["faEdge", "edgeSpacing"], ["faField", "fieldSpacing"], ["faWaste", "waste"], ["faBox", "nailsPerBox"], ["faPrice", "price"]]) $("#" + id).value = fa?.[key] != null ? String(fa[key]) : "";
+      $("#faHdEnds").value = fa?.holdDowns?.wallEnds ? "true" : ""; $("#faHdOpen").value = fa?.holdDowns?.openingMinWidth != null ? String(fa.holdDowns.openingMinWidth) : ""; $("#faHdPrice").value = fa?.holdDowns?.price != null ? String(fa.holdDowns.price) : "";
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
       if (fn) {
