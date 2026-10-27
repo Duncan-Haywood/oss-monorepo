@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKiW6KXi5D64vTtdFeV",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T04:42:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "lowcomm-training"
+  ],
+  "pr": 10799,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py pytest torch numpy ran 35+ min pulling CUDA wheels and never finished; worked by pip download torch, installing it with --no-deps then the full wheel set into a venv (PyPI torch is CUDA-bundled, 554MB; the 196MB CPU wheel note is stale)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-27-lowcomm-training-median-at-eight-workers.md",
+    "research/lowcomm-training/LOG.md (5d)"
+  ],
+  "goal": null,
+  "notes": "5e (a parallel run landed the median arms as 5d; merged, mine renumbered to 5e, trimmed arm is the new part): 12 runs, H5d-i..iii all held (median flip cost +0.021 at M=8 vs +0.095 at M=4; trimmed +0.026). Tests: 2 new/related harness tests pass; full homepage/cite checks below in PR.",
+  "corrections": [],
+  "redteam": null
+}

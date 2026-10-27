@@ -21,7 +21,8 @@ class DiLoCo:
         before averaging, with `gen` a torch.Generator owned by the engine. None leaves the round unchanged.
         error_feedback: each worker keeps the residual (input minus compressed) per tensor and adds it to the next round's
         delta before compressing (Seide et al. 2014; Stich et al. 2018), so a biased compressor such as top_k loses nothing for good.
-        aggregate: "mean" (default) or "median", the coordinate-wise median of the workers' deltas (Yin et al. 2018).
+        aggregate: "mean" (default), "median", the coordinate-wise median of the workers' deltas, or "trimmed", the coordinate-wise
+        mean after dropping the lowest and the highest value (needs at least 3 workers) (Yin et al. 2018).
         attack(delta, worker_index) -> tensor, optional: replaces worker j's delta before aggregation (a Byzantine worker).
         Both apply on the uncompressed path only."""
         self.aggregate, self.attack = aggregate, attack
@@ -56,7 +57,12 @@ class DiLoCo:
                     ds = torch.stack([p.data - list(w.parameters())[i].data for w in self.workers])
                     if self.attack is not None:
                         ds = torch.stack([self.attack(d, j) for j, d in enumerate(ds)])
-                    p.grad = ds.sort(0).values[(len(ds) - 1) // 2: len(ds) // 2 + 1].mean(0) if self.aggregate == "median" else ds.mean(0)
+                    if self.aggregate == "median":
+                        p.grad = ds.sort(0).values[(len(ds) - 1) // 2: len(ds) // 2 + 1].mean(0)
+                    elif self.aggregate == "trimmed":
+                        p.grad = ds.sort(0).values[1:-1].mean(0)
+                    else:
+                        p.grad = ds.mean(0)
                 elif self.compress is None:
                     avg = torch.stack([list(w.parameters())[i] for w in self.workers]).mean(0)
                     p.grad = p.data - avg
