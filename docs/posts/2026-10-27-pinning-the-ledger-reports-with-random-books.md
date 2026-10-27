@@ -1,7 +1,7 @@
 ---
 title: "Pinning an AI bookkeeper's reports with 500 random sets of books"
 date: 2026-10-27
-description: "A seeded property test checks that the trial balance, balance sheet, profit and loss and cash flow of ai-bookkeeper agree with each other on random balanced books."
+description: "A seeded property test checks that ai-bookkeeper's trial balance, balance sheet, profit and loss and cash flow agree with each other on random balanced books."
 tags: [ai-bookkeeper, testing, accounting]
 ---
 
