@@ -61,6 +61,9 @@ export const BUILT_IN = [
   ["6030", "out", /insurance|\bins (billing|premium)|hartford|cigna|anthem|lemonade|prudential|blue cross|united healthcare|hiscox|next insurance|thimble|state farm|geico|liberty mutual|progressive/],
   ["6050", "out", /attorney|law office|cpa\b|accountant|bookkeep|tax prep|legalzoom|registered agent/],
   ["6060", "out", /adobe|microsoft|google ?(workspace|gsuite)|gsuite|dropbox|notion|slack|zoom\.us|zoom video|figma|github|atlassian|jetbrains|1password|openai|openrouter|anthropic|chatgpt|zapier|airtable|squarespace|wix|godaddy|namecheap|cloudflare|aws|amazon web services|digitalocean|heroku|vercel|netlify|quickbooks|xero|intuit|canva|shopify plan|apple\.com\/bill|google cloud|bitbucket|gitlab|fastly|google ?\*? ?cloud|linode|vultr|hetzner|backblaze|rackspace|fly\.io|evernote|cursor|miro|lastpass|microsoft|azure|twilio|datadog|sentry/],
+  // Resale-app payouts are sales; thrift and consignment stores are stock for resale (1450). Both go to review, never post themselves.
+  ["4000", "in", /\b(poshmark|mercari|depop|vinted|thredup|offerup|grailed|reverb)\b/],
+  ["1450", "out", /goodwill|salvation army|plato'?s closet|value village|buffalo exchange|once upon a child|savers thrift|thrift (store|shop)/],
   ["6070", "out", /staples|office depot|officemax|usps|stamps\.com|post office/],
   ["6080", "out", /wework|regus|coworking|office rent|monthly rent|rent payment|paying the rent|storage unit|public storage/],
   ["6100", "out", /home depot|lowes|ace hardware|menards|harbor freight|uline|grainger/],
