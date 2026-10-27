@@ -1,6 +1,6 @@
 # What does a 1:N model of a cargo UAV tell you about the 1:1 aircraft?
 
-**Status: open research programme, milestones 1 to 6a done in part (see below).** A stdlib Froude-scaling calculator
+**Status: open research programme, milestones 1 to 7a done in part (see below).** A stdlib Froude-scaling calculator
 (`src/aerolog_scaling/`, 9 tests) and a first-order result: for a 1,000 kg, aspect-ratio-10 cargo
 fixed-wing, the 1:10 model needs **1.27x** the power that Froude scaling predicts (1.17 to 1.35
 over drag and aspect-ratio sweeps) because Reynolds number falls as n^1.5 and skin friction rises.
@@ -71,6 +71,12 @@ that Froude scaling turns into n^3.5. Electrical cruise power is 1.85 times the 
 payload (0, 250, 500 g), and falls 10% from 4 to 12 m/s (translational lift). This is a check inside one
 airframe over a 13.6% mass range, not across scale; payload is partly confounded with flight day (density not
 logged) and the interval resamples flights, not days. Data: Rodrigues et al., doi:10.1184/R1/12683453.v1.
+
+**Correction search (milestone 7a, `experiments/correction_search/`).** At n = 0.2 the uncorrected model (same NACA 4412)
+needs 1.157x the Froude power (free transition; 1.383 tripped). A search of 178 section and boundary-layer cases
+(158 NACA 4-digit, 10 low-Reynolds sections, free or tripped, CL within +/-6%, lift-curve slope within 5%) finds none
+within 5%: the best is **1.086**, a thin cambered section left untripped. H5 is refuted in this design space, which
+holds geometric similarity; the polars are NeuralFoil, not yet checked against measured data.
 
 ## Limitations
 
