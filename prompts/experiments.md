@@ -1528,3 +1528,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   collecting: the intervals overlap"; no audit, drift report or derive re-run
   (reduced pass).
 - Result: (next review)
+
+## E100: review 2026-10-27 (reduced pass, twenty-seventh run)
+
+- Change: `prompts/review/prompt-1.md` step 1 now says `measure` holds git's
+  `shallow.lock`, so run it and `derive.py fetch` one after the other (live
+  report 2026-10-27T16:14). Re-ran `derive.py fetch && build` (3442 rows).
+- Metric: friction reports naming `prompts/review/prompt-1.md` about the lock;
+  compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
