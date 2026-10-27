@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 6v: does an optional-stopping correction (a wider critical z at the stop) repair the rare-category sequential audit? (planned before running)
+- Why: 6u's open item. `experiments/h6v_alpha_spend.py`: 6t's setup (GoEmotions groups, fear and sadness, targets 1.0 and 0.5 point, start 400, batches of 100, cap 6,000, 500 draws, seed as 6t). Rule A = plug-in at z = 1.96 (repeat of 6t). Rule E stops and reports at z = 2.58. Rule F uses the Bonferroni z over the at most 57 looks (z = 3.33 for a 5% total level). The estimator is the tuned stratified PPI throughout.
+- **Predictions (before running):** (1) F covers at least 93% in all four cells (a union bound over looks is valid whatever the stopping time). (2) E covers less than F in every cell. (3) F's mean n is 1.8 to 3.2 times A's (z ratio squared is 2.9).
+- Refuted: (1) any F cell under 93%; (2) E at or above F in some cell; (3) ratio outside the range in any cell.
+- Limits known in advance: one corpus and coder family, 500 draws, the union bound is only valid if the interval is valid at each fixed look, which 6t's fixed-n check supports at about 1,000 items and above but not at n = 457.
+
+### Outcome (`experiments/h6v_alpha_spend.py`, about 4 min; `experiments/h6v_alpha_spend.txt`)
+- **(1) refuted, badly.** F covers fear 89.2% (1.0 pt) and 63.6% (0.5), sadness 92.6% and 79.2%. A repeats 6t exactly (89.8 / 63.8 / 86.2 / 72.0%).
+- **(2) refuted by one cell.** E covers 91.6, 61.6, 88.2, 77.4%; E is below F in three cells and above it in fear at 1.0 point (91.6 vs 89.2).
+- **(3) held except one cell.** F/A mean n: fear 1.65x and 1.90x, sadness 2.24x and 1.79x (bar 1.8 to 3.2; fear 1.0 point misses at 1.65x).
+- Reading: a z of 3.33 should cover whatever the stopping time if the interval were valid at every look; it does not, and fear at 0.5 point stays near 64% at any z tried. So the failure is not mainly multiple looks. At the stop the plug-in standard error is too small relative to the true error (few positives seen, coder agreement high), and widening z by 70% does not offset it. This reading is not tested directly; a test would compare the estimate error with the reported se among stopped audits.
+- Limits: as above; z not tuned beyond two values.
+- Next: if the sequential audit at a rare category is revisited, use a variance bound that uses no audit labels, or a fixed-n audit at the oracle size; the five-plus rules tried (6t, 6u, 6v) are all invalid or inefficient. Close this branch; return to the paper and the 7B coder.
+
 ## 2026-10-27 · Milestone 6u: stopping the rare-category sequential audit on a Wilson-upper-bound half-width (planned before running)
 - Why: 6t's open item. Plug-in stopping undercovers at 1 to 2% prevalence (optional stopping on a low variance estimate); a positives guard made it worse. `experiments/h6u_wilson_stop.py`: same corpus, coder, strata, start, batches, cap and 500 draws as 6t. Rule A = 6t plain plug-in. Rule D stops when the half-width computed from a human-only variance with per-group 95% Wilson-upper prevalence (capped 0.5) is at most the target; the reported interval is still the tuned stratified PPI one.
 - **Predictions (before running):** (1) D covers at least 92% in all four cells. (2) D's mean n is 1.5 to 4 times the oracle n (it is conservative, as the 6s pilot rule was). (3) D hits the 6,000 cap in over 10% of fear audits at the 0.5-point target.
