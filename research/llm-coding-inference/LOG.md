@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 6w: is the sequential rare-category audit's failure an understated standard error at the stop? (planned before running)
+- Why: 6v's reading (plug-in se too small at the stop) was not tested. `experiments/h6w_stop_z.py` reuses 6v's rule A (z = 1.96, same corpus, coder, strata, start, batches, cap, seed, 500 draws) and records, per stopped audit, the standardised error t = (estimate - truth) / reported se, and the same t for a fixed-n audit of that audit's stopped size drawn independently (same estimator, no stopping). If stopping is the cause, sd(t) should be near 1 for fixed n and well above 1 at the stop.
+- **Predictions (before running):** (1) fixed-n sd(t) between 0.9 and 1.15 in all four cells. (2) stopped sd(t) is at least 1.3 in the two 0.5-point cells and exceeds fixed-n sd(t) in all four. (3) among stopped audits, the correlation between reported se and |error| is lower than for fixed n.
+- Refuted: (1) any fixed-n sd(t) outside 0.9 to 1.15; (2) stopped sd(t) under 1.3 in a 0.5-point cell or not above fixed in some cell; (3) correlation not lower.
+- Limits known in advance: one corpus and coder family, 500 draws (sd(t) +/- about 0.06), fixed-n comparator draws one audit per stopped size.
+
+### Outcome (`experiments/h6w_stop_z.py`, under 1 min; `experiments/h6w_stop_z.txt`; 500 draws per cell)
+- t = (estimate - truth) / reported se. Stopped: sd t 1.08 (fear 1.0 pt), 1.44 (fear 0.5), 1.18 (sadness 1.0), 1.58 (sadness 0.5); mean t -0.56, -1.36, -0.79, -1.13. Fixed n at the same sizes: sd t 1.21, 1.17, 1.15, 1.14; mean t -0.35, -0.34, -0.20, -0.18.
+- **(1) refuted.** Fixed-n sd t is 1.14 to 1.21, above the 0.9 to 1.15 bar in three cells (the fixed-n normal interval itself runs a little narrow at 1% prevalence, consistent with its 91 to 94% coverage).
+- **(2) half held.** Stopped sd t is above 1.3 in both 0.5-point cells (1.44, 1.58), but at fear 1.0 point it is below the fixed-n value (1.08 vs 1.21).
+- **(3) held.** Corr(se, |error|) among stopped audits is -0.67, -0.52, -0.52, -0.35 against -0.06 to +0.33 at fixed n: audits that stop have the small se because their estimate is low, and the error is large exactly when se is small.
+- Reading: the mechanism is mostly a **downward bias at the stop** (mean t -1.4 and -1.1 at 0.5 point), not only a spread understatement: stopping selects audits that saw few positives, whose estimate and se are both low. This matches the 6u reading and is now measured. A wider z cannot fix a shifted centre (6v). A valid sequential audit at a rare category would need a bound that uses no audit labels in the stopping decision.
+- Limits: as predicted; mean t is an average over 500 draws (se of mean t about 0.05).
+
+
 ## 2026-10-27 · Milestone 6v: does an optional-stopping correction (a wider critical z at the stop) repair the rare-category sequential audit? (planned before running)
 - Why: 6u's open item. `experiments/h6v_alpha_spend.py`: 6t's setup (GoEmotions groups, fear and sadness, targets 1.0 and 0.5 point, start 400, batches of 100, cap 6,000, 500 draws, seed as 6t). Rule A = plug-in at z = 1.96 (repeat of 6t). Rule E stops and reports at z = 2.58. Rule F uses the Bonferroni z over the at most 57 looks (z = 3.33 for a 5% total level). The estimator is the tuned stratified PPI throughout.
 - **Predictions (before running):** (1) F covers at least 93% in all four cells (a union bound over looks is valid whatever the stopping time). (2) E covers less than F in every cell. (3) F's mean n is 1.8 to 3.2 times A's (z ratio squared is 2.9).
