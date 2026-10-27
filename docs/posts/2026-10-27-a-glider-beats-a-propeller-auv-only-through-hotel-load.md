@@ -1,7 +1,7 @@
 ---
 title: "A buoyancy glider beats a propeller AUV through hotel load, not hydrodynamics"
 date: 2026-10-27
-description: "In a swept model of a 52 kg glider against a same-mass propeller AUV, the glider has the longer range in 5.9% of cases at equal hotel load and 89% at five times; no coefficient is sourced."
+description: "Swept model, 52 kg glider vs same-mass propeller AUV: the glider has more range in 5.9% of cases at equal hotel load, 89% at five times; no coefficient sourced."
 tags: [marine-hull, glider, auv, negative-result, simulation]
 ---
 

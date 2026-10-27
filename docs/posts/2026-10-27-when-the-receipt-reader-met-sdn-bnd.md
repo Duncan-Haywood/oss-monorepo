@@ -1,7 +1,7 @@
 ---
 title: "When the receipt reader met SDN BND"
 date: 2026-10-27
-description: "A one-letter OCR slip hid a shop name on 1 of 626 real Malaysian receipts; fixing it moved merchant accuracy from 84.7% to 84.8%, and the rest of the misses are labelling, not bugs."
+description: "A one-letter OCR slip hid a shop name on 1 of 626 real Malaysian receipts; fixing it moved merchant accuracy 84.7% to 84.8%. The other misses are labelling."
 tags: [ai-bookkeeper, receipts, measurement]
 ---
 
