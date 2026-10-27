@@ -1,0 +1,14 @@
+fear: corpus 6683, prevalence 0.0115, positives 77
+category | target pts | rule | mean n (oracle) | sd n | mean half pts | share stopped with <20 pos | share at cap | coverage
+fear | 1.0 | A plug-in | 457 (398) | 75 | 0.818 | 1.000 | 0.000 | 0.898
+fear | 1.0 | D Wilson-upper | 2175 (398) | 739 | 0.300 | 0.312 | 0.000 | 0.514
+fear | 0.5 | A plug-in | 911 (1347) | 335 | 0.461 | 0.890 | 0.000 | 0.638
+fear | 0.5 | D Wilson-upper | 4310 (1347) | 1090 | 0.198 | 0.008 | 0.000 | 0.636
+
+sadness: corpus 6683, prevalence 0.0230, positives 154
+category | target pts | rule | mean n (oracle) | sd n | mean half pts | share stopped with <20 pos | share at cap | coverage
+sadness | 1.0 | A plug-in | 669 (733) | 148 | 0.935 | 0.714 | 0.000 | 0.862
+sadness | 1.0 | D Wilson-upper | 2005 (733) | 748 | 0.509 | 0.004 | 0.000 | 0.684
+sadness | 0.5 | A plug-in | 1874 (2197) | 411 | 0.488 | 0.042 | 0.000 | 0.720
+sadness | 0.5 | D Wilson-upper | 4133 (2197) | 1178 | 0.298 | 0.000 | 0.000 | 0.744
+
