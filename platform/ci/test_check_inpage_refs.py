@@ -31,6 +31,17 @@ class InpageRefs(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(main(["--root", str(root)]), 1)
 
+    def test_clean_tree_exits_zero(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "ventures").mkdir()
+            (root / "ventures" / "index.html").write_text('<a href="#a">x</a><h2 id="a"></h2>')
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main(["--root", str(root)]), 0)
+
+    def test_default_root_is_the_repo_root(self):
+        self.assertTrue((ROOT / "ventures").is_dir())
+
     def test_repo_is_clean(self):
         self.assertEqual(scan(ROOT), [])
 
