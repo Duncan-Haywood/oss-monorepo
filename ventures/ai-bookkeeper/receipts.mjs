@@ -155,7 +155,9 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   const wordy = (l) => { const t = l.replace(/\s/g, ""); return t.length > 0 && (t.match(/[^a-z0-9.&()'\/,:-]/gi) ?? []).length / t.length < 0.15 && (t.match(/[a-z]/gi) ?? []).length / t.length >= 0.5; };
   // a company registration number in brackets, "AEON CO. (M) BHD (126926-H)", is not part of the name
   const REGNO = /\s*\(\s*(?:no\.?\s*)?\d{4,}\s*-?\s*[a-z]?\s*\)\s*$/i;
-  const eligible = lines.map((l) => l.replace(REGNO, "")).filter((l) => /[a-z]{3}/i.test(l) && !BOILER.test(l) && !NOTNAME.test(l) && wordy(l)
+  // an OCR line of stray two-letter fragments ("eee ee ee Ty Pee ee") is the logo or a rule, not a name
+  const FRAGMENTS = (l) => { const w = l.split(/\s+/).filter(Boolean); return w.length >= 3 && w.filter((x) => /^[a-z]{1,2}$/i.test(x)).length * 2 > w.length; };
+  const eligible = lines.map((l) => l.replace(REGNO, "")).filter((l) => /[a-z]{3}/i.test(l) && !BOILER.test(l.replace(/^[^A-Za-z0-9]+/, "")) && !FRAGMENTS(l) && !NOTNAME.test(l) && wordy(l)
     && !/\d{3}[-. ]\d{3,4}/.test(l) && !DATE_RES.some((re) => re.test(l)) && !new RegExp(moneyRe(comma).source, "u").test(l) && !/^\d+\s+\w+\s+(st|street|ave|avenue|rd|road|blvd|dr|drive|ln|way)\b/i.test(l));
   // a short line of a person's name above the registered company name: the company is the merchant
   let merchantLine = eligible[0];

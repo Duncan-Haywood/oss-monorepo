@@ -46,7 +46,7 @@ flagships:
       payment-processor import (`form1099k`: try a real 1099-K; Adyen: wanted a real settlement file); (4) a real
       supplier's terms letter checked against the fee and discount rules, and one
       named lender's own schedule against the loan register (`loan check`);
-      (5) receipts through real OCR (SROIE tesseract: totals 75.8%, dates 79%, merchants 43%, boxes 84.7%, re-measured 2026-10-26; preprocessing worse on flat scans; wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
+      (5) receipts through real OCR (SROIE tesseract: totals 76.2%, dates 79.2%, merchants 45.8%, boxes 84.7%, re-measured 2026-10-27; preprocessing worse on flat scans; wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) one named
       filing service's import layout, from its own spec; (8) `salestax return`:
       due dates read from the state's own page only for WA, TX and FL (README Next); the rest from search excerpts or memory; open: a real return layout; (9) 2027 `estimate`: the indexed QBI
