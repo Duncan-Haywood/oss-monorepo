@@ -1,7 +1,7 @@
 ---
 title: "Reading door and window symbols from a CAD plan to size wall framing"
 date: 2026-10-27
-description: "The wall-framing takeoff now reads door and window block symbols in a DXF as openings, sizing each from its block's box: a 36 in leaf with a swing arc, a 72 in window."
+description: "The wall-framing takeoff now reads door and window block symbols in a DXF as openings, sized from each block's box: a 36 in door leaf, a 72 in window."
 tags: [wall-framing-takeoff, construction, dxf]
 ---
 
