@@ -1,7 +1,7 @@
 ---
 title: "Paying an auditor for catches cannot keep it honest; a bond can"
 date: 2026-10-27
-description: "In a game where untrusted workers train a model, a reward for catching cheats never keeps the auditor honest. A forfeitable bond does, and it grows with the worker count."
+description: "Paying an auditor per catch never keeps it honest in a worker-collusion game; a forfeitable bond does, and it must grow with the number of workers."
 tags: [verifiable-training-mechanisms, research, game-theory]
 ---
 
