@@ -1,4 +1,5 @@
-"""Milestone 5i: at M = 16, does the median's sign-flip cost fall to the order-statistic prediction (about 0.005 nats), and does the trimmed mean (drop one per side) fall behind it? 5d/5e setup (3d model, H = 16, inner lr 2e-3, plain outer step, 3,840 steps) with M = 16. Arms: mean (no attack), median (no attack), median and trimmed with worker 0 sending -10x its delta. Seeds 0 to 2.
+"""Milestone 5i: does the median's sign-flip cost fall at M = 16 (one attacker of sixteen)? 5b/5c setup (3d model, H = 16, inner lr 2e-3, plain outer step, 3,840 steps)
+with M = 16. Arms: mean (no attack), median (no attack), median with worker 0 sending -10x its delta. Seeds 0 to 2.
 Usage: python3 median_m16.py run   then   python3 median_m16.py report."""
 import json, os, sys, time
 from multiprocessing import Pool
@@ -7,9 +8,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "src"))
 M, B, STEPS, LR, H = 16, 16, 3840, 2e-3, 16
 SEEDS = [0, 1, 2]
-ARMS = [("mean", 1.0), ("median", 1.0), ("median", -10.0), ("trimmed", -10.0)]  # (aggregation, attacker scale a: sends a x its own delta)
+ARMS = [("mean", 1.0), ("median", 1.0), ("median", -10.0)]  # (aggregation, attacker scale a: sends a x its own delta)
 PATH = os.path.join(HERE, "median_m16.jsonl")
-
+OLD = os.path.join(HERE, "..", "gpt_retune_all", "retune.jsonl")
 load = lambda p: [json.loads(l) for l in open(p)] if os.path.exists(p) else []
 
 

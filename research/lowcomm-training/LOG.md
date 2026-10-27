@@ -2,20 +2,25 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-27 · Milestone 5i: at M = 16, does the median's sign-flip cost fall to about 0.005 nats, and does the trimmed mean fall behind it? (planned before running)
-- Why: 5h's "Next". 5h found the real late deltas Gaussian-like at mu/sigma about 0.4, so 5f's Gaussian order-statistic account predicts a further ~4x fall in the median's flip cost from M = 8 (0.0207) to M = 16, and a trimmed mean within ~15% of the median.
-- Design (`experiments/gpt_median_m16/median_m16.py`): 5d/5e setup with M = 16 workers, H = 16, 3,840 steps, seeds 0 to 2. Arms: mean (no attack), median (no attack), median and trimmed mean (drop one per side) with worker 0 sending -10x its delta.
-- **H5i-i:** median flip cost (attacked minus unattacked mean loss) at M = 16 lies in 0.002 to 0.010 nats (prediction 0.005, a factor-2 band). Refuted outside it.
-- **H5i-ii:** trimmed-mean flip cost is within 2x of the median's at M = 16 (Gaussian tails). Refuted if more than 2x.
-- Prior: i 55%, ii 65%. Limits: 3 seeds, one model and corpus; flip cost is a small difference of noisy losses (seed sd of the unattacked loss about 0.005), so i may be unresolvable at 3 seeds.
+## 2026-10-27 · Milestone 5i: the out-of-sample M = 16 test of the order-statistic prediction (planned before running)
+- Why: 5f/5g predicted the median's sign-flip cost falls a further ~4x from M = 8 (+0.0207 nats) to M = 16, i.e. about +0.005 nats; 5h found the real deltas are near-Gaussian late in training (mu/sigma about 0.4), so the Gaussian row applies. This is the first prediction made before the run rather than fitted to it.
+- Design (`experiments/gpt_median_m16/median_m16.py`): 5d with M = 16 (3d model, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, batch 16 per worker). Arms: mean (no attack), median (no attack), median with worker 0 sending -10x its delta. Seeds 0 to 2. The trimmed-mean arm is left out to bound the cost (about 35 minutes per run).
+- **H5i-i:** the flip excess of the median over the M = 16 mean, averaged over seeds, is below 0.012 nats (half of the M = 8 value; the prediction is 0.005). Refuted if at or above 0.012.
+- **H5i-ii:** the clean median is within 0.01 nats of the M = 16 mean. Refuted otherwise.
+- Prior: i 65%, ii 85%. Seed noise on single excesses at M = 8 was about 0.01, so a mean of three cannot resolve 0.005 from 0.01; the bar is chosen to separate the prediction from "no fall".
 
-### Outcome of 5i (`experiments/gpt_median_m16/`: `median_m16.py`, `.jsonl`, `median_m16_results.txt`, `run.out`; 12 runs, seeds 0 to 2, about 39 minutes each)
-- Held-out loss (nats/char, mean of 3 seeds): mean no attack 1.5376; median no attack 1.5356; median attacked 1.5392; trimmed attacked 1.5447. Seed sd of the unattacked loss is about 0.006.
-- Flip cost, paired by seed: median attacked minus median unattacked = **+0.0036 (se 0.0039)**, against 0.0207 at M = 8. **H5i-i: not refuted, not confirmed.** The point estimate sits inside the 0.002 to 0.010 band and is 5.8x below M = 8, but its interval spans zero, so three seeds cannot separate it from no cost or from 0.008.
-- Trimmed attacked minus median unattacked = **+0.0091 (se 0.0070)**, 2.5x the median's flip cost. **H5i-ii: nominally refuted** (above the 2x bar), but the difference is one seed (seed 1: +0.0229) and the se is as large as the gap; read it as "no evidence the trimmed mean matches the median", not as a measured 2.5x.
-- Reading: the fall from M = 8 to M = 16 goes the way 5f/5h predict and the cost is now at the noise floor of a 3-seed paired comparison. Resolving 0.005 against 0 needs about 10 to 20 seeds (se 0.0039 at n = 3 would need to fall under 0.0013), at about 40 minutes per run in 4 parallel slots that is a multi-hour job; not done here.
-- Limits: 3 seeds; one model and corpus; flip cost is a difference of noisy losses; the attack is a single fixed -10x flip.
-- Next: more seeds on the two attacked arms only (about 8 more seeds each, 16 runs) to put a confidence interval on the M = 16 flip cost and the trimmed-to-median ratio; or move to a stronger adaptive attack, where the median's cost may not fall with M.
+### Outcome of 5i (`experiments/gpt_median_m16/`: `median_m16.py`, `.jsonl`, `median_m16_results.txt`, `run.out`; 9 runs, seeds 0 to 2, about 31 minutes each; the first batch was lost to a container restart and rerun unchanged)
+- M = 16 mean, no attack: 1.5376 (1.5424, 1.5300, 1.5404). Clean median: 1.5356, excess -0.0020 (-0.0007 to +0.0017 per seed, one at -0.007). Median under the -10x flip: 1.5392, excess **+0.0016** (per seed -0.0016, +0.0094, -0.0031).
+- **H5i-i supported:** +0.0016 is below the 0.012 bar. **H5i-ii supported:** the clean median is within 0.01 of the mean on all seeds.
+- Reading: the cost fell from +0.095 (M = 4) to +0.021 (M = 8) to +0.002 (M = 16). The order-statistic prediction was about +0.005; the observation is at or below it, but the per-seed spread (about 0.005 to 0.01) is as large as the effect, so this confirms "the cost is now at the noise floor", not the 4x factor. A tighter test needs more seeds or an attacker strong enough to raise the signal (e.g. a coordinated minority).
+- Limits: one attacker; three seeds; one model and corpus; the trimmed-mean arm was not run, so 5g's heavy-tail side prediction is untested.
+- Next: coordinated attackers (k of 16 flipping together) to find where the median breaks, which is the question that matters for the protocol.
+
+## 2026-10-27 · Milestone 5i-b: trimmed-mean arm at M = 16 (a parallel session ran the median arms of 5i; this adds the arm it left out)
+- Run concurrently with the entry above, with identical seeds and settings, so the mean and median arms reproduce it bit for bit (`experiments/gpt_median_m16/median_m16_full.jsonl`, 12 runs; `median_m16_with_trimmed.py`). New: trimmed mean (drop one per side) with worker 0 sending -10x, planned with the hypothesis that its cost is within 2x of the median's (5g said Gaussian tails keep them within ~15%).
+- Outcome (3 seeds, paired by seed): trimmed attacked minus unattacked median **+0.0091 (se 0.0070)**; median attacked minus unattacked median **+0.0036 (se 0.0039)**. Ratio 2.5x, nominally past the 2x bar, but one seed (seed 1, +0.0229) carries it and the se equals the gap: no evidence the trimmed mean matches the median, no measured difference either.
+- The 5i unattacked-median reference makes the paired flip cost +0.0036, not the +0.0016 above (which is against the mean); both are within noise of 0 and of 0.005.
+- Next: as above (coordinated attackers); if the trimmed mean is of interest, ~10 seeds on the two attacked arms.
 
 ## 2026-10-27 · Milestone 5h: what are the tail weight and mu/sigma of the real worker deltas? (hypotheses written after launching the runs, before any round past 1 was read)
 - Why: 5g's "Next". Which row of its table applies depends on the honest deltas' tail index and mu/sigma, never measured because torch was absent. A CUDA torch wheel from PyPI installs here with its dependencies (about 2 minutes) and runs on CPU.

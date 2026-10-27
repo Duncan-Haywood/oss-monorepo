@@ -1,7 +1,7 @@
 ---
 title: "Pinning GST worksheets and budget reports with random books"
 date: 2026-10-27
-description: "Two more ai-bookkeeper reports now have seeded property tests: GST/BAS worksheets and budget against actual. No fault found, and why that is still worth landing."
+description: "Two more ai-bookkeeper reports now have seeded property tests: GST/BAS worksheets and budget against actual. No fault found, and why that still helps."
 tags: [bookkeeping, testing, ai-bookkeeper]
 ---
 

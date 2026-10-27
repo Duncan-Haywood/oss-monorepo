@@ -129,3 +129,25 @@ statsmodels' `macrodata` dataset (first quarter dropped: it is 0.00 by construct
 - **Cite (the documented regimes):** Stock, J. H. and Watson, M. W. (2007). Why has US inflation become
   harder to forecast? *Journal of Money, Credit and Banking* 39(s1), 3-33.
 - **Used by:** `eval/us-inflation.mjs`, `us-inflation.test.mjs`.
+
+# Example data: Nottingham monthly air temperature, 1920-1939
+
+`nottem.csv`: 240 monthly mean air temperatures (deg F) at Nottingham Castle, the `nottem` series of R's `datasets`.
+
+- **Retrieved:** 2026-10-27 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/nottem.csv>.
+- **Licence:** a published series of 240 numbers; only those are used here.
+- **Cite:** Anderson, O. D. (1976). *Time Series Analysis and Forecasting: The Box-Jenkins approach*. Butterworths.
+- **Used by:** `nottem.test.mjs`.
+
+# Example data: DAX daily log returns, 1991-1998
+
+`dax-returns.csv`: `100 * ln(DAX_t / DAX_t-1)` for the 1,859 daily returns of the DAX index in R's
+`EuStockMarkets` (business days, 1991-07 to 1998-08). The `row` column is the dataset's own row number (the
+return for row 2 onward); no calendar dates are carried.
+
+- **Retrieved:** 2026-10-27 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/EuStockMarkets.csv>.
+- **Licence:** Rdatasets lists the package's licence per dataset; `EuStockMarkets` ships with base R (GPL-2 or
+  later). Only a derived column of returns is kept here: check the licence before reusing it elsewhere.
+- **Used by:** `dax-returns.test.mjs`.
