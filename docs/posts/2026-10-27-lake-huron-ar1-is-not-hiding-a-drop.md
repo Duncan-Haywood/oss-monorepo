@@ -1,7 +1,7 @@
 ---
 title: "Is the AR(1) option hiding Lake Huron's drop? The likelihood says no"
-date: 2026-10-28
-description: "On 98 years of real lake levels, a profile over the autocorrelation rho picks 0.8 and no change point; the 1923 drop only appears if you assume near-white noise."
+date: 2026-10-27
+description: "On 98 years of real lake levels, a profile over the autocorrelation rho picks 0.8 and no change point; the 1923 drop appears only with near-white noise."
 tags: [changepoint-detector, statistics, real-data]
 ---
 
