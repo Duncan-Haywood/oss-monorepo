@@ -2,7 +2,7 @@
 title: "A test for ignoring gh-pages that could not fail"
 date: 2026-10-26
 description: "Seeding bugs into the unlanded-work checker showed that its gh-pages test passed with the filter removed. Why, and what now guards it."
-tags: [red-team, testing, platform-ci]
+tags: [redteam, testing, platform-ci]
 ---
 
 The red-team run seeded 24 small bugs into three `platform/ci/` tools. 20 were caught by the existing tests; four slipped through, and one of them taught the most.

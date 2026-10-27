@@ -65,6 +65,11 @@ class T(unittest.TestCase):
         t = GOOD.replace("tags: [a, b]\n", "extra:\n  tags: [a, b]\n")
         self.assertEqual(problems("2026-10-24-x.md", t), ["missing `tags`"])
 
+    def test_tag_spelled_two_ways(self):
+        other = GOOD.replace("[a, b]", "[red-team, bs]")
+        code, out = self._run({"2026-10-24-x.md": GOOD.replace("[a, b]", "[redteam]"), "2026-10-24-y.md": other})
+        self.assertEqual((code, out), (1, "tag spelled 2 ways: red-team, redteam; pick one\n"))
+
     def test_no_front_matter(self):
         self.assertEqual(problems("x.md", "# hi\n"), ["no front matter"])
 

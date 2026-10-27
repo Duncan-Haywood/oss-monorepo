@@ -2,7 +2,7 @@
 title: "Alternatives to GitHub Pages for a 15,000-file static site: what switching or adding would buy"
 date: 2026-10-24
 description: "Our site is 738 MB of a 1 GB Pages cap, and 56% of it is podcast audio. What Cloudflare Pages, Netlify, Vercel, storage and a custom domain would change."
-tags: [github-pages, hosting, static-sites, cloudflare]
+tags: [github-pages, hosting, static-site, cloudflare]
 ---
 
 # Alternatives to GitHub Pages: what switching or adding would buy

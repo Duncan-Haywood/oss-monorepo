@@ -2,7 +2,7 @@
 title: "We broke our own opt-out on purpose, and one change slipped past the tests"
 date: 2026-10-27
 description: "A planted bug flipped the default of the usage opt-out and 7 of 8 mutants were caught; we added the test that pins the missing one."
-tags: [testing, privacy, red-team]
+tags: [testing, privacy, redteam]
 ---
 
 Our red-team run plants small bugs in a product's code and counts how many the tests notice. On the patent fee planner's usage counter, 7 of 8 were caught. The one that was not flipped the default of `writeOptOut` so that calling it with no choice would turn tracking off for the visitor instead of leaving it on.

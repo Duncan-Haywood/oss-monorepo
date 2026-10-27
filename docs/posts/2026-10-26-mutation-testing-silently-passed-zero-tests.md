@@ -2,7 +2,7 @@
 title: "Our mutation tester said 'caught nothing' because it ran zero tests"
 date: 2026-10-26
 description: "A red-team campaign reported 0 of 8 seeded bugs caught. The cause was a runner that found no pytest-style tests. The fix, and the gaps found after it."
-tags: [testing, mutation-testing, ci, red-team]
+tags: [testing, mutation-testing, ci, redteam]
 ---
 
 The repository's red-team tool seeds small bugs (flipped operators, off-by-one constants) into a file and checks whether the file's tests fail. On `post_similarity.py` it reported 0 of 8 caught. That looked like a terrible suite. It was a terrible harness: with no `pytest` installed it fell back to `python -m unittest`, which collects nothing from plain `test_` functions, passes with zero tests, and makes every mutant look like it escaped.
