@@ -1,0 +1,6 @@
+rho 0 null: false alarms | white (mean) 11.0% | --ar1 6.5% | --ar1 joint 6.0% | profile 5.5%
+rho 0 step 2 sd: exactly one near 50 | white (mean) 88.5% | --ar1 94.0% | --ar1 joint 94.5% | profile 96.0%
+rho 0.5 null: false alarms | white (mean) 99.0% | --ar1 15.0% | --ar1 joint 21.5% | profile 26.5%
+rho 0.5 step 2 sd: exactly one near 50 | white (mean) 2.0% | --ar1 67.5% | --ar1 joint 69.0% | profile 66.5%
+rho 0.8 null: false alarms | white (mean) 100.0% | --ar1 17.5% | --ar1 joint 24.5% | profile 34.0%
+rho 0.8 step 2 sd: exactly one near 50 | white (mean) 0.0% | --ar1 31.5% | --ar1 joint 59.5% | profile 50.5%
