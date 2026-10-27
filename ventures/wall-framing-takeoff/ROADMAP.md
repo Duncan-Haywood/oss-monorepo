@@ -104,8 +104,7 @@ Ticked items are on `main`.
       line to the model (2026-10-24, `budget.mjs`, CLI `--budget`, plan `prices`):
       lumber lines are the cutting-stock order's cost, sheets/bundles/concrete/rebar
       are the model's counts times typed prices, tax and contingency stack, and a
-      quantity with no price is listed as unpriced, never guessed. Materials only.
-      Not yet: the page, labor lines, a CSV.
+      quantity with no price is listed as unpriced, never guessed. Labor lines (typed `labor*` rates), the page and a CSV (page button; CLI `--budget --csv`, 2026-10-27) have landed.
 - [x] A new-home schedule (2026-10-24, `schedule.mjs`, CLI `--schedule`, plan key
       `schedule: {start, crews, activities: [{id, name, days, after, crew, lag}], slips: [{id, days}]}`):
       critical path over the builder's own activity list and durations (forward and

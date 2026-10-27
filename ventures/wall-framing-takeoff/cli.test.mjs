@@ -168,3 +168,13 @@ test("--fasteners counts nails; with --sheathing it adds the sheathing nails", (
   assert.match(b.out, /Sheathing nails \(/);
   assert.equal(run(["plan.json", "--fasteners"], { ...JSON.parse(ex.out), fasteners: { waste: 2 } }).code, 1);
 });
+
+test("--budget --csv prints the priced lines as CSV with totals", () => {
+  const plan = { ...samplePlan(), prices: { laborWallFoot: 12, tax: 0.07 } };
+  const { code, out } = run(["plan.json", "--budget", "--csv"], plan);
+  assert.equal(code, 0);
+  const rows = out.split("\n");
+  assert.equal(rows[0], "section,item,qty,unit,unit_price,amount,source");
+  assert.ok(rows.some((l) => l.startsWith("Labor,Wall framing,")));
+  assert.match(rows.at(-1), /^,Total,/);
+});
