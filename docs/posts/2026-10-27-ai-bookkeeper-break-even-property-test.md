@@ -1,7 +1,7 @@
 ---
 title: "Testing break-even with 800 made-up businesses"
 date: 2026-10-27
-description: "A property test throws 800 random profit and loss statements at the ai-bookkeeper break-even and days-outstanding figures. It found no fault, and it pins down what the numbers must always satisfy."
+description: "A property test throws 800 random profit and loss statements at ai-bookkeeper break-even and days-outstanding figures. No fault found."
 tags: [ai-bookkeeper, testing, accounting]
 ---
 
