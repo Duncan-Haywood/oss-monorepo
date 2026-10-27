@@ -286,3 +286,5 @@ The HTML drawings add one sheet per panel (elevation cropped to the panel, weigh
 ## Opening cut-out reuse (measured 2026-10-23)
 
 `node cutout-reuse-bench.mjs` asks whether a window or door cut-out could supply another panel. On the sample house, no panel fits a free-standing hole: vertical 0 of 38 panels (4 holes), horizontal 0 of 42 (no interior holes; windows break a course edge, so they are notches). A 2D reuse would shed no sheets here, so it is not built. Recheck on a plan with large glazing.
+
+Fix 2026-10-28: panel cut lists on a gable wall (HTML panel sheets, `panelParts`) listed sloped top and cap plates by horizontal run, so a 240 in wall's plates came up short by the slope factor (79.25 in for a piece that cuts 88.6 in along a 6/12 slope). They are now measured along the slope; the test sums the panel pieces back to the whole-wall plate length. Hand-built gable only; the PDF still keeps gable walls whole.

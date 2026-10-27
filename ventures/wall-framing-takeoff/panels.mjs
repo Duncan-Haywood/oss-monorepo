@@ -99,7 +99,8 @@ export function panelParts(w, pan, opts = {}) {
     for (const m of w.members) {
       if (m.kind !== "plate") continue;
       const a = Math.max(m.x, p.x0), b = Math.min(m.x + m.w, p.x1);
-      if (b - a > EPS) add(m, b - a);
+      // a plate on a gable's slope is measured along the slope: its run times the secant (length / w)
+      if (b - a > EPS) add(m, m.sloped && m.w > 0 ? (b - a) * m.length / m.w : b - a);
     }
     const pieces = [...rows.values()].sort((a, b) => a.kind.localeCompare(b.kind) || b.length - a.length);
     let sheathLb = 0;
