@@ -68,3 +68,16 @@ test("--pdf returns the file bytes", () => {
   assert.equal(r.code, 0);
   assert.equal(text(r.bytes).slice(0, 5), "%PDF-");
 });
+
+test("panelMax adds one sheet per shop panel after the wall sheets, with that panel's own parts", () => {
+  const plan = samplePlan();
+  const r = takeoff(plan);
+  const base = (text(drawingSetPdf(r, plan)).match(/\/Type \/Page /g) || []).length;
+  const s = text(drawingSetPdf(r, plan, { panelMax: 96 }));
+  const pages = (s.match(/\/Type \/Page /g) || []).length;
+  assert.ok(pages > base, `pages ${pages} vs ${base}`);
+  assert.match(s, /\(Front - Panel A\) Tj/);
+  assert.match(s, /Panel A of \d+, Front/);
+  assert.match(s, /lb of lumber/);
+  for (const m of s.matchAll(/\/Length (\d+) >>\nstream\n([\s\S]*?)\nendstream/g)) assert.equal(m[2].length, Number(m[1]));
+});
