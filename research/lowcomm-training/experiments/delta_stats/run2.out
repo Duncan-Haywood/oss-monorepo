@@ -1,0 +1,1 @@
+{'seed': 2, 'round': 1, 'tensors': 28, 'musigma_median': 1.9436972596782378, 'musigma_weighted': 1.6010874084990503, 'kurt_median': 1.9815258979797363, 'kurt_weighted': 1.6369753402244493, 'kurt_max': 18.74993133544922, 'hill_median': 4.141434907913208, 'hill_weighted': 4.556186598570733, 'gauss_kurt_weighted': 0.0019661521714755166, 'gauss_hill_weighted': 6.000266115771387}

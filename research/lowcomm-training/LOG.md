@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 5h: what are the tail weight and mu/sigma of the real worker deltas? (hypotheses written after launching the runs, before any round past 1 was read)
+- Why: 5g's "Next". Which row of its table applies depends on the honest deltas' tail index and mu/sigma, never measured because torch was absent. A CUDA torch wheel from PyPI installs here with its dependencies (about 2 minutes) and runs on CPU.
+- Design (`experiments/delta_stats/delta_stats.py`): 5d/5e setup (3d model, M = 8, mean aggregation, no attack, 3,840 steps, seeds 0 to 2). At rounds 1, 10, 60, 120, 240 the engine's `attack` hook (identity) records each worker's delta per tensor. Per tensor: mu/sigma = rms of the across-worker mean over rms of the residual (corrected by sqrt(M/(M-1))); excess kurtosis and the Hill index (top 5%) of residuals normalised by the tensor rms; a Gaussian of equal size gives the sampling baseline. Round 1 of seed 0 was visible before writing these (kurtosis about 1, Hill about 5 weighted): those two numbers are not blind.
+- **H5h-i:** at rounds 60 to 240 the parameter-weighted Hill index lies between 3 and 5 (the 5g rows that matter), i.e. the residuals are measurably heavier than Gaussian (Hill about 6 with this estimator). Refuted if above 5.5 or below 2.
+- **H5h-ii:** weighted mu/sigma at rounds 60 to 240 is below 1 (the workers' shared signal is no larger than their spread; late in training the deltas are mostly noise). Refuted if above 1.
+- Prior: i 55%, ii 50%.
+- Limits: one model and corpus; pooling coordinates within a tensor mixes scale heterogeneity with tail weight, so Hill/kurtosis here are an upper bound on the per-coordinate tail that 5g's model uses; per-tensor not per-coordinate sigma.
+
 ## 2026-10-27 · Milestone 5g: does 5f's order-statistic account survive heavy-tailed coordinates? (a numpy check, no training; planned before running)
 - Why: 5f's stated limit was i.i.d. Gaussian coordinates, while real worker deltas are heavy-tailed. Same design as 5f (`experiments/median_order_stat_heavy/heavy.py`): honest noise is Student-t with nu = 5 and 3 degrees of freedom, rescaled to unit variance, against the Gaussian (nu = inf); mu/sigma in {0, 1}; M in {4, 8, 16}; median and trimmed mean; 2,000,000 coordinates; worker 0 sends -10x a fresh draw of its own delta.
 - **H5g-i:** the squared-shift ratio M = 4 to 8 for the median stays within 3.5 to 6 (5f's band) at nu = 5 and nu = 3. Refuted if outside the band for either.
