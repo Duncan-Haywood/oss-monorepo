@@ -262,3 +262,27 @@ share of answers pick the first option shown whatever the items are. 30 items,
   selector stops paying, not a typical case.
 - Still synthetic and 30 items. Open: a detector that falls back to the shipped
   selector when a respondent's first-option share is far above half.
+
+### First-option fallback (2026-10-27)
+
+`selectNextPairHybrid` now reads `firstOptionShare` (the share of a person's
+decided A/B answers that picked the first-listed option, from 30 decided
+answers on, computed in `/api/trials/next`) and uses the shipped selector when
+it is at or above `FIRST_OPTION_FALLBACK_SHARE` (0.7). Slots are randomised, so
+an unbiased share sits near 0.5; bias 0.5 gives about 0.75.
+Same harness, 30 items, 20 seeds, 300 answers (the sweep above had a hybrid of
+0.592 at bias 0.5):
+
+| bias | shipped | hybrid with detector |
+|---|---|---|
+| 0 | 0.893 | 0.928 |
+| 0.1 | 0.880 | 0.900 |
+| 0.3 | 0.780 | 0.803 |
+| 0.5 | 0.632 | 0.651 |
+
+The detector changes only the bias 0.5 cell (0.592 to 0.651, now above shipped);
+the others equal the earlier runs. Caveats: the harness does not randomise
+slots, so the detector's false-trigger rate under the route's real randomisation
+is unmeasured; synthetic, 30 items. Open: the same through the route with
+Postgres; a bias toward the *second* option (a share at or below 0.3) is not
+handled.
