@@ -1,6 +1,6 @@
 ---
 title: "When your stock is worth less than you paid for it"
-date: 2026-10-28
+date: 2026-10-27
 description: "Lower of cost or net realizable value, worked on 20 mugs: what gets written down, why it never comes back up, and the new ai-bookkeeper command."
 tags: [ai-bookkeeper, bookkeeping, inventory]
 ---
