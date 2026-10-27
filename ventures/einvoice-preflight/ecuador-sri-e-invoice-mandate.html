@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ecuador electronic invoicing: the SRI, immediate transmission and RUC and access-key checks | E-invoice Preflight</title>
+<meta name="description" content="Ecuador's SRI requires electronic invoices to be sent as they are issued (press: from 1 January 2026). How it works, where the sources are thin, and free local RUC and 49-digit access-key tests.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/ecuador-sri-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ecuador electronic invoicing: the SRI, immediate transmission and RUC and access-key checks | E-invoice Preflight">
+<meta property="og:description" content="Ecuador's SRI requires electronic invoices to be sent as they are issued (press: from 1 January 2026). How it works, where the sources are thin, and free local RUC and 49-digit access-key tests.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/ecuador-sri-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the SRI's electronic invoicing scheme?","acceptedAnswer":{"@type":"Answer","text":"Ecuador&rsquo;s tax authority, the SRI (Servicio de Rentas Internas), runs a comprobantes electr&oacute;nicos scheme: invoices, withholding certificates and complementary documents are issued as signed XML and sent to the SRI&rsquo;s reception and authorisation web services, which return an authorisation. A 49-digit access key (clave de acceso) identifies each document. This is a summary from press and vendor guides, not advice; confirm with the SRI or your accountant."}},{"@type":"Question","name":"When must documents be sent to the SRI?","acceptedAnswer":{"@type":"Answer","text":"Press reports say that from 1 January 2026 electronic invoices, withholding certificates and complementary documents must be transmitted to the SRI at the moment they are issued (resolution NAC-DGERCGC25-00000017 and its reforms), where the period before was four working days. Which taxpayers are in scope, and exceptions, were not read in the resolution itself, so check sri.gob.ec."}},{"@type":"Question","name":"What changed in July 2026 for billing-software providers?","acceptedAnswer":{"@type":"Answer","text":"Press reports a resolution (NAC-DGERCGC26-00000027, published in the Registro Oficial on 28 July 2026) requiring providers that issue, sign, transmit or keep electronic documents for others to register in the RUC with an establishment and activity of their own, within 30 working days, and requiring issuers that use a third-party system to show the provider&rsquo;s RUC in the additional-information section within 60 working days. These are press excerpts, not the resolution."}},{"@type":"Question","name":"What is a valid RUC or access key?","acceptedAnswer":{"@type":"Answer","text":"A RUC is 13 digits: a province code, a digit for the kind of taxpayer, a check digit by a modulus-10 or modulus-11 rule and an establishment number. An access key is 49 digits ending in a modulus-11 check digit. A matching digit does not mean a RUC is registered or a document authorised; the SRI answers that. The tests on this page catch typos only."}},{"@type":"Question","name":"Can this checker validate an Ecuadorian invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It does not read the SRI&rsquo;s XML schema, check the XAdES signature or obtain an authorisation. It does test a RUC and an access key&rsquo;s shape and check digits on this page, and a clean result is not an authorisation by the SRI."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Ecuador: documents go to the SRI as they are issued</h1>
+<p class="lede">In Ecuador, per the sources read, the tax authority SRI authorises electronic invoices, withholding certificates and complementary documents, and press reports that since 1 January 2026 they must be sent the moment they are issued. Below: how it works as vendor guides and press report it, where the sources are thin, and local checks of a RUC and of the 49-digit access key.</p>
+</header>
+<section>
+<h2>How it works (as vendor guides, press and open-source code report)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Identify</td><td>The issuer has a RUC of 13 digits (a person&rsquo;s cédula plus an establishment number, or a company&rsquo;s own number). Electronic issuing needs a signing certificate (a .p12 file, per an open-source ERP integration).</td></tr>
+<tr><td>Build the key</td><td>Each document gets a 49-digit access key (clave de acceso): issue date, document type, the issuer&rsquo;s RUC, environment, establishment, issuing point, sequence, an 8-digit code, an emission-type digit and a modulus-11 check digit (field lengths 8, 2, 13, 1, 3, 3, 9, 8, 1, 1 per an open-source library&rsquo;s guide).</td></tr>
+<tr><td>Sign and send</td><td>The XML is signed (XAdES-BES, per the same integration) and sent to the SRI&rsquo;s SOAP reception and authorisation services, which return an authorisation number and date. The technical sheet is unread.</td></tr>
+<tr><td>Deliver</td><td>The buyer receives the authorised XML and usually a printable PDF (RIDE), per vendor guides.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">As reported by press (Primicias, El Mercurio and others, search excerpts): immediate transmission from 1 January 2026 under resolution NAC-DGERCGC25-00000017 and its reforms, replacing a four-working-day window; and, from a resolution published on 28 July 2026 (NAC-DGERCGC26-00000027), a register of billing-software providers, who must hold an establishment and activity of their own in the RUC within 30 working days, while issuers using a third party&rsquo;s system must show that provider&rsquo;s RUC in the additional information within 60 working days. The resolutions themselves were not read, the excerpts did not settle who is in scope, and no penalty is stated because none was read. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check a RUC or cédula</h2>
+<p>Tests the length (10 digits for a cédula, 13 for a RUC), the province code, the kind of taxpayer (third digit), the check digit and that the establishment number is not zero. It does not look anything up, so it cannot say whether the RUC is registered, active, or belongs to the name on the invoice.</p>
+<label>RUC <input id="id" size="18" maxlength="20" autocomplete="off" spellcheck="false" placeholder="1790016919001"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The rules (a person: a modulus-10 check over the first nine digits with weights 2,1,2,1,&hellip; where a product over 9 loses 9; a public body: modulus 11, weights 3,2,7,6,5,4,3,2, digit 9; a company: modulus 11, weights 4,3,2,7,6,5,4,3,2, digit 10) are the ones open-source implementations and vendor validators describe. They were not read from the SRI&rsquo;s specification, and the sums for the three samples above were worked by hand. The establishment digits are not covered by the check digit: changing one is not caught beyond the zero test.</p>
+</section>
+<section>
+<h2>Check an access key</h2>
+<p>Tests 49 digits, the modulus-11 check digit, a plausible issue date and that the issuer&rsquo;s RUC (digits 11 to 23) passes the test above. It does not ask the SRI whether the document was authorised.</p>
+<label>Access key <input id="key" size="54" maxlength="60" autocomplete="off" spellcheck="false" placeholder="49 digits"></label>
+<p id="key-out" class="out" aria-live="polite"></p>
+<p class="fine">Weights 2 to 7 repeating from the right over the first 48 digits; the digit is 11 minus the sum mod 11, with 11 read as 0 and 10 as 1, as open-source implementations describe it (not from the SRI&rsquo;s technical sheet). The test key in this repository&rsquo;s tests is built by the code itself and is not an authorised document.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> call the SRI&rsquo;s services, check an XAdES signature, cannot obtain or verify an authorisation, and has no SRI schema or codes. Treat the tests here as typo catches only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is the SRI's electronic invoicing scheme?</h3>
+<p>Ecuador&rsquo;s tax authority, the SRI (Servicio de Rentas Internas), runs a comprobantes electr&oacute;nicos scheme: invoices, withholding certificates and complementary documents are issued as signed XML and sent to the SRI&rsquo;s reception and authorisation web services, which return an authorisation. A 49-digit access key (clave de acceso) identifies each document. This is a summary from press and vendor guides, not advice; confirm with the SRI or your accountant.</p>
+<h3>When must documents be sent to the SRI?</h3>
+<p>Press reports say that from 1 January 2026 electronic invoices, withholding certificates and complementary documents must be transmitted to the SRI at the moment they are issued (resolution NAC-DGERCGC25-00000017 and its reforms), where the period before was four working days. Which taxpayers are in scope, and exceptions, were not read in the resolution itself, so check sri.gob.ec.</p>
+<h3>What changed in July 2026 for billing-software providers?</h3>
+<p>Press reports a resolution (NAC-DGERCGC26-00000027, published in the Registro Oficial on 28 July 2026) requiring providers that issue, sign, transmit or keep electronic documents for others to register in the RUC with an establishment and activity of their own, within 30 working days, and requiring issuers that use a third-party system to show the provider&rsquo;s RUC in the additional-information section within 60 working days. These are press excerpts, not the resolution.</p>
+<h3>What is a valid RUC or access key?</h3>
+<p>A RUC is 13 digits: a province code, a digit for the kind of taxpayer, a check digit by a modulus-10 or modulus-11 rule and an establishment number. An access key is 49 digits ending in a modulus-11 check digit. A matching digit does not mean a RUC is registered or a document authorised; the SRI answers that. The tests on this page catch typos only.</p>
+<h3>Can this checker validate an Ecuadorian invoice?</h3>
+<p>No. It does not read the SRI&rsquo;s XML schema, check the XAdES signature or obtain an authorisation. It does test a RUC and an access key&rsquo;s shape and check digits on this page, and a clean result is not an authorisation by the SRI.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Ecuadorian position from search excerpts of press and vendor guides, not from the SRI&rsquo;s resolutions; things can change, so check the SRI (sri.gob.ec) and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkRuc,checkAccessKey}from"./ecuador.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkRuc(v);$("id-out").innerHTML=x.ok?'<span class="good">Shape and check digit are consistent ('+esc(x.kind)+").</span>':x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+function k(){const v=$("key").value;if(!v.trim()){$("key-out").innerHTML="";return}const x=checkAccessKey(v);$("key-out").innerHTML=x.ok?'<span class="good">Length, check digit, date and issuer RUC are consistent.</span>':x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);$("key").addEventListener("input",k);
+</script>
+</body>
+</html>
