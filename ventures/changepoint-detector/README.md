@@ -758,6 +758,19 @@ The season alone behaves like the plain case. With `--trend` the bootstrap barel
 penalty is not trustworthy yet. Cause not established (guess: the growth term is fitted before the pilot, so the pilot's
 residuals already absorb some clustering). Synthetic only.
 
+**With known holidays (2026-10-28).** `eval/poisson-bootstrap-holidays.mjs` (n = 210, a holiday every 28th day at x0.3 given
+with `--holidays`, same clustering and x1.5 step at 105; output in `eval/poisson-bootstrap-holidays.out.txt`, seeded, 100
+series per cell, synthetic only). False alarms plain / `--bootstrap`, then detection:
+
+| options | sd 0 | sd 0.2 | sd 0.4 | detection at sd 0.2 / 0.4 |
+|---|---|---|---|---|
+| holidays | 4% / 3% | 85% / 21% | 100% / 65% | 76% / 72%, 87% / 59% |
+| holidays + `--period 7` | 2% / 2% | 77% / 15% | 100% / 67% | 75% / 71%, 81% / 47% |
+
+Holidays behave like the weekly season, not like `--trend`: the bootstrap cuts clustered false alarms to 15-21% at sd 0.2
+for a few points of detection. At sd 0.4 it is still 65%, as in every other cell. Holiday dates were given exactly; a missed
+holiday is untested.
+
 ## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
 
 The section above ended with a warning because the Gaussian variance cost has no cheap fix. A different noise model does
