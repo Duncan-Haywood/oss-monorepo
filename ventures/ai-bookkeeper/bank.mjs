@@ -369,6 +369,8 @@ export function sniffBank(rows) {
     // Schwab's newer checking export: no Status column, and note lines under the header.
     if (/^date\|type\|check #\|description\|withdrawal \(-\)\|deposit \(\+\)\|runningbalance/.test(h)) return "schwab";
     if (/^run date\|account\|account number\|action\|symbol\|description/.test(h)) return "fidelity";
+    // Fidelity's cash-management export: the payee is in Action, "Security Description" says "No Description".
+    if (/^run date\|action\|symbol\|security description\|security type/.test(h)) return "fidelity";
     // Schwab's brokerage "Transactions" export: a title line above the header, a "Transactions Total" row below.
     if (/^date\|action\|symbol\|description\|quantity\|price\|fees (&|and) comm\|amount/.test(h)) return "schwab-brokerage";
     if (/^date\|time\|/.test(h) && /\|gross\|/.test(h) && /\|status\|/.test(h) && /\|net(\||$)/.test(h)) return "paypal";
@@ -887,7 +889,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
   // ICICI credit-card CSV: every amount is unsigned and BillingAmountSign says "CR" on a credit; blank is a charge.
   const billSignCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("billingamountsign") : -1;
-  const actionCol = bank === "schwab-brokerage" ? hdr.indexOf("action") : -1;
+  const actionCol = bank === "schwab-brokerage" || bank === "fidelity" ? hdr.indexOf("action") : -1;
   let tradesSkipped = 0;
   for (let i = first; i < rows.length; i++) {
     const r = rows[i];
@@ -899,6 +901,10 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       if (/^transactions total$/i.test(String(r[columns.date] ?? "").trim())) continue;
       // Buys and sells move value between cash and securities, as in the OFX reader: not spending or income.
       if (/^(buy|sell|reinvest shares|cash in lieu|exchange or exercise)/i.test(String(r[actionCol] ?? "").trim())) { tradesSkipped++; continue; }
+    }
+    if (bank === "fidelity" && actionCol !== -1) {
+      // As for Schwab: a buy, sell or dividend reinvestment moves value between cash and securities.
+      if (/^(you (bought|sold)|reinvestment)\b/i.test(String(r[actionCol] ?? "").trim())) { tradesSkipped++; continue; }
     }
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
     if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
@@ -968,6 +974,12 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       desc = [nameI !== -1 ? String(r[nameI] ?? "").trim() : "", String(r[hdr.indexOf("type")] ?? "").trim() || desc].filter(Boolean).join(" - ").replace(/\s+/g, " ");
     }
     if (bank === "coinbase") desc = [String(r[hdr.indexOf("transaction type")] ?? "").trim(), String(r[hdr.indexOf("asset")] ?? "").trim(), desc].filter(Boolean).join(" ").replace(/\s+/g, " ");
+    if (bank === "fidelity" && actionCol !== -1) {
+      // The Action text names what happened and to whom ("DIRECT DEBIT CHASE CREDIT CAUTOPAY (Cash)"); the
+      // security description is "No Description" on cash rows and repeats the action on dividends.
+      const act = String(r[actionCol] ?? "").replace(/\s*\((cash|margin|shares|core)\)\s*$/i, "").replace(/\s+/g, " ").trim();
+      desc = desc.toLowerCase() === "no description" || act.toLowerCase().includes(desc.toLowerCase()) ? act : [act, desc].filter(Boolean).join(" ");
+    }
     if (bank === "venmo") {
       // The note is free text; name the other party, and fall back to the type for transfers.
       const who = String(r[hdr.indexOf(cents < 0 ? "to" : "from")] ?? "").trim();
