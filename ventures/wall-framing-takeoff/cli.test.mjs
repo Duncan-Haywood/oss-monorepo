@@ -158,3 +158,13 @@ test("an IFC floor plan goes through the same route as a DXF", () => {
   assert.match(t.out, /Read 4 walls \(4 exterior, 0 interior\)/);
   assert.equal(run(["house.ifc"], "not ifc").code, 2);
 });
+
+test("--fasteners counts nails; with --sheathing it adds the sheathing nails", () => {
+  const ex = run(["--example"]);
+  const a = run(["plan.json", "--fasteners"], ex.out), b = run(["plan.json", "--fasteners", "--sheathing"], ex.out);
+  assert.equal(a.code, 0);
+  assert.match(a.out, /FASTENERS\n  \d+ nails counted/);
+  assert.match(a.out, /Sheathing nails are left out/);
+  assert.match(b.out, /Sheathing nails \(/);
+  assert.equal(run(["plan.json", "--fasteners"], { ...JSON.parse(ex.out), fasteners: { waste: 2 } }).code, 1);
+});

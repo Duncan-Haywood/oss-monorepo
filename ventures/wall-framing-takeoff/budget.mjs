@@ -11,7 +11,7 @@
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
 // starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, insulationBag, atticFillBag,
 // vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), tax (fraction on materials), contingency (fraction) }.
-// insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
+// nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
 
@@ -63,6 +63,8 @@ export function budget(result, prices = {}) {
     if (ins.rim) add("Insulation", "Rim joist insulation bags", ins.rim.bags, "bags", bagPrice, `rim bays ${ins.rim.sqFt.toFixed(0)} sq ft`);
     if (ins.attic?.bags != null) add("Insulation", "Attic loose-fill bags", ins.attic.bags, "bags", P("atticFillBag") ?? ins.attic.price, `${ins.attic.bagCuFt} cu ft per bag`);
   }
+  const fa = result.fasteners;
+  if (fa?.ok && fa.boxes != null) add("Fasteners", "Framing nails (boxes)", fa.boxes, "boxes", P("nailBox") ?? fa.price, `${fa.order} nails incl. ${(100 * fa.waste).toFixed(0)}% waste, ${fa.nailsPerBox} per box`);
   const f = result.foundation;
   if (f) {
     add("Foundation", "Concrete", f.concrete.order, "cu yd", P("concreteYd") ?? (f.concrete.cost != null ? f.concrete.cost / f.concrete.order : null), `${f.concrete.trucks} truck(s) incl. ${(100 * f.concrete.waste).toFixed(0)}% waste`);
