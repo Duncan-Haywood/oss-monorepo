@@ -1734,6 +1734,14 @@ export function analyze(input = {}) {
     const nd = meanvarNoiseCheck(values, p.changepoints, robust);
     if (nd) rangeWarning = nd;
   }
+  // a drifting seasonal shape that the profile cannot follow shows up as a run of steps inside a cycle or two (UK gas, README):
+  // they mark a changing seasonal shape, not separate regime changes
+  let driftWarning = null;
+  if (o.drift && period && p.changepoints.length >= 3) {
+    const cp = p.changepoints;
+    const k = cp.findIndex((c, j) => j + 2 < cp.length && cp[j + 2] - c <= 2 * period);
+    if (k >= 0) driftWarning = `With a drifting seasonal shape, ${cp.slice(k).filter((c) => c - cp[k] <= 2 * period).length} steps fall within two cycles of ${labels[cp[k]]}: that usually marks a seasonal shape that is still changing (for example an amplitude that grows), not separate regime changes. Check the dates against the series.`;
+  }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -1774,6 +1782,7 @@ export function analyze(input = {}) {
     ...(dispersion ? { dispersion } : {}),
     ...(bootstrap ? { bootstrapPenalty: bootstrap } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
+    ...(driftWarning ? { driftWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),

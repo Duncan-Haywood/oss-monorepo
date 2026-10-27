@@ -25,3 +25,9 @@ test('real gas consumption: a drifting seasonal shape cuts the 1969-1972 amplitu
   const cps = analyze({ values: raw, labels, period: 4, drift: true, trend: 'bend' }).pelt.changepoints;
   assert.ok(cps.filter((c) => idx('1969Q4') <= c.index && c.index <= idx('1972Q4')).length >= 3, cps.map((c) => c.label).join(' '));
 });
+
+test('real gas consumption: the drift run says its steps may be a changing seasonal shape; the fixed profile does not', () => {
+  const a = analyze({ values: raw, labels, period: 4, drift: true, trend: 'bend' });
+  assert.match(a.driftWarning, /seasonal shape is still changing|still changing/);
+  assert.equal(analyze({ values: raw, labels, period: 4, trend: 'bend' }).driftWarning, undefined);
+});
