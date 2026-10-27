@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKnET5ypoUNPNeV36JW",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T16:16:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Does not say episodes must be 4500-9500 words; the test only told me after the first draft."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-27-a-prayer-nobody-could-hear-hannah-at-shiloh.md"
+  ],
+  "goal": null,
+  "notes": "saints-by-candlelight episode 43, hannah-and-the-prayer-at-shiloh, text only (audio 423 MB over cap).",
+  "corrections": [],
+  "redteam": null
+}
