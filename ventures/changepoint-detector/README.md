@@ -943,3 +943,14 @@ What it says: on a strongly autocorrelated real series, `mean` over-segments and
 
 **Profile over rho as the fit itself: measured, no gain (2026-10-28, `ar1ProfileFit` in `engine.mjs`, `eval/ar1-profile.mjs`, `ar1-profile.test.mjs`).** The open item was whether scoring the exact AR(1) likelihood on a grid of rho (each with its own PELT fit) should replace the difference-based start of `--ar1 joint`. Simulated AR(1) noise, n = 100, 200 series per cell, seeds 1..200; "false alarm" is any change on a no-change series, "hit" is exactly one change within 5 points of the true one (shift of 2 stationary sds at the midpoint). rho 0: false alarms white 11.0%, `--ar1` 6.5%, joint 6.0%, profile 5.5%; hits 88.5 / 94.0 / 94.5 / 96.0%. rho 0.5: false alarms 99.0 / 15.0 / 21.5 / 26.5%; hits 2.0 / 67.5 / 69.0 / 66.5%. rho 0.8: false alarms 100 / 17.5 / 24.5 / 34.0%; hits 0.0 / 31.5 / 59.5 / 50.5%. The profile fit is no better than `--ar1 joint` and has more false alarms at high rho (it can pick a lower rho and spend the difference on a step), so it is exported as a diagnostic (`ar1ProfileFit` returns the whole grid of scores) and not wired to a CLI flag. Synthetic only; one noise model.
 
+
+## A real mean series with several regimes: US inflation (2026-10-27)
+
+`data/us-inflation.csv` is quarterly US CPI inflation, 1959Q2 to 2009Q3 (202 points, source in `data/SOURCE.md`). The literature has a rise with the 1973 oil shock, a second surge in 1978-79, and the Volcker disinflation of 1981-82. `eval/us-inflation.mjs` (output in `eval/us-inflation.out.txt`, `us-inflation.test.mjs`, 2 tests) runs the `mean` model:
+
+- **Defaults:** 12 changes, including a run of short steps in 1980-86 and 2007-09. It over-segments, as on Lake Huron.
+- **`--ar1`:** 9 changes; 1973Q3 (4.6 to 11.2), 1978Q2 (6.2 to 10.8) and 1981Q4 (10.8 to 4.0) are the three documented ones.
+- **`--bootstrap`:** 7 changes with the same three (1981Q4 now 10.8 to 3.2). The 1973Q3 and 1981Q4 ranges are a single quarter, narrower than the 1978 one (1978Q1 to 1979Q1); I did not check that coverage on this series.
+- **Artefact:** the one quarter of 2008Q4 deflation (-5.97) is cut as its own segment by every setting (`--bootstrap` leaves 2008Q3 and 2009Q1 as two changes); minimum segment 8 removes it but also moves 1973Q3 to 1973Q1 and 1965Q4. Treat a one-or-two-quarter segment as an outlier, not a regime.
+
+One series, regime dates from the literature, no rate claimed; this is a real-data check that the settings built on synthetic data land where economists put the breaks.

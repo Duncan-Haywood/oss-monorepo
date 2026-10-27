@@ -118,3 +118,14 @@ from Brockwell and Davis, *Time Series and Forecasting*).
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/LakeHuron.csv>.
 - **Licence:** a published series of 98 numbers; only those are used here.
 - **Used by:** `lake-huron.test.mjs`.
+
+# Example data: US quarterly CPI inflation, 1959Q2-2009Q3
+
+`us-inflation.csv`: annualised quarterly CPI inflation (%), 202 quarters, the `infl` column of
+statsmodels' `macrodata` dataset (first quarter dropped: it is 0.00 by construction).
+
+- **Retrieved:** 2026-10-27 from the statsmodels 0.15 install (`statsmodels/datasets/macrodata`).
+- **Licence:** public domain (statsmodels' `COPYRIGHT`; underlying BLS data via FRED).
+- **Cite (the documented regimes):** Stock, J. H. and Watson, M. W. (2007). Why has US inflation become
+  harder to forecast? *Journal of Money, Credit and Banking* 39(s1), 3-33.
+- **Used by:** `eval/us-inflation.mjs`, `us-inflation.test.mjs`.
