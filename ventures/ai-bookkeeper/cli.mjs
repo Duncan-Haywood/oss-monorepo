@@ -23,6 +23,7 @@ import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, import
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax, taxTableOptions } from "./estimatedtax.mjs";
+import { retirementLimits } from "./retirement.mjs";
 import { addProject, tagProject as tagProjectLines, projectReport, projectCsv, projectMoney } from "./projects.mjs";
 import { addRentalAccounts, addProperty, tagProperty, scheduleE, scheduleECsv } from "./rental.mjs";
 import { bNoticeDates, seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
@@ -84,6 +85,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   projects [--from D --to D] [--csv|--json]  profit and loss per project: revenue, cost, net and margin, with what is untagged
   schedulee [--from D --to D] [--csv|--json]  the books on US Schedule E Part I lines, one column per property (a worksheet, not a filing)
   schedulec [--year Y] [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
+  retirement [--year Y] [--months N] [--age N] [--wages $] [--json]  most a sole proprietor can put in a SEP-IRA or solo 401(k) this year (worksheet)
   estimate [--year Y] [--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $] [--paid $] [--prior-tax $ --prior-agi $] [--as-of D] [--no-qbi] [--tax-table file.json] [--json]  federal income tax plus SE tax and a safe-harbour 1040-ES payment plan (worksheet)
   se [--year Y] [--months N] [--wages $] [--json]  self-employment tax on the year's Schedule C profit, annualised, split into the four estimated-payment dates (worksheet; income tax not estimated)
   asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
@@ -763,6 +765,19 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     for (const p of r.payments) console.log(`  ${p.due}  ${p.status === "past" ? "(past)".padStart(12) : fmt(p.cents).padStart(12)}`);
     for (const w of r.warnings) console.log(`  ! ${w}`);
     console.log("  A worksheet. Not tax advice; it leaves out state tax, credits and itemised deductions.");
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "retirement") {
+  const yr = flag("--year"), mo = flag("--months"), ag = flag("--age"), wg = flag("--wages");
+  const year = yr ? +yr : new Date().getFullYear(), months = Math.min(12, Math.max(1, mo ? +mo : 12));
+  try {
+    const sc = scheduleC(books, { from: `${year}-01-01`, to: `${year}-12-31` });
+    const r = retirementLimits(Math.round((sc.netProfit * 12) / months), { year, age: ag ? +ag : 40, wages: wg ? Math.round(+wg * 100) : 0 });
+    if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+    console.log(`RETIREMENT CONTRIBUTION LIMITS ${r.year} (profit annualised ${fmt(r.profit)}, after half SE tax ${fmt(r.earned)})`);
+    console.log(`  SEP-IRA, most you can put in       ${fmt(r.sep.max).padStart(12)}`);
+    console.log(`  Solo 401(k): employee deferral     ${fmt(r.solo401k.employee).padStart(12)}\n               employer share (20%)  ${fmt(r.solo401k.employer).padStart(12)}\n               total                 ${fmt(r.solo401k.total).padStart(12)}`);
+    for (const w of r.warnings) console.log(`  ! ${w}`);
+    console.log("  A worksheet. Not tax advice; plan rules and your other plans decide what you can actually contribute.");
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "b-notice") {
   try {
