@@ -153,6 +153,16 @@
       <div><label for="inAtticPer">Attic R per inch (read it from the bag chart; blank: 2.5, assumed)</label><input id="inAtticPer" type="number" min="1" max="8" step="0.1" placeholder="2.5"></div>
       <div><label for="inAtticBag">Attic bag volume (cu ft; blank: no bag count)</label><input id="inAtticBag" type="number" min="0" step="0.1" placeholder="e.g. 40"></div>
     </div>
+    <p><input type="checkbox" id="faOn" style="width:auto"> <label for="faOn" style="display:inline">Also count nails by connection (stud ends, plates, jacks, headers, sills; sheathing nails when sheathing is on; spacings are typed defaults, not a code table)</label></p>
+    <div class="grid" id="faFields" hidden>
+      <div><label for="faStudEnd">Nails per stud end (blank: 2)</label><input id="faStudEnd" type="number" min="1" max="6" step="1" placeholder="2"></div>
+      <div><label for="faPlate">Plate face-nail spacing, in (blank: 16)</label><input id="faPlate" type="number" min="3" max="48" step="1" placeholder="16"></div>
+      <div><label for="faEdge">Sheathing edge spacing, in (blank: 6)</label><input id="faEdge" type="number" min="2" max="12" step="1" placeholder="6"></div>
+      <div><label for="faField">Sheathing field spacing, in (blank: 12)</label><input id="faField" type="number" min="3" max="48" step="1" placeholder="12"></div>
+      <div><label for="faWaste">Waste (fraction; blank: 0.1)</label><input id="faWaste" type="number" min="0" max="0.5" step="0.01" placeholder="0.1"></div>
+      <div><label for="faBox">Nails per box (from the label; blank: no box count)</label><input id="faBox" type="number" min="50" max="20000" step="1" placeholder="e.g. 2500"></div>
+      <div><label for="faPrice">Price per box (blank: none)</label><input id="faPrice" type="number" min="0" step="0.01" placeholder="e.g. 45"></div>
+    </div>
     <div class="grid" id="fnFields" hidden>
       <div><label for="fnType">Type</label><select id="fnType"><option value="stem" selected>footing + stem wall + slab</option><option value="monolithic">monolithic slab, thickened edge</option></select></div>
       <div><label for="fnW">Footing outside width</label><input id="fnW" value="40 ft"></div>
@@ -231,6 +241,11 @@
     <div id="insulationOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-fasteners" id="fastenersCard" hidden>
+    <h2 id="h-fasteners">Nails by connection</h2>
+    <div id="fastenersOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-schedule" id="scheduleCard">
     <h2 id="h-schedule">Build schedule (critical path)</h2>
     <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather are not modelled.</p>
@@ -292,7 +307,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -310,6 +325,7 @@
     import { layoutFoundation, foundationText } from "./foundation.mjs";
     import { layoutDrywall, drywallText } from "./drywall.mjs";
     import { layoutInsulation, insulationText } from "./insulation.mjs";
+    import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
     import { schedule, scheduleText, sampleSchedule } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
@@ -468,6 +484,11 @@
         }
         plan.insulation = ins;
       }
+      if ($("#faOn").checked) {
+        const fa = {};
+        for (const [id, key] of [["faStudEnd", "studEndNails"], ["faPlate", "plateSpacing"], ["faEdge", "edgeSpacing"], ["faField", "fieldSpacing"], ["faWaste", "waste"], ["faBox", "nailsPerBox"], ["faPrice", "price"]]) if ($("#" + id).value.trim()) fa[key] = Number($("#" + id).value);
+        plan.fasteners = fa;
+      }
       if ($("#fnOn").checked) {
         const fn = { id: "Foundation", type: $("#fnType").value, width: L($("#fnW").value, "foundation width"), depth: L($("#fnD").value, "foundation depth"), footing: { width: Number($("#fnFootW").value), depth: Number($("#fnFootD").value) }, slab: { thickness: Number($("#fnSlab").value) } };
         if (fn.type === "stem") fn.stem = { height: Number($("#fnStemH").value), thickness: Number($("#fnStemT").value) };
@@ -623,6 +644,11 @@
       if (!ins) return;
       $("#insulationOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(insulationText(ins).join("\n"))}</pre><p class="note">Open cavity is the wall panel area less every framing member placed and each opening's rough area. Bag coverage and R-values are the figures you type from the label; they are not checked against a real insulation order.</p>`;
     }
+    function renderFasteners(fa) {
+      $("#fastenersCard").hidden = !fa;
+      if (!fa) return;
+      $("#fastenersOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(fastenerText(fa).join("\n"))}</pre><p class="note">Connections are counted from the members placed. Spacings and nails per end are your inputs (defaults are common practice, not a code table): check them against your code edition and your engineer's nailing schedule. Nail size and type, hardware and hold-downs are not counted. Sheathing nails use the sheathing option above and over-count panels with openings cut out slightly.</p>`;
+    }
     function renderFoundation(fn) {
       $("#foundationCard").hidden = !fn;
       if (!fn) return;
@@ -643,7 +669,7 @@
       if (!last) { card.hidden = true; return; }
       const pr = parsePrices();
       if (pr.bad.length) { $("#budgetOut").innerHTML = `<div class="err"><ul>${pr.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; card.hidden = false; return; }
-      const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall, insulation: last.insulation };
+      const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall, insulation: last.insulation, fasteners: last.fasteners };
       const b = budget(res, pr.prices);
       last.budget = b;
       const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
@@ -695,7 +721,13 @@
         try { insulation = layoutInsulation(plan.insulation, plan, result); } catch (e) { insulation = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
         if (!insulation.ok) { $("#errors").innerHTML = `<ul>${insulation.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#insulationCard").hidden = true; return false; }
       }
-      last = { plan, result, nailers, floor, roof, foundation, drywall, insulation };
+      let fasteners = null;
+      if (plan.fasteners) {
+        const sheathing = $("#sheath").checked ? sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}), ...($("#sheathO").checked ? { overhang: true } : {}), ...(Number($("#sheathR").value) > 0 ? { rimLap: Number($("#sheathR").value) } : {}) } }, result) : null;
+        try { fasteners = layoutFasteners(plan.fasteners, plan, sheathing?.ok ? { ...result, sheathing } : result); } catch (e) { fasteners = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        if (!fasteners.ok) { $("#errors").innerHTML = `<ul>${fasteners.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#fastenersCard").hidden = true; return false; }
+      }
+      last = { plan, result, nailers, floor, roof, foundation, drywall, insulation, fasteners };
       const s = result.summary;
       const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
@@ -715,6 +747,7 @@
       renderFoundation(foundation);
       renderDrywall(drywall);
       renderInsulation(insulation);
+      renderFasteners(fasteners);
       renderSheathing(plan, result);
       renderBudget();
       const prev = $("#wallPick").value;
@@ -759,6 +792,9 @@
         $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
         $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
       }
+      const fa = plan.fasteners;
+      $("#faOn").checked = Boolean(fa); $("#faFields").hidden = !fa;
+      for (const [id, key] of [["faStudEnd", "studEndNails"], ["faPlate", "plateSpacing"], ["faEdge", "edgeSpacing"], ["faField", "fieldSpacing"], ["faWaste", "waste"], ["faBox", "nailsPerBox"], ["faPrice", "price"]]) $("#" + id).value = fa?.[key] != null ? String(fa[key]) : "";
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
       if (fn) {
@@ -878,6 +914,7 @@
     $("#rfWing").addEventListener("change", syncWing);
     $("#rfWing2").addEventListener("change", syncWing);
     $("#inOn").addEventListener("change", () => { $("#inFields").hidden = !$("#inOn").checked; if ($("#inOn").checked) record("insulation_on"); });
+    $("#faOn").addEventListener("change", () => { $("#faFields").hidden = !$("#faOn").checked; if ($("#faOn").checked) record("fasteners_on"); });
     $("#dwOn").addEventListener("change", () => { $("#dwFields").hidden = !$("#dwOn").checked; if ($("#dwOn").checked) record("drywall_on"); });
     $("#fnOn").addEventListener("change", () => { $("#fnFields").hidden = !$("#fnOn").checked; if ($("#fnOn").checked) record("foundation_on"); });
     $("#schedEx").addEventListener("click", () => { $("#schedIn").value = JSON.stringify(sampleSchedule(), null, 2); $("#schedOut").innerHTML = ""; record("schedule_example_loaded"); });

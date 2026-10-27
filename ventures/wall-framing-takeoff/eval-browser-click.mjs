@@ -62,6 +62,16 @@ await page.fill("#panelMax", "");
 await page.click("#panelOrderBtn");
 const noLen = (await page.textContent("#status")).includes("Enter the longest shop panel");
 console.log(noLen ? "ok: panel order without a length asks for one" : "FAIL: no message without a panel length");
+// Nails by connection: tick the box, type a box size and price, and the card and the budget line appear; sheathing nails follow the sheathing box.
+await page.check("#faOn");
+await page.fill("#faBox", "2500"); await page.fill("#faPrice", "45");
+await page.waitForFunction(() => document.querySelector("#fastenersOut")?.textContent.includes("box(es) of 2500"));
+const nailTxt = await page.textContent("#fastenersOut");
+const nailOk = /Sheathing nails/.test(nailTxt) && !/NaN|undefined/.test(nailTxt) && (await page.textContent("#budgetOut")).includes("Framing nails");
+console.log(nailOk ? "ok: nails by connection with sheathing, box count and budget line" : "FAIL: nails card\n" + nailTxt.slice(0, 400));
+await page.uncheck("#sheath");
+await page.waitForFunction(() => document.querySelector("#fastenersOut")?.textContent.includes("add --sheathing"));
+await page.check("#sheath");
 await page.fill("#panelMax", "12 ft");
 await page.check("#rfOn");
 await page.waitForFunction(() => document.querySelector("#roofOut")?.textContent.includes("rafters"));
