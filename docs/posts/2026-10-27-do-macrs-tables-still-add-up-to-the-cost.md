@@ -1,6 +1,6 @@
 ---
 title: "Do the MACRS tables still add up to the cost after rounding?"
-date: 2026-10-28
+date: 2026-10-27
 description: "A 600-asset property test of the ai-bookkeeper tax depreciation code: the years sum to cost exactly, under half-year and mid-quarter rules."
 tags: [bookkeeping, testing, depreciation]
 ---

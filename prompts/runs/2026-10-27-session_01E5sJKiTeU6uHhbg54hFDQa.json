@@ -37,7 +37,7 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-10-28-do-macrs-tables-still-add-up-to-the-cost.md"
+    "docs/posts/2026-10-27-do-macrs-tables-still-add-up-to-the-cost.md"
   ],
   "goal": null,
   "notes": "Only taxdepr-property.test.mjs run locally (passes); full CI and venture-preflight not run. No fault found.",
