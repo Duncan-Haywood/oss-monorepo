@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 10921,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -45,7 +45,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "platform/pages/published-base-url.mjs: 8 mutants, 5 caught (62.5%); 2 gaps closed by tests, 1 equivalent -> 75% (6/8 incl. equivalent excluded would be 100%). No real defects found.",
+  "notes": "platform/pages/published-base-url.mjs: 8 mutants, 5 caught (62.5%); 2 gaps closed by new tests (75% after fix), 1 equivalent. No real defects found. Node suite passes (15/15).",
   "corrections": [],
   "redteam": {
     "campaigns": [
