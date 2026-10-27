@@ -1,7 +1,7 @@
 ---
 title: "Quick-pick surveys now stop adaptive pairing for respondents who always tap the first option"
 date: 2026-10-27
-description: "quick-pick-survey's staged selector falls back to the simple one for a respondent who picks the first option 70% of the time. Worst case 0.592 to 0.651 in simulation."
+description: "quick-pick-survey's staged selector falls back to the simple one for a respondent who picks the first option 70% of the time. Worst case: 0.592 to 0.651."
 tags: [quick-pick-survey, simulation, survey]
 ---
 
