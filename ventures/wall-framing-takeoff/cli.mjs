@@ -8,13 +8,14 @@ import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
 import { layoutFoundation, foundationText } from "./foundation.mjs";
 import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutInsulation, insulationText } from "./insulation.mjs";
+import { layoutTrim, trimText } from "./trim.mjs";
 import { layoutFasteners, fastenerText } from "./fasteners.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
 import { drawingSetPdf } from "./pdf.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
-import { budget, budgetText } from "./budget.mjs";
+import { budget, budgetText, budgetCsv } from "./budget.mjs";
 import { schedule, scheduleText } from "./schedule.mjs";
 import { planFromDxf } from "./dxf.mjs";
 import { planFromIfc } from "./ifc.mjs";
@@ -38,10 +39,11 @@ Usage:
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --fasteners   count nails by connection (plan fasteners: studEndNails, plateSpacing, edgeSpacing, nailsPerBox, price; add --sheathing for sheathing nails)
+  node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
   node cli.mjs plan.json --insulation  add wall-cavity insulation bags (measured from the framing placed; plan insulation: bagSqFt, rValue, waste, price)
   node cli.mjs plan.json --drywall     add interior drywall (inside faces, partitions both sides, optional ceilings; plan drywall: sheetLength, ceiling, price)
   node cli.mjs plan.json --foundation  add the plan's foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel, vapor barrier)
-  node cli.mjs plan.json --budget    price the quantities with the plan's own "prices" (sheets, bundles, concrete, rebar...); lumber uses the stock prices; anything without a price is listed, not guessed
+  node cli.mjs plan.json --budget    price the quantities with the plan's own "prices" (sheets, bundles, concrete, rebar...); lumber uses the stock prices; anything without a price is listed, not guessed (add --csv for a spreadsheet file, --json for the data)
   node cli.mjs plan.json --schedule  critical path, crew levelling and slip effects from the plan's own schedule object (activities, durations, predecessors, crews)
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs plan.json --pdf > walls.pdf   the same shop drawings as a PDF file (no browser; add --panel-max=12ft for panel cut lines)
@@ -151,11 +153,17 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     if (!insulation.ok) return { code: 1, out: `The insulation has problems:\n${insulation.errors.map((e) => `  - ${e}`).join("\n")}` };
     r.insulation = insulation;
   }
+  let trimmed = null;
+  if (r.ok && (flags.has("--trim") || plan.trim)) {
+    const trim = layoutTrim(plan.trim || {}, plan);
+    if (!trim.ok) return { code: 1, out: `The trim has problems:\n${trim.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.trim = trimmed = trim;
+  }
   if (!r.ok) return { code: 1, out: `The plan has problems:\n${r.errors.map((e) => `  - ${e}`).join("\n")}` };
   if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
     const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
-    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; } // nailers join the cut list and the lumber order
+    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; if (trimmed) r.trim = trimmed; } // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
   if (r.ok && (flags.has("--fasteners") || plan.fasteners)) {
@@ -172,6 +180,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--pdf")) return { code: 0, out: "", bytes: drawingSetPdf(r, plan, { panelMax }) };
   if (flags.has("--drawings") || panelMax > 0) return { code: 0, out: drawingSetHtml(r, plan, { panelMax, sheathPsf, panelSheets: flags.has("--panel-sheets") }).trimEnd() };
   if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(plan.schedule), null, 2) };
+  if (flags.has("--budget") && flags.has("--csv")) return { code: 0, out: budgetCsv(budget(r, plan.prices || {})).trimEnd() };
   if (flags.has("--budget") && flags.has("--json")) return { code: 0, out: JSON.stringify(budget(r, plan.prices || {}), null, 2) };
   if (flags.has("--json")) return { code: 0, out: JSON.stringify(r, null, 2) };
   if (flags.has("--csv")) return { code: 0, out: toCsv(r).trimEnd() };
@@ -199,6 +208,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (r.drywall) lines.push("", "DRYWALL", ...drywallText(r.drywall));
   if (r.fasteners) lines.push("", "FASTENERS", ...fastenerText(r.fasteners));
   if (r.insulation) lines.push("", "INSULATION", ...insulationText(r.insulation));
+  if (r.trim) lines.push("", "TRIM", ...trimText(r.trim));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
   if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {})));
   if (flags.has("--schedule")) lines.push("", "SCHEDULE", ...scheduleText(schedule(plan.schedule)));

@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 5d: does the median's sign-flip cost shrink when the attacker is 1 of 8 workers instead of 1 of 4? (planned before running)
+- Why: 5b/5c's "Next". At M = 4 the median is the mean of the two middle values, so one flipped worker moves it from the honest middle pair to the honest lower pair (+0.095 nats). At M = 8 the median is the mean of the 4th and 5th values; one attacker shifts the pair by one rank out of seven honest ones, a smaller displacement in the honest spread. If the order-statistic account is right the cost should fall.
+- Design (`experiments/gpt_median_m8/median_m8.py`): 5b's setup with M = 8 (3d model, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, seeds 0 to 2). Arms: mean no attack (comparator), median no attack, median with worker 0 sending -10x its delta. 9 runs. Uncompressed M = 4 numbers are not a valid comparator here (more workers change the loss), so the M = 8 mean run is.
+- **H5d-i:** median under the flip costs less than +0.05 nats over the M = 8 mean (mean over seeds), against +0.095 at M = 4. Refuted if at or above 0.05.
+- **H5d-ii:** the clean median at M = 8 is within 0.02 nats of the M = 8 mean. Refuted otherwise.
+- Prior: i 65%, ii 80%.
+- Limits: 3 seeds, one attack, one H, non-adaptive attacker; the mechanism is still inferred from loss, not from a measured delta norm.
+
+### Outcome of 5d (`experiments/gpt_median_m8/`: `median_m8.py`, `.jsonl`, `median_m8_results.txt`, `run.out`; 9 runs, seeds 0 to 2, about 17 minutes each)
+- Final validation loss, mean over seeds: M = 8 mean aggregation, no attack 1.5527 (1.5551, 1.5447, 1.5581); median, no attack 1.5534 (excess +0.0007; per seed +0.0019, +0.0083, -0.0081); median with worker 0 sending -10x its delta 1.5733 (excess +0.0207; per seed +0.0161, +0.0294, +0.0164).
+- **H5d-i supported:** the flip costs +0.021 at M = 8 (bar 0.05; every seed under 0.03), against +0.095 on every seed at M = 4. **H5d-ii supported:** the clean median is within 0.01 of the mean on all seeds.
+- Reading: the cost fell by about 4.6x when the attacker's share fell from 1/4 to 1/8, as the order-statistic account predicts, but it is not zero, and M and the attacker's share changed together with nothing else held fixed. The displacement itself was still not measured, so the account remains a hypothesis that fits. Different baselines (M = 4 vs M = 8 means), so compare excesses, not raw losses.
+- Limits: as planned; 3 seeds, one attack, one H.
+- Next: measure the aggregated-delta norm directly; a trimmed-mean aggregator; M = 8 with two attackers (same share as M = 4 with one, to separate share from M).
+
 ## 2026-10-26 · Milestone 5c: is the median's +0.095 under sign-flip due to the flipped sign, or to any extreme attacker? (planned before running)
 - Why: 5b's "Next" items (M = 8, trimmed mean) are bigger; first a cheap test of 5b's untested mechanism. At M = 4 the median is the mean of the two middle values. A flipped (negative) attacker sits below the honest values on most coordinates, so the median is the mean of the honest 1st and 2nd order statistics, below the honest median: a systematic shrink. An attacker sending +10x its delta sits above, so the median is the mean of the honest 2nd and 3rd: a systematic stretch. A zero-sending attacker sits near the middle of the honest values.
 - Design (`experiments/gpt_median_mechanism/median_mechanism.py`): 5b exactly (3d model, M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, seeds 0 to 2), median aggregation, worker 0 sends 10x or 0x its delta. 6 runs, about 12 minutes each.

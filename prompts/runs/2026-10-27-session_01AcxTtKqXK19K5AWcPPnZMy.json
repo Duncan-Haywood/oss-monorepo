@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": 10782,
+  "pr": 10804,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -29,16 +29,18 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [
+  "doc_friction": [
     {
-      "file": "CLAUDE.md",
-      "why": "No blog post: a redteam run that found one test gap and no real defects has nothing new for a reader."
+      "file": "portfolio/flagships.yaml",
+      "issue": "wall-framing next: is 2,500 chars, over the stated 2,000 cap"
     }
   ],
-  "writeups": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-28-wall-framing-takeoff-trim-boards.md"
+  ],
   "goal": null,
-  "notes": "Campaigns on check_main_landmark (1 site), check_step_grid (8/8 caught), validate_workflows (7/8; escaped jobs-validation or->and fixed with two tests). Catch rate 16/17 before, 17/17 after.",
+  "notes": "node --test trim/cli/budget tests: 40 pass. Venture preflight and CI not run locally.",
   "corrections": [],
   "redteam": {
     "campaigns": [
