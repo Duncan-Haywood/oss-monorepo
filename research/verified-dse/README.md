@@ -34,7 +34,8 @@ routed design, with a coverage guarantee that holds whatever the rung bias?
 5 larger designs (16, 24 and 32-bit multipliers, 64-bit adders), the same 60 pass sequences, two clocks, 600 runs. The routed rung now costs 19.4 s against 0.77 s for the generic one (25x, against 8x on the small designs).
 - **Successive halving from the mapped rung (R2) beats random routed search at small budgets on the tight clock:** mean regret 1.34% against 4.44% at 100 s and 0.33% against 1.85% at 200 s, then random search overtakes it from about 600 s because halving stops at a 0.30% bias floor. At the relaxed clock it wins only at 100 s and floors at 5.0%. Halving from the generic rung (R1) loses everywhere.
 - Rung bias is not the same story as on the small designs: R1 is weakly informative on multipliers (tau-b 0.31 tight), and mapped rungs mis-rank the 24 and 32-bit multipliers at the relaxed clock (regret 11 to 18%).
-- Five designs, pools of 50, one corner; see [`LOG.md`](LOG.md) and [`experiments/large/`](experiments/large/results.txt), [`halving_results.txt`](experiments/large/halving_results.txt).
+- Milestone 25: the same five designs at 65% placement utilisation (second operating point) give the same picture, R2 floor on mult24 and mult32 at the relaxed clock, routed rung 24 s against 19 s per point: [`experiments/util65/`](experiments/util65/results.txt).
+- Five designs, pools of 50, one corner (40% utilisation); see [`LOG.md`](LOG.md) and [`experiments/large/`](experiments/large/results.txt), [`halving_results.txt`](experiments/large/halving_results.txt).
 
 ### Reproduce
 ```bash
