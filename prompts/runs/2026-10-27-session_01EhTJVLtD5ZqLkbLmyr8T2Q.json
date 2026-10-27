@@ -1,0 +1,181 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01EhTJVLtD5ZqLkbLmyr8T2Q",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on repo, revenue products",
+  "input_sha256": "26f3d4b4c4310df1a1a5cca0578962af4ec3a2bf4ebdae7b2a1acb6f1b690745",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T12:59:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10885,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "--probe 0 in my first try skipped the speed check on an explicit --target; engine.mjs suite took 507 s, wasting ~20 min. Suggest warning when baseline x mutants is large before running."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target platform/ci/ci_starvation.py: 8 mutants, 7 caught, 1 equivalent. 2 real defects patched with tests first; 69 tests pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/ci_starvation.py",
+        "test": "/usr/local/bin/python3 -m pytest -q -x -p no:cacheprovider test_ci_starvation.py  (in platform/ci)",
+        "seed": 431048013,
+        "commit": "aac2bd78",
+        "sites": 50,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "platform/ci/ci_starvation.py",
+            "line": 191,
+            "col": 50,
+            "operator": "minus-to-plus",
+            "before": "datetime.strptime(completed, fmt) - datetime.strptime(started, fmt)",
+            "after": "datetime.strptime(completed, fmt) + datetime.strptime(started, fmt)",
+            "line_text": "                datetime.strptime(completed, fmt) - datetime.strptime(started, fmt)",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/ci_starvation.py",
+            "line": 200,
+            "col": 30,
+            "operator": "ge-to-gt",
+            "before": "return elapsed if elapsed >= 0 else None",
+            "after": "return elapsed if elapsed > 0 else None",
+            "line_text": "    return elapsed if elapsed >= 0 else None",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/ci_starvation.py",
+            "line": 301,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "if proc.returncode != 0:",
+            "after": "if proc.returncode != 1:",
+            "line_text": "    if proc.returncode != 0:",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/ci_starvation.py",
+            "line": 384,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "elif exc.code in (401, 403):",
+            "after": "elif exc.code in (401, 404):",
+            "line_text": "            elif exc.code in (401, 403):",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/ci_starvation.py",
+            "line": 410,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if path == \"-\":",
+            "after": "if path != \"-\":",
+            "line_text": "    if path == \"-\":",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/ci_starvation.py",
+            "line": 466,
+            "col": 43,
+            "operator": "and-to-or",
+            "before": "if not args.from_json and not args.job and not args.run:",
+            "after": "if not args.from_json and not args.job or not args.run:",
+            "line_text": "    if not args.from_json and not args.job and not args.run:",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/ci_starvation.py",
+            "line": 479,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "print(json.dumps(rows, indent=2) if args.json else render(rows))",
+            "after": "print(json.dumps(rows, indent=3) if args.json else render(rows))",
+            "line_text": "    print(json.dumps(rows, indent=2) if args.json else render(rows))",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "JSON indent width (2 vs 3) is whitespace; every consumer parses the same value."
+          },
+          {
+            "file": "platform/ci/ci_starvation.py",
+            "line": 496,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 2",
+            "after": "return 3",
+            "line_text": "        return 2",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/ci/ci_starvation.py",
+        "issue": "--from-json/--run with zero jobs printed 'no jobs found' and exited 0 (runners fine) instead of 2 (no answer)",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/ci_starvation.py",
+        "issue": "payload {'jobs': null} raised an uncaught TypeError, exit 1, which callers read as 'starved'",
+        "patched": true
+      }
+    ]
+  }
+}
