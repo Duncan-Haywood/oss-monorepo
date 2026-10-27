@@ -1,7 +1,7 @@
 ---
 title: "A season that grows with the level: changepoint-detector gets --multiplicative"
 date: 2026-10-27
-description: "A seasonal swing that scales with the level is mistaken for steps when it is removed as a fixed amount. A multiplicative option fixes monthly data and hurts quarterly data; here are the numbers."
+description: "A seasonal swing that grows with the level reads as steps when removed as a fixed amount. A multiplicative option helps monthly data and hurts quarterly."
 tags: [changepoint-detector, statistics, time-series]
 ---
 
