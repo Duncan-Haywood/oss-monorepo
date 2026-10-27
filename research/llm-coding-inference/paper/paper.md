@@ -206,6 +206,8 @@ group's variance towards the pooled pilot variance (weight 30) lifts the plan to
 0.86 times the oracle for fear and leaves coverage at 78% (1.0 point). One
 corpus, normal-approximation interval, constants untuned.
 
+A sequential audit does not escape the problem (milestone 6t, same corpus). The rule that stops when the plug-in half-width meets the target, which covered 93 to 96% at a 45% prevalence, covers fear (1.15%) at 89.8% and 63.8% (1.0 and 0.5 points) and sadness (2.3%) at 86.2% and 72.0%, with mean audit sizes near the oracle. A fixed-size audit of the same size covers 91 to 94%, so the loss is from the data-dependent stopping time. Requiring 20 or 40 audited positives before stopping lowers fear coverage to 47% and 41%. No stopping correction was tried.
+
 ## 7 Regression coefficients and small audits (H5 second half; the real LLM, H3 first look)
 
 Data: the NaijaSenti test part; outcome = the human negative-sentiment label,
