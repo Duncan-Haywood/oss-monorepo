@@ -19,3 +19,9 @@ test("multi-division leagues and their rainout passes stay valid", () => {
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /invalid 0/);
 });
+
+test("withdrawals, shared grounds, linked teams, travel tables and venue carry-over stay valid", () => {
+  const r = spawnSync(process.execPath, ["eval/fuzz-more.mjs", "25", "9"], { cwd: new URL(".", import.meta.url).pathname, encoding: "utf8" });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /invalid 0/);
+});
