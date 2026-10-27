@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm } from "./engine.mjs";
-import { bracketTax, estimatedTax, toCents, BRACKETS } from "./estimatedtax.mjs";
+import { bracketTax, estimatedTax, taxTableOptions, toCents, BRACKETS } from "./estimatedtax.mjs";
 
 const B26 = BRACKETS[2026].single.b;
 function books(income, yr = 2026) {
@@ -208,4 +208,49 @@ test("redteam 2026-10-26: guards for escaped mutants (asOf boundary, balance, ef
   // the 8959 warning prints the threshold in dollars
   const hi = estimatedTax(newBooks(), { year: 2026, wages: 30000000 });
   assert.ok(hi.warnings.some((x) => /earnings above 200000;/.test(x)));
+});
+
+test("a tax table file in dollars gives a 2027 estimate that ties out by hand (figures made up, not the IRS's)", () => {
+  const t = taxTableOptions({ standardDeduction: 17000, brackets: [[13000, 0.10], [51000, 0.12], [null, 0.22]], qbiThreshold: 210000, wageBase: 192300, qbiMinimum: { floor: 400, threshold: 1000 } });
+  assert.deepEqual(t.brackets.at(-1), [Infinity, 0.22]);
+  assert.equal(t.standardDeduction, 1700000);
+  const r = estimatedTax(books("100000.00", 2027), { year: 2027, ...t });
+  assert.equal(r.standardDeduction, 1700000);
+  assert.ok(!r.warnings.some((w) => /from memory|are indexed/.test(w)));
+  const tax = bracketTax(r.taxable, t.brackets);
+  assert.equal(r.incomeTax, tax);
+  assert.ok(tax > 0 && r.taxable < 10000000);
+});
+
+test("qbiThreshold overrides the built-in limit", () => {
+  const o = { year: 2026, wageBase: 18450000 };
+  assert.ok(estimatedTax(books("300000.00"), o).warnings.some((w) => /QBI threshold/.test(w)));
+  assert.ok(!estimatedTax(books("300000.00"), { ...o, qbiThreshold: 99999999 }).warnings.some((w) => /QBI threshold/.test(w)));
+});
+
+test("a bad tax table is refused with a plain message", () => {
+  assert.throws(() => taxTableOptions(null), /JSON object/);
+  assert.throws(() => taxTableOptions({ brackets: [[10000, 0.1], [null, 0.2]] }), /standardDeduction/);
+  assert.throws(() => taxTableOptions({ standardDeduction: 1, brackets: [[10000, 0.1], [5000, 0.2], [null, 0.3]] }), /above the one before/);
+  assert.throws(() => taxTableOptions({ standardDeduction: 1, brackets: [[10000, 0.1]] }), /null upper bound/);
+  assert.throws(() => taxTableOptions({ standardDeduction: 1, brackets: [[null, 0.1], [null, 0.2]] }), /only the last/);
+  assert.throws(() => taxTableOptions({ standardDeduction: -5 }), /0 or more/);
+  assert.throws(() => taxTableOptions({ standardDeduction: 1, brackets: [[10000, 12], [null, 0.2]] }), /between 0 and 1/);
+});
+
+test("the CLI reads --tax-table for a year with no built-in table", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { mkdtempSync, writeFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const d = mkdtempSync(join(tmpdir(), "tt-"));
+  writeFileSync(join(d, "books.json"), JSON.stringify(books("50000.00", 2027)));
+  writeFileSync(join(d, "t.json"), JSON.stringify({ standardDeduction: 17000, brackets: [[13000, 0.1], [null, 0.2]] }));
+  const run = (...a) => spawnSync("node", ["cli.mjs", "--books", join(d, "books.json"), "estimate", "--year", "2027", ...a], { encoding: "utf8" });
+  assert.notEqual(run().status, 0);
+  const ok = run("--tax-table", join(d, "t.json"), "--json");
+  assert.equal(ok.status, 0, ok.stderr);
+  assert.equal(JSON.parse(ok.stdout).standardDeduction, 1700000);
+  writeFileSync(join(d, "bad.json"), "{\"brackets\": 3}");
+  assert.notEqual(run("--tax-table", join(d, "bad.json")).status, 0);
 });
