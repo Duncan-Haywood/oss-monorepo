@@ -165,6 +165,8 @@
       <div><label for="faHdEnds">Hold-downs at wall ends</label><select id="faHdEnds"><option value="" selected>none</option><option value="true">one at each end of every wall</option></select></div>
       <div><label for="faHdOpen">Hold-downs beside openings at least this wide, in (blank: none)</label><input id="faHdOpen" type="number" min="6" max="600" step="1" placeholder="e.g. 96"></div>
       <div><label for="faHdPrice">Price per hold-down (blank: none)</label><input id="faHdPrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
+      <div><label for="faRtOn">Rafter ties (needs the roof option)</label><select id="faRtOn"><option value="" selected>none</option><option value="1">1 per rafter bearing (2 per truss)</option><option value="2">2 per rafter bearing (4 per truss)</option></select></div>
+      <div><label for="faRtPrice">Price per rafter tie (blank: none)</label><input id="faRtPrice" type="number" min="0" step="0.01" placeholder="e.g. 1.5"></div>
     </div>
     <div class="grid" id="fnFields" hidden>
       <div><label for="fnType">Type</label><select id="fnType"><option value="stem" selected>footing + stem wall + slab</option><option value="monolithic">monolithic slab, thickened edge</option></select></div>
@@ -495,6 +497,7 @@
         if ($("#faHdOpen").value.trim()) hd.openingMinWidth = Number($("#faHdOpen").value);
         if ($("#faHdPrice").value.trim()) hd.price = Number($("#faHdPrice").value);
         if (hd.wallEnds || hd.openingMinWidth != null) fa.holdDowns = hd;
+        if ($("#faRtOn").value) { fa.rafterTies = { perBearing: Number($("#faRtOn").value) }; if ($("#faRtPrice").value.trim()) fa.rafterTies.price = Number($("#faRtPrice").value); }
         plan.fasteners = fa;
       }
       if ($("#fnOn").checked) {
@@ -732,7 +735,7 @@
       let fasteners = null;
       if (plan.fasteners) {
         const sheathing = $("#sheath").checked ? sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}), ...($("#sheathO").checked ? { overhang: true } : {}), ...(Number($("#sheathR").value) > 0 ? { rimLap: Number($("#sheathR").value) } : {}) } }, result) : null;
-        try { fasteners = layoutFasteners(plan.fasteners, plan, sheathing?.ok ? { ...result, sheathing } : result); } catch (e) { fasteners = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        try { fasteners = layoutFasteners(plan.fasteners, plan, { ...result, ...(sheathing?.ok ? { sheathing } : {}), ...(roof ? { roof } : {}) }); } catch (e) { fasteners = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
         if (!fasteners.ok) { $("#errors").innerHTML = `<ul>${fasteners.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#fastenersCard").hidden = true; return false; }
       }
       last = { plan, result, nailers, floor, roof, foundation, drywall, insulation, fasteners };
@@ -804,6 +807,7 @@
       $("#faOn").checked = Boolean(fa); $("#faFields").hidden = !fa;
       for (const [id, key] of [["faStudEnd", "studEndNails"], ["faPlate", "plateSpacing"], ["faEdge", "edgeSpacing"], ["faField", "fieldSpacing"], ["faWaste", "waste"], ["faBox", "nailsPerBox"], ["faPrice", "price"]]) $("#" + id).value = fa?.[key] != null ? String(fa[key]) : "";
       $("#faHdEnds").value = fa?.holdDowns?.wallEnds ? "true" : ""; $("#faHdOpen").value = fa?.holdDowns?.openingMinWidth != null ? String(fa.holdDowns.openingMinWidth) : ""; $("#faHdPrice").value = fa?.holdDowns?.price != null ? String(fa.holdDowns.price) : "";
+      $("#faRtOn").value = fa?.rafterTies ? String(fa.rafterTies.perBearing ?? 1) : ""; $("#faRtPrice").value = fa?.rafterTies?.price != null ? String(fa.rafterTies.price) : "";
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
       if (fn) {

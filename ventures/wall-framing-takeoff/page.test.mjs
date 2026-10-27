@@ -217,6 +217,8 @@ test("the nail controls are read into plan.fasteners, restored from a saved plan
   assert.match(html, /<code>fasteners_on<\/code>/);
   for (const id of ["faHdEnds", "faHdOpen", "faHdPrice"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /fa\.holdDowns = hd/);
+  for (const id of ["faRtOn", "faRtPrice"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /fa\.rafterTies = \{ perBearing/);
   assert.match(html, /\$\("#faHdEnds"\)\.value = fa\?\.holdDowns\?\.wallEnds/);
 });
 
