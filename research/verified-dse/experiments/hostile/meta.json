@@ -1,0 +1,10 @@
+{
+ "base_period_ns": {
+  "xbar16": 1.1,
+  "gf2mat48": 1.35,
+  "bcastmix192": 6.52,
+  "cmp128": 1.51,
+  "rotmix64": 2.42
+ },
+ "n_sequences": 60
+}
