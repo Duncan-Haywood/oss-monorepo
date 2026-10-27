@@ -44,6 +44,14 @@ in place of the flat plate, the 1:10 model needs 1.29 to 1.45 times the Froude-p
 (three boundary-layer states) and loses 0.37 to 0.52 of CLmax; both support H2 and H3 for a clean 2D
 section. At 1:5 the power ratio is 1.11 to 1.19. The surrogate is unvalidated here and not usable at 1:20.
 
+**Longitudinal modes (milestone 3a, `experiments/longitudinal_modes/`).** A 4-state longitudinal model with
+NeuralFoil polars at each surface's own Reynolds number. For a tripped boundary layer at 1:10, the model flown
+at the full-size trim angle trims 6.5% faster in Froude units (H1 refuted: bar 5%) and its short-period
+frequency rises 5.1%; flown at the full-size CL, speed is matched and the frequencies stay within 1.3%, but
+short-period damping falls 6.3%. With free transition at 1:10 (Re 1e5) the short period turns overdamped, a
+laminar-bubble regime the surrogate is not trusted in. Phugoid damping is not reported: it is unstable even
+at full size in this model and depends on the unmodelled thrust law. No gust response yet.
+
 ## Limitations
 
 Flat-plate drag with a form factor, no airfoil polars, no CLmax, fixed powertrain efficiency (which
@@ -58,5 +66,4 @@ only as a topic; no affiliation is implied. Written with AI assistance (Claude C
 
 ## Next
 
-Open the NASA table and each reference; vortex-lattice and flight-dynamics model in AeroSandbox
-(H1); XFOIL polars against Selig data (H2, H3); UIUC propeller efficiency (H4).
+Open the NASA table and each reference; gust response and a thrust model for H1; XFOIL polars against Selig data (H2, H3); UIUC propeller efficiency (H4).

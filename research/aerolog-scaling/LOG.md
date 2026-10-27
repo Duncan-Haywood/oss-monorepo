@@ -3,6 +3,17 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-27 · Milestone 3a: do trim speed and the longitudinal modes survive Reynolds-dependent aerodynamics? (predictions written after a first exploratory run, so not blind)
+- Why: H1 says trim speed and mode frequencies agree within 3% (refuted over 5%) at n = 0.1. Froude scaling makes them agree exactly for fixed coefficients, so any gap comes from Re-dependent CL(alpha), CD and tail effectiveness.
+- Plan (`experiments/longitudinal_modes/run.py`): wing NACA 4412 plus tail NACA 0012, NeuralFoil polars at each surface's Re, 4-state Etkin model; model flown at full-size trim angle, or at full-size CL. Predictions (stated after seeing a first run that crashed on the mode extraction, before the final numbers): trim speed moves under 3% at n = 0.1 (tripped); frequencies within 3%; short-period damping moves more than frequency.
+
+### Outcome (`experiments/longitudinal_modes/results.txt`)
+- Tripped, n = 0.1 vs 1: same-alpha rule gives dV +6.5%, phugoid frequency -5.2%, short-period frequency +5.1%, damping -6.7%: **H1 refuted on this rule** (prediction 1 and 2 wrong). Same-CL rule: frequencies +0.8% and -1.3% (held), short-period damping -6.3% (prediction 3 held).
+- Free transition at n = 0.1 and 0.05: the short period becomes overdamped (two real roots) and trim CL drops; this is the NeuralFoil bubble regime from 4a, not used as a result.
+- Phugoid damping is positive in the textbook estimate but negative here even at n = 1 (induced-drag slope CD_alpha with no speed-dependent thrust); the sign is a modelling artefact, so it is not reported.
+- Limits: no gust response (H1 names it); the surrogate is unvalidated against UIUC data; geometry and CG are design choices; the tail is trimmed by the elevator at zero lift; no thrust-line or propeller terms.
+- Next: gust response; thrust law; UIUC polar check.
+
 ## 2026-10-27 · Milestone 4a: do airfoil polars keep H2 (power) and H3 (CLmax)? (predictions fixed before the run)
 - Why: milestone 1's flat-plate drag could not say whether H2 survives a real section. XFOIL itself is not installable here; NeuralFoil 0.3.3 (a neural surrogate trained on XFOIL, MIT) is, via AeroSandbox 4.2.10.
 - Plan (`experiments/airfoil_polars/run.py`): NACA 4412 section, Re_mac from the milestone-1 calculator at n = 1 to 0.05, three boundary-layer states (n_crit 9, n_crit 5, trip at 5% chord). Section cd at cl = 0.8 plus induced drag (AR 10, e 0.8) gives the power ratio against n = 1; CLmax from the alpha sweep.
