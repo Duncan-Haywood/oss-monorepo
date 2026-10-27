@@ -206,3 +206,9 @@ test("the insulation controls are read into plan.insulation and restored from a 
   assert.match(html, /\$\("#inAtticBag"\)\.value = ins\.attic\?\.bagCuFt/);
   assert.match(html, /<code>insulation_on<\/code>/);
 });
+
+test("the foundation anchor bolt fields feed the engine's anchorBolts option and load back from plan files", () => {
+  const html = page("index.html");
+  assert.match(html, /fn\.anchorBolts = \{ spacing: Number\(\$\("#fnAnchor"\)\.value\), endDistance: Number\(\$\("#fnAnchorEnd"\)\.value\) \}/);
+  assert.match(html, /\$\("#fnAnchor"\)\.value = fn\.anchorBolts \?/);
+});

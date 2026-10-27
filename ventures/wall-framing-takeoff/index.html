@@ -161,6 +161,8 @@
       <div><label for="fnStemT">Stem wall thickness (in; stem type only)</label><input id="fnStemT" type="number" min="6" max="58" value="8"></div>
       <div><label for="fnSlab">Slab thickness (in)</label><input id="fnSlab" type="number" min="3" max="12" value="4"></div>
       <div><label for="fnCorner">Corner bars</label><select id="fnCorner"><option value="" selected>Bars bent into one loop on site</option><option value="true">Straight side bars with an L-bar at each corner</option></select></div>
+      <div><label for="fnAnchor">Anchor bolt spacing (in; blank: no bolts counted)</label><input id="fnAnchor" type="number" min="12" max="120" placeholder="e.g. 72"></div>
+      <div><label for="fnAnchorEnd">Anchor bolt distance from plate end (in)</label><input id="fnAnchorEnd" type="number" min="4" max="24" value="12"></div>
       <div><label for="fnPrice">Concrete price per cu yd (blank: none)</label><input id="fnPrice" type="number" min="0" step="1" placeholder="e.g. 165"></div>
     </div>
     <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a roof, gable or hip (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
@@ -467,6 +469,7 @@
         const fn = { id: "Foundation", type: $("#fnType").value, width: L($("#fnW").value, "foundation width"), depth: L($("#fnD").value, "foundation depth"), footing: { width: Number($("#fnFootW").value), depth: Number($("#fnFootD").value) }, slab: { thickness: Number($("#fnSlab").value) } };
         if (fn.type === "stem") fn.stem = { height: Number($("#fnStemH").value), thickness: Number($("#fnStemT").value) };
         if ($("#fnCorner").value) fn.cornerBars = true;
+        if ($("#fnAnchor").value.trim()) fn.anchorBolts = { spacing: Number($("#fnAnchor").value), endDistance: Number($("#fnAnchorEnd").value) };
         if ($("#fnPrice").value.trim()) fn.price = Number($("#fnPrice").value);
         plan.foundation = fn;
       }
@@ -760,6 +763,7 @@
         $("#fnFootW").value = String(fn.footing?.width ?? 16); $("#fnFootD").value = String(fn.footing?.depth ?? 8);
         $("#fnStemH").value = String(fn.stem?.height ?? 32); $("#fnStemT").value = String(fn.stem?.thickness ?? 8);
         $("#fnSlab").value = String(fn.slab?.thickness ?? 4); $("#fnPrice").value = fn.price != null ? String(fn.price) : ""; $("#fnCorner").value = fn.cornerBars ? "true" : "";
+        $("#fnAnchor").value = fn.anchorBolts ? String(fn.anchorBolts.spacing ?? 72) : ""; $("#fnAnchorEnd").value = String(fn.anchorBolts?.endDistance ?? 12);
       }
       const rf = plan.roof;
       $("#rfOn").checked = Boolean(rf); $("#rfFields").hidden = !rf;
