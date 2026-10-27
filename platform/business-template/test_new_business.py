@@ -87,6 +87,30 @@ class GenerateTest(unittest.TestCase):
         self.assertEqual(res.returncode, 2)
         self.assertIn("unknown question id", res.stderr)
 
+    def test_interactive_blank_name_defaults_and_picks_chosen_type(self):
+        from unittest import mock
+        catalogue = new_business.presets()
+        keys = list(catalogue)
+        self.assertGreater(len(keys), 1)
+        replies = ["", "An idea", "2"] + [""] * len(catalogue[keys[1]]["questions"])
+        with mock.patch("builtins.input", side_effect=replies), mock.patch("builtins.print"):
+            name, idea, kind, answers = new_business.interactive(catalogue)
+        self.assertEqual((name, idea, kind, answers), ("New Business", "An idea", keys[1], {}))
+
+    def test_interactive_bad_choice_falls_back_to_first_type(self):
+        from unittest import mock
+        catalogue = new_business.presets()
+        keys = list(catalogue)
+        for bad in ("abc", "0", str(len(keys) + 1)):
+            replies = ["N", "idea", bad] + [""] * len(catalogue[keys[0]]["questions"])
+            with mock.patch("builtins.input", side_effect=replies), mock.patch("builtins.print"):
+                self.assertEqual(new_business.interactive(catalogue)[2], keys[0], bad)
+
+    def test_cli_requires_out(self):
+        with self.assertRaises(SystemExit) as cm:
+            new_business.main(["--name", "X", "--idea", "y"])
+        self.assertEqual(cm.exception.code, 2)
+
     def test_presets_are_complete(self):
         functions = {"product", "marketing", "sales", "finance", "legal", "support", "review"}
         for kind, preset in new_business.presets().items():
