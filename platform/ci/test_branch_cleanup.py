@@ -20,6 +20,7 @@ from unittest import mock
 from datetime import datetime, timedelta, timezone
 
 from branch_cleanup import (
+    DEFAULT_MAX_DELETES,
     DEFAULT_PROTECTED,
     GitHub,
     MainContainment,
@@ -804,6 +805,35 @@ class GitHubClientTest(unittest.TestCase):
     def test_main_needs_either_pr_or_sweep(self):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
             main(["--repo", "o/r"])
+
+
+class MessageAndRequestShapeTest(unittest.TestCase):
+    def test_moved_reason_shows_seven_character_shas(self):
+        pull = pr()
+        decision = call(pull, branch_shas={pull["head_ref"]: "b" * 40})
+        self.assertIn("(%s != %s)" % ("b" * 7, "a" * 7), decision.reason)
+
+    def test_in_main_reason_shows_a_seven_character_tip(self):
+        pull = pr(merged_at="2026-08-24T11:00:00Z")
+        decision = call_contained(pull, MAIN_TIP, containment())
+        self.assertIn("its tip %s is" % ("f" * 7), decision.reason)
+
+    def test_one_run_deletes_at_most_200_branches_by_default(self):
+        # ~3 requests per deletion against a 1,000/hour token budget.
+        self.assertEqual(DEFAULT_MAX_DELETES, 200)
+
+    def test_closed_pulls_for_head_filters_on_the_repo_owner(self):
+        gh = GitHub("Owner/Repo", "t")
+        with mock.patch.object(GitHub, "_paginate", return_value=[]) as paginate:
+            gh.closed_pulls_for_head("claude/x")
+        self.assertEqual(paginate.call_args[0][1]["head"], "Owner:claude/x")
+
+    def test_compare_asks_for_a_single_commit_page(self):
+        gh = GitHub("Owner/Repo", "t")
+        payload = {"ahead_by": 0, "merge_base_commit": {}}
+        with mock.patch.object(GitHub, "_request", return_value=payload) as req:
+            gh.compare_to("main")("abc")
+        self.assertEqual(req.call_args[0][2], {"per_page": 1})
 
 
 if __name__ == "__main__":

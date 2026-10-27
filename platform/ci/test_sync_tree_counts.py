@@ -278,6 +278,42 @@ class MultiGroupAndMain(ApplyBase):
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(sync.main(), 2)
 
+    def _run_main(self, *flags):
+        real = (sync.mirrored_tool_count, sync.optout_switch_count,
+                sync.MIRRORED_SITES, sync.OPTOUT_SITES)
+        sync.mirrored_tool_count = lambda: 3
+        sync.optout_switch_count = lambda: 4
+        sync.MIRRORED_SITES = [sync.Site("doc.md", r"mirrors (\d+) tools", "tools")]
+        sync.OPTOUT_SITES = []
+        self.addCleanup(lambda: (
+            setattr(sync, "mirrored_tool_count", real[0]),
+            setattr(sync, "optout_switch_count", real[1]),
+            setattr(sync, "MIRRORED_SITES", real[2]),
+            setattr(sync, "OPTOUT_SITES", real[3])))
+        old = sys.argv
+        sys.argv = ["sync_tree_counts.py", *flags]
+        self.addCleanup(setattr, sys, "argv", old)
+        with contextlib.redirect_stdout(io.StringIO()):
+            return sync.main()
+
+    def test_check_exits_1_on_drift_and_writes_nothing(self):
+        path = self.write("doc.md", "mirrors 12 tools\n")
+        self.assertEqual(self._run_main("--check"), 1)
+        self.assertEqual(path.read_text(), "mirrors 12 tools\n")
+
+    def test_rewrite_exits_0_and_fixes_the_number(self):
+        path = self.write("doc.md", "mirrors 12 tools\n")
+        self.assertEqual(self._run_main(), 0)
+        self.assertEqual(path.read_text(), "mirrors 3 tools\n")
+
+    def test_in_sync_exits_0(self):
+        self.write("doc.md", "mirrors 3 tools\n")
+        self.assertEqual(self._run_main("--check"), 0)
+
+    def test_a_reworded_sentence_fails_even_when_nothing_drifted(self):
+        self.write("doc.md", "reworded\n")
+        self.assertEqual(self._run_main("--check"), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
