@@ -66,6 +66,7 @@
       <div><label for="lap">Cap plate joint offset from top plate joints</label><input id="lap" value="24"></div>
       <div><label for="kerf">Saw kerf</label><input id="kerf" value="1/8"></div>
       <div><label for="panelMax">Longest shop panel for the drawings (blank: whole walls)</label><input id="panelMax" placeholder="e.g. 12 ft"></div>
+      <div><label for="panelSheets"><input id="panelSheets" type="checkbox"> One sheet per shop panel in the HTML drawings (needs a longest panel)</label></div>
       <div><label for="sheathPsf">Sheathing weight on shop panels (lb per sq ft, blank: not weighed)</label><input id="sheathPsf" type="number" min="0" max="10" step="0.1" placeholder="e.g. 1.5 for 1/2 in OSB"></div>
       <div><label for="cornerStuds">Extra studs at a corner</label><input id="cornerStuds" type="number" min="0" max="4" step="1" value="2"></div>
       <div><label for="teeStuds">Extra studs where a wall meets this one</label><input id="teeStuds" type="number" min="0" max="4" step="1" value="2"></div>
@@ -837,7 +838,7 @@
     };
     $("#csv").addEventListener("click", () => { if (run() && last) { download("framing-takeoff.csv", "text/csv", toCsv(last.result)); record("csv_downloaded"); } });
     $("#drawingsPdf").addEventListener("click", () => { if (run() && last) { download("wall-drawings.pdf", "application/pdf", drawingSetPdf(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0) })); record("drawings_pdf_downloaded"); } });
-    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0) })); record("drawings_downloaded"); } });
+    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0), panelSheets: $("#panelSheets").checked })); record("drawings_downloaded"); } });
     $("#panelOrderBtn").addEventListener("click", () => {
       if (!run() || !last) return;
       const panelMax = Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0);

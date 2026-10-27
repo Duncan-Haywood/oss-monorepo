@@ -1,4 +1,4 @@
-"""Milestone 24: the milestone-9 run (five larger designs) at 65% placement utilisation (VDSE_UTIL=65) (so the routed rung costs more and H2 is testable); write results.jsonl.
+"""Milestone 25: the milestone-9 run (five larger designs) at 65% placement utilisation (VDSE_UTIL=65) (so the routed rung costs more and H2 is testable); write results.jsonl.
 
 Usage: python experiments/rung_bias/run.py --openroad <bin> [--pdk <sky130hd platform dir>] [--out work] [--n 60] [--jobs 4]
 """

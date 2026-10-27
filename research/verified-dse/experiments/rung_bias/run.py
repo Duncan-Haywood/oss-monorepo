@@ -1,6 +1,7 @@
 """Milestone 1: run every (design, ABC pass sequence) point through the four rungs; write results.jsonl.
 
 Usage: python experiments/rung_bias/run.py --openroad <bin> [--pdk <sky130hd platform dir>] [--out work] [--n 60] [--jobs 4]
+                                  [--lib <liberty, default tt_025C_1v80 in the platform>] [--results <jsonl>]
 """
 import argparse
 import json
@@ -42,11 +43,14 @@ def main():
     ap.add_argument("--out", default="/tmp/verified-dse-work")
     ap.add_argument("--n", type=int, default=60)
     ap.add_argument("--jobs", type=int, default=4)
+    ap.add_argument("--lib", default=None, help="liberty for another corner (milestone 24: ss_100C_1v60)")
+    ap.add_argument("--results", default=None, help="results.jsonl path (default: next to this script)")
+    ap.add_argument("--meta", default=None)
     a = ap.parse_args()
     out, pdk = Path(a.out), Path(a.pdk)
     out.mkdir(parents=True, exist_ok=True)
     lib = out / "lib.lib"
-    flow.filtered_liberty(pdk / "lib/sky130_fd_sc_hd__tt_025C_1v80.lib", lib)
+    flow.filtered_liberty(Path(a.lib) if a.lib else pdk / "lib/sky130_fd_sc_hd__tt_025C_1v80.lib", lib)
     seqs = sequences(a.n)
     base = {}
     for d in flow.DESIGNS:  # the baseline's no-wire period sets each design's clock target
@@ -58,13 +62,13 @@ def main():
             period = round(base[d] * f, 3)
             for i, s in enumerate(seqs):
                 tasks.append((d, s, tag, period, out / d / f"{tag}_{i}", lib, pdk, a.openroad))
-    with Pool(a.jobs) as pool, open(HERE / "results.jsonl", "w") as fh:
+    with Pool(a.jobs) as pool, open(a.results or HERE / "results.jsonl", "w") as fh:
         for i, r in enumerate(pool.imap_unordered(task, tasks, chunksize=2)):
             fh.write(json.dumps(r) + "\n")
             fh.flush()
             if i % 50 == 0:
                 print(i, len(tasks), flush=True)
-    (HERE / "meta.json").write_text(json.dumps({"base_period_ns": base, "n_sequences": len(seqs)}, indent=1))
+    Path(a.meta or HERE / "meta.json").write_text(json.dumps({"base_period_ns": base, "n_sequences": len(seqs)}, indent=1))
 
 
 if __name__ == "__main__":

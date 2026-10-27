@@ -1,4 +1,4 @@
-"""Milestone 24: read results.jsonl; write results.txt (tables) and summary.json. Runs nothing new."""
+"""Milestone 25: read results.jsonl; write results.txt (tables) and summary.json. Runs nothing new."""
 import json
 import statistics
 import sys

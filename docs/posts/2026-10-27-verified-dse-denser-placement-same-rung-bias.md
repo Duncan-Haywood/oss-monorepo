@@ -14,4 +14,4 @@ This run repeated the five larger designs (three multipliers, two 64-bit adders)
 - The routed rung got slower, 24.4 s per point against 19.4 s, not cheaper.
 - Rejected runs: 100 against 96.
 
-So the earlier picture is not an artefact of one density. It is still one axis of one corner, with one tool version; a slow or fast liberty corner is not in the pinned platform files. Results and log: [`experiments/util65/`](../../research/verified-dse/experiments/util65/results.txt).
+So the earlier picture is not an artefact of one density. It is still one axis of one corner, with one tool version; the slow liberty corner was run separately in milestone 24. Results and log: [`experiments/util65/`](../../research/verified-dse/experiments/util65/results.txt).

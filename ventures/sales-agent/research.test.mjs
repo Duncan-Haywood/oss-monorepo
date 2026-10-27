@@ -119,3 +119,11 @@ test("HubSpot export: unsubscribed-from-all-email and Unqualified lead status ar
   assert.ok(r.dropped.some((d) => d.email === "bo@zeta.io"));
   assert.ok(r.dropped.some((d) => d.email === "di@openco.com" && /lead status/.test(d.reason)));
 });
+
+// Mautic's contact export (field names from its public import template, rows made up): "title" is the salutation and the job is "position".
+test("a salutation in the title column is not the job title; the position column is", () => {
+  const r = normalizeRow({ title: "Mrs.", position: "Marketing Lead", email: "a@b.example" });
+  assert.equal(r.title, "Marketing Lead");
+  assert.equal(normalizeRow({ title: "Dr", email: "a@b.example" }).title, undefined);
+  assert.equal(normalizeRow({ title: "Director of Sales", position: "x", email: "a@b.example" }).title, "Director of Sales");
+});
