@@ -976,6 +976,9 @@ def print_measure(m: dict[str, Any]) -> None:
         fresh = [r for r in f["recent"] if not (t := _when(r)) or t >= cutoff] or f["recent"][-1:]
         tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in fresh]
         live = [r for r in tagged if not r.startswith("[file changed since]")]
+        if _FILE_LIKE_RE.fullmatch(path) and not (ROOT.parent / path).exists():
+            # A complaint about a deleted or renamed file cannot be live (2026-10-27: test_lowcomm.py).
+            note, live = " (file no longer exists)", []
         rows.append((path, f, note, tagged, live))
     # Files with live recent reports come first, most live reports first; the all-time
     # count only breaks ties, so a file with 300 old reports no longer crowds out a new fault.
@@ -1093,6 +1096,7 @@ def _changed_note(path: str) -> tuple[str, str]:
     return f" (file last changed {when[:10]})", when
 
 
+_FILE_LIKE_RE = re.compile(r"[\w.-]+(?:/[\w.-]+)*\.\w+")
 _PATH_RE = re.compile(r"[\w./-]+\.(?:py|sh|mjs|md|json|yaml)\b")
 
 

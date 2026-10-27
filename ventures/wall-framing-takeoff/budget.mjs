@@ -9,7 +9,7 @@
 //
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
-// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, insulationBag, atticFillBag,
+// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), insulationBag, atticFillBag,
 // vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), tax (fraction on materials), contingency (fraction) }.
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
@@ -62,6 +62,11 @@ export function budget(result, prices = {}) {
     add("Insulation", "Wall cavity insulation bags", ins.bags, "bags", bagPrice, `cavity ${ins.cavitySqFt.toFixed(0)} sq ft at ${(100 * ins.waste).toFixed(0)}% waste, ${ins.bagSqFt} sq ft per bag`);
     if (ins.rim) add("Insulation", "Rim joist insulation bags", ins.rim.bags, "bags", bagPrice, `rim bays ${ins.rim.sqFt.toFixed(0)} sq ft`);
     if (ins.attic?.bags != null) add("Insulation", "Attic loose-fill bags", ins.attic.bags, "bags", P("atticFillBag") ?? ins.attic.price, `${ins.attic.bagCuFt} cu ft per bag`);
+  }
+  const tr = result.trim;
+  if (tr?.ok) {
+    add("Interior", "Baseboard boards", tr.baseBoards, "boards", P("baseboard") ?? tr.basePrice, `${tr.baseFeet.toFixed(0)} ft in ${tr.baseStock / 12} ft boards`);
+    add("Interior", "Casing boards", tr.casingBoards, "boards", P("casing") ?? tr.casingPrice, `${tr.doorFaces} door and ${tr.windowFaces} window faces`);
   }
   const fa = result.fasteners;
   if (fa?.ok && fa.boxes != null) add("Fasteners", "Framing nails (boxes)", fa.boxes, "boxes", P("nailBox") ?? fa.price, `${fa.order} nails incl. ${(100 * fa.waste).toFixed(0)}% waste, ${fa.nailsPerBox} per box`);

@@ -1,0 +1,37 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { layoutTrim, validateTrim, packPieces, trimText } from "./trim.mjs";
+
+test("packing: first-fit decreasing, long runs split", () => {
+  assert.equal(packPieces([60, 36], 96).boards, 1);
+  assert.equal(packPieces([60, 60], 96).boards, 2);
+  assert.equal(packPieces([200], 96).boards, 3); // 96 + 96 + 8
+});
+
+test("interior wall: baseboard both faces, door width left out, by hand", () => {
+  const plan = { walls: [{ id: "A", length: 144, sheathed: false, openings: [{ kind: "door", width: 32, height: 80 }] }] };
+  const t = layoutTrim({ baseStock: 144, waste: 0 }, plan);
+  // net 112 in over 2 runs of 56 in, two faces: four 56 in pieces = 224 in
+  assert.ok(Math.abs(t.baseFeet - 224 / 12) < 1e-9);
+  assert.equal(t.baseBoards, 2); // 56+56 | 56+56 -> 112 each fits 144
+  // casing: 2 faces x (80.1875 x2 + 32+2*(2.25+0.1875)=36.875) = 6 pieces
+  assert.equal(t.doorFaces, 2);
+  assert.ok(Math.abs(t.casingFeet - 2 * (2 * 80.1875 + 36.875) / 12) < 1e-9);
+});
+
+test("exterior wall gets one face of casing; window has a sill piece", () => {
+  const plan = { walls: [{ id: "A", length: 96, openings: [{ kind: "window", width: 36, height: 48 }] }] };
+  const t = layoutTrim({ waste: 0 }, plan);
+  assert.equal(t.windowFaces, 1);
+  assert.ok(Math.abs(t.casingFeet - (2 * 48.1875 + 36 + 2 * 2.4375 + 36 + 0.375) / 12) < 1e-9);
+  assert.ok(Math.abs(t.baseFeet - 8) < 1e-9); // a window does not break it
+});
+
+test("prices, waste and bad inputs", () => {
+  const plan = { walls: [{ id: "A", length: 100, sheathed: false }] };
+  const t = layoutTrim({ waste: 0.1, basePrice: 10 }, plan);
+  assert.equal(t.baseBoards, Math.ceil(t.baseBoards)); assert.equal(t.cost, t.baseBoards * 10);
+  assert.ok(trimText(t).length >= 3);
+  assert.equal(validateTrim({ waste: 0.9 }).length, 1);
+  assert.equal(layoutTrim({ baseStock: 10 }, plan).ok, false);
+});

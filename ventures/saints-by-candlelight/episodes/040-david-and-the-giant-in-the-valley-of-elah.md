@@ -1,5 +1,5 @@
 ---
-number: 39
+number: 40
 slug: david-and-the-giant-in-the-valley-of-elah
 title: David and the Giant in the Valley of Elah
 published: 2026-10-27
