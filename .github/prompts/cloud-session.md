@@ -50,7 +50,8 @@ A foreground command times out (2 min default, 10 min at most) and foreground
 auto-backgrounded and delays the commit); use absolute paths for `rm -rf`.
 Start long commands with `run_in_background`, no `&` or subshell (the harness
 would report completion early), output to a file, `echo DONE` at the end. Wait
-with `Monitor` on `until grep -q DONE out.log; do sleep 5; done`. Don't grep
+with `python3 platform/ci/wait_for.py out.log` (up to 100 s per call, exit 1 means
+still running: call again; `sleep` loops and Monitor have been blocked). Don't grep
 the process list for the script's own name: it matches itself and never ends.
 
 - `platform/marketing/regen.mjs --verify` and the pages test suites (over 10 min)

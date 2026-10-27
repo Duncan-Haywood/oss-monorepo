@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_013fLPJk81yMBDSLiyaRwAU8",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T01:10:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10773",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Said to wait with Monitor; review/prompt-1.md says Monitor is blocked. Now both point at wait_for.py."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Only owner rows and blocked P056 open again; main_health.py was green, so critique had to come from friction table, whose lowcomm and post-date entries were already fixed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post: tooling fix with no reader-facing finding.",
+      "did": "skipped post",
+      "result": "fine"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Backlog ids: none (P056 blocked). Added platform/ci/wait_for.py + test.",
+  "corrections": [],
+  "redteam": null
+}
