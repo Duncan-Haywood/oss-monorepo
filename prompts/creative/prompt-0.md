@@ -41,7 +41,9 @@ not write the story or episode another session is already writing.
 
 Any of these counts as the run's deliverable:
 
-- **A new story or episode**, finished: text, audio, regenerated pages and
+- **A new story or episode**, finished: text, audio (text only while the
+  audio cap below is exceeded: 423 MB on 2026-10-27, so check it first and
+  skip the podcast option, which needs audio), regenerated pages and
   feeds, passing tests. The science fiction shelf is the owner's headline
   project; give it at least an equal share.
 - **A series bible** where one is missing. Hearth & Horizon has none yet: a
