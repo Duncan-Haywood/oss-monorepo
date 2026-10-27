@@ -64,6 +64,24 @@ bits). Pooled leave-one-design-out AUC 0.96 to 0.998 equals that of an oracle kn
 the one varying design (8-bit multiplier, 17 of 50 proved) AUC is 0.65 to 0.78; "the rewrite is smaller than the
 reference" gets 0.81. We do not claim proofs are predictable from cheap features.
 
+**Other designs, corners and operating points** (milestones 9, 15, 24 to 28; each paragraph names its results file).
+*Larger designs* (`experiments/large/`, `experiments/nonarith/`): in ten designs of two families (multipliers and adders;
+shifters, popcounts and an ALU) the R2 cut floors on one or two designs per family at the relaxed clock (mult24 and mult32 at
+11.3% and 14.1%; barrel64 in the second family), and skipping the R2 cut removes the floor. *Placement density*
+(`experiments/util65/`): at 65% utilisation instead of 40% the median R2 regret over the five larger designs moves by 0.4
+points relaxed (2.9% to 2.5%) and 1.2 tight (0.8% to 2.0%); a routed point costs 24.4 s instead of 19.4 s. *Second corner*
+(`experiments/corner_ss/`, `experiments/corner_replay/`; liberty only): at SKY130 ss 100C 1.60 V the routed-ADP ranking has a
+median Spearman 0.69 against tt, the tt-optimal sequence loses a median 3.4% (up to 27%), and chosen-eta halving beats random
+R4 at the relaxed clock but not at the tight one from 30 s, the reverse of tt, so a halving schedule has to be checked at the
+corner being signed off. *Held-out families* (`experiments/unseen/`): CRC-32, priority encoder, sorting network, S-box and
+decoder-mux have no tight-clock cell with R2 regret above 10% (largest 9.3%), and fixed eta = 1.5 beats the no-cut policy f3
+there (0.77 against 0.85% at 25 routed-point equivalents), so f3 is insurance, not a universal winner. *Designs written to
+break R2* (`experiments/hostile/`; crossbar, GF(2) matrix-vector, broadcast mix, 128-bit comparator, rotate-mix): one design
+(`bcastmix192`, two distinct outcomes over 60 sequences) has R2 regret 49.9% because repair buffers the mapping that looked
+worst (tau(R2,R4) = -1); the other eight cells are at most 1.1%. f3 (0.67) again matches the best arm at 25 equivalents and
+the best pilot gate is worse (1.05); the pilot's AUC of 1.00 rests on two cells of one design. Across both new sets, the
+pilot gate never paid for its pilot.
+
 ## 4 A bound and what a pilot can check
 Define the inversion of a rung, iota = max(0, max over pairs with s(x) <= s(x') of log y(x) - log y(x')). **Proposition.**
 Successive halving with cut rungs r_1..r_m returns a value with log regret at most the sum of iota_{r_j}. Proof: if the
@@ -89,9 +107,10 @@ and tie-breaks within a fixed group, not over designs. Hyperband was run in its 
 effects rest on a handful of designs; there is no multiple-comparison correction.
 
 ## 6 What the paper still needs
-(0b) Milestone 28 replayed it on five designs written to be wiring-dominated (crossbar, GF(2) matrix, broadcast mix, 128-bit comparator, rotate-mix; `experiments/hostile/results.txt`): one design (`bcastmix192`, two distinct outcomes over 60 sequences) has R2 regret of 49.9%, because repair buffers the mapping that looked worst, so tau(R2,R4) is -1; the other eight cells are at most 1.1%. f3 (0.67) is again as good as any arm at 25 equivalents and the best pilot gate is worse (1.05); the pilot's AUC of 1.00 rests on two cells of one design.
-
-(0) Milestone 27 replayed the pilot gate on five designs from unseen families (CRC-32, priority encoder, sorting network, S-box, decoder-mux; `experiments/unseen/results.txt`): none has R2 pick regret above 10% at the tight clock, and fixed eta = 1.5 beats the no-cut policy f3 there (0.77 against 0.85% at 25 equivalents), so f3 is insurance, not a universal winner.
-(1) [Partly done in milestones 9 and 15: ten larger designs in two families; the R2-cut floor appears in both, on one design each.] Larger designs, where routed cost separates from R1 by orders of magnitude, so H2 is testable. (2) [Corner half done in milestone 24: at ss_100C_1v60 the rung ranks carry over only partly, median Spearman 0.69 for routed ADP and the tt-optimal sequence loses a median 3.4% (max 27%); liberty only, `experiments/corner_ss/`.] Detail routing. [The strategy replay on the ss table is done in milestone 26, `experiments/corner_replay/`: chosen-eta halving beats random R4 at the relaxed clock but not at the tight clock from 30 s, the reverse of tt, and an eta picked at tt fails at ss tight; the halving schedule is corner-dependent.] (3) [Partly done in milestones 20 to 23: ridge, GP-EI and TPE baselines on pools of about 50, none beats never cutting on R2.] BOHB/BO baselines at equal wall-clock on larger pools. (4) A proof or counterexample for the top-vs-all
-coverage, or a conformal pilot statistic with a theorem. (5) Typesetting to the MLCAD template. Until (1) and (3) land the
-honest headline is the negative one: on small designs, cheap rungs did not pay.
+(1) Detail routing, and the ss replay of the larger designs (liberty-only corner so far; needs OpenROAD). (2) A richer
+repair-inversion test: a high-fanout design whose 60 sequences give many distinct mappings, since `bcastmix192` has two and
+supports no statistics. (3) BOHB and Bayesian-optimisation baselines at equal wall-clock on larger pools (ridge, GP-EI and TPE
+variants on pools of about 50 are done, milestones 20 to 23, and none beats never cutting on R2). (4) A proof or
+counterexample for the top-vs-all coverage, or a conformal pilot statistic with a theorem. (5) Typesetting to the MLCAD
+template. Until (1) to (3) land, the honest headline is the negative one: on small designs, cheap rungs did not pay, and a
+pilot gate that detects when they will not has not been shown to pay for itself on the 30 designs it was replayed on (20 in milestone 16, five each in milestones 27 and 28).
