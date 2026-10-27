@@ -196,6 +196,16 @@ pilot restores sadness (2.3%; coverage 93%) but not fear (22% of audits end
 wider than 1.25 times the target). The oracle plan itself is sound. The
 evidence is two categories on one corpus; no pilot-size rule is derived.
 
+A conservative pilot variance fixes the coverage but not the cost (milestone 6s,
+same corpus and draws). Using the Wilson upper bound on each group's pilot
+prevalence as the variance input, no audit ends wider than 1.25 times the target
+and fear covers 92.0% and 94.4% (1.0 and 0.5 points, pilot 400; plug-in 70%),
+but the planned audit is 3.80 and 2.65 times the oracle size for fear (sadness
+2.51 and 1.82). With a 1,500-item pilot the factor is 1.5 to 2.3. Shrinking each
+group's variance towards the pooled pilot variance (weight 30) lifts the plan to
+0.86 times the oracle for fear and leaves coverage at 78% (1.0 point). One
+corpus, normal-approximation interval, constants untuned.
+
 ## 7 Regression coefficients and small audits (H5 second half; the real LLM, H3 first look)
 
 Data: the NaijaSenti test part; outcome = the human negative-sentiment label,
