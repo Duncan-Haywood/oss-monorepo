@@ -237,4 +237,28 @@ rank accuracy, same respondent as above.
   alone is worse than shipped at both budgets once lapse reaches 0.35.
 - Gaps under about 0.01 are within seed noise at 20 seeds; this supports
   keeping the hybrid, not a claim that it helps at low lapse.
-- Still synthetic: random lapses only, no biased respondents, 30 items.
+- Still synthetic: random lapses only, 30 items (position bias: next section).
+
+## A respondent who favours the first option (2026-10-28)
+
+`biasedRespondent.simulation.test.ts`: `simulate(..., positionBias)` makes that
+share of answers pick the first option shown whatever the items are. 30 items,
+20 seeded respondents per cell, mean rank accuracy.
+
+| answers | bias | shipped | information | hybrid |
+|---|---|---|---|---|
+| 120 | 0.1 | 0.748 | 0.761 | 0.748 |
+| 300 | 0.1 | 0.880 | 0.879 | 0.900 |
+| 120 | 0.3 | 0.655 | 0.618 | 0.655 |
+| 300 | 0.3 | 0.780 | 0.742 | 0.803 |
+| 120 | 0.5 | 0.427 | 0.405 | 0.427 |
+| 300 | 0.5 | 0.632 | 0.421 | 0.592 |
+
+- The hybrid leads at bias 0.1 and 0.3 (+0.020, +0.023 at 300 answers) but
+  trails shipped by 0.040 at bias 0.5, where half the answers carry no signal.
+  The information selector alone collapses there (0.421 against 0.632).
+- Why it matters: first-option bias is common in real surveys. A bias of 0.5 is
+  an extreme respondent; it marks where the hybrid's switch to the information
+  selector stops paying, not a typical case.
+- Still synthetic and 30 items. Open: a detector that falls back to the shipped
+  selector when a respondent's first-option share is far above half.

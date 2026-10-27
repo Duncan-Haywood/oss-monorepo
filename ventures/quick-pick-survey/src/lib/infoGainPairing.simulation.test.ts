@@ -28,8 +28,12 @@ function mulberry32(seed: number): () => number {
 
 type Policy = typeof selectNextPair;
 
-/** `lapse` is the share of answers given at random (an inconsistent respondent); 0 draws nothing extra, so older seeds reproduce. */
-export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0) {
+/**
+ * `lapse` is the share of answers given at random (an inconsistent respondent);
+ * `positionBias` is the share of answers that take the first option shown whatever
+ * the items are. Both draw nothing extra at 0, so older seeds reproduce.
+ */
+export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0) {
   const rand = mulberry32(seed);
   const truth = new Map<string, number>();
   const state = new Map<string, GlickoState>();
@@ -61,7 +65,7 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
       rand,
     });
     const pA = 1 / (1 + Math.exp(-2 * (truth.get(aId)! - truth.get(bId)!)));
-    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, (lapse > 0 && rand() < lapse ? rand() < 0.5 : rand() < pA) ? "A" : "B");
+    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, (positionBias > 0 && rand() < positionBias ? true : lapse > 0 && rand() < lapse ? rand() < 0.5 : rand() < pA) ? "A" : "B");
     state.set(aId, a);
     state.set(bId, b);
     timesShown.set(aId, (timesShown.get(aId) ?? 0) + 1);
