@@ -1539,3 +1539,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E101: review 2026-10-27 (reduced pass, twenty-eighth run)
+
+- Change: `review/prompt-2.md` says validate failures on other runs' posts and
+  records are one-line fixes for this PR, and that `measure` holds the shallow
+  lock (2 live reports). Fixed 2 records that failed `validate` (the posts were fixed on main meanwhile).
+- Metric: friction reports naming `prompts/review/prompt-2.md` about validate
+  or the lock; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit, drift report or derive re-run
+  (reduced pass).
+- Result: (next review)
