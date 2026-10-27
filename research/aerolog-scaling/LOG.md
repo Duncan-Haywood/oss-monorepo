@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+
+## 2026-10-27 · Milestone 4a: do airfoil polars keep H2 (power) and H3 (CLmax)? (predictions fixed before the run)
+- Why: milestone 1's flat-plate drag could not say whether H2 survives a real section. XFOIL itself is not installable here; NeuralFoil 0.3.3 (a neural surrogate trained on XFOIL, MIT) is, via AeroSandbox 4.2.10.
+- Plan (`experiments/airfoil_polars/run.py`): NACA 4412 section, Re_mac from the milestone-1 calculator at n = 1 to 0.05, three boundary-layer states (n_crit 9, n_crit 5, trip at 5% chord). Section cd at cl = 0.8 plus induced drag (AR 10, e 0.8) gives the power ratio against n = 1; CLmax from the alpha sweep.
+- **Predictions:** (1) the n = 0.1 power ratio is at least 1.20 in all three states (H2 refuted if under 1.10). (2) CLmax falls by at least 0.2 at n = 0.1 in all three states (H3 refuted if under 0.1). (3) the surrogate is not trustworthy at n = 0.05 (Re 3.4e4).
+
+### Outcome (`experiments/airfoil_polars/results.txt`)
+- Power ratio vs Froude at n = 0.1 (Re_mac 9.7e4): 1.445 (n_crit 9), 1.291 (n_crit 5), 1.361 (tripped). **(1) held**; milestone 1's flat-plate 1.27 sits at the bottom of this range. At n = 0.2 the ratio is 1.11 to 1.19, so the 20% bar is not met there.
+- CLmax change at n = 0.1: -0.37, -0.52, -0.48. **(2) held** (H3 supported for a 2D clean section).
+- **(3) held:** free-transition n_crit 9 at n = 0.05 gives cd 0.137 (ratio 5.3), a separated-bubble regime the other two states do not show (1.8 to 2.0); not used as a result.
+- Not done: no check against UIUC measured polars (hosts 403 or not tried), so the surrogate error is unquantified; NeuralFoil CLmax at Re 3e6 is 1.84, which looks high against the 4412's textbook value (from memory, unchecked). 2D section only: no finite-wing, flap or Reynolds-dependent induced effects; cl = CL strip approximation.
+- Next: UIUC polar check of the surrogate; vortex-lattice model for H1.
+
 ## 2026-10-27 · Milestone 1: how much power does a Froude model need beyond the Froude prediction? (planned before running)
 - Hypothesis: with a flat-plate skin-friction drag model, a Froude-scaled model at n = 0.1 needs more than 20% extra power over `n^3.5 x P_full` (H2), because Re falls as `n^1.5` and Cf rises as Re falls, while all other Froude-scaled quantities match by construction.
 - Plan: `experiments/run.py` scales one 1,000 kg, AR 10 airframe to n = 1 to 0.05 and reports Re, CD0, L/D, the power ratio and the battery fraction for a range scaled with length; sweeps form factor, wetted area and aspect ratio; compares a tripped (turbulent) with an untripped (laminar below Re 5e5) boundary layer. Unit tests check the ISA, Sutherland viscosity, the exponent table's dimensional consistency and the skin-friction formulas.
