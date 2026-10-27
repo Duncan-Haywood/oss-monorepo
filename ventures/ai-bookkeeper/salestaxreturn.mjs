@@ -23,7 +23,7 @@ const pad = (n) => String(n).padStart(2, "0");
 const periodOf = (d, freq, endMonth) => {
   const [y, m] = [Number(d.slice(0, 4)), Number(d.slice(5, 7))];
   if (freq === "monthly") return ym(d);
-  if (freq === "annual") return String(y);
+  if (freq === "annual") return endMonth == null || endMonth === 12 ? String(y) : `${m > endMonth ? y + 1 : y}-${pad(endMonth)}`;
   const len = LEN[freq];
   if (endMonth == null || endMonth === len) return freq === "semiannual" ? `${y}-H${Math.ceil(m / 6)}` : `${y}-Q${Math.ceil(m / 3)}`;
   const steps = (len - ((m - endMonth) % len + len) % len) % len;
@@ -79,13 +79,14 @@ export function stateFilingNote(state, frequency = "quarterly") {
 }
 export function stateEndMonth(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
-  if (s === "NY" && frequency === "quarterly") return 2;
+  if (s === "NY" && (frequency === "quarterly" || frequency === "annual")) return 2;
   if (s === "PA" && frequency === "semiannual") return 1;
   return null;
 }
 export function stateDueDay(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
   // WA (dor.wa.gov "Filing frequencies & due dates", read 2026-10-27): monthly the 25th, quarterly the end of the next month, annual April 15
+  // NY (tax.ny.gov Tax Bulletin ST-... "Filing requirements for sales and use tax returns", read 2026-10-27): annual ST-101 covers Mar 1 to Feb 28/29, due March 20; quarters Mar-May, Jun-Aug, Sep-Nov, Dec-Feb; returns due 20 days after the period (modelled via stateEndMonth)
   if (s === "WA" && frequency === "annual") return { months: 4, day: 15 };
   if (s === "WA" && frequency !== "monthly") return "last";
   if (s === "MA" && frequency !== "monthly") return { after: 30 };
@@ -141,7 +142,11 @@ export function nextBusinessDay(date) {
 }
 // the filing period that ended before the one a payment falls in
 const periodBefore = (d, freq, endMonth) => {
-  if (freq === "annual") return String(Number(d.slice(0, 4)) - 1);
+  if (freq === "annual") {
+    if (endMonth == null || endMonth === 12) return String(Number(d.slice(0, 4)) - 1);
+    const [y, m] = periodEnd(periodOf(d, freq, endMonth));
+    return `${y - 1}-${pad(m)}`;
+  }
   let [y, m] = periodEnd(periodOf(d, freq, endMonth));
   m -= LEN[freq];
   while (m < 1) { m += 12; y -= 1; }
@@ -150,7 +155,7 @@ const periodBefore = (d, freq, endMonth) => {
 
 export function salesTaxReturn(books, { account = "2100", frequency = "quarterly", endMonth = null, dueDay = 20, from = null, to = null, rates = {}, rollover = true, discounts = {}, asOf = null } = {}) {
   if (!["monthly", "quarterly", "semiannual", "annual"].includes(frequency)) throw new Error("frequency must be monthly, quarterly, semiannual or annual");
-  if (endMonth != null && !(Number.isInteger(endMonth) && endMonth >= 1 && endMonth <= (LEN[frequency] ?? 1))) throw new Error("endMonth must be a month within the first period of the year");
+  if (endMonth != null && !(Number.isInteger(endMonth) && endMonth >= 1 && endMonth <= (frequency === "annual" ? 12 : LEN[frequency] ?? 1))) throw new Error("endMonth must be a month within the first period of the year");
   const cells = new Map();
   const cell = (period, j) => {
     const k = `${period}|${j}`;
