@@ -1,7 +1,7 @@
 ---
 title: "A median aggregator shrugs off one sign-flipping worker in sixteen"
 date: 2026-10-27
-description: "In simulated DiLoCo training, the cost of one worker sending -10x its update under a coordinate-wise median fell from 0.095 nats at 4 workers to 0.021 at 8 and 0.002 at 16."
+description: "Under a median aggregator, one worker sending -10x its update cost 0.095 nats at 4 workers, 0.021 at 8 and 0.002 at 16 in simulated DiLoCo training."
 tags: [lowcomm-training, robust-aggregation, diloco, negative-result]
 ---
 
