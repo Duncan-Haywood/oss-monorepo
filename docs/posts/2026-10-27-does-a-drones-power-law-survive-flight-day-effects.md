@@ -1,7 +1,7 @@
 ---
 title: "Does a drone's power-law survive the flight-day effect?"
 date: 2026-10-27
-description: "Froude scaling needs power to grow as mass^1.5. On 134 real delivery-drone flights the exponent is 1.54, and it stays at 1.53 when each flight day gets its own intercept."
+description: "Froude scaling needs power to grow as mass^1.5. On 134 real delivery-drone flights the exponent is 1.54, and 1.53 with a separate intercept for each flight day."
 tags: [drones, scaling, digital-twin, aerolog-scaling]
 ---
 
