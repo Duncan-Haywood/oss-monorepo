@@ -179,7 +179,7 @@ $m\ge1$: a coalition of $\lfloor m/2\rfloor+1$ escapes replication with probabil
 Exhaustive search over 140 cells ($m=1$ to 7) matches the formula to $7\times10^{-10}$. The proposal's $1/m$ law is
 therefore wrong here and belongs to a setting where a briber pays each verifier separately. The flat-in-$m$ result
 follows from the payoff structure (a theorem, confirmed by the search), and the pay bill grows with $m$, so against a
-coordinating coalition replication is dominated by $m=1$ plus the audit.
+coordinating coalition replication is dominated by $m=1$ plus the audit. \emph{Side payments.} With heterogeneous savings $g_i$ the least stake is $\max(0,\bar g/p-1)$ with $\bar g$ the $k$-th largest saving ($k=\lfloor m/2\rfloor+1$) when every member must gain, and the mean of the $k$ largest savings when members can split gains. Exhaustive search over 1,080 instances ($g_i\sim U(0,1)$, $p=0.1$, $m\le7$) matches both forms to $9\times10^{-10}$; the transferable-utility stake is never lower and is strictly higher in 816 of 816 instances where the top $k$ savings differ. Means at $m=3/5/7$ are $3.7/4.0/4.0$ (no transfers) and $5.1/5.6/5.8$ (transfers), against $1.3/0.8/0.6$ for a $1/m$ law; neither falls with $m$ (closed forms to $m=51$: about $4.0$ and $6.4$). Savings are drawn, not measured, and transfers are costless.
 \section{Negative results (H6)}\label{sec:neg}
 Two predictors that see only the honest runs: (A) the first-order descent forgone by skipped steps, and (B) the loss of an
 honest worker trained for the shortened number of steps. Both miss: only 2 of 9 tolerances have degradation above one seed
