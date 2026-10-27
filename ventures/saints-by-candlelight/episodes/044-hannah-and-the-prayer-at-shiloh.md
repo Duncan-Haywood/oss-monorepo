@@ -1,5 +1,5 @@
 ---
-number: 43
+number: 44
 slug: hannah-and-the-prayer-at-shiloh
 title: Hannah and the Prayer at Shiloh
 published: 2026-10-27

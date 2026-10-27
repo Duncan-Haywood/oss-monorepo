@@ -1516,3 +1516,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E99: review 2026-10-27 (reduced pass, twenty-sixth run)
+
+- Change: `prompts/explore/prompt-0.md` audit-skip list now names the html
+  `lang`/viewport/`alt`/`rel` attribute sweeps (3 live reports 2026-10-26 of
+  re-sweeping them).
+- Metric: friction reports naming `prompts/explore/prompt-0.md` about re-sweeps;
+  compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit, drift report or derive re-run
+  (reduced pass).
+- Result: (next review)
