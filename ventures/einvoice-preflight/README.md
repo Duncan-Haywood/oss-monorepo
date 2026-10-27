@@ -622,6 +622,10 @@ The OpenPEPPOL `peppol-bis-invoice-3` examples (9 UBL files), the ZUGFeRD commun
 
 After: the 9 Peppol examples draw only placeholder-data findings (fake VAT ids, IBANs, GLNs; INV-034 where the example credit note names itself "Snippet1"); XRechnung corpus 8 of 51 clean (INV-032, 048, 028 gone); the rest are placeholders (INV-023 34 files), 7 files whose line net is not quantity times price (true, e.g. 20 x 2.77 stated as 55.46) and style notes. A negative invoice is not valid in every country's rules; this tool only stops calling it arithmetic nonsense.
 
+## Measured on the Ministry's own FA(3) templates (2026-10-27)
+
+`node eval/ksef-official-templates.mjs <clones> <schemy/FA>` reads the FA(3) sample invoices that the Polish Ministry of Finance and CIRF ship in `ksef-client-csharp`, `ksef-client-java` and `ksef-pdf-generator` (MIT; read from a checkout, not copied here), fills their `#placeholders#` (NIP, number, date, internal ids) with valid values, and compares the schema gate with xmllint on the real XSD. **14 distinct files; the verdict agrees with xmllint on all 14; 12 draw no finding at all** (so no false positive from `PL-001`..`PL-011` on files KSeF's own tooling emits, including the attachment, self-invoicing and third-party-subject variants). The other two (`...custom-subject_3` with a `Nazwa` where `IDWew` belongs, `...multiple-Subject3` with `IDWew` before `Nazwa`) are rejected by xmllint too: they are element-order faults in the Ministry's templates, which we report as `PL-013`. Limits: these are templates, not invoices a business issued; the rate and total branches they exercise are the plain-VAT ones, so the correction and advance branches remain unmeasured on real files.
+
 ## Measured on the ZUGFeRD corpus PDFs (2026-10-29)
 
 `node eval/facturx-corpus.mjs <ZUGFeRD/corpus checkout>` unwraps every PDF in the corpus with `facturx.mjs` and runs the built-in rules on the embedded XML (the files are read, not copied). Before: of 126 PDFs in the corpus's `correct` folders, **only 40 unwrapped** and 5 were clean. Three faults, all ours:
