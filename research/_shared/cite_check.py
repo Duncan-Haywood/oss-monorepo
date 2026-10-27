@@ -4,7 +4,7 @@
     python3 research/_shared/cite_check.py research/<slug>/README.md [more files]
     python3 research/_shared/cite_check.py --offline README.md   # list ids only
 
-Each identifier is looked up (Crossref for DOIs, the arXiv API for arXiv ids)
+Each identifier is looked up (Crossref for DOIs, DataCite when Crossref has no such DOI, the arXiv API for arXiv ids)
 and printed with the title and year the registry holds, so you can compare it
 with what the README claims the source says. A lookup that fails exits 1:
 the id is mistyped or invented. A host that refuses the lookup (403, 429, 5xx,
@@ -38,8 +38,19 @@ def _get(url):
         return r.read().decode("utf-8", "replace")
 
 
+def lookup_datacite(doi):
+    """DataCite registers datasets and Figshare/Zenodo DOIs that Crossref answers 404 for."""
+    a = json.loads(_get("https://api.datacite.org/dois/" + urllib.parse.quote(doi)))["data"]["attributes"]
+    return f"{((a.get('titles') or [{}])[0]).get('title', '?')} ({a.get('publicationYear')})"
+
+
 def lookup_doi(doi):
-    data = json.loads(_get("https://api.crossref.org/works/" + urllib.parse.quote(doi)))["message"]
+    try:
+        data = json.loads(_get("https://api.crossref.org/works/" + urllib.parse.quote(doi)))["message"]
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            raise
+        return lookup_datacite(doi)  # still 404 there means no such DOI
     year = ((data.get("issued") or {}).get("date-parts") or [[None]])[0][0]
     return f"{(data.get('title') or ['?'])[0]} ({year})"
 
