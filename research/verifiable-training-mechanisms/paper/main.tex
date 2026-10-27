@@ -164,7 +164,16 @@ vacuous (1.0 against an LP cost of 5.76).
 \emph{Agreement.} With two workers and one shared cheap trajectory, adding an agreement term to pay never raises the
 cheapest contract (a refinement) and lowers it in 1,191 of 4,000 random instances; once copying equilibria are excluded,
 it lowers it in 451 instances but in 0 of 1,349 with perfect copying ($\kappa=1$), where it is worth nothing beyond the
-audit. \emph{Collusion.} With $m$ workers, majority-output acceptance and one independent audit per job (catch
+audit. \emph{Measured agreement on a transformer.} Along the honest trajectory of the transformer run (10 seeds), two
+honest workers never disagree at any tolerance ($\delta=0.000$ at $\tau=10^{-3}$ to $10^{-1}$). A cheat built from an
+independent quarter batch agrees with the honest gradient with probability $\alpha=0.038/0.122/0.216/0.429$ at
+$\tau=10^{-3}/10^{-2}/3\cdot10^{-2}/10^{-1}$, and two independent quarter-batch cheats agree with each other with
+$\kappa=0.032/0.102/0.185/0.350$; the seed ranges of $\alpha$ and $\kappa$ do not overlap. A peer contract can use only
+the gap $\alpha-\kappa$ (at most $0.079$ here), because an honest worker facing a cheating peer also disagrees with
+probability $1-\alpha$. Priced with the measured triple, it is cheaper than audit-only in 2 of the 16 cells ($\tau$, $p\in\{0.1,0.3\}$, $S\in\{0,1\}$) for the independent
+quarter-batch cheat, both at $\tau=10^{-1}$ with $p=0.1$ (a saving of 0.12 to 0.14 on a cost of 6.5 to 7.5), and in
+none of the 16 cells for a shared-quarter cheat or for the stale cheat. The contract parameters $g$, $p$
+and $S$ are chosen, not measured. \emph{Collusion.} With $m$ workers, majority-output acceptance and one independent audit per job (catch
 probability $p$, gain $g$), the least stake making all-honest a strong equilibrium is $S^{*}=\max(0,g/p-1)$ for every
 $m\ge1$: a coalition of $\lfloor m/2\rfloor+1$ escapes replication with probability one and faces only the audit.
 Exhaustive search over 140 cells ($m=1$ to 7) matches the formula to $7\times10^{-10}$. The proposal's $1/m$ law is
