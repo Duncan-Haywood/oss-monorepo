@@ -1,7 +1,7 @@
 ---
 title: "Does scanning for autocorrelation help find real level shifts? We measured: no"
-date: 2026-10-28
-description: "A negative result from the changepoint-detector: fitting the autocorrelation at every value from 0 to 0.9 did not beat the existing joint fit, and raised false alarms."
+date: 2026-10-27
+description: "A negative result: fitting autocorrelation at every value from 0 to 0.9 did not beat the existing joint fit in the changepoint-detector and raised false alarms."
 tags: [statistics, changepoint-detector, negative-result]
 ---
 
