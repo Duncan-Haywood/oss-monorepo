@@ -739,8 +739,24 @@ clusters) raise the penalty. `eval/poisson-block-bootstrap.mjs` (seeded, 100 ser
 | 0.2 | 89% | 11% | 83% / 73% |
 | 0.4 | 100% | 74% | 86% / 63% |
 
-Synthetic only, and at sd 0.4 it still raises 74% false alarms; a real clumpy count series is still wanted. Not tested with
-`--trend` or holidays. Test: `meanvar-bootstrap.test.mjs`.
+Synthetic only, and at sd 0.4 it still raises 74% false alarms; a real clumpy count series is still wanted. Holidays are
+still untested. Test: `meanvar-bootstrap.test.mjs`.
+
+**Combined with `--trend`, a weekly season or `nb` (2026-10-28).** `eval/poisson-bootstrap-options.mjs` (n = 210, steady
+growth 0.3% a day and/or a weekly season with two days at x0.6, same clustering and detection step at 105; output in
+`eval/poisson-bootstrap-options.out.txt`). False alarms plain / `--bootstrap`:
+
+| options | sd 0 | sd 0.2 | sd 0.4 |
+|---|---|---|---|
+| weekly season (`--period 7`) | 8% / 3% | 81% / 8% | 100% / 73% |
+| `--trend` | 6% / 6% | 94% / 59% | 100% / 96% |
+| `--trend` + season | 11% / 9% | 87% / 42% | 100% / 92% |
+| `--trend` + `--overdispersion nb` | 4% / 4% | 88% / 52% | 100% / 97% |
+
+The season alone behaves like the plain case. With `--trend` the bootstrap barely helps (59% false alarms at sd 0.2 against
+8% with the season alone) and detection falls from 82% to 57%, so on clustered counts with a growth term the
+penalty is not trustworthy yet. Cause not established (guess: the growth term is fitted before the pilot, so the pilot's
+residuals already absorb some clustering). Synthetic only.
 
 ## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
 

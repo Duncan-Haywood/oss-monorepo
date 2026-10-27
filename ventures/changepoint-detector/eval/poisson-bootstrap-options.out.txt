@@ -1,0 +1,13 @@
+counts, n=210 | false alarms plain / bootstrap | detection (x1.5 at 105) plain / bootstrap
+sd 0 trend | 6% / 6% | 97% / 91%
+sd 0 weekly season | 8% / 3% | 98% / 98%
+sd 0 trend + season | 11% / 9% | 92% / 86%
+sd 0 trend + nb | 4% / 4% | 96% / 90%
+sd 0.2 trend | 94% / 59% | 82% / 57%
+sd 0.2 weekly season | 81% / 8% | 85% / 78%
+sd 0.2 trend + season | 87% / 42% | 73% / 38%
+sd 0.2 trend + nb | 88% / 52% | 83% / 56%
+sd 0.4 trend | 100% / 96% | 92% / 56%
+sd 0.4 weekly season | 100% / 73% | 79% / 41%
+sd 0.4 trend + season | 100% / 92% | 84% / 47%
+sd 0.4 trend + nb | 100% / 97% | 81% / 56%
