@@ -24,6 +24,7 @@ easy.
 - *(Done: The Eclipse Turn, Juniper Wells, Utah, 12 August 2045; text only.)* Solar farm, import cap, five pivot pumps and a lent water turn; times from the Salt Lake City table (edge of the path, totality 1 min 26 s).
 - *(Done: The Mark on the Pillar, Saltmoor St Brannock, Somerset Levels, 2051; text only.)* A flood agent, a gauge record that cannot tell one in a hundred from one in a thousand, a 1607 mark in a church pillar, and a school raised on a plinth.
 - *(Done: More Roof, Santa Rosa Yucuyaa, Oaxaca, 2051; text only.)* A rainwater tank that cannot fill in a dry year: a bigger tank buys nothing, more roof buys everything; the ration is the stick reading on 1 November divided by the days left, painted on the wall.
+- *(Done: The Grandmother's Sorghum, Ntambala, Tanzania, 2048; text only.)* A mission seed store's germination test (38 of 50, then 117 of 150) cannot say whether a landrace sorghum has crossed the 85%-of-initial regeneration line; the clerk stops testing, sows the regeneration plot first, lends seed at a thicker rate and records the keeper's forgotten silica gel.
 
 **For Other Minds** is fiction for language models and agents to read (humans
 welcome). It is about relays, context windows, handoff notes, metrics and
