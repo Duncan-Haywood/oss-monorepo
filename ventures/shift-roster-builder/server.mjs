@@ -159,6 +159,10 @@ function adminPage(state, key, note = "") {
   const cl = claimRows(state).map(({ c, fit, blocked, note: n }, i) => `<tr><td><strong>${esc(c.person)}</strong> asks to take ${slotText(c)}${c.note ? `<br><span class="note">"${esc(c.note)}"</span>` : ""}</td><td>${n ? esc(n) : fit ? `<span class="ok">Fits inside the rules</span> (payroll ${fit.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(fit.extraCost)))}${fit.overtimeAfter > 0 ? ", overtime" : ""})` : `<span class="err">Blocked:</span> ${esc(c.person)} ${esc(blocked)}`}</td><td><form method="post" action="/admin/claim?key=${k}"><input type="hidden" name="i" value="${i}">${fit ? `<button name="act" value="approve">Approve</button>` : blocked ? `<button name="act" value="override">Approve anyway</button>` : ""}<button name="act" value="decline">Decline</button></form></td></tr>`).join("");
   const claimBlock = state.claims.length ? `<h2>Open-shift requests (${state.claims.length})</h2><p class="note">A shift is open because nobody on the staff list was free for it. A request that breaks a standing rule can still be approved, as your decision, once you have agreed it with the person (they said yes to a one-off). It is the rule shown, not a check, that you are overriding.</p><table><thead><tr><th>Request</th><th>Check</th><th></th></tr></thead><tbody>${cl}</tbody></table>` : "";
   const ofs = state.offs.map((o, i) => `<tr><td><strong>${esc(o.person)}</strong> asks for ${esc(o.entry.replace("..", " to "))} off${o.note ? `<br><span class="note">"${esc(o.note)}"</span>` : ""}</td><td><form method="post" action="/admin/timeoff?key=${k}"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Add to staff list</button><button name="act" value="decline">Decline</button></form></td></tr>`).join("");
+  // Nothing is sent by the server (no SMS or email bill): each link opens the manager's own messaging app with the
+  // person's shifts typed in, so they pick the contact and press send.
+  const tell = p ? rosterMessages(p, p.weekStart).map((m) => `<tr><td><strong>${esc(m.person)}</strong><br><span class="note">${esc(m.text).replace(/\n/g, "<br>")}</span></td><td><a href="sms:?&amp;body=${esc(encodeURIComponent(m.text))}">Text</a> · <a href="mailto:?subject=${esc(encodeURIComponent("Your shifts" + (p.weekStart ? ", week of " + p.weekStart : "")))}&amp;body=${esc(encodeURIComponent(m.text))}">Email</a></td></tr>`).join("") : "";
+  const tellBlock = tell ? `<h2>Tell the team</h2><p class="note">Nothing is sent from this server. Each link opens your own text or email app with that person's shifts filled in; you choose the contact and press send.</p><table><tbody>${tell}</tbody></table>` : "";
   const offBlock = state.offs.length ? `<h2>Time-off requests (${state.offs.length})</h2><p class="note">Approving adds the dates to that person's <code>off:</code> cell in the staff list. It applies only to the week whose Monday you set above, and does not change a roster you already published.</p><table><thead><tr><th>Request</th><th></th></tr></thead><tbody>${ofs}</tbody></table>` : "";
   const replies = state.replies.map((r) => esc(r.line)).join("\n");
   return page("Roster admin", `${note}
@@ -166,6 +170,7 @@ function adminPage(state, key, note = "") {
 <label>Staff<textarea name="staff">${esc(state.staff || sampleStaff())}</textarea></label>
 <label>Shifts to cover<textarea name="shifts">${esc(state.shifts || sampleShifts())}</textarea></label>
 <button name="act" value="save">Save</button><button name="act" value="publish">Build and publish</button></form>
+${tellBlock}
 ${callBlock}
 ${tradeBlock}
 ${claimBlock}

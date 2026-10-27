@@ -236,3 +236,16 @@ test("staff page installs as an app and works offline; assets need the team toke
   assert.equal((await fetch(s.base + "/team/icon.svg?t=tm")).headers.get("content-type"), "image/svg+xml");
   s.close();
 });
+
+test("admin lists a text and email link per person with their shifts, and nothing is sent", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, any\nBen, 19.43, 40, 0, any";
+  assert.doesNotMatch(await (await fetch(s.base + "/admin?key=adm")).text(), /Tell the team/);
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon-Fri, 9, 17, 1, day" });
+  const admin = await (await fetch(s.base + "/admin?key=adm")).text();
+  assert.match(admin, /Tell the team/);
+  assert.equal((admin.match(/href="sms:\?&amp;body=Hi%20/g) || []).length, 2);
+  assert.equal((admin.match(/href="mailto:\?subject=Your%20shifts%2C%20week%20of%202026-10-19&amp;body=Hi%20/g) || []).length, 2);
+  assert.match(admin, /Hi%20Ana%2C%20your%20shifts%20this%20week/);
+  s.close();
+});
