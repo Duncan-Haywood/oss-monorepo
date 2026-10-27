@@ -1,7 +1,7 @@
 ---
 title: "How often does the changepoint detector's drift note cry wolf?"
 date: 2026-10-28
-description: "Measured on 1,600 simulated seasonal series: the drifting-season note appears on 2% to 3.5% of series with no change, but on 11.5% of monthly series with two real steps."
+description: "On 1,600 simulated seasonal series the drift note fires on 2-3.5% with no change, but on 11.5% of monthly series with two real steps."
 tags: [changepoint-detector, statistics, measurement]
 ---
 
