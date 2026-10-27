@@ -1,0 +1,20 @@
+== brute force vs closed form, S = TU stake of milestone 33: 440 instances, g_i ~ U(0,1), p=0.1, q=0.02; max |difference| = 5.17e-10
+== bond infinite at 0.9 x stake (workers alone deviate): 432 of 432 instances
+== q = p: bond above 1e-6 in 0 of 440 instances
+== bond at 3 x stake not below bond at the stake: 0 of 432 instances with positive bond and positive stake
+== mean bond B* by brute force (S = TU stake of each m)
+m    mean B*
+1    20.601
+2    39.336
+3    57.802
+4    80.222
+5    91.004
+6    99.382
+== closed form, 100 draws per m, S = TU stake, mean B*
+1    17.39  [0.00, 38.30] (2.5/97.5 percentiles over draws)
+3    53.61  [19.95, 89.23] (2.5/97.5 percentiles over draws)
+7    133.32  [79.16, 196.60] (2.5/97.5 percentiles over draws)
+11   201.26  [133.91, 278.27] (2.5/97.5 percentiles over draws)
+21   380.81  [308.15, 473.32] (2.5/97.5 percentiles over draws)
+51   922.52  [776.06, 1079.94] (2.5/97.5 percentiles over draws)
+== ratio of mean B* at m=7 to m=1 (closed form): 7.67 (refutation bar: under 1.5)
