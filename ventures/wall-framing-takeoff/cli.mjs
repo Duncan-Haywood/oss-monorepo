@@ -11,6 +11,7 @@ import { layoutInsulation, insulationText } from "./insulation.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
+import { drawingSetPdf } from "./pdf.mjs";
 import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
 import { budget, budgetText } from "./budget.mjs";
 import { schedule, scheduleText } from "./schedule.mjs";
@@ -40,6 +41,7 @@ Usage:
   node cli.mjs plan.json --budget    price the quantities with the plan's own "prices" (sheets, bundles, concrete, rebar...); lumber uses the stock prices; anything without a price is listed, not guessed
   node cli.mjs plan.json --schedule  critical path, crew levelling and slip effects from the plan's own schedule object (activities, durations, predecessors, crews)
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
+  node cli.mjs plan.json --pdf > walls.pdf   the same shop drawings as a PDF file (no browser; add --panel-max=12ft for panel cut lines)
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
   node cli.mjs house.ifc          the same from an IFC file (IfcWall axis lines, IfcDoor/IfcWindow; hand-written fixtures only so far)
   node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
@@ -159,6 +161,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     const po = panelOrder(r, plan, panelMax, r.sheathing ? nailerCuts(r.sheathing) : []);
     return { code: 0, out: flags.has("--json") ? JSON.stringify(po, null, 2) : [...panelOrderText(po), ...(flags.has("--pull-lists") ? ["", ...panelPullText(po)] : [])].join("\n") };
   }
+  if (flags.has("--pdf")) return { code: 0, out: "", bytes: drawingSetPdf(r, plan, { panelMax }) };
   if (flags.has("--drawings") || panelMax > 0) return { code: 0, out: drawingSetHtml(r, plan, { panelMax, sheathPsf }).trimEnd() };
   if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(plan.schedule), null, 2) };
   if (flags.has("--budget") && flags.has("--json")) return { code: 0, out: JSON.stringify(budget(r, plan.prices || {}), null, 2) };
@@ -197,7 +200,8 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { code, out } = main(process.argv.slice(2));
-  (code ? process.stderr : process.stdout).write(out + "\n");
+  const { code, out, bytes } = main(process.argv.slice(2));
+  if (bytes) process.stdout.write(bytes);
+  else (code ? process.stderr : process.stdout).write(out + "\n");
   process.exitCode = code;
 }
