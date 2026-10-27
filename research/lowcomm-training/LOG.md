@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 5d: at M = 8, does one sign-flip attacker still cost the median, and does a trimmed mean do better? (planned before running)
+- Why: 5b/5c's open items. At M = 4 the median is the mean of the two middle values, so a flipped attacker shifts it by an honest order-statistic gap (+0.095 nats). With M = 8 the honest 7 are spread over more order statistics, so the attacker's displacement of the median should be smaller. A trimmed mean (drop the lowest and highest value per coordinate, new `aggregate="trimmed"`; at M = 4 it equals the median, so it is only informative from M = 8) keeps more honest data (6 of 8 values).
+- Design (`experiments/gpt_trimmed_m8/trimmed_m8.py`): 5c setup (3d model, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, seeds 0 to 2) with M = 8 workers. Arms: mean without attack (baseline), median without attack, median and trimmed mean with worker 0 sending -10x its delta. 12 runs.
+- **H5d-i:** median under the flip costs less at M = 8 than the +0.095 at M = 4: mean excess over the M = 8 mean baseline below 0.06. Refuted otherwise.
+- **H5d-ii:** the trimmed mean under the flip is within 0.02 nats of the median under the flip (mean over seeds), i.e. keeping more honest values buys little at this scale. Refuted if they differ by more than 0.02.
+- **H5d-iii:** median without attack is within 0.02 nats of the mean (5a saw +0.003 at M = 4). Refuted otherwise.
+- Prior: i 60%, ii 55%, iii 70%.
+- Limits known in advance: 3 seeds; one attacker of eight; the M = 8 baseline is a new run (not the 3d M = 4 runs), since M changes the effective batch.
+
 ## 2026-10-26 · Milestone 5c: is the median's +0.095 under sign-flip due to the flipped sign, or to any extreme attacker? (planned before running)
 - Why: 5b's "Next" items (M = 8, trimmed mean) are bigger; first a cheap test of 5b's untested mechanism. At M = 4 the median is the mean of the two middle values. A flipped (negative) attacker sits below the honest values on most coordinates, so the median is the mean of the honest 1st and 2nd order statistics, below the honest median: a systematic shrink. An attacker sending +10x its delta sits above, so the median is the mean of the honest 2nd and 3rd: a systematic stretch. A zero-sending attacker sits near the middle of the honest values.
 - Design (`experiments/gpt_median_mechanism/median_mechanism.py`): 5b exactly (3d model, M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, seeds 0 to 2), median aggregation, worker 0 sends 10x or 0x its delta. 6 runs, about 12 minutes each.

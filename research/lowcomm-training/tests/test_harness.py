@@ -188,6 +188,20 @@ def test_median_aggregate_and_attack():
     ds = torch.tensor([[1.0], [2.0], [10.0], [100.0]])
     assert float(ds.sort(0).values[1:3].mean(0)) == 6.0
 
+def test_trimmed_aggregate():
+    import torch
+    from lowcomm import DiLoCo
+    f = lambda m, rng: ((m(torch.randn(4, 3, generator=rng)) - 1) ** 2).mean()
+    sgd = lambda p: torch.optim.SGD(p, lr=1.0)
+    res = {}
+    for agg, atk in (("mean", None), ("trimmed", None), ("trimmed", lambda d, j: d + 1e3 if j == 0 else d)):
+        torch.manual_seed(0)
+        m = torch.nn.Linear(3, 1)
+        DiLoCo(m, f, workers=5, H=3, outer=sgd, seed=1, aggregate=agg, attack=atk).round()
+        res[(agg, atk is not None)] = torch.cat([p.detach().flatten() for p in m.parameters()])
+    assert not torch.allclose(res[("mean", False)], res[("trimmed", False)], atol=1e-7)  # it drops two values
+    assert (res[("trimmed", True)] - res[("trimmed", False)]).abs().max() < 5  # a huge offset is trimmed away
+
 def test_quantize_unbiased_and_sign():
     import torch
     from lowcomm import quantize
