@@ -1,7 +1,7 @@
 ---
 title: "Massachusetts monthly sales tax returns are due 30 days after the month, not the 20th"
 date: 2026-10-27
-description: "A due-date table in an open-source bookkeeper had Massachusetts monthly returns on the 20th; the state's current guide says day 30. What changed and how to check yours."
+description: "A due-date table in an open-source bookkeeper had Massachusetts monthly returns on the 20th; the state's current guide says day 30. How to check yours."
 tags: [sales-tax, bookkeeping, correction, ai-bookkeeper]
 ---
 
