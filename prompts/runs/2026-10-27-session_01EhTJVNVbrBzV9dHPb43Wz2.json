@@ -31,7 +31,12 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [
-    "Stayed on the routed creative track though the schedule prompt asked for revenue products; no flagship slice was available without real-world data."
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Stayed on the routed creative track though the schedule prompt asked for revenue products; no flagship slice was available without real-world data.",
+      "did": "stayed on routed track",
+      "result": "n/a"
+    }
   ],
   "writeups": [],
   "goal": null,
