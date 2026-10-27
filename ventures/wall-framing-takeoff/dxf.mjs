@@ -36,12 +36,48 @@ export function parseDxf(text) {
   const segs = [];
   /** closed four-point polylines, kept whole so a wall drawn as a rectangle can be read as one */
   const polys = [];
-  let inserts = 0, arcs = 0, inEntities = false;
+  let inserts = 0, arcs = 0, inEntities = false, inBlocks = false;
+  /** block name -> bounding box of its LINE, LWPOLYLINE, ARC and CIRCLE entities, relative to the block's base point */
+  const blocks = {};
+  /** @type {{ name: string, layer: string, x: number, y: number, sx: number, sy: number, rot: number }[]} */
+  const insertList = [];
+  let curBlock = null;
   let i = 0;
   while (i < pairs.length) {
     const [c, v] = pairs[i];
     if (c === 2 && v === "ENTITIES") inEntities = true;
-    if (c === 0 && v === "ENDSEC") inEntities = false;
+    if (c === 2 && v === "BLOCKS") inBlocks = true;
+    if (c === 0 && v === "ENDSEC") { inEntities = false; inBlocks = false; }
+    if (inBlocks && c === 0) {
+      let j = i + 1;
+      while (j < pairs.length && pairs[j][0] !== 0) j++;
+      const body = pairs.slice(i + 1, j);
+      const get = (code) => body.find((p) => p[0] === code)?.[1];
+      if (v === "BLOCK") curBlock = { name: get(2) ?? "", bx: parseFloat(get(10) ?? "0") || 0, by: parseFloat(get(20) ?? "0") || 0, box: null };
+      else if (v === "ENDBLK") { if (curBlock?.box) blocks[curBlock.name] = curBlock.box; curBlock = null; }
+      else if (curBlock) {
+        const pts = [];
+        const n = (code) => parseFloat(get(code) ?? "NaN");
+        if (v === "LINE") pts.push({ x: n(10), y: n(20) }, { x: n(11), y: n(21) });
+        else if (v === "LWPOLYLINE") { for (let k = 0; k < body.length; k++) if (body[k][0] === 10) pts.push({ x: parseFloat(body[k][1]), y: parseFloat(body.slice(k + 1).find((p) => p[0] === 20)?.[1] ?? "NaN") }); }
+        else if (v === "CIRCLE") { const r = n(40); pts.push({ x: n(10) - r, y: n(20) - r }, { x: n(10) + r, y: n(20) + r }); }
+        else if (v === "ARC") {
+          const cx = n(10), cy = n(20), r = n(40), a0 = n(50), a1 = n(51);
+          const rad = (d) => d * Math.PI / 180;
+          pts.push({ x: cx + r * Math.cos(rad(a0)), y: cy + r * Math.sin(rad(a0)) }, { x: cx + r * Math.cos(rad(a1)), y: cy + r * Math.sin(rad(a1)) });
+          // quadrant extremes inside the sweep (counter-clockwise from a0 to a1)
+          for (const q of [0, 90, 180, 270]) if (((q - a0) % 360 + 360) % 360 <= ((a1 - a0) % 360 + 360) % 360) pts.push({ x: cx + r * Math.cos(rad(q)), y: cy + r * Math.sin(rad(q)) });
+        }
+        for (const p of pts) {
+          if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) continue;
+          const x = p.x - curBlock.bx, y = p.y - curBlock.by;
+          const b = curBlock.box ??= { minx: x, miny: y, maxx: x, maxy: y };
+          b.minx = Math.min(b.minx, x); b.maxx = Math.max(b.maxx, x); b.miny = Math.min(b.miny, y); b.maxy = Math.max(b.maxy, y);
+        }
+      }
+      i = j;
+      continue;
+    }
     if (!(inEntities && c === 0)) { i++; continue; }
     // gather this entity's group codes up to the next code-0 pair
     let j = i + 1;
@@ -71,11 +107,62 @@ export function parseDxf(text) {
       }
       polySegs(segs, polys, layer, pts, closed);
       j = k;
-    } else if (v === "INSERT") inserts++;
+    } else if (v === "INSERT") {
+      inserts++;
+      const n = (code, d) => { const f = parseFloat(get(code) ?? ""); return Number.isFinite(f) ? f : d; };
+      insertList.push({ name: get(2) ?? "", layer, x: n(10, NaN), y: n(20, NaN), sx: n(41, 1), sy: n(42, n(41, 1)), rot: n(50, 0) });
+    }
     else if (v === "ARC" || v === "CIRCLE") arcs++;
     i = j;
   }
-  return { segs, polys, insunits, inserts, arcs, binary: false };
+  return { segs, polys, insunits, inserts, arcs, binary: false, blocks, insertList };
+}
+
+/**
+ * Door and window block symbols (INSERTs) as openings on the walls. A block's
+ * bounding box (its lines, polylines, arcs) is scaled, turned and moved to the
+ * insertion point; the wall it sits on is the one the box touches within
+ * `reach` inches, and the opening's width is the box's extent along that wall
+ * (a door's swing arc makes the box square, and its width is still the leaf).
+ * The kind comes from the layer or the block name matching the door or window
+ * pattern; any other block (a toilet, a stair) is skipped.
+ * @param {ReturnType<typeof parseDxf>["insertList"]} inserts
+ * @param {ReturnType<typeof parseDxf>["blocks"]} blocks
+ * @param {number} scale drawing units to inches
+ * @param {{ a: Pt, b: Pt }[]} walls inches
+ * @returns {{ ops: { a: Pt, b: Pt, kind: string, name: string }[], skipped: number, noWall: number }}
+ */
+export function insertOpenings(inserts, blocks, scale, walls, doorLayer, windowLayer, reach = 8) {
+  const ops = [];
+  let skipped = 0, noWall = 0;
+  for (const ins of inserts) {
+    const box = blocks[ins.name];
+    const isDoor = doorLayer.test(ins.layer) || doorLayer.test(ins.name);
+    const isWin = windowLayer.test(ins.layer) || windowLayer.test(ins.name);
+    if (!box || !(isDoor || isWin) || !Number.isFinite(ins.x) || !Number.isFinite(ins.y)) { skipped++; continue; }
+    const rad = ins.rot * Math.PI / 180, co = Math.cos(rad), si = Math.sin(rad);
+    const corners = [[box.minx, box.miny], [box.maxx, box.miny], [box.maxx, box.maxy], [box.minx, box.maxy]].map(([x, y]) => {
+      const u = x * ins.sx, v = y * ins.sy;
+      return { x: (ins.x + u * co - v * si) * scale, y: (ins.y + u * si + v * co) * scale };
+    });
+    let best = null;
+    for (const W of walls) {
+      const L = dist(W.a, W.b);
+      if (L < 1) continue;
+      const ux = (W.b.x - W.a.x) / L, uy = (W.b.y - W.a.y) / L;
+      const perp = corners.map((q) => (q.x - W.a.x) * -uy + (q.y - W.a.y) * ux);
+      const along = corners.map((q) => (q.x - W.a.x) * ux + (q.y - W.a.y) * uy);
+      const near = perp.every((d) => d > 0) ? Math.min(...perp) : perp.every((d) => d < 0) ? -Math.max(...perp) : 0;
+      const lo = Math.max(0, Math.min(...along)), hi = Math.min(L, Math.max(...along));
+      if (near > reach || hi - lo < 6) continue;
+      // prefer the wall the box touches most closely, then the longer overlap
+      if (!best || near < best.near - 0.01 || (Math.abs(near - best.near) <= 0.01 && hi - lo > best.hi - best.lo)) best = { W, ux, uy, near, lo, hi };
+    }
+    if (!best) { noWall++; continue; }
+    const { W, ux, uy, lo, hi } = best;
+    ops.push({ a: { x: W.a.x + ux * lo, y: W.a.y + uy * lo }, b: { x: W.a.x + ux * hi, y: W.a.y + uy * hi }, kind: isDoor && !(isWin && !doorLayer.test(ins.layer) && !doorLayer.test(ins.name)) ? "door" : "window", name: ins.name });
+  }
+  return { ops, skipped, noWall };
 }
 
 function polySegs(out, polys, layer, pts, closed) {
@@ -374,7 +461,6 @@ export function planFromDxf(text, opt = {}) {
     const layers = [...new Set(all.map((s) => s.layer))];
     return { ok: false, errors: [`No lines on a layer matching ${wallLayer}. Layers with lines: ${layers.join(", ") || "none"}.`], notes };
   }
-  if (parsed.inserts) notes.push(`${parsed.inserts} block INSERT${parsed.inserts === 1 ? "" : "s"} (door or window symbols) skipped: mark openings as lines on a door or window layer.`);
   if (parsed.arcs) notes.push(`${parsed.arcs} arc or circle entit${parsed.arcs === 1 ? "y" : "ies"} skipped (door swings and curved walls are not read).`);
 
   let centreSegs = wallSegs, snapW = snap;
@@ -507,6 +593,18 @@ export function planFromDxf(text, opt = {}) {
   const unplaced = [];
   const bar = barLines.filter((s) => !usedBar.has(s));
   const op = [...mergeCollinear(bar.map((s) => ({ ...s })), 0.5 * Math.PI / 180, snap, 0.5), ...bridgeOps];
+  if (parsed.inserts) {
+    const ins = insertOpenings(parsed.insertList, parsed.blocks, scale, walls, doorLayer, windowLayer);
+    // a symbol over an opening a line already marks is the same opening
+    const fresh = ins.ops.filter((q) => !op.some((o) => Math.hypot((o.a.x + o.b.x - q.a.x - q.b.x) / 2, (o.a.y + o.b.y - q.a.y - q.b.y) / 2) < 0.5 * Math.max(dist(o.a, o.b), dist(q.a, q.b))));
+    op.push(...fresh);
+    const bits = [];
+    if (fresh.length) bits.push(`${fresh.length} read as opening${fresh.length === 1 ? "" : "s"} (width = the symbol's extent along the wall)`);
+    if (ins.ops.length > fresh.length) bits.push(`${ins.ops.length - fresh.length} already marked by a line`);
+    if (ins.noWall) bits.push(`${ins.noWall} door or window symbol${ins.noWall === 1 ? "" : "s"} not on any wall`);
+    if (ins.skipped) bits.push(`${ins.skipped} other block${ins.skipped === 1 ? "" : "s"} (not named or layered door or window, or no definition) skipped`);
+    notes.push(`${parsed.inserts} block INSERT${parsed.inserts === 1 ? "" : "s"}: ${bits.join("; ")}. Check each width against the schedule: a block's box can include trim or a swing.`);
+  }
   for (const s of bar) s.layer; // layers kept per original segment below
   const kindOf = (mid) => {
     let best = null;
