@@ -12,7 +12,7 @@ file, type). `ACCEPTED` holds the ones reviewed and kept, with the reason; an
 accepted entry that stops matching is reported too, so the list cannot rot.
 
 Measured 2026-10-19 over 536 workflows: these checkers report 0 findings
-apart from the three accepted below. Not run here: the permissions, runtime-
+apart from the accepted ones below (the continue-on-error checker joined 2026-10-27). Not run here: the permissions, runtime-
 deprecation and pinned-actions checkers (explicit-permission inventories and
 Node 20 notices that report ~1,100 informational rows each, not defects),
 and the self-hosted check (577 rows, every runner label is the `CI_RUNNER`
@@ -37,6 +37,7 @@ CHECKERS = (
     "actions-artifact-poisoning-check",
     "actions-secret-leak-check",
     "actions-schedule-check",
+    "actions-continue-on-error-check",
 )
 
 # (checker, workflow file, finding type) -> why it stays.
@@ -45,6 +46,12 @@ ACCEPTED = {
         "the tap checkout carries HOMEBREW_TAP_TOKEN on purpose; the job's `git push` needs it",
     ("actions-checkout-credentials-check", ".github/workflows/research-archive.yml", "checkout-persists-credentials"):
         "the job pushes archive/* branches with the checkout's credential",
+    ("actions-continue-on-error-check", ".github/workflows/agent-cross-review.yml", "job-continue-on-error"):
+        "the cross-review bots assist and are not a merge gate (CLAUDE.md); one bot's outage must not turn the others red",
+    ("actions-continue-on-error-check", ".github/workflows/browser-checks-ci.yml", "step-continue-on-error"):
+        "the Chromium install retries once without --with-deps; if it still fails the sweep step after it fails loudly",
+    ("actions-continue-on-error-check", ".github/workflows/distribute-shorts.yml", "step-continue-on-error"):
+        "the Piper voice is optional narration (commented in the workflow); videos render silent with captions",
 }
 
 
