@@ -1,6 +1,6 @@
 ---
 title: "Wall framing takeoff counts foundation corner bars"
-date: 2026-10-28
+date: 2026-10-27
 description: "The foundation rebar count can now run straight bars along each side with an L-bar at every corner, instead of one bent loop."
 tags: [wall-framing-takeoff, construction, concrete]
 ---

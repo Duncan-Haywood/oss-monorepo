@@ -1,6 +1,6 @@
 ---
 title: "Wall framing takeoff now counts hold-downs"
-date: 2026-10-28
+date: 2026-10-27
 description: "A typed rule (wall ends, openings over a width) becomes a hold-down count and a budget line in the framing takeoff."
 tags: [wall-framing-takeoff, construction, hardware]
 ---

@@ -1,6 +1,6 @@
 ---
 title: "Wall framing takeoff now orders baseboard and casing"
-date: 2026-10-28
+date: 2026-10-27
 description: "A new --trim count packs baseboard and door and window casing pieces into stock boards and feeds the budget."
 tags: [wall-framing-takeoff, construction, interior]
 ---

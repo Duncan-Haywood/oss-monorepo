@@ -1,6 +1,6 @@
 ---
 title: "Wall framing takeoff: hold-down counts now have page controls"
-date: 2026-10-28
+date: 2026-10-27
 description: "The nail section of the page gained hold-down fields, so the typed-rule hold-down count and its budget line no longer need the command line."
 tags: [wall-framing-takeoff, construction, fasteners]
 ---

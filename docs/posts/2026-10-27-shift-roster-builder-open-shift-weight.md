@@ -1,6 +1,6 @@
 ---
 title: "A schedule builder that lets you say what an empty shift costs"
-date: 2026-10-28
+date: 2026-10-27
 description: "The shift-roster-builder's repair step takes an openShiftWeight: at 0 the sample café leaves 15 h open across 5 shifts, at 100 it leaves 19 h across 3."
 tags: [shift-roster-builder, scheduling, hospitality]
 ---

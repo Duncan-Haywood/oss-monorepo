@@ -1,6 +1,6 @@
 ---
 title: "Fewer open hours or fewer open shifts? A scheduler has to pick"
-date: 2026-10-28
+date: 2026-10-27
 description: "Shift roster builder's exact repair covers 4 more hours on the sample cafe but leaves 5 shifts open, not 3. A tiebreak shows the trade-off is real."
 tags: [shift-roster-builder, scheduling, optimization]
 ---

@@ -37,7 +37,9 @@ class T(unittest.TestCase):
         t = GOOD.replace("2026-10-24", "2026-10-27")
         today = datetime.date(2026, 10, 25)
         self.assertEqual(len(problems("2026-10-27-x.md", t, today)), 1)
-        self.assertEqual(problems("2026-10-26-x.md", GOOD.replace("2026-10-24", "2026-10-26"), today), [])
+        tomorrow = GOOD.replace("2026-10-24", "2026-10-26")
+        self.assertEqual(len(problems("2026-10-26-x.md", tomorrow, today)), 1)  # no slack
+        self.assertEqual(problems("2026-10-25-x.md", GOOD.replace("2026-10-24", "2026-10-25"), today), [])
 
     def _run(self, posts):
         with tempfile.TemporaryDirectory() as d:

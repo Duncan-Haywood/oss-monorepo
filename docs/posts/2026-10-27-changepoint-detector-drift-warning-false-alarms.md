@@ -1,6 +1,6 @@
 ---
 title: "How often does the changepoint detector's drift note cry wolf?"
-date: 2026-10-28
+date: 2026-10-27
 description: "On 1,600 simulated seasonal series the drift note fires on 2-3.5% with no change, but on 11.5% of monthly series with two real steps."
 tags: [changepoint-detector, statistics, measurement]
 ---

@@ -1,6 +1,6 @@
 ---
 title: "Wall framing takeoff counts nails on the page"
-date: 2026-10-28
+date: 2026-10-27
 description: "The browser page can now count framing and sheathing nails by connection, with a box count and a budget line."
 tags: [wall-framing-takeoff, construction, estimating]
 ---
