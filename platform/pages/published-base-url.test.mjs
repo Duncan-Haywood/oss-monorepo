@@ -199,3 +199,25 @@ test('the CLI prints the URL when run directly and nothing when imported', () =>
   assert.equal(imported.stdout, '');
   assert.equal(imported.stderr, '');
 });
+
+test('hostnames with any digit, at the start or inside a label, are accepted', () => {
+  for (const host of ['9lives.example.com', 'a2b.example.com', 'tools9.example.com', 'x.example8.com']) {
+    const result = publishedBaseUrl({
+      git: fakeGit({
+        refs: { [`refs/heads/${SERVING_BRANCH}`]: 'abc123' },
+        cnames: { [`refs/heads/${SERVING_BRANCH}:CNAME`]: `${host}\n` },
+      }),
+    });
+    assert.equal(result.baseUrl, `https://${host}/`);
+  }
+});
+
+test('only the first line of the CNAME file is read', () => {
+  const result = publishedBaseUrl({
+    git: fakeGit({
+      refs: { [`refs/heads/${SERVING_BRANCH}`]: 'abc123' },
+      cnames: { [`refs/heads/${SERVING_BRANCH}:CNAME`]: 'a.example.com\nb.example.com\n' },
+    }),
+  });
+  assert.equal(result.baseUrl, 'https://a.example.com/');
+});
