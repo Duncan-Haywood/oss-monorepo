@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Andrew and the Nets</title>
+      <link>https://example.invalid/hearth-and-horizon/andrew-and-the-nets.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/andrew-and-the-nets.html</guid>
+      <pubDate>Tue, 27 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Andrew, a fisherman who mends his nets by the lake, hears Jesus say &quot;Come after me,&quot; and the first thing he does is run to fetch his brother. Told from the Gospels, with a note for grown-ups on what is in the text and what is ours. For ages 3 to 8, about eight minutes read aloud. His feast day is the 30th of November. Setting: The shore of the Sea of Galilee, in the Holy Land, about two thousand years ago. Read the full text at https://example.invalid/hearth-and-horizon/andrew-and-the-nets.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Andrew, a fisherman who mends his nets by the lake, hears Jesus say &quot;Come after me,&quot; and the first thing he does is run to fetch his brother. Told from the Gospels, with a note for grown-ups on what is in the text and what is ours. For ages 3 to 8, about eight minutes read aloud. His feast day is the 30th of November.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Cecilia and the Song in Her Heart</title>
       <link>https://example.invalid/hearth-and-horizon/cecilia-and-the-song-in-her-heart.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/cecilia-and-the-song-in-her-heart.html</guid>
