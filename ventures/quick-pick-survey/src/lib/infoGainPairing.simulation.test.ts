@@ -52,6 +52,7 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
     });
   }
   const recent: string[] = [];
+  let firstPicks = 0;
   for (let answered = 0; answered < budget; answered++) {
     const live = items.map((item) => {
       const s = state.get(item.id)!;
@@ -62,10 +63,13 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
       timesShown,
       recentPairKeys: new Set(recent),
       answeredCount: answered,
+      firstOptionShare: answered > 0 ? firstPicks / answered : undefined,
       rand,
     });
     const pA = 1 / (1 + Math.exp(-2 * (truth.get(aId)! - truth.get(bId)!)));
-    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, (positionBias > 0 && rand() < positionBias ? true : lapse > 0 && rand() < lapse ? rand() < 0.5 : rand() < pA) ? "A" : "B");
+    const pickedFirst = positionBias > 0 && rand() < positionBias ? true : lapse > 0 && rand() < lapse ? rand() < 0.5 : rand() < pA;
+    if (pickedFirst) firstPicks++;
+    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, pickedFirst ? "A" : "B");
     state.set(aId, a);
     state.set(bId, b);
     timesShown.set(aId, (timesShown.get(aId) ?? 0) + 1);
