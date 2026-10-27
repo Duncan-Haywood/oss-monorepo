@@ -1,0 +1,20 @@
+== brute force vs closed form: 1080 instances (g_i ~ U(0,1), p=0.1, m 1..7); max |difference| = 8.88e-10
+== TU stake below NTU stake in 0 instances; TU strictly above NTU in 816 of 816 instances where the k largest savings differ and NTU > 0
+== mean least stake over draws (brute force), p=0.1; the 1/m curve is S*(1)/m with S*(1) = mean of g/p - 1 at m=1
+m    NTU      TU       1/m curve (from NTU m=1)
+1    4.013    4.013    4.013
+2    2.265    3.837    2.007
+3    3.708    5.112    1.338
+4    3.056    5.005    1.003
+5    4.031    5.648    0.803
+6    3.346    5.508    0.669
+7    3.999    5.833    0.573
+== closed forms, 200 draws per m, mean (m up to 51)
+m    NTU      TU       order-stat limit NTU, TU = 0.5/p-1, 0.75/p-1 = 4.00, 6.50
+3    3.967    5.168   
+5    3.969    5.710   
+7    3.928    5.874   
+11   4.062    6.166   
+21   4.043    6.290   
+51   3.995    6.417   
+== ratio of the mean at m=7 to the mean at m=3 (brute force): NTU 1.08, TU 1.14 (refutation bar: under 0.60)

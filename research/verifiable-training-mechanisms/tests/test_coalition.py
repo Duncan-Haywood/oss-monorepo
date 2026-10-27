@@ -27,6 +27,17 @@ class CoalitionTests(unittest.TestCase):
         self.assertFalse(strong_equilibrium(3, 0.5, 0.25, s - 0.01))
         self.assertTrue(strong_equilibrium(3, 0.5, 0.25, s + 0.01))
 
+class HeterogeneousTests(unittest.TestCase):
+    def test_het_closed_forms_match_brute_force(self):
+        from vtm.coalition import stake_closed_het
+        for gs in [(0.2, 0.9, 0.5), (0.1, 0.4, 0.8, 0.6), (0.9, 0.9, 0.3, 0.2, 0.1)]:
+            for tr in (False, True):
+                self.assertAlmostEqual(min_stake(len(gs), list(gs), 0.2, transfers=tr),
+                                       stake_closed_het(gs, 0.2, transfers=tr), places=5, msg=(gs, tr))
+
+    def test_transfers_never_cheaper(self):
+        self.assertGreater(min_stake(3, [0.2, 0.9, 0.5], 0.2, transfers=True), min_stake(3, [0.2, 0.9, 0.5], 0.2))
+
 
 if __name__ == "__main__":
     unittest.main()
