@@ -28,7 +28,8 @@ export function titleOf(slug, readme) {
   return t.length > 200 ? `${t.slice(0, 197)}...` : t;
 }
 
-const bibEscape = (s) => s.replace(/([&%$#_{}])/g, '\\$1');
+const BIB_SPECIAL = { '\\': '\\textbackslash{}', '~': '\\textasciitilde{}', '^': '\\textasciicircum{}' };
+const bibEscape = (s) => s.replace(/[\\~^]|[&%$#_{}]/g, (c) => BIB_SPECIAL[c] || `\\${c}`);
 
 export function bibEntry(slug, title) {
   return `@misc{oss-research-${slug},
