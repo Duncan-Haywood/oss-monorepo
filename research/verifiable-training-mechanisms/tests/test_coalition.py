@@ -60,3 +60,20 @@ class AuditorTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PartialCopyTests(unittest.TestCase):
+    def test_partial_copy_closed_form_matches_brute_force(self):
+        from vtm.coalition import min_stake_partial, stake_closed_partial
+        for m in (1, 2, 3, 4, 5):
+            for g, k in [(0.9, 0.35), (0.9, 0.65), (0.5, 0.8)]:
+                self.assertAlmostEqual(min_stake_partial(m, g, 0.1, k), stake_closed_partial(m, g, 0.1, k), places=5, msg=(m, g, k))
+
+    def test_kappa_one_is_the_audit_stake(self):
+        from vtm.coalition import stake_closed_partial
+        for m in (1, 4, 9):
+            self.assertAlmostEqual(stake_closed_partial(m, 0.5, 0.1, 1.0), stake_closed(m, 0.5, 0.1))
+
+    def test_replication_deters_when_copying_is_rare(self):
+        from vtm.coalition import stake_closed_partial
+        self.assertEqual(stake_closed_partial(51, 0.9, 0.1, 0.35), 0.0)

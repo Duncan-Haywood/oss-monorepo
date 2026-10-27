@@ -6,7 +6,8 @@ One audit per job (probability p) catches the cheat; then every cheat submitter 
 from itertools import product
 
 __all__ = ["utilities", "strong_equilibrium", "min_stake", "stake_closed", "stake_closed_het",
-           "utilities_aud", "strong_equilibrium_aud", "min_bond", "bond_closed"]
+           "utilities_aud", "strong_equilibrium_aud", "min_bond", "bond_closed",
+           "utilities_partial", "strong_equilibrium_partial", "min_stake_partial", "stake_closed_partial"]
 
 
 def utilities(profile, g, p, S, r=1.0):  # g: a number, or one saving per worker
@@ -148,3 +149,63 @@ def bond_closed(gs, S, q, r=1.0):
     gs = sorted(gs, reverse=True)
     k, t = len(gs) // 2 + 1, q * (r + S)
     return max(0.0, (sum(g - t for g in gs[:k]) + sum(max(0.0, g - t) for g in gs[k:])) / q)
+
+
+# --- Milestone 35: partial copying (kappa < 1) --------------------------------------------------------------------
+def utilities_partial(profile, g, p, S, kappa, r=1.0):
+    """As `utilities` for equal savings g, but each cheater lands on the shared cheap trajectory only with
+    probability kappa (independently); otherwise its output is unique and agrees with nobody. The accepted output
+    is the strict majority of m identical submissions (honest outputs are identical). Exact: enumerates which
+    cheaters copy. Returns the expected utility of each worker."""
+    m = len(profile)
+    cheaters = [i for i, a in enumerate(profile) if a]
+    out = [0.0] * m
+    for copy in product((0, 1), repeat=len(cheaters)):
+        w = 1.0
+        for c in copy:
+            w *= kappa if c else 1 - kappa
+        shared = sum(copy)
+        honest = m - len(cheaters)
+        mode = "cheat" if shared * 2 > m else "honest" if honest * 2 > m else "none"
+        for i in range(m):
+            if not profile[i]:
+                pay = r if mode == "honest" else -S
+                out[i] += w * (pay - 1.0)
+            else:
+                c = copy[cheaters.index(i)]
+                pay = (1 - p) * r + p * (-S) if (c and mode == "cheat") else -S
+                out[i] += w * (pay - (1.0 - g))
+    return out
+
+
+def strong_equilibrium_partial(m, g, p, S, kappa, r=1.0):
+    """All-honest survives every joint deviation of a subset (to cheating) in which each member gains strictly."""
+    u0 = utilities_partial((0,) * m, g, p, S, kappa, r)
+    for mask in range(1, 2 ** m):
+        prof = tuple(mask >> i & 1 for i in range(m))
+        u = utilities_partial(prof, g, p, S, kappa, r)
+        if all(u[i] > u0[i] + 1e-12 for i in range(m) if prof[i]):
+            return False
+    return True
+
+
+def min_stake_partial(m, g, p, kappa, r=1.0, hi=1e6, tol=1e-9):
+    if strong_equilibrium_partial(m, g, p, 0.0, kappa, r):
+        return 0.0
+    if not strong_equilibrium_partial(m, g, p, hi, kappa, r):
+        return float("inf")
+    lo = 0.0
+    while hi - lo > tol:
+        mid = (lo + hi) / 2
+        lo, hi = (lo, mid) if strong_equilibrium_partial(m, g, p, mid, kappa, r) else (mid, hi)
+    return hi
+
+
+def stake_closed_partial(m, g, p, kappa, r=1.0):
+    """max(0, g / (1 - a (1 - p)) - r) with a = kappa * P(1 + Bin(m-1, kappa) > m/2): the chance a given cheater's
+    copy is accepted when everyone cheats (the worst coalition, since a rises with its size). kappa = 1 gives
+    g/p - r. For kappa < 1/2, a -> 0 as m grows and the stake falls to max(0, g - r)."""
+    from math import comb
+    need = m // 2 + 1                    # shared outputs needed for a strict majority of m
+    a = kappa * sum(comb(m - 1, j) * kappa ** j * (1 - kappa) ** (m - 1 - j) for j in range(max(0, need - 1), m))
+    return max(0.0, g / (1 - a * (1 - p)) - r)
