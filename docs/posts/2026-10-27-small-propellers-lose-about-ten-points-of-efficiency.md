@@ -1,7 +1,7 @@
 ---
 title: "A 1:10 model's propeller loses about ten points of efficiency to Reynolds number"
 date: 2026-10-27
-description: "From 151 wind-tunnel efficiency curves in the UIUC Propeller Database: peak propeller efficiency falls about 10 points between blade Re 1e5 and 3e4, the size a 1:10 model of a cargo UAV sees."
+description: "Peak propeller efficiency falls about 10 points between blade Re 1e5 and 3e4, the range a 1:10 cargo UAV model sees, from 151 UIUC wind-tunnel curves."
 tags: [aerolog-scaling, research, uav, scaling]
 ---
 
