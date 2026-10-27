@@ -1,6 +1,7 @@
 ---
 title: "We broke our own opt-out on purpose, and one change slipped past the tests"
 date: 2026-10-27
+description: "A red-team run flipped the default of a usage counter's opt-out; 7 of 8 planted bugs were caught, and this one slipped past the tests."
 tags: [testing, privacy, red-team]
 ---
 
