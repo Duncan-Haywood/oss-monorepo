@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 6b: does the m^1.5 exponent survive a day-clustered bootstrap and date fixed effects? (planned before running)
+- Why: the 6a limit says payload and flight day are partly confounded (3 of 16 days have one payload; air density is not logged) and the bootstrap resampled flights, so its interval is optimistic if days differ.
+- Plan (`experiments/rodrigues_energy/run_days.py`): (a) the 6a regression with a bootstrap that resamples whole days (10,000); (b) a dummy per day, so the exponent comes only from within-day payload contrasts, on all flights and on days with more than one payload, with flight and day-cluster bootstraps.
+- **Predictions (before running):** (1) the day-clustered interval is wider than the flight bootstrap's 0.254 and still contains 1.5 (prior 60%). (2) The date-fixed-effect exponent is within 0.15 of 1.539 (prior 60%), since payload was mostly varied within day. Refuted: (1) width at or under 0.254, or 1.5 outside; (2) shift of more than 0.15.
+
+### Outcome (`experiments/rodrigues_energy/results_days.txt`, `run_days.py` 71 s; 134 flights, 16 days, 13 days with more than one payload)
+- **(1) held:** resampling whole days gives 1.539 [1.394, 1.704], width 0.310 against 0.254 for the flight bootstrap; 1.5 is inside.
+- **(2) held:** with a dummy per day the exponent is 1.529 (all flights) and 1.531 on the 13 multi-payload days (116 flights), flight-bootstrap [1.390, 1.676], day-cluster [1.384, 1.693]. So day and weather confounding does not move the estimate by more than 0.01.
+- So the 6a result stands with an honest, wider interval: the m^1.5 power law holds inside the M100 data. Still one airframe and a 13.6% mass span; density and temperature remain unlogged, and a day dummy absorbs only what is constant within a day.
+- Next: a second airframe or the hover rows against the same law; sourced full-size propeller for 5a; non-similar corrections for H5.
+
 ## 2026-10-27 · Milestone 7a: can a different airfoil or trip restore H2 to within 5% at n = 0.2? (planned before running; the search ran once, with the low-Reynolds list added before I looked at the first result's ranking)
 - Why: H5 says a corrected model brings the power ratio at n = 0.2 within 5% of Froude without breaking H1. Under Froude similitude the usable levers are few: weight, speed and CL are fixed, and trim speed goes as CL^-0.5, so the H1 3% bar leaves CL +/-6%. What remains is the section and the boundary-layer state.
 - Plan (`experiments/correction_search/run.py`): reference = full-size NACA 4412, free transition, CL 0.8, Re_mac 3.06e6. Model at n = 0.2 (Re_mac 2.74e5): 158 NACA 4-digit sections (camber 0 to 6%, position 0.2/0.4/0.6, thickness 6 to 15%) plus 10 low-Re sections (SD7037, E387, S1223, E214, MH32, FX 63-137, Clark Y, AG35, SD7062, E61), each free or tripped at 5% chord; NeuralFoil xxxlarge polars. Ratio = (cd + CDi) / (cd_ref + CDi); then the best ratio over CL 0.752 to 0.848 using power ~ CD/CL^1.5. H1 proxy: section lift-curve slope within 5% of the reference (not a flight-dynamics run).
