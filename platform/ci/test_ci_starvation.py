@@ -416,6 +416,20 @@ class FromJson(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("got a real runner", out)
 
+    def test_no_jobs_is_no_answer_not_healthy(self):
+        # 0 tells `if ci_starvation.py --run $ID` that runners are fine; a run
+        # with no jobs (not created yet, wrong id) has not shown that.
+        for payload in ({"jobs": []}, []):
+            code, out = self.run_from_json(payload)
+            self.assertEqual(code, 2, payload)
+            self.assertIn("no jobs found", out)
+
+    def test_malformed_jobs_value_is_an_error_not_starvation(self):
+        # An uncaught TypeError exits 1, which callers read as "starved".
+        for payload in ({"jobs": None}, {"jobs": "x"}, {"jobs": 3}):
+            code, _ = self.run_from_json(payload)
+            self.assertEqual(code, 2, payload)
+
     def test_it_never_touches_the_api(self):
         api = unittest.mock.Mock()
         with tempfile.TemporaryDirectory() as tmp:
