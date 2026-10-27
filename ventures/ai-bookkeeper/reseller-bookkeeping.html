@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poshmark, Mercari and Depop Bookkeeping: Cost of Goods for Resellers (Worked Example)</title>
+<meta name="description" content="Resale apps pay you net of fees, and thrift receipts are not all expenses this month. A worked month: $710.60 of payouts and $202.40 of stock bought gives $496.62 profit, not $429.15.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./reseller-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reseller bookkeeping: payouts, thrift stock and cost of goods sold">
+<meta property="og:description" content="A worked month: $710.60 of resale-app payouts, $202.40 of stock, 30 of 45 items sold. Profit $496.62, cash $429.15.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the money I get from Poshmark, Mercari or Depop income?","acceptedAnswer":{"@type":"Answer","text":"Yes. The payout is what is left after the app's fees, so it understates your sales. Book the sales as income and the fees as an expense where your sales report shows them; the app may also send a 1099-K."}},{"@type":"Question","name":"Do I deduct what I paid at Goodwill or a thrift store when I buy it?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily. Stock bought for resale is inventory until the item sells, then its cost becomes cost of goods sold. In the worked example, $202.40 of thrift buys cost the month $134.93 because 30 of 45 items sold. Ask a tax professional how your situation is treated."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Reseller bookkeeping: payouts, thrift stock and cost of goods sold</h1>
+<p class="lede">If you flip clothes or goods on Poshmark, Mercari, Depop or similar apps, two things make a bank statement mislead: the app pays out after its fees, and the thrift-store receipts buy stock that has not all sold yet.</p>
+</header>
+
+<section>
+<h2>Worked example: one month, nine bank lines</h2>
+<p>The tool ships a <strong>synthetic</strong> checking statement for August 2026: four resale-app payouts, three thrift and consignment buys, postage and shipping supplies. The tool suggests an account for every line; stock is recorded as 45 items bought and 30 sold (first in, first out).</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from fixtures/reseller-checking.csv, run through the tool's import, inventory and report commands (reseller.test.mjs). Synthetic data, not a real shop.</caption>
+<thead><tr><th scope="col">August 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Payouts from three apps (four deposits)</th><td>$710.60</td></tr>
+<tr><th scope="row">Cost of the 30 items sold (of 45 bought for $202.40)</th><td>&minus;$134.93</td></tr>
+<tr><th scope="row">Postage</th><td>&minus;$41.20</td></tr>
+<tr><th scope="row">Shipping supplies</th><td>&minus;$37.85</td></tr>
+<tr class="total"><th scope="row">Net profit</th><td>$496.62</td></tr>
+<tr><th scope="row">Stock still on the shelf (15 items)</th><td>$67.47</td></tr>
+<tr class="total"><th scope="row">Cash from operations (profit less stock added)</th><td>$429.15</td></tr>
+</tbody>
+</table>
+</div>
+<p>Counting every thrift receipt as an expense would show $429.15 of profit, which is really the cash the month produced. The books show $496.62 because $67.47 of what you bought is still waiting for a buyer. The payouts are also net of each app's selling fees, so true sales are higher than $710.60 and the fees are an expense you can only book if you download the app's sales report.</p>
+</section>
+
+<section>
+<h2>How to book it</h2>
+<ol>
+<li><strong>Import your bank statement</strong> in <a href="./">AI Bookkeeper</a>. Payouts from Poshmark, Mercari, Depop, Vinted, ThredUp, OfferUp, Grailed and Reverb are suggested as sales, and Goodwill, Salvation Army, Plato's Closet, Value Village and similar stops as inventory (1450). Every suggestion waits for you to accept it.</li>
+<li><strong>Record the stock.</strong> After a sourcing trip, <code>inventory buy LOT --qty 45 --amount 202.40 --date 2026-08-19</code>; when items sell, <code>inventory sell LOT --qty 30 --date 2026-08-31</code>. The cost moves to cost of goods sold.</li>
+<li><strong>Read the profit and loss and the cash flow</strong> side by side: profit shows what you earned, cash from operations shows what the month cost you in stock.</li>
+<li><strong>Download each app's sales report</strong> for the fees and for gross sales, since payouts show neither. Sales tax collected by the marketplace is not your income.</li>
+</ol>
+<p>The merchant rules were written from remembered payee names, not from real bank exports, so check how your own bank prints the payout lines. The page is not accounting or tax advice.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Is the money I get from Poshmark, Mercari or Depop income?</h3>
+<p>Yes. The payout is what is left after the app's fees, so it understates your sales. Book the sales as income and the fees as an expense where your sales report shows them; the app may also send a 1099-K.</p>
+<h3>Do I deduct what I paid at Goodwill or a thrift store when I buy it?</h3>
+<p>Not necessarily. Stock bought for resale is inventory until the item sells, then its cost becomes cost of goods sold. In the worked example, $202.40 of thrift buys cost the month $134.93 because 30 of 45 items sold. Ask a tax professional how your situation is treated.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Poshmark, Mercari, Depop and the other names are trademarks of their owners, named only to describe a payee; this tool is independent of all of them.</p>
+</footer>
+</body>
+</html>
