@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKkZGNeY7TSAUFcq6uv",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T11:24:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10876,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Did not rewrite ai-bookkeeper next: the top items all need real bank/receipt data unavailable offline; landed a small property test instead.",
+      "did": "property test only",
+      "result": "no fault found; modest value"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-ai-bookkeeper-break-even-property-test.md"
+  ],
+  "goal": null,
+  "notes": "Ran breakeven-property.test.mjs locally: 2 pass. Skipped venture-preflight (test-only change). No agent doc written.",
+  "corrections": [],
+  "redteam": null
+}
