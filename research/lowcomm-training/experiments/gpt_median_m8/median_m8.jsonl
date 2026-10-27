@@ -1,0 +1,4 @@
+{"agg": "mean", "offset": 1.0, "seed": 1, "loss": 1.5447473004460335, "secs": 990}
+{"agg": "mean", "offset": 1.0, "seed": 0, "loss": 1.5550996363162994, "secs": 991}
+{"agg": "median", "offset": 1.0, "seed": 0, "loss": 1.5569846630096436, "secs": 1004}
+{"agg": "median", "offset": -10.0, "seed": 0, "loss": 1.5712357461452484, "secs": 1004}
