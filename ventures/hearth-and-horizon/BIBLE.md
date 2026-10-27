@@ -360,6 +360,7 @@ the sources, and mark legend as legend)
 - *(Done: Thérèse and the Small Way, 1 October; history and her own writings.)* Saint Thérèse and the small way.
 - *(Done: Elizabeth and the Bread That Became Roses, 17 November; legend over a documented life; text only.)* Saint Elizabeth of Hungary carries bread down the hill.
 - *(Done: Cecilia and the Song in Her Heart, 22 November; the Acts' antiphon line, legend; death left out; text only.)* Saint Cecilia and the song nobody hears.
+- *(Done: Andrew and the Nets, 30 November; Gospel passages only (John 1, 6, 12; Matthew 4); text only.)* Saint Andrew, the one who brings people.
 
 ## What not to do
 
