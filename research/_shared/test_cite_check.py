@@ -52,5 +52,27 @@ class Lookup(unittest.TestCase):
         self.assertIn("FAIL", out)
 
 
+class DataCiteFallback(unittest.TestCase):
+    def lookup(self, datacite_code):
+        import json, urllib.error
+        def fake(url):
+            if "crossref" in url or datacite_code:
+                raise urllib.error.HTTPError(url, datacite_code or 404, "x", {}, None)
+            return json.dumps({"data": {"attributes": {"titles": [{"title": "A dataset"}], "publicationYear": 2021}}})
+        old, cite_check._get = cite_check._get, fake
+        try:
+            return cite_check.lookup_doi("10.1184/R1/12683453")
+        finally:
+            cite_check._get = old
+
+    def test_crossref_404_falls_back_to_datacite(self):
+        self.assertEqual(self.lookup(0), "A dataset (2021)")
+
+    def test_both_404_still_raises(self):
+        import urllib.error
+        with self.assertRaises(urllib.error.HTTPError):
+            self.lookup(404)
+
+
 if __name__ == "__main__":
     unittest.main()
