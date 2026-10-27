@@ -7,3 +7,9 @@ test("random leagues (courts, times, blackouts, closures, limits) build to valid
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /built 150, rejected 0, invalid 0/);
 });
+
+test("rainouts, late teams and officials on random leagues keep the schedule valid", () => {
+  const r = spawnSync(process.execPath, ["eval/fuzz-passes.mjs", "120", "5"], { cwd: new URL(".", import.meta.url).pathname, encoding: "utf8" });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /invalid 0/);
+});
