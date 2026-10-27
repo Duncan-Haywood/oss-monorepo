@@ -7,6 +7,15 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **Predictions (fixed now):** (1) The R2 cut still floors on at least one design at the relaxed clock (median R2 regret over designs stays above 1%), as at 40%. (2) Median R2 regret at 65% differs from the 40% value (2.9% relaxed, 0.8% tight) by under 3 points: the ranking mistakes come from timing repair, not density. (3) R4 wall time per point at 65% is not lower than at 40% (denser placement is not cheaper to route). (4) The number of rejected runs does not fall. Each is refuted by the opposite.
 - Limits known in advance: placement utilisation is one axis of a corner, not a PVT corner; same designs and sequences; one tool version.
 
+### Outcome (`experiments/util65/`: `run.py` about 85 min on 4 cores, `results.jsonl`, `results.txt`, `summary.json`)
+- **(1) held.** Median R2 regret over the five designs is 2.5% at the relaxed clock and 2.0% at the tight one (both above 1%). The R2 floor stays on mult24 (13.4%) and mult32 (11.2%) at the relaxed clock, against 11.3% and 14.1% at 40% utilisation.
+- **(2) held.** Median R2 regret moved by 0.4 points relaxed (2.9 to 2.5) and 1.2 points tight (0.8 to 2.0), both under 3. Per-design R2 tau at the relaxed clock: mult16 0.35 (0.30 at 40%), mult24 0.56 (0.54), mult32 0.60 (0.57), adder_op64 0.79 (0.76); the confidence intervals overlap throughout.
+- **(3) held.** Mean R4 time per point rose from 19.4 s to 24.4 s (R1, R2, R3 unchanged: 0.81, 1.27 + 0.40, 2.52 s).
+- **(4) held.** Rejected runs: 100 of 600 against 96 (adder_op64 24 against 20).
+- Reading: moving from 40% to 65% placement density does not change the rung-bias picture of milestone 9: R1 stays a weak ranker (median tau 0.38 tight, 0.21 relaxed), R2 mis-ranks the same two multipliers at the relaxed clock, and the routed rung costs more, not less. One axis of one corner, so this supports but does not close the "second corner" gap: a different liberty corner (ss/ff) is not in the pinned platform files.
+- Limits: utilisation is not a PVT corner; same designs, sequences and tool versions; 50 pool points per cell; tau intervals are bootstrap and overlap with milestone 9's.
+- Next: a slow or fast liberty corner, and an unseen design family for the pilot gate.
+
 ## 2026-10-26 · README sync after milestones 20 to 23 (no experiment)
 - `README.md` still said "NSGA-II, BOHB and BO are not yet run" under milestone 1; milestones 20 to 23 ran ridge, GP-EI and TPE baselines (PAPER.md section 5 already reports them). The line now says so and keeps NSGA-II and the full BOHB bracket schedule as not run.
 - Open and unchanged: BOHB bracket schedule, larger designs and a second corner (needs OpenROAD, Yosys).
