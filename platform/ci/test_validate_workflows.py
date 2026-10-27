@@ -121,6 +121,14 @@ jobs:
         self.assertTrue(any("on:" in e for e in errs))
         self.assertTrue(any("jobs:" in e for e in errs))
 
+    def test_empty_jobs_mapping_is_flagged(self):
+        errs = errors_for("name: CI\non: [push]\njobs: {}\n")
+        self.assertTrue(any("jobs:" in e for e in errs))
+
+    def test_non_mapping_jobs_is_flagged_not_a_crash(self):
+        errs = errors_for("name: CI\non: [push]\njobs:\n  - build\n")
+        self.assertTrue(any("jobs:" in e for e in errs))
+
     def test_unparseable_yaml_is_flagged(self):
         errs = errors_for("name: [unterminated\n")
         self.assertEqual(len(errs), 1)
