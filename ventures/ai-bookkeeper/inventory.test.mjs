@@ -5,7 +5,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { newBooks, importStatement, confirm, journal, reports, closeChecks } from "./engine.mjs";
-import { addInventoryMove, addLandedCost, setInventoryMethod, inventoryRegister } from "./inventory.mjs";
+import { addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister } from "./inventory.mjs";
 import { trialBalance } from "./ledger.mjs";
 
 const mv = (b, kind, sku, date, qty, amount) => addInventoryMove(b, { kind, sku, date, qty, amount }).books;
@@ -139,4 +139,35 @@ test("CLI: landed cost ties account 1450 to the register after the freight bill 
   run("inventory", "buy", "MUG", "--qty", "10", "--amount", "100", "--date", "2026-01-05");
   assert.match(run("inventory", "landed", "--amount", "25", "--date", "2026-01-08", "--on", "INV-1"), /INV-2 landed cost \$?25\.00/);
   assert.match(run("inventory"), /value\s+\$?125\.00/);
+});
+
+test("write-down to net realizable value: FIFO layers, average, never back up, books balance", () => {
+  let b = mv(newBooks(), "buy", "MUG", "2026-01-05", 10, "100"); // 10.00 each
+  b = mv(b, "buy", "MUG", "2026-02-05", 10, "150");              // 15.00 each
+  const w = addInventoryWritedown(b, { sku: "MUG", date: "2026-03-01", nrv: "12.00" });
+  assert.equal(w.loss, 3000);                                    // only the 15.00 layer is above 12.00
+  const r = inventoryRegister(w.books);
+  assert.equal(r.value, 10000 + 12000);
+  assert.equal(r.value + r.cogs, 25000);                         // nothing leaks
+  const again = addInventoryWritedown(w.books, { sku: "MUG", date: "2026-03-02", nrv: "20" });
+  assert.equal(again.loss, 0);                                   // a higher value never writes it back up
+  assert.equal(inventoryRegister(again.books).value, 22000);
+  const sold = mv(w.books, "sell", "MUG", "2026-03-05", 12);     // 10 at 10.00 + 2 at the new 12.00
+  assert.equal(inventoryRegister(sold).cogs, 3000 + 10000 + 2400);
+  const tb = trialBalance(journal(w.books), w.books.accounts);
+  assert.ok(tb.balanced);
+  assert.equal(tb.rows.find((x) => x.code === "5000").debit, 3000);
+  let a = setInventoryMethod(newBooks(), "avg");
+  a = mv(a, "buy", "MUG", "2026-01-05", 10, "100"); a = mv(a, "buy", "MUG", "2026-02-05", 10, "150"); // 12.50 average
+  assert.equal(addInventoryWritedown(a, { sku: "MUG", date: "2026-03-01", nrv: "10" }).loss, 5000);
+});
+
+test("write-down refusals and a sale before it keeps its own cost", () => {
+  const b = mv(newBooks(), "buy", "MUG", "2026-01-05", 4, "40");
+  assert.throws(() => addInventoryWritedown(b, { sku: "NOPE", date: "2026-02-01", nrv: "1" }), /No stock/);
+  assert.throws(() => addInventoryWritedown(b, { sku: "MUG", date: "2026-02-01", nrv: "-1" }), /zero or more/);
+  assert.throws(() => addInventoryWritedown({ ...b, lockedThrough: "2026-03-31" }, { sku: "MUG", date: "2026-02-01", nrv: "1" }), /locked/);
+  const w = addInventoryWritedown(mv(b, "sell", "MUG", "2026-01-10", 1), { sku: "MUG", date: "2026-02-01", nrv: "0" });
+  assert.equal(w.loss, 3000);                                    // 3 left at 10.00, worth nothing
+  assert.equal(inventoryRegister(w.books).value, 0);
 });
