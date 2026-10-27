@@ -1,7 +1,7 @@
 ---
 title: "Is 'never cut on the cheap rung' the right chip-search policy? Five unseen designs say it is insurance"
-date: 2026-10-28
-description: "A held-out replay of the verified-dse pilot gate on CRC-32, priority-encoder, sorting-network, S-box and decoder-mux designs: the gate still does not pay, and gentle halving slightly beats the safe policy where the cheap rung is faithful."
+date: 2026-10-27
+description: "Held-out replay of the verified-dse pilot gate on five unseen chip designs: the gate still does not pay, and gentle halving beats the safe policy."
 tags: [research, verified-dse, chip-design, negative-result]
 ---
 
