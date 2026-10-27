@@ -57,3 +57,32 @@ test("feet from IfcConversionBasedUnit scale to inches", () => {
   assert.ok(r.ok, r.errors?.join());
   assert.equal(Math.max(...r.plan.walls.map((w) => w.length)), 120);
 });
+
+const stepWall = (n, place, a, b) =>
+  `#${n}0=IFCCARTESIANPOINT((${a}));#${n}1=IFCCARTESIANPOINT((${b}));#${n}2=IFCPOLYLINE((#${n}0,#${n}1));#${n}3=IFCSHAPEREPRESENTATION($,'Axis','Curve2D',(#${n}2));#${n}4=IFCPRODUCTDEFINITIONSHAPE($,$,(#${n}3));#${n}5=IFCWALL('g',$,'W; x',$,$,${place},#${n}4,$,$);`;
+const head = "ISO-10303-21;DATA;#3=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);#800=IFCCARTESIANPOINT((0.,0.,0.));#801=IFCDIRECTION((0.,1.,0.));#802=IFCAXIS2PLACEMENT3D(#800,$,#801);#900=IFCLOCALPLACEMENT($,#802);#901=IFCLOCALPLACEMENT($,$);";
+
+test("a file written on one line (and a ';' inside a name) still reads every wall", () => {
+  const r = planFromIfc(head + stepWall(10, "#901", "3.,4.", "3.,0.") + stepWall(20, "#900", "4.,0.", "4.,-3.") + "ENDSEC;END-ISO-10303-21;");
+  assert.ok(r.ok, r.errors?.join());
+  assert.equal(r.plan.walls.length, 2);
+});
+
+test("a rotated placement turns local y the right way, so the walls meet at the corner", () => {
+  const r = planFromIfc(head + stepWall(10, "#901", "3.,4.", "3.,0.") + stepWall(20, "#900", "4.,0.", "4.,-3.") + "ENDSEC;");
+  assert.deepEqual(r.plan.walls.map((w) => w.freeEnds), [1, 1]);
+});
+
+test("a rectangle profile with no position is centred on the placement origin", () => {
+  const rect = (n, place, x) => `#${n}0=IFCRECTANGLEPROFILEDEF(.AREA.,$,$,${x},0.2);#${n}1=IFCEXTRUDEDAREASOLID(#${n}0,$,$,3.,2.8);#${n}2=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#${n}1));#${n}3=IFCPRODUCTDEFINITIONSHAPE($,$,(#${n}2));#${n}4=IFCWALL('g',$,'R',$,$,${place},#${n}3,$,$);`;
+  const r = planFromIfc(head + rect(10, "#901", "4.") + stepWall(20, "#901", "2.,0.", "2.,-3.") + "ENDSEC;");
+  assert.ok(r.ok, r.errors?.join());
+  assert.deepEqual(r.plan.walls.map((w) => w.freeEnds), [1, 1]);
+  assert.ok(r.plan.walls.some((w) => Math.abs(w.length - 4 * 100 / 2.54) < 0.2));
+});
+
+test("opt.units overrides the unit in the file", () => {
+  const r = planFromIfc(head + stepWall(10, "#901", "0.,0.", "400.,0.") + "ENDSEC;", { units: "cm" });
+  assert.ok(r.ok, r.errors?.join());
+  assert.ok(Math.abs(r.plan.walls[0].length - 400 / 2.54) < 0.2);
+});
