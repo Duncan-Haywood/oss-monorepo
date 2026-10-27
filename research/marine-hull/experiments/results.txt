@@ -1,0 +1,13 @@
+cases 6561; catamaran out-ranges monohull in 27 (0.4%)
+range ratio cat/mono: min 0.72  median 0.85  max 1.02
+monohull best range km: min 560 median 836 max 1188
+monohull speed at best range m/s: median 1.05
+equal length cases 2187: cat wins 0
+cat win share by c_s: 2.6: 0%, 3.0: 0%, 3.4: 0%
+cat win share by k_form: 0.1: 0%, 0.25: 0%, 0.4: 1%
+cat win share by k_cat: 0.1: 1%, 0.25: 0%, 0.4: 0%
+cat win share by interf: 0.0: 1%, 0.15: 0%, 0.3: 0%
+cat win share by l_mono: 3.0: 0%, 4.0: 0%, 5.0: 1%
+cat win share by l_cat: 3.0: 1%, 4.0: 0%, 5.0: 0%
+cat win share by wave: 0.0: 0%, 0.5: 0%, 1.0: 0%
+cat win share by e_batt: 150.0: 0%, 200.0: 0%, 250.0: 0%
