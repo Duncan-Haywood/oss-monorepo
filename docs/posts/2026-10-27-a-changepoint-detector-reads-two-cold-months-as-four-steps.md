@@ -1,7 +1,7 @@
 ---
 title: "A changepoint detector reads two odd months as four steps"
 date: 2026-10-27
-description: "On 20 years of Nottingham temperatures, which have no real step, the default mean model cuts four changepoints; a longer minimum segment or the meanvar model cuts none or two."
+description: "On 20 years of Nottingham temperatures with no real step, the default mean model cuts four changepoints; a longer minimum segment or meanvar cuts two or none."
 tags: [changepoint, time-series, null-test, changepoint-detector]
 ---
 
