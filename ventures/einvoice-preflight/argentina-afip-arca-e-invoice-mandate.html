@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Argentina electronic invoicing: ARCA (ex AFIP), the CAE and a CUIT check digit | E-invoice Preflight</title>
+<meta name="description" content="Argentina&rsquo;s electronic invoices carry a CAE that the tax authority, ARCA (formerly AFIP), returns for each one. How it works as reported, where sources disagree on how long a CAE lasts, and a free local CUIT check-digit test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/argentina-afip-arca-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Argentina electronic invoicing: ARCA (ex AFIP), the CAE and a CUIT check digit | E-invoice Preflight">
+<meta property="og:description" content="Argentina&rsquo;s electronic invoices carry a CAE that the tax authority, ARCA (formerly AFIP), returns for each one. How it works as reported, where sources disagree on how long a CAE lasts, and a free local CUIT check-digit test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/argentina-afip-arca-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a CAE in Argentina?","acceptedAnswer":{"@type":"Answer","text":"The c&oacute;digo de autorizaci&oacute;n electr&oacute;nico: a code ARCA (formerly AFIP) returns after validating an invoice&rsquo;s data through its web service, with an expiry date. It goes on the invoice. This is a summary from vendor guides, not advice; confirm with ARCA or your accountant."}},{"@type":"Question","name":"How long is a CAE valid?","acceptedAnswer":{"@type":"Answer","text":"Sources disagree: one vendor guide says typically 10 days from issue, another 15. One says the invoice stays valid after the CAE date and the date matters for the QR check, though third-party systems may still reject it. Check ARCA."}},{"@type":"Question","name":"What is the difference between Factura A, B and C?","acceptedAnswer":{"@type":"Answer","text":"As vendor guides describe them: A goes from a registered taxpayer (responsable inscripto) to another registered taxpayer, B from a registered taxpayer to a final consumer or non-registered buyer, and C is issued by small taxpayers such as monotributistas. The WSFEv1 specification lists the full set of codes."}},{"@type":"Question","name":"Can this checker validate an Argentine invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It does not call WSFEv1 or hold a CAE. It does test a CUIT&rsquo;s shape and check digit on this page, and a clean result is not an authorisation by ARCA."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Argentina: ARCA gives each invoice a CAE before you hand it over</h1>
+<p class="lede">In Argentina, per the guides read, an issuer sends each invoice&rsquo;s data to the tax authority, ARCA (formerly AFIP), through its WSFEv1 web service and gets back a CAE (c&oacute;digo de autorizaci&oacute;n electr&oacute;nico) that must appear on the invoice. Below: how it works as vendor guides report it, where sources disagree, and a local check of a CUIT&rsquo;s check digit.</p>
+</header>
+<section>
+<h2>How it works (as vendor guides report it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Pick the type</td><td>Invoices come in letters: A (a registered taxpayer to another registered taxpayer), B (a registered taxpayer to a final consumer or non-registered buyer) and C (issued by small taxpayers such as monotributistas), among others.</td></tr>
+<tr><td>Request authorisation</td><td>The issuer&rsquo;s software authenticates to ARCA and sends the invoice data to WSFEv1, ARCA&rsquo;s electronic-invoice web service. A homologation (test) environment exists apart from production.</td></tr>
+<tr><td>Receive the CAE</td><td>When validation passes, ARCA returns the CAE and its expiry date. Both go on the invoice, which also carries a QR code.</td></tr>
+<tr><td>Deliver</td><td>The invoice with the CAE goes to the buyer as PDF or other agreed form. The issuer keeps the record.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where it is unsettled: how long a CAE lasts (one vendor guide says typically 10 days from issue, another 15; neither was checked against an ARCA page), what an expired CAE does to the invoice (one source says the invoice stays valid and the expiry matters for the QR check, and that buyers&rsquo; systems may still reject it), and which taxpayers are obliged and from when. These are vendor guides and developer docs read through search excerpts, not ARCA resolutions. No penalty is stated because none was read. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check a CUIT</h2>
+<p>Tests the shape (eleven digits, hyphens and spaces ignored) and the check digit. It does not look anything up, so it cannot say whether the CUIT is registered or belongs to the name on the invoice. The usual prefixes are 20, 23, 24 and 27 for people and 30, 33 and 34 for companies; the check does not enforce them. When the sum would give 10 there is no valid check digit, so no CUIT is issued like that and the test reports it.</p>
+<label>CUIT <input id="id" size="18" maxlength="20" autocomplete="off" spellcheck="false" placeholder="33-69345023-9"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The sample is ARCA&rsquo;s own CUIT. The rule (weights 5 4 3 2 7 6 5 4 3 2 over the first ten digits, 11 minus the remainder mod 11, with 11 written as 0) reproduces it; it was not read from ARCA&rsquo;s specification, and no CUIT is looked up. A single wrong digit is never missed (0 of 163,170 in a fixed sample), because the weights are never a multiple of 11.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> call WSFEv1, cannot obtain or verify a CAE, and has no ARCA tables. Treat the CUIT test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is a CAE in Argentina?</h3>
+<p>The c&oacute;digo de autorizaci&oacute;n electr&oacute;nico: a code ARCA (formerly AFIP) returns after validating an invoice&rsquo;s data through its web service, with an expiry date. It goes on the invoice. This is a summary from vendor guides, not advice; confirm with ARCA or your accountant.</p>
+<h3>How long is a CAE valid?</h3>
+<p>Sources disagree: one vendor guide says typically 10 days from issue, another 15. One says the invoice stays valid after the CAE date and the date matters for the QR check, though third-party systems may still reject it. Check ARCA.</p>
+<h3>What is the difference between Factura A, B and C?</h3>
+<p>As vendor guides describe them: A goes from a registered taxpayer (responsable inscripto) to another registered taxpayer, B from a registered taxpayer to a final consumer or non-registered buyer, and C is issued by small taxpayers such as monotributistas. The WSFEv1 specification lists the full set of codes.</p>
+<h3>Can this checker validate an Argentine invoice?</h3>
+<p>No. It does not call WSFEv1 or hold a CAE. It does test a CUIT&rsquo;s shape and check digit on this page, and a clean result is not an authorisation by ARCA.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Argentine position from search excerpts of vendor guides and developer docs, not from ARCA resolutions; things can change, so check ARCA (arca.gob.ar) and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkCuit}from"./argentina.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkCuit(v);$("id-out").innerHTML=x.ok?'<span class="good">'+"Shape and check digit are consistent ("+x.note+")."+"</span>":x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</body>
+</html>
