@@ -1,7 +1,7 @@
 ---
 title: "The aerator works hardest when the pond is emptiest"
 date: 2026-10-27
-description: "A new free short story, The Grey Hour, turns on pond oxygen: an aerator moves more oxygen into empty water than full water, so a small battery is best spent late."
+description: "A new free short story, The Grey Hour, turns on pond oxygen: an aerator moves more oxygen into empty water than full, so a small battery is best spent late."
 tags: [fiction, aquaculture, hearth-and-horizon]
 ---
 
