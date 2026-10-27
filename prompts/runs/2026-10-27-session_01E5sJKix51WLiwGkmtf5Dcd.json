@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKix51WLiwGkmtf5Dcd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T19:21:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10949,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: items all need real inputs; sweeps of Actual Budget fixtures were already done, cost several probes to find out"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "did": "landed a property test instead of a real-input slice",
+      "why": "real-input items need data not reachable/new; fixture sweeps saturated",
+      "result": "test passes, mutation confirms it bites; no fault found"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-pinning-the-ledger-reports-with-random-books.md"
+  ],
+  "goal": null,
+  "notes": "ledger-property.test.mjs: 500 random books; no code change.",
+  "corrections": [],
+  "redteam": null
+}
