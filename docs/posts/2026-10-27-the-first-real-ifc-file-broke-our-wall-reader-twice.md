@@ -1,7 +1,7 @@
 ---
 title: "The first real IFC file broke our wall reader twice"
 date: 2026-10-27
-description: "Wall Framing Takeoff read hand-written IFC fragments for a day. buildingSMART's real sample house found two bugs: mesh walls it could not read, and lengths a thousand times too long."
+description: "Wall Framing Takeoff only read hand-written IFC. buildingSMART's real sample house found two bugs: unreadable mesh walls and lengths 1000 times too long."
 tags: [wall-framing-takeoff, ifc, construction, testing]
 ---
 
