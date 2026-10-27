@@ -408,3 +408,9 @@ test("widening page's table is what the engine returns for the sample cafe with 
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("the open-shift preference select is labelled and feeds buildRoster's openShiftWeight", () => {
+  const html = page("index.html");
+  assert.match(html, /<label for="openpref">/);
+  assert.match(html, /openShiftWeight: \$\("#openpref"\)\.value === "shifts" \? 100 : 0/);
+});
