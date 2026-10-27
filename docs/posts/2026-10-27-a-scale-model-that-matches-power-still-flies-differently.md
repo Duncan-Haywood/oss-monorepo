@@ -1,7 +1,7 @@
 ---
 title: "A scale model that matches power still flies differently"
 date: 2026-10-27
-description: "Changing wing area and aspect ratio can make a 1:5 cargo-UAV model draw the same power as the full-size aircraft, but none of the 17 matches keeps its phugoid and short-period modes within 5%. The error sits in the tail."
+description: "Wing changes can make a 1:5 cargo-UAV model match full-size power, but none of 17 matches keeps its flight modes within 5%. The error is in the tail."
 tags: [research, aerolog-scaling, scale-models, flight-dynamics]
 ---
 
