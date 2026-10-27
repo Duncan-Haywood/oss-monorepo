@@ -4,7 +4,8 @@ import sys
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-from vtm.coalition import min_stake, stake_closed, strong_equilibrium, utilities  # noqa: E402
+from vtm.coalition import (bond_closed, min_bond, min_stake, stake_closed, stake_closed_het,  # noqa: E402
+                           strong_equilibrium, utilities)
 
 
 class CoalitionTests(unittest.TestCase):
@@ -37,6 +38,24 @@ class HeterogeneousTests(unittest.TestCase):
 
     def test_transfers_never_cheaper(self):
         self.assertGreater(min_stake(3, [0.2, 0.9, 0.5], 0.2, transfers=True), min_stake(3, [0.2, 0.9, 0.5], 0.2))
+
+
+class AuditorTests(unittest.TestCase):
+    def test_bond_matches_closed_form(self):
+        for gs, q in [([0.5, 0.3, 0.2], 0.02), ([0.4], 0.05), ([0.9, 0.1, 0.6, 0.2], 0.03)]:
+            S = stake_closed_het(gs, 0.1, transfers=True) + 0.5
+            self.assertAlmostEqual(min_bond(len(gs), gs, 0.1, S, q), bond_closed(gs, S, q), places=5, msg=gs)
+
+    def test_extra_worker_joins_when_saving_exceeds_meta_audit_take(self):
+        # g = (0.5, 0.3, 0.2), S = 3, q = 0.02: the third worker adds 0.2 - 0.08 = 0.12, so B = 38 not 32
+        self.assertAlmostEqual(bond_closed([0.5, 0.3, 0.2], 3.0, 0.02), 38.0)
+
+    def test_no_bond_helps_below_the_worker_stake(self):
+        self.assertEqual(min_bond(3, [0.5, 0.3, 0.2], 0.1, 1.0, 0.02), float("inf"))
+
+    def test_meta_audit_as_strong_as_audit_needs_no_bond(self):
+        gs = [0.5, 0.3, 0.2]
+        self.assertAlmostEqual(min_bond(3, gs, 0.1, stake_closed_het(gs, 0.1, transfers=True) + 1e-6, 0.1), 0.0, places=6)
 
 
 if __name__ == "__main__":
