@@ -214,3 +214,27 @@ time in five.
   never falls below shipped here and leads by 1.5 to 2 points at 300 and 600.
   That supports shipping the hybrid, not the information selector alone.
 - Still synthetic: a random-lapse respondent, one lapse rate, 30 items.
+
+## Lapse rates from 0.05 to 0.5 (2026-10-27)
+
+`lapseSweep.simulation.test.ts`: 30 items, 20 seeded respondents per cell, mean
+rank accuracy, same respondent as above.
+
+| answers | lapse | shipped | information | hybrid |
+|---|---|---|---|---|
+| 120 | 0.05 | 0.763 | 0.753 | 0.763 |
+| 300 | 0.05 | 0.889 | 0.895 | 0.896 |
+| 120 | 0.1 | 0.754 | 0.768 | 0.754 |
+| 300 | 0.1 | 0.892 | 0.881 | 0.887 |
+| 120 | 0.35 | 0.654 | 0.629 | 0.654 |
+| 300 | 0.35 | 0.789 | 0.780 | 0.797 |
+| 120 | 0.5 | 0.525 | 0.496 | 0.525 |
+| 300 | 0.5 | 0.666 | 0.640 | 0.684 |
+
+- The hybrid never falls below shipped by more than 0.005 (lapse 0.1 at 300)
+  and leads at 0.35 and 0.5 (+0.008, +0.018 at 300 answers). It equals shipped
+  at 120 answers because it has not yet switched. The information selector
+  alone is worse than shipped at both budgets once lapse reaches 0.35.
+- Gaps under about 0.01 are within seed noise at 20 seeds; this supports
+  keeping the hybrid, not a claim that it helps at low lapse.
+- Still synthetic: random lapses only, no biased respondents, 30 items.
