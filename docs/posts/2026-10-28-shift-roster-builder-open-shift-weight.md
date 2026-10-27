@@ -1,4 +1,9 @@
-# A schedule builder that lets you say what an empty shift costs
+---
+title: "A schedule builder that lets you say what an empty shift costs"
+date: 2026-10-28
+description: "The shift-roster-builder's repair step takes an openShiftWeight: at 0 the sample café leaves 15 h open across 5 shifts, at 100 it leaves 19 h across 3."
+tags: [shift-roster-builder, scheduling, hospitality]
+---
 
 When a week cannot be fully staffed, "fewest uncovered hours" and "fewest uncovered shifts" are different goals. On the sample café, the repair that minimises open hours leaves 15 hours open across 5 shifts. The plain search leaves 19 hours across 3.
 
