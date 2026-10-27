@@ -768,8 +768,15 @@ series per cell, synthetic only). False alarms plain / `--bootstrap`, then detec
 | holidays + `--period 7` | 2% / 2% | 77% / 15% | 100% / 67% | 75% / 71%, 81% / 47% |
 
 Holidays behave like the weekly season, not like `--trend`: the bootstrap cuts clustered false alarms to 15-21% at sd 0.2
-for a few points of detection. At sd 0.4 it is still 65%, as in every other cell. Holiday dates were given exactly; a missed
-holiday is untested.
+for a few points of detection. At sd 0.4 it is still 65%, as in every other cell. Holiday dates were given exactly here.
+
+**Missed holidays (2026-10-27).** `eval/poisson-bootstrap-missed-holidays.mjs` (same series, seeded, 100 per cell, output in
+`eval/poisson-bootstrap-missed-holidays.out.txt`) tells the engine all, every other, or none of the seven true holidays.
+False alarms plain / `--bootstrap` at sd 0.2: 85% / 21%, 86% / 20%, 90% / 19%; at sd 0.4: 100% / 65%, 100% / 72%, 100% / 73%.
+Detection at sd 0.2 with `--bootstrap`: 72%, 77%, 73%. At sd 0 false alarms stay 2-6%. So with seven holidays in 210 days a
+missed one does not move false alarms or detection beyond seed noise (about +-4 points); the bootstrap's gain does not depend
+on the holiday list being complete. This is a small test (a x0.3 day among 30 is a weak outlier); a series with many missed
+closures is untested. Synthetic only.
 
 ## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
 
