@@ -7,7 +7,10 @@
 //
 // Assumptions, because an IFC file can say more than this reads:
 //  - a wall's centre line is its 'Axis' representation (IfcPolyline); with no
-//    axis, an extruded rectangle profile whose X dimension runs along the wall;
+//    axis, an extruded rectangle profile whose X dimension runs along the wall,
+//    and failing that the plan bounding box of its body mesh (tessellated face
+//    set, faceted B-rep or extruded closed profile) in the wall's own frame:
+//    the longer side is the length, the middle of the shorter side the centre line;
 //  - placements are plan placements: rotation about the vertical axis only;
 //  - a door or window's placement origin is the near end of its width and its
 //    local X runs along the wall (the usual export), width = OverallWidth;
@@ -67,7 +70,11 @@ export function planFromIfc(text, opt = {}) {
   const get = (r) => (typeof r === "string" ? ents.get(r) : undefined);
   // length unit -> inches
   let toIn = 0;
-  for (const e of ents.values()) {
+  // the project's units are those in IfcUnitAssignment; other IfcSIUnits (an IfcProjectedCRS map unit, say) must not win
+  const assigned = new Set([...ents.values()].filter((e) => e.type === "IFCUNITASSIGNMENT").flatMap((e) => e.args[0] ?? []));
+  const unitEnts = [...ents.entries()].filter(([, e]) => e.type === "IFCSIUNIT" || e.type === "IFCCONVERSIONBASEDUNIT");
+  const projectUnits = unitEnts.filter(([id]) => assigned.has(id));
+  for (const [, e] of projectUnits.length ? projectUnits : unitEnts) {
     if (e.type === "IFCSIUNIT" && e.args[1] === ".LENGTHUNIT.") toIn = (SI_PREFIX[String(e.args[2]).replace(/\./g, "")] ?? 1) * 100 / 2.54;
     if (e.type === "IFCCONVERSIONBASEDUNIT" && e.args[1] === ".LENGTHUNIT.") toIn = /^(INCH|IN)/i.test(e.args[2] ?? "") ? 1 : /^(FOOT|FEET|FT)/i.test(e.args[2] ?? "") ? 12 : toIn;
   }
@@ -99,9 +106,30 @@ export function planFromIfc(text, opt = {}) {
     const pds = get(prod.args[6]);
     return pds?.type === "IFCPRODUCTDEFINITIONSHAPE" ? (pds.args[2] ?? []).map(get).filter(Boolean) : [];
   };
+  /** Plan points (wall-local) of a body item: mesh coordinates, B-rep loops or a closed profile outline. */
+  const bodyPoints = (it, out, depth = 0) => {
+    const e = get(it);
+    if (!e || depth > 6) return;
+    if (e.type === "IFCTRIANGULATEDFACESET" || e.type === "IFCPOLYGONALFACESET") {
+      const cl = get(e.args[0]);
+      for (const p of cl?.args?.[0] ?? []) if (Array.isArray(p)) out.push({ x: p[0] ?? 0, y: p[1] ?? 0 });
+    } else if (e.type === "IFCFACETEDBREP") bodyPoints(e.args[0], out, depth + 1);
+    else if (e.type === "IFCCLOSEDSHELL" || e.type === "IFCOPENSHELL") for (const f of e.args[0] ?? []) bodyPoints(f, out, depth + 1);
+    else if (e.type === "IFCFACE") for (const b of e.args[0] ?? []) bodyPoints(b, out, depth + 1);
+    else if (e.type === "IFCFACEOUTERBOUND" || e.type === "IFCFACEBOUND") bodyPoints(e.args[0], out, depth + 1);
+    else if (e.type === "IFCPOLYLOOP" || e.type === "IFCPOLYLINE") for (const r of e.args[0] ?? []) { const q = pt(r); if (q) out.push(q); }
+    else if (e.type === "IFCEXTRUDEDAREASOLID") {
+      const prof = get(e.args[0]);
+      if (prof?.type === "IFCARBITRARYCLOSEDPROFILEDEF") {
+        const o = pt(get(e.args[1])?.args?.[0]) ?? { x: 0, y: 0 };
+        const tmp = []; bodyPoints(prof.args[2], tmp, depth + 1);
+        for (const q of tmp) out.push({ x: q.x + o.x, y: q.y + o.y });
+      }
+    }
+  };
   /** @type {{ layer: string, a: {x:number,y:number}, b: {x:number,y:number} }[]} */
   const lines = [];
-  let nWalls = 0, noGeom = 0, nOpen = 0;
+  let nWalls = 0, noGeom = 0, nOpen = 0, nMesh = 0;
   for (const e of ents.values()) {
     if (e.type !== "IFCWALL" && e.type !== "IFCWALLSTANDARDCASE") continue;
     const T = placement(e.args[5]);
@@ -123,6 +151,16 @@ export function planFromIfc(text, opt = {}) {
         local = [{ x: c0.x - half, y: c0.y }, { x: c0.x + half, y: c0.y }];
       }
     }
+    if (!local) {
+      const pts = [];
+      for (const r of reps(e)) if (r.args[1] === "Body") for (const it of r.args[3] ?? []) bodyPoints(it, pts);
+      if (pts.length >= 3) {
+        const xs = pts.map((q) => q.x), ys = pts.map((q) => q.y);
+        const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+        local = x1 - x0 >= y1 - y0 ? [{ x: x0, y: (y0 + y1) / 2 }, { x: x1, y: (y0 + y1) / 2 }] : [{ x: (x0 + x1) / 2, y: y0 }, { x: (x0 + x1) / 2, y: y1 }];
+        nMesh++;
+      }
+    }
     if (!local) { noGeom++; continue; }
     const a = apply(T, local[0]), b = apply(T, local[1]);
     lines.push({ layer: "A-WALL", a, b });
@@ -139,6 +177,7 @@ export function planFromIfc(text, opt = {}) {
   }
   if (!nWalls) return { ok: false, errors: [`No IfcWall with an Axis line or a rectangle profile was found${noGeom ? ` (${noGeom} wall${noGeom === 1 ? "" : "s"} had other geometry: swept or boolean bodies are not read)` : ""}.`], notes };
   if (noGeom) notes.push(`${noGeom} wall${noGeom === 1 ? "" : "s"} skipped: geometry other than an Axis line or a rectangle profile.`);
+  if (nMesh) notes.push(`${nMesh} wall${nMesh === 1 ? "" : "s"} had no axis: centre line taken from the plan bounding box of the body mesh (the longer side is the length; check that no wall is L-shaped or slanted).`);
   notes.push(`Read ${nWalls} wall${nWalls === 1 ? "" : "s"} and ${nOpen} door/window${nOpen === 1 ? "" : "s"} from the IFC; an opening's placement origin is taken as the near end of its width, running along its local X.`);
 
   const g = (c, v) => `${c}\n${v}\n`;

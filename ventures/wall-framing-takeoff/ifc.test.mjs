@@ -86,3 +86,19 @@ test("opt.units overrides the unit in the file", () => {
   assert.ok(r.ok, r.errors?.join());
   assert.ok(Math.abs(r.plan.walls[0].length - 400 / 2.54) < 0.2);
 });
+
+// Real files: buildingSMART's Simple-Scene house (CC BY 4.0, fixtures/BSI-LICENSE.md). Its four
+// walls have no Axis and no extrusion: IFC 2x3 writes faceted B-reps, IFC 4.3 a triangulated face
+// set. Both are 1.8 m, 4.2 m, 6.0 m and 3.8 m long in the file's millimetres. The 4.3 file also
+// holds a second IfcSIUnit (metre, no prefix) outside the IfcUnitAssignment, which once made
+// every length read 1000 times too long.
+import { readFileSync } from "node:fs";
+for (const f of ["ifc2x3", "ifc43"]) {
+  test(`buildingSMART Simple-Scene (${f}): mesh walls read from their bounding box`, () => {
+    const r = planFromIfc(readFileSync(new URL(`./fixtures/bsi-simple-scene-architecture-${f}.ifc`, import.meta.url), "utf8"));
+    assert.ok(r.ok, r.errors?.join());
+    const mm = r.plan.walls.map((w) => Math.round(w.length * 25.4)).sort((a, b) => a - b);
+    assert.deepEqual(mm.map((v) => Math.round(v / 10) * 10), [1800, 3800, 4200, 6000]);
+    assert.ok(r.notes.some((n) => /bounding box of the body mesh/.test(n)));
+  });
+}
