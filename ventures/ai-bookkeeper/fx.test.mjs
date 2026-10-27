@@ -262,3 +262,14 @@ test("a part-payment leaves the euro balance open and its exchange gap booked", 
   assert.equal(net(j, "6190"), -4000);
   assert.equal(aging(b).receivable.total, 66000);
 });
+
+test("a GBP credit note against a EUR invoice is applied at base value, no exchange entry, and the payment clears the rest", () => {
+  const csv = "type,number,date,due,party,amount,account,currency,against\ninvoice,E1,2026-01-05,,Client GmbH,1000.00,4000,EUR,\ncredit note,C1,2026-02-05,,Client GmbH,100.00,4000,GBP,E1\n";
+  const r = addDocuments(setRates(newBooks(), parseRates("2026-01-01,EUR,1.10\n2026-01-01,GBP,1.30").rates), csv);
+  assert.deepEqual(r.problems, []);
+  assert.equal(net(journal(r.books), "1100"), 97000); // 1,100.00 less the credit note's 130.00
+  const b2 = importStatement(r.books, "Date,Description,Amount\n2026-02-10,WIRE CLIENT GMBH E1,970.00\n", "1000").books;
+  const j2 = journal(addDocuments(b2, "").books);
+  assert.equal(net(j2, "1100"), 0);
+  assert.equal(net(j2, "6190"), 0);
+});
