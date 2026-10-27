@@ -1,6 +1,6 @@
 # What does a 1:N model of a cargo UAV tell you about the 1:1 aircraft?
 
-**Status: open research programme, milestone 1 done.** A stdlib Froude-scaling calculator
+**Status: open research programme, milestones 1 to 6a done in part (see below).** A stdlib Froude-scaling calculator
 (`src/aerolog_scaling/`, 9 tests) and a first-order result: for a 1,000 kg, aspect-ratio-10 cargo
 fixed-wing, the 1:10 model needs **1.27x** the power that Froude scaling predicts (1.17 to 1.35
 over drag and aspect-ratio sweeps) because Reynolds number falls as n^1.5 and skin friction rises.
@@ -62,6 +62,15 @@ propeller sits near Re 1e5. The full-size side (Re about 1e6, an assumed figure)
 the n = 0.1 gap there (19 to 25 points from the fits, 31 from a straight line) is an extrapolation and is not reported as a result.
 Re is confounded with RPM within a propeller (advance ratio at peak and tip Mach move too).
 Data: Brandt and Selig, "Propeller Performance Data at Low Reynolds Numbers", AIAA 2011-1255; UIUC Propeller Data Site, https://m-selig.ae.illinois.edu/props/propDB.html.
+
+**Measured electrical power against mass (milestone 6a, `experiments/rodrigues_energy/`).** On 134 cruise
+flights of a DJI Matrice 100 (Rodrigues et al., *Patterns* 2022; data CC BY 4.0, Figshare
+10.1184/R1/12683453.v1), electrical power scales with takeoff mass to the power **1.54** (95% bootstrap interval
+over flights 1.41 to 1.67, speed and wind as covariates), consistent with the m^1.5 of rotor momentum theory
+that Froude scaling turns into n^3.5. Electrical cruise power is 1.85 times the ideal induced power at every
+payload (0, 250, 500 g), and falls 10% from 4 to 12 m/s (translational lift). This is a check inside one
+airframe over a 13.6% mass range, not across scale; payload is partly confounded with flight day (density not
+logged) and the interval resamples flights, not days. Data: Rodrigues et al., doi:10.1184/R1/12683453.v1.
 
 ## Limitations
 
