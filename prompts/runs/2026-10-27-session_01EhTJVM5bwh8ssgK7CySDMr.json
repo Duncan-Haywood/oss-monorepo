@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01EhTJVM5bwh8ssgK7CySDMr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "model": "claude-sonnet-5-5",
+  "pr": 10803,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/routing.json",
+      "issue": "Router drew the creative track while the scheduled prompt asked for revenue-generating products; followed the prompt."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Ran the venture track although promptctl route drew creative."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-einvoice-preflight-colombia-chile.md"
+  ],
+  "notes": "Colombia and Chile pages with NIT/RUT check digits. First claim (Colombia digit catches every single wrong digit) was wrong: remainders 1 and 10 both give 1; measured 3,015/162,000 and pinned. WebFetch hosts were blocked (ENOTFOUND), so facts come from search excerpts and are flagged on the pages. Checks: einvoice-preflight node --test *-mandate.test.mjs + hub + new module tests (366 pass); full venture suite had 4 cross-link failures, fixed by linking the new pages from every country page; widgets in headless Chromium; check_post_frontmatter, check_jsonld, check_heading_order, check_md_links clean.",
+  "corrections": []
+}
