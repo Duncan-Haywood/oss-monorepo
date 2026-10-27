@@ -875,4 +875,15 @@ What it says: the slope-bend range is useful here, but the answer depends on the
 
 Warning landed (2026-10-27, `driftWarning` in the result, a CLI line, a test in `uk-gas.test.mjs`): with `--drift` and `--period`, three or more steps within two cycles of each other now come back with a note that they usually mark a seasonal shape that is still changing, not separate regimes. It fires on the UK gas series (raw) and stays silent on the fixed profile. Only that one real series was checked, so the threshold (3 steps in 2 cycles) is a guess; a false-alarm rate on drift-free seasonal series is not measured.
 
-Next on this thread: a multiplicative seasonal option for the Gaussian path, and the false-alarm rate of `driftWarning` on simulated seasonal series with real step changes.
+**`driftWarning` false-alarm rate (measured 2026-10-28, `eval/drift-warning.mjs`, output `eval/drift-warning.out.txt`, test `drift-warning.test.mjs`; made-up series, mean model with `drift: true`, a sine season of swing 4, noise sd 1, 200 seeded series per row).** How often the note appears:
+
+| series | quarterly, n=120 | monthly, n=144 |
+|---|---|---|
+| fixed season, no change | 4/200 (2%) | 7/200 (3.5%) |
+| two real level steps, far apart | 4/200 (2%) | 23/200 (11.5%) |
+| three real steps inside two cycles | 190/200 | 200/200 |
+| amplitude tripling over the series | 4/200 | 10/200 |
+
+Read plainly: without a change the note is rare, but with monthly data and two genuine steps it fired on one series in nine, so the 3-steps-in-2-cycles rule is not free of false alarms there. Three genuine steps packed together get the note nearly every time, and that is correct only if they are one drifting shape: the rule cannot tell a real burst of regime changes from drift, and the note's wording ("usually marks", "check the dates") says so. Unexpected, and worth knowing: a tripling amplitude barely produced steps (0.54 to 0.63 per series; the drift option follows a smooth sine amplitude), so the note seldom fires on this kind of drift; UK gas has a more abrupt change. Synthetic, one profile shape, no autocorrelation; the threshold is unchanged.
+
+Next on this thread: a multiplicative seasonal option for the Gaussian path; a monthly rule that asks for steps within one cycle plus a bit instead of two (the 11.5% row).
