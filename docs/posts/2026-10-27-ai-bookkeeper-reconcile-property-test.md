@@ -1,7 +1,7 @@
 ---
 title: "Reconciling 300 random statements: the bank rec hints hold up"
 date: 2026-10-27
-description: "A seeded property test runs ai-bookkeeper's statement reconciliation on 300 random statements and checks the difference, the hints and that the books are never edited."
+description: "A seeded property test runs ai-bookkeeper statement reconciliation on 300 random statements and checks the difference, the hints and untouched books."
 tags: [ai-bookkeeper, testing, reconciliation]
 ---
 
