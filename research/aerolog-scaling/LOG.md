@@ -3,6 +3,17 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-27 · Milestone 5a: how much peak propeller efficiency does a Froude model lose to Reynolds number? (predictions fixed before the final numbers)
+- Why: H4 says motor-plus-propeller efficiency at n = 0.1 is at least 10 points below full size (refuted under 5). Only the propeller part can be measured here; the UIUC Propeller Database (wind-tunnel data, 91 MB zip, reachable through the proxy) gives eta(J) at many RPMs for APC propellers.
+- Plan (`experiments/propeller_efficiency/run.py`): peak eta and Re at 0.75 R (from RPM, diameter, c/R at 0.75) for every APC curve with a bracketed peak; within-propeller slope against log10 Re, bootstrap over propellers; saturating fits eta_inf - a Re^-b (b = 0.5, 0.2). **Predictions:** (1) peak efficiency rises with Re in nearly every propeller; (2) the fall from Re 1e5 to 3.2e4, inside the data, is 5 to 10 points; (3) the data cannot reach a full-size Re of about 1e6, so the n = 0.1 gap is an extrapolation.
+
+### Outcome (`experiments/propeller_efficiency/results.txt`)
+- 151 curves, 34 propellers, Re75 1.5e4 to 1.2e5. **(1) held:** 97% of per-propeller slopes are positive, mean 0.21 per decade [0.18, 0.23].
+- **(2) partly:** the saturating fits give 9.9 and 10.3 points for 1e5 to 3.2e4, at the top of the predicted range; the cross-propeller bin means differ by 6.6 points (0.669 vs 0.603) over a smaller Re span. So H4's 10-point bar is about met by the propeller alone for a model near Re 1e5.
+- **(3) held:** extrapolation to Re 1e6 gives 19 to 25 points from the saturating fits, 31 from a straight line; not used as a result. The full-size Re 1e6 is itself an assumed figure (1.5 m, 200 m/s tip, 0.1 m chord).
+- Limits: RPM and Re move together inside a propeller (J at peak, tip Mach), so the slope mixes effects; APC thin-electric and slow-flyer props only; motor efficiency not modelled; the 1.2 kg/m3 and 1.8e-5 Pa s are lab air.
+- Next: a sourced full-size propeller (diameter, RPM, chord) for the Re; motor efficiency vs size.
+
 ## 2026-10-27 · Milestone 3a: do trim speed and the longitudinal modes survive Reynolds-dependent aerodynamics? (predictions written after a first exploratory run, so not blind)
 - Why: H1 says trim speed and mode frequencies agree within 3% (refuted over 5%) at n = 0.1. Froude scaling makes them agree exactly for fixed coefficients, so any gap comes from Re-dependent CL(alpha), CD and tail effectiveness.
 - Plan (`experiments/longitudinal_modes/run.py`): wing NACA 4412 plus tail NACA 0012, NeuralFoil polars at each surface's Re, 4-state Etkin model; model flown at full-size trim angle, or at full-size CL. Predictions (stated after seeing a first run that crashed on the mode extraction, before the final numbers): trim speed moves under 3% at n = 0.1 (tripped); frequencies within 3%; short-period damping moves more than frequency.
