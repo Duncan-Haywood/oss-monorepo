@@ -19,7 +19,7 @@ import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
 import { salesTaxReturn, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
-import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax, taxTableOptions } from "./estimatedtax.mjs";
@@ -105,6 +105,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   inventory sell SKU --qty N --date D   move that stock's cost to cost of goods sold (FIFO or average)
   inventory adjust SKU --qty N --date D write off lost or damaged stock at cost
   inventory return SKU --qty N --date D stock sent back to the supplier, at the newest layer cost (file the refund to 1450)
+  inventory landed --amount TOTAL --date D --on INV-1,INV-2 [--by value|qty]  freight or duty spread over those purchases (file the payment to 1450)
   inventory method fifo|avg             costing method (default fifo)
   inventory             stock on hand by SKU, valued; the total should equal account 1450
   prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
@@ -369,6 +370,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     if (["buy", "sell", "adjust", "return"].includes(rest[0])) {
       const r = addInventoryMove(books, { kind: rest[0], sku: rest[1], date: flag("--date"), qty: flag("--qty"), amount: flag("--amount") ?? undefined, name: flag("--name") ?? undefined });
       books = r.books; save(); console.log(`${r.move.id} ${rest[0]} ${r.move.qty / 1000} x ${r.move.sku}${rest[0] === "buy" ? `, ${fmt(r.move.cents)}. File the payment to 1450.` : rest[0] === "return" ? ". File the supplier's refund to 1450." : ". Cost moved to 5000."}`);
+    } else if (rest[0] === "landed") {
+      const r = addLandedCost(books, { amount: flag("--amount"), date: flag("--date"), to: flag("--on"), by: flag("--by") ?? undefined });
+      books = r.books; save(); console.log(`${r.move.id} landed cost ${fmt(r.move.cents)}: ${r.move.alloc.map((a) => `${a.id} ${fmt(a.cents)}`).join(", ")}. File the payment to 1450.`);
     } else if (rest[0] === "method") {
       books = setInventoryMethod(books, rest[1]); save(); console.log(`Costing method: ${rest[1]}.`);
     } else {
