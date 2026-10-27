@@ -75,6 +75,16 @@ test('the stored opt-out survives a reload and stops counting without the caller
   assert.ok(localStorage.getItem('patent-maintenance-fee-planner-usage-v1'));
 });
 
+test('writeOptOut with no choice clears the opt-out rather than setting it', async () => {
+  const { readOptOut, writeOptOut } = await import('./usage.mjs');
+  globalThis.localStorage = new FakeStorage();
+  writeOptOut(localStorage, true);
+  writeOptOut(localStorage);
+  assert.equal(readOptOut(localStorage), false);
+  writeOptOut(localStorage);
+  assert.equal(readOptOut(localStorage), false);
+});
+
 test('a blocked store is never read as consent', async () => {
   const { readOptOut } = await import('./usage.mjs');
   assert.equal(readOptOut({ getItem() { throw new Error('blocked'); } }), false);
