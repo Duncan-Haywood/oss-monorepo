@@ -55,3 +55,10 @@ test("a company name wrapped over two lines is read as one name", () => {
   const r = parseReceipt("POPULAR BOOK\nCO. (M) SDN BHD\n(COMPANY NO. 113825-W)\nDate: 05/01/2019\nTotal 10.00");
   assert.equal(r.merchant, "POPULAR BOOK CO. (M) SDN BHD");
 });
+
+test("stray two-letter OCR fragments and a mark before TAX INVOICE are not the merchant", () => {
+  const r = parseReceipt("eee ee ee Ty Pee ee\n'\n| 99 SPEED MART S/B (519537-x)\nDate: 05/01/2019\nTotal 10.00");
+  assert.equal(r.merchant, "99 SPEED MART S/B");
+  const t = parseReceipt("J\n’ TAX INVOICE\nDOMINO'S PIZZA\nDate: 05/01/2019\nTotal 10.00");
+  assert.equal(t.merchant, "DOMINO'S PIZZA");
+});
