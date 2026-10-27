@@ -1493,3 +1493,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E97: review 2026-10-27 (reduced pass, twenty-fourth run)
+
+- Change: `research/CLAUDE.md` now says to check `import torch` before asking
+  `pyenv.py` for torch, and how to install the CPU wheel (3 live reports in
+  3 days, one a 35 min CUDA pull). Re-ran `derive.py fetch && build` (3319 rows).
+- Metric: friction reports about `pyenv.py` and torch naming
+  `research/CLAUDE.md`; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)

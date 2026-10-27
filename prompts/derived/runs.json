@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-27T00:18:23Z",
+ "generated": "2026-10-27T05:18:21Z",
  "rows": [
   {
    "date": "2026-10-01",
@@ -74481,6 +74481,54 @@
   {
    "date": "2026-10-27",
    "measured": {
+    "additions": 64,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 1,
+    "deletions": 3,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T01:09:17Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T01:09:17Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10772",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_012HFufUNeFJcnE143ZcTCor.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 132,
+    "changed_files": 5,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 2,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T01:10:47Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T01:10:47Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10773",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_013fLPJk81yMBDSLiyaRwAU8.json",
+   "track": "process"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
     "additions": 493,
     "changed_files": 11,
     "ci_head": "red",
@@ -74501,6 +74549,857 @@
    "prompt_version": 0,
    "record": "2026-10-27-session_013fhunpkSKJ2QEgowrUkbpU.json",
    "track": "creative"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 287,
+    "changed_files": 8,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 4,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-27T00:21:09Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T00:21:09Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10768",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_017XULS1j7GRqLzWjtq3YQ3b.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 2027,
+    "changed_files": 6,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 4,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-27T00:21:02Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T00:21:02Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10767",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_017fBxbs5jQxBuhxWbDJMYFT.json",
+   "track": "review"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 1188,
+    "changed_files": 11,
+    "ci_head": "red",
+    "ci_red_commits": 1,
+    "deletions": 2,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T02:02:11Z",
+    "pr_commits": 4,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T02:02:11Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10780",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_0184c5QVUqwMRYcQyF5VDjXN.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 284,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T00:22:10Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T00:22:10Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10769",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_019H768ohEGJ5fzR5oYRXrcA.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 686,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 1,
+    "deletions": 2,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T04:10:52Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:10:52Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10806",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01AcxTbQex6EWjfBb9Beh.json",
+   "track": "creative"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 159,
+    "changed_files": 6,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T05:09:36Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T05:09:36Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10813",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01AcxTtGXN5QxEqCawz5i7Ne.json",
+   "track": "explore"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 324,
+    "changed_files": 57,
+    "ci_head": "red",
+    "ci_red_commits": 1,
+    "deletions": 48,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T05:10:44Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T05:10:44Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10815",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01AcxTtGq1y3u3ZSyBbUpMVj.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 65,
+    "changed_files": 3,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 0,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-27T04:09:44Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:09:44Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10805",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01AcxTtGvsBbtvNs65nZVurU.json",
+   "track": "process"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 837,
+    "changed_files": 9,
+    "ci_head": "red",
+    "ci_red_commits": 3,
+    "deletions": 1,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T02:10:30Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T02:10:30Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10784",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01AcxTtHYS6rXte9WGQYers8.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 255,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T03:12:57Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T03:12:57Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10795",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01AcxTtHos38jcaNWf8XjCKX.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 603,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 2,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T02:09:59Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T02:09:59Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10783",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01AcxTtJH4uW8rgmZogQDo2a.json",
+   "track": "creative"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 114,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 1,
+    "deletions": 6,
+    "hours_open": 0.02,
+    "merged": true,
+    "merged_at": "2026-10-27T03:12:46Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T03:12:46Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10794",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01AcxTtJLo99Hda81GApCeSr.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 75,
+    "changed_files": 4,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 3,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-27T05:09:46Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T05:09:46Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10814",
+   "prompt_version": 2,
+   "record": "2026-10-27-session_01AcxTtJgrdMWxgFfbSu2abB.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 230,
+    "changed_files": 11,
+    "ci_head": "red",
+    "ci_red_commits": 3,
+    "deletions": 11,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T04:09:48Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:09:48Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10804",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01AcxTtJtj1xFi63W9U3faxA.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 181,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 6,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-27T03:10:41Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T03:10:41Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10792",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01AcxTtJwau838JQXwJAa4jx.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 385,
+    "changed_files": 11,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T03:11:14Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T03:11:14Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10793",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01AcxTtJwrGtmvYqiLKLjuYM.json",
+   "track": "creative"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 63,
+    "changed_files": 3,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 1,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T02:08:19Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T02:08:19Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10781",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01AcxTtKXxNUo6e2VrXmocvr.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 230,
+    "changed_files": 11,
+    "ci_head": "red",
+    "ci_red_commits": 3,
+    "deletions": 11,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T04:09:48Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:09:48Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10804",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01AcxTtKqXK19K5AWcPPnZMy.json",
+   "track": "redteam"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 742,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 2,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-27T04:09:12Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:09:12Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10802",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01AcxTtKrsfWarTPLx8cLj8M.json",
+   "track": "creative"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 186,
+    "changed_files": 9,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 2,
+    "hours_open": 0.87,
+    "merged": true,
+    "merged_at": "2026-10-27T04:43:35Z",
+    "pr_commits": 5,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:43:35Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "duncan-haywood/oss-monorepo#10799",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01E5sJKiW6KXi5D64vTtdFeV.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 131,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 3,
+    "deletions": 2,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T02:12:25Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T02:12:25Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10785",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01E5sJKivDdq5F8YVsZpARwL.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 68,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 10,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T02:20:58Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T02:20:58Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10787",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01E5sJKjJ9kU8fedUCXn9Rxp.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 344,
+    "changed_files": 11,
+    "ci_head": "red",
+    "ci_red_commits": 3,
+    "deletions": 0,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T02:21:14Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T02:21:14Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10786",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01E5sJKkD9tXmkGUaxtoWjTX.json",
+   "track": "creative"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 73,
+    "changed_files": 6,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 3,
+    "hours_open": 0.0,
+    "merged": true,
+    "merged_at": "2026-10-27T03:20:06Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T03:20:06Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10797",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01E5sJKkXcQWud6d9EvBfh46.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 147,
+    "changed_files": 6,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 0,
+    "hours_open": 0.85,
+    "merged": true,
+    "merged_at": "2026-10-27T04:14:09Z",
+    "pr_commits": 4,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:14:09Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10798",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01E5sJKmE6jQ1Av5KgLWAHdy.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 476,
+    "changed_files": 10,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T02:21:59Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T02:21:59Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10788",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01E5sJKmyQi3LmjKko7KstcX.json",
+   "track": "creative"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 280,
+    "changed_files": 9,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 12,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T03:14:15Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T03:14:15Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10796",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01E5sJKnBSX64mG8DyKasRVs.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 525,
+    "changed_files": 14,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T04:22:29Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:22:29Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10809",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01E5sJKnC1F5mambiQVSyYYz.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 131,
+    "changed_files": 1,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 0,
+    "hours_open": 0.02,
+    "merged": true,
+    "merged_at": "2026-10-27T04:13:50Z",
+    "pr_commits": 4,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:13:50Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10807",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01E5sJKo7xgR1Mn2sNFCGw5T.json",
+   "track": "process"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 230,
+    "changed_files": 5,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 0,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T04:19:31Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:19:31Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10808",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01E5sJKo9GZdFGbptwMyT1NG.json",
+   "track": "explore"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 65,
+    "changed_files": 3,
+    "ci_head": "red",
+    "ci_red_commits": 1,
+    "deletions": 1,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T05:14:05Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T05:14:05Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10816",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01E5sJKoCrNagL3x1DVxQFK9.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 66,
+    "changed_files": 6,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 3,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T01:59:22Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T01:59:22Z"
+    },
+    "state": "closed"
+   },
+   "model": null,
+   "pr": "Duncan-Haywood/oss-monorepo#10778",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01EhTJVKX8Hxro41gNxHFQTh.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "why": "the record names no pull request"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": null,
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01EhTJVLbgey8RhToyfyWUyL.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 563,
+    "changed_files": 57,
+    "ci_head": "red",
+    "ci_red_commits": 3,
+    "deletions": 47,
+    "hours_open": 0.28,
+    "merged": true,
+    "merged_at": "2026-10-27T04:25:56Z",
+    "pr_commits": 4,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T04:25:56Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10803",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01EhTJVM5bwh8ssgK7CySDMr.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 258,
+    "changed_files": 3,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 1,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T01:17:56Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T01:17:56Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10775",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01EhTJVNYGpuvRToFApvYvPP.json",
+   "track": "redteam"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 261,
+    "changed_files": 9,
+    "ci_head": "red",
+    "ci_red_commits": 3,
+    "deletions": 2,
+    "hours_open": 0.01,
+    "merged": true,
+    "merged_at": "2026-10-27T03:01:30Z",
+    "pr_commits": 3,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T03:01:30Z"
+    },
+    "state": "closed"
+   },
+   "model": null,
+   "pr": "Duncan-Haywood/oss-monorepo#10791",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01EhTJVNqEoLYGnaLM73CnLy.json",
+   "track": "ventures"
   },
   {
    "date": "2026-10-27",
@@ -74601,6 +75500,30 @@
   {
    "date": "2026-10-27",
    "measured": {
+    "additions": 1643,
+    "changed_files": 10,
+    "ci_head": "green",
+    "ci_red_commits": 0,
+    "deletions": 5,
+    "hours_open": 0.19,
+    "merged": true,
+    "merged_at": "2026-10-27T01:44:38Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T01:44:38Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10776",
+   "prompt_version": 0,
+   "record": "2026-10-27-session_01Sf7PwLQBNxTK3qfGPg2CnE.json",
+   "track": "research"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
     "additions": 123,
     "changed_files": 5,
     "ci_head": "red",
@@ -74620,6 +75543,30 @@
    "pr": "Duncan-Haywood/oss-monorepo#10765",
    "prompt_version": 2,
    "record": "2026-10-27-session_01SrEH59p6Lx9FudeLLZQp8u.json",
+   "track": "ventures"
+  },
+  {
+   "date": "2026-10-27",
+   "measured": {
+    "additions": 166,
+    "changed_files": 7,
+    "ci_head": "red",
+    "ci_red_commits": 2,
+    "deletions": 2,
+    "hours_open": 0.09,
+    "merged": true,
+    "merged_at": "2026-10-27T01:17:27Z",
+    "pr_commits": 2,
+    "rework": {
+     "window": "open",
+     "window_closes": "2026-11-10T01:17:27Z"
+    },
+    "state": "closed"
+   },
+   "model": "claude-sonnet-5-5",
+   "pr": "Duncan-Haywood/oss-monorepo#10774",
+   "prompt_version": 1,
+   "record": "2026-10-27-session_01T1Duz9XrjqC2kuCc4xiXLD.json",
    "track": "ventures"
   },
   {
