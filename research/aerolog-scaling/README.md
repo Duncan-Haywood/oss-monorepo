@@ -39,6 +39,11 @@ wings do not do (separation); that is a limit of the flat-plate model, not a fin
 Range scaled with length also means a model at fixed cell specific energy has much more battery
 margin per body length (0.13x at n = 0.1), so scaled endurance does not test the full-size energy budget.
 
+**Airfoil polars (milestone 4a, `experiments/airfoil_polars/`).** With NeuralFoil polars for a NACA 4412
+in place of the flat plate, the 1:10 model needs 1.29 to 1.45 times the Froude-predicted power
+(three boundary-layer states) and loses 0.37 to 0.52 of CLmax; both support H2 and H3 for a clean 2D
+section. At 1:5 the power ratio is 1.11 to 1.19. The surrogate is unvalidated here and not usable at 1:20.
+
 ## Limitations
 
 Flat-plate drag with a form factor, no airfoil polars, no CLmax, fixed powertrain efficiency (which
