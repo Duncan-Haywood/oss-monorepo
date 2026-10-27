@@ -1482,3 +1482,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates still "keep collecting: the intervals overlap". No
   derive fetch, audit or drift report (reduced pass).
 - Result: (next review)
+
+## E96: review 2026-10-27 (reduced pass, twenty-third run)
+
+- Change: `research/CLAUDE.md` now documents the missing `pdflatex` (texlive
+  install about 10 min, needs `apt-get update` first), beside the yosys line.
+  Re-ran `derive.py fetch && build` (3279 rows, committed).
+- Metric: "TeX is not in the image" friction reports naming `research/CLAUDE.md`;
+  compare the next 40 runs (8 live in the last 3 days, 2 about TeX).
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
