@@ -151,3 +151,13 @@ return for row 2 onward); no calendar dates are carried.
 - **Licence:** Rdatasets lists the package's licence per dataset; `EuStockMarkets` ships with base R (GPL-2 or
   later). Only a derived column of returns is kept here: check the licence before reusing it elsewhere.
 - **Used by:** `dax-returns.test.mjs`.
+
+# Example data: great inventions and discoveries, 1860-1959
+
+`great-discoveries.csv`: yearly counts (100 years, 310 events) of "great" inventions and scientific discoveries
+from The World Almanac and Book of Facts, as in R's `datasets::discoveries`.
+
+- **Retrieved:** 2026-10-28 from statsmodels' `get_rdataset('discoveries', 'datasets')` (Rdatasets mirror).
+- **Licence:** the R `datasets` package is GPL-2 | GPL-3; the series is a published list of yearly counts (no creative
+  expression), and only the counts are kept here.
+- **Used by:** `great-discoveries.test.mjs`.
