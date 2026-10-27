@@ -163,8 +163,8 @@ for st in ("r4", "r3"):
     mt = lambda c: cell_info[c][f"tau_{st}"][0]
     a = auc([-mt(c) for c in bad], [-mt(c) for c in good])
     sd = M(cell_info[c][f"tau_{st}"][1] for c in cells)
-    out.append(f"pilot tau(R2,{st.upper()}): AUC {a:.2f} (cell-mean tau); mean within-cell sd of pilot tau {sd:.2f}; "
-               f"mean cell tau bad {M(mt(c) for c in bad):.2f}, other {M(mt(c) for c in good):.2f}")
+    out.append(f"pilot tau(R2,{st.upper()}): AUC {'n/a (no bad cells)' if a is None else f'{a:.2f}'}; mean within-cell sd of pilot tau {sd:.2f}; "
+               f"mean cell tau bad {M(mt(c) for c in bad) if bad else float('nan'):.2f}, other {M(mt(c) for c in good):.2f}")
     summary[f"auc_{st}"] = a
     summary[f"tau_sd_{st}"] = sd
 out.append("\n## full-pool R2 pick regret % per cell")
