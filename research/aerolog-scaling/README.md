@@ -1,6 +1,6 @@
 # What does a 1:N model of a cargo UAV tell you about the 1:1 aircraft?
 
-**Status: open research programme, milestones 1 to 7a done in part (see below).** A stdlib Froude-scaling calculator
+**Status: open research programme, milestones 1 to 7b done in part (see below).** A stdlib Froude-scaling calculator
 (`src/aerolog_scaling/`, 9 tests) and a first-order result: for a 1,000 kg, aspect-ratio-10 cargo
 fixed-wing, the 1:10 model needs **1.27x** the power that Froude scaling predicts (1.17 to 1.35
 over drag and aspect-ratio sweeps) because Reynolds number falls as n^1.5 and skin friction rises.
@@ -77,6 +77,12 @@ needs 1.157x the Froude power (free transition; 1.383 tripped). A search of 178 
 (158 NACA 4-digit, 10 low-Reynolds sections, free or tripped, CL within +/-6%, lift-curve slope within 5%) finds none
 within 5%: the best is **1.086**, a thin cambered section left untripped. H5 is refuted in this design space, which
 holds geometric similarity; the polars are NeuralFoil, not yet checked against measured data.
+
+**Non-similar corrections (milestone 7b, `experiments/nonsimilar_search/`).** Allowing wing area and aspect ratio to
+depart from similarity reverses 7a: 17 of 144 (section, area factor, aspect ratio) cases match Froude power within 5%
+at n = 0.2 (NACA 4412 with 1.3x the similar area: 0.996). Most do so by running 17 to 33% lower CL; only two also keep CL
+within 6% and the finite-wing lift slope within 5% (e.g. NACA 5406, AR 12: 0.967). These are power matches at the trim
+point, not corrections of the physics, and the polars are still NeuralFoil, unchecked against measured data.
 
 ## Limitations
 
