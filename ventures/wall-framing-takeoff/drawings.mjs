@@ -119,6 +119,19 @@ export function wallElevationSvg(w, wall, plan = {}, panels = null) {
     + `${members}${openings}${joints}${panelLines}${ticks}${chain}${overall}${hdim}</svg>`;
 }
 
+/**
+ * One shop panel of a wall as its own SVG: the wall elevation cropped to the panel's span
+ * (plates and openings are clipped at the cut lines) with the panel's name and width on top.
+ */
+export function panelElevationSvg(w, wall, plan, pan, k) {
+  const p = pan.panels[k];
+  const svg = wallElevationSvg(w, wall, plan, pan);
+  const H = w.height;
+  const vb = `${r3(p.x0 - 1)} -22 ${r3(p.width + 2)} ${r3(H + 22 + 46)}`;
+  const label = `<text x="${r3((p.x0 + p.x1) / 2)}" y="${r3(H + 30)}" style="font:5px sans-serif;text-anchor:middle;font-weight:700">${esc(w.id)} panel ${esc(p.name)}: ${esc(formatLength(p.width))}</text>`;
+  return svg.replace(/<text [^>]*class="dt big">[^<]*<\/text>/, "").replace(/viewBox="[^"]*"/, `viewBox="${vb}"`).replace(/aria-label="[^"]*"/, `aria-label="Shop drawing of panel ${esc(p.name)} of wall ${esc(w.id)}, ${esc(formatLength(p.width))} wide"`).replace("</svg>", `${label}</svg>`);
+}
+
 /** The parts table of one wall as HTML. */
 export function partsTableHtml(w) {
   const { parts } = markMembers(w);
@@ -137,6 +150,15 @@ function panelTableHtml(w, pan, max, wall = {}, psf = 0) {
     + cutLists;
 }
 
+/** One printable sheet per shop panel: cropped elevation, weight and its own cut list. */
+function panelSheetsHtml(w, wall, plan, pan, psf) {
+  const parts = panelParts(w, pan, { sheathPsf: psf, openings: wall.openings });
+  return pan.panels.map((p, k) => `<section class="sheet"><h1>${esc(w.id)} panel ${esc(p.name)}</h1><p class="sub">Panel ${k + 1} of ${pan.panels.length} of wall ${esc(w.id)} &middot; ${esc(formatLength(p.x0))} to ${esc(formatLength(p.x1))} from the wall start &middot; ${esc(formatLength(p.width))} wide &middot; ${esc(formatInches(w.height))} high${p.over ? ' &middot; <span class="err">over limit</span>' : ""} &middot; ${parts[k].pieceCount} pieces, ${psf > 0 ? parts[k].totalLb : parts[k].lb} lb</p>`
+    + panelElevationSvg(w, wall, plan, pan, k)
+    + `<h2>Cut list</h2><table><thead><tr><th class="n">Qty</th><th>Size</th><th class="n">Cut length</th><th>Member</th></tr></thead><tbody>${parts[k].pieces.map((x) => `<tr><td class="n">${x.qty}</td><td>${esc(x.size)}</td><td class="n">${esc(formatInches(x.length))}</td><td>${esc(x.label)}</td></tr>`).join("")}</tbody></table>`
+    + `<p class="chk">Weights are a handling estimate (SPF 28 lb/ft3, treated plate 40 lb/ft3), not a lifting plan. Adjoining end studs are nailed together on site.</p><p class="foot">${esc(DISCLAIMER)}</p></section>`).join("");
+}
+
 const CSS = `body{font:14px/1.4 system-ui,sans-serif;margin:0;color:#1b1b1b;background:#fff}
 .sheet{padding:14mm 12mm;page-break-after:always;break-after:page}.sheet:last-child{page-break-after:auto;break-after:auto}
 h1{font-size:20px;margin:0 0 2px}h2{font-size:15px;margin:14px 0 4px}.sub{color:#555;margin:0 0 8px}
@@ -151,7 +173,7 @@ const DISCLAIMER = "No warranty. These drawings are a plan-derived picture of th
  * The whole drawing set as one printable HTML document, one sheet per wall.
  * @param {{ok: boolean, walls: any[]}} result from takeoff()
  * @param {any} plan the plan that produced it
- * @param {{title?: string, panelMax?: number, sheathPsf?: number}} [opts] panelMax (inches) splits each wall into shop panels no longer than that; sheathPsf (lb per sq ft) adds sheathing weight to each panel
+ * @param {{title?: string, panelMax?: number, sheathPsf?: number, panelSheets?: boolean}} [opts] panelSheets (with panelMax) adds one sheet per panel; panelMax (inches) splits each wall into shop panels no longer than that; sheathPsf (lb per sq ft) adds sheathing weight to each panel
  */
 export function drawingSetHtml(result, plan, opts = {}) {
   const title = opts.title || "Wall framing shop drawings";
@@ -166,7 +188,8 @@ export function drawingSetHtml(result, plan, opts = {}) {
       + `<h2>Parts</h2>${partsTableHtml(w)}`
       + `<p class="chk">Plate joints (red) from the wall start: ${esc(joints)}. ${problems.length ? `<span class="err">Layout check found ${problems.length} problem(s): ${problems.map(esc).join("; ")}</span>` : "Layout check passed: every member inside the wall, none overlapping, every plate joint over a full stud."}</p>`
       + (w.notes?.length ? `<p class="chk">${w.notes.map(esc).join(" ")}</p>` : "")
-      + `<p class="foot">${esc(DISCLAIMER)}</p></section>`;
+      + `<p class="foot">${esc(DISCLAIMER)}</p></section>`
+      + (pan && opts.panelSheets ? panelSheetsHtml(w, wall, plan, pan, opts.sheathPsf > 0 ? opts.sheathPsf : 0) : "");
   });
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>${CSS}</style></head><body>${sheets.join("")}</body></html>`;
 }
