@@ -1,7 +1,7 @@
 ---
 title: "A leak gives away its height"
 date: 2026-10-27
-description: "A new free short story, The Salt Line, finds a cistern crack from three quiet nights: the water lost in a night shrinks as the level falls, and reaches zero at the crack."
+description: "A new free short story, The Salt Line, finds a cistern crack from three quiet nights: the nightly drop shrinks as the level falls and reaches zero at the crack."
 tags: [fiction, water, hearth-and-horizon]
 ---
 
