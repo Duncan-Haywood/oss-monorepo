@@ -19,10 +19,11 @@ lab has reviewed this.
 
 ```bash
 cd research/marine-hull
-PYTHONPATH=src python3 -m pytest tests -q          # 22 tests
+PYTHONPATH=src python3 -m pytest tests -q          # 23 tests
 PYTHONPATH=src python3 experiments/run_michell.py > experiments/results_michell.txt   # milestone 2, 2 s
 PYTHONPATH=src python3 experiments/run.py > experiments/results.txt
 PYTHONPATH=src python3 experiments/run_glider.py > experiments/results_glider.txt   # milestone 4, 1 s
+PYTHONPATH=src python3 experiments/run_slocum.py > experiments/results_slocum.txt   # milestone 4b, 1 s
 ```
 
 `hull.py`: ITTC 1957 friction line (checked analytically: Cf = 0.003 at Re = 1e7), form factor,
@@ -38,7 +39,18 @@ Results: [`experiments/results_michell.txt`](experiments/results_michell.txt).
 B tan(gamma)/(2 eta), independent of depth) against a same-mass propeller AUV. No glider coefficient is
 sourced (the cited papers were unreachable); all are swept. Results: [`experiments/results_glider.txt`](experiments/results_glider.txt).
 
+`experiments/run_slocum.py` (milestone 4b): the same glider model with Slocum aerodynamics read from the
+MIT-licensed `gliderflight` package (PyPI 1.2.1; Merckelbach's implementation of the Slocum flight model):
+S = 0.1 m^2, lift slope 7.5 /rad, K = 10.5 /rad^2, Cd0 0.15 to 0.31. Hotel load, pump efficiency and dive
+energy stay swept. Results: [`experiments/results_slocum.txt`](experiments/results_slocum.txt).
+
 ## Results (preliminary)
+
+- Milestone 4b (Slocum coefficients from `gliderflight`, 2,430 cases): at equal hotel load the glider has the
+  longer best range in 0 cases (median AUV/glider energy ratio 0.36); the break-even AUV hotel load is a median
+  4.9 times the glider's (10th to 90th 2.4 to 10.7), and the glider wins in 52% of cases at 5 times and 99.9% at
+  20 times. The hotel-load reading of milestone 4 survives sourced aerodynamics; the measured hotel loads of a
+  fielded glider and AUV are still the missing inputs.
 
 - Milestone 4 (glider vs AUV, 52 kg, 19,683 swept cases, battery cancels): with the same hotel load the
   glider has the longer best range in only 5.9% of cases; it wins when the AUV's hotel load is 5 times the

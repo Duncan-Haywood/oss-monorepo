@@ -46,3 +46,18 @@ def test_auv_hotel_dominates_slow_drag_fast():
 def test_interp_bounds():
     assert interp_log([0, 1], [0, 10], 0.5) == pytest.approx(5)
     assert interp_log([0, 1], [0, 10], 2) is None
+
+
+def test_slocum_coefficients_from_gliderflight():
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location(
+        "run_slocum", pathlib.Path(__file__).parent.parent / "experiments" / "run_slocum.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    assert m.AW == pytest.approx(3.73, abs=0.01)
+    assert m.K_IND == pytest.approx(10.5, abs=0.05)   # the package's own calibration examples use 10.5
+    auv = (2.0, 3.2, 0.2)
+    e_g = 8.0
+    be = m.breakeven(auv, e_g)
+    assert m.auv_best(auv, be) == pytest.approx(e_g, rel=1e-6)
+    assert m.breakeven(auv, 1e-6) == 0.0
