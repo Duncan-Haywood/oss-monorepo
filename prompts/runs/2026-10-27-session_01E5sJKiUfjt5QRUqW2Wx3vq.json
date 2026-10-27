@@ -45,7 +45,10 @@
       "result": "hypothesis i was refuted anyway"
     }
   ],
-  "writeups": "docs/posts/2026-10-27-what-do-real-worker-updates-look-like-in-low-communication-training.md; research/lowcomm-training/LOG.md 5h",
+  "writeups": [
+    "docs/posts/2026-10-27-what-do-real-worker-updates-look-like-in-low-communication-training.md",
+    "research/lowcomm-training/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
