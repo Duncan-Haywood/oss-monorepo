@@ -32,13 +32,15 @@ const FREE_MAIL = /@(gmail|yahoo|hotmail|outlook|icloud|aol|proton(mail)?|live)\
 const CONSENT_REGIONS = { CA: "Canada (CASL: most commercial email needs consent)", DE: "Germany (UWG: cold email needs prior consent)", AT: "Austria (TKG: cold email needs prior consent)" };
 const COUNTRY = { "united states": "US", usa: "US", "united kingdom": "GB", uk: "GB", canada: "CA", germany: "DE", deutschland: "DE", austria: "AT", australia: "AU", ireland: "IE", france: "FR", netherlands: "NL", spain: "ES", italy: "IT" };
 const SENIOR = /\b(owner|founder|co-?founder|ceo|cto|coo|cfo|president|principal|partner|managing director|general manager|head of|vp|vice president|director|chief)\b/i;
+// Mautic (and some Salesforce exports) put the salutation in "title" and the job in "position"; a salutation is not a job title.
+const SALUTATION = /^(mr|mrs|ms|miss|mx|dr|prof|sir|madam|mme|mlle|herr|frau|sr|sra)\.?$/i;
 const truthy = (v) => /^(1|y|yes|true|x|unsubscribed|opted[- ]?out)$/i.test(String(v || "").trim());
 const list = (v) => (Array.isArray(v) ? v : String(v || "").split(/[,;|]/)).map((s) => s.trim().toLowerCase()).filter(Boolean);
 
 export function normalizeRow(raw) {
   const out = {};
   for (const [field, names] of Object.entries(ALIASES)) {
-    for (const n of names) if (raw[n] !== undefined && String(raw[n]).trim() !== "") { out[field] = String(raw[n]).trim(); break; }
+    for (const n of names) if (raw[n] !== undefined && String(raw[n]).trim() !== "" && !(field === "title" && SALUTATION.test(String(raw[n]).trim()))) { out[field] = String(raw[n]).trim(); break; }
   }
   // Pipedrive and some HubSpot exports put several addresses in one cell; the first is the primary one.
   const e = (out.email || "").split(/[,;\s]+/)[0].toLowerCase();
