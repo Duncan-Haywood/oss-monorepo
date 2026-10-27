@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 10866,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-27-shift-roster-builder-open-hours-or-open-shifts.md",
+    "docs/reports/shift-roster-open-shift-control.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "shift-roster-builder: openShiftWeight on CLI (--open-shift-hours) and page select; new cli/page tests pass. page.test.mjs call-out table test fails (24 vs 22) with and without the change on this container (exact-search time limit). 2027 IRS rev proc still not out; irs.gov refused by proxy.",
   "corrections": [],
   "redteam": null
 }

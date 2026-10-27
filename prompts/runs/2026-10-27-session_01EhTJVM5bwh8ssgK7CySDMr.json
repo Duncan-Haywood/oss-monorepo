@@ -21,9 +21,8 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-10-27-shift-roster-builder-open-hours-or-open-shifts.md",
-    "docs/reports/shift-roster-open-shift-control.md"
+    "docs/posts/2026-10-27-einvoice-preflight-colombia-chile.md"
   ],
-  "notes": "shift-roster-builder: openShiftWeight on CLI (--open-shift-hours) and page select; new cli/page tests pass. page.test.mjs call-out table test fails (24 vs 22) with and without the change on this container (exact-search time limit). 2027 IRS rev proc still not out; irs.gov refused by proxy.",
+  "notes": "Colombia and Chile pages with NIT/RUT check digits. First claim (Colombia digit catches every single wrong digit) was wrong: remainders 1 and 10 both give 1; measured 3,015/162,000 and pinned. WebFetch hosts were blocked (ENOTFOUND), so facts come from search excerpts and are flagged on the pages. Checks: einvoice-preflight node --test *-mandate.test.mjs + hub + new module tests (366 pass); full venture suite had 4 cross-link failures, fixed by linking the new pages from every country page; widgets in headless Chromium; check_post_frontmatter, check_jsonld, check_heading_order, check_md_links clean.",
   "corrections": []
 }
