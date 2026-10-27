@@ -1,0 +1,6 @@
+flights 134, days 16; flights per day min 1, median 8, max 17
+days with >1 payload: 13 of 16; flights on those days 116
+[cluster bootstrap over days] mass exponent 1.539  95% CI [1.394, 1.704] (width 0.310); 1.5 inside: True
+[date fixed effects, all flights] mass exponent 1.529
+[date fixed effects, multi-payload days n=116] 1.531  95% flight-bootstrap CI [1.390, 1.676]; 1.5 inside: True
+[date FE, multi-payload days, cluster bootstrap over days] 1.531  95% CI [1.384, 1.693]
