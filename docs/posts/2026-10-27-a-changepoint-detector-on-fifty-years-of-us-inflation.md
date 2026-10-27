@@ -1,7 +1,7 @@
 ---
 title: "A changepoint detector on fifty years of US inflation: three breaks it should find, and one it invents"
 date: 2026-10-27
-description: "Run on quarterly US CPI inflation, the plain mean model over-segments; AR(1) and bootstrap penalties both find the 1973, 1978 and 1981 regime shifts, and all of them cut the 2008 deflation quarter."
+description: "On quarterly US inflation, AR(1) and bootstrap penalties find the 1973, 1978 and 1981 regime shifts; every setting also cuts the 2008 deflation quarter."
 tags: [changepoint, time-series, inflation, real-data]
 ---
 
