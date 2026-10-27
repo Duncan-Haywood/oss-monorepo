@@ -1,7 +1,7 @@
 ---
 title: "400 random self-employed incomes through a tax estimate: no faults, and why that is still worth knowing"
 date: 2026-10-27
-description: "A seeded property test of ai-bookkeeper's federal estimate and quarterly plan checks monotonic tax, plan sums and safe-harbour caps on made-up inputs, and finds nothing wrong."
+description: "A seeded property test of ai-bookkeeper's federal tax estimate and quarterly plan checks monotone tax and plan sums on made-up inputs, and finds nothing wrong."
 tags: [ai-bookkeeper, testing, property-test, negative-result]
 ---
 
