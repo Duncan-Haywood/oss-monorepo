@@ -178,3 +178,15 @@ test("--budget --csv prints the priced lines as CSV with totals", () => {
   assert.ok(rows.some((l) => l.startsWith("Labor,Wall framing,")));
   assert.match(rows.at(-1), /^,Total,/);
 });
+
+test("--trim adds baseboard and casing boards, kept with --sheathing and in the budget", () => {
+  const plan = JSON.stringify({ ...samplePlan(), prices: { baseboard: 12, casing: 9 } });
+  const read = () => plan;
+  const a = main(["plan.json", "--trim", "--sheathing"], read);
+  assert.equal(a.code, 0);
+  assert.match(a.out, /TRIM\n  Baseboard: \d+ ft/);
+  assert.match(a.out, /Casing: \d+ ft for \d+ door faces/);
+  const b = main(["plan.json", "--trim", "--budget"], read);
+  assert.match(b.out, /Baseboard boards/);
+  assert.equal(main(["plan.json"], read).out.includes("TRIM"), false);
+});
