@@ -127,3 +127,12 @@ test("a salutation in the title column is not the job title; the position column
   assert.equal(normalizeRow({ title: "Dr", email: "a@b.example" }).title, undefined);
   assert.equal(normalizeRow({ title: "Director of Sales", position: "x", email: "a@b.example" }).title, "Director of Sales");
 });
+
+// HubSpot contact exports name the company "Associated Company"; Salesforce contacts carry "Mailing Country" and "Has Opted Out of Email" (names from vendor field lists, rows made up).
+test("Associated Company, Mailing Country and Has Opted Out of Email are read", () => {
+  const r = normalizeRow({ "associated_company": "Acme", "mailing_country": "Germany", "has_opted_out_of_email": "1", email: "a@acme.example" });
+  assert.equal(r.company, "Acme");
+  assert.equal(r.country, "DE");
+  assert.ok(truthyDnc(r.do_not_contact));
+});
+const truthyDnc = (v) => /^(1|y|yes|true)$/i.test(String(v || ""));

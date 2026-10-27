@@ -89,7 +89,7 @@ flagships:
       notes to check the reply rules, prep rules and follow-up sorter; (2) M2: score a hosted and a local model with
       eval/model.mjs on the fresh sets (needs a key), with a set labelled by a person or another model family before
       any rule change; (3) run the self-host server against a real mailbox (TLS paths tested 2026-10-25 against local TLS servers; a real provider is still untried), then OAuth for Gmail and Microsoft;
-      (4) a real HubSpot or Pipedrive export for the research agent (Mautic's fixtures read 2026-10-27: salutation-as-title fixed).
+      (4) a real HubSpot or Pipedrive export for the research agent (Mautic's fixtures read 2026-10-27: salutation-as-title fixed; none found public, header aliases added from vendor field lists).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
