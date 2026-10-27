@@ -285,4 +285,26 @@ the others equal the earlier runs. Caveats: the harness does not randomise
 slots, so the detector's false-trigger rate under the route's real randomisation
 is unmeasured; synthetic, 30 items. Open: the same through the route with
 Postgres; a bias toward the *second* option (a share at or below 0.3) is not
-handled.
+handled (closed below).
+
+### Second-option fallback (2026-10-27)
+
+`positionBias` in the harness now takes a negative value (that share of answers
+pick the second option shown). The detector in `selectNextPairHybrid` is
+symmetric: it uses the shipped selector when the first-option share is at or
+above 0.7 **or at or below 0.3**. Same harness, 30 items, 20 seeds, 300 answers
+(`biasedRespondent.simulation.test.ts`, "second-option fallback"):
+
+| second-option bias | shipped | information | hybrid before | hybrid now |
+|---|---|---|---|---|
+| 0.1 | 0.875 | 0.876 | 0.891 | 0.891 |
+| 0.3 | 0.786 | 0.730 | 0.799 | 0.793 |
+| 0.5 | 0.657 | 0.410 | 0.574 | 0.666 |
+
+At bias 0.5 the hybrid was 0.083 below shipped and is now 0.009 above it. At
+0.3 the detector fires only on some seeds (the expected share is 0.35, near the
+0.3 line) and the hybrid gives up 0.006, inside seed noise. Caveats: the harness
+does not randomise slots (the route does, so a real share sits near 0.5 for an
+unbiased person and the false-trigger rate through the route is unmeasured);
+synthetic, 30 items. Unit test: `pairing.test.ts`. Open: the same through the
+route with Postgres; 1000+ items at deep budgets.

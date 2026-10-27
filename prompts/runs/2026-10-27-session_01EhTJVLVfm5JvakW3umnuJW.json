@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01EhTJVLVfm5JvakW3umnuJW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T11:01:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 8 (quick-pick-survey): second-option position-bias fallback",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": 10870,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/shift-roster-builder",
+      "why": "Started on fair-workweek city presets; irs/city/state hosts were 403 through the proxy and vendor blogs disagree on rest hours, so nothing was hard-coded (no fabricating)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-quick-pick-survey-second-option-bias.md"
+  ],
+  "goal": null,
+  "notes": "pairing.test.ts 13 pass; simulation: second-option bias 0.5 hybrid 0.574 -> 0.666 (shipped 0.657), bias 0.3 0.799 -> 0.793 (noise). Full run_workflow_locally --for-changes was started but not awaited; CI on the PR is the check. 2027 IRS rev proc still not out (web search).",
+  "corrections": [],
+  "redteam": null
+}

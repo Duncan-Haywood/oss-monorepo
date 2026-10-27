@@ -43,3 +43,12 @@ describe("first-option fallback", () => {
     for (const r of Object.values(out)) for (const v of Object.values(r)) expect(v).toBeGreaterThan(0);
   }, 1_800_000);
 });
+
+describe("second-option fallback", () => {
+  it("measures the hybrid against a respondent who favours the second option, 30 items, 300 answers", () => {
+    const out: Record<string, Record<string, number>> = {};
+    for (const bias of [-0.1, -0.3, -0.5]) out[`bias${bias}_300`] = cell(300, bias);
+    appendFileSync(process.env.MEASURE_OUT ?? "/dev/null", `MEASURE second-option ${JSON.stringify(out)}\n`);
+    for (const r of Object.values(out)) for (const v of Object.values(r)) expect(v).toBeGreaterThan(0);
+  }, 1_800_000);
+});
