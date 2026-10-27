@@ -2,7 +2,7 @@
 Per coder, three plans sized by `neyman_total` on their own residual variance (human-only lambda = 0, plain PPI
 lambda = 1, oracle per-stratum lambda), each simulated with Neyman allocation. Writes h6p_lambda_sizing.txt.
 
-    python3 experiments/h6p_lambda_sizing.py     # needs ~/.cache/qual-real/goemotions_{1,2,3}.csv; about a minute
+    python3 experiments/h6p_lambda_sizing.py     # downloads ~/.cache/qual-real/goemotions_{1,2,3}.csv on first use; about a minute
 """
 import math
 import random

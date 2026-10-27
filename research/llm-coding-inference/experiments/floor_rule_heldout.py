@@ -2,7 +2,7 @@
 Floor = clip(5 * qbar, 0.02, 0.10), qbar the corpus mean of the calibrated coder probability.
 Same corpus, split, coder and calibration as floor_rule.py.
 
-    python3 experiments/floor_rule_heldout.py [reps]   # needs ~/.cache/qual-real/goemotions_{1,2,3}.csv
+    python3 experiments/floor_rule_heldout.py [reps]   # downloads ~/.cache/qual-real/goemotions_{1,2,3}.csv on first use
 """
 import math
 import random

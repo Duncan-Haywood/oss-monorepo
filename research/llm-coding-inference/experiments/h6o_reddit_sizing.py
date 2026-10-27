@@ -2,7 +2,7 @@
 (`group_shift_reddit.py`). Part 1: plug-in vs simulated stratified-PPI half-width at three allocations. Part 2: the
 Neyman rule's n for a 3- and a 2-point half-width target. Writes h6o_reddit_sizing.txt.
 
-    python3 experiments/h6o_reddit_sizing.py     # needs ~/.cache/qual-real/goemotions_{1,2,3}.csv; about a minute
+    python3 experiments/h6o_reddit_sizing.py     # downloads ~/.cache/qual-real/goemotions_{1,2,3}.csv on first use; about a minute
 """
 import math
 import random

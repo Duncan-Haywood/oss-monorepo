@@ -3,7 +3,7 @@ Target = a majority of raters marked the emotion (fear, sadness). Coder = pooled
 about 3x the train prevalence. Strata = the four groups. Per target half-width and pilot size: an oracle plan (S2 from the
 whole corpus) and the pilot version (random pilot -> per-group lambda, S2 -> neyman_total -> fresh audit). Writes h6r_rare_pilot.txt.
 
-    python3 experiments/h6r_rare_pilot.py     # needs ~/.cache/qual-real/goemotions_{1,2,3}.csv; a few minutes
+    python3 experiments/h6r_rare_pilot.py     # downloads ~/.cache/qual-real/goemotions_{1,2,3}.csv on first use; a few minutes
 """
 import csv
 import math
@@ -29,7 +29,7 @@ GROUPS = list(R.GROUPS)
 
 def load(cat):
     pos, texts, sub, cnt, unclear = defaultdict(int), {}, {}, Counter(), set()
-    for p in ra.CSVS:
+    for p in ra.ensure_csvs():
         with open(p, newline="", encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 if row["subreddit"] not in R.SUB2G:

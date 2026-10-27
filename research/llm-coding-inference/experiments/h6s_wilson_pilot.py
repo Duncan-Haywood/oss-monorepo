@@ -1,7 +1,7 @@
 """Milestone 6s: three pilot S2 rules for the rare-category audit-size rule of 6r (GoEmotions fear, sadness).
 A plug-in (6r), B Wilson-upper human-only S2, C shrinkage of the group S2 towards the pooled pilot S2. Writes h6s_wilson_pilot.txt.
 
-    python3 experiments/h6s_wilson_pilot.py     # needs ~/.cache/qual-real/goemotions_{1,2,3}.csv; a few minutes
+    python3 experiments/h6s_wilson_pilot.py     # downloads ~/.cache/qual-real/goemotions_{1,2,3}.csv on first use; a few minutes
 """
 import math
 import random
