@@ -1,8 +1,8 @@
 ---
 title: "A Slocum-class glider only out-ranges a propeller AUV when the AUV burns about five times its hotel power"
 date: 2026-10-27
-description: "With Slocum aerodynamics read from an open-source flight model, a buoyancy glider never beats a same-mass propeller AUV at equal hotel load; the break-even is a median 4.9 times."
-tags: [marine-hull, glider, AUV, negative-result]
+description: "With Slocum aerodynamics from an open flight model, a glider never beats a same-mass propeller AUV at equal hotel load; break-even is a median 4.9 times."
+tags: [marine-hull, glider, auv, negative-result]
 ---
 
 # A Slocum-class glider only out-ranges a propeller AUV when the AUV burns about five times its hotel power
