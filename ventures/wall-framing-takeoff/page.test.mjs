@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./engine.mjs", "./floor.mjs", "./foundation.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -205,6 +205,16 @@ test("the insulation controls are read into plan.insulation and restored from a 
   assert.match(html, /layoutInsulation\(plan\.insulation, plan, result\)/);
   assert.match(html, /\$\("#inAtticBag"\)\.value = ins\.attic\?\.bagCuFt/);
   assert.match(html, /<code>insulation_on<\/code>/);
+});
+
+test("the nail controls are read into plan.fasteners, restored from a saved plan and feed the budget", () => {
+  const html = page("index.html");
+  for (const id of ["faOn", "faStudEnd", "faPlate", "faEdge", "faField", "faWaste", "faBox", "faPrice", "fastenersOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /plan\.fasteners = fa/);
+  assert.match(html, /layoutFasteners\(plan\.fasteners, plan, /);
+  assert.match(html, /fasteners: last\.fasteners/);
+  assert.match(html, /\$\("#" \+ id\)\.value = fa\?\.\[key\]/);
+  assert.match(html, /<code>fasteners_on<\/code>/);
 });
 
 test("the foundation anchor bolt fields feed the engine's anchorBolts option and load back from plan files", () => {
