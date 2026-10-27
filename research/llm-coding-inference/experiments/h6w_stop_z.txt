@@ -1,0 +1,9 @@
+category | target pts | audit | sd t | mean t | mean se pts | sd error pts | corr(se, |error|)
+fear | 1.0 | stopped | 1.084 | -0.559 | 0.420 | 0.387 | -0.673
+fear | 1.0 | fixed n (same sizes) | 1.207 | -0.350 | 0.466 | 0.486 | -0.064
+fear | 0.5 | stopped | 1.442 | -1.363 | 0.237 | 0.327 | -0.517
+fear | 0.5 | fixed n (same sizes) | 1.173 | -0.335 | 0.346 | 0.344 | +0.030
+sadness | 1.0 | stopped | 1.180 | -0.788 | 0.476 | 0.531 | -0.519
+sadness | 1.0 | fixed n (same sizes) | 1.153 | -0.195 | 0.551 | 0.571 | +0.038
+sadness | 0.5 | stopped | 1.578 | -1.128 | 0.249 | 0.388 | -0.345
+sadness | 0.5 | fixed n (same sizes) | 1.139 | -0.177 | 0.320 | 0.367 | +0.329
