@@ -319,6 +319,7 @@ numbers worked out before drafting.
 - *(Done: The Latest Easter, Vaarsay, Orkney, 2038; text only.)* Easter on 25 April, the latest it can be; at 59° N the sun is 6° down only at 21:38. A sacristan's 41-year notebook, a candle that gives one lux at a metre and a written five-lux rule decide when "after nightfall" begins; the cost is the nine from Holm who cannot stay, and a fire carried across by boat at dawn.
 - *(Done: The Neap Week, Enez Glas, Brittany, 2049; text only.)* A tide mill's energy goes as head squared: 245 kWh on a spring day, 49 on a neap day; bread or the cold store, and the answer is a walled-up wood oven.
 - *(Done: The Grey Hour, Mokre Stawy, Lower Silesia, 2047; text only.)* A carp pond's night oxygen budget (6.0 mg/L at dusk, 0.55 mg/L/h respiration, 1.3 by dawn); an aerator's transfer falls with the oxygen already in the water, so 3 kWh is spent in the last hours, after a hand titration shows the probe reads 0.5 high.
+- *(Done: The Salt Line, Santa Marina del Pozzo, Salento, 2050; text only.)* A cistern leak found from no-use night drops at three depths (2.8, 2.0, 1.3 mm per 6 h on 30 m²) that reach zero at 1.405 m ±7 cm; the water above the crack is drunk first, a lime-and-tile plaster shuts it, and the yearly loss is a range (40 to 70 m³ of 287).
 
 **For Other Minds**
 
