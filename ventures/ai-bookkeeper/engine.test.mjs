@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { vatReturn, addAsset, taxableBusinessIncome, s179Carryforward, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
-import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts, cashFlow, cashFlowByMonth, ratios, breakEven, profitAndLoss, balanceSheet } from "./ledger.mjs";
+import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts, cashFlow, cashFlowByMonth, ratios, breakEven, daysOutstanding, profitAndLoss, balanceSheet } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
 import { generateYear, toCsv } from "./eval/synth.mjs";
 import { runSeed } from "./eval/benchmark.mjs";
@@ -903,4 +903,16 @@ test("breakEven: fixed costs over the contribution margin, null when nothing is 
   const dead = [e("a", "2026-01-10", "1000", "4000", 100000), e("c", "2026-01-12", "5000", "1000", 120000)];
   assert.equal(breakEven(profitAndLoss(dead, acc, {})).breakEvenMonthly, null);
   assert.equal(breakEven(profitAndLoss([], acc, {})), null);
+});
+
+test("daysOutstanding: open receivable and payable over the period's flow, null when nothing is open", () => {
+  const acc = [...DEFAULT_ACCOUNTS, { code: "2050", name: "Accounts payable", type: "liability" }];
+  const e = (id, date, debit, credit, amt) => ({ id, date, memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const entries = [e("a", "2026-01-10", "1100", "4000", 1000000), e("b", "2026-02-10", "1000", "4000", 1000000), e("c", "2026-02-12", "6080", "2050", 300000)];
+  const pnl = profitAndLoss(entries, acc, {});
+  const d = daysOutstanding(pnl, balanceSheet(entries, acc, {}));
+  assert.equal(d.receivableDays, 30.4); // 1,000,000 open of 2,000,000 over 60.875 days
+  assert.equal(d.payableDays, 60.9); // everything bought is still owed
+  const none = daysOutstanding(profitAndLoss([], acc, {}), balanceSheet([], acc, {}));
+  assert.deepEqual(none, { receivableDays: null, payableDays: null });
 });

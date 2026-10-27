@@ -235,6 +235,18 @@ export function ratios(pnl, bs) {
   };
 }
 
+// Days sales outstanding and days payable: the receivable (1100) over the
+// period's income, the payable (2050) over its expenses, times the days the
+// period spans (months with activity at 30.4375 days). Null when there is no
+// income or expense to divide by or nothing is open; a period of less than a
+// month is a rough read.
+export function daysOutstanding(pnl, bs) {
+  const days = pnl.months.length * 30.4375;
+  const open = (code) => bs.assets.concat(bs.liabilities).filter((r) => r.code === code).reduce((a, r) => a + r.amount, 0);
+  const per = (bal, flow) => (days > 0 && flow > 0 && bal > 0 ? Math.round((bal / flow) * days * 10) / 10 : null);
+  return { receivableDays: per(open("1100"), pnl.totalIncome), payableDays: per(open("2050"), pnl.totalExpense) };
+}
+
 // Break-even from the profit and loss: costs that move with sales (cost of
 // goods, card and merchant fees, shipping by default; pass `variable` codes to
 // change) against everything else, taken as fixed. Monthly figures are the

@@ -892,6 +892,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   const k = r.ratios, pct = (v) => (v == null ? "n/a" : `${(v * 100).toFixed(1)}%`), x = (v) => (v == null ? "n/a" : v.toFixed(2));
   console.log(`\n  Ratios: gross margin ${pct(k.grossMargin)}, net margin ${pct(k.netMargin)}, working capital ${fmt(k.workingCapital)}`);
   console.log(`  Current ratio ${x(k.currentRatio)}, quick ratio ${x(k.quickRatio)}, debt to equity ${x(k.debtToEquity)} (the loan counts as long term)`);
+  if (k.receivableDays != null || k.payableDays != null) console.log(`  Customers take ${k.receivableDays ?? "n/a"} days to pay; suppliers are paid in ${k.payableDays ?? "n/a"} days (open balance over the period's flow)`);
   const be = r.breakEven;
   if (be) console.log(`  Break-even: fixed costs ${fmt(be.monthlyFixed)} a month at a ${pct(be.contributionMargin)} contribution margin ${be.breakEvenMonthly == null ? "never cover themselves (each sale leaves nothing after its own costs)" : `need ${fmt(be.breakEvenMonthly)} of income a month; you made ${fmt(be.monthlyIncome)} (${pct(be.marginOfSafety)} margin of safety)`}`);
   const s = status(books);
