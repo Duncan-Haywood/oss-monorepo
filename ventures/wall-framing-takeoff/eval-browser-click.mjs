@@ -198,6 +198,19 @@ const [sv] = await Promise.all([page.waitForEvent("download"), page.click("#save
 const saved = JSON.parse(await (await import("node:fs/promises")).readFile(await sv.path(), "utf8"));
 const priceSaved = saved.prices?.wallSheet === 20 && saved.prices?.tax === 0.1;
 console.log(priceSaved ? "ok: typed prices are saved in the plan file" : "FAIL: prices not in saved plan: " + JSON.stringify(saved.prices));
+// interior trim card: boards, a budget line from the typed price, and the saved plan keeps it
+await page.check("#trOn");
+await page.fill("#trBasePrice", "14");
+await page.fill("#trCasPrice", "9");
+await page.fill("#priceText", "wallSheet, 20");
+await page.click("#run");
+await page.waitForFunction(() => /baseboard/i.test(document.querySelector("#trimOut")?.textContent || ""), null, { timeout: 90000 });
+const trimTxt = await page.textContent("#trimOut");
+const trimBud = await page.textContent("#budgetOut");
+const [sv2] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved2 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv2.path(), "utf8"));
+const trimOk = !/NaN|undefined/.test(trimTxt) && /casing/i.test(trimTxt) && /baseboard/i.test(trimBud) && saved2.trim?.basePrice === 14;
+console.log(trimOk ? "ok: trim card, budget line and saved plan" : "FAIL: trim: " + trimTxt.slice(0, 200));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
