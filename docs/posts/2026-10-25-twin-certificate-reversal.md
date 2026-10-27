@@ -2,7 +2,7 @@
 title: "A negative result that was an artefact: betting intervals and the digital twin"
 date: 2026-10-25
 description: "Removing a bet cap reverses our finding that a simulator never shortens a certified bound on a robot policy's score, on pendulum pairs."
-tags: [research, sim2real-inference, digital-twins, confidence-intervals]
+tags: [research, sim2real-inference, digital-twin, confidence-intervals]
 ---
 
 For a week the [sim2real-inference](../../research/sim2real-inference/README.md)

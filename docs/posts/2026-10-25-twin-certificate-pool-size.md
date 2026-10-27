@@ -2,7 +2,7 @@
 title: "How big must a simulator pool be to shorten a guaranteed robot-policy interval?"
 date: 2026-10-25
 description: "A valid twin-assisted betting interval beats real-only on 20 of 21 pendulum pairs with 20,000 simulator runs, 7 of 21 with 4,000 and none with 500."
-tags: [research, sim2real-inference, digital-twins, confidence-intervals]
+tags: [research, sim2real-inference, digital-twin, confidence-intervals]
 ---
 
 Milestone 7i of the [sim2real-inference](../../research/sim2real-inference/README.md)

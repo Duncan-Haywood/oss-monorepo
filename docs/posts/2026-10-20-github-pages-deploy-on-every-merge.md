@@ -2,7 +2,7 @@
 title: "Why our GitHub Pages site now redeploys on every merge"
 date: 2026-10-20
 description: "A hand-kept path filter on the Pages workflow kept missing site inputs. We dropped it: 341 merges a day collapse into one build plus one queued."
-tags: [github-actions, github-pages, ci, static-sites]
+tags: [github-actions, github-pages, ci, static-site]
 ---
 
 # Why our GitHub Pages site now redeploys on every merge

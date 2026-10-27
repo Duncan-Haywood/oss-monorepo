@@ -47,15 +47,37 @@ def problems(name, text, today=None):
     return out
 
 
+def tag_key(tag):
+    """Spelling-insensitive form of a tag: case, hyphens and a trailing plural s dropped."""
+    k = re.sub(r"[^a-z0-9]", "", tag.lower())
+    return k[:-1] if k.endswith("s") and len(k) > 3 else k
+
+
+def tag_variants(texts):
+    """Groups of tag spellings that mean one thing ({name: post text}); each splits the blog's tag filter."""
+    spellings = {}
+    for text in texts.values():
+        m = re.search(r"^tags:\s*\[(.*?)\]", text, re.M)
+        for t in (m.group(1).split(",") if m else []):
+            t = t.strip().strip("\"'")
+            if t:
+                spellings.setdefault(tag_key(t), set()).add(t)
+    return [sorted(v) for v in spellings.values() if len(v) > 1]
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(ROOT))
     args = ap.parse_args(argv)
     bad = 0
-    for f in sorted((Path(args.root) / "docs" / "posts").glob("*.md")):
-        for p in problems(f.name, f.read_text(encoding="utf-8")):
-            print(f"{f.name}: {p}")
+    texts = {f.name: f.read_text(encoding="utf-8") for f in sorted((Path(args.root) / "docs" / "posts").glob("*.md"))}
+    for name, text in texts.items():
+        for p in problems(name, text):
+            print(f"{name}: {p}")
             bad += 1
+    for group in tag_variants(texts):
+        print(f"tag spelled {len(group)} ways: {', '.join(group)}; pick one")
+        bad += 1
     return 1 if bad else 0
 
 

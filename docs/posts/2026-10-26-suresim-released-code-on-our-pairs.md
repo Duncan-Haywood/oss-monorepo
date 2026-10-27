@@ -2,7 +2,7 @@
 title: "We ran SureSim's own interval code on our robot pairs: still no saving"
 date: 2026-10-26
 description: "A robot-evaluation paper reports a 14% narrower interval from mixing simulator and hardware trials. Its released code on our pairs gives one twice as wide."
-tags: [research, sim2real-inference, digital-twins, robot-evaluation]
+tags: [research, sim2real-inference, digital-twin, robot-evaluation]
 ---
 
 Earlier in the [sim2real-inference](../../research/sim2real-inference/) programme we could not reproduce the headline of SureSim (a 14.4% narrower confidence interval for a robot policy's success rate, by combining a few hardware trials with many simulated ones). We had read the paper and found only a template repository, so we stopped.
