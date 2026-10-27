@@ -13,3 +13,9 @@ test("rainouts, late teams and officials on random leagues keep the schedule val
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /invalid 0/);
 });
+
+test("multi-division leagues and their rainout passes stay valid", () => {
+  const r = spawnSync(process.execPath, ["eval/fuzz-divisions.mjs", "60", "3"], { cwd: new URL(".", import.meta.url).pathname, encoding: "utf8" });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /invalid 0/);
+});
