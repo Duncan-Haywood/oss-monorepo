@@ -1,0 +1,28 @@
+# milestone 29: pooled paired tests over 10 held-out designs (unseen 5 + hostile 5), regret averaged over the two clocks, 400 paired seeds per cell
+diff = first arm minus second arm in regret percentage points (negative favours the first); exact two-sided Wilcoxon over designs (smallest attainable p 0.0020); Holm over 12 tests; bootstrap CI is 5000 resamples of designs
+
+comparison | budget | mean diff | 95% CI | designs better/worse | p raw | p Holm | mean diff without bcastmix192
+fixed1.5 vs rand | 10 | -1.53 | [-2.78, -0.54] | 8/1 | 0.0195 | 0.1758 | -1.76
+fixed1.5 vs rand | 15 | -1.48 | [-2.59, -0.57] | 8/2 | 0.0137 | 0.1504 | -1.65
+fixed1.5 vs rand | 25 | -1.33 | [-2.38, -0.45] | 8/1 | 0.0117 | 0.1406 | -1.48
+fixed1.5 vs rand | 40 | -0.67 | [-1.19, -0.20] | 8/1 | 0.0273 | 0.2188 | -0.74
+fixed_f3 vs rand | 10 | -1.42 | [-2.77, -0.40] | 8/1 | 0.0273 | 0.2188 | -1.58
+fixed_f3 vs rand | 15 | -1.38 | [-2.49, -0.46] | 8/1 | 0.0273 | 0.2188 | -1.53
+fixed_f3 vs rand | 25 | -1.32 | [-2.42, -0.41] | 7/1 | 0.0391 | 0.2188 | -1.47
+fixed_f3 vs rand | 40 | -0.63 | [-1.17, -0.15] | 7/2 | 0.0742 | 0.2500 | -0.70
+fixed_f3 vs fixed1.5 | 10 | +0.11 | [-0.09, +0.27] | 2/7 | 0.3223 | 0.6445 | +0.19
+fixed_f3 vs fixed1.5 | 15 | +0.10 | [+0.04, +0.15] | 1/8 | 0.0137 | 0.1504 | +0.12
+fixed_f3 vs fixed1.5 | 25 | +0.00 | [-0.05, +0.06] | 3/4 | 1.0000 | 1.0000 | +0.00
+fixed_f3 vs fixed1.5 | 40 | +0.04 | [+0.01, +0.08] | 0/2 | 0.0625 | 0.2500 | +0.04
+
+## per-design regret % at budget 25 (clock-averaged): rand / fixed1.5 / f3
+bcastmix192 (hostile): 0.00 / 0.00 / 0.00
+cmp128 (hostile): 3.59 / 0.79 / 0.71
+gf2mat48 (hostile): 0.32 / 0.73 / 0.70
+rotmix64 (hostile): 5.62 / 0.92 / 0.79
+xbar16 (hostile): 4.52 / 1.27 / 1.14
+crc32 (unseen): 0.32 / 0.20 / 0.34
+decmux64 (unseen): 2.68 / 1.40 / 1.52
+prio64 (unseen): 1.36 / 0.92 / 0.99
+sbox (unseen): 1.28 / 0.85 / 0.91
+sort8x8 (unseen): 1.14 / 0.47 / 0.50
