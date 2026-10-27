@@ -13,7 +13,7 @@
 // platform/agents/tools.mjs.
 
 import { readStatement, splitOfx, splitQif, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
-import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, cashFlowByMonth, ratios, balances, natural, fmt, dollars } from "./ledger.mjs";
+import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, cashFlowByMonth, ratios, breakEven, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation, s179IncomeLimit } from "./taxdepr.mjs";
@@ -617,7 +617,7 @@ export function exportLines(books) {
 export function reports(books, { from = null, to = null } = {}) {
   const entries = journal(books);
   const pnl = profitAndLoss(entries, books.accounts, { from, to }), bs = balanceSheet(journal(books, { withClosing: true }), books.accounts, { to });
-  return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: pnl, balanceSheet: bs, ratios: ratios(pnl, bs), cashFlow: cashFlow(entries, books.accounts, { from, to }), cashByMonth: cashFlowByMonth(entries, books.accounts, { from, to }) };
+  return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: pnl, balanceSheet: bs, ratios: ratios(pnl, bs), breakEven: breakEven(pnl), cashFlow: cashFlow(entries, books.accounts, { from, to }), cashByMonth: cashFlowByMonth(entries, books.accounts, { from, to }) };
 }
 
 // The year's business income before the Section 179 deduction, for the

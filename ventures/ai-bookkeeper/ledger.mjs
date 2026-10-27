@@ -235,6 +235,24 @@ export function ratios(pnl, bs) {
   };
 }
 
+// Break-even from the profit and loss: costs that move with sales (cost of
+// goods, card and merchant fees, shipping by default; pass `variable` codes to
+// change) against everything else, taken as fixed. Monthly figures are the
+// period's totals over its months. Null rather than invented when there is no
+// income or each sale leaves nothing after its own costs.
+export function breakEven(pnl, { variable = ["5000", "6010", "6180"] } = {}) {
+  const months = pnl.months.length;
+  if (!months || pnl.totalIncome <= 0) return null;
+  const set = new Set(variable);
+  const varCost = pnl.expense.filter((l) => set.has(l.code)).reduce((a, l) => a + l.total, 0);
+  const fixed = pnl.totalExpense - varCost;
+  const cm = (pnl.totalIncome - varCost) / pnl.totalIncome;
+  const monthlyIncome = Math.round(pnl.totalIncome / months), monthlyFixed = Math.round(fixed / months);
+  if (cm <= 0) return { months, variableCosts: varCost, fixedCosts: fixed, monthlyIncome, monthlyFixed, contributionMargin: Math.round(cm * 1000) / 1000, breakEvenMonthly: null, marginOfSafety: null };
+  const be = Math.round(monthlyFixed / cm);
+  return { months, variableCosts: varCost, fixedCosts: fixed, monthlyIncome, monthlyFixed, contributionMargin: Math.round(cm * 1000) / 1000, breakEvenMonthly: be, marginOfSafety: Math.round(((monthlyIncome - be) / monthlyIncome) * 1000) / 1000 };
+}
+
 // The ledger for one account: every line, with a running natural balance.
 export function accountLedger(entries, accounts, code) {
   const a = accountMap(accounts).get(code);
