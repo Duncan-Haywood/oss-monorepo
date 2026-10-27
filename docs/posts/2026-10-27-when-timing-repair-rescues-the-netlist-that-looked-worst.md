@@ -1,7 +1,7 @@
 ---
 title: "When timing repair rescues the chip netlist that looked worst"
 date: 2026-10-27
-description: "Five wiring-heavy designs through a real open-source chip flow: one has a cheap timing estimate that ranks two mappings exactly backwards, and a pilot gate still does not pay."
+description: "Five wiring-heavy designs through a real open-source chip flow: one cheap timing estimate ranks two mappings backwards, and a pilot gate still does not pay."
 tags: [chip-design, openroad, negative-result, verified-dse]
 ---
 
