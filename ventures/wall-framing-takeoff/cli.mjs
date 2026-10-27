@@ -8,6 +8,7 @@ import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
 import { layoutFoundation, foundationText } from "./foundation.mjs";
 import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutInsulation, insulationText } from "./insulation.mjs";
+import { layoutFasteners, fastenerText } from "./fasteners.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
@@ -36,6 +37,7 @@ Usage:
   node cli.mjs plan.json --panel-max=12ft --sheathing-psf=1.5  also weigh the sheathing on each panel (lb per sq ft)
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
+  node cli.mjs plan.json --fasteners   count nails by connection (plan fasteners: studEndNails, plateSpacing, edgeSpacing, nailsPerBox, price; add --sheathing for sheathing nails)
   node cli.mjs plan.json --insulation  add wall-cavity insulation bags (measured from the framing placed; plan insulation: bagSqFt, rValue, waste, price)
   node cli.mjs plan.json --drywall     add interior drywall (inside faces, partitions both sides, optional ceilings; plan drywall: sheetLength, ceiling, price)
   node cli.mjs plan.json --foundation  add the plan's foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel, vapor barrier)
@@ -156,6 +158,11 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; } // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
+  if (r.ok && (flags.has("--fasteners") || plan.fasteners)) {
+    const fasteners = layoutFasteners(plan.fasteners || {}, plan, r);
+    if (!fasteners.ok) return { code: 1, out: `The fasteners have problems:\n${fasteners.errors.map((e) => `  - ${e}`).join("\n")}` };
+    r.fasteners = fasteners;
+  }
   const sheathPsf = Math.max(0, parseFloat(argv.find((a) => a.startsWith("--sheathing-psf="))?.slice(16) ?? "0") || 0);
   const panelMax = Math.max(0, parseLength(argv.find((a) => a.startsWith("--panel-max="))?.slice(12) ?? "0") || 0);
   if (flags.has("--panel-order") && panelMax > 0) {
@@ -190,6 +197,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
   if (r.foundation) lines.push("", "FOUNDATION", ...foundationText(r.foundation));
   if (r.drywall) lines.push("", "DRYWALL", ...drywallText(r.drywall));
+  if (r.fasteners) lines.push("", "FASTENERS", ...fastenerText(r.fasteners));
   if (r.insulation) lines.push("", "INSULATION", ...insulationText(r.insulation));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
   if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {})));
