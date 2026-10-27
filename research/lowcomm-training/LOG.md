@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 5j: where does the median break when k of 16 workers flip together? (planned before running)
+- Why: 5i's "Next". One attacker is inside the noise floor at M = 16, so the question for the protocol is how the cost grows with the coalition size k. Numpy half (`experiments/gpt_median_coalition/coalition_numpy.py`, mu/sigma = 0.4 from 5h, i.i.d. Gaussian, 2e6 coordinates, no training): the median's mean squared shift relative to k = 1 is x2.1, x5.1, x10.3, x24.2 for k = 2, 4, 6, 8 (x46 at k = 9); the shift grows smoothly, with no cliff at k = M/2 (the median is bounded: the bias is 0.45 sigma at k = 8).
+- Design: real training, `coalition.py`, k in {2, 4, 6, 8}, seeds 0 and 1, M = 16, everything else as 5i; excess measured over the clean median of 5i on the same seed. Scaling the paired one-attacker cost (+0.0036, 5i-b) by the squared-shift ratios predicts excess +0.008, +0.018, +0.037, +0.087 nats.
+- **H5j-i:** the observed mean excess at k = 8 lies within a factor of 2 of the prediction (0.043 to 0.17 nats). Refuted otherwise.
+- **H5j-ii:** the excess rises monotonically in k on the seed mean. Refuted if any step down.
+- **H5j-iii:** at k = 8 the run still trains (excess below 0.5 nats, i.e. no divergence), as the bounded shift implies. Refuted if it diverges or exceeds 0.5.
+- Prior: i 40% (the quadratic mapping was assumed and the single-attacker base is noisy), ii 75%, iii 85%.
+- Limits known in advance: two seeds; one attack (sign flip at 10x, all members identical in kind but each with its own delta, so not an optimal coordinated attack); one model and corpus.
+
 ## 2026-10-27 · Milestone 5i: the out-of-sample M = 16 test of the order-statistic prediction (planned before running)
 - Why: 5f/5g predicted the median's sign-flip cost falls a further ~4x from M = 8 (+0.0207 nats) to M = 16, i.e. about +0.005 nats; 5h found the real deltas are near-Gaussian late in training (mu/sigma about 0.4), so the Gaussian row applies. This is the first prediction made before the run rather than fitted to it.
 - Design (`experiments/gpt_median_m16/median_m16.py`): 5d with M = 16 (3d model, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, batch 16 per worker). Arms: mean (no attack), median (no attack), median with worker 0 sending -10x its delta. Seeds 0 to 2. The trimmed-mean arm is left out to bound the cost (about 35 minutes per run).
