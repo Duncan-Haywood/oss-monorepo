@@ -1,7 +1,7 @@
 ---
 title: "A chip-search shortcut that helped at one corner stopped helping at the other"
 date: 2026-10-27
-description: "Replaying successive halving over SKY130 flow stages on a second timing corner: it now wins on the clock where it used to lose, and loses on the one where it used to win."
+description: "Replaying successive halving on a second SKY130 timing corner: it now wins on the clock where it lost, and loses on the one where it won."
 tags: [verified-dse, research, chip-design, design-space-exploration]
 ---
 
