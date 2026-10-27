@@ -252,3 +252,11 @@ test("primary pages read 2026-10-27: WA annual is April 15, Texas 2026 calendar 
   assert.equal(tx("2026-11"), "2026-12-21");
   assert.equal(tx("2026-06"), "2026-07-20");
 });
+
+test("New York annual returns cover March to February and are due March 20", () => {
+  assert.equal(stateEndMonth("NY", "annual"), 2);
+  assert.equal(stateEndMonth("IL", "annual"), null);
+  const r = salesTaxReturn(books(), { frequency: "annual", endMonth: stateEndMonth("NY", "annual"), dueDay: stateDueDay("NY", "annual") });
+  assert.deepEqual(r.periods.map((p) => p.period), ["2026-02", "2027-02"]);
+  assert.equal(r.periods[0].rows[0].due, "2026-03-20");
+});
