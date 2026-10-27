@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Citation check: all 14 references verified (a check, not an experiment)
+- Why: the previous entry could not run `cite_check.py` (arxiv.org and the DOI host returned 403), and CoRL desk-rejects papers that cite non-existent references (7v).
+- Outcome: both hosts are reachable now. `python3 research/_shared/cite_check.py research/sim2real-inference/paper/refs.bib` reports 14 of 14 ok (1 DOI, 13 arXiv ids), each title and year resolving to the entry in `refs.bib`. No bib entry changed.
+- Not done: the CoRL 2027 style file, and whether the finite-pool result belongs in the main text.
+
 ## 2026-10-27 · Test-suite check: one order-dependent failure fixed (a check, not an experiment)
 - Why: before treating the draft as ready, I ran the whole `tests/` directory in one pytest process (`PYTHONPATH=src`).
 - Outcome: 32 passed, 1 failed: `test_benchmark.py::test_analysis_helpers` did `import analyse`, but four experiment directories each ship an `analyse.py`, and another test module had already cached a different one in `sys.modules`. Run alone the test passed, so the fault was name shadowing, not the estimator. The test now loads `experiments/m3_benchmark/analyse.py` by path. 33 passed in 9 s. No result or claim changed.
