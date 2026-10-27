@@ -1,0 +1,47 @@
+{
+ "date": "2026-10-27",
+ "session": "https://claude.ai/code/session_01AcxTtM1dYvxJxkhVBVx8pb",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-27T06:12:29Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 10825,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "No stated way to get XFOIL-class polars; pip aerosandbox+neuralfoil works under /usr/bin/python3.13 (about 5 min)."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-27-froude-model-airfoil-polars.md",
+  "research/aerolog-scaling/LOG.md"
+ ],
+ "goal": null,
+ "notes": "Surrogate not validated against UIUC data (hosts not probed); stated in log.",
+ "corrections": [],
+ "redteam": null
+}
