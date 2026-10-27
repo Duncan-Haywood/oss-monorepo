@@ -1,0 +1,9 @@
+cell | n | tau ADP R2,R4 | tau area R2,R4 | tau period R2,R4 | tau R2 period,R4 ADP | tau(buffers, R4-R2 ADP rank shift) | tau(area growth, same) | tau(WNS recovered, same)
+bcastadd64 relaxed | 50 | 0.80 | 0.74 | 0.74 | 0.68 | 0.07 | 0.01 | -0.20
+   R2 period range 3.44-12.54, R4 period 4.44-11.46; area growth x1.00-1.16; buffers 0-48
+bcastadd64 tight | 50 | 0.73 | 0.84 | 0.51 | 0.58 | 0.02 | -0.08 | -0.53
+   R2 period range 3.44-12.54, R4 period 3.54-11.46; area growth x1.02-1.19; buffers 2-61
+fanao96 relaxed | 50 | 0.14 | 0.98 | 0.12 | 0.00 | -0.16 | -0.26 | -0.78
+   R2 period range 0.58-3.88, R4 period 1.10-2.85; area growth x1.00-1.01; buffers 0-4
+fanao96 tight | 50 | 0.20 | 0.98 | 0.21 | 0.06 | -0.19 | -0.22 | -0.76
+   R2 period range 0.58-3.88, R4 period 1.11-2.07; area growth x1.00-1.02; buffers 0-4
