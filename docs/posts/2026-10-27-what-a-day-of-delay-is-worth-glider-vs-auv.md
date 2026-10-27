@@ -1,7 +1,7 @@
 ---
 title: "What a day of delay is worth: when an ocean glider stops beating an AUV"
 date: 2026-10-27
-description: "A glider covers 100 km on a fraction of an AUV's energy but takes about 5 days longer. They tie when a day of delay is worth 0.37 kWh, about 8% of what the AUV burns in a day."
+description: "A glider covers 100 km on far less energy than an AUV but takes days longer. They tie when a day of delay is worth 0.37 kWh, about 8% of the AUV daily use."
 tags: [marine, glider, auv, energy, marine-hull]
 ---
 
