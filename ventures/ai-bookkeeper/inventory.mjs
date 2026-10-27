@@ -40,7 +40,20 @@ export function replay(inv) {
       costs.set(m.id, expensed);
       continue;
     }
-    const s = stock.get(m.sku) ?? { sku: m.sku, name: m.name ?? m.sku, layers: [], qty: 0, value: 0, bought: 0, returned: 0, sold: 0, cogs: 0 };
+    if (m.kind === "writedown") {
+      // Lower of cost and net realizable value: what is on hand is cut to the selling price
+      // less the cost to sell, per unit. A new cost basis; it is never written back up.
+      const t = stock.get(m.sku);
+      let loss = 0;
+      if (t && t.qty > 0) {
+        if (method === "avg") loss = Math.max(0, t.value - Math.round(m.nrv * t.qty / 1000));
+        else for (const l of t.layers) { const cap = Math.round(m.nrv * l.qty / 1000), cut = Math.max(0, l.cents - cap); l.cents -= cut; loss += cut; }
+        t.value -= loss; t.cogs += loss; t.writtenDown += loss;
+      }
+      costs.set(m.id, loss);
+      continue;
+    }
+    const s = stock.get(m.sku) ?? { sku: m.sku, name: m.name ?? m.sku, layers: [], qty: 0, value: 0, bought: 0, returned: 0, sold: 0, cogs: 0, writtenDown: 0 };
     stock.set(m.sku, s);
     if (m.name) s.name = m.name;
     if (m.kind === "buy") {
@@ -67,7 +80,7 @@ export function replay(inv) {
     if (m.kind === "return") s.returned += m.qty; else { s.sold += m.qty; s.cogs += cost; }
     costs.set(m.id, cost);
   }
-  const rows = [...stock.values()].map((s) => ({ sku: s.sku, name: s.name, onHand: s.qty / 1000, value: s.value, unitCost: s.qty ? Math.round(s.value / (s.qty / 1000)) : 0, bought: s.bought / 1000, returned: s.returned / 1000, sold: s.sold / 1000, cogs: s.cogs })).sort((a, b) => a.sku.localeCompare(b.sku));
+  const rows = [...stock.values()].map((s) => ({ sku: s.sku, name: s.name, onHand: s.qty / 1000, value: s.value, unitCost: s.qty ? Math.round(s.value / (s.qty / 1000)) : 0, bought: s.bought / 1000, returned: s.returned / 1000, sold: s.sold / 1000, cogs: s.cogs, writtenDown: s.writtenDown })).sort((a, b) => a.sku.localeCompare(b.sku));
   return { method, rows, costs, error, value: rows.reduce((t, r) => t + r.value, 0), cogs: rows.reduce((t, r) => t + r.cogs, 0) };
 }
 
@@ -79,7 +92,7 @@ export function inventoryEntries(books) {
   for (const m of inv.moves) {
     const cents = costs.get(m.id);
     if (m.kind === "buy" || m.kind === "return" || !cents) continue; // a return books no cost: the supplier's refund, filed to 1450, credits Inventory
-    out.push({ id: m.id, date: m.date, memo: m.kind === "landed" ? `Freight and duty on stock already sold, ${m.alloc.map((a) => a.sku).join(", ")}` : `${m.kind === "sell" ? "Cost of goods sold" : "Stock written off"}, ${m.sku}`, source: "inventory", lines: [{ account: COGS_ACCOUNT, debit: cents, credit: 0 }, { account: INVENTORY_ACCOUNT, debit: 0, credit: cents }] });
+    out.push({ id: m.id, date: m.date, memo: m.kind === "writedown" ? `Inventory written down to net realizable value, ${m.sku}` : m.kind === "landed" ? `Freight and duty on stock already sold, ${m.alloc.map((a) => a.sku).join(", ")}` : `${m.kind === "sell" ? "Cost of goods sold" : "Stock written off"}, ${m.sku}`, source: "inventory", lines: [{ account: COGS_ACCOUNT, debit: cents, credit: 0 }, { account: INVENTORY_ACCOUNT, debit: 0, credit: cents }] });
   }
   return out;
 }
@@ -137,6 +150,25 @@ export function addLandedCost(booksIn, { amount, date, to, by = "value" } = {}) 
   const move = { id: `INV-${books.inventory.moves.length + 1}`, date, kind: "landed", qty: 0, cents, alloc: buys.map((b, i) => ({ id: b.id, sku: b.sku, cents: shares[i] })) };
   books.inventory.moves.push(move);
   return { books, move };
+}
+
+// addInventoryWritedown(books, { sku, date, nrv }) -> { books, move, loss } or throws.
+// `nrv` is the net realizable value per unit (expected selling price less cost to sell). Stock on
+// hand costing more than that is cut to it; Dr Cost of goods sold, Cr Inventory. Never written back up.
+export function addInventoryWritedown(booksIn, { sku, date, nrv } = {}) {
+  const books = clone(booksIn);
+  sku = String(sku ?? "").trim();
+  if (!sku) throw new Error("A write-down needs a SKU or item name.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || !parseDate(date)) throw new Error(`Date ${date} is not a YYYY-MM-DD date.`);
+  const unit = typeof nrv === "number" ? Math.round(nrv * 100) : parseCents(String(nrv ?? ""));
+  if (!Number.isFinite(unit) || unit < 0) throw new Error("Net realizable value per unit must be zero or more.");
+  if (books.lockedThrough && date <= books.lockedThrough) throw new Error(`${date} is in the period locked through ${books.lockedThrough}. Unlock it first.`);
+  if (!(books.inventory?.moves ?? []).some((m) => m.sku === sku && m.kind === "buy")) throw new Error(`No stock of ${sku} was bought.`);
+  const move = { id: `INV-${books.inventory.moves.length + 1}`, date, sku, kind: "writedown", qty: 0, cents: 0, nrv: unit };
+  books.inventory.moves.push(move);
+  const r = replay(books.inventory);
+  if (r.error) throw new Error(r.error);
+  return { books, move, loss: r.costs.get(move.id) };
 }
 
 export function setInventoryMethod(booksIn, method) {
