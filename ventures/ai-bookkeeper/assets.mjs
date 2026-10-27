@@ -44,7 +44,7 @@ export function schedule(asset, through) {
 
 // Latest date in the books: depreciation is booked through the end of that month.
 export function booksThrough(books) {
-  const dates = [...(books.transactions ?? []).map((t) => t.date), ...(books.documents ?? []).map((d) => d.date), ...(books.assets ?? []).map((a) => a.date)];
+  const dates = [...(books.transactions ?? []).map((t) => t.date), ...(books.documents ?? []).map((d) => d.date), ...(books.assets ?? []).flatMap((a) => a.disposed ? [a.date, a.disposed.date] : [a.date])];
   return dates.sort().at(-1) ?? null;
 }
 

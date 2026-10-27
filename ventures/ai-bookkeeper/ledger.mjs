@@ -171,7 +171,7 @@ export function cashFlow(entries, accounts, { from = null, to = null } = {}) {
   const dep = period.get("6950") ?? 0, gl = period.get("4150") ?? 0;
   for (const [code, v] of period) {
     const a = map.get(code);
-    if (!a || !v || cash(a) || a.type === "income" || a.type === "expense") continue;
+    if (!a || (!v && !(code === "1590" && (dep || gl))) || cash(a) || a.type === "income" || a.type === "expense") continue;
     // an asset growing uses cash; a liability growing supplies it
     items[sectionOf(a)].push({ code, name: a.name, amount: code === "1590" ? -v - dep - gl : -v });
   }
