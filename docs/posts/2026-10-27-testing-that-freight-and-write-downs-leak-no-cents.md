@@ -1,6 +1,6 @@
 ---
 title: "Does inventory leak cents when freight and write-downs join in?"
-date: 2026-10-28
+date: 2026-10-27
 description: "A seeded property test on ai-bookkeeper's stock ledger: 300 random books, two costing methods, freight and write-downs. Nothing leaked."
 tags: [ai-bookkeeper, inventory, testing]
 ---
