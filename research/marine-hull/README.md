@@ -49,7 +49,15 @@ energy stay swept. Results: [`experiments/results_slocum.txt`](experiments/resul
 12 h at 1.5 m/s or 8 h at 3 kn) whose non-propulsion load is the vendor's total power minus the model's propulsion
 power. Results: [`experiments/results_remus.txt`](experiments/results_remus.txt).
 
+`experiments/run_time.py` (milestone 4d): energy-delay product of the 4b glider cases against 4c's REMUS-class AUV
+cases. Results: [`experiments/results_time.txt`](experiments/results_time.txt).
+
 ## Results (preliminary)
+
+- Milestone 4d (time penalty, 14,580 pairs): the glider takes a median 5.5 days per 100 km against the AUV's
+  12 h. The AUV has the lower energy-delay product in 78% of pairs; the glider's energy win holds only while delay
+  is weighted below about 0.7 of energy. Two predictions refuted (see `LOG.md`). The AUV's best speed sits at the
+  datasheet maximum, so this is a bound; the time-energy exchange rate is not sourced.
 
 - Milestone 4c (REMUS-class AUV, hotel implied by vendor endurance): total power 125 to 188 W at 1.5 m/s, model
   propulsion 13 to 21 W, so the implied non-propulsion load is 104 to 175 W, 21 to 250 times the glider's swept
