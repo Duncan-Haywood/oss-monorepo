@@ -26,7 +26,10 @@ const DEFAULTS = {
  * holdDowns counts hardware pieces only: `wallEnds` puts one at each end of every wall, `openingMinWidth` (in) puts one on each side of
  * every opening at least that wide. Which walls and openings need them is the engineer's call; this multiplies the typed rule.
  * @typedef {{ wallEnds?: boolean, openingMinWidth?: number | null, price?: number }} HoldDowns
- * @typedef {Partial<typeof DEFAULTS> & { nailsPerBox?: number, price?: number, sheathing?: boolean, holdDowns?: HoldDowns }} Fasteners
+ * rafterTies counts one tie per rafter or jack rafter at its eave bearing (two per truss, one at each wall) when the roof is in the takeoff;
+ * `perBearing` (1 to 2) is how many ties the engineer's schedule puts on each bearing.
+ * @typedef {{ perBearing?: number, price?: number }} RafterTies
+ * @typedef {Partial<typeof DEFAULTS> & { nailsPerBox?: number, price?: number, sheathing?: boolean, holdDowns?: HoldDowns, rafterTies?: RafterTies | boolean }} Fasteners
  */
 
 /** @param {Fasteners} d */
@@ -52,6 +55,11 @@ export function validateFasteners(d) {
       if (hv.price != null && !(hv.price >= 0 && hv.price <= 1e6)) e.push("Hold-down price must be between 0 and 1000000.");
     }
   }
+  const rt = d.rafterTies;
+  if (rt != null && typeof rt === "object") {
+    if (rt.perBearing != null && ![1, 2].includes(rt.perBearing)) e.push("Ties per bearing must be 1 or 2.");
+    if (rt.price != null && !(rt.price >= 0 && rt.price <= 1e6)) e.push("Rafter tie price must be between 0 and 1000000.");
+  } else if (rt != null && typeof rt !== "boolean") e.push("rafterTies must be true or an object with perBearing and price.");
   return e;
 }
 
@@ -125,6 +133,17 @@ export function layoutFasteners(d, plan, result) {
     const count = ends + openings;
     holdDowns = { wallEnds: ends, openingSides: openings, count, price: hd.price ?? null, cost: hd.price != null ? count * hd.price : null };
   }
+  /** @type {any} */
+  let rafterTies = null;
+  if (d.rafterTies && /** @type {any} */ (result).roof?.ok !== false && /** @type {any} */ (result).roof) {
+    const rt = typeof d.rafterTies === "object" ? d.rafterTies : {};
+    const roof = /** @type {any} */ (result).roof, per = rt.perBearing ?? 1;
+    const trusses = roof.trusses?.count ?? 0;
+    const rafters = trusses ? 0 : (roof.rafters?.length || 0) + (roof.jacks?.length || 0) + (roof.wingRafters?.length || 0) + (roof.wingJacks?.length || 0);
+    const bearings = trusses * 2 + rafters;
+    const count = bearings * per;
+    rafterTies = { trusses, rafters, bearings, perBearing: per, count, price: rt.price ?? null, cost: rt.price != null ? count * rt.price : null };
+  }
   const connections = [...conn.entries()].map(([name, v]) => ({ name, ...v }));
   const total = connections.reduce((s, x) => s + x.nails, 0);
   const order = Math.ceil(total * (1 + c.waste) - 1e-9);
@@ -134,7 +153,7 @@ export function layoutFasteners(d, plan, result) {
     ok: true, errors: [], connections, walls, total, waste: c.waste, order,
     nailsPerBox: d.nailsPerBox ?? null, boxes, price: d.price ?? null,
     cost: boxes != null && d.price != null ? boxes * d.price : null,
-    sheathingCounted: !!sh?.walls, assumed, holdDowns,
+    sheathingCounted: !!sh?.walls, assumed, holdDowns, rafterTies,
   };
 }
 
@@ -144,7 +163,8 @@ export function fastenerText(d) {
   l.push(`  ${d.total} nails counted; ${d.order} to buy with ${(100 * d.waste).toFixed(0)}% waste${d.boxes != null ? `, ${d.boxes} box(es) of ${d.nailsPerBox}${d.cost != null ? `, ${d.cost.toFixed(2)} at ${d.price} each` : ""}` : " (add nailsPerBox from the label for a box count)"}`);
   for (const x of d.connections) l.push(`    ${String(x.nails).padStart(6)}  ${x.name} (${x.rule})`);
   if (d.holdDowns) l.push(`  ${d.holdDowns.count} hold-down(s): ${d.holdDowns.wallEnds} at wall ends, ${d.holdDowns.openingSides} beside wide openings${d.holdDowns.cost != null ? `, ${d.holdDowns.cost.toFixed(2)} at ${d.holdDowns.price} each` : ""}`);
+  if (d.rafterTies) l.push(`  ${d.rafterTies.count} rafter tie(s): ${d.rafterTies.perBearing} on each of ${d.rafterTies.bearings} bearing(s) (${d.rafterTies.trusses ? `${d.rafterTies.trusses} trusses, 2 bearings each` : `${d.rafterTies.rafters} rafters, 1 eave bearing each`})${d.rafterTies.cost != null ? `, ${d.rafterTies.cost.toFixed(2)} at ${d.rafterTies.price} each` : ""}`);
   if (!d.sheathingCounted) l.push("  Sheathing nails are left out: add --sheathing to count them.");
-  l.push("  Nail counts follow typed schedule defaults (common practice, not a code table); nail size and type, hardware other than the hold-downs you typed, and anchors are not counted here.");
+  l.push("  Nail counts follow typed schedule defaults (common practice, not a code table); nail size and type, hardware other than the hold-downs and rafter ties you typed, and anchors are not counted here.");
   return l;
 }
