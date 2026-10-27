@@ -873,4 +873,6 @@ Every real series so far was a level step (Nile, seat belts), a volatility break
 
 What it says: the slope-bend range is useful here, but the answer depends on the scale, and a multiplicative season is not modelled on the Gaussian path (counts have it). Not claimed: a coverage rate; one series cannot give one.
 
-Next on this thread: a multiplicative seasonal option for the Gaussian path, and a warning when steps cluster inside one seasonal cycle count under `--drift`.
+Warning landed (2026-10-27, `driftWarning` in the result, a CLI line, a test in `uk-gas.test.mjs`): with `--drift` and `--period`, three or more steps within two cycles of each other now come back with a note that they usually mark a seasonal shape that is still changing, not separate regimes. It fires on the UK gas series (raw) and stays silent on the fixed profile. Only that one real series was checked, so the threshold (3 steps in 2 cycles) is a guess; a false-alarm rate on drift-free seasonal series is not measured.
+
+Next on this thread: a multiplicative seasonal option for the Gaussian path, and the false-alarm rate of `driftWarning` on simulated seasonal series with real step changes.
