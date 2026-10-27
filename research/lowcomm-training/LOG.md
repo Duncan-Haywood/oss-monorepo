@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 5i: at M = 16, does the median's sign-flip cost fall to about 0.005 nats, and does the trimmed mean fall behind it? (planned before running)
+- Why: 5h's "Next". 5h found the real late deltas Gaussian-like at mu/sigma about 0.4, so 5f's Gaussian order-statistic account predicts a further ~4x fall in the median's flip cost from M = 8 (0.0207) to M = 16, and a trimmed mean within ~15% of the median.
+- Design (`experiments/gpt_median_m16/median_m16.py`): 5d/5e setup with M = 16 workers, H = 16, 3,840 steps, seeds 0 to 2. Arms: mean (no attack), median (no attack), median and trimmed mean (drop one per side) with worker 0 sending -10x its delta.
+- **H5i-i:** median flip cost (attacked minus unattacked mean loss) at M = 16 lies in 0.002 to 0.010 nats (prediction 0.005, a factor-2 band). Refuted outside it.
+- **H5i-ii:** trimmed-mean flip cost is within 2x of the median's at M = 16 (Gaussian tails). Refuted if more than 2x.
+- Prior: i 55%, ii 65%. Limits: 3 seeds, one model and corpus; flip cost is a small difference of noisy losses (seed sd of the unattacked loss about 0.005), so i may be unresolvable at 3 seeds.
+
 ## 2026-10-27 · Milestone 5h: what are the tail weight and mu/sigma of the real worker deltas? (hypotheses written after launching the runs, before any round past 1 was read)
 - Why: 5g's "Next". Which row of its table applies depends on the honest deltas' tail index and mu/sigma, never measured because torch was absent. A CUDA torch wheel from PyPI installs here with its dependencies (about 2 minutes) and runs on CPU.
 - Design (`experiments/delta_stats/delta_stats.py`): 5d/5e setup (3d model, M = 8, mean aggregation, no attack, 3,840 steps, seeds 0 to 2). At rounds 1, 10, 60, 120, 240 the engine's `attack` hook (identity) records each worker's delta per tensor. Per tensor: mu/sigma = rms of the across-worker mean over rms of the residual (corrected by sqrt(M/(M-1))); excess kurtosis and the Hill index (top 5%) of residuals normalised by the tensor rms; a Gaussian of equal size gives the sampling baseline. Round 1 of seed 0 was visible before writing these (kurtosis about 1, Hill about 5 weighted): those two numbers are not blind.
