@@ -972,13 +972,13 @@ def print_measure(m: dict[str, Any]) -> None:
     rows = []
     for path, f in m["doc_friction"].items():
         note, changed = _changed_note(path)
-        gone = _is_gone(path)
-        if gone:
-            note = " (file no longer exists: reports are about a deleted or renamed file)"
         # Older reports are mostly fixed by now and each costs a run several calls to check.
         fresh = [r for r in f["recent"] if not (t := _when(r)) or t >= cutoff] or f["recent"][-1:]
         tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in fresh]
-        live = [] if gone else [r for r in tagged if not r.startswith("[file changed since]")]
+        live = [r for r in tagged if not r.startswith("[file changed since]")]
+        if _FILE_LIKE_RE.fullmatch(path) and not (ROOT.parent / path).exists():
+            # A complaint about a deleted or renamed file cannot be live (2026-10-27: test_lowcomm.py).
+            note, live = " (file no longer exists)", []
         rows.append((path, f, note, tagged, live))
     # Files with live recent reports come first, most live reports first; the all-time
     # count only breaks ties, so a file with 300 old reports no longer crowds out a new fault.
@@ -1079,15 +1079,6 @@ def _shallow_boundary() -> set[str]:
         return set()
 
 
-_PLAIN_PATH_RE = re.compile(r"[\w./-]+/[\w.-]+\.\w+")
-
-
-def _is_gone(path: str) -> bool:
-    """True for a friction key that is a single repo file path no longer in the tree (a deleted test,
-    a renamed script): its reports can only be stale. Free-text keys ('X output', 'A / B') are not paths."""
-    return bool(_PLAIN_PATH_RE.fullmatch(path)) and not (ROOT.parent / path).exists()
-
-
 def _changed_note(path: str) -> tuple[str, str]:
     """(' (file last changed D)', D): so a reader can tell a stale complaint from a live one.
     When the last change git can see is the shallow boundary, the real date is unknown: say so and
@@ -1105,6 +1096,7 @@ def _changed_note(path: str) -> tuple[str, str]:
     return f" (file last changed {when[:10]})", when
 
 
+_FILE_LIKE_RE = re.compile(r"[\w.-]+(?:/[\w.-]+)*\.\w+")
 _PATH_RE = re.compile(r"[\w./-]+\.(?:py|sh|mjs|md|json|yaml)\b")
 
 

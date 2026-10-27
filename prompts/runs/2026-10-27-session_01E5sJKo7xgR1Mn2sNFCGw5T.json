@@ -28,7 +28,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,12 +41,15 @@
       "issue": "measure friction table listed reports about deleted files (lowcomm test) as live; fixed with a gone-file tag."
     }
   ],
-  "deviations": [],
-  "writeups": [
-    "docs/posts/2026-10-27-friction-table-skips-deleted-files.md"
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No post/agent doc: the only change duplicated main."
+    }
   ],
+  "writeups": [],
   "goal": null,
-  "notes": "Critique mode; no backlog ids touched. main_health 22/22; prompts unittest 111 OK. No agent doc written: nothing the next run needs beyond the post.",
+  "notes": "Critique mode. My fix (tag friction keys for deleted files) was landed identically on main by a concurrent run before I merged; I took main's code and dropped my duplicate post and test. Nothing else shipped. main_health 22/22.",
   "corrections": [],
   "redteam": null,
   "usage": {
