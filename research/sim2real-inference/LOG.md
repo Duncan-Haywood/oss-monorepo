@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Test-suite check: one order-dependent failure fixed (a check, not an experiment)
+- Why: before treating the draft as ready, I ran the whole `tests/` directory in one pytest process (`PYTHONPATH=src`).
+- Outcome: 32 passed, 1 failed: `test_benchmark.py::test_analysis_helpers` did `import analyse`, but four experiment directories each ship an `analyse.py`, and another test module had already cached a different one in `sys.modules`. Run alone the test passed, so the fault was name shadowing, not the estimator. The test now loads `experiments/m3_benchmark/analyse.py` by path. 33 passed in 9 s. No result or claim changed.
+- Not done: `cite_check.py` on `paper/refs.bib` could not run (arxiv.org and the DOI host return 403 through the egress proxy); the 14 identifiers stay unchecked this session.
+
 ## 2026-10-26 · Milestone 7x: abstract leads with the real data (a writing step, no experiment)
 - Why: 7w moved SIMPLER to the first results section but left the abstract opening on the MuJoCo result; 7v found the CoRL call wants real-robot or transfer evidence first.
 - Done: `paper/main.tex` abstract now states the SIMPLER result right after the question, then the MuJoCo benchmark, certificates and floor. Wording moved, no number or claim changed. Also fixed an unmatched parenthesis in that sentence. Rebuilt (`pdflatex`, `bibtex`, `pdflatex` x2): 8 pages, no undefined references.
