@@ -927,7 +927,7 @@ export function validateSchedule(schedule) {
     if (round.day < prevDay) errors.push(`${round.label}: dated before the round above it.`);
     prevDay = round.day;
     if (!round.chosenDay && !cfg.weekdays.includes(new Date(round.day * 86400000).getUTCDay())) errors.push(`${round.label}: ${dayIso(round.day)} is not a chosen weekday.`);
-    if (cfg.skipDays.includes(round.day)) errors.push(`${round.label}: ${dayIso(round.day)} is a skip date.`);
+    if (!round.chosenDay && cfg.skipDays.includes(round.day)) errors.push(`${round.label}: ${dayIso(round.day)} is a skip date.`);
     const inRound = new Set();
     const cells = new Set();
     for (const m of round.matches) {

@@ -2001,3 +2001,14 @@ test("season grid has one cell per team per round and agrees with the schedule",
   const csv = seasonGridCsv(buildSchedule(baseSpec(4)));
   assert.equal(csv.split("\r\n")[0].split(",")[0], "Team");
 });
+
+test("a make-up date the organiser names on a skip date is honoured and the validator accepts it", async () => {
+  const { readSpec, buildSchedule, applyRainouts, validateSchedule, dayIso } = await import("./calc.mjs");
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-09-01", weekdays: "Tue", skip: "2026-10-31", times: "18:00", courts: "C1, C2", seed: 1, minutes: 60 });
+  const s = buildSchedule(spec);
+  const first = s.rounds[0];
+  const r = applyRainouts(s, `${dayIso(first.day)} -> 2026-10-31`);
+  assert.equal(r.errors.length, 0);
+  assert.ok(r.moves.every((m) => dayIso(m.to) === "2026-10-31"));
+  assert.deepEqual(validateSchedule(r.schedule).errors, []);
+});
