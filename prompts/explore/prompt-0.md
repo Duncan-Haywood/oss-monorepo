@@ -36,7 +36,8 @@ What still holds:
   seemed worth doing and what you would do next if it pays off.
 - **Skip audits that earlier explore runs already found clean.** Sitemap
   coverage, duplicate titles and h1s, canonical and og tags, venture README
-  live links, `.md` links and anchors, and unnamed form controls have each been
+  live links, `.md` links and anchors, and unnamed form controls, plus html `lang`, viewport, image `alt` and `rel`
+  attributes (three runs, 2026-10-26, found nothing), have each been
   swept (`platform/ci/check_*.py`, `serp_snippets.py`, `venture_live_links.py`,
   `page-identity.mjs`, `page-seo-audit`); re-run the tool if you doubt one, but
   there is no need to rebuild the sweep. Meta descriptions over 320 characters are clean too
