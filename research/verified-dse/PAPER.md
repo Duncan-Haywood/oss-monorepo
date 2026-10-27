@@ -80,7 +80,10 @@ break R2* (`experiments/hostile/`; crossbar, GF(2) matrix-vector, broadcast mix,
 (`bcastmix192`, two distinct outcomes over 60 sequences) has R2 regret 49.9% because repair buffers the mapping that looked
 worst (tau(R2,R4) = -1); the other eight cells are at most 1.1%. f3 (0.67) again matches the best arm at 25 equivalents and
 the best pilot gate is worse (1.05); the pilot's AUC of 1.00 rests on two cells of one design. Across both new sets, the
-pilot gate never paid for its pilot.
+pilot gate never paid for its pilot. Pooled over the ten held-out designs (`experiments/heldout_signif/`), eta = 1.5 and f3
+beat random R4 by 1.3 points at 25 equivalents (8 and 7 of 10 designs better, bootstrap intervals exclude zero), but no test
+survives a Holm correction over 12 tests (smallest adjusted p 0.14), and f3 and eta = 1.5 do not differ at 25 (p 1.0); the
+held-out win is reported uncorrected.
 
 ## 4 A bound and what a pilot can check
 Define the inversion of a rung, iota = max(0, max over pairs with s(x) <= s(x') of log y(x) - log y(x')). **Proposition.**
