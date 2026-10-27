@@ -1,7 +1,7 @@
 ---
 title: "Quick Pick Survey now guards against respondents who always tap the second option"
 date: 2026-10-27
-description: "The staged pair selector already fell back for first-option bias; the same fallback now covers the second option, taking a simulated worst case from 0.574 to 0.666 rank accuracy."
+description: "The staged pair selector already fell back for first-option bias; it now covers the second option too, lifting a simulated worst case from 0.574 to 0.666."
 tags: [quick-pick-survey, surveys, ranking]
 ---
 
