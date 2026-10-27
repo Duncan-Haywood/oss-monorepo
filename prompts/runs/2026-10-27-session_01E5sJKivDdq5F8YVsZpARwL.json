@@ -31,18 +31,13 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [
-    {
-      "file": "portfolio/flagships.yaml",
-      "issue": "ai-bookkeeper next: says fixture sweeps are saturated; I spent several calls looking for unswept repos (Skrooge GitHub mirror is an empty stub, firefly data-importer and MoneyManagerEx ship no fixtures) before switching flagship."
-    }
-  ],
+  "doc_friction": [],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-10-28-changepoint-detector-drift-warning-false-alarms.md"
+    "docs/posts/2026-10-28-wall-framing-takeoff-gable-panel-plates.md"
   ],
   "goal": null,
-  "notes": "Synthetic-only measurement; threshold unchanged. Local checks: new test passes. Full CI not run locally.",
+  "notes": "Fixed gable panel plate lengths in wall-framing-takeoff; panels.test.mjs 9/9 pass.",
   "corrections": [],
   "redteam": null
 }

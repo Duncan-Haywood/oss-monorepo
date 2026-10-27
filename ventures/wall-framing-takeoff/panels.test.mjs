@@ -92,3 +92,14 @@ test("panel pull lists place every panel piece once, on boards that exist", asyn
   for (const p of po.assignment.panels) for (const b of p.boards) assert.ok(b.cuts.reduce((t, c) => t + c, 0) <= b.boardLength + 1e-6);
   assert.ok(panelPullText(po).length > po.panels);
 });
+
+test("a gable wall's sloped plates are trimmed along the slope, not by their horizontal run", () => {
+  const plan = samplePlan();
+  plan.walls = [{ id: "G", length: 240, stud: "2x4", gable: { pitch: 6, peak: 90 }, openings: [] }];
+  const g = takeoff(plan).walls[0];
+  const pan = panelizeWall(g, 96);
+  const parts = panelParts(g, pan);
+  const sloped = g.members.filter((m) => m.sloped && m.label === "top plate");
+  const total = parts.flatMap((p) => p.pieces).filter((x) => x.label === "top plate").reduce((t, x) => t + x.length * x.qty, 0);
+  assert.ok(Math.abs(total - sloped.reduce((t, m) => t + m.length, 0)) < 0.2, `top plate pieces ${total} vs whole ${sloped.reduce((t, m) => t + m.length, 0)}`);
+});
