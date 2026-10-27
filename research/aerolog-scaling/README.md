@@ -52,6 +52,17 @@ short-period damping falls 6.3%. With free transition at 1:10 (Re 1e5) the short
 laminar-bubble regime the surrogate is not trusted in. Phugoid damping is not reported: it is unstable even
 at full size in this model and depends on the unmodelled thrust law. No gust response yet.
 
+**Propeller efficiency (milestone 5a, `experiments/propeller_efficiency/`).** From 151 measured efficiency
+curves of 34 APC propellers in the UIUC Propeller Database (Re at 0.75 R from 1.5e4 to 1.2e5), peak efficiency
+rises with blade Reynolds number in 97% of propellers (mean 0.21 per decade of Re, bootstrap CI 0.18 to 0.23).
+Across all curves, mean peak efficiency is 0.603 at Re 2e4 to 4e4 and 0.669 at 8e4 to 1.6e5. Saturating fits
+(Re^-0.5 and Re^-0.2) put the fall from Re 1e5 to 3.2e4 (inside the data) at 9.9 and 10.3 points, so the
+direction of H4 is supported and 10 points is about the size of the effect at n = 0.1 for a model whose
+propeller sits near Re 1e5. The full-size side (Re about 1e6, an assumed figure) is outside the database, so
+the n = 0.1 gap there (19 to 25 points from the fits, 31 from a straight line) is an extrapolation and is not reported as a result.
+Re is confounded with RPM within a propeller (advance ratio at peak and tip Mach move too).
+Data: Brandt and Selig, "Propeller Performance Data at Low Reynolds Numbers", AIAA 2011-1255; UIUC Propeller Data Site, https://m-selig.ae.illinois.edu/props/propDB.html.
+
 ## Limitations
 
 Flat-plate drag with a form factor, no airfoil polars, no CLmax, fixed powertrain efficiency (which
@@ -66,4 +77,4 @@ only as a topic; no affiliation is implied. Written with AI assistance (Claude C
 
 ## Next
 
-Open the NASA table and each reference; gust response and a thrust model for H1; XFOIL polars against Selig data (H2, H3); UIUC propeller efficiency (H4).
+Open the NASA table and each reference; gust response and a thrust model for H1; XFOIL polars against Selig data (H2, H3); full-size propeller Reynolds number from a sourced propeller (to close H4); a motor-efficiency model.
