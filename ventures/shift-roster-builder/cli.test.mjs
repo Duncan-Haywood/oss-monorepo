@@ -169,3 +169,21 @@ test("--open-shift-hours turns on the repair: 100 leaves fewer shifts open than 
   assert.equal(open(o100), 3);
   assert.equal(open(o0), 5);
 });
+
+test("--changes prices what moved since the posted roster, on the operator's numbers", () => {
+  const posted = rosterCsv(buildRoster(parseStaff(sampleStaff()).staff, parseShifts(sampleShifts()).slots, {}));
+  const lines = posted.trim().split("\n");
+  const row = lines.findIndex((l, i) => i > 0 && !/UNFILLED/.test(l));
+  const [day, , , , , who] = lines[row].split(",");
+  const cut = lines.filter((_, i) => i !== row).join("\n") + "\n";
+  const r = run(sampleStaff(), sampleShifts(), { postedCsv: cut, weekStart: "2026-11-02", changedAt: "2026-11-01 12:00", noticeHours: 336, premiumHours: 1 });
+  assert.equal(r.code, 0);
+  assert.match(r.out, /1 change\(s\), 1 on short notice/);
+  assert.match(r.out, new RegExp(`${who}\\s+${day} added`));
+  assert.match(r.out, /premium \$\d/);
+  const ex = run(sampleStaff(), sampleShifts(), { postedCsv: cut, weekStart: "2026-11-02", changedAt: "2026-11-01 12:00", exempt: who });
+  assert.match(ex.out, /requested, no premium/);
+  assert.match(run(sampleStaff(), sampleShifts(), { postedCsv: cut }).out, /Give --week-start and --changed-at/);
+  assert.equal(parseArgs(["--changes", "p.csv", "--changed-at", "2026-11-01 12:00", "--notice-hours", "24"]).noticeHours, 24);
+  assert.throws(() => parseArgs(["--changed-at", "tuesday"]), /date and time/);
+});
