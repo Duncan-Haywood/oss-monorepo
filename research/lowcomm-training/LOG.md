@@ -11,6 +11,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Prior: i 60%, ii 55%, iii 70%.
 - Limits known in advance: 3 seeds; one attacker of eight; the M = 8 baseline is a new run (not the 3d M = 4 runs), since M changes the effective batch.
 
+### Outcome of 5d (`experiments/gpt_trimmed_m8/`: `trimmed_m8.py`, `trimmed_m8.jsonl`, `trimmed_m8_results.txt`, `run.out`; 12 runs, seeds 0 to 2, about 17 minutes each)
+- Final validation loss. M = 8 mean, no attack: 1.5527 (1.5551, 1.5447, 1.5581). Excess over it: median, no attack +0.0007 (+0.0019, +0.0083, -0.0081); median under the -10x flip +0.0207 (+0.0161, +0.0294, +0.0164); trimmed mean under the flip +0.0262 (+0.0256, +0.0341, +0.0190).
+- **H5d-i holds:** the median's flip cost is +0.021 at M = 8 against +0.095 at M = 4 (bar 0.06). **H5d-ii holds:** trimmed minus median under the flip is +0.0055 (bar 0.02); the trimmed mean is not better, it is nominally worse on all 3 seeds. **H5d-iii holds:** +0.0007 (bar 0.02), and the sign changes across seeds, so it is noise.
+- Reading: the cost of one sign-flip attacker to the median falls by about 4.6x when workers double, consistent with the order-statistic account (the attacker displaces the median by less when honest values are denser), but M is the only thing varied, so the 1/M scaling is not established from two points. Keeping 6 of 8 values (trimmed mean) buys nothing over the median here. Both are far below the mean's failure (+9e4 at M = 4).
+- Limits: 3 seeds; paired differences of about 0.005 are within seed spread; the M = 8 baseline is a new run set, not 3d; the displacement itself was not measured.
+- Next: M = 16 (would test the scaling), and measuring the aggregated-delta shift directly.
+
 ## 2026-10-26 · Milestone 5c: is the median's +0.095 under sign-flip due to the flipped sign, or to any extreme attacker? (planned before running)
 - Why: 5b's "Next" items (M = 8, trimmed mean) are bigger; first a cheap test of 5b's untested mechanism. At M = 4 the median is the mean of the two middle values. A flipped (negative) attacker sits below the honest values on most coordinates, so the median is the mean of the honest 1st and 2nd order statistics, below the honest median: a systematic shrink. An attacker sending +10x its delta sits above, so the median is the mean of the honest 2nd and 3rd: a systematic stretch. A zero-sending attacker sits near the middle of the honest values.
 - Design (`experiments/gpt_median_mechanism/median_mechanism.py`): 5b exactly (3d model, M = 4, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, seeds 0 to 2), median aggregation, worker 0 sends 10x or 0x its delta. 6 runs, about 12 minutes each.
