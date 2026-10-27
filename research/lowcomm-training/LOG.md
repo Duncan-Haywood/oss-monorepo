@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 5g: does 5f's order-statistic account survive heavy-tailed coordinates? (a numpy check, no training; planned before running)
+- Why: 5f's stated limit was i.i.d. Gaussian coordinates, while real worker deltas are heavy-tailed. Same design as 5f (`experiments/median_order_stat_heavy/heavy.py`): honest noise is Student-t with nu = 5 and 3 degrees of freedom, rescaled to unit variance, against the Gaussian (nu = inf); mu/sigma in {0, 1}; M in {4, 8, 16}; median and trimmed mean; 2,000,000 coordinates; worker 0 sends -10x a fresh draw of its own delta.
+- **H5g-i:** the squared-shift ratio M = 4 to 8 for the median stays within 3.5 to 6 (5f's band) at nu = 5 and nu = 3. Refuted if outside the band for either.
+- **H5g-ii:** the median's squared shift is smaller under heavy tails than under Gaussian at every M (its middle order statistics are denser), so the predicted M = 16 flip cost does not rise. Refuted if any nu < inf has a larger squared shift than Gaussian at the same M and mu/sigma.
+- Prior: i 60%, ii 55%.
+- Limits known in advance: coordinates still independent; the attacker's -10x scale is the one used in training; the loss mapping is still assumed quadratic.
+
+### Outcome of 5g (`experiments/median_order_stat_heavy/`: `heavy.py`, `heavy_results.txt`; 2,000,000 coordinates, seed 0, single draw so no interval)
+- Median squared shift (units of sigma^2) at mu/sigma = 1: Gaussian 0.439, 0.095, 0.023 for M = 4, 8, 16; nu = 5: 0.404, 0.067, 0.015; nu = 3: 0.351, 0.041, 0.009. Ratio M = 4 to 8: Gaussian 4.63, nu = 5 6.06, nu = 3 8.59 (at mu/sigma = 0: 4.27, 5.25, 6.45).
+- **H5g-i refuted:** the M = 4 to 8 ratio leaves the 3.5 to 6 band at nu = 5 (mu/sigma = 1: 6.06) and nu = 3 (6.45 and 8.59). Heavier tails make the median's attack cost fall faster with M than Gaussian predicts. Under this account the observed 4.6x fall would then not pin down the tail; it is equally compatible with Gaussian coordinates at mu/sigma = 1 and with mildly heavy tails at mu/sigma near 0, so 5f's "holds" was weaker than it read.
+- **H5g-ii holds for the median:** squared shift is below the Gaussian value at every M, mu/sigma and nu tested, so the M = 16 prediction (about 0.005 nats from a 4x fall) stays an upper estimate, not a lower one: the M = 8 to 16 ratio is 4.1 to 4.6 for the median.
+- Side result, not hypothesised: the trimmed mean (drop one per side) loses its advantage under heavy tails. At M = 8, mu/sigma = 1, nu = 3 it shifts 0.086 against the median's 0.041 (2.1x), and at M = 16 0.028 against 0.009 (3.1x); under Gaussian noise the two are within 15%. This is consistent with 5e's nominal (not significant) +0.0055 for the trimmed mean, and predicts the gap grows at M = 16.
+- Limits: independent coordinates; one seed of the sampler (2e6 draws, differences of 0.0001 are noise); the quadratic loss mapping is still assumed; real tail index of worker deltas is unmeasured here (needs torch).
+- Next: measure the tail index and mu/sigma of the real aggregated deltas in the engine (needs torch), which decides which row of this table applies; then the M = 16 run, now with a trimmed-mean arm since the gap should widen there.
+
 ## 2026-10-27 · Milestone 5f: does the order-statistic account predict the 4.6x fall in the median's flip cost from M = 4 to M = 8? (a numpy check, no training; written after seeing 5d/5e, so not a blind prediction)
 - Why: 5d/5e's "Next": the displacement was never measured. Training needs torch (absent here) and 17 minutes per run, so I computed the account itself: per coordinate, M-1 honest workers send mu + sigma z, worker 0 sends -10x a fresh draw of its own delta; shift = aggregate(attacked) - aggregate(all honest), 2,000,000 coordinates, mu/sigma in {0, 0.5, 1, 2}, M in {4, 8, 16}, median and trimmed mean (`experiments/median_order_stat/order_stat.py`, `order_stat_results.txt`).
 - Hypothesis chosen with the observed ratio (0.095/0.0207 = 4.6) already known: the loss cost scales with the mean squared shift. Refuted if the squared-shift ratio M = 4 to 8 is outside 3.5 to 6 for every mu/sigma.
