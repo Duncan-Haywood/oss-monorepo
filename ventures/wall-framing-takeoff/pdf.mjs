@@ -7,7 +7,7 @@
 // Helvetica is one of the 14 standard PDF fonts, so nothing is embedded.
 import { formatLength, formatInches, verifyWall } from "./engine.mjs";
 import { markMembers } from "./drawings.mjs";
-import { panelizeWall } from "./panels.mjs";
+import { panelizeWall, panelParts } from "./panels.mjs";
 
 const PAGE_W = 792, PAGE_H = 612, MARGIN = 36;
 
@@ -150,6 +150,84 @@ function drawElevation(pg, w, wall, plan, pan, bx, by, bw, bh) {
 }
 
 /**
+ * One wall (or one shop panel) as a sheet, continued pages when the parts run long.
+ * @param {Page[]} pages
+ * @param {{sheet: string, heading: string, panelNote?: string}} tag
+ */
+function wallSheet(pages, w, wall, plan, pan, tag) {
+  const problems = tag.panelNote ? [] : verifyWall(w, wall);
+  const { parts } = markMembers(w);
+  let pg = new Page();
+  pages.push(pg);
+  const head = (p, suffix = "") => {
+    p.text(`${tag.heading}${suffix}`, MARGIN, PAGE_H - MARGIN - 12, 16, { bold: true });
+    p.text(`${tag.sheet}  |  ${formatLength(w.length)} long  |  ${formatInches(w.height)} high  |  ${w.stud} studs at ${formatInches(plan.studSpacing)} centres${w.gable ? `  |  gable ${w.gable.pitch}/12` : ""}${tag.panelNote ? `  |  ${tag.panelNote}` : ""}`, MARGIN, PAGE_H - MARGIN - 26, 8.5, { rgb: [0.33, 0.33, 0.33] });
+  };
+  head(pg);
+  // disclaimer and check lines sit at the foot of the sheet
+  const footLines = wrap(DISCLAIMER, 6.5, PAGE_W - 2 * MARGIN);
+  const footTop = MARGIN + footLines.length * 8 + 4;
+  pg.stroke([0.7, 0.7, 0.7], 0.4); pg.line(MARGIN, footTop, PAGE_W - MARGIN, footTop);
+  footLines.forEach((l, k) => pg.text(l, MARGIN, footTop - 9 - k * 8, 6.5, { rgb: [0.33, 0.33, 0.33] }));
+  const joints = ["bottom", "top", "cap"].map((k) => `${k} ${(w.joints?.[k] || []).map(formatLength).join(", ") || "none"}`).join("; ");
+  const check = wrap(`Plate joints (red) from the wall start: ${joints}. ${tag.panelNote ? "The layout check runs on the whole wall (its own sheet); this panel is built from whole members cut at a clear line, with plates trimmed to its span." : problems.length ? `Layout check found ${problems.length} problem(s): ${problems.join("; ")}` : "Layout check passed: every member inside the wall, none overlapping, every plate joint over a full stud."}${w.notes?.length ? " " + w.notes.join(" ") : ""}`, 7.5, PAGE_W - 2 * MARGIN);
+  const checkTop = footTop + 6 + check.length * 9;
+  check.forEach((l, k) => pg.text(l, MARGIN, checkTop - 9 - k * 9 + 3, 7.5, { rgb: [problems.length ? 0.7 : 0.13, problems.length ? 0.15 : 0.13, problems.length ? 0.12 : 0.13] }));
+  // elevation takes the upper part, the parts table the rest
+  const elevTop = PAGE_H - MARGIN - 34;
+  const elevH = Math.min(270, (elevTop - checkTop) * 0.55);
+  pg.stroke([0.8, 0.8, 0.8], 0.5); pg.fill([1, 0.99, 0.97]);
+  pg.rect(MARGIN, elevTop - elevH, PAGE_W - 2 * MARGIN, elevH, "B");
+  drawElevation(pg, w, wall, plan, pan, MARGIN + 4, elevTop - elevH + 2, PAGE_W - 2 * MARGIN - 8, elevH - 4);
+  // parts table: columns of rows that fit; more rows than fit means a continued page
+  const rowH = 10.5, colW = 232, cols = 3;
+  let y0 = elevTop - elevH - 14;
+  const drawTableHead = (p, x, y) => {
+    p.stroke([0.5, 0.5, 0.5], 0.4);
+    p.text("Mark", x + 2, y, 7.5, { bold: true }); p.text("Qty", x + 52, y, 7.5, { bold: true, align: "right" });
+    p.text("Size", x + 60, y, 7.5, { bold: true }); p.text("Cut length", x + 142, y, 7.5, { bold: true, align: "right" }); p.text("Member", x + 148, y, 7.5, { bold: true });
+    p.line(x, y - 3, x + colW - 6, y - 3);
+  };
+  pg.text("Parts", MARGIN, y0, 10, { bold: true });
+  let bottom = checkTop + 6;
+  let k = 0;
+  let top = y0 - 12;
+  while (k < parts.length) {
+    const per = Math.max(1, Math.floor((top - 10 - bottom) / rowH));
+    for (let c = 0; c < cols && k < parts.length; c++) {
+      const x = MARGIN + c * colW;
+      drawTableHead(pg, x, top);
+      for (let r = 0; r < per && k < parts.length; r++, k++) {
+        const p = parts[k], y = top - 12 - r * rowH;
+        pg.text(p.mark, x + 2, y, 7.5, { bold: true }); pg.text(String(p.qty), x + 52, y, 7.5, { align: "right" });
+        pg.text(p.size, x + 60, y, 7.5); pg.text(formatInches(p.length), x + 142, y, 7.5, { align: "right" });
+        pg.text(p.label.slice(0, 22), x + 148, y, 7.5);
+      }
+    }
+    if (k < parts.length) { // continue on a fresh page below the heading
+      pg = new Page(); pages.push(pg); head(pg, " (parts, continued)");
+      top = PAGE_H - MARGIN - 50; bottom = MARGIN + 10;
+    }
+  }
+}
+
+
+
+/** A shop panel as a wall of its own: its members (plates trimmed to the span) shifted so the panel starts at 0. */
+function panelWall(w, p) {
+  const members = [];
+  w.members.forEach((m, i) => {
+    if (m.kind === "plate") {
+      const a = Math.max(m.x, p.x0), b = Math.min(m.x + m.w, p.x1);
+      if (b - a > 1e-6) members.push({ ...m, x: a - p.x0, w: b - a, length: b - a });
+    } else if (p.members.includes(i)) members.push({ ...m, x: m.x - p.x0 });
+  });
+  const joints = {};
+  for (const [k, list] of Object.entries(w.joints || {})) joints[k] = /** @type {number[]} */ (list).filter((j) => j > p.x0 + 1e-6 && j < p.x1 - 1e-6).map((j) => j - p.x0);
+  return { ...w, length: p.width, members, joints, notes: [] };
+}
+
+/**
  * The drawing set as a PDF: one landscape Letter sheet per wall.
  * @param {{ok: boolean, walls: any[]}} result from takeoff()
  * @param {any} plan the plan that produced it
@@ -161,62 +239,21 @@ export function drawingSetPdf(result, plan, opts = {}) {
   const pages = [];
   const total = result.walls.length;
   result.walls.forEach((w, i) => {
-    const wall = plan.walls[i];
-    const problems = verifyWall(w, wall);
     const pan = opts.panelMax && opts.panelMax > 0 ? panelizeWall(w, opts.panelMax) : null;
-    const { parts } = markMembers(w);
-    let pg = new Page();
-    pages.push(pg);
-    const head = (p, suffix = "") => {
-      p.text(`${w.id}${suffix}`, MARGIN, PAGE_H - MARGIN - 12, 16, { bold: true });
-      p.text(`Sheet ${i + 1} of ${total}  |  ${formatLength(w.length)} long  |  ${formatInches(w.height)} high  |  ${w.stud} studs at ${formatInches(plan.studSpacing)} centres${w.gable ? `  |  gable ${w.gable.pitch}/12` : ""}`, MARGIN, PAGE_H - MARGIN - 26, 8.5, { rgb: [0.33, 0.33, 0.33] });
-    };
-    head(pg);
-    // disclaimer and check lines sit at the foot of the sheet
-    const footLines = wrap(DISCLAIMER, 6.5, PAGE_W - 2 * MARGIN);
-    const footTop = MARGIN + footLines.length * 8 + 4;
-    pg.stroke([0.7, 0.7, 0.7], 0.4); pg.line(MARGIN, footTop, PAGE_W - MARGIN, footTop);
-    footLines.forEach((l, k) => pg.text(l, MARGIN, footTop - 9 - k * 8, 6.5, { rgb: [0.33, 0.33, 0.33] }));
-    const joints = ["bottom", "top", "cap"].map((k) => `${k} ${(w.joints?.[k] || []).map(formatLength).join(", ") || "none"}`).join("; ");
-    const check = wrap(`Plate joints (red) from the wall start: ${joints}. ${problems.length ? `Layout check found ${problems.length} problem(s): ${problems.join("; ")}` : "Layout check passed: every member inside the wall, none overlapping, every plate joint over a full stud."}${w.notes?.length ? " " + w.notes.join(" ") : ""}`, 7.5, PAGE_W - 2 * MARGIN);
-    const checkTop = footTop + 6 + check.length * 9;
-    check.forEach((l, k) => pg.text(l, MARGIN, checkTop - 9 - k * 9 + 3, 7.5, { rgb: [problems.length ? 0.7 : 0.13, problems.length ? 0.15 : 0.13, problems.length ? 0.12 : 0.13] }));
-    // elevation takes the upper part, the parts table the rest
-    const elevTop = PAGE_H - MARGIN - 34;
-    const elevH = Math.min(270, (elevTop - checkTop) * 0.55);
-    pg.stroke([0.8, 0.8, 0.8], 0.5); pg.fill([1, 0.99, 0.97]);
-    pg.rect(MARGIN, elevTop - elevH, PAGE_W - 2 * MARGIN, elevH, "B");
-    drawElevation(pg, w, wall, plan, pan, MARGIN + 4, elevTop - elevH + 2, PAGE_W - 2 * MARGIN - 8, elevH - 4);
-    // parts table: columns of rows that fit; more rows than fit means a continued page
-    const rowH = 10.5, colW = 232, cols = 3;
-    let y0 = elevTop - elevH - 14;
-    const drawTableHead = (p, x, y) => {
-      p.stroke([0.5, 0.5, 0.5], 0.4);
-      p.text("Mark", x + 2, y, 7.5, { bold: true }); p.text("Qty", x + 52, y, 7.5, { bold: true, align: "right" });
-      p.text("Size", x + 60, y, 7.5, { bold: true }); p.text("Cut length", x + 142, y, 7.5, { bold: true, align: "right" }); p.text("Member", x + 148, y, 7.5, { bold: true });
-      p.line(x, y - 3, x + colW - 6, y - 3);
-    };
-    pg.text("Parts", MARGIN, y0, 10, { bold: true });
-    let bottom = checkTop + 6;
-    let k = 0;
-    let top = y0 - 12;
-    while (k < parts.length) {
-      const per = Math.max(1, Math.floor((top - 10 - bottom) / rowH));
-      for (let c = 0; c < cols && k < parts.length; c++) {
-        const x = MARGIN + c * colW;
-        drawTableHead(pg, x, top);
-        for (let r = 0; r < per && k < parts.length; r++, k++) {
-          const p = parts[k], y = top - 12 - r * rowH;
-          pg.text(p.mark, x + 2, y, 7.5, { bold: true }); pg.text(String(p.qty), x + 52, y, 7.5, { align: "right" });
-          pg.text(p.size, x + 60, y, 7.5); pg.text(formatInches(p.length), x + 142, y, 7.5, { align: "right" });
-          pg.text(p.label.slice(0, 22), x + 148, y, 7.5);
-        }
-      }
-      if (k < parts.length) { // continue on a fresh page below the heading
-        pg = new Page(); pages.push(pg); head(pg, " (parts, continued)");
-        top = PAGE_H - MARGIN - 50; bottom = MARGIN + 10;
-      }
-    }
+    wallSheet(pages, w, plan.walls[i], plan, pan, { sheet: `Sheet ${i + 1} of ${total}`, heading: w.id });
   });
+  if (opts.panelMax && opts.panelMax > 0) {
+    result.walls.forEach((w, i) => {
+      if (w.gable) return; // sloped plates are not trimmed to a span here; gable walls stay whole-wall sheets
+      const pan = panelizeWall(w, opts.panelMax);
+      if (pan.panels.length < 2) return;
+      const wall = plan.walls[i];
+      const lbs = panelParts(w, pan);
+      pan.panels.forEach((p, k) => {
+        const sw = { ...wall, openings: (wall?.openings || []).filter((o) => o.offset + o.width > p.x0 + 1e-6 && o.offset < p.x1 - 1e-6).map((o) => ({ ...o, offset: o.offset - p.x0 })) };
+        wallSheet(pages, panelWall(w, p), sw, plan, null, { sheet: `Panel ${p.name} of ${pan.panels.length}, ${w.id}`, heading: `${w.id} - Panel ${p.name}`, panelNote: `about ${lbs[k].lb} lb of lumber` });
+      });
+    });
+  }
   return assemble(pages, title);
 }
