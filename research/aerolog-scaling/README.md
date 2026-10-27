@@ -1,6 +1,6 @@
 # What does a 1:N model of a cargo UAV tell you about the 1:1 aircraft?
 
-**Status: open research programme, milestones 1 to 7b done in part (see below).** A stdlib Froude-scaling calculator
+**Status: open research programme, milestones 1 to 7c done in part (see below).** A stdlib Froude-scaling calculator
 (`src/aerolog_scaling/`, 9 tests) and a first-order result: for a 1,000 kg, aspect-ratio-10 cargo
 fixed-wing, the 1:10 model needs **1.27x** the power that Froude scaling predicts (1.17 to 1.35
 over drag and aspect-ratio sweeps) because Reynolds number falls as n^1.5 and skin friction rises.
@@ -83,6 +83,13 @@ depart from similarity reverses 7a: 17 of 144 (section, area factor, aspect rati
 at n = 0.2 (NACA 4412 with 1.3x the similar area: 0.996). Most do so by running 17 to 33% lower CL; only two also keep CL
 within 6% and the finite-wing lift slope within 5% (e.g. NACA 5406, AR 12: 0.967). These are power matches at the trim
 point, not corrections of the physics, and the polars are still NeuralFoil, unchecked against measured data.
+
+**Do the matches keep the flight dynamics? (milestone 7c, `experiments/nonsimilar_modes/`).** No. Putting the 17 power
+matches through the longitudinal-mode model, none keeps phugoid frequency, short-period frequency and damping within 5%
+of the full-size aircraft (best worst-case deviation 15.5%); the two that passed the 7b proxies sit at +18% short-period
+frequency and about -10% damping. The shift is the same in every case, including the uncorrected similar model
+(+15%): it comes from the tail, whose Reynolds number is 1.7e5 at n = 0.2, not from the wing. So wing-only corrections
+fix power but not the short period; the next step searches the tail (7d). NeuralFoil slope at that Re is unchecked.
 
 ## Limitations
 
