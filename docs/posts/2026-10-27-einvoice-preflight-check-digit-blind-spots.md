@@ -1,7 +1,7 @@
 ---
 title: "Which tax-ID check digits miss typos? Seven rules, measured"
 date: 2026-10-27
-description: "Chile's and Argentina's check digits catch every single-character typo; Mexico's RFC misses about one in seven. A seeded measurement across seven e-invoice ID rules."
+description: "Chile and Argentina check digits catch every single-character typo; Mexico's RFC misses about one in seven. Seeded measurement of seven e-invoice ID rules."
 tags: [einvoice-preflight, check-digit, e-invoicing, testing]
 ---
 
