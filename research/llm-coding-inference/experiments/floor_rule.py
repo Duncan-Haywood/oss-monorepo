@@ -1,7 +1,7 @@
 """Milestone 4d: a label-free rule for the pi floor, floor = clip(5 * qbar, 0.02, 0.10), where qbar is the corpus
 mean of the calibrated coder probability. Same corpus, split, coder and calibration as pi_floor.py. Writes floor_rule.txt.
 
-    python3 experiments/floor_rule.py [reps]   # needs ~/.cache/qual-real/goemotions_{1,2,3}.csv
+    python3 experiments/floor_rule.py [reps]   # downloads ~/.cache/qual-real/goemotions_{1,2,3}.csv on first use
 """
 import math
 import random

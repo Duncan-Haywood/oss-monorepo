@@ -4,7 +4,7 @@ emotion: anger, annoyance, disappointment, disapproval, disgust, embarrassment, 
 nervousness, remorse, sadness). Corpus = the 70% test part, so the truth is known. Writes
 group_shift_reddit.txt.
 
-    python3 experiments/group_shift_reddit.py [reps]   # needs ~/.cache/qual-real/goemotions_{1,2,3}.csv
+    python3 experiments/group_shift_reddit.py [reps]   # downloads ~/.cache/qual-real/goemotions_{1,2,3}.csv on first use
 """
 import csv
 import random
@@ -43,7 +43,7 @@ DESIGNS = {"A random": None,
 def load():
     neg, texts, sub, cnt = defaultdict(int), {}, {}, Counter()
     unclear = set()
-    for p in ra.CSVS:
+    for p in ra.ensure_csvs():
         with open(p, newline="", encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 if row["subreddit"] not in SUB2G:

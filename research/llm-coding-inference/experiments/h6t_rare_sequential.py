@@ -1,7 +1,7 @@
 """Milestone 6t: sequential audit (6c design) at a rare category, GoEmotions subreddit groups, with and without a
 minimum-positives guard on stopping. Same corpus, coder and strata as h6r_rare_pilot.py. Writes h6t_rare_sequential.txt.
 
-    python3 experiments/h6t_rare_sequential.py     # needs ~/.cache/qual-real/goemotions_{1,2,3}.csv; a few minutes
+    python3 experiments/h6t_rare_sequential.py     # downloads ~/.cache/qual-real/goemotions_{1,2,3}.csv on first use; a few minutes
 """
 import math
 import random
