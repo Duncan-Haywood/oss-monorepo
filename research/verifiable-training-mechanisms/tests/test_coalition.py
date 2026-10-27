@@ -57,6 +57,13 @@ class AuditorTests(unittest.TestCase):
         gs = [0.5, 0.3, 0.2]
         self.assertAlmostEqual(min_bond(3, gs, 0.1, stake_closed_het(gs, 0.1, transfers=True) + 1e-6, 0.1), 0.0, places=6)
 
+    def test_partial_copying_lowers_stake(self):
+        # g = 0.5, p = 0.1, kappa = 0.75: 0.5 / (1 - 0.75 * 0.9) - 1
+        self.assertAlmostEqual(stake_closed(3, 0.5, 0.1, kappa=0.75), 0.5 / 0.325 - 1)
+        self.assertAlmostEqual(min_stake(3, 0.5, 0.1, kappa=0.75), stake_closed(3, 0.5, 0.1, kappa=0.75), places=6)
+        self.assertEqual(stake_closed(3, 0.5, 0.1, kappa=0.0), 0.0)
+        self.assertAlmostEqual(min_stake(1, 0.5, 0.1, kappa=0.0), 4.0, places=6)  # lone cheater always coincides
+
 
 if __name__ == "__main__":
     unittest.main()

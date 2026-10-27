@@ -10,17 +10,20 @@ __all__ = ["utilities", "strong_equilibrium", "min_stake", "stake_closed", "stak
            "utilities_partial", "strong_equilibrium_partial", "min_stake_partial", "stake_closed_partial"]
 
 
-def utilities(profile, g, p, S, r=1.0):  # g: a number, or one saving per worker
+def utilities(profile, g, p, S, r=1.0, kappa=1.0):  # g: a number, or one saving per worker
     """Expected utility of each worker for a 0/1 profile (1 = cheat). The audit enters linearly, so one audit per
-    job and one independent audit per worker give the same expected utility."""
+    job and one independent audit per worker give the same expected utility. kappa < 1 (milestone 35): the cheaters'
+    outputs coincide only with probability kappa; otherwise they all differ, no output has a strict majority, and
+    every submitter gets -S (the cheat is not accepted, and not audited either)."""
     m = len(profile)
     k = sum(profile)
     gs = list(g) if hasattr(g, "__len__") else [g] * m
+    kap = kappa if k > 1 else 1.0  # a lone cheater's output is its own
     out = []
     for i, a in enumerate(profile):
         cost = 1.0 - gs[i] if a else 1.0
         if k * 2 > m:          # cheats are the strict majority
-            pay = (1 - p) * r + p * (-S) if a else -S
+            pay = kap * ((1 - p) * r + p * (-S)) + (1 - kap) * (-S) if a else -S
         elif (m - k) * 2 > m:  # honest are the strict majority
             pay = -S if a else r
         else:                  # tie: no accepted output
@@ -29,11 +32,11 @@ def utilities(profile, g, p, S, r=1.0):  # g: a number, or one saving per worker
     return out
 
 
-def strong_equilibrium(m, g, p, S, r=1.0, margin=0.0, target=None, transfers=False):
+def strong_equilibrium(m, g, p, S, r=1.0, margin=0.0, target=None, transfers=False, kappa=1.0):
     """True if no subset of workers has a joint deviation that leaves every member better off by more than margin.
     transfers=True: members can split gains, so a deviation counts when their summed gain exceeds margin * size."""
     base = tuple(target or (0,) * m)
-    u0 = utilities(base, g, p, S, r)
+    u0 = utilities(base, g, p, S, r, kappa)
     for mask in range(1, 2 ** m):
         members = [i for i in range(m) if mask >> i & 1]
         for acts in product((0, 1), repeat=len(members)):
@@ -42,7 +45,7 @@ def strong_equilibrium(m, g, p, S, r=1.0, margin=0.0, target=None, transfers=Fal
                 prof[i] = a
             if tuple(prof) == base:
                 continue
-            u = utilities(prof, g, p, S, r)
+            u = utilities(prof, g, p, S, r, kappa)
             if transfers:
                 if sum(u[i] - u0[i] for i in members) > margin * len(members):
                     return False
@@ -51,25 +54,29 @@ def strong_equilibrium(m, g, p, S, r=1.0, margin=0.0, target=None, transfers=Fal
     return True
 
 
-def min_stake(m, g, p, r=1.0, hi=1e6, tol=1e-9, transfers=False):
+def min_stake(m, g, p, r=1.0, hi=1e6, tol=1e-9, transfers=False, kappa=1.0):
     """Least stake S >= 0 at which all-honest is a strong equilibrium, by bisection (monotone in S)."""
-    if strong_equilibrium(m, g, p, 0.0, r, transfers=transfers):
+    if strong_equilibrium(m, g, p, 0.0, r, transfers=transfers, kappa=kappa):
         return 0.0
-    if not strong_equilibrium(m, g, p, hi, r, transfers=transfers):
+    if not strong_equilibrium(m, g, p, hi, r, transfers=transfers, kappa=kappa):
         return float("inf")
     lo = 0.0
     while hi - lo > tol:
         mid = (lo + hi) / 2
-        if strong_equilibrium(m, g, p, mid, r, transfers=transfers):
+        if strong_equilibrium(m, g, p, mid, r, transfers=transfers, kappa=kappa):
             hi = mid
         else:
             lo = mid
     return hi
 
 
-def stake_closed(m, g, p, r=1.0):
-    """max(0, g / p - r), independent of m (the audit is the only check a coordinating majority faces)."""
-    return max(0.0, g / p - r)
+def stake_closed(m, g, p, r=1.0, kappa=1.0):
+    """max(0, g / (1 - kappa (1 - p)) - r), independent of m (the audit is the only check a coordinating majority
+    faces; a cheat that fails to coincide is never accepted, so it is caught with probability 1 - kappa (1 - p)).
+    For m = 1 a lone cheater always coincides with itself, so kappa does not apply."""
+    if m == 1:
+        kappa = 1.0
+    return max(0.0, g / (1.0 - kappa * (1.0 - p)) - r)
 
 
 def stake_closed_het(gs, p, r=1.0, transfers=False):

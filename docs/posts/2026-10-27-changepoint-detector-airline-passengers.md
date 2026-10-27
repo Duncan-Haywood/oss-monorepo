@@ -1,6 +1,6 @@
 ---
 title: "A multiplicative season did not fix the airline passengers series"
-date: 2026-10-28
+date: 2026-10-27
 description: "changepoint-detector on the classic monthly airline passengers data: 21 false steps with an additive season, 22 with a multiplicative one, 8 after taking logs."
 tags: [changepoint-detector, statistics, time-series]
 ---
