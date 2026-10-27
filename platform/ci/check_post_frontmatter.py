@@ -33,10 +33,11 @@ def problems(name, text, today=None):
     prefix = re.match(r"\d{4}-\d{2}-\d{2}", name)
     if prefix and fields.get("date") and fields["date"].strip("\"'") != prefix.group(0):
         out.append(f"date {fields['date']} != filename date {prefix.group(0)}")
-    # One day of slack covers a writer whose clock is ahead of UTC.
-    limit = (today or datetime.datetime.now(datetime.timezone.utc).date()) + datetime.timedelta(days=1)
+    # No slack: 19 posts merged dated 2026-10-28 on the UTC day 2026-10-27, because a
+    # day of leeway let runs date a post for "tomorrow". Use `date -u +%F`.
+    limit = today or datetime.datetime.now(datetime.timezone.utc).date()
     if prefix and prefix.group(0) > limit.isoformat():
-        out.append(f"dated {prefix.group(0)}, after today ({limit - datetime.timedelta(days=1)}); date a post when it is written")
+        out.append(f"dated {prefix.group(0)}, after today ({limit}, UTC); date a post `date -u +%F` when it is written")
     desc = fields.get("description", "").strip("\"'")
     if len(desc) > 160:  # writing.mjs throws on this; PR builds fail, so say so early
         out.append(f"description is {len(desc)} characters; keep it to 160")

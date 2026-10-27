@@ -1,6 +1,6 @@
 ---
 title: "How far off is a framing allowance from a counted lumber order?"
-date: 2026-10-28
+date: 2026-10-27
 description: "Two rules of thumb against wall-framing-takeoff's optimised order on an invented house and a generated one: from +1.9% to +24.6%."
 tags: [wall-framing-takeoff, construction, measurement]
 ---

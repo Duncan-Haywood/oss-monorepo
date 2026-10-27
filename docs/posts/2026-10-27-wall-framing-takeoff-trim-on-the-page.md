@@ -1,6 +1,6 @@
 ---
 title: "Interior trim now has a card on the wall framing page"
-date: 2026-10-28
+date: 2026-10-27
 description: "The baseboard and casing count is on the wall-framing-takeoff page: type stock lengths and prices, see boards and a budget line, save it in the plan file."
 tags: [wall-framing-takeoff, construction, interior]
 ---

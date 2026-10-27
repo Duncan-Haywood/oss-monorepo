@@ -1,6 +1,6 @@
 ---
 title: "Wall framing takeoff now counts rafter ties"
-date: 2026-10-28
+date: 2026-10-27
 description: "The nail counts gain a hurricane-tie count: one per rafter bearing, two per truss, with a price, from the CLI or the page."
 tags: [wall-framing-takeoff, construction, roof]
 ---

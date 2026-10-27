@@ -1,6 +1,6 @@
 ---
 title: "Gable wall panel cut lists now measure plates along the slope"
-date: 2026-10-28
+date: 2026-10-27
 description: "A bug fix in wall-framing-takeoff: shop panels on a gable end listed sloped plates by their flat run, so every cut was short."
 tags: [wall-framing-takeoff, construction, bugfix]
 ---

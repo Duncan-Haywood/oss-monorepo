@@ -1,6 +1,6 @@
 ---
 title: "What happens to a ranking survey when people favour the first option"
-date: 2026-10-28
+date: 2026-10-27
 description: "A simulation of quick-pick-survey's pair selectors against respondents who pick the first option shown on 10 to 50% of answers."
 tags: [quick-pick-survey, surveys, statistics]
 ---

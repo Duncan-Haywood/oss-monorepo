@@ -1,6 +1,6 @@
 ---
 title: "Changepoint detector warns when drifting-season steps pile up"
-date: 2026-10-28
+date: 2026-10-27
 description: "With a drifting seasonal shape, a cluster of steps usually means the shape is still changing, not that regimes did. The detector now says so."
 tags: [changepoint-detector, time-series, statistics]
 ---

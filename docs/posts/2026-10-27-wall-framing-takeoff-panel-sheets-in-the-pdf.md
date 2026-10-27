@@ -1,6 +1,6 @@
 ---
 title: "Wall framing takeoff prints one sheet per shop panel"
-date: 2026-10-28
+date: 2026-10-27
 description: "The PDF shop drawings now end with a sheet for every prefab wall panel, each with its own parts and lumber weight."
 tags: [wall-framing-takeoff, construction, prefab]
 ---

@@ -1,6 +1,6 @@
 ---
 title: "Wall framing takeoff now prints one sheet per shop panel"
-date: 2026-10-28
+date: 2026-10-27
 description: "Shop drawings can add a page for each transportable wall panel: cropped elevation, weight and its own cut list, from the CLI or the page."
 tags: [wall-framing-takeoff, construction, prefab]
 ---

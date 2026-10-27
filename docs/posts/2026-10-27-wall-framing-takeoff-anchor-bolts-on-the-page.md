@@ -1,6 +1,6 @@
 ---
 title: "Wall framing takeoff page now counts anchor bolts"
-date: 2026-10-28
+date: 2026-10-27
 description: "The foundation section of the wall framing takeoff page takes an anchor bolt spacing and plate-end distance, so the bolt count no longer needs a plan file."
 tags: [wall-framing-takeoff, construction, concrete]
 ---
