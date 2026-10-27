@@ -71,3 +71,16 @@ test("single-digit substitutions in a key: every one changes the check digit (we
   assert.equal(total, 432);
   assert.equal(missed, 0);
 });
+
+test("establishment digits of a 13-digit RUC carry no check: single-digit typos there pass", () => {
+  for (const [ruc, passing] of [["1790016919001", 26], ["1760001550001", 35]]) {
+    let pass = 0, total = 0;
+    for (let i = 0; i < 13; i++) for (const c of "0123456789") {
+      if (c === ruc[i]) continue;
+      total++;
+      if (checkRuc(ruc.slice(0, i) + c + ruc.slice(i + 1)).ok) pass++;
+    }
+    assert.equal(total, 117);
+    assert.equal(pass, passing, ruc);
+  }
+});
