@@ -907,3 +907,13 @@ Read plainly: without a change the note is rare, but with monthly data and two g
 **Multiplicative season on a real series (2026-10-28).** `data/airline-passengers.csv` (monthly passengers 1949-1960, 144 points; the season grows with the level; no documented step, so every step is a false alarm; `airline-passengers.test.mjs`). Raw series, `mean`: additive season 21 steps, `--multiplicative` 22; with `--trend bend` 20 and 15. The multiplicative season did not rescue the raw level model here: the underlying rise is exponential, and a linear trend or a level step cannot follow it. The log of the series with `--trend bend` gives 8 steps, and 5 with `--model meanvar`. So the real-series answer agrees with the UK gas one: for a season that scales with the level, take the log first; `--multiplicative` helped only on simulated step data. One series, no claim about rates.
 
 Next on this thread: a monthly rule that asks for steps within one cycle plus a bit instead of two (the 11.5% row).
+
+## A real autocorrelated series: Lake Huron levels (2026-10-27)
+
+`data/lake-huron.csv` is the annual mean level of Lake Huron, 1875 to 1972 (98 points, R's `LakeHuron`, source in `data/SOURCE.md`). The literature puts one drop near 1920; the series has lag-1 autocorrelation of about 0.8, so it is the case the Nile is not. `lake-huron.test.mjs` pins what the detector does today (no eval script; three runs of `analyze`).
+
+- **Plain `mean`:** 10 changes (1889, 1923, 1929, 1931, 1942, 1951, 1956, 1963, 1966, 1969). 1923 has range95 1921 to 1924. A run of short steps is what positive autocorrelation looks like to a white-noise cost.
+- **`--ar1`, plain and `joint`:** no change at all. The noise scale is widened enough to hide the drop as well. That is a failure for a user who wants the 1920 drop, and it is not diagnosed (the drop is a few feet over a few years, so an AR(1) around a level may read part of it as persistence).
+- **`--model meanvar`:** two changes, 1889 and 1923, 1923 range95 1919 to 1925.
+
+What it says: on a strongly autocorrelated real series, `mean` over-segments and `--ar1` under-segments, and only `meanvar` lands near the documented date here (probably by luck of the variance term; one series, no rate claimed). The 1889 change is not in the literature I recalled; not checked against a paper. Open: an AR(1) mean model that keeps a drop of this size, for instance a penalty rescaled by the estimated coefficient on segment residuals instead of the whole series.
