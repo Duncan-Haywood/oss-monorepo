@@ -1,0 +1,177 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKm9QhSvy76tEES6rih",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T16:31:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10921,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv install for pytest/numpy ran >120s and was unnecessary for a node target"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post: redteam run is a small test-gap patch",
+      "did": "skipped post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "platform/pages/published-base-url.mjs: 8 mutants, 5 caught (62.5%); 2 gaps closed by new tests (75% after fix), 1 equivalent. No real defects found. Node suite passes (15/15).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/published-base-url.mjs",
+        "test": "node --test platform/pages/published-base-url.test.mjs  (in .)",
+        "seed": 85937210,
+        "commit": "6766aaf7",
+        "sites": 16,
+        "baseline_seconds": 2.0,
+        "mutants": [
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 80,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "after": "const bare = /^[A-Za-z0-10]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "line_text": "  const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "digit range in hostname regex untested; added digit-hostname test"
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 80,
+            "col": 67,
+            "operator": "const-plus-one",
+            "before": "const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "after": "const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-10]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "line_text": "  const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 80,
+            "col": 79,
+            "operator": "const-plus-one",
+            "before": "const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "after": "const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-10-]*[A-Za-z0-9])?)+$/;",
+            "line_text": "  const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": false,
+            "note": "digit range in hostname regex untested; added digit-hostname test"
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 110,
+            "col": 19,
+            "operator": "false-to-true",
+            "before": "let branchSeen = false;",
+            "after": "let branchSeen = true;",
+            "line_text": "  let branchSeen = false;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 117,
+            "col": 17,
+            "operator": "true-to-false",
+            "before": "branchSeen = true;",
+            "after": "branchSeen = false;",
+            "line_text": "    branchSeen = true;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 125,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const cname = contents.split('\\n', 1)[0].replace(/\\s/g, '');",
+            "after": "const cname = contents.split('\\n', 2)[0].replace(/\\s/g, '');",
+            "line_text": "    const cname = contents.split('\\n', 1)[0].replace(/\\s/g, '');",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "split('\\n',2)[0] returns the same first element as split('\\n',1)[0]; cannot change output"
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 144,
+            "col": 12,
+            "operator": "neq-flip",
+            "before": "if (cname !== null) {",
+            "after": "if (cname === null) {",
+            "line_text": "  if (cname !== null) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 166,
+            "col": 54,
+            "operator": "eq-flip",
+            "before": "if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {",
+            "after": "if (process.argv[1] && fileURLToPath(import.meta.url) !== path.resolve(process.argv[1])) {",
+            "line_text": "if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  }
+}
