@@ -151,12 +151,13 @@ test("VA and AZ are due the 20th of the month after the period, and are listed e
   }
 });
 
-test("Massachusetts: quarterly and annual returns are due 30 days after the period, monthly the 20th", () => {
+test("Massachusetts: monthly, quarterly and annual returns are all due 30 days after the period", () => {
   assert.equal(dueDate("2026-Q1", stateDueDay("MA", "quarterly")), "2026-04-30");
   assert.equal(dueDate("2026-Q2", stateDueDay("MA", "quarterly")), "2026-07-30");
   assert.equal(dueDate("2026-Q4", stateDueDay("MA", "quarterly")), "2027-01-30");
   assert.equal(dueDate("2026", stateDueDay("MA", "annual")), "2027-01-30");
-  assert.equal(dueDate("2026-03", stateDueDay("MA", "monthly")), "2026-04-20");
+  assert.equal(dueDate("2026-03", stateDueDay("MA", "monthly")), "2026-04-30");
+  assert.equal(dueDate("2026-01", stateDueDay("MA", "monthly")), "2026-03-02");
   const r = salesTaxReturn(books(), { dueDay: stateDueDay("MA", "quarterly") });
   assert.equal(r.periods.find((p) => p.period === "2026-Q1").rows[0].due, "2026-04-30");
 });

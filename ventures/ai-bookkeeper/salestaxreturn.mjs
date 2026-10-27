@@ -89,7 +89,8 @@ export function stateDueDay(state, frequency = "quarterly") {
   // NY (tax.ny.gov Tax Bulletin ST-... "Filing requirements for sales and use tax returns", read 2026-10-27): annual ST-101 covers Mar 1 to Feb 28/29, due March 20; quarters Mar-May, Jun-Aug, Sep-Nov, Dec-Feb; returns due 20 days after the period (modelled via stateEndMonth)
   if (s === "WA" && frequency === "annual") return { months: 4, day: 15 };
   if (s === "WA" && frequency !== "monthly") return "last";
-  if (s === "MA" && frequency !== "monthly") return { after: 30 };
+  // MA (mass.gov Sales and Use Tax guide, via search 2026-10-27): monthly, quarterly and annual returns all due the 30th day after the period; the 20th in 830 CMR 62C.16.2 is the older rule
+  if (s === "MA") return { after: 30 };
   // NC: monthly the 20th, quarterly the last day of Jan/Apr/Jul/Oct (ncdor.gov "Filing Frequency and Due Dates", read 2026-10-24)
   if (s === "NC" && frequency !== "monthly") return "last";
   // RI: monthly the 20th, quarterly the last day of Apr/Jul/Oct/Jan (tax.ri.gov sales tax calendars, 2022 and 2024 PDFs via search excerpts 2026-10-24; weekend dates move to the next business day)
