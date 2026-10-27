@@ -19,9 +19,10 @@ lab has reviewed this.
 
 ```bash
 cd research/marine-hull
-PYTHONPATH=src python3 -m pytest tests -q          # 15 tests
+PYTHONPATH=src python3 -m pytest tests -q          # 22 tests
 PYTHONPATH=src python3 experiments/run_michell.py > experiments/results_michell.txt   # milestone 2, 2 s
 PYTHONPATH=src python3 experiments/run.py > experiments/results.txt
+PYTHONPATH=src python3 experiments/run_glider.py > experiments/results_glider.txt   # milestone 4, 1 s
 ```
 
 `hull.py`: ITTC 1957 friction line (checked analytically: Cf = 0.003 at Re = 1e7), form factor,
@@ -33,7 +34,18 @@ x and z integrals, checked against Simpson sums) with Havelock's two-hull interf
 `experiments/run_michell.py` swaps it in for the placeholder and uses the exact Wigley wetted area.
 Results: [`experiments/results_michell.txt`](experiments/results_michell.txt).
 
+`glider.py` (milestone 4): quasi-steady buoyancy glider (force balance, best-glide incidence, pump work
+B tan(gamma)/(2 eta), independent of depth) against a same-mass propeller AUV. No glider coefficient is
+sourced (the cited papers were unreachable); all are swept. Results: [`experiments/results_glider.txt`](experiments/results_glider.txt).
+
 ## Results (preliminary)
+
+- Milestone 4 (glider vs AUV, 52 kg, 19,683 swept cases, battery cancels): with the same hotel load the
+  glider has the longer best range in only 5.9% of cases; it wins when the AUV's hotel load is 5 times the
+  glider's (89%) or 20 times (100%). So the glider advantage is a hotel-load advantage, not a hydrodynamic
+  one. The glider's horizontal speed tops out at 0.13 to 0.70 m/s (median 0.30) with a 10 N pump, so "glider
+  loses above 1 m/s" is a capability limit, and H4's 0.4 to 0.9 m/s crossover is not supported (45 of 19,683
+  cases). Not checked against a published glider range figure.
 
 - Milestone 2 (Michell wave term, Wigley hulls): catamaran wins 216 of 6,561 cases (3.3%), none of
   729 equal-length cases at wave scale 0.5, 1, 1.5; median range ratio 0.87. Wave resistance is
@@ -53,4 +65,4 @@ the flag state's and local authority's rules (COLREGs, harbour master, permits).
 
 ## Next steps
 
-Milestones 2 to 7 in the proposal. AI-assisted (Claude Code).
+Milestone 3 (Holtrop-Mennen against tank data) and milestones 5 to 7 in the proposal; the measured hotel load of a fielded glider and AUV is the number milestone 4 needs most. AI-assisted (Claude Code).
