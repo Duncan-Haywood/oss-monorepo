@@ -1,0 +1,25 @@
+# milestone 30: pilot gate on high-fanout rich-outcome designs, 4 design-clock cells (2 designs x 2 clocks), pilot m=5, 400 paired seeds
+
+## mean regret % over all cells (budget in routed-point equivalents); arms with no feasible plan counted n/a
+budget | rand | fixed1.5 | fixed_f3 | gate_r4_0.3 | gate_r4_0.5 | gate_r4_0.7 | gate_r3_0.3 | gate_r3_0.5 | gate_r3_0.7 | oracle_gate
+10 | 3.97 | 2.21 | 1.96 | 2.79 | 2.76 | 2.74 | 2.78 | 2.75 | 2.74 | 1.88
+15 | 2.13 | 0.77 | 0.84 | 1.04 | 1.02 | 1.01 | 1.06 | 1.03 | 1.02 | 0.76
+25 | 0.73 | 0.13 | 0.18 | 0.17 | 0.18 | 0.19 | 0.17 | 0.18 | 0.19 | 0.11
+40 | 0.15 | 0.00 | 0.09 | 0.00 | 0.01 | 0.01 | 0.00 | 0.01 | 0.02 | 0.00
+
+## per clock, budget 25: mean regret % (rand / fixed1.5 / f3 / gate_r4_0.5 / oracle)
+tight (2 cells): 0.39 / 0.05 / 0.19 / 0.08 / 0.05
+relaxed (2 cells): 1.07 / 0.20 / 0.17 / 0.27 / 0.17
+
+## pilot statistic as a detector of 'R2 pick regret > 10% on the full pool'
+bad cells 2, other cells 2
+pilot tau(R2,R4): AUC 1.00; mean within-cell sd of pilot tau 0.34; mean cell tau bad 0.16, other 0.74
+pilot tau(R2,R3): AUC 1.00; mean within-cell sd of pilot tau 0.34; mean cell tau bad 0.18, other 0.75
+
+## full-pool R2 pick regret % per cell
+bcastadd64 relaxed: 0.0
+fanao96 relaxed: 13.7
+bcastadd64 tight: 0.4
+fanao96 tight: 14.6
+
+## cells where the oracle gate picks f3 over eta = 1.5 by more than 1 point at budget 25
