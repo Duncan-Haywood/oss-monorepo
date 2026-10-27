@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 7g: does a tail fixed at its 7d (h = 0) design keep the modes within 5% when the built CG is off? (hypothesis written before the run)
+- Why: 7f's "Next". 7f re-chose the tail at every CG offset h, so it showed a compensating tail exists, not what a builder with a fixed tail and an imprecise CG faces.
+- Plan (`experiments/fixed_tail/run.py`, 7f's model by path): for the k = 1.0, AR 12 wings (NACA 4412, 5406), take every tail within 5% on all three modes at h = 0 (23 per wing in 7f), keep it fixed, and sweep h from -0.10 to +0.10 chords. Report per tail the contiguous h interval around 0 where it stays within 5%, and the best tail's interval. Hypothesis: the best fixed tail tolerates |h| of at most 0.02 chords (about 1 to 2% of mean chord) because short-period frequency scales with sqrt of static margin; refuted if the best fixed tail stays within 5% out to |h| = 0.05 on both sides.
+- Limits known in advance: same as 7f (point-mass inertia at Froude value, NeuralFoil tail slope unchecked, four-state model, reference CG at h = 0 by choice).
+
+### Outcome (`experiments/fixed_tail/results.txt`, about 1 min)
+- Each of the 23 tails per wing that pass at h = 0 stays within 5% on all three modes over an h interval about 0.065 chords wide (median; 0.030 to 0.075 across tails, 4412; 0.025 to 0.070, 5406), and the interval is not centred: it extends further on the unstable side for most tails (e.g. 4412 with NACA 0009, area 0.15, arm 3.5: h from -0.055 to +0.020).
+- The best symmetric tolerance is +/-0.035 chords (NACA 0015, area 0.15, tail AR 5, arm 3.5, on the 4412 wing; +/-0.030 on the 5406). Only 8 and 9 of 23 tails tolerate |h| = 0.02 on both sides and none tolerate 0.05.
+- **Hypothesis judged:** its point estimate (best tail tolerates at most 0.02) was wrong, since the best tolerates 0.03 to 0.035; its stated refutation (best within 5% out to 0.05 both sides) did not occur either. So it is partly refuted: the tolerance is about +/-0.03 chords, between the two numbers I wrote down.
+- Reading: a builder must place the model CG within about +/-3% of a chord of the reference position (a few millimetres on the 0.2-scale model's chord, not computed here), and for the reference tail the 7f finding that a compensating tail always exists does not relax that.
+- Limits: as 7f; the reference CG at h = 0 is a modelling choice, so the tolerance is relative to that choice; grid step 0.005 chords.
+- Next: UIUC polar check of the tail slope (host was unreachable in earlier sessions; probe first); sub-scale demonstrator specification for `aerolog-sitl`.
+
 ## 2026-10-27 · Milestone 7f: how far can the model's CG sit from the full-size CG before 7d's tail search stops finding a match? (hypothesis written before the run, no numeric predictions)
 - Why: 7e's "Next". 7d and 7e held the CG at the wing aerodynamic centre in both aircraft, so static margin was never varied.
 - Plan (`experiments/cg_margin/run.py`, 7d's tail grid and mode model by path): model CG h wing chords ahead of the wing AC (wing Cm_alpha = -a_w h; tail arm from the CG grows by h chords), n = 1 reference at h = 0, the two k = 1.0, AR 12 wings (NACA 4412, 5406), h from -0.10 to +0.10, tail re-searched at each h. Hypothesis: a match persists for |h| up to about 0.05 and is lost by 0.10; refuted if passing tails vanish at |h| <= 0.05.
