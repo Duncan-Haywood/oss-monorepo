@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01AcxTtGq1y3u3ZSyBbUpMVj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T05:10:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10815",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took a small flagship slice (Uruguay page) because ai-bookkeeper's open items need real exports unavailable here",
+      "did": "einvoice-preflight Uruguay page",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-einvoice-preflight-uruguay.md"
+  ],
+  "goal": null,
+  "notes": "venture test suite: 851 pass 0 fail; venture-preflight not run",
+  "corrections": [],
+  "redteam": null
+}
