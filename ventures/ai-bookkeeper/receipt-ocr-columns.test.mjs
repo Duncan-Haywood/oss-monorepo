@@ -62,3 +62,8 @@ test("stray two-letter OCR fragments and a mark before TAX INVOICE are not the m
   const t = parseReceipt("J\n’ TAX INVOICE\nDOMINO'S PIZZA\nDate: 05/01/2019\nTotal 10.00");
   assert.equal(t.merchant, "DOMINO'S PIZZA");
 });
+
+test("an OCR-damaged SDN BND still marks the company line under a person's name", () => {
+  const r = parseReceipt("TAN WOON YANN\nBOOK TA .K(TAMAN DAYA) SDN BND\n789417-W\nDate: 05/01/2019\nTotal 10.00");
+  assert.equal(r.merchant, "BOOK TA .K(TAMAN DAYA) SDN BHD");
+});
