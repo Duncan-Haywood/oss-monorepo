@@ -176,6 +176,8 @@
       <div><label for="faHdEnds">Hold-downs at wall ends</label><select id="faHdEnds"><option value="" selected>none</option><option value="true">one at each end of every wall</option></select></div>
       <div><label for="faHdOpen">Hold-downs beside openings at least this wide, in (blank: none)</label><input id="faHdOpen" type="number" min="6" max="600" step="1" placeholder="e.g. 96"></div>
       <div><label for="faHdPrice">Price per hold-down (blank: none)</label><input id="faHdPrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
+      <div><label for="faPsOn">Plate straps across plate joints</label><select id="faPsOn"><option value="" selected>none</option><option value="1">1 per top- and cap-plate joint (and single-top-plate tie)</option><option value="2">2 per joint</option></select></div>
+      <div><label for="faPsPrice">Price per plate strap (blank: none)</label><input id="faPsPrice" type="number" min="0" step="0.01" placeholder="e.g. 3.5"></div>
       <div><label for="faRtOn">Rafter ties (needs the roof option)</label><select id="faRtOn"><option value="" selected>none</option><option value="1">1 per rafter bearing (2 per truss)</option><option value="2">2 per rafter bearing (4 per truss)</option></select></div>
       <div><label for="faRtPrice">Price per rafter tie (blank: none)</label><input id="faRtPrice" type="number" min="0" step="0.01" placeholder="e.g. 1.5"></div>
     </div>
@@ -241,7 +243,7 @@
 
   <section class="card" aria-labelledby="h-budget" id="budgetCard" hidden>
     <h2 id="h-budget">Budget from your prices</h2>
-    <p class="note">Type one price per line as <code>name, number</code> (names: wallSheet, floorSheet, roofSheet, truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle, starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, insulationBag, atticFillBag, vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet, laborInsulationBag; tax and contingency as fractions, e.g. <code>tax, 0.07</code>). Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
+    <p class="note">Type one price per line as <code>name, number</code> (names: wallSheet, floorSheet, roofSheet, truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle, starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, plateStrap, drywallSheet, insulationBag, atticFillBag, vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet, laborInsulationBag; tax and contingency as fractions, e.g. <code>tax, 0.07</code>). Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
     <textarea id="priceText" rows="5" style="width:100%" aria-label="Unit prices, one per line" placeholder="wallSheet, 24&#10;laborWallFoot, 11&#10;tax, 0.07"></textarea>
     <p><button type="button" class="secondary" id="budgetCsvBtn">Download budget CSV</button></p>
     <div id="budgetOut"></div>
@@ -519,6 +521,7 @@
         if ($("#faHdPrice").value.trim()) hd.price = Number($("#faHdPrice").value);
         if (hd.wallEnds || hd.openingMinWidth != null) fa.holdDowns = hd;
         if ($("#faRtOn").value) { fa.rafterTies = { perBearing: Number($("#faRtOn").value) }; if ($("#faRtPrice").value.trim()) fa.rafterTies.price = Number($("#faRtPrice").value); }
+        if ($("#faPsOn").value) { fa.plateStraps = { perJoint: Number($("#faPsOn").value) }; if ($("#faPsPrice").value.trim()) fa.plateStraps.price = Number($("#faPsPrice").value); }
         plan.fasteners = fa;
       }
       if ($("#fnOn").checked) {
@@ -843,6 +846,7 @@
       for (const [id, key] of [["faStudEnd", "studEndNails"], ["faPlate", "plateSpacing"], ["faEdge", "edgeSpacing"], ["faField", "fieldSpacing"], ["faWaste", "waste"], ["faBox", "nailsPerBox"], ["faPrice", "price"]]) $("#" + id).value = fa?.[key] != null ? String(fa[key]) : "";
       $("#faHdEnds").value = fa?.holdDowns?.wallEnds ? "true" : ""; $("#faHdOpen").value = fa?.holdDowns?.openingMinWidth != null ? String(fa.holdDowns.openingMinWidth) : ""; $("#faHdPrice").value = fa?.holdDowns?.price != null ? String(fa.holdDowns.price) : "";
       $("#faRtOn").value = fa?.rafterTies ? String(fa.rafterTies.perBearing ?? 1) : ""; $("#faRtPrice").value = fa?.rafterTies?.price != null ? String(fa.rafterTies.price) : "";
+      $("#faPsOn").value = fa?.plateStraps ? String(fa.plateStraps.perJoint ?? 1) : ""; $("#faPsPrice").value = fa?.plateStraps?.price != null ? String(fa.plateStraps.price) : "";
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
       if (fn) {
