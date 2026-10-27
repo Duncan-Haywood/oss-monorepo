@@ -50,7 +50,8 @@ export function parseStep(text) {
   const data = body.slice(Math.max(0, body.indexOf("DATA;")));
   /** @type {Map<string, { type: string, args: any[] }>} */
   const ents = new Map();
-  for (const stmt of data.split(/;\s*[\r\n]/)) {
+  // statements end at ';' outside a quoted string (some exporters write a whole file on one line)
+  for (const stmt of data.match(/(?:'(?:[^']|'')*'|[^';])*;?/g) ?? []) {
     const m = /^\s*(#\d+)\s*=\s*([A-Z0-9_]+)\s*(\([\s\S]*\))\s*;?\s*$/.exec(stmt);
     if (m) ents.set(m[1], { type: m[2], args: parseArgs(m[3]) });
   }
