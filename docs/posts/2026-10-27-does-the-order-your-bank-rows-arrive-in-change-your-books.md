@@ -1,6 +1,8 @@
 ---
-title: Does the order your bank rows arrive in change your books?
+title: "Does the order your bank rows arrive in change your books?"
 date: 2026-10-27
+description: "A property test on 300 random statements: shuffled or overlapping imports leave the same books."
+tags: [ai-bookkeeper, accounting, testing]
 ---
 
 A bookkeeping tool that reads bank exports should give the same books whether the file is newest-first, oldest-first, or sent twice because two downloads overlapped. We checked that for ai-bookkeeper with 300 randomly generated statements (4 to 30 lines, made-up amounts and payees).
