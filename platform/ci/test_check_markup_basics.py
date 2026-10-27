@@ -26,6 +26,13 @@ class MarkupBasics(unittest.TestCase):
         out = c.problems(OK.format('<a tabindex="2" href="http://example.com">z</a>'))
         self.assertEqual(out, ['http:// href', 'positive tabindex'])
 
+    def test_third_party_requests(self):
+        out = c.problems(OK.format('<link rel="stylesheet" href="https://fonts.googleapis.com/x">'
+                                   '<script src="//cdn.example/x.js"></script>'
+                                   '<link rel="canonical" href="https://a.example/">'
+                                   '<script src="app.js"></script>'))
+        self.assertEqual(out, ['third-party link request', 'third-party script request'])
+
     def test_fragment_needs_no_head(self):
         self.assertEqual(c.problems('<p>hi</p>'), [])
 
