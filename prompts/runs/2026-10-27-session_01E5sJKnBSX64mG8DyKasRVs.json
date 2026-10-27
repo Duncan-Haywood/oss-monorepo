@@ -43,7 +43,10 @@
       "why": "No blog post: one small programme step; the research log and paper paragraph carry the write-up."
     }
   ],
-  "writeups": "LOG.md milestone 33 and paper/main.tex side-payments paragraph in verifiable-training-mechanisms; no separate blog post (deviation: step is small, log is the write-up)",
+  "writeups": [
+    "research/verifiable-training-mechanisms/LOG.md",
+    "research/verifiable-training-mechanisms/paper/main.tex"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
