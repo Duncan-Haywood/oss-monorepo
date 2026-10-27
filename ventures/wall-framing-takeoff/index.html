@@ -113,6 +113,7 @@
     <button type="button" class="secondary" id="clear">Start empty</button>
     <button type="button" class="secondary" id="csv">Download CSV</button>
     <button type="button" class="secondary" id="drawings">Download wall drawings (printable)</button>
+    <button type="button" class="secondary" id="drawingsPdf">Download wall drawings (PDF)</button>
     <button type="button" class="secondary" id="panelOrderBtn">Download shop-panel lumber order (needs a panel length above)</button>
     <button type="button" class="secondary" id="savePlan">Save plan file</button>
     <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json,.dxf" style="width:auto">
@@ -287,7 +288,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -297,6 +298,7 @@
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { planFromDxf } from "./dxf.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
+    import { drawingSetPdf } from "./pdf.mjs";
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
     import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
@@ -828,6 +830,7 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     };
     $("#csv").addEventListener("click", () => { if (run() && last) { download("framing-takeoff.csv", "text/csv", toCsv(last.result)); record("csv_downloaded"); } });
+    $("#drawingsPdf").addEventListener("click", () => { if (run() && last) { download("wall-drawings.pdf", "application/pdf", drawingSetPdf(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0) })); record("drawings_pdf_downloaded"); } });
     $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0) })); record("drawings_downloaded"); } });
     $("#panelOrderBtn").addEventListener("click", () => {
       if (!run() || !last) return;
