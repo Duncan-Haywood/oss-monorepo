@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 7f: how far can the model's CG sit from the full-size CG before 7d's tail search stops finding a match? (hypothesis written before the run, no numeric predictions)
+- Why: 7e's "Next". 7d and 7e held the CG at the wing aerodynamic centre in both aircraft, so static margin was never varied.
+- Plan (`experiments/cg_margin/run.py`, 7d's tail grid and mode model by path): model CG h wing chords ahead of the wing AC (wing Cm_alpha = -a_w h; tail arm from the CG grows by h chords), n = 1 reference at h = 0, the two k = 1.0, AR 12 wings (NACA 4412, 5406), h from -0.10 to +0.10, tail re-searched at each h. Hypothesis: a match persists for |h| up to about 0.05 and is lost by 0.10; refuted if passing tails vanish at |h| <= 0.05.
+
+### Outcome (`experiments/cg_margin/results.txt`, about 1 min)
+- h = 0 reproduces 7d (23 passing tails for both wings; best tail NACA 0015, area 0.15, AR_t 5, arm 3.5).
+- **Held:** passing tails stay between 18 and 28 for h from -0.05 to +0.05 (NACA 4412 and 5406), and fall to 13 and 7 to 15 at |h| = 0.10 but do not vanish; the best worst-deviation stays under 3.6% everywhere. The best tail moves with h (arm 2.0 to 3.5 chords), so the sweep shows a compensating tail exists, not that the 7d tail tolerates a CG error.
+- Limits: the tail is re-chosen per h, so a fixed tail built for h = 0 was not tested (that is the tolerance a builder faces if the CG is placed after the tail); point-mass inertia held at the Froude value as in 7d; reference at h = 0 is a modelling choice, not a sourced CG; NeuralFoil tail slope at Re near 1e5 still unchecked.
+- Next: fixed-tail CG tolerance; UIUC polar check; sub-scale demonstrator specification for `aerolog-sitl`.
+
 ## 2026-10-27 · Milestone 7e: do 7d's passing tails survive the pitch inertia a tail of that size and arm adds? (planned before running)
 - Why: 7d's "Next". It held pitch inertia at the Froude value for every tail, but its best tails (area 0.15, arm 3.5 chords) are not the full-size tail (0.2, 3.0), and tail mass at its arm sets part of I_yy.
 - Plan (`experiments/tail_mass/run.py`, 7d's wings, tail grid and mode model imported unchanged): tail as a point mass m_t = mu * m * (area / 0.2 sim-wing area) at its arm; I_yy changes by m_t l_t^2 - mu m l_ref^2 (l_ref = the full-size 3.0-chord arm), CG held (nose ballast). mu for this airframe is not sourced, so it is swept over 0, 0.02, 0.04, 0.06 of total mass; mu = 0 must reproduce 7d (6 wings, 78 tails).
