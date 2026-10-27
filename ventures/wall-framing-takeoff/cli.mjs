@@ -32,6 +32,7 @@ Usage:
   node cli.mjs plan.json --panel-max=12ft  shop drawings with each wall split into panels no longer than that
   node cli.mjs plan.json --panel-max=12ft --panel-order --pull-lists  boards and cuts each panel is built from (add to --panel-order)
   node cli.mjs plan.json --panel-max=12ft --panel-order  lumber order for the shop panels (plates cut at panel breaks) against the whole-wall order
+  node cli.mjs plan.json --panel-max=12ft --panel-sheets  one printable sheet per panel after each wall's sheet
   node cli.mjs plan.json --panel-max=12ft --sheathing-psf=1.5  also weigh the sheathing on each panel (lb per sq ft)
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
@@ -162,7 +163,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     return { code: 0, out: flags.has("--json") ? JSON.stringify(po, null, 2) : [...panelOrderText(po), ...(flags.has("--pull-lists") ? ["", ...panelPullText(po)] : [])].join("\n") };
   }
   if (flags.has("--pdf")) return { code: 0, out: "", bytes: drawingSetPdf(r, plan, { panelMax }) };
-  if (flags.has("--drawings") || panelMax > 0) return { code: 0, out: drawingSetHtml(r, plan, { panelMax, sheathPsf }).trimEnd() };
+  if (flags.has("--drawings") || panelMax > 0) return { code: 0, out: drawingSetHtml(r, plan, { panelMax, sheathPsf, panelSheets: flags.has("--panel-sheets") }).trimEnd() };
   if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(plan.schedule), null, 2) };
   if (flags.has("--budget") && flags.has("--json")) return { code: 0, out: JSON.stringify(budget(r, plan.prices || {}), null, 2) };
   if (flags.has("--json")) return { code: 0, out: JSON.stringify(r, null, 2) };
