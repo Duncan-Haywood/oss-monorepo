@@ -1,7 +1,7 @@
 ---
 title: "The Float Test: a rye village, a bucket of brine and a blending rule"
 date: 2026-10-27
-description: "A new Hearth & Horizon story about ergot in a 2048 rye harvest: clumped counts, why three scoops from a trailer top mislead, and why a lot is not blended under the limit."
+description: "A Hearth & Horizon story about ergot in a 2048 rye harvest: clumped counts, why trailer-top scoops mislead, and why a failing lot is not blended."
 tags: [hearth-and-horizon, fiction, science-fiction, sampling]
 ---
 
