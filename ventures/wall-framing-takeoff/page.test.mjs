@@ -230,6 +230,9 @@ test("the nail controls are read into plan.fasteners, restored from a saved plan
   for (const id of ["faRtOn", "faRtPrice"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /fa\.rafterTies = \{ perBearing/);
   assert.match(html, /\$\("#faHdEnds"\)\.value = fa\?\.holdDowns\?\.wallEnds/);
+  for (const id of ["faPsOn", "faPsPrice"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /fa\.plateStraps = \{ perJoint: Number/);
+  assert.match(html, /\$\("#faPsOn"\)\.value = fa\?\.plateStraps/);
 });
 
 test("the foundation anchor bolt fields feed the engine's anchorBolts option and load back from plan files", () => {

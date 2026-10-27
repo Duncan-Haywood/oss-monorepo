@@ -83,3 +83,18 @@ test("rafter ties: one per rafter bearing, two per truss, by hand", () => {
   assert.equal(layoutFasteners({ rafterTies: { perBearing: 3 } }, {}, r).ok, false);
   assert.match(fastenerText(l).join("\n"), /28 rafter tie\(s\): 2 on each of 14 bearing/);
 });
+
+test("plate straps: joints and single-top-plate ties by hand", () => {
+  const r = { walls: [
+    { id: "A", members: [], joints: { bottom: [], top: [48, 120], cap: [72] } },
+    { id: "B", members: [], joints: { bottom: [], top: [60], cap: [] }, plateTies: 3 },
+  ] };
+  const l = layoutFasteners({ plateStraps: { price: 4 } }, {}, r);
+  assert.deepEqual([l.plateStraps.topJoints, l.plateStraps.capJoints, l.plateStraps.plateTies], [3, 1, 3]);
+  assert.equal(l.plateStraps.count, 7);
+  assert.equal(l.plateStraps.cost, 28);
+  assert.equal(layoutFasteners({ plateStraps: { perJoint: 2, plateTies: false, capJoints: false } }, {}, r).plateStraps.count, 6);
+  assert.equal(layoutFasteners({}, {}, r).plateStraps, null);
+  assert.ok(validateFasteners({ plateStraps: { perJoint: 3 } }).length === 1);
+  assert.match(fastenerText(l).join("\n"), /7 plate strap\(s\)/);
+});

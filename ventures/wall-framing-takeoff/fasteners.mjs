@@ -29,7 +29,10 @@ const DEFAULTS = {
  * rafterTies counts one tie per rafter or jack rafter at its eave bearing (two per truss, one at each wall) when the roof is in the takeoff;
  * `perBearing` (1 to 2) is how many ties the engineer's schedule puts on each bearing.
  * @typedef {{ perBearing?: number, price?: number }} RafterTies
- * @typedef {Partial<typeof DEFAULTS> & { nailsPerBox?: number, price?: number, sheathing?: boolean, holdDowns?: HoldDowns, rafterTies?: RafterTies | boolean }} Fasteners
+ * plateStraps counts steel straps across wall plate joints: `topJoints` one per top-plate joint and `capJoints` one per cap-plate joint (both default on),
+ * `plateTies` adds the single-top-plate ties the walls already note (default on); `perJoint` is how many straps the engineer's schedule puts on each.
+ * @typedef {{ topJoints?: boolean, capJoints?: boolean, plateTies?: boolean, perJoint?: number, price?: number }} PlateStraps
+ * @typedef {Partial<typeof DEFAULTS> & { nailsPerBox?: number, price?: number, sheathing?: boolean, holdDowns?: HoldDowns, rafterTies?: RafterTies | boolean, plateStraps?: PlateStraps | boolean }} Fasteners
  */
 
 /** @param {Fasteners} d */
@@ -60,6 +63,11 @@ export function validateFasteners(d) {
     if (rt.perBearing != null && ![1, 2].includes(rt.perBearing)) e.push("Ties per bearing must be 1 or 2.");
     if (rt.price != null && !(rt.price >= 0 && rt.price <= 1e6)) e.push("Rafter tie price must be between 0 and 1000000.");
   } else if (rt != null && typeof rt !== "boolean") e.push("rafterTies must be true or an object with perBearing and price.");
+  const ps = d.plateStraps;
+  if (ps != null && typeof ps === "object") {
+    if (ps.perJoint != null && ![1, 2].includes(ps.perJoint)) e.push("Straps per joint must be 1 or 2.");
+    if (ps.price != null && !(ps.price >= 0 && ps.price <= 1e6)) e.push("Plate strap price must be between 0 and 1000000.");
+  } else if (ps != null && typeof ps !== "boolean") e.push("plateStraps must be true or an object with topJoints, capJoints, plateTies, perJoint and price.");
   return e;
 }
 
@@ -144,6 +152,19 @@ export function layoutFasteners(d, plan, result) {
     const count = bearings * per;
     rafterTies = { trusses, rafters, bearings, perBearing: per, count, price: rt.price ?? null, cost: rt.price != null ? count * rt.price : null };
   }
+  /** @type {any} */
+  let plateStraps = null;
+  if (d.plateStraps) {
+    const ps = typeof d.plateStraps === "object" ? d.plateStraps : {}, per = ps.perJoint ?? 1;
+    let top = 0, cap = 0, ties = 0;
+    for (const w of result.walls) {
+      if (ps.topJoints !== false) top += w.joints?.top?.length || 0;
+      if (ps.capJoints !== false) cap += w.joints?.cap?.length || 0;
+      if (ps.plateTies !== false) ties += w.plateTies || 0;
+    }
+    const count = (top + cap) * per + ties;
+    plateStraps = { topJoints: top, capJoints: cap, plateTies: ties, perJoint: per, count, price: ps.price ?? null, cost: ps.price != null ? count * ps.price : null };
+  }
   const connections = [...conn.entries()].map(([name, v]) => ({ name, ...v }));
   const total = connections.reduce((s, x) => s + x.nails, 0);
   const order = Math.ceil(total * (1 + c.waste) - 1e-9);
@@ -153,7 +174,7 @@ export function layoutFasteners(d, plan, result) {
     ok: true, errors: [], connections, walls, total, waste: c.waste, order,
     nailsPerBox: d.nailsPerBox ?? null, boxes, price: d.price ?? null,
     cost: boxes != null && d.price != null ? boxes * d.price : null,
-    sheathingCounted: !!sh?.walls, assumed, holdDowns, rafterTies,
+    sheathingCounted: !!sh?.walls, assumed, holdDowns, rafterTies, plateStraps,
   };
 }
 
@@ -164,7 +185,8 @@ export function fastenerText(d) {
   for (const x of d.connections) l.push(`    ${String(x.nails).padStart(6)}  ${x.name} (${x.rule})`);
   if (d.holdDowns) l.push(`  ${d.holdDowns.count} hold-down(s): ${d.holdDowns.wallEnds} at wall ends, ${d.holdDowns.openingSides} beside wide openings${d.holdDowns.cost != null ? `, ${d.holdDowns.cost.toFixed(2)} at ${d.holdDowns.price} each` : ""}`);
   if (d.rafterTies) l.push(`  ${d.rafterTies.count} rafter tie(s): ${d.rafterTies.perBearing} on each of ${d.rafterTies.bearings} bearing(s) (${d.rafterTies.trusses ? `${d.rafterTies.trusses} trusses, 2 bearings each` : `${d.rafterTies.rafters} rafters, 1 eave bearing each`})${d.rafterTies.cost != null ? `, ${d.rafterTies.cost.toFixed(2)} at ${d.rafterTies.price} each` : ""}`);
+  if (d.plateStraps) l.push(`  ${d.plateStraps.count} plate strap(s): ${d.plateStraps.perJoint} on each of ${d.plateStraps.topJoints} top-plate and ${d.plateStraps.capJoints} cap-plate joint(s)${d.plateStraps.plateTies ? `, plus ${d.plateStraps.plateTies} single-top-plate tie(s)` : ""}${d.plateStraps.cost != null ? `, ${d.plateStraps.cost.toFixed(2)} at ${d.plateStraps.price} each` : ""}`);
   if (!d.sheathingCounted) l.push("  Sheathing nails are left out: add --sheathing to count them.");
-  l.push("  Nail counts follow typed schedule defaults (common practice, not a code table); nail size and type, hardware other than the hold-downs and rafter ties you typed, and anchors are not counted here.");
+  l.push("  Nail counts follow typed schedule defaults (common practice, not a code table); nail size and type, hardware other than the hold-downs, rafter ties and plate straps you typed, and anchors are not counted here.");
   return l;
 }

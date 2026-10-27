@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKm2J4idYuf4rZZAaqM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T22:14:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10975,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: says fixture sweeps are saturated, yet the only way to land a slice without real data is another sweep; the item list has nothing doable offline."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports agent doc written; the README entry carries what the next run needs.",
+      "did": "skipped",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-fuzzer-crash-files-bookkeeper-ofx-reader.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 1 (ai-bookkeeper). All state tax sites, irs.gov and ssa.gov refused the proxy, so items 8/9 could not be probed. Swept libofx sample files: no fault, test pins behaviour. No agent doc in docs/reports (nothing the next run needs beyond README).",
+  "corrections": [],
+  "redteam": null
+}

@@ -158,3 +158,43 @@ test("a house of three bare rectangles is not mistaken for rectangle walls", () 
   const r = planFromDxf(dxf(house()));
   assert.ok(!r.notes.some((x) => /Rectangle walls/.test(x)));
 });
+
+// Door and window block symbols (INSERT) become openings.
+function blocksSection() {
+  const g = (c, v) => `${c}\n${v}\n`;
+  const blk = (name, ents) => g(0, "BLOCK") + g(8, "0") + g(2, name) + g(70, 0) + g(10, 0) + g(20, 0) + g(30, 0) + ents + g(0, "ENDBLK");
+  const line = (x1, y1, x2, y2) => g(0, "LINE") + g(8, "0") + g(10, x1) + g(20, y1) + g(11, x2) + g(21, y2);
+  const arc = g(0, "ARC") + g(8, "0") + g(10, 0) + g(20, 0) + g(40, 36) + g(50, 0) + g(51, 90);
+  return g(0, "SECTION") + g(2, "BLOCKS")
+    + blk("DOOR36", line(0, 0, 36, 0) + line(0, 0, 0, 36) + arc)   // hinge at origin, leaf 36 in, swing box 36 x 36
+    + blk("WIN-UNIT", line(0, -3, 1, -3) + line(0, 3, 1, 3))        // unit-length window scaled by the insert
+    + blk("TOILET", line(0, 0, 14, 0) + line(14, 0, 14, 20))
+    + g(0, "ENDSEC");
+}
+const insert = (name, layer, x, y, sx = 1, rot = 0) => `0\nINSERT\n8\n${layer}\n2\n${name}\n10\n${x}\n20\n${y}\n41\n${sx}\n42\n${sx}\n50\n${rot}\n`;
+
+test("door and window blocks on walls become openings with widths from the block box", () => {
+  const body = [["A-WALL", 0, 0, ft(40), 0], ["A-WALL", ft(40), 0, ft(40), ft(28)], ["A-WALL", ft(40), ft(28), 0, ft(28)], ["A-WALL", 0, ft(28), 0, 0]];
+  const ents = insert("DOOR36", "A-DOOR", ft(17), 0) + insert("WIN-UNIT", "A-GLAZ", ft(4), ft(28), 72) + insert("TOILET", "A-FIXT", 60, 60);
+  const g = (c, v) => `${c}\n${v}\n`;
+  let text = g(0, "SECTION") + g(2, "HEADER") + g(9, "$INSUNITS") + g(70, 1) + g(0, "ENDSEC") + blocksSection() + g(0, "SECTION") + g(2, "ENTITIES");
+  for (const [layer, x1, y1, x2, y2] of body) text += g(0, "LINE") + g(8, layer) + g(10, x1) + g(20, y1) + g(11, x2) + g(21, y2);
+  text += ents + g(0, "ENDSEC") + g(0, "EOF");
+  const r = planFromDxf(text);
+  assert.ok(r.ok, r.errors.join());
+  const [a, , c] = r.plan.walls;
+  assert.deepEqual(a.openings.map((o) => [o.kind, o.offset, o.width]), [["door", 204, 36]]);
+  assert.deepEqual(c.openings.map((o) => [o.kind, o.width]), [["window", 72]]);
+  assert.equal(r.stats.openings, 2);
+  assert.match(r.notes.join("\n"), /3 block INSERTs: 2 read as openings.*1 other block/);
+});
+
+test("a block symbol over a door line is not counted twice", () => {
+  const g = (c, v) => `${c}\n${v}\n`;
+  let text = g(0, "SECTION") + g(2, "HEADER") + g(9, "$INSUNITS") + g(70, 1) + g(0, "ENDSEC") + blocksSection() + g(0, "SECTION") + g(2, "ENTITIES");
+  for (const [layer, x1, y1, x2, y2] of house()) text += g(0, "LINE") + g(8, layer) + g(10, x1) + g(20, y1) + g(11, x2) + g(21, y2);
+  text += insert("DOOR36", "A-DOOR", ft(17), 0) + g(0, "ENDSEC") + g(0, "EOF");
+  const r = planFromDxf(text);
+  assert.equal(r.plan.walls[0].openings.length, 1);
+  assert.match(r.notes.join("\n"), /1 already marked by a line/);
+});

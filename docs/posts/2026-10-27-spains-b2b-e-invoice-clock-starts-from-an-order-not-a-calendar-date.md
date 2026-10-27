@@ -1,6 +1,8 @@
 ---
 title: "Spain's B2B e-invoice clock starts from an order, not a calendar date"
 date: 2026-10-27
+description: "Spain gives 12 or 24 months from the technical order HAC/1028/2026, in force 6 October 2026, so the quoted 2027 and 2028 dates are derived, not stated."
+tags: [e-invoicing, spain, compliance]
 ---
 
 Spain's business-to-business e-invoicing duty does not name its deadlines as

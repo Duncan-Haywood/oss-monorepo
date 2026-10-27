@@ -954,3 +954,41 @@ What it says: on a strongly autocorrelated real series, `mean` over-segments and
 - **Artefact:** the one quarter of 2008Q4 deflation (-5.97) is cut as its own segment by every setting (`--bootstrap` leaves 2008Q3 and 2009Q1 as two changes); minimum segment 8 removes it but also moves 1973Q3 to 1973Q1 and 1965Q4. Treat a one-or-two-quarter segment as an outlier, not a regime.
 
 One series, regime dates from the literature, no rate claimed; this is a real-data check that the settings built on synthetic data land where economists put the breaks.
+
+## A real null series: Nottingham temperatures (2026-10-27)
+
+Monthly mean air temperature at Nottingham Castle, 1920-1939 (240 months, `data/nottem.csv`, R's `nottem`). A
+stable climate with a strong season and no documented step, so every cut is a false alarm. With `--period 12`:
+
+| Run | Steps cut |
+| --- | --- |
+| default (`mean`) | 4: 1922-07, 1922-09, 1929-01, 1929-03 (two pairs, each a spike cut out as a short segment) |
+| `--min-segment 6` | 2: 1933-03, 1933-10 (a 7-month warm spell) |
+| `--min-segment 6 --model meanvar` | 0 |
+| `--model meanvar --bootstrap` | 0 |
+
+So the default `mean` model reads two unusual months as four steps. The pairs are the tell: a step up and back down
+within a few months is a spike, not a regime. Use a longer minimum segment or `meanvar` when spikes are expected.
+Only the counts above are claimed; whether the spikes are the cold February 1929 and the cool 1922 summer is not
+checked against a record here. Test: `nottem.test.mjs`.
+
+## A real volatility rise: DAX returns (2026-10-27)
+
+Daily log returns of the DAX, 1,859 days, 1991 to 1998 (`data/dax-returns.csv`, R's `EuStockMarkets`; the file
+carries row numbers, not dates). Volatility is clustered and the tails are heavy, the case `--model meanvar` warns
+about. Standard deviation of the returns, computed directly: 0.90 over rows 2-1481, then 1.20, 1.56, 1.53 and 1.32
+over the four stretches after 1482 (rows 1482-1560, 1560-1640, 1640-1760, 1760-1860).
+
+| Run | Cuts (row) |
+| --- | --- |
+| `--model meanvar` | 32, 42, 275, 332, 1132, 1482 |
+| `--model meanvar --bootstrap` | 32, 42, 1482 |
+| `--model meanvar --dispersion` | 39, 1482 |
+| `--model meanvar --robust` | 275, 1132, 1488 |
+
+Every variant keeps a cut near row 1482, where the spread goes from 0.86 to 1.43 (bootstrap run). The earlier cuts
+differ by variant: plain `meanvar` cuts a 10-day spike (32-41) and a 57-day dip (275-331), and `--bootstrap` and
+`--dispersion` keep only the first spike. The Ljung-Box line fires on all four runs, so read them as candidates.
+Not checked: the calendar date of row 1482 (the dataset has no dates; a rough count of 260 days a year puts it in
+early 1997, earlier than the October 1997 Asian-crisis turbulence one might expect), or any record of what moved
+the market then. Test: `dax-returns.test.mjs` (about 95 s, mostly the bootstrap).
