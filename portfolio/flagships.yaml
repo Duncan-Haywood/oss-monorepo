@@ -35,14 +35,14 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Everything built so far is tested on hand-written fixtures; the next slices
-      are about real inputs (landed work: README, git). Open items, most valuable first: (0) built-in keywords measured on one real makerspace's bank export (72.7%
+      are about real inputs. Open items, most valuable first: (0) built-in keywords measured on one real makerspace's bank export (72.7%
       suggested, 96% right, tuned on itself) and on synthetic sets (README Next):
       HCB card feed and Actual Budget samples held out (README Next, no labels); wanted: labelled books; (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far; README Next); (2) the bank readers (open-source fixture sweeps are saturated: only a real export adds signal)
       (Plaid JSON on hand-made data; CSV, OFX/QFX/QIF, Excel, BAI2, Norma 43, CFONB120, statement PDFs, regional
       code pages; one real Starling file reads clean) on real exports
       from Chase, Bank of America, Wells Fargo, Amex, Capital One and others;
-      (3) a real Stripe  PayPal (wanted: a real Balance Reconciliation with Transfer IDs), eBay or Amazon settlement export for the
+      (3) a real Stripe PayPal (wanted: a real Balance Reconciliation with Transfer IDs), eBay or Amazon settlement export for the
       payment-processor import (`form1099k`: try a real 1099-K; Adyen: wanted a real settlement file); (4) a real
       supplier's terms letter checked against the fee and discount rules, and one
       named lender's own schedule against the loan register (`loan check`);
@@ -101,10 +101,8 @@ flagships:
       Landed history (Poisson, seasonal, AR(1), trend, holidays, bursts, change-date
       range95 for counts, seasonal and trend; real series: Nile, US GDP volatility
       break, UK seat-belt step) and every measurement live in the README and git.
-      `meanvar` has min segment 10, a noise warning with Ljung-Box on squares,
-      `--robust` (Laplace cost; t3 false alarms 37-63% to 5-8%, but detection 57% vs
-      94% on Gaussian n=100) and `--dispersion` (GARCH/t3 false alarms at n=200
-      51%/62% to 30%/29%). `--bootstrap` (block-resampled penalty, 2026-10-27) takes GARCH false alarms at n=200 from 51% to 16% (n=100 Gaussian detection 92% to 80%). Real daily FX returns landed 2026-10-26 (README: every mode finds CHF 2015 and Brexit; --bootstrap did NOT cut CHF false alarms: its pilot fit standardises the shock away, 2026-10-26; tail-preserving standardisation tried 2026-10-27, per-segment MAD and one global MAD scale: no gain / finds nothing, README; open: a joint fit that dates the shock outside the pilot, UK gas 2026-10-27: raw slope bend 1969Q4 (range 1966-71), log series no bend, --drift cuts the seasonal change into steps, README; `--multiplicative` season on the Gaussian path landed 2026-10-27 (monthly steps per series 3.44 to 1.36, quarterly worse, synthetic only; README), on a real growing-season series (airline passengers, 2026-10-28) it did not help, log first, README; `driftWarning` for clustered --drift steps landed, README). Real Lake Huron levels landed 2026-10-27 (README: mean 10 changes, --ar1 none, meanvar finds 1923; 2026-10-28 profile over rho picks rho 0.8 and no change, so --ar1 is not hiding a supported drop; profile over rho as the fit measured 2026-10-28, no gain over --ar1 joint and more false alarms at rho 0.8, 34% vs 24.5%, README). Open: bootstrap penalty for counts landed 2026-10-26 (clustered counts false alarms 89% to 11%, but 74% left at log-rate sd 0.4; with --trend it helps little: false alarms 59% at sd 0.2 vs 8% with a weekly season alone, 2026-10-28, README; holidays checked 2026-10-28: like a season, false alarms 85% to 21% at sd 0.2; missed holidays (all, half, none given) change nothing beyond noise, 2026-10-27, README, few holidays only; synthetic only); a GARCH-filtered series has 1% false alarms but loses the real sd break (detection 97% to 6%, 2026-10-27), so a GARCH likelihood needs a segment-wise joint fit;
+      Measurements for `meanvar`, `--robust`, `--dispersion`, `--bootstrap` (GARCH false alarms at n=200 51% to 16%; CHF 2015 not cut), `--multiplicative`, `--drift` and the real FX, UK gas, airline and Lake Huron series are in the README.
+      Open: bootstrap penalty for counts landed 2026-10-26 (clustered counts false alarms 89% to 11%, but 74% left at log-rate sd 0.4; with --trend it helps little: false alarms 59% at sd 0.2 vs 8% with a weekly season alone, 2026-10-28, README; holidays checked 2026-10-28: like a season, false alarms 85% to 21% at sd 0.2; missed holidays (all, half, none given) change nothing beyond noise, 2026-10-27, README, few holidays only; synthetic only); a GARCH-filtered series has 1% false alarms but loses the real sd break (detection 97% to 6%, 2026-10-27), so a GARCH likelihood needs a segment-wise joint fit;
       range95 on a real count series with a true holiday closure or documented slope
       break (log GDP is a near-unit-root; coal disasters hold 1890, 2026-10-26); the growth-change range
       on clumpy (NB) counts reaches ~95% by tempering 1.4, but the steep-bump (0.04)

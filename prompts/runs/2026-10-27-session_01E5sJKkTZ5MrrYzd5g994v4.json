@@ -38,7 +38,9 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-10-27-a-day-of-slack-let-posts-date-themselves-tomorrow.md",
+  "writeups": [
+    "docs/posts/2026-10-27-a-day-of-slack-let-posts-date-themselves-tomorrow.md"
+  ],
   "goal": null,
   "notes": "Critique mode. check_post_frontmatter had 1 day of slack; 19 posts dated 2026-10-28 on UTC 10-27. Removed slack, redated posts. No backlog ids touched. validate fails on another run's record (pr null), not mine.",
   "corrections": [],
