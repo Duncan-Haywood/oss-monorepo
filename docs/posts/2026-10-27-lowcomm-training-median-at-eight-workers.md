@@ -1,10 +1,10 @@
 ---
-title: "One sign-flipping worker costs the median five times less at eight workers than at four"
+title: "A trimmed mean does not beat the median against one sign-flipping worker"
 date: 2026-10-27
-description: "Doubling DiLoCo workers from 4 to 8 cut the median's cost under one sign-flip attacker from +0.095 to +0.021 nats; a trimmed mean did no better."
+description: "In a small-GPT DiLoCo run at 8 workers, dropping the highest and lowest delta per coordinate cost +0.026 nats under a sign-flip attacker; the median cost +0.021."
 tags: [lowcomm-training, research, distributed-training, robust-aggregation]
 ---
 
-Milestone 5d of [lowcomm-training](../../research/lowcomm-training/): one of the workers sends minus ten times its delta, and the server aggregates per coordinate. At four workers the median lost 0.095 nats of validation loss to this attacker, while the plain mean diverged. At eight workers (3 seeds, character-level GPT on Tiny Shakespeare) the median loses 0.021 nats against an eight-worker mean with no attack, and a trimmed mean that drops the highest and lowest value loses 0.026, so keeping more honest values did not help.
+Milestone 5e of [lowcomm-training](../../research/lowcomm-training/): one of eight workers sends minus ten times its delta. Against an eight-worker mean with no attack, the coordinate-wise median loses 0.021 nats of validation loss (a parallel run, milestone 5d, found the same numbers on the same seeds), and a new trimmed-mean aggregator that drops the highest and lowest value per coordinate loses 0.026, worse on all three seeds. Keeping six of eight honest values did not help.
 
-That is two points in M, so it does not show a 1/M law, and the differences between median and trimmed mean (0.005) are within seed spread. The predictions were written in the log before the runs; all three held. CPU-scale study, one attacker, non-adaptive. Code, data and log are in the project directory.
+The gap between the two (0.005) is within seed spread, and three seeds on a character-level GPT is a small study. The predictions were written in the log before the runs. CPU-scale, one non-adaptive attacker.

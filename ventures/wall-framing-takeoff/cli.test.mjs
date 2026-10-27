@@ -168,3 +168,25 @@ test("--fasteners counts nails; with --sheathing it adds the sheathing nails", (
   assert.match(b.out, /Sheathing nails \(/);
   assert.equal(run(["plan.json", "--fasteners"], { ...JSON.parse(ex.out), fasteners: { waste: 2 } }).code, 1);
 });
+
+test("--budget --csv prints the priced lines as CSV with totals", () => {
+  const plan = { ...samplePlan(), prices: { laborWallFoot: 12, tax: 0.07 } };
+  const { code, out } = run(["plan.json", "--budget", "--csv"], plan);
+  assert.equal(code, 0);
+  const rows = out.split("\n");
+  assert.equal(rows[0], "section,item,qty,unit,unit_price,amount,source");
+  assert.ok(rows.some((l) => l.startsWith("Labor,Wall framing,")));
+  assert.match(rows.at(-1), /^,Total,/);
+});
+
+test("--trim adds baseboard and casing boards, kept with --sheathing and in the budget", () => {
+  const plan = JSON.stringify({ ...samplePlan(), prices: { baseboard: 12, casing: 9 } });
+  const read = () => plan;
+  const a = main(["plan.json", "--trim", "--sheathing"], read);
+  assert.equal(a.code, 0);
+  assert.match(a.out, /TRIM\n  Baseboard: \d+ ft/);
+  assert.match(a.out, /Casing: \d+ ft for \d+ door faces/);
+  const b = main(["plan.json", "--trim", "--budget"], read);
+  assert.match(b.out, /Baseboard boards/);
+  assert.equal(main(["plan.json"], read).out.includes("TRIM"), false);
+});

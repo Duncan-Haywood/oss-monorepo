@@ -71,3 +71,15 @@ test("hold-downs: wall ends and both sides of wide openings, by hand", () => {
   assert.equal(layoutFasteners({ holdDowns: { openingMinWidth: 2 } }, plan, r).ok, false);
   assert.match(fastenerText(l).join("\n"), /6 hold-down\(s\): 4 at wall ends, 2 beside wide openings, 150.00/);
 });
+
+test("rafter ties: one per rafter bearing, two per truss, by hand", () => {
+  const r = { walls: [wall([])], roof: { rafters: new Array(10).fill({}), jacks: new Array(4).fill({}) } };
+  const l = layoutFasteners({ rafterTies: { perBearing: 2, price: 1.5 } }, {}, r);
+  assert.deepEqual(l.rafterTies, { trusses: 0, rafters: 14, bearings: 14, perBearing: 2, count: 28, price: 1.5, cost: 42 });
+  const t = layoutFasteners({ rafterTies: true }, {}, { walls: [wall([])], roof: { trusses: { count: 12 }, rafters: [] } });
+  assert.equal(t.rafterTies.count, 24);
+  assert.equal(layoutFasteners({ rafterTies: true }, {}, r).rafterTies.count, 14);
+  assert.equal(layoutFasteners({}, {}, r).rafterTies, null);
+  assert.equal(layoutFasteners({ rafterTies: { perBearing: 3 } }, {}, r).ok, false);
+  assert.match(fastenerText(l).join("\n"), /28 rafter tie\(s\): 2 on each of 14 bearing/);
+});

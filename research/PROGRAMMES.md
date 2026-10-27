@@ -93,6 +93,7 @@ venue, the paper says so.
 | [`lowcomm-training`](lowcomm-training/PROPOSAL.md) | A predictive theory of low-communication training (DiLoCo-style local SGD): which of sync interval, compression, delay, momentum and robust aggregation set the final loss, checked on real small-transformer training | the `*-outer`, `*-sync`, `local-sgd-*` and `replay-*` projects | ICML / NeurIPS workshop, then main track |
 | [`verified-dse`](verified-dse/PROPOSAL.md) | Multi-fidelity, verification-aware design-space search for open-source chip flows: cheap rungs plus predicted formal equivalence, scored on real SKY130 place-and-route | `eda-*`, `chip-*` and `accel-*` | MLCAD / ICCAD |
 | [`llm-coding-inference`](llm-coding-inference/PROPOSAL.md) | Valid downstream inference from LLM-coded qualitative data under group shift and rare categories, on real annotated corpora | `qual-*` | a computational social science methods venue (e.g. *Sociological Methods & Research*) |
+| [`aerolog-scaling`](aerolog-scaling/PROPOSAL.md) | What does a 1:N Froude-scaled model of a cargo UAV reproduce of the 1:1 aircraft, and where does it lie (Reynolds-driven drag and stall, powertrain, energy)? | `osrobot-uav`, `codesign-aero`, `uav-energy-twin`, track 22 | AIAA SciTech / *Journal of Aircraft* |
 
 A row without a proposal is an invitation: its first session writes the
 proposal. Add rows when a question earns one; close a row (with a line on the

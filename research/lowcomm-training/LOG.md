@@ -2,18 +2,33 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-27 · Milestone 5d: at M = 8, does one sign-flip attacker still cost the median, and does a trimmed mean do better? (planned before running)
-- Why: 5b/5c's open items. At M = 4 the median is the mean of the two middle values, so a flipped attacker shifts it by an honest order-statistic gap (+0.095 nats). With M = 8 the honest 7 are spread over more order statistics, so the attacker's displacement of the median should be smaller. A trimmed mean (drop the lowest and highest value per coordinate, new `aggregate="trimmed"`; at M = 4 it equals the median, so it is only informative from M = 8) keeps more honest data (6 of 8 values).
+## 2026-10-27 · Milestone 5d: does the median's sign-flip cost shrink when the attacker is 1 of 8 workers instead of 1 of 4? (planned before running)
+- Why: 5b/5c's "Next". At M = 4 the median is the mean of the two middle values, so one flipped worker moves it from the honest middle pair to the honest lower pair (+0.095 nats). At M = 8 the median is the mean of the 4th and 5th values; one attacker shifts the pair by one rank out of seven honest ones, a smaller displacement in the honest spread. If the order-statistic account is right the cost should fall.
+- Design (`experiments/gpt_median_m8/median_m8.py`): 5b's setup with M = 8 (3d model, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, seeds 0 to 2). Arms: mean no attack (comparator), median no attack, median with worker 0 sending -10x its delta. 9 runs. Uncompressed M = 4 numbers are not a valid comparator here (more workers change the loss), so the M = 8 mean run is.
+- **H5d-i:** median under the flip costs less than +0.05 nats over the M = 8 mean (mean over seeds), against +0.095 at M = 4. Refuted if at or above 0.05.
+- **H5d-ii:** the clean median at M = 8 is within 0.02 nats of the M = 8 mean. Refuted otherwise.
+- Prior: i 65%, ii 80%.
+- Limits: 3 seeds, one attack, one H, non-adaptive attacker; the mechanism is still inferred from loss, not from a measured delta norm.
+
+### Outcome of 5d (`experiments/gpt_median_m8/`: `median_m8.py`, `.jsonl`, `median_m8_results.txt`, `run.out`; 9 runs, seeds 0 to 2, about 17 minutes each)
+- Final validation loss, mean over seeds: M = 8 mean aggregation, no attack 1.5527 (1.5551, 1.5447, 1.5581); median, no attack 1.5534 (excess +0.0007; per seed +0.0019, +0.0083, -0.0081); median with worker 0 sending -10x its delta 1.5733 (excess +0.0207; per seed +0.0161, +0.0294, +0.0164).
+- **H5d-i supported:** the flip costs +0.021 at M = 8 (bar 0.05; every seed under 0.03), against +0.095 on every seed at M = 4. **H5d-ii supported:** the clean median is within 0.01 of the mean on all seeds.
+- Reading: the cost fell by about 4.6x when the attacker's share fell from 1/4 to 1/8, as the order-statistic account predicts, but it is not zero, and M and the attacker's share changed together with nothing else held fixed. The displacement itself was still not measured, so the account remains a hypothesis that fits. Different baselines (M = 4 vs M = 8 means), so compare excesses, not raw losses.
+- Limits: as planned; 3 seeds, one attack, one H.
+- Next: measure the aggregated-delta norm directly; a trimmed-mean aggregator; M = 8 with two attackers (same share as M = 4 with one, to separate share from M).
+
+## 2026-10-27 · Milestone 5e: at M = 8, does one sign-flip attacker still cost the median, and does a trimmed mean do better? (planned before running)
+- Why: a parallel run landed 5d (`gpt_median_m8`) with the same median arms while this ran; the two ran identical seeds, and the shared arms (M = 8 mean 1.5527, median clean +0.0007, median under the flip +0.0207) reproduce bit for bit, an accidental determinism check. What is new here is the trimmed-mean arm, so this entry is about that. 5b/5c's open items. At M = 4 the median is the mean of the two middle values, so a flipped attacker shifts it by an honest order-statistic gap (+0.095 nats). With M = 8 the honest 7 are spread over more order statistics, so the attacker's displacement of the median should be smaller. A trimmed mean (drop the lowest and highest value per coordinate, new `aggregate="trimmed"`; at M = 4 it equals the median, so it is only informative from M = 8) keeps more honest data (6 of 8 values).
 - Design (`experiments/gpt_trimmed_m8/trimmed_m8.py`): 5c setup (3d model, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, seeds 0 to 2) with M = 8 workers. Arms: mean without attack (baseline), median without attack, median and trimmed mean with worker 0 sending -10x its delta. 12 runs.
-- **H5d-i:** median under the flip costs less at M = 8 than the +0.095 at M = 4: mean excess over the M = 8 mean baseline below 0.06. Refuted otherwise.
-- **H5d-ii:** the trimmed mean under the flip is within 0.02 nats of the median under the flip (mean over seeds), i.e. keeping more honest values buys little at this scale. Refuted if they differ by more than 0.02.
-- **H5d-iii:** median without attack is within 0.02 nats of the mean (5a saw +0.003 at M = 4). Refuted otherwise.
+- **H5e-i (duplicates 5d):** median under the flip costs less at M = 8 than the +0.095 at M = 4: mean excess over the M = 8 mean baseline below 0.06. Refuted otherwise.
+- **H5e-ii:** the trimmed mean under the flip is within 0.02 nats of the median under the flip (mean over seeds), i.e. keeping more honest values buys little at this scale. Refuted if they differ by more than 0.02.
+- **H5e-iii (duplicates 5d):** median without attack is within 0.02 nats of the mean (5a saw +0.003 at M = 4). Refuted otherwise.
 - Prior: i 60%, ii 55%, iii 70%.
 - Limits known in advance: 3 seeds; one attacker of eight; the M = 8 baseline is a new run (not the 3d M = 4 runs), since M changes the effective batch.
 
-### Outcome of 5d (`experiments/gpt_trimmed_m8/`: `trimmed_m8.py`, `trimmed_m8.jsonl`, `trimmed_m8_results.txt`, `run.out`; 12 runs, seeds 0 to 2, about 17 minutes each)
+### Outcome of 5e (`experiments/gpt_trimmed_m8/`: `trimmed_m8.py`, `trimmed_m8.jsonl`, `trimmed_m8_results.txt`, `run.out`; 12 runs, seeds 0 to 2, about 17 minutes each)
 - Final validation loss. M = 8 mean, no attack: 1.5527 (1.5551, 1.5447, 1.5581). Excess over it: median, no attack +0.0007 (+0.0019, +0.0083, -0.0081); median under the -10x flip +0.0207 (+0.0161, +0.0294, +0.0164); trimmed mean under the flip +0.0262 (+0.0256, +0.0341, +0.0190).
-- **H5d-i holds:** the median's flip cost is +0.021 at M = 8 against +0.095 at M = 4 (bar 0.06). **H5d-ii holds:** trimmed minus median under the flip is +0.0055 (bar 0.02); the trimmed mean is not better, it is nominally worse on all 3 seeds. **H5d-iii holds:** +0.0007 (bar 0.02), and the sign changes across seeds, so it is noise.
+- **H5e-i holds:** the median's flip cost is +0.021 at M = 8 against +0.095 at M = 4 (bar 0.06). **H5e-ii holds:** trimmed minus median under the flip is +0.0055 (bar 0.02); the trimmed mean is not better, it is nominally worse on all 3 seeds. **H5e-iii holds:** +0.0007 (bar 0.02), and the sign changes across seeds, so it is noise.
 - Reading: the cost of one sign-flip attacker to the median falls by about 4.6x when workers double, consistent with the order-statistic account (the attacker displaces the median by less when honest values are denser), but M is the only thing varied, so the 1/M scaling is not established from two points. Keeping 6 of 8 values (trimmed mean) buys nothing over the median here. Both are far below the mean's failure (+9e4 at M = 4).
 - Limits: 3 seeds; paired differences of about 0.005 are within seed spread; the M = 8 baseline is a new run set, not 3d; the displacement itself was not measured.
 - Next: M = 16 (would test the scaling), and measuring the aggregated-delta shift directly.
