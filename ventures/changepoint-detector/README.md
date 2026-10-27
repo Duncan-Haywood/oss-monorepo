@@ -954,3 +954,20 @@ What it says: on a strongly autocorrelated real series, `mean` over-segments and
 - **Artefact:** the one quarter of 2008Q4 deflation (-5.97) is cut as its own segment by every setting (`--bootstrap` leaves 2008Q3 and 2009Q1 as two changes); minimum segment 8 removes it but also moves 1973Q3 to 1973Q1 and 1965Q4. Treat a one-or-two-quarter segment as an outlier, not a regime.
 
 One series, regime dates from the literature, no rate claimed; this is a real-data check that the settings built on synthetic data land where economists put the breaks.
+
+## A real null series: Nottingham temperatures (2026-10-27)
+
+Monthly mean air temperature at Nottingham Castle, 1920-1939 (240 months, `data/nottem.csv`, R's `nottem`). A
+stable climate with a strong season and no documented step, so every cut is a false alarm. With `--period 12`:
+
+| Run | Steps cut |
+| --- | --- |
+| default (`mean`) | 4: 1922-07, 1922-09, 1929-01, 1929-03 (two pairs, each a spike cut out as a short segment) |
+| `--min-segment 6` | 2: 1933-03, 1933-10 (a 7-month warm spell) |
+| `--min-segment 6 --model meanvar` | 0 |
+| `--model meanvar --bootstrap` | 0 |
+
+So the default `mean` model reads two unusual months as four steps. The pairs are the tell: a step up and back down
+within a few months is a spike, not a regime. Use a longer minimum segment or `meanvar` when spikes are expected.
+Only the counts above are claimed; whether the spikes are the cold February 1929 and the cool 1922 summer is not
+checked against a record here. Test: `nottem.test.mjs`.

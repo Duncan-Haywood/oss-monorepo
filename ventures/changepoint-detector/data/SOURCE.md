@@ -129,3 +129,13 @@ statsmodels' `macrodata` dataset (first quarter dropped: it is 0.00 by construct
 - **Cite (the documented regimes):** Stock, J. H. and Watson, M. W. (2007). Why has US inflation become
   harder to forecast? *Journal of Money, Credit and Banking* 39(s1), 3-33.
 - **Used by:** `eval/us-inflation.mjs`, `us-inflation.test.mjs`.
+
+# Example data: Nottingham monthly air temperature, 1920-1939
+
+`nottem.csv`: 240 monthly mean air temperatures (deg F) at Nottingham Castle, the `nottem` series of R's `datasets`.
+
+- **Retrieved:** 2026-10-27 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/nottem.csv>.
+- **Licence:** a published series of 240 numbers; only those are used here.
+- **Cite:** Anderson, O. D. (1976). *Time Series Analysis and Forecasting: The Box-Jenkins approach*. Butterworths.
+- **Used by:** `nottem.test.mjs`.
