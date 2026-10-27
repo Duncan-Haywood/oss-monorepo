@@ -323,6 +323,7 @@ numbers worked out before drafting.
 - *(Done: The Grey Hour, Mokre Stawy, Lower Silesia, 2047; text only.)* A carp pond's night oxygen budget (6.0 mg/L at dusk, 0.55 mg/L/h respiration, 1.3 by dawn); an aerator's transfer falls with the oxygen already in the water, so 3 kWh is spent in the last hours, after a hand titration shows the probe reads 0.5 high.
 - *(Done: The Salt Line, Santa Marina del Pozzo, Salento, 2050; text only.)* A cistern leak found from no-use night drops at three depths (2.8, 2.0, 1.3 mm per 6 h on 30 m²) that reach zero at 1.405 m ±7 cm; the water above the crack is drunk first, a lime-and-tile plaster shuts it, and the yearly loss is a range (40 to 70 m³ of 287).
 - *(Done: The Second Slope, Santa Marta de la Fuente Honda, Los Pedroches, 2049; text only.)* A 72-hour pumping test in granite: Cooper–Jacob T = 4 m²/day, the slope doubles at 1.5 days (a no-flow boundary 58 m away, 34 to 106 m by storativity guess), a neighbour's well 380 m off drops 3.3 m now and 5.4 m with a 40-bed guesthouse; the house takes 20 m³/day with a public 5 m trigger on his gauge.
+- *(Done: The Rope at the Side Gate, Chilcapamba, Imbabura, Ecuador, 2052; text only.)* A shrine forecourt of 2,200 m² (6,600 at 3 per m², 11,000 at 5) and one 3.2 m gate (26 to 34 min to empty 6,600); the turnstile count misses the uncounted side gate by about 600, so the gate captain ties a rope across his own family's path and the Dolorosa is carried down to those left outside.
 
 **For Other Minds**
 
