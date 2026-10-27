@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { hasContract, actionYaml, plan, stale, USES_PREFIX } from './ghaction.mjs';
@@ -36,4 +39,20 @@ test('CLI: --check reports currency read-only, no flag only lists', () => {
   const list = run();
   assert.equal(list.status, 0);
   assert.match(list.stdout, /venture CLIs qualify as GitHub Actions/);
+});
+
+test('actionYaml keeps a 125-char description and truncates a 126-char one', () => {
+  const desc = (n) => ('word '.repeat(40)).slice(0, n - 1) + 'x';
+  const get = (n) => actionYaml({ slug: 'a-b', description: desc(n) }).match(/^description: '(.*)'$/m)[1];
+  assert.equal(get(125), desc(125));
+  assert.ok(get(126).endsWith('…'));
+  assert.ok(get(126).length < 126);
+});
+
+test('stale flags an action dir whose venture no longer qualifies', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'gha-'));
+  await fs.mkdir(path.join(root, 'ventures'), { recursive: true });
+  await fs.mkdir(path.join(root, 'platform/distribution/actions/gone-check'), { recursive: true });
+  const bad = await stale({ root });
+  assert.deepEqual(bad, ['platform/distribution/actions/gone-check (no longer qualifies)']);
 });
