@@ -1,7 +1,7 @@
 ---
 title: "A 1:10 Froude model of a cargo drone trims 6.5% fast"
 date: 2026-10-27
-description: "With airfoil polars at each surface's Reynolds number, a dynamically scaled model no longer matches trim speed within the 5% bar, unless flown at the full-size lift coefficient."
+description: "With airfoil polars at each surface's Reynolds number, a 1:10 Froude model misses the 5% trim-speed bar unless flown at the full-size lift coefficient."
 tags: [aerolog-scaling, research, uav, scaling]
 ---
 
