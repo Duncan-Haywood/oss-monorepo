@@ -22,7 +22,12 @@ const DEFAULTS = {
   waste: 0.1,
 };
 
-/** @typedef {Partial<typeof DEFAULTS> & { nailsPerBox?: number, price?: number, sheathing?: boolean }} Fasteners */
+/**
+ * holdDowns counts hardware pieces only: `wallEnds` puts one at each end of every wall, `openingMinWidth` (in) puts one on each side of
+ * every opening at least that wide. Which walls and openings need them is the engineer's call; this multiplies the typed rule.
+ * @typedef {{ wallEnds?: boolean, openingMinWidth?: number | null, price?: number }} HoldDowns
+ * @typedef {Partial<typeof DEFAULTS> & { nailsPerBox?: number, price?: number, sheathing?: boolean, holdDowns?: HoldDowns }} Fasteners
+ */
 
 /** @param {Fasteners} d */
 export function validateFasteners(d) {
@@ -38,6 +43,15 @@ export function validateFasteners(d) {
   rng("waste", 0, 0.5, "Fastener waste");
   rng("nailsPerBox", 50, 20000, "Nails per box");
   rng("price", 0, 1e6, "Box price");
+  const h = d.holdDowns;
+  if (h != null) {
+    if (typeof h !== "object") e.push("holdDowns must be an object with wallEnds, openingMinWidth and price.");
+    else {
+      const hv = /** @type {any} */ (h);
+      if (hv.openingMinWidth != null && !(hv.openingMinWidth >= 6 && hv.openingMinWidth <= 600)) e.push("Hold-down opening width must be between 6 and 600.");
+      if (hv.price != null && !(hv.price >= 0 && hv.price <= 1e6)) e.push("Hold-down price must be between 0 and 1000000.");
+    }
+  }
   return e;
 }
 
@@ -46,7 +60,7 @@ const along = (/** @type {number} */ len, /** @type {number} */ sp) => Math.ceil
 
 /**
  * @param {Fasteners} d
- * @param {{ studSpacing?: number }} plan
+ * @param {{ studSpacing?: number, walls?: any[] }} plan
  * @param {{ walls: any[], sheathing?: any }} result the takeoff result (members placed per wall)
  */
 export function layoutFasteners(d, plan, result) {
@@ -98,6 +112,19 @@ export function layoutFasteners(d, plan, result) {
       if (row) row.nails += n; else walls.push({ id: sw.id, nails: n });
     }
   }
+  /** @type {any} */
+  let holdDowns = null;
+  const hd = d.holdDowns;
+  if (hd && (hd.wallEnds || hd.openingMinWidth != null)) {
+    const planWalls = /** @type {any[]} */ ((/** @type {any} */ (plan)).walls || []);
+    let ends = 0, openings = 0;
+    for (const w of result.walls) {
+      if (hd.wallEnds) ends += 2;
+      if (hd.openingMinWidth != null) openings += 2 * (planWalls.find((x) => x.id === w.id)?.openings || []).filter((o) => o.width >= /** @type {number} */ (hd.openingMinWidth)).length;
+    }
+    const count = ends + openings;
+    holdDowns = { wallEnds: ends, openingSides: openings, count, price: hd.price ?? null, cost: hd.price != null ? count * hd.price : null };
+  }
   const connections = [...conn.entries()].map(([name, v]) => ({ name, ...v }));
   const total = connections.reduce((s, x) => s + x.nails, 0);
   const order = Math.ceil(total * (1 + c.waste) - 1e-9);
@@ -107,7 +134,7 @@ export function layoutFasteners(d, plan, result) {
     ok: true, errors: [], connections, walls, total, waste: c.waste, order,
     nailsPerBox: d.nailsPerBox ?? null, boxes, price: d.price ?? null,
     cost: boxes != null && d.price != null ? boxes * d.price : null,
-    sheathingCounted: !!sh?.walls, assumed,
+    sheathingCounted: !!sh?.walls, assumed, holdDowns,
   };
 }
 
@@ -116,7 +143,8 @@ export function fastenerText(d) {
   const l = [];
   l.push(`  ${d.total} nails counted; ${d.order} to buy with ${(100 * d.waste).toFixed(0)}% waste${d.boxes != null ? `, ${d.boxes} box(es) of ${d.nailsPerBox}${d.cost != null ? `, ${d.cost.toFixed(2)} at ${d.price} each` : ""}` : " (add nailsPerBox from the label for a box count)"}`);
   for (const x of d.connections) l.push(`    ${String(x.nails).padStart(6)}  ${x.name} (${x.rule})`);
+  if (d.holdDowns) l.push(`  ${d.holdDowns.count} hold-down(s): ${d.holdDowns.wallEnds} at wall ends, ${d.holdDowns.openingSides} beside wide openings${d.holdDowns.cost != null ? `, ${d.holdDowns.cost.toFixed(2)} at ${d.holdDowns.price} each` : ""}`);
   if (!d.sheathingCounted) l.push("  Sheathing nails are left out: add --sheathing to count them.");
-  l.push("  Nail counts follow typed schedule defaults (common practice, not a code table); nail size and type, hardware, hold-downs and anchors are not counted here.");
+  l.push("  Nail counts follow typed schedule defaults (common practice, not a code table); nail size and type, hardware other than the hold-downs you typed, and anchors are not counted here.");
   return l;
 }

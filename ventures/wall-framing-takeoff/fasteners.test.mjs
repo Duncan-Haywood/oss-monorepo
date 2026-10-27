@@ -61,3 +61,13 @@ test("example house: sheathing adds nails, every wall is counted, text prints", 
   assert.equal(full.walls.reduce((s, w) => s + w.nails, 0), full.total);
   assert.match(fastenerText(full).join("\n"), /box\(es\) of 2500/);
 });
+
+test("hold-downs: wall ends and both sides of wide openings, by hand", () => {
+  const plan = { walls: [{ id: "A", openings: [{ width: 36 }, { width: 72 }] }, { id: "B", openings: [] }] };
+  const r = { walls: [wall([]), { id: "B", length: 96, members: [] }] };
+  const l = layoutFasteners({ holdDowns: { wallEnds: true, openingMinWidth: 48, price: 25 } }, plan, r);
+  assert.deepEqual(l.holdDowns, { wallEnds: 4, openingSides: 2, count: 6, price: 25, cost: 150 });
+  assert.equal(layoutFasteners({}, plan, r).holdDowns, null);
+  assert.equal(layoutFasteners({ holdDowns: { openingMinWidth: 2 } }, plan, r).ok, false);
+  assert.match(fastenerText(l).join("\n"), /6 hold-down\(s\): 4 at wall ends, 2 beside wide openings, 150.00/);
+});
