@@ -1,7 +1,7 @@
 ---
 title: "How many chip designs does it take to trust a search trick?"
 date: 2026-10-27
-description: "Ten unseen chip designs, a real open-source flow, and an honest significance test: the trick wins in 8 of 10 designs, yet nothing survives a multiple-comparison correction."
+description: "Ten unseen chip designs, a real open-source flow, an honest test: the trick wins in 8 of 10 designs, yet nothing survives multiple-comparison correction."
 tags: [chip-design, statistics, negative-result, verified-dse]
 ---
 
