@@ -91,6 +91,7 @@ export function stateDueDay(state, frequency = "quarterly") {
   if (s === "WA" && frequency !== "monthly") return "last";
   // MA (mass.gov Sales and Use Tax guide, via search 2026-10-27): monthly, quarterly and annual returns all due the 30th day after the period; the 20th in 830 CMR 62C.16.2 is the older rule
   if (s === "MA") return { after: 30 };
+  // VA (tax.virginia.gov "Sales and use tax", read 2026-10-27): monthly the 20th; quarterly Jan-Mar Apr 20, Apr-Jun Jul 20, Jul-Sep Oct 20, Oct-Dec Jan 20; equals the default of 20
   // NC: monthly the 20th, quarterly the last day of Jan/Apr/Jul/Oct (ncdor.gov "Filing Frequency and Due Dates", read 2026-10-24)
   if (s === "NC" && frequency !== "monthly") return "last";
   // RI: monthly the 20th, quarterly the last day of Apr/Jul/Oct/Jan (tax.ri.gov sales tax calendars, 2022 and 2024 PDFs via search excerpts 2026-10-24; weekend dates move to the next business day)
