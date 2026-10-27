@@ -61,3 +61,14 @@ def test_slocum_coefficients_from_gliderflight():
     be = m.breakeven(auv, e_g)
     assert m.auv_best(auv, be) == pytest.approx(e_g, rel=1e-6)
     assert m.breakeven(auv, 1e-6) == 0.0
+
+
+def test_remus_implied_hotel_is_total_minus_propulsion():
+    import math
+    from marine_hull.hull import RHO_SEA
+    vol = 38.6 / RHO_SEA
+    cs = math.pi * 0.19 * 1.85 / math.sqrt(vol * 1.85)
+    prop = auv_energy_per_m(1.5, 1.85, vol, cs, 0.2, 0.0) * 1.5
+    full = auv_energy_per_m(1.5, 1.85, vol, cs, 0.2, 100.0) * 1.5
+    assert full - prop == pytest.approx(100.0)
+    assert 5.0 < prop < 40.0
