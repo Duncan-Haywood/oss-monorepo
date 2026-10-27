@@ -9,6 +9,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H5i-ii:** the clean median is within 0.01 nats of the M = 16 mean. Refuted otherwise.
 - Prior: i 65%, ii 85%. Seed noise on single excesses at M = 8 was about 0.01, so a mean of three cannot resolve 0.005 from 0.01; the bar is chosen to separate the prediction from "no fall".
 
+### Outcome of 5i (`experiments/gpt_median_m16/`: `median_m16.py`, `.jsonl`, `median_m16_results.txt`, `run.out`; 9 runs, seeds 0 to 2, about 31 minutes each; the first batch was lost to a container restart and rerun unchanged)
+- M = 16 mean, no attack: 1.5376 (1.5424, 1.5300, 1.5404). Clean median: 1.5356, excess -0.0020 (-0.0007 to +0.0017 per seed, one at -0.007). Median under the -10x flip: 1.5392, excess **+0.0016** (per seed -0.0016, +0.0094, -0.0031).
+- **H5i-i supported:** +0.0016 is below the 0.012 bar. **H5i-ii supported:** the clean median is within 0.01 of the mean on all seeds.
+- Reading: the cost fell from +0.095 (M = 4) to +0.021 (M = 8) to +0.002 (M = 16). The order-statistic prediction was about +0.005; the observation is at or below it, but the per-seed spread (about 0.005 to 0.01) is as large as the effect, so this confirms "the cost is now at the noise floor", not the 4x factor. A tighter test needs more seeds or an attacker strong enough to raise the signal (e.g. a coordinated minority).
+- Limits: one attacker; three seeds; one model and corpus; the trimmed-mean arm was not run, so 5g's heavy-tail side prediction is untested.
+- Next: coordinated attackers (k of 16 flipping together) to find where the median breaks, which is the question that matters for the protocol.
+
 ## 2026-10-27 · Milestone 5h: what are the tail weight and mu/sigma of the real worker deltas? (hypotheses written after launching the runs, before any round past 1 was read)
 - Why: 5g's "Next". Which row of its table applies depends on the honest deltas' tail index and mu/sigma, never measured because torch was absent. A CUDA torch wheel from PyPI installs here with its dependencies (about 2 minutes) and runs on CPU.
 - Design (`experiments/delta_stats/delta_stats.py`): 5d/5e setup (3d model, M = 8, mean aggregation, no attack, 3,840 steps, seeds 0 to 2). At rounds 1, 10, 60, 120, 240 the engine's `attack` hook (identity) records each worker's delta per tensor. Per tensor: mu/sigma = rms of the across-worker mean over rms of the residual (corrected by sqrt(M/(M-1))); excess kurtosis and the Hill index (top 5%) of residuals normalised by the tensor rms; a Gaussian of equal size gives the sampling baseline. Round 1 of seed 0 was visible before writing these (kurtosis about 1, Hill about 5 weighted): those two numbers are not blind.
