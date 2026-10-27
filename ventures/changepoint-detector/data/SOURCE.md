@@ -98,3 +98,13 @@ rise is a stronger pound; CHF and JPY are per USD, so a rise is a weaker franc o
   State Space Methods*); R's `datasets` package is GPL-2 or later. Only the 108
   numbers are used here.
 - **Used by:** `eval/uk-gas.mjs`, `uk-gas.test.mjs`.
+
+## airline-passengers.csv
+
+Monthly international airline passengers (thousands), January 1949 to December
+1960, 144 rows (Box and Jenkins, *Time Series Analysis*, series G).
+
+- **Retrieved:** 2026-10-28 from
+  <https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv>.
+- **Licence:** a published series of 144 numbers; only those are used here.
+- **Used by:** `airline-passengers.test.mjs`.
