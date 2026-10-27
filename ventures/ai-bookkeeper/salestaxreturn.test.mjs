@@ -239,3 +239,16 @@ test("MI annual returns are due February 28; monthly and quarterly the 20th", ()
   assert.equal(dueDate("2026-Q3", stateDueDay("MI", "quarterly")), "2026-10-20");
   assert.equal(dueDate("2026-09", stateDueDay("MI", "monthly")), "2026-10-20");
 });
+
+test("primary pages read 2026-10-27: WA annual is April 15, Texas 2026 calendar moves weekend 20ths", () => {
+  // dor.wa.gov "Filing frequencies & due dates": monthly 25th, quarterly end of next month, annual April 15
+  assert.equal(dueDate("2026", stateDueDay("WA", "annual")), "2027-04-15");
+  assert.equal(dueDate("2026-Q4", stateDueDay("WA", "quarterly")), "2027-01-31");
+  // comptroller.texas.gov due-dates chart for sales and use tax, 2026 reports: 20 20 20 20 20 22 20 20 21 20 20 21
+  // (Jan..Dec), dates already moved off weekends; the report month is the one before.
+  const tx = (m) => nextBusinessDay(dueDate(m, stateDueDay("TX", "monthly")));
+  assert.equal(tx("2026-05"), "2026-06-22");
+  assert.equal(tx("2026-08"), "2026-09-21");
+  assert.equal(tx("2026-11"), "2026-12-21");
+  assert.equal(tx("2026-06"), "2026-07-20");
+});
