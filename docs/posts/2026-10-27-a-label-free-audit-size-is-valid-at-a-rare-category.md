@@ -1,7 +1,7 @@
 ---
 title: "A rare-category audit sized without any human label stays valid, at about twice the cost"
 date: 2026-10-27
-description: "After four sequential stopping rules failed at 1 to 2% prevalence, sizing the audit from the coder's own positive share covered 91.8 to 94.4% at 1.9 to 2.8 times the oracle size."
+description: "Sizing a rare-category audit from the coder's own positive share covered 91.8 to 94.4% at 1.9 to 2.8 times the oracle size, where stopping rules failed."
 tags: [llm-coding-inference, research, audit, prediction-powered-inference]
 ---
 
