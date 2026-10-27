@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-27 · Milestone 5i: the out-of-sample M = 16 test of the order-statistic prediction (planned before running)
+- Why: 5f/5g predicted the median's sign-flip cost falls a further ~4x from M = 8 (+0.0207 nats) to M = 16, i.e. about +0.005 nats; 5h found the real deltas are near-Gaussian late in training (mu/sigma about 0.4), so the Gaussian row applies. This is the first prediction made before the run rather than fitted to it.
+- Design (`experiments/gpt_median_m16/median_m16.py`): 5d with M = 16 (3d model, H = 16, inner lr 2e-3, plain outer step, 3,840 steps, batch 16 per worker). Arms: mean (no attack), median (no attack), median with worker 0 sending -10x its delta. Seeds 0 to 2. The trimmed-mean arm is left out to bound the cost (about 35 minutes per run).
+- **H5i-i:** the flip excess of the median over the M = 16 mean, averaged over seeds, is below 0.012 nats (half of the M = 8 value; the prediction is 0.005). Refuted if at or above 0.012.
+- **H5i-ii:** the clean median is within 0.01 nats of the M = 16 mean. Refuted otherwise.
+- Prior: i 65%, ii 85%. Seed noise on single excesses at M = 8 was about 0.01, so a mean of three cannot resolve 0.005 from 0.01; the bar is chosen to separate the prediction from "no fall".
+
 ## 2026-10-27 · Milestone 5h: what are the tail weight and mu/sigma of the real worker deltas? (hypotheses written after launching the runs, before any round past 1 was read)
 - Why: 5g's "Next". Which row of its table applies depends on the honest deltas' tail index and mu/sigma, never measured because torch was absent. A CUDA torch wheel from PyPI installs here with its dependencies (about 2 minutes) and runs on CPU.
 - Design (`experiments/delta_stats/delta_stats.py`): 5d/5e setup (3d model, M = 8, mean aggregation, no attack, 3,840 steps, seeds 0 to 2). At rounds 1, 10, 60, 120, 240 the engine's `attack` hook (identity) records each worker's delta per tensor. Per tensor: mu/sigma = rms of the across-worker mean over rms of the residual (corrected by sqrt(M/(M-1))); excess kurtosis and the Hill index (top 5%) of residuals normalised by the tensor rms; a Gaussian of equal size gives the sampling baseline. Round 1 of seed 0 was visible before writing these (kurtosis about 1, Hill about 5 weighted): those two numbers are not blind.
