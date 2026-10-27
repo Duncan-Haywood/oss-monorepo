@@ -67,8 +67,10 @@ Data: Brandt and Selig, "Propeller Performance Data at Low Reynolds Numbers", AI
 
 Flat-plate drag with a form factor, no airfoil polars, no CLmax, fixed powertrain efficiency (which
 falls with scale, so the power ratio is optimistic). Airframe constants are design choices, swept
-not sourced. The Froude exponents (NASA TP-1435) and all citations are from memory and not
-machine-checked, because Crossref, arXiv and NTRS returned 403 from the session.
+not sourced. The Froude exponents were checked against Table 4 of NASA TP-1435 (opened on NTRS, 2026-10-27;
+the rows for velocity, time, angular rate, acceleration, mass and inertia, in `tests/`). Force, moment,
+power, energy and Reynolds exponents are derived from those rows, not read from the table. Citations:
+see "Citation status" in `PROPOSAL.md` (several ids and one author were wrong and are fixed).
 
 ## Related labs
 

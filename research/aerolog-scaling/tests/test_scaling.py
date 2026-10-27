@@ -65,3 +65,13 @@ def test_battery_fraction_breguet():
     # 100 km at L/D 12, 250 Wh/kg cells, 0.7 efficiency
     bf = battery_fraction(12, 100e3, 250 * 3600, 0.7)
     assert bf == pytest.approx(100e3 * G / (12 * 250 * 3600 * 0.7))
+
+
+def test_exponents_match_nasa_tp1435_table4():
+    # Rows read from Table 4(a) and (b) of Wolowicz, Brown and Gilbert, NASA TP-1435 (1979), Froude
+    # scaling column, same fluid density: velocity n^1/2, time n^1/2, angular rate n^-1/2,
+    # linear acceleration 1, oscillatory frequency n^-1/2, mass n^3, mass moment of inertia n^5.
+    paper = {"velocity": 0.5, "time": 0.5, "angular_rate": -0.5, "acceleration": 0.0,
+             "frequency": -0.5, "mass": 3.0, "inertia": 5.0, "length": 1.0}
+    for q, x in paper.items():
+        assert EXPONENTS[q] == x, q

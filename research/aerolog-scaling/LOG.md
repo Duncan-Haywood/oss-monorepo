@@ -3,6 +3,14 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-27 · Milestone 2: open TP-1435 and check every reference (a check, not an experiment)
+- Why: the proposal and the code quoted TP-1435 and 13 other references from memory because the registries returned 403 on the first session. They answer now.
+- Method: `cite_check.py` on `PROPOSAL.md`; NTRS search API for the four NASA records; Crossref for the two DOIs it skipped or could not match; TP-1435's PDF downloaded and Table 4 read.
+- **Result:** the memory version was wrong in four places: TP-1435's middle author is Brown, not Bowman; its NTRS id was 19790022005 not 19790015227; Chambers (SP-2009-575) is 20110012492 not 20100005350; Johnson, Silva and Solis is 20180003381 not 20180002029 (the old id is an unrelated record). "Jordan et al., AirSTAR papers (2005 to 2006)" is now a specific record (NTRS 20040085988, 2004). Four DOIs confirmed by `cite_check.py`, Rodrigues et al. and Brandt and Selig by Crossref.
+- **TP-1435 Table 4:** velocity, time, angular rate, linear acceleration, oscillatory frequency, mass and mass moment of inertia match `EXPONENTS`; a new test pins them. No change to any milestone 1, 3a, 4a or 5a number. Force, moment, power, energy and Reynolds rows are not in the table as separate Froude rows and stay derived.
+- Limits: the PDF is an OCR scan, so the rows were read by eye from garbled text; the Jordan et al. venue, Drela, Raymer and the BlueSky paper are not re-opened.
+- Next: milestone 6 (energy against Rodrigues et al. flights; the dataset is public on Carnegie Mellon's Kilthub, probe it) and a sourced full-size propeller for 5a.
+
 ## 2026-10-27 · Milestone 5a: how much peak propeller efficiency does a Froude model lose to Reynolds number? (predictions fixed before the final numbers)
 - Why: H4 says motor-plus-propeller efficiency at n = 0.1 is at least 10 points below full size (refuted under 5). Only the propeller part can be measured here; the UIUC Propeller Database (wind-tunnel data, 91 MB zip, reachable through the proxy) gives eta(J) at many RPMs for APC propellers.
 - Plan (`experiments/propeller_efficiency/run.py`): peak eta and Re at 0.75 R (from RPM, diameter, c/R at 0.75) for every APC curve with a bracketed peak; within-propeller slope against log10 Re, bootstrap over propellers; saturating fits eta_inf - a Re^-b (b = 0.5, 0.2). **Predictions:** (1) peak efficiency rises with Re in nearly every propeller; (2) the fall from Re 1e5 to 3.2e4, inside the data, is 5 to 10 points; (3) the data cannot reach a full-size Re of about 1e6, so the n = 0.1 gap is an extrapolation.
