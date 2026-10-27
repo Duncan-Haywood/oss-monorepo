@@ -1,7 +1,7 @@
 ---
 title: "Holidays do not break the count bootstrap, a growth trend does"
-date: 2026-10-28
-description: "changepoint-detector on simulated daily counts with known holidays: the block bootstrap cuts false alarms from 85% to 21% on clustered counts, as it does with a weekly season."
+date: 2026-10-27
+description: "changepoint-detector on simulated daily counts with known holidays: the block bootstrap cuts false alarms from 85% to 21% on clustered counts."
 tags: [changepoint-detector, statistics, time-series]
 ---
 

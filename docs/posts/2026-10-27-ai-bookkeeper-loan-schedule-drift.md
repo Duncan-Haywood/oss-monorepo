@@ -1,7 +1,7 @@
 ---
 title: "Why a lender's loan schedule can differ from yours by dollars"
-date: 2026-10-28
-description: "600 random loans through ai-bookkeeper's amortization schedule: it holds every invariant, and the last payment absorbs rounding drift that compounds on long, high-rate loans."
+date: 2026-10-27
+description: "600 random loans through ai-bookkeeper's schedule: every invariant holds, and the last payment absorbs rounding drift that compounds on long, high-rate loans."
 tags: [ai-bookkeeper, accounting, loans]
 ---
 
