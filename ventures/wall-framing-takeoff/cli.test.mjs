@@ -149,3 +149,12 @@ test("a DXF floor plan goes straight to a takeoff, or to plan JSON with --plan-o
   assert.equal(JSON.parse(j.out.split("\n\nNotes")[0]).walls.length, 4);
   assert.equal(run(["house.dxf"], g(0, "EOF")).code, 2);
 });
+
+test("an IFC floor plan goes through the same route as a DXF", () => {
+  const w = (n, x, y, rx, ry, len) => `#${n}0=IFCCARTESIANPOINT((${x},${y},0.));\n#${n}1=IFCDIRECTION((${rx},${ry},0.));\n#${n}2=IFCAXIS2PLACEMENT3D(#${n}0,$,#${n}1);\n#${n}3=IFCLOCALPLACEMENT($,#${n}2);\n#${n}4=IFCCARTESIANPOINT((0.,0.));\n#${n}5=IFCCARTESIANPOINT((${len},0.));\n#${n}6=IFCPOLYLINE((#${n}4,#${n}5));\n#${n}7=IFCSHAPEREPRESENTATION(#1,'Axis','Curve2D',(#${n}6));\n#${n}8=IFCPRODUCTDEFINITIONSHAPE($,$,(#${n}7));\n#${n}9=IFCWALLSTANDARDCASE('g',#2,'W',$,$,#${n}3,#${n}8,$,.STANDARD.);\n`;
+  const ifc = "ISO-10303-21;\nDATA;\n#3=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);\n" + w(10, 0, 0, 1, 0, 8) + w(11, 8, 0, 0, 1, 5) + w(12, 8, 5, -1, 0, 8) + w(13, 0, 5, 0, -1, 5) + "ENDSEC;\nEND-ISO-10303-21;\n";
+  const t = run(["house.ifc"], ifc);
+  assert.equal(t.code, 0, t.out);
+  assert.match(t.out, /Read 4 walls \(4 exterior, 0 interior\)/);
+  assert.equal(run(["house.ifc"], "not ifc").code, 2);
+});
