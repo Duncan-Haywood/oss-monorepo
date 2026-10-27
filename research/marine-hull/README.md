@@ -19,11 +19,12 @@ lab has reviewed this.
 
 ```bash
 cd research/marine-hull
-PYTHONPATH=src python3 -m pytest tests -q          # 23 tests
+PYTHONPATH=src python3 -m pytest tests -q          # 27 tests
 PYTHONPATH=src python3 experiments/run_michell.py > experiments/results_michell.txt   # milestone 2, 2 s
 PYTHONPATH=src python3 experiments/run.py > experiments/results.txt
 PYTHONPATH=src python3 experiments/run_glider.py > experiments/results_glider.txt   # milestone 4, 1 s
 PYTHONPATH=src python3 experiments/run_slocum.py > experiments/results_slocum.txt   # milestone 4b, 1 s
+(cd experiments && PYTHONPATH=../src python3 run_remus.py > results_remus.txt)   # milestone 4c, 5 s
 ```
 
 `hull.py`: ITTC 1957 friction line (checked analytically: Cf = 0.003 at Re = 1e7), form factor,
@@ -44,7 +45,18 @@ MIT-licensed `gliderflight` package (PyPI 1.2.1; Merckelbach's implementation of
 S = 0.1 m^2, lift slope 7.5 /rad, K = 10.5 /rad^2, Cd0 0.15 to 0.31. Hotel load, pump efficiency and dive
 energy stay swept. Results: [`experiments/results_slocum.txt`](experiments/results_slocum.txt).
 
+`experiments/run_remus.py` (milestone 4c): the glider against a REMUS 100M whose total power comes from the HII
+datasheet (1.5 kWh; 10 h or 67 km at 1.5 m/s; 1.85 m, 0.19 m, 38.6 kg), with its hotel load inferred by subtracting
+modelled propulsion. Glider hotel 0.5 to 5 W (Bruvik et al. 2020, doi:10.5194/os-16-291-2020). Results:
+[`experiments/results_remus.txt`](experiments/results_remus.txt).
+
 ## Results (preliminary)
+
+- Milestone 4c (REMUS 100M datasheet, 4,860 comparisons): the datasheet implies a REMUS hotel load of 57 to 132 W;
+  the glider has the longer best range in all 4,860 comparisons (median AUV/glider energy per metre 5.4, minimum
+  1.21). The AUV would tie at a median 6.8 W. With each platform's usual payload the glider wins, and the
+  margin is the AUV's sensors and electronics; at equal hotel load it still loses (4b). The hotel split is
+  inferred from a modelled drag, and the datasheet's 10 h and 67 km figures disagree, so both are used.
 
 - Milestone 4b (Slocum coefficients from `gliderflight`, 2,430 cases): at equal hotel load the glider has the
   longer best range in 0 cases (median AUV/glider energy ratio 0.36); the break-even AUV hotel load is a median

@@ -1,0 +1,17 @@
+REMUS 100M: L 1.85 m, D 0.19 m, 38.6 kg, c_s 4.18 (cylinder), 1500 Wh
+  (1+kf) 1.1: modelled propulsion at 1.5 m/s 17.7 W electrical
+    datasheet 10 h: total 150 W, implied hotel 132 W
+    datasheet 67 km: total 121 W, implied hotel 103 W
+  (1+kf) 2.0: modelled propulsion at 1.5 m/s 32.1 W electrical
+    datasheet 10 h: total 150 W, implied hotel 118 W
+    datasheet 67 km: total 121 W, implied hotel 89 W
+  (1+kf) 4.0: modelled propulsion at 1.5 m/s 64.2 W electrical
+    datasheet 10 h: total 150 W, implied hotel 86 W
+    datasheet 67 km: total 121 W, implied hotel 57 W
+implied hotel range 57 to 132 W
+comparisons 4860; glider longer best range in 4860 (100.0%)
+  glider hotel 0.5 W: glider wins 1620/1620 (100.0%)
+  glider hotel 2 W: glider wins 1620/1620 (100.0%)
+  glider hotel 5 W: glider wins 1620/1620 (100.0%)
+AUV/glider energy-per-metre ratio: median 5.4 (10th 2.3, 90th 16.6, min 1.21)
+AUV hotel (W) at which it ties the glider: median 6.8 (10th 1.2, 90th 25.8)
