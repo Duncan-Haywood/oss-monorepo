@@ -1,0 +1,181 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01AcxTtKwZwhppbRTodJzs2y",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T22:08:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10974,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "pyenv install of pytest/numpy blocked the first command for 120s though the chosen node target needed neither"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: scheduled unattended redteam run, small fix; recorded here instead"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/distribution/citation.mjs",
+        "test": "node --test platform/distribution/citation.test.mjs  (in .)",
+        "seed": 490306659,
+        "commit": "5cf5c5c6",
+        "sites": 26,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 21,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "export const YEAR = 2026;",
+            "after": "export const YEAR = 2027;",
+            "line_text": "export const YEAR = 2026;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "YEAR constant untested"
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 25,
+            "col": 43,
+            "operator": "or-to-and",
+            "before": "const h1 = /^#\\s+(.+?)\\s*$/m.exec(readme || '');",
+            "after": "const h1 = /^#\\s+(.+?)\\s*$/m.exec(readme && '');",
+            "line_text": "  const h1 = /^#\\s+(.+?)\\s*$/m.exec(readme || '');",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 28,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "return t.length > 200 ? `${t.slice(0, 197)}...` : t;",
+            "after": "return t.length > 201 ? `${t.slice(0, 197)}...` : t;",
+            "line_text": "  return t.length > 200 ? `${t.slice(0, 197)}...` : t;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "truncation boundary untested"
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 66,
+            "col": 2,
+            "operator": "minus-to-plus",
+            "before": "- small business tools",
+            "after": "+ small business tools",
+            "line_text": "  - small business tools",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "keywords YAML list untested"
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 67,
+            "col": 2,
+            "operator": "minus-to-plus",
+            "before": "- calculators",
+            "after": "+ calculators",
+            "line_text": "  - calculators",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same"
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 70,
+            "col": 2,
+            "operator": "minus-to-plus",
+            "before": "- mechanism design",
+            "after": "+ mechanism design",
+            "line_text": "  - mechanism design",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same"
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 80,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (readme === null) continue;",
+            "after": "if (readme !== null) continue;",
+            "line_text": "    if (readme === null) continue;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/citation.mjs",
+            "line": 91,
+            "col": 54,
+            "operator": "false-to-true",
+            "before": "export async function run({ root = REPO_ROOT, write = false, check = false, log = console.log } = {}) {",
+            "after": "export async function run({ root = REPO_ROOT, write = true, check = false, log = console.log } = {}) {",
+            "line_text": "export async function run({ root = REPO_ROOT, write = false, check = false, log = console.log } = {}) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/distribution/citation.mjs",
+        "issue": "bibEscape left backslash, tilde and caret unescaped, so a research README title like '\\\\alpha' or 'a~b' injects LaTeX into CITATIONS.bib",
+        "patched": true
+      }
+    ]
+  }
+}
