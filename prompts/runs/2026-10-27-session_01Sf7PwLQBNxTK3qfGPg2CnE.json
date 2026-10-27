@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01Sf7PwLQBNxTK3qfGPg2CnE",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T01:39:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "verified-dse"
+  ],
+  "pr": 10776,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says OpenROAD must be built from source (1.5 h); plain `p.openroad` from nixpkgs fetches from cache.nixos.org in about 2 minutes (the overrideAttrs doCheck=false form forces a compile)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROPOSAL.md",
+      "why": "No blog post or docs/reports agent doc this run; the finding is in LOG.md/README/PAPER and the next step is the strategy replay."
+    }
+  ],
+  "writeups": [
+    "research/verified-dse/LOG.md milestone 24"
+  ],
+  "goal": null,
+  "notes": "Second corner ss_100C_1v60 (efabless mirror liberty), OpenROAD 26Q2 from nix cache, Yosys 0.33 apt. A PyPI openroad wheel was not installed (unvetted code). Predictions 1 refuted, 2 half refuted, 3 held.",
+  "corrections": [],
+  "redteam": null
+}

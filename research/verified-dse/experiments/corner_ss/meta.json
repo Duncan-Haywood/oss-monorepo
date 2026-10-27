@@ -1,0 +1,15 @@
+{
+ "base_period_ns": {
+  "adder_op16": 2.65,
+  "adder_ripple16": 4.33,
+  "mult8": 5.63,
+  "mac4": 3.5,
+  "alu8": 4.34,
+  "popcount16": 4.56,
+  "barrel16": 2.47,
+  "crc16": 1.01,
+  "cmp_sat12": 3.06,
+  "fifo8x4": 2.99
+ },
+ "n_sequences": 60
+}
