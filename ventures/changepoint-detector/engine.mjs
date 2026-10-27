@@ -777,6 +777,41 @@ export function ar1JointFit(x, { penalty = 'bic', minSegment = 2, passes = 3 } =
   return { ...p, rho, sigma };
 }
 
+/**
+ * Profile fit over rho: the exact AR(1) likelihood is scored on a grid of rho (each with its own PELT fit and
+ * innovation sd, as in lake-huron-profile.test.mjs) and the best score wins. Score per rho:
+ * n log(sd^2) - log(1 - rho^2) + penalty per change. Slower than ar1JointFit (one fit per grid point) but it
+ * cannot be pulled to a wrong rho by a start value. Returns { changepoints, rho, sigma, penalty, grid }.
+ */
+export function ar1ProfileFit(x, { penalty = 'bic', minSegment = 2, grid = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9] } = {}) {
+  const n = x.length;
+  let best = null;
+  const scores = [];
+  for (const rho of grid) {
+    let sigma = robustSd(x) * Math.sqrt(1 + rho), p;
+    for (let it = 0; it < 4; it++) {
+      p = pelt(x, { model: 'ar1mean', penalty, minSegment, sigma, rho });
+      const b = [0, ...p.changepoints, n];
+      const c = 1 - rho, w0 = 1 - rho * rho;
+      let ss = 0;
+      for (let k = 0; k + 1 < b.length; k++) {
+        const s = b[k], t = b[k + 1];
+        let su = 0;
+        for (let i = s + 1; i < t; i++) su += x[i] - rho * x[i - 1];
+        const mu = (w0 * x[s] + c * su) / (w0 + (t - s - 1) * c * c);
+        ss += w0 * (x[s] - mu) ** 2;
+        for (let i = s + 1; i < t; i++) ss += (x[i] - rho * x[i - 1] - c * mu) ** 2;
+      }
+      sigma = Math.sqrt(ss / n) || sigma;
+    }
+    const score = n * Math.log(sigma * sigma) - Math.log(1 - rho * rho) + 2 * p.changepoints.length * Math.log(n);
+    scores.push({ rho, score: round(score, 3), changes: p.changepoints.length });
+    if (!best || score < best.score) best = { ...p, rho, sigma, score };
+  }
+  const { score, ...rest } = best;
+  return { ...rest, grid: scores };
+}
+
 // ---------------------------------------------------------------- input
 
 /** Split one CSV line, honouring double quotes. */
