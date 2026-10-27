@@ -29,6 +29,7 @@ Options:
   --holidays <a,b,...>      with --model poisson: row labels (dates, or 1-based row numbers) of known holidays; one fitted factor on their rate, so a holiday dip is not read as a step; write label=kind (e.g. 2026-12-25=closed) to fit one factor per kind
   --bursts [ratio]          with --model poisson: single days far above both neighbours' level (default 2.5x and a Poisson-sized excess) are cut back to it before fitting, so a spike is not read as two changes; listed in the result
   --burst-runs n            with --bursts: also cut back runs of 2 to n days (default off) that sit 2x above the same-phase level on both sides
+  --multiplicative           with --period (mean/meanvar): the season is a factor, not an amount, so it scales with the level (positive values only; not with --drift)
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
   --trend [bend|bends]          fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
                             'bend' lets the slope change once, 'bends' up to three times, chosen by BIC (counts, --model poisson: a change of growth rate, 'bends' up to two);
@@ -62,6 +63,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--json') json = true;
     else if (a === '--example') example = true;
     else if (a === '--drift') opt.drift = true;
+    else if (a === '--multiplicative') opt.seasonMode = 'multiplicative';
     else if (a === '--robust') opt.robust = true;
     else if (a === '--dispersion') opt.dispersion = true;
     else if (a === '--bootstrap') opt.bootstrap = true;

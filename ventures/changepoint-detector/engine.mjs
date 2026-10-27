@@ -123,6 +123,17 @@ export function seasonalAdjust(x, period, opts = {}) {
     if (m % 2) { for (let k = -half; k <= half; k++) sum += x[t + k]; trend[t] = sum / m; }
     else { sum = 0.5 * x[t - half] + 0.5 * x[t + half]; for (let k = -half + 1; k < half; k++) sum += x[t + k]; trend[t] = sum / m; }
   }
+  if (opts.multiplicative) {
+    // ratio to the moving average: the season is a factor (centred at 1), so a season that grows with the level is removed whole
+    if (opts.drift) throw new Error('A multiplicative season cannot also drift: leave out one of the two.');
+    if (x.some((v) => !(v > 0))) throw new Error('A multiplicative season needs a series of positive values.');
+    const ratios = Array.from({ length: m }, () => []);
+    for (let t = 0; t < n; t++) if (trend[t] !== null && trend[t] > 0) ratios[t % m].push(x[t] / trend[t]);
+    const rawF = ratios.map((a) => (a.length ? median(a) : 1));
+    const mean = rawF.reduce((s, v) => s + v, 0) / m;
+    const factors = rawF.map((v) => v / mean);
+    return { adjusted: x.map((v, t) => v / factors[t % m]), profile: factors, multiplicative: true };
+  }
   const phases = Array.from({ length: m }, () => []);
   for (let t = 0; t < n; t++) if (trend[t] !== null) phases[t % m].push(x[t] - trend[t]);
   const raw = phases.map((a) => (a.length ? median(a) : 0));
@@ -1596,7 +1607,7 @@ export function analyze(input = {}) {
     phi = typeof o.overdispersion === 'number' ? Math.max(1, o.overdispersion) : countDispersion(values, period);
     penalty = phi * penaltyValue(o.penalty ?? 'bic', values.length, 'poisson');
   }
-  let profile = null, exposure = null;
+  let profile = null, exposure = null, seasonMultiplicative = false;
   const original = values;
   let holIdx = null, holKinds = null;
   if (o.holidays && o.holidays.length) {
@@ -1614,7 +1625,11 @@ export function analyze(input = {}) {
       const fit = poissonSeasonal(original, period, { penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), skip: holIdx ? new Set(holIdx) : null });
       exposure = fit.exposure;
       profile = fit.factors;
-    } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
+    } else {
+      if (o.seasonMode === 'multiplicative' && model === 'trend') throw new Error('A multiplicative season is not available with the trend model.');
+      ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift, multiplicative: o.seasonMode === 'multiplicative' }));
+      if (o.seasonMode === 'multiplicative') seasonMultiplicative = true;
+    }
   }
   let holidayFit = null;
   if (holIdx) {
@@ -1775,7 +1790,7 @@ export function analyze(input = {}) {
     skipped,
     model,
     noiseSd: round(sigma),
-    ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
+    ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure || seasonMultiplicative ? 3 : undefined)), ...(exposure || seasonMultiplicative ? { multiplicative: true } : {}) } } : {}),
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
