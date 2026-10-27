@@ -84,3 +84,13 @@ class PartialCopyTests(unittest.TestCase):
     def test_replication_deters_when_copying_is_rare(self):
         from vtm.coalition import stake_closed_partial
         self.assertEqual(stake_closed_partial(51, 0.9, 0.1, 0.35), 0.0)
+
+
+class ReplicationCostTests(unittest.TestCase):
+    def test_replication_never_pays_at_kappa_one(self):
+        import importlib.util, os
+        spec = importlib.util.spec_from_file_location("rc", os.path.join(os.path.dirname(__file__), "..", "experiments", "replication_cost", "run.py"))
+        rc = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(rc)
+        self.assertEqual(rc.breakeven(0.9, 1.0)[0], float("inf"))
+        self.assertGreater(rc.breakeven(0.9, 0.2)[0], 16.0)
