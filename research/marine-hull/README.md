@@ -19,11 +19,12 @@ lab has reviewed this.
 
 ```bash
 cd research/marine-hull
-PYTHONPATH=src python3 -m pytest tests -q          # 23 tests
+PYTHONPATH=src python3 -m pytest tests -q          # 24 tests
 PYTHONPATH=src python3 experiments/run_michell.py > experiments/results_michell.txt   # milestone 2, 2 s
 PYTHONPATH=src python3 experiments/run.py > experiments/results.txt
 PYTHONPATH=src python3 experiments/run_glider.py > experiments/results_glider.txt   # milestone 4, 1 s
 PYTHONPATH=src python3 experiments/run_slocum.py > experiments/results_slocum.txt   # milestone 4b, 1 s
+PYTHONPATH=src:experiments python3 experiments/run_remus.py > experiments/results_remus.txt   # milestone 4c, 1 s
 ```
 
 `hull.py`: ITTC 1957 friction line (checked analytically: Cf = 0.003 at Re = 1e7), form factor,
@@ -44,7 +45,19 @@ MIT-licensed `gliderflight` package (PyPI 1.2.1; Merckelbach's implementation of
 S = 0.1 m^2, lift slope 7.5 /rad, K = 10.5 /rad^2, Cd0 0.15 to 0.31. Hotel load, pump efficiency and dive
 energy stay swept. Results: [`experiments/results_slocum.txt`](experiments/results_slocum.txt).
 
+`experiments/run_remus.py` (milestone 4c): a REMUS-100-class AUV (38.6 kg, 1.85 m, 0.19 m; vendor figures: 1.5 kWh,
+12 h at 1.5 m/s or 8 h at 3 kn) whose non-propulsion load is the vendor's total power minus the model's propulsion
+power. Results: [`experiments/results_remus.txt`](experiments/results_remus.txt).
+
 ## Results (preliminary)
+
+- Milestone 4c (REMUS-class AUV, hotel implied by vendor endurance): total power 125 to 188 W at 1.5 m/s, model
+  propulsion 13 to 21 W, so the implied non-propulsion load is 104 to 175 W, 21 to 250 times the glider's swept
+  0.7 to 5 W. The glider has the longer best range in 100% of 810 glider cases against all 18 AUV cases (median
+  AUV/glider energy ratio 5.4). 4b's "decided by the power budgets" becomes "the glider wins on energy per metre
+  unless the AUV's non-propulsion load is under about 5 to 24 W". Energy per metre is not time: the glider moves at
+  0.2 m/s. Vendor figures are marketing and disagree with each other; the glider side is still swept.
+
 
 - Milestone 4b (Slocum coefficients from `gliderflight`, 2,430 cases): at equal hotel load the glider has the
   longer best range in 0 cases (median AUV/glider energy ratio 0.36); the break-even AUV hotel load is a median

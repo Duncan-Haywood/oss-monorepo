@@ -1,0 +1,23 @@
+REMUS-class AUV: L 1.85 m, D 0.19 m, mass 38.6 kg, V 37.7 L, c_s 4.18
+glider cases 810 (4b grid, own hotel 0.7 to 5 W)
+k 0.1 eta 0.47 P_total   125 W: propulsion@1.5  17.7 W, implied hotel  107.3 W, AUV best  83.3 J/m (    65 km on 1.5 kWh), glider longer in 100.0%
+k 0.1 eta 0.47 P_total   150 W: propulsion@1.5  17.7 W, implied hotel  132.3 W, AUV best 100.0 J/m (    54 km on 1.5 kWh), glider longer in 100.0%
+k 0.1 eta 0.47 P_total   188 W: propulsion@1.5  17.7 W, implied hotel  170.3 W, AUV best 125.3 J/m (    43 km on 1.5 kWh), glider longer in 100.0%
+k 0.1 eta 0.63 P_total   125 W: propulsion@1.5  13.1 W, implied hotel  111.9 W, AUV best  83.3 J/m (    65 km on 1.5 kWh), glider longer in 100.0%
+k 0.1 eta 0.63 P_total   150 W: propulsion@1.5  13.1 W, implied hotel  136.9 W, AUV best 100.0 J/m (    54 km on 1.5 kWh), glider longer in 100.0%
+k 0.1 eta 0.63 P_total   188 W: propulsion@1.5  13.1 W, implied hotel  174.9 W, AUV best 125.3 J/m (    43 km on 1.5 kWh), glider longer in 100.0%
+k 0.2 eta 0.47 P_total   125 W: propulsion@1.5  19.3 W, implied hotel  105.7 W, AUV best  83.3 J/m (    65 km on 1.5 kWh), glider longer in 100.0%
+k 0.2 eta 0.47 P_total   150 W: propulsion@1.5  19.3 W, implied hotel  130.7 W, AUV best 100.0 J/m (    54 km on 1.5 kWh), glider longer in 100.0%
+k 0.2 eta 0.47 P_total   188 W: propulsion@1.5  19.3 W, implied hotel  168.7 W, AUV best 125.3 J/m (    43 km on 1.5 kWh), glider longer in 100.0%
+k 0.2 eta 0.63 P_total   125 W: propulsion@1.5  14.3 W, implied hotel  110.7 W, AUV best  83.3 J/m (    65 km on 1.5 kWh), glider longer in 100.0%
+k 0.2 eta 0.63 P_total   150 W: propulsion@1.5  14.3 W, implied hotel  135.7 W, AUV best 100.0 J/m (    54 km on 1.5 kWh), glider longer in 100.0%
+k 0.2 eta 0.63 P_total   188 W: propulsion@1.5  14.3 W, implied hotel  173.7 W, AUV best 125.3 J/m (    43 km on 1.5 kWh), glider longer in 100.0%
+k 0.3 eta 0.47 P_total   125 W: propulsion@1.5  20.9 W, implied hotel  104.1 W, AUV best  83.3 J/m (    65 km on 1.5 kWh), glider longer in 100.0%
+k 0.3 eta 0.47 P_total   150 W: propulsion@1.5  20.9 W, implied hotel  129.1 W, AUV best 100.0 J/m (    54 km on 1.5 kWh), glider longer in 100.0%
+k 0.3 eta 0.47 P_total   188 W: propulsion@1.5  20.9 W, implied hotel  167.1 W, AUV best 125.3 J/m (    43 km on 1.5 kWh), glider longer in 100.0%
+k 0.3 eta 0.63 P_total   125 W: propulsion@1.5  15.5 W, implied hotel  109.5 W, AUV best  83.3 J/m (    65 km on 1.5 kWh), glider longer in 100.0%
+k 0.3 eta 0.63 P_total   150 W: propulsion@1.5  15.5 W, implied hotel  134.5 W, AUV best 100.0 J/m (    54 km on 1.5 kWh), glider longer in 100.0%
+k 0.3 eta 0.63 P_total   188 W: propulsion@1.5  15.5 W, implied hotel  172.5 W, AUV best 125.3 J/m (    43 km on 1.5 kWh), glider longer in 100.0%
+implied hotel W: min 104.1, median 133.4, max 174.9 over 18 AUV cases
+glider longer best range: min 100.0%, median 100.0%, max 100.0%
+AUV/glider energy-per-metre at k 0.2, low-efficiency, P_total 125 W: median 5.44
