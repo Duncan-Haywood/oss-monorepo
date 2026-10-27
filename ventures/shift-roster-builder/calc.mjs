@@ -728,12 +728,12 @@ function coverPass(ctx, owner0, seed, iterations) {
 // released shifts plus the open ones exactly for fewest open hours with everyone else fixed (depth-first, longest shift first,
 // pruned on the open hours so far). A walk of single moves cannot reach a gain that needs three people to change at once; this
 // can, inside the neighbourhood. Time-limited; returns the owner array and the open hours (never worse than the input).
-function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000, totalNodes = 3000000, timeLimitMs = 60000 } = {}) {
+function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000, totalNodes = 3000000, timeLimitMs = 60000, shiftWeight = 1e-6 } = {}) {
   const { P, S, slots, elig } = ctx;
   const rng = mulberry32(seed);
   const hrs = (i) => (slots[i].end - slots[i].start) / 60;
   const owner = owner0.slice();
-  const TIE = 1e-6; // fewest open shifts at equal open hours: a count term far below one minute
+  const TIE = shiftWeight; // hours-equivalent cost of one open shift; the default is a count term far below one minute (fewest open shifts at equal open hours)
   const openOf = (o) => o.reduce((t, p, i) => t + (p < 0 ? hrs(i) + TIE : 0), 0);
   let open = openOf(owner);
   const t0 = Date.now();
@@ -1509,9 +1509,11 @@ export function buildRoster(staff, slots, options = {}) {
       if (ps < best.score - 1e-9) best = { owner: po, score: ps };
     }
     if ((o.coverRepair ?? o.exact === true) && scoreOwner(ctx, best.owner).unfilled > 0) {
-      const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000 });
+      const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000, shiftWeight: o.openShiftWeight ?? 1e-6 });
       const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
-      if (rp.open < scoreOwner(ctx, best.owner).unfilled - 1e-9 || (rp.open < scoreOwner(ctx, best.owner).unfilled + 1e-9 && rp.openShifts < cur)) {
+      const w = o.openShiftWeight ?? 1e-6;
+      const curObj = scoreOwner(ctx, best.owner).unfilled + w * cur;
+      if (rp.open + w * rp.openShifts < curObj - 1e-9) {
         const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000));
         const ps = scoreOwner(ctx, po).total;
         if (ps < best.score - 1e-9) best = { owner: po, score: ps };

@@ -1591,3 +1591,14 @@ test("coverRepair: a node budget ends the search, so the roster does not depend 
   assert.equal(open(a), 15);
   assert.equal(open(buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairNodes: 0 })), 16);
 });
+
+test("coverRepair: openShiftWeight prices an open shift in hours, so the repair can trade hours for fewer open shifts", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const hrs = (x) => x.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
+  const def = buildRoster(staff, slots, { coverRepair: true });
+  const heavy = buildRoster(staff, slots, { coverRepair: true, openShiftWeight: 100 });
+  assert.equal([hrs(def), def.unfilled.length].join(), "15,5"); // measured 2026-10-28
+  assert.equal([hrs(heavy), heavy.unfilled.length].join(), "19,3"); // 4 more open hours buy 2 fewer open shifts
+  // the weighted objective (hours + weight x open shifts) is never worse than the default roster's under the same weight
+  assert.ok(hrs(heavy) + 100 * heavy.unfilled.length <= hrs(def) + 100 * def.unfilled.length + 1e-9);
+});
