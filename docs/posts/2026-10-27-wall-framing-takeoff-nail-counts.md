@@ -1,6 +1,6 @@
 ---
 title: "wall-framing-takeoff now counts nails, not just lumber"
-date: 2026-10-29
+date: 2026-10-27
 description: "A new --fasteners option in wall-framing-takeoff counts nails by connection from the framing it placed, with every nailing rule an input you can change."
 tags: [wall-framing-takeoff, construction, estimating]
 ---
