@@ -32,7 +32,7 @@ history): start it with `run_in_background` and read the output file;
   records need no hand edits. Commit the regenerated directory with the review.
   `fetch` is incremental and takes 2 to 5 min: run `fetch && build` once with
   `run_in_background`, as its own command (chained with others it blew the timeout) and poll it with `python3 platform/ci/wait_for.py <log>` (Monitor and chained
-  `sleep` are blocked). On a 403 (no GitHub API), skip both and say so.
+  `sleep` are blocked). Run it and `measure` one after the other: `measure` holds git's `shallow.lock`, so a parallel `git fetch` fails. On a 403 (no GitHub API), skip both and say so.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that
   were not on `main` 24 hours later. Set `merged: false` on their records.
   Then land or close each one, per `land-your-work.md`.

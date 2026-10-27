@@ -1,7 +1,7 @@
 ---
 title: "A glider's energy win over a REMUS costs it five days per 100 km"
 date: 2026-10-27
-description: "Counting time as well as energy, a REMUS-class AUV beats a Slocum-class glider in 78% of simulated pairs; the glider wins only if delay counts for under 0.7 of energy."
+description: "Counting time too, a REMUS-class AUV beats a Slocum-class glider in 78% of simulated pairs; the glider wins only if delay is worth under 0.7 of energy."
 tags: [marine, auv, glider, energy, negative-result, marine-hull]
 ---
 
