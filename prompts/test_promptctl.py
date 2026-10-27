@@ -333,6 +333,14 @@ class MeasureTest(PromptTestCase):
         self.assertNotIn("ancient", out.getvalue())
         self.assertIn("recent", out.getvalue())
 
+    def test_friction_listing_marks_files_that_no_longer_exist(self):
+        import contextlib, io
+        self.fx.run("2026-10-20-a.json", _record(day="2026-10-20", doc_friction=[{"file": "research/gone/deleted_file.py", "issue": "tests red"}]))
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_measure(promptctl.measure(self.fx.root))
+        self.assertIn("deleted_file.py` (file no longer exists): 1 report(s), 0 live", out.getvalue())
+
     def test_friction_listing_truncates_long_reports(self):
         import contextlib, io
         long = "x" * 500
