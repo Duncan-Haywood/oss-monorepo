@@ -115,6 +115,7 @@
       <div><label for="labortarget">Target labor cost (% of sales)</label><input id="labortarget" inputmode="decimal" placeholder="e.g. 30"></div>
       <div><label for="balance">Balance hours across people (0–100)</label><input id="balance" inputmode="decimal" value="25"></div>
       <div><label for="prove">Check against an exact search (small weeks, a few seconds)</label><select id="prove"><option value="">Auto (up to 14 shifts)</option><option value="1">Always</option><option value="0">Never</option></select></div>
+      <div><label for="openpref">If some shifts must stay open</label><select id="openpref"><option value="">Standard build</option><option value="hours">Leave the fewest hours open</option><option value="shifts">Leave the fewest shifts open</option></select></div>
       <div><label for="tough">Spread weekend, closing and opening shifts (0–100)</label><input id="tough" inputmode="decimal" value="0"></div>
     </div>
     <button type="button" id="analyze">Build the roster</button>
@@ -336,6 +337,7 @@
         minRestHours: val("rest", 10), maxConsecDays: val("consec", 6), maxDailyHours: val("daily", 0), otAfter: val("otafter", 40), otMult: val("otmult", 1.5),
         mealAfter: val("mealafter", 0), mealMin: val("mealmin", 30), splitPremium: val("splitprem", 0), splitGap: val("splitgap", 1), diffWhen: $("#diffwhen").value, diffPerHour: val("diffhour", 0), diffPct: val("diffpct", 0), dailyOtAfter: val("dotafter", 0), dailyDtAfter: val("ddtafter", 0),
         burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))), toughBalance: Math.min(100, Math.max(0, val("tough", 0))),
+        ...($("#openpref").value ? { openShiftWeight: $("#openpref").value === "shifts" ? 100 : 0 } : {}),
       });
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
       last = r; lastIn = { staff: st.staff, slots: sh.slots };

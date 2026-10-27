@@ -159,3 +159,13 @@ test("an empty staff file is a usage error (exit 2) with the message, in one wee
   assert.equal(p.code, 2);
   assert.equal(p.out, "Add at least one person.\n");
 });
+
+test("--open-shift-hours turns on the repair: 100 leaves fewer shifts open than 0 on the sample week", () => {
+  const o0 = parseArgs(["--open-shift-hours", "0"]), o100 = parseArgs(["--open-shift-hours", "100", "--json"]);
+  assert.equal(o0.options.openShiftWeight, 0);
+  assert.equal(parseArgs(["--open-shift-hours", "5000"]).options.openShiftWeight, 1000);
+  assert.throws(() => parseArgs(["--open-shift-hours", "x"]), /needs a number/);
+  const open = (opts) => JSON.parse(run(sampleStaff(), sampleShifts(), { ...opts, mode: "json" }).out).unfilled.length;
+  assert.equal(open(o100), 3);
+  assert.equal(open(o0), 5);
+});

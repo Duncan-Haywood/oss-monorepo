@@ -1508,7 +1508,7 @@ export function buildRoster(staff, slots, options = {}) {
       const ps = scoreOwner(ctx, po).total;
       if (ps < best.score - 1e-9) best = { owner: po, score: ps };
     }
-    if ((o.coverRepair ?? o.exact === true) && scoreOwner(ctx, best.owner).unfilled > 0) {
+    if ((o.coverRepair ?? (o.exact === true || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0) {
       const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000, shiftWeight: o.openShiftWeight ?? 1e-6 });
       const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
       const w = o.openShiftWeight ?? 1e-6;

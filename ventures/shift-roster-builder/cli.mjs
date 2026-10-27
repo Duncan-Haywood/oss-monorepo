@@ -42,6 +42,8 @@ Options:
   --ics [--person <name>]    calendar file for the week (needs --week-start, a Monday); one person's shifts with --person
   --messages                 a paste-ready text per person
   --open-post                a group message for the shifts left open and who could take each (empty when none)
+  --open-shift-hours <h>  when shifts must stay open, count each open shift as <h> hours: 0 leaves the fewest hours open, 100 the fewest shifts
+                      (runs the slower exact repair; the plain build leaves it out)
   --no-prove          skip the exact search (it runs by itself on weeks of up to 14 shifts)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
   --weeks <n>         plan n consecutive weeks (1-8) from the same shifts; needs --week-start so dated time off lands in its week;
@@ -55,7 +57,7 @@ Planning aid, not legal advice. It does not know your local scheduling-notice, b
 
 const FLAGS = {
   "--rest": "minRestHours", "--consec": "maxConsecDays", "--daily": "maxDailyHours", "--ot-after": "otAfter",
-  "--ot-mult": "otMult", "--balance": "balance", "--tough-balance": "toughBalance",
+  "--ot-mult": "otMult", "--balance": "balance", "--tough-balance": "toughBalance", "--open-shift-hours": "openShiftWeight",
 };
 
 export function parseArgs(argv) {
@@ -89,6 +91,7 @@ export function parseArgs(argv) {
     } else if (a === "-" || !a.startsWith("--")) o.files.push(a);
     else throw new Error(`Unknown option ${a}. Try --help.`);
   }
+  if (o.options.openShiftWeight !== undefined) o.options.openShiftWeight = Math.min(1000, Math.max(0, o.options.openShiftWeight));
   if (o.options.balance !== undefined) o.options.balance = Math.min(100, Math.max(0, o.options.balance));
   return o;
 }
