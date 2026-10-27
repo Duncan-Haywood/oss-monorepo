@@ -108,3 +108,13 @@ Monthly international airline passengers (thousands), January 1949 to December
   <https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv>.
 - **Licence:** a published series of 144 numbers; only those are used here.
 - **Used by:** `airline-passengers.test.mjs`.
+
+## lake-huron.csv
+
+Annual mean level of Lake Huron, 1875 to 1972, 98 rows, feet (R's `datasets::LakeHuron`,
+from Brockwell and Davis, *Time Series and Forecasting*).
+
+- **Retrieved:** 2026-10-27 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/LakeHuron.csv>.
+- **Licence:** a published series of 98 numbers; only those are used here.
+- **Used by:** `lake-huron.test.mjs`.
