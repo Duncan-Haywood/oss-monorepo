@@ -13,7 +13,7 @@ import { isPlaid, readPlaid } from "./plaid.mjs";
 import { readStatementText } from "./statementtext.mjs";
 
 const ALIASES = {
-  date: ["дата операции", "дата", "дата проводки", "תאריך", "תאריך עסקה", "תאריך ערך", "ημερομηνία", "ημερομηνία συναλλαγής", "ngày giao dịch", "ngày", "date", "transaction date", "trans. date", "trans date", "posted date", "post date", "posting date", "booking date", "effective date", "value date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date", "created utc", "created", "created at",
+  date: ["дата операции", "дата", "дата проводки", "תאריך", "תאריך עסקה", "תאריך ערך", "ημερομηνία", "ημερομηνία συναλλαγής", "ngày giao dịch", "ngày", "date", "transaction date", "trans. date", "trans date", "posted date", "post date", "posting date", "booking date", "effective date", "completed date", "started date", "date (utc)", "datetime", "run date", "activity date", "txn date", "tran date", "created utc", "created", "created at",
     // German, French, Spanish, Italian, Dutch headers
     "datum", "date processed", "buchungstag", "buchungsdatum", "belegdatum", "date de l'opération", "date opération", "date operation", "fecha", "fecha operación", "fecha valor", "data", "data operazione", "data contabile", "data valuta", "boekdatum", "boekingsdatum", "transactiedatum",
     // Hungarian (OTP workbook): booking date before transaction date
@@ -28,7 +28,7 @@ const ALIASES = {
     "거래일자", "거래일시", "거래일", "기준일자", "交易日期", "记账日期", "記帳日期", "交易时间", "交易時間",
     // value dates last: German Valuta/Wertstellung are not the booking date
     "order date", "created (utc)", "created", "created date (utc)", "created at", "timestamp", "paid at", "transferred at",
-    "wertstellung", "valuta", "date de valeur", "date valeur",
+    "wertstellung", "valuta", "date de valeur", "date valeur", "value date",
     // Indonesian
     "tanggal", "tgl", "التاريخ", "تاريخ العملية"],
   desc: ["transaktionsbeschreibung", "title", "zpráva", "název protiúčtu", "item1", "описание", "назначение платежа", "наименование операции", "תיאור", "תיאור פעולה", "פרטים", "περιγραφή", "αιτιολογία", "nội dung", "mô tả", "diễn giải", "description", "transaction description", "transactions", "payee", "merchant", "name", "label", "details", "original description", "memo", "posting details", "narrative", "counter party", "counterparty", "narration", "reference", "partner name", "partnername", "note",
@@ -60,7 +60,7 @@ function pickDelimiter(s) {
   return best;
 }
 
-const FOOTER = /^(total|totals|grand total|sub-?total|generated|printed|page \d|end of|number of|count|records?)\b/i;
+const FOOTER = /^\W*(?:this is an? (?:computer|system)[- ]generated|(?:computer|system)[- ]generated statement)|^(total|totals|grand total|sub-?total|generated|printed|page \d|end of|number of|count|records?)\b/i;
 
 // RFC 4180 CSV: quoted fields, doubled quotes, CRLF, a BOM, and a ; or tab
 // delimiter when the header has more of those than commas.
@@ -192,7 +192,9 @@ export function detectColumns(header) {
   }
   // "Value" is the value date in PostFinance (Date, Posting details, Credit,
   // Debit, Value, Balance): beside money-in/out columns it is not the amount.
-  if (cols.amount !== -1 && h[cols.amount] === "value" && (cols.debit !== -1 || cols.credit !== -1)) cols.amount = -1;
+  // A truncated "Value Dat" (HDFC's fixed-width text export) is read as "Value"
+  // plus a three-letter currency code by the pattern above; same rule.
+  if (cols.amount !== -1 && /^value( dat)?$/.test(h[cols.amount]) && (cols.debit !== -1 || cols.credit !== -1)) cols.amount = -1;
   // Amazon's order-history report (order id, items, to, date, total, tax,
   // refund, payments): the order total is the amount, the items the memo.
   if (cols.amount === -1 && cols.debit === -1 && cols.credit === -1 && h.includes("order id") && h.includes("total")) {
@@ -808,7 +810,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // Italian, Portuguese, Brazilian, Polish, Finnish, Turkish and Czech headers:
   // those countries write day first, so 05/01/2026 with nothing above 12 is
   // 5 January, not 1 May.
-  if (!dfGiven && !hl && !dayFirst && headerAt !== -1 && rows[headerAt].some((h) => DAY_FIRST_HEADER.test(norm(h)) || norm(h) === "billingamountsign")) { dayFirst = true; localeNote = localeNote ?? "Dates read day first"; }
+  if (!dfGiven && !hl && !dayFirst && headerAt !== -1 && rows[headerAt].some((h) => DAY_FIRST_HEADER.test(norm(h)) || norm(h) === "billingamountsign")) { dayFirst = true; ambiguousNote = null; localeNote = localeNote ?? "Dates read day first"; }
   // A DR/CR (or Debit/Credit) marker column beside one unsigned amount column.
   const hdr0 = headerAt === -1 ? [] : rows[headerAt].map(norm);
   let drcrCol = columns.amount !== -1 ? hdr0.findIndex((x) => /^(d ?\/ ?k|d ?\/ ?c|c ?\/ ?d|af ?\/? ?bij|credit ?\/? ?debet|debet ?\/? ?credit|soll ?\/? ?haben|dr ?\/ ?cr|cr ?\/ ?dr|debit ?\/ ?credit|credit ?\/ ?debit|dr or cr|cr or dr|(?:credit ?\/? ?debit|debit ?\/? ?credit|cr ?\/? ?dr|dr ?\/? ?cr) indicator|(?:credit|debit) or (?:debit|credit) indicator)$/.test(x)) : -1;
