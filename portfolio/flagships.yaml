@@ -106,7 +106,7 @@ flagships:
       range95 on a real count series with a true holiday closure or documented slope
       break (log GDP is a near-unit-root; coal disasters hold 1890, 2026-10-26); the growth-change range
       on clumpy (NB) counts reaches ~95% by tempering 1.4, but the steep-bump (0.04)
-      cell is under-covered: 65/79 (82%) over six fresh seeds, 2026-10-27, README.
+      cell is under-covered: 65/79 (82%) over six fresh seeds, 2026-10-27, README; the CLI and JSON now carry that caveat.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
