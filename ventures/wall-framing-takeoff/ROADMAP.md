@@ -75,7 +75,7 @@ Ticked items are on `main`.
 - [x] **Shop drawings** (2026-10-21, `drawings.mjs`): one printable sheet per
       wall (SVG elevation with member marks, dimension chain, parts table; CLI
       `--drawings`, page button). Per-panel weights and cut lists (plates trimmed to the panel) landed 2026-10-22 in the shop drawings. Not yet: sheathing weight on panels, per-panel sheets that split a long wall
-      into transportable panels, sheathing marks, and a PDF without the browser.
+      into transportable panels, sheathing marks. A PDF without the browser landed 2026-10-27 (`pdf.mjs`, CLI `--pdf`, page button).
 
 ### 2. Getting the house in without typing
 
