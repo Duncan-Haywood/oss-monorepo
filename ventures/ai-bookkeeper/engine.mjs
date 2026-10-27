@@ -18,7 +18,7 @@ import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payee
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation, s179IncomeLimit } from "./taxdepr.mjs";
 import { FX_ACCOUNT, fxEntries, docRevalEntries, fxRegister as fxReg, convertRow, fxCurrency, foreignBalance, addFxAccount, setRates, parseRates, rateOn } from "./fx.mjs";
-import { inventoryEntries, inventoryRegister, addInventoryMove, setInventoryMethod, INVENTORY_ACCOUNT } from "./inventory.mjs";
+import { inventoryEntries, inventoryRegister, addInventoryMove, addLandedCost, setInventoryMethod, INVENTORY_ACCOUNT } from "./inventory.mjs";
 import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
 import { payrollEntries } from "./payroll.mjs";
@@ -30,7 +30,7 @@ export { setOpeningBalances, clearOpeningBalances };
 export { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
 export { addFxAccount, setRates, parseRates, rateOn };
 export const fxRegister = (books, asOf = null) => fxReg(books, journal(books), asOf);
-export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister };
+export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, setInventoryMethod, inventoryRegister };
 
 export const VERSION = 1;
 const CAPEX_LIKELY = /suppl|office|repair|equipment|tool|computer|furniture|material|uncategori/i;

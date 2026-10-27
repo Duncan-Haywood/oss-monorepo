@@ -5,7 +5,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { newBooks, importStatement, confirm, journal, reports, closeChecks } from "./engine.mjs";
-import { addInventoryMove, setInventoryMethod, inventoryRegister } from "./inventory.mjs";
+import { addInventoryMove, addLandedCost, setInventoryMethod, inventoryRegister } from "./inventory.mjs";
 import { trialBalance } from "./ledger.mjs";
 
 const mv = (b, kind, sku, date, qty, amount) => addInventoryMove(b, { kind, sku, date, qty, amount }).books;
@@ -106,4 +106,37 @@ test("a purchase return leaves the newest layer, books no cost, and the refund t
   assert.equal(r.cogs, 10000);
   assert.equal(r.value, 14000);
   assert.throws(() => mv(b, "return", "MUG", "2026-02-11", 8), /returned to the supplier/);
+});
+
+test("landed cost joins the stock still on hand; the share for units already sold is expensed", () => {
+  let b = mv(newBooks(), "buy", "MUG", "2026-01-05", 10, "100"); // INV-1, 10.00 each
+  b = mv(b, "buy", "CUP", "2026-01-05", 10, "300");              // INV-2, 30.00 each
+  b = mv(b, "sell", "MUG", "2026-01-10", 4);
+  b = addLandedCost(b, { amount: "40", date: "2026-01-12", to: "INV-1,INV-2" }).books; // by value: 10 and 30
+  const r = inventoryRegister(b), mug = r.rows.find((x) => x.sku === "MUG"), cup = r.rows.find((x) => x.sku === "CUP");
+  assert.equal(cup.value, 33000);                 // all 10 cups on hand take their 30.00
+  assert.equal(mug.value, 6000 + 600);            // 6 of 10 on hand take 6.00 of the 10.00
+  assert.equal(mug.cogs, 4000 + 400);             // 4 sold: their 4.00 is cost now
+  assert.equal(r.value + r.cogs, 10000 + 30000 + 4000); // nothing leaks: bought plus freight
+  assert.ok(trialBalance(journal(b), b.accounts).balanced);
+});
+
+test("landed cost by quantity, remainder cents, and refusals", () => {
+  let b = mv(newBooks(), "buy", "A", "2026-01-05", 1, "10");
+  b = mv(b, "buy", "B", "2026-01-05", 2, "10");
+  const r = addLandedCost(b, { amount: "1.00", date: "2026-01-06", to: ["INV-1", "INV-2"], by: "qty" });
+  assert.deepEqual(r.move.alloc.map((a) => a.cents), [33, 67]);
+  assert.equal(inventoryRegister(r.books).value, 2100);
+  assert.throws(() => addLandedCost(b, { amount: "1", date: "2026-01-06", to: "INV-9" }), /not a recorded purchase/);
+  assert.throws(() => addLandedCost(b, { amount: "1", date: "2026-01-01", to: "INV-1" }), /after/);
+  assert.throws(() => addLandedCost(b, { amount: "0", date: "2026-01-06", to: "INV-1" }), /above zero/);
+});
+
+test("CLI: landed cost ties account 1450 to the register after the freight bill is filed", () => {
+  const dir = mkdtempSync(join(tmpdir(), "inv-")), f = join(dir, "books.json");
+  writeFileSync(f, JSON.stringify(newBooks()));
+  const run = (...a) => execFileSync("node", [new URL("./cli.mjs", import.meta.url).pathname, "--books", f, ...a], { encoding: "utf8" });
+  run("inventory", "buy", "MUG", "--qty", "10", "--amount", "100", "--date", "2026-01-05");
+  assert.match(run("inventory", "landed", "--amount", "25", "--date", "2026-01-08", "--on", "INV-1"), /INV-2 landed cost \$?25\.00/);
+  assert.match(run("inventory"), /value\s+\$?125\.00/);
 });
