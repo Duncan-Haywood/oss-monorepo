@@ -1060,8 +1060,9 @@ def _deepen_shallow_history() -> None:
     leaves the clone as it was and the table's own shallow note applies."""
     if not _is_shallow():
         return
-    print("(shallow clone: fetching 14 days of main to date the friction reports, about 70 s; "
-          "--no-fetch skips)", file=sys.stderr)
+    print("(shallow clone: fetching 14 days of main to date the friction reports, about 70 s, "
+          "holds git's shallow.lock so a parallel `git fetch` fails meanwhile; --no-fetch skips)",
+          file=sys.stderr)
     try:
         subprocess.run(["git", "fetch", "-q", "--shallow-since=14 days ago", "origin", "main"],
                        cwd=ROOT.parent, capture_output=True, timeout=180)
