@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKjbyZXezvSaV26F7Ti",
+  "track": "review",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T10:24:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10869,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "issue": "Reduced pass is fine, but step 8 validate fails on other runs' posts (future-dated 2026-10-28, missing tags, 167-char description) that no review owns."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No docs/posts blog post: reduced scheduled review pass; the log is experiments.md E98.",
+      "did": "skipped post",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "prompts/experiments.md E98"
+  ],
+  "goal": null,
+  "notes": "Reduced pass (steps 1,3,7,8, one fix). Candidates keep collecting. validate errors are pre-existing posts from other runs (not mine). derive fetch/build run, 3360 rows.",
+  "corrections": [],
+  "redteam": null
+}
