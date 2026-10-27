@@ -53,7 +53,37 @@ const toCents = (v) => Math.round(+v * 100);
 // opts: year, monthsElapsed, filing (single|mfj|hoh), otherIncome, wages (W-2 wages,
 // cents), withholding (cents), priorYearTax and priorAgi (cents, from last year's
 // 1040), paid (cents of estimates already sent), asOf (YYYY-MM-DD), qbi (false to
-// skip the 20% deduction), qbiMinimum ({ floor, threshold } cents, years after 2026), brackets, standardDeduction, wageBase.
+// skip the 20% deduction), qbiMinimum ({ floor, threshold } cents, years after 2026), brackets, standardDeduction, wageBase, qbiThreshold (cents; `taxTableOptions` builds these from a JSON file).
+// A year's figures from a JSON file in dollars, for a year the code has no table for (or to override one):
+// { "standardDeduction": 16900, "brackets": [[12800, 0.10], ..., [null, 0.37]], "qbiThreshold": 205000,
+//   "qbiMinimum": { "floor": 400, "threshold": 1000 }, "wageBase": 192300 }. A null last bound means no upper limit.
+// Returns the options estimatedTax takes, in cents; throws on a table that cannot be right.
+export function taxTableOptions(t) {
+  const bad = (m) => { throw new Error(`tax table: ${m}`); };
+  if (!t || typeof t !== "object") bad("expected a JSON object");
+  const out = {}, dollars = (v, what) => { if (!Number.isFinite(v) || v < 0) bad(`${what} must be a number of dollars, 0 or more`); return Math.round(v * 100); };
+  if (t.brackets !== undefined) {
+    if (!Array.isArray(t.brackets) || !t.brackets.length) bad("brackets must be a list of [upper bound, rate]");
+    let prev = 0;
+    out.brackets = t.brackets.map(([hi, rate], i, all) => {
+      const last = i === all.length - 1;
+      if (!(rate > 0 && rate < 1)) bad(`bracket ${i + 1} rate must be between 0 and 1`);
+      if (hi === null || hi === undefined) { if (!last) bad("only the last bracket may have a null upper bound"); return [Infinity, rate]; }
+      const c = dollars(hi, `bracket ${i + 1} upper bound`);
+      if (c <= prev) bad(`bracket ${i + 1} upper bound must be above the one before`);
+      prev = c;
+      return [c, rate];
+    });
+    if (out.brackets.at(-1)[0] !== Infinity) bad("the last bracket needs a null upper bound");
+    if (t.standardDeduction === undefined) bad("brackets come with standardDeduction");
+  }
+  if (t.standardDeduction !== undefined) out.standardDeduction = dollars(t.standardDeduction, "standardDeduction");
+  if (t.qbiThreshold !== undefined) out.qbiThreshold = dollars(t.qbiThreshold, "qbiThreshold");
+  if (t.wageBase !== undefined) out.wageBase = dollars(t.wageBase, "wageBase");
+  if (t.qbiMinimum !== undefined) out.qbiMinimum = { floor: dollars(t.qbiMinimum.floor, "qbiMinimum.floor"), threshold: dollars(t.qbiMinimum.threshold, "qbiMinimum.threshold") };
+  return out;
+}
+
 export function estimatedTax(books, o = {}) {
   const year = o.year ?? new Date().getFullYear();
   const filing = o.filing ?? "single";
@@ -86,7 +116,7 @@ export function estimatedTax(books, o = {}) {
     warnings.push("The minimum QBI deduction (IRC 199A(i)) applies only if you materially participate in the business; if not, the deduction may be smaller.");
   }
   if (o.qbi !== false && year >= 2027 && !o.qbiMinimum) warnings.push(`The $400 minimum QBI deduction and its $1,000 threshold are indexed for ${year} (IRC 199A(i)(3)); pass qbiMinimum { floor, threshold } in cents from the IRS revenue procedure, or treat a small-QBI result as approximate.`);
-  if (qbiDeduction && beforeQbi > ((QBI_LIMIT[year] ?? QBI_LIMIT[2026])[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
+  if (qbiDeduction && beforeQbi > (o.qbiThreshold ?? (QBI_LIMIT[year] ?? QBI_LIMIT[2026])[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
   const taxable = Math.max(0, beforeQbi - qbiDeduction);
   const incomeTax = bracketTax(taxable, table.b);
   // Part II of Form 8959: the SE threshold is lowered by wages, which count first.
