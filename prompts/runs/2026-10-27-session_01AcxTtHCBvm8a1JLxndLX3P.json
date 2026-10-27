@@ -32,7 +32,7 @@
   "doc_friction": [],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-10-28-checking-a-sales-tax-calendar-against-the-states-own-page.md"
+    "docs/posts/2026-10-27-checking-a-sales-tax-calendar-against-the-states-own-page.md"
   ],
   "goal": null,
   "notes": "Small slice: Minnesota's whole due-date table read from the state page and pinned in a test; no code change needed. Colorado 404, Michigan 403.",

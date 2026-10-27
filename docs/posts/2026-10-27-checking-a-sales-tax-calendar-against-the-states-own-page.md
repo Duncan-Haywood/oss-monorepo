@@ -1,6 +1,6 @@
 ---
 title: "Checking a sales tax calendar against the state's own page"
-date: 2026-10-28
+date: 2026-10-27
 description: "ai-bookkeeper's Minnesota due dates were from search excerpts. We read the state's page and pinned its 2026 table in a test."
 tags: [ai-bookkeeper, sales-tax, verification]
 ---
