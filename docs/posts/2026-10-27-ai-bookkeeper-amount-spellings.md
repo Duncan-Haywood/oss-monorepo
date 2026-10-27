@@ -1,7 +1,7 @@
 ---
 title: "Twelve ways a bank writes -4.50, and the one we checked wrong"
 date: 2026-10-27
-description: "ai-bookkeeper's statement reader gave the same cents for twelve amount spellings (Unicode minus, Swiss apostrophes, DR/CR suffixes, euro decimals). The one 'fault' we found was our own arithmetic."
+description: "ai-bookkeeper read twelve spellings of the same amount (Unicode minus, Swiss apostrophes, DR/CR, euro decimals) to identical cents. Our one apparent fault was arithmetic."
 tags: [ai-bookkeeper, bank-statements, testing]
 ---
 
