@@ -43,6 +43,8 @@ export const BUILT_IN = [
   ["6020", "out", /(^| - )mass payment$/],
   ["4000", "in", /stripe (transfer|payout)|shopify payout|square (payout|transfer)|paypal transfer|etsy (deposit|payout)/],
   ["3100", "out", /owner draw|transfer to personal|to personal|atm withdrawal|cash withdrawal/],
+  // Cross-border client payments arriving through a payout service are sales (still reviewed, never posted by themselves).
+  ["4000", "in", /\bwise payout\b|\bpayoneer\b/],
   ["6010", "out", /annual fee|late (payment )?fee|foreign transaction fee|cash advance fee|returned item fee|\batm fee|wire transfer fee|balance transfer fee/],
   ["transfer", "any", /\btransfer\b|\bxfer\b|to savings|from savings|to checking|from checking|online banking transfer/],
   ["transfer", "any", /payment thank you|^autopay|autopay payment|card ?payment|credit card payment|amex epayment|epayment|capital one.*(pmt|payment)|chase card/],
