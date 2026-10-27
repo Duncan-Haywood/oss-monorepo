@@ -1504,3 +1504,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E98: review 2026-10-27 (reduced pass, twenty-fifth run)
+
+- Change: `CLAUDE.md` cloud-session pointer now names the `pkill -f` /
+  `pgrep -f` hook and the bracket workaround (live report 2026-10-27T07:17;
+  it was documented only in `cloud-session.md`). Re-ran `derive.py fetch &&
+  build` (3360 rows).
+- Metric: friction reports about the pkill hook naming `CLAUDE.md`; compare the
+  next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
