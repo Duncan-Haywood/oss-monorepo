@@ -628,6 +628,13 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
                 mock.patch.object(promptctl, "_shallow_boundary", return_value=set()):
             self.assertEqual(promptctl._changed_note("CLAUDE.md")[1], "2026-10-20T04:30:00+00:00")
 
+    def test_is_gone_flags_only_missing_plain_file_paths(self):
+        self.assertTrue(promptctl._is_gone("research/lowcomm-training/tests/test_lowcomm.py"))
+        self.assertFalse(promptctl._is_gone("prompts/promptctl.py"))
+        self.assertFalse(promptctl._is_gone("portfolio/router/allocate.py output"))
+        self.assertFalse(promptctl._is_gone("A.md / B.md"))
+        self.assertFalse(promptctl._is_gone("CLAUDE.md"))
+
     def test_latest_and_named_files(self):
         self.assertEqual(promptctl._latest("", "2026-10-17"), "2026-10-17")
         self.assertEqual(promptctl._latest("2026-10-18", "2026-10-17"), "2026-10-18")
