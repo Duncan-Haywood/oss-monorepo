@@ -1,7 +1,7 @@
 ---
 title: "Lake Huron's 1920s drop: three ways to detect it, one of them right"
 date: 2026-10-27
-description: "A real, strongly autocorrelated lake-level series run through the changepoint detector: the plain model finds ten changes, the AR(1) model finds none, and the mean-and-variance model finds the drop."
+description: "A strongly autocorrelated lake-level series through the changepoint detector: the plain model finds ten changes, AR(1) none, mean-and-variance the drop."
 tags: [changepoint-detector, time-series, measurement]
 ---
 
