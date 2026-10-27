@@ -93,3 +93,14 @@ test("a bill one day past due is paid tomorrow and called late now", () => {
   const r = planBills(make("bill,1,2026-04-01,2026-04-30,Supplier,100.00,6130\n"), { asOf: "2026-05-01" }).rows[0];
   assert.equal(r.daysLate, 1); assert.equal(r.status, "late now"); assert.equal(r.payOn, "2026-05-02");
 });
+
+test("the default reserve is zero: a bill may take the balance to exactly nothing", () => {
+  const p = planBills(make("bill,1,2026-05-01,2026-05-05,Rent,1000.00,6130\n"), { asOf: "2026-05-01" });
+  assert.equal(p.rows[0].status, "on time"); assert.equal(p.lowest.cents, 0);
+});
+
+test("terms: a bill that cannot fit even with later cash carries no late fee, since it is shown on its due date", () => {
+  const books = make("bill,2,2026-05-01,2026-05-10,Big Supplier,900.00,6130\ninvoice,7,2026-04-25,2026-05-15,Client,500.00,4000\n");
+  const p = planBills(books, { asOf: "2026-05-01", reserve: 30000, terms: { "big supplier": { lateFeePct: 50 } } });
+  assert.equal(p.rows[0].status, "cannot fit"); assert.equal(p.rows[0].payOn, "2026-05-10"); assert.equal(p.rows[0].fee, 0);
+});

@@ -14,9 +14,8 @@ test("carries the no-warranty disclaimer and licence line", () => {
 
 test("states the model, the authority and the sources' limits", () => {
   assert.match(html, /SRI/);
-  assert.match(html, /comprobantes electr/);
-  assert.match(html, /RUC/);
   assert.match(html, /clave de acceso/);
+  assert.match(html, /RUC/);
   assert.match(html, /not tax advice/);
   assert.match(html, /import\{checkRuc,checkAccessKey\}from"\.\/ecuador\.mjs"/);
 });

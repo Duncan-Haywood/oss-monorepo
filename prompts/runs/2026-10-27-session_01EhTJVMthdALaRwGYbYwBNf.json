@@ -19,7 +19,7 @@
   "projects": [
     "einvoice-preflight"
   ],
-  "pr": 10822,
+  "pr": 10823,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -27,8 +27,8 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 14,
-  "outcome": "success",
+  "tests_added": 1,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
@@ -40,11 +40,9 @@
       "result": "shipped"
     }
   ],
-  "writeups": [
-    "docs/posts/2026-10-27-einvoice-preflight-ecuador.md"
-  ],
+  "writeups": [],
   "goal": null,
-  "notes": "Ecuador page, ecuador.mjs (RUC by kind, 49-digit access key), 6+8 tests, 406 mandate-page tests green locally. Sources: web-search excerpts only; rules from open-source knowledge, pinned on hand-summed numbers. Measured establishment digits are unchecked (26/117, 35/117 single-digit typos pass).",
+  "notes": "First PR (#10822, a full Ecuador page) duplicated PR #10821 landed minutes earlier and was closed. Salvaged the one new finding: establishment digits of a 13-digit Ecuadorian RUC are unchecked (26/117 and 35/117 single-digit typos pass), as a test and README line. Force-push was denied, so the branch carries a merge that resets its tree to main.",
   "corrections": [],
   "redteam": null
 }

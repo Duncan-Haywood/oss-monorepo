@@ -1,88 +1,67 @@
-// Ecuador helpers for the Ecuador page: RUC check digit and access-key (clave
-// de acceso) check digit. Pure functions; the page imports this file in the
-// browser. Rules as open-source implementations and vendor guides describe
-// them; they were not read from the SRI's technical sheet, so ecuador.test.mjs
-// pins them on numbers whose sums are worked by hand. Nothing here looks a RUC
-// or an authorisation up.
-//
-// RUC: 13 digits. Digits 1-2 are the province (01-24, or 30 for Ecuadorians
-// abroad). Digit 3 says the kind: 0-5 a person (the first 10 digits are a
-// cédula, modulus 10, weights 2,1,2,1,..., a product over 9 loses 9; the
-// establishment is the last 3), 6 a public body (modulus 11, weights
-// 3,2,7,6,5,4,3,2, check digit is digit 9, establishment the last 4), 9 a
-// private company (modulus 11, weights 4,3,2,7,6,5,4,3,2, check digit is
-// digit 10, establishment the last 3).
-// Access key: 49 digits; the last is modulus 11 over the first 48 with
-// weights 2..7 repeating from the right (11 gives 0, 10 gives 1).
+// Ecuador helpers for the Ecuador page: RUC check digit and the 49-digit
+// clave de acceso. Pure functions; the page imports this file in the browser.
+// RUC: 13 digits. The first 10 are a cédula (third digit 0-5, modulo 10) or a
+// company number (third digit 6 public, modulo 11 on 8 digits, digit 9; third
+// digit 9 private, modulo 11 on 9 digits, digit 10); the rest is the
+// establishment number (0001 public, 001 otherwise, up to 9999/999).
+// Clave de acceso: date(8) type(2) RUC(13) environment(1) series(6) sequence(9)
+// numeric code(8) emission type(1) and a modulo 11 check digit with weights
+// 2..7 from the right. Both rules are the ones open-source libraries and vendor
+// guides describe; they were not read from the SRI's technical sheet, and
+// ecuador.test.mjs pins them on numbers computed by hand. Nothing here looks a
+// RUC or a key up.
 
-const sum = (digits, weights, f = (p) => p) =>
-  digits.reduce((a, d, i) => a + f(Number(d) * weights[i]), 0);
-
-export function mod11Digit(digits, weights) {
-  const r = 11 - (sum([...digits], weights) % 11);
-  return r === 11 ? 0 : r; // 10 is returned as 10: no valid digit
-}
-
-export function mod10Digit(digits9) {
-  const s = sum([...digits9], [2, 1, 2, 1, 2, 1, 2, 1, 2], (p) => (p > 9 ? p - 9 : p));
-  return (10 - (s % 10)) % 10;
-}
+const sum = (digits, weights) => digits.reduce((a, d, i) => a + d * weights[i], 0);
+const nums = (s) => [...s].map(Number);
 
 export function checkRuc(raw) {
   const s = String(raw || "").replace(/[\s.-]/g, "");
-  if (!/^\d{10}(\d{3})?$/.test(s)) {
-    return { ok: false, ruc: s, kind: null, problems: ["A cédula has 10 digits and a RUC has 13."] };
-  }
+  if (!/^\d{13}$/.test(s)) return { ok: false, ruc: s, problems: ["An Ecuadorian RUC has 13 digits, for example 1790010937001."] };
+  const d = nums(s);
   const prov = Number(s.slice(0, 2));
-  if (!((prov >= 1 && prov <= 24) || prov === 30)) {
-    return { ok: false, ruc: s, kind: null, problems: [`The first two digits (${s.slice(0, 2)}) are not a province (01 to 24, or 30).`] };
-  }
-  const t = Number(s[2]);
   const problems = [];
+  if (!((prov >= 1 && prov <= 24) || prov === 30)) problems.push("The first two digits should be a province code (01 to 24, or 30).");
+  const t = d[2];
   let kind;
   if (t <= 5) {
     kind = "person";
-    const want = mod10Digit(s.slice(0, 9));
-    if (Number(s[9]) !== want) problems.push(`The check digit (digit 10) should be ${want}, not ${s[9]}.`);
-    if (s.length === 13 && s.slice(10) === "000") problems.push("The establishment number (last 3 digits) cannot be 000.");
-  } else if (t === 6) {
-    kind = "public body";
-    if (s.length !== 13) problems.push("A public body's RUC has 13 digits.");
-    else {
-      const want = mod11Digit(s.slice(0, 8), [3, 2, 7, 6, 5, 4, 3, 2]);
-      if (Number(s[8]) !== want) problems.push(`The check digit (digit 9) should be ${want}, not ${s[8]}.`);
-      if (s.slice(9) === "0000") problems.push("The establishment number (last 4 digits) cannot be 0000.");
-    }
-  } else if (t === 9) {
-    kind = "private company";
-    if (s.length !== 13) problems.push("A company's RUC has 13 digits.");
-    else {
-      const want = mod11Digit(s.slice(0, 9), [4, 3, 2, 7, 6, 5, 4, 3, 2]);
-      if (Number(s[9]) !== want) problems.push(`The check digit (digit 10) should be ${want}, not ${s[9]}.`);
-      if (s.slice(10) === "000") problems.push("The establishment number (last 3 digits) cannot be 000.");
-    }
+    const total = d.slice(0, 9).reduce((a, x, i) => { let p = x * (i % 2 === 0 ? 2 : 1); if (p > 9) p -= 9; return a + p; }, 0);
+    const want = (10 - (total % 10)) % 10;
+    if (d[9] !== want) problems.push(`The tenth digit should be ${want}, not ${d[9]}.`);
+  } else if (t === 6 || t === 9) {
+    kind = t === 6 ? "public body" : "private company";
+    const w = t === 6 ? [3, 2, 7, 6, 5, 4, 3, 2] : [4, 3, 2, 7, 6, 5, 4, 3, 2];
+    const n = w.length;
+    const r = sum(d.slice(0, n), w) % 11;
+    const want = r === 0 ? 0 : 11 - r;
+    if (want === 10 || d[n] !== want) problems.push(want === 10 ? "No check digit fits these digits." : `Digit ${n + 1} should be ${want}, not ${d[n]}.`);
   } else {
-    return { ok: false, ruc: s, kind: null, problems: [`The third digit (${t}) is not 0 to 6 or 9, so the kind of taxpayer is unknown.`] };
+    problems.push("The third digit should be 0 to 6 or 9.");
   }
+  const est = Number(s.slice(t === 6 ? 9 : 10));
+  if (est < 1) problems.push(`The establishment number (last ${t === 6 ? 4 : 3} digits) cannot be zero.`);
   return { ok: problems.length === 0, ruc: s, kind, problems };
 }
 
 export function accessKeyDigit(first48) {
-  const d = [...first48].reverse();
-  const s = d.reduce((a, c, i) => a + Number(c) * (2 + (i % 6)), 0);
-  const r = 11 - (s % 11);
-  return r === 11 ? 0 : r === 10 ? 1 : r;
+  const d = nums(first48).reverse();
+  const r = d.reduce((a, x, i) => a + x * (2 + (i % 6)), 0) % 11;
+  const v = 11 - r;
+  return String(v === 11 ? 0 : v === 10 ? 1 : v);
 }
 
 export function checkAccessKey(raw) {
-  const s = String(raw || "").replace(/[\s.-]/g, "");
-  if (!/^\d{49}$/.test(s)) return { ok: false, key: s, problems: ["An access key has 49 digits."] };
-  const want = accessKeyDigit(s.slice(0, 48));
+  const s = String(raw || "").replace(/[\s-]/g, "");
+  if (!/^\d{49}$/.test(s)) return { ok: false, problems: ["A clave de acceso has 49 digits."] };
   const problems = [];
-  if (Number(s[48]) !== want) problems.push(`The last digit should be ${want}, not ${s[48]}.`);
-  const dd = Number(s.slice(0, 2)), mm = Number(s.slice(2, 4));
-  if (dd < 1 || dd > 31 || mm < 1 || mm > 12) problems.push("The first 8 digits should be an issue date, ddmmyyyy.");
+  const dd = Number(s.slice(0, 2)), mm = Number(s.slice(2, 4)), yy = Number(s.slice(4, 8));
+  const dt = new Date(Date.UTC(yy, mm - 1, dd));
+  if (!(yy > 2000 && dt.getUTCMonth() === mm - 1 && dt.getUTCDate() === dd)) problems.push("The first eight digits are not a date (ddmmyyyy).");
+  const env = s[23];
+  if (env !== "1" && env !== "2") problems.push("The environment digit (24th) should be 1 (test) or 2 (production).");
+  const want = accessKeyDigit(s.slice(0, 48));
+  if (s[48] !== want) problems.push(`The last digit should be ${want}, not ${s[48]}.`);
   const ruc = checkRuc(s.slice(10, 23));
-  if (!ruc.ok || s.slice(10, 23).length !== 13) problems.push("Digits 11 to 23 should be the issuer's 13-digit RUC, and that RUC does not check.");
-  return { ok: problems.length === 0, key: s, problems };
+  if (!ruc.ok) problems.push("The RUC inside the key (digits 11 to 23) fails its own test: " + ruc.problems[0]);
+  return { ok: problems.length === 0, problems, parts: { date: s.slice(0, 8), type: s.slice(8, 10), ruc: s.slice(10, 23), environment: env, series: s.slice(24, 30), sequence: s.slice(30, 39) } };
 }
