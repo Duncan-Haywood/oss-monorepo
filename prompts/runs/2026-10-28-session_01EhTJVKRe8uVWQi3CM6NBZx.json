@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "wall-framing-takeoff stair guards and handrail",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11076",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,27 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 3,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: texts are ~2k chars of nested history; finding an offline slice took most of the run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Router drew process; the scheduled prompt asked for revenue products, so re-routed with --track ventures.",
+      "did": "route --track ventures",
+      "result": "shipped a flagship slice"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "irs.gov 403 through proxy, so the ai-bookkeeper child-credit check was dropped. main_health 24/24. stairs, cli, page tests 71 pass locally; CI not waited on.",
   "corrections": [],
   "redteam": null
 }
