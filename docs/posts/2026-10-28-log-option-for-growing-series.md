@@ -1,7 +1,7 @@
 ---
 title: "A --log flag for series that grow by a percentage"
 date: 2026-10-28
-description: "The changepoint detector cut Johnson & Johnson's growing earnings into 12 steps. A new --log flag logs the series first, leaves 2 to 5 changes, and reports results in original units."
+description: "The changepoint detector cut J&J earnings into 12 steps. A new --log flag logs the series first, leaves 2 to 5 changes, and reports in original units."
 tags: [changepoint-detector, time-series]
 ---
 
