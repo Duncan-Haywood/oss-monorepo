@@ -134,6 +134,15 @@ class T(unittest.TestCase):
         pyenv.find(["nope"], ["/p/python3"], Run(), seen.append)
         self.assertTrue(any("no matching distribution" in m for m in seen), seen)
 
+    def test_torch_installs_from_the_cpu_index(self):
+        run = FakeRun()
+        pyenv.pip_install("/p/python3", ["torch", "numpy"], run, quiet)
+        pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]][0]
+        self.assertIn(pyenv.TORCH_CPU_INDEX, pip)
+        run = FakeRun()
+        pyenv.pip_install("/p/python3", ["numpy"], run, quiet)
+        self.assertNotIn("--extra-index-url", [c for c in run.calls if c[1:3] == ["-m", "pip"]][0])
+
     def test_distro_owned_package_stops_retrying_pip_flags(self):
         class Run(FakeRun):
             def __call__(self, cmd, **kw):
