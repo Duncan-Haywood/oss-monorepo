@@ -20,3 +20,15 @@ test('real J&J earnings: the log series with a trend leaves at most a few change
   assert.ok(run(logged, { trend: true }).length <= 6);
   assert.ok(run(logged, { trend: 'bend' }).length <= 3);
 });
+
+test('real J&J earnings: log option matches the hand-logged series and reports original units', () => {
+  const byHand = analyze({ values: logged, labels, period: 4, trend: true });
+  const r = analyze({ values: raw, labels, period: 4, trend: true, log: true });
+  assert.deepEqual(r.pelt.changepoints.map((c) => c.index), byHand.pelt.changepoints.map((c) => c.index));
+  assert.deepEqual(r.values, raw);
+  assert.ok(r.pelt.changepoints.every((c) => Math.abs(c.ratio - Math.exp(c.shift)) < 1e-3));
+  const plain = analyze({ values: raw, labels, period: 4, log: true });
+  assert.ok(plain.pelt.segments.every((s) => Math.abs(s.geometricMean - Math.exp(s.mean)) < 1e-3));
+  assert.throws(() => analyze({ values: [1, 2, 0, 4, 5], log: true }), /positive/);
+  assert.throws(() => analyze({ values: [1, 2, 3, 4, 5], log: true, model: 'poisson' }), /counts/);
+});

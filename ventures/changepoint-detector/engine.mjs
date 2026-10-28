@@ -1622,6 +1622,14 @@ export function analyze(input = {}) {
   if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}.`);
   if (values.length > 100000) throw new Error('More than 100,000 points: aggregate the series first.');
   const model = o.model === 'meanvar' || o.model === 'poisson' || o.model === 'trend' ? o.model : 'mean';
+  // log: a series that grows by a constant percentage is a straight line once logged; segments are reported back in original units
+  const original0 = values;
+  if (o.log) {
+    if (model === 'poisson') throw new Error('Taking logs is for the "mean", "meanvar" and "trend" models, not counts: counts already model the rate as a factor.');
+    const bad = values.findIndex((v) => !(v > 0));
+    if (bad >= 0) throw new Error(`Taking logs needs positive values; row ${bad + 1} is ${values[bad]}.`);
+    values = values.map(Math.log);
+  }
   if (model === 'poisson') {
     const bad = values.findIndex((v) => v < 0 || !Number.isInteger(v));
     if (bad >= 0) throw new Error(`The Poisson model needs counts (whole numbers, 0 or more); row ${bad + 1} is ${values[bad]}.`);
@@ -1737,6 +1745,7 @@ export function analyze(input = {}) {
     // seasonal counts: the segment's mean is its rate per average-season point, total over total exposure
     if (exposure) { let a = 0, E = 0; for (let t = bounds[i]; t < bounds[i + 1]; t++) { a += values[t]; E += exposure[t]; } s.mean = a / E; }
     const seg = { start: bounds[i], end: bounds[i + 1] - 1, from: labels[bounds[i]], to: labels[bounds[i + 1] - 1], n: s.n, mean: round(s.mean), sd: round(s.sd) };
+    if (o.log && !o.trend && model !== 'trend') seg.geometricMean = round(Math.exp(s.mean), 4);
     if (model === 'trend') {
       const f = lineFit(values, bounds[i], bounds[i + 1]);
       lines.push(f);
@@ -1814,6 +1823,7 @@ export function analyze(input = {}) {
       meanAfter: after.mean,
       shift: trend ? trend.jump : round(after.mean - before.mean),
       ...(trend ? { jump: trend.jump, slopeBefore: trend.slopeBefore, slopeAfter: trend.slopeAfter } : {}),
+      ...(o.log ? { ratio: round(Math.exp(trend ? trend.jump : after.mean - before.mean), 4) } : {}),
       shiftInNoiseSd: round((trend ? trend.jump : after.mean - before.mean) / (joint ? longRunSd(sigma / Math.sqrt(1 + rho), rho) : sigma), 3),
       sdBefore: before.sd,
       sdAfter: after.sd,
@@ -1822,7 +1832,7 @@ export function analyze(input = {}) {
     };
   });
   const excursions = model === 'poisson' ? findExcursions(original, p.changepoints, { exposure }).map((x) => ({ from: labels[x.fromIndex], to: labels[x.toIndex], fromIndex: x.fromIndex, toIndex: x.toIndex, length: x.length, direction: x.direction, baselineRate: round(x.baselineRate), excursionRate: round(x.excursionRate), ratio: x.ratio === null ? null : round(x.ratio, 3), sameBaselineLR: round(x.sameBaselineLR, 3) })) : [];
-  const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped }) + excursions.map((x) => ` Changes at ${x.from} and just after ${x.to} may be one temporary ${x.direction === 'up' ? 'burst' : 'dip'}, not two steps: the rate before and after it is the same (${fmt(x.baselineRate)} a point, likelihood ratio ${fmt(x.sameBaselineLR)} against 3.84), and inside it is ${fmt(x.excursionRate)}.`).join('');
+  const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped }) + (o.log ? ' Values are natural logs: a move of x in the mean is a factor of e^x (the ratio is in each change).' : '') + excursions.map((x) => ` Changes at ${x.from} and just after ${x.to} may be one temporary ${x.direction === 'up' ? 'burst' : 'dip'}, not two steps: the rate before and after it is the same (${fmt(x.baselineRate)} a point, likelihood ratio ${fmt(x.sameBaselineLR)} against 3.84), and inside it is ${fmt(x.excursionRate)}.`).join('');
   return {
     n: values.length,
     column,
@@ -1852,7 +1862,8 @@ export function analyze(input = {}) {
       mapRunLength: b.mapRun,
     },
     labels,
-    values: rawCounts,
+    ...(o.log ? { log: true } : {}),
+    values: o.log ? original0 : rawCounts,
     ...(period || o.trend || holidayFit ? { adjusted: values.map((v, t) => round(exposure ? v / exposure[t] : v)) } : {}),
     summary,
   };

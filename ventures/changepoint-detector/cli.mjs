@@ -30,6 +30,7 @@ Options:
   --bursts [ratio]          with --model poisson: single days far above both neighbours' level (default 2.5x and a Poisson-sized excess) are cut back to it before fitting, so a spike is not read as two changes; listed in the result
   --episodes [n]            with --model poisson: label an up-step followed within n points (default a tenth of the series) by a step back to about the old level as one burst episode, listed in the result; the changes are unchanged
   --burst-runs n            with --bursts: also cut back runs of 2 to n days (default off) that sit 2x above the same-phase level on both sides
+  --log                     take natural logs first (positive values; mean, meanvar, trend): a steady percentage growth is a straight line, not a staircase; segments also show the geometric mean and each change its ratio
   --multiplicative           with --period (mean/meanvar): the season is a factor, not an amount, so it scales with the level (positive values only; not with --drift)
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
   --trend [bend|bends]          fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
@@ -64,6 +65,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--json') json = true;
     else if (a === '--example') example = true;
     else if (a === '--drift') opt.drift = true;
+    else if (a === '--log') opt.log = true;
     else if (a === '--multiplicative') opt.seasonMode = 'multiplicative';
     else if (a === '--robust') opt.robust = true;
     else if (a === '--dispersion') opt.dispersion = true;
@@ -97,7 +99,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   if (json) { out(JSON.stringify(r, null, 2) + '\n'); return 0; }
   const lines = [r.summary, ''];
   lines.push('Segments (PELT):');
-  for (const s of r.pelt.segments) lines.push(`  ${s.from} – ${s.to}  n=${s.n}  mean=${s.mean}  ${s.slope !== undefined ? `slope=${s.slope}  ` : ''}sd=${s.sd}`);
+  for (const s of r.pelt.segments) lines.push(`  ${s.from} – ${s.to}  n=${s.n}  mean=${s.mean}  ${s.geometricMean !== undefined ? `geometric mean=${s.geometricMean}  ` : ''}${s.slope !== undefined ? `slope=${s.slope}  ` : ''}sd=${s.sd}`);
   const ch = r.pelt.changepoints.filter((x) => x.range95);
   if (ch.length) {
     lines.push('', 'Likely range for each change (95%, neighbouring changes held fixed):');
