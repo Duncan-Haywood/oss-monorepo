@@ -106,7 +106,7 @@ test('an audience page carries its own title, description, canonical, JSON-LD an
   const groups = audienceGroups(roofTools);
   const html = renderAudiencePage({ audience: byId.roofers, items: roofTools, groups: [], baseUrl: BASE, audiences: groups });
   const url = `${BASE}c/${audiencePageId(byId.roofers)}/`;
-  assert.match(html, new RegExp(`<title>${byId.roofers.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\|`));
+  assert.match(html, new RegExp(`<title>${byId.roofers.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}( \\||</title>)`));
   assert.ok(html.includes(`<link rel="canonical" href="${url}">`));
   assert.ok(html.includes('"@type":"CollectionPage"') || html.includes('"@type": "CollectionPage"'));
   assert.ok(html.includes('class="starting"'));

@@ -39,7 +39,7 @@ import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
-import { SITE_NAME, sponsorsNote, withSiteHeader } from './site-nav.mjs';
+import { SITE_NAME, TITLE_BUDGET, siteTitle, sponsorsNote, withSiteHeader } from './site-nav.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -262,8 +262,7 @@ const STYLE = `
   .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 `;
 
-/** Longest `<title>` a search result shows before cutting it off (rule of thumb, as in `serp_snippets.py`). */
-export const TITLE_BUDGET = 70;
+export { TITLE_BUDGET };
 
 /**
  * A post's `<title>`: the headline plus the site name when both fit, else the

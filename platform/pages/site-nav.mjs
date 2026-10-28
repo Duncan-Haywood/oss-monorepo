@@ -24,6 +24,20 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 export const SITE_NAME = 'Open Tools and Research';
+
+/** Longest `<title>` a search result shows before cutting it off. */
+export const TITLE_BUDGET = 70;
+
+/**
+ * A page's `<title>`: "title | site name" when both fit a results page, else the
+ * title alone, so the words that tell a searcher what the page is are never the
+ * ones cut. Comparison pages ("X alternatives: 2 free tools ...") and audience
+ * hubs ran to 120 characters with the suffix.
+ */
+export function siteTitle(title) {
+  const full = `${title} | ${SITE_NAME}`;
+  return full.length <= TITLE_BUDGET ? full : title;
+}
 export const REPO_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
 export const SITE_STYLE_FILE = 'pf-site.css';
 
