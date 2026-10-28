@@ -21,7 +21,7 @@ export function taxCalendar(year, { state = null, frequency = "quarterly", payro
   return ev.sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
 }
 
-const esc = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const esc = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 const nextDay = (d) => { const dt = new Date(`${d}T00:00:00Z`); dt.setUTCDate(dt.getUTCDate() + 1); return dt.toISOString().slice(0, 10).replace(/-/g, ""); };
 // RFC 5545: CRLF line ends, lines folded at 75 octets, all-day events, a stable UID per date and title
 export function toIcs(events, { name = "Tax calendar" } = {}) {
