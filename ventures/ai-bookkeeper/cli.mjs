@@ -24,6 +24,7 @@ import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax, taxTableOptions } from "./estimatedtax.mjs";
 import { annualizedInstallments } from "./annualized.mjs";
+import { taxCalendar, toIcs } from "./calendar.mjs";
 import { scorpFromBooks } from "./scorp.mjs";
 import { retirementLimits } from "./retirement.mjs";
 import { addProject, tagProject as tagProjectLines, projectReport, projectCsv, projectMoney } from "./projects.mjs";
@@ -90,6 +91,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   schedulec [--year Y] [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   retirement [--year Y] [--months N] [--age N] [--wages $] [--json]  most a sole proprietor can put in a SEP-IRA or solo 401(k) this year (worksheet)
   estimate [--year Y] [--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $] [--paid $] [--prior-tax $ --prior-agi $] [--as-of D] [--no-qbi] [--service] [--business-wages $] [--itemized $] [--investment $] [--eitc-children N] [--eitc-table] [--tax-table file.json] [--json]  federal income tax plus SE tax and a safe-harbour 1040-ES payment plan (worksheet)
+  calendar [--year Y] [--state XX --freq monthly|quarterly|annual] [--payroll] [--contractors] [--ics file.ics] [--json]  Tax deadlines for the year (federal estimates, filing, 941/940/1099, your state's sales tax returns), printed or written as an iCalendar file with a 7-day reminder
   annualized [--year Y] [--filing ...] [--wages $] [--withholding $] [--prior-tax $ --prior-agi $] [--payment DATE:$ ...] [--tax-table file.json] [--json]  Form 2210 Schedule AI worksheet: what each estimated-tax date requires when income is uneven (annualized income installment method)
   se [--year Y] [--months N] [--wages $] [--json]  self-employment tax on the year's Schedule C profit, annualised, split into the four estimated-payment dates (worksheet; income tax not estimated)
   asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
@@ -865,6 +867,13 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (!rest[0]) { console.error("w9 needs a payee name as it appears on the bank line"); process.exit(2); }
   const off = has("--off");
   try { books = markW9(books, rest[0], !off); save(); console.log(off ? "W-9 flag cleared." : "W-9 marked on file."); } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "calendar") {
+  const year = +(flag("--year") ?? new Date().getFullYear()), state = flag("--state");
+  const ev = taxCalendar(year, { state, frequency: flag("--freq") ?? "quarterly", payroll: has("--payroll"), contractors: has("--contractors") });
+  const out = flag("--ics");
+  if (out) { writeFileSync(out, toIcs(ev, { name: `${year} tax calendar` })); console.log(`wrote ${ev.length} events to ${out}; import or subscribe to it in your calendar app.`); }
+  else if (json) console.log(JSON.stringify(ev, null, 2));
+  else { for (const e of ev) console.log(`${e.date}  ${e.title}`); console.log("  Dates to plan from, not advice: confirm your state's and your own deadlines."); }
 } else if (cmd === "salestax" && rest[0] === "return") {
   const specs = (name) => { const out = []; for (let v = flag(name); v; v = flag(name)) out.push(v); return out; };
   const rates = parseRateSpecs(specs("--rate"));
