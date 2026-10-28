@@ -2,6 +2,18 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+
+## 2026-10-28 · Milestone 7h: what does the sub-scale demonstrator look like in millimetres, and how tight is its CG? (arithmetic on 7d to 7g, no new simulation)
+- Why: 7g's "Next" and the last item of milestone 7. The demonstrator specification for `aerolog-sitl` needs dimensions a builder can cut, not chord fractions.
+- Plan (`experiments/demonstrator_spec/run.py`, stdlib only): apply the formulas of `tail_search` and `fixed_tail` to the n = 0.2 model of the 1,000 kg, AR 10 reference for the two k = 1.0, AR 12 wings with 7g's best fixed tail (NACA 0015, area 0.15, AR_t 5, arm 3.5).
+- UIUC airfoil host (m-selig.ae.illinois.edu) still unreachable through the proxy (probed this session, no HTTP response), so the NeuralFoil tail-slope check stays open.
+
+### Outcome (`experiments/demonstrator_spec/results.txt`)
+- Model: 8.00 kg, wing span 2,078 mm, chord 173.2 mm, area 0.360 m^2, CL 0.80, trim speed 21.1 m/s (full size 47.2 m/s), Re 2.5e5 (wing) and 1.5e5 (tail). Tail: span 520 mm, chord 103.9 mm, area 0.054 m^2, arm 664 mm from the wing AC.
+- **CG must be placed within +/-6.1 mm (NACA 4412 wing) or +/-5.2 mm (5406) of the design position** to keep all three longitudinal modes within 5% of the full-size aircraft, from 7g's +/-0.035 and +/-0.030 chords. That is the binding build tolerance of the design, and it is tight for an 8 kg model.
+- Limits: inherits 7d to 7g (four-state model, point-mass inertia, reference CG at the wing AC by choice, unchecked tail slope); no mass or inertia tolerance is derived.
+- Next: UIUC polar check when the host is reachable; mass and inertia tolerance of a built model; milestone 8 paper draft.
+
 ## 2026-10-27 · Milestone 7g: does a tail fixed at its 7d (h = 0) design keep the modes within 5% when the built CG is off? (hypothesis written before the run)
 - Why: 7f's "Next". 7f re-chose the tail at every CG offset h, so it showed a compensating tail exists, not what a builder with a fixed tail and an imprecise CG faces.
 - Plan (`experiments/fixed_tail/run.py`, 7f's model by path): for the k = 1.0, AR 12 wings (NACA 4412, 5406), take every tail within 5% on all three modes at h = 0 (23 per wing in 7f), keep it fixed, and sweep h from -0.10 to +0.10 chords. Report per tail the contiguous h interval around 0 where it stays within 5%, and the best tail's interval. Hypothesis: the best fixed tail tolerates |h| of at most 0.02 chords (about 1 to 2% of mean chord) because short-period frequency scales with sqrt of static margin; refuted if the best fixed tail stays within 5% out to |h| = 0.05 on both sides.
