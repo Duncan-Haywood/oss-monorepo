@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11112",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,12 +26,22 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "Log hypotheses before running: the numpy table ran before the entry was written; disclosed in the entry. No training run (46 min each, torch absent).",
+      "did": "numpy-only step",
+      "result": "prediction logged, training test deferred"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-a-coordinated-attack-breaks-a-median-at-half-the-workers.md",
+    "research/lowcomm-training/LOG.md 5l"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
