@@ -1,4 +1,4 @@
-# Self-hosted Sales Agent (M4a, M4b)
+# Self-hosted Sales Agent (M4a, M4b, M4c)
 
 A small server you run yourself. It reads **your** mailbox over IMAP, reads each
 new reply the way the inbox agent does ([`../README.md`](../README.md)), stops,
@@ -28,7 +28,7 @@ ADMIN_TOKEN=$(openssl rand -hex 16) node self-host/agent.mjs
 
 Or `docker compose up -d` from `ventures/sales-agent` with the same variables.
 Use an app password where your provider offers one (Gmail and Microsoft 365
-require one or OAuth for IMAP; OAuth is not built). The server binds to 127.0.0.1
+require one or OAuth for IMAP; OAuth is built, see below). The server binds to 127.0.0.1
 by default; before exposing it, put a TLS proxy in front, because the token
 travels in the URL and header.
 
@@ -39,12 +39,37 @@ travels in the URL and header.
 | `DATA_DIR` | `./data` | `state.json` (prospects, queue, cursor), `audit.jsonl` |
 | `POLL_MINUTES`, `SINCE_DAYS` | 10, 7 | first poll reads the last `SINCE_DAYS` days, then only new UIDs |
 | `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` | none (send off) | `SMTP_PORT` 587 (STARTTLS; 465 with `SMTP_SECURE=true`), `SEND_FROM` (default `IMAP_USER`), `SEND_MAX_PER_DAY` 20. A password is never sent over an unencrypted link to a non-local host |
+| `OAUTH_PROVIDER` (`google` or `microsoft`), `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`, `OAUTH_REFRESH_TOKEN` | none (password login) | M4c: replaces `IMAP_PASS`/`SMTP_PASS` with SASL XOAUTH2 on both IMAP and SMTP. `OAUTH_TENANT` (Microsoft, default `common`), `OAUTH_TOKEN_URL` override. Your own OAuth app, your own token |
 | `OFFER_JSON` | none | your sender, company, address, booking link (see `SAMPLE_OFFER` in `engine.mjs`) |
 | `LLM_PROVIDER`, `LLM_MODEL`, `LLM_API_KEY` | none | optional model on your key, under the same limits as the page |
 
 Messages you sent yourself are skipped. Each message is read once (Message-ID);
 duplicates are ignored. Endpoints: `/` queue, `/api/queue`, `/api/audit`,
 `/api/prospects.csv`, `/api/suppression.csv`, `POST /api/poll`, `POST /api/decide`, `POST /api/send`.
+
+## OAuth for Gmail and Microsoft 365 (M4c)
+
+Register your own OAuth app (Google Cloud console, or Microsoft Entra) with the redirect URI
+`http://127.0.0.1:8789/callback`, then once:
+
+```sh
+OAUTH_PROVIDER=google OAUTH_CLIENT_ID=... OAUTH_CLIENT_SECRET=... IMAP_USER=you@gmail.com node self-host/oauth-setup.mjs
+```
+
+Open the printed URL, approve, and copy the `OAUTH_REFRESH_TOKEN=...` line it prints into the server's environment
+(authorization code flow with PKCE; nothing is stored). The server then trades the refresh token for short-lived access
+tokens at the provider's token endpoint, caches one until a minute before it expires, and logs in with `AUTHENTICATE XOAUTH2`
+(IMAP) and `AUTH XOAUTH2` (SMTP). Mailbox access is still `EXAMINE` and `BODY.PEEK`. Set `SMTP_HOST` (`smtp.gmail.com`,
+`smtp.office365.com`) to turn sending on as before. Scopes: `https://mail.google.com/` for Google; Microsoft's
+`IMAP.AccessAsUser.All` and `SMTP.Send`. Google apps left in "testing" expire refresh tokens after 7 days; publish the app
+(or use Workspace internal) for a lasting token. Microsoft personal accounts may need a different tenant setting.
+
+Tested (`node --test self-host/oauth.test.mjs`, 7 tests) against a local token endpoint and the fake IMAP and SMTP servers:
+Google's documented XOAUTH2 string, caching and one shared refresh for concurrent callers, a refresh 60 s before expiry, a
+revoked token reported with no secret in the message, the IMAP error challenge answered before the NO, the SMTP 334 then 535
+path, PKCE and the code exchange, and an end-to-end poll and send with no password set. **Not tested: Google's or
+Microsoft's real endpoints, scopes or consent screens.** The first deployer on either should expect a scope or tenant
+fix and send a patch.
 
 ## What was tested, and what was not
 
@@ -55,7 +80,7 @@ suppresses an unsubscribe and queues a reply, a wrong password that leaks nothin
 placeholder blocking, and token checks. **Not tested: any real mail server, IMAP or SMTP.** The SMTP client is hand-written (EHLO, STARTTLS, AUTH PLAIN/LOGIN, DATA); STARTTLS and implicit TLS are not exercised by the fake. No DKIM/SPF/DMARC work here: your provider signs on submission, and a new sending domain needs those set up first.
 Gmail, Fastmail, Outlook and Dovecot differ in literal and flag handling; the
 first deployer on one should expect to fix a parser edge and send a patch. Not
-built: OAuth (Gmail and Microsoft need an app password for SMTP too), IMAP IDLE, attachments, threading beyond Message-ID, a bounce-to-
+built: IMAP IDLE, attachments, threading beyond Message-ID, a bounce-to-
 prospect match (DSNs arrive as tasks, as on the page).
 
 ## Header signals (2026-10-26)
