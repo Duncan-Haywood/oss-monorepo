@@ -1,0 +1,41 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# Render asks for the sync:false values on first deploy. IMAP_HOST, IMAP_USER and IMAP_PASS (an app password) are required;
+# SMTP_* is optional (unset means nothing can be sent). A model key is optional too.
+services:
+  - type: web
+    name: sales-agent
+    runtime: docker
+    dockerContext: ventures/sales-agent
+    dockerfilePath: ventures/sales-agent/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: DATA_DIR
+        value: /data
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: IMAP_HOST
+        sync: false
+      - key: IMAP_USER
+        sync: false
+      - key: IMAP_PASS
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SEND_FROM
+        sync: false
+      - key: LLM_PROVIDER
+        sync: false
+      - key: LLM_MODEL
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
