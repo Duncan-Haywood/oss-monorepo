@@ -12,6 +12,8 @@ CHECKS = [
     ("experiments/correction_search/results.txt", "1.086", "best section ratio 1.086"),
     ("experiments/correction_search/results.txt", "1.157", "uncorrected ratio 1.157"),
     ("experiments/tail_search/results.txt", "naca0015 0.15 5.0 3.5", "best tail (0015, area 0.15, AR_t 5, arm 3.5)"),
+    ("experiments/uiuc_naca241x/results.txt", "min 1.215  max 1.669", "NF/UIUC ratio 1.22 to 1.67"),
+    ("experiments/uiuc_naca241x/results.txt", "mean 1.355", "mean ratio 1.36"),
     ("experiments/demonstrator_spec/results.txt", "6.1", "CG tolerance 6.1 mm"),
     ("experiments/demonstrator_spec/results.txt", "5.2", "CG tolerance 5.2 mm"),
     ("experiments/demonstrator_spec/results.txt", "2078", "span 2,078 mm"),
