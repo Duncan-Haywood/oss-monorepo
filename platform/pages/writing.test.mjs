@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildWriting, loadPosts, parseFrontMatter, postPageTitle, renderFeed, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, renderFeed, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -216,4 +216,18 @@ test('a post dated after today waits for its date', () => {
 test('a lone post dated after today is left off too', () => {
   const root = repoWith({ '2999-01-01-later.md': post('Later', '2999-01-01') });
   assert.deepEqual(loadPosts(root), []);
+});
+
+test('each section depth is its path segment count, or root-relative links climb the wrong number of levels', () => {
+  for (const section of [BLOG, AGENT_BLOG]) assert.equal(section.depth, section.path.split('/').filter(Boolean).length, section.id);
+});
+
+test('the index tag filter keeps a post whose tag is the first in its list', async () => {
+  const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-tagfilter-'));
+  await buildWriting(out, BASE, { root });
+  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  // indexOf() is 0 for the first tag: ">= 1" would hide every post filtered by its first tag.
+  assert.match(index, /data-tags="[^"]*"/);
+  assert.match(index, /split\(' '\)\.indexOf\(tag\.value\) >= 0/);
 });

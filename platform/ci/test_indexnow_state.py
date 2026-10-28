@@ -10,6 +10,8 @@ no trace in the tree and so cannot be checked by looking at files.
 
 from __future__ import annotations
 
+import contextlib
+import io
 import subprocess
 import unittest
 import unittest.mock
@@ -211,6 +213,13 @@ class Verdicts(unittest.TestCase):
         result = state.collect(api_for([run], jobs, branch=branch_commit()))
         self.assertEqual(result["examined"][0]["at"], "2026-09-11T04:59:00Z")
 
+    def test_a_run_row_carries_a_nine_character_sha_and_at_most_ten_rows_are_listed(self) -> None:
+        runs = [_run(i, f"2026-09-11T05:{59 - i:02d}:00Z", sha="0123456789abcdef") for i in range(1, 13)]
+        result = state.collect(api_for(runs, {}, branch=branch_commit()))
+        self.assertEqual(result["examined"][0]["head_sha"], "012345678")
+        self.assertEqual(len(result["examined"]), 10)
+        self.assertEqual(result["examined_count"], 12)
+
     def test_one_unreadable_run_does_not_sink_the_whole_reading(self) -> None:
         runs = [_run(1, "2026-09-11T05:00:00Z"), _run(2, "2026-09-11T03:22:02Z")]
         jobs = {
@@ -299,6 +308,24 @@ class ExitCodes(unittest.TestCase):
         )
         self.assertEqual(result["verdict"], "never")
         self.assertEqual(state.exit_code(result), 0)
+
+
+class MainFailureMessage(unittest.TestCase):
+    def test_a_never_verdict_with_the_flag_fails_with_the_explanation(self) -> None:
+        api = api_for([_run(1, "2026-09-11T04:15:40Z")], {1: [_job(0)]}, branch=branch_commit())
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            code = state.main(["--repo", "o/r", "--require-announced"], api=api)
+        self.assertEqual(code, 1)
+        self.assertIn("never been announced", err.getvalue())
+
+    def test_exit_zero_prints_no_failure_message(self) -> None:
+        api = api_for([_run(1, "2026-09-11T04:15:40Z")], {1: [_job(0)]}, branch=branch_commit())
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            code = state.main(["--repo", "o/r"], api=api)
+        self.assertEqual(code, 0)
+        self.assertEqual(err.getvalue(), "")
 
 
 class ParsingDryRunOutput(unittest.TestCase):
