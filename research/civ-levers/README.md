@@ -149,6 +149,27 @@ So the bridging verdict flips only if contact itself widens tolerance fast (abou
 meeting here) and nobody rejects; with backfire at 0.7 it does not flip. The gain rates and the
 mere-exposure rule are assumptions, not measured.
 
+## Follow-up: where to seed a complex contagion (`experiments/cascades/`, `src/civ_levers/cascades.py`)
+
+Question: when a behaviour needs reinforcement (adopt after at least T neighbours have; Centola
+and Macy 2007), which seeds start a cascade on a clustered, a rewired and a random network?
+Watts–Strogatz graphs (n 1000, k 8, rewiring p from 0 to 1), 20 graphs per cell, four rules
+(random people, highest-degree people, a clustered patch, spread-out seeds). Hypotheses were
+logged before the run (`LOG.md`); `python3 experiments/cascades/run.py` reproduces
+`results.txt`.
+
+- A simple contagion (T = 1) from one seed reaches everyone at every p; rewiring changes speed only.
+- At T = 2 a clustered patch of 5 reaches everyone for p <= 0.1 and 0.85 (+-0.16) at p = 0.3;
+  at p = 1 no 5-seed rule passes 1%. The smallest budget reaching 90% is 2 to 3 for a patch at
+  p <= 0.1, 8 at p = 0.3, 40 at p = 1; random seeds need 12 to 20, hubs 8 to 20.
+- Spread-out seeds never start a T = 2 cascade: each seed alone has no one to reinforce it.
+- T = 3 is harder: a patch needs 3 to 5 seeds at p <= 0.03 and nothing up to 40 once p >= 0.1.
+- Against our own guess, hubs beat random seeds at T = 2 once rewiring makes degrees uneven.
+
+This agrees in direction with Centola and Macy (2007); it is not a reproduction of their
+figures, and Centola et al. (2018)'s 25% tipping point (a naming game) is not checked.
+T, k and the graph family are chosen, not measured; the finding is about simulated people.
+
 ## What this does and does not say
 
 - It is a model of opinion *positions*, not of prejudice or affect. Contact in Pettigrew and
@@ -177,8 +198,12 @@ Needs Python 3.9+ with numpy (and pytest); the app has no dependencies.
 - Allport, G. W. (1954). *The Nature of Prejudice*. Addison-Wesley.
 - Bail, C. A. et al. (2018). Exposure to opposing views on social media can increase political
   polarization. *PNAS* 115(37):9216–9221.
+- Centola, D. and Macy, M. (2007). Complex contagions and the weakness of long ties.
+  *American Journal of Sociology* 113(3):702–734.
 - Deffuant, G., Neau, D., Amblard, F. and Weisbuch, G. (2000). Mixing beliefs among interacting
   agents. *Advances in Complex Systems* 3:87–98.
+- Granovetter, M. (1978). Threshold models of collective behavior. *American Journal of
+  Sociology* 83(6):1420–1443.
 - Guess, A. and Coppock, A. (2020). Does counter-attitudinal information cause backlash? Results
   from three large survey experiments. *British Journal of Political Science* 50(4):1497–1515.
 - Hegselmann, R. and Krause, U. (2002). Opinion dynamics and bounded confidence: models,
@@ -190,4 +215,6 @@ Needs Python 3.9+ with numpy (and pytest); the app has no dependencies.
   *International Journal of Modern Physics C* 18(12):1819–1838.
 - Pettigrew, T. F. and Tropp, L. R. (2006). A meta-analytic test of intergroup contact theory.
   *Journal of Personality and Social Psychology* 90(5):751–783.
+- Watts, D. J. and Strogatz, S. H. (1998). Collective dynamics of 'small-world' networks.
+  *Nature* 393:440–442.
 - Sherif, M. and Hovland, C. I. (1961). *Social Judgment*. Yale University Press.
