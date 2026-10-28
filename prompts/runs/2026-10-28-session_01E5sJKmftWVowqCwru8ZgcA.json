@@ -36,7 +36,7 @@
     }
   ],
   "deviations": [],
-  "writeups": "none: one-field data fix; no post or agent doc",
+  "writeups": [],
   "goal": null,
   "notes": "Critique mode. main_health: 25/26 pass; promptctl validate red from a merged record with pr null (#11135); set it. Backlog ids touched: none. Ran validate (ok); unittest not run.",
   "corrections": [],
