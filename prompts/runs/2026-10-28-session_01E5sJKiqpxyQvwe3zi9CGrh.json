@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKiqpxyQvwe3zi9CGrh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T20:22:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11206,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Step list says run python3 platform/ci/unlanded_work.py; not run here, and venture-preflight (5+ min) was skipped for a CLI/engine-only change."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs not run: no page or site input changed",
+      "did": "ran johnson-johnson, cli and page tests locally",
+      "result": "27 pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-log-option-for-growing-series.md",
+    "ventures/changepoint-detector/README.md (--log section)"
+  ],
+  "goal": null,
+  "notes": "Landed --log in changepoint-detector; engine.test.mjs full run exceeded 120s and was not confirmed.",
+  "corrections": [],
+  "redteam": null
+}
