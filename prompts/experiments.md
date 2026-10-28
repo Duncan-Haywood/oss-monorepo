@@ -1573,3 +1573,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E104: review 2026-10-28 (reduced pass, thirty-first run)
+
+- Change: `research/CLAUDE.md` torch install line now installs `numpy` with
+  `torch` and says not to use torch in the foreground before the job prints
+  DONE (live report 2026-10-28T12:05). Re-ran `derive.py fetch && build`
+  (3584 rows).
+- Metric: friction reports naming `research/CLAUDE.md` about the torch install;
+  compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
