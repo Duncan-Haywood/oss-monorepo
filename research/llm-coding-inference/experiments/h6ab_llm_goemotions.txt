@@ -1,0 +1,40 @@
+fear: corpus 6683, prevalence 0.0115, positives 77, strata [1650, 1390, 2078, 1565]; LLM = Qwen2.5-1.5B-Instruct, one zero-shot yes/no prompt
+coder | coder-positive share | sens | spec | pooled lambda | oracle n 1.0pt human-only / tuned | oracle n 0.5pt human-only / tuned
+NB (3x cut) | 0.033 | 0.247 | 0.969 | 0.08 | 405 / 398 | 1368 / 1347
+LLM score>0 | 0.045 | 0.545 | 0.960 | 0.13 | 405 / 379 | 1368 / 1291
+LLM 3x cut | 0.025 | 0.481 | 0.980 | 0.22 | 405 / 366 | 1368 / 1253
+
+fixed-size audits, 500 draws: coder | n | rule | coverage % | mean half-width pts
+NB (3x cut) | 400 | stratified human-only | 86.2 | 0.970
+NB (3x cut) | 400 | tuned stratified PPI | 86.4 | 0.940
+NB (3x cut) | 1000 | stratified human-only | 93.2 | 0.596
+NB (3x cut) | 1000 | tuned stratified PPI | 92.6 | 0.584
+LLM score>0 | 400 | stratified human-only | 88.8 | 0.994
+LLM score>0 | 400 | tuned stratified PPI | 89.0 | 0.921
+LLM score>0 | 1000 | stratified human-only | 92.4 | 0.601
+LLM score>0 | 1000 | tuned stratified PPI | 92.0 | 0.572
+LLM 3x cut | 400 | stratified human-only | 88.0 | 0.987
+LLM 3x cut | 400 | tuned stratified PPI | 85.2 | 0.893
+LLM 3x cut | 1000 | stratified human-only | 93.4 | 0.599
+LLM 3x cut | 1000 | tuned stratified PPI | 92.2 | 0.559
+
+sadness: corpus 6683, prevalence 0.0230, positives 154, strata [1650, 1390, 2078, 1565]; LLM = Qwen2.5-1.5B-Instruct, one zero-shot yes/no prompt
+coder | coder-positive share | sens | spec | pooled lambda | oracle n 1.0pt human-only / tuned | oracle n 0.5pt human-only / tuned
+NB (3x cut) | 0.085 | 0.396 | 0.922 | 0.09 | 753 / 733 | 2242 / 2197
+LLM score>0 | 0.032 | 0.494 | 0.978 | 0.34 | 753 / 637 | 2242 / 1971
+LLM 3x cut | 0.074 | 0.682 | 0.941 | 0.21 | 753 / 663 | 2242 / 2033
+
+fixed-size audits, 500 draws: coder | n | rule | coverage % | mean half-width pts
+NB (3x cut) | 400 | stratified human-only | 93.2 | 1.397
+NB (3x cut) | 400 | tuned stratified PPI | 92.0 | 1.353
+NB (3x cut) | 1000 | stratified human-only | 95.6 | 0.847
+NB (3x cut) | 1000 | tuned stratified PPI | 94.8 | 0.828
+LLM score>0 | 400 | stratified human-only | 94.0 | 1.397
+LLM score>0 | 400 | tuned stratified PPI | 90.0 | 1.244
+LLM score>0 | 1000 | stratified human-only | 94.0 | 0.842
+LLM score>0 | 1000 | tuned stratified PPI | 90.8 | 0.759
+LLM 3x cut | 400 | stratified human-only | 92.6 | 1.392
+LLM 3x cut | 400 | tuned stratified PPI | 90.2 | 1.257
+LLM 3x cut | 1000 | stratified human-only | 94.8 | 0.841
+LLM 3x cut | 1000 | tuned stratified PPI | 94.2 | 0.775
+
