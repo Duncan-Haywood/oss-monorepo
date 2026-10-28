@@ -12,7 +12,8 @@ def run(cmd):
 class T(unittest.TestCase):
     def test_blocks(self):
         for c in ["pkill -f node", "pgrep -f x | head", "until ! pgrep -fa run; do :; done",
-                  "sleep 1 && pkill -f node", "nohup pkill -f x &"]:
+                  "sleep 1 && pkill -f node", "nohup pkill -f x &",
+                  "pkill -f '[n]ode'; nohup node server.js &"]:
             self.assertEqual(run(c), 2, c)
 
     def test_allows(self):

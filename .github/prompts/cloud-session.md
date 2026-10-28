@@ -73,7 +73,10 @@ the process list for the script's own name: it matches itself and never ends.
 - `pkill -f <name>` kills the Bash tool's own shell, because its command
   line contains the pattern (the `pgrep` form matches itself the same way).
   `.claude/hooks/block_pkill_f.py` refuses both, also inside heredocs that
-  merely mention them; use `'[n]ame'` or `kill <pid>`.
+  merely mention them; use `'[n]ame'` or `kill <pid>`. A bracketed pattern
+  still kills the shell when the plain `name` appears elsewhere in the same
+  command (a `nohup name ...` on the same line); the hook refuses that too, so
+  run the kill in its own call.
 - Fresh model samples with no repo instructions (`claude -p --tools "" --setting-sources ""`):
   recipe in `docs/reports/assets/agent-fiction/README.md`.
 
