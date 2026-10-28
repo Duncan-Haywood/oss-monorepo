@@ -60,3 +60,21 @@ test("more profit never lowers the total tax", () => {
     assert.ok(hi >= lo, `${filing} ${a} -> ${b}: ${lo} then ${hi}`);
   }
 });
+
+test("built-in earned income credit: rises to the maximum, then never rises, and ends within the schedule", () => {
+  const eic = (year, kids, filing, wages) => estimatedTax(books("1.00", year), { year, wages: wages * 100, withholding: 0, eitcChildren: kids, filing, qbi: false }).eitcCredit;
+  const max = { 2025: [649, 4328, 7152, 8046], 2026: [664, 4427, 7316, 8231] };
+  for (const year of [2025, 2026]) for (const filing of ["single", "mfj"]) for (let kids = 0; kids <= 3; kids++) {
+    let prev = 0, peaked = false, ended = false;
+    for (let w = 0; w <= 80_000; w += 250) {
+      const c = eic(year, kids, filing, w);
+      assert.ok(c >= 0 && c <= max[year][kids] * 100 + 100, `${year} ${filing} ${kids}: ${c} at ${w}`);
+      if (c < prev) peaked = true;
+      if (peaked) assert.ok(c <= prev, `${year} ${filing} ${kids} rises again at ${w}`);
+      if (peaked && c === 0) ended = true;
+      if (ended) assert.equal(c, 0);
+      prev = c;
+    }
+    assert.ok(ended, `${year} ${filing} ${kids}: credit never ends by $80,000`);
+  }
+});
