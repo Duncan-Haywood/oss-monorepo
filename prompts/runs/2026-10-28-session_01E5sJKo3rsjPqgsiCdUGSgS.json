@@ -22,18 +22,24 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "merged",
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
-    "duplicate-work.md / land-your-work.md: search_pull_requests with minimal_output but no keyword returned 199KB; added keyword + perPage advice (fixed in this PR)"
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "search_pull_requests with minimal_output but no keyword returned 199KB; added keyword + perPage advice (fixed in this PR)"
+    }
   ],
   "deviations": [
-    "no new blog post: a two-line doc fix with nothing new to tell a reader"
+    {
+      "file": "prompt.md",
+      "why": "no new blog post: a two-line doc fix with nothing new to tell a reader"
+    }
   ],
   "writeups": [],
   "goal": null,
