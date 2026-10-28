@@ -1,7 +1,7 @@
 ---
 title: "Nevada sales tax is now due the 20th, not month end"
 date: 2026-10-28
-description: "Assembly Bill 594 moved Nevada sales and use tax returns to the 20th of the month after the period, from the January 2026 period. Old calendars still show the last day."
+description: "Assembly Bill 594 moved Nevada sales and use tax returns to the 20th of the month after the period, from the January 2026 period. Old calendars say last day."
 tags: [ai-bookkeeper, sales-tax, nevada]
 ---
 
