@@ -1,7 +1,7 @@
 ---
 title: "How many coordinated attackers can a median aggregator absorb? Seven of sixteen, at a price"
 date: 2026-10-28
-description: "In simulated low-communication training with 16 workers, a median aggregator keeps training with 4 to 7 colluding attackers, but validation loss rises 0.23 to 0.77 nats."
+description: "In simulated 16-worker low-communication training, a median aggregator keeps training with 4 to 7 colluding attackers, at +0.23 to +0.77 nats."
 tags: [research, lowcomm-training, robust-aggregation, diloco]
 ---
 
