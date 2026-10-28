@@ -19,7 +19,7 @@
   "projects": [
     "ai-bookkeeper"
   ],
-  "pr": null,
+  "pr": 11155,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -35,7 +35,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "2027 revenue procedure still not out (revproc-probe exit 1); state revenue sites unreachable (curl 000), so took a slice needing no outside data. Verified: salestaxreturn/page/cli tests (68 pass), eval/browser-salestax-return.mjs 5 checks, full venture suite run (see PR).",
+  "notes": "2027 revenue procedure still not out (revproc-probe exit 1); state revenue sites unreachable (curl 000), so took a slice needing no outside data. Verified: salestaxreturn/page/cli tests (68 pass), eval/browser-salestax-return.mjs 5 checks, full venture suite 1730/1730 pass.",
   "corrections": [],
   "redteam": null
 }
