@@ -211,6 +211,19 @@ const [sv2] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved2 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv2.path(), "utf8"));
 const trimOk = !/NaN|undefined/.test(trimTxt) && /casing/i.test(trimTxt) && /baseboard/i.test(trimBud) && saved2.trim?.basePrice === 14;
 console.log(trimOk ? "ok: trim card, budget line and saved plan" : "FAIL: trim: " + trimTxt.slice(0, 200));
+// gutters card (roof is already on): sections, downspouts, a budget line from a typed price, saved plan keeps it
+await page.check("#rfOn");
+await page.selectOption("#rfShape", "gable");
+await page.check("#guOn");
+await page.fill("#priceText", "wallSheet, 20\ngutterSection, 9");
+await page.click("#run");
+await page.waitForFunction(() => /Downspouts:/.test(document.querySelector("#guttersOut")?.textContent || ""), null, { timeout: 30000 }).catch(async () => { console.log("FAIL: gutters card; errors:", (await page.textContent("#errors")).slice(0, 300), "roof on:", await page.isChecked("#rfOn")); });
+const guTxt = await page.textContent("#guttersOut");
+const guBud = await page.textContent("#budgetOut");
+const [sv3] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved3 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv3.path(), "utf8"));
+const guOk = !/NaN|undefined/.test(guTxt) && /Gutter sections/.test(guBud) && saved3.gutters && typeof saved3.gutters === "object";
+console.log(guOk ? "ok: gutters card, budget line and saved plan" : "FAIL: gutters: " + guTxt.slice(0, 200));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
