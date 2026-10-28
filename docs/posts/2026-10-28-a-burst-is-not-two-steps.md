@@ -1,7 +1,7 @@
 ---
 title: "Is it a burst or two level changes? A test that says no on real data"
 date: 2026-10-28
-description: "changepoint-detector now flags when two count changes are really one temporary burst. On the classic great-discoveries series it declines, and that is the right answer."
+description: "changepoint-detector now flags when two count changes are one temporary burst. On the classic great-discoveries series it declines, rightly."
 tags: [changepoint-detector, statistics, counts]
 ---
 
