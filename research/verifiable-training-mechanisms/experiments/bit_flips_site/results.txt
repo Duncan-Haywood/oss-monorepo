@@ -1,0 +1,16 @@
+site class n nonfinite finite_harm any_harm(|dL|>0.01)
+weight     exp_hi  60 0.133 0.067 0.200
+weight     exp_lo  20 0.000 0.000 0.000
+weight     sign    20 0.000 0.000 0.000
+weight     man_hi  20 0.000 0.000 0.000
+weight overall P(harm), bits 16-31 (mantissa 0-15 counted 0): 0.025
+gradient   exp_hi  60 0.150 0.100 0.250
+gradient   exp_lo  20 0.000 0.000 0.000
+gradient   sign    20 0.000 0.000 0.000
+gradient   man_hi  20 0.000 0.000 0.000
+gradient overall P(harm), bits 16-31 (mantissa 0-15 counted 0): 0.031
+activation exp_hi  60 0.083 0.000 0.083
+activation exp_lo  20 0.000 0.000 0.000
+activation sign    20 0.000 0.000 0.000
+activation man_hi  20 0.000 0.000 0.000
+activation overall P(harm), bits 16-31 (mantissa 0-15 counted 0): 0.010
