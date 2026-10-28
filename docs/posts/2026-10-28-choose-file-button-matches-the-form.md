@@ -17,5 +17,5 @@ same 7px radius and neutral border the form fields use, in translucent grey
 so it reads on light and dark pages alike. No new request, no script, nothing
 that depends on a page's own palette.
 
-Before and after screenshots and the measurements are in
+What was looked at and what is still weakest is in
 `docs/reports/polish-2026-10-28-file-button.md`.
