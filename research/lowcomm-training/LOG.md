@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-28 · Milestone 5k: does the bias-crossover account place the breakdown between k = 7 and k = 8? (planned before running)
+- Why: 5j's "Next". The squared-shift mapping under-predicted and missed the k = 8 divergence; the post-hoc account says training breaks when the coalition's median bias exceeds the honest signal, i.e. net signal `mu + bias` (numpy, mu/sigma = 0.4, `coalition_numpy_results.txt`) falls to zero or below. Net signal in sigma units: k = 4 +0.26, k = 5 +0.21, k = 6 +0.15, k = 7 +0.07, k = 8 -0.05. The two points that were not run, k = 5 and k = 7, now test it out of sample (k = 7 is the sharp one: the account says it still trains).
+- Design: `KS=5,7 python3 coalition.py run` (one-line change to `coalition.py` so k is an environment variable; everything else as 5j), seeds 0 and 1, excess over the 5i clean median on the same seed.
+- **H5k-i:** k = 5 excess lies between the k = 4 and k = 6 seed means (+0.047 to +0.140). Refuted otherwise.
+- **H5k-ii:** k = 7 excess exceeds the k = 6 value, +0.14, or it diverges (steepening towards the wall). Refuted if below +0.14.
+- **H5k-iii (the account's own prediction):** k = 7 does not diverge on either seed (final validation loss below 3). Refuted if either seed blows up, which would put the breakdown below the numpy crossover and the account would need the falling mu/sigma (5h) to move it.
+- Prior: i 70%, ii 80%, iii 50% (net signal +0.07 sigma is well inside the numpy fit's own error and the per-round mu/sigma falls below 0.4 late; early rounds have mu/sigma above 1).
+- Limits known in advance: two seeds; the coordinated attack of 5j is still independent per-member flips, not the optimal one; one model and corpus.
+
 ## 2026-10-27 · Milestone 5j: where does the median break when k of 16 workers flip together? (planned before running)
 - Why: 5i's "Next". One attacker is inside the noise floor at M = 16, so the question for the protocol is how the cost grows with the coalition size k. Numpy half (`experiments/gpt_median_coalition/coalition_numpy.py`, mu/sigma = 0.4 from 5h, i.i.d. Gaussian, 2e6 coordinates, no training): the median's mean squared shift relative to k = 1 is x2.1, x5.1, x10.3, x24.2 for k = 2, 4, 6, 8 (x46 at k = 9); the shift grows smoothly, with no cliff at k = M/2 (the median is bounded: the bias is 0.45 sigma at k = 8).
 - Design: real training, `coalition.py`, k in {2, 4, 6, 8}, seeds 0 and 1, M = 16, everything else as 5i; excess measured over the clean median of 5i on the same seed. Scaling the paired one-attacker cost (+0.0036, 5i-b) by the squared-shift ratios predicts excess +0.008, +0.018, +0.037, +0.087 nats.
