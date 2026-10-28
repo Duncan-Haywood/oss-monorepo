@@ -1551,3 +1551,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   collecting: the intervals overlap"; no audit, drift report or derive re-run
   (reduced pass).
 - Result: (next review)
+
+## E102: review 2026-10-28 (reduced pass, twenty-ninth run)
+
+- Change: `prompts/creative/prompt-0.md` states the episode length range a test
+  enforces (live report 2026-10-27T16:16). Re-ran `derive.py fetch && build`
+  (3487 rows).
+- Metric: friction reports naming `prompts/creative/prompt-0.md` about episode
+  length; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)

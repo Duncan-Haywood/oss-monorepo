@@ -1,7 +1,7 @@
 ---
 title: "Two kids take $4,400 off a $100,000 freelancer's estimated tax"
 date: 2026-10-28
-description: "ai-bookkeeper's federal estimate page now asks for children, other dependents, service-business status and the business's W-2 wages, so the quarterly numbers match the household."
+description: "ai-bookkeeper's federal estimate now asks for children, other dependents, service-business status and W-2 wages, so quarterly numbers match the household."
 tags: [ai-bookkeeper, tax, self-employed]
 ---
 

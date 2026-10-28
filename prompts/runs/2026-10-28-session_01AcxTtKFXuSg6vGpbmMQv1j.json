@@ -45,7 +45,7 @@
       "result": "no results changed after reading output"
     }
   ],
-  "writeups": "docs/posts/2026-10-28-does-a-swath-boat-beat-a-monohull-on-energy.md; research/marine-hull/LOG.md milestone 5b",
+  "writeups": ["docs/posts/2026-10-28-does-a-swath-boat-beat-a-monohull-on-energy.md", "research/marine-hull/LOG.md"],
   "goal": null,
   "notes": "marine-hull milestone 5b SWATH rung; 34 tests pass, homepage build ok, md links ok.",
   "corrections": [],

@@ -61,7 +61,8 @@ Any of these counts as the run's deliverable:
   "Publishing"); check `python3 portfolio/ledger/decision_queue.py` and ask
   once at most; asking again every run only duplicates the queue.
 - **A podcast episode for a blog post** that has none (compare `docs/posts/`
-  with `docs/podcast/`).
+  with `docs/podcast/`). A test checks episode length; a run reported the
+  range as 4500 to 9500 words, so aim inside it before the first draft.
 
 ## The bar
 
