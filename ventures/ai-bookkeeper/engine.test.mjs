@@ -922,3 +922,10 @@ test("daysOutstanding: open receivable and payable over the period's flow, null 
   const none = daysOutstanding(profitAndLoss([], acc, {}), balanceSheet([], acc, {}));
   assert.deepEqual(none, { receivableDays: null, payableDays: null });
 });
+
+test("a part-payment named only by a one-word overlap with a two-word party is not matched", () => {
+  const docs = "type,number,date,due,party,amount,account\ninvoice,9,2026-01-01,,Nobody Paid,1200.00,4000\n";
+  const b = withDocs(docs, "Date,Description,Amount\n2026-01-05,Card paid at cafe,12.00\n2026-01-06,NOBODY PAID PART,300.00\n");
+  const s = settle(b);
+  assert.equal(s.transactions.filter((t) => t.partial).length, 1, "only the line with both words is a part-payment");
+});
