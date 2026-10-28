@@ -115,6 +115,10 @@ test("the 2026 QBI threshold is Rev. Proc. 2025-32's $201,750 (single) and $403,
   assert.equal(warns({ otherIncome: 21800000 }), true); // ~$201,900
   assert.equal(warns({ filing: "mfj", otherIncome: 43000000 }), false); // ~$397,800, over 2025's $394,600
   assert.equal(warns({ filing: "mfj", otherIncome: 44000000 }), true);
+  // head of household, to the dollar (profit $1 adds about 93 cents of AGI after half the SE tax, so these land 50 cents either side of the line)
+  const hohStd = BRACKETS[2026].hoh.std, hohWarns = (taxableCents) => estimatedTax(books("1.00"), { year: 2026, filing: "hoh", otherIncome: taxableCents + hohStd }).warnings.some((w) => /above the QBI threshold/.test(w));
+  assert.equal(hohWarns(20174957 - 100), false); // ~$201,749.50, under the line
+  assert.equal(hohWarns(20174957), true); // ~$201,750.50, over the line but under $201,751
 });
 
 test("what the plan does not cover is left as the balance due with the return", () => {
