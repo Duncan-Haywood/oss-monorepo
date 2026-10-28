@@ -490,6 +490,12 @@ refused by the Wikimedia API's rate limit (429) and not retried. A series with
 a real holiday closure (a shop's or office's daily counts) is still the test
 that would show the factor earning its place.
 
+## Burst or two steps? (`excursions`, counts)
+
+With `--model poisson`, the result lists an `excursions` entry (and one sentence in `summary`) when two neighbouring changes enclose a short stretch (at most a quarter of the series) whose rate sits above or below both sides, and the rate before and after it is statistically one rate (Poisson likelihood ratio under 3.84, 1 df). That reads as a temporary burst or dip on a steady baseline, not two level changes. The changes themselves are not altered. Function: `findExcursions`.
+
+Checked: a planted 10-point burst at 4x on a flat series is flagged; a plain step is not (`great-discoveries.test.mjs`). On the real great-discoveries series it is **not** flagged: the rate before 1884 (2.5 a year) and after 1888 (3.68) differ with a likelihood ratio of 6.9, so the honest reading there is a burst plus a persistent rise, which is what the three PELT changes say. The threshold was not moved to make that series pass. Synthetic power and false-flag rates are not measured yet; no second real series.
+
 ## Bursts
 
 `--bursts [ratio]` (counts only) cuts isolated spikes back before fitting. A
