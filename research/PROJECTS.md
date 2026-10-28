@@ -1803,7 +1803,7 @@ generative agents, UIST.
    bounded confidence with backfire swept from none to strong? Bridging contact backfires; a
    ladder of committed voices within reach merges the camps in 24 of 25 settings. Ships a
    browser simulator.
-2. `civ-contact`: contact that also widens tolerance (Pettigrew and Tropp's prejudice reduction
+2. `civ-contact` (landed in civ-levers 2026-10-26): contact that also widens tolerance (Pettigrew and Tropp's prejudice reduction
    as a change in ε), and identity: a moderate voice each camp reads as the other side's. Does
    the bridging verdict flip?
 3. `civ-cascades`: Granovetter thresholds and complex contagion on clustered against random

@@ -122,15 +122,21 @@ def milestones(prefix):
     """(listed, free) milestone slugs from the track's section in PROJECTS.md.
 
     A slug counts as listed when it starts a numbered milestone line; free
-    when no research/<slug> directory exists. Empty `listed` means the section
-    has no parsable milestone list (say so rather than guess).
+    when no research/<slug> directory exists and its line is not marked
+    `(done ...)` or `(landed in <programme>)` (a milestone that ran inside a
+    programme has no directory of its own; doc_friction 2026-10-28). Empty
+    `listed` means the section has no parsable milestone list (say so rather
+    than guess).
     """
     text = (RESEARCH / "PROJECTS.md").read_text()
     m = re.search(r"^## \d+\. [^\n]*\(`%s`\)\n(.*?)(?=^## )" % re.escape(prefix), text, re.M | re.S)
     if not m:
         return [], []
-    listed = re.findall(r"^\d+\. `(%s-[\w-]+)`" % re.escape(prefix), m.group(1), re.M)
-    return listed, [x for x in listed if not (RESEARCH / x).is_dir()]
+    pat = r"^\d+\. `(%s-[\w-]+)`([^\n]*)" % re.escape(prefix)
+    found = re.findall(pat, m.group(1), re.M)
+    listed = [slug for slug, _ in found]
+    marked = {slug for slug, rest in found if re.match(r"\s*\((done|landed)\b", rest)}
+    return listed, [x for x in listed if x not in marked and not (RESEARCH / x).is_dir()]
 
 
 def next_steps(name, width=400):
