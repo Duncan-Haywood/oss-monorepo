@@ -4626,7 +4626,9 @@ const SUBCATEGORY_RULES = {
       // even though its own job is furniture, not construction.
       // `tile-layout-planner` joined 2026-10-01 on its first commit: it lays out the
       // floor the flooring and tile-backsplash bids price, for the same remodeler.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging)/.test(slug),
+      // `wall-framing-takeoff` joined 2026-10-28: studs and plates go up
+      // before the drywall here, and its lumber list is the same job as `cut-list`.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing)/.test(slug),
     },
     {
       id: 'trades-site',
