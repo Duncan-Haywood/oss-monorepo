@@ -96,7 +96,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   try {
     if (/\.(dxf|ifc)$/i.test(args[0])) {
       const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
-      const r = (/\.ifc$/i.test(args[0]) ? planFromIfc : planFromDxf)(readInput(args[0]), { units: /** @type {any} */ (units), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto" });
+      const r = /** @type {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }} */ ((/\.ifc$/i.test(args[0]) ? planFromIfc : planFromDxf)(readInput(args[0]), { units: /** @type {any} */ (units), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto" }));
       if (!r.ok) return { code: 2, out: `Could not read the drawing: ${r.errors.join(" ")}` };
       const note = r.notes.map((n) => `  - ${n}`).join("\n");
       if (flags.has("--plan-only")) return { code: 0, out: JSON.stringify(r.plan, null, 2) + `\n\nNotes (not part of the JSON):\n${note}` };
