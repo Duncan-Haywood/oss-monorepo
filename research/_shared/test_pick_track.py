@@ -34,6 +34,11 @@ class MilestonesTest(unittest.TestCase):
         self.assertIn("capture-crop", listed)
         self.assertTrue(set(free) <= set(listed))
 
+    def test_landed_in_programme_is_not_free(self):
+        listed, free = pick_track.milestones("civ")
+        self.assertIn("civ-contact", listed)
+        self.assertNotIn("civ-contact", free)
+
     def test_unknown_prefix_is_empty(self):
         self.assertEqual(pick_track.milestones("nosuchtrack"), ([], []))
 
