@@ -26,18 +26,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 1,
-  "outcome": "Small flagship slice: Utah monthly sales-tax due date (last day of next month) read from tax.utah.gov/sales/due-dates and pinned with a test; flagships.yaml next: updated.",
+  "outcome": "success",
   "errors": [
     "First push and record command exceeded the 120s tool timeout and ran in the background; re-pushed."
   ],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [
-    "No blog post or agent doc: the slice is a one-line source pin, too small to write about."
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post or agent doc: the slice is a one-line source pin, too small to write about."
+    }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Local check: node --test salestaxreturn.test.mjs, 48 pass. Most other state tax sites returned 403/404/redirects through the proxy.",
+  "notes": "Small flagship slice: Utah monthly sales-tax due date (last day of next month) read from tax.utah.gov/sales/due-dates and pinned with a test; flagships.yaml next: updated. Local check: node --test salestaxreturn.test.mjs, 48 pass. Most other state tax sites returned 403/404/redirects through the proxy.",
   "corrections": [],
   "redteam": null
 }
