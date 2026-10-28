@@ -38,7 +38,9 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-10-28-ambrose-and-the-bees-in-the-cradle.md",
+  "writeups": [
+    "docs/posts/2026-10-28-ambrose-and-the-bees-in-the-cradle.md"
+  ],
   "goal": null,
   "notes": "Project saints-by-candlelight, slug ambrose-and-the-bees-in-the-cradle (episode 46), text only: audio at 423 MB, over the 400 MB cap. Checks run: generate.mjs --check-script (6284 words ok), generate.mjs, node --test (12 pass). Removed an unverified beehive-carving claim and an invented age during adversarial re-read.",
   "corrections": [],
