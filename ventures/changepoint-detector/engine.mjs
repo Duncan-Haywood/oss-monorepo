@@ -1821,7 +1821,8 @@ export function analyze(input = {}) {
       ...(ranges ? { range95: { from: labels[ranges[k].from], to: labels[ranges[k].to], fromIndex: ranges[k].from, toIndex: ranges[k].to } } : {}),
     };
   });
-  const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped });
+  const excursions = model === 'poisson' ? findExcursions(original, p.changepoints, { exposure }).map((x) => ({ from: labels[x.fromIndex], to: labels[x.toIndex], fromIndex: x.fromIndex, toIndex: x.toIndex, length: x.length, direction: x.direction, baselineRate: round(x.baselineRate), excursionRate: round(x.excursionRate), ratio: x.ratio === null ? null : round(x.ratio, 3), sameBaselineLR: round(x.sameBaselineLR, 3) })) : [];
+  const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped }) + excursions.map((x) => ` Changes at ${x.from} and just after ${x.to} may be one temporary ${x.direction === 'up' ? 'burst' : 'dip'}, not two steps: the rate before and after it is the same (${fmt(x.baselineRate)} a point, likelihood ratio ${fmt(x.sameBaselineLR)} against 3.84), and inside it is ${fmt(x.excursionRate)}.`).join('');
   return {
     n: values.length,
     column,
@@ -1840,6 +1841,7 @@ export function analyze(input = {}) {
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
     ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
+    ...(excursions.length ? { excursions } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -1972,6 +1974,32 @@ export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, 
 }
 
 /** Least-squares line through x[s..t): slope per index, residual sd, and the fitted value at any index. */
+/**
+ * Burst or two steps? With counts, a temporary excursion (a rate that jumps and then returns to where it was) is read by
+ * PELT as two level changes with narrow, over-confident ranges. For each pair of neighbouring changes a < b with a short
+ * segment between them, test whether the rate before a and the rate after b are one rate (Poisson likelihood ratio, 1 df,
+ * 3.84 = 95%): if they are, the pair is one excursion on a steady baseline. Returned as a note beside the changes; the
+ * changes themselves are not altered. `exposure` is the seasonal/holiday expected-share per point when there is one.
+ */
+export function findExcursions(x, cps, { exposure = null, maxFraction = 0.25, critical = 3.84 } = {}) {
+  const n = x.length, e = (t) => (exposure ? exposure[t] : 1);
+  const sum = (lo, hi) => { let c = 0, w = 0; for (let t = lo; t < hi; t++) { c += x[t]; w += e(t); } return { c, w }; };
+  const ll = (c, w, r) => (c > 0 ? c * Math.log(r * w) : 0) - r * w;
+  const out = [];
+  for (let k = 0; k + 1 < cps.length; k++) {
+    const a = cps[k], b = cps[k + 1];
+    if (b - a > maxFraction * n) continue;
+    const L = sum(k ? cps[k - 1] : 0, a), M = sum(a, b), R = sum(b, k + 2 < cps.length ? cps[k + 2] : n);
+    if (!L.w || !R.w || !M.w) continue;
+    const rL = L.c / L.w, rR = R.c / R.w, rM = M.c / M.w, rP = (L.c + R.c) / (L.w + R.w);
+    const lr = 2 * (ll(L.c, L.w, rL) + ll(R.c, R.w, rR) - ll(L.c, L.w, rP) - ll(R.c, R.w, rP));
+    // the middle must sit clearly on one side of both neighbours (a burst up or a dip down)
+    if (!((rM > rL && rM > rR) || (rM < rL && rM < rR))) continue;
+    if (lr < critical) out.push({ fromIndex: a, toIndex: b - 1, length: b - a, baselineRate: rP, excursionRate: rM, ratio: rP > 0 ? rM / rP : null, sameBaselineLR: lr, direction: rM > rP ? 'up' : 'down' });
+  }
+  return out;
+}
+
 function lineFit(x, s, t) {
   const m = t - s;
   let st = 0, sx = 0;
