@@ -23,6 +23,7 @@ import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, import
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax, taxTableOptions } from "./estimatedtax.mjs";
+import { annualizedInstallments } from "./annualized.mjs";
 import { scorpFromBooks } from "./scorp.mjs";
 import { retirementLimits } from "./retirement.mjs";
 import { addProject, tagProject as tagProjectLines, projectReport, projectCsv, projectMoney } from "./projects.mjs";
@@ -89,6 +90,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   schedulec [--year Y] [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   retirement [--year Y] [--months N] [--age N] [--wages $] [--json]  most a sole proprietor can put in a SEP-IRA or solo 401(k) this year (worksheet)
   estimate [--year Y] [--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $] [--paid $] [--prior-tax $ --prior-agi $] [--as-of D] [--no-qbi] [--service] [--business-wages $] [--itemized $] [--investment $] [--eitc-children N] [--tax-table file.json] [--json]  federal income tax plus SE tax and a safe-harbour 1040-ES payment plan (worksheet)
+  annualized [--year Y] [--filing ...] [--wages $] [--withholding $] [--prior-tax $ --prior-agi $] [--payment DATE:$ ...] [--tax-table file.json] [--json]  Form 2210 Schedule AI worksheet: what each estimated-tax date requires when income is uneven (annualized income installment method)
   se [--year Y] [--months N] [--wages $] [--json]  self-employment tax on the year's Schedule C profit, annualised, split into the four estimated-payment dates (worksheet; income tax not estimated)
   asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
   asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
@@ -802,6 +804,21 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     for (const p of r.payments) console.log(`  ${p.due}  ${p.status === "past" ? "(past)".padStart(12) : fmt(p.cents).padStart(12)}`);
     for (const w of r.warnings) console.log(`  ! ${w}`);
     console.log("  A worksheet. Not tax advice; it leaves out state tax, credits and itemised deductions.");
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "annualized") {
+  const yr = flag("--year"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
+  try {
+    const ttFile = flag("--tax-table");
+    const table = ttFile ? taxTableOptions(JSON.parse(readFileSync(ttFile, "utf8"))) : {};
+    const payments = [];
+    process.argv.forEach((a, i) => { if (a === "--payment") { const [d, v] = (process.argv[i + 1] ?? "").split(":"); if (!/^\d{4}-\d\d-\d\d$/.test(d ?? "") || !Number.isFinite(+v)) { console.error("--payment takes DATE:AMOUNT, like 2026-04-15:1500"); process.exit(1); } payments.push({ date: d, cents: Math.round(+v * 100) }); } });
+    const r = annualizedInstallments(books, { ...table, year: yr ? +yr : new Date().getFullYear(), filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), payments });
+    if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+    console.log(`ANNUALIZED INCOME INSTALLMENTS ${r.year} (Form 2210 Schedule AI), required annual payment ${fmt(r.requiredAnnual)}, regular quarter ${fmt(r.regularQuarter)}`);
+    console.log("  Due         Profit to date  Annualized tax  Installment  Cumulative  Regular cum.  Credits  Short (annualized / regular)");
+    for (const x of r.rows) console.log(`  ${x.due}  ${fmt(x.profitToDate).padStart(13)}  ${fmt(x.annualizedTax).padStart(14)}  ${fmt(x.installment).padStart(11)}  ${fmt(x.cumulativeRequired).padStart(10)}  ${fmt(x.regularCumulative).padStart(12)}  ${fmt(x.creditsByDue).padStart(7)}  ${fmt(x.shortfall)} / ${fmt(x.regularShortfall)}`);
+    for (const w of r.warnings) console.log(`  ! ${w}`);
+    console.log("  A worksheet. Not tax advice; the penalty rate and the form's alternative periods are not modelled.");
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "retirement") {
   const yr = flag("--year"), mo = flag("--months"), ag = flag("--age"), wg = flag("--wages");

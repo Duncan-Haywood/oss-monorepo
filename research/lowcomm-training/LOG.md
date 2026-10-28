@@ -18,6 +18,12 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Limits: two seeds; the account is a one-parameter fit (mu/sigma = 0.4), not yet a formula for the excess; independent per-member flips, not the optimal coordinated attack; one model and corpus.
 - Next: the same-vector coordinated attack (all members send -c x the honest mean), where the median's bias is larger and the breakdown k should move down; and a per-round mu/sigma-based prediction of the breakdown.
 
+## 2026-10-28 · Milestone 5k-b: a third seed at k = 7, and the crossover across mu/sigma (a parallel session ran 5k on seeds 0 and 1; this adds to it)
+- Run concurrently with the entry above, same settings, so k = 7 seeds 0 and 1 reproduce it bit for bit (+0.259, +0.319; `experiments/gpt_median_k7/k7.jsonl`). New: **k = 7 seed 2: +0.295** (three-seed mean **+0.291**, none diverged), and k = 5 seed 0 +0.069 (same as above).
+- New numpy table (`crossover_numpy_results.txt`): net signal (mu/sigma minus |bias|/sigma) is positive at k = 7 and negative at k = 8 for every mu/sigma from 0.3 to 1.0, so the predicted breakdown between 7 and 8 does not hinge on the 0.4 fit. Margin at k = 7: +0.05 (mu/sigma 0.3) to +0.23 (1.0).
+- Limits: as above; seed 2 is the only run not in the entry above.
+
+
 ## 2026-10-27 · Milestone 5j: where does the median break when k of 16 workers flip together? (planned before running)
 - Why: 5i's "Next". One attacker is inside the noise floor at M = 16, so the question for the protocol is how the cost grows with the coalition size k. Numpy half (`experiments/gpt_median_coalition/coalition_numpy.py`, mu/sigma = 0.4 from 5h, i.i.d. Gaussian, 2e6 coordinates, no training): the median's mean squared shift relative to k = 1 is x2.1, x5.1, x10.3, x24.2 for k = 2, 4, 6, 8 (x46 at k = 9); the shift grows smoothly, with no cliff at k = M/2 (the median is bounded: the bias is 0.45 sigma at k = 8).
 - Design: real training, `coalition.py`, k in {2, 4, 6, 8}, seeds 0 and 1, M = 16, everything else as 5i; excess measured over the clean median of 5i on the same seed. Scaling the paired one-attacker cost (+0.0036, 5i-b) by the squared-shift ratios predicts excess +0.008, +0.018, +0.037, +0.087 nats.

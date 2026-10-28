@@ -128,7 +128,7 @@ export function estimatedTax(books, o = {}) {
   const warnings = [];
   const months = Math.min(12, Math.max(1, o.monthsElapsed ?? 12));
   const sc = scheduleC(books, { from: `${year}-01-01`, to: `${year}-12-31` });
-  const profit = Math.round((sc.netProfit * 12) / months);
+  const profit = Number.isFinite(o.profit) ? Math.round(o.profit) : Math.round((sc.netProfit * 12) / months); // o.profit: a whole-year profit in cents, used by annualized.mjs
   const num = (v) => (Number.isFinite(v) ? v : 0); // a blank form field arrives as NaN
   const nonNeg = (v) => Math.max(0, num(v)); // withholding and payments already sent cannot be negative
   const wages = nonNeg(o.wages), other = num(o.otherIncome), withholding = nonNeg(o.withholding), paid = nonNeg(o.paid);
