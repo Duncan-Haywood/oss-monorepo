@@ -26,3 +26,11 @@ def range_km_solar(battery_wh, v, p_load, p_solar):
     if drain <= 0:
         return float("inf")
     return battery_wh * 3600.0 / drain * v / 1000.0
+
+
+def battery_after_panels(battery_wh, area, areal_mass, e_batt):
+    """Battery energy (Wh) left when `area` m2 of panel at `areal_mass` kg/m2 displaces pack mass.
+
+    Total vessel mass is fixed, so panel mass comes out of the battery at `e_batt` Wh/kg; never below 0.
+    """
+    return max(0.0, battery_wh - area * areal_mass * e_batt)
