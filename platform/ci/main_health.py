@@ -6,7 +6,8 @@ for a run with no open backlog item; `promptctl.py measure` friction text mixes
 fixed and live items, this does not. Checks that need a built site
 (check_pages_links.py) are skipped; `prompts/promptctl.py validate` is included
 (runs keep hitting it red by hand). Takes 40 s to 3 min, so start it with
-`run_in_background`; prints one line per check as it finishes; exit 1 if any check fails.
+`run_in_background`; prints one line per check as it finishes and a final DONE line
+(so `wait_for.py out.log` works on it); exit 1 if any check fails.
 """
 import subprocess
 import sys
@@ -42,6 +43,7 @@ def main():
     for name, rc, out in bad:
         print(f"FAIL {name} (exit {rc})\n" + "\n".join(out.splitlines()[-8:]) + "\n")
     print(f"{len(results) - len(bad)}/{len(results)} checks pass")
+    print("DONE", flush=True)
     return 1 if bad else 0
 
 
