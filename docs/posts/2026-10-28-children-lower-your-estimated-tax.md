@@ -1,7 +1,7 @@
 ---
 title: "Two children take $4,400 off a married sole proprietor's estimated tax"
 date: 2026-10-28
-description: "ai-bookkeeper's federal estimate now takes the child tax credit: $4,400 off a $100,000-profit joint return with two children, and a refund-sized credit at $20,000 profit."
+description: "ai-bookkeeper's federal estimate now takes the child tax credit: $4,400 off a $100,000-profit joint return with two children, and a refundable part at $20,000."
 tags: [ai-bookkeeper, tax, self-employed]
 ---
 
