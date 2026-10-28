@@ -31,6 +31,7 @@ export const BRACKETS = {
 // Additional Medicare Tax (Form 8959): 0.9% of wages plus self-employment earnings above
 // a threshold fixed by statute (not indexed) by filing status; mfs is not modelled.
 export const ADDL_MEDICARE_THRESHOLD = { single: D(200000), hoh: D(200000), mfj: D(250000) };
+export const NIIT_THRESHOLD = { single: D(200000), hoh: D(200000), mfj: D(250000) };
 // Section 199A threshold amounts: 2025 Rev. Proc. 2024-40 section 3.27 (read 2026-10-23), 2026 Rev. Proc. 2025-32
 // section 3.26 (read on irs.gov 2026-10-23).
 const QBI_LIMIT = {
@@ -99,7 +100,13 @@ export function estimatedTax(books, o = {}) {
   const table = o.brackets ? { std: o.standardDeduction ?? 0, b: o.brackets } : BRACKETS[year]?.[filing];
   if (!table) throw new Error(`No ${filing} brackets on file for ${year}; pass brackets (and standardDeduction).`);
   if (!o.brackets) warnings.push(year === 2026 ? `The 2026 brackets and standard deductions match the IRS text of Rev. Proc. 2025-32 (checked 2026-10-23); confirm they are still current or pass brackets.` : year === 2025 ? `The 2025 brackets match the IRS text of Rev. Proc. 2024-40 and the standard deductions the Form 1040 instructions as amended by the 2025 law (checked 2026-10-23); confirm they are still current or pass brackets.` : `The ${year} brackets and standard deduction are from memory and unchecked; confirm them on irs.gov or pass brackets.`);
-  const std = o.standardDeduction ?? table.std;
+  const stdOnly = o.standardDeduction ?? table.std;
+  // Itemised deductions (Schedule A) replace the standard deduction when larger. Pass the total after the
+  // SALT cap and the 7.5%-of-AGI medical floor; those limits are the filer's to apply.
+  const itemized = nonNeg(o.itemized);
+  const std = Math.max(stdOnly, itemized);
+  const itemizing = itemized > stdOnly;
+  if (itemizing) warnings.push("Itemised deductions are larger than the standard deduction, so they are used; pass the Schedule A total after the SALT cap and the medical-expense floor.");
   // Above-the-line adjustments for the self-employed. A SEP-IRA or solo 401(k) contribution (Schedule 1
   // line 16) comes off first, then the self-employed health insurance deduction (Form 7206, line 17),
   // capped at the business profit left after both. Both also come off the QBI base (Treas. Reg. 1.199A-3).
@@ -150,6 +157,13 @@ export function estimatedTax(books, o = {}) {
   const T = ADDL_MEDICARE_THRESHOLD[filing] ?? D(200000);
   const addlMedicare = Math.round(0.009 * (Math.max(0, wages - T) + Math.max(0, se.netEarnings - Math.max(0, T - wages))));
   if (addlMedicare) warnings.push("Includes the 0.9% Additional Medicare Tax (Form 8959) on earnings above " + T / 100 + "; an employer withholds it on wages over $200,000 only, so check the wage part against your W-2.");
+  // Net investment income tax (Form 8960): 3.8% of the smaller of net investment income and modified AGI
+  // above a statutory threshold (not indexed). Investment income is part of otherIncome; pass the part of it
+  // that is interest, dividends, gains or passive rent. MAGI is taken as AGI.
+  const nii = nonNeg(o.investmentIncome);
+  const NT = NIIT_THRESHOLD[filing] ?? D(200000);
+  const niit = Math.round(0.038 * Math.min(nii, Math.max(0, agi - NT)));
+  if (niit) warnings.push("Includes the 3.8% net investment income tax (Form 8960) on the smaller of your investment income and the AGI above " + NT / 100 + "; investment income is taken as already inside the other income you passed.");
   // Child tax credit and credit for other dependents (Schedule 8812). Per-child amounts are opts so a
   // later year can be passed in cents; the defaults are the 2026 figures from secondary sources (OBBBA
   // $2,200 / $1,700 refundable / $500 other; not yet read in the IRS text), so every use warns.
@@ -168,7 +182,7 @@ export function estimatedTax(books, o = {}) {
     childCredit = nonref; refundableCredit = Math.max(0, refundable);
     warnings.push("Child credits assume each child is under 17 with a Social Security number valid for work, and that you can claim them; the 2026 amounts ($2,200, $1,700 refundable, $500 other, phase-out over $200,000 or $400,000 joint) come from secondary sources, so check them against Schedule 8812 or pass childCredit, childCreditRefundable and childCreditThreshold in cents.");
   }
-  const total = Math.max(0, incomeTax - childCredit) + se.tax + addlMedicare - refundableCredit;
+  const total = Math.max(0, incomeTax - childCredit) + se.tax + addlMedicare + niit - refundableCredit;
   const marginal = (table.b.find(([hi]) => taxable <= hi) ?? [0, 0])[1];
 
   // Safe harbour: smaller of 90% of this year and 100%/110% of last year.
@@ -195,7 +209,7 @@ export function estimatedTax(books, o = {}) {
   // The rest is paid with the return: the balance, not a penalty.
   const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));
   warnings.push(...sc.warnings, ...se.warnings);
-  return { year, filing, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, childCredit, refundableCredit, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
+  return { year, filing, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, childCredit, refundableCredit, addlMedicare, niit, itemizing, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
 }
 
 export { toCents };

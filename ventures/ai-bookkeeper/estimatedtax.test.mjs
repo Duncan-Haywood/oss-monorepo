@@ -330,3 +330,27 @@ test("inside the phase-in the QBI deduction falls linearly; a service business l
   assert.ok(sw.qbiDeduction < estimatedTax(books("250000.00"), { ...o, businessWages: 3000000 }).qbiDeduction);
   assert.equal(estimatedTax(books("250000.00"), { ...o, qbiRange: 100, qbiMinimum: { floor: 0, threshold: 1000 } }).qbiDeduction, 0);
 });
+
+test("itemised deductions replace the standard deduction only when larger", () => {
+  const base = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 });
+  const small = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, itemized: 1000000 });
+  assert.equal(small.taxable, base.taxable);
+  assert.equal(small.itemizing, false);
+  const big = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, itemized: 3000000 });
+  assert.equal(big.itemizing, true);
+  assert.equal(big.standardDeduction, 3000000);
+  assert.ok(big.incomeTax < base.incomeTax);
+});
+
+test("net investment income tax: 3.8% of the smaller of the income and AGI over 200,000", () => {
+  const o = { year: 2026, wageBase: 18450000, wages: 25000000, other: 0 };
+  const none = estimatedTax(books("1000.00"), { ...o, otherIncome: 5000000 });
+  assert.equal(none.niit, 0);
+  const r = estimatedTax(books("1000.00"), { ...o, otherIncome: 5000000, investmentIncome: 5000000 });
+  const over = r.agi - 20000000;
+  assert.equal(r.niit, Math.round(0.038 * Math.min(5000000, over)));
+  assert.equal(r.totalTax, none.totalTax + r.niit);
+  // joint threshold is 250,000: AGI near 230,000 owes none
+  const j = estimatedTax(books("1000.00"), { ...o, wages: 18000000, filing: "mfj", otherIncome: 5000000, investmentIncome: 5000000 });
+  assert.equal(j.niit, 0);
+});
