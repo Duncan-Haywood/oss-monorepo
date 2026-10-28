@@ -25,3 +25,9 @@ test("withdrawals, shared grounds, linked teams, travel tables and venue carry-o
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /invalid 0/);
 });
+
+test("play-off race and odds agree with a brute force over every outcome", () => {
+  const r = spawnSync(process.execPath, ["eval/fuzz-race.mjs", "80", "4"], { cwd: new URL(".", import.meta.url).pathname, encoding: "utf8" });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /invalid 0/);
+});
