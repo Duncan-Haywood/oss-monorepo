@@ -1,7 +1,7 @@
 ---
 title: "How often does one flipped bit ruin a training run?"
 date: 2026-10-28
-description: "In a small transformer, a single flipped weight bit changes the result by more than 0.01 in 4.5% of cases, almost all from the high exponent bits; that share sets how often paying for replicas makes sense."
+description: "In a small transformer one flipped weight bit changes the result by over 0.01 in 4.5% of cases, mostly high exponent bits; that sets when replicas pay."
 tags: [verifiable-training, silent-data-corruption, replication, verifiable-training-mechanisms]
 ---
 
