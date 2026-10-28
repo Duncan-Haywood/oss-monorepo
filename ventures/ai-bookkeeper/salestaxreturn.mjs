@@ -88,6 +88,13 @@ export function stateFilingNote(state, frequency = "quarterly") {
   if (s === "PA" && frequency === "annual") return "Pennsylvania has no annual return; assigned filers file monthly, quarterly or semiannually (due Aug 20 and Feb 20), use --freq semiannual with --state PA for the Feb-Jul and Aug-Jan periods.";
   return null;
 }
+// Timely-filing discounts pinned in tests (IL ST-1 R-01/26, TX comptroller, FL Rule 12A-1.056), keyed by the
+// "<ST> state" label; the CLI applies them under --state unless --discount names that label. Check yours.
+export function stateDiscounts(state) {
+  const s = String(state ?? "").toUpperCase();
+  const d = { IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 } }[s];
+  return d ? { [`${s} state`]: { ...d } } : {};
+}
 export function stateEndMonth(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
   if (s === "NY" && (frequency === "quarterly" || frequency === "annual")) return 2;
