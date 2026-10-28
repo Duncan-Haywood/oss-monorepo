@@ -377,7 +377,7 @@ test("earned income credit from a passed schedule: phase-in, plateau, phase-out,
   // Made-up schedule, not an IRS table.
   const { eitc } = taxTableOptions({ eitc: { rows: [{ rate: 0.1, earnedAmount: 10000, phaseOutRate: 0.1, phaseOutStart: 12000 }, { rate: 0.4, earnedAmount: 10000, phaseOutRate: 0.2, phaseOutStart: 20000 }], marriedAdd: 5000, investmentLimit: 10000 } });
   const o = { year: 2026, wageBase: 18450000, wages: 1000000, withholding: 0, eitc, eitcChildren: 1, qbi: false };
-  const none = estimatedTax(books("1.00"), { ...o, eitc: undefined });
+  const none = estimatedTax(books("1.00"), { ...o, eitc: undefined, eitcChildren: undefined });
   const mid = estimatedTax(books("1.00"), o);
   assert.equal(mid.eitcCredit, 400000);           // plateau: 0.4 x 10,000
   assert.equal(mid.totalTax, none.totalTax - 400000);
@@ -406,5 +406,17 @@ test("built-in 2025 earned income credit reproduces the IRS table", () => {
     assert.ok(eic(k, "mfj", endJ[k] - 100) > 0 && eic(k, "mfj", endJ[k] - 100) < 25);
   }
   assert.equal(estimatedTax(books("1.00"), { year: 2025, wages: 1500000, eitcChildren: 1, investmentIncome: 1200000, qbi: false }).eitcCredit, 0); // over the investment limit
-  assert.equal(estimatedTax(books("1.00"), { year: 2026, wages: 1500000, eitcChildren: 1, qbi: false }).eitcCredit, 0); // no built-in 2026 table
+});
+
+test("built-in 2026 earned income credit reproduces Rev. Proc. 2025-32", () => {
+  const max = [664, 4427, 7316, 8231], endS = [19540, 51593, 58629, 62974], endJ = [26820, 58863, 65899, 70244];
+  const eic = (kids, filing, wages) => estimatedTax(books("1.00"), { year: 2026, wages: wages * 100, withholding: 0, eitcChildren: kids, filing, qbi: false }).eitcCredit / 100;
+  [8680, 13020, 18290, 18290].forEach((e, k) => assert.ok(Math.abs(eic(k, "single", e) - max[k]) <= 1, `max credit, ${k} children`));
+  for (let k = 0; k < 4; k++) {
+    assert.equal(eic(k, "single", endS[k] + 100), 0);
+    assert.equal(eic(k, "mfj", endJ[k] + 100), 0);
+    assert.ok(eic(k, "single", endS[k] - 100) > 0 && eic(k, "single", endS[k] - 100) < 25);
+    assert.ok(eic(k, "mfj", endJ[k] - 100) > 0 && eic(k, "mfj", endJ[k] - 100) < 25);
+  }
+  assert.equal(estimatedTax(books("1.00"), { year: 2026, wages: 1500000, eitcChildren: 1, investmentIncome: 1250000, qbi: false }).eitcCredit, 0);
 });
