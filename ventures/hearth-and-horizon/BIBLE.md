@@ -376,6 +376,7 @@ the sources, and mark legend as legend)
 - *(Done: Cecilia and the Song in Her Heart, 22 November; the Acts' antiphon line, legend; death left out; text only.)* Saint Cecilia and the song nobody hears.
 - *(Done: Andrew and the Nets, 30 November; Gospel passages only (John 1, 6, 12; Matthew 4); text only.)* Saint Andrew, the one who brings people.
 - *(Done: Patrick and the Hundred Prayers, 17 March; the Confessio's own words; shamrock and snakes left out; text only.)* The captive shepherd boy, the hundred prayers, the ship that was ready.
+- *(Done: Philip Neri and the Happy Walk, 26 May; history in outline, "Be good, if you can" told as tradition, miracles left out; text only.)* Saint Philip Neri, games and the seven-churches walk.
 
 ## What not to do
 
