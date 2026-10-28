@@ -102,10 +102,10 @@ test("the CLI prints the table, the sweep and the break-even from a books file",
   const bk = confirm(b, { [b.transactions[0].id]: "4000" });
   const f = join(mkdtempSync(join(tmpdir(), "scorp-")), "books.json");
   writeFileSync(f, JSON.stringify(bk));
-  const out = execFileSync("node", ["cli.mjs", "--books", f, "scorp", "--year", "2026", "--salary", "50000"], { encoding: "utf8" });
+  const out = execFileSync("node", [new URL("./cli.mjs", import.meta.url).pathname, "--books", f, "scorp", "--year", "2026", "--salary", "50000"], { encoding: "utf8" });
   assert.match(out, /S-CORPORATION ELECTION 2026 \(single\), profit annualised 100,000\.00, salary 50,000\.00/);
   assert.match(out, /S corporation saves 3,14\d\.\d\d at this salary; break-even profit /);
   assert.match(out, /Salary sweep/);
-  const j = JSON.parse(execFileSync("node", ["cli.mjs", "--books", f, "scorp", "--year", "2026", "--json"], { encoding: "utf8" }));
+  const j = JSON.parse(execFileSync("node", [new URL("./cli.mjs", import.meta.url).pathname, "--books", f, "scorp", "--year", "2026", "--json"], { encoding: "utf8" }));
   assert.equal(j.salary, 5000000);
 });
