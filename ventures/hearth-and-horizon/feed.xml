@@ -166,6 +166,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Second Reader</title>
+      <link>https://example.invalid/hearth-and-horizon/the-second-reader.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-second-reader.html</guid>
+      <pubDate>Wed, 28 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A pantry's invoice checker has signed off a year of payments and believes it catches four errors in five. The treasurer plants 40 known errors without telling it and it finds 23. It finds 2 of the 14 that its own reading would also have made, because it read the scan the same way and took the agreement for confirmation. A story about a second reader that is not independent, a test the checker did not choose, and what a fix costs when it makes the month close a day later. Setting: St Colman's Parish Pantry, Carrick Dhu (invented), County Sligo, November 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-second-reader.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A pantry's invoice checker has signed off a year of payments and believes it catches four errors in five. The treasurer plants 40 known errors without telling it and it finds 23. It finds 2 of the 14 that its own reading would also have made, because it read the scan the same way and took the agreement for confirmation. A story about a second reader that is not independent, a test the checker did not choose, and what a fix costs when it makes the month close a day later.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Window Closes at Eleven</title>
       <link>https://example.invalid/hearth-and-horizon/the-window-closes-at-eleven.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-window-closes-at-eleven.html</guid>
