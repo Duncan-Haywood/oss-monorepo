@@ -180,3 +180,42 @@ export function landingText(r) {
     ...g.notes.map((n) => `  Note: ${n}`),
   ];
 }
+
+// Winders (2026-10-28): a turn made of wedge treads that fan around a pivot
+// instead of a landing. Each of `count` treads turns 90/count degrees (typed
+// `turn` for other angles). The model code asks for 10 in of tread 12 in in
+// from the side where the treads are narrower, and 6 in at the narrowest point
+// (limits `winderWalkline`, `winderWalkDepth`, `winderMinDepth`, held in
+// WINDER_LIMITS because the edition is the user's to confirm). With a zero-size
+// pivot the narrow end is a point, so the check also solves the smallest inner
+// radius (a pivot post or box) that passes. Depth is measured along the arc at
+// a radius: radius x angle in radians, which a straight edge across the tread
+// slightly undercuts, so a pass here is a pass by a hair of margin.
+export const WINDER_LIMITS = { winderWalkline: 12, winderWalkDepth: 10, winderMinDepth: 6 };
+
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+export function checkWinders(w) {
+  const L = { ...WINDER_LIMITS, ...(w.limits || {}) };
+  const count = w.count ?? 3, turn = w.turn ?? 90, width = w.width ?? 36, r = w.innerRadius ?? 0;
+  const errors = [];
+  if (!Number.isInteger(count) || count < 2) errors.push("Winders need a whole number of two or more treads.");
+  if (!(turn > 0 && turn <= 180)) errors.push("The turn is between 0 and 180 degrees.");
+  if (!(r >= 0)) errors.push("The inner radius is zero or more.");
+  if (!(width > L.winderWalkline)) errors.push(`The stair is wider than ${L.winderWalkline} in.`);
+  if (errors.length) return { ok: false, errors };
+  const theta = (turn / count) * Math.PI / 180;
+  const narrow = r * theta, walk = (r + L.winderWalkline) * theta, outer = (r + width) * theta;
+  const needNarrow = L.winderMinDepth / theta, needWalk = L.winderWalkDepth / theta - L.winderWalkline;
+  const minInnerRadius = Math.max(needNarrow, needWalk);
+  const problems = [];
+  if (narrow < L.winderMinDepth - 1e-9) problems.push(`narrowest depth ${narrow.toFixed(2)} in is under ${L.winderMinDepth} in`);
+  if (walk < L.winderWalkDepth - 1e-9) problems.push(`depth ${L.winderWalkline} in from the narrow side is ${walk.toFixed(2)} in, under ${L.winderWalkDepth} in`);
+  return { ok: problems.length === 0, count, turn, anglePerTread: turn / count, innerRadius: r, narrow, walk, outer, minInnerRadius, problems, limits: L };
+}
+
+export function winderText(c) {
+  if (!c.ok && !c.problems) return c.errors.map((e) => `  - ${e}`);
+  const out = [`  Winders: ${c.count} treads of ${c.anglePerTread.toFixed(1)} degrees round a ${formatInches(c.innerRadius)} inner radius: ${c.narrow.toFixed(2)} in at the narrow end, ${c.walk.toFixed(2)} in at ${c.limits.winderWalkline} in out, ${c.outer.toFixed(2)} in at the wide end`];
+  out.push(c.ok ? "  Winders pass the 6 in and 10 in rules as typed." : `  Winders fail: ${c.problems.join("; ")}. The smallest inner radius that passes is ${c.minInnerRadius.toFixed(1)} in.`);
+  return out;
+}
