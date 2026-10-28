@@ -1,7 +1,7 @@
 ---
 title: "A stair that rises 13 ft 4 in needs a landing: what the lumber list looks like"
 date: 2026-10-28
-description: "wall-framing-takeoff now splits a stair rising over 147 inches into two flights around a landing and adds the landing's joists, rims and deck boards to the lumber order."
+description: "wall-framing-takeoff now splits a stair rising over 147 inches into two flights around a landing and adds the landing lumber to the order."
 tags: [wall-framing-takeoff, construction, stairs]
 ---
 
