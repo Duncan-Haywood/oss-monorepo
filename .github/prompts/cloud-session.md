@@ -41,7 +41,7 @@ fails (PEP 668, import name differing from pip name), use
 Name every module you need in the one call (`pyenv.py pytest numpy torch`) and run
 with `"$PY"`: a torch-free `python3` passes for pytest/numpy alone, and a later bare
 `pip install torch` lands in another interpreter (30 min lost, 2026-10-26). Torch-class
-installs take 7+ min: `run_in_background`, and the path is the last stdout line.
+installs (CPU wheel since 2026-10-28) take a few min: `run_in_background`, and the path is the last stdout line.
 
 ## Long commands
 

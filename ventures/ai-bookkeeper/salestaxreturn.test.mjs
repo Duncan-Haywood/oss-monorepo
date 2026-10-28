@@ -376,3 +376,10 @@ test("stateDiscounts presets IL, TX and FL under their <ST> state label and noth
   assert.deepEqual(stateDiscounts("CA"), {});
   assert.deepEqual(stateDiscounts(undefined), {});
 });
+
+test("SC: the 20th for monthly, quarterly and annual returns (dor.sc.gov Due Dates table, read 2026-10-28)", () => {
+  assert.equal(dueDate("2026-01", stateDueDay("SC", "monthly")), "2026-02-20");
+  assert.equal(dueDate("2026-Q2", stateDueDay("SC", "quarterly")), "2026-07-20");
+  assert.equal(dueDate("2026-Q4", stateDueDay("SC", "quarterly")), "2027-01-20");
+  assert.equal(dueDate("2026", stateDueDay("SC", "annual")), "2027-01-20");
+});
