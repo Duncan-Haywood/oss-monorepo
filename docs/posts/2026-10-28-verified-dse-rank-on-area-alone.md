@@ -1,7 +1,7 @@
 ---
 title: "Ranking chip-design candidates by area alone fixes the worst cases and breaks the rest"
 date: 2026-10-28
-description: "A replay on 12 unseen SKY130 designs: scoring the cheap synthesis rung by mapped area fixes the wire-dominated designs, worsens the argmin elsewhere, and changes nothing inside successive halving."
+description: "A replay on 12 unseen SKY130 designs: scoring the cheap rung by mapped area fixes wire-dominated cases, worsens the argmin elsewhere, and changes nothing in halving."
 tags: [verified-dse, research, chip-design, design-space-exploration]
 ---
 
