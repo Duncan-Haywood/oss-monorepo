@@ -68,6 +68,15 @@ test("tape: a 16 ft wall, 8 ft high, 8 ft sheets: 2 butt joints x 4 ft, one 16 f
   assert.equal(l.finishing.compoundGal, 1.5); // 128 sq ft x 0.01 x 1.1 = 1.408 -> 1.5
 });
 
+test("compound is ordered in 4.5 gal pails; default rate equals the 450 sq ft per pail on a Sheetrock all-purpose listing", () => {
+  const l = layoutDrywall({}, plan([{ id: "A", length: 192, sheathed: true }]));
+  assert.equal(l.finishing.compoundPails, 1); // 1.5 gal
+  assert.equal(l.finishing.pailGal, 4.5);
+  assert.equal(4.5 / 450, l.finishing.compoundGalPerSqFt); // label: 450 sq ft per 4.5 gal
+  const u = layoutDrywall({ compoundGalPerSqFt: 0.009 }, plan([{ id: "A", length: 192 * 10, sheathed: true }])); // USG ultralightweight: 2 pails per 1000 sq ft
+  assert.equal(u.finishing.compoundPails, Math.ceil(u.finishing.compoundGal / 4.5 - 1e-9));
+});
+
 test("compound and tape rates are validated", () => {
   assert.ok(validateDrywall({ compoundGalPerSqFt: 1 }).length);
   assert.ok(validateDrywall({ tapeRollFt: 10 }).length);
