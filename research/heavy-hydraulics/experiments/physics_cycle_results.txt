@@ -1,0 +1,4 @@
+20000 force-model cycles; ordering OC>=LS>=metered 83.28%
+LS/OC  median 0.842  5-95%: 0.629 to 1.122
+Met/LS median 0.697  5-95%: 0.578 to 0.825; share < 0.85: 98.1%
+LS>OC in 3345 cycles; all have dp_ls > dp_spool: True; mean demand/pump in those 0.76 vs 0.70 overall
