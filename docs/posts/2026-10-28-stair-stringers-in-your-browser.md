@@ -1,6 +1,8 @@
 ---
 title: "Lay out a stair in your browser: risers, stringers and the stairwell opening"
 date: 2026-10-28
+description: "A free browser card that turns a total rise into equal risers, stringers, tread boards and the stairwell opening length, and splits tall rises at a landing."
+tags: [wall-framing-takeoff, construction, stairs]
 ---
 
 The wall framing takeoff page now has a stairs card. Type the total rise, finished floor to finished floor, and it works out the fewest equal risers under the 7-3/4 inch limit, the tread run, how much board is left under each notch, the number of stringers, the tread boards, and how long the stairwell opening must be for 6 ft 8 in of headroom.
