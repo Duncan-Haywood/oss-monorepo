@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-28 · Milestone 5n: what happens at k = 8 and k = 9 under the coordinated attack, where the median is an attacker value? (planned before running)
+- Why: 5m's "Next". At M = 16 the median averages ranks 8 and 9 of the sorted values; with k >= 8 coordinated attackers at -1e3 x sign(honest mean), rank 8 is an attacker value for k = 8 and both ranks are for k = 9, so the aggregate is no longer bounded by honest values.
+- Design: `KS=8,9 SEEDS=0,1 python3 coordinated.py run` (unchanged script, 4 runs, 4 processes), excess over each seed's clean median.
+- **H5n-i:** k = 8 either diverges (final validation loss above 3 or NaN) or exceeds +1.0 on at least one seed, consistent with 5j's independent k = 8 divergence. Refuted if both seeds stay below +1.0 and train.
+- **H5n-ii:** k = 9 diverges or exceeds +1.0 on both seeds. Refuted otherwise.
+- Prior: i 75%, ii 85%. The k = 4 to 7 curve (+0.23, +0.37, +0.54, +0.77) is convex but smooth, so a gradual rather than a sudden break is also plausible, which hypothesis i would then miss.
+- Limits known in advance: two seeds, not an interval; one model and corpus; the attacker knows the honest mean sign exactly.
+
 ## 2026-10-28 · Milestone 5m: does the coordinated-attack degradation replicate on a second seed, and where is the wall at k = 7? (planned before running)
 - Why: 5l's "Next". 5l had one seed per k (3 to 6), so no interval; k = 7 is the last count below the median-is-attacker-value wall at k = 8.
 - Design: same `coordinated.py` (M = 16, same-vector attack, 3840 inner steps, H = 16), seed 1 at k = 4, 5, 6, 7 (seed 1 has a clean-median reference, 1.5293, in `gpt_median_m16/median_m16_full.jsonl`).
