@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01AcxTtGWwmWVCZjhVJ5mENQ",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T17:14:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11168,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pkill/pgrep bracket advice fails when the plain name is elsewhere in the command line; hook and cloud-session.md now say so. Also my own heredoc mentioning the command was blocked by the hook (heredoc exemption does not cover lines starting with it)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: a one-hook fix with nothing for a reader to learn.",
+      "did": "skipped post and agent doc",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode; backlog only owner rows and blocked P056. main_health 26/26 pass. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null
+}
