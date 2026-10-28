@@ -38,6 +38,10 @@ class SocialProof(unittest.TestCase):
         snip = check(f"{pad}trusted by {pad}")[0][1]
         self.assertEqual(snip, "x" * 39 + " trusted by" + " " + "x" * 39)
 
+    def test_snippet_keeps_first_char_of_line_start_claim(self):
+        self.assertEqual(check("Trusted by teams")[0][1], "Trusted by teams")
+        self.assertEqual(check("  Trusted by teams")[0][1], "Trusted by teams")
+
     def test_default_root_is_repo_ventures(self):
         self.assertEqual(check_social_proof.ROOT / "ventures",
                          Path(__file__).resolve().parents[2] / "ventures")
