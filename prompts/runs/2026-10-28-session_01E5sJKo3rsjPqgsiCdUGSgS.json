@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKo3rsjPqgsiCdUGSgS",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T17:20:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11171,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "search_pull_requests with minimal_output but no keyword returned 199KB; added keyword + perPage advice (fixed in this PR)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no new blog post: a two-line doc fix with nothing new to tell a reader"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode; main_health 26/26 green; backlog only owner rows and blocked P056. Initial push ran in background and a retry hit 'reference already exists' (first push had landed).",
+  "corrections": [],
+  "redteam": null
+}

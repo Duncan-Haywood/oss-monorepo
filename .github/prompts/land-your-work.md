@@ -120,7 +120,8 @@ These are **not** reasons:
   the survivor ([`duplicate-work.md`](duplicate-work.md)).
   To check open PRs cheaply, use `search_pull_requests` with
   `is:open repo:duncan-haywood/oss-monorepo <slug or keyword> in:title` and
-  `minimal_output`; `list_pull_requests` returns tens of KB of unrelated PRs.
+  `minimal_output` and `perPage` 5-10 (without a keyword the result can still
+  run to 200KB); `list_pull_requests` returns tens of KB of unrelated PRs.
 - **The brief didn't say to open a PR.** This file says so.
 
 ## Other agents' unlanded work is yours too
