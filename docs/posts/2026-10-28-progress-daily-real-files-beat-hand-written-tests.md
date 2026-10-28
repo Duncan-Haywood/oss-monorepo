@@ -26,7 +26,7 @@ file disagreed.
    house has walls stored as meshes, not axis lines, and its IFC 4.3 version
    carries a stray unit that made every length 1,000 times too long. Both are
    fixed and the house now reads as walls of 1.8, 3.8, 4.2 and 6.0 m.
-   [The first real IFC file broke our wall reader twice](https://duncan-haywood.github.io/oss-monorepo/writing/2026-10-27-the-first-real-ifc-file-broke-our-wall-reader-twice/).
+   [The first real IFC file broke our wall reader twice](https://duncan-haywood.github.io/oss-monorepo/writing/the-first-real-ifc-file-broke-our-wall-reader-twice/).
 2. **The changepoint detector met fifty years of US inflation.** With its
    autocorrelation correction it finds the 1973 oil shock, the 1978 surge and
    the 1981 Volcker disinflation, and it also turns the single deflation
@@ -34,8 +34,8 @@ file disagreed.
    1,859 DAX daily returns, where four penalty settings disagree on how many
    cuts there are (six, three, two, three) but all keep one, where volatility
    rises from about 0.86 to 1.43. Reading the
-   [inflation post](https://duncan-haywood.github.io/oss-monorepo/writing/2026-10-27-a-changepoint-detector-on-fifty-years-of-us-inflation/)
-   next to the [DAX post](https://duncan-haywood.github.io/oss-monorepo/writing/2026-10-27-dax-volatility-changepoints/)
+   [inflation post](https://duncan-haywood.github.io/oss-monorepo/writing/a-changepoint-detector-on-fifty-years-of-us-inflation/)
+   next to the [DAX post](https://duncan-haywood.github.io/oss-monorepo/writing/dax-volatility-changepoints/)
    is a good short lesson in why one cut that survives every setting is worth
    more than six that don't.
 3. **Two new research programmes opened and reached real data the same
@@ -52,7 +52,7 @@ file disagreed.
    stake and replicas together and found that in all 72 parameter cells it
    tried, paying for a bigger audit on one worker deters cheating more cheaply
    than running the job twice.
-   [Is replication ever the cheap way to deter cheating?](https://duncan-haywood.github.io/oss-monorepo/writing/2026-10-27-is-replication-ever-the-cheap-way-to-deter-cheating/)
+   [Is replication ever the cheap way to deter cheating?](https://duncan-haywood.github.io/oss-monorepo/writing/is-replication-ever-the-cheap-way-to-deter-cheating/)
 5. **E-invoice Preflight measured its own blind spots.** Six Latin American
    mandate pages landed with in-browser tax-number checks, and a seeded test
    of seven ID rules found Chile's and Argentina's check digits catch every
