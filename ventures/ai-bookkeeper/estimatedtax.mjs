@@ -242,9 +242,12 @@ export function estimatedTax(books, o = {}) {
     const row = sched.rows?.[Math.min(3, Math.max(0, Math.floor(num(o.eitcChildren ?? o.children))))];
     const earnedEic = Math.max(0, profit - se.deduction) + wages;
     if (row && o.filing !== "mfs" && (sched.investmentLimit == null || nii <= sched.investmentLimit)) {
+      // Schedule EIC's lookup table works on $50 bands and computes the credit at each band's midpoint (`eitcTable`).
+      const band = (c) => (o.eitcTable && c > 0 ? (Math.floor(c / 5000) * 5000) + 2500 : c);
+      const earnedBand = band(earnedEic), agiBand = band(agi);
       const start = row.phaseOutStart + (filing === "mfj" ? row.marriedAdd ?? sched.marriedAdd ?? 0 : 0);
-      const base = Math.min(Math.round(row.rate * earnedEic), Math.round(row.rate * row.earnedAmount));
-      eitcCredit = Math.max(0, base - Math.round(row.phaseOutRate * Math.max(0, Math.max(earnedEic, agi) - start)));
+      const base = Math.min(Math.round(row.rate * earnedBand), Math.round(row.rate * row.earnedAmount));
+      eitcCredit = Math.max(0, base - Math.round(row.phaseOutRate * Math.max(0, Math.max(earnedBand, agiBand) - start)));
     }
     if (builtinEitc) warnings.push(`Earned income credit uses the built-in ${year} schedule (${year === 2026 ? "Rev. Proc. 2025-32 section 3.06" : "maximum credits, income limits and investment-income limit read from irs.gov's EITC tables page"}, read 2026-10-28); it assumes the qualifying-child, age, residency and Social Security number tests are met (Schedule EIC) and the credit is refundable.`);
     else warnings.push("Earned income credit uses the schedule you passed, not a built-in table; it assumes the qualifying-child, age, residency and Social Security number tests are met (Schedule EIC) and the credit is refundable.");
