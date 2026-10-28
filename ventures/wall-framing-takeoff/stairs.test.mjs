@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { takeoff, samplePlan } from "./engine.mjs";
+import { takeoff, samplePlan, formatLength } from "./engine.mjs";
 import { layoutStair, stairCuts, stairText, sampleStair, validateStair } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -73,4 +73,27 @@ test("stair lumber joins the cutting-stock order", () => {
   assert.ok(r.ok);
   assert.ok(r.cuts.some((c) => c.kind === "stair stringer" && c.qty === l.stringer.count));
   assert.match(stairText(l).join("\n"), /risers of/);
+});
+
+test("a rise of exactly 147 in is one flight; 147-1/8 in needs a landing", () => {
+  assert.deepEqual(validateStair({ totalRise: 147 }), []);
+  assert.match(validateStair({ totalRise: 147.125 })[0], /landing/);
+});
+
+test("the stringer angle is atan(riser/tread) in degrees", () => {
+  const l = layoutStair({ totalRise: 105, tread: 10 }, plan()); // 14 risers of 7.5
+  assert.ok(Math.abs(l.angle - (Math.atan2(7.5, 10) * 180) / Math.PI) < 1e-9); // 36.87
+});
+
+test("with no board of the stringer size listed, the refusal says the longest listed is zero", () => {
+  const p = plan();
+  p.stock = p.stock.filter((s) => s.size !== "2x12");
+  const l = layoutStair({ totalRise: 108, tread: 10, stringer: "2x12" }, p);
+  assert.equal(l.ok, false);
+  assert.ok(l.errors[0].includes(`longest listed is ${formatLength(0)}`));
+});
+
+test("layout marks: only the first step has zero run", () => {
+  const l = layoutStair({ totalRise: 108, tread: 10 }, plan());
+  assert.deepEqual(l.marks.map((m) => m.run), l.marks.map((_, i) => (i === 0 ? 0 : 10)));
 });
