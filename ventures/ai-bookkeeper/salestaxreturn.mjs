@@ -200,11 +200,13 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
     if (r.jurisdiction === "Unlabelled") warnings.push(`${r.period}: tax lines with no description cannot be split by jurisdiction; put the jurisdiction in the line's description column.`);
   }
   const paid = new Map();
+  const lastPaid = new Map();
   for (const e of journal(books)) {
     if (e.source === "invoice" || e.source === "credit" || e.source === "bill" || (from && e.date < from) || (to && e.date > to)) continue;
     for (const l of e.lines) if (l.account === account && l.debit) {
       const k = periodBefore(e.date, frequency, endMonth);
       paid.set(k, (paid.get(k) ?? 0) + l.debit);
+      if (e.date > (lastPaid.get(k) ?? "")) lastPaid.set(k, e.date);
     }
   }
   const periods = [...new Set([...rows.map((r) => r.period), ...nontax.keys(), ...paid.keys()])].sort().map((period) => {
@@ -212,6 +214,8 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
     const payable = prow.reduce((a, r) => a + r.payable, 0);
     const p = { period, nonTaxableSales: nontax.get(period) ?? 0, rows: prow, payable, paid: paid.get(period) ?? 0 };
     p.owed = p.payable - p.paid;
+    // the discount is a reward for paying on time: a payment filed after the due date forfeits it
+    for (const r of prow) if (r.discount && lastPaid.has(period) && lastPaid.get(period) > r.due) warnings.push(`${r.jurisdiction} ${period}: the ${(r.discount / 100).toFixed(2)} discount assumes payment by ${r.due}, but a payment was filed on ${lastPaid.get(period)}; the state may disallow it.`);
     const due = prow.map((r) => r.due).sort()[0];
     if (p.owed > 0 && due && asOf && due < asOf) warnings.push(`${period}: $${(p.owed / 100).toFixed(2)} still unpaid after the ${due} due date.`);
     if (p.owed < 0) warnings.push(`${period}: paid over $${(-p.owed / 100).toFixed(2)} more than the return shows; check for a late payment filed to the wrong period.`);
