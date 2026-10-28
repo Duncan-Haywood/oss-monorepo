@@ -631,6 +631,7 @@ export function planFromDxf(text, opt = {}) {
     return best && windowLayer.test(best.layer) && !doorLayer.test(best.layer) ? "window" : "door";
   };
   const counts = { door: 0, window: 0 };
+  let defaulted = 0;
   for (const o of op) {
     const mid = { x: (o.a.x + o.b.x) / 2, y: (o.a.y + o.b.y) / 2 };
     let host = -1, hd = snap * 2;
@@ -649,13 +650,16 @@ export function planFromDxf(text, opt = {}) {
     const off = r16(order[n].flip ? L - hi : lo);
     const kind = o.kind ?? kindOf(mid);
     counts[kind]++;
-    const height = kind === "door" ? (opt.doorHeight ?? 82.5) : (opt.windowHeight ?? 48);
-    (out[n].openings ||= []).push({ kind, label: `${kind === "door" ? "Door" : "Window"} ${counts[kind]}`, offset: Math.max(0, off), width, height, header: opt.header ?? "2x10" });
+    const own = opt.openingSize?.(mid);
+    if (!own) defaulted++;
+    const height = own?.height ?? (kind === "door" ? (opt.doorHeight ?? 82.5) : (opt.windowHeight ?? 48));
+    (out[n].openings ||= []).push({ kind, label: `${kind === "door" ? "Door" : "Window"} ${counts[kind]}`, offset: Math.max(0, off), width, height, ...(own ? { headerHeight: own.headerHeight } : {}), header: opt.header ?? "2x10" });
     placed++;
   }
   for (const w of out) if (w.openings) w.openings.sort((p, q) => p.offset - q.offset);
   if (unplaced.length) notes.push(`${unplaced.length} opening line${unplaced.length === 1 ? "" : "s"} not along any wall (${unplaced.slice(0, 3).join(", ")}${unplaced.length > 3 ? ", ..." : ""}) were dropped.`);
-  if (placed) notes.push(`Opening heights are defaults, not read from the file: doors ${opt.doorHeight ?? 82.5} in, windows ${opt.windowHeight ?? 48} in tall. Every header is ${opt.header ?? "2x10"} as a placeholder; set them for your span table.`);
+  if (defaulted) notes.push(`Opening heights are defaults, not read from the file: doors ${opt.doorHeight ?? 82.5} in, windows ${opt.windowHeight ?? 48} in tall. Every header is ${opt.header ?? "2x10"} as a placeholder; set them for your span table.`);
+  else if (placed) notes.push(`Every header is ${opt.header ?? "2x10"} as a placeholder; set them for your span table.`);
   else notes.push("No opening lines found on a layer matching " + `${doorLayer} or ${windowLayer}` + ": the plan has solid walls.");
   notes.push("Lengths are the drawn centre-line lengths. If your drawing is to the outside of the framing, take the wall depth off at corners before ordering.");
 
