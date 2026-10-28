@@ -1,0 +1,24 @@
+NACA 0009, section lift slope a0 (per rad) fitted over |alpha| <= 3 deg; UIUC LSAT Vol. 1 (Nankivil) vs NeuralFoil xxxlarge n_crit 9
+thin-airfoil value 2 pi = 6.283
+
+      Re n pts  UIUC a0   +-se   NF a0  NF/UIUC UIUC a0L deg NF a0L deg
+   40600    23    4.361  0.107   3.135    0.719        -0.47      -0.00
+   60900    23    5.072  0.230   5.009    0.988        -0.26      -0.00
+   79900    23    5.569  0.219   6.402    1.150        -0.15      -0.00
+  100700    23    6.123  0.159   7.197    1.175        -0.26      -0.00
+
+NF/UIUC slope ratio by fit window |alpha| <= 2 / 3 / 4 deg:
+   40600  0.815  0.719  0.979
+   60900  0.755  0.988  1.121
+   79900  0.871  1.150  1.176
+  100700  0.987  1.175  1.174
+
+mean NF/UIUC 1.008; largest deviation from 1: Re 40600 (28.1%)
+
+Headline non-similar design (k 1.0, AR 12, tail area 0.15, AR_t 5.0, arm 3.5); tail Re 150045
+tail slope x   dph%   dsp%    dz%  worst%
+        0.80  -0.78 -10.45   6.37   10.45
+        0.90  -0.54  -5.24   2.42    5.24
+        1.00  -0.38  -0.27  -0.82    0.82
+        1.10  -0.28   4.49  -3.53    4.49
+        1.20  -0.22   9.07  -5.82    9.07

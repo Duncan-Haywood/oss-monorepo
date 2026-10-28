@@ -1,7 +1,7 @@
 ---
 title: "France's e-invoicing mandate has started: what changed on 1 September 2026"
 date: 2026-10-28
-description: "Since 1 Sept 2026 every French business must receive e-invoices and large and mid-size firms must issue them; small businesses follow on 1 Sept 2027."
+description: "Since 1 September 2026 every French business must receive e-invoices and large and mid-size firms must issue them; small businesses follow on 1 September 2027."
 tags: [einvoice-preflight, e-invoicing, france]
 ---
 

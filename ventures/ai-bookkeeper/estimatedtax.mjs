@@ -26,6 +26,20 @@ export const BRACKETS = {
     hoh: { std: D(24150), b: [[D(17700), 0.10], [D(67450), 0.12], [D(105700), 0.22], [D(201750), 0.24], [D(256200), 0.32], [D(640600), 0.35], [Infinity, 0.37]] },
   },
 };
+// 2025 earned income credit (rows for 0 to 3 children). The statutory rates are fixed; the earned-income and
+// phase-out-start amounts are the indexed ones. The maximum credits (649, 4,328, 7,152, 8,046), the income
+// limits (19,104 / 50,434 / 57,310 / 61,555 single; 26,214 / 57,554 / 64,430 / 68,675 joint) and the
+// investment-income limit (11,950) reproduce the IRS's table (test in estimatedtax.test.mjs).
+export const EITC_2025 = {
+  rows: [
+    { rate: 0.0765, earnedAmount: D(8490), phaseOutRate: 0.0765, phaseOutStart: D(10620), marriedAdd: D(7110) },
+    { rate: 0.34, earnedAmount: D(12730), phaseOutRate: 0.1598, phaseOutStart: D(23350), marriedAdd: D(7120) },
+    { rate: 0.4, earnedAmount: D(17880), phaseOutRate: 0.2106, phaseOutStart: D(23350), marriedAdd: D(7120) },
+    { rate: 0.45, earnedAmount: D(17880), phaseOutRate: 0.2106, phaseOutStart: D(23350), marriedAdd: D(7120) },
+  ],
+  marriedAdd: D(7120),
+  investmentLimit: D(11950),
+};
 // Taxable income above which the QBI deduction is limited by wages/property or
 // phased out for service businesses; this module does not model that, so it warns.
 // Additional Medicare Tax (Form 8959): 0.9% of wages plus self-employment earnings above
@@ -209,16 +223,18 @@ export function estimatedTax(books, o = {}) {
   // credit = min(rate x earned, rate x earnedAmount), less phaseOutRate on the larger of earned income and AGI
   // above the phase-out start (the joint start is higher by `marriedAdd`); no credit above the investment limit.
   let eitcCredit = 0;
-  const sched = o.eitc;
+  const builtinEitc = !o.eitc && year === 2025 && o.eitcChildren !== undefined;
+  const sched = o.eitc ?? (builtinEitc ? EITC_2025 : undefined);
   if (sched) {
     const row = sched.rows?.[Math.min(3, Math.max(0, Math.floor(num(o.eitcChildren ?? o.children))))];
     const earnedEic = Math.max(0, profit - se.deduction) + wages;
     if (row && o.filing !== "mfs" && (sched.investmentLimit == null || nii <= sched.investmentLimit)) {
-      const start = row.phaseOutStart + (filing === "mfj" ? sched.marriedAdd ?? 0 : 0);
+      const start = row.phaseOutStart + (filing === "mfj" ? row.marriedAdd ?? sched.marriedAdd ?? 0 : 0);
       const base = Math.min(Math.round(row.rate * earnedEic), Math.round(row.rate * row.earnedAmount));
       eitcCredit = Math.max(0, base - Math.round(row.phaseOutRate * Math.max(0, Math.max(earnedEic, agi) - start)));
     }
-    warnings.push("Earned income credit uses the schedule you passed, not a built-in table; it assumes the qualifying-child, age, residency and Social Security number tests are met (Schedule EIC) and the credit is refundable.");
+    if (builtinEitc) warnings.push("Earned income credit uses the built-in 2025 schedule (maximum credits, income limits and investment-income limit read from irs.gov's EITC tables page on 2026-10-28); it assumes the qualifying-child, age, residency and Social Security number tests are met (Schedule EIC) and the credit is refundable.");
+    else warnings.push("Earned income credit uses the schedule you passed, not a built-in table; it assumes the qualifying-child, age, residency and Social Security number tests are met (Schedule EIC) and the credit is refundable.");
   }
   const total = Math.max(0, incomeTax - childCredit) + se.tax + addlMedicare + niit - refundableCredit - eitcCredit;
   const marginal = (table.b.find(([hi]) => taxable <= hi) ?? [0, 0])[1];
