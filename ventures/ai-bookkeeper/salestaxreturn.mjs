@@ -172,6 +172,11 @@ const periodBefore = (d, freq, endMonth) => {
 export function salesTaxReturn(books, { account = "2100", frequency = "quarterly", endMonth = null, dueDay = 20, from = null, to = null, rates = {}, rollover = true, discounts = {}, asOf = null } = {}) {
   if (!["monthly", "quarterly", "semiannual", "annual"].includes(frequency)) throw new Error("frequency must be monthly, quarterly, semiannual or annual");
   if (endMonth != null && !(Number.isInteger(endMonth) && endMonth >= 1 && endMonth <= (frequency === "annual" ? 12 : LEN[frequency] ?? 1))) throw new Error("endMonth must be a month within the first period of the year");
+  for (const [j, w] of Object.entries(rates)) {
+    if (!Number.isFinite(w) || w < 0 || w > 1) throw new Error(`rate for "${j}" needs a percent between 0 and 100, as in --rate "${j}=7.25"`);
+  }
+  const dd = dueDay && typeof dueDay === "object" ? dueDay.day ?? dueDay.after : dueDay;
+  if (!(dd === "last" || (Number.isInteger(dd) && dd >= 1 && dd <= (dueDay?.after != null ? 366 : 31)))) throw new Error('due day must be a whole day from 1 to 31 or "last"');
   for (const [j, d] of Object.entries(discounts)) {
     const okCap = (c) => c == null || (Number.isFinite(c) && c >= 0);
     if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth)) throw new Error(`discount for "${j}" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount "${j}=0.5,100"`);
