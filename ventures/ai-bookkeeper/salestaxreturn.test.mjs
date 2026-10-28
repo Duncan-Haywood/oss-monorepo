@@ -374,6 +374,7 @@ test("stateDiscounts presets IL, TX and FL under their <ST> state label and noth
   assert.deepEqual(stateDiscounts("TX"), { "TX state": { rate: 0.005 } });
   assert.deepEqual(stateDiscounts("FL"), { "FL state": { rate: 0.025, cap: 3000 } });
   assert.deepEqual(stateDiscounts("CA"), {});
+  assert.equal(stateDiscounts("ga")["GA state"].tiers.length, 2);
   assert.deepEqual(stateDiscounts(undefined), {});
 });
 
@@ -394,4 +395,15 @@ test("IA: a note says semi-monthly prepayment filers are not modelled", () => {
   assert.match(stateFilingNote("IA", "quarterly"), /semi-monthly/);
   assert.equal(stateFilingNote("IA", "monthly") !== null, true);
   assert.equal(stateFilingNote("SC", "monthly"), null);
+});
+
+test("GA vendor's compensation: 3% of the first $3,000 of tax, 0.5% of the rest, per return", async () => {
+  const { salesTaxReturn, stateDiscounts } = await import("./salestaxreturn.mjs");
+  const mk = (cents) => addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-03-01,X,1.00\n", "1000").books,
+    `type,number,date,due,party,amount,account,description\ninvoice,1,2026-03-10,,A Co,1000.00,4000,Goods\ninvoice,1,2026-03-10,,A Co,${cents / 100}.00,2100,GA state\n`).books;
+  const run = (cents) => salesTaxReturn(mk(cents), { frequency: "monthly", discounts: stateDiscounts("GA") }).periods[0].rows.find((x) => x.jurisdiction === "GA state");
+  assert.equal(run(200000).discount, 6000);            // $2,000 x 3%
+  assert.equal(run(500000).discount, 9000 + 1000);     // $90 + $10: $3,000 x 3% + $2,000 x 0.5%
+  assert.equal(run(500000).payable, 500000 - 10000);
+  assert.throws(() => salesTaxReturn(mk(100), { discounts: { "GA state": { rate: 0.03, tiers: [{ rate: 2 }] } } }));
 });
