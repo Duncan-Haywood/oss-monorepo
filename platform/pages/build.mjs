@@ -139,6 +139,7 @@ import {
   BUY_ME_A_COFFEE_URL,
   siteStyleLink,
   writeResearchChrome,
+  siteTitle,
 } from './site-nav.mjs';
 import { ASK_PATH, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
@@ -6068,7 +6069,7 @@ ${otherAudiences
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${copy.title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(copy.title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(copy.description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -6335,7 +6336,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -6561,7 +6562,7 @@ ${group.items.map(renderCard).join('\n')}
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -6770,7 +6771,7 @@ export function renderCompareProductPage({
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -6983,7 +6984,7 @@ ${tools.map(renderTool).join('\n')}
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -7166,7 +7167,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -7459,7 +7460,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <meta name="robots" content="noindex">
   <link rel="canonical" href="${escapeHtml(url)}">

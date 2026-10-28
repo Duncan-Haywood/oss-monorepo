@@ -8,6 +8,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  SITE_NAME,
+  TITLE_BUDGET,
+  siteTitle,
   SITE_NAV,
   SITE_HEADER_CSS,
   HEADER_MARKER,
@@ -181,4 +184,11 @@ test('the chrome goes dark only on a page whose own background is dark', () => {
 test('a widened venture header keeps its content offset as padding (phone: no sideways scroll, so no undo)', () => {
   assert.match(VENTURE_CHROME_JS, /paddingLeft=Math\.max\(0,r\.left\)/);
   assert.match(VENTURE_CHROME_JS, /paddingRight=''/, 'reset() clears the padding it set');
+});
+
+test('siteTitle adds the site name only when the whole title still fits a results page', () => {
+  assert.equal(siteTitle('Short tool'), `Short tool | ${SITE_NAME}`);
+  const long = 'Excel alternatives: 12 free tools with a side-by-side page';
+  assert.equal(siteTitle(long), long, 'the suffix would push it past the budget');
+  for (const n of [1, 20, 40, 60, 90]) assert.ok(siteTitle('x'.repeat(n)).length <= Math.max(TITLE_BUDGET, n));
 });
