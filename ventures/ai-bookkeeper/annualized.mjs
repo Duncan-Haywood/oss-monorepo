@@ -6,8 +6,9 @@
 //
 // Periods end March 31, May 31, August 31 and December 31; their profit is multiplied by 4, 2.4,
 // 1.5 and 1, and the tax on that annualized profit is multiplied by 22.5%, 45%, 67.5% and 90%
-// (the percentages and factors are from the Schedule AI form as remembered, not yet checked against
-// the form text; every result says so). The required installment of a period is the smaller of the
+// (the factors are 12 over the months elapsed and the percentages 22.5% a quarter, which
+// annualized.test.mjs checks by derivation; the form text itself is unread because irs.gov is
+// blocked from the build container, and every result says so). The required installment of a period is the smaller of the
 // annualized amount still unmet and the regular quarter plus any regular quarter not used earlier
 // (Part III lines 20 to 26 of the form). Wages, other income and withholding are taken as even
 // through the year, which is the form's default for withholding; the form's second set of
@@ -16,7 +17,7 @@
 import { scheduleC, estimatedDueDates } from "./taxforms.mjs";
 import { estimatedTax } from "./estimatedtax.mjs";
 
-const PERIODS = [
+export const PERIODS = [
   { end: "03-31", factor: 4, pct: 0.225, label: "Jan 1 to Mar 31" },
   { end: "05-31", factor: 2.4, pct: 0.45, label: "Jan 1 to May 31" },
   { end: "08-31", factor: 1.5, pct: 0.675, label: "Jan 1 to Aug 31" },
