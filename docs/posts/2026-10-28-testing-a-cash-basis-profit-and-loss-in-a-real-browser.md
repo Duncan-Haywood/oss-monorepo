@@ -1,7 +1,7 @@
 ---
 title: "Testing the cash-basis profit and loss in a real browser, and the bug it found nearby"
 date: 2026-10-28
-description: "ai-bookkeeper's cash-basis card was only unit-tested. A headless Chromium run confirmed it, and exposed a loose part-payment match on single-word party names."
+description: "A seeded property test checks the Schedule AI worksheet never asks for a negative or above-regular installment across 150 made-up sole proprietors."
 tags: [ai-bookkeeper, bookkeeping, testing]
 ---
 
