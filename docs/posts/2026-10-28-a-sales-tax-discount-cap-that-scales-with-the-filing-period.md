@@ -1,7 +1,7 @@
 ---
 title: "A sales tax discount cap per month, not per return: Illinois at $1,000"
 date: 2026-10-28
-description: "ai-bookkeeper's sales tax return worksheet now takes a per-month cap on the timely-filing discount, so a quarterly or annual return caps at 3 or 12 months' worth."
+description: "ai-bookkeeper's sales tax return worksheet takes a per-month cap on the timely-filing discount, so quarterly or annual returns cap at 3 or 12 months' worth."
 tags: [ai-bookkeeper, sales-tax]
 ---
 

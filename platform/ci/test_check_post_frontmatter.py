@@ -5,7 +5,7 @@ import datetime
 import unittest
 from pathlib import Path
 
-from check_post_frontmatter import main, problems
+from check_post_frontmatter import ROOT, main, problems
 
 GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "d"\ntags: [a, b]\n---\nbody\n'
 
@@ -78,6 +78,10 @@ class T(unittest.TestCase):
     def test_three_letter_s_is_not_a_plural(self):
         code, out = self._run({"2026-10-24-x.md": GOOD.replace("[a, b]", "[gas]"), "2026-10-24-y.md": GOOD.replace("[a, b]", "[ga]")})
         self.assertEqual(code, 0)
+
+    def test_default_root_is_the_repo_root(self):
+        # parents[2] from platform/ci/: one more level and the check scans nothing and always passes
+        self.assertTrue((ROOT / "docs" / "posts").is_dir())
 
     def test_no_front_matter(self):
         self.assertEqual(problems("x.md", "# hi\n"), ["no front matter"])
