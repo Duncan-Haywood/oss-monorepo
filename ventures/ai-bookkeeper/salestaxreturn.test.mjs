@@ -358,3 +358,12 @@ test("a malformed discount is refused instead of printing NaN", () => {
   }
   assert.doesNotThrow(() => salesTaxReturn(books, { discounts: { "CA state": { rate: 0.005, cap: 10000 } } }));
 });
+
+test("a malformed rate or due day is refused instead of passing silently or printing NaN dates", () => {
+  const books = newBooks();
+  for (const w of [NaN, -0.01, 1.5, Infinity]) assert.throws(() => salesTaxReturn(books, { rates: { "CA state": w } }), /rate for "CA state"/);
+  for (const d of [NaN, 0, 32, 2.5, "abc", null]) assert.throws(() => salesTaxReturn(books, { dueDay: d }), /due day/);
+  assert.doesNotThrow(() => salesTaxReturn(books, { rates: { "CA state": 0.0725 }, dueDay: "last" }));
+  assert.doesNotThrow(() => salesTaxReturn(books, { dueDay: { months: 2, day: 15 } }));
+  assert.doesNotThrow(() => salesTaxReturn(books, { dueDay: 25 }));
+});
