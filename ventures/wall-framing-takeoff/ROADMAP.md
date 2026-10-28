@@ -98,7 +98,7 @@ Ticked items are on `main`.
 - [x] Foundation quantities (2026-10-24, `foundation.mjs`, CLI `--foundation`): footing, stem wall and slab (or a monolithic slab with thickened edge) concrete from closed-form geometry, trucks and short-load warning, rebar with lap splices and weight, form area and plywood, gravel base, vapor barrier. Hand-arithmetic tests only. Corner L-bars landed 2026-10-28 (`cornerBars`, page select; hand-arithmetic test). Anchor bolt spacing and end distance on the page 2026-10-27. Not yet: piers and columns, walkout/stepped footings, checking against a real foundation plan.
 - [ ] Interior: drywall sheet counts per wall and ceiling landed 2026-10-24 (`drywall.mjs`, CLI `--drywall`, hand-count tests; joints not on studs, no page). Wall-cavity insulation bags landed 2026-10-24 (`insulation.mjs`, CLI `--insulation`, cavity measured from placed members; hand-arithmetic tests, no page). Joints on studs landed 2026-10-26 (walls; page control `Wall end joints` 2026-10-27). Insulation bags (wall, rim, attic) are in the budget from 2026-10-27. Trim (baseboard, casing boards) landed 2026-10-28 (`trim.mjs`, CLI `--trim`, budget lines; hand tests, no page). Not yet: ceiling joints on joists, the trim page controls, shoe moulding.
 
-- [x] Exterior siding, house wrap and corner boards (2026-10-28, `siding.mjs`, CLI `--siding`, budget lines; hand tests, no page). Not yet: gables, soffit and fascia, window and door trim, vertical siding, a real siding order.
+- [x] Exterior siding, house wrap and corner boards (2026-10-28, `siding.mjs`, CLI `--siding`, budget lines; hand tests; page card, browser-checked on the example house). Not yet: gables, soffit and fascia, window and door trim, vertical siding, a real siding order.
 
 ### 4. Time and money
 
