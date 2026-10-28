@@ -1,7 +1,7 @@
 ---
 title: "A scale model feels the same gust load but pitches 30% harder"
 date: 2026-10-28
-description: "In a four-state flight-dynamics model, a 1:5 Froude-scaled cargo aircraft matches the full-size gust load factor within 2% but its peak pitch rate is 27 to 33% high."
+description: "In a four-state model, a 1:5 Froude-scaled cargo aircraft matches full-size gust load factor within 2% but its peak pitch rate is 27 to 33% high."
 tags: [research, aerolog-scaling, scale-models, flight-dynamics]
 ---
 
