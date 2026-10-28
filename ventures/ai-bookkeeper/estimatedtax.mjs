@@ -53,7 +53,7 @@ const toCents = (v) => Math.round(+v * 100);
 // opts: year, monthsElapsed, filing (single|mfj|hoh), otherIncome, wages (W-2 wages,
 // cents), withholding (cents), priorYearTax and priorAgi (cents, from last year's
 // 1040), paid (cents of estimates already sent), asOf (YYYY-MM-DD), qbi (false to
-// skip the 20% deduction), children (under 17) and otherDependents (counts, for the child tax credit), qbiMinimum ({ floor, threshold } cents, years after 2026), brackets, standardDeduction, wageBase, qbiThreshold (cents; `taxTableOptions` builds these from a JSON file).
+// skip the 20% deduction), children (under 17) and otherDependents (counts, for the child tax credit), qbiMinimum ({ floor, threshold } cents, years after 2026), brackets, standardDeduction, wageBase, qbiThreshold and qbiRange (cents), businessWages (the business's own W-2 payroll, cents) and service (true for a specified service trade) for the QBI limits above the threshold (`taxTableOptions` builds these from a JSON file).
 // A year's figures from a JSON file in dollars, for a year the code has no table for (or to override one):
 // { "standardDeduction": 16900, "brackets": [[12800, 0.10], ..., [null, 0.37]], "qbiThreshold": 205000,
 //   "qbiMinimum": { "floor": 400, "threshold": 1000 }, "wageBase": 192300 }. A null last bound means no upper limit.
@@ -116,7 +116,21 @@ export function estimatedTax(books, o = {}) {
   const agi = profit - se.deduction - adjustments + wages + other;
   const beforeQbi = Math.max(0, agi - std);
   const qbiIncome = Math.max(0, profit - se.deduction - adjustments);
-  let qbiDeduction = o.qbi === false || profit <= 0 ? 0 : Math.min(Math.round(0.2 * qbiIncome), Math.round(0.2 * beforeQbi));
+  // Above the threshold (section 199A(b)(2)(B), (d)(3)): the deduction is the smaller of 20% of QBI and 50% of the
+  // business's own W-2 wages (opts.businessWages, cents; none for a sole proprietor with no staff), phased in over
+  // the range; a specified service business (opts.service) loses it over the same range. Property (the 2.5% leg) is
+  // not modelled. The 2026 range (75,000 single / 150,000 joint) is from secondary sources, unchecked.
+  const qbiThreshold = o.qbiThreshold ?? (QBI_LIMIT[year] ?? QBI_LIMIT[2026])[filing] ?? Infinity;
+  const qbiRange = o.qbiRange ?? (year >= 2026 ? 75000 : 50000) * (filing === "mfj" ? 200 : 100);
+  const w2 = nonNeg(o.businessWages);
+  const limited = (q) => {
+    if (beforeQbi <= qbiThreshold) return Math.round(0.2 * q);
+    const pct = Math.min(1, (beforeQbi - qbiThreshold) / qbiRange);
+    const qa = o.service ? q * (1 - pct) : q, wa = o.service ? w2 * (1 - pct) : w2;
+    const full = 0.2 * qa;
+    return Math.round(Math.max(0, full - pct * Math.max(0, full - 0.5 * wa)));
+  };
+  let qbiDeduction = o.qbi === false || profit <= 0 ? 0 : Math.min(limited(qbiIncome), Math.round(0.2 * beforeQbi));
   // IRC 199A(i), read at law.cornell.edu 2026-10-23: for tax years after 2025 the deduction is the
   // greater of the usual figure and $400, for a taxpayer whose QBI from businesses they materially
   // participate in is "at least" $1,000 (so exactly $1,000 qualifies). Both amounts are indexed for
@@ -129,7 +143,7 @@ export function estimatedTax(books, o = {}) {
     warnings.push("The minimum QBI deduction (IRC 199A(i)) applies only if you materially participate in the business; if not, the deduction may be smaller.");
   }
   if (o.qbi !== false && year >= 2027 && !o.qbiMinimum) warnings.push(`The $400 minimum QBI deduction and its $1,000 threshold are indexed for ${year} (IRC 199A(i)(3)); pass qbiMinimum { floor, threshold } in cents from the IRS revenue procedure, or treat a small-QBI result as approximate.`);
-  if (qbiDeduction && beforeQbi > (o.qbiThreshold ?? (QBI_LIMIT[year] ?? QBI_LIMIT[2026])[filing] ?? Infinity)) warnings.push("Taxable income is above the QBI threshold, where the 20% deduction may be limited or lost; treat the figure as a ceiling on the deduction.");
+  if (o.qbi !== false && profit > 0 && beforeQbi > qbiThreshold) warnings.push(`Taxable income is above the QBI threshold, so the 20% deduction is limited to 50% of the business's W-2 wages (${w2 ? "you passed " + w2 / 100 : "none for a sole proprietor with no staff"})${o.service ? " and phased out, as you marked this a service business" : "; pass service: true if yours is a service business (law, health, consulting, accounting, finance and similar), which loses it over the range"}. Property is not modelled. The phase-in range is ${qbiRange / 100} dollars${o.qbiRange === undefined && year >= 2026 ? " (the 2026 widening from 50,000/100,000 is unchecked against the statute; pass qbiRange)" : ""}.`);
   const taxable = Math.max(0, beforeQbi - qbiDeduction);
   const incomeTax = bracketTax(taxable, table.b);
   // Part II of Form 8959: the SE threshold is lowered by wages, which count first.

@@ -305,3 +305,28 @@ test("child tax credit phases out $50 per $1,000 over the threshold; no children
   const mfj = estimatedTax(books("250000.00"), { year: 2026, wageBase: 18450000, filing: "mfj", children: 1 });
   assert.equal(mfj.childCredit, 220000); // under $400,000 joint
 });
+
+test("above the QBI range a sole proprietor with no staff loses the deduction; business wages restore up to 50% of them", () => {
+  const o = { year: 2026, wageBase: 18450000 };
+  const top = estimatedTax(books("400000.00"), o); // taxable before QBI is far above 201,750 + 75,000
+  assert.equal(top.qbiDeduction, 40000); // only the $400 minimum of IRC 199A(i) is left
+  assert.ok(top.warnings.some((w) => /limited to 50% of the business's W-2 wages/.test(w)));
+  const staffed = estimatedTax(books("400000.00"), { ...o, businessWages: 4000000 });
+  assert.equal(staffed.qbiDeduction, 2000000); // 50% of 40,000 is under 20% of the profit
+  assert.equal(staffed.taxable, top.taxable - (2000000 - 40000));
+});
+
+test("inside the phase-in the QBI deduction falls linearly; a service business loses it over the same range", () => {
+  const o = { year: 2026, wageBase: 18450000 };
+  const r = estimatedTax(books("250000.00"), o);
+  const pct = (r.agi - r.standardDeduction - 20175000) / 7500000;
+  assert.ok(pct > 0 && pct < 1);
+  const q = 0.2 * (r.profit - r.se.deduction);
+  assert.equal(r.qbiDeduction, Math.round(q - pct * q));
+  const s = estimatedTax(books("250000.00"), { ...o, service: true });
+  assert.equal(s.qbiDeduction, Math.round(q * (1 - pct) * (1 - pct))); // service: QBI shrinks by the share, then the wage limit phases in
+  assert.ok(s.qbiDeduction < r.qbiDeduction);
+  const sw = estimatedTax(books("250000.00"), { ...o, service: true, businessWages: 3000000 });
+  assert.ok(sw.qbiDeduction < estimatedTax(books("250000.00"), { ...o, businessWages: 3000000 }).qbiDeduction);
+  assert.equal(estimatedTax(books("250000.00"), { ...o, qbiRange: 100, qbiMinimum: { floor: 0, threshold: 1000 } }).qbiDeduction, 0);
+});

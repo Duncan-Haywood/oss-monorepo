@@ -322,9 +322,8 @@ spread over the due dates still ahead (`--as-of`). Under $1,000 owed after
 withholding means no estimates. Without last year's tax the plan uses 90% and says
 the prior-year route is often smaller. Tested against hand arithmetic
 (`estimatedtax.test.mjs`, 7 pass); the 2026 brackets and standard
-deductions (all three filing statuses) matched the IRS text of Rev. Proc. 2025-32 itself on 2026-10-23 (tables 1-3, standard deductions, the section 199A thresholds), the 2025 ones are typed from memory and unchecked (every result warns; pass `brackets`). Leaves out state tax, credits,
-itemising, the QBI wage/property limits and service-business phase-out (it warns
-above the threshold), and the 0.9% Additional Medicare Tax. Not tax advice. On the page since 2026-10-23 ("Optional: federal tax estimate and quarterly payments"), same function as the CLI.
+deductions (all three filing statuses) matched the IRS text of Rev. Proc. 2025-32 itself on 2026-10-23 (tables 1-3, standard deductions, the section 199A thresholds), the 2025 ones are typed from memory and unchecked (every result warns; pass `brackets`). Above the section 199A threshold (2026-10-28) the QBI deduction is limited to 50% of the business's own W-2 wages (`--business-wages $`; none for a sole proprietor with no staff), phased in over the range, and `--service` (a specified service trade) loses it over the same range, as `scorp` does; the $400 minimum still applies. The 2026 range (75,000 single / 150,000 joint) is unchecked against the statute (`qbiRange`), and the property leg is not modelled. Leaves out state tax, most credits (the child credits are in),
+itemising and the 0.9% Additional Medicare Tax's withholding side. Not tax advice. On the page since 2026-10-23 ("Optional: federal tax estimate and quarterly payments"), same function as the CLI.
 
 ## Schedule C worksheet (US sole proprietors)
 
