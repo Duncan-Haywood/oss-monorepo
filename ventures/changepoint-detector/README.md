@@ -494,7 +494,20 @@ that would show the factor earning its place.
 
 With `--model poisson`, the result lists an `excursions` entry (and one sentence in `summary`) when two neighbouring changes enclose a short stretch (at most a quarter of the series) whose rate sits above or below both sides, and the rate before and after it is statistically one rate (Poisson likelihood ratio under 3.84, 1 df). That reads as a temporary burst or dip on a steady baseline, not two level changes. The changes themselves are not altered. Function: `findExcursions`.
 
-Checked: a planted 10-point burst at 4x on a flat series is flagged; a plain step is not (`great-discoveries.test.mjs`). On the real great-discoveries series it is **not** flagged: the rate before 1884 (2.5 a year) and after 1888 (3.68) differ with a likelihood ratio of 6.9, so the honest reading there is a burst plus a persistent rise, which is what the three PELT changes say. The threshold was not moved to make that series pass. Synthetic power and false-flag rates are not measured yet; no second real series.
+Checked: a planted 10-point burst at 4x on a flat series is flagged; a plain step is not (`great-discoveries.test.mjs`). On the real great-discoveries series it is **not** flagged: the rate before 1884 (2.5 a year) and after 1888 (3.68) differ with a likelihood ratio of 6.9, so the honest reading there is a burst plus a persistent rise, which is what the three PELT changes say. The threshold was not moved to make that series pass. Synthetic power and false-flag rates (`eval/excursions.mjs`, plain Poisson counts, level 5, 100 points, 100 seeded series per row, 2026-10-28; output in `eval/excursions.out.txt`):
+
+| series | series with a change | excursion flagged |
+|---|---|---|
+| no change | 7 | 3 |
+| 5-point burst 2x | 61 | 55 |
+| 5-point burst 3x | 100 | 97 |
+| 10-point burst 2x | 96 | 86 |
+| 10-point burst 3x | 100 | 91 |
+| 10-point dip 0.3x | 97 | 84 |
+| lasting step 2x | 100 | 1 |
+| 3x burst for 5 points, then a 1.5x rise for good | 100 | 4 |
+
+When PELT cuts a true burst the note names it in 84 to 97% of series (the 2x, 5-point burst is cut in only 61% at all). A lasting step is wrongly called a burst in 1 of 100, and a burst riding a persistent rise is correctly left alone in 96 of 100. On a series with no change, the 3 flags are among the 7 false alarms PELT itself raised. Synthetic only, no overdispersion; no second real series.
 
 ## Bursts
 
