@@ -326,3 +326,13 @@ test("property: random inputs keep the identities", () => {
     if (t.feasible) close(e.contribution - e.reported / t.roas, 0.05 * e.reported, 1e-9);
   }
 });
+
+test("num rejects exponent, hex and Infinity text instead of parsing it", () => {
+  for (const bad of ["1e5", "0x10", "Infinity", "abc", ""]) assert.ok(Number.isNaN(num(bad)), bad);
+  assert.equal(num("$1,234.50"), 1234.5);
+});
+
+test("campaign check: zero revenue and no orders gives no CPA, not Infinity", () => {
+  const c = checkCampaign(simple(), { spend: 1000, revenue: 0 });
+  assert.equal(c.cpa, null);
+});
