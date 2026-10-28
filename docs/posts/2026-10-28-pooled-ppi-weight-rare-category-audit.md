@@ -1,7 +1,7 @@
 ---
 title: "One PPI weight for all strata: what it fixes in a rare-category audit, and what it does not"
 date: 2026-10-28
-description: "With a real LLM coder on GoEmotions fear and sadness, a single pooled PPI weight removes the undercoverage that per-stratum tuning added; a conservative variance floor over-corrects."
+description: "With a real LLM coder on GoEmotions rare categories, one pooled PPI weight removes the undercoverage per-stratum tuning added; a variance floor over-corrects."
 tags: [research, llm-coding-inference, statistics]
 ---
 
