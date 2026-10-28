@@ -7,7 +7,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "src"))
 M, B, STEPS, LR, H = 16, 16, 3840, 2e-3, 16
 SEEDS = [0, 1]
-KS = [2, 4, 6, 8]  # number of coalition members (workers 0..k-1), each sending -10x its own delta
+KS = [int(x) for x in os.environ.get("KS", "2,4,6,8").split(",")]  # number of coalition members (workers 0..k-1), each sending -10x its own delta
 PATH = os.path.join(HERE, "coalition.jsonl")
 
 load = lambda p: [json.loads(l) for l in open(p)] if os.path.exists(p) else []
@@ -43,7 +43,7 @@ def report():
     new = {(r["k"], r["seed"]): r["loss"] for r in load(PATH)}
     ref = {(r["agg"], r["offset"], r["seed"]): r["loss"] for r in load(REF)}
     seeds = sorted({s for _, s in new})
-    pred = {2: 2.1, 4: 5.1, 6: 10.3, 8: 24.2}  # squared-shift ratio to k = 1 (coalition_numpy_results.txt)
+    pred = {2: 2.1, 4: 5.1, 5: 7.3, 6: 10.3, 7: 14.8, 8: 24.2}  # squared-shift ratio to k = 1 (coalition_numpy_results.txt)
     for k in KS:
         ss = [s for s in seeds if (k, s) in new]
         ex = [new[(k, s)] - ref[("median", 1.0, s)] for s in ss]
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     if sys.argv[1] == "report":
         report(); sys.exit()
     have = {(r["k"], r["seed"]) for r in load(PATH)}
-    jobs = [(k, s) for s in SEEDS for k in KS if (k, s) not in have]
+    jobs = [(k, s) for s in SEEDS for k in KS if (k, s) not in have]  # KS=5,7 python3 coalition.py run: milestone 5k
     with Pool(4) as p, open(PATH, "a") as f:
         for r in p.imap_unordered(run, jobs):
             f.write(json.dumps(r) + "\n"); f.flush(); print(r, flush=True)
