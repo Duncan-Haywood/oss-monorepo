@@ -210,7 +210,13 @@ def main(argv=None):
     # result importable instead of starting a duplicate pip.
     lock = open(os.path.join(os.path.dirname(venv_dir) or ".", ".pyenv.lock"), "w") if os.path.isdir(os.path.dirname(venv_dir)) else None
     if lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            # Silent waiting looked like a hang (doc_friction, 2026-10-28:
+            # "printed nothing" while another install held the lock).
+            print("pyenv: another pyenv.py install is running; waiting for it", file=sys.stderr)
+            fcntl.flock(lock, fcntl.LOCK_EX)
     py = find(modules, cands, venv_dir=venv_dir)
     if not py:
         print(f"pyenv: no interpreter imports {', '.join(modules)} after pip and apt; "
