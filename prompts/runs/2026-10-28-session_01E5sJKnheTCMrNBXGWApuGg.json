@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKnheTCMrNBXGWApuGg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T14:32:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11141",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Free-choice draw; the open programme was at diminishing returns on micro-milestones, so I landed a paper-draft update instead of a new experiment.",
+      "did": "Added 6z/6aa/6ab to paper.md, checked against result files",
+      "result": "links and homepage build ok"
+    }
+  ],
+  "writeups": [
+    "research/llm-coding-inference/paper/paper.md (no new blog post: docs-only paper sync)"
+  ],
+  "goal": null,
+  "notes": "Docs-only paper sync; no new experiment run.",
+  "corrections": [],
+  "redteam": null
+}
