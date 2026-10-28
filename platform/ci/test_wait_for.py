@@ -1,5 +1,5 @@
 import os, tempfile, unittest
-from wait_for import wait
+from wait_for import wait, wait_until
 
 
 class WaitFor(unittest.TestCase):
@@ -24,16 +24,10 @@ class WaitFor(unittest.TestCase):
         ok, _ = wait("/nonexistent/x.log", timeout=5, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s))
         self.assertFalse(ok)
 
-    def test_quiet_mode_without_marker(self):
-        with tempfile.TemporaryDirectory() as d:
-            p = os.path.join(d, "o.jsonl")
-            open(p, "w").write("{}\n")
-            t = [0.0]
-            ok, _ = wait(p, timeout=30, quiet=6, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s))
-            self.assertTrue(ok)
-            open(p, "w").close()
-            ok, _ = wait(p, timeout=10, quiet=2, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s))
-            self.assertFalse(ok)
+    def test_until(self):
+        self.assertTrue(wait_until("true", timeout=1))
+        t = [0.0]
+        self.assertFalse(wait_until("false", timeout=3, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s)))
 
 
 if __name__ == "__main__":

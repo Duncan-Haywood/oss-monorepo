@@ -28,7 +28,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -37,12 +37,15 @@
       "issue": "wait_for.py advice assumed a DONE line; pip and jsonl logs print none (fixed with --quiet)"
     }
   ],
-  "deviations": [],
-  "writeups": [
-    "docs/posts/2026-10-28-wait-for-learns-to-wait-on-a-silent-log.md"
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no blog post: my tool change was superseded by a parallel run's identical fix"
+    }
   ],
+  "writeups": [],
   "goal": null,
-  "notes": "Critique mode; only owner rows and blocked P056 open; main_health green; fix came from friction table.",
+  "notes": "Critique mode. Built wait_for --quiet, but a parallel run landed --until for the same friction first; took theirs on conflict, kept only the research/CLAUDE.md pointer. No post: change reduced to a doc line.",
   "corrections": [],
   "redteam": null,
   "usage": {
