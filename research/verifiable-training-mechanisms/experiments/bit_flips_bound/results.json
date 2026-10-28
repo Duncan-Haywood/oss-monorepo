@@ -1,0 +1,323 @@
+{
+ "d": 32,
+ "steps": 600,
+ "seeds": 4,
+ "eps": 0.01,
+ "KS": [
+  1.5,
+  2,
+  4,
+  10,
+  100
+ ],
+ "clean_growth_max": 1.0005544747624477,
+ "clean_growth_p99": 1.000471416958139,
+ "rows": {
+  "fp32": {
+   "exp_hi": {
+    "n": 60,
+    "harmful": 15,
+    "catch": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "flag_all": [
+     0.26666666666666666,
+     0.26666666666666666,
+     0.26666666666666666,
+     0.26666666666666666,
+     0.26666666666666666
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "exp_lo": {
+    "n": 20,
+    "harmful": 0,
+    "catch": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "flag_all": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sign": {
+    "n": 20,
+    "harmful": 0,
+    "catch": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "flag_all": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "man_hi": {
+    "n": 20,
+    "harmful": 0,
+    "catch": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "flag_all": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  "bf16": {
+   "exp_hi": {
+    "n": 60,
+    "harmful": 13,
+    "catch": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "flag_all": [
+     0.25,
+     0.25,
+     0.25,
+     0.25,
+     0.25
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "exp_lo": {
+    "n": 20,
+    "harmful": 0,
+    "catch": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "flag_all": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sign": {
+    "n": 20,
+    "harmful": 0,
+    "catch": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "flag_all": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "man_hi": {
+    "n": 20,
+    "harmful": 0,
+    "catch": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "flag_all": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  "fp16": {
+   "exp_hi": {
+    "n": 60,
+    "harmful": 14,
+    "catch": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     0.9285714285714286
+    ],
+    "flag_all": [
+     0.3333333333333333,
+     0.3333333333333333,
+     0.31666666666666665,
+     0.31666666666666665,
+     0.3
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     1
+    ]
+   },
+   "exp_lo": {
+    "n": 20,
+    "harmful": 0,
+    "catch": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "flag_all": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "sign": {
+    "n": 20,
+    "harmful": 0,
+    "catch": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "flag_all": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "man_hi": {
+    "n": 20,
+    "harmful": 0,
+    "catch": [
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "flag_all": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "missed_harm": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  }
+ }
+}
