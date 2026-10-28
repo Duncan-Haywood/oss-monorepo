@@ -6,11 +6,12 @@ for a run with no open backlog item; `promptctl.py measure` friction text mixes
 fixed and live items, this does not. Checks that need a built site
 (check_pages_links.py) are skipped; `prompts/promptctl.py validate` is included
 (runs keep hitting it red by hand). Takes 40 s to 3 min, so start it with
-`run_in_background`; exit 1 if any check fails.
+`run_in_background`; each check's result is printed as it finishes (so a
+waiting loop sees progress), and exit is 1 if any check fails.
 """
 import subprocess
 import sys
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -31,10 +32,15 @@ def main():
     checks = [p for p in sorted(HERE.glob("check_*.py")) if p.name not in NEEDS_SITE]
     jobs = [(p,) for p in checks] + [(ROOT / "prompts" / "promptctl.py", "validate")]
     with ThreadPoolExecutor(max_workers=6) as pool:
-        results = list(pool.map(lambda j: run(*j), jobs))
+        results = []
+        for fut in as_completed([pool.submit(run, *j) for j in jobs]):
+            name, rc, out = fut.result()
+            results.append((name, rc, out))
+            if rc == 0:
+                print(f"ok   {name}", flush=True)
+            else:
+                print(f"FAIL {name} (exit {rc})\n" + "\n".join(out.splitlines()[-8:]) + "\n", flush=True)
     bad = [r for r in results if r[1] != 0]
-    for name, rc, out in bad:
-        print(f"FAIL {name} (exit {rc})\n" + "\n".join(out.splitlines()[-8:]) + "\n")
     print(f"{len(results) - len(bad)}/{len(results)} checks pass")
     return 1 if bad else 0
 
