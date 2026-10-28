@@ -2,21 +2,27 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-28 · Milestone 5k: does the bias-crossover account predict that k = 7 of 16 still trains, slowly? (planned before running)
-- Why: 5j's "Next". The account (post-hoc, from 5j) says the median breaks once its bias exceeds the honest signal mu. Numpy half (`experiments/gpt_median_k7/crossover_numpy.py`): net signal (mu/sigma minus |bias|/sigma) per k and mu/sigma, no training. At mu/sigma = 0.4 (5h) the numpy bias is -0.252 sigma at k = 6 and -0.329 at k = 7, so net signal is +0.15 (k = 6) and +0.07 (k = 7), and negative from k = 8.
-- Design: real training, `k7.py` = 5j's `coalition.py` with k in {7} on seeds 0, 1, 2 plus k = 5 on seed 0 (fills the curve); M = 16, same settings, excess over 5i's clean median on the same seed.
-- **H5k-i:** k = 7 does not diverge on any seed (final loss finite and excess below 2 nats) and its mean excess exceeds k = 6's +0.140. Refuted if any k = 7 seed diverges, or the mean excess is at or below 0.140.
-- **H5k-ii:** k = 5 excess lies between k = 4 (+0.047) and k = 6 (+0.140). Refuted otherwise (one seed, so a coarse check).
-- Prior: i 45% (net signal is thin and mu/sigma falls over training, so a divergence is as likely as a slow run), ii 70%.
-- Limits known in advance: three seeds at k = 7, one at k = 5; one attack; one model and corpus. The numpy half is not a test (it reproduces 5j's table) and only fixes what "crossover" predicts.
+## 2026-10-28 · Milestone 5k: does the bias-crossover account place the breakdown between k = 7 and k = 8? (planned before running)
+- Why: 5j's "Next". The squared-shift mapping under-predicted and missed the k = 8 divergence; the post-hoc account says training breaks when the coalition's median bias exceeds the honest signal, i.e. net signal `mu + bias` (numpy, mu/sigma = 0.4, `coalition_numpy_results.txt`) falls to zero or below. Net signal in sigma units: k = 4 +0.26, k = 5 +0.21, k = 6 +0.15, k = 7 +0.07, k = 8 -0.05. The two points that were not run, k = 5 and k = 7, now test it out of sample (k = 7 is the sharp one: the account says it still trains).
+- Design: `KS=5,7 python3 coalition.py run` (one-line change to `coalition.py` so k is an environment variable; everything else as 5j), seeds 0 and 1, excess over the 5i clean median on the same seed.
+- **H5k-i:** k = 5 excess lies between the k = 4 and k = 6 seed means (+0.047 to +0.140). Refuted otherwise.
+- **H5k-ii:** k = 7 excess exceeds the k = 6 value, +0.14, or it diverges (steepening towards the wall). Refuted if below +0.14.
+- **H5k-iii (the account's own prediction):** k = 7 does not diverge on either seed (final validation loss below 3). Refuted if either seed blows up, which would put the breakdown below the numpy crossover and the account would need the falling mu/sigma (5h) to move it.
+- Prior: i 70%, ii 80%, iii 50% (net signal +0.07 sigma is well inside the numpy fit's own error and the per-round mu/sigma falls below 0.4 late; early rounds have mu/sigma above 1).
+- Limits known in advance: two seeds; the coordinated attack of 5j is still independent per-member flips, not the optimal one; one model and corpus.
 
-### Outcome of 5k (`experiments/gpt_median_k7/`: `k7.py`, `k7.jsonl`, `k7_results.txt`, `crossover_numpy.py`, `crossover_numpy_results.txt`, `run.out`; 4 runs, about 40 minutes each)
-- Numpy half: the net signal (mu/sigma minus |bias|/sigma) stays positive through k = 7 and is negative at k = 8 for every mu/sigma from 0.3 to 1.0, so the account puts the crossover between k = 7 and 8 whatever the signal level in that range; the margin at k = 7 is only +0.05 to +0.23 sigma.
-- Excess over the clean median (same seed): k = 7 seeds 0 / 1 / 2: +0.259 / +0.319 / +0.295 (mean **+0.291**), all finite; k = 5 seed 0: +0.069.
-- **H5k-i supported:** no k = 7 run diverged and the mean excess is double k = 6's +0.140. **H5k-ii supported** (+0.069 lies between k = 4's +0.047 and k = 6's +0.140; one seed).
-- Curve of mean excess, nats: k = 2 +0.014, 4 +0.047, 5 +0.069 (1 seed), 6 +0.140, 7 +0.291, 8 diverged. The cost roughly doubles per added attacker from k = 5, then fails between 7 and 8, as the net-signal column predicts. The squared-shift scaling used in 5j under-predicts at k = 7 by 5.5x (predicted +0.053), confirming that the net signal, not the shift, is the quantity to track. This is a qualitative match (ordering of k, location of the break), not a fitted formula for the excess itself.
-- Limits: the crossover account is still post-hoc in its origin (built after 5j) and now has one out-of-sample check, k = 7 not diverging; k = 5 is one seed; the coordinated same-vector attack and mu/sigma by round are untested; one model, corpus and attack.
-- Next: a coordinated attack (all members send the same vector, -c x the honest mean), where the median's bias is larger than with independent flips, to see whether the breakdown k falls below 8.
+### Outcome of 5k (`experiments/gpt_median_coalition/`: `coalition.jsonl`, `coalition_5k_results.txt`, `run_5k.out`; 4 runs, seeds 0 and 1, about 46 minutes each)
+- Excess over the clean median (same seed), seeds 0 / 1: k = 5 +0.069 / +0.093 (mean +0.081); k = 7 +0.259 / +0.319 (mean +0.289). Neither diverged (final validation loss 1.61 to 1.85).
+- **H5k-i supported:** k = 5 lies between the k = 4 (+0.047) and k = 6 (+0.140) means. **H5k-ii supported:** k = 7 (+0.289) is about twice k = 6. **H5k-iii supported:** k = 7 trains on both seeds, while k = 8 blew up on both (5j), so the breakdown sits between k = 7 and k = 8, where the numpy net signal changes sign (+0.07 to -0.05 sigma). This is the one out-of-sample check of the bias-crossover account; it passed, on two seeds.
+- Reading: the excess climbs 0.014, 0.047, 0.081, 0.140, 0.289 for k = 2, 4, 5, 6, 7, then diverges at 8, a steepening wall as the net signal shrinks (0.26, 0.21, 0.15, 0.07 sigma at k = 4, 5, 6, 7). Predicted by squared-shift scaling, k = 7 would have been +0.053, so that statistic misses it by 5x; the signal left after the bias is the better predictor, with the excess roughly rising as the signal falls.
+- Limits: two seeds; the account is a one-parameter fit (mu/sigma = 0.4), not yet a formula for the excess; independent per-member flips, not the optimal coordinated attack; one model and corpus.
+- Next: the same-vector coordinated attack (all members send -c x the honest mean), where the median's bias is larger and the breakdown k should move down; and a per-round mu/sigma-based prediction of the breakdown.
+
+## 2026-10-28 · Milestone 5k-b: a third seed at k = 7, and the crossover across mu/sigma (a parallel session ran 5k on seeds 0 and 1; this adds to it)
+- Run concurrently with the entry above, same settings, so k = 7 seeds 0 and 1 reproduce it bit for bit (+0.259, +0.319; `experiments/gpt_median_k7/k7.jsonl`). New: **k = 7 seed 2: +0.295** (three-seed mean **+0.291**, none diverged), and k = 5 seed 0 +0.069 (same as above).
+- New numpy table (`crossover_numpy_results.txt`): net signal (mu/sigma minus |bias|/sigma) is positive at k = 7 and negative at k = 8 for every mu/sigma from 0.3 to 1.0, so the predicted breakdown between 7 and 8 does not hinge on the 0.4 fit. Margin at k = 7: +0.05 (mu/sigma 0.3) to +0.23 (1.0).
+- Limits: as above; seed 2 is the only run not in the entry above.
+
 
 ## 2026-10-27 · Milestone 5j: where does the median break when k of 16 workers flip together? (planned before running)
 - Why: 5i's "Next". One attacker is inside the noise floor at M = 16, so the question for the protocol is how the cost grows with the coalition size k. Numpy half (`experiments/gpt_median_coalition/coalition_numpy.py`, mu/sigma = 0.4 from 5h, i.i.d. Gaussian, 2e6 coordinates, no training): the median's mean squared shift relative to k = 1 is x2.1, x5.1, x10.3, x24.2 for k = 2, 4, 6, 8 (x46 at k = 9); the shift grows smoothly, with no cliff at k = M/2 (the median is bounded: the bias is 0.45 sigma at k = 8).

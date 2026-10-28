@@ -59,6 +59,8 @@
 // change — never a half-restored bid that looks finished.
 
 /** The one `localStorage` key. Device-local, like every other signal here. */
+
+import { readFileSync } from 'node:fs';
 export const SAVED_BIDS_KEY = 'portfolio-saved-bids';
 
 const JOBS_MARKER = 'pf-jobs';
@@ -216,6 +218,31 @@ export function pageSaveableFieldIds(html) {
     ids.push(id);
   }
   return ids;
+}
+
+/**
+ * Is this a tool whose user keeps bids?
+ *
+ * The band, its panel and the share row speak of bids, customers, won and lost
+ * jobs, and the build gave them to every page with three fields: 1,110 of 1,331
+ * tools, including a 401(k) loan comparison and an ATS resume checker, where a
+ * "Saved bids" button reads as a mistake to a first-time visitor. The gate is
+ * the tools the customer proposal covers (`platform/proposal/trades.json`) plus
+ * any slug that says bid, quote, estimate, proposal or takeoff. A guess in
+ * either direction costs little: a missed tool simply has no band, and a tool
+ * added to trades.json gets one.
+ */
+const BID_SLUG = /(?:^|-)(?:bids?|quotes?|estimates?|estimator|proposals?|takeoff)(?:-|$)/;
+const PROPOSAL_SLUGS = (() => {
+  try {
+    const url = new URL('../proposal/trades.json', import.meta.url);
+    return new Set(Object.keys(JSON.parse(readFileSync(url, 'utf8'))));
+  } catch {
+    return new Set();
+  }
+})();
+export function slugTakesSavedBids(slug) {
+  return PROPOSAL_SLUGS.has(slug) || BID_SLUG.test(slug);
 }
 
 /** Does this page carry a form worth remembering? */

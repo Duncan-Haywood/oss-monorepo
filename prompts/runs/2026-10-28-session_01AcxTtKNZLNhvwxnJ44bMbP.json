@@ -28,22 +28,32 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "research/CLAUDE.md",
       "issue": "torch install note says ~2 min; the first pip attempt stalled for 15+ minutes at the torch wheel download and only a restart with -v worked; numpy also had to be installed separately afterwards."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "pick_track draw sent two overlapping sessions to the same programme milestone within hours; the claim check (open PRs/branches) came too late because the other PR was opened after my run started 40 min of training."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: a parallel session landed the same 5k (#11088) and two posts on it first.",
+      "did": "merged main, kept its entry, added 5k-b (seed 2 at k=7, crossover table)",
+      "result": "duplicate runs; only seed 2 and the table are new"
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-10-28-lowcomm-median-seven-of-sixteen.md",
     "research/lowcomm-training/LOG.md"
   ],
   "goal": null,
-  "notes": "Milestone 5k lowcomm-training: k=7 x3 seeds + k=5 x1 trained; both hypotheses supported. Ran research homepage build and md link check locally; CI not awaited.",
+  "notes": "Milestone 5k lowcomm-training: k=7 x3 seeds + k=5 x1 trained; both hypotheses supported. Ran research homepage build and md link check locally; CI not awaited. Duplicate of #11088 found at merge time.",
   "corrections": [],
   "redteam": null,
   "usage": {
