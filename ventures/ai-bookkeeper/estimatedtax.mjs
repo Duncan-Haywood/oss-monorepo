@@ -121,7 +121,19 @@ export function estimatedTax(books, o = {}) {
   if (healthDeduction) warnings.push("Self-employed health insurance counts only for months you could not join a plan subsidised by your or your spouse's employer; pass premiums for the other months only.");
   const adjustments = retirementDeduction + healthDeduction;
   const agi = profit - se.deduction - adjustments + wages + other;
-  const beforeQbi = Math.max(0, agi - std);
+  // Age 65 or older / blind: an extra standard deduction per box (not for itemizers), and from 2025 to 2028 the
+  // "senior" deduction of $6,000 per person 65 or older, cut by 6% of AGI over $75,000 ($150,000 joint). The 2026
+  // extra amounts ($2,050 single/head of household, $1,650 married) and the senior deduction are from memory,
+  // unchecked against the IRS text, so every use warns; pass extraStandard / seniorDeduction (cents) to override.
+  const nOlder = Math.min(2, Math.max(0, Math.floor(num(o.over65)))), nBlind = Math.min(2, Math.max(0, Math.floor(num(o.blind))));
+  const extra = itemizing || o.brackets && o.extraStandard == null ? 0 : (nOlder + nBlind) * (o.extraStandard ?? D(filing === "mfj" ? 1650 : 2050));
+  let seniorCut = 0;
+  if (nOlder && year >= 2025 && year <= 2028) {
+    const from = o.seniorThreshold ?? D(filing === "mfj" ? 150000 : 75000);
+    seniorCut = Math.max(0, nOlder * (o.seniorDeduction ?? D(6000)) - Math.round(0.06 * Math.max(0, agi - from)));
+  }
+  if (extra || seniorCut) warnings.push("The extra standard deduction for age 65 or blindness and the 2025-2028 senior deduction ($6,000 each, phased out at 6% of AGI over $75,000, $150,000 joint) use figures not yet checked against the IRS text; confirm them.");
+  const beforeQbi = Math.max(0, agi - std - extra - seniorCut);
   const qbiIncome = Math.max(0, profit - se.deduction - adjustments);
   // Above the threshold (section 199A(b)(2)(B), (d)(3)): the deduction is the smaller of 20% of QBI and 50% of the
   // business's own W-2 wages (opts.businessWages, cents; none for a sole proprietor with no staff), phased in over
@@ -209,7 +221,7 @@ export function estimatedTax(books, o = {}) {
   // The rest is paid with the return: the balance, not a penalty.
   const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));
   warnings.push(...sc.warnings, ...se.warnings);
-  return { year, filing, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, childCredit, refundableCredit, addlMedicare, niit, itemizing, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
+  return { year, filing, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, extraStandard: extra, seniorDeduction: seniorCut, qbiDeduction, taxable, incomeTax, childCredit, refundableCredit, addlMedicare, niit, itemizing, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
 }
 
 export { toCents };
