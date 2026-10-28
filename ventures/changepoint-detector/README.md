@@ -1035,3 +1035,13 @@ differ by variant: plain `meanvar` cuts a 10-day spike (32-41) and a 57-day dip 
 Not checked: the calendar date of row 1482 (the dataset has no dates; a rough count of 260 days a year puts it in
 early 1997, earlier than the October 1997 Asian-crisis turbulence one might expect), or any record of what moved
 the market then. Test: `dax-returns.test.mjs` (about 95 s, mostly the bootstrap).
+
+## A real exponential-growth series: Johnson & Johnson earnings (2026-10-28)
+
+`data/johnson-johnson.csv` is J&J's quarterly earnings per share, 1960Q1 to 1980Q4 (84 points, source in `data/SOURCE.md`). It grows roughly 15% a year with a seasonal pattern and has no documented changepoint, so any change reported is, at best, a change in the growth rate. `johnson-johnson.test.mjs` pins what the settings do (2 tests; run by hand with the CLI, no eval script):
+
+- **Raw, `mean`, `--period 4`:** 12 changes with no season, 15 with an additive season, 16 with `--multiplicative`; all up-steps of 0.5 to 2.5 dollars apart from small dips in 1978Q3 and 1980Q3. `--period 4 --trend` still gives 11 and `--model trend --period 4` 5. A straight line or a staircase cannot follow a curve, so the staircase is what comes out.
+- **Logged (`ln eps`), `--period 4`:** still 11 steps (the log series still trends).
+- **Logged, `--period 4 --trend`:** 5 changes (1960Q4, 1962Q4, 1970Q2, 1975Q3, 1979Q4), each of 0.1 to 0.26 in log units. `--trend bend` leaves 2 (1960Q4, a 3-point opening segment, and 1970Q2); `--trend --bootstrap` leaves 2 (1960Q4 and 1975Q3).
+
+What it says: on a series that grows by a constant percentage, take logs first. The tool has no log option; the CLI user must transform the column. The 1970 and 1975 dates are where the growth rate looks to change, which I did not check against any account of the company; the 1960Q4 change is an opening-segment effect. One series, no rate claimed. Open: a `--log` flag (positive values only, with the segment means reported back in the original units), and a series with a documented growth-rate break.

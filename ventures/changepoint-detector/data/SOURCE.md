@@ -161,3 +161,13 @@ from The World Almanac and Book of Facts, as in R's `datasets::discoveries`.
 - **Licence:** the R `datasets` package is GPL-2 | GPL-3; the series is a published list of yearly counts (no creative
   expression), and only the counts are kept here.
 - **Used by:** `great-discoveries.test.mjs`.
+
+# Example data: Johnson & Johnson quarterly earnings per share, 1960-1980
+
+`johnson-johnson.csv`: quarterly earnings per share in US dollars, 84 quarters (R's `datasets::JohnsonJohnson`).
+
+- **Retrieved:** 2026-10-28 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/JohnsonJohnson.csv>
+  (time 1960.25 steps rewritten as `1960Q2` labels).
+- **Licence:** R's `datasets` package is GPL-2 or later as a package; the 84 numbers are company-reported facts. Not checked further.
+- **Used by:** `johnson-johnson.test.mjs`.
