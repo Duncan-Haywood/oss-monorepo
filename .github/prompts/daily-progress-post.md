@@ -17,8 +17,12 @@ a reader outside the repo cares, and whether the work is going where
 | 3day | the last 3 days | `progress-report`, `three-day-progress` | `<today>-progress-3day-<slug>.md` | every third day |
 | weekly | the last 7 days (Mon to Sun) | `progress-report`, `weekly-progress` | `<today>-progress-weekly-<slug>.md` | Mondays |
 
-The schedules are claude.ai scheduled tasks that start a fresh session with
-"Write the <cadence> progress post: follow .github/prompts/daily-progress-post.md".
+The schedules are claude.ai scheduled tasks, created 2026-10-28 at the owner's
+request, that start a fresh session pointed at this file: daily 02:17 UTC
+(`trig_01PS6F2j1F1QTyhsDY78HsBe`), three-day 03:23 UTC on days 1, 4, 7, ...
+of the month (`trig_018qu2yMVwc14CzmJQSCPWXg`; the 31st and the 1st sit two
+days apart, so windows overlap a day there) and weekly Mondays 04:41 UTC
+(`trig_01CeSUGeNQSxYeGyZXR8Htpb`).
 Any session may write a missing edition by hand. First editions:
 [`2026-10-24-progress-922-merges-zero-measured-users.md`](../../docs/posts/2026-10-24-progress-922-merges-zero-measured-users.md)
 (before the cadences) and the first daily, 2026-10-28.
