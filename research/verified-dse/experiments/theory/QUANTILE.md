@@ -35,4 +35,4 @@ N = 50 (ratio to the bound at most 0.97 for n = 8, 0.29 for n = 22). So: no coun
 **Rigorous version (what the paper should state).** Draw the n pairs independently, each a uniform pair of distinct
 pool points; points may repeat across pairs. The proof above then holds verbatim, P(F(q) > alpha) <= (1 - alpha)^n, and
 the pilot costs at most 2n routed points (fewer when a point repeats), so the cost bound is unchanged. The empirical
-coverage of 0.835 or more was measured for the disjoint scheme; it is not re-measured for the with-replacement scheme.
+coverage of 0.835 or more was measured for the disjoint scheme; for the with-replacement scheme (milestone 36, `with_replacement.py`) coverage over the same 60 cells is 0.826 at minimum (median 0.864) at about 14 distinct pilot points of 16 (pools of 50 to 52).

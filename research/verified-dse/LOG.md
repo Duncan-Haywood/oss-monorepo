@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-28 · Milestone 36: coverage of the with-replacement (independent-pairs) pilot quantile on the cached tables (predictions fixed before the script ran)
+- Why: milestone 35 showed the disjoint scheme is not proved and that the independent-pairs scheme (each pair a uniform pair of distinct pool points, points may repeat) is, with P(F(q) > alpha) <= (1 - alpha)^n. Its coverage was never measured. `experiments/theory/with_replacement.py` (no flow run) repeats `quantile.py`'s 2000-pilot design on the same 60 group-rung cells (alpha = delta = 0.2, n = 8 pairs) with independent pairs, and tabulates coverage, the median q, and the realised point cost.
+- **Predictions (fixed now):** (1) Every cell's coverage is at least 0.8 minus the 95% binomial margin (0.765), as the proof says; the minimum is 0.80 to 0.87. (2) Median q is within 0.02 of the disjoint scheme's median q in at least 80% of cells (repeats matter little at N of 100 or more). (3) Mean distinct points per pilot is at least 15.8 of 16. Each is refuted by the opposite.
+- Limits known in advance: coverage is the share of 2000 pilots, so cells carry a binomial margin of about 0.018; same tables as milestone 7a.
+
+### Outcome (`experiments/theory/with_replacement.py` about 12 s, `with_replacement_results.txt`; no flow run)
+- **(1) held.** Coverage over the 60 cells: min 0.826, median 0.864, none under 0.8 (the binomial floor is 0.782: my "0.765" above mis-stated it; the script computes 0.782). The proved scheme covers at least as well as the disjoint one (min 0.835 in milestone 7a), and the proof says it must.
+- **(2) held.** The median q is within 0.02 of the disjoint scheme's in 60 of 60 cells.
+- **(3) refuted, because my premise was wrong.** The pools have 50 or 52 points, not 100 or more; a pilot has 13.94 distinct points of 16 on average (min over cells 13.86), as expected for 16 draws from 50. So the cost bound (at most 2n = 16 routed points) holds and is slightly loose; the cost is lower than disjoint, the coverage no worse.
+- Reading: the paper can state the independent-pairs pilot with its proof and an empirical coverage of 0.83 or more, at a cost of about 14 routed points rather than 16. This closes the pilot-coverage item; the regret-side theorem is still open.
+- Limits: 2000 pilots per cell; the same 12 clock-design groups; pools of 50, so the repeat rate is high and would fall at larger N.
+- Next: the regret-side theorem (pairs involving the optimum).
+
 ## 2026-10-28 · Milestone 35: is the disjoint-pair pilot quantile (QUANTILE.md) actually proved? (hypothesis fixed before the script ran; theory item 4 of the paper's list)
 - Why: `QUANTILE.md` proves P(F(q) > alpha) <= (1 - alpha)^n for independent pairs and says the disjoint scheme the code uses "is checked empirically". Before building a conformal statistic on it, test whether (1 - alpha)^n can fail for disjoint pairs. `experiments/theory/disjoint_check.py` (about 100 s, no flow): exact counts of n-matchings inside a graph H of good pairs.
 - **Predictions (fixed now):** (1) P(all n disjoint pairs in H) exceeds d^n for some small graph (the independent-pairs argument cannot be a general fact). (2) At the claim's threshold (d < 0.8, alpha = 0.2) a hill-climb over H at N = 10 to 12 finds no violation. (3) A bad clique and bad hub points at N = 50 are conservative. Each is refuted by the opposite.
