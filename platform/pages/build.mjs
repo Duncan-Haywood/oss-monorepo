@@ -6698,7 +6698,7 @@ export function renderCompareProductPage({
   const exceptions = externalCallExceptions(surfaces);
   const { claim: privacyClaim, list: exceptionList } = privacyClaimParts(exceptions);
 
-  const title = `${subject} alternatives: ${n} free tools with a side-by-side page`;
+  const title = `${subject} alternatives: ${n} free tool${n === 1 ? '' : 's'}`;
   const description =
     `${n} free browser tools on this site each have a page comparing themselves with ${subject} — ` +
     `what ${subject} does, what the free tool does, and when ${subject} is the right answer. ` +

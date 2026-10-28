@@ -5409,6 +5409,7 @@ test('renderCompareProductPage is about one product and claims nothing about it'
   // The searcher's phrase is in the title, where it describes the question the
   // page answers; the heading states only what the linked pages are.
   assert.match(html, /<title>Jobber alternatives: 2 free tools/);
+  assert.match(html, /<title>Jobber alternatives: 2 free tools( \| [^<]+)?<\/title>/, 'no trailing phrase that pushes the title past a results page');
   assert.ok(
     !/better than/i.test(html),
     'this page indexes comparisons; it does not make one',
