@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01AcxTtJmTTfdCD3XgbU5SFx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T13:11:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11126",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A curl with a browser User-Agent to the journal host was denied by the permission classifier; used WebFetch instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "pick_track.py drew society-* track 17 while the programme rules say advance an open programme; the society chain is many tiny steps, so I chose heavy-hydraulics manually."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "why": "Drew a society-* track; advanced the least-developed open programme instead.",
+      "did": "heavy-hydraulics milestone 2b",
+      "result": "landed one sourced step"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-measured-pump-curve-shrinks-load-sensing-saving.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
