@@ -153,6 +153,16 @@
       <div><label for="inAtticPer">Attic R per inch (read it from the bag chart; blank: 2.5, assumed)</label><input id="inAtticPer" type="number" min="1" max="8" step="0.1" placeholder="2.5"></div>
       <div><label for="inAtticBag">Attic bag volume (cu ft; blank: no bag count)</label><input id="inAtticBag" type="number" min="0" step="0.1" placeholder="e.g. 40"></div>
     </div>
+    <p><input type="checkbox" id="stOn" style="width:auto"> <label for="stOn" style="display:inline">Also lay out a stair (equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening; a rise over 147 in splits at a landing; the lumber joins the order)</label></p>
+    <div class="grid" id="stFields" hidden>
+      <div><label for="stRise">Total rise, finished floor to finished floor</label><input id="stRise" type="text" placeholder="e.g. 9' 0&quot;"></div>
+      <div><label for="stTread">Tread run, in (blank: from the 2R+T comfort rule)</label><input id="stTread" type="number" min="10" max="14" step="0.0625" placeholder="10"></div>
+      <div><label for="stWidth">Stair width (blank: 36 in)</label><input id="stWidth" type="text" placeholder="36 in"></div>
+      <div><label for="stStringer">Stringer board</label><select id="stStringer"><option>2x12</option><option>2x10</option></select></div>
+      <div><label for="stTreadBoard">Tread board</label><select id="stTreadBoard"><option>2x12</option><option>2x10</option><option>2x6</option></select></div>
+      <div><label for="stOpen">Stairwell opening length you framed (blank: not checked)</label><input id="stOpen" type="text" placeholder="e.g. 10' 0&quot;"></div>
+      <div><label for="stLanding">Landing</label><select id="stLanding"><option value="">Only if the rise needs one</option><option value="true">Split at a landing</option></select></div>
+    </div>
     <p><input type="checkbox" id="trOn" style="width:auto"> <label for="trOn" style="display:inline">Also count interior trim (baseboard between doors; casing legs, head and window sill; packed into stock boards; lengths and widths are the trim you buy)</label></p>
     <div class="grid" id="trFields" hidden>
       <div><label for="trSides">Baseboard faces on sheathed walls (blank: 1; unsheathed walls get 2)</label><select id="trSides"><option value="">Default</option><option value="1">1</option><option value="2">2</option></select></div>
@@ -261,6 +271,11 @@
     <div id="drywallOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-stairs" id="stairsCard" hidden>
+    <h2 id="h-stairs">Stairs</h2>
+    <div id="stairsOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-trim" id="trimCard" hidden>
     <h2 id="h-trim">Interior trim</h2>
     <div id="trimOut"></div>
@@ -336,7 +351,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>stairs_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -355,6 +370,7 @@
     import { layoutDrywall, drywallText } from "./drywall.mjs";
     import { layoutInsulation, insulationText } from "./insulation.mjs";
     import { layoutTrim, trimText } from "./trim.mjs";
+    import { layoutStair, layoutStairWithLanding, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
     import { levelBids } from "./bidlevel.mjs";
@@ -514,6 +530,14 @@
           if ($("#inAtticBag").value.trim()) ins.attic.bagCuFt = Number($("#inAtticBag").value);
         }
         plan.insulation = ins;
+      }
+      if ($("#stOn").checked) {
+        const st = { id: "Stair", totalRise: L($("#stRise").value, "stair total rise"), stringer: $("#stStringer").value, treadBoard: $("#stTreadBoard").value };
+        if ($("#stTread").value.trim()) st.tread = Number($("#stTread").value);
+        if ($("#stWidth").value.trim()) st.width = L($("#stWidth").value, "stair width");
+        if ($("#stOpen").value.trim()) st.openingLength = L($("#stOpen").value, "stairwell opening length");
+        if ($("#stLanding").value) st.landing = true;
+        plan.stairs = st;
       }
       if ($("#trOn").checked) {
         const tr = {};
@@ -688,6 +712,11 @@
       if (!ins) return;
       $("#insulationOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(insulationText(ins).join("\n"))}</pre><p class="note">Open cavity is the wall panel area less every framing member placed and each opening's rough area. Bag coverage and R-values are the figures you type from the label; they are not checked against a real insulation order.</p>`;
     }
+    function renderStairs(st) {
+      $("#stairsCard").hidden = !st;
+      if (!st) return;
+      $("#stairsOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc((st.flights ? landingText(st) : stairText(st)).join("\n"))}</pre><p class="note">Limits are the model residential code's usual ones (7-3/4 in riser, 10 in tread, 6 ft 8 in headroom, 36 in width); the edition your jurisdiction adopted is yours to check. Post sizing, guards, handrails and winders are not modelled. Not checked against a built stair.</p>`;
+    }
     function renderTrim(tr) {
       $("#trimCard").hidden = !tr;
       if (!tr) return;
@@ -763,7 +792,7 @@
       const { plan, bad, source } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
-      let result, nailers = [], floor = null, floorExtra = [], roof = null, foundation = null, drywall = null;
+      let result, nailers = [], floor = null, stairs = null, floorExtra = [], roof = null, foundation = null, drywall = null;
       try {
         if (plan.foundation) {
           foundation = layoutFoundation(plan.foundation);
@@ -782,6 +811,11 @@
           roof = layoutRoof(plan.roof, plan);
           if (!roof.ok) { $("#errors").innerHTML = `<ul>${roof.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#roofCard").hidden = true; return false; }
           floorExtra = [...floorExtra, ...roofCuts(roof)];
+        }
+        if (plan.stairs) {
+          stairs = plan.stairs.landing || plan.stairs.totalRise > STAIR_LIMITS.maxRise ? layoutStairWithLanding(plan.stairs, plan) : layoutStair(plan.stairs, plan);
+          if (!stairs.ok) { $("#errors").innerHTML = `<ul>${stairs.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#stairsCard").hidden = true; return false; }
+          floorExtra = [...floorExtra, ...(stairs.flights ? [...stairs.flights.flatMap(stairCuts), ...landingCuts(stairs)] : stairCuts(stairs))];
         }
         result = takeoff(plan, floorExtra);
         if (result.ok && $("#sheath").checked) {
@@ -812,7 +846,7 @@
         try { fasteners = layoutFasteners(plan.fasteners, plan, { ...result, ...(sheathing?.ok ? { sheathing } : {}), ...(roof ? { roof } : {}) }); } catch (e) { fasteners = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
         if (!fasteners.ok) { $("#errors").innerHTML = `<ul>${fasteners.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#fastenersCard").hidden = true; return false; }
       }
-      last = { plan, result, nailers, floor, roof, foundation, drywall, insulation, trim, fasteners };
+      last = { plan, result, nailers, floor, stairs, roof, foundation, drywall, insulation, trim, fasteners };
       const s = result.summary;
       const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
@@ -832,6 +866,7 @@
       renderFoundation(foundation);
       renderDrywall(drywall);
       renderInsulation(insulation);
+      renderStairs(stairs);
       renderTrim(trim);
       renderFasteners(fasteners);
       renderSheathing(plan, result);
@@ -879,6 +914,11 @@
         $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
         $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
       }
+      const stp = plan.stairs && !Array.isArray(plan.stairs) ? plan.stairs : null;
+      $("#stOn").checked = Boolean(stp); $("#stFields").hidden = !stp;
+      $("#stRise").value = stp ? formatLength(stp.totalRise) : ""; $("#stTread").value = stp?.tread != null ? String(stp.tread) : "";
+      $("#stWidth").value = stp?.width != null ? formatLength(stp.width) : ""; $("#stOpen").value = stp?.openingLength != null ? formatLength(stp.openingLength) : "";
+      $("#stStringer").value = stp?.stringer || "2x12"; $("#stTreadBoard").value = stp?.treadBoard || "2x12"; $("#stLanding").value = stp?.landing ? "true" : "";
       const trm = plan.trim;
       $("#trOn").checked = Boolean(trm); $("#trFields").hidden = !trm;
       for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"]]) $("#" + id).value = trm && trm[key] != null ? String(trm[key]) : "";
@@ -1008,6 +1048,7 @@
     $("#rfWing").addEventListener("change", syncWing);
     $("#rfWing2").addEventListener("change", syncWing);
     $("#inOn").addEventListener("change", () => { $("#inFields").hidden = !$("#inOn").checked; if ($("#inOn").checked) record("insulation_on"); });
+    $("#stOn").addEventListener("change", () => { $("#stFields").hidden = !$("#stOn").checked; if ($("#stOn").checked) record("stairs_on"); });
     $("#trOn").addEventListener("change", () => { $("#trFields").hidden = !$("#trOn").checked; if ($("#trOn").checked) record("trim_on"); });
     $("#faOn").addEventListener("change", () => { $("#faFields").hidden = !$("#faOn").checked; if ($("#faOn").checked) record("fasteners_on"); });
     $("#dwOn").addEventListener("change", () => { $("#dwFields").hidden = !$("#dwOn").checked; if ($("#dwOn").checked) record("drywall_on"); });

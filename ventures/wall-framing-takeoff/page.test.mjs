@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidlevel.mjs", "./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./trim.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidlevel.mjs", "./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -205,6 +205,15 @@ test("the insulation controls are read into plan.insulation and restored from a 
   assert.match(html, /layoutInsulation\(plan\.insulation, plan, result\)/);
   assert.match(html, /\$\("#inAtticBag"\)\.value = ins\.attic\?\.bagCuFt/);
   assert.match(html, /<code>insulation_on<\/code>/);
+});
+
+test("the stair controls are read into plan.stairs, restored from a saved plan and add the lumber to the order", () => {
+  const html = page("index.html");
+  for (const id of ["stOn", "stRise", "stTread", "stWidth", "stStringer", "stTreadBoard", "stOpen", "stLanding", "stairsOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /plan\.stairs = st/);
+  assert.match(html, /layoutStairWithLanding\(plan\.stairs, plan\)/);
+  assert.match(html, /\$\("#stOn"\)\.checked = Boolean\(stp\)/);
+  assert.match(html, /<code>stairs_on<\/code>/);
 });
 
 test("the trim controls are read into plan.trim, restored from a saved plan and feed the budget", () => {
