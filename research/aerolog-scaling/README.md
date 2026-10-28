@@ -100,6 +100,8 @@ the rows for velocity, time, angular rate, acceleration, mass and inertia, in `t
 power, energy and Reynolds exponents are derived from those rows, not read from the table. Citations:
 see "Citation status" in `PROPOSAL.md` (several ids and one author were wrong and are fixed).
 
+**Paper (milestone 8a).** A first draft with the claims, a hypotheses table and limitations is in [`paper/draft.md`](paper/draft.md); `python3 paper/check_numbers.py` checks its numbers against the result files.
+
 ## Related labs
 
 Related to the autonomy and field-robotics groups the track names (RECUV, Autonomous Systems IRT)
