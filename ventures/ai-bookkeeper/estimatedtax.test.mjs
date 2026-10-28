@@ -281,3 +281,27 @@ test("negative or blank adjustments are ignored", () => {
   const b = estimatedTax(books("50000.00"), { year: 2026, healthInsurance: -5, retirement: NaN });
   assert.equal(b.totalTax, a.totalTax);
 });
+
+test("child tax credit lowers income tax, never below zero, and the rest is refundable up to the cap", () => {
+  const base = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 });
+  const r = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, children: 2, otherDependents: 1 });
+  assert.equal(r.childCredit, 490000); // 2 x 2,200 + 500, all absorbed by income tax
+  assert.equal(r.refundableCredit, 0);
+  assert.equal(r.totalTax, base.totalTax - 490000);
+  assert.ok(r.warnings.some((w) => /Schedule 8812/.test(w)));
+  // Low profit: income tax is small, so the child part spills into the refundable credit.
+  const low = estimatedTax(books("20000.00"), { year: 2026, wageBase: 18450000, children: 2 });
+  assert.equal(low.childCredit, low.incomeTax);
+  const earned = 2000000 - low.se.deduction;
+  assert.equal(low.refundableCredit, Math.min(440000 - low.incomeTax, 340000, Math.round(0.15 * (earned - 250000))));
+});
+
+test("child tax credit phases out $50 per $1,000 over the threshold; no children changes nothing", () => {
+  const none = estimatedTax(books("250000.00"), { year: 2026, wageBase: 18450000 });
+  assert.equal(none.childCredit, 0);
+  const r = estimatedTax(books("250000.00"), { year: 2026, wageBase: 18450000, children: 1 });
+  const cut = Math.ceil((r.agi - 20000000) / 100000) * 5000;
+  assert.equal(r.childCredit, 220000 - cut);
+  const mfj = estimatedTax(books("250000.00"), { year: 2026, wageBase: 18450000, filing: "mfj", children: 1 });
+  assert.equal(mfj.childCredit, 220000); // under $400,000 joint
+});
