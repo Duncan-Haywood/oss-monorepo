@@ -1615,3 +1615,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E107: review 2026-10-28 (reduced pass, thirty-fourth run)
+
+- Change: `CLAUDE.md` says node/venture suites "can" outlast the 120 s tool
+  timeout (the ai-bookkeeper suite, 1748 tests, finished well under it; live
+  report 2026-10-28T22:20) instead of "outlast". Re-ran `derive.py fetch &&
+  build` (3669 rows).
+- Metric: friction reports naming `CLAUDE.md` about `run_in_background` for
+  node tests; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
