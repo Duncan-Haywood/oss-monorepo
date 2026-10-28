@@ -185,6 +185,18 @@
       <div><label for="sdWrapPrice">Price per wrap roll (blank: none)</label><input id="sdWrapPrice" type="number" min="0" step="0.01" placeholder="e.g. 150"></div>
       <div><label for="sdCornerPrice">Price per corner board (blank: none)</label><input id="sdCornerPrice" type="number" min="0" step="0.01" placeholder="e.g. 20"></div>
     </div>
+    <p><input type="checkbox" id="eaOn" style="width:auto"> <label for="eaOn" style="display:inline">Also count soffit panels, fascia boards and J-channel under the roof overhangs (needs the roof option; counted from the roof's eave and rake overhangs)</label></p>
+    <div class="grid" id="eaFields" hidden>
+      <div><label for="eaPanelWidth">Soffit panel width, in (blank: 12)</label><input id="eaPanelWidth" type="number" min="6" max="24" step="0.5" placeholder="12"></div>
+      <div><label for="eaPanelStock">Soffit panel length, in (blank: 144)</label><input id="eaPanelStock" type="number" min="48" max="288" step="1" placeholder="144"></div>
+      <div><label for="eaFasciaStock">Fascia board length, in (blank: 192)</label><input id="eaFasciaStock" type="number" min="48" max="288" step="1" placeholder="192"></div>
+      <div><label for="eaChannelStock">J-channel length, in (blank: 144)</label><input id="eaChannelStock" type="number" min="48" max="288" step="1" placeholder="144"></div>
+      <div><label for="eaWaste">Waste (fraction; blank: 0.1)</label><input id="eaWaste" type="number" min="0" max="0.3" step="0.01" placeholder="0.1"></div>
+      <div><label for="eaRake">Rake soffit</label><select id="eaRake"><option value="" selected>open or fascia only</option><option value="true">box the rakes with soffit too</option></select></div>
+      <div><label for="eaPanelPrice">Price per soffit panel (blank: none)</label><input id="eaPanelPrice" type="number" min="0" step="0.01" placeholder="e.g. 12"></div>
+      <div><label for="eaFasciaPrice">Price per fascia board (blank: none)</label><input id="eaFasciaPrice" type="number" min="0" step="0.01" placeholder="e.g. 25"></div>
+      <div><label for="eaChannelPrice">Price per J-channel piece (blank: none)</label><input id="eaChannelPrice" type="number" min="0" step="0.01" placeholder="e.g. 7"></div>
+    </div>
     <p><input type="checkbox" id="faOn" style="width:auto"> <label for="faOn" style="display:inline">Also count nails by connection (stud ends, plates, jacks, headers, sills; sheathing nails when sheathing is on; spacings are typed defaults, not a code table)</label></p>
     <div class="grid" id="faFields" hidden>
       <div><label for="faStudEnd">Nails per stud end (blank: 2)</label><input id="faStudEnd" type="number" min="1" max="6" step="1" placeholder="2"></div>
@@ -292,6 +304,11 @@
     <div id="sidingOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-eaves" id="eavesCard" hidden>
+    <h2 id="h-eaves">Soffit, fascia and J-channel</h2>
+    <div id="eavesOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-trim" id="trimCard" hidden>
     <h2 id="h-trim">Interior trim</h2>
     <div id="trimOut"></div>
@@ -367,7 +384,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>stairs_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>stairs_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -387,6 +404,7 @@
     import { layoutInsulation, insulationText } from "./insulation.mjs";
     import { layoutTrim, trimText } from "./trim.mjs";
     import { layoutSiding, sidingText } from "./siding.mjs";
+    import { layoutEaves, eavesText } from "./eaves.mjs";
     import { layoutStair, layoutStairWithLanding, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
@@ -566,6 +584,12 @@
         for (const [id, key] of [["sdExposure", "exposure"],["sdStock", "stock"],["sdWaste", "waste"],["sdWrapRoll", "wrapRollSqFt"],["sdCorners", "corners"],["sdBoardPrice", "boardPrice"],["sdWrapPrice", "wrapPrice"],["sdCornerPrice", "cornerPrice"]]) if ($("#" + id).value.trim()) sd[key] = Number($("#" + id).value);
         plan.siding = sd;
       }
+      if ($("#eaOn").checked) {
+        const ea = {};
+        for (const [id, key] of [["eaPanelWidth", "panelWidth"],["eaPanelStock", "panelStock"],["eaFasciaStock", "fasciaStock"],["eaChannelStock", "channelStock"],["eaWaste", "waste"],["eaPanelPrice", "panelPrice"],["eaFasciaPrice", "fasciaPrice"],["eaChannelPrice", "channelPrice"]]) if ($("#" + id).value.trim()) ea[key] = Number($("#" + id).value);
+        if ($("#eaRake").value) ea.rakeSoffit = true;
+        plan.eaves = ea;
+      }
       if ($("#faOn").checked) {
         const fa = {};
         for (const [id, key] of [["faStudEnd", "studEndNails"], ["faPlate", "plateSpacing"], ["faEdge", "edgeSpacing"], ["faField", "fieldSpacing"], ["faWaste", "waste"], ["faBox", "nailsPerBox"], ["faPrice", "price"]]) if ($("#" + id).value.trim()) fa[key] = Number($("#" + id).value);
@@ -744,6 +768,11 @@
       if (!sd) return;
       $("#sidingOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(sidingText(sd).join("\n"))}</pre><p class="note">Courses are counted per wall with openings cut out and packed first fit decreasing into the board length you typed. Gable triangles, soffit, fascia, window and door trim, flashing, nails, caulk and paint are not counted. Not checked against a real siding order.</p>`;
     }
+    function renderEaves(ea) {
+      $("#eavesCard").hidden = !ea;
+      if (!ea) return;
+      $("#eavesOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(eavesText(ea).join("\n"))}</pre><p class="note">Runs come from the roof's eave and rake overhangs; each course is packed first fit decreasing into the stock length you typed. Not counted: corner mitres, vented-panel mix, frieze, drip edge, nails, caulk and paint. Not checked against a real soffit order.</p>`;
+    }
     function renderTrim(tr) {
       $("#trimCard").hidden = !tr;
       if (!tr) return;
@@ -804,7 +833,7 @@
       if (!last) { card.hidden = true; return; }
       const pr = parsePrices();
       if (pr.bad.length) { $("#budgetOut").innerHTML = `<div class="err"><ul>${pr.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; card.hidden = false; return; }
-      const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall, insulation: last.insulation, trim: last.trim, siding: last.siding, fasteners: last.fasteners };
+      const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall, insulation: last.insulation, trim: last.trim, siding: last.siding, eaves: last.eaves, fasteners: last.fasteners };
       const b = budget(res, pr.prices);
       last.budget = b;
       const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
@@ -872,13 +901,18 @@
         try { siding = layoutSiding(plan.siding, plan); } catch (e) { siding = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
         if (!siding.ok) { $("#errors").innerHTML = `<ul>${siding.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#sidingCard").hidden = true; return false; }
       }
+      let eaves = null;
+      if (plan.eaves) {
+        try { eaves = layoutEaves(plan.eaves, roof); } catch (e) { eaves = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        if (!eaves.ok) { $("#errors").innerHTML = `<ul>${eaves.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#eavesCard").hidden = true; return false; }
+      }
       let fasteners = null;
       if (plan.fasteners) {
         const sheathing = $("#sheath").checked ? sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}), ...($("#sheathO").checked ? { overhang: true } : {}), ...(Number($("#sheathR").value) > 0 ? { rimLap: Number($("#sheathR").value) } : {}) } }, result) : null;
         try { fasteners = layoutFasteners(plan.fasteners, plan, { ...result, ...(sheathing?.ok ? { sheathing } : {}), ...(roof ? { roof } : {}) }); } catch (e) { fasteners = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
         if (!fasteners.ok) { $("#errors").innerHTML = `<ul>${fasteners.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#fastenersCard").hidden = true; return false; }
       }
-      last = { plan, result, nailers, floor, stairs, roof, foundation, drywall, insulation, trim, siding, fasteners };
+      last = { plan, result, nailers, floor, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, fasteners };
       const s = result.summary;
       const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
@@ -901,6 +935,7 @@
       renderStairs(stairs);
       renderTrim(trim);
       renderSiding(siding);
+      renderEaves(eaves);
       renderFasteners(fasteners);
       renderSheathing(plan, result);
       renderBudget();
@@ -958,6 +993,10 @@
       const sdg = plan.siding;
       $("#sdOn").checked = Boolean(sdg); $("#sdFields").hidden = !sdg;
       for (const [id, key] of [["sdExposure", "exposure"],["sdStock", "stock"],["sdWaste", "waste"],["sdWrapRoll", "wrapRollSqFt"],["sdCorners", "corners"],["sdBoardPrice", "boardPrice"],["sdWrapPrice", "wrapPrice"],["sdCornerPrice", "cornerPrice"]]) $("#" + id).value = sdg && sdg[key] != null ? String(sdg[key]) : "";
+      const eav = plan.eaves;
+      $("#eaOn").checked = Boolean(eav); $("#eaFields").hidden = !eav;
+      for (const [id, key] of [["eaPanelWidth", "panelWidth"],["eaPanelStock", "panelStock"],["eaFasciaStock", "fasciaStock"],["eaChannelStock", "channelStock"],["eaWaste", "waste"],["eaPanelPrice", "panelPrice"],["eaFasciaPrice", "fasciaPrice"],["eaChannelPrice", "channelPrice"]]) $("#" + id).value = eav && eav[key] != null ? String(eav[key]) : "";
+      $("#eaRake").value = eav?.rakeSoffit ? "true" : "";
       const fa = plan.fasteners;
       $("#faOn").checked = Boolean(fa); $("#faFields").hidden = !fa;
       for (const [id, key] of [["faStudEnd", "studEndNails"], ["faPlate", "plateSpacing"], ["faEdge", "edgeSpacing"], ["faField", "fieldSpacing"], ["faWaste", "waste"], ["faBox", "nailsPerBox"], ["faPrice", "price"]]) $("#" + id).value = fa?.[key] != null ? String(fa[key]) : "";
@@ -1085,6 +1124,7 @@
     $("#rfWing2").addEventListener("change", syncWing);
     $("#inOn").addEventListener("change", () => { $("#inFields").hidden = !$("#inOn").checked; if ($("#inOn").checked) record("insulation_on"); });
     $("#stOn").addEventListener("change", () => { $("#stFields").hidden = !$("#stOn").checked; if ($("#stOn").checked) record("stairs_on"); });
+    $("#eaOn").addEventListener("change", () => { $("#eaFields").hidden = !$("#eaOn").checked; if ($("#eaOn").checked) record("eaves_on"); });
     $("#sdOn").addEventListener("change", () => { $("#sdFields").hidden = !$("#sdOn").checked; if ($("#sdOn").checked) record("siding_on"); });
     $("#trOn").addEventListener("change", () => { $("#trFields").hidden = !$("#trOn").checked; if ($("#trOn").checked) record("trim_on"); });
     $("#faOn").addEventListener("change", () => { $("#faFields").hidden = !$("#faOn").checked; if ($("#faOn").checked) record("fasteners_on"); });
