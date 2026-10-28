@@ -1,7 +1,7 @@
 ---
 title: "A magnitude check caught every harmful silent bit flip in a tiny training run"
 date: 2026-10-28
-description: "In 360 injected single-bit weight flips across fp32, bf16 and fp16, rejecting any weight above 10x the previous checkpoint's maximum caught 42 of 42 harmful flips."
+description: "In 360 injected single-bit weight flips across fp32, bf16 and fp16, rejecting any weight above 10x the last checkpoint's maximum caught 42 of 42 harmful flips."
 tags: [research, verifiable-training, silent-data-corruption]
 ---
 
