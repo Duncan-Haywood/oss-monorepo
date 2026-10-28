@@ -119,7 +119,7 @@ export function parseMessage(raw) {
 
 /** Turn a parsed message into the `From:` block the engine's parseReplies reads (and keep the quoted history out). */
 export const toReplyBlock = (m) => {
-  const hd = m.headers, signal = m.dsn?.permanent ? "dsn-permanent" : m.dsn?.temporary ? "dsn-temporary" : /^(auto-replied|auto-generated)/i.test(hd.autoSubmitted) || /^auto[_-]?reply\b/i.test(hd.precedence) || hd.xAutoreply ? "auto-reply" : "";
+  const hd = m.headers, signal = m.dsn?.permanent ? "dsn-permanent" : m.dsn?.temporary ? "dsn-temporary" : /^(auto-replied|auto-generated|auto-notified)/i.test(hd.autoSubmitted) || /^auto[_-]?reply\b/i.test(hd.precedence) || hd.xAutoreply ? "auto-reply" : "";
   const one = (rcpt) => `From: ${hd.from}\nSubject: ${hd.subject}\nDate: ${hd.date}${signal ? `\nX-Signal: ${signal}` : ""}${rcpt ? `\nX-Failed-Recipient: ${rcpt}` : ""}\n\n${m.text || (m.dsn ? "Delivery status notification" : "")}`;
   // One block per permanently failed recipient, so each address is marked bounced.
   return m.dsn?.failed?.length > 1 ? m.dsn.failed.map(one).join("\n") : one(m.dsn?.recipient);
