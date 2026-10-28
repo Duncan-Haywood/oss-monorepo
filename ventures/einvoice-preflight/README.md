@@ -636,6 +636,10 @@ After: the 9 Peppol examples draw only placeholder-data findings (fake VAT ids, 
 
 After: 104 of 126 unwrap, 18 are clean. The 24 ZUGFeRD 1.0 files and one unstructured PDF remain refused (1.0 uses the older `CrossIndustryDocument`; the message now says so) and one has no attachment. What is left is real or placeholder data: INV-023 (placeholder VAT ids, 72 files), INV-005 (no buyer id, a style note), INV-012 (e.g. 20 x 2.77 stated as 55.46), INV-021 (the BASIC WL sample is dated 2019 with a 2017 due date), INV-024 (11 files, placeholder IBANs). Fixed 2026-10-24: the EXTENDED "Warenrechnung" samples drew INV-014/018/038 because `SpecifiedLogisticsServiceCharge` (3.00 freight at 19%, EXTENDED only) was not read as a header charge; `cii.mjs` now maps it (1 test; both samples now draw only the placeholder-VAT INV-023). The corpus's `fail` folders hold files failing for PDF/A or XSD reasons we do not check, so findings there prove nothing either way.
 
+## Measured on Mustang's test PDFs (2026-10-28)
+
+`node eval/facturx-corpus.mjs <ZUGFeRD/mustangproject checkout>` (read, not copied): 36 PDFs from other generators. One Aspose.Words invoice (2026-03-24) was refused as "compressed in a way this tool cannot read": `/Subtype /application#2Foctet-stream` contains the word `stream`, so the reader began inside the dictionary. Fixed in `facturx.mjs` (keyword must be followed by a line break; test in `facturx.test.mjs`). Unwrapped 18 before, 19 after; the rest hold no invoice XML. Remaining findings on the others are placeholder VAT ids, a bank checksum in a French sample and a missing remittance.
+
 ## Privacy and usage
 
 Everything is local. Invoice contents are never uploaded or retained by this
