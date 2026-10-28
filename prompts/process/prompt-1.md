@@ -88,7 +88,7 @@ file the two new problems you hit along the way.
   `duncan-haywood.github.io`, so a live metric (llms.txt bytes, sitemap
   `<lastmod>`) cannot be read. Run the build tests that bound it
   (`node --test --test-name-pattern=<word> platform/pages/*.test.mjs`, in
-  `run_in_background`; over 120 s) and write the result as "verified by
+  `run_in_background`; over 120 s; wait with `python3 platform/ci/wait_for.py out.log`, since foreground `sleep` is blocked) and write the result as "verified by
   build tests; live site unreachable from cloud", leaving the live check
   to a run that can reach it. `measure` takes ~70 s: background it too, or
   pass `--no-fetch`.
