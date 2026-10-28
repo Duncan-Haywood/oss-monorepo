@@ -24,3 +24,7 @@ it is not pilot-checkable yet; an estimator with a coverage statement for iota^(
 
 **Check.** `kth.py` on the cached `rung_bias` table (40 group-rung cells, 200 random tie-breaks each): no violations;
 `kth_results.txt`.
+
+**Pilot estimate (milestone 38, exploratory, negative).** `kth_pilot.py` computes iota^(k) on a random 16-point pilot. It is a
+lower bound on the true value, within about 15% at the median ratio over 55 cells, but it never reaches the truth in 80% of draws
+in any cell, so it is not a certificate; `kth_pilot_results.txt`.
