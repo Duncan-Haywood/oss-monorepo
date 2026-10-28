@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from verified_dse.bound import halve, inversion, pair_value, pair_values, pairs_needed, pilot_quantile, pilot_top_inversion  # noqa: E402
+from verified_dse.bound import halve, inversion, kth_inversion, pair_value, pair_values, pairs_needed, pilot_quantile, pilot_top_inversion  # noqa: E402
 
 
 def brute(s, y):
@@ -13,6 +13,28 @@ def brute(s, y):
 
 
 class T(unittest.TestCase):
+    def test_kth_inversion_k1_is_inversion_and_nonincreasing(self):
+        rng = random.Random(7)
+        for _ in range(200):
+            n = rng.randint(2, 14)
+            s = [rng.randint(0, 5) for _ in range(n)]
+            y = [rng.uniform(1, 20) for _ in range(n)]
+            self.assertAlmostEqual(kth_inversion(s, y, 1), inversion(s, y))
+            vals = [kth_inversion(s, y, k) for k in range(1, n + 1)]
+            self.assertTrue(all(a >= b - 1e-12 for a, b in zip(vals, vals[1:])))
+
+    def test_kth_bound_holds_for_random_halving(self):
+        # the cut-k regret bound: regret <= sum of iota^(k_j), for any tie-break
+        rng = random.Random(11)
+        for _ in range(400):
+            n = rng.randint(4, 30)
+            rungs = [[rng.randint(0, 6) for _ in range(n)] for _ in range(2)]
+            y = [rng.uniform(1, 50) for _ in range(n)]
+            keep = [rng.randint(1, n), 0]
+            keep[1] = rng.randint(1, keep[0])
+            reg = math.log(halve(rungs, y, keep, random.Random(rng.random()))) - math.log(min(y))
+            self.assertLessEqual(reg, sum(kth_inversion(r, y, k) for r, k in zip(rungs, keep)) + 1e-9)
+
     def test_perfect_and_reversed(self):
         self.assertEqual(inversion([1, 2, 3], [1, 2, 3]), 0.0)
         self.assertAlmostEqual(inversion([1, 2, 3], [3, 2, 1]), math.log(3))

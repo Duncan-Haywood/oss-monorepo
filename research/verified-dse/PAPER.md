@@ -110,6 +110,13 @@ best survivor x of cut j-1 is cut, every survivor z has s(z) <= s(x), so log y(z
 8 of 10 groups; bound 0.63 to 0.71) and loose for R2 (bound 0.23 to 0.35 where realised regret is about 0). A pilot's
 maximum is a lower bound on iota, so a pilot can suggest but not certify it.
 
+**A bound that uses the survivor count** (milestone 37, `experiments/theory/KTH.md`, `kth_results.txt`). Let iota^(k) be the largest,
+over candidates x, of the k-th largest excess log y(z) - log y(x) among rivals z the rung ranks at or ahead of x. A cut keeping k
+points loses at most iota^(k) (x is cut only if all k survivors are such rivals, and the best of any k of them is at most the k-th
+largest), so regret is at most the sum of iota^(k_j); iota^(1) = iota. On the 40 cached group-rung cells the bound is never
+violated (200 tie-breaks each), is below the old bound in 39 of 39 cells with a positive old bound (median ratio 0.54), and is
+under the spread of y in 32 cells against 16. It remains about 3 times the largest realised regret and needs the full table.
+
 **Pilot-checkable statistics** (`topk_results.txt`, `sweep_results.txt`; 200 to 300 pilots x 10 to 20 tie-breaks per
 cell, 20 groups, both halving starts). Max over random pilot pairs undercovers (under 0.8 in 6 of 40 cells, worst 0.28).
 The top-3-vs-all statistic covers in all 40 cells at m = 16 (minimum 0.81) but is a median 4.6 times the realised regret

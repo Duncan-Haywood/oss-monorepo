@@ -22,6 +22,19 @@ def inversion(s, y):
     return best
 
 
+def kth_inversion(s, y, k):
+    """iota^(k): max over x of the k-th largest of max(0, log y[z] - log y[x]) over z != x with s[z] <= s[x] (0 if fewer than k
+    such z). A cut keeping k points loses x only if all k survivors lie in that set, and the best of any k of them is at most
+    the k-th largest, so the cut costs at most iota^(k) (milestone 37). iota^(1) = iota; it is non-increasing in k."""
+    ly = [math.log(v) for v in y]
+    best = 0.0
+    for x in range(len(s)):
+        vals = sorted((max(0.0, ly[z] - ly[x]) for z in range(len(s)) if z != x and s[z] <= s[x]), reverse=True)
+        if len(vals) >= k:
+            best = max(best, vals[k - 1])
+    return best
+
+
 def halve(scores, y, keep, rng):
     """Successive halving: scores is a list of per-rung score lists (cut rungs), keep the survivor counts after each cut.
     Ties are broken at random. Returns the best y among the final survivors."""

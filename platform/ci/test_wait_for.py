@@ -1,5 +1,6 @@
 import os, tempfile, unittest
-from wait_for import wait, wait_until
+import contextlib, io
+from wait_for import main, wait, wait_until
 
 
 class WaitFor(unittest.TestCase):
@@ -28,6 +29,33 @@ class WaitFor(unittest.TestCase):
         self.assertTrue(wait_until("true", timeout=1))
         t = [0.0]
         self.assertFalse(wait_until("false", timeout=3, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s)))
+
+    def test_deadline_is_inclusive(self):
+        def nap(_):
+            raise AssertionError("slept past the deadline")
+        self.assertEqual(wait("/nonexistent/x.log", timeout=0, clock=lambda: 0.0, nap=nap), (False, []))
+        self.assertFalse(wait_until("false", timeout=0, clock=lambda: 0.0, nap=nap))
+
+    def _main(self, *argv):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = main(list(argv))
+        return code, out.getvalue(), err.getvalue()
+
+    def test_main_exit_codes(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("x\nDONE\n")
+            code, out, _ = self._main(p, "--timeout", "1")
+            self.assertEqual((code, out), (0, "x\nDONE\n"))
+        code, _, err = self._main("/nonexistent/x.log", "--timeout", "0")
+        self.assertEqual(code, 1)
+        self.assertIn("no 'DONE' line", err)
+        code, out, _ = self._main("--until", "true")
+        self.assertEqual((code, out), (0, "wait_for: condition met\n"))
+        code, _, err = self._main("--until", "false", "--timeout", "0")
+        self.assertEqual(code, 1)
+        self.assertIn("still failing", err)
 
 
 if __name__ == "__main__":
