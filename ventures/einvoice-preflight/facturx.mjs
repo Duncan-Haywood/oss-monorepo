@@ -185,7 +185,11 @@ function attachmentName(window) {
 // The whole object dictionary is the header: generators put /Filter and
 // /Length before or after /Type, and /Length is often an indirect "N 0 R".
 function readStreamAfter(data, text, typeAt, objAt) {
-  const streamAt = text.indexOf("stream", typeAt);
+  // Not the "stream" inside a MIME name such as /Subtype /application#2Foctet-stream
+  // (Aspose.Words writes that): the keyword is followed by an end of line.
+  const keyword = /(?<![\w#-])stream(?=\r|\n)/g;
+  keyword.lastIndex = typeAt;
+  const streamAt = keyword.exec(text)?.index ?? -1;
   if (streamAt === -1 || streamAt - objAt > 1024) return null;
   const header = text.slice(objAt, streamAt);
   const flate = /\/Filter\s*(?:\/FlateDecode|\[\s*\/FlateDecode\s*\])/.test(header);
