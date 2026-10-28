@@ -1,7 +1,7 @@
 ---
 title: "What a load-sensing pump could save on a small excavator, and why that number is not yet evidence"
 date: 2026-10-28
-description: "A first-order model of three excavator hydraulic circuits: load-sensing uses about half the pump energy of fixed open-centre, but the ordering is built in and nothing is sourced yet."
+description: "A first-order model of three excavator hydraulic circuits: load-sensing uses about half the pump energy of open-centre, but nothing is sourced yet."
 tags: [research, heavy-hydraulics, open-hardware, excavator]
 ---
 
