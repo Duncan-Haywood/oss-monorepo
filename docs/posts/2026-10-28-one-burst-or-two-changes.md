@@ -1,7 +1,7 @@
 ---
 title: "One burst or two changes? Reading the 1884 discoveries spike"
 date: 2026-10-28
-description: "Plain Poisson change detection cuts a five-year burst into a rise and a fall. A new --episodes flag in changepoint-detector labels it as one burst, and we measured where that label goes wrong."
+description: "Plain Poisson change detection cuts a five-year burst into a rise and a fall. A new --episodes flag labels it as one burst; we measured where that goes wrong."
 tags: [changepoint-detector, counts, statistics]
 ---
 
