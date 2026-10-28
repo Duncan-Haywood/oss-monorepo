@@ -1,6 +1,6 @@
 ---
 title: "The Choose File button on 298 tool pages now matches the form around it"
-description: "On a phone, the AI Bookkeeper's import form showed a grey native file button between styled fields. One rule in the shared chrome stylesheet fixes it on every page that has one."
+description: "On a phone, the AI Bookkeeper import form showed a grey native file button between styled fields. One shared stylesheet rule now fixes every page that has one."
 date: 2026-10-28
 category: tools
 tags: [polish, design]
