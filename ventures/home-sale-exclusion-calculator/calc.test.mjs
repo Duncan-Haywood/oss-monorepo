@@ -87,3 +87,18 @@ test("csv lists the key lines", () => {
   assert.equal(parseNum("$1,234.5"), 1234.5);
   assert.equal(money(1234.6), "1,235");
 });
+
+test("red team guards: year, bracket edges, blank defaults, savings", () => {
+  const a = analyze(S());
+  assert.equal(a.year, 2026);
+  near(regularTax(50400, "single"), 1240 + 0.12 * 38000);
+  near(regularTax(13000, "single"), 1240 + 0.12 * 600);
+  near(regularTax(256226, "single") - regularTax(256225, "single"), 0.35);
+  near(a.savedByExclusion, a.noExclusion.tax.total - a.r.tax.total);
+  assert.ok(a.savedByExclusion > 0);
+  // Blank nonqualified months means none, and no depreciation means no depreciation finding.
+  const b = analyze(S({ nonqualMonths: "", depreciation: "" }));
+  assert.equal(b.r.nonqualShare, 0);
+  assert.ok(!b.findings.some((f) => /nonqualified|main home|depreciation/i.test(f.title)));
+  assert.ok(analyze(S({ depreciation: "10000" })).findings.some((f) => /depreciation/.test(f.title)));
+});
