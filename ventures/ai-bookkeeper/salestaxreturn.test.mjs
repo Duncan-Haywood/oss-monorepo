@@ -320,3 +320,12 @@ test("a payment filed after the due date warns that the timely-filing discount m
   assert.ok(salesTaxReturn(mk("2026-05-02"), opts).warnings.some((w) => /2026-Q1.*discount assumes payment by 2026-04-20.*2026-05-02/.test(w)));
   assert.ok(!salesTaxReturn(mk("2026-05-02"), { asOf: "2026-12-01" }).warnings.some((w) => /discount assumes/.test(w)));
 });
+
+test("DC annual returns end September 30 and are due October 20 (OTR FAQ via search, 2026-10-28)", () => {
+  assert.equal(stateEndMonth("DC", "annual"), 9);
+  assert.equal(stateEndMonth("DC", "quarterly"), null);
+  assert.equal(stateDueDay("DC", "annual"), 20);
+  const r = salesTaxReturn(books(), { frequency: "annual", endMonth: stateEndMonth("DC", "annual"), dueDay: stateDueDay("DC", "annual") });
+  assert.deepEqual(r.periods.map((p) => p.period), ["2026-09"]);
+  assert.equal(r.periods[0].rows[0].due, "2026-10-20");
+});
