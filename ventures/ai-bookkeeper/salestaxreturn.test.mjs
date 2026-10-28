@@ -210,6 +210,12 @@ test("HI, DC, WV file on the 20th and WY at month end", () => {
   assert.equal(stateDueDay("RI", "monthly"), 20);
 });
 
+test("HI semiannual returns (Jan-Jun, Jul-Dec) are due Jul 20 and Jan 20", () => {
+  assert.equal(stateEndMonth("HI", "semiannual"), null);
+  assert.equal(dueDate("2026-H1", stateDueDay("HI", "semiannual")), "2026-07-20");
+  assert.equal(dueDate("2026-H2", stateDueDay("HI", "semiannual")), "2027-01-20");
+});
+
 test("RI and SD return due the 20th, listed explicitly", async () => {
   const { STATE_DUE_DAYS } = await import("./salestaxreturn.mjs");
   assert.equal(STATE_DUE_DAYS.RI, 20);
