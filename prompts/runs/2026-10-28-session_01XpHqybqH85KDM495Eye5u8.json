@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 11022,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Direct owner request to change the routing mix; ran on the process track as repo/prompt work.",
+      "did": "Added a polish track and an until-date mechanism instead of only a goals.md line, so the share is drawn by software and lapses on its own.",
+      "result": "validate ok, 66 tests pass"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Owner asked for ~5% of work on impressive sites, SEO and AEO ('aseo' read as answer-engine optimisation) for an unnamed period; set until 2026-11-30. Verified: python3 -m unittest test_promptctl (66 OK), promptctl.py validate ok, check_post_frontmatter ok.",
   "corrections": [],
   "redteam": null
 }
