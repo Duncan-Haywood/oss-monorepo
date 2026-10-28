@@ -147,6 +147,14 @@ test("the tax estimate card exists, its ids are labelled, and estimatedTax is im
   assert.match(html, /A worksheet, not tax advice/);
 });
 
+test("the annualized installments card is labelled, wired to annualizedInstallments and shares the estimate boxes", () => {
+  const html = page("index.html");
+  assert.match(html, /<label for="est-dated">/);
+  assert.match(html, /id="ann-run"/);
+  assert.match(script(), /import \{ annualizedInstallments \} from "\.\/annualized\.mjs"/);
+  assert.match(script(), /annualizedInstallments\(books, \{ \.\.\.estOpts\(\), payments \}\)/);
+});
+
 test("installable app: manifest, icons and an offline shell covering every module the page imports", () => {
   const html = page("index.html");
   assert.match(html, /<link rel="manifest" href="manifest\.webmanifest">/);
