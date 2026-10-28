@@ -261,3 +261,13 @@ test("New York annual returns cover March to February and are due March 20", () 
   assert.deepEqual(r.periods.map((p) => p.period), ["2026-02", "2027-02"]);
   assert.equal(r.periods[0].rows[0].due, "2026-03-20");
 });
+
+test("Minnesota's own 2026 due-date table (revenue.state.mn.us, read 2026-10-27) matches the preset", () => {
+  // "Sales Tax Return Filing Due Dates": report month -> due date, weekend 20ths already moved by the state
+  const mn = (m, f = "monthly") => nextBusinessDay(dueDate(m, stateDueDay("MN", f)));
+  const table = { "2025-12": "2026-01-20", "2026-01": "2026-02-20", "2026-02": "2026-03-20", "2026-03": "2026-04-20", "2026-04": "2026-05-20", "2026-05": "2026-06-22", "2026-06": "2026-07-20", "2026-07": "2026-08-20", "2026-08": "2026-09-21", "2026-09": "2026-10-20", "2026-10": "2026-11-20", "2026-11": "2026-12-21", "2026-12": "2027-01-20" };
+  for (const [m, d] of Object.entries(table)) assert.equal(mn(m), d, m);
+  assert.equal(mn("2025-Q4", "quarterly"), "2026-01-20");
+  assert.equal(nextBusinessDay(dueDate("2025", stateDueDay("MN", "annual"))), "2026-02-05");
+  assert.equal(nextBusinessDay(dueDate("2026", stateDueDay("MN", "annual"))), "2027-02-05");
+});

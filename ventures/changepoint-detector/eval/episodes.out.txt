@@ -1,0 +1,5 @@
+no change: series with a change 5/40, changes/series 0.42, labelled an episode 5/40
+5-point burst 3x at 40-44: series with a change 32/40, changes/series 1.85, labelled an episode 31/40
+8-point burst 2.5x at 40-47: series with a change 37/40, changes/series 1.98, labelled an episode 30/40
+lasting step 2x at 50: series with a change 40/40, changes/series 1.60, labelled an episode 5/40
+two real steps: 3x at 40-44 then 1.8x for good: series with a change 40/40, changes/series 1.68, labelled an episode 14/40

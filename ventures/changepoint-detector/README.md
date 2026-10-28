@@ -490,6 +490,12 @@ refused by the Wikimedia API's rate limit (429) and not retried. A series with
 a real holiday closure (a shop's or office's daily counts) is still the test
 that would show the factor earning its place.
 
+## Burst or two steps? (`excursions`, counts)
+
+With `--model poisson`, the result lists an `excursions` entry (and one sentence in `summary`) when two neighbouring changes enclose a short stretch (at most a quarter of the series) whose rate sits above or below both sides, and the rate before and after it is statistically one rate (Poisson likelihood ratio under 3.84, 1 df). That reads as a temporary burst or dip on a steady baseline, not two level changes. The changes themselves are not altered. Function: `findExcursions`.
+
+Checked: a planted 10-point burst at 4x on a flat series is flagged; a plain step is not (`great-discoveries.test.mjs`). On the real great-discoveries series it is **not** flagged: the rate before 1884 (2.5 a year) and after 1888 (3.68) differ with a likelihood ratio of 6.9, so the honest reading there is a burst plus a persistent rise, which is what the three PELT changes say. The threshold was not moved to make that series pass. Synthetic power and false-flag rates are not measured yet; no second real series.
+
 ## Bursts
 
 `--bursts [ratio]` (counts only) cuts isolated spikes back before fitting. A
@@ -515,6 +521,24 @@ it flags 0.4 but finds 90/160. 2.5 is a compromise, not an optimum. On the real
 none are cut. The bursts there are mostly runs and wide, so this rule is a
 partial answer on that series (2023-24, one series). Synthetic bursts are
 planted with the rule's own shape in mind, so the recall figures flatter it.
+
+### Burst episodes (`--episodes [n]`)
+
+For counts (`--model poisson`). Plain Poisson reads a burst as two steps, one up and one back down. `--episodes` looks at the fitted changes and labels an up-step followed within `n` points (default a tenth of the series, at least 5) by a down-step as one **episode** when the level after it is within half of the episode's own jump on a log scale of the level before. It also covers a dip. The changes, ranges and penalty are not touched: the result gains an `episodes` list, and the CLI prints it.
+
+Real series, great discoveries (1860-1959): the three plain-Poisson changes stay, and `--episodes` lists one burst, **1884 to 1888**, 8.2 a year against 2.5 before and 3.68 after (3.28x episode, 1.47x net). Test: `great-discoveries.test.mjs`.
+
+`eval/episodes.mjs` (output `eval/episodes.out.txt`; negative-binomial counts, size 8, level 5, 100 points, 40 seeded series per row):
+
+| series | series with a change | labelled an episode |
+|---|---|---|
+| no change | 5 of 40 | 5 of 40 |
+| 5-point burst 3x | 32 of 40 | 31 of 40 |
+| 8-point burst 2.5x | 37 of 40 | 30 of 40 |
+| lasting 2x step | 40 of 40 | 5 of 40 |
+| burst 3x for 5 points, then 1.8x for good | 40 of 40 | 14 of 40 |
+
+Read plainly: a true burst the model cut is labelled about 80 to 97% of the time, a lasting step almost never. The last row is the limit of the rule: a spike that settles at 1.8x scores 0.53 against the 0.5 cut, so it is labelled a burst in 14 of 40 series. It is a label for the reader, not a test: it cannot tell a burst from a short-lived change of regime, and when no change is found (`--bootstrap` on great discoveries) there is nothing to label. Synthetic apart from the one real series; the 0.5 and the length limit are not tuned.
 
 ### Short runs (`--burst-runs n`)
 
@@ -871,6 +895,10 @@ Nile variants (2026-10-26, `nile-variants.test.mjs`): on the real Nile series th
 ## A real count series: British coal-mining disasters (2026-10-26)
 
 Until now the Poisson path was checked on real counts only through the seasonal and trend variants (UK driver casualties, Wikipedia pageviews). `data/coal-mining-disasters.csv` is the plain annual case: 191 disasters of ten or more deaths in 112 years (1851-1962, Jarrett 1979). Plain `poisson` PELT returns two changes: **1892** (3.10 to 1.07 a year, `range95` 1886 to 1897, which holds the literature's 1890) and a second at 1948 (1.07 to 0.27, `range95` 1897 to 1961). The 1948 change is real in the data (a handful of disasters after nationalisation) but the range is 64 years wide: eleven or so events cannot date it, and the tool says so instead of giving a point. `--overdispersion nb` returns the same two changes. One real series, one run: it shows the interval is honest here, not that its coverage is 95%. Test: `coal-disasters.test.mjs`.
+
+## Real overdispersed counts: great discoveries (2026-10-27)
+
+`data/great-discoveries.csv` is 310 "great" inventions and discoveries in 100 years (1860-1959, World Almanac; variance 1.64 times the mean). Years 1884-1888 read 7, 12, 3, 10, 9 against about 2.5 a year before, so the series is a five-year burst more than a level shift. Plain `poisson` PELT returns three changes: **1884** (2.50 to 8.20 a year, `range95` 1883 to 1885), **1889** (8.20 to 3.68, `range95` 1886 to 1894) and **1933** (3.68 to 1.74, `range95` 1930 to 1954). `--overdispersion nb` returns the same three with the 1889 range widened to 1886-1919, so it admits that the fall is not dated. `--bootstrap` returns **no change** (penalty 31.9). The honest reading is that the 1884 and 1889 cuts are one burst the plain Poisson test splits into two steps with narrow ranges that are too confident, and the bootstrap penalty declines to call a level change on 100 clustered annual counts. Whether the slow fall after 1933 is real is not settled by this series either way. One real series, one run: it shows the cost of the default on bursty counts, not a coverage rate. **Two options not tried above (measured 2026-10-28, same series).** `--overdispersion` (quasi-Poisson, estimated dispersion 2.76) returns **no change**, as the bootstrap does, and is the cheaper way to decline the burst. `--bursts` flags 1885 (12, kept as 3) and then still returns a step at **1884** (2.50 to 4.00 a year) and **1933** (4.00 to 1.74): it removes the spike, not the five-year plateau around it, so on a burst this long it is the wrong tool. Neither is a burst-aware count model, which stays open. One real series. Test: `great-discoveries.test.mjs`.
 
 ## Real heavy tails: daily exchange-rate returns (2026-10-26)
 

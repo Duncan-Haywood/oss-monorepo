@@ -1629,6 +1629,7 @@ export function analyze(input = {}) {
   const period = Math.floor(Number(o.period) || 0);
   let burstInfo = null;
   const rawCounts = values;
+  if (o.episodes && model !== 'poisson') throw new Error('Episodes are for counts: use model "poisson".');
   if (o.bursts) {
     if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
     const b = findBursts(values, { period, ratio: typeof o.bursts === "number" ? o.bursts : 2.5, runs: o.burstRuns || 0, ...(o.burstRunRatio ? { runRatio: o.burstRunRatio } : {}) });
@@ -1820,7 +1821,8 @@ export function analyze(input = {}) {
       ...(ranges ? { range95: { from: labels[ranges[k].from], to: labels[ranges[k].to], fromIndex: ranges[k].from, toIndex: ranges[k].to } } : {}),
     };
   });
-  const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped });
+  const excursions = model === 'poisson' ? findExcursions(original, p.changepoints, { exposure }).map((x) => ({ from: labels[x.fromIndex], to: labels[x.toIndex], fromIndex: x.fromIndex, toIndex: x.toIndex, length: x.length, direction: x.direction, baselineRate: round(x.baselineRate), excursionRate: round(x.excursionRate), ratio: x.ratio === null ? null : round(x.ratio, 3), sameBaselineLR: round(x.sameBaselineLR, 3) })) : [];
+  const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped }) + excursions.map((x) => ` Changes at ${x.from} and just after ${x.to} may be one temporary ${x.direction === 'up' ? 'burst' : 'dip'}, not two steps: the rate before and after it is the same (${fmt(x.baselineRate)} a point, likelihood ratio ${fmt(x.sameBaselineLR)} against 3.84), and inside it is ${fmt(x.excursionRate)}.`).join('');
   return {
     n: values.length,
     column,
@@ -1838,6 +1840,8 @@ export function analyze(input = {}) {
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
+    ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
+    ...(excursions.length ? { excursions } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -1878,6 +1882,29 @@ export function changeIntervals(changepoints, n, cost, { minSegment = 2, level =
     for (const i of order) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= level) break; }
     return { index: c, from, to, level };
   });
+}
+
+/**
+ * Burst episodes in fitted count changes: an up-step followed within `maxLen` points by a down-step (or the
+ * reverse) where the level on the far sides differs by well under half the episode's own jump (log scale) is one
+ * episode, not two regime changes. Labels only: the changes themselves are not altered.
+ * `cps` are the changes from analyze() (index, meanBefore, meanAfter); n is the series length.
+ */
+export function findEpisodes(cps, n, { maxLen = Math.max(5, Math.round(n / 10)), maxNet = 0.5 } = {}) {
+  const out = [];
+  for (let k = 0; k + 1 < cps.length; k++) {
+    const a = cps[k], b = cps[k + 1];
+    const len = b.index - a.index;
+    const up = a.meanAfter > a.meanBefore && b.meanAfter < b.meanBefore;
+    const down = a.meanAfter < a.meanBefore && b.meanAfter > b.meanBefore;
+    if (len > maxLen || !(up || down)) continue;
+    const lo = Math.max(a.meanBefore, 1e-9), hi = Math.max(b.meanAfter, 1e-9), mid = Math.max(a.meanAfter, 1e-9);
+    const jump = Math.abs(Math.log(mid / lo)), net = Math.abs(Math.log(hi / lo));
+    if (net >= maxNet * jump) continue;
+    out.push({ kind: up ? 'burst' : 'dip', startIndex: a.index, endIndex: b.index - 1, length: len, level: a.meanAfter, baseBefore: a.meanBefore, baseAfter: b.meanAfter, jumpFactor: Math.round(Math.exp(jump) * 100) / 100, netFactor: Math.round(Math.exp(net) * 100) / 100 });
+    k++;
+  }
+  return out;
 }
 
 /**
@@ -1947,6 +1974,32 @@ export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, 
 }
 
 /** Least-squares line through x[s..t): slope per index, residual sd, and the fitted value at any index. */
+/**
+ * Burst or two steps? With counts, a temporary excursion (a rate that jumps and then returns to where it was) is read by
+ * PELT as two level changes with narrow, over-confident ranges. For each pair of neighbouring changes a < b with a short
+ * segment between them, test whether the rate before a and the rate after b are one rate (Poisson likelihood ratio, 1 df,
+ * 3.84 = 95%): if they are, the pair is one excursion on a steady baseline. Returned as a note beside the changes; the
+ * changes themselves are not altered. `exposure` is the seasonal/holiday expected-share per point when there is one.
+ */
+export function findExcursions(x, cps, { exposure = null, maxFraction = 0.25, critical = 3.84 } = {}) {
+  const n = x.length, e = (t) => (exposure ? exposure[t] : 1);
+  const sum = (lo, hi) => { let c = 0, w = 0; for (let t = lo; t < hi; t++) { c += x[t]; w += e(t); } return { c, w }; };
+  const ll = (c, w, r) => (c > 0 ? c * Math.log(r * w) : 0) - r * w;
+  const out = [];
+  for (let k = 0; k + 1 < cps.length; k++) {
+    const a = cps[k], b = cps[k + 1];
+    if (b - a > maxFraction * n) continue;
+    const L = sum(k ? cps[k - 1] : 0, a), M = sum(a, b), R = sum(b, k + 2 < cps.length ? cps[k + 2] : n);
+    if (!L.w || !R.w || !M.w) continue;
+    const rL = L.c / L.w, rR = R.c / R.w, rM = M.c / M.w, rP = (L.c + R.c) / (L.w + R.w);
+    const lr = 2 * (ll(L.c, L.w, rL) + ll(R.c, R.w, rR) - ll(L.c, L.w, rP) - ll(R.c, R.w, rP));
+    // the middle must sit clearly on one side of both neighbours (a burst up or a dip down)
+    if (!((rM > rL && rM > rR) || (rM < rL && rM < rR))) continue;
+    if (lr < critical) out.push({ fromIndex: a, toIndex: b - 1, length: b - a, baselineRate: rP, excursionRate: rM, ratio: rP > 0 ? rM / rP : null, sameBaselineLR: lr, direction: rM > rP ? 'up' : 'down' });
+  }
+  return out;
+}
+
 function lineFit(x, s, t) {
   const m = t - s;
   let st = 0, sx = 0;

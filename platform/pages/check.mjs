@@ -535,6 +535,8 @@ export const SERVED_EXTENSIONS = new Map([
   // sales-agent's bounce-corpus fixtures (eval/bounce-corpus-mail/*.eml), plain RFC 822 text.
   // The nginx origin is retired (GitHub Pages types by extension); no location block added.
   ['.eml', 'stock'],
+  // wall-framing-takeoff's IFC fixtures (STEP text); same note: no location block on the retired origin.
+  ['.ifc', 'stock'],
 ]);
 
 // Where the served config lives, relative to the repo root. The build pod

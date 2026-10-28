@@ -72,3 +72,12 @@ def test_remus_implied_hotel_is_total_minus_propulsion():
     full = auv_energy_per_m(1.5, 1.85, vol, cs, 0.2, 100.0) * 1.5
     assert full - prop == pytest.approx(100.0)
     assert 5.0 < prop < 40.0
+
+
+def test_cross_current_ground_energy():
+    import sys, os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'experiments'))
+    from run_current import ground
+    assert ground(10.0, 0.5, 0.0) == pytest.approx(10.0)
+    assert ground(10.0, 0.5, 0.3) == pytest.approx(10.0 * 0.5 / 0.4)   # 3-4-5 triangle
+    assert ground(10.0, 0.3, 0.3) == math.inf

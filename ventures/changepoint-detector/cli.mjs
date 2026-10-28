@@ -28,6 +28,7 @@ Options:
   --period <n>              remove a seasonal cycle of n points first (12 monthly, 7 daily-weekly); mean/meanvar subtract it, poisson fits multiplicative factors
   --holidays <a,b,...>      with --model poisson: row labels (dates, or 1-based row numbers) of known holidays; one fitted factor on their rate, so a holiday dip is not read as a step; write label=kind (e.g. 2026-12-25=closed) to fit one factor per kind
   --bursts [ratio]          with --model poisson: single days far above both neighbours' level (default 2.5x and a Poisson-sized excess) are cut back to it before fitting, so a spike is not read as two changes; listed in the result
+  --episodes [n]            with --model poisson: label an up-step followed within n points (default a tenth of the series) by a step back to about the old level as one burst episode, listed in the result; the changes are unchanged
   --burst-runs n            with --bursts: also cut back runs of 2 to n days (default off) that sit 2x above the same-phase level on both sides
   --multiplicative           with --period (mean/meanvar): the season is a factor, not an amount, so it scales with the level (positive values only; not with --drift)
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
@@ -69,6 +70,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--bootstrap') opt.bootstrap = true;
     else if (a === '--overdispersion') opt.overdispersion = argv[i + 1] === 'nb' ? (i++, 'nb') : argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--bursts') opt.bursts = argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
+    else if (a === '--episodes') opt.episodes = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--burst-runs') opt.burstRuns = Number(argv[++i]);
     else if (a === '--joint-knots') opt.jointKnots = true;
     else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' ? argv[++i] : true;
@@ -112,6 +114,10 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     lines.push('', 'Likely range for each slope change (95%, other bends held fixed):');
     for (const x of r.trend.slopeChangeRange95) lines.push(`  ${x.at}: ${x.from === x.to ? 'that point only' : `${x.from} – ${x.to}`}`);
   }
+  if (r.episodes && r.episodes.length) {
+    lines.push('', 'Episodes (a step and its step back, read as one burst):');
+    for (const e of r.episodes) lines.push(`  ${e.from} – ${e.to}: ${e.kind} at ${e.level}/point against ${e.baseBefore} before and ${e.baseAfter} after (${e.jumpFactor}x episode, ${e.netFactor}x net)`);
+  } else if (r.episodes) lines.push('', 'Episodes: none.');
   if (r.bocpd.detections.length) {
     lines.push('', `Bayesian changes (probability >= ${r.bocpd.threshold}):`);
     for (const d of r.bocpd.detections) lines.push(`  ${d.label}  ${(d.probability * 100).toFixed(0)}%`);

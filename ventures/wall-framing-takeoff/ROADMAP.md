@@ -113,7 +113,7 @@ Ticked items are on `main`.
       slipped activity does to the finish date. No durations are shipped. Hand-checked
       networks in `schedule.test.mjs`. Not yet: the page, holidays and weather, resource
       calendars, activity templates tied to the takeoff's quantities, a real builder's list.
-- [ ] Bid leveling against the model's quantities (siblings:
+- [x] Bid leveling against the model's quantities (2026-10-28, `bidlevel.mjs`, CLI `--level-bids`, plan key `bids`; hand-made bids only, no real sub's bid checked, no page) (siblings:
       `bid-leveling-worksheet`, `estimate-maker`).
 
 ### 5. Research threads

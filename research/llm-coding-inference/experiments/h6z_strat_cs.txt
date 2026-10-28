@@ -1,0 +1,14 @@
+fear: corpus 6683, prevalence 0.0115, positives 77, strata [1650, 1390, 2078, 1565]
+category | target pts | rule | coverage % | mean stopped n | n / oracle n | share at full corpus | mean half-width pts
+fear | 1.0 | plug-in tuned PPI, z=1.96 | 89.7 | 460 | 1.16 | 0.000 | 0.803
+fear | 1.0 | betting CS, rectifier, union over strata | 100.0 | 5484 | 13.78 | 0.000 | 0.916
+fear | 0.5 | plug-in tuned PPI, z=1.96 | 65.3 | 905 | 0.67 | 0.000 | 0.455
+fear | 0.5 | betting CS, rectifier, union over strata | 99.3 | 6035 | 4.48 | 0.000 | 0.452
+
+sadness: corpus 6683, prevalence 0.0230, positives 154, strata [1650, 1390, 2078, 1565]
+category | target pts | rule | coverage % | mean stopped n | n / oracle n | share at full corpus | mean half-width pts
+sadness | 1.0 | plug-in tuned PPI, z=1.96 | 83.3 | 660 | 0.90 | 0.000 | 0.927
+sadness | 1.0 | betting CS, rectifier, union over strata | 100.0 | 5951 | 8.12 | 0.000 | 0.896
+sadness | 0.5 | plug-in tuned PPI, z=1.96 | 67.7 | 1822 | 0.83 | 0.000 | 0.487
+sadness | 0.5 | betting CS, rectifier, union over strata | 100.0 | 6394 | 2.91 | 0.003 | 0.412
+

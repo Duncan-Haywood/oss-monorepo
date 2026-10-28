@@ -19,10 +19,11 @@ import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
 import { salesTaxReturn, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
-import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax, taxTableOptions } from "./estimatedtax.mjs";
+import { scorpFromBooks } from "./scorp.mjs";
 import { retirementLimits } from "./retirement.mjs";
 import { addProject, tagProject as tagProjectLines, projectReport, projectCsv, projectMoney } from "./projects.mjs";
 import { addRentalAccounts, addProperty, tagProperty, scheduleE, scheduleECsv } from "./rental.mjs";
@@ -106,6 +107,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   inventory adjust SKU --qty N --date D write off lost or damaged stock at cost
   inventory return SKU --qty N --date D stock sent back to the supplier, at the newest layer cost (file the refund to 1450)
   inventory landed --amount TOTAL --date D --on INV-1,INV-2 [--by value|qty]  freight or duty spread over those purchases (file the payment to 1450)
+  inventory writedown SKU --nrv UNIT_PRICE --date D  cut stock on hand to net realizable value (selling price less cost to sell) when that is below cost
   inventory method fifo|avg             costing method (default fifo)
   inventory             stock on hand by SKU, valued; the total should equal account 1450
   prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
@@ -373,6 +375,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     } else if (rest[0] === "landed") {
       const r = addLandedCost(books, { amount: flag("--amount"), date: flag("--date"), to: flag("--on"), by: flag("--by") ?? undefined });
       books = r.books; save(); console.log(`${r.move.id} landed cost ${fmt(r.move.cents)}: ${r.move.alloc.map((a) => `${a.id} ${fmt(a.cents)}`).join(", ")}. File the payment to 1450.`);
+    } else if (rest[0] === "writedown") {
+      const r = addInventoryWritedown(books, { sku: rest[1], date: flag("--date"), nrv: flag("--nrv") });
+      books = r.books; save(); console.log(`${r.move.id} ${r.move.sku} cut to net realizable value ${fmt(r.move.nrv)} a unit: ${fmt(r.loss)} to 5000.`);
     } else if (rest[0] === "method") {
       books = setInventoryMethod(books, rest[1]); save(); console.log(`Costing method: ${rest[1]}.`);
     } else {
@@ -756,15 +761,29 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const p of r.payments) console.log(`  set aside by ${p.due}  ${fmt(p.cents).padStart(12)}`);
   for (const w of r.warnings) console.log(`  ! ${w}`);
   console.log("  A worksheet. Not tax advice; it leaves out income tax, the 0.9% additional Medicare tax and state tax.");
+} else if (cmd === "scorp") {
+  const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
+  try {
+    const r = scorpFromBooks(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", salary: c("--salary"), salaryPct: flag("--salary-pct") !== null ? +flag("--salary-pct") / 100 : undefined, extraCost: c("--extra-cost"), stateUnemployment: c("--suta"), otherIncome: c("--other-income"), service: has("--service") });
+    if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+    console.log(`S-CORPORATION ELECTION ${r.year} (${r.filing}), profit annualised ${fmt(r.profit)}, salary ${fmt(r.salary)}`);
+    const row = (l, a, b) => console.log(`  ${l.padEnd(26)} ${fmt(a).padStart(12)} ${fmt(b).padStart(12)}`);
+    console.log(`  ${"".padEnd(26)} ${"Sole prop".padStart(12)} ${"S corp".padStart(12)}`);
+    row("Income tax", r.sole.incomeTax, r.scorp.incomeTax); row("Payroll / SE tax", r.sole.payrollTax, r.scorp.payrollTax); row("Yearly cost of the entity", 0, r.scorp.extraCost); row("All in", r.sole.allIn, r.scorp.allIn);
+    console.log(`  ${r.savings >= 0 ? "S corporation saves" : "S corporation costs"} ${fmt(Math.abs(r.savings))} at this salary; break-even profit ${r.breakEven === null ? "not found up to $500,000" : fmt(r.breakEven)}.`);
+    console.log("  Salary sweep (share of profit -> saving): " + r.sweep.map((x) => `${x.salaryPct}% ${fmt(x.savings)}`).join(", "));
+    for (const w of r.warnings) console.log(`  ! ${w}`);
+    console.log("  A worksheet. Not tax advice; the salary must be reasonable for the work, and state tax is left out.");
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "estimate") {
   const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
   try {
     const ttFile = flag("--tax-table");
     const table = ttFile ? taxTableOptions(JSON.parse(readFileSync(ttFile, "utf8"))) : {};
-    const r = estimatedTax(books, { ...table, year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), paid: c("--paid"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), asOf: asOf ?? undefined, qbi: has("--no-qbi") ? false : undefined });
+    const r = estimatedTax(books, { ...table, year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), paid: c("--paid"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), healthInsurance: c("--health-insurance"), retirement: c("--retirement"), asOf: asOf ?? undefined, qbi: has("--no-qbi") ? false : undefined });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
     console.log(`FEDERAL ESTIMATE ${r.year} (${r.filing}), profit annualised ${fmt(r.profit)}`);
-    console.log(`  Adjusted gross income    ${fmt(r.agi).padStart(12)}\n  Standard deduction       ${fmt(r.standardDeduction).padStart(12)}\n  QBI deduction            ${fmt(r.qbiDeduction).padStart(12)}\n  Taxable income           ${fmt(r.taxable).padStart(12)}\n  Income tax (${Math.round(r.marginalRate * 100)}% top)    ${fmt(r.incomeTax).padStart(12)}\n  Self-employment tax      ${fmt(r.se.tax).padStart(12)}\n  Additional Medicare tax  ${fmt(r.addlMedicare).padStart(12)}\n  Total                    ${fmt(r.totalTax).padStart(12)}  (${(r.effectiveRate * 100).toFixed(1)}% of income)`);
+    console.log(`${r.healthDeduction ? `  Health insurance (7206)  ${fmt(r.healthDeduction).padStart(12)}\n` : ""}${r.retirementDeduction ? `  Retirement contribution  ${fmt(r.retirementDeduction).padStart(12)}\n` : ""}  Adjusted gross income    ${fmt(r.agi).padStart(12)}\n  Standard deduction       ${fmt(r.standardDeduction).padStart(12)}\n  QBI deduction            ${fmt(r.qbiDeduction).padStart(12)}\n  Taxable income           ${fmt(r.taxable).padStart(12)}\n  Income tax (${Math.round(r.marginalRate * 100)}% top)    ${fmt(r.incomeTax).padStart(12)}\n  Self-employment tax      ${fmt(r.se.tax).padStart(12)}\n  Additional Medicare tax  ${fmt(r.addlMedicare).padStart(12)}\n  Total                    ${fmt(r.totalTax).padStart(12)}  (${(r.effectiveRate * 100).toFixed(1)}% of income)`);
     console.log(`  Safe harbour: 90% of this year ${fmt(r.safeHarbor.current90)}${r.safeHarbor.prior != null ? `, prior year ${fmt(r.safeHarbor.prior)}` : ""}; pay ${fmt(r.safeHarbor.required)} in estimates`);
     for (const p of r.payments) console.log(`  ${p.due}  ${p.status === "past" ? "(past)".padStart(12) : fmt(p.cents).padStart(12)}`);
     for (const w of r.warnings) console.log(`  ! ${w}`);
