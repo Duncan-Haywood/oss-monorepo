@@ -328,7 +328,7 @@ export const VENTURE_CHROME_JS = `
     els.forEach(function(el){if(dark)el.setAttribute('data-pfs-theme','dark');else el.removeAttribute('data-pfs-theme');});
   }
   try{theme();var mq=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)');if(mq&&mq.addEventListener)mq.addEventListener('change',function(){setTimeout(theme,50);});}catch(e){}
-  function reset(el){el.style.marginLeft='';el.style.marginRight='';el.style.width='';el.style.maxWidth='';el.style.marginTop='';}
+  function reset(el){el.style.marginLeft='';el.style.marginRight='';el.style.width='';el.style.maxWidth='';el.style.marginTop='';el.style.paddingLeft='';el.style.paddingRight='';}
   function fit(){
     var before=root.scrollWidth>root.clientWidth;
     els.forEach(function(el){
@@ -336,6 +336,8 @@ export const VENTURE_CHROME_JS = `
       var vw=root.clientWidth,r=el.getBoundingClientRect();
       if(Math.abs(r.left)<1&&Math.abs(r.width-vw)<1)return;
       el.style.maxWidth='none';el.style.width=vw+'px';el.style.marginLeft=(-r.left)+'px';el.style.marginRight='0';
+      // Keep the content where the host put it: a bar that fills the width has no centring margin, so the offset becomes padding.
+      el.style.paddingLeft=Math.max(0,r.left)+'px';el.style.paddingRight=Math.max(0,vw-r.right)+'px';
       var r2=el.getBoundingClientRect();
       if(Math.abs(r2.left)>=1)el.style.marginLeft=(parseFloat(el.style.marginLeft)-r2.left)+'px';
       if(el.tagName==='NAV'){
