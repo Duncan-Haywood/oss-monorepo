@@ -30,3 +30,12 @@ test('real great discoveries: --episodes reads 1884-1888 as one burst, not two s
   assert.equal(r.pelt.changepoints.length, 3);
   assert.throws(() => analyze({ values, model: 'mean', episodes: true }), /counts/);
 });
+
+test('real great discoveries: quasi-Poisson --overdispersion cuts nothing; --bursts cuts the spike and keeps one step', () => {
+  const od = analyze({ values, labels, model: 'poisson', overdispersion: true });
+  assert.equal(od.pelt.changepoints.length, 0);
+  assert.ok(od.dispersion > 2.5 && od.dispersion < 3, `${od.dispersion}`);
+  const b = analyze({ values, labels, model: 'poisson', bursts: true });
+  assert.deepEqual(b.bursts.map((x) => x.label), ['1885']);
+  assert.deepEqual(b.pelt.changepoints.map((c) => c.label), ['1884', '1933']);
+});
