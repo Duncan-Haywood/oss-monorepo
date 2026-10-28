@@ -290,6 +290,23 @@ it across the four federal payment dates (weekend dates move to Monday). Income 
 not estimated, and the 0.9% additional Medicare tax, farm and church income are left
 out. The 2024 and 2025 wage bases ($168,600, $176,100) match the IRS Schedule SE instructions for those years (read 2026-10-26, so no warning); 2026 and 2027 ($184,500, $192,300) matched published reports of the SSA announcement on 2026-10-23 (not the SSA page, unreachable here), so those results warn; pass `wageBase`. Node tests only; not on the page yet.
 
+## S-corporation election worksheet (US)
+
+`scorpFromBooks(books, opts)` in `scorp.mjs` and `cli.mjs scorp [--year Y] [--months N]
+[--filing single|mfj|hoh] [--salary $ | --salary-pct N] [--extra-cost $] [--suta $]
+[--other-income $] [--service] [--json]` compare, for the books' annualised Schedule C
+profit, staying a sole proprietor with an S corporation that pays the owner a W-2
+salary: self-employment tax on all the profit against both halves of FICA on the salary
+plus FUTA, the 20% QBI deduction on the K-1 profit left after salary (50% of W-2 wages
+cap above the threshold; a service business phases out over the range), and a yearly
+cost of running the entity (default $1,500, an assumption: pass your own). It prints a
+salary sweep and the break-even profit. Federal only, one owner. The salary must be
+reasonable for the work; that is the owner's and the preparer's call. Wage base and
+the 2026 QBI phase-in range (75,000/150,000) are unchecked against primary text (gov
+hosts blocked 2026-10-28); pass `qbiRange` / `wageBase`. Competitors that sell this
+as a paid advisory step: Gusto, Bench and Collective. Tests: `scorp.test.mjs`
+(hand-checked $100,000 / $50,000-salary case, wage-base cap, QBI limit, CLI).
+
 ## Federal income tax estimate and safe-harbour payments (US)
 
 `estimatedTax(books, opts)` in `estimatedtax.mjs` and `cli.mjs estimate [--year Y]

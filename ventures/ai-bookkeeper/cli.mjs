@@ -23,6 +23,7 @@ import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, import
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
 import { estimatedTax, taxTableOptions } from "./estimatedtax.mjs";
+import { scorpFromBooks } from "./scorp.mjs";
 import { retirementLimits } from "./retirement.mjs";
 import { addProject, tagProject as tagProjectLines, projectReport, projectCsv, projectMoney } from "./projects.mjs";
 import { addRentalAccounts, addProperty, tagProperty, scheduleE, scheduleECsv } from "./rental.mjs";
@@ -760,6 +761,20 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const p of r.payments) console.log(`  set aside by ${p.due}  ${fmt(p.cents).padStart(12)}`);
   for (const w of r.warnings) console.log(`  ! ${w}`);
   console.log("  A worksheet. Not tax advice; it leaves out income tax, the 0.9% additional Medicare tax and state tax.");
+} else if (cmd === "scorp") {
+  const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
+  try {
+    const r = scorpFromBooks(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", salary: c("--salary"), salaryPct: flag("--salary-pct") !== null ? +flag("--salary-pct") / 100 : undefined, extraCost: c("--extra-cost"), stateUnemployment: c("--suta"), otherIncome: c("--other-income"), service: has("--service") });
+    if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+    console.log(`S-CORPORATION ELECTION ${r.year} (${r.filing}), profit annualised ${fmt(r.profit)}, salary ${fmt(r.salary)}`);
+    const row = (l, a, b) => console.log(`  ${l.padEnd(26)} ${fmt(a).padStart(12)} ${fmt(b).padStart(12)}`);
+    console.log(`  ${"".padEnd(26)} ${"Sole prop".padStart(12)} ${"S corp".padStart(12)}`);
+    row("Income tax", r.sole.incomeTax, r.scorp.incomeTax); row("Payroll / SE tax", r.sole.payrollTax, r.scorp.payrollTax); row("Yearly cost of the entity", 0, r.scorp.extraCost); row("All in", r.sole.allIn, r.scorp.allIn);
+    console.log(`  ${r.savings >= 0 ? "S corporation saves" : "S corporation costs"} ${fmt(Math.abs(r.savings))} at this salary; break-even profit ${r.breakEven === null ? "not found up to $500,000" : fmt(r.breakEven)}.`);
+    console.log("  Salary sweep (share of profit -> saving): " + r.sweep.map((x) => `${x.salaryPct}% ${fmt(x.savings)}`).join(", "));
+    for (const w of r.warnings) console.log(`  ! ${w}`);
+    console.log("  A worksheet. Not tax advice; the salary must be reasonable for the work, and state tax is left out.");
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "estimate") {
   const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
   try {
