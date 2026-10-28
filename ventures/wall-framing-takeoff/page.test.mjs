@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidlevel.mjs", "./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidlevel.mjs", "./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./siding.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -224,6 +224,16 @@ test("the trim controls are read into plan.trim, restored from a saved plan and 
   assert.match(html, /trim: last\.trim/);
   assert.match(html, /\$\("#trOn"\)\.checked = Boolean\(trm\)/);
   assert.match(html, /<code>trim_on<\/code>/);
+});
+
+test("the siding controls are read into plan.siding, restored from a saved plan and feed the budget", () => {
+  const html = page("index.html");
+  for (const id of ["sdOn", "sdExposure", "sdStock", "sdWaste", "sdWrapRoll", "sdCorners", "sdBoardPrice", "sdWrapPrice", "sdCornerPrice", "sidingOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /plan\.siding = sd/);
+  assert.match(html, /layoutSiding\(plan\.siding, plan\)/);
+  assert.match(html, /siding: last\.siding/);
+  assert.match(html, /\$\("#sdOn"\)\.checked = Boolean\(sdg\)/);
+  assert.match(html, /<code>siding_on<\/code>/);
 });
 
 test("the nail controls are read into plan.fasteners, restored from a saved plan and feed the budget", () => {
