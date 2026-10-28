@@ -1,0 +1,114 @@
+{
+ "rand_10": {
+  "mean": 5.11944687321613,
+  "median": 3.971707959598947,
+  "worst": 14.548730430342204,
+  "worst_design": "rotmix64",
+  "above5": 4
+ },
+ "adp15_10": {
+  "mean": 3.550307526586496,
+  "median": 2.714154002821766,
+  "worst": 8.246562216030513,
+  "worst_design": "rotmix64",
+  "above5": 3
+ },
+ "adp3_10": {
+  "mean": 6.828014383652919,
+  "median": 3.2276449114800903,
+  "worst": 47.36019978367712,
+  "worst_design": "bcastmix192",
+  "above5": 2
+ },
+ "area3_10": {
+  "mean": 7.769099189833166,
+  "median": 3.017359680191892,
+  "worst": 61.067394311294464,
+  "worst_design": "bcastadd64",
+  "above5": 2
+ },
+ "rand_15": {
+  "mean": 3.586830205043909,
+  "median": 2.442164558907415,
+  "worst": 10.317789481256835,
+  "worst_design": "rotmix64",
+  "above5": 4
+ },
+ "adp15_15": {
+  "mean": 2.130088357717432,
+  "median": 1.8676413361648714,
+  "worst": 4.851773347984677,
+  "worst_design": "rotmix64",
+  "above5": 0
+ },
+ "adp3_15": {
+  "mean": 5.378670639770378,
+  "median": 0.851287011303384,
+  "worst": 49.728209772860964,
+  "worst_design": "bcastmix192",
+  "above5": 1
+ },
+ "area3_15": {
+  "mean": 6.724233116804062,
+  "median": 0.8360639964662178,
+  "worst": 67.96975715123901,
+  "worst_design": "bcastadd64",
+  "above5": 1
+ },
+ "rand_25": {
+  "mean": 1.8583474848896167,
+  "median": 1.2122202578275025,
+  "worst": 5.617181867196084,
+  "worst_design": "rotmix64",
+  "above5": 1
+ },
+ "adp15_25": {
+  "mean": 0.650549986772161,
+  "median": 0.7601105307335598,
+  "worst": 1.4019380259019512,
+  "worst_design": "decmux64",
+  "above5": 0
+ },
+ "adp3_25": {
+  "mean": 4.6723765202269005,
+  "median": 0.30739476893121415,
+  "worst": 49.85284187755485,
+  "worst_design": "bcastmix192",
+  "above5": 1
+ },
+ "area3_25": {
+  "mean": 5.943182611158888,
+  "median": 0.2908749375004409,
+  "worst": 67.9904879388051,
+  "worst_design": "bcastadd64",
+  "above5": 1
+ },
+ "rand_40": {
+  "mean": 0.6278731549193564,
+  "median": 0.34979835106516144,
+  "worst": 2.0957278794037677,
+  "worst_design": "rotmix64",
+  "above5": 0
+ },
+ "adp15_40": {
+  "mean": 0.04765360638741093,
+  "median": 0.0,
+  "worst": 0.5718432766489312,
+  "worst_design": "gf2mat48",
+  "above5": 0
+ },
+ "adp3_40": {
+  "mean": 4.63101146546709,
+  "median": 0.0,
+  "worst": 49.85284187755485,
+  "worst_design": "bcastmix192",
+  "above5": 1
+ },
+ "area3_40": {
+  "mean": 5.861217406881867,
+  "median": 0.0,
+  "worst": 67.9904879388051,
+  "worst_design": "bcastadd64",
+  "above5": 1
+ }
+}
