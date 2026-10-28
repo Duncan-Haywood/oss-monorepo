@@ -1,6 +1,6 @@
 // Sales Agent M4b: a minimal SMTP submission client and the message builder. Used only by agent.mjs's `send`, which runs
 // only on a draft a person approved, only when SMTP_HOST is set, and never twice for one draft. No dependencies.
-// Supports implicit TLS (465), STARTTLS (587) and plain (tests only), AUTH PLAIN then LOGIN. Not built: OAuth, DKIM
+// Supports implicit TLS (465), STARTTLS (587) and plain (tests only), AUTH XOAUTH2 (when `getToken` is given), PLAIN, then LOGIN. Not built: DKIM
 // (your mail provider signs on submission), attachments, HTML, delivery status notifications.
 import net from "node:net";
 import tls from "node:tls";
@@ -30,7 +30,7 @@ export function buildMessage({ from, to, subject, body, inReplyTo, references, u
 }
 
 /** Send one message. Resolves with the server's final reply line; rejects with the server's words (password redacted). */
-export async function sendMail({ host, port = 587, secure = false, starttls = true, user, pass, timeoutMs = 20000, ca }, msg) {
+export async function sendMail({ host, port = 587, secure = false, starttls = true, user, pass, getToken, timeoutMs = 20000, ca }, msg) {
   const tlsOpts = { servername: servername(host), ca };
   let sock = secure ? tls.connect({ host, port, ...tlsOpts }) : net.connect({ host, port });
   let buf = "", waiter = null;
@@ -59,7 +59,12 @@ export async function sendMail({ host, port = 587, secure = false, starttls = tr
       sock.removeAllListeners("data"); sock = tls.connect({ socket: sock, ...tlsOpts }); attach(); sock.on("error", (e) => failer.reject(e));
       say("EHLO sales-agent.local"); caps = (await expect(["250"], "EHLO")).join(" ");
     } else if (!secure && user && !/^(127\.|localhost$)/.test(host)) throw new Error("refusing to send a password without TLS (server offers no STARTTLS)");
-    if (user) {
+    if (user && getToken) {
+      say("AUTH XOAUTH2 " + Buffer.from(`user=${user}\x01auth=Bearer ${await getToken()}\x01\x01`).toString("base64"));
+      const r = await read(); const last = r[r.length - 1];
+      if (last.startsWith("334")) { say(""); await read(); throw new Error("SMTP AUTH: XOAUTH2 refused"); }
+      if (!last.startsWith("235")) throw new Error(`SMTP AUTH: ${last}`);
+    } else if (user) {
       if (/AUTH[^\r\n]*PLAIN/i.test(caps)) { say("AUTH PLAIN " + Buffer.from(`\0${user}\0${pass}`).toString("base64")); await expect(["235"], "AUTH"); }
       else { say("AUTH LOGIN"); await expect(["334"], "AUTH"); say(Buffer.from(user).toString("base64")); await expect(["334"], "AUTH"); say(Buffer.from(pass).toString("base64")); await expect(["235"], "AUTH"); }
     }

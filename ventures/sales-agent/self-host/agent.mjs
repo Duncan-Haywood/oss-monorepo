@@ -17,13 +17,16 @@ import { parseReplies, csv, iso, toCsv } from "../engine.mjs";
 import { runInboxWithModel } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
 import { buildMessage, sendMail } from "./smtp.mjs";
+import { oauthWanted, tokenProvider } from "./oauth.mjs";
 import { runResearch } from "../research.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
-export function createAgent(env = process.env, { now = () => Date.now() } = {}) {
+export function createAgent(env = process.env, { now = () => Date.now(), fetchImpl } = {}) {
   if (!env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < 12) throw new Error("ADMIN_TOKEN is required (12+ characters): it protects the approval queue");
+  let tokenFn = null; // OAuth (Gmail, Microsoft 365): built on first use so a bad OAUTH_* setting shows up as a poll or send error, not a crash
+  const getToken = () => (tokenFn ||= tokenProvider(env, { fetchImpl: fetchImpl || fetch, now }))();
   const ca = env.TLS_CA_FILE ? readFileSync(env.TLS_CA_FILE) : undefined; // extra trusted CA (PEM) for a mail server with a private certificate
   const dir = env.DATA_DIR || "./data";
   mkdirSync(dir, { recursive: true });
@@ -68,11 +71,12 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
   }
 
   async function poll() {
-    const need = ["IMAP_HOST", "IMAP_USER", "IMAP_PASS"].filter((k) => !env[k]);
+    const oauth = oauthWanted(env);
+    const need = (oauth ? ["IMAP_HOST", "IMAP_USER"] : ["IMAP_HOST", "IMAP_USER", "IMAP_PASS"]).filter((k) => !env[k]);
     if (need.length) { state.lastError = `missing ${need.join(", ")}`; save(); return 0; }
     const c = new Imap({ host: env.IMAP_HOST, port: Number(env.IMAP_PORT || 993), secure: env.IMAP_SECURE !== "false", ca });
     try {
-      await c.connect(); await c.login(env.IMAP_USER, env.IMAP_PASS); await c.examine(env.IMAP_BOX || "INBOX");
+      await c.connect(); if (oauth) await c.loginXoauth2(env.IMAP_USER, await getToken()); else await c.login(env.IMAP_USER, env.IMAP_PASS); await c.examine(env.IMAP_BOX || "INBOX");
       const since = state.lastUid ? `UID ${state.lastUid + 1}:*` : `SINCE ${new Date(now() - Number(env.SINCE_DAYS || 7) * 864e5).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).replace(/ /g, "-")}`;
       const uids = (await c.search(since)).filter((u) => u > state.lastUid).sort((a, b) => a - b).slice(0, 200);
       const blocks = [];
@@ -86,7 +90,7 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
       state.lastPoll = new Date(now()).toISOString(); state.lastError = null; save();
       audit("poll", { uids: uids.length, ingested: n });
       return n;
-    } catch (e) { state.lastError = String(e.message || e).replace(env.IMAP_PASS, "***"); save(); audit("poll_error", { error: state.lastError }); return 0; }
+    } catch (e) { state.lastError = String(e.message || e).replace(env.IMAP_PASS || "\0", "***"); save(); audit("poll_error", { error: state.lastError }); return 0; }
     finally { await c.logout(); }
   }
 
@@ -121,7 +125,7 @@ export function createAgent(env = process.env, { now = () => Date.now() } = {}) 
     const msg = buildMessage({ from, to, subject: it.outbound || /^re:/i.test(it.subject) ? it.subject : "Re: " + it.subject, body: it.draft.body, inReplyTo: /^<.+>$/.test(it.id) ? it.id : undefined, date: new Date(now()) });
     it.sendingAt = new Date(now()).toISOString(); save();
     try {
-      const reply = await sendMail({ host: env.SMTP_HOST, port: Number(env.SMTP_PORT || 587), secure: env.SMTP_SECURE === "true", starttls: env.SMTP_STARTTLS !== "false", ca, user: env.SMTP_USER, pass: env.SMTP_PASS }, msg);
+      const reply = await sendMail({ host: env.SMTP_HOST, port: Number(env.SMTP_PORT || 587), secure: env.SMTP_SECURE === "true", starttls: env.SMTP_STARTTLS !== "false", ca, user: oauthWanted(env) ? (env.SMTP_USER || env.IMAP_USER) : env.SMTP_USER, pass: env.SMTP_PASS, getToken: oauthWanted(env) ? getToken : undefined }, msg);
       it.sentAt = new Date(now()).toISOString(); it.sentMessageId = msg.id; delete it.sendingAt;
       audit("sent", { id, to, messageId: msg.id, server: reply }); save();
       return it;
