@@ -38,7 +38,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-10-28-neuralfoil-vs-measured-low-reynolds-lift-slope.md; aerolog-scaling LOG.md milestone 8c",
+  "writeups": [
+    "docs/posts/2026-10-28-neuralfoil-vs-measured-low-reynolds-lift-slope.md",
+    "research/aerolog-scaling/LOG.md"
+  ],
   "goal": null,
   "notes": "Advanced aerolog-scaling: UIUC NACA 0009 lift-slope check against NeuralFoil; predictions 1 refuted. Local checks: build.py ok, check_numbers ok, check_md_links ok. No CI wait: merging per standing rule after local checks.",
   "corrections": [],
