@@ -1585,3 +1585,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E105: review 2026-10-28 (reduced pass, thirty-second run)
+
+- Change: `prompts/redteam/prompt-0.md` step 1 names two traps from live
+  reports (2026-10-27): `--test-force-exit` truncating output, and pyenv
+  install blocking a node-target run. Re-ran `derive.py fetch && build`
+  (3624 rows).
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about those two
+  traps; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
