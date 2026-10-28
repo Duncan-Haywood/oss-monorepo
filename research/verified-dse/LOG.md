@@ -2,6 +2,18 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-28 · Milestone 35: is the disjoint-pair pilot quantile (QUANTILE.md) actually proved? (hypothesis fixed before the script ran; theory item 4 of the paper's list)
+- Why: `QUANTILE.md` proves P(F(q) > alpha) <= (1 - alpha)^n for independent pairs and says the disjoint scheme the code uses "is checked empirically". Before building a conformal statistic on it, test whether (1 - alpha)^n can fail for disjoint pairs. `experiments/theory/disjoint_check.py` (about 100 s, no flow): exact counts of n-matchings inside a graph H of good pairs.
+- **Predictions (fixed now):** (1) P(all n disjoint pairs in H) exceeds d^n for some small graph (the independent-pairs argument cannot be a general fact). (2) At the claim's threshold (d < 0.8, alpha = 0.2) a hill-climb over H at N = 10 to 12 finds no violation. (3) A bad clique and bad hub points at N = 50 are conservative. Each is refuted by the opposite.
+
+### Outcome (`experiments/theory/disjoint_results.txt`)
+- **(1) held.** N = 6, n = 3: P up to 8.3 d^n (d = 0.2); N = 7, n = 3: 3.3; N = 4: 3.0 (exhaustive for N <= 6, 300,000 random graphs for N = 7). The general statement is false.
+- **(2) held, narrowly.** Best found P / (1 - alpha)^n is 0.94 to 0.97 at N = 12 (0.255 against 0.262 at n = 6); no violation, but the margin closes as 2n approaches N, so a proof would need to use that pilots are small against the pool.
+- **(3) held.** Clique ratio to bound at most 0.97 (n = 8) and 0.77 (n = 22); hubs at most 0.94 and 0.29.
+- Reading: the rigorous statement is the independent-pairs one (draw pairs with replacement of points; cost at most 2n, same bound). `QUANTILE.md` now says so and the paper should quote that scheme or label the disjoint coverage empirical. This does not touch the weakness already logged: a bound on the share of bad pairs is not a regret bound.
+- Limits: hill-climb is a search, not a proof; N <= 12 for the adversarial search; coverage of the with-replacement scheme not re-measured.
+- Next: re-measure coverage for the with-replacement pilot on the cached tables, then the regret-side theorem (pairs involving the optimum), which is the real gap.
+
 ## 2026-10-28 · Milestone 34: median, worst-design and tail regret for every arm, budget and design set (descriptive; predictions fixed before the script ran)
 - Why: milestone 33 ended with "report worst-design regret and medians for all arms in the paper". Means over 12 designs are carried by one or two cells (`bcastmix192`, `bcastadd64`), and the log has quoted medians only post hoc at one budget. `experiments/tail_risk/tail.py` re-runs the milestone 33 replay in process (deterministic; same seeds, costs, pools) and tabulates, for rand / adp15 / adp3 / area3 at 10, 15, 25, 40 equivalents, over the 12 designs (clock-averaged): mean, median, worst design, and the number of designs with regret above 5%. No flow run, no tests, no tuning.
 - **Predictions (fixed now):** (1) At 25 equivalents the median over designs ranks adp3 < adp15 < rand (the 0.31 / 0.76 / 1.21 of milestone 33), and at 40 equivalents adp15 has the lowest median. (2) The worst design at 25 and 40 equivalents is `bcastmix192` for adp3 and area3, and is under 5% for adp15. (3) Counted over designs with regret above 5% at 40 equivalents, adp15 has none and adp3 at least one. Each is refuted by the opposite.

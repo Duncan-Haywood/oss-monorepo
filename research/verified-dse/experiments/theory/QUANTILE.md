@@ -21,3 +21,18 @@ nominal 0.8 over 60 group-rung cells).
 
 **What it does not give.** Halving's regret depends on the pairs (optimum, its k rivals), not on a random pair, so
 the share bound does not turn into a regret guarantee. See the LOG entry.
+
+## Milestone 35: the disjoint-pair step was not proved, and a rigorous version
+Written with AI assistance. The proof above is exact for pairs drawn independently. The pilot draws them **disjoint**
+(without replacement), where "independence gives" does not apply. `disjoint_check.py` (no flow run;
+`disjoint_results.txt`) shows the gap is real in general: for a graph H of "good" pairs with density d, the probability
+that n disjoint random pairs all lie in H can exceed d^n (N = 6, n = 3: 8.3 times d^n at d = 0.2; N = 7, n = 3: 3.3 times;
+N = 4 to 6 exhaustive over all graphs, N = 7 over 300,000 random graphs). At the threshold the claim needs (d < 1 - alpha =
+0.8) a hill-climb over graphs found no violation (N = 10 and 12, n = 3 to 6, best 0.255 against 0.262 at N = 12, n = 6; the
+margin shrinks as 2n approaches N), and the two natural adversaries, a bad clique and bad hub points, are conservative at
+N = 50 (ratio to the bound at most 0.97 for n = 8, 0.29 for n = 22). So: no counterexample at the claim's threshold, no proof either.
+
+**Rigorous version (what the paper should state).** Draw the n pairs independently, each a uniform pair of distinct
+pool points; points may repeat across pairs. The proof above then holds verbatim, P(F(q) > alpha) <= (1 - alpha)^n, and
+the pilot costs at most 2n routed points (fewer when a point repeats), so the cost bound is unchanged. The empirical
+coverage of 0.835 or more was measured for the disjoint scheme; it is not re-measured for the with-replacement scheme.
