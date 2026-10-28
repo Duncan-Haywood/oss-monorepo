@@ -4203,3 +4203,16 @@ entries:
         browser, as a CLI and as an agent tool; 12 catalogue designs. IfcOpenShell reads every
         catalogue IFC with 0 schema errors. Usage unmeasured.
     mrr_end: 0
+  - venture: agentic-trading-lab
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's request (2026-10-28): research agent for rules-based trading on the
+        user's own account (not a fund; LEGAL.md). Eight published rules, event-loop backtester
+        with drift and costs, Deflated Sharpe, PBO (CSCV), stationary bootstrap, walk-forward;
+        gated dry-run/paper/live execution (local paper, Alpaca, Robinhood Crypto Trading API).
+        First study on Ken French industries (1926-2026) and Coinbase BTC/ETH: no agent pick
+        passed the gate (10 ind. holdout Sharpe 0.50 vs 0.53 EW; 49 ind. 0.62 vs 0.55, DSR
+        0.890; crypto 20-day SMA 2.07 -> -0.08, PBO 0.81). Usage unmeasured.
+    mrr_end: 0

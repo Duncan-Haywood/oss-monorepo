@@ -3088,7 +3088,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
     # +1: `open-house-plans` graduated (browser, CLI and agent house plan generator: a brief or a sentence to a CC0 plan set of SVG drawings, DXF, IFC4, OBJ, schedules and an NAHB-anchored cost).
     # +1: `ca-crypto-acb-calculator` graduated (browser + CLI Canadian crypto ACB: CRA average cost per coin, superficial loss rule, taxable gain per year, working CSV).
-    total = 1318  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1318 tools" wording.
+    total = 1319  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1319 tools" wording.
     # +1: `sales-agent` graduated (browser, CLI and MCP AI sales inbox agent: reply triage, automatic stop/pause/suppress with a consent record, drafts queued for approval, never sends; flagship for the owner's 2026-10-21 AI sales agents direction).
     # +1: `agent-workroom` graduated (browser 3D room for AI agents' tasks: a desk per agent, a task wall, typed or spoken commands, progress from GitHub pull requests).
     # +1: `interview-content-studio` graduated (browser and CLI: interviews about a brand or topic become a per-platform plan, a 4-week calendar and drafts for 14 platforms, optional own-key AI with a no-invented-numbers check).

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b437e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic Trading Lab: backtest strategies, catch overfitting, paper trade first</title>
+  <meta name="description" content="Free, open-source research agent for trading your own account: backtests published momentum and trend rules on 100 years of US industry data and on BTC/ETH, charges for every strategy it tries (Deflated Sharpe, PBO), and only then lets you paper trade on Alpaca or trade crypto through Robinhood's official API.">
+  <link rel="canonical" href="./index.html">
+  <meta property="og:title" content="Agentic Trading Lab">
+  <meta property="og:description" content="An AI research agent for trading strategies that refused all three of its own best backtests. Here is why, and the code.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agentic Trading Lab","applicationCategory":"FinanceApplication","operatingSystem":"Linux, macOS, Windows (Python 3.10+)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","description":"Backtesting and research agent for rules-based strategies with Deflated Sharpe Ratio and Probability of Backtest Overfitting gates, plus guarded paper and live execution on the user's own broker account."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Can I use this with Robinhood?","acceptedAnswer":{"@type":"Answer","text":"For crypto, yes: it signs requests to Robinhood's official Crypto Trading API with keys you create. Robinhood publishes no API for stocks, so for automated stock and ETF trading it supports Alpaca, which has free paper trading."}},
+    {"@type":"Question","name":"Can I run a fund with it?","acceptedAnswer":{"@type":"Answer","text":"No. It is built for one person trading their own account. Managing or pooling other people's money is regulated (investment adviser, investment company and securities offering rules in the US); see LEGAL.md and talk to a securities lawyer first."}},
+    {"@type":"Question","name":"Did the agent find a strategy that beats the market?","acceptedAnswer":{"@type":"Answer","text":"Not one that passed its own gate. On 2000 to 2026 data no rule it picked had been allowed to see, its winners either matched equal weight with lower drawdowns or, in crypto, lost money after costs. The full numbers are in results/REPORT.md."}},
+    {"@type":"Question","name":"What stops it from overfitting?","acceptedAnswer":{"@type":"Answer","text":"Every configuration it tries is logged and charged for: the Deflated Sharpe Ratio raises the bar with each trial, the Probability of Backtest Overfitting checks whether in-sample winners keep winning out of sample, and the 2000 onward holdout is looked at once."}},
+    {"@type":"Question","name":"Does it trade real money by default?","acceptedAnswer":{"@type":"Answer","text":"No. It prints orders in a dry run. Paper trading needs --execute. Live trading also needs --live, an exact confirmation phrase in an environment variable, no kill-switch file and a strategy that passed the research gate."}},
+    {"@type":"Question","name":"Where does the data come from?","acceptedAnswer":{"@type":"Answer","text":"US industry portfolios and the risk-free rate from the Kenneth R. French Data Library (built from CRSP, July 1926 onward), and daily BTC-USD and ETH-USD candles from Coinbase's public API. It downloads them on your machine and does not redistribute them."}}
+  ]}</script>
+  <style>
+    :root { --ink:#17202a; --muted:#4c5a68; --line:#d9dfe6; --bg:#ffffff; --panel:#f5f7f9; --accent:#1f5fa8; --good:#1d7a46; --bad:#a33a2b; }
+    @media (prefers-color-scheme: dark) { :root { --ink:#e6ebf0; --muted:#a8b3bf; --line:#33404d; --bg:#11171d; --panel:#18212a; --accent:#7fb2ec; --good:#6cc596; --bad:#ef8f80; } }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 1.9rem; line-height: 1.2; margin: .2em 0 .4em; }
+    h2 { margin-top: 2em; font-size: 1.35rem; }
+    h3 { font-size: 1.05rem; margin-bottom: .2em; }
+    a { color: var(--accent); }
+    .lede { font-size: 1.1rem; color: var(--muted); }
+    .cards { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 12px; }
+    .card { background: var(--panel); border:1px solid var(--line); border-radius: 8px; padding: 14px; }
+    .card .big { font-size: 1.5rem; font-weight: 650; }
+    .no { color: var(--bad); font-weight: 650; }
+    pre { background: var(--panel); border:1px solid var(--line); border-radius: 6px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { font-size: .92em; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    .scroll { overflow-x: auto; }
+    ol.steps li { margin-bottom: .4em; }
+    figure { margin: 1em 0; }
+    figcaption, .note, footer { font-size: .86rem; color: var(--muted); }
+    #chart svg { width: 100%; height: auto; display: block; }
+    .legend span { display:inline-block; margin-right: 14px; }
+    .legend i { display:inline-block; width: 12px; height: 3px; vertical-align: middle; margin-right: 5px; }
+    footer { margin-top: 32px; border-top: 1px solid var(--line); padding-top: 16px; }
+    button.secondary { background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note">Free, MIT-licensed, runs on your machine. For your own account only.</p>
+  <h1>Agentic Trading Lab</h1>
+  <p class="lede">An AI research agent for rules-based trading that keeps score honestly. It backtests published
+    momentum and trend strategies on a century of US data and on crypto. It charges for every idea it tries, and it
+    lets you paper trade only what survives. In its first full study it refused all three of its own best backtests.</p>
+
+  <h2>Who it is for</h2>
+  <p>People who want to automate their own brokerage account with rules instead of hunches, and who have seen enough
+    backtests to distrust them. You might be a developer with a Robinhood or Alpaca account, or a self-directed
+    investor wondering whether a momentum rule is worth the trouble. You can read Python, or are willing to run a
+    few commands.</p>
+  <p>The usual problem: you try twenty variations and keep the one with the best chart. Five years of live trading
+    later, it turns out the chart was the twentieth roll of a die. This tool keeps track of the die.</p>
+
+  <h2>What the first study found</h2>
+  <p>We tuned on data up to 1999 and judged on 2000 to September 2026, a period no candidate was allowed to see.
+    Costs were 10 bps per unit of turnover for equities and 50 bps for crypto.</p>
+  <div class="cards">
+    <div class="card"><div>US, 10 industries</div><div class="big">Sharpe 0.50 vs 0.53</div>
+      <p>The best of 98 rules (12-month dual momentum, top 2) trailed simple equal weight out of sample. Its worst
+        drawdown was −27.9% against −48.1%. Overfitting probability 0.50. <span class="no">Not promoted.</span></p></div>
+    <div class="card"><div>US, 49 industries</div><div class="big">Sharpe 0.62 vs 0.55</div>
+      <p>The winner (12-month cross-sectional momentum, top 5, 10% vol target) beat equal weight. Alpha 3.5%/yr,
+        t = 2.09, and a −21.8% drawdown against −52.7%. But its Deflated Sharpe was 0.890, under the 0.95 bar.
+        <span class="no">Not promoted.</span></p></div>
+    <div class="card"><div>BTC and ETH, daily</div><div class="big">Sharpe 2.07 → −0.08</div>
+      <p>A 20-day moving-average rule looked superb from 2016 to 2021 and lost money from 2022 on after costs.
+        Overfitting probability 0.81 flagged it; Deflated Sharpe alone did not. <span class="no">Not promoted.</span></p></div>
+  </div>
+  <p>Two results held up across both universes. Trend rules roughly halved the worst drawdowns. And the slow
+    200-day trend rule on crypto kept a Sharpe of 0.70 at 50 bps, where the fast one went negative. Full tables:
+    <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/agentic-trading-lab/results/REPORT.md">results/REPORT.md</a>; every number is in <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/agentic-trading-lab/results/study.json">results/study.json</a>.</p>
+
+  <figure id="chart" aria-label="Growth of one dollar, 10 US industries, 1929 to 2026, log scale">
+    <noscript><p>The chart needs JavaScript; the numbers are in results/study.json.</p></noscript>
+  </figure>
+  <figcaption>Growth of $1, 10 US industry portfolios, net of 10 bps costs, log scale. Hypothetical: the industry
+    portfolios are not directly investable and no money was traded.</figcaption>
+
+  <h2>How the agent works</h2>
+  <ol class="steps">
+    <li><strong>Propose.</strong> It draws configurations from a bounded search space of eight published rules. By
+      default it walks a grid; with your own Anthropic key, a Claude model picks the order instead. Either way,
+      nothing outside the space is accepted.</li>
+    <li><strong>Backtest in-sample only</strong> with drifting weights, turnover costs, borrowing costs and an
+      optional volatility target. A test checks that changing future returns never changes past decisions.</li>
+    <li><strong>Charge for the search.</strong> The Deflated Sharpe Ratio (Bailey and López de Prado, 2014) raises the
+      bar with each trial. The Probability of Backtest Overfitting (Bailey, Borwein, López de Prado and Zhu, 2017)
+      asks whether in-sample winners keep winning on unseen halves of the data.</li>
+    <li><strong>Look at the holdout once,</strong> with a stationary-bootstrap interval for the Sharpe ratio and alpha
+      against equal weight (Newey-West t).</li>
+    <li><strong>Gate.</strong> A strategy can be promoted only if DSR ≥ 0.95, PBO ≤ 0.5 and its holdout Sharpe is
+      positive with at least 90% confidence.</li>
+    <li><strong>Trade carefully.</strong> Dry run by default. Paper trading comes next. Live trading needs an explicit
+      flag, an exact confirmation phrase, no kill-switch file, a gated strategy and per-order limits.</li>
+  </ol>
+
+  <h2>Try it</h2>
+<pre><code>git clone --depth 1 https://github.com/Duncan-Haywood/oss-monorepo
+cd oss-monorepo/ventures/agentic-trading-lab
+pip install -e .                       # numpy only; add [robinhood] for crypto signing
+tradelab study                         # rerun the whole study (downloads data, a few minutes)
+tradelab research --universe ind49 --out report.json
+tradelab signal --strategy sma_trend --param lookback=10
+tradelab rebalance --report report.json                    # dry run: prints orders
+tradelab rebalance --report report.json --execute          # local paper account
+tradelab rebalance --broker alpaca --report report.json --execute   # Alpaca paper (your keys)</code></pre>
+
+  <h2>Brokers</h2>
+  <div class="scroll"><table>
+    <tr><th>Broker</th><th>Assets</th><th>Paper mode</th><th>How</th></tr>
+    <tr><td>Local paper</td><td>anything</td><td>yes (default)</td><td>JSON file on your disk</td></tr>
+    <tr><td>Alpaca</td><td>US stocks and ETFs</td><td>yes</td><td>official Trading API, your keys</td></tr>
+    <tr><td>Robinhood</td><td>crypto only</td><td>no</td><td>official Crypto Trading API, your Ed25519 key</td></tr>
+  </table></div>
+  <p class="note">Robinhood publishes no stock-trading API. Unofficial libraries that drive the app's private
+    endpoints are not supported. Not affiliated with, or endorsed by, Robinhood, Alpaca, Coinbase or Anthropic.</p>
+
+  <h2>When to use something else</h2>
+  <p>If you want hands-off diversified investing, a low-cost index fund does that with no code. If you need intraday
+    data, options or a full event-driven simulator, use a dedicated backtesting framework. If you want to invest
+    other people's money, you need a lawyer and a registration first, not this repository. Every rebalance in a
+    taxable account is a taxable sale; for crypto lots, the <a href="../crypto-cost-basis-calculator/">crypto cost basis
+    calculator</a> works out the gains to report.</p>
+
+  <h2>Questions</h2>
+  <h3>Can I use this with Robinhood?</h3>
+  <p>For crypto, yes: it signs requests to Robinhood's official Crypto Trading API with keys you create. Robinhood
+    publishes no API for stocks, so for automated stock and ETF trading it supports Alpaca, which has free paper trading.</p>
+  <h3>Can I run a fund with it?</h3>
+  <p>No. It is built for one person trading their own account. Managing or pooling other people's money is regulated
+    (investment adviser, investment company and securities offering rules in the US); see
+    <a href="https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/agentic-trading-lab/LEGAL.md">LEGAL.md</a>
+    and talk to a securities lawyer first.</p>
+  <h3>Did the agent find a strategy that beats the market?</h3>
+  <p>Not one that passed its own gate. On 2000 to 2026 data no rule it picked had been allowed to see, its winners
+    either matched equal weight with lower drawdowns or, in crypto, lost money after costs. The full numbers are in
+    results/REPORT.md.</p>
+  <h3>What stops it from overfitting?</h3>
+  <p>Every configuration it tries is logged and charged for: the Deflated Sharpe Ratio raises the bar with each trial,
+    the Probability of Backtest Overfitting checks whether in-sample winners keep winning out of sample, and the 2000
+    onward holdout is looked at once.</p>
+  <h3>Does it trade real money by default?</h3>
+  <p>No. It prints orders in a dry run. Paper trading needs --execute. Live trading also needs --live, an exact
+    confirmation phrase in an environment variable, no kill-switch file and a strategy that passed the research gate.</p>
+  <h3>Where does the data come from?</h3>
+  <p>US industry portfolios and the risk-free rate from the Kenneth R. French Data Library (built from CRSP, July 1926
+    onward), and daily BTC-USD and ETH-USD candles from Coinbase's public API. It downloads them on your machine and
+    does not redistribute them.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or
+      implied. It is not investment, financial, legal or tax advice, and it does not replace a qualified
+      professional. Backtests are hypothetical, use data that is not directly investable, and do not predict future
+      results. Trading can lose money, including everything in the account. You are responsible for reviewing and
+      verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no
+      liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> This page loads its own results file and nothing else; the software runs on your
+      machine and sends your broker keys only to your broker. Your data is never uploaded to us. We count anonymous
+      page events in your browser's storage (nothing about who you are).</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>.
+      <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/agentic-trading-lab">Source</a> ·
+      <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support the work</a> (optional; it never changes what the tool does).
+      Built with AI assistance.</p>
+  </footer>
+</main>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  record("page_view");
+  const btn = document.getElementById("optout");
+  if (usageOptedOut()) { btn.textContent = "Usage counting is off"; btn.disabled = true; }
+  btn.addEventListener("click", () => { setUsageOptOut(true); btn.textContent = "Usage counting is off"; btn.disabled = true; });
+
+  const COLORS = ["#7a8794", "#1f5fa8", "#c06a1b", "#1d7a46"];
+  try {
+    const study = await (await fetch("results/study.json")).json();
+    const { labels, series } = study.equity10.curves;
+    const names = Object.keys(series);
+    const W = 820, H = 360, L = 48, R = 12, T = 12, B = 28;
+    const all = names.flatMap((n) => series[n]);
+    const lo = Math.log10(Math.min(...all)), hi = Math.log10(Math.max(...all));
+    const x = (i) => L + (i / (labels.length - 1)) * (W - L - R);
+    const y = (v) => T + (1 - (Math.log10(v) - lo) / (hi - lo)) * (H - T - B);
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Growth of one dollar, log scale">`;
+    for (let p = Math.ceil(lo); p <= Math.floor(hi); p++) {
+      svg += `<line x1="${L}" x2="${W - R}" y1="${y(10 ** p)}" y2="${y(10 ** p)}" stroke="currentColor" stroke-opacity=".12"/>`;
+      svg += `<text x="${L - 6}" y="${y(10 ** p) + 4}" font-size="11" text-anchor="end" fill="currentColor" fill-opacity=".7">$${(10 ** p).toLocaleString()}</text>`;
+    }
+    for (let i = 0; i < labels.length; i += 120) {
+      svg += `<text x="${x(i)}" y="${H - 8}" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity=".7">${labels[i].slice(0, 4)}</text>`;
+    }
+    names.forEach((n, k) => {
+      const d = series[n].map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
+      svg += `<path d="${d}" fill="none" stroke="${COLORS[k % COLORS.length]}" stroke-width="1.6"/>`;
+    });
+    svg += "</svg>";
+    const legend = names.map((n, k) => `<span><i style="background:${COLORS[k % COLORS.length]}"></i>${n}: $${series[n].at(-1).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>`).join("");
+    document.getElementById("chart").innerHTML = svg + `<div class="legend">${legend}</div>`;
+  } catch {
+    document.getElementById("chart").textContent = "Chart unavailable; the numbers are in results/study.json.";
+  }
+</script>
+</body>
+</html>
