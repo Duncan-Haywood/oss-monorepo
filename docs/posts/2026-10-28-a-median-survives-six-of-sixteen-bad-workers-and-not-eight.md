@@ -1,7 +1,7 @@
 ---
 title: "A median survives 6 of 16 sabotaging workers, and diverges at 8"
 date: 2026-10-28
-description: "Real small-transformer training with a coalition of sign-flipping workers: the median's cost rises from 0.014 to 0.14 nats as the coalition grows to 6 of 16, then training blows up at 8. A one-attacker prediction under-called it."
+description: "Real training with k of 16 workers flipping their updates: the median costs 0.014 nats at k=2, 0.14 at k=6, and diverges at k=8."
 tags: [lowcomm-training, robust-aggregation, distributed-training]
 ---
 
