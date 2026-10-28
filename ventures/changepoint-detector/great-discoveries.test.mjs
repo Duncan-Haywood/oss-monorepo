@@ -20,6 +20,17 @@ test('real great discoveries: plain Poisson cuts the 1884-1888 burst; --bootstra
   assert.equal(run({ bootstrap: true }).length, 0);
 });
 
+test('real great discoveries: --episodes reads 1884-1888 as one burst, not two steps', () => {
+  const r = analyze({ values, labels, model: 'poisson', episodes: true });
+  assert.equal(r.episodes.length, 1);
+  const e = r.episodes[0];
+  assert.equal(e.kind, 'burst');
+  assert.deepEqual([e.from, e.to], ['1884', '1888']);
+  assert.ok(e.jumpFactor > 3 && e.netFactor < 1.6, `${e.jumpFactor} ${e.netFactor}`);
+  assert.equal(r.pelt.changepoints.length, 3);
+  assert.throws(() => analyze({ values, model: 'mean', episodes: true }), /counts/);
+});
+
 test('real great discoveries: quasi-Poisson --overdispersion cuts nothing; --bursts cuts the spike and keeps one step', () => {
   const od = analyze({ values, labels, model: 'poisson', overdispersion: true });
   assert.equal(od.pelt.changepoints.length, 0);

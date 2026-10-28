@@ -1629,6 +1629,7 @@ export function analyze(input = {}) {
   const period = Math.floor(Number(o.period) || 0);
   let burstInfo = null;
   const rawCounts = values;
+  if (o.episodes && model !== 'poisson') throw new Error('Episodes are for counts: use model "poisson".');
   if (o.bursts) {
     if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
     const b = findBursts(values, { period, ratio: typeof o.bursts === "number" ? o.bursts : 2.5, runs: o.burstRuns || 0, ...(o.burstRunRatio ? { runRatio: o.burstRunRatio } : {}) });
@@ -1839,6 +1840,7 @@ export function analyze(input = {}) {
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
+    ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
     ...(excursions.length ? { excursions } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
@@ -1880,6 +1882,29 @@ export function changeIntervals(changepoints, n, cost, { minSegment = 2, level =
     for (const i of order) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= level) break; }
     return { index: c, from, to, level };
   });
+}
+
+/**
+ * Burst episodes in fitted count changes: an up-step followed within `maxLen` points by a down-step (or the
+ * reverse) where the level on the far sides differs by well under half the episode's own jump (log scale) is one
+ * episode, not two regime changes. Labels only: the changes themselves are not altered.
+ * `cps` are the changes from analyze() (index, meanBefore, meanAfter); n is the series length.
+ */
+export function findEpisodes(cps, n, { maxLen = Math.max(5, Math.round(n / 10)), maxNet = 0.5 } = {}) {
+  const out = [];
+  for (let k = 0; k + 1 < cps.length; k++) {
+    const a = cps[k], b = cps[k + 1];
+    const len = b.index - a.index;
+    const up = a.meanAfter > a.meanBefore && b.meanAfter < b.meanBefore;
+    const down = a.meanAfter < a.meanBefore && b.meanAfter > b.meanBefore;
+    if (len > maxLen || !(up || down)) continue;
+    const lo = Math.max(a.meanBefore, 1e-9), hi = Math.max(b.meanAfter, 1e-9), mid = Math.max(a.meanAfter, 1e-9);
+    const jump = Math.abs(Math.log(mid / lo)), net = Math.abs(Math.log(hi / lo));
+    if (net >= maxNet * jump) continue;
+    out.push({ kind: up ? 'burst' : 'dip', startIndex: a.index, endIndex: b.index - 1, length: len, level: a.meanAfter, baseBefore: a.meanBefore, baseAfter: b.meanAfter, jumpFactor: Math.round(Math.exp(jump) * 100) / 100, netFactor: Math.round(Math.exp(net) * 100) / 100 });
+    k++;
+  }
+  return out;
 }
 
 /**
