@@ -367,3 +367,12 @@ test("a malformed rate or due day is refused instead of passing silently or prin
   assert.doesNotThrow(() => salesTaxReturn(books, { dueDay: { months: 2, day: 15 } }));
   assert.doesNotThrow(() => salesTaxReturn(books, { dueDay: 25 }));
 });
+
+test("stateDiscounts presets IL, TX and FL under their <ST> state label and nothing else", async () => {
+  const { stateDiscounts } = await import("./salestaxreturn.mjs");
+  assert.deepEqual(stateDiscounts("il"), { "IL state": { rate: 0.0175, capPerMonth: 100000 } });
+  assert.deepEqual(stateDiscounts("TX"), { "TX state": { rate: 0.005 } });
+  assert.deepEqual(stateDiscounts("FL"), { "FL state": { rate: 0.025, cap: 3000 } });
+  assert.deepEqual(stateDiscounts("CA"), {});
+  assert.deepEqual(stateDiscounts(undefined), {});
+});
