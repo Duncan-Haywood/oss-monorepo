@@ -56,7 +56,10 @@ class DiLoCo:
                 if self.aggregate != "mean" or self.attack is not None:
                     ds = torch.stack([p.data - list(w.parameters())[i].data for w in self.workers])
                     if self.attack is not None:
-                        ds = torch.stack([self.attack(d, j) for j, d in enumerate(ds)])
+                        if getattr(self.attack, "collective", False):
+                            ds = self.attack(ds)  # sees every worker's delta (a coordinated coalition)
+                        else:
+                            ds = torch.stack([self.attack(d, j) for j, d in enumerate(ds)])
                     if self.aggregate == "median":
                         p.grad = ds.sort(0).values[(len(ds) - 1) // 2: len(ds) // 2 + 1].mean(0)
                     elif self.aggregate == "trimmed":
