@@ -192,6 +192,14 @@ const partyHit = (desc, party) => {
   const have = new Set(payeeTokens(desc));
   return payeeTokens(party).filter((w) => w.length >= 3).some((w) => have.has(w));
 };
+// Stricter, for a part-payment named only by its party: a party with two or more
+// meaningful words needs two of them in the description, so one generic word
+// ("paid", "services", "global") cannot claim an unrelated line.
+const partyHitStrict = (desc, party) => {
+  const have = new Set(payeeTokens(desc));
+  const words = payeeTokens(party).filter((w) => w.length >= 3);
+  return words.length > 0 && words.filter((w) => have.has(w)).length >= Math.min(2, words.length);
+};
 
 // What is still owed on a document: its total less credit notes applied to it
 // and part-payments matched to it. A credit note's own balance is what is left
@@ -311,7 +319,7 @@ export function settle(booksIn) {
       if (Math.sign(t.cents) !== sign(d) || !within(d, t)) continue;
       if (fcur(d, t) ? Math.abs(t.foreign.cents) >= fbal(d) : Math.abs(t.cents) >= balance(d)) continue;
       const byNumber = hasNumber(t.desc, d.number);
-      const byParty = !byNumber && partyHit(t.desc, d.party) && open().filter((x) => x.kind === d.kind && x.party === d.party).length === 1;
+      const byParty = !byNumber && partyHitStrict(t.desc, d.party) && open().filter((x) => x.kind === d.kind && x.party === d.party).length === 1;
       if (byNumber || byParty) parts.push({ t, d, score: byNumber ? 2 : 1 });
     }
     parts.sort((a, b) => a.t.date.localeCompare(b.t.date) || b.score - a.score || a.t.id.localeCompare(b.t.id));
