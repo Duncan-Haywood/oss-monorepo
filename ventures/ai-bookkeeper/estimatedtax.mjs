@@ -53,7 +53,7 @@ const toCents = (v) => Math.round(+v * 100);
 // opts: year, monthsElapsed, filing (single|mfj|hoh), otherIncome, wages (W-2 wages,
 // cents), withholding (cents), priorYearTax and priorAgi (cents, from last year's
 // 1040), paid (cents of estimates already sent), asOf (YYYY-MM-DD), qbi (false to
-// skip the 20% deduction), qbiMinimum ({ floor, threshold } cents, years after 2026), brackets, standardDeduction, wageBase, qbiThreshold (cents; `taxTableOptions` builds these from a JSON file).
+// skip the 20% deduction), children (under 17) and otherDependents (counts, for the child tax credit), qbiMinimum ({ floor, threshold } cents, years after 2026), brackets, standardDeduction, wageBase, qbiThreshold (cents; `taxTableOptions` builds these from a JSON file).
 // A year's figures from a JSON file in dollars, for a year the code has no table for (or to override one):
 // { "standardDeduction": 16900, "brackets": [[12800, 0.10], ..., [null, 0.37]], "qbiThreshold": 205000,
 //   "qbiMinimum": { "floor": 400, "threshold": 1000 }, "wageBase": 192300 }. A null last bound means no upper limit.
@@ -136,7 +136,25 @@ export function estimatedTax(books, o = {}) {
   const T = ADDL_MEDICARE_THRESHOLD[filing] ?? D(200000);
   const addlMedicare = Math.round(0.009 * (Math.max(0, wages - T) + Math.max(0, se.netEarnings - Math.max(0, T - wages))));
   if (addlMedicare) warnings.push("Includes the 0.9% Additional Medicare Tax (Form 8959) on earnings above " + T / 100 + "; an employer withholds it on wages over $200,000 only, so check the wage part against your W-2.");
-  const total = incomeTax + se.tax + addlMedicare;
+  // Child tax credit and credit for other dependents (Schedule 8812). Per-child amounts are opts so a
+  // later year can be passed in cents; the defaults are the 2026 figures from secondary sources (OBBBA
+  // $2,200 / $1,700 refundable / $500 other; not yet read in the IRS text), so every use warns.
+  const kids = Math.max(0, Math.floor(num(o.children))), others = Math.max(0, Math.floor(num(o.otherDependents)));
+  let childCredit = 0, refundableCredit = 0;
+  if (kids || others) {
+    const perChild = o.childCredit ?? D(2200), perOther = o.otherDependentCredit ?? D(500), refundCap = o.childCreditRefundable ?? D(1700);
+    const phaseFrom = o.childCreditThreshold ?? (filing === "mfj" ? D(400000) : D(200000));
+    // $50 less for each $1,000, or part of $1,000, of income over the threshold (modified AGI taken as AGI).
+    const over = Math.max(0, agi - phaseFrom), cut = Math.ceil(over / D(1000)) * D(50);
+    const full = kids * perChild + others * perOther, allowed = Math.max(0, full - cut);
+    const nonref = Math.min(allowed, incomeTax);
+    // What is left of the child part is refundable: up to refundCap per child and 15% of earned income over $2,500.
+    const earned = Math.max(0, profit - se.deduction) + wages;
+    const refundable = Math.min(Math.max(0, allowed - nonref), Math.max(0, allowed - others * perOther), kids * refundCap, Math.round(0.15 * Math.max(0, earned - D(2500))));
+    childCredit = nonref; refundableCredit = Math.max(0, refundable);
+    warnings.push("Child credits assume each child is under 17 with a Social Security number valid for work, and that you can claim them; the 2026 amounts ($2,200, $1,700 refundable, $500 other, phase-out over $200,000 or $400,000 joint) come from secondary sources, so check them against Schedule 8812 or pass childCredit, childCreditRefundable and childCreditThreshold in cents.");
+  }
+  const total = Math.max(0, incomeTax - childCredit) + se.tax + addlMedicare - refundableCredit;
   const marginal = (table.b.find(([hi]) => taxable <= hi) ?? [0, 0])[1];
 
   // Safe harbour: smaller of 90% of this year and 100%/110% of last year.
@@ -163,7 +181,7 @@ export function estimatedTax(books, o = {}) {
   // The rest is paid with the return: the balance, not a penalty.
   const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));
   warnings.push(...sc.warnings, ...se.warnings);
-  return { year, filing, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
+  return { year, filing, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, childCredit, refundableCredit, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
 }
 
 export { toCents };
