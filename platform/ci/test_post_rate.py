@@ -1,4 +1,5 @@
 import contextlib
+import collections
 import io
 import tempfile
 import unittest
@@ -55,6 +56,14 @@ class T(unittest.TestCase):
             out = buf.getvalue()
             self.assertEqual(out.count("#"), 14)
             self.assertEqual(out.split("top tags: ")[1].count("("), 8)
+
+    def test_days_zero_shows_no_rows(self):
+        out = post_rate.report(collections.Counter({"2026-10-01": 2}), collections.Counter(), last=0)
+        self.assertEqual(out.count("#"), 0)
+        self.assertIn("total 2 posts", out)
+
+    def test_crlf_front_matter_tags(self):
+        self.assertEqual(post_rate.tags_of("---\r\ntags: [a, b]\r\n---\r\nbody"), ["a", "b"])
 
     def test_default_root_is_repo_root(self):
         self.assertTrue((post_rate.ROOT / "CLAUDE.md").is_file())
