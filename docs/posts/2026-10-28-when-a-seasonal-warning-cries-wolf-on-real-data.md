@@ -1,7 +1,7 @@
 ---
 title: "A seasonal-drift warning, tested on five real series: right four times, wrong once"
 date: 2026-10-28
-description: "The changepoint detector warns when steps pile up inside two seasonal cycles. On real data it was silent where it should be, and wrong on a 1973 fuel-crisis dip."
+description: "The detector warns when steps pile up inside two seasonal cycles. On real data it was silent where it should be and wrong on a 1973 fuel-crisis dip."
 tags: [changepoint-detector, evaluation, time-series]
 ---
 
