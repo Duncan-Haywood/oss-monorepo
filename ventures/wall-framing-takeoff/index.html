@@ -249,6 +249,13 @@
     <div id="budgetOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-bids" id="bidsCard" hidden>
+    <h2 id="h-bids">Level subcontractor bids</h2>
+    <p class="note">Bids for the same scope rarely count the same. Paste one line per bid line as <code>bidder; item; quantity; unit price</code> (or <code>bidder; item; amount</code> with three fields), using the item names in the budget table above. A bid that is short on a quantity is priced up at its own unit price; scope it left out is priced from the other bids' median or your own price; anything with no price anywhere is listed, never guessed. Nothing is uploaded.</p>
+    <textarea id="bidText" rows="5" style="width:100%" aria-label="Bid lines, one per line" placeholder="Acme Framing; Wall sheathing; 40; 24&#10;Acme Framing; Labor, walls; 9000&#10;Bay Builders; Wall sheathing; 36; 26"></textarea>
+    <div id="bidsOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-drywall" id="drywallCard" hidden>
     <h2 id="h-drywall">Drywall</h2>
     <div id="drywallOut"></div>
@@ -329,7 +336,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -350,6 +357,7 @@
     import { layoutTrim, trimText } from "./trim.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
+    import { levelBids } from "./bidlevel.mjs";
     import { schedule, scheduleText, sampleSchedule } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -543,6 +551,7 @@
       }
       const source = plan;
       { const pr = parsePrices(); if (!pr.bad.length && Object.keys(pr.prices).length) plan.prices = pr.prices; }
+      { const pb = parseBids(); if (!pb.bad.length && pb.bids.length) plan.bids = pb.bids; }
       const tableText = $("#hdrTable").value.trim();
       let resolved = plan, hdrRows = [];
       if (tableText) {
@@ -704,6 +713,36 @@
       });
       return { prices, bad };
     }
+    function parseBids() {
+      const byName = new Map(), bad = [];
+      ($("#bidText").value || "").split(/\n+/).map((x) => x.trim()).filter(Boolean).forEach((line, n) => {
+        const t = line.split(/\s*[;|\t]\s*/).map((x) => x.trim());
+        const nums = t.slice(2).map(Number);
+        if ((t.length !== 3 && t.length !== 4) || !t[0] || !t[1] || nums.some((v) => !Number.isFinite(v) || v < 0)) { bad.push(`Bid line ${n + 1}: write it as  Acme; Wall sheathing; 40; 24  or  Acme; Wall sheathing; 960`); return; }
+        const l = t.length === 4 ? { item: t[1], qty: nums[0], unitPrice: nums[1] } : { item: t[1], amount: nums[0] };
+        if (!byName.has(t[0])) byName.set(t[0], []);
+        byName.get(t[0]).push(l);
+      });
+      return { bids: [...byName].map(([bidder, lines]) => ({ bidder, lines })), bad };
+    }
+    function renderBids() {
+      const card = $("#bidsCard");
+      if (!last?.budget) { card.hidden = true; return; }
+      card.hidden = false;
+      const pb = parseBids();
+      if (pb.bad.length) { $("#bidsOut").innerHTML = `<div class="err"><ul>${pb.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; return; }
+      if (!pb.bids.length) { $("#bidsOut").innerHTML = ""; return; }
+      const lv = levelBids(last.budget, pb.bids);
+      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      $("#bidsOut").innerHTML = `<table><thead><tr><th>Bidder</th><th class="n">As bid</th><th class="n">Added to level</th><th class="n">Leveled</th></tr></thead><tbody>${lv.bidders.map((b) => `<tr><td>${esc(b.bidder)}</td><td class="n">${m(b.bidTotal)}</td><td class="n">${m(b.additions)}</td><td class="n">${m(b.leveledTotal)}</td></tr>`).join("")}</tbody></table>
+        <ul>${lv.bidders.flatMap((b) => b.flags.map((f) => `<li>${esc(b.bidder)}: ${esc(f.kind)} ${esc(f.item)}: ${esc(f.note)}</li>`)).join("")}</ul>
+        ${lv.bidders.some((b) => b.unleveled.length) ? `<p class="note">No price anywhere, so not leveled: ${esc(lv.bidders.filter((b) => b.unleveled.length).map((b) => `${b.bidder} (${b.unleveled.join(", ")})`).join("; "))}.</p>` : ""}
+        ${lv.errors.length ? `<div class="err"><ul>${lv.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>` : ""}
+        <p><strong>${lv.lowestLeveled === lv.lowestAsBid ? `Lowest on both counts: ${esc(lv.lowestLeveled)}` : `Lowest as bid: ${esc(lv.lowestAsBid)}; lowest once leveled: ${esc(lv.lowestLeveled)}`}</strong></p>
+        <p class="note">Leveling compares quantities and scope, not quality, schedule, insurance or licence. Not advice on whom to hire.</p>`;
+      if (!bidsRecorded) { bidsRecorded = true; record("bids_leveled"); }
+    }
+    let bidsRecorded = false;
     function renderBudget() {
       const card = $("#budgetCard");
       if (!last) { card.hidden = true; return; }
@@ -718,6 +757,7 @@
         ${b.unpriced.length ? `<p class="note">Not in the total, no price typed: ${esc(b.unpriced.join("; "))}.</p>` : ""}
         <p class="note">Excludes equipment, permits, delivery and overhead. An estimate from the prices you typed, not a quote.</p>`;
       card.hidden = false;
+      renderBids();
     }
     function run() {
       const { plan, bad, source } = toPlan();
@@ -820,6 +860,7 @@
         $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
       }
       if (plan.prices && typeof plan.prices === "object") { $("#priceText").value = Object.entries(plan.prices).filter(([, v]) => Number.isFinite(v)).map(([k, v]) => `${k}, ${v}`).join("\n"); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } }
+      if (Array.isArray(plan.bids)) $("#bidText").value = plan.bids.flatMap((b) => (b.lines || []).map((l) => [b.bidder, l.item, ...(typeof l.amount === "number" ? [l.amount] : [l.qty, l.unitPrice])].join("; "))).join("\n");
       const dw = plan.drywall;
       $("#dwOn").checked = Boolean(dw); $("#dwFields").hidden = !dw;
       if (dw) {
@@ -936,6 +977,7 @@
       record("panel_order_downloaded");
     });
     $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
+    $("#bidText").addEventListener("input", renderBids);
     $("#budgetCsvBtn").addEventListener("click", () => { if (run() && last?.budget) { download("framing-budget.csv", "text/csv", budgetCsv(last.budget)); record("budget_csv_downloaded"); } });
     $("#savePlan").addEventListener("click", () => { const { source, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(source, null, 2)); record("plan_saved"); });
     $("#openPlan").addEventListener("change", async (e) => {
