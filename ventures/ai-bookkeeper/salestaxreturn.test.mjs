@@ -298,3 +298,11 @@ test("a per-month discount cap scales with the return period (Illinois: 1.75%, $
   const a = mk("annual").periods.flatMap((p) => p.rows).find((r) => r.jurisdiction === "CA state");
   assert.equal(a.discount, 150); // 40 x 12 = 480 does not bind
 });
+
+test("Texas: the 0.5% timely-filing discount is a plain --discount rate with no cap (comptroller.texas.gov sales tax page, 2026-10-28)", () => {
+  // the 1.25% prepayment discount needs a prepayment report and a 90% estimate, so it is not modelled
+  const r = salesTaxReturn(books(), { discounts: { "CA state": { rate: 0.005 } } });
+  const row = r.periods[0].rows.find((x) => x.jurisdiction === "CA state");
+  assert.equal(row.discount, Math.round(row.tax * 0.005));
+  assert.equal(row.payable, row.tax - row.discount);
+});
