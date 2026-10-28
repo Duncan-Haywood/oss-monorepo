@@ -1,7 +1,7 @@
 ---
 title: "A valid sequential audit that uses the coder costs more than one that ignores it"
 date: 2026-10-28
-description: "Betting confidence sequences make a stratified, coder-assisted audit of a rare emotion valid (99 to 100% coverage), but it needs 3 to 14 times the oracle sample, more than ignoring the coder."
+description: "A betting confidence sequence makes a coder-assisted rare-category audit valid (99 to 100% coverage) but needs 3 to 14 times the oracle sample, more than ignoring the coder."
 tags: [research, llm-coding-inference, statistics]
 ---
 
