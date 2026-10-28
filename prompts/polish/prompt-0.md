@@ -41,10 +41,12 @@ Steps: [`.github/prompts/land-your-work.md`](../../.github/prompts/land-your-wor
 ## Pick one piece of work
 
 Look before you choose. Build the site locally
-(`node platform/pages/build.mjs`, which writes a dist folder beside it, then
+(`node platform/pages/build.mjs`, which writes a dist folder beside it and
+takes over 120 s: use `run_in_background` and `platform/ci/wait_for.py`; then
 `node platform/pages/check.mjs`; see `platform/pages/README.md`)
-and screenshot it with the pre-installed Playwright at phone and desktop
-widths: the hub, one flagship from `portfolio/flagships.yaml`, a research
+and screenshot it with the pre-installed Playwright (from an ESM script in the
+repo `import pw from '/opt/node-tools/node_modules/playwright/index.js'`;
+a bare `playwright` import fails there) at phone and desktop widths: the hub, one flagship from `portfolio/flagships.yaml`, a research
 page, the Stories page and a blog post. Pick the weakest surface a visitor is
 most likely to see, not the easiest fix. Search open PRs
 (`search_pull_requests`, `polish in:title`, plus the page's slug) first.
