@@ -1,0 +1,47 @@
+{
+ "date": "2026-10-28",
+ "session": "https://claude.ai/code/session_01AcxTtK7ZgV2AwzC2489Juo",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-28T21:10:19Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11211",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "Data hosts (Purdue, RWTH, MDPI, DOAJ) 403 behind Cloudflare; no way to get the measured pressure trace the programme needs."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-28-load-sensing-margin-excavator-breakeven.md",
+  "research/heavy-hydraulics/LOG.md"
+ ],
+ "goal": null,
+ "notes": "Milestone 2d. Measured pressure trace for H4 still unobtained (blocked hosts). Local checks: homepage build ok, md links ok; CI checked after PR.",
+ "corrections": [],
+ "redteam": null
+}

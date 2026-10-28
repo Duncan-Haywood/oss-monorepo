@@ -79,3 +79,14 @@ cycles, because most phases are low-pressure and its 14 to 30 bar margin is then
 the load. Metering is 0.70 of load-sensing (0.58 to 0.83). So the 2a and 2b ratios depend on random
 high pressures; a measured pressure trace is what settles it. Details: [`LOG.md`](LOG.md),
 `experiments/physics_cycle_results.txt`.
+
+## Milestone 2d: the same force model with sourced margins
+
+Pinning the margins to opened sources (load-sensing differential limiter 25 bar from a simulated
+midi-excavator thesis, Briganti 2022; open-centre block drop 6 bar and pump efficiency 0.883 from
+Juza and Hermanek 2023) reverses the picture: load-sensing uses a median **1.04** of open-centre
+energy (0.83 to 1.26) and loses in 61% of cycles; the break-even margin is near 23 bar. Metering
+stays below load-sensing in every cycle (median 0.66). The two margins come from different machines
+and the pressures are still the assumed force model, so this is a sensitivity result, not an energy
+figure. Run `python3 experiments/physics_cycle.py --sourced`; output in
+`experiments/physics_cycle_sourced_results.txt`; reasoning in [`LOG.md`](LOG.md).
