@@ -216,6 +216,16 @@ test("--eaves counts soffit, fascia and J-channel from the roof, and needs a roo
   assert.equal(main(["plan.json", "--eaves"], () => JSON.stringify(samplePlan())).code, 1);
 });
 
+test("--gutters counts gutter, downspouts and fittings from the roof, and needs a roof", () => {
+  const plan = { ...samplePlan(), roof: sampleRoof(), prices: { gutterSection: 12 } };
+  const a = main(["plan.json", "--gutters", "--budget"], () => JSON.stringify(plan));
+  assert.equal(a.code, 0);
+  assert.match(a.out, /GUTTERS AND DOWNSPOUTS\n  Gutter: 84 ft in 2 run/);
+  assert.match(a.out, /Gutter sections/);
+  assert.equal(main(["plan.json"], () => JSON.stringify(plan)).out.includes("GUTTERS"), false);
+  assert.equal(main(["plan.json", "--gutters"], () => JSON.stringify(samplePlan())).code, 1);
+});
+
 test("--stairs prints the stair layout and pools its lumber", () => {
   const plan = { ...samplePlan(), stairs: { totalRise: "9ft", tread: 10, openingLength: "10ft" } };
   const r = run(["p.json", "--stairs", "--json"], plan);
