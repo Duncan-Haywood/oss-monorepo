@@ -126,6 +126,26 @@ function dayFirstOf(lines) {
   return DAY_FIRST_LOCALE.test(lines.join("\n")) || null;
 }
 
+// A date OCR broke (69/02/2018, 05/61/2018, 92/02/2018) that no digit order can
+// read. Try one look-alike digit at a time (6, 9, 8 and 2 for 0; 4 for 0 or 1)
+// and accept only when exactly one reading is a real date, so a field with two
+// readings (42 is 12 or 02) stays unread and the receipt asks for the date.
+const DATE_LOOK = { 6: ["0"], 9: ["0"], 8: ["0"], 2: ["0"], 4: ["0", "1"] };
+function repairDate(lines, dayFirst) {
+  for (const l of lines) for (const m of l.matchAll(/(?<![\d/-])(\d{1,2})([-/])(\d{1,2})\2(\d{4}|\d{2})(?![\d/-])/g)) {
+    if (parseDate(m[0], true) || parseDate(m[0], false)) continue;
+    const found = new Set();
+    for (const f of [1, 3]) for (let k = 0; k < m[f].length; k++) for (const r of DATE_LOOK[m[f][k]] ?? []) {
+      const alt = m[f].slice(0, k) + r + m[f].slice(k + 1);
+      const d = parseDate(`${f === 1 ? alt : m[1]}${m[2]}${f === 3 ? alt : m[3]}${m[2]}${m[4]}`, dayFirst);
+      if (d) found.add(d);
+    }
+    // a year OCR also garbled (2087, 2078) would turn a receipt that asks into a wrong date
+    if (found.size === 1 && +[...found][0].slice(0, 4) <= new Date().getUTCFullYear() + 1) return { d: [...found][0], was: m[0] };
+  }
+  return null;
+}
+
 export function parseReceipt(block, { dayFirst = null } = {}) {
   const lines = cleanOcr(String(block)).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const notes = [];
@@ -143,8 +163,12 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     }
   });
   cands.sort((a, b) => a.rank - b.rank || a.i - b.i);
-  const date = cands[0]?.d ?? null;
+  let date = cands[0]?.d ?? null;
   if (date && guess === null && cands[0].amb) notes.push("day and month order guessed (month first); check the date");
+  if (!date) {
+    const fixed = repairDate(lines, dmy || comma === true);
+    if (fixed) { date = fixed.d; notes.push(`date repaired from OCR (${fixed.was}); check the date`); }
+  }
   if (!date) notes.push("no date found");
 
   // merchant: the first line that is words, not an address, phone, date or amount
