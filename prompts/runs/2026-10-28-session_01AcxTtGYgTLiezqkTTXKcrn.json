@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01AcxTtGYgTLiezqkTTXKcrn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T21:13:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1 ai-bookkeeper: built-in keyword probe 3",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 11212,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Did not run venture-preflight (5+ min); change is rules plus eval only",
+      "did": "ran full venture test suite",
+      "result": "1742 pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-what-a-bookkeeping-keyword-list-misses-for-restaurants-and-mechanics.md",
+    "ventures/ai-bookkeeper/README.md Next"
+  ],
+  "goal": null,
+  "notes": "Probe tuned on itself; 4 own expectations corrected. 1742 venture tests pass locally. venture-preflight and CI not run locally.",
+  "corrections": [],
+  "redteam": null
+}
