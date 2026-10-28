@@ -1007,6 +1007,10 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (tradesSkipped) problems.push(`${tradesSkipped} brokerage buy/sell line${tradesSkipped === 1 ? " was" : "s were"} not booked: they move value between cash and securities. Dividends, interest, fees and transfers in the file are booked.`);
   else if (bank === "schwab-brokerage" && !out.length) problems.push("The file has the Schwab transactions header but no transaction rows (an empty period).");
   if (currencies.size > 1) problems.push(`The file mixes currencies (${[...currencies].join(", ")}). Amounts are booked as written, with no conversion: import each currency on its own account.`);
+  // A processor's own export (PayPal activity, Stripe balance, Square): the amount column read is Net, so sales are
+  // understated and fees never booked. `payouts` splits them; say so rather than leave a clean-looking import.
+  if (out.length && ["gross", "fee", "net"].every((k) => hdr.includes(k)) && ["transaction id", "balance_transaction_id", "id"].some((k) => hdr.includes(k)))
+    problems.push("This looks like a payment processor's export (Gross, Fee and Net columns). Imported as a bank statement it books the Net only, so sales are understated and fees are missing. Use `payouts FILE` (the page's payout box) to book sales and fees separately.");
   let inferred = null;
   let flip = !!invert;
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {
