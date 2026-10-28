@@ -1,7 +1,7 @@
 ---
 title: "A Wilson interval for LLM-coded audits of rare emotions"
 date: 2026-10-28
-description: "On GoEmotions fear and sadness, a pooled prediction-powered estimate with a Wilson interval on its effective sample size covers 92 to 97% at audits of 400 to 1,000 labels."
+description: "On GoEmotions fear and sadness, a pooled PPI estimate with a Wilson interval on its effective sample size covers 92 to 97% at audits of 400 to 1,000 labels."
 tags: [research, llm-coding-inference, statistics, measurement]
 ---
 
