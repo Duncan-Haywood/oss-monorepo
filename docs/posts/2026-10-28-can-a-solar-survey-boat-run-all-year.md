@@ -1,7 +1,7 @@
 ---
 title: "Can a solar survey boat hold 1 m/s all year? NASA POWER data at five sites"
 date: 2026-10-28
-description: "A 5 m, 200 kg monohull with deck solar sustains survey speed in all 12 months near the equator but only 5 months at 60 N; annual-mean insolation hides the winter."
+description: "A 5 m, 200 kg monohull on deck solar sustains survey speed in all 12 months near the equator but only 5 months at 60 N; annual-mean insolation hides winter."
 tags: [research, marine, solar, usv]
 ---
 
