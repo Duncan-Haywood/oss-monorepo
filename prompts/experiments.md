@@ -1597,7 +1597,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
 
-## E105: review 2026-10-28 (reduced pass, thirty-second run)
+## E106: review 2026-10-28 (reduced pass, thirty-third run)
 
 - Change: (research/CLAUDE.md torch fix landed on main first by another run; mine dropped on merge.) Re-ran `derive.py fetch && build`
   extra-index install (about 2 min) and warns plain pip took 25 min (live
@@ -1605,6 +1605,13 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   (3624 rows).
 - Metric: friction reports naming `research/CLAUDE.md` about the torch install;
   compare the next 40 runs.
+
+- Change: `prompts/redteam/prompt-0.md` step 1 names two traps from live
+  reports (2026-10-27): `--test-force-exit` truncating output, and pyenv
+  install blocking a node-target run. Re-ran `derive.py fetch && build`
+  (3624 rows).
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about those two
+  traps; compare the next 40 runs.
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
