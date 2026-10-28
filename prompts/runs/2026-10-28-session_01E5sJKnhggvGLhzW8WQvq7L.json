@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKnhggvGLhzW8WQvq7L",
+  "track": "review",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-28T02:17:38Z",
+  "ended": "2026-10-28T02:22:06Z",
+  "wall_minutes": 4.53,
+  "tokens_in": 1198218,
+  "tokens_out": 5012,
+  "cost_usd": 0.4536,
+  "tool_calls": 20,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11020",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "issue": "Running derive.py fetch in background and measure together risks the shallow.lock the prompt warns about; fetch finished fine but the order is easy to miss."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "why": "Reduced pass (scheduled run): no audit or drift report.",
+      "did": "steps 1,3,7,8 plus one fix",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "prompts/experiments.md"
+  ],
+  "goal": null,
+  "notes": "Fixed 3 validate failures on others' files. Episode length range in creative prompt comes from a friction report, not a located test.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "250f36df-73c6-557a-94ac-2e2467232bf1",
+    "transcripts": 1,
+    "first": "2026-10-28T02:17:38Z",
+    "last": "2026-10-28T02:22:10Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 18,
+        "input": 36,
+        "output": 5012,
+        "thinking": 438,
+        "cache_read": 1155077,
+        "cache_write_5m": 0,
+        "cache_write_1h": 43105,
+        "api_equivalent_usd": 0.4536,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 18,
+      "input": 36,
+      "output": 5012,
+      "thinking": 438,
+      "cache_read": 1155077,
+      "cache_write_5m": 0,
+      "cache_write_1h": 43105,
+      "api_equivalent_usd": 0.4536,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 20,
+    "tools": {
+      "Bash": 16,
+      "Read": 2,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.53,
+      "active_minutes": 4.53,
+      "model_minutes": 0.8,
+      "tool_minutes": 3.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
