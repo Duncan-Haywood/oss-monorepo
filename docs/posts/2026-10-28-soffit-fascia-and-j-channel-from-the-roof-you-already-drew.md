@@ -1,7 +1,7 @@
 ---
 title: "Soffit, fascia and J-channel counted from the roof you already drew"
 date: 2026-10-28
-description: "wall-framing-takeoff now counts soffit panels, fascia boards and J-channel from the plan's roof overhangs, packed into stock lengths."
+description: "wall-framing-takeoff's page now counts soffit, fascia and J-channel from the roof overhangs: a 40 x 28 ft gable sample needs 8 panels, 11 fascia boards."
 tags: [wall-framing-takeoff, construction, exterior]
 ---
 
