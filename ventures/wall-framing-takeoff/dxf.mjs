@@ -25,7 +25,7 @@
  * @returns {{ segs: Seg[], polys: { id: number, layer: string, pts: Pt[] }[], insunits: number, inserts: number, arcs: number, binary: boolean, blocks: Record<string, any>, insertList: any[] }}
  */
 export function parseDxf(text) {
-  if (text.startsWith("AutoCAD Binary DXF")) return { segs: [], polys: [], insunits: 0, inserts: 0, arcs: 0, binary: true, blocks: {}, insertList: [] };
+  if (text.startsWith("AutoCAD Binary DXF")) return { segs: [], polys: [], insunits: 0, inserts: 0, arcs: 0, binary: true, blocks: {}, insertList: [], arcList: [] };
   const lines = text.split(/\r?\n/);
   /** @type {[number, string][]} */
   const pairs = [];
@@ -41,6 +41,8 @@ export function parseDxf(text) {
   const blocks = {};
   /** @type {{ name: string, layer: string, x: number, y: number, sx: number, sy: number, rot: number }[]} */
   const insertList = [];
+  /** @type {{ layer: string, x: number, y: number, r: number }[]} */
+  const arcList = [];
   let curBlock = null;
   let i = 0;
   while (i < pairs.length) {
@@ -112,10 +114,17 @@ export function parseDxf(text) {
       const n = (code, d) => { const f = parseFloat(get(code) ?? ""); return Number.isFinite(f) ? f : d; };
       insertList.push({ name: get(2) ?? "", layer, x: n(10, NaN), y: n(20, NaN), sx: n(41, 1), sy: n(42, n(41, 1)), rot: n(50, 0) });
     }
-    else if (v === "ARC" || v === "CIRCLE") arcs++;
+    else if (v === "ARC" || v === "CIRCLE") {
+      arcs++;
+      if (v === "ARC") {
+        const n = (code) => parseFloat(get(code) ?? "NaN");
+        const q = { layer, x: n(10), y: n(20), r: n(40) };
+        if ([q.x, q.y, q.r].every(Number.isFinite)) arcList.push(q);
+      }
+    }
     i = j;
   }
-  return { segs, polys, insunits, inserts, arcs, binary: false, blocks, insertList };
+  return { segs, polys, insunits, inserts, arcs, binary: false, blocks, insertList, arcList };
 }
 
 /**
@@ -595,6 +604,11 @@ export function planFromDxf(text, opt = {}) {
   const bar = barLines.filter((s) => !usedBar.has(s));
   /** @type {{ a: Pt, b: Pt, kind?: string }[]} */
   const op = [...mergeCollinear(bar.map((s) => ({ ...s })), 0.5 * Math.PI / 180, snap, 0.5), ...bridgeOps];
+  const joined = joinJambs(op, parsed.arcList.filter((a) => doorLayer.test(a.layer)).map((a) => ({ x: a.x * scale, y: a.y * scale, r: a.r * scale })), walls);
+  if (joined) {
+    op.splice(0, op.length, ...joined.ops);
+    notes.push(`${joined.n} door symbol${joined.n === 1 ? "" : "s"} drawn as two jamb pieces joined into one opening by the swing arc (width = jamb outer edge to jamb outer edge; trim to your rough opening).`);
+  }
   if (parsed.inserts) {
     const ins = insertOpenings(parsed.insertList, parsed.blocks, scale, walls, doorLayer, windowLayer);
     // a symbol over an opening a line already marks is the same opening
@@ -648,6 +662,59 @@ export function planFromDxf(text, opt = {}) {
   const plan = { walls: out };
   const ext = out.filter((w) => w.corner).length;
   return { ok: true, errors: [], notes, plan, stats: { walls: out.length, exterior: ext, interior: out.length - ext, tees: tees.length, openings: placed, crossings: crossings.length } };
+}
+
+/**
+ * Real door symbols (a CAD library's d1 to d4) draw only the jambs along the
+ * wall, as short pieces at each end, plus a swing arc per leaf. Read alone
+ * each jamb is a 4 in "door". Two neighbouring opening pieces on one wall are
+ * one opening when a door-layer arc has a radius near the gap between them
+ * (one leaf) or near half of it (a pair of leaves) and its centre lies within
+ * the span.
+ * @param {{ a: Pt, b: Pt, kind?: string }[]} ops
+ * @param {{ x: number, y: number, r: number }[]} arcs inches
+ * @param {{ a: Pt, b: Pt }[]} walls inches
+ */
+function joinJambs(ops, arcs, walls) {
+  if (!arcs.length || ops.length < 2) return null;
+  const tol = 0.15, snapTo = 6;
+  const used = new Set();
+  const out = [];
+  let n = 0;
+  for (const W of walls) {
+    const L = dist(W.a, W.b);
+    if (!(L > 0)) continue;
+    const ux = (W.b.x - W.a.x) / L, uy = (W.b.y - W.a.y) / L;
+    const along = (q) => (q.x - W.a.x) * ux + (q.y - W.a.y) * uy;
+    const off = (q) => Math.abs((q.x - W.a.x) * uy - (q.y - W.a.y) * ux);
+    const here = ops.map((o, k) => ({ o, k, lo: Math.min(along(o.a), along(o.b)), hi: Math.max(along(o.a), along(o.b)) }))
+      .filter((e) => !used.has(e.k) && off(e.o.a) < snapTo && off(e.o.b) < snapTo && e.hi > -snapTo && e.lo < L + snapTo)
+      .sort((p, q) => p.lo - q.lo);
+    // pieces closer than 12 in are one jamb
+    const jambs = [];
+    for (const e of here) {
+      const last = jambs[jambs.length - 1];
+      if (last && e.lo - last.hi < 12) { last.hi = Math.max(last.hi, e.hi); last.ks.push(e.k); } else jambs.push({ lo: e.lo, hi: e.hi, ks: [e.k] });
+    }
+    for (let m = 0; m + 1 < jambs.length; m++) {
+      const p = jambs[m], q = jambs[m + 1];
+      if (p.used || q.used || p.hi - p.lo > 12 || q.hi - q.lo > 12) continue; // a jamb is a few inches; a wider piece is an opening already
+      const gap = q.lo - p.hi;
+      if (gap > 240) continue;
+      const ok = arcs.some((a) => {
+        const t = along(a);
+        return off(a) < 2 * snapTo + 12 && t >= p.lo - snapTo && t <= q.hi + snapTo && [gap, gap / 2].some((w) => Math.abs(a.r - w) <= tol * w + 3);
+      });
+      if (!ok) continue;
+      p.used = q.used = true;
+      for (const k of [...p.ks, ...q.ks]) used.add(k);
+      n++;
+      const at = (t) => ({ x: W.a.x + ux * t, y: W.a.y + uy * t });
+      out.push({ a: at(p.lo), b: at(q.hi), kind: "door" });
+    }
+  }
+  if (!n) return null;
+  return { n, ops: [...ops.filter((_, k) => !used.has(k)), ...out] };
 }
 
 function pointSeg(p, s) {

@@ -198,3 +198,23 @@ test("a block symbol over a door line is not counted twice", () => {
   assert.equal(r.plan.walls[0].openings.length, 1);
   assert.match(r.notes.join("\n"), /1 already marked by a line/);
 });
+
+// A CAD library's door symbols (checked 2026-10-28 on four of LibreCAD's plan/doors files, GPL so not
+// kept here) draw only the jambs along the wall plus a swing arc per leaf. This copies that structure
+// with made-up numbers: a double door whose jambs sit 118 in apart and two 60 in leaf arcs.
+test("jamb pieces and swing arcs read as one door, not several 4 in doors", () => {
+  const g = (c, v) => `${c}\n${v}\n`;
+  const jamb = (x0, x1) => [["A-DOOR", x0, -3.75, x0, 3.75], ["A-DOOR", x0, 3.75, x1, 3.75], ["A-DOOR", x1, 3.75, x1, -3.75], ["A-DOOR", x1, -3.75, x0, -3.75]];
+  const arc = (x, a0, a1) => g(0, "ARC") + g(8, "A-DOOR") + g(10, x) + g(20, 0) + g(40, 60) + g(50, a0) + g(51, a1);
+  const lines = [...house().filter((l) => l[0] === "A-WALL"), ...jamb(100, 103.4), ...jamb(221.6, 225)];
+  const r = planFromDxf(dxf(lines, 1, arc(102, 270, 360) + arc(222, 180, 270)));
+  assert.ok(r.ok, r.errors.join());
+  const ops = r.plan.walls[0].openings;
+  assert.equal(ops.length, 1);
+  assert.equal(ops[0].offset, 100);
+  assert.equal(ops[0].width, 125);
+  assert.ok(r.notes.some((n) => /joined into one opening/.test(n)));
+  // without the arcs there is nothing to say the two jambs belong together
+  const bare = planFromDxf(dxf(lines));
+  assert.ok(!bare.notes.some((n) => /joined into one opening/.test(n)));
+});
