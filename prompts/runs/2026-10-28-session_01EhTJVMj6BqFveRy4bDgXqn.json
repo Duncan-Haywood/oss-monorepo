@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01EhTJVMj6BqFveRy4bDgXqn",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo, ship revenue software",
+  "input_sha256": "e7825f9e53ed2ad3bad2e6a88c174211ce791dc39bfa70f5331352f4f2491510",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T14:06:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 11134,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not run full CI locally; ran salestaxreturn.test.mjs (37 pass)."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Explore: DC annual sales tax return period (ends Sep 30, due Oct 20) in ai-bookkeeper. Source was a search excerpt; state sites blocked by proxy. Small slice; flagship is saturated.",
+  "corrections": [],
+  "redteam": null
+}
