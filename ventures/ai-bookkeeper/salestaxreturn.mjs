@@ -67,7 +67,7 @@ export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 
 // the 1st, late after the 20th; WA monthly = 25th but quarterly = end of the next month.
 // Checked 2026-10-24 (search excerpts of tax.ny.gov ST-100 instructions, tax.illinois.gov ST-1
 // instructions, revenue.pa.gov REV-819): NY, IL and PA monthly and quarterly returns are due the
-// 20th, next business day if that is a weekend or holiday. WA annual returns are due April 15 (modelled in stateDueDay, 2026-10-27).
+// 20th, next business day if that is a weekend or holiday (IL re-read in full on the ST-1 instructions R-01/26, 2026-10-28: the 20th after the period, discount 1.75% capped $1,000 a month, `--discount "<label>=1.75"`). WA annual returns are due April 15 (modelled in stateDueDay, 2026-10-27).
 // NY quarters are Mar-May, Jun-Aug, Sep-Nov, Dec-Feb (due the 20th after), not calendar quarters;
 // PA semiannual periods are Feb-Jul and Aug-Jan (due Aug 20 and Feb 20). Both are modelled via
 // stateEndMonth (NY quarterly ends in Feb, PA semiannual in Jan); other states use calendar periods.
