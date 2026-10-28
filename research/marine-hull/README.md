@@ -19,7 +19,8 @@ lab has reviewed this.
 
 ```bash
 cd research/marine-hull
-PYTHONPATH=src python3 -m pytest tests -q          # 34 tests
+PYTHONPATH=src python3 -m pytest tests -q          # 45 tests
+PYTHONPATH=src python3 experiments/run_solar.py > experiments/results_solar.txt   # milestone 5c, 5 s
 PYTHONPATH=src:experiments python3 experiments/run_foil.py > experiments/results_foil.txt   # milestone 5
 PYTHONPATH=src:experiments python3 experiments/run_swath.py > experiments/results_swath.txt   # milestone 5b, 25 s
 PYTHONPATH=src python3 experiments/run_michell.py > experiments/results_michell.txt   # milestone 2, 2 s
@@ -43,6 +44,8 @@ Results: [`experiments/results_michell.txt`](experiments/results_michell.txt).
 `glider.py` (milestone 4): quasi-steady buoyancy glider (force balance, best-glide incidence, pump work
 B tan(gamma)/(2 eta), independent of depth) against a same-mass propeller AUV. No glider coefficient is
 sourced (the cited papers were unreachable); all are swept. Results: [`experiments/results_glider.txt`](experiments/results_glider.txt).
+
+`solar.py` (milestone 5c): daily-mean deck solar (area x efficiency x derate x insolation, all swept) against the monohull's load. Energy-neutral at 1 m/s in 25% of 4,374 cases (0% at 3 m, 20% at 4 m, 56% at 5 m hull length); no case sustains 2 m/s; otherwise solar doubles range (median). Results: [`experiments/results_solar.txt`](experiments/results_solar.txt).
 
 `experiments/run_slocum.py` (milestone 4b): the same glider model with Slocum aerodynamics read from the
 MIT-licensed `gliderflight` package (PyPI 1.2.1; Merckelbach's implementation of the Slocum flight model):
