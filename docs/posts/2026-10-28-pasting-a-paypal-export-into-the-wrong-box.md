@@ -1,7 +1,7 @@
 ---
 title: "What happens when you import a PayPal export as a bank statement"
 date: 2026-10-28
-description: "A public PayPal activity sample imported as a bank file books only the Net column, so sales shrink and fees vanish. ai-bookkeeper now says so and points to the payouts command."
+description: "A PayPal activity sample imported as a bank file books only Net: sales shrink, fees vanish. ai-bookkeeper now warns and points to the payouts command."
 tags: [ai-bookkeeper, paypal, bookkeeping]
 ---
 
