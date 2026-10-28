@@ -34,7 +34,7 @@ flagships:
       IIF journals; page, CLI and agent engine. Learning curve measured on
       synthetic data (README Verification).
     next: >-
-      Tested on hand-written fixtures; next are real inputs. Open items, most valuable first: (0) built-in keywords measured on one real makerspace's bank export (72.7%
+      Tested on fixtures; next are real inputs. Open items, most valuable first: (0) built-in keywords measured on one real makerspace's bank export (72.7%
       suggested, 96% right, tuned on itself) and on synthetic sets (README Next):
       HCB card feed and Actual Budget samples held out (README Next, no labels); wanted: labelled books; (1) the AI layer in fill-only mode
       on real bank descriptions, more seeds, a bigger model (synthetic so far; README Next); (2) the bank readers (fixture sweeps saturated: only a real export adds signal)
