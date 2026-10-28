@@ -34,6 +34,16 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Small-business spend probe 3 (2026-10-28, eval/probe-trades3.mjs, 79 descriptors; agent-written from the companies' public names, not from a real export; tuned on itself):
+  // restaurants, auto repair, landscaping, cleaning, tutors, web agencies and online sellers. First so "Restaurant Depot" beats the generic restaurant word.
+  ["6100", "out", /restaurant depot|sysco|\bus foods\b|webstaurant|napa auto|o.?reilly auto|advance auto parts|matco|snap-on|john deere landscapes|siteone|stihl|unifirst|\bcintas\b|alibaba|faire wholesale|\buline\b/],
+  ["4000", "in", /toast (inc )?payout|grubhub|wyzant|chegg tutors|toptal|contra payout|amazon seller|ebay managed payments/],
+  ["6090", "out", /ecolab|hobart service|grease trap|safety-kleen/],
+  ["6060", "out", /toast pos|7shifts|homebase|mitchell1|tekmetric|carfax|\blmn software|zenmaid|kajabi|thinkific|acuity scheduling|linear\.app|envato|sellersprite|helium ?10|jungle ?scout/],
+  ["6170", "out", /servsafe|coach federation|\bicf dues/],
+  ["6030", "out", /workers.? comp/],
+  ["6000", "out", /local services ads/],
+  ["6110", "out", /franchise royalty/],
   // Small-business spend probe 2 (2026-10-28, eval/probe-trades2.mjs, 92 descriptors; agent-written from the companies' public names, not from a real export; tuned on itself):
   // freight, farms, clinics, childcare, salons, fitness studios, photographers, realtors and bookkeepers. First so "IFTA fuel tax" and "AICPA membership" beat the generic fuel and accountant words.
   ["6110", "out", /\bifta\b|prepass|\bmls (access|dues|fee)|\b(cosmetology|nursing|medical|real estate|contractors?) board\b|board of (dentistry|nursing|cosmetology|pharmacy|medicine)|(dentistry|dental) board|\bbmi\b.*licens|\bascap\b|\bsesac\b|child ?care licens|farmers.? market (vendor|fee)/],

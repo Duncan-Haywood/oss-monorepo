@@ -255,6 +255,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: The Funeral Soup, Santa Marija tal-Qlajja, Gozo, 2044; text only.)* A 100 L pot left overnight: 13 h time constant, 57 C at 06:17, 46 C at 11:00; 12 shallow pans in ice water need about 100 kg of ice (36 MJ / 355 kJ per kg); rule cited is the US Food Code's, not Maltese law.
+
 - *(Done: The First Draw, Scoil Bhríde, Cill Mhuire, Co. Longford, 2037; text only.)* A water office says flush for thirty seconds; ten one-litre bottles show the lead pipe (11 m x 0.28 L/m = 3.1 L, behind 2.3 L of copper) sits at litres 2.3 to 5.4, so thirty seconds (3 L) makes the first cup about seven times worse (21 vs 3.1 micrograms a litre); a two-minute flush, filters, no part-replacement, and the school's roof fund pays for its 7 m.
 
 - *(Done: Before the Fourteenth, Pé da Serra, Alentejo, 2050; text only.)* Altar-wine harvest date, pH and free sulphur, and a chiller; the old vines risked on purpose.
