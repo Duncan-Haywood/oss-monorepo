@@ -1,7 +1,7 @@
 ---
 title: "What a real CAD door symbol did to our wall-framing import"
 date: 2026-10-28
-description: "Four door symbols from a real CAD library, dropped into a made-up house, showed the DXF reader counting one double door as several 4-inch doors. Here is the fix."
+description: "Four real CAD door symbols, put in a made-up house, showed our DXF reader counting one double door as several 4-inch doors. Here is the fix."
 tags: [wall-framing-takeoff, construction, dxf]
 ---
 
