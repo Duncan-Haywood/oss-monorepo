@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
 import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText } from "./stairs.mjs";
+import { checkWinders, winderText } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
 
@@ -164,4 +165,29 @@ test("rail: two guarded sides double the parts, and guard rails join the order",
 test("rail: a handrail height outside 34 to 38 in is flagged", () => {
   const l = layoutStair({ totalRise: 108, tread: 10, rail: { handrailHeight: 40 } }, plan());
   assert.ok(l.notes.some((n) => /Handrail height 40/.test(n)));
+});
+
+
+test("three 30 degree winders with a zero pivot fail the 6 in rule, and the solved radius passes", () => {
+  const z = checkWinders({ count: 3, innerRadius: 0 });
+  assert.equal(z.ok, false);
+  assert.equal(z.narrow, 0);
+  assert.ok(Math.abs(z.walk - 12 * Math.PI / 6) < 1e-9); // 6.28 in at 12 in out
+  assert.ok(Math.abs(z.minInnerRadius - 6 / (Math.PI / 6)) < 1e-9); // 11.459 in, from the 6 in rule
+  assert.equal(checkWinders({ count: 3, innerRadius: z.minInnerRadius }).ok, true);
+  assert.equal(checkWinders({ count: 3, innerRadius: z.minInnerRadius - 0.1 }).ok, false);
+});
+
+test("the 10 in walkline rule binds when treads are few and wide, the 6 in rule when many", () => {
+  assert.ok(Math.abs(checkWinders({ count: 2 }).minInnerRadius - Math.max(6 / (Math.PI / 4), 10 / (Math.PI / 4) - 12)) < 1e-9);
+  const w = checkWinders({ count: 3, turn: 60, innerRadius: 0 }); // 20 degree treads, theta .349
+  assert.ok(Math.abs(w.minInnerRadius - Math.max(6 / (Math.PI / 9), 10 / (Math.PI / 9) - 12)) < 1e-9);
+  assert.ok(checkWinders({ count: 4 }).minInnerRadius > checkWinders({ count: 3 }).minInnerRadius);
+});
+
+test("winder input is validated and the text names the fix", () => {
+  assert.equal(checkWinders({ count: 1 }).ok, false);
+  assert.equal(checkWinders({ turn: 0 }).ok, false);
+  assert.match(winderText(checkWinders({ count: 3 })).join("\n"), /smallest inner radius that passes is 11\.5 in/);
+  assert.match(winderText(checkWinders({ count: 3, innerRadius: 12 })).join("\n"), /pass/);
 });

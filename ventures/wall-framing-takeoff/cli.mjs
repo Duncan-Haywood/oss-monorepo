@@ -10,7 +10,7 @@ import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutInsulation, insulationText } from "./insulation.mjs";
 import { layoutTrim, trimText } from "./trim.mjs";
 import { layoutFasteners, fastenerText } from "./fasteners.mjs";
-import { layoutStair, stairCuts, stairText, layoutStairWithLanding, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
+import { layoutStair, stairCuts, stairText, layoutStairWithLanding, landingCuts, landingText, checkWinders, winderText, STAIR_LIMITS } from "./stairs.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
@@ -131,6 +131,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
       const withLanding = st.landing || st.totalRise > (st.limits?.maxRise ?? STAIR_LIMITS.maxRise);
       const l = withLanding ? layoutStairWithLanding({ id: `Stair ${i + 1}`, ...st }, plan) : layoutStair({ id: `Stair ${i + 1}`, ...st }, plan);
       if (!l.ok) return { code: 1, out: `The stairs have problems:\n${l.errors.map((e) => `  - ${e}`).join("\n")}` };
+      if (st.winders) { l.winders = checkWinders(typeof st.winders === "object" ? { width: st.width, ...st.winders } : { width: st.width }); if (!l.winders.ok && !l.winders.problems) return { code: 1, out: `The winders have problems:\n${winderText(l.winders).join("\n")}` }; }
       stairs.push(l);
     }
   }
@@ -227,7 +228,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   lines.push("  K = king, C = corner backing, T = tee backing; jacks sit inside the kings.");
   if (r.sheathing) lines.push("", `SHEATHING (panels run ${r.sheathing.orientation === "horizontal" ? "horizontally, course by course from the floor" : "vertically from the wall start"}; lengths left to right)`, ...sheathingText(r.sheathing));
   if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
-  if (r.stairs) lines.push("", "STAIRS", ...r.stairs.flatMap((x) => (x.flights ? landingText(x) : stairText(x))));
+  if (r.stairs) lines.push("", "STAIRS", ...r.stairs.flatMap((x) => [...(x.flights ? landingText(x) : stairText(x)), ...(x.winders ? winderText(x.winders) : [])]));
   if (r.foundation) lines.push("", "FOUNDATION", ...foundationText(r.foundation));
   if (r.drywall) lines.push("", "DRYWALL", ...drywallText(r.drywall));
   if (r.fasteners) lines.push("", "FASTENERS", ...fastenerText(r.fasteners));
