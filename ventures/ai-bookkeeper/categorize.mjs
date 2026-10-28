@@ -34,6 +34,22 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Small-business spend probe 2 (2026-10-28, eval/probe-trades2.mjs, 92 descriptors; agent-written from the companies' public names, not from a real export; tuned on itself):
+  // freight, farms, clinics, childcare, salons, fitness studios, photographers, realtors and bookkeepers. First so "IFTA fuel tax" and "AICPA membership" beat the generic fuel and accountant words.
+  ["6110", "out", /\bifta\b|prepass|\bmls (access|dues|fee)|\b(cosmetology|nursing|medical|real estate|contractors?) board\b|board of (dentistry|nursing|cosmetology|pharmacy|medicine)|(dentistry|dental) board|\bbmi\b.*licens|\bascap\b|\bsesac\b|child ?care licens|farmers.? market (vendor|fee)/],
+  ["6170", "out", /\baicpa\b|\bnar dues\b|yoga alliance|american red cross|\bcpr\b.*(training|class|cert)|\bnational association of/],
+  ["6160", "out", /\bloves travel|\bta petro|\bpetro \d|road ranger|speedway \d|sapp bros/],
+  ["6060", "out", /\bdat solutions|truckstop\.com|motive tech|samsara|keeptruckin|athenahealth|simplepractice|jane app|claim\.?md|brightwheel|vagaro|styleseat|mindbody inc|zenplanner|pushpress|glofox|pic-?time|smugmug|pixieset|honeybook|dubsado|follow ?up boss|dotloop|\bkarbon\b|practice ignition|toggl|clockify|\bgusto\b|drake software|tax preparation software|\bloom\b|calendly|\bzocdoc|\bkvcore|\bboomtown\b/],
+  ["4000", "in", /availity|\bcacfp\b|\busda fsa\b|teachers pay teachers|kindercare|booksy|fresha|mindbody payout|classpass|booth rent|market sales|commission deposit|real broker/],
+  ["6000", "out", /the knot|weddingwire|zillow (premier|flex)|realtor\.com|county fair|booth fee|\bangi leads/],
+  ["6090", "out", /truck (parts|tire|repair)|tire center|veterinary|large animal/],
+  ["6040", "out", /farm credit.*interest|\bagcountry\b.*interest/],
+  ["6030", "out", /commercial auto|healthcare providers service|errors and omissions|photographers insurance|\bhiscox\b|\bnext insurance\b|\bthimble\b/],
+  ["6050", "out", /background check|care\.com|\bcheckr\b|\bsterling check/],
+  ["6020", "out", /upwork escrow|deel (inc )?contractor|remote\.com contractor/],
+  ["6010", "out", /\bwise (us )?inc.*fee/],
+  ["6070", "out", /\bsupra\b|lockbox key/],
+  ["6100", "out", /tractor supply|\btsc\b|southern states|co-?op feed|feed (and|&) seed|henry schein|patterson dental|medline|lakeshore learning|school specialty|salon ?centric|sally beauty|barbicide|rogue fitness|\bwhcc\b|photo lab|print lab|nasco|dental supply/],
   // PayPal's own transaction types, from its transaction event codes reference (eval/paypal-event-codes.mjs).
   // The importer writes "Name - Type", so these anchor on the type at the end. Written ahead of the
   // transfer rules: "Credit card payment" is a customer paying you, "Bank deposit" is your own money.
@@ -84,7 +100,7 @@ export const BUILT_IN = [
   ["6000", "out", /sticker ?mule/],
   ["6020", "out", /mechanical turk|\bmturk\b/],
   // From Hack Club's public HCB card feed (eval/hcb-memos.mjs): merchants a student-run nonprofit pays, rules written looking at the first 40 organisations only.
-  ["6060", "out", /\bzoom\b|porkbun|name-?cheap|neon\.tech|gmass|help ?scout|descript\b|typeform|streamyard|restream|assemblyai|fillout|\bshopify\b|spotify|domain\.com|tryhackme|sentry|supabase|render\.com|planetscale|mongodb|replit|posthog|loom\b|calendly|airtable|webflow|framer|1password|bitwarden|tailscale/],
+  ["6060", "out", /\bzoom\b|porkbun|name-?cheap|neon\.tech|gmass|help ?scout|descript\b|typeform|streamyard|restream|assemblyai|fillout|\bshopify\b|spotify|domain\.com|tryhackme|sentry|supabase|render\.com|planetscale|mongodb|replit|posthog|\bloom\b|calendly|airtable|webflow|framer|1password|bitwarden|tailscale/],
   ["6000", "out", /\bluma\b|eventbrite|meetup\.com|hootsuite|buffer\.com|printful|sticker ?app/],
   ["6120", "out", /\bhotel\b|\binn\b|\bmotel\b|\bresort\b|airport|clipper|\bubers?\b|\bcab ride|taxi|greyhound|flixbus|megabus|frontier air|spirit air|alaska air|\bhostel/],
   ["6130", "out", /h-e-b|\bheb\b|kroger|publix|aldi\b|taqueria|tacos|in-n-out|99 ranch|\bhmart\b|food ?4 ?less|wawa|7-eleven|sheetz|boba|vending|doughnut|donut|subway\b|jimmy john|five guys|shake shack|raising cane|whataburger|culver|jersey mike|pho\b|thai\b|catering/],
