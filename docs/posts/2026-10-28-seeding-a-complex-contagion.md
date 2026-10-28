@@ -1,7 +1,7 @@
 ---
 title: "Where to seed a behaviour that needs reinforcement: a patch beats scattered seeds"
 date: 2026-10-28
-description: "On simulated small-world networks, a behaviour needing two adopting neighbours spreads from a patch of 2 to 3 adjacent seeds, while random seeds need 12 to 20 and spread-out seeds never start it."
+description: "On simulated small-world networks, a behaviour needing two adopting neighbours spreads from 2 to 3 adjacent seeds; random seeds need 12 to 20, spread-out seeds fail."
 tags: [research, civ-levers, simulation]
 ---
 
