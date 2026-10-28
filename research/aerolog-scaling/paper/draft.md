@@ -49,7 +49,7 @@ Sub-scale flight models are cheap to crash and so are used to test cargo and del
 
 ## 5. Limitations
 
-- One polar surrogate (NeuralFoil) for wing, tail and reference. The tail-slope check against UIUC low-speed airfoil data (Selig et al.) is not done: the host was unreachable through the proxy in every session. A match of 0.8% to 3% is inside the surrogate's likely error, so "within 5%" is a statement about the model.
+- One polar surrogate (NeuralFoil) for wing, tail and reference. The tail-slope check against UIUC low-speed airfoil data (Selig et al.) was done for NACA 0009 only (`experiments/uiuc_tail_slope`): NeuralFoil's section slope is 0.72, 0.99, 1.15 and 1.18 times the measured value at Re 4.1e4, 6.1e4, 8.0e4 and 1.0e5, and the ratio moves by up to 0.3 with the fit window; the headline tail (NACA 0015, Re 1.5e5) is outside the data, and a 2% tail-slope error already moves the short period by about 1%. A match of 0.8% to 3% is inside the surrogate's likely error, so "within 5%" is a statement about the model.
 - Four-state model, point-mass inertia, no elevator, thrust or gust dynamics; strip theory with fixed Oswald efficiency; one reference aircraft; a grid, not an optimiser.
 - Full-size propeller Reynolds numbers are outside the measured data. The power-law check is within one quadcopter, not across scale.
 - No wind-tunnel or flight data of a scaled model. Everything about the non-similar design is a model prediction until a demonstrator is built.
@@ -67,7 +67,7 @@ Sub-scale flight models are cheap to crash and so are used to test cargo and del
 
 ## Before submission (owner and later sessions)
 
-1. UIUC polar check of the tail section at Re near 1e5 (fallback: a measured NACA 0012/0015 source reachable from the runner).
+1. Measured NACA 0012/0015 polars at Re 1e5 to 2e5 (the NACA 0009 check of milestone 8c is done and disagrees with NeuralFoil by 15 to 28%; Vol. 1 holds no other symmetric section).
 2. Gust response (H1 proper) and a thrust law.
 3. Convert to the AIAA template (the three figures exist: `paper/make_figures.py` draws `figures/fig1_power_ratio.png`, `fig2_mode_errors.png` and `fig3_cg_margin.png` from the committed results files; a tolerance-interval figure needs the per-tail intervals of `fixed_tail`, which the results file lists only for the five best tails), run `cite_check.py` on the final bibliography and open Drela 1989, Raymer 6th ed. and Jordan et al. proceedings.
 4. Submitting is an owner step.
