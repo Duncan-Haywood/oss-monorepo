@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import post_rate
 from post_rate import collect, main, report, tags_of
 
 POST = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "d"\ntags: [a, "b"]\n---\nbody\n'
@@ -32,6 +33,31 @@ class T(unittest.TestCase):
             with contextlib.redirect_stdout(buf):
                 self.assertEqual(main(["--root", d]), 0)
             self.assertIn("2026-10-24", buf.getvalue())
+
+    def test_default_limits(self):
+        days = {f"2026-10-{n:02d}": 1 for n in range(1, 21)}
+        tags = {f"t{n}": 20 - n for n in range(12)}
+        out = report(__import__("collections").Counter(days), __import__("collections").Counter(tags))
+        self.assertEqual(out.count("#"), 14)
+        self.assertEqual(out.split("top tags: ")[1].count("("), 8)
+
+    def test_cli_defaults(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "docs/posts").mkdir(parents=True)
+            (root / "docs/agent-posts").mkdir()
+            for n in range(1, 21):
+                (root / f"docs/posts/2026-10-{n:02d}-x.md").write_text(
+                    POST.replace("tags: [a, \"b\"]", "tags: [" + ", ".join(f"t{n}x{k}" for k in range(1)) + f", u{n}]"))
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                self.assertEqual(main(["--root", d]), 0)
+            out = buf.getvalue()
+            self.assertEqual(out.count("#"), 14)
+            self.assertEqual(out.split("top tags: ")[1].count("("), 8)
+
+    def test_default_root_is_repo_root(self):
+        self.assertTrue((post_rate.ROOT / "CLAUDE.md").is_file())
 
     def test_empty(self):
         with tempfile.TemporaryDirectory() as d:
