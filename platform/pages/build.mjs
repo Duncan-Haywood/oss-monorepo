@@ -730,7 +730,10 @@ const CATEGORY_RULES = [
     // `shoe-repair-shop-profit-calculator` joined 2026-10-11: a cobbler or shoe repair shop turning bench minutes, supplies and rent into profit per job and a season result.
     // `upholstery-shop-job-profit-calculator` joined 2026-10-11 on its first commit beside the other bench-and-fixed-cost shop calculators here: an upholstery shop turning bench minutes, materials and rent into profit per job.
     // `standby-generator-install-price-calculator` joined 2026-10-11 on its first commit: an electrician or generator dealer pricing an install from equipment, runs and crew hours is this section's reader; the slug does not end in `bid-calculator`, so it needs naming.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    // `wall-framing-takeoff` joined 2026-10-28 out of the catch-all: a
+    // framer's stud layout, cut list and lumber order is the materials half of
+    // a framing bid, so its readers browse this section.
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -3777,7 +3780,10 @@ const CATEGORY_RULES = [
     blurb: 'Learn a language or a technical skill by doing it: hands-free speaking drills, graded audio stories, and project-first engineering lessons, free in your browser. Plus free stories to read or listen to.',
     // `hearth-and-horizon` joined 2026-10-20: free stories with audio and
     // podcast feeds, the same read-and-listen axis as the graded stories.
-    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon'].includes(slug),
+    // `saints-by-candlelight` joined 2026-10-28, when it and
+    // `wall-framing-takeoff` took the catch-all to 6: a bedtime podcast of
+    // saints' stories, the same read-and-listen axis as `hearth-and-horizon`.
+    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon', 'saints-by-candlelight'].includes(slug),
   },
   {
     // Added 2026-10-21 when `open-floor-robots` and `open-robot-mower` took
@@ -4620,7 +4626,9 @@ const SUBCATEGORY_RULES = {
       // even though its own job is furniture, not construction.
       // `tile-layout-planner` joined 2026-10-01 on its first commit: it lays out the
       // floor the flooring and tile-backsplash bids price, for the same remodeler.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging)/.test(slug),
+      // `wall-framing-takeoff` joined 2026-10-28: studs and plates go up
+      // before the drywall here, and its lumber list is the same job as `cut-list`.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing)/.test(slug),
     },
     {
       id: 'trades-site',

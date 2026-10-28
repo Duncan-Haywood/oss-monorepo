@@ -1,0 +1,17 @@
+full-size reference: 1000 kg, span 9.49 m, AR 10, CL 0.8; Froude model n = 0.2
+model mass 8.00 kg, similar-wing span 1.897 m, area 0.3600 m^2, density 1.225 kg/m^3
+
+wing NACA 4412, AR 12, k 1.0; tail NACA 0015, 0.15 of S_sim, AR_t 5.0, arm 3.5 similar chords
+  wing: span 2078 mm, chord 173.2 mm, area 0.3600 m^2, wing loading 217.9 N/m^2, CL 0.80
+  tail: span 520 mm, chord 103.9 mm, area 0.0540 m^2, arm from wing AC 664 mm
+  trim speed 21.09 m/s (full size 47.16 m/s); Re wing 2.5e+05, Re tail 1.5e+05
+  CG tolerance for the 5% mode band: +/-0.035 chords = +/-6.1 mm of the design CG (reference CG is the wing aerodynamic centre, about 25% chord = 43.3 mm behind the leading edge)
+  mass tolerance: none derived here (mass enters the modes through Froude inertia, not swept for a built model)
+
+wing NACA 5406, AR 12, k 1.0; tail NACA 0015, 0.15 of S_sim, AR_t 5.0, arm 3.5 similar chords
+  wing: span 2078 mm, chord 173.2 mm, area 0.3600 m^2, wing loading 217.9 N/m^2, CL 0.80
+  tail: span 520 mm, chord 103.9 mm, area 0.0540 m^2, arm from wing AC 664 mm
+  trim speed 21.09 m/s (full size 47.16 m/s); Re wing 2.5e+05, Re tail 1.5e+05
+  CG tolerance for the 5% mode band: +/-0.03 chords = +/-5.2 mm of the design CG (reference CG is the wing aerodynamic centre, about 25% chord = 43.3 mm behind the leading edge)
+  mass tolerance: none derived here (mass enters the modes through Froude inertia, not swept for a built model)
+

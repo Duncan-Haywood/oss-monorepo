@@ -90,6 +90,11 @@ instead of area x period (`experiments/r2_area_arm/`) changes nothing inside hal
 (mean full-pool R2 pick regret 10.3% against 6.0% over 24 cells) although its mean tau with R4 is higher (0.58 against 0.38). On
 twelve designs both halving arms beat random R4 by 1.2 points at 25 equivalents (10 of 12 designs better, Holm p 0.044), the
 first held-out comparison to survive a 12-test correction; two of the twelve were added after the ten-design test.
+A harsher first cut (eta = 3, `experiments/r2_harsh_cut/`) shows the R2 score matters there: mean regret at 25 equivalents is 4.67
+points against 0.65 at eta = 1.5 and 1.86 for random R4, and does not fall with budget, but the mean is two designs (`bcastmix192`,
+49.9, a two-outcome binary swap; `crc32`, 2.9). The median over twelve designs is lower at eta = 3 (0.31, against 0.76 and 1.21), so
+a harsh cut is the best typical case and the worst tail; none of this is significant after correction (Holm p 1.0). Scoring R2 by
+area alone is worse still at eta = 3 (5.94 at 25). The medians and the exclusion are post hoc.
 
 ## 4 A bound and what a pilot can check
 Define the inversion of a rung, iota = max(0, max over pairs with s(x) <= s(x') of log y(x) - log y(x')). **Proposition.**

@@ -1,0 +1,47 @@
+{
+ "date": "2026-10-28",
+ "session": "https://claude.ai/code/session_01E5sJKkoeoM13EPp5wEuoxS",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-28T03:11:29Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 11031,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/aerolog-scaling/LOG.md",
+   "issue": "The 'Next' list repeated a UIUC polar check for several sessions although the host has been unreachable; probe-first note exists but the item keeps recurring."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-28-an-8-kg-froude-model-of-a-cargo-uav-needs-its-cg-within-6-mm.md",
+  "research/aerolog-scaling/LOG.md"
+ ],
+ "goal": null,
+ "notes": "Milestone 7h: arithmetic on 7d-7g; homepage build ok; CI not waited on beyond local build.",
+ "corrections": [],
+ "redteam": null
+}

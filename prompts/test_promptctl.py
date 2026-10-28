@@ -88,6 +88,15 @@ class RouteTest(PromptTestCase):
         tracks = {promptctl.route(self.fx.root, rng=random.Random(seed))["track"] for seed in range(50)}
         self.assertEqual(tracks, {"ventures", "research"})
 
+    def test_a_track_past_its_until_date_is_not_drawn(self):
+        self.fx.edit_routing("research", until="2026-11-30")
+        draw = lambda day: {promptctl.route(self.fx.root, rng=random.Random(seed),
+                                            today=promptctl.date.fromisoformat(day))["track"]
+                            for seed in range(50)}
+        self.assertEqual(draw("2026-11-30"), {"ventures", "research"})
+        self.assertEqual(draw("2026-12-01"), {"ventures"})
+        self.assertEqual(promptctl.route(self.fx.root, track="research")["track"], "research")
+
     def test_review_is_due_after_review_every_runs(self):
         for i in range(3):
             self.fx.run(f"2026-10-0{i + 1}-s{i}.json", _record(day=f"2026-10-0{i + 1}"))
@@ -218,6 +227,10 @@ class ValidateTest(PromptTestCase):
 
     def test_minimal_system_is_valid(self):
         self.assertEqual(promptctl.validate(self.fx.root), [])
+
+    def test_until_must_be_a_date(self):
+        self.fx.edit_routing("research", until="soon")
+        self.assertError("until must be a YYYY-MM-DD date")
 
     def test_overlong_post_description_is_reported(self):
         ci = self.fx.repo / "platform" / "ci"
@@ -385,6 +398,14 @@ class RepositoryTest(unittest.TestCase):
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
         self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.10, places=3)
+
+    def test_polish_gets_about_five_percent_for_a_period(self):
+        # The owner, 2026-10-28: "like 5% of work going to making the sites
+        # looking as impressive as possible. for some period of time", plus SEO and AEO.
+        tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
+        weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
+        self.assertAlmostEqual(weights["polish"] / sum(weights.values()), 0.05, places=3)
+        self.assertTrue(tracks["polish"].get("until"))
 
 
 
