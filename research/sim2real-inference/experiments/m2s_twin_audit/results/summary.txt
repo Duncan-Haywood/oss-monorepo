@@ -1,0 +1,7 @@
+twin projects audited: 138
+disclose "stylised": 137 (99%)
+name a real data source (keyword rule): 3 (2%)
+stylised and no real source named: 134 (97%)
+use a paired / control-variate estimator: 11 (8%)
+state at least one explicit rho value: 20 (14%)
+stated rho values, across those: min 0.03, median of per-project max 0.845, max 1.0
