@@ -96,7 +96,7 @@ In cloud sessions `gh` is usually unauthenticated: use the GitHub MCP tools
 (`create_pull_request`, `merge_pull_request`, loaded with `ToolSearch`). The
 container's other quirks are in
 [`.github/prompts/cloud-session.md`](.github/prompts/cloud-session.md)
-(a bare `python3` often lacks `pytest`/`numpy`: `PY=$(python3 platform/ci/pyenv.py pytest numpy)` finds or installs one (the first install can take over 120 s: run it with `run_in_background`); venture test suites and `node --test '*.test.mjs'` (not `node --test .`, which Node 22 rejects) outlast the 120 s tool timeout, so start them with `run_in_background`, see "Long commands"; irs.gov, ssa.gov and data hosts often 403 through the proxy: probe first, see "Outbound hosts"; a hook refuses `pkill -f`/`pgrep -f` unless the first letter is bracketed, `'[n]ame'`).
+(a bare `python3` often lacks `pytest`/`numpy`; only if your task runs Python (a node-only change needs neither), `PY=$(python3 platform/ci/pyenv.py pytest numpy)` finds or installs one (the first install can take over 120 s: run it with `run_in_background`); venture test suites and `node --test '*.test.mjs'` (not `node --test .`, which Node 22 rejects) outlast the 120 s tool timeout, so start them with `run_in_background`, see "Long commands"; irs.gov, ssa.gov and data hosts often 403 through the proxy: probe first, see "Outbound hosts"; a hook refuses `pkill -f`/`pgrep -f` unless the first letter is bracketed, `'[n]ame'`).
 Details, including other sessions' stalled PRs:
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md).
 
