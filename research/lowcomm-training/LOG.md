@@ -10,6 +10,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Prior: i 85%, ii 85%.
 - Limits known in advance: two seeds (no interval); one attack; one model and corpus.
 
+### Outcome of 5n (`experiments/gpt_median_coalition/`: `coordinated.jsonl` gained 4 rows, `run_5n.out`, `coordinated_results_5n.txt`; seeds 0 and 1, 54 to 55 minutes each)
+- k = 8: final validation loss **inf** (non-finite weights) on both seeds. k = 9: **3.80e7** (seed 0) and **3.34e7** (seed 1), a blown-up model rather than a degraded one.
+- **H5n-i supported** (k = 9 above +3 nats on both seeds). **H5n-ii supported in the only way the outcome allows:** k = 8 is worse than k = 7 (+0.766 on seed 1) on both seeds, and the 7-to-8 step is unbounded against 0.225 for 6-to-7. I did not predict that k = 8 would reach non-finite values rather than a large finite loss; the prediction only said "worse".
+- Reading: under the coordinated attack the median degrades about linearly and convexly to k = 7 (+0.77), then fails abruptly at k = 8, exactly where the engine's median (mean of ranks 8 and 9 of 16) first includes an attacker value. This is the classical breakdown point, reached in practice, and it is a cliff, not a continuation of the curve: a robust-aggregation operator with M = 16 is safe for k <= 7 of 16 and unsafe at 8 whatever the training dynamics.
+- Limits: two seeds, k = 8 and 9 only report "broke"; a clipped attacker magnitude (1e3 x sign) was used, so the divergence size says nothing about weaker attackers; one model and corpus.
+- Next: a norm-clipped or trimmed variant at k = 8 (does a bounded aggregator survive past the median's breakdown?), and seed 2 at k = 3 to 7.
+
 ## 2026-10-28 · Milestone 5m: does the coordinated-attack degradation replicate on a second seed, and where is the wall at k = 7? (planned before running)
 - Why: 5l's "Next". 5l had one seed per k (3 to 6), so no interval; k = 7 is the last count below the median-is-attacker-value wall at k = 8.
 - Design: same `coordinated.py` (M = 16, same-vector attack, 3840 inner steps, H = 16), seed 1 at k = 4, 5, 6, 7 (seed 1 has a clean-median reference, 1.5293, in `gpt_median_m16/median_m16_full.jsonl`).
