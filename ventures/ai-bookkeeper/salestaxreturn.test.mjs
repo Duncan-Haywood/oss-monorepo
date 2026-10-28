@@ -384,6 +384,12 @@ test("SC: the 20th for monthly, quarterly and annual returns (dor.sc.gov Due Dat
   assert.equal(dueDate("2026", stateDueDay("SC", "annual")), "2027-01-20");
 });
 
+test("OH: the 23rd for monthly and semiannual returns (tax.ohio.gov Due Dates and vendor FAQ, via search 2026-10-28)", () => {
+  assert.equal(dueDate("2026-01", stateDueDay("OH", "monthly")), "2026-02-23");
+  assert.equal(dueDate("2026-H1", stateDueDay("OH", "semiannual")), "2026-07-23");
+  assert.equal(dueDate("2026-H2", stateDueDay("OH", "semiannual")), "2027-01-23");
+});
+
 test("IA: a note says semi-monthly prepayment filers are not modelled", () => {
   assert.match(stateFilingNote("IA", "quarterly"), /semi-monthly/);
   assert.equal(stateFilingNote("IA", "monthly") !== null, true);

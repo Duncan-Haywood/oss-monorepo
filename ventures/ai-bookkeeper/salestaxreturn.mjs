@@ -59,7 +59,7 @@ export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 
 // (TPT: the 20th; azdor.gov and Phoenix guidance; e-filers get until month end, not modelled) added 2026-10-24 from search excerpts.
 // Both equal the default of 20, listed so the schedule is explicit and a later change to the default cannot silently move them.
 // Added 2026-10-24 from search excerpts (NJ: nj.gov Division of Taxation, 20th after the period, quarterly or monthly;
-// GA: dor.georgia.gov File & Pay, the 20th (read 2026-10-24); NC: ncdor.gov, monthly 20th but quarterly last day of the month after (read 2026-10-24, see stateDueDay); OH: 23rd, monthly, quarterly and semiannual Jan-Jun/Jul-Dec).
+// GA: dor.georgia.gov File & Pay, the 20th (read 2026-10-24); NC: ncdor.gov, monthly 20th but quarterly last day of the month after (read 2026-10-24, see stateDueDay); OH: 23rd, monthly, quarterly and semiannual Jan-Jun/Jul-Dec; tax.ohio.gov Due Dates and vendor FAQ confirm the 23rd for monthly and semiannual via search 2026-10-28, quarterly not seen there, a weekend or holiday moves to the next banking day per ST 2007-06).
 // MA: monthly returns the 20th; quarterly and annual returns 30 days after the period closes (the rule since 2021, from
 // memory and search excerpts, not re-read on mass.gov), modelled as `{ after: 30 }` in stateDueDay.
 // Checked 2026-10-24 against the states' own pages (via search excerpts): CA quarterly
