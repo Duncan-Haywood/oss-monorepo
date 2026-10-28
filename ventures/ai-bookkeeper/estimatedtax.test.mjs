@@ -354,3 +354,17 @@ test("net investment income tax: 3.8% of the smaller of the income and AGI over 
   const j = estimatedTax(books("1000.00"), { ...o, wages: 18000000, filing: "mfj", otherIncome: 5000000, investmentIncome: 5000000 });
   assert.equal(j.niit, 0);
 });
+
+test("age 65 and blindness add to the standard deduction; the senior deduction phases out at 6%", () => {
+  const o = { year: 2026, wageBase: 18450000 };
+  const base = estimatedTax(books("100000.00"), o);
+  const one = estimatedTax(books("100000.00"), { ...o, over65: 1 });
+  assert.equal(one.extraStandard, 205000);
+  // 6,000 less 6% of (AGI - 75,000)
+  assert.equal(one.seniorDeduction, Math.max(0, 600000 - Math.round(0.06 * (one.agi - 7500000))));
+  assert.equal(base.taxable - one.taxable, one.extraStandard + one.seniorDeduction - (base.qbiDeduction - one.qbiDeduction));
+  assert.equal(estimatedTax(books("100000.00"), { ...o, over65: 1, blind: 1 }).extraStandard, 410000);
+  assert.equal(estimatedTax(books("100000.00"), { ...o, over65: 1, itemized: 5000000 }).extraStandard, 0);
+  assert.ok(one.warnings.some((w) => /senior deduction/.test(w)));
+  assert.equal(estimatedTax(books("100000.00"), { ...o, over65: NaN }).taxable, base.taxable);
+});
