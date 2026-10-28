@@ -283,3 +283,9 @@ test("Missouri: monthly and quarterly on the last day of the next month, annual 
   const row = r.periods[0].rows.find((x) => x.jurisdiction === "CA state");
   assert.equal(row.discount, Math.round(row.tax * 0.02));
 });
+
+test("Illinois: the 20th after any period; discount 1.75%, $1,000 a month cap (tax.illinois.gov ST-1 instructions R-01/26, read 2026-10-28)", () => {
+  assert.equal(dueDate("2026-03", stateDueDay("IL", "monthly")), "2026-04-20");
+  assert.equal(dueDate("2026-Q3", stateDueDay("IL", "quarterly")), "2026-10-20");
+  assert.equal(dueDate("2026-H2", stateDueDay("IL", "annual")), "2027-01-20");
+});
