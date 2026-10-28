@@ -271,3 +271,15 @@ test("Minnesota's own 2026 due-date table (revenue.state.mn.us, read 2026-10-27)
   assert.equal(nextBusinessDay(dueDate("2025", stateDueDay("MN", "annual"))), "2026-02-05");
   assert.equal(nextBusinessDay(dueDate("2026", stateDueDay("MN", "annual"))), "2027-02-05");
 });
+
+test("Missouri: monthly and quarterly on the last day of the next month, annual January 31 (dor.mo.gov FAQ, read 2026-10-28)", () => {
+  assert.equal(dueDate("2026-03", stateDueDay("MO", "monthly")), "2026-04-30");
+  assert.equal(dueDate("2026-Q1", stateDueDay("MO", "quarterly")), "2026-04-30");
+  assert.equal(dueDate("2026-Q2", stateDueDay("MO", "quarterly")), "2026-07-31");
+  assert.equal(dueDate("2026-Q4", stateDueDay("MO", "quarterly")), "2027-01-31");
+  assert.equal(dueDate("2026-H2", stateDueDay("MO", "annual")), "2027-01-31");
+  // the state's 2% timely payment allowance is a plain --discount rate, with no cap
+  const r = salesTaxReturn(books(), { discounts: { "CA state": { rate: 0.02 } } });
+  const row = r.periods[0].rows.find((x) => x.jurisdiction === "CA state");
+  assert.equal(row.discount, Math.round(row.tax * 0.02));
+});
