@@ -253,6 +253,8 @@ numbers worked out before drafting.
 
 **Hearth & Horizon**
 
+- *(Done: The First Draw, Scoil Bhríde, Cill Mhuire, Co. Longford, 2037; text only.)* A water office says flush for thirty seconds; ten one-litre bottles show the lead pipe (11 m x 0.28 L/m = 3.1 L, behind 2.3 L of copper) sits at litres 2.3 to 5.4, so thirty seconds (3 L) makes the first cup about seven times worse (21 vs 3.1 micrograms a litre); a two-minute flush, filters, no part-replacement, and the school's roof fund pays for its 7 m.
+
 - *(Done: Before the Fourteenth, Pé da Serra, Alentejo, 2050; text only.)* Altar-wine harvest date, pH and free sulphur, and a chiller; the old vines risked on purpose.
 
 - *(Done: The Long Sea, Newfoundland, 2045 to 2046.)* *A sea-farm in 2046:* a seaweed and shellfish cooperative off Newfoundland
