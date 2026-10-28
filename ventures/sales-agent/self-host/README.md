@@ -47,6 +47,12 @@ Messages you sent yourself are skipped. Each message is read once (Message-ID);
 duplicates are ignored. Endpoints: `/` queue, `/api/queue`, `/api/audit`,
 `/api/prospects.csv`, `/api/suppression.csv`, `POST /api/poll`, `POST /api/decide`, `POST /api/send`.
 
+## One-click deploy (2026-10-28)
+
+Fork the repository, then open `https://render.com/deploy?repo=<your fork URL>`. Render builds `ventures/sales-agent/Dockerfile` in **your** account with a 1 GB disk for the queue and audit log, generates `ADMIN_TOKEN`, and asks you for `IMAP_HOST`, `IMAP_USER` and `IMAP_PASS` (an app password); `SMTP_*` and a model key are optional. Nothing runs on the author's accounts and your mailbox password goes from your Render settings to your mail server. Fly.io steps are at the top of `fly.toml`. Open `https://<your-app>/?token=<ADMIN_TOKEN>`; Render and Fly terminate TLS.
+
+A fault this found: the Dockerfile copied only `agent.mjs` and `imap.mjs`, so the image crashed at start (`Cannot find module smtp.mjs`; also `oauth.mjs` and `research.mjs`). Fixed, and `dockerfile.test.mjs` now walks the server's imports and fails if one is not copied. **Not tested: an actual Render or Fly deploy** (no account here); the image's file set was checked by copying exactly the Dockerfile's files into an empty directory and starting the server there (healthz answered).
+
 ## OAuth for Gmail and Microsoft 365 (M4c)
 
 Register your own OAuth app (Google Cloud console, or Microsoft Entra) with the redirect URI

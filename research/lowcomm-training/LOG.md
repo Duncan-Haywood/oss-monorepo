@@ -2,20 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-28 · Milestone 5n: does the coordinated attack break the median at k = 8 and 9, where the median is an attacker value? (planned before running)
-- Why: 5m's "Next". At M = 16 the median (mean of ranks 8 and 9 of 16, as the engine computes it) is rank-bounded by honest values only while k <= 7; at k = 8 one of the two middle ranks is an attacker value, at k = 9 both are.
-- Design: `KS=8,9 SEEDS=0,1 python3 coordinated.py run` (same attack, M = 16, 3840 inner steps, H = 16), excess over the clean median on the same seed.
-- **H5n-i:** k = 9 diverges or exceeds +3 nats on both seeds (both middle ranks are 1e3-scale values). Refuted if either seed finishes below +3.
-- **H5n-ii:** k = 8 is worse than k = 7 (+0.766 seed 1) on both seeds, and the step from 7 to 8 exceeds the 6 to 7 step (+0.225). Refuted otherwise.
-- Prior: i 85%, ii 85%.
-- Limits known in advance: two seeds (no interval); one attack; one model and corpus.
+## 2026-10-28 · Milestone 5n: what happens at k = 8 and k = 9 under the coordinated attack, where the median is an attacker value? (planned before running)
+- Why: 5m's "Next". At M = 16 the median averages ranks 8 and 9 of the sorted values; with k >= 8 coordinated attackers at -1e3 x sign(honest mean), rank 8 is an attacker value for k = 8 and both ranks are for k = 9, so the aggregate is no longer bounded by honest values.
+- Design: `KS=8,9 SEEDS=0,1 python3 coordinated.py run` (unchanged script, 4 runs, 4 processes), excess over each seed's clean median.
+- **H5n-i:** k = 8 either diverges (final validation loss above 3 or NaN) or exceeds +1.0 on at least one seed, consistent with 5j's independent k = 8 divergence. Refuted if both seeds stay below +1.0 and train.
+- **H5n-ii:** k = 9 diverges or exceeds +1.0 on both seeds. Refuted otherwise.
+- Prior: i 75%, ii 85%. The k = 4 to 7 curve (+0.23, +0.37, +0.54, +0.77) is convex but smooth, so a gradual rather than a sudden break is also plausible, which hypothesis i would then miss.
+- Limits known in advance: two seeds, not an interval; one model and corpus; the attacker knows the honest mean sign exactly.
 
-### Outcome of 5n (`experiments/gpt_median_coalition/`: `coordinated.jsonl` gained 4 rows, `run_5n.out`, `coordinated_results_5n.txt`; seeds 0 and 1, 54 to 55 minutes each)
-- k = 8: final validation loss **inf** (non-finite weights) on both seeds. k = 9: **3.80e7** (seed 0) and **3.34e7** (seed 1), a blown-up model rather than a degraded one.
-- **H5n-i supported** (k = 9 above +3 nats on both seeds). **H5n-ii supported in the only way the outcome allows:** k = 8 is worse than k = 7 (+0.766 on seed 1) on both seeds, and the 7-to-8 step is unbounded against 0.225 for 6-to-7. I did not predict that k = 8 would reach non-finite values rather than a large finite loss; the prediction only said "worse".
-- Reading: under the coordinated attack the median degrades about linearly and convexly to k = 7 (+0.77), then fails abruptly at k = 8, exactly where the engine's median (mean of ranks 8 and 9 of 16) first includes an attacker value. This is the classical breakdown point, reached in practice, and it is a cliff, not a continuation of the curve: a robust-aggregation operator with M = 16 is safe for k <= 7 of 16 and unsafe at 8 whatever the training dynamics.
-- Limits: two seeds, k = 8 and 9 only report "broke"; a clipped attacker magnitude (1e3 x sign) was used, so the divergence size says nothing about weaker attackers; one model and corpus.
-- Next: a norm-clipped or trimmed variant at k = 8 (does a bounded aggregator survive past the median's breakdown?), and seed 2 at k = 3 to 7.
+### Outcome of 5n (`experiments/gpt_median_coalition/`: `coordinated.jsonl` gained 4 rows, `run_5n.out`; seeds 0 and 1, about 43 minutes each)
+- Final validation loss: k = 8 **inf** on both seeds (non-finite weights), k = 9 **3.3e7** (seed 1) and **3.8e7** (seed 0). Every k = 8 and k = 9 run diverged; the clean median reaches about 1.5.
+- **H5n-i supported** (both seeds diverge at k = 8). **H5n-ii supported** (both seeds diverge at k = 9).
+- Reading: with the same-vector attack the loss rises smoothly from k = 4 to 7 (+0.23 to +0.77 nats, 5m) and then diverges completely at k = 8, the first count at which rank 8 of 16 is an attacker value. This matches the median-is-attacker-value wall (5k, 5l), and the coordinated attack has the same breakdown count (8) as 5j's independent flips, though it is far more harmful below it (k = 7: +0.77 against +0.29). The numpy net-signal crossover (k = 3 to 4) is still not the breakdown rule; the wall is the order-statistic bound.
+- Limits: two seeds, all four runs diverged so there is no interval to report; k = 8 inf means NaN/inf weights, so the size of the blow-up is not comparable between k = 8 and 9; one model and corpus.
+- Next: a robust aggregator that tolerates k >= M/2 (not a median), or stop here: the median's breakdown point is established empirically at k = 8 of 16 under both attacks.
 
 ## 2026-10-28 · Milestone 5m: does the coordinated-attack degradation replicate on a second seed, and where is the wall at k = 7? (planned before running)
 - Why: 5l's "Next". 5l had one seed per k (3 to 6), so no interval; k = 7 is the last count below the median-is-attacker-value wall at k = 8.

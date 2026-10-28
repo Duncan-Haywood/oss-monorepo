@@ -42,7 +42,7 @@ not write the story or episode another session is already writing.
 Any of these counts as the run's deliverable:
 
 - **A new story or episode**, finished: text, audio (text only while the
-  audio cap below is exceeded: 423 MB on 2026-10-27, so check it first and
+  audio cap below is exceeded (run its `du` first; the figure drifts, so none is quoted here) and
   skip the podcast option, which needs audio), regenerated pages and
   feeds, passing tests. The science fiction shelf is the owner's headline
   project; give it at least an equal share.

@@ -105,11 +105,25 @@ def imports(py, modules, run=subprocess.run):
         return False
 
 
-def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys.stderr)):
+def index_reachable(url=TORCH_CPU_INDEX, timeout=8):
+    import urllib.request
+    try:
+        urllib.request.urlopen(url + "/torch/", timeout=timeout).close()
+        return True
+    except Exception:
+        return False
+
+
+def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys.stderr),
+                reachable=index_reachable):
     pkgs = [PIP_NAMES.get(m, m) for m in modules]
     base = [py, "-m", "pip", "install", "--quiet", "--disable-pip-version-check"]
     if TORCH_FAMILY & set(modules) and not os.environ.get("PYENV_TORCH_CUDA"):
         base += ["--extra-index-url", TORCH_CPU_INDEX]
+        if not reachable():
+            # 2026-10-28: the proxy refused this host and pip silently fell back
+            # to PyPI's CUDA build (about 25 min); say so up front.
+            log(f"pyenv: {TORCH_CPU_INDEX} is unreachable, so pip will pull PyPI's ~3 GB CUDA torch (25 to 35 min); prefer an interpreter that already has torch")
     for extra in ([], ["--break-system-packages"], ["--user", "--break-system-packages"]):
         try:
             done = run(base + extra + pkgs, capture_output=True, timeout=pip_timeout(modules))

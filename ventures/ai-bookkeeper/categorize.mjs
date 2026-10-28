@@ -34,6 +34,18 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Small-business spend probe 4 (2026-10-28, eval/probe-trades4.mjs, 72 descriptors; agent-written from the companies' public names, not from a real export; tuned on itself):
+  // contractors, consultants who travel, nonprofits and churches, event venues and caterers.
+  ["6100", "out", /\b84 lumber|builders firstsource|\bhilti\b|floral wholesale/],
+  ["6060", "out", /buildertrend|procore|jobtread|coconstruct|docusign|planning center|bloomerang|neon one|techsoup|caterease|catertraxx|tripleseat|klaviyo/],
+  ["6090", "out", /sunbelt rentals|united rentals|dumpster rental|party rental|table and chair rental/],
+  ["6030", "out", /builders.? risk|surety bond|d&o insurance/],
+  ["6050", "out", /lien waiver|notary/],
+  ["6120", "out", /clear secure/],
+  ["6000", "out", /linkedin sales nav/],
+  ["4000", "in", /givelify|pushpay|tithely|donorbox|network for good|grant award|eventbrite|zola payout/],
+  ["6170", "out", /guidestar|charity navigator/],
+  ["6110", "out", /irs 990|liquor license/],
   // Small-business spend probe 3 (2026-10-28, eval/probe-trades3.mjs, 79 descriptors; agent-written from the companies' public names, not from a real export; tuned on itself):
   // restaurants, auto repair, landscaping, cleaning, tutors, web agencies and online sellers. First so "Restaurant Depot" beats the generic restaurant word.
   ["6100", "out", /restaurant depot|sysco|\bus foods\b|webstaurant|napa auto|o.?reilly auto|advance auto parts|matco|snap-on|john deere landscapes|siteone|stihl|unifirst|\bcintas\b|alibaba|faire wholesale|\buline\b/],

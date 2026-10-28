@@ -136,12 +136,20 @@ class T(unittest.TestCase):
 
     def test_torch_installs_from_the_cpu_index(self):
         run = FakeRun()
-        pyenv.pip_install("/p/python3", ["torch", "numpy"], run, quiet)
+        pyenv.pip_install("/p/python3", ["torch", "numpy"], run, quiet, lambda: True)
         pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]][0]
         self.assertIn(pyenv.TORCH_CPU_INDEX, pip)
         run = FakeRun()
         pyenv.pip_install("/p/python3", ["numpy"], run, quiet)
         self.assertNotIn("--extra-index-url", [c for c in run.calls if c[1:3] == ["-m", "pip"]][0])
+
+    def test_unreachable_cpu_index_is_warned_about(self):
+        seen = []
+        pyenv.pip_install("/p/python3", ["torch"], FakeRun(), seen.append, lambda: False)
+        self.assertTrue(any("unreachable" in m for m in seen), seen)
+        seen = []
+        pyenv.pip_install("/p/python3", ["torch"], FakeRun(), seen.append, lambda: True)
+        self.assertFalse(any("unreachable" in m for m in seen), seen)
 
     def test_distro_owned_package_stops_retrying_pip_flags(self):
         class Run(FakeRun):

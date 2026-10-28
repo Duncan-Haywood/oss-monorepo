@@ -6,7 +6,7 @@
 {"k": 7, "seed": 1, "loss": 2.295521780848503, "secs": 2619}
 {"k": 5, "seed": 1, "loss": 1.8957130834460258, "secs": 2621}
 {"k": 4, "seed": 1, "loss": 1.7607476487755775, "secs": 2630}
-{"k": 8, "seed": 1, "loss": Infinity, "secs": 3266}
-{"k": 9, "seed": 1, "loss": 33393101.125, "secs": 3276}
-{"k": 8, "seed": 0, "loss": Infinity, "secs": 3282}
-{"k": 9, "seed": 0, "loss": 37989930.0, "secs": 3296}
+{"k": 9, "seed": 1, "loss": 33393101.125, "secs": 2565}
+{"k": 9, "seed": 0, "loss": 37989930.0, "secs": 2566}
+{"k": 8, "seed": 1, "loss": Infinity, "secs": 2568}
+{"k": 8, "seed": 0, "loss": Infinity, "secs": 2580}

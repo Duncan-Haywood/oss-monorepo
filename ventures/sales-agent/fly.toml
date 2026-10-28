@@ -1,0 +1,31 @@
+# Fly.io self-deploy, in your own account (needs flyctl and a card on file with Fly):
+#   fly launch --copy-config --no-deploy --dockerfile Dockerfile
+#   fly volumes create data --size 1
+#   fly secrets set ADMIN_TOKEN=$(openssl rand -hex 16) IMAP_HOST=imap.example.com IMAP_USER=you@example.com IMAP_PASS=an-app-password
+#   (optional: SMTP_HOST SMTP_USER SMTP_PASS SEND_FROM LLM_PROVIDER LLM_MODEL LLM_API_KEY, also with `fly secrets set`)
+#   fly deploy
+# One machine that never auto-stops: the queue and audit log live on its volume.
+app = "sales-agent-CHANGE-ME"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  DATA_DIR = "/data"
+
+[mounts]
+  source = "data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = false
+  min_machines_running = 1
+  [[http_service.checks]]
+    path = "/healthz"
+    interval = "30s"
+    timeout = "5s"
