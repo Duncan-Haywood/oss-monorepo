@@ -41,7 +41,7 @@ Steps: [`.github/prompts/land-your-work.md`](../../.github/prompts/land-your-wor
 ## Pick one piece of work
 
 Look before you choose. Build the site locally
-(`node platform/pages/build.mjs` into `platform/pages/dist`, then
+(`node platform/pages/build.mjs`, which writes a dist folder beside it, then
 `node platform/pages/check.mjs`; see `platform/pages/README.md`)
 and screenshot it with the pre-installed Playwright at phone and desktop
 widths: the hub, one flagship from `portfolio/flagships.yaml`, a research
