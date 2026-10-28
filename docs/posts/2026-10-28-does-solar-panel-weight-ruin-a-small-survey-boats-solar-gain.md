@@ -1,7 +1,7 @@
 ---
 title: "Does panel weight cancel the gain from solar on a 4 m survey boat?"
 date: 2026-10-28
-description: "Charging panel mass to the battery of a 200 kg autonomous survey boat cuts the median solar range multiplier from 2.01 to 1.64 at worst; the full deck is still the best array."
+description: "Charging panel mass to a 200 kg survey boat's battery cuts the median solar range multiplier from 2.01 to 1.64 at worst; the full deck is still the best array."
 tags: [marine-hull, solar, autonomy, research]
 ---
 
