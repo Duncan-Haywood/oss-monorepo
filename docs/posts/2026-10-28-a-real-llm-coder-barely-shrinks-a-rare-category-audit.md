@@ -1,7 +1,7 @@
 ---
 title: "A real LLM coder barely shrinks a rare-category audit"
 date: 2026-10-28
-description: "Qwen2.5-1.5B coded 6,683 GoEmotions comments for fear and sadness. With twice the informedness of naive Bayes it cut the human audit size by at most 12%, not 3x."
+description: "Qwen2.5-1.5B coded 6,683 GoEmotions comments for fear and sadness. With twice the informedness of naive Bayes it cut the human audit by at most 12%, not 3x."
 tags: [llm-coding-inference, research, prediction-powered-inference]
 ---
 
