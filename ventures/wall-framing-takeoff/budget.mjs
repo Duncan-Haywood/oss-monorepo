@@ -9,7 +9,7 @@
 //
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
-// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, houseWrapRoll, cornerBoard, insulationBag, atticFillBag,
+// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
 // vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), tax (fraction on materials), contingency (fraction) }.
 // nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
@@ -73,6 +73,12 @@ export function budget(result, prices = {}) {
     add("Exterior", "Siding boards", sd.boards, "boards", P("sidingBoard") ?? sd.boardPrice, `${sd.courses} courses at ${sd.exposure} in exposure in ${sd.stock / 12} ft boards`);
     add("Exterior", "House wrap rolls", sd.wrapRolls, "rolls", P("houseWrapRoll") ?? sd.wrapPrice, `${sd.wrapSqFt.toFixed(0)} sq ft with laps, ${sd.wrapRollSqFt} sq ft per roll`);
     if (sd.cornerBoards) add("Exterior", "Corner boards", sd.cornerBoards, "boards", P("cornerBoard") ?? sd.cornerPrice, `${sd.corners} outside corners`);
+  }
+  const ea = result.eaves;
+  if (ea?.ok) {
+    if (ea.panels) add("Exterior", "Soffit panels", ea.panels, "panels", P("soffitPanel") ?? ea.panelPrice, `${ea.soffitSqFt.toFixed(0)} sq ft, ${ea.panelWidth} in wide in ${ea.panelStock / 12} ft panels`);
+    add("Exterior", "Fascia boards", ea.fascia, "boards", P("fasciaBoard") ?? ea.fasciaPrice, `${(ea.eaveFeet + ea.rakeFeet).toFixed(0)} ft in ${ea.fasciaStock / 12} ft boards`);
+    if (ea.channel) add("Exterior", "J-channel", ea.channel, "pieces", P("jChannel") ?? ea.channelPrice, `${ea.channelStock / 12} ft pieces along the wall`);
   }
   const fa = result.fasteners;
   if (fa?.ok && fa.boxes != null) add("Fasteners", "Framing nails (boxes)", fa.boxes, "boxes", P("nailBox") ?? fa.price, `${fa.order} nails incl. ${(100 * fa.waste).toFixed(0)}% waste, ${fa.nailsPerBox} per box`);

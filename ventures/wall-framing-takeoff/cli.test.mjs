@@ -1,3 +1,4 @@
+import { sampleRoof } from "./roof.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { main } from "./cli.mjs";
@@ -203,6 +204,16 @@ test("--siding adds courses, house wrap and corner boards, kept with --sheathing
   assert.match(b.out, /House wrap rolls/);
   assert.equal(main(["plan.json"], read).out.includes("SIDING"), false);
   assert.equal(main(["plan.json"], () => JSON.stringify({ ...samplePlan(), siding: { exposure: 1 } })).code, 1);
+});
+
+test("--eaves counts soffit, fascia and J-channel from the roof, and needs a roof", () => {
+  const plan = { ...samplePlan(), roof: sampleRoof(), prices: { fasciaBoard: 25 } };
+  const a = main(["plan.json", "--eaves", "--budget"], () => JSON.stringify(plan));
+  assert.equal(a.code, 0);
+  assert.match(a.out, /SOFFIT AND FASCIA\n  Soffit: \d+ sq ft under 84 ft of eave/);
+  assert.match(a.out, /Fascia boards/);
+  assert.equal(main(["plan.json"], () => JSON.stringify(plan)).out.includes("SOFFIT"), false);
+  assert.equal(main(["plan.json", "--eaves"], () => JSON.stringify(samplePlan())).code, 1);
 });
 
 test("--stairs prints the stair layout and pools its lumber", () => {
