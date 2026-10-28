@@ -297,13 +297,26 @@ export function selfEmployment(profitCents, { year = new Date().getFullYear(), w
 }
 
 // The four federal estimated-payment dates for a tax year: Apr 15, Jun 15, Sep 15
-// and Jan 15 of the next year, moved to Monday when one lands on a weekend
-// (holidays are not modelled).
+// and Jan 15 of the next year. A date on a weekend or a legal holiday in
+// Washington, DC moves to the next day that is neither (IRC 7503). The two
+// holidays that can reach these dates are Emancipation Day (Apr 16, observed on
+// the Friday or Monday when it falls on a weekend; it pushed the April 2022 and
+// 2023 deadlines to the 18th) and Martin Luther King Jr. Day (third Monday of
+// January; the January 2023 payment was due on the 17th).
+function dcHoliday(dt) {
+  const y = dt.getUTCFullYear(), m = dt.getUTCMonth() + 1, d = dt.getUTCDate(), dow = dt.getUTCDay();
+  if (m === 1) return dow === 1 && d >= 15 && d <= 21;
+  if (m === 4) {
+    const e = new Date(Date.UTC(y, 3, 16)), ed = e.getUTCDay();
+    const obs = ed === 6 ? 15 : ed === 0 ? 17 : 16;
+    return d === obs;
+  }
+  return false;
+}
 export function estimatedDueDates(year) {
   return [[year, 4, 15], [year, 6, 15], [year, 9, 15], [year + 1, 1, 15]].map(([y, m, d]) => {
     const dt = new Date(Date.UTC(y, m - 1, d));
-    const dow = dt.getUTCDay();
-    if (dow === 6) dt.setUTCDate(d + 2); else if (dow === 0) dt.setUTCDate(d + 1);
+    while (dt.getUTCDay() === 0 || dt.getUTCDay() === 6 || dcHoliday(dt)) dt.setUTCDate(dt.getUTCDate() + 1);
     return dt.toISOString().slice(0, 10);
   });
 }

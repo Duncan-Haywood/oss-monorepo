@@ -201,7 +201,7 @@ test("Schedule SE: social security stops at the wage base, wages use it up, tiny
 test("estimated payment dates roll off weekends", () => {
   assert.deepEqual(estimatedDueDates(2026), ["2026-04-15", "2026-06-15", "2026-09-15", "2027-01-15"]);
   assert.deepEqual(estimatedDueDates(2025), ["2025-04-15", "2025-06-16", "2025-09-15", "2026-01-15"]);
-  assert.equal(estimatedDueDates(2027)[3], "2028-01-17"); // Jan 15 2028 is a Saturday, Monday the 17th
+  assert.equal(estimatedDueDates(2027)[3], "2028-01-18"); // Jan 15 2028 is a Saturday, Monday the 17th is MLK Day
 });
 
 test("seSetAside annualises the profit to date and splits the tax into four payments that add up", () => {
