@@ -56,6 +56,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>Point Two</title>
+      <link>https://example.invalid/hearth-and-horizon/point-two.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/point-two.html</guid>
+      <pubDate>Wed, 28 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A parish hall has been made so airtight that it changes its air once in five hours instead of once an hour, and the old gas heater now has nowhere to send what it cannot burn. The hall's assistant cannot say what is wrong with the heater, only what the alarm's one reading means: about eight and a half grams of carbon monoxide an hour, whichever way the leakage test is read. The caretaker who fought for the grant wants to be wrong. Setting: Tom na Croise, an invented parish hall in the Braes of Glenlivet, Banffshire, Scotland, January 2048. Read the full text at https://example.invalid/hearth-and-horizon/point-two.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish hall has been made so airtight that it changes its air once in five hours instead of once an hour, and the old gas heater now has nowhere to send what it cannot burn. The hall's assistant cannot say what is wrong with the heater, only what the alarm's one reading means: about eight and a half grams of carbon monoxide an hour, whichever way the leakage test is read. The caretaker who fought for the grant wants to be wrong.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Ten and a Half Seconds</title>
       <link>https://example.invalid/hearth-and-horizon/ten-and-a-half-seconds.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/ten-and-a-half-seconds.html</guid>
