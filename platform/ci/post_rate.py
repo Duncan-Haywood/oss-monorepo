@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def tags_of(text):
-    m = re.match(r"---\n(.*?)\n---\n", text, re.S)
+    m = re.match(r"---\r?\n(.*?)\r?\n---\r?\n", text, re.S)
     if not m:
         return []
     t = re.search(r"^tags:\s*\[(.*?)\]", m.group(1), re.M)
@@ -40,7 +40,7 @@ def collect(root):
 
 def report(days, tags, last=14, top=8):
     lines = ["date        posts"]
-    for d in sorted(days)[-last:]:
+    for d in sorted(days)[max(len(days) - last, 0):]:
         lines.append(f"{d}  {days[d]:5d}  {'#' * min(days[d], 60)}")
     lines.append(f"total {sum(days.values())} posts over {len(days)} days with at least one")
     lines.append("top tags: " + ", ".join(f"{t} ({n})" for t, n in tags.most_common(top)))
