@@ -289,3 +289,12 @@ test("Illinois: the 20th after any period; discount 1.75%, $1,000 a month cap (t
   assert.equal(dueDate("2026-Q3", stateDueDay("IL", "quarterly")), "2026-10-20");
   assert.equal(dueDate("2026-H2", stateDueDay("IL", "annual")), "2027-01-20");
 });
+
+test("a per-month discount cap scales with the return period (Illinois: 1.75%, $1,000 a month)", () => {
+  const b = books(); // same fixture as the cap test above
+  const mk = (frequency) => salesTaxReturn(b, { frequency, discounts: { "CA state": { rate: 0.1, capPerMonth: 40 } }, asOf: "2026-12-01" });
+  const q = mk("quarterly").periods.flatMap((p) => p.rows).find((r) => r.jurisdiction === "CA state");
+  assert.equal(q.discount, 120); // 10% of 1500 = 150, capped at 40 x 3 months
+  const a = mk("annual").periods.flatMap((p) => p.rows).find((r) => r.jurisdiction === "CA state");
+  assert.equal(a.discount, 150); // 40 x 12 = 480 does not bind
+});

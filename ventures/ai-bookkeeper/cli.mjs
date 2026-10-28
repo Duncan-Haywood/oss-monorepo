@@ -70,7 +70,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   vat [--from D --to D]  UK-layout VAT return worksheet (boxes 1-9) from account 2100 and an input account 1300
   gst --region ca|au [--from D --to D]  Canada GST/HST return (lines 101-109) or Australia BAS (G1, 1A, G11, 1B) worksheet, same accounts as vat
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
-  salestax return [--freq monthly|quarterly|annual] [--due-day N | --state CA|TX|FL|NY|WA|IL|PA] [--rate "CA state=7.25"] [--discount "CA state=0.5,100"] [--no-rollover]  return worksheet by jurisdiction (named in the tax line's description)
+  salestax return [--freq monthly|quarterly|annual] [--due-day N | --state CA|TX|FL|NY|WA|IL|PA] [--rate "CA state=7.25"] [--discount "CA state=0.5,100" | "IL state=1.75,1000/mo"] [--no-rollover]  return worksheet by jurisdiction (named in the tax line's description)
   opening FILE --date D  set opening balances from a trial balance CSV (code,amount or code,debit,credit); "opening" alone shows them, "opening clear" removes them
   switch chart FILE      adding the accounts of a QuickBooks Account List or Xero Chart of Accounts CSV to the chart (matches by name, keeps Xero codes)
   switch balances FILE [--date D]  opening balances from that system's Trial Balance CSV, which names accounts; the date comes from "As of ..." in the file unless given
@@ -870,7 +870,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (let v = flag("--rate"); v; v = flag("--rate")) { const [k, n] = v.split("="); rates[k.trim()] = Number(n) / 100; }
   let t;
   const discounts = {};
-  for (let v = flag("--discount"); v; v = flag("--discount")) { const [k, spec] = v.split("="); const [pct, cap] = spec.split(","); discounts[k.trim()] = { rate: Number(pct) / 100, cap: cap == null ? undefined : Math.round(Number(cap) * 100) }; }
+  for (let v = flag("--discount"); v; v = flag("--discount")) { const [k, spec] = v.split("="); const [pct, cap] = spec.split(","); const perMonth = cap != null && /\/mo$/.test(cap.trim()); const c = cap == null ? undefined : Math.round(Number(cap.trim().replace(/\/mo$/, "")) * 100); discounts[k.trim()] = { rate: Number(pct) / 100, ...(perMonth ? { capPerMonth: c } : { cap: c }) }; }
   try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", endMonth: flag("--end-month") ? Number(flag("--end-month")) : stateEndMonth(flag("--state"), flag("--freq") ?? "quarterly"), dueDay: flag("--due-day") ? Number(flag("--due-day")) : stateDueDay(flag("--state"), flag("--freq") ?? "quarterly"), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
   const stateNote = stateFilingNote(flag("--state"), t.frequency);
   if (stateNote) t.warnings.push(stateNote);
