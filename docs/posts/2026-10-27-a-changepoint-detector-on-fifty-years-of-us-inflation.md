@@ -1,7 +1,7 @@
 ---
 title: "A changepoint detector on fifty years of US inflation: three breaks it should find, and one it invents"
 date: 2026-10-27
-description: "On 20 years of Nottingham temperatures with no real step, the default mean model cuts four changepoints; a longer minimum segment or meanvar cuts two or none."
+description: "Run on fifty years of US inflation, a changepoint detector finds three real breaks and invents one more; here is which and how to tell."
 tags: [changepoint, time-series, inflation, real-data]
 ---
 

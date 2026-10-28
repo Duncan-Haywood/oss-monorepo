@@ -65,6 +65,17 @@ def tag_variants(texts):
     return [sorted(v) for v in spellings.values() if len(v) > 1]
 
 
+def duplicate_descriptions(texts):
+    """Groups of posts sharing one description ({name: post text}); search results show them as copies."""
+    seen = {}
+    for name, text in texts.items():
+        m = re.search(r"^description:\s*(.*)$", text, re.M)
+        d = m.group(1).strip().strip("\"'") if m else ""
+        if d:
+            seen.setdefault(d, []).append(name)
+    return [v for v in seen.values() if len(v) > 1]
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(ROOT))
@@ -77,6 +88,9 @@ def main(argv=None):
             bad += 1
     for group in tag_variants(texts):
         print(f"tag spelled {len(group)} ways: {', '.join(group)}; pick one")
+        bad += 1
+    for group in duplicate_descriptions(texts):
+        print(f"one description on {len(group)} posts: {', '.join(group)}; word each for its own post")
         bad += 1
     return 1 if bad else 0
 

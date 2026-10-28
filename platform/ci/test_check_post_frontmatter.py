@@ -41,7 +41,9 @@ class T(unittest.TestCase):
         self.assertEqual(len(problems("2026-10-26-x.md", tomorrow, today)), 1)  # no slack
         self.assertEqual(problems("2026-10-25-x.md", GOOD.replace("2026-10-24", "2026-10-25"), today), [])
 
-    def _run(self, posts):
+    def _run(self, posts, distinct=True):
+        if distinct:  # each post needs its own description or the duplicate check fires
+            posts = {n: t.replace('description: "d"', f'description: "d {n}"') for n, t in posts.items()}
         with tempfile.TemporaryDirectory() as d:
             (Path(d) / "docs" / "posts").mkdir(parents=True)
             for name, text in posts.items():
@@ -82,6 +84,11 @@ class T(unittest.TestCase):
     def test_default_root_is_the_repo_root(self):
         # parents[2] from platform/ci/: one more level and the check scans nothing and always passes
         self.assertTrue((ROOT / "docs" / "posts").is_dir())
+
+    def test_one_description_on_two_posts_fails(self):
+        code, out = self._run({"2026-10-24-x.md": GOOD, "2026-10-24-y.md": GOOD.replace('title: "T"', 'title: "U"')}, distinct=False)
+        self.assertEqual(code, 1)
+        self.assertIn("one description on 2 posts", out)
 
     def test_no_front_matter(self):
         self.assertEqual(problems("x.md", "# hi\n"), ["no front matter"])
