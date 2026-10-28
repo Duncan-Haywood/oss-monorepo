@@ -126,6 +126,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Second Echo</title>
+      <link>https://example.invalid/hearth-and-horizon/the-second-echo.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-second-echo.html</guid>
+      <pubDate>Wed, 28 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A dying moorland church has eleven singers and a room that forgets every note in a second and a half. A parish assistant can make the room remember longer by listening to the choir and playing it back, and the sums are easy. The hard part is what the sacristan will not say about her carpet, and what the priest asks the machine to promise before it is switched on. Setting: Saint Ethelwold's, an invented chapel-of-ease at Ings Ness on the North York Moors, England, October to November 2049. Read the full text at https://example.invalid/hearth-and-horizon/the-second-echo.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A dying moorland church has eleven singers and a room that forgets every note in a second and a half. A parish assistant can make the room remember longer by listening to the choir and playing it back, and the sums are easy. The hard part is what the sacristan will not say about her carpet, and what the priest asks the machine to promise before it is switched on.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Window Closes at Eleven</title>
       <link>https://example.invalid/hearth-and-horizon/the-window-closes-at-eleven.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-window-closes-at-eleven.html</guid>
