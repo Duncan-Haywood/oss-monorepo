@@ -1562,3 +1562,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E103: review 2026-10-28 (reduced pass, thirtieth run)
+
+- Change: `.github/prompts/land-your-work.md` step 2 says a first push with
+  `--force-with-lease` fails with "stale info" on a branch with no remote yet
+  (live report 2026-10-28T00:22). Re-ran `derive.py fetch && build`.
+- Metric: friction reports naming `land-your-work.md` about push failures;
+  compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)

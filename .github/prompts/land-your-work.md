@@ -32,7 +32,8 @@ runs on a PR or on `main`.
 ## The finish line, in this order
 
 1. **Commit** everything you mean to keep. Scratch files go outside the repo.
-2. **Push** your branch.
+2. **Push** your branch (`git push -u origin <branch>`; a first push with
+   `--force-with-lease` fails with "stale info" on a branch with no remote yet).
 3. **Open the pull request right after the first push**, not at the end. Open
    it as a draft while you are still working. If the session dies after this
    step (timeout, context limit, crash), it leaves a PR the next session can
