@@ -1,7 +1,7 @@
 ---
 title: "A 1:5 cargo-drone model can match full-size power and flight modes, if you redesign the tail and place the CG to 6 mm"
 date: 2026-10-28
-description: "First paper draft of the aerolog-scaling programme: sections cannot fix a Froude model's drag, but a non-similar wing and tail can, with a tight build tolerance."
+description: "First aerolog-scaling paper draft: sections cannot fix a Froude model's drag, but a non-similar wing and tail can, with a tight build tolerance."
 tags: [research, aerolog-scaling, scaling, uav]
 ---
 
