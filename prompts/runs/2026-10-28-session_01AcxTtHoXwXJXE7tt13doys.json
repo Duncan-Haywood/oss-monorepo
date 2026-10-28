@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01AcxTtHoXwXJXE7tt13doys",
+  "track": "review",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T23:09:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11233",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "issue": "validate failed on another run's post (missing description/tags); fixed as the prompt says"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-2.md",
+      "why": "scheduled run: reduced pass, no audit or drift report",
+      "did": "steps 1,3,7,8 plus one CLAUDE.md fix",
+      "result": "validate and unit tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Reduced review pass; no blog post (review log in experiments.md E107).",
+  "corrections": [],
+  "redteam": null
+}

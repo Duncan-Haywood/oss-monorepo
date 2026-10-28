@@ -1,6 +1,8 @@
 ---
 title: "Your quarterly estimate now includes a state line"
 date: 2026-10-28
+description: "The AI Bookkeeper quarterly tax estimate now takes a flat state rate and state deduction, so the set-aside figure covers both federal and state."
+tags: [ai-bookkeeper, tax, self-employed]
 ---
 
 Most freelancers owe two quarterly payments, not one: federal and state. The AI Bookkeeper's tax estimate covered only the federal side, so the "how much do I set aside" answer was always short.
