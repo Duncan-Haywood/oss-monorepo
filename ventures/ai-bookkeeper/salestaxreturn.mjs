@@ -172,6 +172,10 @@ const periodBefore = (d, freq, endMonth) => {
 export function salesTaxReturn(books, { account = "2100", frequency = "quarterly", endMonth = null, dueDay = 20, from = null, to = null, rates = {}, rollover = true, discounts = {}, asOf = null } = {}) {
   if (!["monthly", "quarterly", "semiannual", "annual"].includes(frequency)) throw new Error("frequency must be monthly, quarterly, semiannual or annual");
   if (endMonth != null && !(Number.isInteger(endMonth) && endMonth >= 1 && endMonth <= (frequency === "annual" ? 12 : LEN[frequency] ?? 1))) throw new Error("endMonth must be a month within the first period of the year");
+  for (const [j, d] of Object.entries(discounts)) {
+    const okCap = (c) => c == null || (Number.isFinite(c) && c >= 0);
+    if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth)) throw new Error(`discount for "${j}" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount "${j}=0.5,100"`);
+  }
   const cells = new Map();
   const cell = (period, j) => {
     const k = `${period}|${j}`;

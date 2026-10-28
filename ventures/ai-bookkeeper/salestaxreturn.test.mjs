@@ -350,3 +350,11 @@ test("states with no state sales tax get a note instead of silence", async () =>
   for (const s of ["OR", "mt", "NH", "DE", "AK"]) assert.match(stateFilingNote(s, "quarterly"), /no (statewide )?(general )?(state )?sales tax|no sales tax/i, s);
   assert.equal(stateFilingNote("TX"), null);
 });
+
+test("a malformed discount is refused instead of printing NaN", () => {
+  const books = newBooks();
+  for (const d of [{ rate: NaN }, { rate: 1.5 }, { rate: -0.01 }, { rate: 0.01, cap: NaN }, { rate: 0.01, capPerMonth: -5 }, null]) {
+    assert.throws(() => salesTaxReturn(books, { discounts: { "CA state": d } }), /discount for "CA state"/);
+  }
+  assert.doesNotThrow(() => salesTaxReturn(books, { discounts: { "CA state": { rate: 0.005, cap: 10000 } } }));
+});

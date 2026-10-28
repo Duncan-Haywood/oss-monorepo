@@ -870,7 +870,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (let v = flag("--rate"); v; v = flag("--rate")) { const [k, n] = v.split("="); rates[k.trim()] = Number(n) / 100; }
   let t;
   const discounts = {};
-  for (let v = flag("--discount"); v; v = flag("--discount")) { const [k, spec] = v.split("="); const [pct, cap] = spec.split(","); const perMonth = cap != null && /\/mo$/.test(cap.trim()); const c = cap == null ? undefined : Math.round(Number(cap.trim().replace(/\/mo$/, "")) * 100); discounts[k.trim()] = { rate: Number(pct) / 100, ...(perMonth ? { capPerMonth: c } : { cap: c }) }; }
+  for (let v = flag("--discount"); v; v = flag("--discount")) { const [k, spec = ""] = v.split("="); const [pct, cap] = spec.split(","); const perMonth = cap != null && /\/mo$/.test(cap.trim()); const c = cap == null ? undefined : Math.round(Number(cap.trim().replace(/\/mo$/, "")) * 100); discounts[k.trim()] = { rate: Number(pct) / 100, ...(perMonth ? { capPerMonth: c } : { cap: c }) }; }
   try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", endMonth: flag("--end-month") ? Number(flag("--end-month")) : stateEndMonth(flag("--state"), flag("--freq") ?? "quarterly"), dueDay: flag("--due-day") ? Number(flag("--due-day")) : stateDueDay(flag("--state"), flag("--freq") ?? "quarterly"), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
   const stateNote = stateFilingNote(flag("--state"), t.frequency);
   if (stateNote) t.warnings.push(stateNote);
