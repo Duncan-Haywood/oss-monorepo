@@ -1,0 +1,13 @@
+format class n nonfinite finite_harm any_harm(|dL|>0.01)
+fp32  exp_hi  60 0.150 0.100 0.250
+fp32  exp_lo  20 0.000 0.000 0.000
+fp32  sign    20 0.000 0.000 0.000
+fp32  man_hi  20 0.000 0.000 0.000
+bf16  exp_hi  60 0.117 0.100 0.217
+bf16  exp_lo  20 0.000 0.000 0.000
+bf16  sign    20 0.000 0.000 0.000
+bf16  man_hi  20 0.000 0.000 0.000
+fp16  exp_hi  60 0.000 0.233 0.233
+fp16  exp_lo  20 0.000 0.000 0.000
+fp16  sign    20 0.000 0.000 0.000
+fp16  man_hi  20 0.000 0.000 0.000
