@@ -68,7 +68,7 @@ Sub-scale flight models are cheap to crash and so are used to test cargo and del
 ## Before submission (owner and later sessions)
 
 1. (Slope-scaled tail search done, milestone 8e: none of the 78 passing tails stays within 5% for slopes 0.75 to 1.0 of NeuralFoil's; best worst case 7.1%; `experiments/robust_tail`.) Find measured NACA 0012/0015 polars at Re 1e5 to 2e5 (8c: NACA 0009 disagrees with NeuralFoil by 15 to 28%; 8d: NACA 2414/2415 by 22% to 67%; Vols. 1 to 3 hold no symmetric 12 or 15% section).
-2. Gust response (H1 proper) and a thrust law.
+2. (Gust response done, milestone 9a: the similar n = 0.2 model keeps the peak load-factor increment within 2% but is 27 to 33% high in peak pitch rate; none of the 17 power-matched models is within 10% on all three metrics; `experiments/gust_response`. Not yet in Section 4.) A thrust law.
 3. Convert to the AIAA template (the three figures exist: `paper/make_figures.py` draws `figures/fig1_power_ratio.png`, `fig2_mode_errors.png` and `fig3_cg_margin.png` from the committed results files; a tolerance-interval figure needs the per-tail intervals of `fixed_tail`, which the results file lists only for the five best tails), run `cite_check.py` on the final bibliography and open Drela 1989, Raymer 6th ed. and Jordan et al. proceedings.
 4. Submitting is an owner step.
 

@@ -3,6 +3,21 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-28 · Milestone 9a: does the Froude model keep the gust response (H1 proper)? (planned before running)
+- Why: the draft's "Next" and the last untested half of H1 ("response to a scaled gust"). The UIUC host (m-selig.ae.illinois.edu) is refused by the egress proxy in this session (HTTP 000, `connect_rejected`), so 8e's NACA 0012/0015 data step cannot run; the gust response needs no external data.
+- Plan (`experiments/gust_response/run.py`): the four-state model and power-matched grid of `nonsimilar_modes`; a 1-cos vertical gust with gradient H = 5, 12.5, 25 full-size chords (H scaled by n and w_g by sqrt(n) so alpha_g(t sqrt(g/L)) is identical at every scale); exact zero-order-hold simulation; metrics peak load-factor increment, peak q sqrt(L/g), peak pitch attitude, as percent difference from n = 1.
+- **Predictions (before running):** (1) the uncorrected similar n = 0.2 model differs from n = 1 by more than 5% in at least one metric at H = 12.5 (prior 80%; its short period is 15% high and its damping 10% low). (2) The best power-matched non-similar case is within 5% on all three metrics for none of the three gust lengths (prior 75%), since the 17 cases already miss the modes by 15% or more. (3) The peak pitch rate is the worst-matched metric (prior 60%). Refuted: (1) all three within 5%; (2) some case within 5% at some H; (3) another metric is worst.
+- Limits known in advance: no gust penetration lag between wing and tail, no alpha-dot derivative, no elevator or autopilot, rigid body, one reference aircraft; the 4-state model's short-period error (16 to 25% from the free-model table) is inherited.
+
+
+### Outcome of 9a (`experiments/gust_response/`: `run.py`, `results.txt`; about 2 min)
+- The uncorrected similar n = 0.2 model matches the n = 1 peak load-factor increment within 2.0% at all three gust lengths (-0.3, -0.8, -2.0%) but its peak pitch rate is 26.8 to 32.6% high and its peak pitch attitude 19.8 to 21.6% high. So the load a gust puts on the wing transfers, the rotational response does not.
+- Of the 17 power-matched non-similar cases, none is within 5% or even 10% on all three metrics at any gust length. The best have peak pitch rate 18.3 to 30.5% high and peak load factor 8.8 to 22.3% high (the power match inflates the wing area, k above 1, which raises the load-factor increment).
+- **(1) held** (pitch rate 30.5% at H 12.5). **(2) held** (0 of 17 at all three H). **(3) held** (pitch rate is the worst metric for the similar model and for the three best cases at H 5 and 25; at H 12.5 for the k 1.30 4412 case it is also the worst, 24.7%).
+- Reading: H1's gust half is refuted for the rotational response, consistent with the 16 to 25% short-period error, and the power-matching correction (H5) trades a drag match for a worse load-factor match. A design that restores power, modes and gust response together is not in this grid.
+- Limits: as planned (no penetration lag, no alpha-dot, rigid, no elevator); the tail slope uncertainty of 8c to 8e applies here too, and the pitch-rate error is the part most sensitive to it.
+- Next: NACA 0012/0015 data when the UIUC host answers; include the gust metrics in the correction search objective; thrust law; AIAA template.
+
 ## 2026-10-28 · Milestone 8e: does any tail restore the modes if the true tail slope is 0.75 to 1.0 of NeuralFoil's? (planned before running)
 - Why: 8d's "Next". 8c and 8d put NeuralFoil's section slope at 1.2 to 1.7 times the UIUC measurement at Re 1e5 to 2e5, so the 1% mode match of the headline tail may not survive. A design that passes with the slope uncertain is the robust answer.
 - Plan (`experiments/robust_tail/run.py`): the 17 power-matched wings and the 270-tail grid of `tail_search`, each tail evaluated with its lift slope times 0.75, 0.8, 0.9 and 1.0; robust = worst mode error within 5% (or 3%) at all four scales. Same mode model; only the tail slope is scaled. The wing slope is not scaled (the 8d data were for sections like the tail's; the wing is not tested here).
