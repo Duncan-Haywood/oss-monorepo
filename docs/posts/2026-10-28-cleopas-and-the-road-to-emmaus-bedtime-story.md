@@ -1,7 +1,7 @@
 ---
 title: "Cleopas and the road to Emmaus: a bedtime story from Luke"
 date: 2026-10-28
-description: "Episode 51 of Saints by Candlelight tells Luke 24 for bedtime: two sad friends, a stranger who asks what they are talking about, and bread at the end of the day."
+description: "Episode 51 of Saints by Candlelight tells Luke 24 for bedtime: two sad friends, a stranger who asks what they are talking about, and bread at dusk."
 tags: [fiction, saints-by-candlelight, bedtime-stories]
 ---
 
