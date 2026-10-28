@@ -1,7 +1,7 @@
 ---
 title: "A sales tax discount you pay late is a discount you may not get"
 date: 2026-10-28
-description: "ai-bookkeeper's sales tax return worksheet now warns when a payment lands after the due date, because state timely-filing discounts usually depend on paying on time."
+description: "ai-bookkeeper's sales tax worksheet now warns when a payment lands after the due date, since state timely-filing discounts usually depend on paying on time."
 tags: [ai-bookkeeper, sales-tax, bookkeeping]
 ---
 
