@@ -35,6 +35,22 @@ class T(unittest.TestCase):
             reg = math.log(halve(rungs, y, keep, random.Random(rng.random()))) - math.log(min(y))
             self.assertLessEqual(reg, sum(kth_inversion(r, y, k) for r, k in zip(rungs, keep)) + 1e-9)
 
+    def test_anchored_bound_holds_and_is_below_kth(self):
+        # milestone 39: regret <= max_j (kappa_j + sum_{l>j} iota^(k_l)) <= sum iota^(k_j)
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "experiments" / "theory"))
+        from anchored import anchored
+        rng = random.Random(13)
+        for _ in range(400):
+            n = rng.randint(4, 30)
+            rungs = [[rng.randint(0, 6) for _ in range(n)] for _ in range(2)]
+            y = [rng.uniform(1, 50) for _ in range(n)]
+            keep = [rng.randint(1, n), 0]
+            keep[1] = rng.randint(1, keep[0])
+            reg = math.log(halve(rungs, y, keep, random.Random(rng.random()))) - math.log(min(y))
+            a = anchored(rungs, y, keep)
+            self.assertLessEqual(reg, a + 1e-9)
+            self.assertLessEqual(a, sum(kth_inversion(r, y, k) for r, k in zip(rungs, keep)) + 1e-9)
+
     def test_perfect_and_reversed(self):
         self.assertEqual(inversion([1, 2, 3], [1, 2, 3]), 0.0)
         self.assertAlmostEqual(inversion([1, 2, 3], [3, 2, 1]), math.log(3))

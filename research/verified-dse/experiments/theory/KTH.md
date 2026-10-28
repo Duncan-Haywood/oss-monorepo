@@ -28,3 +28,8 @@ it is not pilot-checkable yet; an estimator with a coverage statement for iota^(
 **Pilot estimate (milestone 38, exploratory, negative).** `kth_pilot.py` computes iota^(k) on a random 16-point pilot. It is a
 lower bound on the true value, within about 15% at the median ratio over 55 cells, but it never reaches the truth in 80% of draws
 in any cell, so it is not a certificate; `kth_pilot_results.txt`.
+
+**Optimum-anchored refinement (milestone 39).** Only the optimum x* matters for regret: if its first cut is j, regret is at most
+kappa^(k_j) + sum of iota^(k_l) over later cuts, where kappa^(k) is the k-th largest excess over x* among its rivals (0 if fewer
+than k). Maximise over j. This is at most the bound above; on the cached cells it is lower in 23 of 37 (median ratio 0.89) and
+never violated (`anchored.py`, `anchored_results.txt`).
