@@ -84,6 +84,12 @@ pilot gate never paid for its pilot. Pooled over the ten held-out designs (`expe
 beat random R4 by 1.3 points at 25 equivalents (8 and 7 of 10 designs better, bootstrap intervals exclude zero), but no test
 survives a Holm correction over 12 tests (smallest adjusted p 0.14), and f3 and eta = 1.5 do not differ at 25 (p 1.0); the
 held-out win is reported uncorrected.
+Adding the two high-fanout designs (`fanao96`, `bcastadd64`; twelve designs) and ranking the R2 rung by mapped area alone
+instead of area x period (`experiments/r2_area_arm/`) changes nothing inside halving: the two scorings differ by 0.00 points at
+25 equivalents (Holm p 1.0), because eta = 1.5 keeps two thirds of the points after R2. As an argmin, area alone is worse
+(mean full-pool R2 pick regret 10.3% against 6.0% over 24 cells) although its mean tau with R4 is higher (0.58 against 0.38). On
+twelve designs both halving arms beat random R4 by 1.2 points at 25 equivalents (10 of 12 designs better, Holm p 0.044), the
+first held-out comparison to survive a 12-test correction; two of the twelve were added after the ten-design test.
 
 ## 4 A bound and what a pilot can check
 Define the inversion of a rung, iota = max(0, max over pairs with s(x) <= s(x') of log y(x) - log y(x')). **Proposition.**
