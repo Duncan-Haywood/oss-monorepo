@@ -20,6 +20,6 @@ The first step is a stdlib model of pump-shaft energy for three circuits (fixed 
 
 The saving from load-sensing grows as demand falls (0.31 of open-centre at half flow, 0.63 at full flow), because a fixed pump keeps pushing full flow at load pressure.
 
-Read it carefully. The ordering holds in all 2,916 cases, but each circuit just removes a loss from the one before, so that is a check of the code, not a finding. The cycle's pressures and flows were written from memory and are swept, not sourced; there are no dynamics, leakage or parts costs, and the DOI registry was unreachable from this session, so no reference is machine-checked. The next step is a duty cycle from the earthmoving equation or a published measurement, which is the test that can fail.
+Read it carefully. The ordering holds in all 2,916 cases, but each circuit just removes a loss from the one before, so that is a check of the code, not a finding. The cycle's pressures and flows were written from memory and are swept, not sourced; there are no dynamics, leakage or parts costs, and the DOI registry was unreachable from this session, so references were confirmed by web search rather than the citation checker. The next step is a duty cycle from the earthmoving equation or a published measurement, which is the test that can fail.
 
 Code, log and proposal: `research/heavy-hydraulics/`. This is arithmetic, not a design or a safety system; nothing was run on a machine.

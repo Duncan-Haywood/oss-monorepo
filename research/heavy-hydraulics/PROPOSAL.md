@@ -3,8 +3,9 @@
 Programme `heavy-hydraulics`, opened 2026-10-28 as the first programme of track 25 (`heavy`,
 `research/PROJECTS.md`, milestone 2). Written with AI assistance (Claude Code). This is a plan
 plus one first-order calculation; no bench, field or simulator result exists. The DOI registry
-(Crossref) was unreachable from this session (403 through the egress proxy), so **no reference
-below is machine-checked**; "Citation status" says what must be opened before use.
+(Crossref) was unreachable from this session (403 through the egress proxy), so `cite_check.py` could not run;
+the DOIs, arXiv id and venues of the entries above were confirmed by web search instead, and
+"Citation status" says what remains unchecked.
 
 ## Question
 
@@ -27,24 +28,25 @@ machine wants the cheapest circuit that does not waste most of the engine's ener
 ## Related work
 
 Energy use and circuit architecture of excavators:
-- Vukovic, Leifeld and Murrenhoff, "Reducing fuel consumption in hydraulic excavators: a comprehensive analysis", *Energies* 10(5), 2017. Compares circuit and hybrid options on a simulated machine; the strongest recent survey-plus-model, and the baseline this programme must beat on openness and pricing.
-- Eriksson and Palmberg, "Individual metering fluid power systems: challenges and opportunities", *Proc. IMechE Part I* 225(2), 2011. Independent-metering architecture and its control problems; sets what the `metered` rung can and cannot claim.
-- Ivantysynova's group (Purdue), displacement-controlled (pump-controlled) actuators for excavators, e.g. Williamson and Ivantysynova, "Power optimization for multi-actuator pump-controlled systems", 2008 (title from memory). Pump-controlled circuits remove throttling; they need several pumps and cost more.
-- Hippalgaonkar and Ivantysynova, work on hydraulic hybrid excavators (title from memory). Energy recovery on boom lowering; outside this proposal's first rungs.
-- Merritt, *Hydraulic Control Systems*, Wiley, 1967; Manring and Fales, *Hydraulic Control Systems*, 2nd ed., Wiley, 2019. Textbook valve, pump and flow-compensator models that the lumped rungs use.
-- Rexroth and Danfoss load-sensing application notes (margin pressure about 14 to 30 bar; value to be read from the datasheets, not recalled). The `dp_ls` range swept here.
+- Vukovic, Leifeld and Murrenhoff, "Reducing fuel consumption in hydraulic excavators: a comprehensive analysis", *Energies* 10(5), 687, 2017, doi:10.3390/en10050687. A Willans-approximation fuel model validated on an 18 t excavator; shows that hydraulic efficiency alone can mislead. The baseline this programme must match on rigour and add openness and pricing to.
+- Eriksson and Palmberg, "Individual metering fluid power systems: challenges and opportunities", *Proc. IMechE Part I* 225(2):196-211, 2011, doi:10.1243/09596518JSCE1111. Review of independent metering layouts and control; sets what the `metered` rung can and cannot claim.
+- Williamson, "Power management for multi-actuator mobile machines with displacement controlled hydraulic actuators", PhD thesis, Purdue University, 2010, https://docs.lib.purdue.edu/dissertations/AAI3449412. Measured fuel reductions of a displacement-controlled 5 t compact excavator (reported 56% on a load-positioning cycle against the same system unoptimised); the external anchor for H4. The Caterpillar 40% truck-loading figure seen in a search summary was not traced to a source and is not used.
+- Ivantysynova's group, Maha Fluid Power Research Center, publication list, https://engineering.purdue.edu/Maha/publications_ivantysynova. Pump-controlled excavator prototypes (e.g. Busquets and Ivantysynova, first displacement-controlled excavator with pump switching; exact reference to be opened). Removes throttling at the cost of several pumps.
+- "Motion control of multi-actuator hydraulic systems for mobile machineries: recent advancements and future trends", *Frontiers of Mechanical Engineering* 13(2), 2018, https://journal.hep.com.cn/fme/EN/Y2018/V13/I2/151. A review found by search; authors and findings to be read before citing. Context for the pump-controlled and metered families.
+- "Energy saving potential of load sensing system with hydro-mechanical pressure compensation and independent metering", *International Journal of Fluid Power*, https://journals.riverpublishers.com/index.php/IJFP/article/view/168. Found by search; authors, year and numbers to be read. The closest prior comparison of load-sensing against independent metering, and a candidate H4 anchor.
+- Manring and Fales, *Hydraulic Control Systems*, 2nd ed., Wiley, 2019 (ISBN 978-1-119-41647-0); Merritt, *Hydraulic Control Systems*, Wiley, 1967. Textbook valve, pump and compensator models.
+- Load-sensing application notes from valve makers (margin pressure about 14 to 30 bar): to be read from datasheets, not recalled; the `dp_ls` range swept here.
 
 Soil and digging:
-- Reece, "The fundamental equation of earth-moving mechanics", *Proc. ICE* Symposium on Earth Moving Machinery, 1964. Cutting force from soil parameters; the load generator for milestone 3.
-- McKyes, *Soil Cutting and Tillage*, Elsevier, 1985. Extends the fundamental equation to tool shapes.
-- Wong, *Theory of Ground Vehicles*, 4th ed., Wiley, 2008 and Bekker, *Introduction to Terrain-Vehicle Systems*, 1969. Terramechanics for the tracked base.
-- Jud et al., autonomous excavation with a walking excavator (HEAP), ETH Zurich, *Science Robotics* / *IEEE RA-L* (exact venue and year to be checked). Open autonomy on a real, instrumented machine; the data source to look for.
+- Reece, "The fundamental equation of earth-moving mechanics", *Proc. ICE* Symposium on Earth Moving Machinery, 1964, and McKyes, *Soil Cutting and Tillage*, Elsevier, 1985. Cutting force from soil parameters; the load generator for milestone 2.
+- Wong, *Theory of Ground Vehicles*, 4th ed., Wiley, 2008. Terramechanics for the tracked base. Project Chrono, https://projectchrono.org/ (BSD-3), for deformable soil if it installs.
+- Jud, Kerscher, Wermelinger, Jelavic, Egli, Leemann, Hottiger and Hutter, "HEAP: the autonomous walking excavator", *Automation in Construction* 129, 103783, 2021, arXiv:2106.05059. Open autonomy on a real, instrumented machine with three arm actuation principles compared; a data source to look for.
 
 Open hardware and standards:
 - Open Source Ecology, Global Village Construction Set (LifeTrac, hydraulic power unit), https://www.opensourceecology.org/. Open designs with parts lists; no energy accounting.
-- Pearce, "Building research equipment with free, open-source hardware", *Science* 337, 2012. Cost argument for open hardware (title from memory).
-- ISO 20474 (earth-moving machinery safety), ISO 10567 (hydraulic excavator lift capacity) and ISO 6015 (hydraulic excavators, terminology and commercial specifications), cited as context and for rated figures; not claimed.
-- Our own: `heavy-market` (milestone 1, not built), track 16 `energy-density` for the electric rung.
+- Pearce, "Building research equipment with free, open-source hardware", *Science* 337(6100):1303-1304, 2012, doi:10.1126/science.1228183. The cost argument for open hardware.
+- ISO 20474 (earth-moving machinery safety) and ISO 10567 (hydraulic excavator lift capacity), cited as context, not claimed.
+- Our own: `heavy-market` (milestone 1 of track 25, not built); track 16 `energy-density` for the electric rung.
 
 ## Gap
 
@@ -96,5 +98,8 @@ Control (short paper), 8 to 12 pages; an aim, not a claim of acceptance.
 
 ## Citation status
 
-None of the references above is machine-checked (Crossref blocked this session). Titles marked
-"from memory" may be wrong in detail. Open each before it is relied on in a paper.
+`cite_check.py` could not run (Crossref 403). A web search confirmed the Vukovic, Eriksson and
+Palmberg, Pearce and HEAP entries (an earlier draft had HEAP in the wrong journal; corrected).
+Williamson's thesis was found by title. Found by search title only (not opened): the two review/IJFP entries. Not opened: Reece, McKyes, Wong, Merritt, Manring and
+Fales (book details only), the valve-maker notes, the Busquets and Ivantysynova paper and the ISO
+standards. Open each before it is relied on in a paper.

@@ -42,5 +42,5 @@ pump efficiency (0.75 to 0.92). None is sourced yet.
 ## Limitations and next steps
 
 Illustrative cycle written from memory; no dynamics, leakage, line losses or energy recovery;
-no parts cost; no reference machine-checked. Next: a sourced duty cycle (earthmoving equation or a
+no parts cost; references web-searched, not cite_check-ed. Next: a sourced duty cycle (earthmoving equation or a
 public measured cycle), then parts cost with `heavy-market`.
