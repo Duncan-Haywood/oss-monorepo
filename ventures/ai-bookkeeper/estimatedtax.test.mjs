@@ -246,7 +246,7 @@ test("the CLI reads --tax-table for a year with no built-in table", async () => 
   const d = mkdtempSync(join(tmpdir(), "tt-"));
   writeFileSync(join(d, "books.json"), JSON.stringify(books("50000.00", 2027)));
   writeFileSync(join(d, "t.json"), JSON.stringify({ standardDeduction: 17000, brackets: [[13000, 0.1], [null, 0.2]] }));
-  const run = (...a) => spawnSync("node", ["cli.mjs", "--books", join(d, "books.json"), "estimate", "--year", "2027", ...a], { encoding: "utf8" });
+  const run = (...a) => spawnSync("node", [new URL("./cli.mjs", import.meta.url).pathname, "--books", join(d, "books.json"), "estimate", "--year", "2027", ...a], { encoding: "utf8" });
   assert.notEqual(run().status, 0);
   const ok = run("--tax-table", join(d, "t.json"), "--json");
   assert.equal(ok.status, 0, ok.stderr);
