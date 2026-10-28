@@ -268,6 +268,7 @@ numbers worked out before drafting.
   station keeping the Hours on a day 24 hours 39.6 minutes long; the problem is
   calendar and liturgy, not drama in a spacesuit.
 - *(Done: The Control Vial, Cheparaa Health Centre, Kenya, 2041.)* A solar vaccine fridge freezes its top shelf; the cold-chain AI will not certify the doses without a shake test, and the test takes a night.
+- *(Done: Forty-Eight Degrees, Tigh Naomh Pádraig, Wicklow, 2049; text only.)* A hospice heat pump set to 48 C saves 630 euro a year and sits in Legionella's range; a 3.2 m dead leg, 400 CFU/L at the nearest shower, store at 60 and mix to 43.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
 - *(Done: The Cold Meter, Eilean Dhubhaig, 2052.)* A wind lull on an island grid; the hall as the cheapest heater.
