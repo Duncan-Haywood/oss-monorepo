@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement } from "./engine.mjs";
 import { addPayroll } from "./payroll.mjs";
-import { depositSchedule } from "./deposits.mjs";
+import { depositSchedule, lookbackTotal } from "./deposits.mjs";
 
 const HEAD = "Pay Date,Gross Pay,Federal Income Tax,Social Security,Medicare,State Income Tax,Other Deductions,Net Pay,Employer Social Security,Employer Medicare,FUTA,SUTA";
 // gross g: fed 10%, SS 6.2%, Medicare 1.45%; employer SS and Medicare match. Federal deposit = 10% + 15.3% = 25.3% of g.
@@ -147,4 +147,31 @@ test("Wednesday, Thursday and Friday pay dates all end the period on that Friday
     const r = depositSchedule(reg([[d, 2000]]), 2026, { schedule: "semiweekly" });
     assert.equal(r.deposits[0].due, "2026-06-10", d);
   }
+});
+
+test("lookback is covered when the FIRST register run is on or before the window start, whatever follows", () => {
+  const books = reg([["2024-06-01", 1000], ["2025-01-10", 1000]]);
+  assert.equal(lookbackTotal(books, 2026).covered, true);
+  assert.equal(depositSchedule(books, 2026).warnings.some((w) => /register starts after/.test(w)), false);
+  assert.equal(lookbackTotal(reg([["2024-07-02", 1000], ["2025-01-10", 1000]]), 2026).covered, false);
+});
+
+test("a pay date on January 1 belongs to that year's deposits", () => {
+  const r = depositSchedule(reg([["2026-01-01", 2000]]), 2026);
+  assert.equal(r.deposits.length, 1);
+  assert.equal(r.deposits[0].from, "2026-01-01");
+});
+
+test("de minimis: a quarter under $2,500 is flagged per quarter; exactly $2,500 is not", () => {
+  const r = depositSchedule(reg([["2026-02-13", 2000], ["2026-05-15", 2000], ["2026-08-14", 2000], ["2026-11-13", 2000]]), 2026);
+  assert.equal(r.deposits.length, 4);
+  for (const d of r.deposits) assert.match(d.rule, /under \$2,500 for the quarter, pay with Form 941/);
+  // 25.3% of 9,881.42 = 2,500.00 (checked below), so it is not under the threshold.
+  const g = 9881.42;
+  const at = depositSchedule(reg([["2026-02-13", g]]), 2026);
+  assert.equal(at.deposits[0].amount, 250000);
+  assert.doesNotMatch(at.deposits[0].rule, /Form 941/);
+  const below = depositSchedule(reg([["2026-02-13", 9880]]), 2026);
+  assert.ok(below.deposits[0].amount < 250000);
+  assert.match(below.deposits[0].rule, /Form 941/);
 });
