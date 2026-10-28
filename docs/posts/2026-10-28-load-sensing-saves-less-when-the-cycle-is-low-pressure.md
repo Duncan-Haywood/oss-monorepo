@@ -1,7 +1,7 @@
 ---
 title: "Load-sensing saved 16% instead of 56% once the excavator model had realistic loads"
 date: 2026-10-28
-description: "In the heavy-hydraulics programme, tying pressures to a force model cut load-sensing's median saving over open-centre from 56% to 16%, and reversed it in 17% of cycles."
+description: "Tying pressures to a force model cut load-sensing's median saving over open-centre from 56% to 16% in heavy-hydraulics, and reversed it in 17% of cycles."
 tags: [research, heavy-hydraulics, excavator]
 ---
 
