@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-28 · Milestone 37: a regret bound that improves with the survivor count k (theorem; predictions fixed before the script ran)
+- Why: milestones 35 and 36 closed the pilot-coverage item and left the real gap, a bound on halving's regret that uses k_j (`BOUND.md`: "does not use k_j at all"). New statement (proof in `experiments/theory/KTH.md`): define iota^(k) = max over x of the k-th largest of max(0, log y(z) - log y(x)) over rivals z ranked at or ahead of x. A cut that keeps k points loses at most iota^(k), because x is cut only if all k survivors are rivals of x, and the best of any k rivals is at most the k-th largest. So regret <= sum_j iota^(k_j); iota^(1) is the old iota, and iota^(k) is non-increasing in k. `experiments/theory/kth.py` (no flow run) evaluates it on the cached `rung_bias` table with the milestone 6 survivor counts (n/3, n/9, n/27) and 200 random tie-breaks per cell, and checks the bound against realised regret.
+- **Predictions (fixed now):** (1) The bound is never violated (it is a proof; any violation is a bug in the statement or the code). (2) The new bound is below the old one in at least 80% of group-rung cells, with median ratio (new / old) under 0.5. (3) The new bound still dominates the realised regret and is non-vacuous (under the spread log(max y / min y)) in more cells than the old bound. Each is refuted by the opposite.
+- Limits known in advance: it is still a worst case over x (the maximum over all candidates, not only the optimum), so it can stay loose; it needs the pool-wide table, so it is a diagnostic on cached tables, not a pilot-checkable certificate (a pilot estimate of iota^(k) is the next step).
+
+### Outcome (`experiments/theory/kth.py` about 10 s, `kth_results.txt`; no flow run)
+- **(1) held.** 0 violations over 40 cells x 200 tie-breaks; `tests/test_bound.py` also checks the bound on 400 random two-cut instances and that iota^(1) = iota and iota^(k) is non-increasing in k.
+- **(2) half held.** New below old in 39 of the 39 cells where the old bound is positive, but the median ratio is 0.543 (range 0.000 to 0.820), not under 0.5.
+- **(3) held.** Non-vacuous (under the spread of y) in 32 of 40 cells against 16 for the old bound. Median bound over the largest realised regret falls from 5.45 to 3.02, so it is still loose by about a factor of 3.
+- Reading: using k_j removes about 46% of the bound at the median and doubles the number of cells where it says something, with a proof. It is still a worst case over candidates and needs the full table.
+- Limits: one table and tool version, the milestone 6 survivor counts (n/3, n/9, n/27) only; the bound is a maximum over all candidates; no pilot estimator yet.
+- Next: a pilot-checkable estimator of iota^(k) (rivals of the pilot's best points) with a coverage argument, then the paper's theory section.
+
+
 ## 2026-10-28 · Milestone 36: coverage of the with-replacement (independent-pairs) pilot quantile on the cached tables (predictions fixed before the script ran)
 - Why: milestone 35 showed the disjoint scheme is not proved and that the independent-pairs scheme (each pair a uniform pair of distinct pool points, points may repeat) is, with P(F(q) > alpha) <= (1 - alpha)^n. Its coverage was never measured. `experiments/theory/with_replacement.py` (no flow run) repeats `quantile.py`'s 2000-pilot design on the same 60 group-rung cells (alpha = delta = 0.2, n = 8 pairs) with independent pairs, and tabulates coverage, the median q, and the realised point cost.
 - **Predictions (fixed now):** (1) Every cell's coverage is at least 0.8 minus the 95% binomial margin (0.765), as the proof says; the minimum is 0.80 to 0.87. (2) Median q is within 0.02 of the disjoint scheme's median q in at least 80% of cells (repeats matter little at N of 100 or more). (3) Mean distinct points per pilot is at least 15.8 of 16. Each is refuted by the opposite.
