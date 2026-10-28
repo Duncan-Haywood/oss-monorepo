@@ -1,0 +1,39 @@
+{
+ "d": 32,
+ "A_LIST": [
+  1,
+  2,
+  4,
+  8
+ ],
+ "B": {
+  "1": {
+   "n": 40,
+   "global_harmful": 2,
+   "tensor_harmful": 0,
+   "only_global": 2,
+   "only_tensor": 0
+  },
+  "2": {
+   "n": 40,
+   "global_harmful": 0,
+   "tensor_harmful": 0,
+   "only_global": 0,
+   "only_tensor": 0
+  },
+  "4": {
+   "n": 40,
+   "global_harmful": 11,
+   "tensor_harmful": 1,
+   "only_global": 10,
+   "only_tensor": 0
+  },
+  "8": {
+   "n": 40,
+   "global_harmful": 13,
+   "tensor_harmful": 1,
+   "only_global": 12,
+   "only_tensor": 0
+  }
+ }
+}
