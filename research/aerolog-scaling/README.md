@@ -109,4 +109,4 @@ only as a topic; no affiliation is implied. Written with AI assistance (Claude C
 
 ## Next
 
-Open the NASA table and each reference; gust response and a thrust model for H1; XFOIL polars against Selig data (H2, H3; milestone 8c did NACA 0009 against UIUC Vol. 1, see `experiments/uiuc_tail_slope`, and found NeuralFoil's section slope 15 to 28% off at Re 4e4 to 1e5, so 0012 and 0015 at Re 1e5 to 2e5 remain); full-size propeller Reynolds number from a sourced propeller (to close H4); a motor-efficiency model.
+Open the NASA table and each reference; gust response and a thrust model for H1; XFOIL polars against Selig data (H2, H3; milestone 8c did NACA 0009 against UIUC Vol. 1, see `experiments/uiuc_tail_slope`, and found NeuralFoil's section slope 15 to 28% off at Re 4e4 to 1e5, and milestone 8d did the cambered NACA 2414/2415 at Re 1e5 to 2e5, `experiments/uiuc_naca241x`, finding NeuralFoil's slope 1.22 to 1.67 times measured; symmetric 0012 and 0015 remain, and a tail re-search with the slope cut by 20 to 25%); full-size propeller Reynolds number from a sourced propeller (to close H4); a motor-efficiency model.

@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-28 · Milestone 2s: the synthesis of the 138 `*-twin` projects (a count, not an experiment)
+- Why: milestone 2 promised "a synthesis table of what the twin projects found about rho" and the first entry left it undone. Planned before running: count, by keyword rule, how many projects disclose as stylised, name a real data source, use a paired estimator and state a rho; spot check 12 random projects by hand.
+- Outcome (`experiments/m2s_twin_audit/`): of 138, 137 stylised, 3 name a real source, 11 use a paired estimator, 20 state an explicit rho (0.03 to 1.0, median of per-project maxima 0.845). The spot check agreed on all 12. A first, looser rule (any "real data" phrase) flagged 15 and was wrong on the cases read, so it was tightened before the numbers were kept.
+- Reading: the twin cluster supplies no measurement of rho on a real system; this programme's real-data step is the only one.
+- Next: unchanged (CoRL 2027 style file; per-episode pairs).
+
 ## 2026-10-27 · Citation check: all 14 references verified (a check, not an experiment)
 - Why: the previous entry could not run `cite_check.py` (arxiv.org and the DOI host returned 403), and CoRL desk-rejects papers that cite non-existent references (7v).
 - Outcome: both hosts are reachable now. `python3 research/_shared/cite_check.py research/sim2real-inference/paper/refs.bib` reports 14 of 14 ok (1 DOI, 13 arXiv ids), each title and year resolving to the entry in `refs.bib`. No bib entry changed.
