@@ -1,7 +1,7 @@
 ---
 title: "A coordinate-wise median survives 7 of 16 sign-flipping workers, at twice the cost of 6"
 date: 2026-10-28
-description: "In a small-GPT DiLoCo run with 16 workers, 7 attackers cost the median +0.29 nats against +0.14 for 6; 8 attackers diverged. The break sits where the median's bias overtakes the honest signal."
+description: "With 16 DiLoCo workers, 7 sign-flip attackers cost the median +0.29 nats against +0.14 for 6; 8 diverged. The break is where its bias beats the signal."
 tags: [lowcomm-training, research, distributed-training, robust-aggregation]
 ---
 
