@@ -70,6 +70,15 @@ class T(unittest.TestCase):
         code, out = self._run({"2026-10-24-x.md": GOOD.replace("[a, b]", "[redteam]"), "2026-10-24-y.md": other})
         self.assertEqual((code, out), (1, "tag spelled 2 ways: red-team, redteam; pick one\n"))
 
+    def test_four_letter_plural_is_a_variant(self):
+        # `len(k) > 3` is the boundary: "labs" must fold to "lab", or "labs"/"lab" split the filter
+        code, out = self._run({"2026-10-24-x.md": GOOD.replace("[a, b]", "[labs]"), "2026-10-24-y.md": GOOD.replace("[a, b]", "[lab]")})
+        self.assertEqual((code, out), (1, "tag spelled 2 ways: lab, labs; pick one\n"))
+
+    def test_three_letter_s_is_not_a_plural(self):
+        code, out = self._run({"2026-10-24-x.md": GOOD.replace("[a, b]", "[gas]"), "2026-10-24-y.md": GOOD.replace("[a, b]", "[ga]")})
+        self.assertEqual(code, 0)
+
     def test_no_front_matter(self):
         self.assertEqual(problems("x.md", "# hi\n"), ["no front matter"])
 
