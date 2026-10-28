@@ -142,7 +142,7 @@ test("the payroll card is labelled and wired to the payroll engine", () => {
 
 test("the tax estimate card exists, its ids are labelled, and estimatedTax is imported", () => {
   const html = page("index.html");
-  for (const id of ["est-filing", "est-months", "est-wages", "est-other", "est-withheld", "est-paid", "est-prior", "est-prior-agi", "est-health", "est-retire", "est-children", "est-other-deps", "est-bizwages"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<(input|select) id="${id}"`), id);
+  for (const id of ["est-filing", "est-months", "est-wages", "est-other", "est-withheld", "est-paid", "est-prior", "est-prior-agi", "est-health", "est-retire", "est-children", "est-other-deps", "est-over65", "est-blind", "est-bizwages"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<(input|select) id="${id}"`), id);
   assert.match(script(), /import \{ estimatedTax \} from "\.\/estimatedtax\.mjs"/);
   assert.match(html, /A worksheet, not tax advice/);
 });
