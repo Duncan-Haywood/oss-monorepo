@@ -189,7 +189,9 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
     r.due = dueDate(r.period, dueDay);
     if (rollover) r.due = nextBusinessDay(r.due);
     const disc = discounts[r.jurisdiction];
-    r.discount = disc && r.tax > 0 ? Math.min(Math.round(r.tax * disc.rate), disc.cap ?? Infinity) : 0;
+    const months = { monthly: 1, quarterly: 3, semiannual: 6, annual: 12 }[frequency];
+    const cap = disc?.capPerMonth != null ? disc.capPerMonth * months : disc?.cap ?? Infinity;
+    r.discount = disc && r.tax > 0 ? Math.min(Math.round(r.tax * disc.rate), cap) : 0;
     r.payable = r.tax - r.discount;
     const want = rates[r.jurisdiction];
     if (want != null && r.rate != null && Math.abs(r.rate - want) > 0.0005) {
