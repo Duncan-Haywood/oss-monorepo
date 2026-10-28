@@ -67,3 +67,16 @@ test("an OCR-damaged SDN BND still marks the company line under a person's name"
   const r = parseReceipt("TAN WOON YANN\nBOOK TA .K(TAMAN DAYA) SDN BND\n789417-W\nDate: 05/01/2019\nTotal 10.00");
   assert.equal(r.merchant, "BOOK TA .K(TAMAN DAYA) SDN BHD");
 });
+
+test("a date with one look-alike digit is repaired only when a single reading is a real date", () => {
+  const r = parseReceipt("TOKO MAJU SDN BHD\nDate: 69/02/2018 10:00\nTotal 10.00");
+  assert.equal(r.date, "2018-02-09");
+  assert.match(r.notes.join(";"), /date repaired from OCR \(69\/02\/2018\)/);
+  assert.equal(parseReceipt("TOKO MAJU SDN BHD\nDate: 05/61/2018\nTotal 10.00").date, "2018-05-01");
+  // 42 is 12 or 02: two readings, so the date is left to the person
+  const two = parseReceipt("TOKO MAJU SDN BHD\nDate: 42/13/2016\nTotal 10.00");
+  assert.equal(two.date, null);
+  assert.match(two.notes.join(";"), /no date found/);
+  // a garbled year is not repaired into a date years away
+  assert.equal(parseReceipt("TOKO MAJU SDN BHD\nDate: 04/99/2087\nTotal 10.00").date, null);
+});
