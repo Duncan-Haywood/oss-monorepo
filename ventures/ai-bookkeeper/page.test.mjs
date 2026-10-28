@@ -169,3 +169,10 @@ test("installable app: manifest, icons and an offline shell covering every modul
   for (const f of shell) if (f) assert.ok(existsSync(new URL(`./${f}`, import.meta.url)), `${f} does not exist`);
   assert.doesNotMatch(sw, /fetch\(["'`]https?:|importScripts/);
 });
+
+test("the reports card shows a cash-basis profit and loss when the books carry invoices or bills", () => {
+  const html = page("index.html");
+  assert.match(html, /id="cashpnl"/);
+  assert.match(script(), /import \{ cashBasis \} from "\.\/cashbasis\.mjs"/);
+  assert.match(script(), /cashBasis\(books, \{ from:/);
+});
