@@ -21,6 +21,7 @@ import { FX_ACCOUNT, fxEntries, docRevalEntries, fxRegister as fxReg, convertRow
 import { inventoryEntries, inventoryRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, INVENTORY_ACCOUNT } from "./inventory.mjs";
 import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
+import { cashBasis } from "./cashbasis.mjs";
 import { payrollEntries } from "./payroll.mjs";
 import { closingEntries } from "./yearend.mjs";
 import { openingEntry, setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
@@ -778,7 +779,7 @@ export function status(books) {
 //   { statements: [{ csv, account }], books?, confirm?: {id: code}, rules?,
 //     accounts? (CSV text), documents? ([{ csv }] invoice and bill lists), asOf?,
 //     from?, to?, autoPost?, example? }
-// -> { status, review: [...], reports, checks, books }
+// -> { status, review: [...], reports, aging, cashBasis (with documents), checks, books }
 export function analyze(input = {}) {
   let books = input.books ? clone(input.books) : newBooks({ name: input.name });
   if (input.rules !== undefined) books.rules = input.rules;
@@ -811,6 +812,7 @@ export function analyze(input = {}) {
     reports: reports(books, { from: input.from, to: input.to }),
     ruleSuggestions: suggestRules(books),
     aging: books.documents?.length ? aging(books, input.asOf) : null,
+    cashBasis: books.documents?.length ? cashBasis(books, { from: input.from, to: input.to }) : null,
     salesTax: salesTax(books, { from: input.from, to: input.to }),
     checks: closeChecks(books, opts),
     books,

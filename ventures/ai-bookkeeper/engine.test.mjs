@@ -367,6 +367,12 @@ test("analyze takes documents and returns the aging", () => {
   assert.equal(r.status.settled, 1);
 });
 
+test("analyze returns the cash-basis view only when documents are given", () => {
+  const r = analyze({ statements: [{ csv: PAID, account: "1000" }], documents: [{ csv: DOCS }] });
+  assert.equal(r.cashBasis.accrual.net, r.reports.profitAndLoss.net);
+  assert.equal(analyze({ statements: [{ csv: PAID, account: "1000" }] }).cashBasis, null);
+});
+
 test("ablation: switching a layer off removes its suggestions, and without memory nothing posts alone", () => {
   const full = runSeed(1).slice(3), noMem = runSeed(1, undefined, { skipLayers: ["memory"] }).slice(3);
   const sum = (rows, k) => rows.reduce((a, r) => a + r[k], 0);
