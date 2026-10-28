@@ -69,3 +69,13 @@ shaft energy is **0.67** of open-centre (5 to 95%: 0.48 to 0.86), up from 0.44, 
 the sourced 6 bar block loss. Pressures and demands are still random (the paper has no pressure
 trace), so this is a sensitivity result. Details: [`LOG.md`](LOG.md),
 `experiments/measured_cycle_results.txt`.
+
+## Milestone 2c: pressures from a force model
+
+Tying each phase's pressure to a load (Reece-form cutting force, bucket weight, swing inertia; all
+parameters assumed typical ranges, not sourced) changes the picture: load-sensing's median shaft
+energy is **0.84** of open-centre (0.63 to 1.12), and it uses more than open-centre in 17% of
+cycles, because most phases are low-pressure and its 14 to 30 bar margin is then a large share of
+the load. Metering is 0.70 of load-sensing (0.58 to 0.83). So the 2a and 2b ratios depend on random
+high pressures; a measured pressure trace is what settles it. Details: [`LOG.md`](LOG.md),
+`experiments/physics_cycle_results.txt`.
