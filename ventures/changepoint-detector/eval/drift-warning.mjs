@@ -25,12 +25,15 @@ for (const [period, n] of [[4, 120], [12, 144]]) {
 }
 console.log(`reps ${reps}, drift: true, mean model, noise sd 1, swing 4`);
 for (const [name, period, n, spec] of cells) {
-  let warn = 0, steps = 0;
+  let warn = 0, steps = 0; const alt = [0, 0, 0];
   for (let i = 0; i < reps; i++) {
     const values = series(9000 + i, n, period, spec);
     const a = analyze({ values, period, drift: true });
     steps += a.pelt.changepoints.length;
     if (a.driftWarning) warn++;
+    // alternative windows on the same change points: 2 cycles (shipped), one cycle plus 3 points, one cycle
+    const cp = a.pelt.changepoints.map((c) => c.index);
+    [2 * period, period + 3, period].forEach((w, j) => { if (cp.some((c, q) => q + 2 < cp.length && cp[q + 2] - c <= w)) alt[j]++; });
   }
-  console.log(`${name.padEnd(36)} warning ${String(warn).padStart(3)}/${reps}  steps/series ${(steps / reps).toFixed(2)}`);
+  console.log(`${name.padEnd(36)} warning ${String(warn).padStart(3)}/${reps}  steps/series ${(steps / reps).toFixed(2)}  window 2P/P+3/P: ${alt.join('/')}`);
 }

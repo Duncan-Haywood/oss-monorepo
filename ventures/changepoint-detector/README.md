@@ -968,7 +968,9 @@ Read plainly: without a change the note is rare, but with monthly data and two g
 
 **Multiplicative season on a real series (2026-10-28).** `data/airline-passengers.csv` (monthly passengers 1949-1960, 144 points; the season grows with the level; no documented step, so every step is a false alarm; `airline-passengers.test.mjs`). Raw series, `mean`: additive season 21 steps, `--multiplicative` 22; with `--trend bend` 20 and 15. The multiplicative season did not rescue the raw level model here: the underlying rise is exponential, and a linear trend or a level step cannot follow it. The log of the series with `--trend bend` gives 8 steps, and 5 with `--model meanvar`. So the real-series answer agrees with the UK gas one: for a season that scales with the level, take the log first; `--multiplicative` helped only on simulated step data. One series, no claim about rates.
 
-Next on this thread: a monthly rule that asks for steps within one cycle plus a bit instead of two (the 11.5% row).
+**A narrower window, measured and not shipped (2026-10-28, `eval/drift-warning.mjs` now also counts three windows on the same change points; output in `eval/drift-warning.out.txt`).** The note asks for 3 steps inside 2 cycles. Using one cycle plus 3 points instead, monthly: two genuine far-apart steps 23/200 to 19/200 (one cycle alone: 10/200), no change 7 to 4, but three packed steps 200/200 to 58/200 (one cycle: 38/200). Quarterly: no change 4 to 2, packed steps 190 to 182. The packed cell spans 2P-1 points by construction, so it measures "inside two cycles" and cannot say whether a narrower rule would also catch real drift; the false-alarm gain on the monthly two-step row is 4 series in 200, inside seed noise for one profile shape. So the rule stays at 2 cycles. Made-up series only; wanted: a real monthly series with a known drifting season to choose between windows.
+
+Next on this thread: a real monthly series with a drifting season (the airline-passengers log series is the candidate), not another simulated window.
 
 ## A real autocorrelated series: Lake Huron levels (2026-10-27)
 
