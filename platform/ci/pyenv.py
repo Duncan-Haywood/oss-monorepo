@@ -47,6 +47,12 @@ APT_NAMES = {"sklearn": "python3-sklearn", "yaml": "python3-yaml", "PIL": "pytho
 HEAVY = {"torch", "tensorflow", "jax", "torchvision", "torchaudio"}
 
 
+# PyPI's torch wheel bundles CUDA libraries (~3 GB, 25-35 min in cloud runs,
+# 2026-10-26 and 2026-10-28); the CPU index serves the same version in about 2 min.
+TORCH_CPU_INDEX = "https://download.pytorch.org/whl/cpu"
+TORCH_FAMILY = {"torch", "torchvision", "torchaudio"}
+
+
 def pip_timeout(modules):
     """Seconds one pip run may take: $PYENV_PIP_TIMEOUT, else 300, or 1800 for HEAVY."""
     env = os.environ.get("PYENV_PIP_TIMEOUT")
@@ -102,6 +108,8 @@ def imports(py, modules, run=subprocess.run):
 def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys.stderr)):
     pkgs = [PIP_NAMES.get(m, m) for m in modules]
     base = [py, "-m", "pip", "install", "--quiet", "--disable-pip-version-check"]
+    if TORCH_FAMILY & set(modules) and not os.environ.get("PYENV_TORCH_CUDA"):
+        base += ["--extra-index-url", TORCH_CPU_INDEX]
     for extra in ([], ["--break-system-packages"], ["--user", "--break-system-packages"]):
         try:
             done = run(base + extra + pkgs, capture_output=True, timeout=pip_timeout(modules))

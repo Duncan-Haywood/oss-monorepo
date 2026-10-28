@@ -26,7 +26,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "partial",
+  "outcome": "failed",
   "errors": [
     "main failed to build: post description 177 chars > 160 limit"
   ],
@@ -42,12 +42,12 @@
       "file": "prompts/polish/prompt-0.md",
       "why": "Run was cut short after finding the broken build; no visual pass, post or report",
       "did": "fixed the build break only",
-      "result": "build exits 0 locally"
+      "result": "fix was redundant; main already had it"
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Partial: restored the site build (a deploy blocker). No screenshots or polish pass done. check.mjs not run to completion on the fixed build.",
+  "notes": "Found main's build break (post description over 160) but another run fixed it on main first; my fix was dropped in the merge. No polish work shipped. Lesson: fetch origin/main before diagnosing a build break.",
   "corrections": [],
   "redteam": null
 }

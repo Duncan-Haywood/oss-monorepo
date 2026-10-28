@@ -36,6 +36,11 @@ the suite once per mutant and the foreground limit is 10 min) start it with
 runs: avoid reading or editing it until the campaign exits (a mutated-looking file
 mid-run is the tool, not a bug), and check `git status` afterwards.
 
+Two traps (live reports 2026-10-27): `node --test --test-force-exit` can truncate
+output (23 of 51 tests shown), so drop it for a suite that finishes quickly; and
+only run `platform/ci/pyenv.py` for a Python target, since its first install
+blocks about 120 s and a node target needs neither.
+
 The tool applies one mutant at a time, runs the suite, and restores the file
 byte for byte. It refuses a dirty file and a red baseline. **A red baseline
 is a real defect: skip to step 3 and fix it first.** Never hand-edit the
