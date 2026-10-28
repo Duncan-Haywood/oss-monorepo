@@ -208,6 +208,8 @@ corpus, normal-approximation interval, constants untuned.
 
 A sequential audit does not escape the problem (milestone 6t, same corpus). The rule that stops when the plug-in half-width meets the target, which covered 93 to 96% at a 45% prevalence, covers fear (1.15%) at 89.8% and 63.8% (1.0 and 0.5 points) and sadness (2.3%) at 86.2% and 72.0%, with mean audit sizes near the oracle. A fixed-size audit of the same size covers 91 to 94%, so the loss is from the data-dependent stopping time. Requiring 20 or 40 audited positives before stopping lowers fear coverage to 47% and 41%. Two stopping fixes fail too: stopping on a Wilson-upper-bound half-width covers fear 51 to 64% and sadness 68 to 74% at 1.9 to 5.5 times the oracle size (6u), and a wider critical value, up to a Bonferroni 3.33 over 57 looks, leaves fear at 0.5 point at 64% (6v). The cause is a downward bias at the stop, not only a narrow standard error (6w): the standardised error (estimate minus truth over reported se) of stopped audits has mean -1.4 (fear) and -1.1 (sadness) at the 0.5-point target and sd 1.4 to 1.6, against mean -0.2 to -0.3 and sd 1.1 to 1.2 for fixed-size audits of the same sizes, and among stopped audits the reported se and the absolute error are negatively correlated (-0.35 to -0.67). A valid sequential audit at a rare category needs a stopping rule that uses no audit labels; none is given here. What does work needs no labels in the size either: planning the audit from the coder's own positive share per group (variance proxy pf(1-pf), `h6x_label_free.py`, milestone 6x) covers 91.8 to 94.4% in the four cells at 1.9 to 2.8 times the oracle size (doubling the proxy variance: 92.6 to 95.2% at 2.4 to 4.5 times). A control that removes the coder and the strata (milestone 6y, `h6y_confseq.py`: pooled human labels, stop when the half-width reaches 0.5 or 1.0 point, 500 draws) shows the collapse is specific to the stratified tuned-PPI estimator: the plug-in normal interval covers 90.4 to 95.0% at the stop (fear 1.0 and 0.5 point, sadness 1.0 and 0.5 point: 95.0, 90.6, 90.4, 93.0), Wilson 95.2 to 99.6%, and a hedged betting confidence sequence for sampling without replacement 96.6 to 98.0%, the last at 2.2 to 3.5 times the fixed-size Wald audit (Wilson 1.2 to 1.5 times). This is the same corpus and one coder that over-flags by design (positives about three times the true share), so it over-plans; it is valid because no audit label enters the size.
 
+*A coder-assisted confidence sequence is valid but does not pay (milestones 6z and 6aa; `h6z_strat_cs.py`, `h6aa_pilot_lambda.py`, 300 draws per cell, coverage +/- 2.5 points).* Betting on the PPI rectifier within each of the four groups, combined by a union bound at level 0.05/4, covers 99.3 to 100% at the stop on fear and sadness (targets 1.0 and 0.5 point), while the plug-in tuned stratified rule on the same stream covers 89.7 / 65.3 (fear) and 83.3 / 67.7 (sadness). With lambda = 1 it stops at 5,484 / 6,035 / 5,951 / 6,394 items of a 6,683-item corpus (fear 1.0, fear 0.5, sadness 1.0, sadness 0.5), 2.9 to 13.8 times the oracle size and more than the pooled human-only sequence of 6y in every cell. Freezing lambda from the first 100 items of each group (a predictable weight, valid because it uses only items seen before the sequence starts) cuts this to 4,543 / 5,387 / 4,932 / 5,839 (8 to 17% fewer items), coverage 100% in all four cells, but the pooled human-only sequence still needs only 1,075 / 3,437 / 2,692 / 4,984. So at a rare category with a naive-Bayes coder that over-flags, the stratified coder-assisted sequence is dominated: the union bound and the four-way stratification cost more than the coder saves. Coverage of 100% shows the sequence is conservative, not that its level is tight.
+
 ## 7 Regression coefficients and small audits (H5 second half; the real LLM, H3 first look)
 
 Data: the NaijaSenti test part; outcome = the human negative-sentiment label,
@@ -308,12 +310,14 @@ Limits: the best-J cut is scored on the items that chose it, one coder draw per
 cell (realised J differs from the target by up to 0.02), one corpus and one
 prompt. Whether a 7B or fine-tuned coder reaches J above 0.5 is untested.
 
+*A real LLM at a rare category (milestone 6ab; `llm_code_goemotions.py`, `h6ab_llm_goemotions.py`; 500 draws).* The same Qwen2.5-1.5B-Instruct, one zero-shot yes/no prompt per category fixed before any score was seen, codes the 6,683-item GoEmotions test part for fear (1.15%) and sadness. Sensitivity / specificity: fear NB 0.247 / 0.969, LLM with a label-free cut (coder-positives 3x the train prevalence) 0.481 / 0.980; sadness NB 0.396 / 0.922, LLM 0.682 / 0.941, so Youden J roughly doubles (0.46 and 0.62 against 0.22 and 0.32). The oracle audit size at a 0.5-point target for tuned stratified PPI against human-only falls only 8.4% (fear) and 9.3% (sadness) with that cut, and by at most 12.1% (1.14x; sadness, score > 0 cut), far from H3's 3x. At n = 400 coverage of tuned PPI is 85.2 to 89.0% for fear (human-only 86 to 88%, about four positives per group), and 92.0 to 94.8% at n = 1,000 apart from one cell at 90.8%. At a 1 to 2% prevalence the rectifier variance is dominated by the few positives the coder misses or falsely flags, so a 1.5B zero-shot coder buys a few percent of width. One corpus, one model and prompt, oracle weights and allocation in the sizing table, nominal intervals.
+
 ## 9 Limits and what remains
 
 1. **One small real LLM.** H3 (a real instruction-following model changes
    the break-even audit size by 3x or more) is untested at the scale it
-   needs: the only model run is a zero-shot 1.5B model on one corpus and
-   outcome (Section 7). A larger or multilingual model, few-shot prompts and a
+   needs: the only model run is a zero-shot 1.5B model on two corpora
+   (Sections 7 and 8, milestone 6ab). A larger or multilingual model, few-shot prompts and a
    second corpus are open, and need a GPU or a paid API key (an owner step).
 2. Two corpora for group shift (NaijaSenti, GoEmotions by subreddit type), one
    for rare categories, and two for sizing: the size rule's plug-in half-width
@@ -325,7 +329,7 @@ prompt. Whether a 7B or fine-tuned coder reaches J above 0.5 is untested.
    three corpora.
 3. Truth is a corpus-wide hand code, not an independent gold standard.
 4. The floor multiplier (5) is fitted on the corpus it was first reported on.
-5. The sequential stratified-PPI coverage uses the nominal normal interval. An always-valid betting confidence sequence was compared only for pooled human-only labels (milestone 6y), not for the stratified coder-assisted estimator.
+5. The coder-assisted betting confidence sequence (milestones 6z, 6aa) uses a union bound over four groups and a lambda frozen from a 100-item pilot; a joint betting process or a sharper coder could change the verdict that it is dominated by the pooled human-only sequence.
 6. Regression coefficients (Section 7): OLS only, no logistic regression; the HC3 leverage term for the blended equation and the t degrees of freedom are heuristics, not derived; the tuned interval's width is a minimum over a weight grid, so its small-n narrowness is partly selection.
 
 ## 10 Reproducibility
@@ -341,9 +345,10 @@ loaders of `qual-dialect` and `qual-real`; seeds are fixed in the scripts. Tests
 |---|---|
 | 1 Introduction | drafted, needs the real-LLM result to state the headline |
 | 2 Related work | drafted; Gligorić et al. and Fisch et al. still to be read in full |
-| 3 to 6 | numbers current as of milestone 6f |
+| 3 to 6 | numbers current as of milestone 6f; Section 6 gained 6z and 6aa (checked against `h6z_strat_cs.txt`, `h6aa_pilot_lambda.txt`) |
 | 7 | added in draft 1 from LOG.md 6g to 6n and milestone 5; numbers copied from the log, not yet re-derived from the result files line by line |
 | 8 | added in draft 1.1 from LOG.md 5b to 5g, 5h added in 1.2 (checked against `h5h_informedness.txt`); numbers checked against `experiments/*.txt` for 5b, 5d, 5g, the rest copied from the log |
+| 8 (6ab paragraph) | added 2026-10-28, checked against `h6ab_llm_goemotions.txt` |
 | 9 | limits; still lists the open model and corpus work (7B untested) |
 | LaTeX in the venue's format | not started; needs the venue's current template |
 | Owner step | submission (publishes under a name) |
