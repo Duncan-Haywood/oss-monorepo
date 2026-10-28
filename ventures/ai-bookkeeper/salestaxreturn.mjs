@@ -114,7 +114,8 @@ export function stateFilingNote(state, frequency = "quarterly") {
 // "<ST> state" label; the CLI applies them under --state unless --discount names that label. Check yours.
 export function stateDiscounts(state) {
   const s = String(state ?? "").toUpperCase();
-  const d = { IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 } }[s];
+  // GA vendor's compensation (ST-3 instructions via search 2026-10-28; dor.georgia.gov not reachable): 3% of the first $3,000 of tax on a return, 0.5% of the rest, only when return and payment are both timely. A 2026 fiscal note describes a proposal to raise the $3,000 step to $10,000: unconfirmed, not modelled. The tax of one return is the whole base here, local tax included only if booked under the same label.
+  const d = { IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];
   return d ? { [`${s} state`]: { ...d } } : {};
 }
 export function stateEndMonth(state, frequency = "quarterly") {
@@ -208,7 +209,7 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
   if (!(dd === "last" || (Number.isInteger(dd) && dd >= 1 && dd <= (dueDay?.after != null ? 366 : 31)))) throw new Error('due day must be a whole day from 1 to 31 or "last"');
   for (const [j, d] of Object.entries(discounts)) {
     const okCap = (c) => c == null || (Number.isFinite(c) && c >= 0);
-    if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth)) throw new Error(`discount for "${j}" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount "${j}=0.5,100"`);
+    if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth) || !(d.tiers == null || (Array.isArray(d.tiers) && d.tiers.length && d.tiers.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.upTo == null || okCap(t.upTo)))))) throw new Error(`discount for "${j}" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount "${j}=0.5,100"`);
   }
   const cells = new Map();
   const cell = (period, j) => {
@@ -242,7 +243,12 @@ export function salesTaxReturn(books, { account = "2100", frequency = "quarterly
     const disc = discounts[r.jurisdiction];
     const months = { monthly: 1, quarterly: 3, semiannual: 6, annual: 12 }[frequency];
     const cap = disc?.capPerMonth != null ? disc.capPerMonth * months : disc?.cap ?? Infinity;
-    r.discount = disc && r.tax > 0 ? Math.min(Math.round(r.tax * disc.rate), cap) : 0;
+    let raw = disc ? r.tax * disc.rate : 0;
+    if (disc?.tiers && r.tax > 0) { // tiered: each slice of tax earns its own rate, `upTo` is the tier's ceiling in cents of tax
+      raw = 0; let lo = 0;
+      for (const t of disc.tiers) { const hi = t.upTo ?? Infinity; if (r.tax > lo) raw += (Math.min(r.tax, hi) - lo) * t.rate; lo = hi; }
+    }
+    r.discount = disc && r.tax > 0 ? Math.min(Math.round(raw), cap) : 0;
     r.payable = r.tax - r.discount;
     const want = rates[r.jurisdiction];
     if (want != null && r.rate != null && Math.abs(r.rate - want) > 0.0005) {
