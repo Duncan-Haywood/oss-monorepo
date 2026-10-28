@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm } from "./engine.mjs";
-import { annualizedInstallments } from "./annualized.mjs";
+import { annualizedInstallments, PERIODS } from "./annualized.mjs";
 
 // Income only in the autumn: 60,000 on Oct 1. Hand check below; client names made up.
 function books(rows) {
@@ -47,4 +47,13 @@ test("a prior-year safe harbour that is smaller caps the regular quarter", () =>
   assert.equal(r.requiredAnnual, 400000);
   assert.equal(r.regularQuarter, 100000);
   assert.ok(r.rows.every((x) => x.cumulativeRequired <= 400000));
+});
+
+test("period factors are 12 over the months elapsed and percentages are 22.5% a step", () => {
+  const months = [3, 5, 8, 12];
+  PERIODS.forEach((p, i) => {
+    assert.ok(p.end.startsWith(String(months[i]).padStart(2, "0")), p.label);
+    assert.equal(p.factor, 12 / months[i]);
+    assert.ok(Math.abs(p.pct - 0.225 * (i + 1)) < 1e-12);
+  });
 });
