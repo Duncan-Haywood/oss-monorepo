@@ -516,6 +516,24 @@ none are cut. The bursts there are mostly runs and wide, so this rule is a
 partial answer on that series (2023-24, one series). Synthetic bursts are
 planted with the rule's own shape in mind, so the recall figures flatter it.
 
+### Burst episodes (`--episodes [n]`)
+
+For counts (`--model poisson`). Plain Poisson reads a burst as two steps, one up and one back down. `--episodes` looks at the fitted changes and labels an up-step followed within `n` points (default a tenth of the series, at least 5) by a down-step as one **episode** when the level after it is within half of the episode's own jump on a log scale of the level before. It also covers a dip. The changes, ranges and penalty are not touched: the result gains an `episodes` list, and the CLI prints it.
+
+Real series, great discoveries (1860-1959): the three plain-Poisson changes stay, and `--episodes` lists one burst, **1884 to 1888**, 8.2 a year against 2.5 before and 3.68 after (3.28x episode, 1.47x net). Test: `great-discoveries.test.mjs`.
+
+`eval/episodes.mjs` (output `eval/episodes.out.txt`; negative-binomial counts, size 8, level 5, 100 points, 40 seeded series per row):
+
+| series | series with a change | labelled an episode |
+|---|---|---|
+| no change | 5 of 40 | 5 of 40 |
+| 5-point burst 3x | 32 of 40 | 31 of 40 |
+| 8-point burst 2.5x | 37 of 40 | 30 of 40 |
+| lasting 2x step | 40 of 40 | 5 of 40 |
+| burst 3x for 5 points, then 1.8x for good | 40 of 40 | 14 of 40 |
+
+Read plainly: a true burst the model cut is labelled about 80 to 97% of the time, a lasting step almost never. The last row is the limit of the rule: a spike that settles at 1.8x scores 0.53 against the 0.5 cut, so it is labelled a burst in 14 of 40 series. It is a label for the reader, not a test: it cannot tell a burst from a short-lived change of regime, and when no change is found (`--bootstrap` on great discoveries) there is nothing to label. Synthetic apart from the one real series; the 0.5 and the length limit are not tuned.
+
 ### Short runs (`--burst-runs n`)
 
 A plateau of 2 to `n` days is not a single-day burst: each of its days may be
