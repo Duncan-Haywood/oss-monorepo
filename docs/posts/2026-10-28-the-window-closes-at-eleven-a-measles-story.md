@@ -2,7 +2,10 @@
 title: "The Window Closes at Eleven: a measles story about clocks, not blame"
 date: 2026-10-28
 description: A new Hearth & Horizon story where a school assistant counts what measles makes urgent, the clocks, and refuses to turn them into a list of names.
+tags: [hearth-and-horizon, fiction, epidemiology]
 ---
+
+# The Window Closes at Eleven: a measles story about clocks, not blame
 
 Today's Hearth & Horizon story, [The Window Closes at Eleven](../../ventures/hearth-and-horizon/stories/the-window-closes-at-eleven.md), is set in an invented Irish parish school in 2048 where 87 percent of children are immune and measles needs about 93.
 
