@@ -1,6 +1,8 @@
 ---
 title: "The earned income credit now ships with the IRS's own numbers"
 date: 2026-10-28
+description: "The AI bookkeeper estimate now has a built-in 2025 earned income credit that reproduces the IRS maximum credits and income limits."
+tags: [ai-bookkeeper, tax, self-employed]
 ---
 
 The AI bookkeeper's tax estimate could already take an earned income credit, but only from a file you typed yourself. Today the IRS website answered, so 2025 is built in.
