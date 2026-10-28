@@ -1,7 +1,7 @@
 ---
 title: "Where a silent bit flip lands matters less than which bit"
 date: 2026-10-28
-description: "We flipped one bit in the weights, the gradient or the activations of a small transformer during training. Harm is 1% to 3% at every site, and it comes from high-exponent flips that make a value inf or NaN."
+description: "One flipped bit in a small transformer's weights, gradient or activations: harm is 1% to 3% at every site and comes from high-exponent flips that give inf or NaN."
 tags: [verifiable-training-mechanisms, silent-data-corruption, negative-result]
 ---
 
