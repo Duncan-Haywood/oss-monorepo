@@ -306,3 +306,14 @@ test("Texas: the 0.5% timely-filing discount is a plain --discount rate with no 
   assert.equal(row.discount, Math.round(row.tax * 0.005));
   assert.equal(row.payable, row.tax - row.discount);
 });
+
+test("a payment filed after the due date warns that the timely-filing discount may be disallowed", () => {
+  const mk = (day) => {
+    let b = importStatement(books(), `Date,Description,Amount\n${day},CA DTFA remittance,-14.00\n`, "1000").books;
+    return confirm(b, Object.fromEntries(b.transactions.filter((t) => /remittance/.test(t.desc)).map((t) => [t.id, "2100"])));
+  };
+  const opts = { discounts: { "CA state": { rate: 0.1, cap: 100 } }, asOf: "2026-12-01" };
+  assert.ok(!salesTaxReturn(mk("2026-04-18"), opts).warnings.some((w) => /discount assumes/.test(w)));
+  assert.ok(salesTaxReturn(mk("2026-05-02"), opts).warnings.some((w) => /2026-Q1.*discount assumes payment by 2026-04-20.*2026-05-02/.test(w)));
+  assert.ok(!salesTaxReturn(mk("2026-05-02"), { asOf: "2026-12-01" }).warnings.some((w) => /discount assumes/.test(w)));
+});
