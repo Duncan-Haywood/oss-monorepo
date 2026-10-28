@@ -1,0 +1,16 @@
+cases 486; SWATH out-ranges monohull in 0 (0.00%); out-ranges catamaran in 0 (0.00%)
+range ratio SWATH/mono: min 0.654 median 0.746 max 0.839
+SWATH best range km: min 404 median 614 max 863; monohull median 824; catamaran median 713
+SWATH best speed m/s median 0.80; wave share of resistance at best speed median 0.0027
+  length=3.0: median ratio SWATH/mono 0.767; wins 0/162
+  length=4.0: median ratio SWATH/mono 0.746; wins 0/162
+  length=5.0: median ratio SWATH/mono 0.729; wins 0/162
+  hd=1.5: median ratio SWATH/mono 0.777; wins 0/162
+  hd=2.0: median ratio SWATH/mono 0.747; wins 0/162
+  hd=3.0: median ratio SWATH/mono 0.698; wins 0/162
+  wscale=0.5: median ratio SWATH/mono 0.747; wins 0/162
+  wscale=1.0: median ratio SWATH/mono 0.746; wins 0/162
+  wscale=1.5: median ratio SWATH/mono 0.745; wins 0/162
+  t=0.04: median ratio SWATH/mono 0.747; wins 0/243
+  t=0.08: median ratio SWATH/mono 0.745; wins 0/243
+best SWATH/mono case: {'length': 3.0, 'hd': 1.5, 't': 0.04, 'k': 0.1, 'wscale': 0.5, 'e_batt': 150.0} SWATH 518 km at 0.90 m/s; mono 618 km
