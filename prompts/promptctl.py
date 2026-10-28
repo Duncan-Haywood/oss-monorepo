@@ -219,8 +219,15 @@ def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
 # route
 
 
+def expired(cfg: dict[str, Any], today: date | None = None) -> bool:
+    """A track with an `until` date (a share the owner set for a period) stops
+    being drawn after that day; `--track` still reaches it."""
+    until = cfg.get("until")
+    return bool(until) and (today or date.today()) > date.fromisoformat(until)
+
+
 def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False,
-          rng: random.Random | None = None) -> dict[str, Any]:
+          rng: random.Random | None = None, today: date | None = None) -> dict[str, Any]:
     rng = rng or random.Random()
     routing = load_routing(root)
     tracks = routing["tracks"]
@@ -239,7 +246,7 @@ def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False
         reason = f"{since} merged runs since the last review (review_every = {every})"
     else:
         weights = {t: float(c.get("weight", 0)) for t, c in tracks.items()
-                   if t != REVIEW and float(c.get("weight", 0)) > 0}
+                   if t != REVIEW and float(c.get("weight", 0)) > 0 and not expired(c, today)}
         if not weights:
             raise SystemExit("routing.json gives no track a positive weight")
         total = sum(weights.values())
@@ -578,6 +585,12 @@ def validate(root: Path = ROOT) -> list[str]:
         weight = cfg.get("weight", 0)
         if not isinstance(weight, (int, float)) or weight < 0:
             errors.append(f"{label}: weight must be a number >= 0")
+        until = cfg.get("until")
+        if until is not None:
+            try:
+                date.fromisoformat(until)
+            except (TypeError, ValueError):
+                errors.append(f"{label}: until must be a YYYY-MM-DD date")
         champion, candidate = cfg.get("champion"), cfg.get("candidate")
         share = cfg.get("candidate_share", 0)
         if not isinstance(champion, int) or not prompt_path(root, track, champion).is_file():

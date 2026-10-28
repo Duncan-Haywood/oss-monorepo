@@ -665,6 +665,21 @@ daily progress post had computed by hand are now in `platform/devstats`
 (`delivery` in `dev/stats.json`). The post reads them and spends its effort
 on what they mean.
 
+## Direction: impressive sites, SEO and AEO, for a period
+
+Set by the owner on 2026-10-28: "i want like 5% of work going to making the
+sites looking as impressive as possible. for some period of time", then "and
+improving seo. and aseo." (read as AEO, answer-engine optimisation: being
+quoted correctly by AI assistants and AI search).
+
+The `polish` track ([`prompts/polish/prompt-0.md`](polish/prompt-0.md))
+carries it: weight 0.05 in `routing.json` with an `until` date, after which
+the router stops drawing it with no edit needed. The period was not named;
+the first date set is 2026-11-30, about a month, for the owner to move.
+Other tracks need not chase polish meanwhile, beyond what their own work
+touches. Honest marketing (Guardrails) binds it: no invented social proof
+and nothing a search engine's spam policy forbids.
+
 ## Judgment over rules
 
 Set by the owner on 2026-10-15, and sharpened on 2026-10-20: "i think the

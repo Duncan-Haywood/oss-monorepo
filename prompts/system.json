@@ -22,7 +22,7 @@
     {"glob": "prompts/*/prompt-*.md", "layer": "track", "changed_by": "review", "budget": 130,
      "answers": "The sub-prompt `promptctl.py route` names. Versions and weights live in prompts/routing.json."},
 
-    {"path": "AGENTS.md", "layer": "area", "changed_by": "review", "budget": 200, "for": ["ventures", "explore"],
+    {"path": "AGENTS.md", "layer": "area", "changed_by": "review", "budget": 200, "for": ["ventures", "explore", "polish"],
      "answers": "Product work: build criteria, what every user-facing product includes, graduating a venture."},
     {"path": "ventures/CLAUDE.md", "layer": "area", "changed_by": "review", "for": ["ventures", "creative"],
      "answers": "Product-first default, self-deploy, niche choice."},
