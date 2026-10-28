@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-28 · Milestone 5m: does the coordinated-attack degradation replicate on a second seed, and where is the wall at k = 7? (planned before running)
+- Why: 5l's "Next". 5l had one seed per k (3 to 6), so no interval; k = 7 is the last count below the median-is-attacker-value wall at k = 8.
+- Design: same `coordinated.py` (M = 16, same-vector attack, 3840 inner steps, H = 16), seed 1 at k = 4, 5, 6, 7 (seed 1 has a clean-median reference, 1.5293, in `gpt_median_m16/median_m16_full.jsonl`).
+- **H5m-i:** the excess at k = 4, 5, 6 on seed 1 is within 0.05 nats of seed 0's (+0.231, +0.363, +0.516), i.e. the roughly linear +0.12 to +0.15 nats per attacker is not a seed accident. Refuted if any of the three differs by more than 0.1.
+- **H5m-ii:** k = 7 continues the line (excess between +0.55 and +0.75) and still trains, since the median at k = 7 of 16 is still an honest value (rank 8 of 16 sits above the 7 attackers). Refuted if it diverges or is above +1.0.
+- Limits: one extra seed gives a replication check, not an interval; k = 3 and seed 2 are not run.
+
 ## 2026-10-28 · Milestone 5l: where does the median break under the worst-case coordinated attack? (numpy prediction half; training run still to do)
 - Why: 5k's "Next". Disclosure: the hypothesis below was written in 5k's "Next" and the table was run before this entry was committed, so the numbers are not blind; the training test (the out-of-sample part) is not run yet.
 - Design (`experiments/gpt_median_coalition/coordinated_numpy.py`, `coordinated_numpy_results.txt`; 1e6 coordinates, M = 16, i.i.d. Gaussian honest deltas): all k attackers send the most extreme value against the signal (rank-bounded, so -infinity is the strongest push a median allows), compared with 5j's independent -10x flips. Net signal = mu/sigma plus the median's bias.
