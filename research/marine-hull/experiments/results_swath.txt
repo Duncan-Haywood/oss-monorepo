@@ -1,0 +1,16 @@
+cases 4374; SWATH out-ranges the 4 m monohull at its own best speed in 0 (0.00%)
+best-range ratio SWATH/mono: min 0.552 10th 0.614 median 0.687 90th 0.760 max 0.826
+SWATH best range km: median 569; best speed m/s median 0.75; monohull median 824
+at 2 m/s fixed: SWATH out-ranges mono in 0 (0.0%); ratio median 0.270 (10th 0.155, 90th 0.426)
+at 3 m/s fixed: SWATH out-ranges mono in 0 (0.0%); ratio median 0.456 (10th 0.231, 90th 0.703)
+share winning at 3 m/s by length: 3.0: 0%; 4.0: 0%; 5.0: 0%
+share winning at 3 m/s by depth: 0.4: 0%; 0.6: 0%; 0.8: 0%
+share winning at 3 m/s by sep: 0.15: 0%; 0.25: 0%; 0.4: 0%
+share winning at 3 m/s by chord: 0.3: 0%; 0.5: 0%
+share winning at 3 m/s by wscale: 0.5: 0%; 1.0: 0%; 1.5: 0%
+central SWATH (L 4 m, axis depth 0.6 m, s/L 0.25, strut 0.5 L, k 0.10, mono k 0.25, scale 1), torpedo half-beam 0.117 m, wetted 2.39 m2 each:
+  1.0 m/s: SWATH 22.0 N (wave 1.8), mono 6.4 N
+  1.5 m/s: SWATH 49.6 N (wave 7.7), mono 16.7 N
+  2.0 m/s: SWATH 190.7 N (wave 120.2), mono 30.5 N
+  2.5 m/s: SWATH 284.4 N (wave 178.6), mono 55.2 N
+  3.0 m/s: SWATH 327.2 N (wave 179.8), mono 101.0 N
