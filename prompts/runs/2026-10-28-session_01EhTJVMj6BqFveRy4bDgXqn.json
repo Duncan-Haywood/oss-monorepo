@@ -16,24 +16,31 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
-  "pr": null,
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 11134,
   "repo": null,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 1,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not run full CI locally; ran salestaxreturn.test.mjs (37 pass)."
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Explore: DC annual sales tax return period (ends Sep 30, due Oct 20) in ai-bookkeeper. Source was a search excerpt; state sites blocked by proxy. Small slice; flagship is saturated.",
   "corrections": [],
   "redteam": null
 }
