@@ -106,6 +106,8 @@ export function stateFilingNote(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
   if (NO_STATE_SALES_TAX[s]) return NO_STATE_SALES_TAX[s];
   if (s === "PA" && frequency === "annual") return "Pennsylvania has no annual return; assigned filers file monthly, quarterly or semiannually (due Aug 20 and Feb 20), use --freq semiannual with --state PA for the Feb-Jul and Aug-Jan periods.";
+  // IA (secondary guides via search 2026-10-28; revenue.iowa.gov not reachable): large filers make semi-monthly prepayments, not one return
+  if (s === "IA") return "Iowa: this is the due date for a monthly or quarterly return. Large filers prepay semi-monthly instead (the 1st to 15th by the 25th, the 16th to month end by the 10th of the next month; the size threshold varies between guides), which this command does not build. Check your own notice.";
   return null;
 }
 // Timely-filing discounts pinned in tests (IL ST-1 R-01/26, TX comptroller, FL Rule 12A-1.056), keyed by the
