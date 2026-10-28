@@ -278,6 +278,7 @@
     </div>
     <h3>Profit and loss</h3>
     <div class="scroll" id="pnl"></div>
+    <div id="cashpnl"></div>
     <h3>Balance sheet</h3>
     <div class="scroll" id="bs"></div>
     <h3>Cash flow</h3>
@@ -460,6 +461,7 @@
     import { planBills } from "./billpay.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
     import { reconcile } from "./reconcile.mjs";
+    import { cashBasis } from "./cashbasis.mjs";
     import { compareProfit, precedingPeriod } from "./compare.mjs";
     import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
     import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, employerCost } from "./payroll.mjs";
@@ -541,6 +543,16 @@
       const p = r.profitAndLoss, m = p.months;
       const line = (l) => [l.name, ...l.months.map((v) => fmt(v)), fmt(l.total)];
       $("#pnl").replaceChildren(m.length ? table(["Account", ...m, "Total"], [...p.income.map(line), ["Total income", ...p.incomeByMonth.map((v) => fmt(v)), fmt(p.totalIncome)], ...p.expense.map(line)], [["Total expenses", ...p.expenseByMonth.map((v) => fmt(v)), fmt(p.totalExpense)], ["Net profit", ...p.netByMonth.map((v) => fmt(v)), fmt(p.net)]]) : el("p", { class: "note", text: "Nothing posted yet." }));
+      const cb = (books.documents ?? []).length ? cashBasis(books, { from: $("#from").value || null, to: $("#to").value || null }) : null;
+      if (!cb) $("#cashpnl").replaceChildren();
+      else {
+        const cp = cb.profitAndLoss;
+        $("#cashpnl").replaceChildren(
+          el("h3", { text: "Profit and loss, cash basis" }),
+          el("p", { class: "note", text: "The same books on the cash method most US sole proprietors file on: income when the money arrives, an expense when it is paid. Check which method your return uses." }),
+          table(["", "Amount"], [["Total income", fmt(cp.totalIncome)], ["Total expenses", fmt(cp.totalExpense)]], [["Net profit (cash)", fmt(cp.net)], ["Net profit (accrual)", fmt(cb.accrual.net)], ["Timing difference (invoiced or billed, not yet paid)", fmt(cb.timing.net)]]),
+          ...cb.notes.map((n) => el("p", { class: "note", text: n })));
+      }
       const b = r.balanceSheet;
       const sec = (h, list) => [[h, ""], ...list.map((l) => [`   ${l.name}`, fmt(l.amount)])];
       $("#bs").replaceChildren(table(["", "Amount"], [...sec("Assets", b.assets), ["Total assets", fmt(b.totalAssets)], ...sec("Liabilities", b.liabilities), ...sec("Equity", b.equity), ["   Current earnings (not yet closed)", fmt(b.currentEarnings)]], [["Liabilities + equity", fmt(b.totalLiabilities + b.totalEquity)], [b.balanced ? "Balanced" : "NOT BALANCED", ""]]));
