@@ -1,7 +1,7 @@
 ---
 title: "Seasonal income and the quarterly estimate trap: what the annualized method asks for instead"
 date: 2026-10-28
-description: "A freelancer who earns 4,000 by March and 100,000 by December is asked for 5,032.03 by April 15 under the regular safe harbour, and 508.66 under the annualized method."
+description: "A freelancer who earns 4,000 by March and 100,000 by December owes 5,032.03 by April 15 under the regular safe harbour, but 508.66 under the annualized method."
 tags: [ai-bookkeeper, tax, self-employed]
 ---
 
