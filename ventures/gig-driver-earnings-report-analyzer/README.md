@@ -24,8 +24,10 @@ Unreadable rows are listed with a line number and reason.
 ## Model
 
 Income is earnings plus tip. Vehicle cost is trip miles (plus an optional extra unpaid
-miles percentage) times your cost per mile; the default 0.70 is the IRS 2025 business
-rate and should be replaced with the current rate or your own cost. Net is income minus
+miles percentage) times your cost per mile; the default 0.76 is the IRS business rate
+from July 1, 2026 (72.5 cents before that, 70 cents in 2025; Notice 2026-10 and
+Announcement 2026-11, as recorded in `ventures/mileage-deduction-method-calculator`)
+and should be replaced with the rate for your trip dates or your own cost. Net is income minus
 vehicle cost. Per-hour figures use trip minutes, or the total hours online you enter.
 Groups under five trips are not ranked. See the page for what is not modelled.
 
