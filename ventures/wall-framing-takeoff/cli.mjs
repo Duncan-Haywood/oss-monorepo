@@ -10,7 +10,7 @@ import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutInsulation, insulationText } from "./insulation.mjs";
 import { layoutTrim, trimText } from "./trim.mjs";
 import { layoutFasteners, fastenerText } from "./fasteners.mjs";
-import { layoutStair, stairCuts, stairText } from "./stairs.mjs";
+import { layoutStair, stairCuts, stairText, layoutStairWithLanding, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
@@ -127,7 +127,9 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     if (!plan.stairs) return { code: 2, out: "The plan has no `stairs` object (totalRise, tread, stringer, width)." };
     for (const [i, st] of (Array.isArray(plan.stairs) ? plan.stairs : [plan.stairs]).entries()) {
       for (const k of ["totalRise", "tread", "width", "openingLength", "floorThickness"]) if (typeof st[k] === "string") st[k] = parseLength(st[k]);
-      const l = layoutStair({ id: `Stair ${i + 1}`, ...st }, plan);
+      if (typeof st.landing === "object" && st.landing) for (const k of ["depth", "landingRise"]) if (typeof st.landing[k] === "string") st.landing[k] = parseLength(st.landing[k]);
+      const withLanding = st.landing || st.totalRise > (st.limits?.maxRise ?? STAIR_LIMITS.maxRise);
+      const l = withLanding ? layoutStairWithLanding({ id: `Stair ${i + 1}`, ...st }, plan) : layoutStair({ id: `Stair ${i + 1}`, ...st }, plan);
       if (!l.ok) return { code: 1, out: `The stairs have problems:\n${l.errors.map((e) => `  - ${e}`).join("\n")}` };
       stairs.push(l);
     }
@@ -155,7 +157,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     drywall = layoutDrywall(plan.drywall, plan, roof);
     if (!drywall.ok) return { code: 1, out: `The drywall has problems:\n${drywall.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
-  const shell = () => [...(floor ? floorCuts(floor) : []), ...stairs.flatMap(stairCuts), ...(roof ? roofCuts(roof) : [])];
+  const shell = () => [...(floor ? floorCuts(floor) : []), ...stairs.flatMap((x) => (x.flights ? [...x.flights.flatMap(stairCuts), ...landingCuts(x)] : stairCuts(x))), ...(roof ? roofCuts(roof) : [])];
   /** @type {any} */
   let r = takeoff(plan, shell());
   if (floor && r.ok) r.floor = floor;
@@ -225,7 +227,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   lines.push("  K = king, C = corner backing, T = tee backing; jacks sit inside the kings.");
   if (r.sheathing) lines.push("", `SHEATHING (panels run ${r.sheathing.orientation === "horizontal" ? "horizontally, course by course from the floor" : "vertically from the wall start"}; lengths left to right)`, ...sheathingText(r.sheathing));
   if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
-  if (r.stairs) lines.push("", "STAIRS", ...r.stairs.flatMap(stairText));
+  if (r.stairs) lines.push("", "STAIRS", ...r.stairs.flatMap((x) => (x.flights ? landingText(x) : stairText(x))));
   if (r.foundation) lines.push("", "FOUNDATION", ...foundationText(r.foundation));
   if (r.drywall) lines.push("", "DRYWALL", ...drywallText(r.drywall));
   if (r.fasteners) lines.push("", "FASTENERS", ...fastenerText(r.fasteners));
