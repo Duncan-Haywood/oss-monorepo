@@ -1,7 +1,7 @@
 ---
 title: "How tight can a winder staircase turn before it fails code?"
 date: 2026-10-28
-description: "Three wedge treads round a zero-size pivot always fail the model code's 6 inch rule. We solved the smallest pivot that passes: 11.5 inches for three treads, 15.3 for four."
+description: "Three wedge treads round a zero-size pivot always fail the code's 6 inch rule. The smallest passing pivot is 11.5 inches for three treads, 15.3 for four."
 tags: [wall-framing-takeoff, stairs, construction]
 ---
 
