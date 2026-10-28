@@ -9,6 +9,11 @@ McKyes 1985 not opened). What this tests is whether load-correlated pressures ch
 milestone 2a/2b ratios, not an excavator energy figure. Stdlib, seeded, a few seconds.
 """
 import random, statistics, sys, os
+# `--sourced` (milestone 2d) pins the margins: dp_ls 25 bar (differential pressure limiter,
+# Briganti 2022 thesis, Politecnico di Torino, midi excavator model), dp_spool 6 bar (Juza and
+# Hermanek 2023, measured open-centre block), eta 0.883 (0.92 x 0.96 of Briganti; Juza measured
+# 0.8834). dp_m (3 to 10 bar) stays swept: no source.
+SOURCED = "--sourced" in sys.argv
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from heavy_hydraulics import Phase, Actuator, cycle_energy
 
@@ -50,7 +55,8 @@ def one(rng):
             acts = ((idle_u, 1.0),)
         tot = k * Q_PUMP
         ph.append(Phase(name, secs, tuple(Actuator(P_RELIEF * p, tot * s) for p, s in acts)))
-    return tuple(ph), rng.uniform(5, 20), rng.uniform(14, 30), rng.uniform(3, 10)
+    dpsp, dpls, dpm = rng.uniform(5, 20), rng.uniform(14, 30), rng.uniform(3, 10)
+    return tuple(ph), (6.0 if SOURCED else dpsp), (25.0 if SOURCED else dpls), dpm
 
 
 def q(xs, f):
@@ -61,7 +67,7 @@ rows = []
 for s in SEEDS:
     for i in range(N):
         c, dpsp, dpls, dpm = one(random.Random(s * 7919 + i))
-        e = {k: cycle_energy(c, k, pump_flow=Q_PUMP, dp_spool=dpsp, dp_ls=dpls, dp_m=dpm, eta_pump=0.85)["shaft_J"]
+        e = {k: cycle_energy(c, k, pump_flow=Q_PUMP, dp_spool=dpsp, dp_ls=dpls, dp_m=dpm, eta_pump=0.883 if SOURCED else 0.85)["shaft_J"]
              for k in ("open_centre", "load_sensing", "metered")}
         e["dls_gt_dsp"] = dpls > dpsp
         e["demand_frac"] = statistics.mean(sum(a.flow for a in p.actuators) for p in c) / Q_PUMP
@@ -75,3 +81,15 @@ print(f"Met/LS median {statistics.median(mt):.3f}  5-95%: {q(mt,.05):.3f} to {q(
 bad = [r for r in rows if r["load_sensing"] > r["open_centre"]]
 print(f"LS>OC in {len(bad)} cycles; all have dp_ls > dp_spool: {all(r['dls_gt_dsp'] for r in bad)}; "
       f"mean demand/pump in those {statistics.mean(r['demand_frac'] for r in bad):.2f} vs {statistics.mean(r['demand_frac'] for r in rows):.2f} overall")
+
+if SOURCED:  # break-even: how large a load-sensing margin still beats the sourced 6 bar open-centre block?
+    print("dp_ls sweep (dp_spool 6, eta 0.883; 5000 cycles each): bar, LS/OC median, share of cycles LS>OC")
+    for dpls in (5, 10, 14, 20, 25, 30):
+        r = []
+        for s in SEEDS:
+            for i in range(1000):
+                c, _, _, dpm = one(random.Random(s * 7919 + i))
+                e = {k: cycle_energy(c, k, pump_flow=Q_PUMP, dp_spool=6.0, dp_ls=dpls, dp_m=dpm, eta_pump=0.883)["shaft_J"]
+                     for k in ("open_centre", "load_sensing")}
+                r.append(e["load_sensing"] / e["open_centre"])
+        print(f"  {dpls:3d}  {statistics.median(r):.3f}  {100*sum(x > 1 for x in r)/len(r):.1f}%")

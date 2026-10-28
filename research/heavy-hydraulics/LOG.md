@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-10-28 · Milestone 2d: do the 2c rankings survive sourced margins? (planned before running)
+- Sources opened: Briganti, *Simulation of an Excavator Hydraulic Circuit*, MSc thesis, Politecnico di Torino 2021/22 (supervisor Rundo; https://webthesis.biblio.polito.it/24382/1/tesi.pdf), a **simulation** of a midi load-sensing excavator: differential pressure limiter 25 bar, local compensator/distributor drop 10 bar, pump 120 cc/rev at 2000 rpm, volumetric 0.92 and hydraulic-mechanical 0.96 efficiency (product 0.883, which matches Juza and Hermanek's measured 0.8834). Williamson's thesis (Purdue) and the RWTH Aachen dig-and-dump paper were fetched but blocked (403 / Cloudflare), so no measured pressure trace yet. The Briganti pressure traces exist only as figures.
+- Plan: rerun 2c with dp_ls = 25 bar, dp_spool = 6 bar (Juza measured block), eta = 0.883, dp_m still swept (no source), plus a dp_ls sweep to find break-even. `--sourced` flag on `experiments/physics_cycle.py`.
+- **Prediction (before running):** LS/OC median rises from 0.84 to about 0.95 to 1.0, and the share of cycles with LS > OC from 17% to 30 to 50%.
+
+### Outcome (`experiments/physics_cycle_sourced_results.txt`)
+- Ordering OC >= LS >= metered held in only **37.5%**; LS/OC median **1.043** (5 to 95%: 0.83 to 1.26), LS worse than OC in 12,503 of 20,000 cycles. The prediction was too mild: LS lost in more than half.
+- Break-even: with dp_spool = 6 bar the median LS/OC crosses 1 at a margin near 23 bar; at 14 bar it is 0.84 (LS > OC in 6.8%), at 25 bar 1.04 (61%), at 30 bar 1.13. Metered/LS median 0.66, below 0.85 in 100%.
+- Reading: in a cycle whose phases mostly run at low pressure, a fixed 25 bar load-sensing margin costs more than an open-centre block's 6 bar drop unless the open-centre pump has a large surplus flow. H1 is refuted for these sourced margins; metering's advantage over LS is robust (all cycles).
+- Limits (important): the margins come from two **different** machines (a simulated midi excavator and a measured telescopic excavator on a Tatra chassis), and the open-centre model is the pessimistic full-flow bleed, which still wins here; the force-model pressures and phase flows remain assumed (2c); the 25 bar is a simulation set-point, not a measurement. Not an energy figure for any real machine; H4 still needs a measured pressure trace.
+- Next: obtain a measured pressure trace (a thesis or dataset reachable from this egress; Zenodo/IEEE DataPort/GitHub), then the parts-cost step.
+
 ## 2026-10-28 · Milestone 2c: do load-correlated pressures from a force model change the rankings? (planned before running)
 - Plan: replace random pressures with a force model (`experiments/physics_cycle.py`): dig pressure from Reece's cutting-force form against a breakout force, lift from bucket-plus-soil weight on a lever, swing from inertia and friction, six phases, 45 L/min pump, 180 bar relief, 20,000 cycles. Soil gamma/c/N factors, breakout force, lever ratios and masses are **assumed typical ranges from memory, not opened sources**, so this is a sensitivity test, not an energy figure.
 - **Prediction (before running):** ordering holds in over 99%; LS/OC median 0.45 to 0.65 (tied pressures make phases mostly low-pressure, as 2a/2b); Met/LS median 0.75 to 0.9.
