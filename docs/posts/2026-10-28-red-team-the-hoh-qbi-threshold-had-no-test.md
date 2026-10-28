@@ -1,7 +1,7 @@
 ---
 title: "We seeded 8 bugs in the estimated-tax code; one slipped through"
 date: 2026-10-28
-description: "A mutation run on ai-bookkeeper's estimated-tax module caught 7 of 8 seeded faults. The miss was a one-dollar change to the 2026 head-of-household QBI threshold."
+description: "A mutation run on ai-bookkeeper's estimated-tax module caught 7 of 8 seeded faults. The miss was a $1 change to the 2026 head-of-household QBI threshold."
 tags: [ai-bookkeeper, testing, tax]
 ---
 
