@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
 import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText } from "./stairs.mjs";
+import { checkWinders, winderText } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
 
@@ -138,7 +139,34 @@ test("a one-flight rise without a landing is pointed at layoutStair", () => {
   assert.match(layoutStairWithLanding({ totalRise: 100 }, plan()).errors[0], /layoutStair/);
 });
 
-import { checkWinders, winderText } from "./stairs.mjs";
+test("rail: balusters keep every clear gap under 4 in and are one length", () => {
+  const l = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1 } }, plan());
+  assert.ok(l.ok && l.rail);
+  const q = l.rail;
+  assert.equal(q.segments, 3); // pitch hypot(108 - 7.714, 130) = 164.2 in over 72
+  assert.equal(q.posts.count, 4);
+  assert.ok(q.balusters.gap <= 4 + 1e-9 && q.balusters.gap > 2);
+  // 130 in run over 3 segments, 3.5 in posts: 39.83 in clear; ceil((39.83-4)/5.5) = 7 balusters
+  assert.equal(q.balusters.perSegment, 7);
+  assert.equal(q.balusters.count, 21);
+  assert.ok(Math.abs(q.balusters.length - (36 - 3 - 4 + 1.5 * (108 / 14) / 10)) < 1e-9);
+  assert.ok(Math.abs(q.handrail.length - (l.pitch + 22)) < 1e-9);
+});
+
+test("rail: two guarded sides double the parts, and guard rails join the order", () => {
+  const one = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1 } }, plan());
+  const two = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 2 } }, plan());
+  assert.equal(two.rail.balusters.count, 2 * one.rail.balusters.count);
+  const row = stairCuts(two).find((r) => r.kind === "stair guard rail");
+  assert.equal(row.qty, 4);
+  assert.ok(stairText(two).some((x) => /Guard \(2 sides/.test(x)));
+});
+
+test("rail: a handrail height outside 34 to 38 in is flagged", () => {
+  const l = layoutStair({ totalRise: 108, tread: 10, rail: { handrailHeight: 40 } }, plan());
+  assert.ok(l.notes.some((n) => /Handrail height 40/.test(n)));
+});
+
 
 test("three 30 degree winders with a zero pivot fail the 6 in rule, and the solved radius passes", () => {
   const z = checkWinders({ count: 3, innerRadius: 0 });
