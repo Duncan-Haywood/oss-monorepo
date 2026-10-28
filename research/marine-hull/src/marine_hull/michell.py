@@ -81,3 +81,59 @@ def c_wave(u, length, beam, draft, rho=1025.0, **kw):
     """Wave-resistance coefficient R_w / (0.5 rho U^2 S) per hull set, S the wetted area of one hull."""
     return wave_resistance_wigley(u, length, beam, draft, rho, **kw) / (
         0.5 * rho * u * u * wigley_wetted(length, beam, draft))
+
+
+def _j_submerged(theta, u, length, half_beam, half_height, depth, nz=120):
+    """J(theta) of a parabolic torpedo y = b (1 - (2x/L)^2)(1 - ((z + depth)/d)^2), centre at -depth.
+
+    The x part is the Wigley one; the z part is a Simpson sum over the body's height (milestone 5b).
+    """
+    k0 = G / (u * u)
+    sec = 1.0 / math.cos(theta)
+    kx, a = k0 * sec, k0 * sec * sec
+    h = kx * length / 2.0
+    ix = 2.0 * (math.sin(h) / kx ** 2 - (length / 2.0) * math.cos(h) / kx)
+    jx = -8.0 / length ** 2 * ix
+    jz = _simpson(lambda s: (1.0 - (s / half_height) ** 2) * math.exp(a * (s - depth)),
+                  -half_height, half_height, nz)
+    return half_beam * jx * jz
+
+
+def wave_resistance_torpedo(u, length, half_beam, half_height, depth, rho=1025.0, n_hulls=1, sep=0.0,
+                            nth=800):
+    """Michell wave resistance (N) of n_hulls fully submerged parabolic torpedoes at axis depth `depth` (m)."""
+    if depth <= half_height:
+        raise ValueError("body must stay below the free surface")
+    k0 = G / (u * u)
+    top = math.pi / 2 * (1 - 1e-9)
+
+    def f(th):
+        j = _j_submerged(th, u, length, half_beam, half_height, depth)
+        w = j * j / math.cos(th) ** 3
+        if n_hulls == 2:
+            w *= 2.0 * (1.0 + math.cos(k0 * math.sin(th) / math.cos(th) ** 2 * sep))
+        return w
+    th_max = math.acos(min(1.0, math.sqrt(k0 * (depth - half_height) / 30.0))) \
+        if k0 * (depth - half_height) > 30.0 else top
+    th_max = min(th_max, top)
+    return 4.0 * rho * G * G / (math.pi * u * u) * _simpson(f, 0.0, th_max, nth)
+
+
+def torpedo_volume(length, half_beam, half_height):
+    """V = 2 b (2L/3)(4 d/3) for y = b(1-xi^2)(1-zeta^2)."""
+    return 2.0 * half_beam * (2.0 * length / 3.0) * (4.0 * half_height / 3.0)
+
+
+def torpedo_wetted(length, half_beam, half_height, n=120):
+    """Surface area (m2) of the torpedo (both sides of y(x,z); y = 0 on the edge of the region)."""
+    def col(x):
+        xi = 2 * x / length
+        a = 1 - xi * xi
+        yx = half_beam * (-2 * xi * 2 / length)
+        def g(s):
+            zeta = s / half_height
+            q = 1 - zeta * zeta
+            yz = half_beam * a * (-2 * zeta / half_height)
+            return math.sqrt(1 + (yx * q) ** 2 + yz ** 2)
+        return _simpson(g, -half_height, half_height, n)
+    return 2.0 * _simpson(col, -length / 2, length / 2, n)
