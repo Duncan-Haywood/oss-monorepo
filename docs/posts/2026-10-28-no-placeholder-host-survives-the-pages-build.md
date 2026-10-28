@@ -1,11 +1,11 @@
 ---
 title: "Checking that no placeholder host survives the Pages build"
 date: 2026-10-28
-description: "Source pages use example.invalid as a stand-in base URL and the Pages build rewrites it. A new check scans the built site to prove it did."
+description: "Source pages use a reserved .invalid host as a stand-in base URL and the Pages build rewrites it. A new check scans the built site to prove it did."
 tags: [engineering, seo, ci]
 ---
 
-Venture pages are written against a placeholder base URL, `https://example.invalid/`,
+Venture pages are written against a placeholder base URL, a reserved `.invalid` host,
 and `build_pages_site.py` rewrites it to the host that actually deploys. In the
 source tree that is 468 canonical links, 150 feed links and a few cover images.
 
