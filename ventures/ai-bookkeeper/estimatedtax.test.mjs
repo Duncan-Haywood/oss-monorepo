@@ -368,3 +368,23 @@ test("age 65 and blindness add to the standard deduction; the senior deduction p
   assert.ok(one.warnings.some((w) => /senior deduction/.test(w)));
   assert.equal(estimatedTax(books("100000.00"), { ...o, over65: NaN }).taxable, base.taxable);
 });
+
+test("earned income credit from a passed schedule: phase-in, plateau, phase-out, joint start, investment limit", () => {
+  // Made-up schedule, not an IRS table.
+  const { eitc } = taxTableOptions({ eitc: { rows: [{ rate: 0.1, earnedAmount: 10000, phaseOutRate: 0.1, phaseOutStart: 12000 }, { rate: 0.4, earnedAmount: 10000, phaseOutRate: 0.2, phaseOutStart: 20000 }], marriedAdd: 5000, investmentLimit: 10000 } });
+  const o = { year: 2026, wageBase: 18450000, wages: 1000000, withholding: 0, eitc, eitcChildren: 1, qbi: false };
+  const none = estimatedTax(books("1.00"), { ...o, eitc: undefined });
+  const mid = estimatedTax(books("1.00"), o);
+  assert.equal(mid.eitcCredit, 400000);           // plateau: 0.4 x 10,000
+  assert.equal(mid.totalTax, none.totalTax - 400000);
+  const low = estimatedTax(books("1.00"), { ...o, wages: 500000 });
+  assert.ok(Math.abs(low.eitcCredit - 200000) < 100);          // phase-in: 0.4 x 5,000
+  const out = estimatedTax(books("1.00"), { ...o, wages: 2500000 });
+  assert.ok(Math.abs(out.eitcCredit - 300000) < 100); // phase-out
+  const joint = estimatedTax(books("1.00"), { ...o, wages: 2500000, filing: "mfj" });
+  assert.ok(Math.abs(joint.eitcCredit - 400000) < 100);        // start moved up 5,000 by marriedAdd -> 25,000
+  assert.equal(estimatedTax(books("1.00"), { ...o, otherIncome: 1500000, investmentIncome: 1500000 }).eitcCredit, 0);
+  assert.ok(Math.abs(estimatedTax(books("1.00"), { ...o, eitcChildren: 0 }).eitcCredit - 100000) < 100); // 0.1 x 10,000
+  assert.ok(mid.warnings.some((w) => /Earned income credit/.test(w)));
+  assert.throws(() => taxTableOptions({ eitc: { rows: [] } }), /eitc/);
+});

@@ -81,6 +81,16 @@ export function taxTableOptions(t) {
   if (t.standardDeduction !== undefined) out.standardDeduction = dollars(t.standardDeduction, "standardDeduction");
   if (t.qbiThreshold !== undefined) out.qbiThreshold = dollars(t.qbiThreshold, "qbiThreshold");
   if (t.wageBase !== undefined) out.wageBase = dollars(t.wageBase, "wageBase");
+  if (t.eitc !== undefined) {
+    const e = t.eitc;
+    if (!e || !Array.isArray(e.rows) || e.rows.length < 1 || e.rows.length > 4) bad("eitc.rows must list 1 to 4 rows, for 0 to 3 children");
+    const rate = (v, what) => { if (!(v > 0 && v < 1)) bad(`${what} must be between 0 and 1`); return v; };
+    out.eitc = {
+      rows: e.rows.map((r, i) => ({ rate: rate(r.rate, `eitc row ${i} rate`), earnedAmount: dollars(r.earnedAmount, `eitc row ${i} earnedAmount`), phaseOutRate: rate(r.phaseOutRate, `eitc row ${i} phaseOutRate`), phaseOutStart: dollars(r.phaseOutStart, `eitc row ${i} phaseOutStart`) })),
+      marriedAdd: e.marriedAdd === undefined ? 0 : dollars(e.marriedAdd, "eitc.marriedAdd"),
+      investmentLimit: e.investmentLimit === undefined ? null : dollars(e.investmentLimit, "eitc.investmentLimit"),
+    };
+  }
   if (t.qbiMinimum !== undefined) out.qbiMinimum = { floor: dollars(t.qbiMinimum.floor, "qbiMinimum.floor"), threshold: dollars(t.qbiMinimum.threshold, "qbiMinimum.threshold") };
   return out;
 }
@@ -194,7 +204,23 @@ export function estimatedTax(books, o = {}) {
     childCredit = nonref; refundableCredit = Math.max(0, refundable);
     warnings.push("Child credits assume each child is under 17 with a Social Security number valid for work, and that you can claim them; the 2026 amounts ($2,200, $1,700 refundable, $500 other, phase-out over $200,000 or $400,000 joint) come from secondary sources, so check them against Schedule 8812 or pass childCredit, childCreditRefundable and childCreditThreshold in cents.");
   }
-  const total = Math.max(0, incomeTax - childCredit) + se.tax + addlMedicare + niit - refundableCredit;
+  // Earned income credit (Schedule EIC). No built-in figures: the IRS tables are not readable from here, so the
+  // schedule comes from `eitc` (cents, built by taxTableOptions from the tax-table file) and nothing is guessed.
+  // credit = min(rate x earned, rate x earnedAmount), less phaseOutRate on the larger of earned income and AGI
+  // above the phase-out start (the joint start is higher by `marriedAdd`); no credit above the investment limit.
+  let eitcCredit = 0;
+  const sched = o.eitc;
+  if (sched) {
+    const row = sched.rows?.[Math.min(3, Math.max(0, Math.floor(num(o.eitcChildren ?? o.children))))];
+    const earnedEic = Math.max(0, profit - se.deduction) + wages;
+    if (row && o.filing !== "mfs" && (sched.investmentLimit == null || nii <= sched.investmentLimit)) {
+      const start = row.phaseOutStart + (filing === "mfj" ? sched.marriedAdd ?? 0 : 0);
+      const base = Math.min(Math.round(row.rate * earnedEic), Math.round(row.rate * row.earnedAmount));
+      eitcCredit = Math.max(0, base - Math.round(row.phaseOutRate * Math.max(0, Math.max(earnedEic, agi) - start)));
+    }
+    warnings.push("Earned income credit uses the schedule you passed, not a built-in table; it assumes the qualifying-child, age, residency and Social Security number tests are met (Schedule EIC) and the credit is refundable.");
+  }
+  const total = Math.max(0, incomeTax - childCredit) + se.tax + addlMedicare + niit - refundableCredit - eitcCredit;
   const marginal = (table.b.find(([hi]) => taxable <= hi) ?? [0, 0])[1];
 
   // Safe harbour: smaller of 90% of this year and 100%/110% of last year.
@@ -221,7 +247,7 @@ export function estimatedTax(books, o = {}) {
   // The rest is paid with the return: the balance, not a penalty.
   const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));
   warnings.push(...sc.warnings, ...se.warnings);
-  return { year, filing, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, extraStandard: extra, seniorDeduction: seniorCut, qbiDeduction, taxable, incomeTax, childCredit, refundableCredit, addlMedicare, niit, itemizing, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
+  return { year, filing, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, extraStandard: extra, seniorDeduction: seniorCut, qbiDeduction, taxable, incomeTax, childCredit, refundableCredit, eitcCredit, addlMedicare, niit, itemizing, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
 }
 
 export { toCents };
