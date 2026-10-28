@@ -1,0 +1,6 @@
+cases 48; planing feasible in 48; planing out-ranges monohull in 0 (0.00%)
+range ratio planing/mono (feasible): min 0.055 median 0.108 max 0.138
+planing best range km: min 34 median 84 max 143; monohull median 824
+planing best speed m/s: median 3.50; trim deg median 4
+best planing/mono case: {'beam': 1.1, 'beta': 0.0, 'e_batt': 200.0} planing 114 km at 3.50 m/s trim 2; mono 824 km
+planing best speed at the 20 m/s grid ceiling in 12 of 48; at the Cv=1 lower edge (v = sqrt(g b)) region: see min speed 2.75 m/s
