@@ -1,6 +1,6 @@
 # Which open hydraulic circuit gets a small excavator closest to stock energy use for the least money?
 
-**Status: open research programme (proposal stage), milestone 1 done.** A stdlib energy model
+**Status: open research programme (proposal stage), milestone 1 done, 2a (cycle-robustness) done; the sourced duty cycle (2) is still open.** A stdlib energy model
 of three excavator hydraulic circuits (fixed open-centre, load-sensing, ideal independent
 metering) over a work cycle (`src/heavy_hydraulics/`, 6 tests) and a first sweep of 2,916 cases
 on an illustrative cycle: load-sensing uses a median **47%** of open-centre pump-shaft energy
@@ -24,6 +24,7 @@ certified machine or a safety system. Nothing here was run on a real machine.
 cd research/heavy-hydraulics
 PYTHONPATH=src python3 -m pytest tests -q                      # 6 tests
 python3 experiments/run.py > experiments/results.txt           # 2,916 cases, under 5 s
+python3 experiments/envelope.py > experiments/envelope_results.txt  # 20,000 random cycles
 ```
 
 ## Method
@@ -44,3 +45,13 @@ pump efficiency (0.75 to 0.92). None is sourced yet.
 Illustrative cycle written from memory; no dynamics, leakage, line losses or energy recovery;
 no parts cost; references web-searched, not cite_check-ed. Next: a sourced duty cycle (earthmoving equation or a
 public measured cycle), then parts cost with `heavy-market`.
+
+## Milestone 2a: random cycles inside a machine envelope
+
+20,000 random four-phase cycles (pump 45 L/min, section flows 17.3/17.3/10.4 L/min, 20 to 180 bar;
+envelope from an unopened search summary of a Kubota KX018-4 listing) give load-sensing a median
+**0.44** of open-centre shaft energy (5 to 95%: 0.26 to 0.64) and metering a median 0.72 of
+load-sensing (0.87 when actuators in a phase share one pressure). H3 ("metering saves under 15%
+at zero spread") holds on the median but fails in about a third of equal-pressure cycles. The
+cycles are random, not measured, so H4 is still untested. Details: [`LOG.md`](LOG.md),
+`experiments/envelope_results.txt`.

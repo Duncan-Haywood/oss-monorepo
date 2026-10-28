@@ -1,0 +1,10 @@
+random pressures per actuator: 20000 cycles
+  ordering OC>=LS>=metered: 100.00%
+  LS/OC  median 0.442  5-95%: 0.257 to 0.635; per-seed medians 0.440 to 0.444
+  Met/LS median 0.717  5-95%: 0.574 to 0.853; per-seed medians 0.716 to 0.718
+  share with Met/LS < 0.85: 94.6%; > 0.95: 0.0%
+equal pressure within each phase (H3 case): 20000 cycles
+  ordering OC>=LS>=metered: 100.00%
+  LS/OC  median 0.433  5-95%: 0.246 to 0.645; per-seed medians 0.433 to 0.435
+  Met/LS median 0.873  5-95%: 0.774 to 0.940; per-seed medians 0.872 to 0.874
+  share with Met/LS < 0.85: 32.3%; > 0.95: 2.2%
