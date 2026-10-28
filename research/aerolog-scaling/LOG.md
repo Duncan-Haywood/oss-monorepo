@@ -3,6 +3,12 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-28 · Milestone 8a: first draft of the paper (no new simulation)
+- Why: milestone 7 is complete; milestone 8 is the paper. The UIUC host was probed again (no HTTP response), so the tail-slope check stays open and is the first item under "Before submission".
+- Done: `paper/draft.md` (abstract, hypotheses table, results 4.1 to 4.8, limitations, pre-submission list) and `paper/check_numbers.py`, which asserts that each headline number in the draft appears in the results file or LOG outcome it came from (all pass).
+- Headline as written: H5 is refuted for sections and for the wing alone but not once the tail is redesigned, and the resulting non-similar demonstrator needs its CG within about 3% of a chord. The draft states that this rests on one unvalidated polar surrogate.
+- Next: UIUC polar check when reachable; gust response; AIAA template, figures and bibliography check.
+
 ## 2026-10-28 · Milestone 7h: what does the sub-scale demonstrator look like in millimetres, and how tight is its CG? (arithmetic on 7d to 7g, no new simulation)
 - Why: 7g's "Next" and the last item of milestone 7. The demonstrator specification for `aerolog-sitl` needs dimensions a builder can cut, not chord fractions.
 - Plan (`experiments/demonstrator_spec/run.py`, stdlib only): apply the formulas of `tail_search` and `fixed_tail` to the n = 0.2 model of the 1,000 kg, AR 10 reference for the two k = 1.0, AR 12 wings with 7g's best fixed tail (NACA 0015, area 0.15, AR_t 5, arm 3.5).
