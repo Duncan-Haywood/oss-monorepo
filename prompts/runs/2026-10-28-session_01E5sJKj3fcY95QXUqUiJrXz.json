@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKj3fcY95QXUqUiJrXz",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T02:23:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper receipt date OCR repair",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 11021,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": false,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "flagship 1 next list is mostly 'wanted: real export' items an offline run cannot supply; the 2027 rev-proc probe has been restated by many runs"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/posts + docs/reports",
+      "why": "no agent doc in docs/reports; README entry carries the measurement"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-receipt-dates-ocr-cannot-read.md"
+  ],
+  "goal": null,
+  "notes": "Installed tesseract via apt-get update; cloned SROIE; baseline reproduced; date right 484->490/611, wrong 60->63. Did not run the CI-local workflow; ran node tests for receipts suites (44 pass).",
+  "corrections": [],
+  "redteam": null
+}
