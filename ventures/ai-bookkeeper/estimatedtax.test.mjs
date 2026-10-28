@@ -428,3 +428,16 @@ test("eitcTable computes the credit at the midpoint of Schedule EIC's $50 bands"
   assert.equal(eic(5040, true), eic(5010, true));
   assert.equal(eic(9010, true), 66402);      // plateau unchanged
 });
+
+test("a flat state rate is applied to AGI less the state deduction and kept out of the federal total", () => {
+  const b = books("1.00");
+  const base = estimatedTax(b, { year: 2026, wages: 10000000, withholding: 0, qbi: false });
+  const r = estimatedTax(b, { year: 2026, wages: 10000000, withholding: 0, qbi: false, stateRate: 0.05, stateDeduction: 500000, stateWithheld: 100000 });
+  assert.equal(base.state, null);
+  assert.equal(r.totalTax, base.totalTax);
+  assert.equal(r.state.base, r.agi - 500000);
+  assert.equal(r.state.tax, Math.round((r.agi - 500000) * 0.05));
+  assert.equal(r.state.balance, r.state.tax - 100000);
+  assert.equal(r.state.quarterly, Math.ceil(r.state.balance / 4));
+  assert.throws(() => estimatedTax(b, { year: 2026, qbi: false, stateRate: 0.5 }), /stateRate/);
+});

@@ -278,8 +278,19 @@ export function estimatedTax(books, o = {}) {
   if (!future.length && remaining) warnings.push(`All four dates have passed with ${remaining / 100} still unpaid; pay now and expect an underpayment penalty (Form 2210).`);
   // The rest is paid with the return: the balance, not a penalty.
   const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));
+  // State income tax, a flat rate you supply (no state's table is built in): rate x (federal AGI less the
+  // state deduction), less state withholding. Kept apart from the federal total and safe harbour: states set
+  // their own safe-harbour rules and dates.
+  let state = null;
+  if (o.stateRate !== undefined && Number.isFinite(o.stateRate)) {
+    if (!(o.stateRate >= 0 && o.stateRate <= 0.2)) throw new Error("stateRate must be between 0 and 20 percent");
+    const base = Math.max(0, agi - nonNeg(o.stateDeduction));
+    const tax = Math.round(base * o.stateRate), stateWithheld = nonNeg(o.stateWithheld);
+    state = { rate: o.stateRate, base, tax, withheld: stateWithheld, balance: Math.max(0, tax - stateWithheld), quarterly: Math.ceil(Math.max(0, tax - stateWithheld) / 4) };
+    warnings.push("State tax is a flat rate you supplied on federal AGI less your state deduction; it ignores the state's brackets, credits and its own safe-harbour dates. Check the state's form.");
+  }
   warnings.push(...sc.warnings, ...se.warnings);
-  return { year, filing, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, extraStandard: extra, seniorDeduction: seniorCut, qbiDeduction, taxable, incomeTax, childCredit, refundableCredit, eitcCredit, addlMedicare, niit, itemizing, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
+  return { year, filing, state, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, extraStandard: extra, seniorDeduction: seniorCut, qbiDeduction, taxable, incomeTax, childCredit, refundableCredit, eitcCredit, addlMedicare, niit, itemizing, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
 }
 
 export { toCents };
