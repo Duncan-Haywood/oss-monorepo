@@ -547,6 +547,14 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_duplicate_ids
 
+      # A table of bare <td> cells has no row or column names for a screen reader.
+      - name: Check every venture table has header cells
+        run: python3 platform/ci/check_table_headers.py
+
+      - name: Table-header checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_table_headers
+
       # An anchor or aria reference to a renamed id fails without any error.
       - name: Check in-page anchors and aria references resolve
         run: python3 platform/ci/check_inpage_refs.py

@@ -20,7 +20,8 @@
     th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5daea; }
     .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #2a4aa6; color: #ffffff; text-decoration: none; font-weight: 650; }
     footer { margin-top: 2.5em; font-size: .85rem; color: #444d63; }
-  </style>
+    th[scope="row"] { font-weight: normal; font-size: inherit; text-transform: none; letter-spacing: normal; color: inherit; }
+</style>
 </head>
 <body>
   <p><a href="./">&larr; Car lease deal checker</a></p>
@@ -30,11 +31,11 @@
   <h2>The example quote</h2>
   <table>
     <tbody>
-      <tr><td>MSRP</td><td>$35,000</td></tr>
-      <tr><td>Negotiated price</td><td>$33,000</td></tr>
-      <tr><td>Acquisition fee, rolled in</td><td>$895</td></tr>
-      <tr><td>Residual, 60% of MSRP, 36 months</td><td>$21,000</td></tr>
-      <tr><td>Money factor</td><td>0.00125</td></tr>
+      <tr><th scope="row">MSRP</th><td>$35,000</td></tr>
+      <tr><th scope="row">Negotiated price</th><td>$33,000</td></tr>
+      <tr><th scope="row">Acquisition fee, rolled in</th><td>$895</td></tr>
+      <tr><th scope="row">Residual, 60% of MSRP, 36 months</th><td>$21,000</td></tr>
+      <tr><th scope="row">Money factor</th><td>0.00125</td></tr>
     </tbody>
   </table>
   <h2>Step 1: the capitalized cost</h2>
