@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
 import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText } from "./stairs.mjs";
-import { checkWinders, winderText } from "./stairs.mjs";
+import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
 
@@ -190,4 +190,23 @@ test("winder input is validated and the text names the fix", () => {
   assert.equal(checkWinders({ turn: 0 }).ok, false);
   assert.match(winderText(checkWinders({ count: 3 })).join("\n"), /smallest inner radius that passes is 11\.5 in/);
   assert.match(winderText(checkWinders({ count: 3, innerRadius: 12 })).join("\n"), /pass/);
+});
+
+test("landing guard: a 48 in end edge and a 36 in side edge keep gaps under 4 in and add rails to the order", () => {
+  const r = layoutStairWithLanding({ totalRise: 160, tread: 10, landing: { openEdges: ["end", "side"] } }, plan());
+  assert.ok(r.ok && r.landing.guard);
+  const g = r.landing.guard;
+  assert.deepEqual(g.edges, [36, 36]); // width 36 default, depth 36
+  assert.equal(g.posts.count, 4); // one segment per edge, 2 posts each
+  assert.ok(g.balusters.maxGap <= 4 + 1e-9);
+  // hand check, 36 in edge: clear 32.5, ceil((32.5-4)/5.5)=6 balusters, gap (32.5-9)/7 = 3.357
+  assert.equal(g.balusters.count, 12);
+  assert.ok(Math.abs(g.balusters.length - 29) < 1e-9); // 36 - 2x1.5 rails - 4 bottom gap
+  assert.equal(landingCuts(r).filter((c) => c.kind === "landing guard rail").length, 2);
+  assert.ok(landingText(r).some((t) => /Landing guard/.test(t)));
+});
+
+test("landing guard: an edge over 72 in gets a middle post", () => {
+  assert.equal(layoutLandingGuard([96]).posts.count, 3);
+  assert.equal(layoutLandingGuard([96]).guardRails.count, 2);
 });

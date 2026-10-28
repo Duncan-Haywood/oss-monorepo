@@ -139,6 +139,29 @@ export function layoutRail(g, r, notes) {
   };
 }
 
+/**
+ * Guard along open landing edges (level, so every baluster is guardHeight - 2 rails - bottom gap long).
+ * `edges` are the open edge lengths in inches; each gets posts at both ends and wherever it would run past
+ * `maxPostSpacing`, balusters with no clear gap over `maxGap`, and a top and bottom rail. Corner posts are not shared.
+ * @param {number[]} edges
+ * @param {Rail} [r]
+ */
+export function layoutLandingGuard(edges, r = {}) {
+  const L = { ...RAIL_LIMITS, ...(r.limits || {}) };
+  const bw = r.balusterWidth ?? 1.5, post = r.postWidth ?? 3.5, board = r.railBoard ?? "2x4", thick = 1.5;
+  let posts = 0, balusters = 0, gapMax = 0;
+  const rails = [];
+  for (const len of edges) {
+    const segments = Math.max(1, Math.ceil(len / L.maxPostSpacing - 1e-9));
+    const clear = len / segments - post;
+    const per = Math.max(0, Math.ceil((clear - L.maxGap) / (bw + L.maxGap) - 1e-9));
+    posts += segments + 1; balusters += per * segments;
+    gapMax = Math.max(gapMax, (clear - per * bw) / (per + 1));
+    rails.push(len, len);
+  }
+  return { edges, posts: { count: posts, width: post }, balusters: { count: balusters, length: L.guardHeight - 2 * thick - L.bottomGap, width: bw, maxGap: gapMax }, guardRails: { size: board, count: rails.length, lengths: rails }, guardHeight: L.guardHeight };
+}
+
 /** Cut rows in the engine's shape, so `takeoff(plan, stairCuts(layout))` buys stair lumber with the walls'. */
 export function stairCuts(l) {
   if (!l.ok) return [];
@@ -165,7 +188,7 @@ export function stairText(l) {
 
 /**
  * A stair that rises more than one flight may (147 in by default) is split at a landing into two flights.
- * `landing` is `true` or `{ depth, landingRise, joist, spacing, deckBoard }`. The landing is as deep as the
+ * `landing` is `true` or `{ depth, landingRise, joist, spacing, deckBoard, openEdges }` (`openEdges`: "side" edges run the landing depth, "end" the width; each gets a guard). The landing is as deep as the
  * stair is wide (36 in at least), the usual code rule for a straight run or a turn; the rise is split in half
  * unless `landingRise` (finished floor to the landing surface) is typed. The stairwell opening applies to the
  * upper flight only. A turn does not change a count, so quarter-turns and straight runs buy the same lumber.
@@ -198,6 +221,7 @@ export function layoutStairWithLanding(input, plan) {
     rims: { size: joistSize, count: 2, length: width - 2 * THICK },
     deck: { size: deckSize, count: deckBoards, length: width, area: (width * depth) / 144 },
     footprint: lower.run + depth + upper.run,
+    guard: lc.openEdges?.length ? layoutLandingGuard(lc.openEdges.map((e) => (e === "end" ? width : depth)), input.rail || {}) : null,
     notes: ["Landing posts and footings are not sized: the platform carries a stair load plus the flights' ends, so check posts and footings against your code and the actual spans."],
   };
   return { ok: true, id, totalRise: input.totalRise, flights: [lower, upper], landing };
@@ -210,6 +234,7 @@ export function landingCuts(r) {
     { size: g.joists.size, length: Math.round(g.joists.length * 16) / 16, kind: "landing joist", qty: g.joists.count, walls: [r.id] },
     { size: g.rims.size, length: Math.round(g.rims.length * 16) / 16, kind: "landing rim", qty: g.rims.count, walls: [r.id] },
     { size: g.deck.size, length: g.deck.length, kind: "landing deck board", qty: g.deck.count, walls: [r.id] },
+    ...(g.guard && g.guard.guardRails.size in DEPTH ? g.guard.edges.flatMap((len) => [{ size: g.guard.guardRails.size, length: Math.round(len * 16) / 16, kind: "landing guard rail", qty: 2, walls: [r.id] }]) : []),
   ];
 }
 
@@ -220,6 +245,7 @@ export function landingText(r) {
     `${r.id}: ${formatLength(r.totalRise)} rise in two flights around a ${formatLength(g.width)} x ${formatLength(g.depth)} landing at ${formatLength(g.rise)}`,
     ...r.flights.flatMap(stairText),
     `  Landing: ${g.joists.count} ${g.joists.size} joists ${formatLength(g.joists.length)} (${formatInches(g.joists.spacing)} apart), 2 rims ${formatLength(g.rims.length)}, ${g.deck.count} ${g.deck.size} deck boards ${formatLength(g.deck.length)}; run on plan ${formatLength(g.footprint)} for a straight stair`,
+    ...(g.guard ? [`  Landing guard (${g.guard.edges.length} open edge${g.guard.edges.length === 1 ? "" : "s"}, ${formatInches(g.guard.guardHeight)} high): ${g.guard.posts.count} posts, ${g.guard.balusters.count} balusters ${formatInches(g.guard.balusters.length)} with at most ${formatInches(g.guard.balusters.maxGap)} clear (limit ${formatInches(RAIL_LIMITS.maxGap)}), ${g.guard.guardRails.count} ${g.guard.guardRails.size} rails`] : []),
     ...g.notes.map((n) => `  Note: ${n}`),
   ];
 }
