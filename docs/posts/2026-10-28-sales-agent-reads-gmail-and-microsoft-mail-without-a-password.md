@@ -1,7 +1,7 @@
 ---
 title: "Sales Agent can now sign in to Gmail and Microsoft 365 without a password"
 date: 2026-10-28
-description: "The self-hosted Sales Agent logs in with OAuth (XOAUTH2) on your own app, so Gmail and Microsoft 365 mailboxes work without an app password. Tested on fakes, not yet on a real provider."
+description: "The self-hosted Sales Agent now logs in to Gmail and Microsoft 365 with OAuth (XOAUTH2) on your own app, no app password. Tested on fakes only."
 tags: [sales-agent, oauth, self-hosted]
 ---
 
