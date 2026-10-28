@@ -9,6 +9,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H5m-ii:** k = 7 continues the line (excess between +0.55 and +0.75) and still trains, since the median at k = 7 of 16 is still an honest value (rank 8 of 16 sits above the 7 attackers). Refuted if it diverges or is above +1.0.
 - Limits: one extra seed gives a replication check, not an interval; k = 3 and seed 2 are not run.
 
+### Outcome of 5m (`experiments/gpt_median_coalition/`: `coordinated.jsonl` gained 4 rows, `run_5m.out`, `coordinated_results.txt`; seed 1, about 44 minutes per run)
+- Final validation loss k = 4, 5, 6, 7: 1.761, 1.896, 2.070, 2.296; excess over seed 1's clean median (1.5293): **+0.231, +0.366, +0.541, +0.766** nats. Seed 0 gave +0.231, +0.363, +0.516 at k = 4, 5, 6.
+- **H5m-i supported:** the seed 0 / seed 1 gaps are 0.000, 0.003, 0.025 (all under the 0.05 band), so the near-linear degradation replicates on a second seed (two seeds: not an interval).
+- **H5m-ii: the stated band missed, the refutation condition did not occur.** k = 7 is +0.766, 0.016 above the predicted +0.55 to +0.75 band, below the +1.0 refutation line, and it trains. The increments per attacker are +0.135, +0.175, +0.225, so the curve is slightly convex rather than linear: the growth per extra attacker is rising as k approaches 8, consistent with the wall at k = 8 but not a test of it.
+- Limits: one extra seed; k = 8 (where the median is an attacker value) not run; seed 1 alone at k = 7.
+- Next: k = 8 and k = 9 (expected to break), and seed 2.
+
 ## 2026-10-28 · Milestone 5l: where does the median break under the worst-case coordinated attack? (numpy prediction half; training run still to do)
 - Why: 5k's "Next". Disclosure: the hypothesis below was written in 5k's "Next" and the table was run before this entry was committed, so the numbers are not blind; the training test (the out-of-sample part) is not run yet.
 - Design (`experiments/gpt_median_coalition/coordinated_numpy.py`, `coordinated_numpy_results.txt`; 1e6 coordinates, M = 16, i.i.d. Gaussian honest deltas): all k attackers send the most extreme value against the signal (rank-bounded, so -infinity is the strongest push a median allows), compared with 5j's independent -10x flips. Net signal = mu/sigma plus the median's bias.
