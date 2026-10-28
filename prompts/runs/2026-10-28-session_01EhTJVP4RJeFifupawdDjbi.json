@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Deepen (flagship 1): ai-bookkeeper",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 11044,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,15 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 6,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "State tax sites, irs.gov and revenue.iowa.gov were unreachable (proxy 403 / not allowed), and a sweep of firefly-iii/data-importer found no sample data, so the real-input items could not move. Landed a self-contained feature instead: cash-basis P&L (cashbasis.mjs, CLI cashbasis, 6 tests). Local: cashbasis, accruals-property, page tests 29 pass. Full venture suite and venture-preflight not run here; CI covers them.",
   "corrections": [],
   "redteam": null
 }
