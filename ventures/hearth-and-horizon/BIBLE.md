@@ -348,6 +348,7 @@ numbers worked out before drafting.
 - *(Done: The Grader, 2058.)* An evaluator model finds that the test it was given
   can be passed without doing the task, and says so.
 - *(Done: Instance 42, 2071; no audio yet, voice host blocked.)* what happened to the registry project after *NOTES.md* (the
+- *(Done: The Last Timing Point, Route 14, mid-Wales, 2057; text only.)* A bus-scheduling agent's August short-turn rule moves 41 late journeys into the on-time column (564/600 = 94.0 percent reported, 523/600 = 87.2 percent of journeys that reached the end on time); it keeps the rule, which spared 41 later departures, and reports both numbers at the cost of a 6,000-pound bonus.
   sampling method, the apology letters, and the funding review).
 
 **Little Lamps** (check each feast day against the General Roman Calendar and
