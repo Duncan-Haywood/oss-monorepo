@@ -187,6 +187,17 @@ export function nextBusinessDay(date) {
     dt.setUTCDate(dt.getUTCDate() + 1);
   }
 }
+// Every return due in a calendar year for a state and filing frequency:
+// [{ period, due }], due moved to the next business day. Uses the same period
+// and due-day rules as `salesTaxReturn`, so a calendar and a worksheet agree.
+export function salesTaxDueDates(year, { state = null, frequency = "quarterly", endMonth = undefined, dueDay = undefined } = {}) {
+  const em = endMonth === undefined ? stateEndMonth(state, frequency) : endMonth;
+  const dd = dueDay === undefined ? stateDueDay(state, frequency) : dueDay;
+  const periods = new Set();
+  for (let y = year - 1; y <= year; y++) for (let m = 1; m <= 12; m++) periods.add(periodOf(`${y}-${pad(m)}-01`, frequency, em));
+  return [...periods].map((period) => ({ period, due: nextBusinessDay(dueDate(period, dd)) }))
+    .filter((e) => e.due.startsWith(String(year))).sort((a, b) => a.due.localeCompare(b.due));
+}
 // the filing period that ended before the one a payment falls in
 const periodBefore = (d, freq, endMonth) => {
   if (freq === "annual") {
