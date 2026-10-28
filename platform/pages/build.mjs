@@ -9178,6 +9178,9 @@ body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status
  * than in each venture: a calculator that adopts the proposal next week is
  * covered without touching it. */
 @media print{.pf-chrome{display:none !important}}
+input[type=file]{max-width:100%;cursor:pointer}
+input[type=file]::file-selector-button{font:inherit;color:inherit;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.55);border-radius:7px;padding:6px 14px;margin-right:12px;cursor:pointer}
+input[type=file]::file-selector-button:hover{background:rgba(128,128,128,.26)}
 `;
 
 /**

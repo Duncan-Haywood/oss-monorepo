@@ -16,7 +16,7 @@ repository has 16 hand-written ones, for the flagship ventures and a few others.
 `platform/ci/check_llms_txt_links.py` resolves every link in them against the
 tree. A GitHub `tree/blob/main` link must name a path that exists. A link to
 the Pages site (including the retired `monorepo-projects` path and the
-`example.invalid` placeholder the build rewrites) must map to a file under
+reserved `.invalid` placeholder the build rewrites) must map to a file under
 `ventures/<slug>/`.
 
 Result on 2026-10-28: 0 dead links across 16 files. The check is a plain
