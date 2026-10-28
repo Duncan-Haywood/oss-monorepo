@@ -72,8 +72,19 @@ export const STATE_DUE_DAYS = { CA: "last", TX: 20, FL: 20, NY: 20, WA: 25, IL: 
 // PA semiannual periods are Feb-Jul and Aug-Jan (due Aug 20 and Feb 20). Both are modelled via
 // stateEndMonth (NY quarterly ends in Feb, PA semiannual in Jan); other states use calendar periods.
 // The 2026-10-24 excerpts were not re-read against the full forms: check your own notice.
+// States with no general state sales tax, from the author's memory of each state's
+// published position (2026-10-28; state sites not read): the note says so rather than
+// letting a return be built for a filing that does not exist. Check yours.
+const NO_STATE_SALES_TAX = {
+  OR: "Oregon has no statewide sales tax, so there is no sales tax return to file; Oregon's Corporate Activity Tax and local transit or lodging taxes are separate filings.",
+  MT: "Montana has no general state sales tax; some resort communities levy a local resort tax filed with the town, not the state.",
+  NH: "New Hampshire has no general sales tax; its meals and rooms tax and other taxes are separate returns, which this command does not build.",
+  DE: "Delaware has no sales tax; businesses pay a gross receipts tax (monthly, quarterly or annual by size) that is a different return on a different base, which this command does not build.",
+  AK: "Alaska has no state sales tax, but many cities and boroughs levy local sales tax with their own return forms and due dates, which this command does not know; use the local schedule.",
+};
 export function stateFilingNote(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
+  if (NO_STATE_SALES_TAX[s]) return NO_STATE_SALES_TAX[s];
   if (s === "PA" && frequency === "annual") return "Pennsylvania has no annual return; assigned filers file monthly, quarterly or semiannually (due Aug 20 and Feb 20), use --freq semiannual with --state PA for the Feb-Jul and Aug-Jan periods.";
   return null;
 }

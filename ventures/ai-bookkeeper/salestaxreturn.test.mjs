@@ -335,3 +335,9 @@ test("DC annual returns end September 30 and are due October 20 (OTR FAQ via sea
   assert.deepEqual(r.periods.map((p) => p.period), ["2026-09"]);
   assert.equal(r.periods[0].rows[0].due, "2026-10-20");
 });
+
+test("states with no state sales tax get a note instead of silence", async () => {
+  const { stateFilingNote } = await import("./salestaxreturn.mjs");
+  for (const s of ["OR", "mt", "NH", "DE", "AK"]) assert.match(stateFilingNote(s, "quarterly"), /no (statewide )?(general )?(state )?sales tax|no sales tax/i, s);
+  assert.equal(stateFilingNote("TX"), null);
+});
