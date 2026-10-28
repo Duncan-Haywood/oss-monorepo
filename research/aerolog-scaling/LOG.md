@@ -3,6 +3,20 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-28 · Milestone 9b: do the tails that restore the modes also restore the gust response? (planned before running)
+- Why: 9a's "Next". 9a tested only wings with the 7b tail; the tail redesign of `tail_search` (78 designs within 5% on all three modes) is the part of H5 that survived, so the question is whether it survives the gust metrics too. The UIUC host is still refused (HTTP 000), so NACA 0012/0015 data stay open.
+- Plan (`experiments/tail_gust/run.py`): the 17 power-matched wings and 270-tail grid of `tail_search`; keep the designs within 5% on all three modes; for each, the three gust peaks (dn, q, theta) at H = 5, 12.5, 25 chords as percent difference from n = 1 (same gust model as 9a, tail slope and drag as in `tail_search`).
+- **Predictions (before running):** (1) fewer than half of the 78 mode-matched designs have all three gust peaks within 10% at H = 12.5 (prior 70%). (2) The peak load-factor increment is the worst-matched metric for most of the 78 (prior 55%), since the modes are matched by tail changes but dn depends on the wing slope and k. (3) Some design is within 5% on all three modes and all three gust peaks at all three H (prior 25%). Refuted: (1) half or more are within 10%; (2) another metric is worst for most; (3) none is, or (prior-low) the best is looser than 10%.
+- Limits known in advance: same as 9a (no penetration lag, no alpha-dot, rigid, no elevator); tail slope unvalidated (8c to 8e), so a pass is a statement about the surrogate.
+
+
+### Outcome of 9b (`experiments/tail_gust/`: `run.py`, `results.txt`; about 3 min)
+- Of the 78 mode-matched designs (the `tail_search` count, reproduced), 72 have all three gust peaks within 10% of n = 1 at H = 12.5 chords, and **24 have all three within 5% at all three gust lengths**. The best (NACA 5406 wing, k 1.0, AR 12; NACA 0012 tail, area 0.15, AR_t 3.5, arm 3.5) is within 1.2% on every gust metric at every H while its modes are within 1.1%. The tail that restores the modes restores the gust response with it, because the rotational response is what the tail controls.
+- **(1) refuted** (72 of 78 within 10%, prediction: fewer than half). **(2) refuted** (worst metric at H 12.5: peak q for 36 designs, peak dn for 35, theta for 7; neither is most). **(3) held** (24 designs; the prior was 25%).
+- Reading: the mode-matched non-similar demonstrator also matches a scaled gust, contrary to 9a's result for the 7b tail where nothing came within 10%. Combined with 9a, the earlier "no design restores power, modes and gust response together" holds only for the fixed 7b tail; with the tail in the design space it is refuted. All of it rests on the unvalidated NeuralFoil tail slope (8c to 8e): a tail slope 20% lower would break the modes first (8e), so the gust match inherits that.
+- Limits: as 9a (no penetration lag between wing and tail, no alpha-dot term, rigid, no elevator); the slope scale of 8e was not applied here; 78 designs on a grid, not an optimum.
+- Next: apply the 8e slope scales to the gust metrics; NACA 0012/0015 data when the UIUC host answers; thrust law; AIAA template.
+
 ## 2026-10-28 · Milestone 9a: does the Froude model keep the gust response (H1 proper)? (planned before running)
 - Why: the draft's "Next" and the last untested half of H1 ("response to a scaled gust"). The UIUC host (m-selig.ae.illinois.edu) is refused by the egress proxy in this session (HTTP 000, `connect_rejected`), so 8e's NACA 0012/0015 data step cannot run; the gust response needs no external data.
 - Plan (`experiments/gust_response/run.py`): the four-state model and power-matched grid of `nonsimilar_modes`; a 1-cos vertical gust with gradient H = 5, 12.5, 25 full-size chords (H scaled by n and w_g by sqrt(n) so alpha_g(t sqrt(g/L)) is identical at every scale); exact zero-order-hold simulation; metrics peak load-factor increment, peak q sqrt(L/g), peak pitch attitude, as percent difference from n = 1.
