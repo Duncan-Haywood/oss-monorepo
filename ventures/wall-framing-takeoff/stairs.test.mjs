@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
-import { layoutStair, stairCuts, stairText, sampleStair, validateStair } from "./stairs.mjs";
+import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
 
@@ -73,4 +73,44 @@ test("stair lumber joins the cutting-stock order", () => {
   assert.ok(r.ok);
   assert.ok(r.cuts.some((c) => c.kind === "stair stringer" && c.qty === l.stringer.count));
   assert.match(stairText(l).join("\n"), /risers of/);
+});
+
+test("a 160 in rise splits at a landing into two flights that add up", () => {
+  const r = layoutStairWithLanding({ totalRise: 160, tread: 10, width: 36 }, plan());
+  assert.ok(r.ok);
+  assert.equal(r.landing.rise, 80);
+  assert.equal(r.flights.length, 2);
+  assert.ok(Math.abs(r.flights[0].totalRise + r.flights[1].totalRise - 160) < 1e-9);
+  assert.equal(r.flights[0].risers, 11); // 80 / 7.75 = 10.3
+  assert.ok(r.flights.every((f) => f.riser <= 7.75));
+});
+
+test("landing is as deep as the stair is wide, 36 in at least, and framed on 16 in joists", () => {
+  const r = layoutStairWithLanding({ totalRise: 160, width: 48 }, plan());
+  assert.equal(r.landing.depth, 48);
+  assert.equal(r.landing.joists.count, 4); // 46.5 / 16 = 2.9 -> 3 bays
+  assert.equal(r.landing.deck.count, Math.ceil(48.25 / 11.5)); // 2x12 deck boards
+  assert.ok(Math.abs(r.landing.deck.area - 16) < 1e-9);
+  assert.match(layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 40 } }, plan()).errors[0], /deep/);
+});
+
+test("a typed landing height moves the split; one that leaves a short flight is refused; only the upper flight has the opening", () => {
+  const r = layoutStairWithLanding({ totalRise: 160, floorThickness: 12, openingLength: 200, landing: { landingRise: 60 } }, plan());
+  assert.equal(r.flights[0].totalRise, 60);
+  assert.equal(r.flights[0].opening, null);
+  assert.ok(r.flights[1].opening);
+  assert.match(layoutStairWithLanding({ totalRise: 160, landing: { landingRise: 8 } }, plan()).errors[0], /under 1 ft/);
+});
+
+test("landing lumber joins the order with both flights'", () => {
+  const r = layoutStairWithLanding({ totalRise: 160 }, plan());
+  const cuts = [...r.flights.flatMap(stairCuts), ...landingCuts(r)];
+  assert.deepEqual(cuts.map((c) => c.kind), ["stair stringer", "stair tread", "stair stringer", "stair tread", "landing joist", "landing rim", "landing deck board"]);
+  const t = takeoff(samplePlan(), cuts);
+  assert.ok(t.ok);
+  assert.match(landingText(r).join("\n"), /Landing: .* joists/);
+});
+
+test("a one-flight rise without a landing is pointed at layoutStair", () => {
+  assert.match(layoutStairWithLanding({ totalRise: 100 }, plan()).errors[0], /layoutStair/);
 });

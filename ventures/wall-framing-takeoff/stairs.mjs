@@ -119,3 +119,64 @@ export function stairText(l) {
   for (const n of l.notes) out.push(`  Note: ${n}`);
   return out;
 }
+
+/**
+ * A stair that rises more than one flight may (147 in by default) is split at a landing into two flights.
+ * `landing` is `true` or `{ depth, landingRise, joist, spacing, deckBoard }`. The landing is as deep as the
+ * stair is wide (36 in at least), the usual code rule for a straight run or a turn; the rise is split in half
+ * unless `landingRise` (finished floor to the landing surface) is typed. The stairwell opening applies to the
+ * upper flight only. A turn does not change a count, so quarter-turns and straight runs buy the same lumber.
+ * @param {Stair & { landing?: true | { depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string } }} input
+ * @param {{stock: {size: string, length: number}[]}} [plan]
+ */
+export function layoutStairWithLanding(input, plan) {
+  const L = { ...STAIR_LIMITS, ...(input.limits || {}) };
+  const lc = typeof input.landing === "object" && input.landing ? input.landing : {};
+  const id = input.id || "Stair";
+  if (!input.landing && !(input.totalRise > L.maxRise)) return { ok: false, id, errors: ["No landing asked for and the rise fits one flight: use layoutStair."] };
+  if (!(input.totalRise >= 2 * 12)) return { ok: false, id, errors: ["A stair with a landing needs at least 2 ft of total rise."] };
+  const rise1 = lc.landingRise ?? Math.round((input.totalRise / 2) * 16) / 16;
+  const rise2 = input.totalRise - rise1;
+  if (!(rise1 >= 12 && rise2 >= 12)) return { ok: false, id, errors: [`The landing at ${formatLength(rise1)} leaves a flight under 1 ft of rise; put it nearer the middle.`] };
+  const width = input.width ?? 36;
+  const depth = lc.depth ?? Math.max(36, width);
+  if (depth < Math.max(36, width) - 1e-9) return { ok: false, id, errors: [`A landing ${formatLength(depth)} deep is under the stair's width (${formatLength(Math.max(36, width))}), which the model code requires.`] };
+  const { landing: _l, openingLength, ...rest } = input;
+  const lower = layoutStair({ ...rest, id: `${id}, lower flight`, totalRise: rise1 }, plan);
+  const upper = layoutStair({ ...rest, id: `${id}, upper flight`, totalRise: rise2, ...(openingLength != null ? { openingLength } : {}) }, plan);
+  const errors = [...(lower.ok ? [] : lower.errors), ...(upper.ok ? [] : upper.errors)];
+  const joistSize = lc.joist || "2x8", deckSize = lc.deckBoard || input.treadBoard || "2x12", spacing = lc.spacing || 16;
+  for (const [k, v] of [["joist", joistSize], ["deck board", deckSize]]) if (!(v in DEPTH)) errors.push(`Unknown landing ${k} size ${v}.`);
+  if (errors.length) return { ok: false, id, errors };
+  const joists = Math.ceil((width - THICK) / spacing - 1e-9) + 1;
+  const deckBoards = Math.ceil((depth + 0.25) / (DEPTH[deckSize] + 0.25) - 1e-9);
+  const landing = {
+    width, depth, rise: rise1, joists: { size: joistSize, count: joists, length: depth, spacing: (width - THICK) / (joists - 1) },
+    rims: { size: joistSize, count: 2, length: width - 2 * THICK },
+    deck: { size: deckSize, count: deckBoards, length: width, area: (width * depth) / 144 },
+    footprint: lower.run + depth + upper.run,
+    notes: ["Landing posts and footings are not sized: the platform carries a stair load plus the flights' ends, so check posts and footings against your code and the actual spans."],
+  };
+  return { ok: true, id, totalRise: input.totalRise, flights: [lower, upper], landing };
+}
+
+export function landingCuts(r) {
+  if (!r.ok) return [];
+  const g = r.landing;
+  return [
+    { size: g.joists.size, length: Math.round(g.joists.length * 16) / 16, kind: "landing joist", qty: g.joists.count, walls: [r.id] },
+    { size: g.rims.size, length: Math.round(g.rims.length * 16) / 16, kind: "landing rim", qty: g.rims.count, walls: [r.id] },
+    { size: g.deck.size, length: g.deck.length, kind: "landing deck board", qty: g.deck.count, walls: [r.id] },
+  ];
+}
+
+export function landingText(r) {
+  if (!r.ok) return r.errors.map((e) => `  - ${e}`);
+  const g = r.landing;
+  return [
+    `${r.id}: ${formatLength(r.totalRise)} rise in two flights around a ${formatLength(g.width)} x ${formatLength(g.depth)} landing at ${formatLength(g.rise)}`,
+    ...r.flights.flatMap(stairText),
+    `  Landing: ${g.joists.count} ${g.joists.size} joists ${formatLength(g.joists.length)} (${formatInches(g.joists.spacing)} apart), 2 rims ${formatLength(g.rims.length)}, ${g.deck.count} ${g.deck.size} deck boards ${formatLength(g.deck.length)}; run on plan ${formatLength(g.footprint)} for a straight stair`,
+    ...g.notes.map((n) => `  Note: ${n}`),
+  ];
+}
