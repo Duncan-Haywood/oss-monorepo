@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { checkPageIdentity, h1Count, loadPages, titleOf } from './page-identity.mjs';
+import { MAX_TITLE_LENGTH, checkPageIdentity, h1Count, loadPages, titleOf } from './page-identity.mjs';
 
 const page = (title, body) => `<html><head><title>${title}</title></head><body>${body}</body></html>`;
 
@@ -72,4 +72,11 @@ test('the command line runs with no argument too (defaults to ./dist)', () => {
   const script = fileURLToPath(new URL('./page-identity.mjs', import.meta.url));
   const r = spawnSync(process.execPath, [script], { encoding: 'utf8' });
   assert.ok(r.stdout.length > 0 || r.stderr.length > 0);
+});
+
+test('a title over the ceiling is flagged, entities counting as one character', () => {
+  const long = (n) => new Map([['a/index.html', `<title>${n}</title><h1>x</h1>`]]);
+  assert.deepEqual(checkPageIdentity(long('x'.repeat(MAX_TITLE_LENGTH))), []);
+  assert.deepEqual(checkPageIdentity(long('&#39;'.repeat(MAX_TITLE_LENGTH))), []);
+  assert.match(checkPageIdentity(long('x'.repeat(MAX_TITLE_LENGTH + 1)))[0], /over 130/);
 });
