@@ -32,7 +32,7 @@ self-employment tax, which is how `estimate` computes it.
 What stands out:
 
 - **The credit peaks, then shrinks.** With one child it reaches its $4,427
-  maximum by about $13,000 of earnings and starts falling at $23,890. A freelancer
+  maximum by about $14,000 of profit and starts falling at $23,890. A freelancer
   at $40,000 gets about half of what one at $15,000 gets.
 - **It can exceed the profit's share.** At $5,000 of profit with one child the
   credit is $1,580, about a third on top of the profit itself.
