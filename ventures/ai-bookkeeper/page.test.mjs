@@ -179,3 +179,10 @@ test("the reports card shows a cash-basis profit and loss when the books carry i
   assert.match(script(), /import \{ cashBasis \} from "\.\/cashbasis\.mjs"/);
   assert.match(script(), /cashBasis\(books, \{ from:/);
 });
+
+test("the sales tax return worksheet is on the page and shares its spec parsers with the CLI", () => {
+  const html = page("index.html");
+  for (const id of ["str-freq", "str-state", "str-rate", "str-disc"]) assert.match(html, new RegExp(`<label for="${id}"`), id);
+  assert.match(script(), /import \{ salesTaxReturn, parseRateSpecs, parseDiscountSpecs,/);
+  assert.match(html, /id="str-box" hidden/);
+});

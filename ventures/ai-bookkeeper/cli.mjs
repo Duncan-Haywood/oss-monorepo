@@ -17,7 +17,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
-import { salesTaxReturn, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
+import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
 import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
@@ -866,11 +866,10 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   const off = has("--off");
   try { books = markW9(books, rest[0], !off); save(); console.log(off ? "W-9 flag cleared." : "W-9 marked on file."); } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "salestax" && rest[0] === "return") {
-  const rates = {};
-  for (let v = flag("--rate"); v; v = flag("--rate")) { const [k, n] = v.split("="); rates[k.trim()] = Number(n) / 100; }
+  const specs = (name) => { const out = []; for (let v = flag(name); v; v = flag(name)) out.push(v); return out; };
+  const rates = parseRateSpecs(specs("--rate"));
   let t;
-  const discounts = {};
-  for (let v = flag("--discount"); v; v = flag("--discount")) { const [k, spec = ""] = v.split("="); const [pct, cap] = spec.split(","); const perMonth = cap != null && /\/mo$/.test(cap.trim()); const c = cap == null ? undefined : Math.round(Number(cap.trim().replace(/\/mo$/, "")) * 100); discounts[k.trim()] = { rate: Number(pct) / 100, ...(perMonth ? { capPerMonth: c } : { cap: c }) }; }
+  const discounts = parseDiscountSpecs(specs("--discount"));
   try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", endMonth: flag("--end-month") ? Number(flag("--end-month")) : stateEndMonth(flag("--state"), flag("--freq") ?? "quarterly"), dueDay: flag("--due-day") ? Number(flag("--due-day")) : stateDueDay(flag("--state"), flag("--freq") ?? "quarterly"), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
   const stateNote = stateFilingNote(flag("--state"), t.frequency);
   if (stateNote) t.warnings.push(stateNote);

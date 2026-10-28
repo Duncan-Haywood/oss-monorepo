@@ -254,6 +254,15 @@
     </details>
     <div class="scroll" id="aging"></div>
     <div class="scroll" id="salestax"></div>
+    <details id="str-box" hidden>
+      <summary>Sales tax return worksheet (by jurisdiction and filing period)</summary>
+      <p class="note">Splits the tax on your invoices by the jurisdiction named in each tax line's description, per filing period, with the due date, a rate check and the vendor discount. A worksheet to check a return against, not a filing: rates, exemptions, discounts and due dates are your state's to say.</p>
+      <p><label for="str-freq">Filing frequency</label> <select id="str-freq"><option value="monthly">Monthly</option><option value="quarterly" selected>Quarterly</option><option value="semiannual">Semiannual</option><option value="annual">Annual</option></select>
+      <label for="str-state">State (sets due day and year)</label> <select id="str-state"><option value="">Other (20th of the month after)</option></select></p>
+      <p><label for="str-rate">Expected rates, one per line, <code>CA state=7.25</code></label><br><textarea id="str-rate" rows="2" cols="34"></textarea>
+      <label for="str-disc">Vendor discounts, one per line, <code>TX state=0.5</code> or <code>IL state=1.75,1000/mo</code></label><br><textarea id="str-disc" rows="2" cols="34"></textarea></p>
+      <div class="scroll" id="str"></div>
+    </details>
   </section>
 
   <section class="card" aria-labelledby="h-open">
@@ -469,6 +478,7 @@
     import { addTrip, removeTrip, setHomeOffice, mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
     import { estimatedTax } from "./estimatedtax.mjs";
     import { annualizedInstallments } from "./annualized.mjs";
+    import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDueDay, stateEndMonth, stateFilingNote, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -932,10 +942,30 @@
 
     function renderSalesTax() {
       const t = salesTax(books);
-      if (!t.months.some((m) => m.collected || m.credited || m.remitted)) { $("#salestax").replaceChildren(); return; }
+      if (!t.months.some((m) => m.collected || m.credited || m.remitted)) { $("#salestax").replaceChildren(); $("#str-box").hidden = true; return; }
+      $("#str-box").hidden = false;
+      renderSalesTaxReturn();
       const r = (label, m) => [label, fmt(m.sales), fmt(m.collected), fmt(m.credited), fmt(m.remitted), fmt(m.owed ?? t.owed)];
       $("#salestax").replaceChildren(el("p", { class: "note", text: `Sales tax (account ${t.account}): collected on invoices, taken off by credit notes, paid over by bank lines. ${fmt(t.owed)} is still owed to the tax authority.` }), table(["Month", "Sales", "Collected", "Credited", "Paid over", "Owed"], [...t.months.map((m) => r(m.month, m)), r("Total", t.totals)]));
     }
+
+    for (const st of Object.keys(STATE_DUE_DAYS).sort()) $("#str-state").append(el("option", { value: st, text: st }));
+    function renderSalesTaxReturn() {
+      try {
+        const lines = (id) => $(id).value.split("\n").map((x) => x.trim()).filter(Boolean);
+        const freq = $("#str-freq").value, st = $("#str-state").value || null;
+        const t = salesTaxReturn(books, { frequency: freq, endMonth: st ? stateEndMonth(st, freq) : null, dueDay: st ? stateDueDay(st, freq) : 20, rates: parseRateSpecs(lines("#str-rate")), discounts: parseDiscountSpecs(lines("#str-disc")), asOf: new Date().toISOString().slice(0, 10) });
+        const note = stateFilingNote(st, freq);
+        if (note) t.warnings.push(note);
+        const rows = [];
+        for (const p of t.periods) {
+          for (const r of p.rows) rows.push([p.period, r.jurisdiction, fmt(r.taxableSales), fmt(r.tax), r.rate == null ? "-" : (r.rate * 100).toFixed(2) + "%", r.due, r.discount ? fmt(r.discount) : ""]);
+          rows.push([p.period, "Payable / paid / owed", "", fmt(p.payable), "", `paid ${fmt(p.paid)}`, `owed ${fmt(p.owed)}`]);
+        }
+        $("#str").replaceChildren(table(["Period", "Jurisdiction", "Taxable sales", "Tax", "Rate", "Due", "Discount"], rows), ...t.warnings.map((w) => el("p", { class: "note", text: w })));
+      } catch (e) { $("#str").replaceChildren(el("p", { class: "note", text: e.message })); }
+    }
+    for (const id of ["#str-freq", "#str-state", "#str-rate", "#str-disc"]) $(id).addEventListener("change", () => { record("salestax_return"); renderSalesTaxReturn(); });
 
     function renderVat() {
       const v = vatReturn(books, { from: $("#from").value || null, to: $("#to").value || null });

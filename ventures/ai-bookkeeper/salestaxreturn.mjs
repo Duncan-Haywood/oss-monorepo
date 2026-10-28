@@ -82,6 +82,26 @@ const NO_STATE_SALES_TAX = {
   DE: "Delaware has no sales tax; businesses pay a gross receipts tax (monthly, quarterly or annual by size) that is a different return on a different base, which this command does not build.",
   AK: "Alaska has no state sales tax, but many cities and boroughs levy local sales tax with their own return forms and due dates, which this command does not know; use the local schedule.",
 };
+// "CA state=7.25" -> { "CA state": 0.0725 }; one spec per entry. Bad numbers stay NaN so salesTaxReturn refuses them.
+export function parseRateSpecs(specs = []) {
+  const rates = {};
+  for (const v of specs) { const [k, n] = v.split("="); rates[k.trim()] = Number(n) / 100; }
+  return rates;
+}
+
+// "CA state=0.5,100" (cap per return) or "IL state=1.75,1000/mo" (cap per month), caps in dollars.
+export function parseDiscountSpecs(specs = []) {
+  const discounts = {};
+  for (const v of specs) {
+    const [k, spec = ""] = v.split("=");
+    const [pct, cap] = spec.split(",");
+    const perMonth = cap != null && /\/mo$/.test(cap.trim());
+    const c = cap == null ? undefined : Math.round(Number(cap.trim().replace(/\/mo$/, "")) * 100);
+    discounts[k.trim()] = { rate: Number(pct) / 100, ...(perMonth ? { capPerMonth: c } : { cap: c }) };
+  }
+  return discounts;
+}
+
 export function stateFilingNote(state, frequency = "quarterly") {
   const s = String(state ?? "").toUpperCase();
   if (NO_STATE_SALES_TAX[s]) return NO_STATE_SALES_TAX[s];
