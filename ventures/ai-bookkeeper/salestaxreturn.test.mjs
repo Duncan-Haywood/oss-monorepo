@@ -314,6 +314,9 @@ test("a payment filed after the due date warns that the timely-filing discount m
   };
   const opts = { discounts: { "CA state": { rate: 0.1, cap: 100 } }, asOf: "2026-12-01" };
   assert.ok(!salesTaxReturn(mk("2026-04-18"), opts).warnings.some((w) => /discount assumes/.test(w)));
+  // paying on the due date itself is still on time; one day later is not
+  assert.ok(!salesTaxReturn(mk("2026-04-20"), opts).warnings.some((w) => /discount assumes/.test(w)));
+  assert.ok(salesTaxReturn(mk("2026-04-21"), opts).warnings.some((w) => /discount assumes payment by 2026-04-20.*2026-04-21/.test(w)));
   assert.ok(salesTaxReturn(mk("2026-05-02"), opts).warnings.some((w) => /2026-Q1.*discount assumes payment by 2026-04-20.*2026-05-02/.test(w)));
   assert.ok(!salesTaxReturn(mk("2026-05-02"), { asOf: "2026-12-01" }).warnings.some((w) => /discount assumes/.test(w)));
 });
