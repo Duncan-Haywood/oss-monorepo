@@ -241,9 +241,11 @@ test("the foundation anchor bolt fields feed the engine's anchorBolts option and
   assert.match(html, /\$\("#fnAnchor"\)\.value = fn\.anchorBolts \?/);
 });
 
-test("the bid-leveling card levels pasted bids against the budget and counts the use", () => {
+test("the bid leveling card parses lines into plan.bids, restores them and levels against the budget", () => {
   const html = page("index.html");
-  for (const id of ["bidsCard", "bidsIn", "bidsRun", "bidsOut"]) assert.match(html, new RegExp(`id="${id}"`));
-  assert.match(html, /levelBids\(last\.budget, input\)/);
+  for (const id of ["bidsCard", "bidText", "bidsOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /levelBids\(last\.budget, pb\.bids\)/);
+  assert.match(html, /plan\.bids = pb\.bids/);
+  assert.match(html, /Array\.isArray\(plan\.bids\)/);
   assert.match(html, /<code>bids_leveled<\/code>/);
 });
