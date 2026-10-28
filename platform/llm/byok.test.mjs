@@ -228,3 +228,10 @@ function fakeFetchGet(reply, status = 200) {
   fn.calls = calls;
   return fn;
 }
+
+test('anthropic: a missing usage field counts as zero, not one (spend guard charges real usage)', async () => {
+  const none = await complete({ provider: 'anthropic', apiKey: 'k' }, { prompt: 'P', fetch: fakeFetch({ content: [{ type: 'text', text: 'x' }] }) });
+  assert.deepEqual(none.usage, { input: 0, output: 0 });
+  const cached = await complete({ provider: 'anthropic', apiKey: 'k' }, { prompt: 'P', fetch: fakeFetch({ content: [], usage: { cache_read_input_tokens: 7, output_tokens: 2 } }) });
+  assert.deepEqual(cached.usage, { input: 7, output: 2 });
+});

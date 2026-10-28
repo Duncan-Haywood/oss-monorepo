@@ -269,6 +269,7 @@ numbers worked out before drafting.
   calendar and liturgy, not drama in a spacesuit.
 - *(Done: The Control Vial, Cheparaa Health Centre, Kenya, 2041.)* A solar vaccine fridge freezes its top shelf; the cold-chain AI will not certify the doses without a shake test, and the test takes a night.
 - *(Done: Forty-Eight Degrees, Tigh Naomh Pádraig, Wicklow, 2049; text only.)* A hospice heat pump set to 48 C saves 630 euro a year and sits in Legionella's range; a 3.2 m dead leg, 400 CFU/L at the nearest shower, store at 60 and mix to 43.
+- *(Done: Point Two, Tom na Croise, Braes of Glenlivet, 2048; text only.)* A parish hall sealed from 1.0 to 0.2 air changes an hour hides nothing from its old gas heater: an alarm's 41 ppm peak (47 mg/m³) after two hours gives about 8.5 g/h of CO (8.2 to 9.4 across 0.15 to 0.3 ach); the cause is a bird's nest in the flue.
 - *Quarry Nine:* a short sequel, a few years on, in which the new system is
   asked why the old bell is rung (use sparingly; the first story is complete).
 - *(Done: The Cold Meter, Eilean Dhubhaig, 2052.)* A wind lull on an island grid; the hall as the cheapest heater.

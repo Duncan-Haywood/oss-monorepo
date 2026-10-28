@@ -170,6 +170,30 @@ This agrees in direction with Centola and Macy (2007); it is not a reproduction 
 figures, and Centola et al. (2018)'s 25% tipping point (a naming game) is not checked.
 T, k and the graph family are chosen, not measured; the finding is about simulated people.
 
+## Follow-up: Axelrod's culture model with a broadcast (`experiments/culture/`, `src/civ_levers/culture.py`)
+
+Question: does one voice that everyone hears (a common broadcast) homogenise a society of
+interacting cultures, or fragment it? Axelrod (1997) on a lattice (F features, q traits), plus a
+global media culture met with probability B per step (Shibanai, Yasuno and Ishiguro 2001).
+20 runs per cell; hypotheses were logged before the run (`LOG.md`);
+`python3 experiments/culture/run.py` reproduces `results.txt` (about 6 minutes on 4 cores).
+
+- A broadcast **fragments** rather than homogenises. F = 5, q = 10, 20 x 20: the largest culture
+  covers 99% of the lattice without media and 26% at B = 0.3 (2 regions against 76). At q = 5 it
+  stays one culture until B = 0.03 and splits into 29 regions at B = 0.3. At q = 40 (already
+  fragmented, S = 0.03) it changes nothing.
+- Why: a site sharing no feature with the media never interacts with it, so such sites freeze.
+  Only 50% hold the media culture at q = 10, B = 0.3, and 27% at q = 20.
+- The order–disorder transition shows up (largest region falls with q; gradual for F = 2, sharp for
+  F >= 3), but the F = 10 drop is at q of about 30 to 50 on 12 and 24 sized lattices, not
+  Castellano, Marsili and Vespignani's (2000) q_c of about 300, which used lattices to L = 150. I
+  did not run those sizes, so this is **not a reproduction** of their number.
+- Axelrod's base case (F 5, q 10, 10 x 10): 4.55 +- 0.36 regions (300 runs) against his 3.2.
+  Higher; his sample and counting rule may differ. Not matched.
+
+F, q, B and the single global media culture are chosen, not measured; the finding is about
+simulated agents. Next: noise, and the L = 50 to 150 runs (a compiled core would be needed).
+
 ## What this does and does not say
 
 - It is a model of opinion *positions*, not of prejudice or affect. Contact in Pettigrew and
@@ -196,6 +220,9 @@ Needs Python 3.9+ with numpy (and pytest); the app has no dependencies.
 ## References
 
 - Allport, G. W. (1954). *The Nature of Prejudice*. Addison-Wesley.
+- Axelrod, R. (1997). The dissemination of culture: a model with local convergence and global polarization. *Journal of Conflict Resolution* 41(2):203–226.
+- Castellano, C., Marsili, M. and Vespignani, A. (2000). Nonequilibrium phase transition in a model for social influence. *Physical Review Letters* 85(16):3536–3539.
+- Shibanai, Y., Yasuno, S. and Ishiguro, I. (2001). Effects of global information feedback on diversity: extensions to Axelrod's adaptive culture model. *Journal of Conflict Resolution* 45(1):80–96.
 - Bail, C. A. et al. (2018). Exposure to opposing views on social media can increase political
   polarization. *PNAS* 115(37):9216–9221.
 - Centola, D. and Macy, M. (2007). Complex contagions and the weakness of long ties.

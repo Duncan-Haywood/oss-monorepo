@@ -60,6 +60,15 @@ export class Imap {
     return r;
   }
   async login(user, pass) { await this.cmd(`LOGIN ${q(user)} ${q(pass)}`); }
+  // SASL XOAUTH2 (Gmail, Microsoft 365). On failure the server sends a "+ <base64 json>" challenge and waits for an empty line before the NO.
+  async loginXoauth2(user, token) {
+    const tag = `A${++this.n}`;
+    this.sock.write(`${tag} AUTHENTICATE XOAUTH2 ${Buffer.from(`user=${user}\x01auth=Bearer ${token}\x01\x01`).toString("base64")}\r\n`);
+    let r = await this.read((l) => l.startsWith("+") || l.startsWith(tag + " "));
+    if (r.lines.at(-1).startsWith("+")) { this.sock.write("\r\n"); r = await this.read((l) => l.startsWith(tag + " ")); }
+    const last = r.lines.at(-1);
+    if (!new RegExp(`^${tag} OK`, "i").test(last)) throw new Error("XOAUTH2 " + last.replace(/^A\d+ /, "").slice(0, 200));
+  }
   async examine(box = "INBOX") { await this.cmd(`EXAMINE ${q(box)}`); }
   async search(criteria) { const r = await this.cmd(`UID SEARCH ${criteria}`); const l = r.lines.find((x) => x.startsWith("* SEARCH")); return l ? l.slice(8).trim().split(/\s+/).filter(Boolean).map(Number) : []; }
   async fetchRaw(uid, maxBytes = 200000) {

@@ -22,7 +22,13 @@ for m in re.finditer(CMD + r"(pkill|pgrep)\b([^|;&\n]*)", cmd):
         continue
     pats = [t.strip("'\"") for t in args.split() if not t.startswith("-")]
     if pats and all(re.match(r"\[.\]", p) for p in pats[:1]):
-        continue
+        plain = re.sub(r"^\[(.)\]", r"\1", pats[0])
+        if plain not in cmd:
+            continue
+        print("Blocked: `%s -f '%s'` is bracketed, but `%s` also appears elsewhere in this "
+              "command line, so it still matches the shell. Split into two calls or use "
+              "`kill <pid>`." % (w, pats[0], plain), file=sys.stderr)
+        sys.exit(2)
     print("Blocked: `%s -f` matches this shell's own command line and kills it "
           "(exit 144). Use `%s -f '[n]ame'` (bracket the first letter) or `kill <pid>`."
           % (w, w), file=sys.stderr)
