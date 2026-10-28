@@ -68,3 +68,9 @@ test("summary names the source and is not advice", () => {
   assert.ok(t.includes(VERIFY));
   assert.match(t, /Not tax advice/);
 });
+
+test("2026/27 matches 2025/26 for the same inputs and is labelled", () => {
+  const a = run({ ...SAMPLE, year: 2025 }), b = run({ ...SAMPLE, year: 2026 });
+  assert.equal(b.label, "2026/27");
+  assert.equal(b.tax, a.tax);
+});
