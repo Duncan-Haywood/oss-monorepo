@@ -85,6 +85,7 @@ import {
   SAVED_BIDS_STYLE_FILE,
   injectSavedBids,
   pageHeadlineAmountSelector,
+  slugTakesSavedBids,
   renderSavedBidsModule,
   renderSavedBidsStyle,
   stripForInjection,
@@ -10135,7 +10136,11 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // After the rates bar, which it anchors beneath, and after the attribute
       // pass, which must see the venture's own inputs and not the name box this
       // one adds.
-      const next = injectSavedBids(withRates, surface.slug, toRoot);
+      // Only for tools whose users keep bids: the band and the share row are
+      // written for contractors, and on a 401(k) page they read as a mistake.
+      const next = slugTakesSavedBids(surface.slug)
+        ? injectSavedBids(withRates, surface.slug, toRoot)
+        : withRates;
       if (next !== withRates) saved.push(relative);
       // Last of all, and after the saved-bids band it hangs its button on.
       //

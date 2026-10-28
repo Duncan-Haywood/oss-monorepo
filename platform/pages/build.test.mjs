@@ -3863,7 +3863,8 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
     assert.ok(!html.includes('var SLUG = '),
       `${path.relative(outDir, file)} still inlines the saved-bids script`);
   }
-  assert.ok(tagged > 200, `only ${tagged} pages carry the band`);
+  // Bid tools only (`slugTakesSavedBids`): about 170 in the fixture site.
+  assert.ok(tagged > 100, `only ${tagged} pages carry the band`);
 });
 
 test('every stylesheet and script this build injects is one file, at the right depth', async () => {
