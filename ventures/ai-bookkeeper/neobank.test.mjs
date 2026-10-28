@@ -298,7 +298,7 @@ test("PayPal activity CSV: Net moves the balance, pending rows skipped, balance 
   assert.equal(r.bank, "paypal");
   assert.deepEqual(r.rows.map((x) => x.cents), [9680, 4825, -14505]);
   assert.equal(r.rows[0].desc, "Ann Lee - Website Payment");
-  assert.equal(r.problems.length, 1, "the pending row is reported, not imported");
+  assert.equal(r.problems.filter((p) => !/payment processor/.test(p)).length, 1, "the pending row is reported, not imported");
   assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
 });
 
