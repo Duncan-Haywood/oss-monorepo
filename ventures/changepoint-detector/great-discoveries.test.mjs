@@ -20,6 +20,15 @@ test('real great discoveries: plain Poisson cuts the 1884-1888 burst; --bootstra
   assert.equal(run({ bootstrap: true }).length, 0);
 });
 
+test('real great discoveries: quasi-Poisson --overdispersion cuts nothing; --bursts cuts the spike and keeps one step', () => {
+  const od = analyze({ values, labels, model: 'poisson', overdispersion: true });
+  assert.equal(od.pelt.changepoints.length, 0);
+  assert.ok(od.dispersion > 2.5 && od.dispersion < 3, `${od.dispersion}`);
+  const b = analyze({ values, labels, model: 'poisson', bursts: true });
+  assert.deepEqual(b.bursts.map((x) => x.label), ['1885']);
+  assert.deepEqual(b.pelt.changepoints.map((c) => c.label), ['1884', '1933']);
+});
+
 test('real great discoveries: the burst is NOT called an excursion, because the rate after it (3.7) is not the rate before (2.5)', () => {
   const r = analyze({ values, labels, model: 'poisson' });
   assert.equal(r.excursions, undefined);

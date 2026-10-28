@@ -1,7 +1,7 @@
 ---
 title: "A median defence at sixteen workers is below what three seeds can see"
 date: 2026-10-27
-description: "With 16 workers a coordinate-wise median costs about 0.004 nats against a sign-flip attacker, 5.8x less than at 8 workers, but three seeds cannot tell that from zero."
+description: "At 16 workers a coordinate-wise median costs about 0.004 nats against a sign-flip attacker, 5.8x less than at 8, but three seeds cannot tell that from zero."
 tags: [distributed-training, robust-aggregation, negative-result, lowcomm-training]
 ---
 

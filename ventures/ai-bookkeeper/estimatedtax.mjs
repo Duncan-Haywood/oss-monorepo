@@ -100,9 +100,22 @@ export function estimatedTax(books, o = {}) {
   if (!table) throw new Error(`No ${filing} brackets on file for ${year}; pass brackets (and standardDeduction).`);
   if (!o.brackets) warnings.push(year === 2026 ? `The 2026 brackets and standard deductions match the IRS text of Rev. Proc. 2025-32 (checked 2026-10-23); confirm they are still current or pass brackets.` : year === 2025 ? `The 2025 brackets match the IRS text of Rev. Proc. 2024-40 and the standard deductions the Form 1040 instructions as amended by the 2025 law (checked 2026-10-23); confirm they are still current or pass brackets.` : `The ${year} brackets and standard deduction are from memory and unchecked; confirm them on irs.gov or pass brackets.`);
   const std = o.standardDeduction ?? table.std;
-  const agi = profit - se.deduction + wages + other;
+  // Above-the-line adjustments for the self-employed. A SEP-IRA or solo 401(k) contribution (Schedule 1
+  // line 16) comes off first, then the self-employed health insurance deduction (Form 7206, line 17),
+  // capped at the business profit left after both. Both also come off the QBI base (Treas. Reg. 1.199A-3).
+  // Whether the person was eligible for an employer-subsidised plan in a month is theirs to say: the
+  // premiums passed in must be only the months they were not.
+  const retirementIn = nonNeg(o.retirement), healthIn = nonNeg(o.healthInsurance);
+  const afterSe = Math.max(0, profit - se.deduction);
+  const retirementDeduction = Math.min(retirementIn, afterSe);
+  const healthDeduction = Math.min(healthIn, afterSe - retirementDeduction);
+  if (retirementDeduction < retirementIn) warnings.push("The retirement contribution is capped at the business profit after half of self-employment tax; the rest is not deducted here.");
+  if (healthDeduction < healthIn) warnings.push("The self-employed health insurance deduction is capped at the business profit left after half of self-employment tax and any retirement contribution; the rest may be an itemised medical expense instead.");
+  if (healthDeduction) warnings.push("Self-employed health insurance counts only for months you could not join a plan subsidised by your or your spouse's employer; pass premiums for the other months only.");
+  const adjustments = retirementDeduction + healthDeduction;
+  const agi = profit - se.deduction - adjustments + wages + other;
   const beforeQbi = Math.max(0, agi - std);
-  const qbiIncome = Math.max(0, profit - se.deduction);
+  const qbiIncome = Math.max(0, profit - se.deduction - adjustments);
   let qbiDeduction = o.qbi === false || profit <= 0 ? 0 : Math.min(Math.round(0.2 * qbiIncome), Math.round(0.2 * beforeQbi));
   // IRC 199A(i), read at law.cornell.edu 2026-10-23: for tax years after 2025 the deduction is the
   // greater of the usual figure and $400, for a taxpayer whose QBI from businesses they materially
@@ -150,7 +163,7 @@ export function estimatedTax(books, o = {}) {
   // The rest is paid with the return: the balance, not a penalty.
   const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));
   warnings.push(...sc.warnings, ...se.warnings);
-  return { year, filing, monthsElapsed: months, profit, se, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
+  return { year, filing, monthsElapsed: months, profit, se, retirementDeduction, healthDeduction, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };
 }
 
 export { toCents };
