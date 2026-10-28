@@ -140,11 +140,11 @@
     }
     function lineRow(l = {}) {
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td><input data-f="description" value=""></td><td><input data-f="quantity" type="number" step="any" value="1" style="width:5em"></td>
-        <td><select data-f="unit"><option value="C62">piece</option><option value="HUR">hour</option><option value="DAY">day</option><option value="MON">month</option><option value="KGM">kg</option><option value="SET">set</option></select></td>
-        <td><input data-f="unit_price" type="number" step="any" style="width:7em"></td><td><input data-f="tax_percent" type="number" step="any" value="19" style="width:4.5em"></td>
-        <td><select data-f="tax_category"><option value="">auto</option><option>S</option><option>Z</option><option>E</option><option>AE</option><option>K</option><option>G</option><option>O</option></select></td>
-        <td><input data-f="tax_reason" placeholder="if 0% exempt"></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
+      tr.innerHTML = `<td><input data-f="description" aria-label="Description" value=""></td><td><input data-f="quantity" aria-label="Quantity" type="number" step="any" value="1" style="width:5em"></td>
+        <td><select data-f="unit" aria-label="Unit"><option value="C62">piece</option><option value="HUR">hour</option><option value="DAY">day</option><option value="MON">month</option><option value="KGM">kg</option><option value="SET">set</option></select></td>
+        <td><input data-f="unit_price" aria-label="Unit price (net)" type="number" step="any" style="width:7em"></td><td><input data-f="tax_percent" aria-label="VAT percent" type="number" step="any" value="19" style="width:4.5em"></td>
+        <td><select data-f="tax_category" aria-label="VAT category"><option value="">auto</option><option>S</option><option>Z</option><option>E</option><option>AE</option><option>K</option><option>G</option><option>O</option></select></td>
+        <td><input data-f="tax_reason" aria-label="Exemption reason" placeholder="if 0% exempt"></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
       for (const [k, v] of Object.entries(l)) { const el = tr.querySelector(`[data-f="${k}"]`); if (el) el.value = v; }
       tr.querySelector("button").onclick = () => { tr.remove(); showTotals(); };
       tr.addEventListener("input", showTotals);
