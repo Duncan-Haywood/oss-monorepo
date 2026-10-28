@@ -80,6 +80,16 @@ export function budget(result, prices = {}) {
     add("Exterior", "Fascia boards", ea.fascia, "boards", P("fasciaBoard") ?? ea.fasciaPrice, `${(ea.eaveFeet + ea.rakeFeet).toFixed(0)} ft in ${ea.fasciaStock / 12} ft boards`);
     if (ea.channel) add("Exterior", "J-channel", ea.channel, "pieces", P("jChannel") ?? ea.channelPrice, `${ea.channelStock / 12} ft pieces along the wall`);
   }
+  const gu = result.gutters;
+  if (gu?.ok) {
+    add("Exterior", "Gutter sections", gu.gutters, "sections", P("gutterSection"), `${gu.runFeet.toFixed(0)} ft in ${gu.gutterStock / 12} ft sections`);
+    add("Exterior", "Downspout pieces", gu.downspoutPieces, "pieces", P("downspoutPiece"), `${gu.downspouts} downspouts, ${gu.downspoutStock / 12} ft pieces`);
+    add("Exterior", "Gutter hangers", gu.hangers, "each", P("gutterHanger"), `every ${gu.hangerSpacing} in`);
+    add("Exterior", "Gutter end caps", gu.endCaps, "each", P("gutterCap"), "two per run");
+    add("Exterior", "Downspout elbows", gu.elbows, "each", P("downspoutElbow"), "top offset and bottom kick-out");
+    if (gu.outsideCorners) add("Exterior", "Gutter outside corners", gu.outsideCorners, "each", P("gutterCorner"), "hip roof");
+    add("Exterior", "Downspout straps", gu.straps, "each", P("downspoutStrap"), "one per strap spacing of drop");
+  }
   const fa = result.fasteners;
   if (fa?.ok && fa.boxes != null) add("Fasteners", "Framing nails (boxes)", fa.boxes, "boxes", P("nailBox") ?? fa.price, `${fa.order} nails incl. ${(100 * fa.waste).toFixed(0)}% waste, ${fa.nailsPerBox} per box`);
   if (fa?.ok && fa.holdDowns?.count) add("Fasteners", "Hold-downs", fa.holdDowns.count, "each", P("holdDown") ?? fa.holdDowns.price, `${fa.holdDowns.wallEnds} at wall ends, ${fa.holdDowns.openingSides} beside openings`);
