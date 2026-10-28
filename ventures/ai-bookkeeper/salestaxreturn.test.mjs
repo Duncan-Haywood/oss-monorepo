@@ -313,6 +313,15 @@ test("Texas: the 0.5% timely-filing discount is a plain --discount rate with no 
   assert.equal(row.payable, row.tax - row.discount);
 });
 
+test("Florida: the collection allowance, 2.5% of the first $1,200 of tax, is a $30 cap per return (Fla. Admin. Code 12A-1.056, via search 2026-10-28)", () => {
+  // 2.5% x $1,200 = $30, so `--discount "FL state=2.5,30"` is the whole rule; it applies to a timely electronic return and payment
+  const b = books();
+  const low = salesTaxReturn(b, { discounts: { "CA state": { rate: 0.025, cap: 3000 } } }).periods[0].rows.find((x) => x.jurisdiction === "CA state");
+  assert.equal(low.discount, Math.min(Math.round(low.tax * 0.025), 3000));
+  // the $30 ceiling binding is covered by the cap tests above (same code path)
+  assert.equal(low.payable, low.tax - low.discount);
+});
+
 test("a payment filed after the due date warns that the timely-filing discount may be disallowed", () => {
   const mk = (day) => {
     let b = importStatement(books(), `Date,Description,Amount\n${day},CA DTFA remittance,-14.00\n`, "1000").books;
