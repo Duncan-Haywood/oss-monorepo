@@ -268,6 +268,14 @@
     <div id="fastenersOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-bids" id="bidsCard" hidden>
+    <h2 id="h-bids">Level subcontractor bids</h2>
+    <p class="note">Paste bids as JSON: <code>[{"bidder":"A","lines":[{"item":"2x4 studs","qty":410,"unitPrice":3.2}]}]</code>. <code>item</code> is a line name from the budget above; give <code>amount</code>, or <code>qty</code> and <code>unitPrice</code>. Short quantities and left-out scope are added at the bid's own price, your typed price or the other bids' median; with none of those the line is listed as unleveled, never guessed.</p>
+    <textarea id="bidsIn" rows="8" spellcheck="false" aria-label="Bids JSON" style="width:100%;font-family:monospace"></textarea>
+    <p><button type="button" id="bidsRun">Level the bids</button></p>
+    <div id="bidsOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-schedule" id="scheduleCard">
     <h2 id="h-schedule">Build schedule (critical path)</h2>
     <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather are not modelled.</p>
@@ -329,7 +337,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>fasteners_on</code>, <code>bids_leveled</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -348,6 +356,7 @@
     import { layoutDrywall, drywallText } from "./drywall.mjs";
     import { layoutInsulation, insulationText } from "./insulation.mjs";
     import { layoutTrim, trimText } from "./trim.mjs";
+    import { levelBids, levelText } from "./bidlevel.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
     import { schedule, scheduleText, sampleSchedule } from "./schedule.mjs";
@@ -706,7 +715,7 @@
     }
     function renderBudget() {
       const card = $("#budgetCard");
-      if (!last) { card.hidden = true; return; }
+      if (!last) { card.hidden = true; $("#bidsCard").hidden = true; return; }
       const pr = parsePrices();
       if (pr.bad.length) { $("#budgetOut").innerHTML = `<div class="err"><ul>${pr.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; card.hidden = false; return; }
       const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall, insulation: last.insulation, trim: last.trim, fasteners: last.fasteners };
@@ -718,6 +727,7 @@
         ${b.unpriced.length ? `<p class="note">Not in the total, no price typed: ${esc(b.unpriced.join("; "))}.</p>` : ""}
         <p class="note">Excludes equipment, permits, delivery and overhead. An estimate from the prices you typed, not a quote.</p>`;
       card.hidden = false;
+      $("#bidsCard").hidden = false;
     }
     function run() {
       const { plan, bad, source } = toPlan();
@@ -970,6 +980,15 @@
     $("#faOn").addEventListener("change", () => { $("#faFields").hidden = !$("#faOn").checked; if ($("#faOn").checked) record("fasteners_on"); });
     $("#dwOn").addEventListener("change", () => { $("#dwFields").hidden = !$("#dwOn").checked; if ($("#dwOn").checked) record("drywall_on"); });
     $("#fnOn").addEventListener("change", () => { $("#fnFields").hidden = !$("#fnOn").checked; if ($("#fnOn").checked) record("foundation_on"); });
+    $("#bidsRun").addEventListener("click", () => {
+      if (!last || !last.budget) { $("#bidsOut").innerHTML = `<div class="err">Run the takeoff first: bids are lined up against its budget lines.</div>`; return; }
+      let input;
+      try { input = JSON.parse($("#bidsIn").value); } catch (e) { $("#bidsOut").innerHTML = `<div class="err">That is not valid JSON: ${esc(e.message)}</div>`; return; }
+      if (!Array.isArray(input) || !input.length) { $("#bidsOut").innerHTML = `<div class="err">Give a list of bids, each with a bidder and lines.</div>`; return; }
+      const lv = levelBids(last.budget, input);
+      $("#bidsOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(levelText(lv).join("\n"))}</pre><p class="note">Quantities come from this takeoff; a bid is only as comparable as its item names. Not checked against a real subcontractor's bid.</p>`;
+      if (!lv.errors.length) record("bids_leveled");
+    });
     $("#schedEx").addEventListener("click", () => { $("#schedIn").value = JSON.stringify(sampleSchedule(), null, 2); $("#schedOut").innerHTML = ""; record("schedule_example_loaded"); });
     $("#schedRun").addEventListener("click", () => {
       let input;

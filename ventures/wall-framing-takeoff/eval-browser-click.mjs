@@ -211,6 +211,13 @@ const [sv2] = await Promise.all([page.waitForEvent("download"), page.click("#sav
 const saved2 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv2.path(), "utf8"));
 const trimOk = !/NaN|undefined/.test(trimTxt) && /casing/i.test(trimTxt) && /baseboard/i.test(trimBud) && saved2.trim?.basePrice === 14;
 console.log(trimOk ? "ok: trim card, budget line and saved plan" : "FAIL: trim: " + trimTxt.slice(0, 200));
+// Bid leveling: pasted bids are lined up against the budget's own lines.
+const firstItem = await page.evaluate(() => document.querySelector("#budgetOut tbody tr td:nth-child(2)").textContent);
+await page.fill("#bidsIn", JSON.stringify([{ bidder: "Alpha", lines: [{ item: firstItem, qty: 1, unitPrice: 10 }] }, { bidder: "Beta", lines: [{ item: firstItem, qty: 2, unitPrice: 9 }] }]));
+await page.click("#bidsRun");
+const bidTxt = await page.textContent("#bidsOut");
+const bidsOk = /Alpha: as bid/.test(bidTxt) && /Beta: as bid/.test(bidTxt) && !/NaN|undefined/.test(bidTxt);
+console.log(bidsOk ? "ok: bids leveled against the budget" : "FAIL: bids: " + bidTxt.slice(0, 300));
 console.log("page errors:", errors.length);
 await browser.close(); server.close();
-process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !bidsOk || horizontal.includes("CHECK FAILED") ? 1 : 0);
