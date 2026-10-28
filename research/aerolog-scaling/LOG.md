@@ -3,6 +3,19 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-28 · Milestone 9c: do the gust peaks of the 24 gust-matched tails survive a tail slope 0.75 to 1.0 of NeuralFoil's? (planned before running)
+- Why: 9b's "Next". 8e showed the mode match does not survive a lower tail slope (none of 78 robust); 9b's 24 designs that also match gust at all three H rest on the same unvalidated slope. The question is whether the gust metrics are more tolerant than the modes, which would make the gust match the more defensible part of the claim.
+- Plan (`experiments/tail_gust_robust/run.py`): the 78 mode-matched designs of 9b (reproduced), each re-evaluated with the tail slope times 0.75, 0.8, 0.9, 1.0 (as 8e); modes and the three gust peaks (H = 5, 12.5, 25 chords) as percent difference from the unchanged n = 1 reference. Count designs within 10% (and 5%) on all gust metrics at every scale, and compare the worst gust error with the worst mode error at scale 0.75.
+- **Predictions (before running):** (1) at least one of the 78 keeps all three gust peaks within 10% at all H and all four scales (prior 35%). (2) For most designs the worst gust error at scale 0.75 is smaller than the worst mode error at scale 0.75 (prior 65%), since the load-factor peak depends on the wing slope, not the tail. (3) None keeps all gust peaks within 5% at every scale (prior 85%). Refuted: (1) none; (2) half or fewer; (3) some design does.
+- Limits known in advance: as 9b and 8e (slope scaled as one factor; wing slope unscaled; no penetration lag, no alpha-dot, rigid, no elevator).
+
+### Outcome of 9c (`experiments/tail_gust_robust/`: `run.py`, `results.txt`; about 3 min)
+- Of the 78 mode-matched designs, **none** keeps all gust peaks within 10% at every tail-slope scale 0.75, 0.8, 0.9, 1.0 (and none within 5%); none is within 10% at scale 0.75 alone. The most robust (NACA 4412 wing, k 1.0, AR 12; NACA 0015 tail, area 0.40, AR_t 7, arm 1.5) has worst gust error 14.0, 8.5, 9.3, 13.4% at the four scales. Median worst gust error over the 78: 21.5, 16.5, 8.2, 6.0% at scales 0.75, 0.8, 0.9, 1.0 (modes: 13.4, 10.9, 6.5, 3.7%).
+- **(1) refuted** (0 of 78). **(2) refuted:** the gust error at scale 0.75 is below the mode error for 0 of 78 designs; the gust metrics are more sensitive to the tail slope than the modes, not less, because the pitch rate and attitude peaks follow the short-period damping and frequency directly. **(3) held.**
+- Reading: 9b's 24 gust-matched designs are as fragile as 8e's mode-matched ones. The sentence "the tail that restores the modes restores the gust response" is a statement about the NeuralFoil slope; with the slope 20 to 25% lower (what 8c/8d suggest at the tail's Re) the worst gust error is typically above 15%. A demonstrator needs the tail slope measured or an adjustable tail (incidence/area) to recover the match in flight.
+- Limits: as planned; the 1.0-scale errors here are the maximum over all three gust lengths, so they are larger than 9b's per-count statistics.
+- Next: tail slope identification (wind tunnel or flight) as the milestone that gates the claim; NACA 0012/0015 data; thrust law; AIAA template.
+
 ## 2026-10-28 · Milestone 9b: do the tails that restore the modes also restore the gust response? (planned before running)
 - Why: 9a's "Next". 9a tested only wings with the 7b tail; the tail redesign of `tail_search` (78 designs within 5% on all three modes) is the part of H5 that survived, so the question is whether it survives the gust metrics too. The UIUC host is still refused (HTTP 000), so NACA 0012/0015 data stay open.
 - Plan (`experiments/tail_gust/run.py`): the 17 power-matched wings and 270-tail grid of `tail_search`; keep the designs within 5% on all three modes; for each, the three gust peaks (dn, q, theta) at H = 5, 12.5, 25 chords as percent difference from n = 1 (same gust model as 9a, tail slope and drag as in `tail_search`).
