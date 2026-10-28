@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 import {
   GENERIC_BUDGET_OVERRIDES,
@@ -160,4 +162,50 @@ test('every override is still needed, so a stale one cannot sit here forever', a
       `${slug} is back within the default budget -- remove its GENERIC_BUDGET_OVERRIDES row`,
     );
   }
+});
+
+const SCRIPT = fileURLToPath(new URL('./surface-budget.mjs', import.meta.url));
+const cli = (...args) => spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8' });
+
+test('an override is tight: it allows exactly what the live tree has, not one more', async () => {
+  // A row allowing one page too many lets the next duplicate through silently.
+  const bySlug = await surfacesByVenture();
+  for (const [slug, row] of Object.entries(GENERIC_BUDGET_OVERRIDES)) {
+    assert.equal(bySlug.get(slug).filter((p) => p.generic).length, row.allowed, `${slug} override is looser than the tree`);
+  }
+});
+
+test('--check exits 0 on the live tree and its per-venture totals match the tree', async () => {
+  const r = cli('--check');
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /no venture is over/);
+  const expected = new Map();
+  for (const pages of (await surfacesByVenture()).values()) {
+    const n = pages.filter((p) => p.generic).length;
+    expected.set(n, (expected.get(n) ?? 0) + 1);
+  }
+  const shape = [...expected].sort((a, b) => a[0] - b[0]).map(([n, c]) => `${c} with ${n}`).join(', ');
+  assert.ok(r.stdout.includes(`generic-method pages per venture: ${shape}`), r.stdout);
+});
+
+test('--for reports the budget state for a venture at its limit and exits 0', () => {
+  const slug = Object.keys(GENERIC_BUDGET_OVERRIDES)[0];
+  const r = cli('--for', slug);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /At or over the generic-method budget/);
+});
+
+test('--for takes the slug that follows it, and rejects a missing or unknown one with exit 2', () => {
+  const missing = cli('--for');
+  assert.equal(missing.status, 2);
+  assert.match(missing.stderr, /needs a venture slug/);
+  const unknown = cli('--for', 'no-such-venture-xyz');
+  assert.equal(unknown.status, 2);
+  assert.match(unknown.stderr, /no venture with a published entry point: no-such-venture-xyz/);
+});
+
+test('running the script directly prints the per-venture listing', () => {
+  const r = cli();
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /budget: \d+ generic-method page/);
 });
