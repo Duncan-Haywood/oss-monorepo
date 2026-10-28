@@ -1,8 +1,8 @@
 ---
 title: "A sub-scale cargo plane whose tail fixes its flight modes also fixes its gust response"
 date: 2026-10-28
-description: "In a Froude-scaled 1:5 cargo UAV model, 24 of 78 mode-matched tail designs also match full-size gust response within 5%; the similar model is 27 to 33% off in pitch rate."
-tags: [research, aerolog-scaling, sub-scale-flight, digital-twins]
+description: "In a Froude-scaled 1:5 cargo UAV model, 24 of 78 mode-matched tails also match full-size gust response within 5%; the similar model is 27-33% off in pitch rate."
+tags: [research, aerolog-scaling, sub-scale-flight, digital-twin]
 ---
 
 A Froude-scaled model of a 1,000 kg cargo aircraft keeps the load a gust puts
