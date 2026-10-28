@@ -254,3 +254,30 @@ test("the CLI reads --tax-table for a year with no built-in table", async () => 
   writeFileSync(join(d, "bad.json"), "{\"brackets\": 3}");
   assert.notEqual(run("--tax-table", join(d, "bad.json")).status, 0);
 });
+
+test("self-employed health insurance and a retirement contribution come off AGI and the QBI base, by hand", () => {
+  const base = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 });
+  const r = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, healthInsurance: 1200000, retirement: 500000 });
+  assert.equal(r.se.tax, base.se.tax); // neither touches self-employment tax
+  assert.equal(r.healthDeduction, 1200000);
+  assert.equal(r.retirementDeduction, 500000);
+  assert.equal(r.agi, base.agi - 1700000);
+  assert.equal(r.qbiDeduction, Math.round(0.2 * (r.agi - 1610000)));
+  assert.ok(r.totalTax < base.totalTax);
+  assert.ok(r.warnings.some((w) => /subsidised/.test(w)));
+});
+
+test("the health deduction cannot exceed the profit left after the retirement deduction", () => {
+  const r = estimatedTax(books("10000.00"), { year: 2026, wageBase: 18450000, healthInsurance: 2000000, retirement: 300000 });
+  const left = 1000000 - r.se.deduction;
+  assert.equal(r.retirementDeduction, 300000);
+  assert.equal(r.healthDeduction, left - 300000);
+  assert.ok(r.warnings.some((w) => /capped at the business profit/.test(w)));
+  assert.equal(r.taxable, 0);
+});
+
+test("negative or blank adjustments are ignored", () => {
+  const a = estimatedTax(books("50000.00"), { year: 2026 });
+  const b = estimatedTax(books("50000.00"), { year: 2026, healthInsurance: -5, retirement: NaN });
+  assert.equal(b.totalTax, a.totalTax);
+});
