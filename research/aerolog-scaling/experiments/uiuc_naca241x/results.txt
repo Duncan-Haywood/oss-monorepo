@@ -1,0 +1,20 @@
+Section lift slope a0 (per rad), UIUC LSAT Vol. 2 vs NeuralFoil xxxlarge n_crit 9; window = measured zero-lift angle +- w deg
+thin-airfoil value 2 pi = 6.283
+
+NACA 2414
+      Re  a0L UIUC  a0L NF   UIUC w2   NF w2  ratio   UIUC w3   NF w3  ratio   UIUC w4   NF w4  ratio
+   60700     -0.52   -0.75     7.829  10.839  1.384     7.516   9.566  1.273     7.045   8.718  1.237 
+  100900     -0.98   -1.46     8.007  11.214  1.400     8.144  10.034  1.232     7.629   9.270  1.215 
+  201800     -1.50   -2.03     5.170   6.346  1.227     5.350   7.067  1.321     5.767   7.463  1.294 
+  302500     -1.71   -2.23     5.021   5.903  1.176     5.088   6.092  1.197     5.251   6.502  1.238 
+
+NACA 2415
+      Re  a0L UIUC  a0L NF   UIUC w2   NF w2  ratio   UIUC w3   NF w3  ratio   UIUC w4   NF w4  ratio
+   60700     -0.88   -0.74     5.397  11.857  2.197     5.834  10.172  1.744     5.628   9.111  1.619 
+  101100     -1.97   -1.48     5.399   9.010  1.669     6.039   9.789  1.621     6.619   9.410  1.422 
+  201700     -2.14   -2.09     5.125   6.247  1.219     5.066   6.537  1.290     5.214   7.027  1.348 
+  302500     -2.16   -2.27     5.350   5.973  1.116     5.363   6.062  1.130     5.428   6.226  1.147 
+
+ratio NF/UIUC at the two Re bracketing the tail's 1.5e5 (about 1e5 and 2e5), all windows:
+min 1.215  max 1.669  mean 1.355
+tail Re 150,045 lies between; short-period error at tail slope x 0.8..1.2 is in uiuc_tail_slope/results.txt
