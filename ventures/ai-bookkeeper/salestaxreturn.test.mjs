@@ -407,3 +407,8 @@ test("GA vendor's compensation: 3% of the first $3,000 of tax, 0.5% of the rest,
   assert.equal(run(500000).payable, 500000 - 10000);
   assert.throws(() => salesTaxReturn(mk(100), { discounts: { "GA state": { rate: 0.03, tiers: [{ rate: 2 }] } } }));
 });
+
+test("Utah monthly returns are due at the end of the next month (tax.utah.gov due-dates page, read 2026-10-28)", async () => {
+  const { stateDueDay } = await import("./salestaxreturn.mjs");
+  assert.equal(dueDate("2026-08", stateDueDay("UT", "monthly")), "2026-09-30");
+});

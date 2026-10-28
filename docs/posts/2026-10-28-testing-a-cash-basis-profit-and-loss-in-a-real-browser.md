@@ -1,7 +1,7 @@
 ---
 title: "Testing the cash-basis profit and loss in a real browser, and the bug it found nearby"
 date: 2026-10-28
-description: "A seeded property test checks the Schedule AI worksheet never asks for a negative or above-regular installment across 150 made-up sole proprietors."
+description: "A real-browser test of the cash-basis profit and loss, and the nearby bug it found while a seeded property test covered 150 made-up sole proprietors."
 tags: [ai-bookkeeper, bookkeeping, testing]
 ---
 
