@@ -217,6 +217,8 @@ export const SITE_HEADER_CSS = `
   .pfs-search{display:none}
   [data-pfs-head] .pfs-searchlink{display:inline-block}
 }
+@property --pfs-fade{syntax:'<length>';inherits:false;initial-value:28px}
+@keyframes pfs-fade-out{to{--pfs-fade:0px}}
 @media (max-width:720px){
   .pfs-bar{gap:6px 14px;padding:9px 16px}
   [data-pfs-head] .pfs-brand{flex:1 1 auto}
@@ -224,8 +226,12 @@ export const SITE_HEADER_CSS = `
   [data-pfs-head] .pfs-searchlink{display:inline-block}
   .pfs-nav{order:3;flex-basis:100%;gap:2px 18px;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
     scrollbar-width:none;margin-right:-16px;padding-right:28px;
-    -webkit-mask-image:linear-gradient(90deg,black calc(100% - 28px),transparent);
-            mask-image:linear-gradient(90deg,black calc(100% - 28px),transparent)}
+    --pfs-fade:28px;
+    -webkit-mask-image:linear-gradient(90deg,black calc(100% - var(--pfs-fade)),transparent);
+            mask-image:linear-gradient(90deg,black calc(100% - var(--pfs-fade)),transparent)}
+  @supports (animation-timeline:scroll()){
+    .pfs-nav{animation:pfs-fade-out linear both;animation-timeline:scroll(self inline);animation-range:calc(100% - 40px) 100%}
+  }
   .pfs-nav::-webkit-scrollbar{display:none}
   [data-pfs-head] .pfs-nav a{flex:none;white-space:nowrap}
 }
