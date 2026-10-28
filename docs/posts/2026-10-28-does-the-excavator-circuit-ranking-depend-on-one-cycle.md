@@ -1,7 +1,7 @@
 ---
 title: "Does the excavator hydraulic circuit ranking depend on one hand-written cycle? Not the headline, but one hypothesis failed"
 date: 2026-10-28
-description: "20,000 random cycles inside a mini-excavator envelope: load-sensing uses a median 44% of open-centre pump energy; independent metering's saving at zero pressure spread is under 15% in only about two thirds of cases."
+description: "20,000 random excavator cycles: load-sensing uses a median 44% of open-centre pump energy; metering's saving at zero spread is under 15% in only two thirds of cases."
 tags: [heavy-hydraulics, hydraulics, excavator, research]
 ---
 
