@@ -55,3 +55,17 @@ load-sensing (0.87 when actuators in a phase share one pressure). H3 ("metering 
 at zero spread") holds on the median but fails in about a third of equal-pressure cycles. The
 cycles are random, not measured, so H4 is still untested. Details: [`LOG.md`](LOG.md),
 `experiments/envelope_results.txt`.
+
+
+## Milestone 2b: the measured cycle times and pump curve of one machine
+
+Juza and Heřmánek (2023, [doi:10.17221/77/2021-RAE](https://doi.org/10.17221/77/2021-RAE)) measured a
+25 s mean cycle (six phases) and a pump half's flow against pressure on a UDS 214 telescopic
+excavator (a much larger machine than the mini-excavator above). With those sourced, and the
+open-centre flow taken from the measured curve instead of held constant, load-sensing's median
+shaft energy is **0.67** of open-centre (5 to 95%: 0.48 to 0.86), up from 0.44, and metering is
+0.87 of load-sensing (0.78 to 0.93). The ordering open-centre >= load-sensing >= metered fails in
+0.14% of cycles, where demand nearly fills the pump and load-sensing's margin costs more than
+the sourced 6 bar block loss. Pressures and demands are still random (the paper has no pressure
+trace), so this is a sensitivity result. Details: [`LOG.md`](LOG.md),
+`experiments/measured_cycle_results.txt`.
