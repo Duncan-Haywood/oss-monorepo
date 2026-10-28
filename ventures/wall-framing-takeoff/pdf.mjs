@@ -48,7 +48,7 @@ class Page {
   rect(x, y, w, h, mode = "B") { this.ops.push(`${num(x)} ${num(y)} ${num(w)} ${num(h)} re ${mode}`); }
   poly(pts, mode = "B") { this.ops.push(`${pts.map(([x, y], i) => `${num(x)} ${num(y)} ${i ? "l" : "m"}`).join(" ")} h ${mode}`); }
   line(x1, y1, x2, y2) { this.ops.push(`${num(x1)} ${num(y1)} m ${num(x2)} ${num(y2)} l S`); }
-  /** @param {"left"|"center"|"right"} align @param {number} [rot] degrees, counter-clockwise, about (x, y) */
+  /** options: align "left"|"center"|"right"; rot in degrees, counter-clockwise, about (x, y) */
   text(s, x, y, size, { bold = false, align = "left", rgb = [0, 0, 0], rot = 0 } = {}) {
     const w = textWidth(s, size, bold);
     const dx = align === "center" ? -w / 2 : align === "right" ? -w : 0;

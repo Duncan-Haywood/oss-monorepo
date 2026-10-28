@@ -190,3 +190,13 @@ test("--trim adds baseboard and casing boards, kept with --sheathing and in the 
   assert.match(b.out, /Baseboard boards/);
   assert.equal(main(["plan.json"], read).out.includes("TRIM"), false);
 });
+
+test("--stairs prints the stair layout and pools its lumber", () => {
+  const plan = { ...samplePlan(), stairs: { totalRise: "9ft", tread: 10, openingLength: "10ft" } };
+  const r = run(["p.json", "--stairs", "--json"], plan);
+  assert.equal(r.code, 0);
+  const j = JSON.parse(r.out);
+  assert.equal(j.stairs[0].risers, 14);
+  assert.ok(j.cuts.some((c) => c.kind === "stair stringer" && c.qty === 4));
+  assert.match(run(["p.json", "--stairs"], plan).out, /STAIRS/);
+});

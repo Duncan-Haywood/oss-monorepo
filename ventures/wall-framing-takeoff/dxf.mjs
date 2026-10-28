@@ -22,10 +22,10 @@
  * Parse an ASCII DXF into straight segments (inches are applied by the caller)
  * and the $INSUNITS header value.
  * @param {string} text
- * @returns {{ segs: Seg[], polys: { id: number, layer: string, pts: Pt[] }[], insunits: number, inserts: number, arcs: number, binary: boolean }}
+ * @returns {{ segs: Seg[], polys: { id: number, layer: string, pts: Pt[] }[], insunits: number, inserts: number, arcs: number, binary: boolean, blocks: Record<string, any>, insertList: any[] }}
  */
 export function parseDxf(text) {
-  if (text.startsWith("AutoCAD Binary DXF")) return { segs: [], polys: [], insunits: 0, inserts: 0, arcs: 0, binary: true };
+  if (text.startsWith("AutoCAD Binary DXF")) return { segs: [], polys: [], insunits: 0, inserts: 0, arcs: 0, binary: true, blocks: {}, insertList: [] };
   const lines = text.split(/\r?\n/);
   /** @type {[number, string][]} */
   const pairs = [];
@@ -440,6 +440,7 @@ export function planFromDxf(text, opt = {}) {
   if (!scale) return { ok: false, errors: [`Unknown units "${opt.units}" (in, ft, mm, cm, m).`], notes };
   const sc = (s) => ({ layer: s.layer, poly: s.poly, a: { x: s.a.x * scale, y: s.a.y * scale }, b: { x: s.b.x * scale, y: s.b.y * scale } });
   const all = parsed.segs.map(sc);
+  /** @type {any[]} */
   let wallSegs = all.filter((s) => wallLayer.test(s.layer));
   const polysIn = parsed.polys.filter((p) => wallLayer.test(p.layer)).map((p) => ({ ...p, pts: p.pts.map((q) => ({ x: q.x * scale, y: q.y * scale })) }));
   const rw = rectWalls(polysIn);
@@ -507,7 +508,7 @@ export function planFromDxf(text, opt = {}) {
   const link = new Map();
   const ambiguous = new Set();
   for (const c of corners) {
-    for (const [k, other] of [[`${c.i}:${c.ei}`, { w: c.j, e: c.ej }], [`${c.j}:${c.ej}`, { w: c.i, e: c.ei }]]) {
+    for (const [k, other] of /** @type {[string, {w:number, e:0|1}][]} */ ([[`${c.i}:${c.ei}`, { w: c.j, e: c.ej }], [`${c.j}:${c.ej}`, { w: c.i, e: c.ei }]])) {
       if (link.has(k)) ambiguous.add(k); else link.set(k, other);
     }
   }
@@ -592,6 +593,7 @@ export function planFromDxf(text, opt = {}) {
   let placed = 0;
   const unplaced = [];
   const bar = barLines.filter((s) => !usedBar.has(s));
+  /** @type {{ a: Pt, b: Pt, kind?: string }[]} */
   const op = [...mergeCollinear(bar.map((s) => ({ ...s })), 0.5 * Math.PI / 180, snap, 0.5), ...bridgeOps];
   if (parsed.inserts) {
     const ins = insertOpenings(parsed.insertList, parsed.blocks, scale, walls, doorLayer, windowLayer);
