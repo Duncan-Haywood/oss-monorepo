@@ -54,11 +54,22 @@ Sub-scale flight models are cheap to crash and so are used to test cargo and del
 - Full-size propeller Reynolds numbers are outside the measured data. The power-law check is within one quadcopter, not across scale.
 - No wind-tunnel or flight data of a scaled model. Everything about the non-similar design is a model prediction until a demonstrator is built.
 
+## Figures
+
+![Power ratio against scale](figures/fig1_power_ratio.png)
+*Figure 1. Power relative to Froude-scaled power for the NACA 4412 wing at CL 0.8 (`experiments/airfoil_polars/results.txt`), three boundary-layer assumptions.*
+
+![Mode errors by wing](figures/fig2_mode_errors.png)
+*Figure 2. Worst longitudinal-mode error of the best of 270 tails for each power-matched wing at n = 0.2 (`experiments/tail_search/results.txt`). Only k = 0.9 to 1.1 are within 5%, and only k = 1.0 (AR 12) is within 3%.*
+
+![Tails passing against CG offset](figures/fig3_cg_margin.png)
+*Figure 3. Tails within 5% on all three modes as the model CG moves, tail re-searched at each offset (`experiments/cg_margin/results.txt`). Re-searching hides the fixed-tail tolerance of Section 4.8.*
+
 ## Before submission (owner and later sessions)
 
 1. UIUC polar check of the tail section at Re near 1e5 (fallback: a measured NACA 0012/0015 source reachable from the runner).
 2. Gust response (H1 proper) and a thrust law.
-3. Convert to the AIAA template, make the figures (power ratio against n; mode errors by case; tolerance interval), run `cite_check.py` on the final bibliography and open Drela 1989, Raymer 6th ed. and Jordan et al. proceedings.
+3. Convert to the AIAA template (the three figures exist: `paper/make_figures.py` draws `figures/fig1_power_ratio.png`, `fig2_mode_errors.png` and `fig3_cg_margin.png` from the committed results files; a tolerance-interval figure needs the per-tail intervals of `fixed_tail`, which the results file lists only for the five best tails), run `cite_check.py` on the final bibliography and open Drela 1989, Raymer 6th ed. and Jordan et al. proceedings.
 4. Submitting is an owner step.
 
 ## References

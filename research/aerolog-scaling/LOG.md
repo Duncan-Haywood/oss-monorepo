@@ -3,6 +3,11 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-28 · Milestone 8b: figures for the paper (no new simulation)
+- Why: 8a's pre-submission list. `paper/make_figures.py` redraws three figures from the committed `results.txt` files only (power ratio against n; worst mode error against wing area factor; tails passing against CG offset), embedded in `paper/draft.md`.
+- Checked by eye: fig 2 shows worst-case error under 5% only for k = 0.9 to 1.1 (3.1% to 3.7% away from k = 1.0) and under 3% only at k = 1.0. Fig 3 is the re-searched count of 7f, not the fixed-tail tolerance of 7g, and is captioned so.
+- Still open: UIUC tail-slope check (host unreachable), gust response and thrust law, AIAA template.
+
 ## 2026-10-28 · Milestone 8a: first draft of the paper (no new simulation)
 - Why: milestone 7 is complete; milestone 8 is the paper. The UIUC host was probed again (no HTTP response), so the tail-slope check stays open and is the first item under "Before submission".
 - Done: `paper/draft.md` (abstract, hypotheses table, results 4.1 to 4.8, limitations, pre-submission list) and `paper/check_numbers.py`, which asserts that each headline number in the draft appears in the results file or LOG outcome it came from (all pass).
