@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, addDocuments, importStatement, confirm } from "./engine.mjs";
-import { salesTaxReturn, dueDate, stateDueDay, stateEndMonth, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
+import { salesTaxReturn, dueDate, stateDueDay, stateEndMonth, stateFilingNote, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
 
 const csv = [
   "type,number,date,due,party,amount,account,description",
@@ -382,4 +382,10 @@ test("SC: the 20th for monthly, quarterly and annual returns (dor.sc.gov Due Dat
   assert.equal(dueDate("2026-Q2", stateDueDay("SC", "quarterly")), "2026-07-20");
   assert.equal(dueDate("2026-Q4", stateDueDay("SC", "quarterly")), "2027-01-20");
   assert.equal(dueDate("2026", stateDueDay("SC", "annual")), "2027-01-20");
+});
+
+test("IA: a note says semi-monthly prepayment filers are not modelled", () => {
+  assert.match(stateFilingNote("IA", "quarterly"), /semi-monthly/);
+  assert.equal(stateFilingNote("IA", "monthly") !== null, true);
+  assert.equal(stateFilingNote("SC", "monthly"), null);
 });
