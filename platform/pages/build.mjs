@@ -10462,6 +10462,30 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
 }
 
 /**
+ * The `llms.txt` for a product that ships none: title, its own description,
+ * the tool's page and its source, and the standing caveat. Nothing is added
+ * that the page does not already say.
+ */
+export function renderProductLlmsTxt({ slug, title, description, fullDescription }, baseUrl) {
+  const one = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
+  const body = one(fullDescription || description);
+  return `# ${one(title)}
+
+> ${body}
+
+## Pages
+
+- [The tool](${baseUrl}${slug}/): the tool itself, with its own notes and disclaimer.
+- [Source and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/${slug}): MIT-licensed code, tests and notes.
+- [All tools](${baseUrl}llms.txt): the catalogue this tool belongs to.
+
+## Limits
+
+Results are estimates from the values typed in, not legal, tax, financial or professional advice. Check the figures with a qualified professional before relying on them.
+`;
+}
+
+/**
  * `/llms.txt` — the same catalogue as `catalog.json`, at the path an assistant
  * actually looks for.
  *
@@ -11051,6 +11075,15 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       ),
     );
 
+    // A product with its own llms.txt keeps it (and is named so in the index);
+    // every other product gets a plain one derived from the same description
+    // the page uses, so an assistant can fetch a short, sourced summary at
+    // /<slug>/llms.txt instead of 1,300 products having none.
+    const ownLlmsDoc = existsSync(path.join(destination, 'llms.txt'));
+    if (!ownLlmsDoc) {
+      await fs.writeFile(path.join(destination, 'llms.txt'), renderProductLlmsTxt({ slug: surface.slug, title, description, fullDescription }, base));
+    }
+
     surfaces.push({
       ...surface,
       title,
@@ -11066,7 +11099,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       kind: surfaceKind(path.join(REPO_ROOT, 'ventures', surface.slug), surface.slug),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
-      llmsDoc: existsSync(path.join(destination, 'llms.txt')),
+      llmsDoc: ownLlmsDoc,
       externalFetchHosts: await surfaceExternalFetchHosts(destination),
     });
     log(`  ${surface.slug}`);
