@@ -1,7 +1,7 @@
 ---
 title: "Does storing weights in fp16 make a silent bit flip safer? About as harmful as fp32"
 date: 2026-10-28
-description: "Flipping one bit of one stored weight in a tiny transformer: fp16 never gave inf/NaN, yet 23% of high-exponent flips still harmed the model, the same as fp32 (25%) and bf16 (22%)."
+description: "Flipping one bit of one stored weight in a tiny transformer: fp16 never gave inf/NaN, yet 23% of high-exponent flips harmed it, like fp32 (25%) and bf16 (22%)."
 tags: [research, verifiable-training-mechanisms, silent-data-corruption]
 ---
 
