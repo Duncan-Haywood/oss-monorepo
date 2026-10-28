@@ -4,7 +4,7 @@
 A live fault on main (a check CI runs that is already red) is the best target
 for a run with no open backlog item; `promptctl.py measure` friction text mixes
 fixed and live items, this does not. Checks that need a built site
-(check_pages_links.py) are skipped; `prompts/promptctl.py validate` is included
+(check_pages_links.py, and check_built_site.py unless `_site/` exists) are skipped; `prompts/promptctl.py validate` is included
 (runs keep hitting it red by hand). Takes 40 s to 3 min, so start it with
 `run_in_background`; prints one line per check as it finishes and a final DONE line
 (so `wait_for.py out.log` works on it); exit 1 if any check fails.
@@ -16,7 +16,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-NEEDS_SITE = {"check_pages_links.py"}
+NEEDS_SITE = {"check_pages_links.py", "check_built_site.py"}
 
 
 def run(path, *args):
@@ -29,7 +29,9 @@ def run(path, *args):
 
 
 def main():
-    checks = [p for p in sorted(HERE.glob("check_*.py")) if p.name not in NEEDS_SITE]
+    site = (ROOT / "_site").is_dir()
+    checks = [p for p in sorted(HERE.glob("check_*.py"))
+              if p.name not in NEEDS_SITE or (site and p.name == "check_built_site.py")]
     jobs = [(p,) for p in checks] + [(ROOT / "prompts" / "promptctl.py", "validate")]
     with ThreadPoolExecutor(max_workers=6) as pool:
         futures = [pool.submit(run, *j) for j in jobs]
