@@ -177,3 +177,8 @@ test('the chrome goes dark only on a page whose own background is dark', () => {
   assert.equal(run('rgb(18, 16, 14)'), 'dark');
   assert.equal(run('rgba(0, 0, 0, 0)'), undefined, 'a transparent page reads as the browser default white');
 });
+
+test('a widened venture header keeps its content offset as padding (phone: no sideways scroll, so no undo)', () => {
+  assert.match(VENTURE_CHROME_JS, /paddingLeft=Math\.max\(0,r\.left\)/);
+  assert.match(VENTURE_CHROME_JS, /paddingRight=''/, 'reset() clears the padding it set');
+});
