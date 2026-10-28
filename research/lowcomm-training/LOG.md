@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-28 · Milestone 7a: draft the breakdown-point section of the paper from 5i to 5n (no new training)
+
+- Why: 5n's "Next" said the median's breakdown is established, or to stop. The programme had no `paper/` yet; this writes the first section from recorded results so the claim is stated once, with its limits, and the table regenerates from the jsonl files.
+- Done: `paper/section_breakdown.md` and `paper/breakdown_table.py` (reads `coalition.jsonl`, `k7.jsonl`, `coordinated.jsonl` and the clean median of `median_m16_full.jsonl`; prints `paper/breakdown_table.md`). The table matches the 5j, 5k, 5m and 5n outcomes above cell for cell.
+- Not done / limits: no new result; coordinated k = 3 and k = 7 have one seed each; citations in the draft are not yet machine-checked.
+- Next: a robust aggregator that tolerates k >= M/2 is the open question; otherwise move to milestone 6 (scale-up check) and the remaining paper sections.
+
 ## 2026-10-28 · Milestone 5n: what happens at k = 8 and k = 9 under the coordinated attack, where the median is an attacker value? (planned before running)
 - Why: 5m's "Next". At M = 16 the median averages ranks 8 and 9 of the sorted values; with k >= 8 coordinated attackers at -1e3 x sign(honest mean), rank 8 is an attacker value for k = 8 and both ranks are for k = 9, so the aggregate is no longer bounded by honest values.
 - Design: `KS=8,9 SEEDS=0,1 python3 coordinated.py run` (unchanged script, 4 runs, 4 processes), excess over each seed's clean median.
