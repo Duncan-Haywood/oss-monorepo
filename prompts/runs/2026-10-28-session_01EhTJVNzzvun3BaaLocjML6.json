@@ -16,24 +16,35 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
-  "pr": null,
+  "projects": [
+    "einvoice-preflight",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11138",
   "repo": null,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/contrast.mjs",
+      "issue": "needs PLAYWRIGHT and AXE env set in this sandbox and the full sweep outlasts the tool window; slug arguments filter it (noted in the report)"
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/reports/polish-2026-10-28-flagship-a11y.md",
+    "docs/posts/2026-10-28-naming-the-fields-on-a-free-e-invoice-builder.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Local checks: check.mjs passes; assistant and input-label tests pass; contrast.mjs on 3 flagships clean after fix (before: 20 violations on 8 pages across 10 flagships + stories). CI not awaited.",
   "corrections": [],
   "redteam": null
 }
