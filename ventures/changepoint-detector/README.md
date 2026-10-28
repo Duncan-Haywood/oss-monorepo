@@ -970,7 +970,18 @@ Read plainly: without a change the note is rare, but with monthly data and two g
 
 **A narrower window, measured and not shipped (2026-10-28, `eval/drift-warning.mjs` now also counts three windows on the same change points; output in `eval/drift-warning.out.txt`).** The note asks for 3 steps inside 2 cycles. Using one cycle plus 3 points instead, monthly: two genuine far-apart steps 23/200 to 19/200 (one cycle alone: 10/200), no change 7 to 4, but three packed steps 200/200 to 58/200 (one cycle: 38/200). Quarterly: no change 4 to 2, packed steps 190 to 182. The packed cell spans 2P-1 points by construction, so it measures "inside two cycles" and cannot say whether a narrower rule would also catch real drift; the false-alarm gain on the monthly two-step row is 4 series in 200, inside seed noise for one profile shape. So the rule stays at 2 cycles. Made-up series only; wanted: a real monthly series with a known drifting season to choose between windows.
 
-Next on this thread: a real monthly series with a drifting season (the airline-passengers log series is the candidate), not another simulated window.
+**`driftWarning` on five real series (measured 2026-10-28, `eval/drift-warning-real.mjs`, output `eval/drift-warning-real.out.txt`, test `drift-warning-real.test.mjs`).** `--drift` with the real period, raw and logged, with and without `--trend bend`:
+
+| series | season | warning in 4 runs |
+|---|---|---|
+| airline passengers (monthly) | grows with the level | 4 of 4 (8 to 21 steps) |
+| UK gas (quarterly) | grows with the level | 4 of 4 |
+| Johnson & Johnson EPS (quarterly) | grows with the level | 2 of 4 (silent with `--trend bend`) |
+| UK driver deaths (monthly) | fixed | 4 of 4 |
+| Nottingham temperatures (monthly) | fixed, no change | 0 of 4 |
+
+It is silent on the series with a fixed season and no change, and fires where the season grows, as intended. The UK driver deaths row is the miss: the warning says "usually marks a seasonal shape that is still changing", but its four packed steps (1972-11, 1973-11, 1974-06, 1974-11) are the winter-1973 fuel-rationing dip and the rebound, genuine regime changes in a fixed-season series. The same steps are named in the seat-belt section above. The signs do not separate the cases either: dip-and-rebound (-, +, -) in the deaths, but airline and UK gas also carry mixed signs (1953-03+ 1953-06-; 1970Q2+ 1970Q4- 1971Q2+). Five series, one wrong, no rule found on them; a run-sign test would be fitted to this sample. Not changed: the threshold or the text. Open: more real series, and a way to tell a seasonal shape from a short-lived real shock (a seasonal-profile refit at each step is the candidate).
+
 
 ## A real autocorrelated series: Lake Huron levels (2026-10-27)
 
