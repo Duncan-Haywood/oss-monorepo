@@ -18,7 +18,11 @@ import { THICK, DEPTH, formatLength, formatInches } from "./engine.mjs";
 
 export const STAIR_LIMITS = { maxRiser: 7.75, minTread: 10, riserVariance: 0.375, headroom: 80, minWidth: 36, maxRise: 147, minThroat: 3.5 };
 
-/** @typedef {{ id?: string, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
+/** Guard and handrail limits (model residential code's usual ones, typed so the local book can change them): 36 in guard, handrail 34 to 38 in above the nose line, balusters with no clear gap a 4 in sphere passes, posts no more than 72 in apart, 4 in under the bottom rail. */
+export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4 };
+
+/** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
+/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
 
 export function sampleStair() {
   return { id: "Main stair", totalRise: 108, tread: 10, stringer: "2x12", width: 36, treadThickness: 1.5, treadBoard: "2x12", floorThickness: 11.25 + 0.75 + 0.5, nosing: 0.75 };
@@ -91,13 +95,47 @@ export function layoutStair(input, plan) {
   const perStep = Math.ceil((cover + s.treadGap) / (bw + s.treadGap) - 1e-9);
   const treadBoards = { size: s.treadBoard, perStep, length: s.width, count: perStep * treads, coverage: perStep * bw + (perStep - 1) * s.treadGap, need: cover };
   // Layout points for the framing square: the stair-gauge marks along the board's top edge.
+  const rail = input.rail ? layoutRail({ riser, tread, run, pitch, risers }, input.rail, notes) : null;
   const marks = Array.from({ length: risers }, (_, i) => ({ step: i + 1, rise: i === 0 ? firstRiserCut : riser, run: i === 0 ? 0 : tread }));
   const sumRise = firstRiserCut + (risers - 1) * riser;
   return {
     ok: true, id: s.id, totalRise: s.totalRise, risers, treads, riser, tread, run, angle, pitch, firstRiserCut, comfort,
     stringer: { size: s.stringer, count: stringers, length: stringerLength, throat, spacing: span / (stringers - 1), depth },
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, width: s.width,
-    minOpening: Math.ceil(minOpening * 16) / 16, opening, marks, sumRise, notes, limits: L, nosing: s.nosing,
+    minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
+  };
+}
+
+/**
+ * Guards and handrail for one flight. Balusters are vertical, so they are spaced by their clear horizontal gap
+ * (the sphere test), and because the top and bottom rails run parallel to the pitch line every baluster is the
+ * same length, with a slanted cut at each end. Posts stand at the bottom and top and wherever a guard would run
+ * past `maxPostSpacing` along the slope. The handrail runs the pitch plus 12 in past the top riser and one tread
+ * past the bottom one. Landings, turns and the guard along an open landing are not laid out.
+ * @param {{riser: number, tread: number, run: number, pitch: number, risers: number}} g
+ * @param {Rail} r
+ * @param {string[]} notes
+ */
+export function layoutRail(g, r, notes) {
+  const L = { ...RAIL_LIMITS, ...(r.limits || {}) };
+  const sides = r.sides ?? 1, bw = r.balusterWidth ?? 1.5, post = r.postWidth ?? 3.5, board = r.railBoard ?? "2x4";
+  const hh = r.handrailHeight ?? 36;
+  if (hh < L.handrailMin || hh > L.handrailMax) notes.push(`Handrail height ${hh} in is outside ${L.handrailMin} to ${L.handrailMax} in above the nose line.`);
+  const angle = Math.atan2(g.riser, g.tread);
+  const segments = Math.max(1, Math.ceil(g.pitch / L.maxPostSpacing - 1e-9));
+  const posts = segments + 1;
+  const clear = g.run / segments - post; // horizontal clear between posts
+  const perSegment = Math.max(0, Math.ceil((clear - L.maxGap) / (bw + L.maxGap) - 1e-9));
+  const gap = (clear - perSegment * bw) / (perSegment + 1);
+  const thick = 1.5;
+  const balusterLength = L.guardHeight - 2 * thick - L.bottomGap + bw * Math.tan(angle); // long point
+  const railLength = g.pitch + (post / 2) * 2;
+  return {
+    sides, segments, posts: { count: posts * sides, perSide: posts, width: post },
+    balusters: { count: perSegment * segments * sides, perSegment, length: balusterLength, width: bw, gap },
+    guardRails: { size: board, count: 2 * sides, length: railLength },
+    handrail: r.handrail === false ? null : { count: 1, height: hh, length: g.pitch + 12 + g.tread },
+    guardHeight: L.guardHeight, maxGap: L.maxGap,
   };
 }
 
@@ -106,6 +144,7 @@ export function stairCuts(l) {
   if (!l.ok) return [];
   const rows = [{ size: l.stringer.size, length: Math.round(l.stringer.length * 16) / 16, kind: "stair stringer", qty: l.stringer.count, walls: [l.id] }];
   if (l.treadBoards.size in DEPTH) rows.push({ size: l.treadBoards.size, length: l.treadBoards.length, kind: "stair tread", qty: l.treadBoards.count, walls: [l.id] });
+  if (l.rail && l.rail.guardRails.size in DEPTH) rows.push({ size: l.rail.guardRails.size, length: Math.round(l.rail.guardRails.length * 16) / 16, kind: "stair guard rail", qty: l.rail.guardRails.count, walls: [l.id] });
   return rows;
 }
 
@@ -116,6 +155,10 @@ export function stairText(l) {
   out.push(`  ${l.stringer.count} ${l.stringer.size} stringers ${formatLength(l.stringer.length)} long, ${formatInches(l.stringer.spacing)} apart, ${formatInches(l.stringer.throat)} left under the notches`);
   out.push(`  ${l.treadBoards.count} ${l.treadBoards.size} tread boards ${formatLength(l.treadBoards.length)} (${l.treadBoards.perStep} per step covering ${formatInches(l.treadBoards.coverage)} for ${formatInches(l.treadBoards.need)} of tread and nosing)${l.openRisers ? ", open risers" : `, ${l.riserBoards} risers`}`);
   out.push(`  Stairwell opening at least ${formatLength(l.minOpening)} long for ${formatInches(l.limits.headroom)} of headroom${l.opening ? `; yours ${formatLength(l.opening.length)} leaves ${formatInches(l.opening.headroom)}${l.opening.ok ? "" : " (too short)"}` : ""}`);
+  if (l.rail) {
+    const q = l.rail;
+    out.push(`  Guard (${q.sides} side${q.sides === 1 ? "" : "s"}, ${formatInches(q.guardHeight)} high): ${q.posts.count} posts, ${q.balusters.count} balusters ${formatInches(q.balusters.length)} at the long point with ${formatInches(q.balusters.gap)} clear (limit ${formatInches(q.maxGap)}), ${q.guardRails.count} ${q.guardRails.size} rails ${formatLength(q.guardRails.length)}${q.handrail ? `; handrail ${formatLength(q.handrail.length)} at ${formatInches(q.handrail.height)}` : ""}`);
+  }
   for (const n of l.notes) out.push(`  Note: ${n}`);
   return out;
 }
