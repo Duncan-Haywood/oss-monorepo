@@ -96,6 +96,12 @@ points against 0.65 at eta = 1.5 and 1.86 for random R4, and does not fall with 
 a harsh cut is the best typical case and the worst tail; none of this is significant after correction (Holm p 1.0). Scoring R2 by
 area alone is worse still at eta = 3 (5.94 at 25). The medians and the exclusion are post hoc.
 
+Tail table (`experiments/tail_risk/`, descriptive, fixed before the run): worst-design regret of eta = 1.5 halving falls with budget
+(8.3 / 4.9 / 1.4 / 0.6% at 10 / 15 / 25 / 40 equivalents) and no design exceeds 5% from 15 equivalents up; at eta = 3 the worst design
+is `bcastmix192` at 47 to 50% at every budget (mapped-area scoring: `bcastadd64`, 61 to 68%), while its median is lower from 15
+equivalents (0.85 against 1.87 at 15). Random R4 has four designs above 5% at 10 and 15 equivalents. We therefore report medians and
+worst-design regret beside means.
+
 ## 4 A bound and what a pilot can check
 Define the inversion of a rung, iota = max(0, max over pairs with s(x) <= s(x') of log y(x) - log y(x')). **Proposition.**
 Successive halving with cut rungs r_1..r_m returns a value with log regret at most the sum of iota_{r_j}. Proof: if the
