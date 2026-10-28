@@ -1,7 +1,7 @@
 ---
 title: "Does a solar survey boat survive a dull week? Ten years of daily sunshine say mostly"
 date: 2026-10-28
-description: "Daily NASA POWER insolation, 2015 to 2024, tests whether a 4 m or 5 m deck-solar boat holding 1 m/s stays alive on a 10 kWh pack. A 25 N January says not always."
+description: "Daily NASA POWER insolation, 2015 to 2024, tests if a 4 m or 5 m deck-solar boat holding 1 m/s stays alive on a 10 kWh pack. A 25 N January says not always."
 tags: [research, marine-hull, solar, autonomy]
 ---
 
