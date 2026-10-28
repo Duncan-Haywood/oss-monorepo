@@ -42,6 +42,7 @@ What still holds:
   `page-identity.mjs`, `page-seo-audit`); re-run the tool if you doubt one, but
   there is no need to rebuild the sweep. Meta descriptions over 320 characters are clean too
   (`serp_snippets.py --desc-max 320` reports 0 of 2,830 venture pages, 2026-10-20).
+  `llms.txt` link targets are clean too (`platform/ci/check_llms_txt_links.py`, 0 dead of 16 files, 2026-10-28).
   Only sweeps of a kind not listed are open.
 - **Not more admin.** A free-choice run that only writes plans, ledger prose
   or direction documents has wasted the slot. Build something.
