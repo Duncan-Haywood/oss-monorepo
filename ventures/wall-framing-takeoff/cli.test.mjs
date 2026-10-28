@@ -191,6 +191,20 @@ test("--trim adds baseboard and casing boards, kept with --sheathing and in the 
   assert.equal(main(["plan.json"], read).out.includes("TRIM"), false);
 });
 
+test("--siding adds courses, house wrap and corner boards, kept with --sheathing and in the budget", () => {
+  const plan = JSON.stringify({ ...samplePlan(), prices: { sidingBoard: 14, houseWrapRoll: 150, cornerBoard: 20 } });
+  const read = () => plan;
+  const a = main(["plan.json", "--siding", "--sheathing"], read);
+  assert.equal(a.code, 0);
+  assert.match(a.out, /SIDING\n  Siding: \d+ exterior wall\(s\)/);
+  assert.match(a.out, /House wrap: \d+ sq ft/);
+  const b = main(["plan.json", "--siding", "--budget"], read);
+  assert.match(b.out, /Siding boards/);
+  assert.match(b.out, /House wrap rolls/);
+  assert.equal(main(["plan.json"], read).out.includes("SIDING"), false);
+  assert.equal(main(["plan.json"], () => JSON.stringify({ ...samplePlan(), siding: { exposure: 1 } })).code, 1);
+});
+
 test("--stairs prints the stair layout and pools its lumber", () => {
   const plan = { ...samplePlan(), stairs: { totalRise: "9ft", tread: 10, openingLength: "10ft" } };
   const r = run(["p.json", "--stairs", "--json"], plan);
