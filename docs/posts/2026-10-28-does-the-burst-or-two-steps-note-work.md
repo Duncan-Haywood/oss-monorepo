@@ -1,7 +1,7 @@
 ---
 title: "Does the 'burst or two steps?' note work? 100 simulated series per case"
 date: 2026-10-28
-description: "changepoint-detector tells you when two detected changes are really one temporary burst. On simulated Poisson counts it names 84 to 97% of true bursts and wrongly calls 1 in 100 lasting steps a burst."
+description: "On simulated Poisson counts the note names 84 to 97% of true bursts and wrongly calls 1 in 100 lasting steps a burst."
 tags: [changepoint-detector, statistics, evaluation]
 ---
 
