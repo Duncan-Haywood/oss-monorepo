@@ -37,6 +37,7 @@ import { payeeReport } from "./payees.mjs";
 import { receiptTextFromFile, statementTextFromFile } from "./ocr.mjs";
 import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
+import { cashBasis } from "./cashbasis.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { reconcile } from "./reconcile.mjs";
@@ -130,6 +131,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   form1099k FILE.csv --year Y --gross AMT [--months J,F,...,D] [--sales CODE] [--processor card|marketplace] [--json]  tie a processor's Form 1099-K (box 1a, optional boxes 5a-5l) to its payout report and to the books' sales
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
+  cashbasis [--from D --to D] [--json]  profit and loss on the cash method: income when paid, expenses when paid (invoices and bills)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
   rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
   accept [MIN]           accept every suggestion at or above MIN confidence (default 0.7)
@@ -668,6 +670,18 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   let bal = f.start;
   for (const it of f.items) { bal += it.cents; console.log(`  ${it.date}  ${fmt(it.cents).padStart(11)}  ${fmt(bal).padStart(12)}  ${it.label}`); }
   if (f.runwayDays !== null) console.log(f.runwayDays === 0 ? "The balance is already below zero." : `The balance goes below zero in ${f.runwayDays} days.`);
+} else if (cmd === "cashbasis") {
+  const c = cashBasis(books, { from, to });
+  if (json) { console.log(JSON.stringify(c, null, 2)); process.exit(0); }
+  const p = c.profitAndLoss;
+  console.log(`PROFIT AND LOSS, CASH BASIS ${p.months[0] ?? ""} to ${p.months.at(-1) ?? ""}`);
+  for (const l of p.income) console.log(`  ${l.name.padEnd(40)} ${fmt(l.total).padStart(12)}`);
+  console.log(`  ${"Total income".padEnd(40)} ${fmt(p.totalIncome).padStart(12)}`);
+  for (const l of p.expense) console.log(`  ${l.name.padEnd(40)} ${fmt(l.total).padStart(12)}`);
+  console.log(`  ${"Total expenses".padEnd(40)} ${fmt(p.totalExpense).padStart(12)}\n  ${"Net profit (cash)".padEnd(40)} ${fmt(p.net).padStart(12)}`);
+  console.log(`  ${"Net profit (accrual)".padEnd(40)} ${fmt(c.accrual.net).padStart(12)}\n  ${"Timing difference".padEnd(40)} ${fmt(c.timing.net).padStart(12)}   (accrual less cash: invoiced or billed, not yet paid)`);
+  for (const n of c.notes) console.log(`  Note: ${n}`);
+  console.log("Not tax advice: check the method your return uses.");
 } else if (cmd === "aging") {
   const a = aging(books, asOf);
   if (json) { console.log(JSON.stringify(a, null, 2)); process.exit(0); }
