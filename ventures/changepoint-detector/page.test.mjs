@@ -142,3 +142,9 @@ test("the page offers the Laplace cost for the volatility model and passes it to
   assert.match(html, /<input id="robust" type="checkbox">/);
   assert.match(html, /robust: \$\("#model"\)\.value === "meanvar" && \$\("#robust"\)\.checked/);
 });
+
+test("the page offers the log option and passes it to analyze except for counts", () => {
+  const html = page("index.html");
+  assert.match(html, /<input id="log" type="checkbox">/);
+  assert.match(html, /log: \$\("#model"\)\.value !== "poisson" && \$\("#log"\)\.checked/);
+});
