@@ -169,7 +169,9 @@ export function withTerms(payload, values) {
 export function splitTerms(hash) {
   const raw = typeof hash === 'string' ? hash.replace(/^[#?]/, '') : '';
   const marker = `${TERMS_PARAM}=`;
-  const at = raw.indexOf(marker);
+  let at = raw.indexOf(marker);
+  // Only a whole key counts: `xpfterms=` belongs to some other parameter.
+  while (at > 0 && raw[at - 1] !== '&') at = raw.indexOf(marker, at + 1);
   if (at < 0) return { payload: raw, terms: '' };
   const before = at > 0 && raw[at - 1] === '&' ? at - 1 : at;
   const after = raw.indexOf('&', at + marker.length);
