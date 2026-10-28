@@ -17,6 +17,9 @@ CHECKS = [
     ("experiments/demonstrator_spec/results.txt", "6.1", "CG tolerance 6.1 mm"),
     ("experiments/demonstrator_spec/results.txt", "5.2", "CG tolerance 5.2 mm"),
     ("experiments/demonstrator_spec/results.txt", "2078", "span 2,078 mm"),
+    ("experiments/tail_gust/results.txt", "within 10% at H = 12.5: 72 of 78", "72 of 78 within 10%"),
+    ("experiments/tail_gust/results.txt", "all three H: 24 of 78", "24 of 78 within 5%"),
+    ("experiments/tail_gust/results.txt", "1.2%", "best design 1.2%"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
 ]
