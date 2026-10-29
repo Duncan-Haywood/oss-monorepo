@@ -641,7 +641,14 @@ function buildFramed(d) {
         m.geom = rectGeom(add(add(add(spec.base, spec.axis, p.a - 1.5), Z, hb), spec.w, t0), spec.axis, Z, spec.w, p.w + 3, p.hd, 1.5);
       }
       const inside = layout.filter((c) => c - 0.75 >= p.a - 1e-9 && c + 0.75 <= p.a + p.w + 1e-9).map((c) => c - 0.75);
-      const crippleSpots = inside.length ? inside : (p.w > 6 ? [p.a + p.w / 2 - 0.75] : []);
+      const crippleSpots = inside.length ? [...inside] : (p.w > 6 ? [p.a + p.w / 2 - 0.75] : []);
+      // A layout line the king stud pushed aside (the layout stud would overlap
+      // it) still carries a siding joint; a cripple over the jack on that side
+      // gives the joint wood above the header.
+      for (const [k0, jack0] of [[p.a - 3, p.a - 1.5], [p.a + p.w + 1.5, p.a + p.w]]) {
+        const bumped = layout.some((c) => c - 0.75 < k0 + 1.5 - 1e-9 && c + 0.75 > k0 + 1e-9 && Math.abs(c - 0.75 - k0) > 1e-9);
+        if (bumped && crippleSpots.every((x) => Math.abs(x - jack0) >= 1.5 - 1e-9)) crippleSpots.push(jack0);
+      }
       const topGap = H - 3 - p.headerTop;
       if (topGap >= 1.5) {
         for (const s of crippleSpots) addM('top cripple', d.studSize, s, s + 1.5, p.headerTop, H - 3);

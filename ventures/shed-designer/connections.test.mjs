@@ -86,3 +86,13 @@ test('a ridge beam always has a skid under its gable posts', () => {
   const noMiddle = { ...s, members: s.members.filter((m) => !(m.kind === 'skid' && Math.abs(bboxMid(m) - 60) < 1)) };
   assert.ok(!connectionChecks(noMiddle).rows.find((r) => r.check === 'Ridge-beam posts bear on a skid').ok);
 });
+
+// The default's back window starts 1-3/4" past the 96" layout line, so its
+// king stud took the line and the siding joint there had 1/4" of wood for
+// the 13" above the header. A cripple over the jack backs it.
+test('a layout line pushed aside by a king stud gets a cripple over the jack', () => {
+  const s = buildShed(defaultDesign());
+  const tops = s.walls.back.members.filter((m) => m.kind === 'top cripple').map((m) => bbox(m.geom).lo[0]);
+  assert.ok(tops.some((x) => Math.abs(x - 96.25) < 1e-6), String(tops));
+  assert.ok(connectionChecks(s).rows.find((r) => r.check === 'Siding joints on framing').ok);
+});
