@@ -148,6 +148,10 @@ test("the tax estimate card exists, its ids are labelled, and estimatedTax is im
   assert.match(script(), /import \{ annualizedInstallments \} from "\.\/annualized\.mjs"/);
   assert.match(html, /id="est-annual"/);
   assert.match(html, /id="annual"/);
+  for (const id of ["scorp-salary", "scorp-cost"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<input id="${id}"`), id);
+  assert.match(script(), /import \{ scorpFromBooks \} from "\.\/scorp\.mjs"/);
+  assert.match(html, /id="est-scorp"/);
+  assert.match(html, /id="scorp"/);
 });
 
 test("installable app: manifest, icons and an offline shell covering every module the page imports", () => {
