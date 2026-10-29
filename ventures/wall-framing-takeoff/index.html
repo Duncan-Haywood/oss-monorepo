@@ -44,11 +44,16 @@
     .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 4px; vertical-align: -2px; }
     code { font-size: .9em; }
     footer { margin-top: 24px; border-top: 1px solid #dcd7cb; padding-top: 14px; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #1d5c7a; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #dfeaf0; color: #14465e; }
+    a.cta:focus-visible { outline: 3px solid #14465e; outline-offset: 2px; }
   </style>
 </head>
 <body>
   <header>
     <h1>Wall Framing Takeoff</h1>
+    <p class="cta-row"><a class="cta" href="#h-settings">Start a takeoff</a> <a class="cta alt" href="#h-settings" id="cta-example">Try the example house</a></p>
     <p>Type the walls, doors and windows of a house. Get the stud layout (16 or 24 on center), every king, jack, header, sill and cripple, plate splices that land on studs, a cut list, and the <strong>cheapest mix of board lengths to buy</strong>, with a lower bound that shows how close the order is to the cheapest possible. Free, no sign-up, and nothing leaves your browser.</p>
     <p class="note">Lengths take feet and inches: <code>40'</code>, <code>13' 3"</code>, <code>92-5/8</code>, <code>150 1/2</code>. A bare number is inches. Positions are measured from the start of the wall (the end you lay out from). <a href="how-many-studs-for-a-wall.html">How the stud count is worked out</a>.</p>
   </header>
@@ -1476,5 +1481,6 @@
     } catch (e) { /* storage is optional */ }
     if (!restored) { load(samplePlan()); $("#status").textContent = "Showing the example house (invented). Change any field, or start empty."; }
   </script>
+<script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("example");if(b)b.click();});</script>
 </body>
 </html>

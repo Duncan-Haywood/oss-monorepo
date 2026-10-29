@@ -79,12 +79,17 @@
     footer a { color: #0b5f8a; }
     code { overflow-wrap: anywhere; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #0b5f8a; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #dcebf3; color: #084a6d; }
+    a.cta:focus-visible { outline: 3px solid #084a6d; outline-offset: 2px; }
   </style>
 </head>
 <body>
   <header>
     <p class="eyebrow">FOR BOOKKEEPERS AND ERP ADAPTERS</p>
     <h1>Catch invoice defects before you submit.</h1>
+    <p class="cta-row"><a class="cta" href="#drop">Check an invoice</a> <a class="cta alt" href="#drop" id="cta-example">Try a broken example</a></p>
     <p>
       Drop a JSON, UBL, CII, or Factur-X PDF invoice or credit note — or paste the JSON shape —
       and get rule IDs plus a suggested fix for missing fields, totals that do
@@ -604,5 +609,6 @@
       }
     }
   </script>
+<script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("sample");if(b)b.click();});</script>
 </body>
 </html>
