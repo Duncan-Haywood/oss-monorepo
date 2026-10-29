@@ -1,6 +1,6 @@
 ---
 title: "Auditing LLM labels by the coder's own cells: no gain when the coder carries no signal"
-seo_title: "Stratified audit of LLM-coded text: why an uninformative coder gives no width gain"
+seo_title: "Auditing LLM-coded text: why an uninformative coder gives no gain"
 date: 2026-10-29
 description: "Splitting the human audit by a zero-shot Qwen coder's own label gains nothing on NaijaSenti, and a pilot floor widens intervals up to 22%."
 tags: [research, llm-coding-inference, statistics]
