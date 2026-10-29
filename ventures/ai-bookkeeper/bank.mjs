@@ -64,18 +64,20 @@ const FOOTER = /^\W*(?:this is an? (?:computer|system)[- ]generated|(?:computer|
 
 // RFC 4180 CSV: quoted fields, doubled quotes, CRLF, a BOM, and a ; or tab
 // delimiter when the header has more of those than commas.
-export function parseCsv(text) {
+// A quote that never closes would swallow every later line into one field, so
+// it is re-read as a literal character and its line kept in rows.unclosedQuotes.
+export function parseCsv(text, literal = new Set()) {
   const s = String(text ?? "").replace(/^﻿/, "");
   const delim = pickDelimiter(s);
   const rows = [];
-  let row = [], field = "", quoted = false;
+  let row = [], field = "", quoted = false, openAt = -1;
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (quoted) {
       if (c === '"' && s[i + 1] === '"') { field += '"'; i++; }
       else if (c === '"') quoted = false;
       else field += c;
-    } else if (c === '"' && field === "") quoted = true;
+    } else if (c === '"' && field === "" && !literal.has(i)) { quoted = true; openAt = i; }
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && s[i + 1] === "\n") i++;
@@ -84,8 +86,11 @@ export function parseCsv(text) {
       row = [];
     } else field += c;
   }
+  if (quoted) return parseCsv(s, new Set(literal).add(openAt));
   row.push(field);
   if (row.some((f) => f.trim() !== "")) rows.push(row);
+  const lines = [...literal].sort((a, b) => a - b).map((i) => s.slice(0, i).split(/\r\n|\r|\n/).length);
+  Object.defineProperty(rows, "unclosedQuotes", { value: lines });
   return rows;
 }
 
@@ -759,6 +764,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // break the all-rows layout tests of a header-less file, so they are cut before any of them run.
   while (rows.length > 2 && FOOTER.test(rows[rows.length - 1].map((c) => String(c).trim()).filter(Boolean).join(" ")) && rows[rows.length - 1].filter((c) => String(c).trim()).length === 1) rows.pop();
   const problems = [];
+  for (const line of rows.unclosedQuotes) problems.push(`Line ${line}: a quote mark opens a field and never closes; it was read as a plain character. Check that row.`);
   // A general-ledger journal (Xero's Journal Report) lists both sides of each entry: not a bank statement.
   if (rows[0]?.some((h) => /^journal ?number$/i.test(String(h).trim())) && rows[0].some((h) => /^journal ?date$/i.test(String(h).trim())))
     return { rows: [], problems: ["This is an accounting journal export (it has JournalNumber and JournalDate columns, with both sides of each entry), not a bank statement. Import the bank's own file instead."], columns: null };

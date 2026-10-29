@@ -46,12 +46,12 @@
       "file": ".github/prompts/verify-and-merge.md",
       "why": "Widened a docs PR with three small fixes to main's own red checks, because main was red for every post PR and the session may push only to its own branch.",
       "did": "fixed in this PR",
-      "result": "local suites green"
+      "result": "superseded: main's own fixes landed first; final diff is docs-only"
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Docs-only PR (one blog post). Facts verified locally on Node v22.22.0: node runs .ts and node --test .test.ts; enum fails ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX; stripTypeScriptTypes 352k chars ~100ms; ./x.js specifier for x.ts fails ERR_MODULE_NOT_FOUND. Counts from git ls-files at branch base. run_workflow_locally --for-changes output summarised in PR. CI then showed main itself red in three places, none caused by this PR, each fixed here (fix forward; no fix PR existed): (1) the third-party-font post (#11242) quoted the placeholder origin, failing build.test.mjs 'no page still points at the placeholder origin'; (2) the photographer-bookkeeping post (#11287) had a 178-char description (limit 160); (3) #11274 changed visible FAQ answers on ai-bookkeeper tax-calendar.html and trainer-bookkeeping.html without the FAQPage JSON-LD, failing faq-visible.test.mjs. After merging main: platform/pages node --test '*.test.mjs' 1309 pass 0 fail; run_venture_tests.py ai-bookkeeper 0 failed; promptctl validate ok; check_post_frontmatter ok.",
+  "notes": "Docs-only PR (one blog post). Facts verified locally on Node v22.22.0: node runs .ts and node --test .test.ts; enum fails ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX; stripTypeScriptTypes 352k chars ~100ms; ./x.js specifier for x.ts fails ERR_MODULE_NOT_FOUND. Counts from git ls-files at branch base. run_workflow_locally --for-changes output summarised in PR. CI then showed main itself red in three places, none caused by this PR, each fixed here (fix forward; no fix PR existed): (1) the third-party-font post (#11242) quoted the placeholder origin, failing build.test.mjs 'no page still points at the placeholder origin'; (2) the photographer-bookkeeping post (#11287) had a 178-char description (limit 160); (3) #11274 changed visible FAQ answers on ai-bookkeeper tax-calendar.html and trainer-bookkeeping.html without the FAQPage JSON-LD, failing faq-visible.test.mjs. After merging main: platform/pages node --test '*.test.mjs' 1309 pass 0 fail; run_venture_tests.py ai-bookkeeper 0 failed; promptctl validate ok; check_post_frontmatter ok. Update: main fixed all three itself before this merged (#11295, #11297, #11298 era); merging main took main's versions, so the final diff is the post and this record only.",
   "corrections": [],
   "redteam": null
 }

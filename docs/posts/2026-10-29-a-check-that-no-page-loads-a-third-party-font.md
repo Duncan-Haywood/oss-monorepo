@@ -16,8 +16,8 @@ visitor's IP address and referrer go to that host on every view.
 `platform/ci/check_third_party_requests.py` scans every `.html` file under
 `ventures/` for absolute `http(s)` URLs in `script`, `img`, `iframe`,
 `source`, `video`, `audio`, `embed`, stylesheet/preload/icon `link` tags, and
-CSS `url()` / `@import`. Plain `<a href>` links and the placeholder
-origin the site build rewrites are ignored.
+CSS `url()` / `@import`. Plain `<a href>` links and the placeholder origin
+the site build rewrites to the real one are ignored.
 
 **Result of the first run:** one page. The Retail Pilot Intel sales portal
 (`ventures/retail-pilot-intel/apps/portal/index.html`), described as

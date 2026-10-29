@@ -170,6 +170,17 @@ class AttachAndReportTest(unittest.TestCase):
             self.assertEqual(r["records_with_usage"], 1)
             self.assertEqual(r["by_model"]["claude-opus-5-5"]["successful"], 1)
 
+    def test_by_project_sums_hours_and_counts_unestimated_runs(self) -> None:
+        def rec(projects: list[str], hours: float | None) -> dict:
+            usage = {"human_equivalent": {"hours": hours}} if hours is not None else None
+            return {"projects": projects, "usage": usage}
+        r = runcost.by_project([rec(["a", "b"], 150), rec(["a"], 60), rec(["a"], None), rec([], 5)])
+        self.assertEqual(r["records"], 4)
+        self.assertEqual(r["records_with_hours"], 3)
+        self.assertEqual(list(r["projects"]), ["a", "b"])
+        self.assertEqual(r["projects"]["a"], {"runs": 3, "runs_with_hours": 2, "human_hours": 210.0})
+        self.assertEqual(r["over"], {"20": 2, "200": 1, "300": 0})
+
     def test_hand_typed_usage_is_rejected(self) -> None:
         self.assertTrue(promptctl.validate_usage("r", {"measured_by": "by hand", "totals": {}}))
         self.assertTrue(promptctl.validate_usage("r", ["not", "an", "object"]))
