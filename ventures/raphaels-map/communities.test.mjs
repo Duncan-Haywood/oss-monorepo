@@ -108,3 +108,20 @@ test('data/communities.json follows the contract and the curation rules', () => 
   // SPEC §3: start with the Colorado Front Range.
   assert.ok(doc.venues.filter((v) => v.state === 'CO').length >= 8);
 });
+
+import { NOTES_KEY, loadNotes, saveNotes } from './communities.mjs';
+
+test('notes round-trip through their own storage key; junk and blocked storage are tolerated', () => {
+  const m = new Map();
+  const s = { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)) };
+  assert.deepEqual(loadNotes(s), {});
+  assert.equal(saveNotes({ a: 'nice group' }, s), true);
+  assert.deepEqual(loadNotes(s), { a: 'nice group' });
+  m.set(NOTES_KEY, JSON.stringify({ a: 'ok', b: 3 }));
+  assert.deepEqual(loadNotes(s), { a: 'ok' });
+  m.set(NOTES_KEY, '[1,2]');
+  assert.deepEqual(loadNotes(s), {});
+  const broken = { getItem() { throw new Error('x'); }, setItem() { throw new Error('x'); } };
+  assert.deepEqual(loadNotes(broken), {});
+  assert.equal(saveNotes({}, broken), false);
+});

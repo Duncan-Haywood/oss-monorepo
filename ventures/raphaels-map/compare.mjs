@@ -90,7 +90,7 @@ export async function update(ctx) {
   const ids = parseIds(p.ids);
   if (JSON.stringify(ids) !== JSON.stringify(ctx.state.prefs.compare || [])) {
     // Remember the shortlist for the Explore page's "Add to a comparison".
-    queueMicrotask(() => ctx.setState({ prefs: { compare: ids } }));
+    ctx.setState({ prefs: { compare: ids } }, { silent: true });
   }
   const sortBy = p.sort || 'name';
   const dir = p.dir === 'asc' ? 'asc' : p.dir === 'desc' ? 'desc' : sortBy === 'name' ? 'asc' : 'desc';

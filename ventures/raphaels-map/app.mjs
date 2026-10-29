@@ -124,9 +124,9 @@ export function startApp({ root = document, data = createLoader() } = {}) {
     state: { ...parseHash(location.hash), prefs: loadPrefs() },
     /**
      * @param {{view?: string, params?: Record<string, any>, prefs?: Record<string, any>}} patch
-     * @param {{replace?: boolean, mergeParams?: boolean}} [o]
+     * @param {{replace?: boolean, mergeParams?: boolean, silent?: boolean}} [o]
      */
-    setState(patch, { replace = true, mergeParams = true } = {}) {
+    setState(patch, { replace = true, mergeParams = true, silent = false } = {}) {
       const prev = ctx.state;
       const view = patch.view && VIEWS.includes(patch.view) ? patch.view : prev.view;
       let params = patch.view && patch.view !== prev.view ? { ...(patch.params || {}) } : mergeParams ? { ...prev.params, ...(patch.params || {}) } : { ...(patch.params || {}) };
@@ -142,7 +142,7 @@ export function startApp({ root = document, data = createLoader() } = {}) {
           location.hash = hash;
         }
       }
-      render();
+      if (!silent) render();
     },
   };
 

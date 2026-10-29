@@ -166,3 +166,21 @@ test('fullText contains every section', () => {
   const t = fullText({});
   for (const h of ['My preferences', 'Profile drafts', 'Dating-app settings to look for', 'Questions to explore together']) assert.ok(t.includes(h), h);
 });
+
+import { STORAGE_KEY, loadToolkitState, saveToolkitState } from './toolkit.mjs';
+
+function memStore() { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), m }; }
+
+test('toolkit state round-trips through its own storage key and survives a blocked store', () => {
+  const s = memStore();
+  assert.equal(saveToolkitState({ tone: 'plain', ageBand: { min: 22, max: 26 } }, s), true);
+  assert.ok(s.m.has(STORAGE_KEY));
+  const back = loadToolkitState(s);
+  assert.equal(back.tone, 'plain');
+  assert.deepEqual(back.ageBand, { min: 22, max: 26 });
+  const broken = { getItem() { throw new Error('SecurityError'); }, setItem() { throw new Error('QuotaExceeded'); } };
+  assert.deepEqual(loadToolkitState(broken), normalizeToolkitState(null));
+  assert.equal(saveToolkitState({}, broken), false);
+  s.m.set(STORAGE_KEY, '{not json');
+  assert.deepEqual(loadToolkitState(s), normalizeToolkitState(null));
+});

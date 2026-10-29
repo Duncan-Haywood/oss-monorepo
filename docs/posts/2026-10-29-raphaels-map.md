@@ -1,7 +1,7 @@
 ---
 title: "Raphael's Map: where to meet marriage-minded Catholics, without making up a number"
 date: 2026-10-29
-description: "A free research tool for Catholic singles built on public county data and public parish and campus groups. Why it shows two scorecards instead of one multiplied estimate, and what it refuses to do."
+description: "A free tool for Catholic singles built on public county data. Why it shows two scorecards instead of one multiplied estimate, and what it refuses to do."
 tags: [raphaels-map, open-data, census, catholic, open-source]
 ---
 

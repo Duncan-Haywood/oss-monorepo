@@ -3,8 +3,8 @@
 //
 // Everything here is about the USER's own words and settings. Nothing takes
 // another person as input, nothing scores anyone, and nothing leaves the
-// browser: preferences and drafts live in the shell's local state
-// (`state.toolkit`), which the shell persists to localStorage.
+// browser: preferences and drafts live in localStorage under
+// `raphaels-map-toolkit` (STORAGE_KEY).
 //
 // The text-generation functions are pure and exported for toolkit.test.mjs;
 // `mount` is the only part that touches the DOM.
@@ -445,14 +445,38 @@ function printText(title, text) {
   w.print();
 }
 
+/** localStorage key for the toolkit's state. The shell's setState keeps only view/params/prefs, so the toolkit stores its own slice. */
+export const STORAGE_KEY = 'raphaels-map-toolkit';
+
+/** @param {any} storage */
+export function loadToolkitState(storage = globalThis.localStorage) {
+  try {
+    const raw = storage && storage.getItem(STORAGE_KEY);
+    return normalizeToolkitState(raw ? JSON.parse(raw) : null);
+  } catch {
+    return normalizeToolkitState(null);
+  }
+}
+
+/** @param {any} state @param {any} storage */
+export function saveToolkitState(state, storage = globalThis.localStorage) {
+  try {
+    if (storage) storage.setItem(STORAGE_KEY, JSON.stringify(normalizeToolkitState(state)));
+    return true;
+  } catch {
+    return false; // storage blocked or full: the toolkit still works for this visit
+  }
+}
+
 /**
  * @param {HTMLElement} el
- * @param {{state?: any, setState?: (patch: any) => void, record?: (e: string) => void}} ctx
+ * @param {{state?: any, record?: (e: string) => void, storage?: any}} ctx
  */
 export function mount(el, ctx = {}) {
   const record = typeof ctx.record === 'function' ? ctx.record : () => {};
-  let ts = normalizeToolkitState(ctx.state && ctx.state.toolkit);
-  const save = () => { if (typeof ctx.setState === 'function') ctx.setState({ toolkit: ts }); };
+  const storage = 'storage' in ctx ? ctx.storage : globalThis.localStorage;
+  let ts = ctx.state && ctx.state.toolkit ? normalizeToolkitState(ctx.state.toolkit) : loadToolkitState(storage);
+  const save = () => saveToolkitState(ts, storage);
   /** @param {any} next */
   const update = (next) => { ts = normalizeToolkitState({ ...ts, ...next }); save(); render(); };
 

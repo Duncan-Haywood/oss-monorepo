@@ -3,8 +3,10 @@
 //
 // Public organizations only (parishes, campus ministries, diocesan offices,
 // traditional-liturgy communities, advertised event series). No people.
-// The user's own notes on a venue stay in the shell's local state
-// (`state.communityNotes`, keyed by venue id) and never leave the browser.
+// The user's own notes on a venue stay in localStorage
+// (`raphaels-map-community-notes`, keyed by venue id) and never leave the
+// browser. Filters live in the URL hash params (#communities?state=CO&city=…)
+// through the shell's setState, so a filtered view can be bookmarked.
 
 export const STALE_DAYS = 180;
 
@@ -122,6 +124,29 @@ export function verificationCounts(venues) {
   return out;
 }
 
+export const NOTES_KEY = 'raphaels-map-community-notes';
+
+/** @param {any} storage */
+export function loadNotes(storage = globalThis.localStorage) {
+  try {
+    const raw = storage && storage.getItem(NOTES_KEY);
+    const o = raw ? JSON.parse(raw) : {};
+    return o && typeof o === 'object' && !Array.isArray(o) ? Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string')) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** @param {Record<string, string>} notes @param {any} storage */
+export function saveNotes(notes, storage = globalThis.localStorage) {
+  try {
+    if (storage) storage.setItem(NOTES_KEY, JSON.stringify(notes));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Set or clear one venue's note in the notes map; pure. */
 export function setNote(notes, id, text) {
   const next = { ...(notes && typeof notes === 'object' ? notes : {}) };
@@ -162,22 +187,27 @@ export function venueHtml(v, today, note = '') {
 
 /**
  * @param {HTMLElement} el
- * @param {{data?: any, state?: any, setState?: (patch: any) => void, record?: (e: string) => void, today?: Date|string}} ctx
+ * @param {{data?: any, state?: any, setState?: (patch: any) => void, record?: (e: string) => void, today?: Date|string, storage?: any}} ctx
  */
 export function mount(el, ctx = {}) {
   const record = typeof ctx.record === 'function' ? ctx.record : () => {};
   const today = ctx.today || new Date();
-  const st = (ctx.state && ctx.state.communities) || {};
+  const storage = 'storage' in ctx ? ctx.storage : globalThis.localStorage;
+  const st = (ctx.state && ctx.state.params) || {};
   /** @type {{state: string, city: string, category: string, q: string, verifiedOnly: boolean}} */
   let filters = { state: st.state || '', city: st.city || '', category: st.category || '', q: '', verifiedOnly: false };
-  let notes = (ctx.state && ctx.state.communityNotes) || {};
+  let notes = loadNotes(storage);
   /** @type {ReturnType<typeof normalizeCommunities>} */
   let doc = normalizeCommunities(null);
   let loaded = false;
   const ac = new AbortController();
   const opt = { signal: ac.signal };
 
-  const saveFilters = () => ctx.setState?.({ communities: { state: filters.state, city: filters.city, category: filters.category } });
+  // Filters go to the hash params so the view can be bookmarked. The shell
+  // re-renders on setState; this view has no update(), so it is not redrawn twice.
+  const saveFilters = () => {
+    try { ctx.setState?.({ params: { state: filters.state, city: filters.city, category: filters.category } }); } catch { /* optional */ }
+  };
 
   function listHtml() {
     const rows = filterVenues(doc.venues, filters);
@@ -236,7 +266,7 @@ export function mount(el, ctx = {}) {
       return;
     }
     const id = t.getAttribute('data-note');
-    if (id) { notes = setNote(notes, id, t.value); ctx.setState?.({ communityNotes: notes }); }
+    if (id) { notes = setNote(notes, id, t.value); saveNotes(notes, storage); }
   }, opt);
 
   el.addEventListener('focusout', (ev) => {
