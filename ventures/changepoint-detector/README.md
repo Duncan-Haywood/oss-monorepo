@@ -989,6 +989,27 @@ Read plainly: without a change the note is rare, but with monthly data and two g
 It is silent on the series with a fixed season and no change, and fires where the season grows, as intended. The UK driver deaths row is the miss: the warning says "usually marks a seasonal shape that is still changing", but its four packed steps (1972-11, 1973-11, 1974-06, 1974-11) are the winter-1973 fuel-rationing dip and the rebound, genuine regime changes in a fixed-season series. The same steps are named in the seat-belt section above. The signs do not separate the cases either: dip-and-rebound (-, +, -) in the deaths, but airline and UK gas also carry mixed signs (1953-03+ 1953-06-; 1970Q2+ 1970Q4- 1971Q2+). Five series, one wrong, no rule found on them; a run-sign test would be fitted to this sample. Not changed: the threshold or the text. Open: more real series, and a way to tell a seasonal shape from a short-lived real shock (a seasonal-profile refit at each step is the candidate).
 
 
+## Four European indices: a common rise or a German one? (2026-10-29)
+
+`EuStockMarkets` also carries SMI, CAC and FTSE over the same 1,859 trading days, so a cut at the same row is the same
+day (`data/{smi,cac,ftse}-returns.csv`, `eval/eu-markets.mjs`, output in `eval/eu-markets.out.txt`, about 6 minutes).
+Standard deviation of the returns before and after row 1482, computed directly: DAX 0.90 to 1.43, SMI 0.83 to 1.23,
+CAC 1.04 to 1.34, FTSE 0.74 to 0.98. All four rise (by 59%, 48%, 29% and 32%), but the detector does not find it in all four.
+
+| Index | plain `meanvar` | `--bootstrap` | `--dispersion` | `--robust` |
+| --- | --- | --- | --- | --- |
+| DAX | 32, 42, 275, 332, 1132, 1482 | 32, 42, 1482 | 39, 1482 | 275, 1132, 1488 |
+| SMI | 35, 45, 275, 334, 681, 804, 1489 | 1489 | 1489 | 681, 799, 1476 |
+| CAC | 32, 42, 99, 1179, 1417 | 1179, 1417 | none | none |
+| FTSE | 309, 344, 653, 906, 1545 | 309, 334, 1550 | 309, 334, 1550 | 972, 1545 |
+
+What this shows: the DAX and SMI cut within 7 rows of each other (1482 and 1489) under `--bootstrap` and `--dispersion`, so the rise is not a one-index artifact. FTSE's comes about 60 rows later (1545 to 1550). CAC's rise is the
+smallest of the four, and `--dispersion` and `--robust` report no change at all on it: a 29% rise in the
+standard deviation on 1,859 clustered, heavy-tailed days is below what these penalties will call a change. Also seen: plain `meanvar` cuts the
+same early spike (rows 32 to 45) in DAX, SMI and CAC, around a one-day fall at row 36, so that cut is a shared event too, not noise
+in one index. Not checked: calendar dates (the dataset has none), and whether CAC's cut at 1417 is part of the same rise (it
+sits 65 rows before the DAX's, so read it as a separate candidate). Test: `eu-markets.test.mjs` (about 4 minutes, `--bootstrap` left to the eval script).
+
 ## Two more real series: WWWusage and nhtemp (2026-10-29)
 
 `data/www-usage.csv` (users on an internet server each minute, 100 points) and `data/nhtemp.csv` (New Haven annual temperature, 1912 to 1971), both R datasets (`data/SOURCE.md`). `wwwusage-nhtemp.test.mjs` pins what the detector does; neither series has a documented break.

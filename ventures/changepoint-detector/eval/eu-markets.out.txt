@@ -1,0 +1,28 @@
+
+DAX: n 1859; sd rows 2-1481 0.90, rows 1482-1860 1.43
+  plain        32, 42, 275, 332, 1132, 1482
+  --bootstrap  32, 42, 1482
+  --dispersion 39, 1482
+  --robust     275, 1132, 1488
+
+SMI: n 1859; sd rows 2-1481 0.83, rows 1482-1860 1.23
+  plain        35, 45, 275, 334, 681, 804, 1489
+  --bootstrap  1489
+  --dispersion 1489
+  --robust     681, 799, 1476
+
+CAC: n 1859; sd rows 2-1481 1.04, rows 1482-1860 1.34
+  plain        32, 42, 99, 1179, 1417
+  --bootstrap  1179, 1417
+  --dispersion none
+  --robust     none
+
+FTSE: n 1859; sd rows 2-1481 0.74, rows 1482-1860 0.98
+  plain        309, 344, 653, 906, 1545
+  --bootstrap  309, 334, 1550
+  --dispersion 309, 334, 1550
+  --robust     972, 1545
+
+real	5m43.565s
+user	5m39.271s
+sys	0m2.381s

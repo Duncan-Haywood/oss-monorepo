@@ -94,13 +94,12 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      Landed history and every measurement live in the README and git (findings
-      below: 2026-10-29). Open:
+      Landed history and every measurement live in the README and git (four-index
+      cross-check, DAX/SMI/FTSE cut, CAC's 29% rise not: README 2026-10-29). Open:
       (1) range95 now holds on a real closure, Ansett's 1989 pilots' dispute
       (4 of 4 setups) and on a real shock, Hurricane Maria in Puerto Rico's
       daily deaths (5 of 5); a real trending series now gives one change, US airline miles 1946; WWWusage (wanders): 21 steps, 0 by --ar1; wanted: a closure series quiet
-      outside it, as none of 30 Ansett route/class series is (8 to 36 other changes; count-model range95 holds the stop in 29, mean model 19; 2026-10-29) (log GDP is a near-unit-root; coal disasters
-      hold 1890); (2) the steep-bump (0.04) clumpy-count cell is under-
+      outside it, as none of 30 Ansett route/class series is (8 to 36 other changes; count-model range95 holds the stop in 29, mean model 19; 2026-10-29); (2) the steep-bump (0.04) clumpy-count cell is under-
       covered, 65/79 (82%) over six seeds, and the CLI and JSON carry that
       caveat; (3) a GARCH-filtered series has 1% false alarms but loses the
       real sd break (97% to 6%), so a GARCH likelihood needs a segment-wise

@@ -152,6 +152,16 @@ return for row 2 onward); no calendar dates are carried.
   later). Only a derived column of returns is kept here: check the licence before reusing it elsewhere.
 - **Used by:** `dax-returns.test.mjs`.
 
+# Example data: SMI, CAC and FTSE daily log returns, 1991-1998
+
+`smi-returns.csv`, `cac-returns.csv`, `ftse-returns.csv`: `100 * ln(X_t / X_t-1)` for the other three indices in R's
+`EuStockMarkets`, same rows as `dax-returns.csv` (row 2 onward; no calendar dates).
+
+- **Retrieved:** 2026-10-29 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/EuStockMarkets.csv>.
+- **Licence:** as for the DAX file above (base R, GPL-2 or later; only derived returns are kept; check before reusing).
+- **Used by:** `eu-markets.test.mjs`, `eval/eu-markets.mjs`.
+
 # Example data: great inventions and discoveries, 1860-1959
 
 `great-discoveries.csv`: yearly counts (100 years, 310 events) of "great" inventions and scientific discoveries
