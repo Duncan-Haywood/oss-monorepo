@@ -99,7 +99,7 @@ flagships:
       (1) range95 now holds on a real closure, Ansett's 1989 pilots' dispute
       (4 of 4 setups) and on a real shock, Hurricane Maria in Puerto Rico's
       daily deaths (5 of 5); a real trending series now gives one change, US airline miles 1946; WWWusage (wanders): 21 steps, 0 by --ar1; wanted: a closure series quiet
-      outside it, as this one returns 24 to 43 other changes (Ansett first class, 29 to 37, 2026-10-29: not quiet, and the mean model misses its gradual restart) (log GDP is a near-unit-root; coal disasters
+      outside it, as none of 30 Ansett route/class series is (8 to 36 other changes; count-model range95 holds the stop in 29, mean model 19; 2026-10-29) (log GDP is a near-unit-root; coal disasters
       hold 1890); (2) the steep-bump (0.04) clumpy-count cell is under-
       covered, 65/79 (82%) over six seeds, and the CLI and JSON carry that
       caveat; (3) a GARCH-filtered series has 1% false alarms but loses the
