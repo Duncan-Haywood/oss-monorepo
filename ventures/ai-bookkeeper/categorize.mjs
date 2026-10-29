@@ -34,6 +34,14 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Small farms and CSAs (2026-10-29, smallfarm.test.mjs; agent-written from the companies' public names, not from a real export):
+  // CSA-platform payouts, market and co-op deposits are sales; seed houses are supplies; land and pasture leases are rent; CSA software is software; farm diesel is vehicle fuel.
+  ["4000", "in", /local line.*(payout|payment)|farmers.? market deposit|wholesale co-?op deposit|harvest (share|box) payout/],
+  ["6100", "out", /johnny'?s selected seeds|fedco seeds|seedway|baker creek|high mowing|\bseeds?\b.*(order|co)\b/],
+  ["6080", "out", /pasture lease|(land|field|farm) lease/],
+  ["6060", "out", /local line subscription|farmigo|barn2door|harvie/],
+  ["6160", "out", /farm diesel|dyed diesel|off-?road diesel/],
+  ["6110", "out", /(state )?dept\.? of agriculture|dept of ag\b|department of agriculture/],
   // Auto repair shops (2026-10-29, autorepair.test.mjs; agent-written from the companies' public names, not from a real export):
   // fleet-account payments are sales; repair-data subscriptions are software; shop rent is rent; ASE fees are education and dues.
   ["4000", "in", /fleet account (payment|pmt)/],
