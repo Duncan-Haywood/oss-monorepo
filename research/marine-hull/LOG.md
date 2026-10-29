@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 7a: paper skeleton from logged results (no experiment run)
+- Why: milestone 3 stayed blocked. Tried again this session: `eprints.soton.ac.uk/63772` returned 401 and `jtse.utm.my` reset the connection, so no Wigley table was obtained. Rather than restate the blocker, `paper/DRAFT.md` collects what the programme can support today (ranking across rungs is robust; absolute km/day is known to about +-10% from power-side inputs and another +-10% from the hull box) and lists what stands between this and a submittable paper.
+- No new numbers; each figure in the draft is copied from an entry above and names its results file. Nothing was predicted or run.
+- Next: milestone 3 once a table is reachable; opening the cited datasheets; sea-state loss (milestone 6).
+
 ## 2026-10-29 · Milestone 5m: what interval does km/day carry when every power-side input is drawn jointly from its range? (planned before running)
 - Why: 5k/5l varied inputs one or two at a time; 5l's "Next" asked for a sourced derate. NASA POWER (`power.larc.nasa.gov`) was refused by the session proxy, so no new temperature series could be fetched and the derate cannot be rebuilt from site temperatures here. Instead the derate is split into factors with ranges and drawn jointly. Ranges (the first two from 5l's snippet-level sources, PDFs unopened; the rest my choices, not sourced): hotel 5 to 20 W (Wave Glider sheet average), eta_pv 0.17 to 0.22, temperature factor 0.93 to 1.00 (coefficient -0.29 %/K from the Maxeon datasheet snippet times 0 to 25 K above 25 C cell temperature), soiling and spray 0.90 to 0.99, mismatch, wiring and MPPT 0.92 to 0.97. Hull constants at the 5k centre.
 - Plan (`experiments/run_solar_mc.py`, 5 m and 4 m, five sites, 500 seeded joint uniform draws, seed 1): per draw the best constant speed (0.5 to 2.0 m/s grid) and km/day. Report median and 5th to 95th percentile of km/day and best speed per site, and the share of draws where the site ordering (Equator > Florida > Gulf of Maine > North Sea > Gulf of Alaska) holds.
