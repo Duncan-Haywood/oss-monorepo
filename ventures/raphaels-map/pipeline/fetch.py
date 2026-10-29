@@ -147,6 +147,15 @@ def fetch_census_geo(out: Path) -> None:
             break
         except RuntimeError as e:
             record("census_geo", notes=[str(e)])
+    # Cartographic boundary counties (Connecticut's planning regions replaced its
+    # counties in 2022, so the 2017 us-atlas topology cannot join to ACS 2024).
+    for year in (2024, 2023):
+        url = f"https://www2.census.gov/geo/tiger/GENZ{year}/shp/cb_{year}_us_county_20m.zip"
+        try:
+            save(out, "census_geo", url.rsplit("/", 1)[1], get(url, timeout=300), url)
+            break
+        except RuntimeError as e:
+            record("census_geo", notes=[str(e)])
     for url in (
         "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2023/delineation-files/list1_2023.xlsx",
         "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2020/delineation-files/list1_2020.xls",
