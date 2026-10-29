@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01E5sJKixr9UjZyV7Gecz7yG",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T03:21:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": 11279,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "Target 5,500+ words but the check-script minimum is lower (spoken words 5,056 pass); the two figures count differently and cost a re-read."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-paul-shipwreck-malta-bedtime-story.md"
+  ],
+  "goal": null,
+  "notes": "Creative track; Saints by Candlelight episode 53, paul-and-the-fourteen-nights-before-malta, text only (audio 423 MB, over the 400 MB line). Checks: generate.mjs --check-script ok, node --test 12 pass.",
+  "corrections": [],
+  "redteam": null
+}
