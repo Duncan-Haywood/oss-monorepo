@@ -19,7 +19,7 @@
   "projects": [
     "ai-bookkeeper"
   ],
-  "pr": null,
+  "pr": 11449,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -33,7 +33,10 @@
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [
-    "Router drew the creative track; the scheduled prompt asked for revenue products, so I did ai-bookkeeper work."
+    {
+      "file": "prompt.md",
+      "why": "Router drew the creative track; the scheduled prompt asked for revenue products, so ai-bookkeeper work was done instead."
+    }
   ],
   "writeups": [],
   "goal": null,
