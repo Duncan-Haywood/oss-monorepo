@@ -35,7 +35,7 @@ is robust to the unsourced inputs, and the absolute range is not**:
 5. **Threats to validity**, to be written in full: wave term not compared with a published tank
    curve; Holtrop-Mennen not run; hotel-load and module sources opened only as search snippets;
    derate, soiling and temperature factors are the author's ranges; glider and foil coefficients
-   partly swept; no seakeeping, stability or sea-state loss.
+   partly swept; no seakeeping or stability; sea-state loss only as a free resistance multiplier (milestone 6a: f = 2 costs 21% of km/day, shifts the best speed down 0.2 to 0.3 m/s, keeps the site ordering; running the calm-water speed in f = 2 water loses 12 to 27%).
 
 ## 3. What would make it submittable
 
