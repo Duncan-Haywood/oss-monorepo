@@ -414,3 +414,19 @@ test("the open-shift preference select is labelled and feeds buildRoster's openS
   assert.match(html, /<label for="openpref">/);
   assert.match(html, /openShiftWeight: \$\("#openpref"\)\.value === "shifts" \? 100 : 0/);
 });
+
+test("posted-schedule page's table is what eval/callout-churn-bench.mjs returns for the sample cafe", async () => {
+  const { run } = await import("./eval/callout-churn-bench.mjs");
+  const html = page("schedule-change-after-posting.html");
+  const r = run();
+  assert.equal(r.postedCost, 3622);
+  assert.equal(r.postedOpen, 3);
+  assert.deepEqual(r.rows.map((x) => [x.person, x.rebuild.others, x.rebuild.people, x.rebuild.owed, x.rebuild.open]),
+    [["Ana", 4, 2, 73, 4], ["Ben", 5, 2, 93, 4], ["Dev", 10, 4, 174, 4], ["Fay", 7, 3, 118, 3], ["Gus", 4, 2, 68, 3]]);
+  for (const x of r.rows) { assert.equal(x.patch.others, 0); assert.ok(html.includes(`<td>${x.person}</td><td class="n">${x.rebuild.others}</td><td class="n">${x.rebuild.people}</td><td class="n">$${x.rebuild.owed}</td><td class="n">${x.rebuild.open}</td>`), x.person); }
+  assert.match(page("sitemap.xml"), /schedule-change-after-posting\.html/);
+  assert.match(page("index.html"), /schedule-change-after-posting\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
