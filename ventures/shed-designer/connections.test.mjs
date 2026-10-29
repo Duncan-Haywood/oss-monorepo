@@ -7,7 +7,7 @@ import { bbox } from './integrity.mjs';
 const bboxMid = (m) => { const b = bbox(m.geom); return (b.lo[1] + b.hi[1]) / 2; };
 
 const variants = [{}, { foundation: 'blocks' }, { roofType: 'ridgeBoard' }, { roofType: 'ridgeBeam' }, { length: 240 }, { studSize: '2x6' }, { overhang: 0 },
-  { foundation: 'blocks', lengths: [8, 10, 12] }, { foundation: 'deck blocks', lengths: [8, 10, 12] }, { studSpacing: 24, rafterSpacing: 24 }, { length: 150, width: 102 }];
+  { foundation: 'blocks', lengths: [8, 10, 12] }, { foundation: 'deck blocks', lengths: [8, 10, 12] }, { lengths: [8, 10] }, { studSpacing: 24, rafterSpacing: 24 }, { length: 150, width: 102 }];
 
 test('every preset and variation ties together', () => {
   for (const [name, make] of Object.entries(PRESETS)) {
@@ -95,4 +95,17 @@ test('a layout line pushed aside by a king stud gets a cripple over the jack', (
   const tops = s.walls.back.members.filter((m) => m.kind === 'top cripple').map((m) => bbox(m.geom).lo[0]);
   assert.ok(tops.some((x) => Math.abs(x - 96.25) < 1e-6), String(tops));
   assert.ok(connectionChecks(s).rows.find((r) => r.check === 'Siding joints on framing').ok);
+});
+
+// With 8 or 10 ft boards the greedy split took the longest top plate first and
+// left the cap no joint clear of it. Both plates' joints are now chosen together.
+test('short stock: cap and top plate joints are chosen together, 24" apart or more (IRC R602.3.2)', () => {
+  for (const v of [{ lengths: [8, 10] }, { lengths: [8, 10], foundation: 'blocks' }]) {
+    const s = buildShed({ ...PRESETS['12x16'](), ...v });
+    const row = connectionChecks(s).rows.find((r) => r.check === 'front wall: plate splices');
+    assert.ok(row?.ok, row?.detail);
+  }
+  // The default's plates are unchanged: one piece each, no joints to place.
+  const d = buildShed(defaultDesign());
+  assert.equal(d.walls.front.members.filter((m) => m.kind === 'top plate').length, 1);
 });
