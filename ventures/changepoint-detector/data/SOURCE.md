@@ -171,3 +171,12 @@ from The World Almanac and Book of Facts, as in R's `datasets::discoveries`.
   (time 1960.25 steps rewritten as `1960Q2` labels).
 - **Licence:** R's `datasets` package is GPL-2 or later as a package; the 84 numbers are company-reported facts. Not checked further.
 - **Used by:** `johnson-johnson.test.mjs`.
+
+# Example data: short-term visitor arrivals to Australia from the US and Japan, 1981Q1-2012Q3
+
+`au-arrivals-us.csv`, `au-arrivals-japan.csv`: quarterly arrivals in thousands, 127 quarters (the `US` and `Japan` columns of `fpp2::arrivals`).
+
+- **Retrieved:** 2026-10-29 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/arrivals.csv> (row numbers rewritten as `1981Q1` labels).
+- **Licence:** the fpp2 package is GPL-3; the series are published counts. Not checked further.
+- **Used by:** `drift-warning-arrivals.test.mjs`, `eval/drift-warning-arrivals.mjs`.

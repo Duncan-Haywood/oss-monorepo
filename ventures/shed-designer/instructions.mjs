@@ -234,11 +234,13 @@ export function buildInstructions(shed, est) {
   });
 
   for (const dr of shed.doors || []) {
+    // The door's own parts, by kind, as lettered on the cut sheet and the door's plan sheet.
+    const doorMarks = (kind) => est.parts.filter((p) => p.kind === kind && p.note.startsWith(`door ${dr.id}:`)).map((p) => p.mark).join(', ');
     out.push({
       title: `Build door ${dr.id} on site`,
       steps: [
         `Cut the door skin from the siding you cut out of the opening: ${dr.leaves > 1 ? `two leaves, each ${fmtIn(dr.w)} x ${fmtIn(dr.h)}` : `${fmtIn(dr.w)} x ${fmtIn(dr.h)}`}, which leaves a 1/4" gap all round${dr.leaves > 1 ? ' and between the pair' : ''}.`,
-        `Cut the frame from 2x4s (marks on the cut sheet): two stiles ${fmtIn(dr.h)}, three rails ${fmtIn(dr.railLen)}${dr.leaves > 1 ? ' for each leaf' : ''}.`,
+        `Cut the frame from 2x4s: two stiles ${fmtIn(dr.h)} (mark ${doorMarks('door stile')}), three rails ${fmtIn(dr.railLen)} (mark ${doorMarks('door rail')})${dr.leaves > 1 ? ' for each leaf' : ''}, and keep the braces (mark ${doorMarks('door brace')}) long until you scribe them.`,
         'Lay the skin face down on a flat floor. Glue and screw the stiles along its long edges and the rails across the top, middle and bottom, all laid flat, with 1-1/4" exterior screws through the skin every 8".',
         `Braces: in each bay, hold a 2x4 corner to corner and scribe it; the ends come out about ${dr.braceAngle.toFixed(0)} degrees. The low end of each brace goes on the hinge side so the brace holds the latch side up.`,
         'Hang: three 8" tee hinges, the straps across the rails, the leaves on the casing. Shim the door to keep the 1/4" gap while you screw the hinges. Then the pull and the hasp.',

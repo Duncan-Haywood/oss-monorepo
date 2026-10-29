@@ -4,7 +4,7 @@
 // looked at and passes only if every instance does.
 //
 // - The cap plates lap the corners (the end walls' cap over the long walls' top plate).
-// - Cap-plate joints sit away from top-plate joints, and every plate joint lands on a stud.
+// - Cap-plate joints sit at least 24" from top-plate joints (IRC R602.3.2), and every plate joint lands on a stud.
 // - Every stud, king and post stud stands on a bottom plate and runs to the top plate.
 // - Every header bears on a jack at each end; every jack carries a header.
 // - Cripples bear on a header or sill, and rough sills sit on cripples.
@@ -13,6 +13,7 @@
 
 import { bbox } from './integrity.mjs';
 import { fmtIn } from './lumber.mjs';
+import { PLATE_OFFSET_MIN } from './model.mjs';
 
 const EPS = 0.01;
 const near = (a, b) => Math.abs(a - b) < EPS;
@@ -84,8 +85,8 @@ export function connectionChecks(shed) {
     const tj = joints(tops);
     const cj = joints(caps);
     const jointFails = [...tj, ...cj].filter((x) => !centres.some((c) => near(c, x))).map((x) => `joint at ${fmtIn(x)}`);
-    const clearFails = cj.filter((c) => tj.some((t) => Math.abs(c - t) < 48 - EPS)).map((x) => `cap joint at ${fmtIn(x)}`);
-    if (tj.length || cj.length) add(`${name} wall: plate splices`, [...jointFails, ...clearFails], tj.length + cj.length, 'plate joints on a stud, cap joints 4 ft from top-plate joints');
+    const clearFails = cj.filter((c) => tj.some((t) => Math.abs(c - t) < PLATE_OFFSET_MIN - EPS)).map((x) => `cap joint at ${fmtIn(x)}`);
+    if (tj.length || cj.length) add(`${name} wall: plate splices`, [...jointFails, ...clearFails], tj.length + cj.length, `plate joints on a stud, cap joints at least ${PLATE_OFFSET_MIN}" from top-plate joints (IRC R602.3.2)`);
   }
 
   // Rafters seat on the plates and meet the ridge.
@@ -128,6 +129,65 @@ export function connectionChecks(shed) {
     const base = k.block ? k.block.h : 0;
     const skidFails = skids.filter((s) => !near(s.lo[2], base)).map((s) => fmtIn(s.lo[1]));
     add('Skids bear on the ground', skidFails, skids.length, k.block ? `skids on the ${k.block.plural}` : 'skids on the gravel pad');
+    // A ridge beam's gable posts come down the post studs at mid-width: a skid
+    // has to be under them, or the end joist takes the post as a point load.
+    const posts = shed.members.filter((m) => m.kind === 'post stud').map((m) => bbox(m.geom));
+    if (posts.length) {
+      const postFails = posts.filter((p) => !skids.some((s) => s.lo[1] <= p.lo[1] + EPS && s.hi[1] >= p.hi[1] - EPS && s.lo[0] <= p.hi[0] && s.hi[0] >= p.lo[0])).map((p) => `post stud at ${fmtIn(p.lo[0])}, ${fmtIn(p.lo[1])}`);
+      add('Ridge-beam posts bear on a skid', postFails, posts.length, 'post studs with a skid straight under them');
+    }
+    if (k.block) {
+      // A butt joint between blocks hangs in the air: both ends need 1-1/2" on a block.
+      const blocks = shed.fixtures.filter((f) => f.kind === 'block').map((f) => bbox(f.geom));
+      const ends = skids.flatMap((s) => [s.lo[0], s.hi[0]].filter((x) => x > EPS && x < d.length - EPS).map((x) => ({ s, x })));
+      const jointFails = ends.filter(({ s, x }) => !blocks.some((b) => b.lo[0] <= x - 1.5 + EPS && b.hi[0] >= x + 1.5 - EPS && b.lo[1] < s.hi[1] && b.hi[1] > s.lo[1])).map(({ x }) => `joint at ${fmtIn(x)}`);
+      if (ends.length) add('Skid joints land on blocks', jointFails, ends.length, 'skid ends at a butt joint, each on a block');
+    }
+  }
+
+  // Panel edges on framing: every sheet edge inside the building lands on wood
+  // it can be nailed to, 1/2" or more each side of the joint.
+  {
+    const spans = (kinds) => shed.members.filter((m) => kinds.includes(m.kind)).map((m) => bbox(m.geom)).map((b) => ({ s0: b.lo[0], s1: b.hi[0] }));
+    const edgeFails = (kind, framing) => {
+      const xs = new Set();
+      for (const p of shed.panels.filter((x) => x.kind === kind)) { const b = bbox(p.geom); for (const x of [b.lo[0], b.hi[0]]) if (x > EPS && x < d.length - EPS) xs.add(Math.round(x * 16) / 16); }
+      return { n: xs.size, fails: [...xs].filter((x) => !covered(x - 0.5, x + 0.5, framing)).map((x) => `edge at ${fmtIn(x)}`) };
+    };
+    const floor = edgeFails('floor sheet', spans(['floor joist']));
+    if (floor.n) add('Subfloor edges on joists', floor.fails, floor.n, 'subfloor sheet end joints on a joist');
+    const roof = edgeFails('roof sheathing', spans(['rafter']));
+    if (roof.n) add('Roof sheathing edges on rafters', roof.fails, roof.n, 'roof sheathing end joints on a rafter');
+
+    // Siding: each vertical joint between panels, sampled every inch up the
+    // wall, must have framing under both panels except where it crosses a door,
+    // window or vent opening. A few inches of slack cover the edges of openings.
+    const fails = [];
+    let n = 0;
+    for (const p of shed.panels.filter((x) => x.kind === 'siding')) {
+      const b = bbox(p.geom);
+      const eave = p.wall === 'front' || p.wall === 'back';
+      const ax = eave ? 0 : 1;
+      const across = eave ? 1 : 0;
+      const len = eave ? d.length : d.width;
+      const zone = p.wall === 'front' ? [0, k.stud] : p.wall === 'back' ? [d.width - k.stud, d.width] : p.wall === 'left' ? [0, k.stud] : [d.length - k.stud, d.length];
+      const inZone = (g) => g.lo[across] < zone[1] - EPS && g.hi[across] > zone[0] + EPS;
+      const frame = shed.members.map((m) => bbox(m.geom)).filter(inZone);
+      const holes = shed.fixtures.filter((f) => ['door', 'window', 'vent'].includes(f.kind)).map((f) => bbox(f.geom))
+        .filter((g) => g.lo[across] < zone[1] + 2 && g.hi[across] > zone[0] - 2);
+      for (const x of [b.hi[ax]]) {
+        if (x < EPS || x > len - EPS) continue;
+        n += 1;
+        let bad = 0;
+        for (let z = k.floorTop + 1; z < b.hi[2] - 1; z += 1) {
+          if (holes.some((h) => h.lo[ax] < x + 1 && h.hi[ax] > x - 1 && z > h.lo[2] - 1 && z < h.hi[2] + 1)) continue;
+          const wood = (xx) => frame.some((g) => g.lo[ax] <= xx && g.hi[ax] >= xx && g.lo[2] <= z && g.hi[2] >= z);
+          if (!(wood(x - 0.5) && wood(x + 0.5))) bad += 1;
+        }
+        if (bad > 12) fails.push(`${p.wall} joint at ${fmtIn(x)} (${bad}" unbacked)`);
+      }
+    }
+    if (n) add('Siding joints on framing', fails, n, 'vertical siding joints with a stud, cripple or post behind them');
   }
   return { rows, ok: rows.every((r) => r.ok) };
 }

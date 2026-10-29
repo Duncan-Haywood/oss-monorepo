@@ -3,7 +3,7 @@
 // plan sheets, all rebuilt from one design object on every change.
 
 import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFaceLength } from './model.mjs';
-import { estimate, examplePrices, cutSheetCsv, shoppingCsv } from './estimate.mjs';
+import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
 import { drawPlan, drawEnd } from './editor.mjs';
@@ -168,7 +168,7 @@ function renderSummary(shed, est) {
     ['Footprint', `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)} (${est.footprintSqFt.toFixed(0)} sq ft)`],
     ['Peak above the gravel', fmtFtIn(shed.dims.peak)],
     ['Boards to buy', `${est.boards} for ${est.pieces} pieces`],
-    ['Lumber', `${money(est.lumberCost)} (lower bound ${money(est.lowerBound)})`],
+    ['Lumber', `${money(est.lumberCost)}; the cut sheet's boards, ${money(est.cutSheetCost)}, are ${est.cutSheetCost - est.lowerBound < 0.005 ? 'proven the cheapest possible' : `within ${((est.cutSheetCost / est.lowerBound - 1) * 100).toFixed(1)}% of the least any order could cost (${money(est.lowerBound)})`}`],
     ['Sheets', `${est.floorSheets} floor, ${est.roofSheets} roof${d.siding ? `, ${shed.sidingFull.length + (shed.sidingUpper.length ? 1 : 0)}+ siding` : ''}`],
     ['Your time', (() => { const h = laborHours(shed, est); return `about ${Math.round(h)} hours${d.laborRate ? `, ${money(h * d.laborRate)} at ${money(d.laborRate)} an hour (materials and time ${money(est.total + h * d.laborRate)})` : ''}`; })()],
     ['Saw cuts', (() => { const c = cutMetrics(shed, est); return `${c.straight} straight, ${c.angled} angled${c.notches ? `, ${c.notches} notches` : ''}; ${(c.waste * 100).toFixed(1)}% offcut`; })()],
@@ -301,14 +301,15 @@ function renderStores(est, d) {
   }
 }
 
+/** "3 x 8' boards" or "8' board". @param {{ count: number, stock: number }} b */
+const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}`;
+
 function renderCuts(est) {
   let html = '';
-  let n = 0;
   for (const l of est.lumber) {
     const s = actual(l.material);
-    html += `<h4>${l.material} <span class="muted">(actual ${fmtIn(s.thick)} x ${fmtIn(s.depth)})</span>: ${l.result.boards.length} boards, ${money(l.result.cost)}, ${(l.result.waste * 100).toFixed(1)}% offcut</h4><ol class="boards" start="${n + 1}">`;
-    for (const b of l.result.boards) {
-      n += 1;
+    html += `<h4>${l.material} <span class="muted">(actual ${fmtIn(s.thick)} x ${fmtIn(s.depth)})</span>: ${l.result.boards.length} boards, ${money(l.result.cost)}, ${(l.result.waste * 100).toFixed(1)}% offcut</h4><ul class="boards">`;
+    for (const b of groupBoards(l.result.boards)) {
       let x = 0;
       const segs = b.cuts.map((c) => {
         const w = (c.len / b.stock) * 100;
@@ -316,18 +317,18 @@ function renderCuts(est) {
         x += w;
         return seg;
       }).join('');
-      html += `<li><span class="board-name">${b.stock / 12}' board</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}</span></li>`;
+      html += `<li><span class="board-name">${boardName(b)}</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span></li>`;
     }
-    html += '</ol>';
+    html += '</ul>';
   }
   if (est.trimCuts) {
-    html += `<h4>1x4 wall trim <span class="muted">(primed, actual 3/4 x 3-1/2)</span>: ${est.trimCuts.boards.length} boards</h4><ol class="boards">`;
-    for (const b of est.trimCuts.boards) {
+    html += `<h4>1x4 wall trim <span class="muted">(primed, actual 3/4 x 3-1/2)</span>: ${est.trimCuts.boards.length} boards</h4><ul class="boards">`;
+    for (const b of groupBoards(est.trimCuts.boards)) {
       let x = 0;
       const segs = b.cuts.map((len) => { const w = (len / b.stock) * 100; const seg = `<span class="cut" style="left:${x}%;width:${w}%" title="${fmtIn(len)}">${fmtIn(len)}</span>`; x += w; return seg; }).join('');
-      html += `<li><span class="board-name">${b.stock / 12}' board</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.stock - b.cuts.reduce((t, c) => t + c, 0))}</span></li>`;
+      html += `<li><span class="board-name">${boardName(b)}</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span></li>`;
     }
-    html += `</ol><p class="muted">Trim pieces: ${est.trimCuts.pieces.map((p) => `${esc(p.where)} ${fmtIn(p.length)}`).join('; ')}. Cut each to fit on site; these are the longest each needs.</p>`;
+    html += `</ul><p class="muted">Trim pieces: ${est.trimCuts.pieces.map((p) => `${esc(p.where)} ${fmtIn(p.length)}`).join('; ')}. Cut each to fit on site; these are the longest each needs.</p>`;
   }
   $('#cuts').innerHTML = html;
 }

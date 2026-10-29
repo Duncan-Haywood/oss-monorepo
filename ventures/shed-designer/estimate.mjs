@@ -208,13 +208,13 @@ export function estimate(shed, prices = examplePrices()) {
   }
   // Wall trim: the 1x4 corner boards and casings, cut from whichever mix of
   // 8, 12 and 16 ft boards costs least (the same optimizer as the framing).
-  /** @type {{ boards: { stock: number, cuts: number[] }[], pieces: { where: string, length: number }[] } | null} */
+  /** @type {{ boards: { stock: number, cuts: number[], offcut: number }[], pieces: { where: string, length: number }[] } | null} */
   let trimCuts = null;
   if (shed.wallTrim && shed.wallTrim.length) {
     const keys = { 96: 'trim1x4x8', 144: 'trim1x4x12', 192: 'trim1x4x16' };
     const stocks = Object.entries(keys).map(([len, k]) => ({ length: Number(len), price: item(k) }));
     const r = optimizeCuts(shed.wallTrim.map((t) => ({ len: t.length, kind: t.where })), stocks, d.kerf);
-    trimCuts = { boards: r.boards.map((b) => ({ stock: b.stock, cuts: b.cuts.map((c) => c.len) })), pieces: shed.wallTrim };
+    trimCuts = { boards: r.boards.map((b) => ({ stock: b.stock, cuts: b.cuts.map((c) => c.len), offcut: b.offcut })), pieces: shed.wallTrim };
     for (const [len, k] of Object.entries(keys)) {
       const n = r.boards.filter((b) => b.stock === Number(len)).length;
       if (n) line('Wall trim', label(k), n, 'piece', item(k), src(k));
@@ -346,8 +346,11 @@ export function estimate(shed, prices = examplePrices()) {
   const grandTotal = Math.round((total + tax + deliveryFee) * 100) / 100;
   const boards = lumber.reduce((t, l) => t + l.result.boards.length, 0);
   const lowerBound = Math.round(lumber.reduce((t, l) => t + l.result.lowerBound, 0) * 100) / 100;
+  // The boards the cut sheet uses, at the prices it was optimised on: what the lower bound is
+  // a bound on. lumberCost adds spares and any bulk prices on top.
+  const cutSheetCost = Math.round(lumber.reduce((t, l) => t + l.result.cost, 0) * 100) / 100;
   return {
-    parts, lumber, shopping, problems, total, tax, deliveryFee, grandTotal, trimCuts, lumberCost, lowerBound, boards,
+    parts, lumber, shopping, problems, total, tax, deliveryFee, grandTotal, trimCuts, lumberCost, cutSheetCost, lowerBound, boards,
     pieces: all.length, floorSheets, roofSheets,
     footprintSqFt: (d.length * d.width) / 144,
   };
@@ -376,15 +379,36 @@ export function lumberCostOf(shed, materials, prices = examplePrices()) {
   return Math.round(cost * 100) / 100;
 }
 
-/** CSV of the cut sheet: one row per board, its cuts and its offcut. */
+/**
+ * Identical boards (the same stock length cut into the same pieces in the same
+ * order) as one line with a count, in the order they first appear, so a cut
+ * sheet reads "10 x 8' board: C 93"" rather than ten lines of it.
+ * @template {{ stock: number, cuts: any[], offcut: number }} B
+ * @param {B[]} boards
+ * @returns {(B & { count: number })[]}
+ */
+export function groupBoards(boards) {
+  /** @type {(B & { count: number })[]} */
+  const out = [];
+  const at = new Map();
+  for (const b of boards) {
+    const key = `${b.stock}|${b.cuts.map((c) => (typeof c === 'number' ? String(c) : `${c.mark ?? ''}:${c.len}`)).join(',')}`;
+    if (at.has(key)) out[at.get(key)].count += 1;
+    else { at.set(key, out.length); out.push({ ...b, count: 1 }); }
+  }
+  return out;
+}
+
+/** CSV of the cut sheet: one row per set of identical boards, its cuts and the offcut of each. */
 export function cutSheetCsv(est) {
-  const rows = [['board', 'material', 'stock length', 'cuts (mark: length)', 'offcut']];
-  let n = 0;
+  const rows = [['boards', 'material', 'stock length', 'cuts (mark: length)', 'offcut each']];
   for (const l of est.lumber) {
-    for (const b of l.result.boards) {
-      n += 1;
-      rows.push([String(n), l.material, `${b.stock / 12}'`, b.cuts.map((c) => `${c.mark}: ${fmtIn(c.len)}`).join('; '), fmtIn(b.offcut)]);
+    for (const b of groupBoards(l.result.boards)) {
+      rows.push([String(b.count), l.material, `${b.stock / 12}'`, b.cuts.map((c) => `${c.mark}: ${fmtIn(c.len)}`).join('; '), fmtIn(b.offcut)]);
     }
+  }
+  if (est.trimCuts) {
+    for (const b of groupBoards(est.trimCuts.boards)) rows.push([String(b.count), '1x4 trim', `${b.stock / 12}'`, b.cuts.map((c) => fmtIn(c)).join('; '), fmtIn(b.offcut)]);
   }
   return rows.map((r) => r.map((c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(',')).join('\n') + '\n';
 }
