@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqybzchtMfHw92UkSk5K",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Build a shed designer (true lumber sizes, CAD plans, 3D, cut sheet, cost estimate), then many rounds of owner feedback: structure and integrity, cited prices, trim, off-the-shelf parts, simplicity and budget optimization, Home Depot and Lowe's priced independently, labour rate, defaults per the owner.",
+  "input_sha256": "2e85ef60063c2b73ea46b345c94a43014a26b90e9a1d0efc02cb10c1d33e0d9b",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T04:55:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 11268,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "One price link (Z-flashing at DK Hardware) was first written from a guessed URL; caught before commit, verified by search and replaced with the real product page.",
+    "Two blog-post claims were wrong before commit (per-foot trim prices, a gravel cost multiple) and were corrected against the computed figures."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/pages/writing.mjs",
+      "issue": "Posts from other sessions with over-long descriptions turned every PR's Pages build red twice in one day; the pre-push hook catches only the pushing session's own posts."
+    },
+    {
+      "file": "platform/privacy/browser-signals.mjs",
+      "issue": "A usage recorder that needs an event argument reads as undrivable; the checker's call shapes are not documented next to the recorder pattern."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Store catalogues were not scraped (both stores' terms forbid it); every price is a search-result copy with its link, and old copies are labelled.",
+      "did": "cited snippets only",
+      "result": "75 Lowe's and ~90 Home Depot listings with links"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Left --model unset: this session's instructions forbid model identifiers in pushed artifacts.",
+      "did": "omitted model",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-an-8-ft-shed-peak-and-a-6-6-door.md",
+    "docs/posts/2026-10-29-the-shed-walls-had-no-tops.md",
+    "docs/posts/2026-10-29-what-a-shed-costs-past-the-lumber.md",
+    "docs/posts/2026-10-29-549-off-an-8x12-shed-with-stock-parts.md",
+    "docs/posts/2026-10-29-home-depot-or-lowes-for-an-8x12-shed.md"
+  ],
+  "goal": null,
+  "notes": "New venture shed-designer, built and reworked over many owner feedback rounds in one session. Verification: 78 node tests in the venture; typecheck 0; every page-level step of portfolio-validate.yml run locally; gitops tests 603 pass locally; Pages site build ok locally; driven in headless Chromium at 1300 and 390 px with no console errors or horizontal scroll. CI green on 8011b086 and 05563c9c before the last main merge. Main was red twice from other sessions' post descriptions; fixed forward once (main later fixed it too and its version was kept). Next directions from the owner: truss roof vs ridge beam, usable volume vs cost, Colorado snow loads vs code minimum, decks/gazebos/coops on the same engine.",
+  "corrections": [],
+  "redteam": null
+}
