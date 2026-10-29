@@ -37,7 +37,7 @@ dupehound --threshold 5 src/          # exit 1 when over 5% of lines are duplica
 ```
 
 Options: `--min-tokens N` (default 50), `--min-lines N` (5), `--max-size`
-(100k), `--max-lines` (1000), `--ext a,b,c`, `--ignore-dir NAME`,
+(100k), `--max-lines` (1000), `--normalize`, `--ext a,b,c`, `--ignore-dir NAME`,
 `--no-gitignore`, `--top N`, `--threshold PCT`. The defaults are jscpd's.
 It respects `.gitignore` and always skips `node_modules`, `.git` and `target`.
 
@@ -57,8 +57,25 @@ It respects `.gitignore` and always skips `node_modules`, `.git` and `target`.
 Duplicated lines are a union over the later copy of each pair, so a block
 pasted into ten files counts nine times its size, not ninety.
 
-Limits, said plainly: matching is exact (renamed variables defeat it, as in
-jscpd's default mode); the lexer is generic, so it has no idea of a language's
+**Renamed copies (`--normalize`, and a checkbox on the page).** With it on,
+every identifier that is not a keyword hashes as one placeholder, every
+string and template literal as another, every number as a third. A function
+pasted and then renamed (`a` to `q`, `compute` to `calc`, `3` to `44`,
+`'x'` to `"y"`) is one clone; `if` against `while` still is not, nor is a
+changed call shape. The keyword list is one list for all languages, so a word
+that is a name in one language and a keyword in another stays a keyword
+(stricter, never looser). jscpd has no such mode (its `mild` and `weak`
+modes only decide what is skipped, not what is renamed), so there is nothing
+of theirs to measure against; on this repository's 9,461 `.mjs` files the
+duplicated share goes from 40.55% to 60.41% (1.65 s), most of it
+boilerplate of the same shape, which is what the mode is for and also why it
+is off by default. Expect more false positives: two functions of the same
+shape and different meaning match.
+
+Limits, said plainly: by default matching is exact (renamed variables defeat
+it, as in jscpd's default mode); a window is paired with the first place its
+hash occurs, so in a file of many same-looking lines (common once names are
+erased) a copy can come out as several shorter clones instead of one; the lexer is generic, so it has no idea of a language's
 grammar; a regex literal is lexed as punctuation (harmless, both copies lex
 the same way, but a quote inside one can make the lexer read a string to the
 end of the line).
@@ -110,7 +127,9 @@ or endorsed by either.
   the portfolio's name is the owner's call; it is listed under the
   `publication-identity` ask in `portfolio/ledger/asks.yaml`.
 - Prebuilt binaries from a release workflow, so no Rust toolchain is needed.
-- A normalised mode (identifiers and literals replaced by their kind) to find
-  renamed copies, measured against jscpd's `weak` mode.
+- Pair a window with every earlier occurrence on a diagonal, not only the
+  first, so repetitive code in normalised mode reports whole clones.
+- Labelled data for normalised mode: how many of its extra matches a person
+  would call real duplication.
 - Cut memory on large trees: the window table is 16 bytes a token; a
   two-pass count-then-collect would keep only windows that repeat.

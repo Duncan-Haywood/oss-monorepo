@@ -67,6 +67,7 @@
       <div><label for="minTokens">Smallest clone (tokens)</label><input type="number" id="minTokens" value="50" min="5" max="5000"></div>
       <div><label for="minLines">Smallest clone (lines)</label><input type="number" id="minLines" value="5" min="1" max="1000"></div>
     </div>
+    <p class="note"><label><input type="checkbox" id="normalize"> Also find renamed copies (names, strings and numbers ignored; more matches, more false positives)</label></p>
     <button type="button" id="run">Find copies</button>
     <p id="status" class="note" aria-live="polite"></p>
   </section>
@@ -223,7 +224,7 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
         const t = performance.now();
         const minTokens = Math.max(5, Math.min(5000, Number($("minTokens").value) || 50));
         const minLines = Math.max(1, Math.min(1000, Number($("minLines").value) || 5));
-        lastReport = dh.analyze(files, { minTokens, minLines });
+        lastReport = dh.analyze(files, { minTokens, minLines, normalize: $("normalize").checked });
         $("status").textContent = `Done in ${((performance.now() - t) / 1000).toFixed(2)} s.`;
         show(lastReport);
         record("scan_run");

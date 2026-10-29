@@ -211,6 +211,7 @@ fn matches_brute_force_on_random_inputs() {
         let o = Options {
             min_tokens: w,
             min_lines: 1,
+            ..Options::default()
         };
         let clones = detect(&files, o);
         for c in &clones {
@@ -261,5 +262,85 @@ fn matches_brute_force_on_random_inputs() {
                 }
             }
         }
+    }
+}
+
+fn nfile(path: &str, src: &str) -> SourceFile {
+    SourceFile::from_bytes_with(path, src.as_bytes(), true)
+}
+
+/// Lines with different shapes, so no two look alike once names are erased
+/// (identical-looking lines make a window's "first occurrence" land in the
+/// same file and fragment the clone; see the README's limits).
+fn varied(name: &str, a: &str, f: &str, lit: &str) -> String {
+    format!(
+        "function {name}({a}, b) {{\n\
+         \x20 const t = {a} * {lit} + b - {f}({a}, 'x');\n\
+         \x20 if (t > {lit}) {{ return [t, {a}]; }}\n\
+         \x20 for (let i = 0; i < b.length; i++) {{ t += b[i] ? {f}(i) : -1; }}\n\
+         \x20 while (t--) {{ b.push({{ k: t, v: {a} }}); }}\n\
+         \x20 switch (t) {{ case 1: return {f}(t); default: break; }}\n\
+         \x20 try {{ {f}(t, b); }} catch (e) {{ throw new Error(e.message + {lit}); }}\n\
+         \x20 return {a} ? t : null;\n}}\n"
+    )
+}
+
+#[test]
+fn normalized_mode_matches_renamed_copies_and_exact_mode_does_not() {
+    let a = varied("f", "a", "compute", "3");
+    let b = varied("g", "q", "calc", "44");
+    let exact = vec![file("a.js", &a), file("b.js", &b)];
+    assert!(detect(&exact, opts()).is_empty());
+    let norm = vec![nfile("a.js", &a), nfile("b.js", &b)];
+    let clones = detect(&norm, opts());
+    assert_eq!(clones.len(), 1);
+    assert_eq!(clones[0].tokens() as usize, norm[0].tokens.len());
+}
+
+#[test]
+fn normalized_mode_keeps_keywords_and_structure_apart() {
+    let a = varied("f", "a", "compute", "3");
+    // Same names and shapes, but `if` -> `while` and `for` -> `if`.
+    let b = a
+        .replace("if (t >", "while (t >")
+        .replace("for (let", "if (let");
+    let files = vec![nfile("a.js", &a), nfile("b.js", &b)];
+    let o = Options {
+        min_tokens: 30,
+        ..opts()
+    };
+    let cross: Vec<_> = detect(&files, o)
+        .into_iter()
+        .filter(|c| c.first.file != c.second.file)
+        .collect();
+    assert!(
+        cross
+            .iter()
+            .all(|c| (c.tokens() as usize) < files[0].tokens.len()),
+        "keyword changes split the copy: {:?}",
+        cross.iter().map(|c| c.tokens()).collect::<Vec<_>>()
+    );
+    // Punctuation counts too: a changed call shape is not a clone.
+    let c = varied("f", "a", "compute", "3");
+    let d = c.replace("compute(t)", "compute(t)(t)");
+    let files = vec![nfile("c.js", &c), nfile("d.js", &d)];
+    let full = files[0].tokens.len();
+    assert!(detect(&files, opts())
+        .iter()
+        .all(|c| (c.tokens() as usize) < full));
+}
+
+#[test]
+fn keyword_list_is_sorted_for_binary_search() {
+    // A misordered list would silently miss keywords; probe a few.
+    for w in [
+        "abstract", "fn", "return", "while", "yield", "and", "end", "val",
+    ] {
+        let t = tokenize_with(w.as_bytes(), CommentStyle::CLike, true);
+        assert_eq!(
+            t[0].hash,
+            tokenize(w.as_bytes(), CommentStyle::CLike)[0].hash,
+            "{w}"
+        );
     }
 }

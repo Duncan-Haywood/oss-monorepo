@@ -18,6 +18,8 @@ OPTIONS:
     --ignore-dir NAME  skip directories with this name (repeatable;
                        node_modules, .git and target are always skipped)
     --no-gitignore     read files .gitignore would skip
+    --normalize        match renamed copies: identifiers, strings and numbers
+                       hash by kind (keywords stay)
     --json             print a JSON report instead of text
     --top N            clones to list in the text report   [default: 20]
     --threshold PCT    exit 1 if duplicated lines exceed PCT percent
@@ -87,6 +89,10 @@ fn parse_args() -> Result<Option<Args>, String> {
             }
             "--ignore-dir" => a.walk.ignore_dirs.push(val(&arg)?),
             "--no-gitignore" => a.walk.respect_gitignore = false,
+            "--normalize" => {
+                a.opts.normalize = true;
+                a.walk.normalize = true
+            }
             "--json" => a.json = true,
             "--top" => a.top = num(val(&arg)?, &arg)? as usize,
             "--threshold" => {

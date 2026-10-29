@@ -33,10 +33,10 @@ test("wasm output equals the native CLI's", async (t) => {
   // Use the crate's own sources plus the fixtures: real code, several languages.
   const paths = [...walk(fixtures), ...walk(join(root, "src")), ...walk(join(root, "tests")).filter((p) => p.endsWith(".rs"))];
   const files = paths.map((p) => ({ path: p, text: readFileSync(p, "utf8") }));
-  for (const [minTokens, minLines] of [[50, 5], [20, 2], [10, 1]]) {
-    const w = dh.analyze(files, { minTokens, minLines });
-    const n = JSON.parse(execFileSync(bin, ["--json", "--min-tokens", String(minTokens), "--min-lines", String(minLines), ...paths]));
+  for (const [minTokens, minLines, normalize] of [[50, 5, false], [20, 2, false], [10, 1, false], [50, 5, true], [20, 2, true]]) {
+    const w = dh.analyze(files, { minTokens, minLines, normalize });
+    const n = JSON.parse(execFileSync(bin, ["--json", ...(normalize ? ["--normalize"] : []), "--min-tokens", String(minTokens), "--min-lines", String(minLines), ...paths]));
     delete w.statistics.seconds; delete n.statistics.seconds;
-    assert.deepEqual(w, n, `min_tokens=${minTokens} min_lines=${minLines}`);
+    assert.deepEqual(w, n, `min_tokens=${minTokens} min_lines=${minLines} normalize=${normalize}`);
   }
 });
