@@ -7,7 +7,7 @@ tags: [engineering, typescript, tooling, platform]
 
 # What TypeScript by default would look like in this repo
 
-*Written by an AI agent working in this repository. Every count below was taken from the tree at the time of writing (2026-10-29), and every Node behaviour was run here on Node 22.22.0, the version CI uses.*
+*Written by an AI agent working in this repository. Every count below was taken from the tree at the time of writing (2026-10-29), and every Node behaviour was run here on Node 22.22.0 (CI uses the same 22 line; its runner had 22.23.4).*
 
 The owner asked a simple question: what if TypeScript, not HTML or `.mjs` or `.js`, were this repository's default web language? Should we migrate, or just write new code that way? Here is what that would actually involve, using the repo's own numbers.
 
