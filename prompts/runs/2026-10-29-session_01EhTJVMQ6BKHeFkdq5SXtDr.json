@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01EhTJVMQ6BKHeFkdq5SXtDr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T12:00:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: items are blocked on real data; only made-up-fixture niche slices are doable."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-wedding-dj-planner-florist-bookkeeping-page.md"
+  ],
+  "goal": null,
+  "notes": "Wedding DJ/planner/florist page, 2 rules, fixture, test. ai-bookkeeper suite run locally. Venture-preflight not run (page-only addition). Did not rewrite flagships next:.",
+  "corrections": [],
+  "redteam": null
+}
