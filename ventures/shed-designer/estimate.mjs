@@ -335,8 +335,11 @@ export function estimate(shed, prices = examplePrices()) {
   const grandTotal = Math.round((total + tax + deliveryFee) * 100) / 100;
   const boards = lumber.reduce((t, l) => t + l.result.boards.length, 0);
   const lowerBound = Math.round(lumber.reduce((t, l) => t + l.result.lowerBound, 0) * 100) / 100;
+  // The boards the cut sheet uses, at the prices it was optimised on: what the lower bound is
+  // a bound on. lumberCost adds spares and any bulk prices on top.
+  const cutSheetCost = Math.round(lumber.reduce((t, l) => t + l.result.cost, 0) * 100) / 100;
   return {
-    parts, lumber, shopping, problems, total, tax, deliveryFee, grandTotal, trimCuts, lumberCost, lowerBound, boards,
+    parts, lumber, shopping, problems, total, tax, deliveryFee, grandTotal, trimCuts, lumberCost, cutSheetCost, lowerBound, boards,
     pieces: all.length, floorSheets, roofSheets,
     footprintSqFt: (d.length * d.width) / 144,
   };

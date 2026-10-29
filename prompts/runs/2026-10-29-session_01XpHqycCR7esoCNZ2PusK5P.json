@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqycCR7esoCNZ2PusK5P",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "Overnight lane 2 (plans, drawings and cut sheet) of shed-designer quality pass: DXF check, dimensions vs model, legible printing, marks, cutting-stock optimizer vs lower bound.",
+  "input_sha256": "3e5f0f84d794efc4c0bd920d5def52aadb832f44e0670f533f028a174b749ccc",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T05:22:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer lane 2: plans, drawings and cut sheet quality",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 11311,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".claude/hooks/check_posts_before_push.py",
+      "issue": "the hook blocks a whole compound Bash command (edit + commit + push) on the pre-edit state, so a fix in the same command never runs; split the fix from the push"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-shed-designer-cut-list-proven-lower-bound.md"
+  ],
+  "goal": "Correct, legible plans and an exact cut list for shed-designer",
+  "notes": "PR #11311: cut optimizer solves the cutting-stock LP by column generation; over 51 designs / 257 cut lists orders fall $36,041.76 -> $35,766.03 and the shown bound rises $33,648.81 -> $35,614.35 (gap 7.1% -> 0.4%; 171 proven optimal). Brute force on 60 small cases: new optimal 60/60, old 55/60, bound never above optimum. Side effect: default auto overhang 9\" -> 6\" (9\" now costs $2.87 more in 2x6). Summary now compares cut-sheet cost, not lumber with spares, with the bound. Checks: run_venture_tests shed-designer pass; typecheck 0 diagnostics; check_post_frontmatter pass. Audit (read-only, before #11268 merged) also found: plans/cut sheet/build prints were blank (print CSS hid <main>), overall wall dims under the title block, rafter cut-length dim drawn 1.8\" short, roof line wrong on connector seats, only 11/33 marks lettered on sheets; fixes follow in later PRs. ezdxf 1.4.5 audit of the DXF from all 7 presets: 0 errors. run_workflow_locally --for-changes: all run: steps passed except pages.yml's two built-site checks, which fail locally only because its 'Build the site' step is skipped there (no _site); GitHub CI is the check of record for those. Second PR #11314 (plans fixes + plans.test.mjs) opened alongside.",
+  "corrections": [],
+  "redteam": null
+}
