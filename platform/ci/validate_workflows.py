@@ -82,6 +82,17 @@ about, one paragraph above where it is described):
    `package.json` script is the same command). Filtering alone is not enough:
    five of the sixteen had a slug-filtered workflow that ran only Python.
 
+8. No workflow only repeats `ventures-tests.yml` for one venture. That
+   workflow runs `node --test` in every venture a change touches, so a
+   `<slug>-ci.yml` whose trigger is that venture and whose only work is
+   `node --test` costs every PR on the venture a second job and a second
+   checkout of the whole tree, and verifies nothing the first did not. 802 such
+   files accumulated, partly because invariant 7's message used to say "copy a
+   sibling": P016 removed 384 byte-identical ones on 2026-10-16, and the 418
+   that differed only in comments, job names or an explicit file list went on
+   2026-10-29 (docs/history/ci-local-first-2026-10-29.md). A per-venture
+   workflow that does anything more (pytest, a build, a service) is fine.
+
 Usage: python3 platform/ci/validate_workflows.py
 """
 import re
@@ -483,14 +494,73 @@ def check_venture_tests_run(paths, ventures_dir=VENTURES_DIR):
             "no workflow -- no workflow both filters on "
             f"`{prefix}**` and runs `node --test`. The portfolio-wide workflows "
             "do not run venture unit tests, so these assertions execute only on "
-            "a contributor's machine. Add `.github/workflows/"
-            f"{venture.name}-ci.yml` (copy a sibling), or add a `node --test` "
-            "job to the workflow this venture already has. If you add the "
-            "workflow file, record it in the same commit with `python3 "
-            "platform/ci/publish_surface.py --write` -- a new workflow is a new "
-            "thing a merge to `main` could publish, so `--check` fails until the "
-            "snapshot names it and its classification has been confirmed"
+            "a contributor's machine. `.github/workflows/ventures-tests.yml` "
+            "is meant to cover every venture through its `ventures/**` filter; "
+            "restore that filter rather than adding a per-venture copy "
+            "(invariant 8)"
         )
+    return errors
+
+
+_SETUP_ACTIONS = ("actions/checkout@", "actions/setup-node@")
+_NODE_TEST_ONLY = re.compile(r"node --test(?: [\w./*'\"-]+)*")
+
+
+def duplicates_ventures_tests(name, data):
+    """The venture slug when this workflow only re-runs `ventures-tests.yml`.
+
+    True when every `paths:` entry is `ventures/<slug>/**` or the workflow
+    itself, every `uses:` is checkout or setup-node, no job has services, a
+    container or a matrix, and every `run:` is a bare `node --test` (optionally
+    naming test files). That is exactly what `run_venture_tests.py` does for
+    the slug, from the same directory.
+    """
+    paths = set(_trigger_paths(data))
+    slugs = {p.split("/")[1] for p in paths if p.startswith("ventures/") and p.count("/") >= 2}
+    if len(slugs) != 1:
+        return None
+    slug = next(iter(slugs))
+    if paths - {f"ventures/{slug}/**", f".github/workflows/{name}"}:
+        return None
+    runs = []
+    for job in (data.get("jobs") or {}).values():
+        if not isinstance(job, dict) or any(job.get(k) for k in ("services", "container", "strategy", "uses")):
+            return None
+        for step in job.get("steps") or []:
+            if not isinstance(step, dict):
+                return None
+            if "uses" in step:
+                if not str(step["uses"]).startswith(_SETUP_ACTIONS):
+                    return None
+            elif isinstance(step.get("run"), str):
+                runs.append(step["run"].strip())
+            else:
+                return None
+    if runs and all(_NODE_TEST_ONLY.fullmatch(r) for r in runs):
+        return slug
+    return None
+
+
+def check_no_duplicate_venture_test_workflows(paths):
+    """Invariant 8: a per-venture workflow must do more than `node --test`."""
+    errors = []
+    for path in paths:
+        try:
+            data = yaml.safe_load(path.read_text())
+        except yaml.YAMLError:
+            continue
+        if not isinstance(data, dict):
+            continue
+        slug = duplicates_ventures_tests(path.name, data)
+        if slug:
+            errors.append(
+                f"{path.relative_to(REPO_ROOT)}: only runs `node --test` for "
+                f"ventures/{slug}, which `ventures-tests.yml` already does on every "
+                "change to it -- a second job and a second checkout for nothing. "
+                f"Delete it (and run `python3 platform/ci/publish_surface.py "
+                f"--write`); locally, `python3 platform/ci/run_venture_tests.py "
+                f"{slug}` is the same check"
+            )
     return errors
 
 
@@ -507,6 +577,7 @@ def main():
         check(path, errors)
     errors.extend(check_unique_names(paths))
     errors.extend(check_venture_tests_run(paths))
+    errors.extend(check_no_duplicate_venture_test_workflows(paths))
 
     if errors:
         print(f"{len(errors)} problem(s) found:\n", file=sys.stderr)

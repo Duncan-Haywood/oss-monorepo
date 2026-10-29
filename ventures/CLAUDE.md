@@ -36,4 +36,6 @@ ones only when broken; already-built calculator work can still be merged
 depth over calculators").
 
 Running venture tests: `python3 platform/ci/run_venture_tests.py --changed`
-(or named slugs; no args runs all, in minutes); it beats looping `node --test` serially.
+(or named slugs; no args runs all, in minutes). It is the command
+`ventures-tests.yml` runs, so a local pass is the CI pass; a venture needs no
+`<slug>-ci.yml` just for `node --test`.

@@ -83,7 +83,7 @@ def test_every_workflow_reads_the_runner_switch() -> None:
     # the one narrow, checked exception (see its comment and the paired test
     # below), not a loophole: everything else must still read the switch.
     workflows = sorted(WORKFLOWS.glob("*.yml"))
-    assert len(workflows) > 200, "expected the full workflow set"
+    assert len(workflows) > 100, "expected the full workflow set (131 on 2026-10-29)"
     for path in workflows:
         spec = yaml.safe_load(path.read_text())
         for name, job in (spec.get("jobs") or {}).items():

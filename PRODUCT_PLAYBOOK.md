@@ -545,14 +545,15 @@ Ship when every line is true:
       Pages build injects the no-SLA clause; see §5b).
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
-- [ ] If you added `.github/workflows/<slug>-ci.yml` (and
-      `platform/ci/validate_workflows.py` requires one the moment the venture
-      ships `*.test.mjs` files), record it in the **same commit** with `python3
-      platform/ci/publish_surface.py --write`, and say in the PR what the new
-      workflow can publish — it should be `none` for an ordinary test-only
-      venture CI. `publish_surface.py --check` fails until the snapshot names
-      it, by design: a new workflow is a new thing a merge to `main` could
-      publish, and that classification is confirmed rather than inferred.
+- [ ] Venture `*.test.mjs` suites need no workflow of their own:
+      `ventures-tests.yml` runs `python3 platform/ci/run_venture_tests.py`
+      for every venture a PR touches, and that same command (`--changed`, or
+      the slug) is the local check. `validate_workflows.py` rejects a
+      `<slug>-ci.yml` that only runs `node --test`. Add one only for work
+      beyond that (pytest, a build, a service), record it in the **same
+      commit** with `python3 platform/ci/publish_surface.py --write`, and say
+      in the PR what it can publish (`none` for a test-only workflow);
+      `--check` fails until the snapshot names it, by design.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
 - [ ] A stranger can reach it without cloning this repo — a public URL or an
       install command. Merged-to-`main` is not deployed. Static products go

@@ -76,11 +76,13 @@ names what tripped it so a real verification step is not silently dropped.
 from __future__ import annotations
 
 import argparse
+import functools
 import hashlib
 import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 
 try:
@@ -96,6 +98,7 @@ WORKFLOWS = os.path.join(REPO, ".github", "workflows")
 # Workflows whose steps only read and assert. Anything else needs --force.
 VERIFICATION_ONLY = {
     "portfolio-validate.yml",
+    "ventures-tests.yml",
     "portfolio-pages.yml",
     "agent-permission-harness-ci.yml",
     "conflict-markers-ci.yml",
@@ -243,6 +246,64 @@ VARS_EXPRESSION = re.compile(r"\$\{\{\s*vars\.([A-Za-z_][A-Za-z0-9_]*)\s*\}\}")
 # skip: substituting a value this tool cannot know would run the step against
 # the wrong credential, which is worse than not running it.
 GITHUB_TOKEN_EXPRESSION = re.compile(r"\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}")
+
+
+# The GitHub context values that have an honest local answer, added
+# 2026-10-29 (docs/history/ci-local-first-2026-10-29.md). Every diff-scoped
+# step here reads its base as `github.event.pull_request.base.sha ||
+# github.event.before`, and skipping those steps meant `ventures-tests.yml` --
+# the venture test suites, the no-warranty clause check and `tsc` -- verified
+# nothing locally. On a pull request that expression is the base branch's
+# commit, and the local equivalent is the merge base with the branch
+# `--for-changes` compares against, so it is substituted rather than skipped.
+# `github.sha` is HEAD, `github.workspace` the checkout, `runner.temp` a
+# scratch directory. Anything else (`github.event_name`, step outputs,
+# `inputs.*`) still has no local meaning and keeps the skip.
+#
+# One difference stays: a step that runs `git diff "$BASE" HEAD` sees
+# committed work only. `--for-changes` selects workflows from the working
+# tree, so commit before relying on such a step's verdict.
+LOCAL_BASE = {"ref": "origin/main"}
+CONTEXT_EXPRESSION = re.compile(r"\$\{\{\s*([^}]*?)\s*\}\}")
+BASE_EXPRESSIONS = {
+    "github.event.pull_request.base.sha || github.event.before",
+    "github.event.pull_request.base.sha || github.sha",
+    "github.event.pull_request.base.sha",
+}
+
+
+def _git_out(*args) -> str:
+    done = subprocess.run(["git", *args], cwd=REPO, capture_output=True, text=True)
+    return done.stdout.strip() if done.returncode == 0 else ""
+
+
+@functools.lru_cache(maxsize=None)
+def local_context(expression: str) -> str | None:
+    """The local value of one `${{ }}` expression, or None if it has none."""
+    expression = " ".join(expression.split())
+    if expression in BASE_EXPRESSIONS:
+        return _git_out("merge-base", LOCAL_BASE["ref"], "HEAD") or None
+    if expression == "github.sha":
+        return _git_out("rev-parse", "HEAD") or None
+    if expression == "github.workspace":
+        return REPO
+    if expression == "runner.temp":
+        return tempfile.mkdtemp(prefix="runner-temp-")
+    return None
+
+
+def resolve_context(text: str) -> tuple[str, list[str]]:
+    """`text` with every locally answerable expression substituted."""
+    resolved = []
+
+    def sub(match):
+        value = local_context(match.group(1))
+        if value is None:
+            return match.group(0)
+        resolved.append(" ".join(match.group(1).split()))
+        return value
+
+    return CONTEXT_EXPRESSION.sub(sub, text), resolved
 
 
 def ambient_github_token() -> str:
@@ -515,6 +576,8 @@ class Step:
         # Names of those variables, so the report can say the step ran with
         # them unset rather than leaving the reader to assume they were set.
         self.unset_vars = []
+        # `${{ }}` expressions given their local value; see local_context.
+        self.resolved = []
 
     @property
     def label(self):
@@ -580,8 +643,16 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
                 # leave it empty and let the step say so for itself.
                 resolved, token_hits = GITHUB_TOKEN_EXPRESSION.subn(
                     ambient_github_token(), resolved)
-                if hits or token_hits:
+                resolved, context_hits = resolve_context(resolved)
+                step.resolved.extend(context_hits)
+                if hits or token_hits or context_hits:
                     step.env[key] = resolved
+            command, context_hits = resolve_context(command)
+            step.run = command
+            step.resolved.extend(context_hits)
+            workdir, context_hits = resolve_context(str(workdir))
+            step.workdir = workdir
+            step.resolved.extend(context_hits)
             env_text = " ".join(step.env.get(k, v) for k, v in raw_env.items())
             if (EXPRESSION.search(command) or EXPRESSION.search(str(workdir))
                     or EXPRESSION.search(env_text)):
@@ -1000,6 +1071,10 @@ def report(name, steps, uses_skipped, forced) -> int:
             print(f"UNSET   {step.label}: ran with "
                   + ", ".join(f"vars.{v}" for v in sorted(set(step.unset_vars)))
                   + " empty, as an unset repository variable is")
+        if step.resolved and step.status in ("ok", "failed"):
+            print(f"LOCAL   {step.label}: ran with "
+                  + ", ".join(sorted(set(step.resolved)))
+                  + f" given its local value (base: merge base with {LOCAL_BASE['ref']})")
     for step in skipped + refused:
         print(f"SKIPPED {step.label}: {step.reason}")
     for note in uses_skipped:
@@ -1259,6 +1334,8 @@ def main(argv=None) -> int:
             return 2
         return run_tree(args)
 
+    if args.for_changes:
+        LOCAL_BASE["ref"] = args.for_changes
     if args.for_changes:
         if args.workflow:
             print("pass a workflow name or --for-changes, not both", file=sys.stderr)
