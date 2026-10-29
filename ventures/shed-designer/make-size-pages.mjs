@@ -14,7 +14,11 @@ export const SIZES = [
 const HAND = '8x12 page: shed-plans-with-cut-list.html';
 const HAND_FILE = 'shed-plans-with-cut-list.html';
 const slug = (w, l) => `how-much-lumber-for-a-${w}x${l}-shed.html`;
-const money = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const money = (n) => {
+  const format = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const ft = (inch) => `${inch / 12}'`;
 
 export function design(w, l, base) {
@@ -142,6 +146,7 @@ export function indexPage(all) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   ${ICON}
   <title>Shed Lumber List by Size: 8x8 to 12x24, Boards and Cost</title>
+  <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Article', headline: 'Shed lumber list by size' })}</script>
   <meta name="description" content="How many boards and how much money a gable shed takes at ${all.length + 1} common sizes from 8x8 to 12x24, each framed stud by stud, with the cut list for your own size free in the browser.">
   <style>
 ${CSS}
