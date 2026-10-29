@@ -27,6 +27,7 @@ python3 experiments/run.py > experiments/results.txt           # 2,916 cases, un
 python3 experiments/envelope.py > experiments/envelope_results.txt  # 20,000 random cycles
 python3 experiments/idle_sensitivity.py > experiments/idle_sensitivity_results.txt  # milestone 2f, ~20 s
 python3 experiments/idle_models.py > experiments/idle_models_results.txt  # milestone 2g, ~60 s
+PYTHONPATH=src python3 experiments/regen_bound.py > experiments/regen_bound_results.txt  # milestone 5a, ~10 s
 ```
 
 ## Method
@@ -113,3 +114,11 @@ With sourced margins (6 bar spool, 25 bar load-sensing, 0.883 pump efficiency) a
 
 ## Milestone 4 (first pass): parts cost and payback (H5)
 Priced from public retail listings (a 28 cc load-sensing piston pump $1,708 against a 28 cc gear pump about $147, an open-centre 3-section monoblock $343, no public load-sensing valve price) and fuelled at $6.28/US gal, load-sensing's extra parts cost repays in 2,566 h at best (high diesel price, 40 bar open-centre neutral pressure, valve priced like the monoblock) and in 7,000 to 14,000 h at a 20 bar neutral pressure; at 8 bar it never does in practice (more than 160,000 h). H5's 2,000 h limit is not met anywhere in the grid. Brand and quality classes differ between listings, the valve price is swept, fuel consumption is assumed and the energy side inherits 2g's assumptions. Table: [`experiments/payback_results.txt`](experiments/payback_results.txt); detail in [`LOG.md`](LOG.md).
+
+## Milestone 5a: boom-lowering energy recovery is worth about 1 to 10% of cycle energy
+
+Recoverable energy `(m_arm + m_load) g dh x eta_rt`, capped by the lift phase's shaft energy, over 5,000 force-model cycles
+(`experiments/regen_bound.py`). Median share of pump-shaft energy: 3.3% (open-centre) and 3.2% (load-sensing) at 300 kg,
+0.8 m, 70% round trip; 10.0% and 10.3% at 600 kg, 1.2 m, 92%. Arm mass, drop height and round-trip efficiency are swept, not
+sourced; the model's lift phase does a median 5.6 times the work of lifting the bucket load alone, so the cap may be generous.
+Details and the pre-registered predictions: `LOG.md`.
