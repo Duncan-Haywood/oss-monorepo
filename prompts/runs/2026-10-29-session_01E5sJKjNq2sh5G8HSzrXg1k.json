@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01E5sJKjNq2sh5G8HSzrXg1k",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T11:23:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11390",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "The site build failed on a 161-character post description, so no screenshots or visual pass were possible; fixed the build break and added a test instead.",
+      "did": "trimmed the description, added a load-all-posts test",
+      "result": "writing tests pass 20/20; full build not re-run (20 min)"
+    },
+    {
+      "file": "docs/posts",
+      "why": "No new post or report: the change is a one-character fix with a guard test."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Build broke on main from therapist-bookkeeping post. Full build and visual pass not completed this run.",
+  "corrections": [],
+  "redteam": null
+}

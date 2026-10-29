@@ -231,3 +231,7 @@ test('the index tag filter keeps a post whose tag is the first in its list', asy
   assert.match(index, /data-tags="[^"]*"/);
   assert.match(index, /split\(' '\)\.indexOf\(tag\.value\) >= 0/);
 });
+
+test('every committed post loads, so a 161-character description fails here and not in the site build', () => {
+  assert.ok(loadPosts(undefined, undefined, { skipBad: false }).length > 0);
+});
