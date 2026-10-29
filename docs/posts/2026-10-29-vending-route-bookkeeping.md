@@ -1,7 +1,7 @@
 ---
 title: "Bookkeeping for vending route operators: machine parts were filed as meals"
 date: 2026-10-29
-description: "ai-bookkeeper gets a worked October for a vending route. Reader settlements, location commissions and machine parts had no rules, and one older rule filed parts as meals."
+description: "ai-bookkeeper gets a worked October for a vending route. Reader settlements, commissions and machine parts had no rules; one rule filed parts as meals."
 tags: [ai-bookkeeper, small-business, bookkeeping, vending]
 ---
 
