@@ -2,7 +2,7 @@
 title: "Gradient compression costs loss in proportion to its variance, in a small DiLoCo experiment"
 date: 2026-10-29
 tags: [research, lowcomm-training, diloco]
-description: "On a 413k-parameter GPT trained with DiLoCo, the loss penalty of rand-k compression was close to proportional to the compressor's variance factor omega = 1/p - 1."
+description: "On a 413k-parameter GPT trained with DiLoCo, rand-k compression cost loss roughly in proportion to its variance factor omega = 1/p - 1."
 ---
 
 In the lowcomm-training programme we train a tiny character-level GPT across four simulated workers that synchronise every H steps, with the updates sent through a random sparsifier that keeps a fraction p of coordinates. Theory says such a compressor adds variance proportional to omega = 1/p - 1. Does the loss penalty follow?
