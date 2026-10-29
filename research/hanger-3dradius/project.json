@@ -1,0 +1,8 @@
+{
+ "theme": "hanger",
+ "title": "Does a 3D-designed hanger keep improving when the end-radius cap is lifted past 6 cm?",
+ "lede": "no: with caps of 10 and 15 cm the whole-sheet error is 1.08 and 1.21 cm against 1.12 cm at 6 cm (8 seeds each, p = 0.77 and 0.57), so the optimum sat on a flat ridge. Stylised.",
+ "summary": "hanger-3dseeds left three of eight 3D-designed optima on its 6 cm end-radius cap. Here the cap is lifted to 10 and 15 cm (M tee, 3 cm half-depth arm, 64 drapes per loop, 8 seeds). Whole-sheet error: 1.08 &plusmn; 0.29 cm at 10 cm and 1.21 &plusmn; 0.32 at 15 cm, against 1.12 &plusmn; 0.25 at 6 cm (differences &minus;0.04 cm, p = 0.77, and +0.08 cm, p = 0.57). Chosen radius grows with the cap (mean 8.2 and 10.6 cm) while crease and sag fall slowly (sag 2.9, 2.2, 1.7 cm), so blunter ends only trade a flat error for smoother drape. Stylised: assumed fabric constants, one 20 cm strip, no friction, one garment and arm depth, a small search budget; a 10 to 15 cm tip is not a usable hanger and no contact-width constraint is applied.",
+ "programme": "none",
+ "why_standalone": "A one-step follow-up to hanger-3dseeds (its stated next step); the hanger question has no PROPOSAL.md programme of its own."
+}

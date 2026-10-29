@@ -9,4 +9,4 @@ In the `lowcomm-training` programme we train a 413k-parameter character GPT with
 
 Milestone 6d asked whether that shape belongs to rand-k or to the outer loop. Plain top-k (biased, no error feedback) at the same keep fraction costs +0.033, +0.064 and +0.090 nats at H = 4, 16 and 64 (three seeds each). Scaling top-k's H = 16 cost by rand-k's shape predicted +0.031 and +0.076 for the other two; both were within the 0.02 nats we set beforehand, while a "no dependence on H" rival missed by 0.03. The H = 64 prediction is 0.013 low, so the shape is shared, not identical.
 
-Limits: three seeds, one model, one corpus, one keep level, no error feedback. Log and data: `research/lowcomm-training/LOG.md`, milestone 6d.
+Limits: three seeds, one model, one corpus, one keep level, no error feedback. Log and data: `research/lowcomm-training/LOG.md`, milestone 6e.

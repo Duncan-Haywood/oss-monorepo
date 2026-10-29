@@ -37,6 +37,7 @@ export function validateStair(s) {
   if (s.tread != null && !(s.tread >= L.minTread)) errors.push(`Tread ${s.tread} in is under the ${L.minTread} in minimum.`);
   if (s.stringer && !(s.stringer in DEPTH)) errors.push(`Unknown stringer size ${s.stringer}.`);
   if (s.treadBoard && !(s.treadBoard in DEPTH)) errors.push(`Unknown tread board size ${s.treadBoard}.`);
+  if (s.riserBoard && !(s.riserBoard in DEPTH)) errors.push(`Unknown riser board size ${s.riserBoard}.`);
   if (s.width != null && !(s.width >= L.minWidth)) errors.push(`Stair width ${s.width} in is under the ${L.minWidth} in minimum.`);
   if (s.width != null && s.width > 120) errors.push("Stair width over 10 ft is outside what this layout checks.");
   return errors;
@@ -47,7 +48,7 @@ export function validateStair(s) {
  * @param {{stock: {size: string, length: number}[]}} [plan]
  */
 export function layoutStair(input, plan) {
-  const s = { id: "Stair", tread: 10, stringer: "2x12", width: 36, treadThickness: 1.5, treadBoard: "2x12", treadGap: 0.25, nosing: 1, stringerSpacing: 16, floorThickness: 12.25, ...input };
+  const s = { id: "Stair", tread: 10, stringer: "2x12", width: 36, riserBoard: null, treadThickness: 1.5, treadBoard: "2x12", treadGap: 0.25, nosing: 1, stringerSpacing: 16, floorThickness: 12.25, ...input };
   const L = { ...STAIR_LIMITS, ...(input.limits || {}) };
   const errors = validateStair({ ...s, limits: input.limits });
   if (errors.length) return { ok: false, id: s.id, errors };
@@ -95,13 +96,15 @@ export function layoutStair(input, plan) {
   const perStep = Math.ceil((cover + s.treadGap) / (bw + s.treadGap) - 1e-9);
   const treadBoards = { size: s.treadBoard, perStep, length: s.width, count: perStep * treads, coverage: perStep * bw + (perStep - 1) * s.treadGap, need: cover };
   // Layout points for the framing square: the stair-gauge marks along the board's top edge.
+  // Solid risers: boards across the stair width, enough per riser to cover its height (only bought when `riserBoard` is typed: the order's boards are 2x sizes, so a 1x riser is the person's to add).
+  const riserBoards = s.openRisers || !s.riserBoard ? null : { size: s.riserBoard, perRiser: Math.ceil(riser / DEPTH[s.riserBoard] - 1e-9), length: s.width, count: risers * Math.ceil(riser / DEPTH[s.riserBoard] - 1e-9) };
   const rail = input.rail ? layoutRail({ riser, tread, run, pitch, risers }, input.rail, notes) : null;
   const marks = Array.from({ length: risers }, (_, i) => ({ step: i + 1, rise: i === 0 ? firstRiserCut : riser, run: i === 0 ? 0 : tread }));
   const sumRise = firstRiserCut + (risers - 1) * riser;
   return {
     ok: true, id: s.id, totalRise: s.totalRise, risers, treads, riser, tread, run, angle, pitch, firstRiserCut, comfort,
     stringer: { size: s.stringer, count: stringers, length: stringerLength, throat, spacing: span / (stringers - 1), depth },
-    treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, width: s.width,
+    treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
     minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
   };
 }
@@ -167,7 +170,9 @@ export function stairCuts(l) {
   if (!l.ok) return [];
   const rows = [{ size: l.stringer.size, length: Math.round(l.stringer.length * 16) / 16, kind: "stair stringer", qty: l.stringer.count, walls: [l.id] }];
   if (l.treadBoards.size in DEPTH) rows.push({ size: l.treadBoards.size, length: l.treadBoards.length, kind: "stair tread", qty: l.treadBoards.count, walls: [l.id] });
+  if (l.riserStock) rows.push({ size: l.riserStock.size, length: l.riserStock.length, kind: "stair riser", qty: l.riserStock.count, walls: [l.id] });
   if (l.rail && l.rail.guardRails.size in DEPTH) rows.push({ size: l.rail.guardRails.size, length: Math.round(l.rail.guardRails.length * 16) / 16, kind: "stair guard rail", qty: l.rail.guardRails.count, walls: [l.id] });
+  if (l.rail && l.rail.handrail && l.rail.guardRails.size in DEPTH) rows.push({ size: l.rail.guardRails.size, length: Math.round(l.rail.handrail.length * 16) / 16, kind: "stair handrail", qty: l.rail.handrail.count, walls: [l.id] });
   return rows;
 }
 
@@ -176,7 +181,7 @@ export function stairText(l) {
   const out = [`${l.id}: ${formatLength(l.totalRise)} rise, ${l.risers} risers of ${formatInches(l.riser)}, ${l.treads} treads of ${formatInches(l.tread)} (${l.angle.toFixed(1)} deg, 2R+T ${l.comfort.toFixed(2)} in)`];
   out.push(`  Total run ${formatLength(l.run)}; the first riser is cut ${formatInches(l.firstRiserCut)} so the finished first step is ${formatInches(l.riser)} once the tread is on`);
   out.push(`  ${l.stringer.count} ${l.stringer.size} stringers ${formatLength(l.stringer.length)} long, ${formatInches(l.stringer.spacing)} apart, ${formatInches(l.stringer.throat)} left under the notches`);
-  out.push(`  ${l.treadBoards.count} ${l.treadBoards.size} tread boards ${formatLength(l.treadBoards.length)} (${l.treadBoards.perStep} per step covering ${formatInches(l.treadBoards.coverage)} for ${formatInches(l.treadBoards.need)} of tread and nosing)${l.openRisers ? ", open risers" : `, ${l.riserBoards} risers`}`);
+  out.push(`  ${l.treadBoards.count} ${l.treadBoards.size} tread boards ${formatLength(l.treadBoards.length)} (${l.treadBoards.perStep} per step covering ${formatInches(l.treadBoards.coverage)} for ${formatInches(l.treadBoards.need)} of tread and nosing)${l.openRisers ? ", open risers" : `, ${l.riserBoards} risers${l.riserStock ? ` of ${l.riserStock.count} ${l.riserStock.size} boards` : ""}`}`);
   out.push(`  Stairwell opening at least ${formatLength(l.minOpening)} long for ${formatInches(l.limits.headroom)} of headroom${l.opening ? `; yours ${formatLength(l.opening.length)} leaves ${formatInches(l.opening.headroom)}${l.opening.ok ? "" : " (too short)"}` : ""}`);
   if (l.rail) {
     const q = l.rail;

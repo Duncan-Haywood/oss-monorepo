@@ -2,23 +2,42 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-10-29 · Milestone 6d (H6): does 6b's H-shape g(H) carry over to a biased compressor, plain top-k? (planned before running)
+## 2026-10-29 · Milestone 6e (H6): does 6b's H-shape g(H) carry over to a biased compressor, plain top-k? (planned before running)
 
-- Why: 6c's "Next". 6a to 6c found excess(H, p) close to f(p) g(H) for rand-k. If g(H) is a property of the outer loop and not of rand-k, the same g should scale a different compressor's excess. Plain top-k at keep 1/16 is already measured at H = 16 (4b, +0.0639 over uncompressed, 3 seeds).
+- Why: 6c's "Next" (a second compressor; a parallel run did the omega-composition version as 6d). 6a to 6c found excess(H, p) close to f(p) g(H) for rand-k. If g(H) is a property of the outer loop and not of rand-k, the same g should scale a different compressor's excess. Plain top-k at keep 1/16 is already measured at H = 16 (4b, +0.0639 over uncompressed, 3 seeds).
 - New runs: plain top-k (no error feedback, per tensor), keep 1/16, H in {4, 64}, seeds 0 to 2 (6 runs, `composition.py run_topk`, same model, budget and lr as 6a to 6c). Uncompressed comparators are the existing 3d cells.
 - Prediction made before seeing the cells: top-k excess(H) = top-k excess(16) x rand-k excess(H)/rand-k excess(16) at p = 1/16, i.e. +0.031 at H = 4 (g = 0.49) and +0.076 at H = 64 (g = 1.19). Rival: top-k excess does not depend on H (+0.064).
-- **H6d-i:** the g-scaled prediction is within 0.02 nats of the measured excess at both H = 4 and 64. Refuted if either misses by more than 0.02.
-- **H6d-ii:** its absolute error is smaller than the H-independent rival's at H = 4 (where they differ by 0.033). Refuted otherwise.
+- **H6e-i:** the g-scaled prediction is within 0.02 nats of the measured excess at both H = 4 and 64. Refuted if either misses by more than 0.02.
+- **H6e-ii:** its absolute error is smaller than the H-independent rival's at H = 4 (where they differ by 0.033). Refuted otherwise.
 - Prior: i 40%, ii 55%. Top-k is biased and keeps the largest coordinates, so how much its error averages out over more rounds need not follow rand-k's variance story.
 - Limits known in advance: three seeds; one model, corpus and keep level; 0.02 is my choice; the H = 16 top-k cell comes from 4b (same code and seeds), not rerun here.
 
-### Outcome of 6d (`experiments/gpt_composition/`: `topk_composition.jsonl` (6 rows), `run_topk.out`, `topk_composition_results.txt`; seeds 0 to 2, about 14 minutes per run)
+### Outcome of 6e (`experiments/gpt_composition/`: `topk_composition.jsonl` (6 rows), `run_topk.out`, `topk_composition_results.txt`; seeds 0 to 2, about 14 minutes per run)
 - Plain top-k excess at keep 1/16 over the uncompressed cell (nats), H = 4 / 16 / 64: **+0.0330 / +0.0639 / +0.0896** (H = 16 from 4b). Rand-k at the same cells: +0.0402 / +0.0826 / +0.0987.
 - Prediction errors: g-scaled (rand-k's shape times top-k's H = 16 excess) predicted +0.0311 at H = 4 (error -0.0018) and +0.0763 at H = 64 (error -0.0133); the H-independent rival misses by +0.0309 and -0.0257.
-- **H6d-i supported** (both g-scaled errors are under 0.02). **H6d-ii supported** (0.0018 against 0.0309 at H = 4).
+- **H6e-i supported** (both g-scaled errors are under 0.02). **H6e-ii supported** (0.0018 against 0.0309 at H = 4).
 - Reading: the rise of the compression cost with H is not specific to rand-k. Top-k's excess also halves from H = 16 to H = 4 and keeps growing to H = 64, but more steeply than rand-k's g at the top end (the g-scaled rule under-predicts by 0.013, about a seed spread plus; top-k at H = 64 is +0.090 against a predicted +0.076). So g(H) is roughly shared, with the compressor-specific part not captured by one constant.
 - Limits: three seeds, no interval on the errors; one keep level; one model and corpus; no error feedback (EF top-k at 1/16 is about free at H = 16, so the shape may differ with it); the 0.0133 miss at H = 64 is the only sign of a compressor-specific term and is about 1.3 seed spreads.
-- Next: the same-size fitted scaling-law comparison H6 asks for, using the 6a to 6d cells (rand-k and top-k, H in 4 to 64) as the grid, fit on a third and scored on the rest.
+- Next: the same-size fitted scaling-law comparison H6 asks for, using the 6a to 6e cells (rand-k and top-k, H in 4 to 64) as the grid, fit on a third and scored on the rest.
+
+## 2026-10-29 · Milestone 6d (H6): is omega, not the keep fraction p, the variable? A different compressor on rand-k's line (planned before running)
+
+- Why: 6c's "Next". Rand-k alone cannot separate "excess is proportional to omega" from "excess depends on p": they are the same variable there. A compressor with a different structure but the same realised omega separates them.
+- Pilot (`experiments/gpt_omega/omega_probe.py`, 20 rounds at H = 16, seed 0, realised omega = sum ||C(x)-x||^2 / sum ||x||^2 over the actual per-tensor deltas): rand-k at p = 1/16 gives 15.01 (theory 15, so the probe is sound); `quantise(1)` (ternary, QSGD-style) gives only 2.53, too small to read against a seed spread of 0.01 (predicted excess ~0.006). The probe was cut at the 120 s tool limit before levels 2, 3, 7, which would be smaller still.
+- Design: compose two unbiased compressors, whose omegas multiply, (1+w) = (1+w1)(1+w2). Cells: A = rand-k(1/4) then ternary (nominal keep 1/4, expected omega about 4 x 3.5 - 1 = 13); B = rand-k(1/8) then ternary (nominal keep 1/8, expected omega about 8 x 3.5 - 1 = 27). H in {4, 64}, seeds 0 to 2 (12 runs, `gpt_omega/omega.py run`, same model, budget and lr as 6a to 6c). Realised omega is logged per run.
+- Prediction made before any loss is read: excess = piecewise-linear interpolation in omega of the rand-k excesses at the same H (6a/6c cells at omega 3, 7, 15, 31), evaluated at the cell's realised omega. Rival: excess depends on p only, so the cell takes the rand-k excess at its nominal keep (1/4 or 1/8).
+- **H6d-i:** the omega-interpolation predicts all four cell excesses (A, B x H = 4, 64) within 0.02 nats. Refuted if any misses by more than 0.02.
+- **H6d-ii:** the omega prediction has a smaller absolute error than the p-only rival in at least three of the four cells (the rival predicts +0.009 to +0.040, far from the omega prediction for A and B).
+- Prior: i 45% (a quantiser's error is dense and correlated with magnitude where rand-k's is sparse, and the unbiased-variance argument may not carry over to a non-iid error); ii 70%.
+- Limits known in advance: three seeds; the composition is one non-rand-k family; the realised omega is read off the run's own deltas and so differs slightly per seed; 0.02 is my choice; the biased top-k compressor is not tested here.
+
+### Outcome of 6d (`experiments/gpt_omega/`: `omega.py`, `omega.jsonl`, `omega_results.txt`, `run.out`; 12 runs, seeds 0 to 2)
+- Realised omega (from each run's own deltas) was lower than the product estimate: A 10.7 (H = 4) and 12.7 (H = 64), B 21.6 and 25.0, so the compressors' errors are not exactly multiplicative, and omega moves with H.
+- Excess over uncompressed (nats), measured / omega-interpolation prediction: A at H = 4 +0.026 / +0.029, B at H = 4 +0.060 / +0.056, A at H = 64 +0.076 / +0.081, B at H = 64 +0.148 / +0.152. Errors: +0.003, -0.004, +0.005, +0.004. The p-only rival is off by 0.017 to 0.112.
+- **H6d-i supported** (worst error 0.005 against 0.02). **H6d-ii supported** (omega beats p-only in 4 of 4; the prior was 70% and 45%).
+- Reading: for two compressor families (sparsifier, sparsifier then ternary quantiser) the excess is a function of the realised error-to-signal ratio omega at fixed H, within about 0.005 nats, which is the seed spread of a cell mean. The nominal keep fraction is not the variable. Together with 6c this makes "excess = omega g(H)" the working form for unbiased compressors.
+- Limits: three seeds, no interval on errors; the prediction interpolates between four rand-k points per H, and the two new cells lie between them (no extrapolation); omega is measured after the fact, so it is a covariate, not a design-time prediction; one model and corpus; biased compressors (top-k) untested.
+- Next: predict omega at design time for a quantiser and check; top-k with error feedback; then the same-size fitted scaling-law comparison H6 asks for.
 
 ## 2026-10-29 · Milestone 6c (H6): is f(p) proportional to the compressor variance factor omega = 1/p - 1? (planned before running)
 

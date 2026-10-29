@@ -1,4 +1,4 @@
-"""Milestone 6d adds plain top-k at keep 1/16, H in {4, 64}, via `python3 composition.py run_topk`, results in topk_composition.jsonl; see LOG.md.
+"""Milestone 6e adds plain top-k at keep 1/16, H in {4, 64}, via `python3 composition.py run_topk`, results in topk_composition.jsonl; see LOG.md.
 Milestone 6c adds keep 1/8 and 1/32 at H in {4, 64} via `python3 composition.py run_p`; see LOG.md.
 Milestone 6b adds held-out H in {8, 32} (uncompressed and keep 1/16) via `python3 composition.py run8_32`; see LOG.md.
 Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H on the 413k-parameter GPT?
@@ -106,7 +106,7 @@ def report_p():
 
 
 def report_topk():
-    """6d: plain top-k at keep 1/16. H6d-i: rand-k's g(4) = 0.49, g(64) = 1.19 (6b) times top-k's H = 16 excess predicts H = 4, 64 within 0.02."""
+    """6e: plain top-k at keep 1/16. H6e-i: rand-k's g(4) = 0.49, g(64) = 1.19 (6b) times top-k's H = 16 excess predicts H = 4, 64 within 0.02."""
     c = cells()
     mean = lambda v: sum(v) / len(v)
     tk = {16: {r["seed"]: r["loss"] for r in load(TOPK_OLD) if r["arm"] == "topk" and r["keep"] == 0.0625}}

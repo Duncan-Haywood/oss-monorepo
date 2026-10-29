@@ -721,7 +721,7 @@ function layoutGable(plan, wall) {
   }
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
-  return { id: wall.id, length: L, height: base + maxRise + 2 * Math.max(vtL, vtR), stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peak: mid, peakRise: maxRise, ...(mid !== L / 2 ? { farPitch: slopeR * 12 } : {}) }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
+  return { id: wall.id, length: L, height: base + maxRise + 2 * Math.max(vtL, vtR), stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peak: mid, peakRise: maxRise, eave: base, ...(mid !== L / 2 ? { farPitch: slopeR * 12 } : {}) }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
 }
 
 function wall_studMin(w) {

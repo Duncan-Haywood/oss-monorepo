@@ -210,3 +210,26 @@ test("landing guard: an edge over 72 in gets a middle post", () => {
   assert.equal(layoutLandingGuard([96]).posts.count, 3);
   assert.equal(layoutLandingGuard([96]).guardRails.count, 2);
 });
+
+test("riser boards join the order only when a riser board is typed", () => {
+  const none = layoutStair({ totalRise: 108, tread: 10 }, plan());
+  assert.ok(!stairCuts(none).some((r) => r.kind === "stair riser"));
+  const l = layoutStair({ totalRise: 108, tread: 10, riserBoard: "2x8" }, plan()); // riser 7-5/7 in, a 7-1/4 in board is short: two per riser
+  assert.equal(l.riserStock.perRiser, 2);
+  const row = stairCuts(l).find((r) => r.kind === "stair riser");
+  assert.equal(row.qty, 28);
+  assert.equal(row.length, 36);
+  const tall = layoutStair({ totalRise: 108, tread: 10, riserBoard: "2x10" }, plan());
+  assert.equal(stairCuts(tall).find((r) => r.kind === "stair riser").qty, 14);
+  assert.ok(stairText(tall).some((x) => /14 risers of 14 2x10 boards/.test(x)));
+  assert.ok(layoutStair({ totalRise: 108, tread: 10, riserBoard: "1x8" }, plan()).errors.some((e) => /riser board size/.test(e)));
+  assert.ok(!stairCuts(layoutStair({ totalRise: 108, tread: 10, riserBoard: "2x10", openRisers: true }, plan())).some((r) => r.kind === "stair riser"));
+});
+
+test("rail: the handrail is bought as one board of the pitch plus the overhangs", () => {
+  const l = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 2 } }, plan());
+  const row = stairCuts(l).find((r) => r.kind === "stair handrail");
+  assert.equal(row.qty, 1);
+  assert.equal(row.length, Math.round((l.pitch + 22) * 16) / 16);
+  assert.ok(!stairCuts(layoutStair({ totalRise: 108, tread: 10, rail: { handrail: false } }, plan())).some((r) => r.kind === "stair handrail"));
+});

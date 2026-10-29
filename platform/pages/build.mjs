@@ -10475,8 +10475,23 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * the tool's page and its source, and the standing caveat. Nothing is added
  * that the page does not already say.
  */
+export function llmsAsOfLine(updated) {
+  return /^\d{4}-\d{2}-\d{2}/.test(updated ?? '') ? `Source last changed: ${updated.slice(0, 10)} (from the repository's git history).` : '';
+}
+
+/**
+ * A hand-written `llms.txt` is copied as is, so it cannot go stale on its own
+ * date line; the build appends the git date instead, unless the author already
+ * wrote a "last changed", "last updated" or "as of" line.
+ */
+export function withLlmsAsOf(text, updated) {
+  const line = llmsAsOfLine(updated);
+  if (!line || /(last (changed|updated|verified)|as of)\s*:?\s*\d{4}-\d{2}-\d{2}/i.test(text)) return text;
+  return `${text.replace(/\s+$/, '')}\n\n${line}\n`;
+}
+
 export function renderProductLlmsTxt({ slug, title, description, fullDescription, updated }, baseUrl) {
-  const asOf = /^\d{4}-\d{2}-\d{2}/.test(updated ?? '') ? `\nSource last changed: ${updated.slice(0, 10)} (from the repository's git history).\n` : '';
+  const asOf = llmsAsOfLine(updated) ? `\n${llmsAsOfLine(updated)}\n` : '';
   const one = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
   const body = one(fullDescription || description);
   return `# ${one(title)}
@@ -11090,8 +11105,14 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     // the page uses, so an assistant can fetch a short, sourced summary at
     // /<slug>/llms.txt instead of 1,300 products having none.
     const ownLlmsDoc = existsSync(path.join(destination, 'llms.txt'));
+    const sourceDate = (file) => sourceDates.get(path.relative(REPO_ROOT, path.join(surface.sourceDir, file)).split(path.sep).join('/'));
     if (!ownLlmsDoc) {
-      await fs.writeFile(path.join(destination, 'llms.txt'), renderProductLlmsTxt({ slug: surface.slug, title, description, fullDescription, updated: sourceDates.get(path.relative(REPO_ROOT, path.join(surface.sourceDir, 'index.html')).split(path.sep).join('/')) }, base));
+      await fs.writeFile(path.join(destination, 'llms.txt'), renderProductLlmsTxt({ slug: surface.slug, title, description, fullDescription, updated: sourceDate('index.html') }, base));
+    } else {
+      const own = path.join(destination, 'llms.txt');
+      const text = await fs.readFile(own, 'utf8');
+      const dated = withLlmsAsOf(text, sourceDate('llms.txt') ?? sourceDate('index.html'));
+      if (dated !== text) await fs.writeFile(own, dated);
     }
 
     surfaces.push({

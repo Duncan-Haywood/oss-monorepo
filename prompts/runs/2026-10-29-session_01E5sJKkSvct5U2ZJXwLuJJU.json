@@ -29,11 +29,16 @@
   "outcome": null,
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "CLAIM CHECK did not show a sibling taking the same milestone number (6d) minutes before merge; I only found it as a LOG.md conflict"
+    }
+  ],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": " A parallel run landed a different 6d during mine; renamed mine to 6e at merge.",
   "corrections": [],
   "redteam": null
 }
