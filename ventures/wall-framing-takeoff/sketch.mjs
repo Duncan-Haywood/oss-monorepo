@@ -305,8 +305,9 @@ export function restoreSketch(raw) {
 
 /**
  * A picture to trace over, placed on the grid in inches: top-left `x`,`y`,
- * size `w`,`h`. `fitTrace` sizes it to `width` inches across, from the origin.
- * @typedef {{ x: number, y: number, w: number, h: number }} Trace
+ * size `w`,`h`, turned `a` degrees (clockwise on screen, about its centre;
+ * absent means 0). `fitTrace` sizes it to `width` inches across, from the origin.
+ * @typedef {{ x: number, y: number, w: number, h: number, a?: number }} Trace
  * @param {number} pxW @param {number} pxH @param {number} [width]
  * @returns {Trace | null}
  */
@@ -326,7 +327,13 @@ export function rescaleTrace(t, p1, p2, realInches) {
   if (!(d >= 1) || !(realInches > 0)) return null;
   const f = realInches / d;
   if (f < 1 / 50 || f > 50) return null;
-  return { x: p1.x + (t.x - p1.x) * f, y: p1.y + (t.y - p1.y) * f, w: t.w * f, h: t.h * f };
+  const r = { x: p1.x + (t.x - p1.x) * f, y: p1.y + (t.y - p1.y) * f, w: t.w * f, h: t.h * f };
+  // the centre moves with the scale; the box is turned about its centre, so rebuild the corner from it
+  if (t.a) {
+    const c = { x: p1.x + (t.x + t.w / 2 - p1.x) * f, y: p1.y + (t.y + t.h / 2 - p1.y) * f };
+    r.x = c.x - r.w / 2; r.y = c.y - r.h / 2; r.a = t.a;
+  }
+  return r;
 }
 
 /**
@@ -337,5 +344,50 @@ export function rescaleTrace(t, p1, p2, realInches) {
 export function moveTrace(t, from, to) {
   const dx = to.x - from.x, dy = to.y - from.y;
   if (![dx, dy].every(Number.isFinite) || Math.abs(dx) > 5000 || Math.abs(dy) > 5000) return null;
-  return { x: t.x + dx, y: t.y + dy, w: t.w, h: t.h };
+  const r = { x: t.x + dx, y: t.y + dy, w: t.w, h: t.h };
+  if (t.a) r.a = t.a;
+  return r;
+}
+
+/**
+ * Corners of a trace image on the grid, turned by its angle (top-left,
+ * top-right, bottom-right, bottom-left).
+ * @param {Trace} t @returns {Pt[]}
+ */
+export function traceCorners(t) {
+  const cx = t.x + t.w / 2, cy = t.y + t.h / 2, r = ((t.a || 0) * Math.PI) / 180, c = Math.cos(r), s = Math.sin(r);
+  return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([i, j]) => {
+    const dx = (i * t.w) / 2, dy = (j * t.h) / 2;
+    return { x: cx + dx * c - dy * s, y: cy + dx * s + dy * c };
+  });
+}
+
+/**
+ * Turn a trace image about the grid point `p1` so the line from `p1` to `p2`
+ * (two points picked on it, now at those grid spots) becomes level (`"h"`) or
+ * plumb (`"v"`): the smaller of the two turns, so a scan that is a few degrees
+ * off straightens without flipping. `p1` stays put; size is kept.
+ * @param {Trace} t @param {Pt} p1 @param {Pt} p2 @param {"h" | "v"} axis
+ * @returns {Trace | null}
+ */
+export function levelTrace(t, p1, p2, axis) {
+  if (Math.hypot(p2.x - p1.x, p2.y - p1.y) < 1) return null;
+  const ang = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI; // direction now
+  const goal = axis === "v" ? [90, -90] : [0, 180];
+  let turn = Infinity;
+  for (const g of goal) {
+    let d = g - ang;
+    d -= 360 * Math.round(d / 360);
+    if (Math.abs(d) < Math.abs(turn)) turn = d;
+  }
+  if (Math.abs(turn) > 45) return null;
+  const r = (turn * Math.PI) / 180, c = Math.cos(r), s = Math.sin(r);
+  const cx = t.x + t.w / 2 - p1.x, cy = t.y + t.h / 2 - p1.y;
+  const nx = p1.x + cx * c - cy * s, ny = p1.y + cx * s + cy * c;
+  let a = (t.a || 0) + turn;
+  a -= 360 * Math.round(a / 360);
+  a = Math.round(a * 1e6) / 1e6;
+  const out = { x: nx - t.w / 2, y: ny - t.h / 2, w: t.w, h: t.h };
+  if (a) out.a = a;
+  return out;
 }

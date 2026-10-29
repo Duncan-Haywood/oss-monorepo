@@ -111,6 +111,11 @@ check(Math.abs((await imgW()) - 480) < 0.01, "picture placed 480 in (40 ft) wide
 await page.fill("#skScaleLen", "20 ft"); await page.click("#skScale");
 await click(0, 0); await click(120, 0);
 check(Math.abs((await imgW()) - 960) < 15, "two points 10 ft apart set to 20 ft doubles the picture (" + await imgW() + ")");
+// straighten: two points 10 ft apart along the picture's top edge, one pulled 12 in lower, are made level
+await page.click("#skLevel");
+await click(0, 0); await click(120, 12);
+const tf = await page.evaluate(() => document.querySelector("#skSvg image").getAttribute("transform"));
+const ang = Number(((tf || "").match(/rotate\((-?[\d.]+)/) || [])[1]); check(ang < -4 && ang > -8, "straighten turns the picture about 6 degrees back (" + tf + ")");
 await page.click("#skImgOff");
 check((await page.$("#skSvg image")) === null, "remove picture clears it");
 check(errors.length === 0, "no page errors" + (errors.length ? ": " + errors.join("; ") : ""));
