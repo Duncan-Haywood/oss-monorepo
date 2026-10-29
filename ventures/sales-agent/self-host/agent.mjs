@@ -7,6 +7,7 @@
 //
 // Env: IMAP_HOST IMAP_USER IMAP_PASS [IMAP_PORT=993] [IMAP_SECURE=true] [IMAP_BOX=INBOX] [TLS_CA_FILE=ca.pem] ADMIN_TOKEN (required)
 //      [SMTP_HOST SMTP_PORT=587 SMTP_SECURE=false SMTP_USER SMTP_PASS SEND_FROM SEND_MAX_PER_DAY=20] [DATA_DIR=./data] [PORT=8787] [HOST=127.0.0.1] [POLL_MINUTES=10] [SINCE_DAYS=7] [OFFER_JSON=path]
+//      [PIPEDRIVE_API_TOKEN] [HUBSPOT_TOKEN]: write each read reply back as a note on the existing contact (and set the CRM opt-out on an unsubscribe)
 //      plus LLM_PROVIDER/LLM_MODEL/LLM_API_KEY (or ANTHROPIC_API_KEY ...) for the optional model, same limits.
 import http from "node:http";
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, existsSync } from "node:fs";
@@ -19,6 +20,7 @@ import { configFromEnv } from "../byok.mjs";
 import { buildMessage, sendMail } from "./smtp.mjs";
 import { oauthWanted, tokenProvider } from "./oauth.mjs";
 import { runResearch } from "../research.mjs";
+import { crmFromEnv } from "./crm.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
@@ -32,6 +34,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
   mkdirSync(dir, { recursive: true });
   const stateFile = join(dir, "state.json"), auditFile = join(dir, "audit.jsonl");
   const state = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, "utf8")) : { lastUid: 0, seen: [], items: [], prospects: [], suppression: [], lastPoll: null, lastError: null };
+  const crm = crmFromEnv(env, { fetchImpl: fetchImpl || fetch }); // M8a write-back, off unless PIPEDRIVE_API_TOKEN or HUBSPOT_TOKEN is set
   const offer = env.OFFER_JSON && existsSync(env.OFFER_JSON) ? JSON.parse(readFileSync(env.OFFER_JSON, "utf8")) : {};
   const audit = (event, data = {}) => appendFileSync(auditFile, JSON.stringify({ at: new Date(now()).toISOString(), event, ...data }) + "\n");
   const save = () => writeFileSync(stateFile, JSON.stringify(state, null, 1));
@@ -52,6 +55,10 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     });
     state.seen = state.seen.slice(-5000);
     save();
+    if (crm) for (const it of state.items.slice(-fresh.length)) {
+      const results = await crm.logReply({ from: it.from, subject: it.subject, category: it.triage.category, evidence: it.triage.evidence, date: iso(now()), optOut: it.triage.category === "unsubscribe", suppressed: it.triage.category === "unsubscribe" });
+      for (const r of results) audit("crm_writeback", { id: it.id, ...r });
+    }
     return fresh.length;
   }
 
