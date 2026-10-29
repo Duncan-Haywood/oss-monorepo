@@ -12,6 +12,14 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Prior: i 40%, ii 55%. Top-k is biased and keeps the largest coordinates, so how much its error averages out over more rounds need not follow rand-k's variance story.
 - Limits known in advance: three seeds; one model, corpus and keep level; 0.02 is my choice; the H = 16 top-k cell comes from 4b (same code and seeds), not rerun here.
 
+### Outcome of 6d (`experiments/gpt_composition/`: `topk_composition.jsonl` (6 rows), `run_topk.out`, `topk_composition_results.txt`; seeds 0 to 2, about 14 minutes per run)
+- Plain top-k excess at keep 1/16 over the uncompressed cell (nats), H = 4 / 16 / 64: **+0.0330 / +0.0639 / +0.0896** (H = 16 from 4b). Rand-k at the same cells: +0.0402 / +0.0826 / +0.0987.
+- Prediction errors: g-scaled (rand-k's shape times top-k's H = 16 excess) predicted +0.0311 at H = 4 (error -0.0018) and +0.0763 at H = 64 (error -0.0133); the H-independent rival misses by +0.0309 and -0.0257.
+- **H6d-i supported** (both g-scaled errors are under 0.02). **H6d-ii supported** (0.0018 against 0.0309 at H = 4).
+- Reading: the rise of the compression cost with H is not specific to rand-k. Top-k's excess also halves from H = 16 to H = 4 and keeps growing to H = 64, but more steeply than rand-k's g at the top end (the g-scaled rule under-predicts by 0.013, about a seed spread plus; top-k at H = 64 is +0.090 against a predicted +0.076). So g(H) is roughly shared, with the compressor-specific part not captured by one constant.
+- Limits: three seeds, no interval on the errors; one keep level; one model and corpus; no error feedback (EF top-k at 1/16 is about free at H = 16, so the shape may differ with it); the 0.0133 miss at H = 64 is the only sign of a compressor-specific term and is about 1.3 seed spreads.
+- Next: the same-size fitted scaling-law comparison H6 asks for, using the 6a to 6d cells (rand-k and top-k, H in 4 to 64) as the grid, fit on a third and scored on the rest.
+
 ## 2026-10-29 · Milestone 6c (H6): is f(p) proportional to the compressor variance factor omega = 1/p - 1? (planned before running)
 
 - Why: 6b's "Next". The product rule excess(H, p) = f(p) g(H) leaves f(p) free. Theory for unbiased compressors puts the variance penalty proportional to omega = 1/p - 1 (Stich 2018; Beznosikov et al. 2020), so f(p)/omega should be flat. Measured so far at H = 16: omega 3 -> +0.017, omega 15 -> +0.083 (ratio 4.9 for an omega ratio of 5).

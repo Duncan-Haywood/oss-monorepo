@@ -1,0 +1,3 @@
+# lowcomm-training milestone 6d (for the next run)
+
+6a to 6d are in `research/lowcomm-training/LOG.md`. Finding: compression excess for rand-k and plain top-k both follow roughly f(p) g(H); g from rand-k predicts top-k within 0.02 nats at H = 4 and 64 (top-k under-predicted by 0.013 at 64). Next planned step: H6's fitted comparison against a same-size scaling law, using the 6a to 6d cells (fit on a third, score the rest). Runs: `python3 experiments/gpt_composition/composition.py run_topk | report_topk`; each run is ~14 min on 4 cores; torch needs ~35 min to install here because download.pytorch.org is unreachable (use the background `pyenv.py` call at session start).
