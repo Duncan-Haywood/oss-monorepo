@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fitTrace, rescaleTrace, moveTrace, emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
+import { fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners, emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
 import { takeoff } from "./engine.mjs";
 
 const ft = (n) => n * 12;
@@ -166,4 +166,37 @@ test("a trace image slides so a picked point lands on the target, size unchanged
   assert.deepEqual(moveTrace(t, { x: 10, y: 10 }, { x: 34, y: -6 }), { x: 24, y: -16, w: 480, h: 240 });
   assert.equal(moveTrace(t, { x: 0, y: 0 }, { x: 1e6, y: 0 }), null);
   assert.equal(moveTrace(t, { x: 0, y: 0 }, { x: NaN, y: 0 }), null);
+});
+
+test("a tilted trace image is turned level or plumb about the first point, size kept", () => {
+  const t = fitTrace(2000, 1000, 480);
+  // a line on the picture that runs 3 degrees below level
+  const th = (3 * Math.PI) / 180, p1 = { x: 100, y: 100 }, p2 = { x: 100 + 200 * Math.cos(th), y: 100 + 200 * Math.sin(th) };
+  const r = levelTrace(t, p1, p2, "h");
+  assert.ok(Math.abs(r.a + 3) < 1e-9, "turned back by 3 degrees");
+  assert.equal(r.w, 480); assert.equal(r.h, 240);
+  // p1 stays put: the picture's point under p1 before is still under it after
+  const before = { x: p1.x - (t.x + t.w / 2), y: p1.y - (t.y + t.h / 2) };
+  const c = { x: r.x + r.w / 2, y: r.y + r.h / 2 }, k = Math.cos(th), s = Math.sin(th);
+  const after = { x: p1.x - c.x, y: p1.y - c.y };
+  assert.ok(Math.abs(after.x - (before.x * k + before.y * s)) < 1e-9 && Math.abs(after.y - (-before.x * s + before.y * k)) < 1e-9);
+  // the picked line is level once the corners are turned the same way
+  const [tl, tr] = traceCorners(r);
+  assert.ok(Math.abs(tr.y - tl.y) < Math.abs(480 * Math.sin(th)) + 1e-9 && Math.abs(Math.hypot(tr.x - tl.x, tr.y - tl.y) - 480) < 1e-9);
+  // plumb: a line 5 degrees off vertical, and a line already level
+  const v = levelTrace(t, { x: 0, y: 0 }, { x: -20 * Math.sin(0.0872665), y: 20 * Math.cos(0.0872665) }, "v");
+  assert.ok(Math.abs(v.a + 5) < 1e-3);
+  assert.deepEqual(levelTrace(t, { x: 0, y: 0 }, { x: 50, y: 0 }, "h"), { x: 0, y: 0, w: 480, h: 240 });
+  // right-to-left picks give the same turn; too close or too crooked is refused
+  assert.ok(Math.abs(levelTrace(t, p2, p1, "h").a + 3) < 1e-9);
+  assert.equal(levelTrace(t, { x: 0, y: 0 }, { x: 0.5, y: 0 }, "h"), null);
+  assert.equal(levelTrace(t, { x: 0, y: 0 }, { x: 10, y: 12 }, "h"), null);
+});
+
+test("moving and rescaling keep a trace image's turn, about its centre", () => {
+  const t = { x: 0, y: 0, w: 480, h: 240, a: 10 };
+  assert.deepEqual(moveTrace(t, { x: 0, y: 0 }, { x: 5, y: 7 }), { x: 5, y: 7, w: 480, h: 240, a: 10 });
+  const r = rescaleTrace(t, { x: 240, y: 120 }, { x: 340, y: 120 }, 200);
+  assert.equal(r.a, 10); assert.equal(r.w, 960);
+  assert.ok(Math.abs(r.x + r.w / 2 - 240) < 1e-9 && Math.abs(r.y + r.h / 2 - 120) < 1e-9, "scaling about the centre leaves the centre");
 });
