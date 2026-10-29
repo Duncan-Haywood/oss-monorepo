@@ -34,6 +34,14 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Mobile notaries and loan signing agents (2026-10-29, notary.test.mjs; agent-written from the companies' public names, not from a real export):
+  // title-company platform payouts are sales; notary dues, E&O cover, stamps and the state commission land in their own accounts, ahead of the older bare "notary" rule (legal and professional fees).
+  ["4000", "in", /snapdocs.*(payout|payment)|notary ?go (payment|payout)|signing ?order (deposit|payment)|123notary|notary rotary/],
+  ["6170", "out", /national notary (assoc|association)|nna dues|notary dues/],
+  ["6030", "out", /notary e&o|notary (errors|bond)|notary.*insurance/],
+  ["6060", "out", /snapdocs.*(subscription|monthly)|notarycam|bluenotary|notarize\.com pro/],
+  ["6100", "out", /notary (stamp|seal|journal)/],
+  ["6110", "out", /secretary of state.*notary|notary commission/],
   // Vending route operators (2026-10-29, vending.test.mjs; agent-written from the companies' public names, not from a real export):
   // cashless-reader settlements and route cash deposits are sales; location commissions are rent; machine parts are repairs and maintenance (before the older "vending" meals rule).
   ["4000", "in", /cantaloupe deposit|nayax.*(settlement|deposit)|cash deposit vending|vending (route )?(cash|deposit)/],
