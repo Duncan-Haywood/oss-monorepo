@@ -97,10 +97,11 @@ flagships:
     next: >-
       Landed history (Poisson, seasonal, AR(1), trend, holidays, bursts,
       --log, change-date range95, bootstrap penalty, excursions,
-      driftWarning) and every measurement live in the README and git. Open:
+      driftWarning) and every measurement live in the README and git (findings
+      below: 2026-10-29). Open:
       (1) range95 now holds on a real closure, Ansett's 1989 pilots' dispute
       (4 of 4 setups) and on a real shock, Hurricane Maria in Puerto Rico's
-      daily deaths (5 of 5; both 2026-10-29, README); a real trending series now gives one change, US airline miles 1946 (README, 2026-10-29); wanted: a closure series quiet
+      daily deaths (5 of 5); a real trending series now gives one change, US airline miles 1946; wanted: a closure series quiet
       outside it, as this one returns 24 to 43 other changes (log GDP is a near-unit-root; coal disasters
       hold 1890); (2) the steep-bump (0.04) clumpy-count cell is under-
       covered, 65/79 (82%) over six seeds, and the CLI and JSON carry that
@@ -109,8 +110,8 @@ flagships:
       joint fit; (4) driftWarning fires on growing seasons but also on a
       real shock and rebound (1973 UK driver deaths): wanted a way to tell a
       shape from a shock; net/abs of the window's shifts fails with --trend
-      bend, a level-scaled refit and a refit on the log each separate only UK gas
-      (2026-10-29, README); a second shock series (Australian arrivals, 2026-10-29) warns in 7 of 8 cells on trend steps; trendless 72-month series (UK lung deaths 1976 spike) warns in 11 of 12 cells but also 3 of 4 on a no-shock null (2026-10-29): a 195-month euro factory-orders series (2008-09 collapse) warns in 4 of 4 cells with 16 to 22 steps, so length did not help (2026-10-29): a same-length synthetic null (195 months, no shock) warns in 0 to 8% of white-noise cells with --trend bend but 75% to 88% under rho 0.5 noise, so autocorrelation alone fires it (2026-10-29): the text now points at --ar1 when rho >= 0.3, and --ar1 cuts the rho 0.5 null from 33-35 of 40 warned to 0-1 (2026-10-29); --ar1 keeps the warning on airline but loses it on UK gas (6-7 steps to 1; 2026-10-29, README), wanted: a way to widen the noise scale without swallowing a short quarterly shape; (5) bootstrap and holiday
+      bend, a level-scaled refit and a refit on the log each separate only UK gas;
+      a second shock series (Australian arrivals) warns in 7 of 8 cells on trend steps; trendless 72-month series (UK lung deaths 1976 spike) warns in 11 of 12 cells but also 3 of 4 on a no-shock null: a 195-month euro factory-orders series (2008-09 collapse) warns in 4 of 4 cells with 16 to 22 steps, so length did not help: a same-length synthetic null (195 months, no shock) warns in 0 to 8% of white-noise cells with --trend bend but 75% to 88% under rho 0.5 noise, so autocorrelation alone fires it: the text now points at --ar1 when rho >= 0.3, and --ar1 cuts the rho 0.5 null from 33-35 of 40 warned to 0-1; --ar1 keeps the warning on airline but loses it on UK gas (6-7 steps to 1), wanted: a way to widen the noise scale without swallowing a short quarterly shape; (5) bootstrap and holiday
       false-alarm cuts are synthetic only.
   - venture: einvoice-preflight
     why: >-
