@@ -44,10 +44,11 @@ test('your prices change the order cost', () => {
   assert.ok(estimate(shed, p).lumberCost > base);
 });
 
-test('CSV exports have a header and one row per board', () => {
+test('CSV exports have a header and a row per set of identical boards, counting every board', () => {
   const est = estimate(buildShed(classic()));
   const rows = cutSheetCsv(est).trim().split('\n');
-  assert.equal(rows.length, est.boards + 1);
+  assert.match(rows[0], /^boards,material,stock length/);
+  assert.equal(rows.slice(1).filter((r) => !r.includes('1x4 trim')).reduce((t, r) => t + Number(r.split(',')[0]), 0), est.boards);
   assert.match(shoppingCsv(est), /^section,item,qty/);
 });
 
@@ -60,4 +61,20 @@ test('pink siding with purple polka dots gets paint, and the ridge beam gets han
   assert.ok(est.shopping.some((r) => /hanger/.test(r.name) && r.qty === 14));
   assert.ok(est.shopping.some((r) => /gable vent/i.test(r.name) && r.qty === 4));
   assert.deepEqual(est.problems, []);
+});
+
+test('identical boards are grouped with a count, and the cut sheet still accounts for every board', async () => {
+  const { groupBoards, cutSheetCsv } = await import('./estimate.mjs');
+  const est = estimate(buildShed(defaultDesign()));
+  for (const l of est.lumber) {
+    const groups = groupBoards(l.result.boards);
+    assert.equal(groups.reduce((t, g) => t + g.count, 0), l.result.boards.length, l.material);
+    assert.ok(groups.length <= l.result.boards.length);
+  }
+  const rows = cutSheetCsv(est).trim().split('\n').slice(1);
+  const lumberRows = rows.filter((r) => !r.includes('1x4 trim'));
+  assert.equal(lumberRows.reduce((t, r) => t + Number(r.split(',')[0]), 0), est.lumber.reduce((t, l) => t + l.result.boards.length, 0));
+  assert.ok(rows.length < est.boards, 'fewer lines than boards');
+  // Trim offcuts allow for the kerf, like the framing.
+  if (est.trimCuts) for (const b of est.trimCuts.boards) assert.ok(Math.abs(b.offcut - (b.stock - b.cuts.reduce((t, c) => t + c, 0) - b.cuts.length * defaultDesign().kerf)) < 1e-6 || b.offcut === 0);
 });
