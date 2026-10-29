@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Paper sync: section 6 item 4 now cites milestones 36 and 38 (documentation only; no experiment)
+- Why: `PAPER.md` section 6 item 4 still described the milestone 35 state (disjoint pairs unproved) and did not mention the proved independent-pairs pilot (milestone 36, coverage 0.826 or more over 60 cells) or the failed pilot estimate of iota^(k) (milestone 38, median 0.85 of the true value, no coverage statement). Section 4 already carried milestones 37 and 39.
+- Outcome: item 4 updated with both, numbers copied from the result files. No new measurement.
+- Next: a pilot-side regret certificate is the open theory item; anchoring the later cuts to the best survivor depends on the tie-break and so far looks worth under 15%, so the larger payoff is detail routing (item 1).
+
 ## 2026-10-28 · Milestone 39: an optimum-anchored halving bound (theorem plus check; exploratory, no predictions written before the script ran)
 - Why: milestone 37's bound maximises over every candidate x, which is why it stays about 3 times the realised regret. Only the pool optimum x* matters for regret. If x* survives every cut regret is 0; if its first cut is j, the best survivor of that cut is within kappa^(k_j) (the k_j-th largest excess over x* among rivals ranked at or ahead of x*; 0 if fewer than k_j rivals, since then x* cannot be cut), and each later cut costs at most iota^(k_l). So regret <= max_j [kappa^(k_j) + sum_{l>j} iota^(k_l)] <= sum_j iota^(k_j), because kappa <= iota. `experiments/theory/anchored.py` (about 10 s, no flow run) checks it on the 40 cached cells with 200 tie-breaks each; `tests/test_bound.py` checks validity and the ordering on 400 random two-cut instances.
 - Outcome (`anchored_results.txt`): 0 violations. New bound is below the milestone 37 bound in 23 of 37 cells with a positive old bound (equal in the rest), median new/old 0.89; non-vacuous (under the spread of y) in 33 cells against 32; median bound over the largest realised regret 2.77 against 3.02; 3 cells have bound 0.
