@@ -209,3 +209,16 @@ weeks.
 - **Licence:** the fpp2 package is GPL-3 (Hyndman); the figures are airline
   traffic counts. Used here as test data only.
 - **Used by:** `eval/ansett-strike.mjs`, `ansett-strike.test.mjs`.
+
+# Example data: Puerto Rico daily deaths, 2015-2018 (Hurricane Maria)
+
+`puerto-rico-daily-deaths.csv`: all-cause deaths per day in Puerto Rico, 1,201
+days from 2015-01-01 to 2018-04-15 (R's `dslabs::pr_death_counts`). Hurricane
+Maria made landfall on 2017-09-20.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://vincentarelbundock.github.io/Rdatasets/csv/dslabs/pr_death_counts.csv>
+  (columns `date`, `deaths`; the row-number column is dropped).
+- **Licence:** the dslabs package is GPL-2 (Irizarry); the figures are
+  government vital-statistics death counts. Used here as test data only.
+- **Used by:** `eval/maria-deaths.mjs`, `maria-deaths.test.mjs`.

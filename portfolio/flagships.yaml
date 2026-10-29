@@ -99,7 +99,8 @@ flagships:
       --log, change-date range95, bootstrap penalty, excursions,
       driftWarning) and every measurement live in the README and git. Open:
       (1) range95 now holds on a real closure, Ansett's 1989 pilots' dispute
-      (4 of 4 setups, 2026-10-29, README); wanted: a closure series quiet
+      (4 of 4 setups) and on a real shock, Hurricane Maria in Puerto Rico's
+      daily deaths (5 of 5; both 2026-10-29, README); wanted: a closure series quiet
       outside it, as this one returns 24 to 43 other changes (log GDP is a near-unit-root; coal disasters
       hold 1890); (2) the steep-bump (0.04) clumpy-count cell is under-
       covered, 65/79 (82%) over six seeds, and the CLI and JSON carry that
