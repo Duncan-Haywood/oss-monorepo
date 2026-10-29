@@ -1111,3 +1111,12 @@ The last section asked for a trendless seasonal series with a shock, to test the
 - **The null warns too:** 3 of 4 cells on US accidental deaths (silent only on log with bend). The fit cuts 2 to 8 steps in a series with no break a person would name, and a window of three steps lands in two cycles. So here the warning does not tell a shock from a shape, and it does not tell a shape from nothing: 14 of 16 cells warn, 3 of them null cells.
 - Takeaway: on 72 months the 3-in-2-cycles rule is not a test of anything. The cancelling pair is visible to a reader (and could be a rule: opposite-sign steps within a few months, net near zero), but the null series also produces such pairs (1976-02+ and 1976-04- appear in US deaths too), so the pair alone does not separate shock from noise. Not adopted; the warning text is unchanged.
 - One 72-month series per kind and no ground truth beyond a dated peak. Wanted: a longer trendless seasonal series with a documented one-off event, and a null series long enough that the warning rate means something.
+
+## Shape or shock, 195 months of euro-area factory orders (2026-10-29)
+
+The last section wanted a longer seasonal series with a documented event. Euro-area new orders for electrical equipment, 1996-01 to 2012-03 (195 months, R's `fpp2::elecequip`, `data/eu-elecequip.csv`, `data/SOURCE.md`), carry the late-2008 collapse and the 2009-10 recovery. `eval/drift-warning-elecequip.mjs`, output `eval/drift-warning-elecequip.out.txt`, test `drift-warning-elecequip.test.mjs`; the same four cells (`--drift --period 12`, raw and log, with and without `--trend bend`).
+
+- The collapse is found in all four cells (falls at 2008-11 and 2009-01, after one at 2008-05), and the rebound as a rise at 2009-09 to 2010-08 in three or four.
+- **The warning fires in all four cells, and so do 12 to 18 other steps**, from 1996-12 to 2011-06: the series is a business cycle with a long run of small shifts, not one event. So the 3-in-2-cycles rule again does not separate a shock from a shape; with this many steps it cannot fail to find three close together.
+- Takeaway: on a longer series the warning is no better evidence than on 72 months. The text's advice (check the dates against the series) is what a reader should do; the number of steps cut (16 to 22 here) is the stronger signal that the segmentation is chasing a cycle, and a candidate for a rule.
+- Still wanted: a null series of the same length with no event, so the warning rate means something. No such series is in the repository.
