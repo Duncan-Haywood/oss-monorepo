@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, PRESETS } from './model.mjs';
-import { structuralChecks, postCheck } from './checks.mjs';
+import { structuralChecks, postCheck, nailZ, heelJoint } from './checks.mjs';
+import { buildInstructions } from './instructions.mjs';
+import { estimate } from './estimate.mjs';
 import { check, worst, roofCase } from './structure.mjs';
 
 test('the starter passes every check at 30 psf snow and 20 psf wind, and names what it checked', () => {
@@ -103,4 +105,39 @@ test('the floor joist and rafter checks are the hand calculation', () => {
   const wr = ((15 / cos + 30) * 24) / 144;
   const rafter = (wr * Lr ** 2) / 8 / ((1.5 * 5.5 ** 2) / 6) / (875 * 1.15 * 1.3 * 1.15);
   assert.ok(Math.abs(rows.find((x) => x.member === 'Rafters').ratio - rafter) < 1e-9);
+});
+
+// The instructions said three 16d per rafter at every rafter tie, whatever
+// the span. The heel joint holds the pair's outward thrust, wL^2/8h, and wider
+// sheds need more nails.
+test('16d common in SPF: the NDS yield limit is mode IV, worked by hand', () => {
+  const Fe = 16600 * 0.42 ** 1.84;
+  const modeIV = (0.162 ** 2 / 2.2) * Math.sqrt((2 * Fe * 90000) / 6);
+  assert.ok(Math.abs(nailZ(0.162, 1.5, 2.0) - modeIV) < 1e-9);
+  assert.ok(modeIV > 119 && modeIV < 121);
+});
+
+test('rafter-tie nails follow the thrust: 3 on the 8x12 classic, 4 on the 10x12, 5 on the 12x16', () => {
+  const thrust = (W, pitch) => {
+    const w = (15 * Math.sqrt(1 + (pitch / 12) ** 2) + 30) * 2; // lb/ft per pair at 24"
+    return (w * (W / 12) ** 2) / (8 * (W / 24) * (pitch / 12));
+  };
+  for (const [name, W, pitch, nails] of [['8x12 classic', 96, 6, 3], ['10x12', 120, 6, 4], ['12x16', 144, 5, 5]]) {
+    const s = buildShed(PRESETS[name]());
+    const h = heelJoint(s);
+    assert.ok(Math.abs(h.thrust - thrust(W, pitch)) < 1e-9, name);
+    assert.equal(h.nails, nails, name);
+    const row = structuralChecks(s).rows.find((x) => x.member === 'Rafter tie nailing (heel joint)');
+    assert.ok(row.ok && row.ratio <= 1, name);
+    const text = JSON.stringify(buildInstructions(s, estimate(s)));
+    assert.match(text, new RegExp(`${nails} 16d commons into each rafter`), name);
+  }
+  assert.equal(heelJoint(buildShed(defaultDesign())), null); // ridge beam: no ties
+});
+
+test('the nailing schedule and the nail count carry the heel-joint nails', async () => {
+  const { buildSheets } = await import('./drawings.mjs');
+  const s = buildShed(PRESETS['12x16']());
+  assert.match(JSON.stringify(buildSheets(s)), /Rafter tie to rafter, each end.{0,120}"5-16d common/);
+  assert.doesNotMatch(JSON.stringify(buildSheets(buildShed(defaultDesign()))), /Rafter tie to rafter/);
 });

@@ -180,3 +180,18 @@ from The World Almanac and Book of Facts, as in R's `datasets::discoveries`.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/arrivals.csv> (row numbers rewritten as `1981Q1` labels).
 - **Licence:** the fpp2 package is GPL-3; the series are published counts. Not checked further.
 - **Used by:** `drift-warning-arrivals.test.mjs`, `eval/drift-warning-arrivals.mjs`.
+
+# Example data: UK lung deaths 1974-79 and US accidental deaths 1973-78
+
+`uk-ldeaths.csv`, `uk-mdeaths.csv`, `uk-fdeaths.csv`: monthly UK deaths from
+bronchitis, emphysema and asthma, all / male / female, 72 months from 1974-01.
+`us-accidental-deaths.csv`: monthly US accidental deaths, 72 months from 1973-01.
+R's `datasets::ldeaths`, `mdeaths`, `fdeaths` and `USAccDeaths`.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/>
+  (`ldeaths.csv`, `mdeaths.csv`, `fdeaths.csv`, `USAccDeaths.csv`).
+- **Licence:** R's datasets package is GPL-2/3; the figures are national
+  statistics counts (Diggle 1990; Brockwell and Davis 1991). Used here as
+  test data only.
+- **Used by:** `eval/drift-warning-trendless.mjs`.
