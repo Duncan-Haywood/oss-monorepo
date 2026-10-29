@@ -1,0 +1,27 @@
+0 dB white noise, 2 s windows, gamma 0.25, scored windows 5..11 (252 per clip and cell); wrong = |error| > 2 ms.
+gated: search inside the tracked prior and over +-1.5 s; if the unrestricted peak > ratio x the in-prior peak, take it and restart the line.
+
+B. mean over clips: cell wrong_all wrong_4 wrong_6 lost_4 reacquired_4 reacquired_6   (4 = soft space2 untie wallewal)
+none 0.150 0.375 0.000 0.007 0.000 0.000
+track_boot=1 0.150 0.374 0.000 0.368 0.000 0.000
+track_boot=3 0.138 0.344 0.000 0.243 0.000 0.000
+gated_boot=1_ratio=1.2 0.110 0.274 0.000 0.076 0.153 0.000
+gated_boot=1_ratio=1.5 0.088 0.221 0.000 0.097 0.058 0.000
+gated_boot=1_ratio=2 0.095 0.238 0.000 0.139 0.035 0.000
+gated_boot=1_ratio=3 0.125 0.312 0.000 0.271 0.013 0.000
+gated_boot=3_ratio=1.2 0.105 0.263 0.000 0.069 0.151 0.000
+gated_boot=3_ratio=1.5 0.089 0.223 0.000 0.097 0.057 0.000
+gated_boot=3_ratio=2 0.092 0.230 0.000 0.118 0.036 0.000
+gated_boot=3_ratio=3 0.112 0.281 0.000 0.215 0.021 0.000
+
+C. wrong share per clip: none track_boot=1 track_boot=3 gated_boot=1_ratio=1.2 gated_boot=1_ratio=1.5 gated_boot=1_ratio=2 gated_boot=1_ratio=3 gated_boot=3_ratio=1.2 gated_boot=3_ratio=1.5 gated_boot=3_ratio=2 gated_boot=3_ratio=3
+applause 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+drama 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+falling 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+gong 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+roll 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+romans 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+soft 0.266 0.194 0.087 0.206 0.079 0.000 0.024 0.206 0.087 0.008 0.020
+space2 0.659 0.885 0.845 0.631 0.667 0.698 0.810 0.603 0.679 0.698 0.778
+untie 0.310 0.194 0.222 0.214 0.087 0.187 0.194 0.198 0.095 0.147 0.139
+wallewal 0.266 0.222 0.222 0.044 0.052 0.067 0.222 0.044 0.032 0.067 0.187
