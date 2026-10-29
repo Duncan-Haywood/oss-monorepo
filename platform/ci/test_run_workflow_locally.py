@@ -1029,7 +1029,9 @@ class LocalContext(unittest.TestCase):
     def test_a_diff_scoped_step_is_collected_as_runnable(self):
         workflow = {"jobs": {"j": {"steps": [{
             "name": "diff",
-            "env": {"BASE": "${{ github.event.pull_request.base.sha || github.sha }}"},
+            # `github.sha` always has a local value; the PR base needs a merge
+            # base with origin/main, which a depth-1 CI checkout lacks.
+            "env": {"BASE": "${{ github.sha }}"},
             "run": 'git diff --stat "$BASE" HEAD'}]}}}
         steps, _ = runner.collect(workflow)
         self.assertNotEqual(steps[0].status, "skipped")
