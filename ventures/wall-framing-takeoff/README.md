@@ -206,6 +206,19 @@ something this tool checks; the options are off by default.
 
 Standard totals: $2,384.16 (253 boards) and $2,678.80 (276 boards). Open House Plans 2 does not lay out (two windows 3 in apart). The savings are in lumber only: 24 in spacing needs a stress check on the studs and sheathing, single top plate needs framing in line, and both need the engineer's say; the tool does not check either. Two generated or invented houses, no permit set, no builder's real order. `advanced-bench.test.mjs` checks ordering and a hand-counted 20 ft wall (5 fewer studs at 24 in).
 
+## Panelised vs stick, from piece counts (2026-10-29)
+
+`node panelised-bench.mjs` counts what a crew handles, not what it costs: no labour rate is shipped. Stick: every member is cut and set on site. Panelised: the same members are built flat in a shop (plates trimmed at the panel breaks, so there are more saw cuts), and the site stands panels, nails the seams between them (face nails along the end studs every 16 in, a typed figure), nails the bottom plate to the floor and the cap plate over the joints. Sheathing is left out.
+
+| method | example house (invented) | Open House Plans 1 (CC0, generated) |
+|---|---|---|
+| stick: members set on site / saw cuts / site nails | 345 / 345 / 1,871 | 436 / 436 / 2,311 |
+| panels up to 8 ft | 32 panels, 417 cuts, 509 site nails (27%) | 37 panels, 505 cuts, 532 site nails (23%) |
+| panels up to 12 ft | 23 panels, 390 cuts, 446 site nails (24%) | 24 panels, 466 cuts, 441 site nails (19%) |
+| panels up to 16 ft | 16 panels, 369 cuts, 397 site nails (21%) | 22 panels, 460 cuts, 427 site nails (18%) |
+
+Reading: panels cut the things lifted into place by a factor of 11 to 22 and move roughly three quarters or more of the framing nails to the shop table, at the price of 5 to 21% more saw cuts. Whether that is cheaper depends on shop labour, crane or lift, and shipping, which this tool does not know. Open House Plans 2 does not lay out (two windows 3 in apart). Two generated or invented houses, no real crew's time study; the nail rules are the defaults of `fasteners.mjs`, not a code table. `panelised-bench.test.mjs` checks a 20 ft wall by hand (two panels, one seam, 41 site nails) and the ordering across limits.
+
 ## Counted order against allowances (measured 2026-10-28)
 
 `node allowance-bench.mjs` sets the optimised order against two rules of thumb
