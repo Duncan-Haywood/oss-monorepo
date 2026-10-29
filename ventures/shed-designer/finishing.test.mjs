@@ -106,6 +106,9 @@ test('store offers: every one has a store, a price, a model and a link; comparis
   const splitTotal = Object.values(cmp.split).reduce((t, g) => t + g.total, 0);
   assert.ok(Math.abs(splitTotal - cmp.cheapestMix) < 0.01);
   assert.ok(cmp.oneStop && cmp.splitSaving >= 0);
+  for (const a of cmp.addOns) assert.ok(a.saving > 0 && a.saving <= cmp.splitSaving + 0.01 && a.store !== cmp.oneStop.store);
+  // The line's own listing is one of the offers compared.
+  assert.ok(cmp.rows.some((r) => r.line.section === 'Lumber' && r.offers.some((o) => o.store === 'Home Depot')));
 });
 
 test('primed LP siding in two thicknesses changes the panels bought and the siding depth', () => {
@@ -161,6 +164,7 @@ test('quote emails name the store\'s own item and link where we have it; the CSV
   const hd = quoteRequest(shed, est, 'homedepot').body;
   assert.match(hd, /Home Depot: model 702636, internet 307424572/);
   assert.equal(itemRef({ source: { key: 'trim1x4x16' } }, undefined), '');
+  assert.match(quoteRequest(shed, est, 'menards').body, /Menards: SKU 1511823, https:\/\/www\.menards\.com\//);
   const csv = shoppingCsv(est).split('\n');
   assert.match(csv[0], /price source,listing$/);
   assert.ok(csv.some((l) => /https:\/\/www\.homedepot\.com\//.test(l)));

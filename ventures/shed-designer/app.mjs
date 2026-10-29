@@ -227,8 +227,9 @@ function renderStores(est, d) {
   }
   html += `<tr class="tot"><th colspan="2" scope="row">These lines at one store</th>${cmp.stores.map((st) => `<td>${cmp.totals[st].missing === cmp.rows.length ? '<span class="muted">none of these</span>' : `${money(cmp.totals[st].total)}${cmp.totals[st].missing ? ` <span class="muted">(${cmp.totals[st].missing} not listed)</span>` : ''}`}</td>`).join('')}<td class="n">${money(cmp.cheapestMix)} mixed</td></tr></tbody></table></div>`;
   // A second trip or delivery is only worth it for a real saving.
-  if (Object.keys(cmp.split).length > 1 && cmp.oneStop && cmp.splitSaving >= 25) {
-    html += `<p><strong>Split the order:</strong> ${Object.entries(cmp.split).map(([st, g]) => `${esc(st)} for ${g.lines.map(esc).join(', ')} (${money(g.total)})`).join('; ')}. That saves ${money(cmp.splitSaving)} on these lines against buying them all at ${esc(cmp.oneStop.store)}, before any delivery charge for a second order.</p>`;
+  const worth = cmp.addOns.filter((a) => a.saving >= 25);
+  if (cmp.oneStop && worth.length) {
+    html += `<p><strong>Where to buy:</strong> ${esc(cmp.oneStop.store)} is the cheapest single store for these lines (${money(cmp.oneStop.total)}). ${worth.map((a) => `Adding ${esc(a.store)} for ${a.lines.map(esc).join(', ')} saves ${money(a.saving)}`).join('; ')}. Buying every line at its cheapest store saves ${money(cmp.splitSaving)} in all. Savings are before any delivery charge for a second order.</p>`;
   } else if (cmp.oneStop) {
     html += `<p><strong>One stop:</strong> ${esc(cmp.oneStop.store)}${cmp.splitSaving > 0 ? `, within ${money(cmp.splitSaving)} of splitting the order between stores, which is not worth a second trip` : ' is cheapest or tied on every compared line'}.</p>`;
   }
