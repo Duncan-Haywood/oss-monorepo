@@ -13,7 +13,7 @@ import { joistCentres } from "./floor.mjs";
 
 const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
-/** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, ceiling?: { width: number, depth: number }[] }} Attic */
+/** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
 /** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean }} Insulation */
 
 /** @param {Insulation} d */
@@ -50,10 +50,20 @@ function layoutAttic(a, waste, drywall, roof) {
   const sqFt = areaSqIn / 144;
   const cuFt = (sqFt * depthIn) / 12 * (1 + waste);
   const bags = a.bagCuFt ? Math.ceil(cuFt / a.bagCuFt - 1e-9) : null;
+  let baffles = null;
+  if (a.baffles) {
+    if (!(roof && roof.length > 0)) return { ok: false, errors: ["Eave baffles need a plan `roof` (its length and rafter or truss spacing give the bays)."] };
+    // one baffle per bay between neighbouring rafters or trusses, on both eaves of a gable (the ridge-parallel sides)
+    const spacing = roof.trusses?.spacing ?? roof.spacing ?? 16;
+    const bays = Math.ceil(roof.length / spacing - 1e-9);
+    const baffleWidth = a.baffleWidth ?? 22.5; // vent chutes are sold to fit a 24 in o.c. bay (22.5 in clear between 1.5 in framing); a wider bay needs two
+    const perEave = bays * Math.ceil((spacing - 1.5) / baffleWidth - 1e-9);
+    baffles = { bays, perEave, count: 2 * perEave, spacing, baffleWidth, baffleLength: a.baffleLength ?? 48 };
+  }
   return {
     ok: true, errors: [], source: rects ? "ceiling rectangles" : "roof footprint (eaves not netted off)", sqFt, rValue, rPerInch,
     rPerInchAssumed: a.rPerInch == null, depthIn, cuFt, bagCuFt: a.bagCuFt ?? null, bags,
-    cost: bags != null && a.price != null ? bags * a.price : null, price: a.price ?? null,
+    cost: bags != null && a.price != null ? bags * a.price : null, price: a.price ?? null, baffles,
   };
 }
 
@@ -142,6 +152,7 @@ export function insulationText(d) {
   const a = d.attic;
   if (a) {
     l.push(`  Attic (loose fill) over ${a.sqFt.toFixed(0)} sq ft, from ${a.source}: R-${a.rValue} at R-${a.rPerInch}/in${a.rPerInchAssumed ? " (assumed: read yours from the bag's coverage chart)" : ""} = ${a.depthIn.toFixed(1)} in settled depth, ${a.cuFt.toFixed(0)} cu ft with waste`);
+    if (a.baffles) l.push(`    Eave baffles: ${a.baffles.count} (${a.baffles.bays} bays at ${a.baffles.spacing} in, both eaves, ${a.baffles.baffleLength} in chutes); keep them clear of the blown fill`);
     l.push(a.bags != null ? `    ${a.bags} bags at ${a.bagCuFt} cu ft${a.cost != null ? `, ${a.cost.toFixed(2)} at ${a.price} each` : ""}` : "    Bag count needs the label's cubic feet per bag (attic.bagCuFt); coverage charts list bags per 1,000 sq ft by R-value.");
   }
   l.push(`  Wall cavities${a ? " and the attic floor" : " only: attic"}, ${d.rim ? "" : "rim joists, "}${a ? "" : "ceiling joists "}and air sealing are not all counted; bag coverage and R-value are figures you type from the label.`);
