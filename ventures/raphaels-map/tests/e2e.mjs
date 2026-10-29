@@ -1,13 +1,13 @@
 // End-to-end happy path in a real browser, against the synthetic fixtures.
 //
-//   node test/e2e.mjs                 # from ventures/raphaels-map
-//   SHOTS=/some/dir node test/e2e.mjs # also save desktop + 390px screenshots
+//   node tests/e2e.mjs                 # from ventures/raphaels-map
+//   SHOTS=/some/dir node tests/e2e.mjs # also save desktop + 390px screenshots
 //
 // Needs Playwright with Chromium (`npm i -g playwright && npx playwright
 // install chromium`, or any global install `require('playwright')` resolves).
 // The page itself has no fixture switch: this script serves the venture
 // directory on a local port and answers every data/* request from
-// test/fixtures/data/ with page.route, so the shipped code never knows.
+// tests/fixtures/data/ with page.route, so the shipped code never knows.
 // Not picked up by `node --test '*.test.mjs'`.
 import { createServer } from 'node:http';
 import { readFileSync, existsSync, mkdirSync } from 'node:fs';
@@ -25,7 +25,7 @@ try {
 }
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const FIX = path.join(ROOT, 'test', 'fixtures', 'data');
+const FIX = path.join(ROOT, 'tests', 'fixtures', 'data');
 const SHOTS = process.env.SHOTS || '';
 const TYPES = { '.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.txt': 'text/plain' };
 
@@ -121,7 +121,7 @@ for (const [label, viewport] of [['desktop', { width: 1280, height: 900 }], ['mo
     await page.waitForSelector('.rank-table tbody tr');
     const t = await page.textContent('#view-rank');
     assert.match(t, /Coverage/);
-    assert.match(await page.textContent('.rank-table tbody'), /3 of 3/);
+    assert.match(await page.textContent('.rank-table tbody'), /2 of 2/);
     if (!(await page.isVisible('input[name="mode"][value="concentrated"]'))) await page.click('#rank-settings > summary');
     assert.match(t, /Weights after re-normalising/);
     assert.match(t, /Fixture ACS 5-year/);

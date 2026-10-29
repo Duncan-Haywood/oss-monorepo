@@ -1,0 +1,7 @@
+# Raw downloads and survey microdata stay out of the tree (docs/decisions.md D2,
+# docs/dataset_imports.md): only aggregates in data/ are committed.
+raw/
+*.dta
+*.sav
+*.por
+__pycache__/

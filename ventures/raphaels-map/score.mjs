@@ -40,16 +40,19 @@ export const AGE_BANDS = [
   { id: '20_29', label: '20–29' },
 ];
 
+// Meeting access starts at 0 in both modes: communities.json is a hand-curated
+// sample, so a county with no listed venue is "none listed yet", not "none".
+// The slider stays, for users who add or trust the listings in their area.
 export const MODES = {
   volume: {
     label: 'Find volume',
     help: 'Prioritises reachable age-eligible population and places to meet people: counts, on a log or percentile scale.',
-    weights: { demographic_capacity: 0.5, catholic_ecosystem: 0.2, meeting_access: 0.3, values_evidence: 0, exploratory_proxies: 0 },
+    weights: { demographic_capacity: 0.7, catholic_ecosystem: 0.3, meeting_access: 0, values_evidence: 0, exploratory_proxies: 0 },
   },
   concentrated: {
     label: 'Find concentrated values',
     help: 'Prioritises directly measured values alignment where samples allow; otherwise leans on shares and densities rather than raw counts, and says that values evidence is unavailable.',
-    weights: { demographic_capacity: 0.15, catholic_ecosystem: 0.25, meeting_access: 0.1, values_evidence: 0.5, exploratory_proxies: 0 },
+    weights: { demographic_capacity: 0.2, catholic_ecosystem: 0.3, meeting_access: 0, values_evidence: 0.5, exploratory_proxies: 0 },
   },
 };
 

@@ -1,10 +1,10 @@
-// Writes the synthetic test fixtures in test/fixtures/data/, shaped exactly
+// Writes the synthetic test fixtures in tests/fixtures/data/, shaped exactly
 // like ARCHITECTURE.md. Every number here is invented by a seeded generator,
 // every file says "synthetic": true at the top level, and every county name
 // says "Fixture". The page never loads these: tests read them from disk and
-// test/e2e.mjs injects them with Playwright's page.route.
+// tests/e2e.mjs injects them with Playwright's page.route.
 //
-//   node test/make-fixtures.mjs
+//   node tests/make-fixtures.mjs
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

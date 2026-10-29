@@ -16,6 +16,10 @@ const OBS = {
 };
 const IDS = ['a', 'b', 'c', 'd'];
 
+// Mechanics tests weight all three county dimensions; the shipped defaults
+// leave meeting access at 0 (score.mjs, MODES), tested separately below.
+const ALL3 = { demographic_capacity: 0.5, catholic_ecosystem: 0.2, meeting_access: 0.3, values_evidence: 0 };
+
 test('percentiles: midrank 0–100, ties share, single value 50, null stays null', () => {
   assert.deepEqual(percentiles([10, 20, 30]), [0, 50, 100]);
   assert.deepEqual(percentiles([5, 5, 10]), [25, 25, 100]);
@@ -66,7 +70,7 @@ test('missing dimension is null, never zero, and weights re-normalise over the r
 });
 
 test('coverage counts scored dimensions among weighted ones', () => {
-  const { rows } = scoreAreas({ ids: IDS, observations: OBS, mode: 'volume', weights: MODES.volume.weights });
+  const { rows } = scoreAreas({ ids: IDS, observations: OBS, mode: 'volume', weights: ALL3 });
   const d = rows.find((r) => r.id === 'd');
   const c = rows.find((r) => r.id === 'c');
   assert.deepEqual([d.coverage.scored, d.coverage.considered], [2, 3]);
@@ -75,7 +79,7 @@ test('coverage counts scored dimensions among weighted ones', () => {
 });
 
 test('minimum dimensions withholds the index rather than inventing one', () => {
-  const { rows } = scoreAreas({ ids: IDS, observations: OBS, mode: 'volume', weights: MODES.volume.weights, minDims: 3 });
+  const { rows } = scoreAreas({ ids: IDS, observations: OBS, mode: 'volume', weights: ALL3, minDims: 3 });
   const d = rows.find((r) => r.id === 'd');
   assert.equal(d.index, null);
   assert.equal(d.rank, null);
@@ -145,7 +149,7 @@ test('competition ranking handles ties', () => {
 
 test('rank sensitivity: stable when one dimension dominates, moving when weights are close', () => {
   const computed = computeDimensions({ ids: IDS, observations: OBS });
-  const sens = rankSensitivity(computed, { weights: MODES.volume.weights, delta: 0.1 });
+  const sens = rankSensitivity(computed, { weights: ALL3, delta: 0.1 });
   for (const id of IDS) {
     const s = sens.get(id);
     assert.ok(s.min <= s.base && s.base <= s.max, `${id} range brackets the base`);
@@ -160,7 +164,7 @@ test('rank sensitivity: stable when one dimension dominates, moving when weights
 });
 
 test('explanations name dimensions, weights and the relative scale', () => {
-  const { rows } = scoreAreas({ ids: IDS, observations: OBS, mode: 'volume', weights: MODES.volume.weights });
+  const { rows } = scoreAreas({ ids: IDS, observations: OBS, mode: 'volume', weights: ALL3 });
   const d = rows.find((r) => r.id === 'd');
   const text = explainRow(d, (x) => x.toUpperCase(), 4).join('\n');
   assert.match(text, /Demographic capacity \d+ × weight 63%/);
@@ -176,10 +180,10 @@ test('age bands are adult only and limited to what the data publish', () => {
 });
 
 test('fixture ranking: every county scored, missing religion data re-normalised, nothing NaN', () => {
-  const f = JSON.parse(readFileSync(new URL('./test/fixtures/data/us/county_observations.json', import.meta.url), 'utf8'));
+  const f = JSON.parse(readFileSync(new URL('./tests/fixtures/data/us/county_observations.json', import.meta.url), 'utf8'));
   assert.equal(f.synthetic, true);
   const ids = Object.keys(f.observations).filter((id) => id.startsWith('08'));
-  const { rows } = scoreAreas({ ids, observations: f.observations, mode: 'volume', weights: MODES.volume.weights });
+  const { rows } = scoreAreas({ ids, observations: f.observations, mode: 'volume', weights: ALL3 });
   assert.equal(rows.length, ids.length);
   for (const r of rows) {
     assert.ok(r.index === null || (r.index >= 0 && r.index <= 100 && !Number.isNaN(r.index)));
@@ -188,4 +192,9 @@ test('fixture ranking: every county scored, missing religion data re-normalised,
   const noReligion = rows.find((r) => r.id === '08023');
   assert.equal(noReligion.dims.catholic_ecosystem.score, null);
   assert.ok(noReligion.index !== null);
+});
+
+test('default weights leave the hand-curated venue list out of the index', () => {
+  assert.equal(MODES.volume.weights.meeting_access, 0);
+  assert.equal(MODES.concentrated.weights.meeting_access, 0);
 });

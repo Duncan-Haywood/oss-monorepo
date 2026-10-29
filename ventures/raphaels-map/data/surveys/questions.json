@@ -108,13 +108,13 @@
    "original_text": "GSS variable label (short label, not the full question wording): \"Ideal number of children\"",
    "text_kind": "variable_label",
    "response_map": {
-    "0": "None (0)",
-    "1": "One",
-    "2": "Two",
-    "3": "Three",
-    "4": "Four or more",
-    "5": "Four or more",
-    "6": "Four or more",
+    "0": "0",
+    "1": "1",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
     "7": "7 or more",
     "8": "as many as you want"
    },
@@ -174,7 +174,8 @@
    ],
    "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
    "coding_unconfirmed": false,
-   "note": "General ideal for 'a family', not the respondent's own intention or expected births. Code 7 is '7 or more'. 'As many as you want' is a valid answer kept in the denominator; its share roughly doubles from 2021 (mode change), so 2010-2018 and 2021-2024 are not comparable."
+   "response_map_note": "codes [0, 1, 2, 3, 4, 5, 6] carry no Stata value label; the numeric value is the answer",
+   "note": "General ideal for 'a family', not the respondent's own intention or expected births. Code 7 is '7 or more'. 'As many as you want' is a valid answer kept in the denominator; its share rises from about 7-12% of adults (2000-2018) to 24-31% (2021-2024) with the mode change, so 2010-2018 and 2021-2024 are not comparable."
   },
   {
    "dataset_id": "gss",
@@ -234,6 +235,7 @@
    ],
    "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
    "coding_unconfirmed": false,
+   "response_map_note": null,
    "note": "A general role norm about families, not the respondent's own preference for her own life."
   },
   {
@@ -294,6 +296,7 @@
    ],
    "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
    "coding_unconfirmed": false,
+   "response_map_note": null,
    "note": "A general belief about mothers' employment, not a personal plan."
   },
   {
@@ -354,6 +357,7 @@
    ],
    "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
    "coding_unconfirmed": false,
+   "response_map_note": null,
    "note": "Agreement means the respondent thinks a working mother can relate as well to children; a general belief, not a personal plan."
   },
   {
@@ -418,6 +422,7 @@
    ],
    "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
    "coding_unconfirmed": false,
+   "response_map_note": null,
    "note": "General belief about fathers; code d is 'can't choose' and is excluded."
   },
   {
@@ -473,6 +478,7 @@
    ],
    "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
    "coding_unconfirmed": false,
+   "response_map_note": null,
    "note": "An opinion on whether divorce in this country should be easier or more difficult to obtain by law. It is not the respondent's view of her own marriage and not a probability that a marriage lasts. Not asked in 2021."
   },
   {
@@ -553,6 +559,7 @@
    ],
    "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
    "coding_unconfirmed": false,
+   "response_map_note": null,
    "note": "Self-reported attendance at religious services (any religion's services). Tabulated by affiliation so 'Catholic' (affiliation) and 'attends weekly' (practice) are separate numbers."
   },
   {

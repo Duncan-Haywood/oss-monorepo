@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { createLoader, isMissing, loadCore, statesWithCounties, milesBetween, metricIndex } from './data.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const FIX = path.join(HERE, 'test', 'fixtures', 'data');
+const FIX = path.join(HERE, 'tests', 'fixtures', 'data');
 
 /** A fetch that serves the fixtures directory, 404 for anything else. */
 function fixtureFetch(root = FIX, { base = 'data/' } = {}) {

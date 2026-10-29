@@ -17,7 +17,7 @@ data/*.json --(browser: *.mjs, no build step)--> the page on GitHub Pages
   contracts become JSON files with the same fields; the page does the
   ranking, comparison and export in the browser.
 - **Nothing fabricated.** A value that was not read from an official file is
-  `null` with a flag saying why. Test fixtures live in `test/fixtures/`, are
+  `null` with a flag saying why. Test fixtures live in `tests/fixtures/`, are
   marked `"synthetic": true`, and are never loaded by the page.
 - **Fetch and build are separate** so the build is reproducible from the raw
   branch without network, and the raw branch holds the SHA-256 of every file

@@ -30,8 +30,14 @@ export function matchTables(tables, sel) {
   return tables.filter((t) =>
     (!sel.ds || t.dataset_id === sel.ds) &&
     (!sel.v || t.variable === sel.v) &&
+    (!sel.period || periodOf(t) === sel.period) &&
     FILTER_KEYS.every((k) => !sel[k] || String((t.filters || {})[k]) === sel[k]));
 }
+
+/** A table's survey period: its own label, else its years. */
+export const periodOf = (t) => String(t.period || (t.years || []).join(', ') || '');
+
+export const PAGE = 20;
 
 /** Questions that share a concept but differ in wording or dataset. */
 export function nonEquivalent(questions) {
@@ -72,18 +78,22 @@ export async function update(ctx) {
   const datasets = qf.datasets || [];
   const questions = qf.questions || [];
   const tables = isMissing(cf) ? [] : cf.tables || [];
-  const sel = { ds: p.ds || '', v: p.v || '' };
+  const sel = { ds: p.ds || '', v: p.v || '', period: p.period || '' };
   for (const k of FILTER_KEYS) sel[k] = p[k] || '';
   const dsTables = tables.filter((t) => !sel.ds || t.dataset_id === sel.ds);
   const opts = filterOptions(dsTables.filter((t) => !sel.v || t.variable === sel.v));
   const vars = questions.filter((q) => !sel.ds || q.dataset_id === sel.ds);
   const found = matchTables(tables, sel);
+  const periods = [...new Set(dsTables.filter((t) => !sel.v || t.variable === sel.v).map(periodOf).filter(Boolean))].sort();
+  const limit = Math.max(PAGE, Number(p.more) || PAGE);
+  const shown = found.slice(0, limit);
   const qKey = (t) => questions.find((q) => q.dataset_id === t.dataset_id && q.variable === t.variable);
 
   const select = (id, label, options, value) => `<div><label for="sv-${id}">${esc(label)}</label><select id="sv-${id}" data-key="${id}"><option value="">Any</option>${options.map(([v, l]) => `<option value="${esc(v)}"${v === value ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></div>`;
   const controls = `<div class="controls card row">
     ${select('ds', 'Dataset', datasets.map((d) => [d.id, ax(d.title)]), sel.ds)}
     ${select('v', 'Question', vars.map((q) => [q.variable, `${q.variable}: ${q.harmonized_concept || ''}`]), sel.v)}
+    ${periods.length > 1 ? select('period', 'Survey years', periods.map((x) => [x, x]), sel.period) : ''}
     ${Object.entries(opts).map(([k, vals]) => select(k, FILTER_LABELS[k], vals.map((v) => [v, v.replace(/_/g, ' ')]), sel[k])).join('')}
   </div>`;
 
@@ -91,7 +101,7 @@ export async function update(ctx) {
   const neq = nonEquivalent(shownQs.length ? shownQs : vars);
   const neqHTML = neq.length ? `<div class="notes" role="note"><strong>Not equivalent questions.</strong> ${neq.map((g) => `Concept "${esc(g.concept)}" is asked with different wording (${g.questions.map((q) => esc(`${q.dataset_id}.${q.variable}`)).join(', ')}); do not compare their percentages as if they were the same question.`).join(' ')}</div>` : '';
 
-  const cards = found.map((t) => {
+  const cards = shown.map((t) => {
     const q = qKey(t) || {};
     const ds = datasets.find((d) => d.id === t.dataset_id) || {};
     const al = ALIGN[q.alignment] || { label: q.alignment || 'Alignment not stated', help: '' };
@@ -104,7 +114,7 @@ export async function update(ctx) {
     return `<article class="card survey">
       <header><h3>${esc(q.original_text || `${t.dataset_id}.${t.variable}`)}</h3>
       <p class="sub"><span class="badge align align-${esc(q.alignment || 'none')}" title="${esc(al.help)}">${esc(al.label)}</span> <span class="badge cls cls-survey_estimate">Survey estimate</span> ${flagBadges(t.flags)}</p>
-      <p class="sub">${esc(ax(ds.title || t.dataset_id))} · variable <code>${esc(t.variable)}</code> · years ${esc((t.years || []).join(', ') || 'not stated')} · weight <code>${esc(ds.weight_variable || 'not stated')}</code></p>
+      <p class="sub">${esc(ax(ds.title || t.dataset_id))} · variable <code>${esc(t.variable)}</code> · ${esc(periodOf(t) || 'years not stated')}${t.mode ? ` · ${esc(t.mode)}` : ''} · weight <code>${esc(ds.weight_variable || 'not stated')}</code></p>
       <p class="sub">${esc(filters || 'All respondents')}</p></header>
       ${rows}
       <p class="sub">n = ${esc(num(t.n, { digits: 0 }))} · n_eff = ${esc(num(t.n_eff, { digits: 0 }))} (effective sample size after weighting)${typeof t.weighted_base === 'number' ? ` · weighted base ${esc(num(t.weighted_base))}` : ''} · excluded: don't know ${esc(num(ex.dk, { digits: 0 }))}, refused ${esc(num(ex.refused, { digits: 0 }))}, not asked ${esc(num(ex.iap, { digits: 0 }))}</p>
@@ -117,7 +127,7 @@ export async function update(ctx) {
   if (isMissing(pf)) proxy = emptyState('surveys/proxy_tests.json');
   else if (!(pf.tests || []).length) proxy = '<p class="muted">No proxy hypothesis has been tested yet.</p>';
   else {
-    proxy = `<div class="table-scroll"><table class="data compact"><thead><tr><th scope="col">Hypothesis</th><th scope="col">Outcome</th><th scope="col">Predictors</th><th scope="col">Train → test years</th><th scope="col">n train / test</th><th scope="col">${esc(ax('AUC'))} (interval) vs baseline</th><th scope="col">Brier vs baseline</th><th scope="col">Verdict</th></tr></thead><tbody>${pf.tests.map((t) => `<tr><th scope="row">${esc(t.hypothesis)}${t.notes ? `<span class="sub">${esc(t.notes)}</span>` : ''}</th><td>${esc(t.outcome)}</td><td>${esc((t.predictors || []).join(', '))}</td><td>${esc((t.train_years || []).join(', '))} → ${esc((t.test_years || []).join(', '))}</td><td class="num">${esc(num(t.n_train, { digits: 0 }))} / ${esc(num(t.n_test, { digits: 0 }))}</td><td class="num">${esc(num(t.auc, { digits: 3 }))}${Array.isArray(t.auc_ci) ? ` (${esc(num(t.auc_ci[0], { digits: 3 }))}–${esc(num(t.auc_ci[1], { digits: 3 }))})` : ''} vs ${esc(num(t.baseline_auc, { digits: 3 }))}</td><td class="num">${esc(num(t.brier, { digits: 3 }))} vs ${esc(num(t.baseline_brier, { digits: 3 }))}</td><td>${esc(t.verdict || 'Not stated')}</td></tr>`).join('')}</tbody></table></div>`;
+    proxy = `<div class="table-scroll"><table class="data compact"><thead><tr><th scope="col">Hypothesis</th><th scope="col">Outcome</th><th scope="col">Predictors</th><th scope="col">Train → test years</th><th scope="col">n train / test</th><th scope="col">${esc(ax('AUC'))} (interval) vs baseline</th><th scope="col">Change in ${esc(ax('AUC'))} (interval)</th><th scope="col">Brier vs baseline</th><th scope="col">Verdict</th></tr></thead><tbody>${pf.tests.map((t) => `<tr><th scope="row">${esc(t.hypothesis)}<span class="sub">${t.confirmatory === true ? 'Confirmatory (preregistered)' : t.confirmatory === false ? 'Exploratory' : ''}${t.controls ? ` · controls: ${esc(t.controls)}` : ''}</span>${t.notes ? `<span class="sub">${esc(t.notes)}</span>` : ''}</th><td>${esc(t.outcome)}</td><td>${esc((t.predictors || []).join(', '))}</td><td>${esc((t.train_years || []).join(', '))} → ${esc((t.test_years || []).join(', '))}</td><td class="num">${esc(num(t.n_train, { digits: 0 }))} / ${esc(num(t.n_test, { digits: 0 }))}</td><td class="num">${esc(num(t.auc, { digits: 3 }))}${Array.isArray(t.auc_ci) ? ` (${esc(num(t.auc_ci[0], { digits: 3 }))}–${esc(num(t.auc_ci[1], { digits: 3 }))})` : ''} vs ${esc(num(t.baseline_auc, { digits: 3 }))}</td><td class="num">${esc(num(t.delta_auc, { digits: 3 }))}${Array.isArray(t.delta_auc_ci95) ? ` (${esc(num(t.delta_auc_ci95[0], { digits: 3 }))} to ${esc(num(t.delta_auc_ci95[1], { digits: 3 }))})` : ''}</td><td class="num">${esc(num(t.brier, { digits: 3 }))} vs ${esc(num(t.baseline_brier, { digits: 3 }))}</td><td>${esc(t.verdict || 'Not stated')}</td></tr>`).join('')}</tbody></table></div>`;
   }
 
   el.innerHTML = `${intro}${controls}
@@ -126,15 +136,19 @@ export async function update(ctx) {
   <p class="summary">${found.length} table${found.length === 1 ? '' : 's'} match. Cells with an effective sample below 30 are suppressed; 30 to 100 are flagged exploratory.</p>
   ${!isMissing(cf) && !found.length ? '<div class="empty" role="status"><p>No table matches these filters. Your choices are kept; set one back to "Any" to widen.</p></div>' : ''}
   <div class="surveys">${cards}</div>
+  ${found.length > shown.length ? `<p class="hint">Showing ${shown.length} of ${found.length}. Narrow the filters, or <button type="button" class="secondary" id="sv-more">show ${Math.min(PAGE, found.length - shown.length)} more</button></p>` : ''}
   <h3>Do the proxies predict anything? Held-out tests</h3>
   <p class="hint">${esc(ax('Each hypothesis is fitted on earlier survey years and scored on later ones, against a baseline. A proxy that does not beat its baseline stays an unvalidated hypothesis.'))}</p>
+  ${!isMissing(pf) && pf.scope_note ? `<p class="hint">${esc(ax(pf.scope_note))}${pf.preregistration ? ` Preregistration: <code>${esc(pf.preregistration)}</code>.` : ''}</p>` : ''}
   ${proxy}`;
 
+  el.querySelector('#sv-more')?.addEventListener('click', () => ctx.setState({ params: { more: String(limit + PAGE) } }));
   el.querySelectorAll('select[data-key]').forEach((s) => s.addEventListener('change', (e) => {
     const k = e.target.getAttribute('data-key');
     ctx.record('survey_filter_changed');
     const patch = { [k]: e.target.value || null };
-    if (k === 'ds') { patch.v = null; }
+    if (k === 'ds') { patch.v = null; patch.period = null; }
+    patch.more = null;
     ctx.setState({ params: patch });
   }));
 }

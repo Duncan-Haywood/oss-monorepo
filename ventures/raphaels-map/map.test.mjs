@@ -42,7 +42,7 @@ test('legend covers min to max in order', () => {
 });
 
 test('SVG: missing counties hatched and labelled, values in bins, keyboard-focusable, no markers', () => {
-  const geo = JSON.parse(readFileSync(new URL('./test/fixtures/data/geo/state_08.json', import.meta.url), 'utf8'));
+  const geo = JSON.parse(readFileSync(new URL('./tests/fixtures/data/geo/state_08.json', import.meta.url), 'utf8'));
   const ids = Object.keys(geo.paths);
   const values = Object.fromEntries(ids.map((id, i) => [id, i === 0 ? null : i * 10]));
   const { svg } = choroplethSVG({ geo, values, names: { [ids[0]]: 'Fixture <A>' }, selected: ids[1] });

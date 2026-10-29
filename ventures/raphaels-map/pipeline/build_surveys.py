@@ -62,7 +62,7 @@ GSS_ITEMS = OrderedDict([
                                    ("Four or more", {4, 5, 6, 7}), ("As many as you want", {8})]),
         "note": "General ideal for 'a family', not the respondent's own intention or expected births. "
                 "Code 7 is '7 or more'. 'As many as you want' is a valid answer kept in the denominator; "
-                "its share roughly doubles from 2021 (mode change), so 2010-2018 and 2021-2024 are not comparable.",
+                "its share rises from about 7-12% of adults (2000-2018) to 24-31% (2021-2024) with the mode change, so 2010-2018 and 2021-2024 are not comparable.",
     }),
     ("fefam", {
         "concept": "role_norm_male_earner_female_homemaker", "alignment": "related",
@@ -224,9 +224,9 @@ def gss_questions(labels: dict, item_years: dict) -> list:
     for var, item in GSS_ITEMS.items():
         lab = labels[var]
         rmap = {k: v for k, v in lab["values"].items() if k.isdigit()}
-        for cat, codes in item["categories"].items():
-            for c in codes:
-                rmap.setdefault(str(c), cat)  # numeric codes without a Stata label (e.g. 0-6 of chldidel)
+        unlabelled = sorted(c for codes in item["categories"].values() for c in codes if str(c) not in rmap)
+        for c in unlabelled:  # e.g. chldidel 0-6: the Stata file labels only 7 and 8; the value is the count
+            rmap[str(c)] = str(c)
         qs.append({
             "dataset_id": "gss", "variable": var,
             "original_text": f"GSS variable label (short label, not the full question wording): \"{lab['label']}\"",
@@ -238,6 +238,8 @@ def gss_questions(labels: dict, item_years: dict) -> list:
             "years": item_years.get(var, []),
             "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
             "coding_unconfirmed": False,
+            "response_map_note": (f"codes {unlabelled} carry no Stata value label; the numeric value is the answer"
+                                  if unlabelled else None),
             "note": item["note"],
         })
     return qs

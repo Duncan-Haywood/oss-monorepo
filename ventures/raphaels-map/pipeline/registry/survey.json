@@ -1,0 +1,241 @@
+{
+ "about": "Survey sources and metrics for Raphael's Map, to be merged into data/sources.json and data/metrics.json. Written by hand from raw/manifest.json; citations are descriptive (the downloaded files carry no recommended citation text) and should be replaced by each publisher's recommended citation when that is checked on the landing page.",
+ "sources": [
+  {
+   "id": "gss",
+   "title": "General Social Survey (GSS), yearly data files 2000-2024, selected variables",
+   "provider": "NORC at the University of Chicago",
+   "landing_url": "https://gss.norc.org/us/en/gss/get-the-data/stata.html",
+   "dataset_version": "Yearly Stata files as posted on gss.norc.org, retrieved 2026-10-29 (release identifiers not recorded in the extract)",
+   "reference_period": "2000-2024 (13 survey years; no 2020 fieldwork; 2021 push-to-web)",
+   "retrieved_at": "2026-10-29T09:50:14+00:00",
+   "license": "Public-use data distributed free by NORC; terms of use not included in the downloaded files - check the landing page",
+   "access": "public download, no registration",
+   "citation": "NORC at the University of Chicago. General Social Survey, yearly Stata data files 2000-2024. https://gss.norc.org (retrieved 2026-10-29).",
+   "status": "ingested",
+   "files": [
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2000_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2002_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2004_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2006_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2008_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2010_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2012_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2014_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2016_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2018_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2021_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2022_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2024_stata.zip",
+     "sha256": null,
+     "note": "yearly Stata file read on the runner; only the extract below is hashed"
+    },
+    {
+     "url": "raphaels-map-raw:gss/gss_2000plus_selected.csv.gz",
+     "sha256": "c8cf67fc0c808822b1382aab6a8afce725dd87806af5446f9438a2504e7275fb",
+     "bytes": 1583367
+    },
+    {
+     "url": "raphaels-map-raw:gss/gss_selected_labels.json",
+     "sha256": "9abbf18f404a2d0e75aa8a06b8b2a82ed1108b49448942bfd8fadd17534093f7",
+     "bytes": 25553
+    }
+   ],
+   "weights": {
+    "analysis": "wtssps (person post-stratification weight; present 2000-2024)",
+    "sensitivity": "wtssnrps (2004+; changes the headline estimate by <0.1 pp)",
+    "absent": "wtssall missing in 2021, 2022, 2024 files"
+   },
+   "design": {
+    "strata": "vstrat (within year)",
+    "psu": "vpsu"
+   },
+   "notes": "Extended Stata missing codes (.d/.i/.n/.r/.s) arrive as blanks in the extract, so DK, no answer, refusal and web skips are not separable; IAP is recovered from the ballot design. 2022 and 2024 AmeriSpeak oversample cases (sample 12, 14) carry no wtssps and are excluded. FEHOME is absent from every year. REGION in these files is the 4-region code, not the 9 Census divisions."
+  },
+  {
+   "id": "nsfg",
+   "title": "National Survey of Family Growth (NSFG) 2022-2023, Female Respondent public-use file",
+   "provider": "National Center for Health Statistics (NCHS), Centers for Disease Control and Prevention",
+   "landing_url": "https://www.cdc.gov/nchs/nsfg/nsfg-2022-2023-puf.htm",
+   "dataset_version": "NSFG_2022_2023_FemRespPUFData.csv (file date 2024-10-28 in the zip)",
+   "reference_period": "2022-2023 fieldwork, women aged 15-49",
+   "retrieved_at": "2026-10-29T09:50:15+00:00",
+   "license": "U.S. federal public-use file; NCHS data-use restrictions (see landing page) apply",
+   "access": "public download, no registration",
+   "citation": "National Center for Health Statistics. 2022-2023 National Survey of Family Growth, Female Respondent public-use data file. https://www.cdc.gov/nchs/nsfg/nsfg-2022-2023-puf.htm (retrieved 2026-10-29).",
+   "status": "ingested",
+   "files": [
+    {
+     "url": "https://www.cdc.gov/nchs/nsfg/nsfg-2022-2023-puf.htm",
+     "sha256": "2808c44c7e3ecf2a0189c93fe860a6a713d001b7908031d8f1f36c87c991e0e6",
+     "bytes": 98555
+    },
+    {
+     "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/NSFG/NSFG-2022-2023-FemPregPUFData.zip",
+     "sha256": "fbfc973265e57568984f59b0fd14a8fe659e150e0261f3f4abc2327f33dd672d",
+     "bytes": 287269
+    },
+    {
+     "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/NSFG/NSFG-2022-2023-FemRespPUFData.zip",
+     "sha256": "ef9f0ec715ce7909b50f1ea67958166b2cd1ad3482c4b083174898ec8c7ceaaa",
+     "bytes": 2541378
+    }
+   ],
+   "weights": {
+    "analysis": "WGT2022_2023"
+   },
+   "design": {
+    "strata": "VEST (20)",
+    "psu": "VECL (4 per stratum)"
+   },
+   "notes": "The CSV has no value labels and the codebook PDF is not in raw/; value codings are unconfirmed, so no NSFG estimate is published yet (pipeline/registry/nsfg_codings.json). Fetch https://www.cdc.gov/nchs/data/nsfg/codebooks/2022-2023-NSFG-FemRespPUFCodebook.pdf to unblock."
+  }
+ ],
+ "metrics": [
+  {
+   "metric_id": "gss_ideal_children_4plus",
+   "label": "Ideal number of children: four or more",
+   "short": "Ideal 4+",
+   "universe": "GSS adults 18+ asked CHLDIDEL, by sex/age/religion/attendance/marital filter",
+   "unit": "percent of valid answers",
+   "definition": "Weighted share answering 4, 5, 6 or '7 or more' to CHLDIDEL; 'as many as you want' is a separate valid category in the denominator; DK/NA excluded",
+   "source_variable_ids": [
+    "chldidel"
+   ],
+   "method": "wtssps-weighted ratio, Taylor-linearised design SE, logit CI; suppressed n_eff<30, exploratory 30-100",
+   "source_id": "gss",
+   "class": "survey_estimate",
+   "caveats": [
+    "general ideal for 'a family', not own intention or expected births",
+    "2010-2018 and 2021-2024 not comparable: 'as many as you want' rises from about 7-12% (2000-2018) to 24-31% (2021-2024) of all adults after the 2021 mode change",
+    "national survey: no county or state estimate"
+   ],
+   "higher_is": "neutral"
+  },
+  {
+   "metric_id": "gss_weekly_attendance",
+   "label": "Attends religious services weekly or more",
+   "short": "Weekly attendance",
+   "universe": "GSS adults 18+, by affiliation",
+   "unit": "percent",
+   "definition": "ATTEND 7 'every week' or 8 'several times a week'",
+   "source_variable_ids": [
+    "attend",
+    "relig"
+   ],
+   "method": "as above",
+   "source_id": "gss",
+   "class": "survey_estimate",
+   "caveats": [
+    "self-reported attendance, which surveys generally find over-reported",
+    "affiliation (RELIG) and practice (ATTEND) are different measures"
+   ],
+   "higher_is": "neutral"
+  },
+  {
+   "metric_id": "gss_fefam_agree",
+   "label": "Agrees: better for man to work, woman to tend home",
+   "short": "Male-earner norm",
+   "universe": "GSS adults 18+",
+   "unit": "percent",
+   "definition": "FEFAM 1-2 (strongly agree, agree)",
+   "source_variable_ids": [
+    "fefam"
+   ],
+   "method": "as above",
+   "source_id": "gss",
+   "class": "survey_estimate",
+   "caveats": [
+    "a role norm about families in general, not the respondent's own preference"
+   ],
+   "higher_is": "neutral"
+  },
+  {
+   "metric_id": "gss_divlaw_more_difficult",
+   "label": "Divorce should be more difficult to obtain (law)",
+   "short": "Divorce law: harder",
+   "universe": "GSS adults 18+ (not asked 2021)",
+   "unit": "percent",
+   "definition": "DIVLAW 2 'more difficult' vs 1 'easier' / 3 'stay as is'",
+   "source_variable_ids": [
+    "divlaw"
+   ],
+   "method": "as above",
+   "source_id": "gss",
+   "class": "survey_estimate",
+   "caveats": [
+    "opinion about divorce law, not marital permanence, not a probability a marriage lasts"
+   ],
+   "higher_is": "neutral"
+  },
+  {
+   "metric_id": "nsfg_expected_additional_births",
+   "label": "Expected additional births (women)",
+   "short": "Expected births",
+   "universe": "NSFG 2022-2023 women 18-49",
+   "unit": "births",
+   "definition": "ADDEXP (candidate: births x 10) - coding unconfirmed",
+   "source_variable_ids": [
+    "ADDEXP"
+   ],
+   "method": "WGT2022_2023, Taylor SE on VEST/VECL",
+   "source_id": "nsfg",
+   "class": "survey_estimate",
+   "caveats": [
+    "expected, not ideal",
+    "not published until the codebook confirms the coding"
+   ],
+   "higher_is": "neutral",
+   "status": "coding_unconfirmed"
+  }
+ ]
+}

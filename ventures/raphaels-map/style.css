@@ -313,3 +313,27 @@ svg.ci { width: 100%; max-width: 160px; min-width: 80px; height: 12px; }
 .compare-table tbody th { min-width: 12rem; }
 .compare-table tbody th button.sort { white-space: normal; text-align: left; }
 table.data.compare-table td.num { white-space: normal; }
+
+/* Toolkit rows: text, then a compact move menu and remove link on one line */
+.tk-tier ul { list-style: none; padding: 0; margin: 6px 0; }
+.tk-tier li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.tk-tier li > span { flex: 1 1 260px; min-width: 0; }
+.tk-tier li select { width: auto; flex: 0 0 auto; padding: 4px 8px; font-size: .85rem; }
+.tk-tier li button { background: transparent; color: var(--accent); border: 1px solid var(--line); padding: 4px 10px; font-size: .82rem; margin: 0; }
+.tk form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.tk form input { flex: 1 1 220px; min-width: 0; padding: 8px 10px; border: 1px solid var(--ink-3); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-size: .95rem; }
+.tk form button { margin: 0; }
+.tk input[type="number"] { width: 5.5rem; padding: 6px 8px; border: 1px solid var(--ink-3); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; }
+.tk input[data-act="opener"] { width: 100%; padding: 8px 10px; border: 1px solid var(--ink-3); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; margin-top: 4px; }
+.tk label { font-weight: 400; }
+.tk-settings, .tk-custom { list-style: none; padding-left: 14px; }
+.tk-settings li, .tk-custom li { margin: 8px 0; }
+.tk-settings small { display: block; color: var(--ink-3); margin-left: 1.6em; }
+.tk-qgroup > ul { padding-left: 1.2em; }
+.metric-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 0 16px; }
+.metric-pick legend { grid-column: 1 / -1; }
+.metric-pick .check { margin: 4px 0; font-size: .9rem; }
+.intl-group h3 { margin-top: 18px; }
+table.intl th[scope="col"] { white-space: normal; min-width: 8rem; vertical-align: bottom; }
+table.intl button.sort { white-space: normal; }
+.rank-table th, .rank-table td { padding-left: 7px !important; padding-right: 7px !important; }

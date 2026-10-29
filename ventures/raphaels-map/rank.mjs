@@ -180,6 +180,12 @@ function resultsHTML(r, s, allDims, ax) {
       : 'Values evidence is unavailable at county level and is left out, not counted as zero.');
   }
   if (r.missingIds && r.missingIds.length) notes.push(`${r.missingIds.length} count${r.missingIds.length === 1 ? 'y has' : 'ies have'} no row in the published observations and ${r.missingIds.length === 1 ? 'is' : 'are'} not listed.`);
+  if ((s.weights.meeting_access || 0) > 0) {
+    const all = Object.values(r.core.county.observations || {});
+    const listed = all.reduce((t, o) => t + (o && o.public_venues && typeof o.public_venues.e === 'number' ? o.public_venues.e : 0), 0);
+    const zero = rows.filter((x) => { const v = (r.core.county.observations[x.id] || {}).public_venues; return v && v.e === 0; }).length;
+    if (zero) notes.push(`Meeting access counts only the venues in this tool's own hand-maintained list (${listed.toLocaleString('en-US')} in all counties). ${zero} of the ${rows.length} counties here have none listed yet, which is not the same as none existing; lower the Meeting access weight if that list is too thin for your area.`);
+  }
   if (s.includeProxies) notes.push('Unvalidated hypotheses are switched on. Their dimension is labelled; treat any rank change they cause as exploratory.');
 
   const SHORT = { demographic_capacity: 'Demographic', catholic_ecosystem: 'Catholic', meeting_access: 'Access', values_evidence: 'Values', exploratory_proxies: 'Proxies (unvalidated)' };

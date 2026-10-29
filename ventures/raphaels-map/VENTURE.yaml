@@ -1,0 +1,70 @@
+name: raphaels-map
+description: >-
+  Where a practicing Catholic single is more likely to meet marriage-minded
+  Catholics, from public aggregates only: women by age and marital status for
+  every U.S. county and metro (ACS 2020-2024 5-year, with margins of error),
+  Catholic adherents and congregations (2020 U.S. Religion Census), publicly
+  advertised young-adult and campus ministries checked against their own
+  pages, weighted national survey estimates (GSS, NSFG) of ideal and expected
+  family size and role attitudes with small-sample suppression, and
+  country-level demography for 22 countries. Two separate scorecards
+  (opportunity, values evidence) and a user-weighted research priority index
+  with coverage and rank sensitivity, never a multiplied "number of matches".
+  A profile and conversation toolkit for the user's own text. Places, never
+  people.
+stage: prototype
+owner: duncan
+
+# Started 2026-10-29 from the owner's own specification (SPEC.md, drafted as
+# "Covenant Atlas"; renamed for the archangel Raphael, who in the Book of
+# Tobit guides Tobias to his wife Sarah). The owner asked for the full
+# multi-agent build, not only the MVP sprints.
+#
+# First visitor: practicing Catholic men and women in their twenties and
+# thirties weighing where to spend their evenings, their weekends or a move;
+# also campus and young-adult ministers looking at where young Catholic
+# adults live. Searches like "where to meet catholic women", "catholic
+# singles colorado", "best cities for young catholics". Search volume not
+# measured.
+#
+# Liability boundary: public aggregates and the user's own text only; no
+# person is listed, scored or profiled; rankings are labelled exploratory
+# research priorities; not relationship, religious, legal or professional
+# advice, stated on every page.
+#
+# Unverified: whether anyone wants this; the venue list is a hand-curated
+# sample (21 rows, 14 checked against their own pages), not a census of
+# parishes, so it is weighted 0 by default.
+
+hypotheses:
+  - claim: >-
+      Catholic singles will use a county-level map of where young adult
+      Catholics live and where public young-adult ministries are, and will
+      come back to compare places before a move.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Weekly Mass attendance predicts a larger ideal family size better than
+      Catholic affiliation alone, out of sample (pipeline/proxy_tests_prereg.md).
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a venue correction) engage within 90 days of the page being reachable from the published site.
+  - A published county or survey figure is shown to differ from its official source, at which point the pipeline is fixed before anything else.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/raphaels-map/
+  analytics: null

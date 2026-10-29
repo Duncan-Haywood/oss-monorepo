@@ -96,7 +96,7 @@ export function classBadge(cls) {
 /** @param {string[]|undefined} flags */
 export function flagBadges(flags) {
   return (flags || [])
-    .map((f) => `<span class="badge flag${SEVERE.has(f) ? ' flag-warn' : ''}" title="${esc(FLAG_HELP[f] || f)}">${esc(FLAG_LABELS[f] || f)}</span>`)
+    .map((f) => `<span class="badge flag${SEVERE.has(f) ? ' flag-warn' : ''}" title="${esc(FLAG_HELP[f] || f)}">${esc(FLAG_LABELS[f] || String(f).replace(/_/g, ' '))}</span>`)
     .join(' ');
 }
 
