@@ -1134,8 +1134,15 @@ function buildFramed(d) {
     for (let rr = 0; rr < roofRows; rr++) {
       const q0 = rr * 48;
       const h = Math.min(48, slopeLen - q0);
+      // Sheets stagger 4 ft course to course, and every end joint lands on a
+      // rafter: where none is under the 4 ft mark (an inner rafter moved in
+      // clear of the gable wall), the sheet is cut back to the rafter before it.
       const cuts = [0];
-      for (let x = rr % 2 ? 48 : 96; x < L; x += 96) cuts.push(x);
+      for (let x = rr % 2 ? 48 : 96; x < L; ) {
+        const onRafter = rafterCenters.filter((c) => c <= x + 1e-9 && c > cuts[cuts.length - 1] + 12).pop() ?? x;
+        cuts.push(onRafter);
+        x = onRafter + 96;
+      }
       cuts.push(L);
       for (let i = 0; i + 1 < cuts.length; i++) {
         roofPieces.push(cuts[i + 1] - cuts[i]);
