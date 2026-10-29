@@ -2,7 +2,7 @@
 title: "Can a 16-point pilot certify a chip-flow search? Not yet, and here is what failed"
 date: 2026-10-29
 tags: [research, verified-dse, chip-design, multi-fidelity]
-description: "Where the verified-dse programme stands on a pilot-checkable guarantee for multi-fidelity chip-flow search: one pilot scheme is proved, a regret estimate from the pilot is not."
+description: "Where verified-dse stands on a pilot-checkable guarantee for chip-flow search: one pilot scheme is proved, a regret estimate from the pilot is not."
 ---
 
 The `verified-dse` research programme asks when a cheap synthesis rung is safe to trust in a search over open-source chip flows (Yosys, ABC, OpenROAD on SKY130). Its paper needs a guarantee a small routed pilot can check.
