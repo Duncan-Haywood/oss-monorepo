@@ -3,7 +3,7 @@ title: "How much energy can an excavator boom give back?"
 seo_title: "Excavator boom lowering energy recovery: 1 to 10% of cycle energy"
 date: 2026-10-29
 description: "A bound on boom-lowering energy recovery for a small excavator: about 3% of pump-shaft energy centrally, 10% at the extreme, from a swept model."
-tags: [research, heavy-hydraulics, excavators]
+tags: [research, heavy-hydraulics, excavator]
 ---
 
 # How much energy can an excavator boom give back?
