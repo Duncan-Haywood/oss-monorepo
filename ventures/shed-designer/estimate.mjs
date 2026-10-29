@@ -72,7 +72,8 @@ function sheetCount(lengths) {
  * one sheet. Rips are counted without a kerf: two 24" strips from a 48" sheet
  * leave the second a saw cut narrow, which the rim or the gap at the ridge
  * takes up (tongue-and-groove sheets cover about 47-1/2" anyway). Strips of
- * different widths are not mixed, so the count is one a builder can cut.
+ * different widths are not mixed in strips; the count is the lower of that and
+ * packing lengths alone, either of which a builder can cut.
  * @param {{ len: number, w: number }[]} pieces
  */
 export function sheetCount2d(pieces) {
@@ -88,7 +89,9 @@ export function sheetCount2d(pieces) {
     const strips = sheetCount(lens);
     sheets += w >= 48 - 1e-9 ? strips : Math.ceil(strips / Math.max(1, Math.floor(48 / w + 1e-9)));
   }
-  return sheets;
+  // Packing lengths alone, every piece as if full width, is always cuttable too, and
+  // wins when a narrow piece can share a sheet's length with a full-width one.
+  return Math.min(sheets, sheetCount(pieces.map((p) => p.len)));
 }
 
 /** The { len, w } of each panel of one kind, from its rectangle. @param {any[]} panels @param {string} kind */
