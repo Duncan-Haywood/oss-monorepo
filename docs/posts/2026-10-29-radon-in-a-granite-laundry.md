@@ -1,5 +1,6 @@
 ---
 title: "Radon in a granite laundry: why a four-day test and a three-month test disagree"
+seo_title: "Radon test: why a 4-day and a 3-month reading disagree"
 date: 2026-10-29
 description: "A new Hearth & Horizon story: a 4-day canister reads 520 Bq/m3, a 3-month chip 1,150. The one-line sum behind the gap, and why a bigger fan can disappoint."
 tags: [hearth-and-horizon, fiction, radon, open-source]

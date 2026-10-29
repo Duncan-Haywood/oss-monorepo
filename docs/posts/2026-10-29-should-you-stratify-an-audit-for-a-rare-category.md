@@ -1,5 +1,6 @@
 ---
 title: "Should you stratify the human audit of an LLM-coded rare category? Not at 1% prevalence"
+seo_title: "Stratify an LLM-coding audit for a rare category?"
 date: 2026-10-29
 description: "On GoEmotions fear (1.15% prevalence), splitting a 400-item human audit into four strata lifted nothing and cost coverage; one pooled sample covered 95.8%."
 tags: [research, llm-coding-inference, statistics]
