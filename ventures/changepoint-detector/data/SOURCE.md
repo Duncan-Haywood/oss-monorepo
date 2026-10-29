@@ -273,3 +273,14 @@ blank (not filled in). The dispute is in the data as seven zero weeks.
   `ansett-melsyd-economy.csv`.
 - **Licence:** fpp2 is GPL-3 (Hyndman); airline traffic counts, test data only.
 - **Used by:** `eval/ansett-first.mjs`, `ansett-first.test.mjs`.
+
+---
+
+# Example data: all Ansett route and class series
+
+`ansett-all.csv`: weekly passengers for 10 Ansett routes in economy, business and first class (7,407 rows, 30 series;
+economy and first from 1987 W26, business from 1989 W28 to 1992 W47). Columns: rownames, Week (ISO year and week),
+Airports, Class, Passengers. R's `tsibbledata::ansett` via the Rdatasets CSV mirror
+(`vincentarelbundock/Rdatasets`, `csv/tsibbledata/ansett.csv`). Open data; fetched 2026-10-29.
+
+- **Used by:** `eval/ansett-sweep.mjs`, `ansett-sweep.test.mjs`.
