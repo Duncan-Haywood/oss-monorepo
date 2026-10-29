@@ -34,6 +34,12 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Auto repair shops (2026-10-29, autorepair.test.mjs; agent-written from the companies' public names, not from a real export):
+  // fleet-account payments are sales; repair-data subscriptions are software; shop rent is rent; ASE fees are education and dues.
+  ["4000", "in", /fleet account (payment|pmt)/],
+  ["6060", "out", /\balldata\b|mitchell ?1|\bidentifix\b|\bshop-?ware\b|tekmetric|shopmonkey/],
+  ["6080", "out", /\bshop rent\b|bay \d+ properties/],
+  ["6170", "out", /\base\b.*(certification|test)/],
   // Home inspectors (2026-10-29, inspector.test.mjs; agent-written from the companies' public names, not from a real export):
   // inspection-software payouts are sales; report software is software; a state inspector licence is a licence; a thermal camera is equipment (6070, a depreciation decision left to the owner).
   ["4000", "in", /spectora.*(payout|payment)|\bhomegauge\b.*payout|\bisn\b.*payout|horizon.*payout/],
