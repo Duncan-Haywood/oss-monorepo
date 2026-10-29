@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 7b: machine-check the proposal's citations and add related work to the breakdown section (no training)
+
+- Why: 7a's draft cited nothing, and the proposal's 16 arXiv ids had been unchecked since 2026-10-24 (host refused then).
+- Done: `cite_check.py` resolved all 16 ids (the proposal's "Citation status" now records this, and the one title difference: 1909.04715 resolves to the first-version title). Six robust-aggregation ids were checked too and four are cited in `paper/section_breakdown.md` under a new "Related work" paragraph, whose claims are limited to title and abstract-level content.
+- Not done: no paper was fully re-read; the Krum paper (Blanchard et al.) was not checked and is not cited; still no scale-up check (milestone 6).
+- Next: milestone 6 (fit at three sizes, predict the fourth) and the remaining paper sections.
+
 ## 2026-10-28 · Milestone 7a: draft the breakdown-point section of the paper from 5i to 5n (no new training)
 
 - Why: 5n's "Next" said the median's breakdown is established, or to stop. The programme had no `paper/` yet; this writes the first section from recorded results so the claim is stated once, with its limits, and the table regenerates from the jsonl files.

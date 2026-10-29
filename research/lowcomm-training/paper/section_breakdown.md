@@ -1,6 +1,6 @@
 # Draft section: the median's breakdown point in DiLoCo-style training
 
-*Draft for the programme paper (milestone 7). AI-assisted; no affiliation implied. Every number below is in `LOG.md` (milestones 5i to 5n) and regenerates with `python3 paper/breakdown_table.py`. Citations are not yet machine-checked (see the proposal's "Citation status").*
+*Draft for the programme paper (milestone 7). AI-assisted; no affiliation implied. Every number below is in `LOG.md` (milestones 5i to 5n) and regenerates with `python3 paper/breakdown_table.py`. The arXiv ids cited here and in the proposal were machine-checked on 2026-10-29 (`cite_check.py`: id resolves to the title given); what each paper says is taken from its title and abstract-level claim, not re-derived here.*
 
 ## Question
 
@@ -27,6 +27,10 @@ Simulated DiLoCo on a 413k-parameter GPT on tinyshakespeare: M = 16 workers, H =
 2. **Degradation below the wall is smooth, convex, and attack-dependent.** Coordination multiplies the cost 2.5x to 5x at equal k (k = 4: +0.231 against +0.047). A squared-shift scaling from the single-attacker cost under-predicts the independent curve by 1.8x (k = 2) to 3.8x (k = 6), so shift is the wrong summary; the bias relative to the honest signal mu is the quantity that matters.
 3. **The breakdown is at k = M/2 = 8 under both attacks.** Both seeds diverge at k = 8 (non-finite weights under the coordinated attack, validation loss about 5e5 under independent flips), the first count at which rank 8 of the 16 sorted values can be an attacker's. k = 7 still trains. This is the classical breakdown point of the median reached in practice, on a real transformer, with the attack strength not mattering at the wall.
 4. **A net-signal crossover account is half right.** A numpy model (i.i.d. Gaussian, mu/sigma = 0.4 as measured in 5h) puts the point where the median's bias exceeds the honest signal between k = 7 and 8 for independent flips, for every mu/sigma from 0.3 to 1.0, and the runs break there. For the coordinated attack the same model puts the crossing at k = 3 to 4, yet k = 4 to 7 train with a smooth, roughly linear loss increase of +0.12 to +0.23 nats per attacker. So "net signal below zero means divergence" does not carry over; only the rank (median-is-attacker-value) wall predicts divergence in both cases.
+
+## Related work
+
+Coordinate-wise median and trimmed mean as Byzantine-robust aggregators were analysed with statistical rates by Yin et al. (arXiv:1803.01498); Chen et al. (arXiv:1705.05491) set up Byzantine gradient descent earlier. Attacks that stay inside such a rule's tolerance but still hurt training are the subject of Baruch et al., "A little is enough" (arXiv:1902.06156), Xie et al., inner-product manipulation (arXiv:1903.03936) and El Mhamdi et al. (arXiv:1802.07927); our same-vector attack is in that family, but it is a simpler, stronger-than-needed push, not a reproduction of any of them. Karimireddy et al. (arXiv:2012.10333) show history-aware aggregation helps against time-coupled attacks, which is one candidate for a rule that tolerates more than the median does. What we add is narrow: the breakdown point and the smooth degradation below it, measured on a transformer trained with a DiLoCo-style outer loop (arXiv:2311.08105), where the aggregate is applied to pseudo-gradients every H = 16 steps, with k and attack type varied at fixed M = 16.
 
 ## Limits
 
