@@ -19,3 +19,8 @@ services:
         generateValue: true
       - key: TEAM_TOKEN
         generateValue: true
+      # Optional: paste a Slack/Discord/ntfy webhook you own in the dashboard (see README)
+      - key: NOTIFY_WEBHOOK_URL
+        sync: false
+      - key: TEAM_WEBHOOK_URL
+        sync: false

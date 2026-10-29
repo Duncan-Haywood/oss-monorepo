@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
-import { handler, emptyState } from "./server.mjs";
+import { handler, emptyState, webhookBody, notifier } from "./server.mjs";
 
 const env = { ADMIN_KEY: "adm", TEAM_TOKEN: "tm" };
 async function boot(e = env) {
@@ -248,4 +248,46 @@ test("admin lists a text and email link per person with their shifts, and nothin
   assert.equal((admin.match(/href="mailto:\?subject=Your%20shifts%2C%20week%20of%202026-10-19&amp;body=Hi%20/g) || []).length, 2);
   assert.match(admin, /Hi%20Ana%2C%20your%20shifts%20this%20week/);
   s.close();
+});
+
+test("webhook alerts: manager ask, team publish, no secrets, bad webhook harmless", async () => {
+  const calls = [];
+  const fakeFetch = async (url, o) => { calls.push({ url, body: o.body, type: o.headers["content-type"] }); return { ok: true }; };
+  const state = emptyState();
+  const e = { ...env, NOTIFY_WEBHOOK_URL: "http://hook.test/m", TEAM_WEBHOOK_URL: "http://hook.test/t", PUBLIC_URL: "https://roster.example/" };
+  const srv = http.createServer(handler(state, () => {}, e, () => Date.UTC(2026, 9, 18), fakeFetch));
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  const base = `http://127.0.0.1:${srv.address().port}`;
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, any\nBen, 19.43, 40, 0, any";
+  await post(base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon-Fri, 9, 17, 1, day" });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "http://hook.test/t");
+  const team = JSON.parse(calls[0].body).text;
+  assert.match(team, /Ana|Ben/);
+  assert.doesNotMatch(team, /23\.17|19\.43|adm\b/);
+  const p = state.published.assignments[0];
+  await post(base + "/team/callout?t=tm", { shift: `${p.person}|${p.slot.day}|${p.slot.startMin}|${p.slot.endMin}`, note: "<!channel> sick & tired" });
+  assert.equal(calls.length, 2);
+  assert.equal(calls[1].url, "http://hook.test/m");
+  const mgr = JSON.parse(calls[1].body).text;
+  assert.match(mgr, /cannot make/);
+  assert.match(mgr, /&lt;!channel&gt; sick &amp; tired/);
+  assert.match(mgr, /https:\/\/roster\.example\/admin/);
+  assert.doesNotMatch(mgr, /key=|adm\b/);
+  srv.close();
+});
+
+test("webhook formats and a failing webhook never block the staff request", async () => {
+  assert.deepEqual(JSON.parse(webhookBody("discord", "hi @everyone").body), { content: "hi @everyone", allowed_mentions: { parse: [] } });
+  assert.equal(webhookBody("ntfy", "hi").type, "text/plain; charset=utf-8");
+  assert.equal(await notifier({}, async () => { throw new Error("x"); }).manager("a"), false);
+  assert.equal(await notifier({ NOTIFY_WEBHOOK_URL: "ftp://x" }, async () => ({ ok: true })).manager("a"), false);
+  assert.equal(await notifier({ NOTIFY_WEBHOOK_URL: "http://x" }, async () => { throw new Error("down"); }).manager("a"), false);
+  const state = emptyState();
+  const srv = http.createServer(handler(state, () => {}, { ...env, NOTIFY_WEBHOOK_URL: "http://hook.test/m" }, () => Date.UTC(2026, 9, 18), async () => { throw new Error("down"); }));
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  const r = await post(`http://127.0.0.1:${srv.address().port}/team/reply?t=tm`, { line: "Ana | Mon-Fri 9-17 | max: 20" });
+  assert.equal(r.status, 200);
+  assert.equal(state.replies.length, 1);
+  srv.close();
 });
