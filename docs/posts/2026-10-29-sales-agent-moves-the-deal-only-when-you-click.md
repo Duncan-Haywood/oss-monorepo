@@ -1,7 +1,7 @@
 ---
 title: "Sales Agent can move the deal, but only when you click"
 date: 2026-10-29
-description: "Sales Agent's self-host queue now has a button that moves a contact's open Pipedrive or HubSpot deal to your meeting stage after an interested reply. Nothing moves automatically."
+description: "Sales Agent's self-host queue has a button that moves a contact's open Pipedrive or HubSpot deal to your meeting stage. Nothing moves automatically."
 tags: [sales-agent, crm, open-source]
 ---
 
