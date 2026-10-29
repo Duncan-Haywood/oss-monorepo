@@ -1,7 +1,8 @@
 // @ts-check
 // A small WebGL viewer for the framed shed: every board is its own extruded
 // profile with real dimensions, lit with two lights and outlined so you can
-// count studs. No library; drag to orbit, wheel or buttons to zoom.
+// count studs. No library; drag to orbit, wheel, pinch or buttons to zoom,
+// arrow keys and +/- when the canvas has focus.
 
 /** @typedef {import('./model.mjs').Geom} Geom */
 /** @typedef {{ geom: Geom, color: [number, number, number], layer: string, flags?: number }} Solid */
@@ -428,6 +429,11 @@ export function createViewer(canvas) {
       // Labels at each line's midpoint, projected to the screen.
       const cw = canvas.clientWidth; const ch = canvas.clientHeight;
       const spans = overlay.children;
+      // On a small canvas the labels pile up: draw them in order and skip one
+      // that would cover a label already placed or stick out of the picture.
+      /** @type {number[][]} */
+      const placed = [];
+      overlay.style.display = showDims ? '' : 'none';
       dims.forEach((dm, i) => {
         const mid = [0, 1, 2].map((j) => (dm.a[j] + dm.b[j]) / 2);
         const x = m[0] * mid[0] + m[4] * mid[1] + m[8] * mid[2] + m[12];
@@ -438,8 +444,14 @@ export function createViewer(canvas) {
         const away = dm.n && dm.n[0] * (eye[0] - mid[0]) + dm.n[1] * (eye[1] - mid[1]) + dm.n[2] * (eye[2] - mid[2]) < 0;
         if (w4 <= 0 || away) { el.style.display = 'none'; return; }
         el.style.display = '';
-        el.style.left = `${canvas.offsetLeft + ((x / w4 + 1) / 2) * cw}px`;
-        el.style.top = `${canvas.offsetTop + ((1 - y / w4) / 2) * ch}px`;
+        const sx = ((x / w4 + 1) / 2) * cw; const sy = ((1 - y / w4) / 2) * ch;
+        const hw = el.offsetWidth / 2; const hh = el.offsetHeight / 2;
+        const box = [sx - hw, sy - hh, sx + hw, sy + hh];
+        const clash = placed.some((b) => box[0] < b[2] && b[0] < box[2] && box[1] < b[3] && b[1] < box[3]);
+        if (showDims && (clash || box[0] < 0 || box[2] > cw || box[1] < 0 || box[3] > ch)) { el.style.display = 'none'; return; }
+        placed.push(box);
+        el.style.left = `${canvas.offsetLeft + sx}px`;
+        el.style.top = `${canvas.offsetTop + sy}px`;
       });
     }
     if (overlay) overlay.style.display = showDims ? '' : 'none';
@@ -463,19 +475,61 @@ export function createViewer(canvas) {
     }
   }
 
-  // Orbit with a pointer, zoom with the wheel.
+  // One draw per frame however many pointer events arrive: on a big design a
+  // draw costs more than the gap between pointermoves.
+  let drawQueued = false;
+  const requestDraw = () => {
+    if (drawQueued) return;
+    drawQueued = true;
+    requestAnimationFrame(() => { drawQueued = false; draw(); });
+  };
+
+  // Orbit with one pointer, pinch with two, zoom with the wheel or the keys.
+  /** @type {Map<number, { x: number, y: number }>} */
+  const pointers = new Map();
   let drag = null;
-  canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY, theta: cam.theta, phi: cam.phi }; canvas.setPointerCapture(e.pointerId); });
+  let pinch = null;
+  const spread = () => { const [a, b] = [...pointers.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
+  canvas.addEventListener('pointerdown', (e) => {
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    canvas.setPointerCapture(e.pointerId);
+    if (pointers.size === 1) drag = { x: e.clientX, y: e.clientY, theta: cam.theta, phi: cam.phi };
+    else if (pointers.size === 2) { drag = null; pinch = { d: spread(), dist: cam.dist }; }
+  });
   canvas.addEventListener('pointermove', (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch && pointers.size === 2) {
+      cam.dist = Math.max(cam.fit * 0.25, Math.min(cam.fit * 3, pinch.dist * (pinch.d / spread())));
+      requestDraw();
+      return;
+    }
     if (!drag) return;
     cam.theta = drag.theta - (e.clientX - drag.x) * 0.008;
     cam.phi = Math.max(-0.15, Math.min(1.45, drag.phi + (e.clientY - drag.y) * 0.008));
-    draw();
+    requestDraw();
   });
-  const end = () => { drag = null; };
+  const end = (e) => {
+    pointers.delete(e.pointerId);
+    pinch = null;
+    // Lifting one finger of a pinch carries on as an orbit from where it is.
+    const [rest] = [...pointers.values()];
+    drag = rest ? { x: rest.x, y: rest.y, theta: cam.theta, phi: cam.phi } : null;
+  };
   canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.1 : 1 / 1.1); }, { passive: false });
-  function zoom(f) { cam.dist = Math.max(cam.fit * 0.25, Math.min(cam.fit * 3, cam.dist * f)); draw(); }
+  canvas.addEventListener('keydown', (e) => {
+    const turn = { ArrowLeft: [0.12, 0], ArrowRight: [-0.12, 0], ArrowUp: [0, 0.08], ArrowDown: [0, -0.08] }[e.key];
+    if (turn) {
+      cam.theta += turn[0];
+      cam.phi = Math.max(-0.15, Math.min(1.45, cam.phi + turn[1]));
+      requestDraw();
+    } else if (e.key === '+' || e.key === '=') zoom(1 / 1.2);
+    else if (e.key === '-' || e.key === '_') zoom(1.2);
+    else return;
+    e.preventDefault();
+  });
+  function zoom(f) { cam.dist = Math.max(cam.fit * 0.25, Math.min(cam.fit * 3, cam.dist * f)); requestDraw(); }
   if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => draw()).observe(canvas);
 
   return {

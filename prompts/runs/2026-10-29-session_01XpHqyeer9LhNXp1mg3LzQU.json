@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqyeer9LhNXp1mg3LzQU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "overnight shed-designer quality, lane 3: editor, 3D viewer and UX",
+  "input_sha256": "58914aadf0cc0d743cd7fc0992a8efbb6d2c43f9e08871ca8622ea4e7e5a61d2",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T05:33:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer lane 3: editor, 3D viewer and UX",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 11316,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The overnight brief said to verify with node --test in the venture, but the venture's own <slug>-ci.yml was removed when PR #11268 merged (ventures-tests.yml covers node --test). A browser job therefore needed a new workflow, and the gitops runs-on README count had to be re-synced by hand (sync_readme_counts.py)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "Added a per-venture workflow (shed-designer-browser.yml) although ventures/CLAUDE.md says a venture needs no <slug>-ci.yml just for node --test: this one installs Playwright and axe-core, which ventures-tests.yml does not, so the browser tests otherwise always skip in CI.",
+      "did": "new workflow, PR-scoped to ventures/shed-designer/**",
+      "result": "pending first CI run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-shed-designer-driven-like-a-first-time-visitor.md"
+  ],
+  "goal": null,
+  "notes": "Audit before #11268 merged (read-only): Playwright drive at 1366x900 and Pixel 7 found the end view drawing raw instead of auto-resolved pitch/overhang (5/12, 12\" vs built 4/12, 7\"), eave drag overridden by autoOverhang, handles with role=button but no key handlers, Ctrl+Shift+Z broken (e.key 'Z'), every keystroke committing (\"\" and \"1\" built 4 ft sheds, several undo steps), phone handles 12-19 px, 3D labels overlapping on phone. Latency, median of six pitch edits, sync handler time, headless swiftshader: before 85 ms (12x8) / 175 ms (40x20); after 26 / 50. Local verification: node --test 100 pass 0 fail (browser tests with Playwright 1.63 + axe-core 4.13.0); typecheck 0 diagnostics; clauses pass; validate_workflows all valid; sync_tree_counts --check agrees; gitops/tests/test_ci_runner.py 24 pass after sync_readme_counts.py. The browser tests were written after the fixes; their failures on the old code are shown by the audit script output, not by running the test file against it (it relies on data-key hooks the fix adds).",
+  "corrections": [],
+  "redteam": null
+}
