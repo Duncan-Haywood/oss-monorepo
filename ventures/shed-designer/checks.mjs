@@ -56,8 +56,12 @@ export function structuralChecks(shed) {
     const [gov, r] = worst(check({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn / 12, roof));
     add('Rafters', `${d.rafterSize} at ${d.rafterSpacing}"`, `${fmtIn(rafterRunIn)} horizontal run at ${d.pitch}/12, ${snow} psf snow + 15 dead`, r, gov);
   }
-  // Roof load on each eave wall per foot: half the rafter run plus the overhang.
-  const tribFt = (rafterRunIn / 2 + d.overhang + k.stud) / 12;
+  // Roof load on each eave wall per foot. Under a ridge beam the beam takes
+  // the upper half of each rafter, so the wall carries the lower half of the
+  // run plus the wall and the overhang. Under a ridge board the board carries
+  // nothing (the rafter pair and its tie are a truss), so each eave wall
+  // carries the whole half roof, ridge to eave tip.
+  const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
   const deadPlf = (15 / cos) * tribFt;
   const snowPlf = snow * tribFt;
   if (beam) {

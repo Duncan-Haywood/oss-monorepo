@@ -31,6 +31,7 @@ test('shopping list covers lumber, sheets, roofing, vents and hardware, and tota
   const sum = est.shopping.reduce((t, r) => t + r.total, 0);
   assert.ok(Math.abs(sum - est.total) < 0.01);
   assert.ok(est.lumberCost >= est.lowerBound);
+  assert.ok(est.cutSheetCost + 1e-9 >= est.lowerBound);
   // 8x12 floor: 3 sheet-lengths in each of two 4 ft rows, staggered, packed into whole sheets.
   assert.equal(est.floorSheets, 3);
 });
