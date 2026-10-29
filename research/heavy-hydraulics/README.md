@@ -90,3 +90,14 @@ stays below load-sensing in every cycle (median 0.66). The two margins come from
 and the pressures are still the assumed force model, so this is a sensitivity result, not an energy
 figure. Run `python3 experiments/physics_cycle.py --sourced`; output in
 `experiments/physics_cycle_sourced_results.txt`; reasoning in [`LOG.md`](LOG.md).
+
+## Milestone 2e: is the assumed cycle's load shape like a measured excavator's?
+
+A public electrical power trace of an electric excavator (Zenodo 18862594, CC-BY-4.0; copied to
+`experiments/data/`) has a load factor (mean over peak) of 0.346 and spends 52% of the time below
+30% of its peak. The force-model cycles have a median load factor of 0.606 (5 to 95%: 0.41 to 0.78)
+and a median 14% of time below 30% of peak, so the model has *less* low-load time than the machine,
+and the 2d finding is not an artefact of too many idle phases. The trace is electrical input to a
+different, larger machine, so this is a shape check only; it says nothing about which circuit wins.
+Run `python3 experiments/trace_shape.py`; output in `experiments/trace_shape_results.txt`; reasoning
+in [`LOG.md`](LOG.md).
