@@ -3,7 +3,7 @@ title: "When rough water comes in weeks, how much does slowing down on rough day
 seo_title: "Solar boat speed policy in rough weeks: marine-hull milestone 6c"
 date: 2026-10-29
 tags: [research, marine-hull, solar-boat]
-description: "A simulation of a 5 m deck-solar boat over ten years of daily sunshine at five sites: a day-by-day back-off beats the best constant speed by 3 to 8% with a big battery and up to 15% with a small one."
+description: "Simulated solar boat at five sites: slowing on rough days beats the best constant speed by 3 to 8% with a big battery, up to 15% with a small one."
 ---
 
 The marine-hull programme asks how far a small deck-solar boat can go per day. Milestone 6c tested a speed policy that slows down on rough days, when rough water comes in spells rather than scattered single days.
