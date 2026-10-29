@@ -380,6 +380,7 @@ the sources, and mark legend as legend)
 - *(Done: Andrew and the Nets, 30 November; Gospel passages only (John 1, 6, 12; Matthew 4); text only.)* Saint Andrew, the one who brings people.
 - *(Done: Patrick and the Hundred Prayers, 17 March; the Confessio's own words; shamrock and snakes left out; text only.)* The captive shepherd boy, the hundred prayers, the ship that was ready.
 - *(Done: Philip Neri and the Happy Walk, 26 May; history in outline, "Be good, if you can" told as tradition, miracles left out; text only.)* Saint Philip Neri, games and the seven-churches walk.
+- *(Done: Zita and the Bread in the Oven, 27 April; not in the General Roman Calendar, in the Martyrology; bread baked by angels told as legend; text only.)* Saint Zita, a Lucca servant, work and prayer together.
 
 ## What not to do
 
