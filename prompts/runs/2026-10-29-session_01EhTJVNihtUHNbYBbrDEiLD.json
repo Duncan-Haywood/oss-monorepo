@@ -15,9 +15,11 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Deepen (flagship 6): shift-roster-builder",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11497",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +27,15 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 1,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Landed a call-out churn bench, a guide page and a blog post. Ran only the new page test (passes, 30 s). Full venture suite and venture-preflight not run. Did not touch the flagship's open solver milestone (branch-and-price), so outcome is partial. flagships.yaml next: unchanged.",
   "corrections": [],
   "redteam": null
 }
