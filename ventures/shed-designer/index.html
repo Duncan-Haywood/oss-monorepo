@@ -53,11 +53,14 @@
     .floor { fill: #e9dcc0; stroke: #6b4f2a; }
     .wallband { fill: #c99d62; }
     .ridge { stroke: #7a2f1d; stroke-dasharray: 6 4; stroke-width: 1.2; }
-    .opening { cursor: grab; stroke: #1b2a3a; stroke-width: 1; }
+    .opening { stroke: #1b2a3a; stroke-width: 1; }
     .opening.door { fill: #8a5a2b; }
     .opening.window { fill: #8fc2ea; }
-    .opening:focus { outline: none; stroke: #e0662f; stroke-width: 3; }
-    .handle { fill: #e0662f; stroke: #fff; stroke-width: 2; pointer-events: none; }
+    .opening { pointer-events: none; }
+    .opening-hit { fill: transparent; cursor: grab; }
+    .opening-hit:focus { outline: none; }
+    .opening-hit:focus-visible { stroke: #e0662f; stroke-width: 3; stroke-dasharray: 5 3; }
+    .handle { fill: #e0662f; stroke: #fff; stroke-width: 2; }
     .handle-hit { fill: transparent; stroke: none; }
     .handle-hit:focus { outline: none; }
     .handle-hit:focus-visible { stroke: #1f2420; stroke-width: 2; stroke-dasharray: 4 3; }

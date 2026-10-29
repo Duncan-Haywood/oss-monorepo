@@ -92,7 +92,7 @@ test('every handle works from the keyboard and keeps focus after the redraw', { 
   await page.keyboard.press('ArrowUp');
   assert.equal(await val(page, 'widthFt'), '8.5');
 
-  const door = page.locator('#plan .opening.door');
+  const door = page.locator('#plan [data-key^="op-"]').first();
   const before = Number(await page.$eval('#openings input[data-k="offset"]', (e) => e.value));
   await door.focus();
   await page.keyboard.press('ArrowRight');
@@ -228,4 +228,27 @@ test('axe finds no accessibility violations on any results tab', { skip: skip ||
       .map((x) => `${x.id} (${x.nodes.length}): ${x.nodes.slice(0, 2).map((n) => n.target.join(' ')).join(', ')}`));
     assert.deepEqual(v, [], `violations with the ${tab} tab open`);
   }
+});
+
+test('grabbing a door near its end does not jump it, and a phone-size target lets you drag it', { skip }, async (t) => {
+  const { ctx, page } = await open(t, pw.devices['Pixel 7']);
+  const small = await page.$$eval('.opening-hit', (hs) => hs.map((h) => h.getBoundingClientRect()).filter((r) => r.width < 43 || r.height < 43).length);
+  assert.equal(small, 0, 'every door and window target is at least 44 px each way');
+  const offset = () => page.$eval('#openings input[data-k="offset"]', (e) => Number(e.value));
+  const before = await offset();
+  const shape = page.locator('#plan .opening.door');
+  await shape.scrollIntoViewIfNeeded();
+  const b = await shape.boundingBox();
+  // Press near the left end, a little off the wall line, and lift without moving far.
+  const cdp = await ctx.newCDPSession(page);
+  const x = b.x + 3; const y = b.y + b.height / 2 + 8;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + 1, y }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  const nudged = await offset();
+  assert.ok(Math.abs(nudged - before) <= 2, `a 1 px move moved the door ${nudged - before}"`);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  for (let i = 1; i <= 6; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + i * 6, y }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  assert.ok(await offset() > nudged + 10, 'dragging right moved it right');
 });

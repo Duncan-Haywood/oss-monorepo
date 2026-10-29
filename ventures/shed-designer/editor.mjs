@@ -133,6 +133,9 @@ function handleAt(layers, x, y, upp, attrs) {
   const r = Math.max(7, 9 * upp);
   const hit = el('circle', { cx: x, cy: y, r: Math.max(r, 23 * upp), class: 'handle-hit', ...attrs }, layers.hit);
   const dot = el('circle', { cx: x, cy: y, r, class: 'handle', 'aria-hidden': 'true' }, layers.dot);
+  // The dot sits above the doors and windows, so where an opening's target
+  // overlaps the handle's, a press on the dot itself still reaches the handle.
+  dot.addEventListener('pointerdown', (e) => { e.preventDefault(); hit.dispatchEvent(new PointerEvent('pointerdown', e)); });
   const moveTo = (cx, cy) => { for (const c of [dot, hit]) { c.setAttribute('cx', String(cx)); c.setAttribute('cy', String(cy)); } };
   return { hit, moveTo };
 }
@@ -176,19 +179,26 @@ export function drawPlan(svg, design, hooks) {
   side.setAttribute('transform', `rotate(-90 -26 ${W / 2})`);
 
   const layers = { hit: el('g', {}, g), dot: /** @type {any} */ (null) };
-  // Openings.
-  const openingBox = (op, dsg = design) => {
+  // Openings. Each is drawn at its real size, with a transparent target
+  // round it at least 44 px each way on screen, which takes the pointer and
+  // the keyboard: on a phone a 24" window is otherwise about a 30 x 13 px sliver.
+  const openingBox = (op, dsg = design, thick = 10, minLen = 0) => {
     const a = axisStart(dsg, op);
-    const thick = 10;
-    if (op.wall === 'front') return { x: a, y: Y(0) - thick / 2, w: op.width, h: thick };
-    if (op.wall === 'back') return { x: a, y: Y(W) - thick / 2, w: op.width, h: thick };
-    if (op.wall === 'left') return { x: -thick / 2, y: Y(a + op.width), w: thick, h: op.width };
-    return { x: L - thick / 2, y: Y(a + op.width), w: thick, h: op.width };
+    const len = Math.max(op.width, minLen);
+    const s0 = a + op.width / 2 - len / 2;
+    if (op.wall === 'front') return { x: s0, y: Y(0) - thick / 2, w: len, h: thick };
+    if (op.wall === 'back') return { x: s0, y: Y(W) - thick / 2, w: len, h: thick };
+    if (op.wall === 'left') return { x: -thick / 2, y: Y(s0 + len), w: thick, h: len };
+    return { x: L - thick / 2, y: Y(s0 + len), w: thick, h: len };
   };
+  const hitSize = 44 * upp;
+  const place = (rect, b) => { rect.setAttribute('x', String(b.x)); rect.setAttribute('y', String(b.y)); rect.setAttribute('width', String(b.w)); rect.setAttribute('height', String(b.h)); };
   for (const op of design.openings) {
     const { x, y, w, h } = openingBox(op);
-    const r = el('rect', { x, y, width: w, height: h, rx: 2, class: `opening ${op.kind}`, tabindex: 0, role: 'button', 'data-key': `op-${op.id}`,
+    const shape = el('rect', { x, y, width: w, height: h, rx: 2, class: `opening ${op.kind}`, 'aria-hidden': 'true' }, g);
+    const r = el('rect', { class: 'opening-hit', tabindex: 0, role: 'button', 'data-key': `op-${op.id}`,
       'aria-label': `${op.kind} ${op.width} by ${op.height} inches on the ${op.wall} wall, ${op.offset} inches from its left corner. Drag, or use the arrow keys, to move it along the wall.` }, g);
+    place(r, openingBox(op, design, Math.max(10, hitSize), hitSize));
     r.addEventListener('keydown', (e) => {
       if (!ARROWS[e.key]) return;
       e.preventDefault();
@@ -199,14 +209,21 @@ export function drawPlan(svg, design, hooks) {
     r.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       r.setPointerCapture(e.pointerId);
+      // Keep the point you grabbed under the pointer, rather than jumping the
+      // opening's centre to it.
+      const a = axisStart(design, op) + op.width / 2;
+      const c = op.wall === 'front' ? [a, 0] : op.wall === 'back' ? [a, W] : op.wall === 'left' ? [0, a] : [L, a];
+      const p0 = svgPoint(svg, e);
+      const grab = [p0.x - c[0], W - p0.y - c[1]];
       let last = null;
       const move = (ev) => {
         const p = svgPoint(svg, ev);
-        const drop = dropOpening(design, op, p.x, W - p.y);
+        const drop = dropOpening(design, op, p.x - grab[0], W - p.y - grab[1]);
         const next = { ...design, openings: design.openings.map((o) => (o.id === op.id ? { ...o, ...drop } : o)) };
         last = next;
-        const b = openingBox({ ...op, ...drop });
-        r.setAttribute('x', String(b.x)); r.setAttribute('y', String(b.y)); r.setAttribute('width', String(b.w)); r.setAttribute('height', String(b.h));
+        const moved = { ...op, ...drop };
+        place(shape, openingBox(moved));
+        place(r, openingBox(moved, design, Math.max(10, hitSize), hitSize));
         hooks.onPreview?.(next);
       };
       const up = () => {
