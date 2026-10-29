@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 6f (H6): does the three-constant rule beat a same-size fitted additive power law on held-out cells? (analysis of existing cells; script written before reading the result)
+
+- Why: 6e's "Next" and Milestone 5. H6 asks for a composition rule with at most three constants, fitted on a third of the grid, against a refitted scaling law.
+- Rule (3 constants): loss = L0 + a omega (H/16)^b, omega = 1/p - 1, from 6b to 6d. Baseline (5 constants), Charles et al. 2025 style additive power laws: loss = A + B H^beta + C omega^gamma, no cross term. Both fitted by least squares with a grid over the exponents. Data: the 17 rand-k and uncompressed cell means of 6a to 6c (`composition_results.txt`).
+- **H6f-i:** over 300 random splits (6 cells fitted, 11 held out), the rule's mean held-out MAPE is no more than 1.10 times the baseline's, and the 95% paired bootstrap interval of the ratio excludes values above 1.10. Refuted otherwise.
+- Prior: 60%. The rule has fewer constants but ignores the small uncompressed H dependence.
+
+### Outcome of 6f (`experiments/gpt_composition/scaling_compare.py`, `scaling_compare_results.txt`)
+- Mean held-out MAPE: rule **0.91%**, baseline **1.72%** (medians 0.57% and 1.44%); the rule is better in 288 of 300 splits. Ratio 0.535, bootstrap 95% interval [0.390, 0.720]. **H6f-i supported.**
+- Counter-result: fitting on the H = 16 slice only (3 cells, the one-axis-at-a-time design) the rule does worse than the baseline on the other 14 cells (6.75% against 2.40%): b is not identifiable when every fitted cell has H/16 = 1, so the rule needs at least two H levels in its fitting set. The random splits above guarantee two H and two omega values.
+- Limits: the bootstrap resamples splits, which share cells, so the interval is narrower than a true cell-level interval and is not independent evidence; 17 cell means from three seeds each, no seed-level resampling; one model and corpus; the rule was designed after seeing 6a to 6e on these same cells, so this is in-sample for the rule's form (only its constants are fitted on a third); the baseline is my five-constant reading of an additive law, not Charles et al.'s fitted law, which is for another range of sizes and M; the third-of-grid test spans only rand-k; M and model size are not varied, so the H6 claim at four sizes is untested.
+- Next: score on top-k cells (6e) as held-out, then the scale-up check (Milestone 6).
+
 ## 2026-10-29 · Milestone 6e (H6): does 6b's H-shape g(H) carry over to a biased compressor, plain top-k? (planned before running)
 
 - Why: 6c's "Next" (a second compressor; a parallel run did the omega-composition version as 6d). 6a to 6c found excess(H, p) close to f(p) g(H) for rand-k. If g(H) is a property of the outer loop and not of rand-k, the same g should scale a different compressor's excess. Plain top-k at keep 1/16 is already measured at H = 16 (4b, +0.0639 over uncompressed, 3 seeds).
